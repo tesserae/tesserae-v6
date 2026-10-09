@@ -35,6 +35,8 @@ behind each, are in docs/DECISIONS.md.
   `--min-content-lemmas`, `--min-run` and `--no-quality-filter`. The pairs
   table gains a `content_shared` column, which the Reader route ignores
   because it selects columns by name.
+### Sources and credits for every collection
+- New "Sources and credits" section at the top of the Text Credits page, grouped by collection (literary texts, translations, inscriptions and papyri, scholarship, places and identifiers), built from `data/sources_credits.json` through `/api/sources-credits`. It names each source with its licence, version and retrieval date, including the four document sources (EDH, papyri.info, I.Sicily, EDR), the commentary collections, the scholarship search services, Pleiades and Trismegistos. The Help paragraph on inscriptions and papyri now names the licences. Every future import adds one record to the file (rule in docs/DATA_OPERATIONS.md).
 
 ### Scholarship tab: offered by the language of the work, not of the commentary
 - `/api/scholarship/sources` listed the languages commentaries are written

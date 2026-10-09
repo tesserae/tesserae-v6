@@ -1,0 +1,222 @@
+[
+  {
+    "collection": "Literary texts",
+    "name": "Electronic sources of the literary texts (850 entries)",
+    "url": "/text-credits",
+    "licence_name": "Individual licence per source",
+    "licence_url": "/text-credits",
+    "version": "Per entry",
+    "retrieved": "Per entry",
+    "what_we_use": "Every Latin, Greek, English, Coptic, Hebrew, Persian and Urdu text in the corpus.",
+    "notes": "The table at the foot of the Text Credits page names the electronic source and print source of every work, and the licence terms of the few restricted works."
+  },
+  {
+    "collection": "Translations",
+    "name": "Aligned translations in the Reader",
+    "url": "/text-credits",
+    "licence_name": "Public domain, or open non-commercial with attribution",
+    "licence_url": "/text-credits",
+    "version": "Per work",
+    "retrieved": "Per work",
+    "what_we_use": "The English translations shown beside Latin and Greek works in the Reader's Translation tab.",
+    "notes": "The translator of each work is listed on the Text Credits page. Most are public domain. A few are used with attribution under the translator's non-commercial terms (Silius Italicus, Punica 9 to 17, A. S. Kline) and are not in our data releases."
+  },
+  {
+    "collection": "Inscriptions and papyri",
+    "name": "Epigraphic Database Heidelberg (EDH)",
+    "url": "https://edh.ub.uni-heidelberg.de/",
+    "licence_name": "Creative Commons Attribution-ShareAlike 4.0 (CC BY-SA 4.0)",
+    "licence_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "version": "github.com/epigraphic-database-heidelberg/data, commit 45f166654ab4551a1954617a0df8e56fa7724ccb",
+    "retrieved": "2026-10-07",
+    "what_we_use": "Inscription texts, dates, findspots and metadata from the EpiDoc files in inscriptions/ (the bibliography, geography and image folders were not taken).",
+    "notes": "Repository: https://github.com/epigraphic-database-heidelberg/data. Its README states: \"All data can be reused under the CC BY_SA 4.0 licence.\""
+  },
+  {
+    "collection": "Inscriptions and papyri",
+    "name": "papyri.info: Duke Databank of Documentary Papyri (DDbDP) and Heidelberg Gesamtverzeichnis (HGV)",
+    "url": "https://papyri.info/",
+    "licence_name": "Creative Commons Attribution 3.0 (CC BY 3.0), with copyright and attribution to the respective projects",
+    "licence_url": "https://creativecommons.org/licenses/by/3.0/",
+    "version": "github.com/papyri/idp.data, commit 0ee26759335668815608c0aed2efb16159116fe8",
+    "retrieved": "2026-10-07",
+    "what_we_use": "Papyrus and ostracon texts (DDbDP, 67,980 texts) and their dates, findspots and bibliography (HGV, 68,022 metadata records).",
+    "notes": "Repository: https://github.com/papyri/idp.data. Its README states: \"This data is made available under a Creative Commons Attribution 3.0 License, with copyright and attribution to the respective projects.\""
+  },
+  {
+    "collection": "Inscriptions and papyri",
+    "name": "I.Sicily: Inscriptions of Sicily",
+    "url": "https://sicily.classics.ox.ac.uk/",
+    "licence_name": "Creative Commons Attribution 4.0 (CC BY 4.0)",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "version": "github.com/ISicily/ISicily, commit 572d7f5ee1cbb62087bfed3c46ffc7cab6cb386c",
+    "retrieved": "2026-10-07",
+    "what_we_use": "Inscription texts and metadata from the inscriptions/ folder (about 1,000 files at the time of retrieval).",
+    "notes": "Repository: https://github.com/ISicily/ISicily. The project states: \"All data in I.Sicily is available for download and re-use under a CC-BY 4.0 licence.\" The repository is under continuous revision."
+  },
+  {
+    "collection": "Inscriptions and papyri",
+    "name": "Epigraphic Database Roma (EDR)",
+    "url": "https://doi.org/10.5281/zenodo.18468635",
+    "licence_name": "Creative Commons Attribution 4.0 (CC BY 4.0), the licence of the Zenodo deposit",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "version": "Zenodo deposit, DOI 10.5281/zenodo.18468635 (export of 2026-02-03)",
+    "retrieved": "2026-10-07",
+    "what_we_use": "Inscription texts and metadata from the full export (115,591 XML files).",
+    "notes": "The licence is the Zenodo record's. The TEI headers inside the files still carry the older EDR wording \"Reserved Rights - Free access via Epigraphic Database Roma\"; the deposit licence governs this export. Record page: https://zenodo.org/records/18468635."
+  },
+  {
+    "collection": "Places and identifiers",
+    "name": "Pleiades: a community-built gazetteer of ancient places",
+    "url": "https://pleiades.stoa.org/",
+    "licence_name": "Creative Commons Attribution 3.0 (CC BY 3.0)",
+    "licence_url": "https://creativecommons.org/licenses/by/3.0/",
+    "version": "Pleiades places dump from https://pleiades.stoa.org/downloads (dump date not recorded in the repository)",
+    "retrieved": "Not recorded",
+    "what_we_use": "Place identifiers and names for document findspots, and the link from each document to its Pleiades page. I.Sicily and papyri.info/HGV link to Pleiades directly. The Help page also names the Pleiades gazetteer as one source of the Greek-Latin name pairs.",
+    "notes": "The downloads page states: \"Sharing and remixing permitted under terms of the Creative Commons Attribution 3.0 License (cc-by).\""
+  },
+  {
+    "collection": "Places and identifiers",
+    "name": "Trismegistos",
+    "url": "https://www.trismegistos.org/",
+    "licence_name": "No Trismegistos data files are copied. Only place identifiers are used, as cited inside EDH files (CC BY-SA 4.0) and the Pleiades dump (CC BY 3.0).",
+    "licence_url": "https://www.trismegistos.org/",
+    "version": "Identifiers only",
+    "retrieved": "2026-10-07",
+    "what_we_use": "Trismegistos place numbers, read from EDH's own files, to join an EDH or EDR findspot to a Pleiades place (scripts/documents/places_crosswalk.py).",
+    "notes": "Trismegistos terms of use could not be read when this record was written (the site returned an access check to our automated request), so no Trismegistos licence is claimed."
+  },
+  {
+    "collection": "Scholarship",
+    "name": "Commentaries from the Perseus Digital Library (open-source TEI distribution)",
+    "url": "http://www.perseus.tufts.edu/hopper/opensource/download",
+    "licence_name": "Creative Commons Attribution-ShareAlike 3.0 United States (CC BY-SA 3.0 US)",
+    "licence_url": "https://creativecommons.org/licenses/by-sa/3.0/us/",
+    "version": "Each commentary file records its own source URL and commit",
+    "retrieved": "Not recorded",
+    "what_we_use": "Commentary notes shown in the Reader's Scholarship tab: Servius on Vergil; Conington and Nettleship on the Aeneid; the anonymous commentary on Ovid's Heroides; Simmons on Metamorphoses XIII-XIV; Donkin on Cicero Pro Roscio Amerino; Merrill on Catullus; Shorey on Horace; Gildersleeve on Pindar; Monro on the Odyssey XIII-XXIV; Merry and Riddell on the Odyssey I-XII; Seymour on the Iliad I-VI; Leaf on the Iliad; Allen and Sikes on the Homeric Hymns; Jebb on Sophocles Ajax; Cope on Aristotle's Rhetoric; How and Wells on Herodotus; Goodwin on Demosthenes On the Crown; Paley and Sandys on Demosthenes private orations; Sharpley on the Olynthiacs.",
+    "notes": "Taken through the CLTK mirrors https://github.com/cltk/lat_text_perseus and https://github.com/cltk/grc_text_perseus. Because the licence is share-alike, these notes stay under CC BY-SA 3.0 US."
+  },
+  {
+    "collection": "Scholarship",
+    "name": "Commentaries from the Internet Archive (public-domain editions)",
+    "url": "https://archive.org/",
+    "licence_name": "Public domain (published before 1930; the Variorum Spenser volumes are recorded as copyright not renewed)",
+    "licence_url": "https://archive.org/about/terms.php",
+    "version": "Each commentary file records its own source URL and commit",
+    "retrieved": "Not recorded",
+    "what_we_use": "Notes from Greenlaw, Osgood and Padelford's Variorum Spenser; A. W. Verity on Milton; David Masson on Milton; E. de Selincourt on Keats and on Wordsworth's Prelude; G. W. Kitchin on The Faerie Queene; T. E. Page on Vergil; Papillon and Haigh on Vergil; W. Aldis Wright and W. G. Clark on Shakespeare.",
+    "notes": "The Internet Archive terms page is linked as the general terms of the host. The status of each edition is recorded in its file."
+  },
+  {
+    "collection": "Scholarship",
+    "name": "Commentaries served by Sefaria",
+    "url": "https://www.sefaria.org/",
+    "licence_name": "As stated by Sefaria for each text (Public Domain, CC0, CC-BY or CC-BY-NC)",
+    "licence_url": "https://www.sefaria.org/terms",
+    "version": "Each commentary file records its own source URL and commit",
+    "retrieved": "Not recorded",
+    "what_we_use": "Rashi, Radak, Ramban, Ralbag, Sforno, Malbim, Ibn Ezra, Metzudat David and Metzudat Zion on the Hebrew Bible, in Hebrew and English as Sefaria serves them. The Scholarship tab also links the Sefaria commentary page for a verse.",
+    "notes": "Each file records Sefaria's licence for the Hebrew and for the translation. Where a text is CC-BY-NC it is used for non-commercial purposes only. The Sefaria terms page returned an access error to our automated request; the address is Sefaria's published terms page and is not checked."
+  },
+  {
+    "collection": "Scholarship",
+    "name": "Matthew Henry, Commentary on the Whole Bible (Christian Classics Ethereal Library edition)",
+    "url": "https://ccel.org/ccel/henry/mhc2.xml",
+    "licence_name": "Public domain (as recorded by CCEL)",
+    "licence_url": "https://ccel.org/",
+    "version": "Each commentary file records its own source URL and commit",
+    "retrieved": "Not recorded",
+    "what_we_use": "Commentary notes on all 66 books of the Bible.",
+    "notes": "Matthew Henry, 1706-1721."
+  },
+  {
+    "collection": "Scholarship",
+    "name": "JSTOR Early Journal Content, via the Internet Archive",
+    "url": "https://archive.org/",
+    "licence_name": "Pre-1923 journal articles released by JSTOR as Early Journal Content",
+    "licence_url": "https://archive.org/about/terms.php",
+    "version": "Live service, queried at request time",
+    "retrieved": "Not applicable",
+    "what_we_use": "The site's own offline index of passage citations in journals from before 1923. The Scholarship tab shows the citing article and where it cites.",
+    "notes": "Only citations (article, passage) are shown, never the article text. Index built offline into data/citation_index/citations.db. The JSTOR Early Journal Content terms page could not be checked at the address we tried, so its wording is not quoted."
+  },
+  {
+    "collection": "Scholarship",
+    "name": "OpenAlex",
+    "url": "https://openalex.org/",
+    "licence_name": "Free API; see the service's own terms",
+    "licence_url": "https://help.openalex.org/",
+    "version": "Live service, queried at request time",
+    "retrieved": "Not applicable",
+    "what_we_use": "Articles, chapters and books that cite a passage, searched by title and abstract.",
+    "notes": "We did not verify the licence wording when writing this record."
+  },
+  {
+    "collection": "Scholarship",
+    "name": "Crossref",
+    "url": "https://www.crossref.org/",
+    "licence_name": "Metadata largely not subject to copyright and free to use for any purpose; abstracts may be copyrighted",
+    "licence_url": "https://www.crossref.org/documentation/retrieve-metadata/rest-api/",
+    "version": "Live service, queried at request time",
+    "retrieved": "Not applicable",
+    "what_we_use": "Article and book metadata (title, authors, DOI) searched by title and abstract.",
+    "notes": "Wording from the Crossref REST API page: \"almost none of the metadata is subject to copyright, and you may use it for any purpose.\""
+  },
+  {
+    "collection": "Scholarship",
+    "name": "Semantic Scholar Academic Graph API",
+    "url": "https://www.semanticscholar.org/",
+    "licence_name": "Semantic Scholar API License Agreement",
+    "licence_url": "https://www.semanticscholar.org/product/api/license",
+    "version": "Live service, queried at request time",
+    "retrieved": "Not applicable",
+    "what_we_use": "Sentences from open-access papers that mention a passage (snippet search).",
+    "notes": ""
+  },
+  {
+    "collection": "Scholarship",
+    "name": "CORE",
+    "url": "https://core.ac.uk/",
+    "licence_name": "CORE Terms and Conditions",
+    "licence_url": "https://core.ac.uk/terms",
+    "version": "Live service, queried at request time",
+    "retrieved": "Not applicable",
+    "what_we_use": "Sentences from open-access full texts that mention a passage.",
+    "notes": ""
+  },
+  {
+    "collection": "Scholarship",
+    "name": "Unpaywall",
+    "url": "https://unpaywall.org/",
+    "licence_name": "Free API; see the service's own terms",
+    "licence_url": "https://unpaywall.org/products/api",
+    "version": "Live service, queried at request time",
+    "retrieved": "Not applicable",
+    "what_we_use": "The legal open-access copy of a result, when one exists.",
+    "notes": "We did not verify the licence wording when writing this record."
+  },
+  {
+    "collection": "Scholarship",
+    "name": "Google Books API",
+    "url": "https://books.google.com/",
+    "licence_name": "Google Books API Terms of Service",
+    "licence_url": "https://developers.google.com/books/terms",
+    "version": "Live service, queried at request time",
+    "retrieved": "Not applicable",
+    "what_we_use": "Book pages that cite a passage (title, page link, snippet as the API returns it).",
+    "notes": ""
+  },
+  {
+    "collection": "Scholarship",
+    "name": "HathiTrust Full-Text Search",
+    "url": "https://babel.hathitrust.org/cgi/ls",
+    "licence_name": "HathiTrust terms of use",
+    "licence_url": "https://www.hathitrust.org/",
+    "version": "Live service, queried at request time",
+    "retrieved": "Not applicable",
+    "what_we_use": "A link that runs the same citation search in HathiTrust's book scans. We send the search; no HathiTrust data is copied or stored.",
+    "notes": "The HathiTrust terms page returned an access error to our automated request, so the linked address is its home page."
+  }
+]
