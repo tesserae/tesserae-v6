@@ -1,7 +1,9 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { rememberLanguage } from '../../utils/languagePreference';
 import StartLanguageControl from './StartLanguageControl';
-import useDocumentsTrial from '../../hooks/useDocumentsTrial';
+import useCollections from '../../hooks/useCollections';
+import { PAGE_NEEDS } from '../../collections/collectionsConfig';
+import CollectionsControl from './CollectionsControl';
 
 /** Tells a horizontally scrolling strip whether there is more to its right.
  *
@@ -87,7 +89,7 @@ const Navigation = ({
   // the visit) and the server switch together gate the "Inscriptions &
   // Papyri" tab -- the same two-part gate LineSearch.jsx's own documents
   // control and CorpusBrowser's Documents tab use.
-  const documentsTrial = useDocumentsTrial();
+  const { anyOn } = useCollections();
   const [documentsEnabled, setDocumentsEnabled] = useState(false);
 
   useEffect(() => {
@@ -103,7 +105,7 @@ const Navigation = ({
       })
       .catch(() => {}); // fall back to defaults
   }, []);
-  const showInscriptionsPapyri = documentsTrial && documentsEnabled;
+  const showInscriptionsPapyri = anyOn(PAGE_NEEDS['inscriptions-papyri']) && documentsEnabled;
   const handleLanguageClick = (tabCode) => {
     if (onLanguageReset) {
       onLanguageReset();
@@ -187,6 +189,9 @@ const Navigation = ({
                 Downloads
               </button>
             )}
+          </div>
+          <div className="flex justify-end py-1 sm:py-0">
+            <CollectionsControl />
           </div>
         </div>
         

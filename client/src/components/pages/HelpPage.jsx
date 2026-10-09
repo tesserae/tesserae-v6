@@ -1869,7 +1869,14 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
             <div className="prose max-w-none">
               <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Inscriptions &amp; Papyri</h3>
               <p className="text-gray-700 mb-4">
-                A trial, not yet offered to every visitor. It is a page for the documentary
+                Collections decides what you see. The Collections button at the right of the main
+                menu lists the source collections (literature, inscriptions, papyri, scholarship,
+                and coins and objects when they arrive) with a switch for each, and four profiles
+                that set the switches together: Literary, Historical, Archaeological and
+                Everything. Your choice is remembered in this browser. This page and its menu entry
+                appear when Inscriptions or Papyri is on, and the Scholarship tab in the Reader
+                appears when Scholarship is on. Literary, the setting a new visitor starts with,
+                shows the literary texts only. This is a page for the documentary
                 corpus, Latin and Greek inscriptions and papyri, searched the same way as the
                 literary texts but shown with the markup and credit a documentary source needs. It opens
                 already set to search the documents collection, with an option to search

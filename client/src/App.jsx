@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { captureUrlOverrides } from './collections/collectionsStore';
 import { languageName } from './utils/languageNames';
 import { Header, Navigation } from './components/layout';
 import { SearchModeToggle, TextSelector, SearchSettings, SearchResults, LineSearch, CrossLingualSearch, WildcardSearch, SavedSearches, CorpusSearchResults, RarePairsSettings } from './components/search';
@@ -133,9 +134,7 @@ function App() {
   // the app's own first load, the flag holds for the visit regardless of
   // which page set it or which page is opened next.
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('documents') === '1') setSessionValue('documents_trial', '1');
-    if (params.get('scholarship') === '1') setSessionValue('scholarship_tab', '1');
+    captureUrlOverrides();
   }, []);
   const [adminSessionActive, setAdminSessionActive] = useState(false);
   const [adminSessionChecked, setAdminSessionChecked] = useState(false);

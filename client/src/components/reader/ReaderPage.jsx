@@ -1,11 +1,11 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import useDocumentsTrial from '../../hooks/useDocumentsTrial';
 import { cssRef } from './refId';
 import ReaderHeader from './ReaderHeader';
 import ReaderNav, { ReaderEndNav, ReaderFloatNav, sectionsFor, bookFileFor } from './ReaderNav';
 import SelectionToolbar, { scopeFor } from './SelectionToolbar';
 import { useCorpus } from '../../hooks';
 import { LoadingSpinner } from '../common';
-import { getSessionValue, setSessionValue } from '../../utils/storage';
 import TextPane from './TextPane';
 import ConnectionGutter from './ConnectionGutter';
 import ResultsPanel, { shortRef as shortLocus } from './ResultsPanel';
@@ -145,11 +145,7 @@ export default function ReaderPage() {
   // read once here too so TextPane's gutter mark can decide whether to
   // show the n_documents/n_possible_documents counts the marks fetch below
   // already carries whenever the server has TESSERAE_DOCUMENTS=1 on.
-  const [documentsTrial] = useState(() => {
-    const fromUrl = new URLSearchParams(window.location.search).get('documents') === '1';
-    if (fromUrl) setSessionValue('documents_trial', '1');
-    return fromUrl || getSessionValue('documents_trial', '0') === '1';
-  });
+  const documentsTrial = useDocumentsTrial();
   useEffect(() => {
     if (!work) { setReuseMarks({}); return undefined; }
     let cancelled = false;

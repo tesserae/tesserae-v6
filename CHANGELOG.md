@@ -29,6 +29,15 @@ behind each, are in docs/DECISIONS.md.
 - Descriptions, provenance rows and a Dio date entry added. Production
   steps are in docs/DATA_OPERATIONS.md under the 2026-10-09 entry for these
   two works. Nothing has been run on production.
+### Collections control replaces the trial switches
+- A "Collections" button in the main menu turns literature, inscriptions,
+  papyri, scholarship (and later coins and objects) on and off and sets four
+  profiles (Literary, Historical, Archaeological, Everything). The choice is
+  saved in the browser; Literary is the default and matches the site as it
+  was. The Reader's Scholarship tab, the Reuse tab's inscriptions and
+  papyri group, the Inscriptions & Papyri page and menu entry, and the
+  Browse Corpus documents view follow it. `?documents=1` and
+  `?scholarship=1` still work. See docs/COLLECTIONS.md.
 
 ### Scholarship tab: Semantic Scholar snippets read in their real shape, one source's failure no longer takes the tab down
 - The snippet endpoint returns authors as name strings and carries no

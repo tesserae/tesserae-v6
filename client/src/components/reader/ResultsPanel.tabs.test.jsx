@@ -97,3 +97,16 @@ describe('the Scholarship tab, trial switch plus language gating', () => {
     expect(screen.queryByRole('button', { name: 'Scholarship' })).toBeNull();
   });
 });
+
+describe('tab gating by Collections (saved choice, no URL switch)', () => {
+  it('shows the Scholarship tab only when Scholarship is on in the saved choice', async () => {
+    global.fetch = vi.fn((url) => Promise.resolve({
+      ok: true,
+      json: () => Promise.resolve(String(url).startsWith('/api/scholarship/sources') ? { languages: ['la'] } : {}),
+    }));
+    window.localStorage.setItem('tesserae_collections', JSON.stringify({ on: { scholarship: true } }));
+    mount({ language: 'la' });
+    expect(await screen.findByRole('button', { name: 'Scholarship' })).toBeTruthy();
+    window.localStorage.clear();
+  });
+});

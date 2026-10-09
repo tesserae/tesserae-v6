@@ -1,22 +1,13 @@
-import { useState } from 'react';
-import { getSessionValue, setSessionValue } from '../utils/storage';
+import useCollections from './useCollections';
+import { DOCUMENT_COLLECTIONS } from '../collections/collectionsConfig';
 
 /**
- * The documents trial flag: `?documents=1` in the URL switches it on and
- * remembers that for the rest of the visit (sessionStorage), the same
- * pattern LineSearch.jsx, CorpusBrowser.jsx and ReaderPage.jsx each wrote
- * for themselves. New callers (Navigation.jsx, the Inscriptions & Papyri
- * page) use this shared hook instead of a fourth copy.
- *
- * This does not check the SERVER switch (`documents_enabled` from
- * /api/languages) -- callers that need that still fetch it themselves, as
- * LineSearch.jsx's `documentsEnabled` state does.
+ * Whether the documents collection (inscriptions and papyri) is on for this
+ * visitor. Kept under its old name for existing callers; the answer now
+ * comes from Collections, where ?documents=1 still switches it on for the
+ * visit. It does not check the SERVER switch (`documents_enabled` from
+ * /api/languages) -- callers that need that fetch it themselves.
  */
 export default function useDocumentsTrial() {
-  const [documentsTrial] = useState(() => {
-    const fromUrl = new URLSearchParams(window.location.search).get('documents') === '1';
-    if (fromUrl) setSessionValue('documents_trial', '1');
-    return fromUrl || getSessionValue('documents_trial', '0') === '1';
-  });
-  return documentsTrial;
+  return useCollections().anyOn(DOCUMENT_COLLECTIONS);
 }

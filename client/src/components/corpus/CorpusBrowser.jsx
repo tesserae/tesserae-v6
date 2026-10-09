@@ -1,9 +1,10 @@
 import { useState, useEffect, useMemo } from 'react';
+import useCollections from '../../hooks/useCollections';
+import useDocumentsTrial from '../../hooks/useDocumentsTrial';
 import { LoadingSpinner } from '../common';
 import { baseWorkId, coverageCounts, fetchCoveredWorks } from '../../utils/passageCoverage';
 import { languageName } from '../../utils/languageNames';
 import { ERA_ORDER_BY_LANG, eraRank } from '../../utils/eras';
-import { getSessionValue, setSessionValue } from '../../utils/storage';
 import DocumentsBrowser from './DocumentsBrowser';
 
 // Languages the corpus tabs offer, read from the URL's `language` param so
@@ -55,14 +56,15 @@ export default function CorpusBrowser() {
   // visit (same pattern LineSearch.jsx uses for its own documents control),
   // and the tab only appears once /api/languages also confirms the server
   // has TESSERAE_DOCUMENTS=1 set.
-  const [documentsTrial] = useState(() => {
-    const fromUrl = new URLSearchParams(window.location.search).get('documents') === '1';
-    if (fromUrl) setSessionValue('documents_trial', '1');
-    return fromUrl || getSessionValue('documents_trial', '0') === '1';
-  });
+  const documentsTrial = useDocumentsTrial();
   const [documentsEnabled, setDocumentsEnabled] = useState(false);
+  // The Archaeological profile opens Browse on the documents; a ?view=
+  // link always wins.
+  const { layout: collectionsLayout } = useCollections();
   const [activeView, setActiveView] = useState(() => (
-    new URLSearchParams(window.location.search).get('view') === 'documents' ? 'documents' : 'language'
+    new URLSearchParams(window.location.search).get('view') === 'documents'
+      || (collectionsLayout.browseView === 'documents' && documentsTrial)
+      ? 'documents' : 'language'
   ));
 
   // Every language the site knows; the served subset comes from
