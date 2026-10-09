@@ -9,6 +9,8 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-09
 
+### Run your own Tesserae: a public data bundle builder and install recipe (draft)
+- `scripts/ops/build_public_bundle.sh --core` and `--full` build a redistributable data bundle (tar.zst, MANIFEST.tsv with a hash and licence source for every file, LICENSES.md) from the production data. What it leaves out is in `scripts/ops/public_bundle_exclusions.json`, read by both the script and `tests/test_public_bundle.py`: Persian, Urdu and Arabic, Italian, Old French and Middle High German, restricted texts, translations whose licence is not public domain or open, commentaries, scholarship caches, the citation index, keys, the database dump and the trained reader. The full bundle filters the passage index, names index and connections map to the bundled languages with `scripts/ops/filter_passage_index.py`. `docs/RUN_YOUR_OWN.md` is the install recipe. Nothing is published yet.
 ### Scholarship tab: an expired CORE key no longer switches CORE off
 - On a 401 or 403 the full-text search retries CORE once without the key, paced to CORE's keyless limit across workers, and says the key needs renewing while results keep coming. A 429 waits and retries once. `scripts/ops/check_scholarship_keys.py` and timer templates in `scripts/ops/systemd/` check both keys weekly.
 ### Xenophon, Hellenica and Cassius Dio, Roman History 36 to 55, added with English translations
