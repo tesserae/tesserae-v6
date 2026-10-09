@@ -9,6 +9,29 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-08
 
+### Reader "Shared names": a Greek name no longer cut short by a misplaced accent
+- `window_texts.db` stores some accents and breathings as combining marks
+  separate from the letter they belong to, and sometimes standing BEFORE
+  that letter rather than after it. The names-panel tokenizer treated any
+  combining mark as the end of a word, so a name cut short at the first
+  such mark: "Αναυ" for the river Anauros, "Ηρακλη", "Ποσειδα", "Ελλα",
+  "Υψιπυ". `scripts/corpus/build_window_names.py`'s la/grc/en pass now
+  normalizes each window to NFC before tokenizing, moving a leading
+  combining mark onto the letter it belongs to first so NFC can compose
+  the two, and its token regex continues through any combining mark NFC
+  had no precomposed form to fold into. A full copy of production's
+  `window_texts.db` rebuilt both ways: 61,048 of 74,365 named Greek
+  windows changed (15,587 Greek name keys before, 17,712 after), 1,517 of
+  130,342 named Latin windows changed (quoted Greek inside a Latin text),
+  and English, Hebrew, Coptic, Persian and Urdu were byte-for-byte
+  unchanged. The generic mark-repositioning rule was tried over Hebrew,
+  Coptic, Persian and Urdu too and reverted: their own tokenizers already
+  include each script's combining-mark ranges in the word regex, so none
+  of them had this truncation, and the repositioning rule actively broke
+  one Hebrew case (the traditional free-standing "Jerusalem" hiriq) by
+  moving it across a letter boundary it does not belong on either side
+  of. Tests added (`tests/test_build_window_names_marks.py`).
+
 ### Reader header and selection bar: a citation for the open work, not a split abbreviation
 - The header and selection toolbar read "A, R 1.1" for Apollonius Rhodius's
   Argonautica, because the .tess line tag ("<A.R. 1.1>") uses an
