@@ -5,6 +5,7 @@ import ReaderNav, { ReaderEndNav, ReaderFloatNav, sectionsFor, bookFileFor } fro
 import SelectionToolbar, { scopeFor } from './SelectionToolbar';
 import { useCorpus } from '../../hooks';
 import { LoadingSpinner } from '../common';
+import { getSessionValue, setSessionValue } from '../../utils/storage';
 import TextPane from './TextPane';
 import ConnectionGutter from './ConnectionGutter';
 import ResultsPanel, { shortRef as shortLocus } from './ResultsPanel';
@@ -51,7 +52,7 @@ const PREFERRED_WORK = {
 export default function ReaderPage() {
   // No work named in the address: leave it empty and let the preferred-work
   // effect below choose by language. Defaulting to the Aeneid here opened
-  // Latin under an Arabic address (/read?lang=ar) (NC, 2026-09-07).
+  // Latin under an Arabic address (/read?lang=ar) (bug report, 2026-09-07).
   const [work, setWork] = useState(() => paramOr('work', ''));
   // A link that names a work keeps its own language (or the default); a bare
   // /read opens in the reader's start language (utils/languagePreference.js).
@@ -81,9 +82,9 @@ export default function ReaderPage() {
   // Reader lands on the passage instead of the top of the other work.
   const [wantedRef, setWantedRef] = useState(() => paramOr('ref', '') || paramOr('at', ''));
   const [wantedRefEnd, setWantedRefEnd] = useState(() => paramOr('refEnd', ''));
-  // Where a result was opened FROM, for the "back to" banner (NC 2026-10-07:
-  // from Curtius to the Alexandreis through Similar, "there was no back button
-  // to go back to Curtius Rufus").
+  // Where a result was opened FROM, for the "back to" banner (bug report,
+  // 2026-10-07: from Curtius to the Alexandreis through Similar, there was
+  // no back button to return to Curtius Rufus).
   const [backTo, setBackTo] = useState(null);
   const [wantedTab] = useState(() => paramOr('tab', ''));
   // Which language is the READING column. 'source' is the classical page;
@@ -139,6 +140,16 @@ export default function ReaderPage() {
   // rare-single-ngram rule alone) -- see backend/reuse_table.py marks().
   // TextPane decides which mark style to draw from the two counts.
   const [reuseMarks, setReuseMarks] = useState({});
+  // Documentary reuse (2026-10-08): the same trial flag ResultsPanel.jsx
+  // and LineSearch.jsx use (?documents=1, remembered in sessionStorage),
+  // read once here too so TextPane's gutter mark can decide whether to
+  // show the n_documents/n_possible_documents counts the marks fetch below
+  // already carries whenever the server has TESSERAE_DOCUMENTS=1 on.
+  const [documentsTrial] = useState(() => {
+    const fromUrl = new URLSearchParams(window.location.search).get('documents') === '1';
+    if (fromUrl) setSessionValue('documents_trial', '1');
+    return fromUrl || getSessionValue('documents_trial', '0') === '1';
+  });
   useEffect(() => {
     if (!work) { setReuseMarks({}); return undefined; }
     let cancelled = false;
@@ -149,7 +160,10 @@ export default function ReaderPage() {
         if (cancelled) return;
         const map = {};
         (d.lines || []).forEach((l) => {
-          map[l.ref] = { n_works: l.n_works, n_possible_works: l.n_possible_works };
+          map[l.ref] = {
+            n_works: l.n_works, n_possible_works: l.n_possible_works,
+            n_documents: l.n_documents, n_possible_documents: l.n_possible_documents,
+          };
         });
         setReuseMarks(map);
       })
@@ -731,6 +745,7 @@ export default function ReaderPage() {
                 language={language}
                 selection={selection}
                 reuseMarks={reuseMarks}
+                documentsTrial={documentsTrial}
                 onReuseClick={(u) => {
                   const i = units.findIndex((x) => x.ref === u.ref);
                   const sel = { startIdx: i, endIdx: i, refStart: u.ref,

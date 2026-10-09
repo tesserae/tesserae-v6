@@ -67,6 +67,100 @@ removal procedure: dry run by default, reporting what it would take out of
 the texts, the lemma cache, the inverted index and the passage index before
 anything is deleted, with a dated backup kept of each file it removes.
 
+## 2026-10-08 Documentary reuse table built in dev; not yet installed on production
+- What: `scripts/reuse/build_documents_reuse_table.py` is new (feat/reuse-documents),
+  pairing every literary line against the documents collection (inscriptions,
+  papyri) with the same word-triple containment logic as the literary reuse
+  table. Writes `cache/reuse_pairs/<lang>_documents.db`, read by
+  `backend/reuse_documents.py` and served by the existing `GET /api/reuse/line`
+  and `GET /api/reuse/marks` routes (an additional `documents`/`n_documents`
+  field, only under `TESSERAE_DOCUMENTS=1`, which is already set on
+  production). See `docs/DECISIONS.md` for the formula-exclusion threshold
+  and tiers.
+- Built against the DEV checkout's own data (not copied from production;
+  this checkout already carries `data/inverted_index/{la,grc}_documents_index.db`,
+  `cache/lemmas/{la,grc}/` and `data/documents/metadata.db` from earlier
+  documents-stage work), each inside `~/bin/tess-job` with a 12G cap:
+  - Latin: `tess-job reuse-documents-la 12 venv/bin/python3
+    scripts/reuse/build_documents_reuse_table.py --language la
+    --documents-sidecar-root ~/tesserae-docs/stage3/texts_documents`
+    (the sidecar override is a dev-only path -- see below). 453,830
+    literary lines against 411,466 documentary lines; 5,414 pairs kept
+    (280 strict, 5,134 possible/rare-single-ngram) out of 632,199
+    candidates, 605,758 dropped as all-formula. Peak memory 11.0 GB
+    (`systemd-run`'s own "memory peak" figure), wall time 9m8s (548s).
+    Output `la_documents.db`, 1.14 MB.
+  - Greek: same command with `--language grc`. Ran in 159s, peak well
+    under the cap, but found 0 literary works to index: this DEV
+    checkout's Greek lemma cache (`cache/lemmas/grc/`) holds only 262
+    files against 1,269 `texts/grc/*.tess` sources, so `discover_corpus`
+    skipped all of them as "missing cache" (0 kept, 901 missing, 368
+    `.part.` files skipped) and the Greek output db has 0 pairs. This
+    matches CLAUDE.md's own note that the Greek LITERARY reuse table
+    build "never finished" here (2026-09-19, 11+ GB and incomplete) --
+    the same underlying gap, not a bug in this script. Production's
+    Greek lemma cache should be checked before rerunning there; if it is
+    materially more complete than this checkout's 262 files, the Greek
+    documentary table is worth rebuilding on production directly rather
+    than copying this (empty) result.
+  - The `--documents-sidecar-root` override points at this MACHINE's raw
+    stage-3 tree (`~/tesserae-docs/stage3/texts_documents/<lang>/
+    <bucket>.restored_words.jsonl`) because this dev checkout's own
+    `data/documents/restored/` was never populated (only the indexes and
+    metadata.db were copied here for the documents-search work). The
+    script's actual DEFAULT for `--documents-sidecar-root` is
+    `data/documents/restored/` -- the same directory and filenames
+    `backend/documents.py`'s own sidecar reader uses and which
+    PRODUCTION already has populated (264 files, see the "Documentary
+    texts in the corpus-wide phrase search" entry below) -- so the
+    production run below needs NO override at all.
+- Samples checked against the Latin output (`cache/reuse_pairs/la_documents.db`):
+  - Aeneid 1.1 ("Arma virumque cano, Troiae qui primus ab oris"): a
+    verbatim Pompeii-region graffito, `edr:aEDR175604` ("Arma virumque
+    cano, Troiae qui primus ab oris", shared 16, jaccard 1.0, strict),
+    and a longer graffito quoting lines 1-3 together, `edh:HD054282`
+    ("Arma virumque cano Troiae qui primus ab oris Italiam fato profugus
+    Lavinaque venit", shared 16, jaccard 0.52, strict). KNOWN GAP: the
+    Pompeii fullers' parody ("Fullones ululamque cano, non arma
+    virumque", `merged:249860`) is NOT found -- same three words, reverse
+    order, no shared trigram; see docs/DECISIONS.md.
+  - Aeneid 2.1 ("Conticuere omnes intentique ora tenebant"): two Pompeii-
+    region graffiti opening with "Conticuere omnes" (`edh:HD046219`,
+    `edr:aEDR159670`), both tier 'possible' (shared=1) -- the opening
+    two words alone, not enough to reach the strict thresholds.
+  - Aeneid 1.192 ("nec prius absistit, quam septem ingentia victor"):
+    verbatim in `edr:aEDR159691` (shared 13, jaccard 0.59, strict).
+  - Aeneid 6.429 / 11.28 ("abstulit atra dies et funere mersit acerbo" --
+    Vergil's own line repeated twice in the poem, of someone dying before
+    their time): verbatim, restored-text-free, in a funerary inscription,
+    `edr:aEDR166892 11` (shared 13, jaccard 1.0, strict) -- a real
+    epitaph borrowing Vergil's line about an untimely death.
+  - Vulgate Psalms 69.2 ("Deus in adiutorium meum intende, Domine ad
+    adiuvandum me festina" -- "O God, make speed to save me") quoted
+    VERBATIM in `edh:HD047192` (shared 22, jaccard 1.0, strict) -- the
+    opening of the psalm set to stone.
+- Production install (not yet done):
+  1. Copy `cache/reuse_pairs/la_documents.db` and `grc_documents.db`
+     (once both are built on production's own data) into production's
+     `cache/reuse_pairs/` -- the SAME directory the literary `la.db`/
+     `grc.db` already live in; the `_documents` suffix keeps them apart.
+  2. Or, build directly on production (its documents indexes, lemma
+     caches and `data/documents/restored/` are already in place, per the
+     "Documentary texts..." and "Documents trial opened" entries below):
+     from the production root, inside `~/bin/tess-job`,
+     `tess-job reuse-documents-la 12 venv/bin/python3
+     scripts/reuse/build_documents_reuse_table.py --language la`
+     (no overrides needed -- every default path already matches
+     production's own layout), then the same for `--language grc`.
+  3. No env change and no reload needed: `TESSERAE_DOCUMENTS=1` is
+     already set on production (see "Documents trial opened" below), and
+     `backend/blueprints/reuse.py` checks for the documents db file at
+     request time, not at process start.
+  4. Verify: `GET /api/reuse/line?work=vergil.aeneid&ref=verg.%20aen.%201.1&language=la`
+     carries a `documents` field with `edr:aEDR175604`; the existing
+     reference tests in `tests/search_reference_tests.md` still pass
+     (this change adds a field, it does not touch the literary response).
+
 ## 2026-10-08 Rumi, Masnavi opening: Nicholson's translation installed (about 15:50 EDT)
 - What: `fa__rumi.masnavi.part.1.json` (built by the aligner in #703) copied
   into production's `data/translations/` and the app reloaded. It covers

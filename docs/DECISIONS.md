@@ -8,6 +8,71 @@ history (index builds, cache rebuilds, corpus changes) is in
 `DATA_OPERATIONS.md`; per-release changes are in `../CHANGELOG.md`.
 
 
+## 2026-10-08: documentary reuse table, formula exclusion threshold and tiers
+- Scope: a cross-collection table per language (`cache/reuse_pairs/<lang>_documents.db`,
+  `scripts/reuse/build_documents_reuse_table.py`) pairing each literary
+  line against the documents collection, with the SAME word-triple
+  containment logic and thresholds as the literary table
+  (`scripts/reuse/build_reuse_table.py`): `min_shared=2`/`min_jaccard=0.15`,
+  `min_shared_override=4`/`min_containment=0.5`, and the rare-single-ngram
+  rule (`rare_max_df=20`/`rare_min_containment=0.06`). Kept identical
+  rather than re-tuned for documents, since the question the thresholds
+  answer (is a shared trigram shape strong enough evidence of reuse) does
+  not change with what the other side of the pair is; `shared==1` is the
+  tier 'possible', everything else kept is 'strict' -- read-time only, no
+  stored tier column, the same derivation `backend/reuse_table.line()`
+  already uses.
+- Formula exclusion threshold: the literary table excludes a pair whose
+  shared n-grams are all built from commonplace LEMMAS (a corpus-wide
+  lemma-frequency ratio). Documents have no equivalent "commonplace lemma"
+  signal worth computing fresh -- `backend/app.py`'s stage 3b-3 decision
+  above already measured and shipped exactly this question for the
+  documents collection itself ("is a shared word a boilerplate formula or
+  a genuine parallel, by how many documents use it") and found a three-
+  order-of-magnitude gap between the smallest formula (3,535 documents)
+  and the largest genuine parallel (19): `DOCUMENTS_FORMULA_DEFAULT_N=100`.
+  Reused verbatim as `DOCUMENT_FORMULA_MAX_DOCS` here rather than
+  re-measured, plus `data/documents/formula_words_<lang>.txt` (the hand-
+  reviewed funerary/honorific/legal/dating word lists already shipped for
+  the documents-collection search's "hide stock formulas" control). A
+  shared n-gram is formula-only when every one of its three words is
+  either on that list or a lemma used by more than 100 individual
+  documents (computed once per build from the documents index's own
+  `postings` table, grouping by the ref's owning doc_id the same way
+  `backend.documents.doc_for` does -- NOT from the documents index's
+  existing `lemma_doc_freq` table, which counts frequency across the 160
+  bucket FILES, not the ~179K individual documents, and so cannot answer
+  "how many documents" at all). A pair whose shared n-grams are ALL
+  formula-only is dropped entirely, and the rare-single-ngram rule's one
+  contributing n-gram is checked the same way, mirroring the literary
+  table's `drop_all_commonplace`/`commonplace_hashes` gate.
+- Measured against the dev checkout's own Latin data: 605,758 of 632,199
+  candidate cross-collection pairs (96%) were dropped as all-formula,
+  leaving 5,414 kept pairs, only 280 of them strict (shared>=2) -- most
+  genuine literary-to-document reuse this table finds is a single rare
+  shared phrase (the 'possible' tier), not a verbatim shared line, which
+  is itself the expected shape: a document line is usually a few words
+  long, so a literal shared LINE the way two literary works share one is
+  the exception (the Pompeii "arma virumque cano" graffito, jaccard 1.0),
+  not the rule.
+- Known gap, not fixed here: matching is ORDER-SENSITIVE (contiguous or
+  one-gap-skip trigrams), inherited unchanged from the literary table. The
+  Pompeii "fullers' parody" of Aen. 1.1 ("Fullones ululamque cano, non
+  arma virumque", word order reversed) shares the same three content
+  words with Vergil's line but no trigram in common, so it is NOT found by
+  this table. Recorded here rather than silently claimed as a working
+  sample; the two genuine "arma virumque cano" graffiti this table does
+  find (CIL IV-shape, verbatim and near-verbatim) are documented in
+  `docs/DATA_OPERATIONS.md`.
+- Gutter display: a document hit is shown as a SEPARATE count ("quoted in
+  N inscriptions or papyri"), not merged into the existing "quoted in N
+  works" number. Chosen over merging because the existing number has
+  already shipped with a fixed meaning (works, not documents); silently
+  changing what it counts would be a bigger change than the Reuse tab
+  addition itself, and a document is a different kind of witness from a
+  literary work (no author, no title, a different citation shape) that
+  reads oddly folded into the same integer.
+
 ## 2026-10-08: a shared title needs its own author's name nearby, not just the bare title
 
 **Question.** The Scholarship tab for Apollonius Rhodius, Argonautica 1.5-17
