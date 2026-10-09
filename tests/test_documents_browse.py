@@ -64,34 +64,68 @@ def test_inscription_region_dual_province_labels_pass_through_unmerged():
         assert label == raw
 
 
-@pytest.mark.parametrize("raw,expected", [
-    ("Karanis (Arsinoites)", "Arsinoites"),
-    ("Tebtynis (Arsinoites)", "Arsinoites"),
-    ("Arsinoites", "Arsinoites"),
-    ("Arsinoites (?)", "Arsinoites"),
-    ("Arsinoites, Ägypten", "Arsinoites"),
-    ("Arsinoites ?, Ägypten", "Arsinoites"),
-    ("Hermopolis (Hermopolites, Ägypten)", "Hermopolites"),
-    ("Tholthis (Oxyrhynchites)", "Oxyrhynchites"),
-    ("Trimithis (Oasis Magna)", "Oasis Magna"),
-    ("Theben", "Thebes"),
-    ("Theben (Ägypten)", "Thebes"),
-    ("Theben (?)", "Thebes"),
-    ("Theben (Ägypten) (?)", "Thebes"),
-    ("Oxyrhynchos", "Oxyrhynchus"),
-    ("Oxyrhynchos (Oxyrhynchites, Ägypten)", "Oxyrhynchites"),
-    ("unbekannt", browse_mod.UNKNOWN_FINDSPOT),
-    ("Masada (Palästina)", "Masada"),
-    ("Chersonesos (Kreta)", "Chersonesos"),
-    ("Golas (Africa proconsularis)", "Golas"),
-    ("Elephantine oder Syene", "Elephantine"),
-    ("Ta Memnoneia (Theben) oder Hermonthis", "Ta Memnoneia"),
-    (None, browse_mod.UNKNOWN_FINDSPOT),
+@pytest.mark.parametrize("raw,expected_nome,expected_findspot", [
+    # A document naming both a town and its nome: both come back, not one
+    # swallowing the other (this is the 2026-10-09 fix -- Oxyrhynchos the
+    # town and Oxyrhynchites the nome no longer collide into one bucket).
+    ("Karanis (Arsinoites)", "Arsinoites", "Karanis"),
+    ("Tebtynis (Arsinoites)", "Arsinoites", "Tebtynis"),
+    ("Hermopolis (Hermopolites, Ägypten)", "Hermopolites", "Hermopolis"),
+    ("Tholthis (Oxyrhynchites)", "Oxyrhynchites", "Tholthis"),
+    ("Trimithis (Oasis Magna)", "Oasis Magna", "Trimithis"),
+    ("Oxyrhynchos (Oxyrhynchites, Ägypten)", "Oxyrhynchites", "Oxyrhynchus"),
+    ("Ta Memnoneia (Theben) oder Hermonthis", "Hermonthites", "Ta Memnoneia"),
+    # A document naming only the nome: no town, findspot is None rather
+    # than a copy of the nome.
+    ("Arsinoites", "Arsinoites", None),
+    ("Arsinoites (?)", "Arsinoites", None),
+    ("Arsinoites, Ägypten", "Arsinoites", None),
+    ("Arsinoites ?, Ägypten", "Arsinoites", None),
+    # A document naming only a town: findspot is that town, and the nome
+    # comes from PAPYRI_NOME_MAP (built from every document anywhere in the
+    # corpus that DID record both -- see the module docstring), not from
+    # this one document's own text.
+    ("Theben", "Peri Thebas", "Thebes"),
+    ("Theben (Ägypten)", "Peri Thebas", "Thebes"),
+    ("Theben (?)", "Peri Thebas", "Thebes"),
+    ("Theben (Ägypten) (?)", "Peri Thebas", "Thebes"),
+    ("Oxyrhynchos", "Oxyrhynchites", "Oxyrhynchus"),
+    ("Elephantine oder Syene", "Katarraktes Mikros", "Elephantine"),
+    # A town the map has no nome for (it is outside the nome system
+    # entirely, or no document in the corpus ever recorded its nome):
+    # findspot still resolves, nome is "Unknown nome" -- not a lost
+    # findspot, just no nome to attach it to.
+    ("Masada (Palästina)", browse_mod.UNKNOWN_NOME, "Masada"),
+    ("Chersonesos (Kreta)", browse_mod.UNKNOWN_NOME, "Chersonesos"),
+    ("Golas (Africa proconsularis)", browse_mod.UNKNOWN_NOME, "Golas"),
+    # Nothing recorded at all.
+    ("unbekannt", browse_mod.UNKNOWN_NOME, browse_mod.UNKNOWN_FINDSPOT),
+    (None, browse_mod.UNKNOWN_NOME, browse_mod.UNKNOWN_FINDSPOT),
 ])
-def test_papyri_region_nome_or_findspot(raw, expected):
-    label, original = browse_mod.normalize_papyri_region(raw)
-    assert label == expected, f"{raw!r} -> {label!r}, expected {expected!r}"
+def test_papyri_region_nome_and_findspot(raw, expected_nome, expected_findspot):
+    nome, findspot, original = browse_mod.normalize_papyri_region(raw)
+    assert nome == expected_nome, f"{raw!r} -> nome {nome!r}, expected {expected_nome!r}"
+    assert findspot == expected_findspot, f"{raw!r} -> findspot {findspot!r}, expected {expected_findspot!r}"
     assert original == raw
+
+
+def test_papyri_nome_map_resolves_site_without_its_own_parenthetical(monkeypatch):
+    # Isolated from the real data file: a town the CURRENT document's text
+    # does not itself pair with a nome still resolves, via the map, exactly
+    # as it would if every one of that town's documents happened to carry
+    # the parenthetical.
+    monkeypatch.setattr(browse_mod, "_nome_map_cache", {"testopolis": "Testites"})
+    nome, findspot, _ = browse_mod.normalize_papyri_region("Testopolis")
+    assert nome == "Testites"
+    assert findspot == "Testopolis"
+
+
+def test_papyri_nome_map_missing_file_degrades_to_unknown_nome(monkeypatch, tmp_path):
+    monkeypatch.setattr(browse_mod, "_nome_map_cache", None)
+    monkeypatch.setattr(browse_mod, "_NOME_MAP_PATH", str(tmp_path / "does-not-exist.json"))
+    nome, findspot, _ = browse_mod.normalize_papyri_region("Somewhereopolis")
+    assert nome == browse_mod.UNKNOWN_NOME
+    assert findspot == "Somewhereopolis"
 
 
 # ---------------------------------------------------------------------------
@@ -140,6 +174,34 @@ def test_century_ordinal_suffixes():
     assert century.label == "12th century AD"
     century, _ = browse_mod.century_bucket(2201, 2201)
     assert century.label == "23rd century AD"
+
+
+# A source-data date_not_before this early is a data error, not a genuine
+# find, for every collection this corpus holds -- see the long comment
+# above _IMPOSSIBLE_DATE_FLOOR (checked 2026-10-09: an EDR epitaph stuck at
+# -3030 and 7 O.Trim. ostraca stuck in the Bronze Age, both one-off
+# mis-dates within collections whose other thousands of entries date
+# correctly). century_bucket files these under "Date uncertain" instead of
+# a century bucket, but keeps the real stored years in date_label.
+def test_century_impossible_date_is_uncertain_not_a_century():
+    century, date_label = browse_mod.century_bucket(-3030, 50)
+    assert century.label == "Date uncertain"
+    assert date_label == "3030 BC - 50 AD"
+
+
+def test_century_impossible_date_floor_is_the_boundary():
+    # Right at the floor: still a real (if early) century, not uncertain.
+    century, _ = browse_mod.century_bucket(-1000, -1000)
+    assert century.label == "10th century BC"
+    # One year earlier: uncertain.
+    century, _ = browse_mod.century_bucket(-1001, -1001)
+    assert century.label == "Date uncertain"
+
+
+def test_century_impossible_date_sorts_after_undated():
+    uncertain, _ = browse_mod.century_bucket(-1539, -1077)
+    undated, _ = browse_mod.century_bucket(None, None)
+    assert uncertain.sort_key > undated.sort_key
 
 
 # ---------------------------------------------------------------------------
@@ -201,6 +263,11 @@ _FIXTURE_ROWS = [
      "date_not_before": 101, "date_not_after": 101,
      "ancient_place": "Tebtynis (Arsinoites)", "region": None,
      "languages": "grc", "principal_edition": "P.Tebt. 2"},
+    {"id": "edh:A6", "source": "edh", "text_type_label": "epitaph",
+     "object_type_label": "cinerary urn", "material_label": "stone",
+     "date_not_before": -3030, "date_not_after": 50, "ancient_place": None,
+     "region": "Samnium (Regio IV)", "languages": "la",
+     "principal_edition": "CIL 09, 03008 (fixture)"},
     {"id": "other:X1", "source": "unknown-source", "text_type_label": "x",
      "object_type_label": "x", "material_label": "x",
      "date_not_before": 1, "date_not_after": 1, "ancient_place": None,
@@ -233,7 +300,7 @@ def test_unrecognized_source_excluded_from_cache(fixture_env):
 def test_browse_kind_counts(fixture_env):
     result = browse_mod.browse()
     kinds = {e['value']: e['count'] for e in result['kind_counts']}
-    assert kinds == {'inscriptions': 4, 'papyri': 2}
+    assert kinds == {'inscriptions': 5, 'papyri': 2}
 
 
 def test_browse_region_counts_merge_variants_within_kind(fixture_env):
@@ -249,6 +316,28 @@ def test_browse_papyri_region_counts_use_nome(fixture_env):
     result = browse_mod.browse(kind='papyri')
     regions = {e['value']: e['count'] for e in result['region_counts']}
     assert regions == {'Arsinoites': 2}
+
+
+def test_browse_papyri_findspot_counts_nest_under_nome(fixture_env):
+    result = browse_mod.browse(kind='papyri', region='Arsinoites')
+    findspots = {e['value']: e['count'] for e in result['findspot_counts']}
+    assert findspots == {'Karanis': 1, 'Tebtynis': 1}
+    narrowed = browse_mod.browse(kind='papyri', region='Arsinoites', findspot='Karanis')
+    assert narrowed['total'] == 1
+    assert narrowed['documents'][0]['doc_id'] == 'papyri:P1'
+
+
+def test_browse_inscriptions_have_no_findspot_level(fixture_env):
+    result = browse_mod.browse(kind='inscriptions')
+    assert result['findspot_counts'] == []
+    assert all(d.get('findspot') is None for d in result['documents'])
+
+
+def test_browse_century_counts_include_date_uncertain(fixture_env):
+    result = browse_mod.browse(kind='inscriptions', region='Sabina et Samnium (Regio IV)')
+    centuries = {e['label']: e['count'] for e in result['century_counts']}
+    assert centuries == {'Date uncertain': 1}
+    assert result['documents'][0]['doc_id'] == 'edh:A6'
 
 
 def test_browse_century_counts_undated_separate(fixture_env):
@@ -320,7 +409,7 @@ def test_route_returns_facet_tree_and_documents(fixture_env):
     assert 'century_counts' in data
     assert 'filters' in data
     assert 'documents' in data
-    assert data['total'] == 4
+    assert data['total'] == 5
 
 
 def test_route_paging_params(fixture_env):

@@ -97,6 +97,7 @@ data/documents/*
 !data/documents/formula_words_*.txt
 !data/documents/eagle_labels.csv
 !data/documents/german_label_translations.json
+!data/documents/papyri_nome_map.json
 !data/commentaries/
 data/commentaries/*
 !data/commentaries/README.md

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { rememberLanguage } from '../../utils/languagePreference';
 import StartLanguageControl from './StartLanguageControl';
+import useDocumentsTrial from '../../hooks/useDocumentsTrial';
 
 /** Tells a horizontally scrolling strip whether there is more to its right.
  *
@@ -42,6 +43,14 @@ const mainTabs = [
   { code: 'search', label: 'Search' },
   { code: 'read', label: 'Read', beta: true },
   { code: 'theme-search', label: 'Theme Search', beta: true },
+  // Trial: shown only when the documents trial is active, both the server
+  // switch (TESSERAE_DOCUMENTS=1, read from /api/languages below) and the
+  // client's own ?documents=1 session flag -- see useDocumentsTrial and
+  // the documentsEnabled state below. Filtered out of `mainTabs` at
+  // render time rather than left out of this list, so its position
+  // (beside Theme Search) does not depend on where a conditional push
+  // would land it.
+  { code: 'inscriptions-papyri', label: 'Inscriptions & Papyri', beta: true, trial: true },
   { code: 'browse', label: 'Browse Corpus' },
   { code: 'repository', label: 'Repository' },
   // DISABLED FOR PRODUCTION - Uncomment to restore Visualizations
@@ -74,6 +83,12 @@ const Navigation = ({
   const [languageTabs, setLanguageTabs] = useState(defaultLanguageTabs);
   const [mainRef, mainMore] = useScrollHint(showDownloads);
   const [langRef, langMore] = useScrollHint(languageTabs.length + ':' + pageType);
+  // The documents trial's client-side flag (?documents=1, remembered for
+  // the visit) and the server switch together gate the "Inscriptions &
+  // Papyri" tab -- the same two-part gate LineSearch.jsx's own documents
+  // control and CorpusBrowser's Documents tab use.
+  const documentsTrial = useDocumentsTrial();
+  const [documentsEnabled, setDocumentsEnabled] = useState(false);
 
   useEffect(() => {
     fetch('/api/languages')
@@ -84,9 +99,11 @@ const Navigation = ({
           tabs.push({ code: 'cross', label: 'Cross-Language' });
           setLanguageTabs(tabs);
         }
+        setDocumentsEnabled(!!data.documents_enabled);
       })
       .catch(() => {}); // fall back to defaults
   }, []);
+  const showInscriptionsPapyri = documentsTrial && documentsEnabled;
   const handleLanguageClick = (tabCode) => {
     if (onLanguageReset) {
       onLanguageReset();
@@ -134,6 +151,7 @@ const Navigation = ({
           >
             {mainTabs
               .filter(tab => tab.code !== 'admin')
+              .filter(tab => !tab.trial || showInscriptionsPapyri)
               .map(tab => (
               <button
                 key={tab.code}

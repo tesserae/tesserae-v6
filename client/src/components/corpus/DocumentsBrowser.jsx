@@ -13,6 +13,7 @@ const PAGE_SIZE = 50;
 export default function DocumentsBrowser({ documentsTrial }) {
   const [kind, setKind] = useState('');
   const [region, setRegion] = useState('');
+  const [findspot, setFindspot] = useState('');
   const [century, setCentury] = useState('');
   const [textType, setTextType] = useState('');
   const [material, setMaterial] = useState('');
@@ -29,6 +30,7 @@ export default function DocumentsBrowser({ documentsTrial }) {
     const params = new URLSearchParams({ page: String(page), page_size: String(PAGE_SIZE) });
     if (kind) params.set('kind', kind);
     if (region) params.set('region', region);
+    if (findspot) params.set('findspot', findspot);
     if (century) params.set('century', century);
     if (textType) params.set('text_type', textType);
     if (material) params.set('material', material);
@@ -42,20 +44,28 @@ export default function DocumentsBrowser({ documentsTrial }) {
       .then(setData)
       .catch((err) => setError(err.message || 'Failed to load documents.'))
       .finally(() => setLoading(false));
-  }, [kind, region, century, textType, material, objectType, docLanguage, page]);
+  }, [kind, region, findspot, century, textType, material, objectType, docLanguage, page]);
 
   // Picking a different kind clears everything below it; picking a
-  // different region clears century; any change resets to page 1, since
-  // the previous page number is almost never still valid for a narrower
-  // selection.
+  // different region (for papyri, the nome) clears findspot (the town
+  // within it) and century; picking a findspot clears century; any change
+  // resets to page 1, since the previous page number is almost never still
+  // valid for a narrower selection.
   const selectKind = (k) => {
     setKind((prev) => (prev === k ? '' : k));
     setRegion('');
+    setFindspot('');
     setCentury('');
     setPage(1);
   };
   const selectRegion = (r) => {
     setRegion((prev) => (prev === r ? '' : r));
+    setFindspot('');
+    setCentury('');
+    setPage(1);
+  };
+  const selectFindspot = (f) => {
+    setFindspot((prev) => (prev === f ? '' : f));
     setCentury('');
     setPage(1);
   };
@@ -76,20 +86,28 @@ export default function DocumentsBrowser({ documentsTrial }) {
     return `/document?${params.toString()}`;
   };
 
+  // Papyri's region facet is the Egyptian nome (e.g. "Arsinoites"); every
+  // other kind's region is a province/Augustan region. The label below the
+  // facet list, and the breadcrumb, read "Nome" only for papyri so the
+  // second level (findspot, the town within it -- e.g. "Karanis") reads as
+  // what it is rather than an unlabeled region-within-a-region.
+  const regionLabel = kind === 'papyri' ? 'Nome' : 'Region';
+
   const breadcrumb = useMemo(() => {
     const parts = [];
     if (kind) parts.push((data?.kind_counts || []).find((k) => k.value === kind)?.label || kind);
     if (region) parts.push(region);
+    if (findspot) parts.push(findspot);
     if (century) parts.push(century);
     return parts;
-  }, [kind, region, century, data]);
+  }, [kind, region, findspot, century, data]);
 
   return (
     <div className="space-y-4">
       <div>
         <h2 className="text-lg font-semibold text-gray-900">Documents</h2>
         <p className="text-sm text-gray-500">
-          Inscriptions and papyri, by kind, region, and century.
+          Inscriptions and papyri, by kind, region (nome and findspot for papyri), and century.
           {data && <> {data.total.toLocaleString()} documents in the current selection.</>}
         </p>
       </div>
@@ -127,10 +145,17 @@ export default function DocumentsBrowser({ documentsTrial }) {
         <div className="flex flex-col lg:flex-row gap-4">
           <div className="lg:w-72 flex-shrink-0 space-y-4">
             <FacetList
-              title="Region"
+              title={regionLabel}
               entries={data.region_counts}
               selected={region}
               onSelect={selectRegion}
+              getLabel={(e) => e.value}
+            />
+            <FacetList
+              title="Findspot"
+              entries={data.findspot_counts}
+              selected={findspot}
+              onSelect={selectFindspot}
               getLabel={(e) => e.value}
             />
             <FacetList
@@ -181,7 +206,7 @@ export default function DocumentsBrowser({ documentsTrial }) {
                         {doc.title}
                       </a>
                       <div className="text-xs text-gray-500">
-                        {[doc.date_label, doc.region].filter(Boolean).join(' · ')}
+                        {[doc.date_label, doc.findspot, doc.region].filter(Boolean).join(' · ')}
                       </div>
                       <div className="mt-1 flex flex-wrap gap-1">
                         {[doc.text_type, doc.material, doc.object_type].filter(Boolean).map((lab, li) => (

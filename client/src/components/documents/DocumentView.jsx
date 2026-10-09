@@ -44,6 +44,10 @@ export default function DocumentView() {
   const [cameFromQuery] = useState(() => paramOr('q', ''));
   const [cameFromType] = useState(() => paramOr('type', 'lemma'));
   const [documentsTrial] = useState(() => paramOr('documents', ''));
+  // Which page opened this view: 'line-search' (the default, every link
+  // predating this field) or 'inscriptions-papyri' (that page's own
+  // documentViewUrl). Determines where "back to results" returns to.
+  const [cameFromPage] = useState(() => paramOr('from', 'line-search'));
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -66,9 +70,23 @@ export default function DocumentView() {
       .finally(() => setLoading(false));
   }, [docId, language]);
 
-  const backParams = new URLSearchParams({ lang: language, q: cameFromQuery, type: cameFromType });
+  // The Inscriptions & Papyri page's own documentViewUrl carries its full
+  // search state (collection, sort, filters) as query params alongside
+  // doc/from -- copying the CURRENT address rather than re-listing every
+  // field here means a filter added to that page later needs no matching
+  // change on this side of the round trip. `doc` and `from` themselves
+  // are the two fields specific to opening this view, so both are
+  // stripped before the params are echoed back.
+  const backParams = cameFromPage === 'inscriptions-papyri'
+    ? new URLSearchParams(window.location.search)
+    : new URLSearchParams({ lang: language, q: cameFromQuery, type: cameFromType });
+  if (cameFromPage === 'inscriptions-papyri') {
+    backParams.delete('doc');
+    backParams.delete('from');
+  }
   if (documentsTrial === '1') backParams.set('documents', '1');
-  const backUrl = `/line-search?${backParams.toString()}`;
+  const backBase = cameFromPage === 'inscriptions-papyri' ? '/inscriptions-papyri' : '/line-search';
+  const backUrl = `${backBase}?${backParams.toString()}`;
 
   return (
     <div className="max-w-3xl mx-auto space-y-4">

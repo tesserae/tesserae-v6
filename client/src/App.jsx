@@ -8,6 +8,7 @@ import { Modal, LoadingSpinner, UpdateBanner, RequestDialog } from './components
 import { CorpusBrowser, RareWordsExplorer } from './components/corpus';
 import { ReaderPage } from './components/reader';
 import DocumentView from './components/documents/DocumentView';
+import InscriptionsPapyriPage from './components/documents/InscriptionsPapyriPage';
 import ThemeSearchPage from './components/passages/ThemeSearchPage';
 import { Repository } from './components/repository';
 import { AdminPanel } from './components/admin';
@@ -25,6 +26,7 @@ const PAGE_TITLES = {
   read: 'Reader',
   document: 'Document',
   'theme-search': 'Theme Search',
+  'inscriptions-papyri': 'Inscriptions & Papyri',
   browse: 'Browse Corpus',
   repository: 'Repository',
   'line-search': 'Line Search',
@@ -45,6 +47,7 @@ const pathToPageType = {
   '/read': 'read',
   '/document': 'document',
   '/theme-search': 'theme-search',
+  '/inscriptions-papyri': 'inscriptions-papyri',
   '/browse': 'browse',
   // Alias: Help and Theme Search link to "/corpus" for the covered-works
   // list (the owner's word for the page), and it lands on Browse Corpus.
@@ -71,6 +74,7 @@ const pageTypeToPath = {
   'read': '/read',
   'document': '/document',
   'theme-search': '/theme-search',
+  'inscriptions-papyri': '/inscriptions-papyri',
   'browse': '/browse',
   'repository': '/repository',
   'line-search': '/line-search',
@@ -1170,6 +1174,10 @@ function App() {
 
         {pageType === 'document' && (
           <DocumentView />
+        )}
+
+        {pageType === 'inscriptions-papyri' && (
+          <InscriptionsPapyriPage setPageType={setPageTypeWithGuard} />
         )}
 
         {pageType === 'browse' && (

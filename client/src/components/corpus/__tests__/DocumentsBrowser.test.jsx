@@ -115,4 +115,70 @@ describe('DocumentsBrowser', () => {
     render(<DocumentsBrowser documentsTrial={false} />);
     await waitFor(() => expect(screen.getByText('No documents match this selection.')).toBeTruthy());
   });
+
+  // Papyri get a second region level: nome, with the town/village it
+  // contains (the findspot) nested under it (2026-10-09 -- Oxyrhynchus the
+  // town and Oxyrhynchites the nome no longer show up as two unrelated
+  // top-level entries).
+  it('labels the region facet "Nome" and shows a Findspot facet for papyri', async () => {
+    const PAPYRI_RESPONSE = {
+      ...BASE_RESPONSE,
+      region_counts: [{ value: 'Oxyrhynchites', count: 3 }, { value: 'Arsinoites', count: 2 }],
+      findspot_counts: [],
+    };
+    mockFetch(() => PAPYRI_RESPONSE);
+    render(<DocumentsBrowser documentsTrial={false} />);
+    await waitFor(() => expect(screen.getByText(/Papyri and ostraca/)).toBeTruthy());
+
+    fireEvent.click(screen.getByText(/Papyri and ostraca/));
+    await waitFor(() => expect(screen.getByText('Nome')).toBeTruthy());
+    expect(screen.queryByText('Region')).toBeFalsy();
+  });
+
+  it('clicking a nome shows its findspots and clicking one narrows the request', async () => {
+    let lastUrl = null;
+    const PAPYRI_RESPONSE = {
+      ...BASE_RESPONSE,
+      kind_counts: [{ value: 'papyri', label: 'Papyri and ostraca', count: 2 }],
+      region_counts: [{ value: 'Oxyrhynchites', count: 2 }],
+      findspot_counts: [{ value: 'Oxyrhynchus', count: 2 }],
+    };
+    mockFetch((u) => { lastUrl = u; return PAPYRI_RESPONSE; });
+    render(<DocumentsBrowser documentsTrial={false} />);
+    await waitFor(() => expect(screen.getByText(/Papyri and ostraca/)).toBeTruthy());
+
+    fireEvent.click(screen.getByText(/Papyri and ostraca/));
+    await waitFor(() => expect(screen.getByText('Oxyrhynchites')).toBeTruthy());
+
+    fireEvent.click(screen.getByText('Oxyrhynchites'));
+    await waitFor(() => expect(lastUrl).toContain('region=Oxyrhynchites'));
+
+    fireEvent.click(screen.getByText('Oxyrhynchus'));
+    await waitFor(() => expect(lastUrl).toContain('findspot=Oxyrhynchus'));
+    expect(lastUrl).toContain('region=Oxyrhynchites');
+  });
+
+  it('selecting a region clears any findspot/century selection', async () => {
+    let lastUrl = null;
+    const PAPYRI_RESPONSE = {
+      ...BASE_RESPONSE,
+      kind_counts: [{ value: 'papyri', label: 'Papyri and ostraca', count: 2 }],
+      region_counts: [{ value: 'Oxyrhynchites', count: 2 }, { value: 'Arsinoites', count: 1 }],
+      findspot_counts: [{ value: 'Oxyrhynchus', count: 2 }],
+    };
+    mockFetch((u) => { lastUrl = u; return PAPYRI_RESPONSE; });
+    render(<DocumentsBrowser documentsTrial={false} />);
+    await waitFor(() => expect(screen.getByText(/Papyri and ostraca/)).toBeTruthy());
+
+    fireEvent.click(screen.getByText(/Papyri and ostraca/));
+    await waitFor(() => expect(screen.getByText('Oxyrhynchites')).toBeTruthy());
+    fireEvent.click(screen.getByText('Oxyrhynchites'));
+    await waitFor(() => expect(lastUrl).toContain('region=Oxyrhynchites'));
+    fireEvent.click(screen.getByText('Oxyrhynchus'));
+    await waitFor(() => expect(lastUrl).toContain('findspot=Oxyrhynchus'));
+
+    fireEvent.click(screen.getByText('Arsinoites'));
+    await waitFor(() => expect(lastUrl).toContain('region=Arsinoites'));
+    expect(lastUrl).not.toContain('findspot=');
+  });
 });
