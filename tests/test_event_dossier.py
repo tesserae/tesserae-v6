@@ -122,3 +122,35 @@ def test_score_of_names_weights_by_role_and_rarity():
     import math
     expect = math.log(100) ** 2 + 0.5 * math.log(2) ** 2
     assert abs(bed.score_of_names(ents, em, P) - expect) < 1e-9
+
+
+def test_norm_full_is_key_without_the_cut():
+    assert bed.norm_full("Δήλιον") == "delion"
+    assert bed.norm_full("Delium") == "delium"
+    assert bed.name_key("Delium") == bed.norm_full("Delium")[:5] == "deliu"
+    assert bed.name_key("Delio") == "delio"            # why the key cannot tell the cases of one name
+
+
+def test_stem_matching_accepts_endings_but_not_other_stems():
+    stem = lambda w: bed.stem_form(bed.norm_full(w))
+    # Delium, Delio, Delii and Greek Δήλιον / Δηλίῳ share one stem
+    assert {stem(w) for w in ["Delium", "Delio", "Delii", "Δήλιον", "Δηλίῳ"]} == {"deli"}
+    # Delius (Apollo's epithet) and Germanicus are other stems
+    assert stem("Delius") != stem("Delium")
+    assert stem("Germanicus") != stem("Germani")
+    assert stem("Germanos") == stem("Germani") == "german"
+    # a stem that ends in a consonant takes -us
+    assert {stem(w) for w in ["Varus", "Vari", "Varum"]} == {"uar"}
+    # a stem is never cut below three letters
+    assert stem("Roma") == "rom" and stem("Rus") == "rus"
+
+
+def test_name_stems_ius_expansion_is_off_by_default_and_name_side_only():
+    assert bed.name_stems("arminius") == {"arminius"}
+    bed.IUS_EXPANSION = True
+    try:
+        assert bed.name_stems("arminius") == {"arminius", "armini", "armin"}
+        assert bed.name_stems("delium") == {"deli"}         # no expansion for -um
+        assert bed.stem_form(bed.norm_full("Delius")) not in bed.name_stems("delium")
+    finally:
+        bed.IUS_EXPANSION = False

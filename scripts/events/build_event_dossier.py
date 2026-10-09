@@ -43,15 +43,42 @@ def _strip(s):
     return ''.join(c for c in unicodedata.normalize('NFD', s) if not unicodedata.combining(c))
 
 
-def name_key(tok):
-    """The name-index key of scripts/corpus/build_window_names.py (same algorithm, copied so
-    this script needs no heavy imports): accent-stripped, Greek transliterated, first 5 letters."""
+def norm_full(tok):
+    """key() of scripts/corpus/build_window_names.py without the [:5] cut: accent-stripped,
+    Greek transliterated, a-z only, the same letter substitutions."""
     t = ''.join(GR.get(c, c) for c in _strip(tok).lower())
     t = re.sub(r'[^a-z]', '', t)
     for a, b in (('ph', 'f'), ('th', 't'), ('ch', 'kh'), ('ae', 'ai'), ('oe', 'oi'), ('c', 'k'), ('y', 'u'),
                  ('x', 'ks'), ('j', 'i'), ('v', 'u')):
         t = t.replace(a, b)
+    return t
+
+
+def name_key(tok):
+    """The name-index key of scripts/corpus/build_window_names.py (same algorithm, copied so
+    this script needs no heavy imports): the normalised form cut to its first 5 letters."""
+    t = norm_full(tok)
     return t[:5] if len(t) >= 4 else None
+
+
+# Inflectional endings of the normalised (transliterated) forms, longest first. 'us' is stripped
+# only after a consonant, so that Delius (deli+us) stays a different stem from Delium/Delio/Delii
+# (deli), while Varus, Vari and Varum share var-. A final 's' alone is never an ending.
+ENDINGS = sorted("orum arum ibus ous ois ais um us os on ou oi ai ae am as an em en es is a e i o u".split(),
+                 key=lambda e: (-len(e), e))
+MIN_STEM = 3
+
+
+def stem_form(norm):
+    """Strip one inflectional ending (at most 3 letters) if a stem of MIN_STEM letters or more is
+    left. Applied to the normalised event name and to the normalised window form alike."""
+    for e in ENDINGS:
+        if norm.endswith(e) and len(norm) - len(e) >= MIN_STEM:
+            st = norm[:-len(e)]
+            if e == "us" and st.endswith("i"):
+                continue
+            return st
+    return norm
 
 
 PRAENOMINA = {name_key(x) for x in """Gaius Gaios Lucius Leukios Marcus Markos Gnaeus Gnaios Publius Poplios Quintus Kointos Titus Titos
@@ -73,6 +100,36 @@ def label_keys(label):
         if k:
             keys.add(k)
     return keys
+
+
+IUS_EXPANSION = False  # off by default: it did not change the 12-event numbers
+
+
+def name_stems(norm):
+    """Stems an event-name token accepts. The stem after one ending is always accepted. A name in
+    -ius (Arminius, Pompeius, Darius) also accepts its oblique forms (Arminii, Pompei, Darium),
+    which strip to different stems: it gets the stem minus 'us' and, when long enough, minus
+    'ius'. This is applied to the NAME only, so a window form Delius still does not match the
+    name Delium (stem deli), while the name Delius accepts Delii and Delio."""
+    out = {stem_form(norm)}
+    if IUS_EXPANSION and norm.endswith("ius") and len(norm) >= 6:
+        out.add(norm[:-2])
+        if len(norm) - 3 >= 4:
+            out.add(norm[:-3])
+    return out
+
+
+def label_tokens(label):
+    """Normalised full tokens of the content words of one label (stop words and praenomina out,
+    and at least four letters, as for the keys)."""
+    out = set()
+    for tok in re.findall(r"[^\W\d_]+", label or "", re.UNICODE):
+        if tok.lower() in STOP:
+            continue
+        k = name_key(tok)
+        if k and k not in PRAENOMINA:
+            out.add(norm_full(tok))
+    return out
 
 
 def label_variants(names):
@@ -172,8 +229,14 @@ def entity_score(roles, idfs=None, scoring=None):
     return sum(ROLE_WEIGHT[r] * (i ** p) for r, i in zip(roles, idfs))
 
 
+def key_df(prod, k):
+    """Windows holding key k. A pseudo key '#i' stands for entity i matched on the full form;
+    its count is the number of windows that matched (set in literary())."""
+    return prod.exact_df.get(k, 1) if k.startswith("#") else prod.name_df.get(k, 1)
+
+
 def score_of_names(ents, em, prod):
-    eidf = [max(math.log(prod.n_windows / max(1, prod.name_df.get(k, 1))) for k in ks) for ks in em.values()]
+    eidf = [max(math.log(prod.n_windows / max(1, key_df(prod, k))) for k in ks) for ks in em.values()]
     return entity_score([ents[ei]["role"] for ei in em], eidf)
 
 
@@ -232,15 +295,17 @@ def build_entities(rec, labels, countries, curated=()):
             names += lab.get("la", []) + lab.get("grc", []) + lab.get("el", [])
             variants = label_variants(names)
             if variants:
+                stems = sorted({st for n in names for t in label_tokens(n) for st in name_stems(t)})
                 ents.append({"qid": it["qid"], "label": it.get("label"), "role": role,
                              "keys": sorted(set().union(*variants)), "variants": [sorted(v) for v in variants],
-                             "n_labels": len(names)})
+                             "stems": stems, "n_labels": len(names)})
     for c in curated:
         variants = label_variants(c["variants"])
         if variants:
+            stems = sorted({st for n in c["variants"] for t in label_tokens(n) for st in name_stems(t)})
             ents.append({"qid": None, "label": c["variants"][0], "role": c.get("role", "participant"),
                          "keys": sorted(set().union(*variants)), "variants": [sorted(v) for v in variants],
-                         "n_labels": len(c["variants"]), "curated": True})
+                         "stems": stems, "n_labels": len(c["variants"]), "curated": True})
     return ents
 
 
@@ -265,6 +330,7 @@ class Prod:
                 if d.get("year") is not None:
                     self.author_year.setdefault(a, d["year"])
         self.name_df = dict(self.names.execute("SELECT k, df FROM name_df"))
+        self.exact_df = {}
         self.n_windows = 265362
 
 
@@ -355,6 +421,43 @@ class Theme:
 
 
 THEME_POOL = 3000
+MATCHING = "form"  # "form": full normalised form (stem plus ending) | "key": the index's 5-letter key
+
+
+def _match_forms(prod, ents, wkeys):
+    """Match event names on the window's own token. An entity matches a window if some token of
+    the window, normalised like the name index does but without the 5-letter cut and with one
+    inflectional ending stripped, equals a normalised, ending-stripped name token of the entity.
+    The index key is used only to fetch candidates (all keys that start like the stem)."""
+    stem2ents = defaultdict(set)
+    for ei, e in enumerate(ents):
+        for st in e["stems"]:
+            stem2ents[st].add(ei)
+    seen = defaultdict(set)  # entity -> windows
+    for st in stem2ents:
+        if len(st) >= 5:
+            sql, arg = "SELECT id, k, form FROM window_names WHERE k = ?", (st[:5],)
+        else:  # short stem: every key that starts with it
+            sql, arg = "SELECT id, k, form FROM window_names WHERE k >= ? AND k < ?", (st, st[:-1] + chr(ord(st[-1]) + 1))
+        for wid, k, form in prod.names.execute(sql, arg):
+            if ":fine:" not in wid:
+                continue
+            work = wid.split(":", 1)[0]
+            if base_work(work) not in prod.lang and work not in prod.lang:
+                continue
+            fs = stem_form(norm_full(form))
+            for ei in stem2ents.get(fs, ()):
+                seen[ei].add(wid)
+                wkeys[wid].setdefault(f"#{ei}", set()).add(form)
+    # exact document frequency per entity; an entity in more windows than MAX_DF is too common
+    # to identify the event, unless every entity is
+    for ei in range(len(ents)):
+        prod.exact_df[f"#{ei}"] = len(seen[ei])
+    live = [ei for ei in range(len(ents)) if 0 < len(seen[ei]) <= MAX_DF]
+    if not live:
+        live = sorted((ei for ei in range(len(ents)) if seen[ei]), key=lambda ei: len(seen[ei]))[:1]
+    for ei, e in enumerate(ents):
+        e["match_keys"] = [f"#{ei}"] if ei in live else []
 
 
 def literary(prod, ents, span, limit=100, restrict_authors=True, ranking="names", theme=None):
@@ -371,25 +474,30 @@ def literary(prod, ents, span, limit=100, restrict_authors=True, ranking="names"
                 continue
             ranked.append(((-sc, 0.0), wid, {}, {}, ay))
         return _finish(prod, ents, ranked, limit, dropped_author, len(ranked), theme)
-    for e in ents:
-        ks = [k for k in e["keys"] if prod.name_df.get(k, 0) > 0]
-        rare = [k for k in ks if prod.name_df[k] <= MAX_DF]
-        e["match_keys"] = rare or sorted(ks, key=lambda k: prod.name_df[k])[:1]
+    wkeys = defaultdict(dict)  # window id -> key -> forms
+    prod.exact_df = {}
+    if MATCHING == "form":
+        _match_forms(prod, ents, wkeys)
+    else:
+        for e in ents:
+            ks = [k for k in e["keys"] if prod.name_df.get(k, 0) > 0]
+            rare = [k for k in ks if prod.name_df[k] <= MAX_DF]
+            e["match_keys"] = rare or sorted(ks, key=lambda k: prod.name_df[k])[:1]
+        keys = sorted({k for e in ents for k in e["match_keys"]})
+        for n in range(0, len(keys), 400):
+            chunk = keys[n:n + 400]
+            q = "SELECT id, k, form FROM window_names WHERE k IN (%s)" % ",".join("?" * len(chunk))  # nosec B608
+            for wid, k, form in prod.names.execute(q, chunk):
+                if ":fine:" not in wid:
+                    continue
+                work = wid.split(":", 1)[0]
+                if base_work(work) not in prod.lang and work not in prod.lang:
+                    continue
+                wkeys[wid].setdefault(k, set()).add(form)
     keys = sorted({k for e in ents for k in e["match_keys"]})
-    has_place = any(e["role"] == "place" and e["match_keys"] and min(prod.name_df[k] for k in e["match_keys"]) <= PLACE_RARE_DF for e in ents)
+    has_place = any(e["role"] == "place" and e["match_keys"] and min(key_df(prod, k) for k in e["match_keys"]) <= PLACE_RARE_DF for e in ents)
     if not keys:
         return {"n_raw_windows": 0, "n_after_overlap_suppression": 0, "passages": [], "all_ranked": []}
-    wkeys = defaultdict(dict)  # window id -> key -> form
-    for n in range(0, len(keys), 400):
-        chunk = keys[n:n + 400]
-        q = "SELECT id, k, form FROM window_names WHERE k IN (%s)" % ",".join("?" * len(chunk))  # nosec B608
-        for wid, k, form in prod.names.execute(q, chunk):
-            if ":fine:" not in wid:
-                continue
-            work = wid.split(":", 1)[0]
-            if base_work(work) not in prod.lang and work not in prod.lang:
-                continue
-            wkeys[wid].setdefault(k, set()).add(form)
     ranked = []
     dropped_author = 0
     n_matched = 0
@@ -425,8 +533,8 @@ def literary(prod, ents, span, limit=100, restrict_authors=True, ranking="names"
                 continue
             ranked.append(((rank_key(score_of_names(ents, em, prod), 0.0)[0], -ts), wid, em, kf, ay))
             continue
-        idf = sum(math.log(prod.n_windows / max(1, prod.name_df.get(k, 1))) for ks in em.values() for k in ks)
-        eidf = [max(math.log(prod.n_windows / max(1, prod.name_df.get(k, 1))) for k in ks) for ks in em.values()]
+        idf = sum(math.log(prod.n_windows / max(1, key_df(prod, k))) for ks in em.values() for k in ks)
+        eidf = [max(math.log(prod.n_windows / max(1, key_df(prod, k))) for k in ks) for ks in em.values()]
         score = entity_score([ents[ei]["role"] for ei in em], eidf)
         ranked.append((rank_key(score, idf), wid, em, kf, ay))
     return _finish(prod, ents, ranked, limit, dropped_author, n_matched, theme, fuse=(ranking == "fused"))
@@ -645,6 +753,9 @@ def main():
     ap.add_argument("--scoring", default="idf2", choices=["count", "idf", "idf2", "rare5", "rare6", "rare7", "rare8"])
     ap.add_argument("--match", default="any", choices=["any", "all"])
     ap.add_argument("--require-place", action="store_true")
+    ap.add_argument("--matching", default="form", choices=["form", "key"],
+                    help="form: full normalised form plus one ending (default). key: the index's 5-letter key.")
+    ap.add_argument("--ius", action="store_true", help="let a name in -ius accept its oblique forms (Arminii, Pompei, Darium)")
     ap.add_argument("--max-df", type=int, default=1500)
     ap.add_argument("--ranking", default="names", choices=["names", "theme", "theme_names", "fused"])
     ap.add_argument("--intros", help="intros.json from fetch_wikipedia_intros.py (the Theme Search queries)")
@@ -653,8 +764,9 @@ def main():
     a = ap.parse_args()
     events, labels, countries = load_jsonl(a.events), load_jsonl(a.labels), load_jsonl(a.countries)
     points, crosswalk = load_points(a.pleiades), load_crosswalk()
-    global SCORING, MATCH, REQUIRE_PLACE, MAX_DF
-    SCORING, MATCH, REQUIRE_PLACE, MAX_DF = a.scoring, a.match, a.require_place, a.max_df
+    global SCORING, MATCH, REQUIRE_PLACE, MAX_DF, MATCHING, IUS_EXPANSION
+    SCORING, MATCH, REQUIRE_PLACE, MAX_DF, MATCHING = a.scoring, a.match, a.require_place, a.max_df, a.matching
+    IUS_EXPANSION = a.ius
     prod = Prod()
     theme = Theme() if a.ranking != "names" else None
     intros = json.load(open(a.intros)) if a.intros else {}
