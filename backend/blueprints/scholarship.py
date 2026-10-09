@@ -24,6 +24,7 @@ import requests
 from flask import Blueprint, jsonify, request
 
 from backend import scholarship as S
+from backend.work_names import base_work
 from backend.logging_config import get_logger
 
 logger = get_logger('scholarship')
@@ -77,7 +78,30 @@ def sources():
     there is something to show, derived from data rather than a hard-coded
     list."""
     rows = S.commentary_sources()
-    languages = sorted({row['language'] for row in rows if row.get('language')})
+    # The languages of the WORKS commented on, not the language a commentary
+    # is written in (Leaf's English notes are on the Greek Iliad). Scripture
+    # keys (bible.*) count for every language that holds a Bible version.
+    texts_root = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), 'texts')
+    work_lang = {}
+    try:
+        for lang in os.listdir(texts_root):
+            d = os.path.join(texts_root, lang)
+            if not os.path.isdir(d):
+                continue
+            for fn in os.listdir(d):
+                if fn.endswith('.tess'):
+                    work_lang.setdefault(base_work(fn[:-5]), set()).add(lang)
+    except OSError:
+        pass
+    langs_present = set(os.listdir(texts_root)) if os.path.isdir(texts_root) else set()
+    bible_langs = {'he', 'grc', 'cop', 'en', 'la'} & langs_present
+    languages = set()
+    for row in rows:
+        for w in row.get('works') or []:
+            if str(w).startswith('bible.'):
+                languages.update(bible_langs)
+            languages.update(work_lang.get(w, ()))
+    languages = sorted(languages)
     return jsonify({'commentaries': rows, 'languages': languages})
 
 
