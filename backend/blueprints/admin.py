@@ -1381,7 +1381,7 @@ def bigram_cache_stats():
         return jsonify({'error': 'Unauthorized'}), 401
     
     stats = {}
-    for lang in ['la', 'grc', 'en', 'cop']:
+    for lang in ['la', 'grc', 'en', 'cop', 'he']:
         if is_bigram_cache_available(lang):
             stats[lang] = get_bigram_stats(lang)
         else:
@@ -1398,7 +1398,7 @@ def build_bigram_cache():
     data = request.get_json() or {}
     language = data.get('language', 'la')
     
-    if language not in ['la', 'grc', 'en', 'cop']:
+    if language not in ['la', 'grc', 'en', 'cop', 'he']:
         return jsonify({'error': 'Invalid language'}), 400
     
     try:
@@ -1993,7 +1993,7 @@ def get_corpus_texts_for_admin():
     
     try:
         language = request.args.get('language', None)
-        languages = [language] if language else ['la', 'grc', 'en']
+        languages = [language] if language else ['la', 'grc', 'en', 'cop', 'he']
         
         all_texts = []
         for lang in languages:
@@ -2033,7 +2033,7 @@ def get_text_metadata_admin(text_id):
     try:
         filepath = None
         lang = None
-        for l in ['la', 'grc', 'en']:
+        for l in ['la', 'grc', 'en', 'cop', 'he']:
             candidate = resolve_text_path(_texts_dir, l, text_id)
             if candidate:
                 filepath = candidate
@@ -2067,7 +2067,7 @@ def update_text_metadata(text_id):
     
     try:
         filepath = None
-        for l in ['la', 'grc', 'en']:
+        for l in ['la', 'grc', 'en', 'cop', 'he']:
             candidate = resolve_text_path(_texts_dir, l, text_id)
             if candidate:
                 filepath = candidate
