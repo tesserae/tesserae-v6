@@ -10,6 +10,7 @@ import { CorpusBrowser, RareWordsExplorer } from './components/corpus';
 import { ReaderPage } from './components/reader';
 import DocumentView from './components/documents/DocumentView';
 import InscriptionsPapyriPage from './components/documents/InscriptionsPapyriPage';
+import EventsPage from './components/events/EventsPage';
 import ThemeSearchPage from './components/passages/ThemeSearchPage';
 import { Repository } from './components/repository';
 import { AdminPanel } from './components/admin';
@@ -28,6 +29,7 @@ const PAGE_TITLES = {
   document: 'Document',
   'theme-search': 'Theme Search',
   'inscriptions-papyri': 'Inscriptions & Papyri',
+  events: 'Events',
   browse: 'Browse Corpus',
   repository: 'Repository',
   'line-search': 'Line Search',
@@ -49,6 +51,7 @@ const pathToPageType = {
   '/document': 'document',
   '/theme-search': 'theme-search',
   '/inscriptions-papyri': 'inscriptions-papyri',
+  '/events': 'events',
   '/browse': 'browse',
   // Alias: Help and Theme Search link to "/corpus" for the covered-works
   // list (the owner's word for the page), and it lands on Browse Corpus.
@@ -70,12 +73,19 @@ const pathToPageType = {
   '/admin': 'admin'
 };
 
+// /events/<id> is the focus view of one event: a page of its own whose address
+// carries the event, so it is matched by prefix and its path is not rewritten.
+const pageForPath = (path) => (
+  path === '/events' || path.startsWith('/events/') ? 'events' : (pathToPageType[path] || 'search')
+);
+
 const pageTypeToPath = {
   'search': '/',
   'read': '/read',
   'document': '/document',
   'theme-search': '/theme-search',
   'inscriptions-papyri': '/inscriptions-papyri',
+  'events': '/events',
   'browse': '/browse',
   'repository': '/repository',
   'line-search': '/line-search',
@@ -140,7 +150,7 @@ function App() {
   const [adminSessionChecked, setAdminSessionChecked] = useState(false);
   const [pageType, setPageType] = useState(() => {
     const path = window.location.pathname;
-    return pathToPageType[path] || 'search';
+    return pageForPath(path);
   });
   // When set, HelpPage opens to this section (used by the "use your own AI" flag).
   const [helpSection, setHelpSection] = useState(null);
@@ -367,7 +377,8 @@ function App() {
     const newPath = pageTypeToPath[pageType] || '/';
     const firstRun = !pathSyncedOnce.current;
     pathSyncedOnce.current = true;
-    if (window.location.pathname !== newPath) {
+    const onEventPage = pageType === 'events' && window.location.pathname.startsWith('/events/');
+    if (!onEventPage && window.location.pathname !== newPath) {
       window.history.pushState({}, '', firstRun ? newPath + window.location.search : newPath);
     }
   }, [pageType]);
@@ -394,7 +405,7 @@ function App() {
       if (adminSessionChecked && adminSessionActive) {
         setPageType('admin');
       } else {
-        setPageType(pathToPageType[path] || 'search');
+        setPageType(pageForPath(path));
       }
     };
     window.addEventListener('popstate', handlePopState);
@@ -1177,6 +1188,10 @@ function App() {
 
         {pageType === 'inscriptions-papyri' && (
           <InscriptionsPapyriPage setPageType={setPageTypeWithGuard} />
+        )}
+
+        {pageType === 'events' && (
+          <EventsPage setPageType={setPageTypeWithGuard} />
         )}
 
         {pageType === 'browse' && (

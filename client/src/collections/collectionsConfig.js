@@ -86,6 +86,8 @@ export const REUSE_GROUPS = {
 /** Pages (main-menu codes) and the collections that open them (any of). */
 export const PAGE_NEEDS = {
   'inscriptions-papyri': ['inscriptions', 'papyri'],
+  // Events (battles, sieges, treaties) gather passages, documents and scholarship.
+  events: ['inscriptions', 'papyri', 'scholarship'],
 };
 
 /** The documents collection is served as one unit: either switch opens it. */

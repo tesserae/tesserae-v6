@@ -392,6 +392,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
     { id: 'reader', label: 'The Reader', group: 'Reading & content' },
     { id: 'tessa', label: 'Tessa, the assistant', group: 'Reading & content' },
     { id: 'documents', label: 'Inscriptions & Papyri', group: 'Reading & content' },
+    { id: 'events', label: 'Events (in testing)', group: 'Reading & content' },
 
     { id: 'languages', label: 'Languages overview', group: 'Languages' },
     { id: 'coptic', label: 'Coptic', group: 'Languages' },
@@ -1861,6 +1862,23 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 itself. The instructions are on the{' '}
                 <button onClick={() => setActiveSection('ai-guide')} className="text-red-600 hover:underline">Use with your AI</button>{' '}
                 page, and Tessa can walk you through the setup.
+              </p>
+            </div>
+          )}
+
+          {activeSection === 'events' && (
+            <div className="prose max-w-none">
+              <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Events (in testing)</h3>
+              <p className="text-gray-700 mb-4">
+                The Events page gathers what the site holds about one battle, siege or treaty: the
+                passages in Latin and Greek historians and poets that tell of it or mention it (each
+                opens in the Reader, and the Reader links back), the inscriptions and papyri dated to
+                the same years and found near the place, the articles and commentary on those passages,
+                and a map of the place and the findspots. The page and its menu entry appear when
+                Collections has Inscriptions, Papyri or Scholarship on, as in the Historical profile.
+                This is a first version in testing: events come from Wikidata, passages are found by
+                the names in them and sorted by an offline language model that no person has checked, and
+                the list covers only the events whose dossiers have been built so far.
               </p>
             </div>
           )}

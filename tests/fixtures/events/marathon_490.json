@@ -1,0 +1,769 @@
+{
+ "event": {
+  "qid": "Q31900",
+  "label": "Battle of Marathon",
+  "description": "490 BCE battle in the Greco-Persian wars",
+  "types": [
+   "battle"
+  ],
+  "wikipedia_title": "Battle of Marathon",
+  "locations": [
+   {
+    "qid": "Q212150",
+    "label": "Marathon",
+    "coord": "Point(23.961944444 38.153333333)",
+    "pleiades": "580021"
+   },
+   {
+    "qid": "Q41",
+    "label": "Greece",
+    "coord": "Point(23.0 38.5)"
+   }
+  ],
+  "participants": [
+   {
+    "qid": "Q389688",
+    "label": "Achaemenid Empire",
+    "coord": "Point(44.42083333 32.53638889)"
+   },
+   {
+    "qid": "Q742538",
+    "label": "Plataea",
+    "coord": "Point(23.27388 38.22136)"
+   },
+   {
+    "qid": "Q844930",
+    "label": "Classical Athens",
+    "coord": "Point(23.722222222 37.972222222)"
+   }
+  ],
+  "part_of": [
+   {
+    "qid": "Q2362482",
+    "label": "First Persian invasion of Greece"
+   }
+  ],
+  "span": [
+   -490,
+   -490
+  ]
+ },
+ "literary": {
+  "n_raw_windows": 2044,
+  "n_dropped_author_before_event": 2,
+  "n_after_overlap_suppression": 959,
+  "passages": [
+   {
+    "rank": 1,
+    "window_id": "nepos.vitae:fine:24",
+    "work": "nepos.vitae",
+    "language": "la",
+    "ref_start": "nep. vitae. milt.3.6",
+    "ref_end": "nep. vitae. milt.6.1",
+    "author_year": -24,
+    "score": 0.0325,
+    "n_entities": 3,
+    "idf_sum": -0.0,
+    "gist": "A historical narrative recounting Miltiades' return to Athens, Darius' punitive expedition against the Athenians, the fall of Eretria, the Persian landing at Marathon, and the Athenian council of generals debating whether to fight.",
+    "matched": [
+     "Artaphernes [participant] = Artaphernem",
+     "Miltiades [participant] = Miltiades",
+     "Plataeenses [participant] = Plataeenses"
+    ],
+    "hit_lines": [
+     {
+      "ref": "nep. vitae. milt.3.6",
+      "forms": [
+       "Miltiades"
+      ],
+      "snippet": "huius cum sententiam plurimi essent secuti, Miltiades non dubitans tam multis consciis ad regis aures consilia sua perventu"
+     },
+     {
+      "ref": "nep. vitae. milt.4.1",
+      "forms": [
+       "Artaphernem"
+      ],
+      "snippet": "atem, classem quingentarum navium comparavit eique Datim praefecit et Artaphernem iisque ducenta peditum, decem equitum milia dedit, causam interserens"
+     },
+     {
+      "ref": "nep. vitae. milt.4.5",
+      "forms": [
+       "Miltiades"
+      ],
+      "snippet": "unus Miltiades maxime nitebatur, ut primo quoque tempore castra fierent: id si factu"
+     },
+     {
+      "ref": "nep. vitae. milt.5.1",
+      "forms": [
+       "Plataeenses"
+      ],
+      "snippet": "Hoc in tempore nulla civitas Atheniensibus auxilio fuit praeter Plataeenses. ea mille misit militum. itaque horum adventu decem milia armatorum c"
+     },
+     {
+      "ref": "nep. vitae. milt.5.2",
+      "forms": [
+       "Miltiades"
+      ],
+      "snippet": "quo factum est ut plus quam collegae Miltiades valeret. eius ergo auctoritate impulsi Athenienses copias ex urbe edu"
+     }
+    ],
+    "text": " huius cum sententiam plurimi essent secuti, Miltiades non dubitans tam multis consciis ad regis aures consilia sua perventura, Chersonesum reliquit ac rursus Athenas demigravit. cuius ratio etsi non valuit, tamen magno opere est laudanda, cum amicior omnium libertati quam suae fuerit dominationi.\n Darius autem, cum ex Europa in Asiam redisset, hortantibus amicis, ut Graeciam redigeret in suam potestatem, classem quingentarum navium comparavit eique Datim praefecit et Artaphernem iisque ducenta ",
+    "llm_label": "yes"
+   },
+   {
+    "rank": 2,
+    "window_id": "herodotus.histories.part.6:fine:270",
+    "work": "herodotus.histories",
+    "language": "grc",
+    "ref_start": "hdt. 6.110.1",
+    "ref_end": "hdt. 6.116.1",
+    "author_year": -425,
+    "score": 0.0268,
+    "n_entities": 3,
+    "idf_sum": -0.0,
+    "gist": "A commander secures the decision to fight, the army is marshaled with a weak center and strong wings, and favorable sacrifices precede the engagement.",
+    "matched": [
+     "Callimachus [participant] = Καλλίμαχον",
+     "Miltiades [participant] = Μιλτιάδης",
+     "Plataeenses [participant] = Πλαταιέες"
+    ],
+    "hit_lines": [
+     {
+      "ref": "hdt. 6.110.1",
+      "forms": [
+       "Καλλίμαχον",
+       "Μιλτιάδης"
+      ],
+      "snippet": "ταῦτα λέγων ὁ Μιλτιάδης προσκτᾶται τὸν Καλλίμαχον: προσγενομένης δὲ τοῦ πολεμάρχου τῆ"
+     },
+     {
+      "ref": "hdt. 6.111.1",
+      "forms": [
+       "Πλαταιέες"
+      ],
+      "snippet": "λληλέων, τελευταῖοι δὲ ἐτάσσοντο ἔχοντες τὸ εὐώνυμον κέρας Πλαταιέες."
+     },
+     {
+      "ref": "hdt. 6.113.1",
+      "forms": [
+       "Πλαταιέες"
+      ],
+      "snippet": "̀ν μεσόγαιαν, τὸ δὲ κέρας ἑκάτερον ἐνίκων ̓Αθηναῖοί τε καὶ Πλαταιέες:"
+     }
+    ],
+    "text": " ταῦτα λέγων ὁ Μιλτιάδης προσκτᾶται τὸν Καλλίμαχον: προσγενομένης δὲ τοῦ πολεμάρχου τῆς γνώμης ἐκεκύρωτο συμβάλλειν. μετὰ δὲ οἱ στρατηγοὶ τῶν ἡ γνώμη ἔφερε συμβάλλειν, ὡς ἑκάστου αὐτῶν ἐγίνετο πρυτανηίη τῆς ἡμέρης, Μιλτιάδῃ παρεδίδοσαν: ὁ δὲ δεκόμενος οὔτι κω συμβολὴν ἐποιέετο, πρίν γε δὴ αὐτοῦ πρυτανηίη ἐγένετο.\n ὡς δὲ ἐς ἐκεῖνον περιῆλθε, ἐνθαῦτα δὴ ἐτάσσοντο ὧδε οἱ ̓Αθηναῖοι ὡς συμβαλέοντες: τοῦ μὲν δεξιοῦ κέρεος ἡγε",
+    "llm_label": "yes"
+   },
+   {
+    "rank": 3,
+    "window_id": "plutarch.parallela_minora:fine:0",
+    "work": "plutarch.parallela_minora",
+    "language": "grc",
+    "ref_start": "plut.para. 0",
+    "ref_end": "plut.para. 11",
+    "author_year": 120,
+    "score": 0.0226,
+    "n_entities": 4,
+    "idf_sum": -0.0,
+    "gist": "A writer defends the trustworthiness of astonishing ancient history by pairing Greek battle anecdotes with similar events from Roman times, recounting heroes blinded, slain, or mutilated as they cling to enemy ships.",
+    "matched": [
+     "Achaemenid Empire [participant] = Περσικὴν",
+     "Callimachus [participant] = Καλλίμαχον",
+     "Datis [participant] = Δάτις",
+     "Miltiades [participant] = Μιλτιάδην"
+    ],
+    "hit_lines": [
+     {
+      "ref": "plut.para. 1",
+      "forms": [
+       "Δάτις",
+       "Καλλίμαχον",
+       "Μιλτιάδην",
+       "Περσικὴν"
+      ],
+      "snippet": "Δάτις ὁ Περσῶν σατράπης μετὰ τριάκοντα μυριάδων εἰς Μαραθῶνα παραγε"
+     }
+    ],
+    "text": "τὰς ἀρχαίας ἱστορίας διὰ τὰ παράδοξα τῆς πράξεως οἱ πλεῖστοι νομίζουσι πλάσματα καὶ μύθους  τυγχάνειν: εὑρὼν δ' ἐγὼ καὶ ἐν τοῖς νῦν χρόνοις γεγονότα ὅμοια τὰ ἐν τοῖς Ῥωμαϊκοῖς καιροῖς συμβεβηκότα  ἐξελεξάμην, καὶ ἑκάστῳ πράγματι ἀρχαίῳ νεωτέραν ὁμοίαν διήγησιν ὑπέταξα, ἀναγράψας καὶ τοὺς ἱστορήσαντας ἄνδρας.\nΔάτις ὁ Περσῶν σατράπης μετὰ τριάκοντα μυριάδων εἰς Μαραθῶνα παραγενόμενος, πεδίον τῆς Ἀττικῆς, καὶ στρατοπεδευσάμε",
+    "llm_label": "yes"
+   },
+   {
+    "rank": 4,
+    "window_id": "herodotus.histories.part.6:fine:240",
+    "work": "herodotus.histories",
+    "language": "grc",
+    "ref_start": "hdt. 6.101.3",
+    "ref_end": "hdt. 6.106.1",
+    "author_year": -425,
+    "score": 0.0199,
+    "n_entities": 2,
+    "idf_sum": -0.0,
+    "gist": "Historical narrative of an invading army sacking a city and landing in Attica as defenders march out, interrupted by a digression on how an exiled nobleman's Olympic chariot victories won him citizenship and a return home that ended in death at a tyrant's hands.",
+    "matched": [
+     "Hippias [participant] = Ἱππίης",
+     "Miltiades [participant] = Μιλτιάδης"
+    ],
+    "hit_lines": [
+     {
+      "ref": "hdt. 6.102.1",
+      "forms": [
+       "Ἱππίης"
+      ],
+      "snippet": "ππεῦσαι καὶ ἀγχοτάτω τῆς ̓Ερετρίης, ἐς τοῦτό σφι κατηγέετο ̔Ιππίης ὁ Πεισιστράτου."
+     },
+     {
+      "ref": "hdt. 6.103.1",
+      "forms": [
+       "Μιλτιάδης"
+      ],
+      "snippet": "Μαραθῶνα. ἦγον δὲ σφέας στρατηγοὶ δέκα, τῶν ὁ δέκατος ἦν Μιλτιάδης: τοῦ τὸν πατέρα Κίμωνα τὸν Στησαγόρεω κατέλαβε φυγεῖν ἐξ ̓Αθ"
+     },
+     {
+      "ref": "hdt. 6.103.4",
+      "forms": [
+       "Μιλτιάδης"
+      ],
+      "snippet": "σι, οὔνομα ἔχων ἀπὸ τοῦ οἰκιστέω τῆς Χερσονήσου Μιλτιάδεω Μιλτιάδης."
+     },
+     {
+      "ref": "hdt. 6.104.1",
+      "forms": [
+       "Μιλτιάδης"
+      ],
+      "snippet": "οὗτος δὴ ὦν τότε ὁ Μιλτιάδης ἥκων ἐκ τῆς Χερσονήσου καὶ ἐκπεφευγὼς διπλόον θάνατον ἐστρ"
+     }
+    ],
+    "text": " οἳ δὲ ἐσελθόντες ἐς τὴν πόλιν τοῦτο μὲν τὰ ἱρὰ συλήσαντες ἐνέπρησαν, ἀποτινύμενοι τῶν ἐν Σάρδισι κατακαυθέντων ἱρῶν, τοῦτο δὲ τοὺς ἀνθρώπους ἠνδραποδίσαντο κατὰ τὰς Δαρείου ἐντολάς.\n χειρωσάμενοι δὲ τὴν ̓Ερέτριαν καὶ ἐπισχόντες ὀλίγας ἡμέρας ἔπλεον ἐς γῆν τὴν ̓Αττικήν, κατέργοντές τε πολλὸν καὶ δοκέοντες ταὐτὰ τοὺς ̓Αθηναίους ποιήσειν τὰ καὶ τοὺς ̓Ερετριέας ἐποίησαν. καὶ ἦν γὰρ ὁ Μαραθὼν ἐπιτηδεότατον χωρίον τῆς ̓Αττ",
+    "llm_label": "yes"
+   },
+   {
+    "rank": 5,
+    "window_id": "paulus_orosius.historiae_adversum_paganos.part.2:fine:78",
+    "work": "paulus_orosius.historiae_adversum_paganos",
+    "language": "la",
+    "ref_start": "paulus_orosius. hist.adv.pag. 2.8.7",
+    "ref_end": "paulus_orosius. hist.adv.pag. 2.9.5",
+    "author_year": 420,
+    "score": 0.0196,
+    "n_entities": 1,
+    "idf_sum": -0.0,
+    "gist": "A chronicle-style historical narrative recounting Darius' campaigns of conquest, the improbable victory of a small Greek force under Miltiades on the plain of Marathon, his flight and death while planning revenge, and the succession that prepares a new war.",
+    "matched": [
+     "Plataeenses [participant] = Plataeensibus"
+    ],
+    "hit_lines": [
+     {
+      "ref": "paulus_orosius. hist.adv.pag. 2.8.8",
+      "forms": [
+       "Plataeensibus"
+      ],
+      "snippet": "ent, spem occasione sumentes instructis tantum decemmilibus ciuium et Plataeensibus auxiliaribus mille aduersumsescenta milia hostium campis Marathoniis"
+     }
+    ],
+    "text": " indeAsiam Macedoniamque adgressus perdomuit. Ionas quoquenauali congressione superauit. deinde in Athenienses, cur Ionasaduersum se auxilio iuuissent, impetum fecit atque arma direxit.\n porro autem Athenienses ubi aduentare Darium conpererunt,quamuis auxilium a Lacedaemoniis poposcissent, tamen,cum detineri Persas quadnduanae religionisotio conpertumhaberent, spem occasione sumentes instructis tantum decemmilibus ciuium et Plataeensibus auxiliaribus mille aduersumsescenta milia hostium campis M",
+    "llm_label": "yes"
+   },
+   {
+    "rank": 6,
+    "window_id": "herodotus.histories.part.6:fine:258",
+    "work": "herodotus.histories",
+    "language": "grc",
+    "ref_start": "hdt. 6.108.1",
+    "ref_end": "hdt. 6.109.6",
+    "author_year": -425,
+    "score": 0.0153,
+    "n_entities": 3,
+    "idf_sum": -0.0,
+    "gist": "A hard-pressed small community, refused by a distant power that redirects it for its own strategic ends, surrenders itself as suppliants to a nearer protector, provoking its aggressor to march until mediators halt the impending battle.",
+    "matched": [
+     "Callimachus [participant] = Καλλίμαχος",
+     "Hippias [participant] = Ἱππίης",
+     "Plataeenses [participant] = Πλαταιέες"
+    ],
+    "hit_lines": [
+     {
+      "ref": "hdt. 6.108.1",
+      "forms": [
+       "Πλαταιέες",
+       "Ἱππίης"
+      ],
+      "snippet": "̔Ιππίης μὲν δὴ ταύτῃ τὴν ὄψιν συνεβάλετο ἐξεληλυθέναι. ̓Αθηναίοισι"
+     },
+     {
+      "ref": "hdt. 6.108.2",
+      "forms": [
+       "Πλαταιέες"
+      ],
+      "snippet": "πιεζεύμενοι ὑπὸ Θηβαίων οἱ Πλαταιέες ἐδίδοσαν πρῶτα παρατυχοῦσι Κλεομένεί̈ τε τῷ ̓Αναξανδρίδεω κα"
+     },
+     {
+      "ref": "hdt. 6.108.6",
+      "forms": [
+       "Πλαταιέες"
+      ],
+      "snippet": "βαίοισι πρὸς Πλαταιέας εἶναι καὶ ̔Υσιάς. ἔδοσαν μὲν δὴ οἱ Πλαταιέες σφέας αὐτοὺς ̓Αθηναίοισι τρόπῳ τῷ εἰρημένῳ, ἧκον δὲ τό"
+     },
+     {
+      "ref": "hdt. 6.109.2",
+      "forms": [
+       "Καλλίμαχος"
+      ],
+      "snippet": "έμαρχον ἐποιεῦντο τοῖσι στρατηγοῖσι）, ἦν δὲ τότε πολέμαρχος Καλλίμαχος ̓Αφιδναῖος: πρὸς τοῦτον ἐλθὼν Μιλτιάδης ἔλεγε τάδε."
+     }
+    ],
+    "text": " ̔Ιππίης μὲν δὴ ταύτῃ τὴν ὄψιν συνεβάλετο ἐξεληλυθέναι. ̓Αθηναίοισι δὲ τεταγμένοισι ἐν τεμένεϊ ̔Ηρακλέος ἐπῆλθον βοηθέοντες Πλαταιέες πανδημεί. καὶ γὰρ καὶ ἐδεδώκεσαν σφέας αὐτοὺς τοῖσι ̓Αθηναίοισι οἱ Πλαταιέες, καὶ πόνους ὑπὲρ αὐτῶν οἱ ̓Αθηναῖοι συχνοὺς ἤδη ἀναραιρέατο: ἔδοσαν δὲ ὧδε.\n πιεζεύμενοι ὑπὸ Θηβαίων οἱ Πλαταιέες ἐδίδοσαν πρῶτα παρατυχοῦσι Κλεομένεί̈ τε τῷ ̓Αναξανδρίδεω καὶ Λακεδαιμονίοισι σφέας αὐτούς. οἳ δὲ ο",
+    "llm_label": "yes"
+   },
+   {
+    "rank": 7,
+    "window_id": "plutarch.aristides:fine:18",
+    "work": "plutarch.aristides",
+    "language": "grc",
+    "ref_start": "plut. arist. 4.1",
+    "ref_end": "plut. arist. 5.7",
+    "author_year": 120,
+    "score": 0.0137,
+    "n_entities": 3,
+    "idf_sum": -0.0,
+    "gist": "A chain of biographical anecdotes portrays a statesman whose scrupulous fairness extends even to his enemies, his exposure of official embezzlement, his prosecution and vindication, and his later strategic leniency toward corrupt colleagues.",
+    "matched": [
+     "Datis [participant] = Δᾶτις",
+     "Miltiades [participant] = Μιλτιάδης",
+     "Plataea [participant] = Πλαταιαῖς"
+    ],
+    "hit_lines": [
+     {
+      "ref": "plut. arist. 5.1",
+      "forms": [
+       "Δᾶτις",
+       "Μιλτιάδης"
+      ],
+      "snippet": "ἐπεὶ δὲ Δᾶτις ὑπὸ Δαρείου πεμφθεὶς λόγῳ μὲν ἐπιθεῖναι δίκην Ἀθηναίοις, ο"
+     },
+     {
+      "ref": "plut. arist. 5.7",
+      "forms": [
+       "Πλαταιαῖς"
+      ],
+      "snippet": "ἄρξαι τὸν ἄνδρα μικρὸν ἔμπροσθεν τοῦ θανάτου μετὰ τὴν ἐν Πλαταιαῖς μάχην. ἐν δὲ ταῖς ἀναγραφαῖς μετὰ μὲν Ξανθιππίδην, ἐφ' οὗ"
+     }
+    ],
+    "text": "οὐ μόνον δὲ πρὸς εὔνοιαν καὶ χάριν, ἀλλὰ καὶ πρὸς ὀργὴν καὶ πρὸς ἔχθραν ἰσχυρότατος ἦν ὑπὲρ τῶν δικαίων ἀντιστῆναι. λέγεται γοῦν ποτε διώκων ἐχθρόν ἐν δικαστηρίῳ, μετὰ τὴν κατηγορίαν οὐ βουλομένων ἀκούειν τοῦ κινδυνεύοντος τῶν δικαστῶν, ἀλλὰ τὴν ψῆφον εὐθὺς αἰτούντων ἐπ' αὐτόν, ἀναπηδήσας τῷ κρινομένῳ συνικετεύειν, ὅπως ἀκουσθείη καὶ τύχοι τῶν νομίμων: πάλιν δὲ κρίνων ἰδιώταις δυσί,\nτοῦ ἑτέρου λέγοντος, ὡς πολλὰ",
+    "llm_label": "yes"
+   },
+   {
+    "rank": 8,
+    "window_id": "frontinus.strategemata:fine:324",
+    "work": "frontinus.strategemata",
+    "language": "la",
+    "ref_start": "frontin. strat. 2.9.8",
+    "ref_end": "frontin. strat. 2.11.5",
+    "author_year": 103,
+    "score": 0.0092,
+    "n_entities": 1,
+    "idf_sum": -0.0,
+    "gist": "A catalog of historical exempla in which commanders triumph through deception—feigned numbers, disguised ships and captives, and concealed casualties—rather than strength alone.",
+    "matched": [
+     "Miltiades [participant] = Miltiades"
+    ],
+    "hit_lines": [
+     {
+      "ref": null,
+      "forms": [
+       "Miltiades"
+      ],
+      "snippet": "Miltiades, cum ingentem Persarum multitudinem apud Marathona fudisset, Athenien"
+     }
+    ],
+    "text": "Miltiades, cum ingentem Persarum multitudinem apud Marathona fudisset, Athenienses circa gratulationem morantis compulit, ut festinarent ad opem urbi ferendam, quam classis Persarum petebat: cumque praecucurrissetimplessetque moenia armatis, Persae, rati ingentem numerum esse Atheniensium et alio milite apud Marathona pugnatum, alium pro muris suis opponi, circumactis extemplo navibus Asiam repetierunt. Pisistratus Atheniensis, cum excepisset Megarensium classem, qua illi ad Eleusin noctu applic",
+    "llm_label": "yes"
+   },
+   {
+    "rank": 9,
+    "window_id": "pausanias.description_of_greece.part.1:fine:216",
+    "work": "pausanias.description_of_greece",
+    "language": "grc",
+    "ref_start": "paus. 1.32.2",
+    "ref_end": "paus. 1.33.6",
+    "author_year": 180,
+    "score": 0.0243,
+    "n_entities": 2,
+    "idf_sum": -0.0,
+    "gist": "A guide's topographical account of Attic mountains and their cults of Zeus, turning to the plain of Marathon with its communal war graves and a commander's own tomb famed for supernatural sounds of battle at night.",
+    "matched": [
+     "Artaphernes [participant] = Ἀρταφέρνους",
+     "Miltiades [participant] = Μιλτιάδου"
+    ],
+    "hit_lines": [
+     {
+      "ref": "paus. 1.32.4",
+      "forms": [
+       "Μιλτιάδου"
+      ],
+      "snippet": "καὶ ἀνδρός ἐστιν ἰδίᾳ μνῆμα Μιλτιάδου τοῦ Κίμωνος, συμβάσης ὕστερόν οἱ τῆς τελευτῆς Πάρου τε ἁμα"
+     },
+     {
+      "ref": "paus. 1.32.7",
+      "forms": [
+       "Ἀρταφέρνους"
+      ],
+      "snippet": "σιν: ὑπὲρ δὲ τὴν λίμνην φάτναι εἰσὶ λίθου τῶν ἵππων τῶν ̓Αρταφέρνους καὶ σημεῖα ἐν πέτραις σκηνῆς. ῥεῖ δὲ καὶ ποταμὸς ἐκ τῆς λ"
+     }
+    ],
+    "text": " Πεντελῆσι μὲν ̓Αθηνᾶς, ἐν ̔Υμηττῷ δὲ ἄγαλμά ἐστιν ̔Υμηττίου Διός, βωμοὶ δὲ καὶ ̓Ομβρίου Διὸς καὶ ̓Απόλλωνός εἰσι Προοψίου. καὶ ἐν Πάρνηθι Παρνήθιος Ζεὺς χαλκοῦς ἐστι καὶ βωμὸς Σημαλέου Διός: ἔστι δὲ ἐν τῇ Πάρνηθι καὶ ἄλλος βωμός, θύουσι δὲ ἐπ' αὐτοῦ τοτὲ μὲν ̓́Ομβριον τοτὲ δὲ ̓Απήμιον καλοῦντες Δία. καὶ ̓Αγχεσμὸς ὄρος ἐστὶν οὐ μέγα καὶ Διὸς ἄγαλμα ̓Αγχεσμίου.\n πρὶν δὲ ἢ τῶν νήσων ἐς ἀφήγησιν τραπέσθαι, τὰ ἐς τοὺς",
+    "llm_label": "mention"
+   },
+   {
+    "rank": 10,
+    "window_id": "pausanias.description_of_greece.part.1:fine:84",
+    "work": "pausanias.description_of_greece",
+    "language": "grc",
+    "ref_start": "paus. 1.14.7",
+    "ref_end": "paus. 1.17.4",
+    "author_year": 180,
+    "score": 0.0172,
+    "n_entities": 3,
+    "idf_sum": -0.0,
+    "gist": "A guidebook-style account surveys a city's sacred and public monuments, tracing the spread of a goddess's cult from eastern peoples to the city, noting statues and a trophy, and describing a painted colonnade whose battle scene is rendered at its outset rather than its climax.",
+    "matched": [
+     "Callimachus [participant] = Καλλίμαχός",
+     "Miltiades [participant] = Μιλτιάδης",
+     "Plataea [participant] = Πλάταιαν"
+    ],
+    "hit_lines": [
+     {
+      "ref": "paus. 1.15.3",
+      "forms": [
+       "Καλλίμαχός",
+       "Μιλτιάδης",
+       "Πλάταιαν"
+      ],
+      "snippet": "δὲ τῆς γραφῆς εἰσιν οἱ μαχεσάμενοι Μαραθῶνι: Βοιωτῶν δὲ οἱ Πλάταιαν ἔχοντες καὶ ὅσον ἦν ̓Αττικὸν ἴασιν ἐς χεῖρας τοῖς βαρβά"
+     }
+    ],
+    "text": " πλησίον δὲ ἱερόν ἐστιν ̓Αφροδίτης Οὐρανίας. πρώτοις δὲ ἀνθρώπων ̓Ασσυρίοις κατέστη σέβεσθαι τὴν Οὐρανίαν, μετὰ δὲ ̓Ασσυρίους Κυπρίων Παφίοις καὶ Φοινίκων τοῖς ̓Ασκάλωνα ἔχουσιν ἐν τῇ Παλαιστίνῃ, παρὰ δὲ Φοινίκων Κυθήριοι μαθόντες σέβουσιν: ̓Αθηναίοις δὲ κατεστήσατο Αἰγεύς, αὑτῷ τε οὐκ εἶναι παῖδας νομίζων—οὐ γάρ πω τότε ἦσαν— καὶ ταῖς ἀδελφαῖς γενέσθαι τὴν συμφορὰν ἐκ μηνίματος τῆς Οὐρανίας. τὸ δὲ ἐφ' ἡμῶν ἔτι ἄγαλμα",
+    "llm_label": "mention"
+   },
+   {
+    "rank": 11,
+    "window_id": "plutarch.quaestiones_convivales:fine:30",
+    "work": "plutarch.quaestiones_convivales",
+    "language": "grc",
+    "ref_start": "plut.quaes.conv. 1.9.4",
+    "ref_end": "plut.quaes.conv. 2.1.7",
+    "author_year": 120,
+    "score": 0.0161,
+    "n_entities": 4,
+    "idf_sum": -0.0,
+    "gist": "Two banqueters debate whether sea-water or fresh water dries faster on the body, marshaling a philosopher against a poet and a physical explanation, before the talk shifts to victory odes from a choral contest.",
+    "matched": [
+     "Achaemenid Empire [participant] = Περσικοῖς",
+     "Callimachus [participant] = Καλλίμαχον",
+     "Miltiades [participant] = Μιλτιάδην",
+     "Plataea [participant] = Πλαταιαῖς"
+    ],
+    "hit_lines": [
+     {
+      "ref": "plut.quaes.conv. 1.10.3",
+      "forms": [
+       "Καλλίμαχον",
+       "Μιλτιάδην",
+       "Πλαταιαῖς"
+      ],
+      "snippet": "μενος, ἠγωνισμένου τὴν μάχην ἐκείνην ἐπιφανῶς: ἔτι δὲ καὶ Καλλίμαχον  ἀπεδείκνυε τὸν πολέμαρχον ἐξ ἐκείνης ὄντα τῆς φυλῆς, ὃς"
+     },
+     {
+      "ref": "plut.quaes.conv. 2.1.2",
+      "forms": [
+       "Περσικοῖς"
+      ],
+      "snippet": "λ' ὅρα καὶ αὐτὸς ὁ Ξενοφῶν ἔν τε τῷ Σωκρατικῷ καὶ τοῖς Περσικοῖς ἐπιδείκνυσι συμποσίοις τὸ γένος. εἰ δὲ δοκεῖ καὶ ἡμᾶς ἐπι"
+     }
+    ],
+    "text": "καὶ ὁ Θέων ὑπολαβών “οὐδέν” ἔφη “λέγεις: Ἀριστοτέλης γὰρ ἐν ταὐτῷ βιβλίῳ φησὶ τοὺς ἐν θαλάττῃ λουσαμένους τάχιον ἀποξηραίνεσθαι τῶν  γλυκέσι χρησαμένων, ἂν ἐν ἡλίῳ στῶσι.” “λέγει γάρ ” εἶπον: “ἀλλ' ᾤμην σε μᾶλλον Ὁμήρῳ τἀναντία λέγοντι πιστεύσειν. ὁ γὰρ Ὀδυσσεὺς μετὰ τὸ ναυάγιον ἐντυγχάνει τῇ Ναυσικάᾳ “σμερδαλέος” ὀφθῆναι , “κεκακωμένος ἅλμῃ,” καὶ πρὸς τὰς θεραπαινίδας φησὶν    ἀμφίπολοι, στῆθ' οὕτω ἀπόπροθεν, ὄ",
+    "llm_label": "mention"
+   },
+   {
+    "rank": 12,
+    "window_id": "aelius_aristides.orationes:fine:762",
+    "work": "aelius_aristides.orationes",
+    "language": "grc",
+    "ref_start": "Ael. Ar. Orat. 7 46.168",
+    "ref_end": "Ael. Ar. Orat. 7 46.179",
+    "author_year": 181,
+    "score": 0.0134,
+    "n_entities": 3,
+    "idf_sum": -0.0,
+    "gist": "An orator argues that a general who renounced private advantage and alliances with tyrants to serve the common cause of his homeland thereby gave proof of justice and noble virtue rather than of vice.",
+    "matched": [
+     "Datis [participant] = Δᾶτις",
+     "Hippias [participant] = Ἱππίου",
+     "Miltiades [participant] = Μιλτιάδης"
+    ],
+    "hit_lines": [
+     {
+      "ref": "Ael. Ar. Orat. 7 46.168",
+      "forms": [
+       "Μιλτιάδης",
+       "Ἱππίου"
+      ],
+      "snippet": "ἀλλὰ ταὐτὰ τοῖς τυράννοις διώκοντι, εἰ μὲν ἐβούλετο μετὰ Ἱππίου καὶ τῶν Πεισιστρατιδῶν συνεπιστρατεύειν ἐπὶ τὴν Ἑλλάδα, εἰ δ"
+     },
+     {
+      "ref": "Ael. Ar. Orat. 7 46.170",
+      "forms": [
+       "Μιλτιάδης"
+      ],
+      "snippet": "ὀβολοὺς λαβὼν ἢ δραχμὰς ὁ κυβερνήτης ἀπήλλακται. ἀλλ' οὐ Μιλτιάδης δυοῖν ὀβολοῖν οὐδὲ δραχμαῖν, οἶμαι δὲ οὐδὲ πολλῶν χρημάτ"
+     },
+     {
+      "ref": "Ael. Ar. Orat. 7 46.173",
+      "forms": [
+       "Μιλτιάδης"
+      ],
+      "snippet": "̓ν αὑτῷ, τόν γε δὴ σώφρονα καὶ τὸν ἀνδρεῖον καὶ φρόνιμον, Μιλτιάδης εἷς ἀνήρ ἐστιν, οὐκ ἄλλος"
+     },
+     {
+      "ref": "Ael. Ar. Orat. 7 46.174",
+      "forms": [
+       "Δᾶτις",
+       "Μιλτιάδης"
+      ],
+      "snippet": "ίας εἰ μὴ περιβαλεῖς, οὐκ ἀρκεῖν ἀξιῶν. τί λέγεις; δοῦλος Μιλτιάδης, δι' ὃν οὐκ ἐδούλευσεν ἡ Ἑλλάς; καὶ διακονῶν Ἀθηναίοις διεγ"
+     },
+     {
+      "ref": "Ael. Ar. Orat. 7 46.175",
+      "forms": [
+       "Μιλτιάδης"
+      ],
+      "snippet": "νι μάχην ἠγωνίζετο, οὔτε μόνους Λακεδαιμονίους ἔχων, ὥσπερ Μιλτιάδης Ἀθηναίους, ἀλλὰ καὶ αὐτῶν τῶν Ἀθηναίων παρόντων καὶ τῶν ἀ"
+     },
+     {
+      "ref": "Ael. Ar. Orat. 7 46.176",
+      "forms": [
+       "Μιλτιάδης"
+      ],
+      "snippet": "αξαγόρου φαυλότερος, οὔκουν, ὥς γε ὑμεῖς ἂν φαίητε, οὐδὲ Μιλτιάδης οὐδὲν ἴσως τῶν σοφιστῶν. οἶμαι δὲ κἂν ἐν θεῶν δικαστηρί"
+     }
+    ],
+    "text": "Ἕλλησιν οὐδὲν πρότερον τῆς κοινῆς σωτηρίας ἐποιήσατο, οὐδ' ἰδίᾳ περὶ τῶν ἑαυτοῦ πραγμάτων ἐσκέψατο, οὐδ' ἀνεβάλετο εἰς ἕτερον καιρὸν τὴν ἀρετὴν δεῖξαι τὴν ἑαυτοῦ. καίτοι παρῆν αὐτῷ μὴ πρὸς τὸ βέλτιστον ὁρῶντι, ἀλλὰ ταὐτὰ τοῖς τυράννοις διώκοντι, εἰ μὲν ἐβούλετο μετὰ Ἱππίου καὶ τῶν Πεισιστρατιδῶν συνεπιστρατεύειν ἐπὶ τὴν Ἑλλάδα, εἰ δὲ ἐβούλετο μετ' Ἀλευαδῶν ἐκ Θετταλίας, ἢ πρό γε Ἀλευαδῶν. οἶμαι δὲ οὐδ' ἂν ἐκ Λακεδ",
+    "llm_label": "mention"
+   }
+  ],
+  "llm": {
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "counts": {
+    "yes": 8,
+    "mention": 12,
+    "no": 80,
+    "null": 0
+   }
+  }
+ },
+ "documents": {
+  "n": 2,
+  "n_date_overlap_anywhere": 1712,
+  "n_by_radius_km": {
+   "50": 1,
+   "100": 2,
+   "300": 3,
+   "1000": 1015
+  },
+  "n_dated_within_50_years": 1,
+  "n_overlapping_but_no_usable_place": 682,
+  "span_used": [
+   -500,
+   -480
+  ],
+  "radius_km": 100,
+  "items": [
+   {
+    "id": "isicily:ISic020949",
+    "source": "isicily",
+    "text_type": "unknown",
+    "object_type": "kylix",
+    "not_before": -500,
+    "not_after": -480,
+    "date_width": 20,
+    "place": "Athenae",
+    "region": null,
+    "pleiades_id": "579885",
+    "lat": 37.97164,
+    "lon": 23.72391,
+    "distance_km": 29.0,
+    "edition": "Scarci 2026 section 4.3.1 by V. Mignosa, figs. 44-45"
+   },
+   {
+    "id": "isicily:ISic020599",
+    "source": "isicily",
+    "text_type": "agonistic / ludic",
+    "object_type": "cup",
+    "not_before": -550,
+    "not_after": -451,
+    "date_width": 99,
+    "place": "Boeotia",
+    "region": null,
+    "pleiades_id": "540689",
+    "lat": 38.3169,
+    "lon": 23.13492,
+    "distance_km": 75.4,
+    "edition": "IGASM5 94"
+   }
+  ],
+  "findspots": [
+   {
+    "n": 1,
+    "pleiades_id": "579885",
+    "label": "Athenae",
+    "lat": 37.97164,
+    "lon": 23.72391
+   },
+   {
+    "n": 1,
+    "pleiades_id": "540689",
+    "label": "Boeotia",
+    "lat": 38.3169,
+    "lon": 23.13492
+   }
+  ]
+ },
+ "scholarship": {
+  "primary_passages": [
+   {
+    "work": "herodotus.histories",
+    "range": "6.102-6.117",
+    "source": "hand list"
+   },
+   {
+    "work": "pausanias.description_of_greece",
+    "range": "1.32.3-1.32.5",
+    "source": "hand list"
+   },
+   {
+    "work": "plutarch.aristides",
+    "range": "5.1-5.5",
+    "source": "hand list"
+   }
+  ],
+  "results": [
+   {
+    "work": "herodotus.histories",
+    "range": "6.102-6.117",
+    "source": "hand list",
+    "citations": [
+     {
+      "article_id": 11480,
+      "title": "The Olympian Council House and Council",
+      "authors": "Dyer, Louis",
+      "journal": "Harvard Studies in Classical Philology",
+      "year": 1908,
+      "page": 1,
+      "cites": "Hdt. 6, 103",
+      "url": "https://www.jstor.org/stable/310319"
+     },
+     {
+      "article_id": 12045,
+      "title": "Proceedings of the Thirty-Ninth Annual Meeting of the American Philological Association Held at Chicago, Illinois, December, 1907 Also of the Ninth Annual Meeting of the Philological Association of the Pacific Coast Held at San Francisco, California December, 1907",
+      "authors": null,
+      "journal": "Transactions and Proceedings of the American Philological Association",
+      "year": 1907,
+      "page": 0,
+      "cites": "Hdt. 6. 109",
+      "url": "https://www.jstor.org/stable/282744"
+     },
+     {
+      "article_id": 1221,
+      "title": "The Torch-Race: A Commentary on the Agamemnon of Aischylos vv. 324-326",
+      "authors": "J. R. Sitlington Sterrett",
+      "journal": "The American Journal of Philology",
+      "year": 1901,
+      "page": 393,
+      "cites": "Hdt. 6,105",
+      "url": "https://www.jstor.org/stable/288333"
+     }
+    ],
+    "commentary": [
+     {
+      "commentator": "W. W. How and J. Wells",
+      "ref": "hdt. 6.103.1",
+      "lemma": "",
+      "text": "Cf. Ath. Pol. 22 (501 B. C.) ἔπειτα τοὺς στρατηγοὺς ᾑροῦντο κατὰ φυλάς, ἐξ ἑκάστης φυλῆς ἕνα, τῆς δὲ ἁπάσης στρατιᾶς ἡγεμὼν ἦν ὁ πολέμαρχος."
+     },
+     {
+      "commentator": "W. W. How and J. Wells",
+      "ref": "hdt. 6.103.1",
+      "lemma": "ὁ δέκατος",
+      "text": "ὁ δέκατος. Stein holds that the order of the Strategi followed the annual order of the tribes (cf. 111 n.) which they commanded, and to which they belonged, and that in this year the Oeneid tribe to which Miltiades of Laciadae belonged must have been tenth and last: but the phrase suggests rather δέ"
+     }
+    ]
+   },
+   {
+    "work": "pausanias.description_of_greece",
+    "range": "1.32.3-1.32.5",
+    "source": "hand list",
+    "citations": [
+     {
+      "article_id": 10281,
+      "title": "A Study of the Word ΞΟΑΝΟΝ",
+      "authors": "Bennett, Florence M.",
+      "journal": "American Journal of Archaeology",
+      "year": 1917,
+      "page": 8,
+      "cites": "Paus. I",
+      "url": "https://www.jstor.org/stable/497155"
+     },
+     {
+      "article_id": 665,
+      "title": "The Prosecution of Lifeless Things and Animals in Greek Law: Part I",
+      "authors": "Hyde, Walter Woodburn",
+      "journal": "The American Journal of Philology",
+      "year": 1917,
+      "page": 152,
+      "cites": "Paus. I.",
+      "url": "https://www.jstor.org/stable/289180"
+     },
+     {
+      "article_id": 10083,
+      "title": "An Oenophorus Belonging to the Johns Hopkins University",
+      "authors": "Robinson, David M.",
+      "journal": "American Journal of Archaeology",
+      "year": 1909,
+      "page": 30,
+      "cites": "Paus. I.",
+      "url": "https://www.jstor.org/stable/496878"
+     }
+    ],
+    "commentary": []
+   },
+   {
+    "work": "plutarch.aristides",
+    "range": "5.1-5.5",
+    "source": "hand list",
+    "citations": [],
+    "commentary": []
+   }
+  ]
+ },
+ "map": [
+  {
+   "kind": "event location",
+   "label": "Marathon",
+   "lat": 38.14655,
+   "lon": 23.97015
+  },
+  {
+   "kind": "document findspot",
+   "label": "Athenae",
+   "lat": 37.97164,
+   "lon": 23.72391,
+   "n_documents": 1
+  },
+  {
+   "kind": "document findspot",
+   "label": "Boeotia",
+   "lat": 38.3169,
+   "lon": 23.13492,
+   "n_documents": 1
+  }
+ ]
+}
