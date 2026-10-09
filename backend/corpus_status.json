@@ -5,7 +5,9 @@
     "total_texts": {
       "la": 1444,
       "grc": 655,
-      "en": 14
+      "en": 14,
+      "he": 39,
+      "cop": 187
     }
   },
   "ingestion_history": [

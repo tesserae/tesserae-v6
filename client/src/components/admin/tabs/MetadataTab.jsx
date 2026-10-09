@@ -107,6 +107,8 @@ export default function MetadataTab({ authHeaders }) {
           <option value="la">Latin</option>
           <option value="grc">Greek</option>
           <option value="en">English</option>
+          <option value="he">Hebrew</option>
+          <option value="cop">Coptic</option>
         </select>
         <select
           value={corpusTextsTypeFilter}

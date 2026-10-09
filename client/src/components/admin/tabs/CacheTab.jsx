@@ -187,7 +187,7 @@ export default function CacheTab({ authHeaders, cacheInfo, bigramStats, onRefres
             </div>
           )}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {['la', 'grc', 'en'].map(lang => (
+            {['la', 'grc', 'en', 'he', 'cop'].map(lang => (
               <div key={lang} className={`p-4 rounded border ${bigramStats[lang] ? 'bg-amber-50 border-amber-200' : 'bg-gray-50 border-gray-200'}`}>
                 <div className="flex items-center justify-between mb-2">
                   <span className="font-medium text-gray-900">{LANG_NAMES[lang]}</span>
