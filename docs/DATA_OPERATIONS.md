@@ -67,6 +67,15 @@ removal procedure: dry run by default, reporting what it would take out of
 the texts, the lemma cache, the inverted index and the passage index before
 anything is deleted, with a dated backup kept of each file it removes.
 
+## 2026-10-08 Rumi, Masnavi opening: Nicholson's translation installed (about 15:50 EDT)
+- What: `fa__rumi.masnavi.part.1.json` (built by the aligner in #703) copied
+  into production's `data/translations/` and the app reloaded. It covers
+  all 18 couplets of the opening of the Masnavi (the "Song of the Reed")
+  one to one, from R. A. Nicholson's translation of Book I (1925/1926),
+  public domain in the United States.
+- Checks: the Reader's translation route returns the English for the first
+  couplet with its attribution. Reference searches passed.
+
 ## 2026-10-08 Persian and Urdu editorial prose removed, an outage repaired, a translation and reuse tables added
 - Khayyam (about 11:36): 142 lines removed from `khayyam.diwan` (refs .713
   to .854), a signed 1934 editor's introduction to a Khayyam edition that

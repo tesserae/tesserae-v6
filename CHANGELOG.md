@@ -9,6 +9,11 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-08
 
+### Records: the Rumi translation install and the editorial-prose rule
+- `docs/DATA_OPERATIONS.md` records the installation of the Masnavi opening
+  translation. `docs/DECISIONS.md` records which prose inside Persian and
+  Urdu poetry files is removed and which is kept. No code change.
+
 ### Citations name the corpus version for every search
 - The Cite popup on the main pair search showed no corpus version, because
   that response carried no stamp. The page now asks a new
