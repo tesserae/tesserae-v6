@@ -8,6 +8,63 @@ history (index builds, cache rebuilds, corpus changes) is in
 `DATA_OPERATIONS.md`; per-release changes are in `../CHANGELOG.md`.
 
 
+## 2026-10-08: the Documents browse scheme (kind, region, century)
+
+**Question.** The documentary corpus (inscriptions from EDH, EDR, and
+I.Sicily, papyri and ostraca from HGV via papyri.info) has no browse view
+of its own. The only way to explore it is the Line Search documents
+trial's free-text filters. What grouping lets a reader explore it without
+already knowing a search term?
+
+**Decision.** A three-level facet tree with counts at every level. Kind
+(Inscriptions, Papyri and ostraca) comes first, then region, then
+century, each level narrowing the one before it. Flat filters (text type,
+material, object, language) apply within the current selection at any
+level. Sources (EDH, EDR, I.Sicily, papyri.info) appear as a credit on
+each document, not as a browse level, because EDH and EDR both cover the
+same inscriptions and a source-first tree would double several regions.
+
+**Region.** Inscriptions use the source's own `region` field, already a
+Roman province, or for Italy an Augustan region. EDH and EDR label the
+same Italian region differently. EDR writes the fuller "Latium et
+Campania cum insulis (Regio I)". EDH writes a shorter form and marks an
+uncertain region with a trailing "?". These variants are merged to one
+canonical label per region, with the original value kept on the document
+record. I.Sicily carries no `region` column at all and is assigned
+"Sicilia" directly, since every one of its inscriptions is Sicilian by
+construction of the source. A few labels name two provinces at once
+("Tuscia et Umbria", "Macedonia, Epirus", "Sicilia, Melita"). These stay
+their own bucket, since the document genuinely spans both and a merge
+into either side would misstate where it is from.
+
+Papyri have no region column. HGV's `ancient_place` field is German-
+labeled, with 2,055 distinct values, and is parsed to find a region. A
+parenthetical qualifier that looks like an Egyptian nome ("Karanis
+(Arsinoites)") becomes the region. A qualifier that is a country,
+province, or disambiguator instead ("Masada (Palästina)", "Theben (?)")
+is dropped, and the site name in front of it is used on its own. "X oder
+Y" ("X or Y", an uncertain alternate reading) takes the first option. A
+small alias table anglicizes the most frequent bare German names (Theben
+to Thebes, Oxyrhynchos to Oxyrhynchus, unbekannt to "Unknown findspot").
+The top 80 raw values cover 85.7% of all papyri. The long tail passes
+through with only the general cleanup, not a specific alias, so some rare
+findspots keep a German or otherwise unanglicized label.
+
+**Century.** Computed from `date_not_before`, falling back to
+`date_not_after` when that bound is missing, with BC/AD assigned by the
+usual astronomical-year convention. A document whose two bounds fall in
+different centuries is filed under the earliest one, and its own date
+label, shown next to it in the leaf list, names the full span, so a
+reader is never misled into thinking it is confined to the bucket it sits
+under. A document with neither bound is its own "Undated" bucket, apart
+from every century.
+
+**Where.** `backend/documents_browse.py` holds the normalization and the
+in-memory facet cache, built once over `metadata.db`. The route is
+`GET /api/documents/browse`, behind `TESSERAE_DOCUMENTS=1`. The UI is
+`client/src/components/corpus/DocumentsBrowser.jsx`, a new tab inside
+`CorpusBrowser.jsx`, behind the client's own documents trial.
+
 ## 2026-10-08: editors' prose inside a poetry text is removed, the poet's own prose is kept
 
 **Question.** Some Persian and Urdu files, built from complete-works

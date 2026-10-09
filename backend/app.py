@@ -2063,6 +2063,48 @@ def get_document(doc_id):
     return jsonify(payload)
 
 
+@api_route('/documents/browse', methods=['GET'])
+def browse_documents():
+    """The Documents section of Browse Corpus: a normalized facet tree
+    (kind -> region -> century, each with counts) plus the flat filters
+    (text type, material, object type, language) and one page of matching
+    documents. Behind TESSERAE_DOCUMENTS=1 (404 otherwise, same as the rest
+    of this feature); see backend/documents_browse.py for the normalization
+    rules and the in-memory facet cache this reads.
+    """
+    import backend.documents as _docs_mod
+    if not _docs_mod.enabled():
+        return jsonify({'error': 'not found'}), 404
+    import backend.documents_browse as browse_mod
+
+    def _arg(name):
+        v = (request.args.get(name) or '').strip()
+        return v or None
+
+    try:
+        page = int(request.args.get('page', 1))
+    except (TypeError, ValueError):
+        page = 1
+    try:
+        page_size = int(request.args.get('page_size', browse_mod.DEFAULT_PAGE_SIZE))
+    except (TypeError, ValueError):
+        page_size = browse_mod.DEFAULT_PAGE_SIZE
+
+    result = browse_mod.browse(
+        kind=_arg('kind'), region=_arg('region'), century=_arg('century'),
+        text_type=_arg('text_type'), material=_arg('material'),
+        object_type=_arg('object'), language=_arg('language'),
+        page=page, page_size=page_size)
+
+    # First-line snippets are a per-document index lookup each; only done
+    # for the one page actually being returned, and best-effort (see
+    # first_line_for -- None on any miss, never an error for the request).
+    for doc in result['documents']:
+        doc['first_line'] = browse_mod.first_line_for(doc['doc_id'], doc.get('language'))
+
+    return jsonify(result)
+
+
 @api_route('/line-search', methods=['GET', 'POST'])
 def line_search():
     """

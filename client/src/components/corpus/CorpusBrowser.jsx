@@ -3,6 +3,8 @@ import { LoadingSpinner } from '../common';
 import { baseWorkId, coverageCounts, fetchCoveredWorks } from '../../utils/passageCoverage';
 import { languageName } from '../../utils/languageNames';
 import { ERA_ORDER_BY_LANG, eraRank } from '../../utils/eras';
+import { getSessionValue, setSessionValue } from '../../utils/storage';
+import DocumentsBrowser from './DocumentsBrowser';
 
 // Languages the corpus tabs offer, read from the URL's `language` param so
 // a link (Help, Theme Search) can land here already on the right tab.
@@ -48,6 +50,21 @@ export default function CorpusBrowser() {
   const [selectedSource, setSelectedSource] = useState(null);
   const [selectedTarget, setSelectedTarget] = useState(null);
 
+  // Documents section (inscriptions, papyri), behind the documents trial:
+  // ?documents=1 switches it on and remembers that for the rest of the
+  // visit (same pattern LineSearch.jsx uses for its own documents control),
+  // and the tab only appears once /api/languages also confirms the server
+  // has TESSERAE_DOCUMENTS=1 set.
+  const [documentsTrial] = useState(() => {
+    const fromUrl = new URLSearchParams(window.location.search).get('documents') === '1';
+    if (fromUrl) setSessionValue('documents_trial', '1');
+    return fromUrl || getSessionValue('documents_trial', '0') === '1';
+  });
+  const [documentsEnabled, setDocumentsEnabled] = useState(false);
+  const [activeView, setActiveView] = useState(() => (
+    new URLSearchParams(window.location.search).get('view') === 'documents' ? 'documents' : 'language'
+  ));
+
   // Every language the site knows; the served subset comes from
   // /api/languages (a preview serves a few), and the page opens on the first
   // served one. The fixed four-entry list opened a Persian-only preview on
@@ -71,6 +88,7 @@ export default function CorpusBrowser() {
         setLanguageTabs(served);
         if (!codes.includes(language)) setLanguage(served[0].code);
       }
+      setDocumentsEnabled(documentsTrial && !!data.documents_enabled);
     }).catch(() => {});
   }, []);
 
@@ -311,18 +329,34 @@ export default function CorpusBrowser() {
         {languageTabs.map(tab => (
           <button
             key={tab.code}
-            onClick={() => { setLanguage(tab.code); setSelectedEra('all'); }}
+            onClick={() => { setLanguage(tab.code); setSelectedEra('all'); setActiveView('language'); }}
             className={`px-4 py-2 text-sm font-medium whitespace-nowrap ${
-              language === tab.code 
-                ? 'text-red-700 border-b-2 border-red-700' 
+              activeView === 'language' && language === tab.code
+                ? 'text-red-700 border-b-2 border-red-700'
                 : 'text-gray-600 hover:text-red-600'
             }`}
           >
             {tab.label}
           </button>
         ))}
+        {documentsEnabled && (
+          <button
+            onClick={() => setActiveView('documents')}
+            className={`px-4 py-2 text-sm font-medium whitespace-nowrap ${
+              activeView === 'documents'
+                ? 'text-red-700 border-b-2 border-red-700'
+                : 'text-gray-600 hover:text-red-600'
+            }`}
+          >
+            Documents
+          </button>
+        )}
       </div>
 
+      {activeView === 'documents' ? (
+        <DocumentsBrowser documentsTrial={documentsTrial} />
+      ) : (
+      <>
       {(selectedSource || selectedTarget) && (
         <div className="bg-amber-50 border border-amber-200 rounded p-3 text-sm">
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
@@ -557,6 +591,8 @@ export default function CorpusBrowser() {
             </div>
           )}
         </div>
+      )}
+      </>
       )}
     </div>
   );
