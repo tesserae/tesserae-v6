@@ -11,6 +11,24 @@ behind each, are in docs/DECISIONS.md.
 
 ### Scholarship tab: an expired CORE key no longer switches CORE off
 - On a 401 or 403 the full-text search retries CORE once without the key, paced to CORE's keyless limit across workers, and says the key needs renewing while results keep coming. A 429 waits and retries once. `scripts/ops/check_scholarship_keys.py` and timer templates in `scripts/ops/systemd/` check both keys weekly.
+### Xenophon, Hellenica and Cassius Dio, Roman History 36 to 55, added with English translations
+- `xenophon.hellenica` (1,146 lines, seven books) and `cassius_dio.roman_history`
+  (4,403 lines, books 36 to 55), each as a whole-work file plus one file per
+  book (29 `.tess` files), from the Perseus canonical-greekLit TEI
+  (tlg0032.tlg001 and tlg0385.tlg001, CC BY-SA 4.0), converted by the new
+  `scripts/corpus/perseus_greek_history_to_tess.py`. Dio's tables of contents
+  at the head of books 37 to 55 are chapter 0, and eleven words broken across
+  a printed page are rejoined. Perseus's Greek for Dio begins at 36.18 and
+  stops at 55.9.4.
+- Translations: Brownson's Loeb (1918 to 1921) for the Hellenica, from the
+  Perseus TEI, exact by book.chapter.section, 1,146 of 1,146 lines
+  (`scripts/translations/align_hellenica.py`), and Cary's Loeb (1914 to 1927)
+  for Dio from LacusCurtius, exact by chapter and section, 4,384 of 4,403
+  lines, the other 19 being the tables of contents
+  (`scripts/translations/align_dio.py`).
+- Descriptions, provenance rows and a Dio date entry added. Production
+  steps are in docs/DATA_OPERATIONS.md under the 2026-10-09 entry for these
+  two works. Nothing has been run on production.
 
 ### Scholarship tab: Semantic Scholar snippets read in their real shape, one source's failure no longer takes the tab down
 - The snippet endpoint returns authors as name strings and carries no
