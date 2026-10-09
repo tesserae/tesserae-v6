@@ -218,5 +218,27 @@
     "retrieved": "Not applicable",
     "what_we_use": "A link that runs the same citation search in HathiTrust's book scans. We send the search; no HathiTrust data is copied or stored.",
     "notes": "The HathiTrust terms page returned an access error to our automated request, so the linked address is its home page."
+  },
+  {
+    "collection": "Coins (prototype)",
+    "name": "Online Coins of the Roman Empire (OCRE), American Numismatic Society and Institute for the Study of the Ancient World",
+    "url": "https://numismatics.org/ocre/",
+    "licence_name": "Open Data Commons Open Database License 1.0 (ODbL)",
+    "licence_url": "https://opendatacommons.org/licenses/odbl/1.0/",
+    "version": "nomisma.org SPARQL export of the type records (nmo:TypeSeriesItem), plus nomisma.org labels and Pleiades matches for mints",
+    "retrieved": "2026-10-09",
+    "what_we_use": "Type-level records only: obverse and reverse legends, English type descriptions, mint, dates, authority or issuer, denomination, material, and each type's page address. No specimen data and no images.",
+    "notes": "56,113 coin types (RIC volumes I to X). Prototype only: not loaded into the live site. The licence wording was read on the project site (\"made available under the Open Database License\"). The documented bulk dump (nomisma.rdf) returned HTTP 502, so the records were pulled from the public endpoint https://nomisma.org/query. Images remain the copyright of their holding institutions and are not used."
+  },
+  {
+    "collection": "Coins (prototype)",
+    "name": "Coinage of the Roman Republic Online (CRRO), American Numismatic Society",
+    "url": "https://numismatics.org/crro/",
+    "licence_name": "Open Data Commons Open Database License 1.0 (ODbL)",
+    "licence_url": "https://opendatacommons.org/licenses/odbl/1.0/",
+    "version": "nomisma.org SPARQL export of the type records (nmo:TypeSeriesItem), plus nomisma.org labels and Pleiades matches for mints",
+    "retrieved": "2026-10-09",
+    "what_we_use": "Type-level records only: obverse and reverse legends, English type descriptions, mint, dates, authority or issuer, denomination, material, and each type's page address. No specimen data and no images.",
+    "notes": "2,602 coin types (Crawford, Roman Republican Coinage). Prototype only: not loaded into the live site. The licence wording was read on the project site (\"made available under the Open Database License\"). The documented bulk dump (nomisma.rdf) returned HTTP 502, so the records were pulled from the public endpoint https://nomisma.org/query. Images remain the copyright of their holding institutions and are not used."
   }
 ]

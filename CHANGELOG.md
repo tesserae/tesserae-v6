@@ -9,6 +9,14 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-09
 
+### Roman coins prototype: converter for OCRE and CRRO type records (draft, nothing loaded into the site)
+- `scripts/coins/convert_ocre.py` turns the 58,715 OCRE and CRRO coin types
+  (nomisma.org export, ODbL) into the documents collection's intermediate
+  JSONL, one document per type, with kind `coin`, legends as the indexed
+  text, the obverse and reverse descriptions kept separate, mint with a
+  Pleiades id, dates, authority, denomination and material. Two further
+  scripts embed the descriptions and query them with literary passages.
+  `data/sources_credits.json` gains records for OCRE and CRRO.
 ### Scholarship tab: Semantic Scholar snippets read in their real shape, one source's failure no longer takes the tab down
 - The snippet endpoint returns authors as name strings and carries no
   year, venue or identifiers, with the DOI only inside the open-access
