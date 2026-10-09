@@ -9,6 +9,19 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-08
 
+### Reader header and selection bar: a citation for the open work, not a split abbreviation
+- The header and selection toolbar read "A, R 1.1" for Apollonius Rhodius's
+  Argonautica, because the .tess line tag ("<A.R. 1.1>") uses an
+  abbreviation the citation helper's static table does not list, which then
+  read the two letters as an author and a work. Both now build the citation
+  from the open work's own corpus-list entry (author, title, and a part's
+  label where one applies) plus the numeric locus read off the ref, so the
+  result no longer depends on whether the tag's own abbreviation is one the
+  static tables happen to carry. A survey of `texts/la`, `texts/grc` and
+  `texts/en` found 1,116, 868, and 162 files respectively whose leading tag
+  abbreviation the static tables do not resolve; this fixes the header and
+  selection bar for all of them. Tests added.
+
 ### Documentary reuse in the Reuse tab
 - When a literary line is quoted or near-quoted in an inscription or
   papyrus, the Reader's Reuse tab now shows those documents in a separate

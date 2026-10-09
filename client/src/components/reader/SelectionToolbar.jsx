@@ -63,7 +63,7 @@ export default function SelectionToolbar({
 
   const refStart = selection.refStart;
   const refEnd = selection.refEnd || refStart;
-  const shown = formatSelectionRange(refStart, refEnd, corpusMap);
+  const shown = formatSelectionRange(refStart, refEnd, corpusMap, work);
   const action = ACTION[scope] || ACTION.line;
   const word = wordOf(selection);
 

@@ -140,6 +140,51 @@ describe('formatSelectionRange', () => {
     expect(result).toContain('5');
     expect(result.toLowerCase()).toContain('nobody');
   });
+
+  // Reader header + selection toolbar citation, 2026-10-08: the Reader
+  // always knows which work is open (the `work` id), so passing it lets
+  // the citation come from the corpus map's OWN entry for that id rather
+  // than from guessing at the ref -- the only way a classical .tess tag
+  // abbreviation the static table does not list resolves to a name at
+  // all. "A.R. 1.1" is Apollonius Rhodius's own tag convention; "a.r" is
+  // not in ABBREVIATION_MAP, so expandLocus's fallback used to read it as
+  // author "A", work "R".
+  describe('with a known open work id (citationForOpenWork)', () => {
+    const grcTexts = new Map([
+      ['apollonius_rhodius.argonautica', { author: 'Apollonius Rhodius', title: 'Argonautica' }],
+    ]);
+
+    it('resolves a classical tag abbreviation the static table cannot, from the open work itself', () => {
+      expect(formatSelectionRange('A.R. 1.1', 'A.R. 1.3', grcTexts, 'apollonius_rhodius.argonautica'))
+        .toBe('Apollonius Rhodius, Argonautica 1.1–3');
+    });
+
+    it('still reads "A, R" with no work id passed (old behavior, unaffected)', () => {
+      expect(formatSelectionRange('A.R. 1.1', 'A.R. 1.3', grcTexts))
+        .toBe('A, R 1.1–3');
+    });
+
+    it('keeps a Latin work with a resolvable tag unchanged when the open work id is also known', () => {
+      const laTexts = new Map([['vergil.aeneid', { author: 'Vergil', title: 'Aeneid' }]]);
+      expect(formatSelectionRange('verg. aen. 1.1', 'verg. aen. 1.3', laTexts, 'vergil.aeneid'))
+        .toBe('Vergil, Aeneid 1.1–3');
+    });
+
+    it('keeps a Persian section-labelled ref unchanged when the open work id is known', () => {
+      const urTexts = new Map([
+        ['ghalib.diwan_wikisource', { author: 'Ghalib', title: 'Diwan Wikisource' }],
+      ]);
+      expect(formatSelectionRange(
+        'ghalib.diwan_wikisource.ghazal.1.1', 'ghalib.diwan_wikisource.ghazal.1.7',
+        urTexts, 'ghalib.diwan_wikisource',
+      )).toBe('Ghalib, Diwan Wikisource, ghazal 1.1–7');
+    });
+
+    it('falls back to the ref-based resolution when the work id is not in the map yet', () => {
+      expect(formatSelectionRange('verg. aen. 1.1', 'verg. aen. 1.3', null, 'vergil.aeneid'))
+        .toBe('Vergil, Aeneid 1.1–3');
+    });
+  });
 });
 
 describe('collapseLineRuns', () => {
