@@ -161,6 +161,11 @@ MANIFEST = {
                 "only the former is wired in. Folding provenance.json in as a fallback would "
                 "raise describe_text's coverage -- flagged, not done, in the parity report."),
     },
+    '/api/usage/page': {
+        'site_only': True,
+        'reason': ('The browser records which pages one visit opened, for the admin panel\'s '
+                   'paths section; a connector client has no pages to record.'),
+    },
     '/api/sources-credits': {
         'site_only': True,
         'reason': ('Site copy for the Text Credits page (one record per source, licence and '
