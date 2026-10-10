@@ -282,9 +282,6 @@ export default function AssistantDock() {
             T
           </span>
           Tessa &middot; AI Assistant
-          <span className="text-[9px] font-semibold uppercase tracking-wide text-amber-700 align-super">
-            beta
-          </span>
         </h2>
         <div className="flex items-center gap-1">
           {/* The conversation now survives a page load, so there has to be a way
