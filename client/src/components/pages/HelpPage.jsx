@@ -3,6 +3,7 @@ import { STOPLIST_INFO } from '../../data/stoplists';
 import FusionFlowchart from '../search/FusionFlowchart';
 import SystemChart from './SystemChart';
 import { RequestDialog } from '../common';
+import { allMeasuredRows } from '../../data/searchScope';
 
 const AI_SCHEMA_URL = 'https://tesserae.caset.buffalo.edu/tesserae-data/tesserae-openapi.yaml';
 
@@ -752,15 +753,9 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                     <tr><th className="py-2 pr-4">Search</th><th className="py-2 pr-4">Language</th><th className="py-2 pr-4">Measured against</th><th className="py-2 pr-4">Result</th><th className="py-2">Date</th></tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100 align-top">
-                    <tr><td className="py-2 pr-4">Verbal parallels (Fusion)</td><td className="py-2 pr-4">Latin</td><td className="py-2 pr-4">862 parallels from five published commentaries and studies (Lucan, Valerius Flaccus and Statius against Vergil, Ovid and Statius)</td><td className="py-2 pr-4">About 92 percent found (788 to 798 of 862, depending on the run); on the Valerius Flaccus set, nine of the first ten results are attested in the commentaries</td><td className="py-2">September 2026</td></tr>
-                    <tr><td className="py-2 pr-4">Verbal parallels (Fusion)</td><td className="py-2 pr-4">Greek</td><td className="py-2 pr-4">121 Homeric parallels in later epic (Iliad and Odyssey benchmarks)</td><td className="py-2 pr-4">69 percent found searching whole works, 97 percent searching book by book</td><td className="py-2">early 2026</td></tr>
-                    <tr><td className="py-2 pr-4">Verbal parallels (Fusion)</td><td className="py-2 pr-4">Coptic</td><td className="py-2 pr-4">Scripture quoted in scripture: the 22 marked citations of Isaiah in Romans (held out from all tuning), and a broad 124-pair reference list</td><td className="py-2 pr-4">On the held-out citations, 59 percent in the first hundred and eight of the first ten are genuine; on the broad list, 14.5 percent in the first hundred, since Coptic search is tuned for quotation rather than loose allusion</td><td className="py-2">August 2026</td></tr>
-                    <tr><td className="py-2 pr-4">Verbal parallels (Fusion)</td><td className="py-2 pr-4">Hebrew</td><td className="py-2 pr-4">The 22 marked citations of Isaiah in Romans, searched from the Hebrew through the Septuagint into the Greek New Testament</td><td className="py-2 pr-4">15 of 22 in the first hundred, 9 in the first ten; the direct word-for-word route found none</td><td className="py-2">August 2026</td></tr>
-                    <tr><td className="py-2 pr-4">Verbal parallels (Fusion)</td><td className="py-2 pr-4">English</td><td className="py-2 pr-4">No published list of parallels has been run yet</td><td className="py-2 pr-4">Not measured</td><td className="py-2"></td></tr>
-                    <tr><td className="py-2 pr-4">Cross-Language (Greek to Latin)</td><td className="py-2 pr-4">Greek and Latin</td><td className="py-2 pr-4">412 Homeric parallels in the Aeneid from Knauer's index</td><td className="py-2 pr-4">About 40 percent in the first fifty for a given target line, 94 percent found somewhere in the ranking; only 31 percent of the listed parallels share any vocabulary across the two languages</td><td className="py-2">2026</td></tr>
-                    <tr><td className="py-2 pr-4">Theme Search</td><td className="py-2 pr-4">Latin and Greek</td><td className="py-2 pr-4">Confidence band: 32 test subjects, half present in the corpus and half absent. Recall: the works Curtius cites for eleven topoi (57 works held here)</td><td className="py-2 pr-4">The band agrees with the test set on 88 to 91 percent of subjects. Of Curtius's 57 works, 23 appear somewhere in the returned lists and 7 among the first ten; a frontier language model asked the same questions from memory names 14 and 13. Precision of the first ten results, sixteen test themes, judged against a scholar's grading rule: about 29 percent by description order, about 43 percent after the reading step (see The reading step under Theme Search)</td><td className="py-2">September 2026</td></tr>
-                    <tr><td className="py-2 pr-4">Theme Search</td><td className="py-2 pr-4">Coptic, Hebrew, English</td><td className="py-2 pr-4">Included in the index; no language-specific test yet</td><td className="py-2 pr-4">Not measured separately</td><td className="py-2"></td></tr>
-                    <tr><td className="py-2 pr-4">Rare words, rare pairs, line and string search</td><td className="py-2 pr-4">All</td><td className="py-2 pr-4">Exact lookups in the index</td><td className="py-2 pr-4">They return every occurrence the index holds; there is no recall to measure, only the coverage of the corpus and the accuracy of the dictionary forms (see each language section)</td><td className="py-2"></td></tr>
+                    {allMeasuredRows().map((m, i) => (
+                      <tr key={i}><td className="py-2 pr-4">{m.search}</td><td className="py-2 pr-4">{m.language}</td><td className="py-2 pr-4">{m.against}</td><td className="py-2 pr-4">{m.result}</td><td className="py-2">{m.date}</td></tr>
+                    ))}
                   </tbody>
                 </table>
               </div>

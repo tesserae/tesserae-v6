@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { LoadingSpinner } from '../common';
 import { dateLabel, centuryLabel } from './eventsFormat';
+import ScopeBox from '../common/ScopeBox';
 
 const PER_PAGE = 20;
 
@@ -53,6 +54,7 @@ export default function EventList({ openEvent }) {
         Battles, sieges and treaties, each with the passages that tell of it, the inscriptions and
         papyri from nearby and from the same years, and the scholarship on those passages. In testing.
       </p>
+      <ScopeBox id="events" className="mb-4" />
 
       <form onSubmit={submit} className="bg-white border border-gray-200 rounded-lg p-3 flex flex-wrap gap-2 items-end">
         <label className="flex-1 min-w-[12rem] text-xs text-gray-600">

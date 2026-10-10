@@ -6,7 +6,7 @@ import { SearchModeToggle, TextSelector, SearchSettings, SearchResults, LineSear
 import RareResultsDisplay from './components/search/RareResultsDisplay';
 import StartHere from './components/search/StartHere';
 import { addressHasQuery, FRONT_DOOR_OPEN_EVENT } from './components/search/frontDoor';
-import SearchDescription from './components/search/SearchDescription';
+import ScopeBox from './components/common/ScopeBox';
 import { Modal, LoadingSpinner, UpdateBanner, RequestDialog } from './components/common';
 import { CorpusBrowser, RareWordsExplorer } from './components/corpus';
 import { ReaderPage } from './components/reader';
@@ -1064,7 +1064,7 @@ function App() {
 
               <div className="mb-6">
                 <SearchModeToggle searchMode={searchMode} setSearchMode={setSearchMode} />
-                <SearchDescription mode={searchMode} className="mt-2 px-1" />
+                <ScopeBox id={searchMode} className="mt-2" />
               </div>
 
               {searchMode === 'line' ? (
@@ -1301,14 +1301,14 @@ function App() {
 
         {pageType === 'line-search' && (
           <div className="bg-white rounded-lg shadow p-4 sm:p-6">
-            <SearchDescription mode="line" className="mb-4" />
+            <ScopeBox id="line" className="mb-4" />
             <LineSearch key={activeTab} language={activeTab} />
           </div>
         )}
 
         {pageType === 'string-search' && (
           <div className="bg-white rounded-lg shadow p-4 sm:p-6">
-            <SearchDescription mode="string" className="mb-4" />
+            <ScopeBox id="string" className="mb-4" />
             <WildcardSearch language={activeTab} />
           </div>
         )}

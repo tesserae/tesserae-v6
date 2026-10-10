@@ -11,6 +11,7 @@ import ThemeCoins from '../coins/ThemeCoins';
 import ThemeObjects from '../objects/ThemeObjects';
 import useCollections from '../../hooks/useCollections';
 import { PAGE_NEEDS } from '../../collections/collectionsConfig';
+import ScopeBox from '../common/ScopeBox';
 
 /**
  * Theme Search: describe a passage in your own words, get passages that match
@@ -747,6 +748,8 @@ export default function ThemeSearchPage() {
       <span className="ml-2 align-middle rounded border border-amber-200 bg-amber-50 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-800">
         Beta
       </span>
+
+      <ScopeBox id="theme" className="mt-3" />
 
       <div className="mt-4 inline-flex rounded border border-gray-300 overflow-hidden text-sm">
         {[['search', 'Theme Search'], ['map', 'Similarity Map'], ['compare', 'Compare two works']].map(([v, label]) => (

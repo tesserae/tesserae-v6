@@ -9,6 +9,8 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-10
 
+### A scope box on every search page
+Each search page opens with one grey line, "What this search does", with a Details link. Opened, it gives the search's scope, the texts and collections it covers with live counts, its limits and its measured performance, and links to the search's Help section. It appears on the five Search modes (Phrases, Line, Strings, Rare Pairs, Rare Words), Cross-Language, Theme Search, Inscriptions & Papyri, Events, Coins and Objects, and remembers whether it was open. The facts live in `client/src/data/searchScope.js`, and the Help table "How well does it work?" now renders from the same data, so a figure is written once. A new route, `/api/scope` (site-only in the connector manifest), answers the counts: works per served language, documents, passage windows, events, coins and objects, cached for ten minutes.
 ### Start here: smaller, feature names first
 The Start here panel took the top of the Search page with six boxes. It is now one short card with the feature's name and a half-line of what it does ("Line Search: every line in the corpus where a phrase or a pair of words occurs"), three to a row, with Skip beside the question. The Collections button in the menu bar is now shown to every visitor, so the inscriptions, papyri, events, coins and objects the panel names can be switched on from the top of the page; the default profile is still Literary.
 ### Research moves under About
