@@ -246,6 +246,8 @@ export default function AssistantDock() {
       </button>
     );
   }
+  // Collapsed: a pill that says "Tessa". It was a circle with a bare "T",
+  // which told a first-time visitor nothing (2026-10-10).
   if (!open) {
     return (
       <div className="fixed bottom-4 right-4 z-40 group">
@@ -253,9 +255,9 @@ export default function AssistantDock() {
           onClick={() => setOpen(true)}
           aria-label="Open Tessa, the AI assistant"
           title="Tessa, the AI assistant"
-          className="flex items-center justify-center w-11 h-11 rounded-full bg-red-700 text-white text-lg font-semibold shadow-lg ring-1 ring-red-900/20 transition hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-red-400"
+          className="flex items-center justify-center h-11 px-4 rounded-full bg-red-700 text-white text-sm font-semibold tracking-wide shadow-lg ring-1 ring-red-900/20 transition hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-red-400"
         >
-          T
+          Tessa
         </button>
         <button
           onClick={() => setTuckedSaved(true)}
