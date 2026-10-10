@@ -9,6 +9,9 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-10
 
+### Site subtitle becomes "Literary and Historical Discovery"
+The header line under the title, and the two citation forms on the About page, read "Literary and Historical Discovery" in place of "Intertextual and Literary Discovery", since the site now serves inscriptions, papyri and events beside the literary texts. Chosen by the project lead on 2026-10-10.
+
 ### Sources and credits: coverage of the journal index, Wikidata for the Events page, photographs as links
 The record for JSTOR Early Journal Content now says what the offline index covers (24 journals, 1827 to 1922, 29,055 articles read, 5,193 citing 437 held works, plus 956 sentences citing 742 inscriptions and papyri) and no longer calls it a live service. New records: Wikidata (CC0) for the Events page, and the photographs of inscriptions and papyri, which are links to the holding institutions and never copied. The Help page's Scholarship, Events and Inscriptions sections carry the same facts, and a document's Scholarship section says where its sentences come from. The table of literary texts drops four stale "World English Bible" rows (the files hold the King James text) and gains the King James New Testament. Data operation: seven Studies in Philology articles re-dated from 1992 to 1922 in the citation index.
 
