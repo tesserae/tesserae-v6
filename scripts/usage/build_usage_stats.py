@@ -20,6 +20,8 @@ from datetime import datetime, timezone
 DEFAULT_LOG = '/var/log/tesserae/tesseraev6_ssl_access.log'
 DEFAULT_OUT = 'data/usage/usage_stats.json'
 OWN_HOST = 'tesserae.caset.buffalo.edu'
+# The server's other names: a visit referred from them is our own page.
+OWN_HOSTS = {OWN_HOST, 'marvin.caset.buffalo.edu'}
 
 LINE_RE = re.compile(
     r'^(?P<ip>\S+) \S+ \S+ \[(?P<day>\d{1,2})/(?P<mon>[A-Za-z]{3})/(?P<year>\d{4}):[^\]]*\] '
@@ -36,7 +38,9 @@ BOT_RE = re.compile(
     re.I)
 ASSET_RE = re.compile(r'\.(js|css|png|jpg|svg|ico|woff2?|map|json|webp|ttf)$', re.I)
 APP_BUNDLE_RE = re.compile(r'^/assets/index-[^/?]*\.js$')
-HOST_RE = re.compile(r'^[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)+$')
+# A hostname with letters in it: a bare address such as 128.205.2.231 is the
+# server itself or a forged referrer, never a page that links to the site.
+HOST_RE = re.compile(r'^(?=.*[A-Za-z])[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)+$')
 
 FEATURES = [
     ('Search page', r'^/api/search'),
@@ -107,7 +111,7 @@ def summarize(lines, own_ips):
             hm = re.match(r'^https?://([^/:?#]+)', ref)
             if hm:
                 host = hm.group(1).lower()
-                if host != OWN_HOST and HOST_RE.match(host):
+                if host not in OWN_HOSTS and HOST_RE.match(host):
                     referrers[host] += 1
         if bare.startswith('/api/'):
             api_any[month].add(ip)
