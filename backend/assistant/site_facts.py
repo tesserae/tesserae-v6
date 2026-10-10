@@ -112,11 +112,18 @@ _cache = {'at': 0.0, 'text': None}
 
 
 def holdings_sentence():
-    """The current description, rebuilt at most every ten minutes."""
+    """The current description, rebuilt at most every ten minutes. A sentence
+    that names no optional language is not cached: it is what the checks give
+    before the language plugins have registered (app start-up), and on
+    2026-10-10 a copy cached then stood for the whole day."""
     now = time.time()
     if _cache['text'] is None or now - _cache['at'] > _TTL:
-        _cache['text'] = build_holdings_sentence()
+        text = build_holdings_sentence()
+        if len(languages()) <= 3:
+            return text
+        _cache['text'] = text
         _cache['at'] = now
+        return text
     return _cache['text']
 
 
