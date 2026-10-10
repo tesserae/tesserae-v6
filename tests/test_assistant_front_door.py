@@ -26,15 +26,16 @@ def test_a_long_question_with_a_marker_does_not_fire():
 def test_answer_names_all_six_labels_and_paths():
     text = front_door.answer()
     assert len(front_door.FRONT_DOOR_CHOICES) == 6
-    for label, path in front_door.FRONT_DOOR_CHOICES:
-        assert f'[{label}]({path})' in text
+    for label, detail, path in front_door.FRONT_DOOR_CHOICES:
+        assert f'[{label}]({path}): {detail}' in text
     assert text.startswith('This site does six kinds of thing.')
     assert text.endswith('Say which one and I will set it up.')
 
 
 def test_backend_choices_match_the_frontend_file():
     source = open(FRONTEND, encoding='utf-8').read()
-    for label, path in front_door.FRONT_DOOR_CHOICES:
+    for label, detail, path in front_door.FRONT_DOOR_CHOICES:
         assert f"label: '{label}'" in source
+        assert f"detail: '{detail}'" in source
         assert f"href: '{path}'" in source
     assert len(re.findall(r"\bid: '", source)) == 6

@@ -4,7 +4,6 @@ import StartLanguageControl from './StartLanguageControl';
 import useCollections from '../../hooks/useCollections';
 import { PAGE_NEEDS } from '../../collections/collectionsConfig';
 import CollectionsControl from './CollectionsControl';
-import { hasExplicitChoice } from '../../collections/collectionsStore';
 
 /** Tells a horizontally scrolling strip whether there is more to its right.
  *
@@ -97,12 +96,12 @@ const Navigation = ({
   // the visit) and the server switch together gate the "Inscriptions &
   // Papyri" tab -- the same two-part gate LineSearch.jsx's own documents
   // control and CorpusBrowser's Documents tab use.
-  const { anyOn, on: collectionsOn } = useCollections();
-  // The Collections control is shown only to visitors who chose collections
-  // or came through a trial link, so the default Literary profile leaves
-  // today's public site unchanged (2026-10-09, pending the lead's decision).
-  const showCollections = hasExplicitChoice()
-    || Object.entries(collectionsOn || {}).some(([id, v]) => v && id !== 'literature');
+  const { anyOn } = useCollections();
+  // The Collections control is shown to every visitor (owner 2026-10-10: the
+  // Start here panel named the historical collections while nothing at the
+  // top of the page showed them). The default profile is still Literary, so
+  // the tabs change only when a visitor switches a collection on.
+  const showCollections = true;
   const [documentsEnabled, setDocumentsEnabled] = useState(false);
 
   useEffect(() => {
