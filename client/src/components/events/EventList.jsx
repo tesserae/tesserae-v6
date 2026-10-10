@@ -4,12 +4,21 @@ import { dateLabel, centuryLabel } from './eventsFormat';
 
 const PER_PAGE = 20;
 
-/** The Events page: every event in the dossier database, searchable and filterable. */
+/**
+ * The Events page: every event in the dossier database, searchable and
+ * filterable. The list opens on the events with the most attached passages
+ * and nearby documents (sort=evidence); events with neither are left out
+ * until "Include events with no passages or documents" is ticked
+ * (owner's review 2026-10-10: a list opening on 801 BCE events with
+ * nothing attached was not persuasive).
+ */
 export default function EventList({ openEvent }) {
   const [q, setQ] = useState('');
   const [typed, setTyped] = useState('');
   const [type, setType] = useState('');
   const [century, setCentury] = useState('');
+  const [sort, setSort] = useState('evidence');
+  const [showAll, setShowAll] = useState(false);
   const [page, setPage] = useState(1);
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
@@ -17,19 +26,25 @@ export default function EventList({ openEvent }) {
   useEffect(() => {
     let dead = false;
     setError(null);
-    const p = new URLSearchParams({ page: String(page), per_page: String(PER_PAGE) });
+    const p = new URLSearchParams({ page: String(page), per_page: String(PER_PAGE), sort });
     if (q) p.set('q', q);
     if (type) p.set('type', type);
     if (century) p.set('century', century);
+    if (showAll) p.set('show', 'all');
     fetch(`/api/events?${p}`)
       .then((r) => { if (!r.ok) throw new Error(`Server answered ${r.status}`); return r.json(); })
       .then((d) => { if (!dead) setData(d); })
       .catch((e) => { if (!dead) setError(e.message); });
     return () => { dead = true; };
-  }, [q, type, century, page]);
+  }, [q, type, century, sort, showAll, page]);
 
   const pages = data ? Math.max(1, Math.ceil(data.total / (data.per_page || PER_PAGE))) : 1;
   const submit = (e) => { e.preventDefault(); setPage(1); setQ(typed.trim()); };
+  const typeLabel = (t) => {
+    const n = data?.type_counts?.[t];
+    return n == null ? t : `${t} (${n})`;
+  };
+  const hidden = data && !showAll && data.total_all != null ? data.total_all - data.total : 0;
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-6">
@@ -50,7 +65,7 @@ export default function EventList({ openEvent }) {
           <select value={type} onChange={(e) => { setType(e.target.value); setPage(1); }}
                   className="mt-1 block border border-gray-300 rounded px-2 py-1.5 text-sm text-gray-900">
             <option value="">All types</option>
-            {(data?.types || []).map((t) => <option key={t} value={t}>{t}</option>)}
+            {(data?.types || []).map((t) => <option key={t} value={t}>{typeLabel(t)}</option>)}
           </select>
         </label>
         <label className="text-xs text-gray-600">
@@ -61,9 +76,24 @@ export default function EventList({ openEvent }) {
             {(data?.centuries || []).map((c) => <option key={c} value={c}>{centuryLabel(c)}</option>)}
           </select>
         </label>
+        <label className="text-xs text-gray-600">
+          Order
+          <select value={sort} onChange={(e) => { setSort(e.target.value); setPage(1); }}
+                  aria-label="Order"
+                  className="mt-1 block border border-gray-300 rounded px-2 py-1.5 text-sm text-gray-900">
+            <option value="evidence">Most passages and documents</option>
+            <option value="date">By date</option>
+          </select>
+        </label>
         <button type="submit" className="px-3 py-1.5 text-sm rounded bg-red-700 text-white hover:bg-red-800">
           Search
         </button>
+        <label className="w-full flex items-center gap-2 text-xs text-gray-600 pt-1">
+          <input type="checkbox" checked={showAll}
+                 onChange={(e) => { setShowAll(e.target.checked); setPage(1); }}
+                 className="rounded" />
+          Include events with no passages or documents
+        </label>
       </form>
 
       <div className="mt-4">
@@ -78,6 +108,9 @@ export default function EventList({ openEvent }) {
           <>
             <p className="text-xs text-gray-500 mb-2" data-testid="events-total">
               {data.total} {data.total === 1 ? 'event' : 'events'}
+              {hidden > 0 && (
+                <span> with passages or documents · {hidden} more {hidden === 1 ? 'has' : 'have'} neither</span>
+              )}
             </p>
             {data.events.length === 0 && (
               <p className="text-sm text-gray-600 bg-white border border-gray-200 rounded-lg p-4">
