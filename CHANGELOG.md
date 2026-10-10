@@ -9,6 +9,9 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-10
 
+### Events: document cards lead with the edition, and an article is listed once
+A document card on an event page showed the internal identifier ("merged:282114", a stone both inscription databases record). It now leads with the edition reference ("CIL 09, 03200") or the document type, and names the databases that record it. The Scholarship tab listed an article once per passage it cites; it lists each article once.
+
 ### Events: a real map with coastlines
 The Map tab of an event was a bare scatter of points on a white rectangle. It is now a Leaflet map (Leaflet 1.9.4, bundled from npm) on OpenStreetMap tiles with the attribution shown. The event is a red marker and each findspot of documents a grey one sized by the number of documents. Hovering names the place and clicking gives its coordinates and document count. The scroll wheel zooms only after the map is clicked. If the tiles cannot be loaded, the markers stay over a plain background with a note. The table of coordinates stays under the map, and the Privacy page lists OpenStreetMap among the third-party services.
 ### A scope box on every search page
