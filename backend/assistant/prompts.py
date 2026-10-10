@@ -129,7 +129,11 @@ def guide_system():
             + '\n\n' + USING_YOUR_OWN_AI)
 
 
-GUIDE_SYSTEM = guide_system()
+# No module-level GUIDE_SYSTEM: this module is imported while the app is
+# starting, before the language plugins register, and a sentence built then
+# names only Latin, Greek and English. On the live site the ten-minute cache
+# kept that version (the workers recycle before it expires), so Tessa named
+# three languages for most of 2026-10-10. The prompt is built per request.
 
 ANALYZE_SYSTEM = """You are the Tesserae results assistant. A scholar has run a search and you are helping them read what came back.
 

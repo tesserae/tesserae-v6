@@ -9,6 +9,9 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-10
 
+### Tessa's holdings sentence is built per request, and the coins data is installed
+Tessa named only Latin, Greek and English for most of the day. Her prompt module built the holdings sentence when it was imported, before the language plugins register, and the ten-minute cache kept that version because the web workers recycle before it expires. The sentence is now built when she answers and a version naming no optional language is never cached. The records of the coins installs (database and description vectors, both run) are updated.
+
 ### Coins tab in the Reader and a Coins choice in Theme Search (in testing, off by default)
 With the Coins collection on, the Reader gains a Coins tab. "Named on coins" lists people named on a coin type (as authority or obverse portrait) and in the selected Latin lines, labelled as a name link and not an echo, each linking to the coin list for that person. "Related imagery" lists the five coin descriptions nearest the gist of the covering passage window, found through the query encoder service with a cosine against 26,461 description vectors, each with a confidence level and the measured hit rate of about one in three (17 of 50 on ten test passages). Theme Search gains a Coins choice that searches the coin descriptions on their own and shows a separate list. New routes `/api/coins/for-passage` and `/api/coins/theme` and a `person` filter on `/api/coins` (all site-only in the connector manifest), `scripts/coins/pack_descriptions.py` and `scripts/coins/measure_for_passage.py`, and the hand-written Latin name table `backend/coins_authority_names.json`. The vectors are installed by the steps in docs/DATA_OPERATIONS.md.
 ### Line Search: "whole phrase" means the phrase as typed

@@ -35,7 +35,16 @@ Conventions
   hand and are the models the helper matches.
 
 
-## 2026-10-10 Coins in the Reader and Theme Search, install of the description vectors (to run, nothing installed yet)
+## 2026-10-10 Coins in the Reader and Theme Search, install of the description vectors (run 2026-10-10 16:50)
+
+- Run: `descriptions.npy` (54 MB) and `descriptions_ids.json` (6.6 MB), packed
+  from the 2026-10-09 vectors, were copied into
+  `/var/www/tesseraev6_flask/data/coins/` under temporary names and renamed,
+  mode 664, with the wsgi touch, right after #771 deployed. Checks: the theme
+  query returned ten results; the Reader request for Suetonius, Augustus 94
+  returned five related descriptions and the name links Augustus, Julius
+  Caesar, Agrippa and Drusus Caesar. The campus GPU run below is still to do,
+  for the record only (the installed vectors are the same encoder's output).
 
 - What: two files beside `coins.sqlite` in `data/coins/`, read by
   `/api/coins/for-passage` and `/api/coins/theme`. `descriptions.npy` holds one
@@ -81,7 +90,13 @@ Conventions
   50 are real parallels (0.34), and 13 of 40 on the eight passages with a
   translation (0.325).
 
-## 2026-10-10 Coins collection, build and install of `data/coins/coins.sqlite` (to run, nothing installed yet)
+## 2026-10-10 Coins collection, build and install of `data/coins/coins.sqlite` (run 2026-10-10 16:50)
+
+- Run: the file built on 2026-10-10 (47 MB, 58,715 types) was copied into
+  `/var/www/tesseraev6_flask/data/coins/` (new folder, group tessdev) under a
+  temporary name and renamed, mode 664, with the wsgi touch, right after
+  #771 deployed. Checks: facets `available: true`, total 58715 (ocre 56113,
+  crro 2602); "capricorn" 125 types; "harbor" 17; `/api/languages` 200.
 
 - What: the Coins page and `/api/coins` read one SQLite file of 58,715 Roman
   coin types (56,113 from OCRE, 2,602 from CRRO, nomisma.org exports, ODbL),
@@ -105,8 +120,8 @@ Conventions
      `total` 58715. `curl '.../api/coins?q=capricorn'` returns 125 types.
      `curl .../api/languages` still answers.
 - Switching on: the Coins entry appears in the main menu only for a visitor who
-  has the Coins collection on (the Archaeological profile, or the switch by
-  name). The Everything profile leaves it off.
+  has the Coins collection on (the Archaeological and Everything profiles, or
+  the switch by name).
 
 ## 2026-10-10 Page views table (created 09:56 on the reload after #761, confirmed)
 
