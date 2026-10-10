@@ -15641,38 +15641,6 @@
     "added_by": "V6 Import"
   },
   {
-    "author": "World English Bible",
-    "work": "Pentateuch",
-    "e_source": "Greek & Latin Texts",
-    "e_source_url": "",
-    "print_source": "",
-    "added_by": "V6 Import"
-  },
-  {
-    "author": "World English Bible",
-    "work": "Prophets",
-    "e_source": "Greek & Latin Texts",
-    "e_source_url": "",
-    "print_source": "",
-    "added_by": "V6 Import"
-  },
-  {
-    "author": "World English Bible",
-    "work": "Revelation",
-    "e_source": "Greek & Latin Texts",
-    "e_source_url": "",
-    "print_source": "",
-    "added_by": "V6 Import"
-  },
-  {
-    "author": "World English Bible",
-    "work": "Writings",
-    "e_source": "Greek & Latin Texts",
-    "e_source_url": "",
-    "print_source": "",
-    "added_by": "V6 Import"
-  },
-  {
     "author": "Xenophon",
     "work": "Anabasis",
     "e_source": "Perseus",
@@ -19541,5 +19509,13 @@
     "e_source_url": "https://github.com/PerseusDL/canonical-greekLit/tree/master/data/tlg0385/tlg001",
     "print_source": "Dio's Roman History, vols. 3-6 (books 36-55). Cary, Earnest, ed., on the basis of H. B. Foster. London: William Heinemann; New York: Macmillan, 1914-1917. Loeb Classical Library. (Licence: CC BY-SA 4.0; translation by Earnest Cary, Loeb, 1914-1927, from LacusCurtius.)",
     "added_by": "V6 Import (historians, 2026-10-09)"
+  },
+  {
+    "author": "King James Bible",
+    "work": "New Testament",
+    "e_source": "Project Gutenberg",
+    "e_source_url": "https://www.gutenberg.org/",
+    "print_source": "Authorized (King James) Version, 1611",
+    "added_by": "Tesserae Project"
   }
 ]
