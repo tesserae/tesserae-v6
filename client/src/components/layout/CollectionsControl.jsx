@@ -41,7 +41,7 @@ export default function CollectionsControl() {
         <div
           role="dialog"
           aria-label="Collections"
-          className="absolute right-0 mt-1 w-72 bg-white border border-gray-200 rounded shadow-lg p-3 z-50 text-sm"
+          className="absolute left-0 mt-1 w-72 bg-white border border-gray-200 rounded shadow-lg p-3 z-50 text-sm"
         >
           <div className="text-xs uppercase tracking-wide text-gray-500 mb-1">Profile</div>
           <div className="flex flex-wrap gap-1 mb-3">
