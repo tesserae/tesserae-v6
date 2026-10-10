@@ -2390,6 +2390,20 @@ def get_document(doc_id):
     return jsonify(payload)
 
 
+@api_route('/documents/<doc_id>/scholarship', methods=['GET'])
+def get_document_scholarship(doc_id):
+    """Journal sentences and commentary notes that cite one document, from
+    the offline document citation index: citation, one excerpt and a link,
+    newest first, never summarised. Behind TESSERAE_DOCUMENTS=1 like the
+    document view itself (404 otherwise); an absent index file gives an empty
+    list."""
+    import backend.documents as _docs_mod
+    if not _docs_mod.enabled():
+        return jsonify({'error': 'not found'}), 404
+    from backend.document_scholarship import scholarship_for
+    return jsonify(dict(scholarship_for(doc_id), doc_id=doc_id))
+
+
 @api_route('/documents/browse', methods=['GET'])
 def browse_documents():
     """The Documents section of Browse Corpus: a normalized facet tree

@@ -9,6 +9,8 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-09
 
+### Inscription and papyrus pages gain a Scholarship section of journal sentences that cite the document
+- `scripts/documents/build_document_citation_index.py` runs the document-citation recogniser over the Early Journal Content full text and the commentary notes, links each reference to documents through their stored edition references, and writes `data/citation_index/document_citations.db` (one row per citing sentence and document). `GET /api/documents/<id>/scholarship` returns citation, one excerpt and a link (JSTOR stable address, or the commentary file), newest first, with a count. `/document` shows a Scholarship section under the text when there is at least one hit. The route is site-only (not a connector tool). Without the index file the section does not appear.
 ### Theme Search: optional "in this author or work" restriction
 - `/api/passages/theme-search` takes `author=` (one author id, all that author's works with passage windows in the chosen languages) and `works=` (comma-separated work ids). An unknown author or work answers 200 with an empty result and a `note`. A restricted search returns a flat list of passages, up to 10 per work when several works are involved and no cap for a single work, and states that confidence is not rated, because the confidence figures were fitted to corpus-wide queries. The Theme Search page has a "Search within" picker (Author, then Work) that is closed by default, shows the restriction in the results header, and carries it in the address. The `theme_search` connector tool accepts the same two parameters. Measurement and cap choice are in docs/DECISIONS.md.
 ### Tessa: the cross-language pair list matches the search again

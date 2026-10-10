@@ -52,6 +52,21 @@ export default function DocumentView() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [scholarship, setScholarship] = useState([]);
+
+  // Journal sentences and commentary notes that cite this document. An
+  // absent index, a 404 (documents switch off) or a failure leaves the
+  // section out; it never blocks the document itself.
+  useEffect(() => {
+    setScholarship([]);
+    if (!docId) return;
+    let live = true;
+    fetch(`/api/documents/${encodeURIComponent(docId)}/scholarship`)
+      .then(r => (r.ok ? r.json() : null))
+      .then(j => { if (live && j && Array.isArray(j.results)) setScholarship(j.results); })
+      .catch(() => {});
+    return () => { live = false; };
+  }, [docId]);
 
   useEffect(() => {
     if (!docId) {
@@ -196,6 +211,30 @@ export default function DocumentView() {
                     {imageLinks.omitted} image link{imageLinks.omitted === 1 ? '' : 's'} omitted (the host no longer serves {imageLinks.omitted === 1 ? 'it' : 'them'}).
                   </p>
                 )}
+              </div>
+            )}
+
+            {scholarship.length > 0 && (
+              <div className="border-t pt-3" data-testid="document-scholarship">
+                <div className="text-sm font-medium text-gray-700 mb-1">Scholarship</div>
+                <ul className="space-y-3">
+                  {scholarship.map((r, i) => (
+                    <li key={i} className="text-sm leading-snug">
+                      <span className="inline-block bg-gray-100 text-gray-600 text-[10px] px-1.5 py-0.5 rounded mb-1">
+                        {r.source === 'commentary' ? 'commentary' : 'journal article, JSTOR'}
+                      </span>
+                      <p className="text-gray-900">{r.citation}</p>
+                      {r.excerpt && (
+                        <p className="text-[12px] text-gray-700 mt-0.5 border-l-2 border-gray-200 pl-2">{r.excerpt}</p>
+                      )}
+                      <p className="text-[11px] text-gray-500 mt-0.5 flex flex-wrap gap-x-3">
+                        {r.cites && <span>cites {r.cites}</span>}
+                        {r.url && <a className="text-red-700 hover:underline" href={r.url} target="_blank" rel="noreferrer">on JSTOR</a>}
+                        {r.commentary_file && <span>{r.commentary_file}{r.commentary_ref ? `, ${r.commentary_ref}` : ''}</span>}
+                      </p>
+                    </li>
+                  ))}
+                </ul>
               </div>
             )}
 
