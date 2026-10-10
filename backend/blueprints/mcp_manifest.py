@@ -80,6 +80,12 @@ MANIFEST = {
         'reason': ('Event focus view in testing: one dossier from the offline '
                     'dossier database; not yet exposed to the connector.'),
     },
+    '/api/documents/<doc_id>/scholarship': {
+        'site_only': True,
+        'reason': ('Journal sentences and commentary notes citing one document, for the '
+                    'document page: licensed scholarship shown as citation, excerpt and link '
+                    'on the site; not exposed to the connector.'),
+    },
     '/api/documents/browse': {
         'site_only': True,
         'reason': ('Documents section of Browse Corpus: facet tree (kind, '
