@@ -58,9 +58,9 @@ _RULES = [
     },
     {
         'all': [('language', 'languages'), ('support', 'available', 'which', 'what')],
-        'answer': ("Tesserae searches Latin, Greek, Hebrew, English and Coptic, and it can search across "
-                   "those languages for texts that are related in different tongues. The corpus holds "
-                   "roughly 2,100 works, most of them Latin and Greek."),
+        # Built from the server's own state (backend/assistant/site_facts.py),
+        # so the answer follows the languages and collections actually served.
+        'answer': lambda: __import__('backend.assistant.site_facts', fromlist=['holdings_sentence']).holdings_sentence(),
     },
 ]
 
@@ -122,5 +122,6 @@ def route(question):
         return None
     for rule in _RULES:
         if all(any(_has(term, q) for term in group) for group in rule['all']):
-            return rule['answer']
+            answer = rule['answer']
+            return answer() if callable(answer) else answer
     return None

@@ -9,6 +9,9 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-10
 
+### Tessa describes what the server holds from its own state
+Asked what the site holds, Tessa named five languages from a fixed sentence in her prompt, written before Persian, Urdu, the inscriptions and papyri, the scholarship and the events were added. The sentence is now built when she answers, from the same checks the site makes: the language flags and text folders behind the language tabs, the documents indexes, the scholarship data and the events database, with the coins collection named once its database exists. A test holds the helper to the languages route so the two cannot drift apart.
+
 ### Usage summary: referrers from real browsers only, rotated logs read, one bot list
 A referring site now counts only when the referred address also loaded the application that month, which removes forged referrers sent by scanners. The script reads rotated copies of the access log (plain or compressed) before the current file, and takes its bot list from the module the page-view route uses.
 
