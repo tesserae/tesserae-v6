@@ -65,8 +65,8 @@ _ENABLED = os.environ.get('TESSERAE_MODEL_ROUTING', '0') in ('1', 'true', 'yes')
 _TIMEOUT = float(os.environ.get('TESSERAE_ROUTING_TIMEOUT', '6'))
 
 SYSTEM = """You classify a question typed into Tesserae, a search tool for
-finding textual parallels in classical literature (Latin, Greek, English,
-Coptic, Hebrew).
+finding textual parallels in classical and other literatures (Latin, Greek
+and several more languages).
 
 Reply with JSON only. No prose, no explanation.
 

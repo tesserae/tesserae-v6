@@ -9,6 +9,10 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-10
 
+### Events: the best-attested events first, empty ones hidden
+The Events list opened on the earliest events in the database, several of them with no passage and no document attached. It now opens on the events with the most attached passages and nearby documents (an Order control offers the chronological order), leaves out the events with neither until a box is ticked, says how many it left out, and shows the count of each type in the Type menu. Four Wikidata items with no label beyond their identifier are no longer listed.
+### Tessa describes what the server holds from its own state
+Asked what the site holds, Tessa named five languages from a fixed sentence in her prompt, written before Persian, Urdu, the inscriptions and papyri, the scholarship and the events were added. The sentence is now built when she answers, from the same checks the site makes: the language flags and text folders behind the language tabs, the documents indexes, the scholarship data and the events database, with the coins collection named once its database exists. A test holds the helper to the languages route so the two cannot drift apart.
 ### Line Search: lines that quote the phrase come first
 A search for several words ("sit tibi terra levis") listed its literary hits by era, so lines sharing one word of the phrase stood above lines quoting it. Each literary hit now carries how many of the query's content words it shares and whether it has them all within a short window (a near quotation). A query of two or more words opens on a "Closest match" order (quotations first, then lines sharing more words, then the older text) with a tag beside each line ("whole phrase", "3 of 4 words"); By Era and A-Z remain. On the Inscriptions & Papyri page the "Both" search now shows the documents first and the literary companions after them, ranked the same way and folded to five until opened.
 

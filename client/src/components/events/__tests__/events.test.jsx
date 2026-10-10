@@ -89,6 +89,22 @@ describe('formatting', () => {
 });
 
 describe('the list', () => {
+  it('asks for the most-evidence order first, says how many empty events are hidden, and can include them', async () => {
+    const calls = mockApi({ ...LIST, total_all: 5, sort: 'evidence', show: 'evidence',
+      type_counts: { battle: 1, siege: 1 } });
+    render(<EventsPage setPageType={() => {}} />);
+    expect(await screen.findByText('Battle of Marathon')).toBeTruthy();
+    expect(calls[0]).toContain('sort=evidence');
+    expect(calls[0]).not.toContain('show=all');
+    expect(screen.getByTestId('events-total').textContent)
+      .toBe('2 events with passages or documents · 3 more have neither');
+    expect(screen.getByRole('option', { name: 'battle (1)' })).toBeTruthy();
+    await userEvent.click(screen.getByLabelText('Include events with no passages or documents'));
+    await waitFor(() => expect(calls.some((u) => u.includes('show=all'))).toBe(true));
+    await userEvent.selectOptions(screen.getByLabelText('Order'), 'date');
+    await waitFor(() => expect(calls.some((u) => u.includes('sort=date'))).toBe(true));
+  });
+
   it('lists the events with dates and counts, and opens one', async () => {
     mockApi();
     render(<EventsPage setPageType={() => {}} />);
