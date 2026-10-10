@@ -727,6 +727,7 @@ def _translation_fact(row):
                              'work. Say exactly that.'})
         return fact
     fact.update({'translation_attached': True,
+                 'translation_language': 'English',
                  'attribution': entry.get('attribution') or 'not recorded'})
     if entry.get('coverage'):
         fact['share_of_lines_aligned_percent'] = int(round(float(entry['coverage']) * 100))
