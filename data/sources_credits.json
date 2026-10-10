@@ -137,10 +137,10 @@
     "url": "https://archive.org/",
     "licence_name": "Pre-1923 journal articles released by JSTOR as Early Journal Content",
     "licence_url": "https://archive.org/about/terms.php",
-    "version": "Live service, queried at request time",
-    "retrieved": "Not applicable",
-    "what_we_use": "The site's own offline index of passage citations in journals from before 1923. The Scholarship tab shows the citing article and where it cites.",
-    "notes": "Only citations (article, passage) are shown, never the article text. Index built offline into data/citation_index/citations.db. The JSTOR Early Journal Content terms page could not be checked at the address we tried, so its wording is not quoted."
+    "version": "Offline index built 2026-09-19 from the Early Journal Content full texts fetched from the Internet Archive on 2026-09-14 (data/citation_index/citations.db); the companion index of citations of inscriptions and papyri built 2026-10-09 (document_citations.db)",
+    "retrieved": "2026-09-14",
+    "what_we_use": "The site's own index of passage citations found in the running text of 24 journals, 1827 to 1922: The Biblical World, Modern Language Notes, The Classical Weekly, The American Journal of Philology, The Classical Journal, Classical Philology, Rheinisches Museum für Philologie (1827 to 1866), The Jewish Quarterly Review, The Journal of English and Germanic Philology, PMLA, The American Journal of Semitic Languages and Literatures, Hebraica, American Journal of Archaeology (and its predecessor), Modern Philology, The Harvard Theological Review, Journal of Biblical Literature, Transactions of the American Philological Association, Harvard Studies in Classical Philology, The Journal of Germanic Philology, Studies in Philology (to 1922) and Hermes (1866 to 1869). 29,055 articles were read; 5,193 of them cite one of 437 works held here, 33,386 citations in all. The same texts yield 956 sentences from 288 articles that cite 742 of the inscriptions and papyri, shown on the document's page. The Reader's Scholarship tab and the document page show the citing article, the sentence that cites, and a link to the article on JSTOR.",
+    "notes": "Only the citing sentence is shown, never the article text. The Early Journal Content is the set of journal issues published in the United States before 1923, or elsewhere before 1870, that JSTOR released for free reuse; the Internet Archive holds the copies we read. Index built offline, no request-time calls."
   },
   {
     "collection": "Scholarship",
@@ -218,5 +218,27 @@
     "retrieved": "Not applicable",
     "what_we_use": "A link that runs the same citation search in HathiTrust's book scans. We send the search; no HathiTrust data is copied or stored.",
     "notes": "The HathiTrust terms page returned an access error to our automated request, so the linked address is its home page."
+  },
+  {
+    "collection": "Events",
+    "name": "Wikidata",
+    "url": "https://www.wikidata.org/",
+    "licence_name": "Creative Commons CC0 1.0 (public domain dedication)",
+    "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "version": "Query of 2026-10-09 (battles, sieges, treaties and other dated events of the ancient Mediterranean, with their labels, dates, places and participants)",
+    "retrieved": "2026-10-09",
+    "what_we_use": "The list of events on the Events page, each event's name, date, place and participants, and the link to its Wikipedia article. The opening paragraph of the English Wikipedia article (CC BY-SA 4.0) is read by the offline language model when it judges whether a passage tells of the event. It is not shown on the site.",
+    "notes": "Places are matched to Pleiades through the Wikidata place items. Passages are chosen by the names in the Wikidata record and sorted by an offline language model that no person has checked; the page says so."
+  },
+  {
+    "collection": "Inscriptions and papyri",
+    "name": "Photographs of inscriptions and papyri (linked, not copied)",
+    "url": "/help#documents",
+    "licence_name": "Each photograph stays on the institution's own site under that institution's terms; Tesserae stores only the address",
+    "licence_url": null,
+    "version": "Addresses as recorded in the EDH, EDR and papyri.info files, repaired 2026-10-09 where an institution had moved its images",
+    "retrieved": "2026-10-09",
+    "what_we_use": "A link from a document's page to the photograph or record held by the Epigraphic Database Roma, the Epigraphic Database Heidelberg, Ubi Erat Lupa, the Corpus Inscriptionum Latinarum (Berlin-Brandenburg Academy), papyri.info and the other collections named on the link. Links to hosts that no longer answer are not shown.",
+    "notes": "No image file is copied to our server."
   }
 ]

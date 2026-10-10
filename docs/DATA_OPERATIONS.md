@@ -79,13 +79,24 @@ removal procedure: dry run by default, reporting what it would take out of
 the texts, the lemma cache, the inverted index and the passage index before
 anything is deleted, with a dated backup kept of each file it removes.
 
-## 2026-10-09 Document scholarship index built, install steps for production (drafted, NOT yet run)
+## 2026-10-10 Journal citation index: seven Studies in Philology articles re-dated from 1992 to 1922 (run on production)
+
+`data/citation_index/citations.db` carried seven articles of Studies in Philology volume 19 with year 1992; the volume is 1922 (the journal began in 1906, one volume a year) and the Early Journal Content ends at 1922. Three of the seven cite held works and were shown as 1992 articles in the Scholarship tab. Fixed in place with a backup first:
+
+```
+cp -p data/citation_index/citations.db ~/tesserae-backups/citations.db.bak-years-20261010
+python3 -c "import sqlite3; c=sqlite3.connect('data/citation_index/citations.db'); c.execute(\"UPDATE articles SET year=1922 WHERE journal='Studies in Philology' AND year=1992\"); c.commit()"
+```
+
+Seven rows updated; `SELECT max(year) FROM articles` now returns 1922. The same change applied to the source copy `~/tesserae-backups/ejc_index_2026-09-14/citations.db` so a rebuild keeps it.
+
+## 2026-10-09 Document scholarship index built, install steps for production (run 2026-10-10 00:24 EDT)
 
 The file `data/citation_index/document_citations.db` holds the journal sentences (JSTOR Early Journal Content) and commentary notes that cite an inscription, papyrus or coin of the documents collection, linked by edition reference. Read by `GET /api/documents/<id>/scholarship` and shown as the Scholarship section of `/document`.
 
 Built 2026-10-09 by `scripts/documents/build_document_citation_index.py` under `tess-job` (4 GB cap, 3 min 32 s, peak 138 MB resident) from the copied `documents/metadata.db`, `citation_index/citations.db` (article metadata), the cached full texts in `~/tesserae-backups/ejc_index_2026-09-14/raw/` and the 392 commentary files. Result: 956 rows, 742 distinct documents, 288 distinct articles (27,244 articles read, 1,368 front and back matter skipped). A hit that matches more than three documents is dropped as too ambiguous (25). All 49 commentary hits name works outside the corpus (mostly CIG), so the index holds no commentary rows yet. The built file is kept at `~/tesserae-backups/document_citations_2026-10-09.db`.
 
-Steps for production, after the pull request merges and is deployed:
+Steps for production, run 2026-10-10 00:24 after pull request #751 merged and was deployed (step 4 returned `count` 16):
 1. `cp ~/tesserae-backups/document_citations_2026-10-09.db /var/www/tesseraev6_flask/data/citation_index/document_citations.db.new && mv /var/www/tesseraev6_flask/data/citation_index/document_citations.db.new /var/www/tesseraev6_flask/data/citation_index/document_citations.db`
 2. `chmod 664 /var/www/tesseraev6_flask/data/citation_index/document_citations.db`
 3. `touch /var/www/tesseraev6_flask/tesseraev6_flask.wsgi`, then `curl .../api/languages`.

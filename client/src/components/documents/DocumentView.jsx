@@ -217,6 +217,11 @@ export default function DocumentView() {
             {scholarship.length > 0 && (
               <div className="border-t pt-3" data-testid="document-scholarship">
                 <div className="text-sm font-medium text-gray-700 mb-1">Scholarship</div>
+                <p className="text-[11px] text-gray-500 mb-2">
+                  Sentences that cite this document in journals from before 1923 (JSTOR Early Journal
+                  Content) and in the commentaries held here. The full list of sources is under{' '}
+                  <a href="/text-credits" className="text-red-700 hover:underline">Sources and credits</a>.
+                </p>
                 <ul className="space-y-3">
                   {scholarship.map((r, i) => (
                     <li key={i} className="text-sm leading-snug">
