@@ -82,6 +82,8 @@ export const READER_TABS = [
   { id: 'translation', needs: [] },
   { id: 'reuse', needs: [] },
   { id: 'scholarship', needs: ['scholarship'] },
+  // Coins that name the same people as the selection, and coin imagery close to it.
+  { id: 'coins', needs: ['coins'] },
 ];
 
 /** Groups inside a tab that depend on a collection. */

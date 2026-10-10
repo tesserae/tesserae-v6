@@ -1906,6 +1906,24 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 site stores no coin images.
               </p>
               <p className="text-gray-700 mb-4">
+                With Coins on, the Reader gets a Coins tab beside Reuse. It shows two things, kept apart
+                because they mean different things. &ldquo;Named on coins&rdquo; lists people who are named
+                on a coin type, as the emperor or moneyer or as the portrait on the obverse, and are also
+                named in the lines you selected. It is a name link, not an echo: the coin names the same
+                person and does not quote the passage. Names are matched in Latin passages only, and a
+                namesake (another Claudius, another Antonius) can match. &ldquo;Related imagery&rdquo; lists
+                the five coin descriptions closest in meaning to a one-sentence summary of the passage, each
+                with the dates, issuers and mint of the types that carry it. About one match in three is a
+                real parallel. In a test on ten passages with known coin parallels, 17 of 50 matches were
+                right, and the matches the tab calls &ldquo;closer&rdquo; were right about 7 times in 10 while
+                the rest were right about 1 time in 4. The matches are descriptions of coin imagery, not coins
+                known to refer to the passage, so read the coin before you rely on one. Theme Search gets a
+                Coins choice too. It searches the coin descriptions and shows its own list, never mixed
+                into the passage results. A query worded the way a catalogue words an image
+                (&ldquo;ship under full sail&rdquo;, &ldquo;infant on a goat&rdquo;) found about one right coin
+                in two in the same test, and a vague or abstract query finds fewer.
+              </p>
+              <p className="text-gray-700 mb-4">
                 Coins are off by default and are not part of the Everything profile, because 58,715 types of
                 about five words each would crowd a phrase search. Switch Coins on in Collections (the
                 Archaeological profile includes it) and the Coins entry appears in the main menu. This is a

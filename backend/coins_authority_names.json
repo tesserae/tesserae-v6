@@ -1,0 +1,754 @@
+{
+ "_about": "Hand-written Latin name forms for the coin authorities and portraits with 50 or more types. Each form is a set of words, all of which must occur as capitalised words in the passage, written in the corpus's lemma spelling (u for v, i for j). Deities and personifications are left out (see skip). Labels not listed here are generated from the label by backend/coins_passage.py. Labels containing Personification, or of the form B12 or all digits, are never linked.",
+ "names": {
+  "Augustus": {
+   "latin": "Augustus",
+   "forms": [
+    "augustus"
+   ]
+  },
+  "Octavian": {
+   "latin": "Octavianus",
+   "forms": [
+    "octauianus"
+   ]
+  },
+  "Julius Caesar": {
+   "latin": "Iulius Caesar",
+   "forms": [
+    "iulius caesar",
+    "gaius iulius caesar"
+   ]
+  },
+  "Mark Antony": {
+   "latin": "Marcus Antonius",
+   "forms": [
+    "marcus antonius",
+    "antonius"
+   ]
+  },
+  "Tiberius": {
+   "latin": "Tiberius",
+   "forms": [
+    "tiberius"
+   ]
+  },
+  "Gaius/Caligula": {
+   "latin": "Gaius Caligula",
+   "forms": [
+    "caligula",
+    "gaius caesar"
+   ]
+  },
+  "Claudius": {
+   "latin": "Claudius",
+   "forms": [
+    "claudius"
+   ]
+  },
+  "Nero": {
+   "latin": "Nero",
+   "forms": [
+    "nero"
+   ]
+  },
+  "Galba": {
+   "latin": "Galba",
+   "forms": [
+    "galba"
+   ]
+  },
+  "Vitellius": {
+   "latin": "Vitellius",
+   "forms": [
+    "uitellius"
+   ]
+  },
+  "Vespasian": {
+   "latin": "Vespasianus",
+   "forms": [
+    "uespasianus"
+   ]
+  },
+  "Titus": {
+   "latin": "Titus Vespasianus",
+   "forms": [
+    "titus uespasianus",
+    "titus flauius"
+   ]
+  },
+  "Domitian": {
+   "latin": "Domitianus",
+   "forms": [
+    "domitianus"
+   ]
+  },
+  "Nerva": {
+   "latin": "Nerva",
+   "forms": [
+    "nerua"
+   ]
+  },
+  "Trajan": {
+   "latin": "Traianus",
+   "forms": [
+    "traianus"
+   ]
+  },
+  "Hadrian": {
+   "latin": "Hadrianus",
+   "forms": [
+    "hadrianus"
+   ]
+  },
+  "Sabina": {
+   "latin": "Sabina",
+   "forms": [
+    "sabina augusta",
+    "uibia sabina"
+   ]
+  },
+  "Lucius Aelius": {
+   "latin": "Lucius Aelius",
+   "forms": [
+    "lucius aelius",
+    "aelius caesar"
+   ]
+  },
+  "Antoninus Pius": {
+   "latin": "Antoninus Pius",
+   "forms": [
+    "antoninus pius",
+    "antoninus"
+   ]
+  },
+  "Faustina the Elder": {
+   "latin": "Faustina maior",
+   "forms": [
+    "faustina maior",
+    "faustina"
+   ]
+  },
+  "Marcus Aurelius": {
+   "latin": "Marcus Aurelius",
+   "forms": [
+    "marcus aurelius"
+   ]
+  },
+  "Faustina the Younger": {
+   "latin": "Faustina minor",
+   "forms": [
+    "faustina iunior"
+   ]
+  },
+  "Lucius Verus": {
+   "latin": "Lucius Verus",
+   "forms": [
+    "lucius uerus"
+   ]
+  },
+  "Lucilla": {
+   "latin": "Lucilla",
+   "forms": [
+    "lucilla"
+   ]
+  },
+  "Commodus": {
+   "latin": "Commodus",
+   "forms": [
+    "commodus"
+   ]
+  },
+  "Crispina": {
+   "latin": "Crispina",
+   "forms": [
+    "crispina"
+   ]
+  },
+  "Pertinax": {
+   "latin": "Pertinax",
+   "forms": [
+    "pertinax"
+   ]
+  },
+  "Didius Julianus": {
+   "latin": "Didius Iulianus",
+   "forms": [
+    "didius iulianus"
+   ]
+  },
+  "Pescennius Niger": {
+   "latin": "Pescennius Niger",
+   "forms": [
+    "pescennius niger"
+   ]
+  },
+  "Clodius Albinus": {
+   "latin": "Clodius Albinus",
+   "forms": [
+    "clodius albinus"
+   ]
+  },
+  "Septimius Severus": {
+   "latin": "Septimius Severus",
+   "forms": [
+    "septimius seuerus"
+   ]
+  },
+  "Julia Domna": {
+   "latin": "Iulia Domna",
+   "forms": [
+    "iulia domna"
+   ]
+  },
+  "Caracalla": {
+   "latin": "Caracalla",
+   "forms": [
+    "caracalla",
+    "bassianus"
+   ]
+  },
+  "Geta": {
+   "latin": "Geta",
+   "forms": [
+    "geta"
+   ]
+  },
+  "Macrinus": {
+   "latin": "Macrinus",
+   "forms": [
+    "macrinus"
+   ]
+  },
+  "Elagabalus": {
+   "latin": "Elagabalus",
+   "forms": [
+    "elagabalus",
+    "heliogabalus"
+   ]
+  },
+  "Julia Maesa": {
+   "latin": "Iulia Maesa",
+   "forms": [
+    "iulia maesa"
+   ]
+  },
+  "Severus Alexander": {
+   "latin": "Alexander Severus",
+   "forms": [
+    "seuerus alexander",
+    "alexander seuerus"
+   ]
+  },
+  "Julia Mamaea": {
+   "latin": "Iulia Mamaea",
+   "forms": [
+    "iulia mamaea",
+    "mamaea"
+   ]
+  },
+  "Maximinus Thrax": {
+   "latin": "Maximinus Thrax",
+   "forms": [
+    "maximinus thrax"
+   ]
+  },
+  "Gordian III": {
+   "latin": "Gordianus III",
+   "forms": [
+    "gordianus"
+   ]
+  },
+  "Philip the Arab": {
+   "latin": "Philippus Arabs",
+   "forms": [
+    "philippus arabs",
+    "iulius philippus"
+   ]
+  },
+  "Philip II": {
+   "latin": "Philippus II",
+   "forms": [
+    "philippus iunior"
+   ]
+  },
+  "Otacilia Severa": {
+   "latin": "Otacilia Severa",
+   "forms": [
+    "otacilia seuera"
+   ]
+  },
+  "Trajan Decius": {
+   "latin": "Traianus Decius",
+   "forms": [
+    "traianus decius"
+   ]
+  },
+  "Herennia Etruscilla": {
+   "latin": "Herennia Etruscilla",
+   "forms": [
+    "herennia etruscilla"
+   ]
+  },
+  "Herennius Etruscus": {
+   "latin": "Herennius Etruscus",
+   "forms": [
+    "herennius etruscus"
+   ]
+  },
+  "Hostilian": {
+   "latin": "Hostilianus",
+   "forms": [
+    "hostilianus"
+   ]
+  },
+  "Trebonianus Gallus": {
+   "latin": "Trebonianus Gallus",
+   "forms": [
+    "trebonianus gallus"
+   ]
+  },
+  "Volusian": {
+   "latin": "Volusianus",
+   "forms": [
+    "uolusianus"
+   ]
+  },
+  "Aemilian": {
+   "latin": "Aemilianus",
+   "forms": [
+    "aemilianus augustus",
+    "aemilius aemilianus"
+   ]
+  },
+  "Valerian": {
+   "latin": "Valerianus",
+   "forms": [
+    "ualerianus"
+   ]
+  },
+  "Valerian II": {
+   "latin": "Valerianus II",
+   "forms": [
+    "ualerianus iunior"
+   ]
+  },
+  "Gallienus": {
+   "latin": "Gallienus",
+   "forms": [
+    "gallienus"
+   ]
+  },
+  "Cornelia Salonina": {
+   "latin": "Salonina",
+   "forms": [
+    "salonina"
+   ]
+  },
+  "Postumus": {
+   "latin": "Postumus",
+   "forms": [
+    "postumus"
+   ]
+  },
+  "Victorinus": {
+   "latin": "Victorinus",
+   "forms": [
+    "uictorinus"
+   ]
+  },
+  "Tetricus I": {
+   "latin": "Tetricus",
+   "forms": [
+    "tetricus"
+   ]
+  },
+  "Tetricus II": {
+   "latin": "Tetricus iunior",
+   "forms": [
+    "tetricus iunior"
+   ]
+  },
+  "Claudius II Gothicus": {
+   "latin": "Claudius Gothicus",
+   "forms": [
+    "claudius gothicus"
+   ]
+  },
+  "Quintillus": {
+   "latin": "Quintillus",
+   "forms": [
+    "quintillus"
+   ]
+  },
+  "Aurelian": {
+   "latin": "Aurelianus",
+   "forms": [
+    "aurelianus"
+   ]
+  },
+  "Tacitus": {
+   "latin": "Tacitus (emperor)",
+   "forms": [
+    "claudius tacitus",
+    "imperator tacitus"
+   ]
+  },
+  "Florianus": {
+   "latin": "Florianus",
+   "forms": [
+    "florianus"
+   ]
+  },
+  "Probus": {
+   "latin": "Probus",
+   "forms": [
+    "probus"
+   ]
+  },
+  "Carus": {
+   "latin": "Carus",
+   "forms": [
+    "carus"
+   ]
+  },
+  "Carinus": {
+   "latin": "Carinus",
+   "forms": [
+    "carinus"
+   ]
+  },
+  "Numerian": {
+   "latin": "Numerianus",
+   "forms": [
+    "numerianus"
+   ]
+  },
+  "Diocletian": {
+   "latin": "Diocletianus",
+   "forms": [
+    "diocletianus"
+   ]
+  },
+  "Maximian": {
+   "latin": "Maximianus",
+   "forms": [
+    "maximianus"
+   ]
+  },
+  "Carausius": {
+   "latin": "Carausius",
+   "forms": [
+    "carausius"
+   ]
+  },
+  "Allectus": {
+   "latin": "Allectus",
+   "forms": [
+    "allectus"
+   ]
+  },
+  "Constantius Chlorus": {
+   "latin": "Constantius Chlorus",
+   "forms": [
+    "constantius chlorus"
+   ]
+  },
+  "Galerius": {
+   "latin": "Galerius",
+   "forms": [
+    "galerius"
+   ]
+  },
+  "Severus II": {
+   "latin": "Seuerus II",
+   "forms": [
+    "seuerus augustus"
+   ]
+  },
+  "Maxentius": {
+   "latin": "Maxentius",
+   "forms": [
+    "maxentius"
+   ]
+  },
+  "Maximinus Daia": {
+   "latin": "Maximinus Daia",
+   "forms": [
+    "maximinus daia",
+    "daza"
+   ]
+  },
+  "Licinius": {
+   "latin": "Licinius",
+   "forms": [
+    "licinius"
+   ]
+  },
+  "Licinius II": {
+   "latin": "Licinius iunior",
+   "forms": [
+    "licinius iunior"
+   ]
+  },
+  "Constantine I": {
+   "latin": "Constantinus",
+   "forms": [
+    "constantinus"
+   ]
+  },
+  "Constantine II": {
+   "latin": "Constantinus II",
+   "forms": [
+    "constantinus iunior"
+   ]
+  },
+  "Crispus": {
+   "latin": "Crispus",
+   "forms": [
+    "crispus"
+   ]
+  },
+  "Fausta": {
+   "latin": "Fausta",
+   "forms": [
+    "fausta"
+   ]
+  },
+  "Helena": {
+   "latin": "Helena (mother of Constantine)",
+   "forms": [
+    "helena augusta",
+    "flauia helena"
+   ]
+  },
+  "Constantius II": {
+   "latin": "Constantius II",
+   "forms": [
+    "constantius"
+   ]
+  },
+  "Constans": {
+   "latin": "Constans",
+   "forms": [
+    "constans"
+   ]
+  },
+  "Dalmatius": {
+   "latin": "Dalmatius",
+   "forms": [
+    "dalmatius"
+   ]
+  },
+  "Magnentius": {
+   "latin": "Magnentius",
+   "forms": [
+    "magnentius"
+   ]
+  },
+  "Decentius": {
+   "latin": "Decentius",
+   "forms": [
+    "decentius"
+   ]
+  },
+  "Constantius Gallus": {
+   "latin": "Constantius Gallus",
+   "forms": [
+    "constantius gallus"
+   ]
+  },
+  "Julian the Apostate": {
+   "latin": "Iulianus",
+   "forms": [
+    "iulianus"
+   ]
+  },
+  "Jovianus": {
+   "latin": "Iouianus",
+   "forms": [
+    "iouianus"
+   ]
+  },
+  "Valentinian I": {
+   "latin": "Valentinianus",
+   "forms": [
+    "ualentinianus"
+   ]
+  },
+  "Valens": {
+   "latin": "Valens",
+   "forms": [
+    "ualens"
+   ]
+  },
+  "Procopius": {
+   "latin": "Procopius",
+   "forms": [
+    "procopius"
+   ]
+  },
+  "Gratian": {
+   "latin": "Gratianus",
+   "forms": [
+    "gratianus"
+   ]
+  },
+  "Valentinian II": {
+   "latin": "Valentinianus II",
+   "forms": [
+    "ualentinianus iunior"
+   ]
+  },
+  "Theodosius I": {
+   "latin": "Theodosius",
+   "forms": [
+    "theodosius"
+   ]
+  },
+  "Magnus Maximus": {
+   "latin": "Magnus Maximus",
+   "forms": [
+    "magnus maximus"
+   ]
+  },
+  "Arcadius": {
+   "latin": "Arcadius",
+   "forms": [
+    "arcadius augustus",
+    "flauius arcadius"
+   ]
+  },
+  "Honorius": {
+   "latin": "Honorius",
+   "forms": [
+    "honorius"
+   ]
+  },
+  "Aelia Flacilla": {
+   "latin": "Aelia Flaccilla",
+   "forms": [
+    "aelia flaccilla",
+    "flaccilla",
+    "flacilla"
+   ]
+  },
+  "Theodosius II": {
+   "latin": "Theodosius II",
+   "forms": [
+    "theodosius iunior"
+   ]
+  },
+  "Valentinian III": {
+   "latin": "Valentinianus III",
+   "forms": [
+    "placidus ualentinianus"
+   ]
+  },
+  "Marcian": {
+   "latin": "Marcianus",
+   "forms": [
+    "marcianus"
+   ]
+  },
+  "Leo I": {
+   "latin": "Leo I",
+   "forms": [
+    "leo augustus"
+   ]
+  },
+  "Zeno": {
+   "latin": "Zeno (emperor)",
+   "forms": [
+    "zeno augustus",
+    "zeno imperator"
+   ]
+  },
+  "Majorian": {
+   "latin": "Maiorianus",
+   "forms": [
+    "maiorianus"
+   ]
+  },
+  "Anthemius": {
+   "latin": "Anthemius",
+   "forms": [
+    "anthemius"
+   ]
+  },
+  "Julius Nepos": {
+   "latin": "Iulius Nepos",
+   "forms": [
+    "iulius nepos"
+   ]
+  },
+  "Basiliscus": {
+   "latin": "Basiliscus",
+   "forms": [
+    "basiliscus"
+   ]
+  }
+ },
+ "skip": [
+  "anonymous",
+  "Genius",
+  "Roma",
+  "Hercules",
+  "Minerva",
+  "Janus",
+  "Saturn",
+  "Apollo",
+  "Mercury",
+  "Jupiter",
+  "Mars",
+  "Fortuna",
+  "Sol",
+  "Venus",
+  "Victory",
+  "Juno Moneta",
+  "Constantinopolis Personfication",
+  "Visigoths",
+  "Anonymous",
+  "Ceres",
+  "Libertas",
+  "Dioscuri",
+  "Concordia",
+  "Diana",
+  "Liber",
+  "Salus",
+  "Neptune",
+  "Vesta",
+  "Jupiter-Ammon",
+  "Pietas",
+  "Providentia",
+  "Medusa",
+  "Cupid",
+  "Cybele",
+  "Juno",
+  "Pan",
+  "Virtus",
+  "Vulcan",
+  "Honos",
+  "Feronia",
+  "Proserpina",
+  "Quies",
+  "Felicitas",
+  "Fides",
+  "Bonus Eventus",
+  "Pax",
+  "Flora",
+  "Amphitrite",
+  "Penates",
+  "Aequitas",
+  "Justitia",
+  "Annona",
+  "Fortuna Felix",
+  "Fortuna Victrix",
+  "Bacchus",
+  "Nemesis",
+  "Quirinus",
+  "Spes",
+  "Tiberinus",
+  "Uncertain Value"
+ ]
+}

@@ -9,6 +9,15 @@
         count per source.
     GET /api/coins/<id>
         one coin type.
+    GET /api/coins/for-passage?work=&lang=&ref=&ref_end=
+        the Reader's Coins tab: related imagery (the five coin descriptions
+        nearest the gist of the passage window) and name links (a person named
+        on a coin and in the passage). See backend/coins_passage.py.
+    GET /api/coins/theme?q=
+        the coin descriptions nearest a free-text query, for Theme Search.
+
+`person=<name>` on the list route keeps the types that name that person as
+authority or obverse portrait (the target of a name link).
 
 The data is a SQLite file written offline by scripts/coins/build_coins_db.py;
 the routes only read it. The path comes from TESSERAE_COINS_DB, default
@@ -27,6 +36,7 @@ from urllib.parse import quote
 
 from flask import Blueprint, jsonify, request
 
+from backend import coins_passage
 from backend.logging_config import get_logger
 
 logger = get_logger('coins')
@@ -94,6 +104,11 @@ def _filters(args, skip=None):
         if v and f != skip:
             where.append(f'c.{f} = ?')
             vals.append(v)
+    person = (args.get('person') or '').strip()
+    if person:
+        where.append("(instr('; ' || COALESCE(c.authority, '') || '; ', '; ' || ? || '; ') > 0 "
+                     "OR instr('; ' || COALESCE(c.portrait, '') || '; ', '; ' || ? || '; ') > 0)")
+        vals += [person, person]
     lo = args.get('date_from', type=int)
     hi = args.get('date_to', type=int)
     if lo is not None:
@@ -175,6 +190,51 @@ def coin_facets():
         return jsonify({'available': True, 'facets': facets,
                         'sources': {x['value']: x['count'] for x in facets['source']},
                         'total': span[2], 'date_min': span[0], 'date_max': span[1]})
+    finally:
+        c.close()
+
+
+def _unavailable(message, status=200):
+    return jsonify({'available': True, 'unavailable': True, 'error': message,
+                    'related': [], 'name_links': [], 'results': []}), status
+
+
+@coins_bp.route('/coins/for-passage')
+def coins_for_passage():
+    work = (request.args.get('work') or '').strip()
+    ref = (request.args.get('ref') or request.args.get('ref_start') or '').strip()
+    if not work or not ref:
+        return jsonify({'error': 'work and ref are required', 'related': [], 'name_links': []})
+    c = _conn()
+    if c is None:
+        return jsonify({'available': False, 'related': [], 'name_links': []})
+    try:
+        return jsonify(coins_passage.for_passage(
+            c, db_path(), work, (request.args.get('lang') or request.args.get('language') or 'la').strip(),
+            ref, (request.args.get('ref_end') or '').strip() or None))
+    except coins_passage.EncoderUnavailable as e:
+        logger.warning('coins for-passage: encoder unavailable: %s', e)
+        return _unavailable('The query encoder service is not running, so related imagery cannot be '
+                            'looked up just now.')
+    finally:
+        c.close()
+
+
+@coins_bp.route('/coins/theme')
+def coins_theme():
+    q = (request.args.get('q') or request.args.get('query') or '').strip()
+    if not q:
+        return jsonify({'error': 'q is required', 'results': []})
+    c = _conn()
+    if c is None:
+        return jsonify({'available': False, 'results': []})
+    try:
+        limit = min(max(request.args.get('limit', 10, type=int) or 10, 1), 25)
+        return jsonify(coins_passage.theme(c, db_path(), q, limit))
+    except coins_passage.EncoderUnavailable as e:
+        logger.warning('coins theme: encoder unavailable: %s', e)
+        return _unavailable('The query encoder service is not running, so the coin search is '
+                            'unavailable just now.')
     finally:
         c.close()
 
