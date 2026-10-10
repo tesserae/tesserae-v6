@@ -65,34 +65,34 @@ export default function StartHere({ onChoose, onDismiss, forceOpen = false, supp
     <section
       ref={ref}
       aria-labelledby="start-here-heading"
-      className="bg-white border border-gray-200 rounded-lg shadow-sm p-4 sm:p-6 mb-6"
+      className="bg-white border border-gray-200 rounded-lg shadow-sm px-4 py-3 mb-4"
     >
-      <h2 id="start-here-heading" className="text-lg font-semibold text-gray-900 mb-3">
-        What are you trying to do?
-      </h2>
-      <ul className="grid grid-cols-1 md:grid-cols-2 gap-2">
+      <div className="flex items-baseline justify-between gap-3 mb-1.5">
+        <h2 id="start-here-heading" className="text-sm font-semibold text-gray-700">
+          What are you trying to do?
+        </h2>
+        <button
+          type="button"
+          onClick={close}
+          className="text-xs text-gray-500 hover:text-red-700 hover:underline"
+        >
+          Skip
+        </button>
+      </div>
+      <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-0.5">
         {FRONT_DOOR_CHOICES.map((choice) => (
           <li key={choice.id}>
             <a
               href={choice.href}
               onClick={(e) => choose(e, choice)}
-              className="block h-full rounded border border-gray-200 px-3 py-2 hover:bg-red-50 hover:border-red-200"
+              className="block text-sm py-0.5 text-gray-600 hover:text-red-700"
             >
-              <span className="block font-bold text-gray-800">{choice.label}</span>
-              <span className="block text-sm text-gray-500">{choice.detail}</span>
+              <span className="font-semibold text-gray-800">{choice.label}:</span>{' '}
+              <span>{choice.detail}</span>
             </a>
           </li>
         ))}
       </ul>
-      <div className="mt-3">
-        <button
-          type="button"
-          onClick={close}
-          className="text-sm text-gray-500 hover:text-red-700 hover:underline"
-        >
-          Skip this
-        </button>
-      </div>
     </section>
   );
 }
