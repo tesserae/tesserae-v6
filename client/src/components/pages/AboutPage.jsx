@@ -402,6 +402,13 @@ export default function AboutPage({ onNavigate, initialAnchor = null, onAnchorCo
           </p>
         </section>
 
+        <section>
+          <h3 className="text-lg font-semibold text-gray-900 mb-3">What the site records</h3>
+          <p className="text-gray-700">
+            To understand how the site is used, it records which pages a browser opens during one visit, the network address and the city and country that address suggests, and the searches run. A visit is one browser tab's session, identified by a random token that is discarded when the tab closes. No account or personal detail is involved, and nothing is sent to an outside analytics service.
+          </p>
+        </section>
+
         <section className="bg-amber-50 border border-amber-200 rounded-lg p-5">
           <h3 className="text-lg font-semibold text-amber-900 mb-3">Text Sources</h3>
           <SourcesIntro />

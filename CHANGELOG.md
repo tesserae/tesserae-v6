@@ -14,6 +14,9 @@ The key to the marks in the text (gutter colours and the quotation boxes) took t
 
 ### Tessa leaves beta
 The "beta" tag on the assistant's header is gone. A live check of twenty-one questions covering what the Help page promises (holdings by language and author, where a phrase occurs, comparisons within and across languages, how the site works, follow-up questions) was answered correctly throughout after the fixes of 10 October. The translations fact she reads now names the translation's language, so she no longer calls an English translation a Latin version.
+### The site records each visit's pages in its own database, and the admin panel shows the paths
+
+Each page a browser opens during a visit is now recorded in a new `page_views` table in the site's own database, with the visit's random token, the page, the language, the outside referrer host, and the city and country the address suggests. The city and country are looked up once per visit, in the same way the search log does it. The admin Analytics tab has a new section, "Paths through the site", and the About page now says what the site records.
 
 ### Tessa's collapsed button reads "Tessa"
 The closed assistant was a red circle with a bare T at the bottom right of the page, which told a first-time visitor nothing. It is now a pill of the same height that reads "Tessa".
