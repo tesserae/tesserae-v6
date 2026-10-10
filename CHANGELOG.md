@@ -9,6 +9,9 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-10
 
+### Start here: the collections answer switches every collection on
+The sixth answer on the Start here panel ("Search inscriptions, papyri, events and coins") opened the Historical profile, which has no coins or objects. It now opens the Everything profile, so every collection it names is on.
+
 ### Greek coin types in the Coins collection (in testing, off by default)
 The Coins page now lists 106,176 Greek and Roman coin types. They are the 58,715 Roman types and 47,461 Greek types from seven catalogues published through nomisma.org (IRIS 13,399, Corpus Nummorum 11,913, Seleucid Coins Online 8,694, PELLA 7,228, Ptolemaic Coins Online 3,650, BIGR 2,107, Levantine Coinages Online 470), under the Open Database Licence except Corpus Nummorum (Creative Commons non-commercial, share-alike). The Source filter shows each under a short label and each card carries its own credit line. The converter takes any number of `--dataset CODE=PATH` arguments and a new `scripts/coins/fetch_nomisma.py` downloads a catalogue's type records. A Greek legend can be typed without accents or with either sigma, and Latin look-alike capitals inside Greek words (a Latin B and A in a Seleucid legend) are read as Greek. The Help section, the Coins page text, the collection blurb and Tessa's description of the site say "Greek and Roman". `embed_descriptions.py` gains `--rows-out`, which lists each distinct description with the types that carry it (46,244, of which 19,783 are new). Seven credits records were added. The data file is rebuilt and installed by the steps in docs/DATA_OPERATIONS.md.
 ### Tessa's holdings sentence is built per request, and the coins data is installed

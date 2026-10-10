@@ -41,7 +41,7 @@ export const FRONT_DOOR_CHOICES = [
     id: 'documents',
     label: 'Search inscriptions, papyri, events and coins',
     detail: 'The historical collections, searched with the literature or on their own.',
-    href: '/inscriptions-papyri?profile=historical',
+    href: '/inscriptions-papyri?profile=everything',
   },
 ];
 
