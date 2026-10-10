@@ -217,4 +217,52 @@ describe('DocumentView', () => {
     render(<DocumentView />);
     await waitFor(() => expect(screen.getByText('Document not found.')).toBeTruthy());
   });
+
+  describe('Scholarship section', () => {
+    function mockWithScholarship(results, scholarshipOk = true) {
+      global.fetch = vi.fn(async (url) => {
+        const u = String(url);
+        if (u.includes('/scholarship')) {
+          return scholarshipOk
+            ? { ok: true, status: 200, json: async () => ({ available: true, count: results.length, results }) }
+            : { ok: false, status: 404, json: async () => ({ error: 'not found' }) };
+        }
+        if (u.startsWith('/api/documents/')) return { ok: true, status: 200, json: async () => documentPayload };
+        return { ok: false, status: 404, json: async () => ({}) };
+      });
+    }
+
+    it('lists citing journal sentences and commentary notes with citation, excerpt and link', async () => {
+      setUrl('?doc=edh:HD047322&lang=la');
+      mockWithScholarship([
+        { source: 'ejc', citation: 'H. Nissen (1866). Metrische Inschriften aus Campanien, Hermes, p. 150.',
+          excerpt: 'The stone is AE 2001, 2169 and is cited here.', cites: 'AE 2001, 2169',
+          url: 'https://www.jstor.org/stable/4470942' },
+        { source: 'commentary', citation: 'Some Commentator, A Commentary', excerpt: 'Compare AE 2001, 2169.',
+          cites: 'AE 2001, 2169', commentary_file: 'someone__work.json', commentary_ref: 'l. 1' },
+      ]);
+      render(<DocumentView />);
+      await waitFor(() => expect(screen.getByTestId('document-scholarship')).toBeTruthy());
+      expect(global.fetch).toHaveBeenCalledWith('/api/documents/edh%3AHD047322/scholarship');
+      const box = screen.getByTestId('document-scholarship');
+      expect(box.textContent).toContain('Scholarship');
+      expect(box.textContent).toContain('Metrische Inschriften aus Campanien');
+      expect(box.textContent).toContain('The stone is AE 2001, 2169 and is cited here.');
+      expect(box.textContent).toContain('someone__work.json, l. 1');
+      expect(screen.getByRole('link', { name: 'on JSTOR' })).toHaveAttribute('href', 'https://www.jstor.org/stable/4470942');
+    });
+
+    it('shows no Scholarship section when the index has no hit or the route is closed', async () => {
+      setUrl('?doc=edh:HD047322&lang=la');
+      mockWithScholarship([]);
+      const { unmount } = render(<DocumentView />);
+      await waitFor(() => expect(screen.getByText('AE 2001, 2169.')).toBeTruthy());
+      expect(screen.queryByTestId('document-scholarship')).toBeNull();
+      unmount();
+      mockWithScholarship([], false);
+      render(<DocumentView />);
+      await waitFor(() => expect(screen.getByText('AE 2001, 2169.')).toBeTruthy());
+      expect(screen.queryByTestId('document-scholarship')).toBeNull();
+    });
+  });
 });

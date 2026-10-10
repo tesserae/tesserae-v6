@@ -79,6 +79,20 @@ removal procedure: dry run by default, reporting what it would take out of
 the texts, the lemma cache, the inverted index and the passage index before
 anything is deleted, with a dated backup kept of each file it removes.
 
+## 2026-10-09 Document scholarship index built, install steps for production (drafted, NOT yet run)
+
+The file `data/citation_index/document_citations.db` holds the journal sentences (JSTOR Early Journal Content) and commentary notes that cite an inscription, papyrus or coin of the documents collection, linked by edition reference. Read by `GET /api/documents/<id>/scholarship` and shown as the Scholarship section of `/document`.
+
+Built 2026-10-09 by `scripts/documents/build_document_citation_index.py` under `tess-job` (4 GB cap, 3 min 32 s, peak 138 MB resident) from the copied `documents/metadata.db`, `citation_index/citations.db` (article metadata), the cached full texts in `~/tesserae-backups/ejc_index_2026-09-14/raw/` and the 392 commentary files. Result: 956 rows, 742 distinct documents, 288 distinct articles (27,244 articles read, 1,368 front and back matter skipped). A hit that matches more than three documents is dropped as too ambiguous (25). All 49 commentary hits name works outside the corpus (mostly CIG), so the index holds no commentary rows yet. The built file is kept at `~/tesserae-backups/document_citations_2026-10-09.db`.
+
+Steps for production, after the pull request merges and is deployed:
+1. `cp ~/tesserae-backups/document_citations_2026-10-09.db /var/www/tesseraev6_flask/data/citation_index/document_citations.db.new && mv /var/www/tesseraev6_flask/data/citation_index/document_citations.db.new /var/www/tesseraev6_flask/data/citation_index/document_citations.db`
+2. `chmod 664 /var/www/tesseraev6_flask/data/citation_index/document_citations.db`
+3. `touch /var/www/tesseraev6_flask/tesseraev6_flask.wsgi`, then `curl .../api/languages`.
+4. Check one document: `curl '.../api/documents/edr:aEDR173504/scholarship'` returns `count` 16 with JSTOR links, and `/document?doc=edr:aEDR173504&documents=1` shows the Scholarship section.
+
+After a change to the documents collection, the recogniser or the journal texts, rebuild by running the script with `--out` set to a new file. It refuses to overwrite.
+
 ## 2026-10-09 Xenophon's Hellenica and Cassius Dio, books 36 to 55: steps for production (run 16:55 to 17:17; windows and map with the second batch 19:08 to 21:41 EDT)
 - What: `xenophon.hellenica` (1,146 lines, 7 book files) and
   `cassius_dio.roman_history` (4,403 lines, 20 book files, books 36 to 55),
