@@ -9,6 +9,9 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-10
 
+### Reader: both kinds of similar passage named in a box at the top
+The Similar tab opened on "Same people and places" with "Same kind of scene" folded below it, so the second choice was easy to miss. A two-button box at the top of the tab now names both with their counts and shows one at a time, the names group first, or the scene group when the passage has few distinctive names.
+
 ### A scope box on every search page
 Each search page opens with one grey line, "What this search does", with a Details link. Opened, it gives the search's scope, the texts and collections it covers with live counts, its limits and its measured performance, and links to the search's Help section. It appears on the five Search modes (Phrases, Line, Strings, Rare Pairs, Rare Words), Cross-Language, Theme Search, Inscriptions & Papyri, Events, Coins and Objects, and remembers whether it was open. The facts live in `client/src/data/searchScope.js`, and the Help table "How well does it work?" now renders from the same data, so a figure is written once. A new route, `/api/scope` (site-only in the connector manifest), answers the counts: works per served language, documents, passage windows, events, coins and objects, cached for ten minutes.
 ### Start here: smaller, feature names first
