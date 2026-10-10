@@ -237,3 +237,20 @@ def test_generated_forms_skip_symbols_and_lone_initials():
     assert CP._generated_forms('B12') is None
     assert CP._generated_forms('Saturninus') == ['saturninus']
     assert CP.norm_word('Vespasiani') == 'uespasiani'
+
+
+def test_latin_passage_imagery_stays_with_the_roman_catalogues():
+    """Measured 2026-10-10: with every catalogue, the Greek types took 27 of the
+    50 top-five places on the ten Latin test passages and about three were
+    real, so a Latin passage ranks the Roman catalogues only."""
+    import numpy as np
+    CP._vec.update(key='t', matrix=None, rows=None, masks={},
+                   sources=[frozenset({'ocre'}), frozenset({'sco'}), frozenset({'cn', 'crro'}), frozenset()])
+    m = CP.source_mask(CP.ROMAN_SOURCES)
+    assert list(m) == [True, False, True, False]
+    assert CP.source_mask(None) is None
+    matrix = np.eye(4, dtype=np.float16)
+    q = np.array([0.1, 1.0, 0.5, 0.9], dtype=np.float32)   # the Greek row 1 is nearest
+    assert [i for i, _ in CP.rank(matrix, q, k=2)] == [1, 3]
+    assert [i for i, _ in CP.rank(matrix, q, k=2, mask=m)] == [2, 0]
+    CP._vec.update(key=None, matrix=None, rows=None, sources=None, masks={})

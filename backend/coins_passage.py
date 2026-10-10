@@ -61,7 +61,16 @@ DESC_KEYS = ('mode', 'setting', 'participants', 'action_steps', 'props',
              'themes', 'imagery_tone', 'gist')
 
 _lock = threading.Lock()
-_vec = {'key': None, 'matrix': None, 'rows': None}
+_vec = {'key': None, 'matrix': None, 'rows': None, 'sources': None, 'masks': {}}
+
+# The catalogues a LATIN passage's related imagery is drawn from. Measured on
+# 2026-10-10 after the seven Greek catalogues were installed: over all nine
+# catalogues the Greek types took 27 of the 50 top-five places on the ten test
+# passages and about three of those were real parallels (Persian kings for
+# Actium, Dionysus heads for the Ara Pacis), so the Roman figure fell from
+# 0.34 to about 0.26. Restricting a Latin passage to OCRE and CRRO gives the
+# measured 0.34 back. A Greek passage searches every catalogue.
+ROMAN_SOURCES = ('ocre', 'crro')
 _names = {'key': None, 'entries': None}
 _cache = OrderedDict()
 
@@ -180,13 +189,34 @@ def load_vectors(db_path):
             if matrix.shape[0] != len(rows):
                 logger.error('coins vectors out of step: %d vectors, %d rows', matrix.shape[0], len(rows))
                 return None, None
-            _vec.update(key=key, matrix=matrix, rows=rows)
+            sources = [frozenset(str(t).split(':', 1)[0] for t in (r.get('types') or []))
+                       for r in rows]
+            _vec.update(key=key, matrix=matrix, rows=rows, sources=sources, masks={})
             _cache.clear()
         return _vec['matrix'], _vec['rows']
 
 
-def rank(matrix, qvec, k=TOP_K, chunk=4096):
-    """Indices and cosines of the k rows nearest the (unit) query vector."""
+def source_mask(allowed):
+    """A boolean row mask keeping the descriptions carried by at least one
+    type from the `allowed` catalogues (ids are prefixed 'ocre:', 'sco:' and
+    so on), or None for every catalogue. Built once per vector file."""
+    if not allowed:
+        return None
+    import numpy as np
+    key = tuple(sorted(allowed))
+    with _lock:
+        m = _vec['masks'].get(key)
+        if m is None and _vec['sources'] is not None:
+            want = set(key)
+            m = np.fromiter((bool(s & want) for s in _vec['sources']), dtype=bool,
+                            count=len(_vec['sources']))
+            _vec['masks'][key] = m
+    return m
+
+
+def rank(matrix, qvec, k=TOP_K, chunk=4096, mask=None):
+    """Indices and cosines of the k rows nearest the (unit) query vector,
+    among the rows `mask` keeps when one is given."""
     import numpy as np
     q = np.asarray(qvec, dtype=np.float32)
     n = np.linalg.norm(q)
@@ -195,6 +225,8 @@ def rank(matrix, qvec, k=TOP_K, chunk=4096):
     scores = np.empty(matrix.shape[0], dtype=np.float32)
     for i in range(0, matrix.shape[0], chunk):
         scores[i:i + chunk] = np.asarray(matrix[i:i + chunk], dtype=np.float32) @ q
+    if mask is not None and len(mask) == len(scores):
+        scores[~mask] = -2.0
     top = np.argsort(-scores)[:k]
     return [(int(i), float(scores[i])) for i in top]
 
@@ -403,7 +435,10 @@ def for_passage(conn, db_path, work, lang, ref, ref_end=None):
         qvec = embed(gist)
     except Exception as e:  # EmbedUnavailable and any transport error: say so, never guess
         raise EncoderUnavailable(str(e)) from e
-    out['related'] = [description_card(conn, rows[i], s) for i, s in rank(matrix, qvec)]
+    allowed = ROMAN_SOURCES if lang == 'la' else None
+    out['imagery_sources'] = list(allowed) if allowed else 'all'
+    out['related'] = [description_card(conn, rows[i], s)
+                      for i, s in rank(matrix, qvec, mask=source_mask(allowed))]
     _cache_put(key, out)
     return out
 
