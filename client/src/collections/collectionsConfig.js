@@ -93,7 +93,7 @@ export const PAGE_NEEDS = {
   'inscriptions-papyri': ['inscriptions', 'papyri'],
   // Events (battles, sieges, treaties) gather passages, documents and scholarship.
   events: ['inscriptions', 'papyri', 'scholarship'],
-  // Greek and Roman coin types (OCRE, CRRO and eight Greek catalogues), a collection of their own.
+  // Greek and Roman coin types (OCRE, CRRO and seven Greek catalogues), a collection of their own.
   coins: ['coins'],
   // Museum objects with catalogue descriptions, a collection of their own.
   objects: ['objects'],

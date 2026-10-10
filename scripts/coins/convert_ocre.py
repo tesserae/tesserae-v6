@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Convert coin-type records of nomisma.org catalogues (OCRE and CRRO for
 Rome, then the Greek sets: Corpus Nummorum, Seleucid, PELLA, Ptolemaic, BIGR,
-IRIS, IACB, Levantine) from the SPARQL export to the documents collection's
+IRIS, Levantine) from the SPARQL export to the documents collection's
 intermediate JSONL, one document per coin type.
 
 PROTOTYPE (2026-10-09). Nothing here touches the live index or /var/www.
@@ -13,7 +13,7 @@ one JSON object per line, ``{"t": type URI, "p": predicate, "o": {"v": value,
 "l": language}}`` for type-level triples and the same plus ``"side":
 "obverse" | "reverse"`` for triples that belong to a side (legend,
 description, portrait). Licence of the data: the dataset's own (``DATASETS``),
-ODbL 1.0 for most and CC BY-NC-SA for Corpus Nummorum and IACB.
+ODbL 1.0 for most and CC BY-NC-SA for Corpus Nummorum.
 
 Optional reference files (same folder fetched with the same endpoint) turn
 nomisma ids into labels and mints into Pleiades ids:
@@ -120,10 +120,6 @@ DATASETS = {
     "iris": {"name": "IRIS Online Greek Coinage, skeleton types",
              "url": "https://greekcoinage.org/iris/", "short": "IRIS (Greek skeleton types)",
              "licence": ODBL},
-    "iacb": {"name": "Iron Age Coins in Britain (IACB)",
-             "url": "https://iacb.arch.ox.ac.uk/", "short": "IACB (Britain)",
-             "licence": ("Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)",
-                         "https://creativecommons.org/licenses/by-nc-sa/4.0/")},
     "lco": {"name": "Levantine Coinages Online (LCO)",
             "url": "https://numismatics.org/lco/", "short": "LCO (Levant)", "licence": ODBL},
 }

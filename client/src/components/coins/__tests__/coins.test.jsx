@@ -37,7 +37,7 @@ const LIST = {
     denomination: [{ value: 'Aureus', count: 1 }],
     material: [{ value: 'Gold', count: 1 }],
     source: [{ value: 'ocre', count: 1 }, { value: 'crro', count: 1 }, { value: 'sco', count: 1 },
-             { value: 'pella', count: 1 }, { value: 'cn', count: 1 }, { value: 'iacb', count: 1 }],
+             { value: 'pella', count: 1 }, { value: 'cn', count: 1 }],
   },
 };
 
@@ -116,7 +116,6 @@ describe('the list', () => {
     expect(screen.getByRole('option', { name: 'SCO (Seleucid) (1)' })).toBeTruthy();
     expect(screen.getByRole('option', { name: 'PELLA (Argead Macedon) (1)' })).toBeTruthy();
     expect(screen.getByRole('option', { name: 'Corpus Nummorum (Thrace, Moesia, Mysia, Troad) (1)' })).toBeTruthy();
-    expect(screen.getByRole('option', { name: 'IACB (Britain) (1)' })).toBeTruthy();
   });
 
   it('pages, and says so when nothing is installed or nothing matches', async () => {

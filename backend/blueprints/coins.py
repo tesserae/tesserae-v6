@@ -25,8 +25,8 @@ data/coins/coins.sqlite. With no file the list route answers available=false
 and the detail route 404, as the Events routes do.
 
 Dates are signed years (-25 is 25 BCE). The type records come from OCRE and
-CRRO (Roman) and eight Greek catalogues (Corpus Nummorum, Seleucid, PELLA,
-Ptolemaic, BIGR, IRIS, IACB, Levantine), published through nomisma.org under
+CRRO (Roman) and seven Greek catalogues (Corpus Nummorum, Seleucid, PELLA,
+Ptolemaic, BIGR, IRIS, Levantine), published through nomisma.org under
 ODbL or a Creative Commons non-commercial licence (CREDITS below). Images live
 on museum specimen records, so the page links to the type's own page and stores
 none.
@@ -60,7 +60,6 @@ CREDITS = {
     'pco': 'Type record: PCO (American Numismatic Society), ODbL',
     'bigr': 'Type record: BIGR (American Numismatic Society), ODbL',
     'iris': 'Type record: IRIS (University of Oxford), ODbL',
-    'iacb': 'Type record: IACB (University of Oxford), CC BY-NC-SA 4.0',
     'lco': 'Type record: LCO (American Numismatic Society), ODbL',
 }
 LIST_COLUMNS = ('id, source, uri, title, authority, issuer, portrait, mint, mint_pleiades_id, '

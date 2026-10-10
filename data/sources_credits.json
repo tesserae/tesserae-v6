@@ -309,17 +309,6 @@
   },
   {
     "collection": "Coins (prototype)",
-    "name": "Iron Age Coins in Britain (IACB), University of Oxford",
-    "url": "https://iacb.arch.ox.ac.uk/",
-    "licence_name": "Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)",
-    "licence_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
-    "version": "nomisma.org SPARQL export of the type records (nmo:TypeSeriesItem), plus nomisma.org labels and Pleiades matches for mints",
-    "retrieved": "2026-10-10",
-    "what_we_use": "Type-level records only: obverse and reverse legends, English type descriptions, mint, dates, authority or issuer, denomination, material, and each type's page address. No specimen data and no images.",
-    "notes": "961 coin types. The licence wording was read on the project's terms page (https://iacb.arch.ox.ac.uk/pages/terms: \"Except for any images, the content published on IACB is available for your personal non-commercial use under the terms of a Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0) licence\"). The nomisma.org dataset list gives ODC-ODbL for the same dataset, so the stricter statement is applied. Non-commercial use only. Records pulled from the public endpoint https://nomisma.org/query."
-  },
-  {
-    "collection": "Coins (prototype)",
     "name": "Levantine Coinages Online (LCO), American Numismatic Society",
     "url": "https://numismatics.org/lco/",
     "licence_name": "Open Data Commons Open Database License 1.0 (ODbL)",

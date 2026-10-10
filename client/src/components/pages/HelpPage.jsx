@@ -1911,9 +1911,9 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 skeleton types of Greek coinage, 11,913 from Corpus Nummorum (Thrace, Moesia, Mysia and the
                 Troad), 8,694 from Seleucid Coins Online, 7,228 from PELLA (the Argead kings of Macedon),
                 3,650 from Ptolemaic Coins Online, 2,107 from Coins of the Bactrian and Indo-Greek Rulers
-                (BIGR), 470 from Levantine Coinages Online and 961 from Iron Age Coins in Britain (IACB).
-                All are catalogues shared through nomisma.org. Corpus Nummorum and IACB are under Creative
-                Commons Attribution-NonCommercial-ShareAlike licences and the other eight are under the Open
+                (BIGR) and 470 from Levantine Coinages Online.
+                All are catalogues shared through nomisma.org. Corpus Nummorum is under a Creative
+                Commons Attribution-NonCommercial-ShareAlike licence and the other eight are under the Open
                 Database Licence. A coin type is a catalogue entry,
                 not one coin. It records the legend on each side, the catalogue&rsquo;s description of what each
                 side shows, the mint, the dates, the issuing emperor or moneyer, the denomination and the

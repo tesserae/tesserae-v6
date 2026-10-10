@@ -104,23 +104,6 @@
 {"t": "https://greekcoinage.org/iris/id/a", "p": "http://nomisma.org/ontology#hasRegion", "o": {"v": "http://nomisma.org/id/macedon", "l": null}}
 {"t": "https://greekcoinage.org/iris/id/a", "p": "http://purl.org/dc/terms/description", "o": {"v": "Male head", "l": "en"}, "side": "obverse"}
 {"t": "https://greekcoinage.org/iris/id/a", "p": "http://purl.org/dc/terms/description", "o": {"v": "Corinthian helmet", "l": "en"}, "side": "reverse"}
-{"t": "https://iacb.arch.ox.ac.uk/id/abc.0120", "p": "http://nomisma.org/ontology#hasObverse", "o": {"v": "https://iacb.arch.ox.ac.uk/id/abc.0120#obverse", "l": null}}
-{"t": "https://iacb.arch.ox.ac.uk/id/abc.0120", "p": "http://nomisma.org/ontology#hasReverse", "o": {"v": "https://iacb.arch.ox.ac.uk/id/abc.0120#reverse", "l": null}}
-{"t": "https://iacb.arch.ox.ac.uk/id/abc.0120", "p": "http://rdfs.org/ns/void#inDataset", "o": {"v": "https://iacb.arch.ox.ac.uk/", "l": null}}
-{"t": "https://iacb.arch.ox.ac.uk/id/abc.0120", "p": "http://www.w3.org/2004/02/skos/core#prefLabel", "o": {"v": "ABC 120", "l": "en"}}
-{"t": "https://iacb.arch.ox.ac.uk/id/abc.0120", "p": "http://www.w3.org/2004/02/skos/core#definition", "o": {"v": "ABC 120", "l": "en"}}
-{"t": "https://iacb.arch.ox.ac.uk/id/abc.0120", "p": "http://nomisma.org/ontology#hasMaterial", "o": {"v": "http://nomisma.org/id/ae", "l": null}}
-{"t": "https://iacb.arch.ox.ac.uk/id/abc.0120", "p": "http://nomisma.org/ontology#hasAuthority", "o": {"v": "http://nomisma.org/id/cantii", "l": null}}
-{"t": "https://iacb.arch.ox.ac.uk/id/abc.0120", "p": "http://nomisma.org/ontology#hasDenomination", "o": {"v": "http://nomisma.org/id/unit_celtic", "l": null}}
-{"t": "https://iacb.arch.ox.ac.uk/id/abc.0120", "p": "http://nomisma.org/ontology#hasStartDate", "o": {"v": "-0200", "l": null}}
-{"t": "https://iacb.arch.ox.ac.uk/id/abc.0120", "p": "http://nomisma.org/ontology#hasEndDate", "o": {"v": "-0101", "l": null}}
-{"t": "https://iacb.arch.ox.ac.uk/id/abc.0120", "p": "http://purl.org/dc/terms/source", "o": {"v": "http://nomisma.org/id/ancient_british_coins", "l": null}}
-{"t": "https://iacb.arch.ox.ac.uk/id/abc.0120", "p": "http://nomisma.org/ontology#representsObjectType", "o": {"v": "http://nomisma.org/id/coin", "l": null}}
-{"t": "https://iacb.arch.ox.ac.uk/id/abc.0120", "p": "http://nomisma.org/ontology#hasManufacture", "o": {"v": "http://nomisma.org/id/cast", "l": null}}
-{"t": "https://iacb.arch.ox.ac.uk/id/abc.0120", "p": "http://nomisma.org/ontology#hasRegion", "o": {"v": "http://nomisma.org/id/kent", "l": null}}
-{"t": "https://iacb.arch.ox.ac.uk/id/abc.0120", "p": "http://purl.org/dc/terms/description", "o": {"v": "Head left (prototype: Apollo)", "l": "en"}, "side": "obverse"}
-{"t": "https://iacb.arch.ox.ac.uk/id/abc.0120", "p": "http://purl.org/dc/terms/description", "o": {"v": "Butting bull left or right, MA above", "l": "en"}, "side": "reverse"}
-{"t": "https://iacb.arch.ox.ac.uk/id/abc.0120", "p": "http://nomisma.org/ontology#hasLegend", "o": {"v": "MA", "l": null}, "side": "reverse"}
 {"t": "https://numismatics.org/lco/id/lco.csc.1", "p": "http://nomisma.org/ontology#hasObverse", "o": {"v": "https://numismatics.org/lco/id/lco.csc.1#obverse", "l": null}}
 {"t": "https://numismatics.org/lco/id/lco.csc.1", "p": "http://nomisma.org/ontology#hasReverse", "o": {"v": "https://numismatics.org/lco/id/lco.csc.1#reverse", "l": null}}
 {"t": "https://numismatics.org/lco/id/lco.csc.1", "p": "http://rdfs.org/ns/void#inDataset", "o": {"v": "https://numismatics.org/lco/", "l": null}}

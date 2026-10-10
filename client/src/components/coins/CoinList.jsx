@@ -20,7 +20,6 @@ const SOURCE_NAMES = {
   pco: 'PCO (Ptolemaic)',
   bigr: 'BIGR (Bactria and India)',
   iris: 'IRIS (Greek skeleton types)',
-  iacb: 'IACB (Britain)',
   lco: 'LCO (Levant)',
 };
 
@@ -94,8 +93,8 @@ export default function CoinList({ openCoin }) {
       <h2 className="text-2xl font-bold text-gray-900">Coins</h2>
       <p className="text-sm text-gray-600 mt-1 mb-4">
         Greek and Roman coin types from the Online Coins of the Roman Empire, Coinage of the Roman Republic Online
-        and eight Greek catalogues (Corpus Nummorum, Seleucid, PELLA, Ptolemaic, Bactrian and Indo-Greek, IRIS,
-        Levantine and Iron Age Britain), searchable by legend and by the catalogue's description of what each side shows. In testing.
+        and seven Greek catalogues (Corpus Nummorum, Seleucid, PELLA, Ptolemaic, Bactrian and Indo-Greek, IRIS
+        and Levantine), searchable by legend and by the catalogue's description of what each side shows. In testing.
       </p>
 
       <form onSubmit={submit} className="bg-white border border-gray-200 rounded-lg p-3 space-y-3">

@@ -136,12 +136,12 @@ def test_legend_variant_list_indexes_first_variant():
 
 
 # ---------------------------------------------------------------------------
-# Greek sets (fixture: one real type from each of eight catalogues)
+# Greek sets (fixture: one real type from each of seven catalogues)
 # ---------------------------------------------------------------------------
 
 FIXTURES = os.path.join(os.path.dirname(__file__), "fixtures", "coins")
 GREEK_MARKS = {"cn": "corpus-nummorum", "sco": "/sco/", "pella": "/pella/", "pco": "/pco/",
-               "bigr": "/bigr/", "iris": "/iris/", "iacb": "/iacb.", "lco": "/lco/"}
+               "bigr": "/bigr/", "iris": "/iris/", "lco": "/lco/"}
 
 
 def _greek_records(tmp_path):
@@ -167,7 +167,6 @@ def test_every_greek_set_converts_with_its_code_and_licence(tmp_path):
         assert r["source_name"] == c.DATASETS[code]["name"]
         assert r["obverse_description"] or r["reverse_description"]
     assert "CC BY-NC-SA 3.0" in recs["cn"]["licence_name"]
-    assert "CC BY-NC-SA 4.0" in recs["iacb"]["licence_name"]
     assert "ODbL" in recs["sco"]["licence_name"] and "ODbL" in recs["iris"]["licence_name"]
 
 
@@ -181,7 +180,6 @@ def test_greek_sets_keep_greek_legends_and_read_stated_authority(tmp_path):
     assert recs["pco"]["authority"] == "Ptolemy I Soter; Cleomenes of Naucratis"
     assert recs["pco"]["portrait"] == "Zeus"
     assert recs["bigr"]["languages"] == ["grc"]
-    assert recs["iacb"]["reverse_legend"] == "MA" and recs["iacb"]["languages"] == ["la"]
 
 
 def test_latin_lookalike_letters_in_a_greek_word_become_greek(tmp_path):

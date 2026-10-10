@@ -144,11 +144,11 @@ def test_missing_database(monkeypatch, tmp_path):
 
 # ---------------------------------------------------------------------------
 # With the Greek sets (fixture: the 12 Roman types plus one type from each of
-# eight Greek catalogues)
+# seven Greek catalogues)
 # ---------------------------------------------------------------------------
 
 GREEK_FIX = os.path.join(ROOT, 'tests', 'fixtures', 'coins', 'greek_coins.jsonl')
-NEW_SOURCES = {'cn', 'sco', 'pella', 'pco', 'bigr', 'iris', 'iacb', 'lco'}
+NEW_SOURCES = {'cn', 'sco', 'pella', 'pco', 'bigr', 'iris', 'lco'}
 
 
 @pytest.fixture(scope='module')
@@ -173,7 +173,7 @@ def client_all(db_all, monkeypatch):
 
 def test_source_facet_carries_the_greek_sets(client_all):
     d = client_all.get('/api/coins/facets').get_json()
-    assert d['total'] == 20
+    assert d['total'] == 19
     assert d['sources'] == {'ocre': 8, 'crro': 4, **{k: 1 for k in NEW_SOURCES}}
     values = {f['value'] for f in d['facets']['source']}
     assert values == {'ocre', 'crro'} | NEW_SOURCES
@@ -186,7 +186,6 @@ def test_every_source_has_a_credit_line(client_all):
         credit = d['coins'][0]['credit']
         assert credit.startswith('Type record:') and credit != 'Type record: American Numismatic Society, ODbL'
     assert 'CC BY-NC-SA 3.0' in client_all.get('/api/coins?source=cn').get_json()['coins'][0]['credit']
-    assert 'CC BY-NC-SA 4.0' in client_all.get('/api/coins?source=iacb').get_json()['coins'][0]['credit']
     assert 'ODbL' in client_all.get('/api/coins?source=iris').get_json()['coins'][0]['credit']
 
 
@@ -205,5 +204,5 @@ def test_greek_legend_typed_without_accents_is_found(client_all):
 def test_greek_description_is_found(client_all):
     d = client_all.get('/api/coins?q=elephant').get_json()
     assert 'sco:sc.1.1' in [c['id'] for c in d['coins']]
-    d = client_all.get('/api/coins?q=butting+bull&source=iacb').get_json()
+    d = client_all.get('/api/coins?q=riding+horse&source=pella').get_json()
     assert d['total'] == 1
