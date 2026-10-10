@@ -39,6 +39,8 @@ _hexameter_scanner = None
 _hendecasyllable_scanner = None
 _pentameter_scanner = None
 _mqdq_scansions = None
+# Meters already reported as having no scanner, so the warning is written once.
+_MISSING_SCANNER_NOTED = set()
 
 def get_mqdq_scansions():
     """Load pre-computed MQDQ scansion database"""
@@ -574,7 +576,17 @@ def scan_latin_verse(text, meter_type='hexameter'):
             scanner = get_pentameter_scanner()
         else:
             scanner = get_hexameter_scanner()
-        
+
+        if scanner is None:
+            # No scanner for this meter (the optional CLTK module is absent).
+            # Say so once per process, not once per verse: the per-verse
+            # error line below wrote 22 GB into Apache's error log by
+            # October 2026, thousands of lines per search.
+            if meter_type not in _MISSING_SCANNER_NOTED:
+                _MISSING_SCANNER_NOTED.add(meter_type)
+                logger.warning(f"No scanner available for {meter_type}; verses in that meter go unscanned")
+            return None
+
         result = scanner.scan(text)
         
         if hasattr(result, 'scansion') and result.scansion:
