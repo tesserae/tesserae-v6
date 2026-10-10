@@ -46,7 +46,7 @@ export const SEARCH_SCOPE = {
     does: 'Compares a work in one language with a work in another through dictionaries, shared script and meaning.',
     scope: 'A work in one language is compared with a work in another through a dictionary, shared vocabulary and a model of meaning trained on both. A result is a pair of passages, one from each work.',
     covers: 'The literary corpus, by language.',
-    limits: 'Seven language pairs are open, and each works through what its two languages have in common. Greek to Latin finds most known parallels somewhere in the ranking but few of them near the top. Persian to Urdu depends on shared vocabulary, so shared refrains are rare.',
+    limits: 'Seven language pairs are open, and each works through what its two languages have in common. Greek to Latin finds most known parallels somewhere in the ranking but few of them near the top. Persian to Urdu works through the vocabulary the two languages share.',
     measured: [CROSS_GRC_LA, FUSION_HE],
     helpSection: 'cross-lingual',
   },
