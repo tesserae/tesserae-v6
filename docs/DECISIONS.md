@@ -8,6 +8,55 @@ history (index builds, cache rebuilds, corpus changes) is in
 `DATA_OPERATIONS.md`; per-release changes are in `../CHANGELOG.md`.
 
 
+## 2026-10-09: Theme Search restricted to an author or work lists up to 10 passages per work, none capped for a single work, with no confidence rating
+- Scope: `/api/passages/theme-search` with `author=` or `works=`, and the
+  "Search within" picker on the Theme Search page.
+- Decision: a restricted search is a flat list of passages. The corpus-wide
+  rule of one head per work and three rows each (`PASSAGES_PER_WORK`) is
+  dropped, because it exists to stop one huge work owning a page of the
+  whole corpus. Several chosen works share the page at up to 10 passages
+  each (`RESTRICTED_PER_WORK`). A single chosen work has no cap, because a
+  cap would end paging at the cap. Confidence (head lift, coherence) is not
+  rated for a restricted search, the response says so in its `note`, and no
+  result is marked strong.
+- Measurement: five queries in each of Vergil and Livy (Latin) and Homer and
+  Thucydides (Greek), asking for 25 passages under per-work caps 3, 10, 25
+  and unlimited, on the production index read-only (means over the five
+  queries). Livy and Thucydides are one work each in the index.
+
+  | Author | Cap | Passages returned (of 25) | Distinct works in top 25 | Distinct books in top 10 | Most from one book in top 10 |
+  |---|---|---|---|---|---|
+  | Vergil | 3 | 8 | 2.8 | 5.4 | 2.4 |
+  | Vergil | 10 | 23.2 | 2.8 | 3.6 | 6.4 |
+  | Vergil | unlimited | 25 | 1.4 | 3.6 | 6.4 |
+  | Livy | 3 | 3 | 1 | 2.8 | 1.2 |
+  | Livy | 10 | 10 | 1 | 8.2 | 2.2 |
+  | Livy | unlimited | 25 | 1 | 8.2 | 2.2 |
+  | Homer | 3 | 9 | 3 | 7.4 | 2 |
+  | Homer | 10 | 25 | 3 | 6.4 | 3.4 |
+  | Homer | unlimited | 25 | 2.2 | 6.4 | 3.4 |
+  | Thucydides | 3 | 3 | 1 | 2 | 2 |
+  | Thucydides | 10 | 10 | 1 | 4.8 | 4.4 |
+  | Thucydides | unlimited | 25 | 1 | 4.8 | 4.4 |
+
+- Reading: cap 3 is unusable inside an author, since a single work returns
+  3 passages in all and Vergil returns 8 of 25. Cap 10 and unlimited give the
+  same top ten everywhere (a cap of 10 cannot change ten rows). They differ
+  deeper: with the Aeneid dominant, an unlimited list is 1.4 works out of
+  3 across 25 rows, while cap 10 keeps the Georgics and Eclogues in view
+  (2.8 works). The cap does not govern flooding by one book. The share of the
+  top ten taken by one book is the same at 10 and unlimited (Thucydides 4.4
+  of 10 from one book, Vergil 6.4), so that is a property of the ranking and
+  of the query, and the picker's Work step is the remedy.
+- A single work is uncapped because with cap 10, Livy ended at 10 passages and
+  Show more had nothing further to fetch.
+- Confidence: the head-lift and coherence thresholds were fitted on 57
+  queries over the whole index. Inside one or a few works the median and the
+  spread both change, so the thresholds are not comparable, and no
+  restricted-query fit has been made. The figures are withheld, and the page
+  and the connector say so. A rating that has not been validated is not
+  shown.
+
 ## 2026-10-09: licensed scholarship is indexed for retrieval and shown as citation, excerpt and link, never summarised
 - Scope: every source of secondary literature the site holds under a
   licence or a permission (journal articles, monographs, commentaries

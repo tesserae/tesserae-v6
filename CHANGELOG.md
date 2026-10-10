@@ -9,6 +9,8 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-09
 
+### Theme Search: optional "in this author or work" restriction
+- `/api/passages/theme-search` takes `author=` (one author id, all that author's works with passage windows in the chosen languages) and `works=` (comma-separated work ids). An unknown author or work answers 200 with an empty result and a `note`. A restricted search returns a flat list of passages, up to 10 per work when several works are involved and no cap for a single work, and states that confidence is not rated, because the confidence figures were fitted to corpus-wide queries. The Theme Search page has a "Search within" picker (Author, then Work) that is closed by default, shows the restriction in the results header, and carries it in the address. The `theme_search` connector tool accepts the same two parameters. Measurement and cap choice are in docs/DECISIONS.md.
 ### Reader: the selection popup sits under the selected line on every path; legend names the inscriptions marks
 - The popup used to sit at the top of the pane, over the opening lines, when the selection came from a click on a quotation mark or from a URL, because those paths set no anchor; the line is now measured from the page. With the documents trial on, the legend gains the two amber inscriptions marks (quoted in that many inscriptions or papyri; possible echo), which had no entry and could be read as the grey "possible echo" mark.
 ### Inscription and papyrus pages: image links named by institution, dead hosts hidden, moved addresses rewritten
