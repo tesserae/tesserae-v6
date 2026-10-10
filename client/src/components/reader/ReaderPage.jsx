@@ -49,6 +49,18 @@ const PREFERRED_WORK = {
  * who is reading and wants to know what a passage touches. Results open in the
  * Reader in turn, so the corpus can be followed by association.
  */
+function popupTop(selection) {
+  // Under the last selected line. A drag in the text measures the line
+  // itself and passes anchorTop; a click on a quotation mark or an arrival
+  // by URL used to pass nothing, so the popup sat at the top of the pane
+  // and covered the opening lines, the selected one included (2026-10-09).
+  // Measure the line from the page in that case.
+  if (selection?.anchorTop != null) return selection.anchorTop;
+  const ref = selection?.refEnd || selection?.refStart;
+  const el = ref ? document.getElementById(`line-${cssRef(ref)}`) : null;
+  return el ? el.offsetTop + el.offsetHeight : 0;
+}
+
 export default function ReaderPage() {
   // No work named in the address: leave it empty and let the preferred-work
   // effect below choose by language. Defaulting to the Aeneid here opened
@@ -667,6 +679,20 @@ export default function ReaderPage() {
                                  text-gray-500 bg-white border border-dashed border-gray-300 rounded px-1 py-[2px]">2</span>
                 possible echo (one rare shared phrase); click a box to see them
               </span>
+              {documentsTrial && (
+                <>
+                  <span className="flex items-center gap-1.5">
+                    <span className="inline-flex items-center justify-center text-[9px] font-bold leading-none
+                                     text-amber-800 bg-amber-50 border border-amber-300 rounded px-1 py-[2px]">5</span>
+                    quoted in that many inscriptions or papyri
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <span className="inline-flex items-center justify-center text-[9px] font-bold leading-none
+                                     text-amber-700 bg-white border border-dashed border-amber-300 rounded px-1 py-[2px]">1</span>
+                    possible echo in an inscription or papyrus
+                  </span>
+                </>
+              )}
               <span className="ml-auto flex items-center gap-1">
                 <button
                   onClick={() => setFocusView('source')}
@@ -793,7 +819,7 @@ export default function ReaderPage() {
                 // copy toolbar and the results sheet (2026-09-07); the
                 // sheet's tabs already do what the toolbar offers there.
                 <div className="hidden lg:block absolute left-10 z-20"
-                     style={{ top: `${(selection?.anchorTop ?? 0) + 8}px` }}>
+                     style={{ top: `${popupTop(selection) + 8}px` }}>
                   <SelectionToolbar
                     selection={selection}
                     scope={scope}
