@@ -9,6 +9,9 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-10
 
+### Start here: the collections answer switches every collection on
+The sixth answer on the Start here panel ("Search inscriptions, papyri, events and coins") opened the Historical profile, which has no coins or objects. It now opens the Everything profile, so every collection it names is on.
+
 ### Tessa's holdings sentence is built per request, and the coins data is installed
 Tessa named only Latin, Greek and English for most of the day. Her prompt module built the holdings sentence when it was imported, before the language plugins register, and the ten-minute cache kept that version because the web workers recycle before it expires. The sentence is now built when she answers and a version naming no optional language is never cached. The records of the coins installs (database and description vectors, both run) are updated.
 ### Objects: museum catalogue descriptions as a collection (in testing, off by default)
