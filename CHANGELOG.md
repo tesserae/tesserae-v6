@@ -9,6 +9,13 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-10
 
+### Events: document cards lead with the edition, and an article is listed once
+A document card on an event page showed the internal identifier ("merged:282114", a stone both inscription databases record). It now leads with the edition reference ("CIL 09, 03200") or the document type, and names the databases that record it. The Scholarship tab listed an article once per passage it cites; it lists each article once.
+
+### Events: a real map with coastlines
+The Map tab of an event was a bare scatter of points on a white rectangle. It is now a Leaflet map (Leaflet 1.9.4, bundled from npm) on OpenStreetMap tiles with the attribution shown. The event is a red marker and each findspot of documents a grey one sized by the number of documents. Hovering names the place and clicking gives its coordinates and document count. The scroll wheel zooms only after the map is clicked. If the tiles cannot be loaded, the markers stay over a plain background with a note. The table of coordinates stays under the map, and the Privacy page lists OpenStreetMap among the third-party services.
+### Scholarship on in the Literary profile; a More menu; the Collections control explains itself
+The Literary profile now includes the Scholarship tab in the Reader, so a literary reader gets the commentaries and citing articles without changing profile. Repository and Downloads sit under a small More menu at the end of the main row, since with every collection on the row no longer fit and its last entries faded off the edge. The Collections control opens with a sentence on what the switches do.
 ### Reader: both kinds of similar passage named in a box at the top
 The Similar tab opened on "Same people and places" with "Same kind of scene" folded below it, so the second choice was easy to miss. A two-button box at the top of the tab now names both with their counts and shows one at a time, the names group first, or the scene group when the passage has few distinctive names.
 
