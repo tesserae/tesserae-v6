@@ -20,6 +20,10 @@ Campus GPU route (docs/DATA_OPERATIONS.md, research recipe for the cluster):
     --blobs-out DIR     write DIR/blobs.jsonl.gz ({id, text} per distinct
                         description, text already carrying the "query: "
                         prefix, id the row number) for the cluster job, then stop
+    --rows-out FILE     write FILE as JSONL, one row per distinct description:
+                        {"id": row number, "text": the description, "types":
+                        [coin type ids that carry it]}, in the order the
+                        vectors must be numbered, then stop
     --from-parts DIR    build <out>/vectors.npy, strings.json and types.json
                         from the job's returned vectors-NNN.npy and
                         ids-NNN.json instead of calling the encoder service
@@ -92,6 +96,7 @@ def main():
     ap.add_argument("--batch", type=int, default=16)
     ap.add_argument("--limit", type=int, default=0)
     ap.add_argument("--blobs-out", help="write the cluster job's input here and stop")
+    ap.add_argument("--rows-out", help="write one JSONL row per distinct description and stop")
     ap.add_argument("--from-parts", help="assemble the cluster job's returned parts instead of encoding")
     args = ap.parse_args()
     os.makedirs(args.out, exist_ok=True)
@@ -111,6 +116,16 @@ def main():
         strings = strings[:args.limit]
     print(f"{len(types)} types with a description, {len(strings)} distinct strings", file=sys.stderr)
 
+    if args.rows_out:
+        carriers = [[] for _ in strings]
+        for tid, row in types.items():
+            if row < len(strings):
+                carriers[row].append(tid)
+        with open(args.rows_out, "w", encoding="utf-8") as f:
+            for i, t in enumerate(strings):
+                f.write(json.dumps({"id": i, "text": t, "types": carriers[i]}, ensure_ascii=False) + "\n")
+        print(f"wrote {len(strings)} rows to {args.rows_out}", file=sys.stderr)
+        return
     if args.blobs_out:
         write_blobs(strings, args.blobs_out)
         print(f"wrote {len(strings)} blobs to {args.blobs_out}", file=sys.stderr)

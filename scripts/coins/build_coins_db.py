@@ -46,13 +46,32 @@ COLUMNS = [
 INDEXED = ("source", "authority", "mint", "denomination", "material", "date_start", "date_end")
 
 
+# Latin look-alike capitals inside a Greek word (BAΣΙΛΕΩΣ with a Latin B and A)
+# are read as Greek, as scripts/coins/convert_ocre.py does for the legend lines.
+_LATIN_TO_GREEK = {"A": "\u0391", "B": "\u0392", "E": "\u0395", "Z": "\u0396", "H": "\u0397",
+                   "I": "\u0399", "K": "\u039a", "M": "\u039c", "N": "\u039d", "O": "\u039f",
+                   "P": "\u03a1", "T": "\u03a4", "Y": "\u03a5", "X": "\u03a7"}
+
+
+def unmix_scripts(text):
+    def fix(m):
+        w = m.group(0)
+        if any(unicodedata.name(ch, "").startswith("GREEK") for ch in w):
+            return "".join(_LATIN_TO_GREEK.get(ch, ch) for ch in w)
+        return w
+    return re.sub(r"\S+", fix, text)
+
+
 def fold(text):
     """Lower-case and strip diacritics (Greek accents, macrons) for matching."""
     if not text:
         return ""
-    d = unicodedata.normalize("NFD", str(text))
-    d = "".join(ch for ch in d if not unicodedata.combining(ch))
-    return re.sub(r"\s+", " ", d.lower()).strip()
+    d = unicodedata.normalize("NFD", unmix_scripts(str(text)))
+    d = "".join(ch for ch in d if not unicodedata.combining(ch)).lower()
+    # final and lunate sigma fold to the ordinary one (same rule as
+    # backend/blueprints/coins.py fold), so a legend typed with any is found
+    d = d.replace("\u03c2", "\u03c3").replace("\u03f2", "\u03c3")
+    return re.sub(r"\s+", " ", d).strip()
 
 
 def row_from_record(rec):

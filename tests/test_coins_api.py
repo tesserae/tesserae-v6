@@ -140,3 +140,70 @@ def test_missing_database(monkeypatch, tmp_path):
     assert d['available'] is False and d['coins'] == [] and d['total'] == 0
     assert c.get('/api/coins/ocre:x').status_code == 404
     assert c.get('/api/coins/facets').get_json()['available'] is False
+
+
+# ---------------------------------------------------------------------------
+# With the Greek sets (fixture: the 12 Roman types plus one type from each of
+# eight Greek catalogues)
+# ---------------------------------------------------------------------------
+
+GREEK_FIX = os.path.join(ROOT, 'tests', 'fixtures', 'coins', 'greek_coins.jsonl')
+NEW_SOURCES = {'cn', 'sco', 'pella', 'pco', 'bigr', 'iris', 'iacb', 'lco'}
+
+
+@pytest.fixture(scope='module')
+def db_all(tmp_path_factory):
+    d = tmp_path_factory.mktemp('coins_all')
+    both = d / 'all.jsonl'
+    both.write_text(open(FIX, encoding='utf-8').read() + open(GREEK_FIX, encoding='utf-8').read(),
+                    encoding='utf-8')
+    out = str(d / 'coins.sqlite')
+    subprocess.run([sys.executable, '-I', os.path.join(ROOT, 'scripts', 'coins', 'build_coins_db.py'),
+                    '--input', str(both), '--out', out], check=True)
+    return out
+
+
+@pytest.fixture
+def client_all(db_all, monkeypatch):
+    monkeypatch.setenv('TESSERAE_COINS_DB', db_all)
+    from backend.app import app
+    app.config['TESTING'] = True
+    return app.test_client()
+
+
+def test_source_facet_carries_the_greek_sets(client_all):
+    d = client_all.get('/api/coins/facets').get_json()
+    assert d['total'] == 20
+    assert d['sources'] == {'ocre': 8, 'crro': 4, **{k: 1 for k in NEW_SOURCES}}
+    values = {f['value'] for f in d['facets']['source']}
+    assert values == {'ocre', 'crro'} | NEW_SOURCES
+
+
+def test_every_source_has_a_credit_line(client_all):
+    for src in NEW_SOURCES:
+        d = client_all.get(f'/api/coins?source={src}').get_json()
+        assert d['total'] == 1
+        credit = d['coins'][0]['credit']
+        assert credit.startswith('Type record:') and credit != 'Type record: American Numismatic Society, ODbL'
+    assert 'CC BY-NC-SA 3.0' in client_all.get('/api/coins?source=cn').get_json()['coins'][0]['credit']
+    assert 'CC BY-NC-SA 4.0' in client_all.get('/api/coins?source=iacb').get_json()['coins'][0]['credit']
+    assert 'ODbL' in client_all.get('/api/coins?source=iris').get_json()['coins'][0]['credit']
+
+
+def test_greek_legend_typed_without_accents_is_found(client_all):
+    # catalogued "BA\u03a3\u0399\u039b\u0395\u03a9\u03a3 \u03a3\u0395\u039b\u0395\u03a5\u039a\u039f\u03a5" (Latin B and A, capital sigmas)
+    for q in ('\u03b2\u03b1\u03c3\u03b9\u03bb\u03b5\u03c9\u03c3 \u03c3\u03b5\u03bb\u03b5\u03c5\u03ba\u03bf\u03c5',   # lower case, ordinary sigma
+              '\u03b2\u03b1\u03c3\u03b9\u03bb\u03b5\u03c9\u03c2 \u03c3\u03b5\u03bb\u03b5\u03c5\u03ba\u03bf\u03c5',   # final sigma
+              '\u0392\u0391\u03a3\u0399\u039b\u0395\u03a9\u03a3',                          # capitals
+              '\u03b2\u03b1\u03c3\u03b9\u03bb\u03ad\u03c9\u03c2 \u03c3\u03b5\u03bb\u03b5\u03cd\u03ba\u03bf\u03c5'):  # with accents
+        d = client_all.get('/api/coins', query_string={'q': q}).get_json()
+        assert 'sco:sc.1.1' in [c['id'] for c in d['coins']], q
+    d = client_all.get('/api/coins', query_string={'q': '\u03c6\u03b9\u03bb\u03b9\u03c0\u03c0\u03bf\u03c5'}).get_json()
+    assert [c['id'] for c in d['coins']] == ['pella:lerider.philip_ii.1.1']
+
+
+def test_greek_description_is_found(client_all):
+    d = client_all.get('/api/coins?q=elephant').get_json()
+    assert 'sco:sc.1.1' in [c['id'] for c in d['coins']]
+    d = client_all.get('/api/coins?q=butting+bull&source=iacb').get_json()
+    assert d['total'] == 1

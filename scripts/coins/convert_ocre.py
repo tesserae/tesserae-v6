@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
-"""Convert OCRE and CRRO coin-type records (nomisma.org SPARQL export) to the
-documents collection's intermediate JSONL, one document per coin type.
+"""Convert coin-type records of nomisma.org catalogues (OCRE and CRRO for
+Rome, then the Greek sets: Corpus Nummorum, Seleucid, PELLA, Ptolemaic, BIGR,
+IRIS, IACB, Levantine) from the SPARQL export to the documents collection's
+intermediate JSONL, one document per coin type.
 
 PROTOTYPE (2026-10-09). Nothing here touches the live index or /var/www.
 
@@ -10,7 +12,8 @@ The type-level triples fetched from the public nomisma.org SPARQL endpoint:
 one JSON object per line, ``{"t": type URI, "p": predicate, "o": {"v": value,
 "l": language}}`` for type-level triples and the same plus ``"side":
 "obverse" | "reverse"`` for triples that belong to a side (legend,
-description, portrait). Licence of the data: ODbL 1.0.
+description, portrait). Licence of the data: the dataset's own (``DATASETS``),
+ODbL 1.0 for most and CC BY-NC-SA for Corpus Nummorum and IACB.
 
 Optional reference files (same folder fetched with the same endpoint) turn
 nomisma ids into labels and mints into Pleiades ids:
@@ -25,7 +28,8 @@ The EpiDoc converter's shape (see ``epidoc_convert.py``) so the unchanged
 ``write_document_tess.py`` and ``build_documents_index.py`` can index it, plus
 coin-specific fields:
 
-  id                 "ocre:<local id>" or "crro:<local id>"
+  id                 "<code>:<local id>", for example "ocre:ric.1(2).aug.10",
+                     "sco:sc.1.630", "cn:6649"
   source             "ocre" | "crro"          (the .tess citation prefix)
   kind               "coin"
   bucket             "ocre" | "crro"
@@ -59,10 +63,16 @@ dropped, and whitespace is collapsed. Dots are kept.
 Usage
 -----
     python -I scripts/coins/convert_ocre.py \\
-        --ocre ~/tesserae-backups/sources/archaeology/ocre/ocre_types.jsonl \\
-        --crro ~/tesserae-backups/sources/archaeology/crro/crro_types.jsonl \\
+        --dataset ocre=~/tesserae-backups/sources/archaeology/ocre/ocre_types.jsonl \\
+        --dataset crro=~/tesserae-backups/sources/archaeology/crro/crro_types.jsonl \\
+        --dataset sco=~/tesserae-backups/sources/archaeology/sco/sco_types.jsonl \\
         --refs ~/tesserae-backups/sources/archaeology/nomisma_refs \\
         --output /path/to/coins.jsonl
+
+Any number of ``--dataset CODE=PATH`` arguments (codes in ``DATASETS``). The
+files for the Greek sets come from ``fetch_nomisma.py``. Put ``ocre`` and
+``crro`` first: the order of the output is the order the descriptions are
+numbered in for embedding.
 """
 from __future__ import annotations
 
@@ -78,14 +88,44 @@ NMO = "http://nomisma.org/ontology#"
 DCT = "http://purl.org/dc/terms/"
 SKOS = "http://www.w3.org/2004/02/skos/core#"
 
-LICENCE_NAME = "Open Data Commons Open Database License 1.0 (ODbL)"
-LICENCE_URL = "https://opendatacommons.org/licenses/odbl/1.0/"
+ODBL = ("Open Data Commons Open Database License 1.0 (ODbL)",
+        "https://opendatacommons.org/licenses/odbl/1.0/")
+LICENCE_NAME, LICENCE_URL = ODBL
 
+# One entry per catalogue. ``source`` in the output is the key. ``name`` and
+# ``url`` are the catalogue's own, ``short`` is the label the Coins page shows
+# in its Source filter, ``licence`` is (name, address) as the dataset states it
+# (see data/sources_credits.json for where each statement was read).
 DATASETS = {
     "ocre": {"name": "Online Coins of the Roman Empire (OCRE)",
-             "url": "https://numismatics.org/ocre/"},
+             "url": "https://numismatics.org/ocre/", "short": "OCRE (Empire)",
+             "licence": ODBL},
     "crro": {"name": "Coinage of the Roman Republic Online (CRRO)",
-             "url": "https://numismatics.org/crro/"},
+             "url": "https://numismatics.org/crro/", "short": "CRRO (Republic)",
+             "licence": ODBL},
+    "cn": {"name": "Corpus Nummorum Online (CN)",
+           "url": "https://www.corpus-nummorum.eu/", "short": "Corpus Nummorum (Thrace, Moesia, Mysia, Troad)",
+           "licence": ("Creative Commons Attribution-NonCommercial-ShareAlike 3.0 (CC BY-NC-SA 3.0)",
+                       "https://creativecommons.org/licenses/by-nc-sa/3.0/")},
+    "sco": {"name": "Seleucid Coins Online (SCO)",
+            "url": "https://numismatics.org/sco/", "short": "SCO (Seleucid)", "licence": ODBL},
+    "pella": {"name": "PELLA, Argead Macedonian coinage",
+              "url": "https://numismatics.org/pella/", "short": "PELLA (Argead Macedon)",
+              "licence": ODBL},
+    "pco": {"name": "Ptolemaic Coins Online (PCO)",
+            "url": "https://numismatics.org/pco/", "short": "PCO (Ptolemaic)", "licence": ODBL},
+    "bigr": {"name": "Coins of the Bactrian and Indo-Greek Rulers (BIGR)",
+             "url": "https://numismatics.org/bigr/", "short": "BIGR (Bactria and India)",
+             "licence": ODBL},
+    "iris": {"name": "IRIS Online Greek Coinage, skeleton types",
+             "url": "https://greekcoinage.org/iris/", "short": "IRIS (Greek skeleton types)",
+             "licence": ODBL},
+    "iacb": {"name": "Iron Age Coins in Britain (IACB)",
+             "url": "https://iacb.arch.ox.ac.uk/", "short": "IACB (Britain)",
+             "licence": ("Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)",
+                         "https://creativecommons.org/licenses/by-nc-sa/4.0/")},
+    "lco": {"name": "Levantine Coinages Online (LCO)",
+            "url": "https://numismatics.org/lco/", "short": "LCO (Levant)", "licence": ODBL},
 }
 
 _SEPARATORS = "·•˙●:*_/|․‧"
@@ -137,6 +177,26 @@ def _is_letter(ch):
 
 def _letters(piece):
     return "".join(ch for ch in piece if _is_letter(ch))
+
+
+# Greek legends in the catalogues sometimes use a Latin capital for a Greek
+# letter that looks the same (BAΣΙΛΕΩΣ with a Latin B and A, ΠΤΟΛΕΜΑΙΟY with a
+# Latin Y). Inside a word that also holds Greek letters they are read as Greek,
+# so the word is found when it is typed in Greek.
+_LATIN_TO_GREEK = {"A": "\u0391", "B": "\u0392", "E": "\u0395", "Z": "\u0396", "H": "\u0397",
+                   "I": "\u0399", "K": "\u039a", "M": "\u039c", "N": "\u039d", "O": "\u039f",
+                   "P": "\u03a1", "T": "\u03a4", "Y": "\u03a5", "X": "\u03a7"}
+
+
+def unmix_scripts(text):
+    """Latin look-alike capitals inside a word that has Greek letters become
+    Greek letters. Words of one script are left alone."""
+    def fix(m):
+        w = m.group(0)
+        if any(unicodedata.name(ch, "").startswith("GREEK") for ch in w):
+            return "".join(_LATIN_TO_GREEK.get(ch, ch) for ch in w)
+        return w
+    return re.sub(r"\S+", fix, text)
 
 
 def _resolve_hyphens(s, vocab):
@@ -202,13 +262,15 @@ def normalise_legend(raw, vocab=None):
     # catalogue prose, not a legend
     outside = re.sub(r"\[[^\]]*\]", "", s)
     lower_words = re.findall(r"\b[a-z]{2,}\b", outside)
-    if len(lower_words) > 1:
+    if len(lower_words) > 1 and not re.search("[\u0370-\u03ff\u1f00-\u1fff]", s):
         return "", [], "commentary"
     if lower_words:
-        # one stray lower-case word ("round", "sic") is a note, not legend
+        # one stray lower-case word ("round", "sic"), or a note after a Greek
+        # legend ("above quadriga"), is a note, not legend
         s = re.sub(r"\b[a-z]{2,}\b", " ", s)
     s = _resolve_hyphens(s, vocab)
     s = _SEP_RE.sub(" ", s)
+    s = unmix_scripts(s)
     out_chars, flags = [], []
     inside = False
     for ch in s:
@@ -251,7 +313,7 @@ def normalise_legend(raw, vocab=None):
 
 def legend_languages(texts):
     """["la"], ["grc"] or ["la", "grc"] from the scripts present."""
-    latin = greek = False
+    latin = greek = other = False
     for t in texts:
         for ch in t:
             if not _is_letter(ch):
@@ -261,16 +323,29 @@ def legend_languages(texts):
                 greek = True
             elif name.startswith("LATIN"):
                 latin = True
+            else:
+                other = True
     if greek and not latin:
         return ["grc"]
     if greek and latin:
         return ["la", "grc"]
+    if other and not latin:
+        return ["und"]  # another script only (Kharoshthi, Aramaic, Hebrew)
     return ["la"]
 
 
 # --------------------------------------------------------------------------
 # Triples -> records
 # --------------------------------------------------------------------------
+
+def local_id(uri):
+    """The part of a type URI after ``/id/`` (OCRE, SCO, PELLA, IRIS ...) or
+    after ``/types/`` (Corpus Nummorum, whose addresses have no ``/id/``)."""
+    for marker in ("/id/", "/types/"):
+        if marker in uri:
+            return uri.split(marker, 1)[-1]
+    return slug(uri)
+
 
 def slug(uri):
     return uri.rstrip("/").rsplit("/", 1)[-1]
@@ -341,10 +416,21 @@ def _label(uri, labels):
     return labels.get(uri) or pretty(uri)
 
 
+def _person_labels(uris, labels):
+    """Labels for portrait, authority or issuer URIs. An address that is not a
+    nomisma.org id and has no label (a British Museum person record) is left
+    out, because its last path part is only a number."""
+    out = []
+    for u in uris:
+        if u in labels or u.startswith("http://nomisma.org/id/"):
+            out.append(_label(u, labels))
+    return out
+
+
 def convert_type(uri, rec, dataset, labels, mint_pleiades, vocab=None):
     """One type -> output record (dict)."""
     props, sides = rec["props"], rec["sides"]
-    local = uri.split("/id/", 1)[-1]
+    local = local_id(uri)
     first = lambda p: next((v for v, _ in props.get(NMO + p, []) if v), None)  # noqa: E731
     allv = lambda p: _uniq([v for v, _ in props.get(NMO + p, [])])  # noqa: E731
 
@@ -358,14 +444,14 @@ def convert_type(uri, rec, dataset, labels, mint_pleiades, vocab=None):
         mint = {"uri": mint_uri, "label": _label(mint_uri, labels),
                 "pleiades_id": mint_pleiades.get(mint_uri)}
 
-    auth_uris = allv("hasAuthority") or allv("hasIssuer")
+    # PELLA, PCO and BIGR give some types a stated authority (the name on
+    # the coin) and no authority proper, so it counts as one
+    auth_uris = _uniq(allv("hasAuthority") + allv("hasStatedAuthority")) or allv("hasIssuer")
     # moneyers sit under hasIssuer for the Republic; OCRE types may have both
     issuers = allv("hasIssuer")
-    authority = "; ".join(_label(u, labels) for u in auth_uris
-                          if slug(u) != "anonymous") or (
+    authority = "; ".join(_person_labels([u for u in auth_uris if slug(u) != "anonymous"], labels)) or (
         "anonymous" if "http://nomisma.org/id/anonymous" in auth_uris else None)
-    issuer = "; ".join(_label(u, labels) for u in issuers
-                       if slug(u) != "anonymous") or None
+    issuer = "; ".join(_person_labels([u for u in issuers if slug(u) != "anonymous"], labels)) or None
 
     denom_uri, mat_uri = first("hasDenomination"), first("hasMaterial")
     denomination = _label(denom_uri, labels) if denom_uri else None
@@ -373,8 +459,8 @@ def convert_type(uri, rec, dataset, labels, mint_pleiades, vocab=None):
 
     # who is shown on the obverse (an emperor, a deity), and the region the
     # export gives for some types
-    portrait = "; ".join(_label(u, labels) for u in _uniq(
-        [v for v, _ in sides["obverse"].get(NMO + "hasPortrait", [])])) or None
+    portrait = "; ".join(_person_labels(_uniq(
+        [v for v, _ in sides["obverse"].get(NMO + "hasPortrait", [])]), labels)) or None
     region = "; ".join(_label(u, labels) for u in allv("hasRegion")
                        if slug(u) != "uncertain_value") or None
 
@@ -431,8 +517,8 @@ def convert_type(uri, rec, dataset, labels, mint_pleiades, vocab=None):
         "source_url": uri,
         "principal_edition": pref,
         "source_name": DATASETS[dataset]["name"],
-        "licence_name": LICENCE_NAME,
-        "licence_url": LICENCE_URL,
+        "licence_name": DATASETS[dataset]["licence"][0],
+        "licence_url": DATASETS[dataset]["licence"][1],
         "legend_note": "; ".join(notes) or None,
         "lines": lines,
         "text": " / ".join(l["text"] for l in lines),
@@ -456,21 +542,41 @@ def convert_file(path, dataset, labels, mint_pleiades):
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--ocre")
-    ap.add_argument("--crro")
-    ap.add_argument("--refs", help="folder with mints.jsonl, labels.jsonl, people.jsonl")
+    ap.add_argument("--dataset", action="append", default=[], metavar="CODE=PATH",
+                    help="a catalogue's triples file, e.g. sco=sco_types.jsonl "
+                         "(codes: " + ", ".join(DATASETS) + "). Repeat for each; "
+                         "records are written in the order given")
+    ap.add_argument("--ocre", help="same as --dataset ocre=PATH")
+    ap.add_argument("--crro", help="same as --dataset crro=PATH")
+    ap.add_argument("--refs", action="append",
+                    help="folder with mints.jsonl, labels.jsonl, people.jsonl (repeatable, "
+                         "earlier folders win)")
     ap.add_argument("--output", required=True)
     ap.add_argument("--stats-out")
     args = ap.parse_args(argv)
-    if not (args.ocre or args.crro):
-        ap.error("give --ocre and/or --crro")
+    jobs = []
+    if args.ocre:
+        jobs.append(("ocre", args.ocre))
+    if args.crro:
+        jobs.append(("crro", args.crro))
+    for spec in args.dataset:
+        code, sep, path = spec.partition("=")
+        if not sep or code not in DATASETS:
+            ap.error(f"--dataset {spec!r}: expected CODE=PATH with CODE one of {', '.join(DATASETS)}")
+        jobs.append((code, os.path.expanduser(path)))
+    if not jobs:
+        ap.error("give --dataset CODE=PATH (at least one), or --ocre / --crro")
 
-    labels, mint_pleiades = load_refs(args.refs)
+    labels, mint_pleiades = {}, {}
+    for folder in args.refs or [None]:
+        lab, pl = load_refs(folder)
+        for k, v in lab.items():
+            labels.setdefault(k, v)
+        for k, v in pl.items():
+            mint_pleiades.setdefault(k, v)
     stats = defaultdict(Counter)
     with open(args.output, "w", encoding="utf-8") as out:
-        for dataset, path in (("ocre", args.ocre), ("crro", args.crro)):
-            if not path:
-                continue
+        for dataset, path in jobs:
             for r in convert_file(path, dataset, labels, mint_pleiades):
                 s = stats[dataset]
                 s["types"] += 1
