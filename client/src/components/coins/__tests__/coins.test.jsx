@@ -61,9 +61,9 @@ beforeEach(() => {
 afterEach(() => { cleanup(); window.history.replaceState({}, '', '/'); });
 
 describe('collections wiring', () => {
-  it('the Everything profile leaves coins off and Archaeological has them on', () => {
-    expect(PROFILES.find((p) => p.id === 'everything').on).not.toContain('coins');
-    expect(profileSwitches('everything').coins).toBe(false);
+  it('the Archaeological and Everything profiles have coins on, Literary off', () => {
+    expect(PROFILES.find((p) => p.id === 'everything').on).toContain('coins');
+    expect(profileSwitches('everything').coins).toBe(true);
     expect(profileSwitches('archaeological').coins).toBe(true);
     expect(profileSwitches('literary').coins).toBe(false);
     expect(PAGE_NEEDS.coins).toEqual(['coins']);

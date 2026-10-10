@@ -120,8 +120,21 @@ def list_events():
         century = request.args.get('century', type=int)
         page = max(request.args.get('page', 1, type=int) or 1, 1)
         per_page = min(max(request.args.get('per_page', 25, type=int) or 25, 1), MAX_PER_PAGE)
+        # Ordering and the empty-event filter (owner's review 2026-10-10: a
+        # list that opened on 801 BCE events with nothing attached was not
+        # persuasive). The default order puts the events with the most
+        # attached passages and nearby documents first; `sort=date` is the
+        # old chronological order. Events with neither a passage nor a
+        # document are left out unless `show=all`.
+        sort = (request.args.get('sort') or 'evidence').strip().lower()
+        if sort not in ('evidence', 'date'):
+            sort = 'evidence'
+        show_all = (request.args.get('show') or '').strip().lower() == 'all'
 
-        where, args = [], []
+        # Four Wikidata items carry no English label, title or description,
+        # only their Q-number: nothing a reader could recognise, so the
+        # list leaves them out (the detail route still answers for them).
+        where, args = ["NOT (label GLOB 'Q[0-9]*')"], []
         if q:
             esc = q.replace('\\', '\\\\').replace('%', '\\%').replace('_', '\\_')
             where.append("(label LIKE ? ESCAPE '\\' OR place LIKE ? ESCAPE '\\')")
@@ -133,15 +146,24 @@ def list_events():
             lo, hi = century_range(century)
             where.append('date_start <= ? AND COALESCE(date_end, date_start) >= ?')
             args += [hi, lo]
-        clause = ('WHERE ' + ' AND '.join(where)) if where else ''
-        total = c.execute(f'SELECT COUNT(*) FROM events {clause}', args).fetchone()[0]  # nosec B608 -- clause is fixed fragments with ? placeholders; values are bound in args
+        clause_all = ('WHERE ' + ' AND '.join(where)) if where else ''
+        total_all = c.execute(f'SELECT COUNT(*) FROM events {clause_all}', args).fetchone()[0]  # nosec B608 -- clause is fixed fragments with ? placeholders; values are bound in args
+        evidence = ("(EXISTS (SELECT 1 FROM passages p WHERE p.event_id = events.id "
+                    "AND COALESCE(p.llm_label, '') IN ('yes', 'mention')) "
+                    "OR EXISTS (SELECT 1 FROM documents d WHERE d.event_id = events.id))")
+        where_shown = where if show_all else where + [evidence]
+        clause = ('WHERE ' + ' AND '.join(where_shown)) if where_shown else ''
+        total = total_all if show_all else c.execute(
+            f'SELECT COUNT(*) FROM events {clause}', args).fetchone()[0]  # nosec B608 -- clause is fixed fragments with ? placeholders; values are bound in args
         counts = '''SELECT e.*,
                    (SELECT COUNT(*) FROM passages p WHERE p.event_id = e.id
                         AND COALESCE(p.llm_label, '') IN ('yes', 'mention')) AS n_passages,
                    (SELECT COUNT(*) FROM documents d WHERE d.event_id = e.id) AS n_documents,
                    (SELECT COUNT(*) FROM scholarship s WHERE s.event_id = e.id) AS n_scholarship
                 FROM (SELECT * FROM events '''
-        sql = counts + clause + ') e ORDER BY e.date_start, e.label LIMIT ? OFFSET ?'  # nosec B608 -- clause is fixed fragments with ? placeholders; values are bound
+        order = ('ORDER BY e.date_start, e.label' if sort == 'date'
+                 else 'ORDER BY (n_passages + n_documents) DESC, n_passages DESC, e.date_start, e.label')
+        sql = counts + clause + ') e ' + order + ' LIMIT ? OFFSET ?'  # nosec B608 -- clause and order are fixed fragments with ? placeholders; values are bound
         rows = c.execute(sql, args + [per_page, (page - 1) * per_page]).fetchall()
         events = []
         for r in rows:
@@ -149,12 +171,19 @@ def list_events():
             d.update(n_passages=r['n_passages'], n_documents=r['n_documents'],
                      n_scholarship=r['n_scholarship'])
             events.append(d)
-        types = [r[0] for r in c.execute(
-            'SELECT DISTINCT type FROM events WHERE type IS NOT NULL ORDER BY type')]
+        # Type counts follow the empty-event setting, not the other filters,
+        # so the Type menu can say how many of each kind there are to see.
+        type_clause = '' if show_all else 'WHERE ' + evidence
+        type_rows = c.execute(
+            f'SELECT type, COUNT(*) FROM events {type_clause} GROUP BY type ORDER BY type').fetchall()  # nosec B608 -- fixed fragment
+        types = [r[0] for r in type_rows if r[0] is not None]
+        type_counts = {r[0]: r[1] for r in type_rows if r[0] is not None}
         cents = sorted({century_of(r[0]) for r in c.execute(
             'SELECT date_start FROM events WHERE date_start IS NOT NULL')} - {None})
-        return jsonify({'available': True, 'events': events, 'total': total, 'page': page,
-                        'per_page': per_page, 'types': types, 'centuries': cents})
+        return jsonify({'available': True, 'events': events, 'total': total, 'total_all': total_all,
+                        'sort': sort, 'show': 'all' if show_all else 'evidence',
+                        'page': page, 'per_page': per_page, 'types': types,
+                        'type_counts': type_counts, 'centuries': cents})
     finally:
         c.close()
 

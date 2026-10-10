@@ -38,13 +38,10 @@ export const PROFILES = [
     on: ['literature', 'inscriptions', 'papyri', 'coins', 'objects'],
     layout: { browseView: 'documents' },
   },
-  // Everything leaves Coins OFF: 58,715 types of about five words each would
-  // flood a phrase search, so a visitor switches Coins on by name.
-  {
-    id: 'everything', label: 'Everything',
-    on: COLLECTION_IDS.filter((id) => id !== 'coins'),
-    layout: { browseView: 'language' },
-  },
+  // Everything means every collection, Coins included: the coin types have
+  // their own page, Reader tab and Theme Search choice and never enter a
+  // phrase search, so nothing is crowded out by having them on.
+  { id: 'everything', label: 'Everything', on: COLLECTION_IDS, layout: { browseView: 'language' } },
 ];
 
 export const DEFAULT_PROFILE = 'literary';

@@ -8,6 +8,10 @@ import DocumentExampleButtons from './DocumentExampleButtons';
 import DocumentsSearchFilters from './DocumentsSearchFilters';
 import DocumentsResultsPanel from './DocumentsResultsPanel';
 import DocumentsBrowser from '../corpus/DocumentsBrowser';
+import { closenessSort, closenessLabel, TONE_CLASS } from '../search/closeness';
+
+// How many literary companions a "Both" search shows before "Show all".
+const LITERATURE_FOLD = 5;
 
 // Narrower than LineSearch.jsx's Literature/Documents/Both: this page's
 // whole purpose is the documents collection, so Literature is not offered
@@ -101,6 +105,9 @@ export default function InscriptionsPapyriPage({ setPageType }) {
   // alongside the Pompeii graffito that echoes it) -- separate from the
   // documents collection's own result state, which useDocumentsSearch owns.
   const [literatureHits, setLiteratureHits] = useState([]);
+  const [showAllLiterature, setShowAllLiterature] = useState(false);
+  // Content words in the last query, for the closeness tags (see closeness.js).
+  const [queryLemmaCount, setQueryLemmaCount] = useState(0);
 
   const {
     collection, setCollection,
@@ -184,6 +191,8 @@ export default function InscriptionsPapyriPage({ setPageType }) {
         applyDocumentsResponse({});
       } else {
         setLiteratureHits((data.results || []).filter(r => r.collection !== 'documents'));
+        setQueryLemmaCount(data.query_lemma_count || 0);
+        setShowAllLiterature(false);
         applyDocumentsResponse(data, { sortUsed: searchParams.sort });
       }
     } catch (err) {
@@ -216,6 +225,8 @@ export default function InscriptionsPapyriPage({ setPageType }) {
         setLiteratureHits([]);
       } else {
         setLiteratureHits((data.results || []).filter(r => r.collection !== 'documents'));
+        setQueryLemmaCount(data.query_lemma_count || 0);
+        setShowAllLiterature(false);
         applyDocumentsResponse(data, { collection: example.collection, force: true });
       }
     } catch (err) {
@@ -337,29 +348,6 @@ export default function InscriptionsPapyriPage({ setPageType }) {
         </div>
       )}
 
-      {collection === 'both' && literatureHits.length > 0 && (
-        <div className="bg-white rounded-lg shadow overflow-hidden">
-          <div className="px-4 py-3 bg-gray-50 text-sm text-gray-600">
-            Also found in the literature ({literatureHits.length})
-          </div>
-          <div className="divide-y divide-gray-200">
-            {literatureHits.map((result, i) => (
-              <div key={i} className="p-4">
-                <div className="flex flex-col sm:flex-row sm:items-start gap-2">
-                  <div className="sm:w-48 flex-shrink-0 min-w-0 break-words">
-                    <div className="text-sm font-medium text-gray-900">{result.author}</div>
-                    <div className="text-xs text-gray-500">{result.work}, {result.locus}</div>
-                  </div>
-                  <div className="flex-1 min-w-0 break-words text-gray-700" dir={dirFor(language)}>
-                    {simpleHighlight(result.text, result.matched_words)}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
       <DocumentsResultsPanel
         documentResults={documentPageResults}
         docTotal={docTotal}
@@ -371,6 +359,53 @@ export default function InscriptionsPapyriPage({ setPageType }) {
         documentViewUrl={documentViewUrl}
         language={language}
       />
+
+      {/* The literary companion to a "Both" search comes AFTER the documents
+          (owner's review 2026-10-10: the literature was swamping the
+          documents), ranked by closeness to the phrase (lines quoting it
+          first, then those sharing more of its words), and folded to the
+          first few until opened. */}
+      {collection === 'both' && literatureHits.length > 0 && (() => {
+        const ranked = [...literatureHits].sort(closenessSort);
+        const shown = showAllLiterature ? ranked : ranked.slice(0, LITERATURE_FOLD);
+        return (
+          <div className="bg-white rounded-lg shadow overflow-hidden">
+            <div className="px-4 py-3 bg-gray-50 text-sm text-gray-600 flex flex-wrap items-center justify-between gap-2">
+              <span>Also found in the literature ({literatureHits.length})</span>
+              {ranked.length > LITERATURE_FOLD && (
+                <button type="button" onClick={() => setShowAllLiterature(v => !v)}
+                        className="text-xs text-red-700 hover:underline">
+                  {showAllLiterature ? `Show the first ${LITERATURE_FOLD}` : `Show all ${ranked.length}`}
+                </button>
+              )}
+            </div>
+            <div className="divide-y divide-gray-200">
+              {shown.map((result, i) => {
+                const tag = closenessLabel(result, queryLemmaCount);
+                return (
+                  <div key={i} className="p-4">
+                    <div className="flex flex-col sm:flex-row sm:items-start gap-2">
+                      <div className="sm:w-48 flex-shrink-0 min-w-0 break-words">
+                        <div className="text-sm font-medium text-gray-900">{result.author}</div>
+                        <div className="text-xs text-gray-500">{result.work}, {result.locus}</div>
+                        {tag && (
+                          <span className={`text-xs px-1.5 py-0.5 rounded mt-1 inline-block ${TONE_CLASS[tag.tone]}`}
+                                title="How much of the search phrase this line shares">
+                            {tag.text}
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0 break-words text-gray-700" dir={dirFor(language)}>
+                        {simpleHighlight(result.text, result.matched_words)}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })()}
 
       <div className="bg-white rounded-lg shadow p-4 sm:p-6">
         <DocumentsBrowser documentsTrial={documentsTrial} />

@@ -70,7 +70,7 @@ describe('the Coins tab follows the collection', () => {
   it('is registered in READER_TABS and needs coins', () => {
     expect(READER_TABS.find((t) => t.id === 'coins').needs).toEqual(['coins']);
   });
-  it('is absent in the Literary profile and in Everything', () => {
+  it('is absent in the Literary profile and present in Everything', () => {
     mockApi();
     setProfile('literary');
     panel({ initialTab: undefined });
@@ -78,7 +78,7 @@ describe('the Coins tab follows the collection', () => {
     cleanup();
     setProfile('everything');
     panel({ initialTab: undefined });
-    expect(screen.queryByRole('button', { name: 'Coins' })).toBeNull();
+    expect(screen.getByRole('button', { name: 'Coins' })).toBeTruthy();
   });
   it('appears when Coins is on', () => {
     mockApi();
