@@ -195,6 +195,13 @@ def _parse_search_request(data):
     settings['target_language'] = target_language
     settings['source_text_path'] = source_path
     settings['target_text_path'] = target_path
+    # A work compared with itself, unit for unit (owner 2026-10-10: "One
+    # work phrase: exclude identical lines"). Marked here so the result cache
+    # keys the new behaviour apart from the old lists of each line matched
+    # with its twin; applied by _drop_self_pairs before scoring.
+    if (source_id == target_id and not is_crosslingual
+            and settings.get('source_unit_type', 'line') == settings.get('target_unit_type', 'line')):
+        settings['same_work'] = True
 
     return {
         'source_id': source_id, 'target_id': target_id,
@@ -203,6 +210,22 @@ def _parse_search_request(data):
         'source_path': source_path, 'target_path': target_path,
         'is_crosslingual': is_crosslingual,
     }
+
+
+def _drop_self_pairs(matches):
+    """For a work searched against itself: no line is paired with itself, and
+    each pair of lines appears once, the earlier line as the source. The
+    matchers compare every unit with every unit, so (i, j) and (j, i) both
+    arrive; keeping i < j keeps one of them with its orientation intact."""
+    out = []
+    for m in matches or ():
+        s, t = m.get('source_idx'), m.get('target_idx')
+        if s is None or t is None:
+            out.append(m)
+            continue
+        if s < t:
+            out.append(m)
+    return out
 
 
 def _load_units(params):
@@ -2111,6 +2134,8 @@ def search_stream():
                 return
 
             # Score, cache, log, and return
+            if settings.get('same_work'):
+                matches = _drop_self_pairs(matches)
             yield send_progress("Scoring matches", f"{len(matches)} candidates")
             cancellation.check()
             scored_results = _scorer.score_matches(matches, source_units, target_units, settings, source_id, target_id)
@@ -2275,6 +2300,8 @@ def _search_response():
 
 
             # Score, cache, log, and return
+            if settings.get('same_work'):
+                matches = _drop_self_pairs(matches)
             cancellation.check()
             scored_results = _scorer.score_matches(matches, source_units, target_units, settings, source_id, target_id)
             scored_results.sort(key=lambda x: x['overall_score'], reverse=True)

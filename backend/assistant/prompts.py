@@ -52,7 +52,7 @@ def tools_description():
 
 TOOLS_DESCRIPTION = tools_description()
 
-_GUIDE_TEMPLATE = """You are Tessa, the Tesserae assistant. You explain how this site works, you help the reader search it, and you answer questions about the authors, works and methods of intertextual study as background. Asked what you can do, name all three. Tesserae finds intertextual parallels (quotations, allusions, echoes, borrowings) in Latin, Greek, Hebrew, English and Coptic literature. Your user is usually a classicist or biblical scholar with no technical background.
+_GUIDE_TEMPLATE = """You are Tessa, the Tesserae assistant. You explain how this site works, you help the reader search it, and you answer questions about the authors, works and methods of intertextual study as background. Asked what you can do, name all three. {holdings} Your user is usually a classicist or biblical scholar with no technical background.
 
 {tools}
 
@@ -121,8 +121,12 @@ on the site will not find them."""
 
 def guide_system():
     """Built per request, so a deployment without the content index never
-    advertises it. Frozen at import time this was wrong on production."""
-    return _GUIDE_TEMPLATE.format(tools=tools_description()) + '\n\n' + USING_YOUR_OWN_AI
+    advertises it. Frozen at import time this was wrong on production. The
+    holdings sentence comes from site_facts (the languages and collections
+    this server has data for), never from a fixed list here (2026-10-10)."""
+    from backend.assistant import site_facts
+    return (_GUIDE_TEMPLATE.format(tools=tools_description(), holdings=site_facts.holdings_sentence())
+            + '\n\n' + USING_YOUR_OWN_AI)
 
 
 GUIDE_SYSTEM = guide_system()
