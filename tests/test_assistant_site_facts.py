@@ -68,3 +68,24 @@ def test_cache_refreshes_after_ttl(monkeypatch):
     assert site_facts.holdings_sentence() == first
     site_facts._cache['at'] -= site_facts._TTL + 1
     assert site_facts.holdings_sentence() == 'changed'
+
+
+def test_prompt_module_builds_nothing_at_import():
+    """The holdings sentence is built per request, never when prompts.py is
+    imported (that happens before the language plugins register)."""
+    from backend.assistant import prompts
+    assert not hasattr(prompts, 'GUIDE_SYSTEM')
+
+
+def test_a_three_language_sentence_is_not_cached(monkeypatch):
+    from backend.assistant import site_facts
+    site_facts.reset_cache()
+    monkeypatch.setattr(site_facts, 'languages', lambda: [('la', 'Latin'), ('grc', 'Greek'), ('en', 'English')])
+    first = site_facts.holdings_sentence()
+    assert 'Latin, Greek and English' in first
+    assert site_facts._cache['text'] is None
+    monkeypatch.setattr(site_facts, 'languages', lambda: [('la', 'Latin'), ('grc', 'Greek'), ('en', 'English'), ('ur', 'Urdu')])
+    second = site_facts.holdings_sentence()
+    assert 'Urdu' in second
+    assert site_facts._cache['text'] == second
+    site_facts.reset_cache()
