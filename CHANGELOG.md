@@ -9,6 +9,10 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-10
 
+### Start here: smaller, feature names first
+The Start here panel took the top of the Search page with six boxes. It is now one short card with the feature's name and a half-line of what it does ("Line Search: every line in the corpus where a phrase or a pair of words occurs"), three to a row, with Skip beside the question. The Collections button in the menu bar is now shown to every visitor, so the inscriptions, papyri, events, coins and objects the panel names can be switched on from the top of the page; the default profile is still Literary.
+### Research moves under About
+The Research entry leaves the main menu (most visitors will not look at the project's studies regularly). The page stays at /research and is reached from a Research block on the About page, beside Text Credits.
 ### Coins: a Latin passage's related imagery comes from the Roman catalogues
 With the seven Greek catalogues installed, the Reader's Coins tab ranked every description for every passage, and on the ten Latin test passages the Greek types took 27 of the 50 top-five places with about three real matches (Persian kings for Actium, Dionysus heads for the Ara Pacis), so the measured hit rate fell from 0.34 to about 0.26. A Latin passage now ranks the two Roman catalogues only, which restores the measured lists; a Greek passage searches all nine. The operations record marks the Greek coins and Objects installs as run and drops a duplicated entry left by a merge.
 

@@ -234,6 +234,25 @@ export default function AboutPage({ onNavigate, initialAnchor = null, onAnchorCo
         </section>
 
         <section>
+          <button
+            onClick={() => onNavigate && onNavigate('research')}
+            className="w-full text-left bg-amber-50 border border-amber-200 rounded-lg p-5 hover:bg-amber-100 hover:border-amber-300 transition-colors group cursor-pointer"
+          >
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-amber-800 group-hover:text-amber-900">
+                Research
+              </h3>
+              <svg className="w-5 h-5 text-amber-600 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </div>
+            <p className="text-sm text-amber-700 mt-2">
+              The studies, evaluations and articles behind the site: how the matching is scored, how well it works, and what was measured when a method changed.
+            </p>
+          </button>
+        </section>
+
+        <section>
           <h3 className="text-lg font-semibold text-gray-900 mb-3">Technical Details</h3>
           <ul className="list-disc list-inside text-gray-700 space-y-2">
             <li>Lemmatization via CLTK (Classical Language Toolkit) for Latin and Greek</li>

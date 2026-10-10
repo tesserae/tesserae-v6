@@ -1,5 +1,6 @@
 // The six answers to "What are you trying to do?" on the Search page's
-// "Start here" panel. Tessa answers "where do I start" with the same six
+// "Start here" panel: the feature's fixed name, then what it does (owner's
+// review 2026-10-10: name the feature, then a brief description, smaller). Tessa answers "where do I start" with the same six
 // (backend/assistant/front_door.py holds the same labels and paths; a test
 // checks the two agree). Change both together.
 //
@@ -8,39 +9,39 @@
 
 export const FRONT_DOOR_CHOICES = [
   {
-    id: 'phrase',
-    label: 'Find where a phrase or a pair of words occurs',
-    detail: 'Every line in the corpus that carries the words, with the lines that quote the phrase first.',
-    href: '/?tab=line',
-  },
-  {
     id: 'compare',
-    label: 'Compare two works for shared language',
-    detail: 'Every pair of lines the two works share, scored.',
+    label: 'Phrase Search',
+    detail: 'the phrases two works share, scored',
     href: '/?tab=parallel',
   },
   {
+    id: 'phrase',
+    label: 'Line Search',
+    detail: 'every line in the corpus where a phrase or a pair of words occurs',
+    href: '/?tab=line',
+  },
+  {
     id: 'rare',
-    label: 'Find the rare words two works share',
-    detail: 'Words and word pairs that occur in few other works.',
+    label: 'Rare Words',
+    detail: 'the rare words and word pairs two works share',
     href: '/?tab=hapax',
   },
   {
     id: 'subject',
-    label: 'Find passages about a subject, in any words',
-    detail: 'Describe a scene or an idea in English and get the passages, across languages.',
+    label: 'Theme Search',
+    detail: 'passages about a subject, described in your own words, across languages',
     href: '/theme-search',
   },
   {
     id: 'read',
-    label: 'Read a text and see what each passage echoes',
-    detail: 'The Reader shows the connections of every passage beside the text.',
+    label: 'Reader',
+    detail: 'read a text and see what each passage echoes',
     href: '/read',
   },
   {
     id: 'documents',
-    label: 'Search inscriptions, papyri, events and coins',
-    detail: 'The historical collections, searched with the literature or on their own.',
+    label: 'Collections',
+    detail: 'inscriptions, papyri, events, coins and museum objects',
     href: '/inscriptions-papyri?profile=everything',
   },
 ];

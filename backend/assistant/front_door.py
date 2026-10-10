@@ -11,12 +11,12 @@ The Reader lives at /read and the Inscriptions & Papyri page at
 import re
 
 FRONT_DOOR_CHOICES = [
-    ('Find where a phrase or a pair of words occurs', '/?tab=line'),
-    ('Compare two works for shared language', '/?tab=parallel'),
-    ('Find the rare words two works share', '/?tab=hapax'),
-    ('Find passages about a subject, in any words', '/theme-search'),
-    ('Read a text and see what each passage echoes', '/read'),
-    ('Search inscriptions, papyri, events and coins', '/inscriptions-papyri?profile=everything'),
+    ('Phrase Search', 'the phrases two works share, scored', '/?tab=parallel'),
+    ('Line Search', 'every line in the corpus where a phrase or a pair of words occurs', '/?tab=line'),
+    ('Rare Words', 'the rare words and word pairs two works share', '/?tab=hapax'),
+    ('Theme Search', 'passages about a subject, described in your own words, across languages', '/theme-search'),
+    ('Reader', 'read a text and see what each passage echoes', '/read'),
+    ('Collections', 'inscriptions, papyri, events, coins and museum objects', '/inscriptions-papyri?profile=everything'),
 ]
 
 # Short questions that ask where to begin. Whole-phrase matches only, and only
@@ -43,6 +43,6 @@ def matches(normalised_question):
 
 def answer():
     lines = ['This site does six kinds of thing.']
-    lines += [f'- [{label}]({path})' for label, path in FRONT_DOOR_CHOICES]
+    lines += [f'- [{label}]({path}): {detail}' for label, detail, path in FRONT_DOOR_CHOICES]
     lines.append('Say which one and I will set it up.')
     return '\n'.join(lines)

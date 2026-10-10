@@ -554,7 +554,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
               <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Start here</h3>
               <p className="text-gray-700 mb-4">
                 The Search page opens with the question "What are you trying to do?" the first time you visit. Choosing
-                an answer takes you to the right search, and "Skip this" closes the question for good. The "Start here"
+                an answer takes you to the right search, and "Skip" closes the question for good. The "Start here"
                 link at the top of every page brings it back, and Tessa gives the same list when you ask her where to start.
               </p>
             </div>
