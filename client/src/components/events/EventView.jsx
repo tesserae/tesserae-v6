@@ -15,7 +15,7 @@ function workTitle(work) {
     .map((s) => s.replace(/_/g, ' ')).join(': ');
 }
 
-function PassagesTab({ passages, counts, event }) {
+function PassagesTab({ passages, counts, event, focusRank }) {
   const groups = useMemo(() => {
     const by = new Map();
     passages.forEach((p) => {
@@ -24,6 +24,11 @@ function PassagesTab({ passages, counts, event }) {
     });
     return [...by.entries()];
   }, [passages]);
+  useEffect(() => {
+    if (focusRank === null || focusRank === undefined) return;
+    const el = document.getElementById(`passage-${focusRank}`);
+    if (el && el.scrollIntoView) el.scrollIntoView({ block: 'center' });
+  }, [focusRank]);
   if (passages.length === 0) {
     return <p className="text-sm text-gray-600">No passage has been matched to this event.</p>;
   }
@@ -38,7 +43,7 @@ function PassagesTab({ passages, counts, event }) {
           <h4 className="text-sm font-semibold text-gray-800 mb-1">{workTitle(work)}</h4>
           <ul className="space-y-2">
             {items.map((p, i) => (
-              <li key={`${p.rank}-${i}`} className="bg-white border border-gray-200 rounded-lg p-3">
+              <li key={`${p.rank}-${i}`} id={`passage-${p.rank}`} className="bg-white border border-gray-200 rounded-lg p-3 scroll-mt-4">
                 <div className="flex flex-wrap items-center gap-2 text-sm">
                   <span className="font-medium text-gray-800">
                     {displayRef(p.ref_start)}{p.ref_end && p.ref_end !== p.ref_start ? ` to ${displayRef(p.ref_end)}` : ''}
@@ -100,13 +105,16 @@ function DocumentsTab({ documents, event }) {
   );
 }
 
-function ScholarshipTab({ items }) {
+function ScholarshipTab({ items, openPassage, ranks }) {
   if (items.length === 0) {
     return <p className="text-sm text-gray-600">No article or commentary was found on the passages for this event.</p>;
   }
   const kinds = [['article', 'Articles citing the passages'], ['commentary', 'Commentary on the passages']];
   return (
     <div>
+      <p className="text-xs text-gray-500 mb-3">
+        These are the articles that cite the event's leading passages. Each shows the passage that brings it in.
+      </p>
       {kinds.map(([kind, title]) => {
         const rows = items.filter((s) => s.kind === kind);
         if (rows.length === 0) return null;
@@ -119,7 +127,15 @@ function ScholarshipTab({ items }) {
                   {s.url
                     ? <a href={s.url} target="_blank" rel="noopener noreferrer" className="text-red-700 hover:underline">{s.title}</a>
                     : <span className="text-gray-800">{s.title}</span>}
-                  {s.page_ref && <span className="text-xs text-gray-500"> {' · '}on {s.page_ref}</span>}
+                  {s.page_ref && <span className="text-xs text-gray-500"> {' · '}{s.page_ref}</span>}
+                  {s.passage_ref && ranks.has(s.passage_rank) && (
+                    <div className="text-xs mt-1">
+                      <a href={`#passage-${s.passage_rank}`} className="text-red-700 hover:underline"
+                         onClick={(e) => { e.preventDefault(); openPassage(s.passage_rank); }}>
+                        on {displayRef(s.passage_ref)}
+                      </a>
+                    </div>
+                  )}
                 </li>
               ))}
             </ul>
@@ -136,6 +152,7 @@ export default function EventView({ id, goList }) {
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
   const [tab, setTab] = useState('passages');
+  const [focusRank, setFocusRank] = useState(null);
 
   useEffect(() => {
     let dead = false;
@@ -158,6 +175,8 @@ export default function EventView({ id, goList }) {
     ['scholarship', 'Scholarship', anyOn(['scholarship'])],
     ['map', 'Map', true],
   ].filter((t) => t[2]);
+
+  const openPassage = (rank) => { setFocusRank(rank); setTab('passages'); };
 
   const back = (
     <a href="/events" onClick={(e) => { e.preventDefault(); goList(); }}
@@ -186,7 +205,14 @@ export default function EventView({ id, goList }) {
         {ev.participants?.length > 0 && (
           <p className="text-sm text-gray-700 mt-2"><span className="text-gray-500">Participants:</span> {ev.participants.join(', ')}</p>
         )}
-        {ev.description && <p className="text-sm text-gray-800 mt-2">{ev.description}</p>}
+        {ev.summary ? (
+          <>
+            <p className="text-base text-gray-800 mt-2">{ev.summary}</p>
+            <p className="text-xs text-gray-500 mt-1">
+              From <a href={ev.summary_url} target="_blank" rel="noopener noreferrer" className="text-red-700 hover:underline">{ev.summary_source || 'Wikipedia'}</a>, {ev.summary_licence}
+            </p>
+          </>
+        ) : ev.description && <p className="text-sm text-gray-800 mt-2">{ev.description}</p>}
         <p className="text-sm mt-2 flex gap-4">
           {ev.wikipedia_url && <a href={ev.wikipedia_url} target="_blank" rel="noopener noreferrer" className="text-red-700 hover:underline">Wikipedia</a>}
           {ev.pleiades_url && <a href={ev.pleiades_url} target="_blank" rel="noopener noreferrer" className="text-red-700 hover:underline">Pleiades</a>}
@@ -203,9 +229,9 @@ export default function EventView({ id, goList }) {
         ))}
       </div>
       <div className="mt-4">
-        {tab === 'passages' && <PassagesTab passages={data.passages} counts={data.passage_counts} event={ev} />}
+        {tab === 'passages' && <PassagesTab passages={data.passages} counts={data.passage_counts} event={ev} focusRank={focusRank} />}
         {tab === 'documents' && <DocumentsTab documents={data.documents} event={ev} />}
-        {tab === 'scholarship' && <ScholarshipTab items={data.scholarship} />}
+        {tab === 'scholarship' && <ScholarshipTab items={data.scholarship} openPassage={openPassage} ranks={new Set(data.passages.map((p) => p.rank))} />}
         {tab === 'map' && <EventMap points={data.map} />}
       </div>
     </div>

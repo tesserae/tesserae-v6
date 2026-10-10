@@ -1892,6 +1892,10 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 its Wikipedia article), passages are found by
                 the names in them and sorted by an offline language model that no person has checked, and
                 the list covers only the events whose dossiers have been built so far.
+                The short description under an event's dates is the opening paragraph of its English
+                Wikipedia article, shared under the licence CC BY-SA 4.0, and a link beside it goes to the
+                article. The Scholarship tab lists the articles that cite the event's leading passages and
+                names the passage that brings each one in.
               </p>
             </div>
           )}

@@ -108,6 +108,42 @@ def _event_row(r):
     }
 
 
+def _scholarship(c, event_id):
+    """The event's scholarship rows. A database that records the passage each
+    article was found through (passage_rank, passage_ref) gives one row per
+    article, with the first passage that brings it in (the lowest rank), ordered
+    by that rank. An older database keeps its rows as they are."""
+    cols = _columns(c, 'scholarship')
+    linked = 'passage_rank' in cols and 'passage_ref' in cols
+    rows = c.execute('SELECT * FROM scholarship WHERE event_id = ? ORDER BY kind, rowid', (event_id,)).fetchall()
+    out = []
+    for s in rows:
+        item = {'kind': s['kind'], 'title': s['title'], 'page_ref': s['page_ref'], 'url': s['url']}
+        if linked:
+            item.update(passage_rank=s['passage_rank'], passage_ref=s['passage_ref'])
+        out.append(item)
+    if linked:
+        out = _by_passage_rank(out)
+    return out
+
+
+def _by_passage_rank(items):
+    """Per article the lowest-ranked passage, then the rows in that order (rows without a rank last)."""
+    best = {}
+    for i in items:
+        if i['kind'] == 'article':
+            k = (i['url'] or '', i['title'] or '')
+            if k not in best or _rank(i) < _rank(best[k]):
+                best[k] = i
+    keep = [i for i in items if i['kind'] != 'article' or best[(i['url'] or '', i['title'] or '')] is i]
+    order = {'article': 0, 'commentary': 1}
+    return sorted(keep, key=lambda i: (order.get(i['kind'], 2), _rank(i)))
+
+
+def _rank(i):
+    return i['passage_rank'] if i.get('passage_rank') is not None else 1e9
+
+
 @events_bp.route('/events')
 def list_events():
     c = _conn()
@@ -207,6 +243,11 @@ def get_event(event_id):
             pleiades_url=(f'https://pleiades.stoa.org/places/{quote(str(r["pleiades_id"]))}'
                           if r['pleiades_id'] else None))
 
+        ecols = set(r.keys())
+        if 'summary' in ecols and r['summary']:
+            ev.update(summary=r['summary'], summary_source=r['summary_source'],
+                      summary_url=r['summary_url'], summary_licence=r['summary_licence'])
+
         include_all = request.args.get('all') == '1'
         pcols = _columns(c, 'passages')
         rows = c.execute('SELECT * FROM passages WHERE event_id = ?', (r['id'],)).fetchall()
@@ -242,10 +283,7 @@ def get_event(event_id):
                 'view_url': document_url(d['doc_id'], lang),
             })
 
-        scholarship = [{'kind': s['kind'], 'title': s['title'], 'page_ref': s['page_ref'],
-                        'url': s['url']}
-                       for s in c.execute('SELECT * FROM scholarship WHERE event_id = ? ORDER BY kind, rowid',
-                                          (r['id'],))]
+        scholarship = _scholarship(c, r['id'])
 
         points = []
         if ev['lat'] is not None and ev['lon'] is not None:

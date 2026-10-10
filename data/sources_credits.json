@@ -330,6 +330,17 @@
     "notes": "Places are matched to Pleiades through the Wikidata place items. Passages are chosen by the names in the Wikidata record and sorted by an offline language model that no person has checked; the page says so."
   },
   {
+    "collection": "Events",
+    "name": "Wikipedia (English), opening paragraphs",
+    "url": "https://en.wikipedia.org/",
+    "licence_name": "Creative Commons Attribution-ShareAlike 4.0 (CC BY-SA 4.0)",
+    "licence_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "version": "Opening paragraphs of the English articles, read on 2026-10-09",
+    "retrieved": "2026-10-09",
+    "what_we_use": "The short description shown under the dates of an event on the Events page: the opening paragraph of the event's English Wikipedia article, cut at a sentence end to at most 600 characters, with a link to the article.",
+    "notes": "Each description carries the credit \"From Wikipedia, CC BY-SA 4.0\" and links to the article, where the authors are listed. The text is shared under the same licence."
+  },
+  {
     "collection": "Inscriptions and papyri",
     "name": "Photographs of inscriptions and papyri (linked, not copied)",
     "url": "/help#documents",
