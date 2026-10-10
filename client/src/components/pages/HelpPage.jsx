@@ -1932,7 +1932,10 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 person and does not quote the passage. Names are matched in Latin passages only, and a
                 namesake (another Claudius, another Antonius) can match. &ldquo;Related imagery&rdquo; lists
                 the five coin descriptions closest in meaning to a one-sentence summary of the passage, each
-                with the dates, issuers and mint of the types that carry it. About one match in three is a
+                with the dates, issuers and mint of the types that carry it. For a Latin passage the coins
+                come from the two Roman catalogues (OCRE and CRRO), because in the test below the Greek
+                catalogues took over half the places and brought almost no real matches; a Greek passage
+                searches all nine. About one match in three is a
                 real parallel. In a test on ten passages with known coin parallels, 17 of 50 matches were
                 right, and the matches the tab calls &ldquo;closer&rdquo; were right about 7 times in 10 while
                 the rest were right about 1 time in 4. The matches are descriptions of coin imagery, not coins

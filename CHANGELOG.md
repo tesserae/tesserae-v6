@@ -9,6 +9,9 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-10
 
+### Coins: a Latin passage's related imagery comes from the Roman catalogues
+With the seven Greek catalogues installed, the Reader's Coins tab ranked every description for every passage, and on the ten Latin test passages the Greek types took 27 of the 50 top-five places with about three real matches (Persian kings for Actium, Dionysus heads for the Ara Pacis), so the measured hit rate fell from 0.34 to about 0.26. A Latin passage now ranks the two Roman catalogues only, which restores the measured lists; a Greek passage searches all nine. The operations record marks the Greek coins and Objects installs as run and drops a duplicated entry left by a merge.
+
 ### Start here: the collections answer switches every collection on
 The sixth answer on the Start here panel ("Search inscriptions, papyri, events and coins") opened the Historical profile, which has no coins or objects. It now opens the Everything profile, so every collection it names is on.
 

@@ -35,7 +35,24 @@ Conventions
   hand and are the models the helper matches.
 
 
-## 2026-10-10 Greek coin types added to the Coins collection (to run, nothing installed yet)
+## 2026-10-10 Greek coin types added to the Coins collection (run 2026-10-10 18:30)
+
+- Run: `coins.sqlite` rebuilt with the seven Greek catalogues (106,176 types) and
+  the description vectors for all 46,244 distinct descriptions were installed in
+  `/var/www/tesseraev6_flask/data/coins/` right after #774 deployed, the Roman
+  files kept beside them as `*.bak-roman-20261010`. The vectors came from the
+  campus GPU (job coins-greek-20261010-fb2223cd: 46,244 descriptions in 25 s
+  from model load, one part, SHA-256 checked; the 26,461 Roman rows agree with
+  the installed Roman vectors at cosine 1.00000 mean, 0.9967 minimum from
+  float16 rounding). Checks: facets total 106176 over nine sources; "capricorn"
+  143; the legend "basileos seleukou" typed without accents 1,720; "elephant"
+  1,261; a Heracles theme query returns Greek types.
+- Measured after the install (`scratchpad measure_live.py`, the ten test
+  passages through the live route): over all nine catalogues the Greek types
+  took 27 of the 50 top-five places and about 3 were real parallels, so the
+  Roman figure fell from 0.34 to about 0.26. The next release restricts a
+  Latin passage's related imagery to OCRE and CRRO, which gives the 2026-10-09
+  lists back exactly (the Roman vectors are the same).
 
 - What: seven Greek catalogues published through nomisma.org join the 58,715
   Roman types in `data/coins/coins.sqlite`, giving 106,176 types. Counts match the
@@ -107,7 +124,15 @@ Conventions
   returned five related descriptions and the name links Augustus, Julius
   Caesar, Agrippa and Drusus Caesar. The campus GPU run below is still to do,
   for the record only (the installed vectors are the same encoder's output).
-## 2026-10-10 Objects collection, build and install (to run, nothing installed yet)
+## 2026-10-10 Objects collection, build and install (run 2026-10-10 17:31)
+
+- Run: the three files built on 2026-10-10 were copied into
+  `/var/www/tesseraev6_flask/data/objects/` (new folder) under temporary names
+  and renamed, with the wsgi touch, right after #773 deployed. Checks: facets
+  total 1361 (chicago 395, cleveland 305, smithsonian 661); "amazons" 2 objects
+  with the Chicago credit line; the theme query "wine mixed with water at a
+  drinking party" returned ten results with the Cleveland dinos and a Chicago
+  column krater among the first three.
 
 - What: `data/objects/objects.sqlite` (1,361 Greek, Roman and Etruscan objects with a
   museum catalogue description) and, beside it, `descriptions.npy` and
@@ -156,52 +181,6 @@ Conventions
   where its public domain flag is true) and never stored here. The Smithsonian records in
   the bucket carry no image address.
 
-
-## 2026-10-10 Coins in the Reader and Theme Search, install of the description vectors (to run, nothing installed yet)
-
-- What: two files beside `coins.sqlite` in `data/coins/`, read by
-  `/api/coins/for-passage` and `/api/coins/theme`. `descriptions.npy` holds one
-  float16 vector (1,024 values, unit length) for each of the 26,461 distinct
-  coin-type descriptions ("Obverse: ... Reverse: ..." for the 54,150 types that
-  have one), made by the Theme Search encoder with its `query: ` prefix.
-  `descriptions_ids.json` lists the rows in the same order, each with its
-  description text and the ids of the types that carry it. Together 54 MB and
-  7 MB. They are not in git, and the passage index is not touched.
-- Vectors in hand: the 26,461 vectors made on 2026-10-09 by the site's own
-  encoder service on its processor (50 minutes) match the rebuilt coin data
-  string for string (the same 26,461 strings, the same type-to-row map).
-  `scripts/coins/pack_descriptions.py` turns that folder into the two files
-  (checks the row count, that every row has a type, and that the vectors have
-  unit length).
-- Campus GPU route, not yet run: the input is staged in the working folder (a
-  `blobs.jsonl.gz` of 26,461 `{id, text}` rows written by
-  `embed_descriptions.py --blobs-out`, and the cluster recipe's `encode_job.py`).
-  The recipe puts the input in the web server's public jobs folder and creates
-  the upload token with a script in the production checkout, so the steps are
-  left to the session that may touch production: (1) copy the two staged files
-  into `public_data/jobs/<job>/` with a random suffix in the name, (2) create
-  the token and submit the job as in the recipe, (3) when it finishes, check
-  each part's SHA-256 against the RESULT lines, run
-  `embed_descriptions.py --input coins.jsonl --out DIR --from-parts <job upload folder>`,
-  compare 20 vectors with the 2026-10-09 ones (cosine 1.0000 expected), run
-  `pack_descriptions.py`, and delete the job and the public input folder.
-- Steps to install, each through `tess-job`:
-  1. `python -I scripts/coins/pack_descriptions.py --emb <folder with vectors.npy, strings.json, types.json> --out data/coins`
-     Expect `packed 26461 descriptions for 54150 coin types`.
-  2. Copy `descriptions.npy` and `descriptions_ids.json` to
-     `/var/www/tesseraev6_flask/data/coins/` under temporary names and rename
-     them into place (the ids file first), then touch `tesseraev6_flask.wsgi`.
-  3. Check with the encoder service running. `curl '.../api/coins/theme?q=infant+on+a+goat'`
-     returns ten results with "Infant riding on goat" among the first three.
-     Then one Reader request, for example
-     `.../api/coins/for-passage?work=suetonius.de_vita_caesarum.part.2.augustus&lang=la&ref=aug.%2094.1&ref_end=aug.%2094.12`,
-     returns five related descriptions and name links including Augustus.
-- Memory: each of the three web workers maps the 54 MB matrix and reads the
-  7 MB ids file on its first coins request (about 70 MB each). No model is loaded.
-- Measured on 2026-10-10 on the ten test passages (`scripts/coins/measure_for_passage.py`):
-  all 50 related descriptions are the same as the 2026-10-09 test, 17 of the
-  50 are real parallels (0.34), and 13 of 40 on the eight passages with a
-  translation (0.325).
 
 ## 2026-10-10 Coins collection, build and install of `data/coins/coins.sqlite` (run 2026-10-10 16:50)
 
