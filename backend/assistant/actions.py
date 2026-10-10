@@ -280,6 +280,42 @@ def _cross_language(a, b):
     }
 
 
+# The order the Cross-Language tab takes each pair in: its pair key is
+# "<source language>-<target language>" and a link has to use it.
+_TAB_ORDER = (('grc', 'la'), ('la', 'en'), ('grc', 'en'), ('he', 'grc'),
+              ('he', 'la'), ('fa', 'ur'))
+
+
+def _cross_texts(source, target, lang_a, lang_b):
+    """The Cross-Language tab with the pair and both texts already chosen.
+
+    The tab reads pair, source and target from the link and runs the search.
+    Its pair key has a fixed direction (Greek to Latin, not Latin to Greek),
+    so the two texts are put in that order.
+    """
+    for src_lang, tgt_lang in _TAB_ORDER:
+        if {lang_a, lang_b} == {src_lang, tgt_lang}:
+            break
+    else:
+        return None
+    if lang_a != src_lang:
+        source, target = target, source
+    if not source or not target:
+        return None
+
+    def tess(x):
+        x = str(x)
+        return x if x.endswith('.tess') else x + '.tess'
+    args = {'lang': 'cross', 'pair': f'{src_lang}-{tgt_lang}',
+            'source': tess(source), 'target': tess(target)}
+    return {
+        'kind': 'cross_language',
+        'label': 'Compare these two texts in Cross-Language Search',
+        'detail': f'{source} and {target} · opens the search ready to run',
+        'url': f'/?{urlencode(args)}',
+    }
+
+
 def _read(work, ref=None, ref_end=None, language=None, name=None):
     """Open a text in the Reader, at a passage when one is known.
 
@@ -356,7 +392,11 @@ def build(facts, question=''):
 
         # Two texts the reader asked to have compared. Nothing was searched:
         # this IS the answer, and the fusion search is what does the comparing.
-        if kind.startswith('TWO TEXTS') and isinstance(f.get('args'), dict):
+        if kind.startswith('TWO TEXTS') and isinstance(f.get('args'), dict) and f['args'].get('target_language'):
+            a = f['args']
+            out.append(_cross_texts(a.get('source'), a.get('target'),
+                                    a.get('language'), a.get('target_language')))
+        elif kind.startswith('TWO TEXTS') and isinstance(f.get('args'), dict):
             a = f['args']
             out.append(_compare(
                 a.get('source'), a.get('target'), a.get('language') or 'la',
