@@ -194,7 +194,7 @@ describe('the focus view', () => {
     expect(screen.getByText(/How and Wells: note/)).toBeTruthy();
 
     await userEvent.click(screen.getByRole('tab', { name: /Map/ }));
-    expect(screen.getByRole('img', { name: /findspots/ })).toBeTruthy();
+    expect(screen.getByRole('region', { name: /Map of the event/ })).toBeTruthy();
     const row = screen.getByRole('link', { name: 'Rhamnous' }).closest('tr');
     expect(within(row).getByText('38.2300, 24.0000')).toBeTruthy();
   });
