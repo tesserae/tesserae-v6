@@ -44,11 +44,17 @@ function mark(text, terms) {
  *  text is split with a regex and rebuilt as React elements. No HTML is ever
  *  constructed from the answer.
  */
-const EMPHASIS = /(\*\*[^*\n]+\*\*|\*[^*\n]+\*|_[^_\n]+_)/g;
+const EMPHASIS = /(\[[^\]\n]+\]\(\/(?!\/)[^)\s]*\)|\*\*[^*\n]+\*\*|\*[^*\n]+\*|_[^_\n]+_)/g;
 
 function render(text, terms) {
   if (!text) return text;
   return String(text).split(EMPHASIS).map((part, i) => {
+    // A link to a page of this site, written [label](/path). Only paths that
+    // start with a slash are linked, so an answer cannot point off the site.
+    const link = /^\[([^\]\n]+)\]\((\/(?!\/)[^)\s]*)\)$/.exec(part);
+    if (link) {
+      return <a key={i} href={link[2]} className="text-red-700 underline hover:text-red-800">{link[1]}</a>;
+    }
     if (/^\*\*[^*\n]+\*\*$/.test(part)) {
       return <strong key={i} className="font-semibold">{mark(part.slice(2, -2), terms)}</strong>;
     }

@@ -292,6 +292,13 @@ const Header = ({ user, setUser, onLogoClick }) => {
                 alone went unseen). Opens the request dialog held in App. */}
             <button
               type="button"
+              onClick={() => window.dispatchEvent(new CustomEvent('tesserae:open-start-here'))}
+              className="hidden sm:inline-flex items-center px-3 py-1.5 border border-white/70 text-white rounded text-sm hover:bg-white/10"
+            >
+              Start here
+            </button>
+            <button
+              type="button"
               onClick={() => window.dispatchEvent(new CustomEvent('tesserae:open-suggest'))}
               className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 border border-white/70 text-white rounded text-sm hover:bg-white/10"
             >

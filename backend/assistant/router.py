@@ -116,6 +116,13 @@ def route(question):
     q = _norm(question)
     if not q.strip():
         return None
+    # A short "where do I start" gets the site's six choices. Checked before
+    # the advice markers, which contain "where do i start" and would send it
+    # to the model. A longer question that names an author or a topic does not
+    # match (see front_door.matches).
+    from backend.assistant import front_door
+    if front_door.matches(q):
+        return front_door.answer()
     if any(_has(m, q) for m in _META):
         return None
     if any(_has(a, q) for a in _ADVICE):

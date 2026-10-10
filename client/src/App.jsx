@@ -1,9 +1,11 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { captureUrlOverrides } from './collections/collectionsStore';
+import { captureUrlOverrides, setProfile } from './collections/collectionsStore';
 import { languageName } from './utils/languageNames';
 import { Header, Navigation } from './components/layout';
 import { SearchModeToggle, TextSelector, SearchSettings, SearchResults, LineSearch, CrossLingualSearch, WildcardSearch, SavedSearches, CorpusSearchResults, RarePairsSettings } from './components/search';
 import RareResultsDisplay from './components/search/RareResultsDisplay';
+import StartHere from './components/search/StartHere';
+import { addressHasQuery, FRONT_DOOR_OPEN_EVENT } from './components/search/frontDoor';
 import SearchDescription from './components/search/SearchDescription';
 import { Modal, LoadingSpinner, UpdateBanner, RequestDialog } from './components/common';
 import { CorpusBrowser, RareWordsExplorer } from './components/corpus';
@@ -441,6 +443,36 @@ function App() {
     }
     setPageType(nextPageType);
   }, [adminSessionChecked, adminSessionActive, pageType]);
+
+  // The "Start here" panel on the Search page (first-time visitors, and the
+  // header's "Start here" link). The address is read once, at load: a visitor
+  // who arrived with a search in it already knows where they are going.
+  const [frontDoorSuppressed] = useState(() => addressHasQuery());
+  const [frontDoorForced, setFrontDoorForced] = useState(false);
+  useEffect(() => {
+    const open = () => {
+      setFrontDoorForced(true);
+      if (pageType !== 'search') setPageTypeWithGuard('search');
+    };
+    window.addEventListener(FRONT_DOOR_OPEN_EVENT, open);
+    return () => window.removeEventListener(FRONT_DOOR_OPEN_EVENT, open);
+  }, [pageType, setPageTypeWithGuard]);
+  // One of the six answers: move inside the app, with no page reload.
+  const goFrontDoor = useCallback((choice) => {
+    setFrontDoorForced(false);
+    const url = new URL(choice.href, window.location.origin);
+    if (url.pathname === '/') {
+      const tab = url.searchParams.get('tab');
+      if (activeTab === 'cross') {
+        setActiveTab(startLanguage(['la', 'grc', 'en', 'cop', 'he', 'fa', 'ur', 'ar']) || 'la');
+      }
+      if (tab) setSearchMode(tab);
+      return;
+    }
+    const profile = url.searchParams.get('profile');
+    if (profile) setProfile(profile);
+    setPageTypeWithGuard(pageForPath(url.pathname));
+  }, [activeTab, setPageTypeWithGuard]);
 
   // Open the Help page at the "Use with your AI" section.
   const openAiHelp = useCallback(() => {
@@ -958,6 +990,14 @@ function App() {
           <AdminPanel />
         ) : (
           <>
+        {pageType === 'search' && (
+          <StartHere
+            onChoose={goFrontDoor}
+            onDismiss={() => setFrontDoorForced(false)}
+            forceOpen={frontDoorForced}
+            suppressed={frontDoorSuppressed}
+          />
+        )}
         {pageType === 'search' && activeTab !== 'cross' && (
           <div className="space-y-6">
             <div className="bg-white rounded-lg shadow p-4 sm:p-6">
