@@ -2466,6 +2466,19 @@ def browse_documents():
     return jsonify(result)
 
 
+def _is_near_quotation(matched_lemma_set, query_lemmas, positions, query):
+    """True when a line shares every content lemma of the query and the
+    matched tokens sit within a window no longer than the query's own word
+    count plus two (room for an enclitic or an intervening word). A one-word
+    query is never a quotation in this sense: nothing to be near."""
+    if len(query_lemmas) < 2 or len(matched_lemma_set) < len(query_lemmas):
+        return False
+    if not positions:
+        return False
+    width = max(positions) - min(positions) + 1
+    return width <= len(str(query or '').split()) + 2
+
+
 @api_route('/line-search', methods=['GET', 'POST'])
 def line_search():
     """
@@ -2905,6 +2918,7 @@ def line_search():
                         # Find matched words in text using pre-indexed lemmas
                         matched_words = []
                         matched_lemma_set = set()
+                        matched_positions = []
                         indexed_lemmas = set(line_info.get('lemmas', [])) if line_info else set()
                         indexed_tokens = line_info.get('tokens', []) if line_info else []
 
@@ -2920,6 +2934,7 @@ def line_search():
                                 for i, lemma in enumerate(line_info.get('lemmas', [])):
                                     if lemma in matching_query_lemmas and i < len(indexed_tokens):
                                         matched_words.append(indexed_tokens[i])
+                                        matched_positions.append(i)
                         else:
                             # Quick fallback: just check token overlap without full lemmatization
                             text_tokens = set(re.sub(r'[^\w\s]', '', text.lower()).split())
@@ -2960,7 +2975,17 @@ def line_search():
                             # Distinct query lemmas this line shares, for
                             # rarity-aware filtering downstream (rare_focus).
                             # The scan path below sets the same field.
-                            'matched_lemmas': sorted(matched_lemma_set)
+                            'matched_lemmas': sorted(matched_lemma_set),
+                            # Closeness to the query (owner's review
+                            # 2026-10-10: a four-word query put lines
+                            # sharing one word on top). n_matched counts the
+                            # query's content lemmas this line shares;
+                            # `quotation` is true when it shares all of them
+                            # within a window of two tokens more than the
+                            # query's own length, which is a near quotation.
+                            'n_matched': len(matched_lemma_set),
+                            'quotation': _is_near_quotation(
+                                matched_lemma_set, filtered_query_lemmas, matched_positions, query),
                         })
                         
                         if len(results) >= max_results:
@@ -3129,7 +3154,11 @@ def line_search():
                                     'matched_words': matched_words,
                                     # The distinct query lemmas this line shares,
                                     # for rarity-aware filtering downstream.
-                                    'matched_lemmas': sorted(matched_lemmas)
+                                    'matched_lemmas': sorted(matched_lemmas),
+                                    # An exact or pattern hit carries the whole
+                                    # query by construction (closeness ranking).
+                                    'n_matched': len(matched_lemmas),
+                                    'quotation': search_type == 'exact',
                                 })
                                 
                                 if len(results) >= max_results:
@@ -3206,6 +3235,9 @@ def line_search():
                 'total': distinct_loci,
                 'distinct_loci': distinct_loci,
                 'query': query,
+                # How many content lemmas the query had, so a page can show
+                # "3 of 4 words" beside each line (closeness ranking).
+                'query_lemma_count': len(filtered_query_lemmas),
                 'search_time': search_time,
                 'capped': capped,
                 'corpus_version': get_corpus_version(language),
