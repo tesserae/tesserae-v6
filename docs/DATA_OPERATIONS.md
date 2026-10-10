@@ -165,6 +165,36 @@ anything is deleted, with a dated backup kept of each file it removes.
 - Backups to keep: each file replaced in steps 4 to 7, tagged
   `bak-historians-20261009`.
 
+## 2026-10-09 Document image links: moved hosts rewritten in metadata.db (21:40 and 21:55 EDT)
+- What: the documents collection's `display` table (`data/documents/metadata.db`,
+  field `image_url`, 155,261 rows) carried the addresses of photographs as the
+  source projects published them. Two hosts had moved. The Epigraphic
+  Database Heidelberg's 24,851 photo addresses (`edh-www.adw.uni-heidelberg.de/fotos/F*.JPG`)
+  returned 404; they were rewritten to the photo record pages
+  `https://edh.ub.uni-heidelberg.de/edh/foto/F*` (four random samples
+  answered 200 before the change; one PDF link on the same host was moved to
+  the new host as well). The old CIL photo server's 3,018 addresses
+  (`cil-old.bbaw.de/test06/bilder/datenbank/PH*.jpg`) were rewritten to
+  `https://cil.bbaw.de/ace/resources/PH/<block>/PH*.jpg` (16 of 16 samples
+  returned 200 image/jpeg; three more checked at apply time).
+- How: the Heidelberg rows by a one-off statement after a backup
+  (`~/tesserae-backups/documents/metadata.db.bak-edhlinks-20261009`); the CIL
+  rows with `scripts/documents/fix_image_urls.py --apply` (this PR), which
+  backs the file up beside itself first. Both rules live in
+  `scripts/documents/image_url_rules.py`, which the extractor applies when it
+  writes `image_url` rows, so a rebuild does not bring the old addresses back.
+  Reload by touching the WSGI file.
+- Not rewritten: 7,008 rows (4.5 percent) point at hosts that no longer serve
+  anything and have no verified replacement (3,424 bare I.Sicily file names,
+  2,271 access.bl.uk, 1,064 wwwapp.cc.columbia.edu, and six small hosts). The
+  document page hides them and says how many were omitted
+  (`client/src/components/documents/imageHosts.json` lists the hosts). About
+  4,400 rows are on hosts that refuse scripts but serve browsers (Michigan's
+  APIS, the British Museum, the Met) and are kept; about 2,000 are on hosts
+  that answered with server errors on the audit night (Petrie Museum, several
+  papyrus collections) and are kept for a recheck. Audit record (private):
+  `research/documents/2026-10-09_image_link_audit.md`.
+
 ## 2026-10-09 Documentary reuse tables rebuilt with the literary-works discount and the order-free rule (built 19:05 to 20:05, installed 20:08, reinstalled 20:45 EDT)
 - What: `cache/reuse_pairs/la_documents.db` and `grc_documents.db` (literature
   against the inscriptions and papyri, read by the Reader's Reuse tab under
