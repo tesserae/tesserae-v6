@@ -66,7 +66,8 @@ const mainTabs = [
   // DISABLED FOR PRODUCTION - Uncomment to restore Visualizations
   // { code: 'visualizations', label: 'Visualize' },
   { code: 'downloads', label: 'Downloads' },
-  { code: 'research', label: 'Research' },
+  // Research has no main-menu entry (owner 2026-10-10: most visitors will not
+  // look at it regularly); it is reached from the About page and at /research.
   { code: 'about', label: 'About' },
   { code: 'help', label: 'Help & Support' },
   { code: 'admin', label: 'Admin' }

@@ -9,6 +9,9 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-10
 
+### Research moves under About
+The Research entry leaves the main menu (most visitors will not look at the project's studies regularly). The page stays at /research and is reached from a Research block on the About page, beside Text Credits.
+
 ### Start here: the collections answer switches every collection on
 The sixth answer on the Start here panel ("Search inscriptions, papyri, events and coins") opened the Historical profile, which has no coins or objects. It now opens the Everything profile, so every collection it names is on.
 
