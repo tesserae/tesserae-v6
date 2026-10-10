@@ -9,6 +9,10 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-10
 
+### Tessa lists a language's holdings when asked what the corpus holds in Persian, Urdu, Greek or Coptic
+
+A question about Persian works made Tessa look "Persian" up as a work name and name a Greek play. A question about holdings in one language is now answered from that language's listing with the authors and titles, and Arabic is reported as not served.
+
 ### Site subtitle becomes "Literary and Historical Discovery"
 The header line under the title, and the two citation forms on the About page, read "Literary and Historical Discovery" in place of "Intertextual and Literary Discovery", since the site now serves inscriptions, papyri and events beside the literary texts. Chosen by the project lead on 2026-10-10.
 

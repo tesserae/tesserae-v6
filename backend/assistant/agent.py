@@ -29,6 +29,7 @@ import re
 from collections import Counter
 
 from backend.assistant import actions, model, searches
+from backend import work_names
 from backend.logging_config import get_logger
 
 logger = get_logger('assistant.agent')
@@ -187,7 +188,8 @@ _QUOTED = re.compile(
 _LOOKUP_STOP = {'book', 'the', 'and', 'with', 'for', 'what', 'where', 'which',
                 'compare', 'comparing', 'between', 'against', 'search', 'text',
                 'texts', 'work', 'works', 'passage', 'corpus', 'latin', 'greek',
-                'hebrew', 'coptic', 'english', 'recommend', 'interesting'}
+                'hebrew', 'coptic', 'english', 'persian', 'urdu', 'arabic',
+                'recommend', 'interesting'}
 
 
 # Words that look like names but are not people.
@@ -649,6 +651,49 @@ def _named_works(question):
     except Exception as e:            # a lookup failure must not lose the answer
         logger.info('[ASSISTANT] work lookup failed: %s', e)
         return {}
+
+
+def _language_holdings_fact(code):
+    """What the site holds in one language, as a fact the answer is written from.
+
+    Asked "What Persian works do you hold?", Tessa looked "Persian" up as a
+    work name and answered with Aeschylus' Persians. A question about a language
+    is answered from that language's own listing: the count, then every author
+    with the titles (book files collapsed to the work). A language with hundreds
+    of works gets the authors with counts, because the titles would not fit.
+    Arabic is held back from the site, so it is reported as not served and no
+    files are listed.
+    """
+    name = actions.language_name(code)
+    if code == 'ar':
+        return {'kind': 'HOLDINGS the reader asked about', 'language': name,
+                'works': 0,
+                'note': 'The site holds no served Arabic texts. Arabic is held '
+                        'back from the site for now. Say exactly that and do '
+                        'not list any Arabic works.',
+                'search': 'list_texts', 'args': {'language': code}}
+    rows = searches.run('list_texts', {'language': code})
+    rows = rows if isinstance(rows, list) else []
+    by_author, seen = {}, set()
+    for r in rows:
+        base = work_names.base_work(str(r.get('id') or r.get('filename') or ''))
+        key = base or str(r.get('display_name') or '')
+        if key in seen:
+            continue
+        seen.add(key)
+        author = str(r.get('author') or 'Unknown')
+        by_author.setdefault(author, []).append(
+            str(r.get('title') or r.get('work') or r.get('display_name') or key))
+    fact = {'kind': 'HOLDINGS the reader asked about (complete listing)',
+            'language': name, 'works': len(seen), 'authors': len(by_author)}
+    if len(seen) <= 80:
+        fact['by_author'] = {a: sorted(set(t)) for a, t in sorted(by_author.items())}
+    else:
+        fact['authors_with_work_counts'] = {
+            a: len(t) for a, t in sorted(by_author.items())[:150]}
+        fact['note'] = 'Too many works to list titles. Offer to list one author.'
+    fact.update({'search': 'list_texts', 'args': {'language': code}})
+    return fact
 
 
 def _quoted_phrase(question):
@@ -1145,7 +1190,7 @@ FUSION_WAIT_SECONDS = 100
 FUSION_POLL_SECONDS = 20
 FUSION_PAGE = 25
 # "Are you still working?" names no text. After a comparison that outlasted
-# the wait, it is a question about THAT comparison (NC, 2 Oct 2026 night),
+# the wait, it is a question about THAT comparison (2 Oct 2026),
 # and the right answer is the result if the run has finished, or an honest
 # "still running" if not. A stock answer about the tool was the wrong one.
 _STATUS_WORDS = ('still working', 'still running', 'still going', 'are you done', 'is it done',
@@ -1637,10 +1682,28 @@ def _prepare(question, step, history=None, offered_phrase=None):
         seed_holdings = decision.kind in ('holdings', 'corpus')
     else:
         seed_holdings = not _is_about_the_site(question)
+    # A holdings question about ONE language, with no author or work named, is
+    # answered from that language's listing (Persian and Urdu included, which the
+    # loop below has no entry for).
+    holdings_code = None
+    if seed_holdings:
+        holdings_code = actions.holdings_language(question)
+        if holdings_code:
+            from backend.assistant import corpus_lookup
+            if corpus_lookup.named_texts(question):
+                holdings_code = None
+    if holdings_code:
+        try:
+            step(f'listing what the corpus holds in {actions.language_name(holdings_code)}')
+            all_facts.append(_language_holdings_fact(holdings_code))
+            ran.append(f'list_texts({holdings_code})')
+        except searches.SearchError as e:
+            logger.info('[ASSISTANT] language listing %s failed: %s', holdings_code, e)
+            holdings_code = None
     for code, words in (('he', ('hebrew',)), ('grc', ('greek',)),
                         ('la', ('latin',)), ('cop', ('coptic',)),
                         ('en', ('english',))):
-        if seed_holdings and any(w in question.lower() for w in words):
+        if seed_holdings and not holdings_code and any(w in question.lower() for w in words):
             try:
                 step(f'listing what the corpus holds in {words[0]}')
                 facts = _summarise('list_texts', searches.run('list_texts', {'language': code}))

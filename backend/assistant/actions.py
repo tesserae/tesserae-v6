@@ -24,6 +24,7 @@ Actions are plain data: {kind, label, detail, url}. The page renders them as
 ordinary links, so they can be middle-clicked, bookmarked and shared. Nothing
 navigates on its own.
 """
+import re
 from urllib.parse import urlencode
 
 # What the page will accept. A language the site cannot search is not offered.
@@ -173,6 +174,43 @@ def languages_named(question):
         if code not in out:
             out.append(code)
     return out
+
+
+# Words that make a question a question about what the site holds.
+_HOLDINGS_VERBS = ('hold', 'held', 'have', 'has', 'contain', 'carry', 'include',
+                   'available', 'corpus', 'collection', 'offer', 'list')
+# A language word followed by one of these is about texts in that language.
+_HOLDINGS_NOUNS = ('works', 'texts', 'authors', 'books', 'poems', 'poets',
+                   'writers', 'literature', 'material', 'materials', 'sources')
+
+
+def holdings_language(question):
+    """The one language code a question about holdings is asking after, or None.
+
+    A language word counts only as a WHOLE word, and only when it is followed by
+    "works", "texts", "authors" and the like, or preceded by "in", and the
+    question also talks about holding things. So "What Persian works do you
+    hold?" and "Do you have anything in Coptic?" count, while "Aeschylus
+    Persians" does not: that is a play, and "Persians" is not the word "Persian".
+    A question naming two languages is a comparison, not a census, so None.
+    """
+    q = str(question or '').lower()
+    words = re.findall(r"[a-z]+", q)
+    if not any(w.startswith(v) for w in words for v in _HOLDINGS_VERBS):
+        return None
+    codes, mentioned = [], set()
+    for word, code in _LANGUAGE_WORDS.items():
+        parts = word.split()
+        for i in range(len(words) - len(parts) + 1):
+            if words[i:i + len(parts)] != parts:
+                continue
+            mentioned.add(code)
+            after = words[i + len(parts)] if i + len(parts) < len(words) else ''
+            before = words[i - 1] if i else ''
+            if after in _HOLDINGS_NOUNS or before == 'in':
+                if code not in codes:
+                    codes.append(code)
+    return codes[0] if len(codes) == 1 and len(mentioned) == 1 else None
 
 
 def cross_pair(a, b):
