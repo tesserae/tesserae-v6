@@ -282,7 +282,7 @@ const Header = ({ user, setUser, onLogoClick }) => {
                 TESSERAE
               </h1>
               <p className="text-orange-100 text-xs sm:text-sm mt-0.5 hidden sm:block">
-                Intertextual and Literary Discovery
+                Literary and Historical Discovery
               </p>
             </div>
           </button>

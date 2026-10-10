@@ -132,8 +132,8 @@ export default function AboutPage({ onNavigate, initialAnchor = null, onAnchorCo
               If Tesserae contributed to published research, please cite the project:
             </p>
             <p className="bg-gray-50 border border-gray-200 rounded p-3 font-mono text-xs">
-              Coffee, N., &amp; The Tesserae Project Team (2026). Tesserae V6: Intertextual
-              and Literary Discovery (Version 6.0) [Software].
+              Coffee, N., &amp; The Tesserae Project Team (2026). Tesserae V6: Literary
+              and Historical Discovery (Version 6.0) [Software].
               https://tesserae.caset.buffalo.edu
             </p>
             <p>
@@ -390,8 +390,8 @@ export default function AboutPage({ onNavigate, initialAnchor = null, onAnchorCo
         <section>
           <h3 className="text-lg font-semibold text-gray-900 mb-3">Citation</h3>
           <div className="bg-gray-100 p-4 rounded font-mono text-sm">
-            Coffee, Neil, Walter Scheirer, et al. Tesserae V6: Intertextual and
-            Literary Discovery. University at Buffalo, 2026{currentYear > 2026 ? `–${currentYear}` : ''}.
+            Coffee, Neil, Walter Scheirer, et al. Tesserae V6: Literary and
+            Historical Discovery. University at Buffalo, 2026{currentYear > 2026 ? `–${currentYear}` : ''}.
             https://tesserae.caset.buffalo.edu
           </div>
           <p className="text-sm text-gray-600 mt-3">
