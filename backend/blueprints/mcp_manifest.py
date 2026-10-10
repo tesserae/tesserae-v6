@@ -90,6 +90,16 @@ MANIFEST = {
         'reason': ('Filter values and counts for the Coins page in testing; not yet '
                     'exposed to the connector.'),
     },
+    '/api/coins/for-passage': {
+        'site_only': True,
+        'reason': ('Reader Coins tab in testing: related coin imagery and name links for a '
+                    'passage; not yet exposed to the connector.'),
+    },
+    '/api/coins/theme': {
+        'site_only': True,
+        'reason': ('Coins option of Theme Search in testing: coin descriptions nearest a '
+                    'free-text query; not yet exposed to the connector.'),
+    },
     '/api/coins/<path:coin_id>': {
         'site_only': True,
         'reason': ('One coin type for the Coins page in testing; not yet exposed to '

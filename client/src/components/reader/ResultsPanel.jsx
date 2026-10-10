@@ -10,6 +10,7 @@ import { displayRef } from './refId';
 import { LANGUAGE_NAMES as LANG_LABEL } from '../../utils/languageNames';
 import { scholarshipLanguages } from '../../utils/scholarshipLanguages';
 import ScholarshipTab from './ScholarshipTab';
+import CoinsTab from './CoinsTab';
 
 /** Parse a response as JSON, failing with a message a reader can act on.
  *  While the server reloads, Apache answers API calls with an HTML error
@@ -310,6 +311,7 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
      focus === 'english' ? 'The original text' : 'Translation'],
     ['reuse', 'Reuse', 'Reuse'],
     ['scholarship', 'Scholarship', 'Commentators, articles and books on the selection'],
+    ['coins', 'Coins', 'Coins that name the same people, and coin imagery close to the selection'],
   ];
   // Which tabs appear is decided by Collections (READER_TABS names the
   // collection each needs); the Scholarship tab also needs scholarship
@@ -876,6 +878,9 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
 
         {scholarshipAvailable && selection && tab === 'scholarship' && (
           <ScholarshipTab work={work} language={language} selection={selection} units={units} />
+        )}
+        {tab === 'coins' && anyOn(['coins']) && (
+          <CoinsTab work={work} language={language} selection={selection} units={units} />
         )}
         {scholarshipAvailable && !selection && tab === 'scholarship' && (
           <p className="text-sm text-gray-500">Select a line or a span to see the scholarship on it.</p>

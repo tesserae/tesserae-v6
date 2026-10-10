@@ -130,6 +130,20 @@ describe('the list', () => {
   });
 });
 
+describe('a name link from the Reader', () => {
+  it('opens the list kept to that person, and can be cleared', async () => {
+    window.history.replaceState({}, '', '/coins?person=Augustus');
+    const calls = mockApi();
+    render(<CoinsPage setPageType={() => {}} />);
+    await screen.findByText('RRC 1/1');
+    expect(calls[0]).toContain('person=Augustus');
+    expect(screen.getByTestId('coins-person').textContent).toMatch(/naming Augustus/);
+    await userEvent.click(screen.getByRole('button', { name: 'Show all coins' }));
+    await waitFor(() => expect(calls.some((c) => !c.includes('person='))).toBe(true));
+    expect(screen.queryByTestId('coins-person')).toBeNull();
+  });
+});
+
 describe('one coin type', () => {
   it('opens from the list and fetches the type by its encoded id', async () => {
     const calls = mockApi();
