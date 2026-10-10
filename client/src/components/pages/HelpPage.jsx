@@ -1924,9 +1924,9 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 in two in the same test, and a vague or abstract query finds fewer.
               </p>
               <p className="text-gray-700 mb-4">
-                Coins are off by default and are not part of the Everything profile, because 58,715 types of
-                about five words each would crowd a phrase search. Switch Coins on in Collections (the
-                Archaeological profile includes it) and the Coins entry appears in the main menu. This is a
+                Coins are off by default. Switch Coins on in Collections (the Archaeological and Everything
+                profiles include it) and the Coins entry appears in the main menu. Coin types never enter a
+                phrase search, since they have their own page, the Reader tab and the Theme Search choice. This is a
                 first version in testing.
               </p>
             </div>
@@ -1940,7 +1940,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 menu lists the source collections (literature, inscriptions, papyri, scholarship,
                 coins, and objects when they arrive) with a switch for each, and four profiles
                 that set the switches together: Literary, Historical, Archaeological and
-                Everything (Everything leaves Coins off, so a coin switch is always your own choice). Your choice is remembered in this browser. This page and its menu entry
+                Everything. Your choice is remembered in this browser. This page and its menu entry
                 appear when Inscriptions or Papyri is on, and the Scholarship tab in the Reader
                 appears when Scholarship is on. Literary, the setting a new visitor starts with,
                 shows the literary texts only. This is a page for the documentary

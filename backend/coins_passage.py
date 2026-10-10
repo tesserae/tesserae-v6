@@ -80,33 +80,10 @@ class EncoderUnavailable(RuntimeError):
 
 def windows_covering(work, ref_start, ref_end):
     """Fine windows of the passage index whose reference range overlaps the
-    selection, as dicts with id, ref_start, ref_end and desc."""
+    selection, as dicts with id, ref_start, ref_end and desc (the index's own
+    helper, so this module names none of its internals)."""
     from backend import passage_index as pi
-    pi._ensure_loaded()
-    if not pi._state.get('ok'):
-        return []
-    group = pi._by_work.get(pi._norm_work(work)) or []
-    wid = pi.work_id(work)
-    exact = [r for r in group if pi._records[r].get('work') == wid]
-    rows = exact if (pi.is_part(wid) and exact) else group
-    want = pi._ref_coords_in(work, ref_start) or ()
-    want_end = pi._ref_coords_in(work, ref_end) or want
-    out = []
-    for row in rows:
-        r = pi._records[row]
-        if r.get('scale') != 'fine':
-            continue
-        lo = pi._ref_coords_in(r.get('work'), r.get('ref_start'))
-        hi = pi._ref_coords_in(r.get('work'), r.get('ref_end'))
-        if not (lo and hi):
-            continue
-        if want:
-            n = min(len(lo), len(hi), len(want), len(want_end))
-            if not (lo[:n] <= want_end[:n] and hi[:n] >= want[:n]):
-                continue
-        out.append({'id': r.get('id'), 'ref_start': r.get('ref_start'),
-                    'ref_end': r.get('ref_end'), 'desc': r.get('desc') or {}})
-    return out
+    return pi.fine_windows_covering(work, ref_start, ref_end)
 
 
 def passage_units(work, language, ref_start, ref_end):
@@ -318,7 +295,11 @@ def name_entries(conn, db_key):
             counts[nm] = counts.get(nm, 0) + r['n']
     entries = []
     for label, n in counts.items():
-        if label in skip:
+        # The hand list names deities and personifications to leave out; the
+        # catalogue also labels personified places as "X Personification"
+        # (spelt "Personfication" in 131 OCRE records), none of them a person
+        # a passage could name, so every such label is skipped as well.
+        if label in skip or 'Personification' in label or 'Personfication' in label:
             continue
         if label in hand:
             latin, forms = hand[label]['latin'], hand[label]['forms']
