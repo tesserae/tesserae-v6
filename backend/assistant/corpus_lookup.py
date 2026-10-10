@@ -206,6 +206,16 @@ def named_texts(question, language=None, limit=2):
         author = str(hit.get('author') or '').lower()
         if hit.get('matched') == 'author' and author in authors_used:
             return False
+        # An author named alone and then one of that author's works named:
+        # the work is what the reader meant, so it replaces the author-level
+        # guess instead of becoming a second text next to it.
+        if hit.get('matched') != 'author' and author in authors_used:
+            for i, earlier in enumerate(found):
+                if (earlier.get('matched') == 'author'
+                        and str(earlier.get('author') or '').lower() == author):
+                    seen.add(hit['id'])
+                    found[i] = hit
+                    return True
         seen.add(hit['id'])
         if author:
             authors_used.add(author)
@@ -216,7 +226,13 @@ def named_texts(question, language=None, limit=2):
     # "Silius Italicus", "Statius Thebaid 12".
     for cand, num in re.findall(
             r'\b([A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z]+)?)\s*(\d{1,2})?\b', question or ''):
-        if _norm(cand) in _NOISE:
+        # "Compare Statius Thebaid 1" reads as the run "Compare Statius", so
+        # leading words that are never part of a name are dropped first.
+        cand_words = cand.split()
+        while cand_words and cand_words[0].lower() in _NOISE:
+            cand_words.pop(0)
+        cand = ' '.join(cand_words)
+        if not cand or _norm(cand) in _NOISE:
             continue
         hit = resolve_one(cand, language=language)
         if hit and num:
