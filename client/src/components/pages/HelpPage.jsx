@@ -392,6 +392,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
     { id: 'reader', label: 'The Reader', group: 'Reading & content' },
     { id: 'tessa', label: 'Tessa, the assistant', group: 'Reading & content' },
     { id: 'documents', label: 'Inscriptions & Papyri', group: 'Reading & content' },
+    { id: 'events', label: 'Events (in testing)', group: 'Reading & content' },
 
     { id: 'languages', label: 'Languages overview', group: 'Languages' },
     { id: 'coptic', label: 'Coptic', group: 'Languages' },
@@ -1786,7 +1787,10 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   open services supply those results. OpenAlex and Crossref are searched by title and
                   abstract. Semantic Scholar and CORE are searched in the full text of open-access
                   papers. The site&rsquo;s own index of citations in journals from before 1923 reads
-                  JSTOR. Google Books finds a citation on a book page. A result marked open access has a
+                  JSTOR&rsquo;s Early Journal Content. That index covers 24 philology, archaeology and
+                  biblical journals from 1827 to 1922, about 29,000 articles, of which 5,193 cite one
+                  of 437 works held here. The same journals supply the Scholarship section on an inscription or papyrus
+                  page (956 citing sentences from 288 articles). Google Books finds a citation on a book page. A result marked open access has a
                   free, legal copy through Unpaywall. A result with only a DOI opens through your own
                   library instead. Set your library&rsquo;s link-resolver address once, under My library
                   in this tab. Its link then opens the article or chapter under your institution&rsquo;s
@@ -1865,11 +1869,36 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
             </div>
           )}
 
+          {activeSection === 'events' && (
+            <div className="prose max-w-none">
+              <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Events (in testing)</h3>
+              <p className="text-gray-700 mb-4">
+                The Events page gathers what the site holds about one battle, siege or treaty: the
+                passages in Latin and Greek historians and poets that tell of it or mention it (each
+                opens in the Reader, and the Reader links back), the inscriptions and papyri dated to
+                the same years and found near the place, the articles and commentary on those passages,
+                and a map of the place and the findspots. The page and its menu entry appear when
+                Collections has Inscriptions, Papyri or Scholarship on, as in the Historical profile.
+                This is a first version in testing: events come from Wikidata (CC0, and each event links to
+                its Wikipedia article), passages are found by
+                the names in them and sorted by an offline language model that no person has checked, and
+                the list covers only the events whose dossiers have been built so far.
+              </p>
+            </div>
+          )}
+
           {activeSection === 'documents' && (
             <div className="prose max-w-none">
               <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Inscriptions &amp; Papyri</h3>
               <p className="text-gray-700 mb-4">
-                A trial, not yet offered to every visitor. It is a page for the documentary
+                Collections decides what you see. The Collections button at the right of the main
+                menu lists the source collections (literature, inscriptions, papyri, scholarship,
+                and coins and objects when they arrive) with a switch for each, and four profiles
+                that set the switches together: Literary, Historical, Archaeological and
+                Everything. Your choice is remembered in this browser. This page and its menu entry
+                appear when Inscriptions or Papyri is on, and the Scholarship tab in the Reader
+                appears when Scholarship is on. Literary, the setting a new visitor starts with,
+                shows the literary texts only. This is a page for the documentary
                 corpus, Latin and Greek inscriptions and papyri, searched the same way as the
                 literary texts but shown with the markup and credit a documentary source needs. It opens
                 already set to search the documents collection, with an option to search
@@ -1905,7 +1934,9 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 Database Roma (EDR), and I.Sicily. Papyri and ostraca come from the Heidelberg
                 Gesamtverzeichnis der griechischen Papyrusurkunden Ägyptens (HGV), via
                 papyri.info. Each result credits its own source and license. Where EDH and EDR
-                both cover the same inscription, both are shown.
+                both cover the same inscription, both are shown. Photographs are links to the
+                institution that holds them (EDR, EDH, Ubi Erat Lupa, the CIL in Berlin and others,
+                each named on the link). No image is copied here.
               </p>
               <p className="text-gray-700 mb-3">
                 EDH is used under CC BY-SA 4.0, I.Sicily and the EDR deposit under CC BY 4.0, and

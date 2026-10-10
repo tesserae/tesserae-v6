@@ -1,11 +1,11 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import useDocumentsTrial from '../../hooks/useDocumentsTrial';
 import { cssRef } from './refId';
 import ReaderHeader from './ReaderHeader';
 import ReaderNav, { ReaderEndNav, ReaderFloatNav, sectionsFor, bookFileFor } from './ReaderNav';
 import SelectionToolbar, { scopeFor } from './SelectionToolbar';
 import { useCorpus } from '../../hooks';
 import { LoadingSpinner } from '../common';
-import { getSessionValue, setSessionValue } from '../../utils/storage';
 import TextPane from './TextPane';
 import ConnectionGutter from './ConnectionGutter';
 import ResultsPanel, { shortRef as shortLocus } from './ResultsPanel';
@@ -49,6 +49,18 @@ const PREFERRED_WORK = {
  * who is reading and wants to know what a passage touches. Results open in the
  * Reader in turn, so the corpus can be followed by association.
  */
+function popupTop(selection) {
+  // Under the last selected line. A drag in the text measures the line
+  // itself and passes anchorTop; a click on a quotation mark or an arrival
+  // by URL used to pass nothing, so the popup sat at the top of the pane
+  // and covered the opening lines, the selected one included (2026-10-09).
+  // Measure the line from the page in that case.
+  if (selection?.anchorTop != null) return selection.anchorTop;
+  const ref = selection?.refEnd || selection?.refStart;
+  const el = ref ? document.getElementById(`line-${cssRef(ref)}`) : null;
+  return el ? el.offsetTop + el.offsetHeight : 0;
+}
+
 export default function ReaderPage() {
   // No work named in the address: leave it empty and let the preferred-work
   // effect below choose by language. Defaulting to the Aeneid here opened
@@ -91,6 +103,19 @@ export default function ReaderPage() {
   // 'english' puts the translation in the middle and the original in the
   // side panel, for when the English translation is meant to be the focus.
   const [focusView, setFocusView] = useState(() => paramOr('view', 'source'));
+  // The key to the marks (boxes and colours) is folded away by default: open,
+  // it took three rows at the top of the text (2026-10-10). The choice is
+  // remembered in this browser.
+  const [keyOpen, setKeyOpen] = useState(() => {
+    try { return window.localStorage.getItem('tesserae_reader_key') === 'open'; } catch { return false; }
+  });
+  const toggleKey = () => setKeyOpen((o) => {
+    try { window.localStorage.setItem('tesserae_reader_key', o ? 'closed' : 'open'); } catch { /* ignore */ }
+    return !o;
+  });
+  // Which group the Reuse tab shows first: 'documents' after a click on the
+  // amber box (quoted in inscriptions or papyri), otherwise the literary one.
+  const [reuseFirst, setReuseFirst] = useState(null);
   const [fullTr, setFullTr] = useState(null);
   useEffect(() => { setFullTr(null); }, [work]);
 
@@ -118,6 +143,9 @@ export default function ReaderPage() {
   // Arrival from the Similarity Map: the other side of the connection that
   // was clicked, shown in the banner, with a link back to the map tab.
   const [mapFrom, setMapFrom] = useState(() => paramOr('map', ''));
+  // Arrival from an Event page: its id and name, for a link back to the event.
+  const [eventFrom, setEventFrom] = useState(() => (
+    paramOr('event', '') ? { id: paramOr('event', ''), label: paramOr('eventLabel', '') } : null));
   const [units, setUnits] = useState([]);
   // How many lines are drawn; grows as the reader scrolls (see TextPane).
   const [visibleCount, setVisibleCount] = useState(READER_STEP);
@@ -145,11 +173,7 @@ export default function ReaderPage() {
   // read once here too so TextPane's gutter mark can decide whether to
   // show the n_documents/n_possible_documents counts the marks fetch below
   // already carries whenever the server has TESSERAE_DOCUMENTS=1 on.
-  const [documentsTrial] = useState(() => {
-    const fromUrl = new URLSearchParams(window.location.search).get('documents') === '1';
-    if (fromUrl) setSessionValue('documents_trial', '1');
-    return fromUrl || getSessionValue('documents_trial', '0') === '1';
-  });
+  const documentsTrial = useDocumentsTrial();
   useEffect(() => {
     if (!work) { setReuseMarks({}); return undefined; }
     let cancelled = false;
@@ -255,7 +279,7 @@ export default function ReaderPage() {
     // had been found by a search the reader had long since left. They are read
     // into state at mount, so dropping them from the URL here costs nothing and
     // `at` carries the position instead.
-    ['ref', 'refEnd', 'tab', 'q', 'map'].forEach((k) => p.delete(k));
+    ['ref', 'refEnd', 'tab', 'q', 'map', 'event', 'eventLabel'].forEach((k) => p.delete(k));
     const url = `${window.location.pathname}?${p}`;
     const key = `${work}|${language}`;
     const movedToAnotherText = lastKeyRef.current !== null && lastKeyRef.current !== key;
@@ -561,6 +585,22 @@ export default function ReaderPage() {
                 it is instant, and the text itself is readable now.
               </p>
             )}
+            {eventFrom && !cameFrom && !mapFrom && (
+              <p data-testid="reader-event-banner"
+                 className="px-3 py-2 text-xs text-gray-700 border-b border-gray-200 bg-red-50 flex items-center gap-2">
+                <span className="min-w-0">
+                  From the event{' '}
+                  <span className="font-medium">{eventFrom.label || eventFrom.id}</span>
+                  <a href={`/events/${encodeURIComponent(eventFrom.id)}`} className="ml-2 text-red-700 hover:underline">
+                    back to the event
+                  </a>
+                </span>
+                <button onClick={() => setEventFrom(null)} aria-label="Dismiss"
+                        className="ml-auto shrink-0 text-gray-500 hover:text-gray-700 text-base leading-none px-1">
+                  ×
+                </button>
+              </p>
+            )}
             {mapFrom && !cameFrom && (
               <p className="px-3 py-2 text-xs text-gray-700 border-b border-gray-200 bg-red-50 flex items-center gap-2">
                 <span className="min-w-0">
@@ -642,17 +682,15 @@ export default function ReaderPage() {
                   (2026-09-20). The boxes come in two forms and both are named:
                   solid for a line quoted elsewhere, dashed for a possible echo. */}
               <span className="text-gray-500">darker = more connections</span>
-              <span className="flex items-center gap-1.5 border-l border-gray-300 pl-4">
-                <span className="inline-flex items-center justify-center text-[9px] font-bold leading-none
-                                 text-red-700 bg-gray-100 border border-gray-300 rounded px-1 py-[2px]">2</span>
-                quoted by that many other works
-              </span>
-              <span className="flex items-center gap-1.5">
-                <span className="inline-flex items-center justify-center text-[9px] font-bold leading-none
-                                 text-gray-500 bg-white border border-dashed border-gray-300 rounded px-1 py-[2px]">2</span>
-                possible echo (one rare shared phrase); click a box to see them
-              </span>
               <span className="ml-auto flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={toggleKey}
+                  aria-expanded={keyOpen}
+                  className="px-1.5 py-0.5 rounded text-[11px] font-medium border bg-white text-gray-600 border-gray-300 hover:bg-gray-100 mr-2"
+                >
+                  {keyOpen ? 'Hide key' : 'Key'}
+                </button>
                 <button
                   onClick={() => setFocusView('source')}
                   className={`px-1.5 py-0.5 rounded text-[11px] font-medium border ${
@@ -673,6 +711,34 @@ export default function ReaderPage() {
                 </button>
               </span>
             </p>
+            {keyOpen && (
+              <p data-testid="reader-key" className="px-3 py-1.5 text-[11px] text-gray-600 border-b border-gray-200 bg-gray-50 flex flex-wrap items-center gap-x-4 gap-y-1">
+              <span className="flex items-center gap-1.5">
+                <span className="inline-flex items-center justify-center text-[9px] font-bold leading-none
+                                 text-red-700 bg-gray-100 border border-gray-300 rounded px-1 py-[2px]">2</span>
+                quoted by that many other works
+              </span>
+              <span className="flex items-center gap-1.5">
+                <span className="inline-flex items-center justify-center text-[9px] font-bold leading-none
+                                 text-gray-500 bg-white border border-dashed border-gray-300 rounded px-1 py-[2px]">2</span>
+                possible echo (one rare shared phrase); click a box to see them
+              </span>
+              {documentsTrial && (
+                <>
+                  <span className="flex items-center gap-1.5">
+                    <span className="inline-flex items-center justify-center text-[9px] font-bold leading-none
+                                     text-amber-800 bg-amber-50 border border-amber-300 rounded px-1 py-[2px]">5</span>
+                    quoted in that many inscriptions or papyri
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <span className="inline-flex items-center justify-center text-[9px] font-bold leading-none
+                                     text-amber-700 bg-white border border-dashed border-amber-300 rounded px-1 py-[2px]">1</span>
+                    possible echo in an inscription or papyrus
+                  </span>
+                </>
+              )}
+              </p>
+            )}
           {focusView === 'english' && (
             <div className="flex-1 min-w-0 overflow-y-auto px-6 py-4">
               {fullTr === 'loading' && <LoadingSpinner />}
@@ -746,7 +812,8 @@ export default function ReaderPage() {
                 selection={selection}
                 reuseMarks={reuseMarks}
                 documentsTrial={documentsTrial}
-                onReuseClick={(u) => {
+                onReuseClick={(u, kind) => {
+                  setReuseFirst(kind === 'documents' ? 'documents' : null);
                   const i = units.findIndex((x) => x.ref === u.ref);
                   const sel = { startIdx: i, endIdx: i, refStart: u.ref,
                                 refEnd: u.ref, lineCount: 1 };
@@ -756,6 +823,7 @@ export default function ReaderPage() {
                   setPopupOpen(true);
                 }}
                 onSelect={(sel) => {
+                  setReuseFirst(null);
                   setSelection(sel);
                   if (sel) setScope(scopeFor(sel));
                   // One line asks for shared wording, which is what the
@@ -778,7 +846,7 @@ export default function ReaderPage() {
                 // copy toolbar and the results sheet (2026-09-07); the
                 // sheet's tabs already do what the toolbar offers there.
                 <div className="hidden lg:block absolute left-10 z-20"
-                     style={{ top: `${(selection?.anchorTop ?? 0) + 8}px` }}>
+                     style={{ top: `${popupTop(selection) + 8}px` }}>
                   <SelectionToolbar
                     selection={selection}
                     scope={scope}
@@ -808,6 +876,7 @@ export default function ReaderPage() {
             units={units}
             onOpenPassage={openPassage}
             initialTab={panelTab || wantedTab || undefined}
+            reuseFirst={reuseFirst}
             onClose={() => { setSelection(null); setPopupOpen(false); }}
           />
         </div>

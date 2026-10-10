@@ -9,6 +9,7 @@ export const COLLECTION_ORDER = [
   'Translations',
   'Inscriptions and papyri',
   'Scholarship',
+  'Events',
   'Places and identifiers',
 ];
 

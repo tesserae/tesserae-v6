@@ -132,8 +132,8 @@ export default function AboutPage({ onNavigate, initialAnchor = null, onAnchorCo
               If Tesserae contributed to published research, please cite the project:
             </p>
             <p className="bg-gray-50 border border-gray-200 rounded p-3 font-mono text-xs">
-              Coffee, N., &amp; The Tesserae Project Team (2026). Tesserae V6: Intertextual
-              and Literary Discovery (Version 6.0) [Software].
+              Coffee, N., &amp; The Tesserae Project Team (2026). Tesserae V6: Literary
+              and Historical Discovery (Version 6.0) [Software].
               https://tesserae.caset.buffalo.edu
             </p>
             <p>
@@ -390,8 +390,8 @@ export default function AboutPage({ onNavigate, initialAnchor = null, onAnchorCo
         <section>
           <h3 className="text-lg font-semibold text-gray-900 mb-3">Citation</h3>
           <div className="bg-gray-100 p-4 rounded font-mono text-sm">
-            Coffee, Neil, Walter Scheirer, et al. Tesserae V6: Intertextual and
-            Literary Discovery. University at Buffalo, 2026{currentYear > 2026 ? `–${currentYear}` : ''}.
+            Coffee, Neil, Walter Scheirer, et al. Tesserae V6: Literary and
+            Historical Discovery. University at Buffalo, 2026{currentYear > 2026 ? `–${currentYear}` : ''}.
             https://tesserae.caset.buffalo.edu
           </div>
           <p className="text-sm text-gray-600 mt-3">
@@ -399,6 +399,13 @@ export default function AboutPage({ onNavigate, initialAnchor = null, onAnchorCo
             specific tool, corpus text, or query you used. Include the version
             (currently {versionInfo.version}) and your access date, since the
             corpus and tools are updated regularly.
+          </p>
+        </section>
+
+        <section>
+          <h3 className="text-lg font-semibold text-gray-900 mb-3">What the site records</h3>
+          <p className="text-gray-700">
+            To understand how the site is used, it records which pages a browser opens during one visit, the network address and the city and country that address suggests, and the searches run. A visit is one browser tab's session, identified by a random token that is discarded when the tab closes. No account or personal detail is involved, and nothing is sent to an outside analytics service.
           </p>
         </section>
 

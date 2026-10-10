@@ -379,6 +379,23 @@ def init_db():
             cur.execute('''
                 CREATE INDEX IF NOT EXISTS idx_search_logs_language ON search_logs(language)
             ''')
+            # First-party page views: which pages each visit opened, in order.
+            cur.execute('''
+                CREATE TABLE IF NOT EXISTS page_views (
+                    id SERIAL PRIMARY KEY,
+                    visit_id VARCHAR(32) NOT NULL,
+                    path VARCHAR(300),
+                    page VARCHAR(60),
+                    language VARCHAR(8),
+                    referrer_host VARCHAR(200),
+                    client_ip VARCHAR(64),
+                    city VARCHAR(120),
+                    country VARCHAR(120),
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            ''')
+            cur.execute('CREATE INDEX IF NOT EXISTS idx_page_views_visit ON page_views(visit_id, created_at)')
+            cur.execute('CREATE INDEX IF NOT EXISTS idx_page_views_created ON page_views(created_at)')
             cur.execute('''
                 ALTER TABLE users ADD COLUMN IF NOT EXISTS must_reset_password BOOLEAN DEFAULT FALSE
             ''')
@@ -518,6 +535,7 @@ from backend.blueprints import (
 )
 from backend.blueprints.intertext import intertext_bp
 from backend.blueprints.downloads import downloads_bp
+from backend.blueprints.usage import usage_bp
 from backend.blueprints.job_uploads import job_uploads_bp
 from backend.blueprints.hapax import hapax_bp, init_hapax_blueprint
 from backend.blueprints.batch import batch_bp, init_batch_blueprint
@@ -593,6 +611,7 @@ app.register_blueprint(admin_bp, url_prefix=admin_prefix)
 app.register_blueprint(search_bp, url_prefix=API_PREFIX or None)
 app.register_blueprint(corpus_bp, url_prefix=API_PREFIX or None)
 app.register_blueprint(intertext_bp, url_prefix=intertext_prefix)
+app.register_blueprint(usage_bp, url_prefix=API_PREFIX or None)
 app.register_blueprint(downloads_bp, url_prefix=API_PREFIX or None)
 app.register_blueprint(job_uploads_bp, url_prefix=API_PREFIX or None)
 app.register_blueprint(hapax_bp, url_prefix=API_PREFIX or None)
@@ -607,6 +626,8 @@ app.register_blueprint(feature_request_bp, url_prefix=API_PREFIX or None)
 app.register_blueprint(reuse_bp, url_prefix=API_PREFIX or None)
 from backend.blueprints.scholarship import scholarship_bp  # noqa: E402
 app.register_blueprint(scholarship_bp, url_prefix=API_PREFIX or None)
+from backend.blueprints.events import events_bp  # noqa: E402
+app.register_blueprint(events_bp, url_prefix=API_PREFIX or None)
 
 app_logger.info(f"Blueprints registered (API_PREFIX='{API_PREFIX}', env={DEPLOYMENT_ENV})")
 
@@ -2386,6 +2407,20 @@ def get_document(doc_id):
         'display': display or {},
     }
     return jsonify(payload)
+
+
+@api_route('/documents/<doc_id>/scholarship', methods=['GET'])
+def get_document_scholarship(doc_id):
+    """Journal sentences and commentary notes that cite one document, from
+    the offline document citation index: citation, one excerpt and a link,
+    newest first, never summarised. Behind TESSERAE_DOCUMENTS=1 like the
+    document view itself (404 otherwise); an absent index file gives an empty
+    list."""
+    import backend.documents as _docs_mod
+    if not _docs_mod.enabled():
+        return jsonify({'error': 'not found'}), 404
+    from backend.document_scholarship import scholarship_for
+    return jsonify(dict(scholarship_for(doc_id), doc_id=doc_id))
 
 
 @api_route('/documents/browse', methods=['GET'])

@@ -24,6 +24,7 @@ Actions are plain data: {kind, label, detail, url}. The page renders them as
 ordinary links, so they can be middle-clicked, bookmarked and shared. Nothing
 navigates on its own.
 """
+import re
 from urllib.parse import urlencode
 
 # What the page will accept. A language the site cannot search is not offered.
@@ -118,12 +119,20 @@ CROSS_PAIRS = {
     frozenset(('he', 'grc')): 'Hebrew and Greek',
     frozenset(('he', 'la')): 'Hebrew and Latin',
     frozenset(('cop', 'grc')): 'Coptic and Greek',
+    # The Perso-Arabic pairs (2026-09-05 in the search). Persian with Urdu has
+    # a control on the Cross-Language tab; the two Arabic pairs are supported
+    # by the search while the Arabic texts are held back from the site, so
+    # Tessa says they exist and does not send a reader to the tab for them.
+    frozenset(('fa', 'ur')): 'Persian and Urdu',
+    frozenset(('ar', 'fa')): 'Arabic and Persian',
+    frozenset(('ar', 'ur')): 'Arabic and Urdu',
 }
 
 # What the Cross-Language tab actually offers a control for.
 TAB_PAIRS = {
     frozenset(('grc', 'la')), frozenset(('la', 'en')), frozenset(('grc', 'en')),
     frozenset(('he', 'grc')), frozenset(('he', 'la')),
+    frozenset(('fa', 'ur')),
 }
 
 
@@ -165,6 +174,43 @@ def languages_named(question):
         if code not in out:
             out.append(code)
     return out
+
+
+# Words that make a question a question about what the site holds.
+_HOLDINGS_VERBS = ('hold', 'held', 'have', 'has', 'contain', 'carry', 'include',
+                   'available', 'corpus', 'collection', 'offer', 'list')
+# A language word followed by one of these is about texts in that language.
+_HOLDINGS_NOUNS = ('works', 'texts', 'authors', 'books', 'poems', 'poets',
+                   'writers', 'literature', 'material', 'materials', 'sources')
+
+
+def holdings_language(question):
+    """The one language code a question about holdings is asking after, or None.
+
+    A language word counts only as a WHOLE word, and only when it is followed by
+    "works", "texts", "authors" and the like, or preceded by "in", and the
+    question also talks about holding things. So "What Persian works do you
+    hold?" and "Do you have anything in Coptic?" count, while "Aeschylus
+    Persians" does not: that is a play, and "Persians" is not the word "Persian".
+    A question naming two languages is a comparison, not a census, so None.
+    """
+    q = str(question or '').lower()
+    words = re.findall(r"[a-z]+", q)
+    if not any(w.startswith(v) for w in words for v in _HOLDINGS_VERBS):
+        return None
+    codes, mentioned = [], set()
+    for word, code in _LANGUAGE_WORDS.items():
+        parts = word.split()
+        for i in range(len(words) - len(parts) + 1):
+            if words[i:i + len(parts)] != parts:
+                continue
+            mentioned.add(code)
+            after = words[i + len(parts)] if i + len(parts) < len(words) else ''
+            before = words[i - 1] if i else ''
+            if after in _HOLDINGS_NOUNS or before == 'in':
+                if code not in codes:
+                    codes.append(code)
+    return codes[0] if len(codes) == 1 and len(mentioned) == 1 else None
 
 
 def cross_pair(a, b):
@@ -231,6 +277,42 @@ def _cross_language(a, b):
         'label': 'Open Cross-Language Search',
         'detail': f'{label} — choose the two texts there',
         'url': '/?lang=cross',
+    }
+
+
+# The order the Cross-Language tab takes each pair in: its pair key is
+# "<source language>-<target language>" and a link has to use it.
+_TAB_ORDER = (('grc', 'la'), ('la', 'en'), ('grc', 'en'), ('he', 'grc'),
+              ('he', 'la'), ('fa', 'ur'))
+
+
+def _cross_texts(source, target, lang_a, lang_b):
+    """The Cross-Language tab with the pair and both texts already chosen.
+
+    The tab reads pair, source and target from the link and runs the search.
+    Its pair key has a fixed direction (Greek to Latin, not Latin to Greek),
+    so the two texts are put in that order.
+    """
+    for src_lang, tgt_lang in _TAB_ORDER:
+        if {lang_a, lang_b} == {src_lang, tgt_lang}:
+            break
+    else:
+        return None
+    if lang_a != src_lang:
+        source, target = target, source
+    if not source or not target:
+        return None
+
+    def tess(x):
+        x = str(x)
+        return x if x.endswith('.tess') else x + '.tess'
+    args = {'lang': 'cross', 'pair': f'{src_lang}-{tgt_lang}',
+            'source': tess(source), 'target': tess(target)}
+    return {
+        'kind': 'cross_language',
+        'label': 'Compare these two texts in Cross-Language Search',
+        'detail': f'{source} and {target} · opens the search ready to run',
+        'url': f'/?{urlencode(args)}',
     }
 
 
@@ -310,7 +392,11 @@ def build(facts, question=''):
 
         # Two texts the reader asked to have compared. Nothing was searched:
         # this IS the answer, and the fusion search is what does the comparing.
-        if kind.startswith('TWO TEXTS') and isinstance(f.get('args'), dict):
+        if kind.startswith('TWO TEXTS') and isinstance(f.get('args'), dict) and f['args'].get('target_language'):
+            a = f['args']
+            out.append(_cross_texts(a.get('source'), a.get('target'),
+                                    a.get('language'), a.get('target_language')))
+        elif kind.startswith('TWO TEXTS') and isinstance(f.get('args'), dict):
             a = f['args']
             out.append(_compare(
                 a.get('source'), a.get('target'), a.get('language') or 'la',

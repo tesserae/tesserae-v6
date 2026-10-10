@@ -1,11 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
+import useCollections from '../../hooks/useCollections';
+import { READER_TABS } from '../../collections/collectionsConfig';
+import useDocumentsTrial from '../../hooks/useDocumentsTrial';
 import { useCorpusTextMap, citationFromCorpusMap } from '../../utils/textNames';
 import { chronological, dateParts } from '../../utils/chronology';
 import { LoadingSpinner } from '../common';
 import { ResultsInsight } from '../assistant';
 import { displayRef } from './refId';
 import { LANGUAGE_NAMES as LANG_LABEL } from '../../utils/languageNames';
-import { getSessionValue, setSessionValue } from '../../utils/storage';
 import { scholarshipLanguages } from '../../utils/scholarshipLanguages';
 import ScholarshipTab from './ScholarshipTab';
 
@@ -34,7 +36,7 @@ async function asJson(r) {
  * makes the corpus browsable by association rather than by search alone.
  */
 export default function ResultsPanel({ selection, focus, language, work, units, onOpenPassage,
-                                       initialTab, onClose }) {
+                                       initialTab, onClose, reuseFirst }) {
   // Arriving from Theme Search, the reader has just been shown an English
   // summary of a passage in a language they may not read. Opening on the
   // translation is the useful default there; everywhere else 'similar' is.
@@ -91,11 +93,7 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
   // gates the data behind TESSERAE_DOCUMENTS=1 (backend/blueprints/reuse.py),
   // so this flag only controls whether the Reader SHOWS what the server
   // already sent, not whether the server sends it.
-  const [documentsTrial] = useState(() => {
-    const fromUrl = new URLSearchParams(window.location.search).get('documents') === '1';
-    if (fromUrl) setSessionValue('documents_trial', '1');
-    return fromUrl || getSessionValue('documents_trial', '0') === '1';
-  });
+  const documentsTrial = useDocumentsTrial();
   const [possibleDocumentsOpen, setPossibleDocumentsOpen] = useState(false);
   useEffect(() => { setPossibleDocumentsOpen(false); }, [selection]);
 
@@ -103,11 +101,8 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
   // selection), not yet shown to every reader. ?scholarship=1 switches it on
   // and remembers that for the rest of the visit in sessionStorage, the same
   // way the names grouping was trialled behind ?names=1 first.
-  const [scholarshipFlag] = useState(() => {
-    const fromUrl = new URLSearchParams(window.location.search).get('scholarship') === '1';
-    if (fromUrl) setSessionValue('scholarship_tab', '1');
-    return fromUrl || getSessionValue('scholarship_tab', '0') === '1';
-  });
+  const { anyOn } = useCollections();
+  const scholarshipFlag = anyOn(['scholarship']);
   // Offer the tab only where the site holds scholarship for THIS language
   // (/api/scholarship/sources' own languages field, not a guess): Persian
   // and Urdu have none installed, so the trial switch alone must not show
@@ -302,7 +297,7 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
     return () => { cancelled = true; };
   }, [selection, work, units, tab]);
 
-  const tabs = [
+  const allTabs = [
     // Short labels so the four tabs fit one row without a scrollbar a
     // reader has no way to know is there (users who cannot see all of them
     // will not know they're there, 2026-09-19) -- matches
@@ -314,10 +309,16 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
     ['translation', focus === 'english' ? 'Original' : 'Translation',
      focus === 'english' ? 'The original text' : 'Translation'],
     ['reuse', 'Reuse', 'Reuse'],
-    ...(scholarshipAvailable
-      ? [['scholarship', 'Scholarship', 'Commentators, articles and books on the selection']]
-      : []),
+    ['scholarship', 'Scholarship', 'Commentators, articles and books on the selection'],
   ];
+  // Which tabs appear is decided by Collections (READER_TABS names the
+  // collection each needs); the Scholarship tab also needs scholarship
+  // installed for THIS language.
+  const tabs = allTabs.filter(([id]) => {
+    const spec = READER_TABS.find((t) => t.id === id);
+    if (spec && !anyOn(spec.needs)) return false;
+    return id !== 'scholarship' || scholarshipAvailable;
+  });
 
   return (
     // Sticky on desktop: deep in Thebaid 12 the results used to be a full
@@ -769,6 +770,14 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
                 No other work in the corpus repeats this line closely enough to count.
               </p>
             )}
+            {/* The amber box in the text (quoted in inscriptions or papyri)
+                opens this tab with the documents first (2026-10-10: the lead
+                clicked that box and saw the literary quotations first). The
+                red box, and the tab opened any other way, keep the literary
+                groups first. */}
+            {(() => {
+              const literaryGroups = (
+                <>
             {!reuseLoading && reuse?.available && reuse.quotations.length > 0 && (() => {
               // TIERED: strict first with no heading (the original
               // behavior); possible pairs -- one rare shared phrase, kept
@@ -778,7 +787,13 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
               const strict = reuse.quotations.filter((q) => q.tier !== 'possible');
               const possible = reuse.quotations.filter((q) => q.tier === 'possible');
               return (
-                <>
+                <div className={reuseFirst === 'documents' && reuse.documents?.length > 0
+                                  ? 'mt-4 pt-3 border-t border-gray-200' : ''}>
+                  {reuseFirst === 'documents' && reuse.documents?.length > 0 && (
+                    <h3 className="text-xs font-bold uppercase tracking-wide text-gray-500 mb-2">
+                      In other works
+                    </h3>
+                  )}
                   {strict.length > 0 && (
                     <ReuseGroups quotations={strict} onOpenPassage={onOpenPassage} />
                   )}
@@ -801,9 +816,13 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
                       )}
                     </div>
                   )}
-                </>
+                </div>
               );
             })()}
+                </>
+              );
+              const documentGroups = (
+                <>
             {/* DOCUMENTARY REUSE: inscriptions and papyri quoting or
                 near-quoting the selection, after the literary groups --
                 a separate group, not merged into them, since a document hit
@@ -817,7 +836,7 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
               const strictDocs = reuse.documents.filter((d) => d.tier !== 'possible');
               const possibleDocs = reuse.documents.filter((d) => d.tier === 'possible');
               return (
-                <div className={(reuse.quotations?.length > 0) ? 'mt-4 pt-3 border-t border-gray-200' : ''}>
+                <div className={(reuse.quotations?.length > 0 && reuseFirst !== 'documents') ? 'mt-4 pt-3 border-t border-gray-200' : ''}>
                   <h3 className="text-xs font-bold uppercase tracking-wide text-gray-500 mb-2">
                     In inscriptions and papyri
                   </h3>
@@ -845,6 +864,12 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
                   )}
                 </div>
               );
+            })()}
+                </>
+              );
+              return reuseFirst === 'documents'
+                ? <>{documentGroups}{literaryGroups}</>
+                : <>{literaryGroups}{documentGroups}</>;
             })()}
           </>
         )}

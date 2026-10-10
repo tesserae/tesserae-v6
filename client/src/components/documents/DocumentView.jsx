@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { LoadingSpinner } from '../common';
 import { dirFor } from '../../utils/rtl';
+import { splitImageLinks } from './imageLinks';
 
 function paramOr(name, fallback) {
   const v = new URLSearchParams(window.location.search).get(name);
@@ -51,6 +52,21 @@ export default function DocumentView() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [scholarship, setScholarship] = useState([]);
+
+  // Journal sentences and commentary notes that cite this document. An
+  // absent index, a 404 (documents switch off) or a failure leaves the
+  // section out; it never blocks the document itself.
+  useEffect(() => {
+    setScholarship([]);
+    if (!docId) return;
+    let live = true;
+    fetch(`/api/documents/${encodeURIComponent(docId)}/scholarship`)
+      .then(r => (r.ok ? r.json() : null))
+      .then(j => { if (live && j && Array.isArray(j.results)) setScholarship(j.results); })
+      .catch(() => {});
+    return () => { live = false; };
+  }, [docId]);
 
   useEffect(() => {
     if (!docId) {
@@ -112,6 +128,7 @@ export default function DocumentView() {
         const dLabel = dateLabel(data);
         const images = Array.isArray(display.image_url) ? display.image_url
           : (display.image_url ? [display.image_url] : []);
+        const imageLinks = splitImageLinks(images);
         return (
           <div className="bg-white rounded-lg shadow p-4 sm:p-6 space-y-4">
             <div>
@@ -179,11 +196,47 @@ export default function DocumentView() {
             {images.length > 0 && (
               <div className="border-t pt-3">
                 <div className="text-sm font-medium text-gray-700 mb-1">Images</div>
-                <ul className="text-sm list-disc list-inside">
-                  {images.map((url, i) => (
-                    <li key={i}>
-                      <a href={url} target="_blank" rel="noopener noreferrer"
-                         className="text-amber-700 hover:underline break-all">{url}</a>
+                {imageLinks.shown.length > 0 && (
+                  <ul className="text-sm list-disc list-inside">
+                    {imageLinks.shown.map(({ url, label }, i) => (
+                      <li key={i}>
+                        <a href={url} title={url} target="_blank" rel="noopener noreferrer"
+                           className="text-amber-700 hover:underline break-all">{label}</a>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                {imageLinks.omitted > 0 && (
+                  <p className="text-xs text-gray-500 mt-1">
+                    {imageLinks.omitted} image link{imageLinks.omitted === 1 ? '' : 's'} omitted (the host no longer serves {imageLinks.omitted === 1 ? 'it' : 'them'}).
+                  </p>
+                )}
+              </div>
+            )}
+
+            {scholarship.length > 0 && (
+              <div className="border-t pt-3" data-testid="document-scholarship">
+                <div className="text-sm font-medium text-gray-700 mb-1">Scholarship</div>
+                <p className="text-[11px] text-gray-500 mb-2">
+                  Sentences that cite this document in journals from before 1923 (JSTOR Early Journal
+                  Content) and in the commentaries held here. The full list of sources is under{' '}
+                  <a href="/text-credits" className="text-red-700 hover:underline">Sources and credits</a>.
+                </p>
+                <ul className="space-y-3">
+                  {scholarship.map((r, i) => (
+                    <li key={i} className="text-sm leading-snug">
+                      <span className="inline-block bg-gray-100 text-gray-600 text-[10px] px-1.5 py-0.5 rounded mb-1">
+                        {r.source === 'commentary' ? 'commentary' : 'journal article, JSTOR'}
+                      </span>
+                      <p className="text-gray-900">{r.citation}</p>
+                      {r.excerpt && (
+                        <p className="text-[12px] text-gray-700 mt-0.5 border-l-2 border-gray-200 pl-2">{r.excerpt}</p>
+                      )}
+                      <p className="text-[11px] text-gray-500 mt-0.5 flex flex-wrap gap-x-3">
+                        {r.cites && <span>cites {r.cites}</span>}
+                        {r.url && <a className="text-red-700 hover:underline" href={r.url} target="_blank" rel="noreferrer">on JSTOR</a>}
+                        {r.commentary_file && <span>{r.commentary_file}{r.commentary_ref ? `, ${r.commentary_ref}` : ''}</span>}
+                      </p>
                     </li>
                   ))}
                 </ul>

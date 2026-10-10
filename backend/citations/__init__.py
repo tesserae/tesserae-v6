@@ -26,3 +26,29 @@ def extract(text):
     """Citations found in text, resolved where possible; [] without the table."""
     idx = index()
     return _extract(text, idx) if idx else []
+
+
+def extract_documents(text, edition_index=None):
+    """References to inscriptions, papyri, ostraca and coins in text ("CIL VI
+    1234", "AE 1976, 123", "P.Oxy. XII 1453", "RIC I² 207"), each with a
+    normalised key. Independent of extract(): needs no abbreviation table, and
+    literary citations are resolved exactly as before. With a
+    backend.document_citations.DocumentEditionIndex, each hit also carries
+    'doc_ids', the documents whose stored edition reference matches."""
+    from backend import document_citations as dc
+    cits = dc.find_document_citations(text)
+    if edition_index is not None:
+        dc.link_documents(cits, edition_index)
+    return cits
+
+
+def extract_all(text, edition_index=None):
+    """{'literary': [...], 'documents': [...]} for text. A literary hit that
+    overlaps a document citation is dropped from 'literary': the literary
+    grammar reads "CIL VI 1234" as Iliad 6.1234 and "SB XVI 13060" as a work
+    abbreviation, so callers that want both kinds must not take them side by
+    side. extract() itself is untouched."""
+    docs = extract_documents(text, edition_index)
+    lit = [h for h in extract(text)
+           if not any(h['start'] < d['end'] and d['start'] < h['end'] for d in docs)]
+    return {'literary': lit, 'documents': docs}

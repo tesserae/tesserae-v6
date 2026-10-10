@@ -1723,6 +1723,34 @@ def get_user_data():
         return jsonify({'error': str(e)}), 500
 
 
+def _usage_stats_path():
+    """Where the web-server-log summary lives (built by scripts/usage/build_usage_stats.py)."""
+    configured = os.environ.get('TESSERAE_USAGE_STATS')
+    if configured:
+        return configured
+    repo_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    return os.path.join(repo_root, 'data', 'usage', 'usage_stats.json')
+
+
+@admin_bp.route('/usage', methods=['GET'])
+def get_usage():
+    """Visitors and feature use read from the web server's access log (admin only)"""
+    if not check_admin_auth():
+        return jsonify({'error': 'Unauthorized'}), 401
+
+    path = _usage_stats_path()
+    if not os.path.isfile(path):
+        return jsonify({'available': False,
+                        'reason': 'The usage summary has not been built (scripts/usage/build_usage_stats.py).'}), 200
+    try:
+        with open(path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+    except (OSError, ValueError) as e:
+        logger.error(f"Failed to read usage summary: {e}")
+        return jsonify({'available': False, 'reason': 'The usage summary could not be read.'}), 200
+    return jsonify(data)
+
+
 @admin_bp.route('/analytics', methods=['GET'])
 def get_analytics():
     """Get search analytics (admin only)"""
@@ -2781,3 +2809,74 @@ def kill_all_active_searches_route():
     return jsonify({'success': True, 'count': len(cancelled_ids), 'cancelled_slots': cancelled_ids})
 
 
+
+
+@admin_bp.route('/paths', methods=['GET'])
+def get_paths():
+    """Paths through the site, from the page_views table (admin only)."""
+    if not check_admin_auth():
+        return jsonify({'error': 'Unauthorized'}), 401
+
+    try:
+        days = int(request.args.get('days', 30))
+    except (TypeError, ValueError):
+        days = 30
+    days = max(1, min(days, 365))
+
+    try:
+        with get_db_cursor(commit=False) as cur:
+            cur.execute('''
+                SELECT visit_id, page, country, referrer_host, created_at
+                FROM page_views
+                WHERE created_at >= NOW() - (%s * INTERVAL '1 day')
+                ORDER BY visit_id, created_at, id
+            ''', (days,))
+            rows = cur.fetchall()
+    except Exception as e:
+        logger.debug(f'paths: page_views not readable: {e}')
+        return jsonify({'available': False, 'days': days})
+
+    from collections import Counter
+    from statistics import median
+
+    visits = {}
+    views_by_day = Counter()
+    for visit_id, page, country, ref, created_at in rows:
+        v = visits.setdefault(visit_id, {'pages': [], 'country': None, 'ref': None, 'start': created_at})
+        v['pages'].append(page)
+        v['country'] = v['country'] or country
+        v['ref'] = v['ref'] or ref
+        views_by_day[created_at.date().isoformat()] += 1
+
+    visits_by_day = Counter(v['start'].date().isoformat() for v in visits.values())
+    entry = Counter(v['pages'][0] for v in visits.values())
+    seqs = Counter(' > '.join(v['pages'][:3]) for v in visits.values() if len(v['pages']) >= 2)
+    reached = Counter()
+    for v in visits.values():
+        for p in set(v['pages']):
+            reached[p] += 1
+    countries = Counter(v['country'] for v in visits.values() if v['country'])
+    refs = Counter(v['ref'] for v in visits.values() if v['ref'])
+
+    def top(counter, n, key):
+        return [{key: k, 'visits': c} for k, c in sorted(counter.items(), key=lambda kv: (-kv[1], kv[0]))[:n]]
+
+    sizes = [len(v['pages']) for v in visits.values()]
+    return jsonify({
+        'available': True,
+        'days': days,
+        'visits': len(visits),
+        'page_views': len(rows),
+        'pages_per_visit_median': median(sizes) if sizes else 0,
+        'one_page_visits': sum(1 for s in sizes if s == 1),
+        'visits_by_day': [
+            {'date': d, 'visits': visits_by_day.get(d, 0), 'page_views': views_by_day[d]}
+            for d in sorted(views_by_day)
+        ],
+        'entry_pages': top(entry, 12, 'page'),
+        'top_paths': [{'path': k, 'visits': c}
+                      for k, c in sorted(seqs.items(), key=lambda kv: (-kv[1], kv[0]))[:15]],
+        'pages_reached': top(reached, len(reached), 'page'),
+        'countries': top(countries, 12, 'country'),
+        'referrer_hosts': top(refs, 12, 'host'),
+    })
