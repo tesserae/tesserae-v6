@@ -9,6 +9,11 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-10
 
+### Line Search: "whole phrase" means the phrase as typed
+The first form of the closeness tag counted only the query's content words, and the lemma search drops common words such as "sit" and "tibi", so for "sit tibi terra levis" it marked 23 of 36 lines as the whole phrase, Caesar's "levibus cratibus terraque" among them, and put Martial's "Sit tibi terra leuis" twelfth. A line is now a quotation only when it also carries the query's own words in surface form, common ones included, with at most one inflected or missing. The tags say "key words" when common words were dropped ("key words together", "key words apart", "1 of 2 key words"), and the Closest match order ranks by quotation, then by how many of the typed words a line carries, then by the width of the window holding them, then by date.
+### Search: a work against itself shows where it repeats itself
+Comparing a work with itself on the Search page returned every line paired with its own twin. When source and target are the same work in the same unit, a line is no longer paired with itself and each pair of lines appears once, the earlier line as the source, so the list shows the phrases the work repeats.
+
 ### Events: the best-attested events first, empty ones hidden
 The Events list opened on the earliest events in the database, several of them with no passage and no document attached. It now opens on the events with the most attached passages and nearby documents (an Order control offers the chronological order), leaves out the events with neither until a box is ticked, says how many it left out, and shows the count of each type in the Type menu. Four Wikidata items with no label beyond their identifier are no longer listed.
 ### Tessa describes what the server holds from its own state

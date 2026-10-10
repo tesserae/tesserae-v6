@@ -108,6 +108,7 @@ export default function InscriptionsPapyriPage({ setPageType }) {
   const [showAllLiterature, setShowAllLiterature] = useState(false);
   // Content words in the last query, for the closeness tags (see closeness.js).
   const [queryLemmaCount, setQueryLemmaCount] = useState(0);
+  const [queryWordCount, setQueryWordCount] = useState(0);
 
   const {
     collection, setCollection,
@@ -192,6 +193,7 @@ export default function InscriptionsPapyriPage({ setPageType }) {
       } else {
         setLiteratureHits((data.results || []).filter(r => r.collection !== 'documents'));
         setQueryLemmaCount(data.query_lemma_count || 0);
+        setQueryWordCount(data.query_word_count || 0);
         setShowAllLiterature(false);
         applyDocumentsResponse(data, { sortUsed: searchParams.sort });
       }
@@ -226,6 +228,7 @@ export default function InscriptionsPapyriPage({ setPageType }) {
       } else {
         setLiteratureHits((data.results || []).filter(r => r.collection !== 'documents'));
         setQueryLemmaCount(data.query_lemma_count || 0);
+        setQueryWordCount(data.query_word_count || 0);
         setShowAllLiterature(false);
         applyDocumentsResponse(data, { collection: example.collection, force: true });
       }
@@ -381,7 +384,7 @@ export default function InscriptionsPapyriPage({ setPageType }) {
             </div>
             <div className="divide-y divide-gray-200">
               {shown.map((result, i) => {
-                const tag = closenessLabel(result, queryLemmaCount);
+                const tag = closenessLabel(result, queryLemmaCount, queryWordCount);
                 return (
                   <div key={i} className="p-4">
                     <div className="flex flex-col sm:flex-row sm:items-start gap-2">
