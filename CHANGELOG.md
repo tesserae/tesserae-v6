@@ -11,6 +11,8 @@ behind each, are in docs/DECISIONS.md.
 
 ### Start here: smaller, feature names first
 The Start here panel took the top of the Search page with six boxes. It is now one short card with the feature's name and a half-line of what it does ("Line Search: every line in the corpus where a phrase or a pair of words occurs"), three to a row, with Skip beside the question. The Collections button in the menu bar is now shown to every visitor, so the inscriptions, papyri, events, coins and objects the panel names can be switched on from the top of the page; the default profile is still Literary.
+### Research moves under About
+The Research entry leaves the main menu (most visitors will not look at the project's studies regularly). The page stays at /research and is reached from a Research block on the About page, beside Text Credits.
 
 ### Start here: the collections answer switches every collection on
 The sixth answer on the Start here panel ("Search inscriptions, papyri, events and coins") opened the Historical profile, which has no coins or objects. It now opens the Everything profile, so every collection it names is on.
