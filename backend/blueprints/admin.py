@@ -1723,6 +1723,34 @@ def get_user_data():
         return jsonify({'error': str(e)}), 500
 
 
+def _usage_stats_path():
+    """Where the web-server-log summary lives (built by scripts/usage/build_usage_stats.py)."""
+    configured = os.environ.get('TESSERAE_USAGE_STATS')
+    if configured:
+        return configured
+    repo_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    return os.path.join(repo_root, 'data', 'usage', 'usage_stats.json')
+
+
+@admin_bp.route('/usage', methods=['GET'])
+def get_usage():
+    """Visitors and feature use read from the web server's access log (admin only)"""
+    if not check_admin_auth():
+        return jsonify({'error': 'Unauthorized'}), 401
+
+    path = _usage_stats_path()
+    if not os.path.isfile(path):
+        return jsonify({'available': False,
+                        'reason': 'The usage summary has not been built (scripts/usage/build_usage_stats.py).'}), 200
+    try:
+        with open(path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+    except (OSError, ValueError) as e:
+        logger.error(f"Failed to read usage summary: {e}")
+        return jsonify({'available': False, 'reason': 'The usage summary could not be read.'}), 200
+    return jsonify(data)
+
+
 @admin_bp.route('/analytics', methods=['GET'])
 def get_analytics():
     """Get search analytics (admin only)"""

@@ -79,6 +79,21 @@ removal procedure: dry run by default, reporting what it would take out of
 the texts, the lemma cache, the inverted index and the passage index before
 anything is deleted, with a dated backup kept of each file it removes.
 
+## 2026-10-10 Usage summary for the admin panel (drafted, steps for production)
+
+The Analytics tab reads a JSON summary of the web server's access log. The
+script `scripts/usage/build_usage_stats.py` writes it. It streams the log and
+takes under a minute. The route `GET /api/admin/usage` serves the file named
+by `TESSERAE_USAGE_STATS`, by default `data/usage/usage_stats.json`.
+
+Steps on production
+1. From the production root with the production venv, run
+   `python scripts/usage/build_usage_stats.py --out /var/www/tesseraev6_flask/data/usage/usage_stats.json`
+   (add `--force` to replace an existing file).
+2. `chmod 664 /var/www/tesseraev6_flask/data/usage/usage_stats.json` so the web workers can read it.
+3. Plan: a user timer running the script each night at 03:10 with `--force`.
+4. Check the Analytics tab shows the months table.
+
 ## 2026-10-10 Journal citation index: seven Studies in Philology articles re-dated from 1992 to 1922 (run on production)
 
 `data/citation_index/citations.db` carried seven articles of Studies in Philology volume 19 with year 1992; the volume is 1922 (the journal began in 1906, one volume a year) and the Early Journal Content ends at 1922. Three of the seven cite held works and were shown as 1992 articles in the Scholarship tab. Fixed in place with a backup first:
