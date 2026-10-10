@@ -9,6 +9,8 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-09
 
+### Inscription and papyrus pages: image links named by institution, dead hosts hidden, moved addresses rewritten
+- The Images list on `/document` shows "Photo F034014 at Epigraphic Database Heidelberg" style labels (address in the href and title) and omits links to hosts that no longer serve them, with a note giving the count. Labels and the dead-host list are in `client/src/components/documents/imageHosts.json`. `scripts/documents/image_url_rules.py` holds the rewrite rules (old Heidelberg photo host, old CIL photo files) and the extractor applies them; `scripts/documents/fix_image_urls.py --dry-run|--apply --db PATH` fixes an existing metadata.db (backup first).
 ### Reader: the inscriptions mark no longer overlaps the line
 - With the documents trial on, a line can carry both the "quoted in N works" mark and the amber inscriptions mark, and the mark column fitted one: the second sat over the text (Aeneid 1.1). The column is wider whenever the trial is on, so every line keeps the same left edge. The mark's tooltip says "papyri", not "papyruses".
 ### Documentary reuse: phrases common across the literature discounted, word order no longer required
