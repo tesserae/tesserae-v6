@@ -80,9 +80,27 @@ def _conn():
     return c
 
 
+# Latin look-alike capitals inside a Greek word (a Latin B and A typed in
+# BAΣΙΛΕΩΣ, as the catalogues themselves do) are read as Greek, the same rule
+# scripts/coins/build_coins_db.py applies to the stored text, so the query
+# and the index fold alike.
+_LATIN_TO_GREEK = {'A': '\u0391', 'B': '\u0392', 'E': '\u0395', 'Z': '\u0396', 'H': '\u0397',
+                   'I': '\u0399', 'K': '\u039a', 'M': '\u039c', 'N': '\u039d', 'O': '\u039f',
+                   'P': '\u03a1', 'T': '\u03a4', 'Y': '\u03a5', 'X': '\u03a7'}
+
+
+def unmix_scripts(text):
+    def fix(m):
+        w = m.group(0)
+        if any(unicodedata.name(ch, '').startswith('GREEK') for ch in w):
+            return ''.join(_LATIN_TO_GREEK.get(ch, ch) for ch in w)
+        return w
+    return re.sub(r'\S+', fix, str(text or ''))
+
+
 def fold(text):
     """Lower-case and strip diacritics, as the database's search_text was."""
-    d = unicodedata.normalize('NFD', str(text or ''))
+    d = unicodedata.normalize('NFD', unmix_scripts(text))
     d = ''.join(ch for ch in d if not unicodedata.combining(ch)).lower()
     # final and lunate sigma fold to the ordinary one, so a legend typed with
     # either is found

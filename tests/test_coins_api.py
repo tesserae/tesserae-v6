@@ -197,6 +197,9 @@ def test_greek_legend_typed_without_accents_is_found(client_all):
               '\u03b2\u03b1\u03c3\u03b9\u03bb\u03ad\u03c9\u03c2 \u03c3\u03b5\u03bb\u03b5\u03cd\u03ba\u03bf\u03c5'):  # with accents
         d = client_all.get('/api/coins', query_string={'q': q}).get_json()
         assert 'sco:sc.1.1' in [c['id'] for c in d['coins']], q
+    # typed as the catalogue prints it, with a Latin B and A inside the Greek word
+    d = client_all.get('/api/coins', query_string={'q': 'BA\u03a3\u0399\u039b\u0395\u03a9\u03a3'}).get_json()
+    assert 'sco:sc.1.1' in [c['id'] for c in d['coins']]
     d = client_all.get('/api/coins', query_string={'q': '\u03c6\u03b9\u03bb\u03b9\u03c0\u03c0\u03bf\u03c5'}).get_json()
     assert [c['id'] for c in d['coins']] == ['pella:lerider.philip_ii.1.1']
 
