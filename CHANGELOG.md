@@ -9,6 +9,9 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-10
 
+### Metre scanner: a missing scanner is reported once, not once per verse
+On the production server the optional CLTK prosody modules are not installed, so every verse offered to the hendecasyllable scanner raised an error that was written to the web server's error log, thousands of lines per search, 22 GB by October. The scanner now returns no scansion for a metre it cannot scan and writes one warning per process.
+
 ### Tessa lists a language's holdings when asked what the corpus holds in Persian, Urdu, Greek or Coptic
 
 A question about Persian works made Tessa look "Persian" up as a work name and name a Greek play. A question about holdings in one language is now answered from that language's listing with the authors and titles, and Arabic is reported as not served.
