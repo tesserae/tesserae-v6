@@ -16,7 +16,7 @@ FRONT_DOOR_CHOICES = [
     ('Find the rare words two works share', '/?tab=hapax'),
     ('Find passages about a subject, in any words', '/theme-search'),
     ('Read a text and see what each passage echoes', '/read'),
-    ('Search inscriptions, papyri, events and coins', '/inscriptions-papyri?profile=historical'),
+    ('Search inscriptions, papyri, events and coins', '/inscriptions-papyri?profile=everything'),
 ]
 
 # Short questions that ask where to begin. Whole-phrase matches only, and only
