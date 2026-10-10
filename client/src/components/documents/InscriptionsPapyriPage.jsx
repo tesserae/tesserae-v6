@@ -9,6 +9,7 @@ import DocumentsSearchFilters from './DocumentsSearchFilters';
 import DocumentsResultsPanel from './DocumentsResultsPanel';
 import DocumentsBrowser from '../corpus/DocumentsBrowser';
 import { closenessSort, closenessLabel, TONE_CLASS } from '../search/closeness';
+import ScopeBox from '../common/ScopeBox';
 
 // How many literary companions a "Both" search shows before "Show all".
 const LITERATURE_FOLD = 5;
@@ -278,6 +279,8 @@ export default function InscriptionsPapyriPage({ setPageType }) {
             </button>
           </p>
         </div>
+
+        <ScopeBox id="documents" />
 
         <div className="space-y-4">
           <div>

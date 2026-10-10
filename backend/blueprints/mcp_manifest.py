@@ -120,6 +120,11 @@ MANIFEST = {
         'reason': ('Objects option of Theme Search in testing: object descriptions nearest a '
                     'free-text query; not yet exposed to the connector.'),
     },
+    '/api/scope': {
+        'site_only': True,
+        'reason': ('Live counts for the scope box on each search page; the connector '
+                    'tools return their own counts.'),
+    },
     '/api/objects/<path:object_id>': {
         'site_only': True,
         'reason': ('One object for the Objects page in testing; not yet exposed to '

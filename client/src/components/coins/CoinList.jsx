@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { LoadingSpinner } from '../common';
 import CoinCard from './CoinCard';
 import { signedYear } from './coinsFormat';
+import ScopeBox from '../common/ScopeBox';
 
 const PER_PAGE = 24;
 const FILTERS = [
@@ -96,6 +97,7 @@ export default function CoinList({ openCoin }) {
         and seven Greek catalogues (Corpus Nummorum, Seleucid, PELLA, Ptolemaic, Bactrian and Indo-Greek, IRIS
         and Levantine), searchable by legend and by the catalogue's description of what each side shows. In testing.
       </p>
+      <ScopeBox id="coins" className="mb-4" />
 
       <form onSubmit={submit} className="bg-white border border-gray-200 rounded-lg p-3 space-y-3">
         <div className="flex flex-wrap gap-2 items-end">

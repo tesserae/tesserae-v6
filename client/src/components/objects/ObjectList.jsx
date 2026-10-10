@@ -3,6 +3,7 @@ import { LoadingSpinner } from '../common';
 import { YearBox } from '../coins/CoinList';
 import ObjectCard from './ObjectCard';
 import { signedYear, MUSEUM_NAMES } from './objectsFormat';
+import ScopeBox from '../common/ScopeBox';
 
 const PER_PAGE = 24;
 const FILTERS = [
@@ -63,6 +64,7 @@ export default function ObjectList({ openObject }) {
         Greek, Roman and Etruscan objects from the Cleveland Museum of Art, the Art Institute of Chicago and
         the Smithsonian, searchable by the museums&rsquo; own catalogue descriptions. In testing.
       </p>
+      <ScopeBox id="objects" className="mb-4" />
 
       <form onSubmit={submit} className="bg-white border border-gray-200 rounded-lg p-3 space-y-3">
         <div className="flex flex-wrap gap-2 items-end">
