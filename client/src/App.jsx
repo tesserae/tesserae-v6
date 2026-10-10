@@ -14,6 +14,7 @@ import DocumentView from './components/documents/DocumentView';
 import InscriptionsPapyriPage from './components/documents/InscriptionsPapyriPage';
 import EventsPage from './components/events/EventsPage';
 import CoinsPage from './components/coins/CoinsPage';
+import ObjectsPage from './components/objects/ObjectsPage';
 import ThemeSearchPage from './components/passages/ThemeSearchPage';
 import { Repository } from './components/repository';
 import { AdminPanel } from './components/admin';
@@ -35,6 +36,7 @@ const PAGE_TITLES = {
   'inscriptions-papyri': 'Inscriptions & Papyri',
   events: 'Events',
   coins: 'Coins',
+  objects: 'Objects',
   browse: 'Browse Corpus',
   repository: 'Repository',
   'line-search': 'Line Search',
@@ -58,6 +60,7 @@ const pathToPageType = {
   '/inscriptions-papyri': 'inscriptions-papyri',
   '/events': 'events',
   '/coins': 'coins',
+  '/objects': 'objects',
   '/browse': 'browse',
   // Alias: Help and Theme Search link to "/corpus" for the covered-works
   // list (the owner's word for the page), and it lands on Browse Corpus.
@@ -81,10 +84,11 @@ const pathToPageType = {
 
 // /events/<id> is the focus view of one event: a page of its own whose address
 // carries the event, so it is matched by prefix and its path is not rewritten.
-// /coins/<id> is one coin type, handled the same way.
+// /coins/<id> is one coin type, and /objects/<id> one object, handled the same way.
 const pageForPath = (path) => {
   if (path === '/events' || path.startsWith('/events/')) return 'events';
   if (path === '/coins' || path.startsWith('/coins/')) return 'coins';
+  if (path === '/objects' || path.startsWith('/objects/')) return 'objects';
   return pathToPageType[path] || 'search';
 };
 
@@ -96,6 +100,7 @@ const pageTypeToPath = {
   'inscriptions-papyri': '/inscriptions-papyri',
   'events': '/events',
   'coins': '/coins',
+  'objects': '/objects',
   'browse': '/browse',
   'repository': '/repository',
   'line-search': '/line-search',
@@ -388,7 +393,8 @@ function App() {
     const firstRun = !pathSyncedOnce.current;
     pathSyncedOnce.current = true;
     const onEventPage = (pageType === 'events' && window.location.pathname.startsWith('/events/'))
-      || (pageType === 'coins' && window.location.pathname.startsWith('/coins/'));
+      || (pageType === 'coins' && window.location.pathname.startsWith('/coins/'))
+      || (pageType === 'objects' && window.location.pathname.startsWith('/objects/'));
     if (!onEventPage && window.location.pathname !== newPath) {
       window.history.pushState({}, '', firstRun ? newPath + window.location.search : newPath);
     }
@@ -1257,6 +1263,10 @@ function App() {
 
         {pageType === 'coins' && (
           <CoinsPage setPageType={setPageTypeWithGuard} />
+        )}
+
+        {pageType === 'objects' && (
+          <ObjectsPage setPageType={setPageTypeWithGuard} />
         )}
 
         {pageType === 'browse' && (

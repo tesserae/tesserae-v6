@@ -262,5 +262,38 @@
     "retrieved": "2026-10-09",
     "what_we_use": "A link from a document's page to the photograph or record held by the Epigraphic Database Roma, the Epigraphic Database Heidelberg, Ubi Erat Lupa, the Corpus Inscriptionum Latinarum (Berlin-Brandenburg Academy), papyri.info and the other collections named on the link. Links to hosts that no longer answer are not shown.",
     "notes": "No image file is copied to our server."
+  },
+  {
+    "collection": "Objects",
+    "name": "Cleveland Museum of Art, Open Access (Greek and Roman Art department)",
+    "url": "https://openaccess-api.clevelandart.org/",
+    "licence_name": "Creative Commons Zero 1.0 (CC0)",
+    "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "version": "Open Access API, department \"Greek and Roman Art\", all 688 records",
+    "retrieved": "2026-10-10",
+    "what_we_use": "The catalogue record of each object that has a curator's description: title, culture, date, technique, find spot, inscriptions, the description, the credit line, the address of the museum's own page and, where the record's share_license_status is CC0, the address of the museum's web image. 177 coin records are left out because coins have their own collection.",
+    "notes": "The API page says: \"To the extent possible under law, The Cleveland Museum of Art has waived all copyright and related or neighboring rights to this dataset using Creative Commons Zero.\" and \"While all data in the dataset is released with a CC0 designation, only artworks with the CC0 share_license_status will additionally provide access to CC0 images.\" Every one of the 688 records reads CC0. Images are linked from the museum's server and not stored here."
+  },
+  {
+    "collection": "Objects",
+    "name": "Art Institute of Chicago, public API data dump (Arts of Greece, Rome, and Byzantium)",
+    "url": "https://api.artic.edu/docs/",
+    "licence_name": "Creative Commons Zero 1.0 (CC0) for the records, Creative Commons Attribution 4.0 (CC BY 4.0) for the description field",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "version": "artic-api-data.tar.bz2 from artic-api-data.s3.amazonaws.com, department \"Arts of Greece, Rome, and Byzantium\" (2,197 records)",
+    "retrieved": "2026-10-10",
+    "what_we_use": "The catalogue record of each Greek, Roman or Etruscan object with a description: title, place of origin, date, medium, classification, the description, the short description, inscriptions, the credit line, the address of the museum's own page and, only where the record's public domain flag is true, the address of the museum's web image. Coins, Byzantine and later objects are left out.",
+    "notes": "The API documentation says: \"The description field in this response is licensed under a Creative Commons Attribution 4.0 Generic License (CC-By) and the Terms and Conditions of artic.edu. All other data in this response is licensed under a Creative Commons Zero (CC0) 1.0 designation and the Terms and Conditions of artic.edu.\" Each card names the museum as the source of the description. Images are linked from the museum's server and not stored here."
+  },
+  {
+    "collection": "Objects",
+    "name": "Smithsonian Open Access (National Museum of Natural History, Department of Anthropology)",
+    "url": "https://www.si.edu/openaccess",
+    "licence_name": "Creative Commons Zero 1.0 (CC0)",
+    "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "version": "Smithsonian Open Access metadata repository on AWS (smithsonian-open-access.s3-us-west-2.amazonaws.com, unit nmnhanthro), 529,663 records read",
+    "retrieved": "2026-10-10",
+    "what_we_use": "The catalogue notes of the Greek, Roman and Etruscan objects (vases, lamps, figurines, casts) that carry a note of at least 40 characters: title, culture, place, object type, the note and the address of the museum's own record. Notes that only cite a publication or that say they were copied from another institution's database are left out.",
+    "notes": "Every one of the 1,268 Greek, Roman or Etruscan records reads \"metadata_usage\": {\"access\": \"CC0\"}. The public API key allowed ten requests an hour and was exhausted, so the same records were read from the open-access bucket. The records in the bucket carry no image address, so no image is shown."
   }
 ]

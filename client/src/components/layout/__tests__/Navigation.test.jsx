@@ -178,3 +178,38 @@ describe('Navigation — the "Coins" item follows Collections', () => {
     expect(await screen.findByRole('button', { name: /^Coins/ })).toBeTruthy();
   });
 });
+
+describe('Navigation — the "Objects" item follows Collections', () => {
+  beforeEach(() => { window.localStorage.clear(); window.sessionStorage.clear(); });
+  afterEach(() => { window.localStorage.clear(); });
+
+  it.each(['literary', 'historical'])('is absent in the %s profile', async (profile) => {
+    const { setProfile } = await import('../../../collections/collectionsStore');
+    setProfile(profile);
+    renderNav();
+    expect(screen.queryByRole('button', { name: /^Objects/ })).toBeNull();
+  });
+
+  it.each(['archaeological', 'everything'])('appears in the %s profile', async (profile) => {
+    const { setProfile } = await import('../../../collections/collectionsStore');
+    setProfile(profile);
+    renderNav();
+    expect(await screen.findByRole('button', { name: /^Objects/ })).toBeTruthy();
+  });
+
+  it('appears when Objects is switched on by name, after Coins', async () => {
+    const { setProfile, setCollection } = await import('../../../collections/collectionsStore');
+    setProfile('historical');
+    setCollection('objects', true);
+    renderNav();
+    expect(await screen.findByRole('button', { name: /^Objects/ })).toBeTruthy();
+    setCollection('coins', true);
+    cleanup();
+    renderNav();
+    const names = (await screen.findAllByRole('button')).map((b) => b.textContent.trim());
+    const coins = names.findIndex((n) => /^Coins/.test(n));
+    const objects = names.findIndex((n) => /^Objects/.test(n));
+    expect(coins).toBeGreaterThan(-1);
+    expect(objects).toBe(coins + 1);
+  });
+});

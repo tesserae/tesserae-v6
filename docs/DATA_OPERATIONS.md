@@ -35,6 +35,56 @@ Conventions
   hand and are the models the helper matches.
 
 
+## 2026-10-10 Objects collection, build and install (to run, nothing installed yet)
+
+- What: `data/objects/objects.sqlite` (1,361 Greek, Roman and Etruscan objects with a
+  museum catalogue description) and, beside it, `descriptions.npy` and
+  `descriptions_ids.json` (one 1,024-value float16 vector for each of 1,210
+  distinct description texts, in the format of the coins vectors). Read by
+  `/api/objects`, `/api/objects/facets`, `/api/objects/<id>` and `/api/objects/theme`.
+  Sizes: 2.8 MB, 2.5 MB and 0.6 MB. None of them is in git. With no database the
+  routes answer `available: false`. Path override: `TESSERAE_OBJECTS_DB`.
+- Sources, read on 2026-10-10, each downloaded into a fresh folder under
+  `~/tesserae-backups/sources/archaeology/` with a README that quotes the licence.
+  Cleveland Museum of Art Open Access API (CC0): 688 records fetched, 305 kept.
+  Art Institute of Chicago data dump `artic-api-data.tar.bz2` (records CC0,
+  descriptions CC BY 4.0): 2,197 records in the department, 395 kept.
+  Smithsonian Open Access (CC0), National Museum of Natural History Anthropology
+  unit in the open-access bucket: 529,663 records read, 1,268 Greek, Roman or Etruscan,
+  661 kept. Kept means a description or note of at least 40 characters. Coins are left
+  out (they are the Coins collection), and for Chicago so are Byzantine, Coptic and
+  Islamic objects, anything dated after 400 CE and places far to the east. 104
+  Smithsonian cast-gem records are left out because their note says it was copied from
+  another institution's database.
+- Steps to build, each through `tess-job`, cap 8 GB:
+  1. `python -I scripts/objects/fetch_objects.py --museum cleveland --out <new folder>`
+  2. `python -I scripts/objects/fetch_objects.py --museum chicago --download --archive <new folder>/artic-api-data.tar.bz2 --out <new folder>`
+  3. `python -I scripts/objects/fetch_objects.py --museum smithsonian --download --raw <new folder>/raw --out <new folder>`
+     (about 1.1 GB of line-delimited JSON in `raw/`, which can be deleted afterwards)
+  4. `python -I scripts/objects/build_objects_db.py --cleveland <folder> --chicago <folder> --smithsonian <folder> --out data/objects/objects.sqlite`
+     Prints fetched, kept and dropped per museum and writes `objects_build_report.json`.
+     Expect 1,361 objects (305, 395, 661).
+  5. With the encoder service running, `python -I scripts/objects/embed_object_descriptions.py --db data/objects/objects.sqlite --out data/objects`
+     Expect `embedded 1210 texts`. It took 479 seconds on 2026-10-10 against the
+     site's own encoder on its processor. The script stops above 5,000 texts (that size
+     goes to the campus GPU, see `scripts/coins/embed_descriptions.py --blobs-out`).
+- Steps to install, on the production checkout, after the pull request merges:
+  1. Copy the three files to `/var/www/tesseraev6_flask/data/objects/` under temporary
+     names (`objects.sqlite.new`, `descriptions.npy.new`, `descriptions_ids.json.new`) and
+     rename them into place, the database last, then `touch tesseraev6_flask.wsgi`.
+     Nothing is installed on the server beyond these data files.
+  2. Checks, with the encoder service running. `curl '.../api/objects/facets'` reports
+     `total: 1361` and museums `{"chicago": 395, "cleveland": 305, "smithsonian": 661}`.
+     `curl '.../api/objects?q=amazons'` returns the matching objects with a credit line.
+     `curl '.../api/objects/theme?q=wine+mixed+with+water+at+a+drinking+party'` returns
+     ten results, mixing krater and dinos descriptions from Cleveland and Chicago at the top.
+- Memory: the matrix is 2.5 MB and the ids file 0.6 MB. No model is loaded.
+- Not measured: how often the nearest description is a real match. The Theme Search
+  label says so. Images are linked from the museums' servers (Cleveland, and Chicago only
+  where its public domain flag is true) and never stored here. The Smithsonian records in
+  the bucket carry no image address.
+
+
 ## 2026-10-10 Coins in the Reader and Theme Search, install of the description vectors (to run, nothing installed yet)
 
 - What: two files beside `coins.sqlite` in `data/coins/`, read by

@@ -39,6 +39,7 @@ def test_sentence_follows_the_collections_present(monkeypatch, tmp_path):
     monkeypatch.setenv('TESSERAE_DOCUMENTS', '0')
     monkeypatch.setenv('TESSERAE_EVENTS_DB', str(tmp_path / 'none.sqlite'))
     monkeypatch.setenv('TESSERAE_COINS_DB', str(tmp_path / 'none2.sqlite'))
+    monkeypatch.setenv('TESSERAE_OBJECTS_DB', str(tmp_path / 'none3.sqlite'))
     monkeypatch.setattr(site_facts, 'collections', lambda: [])
     assert 'also holds' not in site_facts.build_holdings_sentence()
 

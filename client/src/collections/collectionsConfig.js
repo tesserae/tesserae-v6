@@ -15,7 +15,7 @@ export const COLLECTIONS = [
   { id: 'inscriptions', label: 'Inscriptions', blurb: 'Latin and Greek inscriptions', available: true },
   { id: 'papyri', label: 'Papyri', blurb: 'Documentary and literary papyri', available: true },
   { id: 'coins', label: 'Coins', blurb: 'Roman coin types and legends', available: true },
-  { id: 'objects', label: 'Objects', blurb: 'Inscribed and decorated objects', available: false },
+  { id: 'objects', label: 'Objects', blurb: 'Museum objects with catalogue descriptions', available: true },
   { id: 'scholarship', label: 'Scholarship', blurb: 'Commentaries, articles and books', available: true },
 ];
 
@@ -95,6 +95,8 @@ export const PAGE_NEEDS = {
   events: ['inscriptions', 'papyri', 'scholarship'],
   // Roman coin types (OCRE and CRRO), a collection of their own.
   coins: ['coins'],
+  // Museum objects with catalogue descriptions, a collection of their own.
+  objects: ['objects'],
 };
 
 /** The documents collection is served as one unit: either switch opens it. */
