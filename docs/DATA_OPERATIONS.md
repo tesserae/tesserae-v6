@@ -165,6 +165,48 @@ anything is deleted, with a dated backup kept of each file it removes.
 - Backups to keep: each file replaced in steps 4 to 7, tagged
   `bak-historians-20261009`.
 
+## 2026-10-09 Event dossiers installed, then refreshed after the historians import (19:00 and 22:50 EDT)
+- What: `data/events/event_dossiers.sqlite`, read by the Events page
+  (`/api/events`, #737), built offline by the event anchor scripts of #729
+  (draft): for each of 1,485 Wikidata events (battles, sieges, treaties and
+  campaigns, 800 BC to AD 600) the passages that name it, judged by Qwen 3.8
+  27B on the university's AI gateway, the inscriptions and papyri near its
+  place and date, and the scholarship that cites those passages.
+- First install 19:00: the file built 18:54 (`event_dossiers_2026-10-09.sqlite`
+  in the backups folder): 1,485 events, 110,496 passages, 8,138 documents,
+  1,892 scholarship rows, 96,773 cached judgements; 11,350 gateway requests,
+  36.7 million prompt tokens, 108 minutes of request time. 842 events had no
+  passage judged to tell of them.
+- Refresh 21:48 to 22:42, installed 22:50 after the two historians batches
+  had their passage windows: a dated copy with the judgement cache kept, the
+  five columns the final pass adds dropped first, the four result tables
+  emptied, every event gathered again and only windows never judged sent to
+  the gateway (5,594 requests). Result: 113,645 passages, 125,298 cached
+  judgements, 787 events without a telling passage (55 filled); the new
+  historians contribute 285 passages judged to tell of an event (Procopius
+  121, Dio 66, Diodorus 46, Zosimus 30, Hellenica 20, Plutarch's Lysander 2).
+  The 19:00 file is kept beside the refreshed one in the backups folder.
+- Reload by touching the WSGI file; checked `/api/events` and the Sicilian
+  Expedition dossier (46 passages, 39 judged to tell of it) after each
+  install.
+
+## 2026-10-09 Works-by-language sidecar rewritten; passage index folder made group-writable (21:48 EDT)
+- What: `data/passage_index/works_by_language.json`, the small file Browse
+  Corpus reads for its Theme Search coverage badge (and the event gatherer
+  reads for the language of each work), had been stale since 19 September.
+  The web workers detected the stale stamp and answered from the loaded
+  index (the right answer, at about 90 seconds on each cold worker) but
+  could not write the file back because the folder was not writable by the
+  web account.
+- Done: the file rewritten from the live answer (`/api/passages/works` for
+  each language): Latin 726 to 737 works, Greek 828 to 837, Urdu 6 to 20,
+  Persian 23 to 30, Arabic 6 to 147 (Arabic windows exist and stay held back
+  from Theme Search by the index's own gate); the stamp set to the index's
+  date. The folder's group set to the web group with the setgid bit, so the
+  workers can refresh the file themselves from now on. The install script for
+  a Greek batch rewrites the file at its end. The stale copy is kept as
+  `works_by_language.json.bak-stale-20260919`.
+
 ## 2026-10-09 Both historians batches: what ran on production (16:55 to 21:41 EDT)
 - Steps 1 to 5 and 9 ran once per batch with `~/bin/tess-install-greek-batch`
   (the first batch with its one-off predecessor script): pull, translations
