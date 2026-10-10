@@ -223,12 +223,17 @@ describe('the focus view', () => {
     expect(screen.getByRole('tab', { name: /Inscriptions/ })).toBeTruthy();
     unmount();
     setCollection('scholarship', true);
-    setCollection('inscriptions', false);
-    setCollection('papyri', false);
     render(<EventsPage setPageType={() => {}} />);
     await screen.findByRole('heading', { name: 'Battle of Marathon' });
-    expect(screen.queryByRole('tab', { name: /Inscriptions/ })).toBeNull();
     expect(screen.getByRole('tab', { name: /Scholarship/ })).toBeTruthy();
+    cleanup();
+    // Events need the documents: with inscriptions and papyri off the page
+    // sends the visitor back to Search, scholarship or not (2026-10-10)
+    setCollection('inscriptions', false);
+    setCollection('papyri', false);
+    const back = vi.fn();
+    render(<EventsPage setPageType={back} />);
+    await waitFor(() => expect(back).toHaveBeenCalledWith('search'));
   });
 });
 
