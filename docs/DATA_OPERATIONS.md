@@ -35,7 +35,10 @@ Conventions
   hand and are the models the helper matches.
 
 
-## 2026-10-10 Page views table (created at start-up on the next reload)
+## 2026-10-10 Page views table (created 09:56 on the reload after #761, confirmed)
+
+Confirmed 2026-10-10 09:56: the table exists, a verification post from the server answered 204 and inserted one row, and that row (visit `0123456789abcdef01234567`) was deleted afterwards so the record starts clean.
+
 
 The application creates the `page_views` table and its two indexes itself, on its first start after the deploy, with the same `CREATE TABLE IF NOT EXISTS` step that creates the search log. No data operation is needed. To confirm, run `SELECT count(*) FROM page_views` in the production database. The count is zero until the first visit after the deploy, and the admin Analytics tab shows "not being recorded yet" until the table exists.
 
@@ -84,7 +87,10 @@ removal procedure: dry run by default, reporting what it would take out of
 the texts, the lemma cache, the inverted index and the passage index before
 anything is deleted, with a dated backup kept of each file it removes.
 
-## 2026-10-10 Usage summary for the admin panel (drafted, steps for production)
+## 2026-10-10 Usage summary for the admin panel (run 09:15; nightly timer installed)
+
+Run 2026-10-10 09:15 under `tess-job` (4 GB cap, 18 s): `data/usage/usage_stats.json` written with ten months (September 698 application loads), mode 664. The user timer `tess-usage-stats.timer` (03:10 nightly, `Persistent=true`) runs the script with `--force`, sets the mode, and copies the access log to `~/tesserae-backups/access_log/` so the visitor record does not depend on the server's log rotation. Rerun after the referrer rule change (same day).
+
 
 The Analytics tab reads a JSON summary of the web server's access log. The
 script `scripts/usage/build_usage_stats.py` writes it. It streams the log and
@@ -96,7 +102,7 @@ Steps on production
    `python scripts/usage/build_usage_stats.py --out /var/www/tesseraev6_flask/data/usage/usage_stats.json`
    (add `--force` to replace an existing file).
 2. `chmod 664 /var/www/tesseraev6_flask/data/usage/usage_stats.json` so the web workers can read it.
-3. Plan: a user timer running the script each night at 03:10 with `--force`.
+3. The user timer `tess-usage-stats.timer` runs the script each night at 03:10 with `--force` (installed 2026-10-10).
 4. Check the Analytics tab shows the months table.
 
 ## 2026-10-10 Journal citation index: seven Studies in Philology articles re-dated from 1992 to 1922 (run on production)
