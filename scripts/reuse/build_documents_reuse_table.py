@@ -848,7 +848,16 @@ def select_pairs(cands, verdicts, max_works=0, reorder_min_content=REORDER_MIN_C
                 continue
         elif fails_c or fails_r:
             continue
-        if max_works and min_works is not None and min_works > max_works:
+        # The literary-works discount applies to the single-phrase tier only
+        # (shared == 1, shown as "possible"). A pair sharing two or more
+        # phrases is a quotation whatever the phrase's currency: at N=10 the
+        # discount was dropping Vulgate verses on stones that Ambrose, Jerome
+        # and Sedulius all quote (edh:HD025119, 17 shared phrases in 14 works)
+        # while keeping the Fathers who happened to share one rarer phrase.
+        # Measured 2026-10-09: 123 Latin pairs with shared >= 2 reclaimed,
+        # none in Greek. (Aeneid 1.204 on edh:HD019352, shared == 1 and its
+        # one phrase in 12 works, stays lost: the limit of frequency alone.)
+        if max_works and min_works is not None and min_works > max_works and shared < 2:
             continue
         pair_info.append([lit_work, lit_ref, lit_seq, doc_id, doc_ref, doc_seq, shared,
                           jaccard, 1, n_content, min_works, rule])

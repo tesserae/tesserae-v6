@@ -223,13 +223,9 @@ def line(language, lit_work, lit_ref):
         return {'available': False, 'documents': []}
     lit_work = _resolve_work(language, lit_work)
     try:
-        rows = conn.execute(
-            """SELECT doc_id, doc_bucket, doc_ref, shared, jaccard, span_len, doc_restored
-                 FROM pairs WHERE lit_work = ? AND lit_ref = ?
-                   AND """ + _keep_clause(language, conn) + """
-               ORDER BY shared DESC""",  # nosec B608 -- the clause is one of two fixed strings
-            (lit_work, lit_ref, POSSIBLE_MIN_JACCARD)
-        ).fetchall()
+        keep = _keep_clause(language, conn)  # one of two fixed strings; every value below is bound
+        sql = "SELECT doc_id, doc_bucket, doc_ref, shared, jaccard, span_len, doc_restored FROM pairs WHERE lit_work = ? AND lit_ref = ? AND " + keep + " ORDER BY shared DESC"  # nosec B608
+        rows = conn.execute(sql, (lit_work, lit_ref, POSSIBLE_MIN_JACCARD)).fetchall()
     except sqlite3.DatabaseError as e:
         logger.error(f"reuse_documents.line query failed for {language}/{lit_work}/{lit_ref}: {e}")
         _drop_connection(language)
@@ -300,11 +296,9 @@ def marks(language, lit_work, ref_start=None, ref_end=None):
         return {'available': False, 'lines': []}
     lit_work = _resolve_work(language, lit_work)
     try:
-        rows = conn.execute(
-            """SELECT lit_ref AS ref, lit_seq AS seq, doc_id, shared FROM pairs
-                 WHERE lit_work = ? AND """ + _keep_clause(language, conn),  # nosec B608 -- fixed strings
-            (lit_work, POSSIBLE_MIN_JACCARD)
-        ).fetchall()
+        keep = _keep_clause(language, conn)  # one of two fixed strings; every value below is bound
+        sql = "SELECT lit_ref AS ref, lit_seq AS seq, doc_id, shared FROM pairs WHERE lit_work = ? AND " + keep  # nosec B608
+        rows = conn.execute(sql, (lit_work, POSSIBLE_MIN_JACCARD)).fetchall()
     except sqlite3.DatabaseError as e:
         logger.error(f"reuse_documents.marks query failed for {language}/{lit_work}: {e}")
         _drop_connection(language)

@@ -165,7 +165,7 @@ anything is deleted, with a dated backup kept of each file it removes.
 - Backups to keep: each file replaced in steps 4 to 7, tagged
   `bak-historians-20261009`.
 
-## 2026-10-09 Documentary reuse tables rebuilt with the literary-works discount and the order-free rule (built 19:05 to 20:05, installed 20:08 EDT)
+## 2026-10-09 Documentary reuse tables rebuilt with the literary-works discount and the order-free rule (built 19:05 to 20:05, installed 20:08, reinstalled 20:45 EDT)
 - What: `cache/reuse_pairs/la_documents.db` and `grc_documents.db` (literature
   against the inscriptions and papyri, read by the Reader's Reuse tab under
   the documents trial) rebuilt with `scripts/reuse/build_documents_reuse_table.py
@@ -174,17 +174,26 @@ anything is deleted, with a dated backup kept of each file it removes.
   with an 8 GB cap: Latin 42 minutes, Greek 17 minutes; the candidates caches
   (`la_candidates.sqlite`, `grc_candidates.sqlite`, kept beside the job log)
   let a threshold sweep run in seconds.
-- Counts: Latin 4,050 pairs (3,412 before; 301 with two or more shared
+- Counts: Latin 4,173 pairs (3,412 before; 424 with two or more shared
   phrases, 956 by the order-free rule), Greek 1,725 (1,509 before; 68 and 153).
   Sweep: with the discount off, Latin 4,441 and Greek 1,785; N=5 keeps 3,332
   and 1,375; N=10 keeps 4,050 and 1,725. N=10 was chosen because N=5 dropped
   quotations of famous formulae that the literature itself repeats (Iliad 8.539
   "immortal and ageless" in a papyrus, Horace Ep. 2.1.190 "equitum peditumque
-  catervae" on a stone); Aeneid 1.204 is lost at both. Ten random pairs read
-  per language: the two-or-more tier is nearly all real (Georgics 1.20 and
-  Aeneid 12.60 inscribed, Vulgate verses on stones, the Claudian titulature in
-  Josephus and a papyrus, Iliad 1.400 in a papyrus); the single-phrase tier is
-  still mostly coincidence, which is why the Reader labels it "possible".
+  catervae" on a stone); Aeneid 1.204 is lost at both (its one shared phrase
+  is current in 12 works, the limit of frequency alone, open). Ten random
+  pairs read per language: the two-or-more tier is nearly all real (Georgics
+  1.20 and Aeneid 12.60 inscribed, Vulgate verses on stones, the Claudian
+  titulature in Josephus and a papyrus, Iliad 1.400 in a papyrus); the
+  single-phrase tier is still mostly coincidence, which is why the Reader
+  labels it "possible".
+- Second pass the same evening: reading what N=10 removed showed 123 Latin
+  pairs with two or more shared phrases among them, all whole verses quoted
+  on stones that several Fathers also quote (edh:HD025119, 17 shared phrases
+  in 14 works; papyri:114821 in 56). The discount now applies to the
+  single-phrase tier only (shared == 1); the two-or-more tier is kept whatever
+  the phrase's currency. Rebuilt from the candidates caches in seconds and
+  reinstalled 20:45: Latin 4,050 to 4,173, Greek unchanged.
 - Backups: the 16:45 tables and stats at
   `~/tesserae-backups/reuse_pairs/*_documents*.bak-filtered-20261009`.
 - Reload by touching the WSGI file; checked `/api/reuse/line` for Aeneid 1.1

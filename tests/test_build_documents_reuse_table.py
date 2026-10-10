@@ -448,8 +448,29 @@ def test_max_literary_works_drops_a_stock_phrase_but_keeps_a_rare_one(tmp_path):
     verdicts = [None] * len(cands)
     # one pair per literary line: 7 stock lines + 1 rare line
     assert len(bdrt.select_pairs(cands, verdicts, 0)) == 8
-    assert {p[3] for p in bdrt.select_pairs(cands, verdicts, 6)} == {'d_rare'}
+    # The stock line is quoted whole (several shared phrases, the strict
+    # tier), so the discount leaves it alone whatever its currency.
+    assert all(c[6] >= 2 for c in cands)
+    assert len(bdrt.select_pairs(cands, verdicts, 6)) == 8
     assert len(bdrt.select_pairs(cands, verdicts, 7)) == 8
+
+
+def test_max_literary_works_applies_to_the_single_phrase_tier_only(tmp_path):
+    """A single shared phrase current in many works is dropped; the same
+    phrase shared by two or more phrases (a whole quoted line) is kept."""
+    lit = {f'prose{i}': [(f'p{i} 1', ['sacra', 'dei', 'magni', f'uox{i}', f'res{i}'],
+                          ['sacra', 'dei', 'magni', f'uox{i}', f'res{i}'])] for i in range(7)}
+    lit['poet'] = [('poet 1', ['harundo', 'uentum', 'tacitum', 'mulcet', 'aquam'],
+                    ['harundo', 'uentum', 'tacitum', 'mulcet', 'aquam'])]
+    docs = [('d_stock', ['sacra', 'dei', 'magni', 'alter', 'locus'], ['sacra', 'dei', 'magni', 'alter', 'locus']),
+            ('d_rare', ['harundo', 'uentum', 'tacitum', 'mulcet', 'aquam'], ['harundo', 'uentum', 'tacitum', 'mulcet', 'aquam'])]
+    cands, _ = _scan(tmp_path, lit, docs, reorder=False)
+    stock = [c for c in cands if c[3] == 'd_stock']
+    assert stock and all(c[6] == 1 for c in stock) and all(c[9] == 7 for c in stock)
+    verdicts = [None] * len(cands)
+    assert len(bdrt.select_pairs(cands, verdicts, 0)) == len(cands)
+    assert {p[3] for p in bdrt.select_pairs(cands, verdicts, 6)} == {'d_rare'}
+    assert len(bdrt.select_pairs(cands, verdicts, 7)) == len(cands)
 
 
 def test_per_work_report_normalises_by_work_size():
