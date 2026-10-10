@@ -59,6 +59,8 @@ const mainTabs = [
   { code: 'events', label: 'Events', beta: true, needs: 'events' },
   // Coins (Roman coin types): shown when the Coins collection is on (PAGE_NEEDS.coins).
   { code: 'coins', label: 'Coins', beta: true, needs: 'coins' },
+  // Objects (museum catalogue descriptions): shown when the Objects collection is on (PAGE_NEEDS.objects).
+  { code: 'objects', label: 'Objects', beta: true, needs: 'objects' },
   { code: 'browse', label: 'Browse Corpus' },
   { code: 'repository', label: 'Repository' },
   // DISABLED FOR PRODUCTION - Uncomment to restore Visualizations

@@ -105,6 +105,26 @@ MANIFEST = {
         'reason': ('One coin type for the Coins page in testing; not yet exposed to '
                     'the connector.'),
     },
+    '/api/objects': {
+        'site_only': True,
+        'reason': ('Objects page (museum catalogue descriptions) in testing: reads an '
+                    'offline database; not yet exposed to the connector.'),
+    },
+    '/api/objects/facets': {
+        'site_only': True,
+        'reason': ('Filter values and counts for the Objects page in testing; not yet '
+                    'exposed to the connector.'),
+    },
+    '/api/objects/theme': {
+        'site_only': True,
+        'reason': ('Objects option of Theme Search in testing: object descriptions nearest a '
+                    'free-text query; not yet exposed to the connector.'),
+    },
+    '/api/objects/<path:object_id>': {
+        'site_only': True,
+        'reason': ('One object for the Objects page in testing; not yet exposed to '
+                    'the connector.'),
+    },
     '/api/documents/<doc_id>/scholarship': {
         'site_only': True,
         'reason': ('Journal sentences and commentary notes citing one document, for the '

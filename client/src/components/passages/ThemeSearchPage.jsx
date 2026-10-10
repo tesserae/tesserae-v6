@@ -8,6 +8,7 @@ import TextSelector from '../search/TextSelector';
 import ThemeExport from './ThemeExport';
 import ConnectionsMap from './ConnectionsMap';
 import ThemeCoins from '../coins/ThemeCoins';
+import ThemeObjects from '../objects/ThemeObjects';
 import useCollections from '../../hooks/useCollections';
 import { PAGE_NEEDS } from '../../collections/collectionsConfig';
 
@@ -331,6 +332,13 @@ export default function ThemeSearchPage() {
   const [coinsChosen, setCoinsChosen] = useState(false);
   const [coinsSearch, setCoinsSearch] = useState(null);
   const coinsMode = coinsAvailable && coinsChosen;
+  // Objects (museum catalogue descriptions): the same kind of option, beside
+  // Coins. One catalogue is searched at a time, each as its own list.
+  const objectsAvailable = anyOn(PAGE_NEEDS.objects);
+  const [objectsChosen, setObjectsChosen] = useState(false);
+  const [objectsSearch, setObjectsSearch] = useState(null);
+  const objectsMode = objectsAvailable && objectsChosen;
+  const catalogueMode = coinsMode || objectsMode;
   // Read synchronously (a lazy initializer, not an effect) so that on the
   // very first render -- before any effect has run -- `language` already
   // reflects a shared link's languages= param. Without this, the aggregate
@@ -929,6 +937,7 @@ export default function ThemeSearchPage() {
         onSubmit={(e) => {
           e.preventDefault();
           if (coinsMode) setCoinsSearch({ q: query.trim(), n: (coinsSearch?.n || 0) + 1 });
+          else if (objectsMode) setObjectsSearch({ q: query.trim(), n: (objectsSearch?.n || 0) + 1 });
           else run(query);
         }}
       >
@@ -940,10 +949,10 @@ export default function ThemeSearchPage() {
         />
         <button
           type="submit"
-          disabled={(!coinsMode && running) || !query.trim()}
+          disabled={(!catalogueMode && running) || !query.trim()}
           className="px-4 py-2 rounded bg-red-700 text-white text-sm font-medium hover:bg-red-800 disabled:opacity-40"
         >
-          {!coinsMode && running ? 'Searching…' : 'Search'}
+          {!catalogueMode && running ? 'Searching…' : 'Search'}
         </button>
       </form>
 
@@ -957,7 +966,7 @@ export default function ThemeSearchPage() {
         *
         * So a scholar working in one language was being outvoted by the breadth
         * of the corpus. The API already took `languages`; nothing exposed it. */}
-      <div className={`mt-3 flex flex-wrap items-center gap-2 ${coinsMode ? 'opacity-40 pointer-events-none' : ''}`}>
+      <div className={`mt-3 flex flex-wrap items-center gap-2 ${catalogueMode ? 'opacity-40 pointer-events-none' : ''}`}>
         <span className="text-xs text-gray-600">Search in</span>
         {/* Pick any set of languages (2026-09-06). 'All' clears the set; the
             request sends the chosen codes comma-separated, which the API has
@@ -992,13 +1001,28 @@ export default function ThemeSearchPage() {
         <div className="mt-2 flex flex-wrap items-center gap-2">
           <label className={`text-xs px-2 py-0.5 rounded border cursor-pointer select-none ${coinsMode ? 'bg-red-600 text-white border-red-600' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}`}>
             <input type="checkbox" className="sr-only" checked={coinsMode}
-                   onChange={() => setCoinsChosen((v) => !v)} />
+                   onChange={() => { setCoinsChosen((v) => !v); setObjectsChosen(false); }} />
             Coins
           </label>
           <span className="text-[11px] text-gray-500">
             {coinsMode
               ? 'Searching coin descriptions only, as a separate list. The languages above are not used.'
               : 'Search the coin catalogue instead of the passages (a separate list).'}
+          </span>
+        </div>
+      )}
+
+      {objectsAvailable && (
+        <div className="mt-2 flex flex-wrap items-center gap-2">
+          <label className={`text-xs px-2 py-0.5 rounded border cursor-pointer select-none ${objectsMode ? 'bg-red-600 text-white border-red-600' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}`}>
+            <input type="checkbox" className="sr-only" checked={objectsMode}
+                   onChange={() => { setObjectsChosen((v) => !v); setCoinsChosen(false); }} />
+            Objects
+          </label>
+          <span className="text-[11px] text-gray-500">
+            {objectsMode
+              ? 'Searching museum object descriptions only, as a separate list. The languages above are not used.'
+              : 'Search the museum object descriptions instead of the passages (a separate list).'}
           </span>
         </div>
       )}
@@ -1136,21 +1160,22 @@ export default function ThemeSearchPage() {
         ))}
       </div>
 
-      {!coinsMode && running && (
+      {!catalogueMode && running && (
         <p className="mt-6 text-sm text-gray-500 italic">
           Comparing your description against every indexed passage…
         </p>
       )}
 
       {coinsMode && <ThemeCoins search={coinsSearch} />}
+      {objectsMode && <ThemeObjects search={objectsSearch} />}
 
-      {!coinsMode && error && (
+      {!catalogueMode && error && (
         <div className="mt-6 rounded border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
           {error}
         </div>
       )}
 
-      {!coinsMode && data && (
+      {!catalogueMode && data && (
         <div className="mt-6">
           {band && (
             <div className={`rounded border px-3 py-2 text-sm ${band.className}`}>

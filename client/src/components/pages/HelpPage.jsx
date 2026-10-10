@@ -395,6 +395,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
     { id: 'documents', label: 'Inscriptions & Papyri', group: 'Reading & content' },
     { id: 'events', label: 'Events (in testing)', group: 'Reading & content' },
     { id: 'coins', label: 'Coins (in testing)', group: 'Reading & content' },
+    { id: 'objects', label: 'Objects (in testing)', group: 'Reading & content' },
 
     { id: 'languages', label: 'Languages overview', group: 'Languages' },
     { id: 'coptic', label: 'Coptic', group: 'Languages' },
@@ -1944,13 +1945,54 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
             </div>
           )}
 
+          {activeSection === 'objects' && (
+            <div className="prose max-w-none">
+              <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Objects (in testing)</h3>
+              <p className="text-gray-700 mb-4">
+                The Objects page lists Greek, Roman and Etruscan objects from three museums, each with the
+                museum&rsquo;s own catalogue description. It holds 1,361 objects. 305 come from the
+                Cleveland Museum of Art, whose catalogue records are released under CC0. 395 come from
+                the Art Institute of Chicago, whose records are CC0 and whose descriptions are CC BY 4.0,
+                so every card names the museum as the source of the text. 661 come from the Smithsonian
+                Institution, mostly Greek vases and Roman lamps in the National Museum of Natural
+                History&rsquo;s anthropology collection, also CC0. An object is listed only when its record
+                has a description or note of at least 40 characters. Coins are left out, because they have
+                their own collection, and so are Byzantine and later objects.
+              </p>
+              <p className="text-gray-700 mb-4">
+                The descriptions are the museums&rsquo; own catalogue texts. Tesserae did not write or
+                correct them, and they vary a good deal. A Cleveland or Chicago curator&rsquo;s paragraph
+                can run to several sentences about what a vase shows. A Smithsonian note is often a line
+                from an old catalogue card. You can search titles, descriptions, labels and inscriptions
+                together (try &ldquo;Amazons&rdquo; or &ldquo;symposium&rdquo;), narrow by museum, object
+                type, culture, material and date, and order the results by best match or by date. Each card
+                shows the credit line and licence, and links to &ldquo;Object page&rdquo; on the
+                museum&rsquo;s own site. A museum&rsquo;s photograph appears only when the museum gives a web
+                image that is free to reuse. For the Art Institute of Chicago that means objects it marks
+                as public domain.
+              </p>
+              <p className="text-gray-700 mb-4">
+                Theme Search gets an Objects choice beside Coins. It searches the object descriptions by
+                meaning and shows its own list, never mixed into the passage results. Describe what an
+                object shows or how it was used (&ldquo;a warrior arming before battle&rdquo;). We have not
+                yet measured how often the nearest description is a real match, so read the object before
+                you rely on one.
+              </p>
+              <p className="text-gray-700 mb-4">
+                Objects are off by default. Switch Objects on in Collections (the Archaeological and
+                Everything profiles include it) and the Objects entry appears in the main menu. Objects
+                never enter a phrase search. This is a first version in testing.
+              </p>
+            </div>
+          )}
+
           {activeSection === 'documents' && (
             <div className="prose max-w-none">
               <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Inscriptions &amp; Papyri</h3>
               <p className="text-gray-700 mb-4">
                 Collections decides what you see. The Collections button at the right of the main
                 menu lists the source collections (literature, inscriptions, papyri, scholarship,
-                coins, and objects when they arrive) with a switch for each, and four profiles
+                coins and objects) with a switch for each, and four profiles
                 that set the switches together: Literary, Historical, Archaeological and
                 Everything. Your choice is remembered in this browser. This page and its menu entry
                 appear when Inscriptions or Papyri is on, and the Scholarship tab in the Reader
