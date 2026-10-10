@@ -66,3 +66,15 @@ def test_description_record_has_nonempty_gist_and_embed_text_prefix():
     t = b.embed_text(r)
     assert t.startswith('query: Merry on homer odyssey 1.1.') and len(t) <= b.EMBED_CHARS
     json.dumps(b.description_record(r))
+
+
+def test_rrf_fuses_two_rankings_and_rule_picks_by_query():
+    import eval_scholarship_theme as e
+    # d is first in one list and absent from the other, b is second in both
+    fused = e.rrf([['d', 'b', 'x'], ['a', 'b', 'y']], k=60, top=4)
+    assert fused[0] == 'b'  # 2/(60+2) beats 1/(60+1)
+    assert set(fused[1:3]) == {'d', 'a'} and len(fused) == 4
+    assert e.rrf([['a', 'b']], top=1) == ['a']
+    assert e.wants_keyword('Lucretius on Epicurus')
+    assert e.wants_keyword('metrical anomaly hiatus')
+    assert not e.wants_keyword('fame and rumour personified')

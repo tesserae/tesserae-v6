@@ -36,6 +36,9 @@ QUERIES = {
                   'manuscript variant readings Horace', 'etymological wordplay Ovid',
                   'scholia and ancient commentators'],
 }
+DEEP = 30
+RRF_K = 60
+TECH_TERMS = ('manuscript', 'scholia', 'hiatus', 'crux', 'variant')
 STOP = set('a an the of in on and or to for with as by at from is are was be its it their his her'.split())
 
 
@@ -43,6 +46,36 @@ def ndcg_at(rels, ideal, k=10):
     dcg = sum(r / math.log2(i + 2) for i, r in enumerate(rels[:k]))
     idl = sum(r / math.log2(i + 2) for i, r in enumerate(sorted(ideal, reverse=True)[:k]))
     return dcg / idl if idl else 0.0
+
+
+def rrf(rank_lists, k=RRF_K, top=10):
+    """Reciprocal rank fusion: score(d) = sum over lists of 1/(k + rank), rank from 1."""
+    sc = {}
+    for lst in rank_lists:
+        for rank, d in enumerate(lst, 1):
+            sc[d] = sc.get(d, 0.0) + 1.0 / (k + rank)
+    # ties broken by first appearance order across lists
+    order = {}
+    for lst in rank_lists:
+        for d in lst:
+            order.setdefault(d, len(order))
+    return sorted(sc, key=lambda d: (-sc[d], order[d]))[:top]
+
+
+def wants_keyword(q):
+    """Rule for the second hybrid: a capitalised word (proper name) or a technical term."""
+    if any(w[:1].isupper() for w in re.findall(r"[A-Za-z]+", q)):
+        return True
+    ql = q.lower()
+    return any(t in ql for t in TECH_TERMS)
+
+
+def system_lists(o):
+    """Top-10 id lists for the four systems of one result record."""
+    dd, kd = o.get('dense_deep') or [h['id'] for h in o['dense']], o.get('keyword_deep') or [h['id'] for h in o['keyword']]
+    dense, kw = dd[:10], kd[:10]
+    return {'dense': dense, 'keyword': kw, 'rrf': rrf([dd, kd]),
+            'rule': kw if wants_keyword(o['query']) else dense}
 
 
 def fts_query(q):
@@ -80,47 +113,66 @@ def run(a):
             head = float(np.sort(sc)[-10:].mean()) - base
             blk = emb[top]; sim = blk @ blk.T
             coh = float((sim.sum() - 20) / (20 * 19))
-            dense = [{'id': ids[i], 'score': round(float(sc[i]), 4)} for i in top[:10]]
-            kw = [{'id': ids[r[0]], 'score': round(-r[1], 3)} for r in
-                  fts.execute('SELECT rowid, bm25(f) FROM f WHERE f MATCH ? ORDER BY bm25(f) LIMIT 10', (fts_query(q),))]
+            top30 = np.argsort(-sc)[:DEEP]
+            dense = [{'id': ids[i], 'score': round(float(sc[i]), 4)} for i in top30[:10]]
+            kwrows = fts.execute('SELECT rowid, bm25(f) FROM f WHERE f MATCH ? ORDER BY bm25(f) LIMIT ?',
+                                 (fts_query(q), DEEP)).fetchall()
+            kw = [{'id': ids[r[0]], 'score': round(-r[1], 3)} for r in kwrows[:10]]
             out.append({'group': group, 'query': q, 'baseline': round(base, 4), 'head_lift': round(head, 4),
-                        'coherence': round(coh, 4), 'dense': dense, 'keyword': kw})
+                        'coherence': round(coh, 4), 'dense': dense, 'keyword': kw,
+                        'dense_deep': [ids[i] for i in top30], 'keyword_deep': [ids[r[0]] for r in kwrows]})
     for o in out:
         for sysname in ('dense', 'keyword'):
             for h in o[sysname]:
                 r = recs[h['id']]
                 h.update(source=r['source'], work=r['work'], commentator=r['commentator'],
                          ref=r['ref_start'], text=r['desc']['gist'])
+    for o in out:
+        o['meta'] = {}
+        for wid in set(o['dense_deep']) | set(o['keyword_deep']):
+            r = recs[wid]
+            o['meta'][wid] = dict(source=r['source'], work=r['work'], commentator=r['commentator'],
+                                  ref=r['ref_start'], text=r['desc']['gist'])
     json.dump(out, open(a.out, 'w'), indent=1, ensure_ascii=False)
     print('wrote', a.out)
+
+
+SYSTEMS = [('dense', 'meaning'), ('keyword', 'keyword'), ('rrf', 'RRF hybrid'), ('rule', 'rule hybrid')]
 
 
 def score(a):
     res = json.load(open(a.results))
     J = json.load(open(a.judgments))
-    agg = {}
     per = []
     for o in res:
         j = J[o['query']]
         ideal = list(j.values())
         row = {'group': o['group'], 'query': o['query']}
-        for s in ('dense', 'keyword'):
-            rels = [j.get(h['id'], 0) for h in o[s]]
-            row[s] = {'p10': sum(1 for r in rels if r > 0) / 10, 'ndcg': ndcg_at(rels, ideal)}
+        for s, ids in system_lists(o).items():
+            rels = [j[i] for i in ids]  # KeyError means an unjudged window: judge it first
+            row[s] = {'p10': sum(1 for r in rels if r > 0) / 10, 'ndcg': ndcg_at(rels, ideal),
+                      'hit2': 1.0 if any(r == 2 for r in rels) else 0.0, 'grade2': sum(1 for r in rels if r == 2)}
         per.append(row)
-    print(f"{'query':55s} {'dense P@10':>10s} {'nDCG':>6s} {'kw P@10':>8s} {'nDCG':>6s}")
+    hdr = f"{'query':50s}" + ''.join(f" {n[:10]:>10s} P/nDCG" for _, n in SYSTEMS)
+    print(hdr)
     for r in per:
-        print(f"{r['query'][:55]:55s} {r['dense']['p10']:10.2f} {r['dense']['ndcg']:6.2f} {r['keyword']['p10']:8.2f} {r['keyword']['ndcg']:6.2f}")
+        print(f"{r['query'][:50]:50s}" + ''.join(f" {r[s]['p10']:10.2f} {r[s]['ndcg']:5.2f}" for s, _ in SYSTEMS))
+    summary = {}
     for g in ['thematic', 'passage', 'technical', None]:
         sub = [r for r in per if g is None or r['group'] == g]
-        m = lambda s, k: sum(r[s][k] for r in sub) / len(sub)
-        print(f"{(g or 'ALL'):55s} {m('dense','p10'):10.2f} {m('dense','ndcg'):6.2f} {m('keyword','p10'):8.2f} {m('keyword','ndcg'):6.2f}")
+        summary[g or 'ALL'] = {s: {k: sum(r[s][k] for r in sub) / len(sub) for k in ('p10', 'ndcg', 'hit2')}
+                               for s, _ in SYSTEMS}
+        print(f"{(g or 'ALL'):50s}" + ''.join(
+            f" {summary[g or 'ALL'][s]['p10']:10.2f} {summary[g or 'ALL'][s]['ndcg']:5.2f}" for s, _ in SYSTEMS)
+            + '   hit2 ' + ' '.join(f"{summary[g or 'ALL'][s]['hit2']:.2f}" for s, _ in SYSTEMS))
+    if getattr(a, 'summary_out', None):
+        json.dump({'per_query': per, 'summary': summary}, open(a.summary_out, 'w'), indent=1)
 
 
 if __name__ == '__main__':
     ap = argparse.ArgumentParser()
     sp = ap.add_subparsers(dest='cmd', required=True)
     r = sp.add_parser('run'); r.add_argument('--index', required=True); r.add_argument('--out', required=True)
-    s = sp.add_parser('score'); s.add_argument('--results', required=True); s.add_argument('--judgments', required=True)
+    s = sp.add_parser('score'); s.add_argument('--results', required=True); s.add_argument('--judgments', required=True); s.add_argument('--summary-out')
     a = ap.parse_args()
     run(a) if a.cmd == 'run' else score(a)

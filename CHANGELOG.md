@@ -11,6 +11,7 @@ behind each, are in docs/DECISIONS.md.
 
 ### Scholarship Theme Search prototype (measurement only, nothing deployed)
 - `scripts/scholarship/build_scholarship_theme_index.py` cuts the public-domain commentary notes and the EJC citation-index sentences into passage-sized windows, embeds them with the live encoder, and writes a passage-index-shaped collection (ids.json, embeddings.npy, descriptions.jsonl, window_texts.db) to a scratch directory. `scripts/scholarship/eval_scholarship_theme.py` compares it with FTS5 keyword search on 15 scholar queries. Production data is only read.
+- `eval_scholarship_theme.py` now scores four systems on the full 82,814-window index: meaning-based, keyword (FTS5), a reciprocal rank fusion hybrid (k = 60) and a rule hybrid that takes keyword results for queries with a proper name or a technical term. Full-index result over 15 queries (one judge): P@10 0.57, 0.57, 0.57, 0.58 and nDCG@10 0.59, 0.52, 0.64, 0.55. Measurement only, nothing deployed.
 
 ### Scholarship tab: Semantic Scholar snippets read in their real shape, one source's failure no longer takes the tab down
 - The snippet endpoint returns authors as name strings and carries no
