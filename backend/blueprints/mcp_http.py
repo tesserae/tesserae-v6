@@ -693,7 +693,7 @@ def _t_theme_search(a):
     is fitted to what the first page shows, not to how deep a caller pages.
     """
     params = {'q': a.get('query') or a.get('q') or ''}
-    for k in ('limit', 'languages', 'scale'):
+    for k in ('limit', 'languages', 'scale', 'author', 'works'):
         if a.get(k):
             params[k] = a[k]
     if a.get('offset'):
@@ -715,6 +715,8 @@ def _t_theme_search(a):
                        for r in (d.get('results') or [])]}
     if d.get('error'):
         out['error'] = d['error']
+    if d.get('restricted'):
+        out['restricted'] = True
     out['presentation'] = _CONTENT_NOTE
     return out
 
@@ -1159,13 +1161,20 @@ TOOLS = [
                      "ranking, not a fresh run) for when the first page doesn't have enough — genuine "
                      "matches for a broad topos can rank in the hundreds or thousands. Paged-in results "
                      "come back with strong:false regardless of score, since the confidence band is "
-                     "fitted to the first page."),
+                     "fitted to the first page. author (one author id, the part of a work id before "
+                     "its first dot, such as 'lucan') or works (comma-separated work ids such as "
+                     "'lucan.bellum_civile') restricts the search to that author or those works, "
+                     "for a topic within one author. A restricted search returns a flat list of "
+                     "passages, several per work allowed, and no confidence level: say so rather "
+                     "than judging whether the corpus holds the subject."),
      "inputSchema": {"type": "object",
                      "properties": {"query": _STR,
                                     "limit": {"type": "integer"},
                                     "languages": _STR,
                                     "scale": _STR,
-                                    "offset": {"type": "integer"}},
+                                    "offset": {"type": "integer"},
+                                    "author": _STR,
+                                    "works": _STR},
                      "required": ["query"]},
      "fn": _t_theme_search},
     {"name": "get_passage",

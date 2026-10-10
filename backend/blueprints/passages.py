@@ -49,6 +49,7 @@ _MAX_LIMIT = 100
 # scholar would have to be quite determined to reach, and unbounded would let
 # a request walk the whole ranking one `_rank` call at a time.
 _MAX_OFFSET = 5000
+_MAX_RESTRICT_WORKS = 200   # work ids accepted in one `works=` list
 READER_HEADS = 100   # works fetched for the reader's 300 rows (3 rows each)
 
 
@@ -104,6 +105,25 @@ def theme_search():
     # past K are served in index order as before, which the re-rank does not
     # touch. Scores are deterministic, so each page re-ranks the same K the
     # same way at the cost of one reader call per page.
+    # Optional restriction to an author or to chosen works (`author=lucan`,
+    # `works=lucan.bellum_civile,livy.ab_urbe_condita`). Resolved here so an
+    # unknown name answers 200 with a note and no results, like every other
+    # miss on this route.
+    author_arg = (request.args.get('author') or '').strip()
+    works_arg = [w.strip() for w in (request.args.get('works') or '').split(',')
+                 if w.strip()][:_MAX_RESTRICT_WORKS]
+    only_works = None
+    if author_arg or works_arg:
+        try:
+            only_works, miss_note = passage_index.resolve_restriction(
+                author=author_arg, works=works_arg, languages=_languages())
+        except Exception as e:
+            logger.exception('[PASSAGES] theme-search restriction failed')
+            return jsonify({'error': f'{type(e).__name__}: {e}', 'results': []})
+        if not only_works:
+            return jsonify({'query': q, 'results': [], 'restricted': True,
+                            'strong_matches': 0, 'note': miss_note,
+                            'confidence': {'level': 'restricted'}})
     K = reader_rerank.DEFAULT_K   # rows the reader re-scores (300: the whole composed list)
     reader_on = bool(os.environ.get('THEME_READER_URL')) and _reader_wanted() and offset < K
     # `fetch` counts WORKS (find_by_text's limit is one head per work, three
@@ -112,9 +132,12 @@ def theme_search():
     fetch = max(offset + limit, READER_HEADS) if reader_on else limit
     fetch_offset = 0 if reader_on else offset
     try:
+        # Only a restricted search passes `only_works`, so the corpus-wide call
+        # is exactly the call it was before the restriction existed.
+        extra = {'only_works': only_works} if only_works else {}
         out = passage_index.find_by_text(
             q, limit=fetch, offset=fetch_offset,
-            languages=_languages(), scale=_scale())
+            languages=_languages(), scale=_scale(), **extra)
     except passage_index.EmbedUnavailable as e:
         # "cannot ask" is not "found nothing". Only one of those means the
         # corpus lacks the subject, and reporting the wrong one would be a

@@ -9,6 +9,8 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-09
 
+### Theme Search: optional "in this author or work" restriction
+- `/api/passages/theme-search` takes `author=` (one author id, all that author's works with passage windows in the chosen languages) and `works=` (comma-separated work ids). An unknown author or work answers 200 with an empty result and a `note`. A restricted search returns a flat list of passages, up to 10 per work when several works are involved and no cap for a single work, and states that confidence is not rated, because the confidence figures were fitted to corpus-wide queries. The Theme Search page has a "Search within" picker (Author, then Work) that is closed by default, shows the restriction in the results header, and carries it in the address. The `theme_search` connector tool accepts the same two parameters. Measurement and cap choice are in docs/DECISIONS.md.
 ### Tessa: the cross-language pair list matches the search again
 - The search has offered Persian with Urdu, Arabic with Persian and Arabic with Urdu since 5 September, and the assistant's own list of pairs had not been told, so its test against the search's list failed. The three pairs are added; Persian with Urdu is marked as reachable from the Cross-Language tab, the two Arabic pairs as supported while the Arabic texts are held back.
 ### Reader: the selection popup sits under the selected line on every path; legend names the inscriptions marks
