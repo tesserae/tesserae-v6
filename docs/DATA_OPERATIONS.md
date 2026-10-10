@@ -79,7 +79,7 @@ removal procedure: dry run by default, reporting what it would take out of
 the texts, the lemma cache, the inverted index and the passage index before
 anything is deleted, with a dated backup kept of each file it removes.
 
-## 2026-10-09 Xenophon's Hellenica and Cassius Dio, books 36 to 55: steps for production (drafted with the import, NOT yet run)
+## 2026-10-09 Xenophon's Hellenica and Cassius Dio, books 36 to 55: steps for production (run 16:55 to 17:17; windows and map with the second batch 19:08 to 21:41 EDT)
 - What: `xenophon.hellenica` (1,146 lines, 7 book files) and
   `cassius_dio.roman_history` (4,403 lines, 20 book files, books 36 to 55),
   29 `.tess` files in `texts/grc/` that arrive with the merge, each with an
@@ -165,6 +165,48 @@ anything is deleted, with a dated backup kept of each file it removes.
 - Backups to keep: each file replaced in steps 4 to 7, tagged
   `bak-historians-20261009`.
 
+## 2026-10-09 Both historians batches: what ran on production (16:55 to 21:41 EDT)
+- Steps 1 to 5 and 9 ran once per batch with `~/bin/tess-install-greek-batch`
+  (the first batch with its one-off predecessor script): pull, translations
+  copied after a checksum, lemma caches (`scripts/batch_lemma_cache.py grc`,
+  cap 8G, 29 new files each), the Greek index extended on a copy and swapped
+  in (`scripts/corpus/add_texts_to_index.py --add`, cap 12G; after both,
+  1,326 texts and 514,834 lines, `lemma_doc_freq` rebuilt, integrity ok;
+  backups `grc_index.db.bak-historians-20261009` and
+  `.bak-historians2-20261009`), rare-bigram table rebuilt
+  (`scripts/corpus/rebuild_bigrams.py grc`, cap 8G), reference searches
+  passed after each reload.
+- Steps 6 and 7 ran once for both batches with
+  `~/bin/tess-install-greek-windows` (config `hist12.cfg`):
+  - 4,355 passage windows built (`scripts/corpus/build_batch_windows.py
+    --upsert-db`, cap 8G) for the 27 files that carry windows (the part files
+    of works that have parts, the whole file otherwise, as the index already
+    does); `window_texts.db` 530,916 to 535,271 rows, backup
+    `.bak-historians-windows-20261009`.
+  - described by Qwen 3.8 27B on the university's AI gateway with thinking
+    off (stamp `qwen38-bullsai-20261009`): 4,355 of 4,355 in 27.5 minutes at
+    2.7 a second, no errors.
+  - appended with `scripts/corpus/apply_passage_rows.py --mode append` (cap
+    10G, vectors from the encoder service): the index went from 530,917 to
+    535,272 ids, vectors and description rows, in step before and after.
+  - description keyword index rebuilt (`scripts/build_desc_fts.py`, 34 s,
+    665 MB; backup `desc_fts.sqlite.bak-historians-windows-20261009`).
+  - names index rebuilt to `.new` and swapped (`scripts/corpus/build_window_names.py`,
+    cap 4G): window-name pairs 2,504,787 to 2,593,052, distinct names 38,598
+    to 39,081; backup `window_names.db.bak-historians-windows-20261009`.
+  - line vectors for all 58 files (parts and wholes) with bowphs/SPhilBerta on
+    the processor, raw float32, same meta format as the existing files
+    (mean norms 5.6 to 5.8), written under `backend/embeddings/grc/`.
+  - connection map rebuilt (`scripts/build_connections_map.py`, cap 10G):
+    374,546 fine windows, 61.3 minutes, peak 7.38 GB.
+- Checks: lockstep held at every step; reference searches passed; the
+  coverage check reported every store present for all 58 files except the
+  Sources page rows for Cassius Dio and Procopius (fixed in this entry's
+  pull request: a row for Dio was missing and the Procopius row named the
+  work differently from the catalogue).
+- Memory: the launcher refused nothing; the steps waited for budget behind
+  the event dossier run and a verification job earlier in the evening.
+
 ## 2026-10-09 Documentary reuse tables rebuilt with the literary-works discount and the order-free rule (built 19:05 to 20:05, installed 20:08, reinstalled 20:45 EDT)
 - What: `cache/reuse_pairs/la_documents.db` and `grc_documents.db` (literature
   against the inscriptions and papyri, read by the Reader's Reuse tab under
@@ -234,7 +276,7 @@ anything is deleted, with a dated backup kept of each file it removes.
   forms in the Names panel (#721: a misplaced accent no longer cuts a name
   short). Backup `~/tesserae-backups/window_names.db.bak-greekforms-20261009`.
 
-## 2026-10-09 Diodorus (books 1 to 5, 18 to 20), Procopius' Wars, Zosimus and four Plutarch Lives, steps for production (drafted with the import, NOT yet run)
+## 2026-10-09 Diodorus (books 1 to 5, 18 to 20), Procopius' Wars, Zosimus and four Plutarch Lives, steps for production (run 18:35 to 18:59; windows and map with the first batch 19:08 to 21:41 EDT)
 - What: `diodorus_siculus.bibliotheca_historica` (4,166 lines, 9 files),
   `procopius.wars` (7,240 lines, 9 files), `zosimus.historia_nova` (1,071 lines,
   7 files), `plutarch.lysander`, `plutarch.dion`, `plutarch.eumenes` and
