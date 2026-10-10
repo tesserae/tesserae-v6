@@ -36,7 +36,7 @@ async function asJson(r) {
  * makes the corpus browsable by association rather than by search alone.
  */
 export default function ResultsPanel({ selection, focus, language, work, units, onOpenPassage,
-                                       initialTab, onClose }) {
+                                       initialTab, onClose, reuseFirst }) {
   // Arriving from Theme Search, the reader has just been shown an English
   // summary of a passage in a language they may not read. Opening on the
   // translation is the useful default there; everywhere else 'similar' is.
@@ -770,6 +770,14 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
                 No other work in the corpus repeats this line closely enough to count.
               </p>
             )}
+            {/* The amber box in the text (quoted in inscriptions or papyri)
+                opens this tab with the documents first (2026-10-10: the lead
+                clicked that box and saw the literary quotations first). The
+                red box, and the tab opened any other way, keep the literary
+                groups first. */}
+            {(() => {
+              const literaryGroups = (
+                <>
             {!reuseLoading && reuse?.available && reuse.quotations.length > 0 && (() => {
               // TIERED: strict first with no heading (the original
               // behavior); possible pairs -- one rare shared phrase, kept
@@ -779,7 +787,13 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
               const strict = reuse.quotations.filter((q) => q.tier !== 'possible');
               const possible = reuse.quotations.filter((q) => q.tier === 'possible');
               return (
-                <>
+                <div className={reuseFirst === 'documents' && reuse.documents?.length > 0
+                                  ? 'mt-4 pt-3 border-t border-gray-200' : ''}>
+                  {reuseFirst === 'documents' && reuse.documents?.length > 0 && (
+                    <h3 className="text-xs font-bold uppercase tracking-wide text-gray-500 mb-2">
+                      In other works
+                    </h3>
+                  )}
                   {strict.length > 0 && (
                     <ReuseGroups quotations={strict} onOpenPassage={onOpenPassage} />
                   )}
@@ -802,9 +816,13 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
                       )}
                     </div>
                   )}
-                </>
+                </div>
               );
             })()}
+                </>
+              );
+              const documentGroups = (
+                <>
             {/* DOCUMENTARY REUSE: inscriptions and papyri quoting or
                 near-quoting the selection, after the literary groups --
                 a separate group, not merged into them, since a document hit
@@ -818,7 +836,7 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
               const strictDocs = reuse.documents.filter((d) => d.tier !== 'possible');
               const possibleDocs = reuse.documents.filter((d) => d.tier === 'possible');
               return (
-                <div className={(reuse.quotations?.length > 0) ? 'mt-4 pt-3 border-t border-gray-200' : ''}>
+                <div className={(reuse.quotations?.length > 0 && reuseFirst !== 'documents') ? 'mt-4 pt-3 border-t border-gray-200' : ''}>
                   <h3 className="text-xs font-bold uppercase tracking-wide text-gray-500 mb-2">
                     In inscriptions and papyri
                   </h3>
@@ -846,6 +864,12 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
                   )}
                 </div>
               );
+            })()}
+                </>
+              );
+              return reuseFirst === 'documents'
+                ? <>{documentGroups}{literaryGroups}</>
+                : <>{literaryGroups}{documentGroups}</>;
             })()}
           </>
         )}
