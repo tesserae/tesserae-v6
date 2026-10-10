@@ -9,11 +9,16 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-10
 
+### Tessa's collapsed button reads "Tessa"
+The closed assistant was a red circle with a bare T at the bottom right of the page, which told a first-time visitor nothing. It is now a pill of the same height that reads "Tessa".
 ### Admin panel: visitors and feature use from the web server log
 The Analytics tab now has a section headed "Visitors (from the web server log)" with the addresses that loaded the application each month, the addresses that made a request, request totals, feature use by month, and the main referring sites. The existing tab reads only the search log table, which misses everyone who browses without searching. A script, `scripts/usage/build_usage_stats.py`, reads the access log once and writes a small JSON summary that a new route, `GET /api/admin/usage`, serves to administrators. Robots and the server's own addresses are removed. The summary is built by hand until the nightly timer is installed.
 
 ### Metre scanner: a missing scanner is reported once, not once per verse
 On the production server the optional CLTK prosody modules are not installed, so every verse offered to the hendecasyllable scanner raised an error that was written to the web server's error log, thousands of lines per search, 22 GB by October. The scanner now returns no scansion for a metre it cannot scan and writes one warning per process.
+### Tessa: two-title comparisons, Greek-Latin pairs, the Scholarship tab, translations of a work, and a quieter number check
+
+A question that names two titles, such as Thebaid 1 and Aeneid 1, now resolves to those two works instead of one author's Silvae. A Greek-Latin pair, or any pair the Cross-Language tab serves, now runs the cross-language comparison the way a same-language pair runs, and when it does not finish she names the pair and links the Cross-Language tab with both texts chosen. Her Help excerpt now carries the Scholarship tab, the Collections button, Inscriptions and Papyri, and Events, and a question about the translations of a named work is answered from the site's record of aligned translations. The number check reads 1,326 as one number and no longer flags number words that count a listing.
 
 ### Tessa lists a language's holdings when asked what the corpus holds in Persian, Urdu, Greek or Coptic
 

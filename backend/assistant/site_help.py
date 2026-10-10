@@ -26,7 +26,9 @@ neither of which exists, and no amount of documentation fixes that: it does not
 have 1,826 work ids memorised and never will. Prose comes from here; ids and
 URLs are still resolved and built in code. That division is the whole design.
 """
+import html
 import json
+import math
 import os
 import re
 import threading
@@ -38,6 +40,9 @@ logger = get_logger('assistant.site_help')
 _ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 HELP_SOURCE = os.path.join(_ROOT, 'client', 'src', 'components', 'pages', 'HelpPage.jsx')
 CACHE_PATH = os.path.join(_ROOT, 'cache', 'site_help_chunks.json')
+# Raise this when _extract changes, so a cache written by the old code is not
+# trusted just because the Help page itself has not changed.
+EXTRACTOR_VERSION = 2
 
 # Long enough to carry an idea, short enough that four of them fit in a prompt
 # without adding seconds of prompt processing.
@@ -98,6 +103,7 @@ def _extract(source=None):
     for m in heading_re.finditer(src):
         inner = ' '.join(re.sub(r'<[^>]+>', ' ', m.group(2)).split())
         inner = re.sub(r'\{[^{}]*\}', '', inner).strip()
+        inner = html.unescape(inner)
         if inner:
             headings.append((m.start(), m.end(), inner))
 
@@ -122,8 +128,13 @@ def _extract(source=None):
             chunks.append(text[:CHUNK_MAX])
         buf = ''
 
-    for m in re.finditer(r'>([^<>{}]{12,})(?=<)', src):
-        t = ' '.join((m.group(1) or '').split())
+    # Text between tags, and also a short bold label such as <strong>Scholarship</strong>:
+    # it names the feature the paragraph describes, and at under twelve
+    # characters it was being dropped (so the Scholarship tab's paragraph never
+    # said "Scholarship" and no question about it could find it).
+    fragment_re = re.compile(r'(?:(?<=<strong>)([^<>{}]{3,})|>([^<>{}]{12,}))(?=<)')
+    for m in fragment_re.finditer(src):
+        t = ' '.join(html.unescape(m.group(1) or m.group(2) or '').split())
         if not t or t.startswith('//') or re.fullmatch(r'[\s{}();,.\-–—|]+', t):
             continue
         own, inside = heading_at(m.start())
@@ -162,7 +173,8 @@ def _load():
         try:
             with open(CACHE_PATH, encoding='utf-8') as fh:
                 cached = json.load(fh)
-            if stamp and cached.get('source_mtime') == stamp:
+            if (stamp and cached.get('source_mtime') == stamp
+                    and cached.get('extractor') == EXTRACTOR_VERSION):
                 _chunks = cached.get('chunks') or []
                 return _chunks
         except (OSError, ValueError):
@@ -172,7 +184,8 @@ def _load():
         try:
             os.makedirs(os.path.dirname(CACHE_PATH), exist_ok=True)
             with open(CACHE_PATH, 'w', encoding='utf-8') as fh:
-                json.dump({'source_mtime': stamp, 'chunks': _chunks}, fh)
+                json.dump({'source_mtime': stamp, 'extractor': EXTRACTOR_VERSION,
+                           'chunks': _chunks}, fh)
         except OSError as e:
             logger.info('[HELP] could not cache chunks: %s', e)
         return _chunks
@@ -197,15 +210,23 @@ def relevant(question, k=4):
     want = _words(question)
     if not want:
         return []
+    # A word found in few sections says more than one found everywhere:
+    # "tab" is in dozens of sections and "scholarship" in three, so the
+    # Scholarship paragraph lost to any section that said "tab" twice.
+    have_by_chunk = [_words(c) for c in chunks]
+    doc_freq = {}
+    for have in have_by_chunk:
+        for w in have:
+            doc_freq[w] = doc_freq.get(w, 0) + 1
     scored = []
-    for c in chunks:
-        have = _words(c)
+    for c, have in zip(chunks, have_by_chunk):
         overlap = want & have
         if not overlap:
             continue
+        weight = sum(math.log(1 + len(chunks) / doc_freq[w]) ** 2 for w in overlap)
         # Favour density as well as count, so a short precise section beats a
         # long one that happens to mention everything.
-        score = len(overlap) + len(overlap) / max(len(have), 1)
+        score = weight + len(overlap) / max(len(have), 1)
         scored.append((score, c))
     scored.sort(key=lambda kv: -kv[0])
     return [c for _, c in scored[:k]]

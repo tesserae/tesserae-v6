@@ -338,6 +338,29 @@ _WORD_NUMBERS = {
 }
 
 
+def _drop_thousands_commas(text):
+    return re.sub(r'(?<=\d),(?=\d{3}\b)', '', text or '')
+
+
+# A number word is held to the facts only where it plainly counts the results
+# ("all but two", "thirty-two parallels"). "four specific works by Iqbal" counts
+# a listing, which has no matching figure to look for, and was a false alarm.
+_RESULT_NOUNS = ('result', 'results', 'parallel', 'parallels', 'passage', 'passages',
+                 'instance', 'instances', 'match', 'matches', 'hit', 'hits',
+                 'pair', 'pairs', 'occurrence', 'occurrences', 'line', 'lines')
+_COUNT_LEADS = ('but', 'only', 'just', 'exactly', 'about', 'nearly', 'roughly')
+
+
+def _counts_results(word, text):
+    """True when `word` in `text` is a count of results."""
+    for m in re.finditer(rf'\b{word}\b', text):
+        before = text[:m.start()].split()[-1:] or ['']
+        after = re.findall(r"[a-z']+", text[m.end():m.end() + 60])[:4]
+        if before[0] in _COUNT_LEADS or any(w in _RESULT_NOUNS for w in after):
+            return True
+    return False
+
+
 def numbers_preserved(source_text, generated, question=''):
     """True when the model introduced no numeric claim of its own.
 
@@ -351,6 +374,10 @@ def numbers_preserved(source_text, generated, question=''):
     number the model demonstrably did not invent.
     """
     source = (source_text or '') + ' ' + (question or '')
+    # "1,326" is one number. Split at the comma it read as "1" and "326", and
+    # flagged the 326 in "The corpus holds 1,326 Greek works".
+    source = _drop_thousands_commas(source)
+    generated = _drop_thousands_commas(generated)
     src_nums = set(re.findall(r'\d+(?:\.\d+)?', source))
     # The parts of a locus count too: the facts carry "verg. aen. 1.107", and
     # a writer who says "line 107" has invented nothing.
@@ -395,6 +422,8 @@ def numbers_preserved(source_text, generated, question=''):
         occurrences = re.findall(rf'(?:\b(?:the|these|those|both|either|neither|each of the)\s+)?\b{word}\b', gen_lower)
         if (not in_compound and occurrences
                 and all(o.split()[0] in ('the', 'these', 'those', 'both', 'either', 'neither', 'each') for o in occurrences)):
+            continue
+        if not _counts_results(word, gen_lower):
             continue
         invented.add(word)
 
