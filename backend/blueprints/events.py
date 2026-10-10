@@ -242,10 +242,31 @@ def get_event(event_id):
                 'view_url': document_url(d['doc_id'], lang),
             })
 
-        scholarship = [{'kind': s['kind'], 'title': s['title'], 'page_ref': s['page_ref'],
-                        'url': s['url']}
-                       for s in c.execute('SELECT * FROM scholarship WHERE event_id = ? ORDER BY kind, rowid',
-                                          (r['id'],))]
+        # The edition reference and the source names, so a card can lead with
+        # "CIL 09, 03200" rather than the internal id (a "merged:" id marks a
+        # stone both EDH and EDR record). Best effort: no metadata, no change.
+        try:
+            from backend.documents import bulk_meta
+            metas = bulk_meta([d['doc_id'] for d in documents]) if documents else {}
+        except Exception:  # the dossier page must not depend on metadata.db
+            metas = {}
+        for d in documents:
+            m = metas.get(d['doc_id']) or {}
+            credit = m.get('credit') or {}
+            d['edition'] = credit.get('principal_edition')
+            d['sources'] = [x for x in (credit.get('source_name'), credit.get('source_name_secondary')) if x]
+            d['text_type'] = m.get('text_type_label')
+
+        # One row per article: the gatherer records an article once per
+        # passage it cites, which showed the same title twice.
+        scholarship, seen = [], set()
+        for s in c.execute('SELECT * FROM scholarship WHERE event_id = ? ORDER BY kind, rowid', (r['id'],)):
+            k = (s['kind'], s['title'], s['page_ref'], s['url'])
+            if k in seen:
+                continue
+            seen.add(k)
+            scholarship.append({'kind': s['kind'], 'title': s['title'], 'page_ref': s['page_ref'],
+                                'url': s['url']})
 
         points = []
         if ev['lat'] is not None and ev['lon'] is not None:

@@ -183,7 +183,9 @@ describe('the focus view', () => {
     render(<EventsPage setPageType={() => {}} />);
     await screen.findByRole('heading', { name: 'Battle of Marathon' });
     await userEvent.click(screen.getByRole('tab', { name: /Inscriptions & Papyri \(1\)/ }));
-    expect(screen.getByRole('link', { name: 'edh:HD1' })).toHaveAttribute('href', DETAIL.documents[0].view_url);
+    // the card leads with the edition or the type, never the internal id
+    expect(screen.getByRole('link', { name: 'Document' })).toHaveAttribute('href', DETAIL.documents[0].view_url);
+    expect(screen.queryByText('edh:HD1')).toBeNull();
     expect(screen.getByText(/12 km from Marathon/)).toBeTruthy();
     expect(screen.getByText(/Rhamnous · 500 to 450 BCE/)).toBeTruthy();
 
