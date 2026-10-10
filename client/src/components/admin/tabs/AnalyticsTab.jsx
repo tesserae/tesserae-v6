@@ -8,6 +8,7 @@ import {
   MapPin, Filter, Database, FileText
 } from 'lucide-react';
 import GeographicMap from './GeographicMap';
+import PathsSection from './PathsSection';
 import { formatTesseraeIdentifier } from '../../../utils/textNames';
 import { LANGUAGE_NAMES } from '../../../utils/languageNames';
 
@@ -19,6 +20,7 @@ const COLORS = [TESSERAE_RED, '#dc2626', '#ef4444', '#f87171', TESSERAE_GOLD, '#
 const AnalyticsTab = () => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [paths, setPaths] = useState(null);
   const [graphMetric, setGraphMetric] = useState('searches'); // 'searches', 'users', 'cache'
 
   useEffect(() => {
@@ -29,6 +31,12 @@ const AnalyticsTab = () => {
         });
         const result = await response.json();
         setData(result);
+        try {
+          const pr = await fetch('/api/admin/paths?days=30', { headers: { 'Accept': 'application/json' } });
+          setPaths(pr.ok ? await pr.json() : null);
+        } catch (e) {
+          setPaths(null);
+        }
       } catch (error) {
         console.error('Failed to fetch analytics:', error);
       } finally {
@@ -405,6 +413,7 @@ const AnalyticsTab = () => {
           </div>
         </div>
       </div>
+      <PathsSection paths={paths} />
     </div>
   );
 };

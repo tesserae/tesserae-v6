@@ -34,6 +34,11 @@ Conventions
   and `scripts/corpus/rebuild_docfreq.py` already follow the convention by
   hand and are the models the helper matches.
 
+
+## 2026-10-10 Page views table (created at start-up on the next reload)
+
+The application creates the `page_views` table and its two indexes itself, on its first start after the deploy, with the same `CREATE TABLE IF NOT EXISTS` step that creates the search log. No data operation is needed. To confirm, run `SELECT count(*) FROM page_views` in the production database. The count is zero until the first visit after the deploy, and the admin Analytics tab shows "not being recorded yet" until the table exists.
+
 ## Standing rule: every import adds a credits record
 
 Every import of texts, documents or a scholarship source (a commentary

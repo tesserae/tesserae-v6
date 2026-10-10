@@ -21,6 +21,7 @@ import VisualizationsPage from './components/pages/VisualizationsPage';
 import { useCorpus, useSearch, DEFAULT_PAGE_SIZE } from './hooks';
 import { getSessionValue, setSessionValue } from './utils/storage';
 import { startLanguage } from './utils/languagePreference';
+import { recordPageView } from './lib/pageViews';
 
 // What each page is called in the browser tab, the bookmark and the history.
 const PAGE_TITLES = {
@@ -381,6 +382,18 @@ function App() {
     if (!onEventPage && window.location.pathname !== newPath) {
       window.history.pushState({}, '', firstRun ? newPath + window.location.search : newPath);
     }
+  }, [pageType]);
+
+  // First-party page views: one record per page opened, so paths through the
+  // site can be followed (admin Analytics tab). Never blocks and never throws.
+  useEffect(() => {
+    if (pageType === 'admin') return;
+    recordPageView({
+      path: window.location.pathname + window.location.search,
+      page: pageType,
+      language: activeTab,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pageType]);
 
   // Every page used to be called "Tesserae V6", so six open tabs, a list of
