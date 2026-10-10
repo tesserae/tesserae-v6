@@ -34,7 +34,11 @@ function YearBox({ label, text, era, setText, setEra }) {
 export default function CoinList({ openCoin }) {
   const [typed, setTyped] = useState('');
   const [q, setQ] = useState('');
-  const [sel, setSel] = useState({});
+  // A name link in the Reader arrives as /coins?person=<name>.
+  const [sel, setSel] = useState(() => {
+    const person = new URLSearchParams(window.location.search).get('person');
+    return person ? { person } : {};
+  });
   const [fromText, setFromText] = useState('');
   const [fromEra, setFromEra] = useState('BCE');
   const [toText, setToText] = useState('');
@@ -125,6 +129,14 @@ export default function CoinList({ openCoin }) {
           </label>
         </div>
       </form>
+
+      {sel.person && (
+        <p className="mt-3 text-sm text-gray-700" data-testid="coins-person">
+          Coin types naming <strong>{sel.person}</strong> as issuer or portrait.{' '}
+          <button type="button" onClick={() => { choose('person', ''); window.history.replaceState({}, '', '/coins'); }}
+                  className="text-red-700 hover:underline">Show all coins</button>
+        </p>
+      )}
 
       <div className="mt-4">
         {error && <p className="text-sm text-red-700">Coins could not be loaded ({error}).</p>}

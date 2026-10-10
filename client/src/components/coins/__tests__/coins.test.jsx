@@ -61,9 +61,9 @@ beforeEach(() => {
 afterEach(() => { cleanup(); window.history.replaceState({}, '', '/'); });
 
 describe('collections wiring', () => {
-  it('the Everything profile leaves coins off and Archaeological has them on', () => {
-    expect(PROFILES.find((p) => p.id === 'everything').on).not.toContain('coins');
-    expect(profileSwitches('everything').coins).toBe(false);
+  it('the Archaeological and Everything profiles have coins on, Literary off', () => {
+    expect(PROFILES.find((p) => p.id === 'everything').on).toContain('coins');
+    expect(profileSwitches('everything').coins).toBe(true);
     expect(profileSwitches('archaeological').coins).toBe(true);
     expect(profileSwitches('literary').coins).toBe(false);
     expect(PAGE_NEEDS.coins).toEqual(['coins']);
@@ -127,6 +127,20 @@ describe('the list', () => {
     mockApi({ ...LIST, coins: [], total: 0 });
     render(<CoinList openCoin={() => {}} />);
     expect(await screen.findByText(/No coin type matches/)).toBeTruthy();
+  });
+});
+
+describe('a name link from the Reader', () => {
+  it('opens the list kept to that person, and can be cleared', async () => {
+    window.history.replaceState({}, '', '/coins?person=Augustus');
+    const calls = mockApi();
+    render(<CoinsPage setPageType={() => {}} />);
+    await screen.findByText('RRC 1/1');
+    expect(calls[0]).toContain('person=Augustus');
+    expect(screen.getByTestId('coins-person').textContent).toMatch(/naming Augustus/);
+    await userEvent.click(screen.getByRole('button', { name: 'Show all coins' }));
+    await waitFor(() => expect(calls.some((c) => !c.includes('person='))).toBe(true));
+    expect(screen.queryByTestId('coins-person')).toBeNull();
   });
 });
 

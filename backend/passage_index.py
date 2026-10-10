@@ -2161,6 +2161,41 @@ def _ref_coords_in(work, ref):
     return tuple(int(n) for n in nums) if nums else _ref_coords(ref)
 
 
+def fine_windows_covering(work, ref_start, ref_end):
+    """Every FINE window of `work` whose reference range overlaps the span
+    ref_start to ref_end, as dicts with id, ref_start, ref_end and desc.
+    Where window_for_passage picks the one best window for a selection, this
+    returns all of them, for callers that choose among them by content (the
+    coins' related imagery picks the most concrete gist). When the caller
+    names a book file that has windows of its own, only that book's windows
+    are considered, as in window_for_passage."""
+    _ensure_loaded()
+    if not _state.get('ok'):
+        return []
+    group = _by_work.get(_norm_work(work)) or []
+    wid = work_id(work)
+    exact = [r for r in group if _records[r].get('work') == wid]
+    rows = exact if (is_part(wid) and exact) else group
+    want = _ref_coords_in(work, ref_start) or ()
+    want_end = _ref_coords_in(work, ref_end) or want
+    out = []
+    for row in rows:
+        r = _records[row]
+        if r.get('scale') != 'fine':
+            continue
+        lo = _ref_coords_in(r.get('work'), r.get('ref_start'))
+        hi = _ref_coords_in(r.get('work'), r.get('ref_end'))
+        if not (lo and hi):
+            continue
+        if want:
+            n = min(len(lo), len(hi), len(want), len(want_end))
+            if not (lo[:n] <= want_end[:n] and hi[:n] >= want[:n]):
+                continue
+        out.append({'id': r.get('id'), 'ref_start': r.get('ref_start'),
+                    'ref_end': r.get('ref_end'), 'desc': r.get('desc') or {}})
+    return out
+
+
 def window_for_passage(work, ref_start=None, ref_end=None, prefer='fine'):
     """Map a reader selection to the index window that best covers it.
 

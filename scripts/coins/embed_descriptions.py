@@ -14,6 +14,17 @@ Resumable: rows already written to <out>/partial.* are reused. Requests are
 sequential and small so the production encoder is never starved.
 
     python scripts/coins/embed_descriptions.py --input coins.jsonl --out DIR
+
+Campus GPU route (docs/DATA_OPERATIONS.md, research recipe for the cluster):
+
+    --blobs-out DIR     write DIR/blobs.jsonl.gz ({id, text} per distinct
+                        description, text already carrying the "query: "
+                        prefix, id the row number) for the cluster job, then stop
+    --from-parts DIR    build <out>/vectors.npy, strings.json and types.json
+                        from the job's returned vectors-NNN.npy and
+                        ids-NNN.json instead of calling the encoder service
+
+scripts/coins/pack_descriptions.py then writes the two files the site reads.
 """
 import argparse
 import json
@@ -46,12 +57,42 @@ def embed(texts):
         return np.asarray(json.loads(r.read())["vectors"], dtype=np.float32)
 
 
+def write_blobs(strings, folder):
+    import gzip
+    os.makedirs(folder, exist_ok=True)
+    with gzip.open(os.path.join(folder, "blobs.jsonl.gz"), "wt", encoding="utf-8") as f:
+        for i, t in enumerate(strings):
+            f.write(json.dumps({"id": str(i), "text": PREFIX + t}, ensure_ascii=False) + "\n")
+
+
+def assemble_parts(folder, n_rows):
+    """Vectors from the cluster job's parts, in row order, checked against the row count."""
+    import glob
+    vec_files = sorted(glob.glob(os.path.join(folder, "vectors-*.npy")))
+    id_files = sorted(glob.glob(os.path.join(folder, "ids-*.json")))
+    if not vec_files or len(vec_files) != len(id_files):
+        raise SystemExit(f"parts missing or unpaired in {folder}")
+    vecs, ids = [], []
+    for vf, idf in zip(vec_files, id_files):
+        v = np.load(vf)
+        i = json.load(open(idf))
+        if len(v) != len(i):
+            raise SystemExit(f"{vf}: {len(v)} vectors but {len(i)} ids")
+        vecs.append(v)
+        ids += [int(x) for x in i]
+    if ids != list(range(n_rows)):
+        raise SystemExit("the job's ids are not the input order 0..N-1")
+    return np.concatenate(vecs).astype(np.float16)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--input", required=True)
     ap.add_argument("--out", required=True)
     ap.add_argument("--batch", type=int, default=16)
     ap.add_argument("--limit", type=int, default=0)
+    ap.add_argument("--blobs-out", help="write the cluster job's input here and stop")
+    ap.add_argument("--from-parts", help="assemble the cluster job's returned parts instead of encoding")
     args = ap.parse_args()
     os.makedirs(args.out, exist_ok=True)
 
@@ -69,6 +110,18 @@ def main():
     if args.limit:
         strings = strings[:args.limit]
     print(f"{len(types)} types with a description, {len(strings)} distinct strings", file=sys.stderr)
+
+    if args.blobs_out:
+        write_blobs(strings, args.blobs_out)
+        print(f"wrote {len(strings)} blobs to {args.blobs_out}", file=sys.stderr)
+        return
+    if args.from_parts:
+        allv = assemble_parts(args.from_parts, len(strings))
+        np.save(os.path.join(args.out, "vectors.npy"), allv)
+        json.dump(strings, open(os.path.join(args.out, "strings.json"), "w"))
+        json.dump(types, open(os.path.join(args.out, "types.json"), "w"))
+        print("assembled", allv.shape, file=sys.stderr)
+        return
 
     part = os.path.join(args.out, "partial.npy")
     done = np.load(part) if os.path.exists(part) else np.zeros((0, 1024), np.float32)
