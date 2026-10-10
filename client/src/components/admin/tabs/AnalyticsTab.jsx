@@ -17,7 +17,109 @@ const TESSERAE_GOLD = '#d97706';
 const TESSERAE_GRAY = '#4b5563';
 const COLORS = [TESSERAE_RED, '#dc2626', '#ef4444', '#f87171', TESSERAE_GOLD, '#fbbf24'];
 
-const AnalyticsTab = () => {
+const VisitorsSection = ({ usage }) => {
+  if (!usage) return null;
+  const shell = 'bg-white p-6 rounded-xl border border-gray-100 shadow-sm';
+  const th = 'py-3 text-sm font-bold text-gray-500 uppercase tracking-wider';
+  return (
+    <div className={shell}>
+      <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
+        <Users className="w-5 h-5 text-[#b91c1c]" />
+        Visitors (from the web server log)
+      </h3>
+      {usage.available === false ? (
+        <p className="text-sm text-gray-600">
+          The visitor summary has not been built yet. Run scripts/usage/build_usage_stats.py on the server to build it.
+        </p>
+      ) : (
+        <VisitorsBody usage={usage} th={th} />
+      )}
+    </div>
+  );
+};
+
+const VisitorsBody = ({ usage, th }) => {
+  const months = usage.months || [];
+  const recent = months.slice(-6);
+  const featureNames = months.length ? Object.keys(months[months.length - 1].features || {}) : [];
+  const connector = usage.connector_addresses_by_month || {};
+  return (
+    <div className="space-y-8">
+      <p className="text-sm text-gray-600">
+        Summary built {usage.built_at}. Months covered: {usage.log_first_month} to {usage.log_last_month}.
+      </p>
+      <div className="overflow-x-auto">
+        <table className="w-full text-left">
+          <thead>
+            <tr className="border-b border-gray-50">
+              <th className={th}>Month</th>
+              <th className={`${th} text-right`}>App loads</th>
+              <th className={`${th} text-right`}>Addresses that made a request</th>
+              <th className={`${th} text-right`}>Requests</th>
+            </tr>
+          </thead>
+          <tbody>
+            {months.map(m => (
+              <tr key={m.month} className="border-b border-gray-50 last:border-0 hover:bg-gray-50 transition-colors">
+                <td className="py-3 text-sm text-gray-700 font-medium">{m.month}</td>
+                <td className="py-3 text-sm text-gray-900 font-bold text-right">{m.app_loads}</td>
+                <td className="py-3 text-sm text-gray-900 font-bold text-right">{m.api_users}</td>
+                <td className="py-3 text-sm text-gray-900 font-bold text-right">{m.requests}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <div className="overflow-x-auto">
+        <h4 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-3">Feature use, addresses per month</h4>
+        <table className="w-full text-left">
+          <thead>
+            <tr className="border-b border-gray-50">
+              <th className={th}>Feature</th>
+              {recent.map(m => <th key={m.month} className={`${th} text-right`}>{m.month}</th>)}
+            </tr>
+          </thead>
+          <tbody>
+            {featureNames.map(name => (
+              <tr key={name} className="border-b border-gray-50 last:border-0 hover:bg-gray-50 transition-colors">
+                <td className="py-3 text-sm text-gray-700 font-medium">{name}</td>
+                {recent.map(m => (
+                  <td key={m.month} className="py-3 text-sm text-gray-900 font-bold text-right">{(m.features || {})[name] ?? 0}</td>
+                ))}
+              </tr>
+            ))}
+            {Object.keys(connector).length > 0 && (
+              <tr className="border-b border-gray-50 last:border-0">
+                <td className="py-3 text-sm text-gray-700 font-medium">Connector (servers of AI vendors, not people)</td>
+                {recent.map(m => (
+                  <td key={m.month} className="py-3 text-sm text-gray-900 font-bold text-right">{connector[m.month]?.addresses ?? 0}</td>
+                ))}
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+      {(usage.referrers || []).length > 0 && (
+        <div>
+          <h4 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-3">Referring sites</h4>
+          <div className="space-y-2">
+            {usage.referrers.map(r => (
+              <div key={r.host} className="flex items-center justify-between border-b border-gray-50 pb-2 last:border-0">
+                <span className="text-sm text-gray-600">{r.host}</span>
+                <span className="text-sm font-bold text-gray-900 bg-gray-50 px-2 py-0.5 rounded-full">{r.count}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+      <ul className="space-y-1">
+        {(usage.notes || []).map((n, i) => <li key={i} className="text-xs text-gray-400">{n}</li>)}
+      </ul>
+    </div>
+  );
+};
+
+const AnalyticsTab = ({ usage = null }) => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [paths, setPaths] = useState(null);
@@ -413,6 +515,8 @@ const AnalyticsTab = () => {
           </div>
         </div>
       </div>
+
+      <VisitorsSection usage={usage} />
       <PathsSection paths={paths} />
     </div>
   );

@@ -9,12 +9,21 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-10
 
+### Reader: the key folds away, and the inscriptions box opens the Reuse tab on the inscriptions
+The key to the marks in the text (gutter colours and the quotation boxes) took three rows at the top of the Reader. It is now one slim row with the two colours and a Key button that opens the rest, remembered in the browser. Clicking the amber box on a line (quoted in that many inscriptions or papyri) opens the Reuse tab with the inscriptions and papyri first and the literary quotations below under their own heading, where before the literary quotations came first.
+
+### Tessa leaves beta
+The "beta" tag on the assistant's header is gone. A live check of twenty-one questions covering what the Help page promises (holdings by language and author, where a phrase occurs, comparisons within and across languages, how the site works, follow-up questions) was answered correctly throughout after the fixes of 10 October. The translations fact she reads now names the translation's language, so she no longer calls an English translation a Latin version.
 ### The site records each visit's pages in its own database, and the admin panel shows the paths
 
 Each page a browser opens during a visit is now recorded in a new `page_views` table in the site's own database, with the visit's random token, the page, the language, the outside referrer host, and the city and country the address suggests. The city and country are looked up once per visit, in the same way the search log does it. The admin Analytics tab has a new section, "Paths through the site", and the About page now says what the site records.
 
 ### Tessa's collapsed button reads "Tessa"
 The closed assistant was a red circle with a bare T at the bottom right of the page, which told a first-time visitor nothing. It is now a pill of the same height that reads "Tessa".
+### Latin verse scansion on every server: the CLTK scanners carried in the backend
+The hexameter, pentameter and hendecasyllable scanners from the Classical Language Toolkit (MIT licence, eleven pure-Python modules) now live in backend/prosody_lat and are used when the CLTK distribution itself is not installed. The production server had no CLTK (its dependencies run to several gigabytes), so every verse outside the precomputed MQDQ table went unscanned. Verified in the production environment: Catullus 1.1 scans as a valid hendecasyllable.
+### Admin panel: visitors and feature use from the web server log
+The Analytics tab now has a section headed "Visitors (from the web server log)" with the addresses that loaded the application each month, the addresses that made a request, request totals, feature use by month, and the main referring sites. The existing tab reads only the search log table, which misses everyone who browses without searching. A script, `scripts/usage/build_usage_stats.py`, reads the access log once and writes a small JSON summary that a new route, `GET /api/admin/usage`, serves to administrators. Robots and the server's own addresses are removed. The summary is built by hand until the nightly timer is installed.
 
 ### Metre scanner: a missing scanner is reported once, not once per verse
 On the production server the optional CLTK prosody modules are not installed, so every verse offered to the hendecasyllable scanner raised an error that was written to the web server's error log, thousands of lines per search, 22 GB by October. The scanner now returns no scansion for a metre it cannot scan and writes one warning per process.

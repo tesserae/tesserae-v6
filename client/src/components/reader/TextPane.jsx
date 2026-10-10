@@ -280,7 +280,7 @@ export default function TextPane({ units, language, selection, onSelect, total, 
                       <button
                         type="button"
                         onMouseDown={(e) => e.stopPropagation()}
-                        onClick={(e) => { e.stopPropagation(); onReuseClick?.(u); }}
+                        onClick={(e) => { e.stopPropagation(); onReuseClick?.(u, 'documents'); }}
                         title={`Quoted in ${nDocs} inscription${nDocs === 1 ? '' : 's'} or papyr${nDocs === 1 ? 'us' : 'i'}`}
                         aria-label={`quoted in ${nDocs} document${nDocs === 1 ? '' : 's'}`}
                         className="inline-flex items-center justify-center text-[9px] font-bold leading-none
@@ -296,7 +296,7 @@ export default function TextPane({ units, language, selection, onSelect, total, 
                       <button
                         type="button"
                         onMouseDown={(e) => e.stopPropagation()}
-                        onClick={(e) => { e.stopPropagation(); onReuseClick?.(u); }}
+                        onClick={(e) => { e.stopPropagation(); onReuseClick?.(u, 'documents'); }}
                         title={`Possible echo in ${nPossibleDocs} inscription${nPossibleDocs === 1 ? '' : 's'} or papyr${nPossibleDocs === 1 ? 'us' : 'i'} (one rare shared phrase)`}
                         aria-label={`possible echo in ${nPossibleDocs} document${nPossibleDocs === 1 ? '' : 's'}`}
                         className="inline-flex items-center justify-center text-[9px] font-bold leading-none
