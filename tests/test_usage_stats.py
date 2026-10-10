@@ -26,6 +26,8 @@ LOG = [
     line('5.5.5.5', '02/Oct/2026', '/api/search?q=y'),
     line('5.5.5.5', '02/Oct/2026', '/static/logo.png'),
     line('6.6.6.6', '03/Oct/2026', '/api/search?q=z'),
+    # A forged referrer from an address that never loaded the application.
+    line('7.7.7.7', '03/Oct/2026', '/', ref='https://www.aocr.org/'),
 ]
 
 
@@ -41,7 +43,7 @@ def test_counts():
     assert sep['features']['Theme Search'] == 1
     assert sep['features']['Reader'] == 0
     assert octo['app_loads'] == 1 and octo['api_users'] == 1
-    assert octo['requests'] == 2
+    assert octo['requests'] == 3
     assert octo['features']['Search page'] == 1
     assert r['connector_addresses_by_month']['2026-09']['addresses'] == 1
     assert r['referrers'] == [{'host': 'www.google.com', 'count': 1}]
@@ -55,3 +57,15 @@ def test_refuses_overwrite(tmp_path):
     assert b.main(['--log', str(log), '--out', str(out), '--own-ip', '10.0.0.5']) == 0
     assert b.main(['--log', str(log), '--out', str(out), '--own-ip', '10.0.0.5']) == 1
     assert b.main(['--log', str(log), '--out', str(out), '--own-ip', '10.0.0.5', '--force']) == 0
+
+
+def test_rotated_copies_are_read_oldest_first(tmp_path):
+    import gzip
+    log = tmp_path / 'access.log'
+    log.write_text(LOG[-1] + '\n', encoding='utf-8')
+    with gzip.open(str(log) + '.2.gz', 'wt', encoding='utf-8') as f:
+        f.write('\n'.join(LOG[:2]) + '\n')
+    files = b.log_files(str(log))
+    assert files[-1] == str(log) and len(files) == 2
+    lines = list(b.read_lines(files))
+    assert len(lines) == 3 and lines[-1].startswith('7.7.7.7')

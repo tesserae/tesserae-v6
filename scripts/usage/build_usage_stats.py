@@ -8,6 +8,8 @@ log takes tens of seconds, so it is never done inside a web request.
                                               [--own-ip IP ...] [--force]
 """
 import argparse
+import glob
+import gzip
 import json
 import os
 import re
@@ -16,6 +18,10 @@ import subprocess
 import sys
 from collections import Counter, defaultdict
 from datetime import datetime, timezone
+
+# The bot list is shared with the page-view route (backend/usage_bots.py).
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+from backend.usage_bots import is_bot  # noqa: E402
 
 DEFAULT_LOG = '/var/log/tesserae/tesseraev6_ssl_access.log'
 DEFAULT_OUT = 'data/usage/usage_stats.json'
@@ -31,11 +37,6 @@ LINE_RE = re.compile(
 MONTHS = {m: i + 1 for i, m in enumerate(
     ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'])}
 
-BOT_RE = re.compile(
-    r'bot|crawl|spider|slurp|python-requests|python-urllib|curl/|wget|Go-http|HeadlessChrome|'
-    r'facebookexternalhit|Bytespider|GPTBot|ClaudeBot|Amazonbot|PetalBot|SemrushBot|AhrefsBot|'
-    r'scrapy|httpx|axios|node-fetch|okhttp|Java/|masscan|zgrab|censys|Nuclei',
-    re.I)
 ASSET_RE = re.compile(r'\.(js|css|png|jpg|svg|ico|woff2?|map|json|webp|ttf)$', re.I)
 APP_BUNDLE_RE = re.compile(r'^/assets/index-[^/?]*\.js$')
 # A hostname with letters in it: a bare address such as 128.205.2.231 is the
@@ -82,7 +83,7 @@ def summarize(lines, own_ips):
     feat = defaultdict(lambda: defaultdict(set))  # month -> feature -> addresses
     connector = defaultdict(set)    # month -> all non-bot addresses calling the connector
     requests = Counter()
-    referrers = Counter()
+    ref_rows = []                   # (month, host, address) of every referred request
     months_seen = set()
     for line in lines:
         m = LINE_RE.match(line)
@@ -92,7 +93,7 @@ def summarize(lines, own_ips):
         if ip in own_ips:
             continue
         ua = m.group('ua')
-        if ua == '-' or BOT_RE.search(ua):
+        if is_bot(ua):
             continue
         mon = MONTHS.get(m.group('mon'))
         if not mon:
@@ -112,7 +113,7 @@ def summarize(lines, own_ips):
             if hm:
                 host = hm.group(1).lower()
                 if host not in OWN_HOSTS and HOST_RE.match(host):
-                    referrers[host] += 1
+                    ref_rows.append((month, host, ip))
         if bare.startswith('/api/'):
             api_any[month].add(ip)
             if CONNECTOR_RE.match(bare):
@@ -121,6 +122,10 @@ def summarize(lines, own_ips):
                 if rx.match(bare):
                     feat[month][name].add(ip)
                     break
+    # A referrer counts only when the referred address loaded the application
+    # that month. Forged referrers (a radiology association, a WordPress page)
+    # come from scanners that never do.
+    referrers = Counter(host for mo, host, ip in ref_rows if ip in loaders[mo])
     months = []
     for month in sorted(months_seen):
         app = loaders[month]
@@ -145,6 +150,21 @@ def summarize(lines, own_ips):
     }
 
 
+def log_files(path):
+    """The rotated copies of the log (oldest first, .gz or plain), then the log itself."""
+    rotated = [f for f in glob.glob(path + '.*') if not f.endswith('.tmp')]
+    rotated.sort(key=lambda f: os.path.getmtime(f))
+    return rotated + [path]
+
+
+def read_lines(files):
+    for f in files:
+        opener = gzip.open if f.endswith('.gz') else open
+        with opener(f, 'rt', encoding='utf-8', errors='replace') as fh:
+            for line in fh:
+                yield line
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument('--log', default=DEFAULT_LOG)
@@ -156,8 +176,7 @@ def main(argv=None):
         print(f'{a.out} exists, use --force to overwrite', file=sys.stderr)
         return 1
     own = set(a.own_ip) if a.own_ip else own_addresses()
-    with open(a.log, 'r', encoding='utf-8', errors='replace') as f:
-        result = summarize(f, own)
+    result = summarize(read_lines(log_files(a.log)), own)
     os.makedirs(os.path.dirname(os.path.abspath(a.out)), exist_ok=True)
     tmp = a.out + '.tmp'
     with open(tmp, 'w', encoding='utf-8') as f:
