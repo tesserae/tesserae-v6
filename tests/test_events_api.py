@@ -29,13 +29,52 @@ def client(db, monkeypatch):
 
 
 def test_list_all(client):
-    d = client.get('/api/events').get_json()
-    assert d['available'] and d['total'] == 4
+    d = client.get('/api/events?sort=date').get_json()
+    assert d['available'] and d['total'] == 4 and d['total_all'] == 4
+    assert d['sort'] == 'date' and d['show'] == 'evidence'
     assert [e['id'] for e in d['events']][0] == 'Q' + d['events'][0]['id'][1:]
     dates = [e['date_start'] for e in d['events']]
     assert dates == sorted(dates)
     assert 'battle' in d['types'] or d['types']
+    assert d['type_counts'] and sum(d['type_counts'].values()) == 4
     assert -5 in d['centuries'] and -1 in d['centuries']
+
+
+def test_default_order_is_most_evidence_first(client):
+    """The default list puts the events with the most passages and documents
+    first, ties broken by date; `sort=date` is the chronological order."""
+    d = client.get('/api/events').get_json()
+    assert d['sort'] == 'evidence'
+    keys = [(-(e['n_passages'] + e['n_documents']), -e['n_passages'], e['date_start']) for e in d['events']]
+    assert keys == sorted(keys)
+    assert d['events'][0]['n_passages'] + d['events'][0]['n_documents'] >= \
+        d['events'][-1]['n_passages'] + d['events'][-1]['n_documents']
+
+
+def test_events_without_evidence_hidden_unless_show_all(client, db):
+    """An event with no passage and no document is left out of the default
+    list and counted in total_all; show=all brings it back. An item with only
+    its Q-number for a label is never listed."""
+    import sqlite3
+    c = sqlite3.connect(db)
+    c.execute("INSERT INTO events (id, label, type, date_start, date_end) VALUES ('Q900', 'Battle of Nowhere', 'battle', -300, -300)")
+    c.execute("INSERT INTO events (id, label, type, date_start, date_end) VALUES ('Q901', 'Q901', 'treaty', -300, -300)")
+    c.commit()
+    try:
+        d = client.get('/api/events').get_json()
+        assert d['total'] == 4 and d['total_all'] == 5
+        assert 'Battle of Nowhere' not in [e['label'] for e in d['events']]
+        assert d['type_counts'].get('treaty') is None
+        d = client.get('/api/events?show=all&sort=date').get_json()
+        assert d['total'] == 5 and d['show'] == 'all'
+        labels = [e['label'] for e in d['events']]
+        assert 'Battle of Nowhere' in labels and 'Q901' not in labels
+        assert client.get('/api/events?q=Nowhere').get_json()['total'] == 0
+        assert client.get('/api/events?q=Nowhere&show=all').get_json()['total'] == 1
+    finally:
+        c.execute("DELETE FROM events WHERE id IN ('Q900', 'Q901')")
+        c.commit()
+        c.close()
 
 
 def test_search_label_and_place(client):

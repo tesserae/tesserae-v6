@@ -9,6 +9,9 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-10
 
+### Events: the best-attested events first, empty ones hidden
+The Events list opened on the earliest events in the database, several of them with no passage and no document attached. It now opens on the events with the most attached passages and nearby documents (an Order control offers the chronological order), leaves out the events with neither until a box is ticked, says how many it left out, and shows the count of each type in the Type menu. Four Wikidata items with no label beyond their identifier are no longer listed.
+
 ### Usage summary: referrers from real browsers only, rotated logs read, one bot list
 A referring site now counts only when the referred address also loaded the application that month, which removes forged referrers sent by scanners. The script reads rotated copies of the access log (plain or compressed) before the current file, and takes its bot list from the module the page-view route uses.
 
