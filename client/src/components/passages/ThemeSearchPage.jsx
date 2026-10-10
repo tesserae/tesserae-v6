@@ -7,6 +7,9 @@ import { useCorpus } from '../../hooks';
 import TextSelector from '../search/TextSelector';
 import ThemeExport from './ThemeExport';
 import ConnectionsMap from './ConnectionsMap';
+import ThemeCoins from '../coins/ThemeCoins';
+import useCollections from '../../hooks/useCollections';
+import { PAGE_NEEDS } from '../../collections/collectionsConfig';
 
 /**
  * Theme Search: describe a passage in your own words, get passages that match
@@ -320,6 +323,14 @@ export function scopeQuery(scope) {
 
 export default function ThemeSearchPage() {
   const [query, setQuery] = useState('');
+  // Coins: an option of its own, shown only when the Coins collection is on.
+  // It searches the coin descriptions and shows them as a separate list; it is
+  // never mixed into the passage ranking.
+  const { anyOn } = useCollections();
+  const coinsAvailable = anyOn(PAGE_NEEDS.coins);
+  const [coinsChosen, setCoinsChosen] = useState(false);
+  const [coinsSearch, setCoinsSearch] = useState(null);
+  const coinsMode = coinsAvailable && coinsChosen;
   // Read synchronously (a lazy initializer, not an effect) so that on the
   // very first render -- before any effect has run -- `language` already
   // reflects a shared link's languages= param. Without this, the aggregate
@@ -915,7 +926,11 @@ export default function ThemeSearchPage() {
 
       <form
         className="mt-5 flex gap-2"
-        onSubmit={(e) => { e.preventDefault(); run(query); }}
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (coinsMode) setCoinsSearch({ q: query.trim(), n: (coinsSearch?.n || 0) + 1 });
+          else run(query);
+        }}
       >
         <input
           value={query}
@@ -925,10 +940,10 @@ export default function ThemeSearchPage() {
         />
         <button
           type="submit"
-          disabled={running || !query.trim()}
+          disabled={(!coinsMode && running) || !query.trim()}
           className="px-4 py-2 rounded bg-red-700 text-white text-sm font-medium hover:bg-red-800 disabled:opacity-40"
         >
-          {running ? 'Searching…' : 'Search'}
+          {!coinsMode && running ? 'Searching…' : 'Search'}
         </button>
       </form>
 
@@ -942,7 +957,7 @@ export default function ThemeSearchPage() {
         *
         * So a scholar working in one language was being outvoted by the breadth
         * of the corpus. The API already took `languages`; nothing exposed it. */}
-      <div className="mt-3 flex flex-wrap items-center gap-2">
+      <div className={`mt-3 flex flex-wrap items-center gap-2 ${coinsMode ? 'opacity-40 pointer-events-none' : ''}`}>
         <span className="text-xs text-gray-600">Search in</span>
         {/* Pick any set of languages (2026-09-06). 'All' clears the set; the
             request sends the chosen codes comma-separated, which the API has
@@ -972,6 +987,21 @@ export default function ThemeSearchPage() {
           fewer languages show more of each
         </span>
       </div>
+
+      {coinsAvailable && (
+        <div className="mt-2 flex flex-wrap items-center gap-2">
+          <label className={`text-xs px-2 py-0.5 rounded border cursor-pointer select-none ${coinsMode ? 'bg-red-600 text-white border-red-600' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}`}>
+            <input type="checkbox" className="sr-only" checked={coinsMode}
+                   onChange={() => setCoinsChosen((v) => !v)} />
+            Coins
+          </label>
+          <span className="text-[11px] text-gray-500">
+            {coinsMode
+              ? 'Searching coin descriptions only, as a separate list. The languages above are not used.'
+              : 'Search the coin catalogue instead of the passages (a separate list).'}
+          </span>
+        </div>
+      )}
 
       {singleCoveredLang && coverageResolved && coverage.total > 0 && (
         <p className="mt-1 text-[11px] text-gray-500">
@@ -1106,19 +1136,21 @@ export default function ThemeSearchPage() {
         ))}
       </div>
 
-      {running && (
+      {!coinsMode && running && (
         <p className="mt-6 text-sm text-gray-500 italic">
           Comparing your description against every indexed passage…
         </p>
       )}
 
-      {error && (
+      {coinsMode && <ThemeCoins search={coinsSearch} />}
+
+      {!coinsMode && error && (
         <div className="mt-6 rounded border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
           {error}
         </div>
       )}
 
-      {data && (
+      {!coinsMode && data && (
         <div className="mt-6">
           {band && (
             <div className={`rounded border px-3 py-2 text-sm ${band.className}`}>

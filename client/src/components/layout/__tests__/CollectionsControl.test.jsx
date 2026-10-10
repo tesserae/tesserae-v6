@@ -14,9 +14,10 @@ describe('CollectionsControl', () => {
     expect(screen.getByRole('button', { name: /Collections: Custom/ })).toBeTruthy();
   });
 
-  it('lists coins and objects as coming and not switchable', () => {
+  it('lists objects as coming and not switchable, and coins as switchable', () => {
     render(<CollectionsControl />);
     fireEvent.click(screen.getByRole('button', { name: /Collections/ }));
-    expect(screen.getByRole('checkbox', { name: /Coins/ }).disabled).toBe(true);
+    expect(screen.getByRole('checkbox', { name: /Objects/ }).disabled).toBe(true);
+    expect(screen.getByRole('checkbox', { name: /Coins/ }).disabled).toBe(false);
   });
 });

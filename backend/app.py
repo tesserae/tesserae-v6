@@ -38,6 +38,7 @@ import re
 import math
 import itertools
 import threading
+import unicodedata
 from datetime import datetime
 
 # Application modules
@@ -628,6 +629,8 @@ from backend.blueprints.scholarship import scholarship_bp  # noqa: E402
 app.register_blueprint(scholarship_bp, url_prefix=API_PREFIX or None)
 from backend.blueprints.events import events_bp  # noqa: E402
 app.register_blueprint(events_bp, url_prefix=API_PREFIX or None)
+from backend.blueprints.coins import coins_bp  # noqa: E402
+app.register_blueprint(coins_bp, url_prefix=API_PREFIX or None)
 
 app_logger.info(f"Blueprints registered (API_PREFIX='{API_PREFIX}', env={DEPLOYMENT_ENV})")
 
@@ -2466,17 +2469,80 @@ def browse_documents():
     return jsonify(result)
 
 
-def _is_near_quotation(matched_lemma_set, query_lemmas, positions, query):
-    """True when a line shares every content lemma of the query and the
-    matched tokens sit within a window no longer than the query's own word
-    count plus two (room for an enclitic or an intervening word). A one-word
-    query is never a quotation in this sense: nothing to be near."""
+_SURFACE_ENCLITICS = ('que', 'ue', 'ne')
+
+
+def _surface_norm(token, language):
+    """A token reduced for a surface comparison: lower case, no diacritics
+    (Greek accents, Hebrew points), no punctuation, u for v and i for j in
+    Latin and English."""
+    t = unicodedata.normalize('NFD', str(token or '').lower())
+    t = ''.join(ch for ch in t if not unicodedata.combining(ch))
+    t = re.sub(r'[^\w]', '', t)
+    if language in ('la', 'en'):
+        t = t.replace('v', 'u').replace('j', 'i')
+    return t
+
+
+def _surface_hits(query, tokens, language, window=None):
+    """How many distinct words of the query, common words included, the
+    line carries in SURFACE form (an enclitic -que, -ue or -ne stripped from
+    the line's word counts). With `window`, the most that fall inside any
+    run of that many tokens, so a long prose sentence holding the words far
+    apart does not pass as a quotation. The lemma search drops common words
+    such as "sit" and "tibi", so this is the only place a quotation of "sit
+    tibi terra levis" is told from a line that merely has terra and levis."""
+    qwords = {_surface_norm(w, language) for w in str(query or '').split()}
+    qwords.discard('')
+    if not qwords:
+        return 0
+    forms = []  # per token, the set of query words it realises
+    for tok in tokens or ():
+        n = _surface_norm(tok, language)
+        hit = set()
+        if n:
+            if n in qwords:
+                hit.add(n)
+            for enc in _SURFACE_ENCLITICS:
+                if n.endswith(enc) and len(n) > len(enc) + 2 and n[:-len(enc)] in qwords:
+                    hit.add(n[:-len(enc)])
+        forms.append(hit)
+    if not window or window >= len(forms):
+        return len(set().union(*forms)) if forms else 0
+    best = 0
+    for i in range(len(forms) - window + 1):
+        best = max(best, len(set().union(*forms[i:i + window])))
+    return best
+
+
+def _is_near_quotation(matched_lemma_set, query_lemmas, positions, query, surface_hits=None):
+    """True when a line quotes the phrase: it shares every content lemma of
+    the query, the matched tokens sit within a window no longer than the
+    query's own word count plus two, AND it carries the query's own words in
+    surface form, common ones included, with at most one word inflected or
+    missing. The last test was added after the first form marked 23 of 36
+    hits for "sit tibi terra levis" as quotations (the common words sit and
+    tibi had been dropped, so Caesar's "levibus cratibus terraque" passed).
+    A one-word query is never a quotation in this sense: nothing to be near.
+    `surface_hits` None skips the surface test (callers without tokens)."""
     if len(query_lemmas) < 2 or len(matched_lemma_set) < len(query_lemmas):
         return False
     if not positions:
         return False
     width = max(positions) - min(positions) + 1
-    return width <= len(str(query or '').split()) + 2
+    n_words = len(str(query or '').split())
+    if width > n_words + 2:
+        return False
+    if surface_hits is None:
+        return True
+    return surface_hits >= n_words - 1
+
+
+def _span(positions):
+    """Width of the window holding the matched tokens, or None."""
+    if not positions:
+        return None
+    return max(positions) - min(positions) + 1
 
 
 @api_route('/line-search', methods=['GET', 'POST'])
@@ -2962,6 +3028,10 @@ def line_search():
                             continue
                         
                         seen_results.add(result_key)
+                        _line_tokens = indexed_tokens or text.split()
+                        _n_surface = _surface_hits(query, _line_tokens, language)
+                        _n_surface_near = _surface_hits(
+                            query, _line_tokens, language, window=n_query_words + 2)
                         results.append({
                             'text_id': filename,
                             'author': metadata['author'],
@@ -2984,8 +3054,11 @@ def line_search():
                             # within a window of two tokens more than the
                             # query's own length, which is a near quotation.
                             'n_matched': len(matched_lemma_set),
+                            'n_surface': _n_surface,
+                            'span': _span(matched_positions),
                             'quotation': _is_near_quotation(
-                                matched_lemma_set, filtered_query_lemmas, matched_positions, query),
+                                matched_lemma_set, filtered_query_lemmas, matched_positions, query,
+                                surface_hits=_n_surface_near),
                         })
                         
                         if len(results) >= max_results:
@@ -3158,6 +3231,9 @@ def line_search():
                                     # An exact or pattern hit carries the whole
                                     # query by construction (closeness ranking).
                                     'n_matched': len(matched_lemmas),
+                                    'n_surface': (len(query.split()) if search_type == 'exact'
+                                                  else _surface_hits(query, text.split(), language)),
+                                    'span': None,
                                     'quotation': search_type == 'exact',
                                 })
                                 
@@ -3238,6 +3314,9 @@ def line_search():
                 # How many content lemmas the query had, so a page can show
                 # "3 of 4 words" beside each line (closeness ranking).
                 'query_lemma_count': len(filtered_query_lemmas),
+                # And how many words it had as typed, so the page can say
+                # "key words" when common words were dropped.
+                'query_word_count': n_query_words,
                 'search_time': search_time,
                 'capped': capped,
                 'corpus_version': get_corpus_version(language),

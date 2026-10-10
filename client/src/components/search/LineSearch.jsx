@@ -73,10 +73,12 @@ export default function LineSearch({ language }) {
   // of two or more opens on the "Closest match" order, so lines that quote
   // the phrase come before lines sharing one word of it (see closeness.js).
   const [queryLemmaCount, setQueryLemmaCount] = useState(0);
+  const [queryWordCount, setQueryWordCount] = useState(0);
   const applyLiteratureResponse = (data) => {
     setResults(data.results || []);
     const n = data.query_lemma_count || 0;
     setQueryLemmaCount(n);
+    setQueryWordCount(data.query_word_count || 0);
     setSortOrder(n >= 2 ? 'closest' : 'chronological');
   };
   // Set when a /?tab=line&q=... deep link should auto-run once its query is in state.
@@ -1035,7 +1037,7 @@ export default function LineSearch({ language }) {
                           </span>
                         )}
                         {(() => {
-                          const tag = closenessLabel(result, queryLemmaCount);
+                          const tag = closenessLabel(result, queryLemmaCount, queryWordCount);
                           return tag ? (
                             <span className={`text-xs px-1.5 py-0.5 rounded mt-1 ml-1 inline-block ${TONE_CLASS[tag.tone]}`}
                                   title="How much of the search phrase this line shares">

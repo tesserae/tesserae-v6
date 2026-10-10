@@ -150,3 +150,31 @@ describe('Navigation — the "Events" item follows Collections', () => {
     expect(await screen.findByRole('button', { name: /Events/ })).toBeTruthy();
   });
 });
+
+describe('Navigation — the "Coins" item follows Collections', () => {
+  beforeEach(() => { window.localStorage.clear(); window.sessionStorage.clear(); });
+  afterEach(() => { window.localStorage.clear(); });
+
+  it.each(['literary', 'historical'])('is absent in the %s profile', async (profile) => {
+    const { setProfile } = await import('../../../collections/collectionsStore');
+    setProfile(profile);
+    renderNav();
+    expect(screen.queryByRole('button', { name: /^Coins/ })).toBeNull();
+  });
+
+  it('appears in the Archaeological and Everything profiles and when Coins is switched on by name', async () => {
+    const { setProfile, setCollection } = await import('../../../collections/collectionsStore');
+    setProfile('archaeological');
+    renderNav();
+    expect(await screen.findByRole('button', { name: /^Coins/ })).toBeTruthy();
+    cleanup();
+    setProfile('everything');
+    renderNav();
+    expect(await screen.findByRole('button', { name: /^Coins/ })).toBeTruthy();
+    cleanup();
+    setProfile('historical');
+    setCollection('coins', true);
+    renderNav();
+    expect(await screen.findByRole('button', { name: /^Coins/ })).toBeTruthy();
+  });
+});

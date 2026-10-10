@@ -80,6 +80,31 @@ MANIFEST = {
         'reason': ('Event focus view in testing: one dossier from the offline '
                     'dossier database; not yet exposed to the connector.'),
     },
+    '/api/coins': {
+        'site_only': True,
+        'reason': ('Coins page (OCRE and CRRO type records) in testing: reads an '
+                    'offline database; not yet exposed to the connector.'),
+    },
+    '/api/coins/facets': {
+        'site_only': True,
+        'reason': ('Filter values and counts for the Coins page in testing; not yet '
+                    'exposed to the connector.'),
+    },
+    '/api/coins/for-passage': {
+        'site_only': True,
+        'reason': ('Reader Coins tab in testing: related coin imagery and name links for a '
+                    'passage; not yet exposed to the connector.'),
+    },
+    '/api/coins/theme': {
+        'site_only': True,
+        'reason': ('Coins option of Theme Search in testing: coin descriptions nearest a '
+                    'free-text query; not yet exposed to the connector.'),
+    },
+    '/api/coins/<path:coin_id>': {
+        'site_only': True,
+        'reason': ('One coin type for the Coins page in testing; not yet exposed to '
+                    'the connector.'),
+    },
     '/api/documents/<doc_id>/scholarship': {
         'site_only': True,
         'reason': ('Journal sentences and commentary notes citing one document, for the '

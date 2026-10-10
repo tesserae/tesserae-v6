@@ -394,6 +394,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
     { id: 'tessa', label: 'Tessa, the assistant', group: 'Reading & content' },
     { id: 'documents', label: 'Inscriptions & Papyri', group: 'Reading & content' },
     { id: 'events', label: 'Events (in testing)', group: 'Reading & content' },
+    { id: 'coins', label: 'Coins (in testing)', group: 'Reading & content' },
 
     { id: 'languages', label: 'Languages overview', group: 'Languages' },
     { id: 'coptic', label: 'Coptic', group: 'Languages' },
@@ -1899,13 +1900,57 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
             </div>
           )}
 
+          {activeSection === 'coins' && (
+            <div className="prose max-w-none">
+              <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Coins (in testing)</h3>
+              <p className="text-gray-700 mb-4">
+                The Coins page lists Roman coin types: 56,113 from the Online Coins of the Roman Empire
+                (OCRE, from Augustus to the late fifth century) and 2,602 from Coinage of the Roman
+                Republic Online (CRRO). Both are catalogues kept by the American Numismatic Society and
+                shared through nomisma.org under the Open Database Licence. A coin type is a catalogue entry,
+                not one coin. It records the legend on each side, the catalogue&rsquo;s description of what each
+                side shows, the mint, the dates, the issuing emperor or moneyer, the denomination and the
+                metal. You can search the legends and descriptions together (try &ldquo;capricorn&rdquo; or
+                &ldquo;harbor&rdquo;), narrow by authority, mint, denomination, material, source and date, and
+                order the results by best match or by date. A mint that nomisma.org has matched to Pleiades
+                links to its place page. Each card links to &ldquo;Type page and specimens&rdquo; on the
+                Society&rsquo;s site, which lists the museum coins of that type with their photographs. This
+                site stores no coin images.
+              </p>
+              <p className="text-gray-700 mb-4">
+                With Coins on, the Reader gets a Coins tab beside Reuse. It shows two things, kept apart
+                because they mean different things. &ldquo;Named on coins&rdquo; lists people who are named
+                on a coin type, as the emperor or moneyer or as the portrait on the obverse, and are also
+                named in the lines you selected. It is a name link, not an echo: the coin names the same
+                person and does not quote the passage. Names are matched in Latin passages only, and a
+                namesake (another Claudius, another Antonius) can match. &ldquo;Related imagery&rdquo; lists
+                the five coin descriptions closest in meaning to a one-sentence summary of the passage, each
+                with the dates, issuers and mint of the types that carry it. About one match in three is a
+                real parallel. In a test on ten passages with known coin parallels, 17 of 50 matches were
+                right, and the matches the tab calls &ldquo;closer&rdquo; were right about 7 times in 10 while
+                the rest were right about 1 time in 4. The matches are descriptions of coin imagery, not coins
+                known to refer to the passage, so read the coin before you rely on one. Theme Search gets a
+                Coins choice too. It searches the coin descriptions and shows its own list, never mixed
+                into the passage results. A query worded the way a catalogue words an image
+                (&ldquo;ship under full sail&rdquo;, &ldquo;infant on a goat&rdquo;) found about one right coin
+                in two in the same test, and a vague or abstract query finds fewer.
+              </p>
+              <p className="text-gray-700 mb-4">
+                Coins are off by default. Switch Coins on in Collections (the Archaeological and Everything
+                profiles include it) and the Coins entry appears in the main menu. Coin types never enter a
+                phrase search, since they have their own page, the Reader tab and the Theme Search choice. This is a
+                first version in testing.
+              </p>
+            </div>
+          )}
+
           {activeSection === 'documents' && (
             <div className="prose max-w-none">
               <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Inscriptions &amp; Papyri</h3>
               <p className="text-gray-700 mb-4">
                 Collections decides what you see. The Collections button at the right of the main
                 menu lists the source collections (literature, inscriptions, papyri, scholarship,
-                and coins and objects when they arrive) with a switch for each, and four profiles
+                coins, and objects when they arrive) with a switch for each, and four profiles
                 that set the switches together: Literary, Historical, Archaeological and
                 Everything. Your choice is remembered in this browser. This page and its menu entry
                 appear when Inscriptions or Papyri is on, and the Scholarship tab in the Reader

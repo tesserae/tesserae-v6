@@ -9,6 +9,13 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-10
 
+### Coins tab in the Reader and a Coins choice in Theme Search (in testing, off by default)
+With the Coins collection on, the Reader gains a Coins tab. "Named on coins" lists people named on a coin type (as authority or obverse portrait) and in the selected Latin lines, labelled as a name link and not an echo, each linking to the coin list for that person. "Related imagery" lists the five coin descriptions nearest the gist of the covering passage window, found through the query encoder service with a cosine against 26,461 description vectors, each with a confidence level and the measured hit rate of about one in three (17 of 50 on ten test passages). Theme Search gains a Coins choice that searches the coin descriptions on their own and shows a separate list. New routes `/api/coins/for-passage` and `/api/coins/theme` and a `person` filter on `/api/coins` (all site-only in the connector manifest), `scripts/coins/pack_descriptions.py` and `scripts/coins/measure_for_passage.py`, and the hand-written Latin name table `backend/coins_authority_names.json`. The vectors are installed by the steps in docs/DATA_OPERATIONS.md.
+### Line Search: "whole phrase" means the phrase as typed
+The first form of the closeness tag counted only the query's content words, and the lemma search drops common words such as "sit" and "tibi", so for "sit tibi terra levis" it marked 23 of 36 lines as the whole phrase, Caesar's "levibus cratibus terraque" among them, and put Martial's "Sit tibi terra leuis" twelfth. A line is now a quotation only when it also carries the query's own words in surface form, common ones included, with at most one inflected or missing. The tags say "key words" when common words were dropped ("key words together", "key words apart", "1 of 2 key words"), and the Closest match order ranks by quotation, then by how many of the typed words a line carries, then by the width of the window holding them, then by date.
+### Search: a work against itself shows where it repeats itself
+Comparing a work with itself on the Search page returned every line paired with its own twin. When source and target are the same work in the same unit, a line is no longer paired with itself and each pair of lines appears once, the earlier line as the source, so the list shows the phrases the work repeats.
+
 ### Start here: a front door on the Search page
 The Search page asks a first-time visitor what they are trying to do and opens the right search; a header link brings the question back; Tessa answers 'where do I start' with the same six choices.
 ### Events: the best-attested events first, empty ones hidden
@@ -17,6 +24,8 @@ The Events list opened on the earliest events in the database, several of them w
 Asked what the site holds, Tessa named five languages from a fixed sentence in her prompt, written before Persian, Urdu, the inscriptions and papyri, the scholarship and the events were added. The sentence is now built when she answers, from the same checks the site makes: the language flags and text folders behind the language tabs, the documents indexes, the scholarship data and the events database, with the coins collection named once its database exists. A test holds the helper to the languages route so the two cannot drift apart.
 ### Line Search: lines that quote the phrase come first
 A search for several words ("sit tibi terra levis") listed its literary hits by era, so lines sharing one word of the phrase stood above lines quoting it. Each literary hit now carries how many of the query's content words it shares and whether it has them all within a short window (a near quotation). A query of two or more words opens on a "Closest match" order (quotations first, then lines sharing more words, then the older text) with a tag beside each line ("whole phrase", "3 of 4 words"); By Era and A-Z remain. On the Inscriptions & Papyri page the "Both" search now shows the documents first and the literary companions after them, ranked the same way and folded to five until opened.
+### Coins collection with a Coins page and search (in testing, off by default)
+A Coins page lists 58,715 Roman coin types (56,113 from OCRE, 2,602 from CRRO, nomisma.org, ODbL), searchable over legends and descriptions and filterable by authority, mint, denomination, material, source and date, with a detail view for each type and a link to the type's own page for specimens and photographs. The new `scripts/coins/build_coins_db.py` writes the SQLite file (FTS5 index) that the new `/api/coins`, `/api/coins/facets` and `/api/coins/<id>` routes read. The converter now also records each type's obverse portrait and region. Coins is a collection switch, on in the Archaeological and Everything profiles, and the menu entry and page follow it. Help gains "Coins (in testing)". Tests cover the loader and API on a 12-type fixture, the page, the menu gate and manifest parity. The data file is built and installed by the steps in docs/DATA_OPERATIONS.md.
 
 ### Usage summary: referrers from real browsers only, rotated logs read, one bot list
 A referring site now counts only when the referred address also loaded the application that month, which removes forged referrers sent by scanners. The script reads rotated copies of the access log (plain or compressed) before the current file, and takes its bot list from the module the page-view route uses.
@@ -54,6 +63,15 @@ The header line under the title, and the two citation forms on the About page, r
 The record for JSTOR Early Journal Content now says what the offline index covers (24 journals, 1827 to 1922, 29,055 articles read, 5,193 citing 437 held works, plus 956 sentences citing 742 inscriptions and papyri) and no longer calls it a live service. New records: Wikidata (CC0) for the Events page, and the photographs of inscriptions and papyri, which are links to the holding institutions and never copied. The Help page's Scholarship, Events and Inscriptions sections carry the same facts, and a document's Scholarship section says where its sentences come from. The table of literary texts drops four stale "World English Bible" rows (the files hold the King James text) and gains the King James New Testament. Data operation: seven Studies in Philology articles re-dated from 1992 to 1922 in the citation index.
 
 ## 2026-10-09
+
+### Roman coins prototype: converter for OCRE and CRRO type records (draft, nothing loaded into the site)
+- `scripts/coins/convert_ocre.py` turns the 58,715 OCRE and CRRO coin types
+  (nomisma.org export, ODbL) into the documents collection's intermediate
+  JSONL, one document per type, with kind `coin`, legends as the indexed
+  text, the obverse and reverse descriptions kept separate, mint with a
+  Pleiades id, dates, authority, denomination and material. Two further
+  scripts embed the descriptions and query them with literary passages.
+  `data/sources_credits.json` gains records for OCRE and CRRO.
 
 ### Inscription and papyrus pages gain a Scholarship section of journal sentences that cite the document
 - `scripts/documents/build_document_citation_index.py` runs the document-citation recogniser over the Early Journal Content full text and the commentary notes, links each reference to documents through their stored edition references, and writes `data/citation_index/document_citations.db` (one row per citing sentence and document). `GET /api/documents/<id>/scholarship` returns citation, one excerpt and a link (JSTOR stable address, or the commentary file), newest first, with a count. `/document` shows a Scholarship section under the text when there is at least one hit. The route is site-only (not a connector tool). Without the index file the section does not appear.
