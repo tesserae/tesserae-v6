@@ -133,3 +133,84 @@ def test_legend_variant_list_indexes_first_variant():
     t, f, note = c.normalise_legend(
         "GENIO POP-VLI ROMANI or GENIO PO-PVLI ROMANI or GENIO POPV-LI ROMANI")
     assert t == "GENIO POPVLI ROMANI" and note is None
+
+
+# ---------------------------------------------------------------------------
+# Greek sets (fixture: one real type from each of seven catalogues)
+# ---------------------------------------------------------------------------
+
+FIXTURES = os.path.join(os.path.dirname(__file__), "fixtures", "coins")
+GREEK_MARKS = {"cn": "corpus-nummorum", "sco": "/sco/", "pella": "/pella/", "pco": "/pco/",
+               "bigr": "/bigr/", "iris": "/iris/", "lco": "/lco/"}
+
+
+def _greek_records(tmp_path):
+    rows = [json.loads(line) for line in open(os.path.join(FIXTURES, "greek_triples.jsonl"), encoding="utf-8")]
+    labels, pl = c.load_refs(os.path.join(FIXTURES, "greek_refs"))
+    out = {}
+    for code, mark in GREEK_MARKS.items():
+        p = tmp_path / f"{code}.jsonl"
+        p.write_text("".join(json.dumps(r) + "\n" for r in rows if mark in r["t"]), encoding="utf-8")
+        recs = list(c.convert_file(str(p), code, labels, pl))
+        assert len(recs) == 1, code
+        out[code] = recs[0]
+    return out
+
+
+def test_every_greek_set_converts_with_its_code_and_licence(tmp_path):
+    recs = _greek_records(tmp_path)
+    assert recs["cn"]["id"] == "cn:10069"  # no /id/ in the address: the part after /types/
+    assert recs["sco"]["id"] == "sco:sc.1.1"
+    assert recs["pco"]["id"] == "pco:cpe.1_1.1"
+    for code, r in recs.items():
+        assert r["source"] == code and r["kind"] == "coin"
+        assert r["source_name"] == c.DATASETS[code]["name"]
+        assert r["obverse_description"] or r["reverse_description"]
+    assert "CC BY-NC-SA 3.0" in recs["cn"]["licence_name"]
+    assert "ODbL" in recs["sco"]["licence_name"] and "ODbL" in recs["iris"]["licence_name"]
+
+
+def test_greek_sets_keep_greek_legends_and_read_stated_authority(tmp_path):
+    recs = _greek_records(tmp_path)
+    assert recs["pella"]["authority"] == "Philip II"          # hasStatedAuthority
+    assert recs["pella"]["reverse_legend"] == "\u03a6\u0399\u039b\u0399\u03a0\u03a0\u039f\u03a5"
+    assert recs["pella"]["languages"] == ["grc"]
+    # a blank node holding rdf:value was resolved by the fetcher, so both names show;
+    # the British Museum person address has no label and is left out of the portrait
+    assert recs["pco"]["authority"] == "Ptolemy I Soter; Cleomenes of Naucratis"
+    assert recs["pco"]["portrait"] == "Zeus"
+    assert recs["bigr"]["languages"] == ["grc"]
+
+
+def test_latin_lookalike_letters_in_a_greek_word_become_greek(tmp_path):
+    recs = _greek_records(tmp_path)
+    raw = recs["sco"]["reverse_legend"]
+    assert raw.startswith("BA\u03a3")                          # catalogued with a Latin B and A
+    assert recs["sco"]["lines"][0]["text"] == "\u0392\u0391\u03a3\u0399\u039b\u0395\u03a9\u03a3 \u03a3\u0395\u039b\u0395\u03a5\u039a\u039f\u03a5"
+    assert c.unmix_scripts("AVGVSTVS") == "AVGVSTVS"           # a Latin word is untouched
+
+
+def test_greek_accents_and_breathings_survive_normalisation():
+    text, flags, note = c.normalise_legend("\u0392\u0391\u03a3\u0399\u039b\u0388\u03a9\u03a3 \u1f08\u039b\u0395\u039e\u1f0c\u039d\u0394\u03a1\u039f\u03a5")
+    assert note is None and len(flags) == len(text)
+    assert "\u0388" in text and "\u1f08" in text and "\u1f0c" in text
+
+
+def test_note_after_a_greek_legend_is_dropped_not_the_legend():
+    text, _, note = c.normalise_legend("\u03a0\u03a4\u039f\u039b\u0395\u039c\u0391\u0399\u039f\u03a5 \u0392\u0391\u03a3\u0399\u039b\u0395\u03a9\u03a3 above quadriga")
+    assert note is None and text == "\u03a0\u03a4\u039f\u039b\u0395\u039c\u0391\u0399\u039f\u03a5 \u0392\u0391\u03a3\u0399\u039b\u0395\u03a9\u03a3"
+
+
+def test_command_line_takes_several_datasets(tmp_path):
+    rows = [json.loads(line) for line in open(os.path.join(FIXTURES, "greek_triples.jsonl"), encoding="utf-8")]
+    paths = []
+    for code in ("sco", "pella"):
+        p = tmp_path / f"{code}.jsonl"
+        p.write_text("".join(json.dumps(r) + "\n" for r in rows if GREEK_MARKS[code] in r["t"]), encoding="utf-8")
+        paths.append(f"{code}={p}")
+    out = tmp_path / "coins.jsonl"
+    rc = c.main(["--dataset", paths[0], "--dataset", paths[1],
+                 "--refs", os.path.join(FIXTURES, "greek_refs"), "--output", str(out)])
+    assert rc == 0
+    ids = [json.loads(line)["id"] for line in open(out, encoding="utf-8")]
+    assert ids == ["sco:sc.1.1", "pella:lerider.philip_ii.1.1"]

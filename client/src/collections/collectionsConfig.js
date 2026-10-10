@@ -14,7 +14,7 @@ export const COLLECTIONS = [
   { id: 'literature', label: 'Literature', blurb: 'The literary texts and translations', available: true },
   { id: 'inscriptions', label: 'Inscriptions', blurb: 'Latin and Greek inscriptions', available: true },
   { id: 'papyri', label: 'Papyri', blurb: 'Documentary and literary papyri', available: true },
-  { id: 'coins', label: 'Coins', blurb: 'Roman coin types and legends', available: true },
+  { id: 'coins', label: 'Coins', blurb: 'Greek and Roman coin types and legends', available: true },
   { id: 'objects', label: 'Objects', blurb: 'Museum objects with catalogue descriptions', available: true },
   { id: 'scholarship', label: 'Scholarship', blurb: 'Commentaries, articles and books', available: true },
 ];
@@ -93,7 +93,7 @@ export const PAGE_NEEDS = {
   'inscriptions-papyri': ['inscriptions', 'papyri'],
   // Events (battles, sieges, treaties) gather passages, documents and scholarship.
   events: ['inscriptions', 'papyri', 'scholarship'],
-  // Roman coin types (OCRE and CRRO), a collection of their own.
+  // Greek and Roman coin types (OCRE, CRRO and seven Greek catalogues), a collection of their own.
   coins: ['coins'],
   // Museum objects with catalogue descriptions, a collection of their own.
   objects: ['objects'],

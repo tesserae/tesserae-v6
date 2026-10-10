@@ -242,6 +242,83 @@
     "notes": "2,602 coin types (Crawford, Roman Republican Coinage). Prototype only: not loaded into the live site. The licence wording was read on the project site (\"made available under the Open Database License\"). The documented bulk dump (nomisma.rdf) returned HTTP 502, so the records were pulled from the public endpoint https://nomisma.org/query. Images remain the copyright of their holding institutions and are not used."
   },
   {
+    "collection": "Coins (prototype)",
+    "name": "Corpus Nummorum Online (CN)",
+    "url": "https://www.corpus-nummorum.eu/",
+    "licence_name": "Creative Commons Attribution-NonCommercial-ShareAlike 3.0 (CC BY-NC-SA 3.0)",
+    "licence_url": "https://creativecommons.org/licenses/by-nc-sa/3.0/",
+    "version": "nomisma.org SPARQL export of the type records (nmo:TypeSeriesItem), plus nomisma.org labels and Pleiades matches for mints",
+    "retrieved": "2026-10-10",
+    "what_we_use": "Type-level records only: obverse and reverse legends, English type descriptions, mint, dates, authority or issuer, denomination, material, and each type's page address. No specimen data and no images.",
+    "notes": "11,913 coin types of Thrace, Moesia Inferior, Mysia and the Troad (Greek and Roman provincial). The licence is the one the nomisma.org dataset list gives for this dataset (CC BY-NC-SA 3.0, https://nomisma.org/datasets). The project's own Copyright page (https://www.corpus-nummorum.eu/en/copyright) speaks only of images, which are not used. Non-commercial use only. Records pulled from the public endpoint https://nomisma.org/query."
+  },
+  {
+    "collection": "Coins (prototype)",
+    "name": "Seleucid Coins Online (SCO), American Numismatic Society",
+    "url": "https://numismatics.org/sco/",
+    "licence_name": "Open Data Commons Open Database License 1.0 (ODbL)",
+    "licence_url": "https://opendatacommons.org/licenses/odbl/1.0/",
+    "version": "nomisma.org SPARQL export of the type records (nmo:TypeSeriesItem), plus nomisma.org labels and Pleiades matches for mints",
+    "retrieved": "2026-10-10",
+    "what_we_use": "Type-level records only: obverse and reverse legends, English type descriptions, mint, dates, authority or issuer, denomination, material, and each type's page address. No specimen data and no images.",
+    "notes": "8,694 coin types. The licence wording was read on the project site (\"SCO is made available under the Open Database License\") and agrees with the nomisma.org dataset list (ODC-ODbL). Records pulled from the public endpoint https://nomisma.org/query. Images and specimen data remain the copyright of their holding institutions and are not used."
+  },
+  {
+    "collection": "Coins (prototype)",
+    "name": "PELLA, coin type corpus of the Argead kings of Macedon, American Numismatic Society",
+    "url": "https://numismatics.org/pella/",
+    "licence_name": "Open Data Commons Open Database License 1.0 (ODbL)",
+    "licence_url": "https://opendatacommons.org/licenses/odbl/1.0/",
+    "version": "nomisma.org SPARQL export of the type records (nmo:TypeSeriesItem), plus nomisma.org labels and Pleiades matches for mints",
+    "retrieved": "2026-10-10",
+    "what_we_use": "Type-level records only: obverse and reverse legends, English type descriptions, mint, dates, authority or issuer, denomination, material, and each type's page address. No specimen data and no images.",
+    "notes": "7,228 coin types. The licence wording was read on the project site (\"Coin type data are made available with an Open Database License\") and agrees with the nomisma.org dataset list (ODC-ODbL). Records pulled from the public endpoint https://nomisma.org/query. Images and specimen data remain the copyright of their holding institutions and are not used."
+  },
+  {
+    "collection": "Coins (prototype)",
+    "name": "Ptolemaic Coins Online (PCO), American Numismatic Society",
+    "url": "https://numismatics.org/pco/",
+    "licence_name": "Open Data Commons Open Database License 1.0 (ODbL)",
+    "licence_url": "https://opendatacommons.org/licenses/odbl/1.0/",
+    "version": "nomisma.org SPARQL export of the type records (nmo:TypeSeriesItem), plus nomisma.org labels and Pleiades matches for mints",
+    "retrieved": "2026-10-10",
+    "what_we_use": "Type-level records only: obverse and reverse legends, English type descriptions, mint, dates, authority or issuer, denomination, material, and each type's page address. No specimen data and no images.",
+    "notes": "3,650 coin types, of which 1,680 have an English description. The licence wording was read on the project site (\"PCO is made available under the Open Database License\") and agrees with the nomisma.org dataset list (ODC-ODbL). Records pulled from the public endpoint https://nomisma.org/query. Images and specimen data remain the copyright of their holding institutions and are not used."
+  },
+  {
+    "collection": "Coins (prototype)",
+    "name": "Coins of the Bactrian and Indo-Greek Rulers (BIGR), American Numismatic Society",
+    "url": "https://numismatics.org/bigr/",
+    "licence_name": "Open Data Commons Open Database License 1.0 (ODbL)",
+    "licence_url": "https://opendatacommons.org/licenses/odbl/1.0/",
+    "version": "nomisma.org SPARQL export of the type records (nmo:TypeSeriesItem), plus nomisma.org labels and Pleiades matches for mints",
+    "retrieved": "2026-10-10",
+    "what_we_use": "Type-level records only: obverse and reverse legends, English type descriptions, mint, dates, authority or issuer, denomination, material, and each type's page address. No specimen data and no images.",
+    "notes": "2,107 coin types. The licence wording was read on the project site (\"Coin type data are made available with an Open Database License\") and agrees with the nomisma.org dataset list (ODC-ODbL). Records pulled from the public endpoint https://nomisma.org/query. Images and specimen data remain the copyright of their holding institutions and are not used."
+  },
+  {
+    "collection": "Coins (prototype)",
+    "name": "IRIS Online Greek Coinage, skeleton types, University of Oxford",
+    "url": "https://greekcoinage.org/iris/",
+    "licence_name": "Open Data Commons Open Database License 1.0 (ODbL)",
+    "licence_url": "https://opendatacommons.org/licenses/odbl/1.0/",
+    "version": "nomisma.org SPARQL export of the type records (nmo:TypeSeriesItem), plus nomisma.org labels and Pleiades matches for mints",
+    "retrieved": "2026-10-10",
+    "what_we_use": "Type-level records only: obverse and reverse legends, English type descriptions, mint, dates, authority or issuer, denomination, material, and each type's page address. No specimen data and no images.",
+    "notes": "13,399 skeleton types of Greek coinage. The licence is the one the nomisma.org dataset list gives (ODC-ODbL, https://nomisma.org/datasets). The IRIS site and its About page carry no licence statement of their own. Records pulled from the public endpoint https://nomisma.org/query."
+  },
+  {
+    "collection": "Coins (prototype)",
+    "name": "Levantine Coinages Online (LCO), American Numismatic Society",
+    "url": "https://numismatics.org/lco/",
+    "licence_name": "Open Data Commons Open Database License 1.0 (ODbL)",
+    "licence_url": "https://opendatacommons.org/licenses/odbl/1.0/",
+    "version": "nomisma.org SPARQL export of the type records (nmo:TypeSeriesItem), plus nomisma.org labels and Pleiades matches for mints",
+    "retrieved": "2026-10-10",
+    "what_we_use": "Type-level records only: obverse and reverse legends, English type descriptions, mint, dates, authority or issuer, denomination, material, and each type's page address. No specimen data and no images.",
+    "notes": "470 coin types of the Achaemenid and Hellenistic southern Levant. The licence wording was read on the project site (\"Coin type data are made available with an Open Database License\") and agrees with the nomisma.org dataset list (ODC-ODbL). Records pulled from the public endpoint https://nomisma.org/query. Images and specimen data remain the copyright of their holding institutions and are not used."
+  },
+  {
     "collection": "Events",
     "name": "Wikidata",
     "url": "https://www.wikidata.org/",

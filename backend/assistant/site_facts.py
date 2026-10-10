@@ -85,7 +85,7 @@ def collections():
         pass
     coins = os.environ.get('TESSERAE_COINS_DB') or os.path.join(_ROOT, 'data', 'coins', 'coins.sqlite')
     if os.path.exists(coins):
-        out.append(('coins', 'Roman coin types with their legends and descriptions'))
+        out.append(('coins', 'Greek and Roman coin types with their legends and descriptions'))
     objects = os.environ.get('TESSERAE_OBJECTS_DB') or os.path.join(_ROOT, 'data', 'objects', 'objects.sqlite')
     if os.path.exists(objects):
         out.append(('objects', 'museum objects with the catalogue descriptions of the Cleveland Museum '

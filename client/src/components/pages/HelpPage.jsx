@@ -1905,14 +1905,20 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
             <div className="prose max-w-none">
               <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Coins (in testing)</h3>
               <p className="text-gray-700 mb-4">
-                The Coins page lists Roman coin types: 56,113 from the Online Coins of the Roman Empire
-                (OCRE, from Augustus to the late fifth century) and 2,602 from Coinage of the Roman
-                Republic Online (CRRO). Both are catalogues kept by the American Numismatic Society and
-                shared through nomisma.org under the Open Database Licence. A coin type is a catalogue entry,
+                The Coins page lists 107,137 Greek and Roman coin types. The Roman types are 56,113 from the
+                Online Coins of the Roman Empire (OCRE, from Augustus to the late fifth century) and 2,602
+                from Coinage of the Roman Republic Online (CRRO). The Greek types are 13,399 from the IRIS
+                skeleton types of Greek coinage, 11,913 from Corpus Nummorum (Thrace, Moesia, Mysia and the
+                Troad), 8,694 from Seleucid Coins Online, 7,228 from PELLA (the Argead kings of Macedon),
+                3,650 from Ptolemaic Coins Online, 2,107 from Coins of the Bactrian and Indo-Greek Rulers
+                (BIGR) and 470 from Levantine Coinages Online.
+                All are catalogues shared through nomisma.org. Corpus Nummorum is under a Creative
+                Commons Attribution-NonCommercial-ShareAlike licence and the other eight are under the Open
+                Database Licence. A coin type is a catalogue entry,
                 not one coin. It records the legend on each side, the catalogue&rsquo;s description of what each
                 side shows, the mint, the dates, the issuing emperor or moneyer, the denomination and the
-                metal. You can search the legends and descriptions together (try &ldquo;capricorn&rdquo; or
-                &ldquo;harbor&rdquo;), narrow by authority, mint, denomination, material, source and date, and
+                metal. You can search the legends and descriptions together (try &ldquo;capricorn&rdquo;,
+                &ldquo;harbor&rdquo; or a Greek legend typed without accents), narrow by authority, mint, denomination, material, source and date, and
                 order the results by best match or by date. A mint that nomisma.org has matched to Pleiades
                 links to its place page. Each card links to &ldquo;Type page and specimens&rdquo; on the
                 Society&rsquo;s site, which lists the museum coins of that type with their photographs. This

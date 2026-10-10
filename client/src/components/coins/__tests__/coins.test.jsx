@@ -36,7 +36,8 @@ const LIST = {
     mint: [{ value: 'Colonia Patricia', count: 1 }],
     denomination: [{ value: 'Aureus', count: 1 }],
     material: [{ value: 'Gold', count: 1 }],
-    source: [{ value: 'ocre', count: 1 }, { value: 'crro', count: 1 }],
+    source: [{ value: 'ocre', count: 1 }, { value: 'crro', count: 1 }, { value: 'sco', count: 1 },
+             { value: 'pella', count: 1 }, { value: 'cn', count: 1 }],
   },
 };
 
@@ -111,6 +112,10 @@ describe('the list', () => {
     await userEvent.selectOptions(screen.getByLabelText('Source'), 'crro');
     await waitFor(() => expect(calls.some((c) => c.includes('source=crro'))).toBe(true));
     expect(screen.getByRole('option', { name: 'OCRE (Empire) (1)' })).toBeTruthy();
+    // each Greek catalogue shows under its short label, not its code
+    expect(screen.getByRole('option', { name: 'SCO (Seleucid) (1)' })).toBeTruthy();
+    expect(screen.getByRole('option', { name: 'PELLA (Argead Macedon) (1)' })).toBeTruthy();
+    expect(screen.getByRole('option', { name: 'Corpus Nummorum (Thrace, Moesia, Mysia, Troad) (1)' })).toBeTruthy();
   });
 
   it('pages, and says so when nothing is installed or nothing matches', async () => {

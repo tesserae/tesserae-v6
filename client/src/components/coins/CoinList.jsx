@@ -11,7 +11,17 @@ const FILTERS = [
   ['material', 'Material'],
   ['source', 'Source'],
 ];
-const SOURCE_NAMES = { ocre: 'OCRE (Empire)', crro: 'CRRO (Republic)' };
+const SOURCE_NAMES = {
+  ocre: 'OCRE (Empire)',
+  crro: 'CRRO (Republic)',
+  cn: 'Corpus Nummorum (Thrace, Moesia, Mysia, Troad)',
+  sco: 'SCO (Seleucid)',
+  pella: 'PELLA (Argead Macedon)',
+  pco: 'PCO (Ptolemaic)',
+  bigr: 'BIGR (Bactria and India)',
+  iris: 'IRIS (Greek skeleton types)',
+  lco: 'LCO (Levant)',
+};
 
 export function YearBox({ label, text, era, setText, setEra }) {
   return (
@@ -82,8 +92,9 @@ export default function CoinList({ openCoin }) {
     <div className="max-w-5xl mx-auto px-4 py-6">
       <h2 className="text-2xl font-bold text-gray-900">Coins</h2>
       <p className="text-sm text-gray-600 mt-1 mb-4">
-        Roman coin types from the Online Coins of the Roman Empire and Coinage of the Roman Republic Online,
-        searchable by legend and by the catalogue's description of what each side shows. In testing.
+        Greek and Roman coin types from the Online Coins of the Roman Empire, Coinage of the Roman Republic Online
+        and seven Greek catalogues (Corpus Nummorum, Seleucid, PELLA, Ptolemaic, Bactrian and Indo-Greek, IRIS
+        and Levantine), searchable by legend and by the catalogue's description of what each side shows. In testing.
       </p>
 
       <form onSubmit={submit} className="bg-white border border-gray-200 rounded-lg p-3 space-y-3">

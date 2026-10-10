@@ -2,7 +2,7 @@
 
     GET /api/coins?q=&authority=&mint=&denomination=&material=&source=
                   &date_from=&date_to=&sort=relevance|date&page=&per_page=
-        coin types (OCRE and CRRO), searchable over legends and descriptions,
+        coin types (Roman and Greek), searchable over legends and descriptions,
         filterable, paged, with facet counts for the filters in force.
     GET /api/coins/facets
         every value of each filter with its count, the date span, and the
@@ -25,8 +25,11 @@ data/coins/coins.sqlite. With no file the list route answers available=false
 and the detail route 404, as the Events routes do.
 
 Dates are signed years (-25 is 25 BCE). The type records come from OCRE and
-CRRO (American Numismatic Society, ODbL); images live on museum specimen
-records, so the page links to the type's own page and stores none.
+CRRO (Roman) and seven Greek catalogues (Corpus Nummorum, Seleucid, PELLA,
+Ptolemaic, BIGR, IRIS, Levantine), published through nomisma.org under
+ODbL or a Creative Commons non-commercial licence (CREDITS below). Images live
+on museum specimen records, so the page links to the type's own page and stores
+none.
 """
 import os
 import re
@@ -51,6 +54,13 @@ FACET_LIMIT = 60
 CREDITS = {
     'ocre': 'Type record: OCRE (American Numismatic Society), ODbL',
     'crro': 'Type record: CRRO (American Numismatic Society), ODbL',
+    'cn': 'Type record: Corpus Nummorum, CC BY-NC-SA 3.0',
+    'sco': 'Type record: SCO (American Numismatic Society), ODbL',
+    'pella': 'Type record: PELLA (American Numismatic Society), ODbL',
+    'pco': 'Type record: PCO (American Numismatic Society), ODbL',
+    'bigr': 'Type record: BIGR (American Numismatic Society), ODbL',
+    'iris': 'Type record: IRIS (University of Oxford), ODbL',
+    'lco': 'Type record: LCO (American Numismatic Society), ODbL',
 }
 LIST_COLUMNS = ('id, source, uri, title, authority, issuer, portrait, mint, mint_pleiades_id, '
                 'region, denomination, material, date_start, date_end, obverse_legend, '
@@ -70,10 +80,31 @@ def _conn():
     return c
 
 
+# Latin look-alike capitals inside a Greek word (a Latin B and A typed in
+# BAΣΙΛΕΩΣ, as the catalogues themselves do) are read as Greek, the same rule
+# scripts/coins/build_coins_db.py applies to the stored text, so the query
+# and the index fold alike.
+_LATIN_TO_GREEK = {'A': '\u0391', 'B': '\u0392', 'E': '\u0395', 'Z': '\u0396', 'H': '\u0397',
+                   'I': '\u0399', 'K': '\u039a', 'M': '\u039c', 'N': '\u039d', 'O': '\u039f',
+                   'P': '\u03a1', 'T': '\u03a4', 'Y': '\u03a5', 'X': '\u03a7'}
+
+
+def unmix_scripts(text):
+    def fix(m):
+        w = m.group(0)
+        if any(unicodedata.name(ch, '').startswith('GREEK') for ch in w):
+            return ''.join(_LATIN_TO_GREEK.get(ch, ch) for ch in w)
+        return w
+    return re.sub(r'\S+', fix, str(text or ''))
+
+
 def fold(text):
     """Lower-case and strip diacritics, as the database's search_text was."""
-    d = unicodedata.normalize('NFD', str(text or ''))
-    return ''.join(ch for ch in d if not unicodedata.combining(ch)).lower()
+    d = unicodedata.normalize('NFD', unmix_scripts(text))
+    d = ''.join(ch for ch in d if not unicodedata.combining(ch)).lower()
+    # final and lunate sigma fold to the ordinary one, so a legend typed with
+    # either is found
+    return d.replace('\u03c2', '\u03c3').replace('\u03f2', '\u03c3')
 
 
 def fts_query(q):
