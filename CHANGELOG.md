@@ -9,6 +9,9 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-10
 
+### Line Search: lines that quote the phrase come first
+A search for several words ("sit tibi terra levis") listed its literary hits by era, so lines sharing one word of the phrase stood above lines quoting it. Each literary hit now carries how many of the query's content words it shares and whether it has them all within a short window (a near quotation). A query of two or more words opens on a "Closest match" order (quotations first, then lines sharing more words, then the older text) with a tag beside each line ("whole phrase", "3 of 4 words"); By Era and A-Z remain. On the Inscriptions & Papyri page the "Both" search now shows the documents first and the literary companions after them, ranked the same way and folded to five until opened.
+
 ### Usage summary: referrers from real browsers only, rotated logs read, one bot list
 A referring site now counts only when the referred address also loaded the application that month, which removes forged referrers sent by scanners. The script reads rotated copies of the access log (plain or compressed) before the current file, and takes its bot list from the module the page-view route uses.
 
