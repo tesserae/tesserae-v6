@@ -165,6 +165,31 @@ anything is deleted, with a dated backup kept of each file it removes.
 - Backups to keep: each file replaced in steps 4 to 7, tagged
   `bak-historians-20261009`.
 
+## 2026-10-09 Documentary reuse tables rebuilt with the literary-works discount and the order-free rule (built 19:05 to 20:05, installed 20:08 EDT)
+- What: `cache/reuse_pairs/la_documents.db` and `grc_documents.db` (literature
+  against the inscriptions and papyri, read by the Reader's Reuse tab under
+  the documents trial) rebuilt with `scripts/reuse/build_documents_reuse_table.py
+  --max-literary-works 10` and the order-free rule on, against production's
+  texts, lemma caches and documents indexes. Each build under `~/bin/tess-job`
+  with an 8 GB cap: Latin 42 minutes, Greek 17 minutes; the candidates caches
+  (`la_candidates.sqlite`, `grc_candidates.sqlite`, kept beside the job log)
+  let a threshold sweep run in seconds.
+- Counts: Latin 4,050 pairs (3,412 before; 301 with two or more shared
+  phrases, 956 by the order-free rule), Greek 1,725 (1,509 before; 68 and 153).
+  Sweep: with the discount off, Latin 4,441 and Greek 1,785; N=5 keeps 3,332
+  and 1,375; N=10 keeps 4,050 and 1,725. N=10 was chosen because N=5 dropped
+  quotations of famous formulae that the literature itself repeats (Iliad 8.539
+  "immortal and ageless" in a papyrus, Horace Ep. 2.1.190 "equitum peditumque
+  catervae" on a stone); Aeneid 1.204 is lost at both. Ten random pairs read
+  per language: the two-or-more tier is nearly all real (Georgics 1.20 and
+  Aeneid 12.60 inscribed, Vulgate verses on stones, the Claudian titulature in
+  Josephus and a papyrus, Iliad 1.400 in a papyrus); the single-phrase tier is
+  still mostly coincidence, which is why the Reader labels it "possible".
+- Backups: the 16:45 tables and stats at
+  `~/tesserae-backups/reuse_pairs/*_documents*.bak-filtered-20261009`.
+- Reload by touching the WSGI file; checked `/api/reuse/line` for Aeneid 1.1
+  (seven inscriptions and the fullers' graffito) and Ephesians 5.16.
+
 ## 2026-10-09 Documentary reuse tables installed on production, then replaced by filtered builds (about 01:27 and 16:45 EDT)
 - What: `cache/reuse_pairs/la_documents.db` (Latin literature against the
   inscriptions and papyri) installed about 01:27 from a build on production's

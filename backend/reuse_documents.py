@@ -57,6 +57,7 @@ def is_available(language):
 
 
 def _drop_connection(language):
+    _KEEP_CLAUSE.pop(language, None)
     conn = _connections.pop(language, None)
     if conn is not None:
         try:
@@ -104,6 +105,28 @@ def meta(language):
         return {}
     except Exception:
         return {}
+
+
+_KEEP_CLAUSE = {}
+
+
+def _keep_clause(language, conn):
+    """The WHERE fragment that admits a pair: two or more shared phrases, or a
+    single phrase rare enough to pass the jaccard floor, or (tables built
+    since 2026-10-09, which carry a `rule` column) a pair found by the
+    order-free rule, whose jaccard is 0 by construction and which would
+    otherwise never be shown (the Pompeian fullers' parody of Aeneid 1.1).
+    One bound parameter in either form, so callers pass POSSIBLE_MIN_JACCARD
+    unchanged. Cached per language; cleared with the connection."""
+    if language not in _KEEP_CLAUSE:
+        try:
+            cols = {r[1] for r in conn.execute("PRAGMA table_info(pairs)").fetchall()}
+        except Exception:
+            cols = set()
+        _KEEP_CLAUSE[language] = (
+            "(shared > 1 OR jaccard >= ? OR rule = 'reorder')" if 'rule' in cols
+            else "(shared > 1 OR jaccard >= ?)")
+    return _KEEP_CLAUSE[language]
 
 
 def _work_has_rows(language, work):
@@ -203,8 +226,8 @@ def line(language, lit_work, lit_ref):
         rows = conn.execute(
             """SELECT doc_id, doc_bucket, doc_ref, shared, jaccard, span_len, doc_restored
                  FROM pairs WHERE lit_work = ? AND lit_ref = ?
-                   AND (shared > 1 OR jaccard >= ?)
-               ORDER BY shared DESC""",
+                   AND """ + _keep_clause(language, conn) + """
+               ORDER BY shared DESC""",  # nosec B608 -- the clause is one of two fixed strings
             (lit_work, lit_ref, POSSIBLE_MIN_JACCARD)
         ).fetchall()
     except sqlite3.DatabaseError as e:
@@ -279,7 +302,7 @@ def marks(language, lit_work, ref_start=None, ref_end=None):
     try:
         rows = conn.execute(
             """SELECT lit_ref AS ref, lit_seq AS seq, doc_id, shared FROM pairs
-                 WHERE lit_work = ? AND (shared > 1 OR jaccard >= ?)""",
+                 WHERE lit_work = ? AND """ + _keep_clause(language, conn),  # nosec B608 -- fixed strings
             (lit_work, POSSIBLE_MIN_JACCARD)
         ).fetchall()
     except sqlite3.DatabaseError as e:
