@@ -133,3 +133,20 @@ describe('Navigation — the "Inscriptions & Papyri" item (documents trial)', ()
     expect(setPageType).toHaveBeenCalledWith('inscriptions-papyri');
   });
 });
+
+describe('Navigation — the "Events" item follows Collections', () => {
+  beforeEach(() => { window.localStorage.clear(); window.sessionStorage.clear(); });
+  afterEach(() => { window.localStorage.clear(); });
+
+  it('is absent in the Literary profile', () => {
+    renderNav();
+    expect(screen.queryByRole('button', { name: /Events/ })).toBeNull();
+  });
+
+  it.each(['historical', 'everything'])('appears in the %s profile', async (profile) => {
+    const { setProfile } = await import('../../../collections/collectionsStore');
+    setProfile(profile);
+    renderNav();
+    expect(await screen.findByRole('button', { name: /Events/ })).toBeTruthy();
+  });
+});

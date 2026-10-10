@@ -1606,8 +1606,57 @@ def _lexical_boost(query, scores):
     return n
 
 
+# Windows one work may contribute when Theme Search is restricted to an author
+# or to chosen works. The corpus-wide cap (PASSAGES_PER_WORK) exists so one
+# huge work cannot own a page. Inside a chosen author that reasoning is gone:
+# the reader asked for this author, and a cap of three hid the second and third
+# storm in the Bellum Civile. Value and measurement: docs/DECISIONS.md.
+RESTRICTED_PER_WORK = 10
+
+
+def resolve_restriction(author=None, works=None, languages=None):
+    """Turn an author id and/or work ids into the set of base work ids that
+    have passage windows in the chosen languages.
+
+    Returns (work_set, note). `work_set` is a set of base work ids, or None
+    when no restriction was asked for. An unknown author or work gives an EMPTY
+    set and a plain `note`, never an error: the caller answers with no results
+    and the note, because "this author is not in the index" is a finding the
+    reader needs, not a fault.
+
+    The author is the part of the work id before its first dot (`lucan` in
+    `lucan.bellum_civile`). When both `author` and `works` are given, the result
+    is the works that belong to that author."""
+    author = (author or '').strip().lower()
+    wanted = [_norm_work(w.strip()) for w in (works or []) if w and w.strip()]
+    if not author and not wanted:
+        return None, None
+    _ensure_loaded()
+    if not _state['ok']:
+        return set(), 'The passage index is not available, so nothing can be searched.'
+    langs = list(languages) if languages else _index_languages()
+    available = set()
+    for lang in langs:
+        available.update(works_for_language(lang))
+    if author:
+        pool = {w for w in available if w.split('.')[0].lower() == author}
+        if not pool:
+            return set(), (f'No works by "{author}" have passage windows in the '
+                           'chosen languages, so there is nothing to search.')
+    else:
+        pool = available
+    if wanted:
+        chosen = {w for w in wanted if w in pool}
+        if not chosen:
+            return set(), ('None of the works named has passage windows in the '
+                           'chosen languages' + (f' for author "{author}"' if author else '')
+                           + ', so there is nothing to search.')
+        return chosen, None
+    return pool, None
+
+
 def find_by_text(query, limit=25, languages=None, scale=None, expand=False,
-                 offset=0):
+                 offset=0, only_works=None, per_work=None):
     """Theme Search: free-text description of the wanted content.
 
     `expand` now defaults to False and no in-repo caller passes True: measured
@@ -1629,6 +1678,13 @@ def find_by_text(query, limit=25, languages=None, scale=None, expand=False,
     confidence band was fitted to what page 1 shows, not to how deep a reader
     chooses to page, and individual scores can still clear STRONG_LIFT this
     deep because rank here is compressed, not confidence-ordered.
+
+    `only_works` (a set of base work ids, see resolve_restriction) restricts the
+    whole ranking to those works. The page is then a FLAT list of passages, not
+    one head per work with three rows each: `limit` and `offset` count passages,
+    and each work may contribute `per_work` of them (RESTRICTED_PER_WORK unless
+    given). No confidence level is rated for such a search, because the figures
+    were fitted to corpus-wide queries.
     """
     _ensure_loaded()
     if not _state['ok']:
@@ -1671,6 +1727,40 @@ def find_by_text(query, limit=25, languages=None, scale=None, expand=False,
     # The confidence figures above describe the embedding alone; the lexical
     # boost then reorders the windows (see LEXICAL_BETA).
     n_lexical = _lexical_boost(query, scores)
+
+    if only_works is not None:
+        # Restricted to an author or to chosen works. The corpus-wide level was
+        # fitted to queries over the whole index and says nothing about a few
+        # works, so it is withheld and no result is marked strong.
+        works_set = set(only_works)
+        # One work alone has nothing to be diverse against, and a cap would
+        # make paging stop at the cap (measured: Livy came back with 10
+        # passages at limit 25). Several works share the page, so each gets
+        # RESTRICTED_PER_WORK.
+        if per_work is not None:
+            cap = per_work
+        elif len(works_set) == 1:
+            cap = None
+        else:
+            cap = RESTRICTED_PER_WORK
+        results = _rank(scores, limit, offset=offset, languages=languages,
+                        scale=scale, baseline=baseline, strong_at=1e9,
+                        per_work=cap, only_works=works_set)
+        return {
+            'query': query,
+            'results': results,
+            'strong_matches': 0,
+            'lexical_boost': n_lexical > 0,
+            'restricted': True,
+            'per_work': cap,
+            'confidence': {'level': 'restricted'},
+            'note': ('Confidence is not rated for a search within one author or '
+                     'work. These are the closest passages in the chosen works, '
+                     'whether or not they match well, so read them before relying '
+                     'on them.' + (f' Each work shows up to {cap} passages. Choose '
+                                   'one work to see more of it.'
+                                   if cap is not None and cap < 10**6 and len(works_set) > 1 else '')),
+        }
 
     # WHY THE PAGE IS BUILT IN TWO PASSES
     #

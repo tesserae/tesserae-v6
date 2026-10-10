@@ -9,6 +9,79 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-09
 
+### Theme Search: optional "in this author or work" restriction
+- `/api/passages/theme-search` takes `author=` (one author id, all that author's works with passage windows in the chosen languages) and `works=` (comma-separated work ids). An unknown author or work answers 200 with an empty result and a `note`. A restricted search returns a flat list of passages, up to 10 per work when several works are involved and no cap for a single work, and states that confidence is not rated, because the confidence figures were fitted to corpus-wide queries. The Theme Search page has a "Search within" picker (Author, then Work) that is closed by default, shows the restriction in the results header, and carries it in the address. The `theme_search` connector tool accepts the same two parameters. Measurement and cap choice are in docs/DECISIONS.md.
+### Tessa: the cross-language pair list matches the search again
+- The search has offered Persian with Urdu, Arabic with Persian and Arabic with Urdu since 5 September, and the assistant's own list of pairs had not been told, so its test against the search's list failed. The three pairs are added; Persian with Urdu is marked as reachable from the Cross-Language tab, the two Arabic pairs as supported while the Arabic texts are held back.
+### Reader: the selection popup sits under the selected line on every path; legend names the inscriptions marks
+- The popup used to sit at the top of the pane, over the opening lines, when the selection came from a click on a quotation mark or from a URL, because those paths set no anchor; the line is now measured from the page. With the documents trial on, the legend gains the two amber inscriptions marks (quoted in that many inscriptions or papyri; possible echo), which had no entry and could be read as the grey "possible echo" mark.
+### Inscription and papyrus pages: image links named by institution, dead hosts hidden, moved addresses rewritten
+- The Images list on `/document` shows "Photo F034014 at Epigraphic Database Heidelberg" style labels (address in the href and title) and omits links to hosts that no longer serve them, with a note giving the count. Labels and the dead-host list are in `client/src/components/documents/imageHosts.json`. `scripts/documents/image_url_rules.py` holds the rewrite rules (old Heidelberg photo host, old CIL photo files) and the extractor applies them; `scripts/documents/fix_image_urls.py --dry-run|--apply --db PATH` fixes an existing metadata.db (backup first).
+### Reader: the inscriptions mark no longer overlaps the line
+- With the documents trial on, a line can carry both the "quoted in N works" mark and the amber inscriptions mark, and the mark column fitted one: the second sat over the text (Aeneid 1.1). The column is wider whenever the trial is on, so every line keeps the same left edge. The mark's tooltip says "papyri", not "papyruses".
+### Documentary reuse: phrases common across the literature discounted, word order no longer required
+- `scripts/reuse/build_documents_reuse_table.py` gains `--max-literary-works N` (a single-phrase pair is dropped when its phrase occurs in more than N distinct literary works; pairs sharing two or more phrases are kept whatever the phrase's currency), an order-free rule (three content lemmas within six tokens in any order, so the Pompeian fullers' parody of Aeneid 1.1 is found), a candidates cache for threshold sweeps in seconds, and per-work pairs per thousand lines in the stats file. Installed at N=10 (see DATA_OPERATIONS). `backend/reuse_documents.py` admits order-free pairs (their jaccard is 0 by construction) when the table carries a `rule` column, so the Reuse tab shows them as "possible".
+### Events page (in testing): a focus view for a battle, siege or treaty
+- New `/events` list and `/events/<id>` focus view with Passages, Inscriptions & Papyri, Scholarship and Map tabs, read-only `GET /api/events` and `/api/events/<id>` over an offline dossier SQLite (`TESSERAE_EVENTS_DB`, default `data/events/event_dossiers.sqlite`, built by `scripts/events/load_dossiers_sqlite.py`). Shown when Collections has Inscriptions, Papyri or Scholarship on (`PAGE_NEEDS.events`). The Reader shows a link back to the event when opened from it. Help gains a paragraph.
+### Scholarship tab: an expired CORE key no longer switches CORE off
+- On a 401 or 403 the full-text search retries CORE once without the key, paced to CORE's keyless limit across workers, and says the key needs renewing while results keep coming. A 429 waits and retries once. `scripts/ops/check_scholarship_keys.py` and timer templates in `scripts/ops/systemd/` check both keys weekly.
+### Xenophon, Hellenica and Cassius Dio, Roman History 36 to 55, added with English translations
+- `xenophon.hellenica` (1,146 lines, seven books) and `cassius_dio.roman_history`
+  (4,403 lines, books 36 to 55), each as a whole-work file plus one file per
+  book (29 `.tess` files), from the Perseus canonical-greekLit TEI
+  (tlg0032.tlg001 and tlg0385.tlg001, CC BY-SA 4.0), converted by the new
+  `scripts/corpus/perseus_greek_history_to_tess.py`. Dio's tables of contents
+  at the head of books 37 to 55 are chapter 0, and eleven words broken across
+  a printed page are rejoined. Perseus's Greek for Dio begins at 36.18 and
+  stops at 55.9.4.
+- Translations: Brownson's Loeb (1918 to 1921) for the Hellenica, from the
+  Perseus TEI, exact by book.chapter.section, 1,146 of 1,146 lines
+  (`scripts/translations/align_hellenica.py`), and Cary's Loeb (1914 to 1927)
+  for Dio from LacusCurtius, exact by chapter and section, 4,384 of 4,403
+  lines, the other 19 being the tables of contents
+  (`scripts/translations/align_dio.py`).
+- Descriptions, provenance rows and a Dio date entry added. Production
+  steps are in docs/DATA_OPERATIONS.md under the 2026-10-09 entry for these
+  two works. Nothing has been run on production.
+### Collections control replaces the trial switches
+- A "Collections" button in the main menu turns literature, inscriptions,
+  papyri, scholarship (and later coins and objects) on and off and sets four
+  profiles (Literary, Historical, Archaeological, Everything). The choice is
+  saved in the browser; Literary is the default and matches the site as it
+  was. The Reader's Scholarship tab, the Reuse tab's inscriptions and
+  papyri group, the Inscriptions & Papyri page and menu entry, and the
+  Browse Corpus documents view follow it. `?documents=1` and
+  `?scholarship=1` still work. See docs/COLLECTIONS.md.
+
+### Scholarship tab: Semantic Scholar snippets read in their real shape, one source's failure no longer takes the tab down
+- The snippet endpoint returns authors as name strings and carries no
+  year, venue or identifiers, with the DOI only inside the open-access
+  disclaimer. The reader expected dicts and raised, and the whole
+  `/api/scholarship` route answered 500 while a key was set. It now accepts
+  both shapes, reads the DOI from the disclaimer, spaces requests at one a
+  second with one retry after a 429, and any unexpected answer from one
+  full-text source is logged and skipped with a warning in the response.
+### Documentary reuse build reads one literary cache at a time
+- `scripts/reuse/build_documents_reuse_table.py` loaded every literary lemma
+  cache at once, and the Greek build stalled at its 12 GB memory cap. It now
+  lists the corpus files first and loads one cache at a time. The Latin
+  table it builds is identical to the live one (6,769 pairs), with peak
+  memory 1.9 GB.
+- The build now also drops pairs that share fewer than two distinct content
+  lemmas (lemmas not on the new `data/documents/function_words_la.txt` and
+  `function_words_grc.txt`, taken from CLTK's stopword lists) or whose longest
+  contiguous run of shared lemmas is shorter than two. A hand check had found
+  87% of Greek and 70% of Latin pairs were coincidences sharing only function
+  words. Numerals count as non-content (Latin and Greek cardinals, ordinals and
+  distributives on the lists, Roman numerals and Greek alphabetic numerals
+  recognised in code). Pair counts: Greek 11,124 to 1,509, Latin 6,769 to
+  3,412. Options
+  `--min-content-lemmas`, `--min-run` and `--no-quality-filter`. The pairs
+  table gains a `content_shared` column, which the Reader route ignores
+  because it selects columns by name.
+### Sources and credits for every collection
+- New "Sources and credits" section at the top of the Text Credits page, grouped by collection (literary texts, translations, inscriptions and papyri, scholarship, places and identifiers), built from `data/sources_credits.json` through `/api/sources-credits`. It names each source with its licence, version and retrieval date, including the four document sources (EDH, papyri.info, I.Sicily, EDR), the commentary collections, the scholarship search services, Pleiades and Trismegistos. The Help paragraph on inscriptions and papyri now names the licences. Every future import adds one record to the file (rule in docs/DATA_OPERATIONS.md).
+
 ### Scholarship tab: offered by the language of the work, not of the commentary
 - `/api/scholarship/sources` listed the languages commentaries are written
   in (mostly English), so the Reader hid the tab on Greek works annotated in
@@ -48,6 +121,39 @@ behind each, are in docs/DECISIONS.md.
   "Date uncertain" bucket. Genuinely early 7th/8th-century-BC inscriptions
   keep their own bucket. See
   `docs/DECISIONS.md`.
+
+### Diodorus Siculus (books 1 to 5, 18 to 20), Procopius' Wars, Zosimus and four Plutarch Lives added with English translations
+- `diodorus_siculus.bibliotheca_historica` (4,166 lines, books 1 to 5 and
+  18 to 20), `procopius.wars` (7,240 lines, eight books), `zosimus.historia_nova`
+  (1,071 lines, six books), each as a whole-work file plus one file per book,
+  and `plutarch.lysander` (155), `plutarch.dion` (388), `plutarch.eumenes` (98)
+  and `plutarch.demosthenes` (130) as one file each: 29 `.tess` files. The
+  Greek is the Perseus canonical-greekLit TEI for Diodorus (tlg0060.tlg001
+  grc5 and grc6, the Teubner texts), Procopius (tlg4029.tlg001, Dewing's Loeb
+  Greek) and Plutarch (tlg0007, Perrin's Loeb Greek), and First1KGreek for
+  Zosimus (tlg4084.tlg001, Mendelssohn's Teubner of 1887). All are CC BY-SA
+  4.0. Diodorus books 11 to 17 are left out. `scripts/corpus/perseus_greek_history_to_tess.py`
+  gained `--no-book` for the Plutarch Lives, drops an English source label
+  (the "Unknown" Perseus puts after two quoted lines of the Lysander) and
+  removes three stray question marks inside Greek words.
+- The Zosimus Greek is an OCR of the Teubner scan and has 20 places where a
+  letter was lost ("??" in the file). `scripts/corpus/repair_zosimus_procopius_text.py`
+  restores 18 words and drops 2 unreadable consular numerals (6.2.1), and
+  puts a space back at two places in Procopius where a combining breathing
+  joined two words.
+- Translations: Oldfather (books 1 to 5) and Geer (books 18 to 20), Loeb, from
+  LacusCurtius, exact by book.chapter.section, 4,158 of 4,166 lines
+  (`scripts/translations/align_diodorus.py`). Dewing's Loeb of the Wars from
+  LacusCurtius, exact, 7,240 of 7,240 (`align_procopius.py`). Perrin's Loeb for
+  the four Lives, from the Perseus TEI, exact by chapter.section, 771 of 771
+  lines (`align_plutarch.py`). Zosimus from the Green and Chaplin translation
+  of 1814 (Internet Archive scan, OCR), which has no chapter numbers, so each
+  Greek line is mapped to an English paragraph by dynamic programming and the
+  file is marked approximate: 1,071 of 1,071 lines in 314 blocks
+  (`align_zosimus.py`).
+- Descriptions, provenance rows and dates (Diodorus, Procopius, Zosimus) added.
+  Production steps are in docs/DATA_OPERATIONS.md under the 2026-10-09 entry for
+  these works. Nothing has been run on production.
 
 ## 2026-10-08
 

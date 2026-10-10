@@ -156,7 +156,13 @@ export default function TextPane({ units, language, selection, onSelect, total, 
               key={u.ref}
               id={`line-${cssRef(u.ref)}`}
               className={`grid gap-2 cursor-text ${selected ? 'bg-red-50 border-l-[3px] border-red-700 -ml-[3px] rounded-r' : ''}`}
-              style={{ gridTemplateColumns: '2.6rem 1.15rem 1fr', minHeight: '1.75rem' }}
+              // The second column holds the "quoted in N works" mark. With the
+              // documents trial on, a line can carry a second mark (the amber
+              // inscriptions count) beside it, and 1.15rem fitted one mark only:
+              // the second overlapped the line's text (seen on Aeneid 1.1,
+              // 2026-10-09). Reserve room for two whenever the trial is on, so
+              // every line's text stays on the same left edge.
+              style={{ gridTemplateColumns: `2.6rem ${documentsTrial ? '2.5rem' : '1.15rem'} 1fr`, minHeight: '1.75rem' }}
               // A tap on a phone makes no text selection, so nothing used to
               // happen. A click or tap that leaves no selection selects the
               // line itself; a drag still selects the swept span.
@@ -275,7 +281,7 @@ export default function TextPane({ units, language, selection, onSelect, total, 
                         type="button"
                         onMouseDown={(e) => e.stopPropagation()}
                         onClick={(e) => { e.stopPropagation(); onReuseClick?.(u); }}
-                        title={`Quoted in ${nDocs} inscription${nDocs === 1 ? '' : 's'} or papyrus${nDocs === 1 ? '' : 'es'}`}
+                        title={`Quoted in ${nDocs} inscription${nDocs === 1 ? '' : 's'} or papyr${nDocs === 1 ? 'us' : 'i'}`}
                         aria-label={`quoted in ${nDocs} document${nDocs === 1 ? '' : 's'}`}
                         className="inline-flex items-center justify-center text-[9px] font-bold leading-none
                                    text-amber-800 bg-amber-50 border border-amber-300 rounded px-1 py-[2px]
@@ -291,7 +297,7 @@ export default function TextPane({ units, language, selection, onSelect, total, 
                         type="button"
                         onMouseDown={(e) => e.stopPropagation()}
                         onClick={(e) => { e.stopPropagation(); onReuseClick?.(u); }}
-                        title={`Possible echo in ${nPossibleDocs} inscription${nPossibleDocs === 1 ? '' : 's'} or papyrus${nPossibleDocs === 1 ? '' : 'es'} (one rare shared phrase)`}
+                        title={`Possible echo in ${nPossibleDocs} inscription${nPossibleDocs === 1 ? '' : 's'} or papyr${nPossibleDocs === 1 ? 'us' : 'i'} (one rare shared phrase)`}
                         aria-label={`possible echo in ${nPossibleDocs} document${nPossibleDocs === 1 ? '' : 's'}`}
                         className="inline-flex items-center justify-center text-[9px] font-bold leading-none
                                    text-amber-700 bg-white border border-dashed border-amber-300 rounded px-1 py-[2px]

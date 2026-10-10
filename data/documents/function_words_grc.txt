@@ -1,0 +1,176 @@
+# Greek function-word lemmas (2026-10-09)
+#
+# Source: CLTK's Greek stopword list (cltk.stops.grc.STOPS, cltk 1.5.0,
+# 126 surface forms) with accents, apostrophes and breathings removed and
+# final sigma written as sigma, because the literary lemma cache and the
+# documents index store Greek lemmas in that unaccented form (for example
+# ο, και, ειμι, αυτοσ, ουτοσ). Hand-checked against the top 70 lemmas by
+# token frequency in a random 150-work sample of the literary cache: every
+# function word among them (article, conjunction, particle, preposition,
+# pronoun, ειμι) is covered; verbs and nouns such as λεγω, εχω, ποιεω,
+# λογοσ, ανηρ are deliberately absent. Three pronoun lemmas missing from
+# the list but frequent in the cache are added: εκεινοσ, ημεισ, υμεισ. Used by
+# scripts/reuse/build_documents_reuse_table.py.
+αλλ
+αλλα
+αλλοσ
+αν
+απο
+αρα
+αυτοσ
+γαρ
+γε
+δ
+δαι
+δαισ
+δε
+δη
+δια
+εαν
+εαυτου
+εγω
+ει
+ειμι
+εισ
+εκ
+εμοσ
+εν
+εξ
+επι
+ετι
+η
+και
+κατα
+μεν
+μετα
+μη
+ξυν
+ο
+οδε
+οι
+οσ
+οστισ
+οτι
+ου
+ουδε
+ουδεισ
+ουκ
+ουν
+ουτε
+ουτοσ
+ουτωσ
+παρα
+περι
+προσ
+σοσ
+συ
+συν
+τα
+τασ
+τε
+τη
+την
+τησ
+τι
+τισ
+το
+τοι
+τοιουτοσ
+τοισ
+τον
+του
+τουσ
+τω
+των
+υμοσ
+υπερ
+υπο
+ω
+ωσ
+ωστε
+εκεινοσ
+ημεισ
+υμεισ
+
+# --- NUMERAL BLOCK (2026-10-09) ---
+# Greek cardinals eis..myrioi, ordinals protos..myriostos, written out from
+# the standard grammar paradigms, in the cache's unaccented lemma form (final
+# sigma as sigma). Counted as non-content by the quality filter. Alphabetic
+# numerals (ib, lb, rkh) are handled in code, see is_numeral_lemma().
+ενοσ
+ενι
+ενα
+μια
+μιασ
+μιαν
+δυο
+δυοιν
+δυσι
+τρεισ
+τρια
+τριων
+τρισι
+τεσσαρεσ
+τεσσαρα
+τετταρεσ
+τετταρα
+πεντε
+επτα
+οκτω
+εννεα
+ενεα
+δεκα
+ενδεκα
+δωδεκα
+τρισκαιδεκα
+τεσσαρεσκαιδεκα
+πεντεκαιδεκα
+εικοσι
+εικοσιν
+τριακοντα
+τετταρακοντα
+τεσσαρακοντα
+πεντηκοντα
+εξηκοντα
+εβδομηκοντα
+ογδοηκοντα
+ενενηκοντα
+εκατον
+διακοσιοι
+τριακοσιοι
+τετρακοσιοι
+πεντακοσιοι
+εξακοσιοι
+επτακοσιοι
+οκτακοσιοι
+ενακοσιοι
+εννακοσιοι
+χιλιοι
+δισχιλιοι
+τρισχιλιοι
+τετρακισχιλιοι
+πεντακισχιλιοι
+μυριοι
+μυριασ
+χιλιασ
+πρωτοσ
+δευτεροσ
+τριτοσ
+τεταρτοσ
+τετραρτοσ
+πεμπτοσ
+εκτοσ
+εβδομοσ
+ογδοοσ
+ενατοσ
+εννατοσ
+δεκατοσ
+ενδεκατοσ
+δωδεκατοσ
+εικοστοσ
+τριακοστοσ
+τεσσαρακοστοσ
+πεντηκοστοσ
+εκατοστοσ
+χιλιοστοσ
+μυριοστοσ

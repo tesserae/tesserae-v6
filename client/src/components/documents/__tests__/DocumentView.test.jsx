@@ -111,13 +111,38 @@ describe('DocumentView', () => {
     expect(commentaryDetails.open).toBe(false);
   });
 
-  it('lists every image link', async () => {
+  it('lists every image link with a host label and the address as href and title', async () => {
     setUrl('?doc=edh:HD047322&lang=la&q=dis+manibus&type=lemma');
     mockFetchOk(documentPayload);
     render(<DocumentView />);
     await waitFor(() => expect(screen.getByText('AE 2001, 2169.')).toBeTruthy());
-    expect(screen.getByRole('link', { name: 'https://example.org/a.jpg' })).toBeTruthy();
-    expect(screen.getByRole('link', { name: 'https://example.org/b.jpg' })).toBeTruthy();
+    expect(screen.getAllByRole('link', { name: 'Link at example.org' }).length).toBe(2);
+    expect(screen.getAllByTitle(/^https:\/\/example\.org\/[ab]\.jpg$/).length).toBe(2);
+  });
+
+  it('names the institution, and omits links to dead hosts with a note', async () => {
+    setUrl('?doc=edh:HD047322&lang=la&q=dis+manibus&type=lemma');
+    mockFetchOk({
+      ...documentPayload,
+      display: {
+        ...documentPayload.display,
+        image_url: [
+          'https://edh.ub.uni-heidelberg.de/edh/foto/F034014',
+          'http://www.edr-edr.it/foto_epigrafi/immagini_uso/7/007012.jpg',
+          'https://lupa.at/16121',
+          'https://access.bl.uk/item/viewer/ark:/81055/vdc_1',
+          'ISic000001.jpg',
+        ],
+      },
+    });
+    render(<DocumentView />);
+    await waitFor(() => expect(screen.getByText('AE 2001, 2169.')).toBeTruthy());
+    expect(screen.getByRole('link', { name: 'Photo F034014 at Epigraphic Database Heidelberg' })
+      .getAttribute('href')).toBe('https://edh.ub.uni-heidelberg.de/edh/foto/F034014');
+    expect(screen.getByRole('link', { name: 'Image at Epigraphic Database Roma' })).toBeTruthy();
+    expect(screen.getByRole('link', { name: 'Record at Ubi Erat Lupa' })).toBeTruthy();
+    expect(screen.queryByText(/access\.bl\.uk/)).toBeNull();
+    expect(screen.getByText(/2 image links omitted \(the host no longer serves them\)/)).toBeTruthy();
   });
 
   it('the back link returns to Line Search with the query, language and type intact', async () => {

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { LoadingSpinner } from '../common';
 import { dirFor } from '../../utils/rtl';
+import { splitImageLinks } from './imageLinks';
 
 function paramOr(name, fallback) {
   const v = new URLSearchParams(window.location.search).get(name);
@@ -112,6 +113,7 @@ export default function DocumentView() {
         const dLabel = dateLabel(data);
         const images = Array.isArray(display.image_url) ? display.image_url
           : (display.image_url ? [display.image_url] : []);
+        const imageLinks = splitImageLinks(images);
         return (
           <div className="bg-white rounded-lg shadow p-4 sm:p-6 space-y-4">
             <div>
@@ -179,14 +181,21 @@ export default function DocumentView() {
             {images.length > 0 && (
               <div className="border-t pt-3">
                 <div className="text-sm font-medium text-gray-700 mb-1">Images</div>
-                <ul className="text-sm list-disc list-inside">
-                  {images.map((url, i) => (
-                    <li key={i}>
-                      <a href={url} target="_blank" rel="noopener noreferrer"
-                         className="text-amber-700 hover:underline break-all">{url}</a>
-                    </li>
-                  ))}
-                </ul>
+                {imageLinks.shown.length > 0 && (
+                  <ul className="text-sm list-disc list-inside">
+                    {imageLinks.shown.map(({ url, label }, i) => (
+                      <li key={i}>
+                        <a href={url} title={url} target="_blank" rel="noopener noreferrer"
+                           className="text-amber-700 hover:underline break-all">{label}</a>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                {imageLinks.omitted > 0 && (
+                  <p className="text-xs text-gray-500 mt-1">
+                    {imageLinks.omitted} image link{imageLinks.omitted === 1 ? '' : 's'} omitted (the host no longer serves {imageLinks.omitted === 1 ? 'it' : 'them'}).
+                  </p>
+                )}
               </div>
             )}
 

@@ -118,12 +118,20 @@ CROSS_PAIRS = {
     frozenset(('he', 'grc')): 'Hebrew and Greek',
     frozenset(('he', 'la')): 'Hebrew and Latin',
     frozenset(('cop', 'grc')): 'Coptic and Greek',
+    # The Perso-Arabic pairs (2026-09-05 in the search). Persian with Urdu has
+    # a control on the Cross-Language tab; the two Arabic pairs are supported
+    # by the search while the Arabic texts are held back from the site, so
+    # Tessa says they exist and does not send a reader to the tab for them.
+    frozenset(('fa', 'ur')): 'Persian and Urdu',
+    frozenset(('ar', 'fa')): 'Arabic and Persian',
+    frozenset(('ar', 'ur')): 'Arabic and Urdu',
 }
 
 # What the Cross-Language tab actually offers a control for.
 TAB_PAIRS = {
     frozenset(('grc', 'la')), frozenset(('la', 'en')), frozenset(('grc', 'en')),
     frozenset(('he', 'grc')), frozenset(('he', 'la')),
+    frozenset(('fa', 'ur')),
 }
 
 

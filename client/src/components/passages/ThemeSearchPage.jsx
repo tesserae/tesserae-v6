@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { chronological, byBestMatch, dateParts } from '../../utils/chronology';
-import { coverageCounts, fetchCoveredWorks } from '../../utils/passageCoverage';
+import { baseWorkId, coverageCounts, fetchCoveredWorks } from '../../utils/passageCoverage';
+import SearchableSelect from '../common/SearchableSelect';
 import { LANGUAGE_NAMES as LANG_LABEL } from '../../utils/languageNames';
 import { useCorpus } from '../../hooks';
 import TextSelector from '../search/TextSelector';
@@ -307,6 +308,16 @@ function downloadComparePairsCsv(data) {
   URL.revokeObjectURL(url);
 }
 
+/** The "in this author or work" restriction as request parameters. A chosen
+ *  work wins over its author: `works=` names it exactly, `author=` means every
+ *  work of that author. Empty when nothing is chosen, so the default request
+ *  is byte for byte what it was before the restriction existed. */
+export function scopeQuery(scope) {
+  if (scope && scope.work) return `&works=${encodeURIComponent(scope.work)}`;
+  if (scope && scope.author) return `&author=${encodeURIComponent(scope.author)}`;
+  return '';
+}
+
 export default function ThemeSearchPage() {
   const [query, setQuery] = useState('');
   // Read synchronously (a lazy initializer, not an effect) so that on the
@@ -426,6 +437,65 @@ export default function ThemeSearchPage() {
     return () => { dead = true; };
   }, [singleCoveredLang, served]);
 
+  // "Search within": restrict the search to one author or one work. Read from
+  // the address so a shared link carries it. Empty strings mean the whole corpus.
+  const [scopeAuthor, setScopeAuthor] = useState(() => {
+    const p = new URLSearchParams(window.location.search);
+    const w = (p.get('works') || '').split(',')[0].trim();
+    return (p.get('author') || '').trim().toLowerCase() || (w ? w.split('.')[0].toLowerCase() : '');
+  });
+  const [scopeWork, setScopeWork] = useState(() => {
+    const p = new URLSearchParams(window.location.search);
+    return (p.get('works') || '').split(',')[0].trim();
+  });
+  const [scopeOpen, setScopeOpen] = useState(() => Boolean(scopeAuthor || scopeWork));
+  // Works that have passage windows in the chosen languages, with the author
+  // and title labels the pickers show. Loaded the first time the section is
+  // opened, because it takes one catalogue call and one coverage call per
+  // language and most searches never need it.
+  const [scopeWorks, setScopeWorks] = useState(null);
+  useEffect(() => {
+    if (!scopeOpen) return undefined;
+    const codes = selectedLangCodes.length ? selectedLangCodes : BROWSE_CORPUS_LANGUAGES;
+    let dead = false;
+    Promise.all(codes.map((code) => (
+      fetch(`/api/texts?language=${code}`).then((r) => r.json()).catch(() => []).then((texts) => {
+        const arr = Array.isArray(texts) ? texts : [];
+        return fetchCoveredWorks(code, arr.length > 0).then((covered) => {
+          const have = new Set(covered || []);
+          return arr.filter((t) => have.has(baseWorkId(t.id)));
+        });
+      })
+    ))).then((lists) => {
+      if (dead) return;
+      const byId = new Map();
+      lists.flat().forEach((t) => {
+        const id = baseWorkId(t.id);
+        if (!byId.has(id)) {
+          byId.set(id, { id, authorKey: id.split('.')[0].toLowerCase(),
+                         author: t.author || id.split('.')[0], title: t.title || t.work || id });
+        }
+      });
+      setScopeWorks([...byId.values()]);
+    }).catch(() => { if (!dead) setScopeWorks([]); });
+    return () => { dead = true; };
+  }, [scopeOpen, language, served]);
+  const scopeAuthors = (() => {
+    const m = new Map();
+    (scopeWorks || []).forEach((w) => { if (!m.has(w.authorKey)) m.set(w.authorKey, w.author); });
+    return [...m.entries()].map(([value, label]) => ({ value, label }))
+      .sort((a, b) => a.label.localeCompare(b.label));
+  })();
+  const scopeWorkOptions = (scopeWorks || []).filter((w) => w.authorKey === scopeAuthor)
+    .map((w) => ({ value: w.id, label: w.title })).sort((a, b) => a.label.localeCompare(b.label));
+  const scopeLabel = (() => {
+    const w = (scopeWorks || []).find((x) => x.id === scopeWork);
+    if (scopeWork) return w ? `${w.author}, ${w.title}` : scopeWork;
+    if (!scopeAuthor) return '';
+    const a = scopeAuthors.find((x) => x.value === scopeAuthor);
+    return a ? a.label : scopeAuthor;
+  })();
+
   const [data, setData] = useState(null);
   const [running, setRunning] = useState(false);
   const [showWeak, setShowWeak] = useState(false);
@@ -457,7 +527,7 @@ export default function ThemeSearchPage() {
   // beautifully. The API already returns work groups in score order.
   const [order, setOrder] = useState('score');
 
-  const run = useCallback(async (q, lang, depth) => {
+  const run = useCallback(async (q, lang, depth, scopeOverride) => {
     const text = (q || '').trim();
     if (!text || running || loadingMore) return;
     const wanted = depth || 25;
@@ -471,10 +541,12 @@ export default function ThemeSearchPage() {
     }
     setError(null);
     const langParam = lang === undefined ? language : lang;
+    const scope = scopeOverride || { author: scopeAuthor, work: scopeWork };
     try {
       const res = await fetch(
         `/api/passages/theme-search?query=${encodeURIComponent(text)}&limit=${wanted}`
-        + (langParam ? `&languages=${encodeURIComponent(langParam)}` : ''));
+        + (langParam ? `&languages=${encodeURIComponent(langParam)}` : '')
+        + scopeQuery(scope));
       const json = await res.json();
       // The API reports trouble in the body rather than by status, so that a
       // missing index degrades this panel instead of breaking the page.
@@ -490,6 +562,8 @@ export default function ThemeSearchPage() {
         // every refinement of the same search.
         const p = new URLSearchParams({ query: text });
         if (langParam) p.set('languages', langParam);
+        if (scope.work) p.set('works', scope.work);
+        else if (scope.author) p.set('author', scope.author);
         window.history.replaceState({}, '', `/theme-search?${p.toString()}`);
       }
     } catch (e) {
@@ -498,7 +572,7 @@ export default function ThemeSearchPage() {
       setRunning(false);
       setLoadingMore(false);
     }
-  }, [running, loadingMore, data, language]);
+  }, [running, loadingMore, data, language, scopeAuthor, scopeWork]);
 
   // Show More past `limit`'s cap of 100: fetches the next 100 ranked results
   // (offset+1 .. offset+100) and appends them. Grouping and ordering are
@@ -519,7 +593,8 @@ export default function ThemeSearchPage() {
       const res = await fetch(
         `/api/passages/theme-search?query=${encodeURIComponent(text)}`
         + `&limit=100&offset=${nextOffset}`
-        + (language ? `&languages=${encodeURIComponent(language)}` : ''));
+        + (language ? `&languages=${encodeURIComponent(language)}` : '')
+        + scopeQuery({ author: scopeAuthor, work: scopeWork }));
       const json = await res.json();
       if (json.error) {
         setError(json.error);
@@ -543,7 +618,7 @@ export default function ThemeSearchPage() {
     } finally {
       setLoadingMore(false);
     }
-  }, [data, running, loadingMore, pastCap, language, query]);
+  }, [data, running, loadingMore, pastCap, language, query, scopeAuthor, scopeWork]);
 
   // Arriving from a link with the search already in it -- from Tessa, from a
   // bookmark, from a colleague. The page runs it rather than making the reader
@@ -962,6 +1037,63 @@ export default function ThemeSearchPage() {
         </p>
       )}
 
+      {/* Search within one author or work. Off by default: the page behaves
+          exactly as before until a name is chosen. */}
+      <div className="mt-3">
+        {!scopeOpen ? (
+          <button
+            type="button"
+            onClick={() => setScopeOpen(true)}
+            className="text-xs text-red-700 hover:underline"
+          >
+            Narrow to one author or work
+          </button>
+        ) : (
+          <div className="rounded border border-gray-200 bg-white p-3">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-medium text-gray-700">Search within</span>
+              <button
+                type="button"
+                onClick={() => {
+                  setScopeAuthor(''); setScopeWork(''); setScopeOpen(false);
+                  if (data && query.trim()) run(query, undefined, undefined, { author: '', work: '' });
+                }}
+                className="text-xs text-red-700 hover:underline"
+              >
+                Clear: search the whole corpus
+              </button>
+            </div>
+            {scopeWorks === null ? (
+              <p className="mt-2 text-xs text-gray-500">Loading authors…</p>
+            ) : (
+              <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <SearchableSelect
+                  ariaLabel="Search within author"
+                  value={scopeAuthor}
+                  placeholder="Author: whole corpus"
+                  options={[{ value: '', label: 'Whole corpus' }, ...scopeAuthors]}
+                  onChange={(v) => {
+                    setScopeAuthor(v); setScopeWork('');
+                    if (data && query.trim()) run(query, undefined, undefined, { author: v, work: '' });
+                  }}
+                />
+                <SearchableSelect
+                  ariaLabel="Search within work"
+                  value={scopeWork}
+                  disabled={!scopeAuthor}
+                  placeholder="Work: all of this author"
+                  options={[{ value: '', label: 'All works of this author' }, ...scopeWorkOptions]}
+                  onChange={(v) => {
+                    setScopeWork(v);
+                    if (data && query.trim()) run(query, undefined, undefined, { author: scopeAuthor, work: v });
+                  }}
+                />
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
       <div className="mt-3 flex flex-wrap gap-2">
         {examplesFor(served).map((ex) => (
           <button
@@ -995,9 +1127,22 @@ export default function ThemeSearchPage() {
             </div>
           )}
 
-          {!data.results?.length && (
+          {data.restricted && (
+            <div className="rounded border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-700">
+              {scopeLabel && <strong className="font-semibold">In {scopeLabel}.</strong>}{' '}
+              {data.note}
+            </div>
+          )}
+
+          {!data.results?.length && !data.restricted && (
             <p className="mt-4 text-sm text-gray-600">
               Nothing in the corpus resembles that description.
+            </p>
+          )}
+
+          {!data.results?.length && data.restricted && (
+            <p className="mt-4 text-sm text-gray-600">
+              Nothing in the chosen {scopeWork ? 'work' : 'author'} resembles that description.
             </p>
           )}
 

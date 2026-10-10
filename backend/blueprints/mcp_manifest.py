@@ -70,6 +70,16 @@ MANIFEST = {
         'reason': ('Document Reader view (stage 3b-3): website trial behind '
                     '?documents=1, not yet exposed to the connector.'),
     },
+    '/api/events': {
+        'site_only': True,
+        'reason': ('Events page (battles, sieges, treaties) in testing: reads '
+                    'an offline dossier database; not yet exposed to the connector.'),
+    },
+    '/api/events/<event_id>': {
+        'site_only': True,
+        'reason': ('Event focus view in testing: one dossier from the offline '
+                    'dossier database; not yet exposed to the connector.'),
+    },
     '/api/documents/browse': {
         'site_only': True,
         'reason': ('Documents section of Browse Corpus: facet tree (kind, '
@@ -144,6 +154,11 @@ MANIFEST = {
                 "keyed cleanly by filename). Both answer 'where did this text come from'; "
                 "only the former is wired in. Folding provenance.json in as a fallback would "
                 "raise describe_text's coverage -- flagged, not done, in the parity report."),
+    },
+    '/api/sources-credits': {
+        'site_only': True,
+        'reason': ('Site copy for the Text Credits page (one record per source, licence and '
+                   'version); a connector client reads each text\'s own credit through describe_text.'),
     },
     '/api/text-credits': {
         'tools': ['describe_text'],
