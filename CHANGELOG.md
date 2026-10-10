@@ -122,6 +122,19 @@ behind each, are in docs/DECISIONS.md.
   keep their own bucket. See
   `docs/DECISIONS.md`.
 
+### Diodorus Siculus books 11 to 17 from the Loeb Greek (draft, decision pending)
+- Seven new part files `diodorus_siculus.bibliotheca_historica.part.11` to
+  `.part.17` (3,957 lines: 491, 401, 691, 694, 448, 513 and 719) and the
+  whole-work file extended from 4,166 to 8,123 lines, with the new books
+  between 5 and 18. The Greek is Perseus canonical-greekLit
+  `tlg0060.tlg001.perseus-grc4`, the Loeb Greek of Oldfather, Sherman and
+  Welles (CC BY-SA 4.0 on the Perseus encoding). Existing part files are
+  unchanged. The converter was used as it stands. The English is the Loeb
+  translation from LacusCurtius, exact by book.chapter.section, 3,950 of
+  3,957 new lines. `scripts/translations/align_diodorus.py` now covers books
+  11 to 17. The pull request is a draft because whether to import these
+  books is undecided. Nothing has been run on production.
+
 ### Diodorus Siculus (books 1 to 5, 18 to 20), Procopius' Wars, Zosimus and four Plutarch Lives added with English translations
 - `diodorus_siculus.bibliotheca_historica` (4,166 lines, books 1 to 5 and
   18 to 20), `procopius.wars` (7,240 lines, eight books), `zosimus.historia_nova`
