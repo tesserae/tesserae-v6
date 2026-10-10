@@ -35,6 +35,33 @@ Conventions
   hand and are the models the helper matches.
 
 
+## 2026-10-10 Coins collection, build and install of `data/coins/coins.sqlite` (to run, nothing installed yet)
+
+- What: the Coins page and `/api/coins` read one SQLite file of 58,715 Roman
+  coin types (56,113 from OCRE, 2,602 from CRRO, nomisma.org exports, ODbL),
+  one row per type with its legends, both descriptions, mint and Pleiades id,
+  dates, authority, portrait, denomination and material, and an FTS5 index
+  over the legends and descriptions. The export, the three small label files
+  and the converter come from the coins prototype (#736). The data file is not
+  in git.
+- Steps, in a checkout of the merged branch, each through `tess-job`:
+  1. `df -h /` (100 GB free at least).
+  2. Convert (peak under 4 GB, cap 8 GB, about a minute):
+     `python -I scripts/coins/convert_ocre.py --ocre ~/tesserae-backups/sources/archaeology/ocre/ocre_types.jsonl --crro ~/tesserae-backups/sources/archaeology/crro/crro_types.jsonl --refs ~/tesserae-backups/sources/archaeology/nomisma_refs --output coins.jsonl --stats-out coins_stats.json`
+     Expect 58,715 types (56,113 and 2,602), 53,993 with legend text.
+  3. Build (cap 4 GB, under a minute, 47 MB out):
+     `python -I scripts/coins/build_coins_db.py --input coins.jsonl --out data/coins/coins.sqlite`
+     Expect `58715 types {'ocre': 56113, 'crro': 2602}`.
+  4. Install: create `/var/www/tesseraev6_flask/data/coins/` if absent
+     (group-writable, group tessdev), copy the file in under a temporary name,
+     rename it into place, then touch `tesseraev6_flask.wsgi`.
+  5. Check: `curl .../api/coins/facets` answers `available: true` and
+     `total` 58715. `curl '.../api/coins?q=capricorn'` returns 125 types.
+     `curl .../api/languages` still answers.
+- Switching on: the Coins entry appears in the main menu only for a visitor who
+  has the Coins collection on (the Archaeological profile, or the switch by
+  name). The Everything profile leaves it off.
+
 ## 2026-10-10 Page views table (created 09:56 on the reload after #761, confirmed)
 
 Confirmed 2026-10-10 09:56: the table exists, a verification post from the server answered 204 and inserted one row, and that row (visit `0123456789abcdef01234567`) was deleted afterwards so the record starts clean.

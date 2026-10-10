@@ -629,6 +629,8 @@ from backend.blueprints.scholarship import scholarship_bp  # noqa: E402
 app.register_blueprint(scholarship_bp, url_prefix=API_PREFIX or None)
 from backend.blueprints.events import events_bp  # noqa: E402
 app.register_blueprint(events_bp, url_prefix=API_PREFIX or None)
+from backend.blueprints.coins import coins_bp  # noqa: E402
+app.register_blueprint(coins_bp, url_prefix=API_PREFIX or None)
 
 app_logger.info(f"Blueprints registered (API_PREFIX='{API_PREFIX}', env={DEPLOYMENT_ENV})")
 
