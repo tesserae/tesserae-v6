@@ -377,6 +377,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
   };
 
   const sections = [
+    { id: 'start-here', label: 'Start here', group: 'Start here' },
     { id: 'getting-started', label: 'Getting Started', group: 'Start here' },
     { id: 'search-modes', label: 'The Types of Search', group: 'Start here' },
     { id: 'how-well', label: 'How well does it work?', group: 'Start here' },
@@ -547,6 +548,17 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
         </nav>
 
         <div ref={contentRef} className="flex-1 p-6">
+          {activeSection === 'start-here' && (
+            <div className="prose max-w-none">
+              <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Start here</h3>
+              <p className="text-gray-700 mb-4">
+                The Search page opens with the question "What are you trying to do?" the first time you visit. Choosing
+                an answer takes you to the right search, and "Skip this" closes the question for good. The "Start here"
+                link at the top of every page brings it back, and Tessa gives the same list when you ask her where to start.
+              </p>
+            </div>
+          )}
+
           {activeSection === 'getting-started' && (
             <div className="prose max-w-none">
               <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Getting Started</h3>

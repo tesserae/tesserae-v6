@@ -16,6 +16,8 @@ The first form of the closeness tag counted only the query's content words, and 
 ### Search: a work against itself shows where it repeats itself
 Comparing a work with itself on the Search page returned every line paired with its own twin. When source and target are the same work in the same unit, a line is no longer paired with itself and each pair of lines appears once, the earlier line as the source, so the list shows the phrases the work repeats.
 
+### Start here: a front door on the Search page
+The Search page asks a first-time visitor what they are trying to do and opens the right search; a header link brings the question back; Tessa answers 'where do I start' with the same six choices.
 ### Events: the best-attested events first, empty ones hidden
 The Events list opened on the earliest events in the database, several of them with no passage and no document attached. It now opens on the events with the most attached passages and nearby documents (an Order control offers the chronological order), leaves out the events with neither until a box is ticked, says how many it left out, and shows the count of each type in the Type menu. Four Wikidata items with no label beyond their identifier are no longer listed.
 ### Tessa describes what the server holds from its own state
