@@ -103,6 +103,19 @@ export default function ReaderPage() {
   // 'english' puts the translation in the middle and the original in the
   // side panel, for when the English translation is meant to be the focus.
   const [focusView, setFocusView] = useState(() => paramOr('view', 'source'));
+  // The key to the marks (boxes and colours) is folded away by default: open,
+  // it took three rows at the top of the text (2026-10-10). The choice is
+  // remembered in this browser.
+  const [keyOpen, setKeyOpen] = useState(() => {
+    try { return window.localStorage.getItem('tesserae_reader_key') === 'open'; } catch { return false; }
+  });
+  const toggleKey = () => setKeyOpen((o) => {
+    try { window.localStorage.setItem('tesserae_reader_key', o ? 'closed' : 'open'); } catch { /* ignore */ }
+    return !o;
+  });
+  // Which group the Reuse tab shows first: 'documents' after a click on the
+  // amber box (quoted in inscriptions or papyri), otherwise the literary one.
+  const [reuseFirst, setReuseFirst] = useState(null);
   const [fullTr, setFullTr] = useState(null);
   useEffect(() => { setFullTr(null); }, [work]);
 
@@ -669,7 +682,38 @@ export default function ReaderPage() {
                   (2026-09-20). The boxes come in two forms and both are named:
                   solid for a line quoted elsewhere, dashed for a possible echo. */}
               <span className="text-gray-500">darker = more connections</span>
-              <span className="flex items-center gap-1.5 border-l border-gray-300 pl-4">
+              <span className="ml-auto flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={toggleKey}
+                  aria-expanded={keyOpen}
+                  className="px-1.5 py-0.5 rounded text-[11px] font-medium border bg-white text-gray-600 border-gray-300 hover:bg-gray-100 mr-2"
+                >
+                  {keyOpen ? 'Hide key' : 'Key'}
+                </button>
+                <button
+                  onClick={() => setFocusView('source')}
+                  className={`px-1.5 py-0.5 rounded text-[11px] font-medium border ${
+                    focusView !== 'english'
+                      ? 'bg-red-700 text-white border-red-700'
+                      : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-100'}`}
+                >
+                  Original
+                </button>
+                <button
+                  onClick={() => setFocusView('english')}
+                  className={`px-1.5 py-0.5 rounded text-[11px] font-medium border ${
+                    focusView === 'english'
+                      ? 'bg-red-700 text-white border-red-700'
+                      : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-100'}`}
+                >
+                  English
+                </button>
+              </span>
+            </p>
+            {keyOpen && (
+              <p data-testid="reader-key" className="px-3 py-1.5 text-[11px] text-gray-600 border-b border-gray-200 bg-gray-50 flex flex-wrap items-center gap-x-4 gap-y-1">
+              <span className="flex items-center gap-1.5">
                 <span className="inline-flex items-center justify-center text-[9px] font-bold leading-none
                                  text-red-700 bg-gray-100 border border-gray-300 rounded px-1 py-[2px]">2</span>
                 quoted by that many other works
@@ -693,27 +737,8 @@ export default function ReaderPage() {
                   </span>
                 </>
               )}
-              <span className="ml-auto flex items-center gap-1">
-                <button
-                  onClick={() => setFocusView('source')}
-                  className={`px-1.5 py-0.5 rounded text-[11px] font-medium border ${
-                    focusView !== 'english'
-                      ? 'bg-red-700 text-white border-red-700'
-                      : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-100'}`}
-                >
-                  Original
-                </button>
-                <button
-                  onClick={() => setFocusView('english')}
-                  className={`px-1.5 py-0.5 rounded text-[11px] font-medium border ${
-                    focusView === 'english'
-                      ? 'bg-red-700 text-white border-red-700'
-                      : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-100'}`}
-                >
-                  English
-                </button>
-              </span>
-            </p>
+              </p>
+            )}
           {focusView === 'english' && (
             <div className="flex-1 min-w-0 overflow-y-auto px-6 py-4">
               {fullTr === 'loading' && <LoadingSpinner />}
@@ -787,7 +812,8 @@ export default function ReaderPage() {
                 selection={selection}
                 reuseMarks={reuseMarks}
                 documentsTrial={documentsTrial}
-                onReuseClick={(u) => {
+                onReuseClick={(u, kind) => {
+                  setReuseFirst(kind === 'documents' ? 'documents' : null);
                   const i = units.findIndex((x) => x.ref === u.ref);
                   const sel = { startIdx: i, endIdx: i, refStart: u.ref,
                                 refEnd: u.ref, lineCount: 1 };
@@ -797,6 +823,7 @@ export default function ReaderPage() {
                   setPopupOpen(true);
                 }}
                 onSelect={(sel) => {
+                  setReuseFirst(null);
                   setSelection(sel);
                   if (sel) setScope(scopeFor(sel));
                   // One line asks for shared wording, which is what the
@@ -849,6 +876,7 @@ export default function ReaderPage() {
             units={units}
             onOpenPassage={openPassage}
             initialTab={panelTab || wantedTab || undefined}
+            reuseFirst={reuseFirst}
             onClose={() => { setSelection(null); setPopupOpen(false); }}
           />
         </div>

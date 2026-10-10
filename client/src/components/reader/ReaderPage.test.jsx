@@ -631,8 +631,13 @@ describe('the selection toolbar and the marks legend', () => {
     cleanup();
     try { window.sessionStorage.setItem('tesserae_documents_trial', '1'); } catch { /* ignore */ }
     await mountReader();
+    // The key is folded away until asked for.
+    expect(screen.queryByText(/quoted in that many inscriptions or papyri/)).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Key' }));
     expect(screen.getByText(/quoted in that many inscriptions or papyri/)).toBeTruthy();
     expect(screen.getByText(/possible echo in an inscription or papyrus/)).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Hide key' }));
+    expect(screen.queryByText(/quoted in that many inscriptions or papyri/)).toBeNull();
     try { window.sessionStorage.removeItem('tesserae_documents_trial'); } catch { /* ignore */ }
   });
 });
