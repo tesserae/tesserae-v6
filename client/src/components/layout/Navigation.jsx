@@ -57,6 +57,8 @@ const mainTabs = [
   // Events (battles, sieges, treaties): shown when inscriptions, papyri or
   // scholarship is on (PAGE_NEEDS.events).
   { code: 'events', label: 'Events', beta: true, needs: 'events' },
+  // Coins (Roman coin types): shown when the Coins collection is on (PAGE_NEEDS.coins).
+  { code: 'coins', label: 'Coins', beta: true, needs: 'coins' },
   { code: 'browse', label: 'Browse Corpus' },
   { code: 'repository', label: 'Repository' },
   // DISABLED FOR PRODUCTION - Uncomment to restore Visualizations

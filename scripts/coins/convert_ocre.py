@@ -34,6 +34,7 @@ coin-specific fields:
                      ``restored_flags`` marks letters the catalogue puts in
                      square brackets (restored from other specimens)
   findspot           ancient_place = mint label, pleiades_id from nomisma
+  portrait, region   obverse portrait (label) and the export's region, if any
   authority          emperor(s) (OCRE) or issuer/moneyer(s) (CRRO)
   denomination, material, mint{uri,label,pleiades_id}
   obverse_legend, reverse_legend            raw, as catalogued
@@ -370,6 +371,13 @@ def convert_type(uri, rec, dataset, labels, mint_pleiades, vocab=None):
     denomination = _label(denom_uri, labels) if denom_uri else None
     material = _label(mat_uri, labels) if mat_uri else None
 
+    # who is shown on the obverse (an emperor, a deity), and the region the
+    # export gives for some types
+    portrait = "; ".join(_label(u, labels) for u in _uniq(
+        [v for v, _ in sides["obverse"].get(NMO + "hasPortrait", [])])) or None
+    region = "; ".join(_label(u, labels) for u in allv("hasRegion")
+                       if slug(u) != "uncertain_value") or None
+
     legend_raw, descr, lines = {}, {}, []
     notes = []
     all_texts = []
@@ -412,6 +420,8 @@ def convert_type(uri, rec, dataset, labels, mint_pleiades, vocab=None):
         "mint": mint,
         "authority": authority,
         "issuer": issuer,
+        "portrait": portrait,
+        "region": region,
         "denomination": denomination,
         "obverse_legend": legend_raw["obverse"],
         "reverse_legend": legend_raw["reverse"],

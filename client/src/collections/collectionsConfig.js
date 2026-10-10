@@ -14,7 +14,7 @@ export const COLLECTIONS = [
   { id: 'literature', label: 'Literature', blurb: 'The literary texts and translations', available: true },
   { id: 'inscriptions', label: 'Inscriptions', blurb: 'Latin and Greek inscriptions', available: true },
   { id: 'papyri', label: 'Papyri', blurb: 'Documentary and literary papyri', available: true },
-  { id: 'coins', label: 'Coins', blurb: 'Coin types and legends', available: false },
+  { id: 'coins', label: 'Coins', blurb: 'Roman coin types and legends', available: true },
   { id: 'objects', label: 'Objects', blurb: 'Inscribed and decorated objects', available: false },
   { id: 'scholarship', label: 'Scholarship', blurb: 'Commentaries, articles and books', available: true },
 ];
@@ -38,7 +38,13 @@ export const PROFILES = [
     on: ['literature', 'inscriptions', 'papyri', 'coins', 'objects'],
     layout: { browseView: 'documents' },
   },
-  { id: 'everything', label: 'Everything', on: COLLECTION_IDS, layout: { browseView: 'language' } },
+  // Everything leaves Coins OFF: 58,715 types of about five words each would
+  // flood a phrase search, so a visitor switches Coins on by name.
+  {
+    id: 'everything', label: 'Everything',
+    on: COLLECTION_IDS.filter((id) => id !== 'coins'),
+    layout: { browseView: 'language' },
+  },
 ];
 
 export const DEFAULT_PROFILE = 'literary';
@@ -88,6 +94,8 @@ export const PAGE_NEEDS = {
   'inscriptions-papyri': ['inscriptions', 'papyri'],
   // Events (battles, sieges, treaties) gather passages, documents and scholarship.
   events: ['inscriptions', 'papyri', 'scholarship'],
+  // Roman coin types (OCRE and CRRO), a collection of their own.
+  coins: ['coins'],
 };
 
 /** The documents collection is served as one unit: either switch opens it. */

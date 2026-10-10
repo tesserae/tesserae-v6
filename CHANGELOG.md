@@ -9,6 +9,9 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-10
 
+### Coins collection with a Coins page and search (in testing, off by default)
+A Coins page lists 58,715 Roman coin types (56,113 from OCRE, 2,602 from CRRO, nomisma.org, ODbL), searchable over legends and descriptions and filterable by authority, mint, denomination, material, source and date, with a detail view for each type and a link to the type's own page for specimens and photographs. The new `scripts/coins/build_coins_db.py` writes the SQLite file (FTS5 index) that the new `/api/coins`, `/api/coins/facets` and `/api/coins/<id>` routes read. The converter now also records each type's obverse portrait and region. Coins is a collection switch, on in the Archaeological profile and off in Everything, and the menu entry and page follow it. Help gains "Coins (in testing)". Tests cover the loader and API on a 12-type fixture, the page, the menu gate and manifest parity. The data file is built and installed by the steps in docs/DATA_OPERATIONS.md.
+
 ### Usage summary: referrers from real browsers only, rotated logs read, one bot list
 A referring site now counts only when the referred address also loaded the application that month, which removes forged referrers sent by scanners. The script reads rotated copies of the access log (plain or compressed) before the current file, and takes its bot list from the module the page-view route uses.
 
