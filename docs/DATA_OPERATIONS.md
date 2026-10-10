@@ -35,6 +35,68 @@ Conventions
   hand and are the models the helper matches.
 
 
+## 2026-10-10 Greek coin types added to the Coins collection (to run, nothing installed yet)
+
+- What: seven Greek catalogues published through nomisma.org join the 58,715
+  Roman types in `data/coins/coins.sqlite`, giving 106,176 types. Counts match the
+  Nomisma dataset counts exactly (IRIS 13,399, Corpus Nummorum 11,913, Seleucid
+  Coins Online 8,694, PELLA 7,228, Ptolemaic Coins Online 3,650, BIGR 2,107,
+  Levantine Coinages Online (LCO) 470).
+  The licences are ODbL for all but Corpus Nummorum (CC BY-NC-SA 3.0, from the Nomisma
+  dataset list). One record each
+  in `data/sources_credits.json`. Left out were the dataset coded AoD (Art of
+  Devastation, First World War items, not coins of Antigonid kings), Antigonid
+  Coins Online (182 types, no English descriptions), OSCAR (no English
+  descriptions), Online Coins of Ostrogothic Italy, Condottieri Medals and Iron Age Coins in
+  Britain (Celtic coinage, not Greek or Roman).
+- Fetched 2026-10-10 with `scripts/coins/fetch_nomisma.py` (about 40 minutes for
+  all seven run side by side) into one fresh folder per set under
+  `~/tesserae-backups/sources/archaeology/` (`sco`, `pella`, `pco`, `bigr`,
+  `iris`, `corpus_nummorum`, `lco`), each with a README giving the date,
+  query and licence page, and `nomisma_refs_greek_2026-10-10/` for the labels:
+  `python -I scripts/coins/fetch_nomisma.py types --dataset http://numismatics.org/sco/ --out sco/sco_types.jsonl`
+  (dataset addresses: `http://numismatics.org/{sco,pella,pco}/`,
+  `https://numismatics.org/{bigr,lco}/`, `https://greekcoinage.org/iris/`,
+  `https://www.corpus-nummorum.eu/`), then
+  `python -I scripts/coins/fetch_nomisma.py refs --types sco/sco_types.jsonl --refs nomisma_refs_greek_2026-10-10`.
+- Rebuild, each through `tess-job` (cap 8 GB, convert 10 seconds, build 15 seconds):
+  1. `python -I scripts/coins/convert_ocre.py --dataset ocre=ocre/ocre_types.jsonl --dataset crro=crro/crro_types.jsonl --dataset cn=corpus_nummorum/corpus_nummorum_types.jsonl --dataset sco=sco/sco_types.jsonl --dataset pella=pella/pella_types.jsonl --dataset pco=pco/pco_types.jsonl --dataset bigr=bigr/bigr_types.jsonl --dataset iris=iris/iris_types.jsonl --dataset lco=lco/lco_types.jsonl --refs nomisma_refs --refs nomisma_refs_greek_2026-10-10 --output coins.jsonl --stats-out coins_stats.json`
+     (paths under `~/tesserae-backups/sources/archaeology/`). Keep `ocre` and
+     `crro` first, because the order fixes the numbering of the descriptions.
+  2. `python -I scripts/coins/build_coins_db.py --input coins.jsonl --out coins.sqlite`
+     Expect `106176 types` with ocre 56113, crro 2602, cn 11913, sco 8694, pella 7228,
+     pco 3650, bigr 2107, iris 13399, lco 470.
+  3. `python scripts/coins/embed_descriptions.py --input coins.jsonl --out DIR --rows-out descriptions_input.jsonl`
+     writes one row per distinct description: 46,244 rows, of which the first
+     26,461 are the Roman descriptions in the order of the vectors already made (checked
+     string for string), and 19,783 are new. Only the new rows need embedding.
+- Install (after the pull request merges and the vectors exist):
+  1. Copy `coins.sqlite` to `/var/www/tesseraev6_flask/data/coins/coins.sqlite.new`
+     and rename it over `coins.sqlite`. The search text now folds final and
+     lunate sigma to sigma and reads Latin look-alike capitals inside Greek
+     words as Greek, so the database must be the rebuilt one, not the old one.
+  2. When the 19,783 new vectors are embedded (campus GPU, `--blobs-out` as
+     above on the full `coins.jsonl`, or `--from-parts`), run
+     `embed_descriptions.py ... --from-parts` and
+     `pack_descriptions.py --emb DIR --out data/coins`. Expect
+     `packed 46244 descriptions for 99453 coin types`. Copy `descriptions.npy` and
+     `descriptions_ids.json` to production under temporary names and rename them
+     (ids file first). Until then, `descriptions_ids.json` of the Roman build
+     still matches its own matrix, and the Greek types simply have no vectors.
+  3. `touch /var/www/tesseraev6_flask/tesseraev6_flask.wsgi`, then `curl .../api/languages`.
+- Checks: `curl .../api/coins/facets` answers `total` 106176 and nine sources.
+  A Greek legend: `curl '.../api/coins?q=%CE%B2%CE%B1%CF%83%CE%B9%CE%BB%CE%B5%CF%89%CF%83+%CF%83%CE%B5%CE%BB%CE%B5%CF%85%CE%BA%CE%BF%CF%85'`
+  (the words for "of King Seleucus" typed without accents) returns Seleucid
+  types first. A Greek description search, `curl '.../api/coins?q=elephant&source=sco'`,
+  returns Seleucid types. After the vectors are installed, rerun
+  `scripts/coins/measure_for_passage.py` on the ten test passages (Roman-only
+  figure: 17 of 50 matches right, 0.34) to see whether the Greek descriptions
+  dilute the Roman results.
+- Reader name links: the authority and portrait names of the Greek sets
+  (Alexander III, Seleucus I, Ptolemy I and so on) are now offered to the
+  name-link matcher in `backend/coins_passage.py`. Check a Latin passage that
+  names Alexander after the install.
+
 ## 2026-10-10 Coins in the Reader and Theme Search, install of the description vectors (run 2026-10-10 16:50)
 
 - Run: `descriptions.npy` (54 MB) and `descriptions_ids.json` (6.6 MB), packed
