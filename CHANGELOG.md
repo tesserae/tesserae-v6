@@ -14,6 +14,8 @@ The "beta" tag on the assistant's header is gone. A live check of twenty-one que
 
 ### Tessa's collapsed button reads "Tessa"
 The closed assistant was a red circle with a bare T at the bottom right of the page, which told a first-time visitor nothing. It is now a pill of the same height that reads "Tessa".
+### Latin verse scansion on every server: the CLTK scanners carried in the backend
+The hexameter, pentameter and hendecasyllable scanners from the Classical Language Toolkit (MIT licence, eleven pure-Python modules) now live in backend/prosody_lat and are used when the CLTK distribution itself is not installed. The production server had no CLTK (its dependencies run to several gigabytes), so every verse outside the precomputed MQDQ table went unscanned. Verified in the production environment: Catullus 1.1 scans as a valid hendecasyllable.
 
 ### Metre scanner: a missing scanner is reported once, not once per verse
 On the production server the optional CLTK prosody modules are not installed, so every verse offered to the hendecasyllable scanner raised an error that was written to the web server's error log, thousands of lines per search, 22 GB by October. The scanner now returns no scansion for a metre it cannot scan and writes one warning per process.

@@ -33,7 +33,16 @@ try:
     from cltk.prosody.lat.pentameter_scanner import PentameterScanner
     _CLTK_AVAILABLE = True
 except ImportError:
-    pass
+    # The same scanners, copied from CLTK under its MIT licence into
+    # backend/prosody_lat, so a server without the multi-gigabyte CLTK
+    # distribution still scans every metre.
+    try:
+        from backend.prosody_lat.hexameter_scanner import HexameterScanner
+        from backend.prosody_lat.hendecasyllable_scanner import HendecasyllableScanner
+        from backend.prosody_lat.pentameter_scanner import PentameterScanner
+        _CLTK_AVAILABLE = True
+    except ImportError:
+        pass
 
 _hexameter_scanner = None
 _hendecasyllable_scanner = None
