@@ -19479,11 +19479,6 @@
     "added_by": "V6 Import (historians, 2026-10-09)"
   },
   {
-    "author": "Cassius Dio",
-    "work": "Roman History (Books 36-55)",
-    "e_source": "Perseus Digital Library / Open Greek and Latin (canonical-greekLit, TLG 0385.001)",
-    "e_source_url": "https://github.com/PerseusDL/canonical-greekLit/tree/master/data/tlg0385/tlg001",
-    "print_source": "Dio's Roman History, vols. 3-6. Cary, Earnest, ed. London: William Heinemann; New York: G. P. Putnam's Sons, 1914-1917. (Licence: CC BY-SA 4.0; translation by Earnest Cary, Loeb, 1914-1927, from LacusCurtius.)",
     "author": "Diodorus Siculus",
     "work": "Bibliotheca Historica (Books 1-5, 18-20)",
     "e_source": "Perseus Digital Library / Open Greek and Latin (canonical-greekLit, TLG 0060.001)",
@@ -19493,7 +19488,7 @@
   },
   {
     "author": "Procopius",
-    "work": "History of the Wars",
+    "work": "Wars",
     "e_source": "Perseus Digital Library / Open Greek and Latin (canonical-greekLit, TLG 4029.001)",
     "e_source_url": "https://github.com/PerseusDL/canonical-greekLit/tree/master/data/tlg4029/tlg001",
     "print_source": "Procopius, vols. 1-5 (History of the Wars). Dewing, Henry Bronson, ed. London: William Heinemann; New York: G. P. Putnam's Sons, 1914-1928. Loeb Classical Library. (Licence: CC BY-SA 4.0; translation by H. B. Dewing, Loeb, 1914-1928, from LacusCurtius.)",
@@ -19537,6 +19532,14 @@
     "e_source": "Perseus Digital Library / Open Greek and Latin (canonical-greekLit, TLG 0007.054)",
     "e_source_url": "https://github.com/PerseusDL/canonical-greekLit/tree/master/data/tlg0007/tlg054",
     "print_source": "Plutarch's Lives. Perrin, Bernadotte, ed. Cambridge, MA: Harvard University Press; London: William Heinemann, 1919. Loeb Classical Library. (Licence: CC BY-SA 4.0; translation by Bernadotte Perrin, Loeb, 1919, from the same repository.)",
+    "added_by": "V6 Import (historians, 2026-10-09)"
+  },
+  {
+    "author": "Cassius Dio",
+    "work": "Roman History",
+    "e_source": "Perseus Digital Library / Open Greek and Latin (canonical-greekLit, TLG 0385.001)",
+    "e_source_url": "https://github.com/PerseusDL/canonical-greekLit/tree/master/data/tlg0385/tlg001",
+    "print_source": "Dio's Roman History, vols. 3-6 (books 36-55). Cary, Earnest, ed., on the basis of H. B. Foster. London: William Heinemann; New York: Macmillan, 1914-1917. Loeb Classical Library. (Licence: CC BY-SA 4.0; translation by Earnest Cary, Loeb, 1914-1927, from LacusCurtius.)",
     "added_by": "V6 Import (historians, 2026-10-09)"
   }
 ]
