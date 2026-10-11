@@ -50,7 +50,16 @@ Conventions
   and Knights, one in Gellius), which `html.unescape` does not recognise.
 - Code: `backend/translations.py` now decodes entities when a file is loaded,
   so a future transcription cannot show them.
-## 2026-10-10 Scholarship Theme Search, packed index and install steps (packed 2026-10-10; install to run)
+## 2026-10-10 Scholarship Theme Search, packed index and install steps (packed 2026-10-10; installed 2026-10-11 00:58 EDT)
+
+- Run: the five packed files (335 MB) were copied from
+  `~/tesserae-backups/scholarship_theme_idx_2026-10-09/packed/` into
+  `/var/www/tesseraev6_flask/data/scholarship_theme/` under temporary names
+  and renamed, mode 664, with the wsgi touch, right after #798 deployed.
+  Checks: `/api/scholarship/theme?q=the+catalogue+of+ships+as+a+poetic+device`
+  answered `available: true` with ten results (Classical Philology sentences
+  and commentary notes on the Aeneid among them); `/api/scope` reports 82,814
+  scholarship windows.
 
 - Source: the index built on 2026-10-09 with the campus GPU, `~/tesserae-backups/scholarship_theme_idx_2026-10-09/`
   (82,814 windows: 48,043 commentary notes and 34,771 article sentences), read only.
