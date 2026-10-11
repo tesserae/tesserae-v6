@@ -223,7 +223,7 @@ describe('a restricted text (data/restricted_texts.json)', () => {
   });
 });
 
-describe('the About panel facts column', () => {
+describe('the About panel: title, facts line, prose, sources footnote', () => {
   function mockFetch({ facts, translation } = {}) {
     global.fetch = vi.fn((url) => {
       const u = String(url);
@@ -241,49 +241,53 @@ describe('the About panel facts column', () => {
     });
   }
 
-  // Author/work names here are deliberately NOT "Ovid"/"Vergil"/"Tristia"/
-  // "Aeneid": those already sit in HIERARCHY's hidden native <select>
-  // options (rendered for phones regardless of viewport in a test
-  // environment), so asserting on them would match two elements.
-  it('lists the facts the server sent, and links to the filtered credits page', async () => {
+  it('sets a title, a facts line, the prose and a sources footnote, with the links', async () => {
     mockFetch({
       facts: {
         author: 'Seneca', work: 'Thyestes', part: 'Act 3', year: -19, era: 'Augustan',
         date_note: null, kind: 'poetry',
-        edition: { print_source: 'Teubner, 1900', e_source: 'Perseus',
+        edition: { print_source: 'Ginn &amp; Co., Boston, 1900.', e_source: 'Perseus',
                    e_source_url: 'https://perseus.example/thyestes' },
       },
+      translation: { available: true, attribution: 'Perseus Digital Library' },
     });
     mount({ units: [{ ref: 'a' }, { ref: 'b' }, { ref: 'c' }] });
     fireEvent.click(await screen.findByLabelText('About this text'));
 
-    expect(await screen.findByText('Seneca')).toBeInTheDocument();
-    expect(screen.getByText('Thyestes, Act 3')).toBeInTheDocument();
-    expect(screen.getByText('19 BCE')).toBeInTheDocument();
+    const title = await screen.findByRole('heading', { name: 'Seneca, Thyestes, Act 3' });
+    expect(title).toBeInTheDocument();
+    // the facts line: each fact carries a plain tooltip
+    expect(screen.getByTitle('Approximate date of the work')).toHaveTextContent('19 BCE');
     expect(screen.getByText('Augustan')).toBeInTheDocument();
     expect(screen.getByText('Poetry')).toBeInTheDocument();
-    // "3 lines" also appears in the header's own position indicator (top
-    // right), unrelated to the facts row -- two matches is correct here.
-    expect(screen.getAllByText('3 lines')).toHaveLength(2);
-    expect(screen.getByText('Teubner, 1900')).toBeInTheDocument();
+    expect(screen.getByTitle('The number of lines in the text open in the Reader'))
+      .toHaveTextContent('3 lines');
+    expect(screen.getByText('An orientation blurb.')).toBeInTheDocument();
+
+    const note = await screen.findByText(/Translation by Perseus Digital Library/);
+    expect(note.textContent).toContain('Text from Ginn & Co., Boston, 1900, through Perseus.');
+    expect(note.textContent).not.toContain('&amp;');
     const source = screen.getByRole('link', { name: 'Perseus' });
     expect(source).toHaveAttribute('href', 'https://perseus.example/thyestes');
+    expect(screen.getByRole('link', { name: 'Full credits' }))
+      .toHaveAttribute('href', '/text-credits?author=Seneca');
 
-    const credits = screen.getByRole('link', { name: 'Full credits' });
-    expect(credits).toHaveAttribute('href', '/text-credits?author=Seneca');
+    // the old uppercase label grid is gone
+    for (const label of ['Author', 'Work', 'Date', 'Era', 'Kind', 'Lines', 'Print edition',
+                         'Digital source', 'Translation']) {
+      expect(screen.queryByText(label)).not.toBeInTheDocument();
+    }
   });
 
-  it('omits a row with no data rather than showing it blank', async () => {
+  it('omits a fact with no data rather than showing it blank', async () => {
     mockFetch({ facts: { author: 'Anonymous', work: null, year: null, era: null, kind: null } });
     mount({ units: [] });
     fireEvent.click(await screen.findByLabelText('About this text'));
 
-    expect(await screen.findByText('Anonymous')).toBeInTheDocument();
-    expect(screen.queryByText('Work')).not.toBeInTheDocument();
-    expect(screen.queryByText('Date')).not.toBeInTheDocument();
-    expect(screen.queryByText('Era')).not.toBeInTheDocument();
-    expect(screen.queryByText('Kind')).not.toBeInTheDocument();
-    expect(screen.queryByText('Lines')).not.toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Anonymous' })).toBeInTheDocument();
+    expect(screen.queryByTitle('Approximate date of the work')).not.toBeInTheDocument();
+    expect(screen.queryByText('Poetry')).not.toBeInTheDocument();
+    expect(screen.queryByText(/lines?$/)).not.toBeInTheDocument();
   });
 
   it('drops the whole facts column, including the credits link, when there are no facts at all', async () => {
@@ -303,7 +307,7 @@ describe('the About panel facts column', () => {
     mount();
     fireEvent.click(await screen.findByLabelText('About this text'));
 
-    expect(await screen.findByText('A. S. Kline (2003)')).toBeInTheDocument();
+    expect(await screen.findByText(/Translation by A\. S\. Kline \(2003\)\./)).toBeInTheDocument();
   });
 
   it('omits the Translation row when no aligned translation exists', async () => {
@@ -312,7 +316,7 @@ describe('the About panel facts column', () => {
     mount();
     fireEvent.click(await screen.findByLabelText('About this text'));
 
-    await screen.findByText('Seneca');
-    expect(screen.queryByText('Translation')).not.toBeInTheDocument();
+    await screen.findByRole('heading', { name: 'Seneca, Thyestes' });
+    expect(screen.queryByText(/Translation by/)).not.toBeInTheDocument();
   });
 });

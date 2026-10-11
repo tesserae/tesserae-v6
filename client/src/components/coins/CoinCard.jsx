@@ -1,28 +1,49 @@
-import { coinDate, coinTitle, coinPath } from './coinsFormat';
+import { coinDate, coinTitle, coinPath, catalogueName } from './coinsFormat';
 
-function Legend({ label, text }) {
+const OBVERSE_TIP = 'Catalogues call the front of a coin the obverse and the back the reverse.';
+
+function Line({ label, text, empty = 'none recorded' }) {
   return (
-    <div>
-      <dt className="text-xs uppercase tracking-wide text-gray-500">{label}</dt>
-      <dd className="text-gray-900 font-medium break-words">{text || <span className="text-gray-400 font-normal">none recorded</span>}</dd>
+    <p className="break-words">
+      <span className="text-gray-500">{label}:</span>{' '}
+      {text
+        ? <span className="text-gray-900">{text}</span>
+        : <span className="text-gray-400">{empty}</span>}
+    </p>
+  );
+}
+
+/** One side of a coin: what it shows and what is written on it. */
+function Side({ name, term, description, inscription }) {
+  return (
+    <div className="text-sm space-y-1">
+      <h4 className="font-semibold text-gray-900" title={OBVERSE_TIP}>
+        {name} <span className="text-xs font-normal text-gray-500">({term})</span>
+      </h4>
+      <Line label="Shows" text={description} />
+      <Line label="Inscription" text={inscription} empty="none recorded" />
     </div>
   );
 }
 
-function Describe({ label, text }) {
+/** Front and back, side by side. */
+export function CoinSides({ coin }) {
   return (
-    <div>
-      <dt className="text-xs uppercase tracking-wide text-gray-500">{label}</dt>
-      <dd className="text-gray-800 break-words">{text || <span className="text-gray-400">none recorded</span>}</dd>
+    <div className="grid sm:grid-cols-2 gap-x-6 gap-y-3">
+      <Side name="Front" term="obverse" description={coin.obverse_description}
+            inscription={coin.obverse_legend} />
+      <Side name="Back" term="reverse" description={coin.reverse_description}
+            inscription={coin.reverse_legend} />
     </div>
   );
 }
 
 /**
- * One coin type: both legends, both descriptions, mint (with a Pleiades link
- * when the id exists), date, authority, the licence line, and a link to the
- * type's own page where the specimens and their images are listed. Images are
- * never fetched or stored here.
+ * One coin type in the list: front and back with what each shows and says,
+ * mint (with a Pleiades link when the id exists), date, authority, the credit
+ * line, and one link out to the catalogue's page for the type, where the
+ * museum specimens and their photographs are. Images are never fetched or
+ * stored here.
  */
 export default function CoinCard({ coin, open }) {
   const issuer = [coin.authority, coin.issuer].filter(Boolean).join(', issued by ');
@@ -51,16 +72,13 @@ export default function CoinCard({ coin, open }) {
           </>
         )}
       </p>
-      <dl className="grid sm:grid-cols-2 gap-x-6 gap-y-2 mt-3 text-sm">
-        <Legend label="Obverse legend" text={coin.obverse_legend} />
-        <Legend label="Reverse legend" text={coin.reverse_legend} />
-        <Describe label="Obverse" text={coin.obverse_description} />
-        <Describe label="Reverse" text={coin.reverse_description} />
-      </dl>
+      <div className="mt-3"><CoinSides coin={coin} /></div>
       <footer className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-3 text-xs text-gray-500">
         <span>{coin.credit}</span>
-        <a href={coin.type_url} target="_blank" rel="noopener noreferrer" className="text-red-700 hover:underline ml-auto">
-          Type page and specimens
+        <a href={coin.type_url} target="_blank" rel="noopener noreferrer"
+           title={`Photographs are on ${catalogueName(coin)}'s page for this type`}
+           className="text-red-700 hover:underline ml-auto">
+          See images &#8599;
         </a>
       </footer>
     </article>

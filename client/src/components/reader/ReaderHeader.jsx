@@ -3,6 +3,7 @@ import { LANGUAGE_NAMES as LANG_LABEL } from '../../utils/languageNames';
 import SearchableSelect from '../common/SearchableSelect';
 import { formatSelectionRange, useCorpusTextMap } from '../../utils/textNames';
 import { dateLabel } from '../../utils/chronology';
+import { decodeEntities } from '../../utils/htmlEntities';
 
 /**
  * The Reader's header: where you are, and how to go somewhere else.
@@ -164,38 +165,51 @@ export default function ReaderHeader({
     return `${units.length} lines`;
   })();
 
-  // The About panel's right-hand column: a short definition list of facts,
-  // each row omitted (rather than shown blank) when there is nothing to
-  // put in it. Date reuses the same formatter Theme Search and Similar
-  // Passages use ("19 BCE", "c. 390 CE"), from the same two fields
-  // (year, date_note) author_dates.json already carries.
-  const factRows = useMemo(() => {
-    const workLabel = facts?.work
-      ? (facts.part ? `${facts.work}, ${facts.part}` : facts.work)
-      : null;
+  // The About panel, set out the way a library work page is: the work's name
+  // first, one quiet line of landmark facts (date, era, kind, length), the
+  // description, then the sources as a footnote. A fact with nothing to show
+  // is left out. Date reuses the formatter Theme Search and Similar Passages
+  // use ("19 BCE", "c. 390 CE").
+  const aboutTitle = useMemo(() => {
+    if (!facts) return null;
+    const parts = [facts.author, facts.work, facts.part].filter(Boolean);
+    return parts.length ? parts.join(', ') : null;
+  }, [facts]);
+  const factItems = useMemo(() => {
     const date = facts ? dateLabel({ year: facts.year, date_note: facts.date_note }) : null;
     const kind = facts?.kind === 'poetry' ? 'Poetry' : facts?.kind === 'prose' ? 'Prose' : null;
     const lineCount = units?.length ? `${units.length} line${units.length === 1 ? '' : 's'}` : null;
+    return [
+      [date, 'Approximate date of the work'],
+      [facts?.era || null, "The period of Greek or Roman history the author's work belongs to"],
+      [kind, kind === 'Poetry' ? 'Written in verse' : 'Written in prose'],
+      [lineCount, 'The number of lines in the text open in the Reader'],
+    ].filter(([value]) => value);
+  }, [facts, units]);
+  const sourcesNote = useMemo(() => {
     const edition = facts?.edition || null;
-    const digitalSource = edition?.e_source
+    const print = edition?.print_source
+      ? decodeEntities(edition.print_source).trim().replace(/[.,;\s]+$/, '') : null;
+    const digital = edition?.e_source
       ? (edition.e_source_url
         ? <a href={edition.e_source_url} target="_blank" rel="noopener noreferrer"
              className="text-red-700 hover:underline">{edition.e_source}</a>
         : edition.e_source)
       : null;
-    const rows = [
-      ['Author', facts?.author || null],
-      ['Work', workLabel],
-      ['Date', date],
-      ['Era', facts?.era || null],
-      ['Kind', kind],
-      ['Lines', lineCount],
-      ['Print edition', edition?.print_source || null],
-      ['Digital source', digitalSource],
-      ['Translation', translationAttribution],
-    ];
-    return rows.filter(([, value]) => value);
-  }, [facts, units, translationAttribution]);
+    const translation = translationAttribution
+      ? decodeEntities(translationAttribution).trim().replace(/[.,;\s]+$/, '') : null;
+    if (!print && !digital && !translation) return null;
+    return (
+      <>
+        {(print || digital) && (
+          <>
+            {'Text from '}{print || digital}{print && digital ? ', through ' : ''}{print && digital ? digital : ''}{'. '}
+          </>
+        )}
+        {translation && `Translation by ${translation}. `}
+      </>
+    );
+  }, [facts, translationAttribution]);
   const creditsHref = facts?.author
     ? `/text-credits?author=${encodeURIComponent(facts.author)}`
     : '/text-credits';
@@ -285,34 +299,29 @@ export default function ReaderHeader({
       </span>
     </div>
     {aboutOpen && about && (
-      <div className="border-b border-gray-200 bg-gray-50 px-4 py-3
-                      grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-8">
-        {/* A description runs 80 to 130 words. At the header's full width
-            that is a two-line slab of 300-character lines. Prose width
-            (about 65 characters) and a looser line height let it read as
-            a note (2026-10-03). The right column used to sit empty at
-            this width -- the facts a reader actually asks about this
-            edition (owner review, 2026-10-08). */}
-        <p className="max-w-prose text-sm leading-relaxed text-gray-700">
+      <div className="border-b border-gray-200 bg-gray-50 px-4 py-3">
+        {/* One column at reading width (about 65 characters). */}
+        {aboutTitle && (
+          <h2 className="text-base font-semibold text-gray-900">{aboutTitle}</h2>
+        )}
+        {factItems.length > 0 && (
+          <p className="mt-0.5 text-sm text-gray-500">
+            {factItems.map(([value, tip], i) => (
+              <Fragment key={tip}>
+                {i > 0 && <span aria-hidden="true"> &middot; </span>}
+                <span title={tip}>{value}</span>
+              </Fragment>
+            ))}
+          </p>
+        )}
+        <p className="mt-2 max-w-prose text-sm leading-relaxed text-gray-700">
           {about}
         </p>
-        {factRows.length > 0 && (
-          <div>
-            <dl className="grid grid-cols-[auto,1fr] gap-x-3 gap-y-1.5 text-sm">
-              {factRows.map(([label, value]) => (
-                <Fragment key={label}>
-                  <dt className="text-[11px] font-semibold uppercase tracking-wide
-                                 text-gray-500 whitespace-nowrap pt-0.5">
-                    {label}
-                  </dt>
-                  <dd className="text-gray-700">{value}</dd>
-                </Fragment>
-              ))}
-            </dl>
-            <a href={creditsHref} className="mt-2 inline-block text-[11px] text-red-700 hover:underline">
-              Full credits
-            </a>
-          </div>
+        {facts && (
+          <p className="mt-2 max-w-prose text-xs text-gray-500">
+            {sourcesNote}
+            <a href={creditsHref} className="text-red-700 hover:underline">Full credits</a>
+          </p>
         )}
       </div>
     )}
