@@ -68,6 +68,7 @@ from backend.cache import get_cache_stats
 from backend.frequency_cache import get_corpus_frequencies, initialize_all_caches
 from backend.bigram_frequency import initialize_bigram_caches
 from backend.distance_filter import passes_distance_filter, is_prose_text as is_prose_text_unified
+from backend.distance_filter import get_max_distance as _get_max_distance  # noqa: E402
 from backend.lemma_cache import get_cached_units, save_cached_units, get_file_hash
 from backend.feature_extractor import feature_extractor
 
@@ -1535,19 +1536,50 @@ def rare_focus_filter(results, language):
         return results, 0, []
 
 
+def _candidate_within_distance(filename, positions, language='la'):
+    """The closeness rule line_search applies to each line through
+    passes_distance_filter, decided here from the index's own per-lemma
+    position lists so a candidate can be counted without loading its line:
+    the smallest gap between an occurrence of one matched lemma and an
+    occurrence of another must be within get_max_distance (4 tokens in prose,
+    10 in verse). A candidate with positions for fewer than two lemmas (an
+    older index, a one-word query) counts, as the filter passes such a line.
+
+    Why this exists (2026-10-11): for the pair infero and latium the corpus
+    chart counted one Tacitus line and the list under it showed none. The hit
+    was Histories 3.55, a whole prose chapter in which the two words stand some
+    forty words apart. The list dropped it under the closeness rule; the chart
+    had counted it first. Counting after the same rule keeps the two in step.
+    The filter groups by surface word where this groups by lemma, so two forms
+    of one lemma standing together do not count as a close pair here."""
+    lists = [lst for lst in (positions or {}).values() if lst]
+    if len(lists) < 2:
+        return True
+    min_dist = min(abs(a - b)
+                   for i in range(len(lists)) for j in range(i + 1, len(lists))
+                   for a in lists[i] for b in lists[j])
+    return min_dist == 0 or min_dist <= _get_max_distance(filename, language)
+
+
 def _count_candidates_by_work(text_candidates, language, lang_dates):
     """[{work_id, author, work, year, era, count}] for every work holding a
-    co-occurring line, newest-last by year (see line_search). A whole file wins
-    over its book files; book files alone are summed."""
+    co-occurring line that also passes the closeness rule, newest-last by year
+    (see line_search). A whole file wins over its book files; book files alone
+    are summed. Each match is (ref, matching_lemmas, positions); a shorter
+    tuple is counted without the distance check."""
     import re as _re_w
     groups = {}
     for filename, matches in text_candidates.items():
+        kept = sum(1 for m in matches
+                   if len(m) < 3 or _candidate_within_distance(filename, m[2], language))
+        if not kept:
+            continue
         base = _re_w.sub(r'\.part\.[^/]*$', '', filename[:-5] if filename.endswith('.tess') else filename)
         g = groups.setdefault(base, {'whole': None, 'parts': 0, 'file': filename})
         if '.part.' in filename:
-            g['parts'] += len(matches)
+            g['parts'] += kept
         else:
-            g['whole'] = len(matches)
+            g['whole'] = kept
             g['file'] = filename
     out = []
     for base, g in groups.items():
@@ -2923,8 +2955,10 @@ def line_search():
                 # The index already returned every co-occurring line, so counting
                 # them per work costs nothing. A work held both whole and in book
                 # files is counted once: the whole file when present, else the sum
-                # of its books. Counted before the line-level distance filter, so
-                # these are the lines that contain the words, a ceiling on matches.
+                # of its books. Counted AFTER the closeness rule (2026-10-11), from
+                # the index's positions, so the chart counts the lines the list
+                # would keep: it used to count every line containing the words
+                # and then list none for a prose chapter with the words far apart.
                 by_work_all = _count_candidates_by_work(text_candidates, language, lang_dates)
                 
                 for filename, matches in text_candidates.items():

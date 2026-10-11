@@ -25,6 +25,7 @@ import math
 import os
 import re
 import threading
+import time
 
 from backend import scripture_id
 from backend import restricted_texts
@@ -228,7 +229,8 @@ NAMES_COMMENTARY_MARKERS = (
     'pseudo_acro', 'commentar')
 
 _lock = threading.Lock()
-_state = {'loaded': False, 'ok': False, 'error': None}
+_state = {'loaded': False, 'ok': False, 'error': None, 'retry_at': None}
+RELOAD_RETRY_SECONDS = 60   # after a failed load, try again this much later
 _ids = None            # list[str]
 _undescribed = set()   # row indices with no description: excluded from results
 _records = None        # list[dict] in embedding-row order
@@ -487,6 +489,12 @@ def _ensure_loaded():
     with _lock:
         if _state['loaded']:
             return
+        # A load that failed (a memory error during a server reload, a file
+        # replaced under it) used to mark the index loaded-and-broken for the
+        # life of the worker, and every Similar Passages request then said no
+        # window covered the passage (2026-10-11). It is retried after a pause.
+        if _state.get('retry_at') and time.monotonic() < _state['retry_at']:
+            return
         _state['loaded'] = True
         try:
             import numpy as np
@@ -549,6 +557,8 @@ def _ensure_loaded():
         except Exception as e:  # index problems must not break the app
             _state['error'] = f'{type(e).__name__}: {e}'
             logger.error('[PASSAGES] index load failed: %s', _state['error'])
+            _state['loaded'] = False
+            _state['retry_at'] = time.monotonic() + RELOAD_RETRY_SECONDS
 
 
 # The query encoder runs as its own service, not inside the web application.
@@ -2347,7 +2357,19 @@ def pair_lift(work_a, ref_a, work_b, ref_b, scale='fine'):
 def find_similar_to_passage(work, ref_start=None, ref_end=None, limit=15,
                             languages=None, scale='fine',
                             suppress_other_versions=True, by_language=False):
-    """Similar Passages, given a reader selection (work + reference span)."""
+    """Similar Passages, given a reader selection (work + reference span).
+
+    Two different empty answers, told apart (2026-10-11): the index is not
+    loaded on this worker (a failed or unfinished load after a server reload),
+    which is `unavailable`, and the index is loaded but no window of it
+    covers the span. The first used to be reported as the second, so a reader
+    saw "no indexed window covers that passage" for Aeneid 1.20."""
+    _ensure_loaded()
+    if not _state['ok']:
+        detail = f" ({_state['error']})" if _state.get('error') else ''
+        return {'error': 'the passage index is not loaded on the server right now'
+                         + detail + '; try again in a moment',
+                'unavailable': True, 'results': []}
     wid = window_for_passage(work, ref_start, ref_end, prefer=scale)
     if not wid:
         return {'error': 'no indexed window covers that passage', 'results': []}
