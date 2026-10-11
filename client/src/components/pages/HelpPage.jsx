@@ -392,6 +392,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
     { id: 'reading-results', label: 'Reading the results', group: 'The Fusion (Phrases) search' },
 
     { id: 'theme-search', label: 'Theme Search', group: 'Reading & content' },
+    { id: 'ask-a-work', label: 'Ask a Work', group: 'Reading & content' },
     { id: 'reader', label: 'The Reader', group: 'Reading & content' },
     { id: 'tessa', label: 'Tessa, the assistant', group: 'Reading & content' },
     { id: 'documents', label: 'Inscriptions & Papyri', group: 'Reading & content' },
@@ -1677,6 +1678,37 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   loads. After that it is well under a second.
                 </li>
               </ul>
+            </div>
+          )}
+
+          {activeSection === 'ask-a-work' && (
+            <div className="prose max-w-none">
+              <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Ask a Work</h3>
+              <p className="text-gray-700 mb-4">
+                Ask a Work asks what one work says about a subject. Pick a
+                language, an author and a work, type the subject in plain words, and press Go.
+                It is Theme Search run inside that one work, so your words are compared with the
+                description written for each passage and the closest passages come back.
+              </p>
+              <p className="text-gray-700 mb-4">
+                The list is ordered by score, the best match first. Each card gives the
+                reference, the description, the first lines of the passage and a link that opens
+                it in the Reader. Above the list, the strip called Where in the work lays the
+                books of the work left to right and puts one mark at each passage found. A taller,
+                darker mark is a better match. Tapping a mark takes you to its card. The strip
+                shows position and the list shows score, so the two are in different orders on
+                purpose.
+              </p>
+              <p className="text-gray-700 mb-4">
+                A passage is a window of about twenty lines, so a subject spread thinly through
+                a long chapter can be missed. The search matches content, so it does not find a
+                name on its own as a word search would. For a name, use Line Search.
+              </p>
+              <p className="text-gray-700 mb-4">
+                Not measured yet. A test of fifteen questions on the Aeneid, Thucydides 1 and 2
+                and Annals 1 to 6 is planned, and this section will give its result when it is
+                done.
+              </p>
             </div>
           )}
 

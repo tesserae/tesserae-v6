@@ -1,4 +1,4 @@
-"""Tessa's "where do I start" answer: the same six choices as the Start here panel."""
+"""Tessa's "where do I start" answer: the same seven choices as the Start here panel."""
 import os
 import re
 
@@ -23,12 +23,12 @@ def test_a_long_question_with_a_marker_does_not_fire():
     assert router.route(q) != front_door.answer()
 
 
-def test_answer_names_all_six_labels_and_paths():
+def test_answer_names_all_seven_labels_and_paths():
     text = front_door.answer()
-    assert len(front_door.FRONT_DOOR_CHOICES) == 6
+    assert len(front_door.FRONT_DOOR_CHOICES) == 7
     for label, detail, path in front_door.FRONT_DOOR_CHOICES:
         assert f'[{label}]({path}): {detail}' in text
-    assert text.startswith('This site does six kinds of thing.')
+    assert text.startswith('This site does seven kinds of thing.')
     assert text.endswith('Say which one and I will set it up.')
 
 
@@ -38,4 +38,4 @@ def test_backend_choices_match_the_frontend_file():
         assert f"label: '{label}'" in source
         assert f"detail: '{detail}'" in source
         assert f"href: '{path}'" in source
-    assert len(re.findall(r"\bid: '", source)) == 6
+    assert len(re.findall(r"\bid: '", source)) == 7

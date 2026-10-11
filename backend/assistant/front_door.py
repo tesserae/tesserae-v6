@@ -1,6 +1,6 @@
 """Tessa's answer to "where do I start?".
 
-The same six choices as the "Start here" panel on the Search page
+The same seven choices as the "Start here" panel on the Search page
 (client/src/components/search/frontDoor.js). The labels and paths here must
 match that file, and tests/test_assistant_front_door.py checks that they do.
 Change both together.
@@ -15,6 +15,7 @@ FRONT_DOOR_CHOICES = [
     ('Line Search', 'every line in the corpus where a phrase or a pair of words occurs', '/?tab=line'),
     ('Rare Words', 'the rare words and word pairs two works share', '/?tab=hapax'),
     ('Theme Search', 'passages about a subject, described in your own words, across languages', '/theme-search'),
+    ('Ask a Work', 'ask what one work says about a subject, in plain words', '/ask-a-work'),
     ('Reader', 'read a text and see what each passage echoes', '/read'),
     ('Collections', 'inscriptions, papyri, events, coins and museum objects', '/inscriptions-papyri?profile=everything'),
 ]
@@ -42,7 +43,7 @@ def matches(normalised_question):
 
 
 def answer():
-    lines = ['This site does six kinds of thing.']
+    lines = ['This site does seven kinds of thing.']
     lines += [f'- [{label}]({path}): {detail}' for label, detail, path in FRONT_DOOR_CHOICES]
     lines.append('Say which one and I will set it up.')
     return '\n'.join(lines)

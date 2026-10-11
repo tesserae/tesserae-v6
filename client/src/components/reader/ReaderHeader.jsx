@@ -245,6 +245,7 @@ export default function ReaderHeader({
       </>
     );
   }, [facts, translationAttribution]);
+  const askHref = `/ask-a-work?work=${encodeURIComponent(String(work || '').replace(/\.tess$/, '').split('.part.')[0])}&lang=${encodeURIComponent(language || 'la')}`;
   const creditsHref = facts?.author
     ? `/text-credits?author=${encodeURIComponent(facts.author)}`
     : '/text-credits';
@@ -255,7 +256,7 @@ export default function ReaderHeader({
         {aboutTitle && (
           <h2 className="text-base font-semibold text-gray-900">{aboutTitle}</h2>
         )}
-        {factItems.length > 0 && (
+        {(factItems.length > 0 || facts) && (
           <p className="mt-0.5 text-sm text-gray-500">
             {factItems.map(([value, tip], i) => (
               <Fragment key={tip}>
@@ -263,6 +264,12 @@ export default function ReaderHeader({
                 <span title={tip}>{value}</span>
               </Fragment>
             ))}
+            {work && (
+              <>
+                {factItems.length > 0 && <span aria-hidden="true"> &middot; </span>}
+                <a href={askHref} className="text-red-700 hover:underline">Ask this work a question</a>
+              </>
+            )}
           </p>
         )}
         <p className="mt-2 max-w-prose text-sm leading-relaxed text-gray-700">

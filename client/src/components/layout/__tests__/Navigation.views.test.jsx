@@ -48,6 +48,7 @@ describe('the menu order follows the view', () => {
     const names = menuNames();
     expect(names.indexOf('Search')).toBeLessThan(names.indexOf('Read'));
     expect(names.indexOf('Read')).toBeLessThan(names.indexOf('Theme Search'));
+    expect(names.indexOf('Ask a Work')).toBe(names.indexOf('Theme Search') + 1);
   });
 
   it('History leads with Read then Events, and Search comes after Theme Search', () => {
@@ -56,6 +57,7 @@ describe('the menu order follows the view', () => {
     const names = menuNames();
     expect(names.indexOf('Read')).toBeLessThan(names.indexOf('Events'));
     expect(names.indexOf('Events')).toBeLessThan(names.indexOf('Theme Search'));
+    expect(names.indexOf('Ask a Work')).toBe(names.indexOf('Theme Search') + 1);
     expect(names.indexOf('Theme Search')).toBeLessThan(names.indexOf('Search'));
     expect(names.indexOf('Search')).toBeLessThan(names.indexOf('Coins'));
   });

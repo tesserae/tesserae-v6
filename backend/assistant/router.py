@@ -116,7 +116,7 @@ def route(question):
     q = _norm(question)
     if not q.strip():
         return None
-    # A short "where do I start" gets the site's six choices. Checked before
+    # A short "where do I start" gets the site's seven choices. Checked before
     # the advice markers, which contain "where do i start" and would send it
     # to the model. A longer question that names an author or a topic does not
     # match (see front_door.matches).

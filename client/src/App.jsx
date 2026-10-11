@@ -18,6 +18,7 @@ import EventsPage from './components/events/EventsPage';
 import CoinsPage from './components/coins/CoinsPage';
 import ObjectsPage from './components/objects/ObjectsPage';
 import ThemeSearchPage from './components/passages/ThemeSearchPage';
+import AskAWorkPage from './components/ask/AskAWorkPage';
 import { Repository } from './components/repository';
 import { AdminPanel } from './components/admin';
 import { AboutPage, HelpPage, DownloadsPage, PrivacyPage, ResearchPage, BlogArchivePage, RequestsPage } from './components/pages';
@@ -35,6 +36,7 @@ const PAGE_TITLES = {
   read: 'Reader',
   document: 'Document',
   'theme-search': 'Theme Search',
+  'ask-a-work': 'Ask a Work',
   'inscriptions-papyri': 'Inscriptions & Papyri',
   events: 'Events',
   coins: 'Coins',
@@ -59,6 +61,7 @@ const pathToPageType = {
   '/read': 'read',
   '/document': 'document',
   '/theme-search': 'theme-search',
+  '/ask-a-work': 'ask-a-work',
   '/inscriptions-papyri': 'inscriptions-papyri',
   '/events': 'events',
   '/coins': 'coins',
@@ -99,6 +102,7 @@ const pageTypeToPath = {
   'read': '/read',
   'document': '/document',
   'theme-search': '/theme-search',
+  'ask-a-work': '/ask-a-work',
   'inscriptions-papyri': '/inscriptions-papyri',
   'events': '/events',
   'coins': '/coins',
@@ -518,7 +522,7 @@ function App() {
     window.addEventListener(FRONT_DOOR_OPEN_EVENT, open);
     return () => window.removeEventListener(FRONT_DOOR_OPEN_EVENT, open);
   }, [pageType, setPageTypeWithGuard]);
-  // One of the six answers: move inside the app, with no page reload.
+  // One of the seven answers: move inside the app, with no page reload.
   const goFrontDoor = useCallback((choice) => {
     setFrontDoorForced(false);
     const url = new URL(choice.href, window.location.origin);
@@ -1310,6 +1314,7 @@ function App() {
         )}
 
         {pageType === 'theme-search' && <ThemeSearchPage />}
+        {pageType === 'ask-a-work' && <AskAWorkPage />}
 
         {pageType === 'read' && (
           <ReaderPage />
