@@ -19448,10 +19448,10 @@
   },
   {
     "author": "Diodorus Siculus",
-    "work": "Bibliotheca Historica (Books 1-5, 18-20)",
+    "work": "Bibliotheca Historica (Books 1-5, 11-17, 18-20)",
     "e_source": "Perseus Digital Library / Open Greek and Latin (canonical-greekLit, TLG 0060.001)",
     "e_source_url": "https://github.com/PerseusDL/canonical-greekLit/tree/master/data/tlg0060/tlg001",
-    "print_source": "Diodori Bibliotheca Historica, Books 1-5 (perseus-grc5): Bekker, Immanuel, Ludwig Dindorf and Friedrich Vogel, eds. Leipzig: Teubner, 1888-1890. Books 18-20 (perseus-grc6): Bekker, Dindorf and Curt Theodor Fischer, eds. Leipzig: Teubner, 1903-1906. (Licence: CC BY-SA 4.0; translation by C. H. Oldfather and Russel M. Geer, Loeb, 1933-1954, from LacusCurtius.)",
+    "print_source": "Diodori Bibliotheca Historica, Books 1-5 (perseus-grc5): Bekker, Immanuel, Ludwig Dindorf and Friedrich Vogel, eds. Leipzig: Teubner, 1888-1890. Books 11-17 (perseus-grc4): Diodorus of Sicily, vols. IV-VIII. Oldfather, C. H., Charles L. Sherman and C. Bradford Welles, eds. Cambridge, MA: Harvard University Press; London: William Heinemann, 1946-1963. Loeb Classical Library. Books 18-20 (perseus-grc6): Bekker, Dindorf and Curt Theodor Fischer, eds. Leipzig: Teubner, 1903-1906. (Licence: CC BY-SA 4.0; translation by C. H. Oldfather, Charles L. Sherman, C. Bradford Welles and Russel M. Geer, Loeb, 1933-1963, from LacusCurtius.)",
     "added_by": "V6 Import (historians, 2026-10-09)"
   },
   {

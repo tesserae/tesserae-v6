@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-"""Diodorus Siculus, Bibliotheca Historica, books 1 to 5 and 18 to 20: the Loeb
-translation (Oldfather, vols. I to III; Geer, vols. IX and X) aligned to
+"""Diodorus Siculus, Bibliotheca Historica, books 1 to 5, 11 to 17 and 18 to 20: the Loeb
+translation (Oldfather, vols. I to VI; Sherman, vol. VII; Welles, vol. VIII; Geer, vols. IX and X) aligned to
 texts/grc/diodorus_siculus.bibliotheca_historica.tess.
 
 Source: Bill Thayer's LacusCurtius transcription of the Loeb volumes
@@ -15,10 +15,12 @@ together with the one before, the Greek section shares that English; where
 the English has fragments with no Greek (and the reverse) the script reports
 them rather than guessing.
 
-    align_diodorus.py HTML_DIR TESS OUT_DIR [--dry]
+    align_diodorus.py HTML_DIR[:HTML_DIR2] TESS OUT_DIR [--dry]
 
 Rights: Thayer's home page for Diodorus states that Loeb volumes I to XI are
 in the public domain because the copyright was not renewed (volume XII is not).
+Books 11 to 17 come from volumes IV to VIII (renewal windows 1973/74, 1977/78,
+1981/82, 1979/80 and 1990/91, all named as lapsed).
 """
 import json
 import os
@@ -33,8 +35,11 @@ import proper_names as V                       # noqa: E402
 from align_perseus import length_correlation   # noqa: E402
 from write_aligned import tess_refs, write_aligned   # noqa: E402
 
-html_dir, tess_path, out_dir = sys.argv[1:4]
-PAGES = {1: "ABCD", 2: "AB", 3: "ABCDE", 4: "ABCD", 5: "ABCD", 18: "ABC", 19: "ABCDEF", 20: "ABCDE"}
+html_dirs, tess_path, out_dir = sys.argv[1:4]   # HTML_DIR may be several directories joined with ':'
+html_dirs = html_dirs.split(':')
+PAGES = {1: "ABCD", 2: "AB", 3: "ABCDE", 4: "ABCD", 5: "ABCD",
+         11: "ABCD", 12: "ABCD", 13: "ABCDE", 14: "ABCDEFG", 15: "ABCDE",
+         16: "ABCD", 17: "ABCDEF", 18: "ABC", 19: "ABCDEF", 20: "ABCDE"}
 
 
 def book_sections(path, book):
@@ -110,7 +115,7 @@ by_ref = OrderedDict()
 for b, letters in PAGES.items():
     n_b = 0
     for L in letters:
-        secs = book_sections(os.path.join(html_dir, f'{b}{L}.html'), b)
+        secs = book_sections(next(p for p in (os.path.join(d, f'{b}{L}.html') for d in html_dirs) if os.path.exists(p)), b)
         n_b += len(secs)
         for k, v in secs.items():
             by_ref[k] = (by_ref[k] + ' ' + v) if k in by_ref else v
@@ -157,28 +162,28 @@ hit, n = V.score(pairs, 'grc')
 corr = length_correlation(pairs)
 print(f'refs {len(refs)} translated {len(ref_to_unit)} coverage {len(ref_to_unit)/len(refs):.4f}')
 print(f'Greek refs with no English section of their own: {len(missing)} e.g. {missing[:8]}')
-print(f'English sections without Greek: {len(extra)} ')
+print(f'English sections without Greek: {len(extra)} e.g. {extra[:12]}')
 print('uncovered:', [r.split()[-1] for r in refs if r not in ref_to_unit])
 print(f'name check {hit} on {n}; length correlation {corr}')
 if len(sys.argv) > 4 and sys.argv[4] == '--dry':
     sys.exit(0)
 write_aligned(
     out_dir, 'grc', 'diodorus_siculus.bibliotheca_historica', units, ref_to_unit,
-    attribution='C. H. Oldfather (vols. I to III) and Russel M. Geer (vols. IX and X), '
+    attribution='C. H. Oldfather (vols. I to VI), Charles L. Sherman (vol. VII), C. Bradford Welles (vol. VIII) and Russel M. Geer (vols. IX and X), '
                 'Loeb Classical Library; transcription by Bill Thayer, LacusCurtius',
-    license='Public domain in the United States: the Loeb volumes (1933 to 1954) '
+    license='Public domain in the United States: the Loeb volumes (1933 to 1963) '
             'were not renewed, per LacusCurtius.',
     sources=[{
-        'translator': 'C. H. Oldfather (books 1 to 5), Russel M. Geer (books 18 to 20)',
-        'year': 1954,
+        'translator': 'C. H. Oldfather (books 1 to 5, 11 to 15.19), Charles L. Sherman (15.20 to 16.65), C. Bradford Welles (16.66 to 17), Russel M. Geer (books 18 to 20)',
+        'year': 1963,
         'publisher': 'Harvard University Press / William Heinemann',
-        'title': 'Diodorus of Sicily (Loeb Classical Library), vols. I to III, IX and X',
+        'title': 'Diodorus of Sicily (Loeb Classical Library), vols. I to X',
         'mode': 'exact', 'ref_composition': ['book', 'chapter', 'section'],
         'source_url': 'https://penelope.uchicago.edu/Thayer/E/Roman/Texts/'
                       'Diodorus_Siculus/home.html',
-        'pd_reason': 'copyright of Loeb vols. I, II, III, IX and X not renewed '
+        'pd_reason': 'copyright of Loeb vols. I to X not renewed '
                      '(LacusCurtius, Diodorus Siculus home page)',
-        'short_attribution': 'C. H. Oldfather (1933-1939), R. M. Geer (1947-1954)'}],
+        'short_attribution': 'C. H. Oldfather (1933-1954), C. L. Sherman (1952), C. B. Welles (1963), R. M. Geer (1947-1954)'}],
     confidence='high' if (hit or 0) >= 0.70 else 'medium',
     approximate=False, tess_refs=refs,
     notes=f'{len(merged)} sections whose number Thayer does not mark share the English of the preceding section of the same chapter; the {sum(1 for r in refs if r not in ref_to_unit)} uncovered references are the book tables of contents.',

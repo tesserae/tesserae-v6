@@ -741,6 +741,79 @@ After a change to the documents collection, the recogniser or the journal texts,
 - Backups to keep: each file replaced in steps 4 to 6, tagged
   `bak-historians2-20261009`.
 
+## 2026-10-10 Diodorus books 11 to 17 from the Loeb Greek, steps for production (drafted with the import, NOT yet run, draft pull request because the lead has not decided whether to import these books)
+- What: seven new part files `diodorus_siculus.bibliotheca_historica.part.11`
+  to `.part.17` in `texts/grc/` (491, 401, 691, 694, 448, 513 and 719 lines,
+  3,957 in all, the same work id as books 1 to 5 and 18 to 20), and the
+  whole-work file `diodorus_siculus.bibliotheca_historica.tess` extended from
+  4,166 to 8,123 lines with the new books between 5 and 18. The nine existing
+  part files are byte for byte unchanged and the old whole file is the
+  concatenation of them, so the new whole file is the concatenation of all
+  fifteen in book order.
+- Rights, to be settled by the lead before anything is installed. The Greek is
+  the Loeb text (Oldfather vols. IV to VI, Sherman vol. VII, Welles vol. VIII,
+  1946 to 1963), not the Teubner that books 1 to 5 and 18 to 20 use. The
+  Perseus encoding is CC BY-SA 4.0 per its header, which says nothing about the
+  underlying edition. The U.S. position rests on non-renewal of the Loeb
+  volumes and on the thin protection a critical edition's running text
+  carries. A European court ruling of March 2026 makes the editor's choices
+  less safe there. The renewal records have not been checked in the Stanford
+  database for volume VIII (1963) or the others. The full note is private. The
+  fallback if a rights holder objects is to build books 11 to 17 from the
+  Teubner scans, which needs OCR correction and re-segmentation.
+- Sources, downloaded 2026-10-09 and 2026-10-10 into
+  `~/tesserae-backups/sources/historians/`: `diodorus_loeb/tlg0060.tlg001.perseus-grc4.xml`
+  (sha256 `166fd9d2ce7461a876e3a3210b88267c0e622f79854729c12b0bb0e113212289`) and,
+  for the English, 35 LacusCurtius pages `11A` to `17F` in `diodorus_en_loeb/`
+  (one request every two seconds, cached). Thayer's Diodorus page states
+  non-renewal for Loeb volumes IV (1973/74), V (1977/78), VI (1981/82), VII
+  (1979/80) and VIII (1990/91), the volumes that carry books 11 to 17. Volume IV
+  carries books 11 to 12.40, V books 12.41 to 13, VI books 14 to 15.19,
+  VII books 15.20 to 16.65 and VIII books 16.66 to 17 (the page headers say
+  which volume each page is from).
+- Measured in a worktree and on scratch copies:
+  - conversion with `scripts/corpus/perseus_greek_history_to_tess.py` as it
+    stands: Greek letters in the TEI body against the `.tess` lines 1,054,393 of
+    1,054,393. The seven new files and the new whole file pass
+    `scripts/corpus/validate_tess.py` (as do the nine existing part files).
+  - translation, `scripts/translations/align_diodorus.py` extended to books 11
+    to 17: all fifteen books together 8,108 of 8,123 lines (0.9982), the 15
+    uncovered being the book tables of contents (chapter 0). For books 11 to
+    17 alone: 3,950 of 3,957 (0.9982), the 7 uncovered being the tables of
+    contents, 9 Greek sections that Thayer does not mark sharing the English of
+    the section before, proper names 0.938 of 500, length correlation 0.928,
+    confidence high. For the whole file: 25 sections share a neighbour's
+    English, proper names 0.934 of 500, length correlation 0.924. Two English
+    sections in the new books have no Greek section (15.34.6 and 16.15.5).
+- Steps on production, if the lead decides to import. Each under
+  `~/bin/tess-job` with the caps shown:
+  1. After the merge, pull on production.
+  2. Translation. The regenerated whole-work file replaces the live one
+     (`data/translations/grc__diodorus_siculus.bibliotheca_historica.json`, not in git). The new file is kept in
+     `~/tesserae-backups/sources/historians/translations_out/diodorus_loeb/`
+     with sha256
+     `0cd02e0b814606515c8e1622171626a853d3633084224d129d3a58ed66a6b591`
+     (also in `~/tesserae-backups/jobs/configs/diodorus_loeb.sums`). Back up the live file first.
+  3. Lemma caches: delete `cache/lemmas/grc/diodorus_siculus.bibliotheca_historica.json`
+     (the whole-work file changed), then `scripts/batch_lemma_cache.py grc` (cap 8G)
+     builds it and the seven new parts.
+  4. Greek index, on a copy as in the earlier Diodorus entry.
+     Run `scripts/corpus/add_texts_to_index.py` with `--add` for the seven part
+     filenames and `--replace diodorus_siculus.bibliotheca_historica.tess`. Check integrity,
+     swap in, `touch tesseraev6_flask.wsgi`. Keep `grc_index.db.bak-diodorus-loeb-20261010`.
+  5. Rare-bigram table: `scripts/corpus/rebuild_bigrams.py grc`.
+  6. Passage windows for the seven new part files only (the whole file carries
+     none), descriptions, vectors, names index, connection map, line vectors for
+     the 8 changed or new files, and the Greek phrase, quotation and reuse
+     tables, following the "what ran on production" entry above. Follow the
+     lockstep check (counts in step, then one Similar Passages and one Theme
+     Search request).
+  7. Check: `scripts/corpus/verify_text_coverage.py --root <production> --language grc diodorus_siculus.bibliotheca_historica`,
+     the reference search, and a Greek line search that returns book 11 to 17
+     lines (for example the lemmas of "Thermopylae" and "Leonidas").
+- Backups to keep: each file replaced in steps 2 to 6, tagged
+  `bak-diodorus-loeb-20261010`.
+
 ## 2026-10-08 Documentary reuse table built in dev; not yet installed on production
 - What: `scripts/reuse/build_documents_reuse_table.py` is new (feat/reuse-documents),
   pairing every literary line against the documents collection (inscriptions,
