@@ -134,6 +134,7 @@ function save(on) {
 
 export function setCollection(id, value) {
   if (!COLLECTION_IDS.includes(id)) return;
+  if (id === 'literature') return;  // always on (collectionsConfig: fixed)
   save({ ...getSnapshot().on, [id]: !!value });
 }
 

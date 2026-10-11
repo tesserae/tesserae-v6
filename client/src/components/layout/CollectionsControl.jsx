@@ -45,7 +45,7 @@ export default function CollectionsControl() {
           className="absolute left-0 mt-1 w-72 bg-white border border-gray-200 rounded shadow-lg p-3 z-50 text-sm"
         >
           <p className="text-xs text-gray-600 mb-2">
-            Choose which bodies of material the site shows. Each one you switch on adds its
+            The literature is always on. Each other body of material you switch on adds its
             pages to the menu, its tabs to the Reader and its choices to the searches. A profile
             sets the switches together.
           </p>
@@ -71,6 +71,16 @@ export default function CollectionsControl() {
           <ul className="space-y-1">
             {COLLECTIONS.map((c) => (
               <li key={c.id}>
+                {c.fixed ? (
+                  <div className="flex items-start gap-2">
+                    <span className="mt-1 inline-block w-[13px] h-[13px] rounded-sm bg-gray-300" aria-hidden="true" />
+                    <span>
+                      <span className="font-medium">{c.label}</span>
+                      <span className="ml-1 text-xs text-gray-500">always on</span>
+                      <span className="block text-xs text-gray-500">{c.blurb}</span>
+                    </span>
+                  </div>
+                ) : (
                 <label className={`flex items-start gap-2 ${c.available ? '' : 'text-gray-400'}`}>
                   <input
                     type="checkbox"
@@ -85,6 +95,7 @@ export default function CollectionsControl() {
                     <span className="block text-xs text-gray-500">{c.blurb}</span>
                   </span>
                 </label>
+                )}
               </li>
             ))}
           </ul>
