@@ -53,6 +53,7 @@ export default function PrivacyPage() {
             <li><strong>Replit:</strong> Hosting and authentication services</li>
             <li><strong>Wiktionary API:</strong> Dictionary definitions for rare words</li>
             <li><strong>Perseus Digital Library:</strong> Fallback definitions</li>
+            <li><strong>OpenStreetMap:</strong> The map on the Events page. Your browser fetches the map tiles from OpenStreetMap's servers, so OpenStreetMap sees your address and the map area requested. Nothing else is sent.</li>
           </ul>
         </section>
 

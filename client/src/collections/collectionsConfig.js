@@ -24,10 +24,14 @@ export const COLLECTION_IDS = COLLECTIONS.map((c) => c.id);
 /**
  * Profiles. `on` lists the collections the profile switches on (all others
  * go off). `layout` carries presentation hints a profile sets with them.
- * Literary reproduces the site as it was before Collections existed.
+ * Literary is the literature with the Scholarship tab (the site as it was
+ * before Collections existed, plus scholarship from 2026-10-10).
  */
 export const PROFILES = [
-  { id: 'literary', label: 'Literary', on: ['literature'], layout: { browseView: 'language' } },
+  // Literary includes Scholarship (owner 2026-10-10: "turn scholarship on in
+  // literary"): the Reader's commentaries and citing articles serve the
+  // literary reader as much as the historian.
+  { id: 'literary', label: 'Literary', on: ['literature', 'scholarship'], layout: { browseView: 'language' } },
   {
     id: 'historical', label: 'Historical',
     on: ['literature', 'inscriptions', 'papyri', 'scholarship'],
@@ -75,10 +79,10 @@ export function matchProfile(on) {
  */
 export const READER_TABS = [
   { id: 'similar', needs: [] },
-  { id: 'verbal', needs: [] },
-  { id: 'translation', needs: [] },
   { id: 'reuse', needs: [] },
+  { id: 'verbal', needs: [] },
   { id: 'scholarship', needs: ['scholarship'] },
+  { id: 'translation', needs: [] },
   // Coins that name the same people as the selection, and coin imagery close to it.
   { id: 'coins', needs: ['coins'] },
 ];
@@ -92,7 +96,10 @@ export const REUSE_GROUPS = {
 export const PAGE_NEEDS = {
   'inscriptions-papyri': ['inscriptions', 'papyri'],
   // Events (battles, sieges, treaties) gather passages, documents and scholarship.
-  events: ['inscriptions', 'papyri', 'scholarship'],
+  // Events need the documents (their dossiers are passages plus nearby
+  // inscriptions and papyri); scholarship alone does not open them, so the
+  // Literary profile, which has scholarship on, keeps the Events entry off.
+  events: ['inscriptions', 'papyri'],
   // Greek and Roman coin types (OCRE, CRRO and seven Greek catalogues), a collection of their own.
   coins: ['coins'],
   // Museum objects with catalogue descriptions, a collection of their own.

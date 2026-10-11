@@ -30,6 +30,8 @@ function mount(props = {}) {
 beforeEach(() => {
   resetScholarshipLanguagesCache();
   try { window.sessionStorage.clear(); } catch { /* ignore */ }
+  // the Literary profile opens the Scholarship tab, which fetches its sources on mount
+  global.fetch = vi.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve({}) }));
 });
 
 afterEach(() => {
