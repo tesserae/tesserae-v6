@@ -43,6 +43,7 @@ const READER_SCOPE_ID = {
   similar: 'reader_similar',
   reuse: 'reader_reuse',
   verbal: 'reader_parallels',
+  documents: 'reader_documents',
   scholarship: 'reader_scholarship',
   translation: 'reader_translation',
   coins: 'reader_coins',
@@ -95,6 +96,10 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
   const [verbalError, setVerbalError] = useState(null);
   // Kept so the panel can hand the same query on to the full Line Search page.
   const [verbalQuery, setVerbalQuery] = useState('');
+  // The Documents tab: inscriptions and papyri sharing words with the selection.
+  const [docHits, setDocHits] = useState(null);
+  const [docLoading, setDocLoading] = useState(false);
+  const [docError, setDocError] = useState(null);
   // The whole work's translation, fetched on demand from the Translation
   // tab's no-selection state. null = not asked; 'loading'; or the payload.
   const [fullTranslation, setFullTranslation] = useState(null);
@@ -330,6 +335,34 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
     return () => { cancelled = true; };
   }, [selection, work, units, language, tab]);
 
+  /* DOCUMENTS: the selection's words searched over the inscriptions and
+   * papyri, the same Line Search the Parallels tab runs over the literature. */
+  useEffect(() => {
+    if (!selection || tab !== 'documents') return;
+    const picked = (units || []).slice(selection.startIdx, selection.endIdx + 1);
+    const query = picked.map((u) => u.text).filter(Boolean).join(' ').trim();
+    if (!query) { setDocHits({ results: [] }); return; }
+    let cancelled = false;
+    setDocLoading(true);
+    setDocError(null);
+    fetch('/api/line-search', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        query,
+        language,
+        collection: 'documents',
+        search_type: 'lemma',
+        max_results: 30,
+      }),
+    })
+      .then(asJson)
+      .then((d) => { if (!cancelled) { if (d.error) setDocError(d.error); setDocHits(d); } })
+      .catch((e) => { if (!cancelled) setDocError(e.message); })
+      .finally(() => { if (!cancelled) setDocLoading(false); });
+    return () => { cancelled = true; };
+  }, [selection, units, language, tab]);
+
   useEffect(() => {
     if (!selection || tab !== 'translation') return;
     let cancelled = false;
@@ -346,7 +379,7 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
     return () => { cancelled = true; };
   }, [selection, work, units, tab]);
 
-  // Order set by the owner on 2026-10-10: Similar, Reuse, Parallels, Scholarship, Translation.
+  // The order of each view is set in collectionsConfig.js (VIEWS.*.readerTabs).
   const allTabs = [
     // Short labels so the four tabs fit one row without a scrollbar a
     // reader has no way to know is there (users who cannot see all of them
@@ -355,6 +388,7 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
     ['similar', 'Similar', 'Similar Passages'],
     ['reuse', 'Reuse', 'Reuse'],
     ['verbal', 'Parallels', 'Verbal Parallels'],
+    ['documents', 'Documents', 'Inscriptions and papyri'],
     // In the English-focused reading view the middle column IS the
     // translation, so this tab holds the original instead.
     ['scholarship', 'Scholarship', 'Commentators, articles and books on the selection'],
@@ -380,7 +414,7 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
     // (2026-09-07). Below the lg breakpoint it is now a sheet fixed to
     // the bottom of the screen, shown once something is selected, with its
     // own close control; with nothing selected it stays out of the way.
-    <aside className={`w-full lg:w-96 border-t lg:border-t-0 lg:border-l border-gray-200 bg-gray-50
+    <aside className={`w-full lg:w-96 xl:w-[32rem] border-t lg:border-t-0 lg:border-l border-gray-200 bg-gray-50
                       flex flex-col fixed inset-x-0 bottom-0 z-40 shadow-2xl
                       lg:static lg:shadow-none lg:sticky lg:top-0 lg:self-start lg:h-screen lg:max-h-none
                       ${(selection || sheetOpen) ? 'max-h-[55vh]' : 'max-h-[2.75rem] overflow-hidden'}`}>
@@ -405,8 +439,15 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
           <button
             key={id}
             title={full || label}
-            onClick={() => { setTab(id); setSheetOpen(true); }}
-            className={`px-2 py-2 font-semibold border-b-2 transition-colors whitespace-nowrap ${
+            onClick={(e) => {
+              setTab(id); setSheetOpen(true);
+              // Bring a half-hidden tab into view when the strip scrolls.
+              const el = e?.currentTarget;
+              if (el && typeof el.scrollIntoView === 'function') {
+                el.scrollIntoView({ inline: 'nearest', block: 'nearest' });
+              }
+            }}
+            className={`px-2 py-2 text-[13px] font-semibold border-b-2 transition-colors whitespace-nowrap ${
               tab === id
                 ? 'text-red-700 border-red-700'
                 : 'text-gray-500 border-transparent hover:text-gray-700'
@@ -659,6 +700,21 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
                 className="mt-2"
               />
             )}
+          </>
+        )}
+
+        {selection && tab === 'documents' && (
+          <>
+            {docLoading && <LoadingSpinner />}
+            {docError && <p className="text-sm text-red-700">{docError}</p>}
+            {!docLoading && !docError && docHits?.results?.length === 0 && (
+              <p className="text-sm text-gray-500">
+                No inscription or papyrus shares two words with this selection.
+              </p>
+            )}
+            {!docLoading && (docHits?.results || []).map((r, i) => (
+              <DocumentHitCard key={`${r.doc_id}-${r.locus}-${i}`} r={r} language={language} />
+            ))}
           </>
         )}
 
@@ -1265,6 +1321,48 @@ function DocumentReuseGroups({ documents, language }) {
         );
       })}
     </div>
+  );
+}
+
+/** One inscription or papyrus that shares words with the selection: a compact
+ *  card with its edition or id, date and place, the text with the shared words
+ *  marked, and a link to the document's own page. */
+function DocumentHitCard({ r, language }) {
+  const labels = [r.text_type_label, r.object_type_label, r.material_label].filter(Boolean);
+  const place = r.ancient_place || r.modern_place;
+  const dateLabel = documentDateLabel(r);
+  const docUrl = `/document?doc=${encodeURIComponent(r.doc_id)}&lang=${encodeURIComponent(language)}&documents=1`;
+  return (
+    <a
+      href={docUrl}
+      className="group block bg-white border border-gray-200 rounded-lg p-2.5
+                 hover:border-red-400 hover:bg-red-50/40 transition-colors
+                 focus:outline-none focus:ring-2 focus:ring-red-400"
+    >
+      <div className="flex items-baseline gap-2 flex-wrap">
+        <span className="text-sm font-bold text-red-800 group-hover:underline">
+          {r.credit?.principal_edition || r.doc_id}
+        </span>
+        {(dateLabel || place) && (
+          <span className="text-[11px] text-gray-500">
+            {[dateLabel, place].filter(Boolean).join(' · ')}
+          </span>
+        )}
+      </div>
+      {labels.length > 0 && (
+        <div className="flex gap-1 flex-wrap mt-1">
+          {labels.map((lab) => (
+            <span key={lab} className="text-[10px] bg-gray-100 text-gray-600 rounded px-1">{lab}</span>
+          ))}
+        </div>
+      )}
+      <p className="text-sm text-gray-800 mt-1 leading-snug">
+        <Marked text={r.text} words={r.matched_words} latin={language === 'la'} />
+      </p>
+      {r.matched_restored && (
+        <p className="mt-1 text-[11px] text-sky-700">match on restored text</p>
+      )}
+    </a>
   );
 }
 

@@ -178,6 +178,16 @@ export const SEARCH_SCOPE = {
     measured: [REUSE_ROW],
     helpSection: 'reader',
   },
+  reader_documents: {
+    id: 'reader_documents',
+    name: 'Documents (Reader)',
+    does: 'Inscriptions and papyri that share words with the lines you selected.',
+    scope: 'The selected lines\' words are searched as a Line Search over the inscriptions and papyri. A result is a line of a document that carries two or more of them.',
+    covers: 'About 257,000 inscriptions and papyri in Latin and Greek.',
+    limits: 'Restored text is marked and can be excluded. Formulas (phrases common on stone) can be hidden. Coverage follows the four source corpora named in Help.',
+    measured: [DOCUMENTS_ROW],
+    helpSection: 'documents',
+  },
   reader_parallels: {
     id: 'reader_parallels',
     name: 'Parallels (Reader)',
@@ -265,7 +275,8 @@ export function liveCovers(id, counts, names = {}) {
     case 'ask_a_work':
     case 'reader_similar':
       return counts.passage_windows ? `The passage index, ${n(counts.passage_windows)} windows now.` : null;
-    case 'documents': {
+    case 'documents':
+    case 'reader_documents': {
       const d = counts.documents || {};
       const parts = Object.entries(d).map(([code, k]) => `${names[code] || code.toUpperCase()} ${n(k)}`);
       return parts.length ? `Inscriptions and papyri held now: ${parts.join(', ')}.` : null;

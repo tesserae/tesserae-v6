@@ -571,7 +571,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 main menu. Literature opens on the Search page, set to Vergil against Lucan, with the menu led by
                 Search and Read. History opens on the Reader at the first book of Tacitus&rsquo;s Annals, with
                 every collection on, the menu led by Read and Events, and the Reader&rsquo;s side panel opening on
-                Reuse, then the commentaries and articles. History also opens the Phrase Search on Livy against Tacitus in Latin and on
+                Similar, then the inscriptions and papyri, the coins, the commentaries and articles, and Reuse. History also opens the Phrase Search on Livy against Tacitus in Latin and on
                 Herodotus against Thucydides in Greek, and puts the inscriptions, papyri and events first in the Start here list.
               </p>
               <p className="text-gray-700 mb-4">
@@ -1891,6 +1891,12 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   varius) are hidden here, with a note saying how many; matches survive by
                   sharing at least one distinctive word, or three or more words together. The
                   full Line Search page applies no such filter.
+              </p>
+              <h5 className="text-base font-semibold text-gray-900 mt-4 mb-1">Documents tab</h5>
+              <p className="text-gray-700 mb-3">
+                  Documents appears when Inscriptions or Papyri is on. It lists the inscriptions and papyri
+                  that share two or more words with your selection, each with its date and place, the shared
+                  words marked, and a link to the document&rsquo;s page.
               </p>
               <h5 className="text-base font-semibold text-gray-900 mt-4 mb-1">Translation tab</h5>
               <p className="text-gray-700 mb-3">

@@ -36,7 +36,7 @@ describe('the view data', () => {
     expect(h.profile).toBe('everything');
     expect(h.home).toEqual({ page: 'read', work: 'tacitus.annales.part.1.tess', lang: 'la' });
     expect(h.menuOrder.slice(0, 3)).toEqual(['read', 'events', 'inscriptions-papyri']);
-    expect(h.readerTabs[0]).toBe('reuse');
+    expect(h.readerTabs).toEqual(['similar', 'documents', 'coins', 'scholarship', 'reuse', 'verbal', 'translation']);
     expect(h.searchDefaults.la).toEqual({
       source: 'livy.ab_urbe_condita.part.1.books_1-10.tess', target: 'tacitus.annales.part.1.tess',
     });
@@ -48,7 +48,7 @@ describe('the view data', () => {
     const l = viewById('literature');
     expect(l.profile).toBe('literary');
     expect(l.home.page).toBe('search');
-    expect(l.readerTabs[0]).toBe('similar');
+    expect(l.readerTabs).toEqual(['similar', 'reuse', 'verbal', 'documents', 'scholarship', 'translation', 'coins']);
   });
 
   it('orders by a list and keeps unnamed items last in their own order', () => {
