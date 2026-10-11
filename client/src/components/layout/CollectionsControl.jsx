@@ -7,9 +7,18 @@ import { COLLECTIONS, PROFILES } from '../../collections/collectionsConfig';
  * profiles and one switch per collection. The choice is saved for the
  * visitor (see collections/collectionsStore.js).
  */
-export default function CollectionsControl() {
+export default function CollectionsControl({ open: openProp, onOpenChange, hideButton = false } = {}) {
   const { on, profile, setProfile, setCollection } = useCollections();
-  const [open, setOpen] = useState(false);
+  const [openState, setOpenState] = useState(false);
+  // Controlled when the parent passes `open` (the phone menu opens the panel
+  // from its own "Collections" item and hides this button).
+  const controlled = openProp !== undefined;
+  const open = controlled ? !!openProp : openState;
+  const setOpen = (v) => {
+    const next = typeof v === 'function' ? v(open) : v;
+    if (!controlled) setOpenState(next);
+    if (onOpenChange) onOpenChange(next);
+  };
   const ref = useRef(null);
 
   useEffect(() => {
@@ -26,6 +35,7 @@ export default function CollectionsControl() {
 
   return (
     <div ref={ref} className="relative">
+      {!hideButton && (
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
@@ -36,6 +46,7 @@ export default function CollectionsControl() {
       >
         Collections
       </button>
+      )}
       {open && (
         <div
           role="dialog"
