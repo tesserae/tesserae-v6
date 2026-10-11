@@ -569,8 +569,8 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 The site has two views, Literature and History, switched by the two words at the left of the
                 main menu. Literature opens on the Search page, set to Vergil against Lucan, with the menu led by
                 Search and Read. History opens on the Reader at the first book of Tacitus&rsquo;s Annals, with
-                every collection on, the menu led by Read and Events, and the Reader&rsquo;s side tabs led by Reuse
-                and Scholarship. History also opens the Phrase Search on Livy against Tacitus in Latin and on
+                every collection on, the menu led by Read and Events, and the Reader&rsquo;s side panel opening on
+                Reuse, then the commentaries and articles. History also opens the Phrase Search on Livy against Tacitus in Latin and on
                 Herodotus against Thucydides in Greek, and puts the inscriptions, papyri and events first in the Start here list.
               </p>
               <p className="text-gray-700 mb-4">
