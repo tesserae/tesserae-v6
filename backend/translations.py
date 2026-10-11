@@ -12,8 +12,10 @@ Coverage is partial by nature. About 30 percent of Greek and 18 percent of Latin
 have an aligned public-domain translation, so "no translation for this passage"
 is a normal answer rather than an error.
 """
+import html
 import json
 import os
+import re
 import threading
 
 from backend import translation_links
@@ -61,6 +63,24 @@ def _norm_work(work):
     return work_id(work)
 
 
+_ENTITY = re.compile(r'&(?:[a-zA-Z]+|#\d+|#x[0-9a-fA-F]+);')
+
+
+def _decode_entities(obj):
+    """HTML character entities decoded in every string of a translation file.
+    Translations transcribed from web pages carried "C&aelig;sar" and
+    "Augustus&mdash;more" into the Reader (owner's review 2026-10-10, Tacitus,
+    Annals 1.1); the stored files were corrected the same day, and this keeps
+    any future file from showing them."""
+    if isinstance(obj, str):
+        return html.unescape(obj) if _ENTITY.search(obj) else obj
+    if isinstance(obj, list):
+        return [_decode_entities(x) for x in obj]
+    if isinstance(obj, dict):
+        return {k: _decode_entities(v) for k, v in obj.items()}
+    return obj
+
+
 def _load(work):
     """Parsed translation file for a work, or None. Cached per work."""
     key = _norm_work(work)
@@ -76,7 +96,7 @@ def _load(work):
     if fn:
         try:
             with open(os.path.join(_DIR, fn), encoding='utf-8') as fh:
-                data = json.load(fh)
+                data = _decode_entities(json.load(fh))
         except (OSError, ValueError) as e:
             logger.warning('[TRANSLATIONS] could not read %s: %s', fn, e)
     _cache[key] = data
