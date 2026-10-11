@@ -9,6 +9,8 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-10
 
+### Translations: HTML character entities decoded
+Fourteen translation files transcribed from web pages carried entities such as "C&aelig;sar" into the Reader. The files were corrected on the server, and the loader now decodes any entity it meets.
 ### Theme Search over scholarship: a Scholarship choice ranked by meaning and keyword together
 Theme Search gains a Scholarship choice beside Coins and Objects, shown when the Scholarship collection is on. It searches 82,814 windows of commentary notes and journal sentences and shows its own list, never mixed into the passage ranking. `GET /api/scholarship/theme?q=&k=` (`backend/scholarship_theme.py`) encodes the query through the encoder service, takes the 50 nearest windows by cosine and the 50 best FTS5 keyword matches, merges them by reciprocal rank fusion (k = 60) and returns the top `k` (10 by default, at most 30) with a snippet, the two source ranks and a Reader or JSTOR link; without the files it answers `available: false`. The packed files come from `scripts/scholarship/pack_scholarship_theme.py` and are read from `TESSERAE_SCHOLARSHIP_THEME_DIR` (default `data/scholarship_theme/`). A `scholarship_theme` entry joins the scope box and the Help table, `/api/scope` gains `scholarship_windows`, and the route is site-only in the connector manifest. The prototype's build and evaluation scripts (#738) come with it. Install steps are under "to run" in docs/DATA_OPERATIONS.md.
 

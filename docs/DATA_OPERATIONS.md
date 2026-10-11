@@ -35,6 +35,21 @@ Conventions
   hand and are the models the helper matches.
 
 
+## 2026-10-10 Translation files: HTML character entities decoded (run 2026-10-10 23:58)
+- What: 14 of the 1,043 translation files in `data/translations/` (not in git)
+  held HTML entities from the web pages they were transcribed from, which the
+  Reader showed as "C&aelig;sar" and "Augustus&mdash;more" (Tacitus, Annals
+  1.1). Pliny the Elder's Natural History held 4,780 of them, Tacitus's Annals
+  667, Ammianus 581, the Histories 360, and the rest a few each (`&aelig;`
+  4,031 in all, `&mdash;` 1,120, `&oelig;` 495, `&AElig;` 482, and accented
+  letters).
+- Run: every string in each of the 14 files decoded with Python's
+  `html.unescape` and the file rewritten in place, mode 664, after a copy to
+  `~/tesserae-backups/translations_entities_bak-20261010/`; then the wsgi
+  touch. Five malformed entities remain (two each in Aristophanes' Acharnians
+  and Knights, one in Gellius), which `html.unescape` does not recognise.
+- Code: `backend/translations.py` now decodes entities when a file is loaded,
+  so a future transcription cannot show them.
 ## 2026-10-10 Scholarship Theme Search, packed index and install steps (packed 2026-10-10; install to run)
 
 - Source: the index built on 2026-10-09 with the campus GPU, `~/tesserae-backups/scholarship_theme_idx_2026-10-09/`
