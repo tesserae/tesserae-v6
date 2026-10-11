@@ -144,11 +144,6 @@ const OPENERS = [
   // suggestion existed no surface of the panel said so.
   'How do I run a search?',
   'Where does the phrase arma virumque appear?',
-  'What Hebrew texts are in the corpus?',
-  // Replaces the banner that used to sit across the top of every page. The
-  // same thing is worth telling people, but as something they can ask rather
-  // than something that occupies the site whether they care or not.
-  'How can I use my AI agent with Tesserae?',
   'What is the difference between lemma and exact search?',
 ];
 
@@ -180,6 +175,7 @@ export default function AssistantDock() {
   const [draft, setDraft] = useState('');
   const { text, step, running, error, highlight, offer, actions, run } = useAssistantStream();
   const scrollRef = useRef(null);
+  const inputRef = useRef(null);
 
   useEffect(() => {
     fetch('/api/assistant/status')
@@ -210,6 +206,12 @@ export default function AssistantDock() {
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
   }, [turns, text]);
+
+  // On a phone the box sits under the header, and opening the sheet puts the
+  // cursor in it so the keyboard comes up at once.
+  useEffect(() => {
+    if (open && phone && available && inputRef.current) inputRef.current.focus();
+  }, [open, phone, available]);
 
   useEffect(() => { saveTurns(turns); }, [turns]);
   useEffect(() => { setSessionValue('tessa_open', open ? '1' : '0'); }, [open]);
@@ -281,11 +283,34 @@ export default function AssistantDock() {
     );
   }
 
+  const form = (
+    <form
+      onSubmit={(e) => { e.preventDefault(); ask(draft); }}
+      className={`flex gap-2 p-2 border-gray-200 ${phone ? 'border-b' : 'border-t'}`}
+    >
+      <input
+        ref={inputRef}
+        value={draft}
+        onChange={(e) => setDraft(e.target.value)}
+        placeholder="Ask about a text or a phrase, what a set of results means, or how the site works"
+        className="flex-1 text-sm px-2 py-1.5 rounded border border-gray-300 focus:outline-none focus:ring-1 focus:ring-red-600"
+      />
+      <button
+        type="submit"
+        disabled={running || !draft.trim()}
+        className="px-3 py-1.5 text-sm rounded bg-red-700 text-white hover:bg-red-800 disabled:opacity-40"
+      >
+        Ask
+      </button>
+    </form>
+  );
+  const openers = phone ? OPENERS.slice(0, 2) : OPENERS;
+
   return (
     // Opened, the panel is a floating card on a desktop and a bottom sheet on a
     // phone, where a 24rem card with margins on all four sides wastes the little
     // width there is.
-    <div className="fixed z-40 inset-x-0 bottom-0 sm:inset-x-auto sm:bottom-5 sm:right-5 w-full sm:w-[24rem] sm:max-w-[calc(100vw-2.5rem)] rounded-t-xl sm:rounded-lg border-t sm:border border-gray-300 bg-white shadow-xl flex flex-col max-h-[85vh] sm:max-h-[min(32rem,calc(100vh-3rem))]">
+    <div className="fixed z-40 inset-x-0 bottom-0 sm:inset-x-auto sm:bottom-5 sm:right-5 w-full sm:w-[24rem] sm:max-w-[calc(100vw-2.5rem)] rounded-t-xl sm:rounded-lg border-t sm:border border-gray-300 bg-white shadow-xl flex flex-col max-h-[85vh] supports-[height:1dvh]:max-h-[85dvh] pb-[env(safe-area-inset-bottom)] sm:pb-0 sm:max-h-[min(32rem,calc(100vh-3rem))]">
       <header className="flex items-center justify-between px-3 py-2 border-b border-gray-200">
         <h2 className="flex items-center gap-2 text-sm font-semibold text-gray-800">
           <span className="flex items-center justify-center w-6 h-6 rounded-md bg-red-700 text-white text-xs font-semibold leading-none">
@@ -320,16 +345,16 @@ export default function AssistantDock() {
         </div>
       </header>
 
+      {phone && form}
+
       <div ref={scrollRef} className="flex-1 overflow-y-auto px-3 py-3 space-y-3">
         {turns.length === 0 && !running && (
           <>
             <p className="text-sm text-gray-600 leading-relaxed">
               I can run searches on this corpus and explain how the site works.
-              Ask me where a phrase occurs, what the corpus holds, how to set up
-              a search, or what a result means.
             </p>
             <div className="flex flex-col gap-1.5">
-              {OPENERS.map((q) => (
+              {openers.map((q) => (
                 <button
                   key={q}
                   onClick={() => ask(q)}
@@ -370,24 +395,7 @@ export default function AssistantDock() {
         {error && <p className="text-xs text-amber-700">{error}</p>}
       </div>
 
-      <form
-        onSubmit={(e) => { e.preventDefault(); ask(draft); }}
-        className="flex gap-2 p-2 border-t border-gray-200"
-      >
-        <input
-          value={draft}
-          onChange={(e) => setDraft(e.target.value)}
-          placeholder="Ask about a text or a phrase, what a set of results means, or how the site works"
-          className="flex-1 text-sm px-2 py-1.5 rounded border border-gray-300 focus:outline-none focus:ring-1 focus:ring-red-600"
-        />
-        <button
-          type="submit"
-          disabled={running || !draft.trim()}
-          className="px-3 py-1.5 text-sm rounded bg-red-700 text-white hover:bg-red-800 disabled:opacity-40"
-        >
-          Ask
-        </button>
-      </form>
+      {!phone && form}
     </div>
   );
 }
