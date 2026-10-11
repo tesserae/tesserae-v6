@@ -185,14 +185,22 @@ def main():
                     'to this window_texts.db (back it up first) and stop')
     ap.add_argument('--upsert-from', help='windows.jsonl for --upsert-db')
     ap.add_argument('--dry-run', action='store_true', help='count only, write nothing')
-    ap.add_argument('--out', required=True)
+    ap.add_argument('--out', help='output folder (required unless --upsert-db)')
     a = ap.parse_args()
     if a.upsert_db:
+        if a.dry_run:
+            # The first install (2026-10-11) ran this step with --dry-run and
+            # it wrote anyway; a dry run now counts the rows and stops.
+            n = sum(1 for _ in open(a.upsert_from, encoding='utf-8'))
+            print(f'dry run: {n} window rows would be upserted into {a.upsert_db}')
+            return
         if not a.upsert_from:
             ap.error('--upsert-db needs --upsert-from')
         added, total = upsert_window_texts(a.upsert_db, a.upsert_from)
         print(f'upserted {added} window rows; window_texts now {total:,}')
         return
+    if not a.out:
+        ap.error('--out is required unless --upsert-db is given')
 
     sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..'))
     from backend.work_names import base_work
