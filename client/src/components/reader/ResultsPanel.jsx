@@ -57,6 +57,20 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
   // Phone only: the sheet is a bare tab strip until a tab is tapped or a
   // line selected; on desktop the panel is always open.
   const [sheetOpen, setSheetOpen] = useState(false);
+  // Does the tab strip run past its right edge? Then a fade says it scrolls.
+  const stripRef = useRef(null);
+  const [stripMore, setStripMore] = useState(false);
+  const checkStrip = () => {
+    const el = stripRef.current;
+    if (!el) return;
+    const more = el.scrollWidth - el.clientWidth - el.scrollLeft > 2;
+    setStripMore((prev) => (prev === more ? prev : more));
+  };
+  useEffect(() => {
+    checkStrip();
+    window.addEventListener('resize', checkStrip);
+    return () => window.removeEventListener('resize', checkStrip);
+  });
   // The tab whose "What this does" box is shown above its results.
   const [scopeShownFor, setScopeShownFor] = useState(null);
 
@@ -357,15 +371,13 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
                       flex flex-col fixed inset-x-0 bottom-0 z-40 shadow-2xl
                       lg:static lg:shadow-none lg:sticky lg:top-0 lg:self-start lg:h-screen lg:max-h-none
                       ${(selection || sheetOpen) ? 'max-h-[55vh]' : 'max-h-[2.75rem] overflow-hidden'}`}>
-      {/* Room on the right for the Tessa button, which floats over the sheet
-          on a phone. With five tabs (Scholarship added), WRAPPING put the
+      {/* One row of tabs. With five tabs (Scholarship added), WRAPPING put the
           fifth on a second line, where it no longer read as one of the tabs
-          (2026-10-08). Tighter padding keeps every tab in one row at the
-          panel's normal width; if a narrower width still will not fit them
-          all, the strip scrolls horizontally rather than wrapping -- a
-          scrollbar is at least visibly a strip that continues, where a
-          dropped second line looked like a different, smaller tab bar. */}
-      <div className="flex items-center flex-nowrap overflow-x-auto scrollbar-hide shrink-0 border-b border-gray-200 text-sm pr-20 lg:pr-0">
+          (2026-10-08). If the width will not fit them all, the strip scrolls
+          sideways, and a fade at the right edge shows that it continues. */}
+      <div className="relative shrink-0 border-b border-gray-200">
+      <div ref={stripRef} onScroll={checkStrip}
+           className="flex items-center flex-nowrap overflow-x-auto scrollbar-hide text-sm">
         {(selection || sheetOpen) && (
           <button
             onClick={() => { setSheetOpen(false); onClose?.(); }}
@@ -390,6 +402,12 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
             {label}
           </button>
         ))}
+      </div>
+      {stripMore && (
+        <span aria-hidden="true" data-testid="tab-strip-fade"
+              className="pointer-events-none absolute inset-y-0 right-0 w-10
+                         bg-gradient-to-l from-gray-50 to-transparent" />
+      )}
       </div>
 
       {/* THE TABS STAY WHATEVER IS SELECTED.

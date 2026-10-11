@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import useAssistantStream from './useAssistantStream';
 import { WorkingLine } from './ResultsInsight';
 import { getSessionValue, setSessionValue } from '../../utils/storage';
+import { useIsPhone } from '../../hooks/useIsPhone';
 
 const TUCK_KEY = 'tesserae_tessa_tucked';
 function readTucked() {
@@ -163,6 +164,9 @@ const OPENERS = [
  * dead control. The searches are the product; this is help on top of them.
  */
 export default function AssistantDock() {
+  // On a phone the closed state is always the slim side tab, so the bottom of
+  // the screen (the results sheet and its tabs) is free.
+  const phone = useIsPhone();
   const [available, setAvailable] = useState(false);
   // Reopens where it was left, because taking one of Tessa's own actions
   // reloads the page and would otherwise shut her and wipe the conversation.
@@ -240,10 +244,10 @@ export default function AssistantDock() {
   // ("the Tessa assistant bubble permanently blocks reading that corner").
   // Closed, Tessa is now a small round button everywhere, and its x tucks it
   // into a slim tab on the right edge, remembered in this browser.
-  if (!open && tucked) {
+  if (!open && (tucked || phone)) {
     return (
       <button
-        onClick={() => setTuckedSaved(false)}
+        onClick={() => { if (phone) setOpen(true); else setTuckedSaved(false); }}
         aria-label="Show Tessa, the AI assistant"
         title="Show Tessa, the AI assistant"
         className="fixed right-0 top-1/2 -translate-y-1/2 z-40 px-1 py-3 rounded-l-md bg-red-700/80 text-white text-[11px] font-semibold shadow hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-red-400 [writing-mode:vertical-rl]"

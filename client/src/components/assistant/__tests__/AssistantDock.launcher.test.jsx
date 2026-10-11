@@ -6,6 +6,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import AssistantDock from '../AssistantDock';
+import { installPhone } from '../../../test/phone';
 
 beforeEach(() => {
   window.localStorage.clear();
@@ -28,5 +29,21 @@ describe('Tessa launcher', () => {
     expect(await screen.findByRole('button', { name: 'Show Tessa, the AI assistant' })).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: 'Show Tessa, the AI assistant' }));
     expect(await screen.findByRole('button', { name: 'Open Tessa, the AI assistant' })).toBeTruthy();
+  });
+});
+
+describe('Tessa on a phone', () => {
+  it('is the slim side tab when closed, even if never tucked, and opens from it', async () => {
+    const env = installPhone(true);
+    try {
+      render(<AssistantDock />);
+      const tab = await screen.findByRole('button', { name: 'Show Tessa, the AI assistant' });
+      expect(tab.textContent).toBe('Tessa');
+      expect(tab.className).toContain('right-0');
+      expect(screen.queryByRole('button', { name: 'Open Tessa, the AI assistant' })).toBeNull();
+      fireEvent.click(tab);
+      // the card is open now: the side tab is gone
+      expect(screen.queryByRole('button', { name: 'Show Tessa, the AI assistant' })).toBeNull();
+    } finally { env.restore(); }
   });
 });

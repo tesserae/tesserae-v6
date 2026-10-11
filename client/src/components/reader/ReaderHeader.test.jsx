@@ -6,8 +6,9 @@
  * they should work, so the only way to settle it was to mount the thing and
  * fire a change at it.
  */
-import { describe, expect, it, vi, beforeEach } from 'vitest';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { installPhone } from '../../test/phone';
 import ReaderHeader from './ReaderHeader';
 
 // Two authors, one with books, shaped exactly as useCorpus builds it.
@@ -318,5 +319,102 @@ describe('the About panel: title, facts line, prose, sources footnote', () => {
 
     await screen.findByRole('heading', { name: 'Seneca, Thyestes' });
     expect(screen.queryByText(/Translation by/)).not.toBeInTheDocument();
+  });
+});
+
+describe('on a phone: one title line and a picker sheet', () => {
+  let env;
+  beforeEach(() => { env = installPhone(true); });
+  afterEach(() => { env.restore(); cleanup(); });
+
+  const PHONE_HIERARCHY = [
+    { author: 'Vergil', author_key: 'vergil',
+      works: [{ work_key: 'aeneid', work: 'Aeneid',
+        sections: [
+          { file: 'vergil.aeneid.tess', label: 'Aeneid' },
+          { file: 'vergil.aeneid.part.1.tess', label: 'Book 1' },
+          { file: 'vergil.aeneid.part.2.tess', label: 'Book 2' },
+        ] }] },
+  ];
+
+  function mountPhone(extra = {}) {
+    const onWork = vi.fn();
+    const onJump = vi.fn(() => '');
+    render(<ReaderHeader language="la" onLanguage={() => {}} hierarchy={PHONE_HIERARCHY}
+                         work="vergil.aeneid.part.1.tess" onWork={onWork} onJump={onJump}
+                         units={Array.from({ length: 756 }, (_, i) => ({ ref: `v.${i}` }))}
+                         selection={null} {...extra} />);
+    return { onWork, onJump };
+  }
+
+  it('shows the position as a button and the line count, with no dropdowns', () => {
+    mountPhone();
+    expect(screen.getByRole('button', { name: /Vergil, Aeneid, Book 1/ })).toBeInTheDocument();
+    expect(screen.getByText('756 lines')).toBeInTheDocument();
+    expect(screen.queryByLabelText('Language')).toBeNull();
+    expect(screen.queryByLabelText('Author')).toBeNull();
+    expect(screen.queryByLabelText('Go to line')).toBeNull();
+  });
+
+  it('opens a sheet with the four selects, Go to line and the book buttons', () => {
+    const { onJump } = mountPhone();
+    fireEvent.click(screen.getByRole('button', { name: /Vergil, Aeneid, Book 1/ }));
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Tesserae Reader' })).toBeInTheDocument();
+    expect(screen.getByText('Beta')).toBeInTheDocument();
+    for (const l of ['Language', 'Author', 'Work', 'Book']) {
+      expect(screen.getByLabelText(l)).toBeInTheDocument();
+    }
+    expect(screen.getByLabelText('No previous book')).toBeInTheDocument();
+    expect(screen.getByLabelText('Next: Book 2')).toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText('Go to line'), { target: { value: '1.20' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Go' }));
+    expect(onJump).toHaveBeenCalledWith('1.20');
+    // a successful jump closes the sheet
+    expect(screen.queryByRole('dialog')).toBeNull();
+  });
+
+  it('keeps the sheet open when the jump fails', () => {
+    mountPhone({ onJump: () => 'no line 9.9 here' });
+    fireEvent.click(screen.getByRole('button', { name: /Vergil, Aeneid, Book 1/ }));
+    fireEvent.change(screen.getByLabelText('Go to line'), { target: { value: '9.9' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Go' }));
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveTextContent('no line 9.9 here');
+  });
+
+  it('closes with the x, with Escape and with the backdrop', () => {
+    mountPhone();
+    const open = () => fireEvent.click(screen.getByRole('button', { name: /Vergil, Aeneid, Book 1/ }));
+    open();
+    fireEvent.click(screen.getByRole('button', { name: 'Close' }));
+    expect(screen.queryByRole('dialog')).toBeNull();
+    open();
+    fireEvent.keyDown(window, { key: 'Escape' });
+    expect(screen.queryByRole('dialog')).toBeNull();
+    open();
+    fireEvent.click(screen.getByTestId('picker-backdrop'));
+    expect(screen.queryByRole('dialog')).toBeNull();
+  });
+
+  it('choosing the next book opens it and closes the sheet', () => {
+    const { onWork } = mountPhone();
+    fireEvent.click(screen.getByRole('button', { name: /Vergil, Aeneid, Book 1/ }));
+    fireEvent.click(screen.getByLabelText('Next: Book 2'));
+    expect(onWork).toHaveBeenCalledWith('vergil.aeneid.part.2.tess');
+    expect(screen.queryByRole('dialog')).toBeNull();
+  });
+
+  it('carries the About content as its own section, with no toggle', async () => {
+    global.fetch = vi.fn((url) => Promise.resolve({ json: () => Promise.resolve(
+      String(url).includes('/api/text-descriptions')
+        ? { description: 'An orientation blurb.', facts: { author: 'Vergil', work: 'Aeneid', part: 'Book 1', kind: 'poetry' } }
+        : { languages: [{ code: 'la' }], available: false }) }));
+    mountPhone();
+    fireEvent.click(screen.getByRole('button', { name: /Vergil, Aeneid, Book 1/ }));
+    expect(await screen.findByText('An orientation blurb.')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Vergil, Aeneid, Book 1' })).toBeInTheDocument();
+    expect(screen.getByText('Poetry')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Full credits' })).toBeInTheDocument();
   });
 });
