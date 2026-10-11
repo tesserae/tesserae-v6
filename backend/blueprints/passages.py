@@ -191,7 +191,10 @@ def mentions():
     """Windows of one work whose description names a person or thing.
 
     ?work=<base or part id>&names=<comma list>&books=<1,2 or 1-6>&limit=&offset=
-    A word search over the describer's participants, gist, setting and themes,
+    &q=<the question>&source=<text|description>
+    With q the list is ranked by closeness to the question. A name the
+    descriptions never mention is looked for in the text (source=text forces
+    that for every name). A word search over the describer's participants, gist, setting and themes,
     for the case where Theme Search ranks a named subject too low."""
     work = (request.args.get('work') or '').strip()
     names = [n.strip() for n in (request.args.get('names') or '').split(',') if n.strip()][:20]
@@ -203,13 +206,18 @@ def mentions():
     offset = _int_arg('offset', 0, lo=0, hi=_MAX_OFFSET)
     books = passage_index.parse_books(request.args.get('books')) or None
     try:
-        out = passage_index.mentions_in_work(work, names, books=books)
+        q = (request.args.get('q') or '').strip() or None
+        source = (request.args.get('source') or '').strip().lower() or None
+        out = passage_index.mentions_in_work(work, names, books=books,
+                                             query=q, source=source)
     except Exception as e:
         logger.exception('[PASSAGES] mentions failed')
         return jsonify({'error': f'{type(e).__name__}: {e}', 'results': [], 'total': 0})
     hits = out['hits']
     resp = {'work': out['work'], 'names': names, 'total': len(hits),
             'books_searched': out['books_searched'],
+            'ranked_by': out.get('ranked_by', 'mentions'),
+            'source': out.get('source', 'description'),
             'results': hits[offset:offset + limit]}
     if out.get('note'):
         resp['note'] = out['note']

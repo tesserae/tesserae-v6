@@ -9,6 +9,9 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-11
 
+### Ask a Work: the names list ranked by closeness to the question, and names found in the text when the descriptions anonymise
+The list of passages that name a person is now ordered by how close each passage is to the question, with the number of mentions as a tie-breaker, and the route takes `q=`. A name the descriptions never mention (Pericles in Thucydides, whose descriptions say "an experienced king") is looked up in the text of the windows, in Latin and Greek, by word beginning. The route reports `ranked_by` and `source`, each hit reports `found_in`, and `source=text` forces the text search.
+
 ### Ask a Work: one entry per passage in the names list, short citations written out in the summary
 The list of passages that name a person showed a passage twice when the index holds it at two scales. The summary cited Tacitus and Thucydides by bare locus, (1.73), which the page could not link; the server now writes such citations out as the full reference and lists them.
 

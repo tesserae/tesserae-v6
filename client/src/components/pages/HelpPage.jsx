@@ -1708,8 +1708,10 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
               <p className="text-gray-700 mb-4">
                 When your question has a capitalised word after its first word, such as
                 Sejanus, a second list called Passages that name Sejanus appears under the
-                strip. It holds the passages whose description contains that name, in the order
-                of the work. A content search can put a passage about a person low in the
+                strip. It holds the passages whose description contains that name, the closest to
+                your question first. When no description gives the name, as in works whose
+                descriptions leave people unnamed, the text of the passages is searched for
+                the name in Latin and Greek and the list says so. A content search can put a passage about a person low in the
                 ranking, because the passage is about what he does and not about his name, so
                 this list finds them by the word. Its marks are grey on the strip.
               </p>
