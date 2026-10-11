@@ -9,6 +9,9 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-11
 
+### Ask a Work: the measured row and Help now report two judges
+A second judge, the university gateway's Qwen model, re-graded the pilot's 293 passages: agreement with the first judge on 69 percent of grades (kappa 0.71 with quadratic weights), the strong marks' precision 0.87 for passages at least touching the subject. The scope box and the Help section say so.
+
 ### Inscriptions and papyri: a passage-sized query searches on its rarest words
 The Reader's new Documents tab sends the whole selection to the documents search. A chapter of Tacitus (120 words) took over four minutes and a sentence eleven seconds, where the same search over literature answers in under a second because it caps a long query at its twelve rarest words. The documents search now applies the same cap, by document frequency in the documents index, and says so in the response as the literary search does.
 ### Reader: the Documents tab names the words a long selection was matched on
