@@ -79,10 +79,10 @@ export function matchProfile(on) {
  */
 export const READER_TABS = [
   { id: 'similar', needs: [] },
-  { id: 'verbal', needs: [] },
-  { id: 'translation', needs: [] },
   { id: 'reuse', needs: [] },
+  { id: 'verbal', needs: [] },
   { id: 'scholarship', needs: ['scholarship'] },
+  { id: 'translation', needs: [] },
   // Coins that name the same people as the selection, and coin imagery close to it.
   { id: 'coins', needs: ['coins'] },
 ];

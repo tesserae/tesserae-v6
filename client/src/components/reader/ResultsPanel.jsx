@@ -303,19 +303,20 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
     return () => { cancelled = true; };
   }, [selection, work, units, tab]);
 
+  // Order set by the owner on 2026-10-10: Similar, Reuse, Parallels, Scholarship, Translation.
   const allTabs = [
     // Short labels so the four tabs fit one row without a scrollbar a
     // reader has no way to know is there (users who cannot see all of them
     // will not know they're there, 2026-09-19) -- matches
     // feat/scholarship-tab's wording. The full name is the title attribute.
     ['similar', 'Similar', 'Similar Passages'],
+    ['reuse', 'Reuse', 'Reuse'],
     ['verbal', 'Parallels', 'Verbal Parallels'],
     // In the English-focused reading view the middle column IS the
     // translation, so this tab holds the original instead.
+    ['scholarship', 'Scholarship', 'Commentators, articles and books on the selection'],
     ['translation', focus === 'english' ? 'Original' : 'Translation',
      focus === 'english' ? 'The original text' : 'Translation'],
-    ['reuse', 'Reuse', 'Reuse'],
-    ['scholarship', 'Scholarship', 'Commentators, articles and books on the selection'],
     ['coins', 'Coins', 'Coins that name the same people, and coin imagery close to the selection'],
   ];
   // Which tabs appear is decided by Collections (READER_TABS names the
