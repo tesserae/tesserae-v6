@@ -102,6 +102,57 @@ export function stripLayout(results, workId, workBooks) {
   return { books: order, segments, marks };
 }
 
+const NAME_STOP = new Set(['The', 'A', 'An', 'What', 'How', 'Why', 'Where', 'When', 'Who', 'Which', 'I']);
+
+/** Capitalised words of a question that may be a name: not the first word, not in
+ *  the stop list, a possessive 's removed, at most four. */
+export function namesIn(question) {
+  const words = String(question || '').trim().split(/\s+/);
+  const out = [];
+  words.slice(1).forEach((raw) => {
+    const w = raw.replace(/^[^\p{L}]+|[^\p{L}]+$/gu, '').replace(/['\u2019]s$/, '');
+    if (!w || !/^\p{Lu}/u.test(w) || NAME_STOP.has(w) || out.includes(w)) return;
+    out.push(w);
+  });
+  return out.slice(0, 4);
+}
+
+function joinNames(names) {
+  if (names.length < 2) return names.join('');
+  return `${names.slice(0, -1).join(', ')} and ${names[names.length - 1]}`;
+}
+
+/** "2-3" -> {from: 2, to: 3}, or null for anything else. */
+function parseBooks(s) {
+  const m = String(s || '').match(/^(\d+)-(\d+)$/);
+  return m && Number(m[1]) <= Number(m[2]) ? { from: Number(m[1]), to: Number(m[2]) } : null;
+}
+
+function booksPhrase(s) {
+  const b = parseBooks(s);
+  if (!b) return '';
+  return b.from === b.to ? `book ${b.from}` : `books ${b.from} to ${b.to}`;
+}
+
+/** The heading's text without the question: "Tacitus, Annals, books 1 to 6". */
+function workLabel(w, workId, firstResult, books) {
+  const base = w ? `${w.author}, ${w.title}`
+    : (firstResult?.author ? `${firstResult.author}, ${(firstResult.title || '').replace(/, Book \d+$/, '')}` : workId);
+  const bp = booksPhrase(books);
+  return bp ? `${base}, ${bp}` : base;
+}
+
+/** The summary text with each cited reference made a link to its card. */
+function SummaryText({ text, cites, onJump }) {
+  const refs = [...new Set((cites || []).filter(Boolean))].sort((a, b) => b.length - a.length);
+  if (!refs.length) return text;
+  const re = new RegExp(`(${refs.map((c) => c.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})`);
+  return text.split(re).map((part, k) => (refs.includes(part) ? (
+    <button key={k} type="button" onClick={() => onJump(part)}
+            className="text-red-800 hover:text-red-900 hover:underline">{part}</button>
+  ) : part));
+}
+
 function FirstLines({ r }) {
   const [lines, setLines] = useState(null);
   useEffect(() => {
@@ -125,12 +176,15 @@ export default function AskAWorkPage() {
   const phone = useIsPhone();
   const initial = useMemo(() => {
     const p = new URLSearchParams(window.location.search);
-    return { work: (p.get('work') || '').trim(), lang: (p.get('lang') || '').trim(), q: (p.get('q') || '').trim() };
+    return { work: (p.get('work') || '').trim(), lang: (p.get('lang') || '').trim(), q: (p.get('q') || '').trim(), books: (p.get('books') || '').trim() };
   }, []);
   const [lang, setLang] = useState(initial.lang || 'la');
   const [author, setAuthor] = useState(initial.work ? initial.work.split('.')[0].toLowerCase() : '');
   const [work, setWork] = useState(initial.work);
   const [q, setQ] = useState(initial.q);
+  const initialRange = useMemo(() => parseBooks(initial.books), [initial]);
+  const [bookFrom, setBookFrom] = useState(initialRange ? initialRange.from : null);   // null = the first book
+  const [bookTo, setBookTo] = useState(initialRange ? initialRange.to : null);         // null = the last book
   const [catalogue, setCatalogue] = useState({});   // language -> works, once loaded
   const loading = useRef({});
 
@@ -148,7 +202,16 @@ export default function AskAWorkPage() {
     [...new Set([lang, 'la', 'grc'])].forEach(loadWorks);
   }, [lang, loadWorks]);
 
+  const catalogueRef = useRef(catalogue);
+  catalogueRef.current = catalogue;
   const works = catalogue[lang];
+  const chosen = useMemo(() => (works || []).find((w) => w.id === work), [works, work]);
+  const bookList = useMemo(() => [...new Set(chosen?.books || [])].sort((a, b) => a - b), [chosen]);
+  const hasBooks = bookList.length >= 2;
+  const fromBook = hasBooks ? (bookFrom ?? bookList[0]) : null;
+  const toBook = hasBooks ? (bookTo ?? bookList[bookList.length - 1]) : null;
+  const narrowed = hasBooks && (fromBook > bookList[0] || toBook < bookList[bookList.length - 1]);
+  const booksParam = narrowed ? `${fromBook}-${toBook}` : '';
   const authors = useMemo(() => {
     const m = new Map();
     (works || []).forEach((w) => { if (!m.has(w.authorKey)) m.set(w.authorKey, w.author); });
@@ -164,37 +227,106 @@ export default function AskAWorkPage() {
   const [exhausted, setExhausted] = useState(false);
   const [showWeak, setShowWeak] = useState(false);
   const [error, setError] = useState(null);
-  const [asked, setAsked] = useState({ q: '', work: '', lang: '' });
+  const [asked, setAsked] = useState({ q: '', work: '', lang: '', books: '' });
   const [flash, setFlash] = useState(null);
   const cards = useRef({});
+  const nameCards = useRef({});
+  const [mentions, setMentions] = useState(null);   // { names, total, rows } for the current search
+  const [showAllNames, setShowAllNames] = useState(false);
+  const [loadingNames, setLoadingNames] = useState(false);
+  const [summary, setSummary] = useState(null);     // { state: 'loading' | 'ready', summary, cites }
+  const searchId = useRef(0);
 
-  const run = useCallback(async (text, workId, code, more = false) => {
+  const fetchMentions = useCallback(async (names, workId, books, offset) => {
+    const p = new URLSearchParams({ work: workId, names: names.join(','), limit: String(PAGE), offset: String(offset) });
+    if (books) p.set('books', books);
+    const res = await fetch(`/api/passages/mentions?${p.toString()}`);
+    return res.json();
+  }, []);
+
+  // The whole list of passages that name the person: the first page comes with the
+  // search, the rest when "Show all" is pressed.
+  const showAllMentions = async () => {
+    setShowAllNames(true);
+    const m = mentions;
+    if (!m || m.rows.length >= m.total) return;
+    const id = searchId.current;
+    setLoadingNames(true);
+    try {
+      const rows = [...m.rows];
+      while (rows.length < m.total) {
+        const json = await fetchMentions(m.names, m.workId, m.books, rows.length);
+        if (id !== searchId.current) return;
+        const got = json.results || [];
+        if (!got.length) break;
+        rows.push(...got);
+      }
+      setMentions((cur) => (cur && id === searchId.current ? { ...cur, rows } : cur));
+    } catch (e) { /* the loaded passages stay */ } finally { setLoadingNames(false); }
+  };
+
+  const run = useCallback(async (text, workId, code, more = false, books = '') => {
     const query = (text || '').trim();
     if (!query || !workId) return;
     if (more) setLoadingMore(true);
-    else { setRunning(true); setData(null); setResults([]); setExhausted(false); setShowWeak(false); }
+    else {
+      setRunning(true); setData(null); setResults([]); setExhausted(false); setShowWeak(false);
+      setMentions(null); setShowAllNames(false); setSummary(null);
+      searchId.current += 1;
+    }
+    const id = searchId.current;
     setError(null);
     const offset = more ? results.length : 0;
     try {
       const res = await fetch(
         `/api/passages/theme-search?q=${encodeURIComponent(query)}&works=${encodeURIComponent(workId)}`
+        + (books ? `&books=${encodeURIComponent(books)}` : '')
         + `&limit=${PAGE}&offset=${offset}&languages=${encodeURIComponent(code)}`);
       const json = await res.json();
       if (json.error) { setError(json.error); return; }
       const got = json.results || [];
       setData(json);
-      setAsked({ q: query, work: workId, lang: code });
+      setAsked({ q: query, work: workId, lang: code, books });
       setResults((prev) => (more ? [...prev, ...got] : got));
       if (got.length < PAGE) setExhausted(true);
       const p = new URLSearchParams({ work: workId, lang: code, q: query });
+      if (books) p.set('books', books);
       window.history.replaceState({}, '', `/ask-a-work?${p.toString()}`);
+      if (!more && got.length) {
+        const w = (catalogueRef.current[code] || []).find((x) => x.id === workId);
+        const names = namesIn(query);
+        if (names.length) {
+          fetchMentions(names, workId, books, 0).then((m) => {
+            if (id !== searchId.current) return;
+            setMentions({
+              names, workId, books, total: Number(m.total) || 0, rows: m.results || [],
+              searched: Array.isArray(m.books_searched) ? m.books_searched : null,
+            });
+          }).catch(() => {});
+        }
+        if (json.confidence?.level !== 'low') {
+          setSummary({ state: 'loading' });
+          fetch('/api/passages/ask-summary', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              question: query,
+              work_label: workLabel(w, workId, got[0], books),
+              passages: got.slice(0, 12).map((r) => ({ ref: r.ref_start, gist: r.gist || '' })),
+            }),
+          }).then((res) => res.json()).then((s) => {
+            if (id !== searchId.current) return;
+            setSummary(s && s.available && s.summary ? { state: 'ready', summary: s.summary, cites: s.cites || [] } : null);
+          }).catch(() => { if (id === searchId.current) setSummary(null); });
+        }
+      }
     } catch (e) {
       setError(e.message || 'the search could not be run');
     } finally {
       setRunning(false);
       setLoadingMore(false);
     }
-  }, [results.length]);
+  }, [results.length, fetchMentions]);
 
   // An address that carries a work and a question runs once, as soon as the
   // work is known to be one the index holds.
@@ -202,17 +334,18 @@ export default function AskAWorkPage() {
   useEffect(() => {
     if (autoRan.current || !initial.work || !initial.q) return;
     autoRan.current = true;
-    run(initial.q, initial.work, initial.lang || 'la');
-  }, [initial, run]);
+    run(initial.q, initial.work, initial.lang || 'la', false, initialRange ? initial.books : '');
+  }, [initial, initialRange, run]);
 
   const go = (e) => {
     if (e) e.preventDefault();
-    run(q, work, lang);
+    run(q, work, lang, false, booksParam);
   };
 
   const example = (ex) => {
     setLang(ex.lang); setAuthor(ex.work.split('.')[0]); setWork(ex.work); setQ(ex.q);
-    run(ex.q, ex.work, ex.lang);
+    setBookFrom(null); setBookTo(null);
+    run(ex.q, ex.work, ex.lang, false, '');
   };
   const shownExamples = EXAMPLES.filter((ex) => (catalogue[ex.lang] || []).some((w) => w.id === ex.work));
 
@@ -221,8 +354,22 @@ export default function AskAWorkPage() {
   const emptyList = data && !results.length;
   const listVisible = results.length > 0 && (!weakVerdict || showWeak);
   const askedWork = (catalogue[asked.lang] || []).find((w) => w.id === asked.work);
+  const askedRange = parseBooks(asked.books);
+  // The books the strip draws: those the server says it searched, else the range, else every book.
+  const stripBooks = useMemo(() => {
+    if (Array.isArray(data?.books_searched) && data.books_searched.length) return data.books_searched;
+    const all = askedWork?.books || [];
+    return askedRange ? all.filter((b) => b >= askedRange.from && b <= askedRange.to) : all;
+  }, [data, askedWork, askedRange?.from, askedRange?.to]);   // eslint-disable-line react-hooks/exhaustive-deps
+  // Passages that name a person are drawn on the same strip, in grey; one already in the list is not drawn twice.
+  const namedRows = useMemo(() => {
+    const have = new Set(results.map((r) => r.id));
+    return (mentions?.rows || []).filter((r) => !have.has(r.id));
+  }, [mentions, results]);
   const layout = useMemo(
-    () => stripLayout(results, asked.work, askedWork?.books), [results, asked.work, askedWork]);
+    () => stripLayout([...results, ...namedRows], asked.work, stripBooks), [results, namedRows, asked.work, stripBooks]);
+  const redMarks = layout.marks.filter((m) => m.i < results.length);
+  const greyMarks = layout.marks.filter((m) => m.i >= results.length);
   const anyStrong = results.some((r) => r.strong === true);
   const scores = results.map((r) => r.score || 0);
   const lo = Math.min(...scores);
@@ -231,7 +378,7 @@ export default function AskAWorkPage() {
     if (anyStrong) return r.strong === true ? 1 : 0;
     return hi > lo ? ((r.score || 0) - lo) / (hi - lo) : 0.5;
   };
-  const inBooks = new Set(layout.marks.map((m) => m.book)).size;
+  const inBooks = new Set(redMarks.map((m) => m.book)).size;
 
   const jump = (i) => {
     const el = cards.current[i];
@@ -239,6 +386,18 @@ export default function AskAWorkPage() {
     setFlash(i);
     setTimeout(() => setFlash((f) => (f === i ? null : f)), 1600);
   };
+  const jumpRef = (ref) => {
+    const i = results.findIndex((r) => r.ref_start === ref);
+    if (i >= 0) jump(i);
+  };
+  const jumpName = (i) => {
+    setShowAllNames(true);
+    setTimeout(() => {
+      const el = nameCards.current[i];
+      if (el && el.scrollIntoView) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 0);
+  };
+  const shownNames = mentions ? (showAllNames ? mentions.rows : mentions.rows.slice(0, 10)) : [];
 
   return (
     <div className="max-w-4xl mx-auto p-6">
@@ -255,7 +414,7 @@ export default function AskAWorkPage() {
           <select
             aria-label="Language"
             value={lang}
-            onChange={(e) => { setLang(e.target.value); setAuthor(''); setWork(''); }}
+            onChange={(e) => { setLang(e.target.value); setAuthor(''); setWork(''); setBookFrom(null); setBookTo(null); }}
             className="w-full border rounded px-2 py-2 text-base sm:text-sm"
           >
             {LANGUAGES.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
@@ -265,7 +424,7 @@ export default function AskAWorkPage() {
             value={author}
             placeholder={works ? 'Author' : 'Loading authors…'}
             options={authors}
-            onChange={(v) => { setAuthor(v); setWork(''); }}
+            onChange={(v) => { setAuthor(v); setWork(''); setBookFrom(null); setBookTo(null); }}
           />
           <SearchableSelect
             ariaLabel="Work"
@@ -273,9 +432,31 @@ export default function AskAWorkPage() {
             disabled={!author}
             placeholder="Work"
             options={workOptions}
-            onChange={(v) => setWork(v)}
+            onChange={(v) => { setWork(v); setBookFrom(null); setBookTo(null); }}
           />
         </div>
+        {hasBooks && (
+          <div className="flex items-center gap-2 text-sm text-gray-600">
+            <span>Books</span>
+            <select
+              aria-label="From book"
+              value={fromBook}
+              onChange={(e) => { const v = Number(e.target.value); setBookFrom(v); if (v > toBook) setBookTo(v); }}
+              className="border rounded px-2 py-1.5 text-base sm:text-sm"
+            >
+              {bookList.map((b) => <option key={b} value={b}>{b}</option>)}
+            </select>
+            <span>to</span>
+            <select
+              aria-label="To book"
+              value={toBook}
+              onChange={(e) => { const v = Number(e.target.value); setBookTo(v); if (v < fromBook) setBookFrom(v); }}
+              className="border rounded px-2 py-1.5 text-base sm:text-sm"
+            >
+              {bookList.map((b) => <option key={b} value={b}>{b}</option>)}
+            </select>
+          </div>
+        )}
         <div className="flex flex-col sm:flex-row gap-2">
           <input
             type="text"
@@ -338,16 +519,43 @@ export default function AskAWorkPage() {
           {listVisible && (
             <>
               <h2 className="mt-4 text-base font-semibold text-gray-900" data-testid="ask-heading">
-                {(askedWork ? `${askedWork.author}, ${askedWork.title}` : (results[0]?.author ? `${results[0].author}, ${(results[0].title || '').replace(/, Book \d+$/, '')}` : asked.work))}
+                {workLabel(askedWork, asked.work, results[0], asked.books)}
                 <span className="font-normal text-gray-600"> on {asked.q}</span>
               </h2>
+              {summary?.state === 'loading' && (
+                <p className="mt-1 text-sm text-gray-500 italic">Tessa is reading the passages.</p>
+              )}
+              {summary?.state === 'ready' && (
+                <section aria-label="What the work says" className="mt-3 rounded border border-gray-200 bg-gray-50 px-3 py-2" data-testid="ask-summary">
+                  <p className="text-xs font-semibold text-gray-600">What the work says, from the passages below</p>
+                  <p className="mt-1 text-sm text-gray-800 leading-snug">
+                    <SummaryText text={summary.summary} cites={summary.cites} onJump={jumpRef} />
+                  </p>
+                  <p className="mt-1 text-xs text-gray-500">Written by Tessa from the passage descriptions. Read the passages before relying on it.</p>
+                </section>
+              )}
               <section aria-label="Where in the work" className="mt-3">
                 <h2 className="text-sm font-semibold text-gray-700">Where in the work</h2>
                 <div className="relative mt-2 h-12 flex border-b border-gray-300" data-testid="ask-strip">
                   {layout.segments.map((b, k) => (
                     <div key={String(b)} className={`flex-1 ${k > 0 ? 'border-l border-gray-200' : ''} ${k % 2 ? 'bg-gray-50' : 'bg-white'}`} />
                   ))}
-                  {layout.marks.map((m) => {
+                  {greyMarks.map((m) => {
+                    const r = namedRows[m.i - results.length];
+                    const at = (mentions?.rows || []).findIndex((x) => x.id === r.id);
+                    return (
+                      <button
+                        key={`n-${r.id || m.i}`}
+                        type="button"
+                        data-testid="ask-mark-name"
+                        aria-label={`${r.ref_start}, names ${joinNames(mentions.names)}`}
+                        onClick={() => jumpName(at)}
+                        style={{ left: `${m.left * 100}%`, height: '40%', width: 2 }}
+                        className="absolute bottom-0 -translate-x-1/2 rounded-t bg-gray-400 focus:outline-none focus:ring-2 focus:ring-red-300"
+                      />
+                    );
+                  })}
+                  {redMarks.map((m) => {
                     const r = results[m.i];
                     const w = weight(r);
                     return (
@@ -376,6 +584,46 @@ export default function AskAWorkPage() {
                     : `${results.length} passages`}
                 </p>
               </section>
+
+              {mentions && (
+                <section aria-label="Passages that name" className="mt-5" data-testid="ask-names">
+                  <h2 className="text-sm font-semibold text-gray-700">Passages that name {joinNames(mentions.names)}</h2>
+                  {mentions.total === 0 ? (
+                    <p className="mt-1 text-xs text-gray-500">No passage description names {joinNames(mentions.names)} in this work.</p>
+                  ) : (
+                    <>
+                      <p className="mt-1 text-xs text-gray-500">
+                        {mentions.total} {mentions.total === 1 ? 'passage whose description names' : 'passages whose description names'} {joinNames(mentions.names)}, in the order of the work
+                      </p>
+                      <ul className="mt-2 space-y-2">
+                        {shownNames.map((r, i) => (
+                          <li
+                            key={r.id || `${r.ref_start}-${i}`}
+                            ref={(el) => { nameCards.current[i] = el; }}
+                            data-testid="ask-name-card"
+                            className="border border-gray-200 rounded px-3 py-2 bg-white"
+                          >
+                            <div className="flex items-baseline gap-2 flex-wrap">
+                              <a href={readerLink(r, asked.q)} className="text-sm text-red-800 hover:text-red-900 hover:underline">{r.ref_start}</a>
+                              {(r.matched || []).map((n) => (
+                                <span key={n} className="text-[10px] bg-gray-100 text-gray-600 border border-gray-200 rounded px-1.5 py-0.5">{n}</span>
+                              ))}
+                            </div>
+                            {r.gist && <p className="mt-0.5 text-sm text-gray-700 leading-snug">{r.gist}</p>}
+                          </li>
+                        ))}
+                      </ul>
+                      {!showAllNames && mentions.total > 10 && (
+                        <button type="button" onClick={showAllMentions}
+                                className="mt-2 text-sm text-red-700 hover:underline">
+                          Show all {mentions.total}
+                        </button>
+                      )}
+                      {loadingNames && <p className="mt-2 text-xs text-gray-500 italic">Loading…</p>}
+                    </>
+                  )}
+                </section>
+              )}
 
               <ul className="mt-4 space-y-3">
                 {results.map((r, i) => (
@@ -408,7 +656,7 @@ export default function AskAWorkPage() {
                 <div className="mt-4 text-center">
                   <button
                     type="button"
-                    onClick={() => run(asked.q, asked.work, asked.lang, true)}
+                    onClick={() => run(asked.q, asked.work, asked.lang, true, asked.books || '')}
                     disabled={loadingMore}
                     className="rounded border border-gray-300 bg-white px-4 py-1.5 text-sm text-gray-700 hover:border-gray-400 disabled:text-gray-500"
                   >

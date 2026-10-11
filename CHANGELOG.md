@@ -11,6 +11,9 @@ behind each, are in docs/DECISIONS.md.
 
 ### Ask a Work on the server: passages that name a person, books of a work, a summary of what the work says
 Theme Search takes `books=1,2` or `books=1-6` with one work in `works=` and searches only those numbered books, and `works=` accepts part ids such as `tacitus.annales.part.2`. A new `GET /api/passages/mentions` lists the windows of a work whose description names a person, matched as whole words and ranked by names matched, mentions and position. A new `POST /api/passages/ask-summary` asks the assistant's model for a short answer drawn only from the gists the page sends, or answers that it is unavailable. Both routes are site-only in the connector manifest.
+### Ask a Work on the page: books of a work, passages that name a person, what the work says
+
+The page gains two menus to search a run of books, a list of passages whose description names a person in the question (grey marks on the strip), and a short summary written by Tessa from the best twelve passages, each reference linking to its card. Help and the scope box describe all three.
 
 ### Reader on a phone: the page no longer shifts sideways after a tap on a tile
 After a tap on a reuse tile on an iPhone the whole page, menu included, came up shifted about a hundred pixels to the left. On a phone the document can no longer scroll sideways, and the Reader scrolls to a line vertically only, placing it in the part of the screen above the results sheet instead of under it.
