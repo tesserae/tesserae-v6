@@ -35,6 +35,33 @@ Conventions
   hand and are the models the helper matches.
 
 
+## 2026-10-10 Event summaries and scholarship tied to passages (to run)
+
+- What: the Events database gains a Wikipedia summary for 1,026 of 1,485 events
+  (the other 459 have no article and keep the Wikidata description) and its
+  `scholarship` table is rebuilt so that each article row names the passage that
+  brought it in (`passage_rank`, `passage_ref`). Articles are looked up in the
+  offline citation index (`data/citation_index/citations.db`, read-only) for the
+  14,356 passages with rank 10 or better or judged "yes". The table went from
+  1,693 rows to 4,827 (4,653 article rows, one per event, article and passage, and
+  the 174 commentary rows, each tied to its passage when the reference falls in
+  one). The API shows one row per article. Siege of Corfinium (Q18001862) keeps
+  5 rows: 2 for Messer's article on mutiny, 3 for the Seneca, On Benefits 3.23.3
+  to 3.28.1 articles (the passage at rank 5 spans six chapters).
+- Build (run 2026-10-10 in a scratch copy, nothing on production touched):
+  `python3 scripts/events/add_summaries.py ~/tesserae-backups/events/event_dossiers_2026-10-10.sqlite ~/tesserae-backups/sources/events/wikipedia_all/intros_all.json STAGE.sqlite`
+  then `python3 scripts/events/relink_scholarship.py STAGE.sqlite ~/tesserae-backups/events/event_dossiers_2026-10-10_summaries.sqlite`
+  (the second reads `/var/www/tesseraev6_flask/data/citation_index/citations.db`; `--citation-index PATH` changes it).
+- To run (install, after the pull request is merged and deployed):
+  `cp ~/tesserae-backups/events/event_dossiers_2026-10-10_summaries.sqlite /var/www/tesseraev6_flask/data/events/event_dossiers.sqlite.new`
+  then `mv /var/www/tesseraev6_flask/data/events/event_dossiers.sqlite.new /var/www/tesseraev6_flask/data/events/event_dossiers.sqlite`
+  then `touch /var/www/tesseraev6_flask/tesseraev6_flask.wsgi`. Keep the old file first as
+  `event_dossiers.sqlite.bak-20261010`.
+- Checks: `/api/events/Q18001862` has `event.summary` beginning "The siege of Corfinium was the first significant military confrontation" with `summary_url` ending `/Siege_of_Corfinium`, and its 5 scholarship rows carry `passage_ref`; `/api/events` still answers with 1,485 events in `total_all`.
+- Source: English Wikipedia opening paragraphs fetched 2026-10-09
+  (`~/tesserae-backups/sources/events/wikipedia_all/intros_all.json`), CC BY-SA 4.0, credited
+  in `data/sources_credits.json`.
+
 ## 2026-10-10 Greek coin types added to the Coins collection (run 2026-10-10 18:30)
 
 - Run: `coins.sqlite` rebuilt with the seven Greek catalogues (106,176 types) and
