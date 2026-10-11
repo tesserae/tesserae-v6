@@ -9,6 +9,9 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-11
 
+### Inscriptions and papyri: a passage-sized query searches on its rarest words
+The Reader's new Documents tab sends the whole selection to the documents search. A chapter of Tacitus (120 words) took over four minutes and a sentence eleven seconds, where the same search over literature answers in under a second because it caps a long query at its twelve rarest words. The documents search now applies the same cap, by document frequency in the documents index, and says so in the response as the literary search does.
+
 ### Reader in the History view: Similar first, a Documents tab for inscriptions and papyri, the tab strip within the panel
 In the History view the Reader's tabs now run Similar, Documents, Coins, Scholarship, Reuse, Parallels, Translation, and Literature gains Documents after Parallels. The Documents tab sends the selected lines to Line Search over the inscriptions and papyri (`collection: 'documents'`) and lists the documents that share two or more words, with date, place, the shared words marked and a link to the document. It shows when Inscriptions or Papyri is on. From the `xl` breakpoint the panel is 32rem wide and the tab buttons are `px-2`, `text-[13px]`, which fits all seven History tabs (502 pixels measured at 1440 wide against a 511-pixel strip); below `xl` the strip scrolls and the chosen tab is kept in view.
 

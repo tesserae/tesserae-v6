@@ -2322,6 +2322,35 @@ def _search_documents_collection(language, search_type, query, filtered_query_le
     return page_results, total, by_source_region, by_century, stats
 
 
+DOCUMENTS_LEMMA_CAP = 12
+
+
+def _rarest_documents_lemmas(lemmas, language, cap, conn=None):
+    """The `cap` rarest of `lemmas` by document frequency in the documents
+    index (its `lemma_doc_freq` table), and the number reduced from; or the
+    lemmas unchanged and None when no reduction is needed or no index is
+    open. A lemma the index never saw (frequency 0) is dropped first, since it
+    can match nothing."""
+    import backend.documents as docs
+    lemmas = set(lemmas)
+    if len(lemmas) <= cap:
+        return lemmas, None
+    conn = conn or docs.get_connection(language)
+    if conn is None:
+        return lemmas, None
+    df = {}
+    for lem in lemmas:
+        try:
+            row = conn.execute('SELECT df FROM lemma_doc_freq WHERE lemma = ?', (lem,)).fetchone()
+        except Exception:
+            return lemmas, None
+        df[lem] = row[0] if row else 0
+    present = [l for l in lemmas if df[l] > 0]
+    if len(present) <= cap:
+        return set(present) or lemmas, (len(lemmas) if len(present) < len(lemmas) else None)
+    return set(sorted(present, key=lambda l: (df[l], l))[:cap]), len(lemmas)
+
+
 def _line_search_documents_only(query, language, search_type, offset, limit, sort, count_only,
                                  date_from, date_to, region, text_type, material, source,
                                  search_start_time, exclude_restored=False, hide_formulas=None):
@@ -2348,6 +2377,17 @@ def _line_search_documents_only(query, language, search_type, offset, limit, sor
     elif language in docs.SUPPORTED_LANGUAGES:
         filtered_query_lemmas = set(_normalize_lemma(t, language) for t in query.lower().split())
 
+    # A passage-sized query searches on its rarest words here too. The
+    # Reader's Documents tab sends a whole selection; a Tacitus chapter of 120
+    # words took over four minutes against the documents index and a single
+    # sentence eleven seconds (measured 2026-10-11), where the literary path
+    # answers the same chapter in under a second because it caps the query
+    # (see LEMMA_CAP in line_search). Same rule, same payload note.
+    reduced_from = None
+    if search_type == 'lemma' and len(filtered_query_lemmas) > DOCUMENTS_LEMMA_CAP:
+        filtered_query_lemmas, reduced_from = _rarest_documents_lemmas(
+            filtered_query_lemmas, language, DOCUMENTS_LEMMA_CAP)
+
     min_matched = max(1, min(2, len(filtered_query_lemmas))) if search_type == 'lemma' else 1
 
     results, total, by_source_region, by_century, doc_stats = _search_documents_collection(
@@ -2369,6 +2409,13 @@ def _line_search_documents_only(query, language, search_type, offset, limit, sor
     }
     if filtered_common_words:
         payload['filtered_common_words'] = filtered_common_words
+    if reduced_from:
+        payload['query_reduced'] = {
+            'from_lemmas': reduced_from,
+            'to_lemmas': sorted(filtered_query_lemmas),
+            'note': ('Passage-sized query: searched on its '
+                     f'{len(filtered_query_lemmas)} rarest words'),
+        }
     if by_source_region:
         payload['documents_by_source_region'] = by_source_region
         payload['lines_all'] = sum(w['count'] for w in by_source_region)
