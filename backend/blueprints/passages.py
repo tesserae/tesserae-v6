@@ -1,3 +1,4 @@
+import re
 """
 Tesserae V6 - Scene Blueprint
 
@@ -226,6 +227,43 @@ _SUMMARY_TIMEOUT = 40
 _SUMMARY_MAX_PASSAGES = 12
 
 
+
+def _locus(ref):
+    """The numeric tail of a reference: "Tac. Ann. 1.73" gives "1.73",
+    "thuc. pele. 2.47.3" gives "2.47.3"."""
+    m = re.search(r'(\d+(?:\.\d+)*[a-z]?)\s*$', ref or '')
+    return m.group(1) if m else None
+
+
+def _cite_full_refs(text, refs):
+    """The references the summary cites, and the text with every short
+    citation written out in full. The model was asked to cite references
+    exactly as given, and for the Aeneid it did (verg. aen. 4.61), but for
+    Tacitus and Thucydides it wrote the bare locus in parentheses, (1.73) or
+    (1.23.3), so nothing matched and the page had no citation to link
+    (2026-10-11). A bare locus is recognised only inside parentheses, alone or
+    in a comma-separated list, and only when exactly one passage has it."""
+    cites = []
+    by_locus = {}
+    for ref in refs:
+        loc = _locus(ref)
+        if loc:
+            by_locus.setdefault(loc, []).append(ref)
+    def expand(match):
+        parts = [p.strip() for p in match.group(1).split(',')]
+        out = []
+        for part in parts:
+            if part in by_locus and len(by_locus[part]) == 1 and part not in refs:
+                out.append(by_locus[part][0])
+            else:
+                out.append(part)
+        return '(' + ', '.join(out) + ')'
+    text = re.sub(r'\((\d+(?:\.\d+)*[a-z]?(?:\s*,\s*\d+(?:\.\d+)*[a-z]?)*)\)', expand, text or '')
+    for ref in refs:
+        if ref in text and ref not in cites:
+            cites.append(ref)
+    return text, cites
+
 @passages_bp.route('/passages/ask-summary', methods=['POST'])
 def ask_summary():
     """A short answer to the question, drawn only from the passages' gists."""
@@ -266,11 +304,7 @@ def ask_summary():
     logger.info('[PASSAGES] ask-summary %r answered in %.1fs', question, time.time() - t0)
     if not text:
         return jsonify({'available': False, 'error': 'the model could not answer'})
-    cites = []
-    for p in passages:
-        ref = p['ref'].strip()
-        if ref in text and ref not in cites:
-            cites.append(ref)
+    text, cites = _cite_full_refs(text, [p['ref'] for p in passages])
     return jsonify({'available': True, 'summary': text, 'cites': cites})
 
 

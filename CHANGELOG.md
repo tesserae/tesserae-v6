@@ -9,6 +9,9 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-11
 
+### Ask a Work: one entry per passage in the names list, short citations written out in the summary
+The list of passages that name a person showed a passage twice when the index holds it at two scales. The summary cited Tacitus and Thucydides by bare locus, (1.73), which the page could not link; the server now writes such citations out as the full reference and lists them.
+
 ### Ask a Work on the server: passages that name a person, books of a work, a summary of what the work says
 Theme Search takes `books=1,2` or `books=1-6` with one work in `works=` and searches only those numbered books, and `works=` accepts part ids such as `tacitus.annales.part.2`. A new `GET /api/passages/mentions` lists the windows of a work whose description names a person, matched as whole words and ranked by names matched, mentions and position. A new `POST /api/passages/ask-summary` asks the assistant's model for a short answer drawn only from the gists the page sends, or answers that it is unavailable. Both routes are site-only in the connector manifest.
 ### Ask a Work on the page: books of a work, passages that name a person, what the work says

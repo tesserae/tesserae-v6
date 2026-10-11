@@ -94,3 +94,20 @@ def test_parse_books():
     assert pi.parse_books('1,2') == [1, 2]
     assert pi.parse_books('1-3,5') == [1, 2, 3, 5]
     assert pi.parse_books('x,3-1') == []
+
+
+def test_one_entry_per_passage_across_scales(monkeypatch):
+    """The index holds a window at two scales with the same opening
+    reference; the names list shows the passage once (2026-10-11)."""
+    coarse = dict(_rec(8, 'la/tac.ann.part.1.tess', 'tac. ann. 1.24', participants='Sejanus'))
+    coarse['scale'] = 'coarse'
+    records = RECORDS + [coarse]
+    monkeypatch.setattr(pi, '_records', records)
+    by_work = {}
+    for i, r in enumerate(records):
+        by_work.setdefault(pi._norm_work(r['work']), []).append(i)
+    monkeypatch.setattr(pi, '_by_work', by_work)
+    out = pi.mentions_in_work('tac.ann', ['Sejanus'])
+    refs = [h['ref_start'] for h in out['hits']]
+    assert refs.count('tac. ann. 1.24') == 1
+    assert len(refs) == len(set(refs))
