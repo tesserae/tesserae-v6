@@ -35,6 +35,81 @@ Conventions
   hand and are the models the helper matches.
 
 
+## 2026-10-11 Finer passage windows for long prose chapters (staged; to run)
+
+- What: a new window scale, `prose`, for prose works whose corpus line is a
+  whole chapter or section. The fine windows are a fixed twelve lines, so in
+  the Annals one window (and one description) ran from 7,500 to 15,000
+  characters and covered a dozen scenes; a question about one episode found
+  its material only when the summary happened to mention it. The new windows
+  are runs of whole sentences from one unit, about 1,200 characters each, with
+  `ref_start` and `ref_end` both the unit's own reference (so the Reader and
+  `GET /api/passages/lines` keep working), `sub` (ordinal in the unit, from 1)
+  and `char_start`/`char_end` (offsets in the unit). Code:
+  `scripts/corpus/prose_window_audit.py`, `scripts/corpus/prose_windows.py`,
+  `scripts/corpus/describe_prose_windows.py`, `scripts/corpus/make_encode_blobs.py`,
+  `--vectors`/`--vector-ids` in `scripts/corpus/apply_passage_rows.py`, and
+  `backend/passage_index.py` (a work with `prose` windows is ranked, covered
+  and mapped at that scale and its fine windows are left out of Theme Search,
+  the neighbour lists and the passages-that-name-a-person list; coarse windows
+  stay).
+- Audit (fine windows measured against the corpus texts; 3,470 works,
+  3,066 windows whose lines could not be located are not counted): 1,511
+  works have a median fine window over 3,000 characters, holding 39,512 fine
+  windows, and 1,510 of them are prose (39,506 windows). Cutting all 1,510 at
+  1,200 characters gives 274,684 new windows, over the 25,000 the plan allowed
+  for a full run, so the run covered the Annals, Thucydides and the ten works
+  with the longest median.
+- Run, 2026-10-11 (staged, nothing installed):
+  - Cut: `prose_windows.py --work tacitus.annales --work
+    thucydides.peleponnesian_war --audit audit.json --top 10` produced 6,438
+    windows (median 501 characters, 10th percentile 189, 90th 1,196, maximum
+    2,309). Annals 746 windows (median 874, was 7,500 to 15,000), Thucydides
+    3,577 (median 296: its units are single sections of 300 to 500
+    characters, so a window is now one section), the ten longest-median works
+    2,115.
+  - Described on the university gateway, Qwen 3.8 27B FP8 with thinking off,
+    16 in flight, stamp `prose-fine-20261011`: 6,438 of 6,438, no error rows,
+    26.3 minutes, 2.56 gateway units (key spend 1.12 to 3.67).
+  - Encoded on the campus GPU by `research/threads/GPU_JOB_RECIPE.md`
+    (job `prose-win-20261011-2d179`, one part, 19 seconds from start, 1,024
+    dimensions, SHA-256 of both parts matched the job's report; cosine
+    against the embed service on 16 random windows, minimum 0.99999857).
+    6,438 vectors for 6,438 descriptions, ids identical and in the same order.
+  - Outputs in `~/tesserae-backups/prose_windows_2026-10-11/`: `audit.json`
+    (1.0 MB), `audit.md`, `windows.jsonl` (7.4 MB), `windows_report.json`,
+    `descriptions.jsonl` (6.7 MB, the sidecar for the append), `blobs.jsonl.gz`,
+    `vectors.npy` (26.4 MB, float32) and `ids.json`.
+- Not done: the other 1,500 or so prose works (about 268,000 windows). Most are
+  short works whose units are already short, so the gain is mainly the
+  works with long units; the audit file lists them by median.
+- Steps on production, once this pull request is merged and pulled. Each under
+  `~/bin/tess-job`, cap 10 for anything that reads the index:
+  1. Lockstep check before touching anything: ids, vectors and description
+     rows equal (535,272 and more as the index stands); one Similar Passages
+     and one Theme Search request answer.
+  2. Back up `window_texts.db`, then `python scripts/corpus/prose_windows.py
+     --upsert-db data/passage_index/window_texts.db --upsert-from
+     <outputs>/windows.jsonl` (adds 6,438 rows).
+  3. `python scripts/corpus/apply_passage_rows.py --index data/passage_index
+     --sidecar <outputs>/descriptions.jsonl --mode append --tag prose-20261011
+     --vectors <outputs>/vectors.npy --vector-ids <outputs>/ids.json` (cap 10G;
+     takes backups tagged `bak-prose-20261011`, asserts the counts before and
+     after).
+  4. Description keyword index: `scripts/build_desc_fts.py` (about 30 seconds).
+  5. Names index: `scripts/corpus/build_window_names.py` to a `.new` file, then
+     swap in.
+  6. `touch tesseraev6_flask.wsgi`, then the lockstep check again.
+  7. Not needed for the Reader or Ask a Work: line vectors (no text changed)
+     and the connection map (it reads fine windows).
+- Checks: Ask a Work on Annals 1 to 6 for "mutinies of the legions" shows
+  windows with `sub` fields and gists that name one episode; the lockstep
+  counts; the reference search ("arma virum"); `GET /api/passages/lines` for
+  the `work` and `ref_start` of a prose result returns the whole unit.
+- Backups to keep: `ids.json`, `embeddings.npy`, `descriptions.jsonl`
+  (`.bak-prose-20261011`) and `window_texts.db`, `desc_fts.sqlite`,
+  `window_names.db` as backed up in the steps.
+
 ## 2026-10-11 Translation files: facing-page OCR noise stripped from 19 of 25 Loeb-scan files (run 2026-10-11 09:00)
 - What: 25 translation files aligned from Internet Archive scans of Loeb
   volumes carry the OCR of the facing Greek or Latin page in their English

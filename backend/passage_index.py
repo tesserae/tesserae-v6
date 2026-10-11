@@ -233,6 +233,13 @@ _state = {'loaded': False, 'ok': False, 'error': None, 'retry_at': None}
 RELOAD_RETRY_SECONDS = 60   # after a failed load, try again this much later
 _ids = None            # list[str]
 _undescribed = set()   # row indices with no description: excluded from results
+# Works (file ids) that have windows of scale "prose": finer windows cut at
+# sentence boundaries inside long chapters (scripts/corpus/prose_windows.py).
+# Such a work's FINE windows are left out of Theme Search and the neighbour
+# lists, so one chapter is not offered at two scales, and the Reader's lookups
+# prefer the prose windows.
+_prose_works = set()
+_shadowed = set()      # row indices of the fine windows of those works
 _records = None        # list[dict] in embedding-row order
 _emb = None            # np.memmap (N, D) float16
 _by_work = None        # work -> list[row index]
@@ -552,6 +559,12 @@ def _ensure_loaded():
             if _undescribed:
                 logger.warning('[PASSAGES] %d windows have no description and are '
                                'excluded from results', len(_undescribed))
+            global _prose_works, _shadowed
+            _prose_works, _shadowed = _compute_prose_sets(_records)
+            if _prose_works:
+                logger.info('[PASSAGES] %d works have prose-scale windows; '
+                            '%d of their fine windows are left out of ranking',
+                            len(_prose_works), len(_shadowed))
             logger.info('[PASSAGES] index ready: %d windows, %d works, dim %d',
                         len(_ids), len(_by_work), _emb.shape[1])
         except Exception as e:  # index problems must not break the app
@@ -628,18 +641,31 @@ def encoder_available():
 _SCORE_THREADS = min(16, max(2, (os.cpu_count() or 4) - 2))
 
 
+def _compute_prose_sets(records):
+    """(works with prose-scale windows, row indices of those works' fine windows)."""
+    works = {r.get('work') for r in records
+             if r.get('scale') == 'prose' and r.get('work')}
+    shadowed = {i for i, r in enumerate(records)
+                if r.get('scale') == 'fine' and r.get('work') in works}
+    return works, shadowed
+
+
 def _mask_undescribed(scores):
     """Put undescribed windows out of reach.
 
     Done to the SCORES rather than at ranking time, because the confidence
     measure reads the score distribution: leaving them in made head lift a
     measure of how well the query matched a passage with no description.
+
+    The fine windows of a work that has prose-scale windows go the same way:
+    the prose windows cover the same chapters in smaller pieces.
     """
-    if _undescribed:
-        import numpy as np
-        idx = np.fromiter(_undescribed, dtype=np.int64, count=len(_undescribed))
-        idx = idx[idx < scores.shape[0]]
-        scores[idx] = -1.0
+    for rows in (_undescribed, _shadowed):
+        if rows:
+            import numpy as np
+            idx = np.fromiter(rows, dtype=np.int64, count=len(rows))
+            idx = idx[idx < scores.shape[0]]
+            scores[idx] = -1.0
     return scores
 
 
@@ -783,6 +809,7 @@ def _result(row, score, strong=None, extra=None):
         'scale': r.get('scale'),
         'ref_start': r.get('ref_start'),
         'ref_end': r.get('ref_end'),
+        **({'sub': r['sub']} if r.get('sub') is not None else {}),
         'score': round(float(score), 4),
         'strong': bool(strong) if strong is not None else None,
         'gist': d.get('gist'),
@@ -896,7 +923,16 @@ def _rank(scores, limit, exclude_work=None, languages=None, scale=None,
             continue
         if scale and r.get('scale') != scale:
             continue
-        if dedup:
+        if dedup and r.get('scale') == 'prose':
+            # Prose windows are pieces of one chapter, so they share a
+            # reference and do not overlap: only the same piece twice is a
+            # duplicate.
+            spans = seen.setdefault((work, 'prose'), [])
+            key = (_ref_coords(r.get('ref_start')), r.get('sub'))
+            if key in spans:
+                continue
+            spans.append(key)
+        elif dedup:
             # OVERLAP, not an identical start. Keying on ref_start alone let
             # near-duplicates through, because two windows over the same lines
             # rarely begin on the same one: Caesar came back as both
@@ -2238,7 +2274,9 @@ def fine_windows_covering(work, ref_start, ref_end):
     out = []
     for row in rows:
         r = _records[row]
-        if r.get('scale') != 'fine':
+        # A work with prose-scale windows is read at that scale (finer pieces
+        # of the same chapters); its fine windows are left out.
+        if r.get('scale') != ('prose' if r.get('work') in _prose_works else 'fine'):
             continue
         lo = _ref_coords_in(r.get('work'), r.get('ref_start'))
         hi = _ref_coords_in(r.get('work'), r.get('ref_end'))
@@ -2248,8 +2286,11 @@ def fine_windows_covering(work, ref_start, ref_end):
             n = min(len(lo), len(hi), len(want), len(want_end))
             if not (lo[:n] <= want_end[:n] and hi[:n] >= want[:n]):
                 continue
-        out.append({'id': r.get('id'), 'ref_start': r.get('ref_start'),
-                    'ref_end': r.get('ref_end'), 'desc': r.get('desc') or {}})
+        item = {'id': r.get('id'), 'ref_start': r.get('ref_start'),
+                'ref_end': r.get('ref_end'), 'desc': r.get('desc') or {}}
+        if r.get('sub') is not None:
+            item['sub'] = r['sub']
+        out.append(item)
     return out
 
 
@@ -2281,7 +2322,10 @@ def window_for_passage(work, ref_start=None, ref_end=None, prefer='fine'):
     best, best_key = None, None
     for row in rows:
         r = _records[row]
-        if prefer and r.get('scale') != prefer:
+        # A selection in a work that has prose-scale windows maps to those
+        # (several can share the chapter's reference; the first piece wins).
+        want_scale = 'prose' if (prefer == 'fine' and r.get('work') in _prose_works) else prefer
+        if want_scale and r.get('scale') != want_scale:
             continue
         lo = _ref_coords_in(r.get('work'), r.get('ref_start'))
         hi = _ref_coords_in(r.get('work'), r.get('ref_end'))
@@ -2649,6 +2693,8 @@ def mentions_in_work(work, names, books=None):
     pats = [(n.strip(), _name_pattern(n)) for n in names if n and n.strip()]
     hits = []
     for i in rows:
+        if i in _shadowed:      # the work's prose windows say it in finer pieces
+            continue
         r = _records[i]
         text = _desc_text(r.get('desc'))
         matched, count = [], 0
@@ -2661,11 +2707,13 @@ def mentions_in_work(work, names, books=None):
             continue
         coords = _ref_coords_in(r.get('work'), r.get('ref_start'))
         pn = part_number(r.get('work'))
-        hits.append(((-len(matched), -count, pn if pn is not None else 0, coords),
+        hits.append(((-len(matched), -count, pn if pn is not None else 0, coords,
+                      r.get('sub') or 0),
                      {'id': r.get('id'), 'work': work_id(r.get('work')),
                       'ref_start': r.get('ref_start'), 'ref_end': r.get('ref_end'),
                       'language': r.get('language'),
                       'gist': (r.get('desc') or {}).get('gist'),
+                      **({'sub': r['sub']} if r.get('sub') is not None else {}),
                       'matched': matched, 'mentions': count}))
     hits.sort(key=lambda t: t[0])
     # One entry per passage: the index holds a window at two scales, so the
@@ -2673,7 +2721,7 @@ def mentions_in_work(work, names, books=None):
     # Sejanus, 2026-10-11). The higher-ranked copy stays.
     seen, out = set(), []
     for _, h in hits:
-        key = (h['work'], h['ref_start'])
+        key = (h['work'], h['ref_start'], h.get('sub'))
         if key in seen:
             continue
         seen.add(key)

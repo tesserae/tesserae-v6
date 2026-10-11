@@ -9,6 +9,9 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-11
 
+### Finer passage windows for long prose chapters
+A new window scale, `prose`, cuts the long units of prose works (the Annals, where one fine window ran to 15,000 characters) into windows of about 1,200 characters made of whole sentences, each keeping its chapter reference and a `sub` number. A work that has them is ranked, covered and mapped at that scale and its fine windows are left out of Theme Search, so one chapter is not offered twice. The audit, the cutter, the describing script and the data are staged. The install is recorded as "to run" in docs/DATA_OPERATIONS.md.
+
 ### Ask a Work: one entry per passage in the names list, short citations written out in the summary
 The list of passages that name a person showed a passage twice when the index holds it at two scales. The summary cited Tacitus and Thucydides by bare locus, (1.73), which the page could not link; the server now writes such citations out as the full reference and lists them.
 
