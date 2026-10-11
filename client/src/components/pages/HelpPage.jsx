@@ -1701,9 +1701,30 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 purpose.
               </p>
               <p className="text-gray-700 mb-4">
+                When a work is held in books, two small menus beside the Work menu choose the
+                first and last book to search. They start at the whole work. A narrower range
+                searches only those books, and the strip draws only those books.
+              </p>
+              <p className="text-gray-700 mb-4">
+                When your question has a capitalised word after its first word, such as
+                Sejanus, a second list called Passages that name Sejanus appears under the
+                strip. It holds the passages whose description contains that name, in the order
+                of the work. A content search can put a passage about a person low in the
+                ranking, because the passage is about what he does and not about his name, so
+                this list finds them by the word. Its marks are grey on the strip.
+              </p>
+              <p className="text-gray-700 mb-4">
+                Above the strip, Tessa writes a short summary of what the work says, using the
+                best twelve passages. Each reference in it is a link to its card. The summary
+                is written from the descriptions of the passages and not from the text itself,
+                so it can be wrong. Read the passages before relying on it. When Tessa is not
+                running, the summary is left out and the rest of the page works as before.
+              </p>
+              <p className="text-gray-700 mb-4">
                 A passage is a window of about twenty lines, so a subject spread thinly through
                 a long chapter can be missed. The search matches content, so it does not find a
-                name on its own as a word search would. For a name, use Line Search.
+                name on its own as a word search would. The list of passages that name a person
+                covers that for names. For any other word, use Line Search.
               </p>
               <p className="text-gray-700 mb-4">
                 Measured in October 2026 on fifteen questions over the Aeneid, Thucydides 1 and 2

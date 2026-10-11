@@ -3,8 +3,8 @@
  * of where the passages fall.
  */
 import { describe, expect, it, vi, beforeEach } from 'vitest';
-import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
-import AskAWorkPage, { bookOf, stripLayout } from './AskAWorkPage';
+import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import AskAWorkPage, { bookOf, namesIn, stripLayout } from './AskAWorkPage';
 
 const TEXTS = [
   { id: 'vergil.aeneid.tess', author: 'Vergil', title: 'Aeneid', work: 'Aeneid', is_part: false },
@@ -27,6 +27,11 @@ const RESULTS = [
 ];
 
 let reply;
+let mentionsReply;
+let summaryReply;
+function callsTo(prefix) {
+  return global.fetch.mock.calls.filter((c) => String(c[0]).startsWith(prefix));
+}
 function themeCalls() {
   return global.fetch.mock.calls.map((c) => String(c[0])).filter((u) => u.startsWith('/api/passages/theme-search'));
 }
@@ -36,9 +41,13 @@ beforeEach(() => {
   window.localStorage.clear();
   window.HTMLElement.prototype.scrollIntoView = vi.fn();
   reply = { query: 'q', results: RESULTS, restricted: true, confidence: { level: 'restricted' }, note: 'Confidence is not rated.' };
+  mentionsReply = (u) => ({ work: 'vergil.aeneid', names: ['Sejanus'], total: 0, results: [], books_searched: [1, 2, 3], u });
+  summaryReply = { available: false };
   global.fetch = vi.fn((url) => {
     const u = String(url);
     const body = u.startsWith('/api/texts') ? TEXTS
+      : u.startsWith('/api/passages/mentions') ? mentionsReply(u)
+      : u.startsWith('/api/passages/ask-summary') ? summaryReply
       : u.startsWith('/api/passages/works') ? { works: COVERED }
       : u.startsWith('/api/passages/theme-search') ? reply
       : u.startsWith('/api/passages/lines') ? { lines: [{ ref: 'a', text: 'Arma virumque cano' }] }
@@ -183,5 +192,155 @@ describe('Ask a Work', () => {
     fireEvent.click(ex);
     await screen.findAllByTestId('ask-card');
     expect(themeCalls()[0]).toContain('works=vergil.aeneid');
+  });
+});
+
+const named = (n, ref, extra = {}) => ({
+  id: `m${n}`, work: 'vergil.aeneid', language: 'la', ref_start: ref, ref_end: ref,
+  gist: `Names ${n}`, matched: ['Sejanus'], mentions: 2, ...extra,
+});
+
+describe('names in a question', () => {
+  it('keeps capitalised words after the first, drops stop words and possessives, at most four', () => {
+    expect(namesIn('the rise of Sejanus')).toEqual(['Sejanus']);
+    expect(namesIn('What did Tiberius think of Sejanus\u2019s power?')).toEqual(['Tiberius', 'Sejanus']);
+    expect(namesIn('Sejanus and the fathers')).toEqual([]);
+    expect(namesIn('fathers and sons')).toEqual([]);
+    expect(namesIn('why A B Cato Livia Nero Drusus Piso')).toEqual(['B', 'Cato', 'Livia', 'Nero']);
+  });
+});
+
+describe('books of a work', () => {
+  it('shows the book selects for a work with books and sends the range', async () => {
+    render(<AskAWorkPage />);
+    await pick('Author', 'Vergil');
+    await pick('Work', 'Aeneid');
+    const from = screen.getByLabelText('From book');
+    const to = screen.getByLabelText('To book');
+    expect(from.value).toBe('1');
+    expect(to.value).toBe('3');
+    fireEvent.change(from, { target: { value: '2' } });
+    fireEvent.change(screen.getByPlaceholderText(/a subject in plain words/), { target: { value: 'fathers and sons' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Go' }));
+    await screen.findAllByTestId('ask-card');
+    expect(themeCalls()[0]).toContain('books=2-3');
+    expect(screen.getByTestId('ask-heading').textContent).toContain('Vergil, Aeneid, books 2 to 3');
+    expect(window.location.search).toContain('books=2-3');
+  });
+
+  it('sends no books for the whole work, and no selects for a work without books', async () => {
+    render(<AskAWorkPage />);
+    await ask();
+    expect(themeCalls()[0]).not.toContain('books=');
+    expect(screen.getByTestId('ask-heading').textContent).not.toContain('books');
+    cleanup();
+    render(<AskAWorkPage />);
+    await pick('Author', 'Vergil');
+    await pick('Work', 'Georgics');
+    expect(screen.queryByLabelText('From book')).toBeNull();
+  });
+
+  it('reads books from the address and draws only the books searched', async () => {
+    reply = { ...reply, results: [row(1, 'verg. aen. 2.40'), row(2, 'verg. aen. 3.50')], books_searched: [2, 3] };
+    window.history.replaceState({}, '', '/ask-a-work?work=vergil.aeneid&lang=la&q=fathers%20and%20sons&books=2-3');
+    render(<AskAWorkPage />);
+    await screen.findAllByTestId('ask-card');
+    expect(themeCalls()[0]).toContain('books=2-3');
+    expect(screen.getByText('2 passages in 2 of 2 books')).toBeInTheDocument();
+    await waitFor(() => expect(screen.getByLabelText('From book').value).toBe('2'));
+  });
+});
+
+describe('passages that name a person', () => {
+  it('asks for them, shows ten, adds grey marks and reveals the rest with Show all', async () => {
+    const all = Array.from({ length: 12 }, (_, n) => named(n, `verg. aen. 1.${n + 20}`));
+    mentionsReply = (u) => (u.includes('offset=0')
+      ? { work: 'vergil.aeneid', names: ['Sejanus'], total: 12, results: all.slice(0, 10).concat(all.slice(10, 12)).slice(0, 12), books_searched: [1, 2, 3] }
+      : { work: 'vergil.aeneid', names: ['Sejanus'], total: 12, results: [] });
+    render(<AskAWorkPage />);
+    await ask('the rise of Sejanus');
+    const section = await screen.findByTestId('ask-names');
+    expect(callsTo('/api/passages/mentions')[0][0]).toContain('names=Sejanus');
+    expect(callsTo('/api/passages/mentions')[0][0]).toContain('work=vergil.aeneid');
+    expect(within(section).getByText('Passages that name Sejanus')).toBeInTheDocument();
+    expect(within(section).getByText(/12 passages whose description names Sejanus, in the order of the work/)).toBeInTheDocument();
+    expect(within(section).getAllByTestId('ask-name-card')).toHaveLength(10);
+    const grey = screen.getAllByTestId('ask-mark-name');
+    expect(grey).toHaveLength(12);
+    expect(grey[0].getAttribute('aria-label')).toMatch(/, names Sejanus$/);
+    expect(grey[0].className).toContain('bg-gray-400');
+    fireEvent.click(within(section).getByRole('button', { name: 'Show all 12' }));
+    expect(within(section).getAllByTestId('ask-name-card')).toHaveLength(12);
+  });
+
+  it('pages by offset when the total is more than what was loaded', async () => {
+    const page = (from, k) => Array.from({ length: k }, (_, n) => named(from + n, `verg. aen. 1.${from + n + 20}`));
+    mentionsReply = (u) => ({
+      work: 'vergil.aeneid', names: ['Sejanus'], total: 30,
+      results: u.includes('offset=0') ? page(0, 25) : u.includes('offset=25') ? page(25, 5) : [],
+    });
+    render(<AskAWorkPage />);
+    await ask('the rise of Sejanus');
+    const section = await screen.findByTestId('ask-names');
+    fireEvent.click(within(section).getByRole('button', { name: 'Show all 30' }));
+    await waitFor(() => expect(within(section).getAllByTestId('ask-name-card')).toHaveLength(30));
+    expect(callsTo('/api/passages/mentions').some((c) => String(c[0]).includes('offset=25'))).toBe(true);
+  });
+
+  it('says so quietly when nothing names the person', async () => {
+    render(<AskAWorkPage />);
+    await ask('the rise of Sejanus');
+    expect(await screen.findByText('No passage description names Sejanus in this work.')).toBeInTheDocument();
+  });
+
+  it('makes no request when the question has no capitalised word', async () => {
+    render(<AskAWorkPage />);
+    await ask('fathers and sons');
+    await screen.findByTestId('ask-strip');
+    expect(callsTo('/api/passages/mentions')).toHaveLength(0);
+    expect(screen.queryByTestId('ask-names')).toBeNull();
+  });
+});
+
+describe('what the work says', () => {
+  it('sends the first twelve passages and renders the summary with reference links', async () => {
+    reply = { ...reply, results: Array.from({ length: 14 }, (_, n) => row(n + 1, `verg. aen. 1.${n + 10}`)) };
+    summaryReply = { available: true, summary: 'Fathers are lost in verg. aen. 1.10 and mourned in verg. aen. 1.12.', cites: ['verg. aen. 1.10', 'verg. aen. 1.12'] };
+    render(<AskAWorkPage />);
+    await ask();
+    const block = await screen.findByTestId('ask-summary');
+    const [, init] = callsTo('/api/passages/ask-summary')[0];
+    const body = JSON.parse(init.body);
+    expect(body.question).toBe('fathers and sons');
+    expect(body.work_label).toBe('Vergil, Aeneid');
+    expect(body.passages).toHaveLength(12);
+    expect(body.passages[0]).toEqual({ ref: 'verg. aen. 1.10', gist: 'Gist 1' });
+    expect(within(block).getByText('What the work says, from the passages below')).toBeInTheDocument();
+    expect(within(block).getByText(/Written by Tessa from the passage descriptions/)).toBeInTheDocument();
+    const cards = screen.getAllByTestId('ask-card');
+    fireEvent.click(within(block).getByRole('button', { name: 'verg. aen. 1.12' }));
+    const seen = window.HTMLElement.prototype.scrollIntoView.mock.instances;
+    expect(seen[seen.length - 1]).toBe(cards[2]);
+  });
+
+  it('shows the reading line while it runs', async () => {
+    let release;
+    const base = global.fetch;
+    global.fetch = vi.fn((url, init) => (String(url).startsWith('/api/passages/ask-summary')
+      ? new Promise((res) => { release = () => res({ ok: true, json: () => Promise.resolve({ available: false }) }); })
+      : base(url, init)));
+    render(<AskAWorkPage />);
+    await ask();
+    expect(await screen.findByText('Tessa is reading the passages.')).toBeInTheDocument();
+    release();
+    await waitFor(() => expect(screen.queryByText('Tessa is reading the passages.')).toBeNull());
+  });
+
+  it('renders nothing when the summary is unavailable', async () => {
+    render(<AskAWorkPage />);
+    await ask();
+    await waitFor(() => expect(callsTo('/api/passages/ask-summary')).toHaveLength(1));
+    await waitFor(() => expect(screen.queryByText('Tessa is reading the passages.')).toBeNull());
+    expect(screen.queryByTestId('ask-summary')).toBeNull();
   });
 });
