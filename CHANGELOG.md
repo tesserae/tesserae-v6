@@ -9,6 +9,9 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-10
 
+### The sources of the Coins and Objects collections move into the scope box
+The Coins and Objects pages open with one short line, and the catalogues and museums, with their licences, are listed under Texts and collections in the What this search does box, after the live count.
+
 ### Records: the event dossier install
 The operations record marks the install of the dossier database with the Wikipedia summaries and passage-linked scholarship as run.
 
