@@ -61,8 +61,8 @@ export default function ObjectList({ openObject }) {
     <div className="max-w-5xl mx-auto px-4 py-6">
       <h2 className="text-2xl font-bold text-gray-900">Objects</h2>
       <p className="text-sm text-gray-600 mt-1 mb-4">
-        Greek, Roman and Etruscan objects from the Cleveland Museum of Art, the Art Institute of Chicago and
-        the Smithsonian, searchable by the museums&rsquo; own catalogue descriptions. In testing.
+        Greek, Roman and Etruscan museum objects, searchable by the museums&rsquo; own catalogue descriptions.
+        The museums are listed under What this search does. In testing.
       </p>
       <ScopeBox id="objects" className="mb-4" />
 
