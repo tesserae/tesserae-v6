@@ -93,9 +93,8 @@ export default function CoinList({ openCoin }) {
     <div className="max-w-5xl mx-auto px-4 py-6">
       <h2 className="text-2xl font-bold text-gray-900">Coins</h2>
       <p className="text-sm text-gray-600 mt-1 mb-4">
-        Greek and Roman coin types from the Online Coins of the Roman Empire, Coinage of the Roman Republic Online
-        and seven Greek catalogues (Corpus Nummorum, Seleucid, PELLA, Ptolemaic, Bactrian and Indo-Greek, IRIS
-        and Levantine), searchable by legend and by the catalogue's description of what each side shows. In testing.
+        Greek and Roman coin types, searchable by inscription and by the catalogue's description of what
+        each side shows. The catalogues are listed under What this search does. In testing.
       </p>
       <ScopeBox id="coins" className="mb-4" />
 

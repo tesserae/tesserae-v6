@@ -68,7 +68,7 @@ describe('ScopeBox', () => {
     serve({ texts: { la: 1234, grc: 56 }, coins: 99 });
     render(<ScopeBox id="line" />);
     fireEvent.click(screen.getByRole('button', { name: 'Details' }));
-    await waitFor(() => expect(screen.getByText('Works held now: Latin 1,234, Greek 56.')).toBeTruthy());
+    await waitFor(() => expect(screen.getByText(/Works held now: Latin 1,234, Greek 56\./)).toBeTruthy());
   });
 
   it('shows the dated line when the fetch fails or has no figure', async () => {

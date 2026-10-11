@@ -192,19 +192,21 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
   const namesDefaultSet = useRef(false);
   // One group shows at a time, chosen in the box at the top that names both
   // (owner 2026-10-10: with the first group open first, "it's not clear
-  // that there are any other choices"). Names first, the scene group when
-  // the server flags the names weak.
+  // that there are any other choices"). The scene group first (owner, later
+  // the same day: it gives the more interesting results).
   useEffect(() => {
-    setSceneOpen(false);
+    setSceneOpen(true);
     setCommentaryOpen(false);
-    setNamesOpen(true);
+    setNamesOpen(false);
     namesDefaultSet.current = false;
   }, [selection]);
   useEffect(() => {
     if (similar?.same_names && !namesDefaultSet.current) {
       namesDefaultSet.current = true;
-      setNamesOpen(!similar.same_names.weak);
-      setSceneOpen(!!similar.same_names.weak);
+      // The scene group opens first (owner 2026-10-10: "the same kind of
+      // scene gives more interesting results"); the names group waits for a click.
+      setNamesOpen(false);
+      setSceneOpen(true);
     }
   }, [similar]);
 
@@ -500,21 +502,21 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
                      className="flex rounded-lg border border-gray-200 overflow-hidden text-xs font-semibold">
                   <button
                     role="tab"
-                    aria-selected={namesOpen}
-                    onClick={() => { setNamesOpen(true); setSceneOpen(false); }}
-                    className={`flex-1 px-2.5 py-1.5 text-left ${namesOpen
-                      ? 'bg-red-50 text-red-700' : 'text-gray-700 hover:bg-gray-100'}`}
-                  >
-                    Same people and places &middot; {similar.same_names.results.length}
-                  </button>
-                  <button
-                    role="tab"
                     aria-selected={sceneOpen}
                     onClick={() => { setSceneOpen(true); setNamesOpen(false); }}
-                    className={`flex-1 px-2.5 py-1.5 text-left border-l border-gray-200 ${sceneOpen
+                    className={`flex-1 px-2.5 py-1.5 text-left ${sceneOpen
                       ? 'bg-red-50 text-red-700' : 'text-gray-700 hover:bg-gray-100'}`}
                   >
                     Same kind of scene &middot; {similar.results?.length ?? 0}
+                  </button>
+                  <button
+                    role="tab"
+                    aria-selected={namesOpen}
+                    onClick={() => { setNamesOpen(true); setSceneOpen(false); }}
+                    className={`flex-1 px-2.5 py-1.5 text-left border-l border-gray-200 ${namesOpen
+                      ? 'bg-red-50 text-red-700' : 'text-gray-700 hover:bg-gray-100'}`}
+                  >
+                    Same people and places &middot; {similar.same_names.results.length}
                   </button>
                 </div>
                 {similar.same_names.weak && (

@@ -41,6 +41,26 @@ function useScrollHint(contentKey) {
   return [ref, more];
 }
 
+/**
+ * How many leading tabs fit in `available` pixels beside a More button of
+ * `moreWidth`, given each tab's width. Everything after that goes into More
+ * (owner 2026-10-10: with every collection on, "the About tab is fading away
+ * at the margin"). With no measurements (jsdom, first paint) every tab fits.
+ */
+export function fitTabs(widths, available, moreWidth) {
+  if (!widths.length || !available) return widths.length;
+  const total = widths.reduce((a, b) => a + b, 0);
+  if (total <= available) return widths.length;
+  let used = 0;
+  let n = 0;
+  for (const w of widths) {
+    if (used + w > available - moreWidth) break;
+    used += w;
+    n += 1;
+  }
+  return n;
+}
+
 const mainTabs = [
   { code: 'search', label: 'Search' },
   { code: 'read', label: 'Read', beta: true },
@@ -103,6 +123,22 @@ const Navigation = ({
     return () => document.removeEventListener('mousedown', close);
   }, [moreOpen]);
   const [mainRef, mainMore] = useScrollHint(showDownloads);
+  // Overflow into More: the visible tabs are measured in a hidden copy of
+  // the row, and the ones past the container's width move into the menu.
+  const measureRef = useRef(null);
+  const [fitCount, setFitCount] = useState(null);
+  const refit = useCallback(() => {
+    const row = mainRef.current;
+    const probe = measureRef.current;
+    if (!row || !probe) return;
+    const items = Array.from(probe.querySelectorAll('[data-tab]'));
+    const widths = items.map((el) => el.offsetWidth || 0);
+    const moreEl = probe.querySelector('[data-more-probe]');
+    const moreWidth = moreEl ? moreEl.offsetWidth || 0 : 0;
+    const available = row.clientWidth || 0;
+    if (!available || widths.every((w) => !w)) { setFitCount(null); return; }
+    setFitCount(fitTabs(widths, available, moreWidth));
+  }, [mainRef]);
   const [langRef, langMore] = useScrollHint(languageTabs.length + ':' + pageType);
   // The documents trial's client-side flag (?documents=1, remembered for
   // the visit) and the server switch together gate the "Inscriptions &
@@ -166,6 +202,24 @@ const Navigation = ({
     );
   }
 
+  const shownTabs = mainTabs
+    .filter(tab => tab.code !== 'admin')
+    .filter(tab => !tab.trial || showInscriptionsPapyri)
+    .filter(tab => !tab.needs || anyOn(PAGE_NEEDS[tab.needs]));
+  const candidateTabs = shownTabs.filter(tab => !tab.more);
+  const nFit = fitCount === null ? candidateTabs.length : Math.min(fitCount, candidateTabs.length);
+  const rowTabs = candidateTabs.slice(0, nFit);
+  const menuTabs = candidateTabs.slice(nFit).concat(shownTabs.filter(tab => tab.more));
+  const tabsKey = candidateTabs.map(t => t.code).join(',');
+  useEffect(() => {
+    refit();
+    const row = mainRef.current;
+    const ro = typeof ResizeObserver !== 'undefined' && row ? new ResizeObserver(refit) : null;
+    if (ro && row) ro.observe(row);
+    window.addEventListener('resize', refit);
+    return () => { if (ro) ro.disconnect(); window.removeEventListener('resize', refit); };
+  }, [refit, tabsKey, showCollections, mainRef]);
+
   return (
     <nav className="bg-gray-50 border-b sticky top-0 z-40">
       <div className="max-w-7xl mx-auto px-3 sm:px-6">
@@ -181,14 +235,19 @@ const Navigation = ({
           <div
             ref={mainRef}
             data-more={mainMore}
-            className="scroll-hint flex overflow-x-auto scrollbar-hide -mx-3 px-3 sm:mx-0 sm:px-0"
+            className="scroll-hint relative flex overflow-x-auto scrollbar-hide -mx-3 px-3 sm:mx-0 sm:px-0 sm:flex-1 sm:min-w-0"
           >
-            {mainTabs
-              .filter(tab => tab.code !== 'admin')
-              .filter(tab => !tab.trial || showInscriptionsPapyri)
-              .filter(tab => !tab.needs || anyOn(PAGE_NEEDS[tab.needs]))
-              .filter(tab => !tab.more)
-              .map(tab => (
+            {/* Hidden copy of every candidate tab, measured for the overflow. */}
+            <div ref={measureRef} aria-hidden="true"
+                 className="absolute left-0 top-0 flex invisible pointer-events-none whitespace-nowrap">
+              {candidateTabs.map(tab => (
+                <span key={tab.code} data-tab className="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">
+                  {tab.label}{tab.beta && <span className="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>}
+                </span>
+              ))}
+              <span data-more-probe className="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More &#9662;</span>
+            </div>
+            {rowTabs.map(tab => (
               <button
                 key={tab.code}
                 onClick={() => setPageType(tab.code)}
@@ -230,7 +289,7 @@ const Navigation = ({
                 aria-haspopup="menu"
                 aria-expanded={moreOpen}
                 className={`px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap ${
-                  mainTabs.some(t => t.more && t.code === pageType)
+                  menuTabs.some(t => t.code === pageType)
                     ? 'border-red-700 text-red-700 font-semibold'
                     : 'border-transparent text-gray-500 hover:text-red-600 font-medium'
                 }`}
@@ -239,7 +298,7 @@ const Navigation = ({
               </button>
               {moreOpen && (
                 <div role="menu" className="absolute left-0 mt-1 w-40 bg-white border border-gray-200 rounded shadow-lg py-1 z-50">
-                  {mainTabs.filter(t => t.more).map(tab => (
+                  {menuTabs.map(tab => (
                     <button
                       key={tab.code}
                       role="menuitem"

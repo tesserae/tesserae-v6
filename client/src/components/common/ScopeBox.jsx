@@ -66,7 +66,11 @@ export default function ScopeBox({ id, className = '', label = 'What this search
   const openHelp = () => {
     window.dispatchEvent(new CustomEvent('tesserae:open-help', { detail: { section: entry.helpSection } }));
   };
-  const covers = liveCovers(id, counts, LANGUAGE_NAMES) || entry.covers;
+  // The live count first, then the standing description of what is covered
+  // (the catalogues, the museums), so the sources stay in the box (owner
+  // 2026-10-10: the list of coin sources belongs here, not in the heading).
+  const live = liveCovers(id, counts, LANGUAGE_NAMES);
+  const covers = live ? `${live} ${entry.covers}` : entry.covers;
   const panelId = `scope-panel-${id}`;
 
   return (

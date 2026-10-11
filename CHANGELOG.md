@@ -9,11 +9,19 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-10
 
+### Collections: Literature is shown as always on
+The Literature box in the Collections control could be unticked but changed nothing, since the Search, Read, Theme Search and Browse pages never depended on it. It is now a fixed line marked "always on", and the control's sentence says the other switches add material to the literature.
+### The main menu folds what does not fit into More
+With every collection on, the last entries of the menu row faded off the right edge. The row now measures itself and moves the trailing entries into the More menu, at any width, so nothing is cut off; Repository and Downloads stay there always.
 ### Reader: each side-panel tab says what it does, with the same scope box as the search pages
 With nothing selected, the side panel lists its tabs with one line each on what they do, and shows the "What this does" box for the current tab. With a selection, a small "What this does" link above each tab's results opens the same box. The entries (Similar, Reuse, Parallels, Scholarship, Translation, Coins) live in the scope data file beside the search pages' entries, and the Help table "How well does it work?" gains the Reuse and Scholarship rows.
 
 ### Inscriptions & Papyri examples lead with epigraphy; the Events box says where the events come from
 The one-click examples on the Inscriptions & Papyri page now begin with the emperors' dating formula, a town council's decree and the freedmen's priesthood, with the literary quotations last, and the Greek tab gains the decree formulas. The Events scope box names Wikidata as the source of the events and says plainly how passages are gathered (by names and by theme, merged) and where that fails.
+### The sources of the Coins and Objects collections move into the scope box
+The Coins and Objects pages open with one short line, and the catalogues and museums, with their licences, are listed under Texts and collections in the What this search does box, after the live count.
+### Reader: the Similar tab opens on Same kind of scene
+The scene group stands first in the box at the top of the Similar tab and opens by default, with Same people and places a click away.
 
 ### Records: the event dossier install
 The operations record marks the install of the dossier database with the Wikipedia summaries and passage-linked scholarship as run.
