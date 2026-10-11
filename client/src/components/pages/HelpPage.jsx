@@ -1658,6 +1658,11 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 those connections for whatever you select.
               </p>
               <p className="text-gray-700 mb-4">
+                Each tab of the side panel explains itself under &ldquo;What this does&rdquo;.
+                That box says what the tab searches, what it covers, where it is weak and how
+                well it has been measured.
+              </p>
+              <p className="text-gray-700 mb-4">
                 For works that have one, an <strong>About</strong> button in the header opens a
                 short orientation note saying what the text is, who wrote it and when, and why a
                 reader might care. The same notes appear behind the small ⓘ buttons in Browse
