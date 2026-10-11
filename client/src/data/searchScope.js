@@ -22,6 +22,8 @@ const RARE_ALL = { search: "Rare words, rare pairs, line and string search", lan
 
 const NOT_YET = 'Not measured yet';
 
+const ASK_A_WORK_ROW = { search: 'Ask a Work', language: 'Latin and Greek', against: 'Fifteen questions on the Aeneid, Thucydides 1 and 2 and Annals 1 to 6, one judge reading the first twenty passages of each', result: 'A passage directly about the subject in the first five for 14 of 15 questions. Of the first ten, 0.44 were directly about it and 0.75 at least touched it (nDCG at 10 of 0.75). Weakest when one account fills a few windows (the plague) or the question is a named speaker\'s view', date: 'October 2026' };
+
 const DOCUMENTS_ROW = { search: 'Inscriptions & Papyri', language: 'Latin and Greek', against: 'No test list yet', result: NOT_YET, date: '' };
 const EVENTS_ROW = { search: 'Events', language: 'Latin and Greek', against: '43 passages historians cite for twelve events', result: 'About a third of the first twenty passages listed for an event were among them (precision at 20 of 0.32 to 0.40 by method)', date: 'October 2026' };
 const COINS_ROW = { search: 'Coins', language: 'Latin', against: "Ten passages with known coin parallels, the Reader's related imagery", result: '17 of the 50 coin types offered were real parallels (about one in three). The Greek catalogues, included for a test, took 27 of the 50 places with about three real ones, so a Latin passage now uses the Roman catalogues only', date: 'October 2026' };
@@ -65,6 +67,16 @@ export const SEARCH_SCOPE = {
     limits: `A subject that is absent from the corpus gets a low confidence band and not an empty list. ${NO_CONFIDENCE_NOTE} The ranking rests on a model's description of each passage, so very short or fragmentary passages rank poorly.`,
     measured: [THEME_LAGRC, THEME_OTHER],
     helpSection: 'theme-search',
+  },
+  ask_a_work: {
+    id: 'ask_a_work',
+    name: 'Ask a Work',
+    does: 'Every passage in one work whose content matches a subject you describe, listed by how well it matches, with a strip showing where in the work they fall.',
+    scope: 'The Theme Search index restricted to one work. The model-written description of each passage window is matched against the subject.',
+    covers: 'Any work the passage index holds.',
+    limits: 'A passage is a window of about twenty lines, so a subject spread thinly through a long chapter can be missed. The search matches content, so it does not find a name on its own as a word search would.',
+    measured: [ASK_A_WORK_ROW],
+    helpSection: 'ask-a-work',
   },
   line: {
     id: 'line',
@@ -219,7 +231,7 @@ export const SEARCH_SCOPE = {
 };
 
 // The Help table lists each distinct row once, entries in this order.
-const HELP_ORDER = ['parallel', 'cross', 'theme', 'line', 'string', 'bigram', 'hapax', 'documents', 'events', 'coins', 'objects', 'reader_reuse', 'reader_scholarship', 'scholarship_theme'];
+const HELP_ORDER = ['parallel', 'cross', 'theme', 'ask_a_work', 'line', 'string', 'bigram', 'hapax', 'documents', 'events', 'coins', 'objects', 'reader_reuse', 'reader_scholarship', 'scholarship_theme'];
 
 export function allMeasuredRows() {
   const seen = new Set();
@@ -250,6 +262,7 @@ export function liveCovers(id, counts, names = {}) {
   if (!counts) return null;
   switch (id) {
     case 'theme':
+    case 'ask_a_work':
     case 'reader_similar':
       return counts.passage_windows ? `The passage index, ${n(counts.passage_windows)} windows now.` : null;
     case 'documents': {

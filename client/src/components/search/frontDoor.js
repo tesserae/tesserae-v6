@@ -1,6 +1,6 @@
-// The six answers to "What are you trying to do?" on the Search page's
+// The seven answers to "What are you trying to do?" on the Search page's
 // "Start here" panel: the feature's fixed name, then what it does (owner's
-// review 2026-10-10: name the feature, then a brief description, smaller). Tessa answers "where do I start" with the same six
+// review 2026-10-10: name the feature, then a brief description, smaller). Tessa answers "where do I start" with the same seven
 // (backend/assistant/front_door.py holds the same labels and paths; a test
 // checks the two agree). Change both together.
 //
@@ -31,6 +31,12 @@ export const FRONT_DOOR_CHOICES = [
     label: 'Theme Search',
     detail: 'passages about a subject, described in your own words, across languages',
     href: '/theme-search',
+  },
+  {
+    id: 'ask',
+    label: 'Ask a Work',
+    detail: 'ask what one work says about a subject, in plain words',
+    href: '/ask-a-work',
   },
   {
     id: 'read',

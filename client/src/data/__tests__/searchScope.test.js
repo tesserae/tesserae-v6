@@ -2,7 +2,7 @@ import { describe, it, expect, vi, afterEach } from 'vitest';
 import { createElement } from 'react';
 import { render } from '@testing-library/react';
 import HelpPage from '../../components/pages/HelpPage';
-import { SEARCH_SCOPE, allMeasuredRows } from '../searchScope';
+import { SEARCH_SCOPE, allMeasuredRows, liveCovers } from '../searchScope';
 
 const FIELDS = ['id', 'name', 'does', 'scope', 'covers', 'limits', 'measured', 'helpSection'];
 
@@ -61,6 +61,19 @@ describe('SEARCH_SCOPE', () => {
     expect(searches).not.toContain('Translation (Reader)');
     expect(SEARCH_SCOPE.reader_coins.measured).toEqual(SEARCH_SCOPE.coins.measured);
     expect(SEARCH_SCOPE.reader_parallels.measured).toEqual(SEARCH_SCOPE.line.measured);
+  });
+
+  it('has the Ask a Work entry, after Theme Search in the Help table, with its measured row', () => {
+    const e = SEARCH_SCOPE.ask_a_work;
+    for (const f of FIELDS) expect(e[f], `ask_a_work.${f}`).toBeTruthy();
+    expect(e.helpSection).toBe('ask-a-work');
+    expect(e.measured).toHaveLength(1);
+    expect(e.measured[0].result).toMatch(/14 of 15 questions/);
+    expect(e.measured[0].date).toBe('October 2026');
+    const searches = allMeasuredRows().map((m) => m.search);
+    const themeRows = searches.filter((s) => s === 'Theme Search').length;
+    expect(searches.indexOf('Ask a Work')).toBe(searches.indexOf('Theme Search') + themeRows);
+    expect(liveCovers('ask_a_work', { passage_windows: 603594 })).toBe('The passage index, 603,594 windows now.');
   });
 
   it('has the Scholarship Theme Search entry with its measured row', () => {

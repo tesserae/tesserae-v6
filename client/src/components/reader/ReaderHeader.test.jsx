@@ -272,6 +272,9 @@ describe('the About panel: title, facts line, prose, sources footnote', () => {
     expect(source).toHaveAttribute('href', 'https://perseus.example/thyestes');
     expect(screen.getByRole('link', { name: 'Full credits' }))
       .toHaveAttribute('href', '/text-credits?author=Seneca');
+    // the facts line ends with a link that asks this work a question
+    expect(screen.getByRole('link', { name: 'Ask this work a question' }))
+      .toHaveAttribute('href', '/ask-a-work?work=ovid.tristia&lang=la');
 
     // the old uppercase label grid is gone
     for (const label of ['Author', 'Work', 'Date', 'Era', 'Kind', 'Lines', 'Print edition',

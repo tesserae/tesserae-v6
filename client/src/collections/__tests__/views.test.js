@@ -15,13 +15,15 @@ beforeEach(() => {
 describe('the view data', () => {
   it('has Literature and History, each complete', () => {
     expect(VIEWS.map((v) => v.id)).toEqual(['literature', 'history']);
-    const pages = ['search', 'read', 'theme-search', 'inscriptions-papyri', 'events', 'coins', 'objects',
+    const pages = ['search', 'read', 'theme-search', 'ask-a-work', 'inscriptions-papyri', 'events', 'coins', 'objects',
       'browse', 'about', 'help', 'repository', 'downloads'];
     VIEWS.forEach((v) => {
       expect(v.label).toBeTruthy();
       expect(profileById(v.profile)).toBeTruthy();
       expect([...v.menuOrder].sort()).toEqual([...pages].sort());
       expect([...v.readerTabs].sort()).toEqual(READER_TABS.map((t) => t.id).sort());
+      expect(v.menuOrder.indexOf('ask-a-work')).toBe(v.menuOrder.indexOf('theme-search') + 1);
+      expect(v.startHereOrder.indexOf('ask')).toBe(v.startHereOrder.indexOf('subject') + 1);
       expect([...v.startHereOrder].sort()).toEqual(FRONT_DOOR_CHOICES.map((c) => c.id).sort());
       expect(v.searchDefaults.la.source && v.searchDefaults.la.target).toBeTruthy();
       expect(v.searchDefaults.grc.source && v.searchDefaults.grc.target).toBeTruthy();

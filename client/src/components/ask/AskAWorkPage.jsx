@@ -1,0 +1,432 @@
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import SearchableSelect from '../common/SearchableSelect';
+import ScopeBox from '../common/ScopeBox';
+import { useIsPhone } from '../../hooks/useIsPhone';
+import { baseWorkId, fetchCoveredWorks } from '../../utils/passageCoverage';
+import { readerLink } from '../passages/ThemeSearchPage';
+
+/**
+ * Ask a Work: pick one work, say a subject in plain words, and get the passages
+ * of that work about it, listed by score, with a strip across the top that shows
+ * where in the work they fall.
+ *
+ * The search is Theme Search restricted to one work (the same route with
+ * `works=`). Passing the base work id covers a work held in books, because the
+ * route collapses a book file onto its work, and a single work is returned as a
+ * flat list that pages by offset with no per-work cap.
+ *
+ * Two facts about that route shape this page. A restricted search carries no
+ * confidence band and never marks a result strong, so the strip falls back to
+ * the score when no result is strong. And no line counts are held anywhere the
+ * page can read, so the books of the strip have equal widths.
+ */
+
+// Twenty-five a page: each card fetches its first lines, and fifty at once was a burst of
+// fifty requests on the server for one search.
+const PAGE = 25;
+const LANGUAGES = [['la', 'Latin'], ['grc', 'Greek'], ['en', 'English'], ['he', 'Hebrew'],
+  ['cop', 'Coptic'], ['fa', 'Persian'], ['ur', 'Urdu']];
+
+const EXAMPLES = [
+  { lang: 'la', work: 'vergil.aeneid', q: 'fathers and sons', label: 'fathers and sons', on: 'the Aeneid' },
+  { lang: 'grc', work: 'thucydides.peleponnesian_war', q: 'the plague at Athens', label: 'the plague at Athens', on: 'Thucydides' },
+  { lang: 'la', work: 'tacitus.annales', q: 'the rise of Sejanus', label: 'the rise of Sejanus', on: 'the Annals' },
+];
+
+/** The works of one language that have passage windows, one entry per work
+ *  (a book file and its whole file collapse onto one id), with the books it is
+ *  held in. */
+function worksFrom(texts, covered) {
+  const have = new Set(covered || []);
+  const byId = new Map();
+  (Array.isArray(texts) ? texts : []).forEach((t) => {
+    const id = baseWorkId(t.id);
+    if (!have.has(id)) return;
+    if (!byId.has(id)) {
+      byId.set(id, {
+        id, authorKey: id.split('.')[0].toLowerCase(),
+        author: t.author || id.split('.')[0], title: t.work || t.title || id, books: [],
+      });
+    }
+    const w = byId.get(id);
+    if (t.is_part && /^\d+$/.test(String(t.part_num))) w.books.push(Number(t.part_num));
+  });
+  return [...byId.values()];
+}
+
+/** The book a passage starts in, read from its reference: the first number of
+ *  the trailing locus ("verg. aen. 6.268" gives 6, "thuc. pele. 2.1.1" gives 2).
+ *  A reference with a single number has no book in it, and gives null. */
+export function bookOf(ref, workId) {
+  let s = String(ref || '').trim();
+  if (workId && s.startsWith(`${workId}.`)) s = s.slice(workId.length + 1);
+  const m = s.match(/(\d+(?:\.\d+)*)\s*$/);
+  if (!m) return null;
+  const nums = m[1].split('.');
+  return nums.length >= 2 ? Number(nums[0]) : null;
+}
+
+function lineOf(ref) {
+  const m = String(ref || '').match(/(\d+)\s*$/);
+  return m ? Number(m[1]) : 0;
+}
+
+/** Where each result sits on the strip: its book (or the one segment of a work
+ *  without books) and a fraction across that segment. Marks in one book are
+ *  spread in line order, since no line counts are held to place them exactly. */
+export function stripLayout(results, workId, workBooks) {
+  const books = new Set(workBooks || []);
+  const placed = results.map((r, i) => ({ i, book: bookOf(r.ref_start, workId), line: lineOf(r.ref_start) }));
+  placed.forEach((p) => { if (p.book !== null) books.add(p.book); });
+  // Without the catalogue's list of books, every book from 1 to the highest
+  // seen is drawn, so a book with no passage still shows as a gap (the strip
+  // once drew the Aeneid as eleven books because book 4 had no hit).
+  if (!(workBooks || []).length && books.size) {
+    const top = Math.max(...books);
+    for (let b = 1; b <= top; b += 1) books.add(b);
+  }
+  const order = [...books].sort((a, b) => a - b);
+  const segments = order.length ? order : [null];
+  const groups = new Map(segments.map((b) => [b, []]));
+  placed.forEach((p) => {
+    const key = order.length ? p.book : null;
+    (groups.get(key) || groups.get(segments[0])).push(p);
+  });
+  const marks = [];
+  segments.forEach((b, segIndex) => {
+    const g = groups.get(b).sort((x, y) => x.line - y.line || x.i - y.i);
+    g.forEach((p, k) => {
+      marks.push({ i: p.i, book: b, left: (segIndex + (k + 1) / (g.length + 1)) / segments.length });
+    });
+  });
+  return { books: order, segments, marks };
+}
+
+function FirstLines({ r }) {
+  const [lines, setLines] = useState(null);
+  useEffect(() => {
+    let dead = false;
+    const p = new URLSearchParams({ work: r.work || '', ref_start: r.ref_start || '', ref_end: r.ref_end || r.ref_start || '' });
+    fetch(`/api/passages/lines?${p.toString()}`)
+      .then((res) => res.json())
+      .then((d) => { if (!dead && Array.isArray(d.lines)) setLines(d.lines.slice(0, 3)); })
+      .catch(() => {});
+    return () => { dead = true; };
+  }, [r.work, r.ref_start, r.ref_end]);
+  if (!lines || !lines.length) return null;
+  return (
+    <div className="mt-1 text-sm text-gray-600 leading-snug border-l-2 border-gray-200 pl-2">
+      {lines.map((l) => <div key={l.ref}>{l.text}</div>)}
+    </div>
+  );
+}
+
+export default function AskAWorkPage() {
+  const phone = useIsPhone();
+  const initial = useMemo(() => {
+    const p = new URLSearchParams(window.location.search);
+    return { work: (p.get('work') || '').trim(), lang: (p.get('lang') || '').trim(), q: (p.get('q') || '').trim() };
+  }, []);
+  const [lang, setLang] = useState(initial.lang || 'la');
+  const [author, setAuthor] = useState(initial.work ? initial.work.split('.')[0].toLowerCase() : '');
+  const [work, setWork] = useState(initial.work);
+  const [q, setQ] = useState(initial.q);
+  const [catalogue, setCatalogue] = useState({});   // language -> works, once loaded
+  const loading = useRef({});
+
+  const loadWorks = useCallback((code) => {
+    if (loading.current[code]) return;
+    loading.current[code] = true;
+    fetch(`/api/texts?language=${code}`).then((r) => r.json()).catch(() => []).then((texts) => {
+      const arr = Array.isArray(texts) ? texts : [];
+      return fetchCoveredWorks(code, arr.length > 0).then((covered) => {
+        setCatalogue((c) => ({ ...c, [code]: worksFrom(arr, covered) }));
+      });
+    }).catch(() => setCatalogue((c) => ({ ...c, [code]: [] })));
+  }, []);
+  useEffect(() => {
+    [...new Set([lang, 'la', 'grc'])].forEach(loadWorks);
+  }, [lang, loadWorks]);
+
+  const works = catalogue[lang];
+  const authors = useMemo(() => {
+    const m = new Map();
+    (works || []).forEach((w) => { if (!m.has(w.authorKey)) m.set(w.authorKey, w.author); });
+    return [...m.entries()].map(([value, label]) => ({ value, label })).sort((a, b) => a.label.localeCompare(b.label));
+  }, [works]);
+  const workOptions = useMemo(() => (works || []).filter((w) => w.authorKey === author)
+    .map((w) => ({ value: w.id, label: w.title })).sort((a, b) => a.label.localeCompare(b.label)), [works, author]);
+
+  const [data, setData] = useState(null);
+  const [results, setResults] = useState([]);
+  const [running, setRunning] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [exhausted, setExhausted] = useState(false);
+  const [showWeak, setShowWeak] = useState(false);
+  const [error, setError] = useState(null);
+  const [asked, setAsked] = useState({ q: '', work: '', lang: '' });
+  const [flash, setFlash] = useState(null);
+  const cards = useRef({});
+
+  const run = useCallback(async (text, workId, code, more = false) => {
+    const query = (text || '').trim();
+    if (!query || !workId) return;
+    if (more) setLoadingMore(true);
+    else { setRunning(true); setData(null); setResults([]); setExhausted(false); setShowWeak(false); }
+    setError(null);
+    const offset = more ? results.length : 0;
+    try {
+      const res = await fetch(
+        `/api/passages/theme-search?q=${encodeURIComponent(query)}&works=${encodeURIComponent(workId)}`
+        + `&limit=${PAGE}&offset=${offset}&languages=${encodeURIComponent(code)}`);
+      const json = await res.json();
+      if (json.error) { setError(json.error); return; }
+      const got = json.results || [];
+      setData(json);
+      setAsked({ q: query, work: workId, lang: code });
+      setResults((prev) => (more ? [...prev, ...got] : got));
+      if (got.length < PAGE) setExhausted(true);
+      const p = new URLSearchParams({ work: workId, lang: code, q: query });
+      window.history.replaceState({}, '', `/ask-a-work?${p.toString()}`);
+    } catch (e) {
+      setError(e.message || 'the search could not be run');
+    } finally {
+      setRunning(false);
+      setLoadingMore(false);
+    }
+  }, [results.length]);
+
+  // An address that carries a work and a question runs once, as soon as the
+  // work is known to be one the index holds.
+  const autoRan = useRef(false);
+  useEffect(() => {
+    if (autoRan.current || !initial.work || !initial.q) return;
+    autoRan.current = true;
+    run(initial.q, initial.work, initial.lang || 'la');
+  }, [initial, run]);
+
+  const go = (e) => {
+    if (e) e.preventDefault();
+    run(q, work, lang);
+  };
+
+  const example = (ex) => {
+    setLang(ex.lang); setAuthor(ex.work.split('.')[0]); setWork(ex.work); setQ(ex.q);
+    run(ex.q, ex.work, ex.lang);
+  };
+  const shownExamples = EXAMPLES.filter((ex) => (catalogue[ex.lang] || []).some((w) => w.id === ex.work));
+
+  const level = data?.confidence?.level;
+  const weakVerdict = level === 'low';
+  const emptyList = data && !results.length;
+  const listVisible = results.length > 0 && (!weakVerdict || showWeak);
+  const askedWork = (catalogue[asked.lang] || []).find((w) => w.id === asked.work);
+  const layout = useMemo(
+    () => stripLayout(results, asked.work, askedWork?.books), [results, asked.work, askedWork]);
+  const anyStrong = results.some((r) => r.strong === true);
+  const scores = results.map((r) => r.score || 0);
+  const lo = Math.min(...scores);
+  const hi = Math.max(...scores);
+  const weight = (r) => {
+    if (anyStrong) return r.strong === true ? 1 : 0;
+    return hi > lo ? ((r.score || 0) - lo) / (hi - lo) : 0.5;
+  };
+  const inBooks = new Set(layout.marks.map((m) => m.book)).size;
+
+  const jump = (i) => {
+    const el = cards.current[i];
+    if (el && el.scrollIntoView) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    setFlash(i);
+    setTimeout(() => setFlash((f) => (f === i ? null : f)), 1600);
+  };
+
+  return (
+    <div className="max-w-4xl mx-auto p-6">
+      <h1 className="text-2xl font-semibold text-gray-900">Ask a Work</h1>
+      <span className="ml-2 align-middle rounded border border-amber-200 bg-amber-50 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-800">
+        Beta
+      </span>
+      <p className="mt-1 text-sm text-gray-600">Pick a work and ask what it says about a subject.</p>
+
+      <ScopeBox id="ask_a_work" className="mt-3" />
+
+      <form onSubmit={go} className="mt-4 space-y-3">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+          <select
+            aria-label="Language"
+            value={lang}
+            onChange={(e) => { setLang(e.target.value); setAuthor(''); setWork(''); }}
+            className="w-full border rounded px-2 py-2 text-base sm:text-sm"
+          >
+            {LANGUAGES.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+          </select>
+          <SearchableSelect
+            ariaLabel="Author"
+            value={author}
+            placeholder={works ? 'Author' : 'Loading authors…'}
+            options={authors}
+            onChange={(v) => { setAuthor(v); setWork(''); }}
+          />
+          <SearchableSelect
+            ariaLabel="Work"
+            value={work}
+            disabled={!author}
+            placeholder="Work"
+            options={workOptions}
+            onChange={(v) => setWork(v)}
+          />
+        </div>
+        <div className="flex flex-col sm:flex-row gap-2">
+          <input
+            type="text"
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder="a subject in plain words, such as fate and the plan of the gods"
+            aria-label="Your question"
+            className="flex-1 border rounded px-3 py-2 text-base sm:text-sm"
+          />
+          <button
+            type="submit"
+            disabled={!work || !q.trim() || running}
+            className="rounded bg-red-700 px-4 py-2 text-sm font-medium text-white hover:bg-red-800 disabled:bg-gray-300"
+          >
+            Go
+          </button>
+        </div>
+      </form>
+
+      {!!shownExamples.length && (
+        <div className="mt-3 flex flex-wrap gap-2">
+          {shownExamples.map((ex) => (
+            <button
+              key={ex.q}
+              type="button"
+              onClick={() => example(ex)}
+              className="text-xs text-red-700 hover:text-red-900 hover:bg-red-50 border border-gray-200 rounded px-2 py-1"
+            >
+              {ex.label} <span className="text-gray-500">on {ex.on}</span>
+            </button>
+          ))}
+        </div>
+      )}
+
+      {running && <p className="mt-6 text-sm text-gray-500 italic">Reading the work for that subject…</p>}
+      {error && (
+        <div className="mt-6 rounded border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">{error}</div>
+      )}
+
+      {data && !running && (
+        <div className="mt-6">
+          {(emptyList || weakVerdict) && (
+            <div className="rounded border border-gray-300 bg-gray-100 px-3 py-2 text-sm text-gray-700">
+              <strong className="font-semibold">Nothing in this work resembles that subject.</strong>
+              {data.note && !emptyList ? ` ${data.note}` : ''}
+            </div>
+          )}
+          {!emptyList && !weakVerdict && data.note && (
+            <div className="rounded border border-gray-200 bg-gray-50 px-3 py-2 text-xs text-gray-600">{data.note}</div>
+          )}
+          {weakVerdict && results.length > 0 && !showWeak && (
+            <div className="mt-4">
+              <button type="button" onClick={() => setShowWeak(true)}
+                      className="text-sm text-red-700 hover:underline">
+                Show the closest passages anyway
+              </button>
+            </div>
+          )}
+
+          {listVisible && (
+            <>
+              <h2 className="mt-4 text-base font-semibold text-gray-900" data-testid="ask-heading">
+                {(askedWork ? `${askedWork.author}, ${askedWork.title}` : (results[0]?.author ? `${results[0].author}, ${(results[0].title || '').replace(/, Book \d+$/, '')}` : asked.work))}
+                <span className="font-normal text-gray-600"> on {asked.q}</span>
+              </h2>
+              <section aria-label="Where in the work" className="mt-3">
+                <h2 className="text-sm font-semibold text-gray-700">Where in the work</h2>
+                <div className="relative mt-2 h-12 flex border-b border-gray-300" data-testid="ask-strip">
+                  {layout.segments.map((b, k) => (
+                    <div key={String(b)} className={`flex-1 ${k > 0 ? 'border-l border-gray-200' : ''} ${k % 2 ? 'bg-gray-50' : 'bg-white'}`} />
+                  ))}
+                  {layout.marks.map((m) => {
+                    const r = results[m.i];
+                    const w = weight(r);
+                    return (
+                      <button
+                        key={r.id || m.i}
+                        type="button"
+                        data-testid="ask-mark"
+                        aria-label={`${r.ref_start}${r.strong ? ', strong' : ''}`}
+                        onClick={() => jump(m.i)}
+                        style={{ left: `${m.left * 100}%`, height: `${40 + w * 60}%`, width: w > 0.66 ? 4 : 2 }}
+                        className={`absolute bottom-0 -translate-x-1/2 rounded-t focus:outline-none focus:ring-2 focus:ring-red-300 ${w > 0.66 ? 'bg-red-700' : 'bg-red-300'}`}
+                      />
+                    );
+                  })}
+                </div>
+                {!!layout.books.length && (
+                  <div className="flex text-[10px] text-gray-500">
+                    {layout.books.map((b, k) => (
+                      <div key={b} className="flex-1 text-center">{phone && k % 2 ? '' : b}</div>
+                    ))}
+                  </div>
+                )}
+                <p className="mt-1 text-xs text-gray-500">
+                  {layout.books.length > 1
+                    ? `${results.length} passages in ${inBooks} of ${layout.books.length} books`
+                    : `${results.length} passages`}
+                </p>
+              </section>
+
+              <ul className="mt-4 space-y-3">
+                {results.map((r, i) => (
+                  <li
+                    key={r.id || `${r.ref_start}-${i}`}
+                    ref={(el) => { cards.current[i] = el; }}
+                    data-testid="ask-card"
+                    className={`border rounded p-3 bg-white transition-colors ${flash === i ? 'border-red-400 bg-red-50' : 'border-gray-200'}`}
+                  >
+                    <div className="flex items-baseline gap-2 flex-wrap">
+                      <a href={readerLink(r, asked.q)} className="text-sm text-red-800 hover:text-red-900 hover:underline">
+                        {r.ref_start}
+                      </a>
+                      {r.strong === true && (
+                        <span className="text-[10px] bg-red-50 text-red-800 border border-red-200 rounded px-1.5 py-0.5 font-medium">
+                          strong
+                        </span>
+                      )}
+                      <a href={readerLink(r, asked.q)} className="ml-auto text-xs text-gray-500 hover:underline">
+                        Open in the Reader
+                      </a>
+                    </div>
+                    {r.gist && <p className="mt-0.5 text-sm text-gray-700 leading-snug">{r.gist}</p>}
+                    <FirstLines r={r} />
+                  </li>
+                ))}
+              </ul>
+
+              {!exhausted && (
+                <div className="mt-4 text-center">
+                  <button
+                    type="button"
+                    onClick={() => run(asked.q, asked.work, asked.lang, true)}
+                    disabled={loadingMore}
+                    className="rounded border border-gray-300 bg-white px-4 py-1.5 text-sm text-gray-700 hover:border-gray-400 disabled:text-gray-500"
+                  >
+                    {loadingMore ? 'Loading…' : 'Show more'}
+                  </button>
+                </div>
+              )}
+              {exhausted && (
+                <p className="mt-4 text-center text-xs text-gray-500">End of the ranked list for this work.</p>
+              )}
+              <p className="mt-5 text-xs text-gray-500 leading-relaxed">
+                These summaries are written by a language model from the passage itself, so treat them
+                as a finding aid. Read the passage before citing it.
+              </p>
+            </>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}

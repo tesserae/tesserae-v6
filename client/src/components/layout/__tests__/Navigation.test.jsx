@@ -112,8 +112,10 @@ describe('Navigation — the "Inscriptions & Papyri" item (documents trial)', ()
     expect(tab).toBeTruthy();
     const buttons = screen.getAllByRole('button').map((b) => b.textContent);
     const themeIdx = buttons.findIndex((t) => t.includes('Theme Search'));
+    const askIdx = buttons.findIndex((t) => t.includes('Ask a Work'));
     const docsIdx = buttons.findIndex((t) => t.includes('Inscriptions & Papyri'));
-    expect(docsIdx).toBe(themeIdx + 1);
+    expect(askIdx).toBe(themeIdx + 1);
+    expect(docsIdx).toBe(askIdx + 1);
   });
 
   it('turns on from ?documents=1 in the URL, without a prior session flag', async () => {

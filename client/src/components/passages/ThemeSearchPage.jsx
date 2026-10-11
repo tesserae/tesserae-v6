@@ -116,7 +116,7 @@ const BAND = {
  * A real href, not a click handler, so the result can be opened in a new tab and
  * kept. Scholars compare things side by side.
  */
-function readerLink(r, query) {
+export function readerLink(r, query) {
   const work = String(r.work || '').replace(/\.tess$/, '');
   const params = new URLSearchParams({
     work: `${work}.tess`,
