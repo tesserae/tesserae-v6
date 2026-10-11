@@ -74,3 +74,24 @@ def test_at_most_twelve_passages(monkeypatch):
     body['passages'] = [{'ref': f'r{i}', 'gist': f'g{i}'} for i in range(20)]
     _post(body)
     assert len(seen['u'].split('\n')) == 2 + 12
+
+
+def test_short_citations_are_written_out_and_counted(monkeypatch):
+    """The model cites Tacitus and Thucydides by bare locus, (4.1) or (4.1,
+    4.2); the route writes the full references into the text and lists them
+    as cites, so the page can link them (2026-10-11). A locus that two
+    passages share, or a number that is no passage, is left alone."""
+    monkeypatch.setattr(model, 'is_available', lambda: True)
+    monkeypatch.setattr(model, 'complete',
+                        lambda *a, **k: 'Sejanus rises (4.1) and builds a camp (4.1, 4.2). Not a passage (7.9).')
+    out = _post(_body())
+    assert out['summary'] == ('Sejanus rises (tac. ann. 4.1) and builds a camp (tac. ann. 4.1, tac. ann. 4.2). '
+                              'Not a passage (7.9).')
+    assert out['cites'] == ['tac. ann. 4.1', 'tac. ann. 4.2']
+
+
+def test_full_citations_stay_as_they_are(monkeypatch):
+    monkeypatch.setattr(model, 'is_available', lambda: True)
+    monkeypatch.setattr(model, 'complete', lambda *a, **k: 'A camp (tac. ann. 4.2).')
+    out = _post(_body())
+    assert out['summary'] == 'A camp (tac. ann. 4.2).' and out['cites'] == ['tac. ann. 4.2']

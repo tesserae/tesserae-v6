@@ -2668,4 +2668,14 @@ def mentions_in_work(work, names, books=None):
                       'gist': (r.get('desc') or {}).get('gist'),
                       'matched': matched, 'mentions': count}))
     hits.sort(key=lambda t: t[0])
-    return {'work': base, 'books_searched': searched, 'hits': [h for _, h in hits]}
+    # One entry per passage: the index holds a window at two scales, so the
+    # same opening reference came back twice (Tac. Ann. 4.1 twice for
+    # Sejanus, 2026-10-11). The higher-ranked copy stays.
+    seen, out = set(), []
+    for _, h in hits:
+        key = (h['work'], h['ref_start'])
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append(h)
+    return {'work': base, 'books_searched': searched, 'hits': out}
