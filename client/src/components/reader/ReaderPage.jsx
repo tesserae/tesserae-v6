@@ -62,6 +62,21 @@ function popupTop(selection) {
   return el ? el.offsetTop + el.offsetHeight : 0;
 }
 
+
+/** Scroll the window vertically so that `el` sits at `where` (0 = top, 0.5 =
+ *  middle) of the part of the screen above the results sheet, and never
+ *  sideways. `scrollIntoView` was used before: on iOS Safari it panned the
+ *  visual viewport horizontally after a tap on a reuse tile, leaving the whole
+ *  page shifted (2026-10-11), and on a phone it centred the line under the
+ *  bottom sheet, which covers the lower 55 percent of the screen. */
+export function scrollLineTo(el, where = 0.5, phone = false) {
+  if (!el || typeof window === 'undefined') return;
+  const rect = el.getBoundingClientRect();
+  const visible = phone ? window.innerHeight * 0.45 : window.innerHeight;
+  const top = window.scrollY + rect.top - (visible - rect.height) * where;
+  window.scrollTo({ top: Math.max(0, top), left: 0, behavior: 'smooth' });
+}
+
 export default function ReaderPage() {
   const phone = useIsPhone();
   // No work named in the address: leave it empty and let the preferred-work
@@ -372,9 +387,9 @@ export default function ReaderPage() {
       // Bring the card itself on screen first (a separate scroll context from
       // the text pane), then centre the line inside it; landing deep in a long
       // work otherwise left the page where it was (2026-09-19).
-      contentRef.current?.scrollIntoView({ block: 'start', behavior: 'smooth' });
       const el = document.getElementById(`line-${cssRef(units[i].ref)}`);
-      if (el) el.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      if (el) scrollLineTo(el, 0.5, phone);
+      else scrollLineTo(contentRef.current, 0, phone);
     }, 120);
     return () => window.clearTimeout(id);
   }, [wantedRef, wantedRefEnd, wantedTab, units, visibleCount, work]);
@@ -412,7 +427,7 @@ export default function ReaderPage() {
     if (i >= visibleCount) { setVisibleCount(i + READER_STEP); return undefined; }
     const id = window.setTimeout(() => {
       const el = document.getElementById(`line-${cssRef(jumpRef)}`);
-      if (el) el.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      if (el) scrollLineTo(el, 0.5, phone);
       setJumpRef('');
     }, 80);
     return () => window.clearTimeout(id);
