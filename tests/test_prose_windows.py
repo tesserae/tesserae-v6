@@ -121,3 +121,65 @@ def test_upsert_window_texts(tmp_path):
                               'ref_end': 'r', 'text': 'hello'}) + '\n')
     assert pw.upsert_window_texts(str(db), str(wj)) == (1, 1)
     assert pw.upsert_window_texts(str(db), str(wj)) == (1, 1)
+
+
+def _units(n, size=300):
+    return [(f'T. 1.{i}', (f'Sectio {i} ' + 'verba et res gestae. ' * 40)[:size].rstrip() + '.') for i in range(1, n + 1)]
+
+
+def test_merge_joins_short_units_with_first_and_last_reference(tmp_path):
+    path = _write(tmp_path, _units(3))
+    wins, _ = pw.windows_for_file('la', 'fixture.work.part.1', path, 1200, merge=True)
+    assert len(wins) == 1
+    w = wins[0]
+    assert w['id'] == 'fixture.work.part.1:prosem:0'
+    assert (w['ref_start'], w['ref_end'], w['units']) == ('T. 1.1', 'T. 1.3', 3)
+    assert 'sub' not in w and w['scale'] == 'prose'
+    assert w['text'].startswith('Sectio 1') and 'Sectio 3' in w['text']
+
+
+def test_merge_closes_a_window_at_the_target_and_never_passes_it(tmp_path):
+    path = _write(tmp_path, _units(10))
+    wins, _ = pw.windows_for_file('la', 'fixture.work.part.1', path, 1000, merge=True)
+    assert [w['units'] for w in wins] == [3, 3, 3, 1]
+    assert all(len(w['text']) <= 1000 for w in wins)
+    assert wins[1]['ref_start'] == 'T. 1.4' and wins[1]['ref_end'] == 'T. 1.6'
+    assert sum(w['units'] for w in wins) == 10
+
+
+def test_merge_still_splits_a_long_unit_and_closes_the_group_before_it(tmp_path):
+    units = _units(2) + [('T. 1.3', MIXED)] + _units(2)[:1]
+    path = _write(tmp_path, units)
+    wins, _ = pw.windows_for_file('la', 'fixture.work.part.1', path, 1200, merge=True)
+    assert wins[0]['units'] == 2 and wins[0]['ref_end'] == 'T. 1.2'
+    pieces = [w for w in wins if w['ref_start'] == 'T. 1.3']
+    assert len(pieces) >= 3 and [w['sub'] for w in pieces] == list(range(1, len(pieces) + 1))
+    assert all('units' not in w and len(w['text']) <= 2 * 1200 for w in pieces)
+    assert wins[-1]['ref_start'] == 'T. 1.1' and wins[-1]['units'] == 1
+    assert len({w['id'] for w in wins}) == len(wins)
+
+
+def test_merge_never_crosses_a_part_file_and_default_is_unchanged(tmp_path):
+    p1 = _write(tmp_path, _units(2))
+    wa, _ = pw.windows_for_file('la', 'fixture.work.part.1', p1, 1200, merge=True)
+    wb, _ = pw.windows_for_file('la', 'fixture.work.part.1', p1, 1200)
+    assert len(wa) == 1 and len(wb) == 2
+    assert all(w['id'].split(':')[1] == 'prose' and w['sub'] == 1 for w in wb)
+
+
+def test_cli_exclude_ids_skips_works_already_cut(tmp_path):
+    import subprocess
+    d = tmp_path / 'texts' / 'la'
+    d.mkdir(parents=True)
+    for name in ('aaa.one', 'bbb.two'):
+        (d / f'{name}.tess').write_text(
+            '\n'.join(f'<{name} {r}> ' + 'verba et res gestae sunt. ' * 5 for r in (1, 2)) + '\n', encoding='utf-8')
+    ids = tmp_path / 'ids.json'
+    ids.write_text(json.dumps(['aaa.one:prose:0']))
+    out = tmp_path / 'out'
+    script = os.path.join(os.path.dirname(pw.__file__), 'prose_windows.py')
+    subprocess.run([sys.executable, script, '--work', 'aaa.one', '--work', 'bbb.two', '--texts',
+                    str(tmp_path / 'texts'), '--exclude-ids', str(ids), '--out', str(out)],
+                   check=True, capture_output=True)
+    works = {json.loads(l)['work'] for l in open(out / 'windows.jsonl')}
+    assert works == {'bbb.two'}

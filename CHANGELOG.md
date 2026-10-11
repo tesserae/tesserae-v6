@@ -11,6 +11,8 @@ behind each, are in docs/DECISIONS.md.
 
 ### Ask a Work: the measured row and Help now report two judges
 A second judge, the university gateway's Qwen model, re-graded the pilot's 293 passages: agreement with the first judge on 69 percent of grades (kappa 0.71 with quadratic weights), the strong marks' precision 0.87 for passages at least touching the subject. The scope box and the Help section say so.
+### Prose windows for every long-prose work: merged short units, Thucydides re-cut, the full run described in the background
+The prose window cutter now joins consecutive short units of one part file into a window of about 1,200 characters (`--merge-units`, the default; a window carries the first and last unit's reference and a `units` count), which turns Thucydides' 3,577 one-section windows into 1,159, and cuts the other 991 long-prose works into 153,405 windows. `apply_passage_rows.py` gains `--mode remove`. The windows and their descriptions are staged and the description run is under way; the install is recorded as "to run" in docs/DATA_OPERATIONS.md.
 
 ### Inscriptions and papyri: a passage-sized query searches on its rarest words
 The Reader's new Documents tab sends the whole selection to the documents search. A chapter of Tacitus (120 words) took over four minutes and a sentence eleven seconds, where the same search over literature answers in under a second because it caps a long query at its twelve rarest words. The documents search now applies the same cap, by document frequency in the documents index, and says so in the response as the literary search does.

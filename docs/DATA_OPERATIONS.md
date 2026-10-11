@@ -35,6 +35,87 @@ Conventions
   hand and are the models the helper matches.
 
 
+## 2026-10-11 Prose windows for every long-prose work: merged short units, Thucydides re-cut, the full run (staged 2026-10-11; install to run)
+
+- What: the cutter (`scripts/corpus/prose_windows.py`) gains `--merge-units`
+  (on by default; `--no-merge-units` is the first run's behaviour). Within one
+  part file, consecutive units shorter than the target are joined into one
+  window until the next would pass 1,200 characters; the window's `ref_start`
+  is the first unit's reference, `ref_end` the last's, `units` counts them and
+  there is no `sub`. A unit longer than the target is cut into pieces with
+  `sub` and character offsets as before and closes the group before it. A
+  window never crosses a part file. Merged windows get ids
+  `<part file>:prosem:<n>`, so they never collide with the first run's
+  `<part file>:prose:<n>`. `--exclude-ids` skips the works a first run
+  already cut. `apply_passage_rows.py` gains `--mode remove --remove-ids FILE`
+  (deletes rows from `ids.json`, `embeddings.npy` and `descriptions.jsonl`
+  together, with `.bak-<tag>` copies).
+- Thucydides re-cut: its units are single sections of 300 to 500 characters.
+  With merging, 3,577 windows (median 296 characters) become 1,159 (minimum
+  319, median 1,038, 10th percentile 797, 90th 1,171, maximum 1,259, mean
+  1,003). Described (stamp `prose-all-20261011`, 16 in flight, 3.2 windows a
+  second, 6.6 minutes, no error rows) and encoded with the embed service
+  (1,159 x 1,024, unit length).
+- Replacing the old Thucydides rows: `--mode replace` works by id and only
+  rewrites rows whose ids are already indexed, and the new ids differ in
+  number and kind from the old ones, so the old 3,577 rows (ids
+  `thucydides.peleponnesian_war.part.N:prose:n`, tag `prose-20261011`) are
+  removed with `--mode remove` and the 1,159 new ones appended with
+  `--mode append`.
+- The full cut: the 1,510 prose works over the audit threshold (median fine
+  window over 3,000 characters) less the 12 works that already hold prose
+  windows (the Annals, Thucydides and the first run's ten) give 991 works and
+  153,405 windows (minimum 22, median 1,031, 10th percentile 678, 90th 1,214,
+  maximum 2,357, mean 1,009 characters; about 155 million characters). The
+  first estimate was 274,684 windows without merging.
+- Describing: job `prose-all-describe` (`~/bin/tess-job`, cap 4 GB, detached),
+  Qwen 3.8 27B FP8, thinking off, 32 in flight (16 gave 3.2 windows a second
+  on the Thucydides run, 32 gives 4.3), stamp `prose-all-20261011`, output
+  `descriptions_all.jsonl`. Started 14:22 on 2026-10-11; after ten minutes 2,615
+  rows, 4.3 windows a second (about 258 a minute), 7 error rows (the describer
+  retries them on resume), key spend 4.53 to 5.97 units for the first 2,650
+  windows, so about 80 units for the run; expected finish about 00:15 on
+  2026-10-12. Resumable: rerunning the same command skips every id that
+  already has a `desc`. Progress is the row count of `descriptions_all.jsonl`
+  against 153,405.
+- Outputs in `~/tesserae-backups/prose_windows_all_2026-10-11/`:
+  `windows_thuc.jsonl`, `descriptions_thuc.jsonl`, `vectors_thuc.npy`,
+  `ids_thuc.json`, `old_ids_thuc.json` (the 3,577 rows to remove),
+  `windows_all.jsonl` (268 MB), `windows_report_all.json`,
+  `descriptions_all.jsonl` (growing), and the describer's scripts.
+- Steps on production, to run, once this pull request is merged and pulled and
+  the description job has finished. Each under `~/bin/tess-job`, cap 10 for
+  anything that reads the index:
+  1. Resume the describer if it stopped (from the outputs folder): `~/bin/tess-job
+     prose-all-describe 4 bash -c "cd ~/tesserae-backups/prose_windows_all_2026-10-11
+     && python describe_prose_windows.py --windows windows_all.jsonl --model
+     Qwen/Qwen3.8-27B-FP8 --stamp prose-all-20261011 --out descriptions_all.jsonl
+     --no-think --concurrency 32"`. Run it once more at the end to retry the
+     error rows. Done when `descriptions_all.jsonl` holds 153,405 rows with a
+     `desc`.
+  2. Lockstep check (ids, vectors and description rows equal), one Similar
+     Passages and one Theme Search request.
+  3. Back up `window_texts.db`; upsert `windows_thuc.jsonl` and
+     `windows_all.jsonl` with `prose_windows.py --upsert-db
+     data/passage_index/window_texts.db --upsert-from FILE`. The old
+     Thucydides texts stay as unused rows.
+  4. `make_encode_blobs.py descriptions_all.jsonl blobs_all.jsonl.gz`, then
+     encode on the campus GPU by `research/threads/GPU_JOB_RECIPE.md`
+     (`vectors_all.npy`, `ids_all.json`).
+  5. Thucydides: `apply_passage_rows.py --index data/passage_index --mode remove
+     --remove-ids old_ids_thuc.json --tag prose-all-20261011`, then
+     `--mode append --sidecar descriptions_thuc.jsonl --tag prose-all-20261011
+     --vectors vectors_thuc.npy --vector-ids ids_thuc.json`.
+  6. Everything else: `apply_passage_rows.py --index data/passage_index --sidecar
+     descriptions_all.jsonl --mode append --tag prose-all-20261011 --vectors
+     vectors_all.npy --vector-ids ids_all.json` (cap 12G).
+  7. `scripts/build_desc_fts.py`; `scripts/corpus/build_window_names.py` to a
+     `.new` file, then swap in; `touch tesseraev6_flask.wsgi`; the lockstep
+     check again.
+- Checks: the reference search (arma virum); Ask a Work on Thucydides and on a
+  merged work showing windows with `ref_start` different from `ref_end`; Similar
+  Passages on a Thucydides section maps to a merged window.
+
 ## 2026-10-11 Finer passage windows for long prose chapters (run 2026-10-11 12:28 to 12:50)
 
 - What: a new window scale, `prose`, for prose works whose corpus line is a
