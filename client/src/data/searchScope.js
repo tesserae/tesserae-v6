@@ -27,6 +27,10 @@ const EVENTS_ROW = { search: 'Events', language: 'Latin and Greek', against: '43
 const COINS_ROW = { search: 'Coins', language: 'Latin', against: "Ten passages with known coin parallels, the Reader's related imagery", result: '17 of the 50 coin types offered were real parallels (about one in three). The Greek catalogues, included for a test, took 27 of the 50 places with about three real ones, so a Latin passage now uses the Roman catalogues only', date: 'October 2026' };
 const OBJECTS_ROW = { search: 'Objects', language: 'English descriptions', against: 'No test list yet', result: NOT_YET, date: '' };
 
+const REUSE_ROW = { search: 'Reuse (Reader)', language: 'Latin and Greek', against: 'No test list yet', result: NOT_YET, date: '' };
+const SCHOLARSHIP_ROW = { search: 'Scholarship (Reader)', language: 'Latin and Greek', against: 'Sixty citing sentences read by eye from the citation index', result: '58 of 60 cite the passage they are attached to', date: 'October 2026' };
+const TRANSLATION_ROW = { search: 'Translation (Reader)', language: 'Latin and Greek', against: 'Not a search', result: 'Not measured', date: '' };
+
 const NO_CONFIDENCE_NOTE = 'A search restricted to one author or work has no confidence band.';
 
 export const SEARCH_SCOPE = {
@@ -140,10 +144,70 @@ export const SEARCH_SCOPE = {
     measured: [OBJECTS_ROW],
     helpSection: 'objects',
   },
+  reader_similar: {
+    id: 'reader_similar',
+    name: 'Similar (Reader)',
+    does: 'Passages whose content is closest to the lines you selected, from every language in the index.',
+    scope: 'Your selection is matched by the model-written description of its passage window against every other window\'s description, in two groups: Same kind of scene (the closest in meaning), and Same people and places (the closest that also share a rare proper name). A result is a passage with its description.',
+    covers: 'The passage index, 603,594 windows at the 2026-08-25 release.',
+    limits: 'The names group is weak for a passage with few distinctive names, and the scene group ranks a short or fragmentary passage poorly. Both groups are the Theme Search index at work, so they share its measured figures.',
+    measured: [THEME_LAGRC, THEME_OTHER],
+    helpSection: 'reader',
+  },
+  reader_reuse: {
+    id: 'reader_reuse',
+    name: 'Reuse (Reader)',
+    does: 'Other works that repeat the selected line closely, and the inscriptions and papyri that quote it.',
+    scope: 'A line is compared with every line in the corpus and with the documents for shared rare phrases: a solid count on a line means that many other works quote it, a dashed count a possible echo through one rare shared phrase, an amber count that many inscriptions or papyri carry it.',
+    covers: 'The literary corpus and about 257,000 inscriptions and papyri in Latin and Greek.',
+    limits: 'Stock phrases that many works share are not quotations, so very common lines show nothing. A quotation that changes every word is missed.',
+    measured: [REUSE_ROW],
+    helpSection: 'reader',
+  },
+  reader_parallels: {
+    id: 'reader_parallels',
+    name: 'Parallels (Reader)',
+    does: 'Lines anywhere in the corpus that share words with the selected line.',
+    scope: 'The selected line is sent to Line Search as a query: every line that carries two or more of its words, the lines quoting the whole line first.',
+    covers: 'The literary corpus, by language.',
+    limits: 'It matches dictionary forms, so an inflected form is found but a misspelling is not. Common words are dropped unless the phrase is only common words. It searches one language at a time.',
+    measured: [RARE_ALL],
+    helpSection: 'search-modes',
+  },
+  reader_scholarship: {
+    id: 'reader_scholarship',
+    name: 'Scholarship (Reader)',
+    does: 'Commentaries, articles and books on the selected passage.',
+    scope: 'The passage\'s reference is looked up in the public-domain commentaries held here, in the citation index of early journal articles, and live in Google Books and CORE.',
+    covers: '393 commentary files and a citation index of 29,055 articles from 24 journals, 1827 to 1922, plus two live lookups.',
+    limits: 'The citation index stops at 1922, so later articles come only from the two live lookups, which depend on those services. A reference the index could not read is missed.',
+    measured: [SCHOLARSHIP_ROW],
+    helpSection: 'reader',
+  },
+  reader_translation: {
+    id: 'reader_translation',
+    name: 'Translation (Reader)',
+    does: 'The English translation of the passage, where the site holds one.',
+    scope: 'The translation lined up with the selected lines is shown beside the original, or the whole translation of the work on request.',
+    covers: 'Translations held for about 61 percent of Greek lines and 48 percent of Latin lines, as of August 2026.',
+    limits: 'A translation is a published one, often a century old, and lines do not always match one to one.',
+    measured: [TRANSLATION_ROW],
+    helpSection: 'reader',
+  },
+  reader_coins: {
+    id: 'reader_coins',
+    name: 'Coins (Reader)',
+    does: 'Coin types that name the same people as the selection, and coin imagery close to it.',
+    scope: 'The people named in the selected lines are matched with the people named on coin types, and the passage\'s description is matched with the catalogues\' descriptions of what each side shows. A result is a coin type.',
+    covers: 'Greek and Roman coin types from nine catalogues published through nomisma.org.',
+    limits: 'A coin type is a catalogue entry and not one coin. The related imagery matches a description to a passage and is not a coin known to refer to it. For a Latin passage it draws on the Roman catalogues only.',
+    measured: [COINS_ROW],
+    helpSection: 'coins',
+  },
 };
 
 // The Help table lists each distinct row once, entries in this order.
-const HELP_ORDER = ['parallel', 'cross', 'theme', 'line', 'string', 'bigram', 'hapax', 'documents', 'events', 'coins', 'objects'];
+const HELP_ORDER = ['parallel', 'cross', 'theme', 'line', 'string', 'bigram', 'hapax', 'documents', 'events', 'coins', 'objects', 'reader_reuse', 'reader_scholarship'];
 
 export function allMeasuredRows() {
   const seen = new Set();
@@ -174,6 +238,7 @@ export function liveCovers(id, counts, names = {}) {
   if (!counts) return null;
   switch (id) {
     case 'theme':
+    case 'reader_similar':
       return counts.passage_windows ? `The passage index, ${n(counts.passage_windows)} windows now.` : null;
     case 'documents': {
       const d = counts.documents || {};
@@ -182,7 +247,18 @@ export function liveCovers(id, counts, names = {}) {
     }
     case 'events':
       return counts.events ? `${n(counts.events)} events held now.` : null;
+    case 'reader_scholarship':
+    case 'reader_translation':
+      return null;
+    case 'reader_reuse': {
+      const lit = worksHeld(counts, names);
+      const d = counts.documents || {};
+      const parts = Object.entries(d).map(([code, k]) => `${names[code] || code.toUpperCase()} ${n(k)}`);
+      const docs = parts.length ? `Documents held now: ${parts.join(', ')}.` : null;
+      return [lit, docs].filter(Boolean).join(' ') || null;
+    }
     case 'coins':
+    case 'reader_coins':
       return counts.coins ? `${n(counts.coins)} coin types held now.` : null;
     case 'objects':
       return counts.objects ? `${n(counts.objects)} objects held now.` : null;

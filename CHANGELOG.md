@@ -9,6 +9,9 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-10
 
+### Reader: each side-panel tab says what it does, with the same scope box as the search pages
+With nothing selected, the side panel lists its tabs with one line each on what they do, and shows the "What this does" box for the current tab. With a selection, a small "What this does" link above each tab's results opens the same box. The entries (Similar, Reuse, Parallels, Scholarship, Translation, Coins) live in the scope data file beside the search pages' entries, and the Help table "How well does it work?" gains the Reuse and Scholarship rows.
+
 ### Inscriptions & Papyri examples lead with epigraphy; the Events box says where the events come from
 The one-click examples on the Inscriptions & Papyri page now begin with the emperors' dating formula, a town council's decree and the freedmen's priesthood, with the literary quotations last, and the Greek tab gains the decree formulas. The Events scope box names Wikidata as the source of the events and says plainly how passages are gathered (by names and by theme, merged) and where that fails.
 

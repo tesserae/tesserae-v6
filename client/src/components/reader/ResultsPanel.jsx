@@ -11,6 +11,8 @@ import { LANGUAGE_NAMES as LANG_LABEL } from '../../utils/languageNames';
 import { scholarshipLanguages } from '../../utils/scholarshipLanguages';
 import ScholarshipTab from './ScholarshipTab';
 import CoinsTab from './CoinsTab';
+import ScopeBox from '../common/ScopeBox';
+import { SEARCH_SCOPE } from '../../data/searchScope';
 
 /** Parse a response as JSON, failing with a message a reader can act on.
  *  While the server reloads, Apache answers API calls with an HTML error
@@ -36,6 +38,16 @@ async function asJson(r) {
  * Every result is a button that opens that passage in the Reader, which is what
  * makes the corpus browsable by association rather than by search alone.
  */
+// Which entry of data/searchScope.js explains each tab.
+const READER_SCOPE_ID = {
+  similar: 'reader_similar',
+  reuse: 'reader_reuse',
+  verbal: 'reader_parallels',
+  scholarship: 'reader_scholarship',
+  translation: 'reader_translation',
+  coins: 'reader_coins',
+};
+
 export default function ResultsPanel({ selection, focus, language, work, units, onOpenPassage,
                                        initialTab, onClose, reuseFirst }) {
   // Arriving from Theme Search, the reader has just been shown an English
@@ -45,6 +57,8 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
   // Phone only: the sheet is a bare tab strip until a tab is tapped or a
   // line selected; on desktop the panel is always open.
   const [sheetOpen, setSheetOpen] = useState(false);
+  // The tab whose "What this does" box is shown above its results.
+  const [scopeShownFor, setScopeShownFor] = useState(null);
 
   // Follow a LATER request too. useState reads its argument once, so the popup
   // could ask for the translation and the panel would ignore it.
@@ -422,11 +436,46 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
           </>
         )}
         {!selection && tab !== 'translation' && (
-          <p className="text-sm text-gray-500 leading-relaxed p-3">
-            Select a passage in the text to see what the corpus connects to it.
-            Drag across several lines for content matches, or click a single line
-            for word matches.
-          </p>
+          <div className="p-3 space-y-3" data-testid="reader-scope-intro">
+            <p className="text-sm text-gray-500 leading-relaxed">
+              Select a passage in the text to see what the corpus connects to it.
+              Drag across several lines for content matches, or click a single line
+              for word matches.
+            </p>
+            <ul className="space-y-1 text-xs leading-snug">
+              {tabs.map(([id, label]) => {
+                const entry = SEARCH_SCOPE[READER_SCOPE_ID[id]];
+                if (!entry) return null;
+                return (
+                  <li key={id} data-current={tab === id ? 'true' : 'false'}
+                      className={tab === id ? 'text-gray-800' : 'text-gray-400'}>
+                    <span className="font-semibold">{label}</span>
+                    {': '}{entry.does.charAt(0).toLowerCase() + entry.does.slice(1)}
+                  </li>
+                );
+              })}
+            </ul>
+            {READER_SCOPE_ID[tab] && (
+              <ScopeBox key={READER_SCOPE_ID[tab]} id={READER_SCOPE_ID[tab]} label="What this does." />
+            )}
+          </div>
+        )}
+        {selection && READER_SCOPE_ID[tab] && (
+          <div>
+            <div className="flex justify-end">
+              <button
+                type="button"
+                onClick={() => setScopeShownFor(scopeShownFor === tab ? null : tab)}
+                aria-expanded={scopeShownFor === tab}
+                className="text-[11px] text-gray-500 hover:text-gray-700 hover:underline"
+              >
+                What this does
+              </button>
+            </div>
+            {scopeShownFor === tab && (
+              <ScopeBox key={`open-${tab}`} id={READER_SCOPE_ID[tab]} label="What this does." startOpen className="mt-1" />
+            )}
+          </div>
         )}
         {selection && tab === 'similar' && (
           <>

@@ -41,7 +41,25 @@ describe('SEARCH_SCOPE', () => {
     const expected = allMeasuredRows().map((m) => [m.search, m.language, m.against, m.result, m.date]);
     expect(rows).toEqual(expected);
     const union = [];
-    for (const e of Object.values(SEARCH_SCOPE)) for (const m of e.measured) if (!union.includes(m)) union.push(m);
+    // The Translation tab is not a search, so its row stays out of the Help table.
+    for (const e of Object.values(SEARCH_SCOPE)) {
+      if (e.id === 'reader_translation') continue;
+      for (const m of e.measured) if (!union.includes(m)) union.push(m);
+    }
     expect(new Set(allMeasuredRows())).toEqual(new Set(union));
+  });
+
+  it('has the six Reader entries, and the Help table gains only Reuse and Scholarship after Objects', () => {
+    const ids = ['reader_similar', 'reader_reuse', 'reader_parallels', 'reader_scholarship', 'reader_translation', 'reader_coins'];
+    for (const id of ids) {
+      for (const f of FIELDS) expect(SEARCH_SCOPE[id][f], `${id}.${f}`).toBeTruthy();
+      expect(SEARCH_SCOPE[id].measured.length).toBeGreaterThan(0);
+    }
+    const searches = allMeasuredRows().map((m) => m.search);
+    const i = searches.indexOf('Objects');
+    expect(searches.slice(i + 1)).toEqual(['Reuse (Reader)', 'Scholarship (Reader)']);
+    expect(searches).not.toContain('Translation (Reader)');
+    expect(SEARCH_SCOPE.reader_coins.measured).toEqual(SEARCH_SCOPE.coins.measured);
+    expect(SEARCH_SCOPE.reader_parallels.measured).toEqual(SEARCH_SCOPE.line.measured);
   });
 });

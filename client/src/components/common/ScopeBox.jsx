@@ -44,9 +44,9 @@ function writeOpen(id, open) {
   }
 }
 
-export default function ScopeBox({ id, className = '' }) {
+export default function ScopeBox({ id, className = '', label = 'What this search does.', startOpen = false }) {
   const entry = SEARCH_SCOPE[id];
-  const [open, setOpen] = useState(() => readOpen(id));
+  const [open, setOpen] = useState(() => startOpen || readOpen(id));
   const [counts, setCounts] = useState(null);
 
   useEffect(() => {
@@ -74,7 +74,7 @@ export default function ScopeBox({ id, className = '' }) {
          data-testid={`scope-box-${id}`}>
       <div className="flex items-center gap-2 px-3 py-1.5">
         <p className={`min-w-0 flex-1 ${open ? '' : 'truncate'}`} title={open ? undefined : entry.does}>
-          <span className="font-semibold text-gray-700">What this search does.</span>{' '}
+          <span className="font-semibold text-gray-700">{label}</span>{' '}
           {entry.does}
         </p>
         <button
