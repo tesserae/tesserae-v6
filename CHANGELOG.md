@@ -9,6 +9,9 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-11
 
+### Reader on a phone: the page no longer shifts sideways after a tap on a tile
+After a tap on a reuse tile on an iPhone the whole page, menu included, came up shifted about a hundred pixels to the left. On a phone the document can no longer scroll sideways, and the Reader scrolls to a line vertically only, placing it in the part of the screen above the results sheet instead of under it.
+
 ### Tessa on a phone: the question box under the header, two example questions, the sheet clear of the browser toolbar
 On a screen narrower than 768 pixels the question box and Ask button sit directly under the Tessa header, the box takes focus when the sheet opens so the keyboard comes up at once, and the introduction and examples scroll beneath it. The introduction is one sentence everywhere, the examples are cut to three (two on a phone), and the sheet is limited to 85 percent of the visible screen height with bottom padding for the phone's safe area so nothing sits under the browser toolbar. The desktop panel keeps the box at the bottom. This is a client change only, in `client/src/components/assistant/AssistantDock.jsx`.
 ### Similar Passages: an unloaded index is reported as unavailable and retried

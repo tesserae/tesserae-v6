@@ -164,19 +164,23 @@ describe('arriving from a passage pair with a selection and tab=similar', () => 
     + '&refEnd=' + encodeURIComponent('ov. tr. 3.1')
     + '&tab=similar&map=' + encodeURIComponent('Vergil');
 
-  it('scrolls the reader card into view, not only the selected line', async () => {
+  it('scrolls the window vertically to the selected line, never sideways', async () => {
+    // scrollIntoView used to do this; on iOS Safari it panned the page
+    // sideways after a tap (2026-10-11), so the Reader now computes a vertical
+    // position itself and scrolls with left: 0.
     window.history.replaceState({}, '', FROM_PAIR);
-    const scrolled = [];
-    window.HTMLElement.prototype.scrollIntoView = function (opts) {
-      scrolled.push({ testid: this.getAttribute?.('data-testid') || null, opts });
-    };
-    await mountReader();
-    await waitFor(() => expect(scrolled.some((s) => s.testid === 'reader-content')).toBe(true));
-    const cardScroll = scrolled.find((s) => s.testid === 'reader-content');
-    expect(cardScroll.opts).toMatchObject({ block: 'start' });
-    // The line itself still centers, inside its own scrolling pane, exactly
-    // as before -- this is additive, not a replacement.
-    expect(scrolled.some((s) => s.opts?.block === 'center')).toBe(true);
+    const calls = [];
+    const orig = window.scrollTo;
+    window.scrollTo = (opts) => { calls.push(opts); };
+    let intoView = 0;
+    window.HTMLElement.prototype.scrollIntoView = function () { intoView += 1; };
+    try {
+      await mountReader();
+      await waitFor(() => expect(calls.some((c) => c && typeof c.top === 'number' && c.left === 0)).toBe(true));
+      expect(intoView).toBe(0);
+    } finally {
+      window.scrollTo = orig;
+    }
   });
 
 });
