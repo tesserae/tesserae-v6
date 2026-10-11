@@ -169,7 +169,15 @@ const Navigation = ({
   return (
     <nav className="bg-gray-50 border-b sticky top-0 z-40">
       <div className="max-w-7xl mx-auto px-3 sm:px-6">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center">
+          {/* Collections first: it decides which entries the row has, so it
+              reads as the scope control, with the pages to its right (owner
+              2026-10-10: "the highest order choice"). */}
+          {showCollections && (
+            <div className="flex py-1 sm:py-0 sm:mr-3 sm:pr-3 sm:border-r sm:border-gray-200">
+              <CollectionsControl />
+            </div>
+          )}
           <div
             ref={mainRef}
             data-more={mainMore}
@@ -248,11 +256,6 @@ const Navigation = ({
               )}
             </div>
           </div>
-          {showCollections && (
-            <div className="flex justify-end py-1 sm:py-0">
-              <CollectionsControl />
-            </div>
-          )}
         </div>
         
         {pageType === 'search' && (

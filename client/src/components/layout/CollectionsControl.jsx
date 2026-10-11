@@ -42,7 +42,7 @@ export default function CollectionsControl() {
         <div
           role="dialog"
           aria-label="Collections"
-          className="absolute right-0 mt-1 w-72 bg-white border border-gray-200 rounded shadow-lg p-3 z-50 text-sm"
+          className="absolute left-0 mt-1 w-72 bg-white border border-gray-200 rounded shadow-lg p-3 z-50 text-sm"
         >
           <p className="text-xs text-gray-600 mb-2">
             Choose which bodies of material the site shows. Each one you switch on adds its

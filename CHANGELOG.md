@@ -11,6 +11,8 @@ behind each, are in docs/DECISIONS.md.
 
 ### Reader: tabs in the order Similar, Reuse, Parallels, Scholarship, Translation
 The owner's order for the Reader's side tabs.
+### Collections moves to the left of the menu row
+The Collections control now stands first in the menu row, before Search, as the choice that decides which entries the row has.
 
 ### Events: document cards lead with the edition, and an article is listed once
 A document card on an event page showed the internal identifier ("merged:282114", a stone both inscription databases record). It now leads with the edition reference ("CIL 09, 03200") or the document type, and names the databases that record it. The Scholarship tab listed an article once per passage it cites; it lists each article once.
