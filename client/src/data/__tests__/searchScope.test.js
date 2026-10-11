@@ -49,7 +49,7 @@ describe('SEARCH_SCOPE', () => {
     expect(new Set(allMeasuredRows())).toEqual(new Set(union));
   });
 
-  it('has the six Reader entries, and the Help table gains only Reuse and Scholarship after Objects', () => {
+  it('has the six Reader entries, and the Help table gains only Reuse, Scholarship and Scholarship (Theme Search) after Objects', () => {
     const ids = ['reader_similar', 'reader_reuse', 'reader_parallels', 'reader_scholarship', 'reader_translation', 'reader_coins'];
     for (const id of ids) {
       for (const f of FIELDS) expect(SEARCH_SCOPE[id][f], `${id}.${f}`).toBeTruthy();
@@ -57,9 +57,27 @@ describe('SEARCH_SCOPE', () => {
     }
     const searches = allMeasuredRows().map((m) => m.search);
     const i = searches.indexOf('Objects');
-    expect(searches.slice(i + 1)).toEqual(['Reuse (Reader)', 'Scholarship (Reader)']);
+    expect(searches.slice(i + 1)).toEqual(['Reuse (Reader)', 'Scholarship (Reader)', 'Scholarship (Theme Search)']);
     expect(searches).not.toContain('Translation (Reader)');
     expect(SEARCH_SCOPE.reader_coins.measured).toEqual(SEARCH_SCOPE.coins.measured);
     expect(SEARCH_SCOPE.reader_parallels.measured).toEqual(SEARCH_SCOPE.line.measured);
+  });
+
+  it('has the Scholarship Theme Search entry with its measured row', () => {
+    const e = SEARCH_SCOPE.scholarship_theme;
+    for (const f of FIELDS) expect(e[f], f).toBeTruthy();
+    expect(e.covers).toMatch(/82,814 windows/);
+    const [m] = e.measured;
+    expect(m.language).toBe('English and Latin and Greek notes');
+    expect(m.against).toBe('Fifteen scholar questions, one judge, the first 230 characters of each note');
+    expect(m.result).toMatch(/13 of 15 questions \(nDCG at 10 of 0\.64\)/);
+    expect(m.result).toMatch(/Meaning alone 11 of 15, keyword alone 12 of 15/);
+    expect(m.date).toBe('October 2026');
+  });
+
+  it('gives the Scholarship Theme Search a live count from /api/scope', async () => {
+    const { liveCovers } = await import('../searchScope');
+    expect(liveCovers('scholarship_theme', { scholarship_windows: 82814 })).toBe('82,814 windows now.');
+    expect(liveCovers('scholarship_theme', { scholarship_windows: null })).toBeNull();
   });
 });

@@ -107,6 +107,8 @@ export const PAGE_NEEDS = {
   coins: ['coins'],
   // Museum objects with catalogue descriptions, a collection of their own.
   objects: ['objects'],
+  // The Scholarship option of Theme Search (commentary notes and article sentences).
+  'scholarship-theme': ['scholarship'],
 };
 
 /** The documents collection is served as one unit: either switch opens it. */

@@ -1445,6 +1445,16 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 generic phrasing (&ldquo;a parent sacrifices a child&rdquo;) finds the scene type
                 across traditions.
               </p>
+              <p className="text-gray-700 mb-4" id="theme-scholarship">
+                When Scholarship is on in Collections, Theme Search offers a Scholarship choice
+                beside the other collection choices. It searches the commentary notes and the
+                journal sentences from the citation index and shows its own list, never mixed into
+                the passage results. Each note is ranked twice, once by how close its meaning is to
+                your words and once by the words it shares with them, and the two rankings are
+                merged. A note links to its passage in the Reader and a sentence from an article
+                links to the article. On fifteen test questions, thirteen had a strongly relevant
+                note in the first ten.
+              </p>
 
               <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">How it works</h4>
               <p className="text-gray-700 mb-3">
@@ -1834,7 +1844,9 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   by Zotero&rsquo;s own File menu, Import from Clipboard. The HathiTrust link in this tab
                   runs the same search in that library&rsquo;s book scans and tells you which books and
                   page numbers mention the citation, without showing you the text itself. Every source
-                  and its license are listed on the Sources page under About.
+                  and its license are listed on the Sources page under About. To search the notes and
+                  sentences by theme, use the Scholarship choice in{' '}
+                  <button onClick={() => setActiveSection('theme-search')} className="text-red-600 hover:underline">Theme Search</button>.
                 </li>
               </ul>
               <p className="text-gray-700 mb-3">

@@ -115,6 +115,12 @@ MANIFEST = {
         'reason': ('Filter values and counts for the Objects page in testing; not yet '
                     'exposed to the connector.'),
     },
+    '/api/scholarship/theme': {
+        'site_only': True,
+        'reason': ('Scholarship option of Theme Search in testing: commentary notes and article '
+                    'sentences nearest a free-text query by meaning and keyword together; not yet '
+                    'exposed to the connector.'),
+    },
     '/api/objects/theme': {
         'site_only': True,
         'reason': ('Objects option of Theme Search in testing: object descriptions nearest a '
