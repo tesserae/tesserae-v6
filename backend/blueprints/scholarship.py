@@ -8,6 +8,10 @@ connector's find_scholarship / get_commentary tools.
         span. The reader's library link is built client-side from a setting.
     GET /api/scholarship/commentary?work=&ref_start=&ref_end=
         the public-domain commentaries' notes at the span.
+    GET /api/scholarship/theme?q=&k=
+        Theme Search over the scholarship windows (commentary notes and journal
+        sentences): meaning and keyword rankings merged by reciprocal rank fusion
+        (backend/scholarship_theme.py). available=false without the packed files.
     POST /api/scholarship/translate  {work, ref, text, commentator, language}
         a machine translation of one note the site already holds at that
         work and ref, by the local model, marked as such; cached, so a note
@@ -24,6 +28,7 @@ import requests
 from flask import Blueprint, jsonify, request
 
 from backend import scholarship as S
+from backend import scholarship_theme
 from backend.work_names import base_work
 from backend.logging_config import get_logger
 
@@ -56,6 +61,21 @@ def scholarship():
     if p['work2'] and p['ref2_start']:
         out['commentary2'] = S.commentary_at(p['work2'], p['ref2_start'], p['ref2_end'])
     return jsonify(out)
+
+
+@scholarship_bp.route('/scholarship/theme')
+def scholarship_theme_route():
+    q = (request.args.get('q') or request.args.get('query') or '').strip()
+    if not q:
+        return jsonify({'error': 'q is required', 'results': []})
+    k = request.args.get('k', scholarship_theme.DEFAULT_K, type=int)
+    try:
+        return jsonify(scholarship_theme.theme(q, k))
+    except scholarship_theme.EncoderUnavailable as e:
+        logger.warning('scholarship theme: encoder unavailable: %s', e)
+        return jsonify({'available': True, 'unavailable': True, 'results': [],
+                        'error': 'The query encoder service is not running, so the scholarship '
+                                 'search is unavailable just now.'})
 
 
 @scholarship_bp.route('/scholarship/commentary')

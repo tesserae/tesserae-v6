@@ -9,6 +9,7 @@ import ThemeExport from './ThemeExport';
 import ConnectionsMap from './ConnectionsMap';
 import ThemeCoins from '../coins/ThemeCoins';
 import ThemeObjects from '../objects/ThemeObjects';
+import ThemeScholarship from '../scholarship/ThemeScholarship';
 import useCollections from '../../hooks/useCollections';
 import { PAGE_NEEDS } from '../../collections/collectionsConfig';
 import ScopeBox from '../common/ScopeBox';
@@ -339,7 +340,13 @@ export default function ThemeSearchPage() {
   const [objectsChosen, setObjectsChosen] = useState(false);
   const [objectsSearch, setObjectsSearch] = useState(null);
   const objectsMode = objectsAvailable && objectsChosen;
-  const catalogueMode = coinsMode || objectsMode;
+  // Scholarship (commentary notes and journal sentences): the third option of
+  // this kind, shown only when the Scholarship collection is on.
+  const scholarshipAvailable = anyOn(PAGE_NEEDS['scholarship-theme']);
+  const [scholarshipChosen, setScholarshipChosen] = useState(false);
+  const [scholarshipSearch, setScholarshipSearch] = useState(null);
+  const scholarshipMode = scholarshipAvailable && scholarshipChosen;
+  const catalogueMode = coinsMode || objectsMode || scholarshipMode;
   // Read synchronously (a lazy initializer, not an effect) so that on the
   // very first render -- before any effect has run -- `language` already
   // reflects a shared link's languages= param. Without this, the aggregate
@@ -941,6 +948,7 @@ export default function ThemeSearchPage() {
           e.preventDefault();
           if (coinsMode) setCoinsSearch({ q: query.trim(), n: (coinsSearch?.n || 0) + 1 });
           else if (objectsMode) setObjectsSearch({ q: query.trim(), n: (objectsSearch?.n || 0) + 1 });
+          else if (scholarshipMode) setScholarshipSearch({ q: query.trim(), n: (scholarshipSearch?.n || 0) + 1 });
           else run(query);
         }}
       >
@@ -1004,7 +1012,7 @@ export default function ThemeSearchPage() {
         <div className="mt-2 flex flex-wrap items-center gap-2">
           <label className={`text-xs px-2 py-0.5 rounded border cursor-pointer select-none ${coinsMode ? 'bg-red-600 text-white border-red-600' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}`}>
             <input type="checkbox" className="sr-only" checked={coinsMode}
-                   onChange={() => { setCoinsChosen((v) => !v); setObjectsChosen(false); }} />
+                   onChange={() => { setCoinsChosen((v) => !v); setObjectsChosen(false); setScholarshipChosen(false); }} />
             Coins
           </label>
           <span className="text-[11px] text-gray-500">
@@ -1019,13 +1027,28 @@ export default function ThemeSearchPage() {
         <div className="mt-2 flex flex-wrap items-center gap-2">
           <label className={`text-xs px-2 py-0.5 rounded border cursor-pointer select-none ${objectsMode ? 'bg-red-600 text-white border-red-600' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}`}>
             <input type="checkbox" className="sr-only" checked={objectsMode}
-                   onChange={() => { setObjectsChosen((v) => !v); setCoinsChosen(false); }} />
+                   onChange={() => { setObjectsChosen((v) => !v); setCoinsChosen(false); setScholarshipChosen(false); }} />
             Objects
           </label>
           <span className="text-[11px] text-gray-500">
             {objectsMode
               ? 'Searching museum object descriptions only, as a separate list. The languages above are not used.'
               : 'Search the museum object descriptions instead of the passages (a separate list).'}
+          </span>
+        </div>
+      )}
+
+      {scholarshipAvailable && (
+        <div className="mt-2 flex flex-wrap items-center gap-2">
+          <label className={`text-xs px-2 py-0.5 rounded border cursor-pointer select-none ${scholarshipMode ? 'bg-red-600 text-white border-red-600' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}`}>
+            <input type="checkbox" className="sr-only" checked={scholarshipMode}
+                   onChange={() => { setScholarshipChosen((v) => !v); setCoinsChosen(false); setObjectsChosen(false); }} />
+            Scholarship
+          </label>
+          <span className="text-[11px] text-gray-500">
+            {scholarshipMode
+              ? 'Searching commentary notes and article sentences only, as a separate list. The languages above are not used.'
+              : 'Search the commentaries and journal articles, with their own list apart from the passages.'}
           </span>
         </div>
       )}
@@ -1171,6 +1194,7 @@ export default function ThemeSearchPage() {
 
       {coinsMode && <ThemeCoins search={coinsSearch} />}
       {objectsMode && <ThemeObjects search={objectsSearch} />}
+      {scholarshipMode && <ThemeScholarship search={scholarshipSearch} />}
 
       {!catalogueMode && error && (
         <div className="mt-6 rounded border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">

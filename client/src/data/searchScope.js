@@ -27,6 +27,8 @@ const EVENTS_ROW = { search: 'Events', language: 'Latin and Greek', against: '43
 const COINS_ROW = { search: 'Coins', language: 'Latin', against: "Ten passages with known coin parallels, the Reader's related imagery", result: '17 of the 50 coin types offered were real parallels (about one in three). The Greek catalogues, included for a test, took 27 of the 50 places with about three real ones, so a Latin passage now uses the Roman catalogues only', date: 'October 2026' };
 const OBJECTS_ROW = { search: 'Objects', language: 'English descriptions', against: 'No test list yet', result: NOT_YET, date: '' };
 
+const SCHOLARSHIP_THEME_ROW = { search: 'Scholarship (Theme Search)', language: 'English and Latin and Greek notes', against: 'Fifteen scholar questions, one judge, the first 230 characters of each note', result: 'A strongly relevant note in the first ten for 13 of 15 questions (nDCG at 10 of 0.64). Meaning alone 11 of 15, keyword alone 12 of 15', date: 'October 2026' };
+
 const REUSE_ROW = { search: 'Reuse (Reader)', language: 'Latin and Greek', against: 'No test list yet', result: NOT_YET, date: '' };
 const SCHOLARSHIP_ROW = { search: 'Scholarship (Reader)', language: 'Latin and Greek', against: 'Sixty citing sentences read by eye from the citation index', result: '58 of 60 cite the passage they are attached to', date: 'October 2026' };
 const TRANSLATION_ROW = { search: 'Translation (Reader)', language: 'Latin and Greek', against: 'Not a search', result: 'Not measured', date: '' };
@@ -184,6 +186,16 @@ export const SEARCH_SCOPE = {
     measured: [SCHOLARSHIP_ROW],
     helpSection: 'reader',
   },
+  scholarship_theme: {
+    id: 'scholarship_theme',
+    name: 'Scholarship (Theme Search)',
+    does: 'Finds commentary notes and journal sentences about a theme, a passage or a point of interpretation.',
+    scope: 'Your words are matched with each note by meaning and by keyword, and the two rankings are merged into one list. A result is a commentary note, linked to its passage in the Reader, or a sentence from a journal article, linked to the article.',
+    covers: '82,814 windows of commentary notes and article sentences.',
+    limits: 'Only the commentaries and early journals held here are searched, and the journal sentences come from articles of 1922 and earlier. The judge read only the first 230 characters of each note, so a note that answers a question later in its text was not credited for it.',
+    measured: [SCHOLARSHIP_THEME_ROW],
+    helpSection: 'theme-search',
+  },
   reader_translation: {
     id: 'reader_translation',
     name: 'Translation (Reader)',
@@ -207,7 +219,7 @@ export const SEARCH_SCOPE = {
 };
 
 // The Help table lists each distinct row once, entries in this order.
-const HELP_ORDER = ['parallel', 'cross', 'theme', 'line', 'string', 'bigram', 'hapax', 'documents', 'events', 'coins', 'objects', 'reader_reuse', 'reader_scholarship'];
+const HELP_ORDER = ['parallel', 'cross', 'theme', 'line', 'string', 'bigram', 'hapax', 'documents', 'events', 'coins', 'objects', 'reader_reuse', 'reader_scholarship', 'scholarship_theme'];
 
 export function allMeasuredRows() {
   const seen = new Set();
@@ -245,6 +257,8 @@ export function liveCovers(id, counts, names = {}) {
       const parts = Object.entries(d).map(([code, k]) => `${names[code] || code.toUpperCase()} ${n(k)}`);
       return parts.length ? `Inscriptions and papyri held now: ${parts.join(', ')}.` : null;
     }
+    case 'scholarship_theme':
+      return counts.scholarship_windows ? `${n(counts.scholarship_windows)} windows now.` : null;
     case 'events':
       return counts.events ? `${n(counts.events)} events held now.` : null;
     case 'reader_scholarship':

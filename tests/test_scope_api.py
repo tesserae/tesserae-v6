@@ -27,7 +27,8 @@ def test_route_answers_with_every_key():
     r = app.test_client().get('/api/scope')
     assert r.status_code == 200
     body = r.get_json()
-    for key in ('texts', 'documents', 'passage_windows', 'events', 'coins', 'objects'):
+    for key in ('texts', 'documents', 'passage_windows', 'events', 'coins', 'objects',
+                'scholarship_windows'):
         assert key in body
     assert isinstance(body['texts'], dict)
 

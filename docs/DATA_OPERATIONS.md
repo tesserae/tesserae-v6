@@ -50,6 +50,24 @@ Conventions
   and Knights, one in Gellius), which `html.unescape` does not recognise.
 - Code: `backend/translations.py` now decodes entities when a file is loaded,
   so a future transcription cannot show them.
+## 2026-10-10 Scholarship Theme Search, packed index and install steps (packed 2026-10-10; install to run)
+
+- Source: the index built on 2026-10-09 with the campus GPU, `~/tesserae-backups/scholarship_theme_idx_2026-10-09/`
+  (82,814 windows: 48,043 commentary notes and 34,771 article sentences), read only.
+- Pack (run 2026-10-10, nothing on production touched):
+  `python3 scripts/scholarship/pack_scholarship_theme.py --index ~/tesserae-backups/scholarship_theme_idx_2026-10-09 --out ~/tesserae-backups/scholarship_theme_idx_2026-10-09/packed`
+  (reads `/var/www/tesseraev6_flask/data/citation_index/citations.db` for article journal, title, year and link, and
+  `/var/www/tesseraev6_flask/texts/` for the language of each work, both only read; `--citations` and `--texts` change them).
+- Files and sizes in `packed/`: `embeddings.npy` 169.6 MB (float16, 82,814 by 1,024), `ids.json` 2.1 MB,
+  `windows.jsonl` 73.8 MB, `windows_fts.db` 89.2 MB (FTS5), and `manifest.json`. 335 MB in all.
+- To run (install, after the pull request is merged and deployed): copy the four files into
+  `/var/www/tesseraev6_flask/data/scholarship_theme/` (create the folder, mode 775 group tessdev, files 664) under
+  temporary names such as `embeddings.npy.new`, rename each over its final name, then
+  `touch /var/www/tesseraev6_flask/tesseraev6_flask.wsgi`. The route reads the files again whenever one changes.
+- Checks: `curl 'https://tesserae.caset.buffalo.edu/api/scholarship/theme?q=the%20catalogue%20of%20ships%20as%20a%20poetic%20device'`
+  answers `available: true` with ten results, both commentary and article rows, each with a `link`; `/api/scope`
+  shows `scholarship_windows` 82814; `/api/languages` still answers. The query encoder service
+  (`tesserae-embed`, port 8090) has to be running.
 
 ## 2026-10-10 Event summaries and scholarship tied to passages (run 2026-10-10 20:46)
 

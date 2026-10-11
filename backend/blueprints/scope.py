@@ -2,7 +2,8 @@
 
     GET /api/scope
         { texts: {code: works}, documents: {code: n}, passage_windows: n|null,
-          events: n|null, coins: n|null, objects: n|null }
+          events: n|null, coins: n|null, objects: n|null,
+          scholarship_windows: n|null }
 
 `texts` counts the works for every language this server serves (the same list
 /api/languages answers, through backend/assistant/site_facts.py). Each other
@@ -17,6 +18,7 @@ import time
 
 from flask import Blueprint, jsonify
 
+from backend import scholarship_theme
 from backend.assistant import site_facts
 from backend.logging_config import get_logger
 
@@ -95,6 +97,7 @@ def build():
         'events': _count_sql(events.db_path(), 'SELECT COUNT(*) FROM events'),
         'coins': _count_sql(coins_path, 'SELECT COUNT(*) FROM coins'),
         'objects': _count_sql(objects.db_path(), 'SELECT COUNT(*) FROM objects'),
+        'scholarship_windows': scholarship_theme.count(),
     }
 
 
