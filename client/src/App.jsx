@@ -1065,7 +1065,7 @@ function App() {
         }}
       />
       
-      <main className="max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-6">
+      <main className={`max-w-7xl mx-auto ${pageType === 'read' ? 'px-2' : 'px-3'} sm:px-6 py-4 sm:py-6`}>
         {appLockedToAdmin ? (
           <AdminPanel />
         ) : (
