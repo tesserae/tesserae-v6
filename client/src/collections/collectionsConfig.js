@@ -84,6 +84,8 @@ export const READER_TABS = [
   { id: 'similar', needs: [] },
   { id: 'reuse', needs: [] },
   { id: 'verbal', needs: [] },
+  // Inscriptions and papyri that share words with the selection.
+  { id: 'documents', needs: ['inscriptions', 'papyri'] },
   { id: 'scholarship', needs: ['scholarship'] },
   { id: 'translation', needs: [] },
   // Coins that name the same people as the selection, and coin imagery close to it.
@@ -137,7 +139,7 @@ export const VIEWS = [
       'search', 'read', 'theme-search', 'ask-a-work', 'inscriptions-papyri', 'events', 'coins', 'objects',
       'browse', 'about', 'help', 'repository', 'downloads',
     ],
-    readerTabs: ['similar', 'reuse', 'verbal', 'scholarship', 'translation', 'coins'],
+    readerTabs: ['similar', 'reuse', 'verbal', 'documents', 'scholarship', 'translation', 'coins'],
     searchDefaults: {
       la: { source: 'vergil.aeneid.part.1.tess', target: 'lucan.bellum_civile.part.1.tess' },
       grc: { source: 'homer.iliad.part.1.tess', target: 'apollonius_rhodius.argonautica.part.1.tess' },
@@ -155,7 +157,7 @@ export const VIEWS = [
       'read', 'events', 'inscriptions-papyri', 'theme-search', 'ask-a-work', 'search', 'coins', 'objects',
       'browse', 'about', 'help', 'repository', 'downloads',
     ],
-    readerTabs: ['reuse', 'scholarship', 'similar', 'verbal', 'translation', 'coins'],
+    readerTabs: ['similar', 'documents', 'coins', 'scholarship', 'reuse', 'verbal', 'translation'],
     searchDefaults: {
       la: { source: 'livy.ab_urbe_condita.part.1.books_1-10.tess', target: 'tacitus.annales.part.1.tess' },
       grc: { source: 'herodotus.histories.part.1.tess', target: 'thucydides.peleponnesian_war.part.1.tess' },
