@@ -9,6 +9,9 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-10
 
+### Records: the event dossier install
+The operations record marks the install of the dossier database with the Wikipedia summaries and passage-linked scholarship as run.
+
 ### Reader: tabs in the order Similar, Reuse, Parallels, Scholarship, Translation
 The owner's order for the Reader's side tabs.
 ### Collections moves to the left of the menu row

@@ -35,7 +35,17 @@ Conventions
   hand and are the models the helper matches.
 
 
-## 2026-10-10 Event summaries and scholarship tied to passages (to run)
+## 2026-10-10 Event summaries and scholarship tied to passages (run 2026-10-10 20:46)
+
+- Run: the rebuilt file (summaries for 1,026 of 1,485 events from the Wikipedia
+  paragraphs fetched on 2026-10-09; the scholarship table rebuilt from the
+  citation index for every passage of rank 10 or better or judged yes, 4,827
+  rows) was copied into `/var/www/tesseraev6_flask/data/events/` under a
+  temporary name and renamed, the previous file kept as
+  `event_dossiers.sqlite.bak-20261010-1800`, with the wsgi touch, right after
+  #789 deployed. Checks: `/api/events` answers; the Siege of Corfinium carries
+  the Wikipedia paragraph with its credit and licence and four articles with
+  their passage ranks (1 and 5).
 
 - What: the Events database gains a Wikipedia summary for 1,026 of 1,485 events
   (the other 459 have no article and keep the Wikidata description) and its
