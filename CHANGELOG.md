@@ -12,6 +12,10 @@ behind each, are in docs/DECISIONS.md.
 ### Ask a Work: the names list ranked by closeness to the question, and names found in the text when the descriptions anonymise
 The list of passages that name a person is now ordered by how close each passage is to the question, with the number of mentions as a tie-breaker, and the route takes `q=`. A name the descriptions never mention (Pericles in Thucydides, whose descriptions say "an experienced king") is looked up in the text of the windows, in Latin and Greek, by word beginning. The route reports `ranked_by` and `source`, each hit reports `found_in`, and `source=text` forces the text search.
 
+### Ask a Work: confidence within one work, measured, and shipped only where it holds
+A Theme Search restricted to one work (or some of its books) now returns a provisional confidence band read from the spread of that work's own scores, and marks a passage strong when it stands three standard deviations above the work's median score and the search is not rated low. The corpus-wide bands could not be reused. On 45 queries over the Aeneid, Thucydides and the Annals (15 the works treat, 15 they do not, 15 nonsense), a one-threshold rule on the spread called 40 correctly (0.889, 0.867 leaving one work out), where head lift, top-hit lift and coherence reached 0.822 and fell to 0.62 to 0.76 leaving a work out. On the 293 judged passages the strong mark has precision 0.905 for grades 1 and 2 at recall 0.415 for grade 2, where the raw score reaches 0.80 at recall 0.09. Searches over several works or an author are still not rated. The page shows the Theme Search banners and the Help section and scope box state the outcome.
+
+
 ### Ask a Work: one entry per passage in the names list, short citations written out in the summary
 The list of passages that name a person showed a passage twice when the index holds it at two scales. The summary cited Tacitus and Thucydides by bare locus, (1.73), which the page could not link; the server now writes such citations out as the full reference and lists them.
 

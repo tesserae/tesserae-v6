@@ -1710,6 +1710,101 @@ def resolve_restriction(author=None, works=None, languages=None):
     return pool, None
 
 
+# WITHIN-WORK CONFIDENCE (Ask a Work), fitted 2026-10-11.
+#
+# A search restricted to ONE work cannot use HEAD_WEAK and HEAD_STRONG: those
+# were fitted to corpus-wide score distributions, and a single work's median
+# and head sit in a different place (the pilot judged 293 passages and the raw
+# scores did not separate the grades: mean 0.794 for grade 0, 0.794 for grade 1,
+# 0.805 for grade 2). So the same method was repeated inside the work, on 45
+# queries over the Aeneid, Thucydides and the Annals: 15 subjects the work
+# treats (the pilot's questions), 15 it does not (five per work) and 15
+# nonsense strings (five per work). Report, figures and script:
+# ask_a_work_pilot_2026-10-11/confidence/ in the backup folder.
+#
+# What separated real from absent and nonsense (accuracy of one threshold,
+# real called moderate or strong, the other thirty called low):
+#     spread (std of the work's scores)   0.889   leave-one-work-out 0.867
+#     head lift (top ten over median)     0.822   leave-one-work-out 0.756
+#     top-1 lift                          0.822   leave-one-work-out 0.689
+#     coherence of the top twenty         0.822   leave-one-work-out 0.622
+# Head lift and coherence do not hold up across works, so the band reads the
+# spread of the work's own scores: a subject the work treats pulls a group of
+# windows well above the rest and widens the distribution. Threshold WEAK is the
+# best single cut. STRONG is just above the largest spread any of the thirty
+# absent or nonsense queries produced (0.0123), the convention HEAD_STRONG uses.
+# Of the 15 real subjects, 5 fall at strong, 7 at moderate and 3 (the causes of
+# the war, Tiberius's concealment, the rise of Sejanus) at low. Two of the thirty
+# non-subjects fall at moderate. Provisional: three works, one threshold.
+WITHIN_SPREAD_WEAK = 0.0099
+WITHIN_SPREAD_STRONG = 0.0125
+# A passage is marked strong when it stands this many standard deviations above
+# the work's median score AND the search is not rated low. On the 293 judged
+# passages (gated on the band) z >= 3.0 marks 63, of which 90.5% are grade 1 or 2
+# (grade 2 alone 69.8%) and 41.5% of all grade-2 passages are caught. The rule was
+# precision for grades 1 and 2 of at least 0.85 with recall of at least 0.3.
+# z >= 2.5 clears 0.85 by less (0.869) and a bootstrap over questions puts the
+# 5th percentile of precision at 0.76 for z >= 3.0, so it is provisional too.
+# The raw score cannot do this (best precision 0.80 at recall 0.09).
+WITHIN_STRONG_Z = 3.0
+WITHIN_FITTED = 'within-work 2026-10-11'
+
+
+def within_work_signals(scores, rows):
+    """The within-work figures for the windows `rows` (global row indices) of a
+    score vector. Undescribed windows (masked at -1) are left out. Returns None
+    when fewer than ten windows remain."""
+    import numpy as np
+    rows = np.asarray(rows, dtype=np.int64)
+    s = np.asarray(scores, dtype=np.float64)[rows]
+    keep = s > -0.5
+    rows, s = rows[keep], s[keep]
+    if s.size < 10:
+        return None
+    med = float(np.median(s))
+    srt = np.sort(s)
+    k = min(10, srt.size)
+    top = rows[np.argsort(-s)[:min(COHERENCE_K, s.size)]]
+    return {'n': int(s.size), 'work_median': med,
+            'work_head_lift': float(srt[-k:].mean()) - med,
+            'work_coherence': _coherence_of_rows(top),
+            'top1_lift': float(srt[-1]) - med, 'spread': float(s.std())}
+
+
+def _restricted_rows(works_set):
+    """Row indices of every window of the chosen works or book files."""
+    rows = []
+    for base in {_norm_work(w) for w in works_set}:
+        for i in _by_work.get(base) or []:
+            w = _records[i].get('work')
+            if base in works_set or work_id(w) in works_set:
+                rows.append(i)
+    return rows
+
+
+def _within_level(spread):
+    """low / moderate / strong from the spread of the work's scores."""
+    if spread < WITHIN_SPREAD_WEAK:
+        return 'low'
+    if spread >= WITHIN_SPREAD_STRONG:
+        return 'strong'
+    return 'moderate'
+
+
+_WITHIN_NOTE = ('Confidence within one work was fitted on fifteen questions the works treat '
+                'and thirty they do not, over three works, so it is provisional.')
+
+
+def _within_note(level):
+    if level == 'strong':
+        return _WITHIN_NOTE
+    if level == 'moderate':
+        return ('Moderate confidence: this work holds passages of this kind, but the match is '
+                'looser than a clear case. Read the results before relying on them. ' + _WITHIN_NOTE)
+    return ('Anything the search returns for this subject is a nearest neighbor, not a '
+            'finding. ' + _WITHIN_NOTE)
+
+
 def find_by_text(query, limit=25, languages=None, scale=None, expand=False,
                  offset=0, only_works=None, per_work=None):
     """Theme Search: free-text description of the wanted content.
@@ -1738,8 +1833,9 @@ def find_by_text(query, limit=25, languages=None, scale=None, expand=False,
     whole ranking to those works. The page is then a FLAT list of passages, not
     one head per work with three rows each: `limit` and `offset` count passages,
     and each work may contribute `per_work` of them (RESTRICTED_PER_WORK unless
-    given). No confidence level is rated for such a search, because the figures
-    were fitted to corpus-wide queries.
+    given). The corpus-wide confidence figures do not apply to such a search.
+    One work (or some of its books) is rated from the spread of its own scores
+    (see WITHIN_SPREAD_WEAK); several works or an author are not rated.
     """
     _ensure_loaded()
     if not _state['ok']:
@@ -1781,12 +1877,18 @@ def find_by_text(query, limit=25, languages=None, scale=None, expand=False,
     strong_at = baseline + (STRONG_LIFT if level == 'strong' else 1e9)
     # The confidence figures above describe the embedding alone; the lexical
     # boost then reorders the windows (see LEXICAL_BETA).
+    within = None
+    if only_works is not None and len({_norm_work(w) for w in only_works}) == 1:
+        # One work (or some of its books): the band is read from the work's own
+        # scores, before the lexical boost reorders them, as it was fitted.
+        within = within_work_signals(scores, _restricted_rows(set(only_works)))
     n_lexical = _lexical_boost(query, scores)
 
     if only_works is not None:
         # Restricted to an author or to chosen works. The corpus-wide level was
         # fitted to queries over the whole index and says nothing about a few
-        # works, so it is withheld and no result is marked strong.
+        # works. One work is rated from its own scores (see WITHIN_SPREAD_WEAK);
+        # several works are not rated and no result is marked strong.
         works_set = set(only_works)
         # (Part ids of one work count as one work for the cap below.)
         n_bases = len({_norm_work(w) for w in works_set})
@@ -1803,15 +1905,33 @@ def find_by_text(query, limit=25, languages=None, scale=None, expand=False,
         results = _rank(scores, limit, offset=offset, languages=languages,
                         scale=scale, baseline=baseline, strong_at=1e9,
                         per_work=cap, only_works=works_set)
+        confidence = {'level': 'restricted'}
+        within_note = None
+        if within is not None:
+            wlevel = _within_level(within['spread'])
+            confidence = {'level': wlevel,
+                          'work_head_lift': round(within['work_head_lift'], 4),
+                          'work_coherence': round(within['work_coherence'], 4),
+                          'spread': round(within['spread'], 4),
+                          'work_median': round(within['work_median'], 4),
+                          'fitted': WITHIN_FITTED,
+                          'note': _within_note(wlevel)}
+            within_note = confidence['note']
+            for r in results:
+                lift = float(r.get('score', 0)) - within['work_median']
+                r['lift'] = round(lift, 4)
+                r['z'] = round(lift / within['spread'], 2) if within['spread'] > 0 else 0.0
+                r['strong'] = bool(wlevel != 'low' and within['spread'] > 0
+                                   and lift / within['spread'] >= WITHIN_STRONG_Z)
         return {
             'query': query,
             'results': results,
-            'strong_matches': 0,
+            'strong_matches': sum(1 for r in results if r.get('strong')),
             'lexical_boost': n_lexical > 0,
             'restricted': True,
             'per_work': cap,
-            'confidence': {'level': 'restricted'},
-            'note': ('Confidence is not rated for a search within one author or '
+            'confidence': confidence,
+            'note': within_note or ('Confidence is not rated for a search within one author or '
                      'work. These are the closest passages in the chosen works, '
                      'whether or not they match well, so read them before relying '
                      'on them.' + (f' Each work shows up to {cap} passages. Choose '

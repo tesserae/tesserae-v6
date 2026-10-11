@@ -4,7 +4,7 @@
  */
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
-import AskAWorkPage, { bookOf, namesIn, stripLayout } from './AskAWorkPage';
+import AskAWorkPage, { UNRATED_NOTE, bookOf, namesIn, stripLayout } from './AskAWorkPage';
 
 const TEXTS = [
   { id: 'vergil.aeneid.tess', author: 'Vergil', title: 'Aeneid', work: 'Aeneid', is_part: false },
@@ -164,6 +164,44 @@ describe('Ask a Work', () => {
     expect(screen.queryByTestId('ask-card')).toBeNull();
     fireEvent.click(screen.getByRole('button', { name: 'Show the closest passages anyway' }));
     expect(screen.getAllByTestId('ask-card')).toHaveLength(3);
+  });
+
+  it.each([
+    ['moderate', 'Moderate match.'],
+    ['strong', 'Strong match.'],
+  ])('shows the %s banner with the route note when a band was fitted', async (level, label) => {
+    reply = { query: 'q', results: RESULTS, restricted: true, note: 'Band note.',
+      confidence: { level, fitted: 'within-work 2026-10-11', work_head_lift: 0.03, work_coherence: 0.91 } };
+    render(<AskAWorkPage />);
+    await ask();
+    const band = screen.getByTestId('ask-band');
+    expect(band).toHaveTextContent(label);
+    expect(band).toHaveTextContent('Band note.');
+    expect(screen.queryByTestId('ask-unrated')).toBeNull();
+    expect(screen.queryByText(/Confidence is not rated/)).toBeNull();
+  });
+
+  it('shows the passages under a weak-match banner for a fitted low band', async () => {
+    // Three of fifteen real test questions came out low (2026-10-11), so a low
+    // band within one work does not hide the list.
+    reply = { query: 'q', results: RESULTS, restricted: true, note: 'Band note.',
+      confidence: { level: 'low', fitted: 'within-work 2026-10-11' } };
+    render(<AskAWorkPage />);
+    await pick('Author', 'Vergil');
+    await pick('Work', 'Aeneid');
+    fireEvent.change(screen.getByPlaceholderText(/a subject in plain words/), { target: { value: 'airplanes' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Go' }));
+    const band = await screen.findByTestId('ask-band');
+    expect(band).toHaveTextContent('Weak match.');
+    expect(screen.queryByText('Nothing in this work resembles that subject.')).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Show the closest passages anyway' })).toBeNull();
+    expect(screen.getAllByTestId('ask-card').length).toBe(RESULTS.length);
+  });
+  it('says the search is not rated when the route reports no band', async () => {
+    render(<AskAWorkPage />);
+    await ask();
+    expect(screen.getByTestId('ask-unrated')).toHaveTextContent(UNRATED_NOTE);
+    expect(screen.queryByTestId('ask-band')).toBeNull();
   });
 
   it('says the list is ranked by closeness, and names the source when it is the text', async () => {
