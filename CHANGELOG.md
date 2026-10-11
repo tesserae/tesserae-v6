@@ -11,6 +11,8 @@ behind each, are in docs/DECISIONS.md.
 
 ### Reader on a phone: text and book choice behind the title line, legend behind Key, slimmer margin, Tessa off the tab bar
 On a screen narrower than 768 pixels the Reader header is one line reading the position ("Vergil, Aeneid, Book 1") and the line count. Tapping it opens a bottom sheet with the Language, Author, Work and Book choices, Go to line, the previous and next book buttons and the About this text content. The sticky navigation strip is replaced by a round Back to top button that appears after scrolling, the legend row keeps only Key, Original and English with the swatch lines moved into the key, the margin gutter, line numbers and page padding are narrower, a wrapped line is indented under its first, and Tessa closes to the side tab so the results sheet's tabs are free. The tab strip shows a fade at the right edge when it scrolls. Nothing is removed and the desktop layout is unchanged. This is a client change only, with the phone test in `client/src/hooks/useIsPhone.js`.
+### Translations: a script to strip the facing-page OCR noise from 25 Loeb-scan files
+Twenty-five translation files aligned from Loeb scans carry the OCR of the facing Greek or Latin page in their English. `scripts/translations/strip_ocr_noise.py` removes runs of eight or more non-English tokens and the running headers, keeps every unit at its index, and refuses a file whose content words fall by more than 3 percent. Cleaned files are written to a review folder; installing them is under "to run" in docs/DATA_OPERATIONS.md.
 
 ## 2026-10-10
 
