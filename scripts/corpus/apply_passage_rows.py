@@ -15,6 +15,11 @@ Usage:
   python apply_passage_rows.py --index /path/passage_index --sidecar d.jsonl \
       --mode append  --tag batch2-20260830
   python apply_passage_rows.py --index ... --sidecar ... --mode replace --tag ...
+
+--vectors V.npy --vector-ids ids.json (either mode) use vectors already encoded
+elsewhere (the campus GPU, see research/threads/GPU_JOB_RECIPE.md) instead of
+calling the embed service; they must be the same blobs (blob_for) in the order
+of the ids file and must cover every row being written.
 """
 import argparse
 import json
@@ -88,8 +93,25 @@ def main():
     ap.add_argument('--sidecar', required=True)
     ap.add_argument('--mode', choices=('append', 'replace'), required=True)
     ap.add_argument('--tag', required=True)
+    ap.add_argument('--vectors', help='precomputed float32 vectors (.npy), rows in --vector-ids order')
+    ap.add_argument('--vector-ids', help='ids.json for --vectors')
     args = ap.parse_args()
     index = args.index
+
+    pre = None
+    if args.vectors:
+        assert args.vector_ids, '--vectors needs --vector-ids'
+        vids = json.load(open(args.vector_ids))
+        vm = np.load(args.vectors)
+        assert vm.shape[0] == len(vids), 'vector rows and ids differ in count'
+        pre = {i: vm[n] for n, i in enumerate(vids)}
+
+    def embed(rows):
+        if pre is None:
+            return embed_all([blob_for(r['desc']) for r in rows])
+        gone = [r['id'] for r in rows if r['id'] not in pre]
+        assert not gone, f'{len(gone)} rows have no precomputed vector, e.g. {gone[:3]}'
+        return [pre[r['id']] for r in rows]
 
     recs = load_sidecar(args.sidecar)
     ids = json.load(open(os.path.join(index, 'ids.json')))
@@ -103,7 +125,7 @@ def main():
               'already indexed, skipped)')
         if not new:
             return
-        vecs = embed_all([blob_for(r['desc']) for r in new])
+        vecs = embed(new)
         V = np.asarray(vecs, dtype=emb.dtype)
         assert V.shape[1] == emb.shape[1], 'dimension mismatch'
         for name in ('ids.json', 'embeddings.npy', 'descriptions.jsonl'):
@@ -122,7 +144,7 @@ def main():
               + (f' ({miss} sidecar ids NOT in index, skipped)' if miss else ''))
         if not hit:
             return
-        vecs = embed_all([blob_for(r['desc']) for r in hit])
+        vecs = embed(hit)
         V = np.asarray(vecs, dtype=emb.dtype)
         assert V.shape[1] == emb.shape[1], 'dimension mismatch'
         for name in ('embeddings.npy', 'descriptions.jsonl'):
