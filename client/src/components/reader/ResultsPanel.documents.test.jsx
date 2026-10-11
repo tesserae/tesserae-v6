@@ -79,3 +79,13 @@ describe('the Documents tab', () => {
     expect(await screen.findByText('No inscription or papyrus shares two words with this selection.')).toBeTruthy();
   });
 });
+
+describe('Documents tab, reduced query note', () => {
+  it('names the words a passage-sized selection was matched on', async () => {
+    mockFetch({ ...ANSWER, query_reduced: { from_lemmas: 20, to_lemmas: ['brutus', 'consulatus', 'libertas'],
+      note: 'Passage-sized query: searched on its 3 rarest words' } });
+    mount();
+    const note = await screen.findByTestId('documents-reduced');
+    expect(note).toHaveTextContent('matched on its most distinctive words (brutus, consulatus, libertas)');
+  });
+});

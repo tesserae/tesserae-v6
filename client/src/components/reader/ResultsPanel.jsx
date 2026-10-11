@@ -707,6 +707,14 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
           <>
             {docLoading && <LoadingSpinner />}
             {docError && <p className="text-sm text-red-700">{docError}</p>}
+            {!docLoading && docHits?.query_reduced && (
+              /* The same note the Parallels tab gives: a passage-sized
+                 selection is matched on its rarest words, named here. */
+              <p className="text-xs text-gray-500" data-testid="documents-reduced">
+                Passage-sized selection: matched on its most distinctive words
+                ({docHits.query_reduced.to_lemmas.join(', ')}).
+              </p>
+            )}
             {!docLoading && !docError && docHits?.results?.length === 0 && (
               <p className="text-sm text-gray-500">
                 No inscription or papyrus shares two words with this selection.
