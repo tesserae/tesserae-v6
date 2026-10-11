@@ -7,6 +7,11 @@ so the state of the live site can be reconstructed from this file and
 docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
+## 2026-10-11
+
+### Phrase Search: the corpus chart counts the lines the list keeps
+The "Across the corpus" chart beside a parallel counted every corpus line containing the shared words, while the list under it kept only lines that pass the closeness rule (at most three words between in prose, twenty in verse). So the chart could say "Tacitus (1)" and the list "Tacitus, 0 instances": the one hit was a whole prose chapter (Histories 3.55) with the words forty words apart. The count now applies the same rule from the index's word positions before counting, so the chart and the list agree. Two stale collections tests updated for Scholarship in the Literary profile.
+
 ## 2026-10-10
 
 ### Records: Diodorus books 11 to 17 and the scholarship theme index installed
