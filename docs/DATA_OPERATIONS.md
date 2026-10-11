@@ -35,6 +35,34 @@ Conventions
   hand and are the models the helper matches.
 
 
+## 2026-10-11 Translation files: facing-page OCR noise stripped from 25 Loeb-scan files (to run)
+- What: 25 translation files aligned from Internet Archive scans of Loeb
+  volumes carry the OCR of the facing Greek or Latin page in their English
+  units (runs such as "143 ARISTOPHANES > / dwvi) juapd, yegovas ..."), the
+  fifteen Aristophanes plays, Anthology books 7 and 10 to 16, Euclid's
+  Elements, three Plato dialogues, the Catalepton and Varro's Res rusticae.
+  The script finds runs of eight or more tokens in which fewer than three of
+  every eight are English-like (English learned from the clean translation
+  files) and removes them with the running headers. Units keep their index,
+  so `ref_to_unit` is unchanged. Euclid's and the Plato files' measured
+  "junk" is diagram letters and the speaker label "Str.", and the script
+  changes almost nothing in them.
+- Script: `scripts/translations/strip_ocr_noise.py` (test:
+  `tests/test_strip_ocr_noise.py`). It refuses to write a file whose
+  content words fall by more than 3 percent.
+- Run (nothing is installed by this step):
+  `~/bin/tess-job --fg ocr_run 4 python3 -I scripts/translations/strip_ocr_noise.py --src /var/www/tesseraev6_flask/data/translations --out ~/tesserae-backups/translations_ocr_clean_2026-10-11/cleaned --report ~/tesserae-backups/translations_ocr_clean_2026-10-11/report.md`
+  writes the cleaned files, `report.md` and `samples.md`. Read the samples
+  before installing.
+- Install (after review): back up the 25 originals to
+  `~/tesserae-backups/translations_ocr_clean_2026-10-11/originals/`, copy each
+  cleaned file over `/var/www/tesseraev6_flask/data/translations/<name>`
+  (keep mode 664), then `touch /var/www/tesseraev6_flask/tesseraev6_flask.wsgi`.
+- Checks: `/api/passages/translation?work=aristophanes.knights&refs=arist.%20knights.%20196`
+  (Knights unit 8) no longer carries "ARISTOPHANES >" or the Greek run; the
+  Reader's Translation tab on Aristophanes, Knights 100 reads as English; the
+  `/api/passages/translations?language=grc` list still shows the 25 works.
+
 ## 2026-10-10 Translation files: HTML character entities decoded (run 2026-10-10 23:58)
 - What: 14 of the 1,043 translation files in `data/translations/` (not in git)
   held HTML entities from the web pages they were transcribed from, which the
