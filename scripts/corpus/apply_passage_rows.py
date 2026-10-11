@@ -14,6 +14,7 @@ old records for those ids dropped and the new ones appended.
 Usage:
   python apply_passage_rows.py --index /path/passage_index --sidecar d.jsonl \
       --mode append  --tag batch2-20260830
+  python apply_passage_rows.py --index ... --mode remove --remove-ids old_ids.json --tag ...
   python apply_passage_rows.py --index ... --sidecar ... --mode replace --tag ...
 
 --vectors V.npy --vector-ids ids.json (either mode) use vectors already encoded
@@ -90,9 +91,10 @@ def load_sidecar(path):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--index', required=True)
-    ap.add_argument('--sidecar', required=True)
-    ap.add_argument('--mode', choices=('append', 'replace'), required=True)
+    ap.add_argument('--sidecar', help='described rows (not needed for --mode remove)')
+    ap.add_argument('--mode', choices=('append', 'replace', 'remove'), required=True)
     ap.add_argument('--tag', required=True)
+    ap.add_argument('--remove-ids', help='--mode remove: ids.json (a list) of the rows to delete')
     ap.add_argument('--vectors', help='precomputed float32 vectors (.npy), rows in --vector-ids order')
     ap.add_argument('--vector-ids', help='ids.json for --vectors')
     args = ap.parse_args()
@@ -113,13 +115,41 @@ def main():
         assert not gone, f'{len(gone)} rows have no precomputed vector, e.g. {gone[:3]}'
         return [pre[r['id']] for r in rows]
 
-    recs = load_sidecar(args.sidecar)
+    if args.mode != 'remove':
+        assert args.sidecar, '--sidecar is required for append and replace'
+    recs = load_sidecar(args.sidecar) if args.sidecar else {}
     ids = json.load(open(os.path.join(index, 'ids.json')))
     pos = {i: n for n, i in enumerate(ids)}
     emb = np.load(os.path.join(index, 'embeddings.npy'))
     assert emb.shape[0] == len(ids), 'index out of lockstep BEFORE apply'
 
-    if args.mode == 'append':
+    if args.mode == 'remove':
+        # Deletes rows from ids.json, embeddings.npy and descriptions.jsonl
+        # together (a window set that is re-cut under new ids: the old rows go,
+        # the new ones are appended afterwards).
+        assert args.remove_ids, '--mode remove needs --remove-ids'
+        gone = set(json.load(open(args.remove_ids)))
+        keep = [n for n, i in enumerate(ids) if i not in gone]
+        print(f'{len(ids) - len(keep)} rows to remove ({len(gone) - (len(ids) - len(keep))} '
+              'listed ids NOT in the index)')
+        if len(keep) == len(ids):
+            return
+        for name in ('ids.json', 'embeddings.npy', 'descriptions.jsonl'):
+            backup(index, name, args.tag)
+        np.save(os.path.join(index, 'embeddings.npy'), emb[keep, :])
+        json.dump([ids[n] for n in keep], open(os.path.join(index, 'ids.json'), 'w'))
+        desc_path = os.path.join(index, 'descriptions.jsonl')
+        tmp = desc_path + '.rewriting'
+        with open(tmp, 'w', encoding='utf-8') as out:
+            for line in open(desc_path, encoding='utf-8'):
+                try:
+                    rid = json.loads(line).get('id')
+                except ValueError:
+                    rid = None
+                if rid not in gone:
+                    out.write(line)
+        os.replace(tmp, desc_path)
+    elif args.mode == 'append':
         new = [r for i, r in recs.items() if i not in pos]
         print(f'{len(new)} new records to append ({len(recs) - len(new)} '
               'already indexed, skipped)')

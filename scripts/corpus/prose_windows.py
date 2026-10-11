@@ -17,7 +17,10 @@ Per window (windows.jsonl): id "<work file>:prose:<n>" (n counts windows in the
 file from 0), work, ref_start and ref_end (both the unit's own reference, so
 the Reader's lookups by reference keep working), sub (the window's ordinal in
 its unit, from 1), char_start and char_end (offsets in the unit text), scale
-"prose", language, text.
+"prose", language, text. With merging (the default for the full run) the id is
+"<work file>:prosem:<n>", ref_start and ref_end are the first and last unit
+joined, `units` counts them and there is no sub for a merged window; a unit
+longer than the target is still cut into pieces with sub and char offsets.
 
 A sentence ends at . ; ? ! (or the Greek question mark) followed by a space and
 a capital letter. Pieces are merged up to the target; a trailing scrap joins
@@ -130,18 +133,48 @@ def work_files(texts_dir, base):
              os.path.basename(p)[:-5], p) for p in hits]
 
 
-def windows_for_file(language, work, path, target=1200, min_chars=40):
+def windows_for_file(language, work, path, target=1200, min_chars=40, merge=False):
+    """(windows, skipped units) for one part file.
+
+    merge=False: every unit is cut on its own (ids "<work>:prose:<n>", each
+    window carries sub, char_start, char_end).
+    merge=True: consecutive units shorter than the target are joined until the
+    next one would pass the target (ids "<work>:prosem:<n>"; ref_start the first
+    unit's reference, ref_end the last's, units the count, no sub). A unit longer
+    than the target is cut as before into pieces with sub and char offsets and
+    closes the group before it. A window never crosses the file."""
     out, skipped = [], 0
     n = 0
+    tag = 'prosem' if merge else 'prose'
+    group = []  # [(ref, text)]
+
+    def flush():
+        nonlocal n
+        if not group:
+            return
+        out.append({'id': f'{work}:{tag}:{n}', 'work': work, 'ref_start': group[0][0],
+                    'ref_end': group[-1][0], 'units': len(group), 'scale': 'prose',
+                    'language': language, 'text': ' '.join(t for _, t in group)})
+        n += 1
+        group.clear()
+
     for ref, text in tess_units(path):
         if len(text) < min_chars:
             skipped += 1
             continue
+        if merge and len(text) <= target:
+            size = sum(len(t) + 1 for _, t in group)
+            if group and size + len(text) > target:
+                flush()
+            group.append((ref, text))
+            continue
+        flush()
         for sub, (a, b) in enumerate(cut_unit(text, target), 1):
-            out.append({'id': f'{work}:prose:{n}', 'work': work, 'ref_start': ref,
+            out.append({'id': f'{work}:{tag}:{n}', 'work': work, 'ref_start': ref,
                         'ref_end': ref, 'sub': sub, 'char_start': a, 'char_end': b,
                         'scale': 'prose', 'language': language, 'text': text[a:b]})
             n += 1
+    flush()
     return out, skipped
 
 
@@ -178,6 +211,10 @@ def main():
     ap.add_argument('--audit', help='audit.json; with --top or --all-long picks the works')
     ap.add_argument('--top', type=int, help='the N prose works with the longest median fine window')
     ap.add_argument('--all-long', action='store_true', help='every prose work over the audit threshold')
+    ap.add_argument('--merge-units', action=argparse.BooleanOptionalAction, default=True,
+                    help='join consecutive short units of one part into a window up to the '
+                    'target (default); --no-merge-units cuts each unit alone, as the first run did')
+    ap.add_argument('--exclude-ids', help='ids.json of an earlier run; works with windows there are skipped')
     ap.add_argument('--texts', default='/var/www/tesseraev6_flask/texts')
     ap.add_argument('--target-chars', type=int, default=1200)
     ap.add_argument('--min-chars', type=int, default=40)
@@ -215,6 +252,12 @@ def main():
                 seen.append(b)
         bases += seen[:a.top] if a.top else (seen if a.all_long else [])
     bases = list(dict.fromkeys(bases))
+    if a.exclude_ids:
+        # ids look like "<part file>:prose:<n>"; the base work is the file name
+        # without ".part.N"
+        have = {base_work(i.rsplit(':', 2)[0]) for i in json.load(open(a.exclude_ids))}
+        print(f'skipping {len(have & set(bases))} works already holding prose windows', file=sys.stderr)
+        bases = [b for b in bases if b not in have]
     if not bases:
         ap.error('no works chosen')
     os.makedirs(a.out, exist_ok=True)
@@ -227,7 +270,7 @@ def main():
             continue
         lens, skipped = [], 0
         for lang, work, path in files:
-            wins, sk = windows_for_file(lang, work, path, a.target_chars, a.min_chars)
+            wins, sk = windows_for_file(lang, work, path, a.target_chars, a.min_chars, a.merge_units)
             skipped += sk
             for w in wins:
                 lens.append(len(w['text']))
@@ -237,7 +280,7 @@ def main():
         all_len += lens
     if out:
         out.close()
-    report = {'target_chars': a.target_chars, 'works': per_work, 'total': summary(all_len)}
+    report = {'target_chars': a.target_chars, 'merge_units': a.merge_units, 'works': per_work, 'total': summary(all_len)}
     if not a.dry_run:
         json.dump(report, open(os.path.join(a.out, 'windows_report.json'), 'w'), indent=1)
     print(json.dumps(report['total']))

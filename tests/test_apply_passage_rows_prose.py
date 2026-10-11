@@ -54,3 +54,20 @@ def test_append_with_precomputed_vectors_does_not_call_the_embed_service(tmp_pat
     emb = np.load(idx / 'embeddings.npy')
     assert emb.shape == (3, 4)
     assert emb[1].tolist() == [0, 0, 1, 0] and emb[2].tolist() == [0, 1, 0, 0]
+
+
+def test_remove_deletes_rows_in_lockstep_then_append_new_ids(tmp_path, monkeypatch):
+    idx = tmp_path / 'idx'
+    idx.mkdir()
+    json.dump(['a:fine:0', 'a:prose:0', 'a:prose:1'], open(idx / 'ids.json', 'w'))
+    np.save(idx / 'embeddings.npy', np.arange(12, dtype=np.float32).reshape(3, 4))
+    (idx / 'descriptions.jsonl').write_text(
+        ''.join(json.dumps({'id': i}) + '\n' for i in ['a:fine:0', 'a:prose:0', 'a:prose:1']))
+    old = tmp_path / 'old.json'
+    old.write_text(json.dumps(['a:prose:0', 'a:prose:1', 'zzz:not:there']))
+    monkeypatch.setattr(sys, 'argv', ['x', '--index', str(idx), '--mode', 'remove',
+                                      '--remove-ids', str(old), '--tag', 't'])
+    apr.main()
+    assert json.load(open(idx / 'ids.json')) == ['a:fine:0']
+    assert np.load(idx / 'embeddings.npy').tolist() == [[0.0, 1.0, 2.0, 3.0]]
+    assert [json.loads(l)['id'] for l in open(idx / 'descriptions.jsonl')] == ['a:fine:0']
