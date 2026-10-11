@@ -14,6 +14,8 @@ A second judge, the university gateway's Qwen model, re-graded the pilot's 293 p
 
 ### Inscriptions and papyri: a passage-sized query searches on its rarest words
 The Reader's new Documents tab sends the whole selection to the documents search. A chapter of Tacitus (120 words) took over four minutes and a sentence eleven seconds, where the same search over literature answers in under a second because it caps a long query at its twelve rarest words. The documents search now applies the same cap, by document frequency in the documents index, and says so in the response as the literary search does.
+### Inscriptions and papyri: mid-length queries answer in under a second
+The documents search ran one index lookup per distinct set of matched words to fill in the in-N-documents count (225 lookups for one sentence), and asked for each file's distance limit once per hit. It now reads the count off the candidates its single lookup already returned and asks for the distance limit once per file. Same documents, same order, same counts. Measured on the production index (median of three, search only): the first sentence of Annals 1.1 3.75 s to 0.53 s, "tribunicia potestate imperator caesar augustus" 9.3 s to 0.85 s, "decreto decurionum locus datus" 2.2 s to 0.51 s, seven common Latin words 20.2 s to 0.67 s.
 ### Reader: the Documents tab names the words a long selection was matched on
 When a passage-sized selection is searched over the inscriptions and papyri on its rarest words, the Documents tab now says which words, as the Parallels tab does.
 

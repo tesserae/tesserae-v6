@@ -2024,6 +2024,47 @@ def _document_hit(language, filename, ref, matched_words, matched_lemmas, tokens
     return row, m
 
 
+def _lemma_candidates(language, filtered_query_lemmas, min_matched):
+    """One index lookup for a lemma query, returned as (matches, everyone):
+    `matches` is what _lemma_fast_path_matches always returned (the
+    distance rule applied), `everyone` is the same lookup's list of
+    (filename, ref, matched_lemmas) BEFORE the distance rule, which is
+    exactly the population the formula count draws on (see
+    _DocumentFormulaCounter)."""
+    import backend.documents as docs
+    from backend.distance_filter import get_max_distance
+    out = []
+    everyone = []
+    if not filtered_query_lemmas:
+        return out, everyone
+    candidates = docs.find_co_occurring_lemmas(list(filtered_query_lemmas), language,
+                                                 min_matches=min_matched)
+    # The distance limit depends only on the bucket file, and a query's
+    # candidates fall in a few hundred files at most: ask once per file.
+    max_distance_by_file = {}
+    for filename, ref, matching_lemmas, positions in candidates:
+        matched_lemmas = set(matching_lemmas) & filtered_query_lemmas
+        if len(matched_lemmas) < min_matched:
+            continue
+        everyone.append((filename, ref, matched_lemmas))
+        lists = [positions.get(l) or [] for l in matched_lemmas]
+        min_dist = 0
+        if len(lists) >= 2:
+            dists = [abs(pa - pb) for i in range(len(lists)) for j in range(i + 1, len(lists))
+                     for pa in lists[i] for pb in lists[j]]
+            if dists:
+                min_dist = min(dists)
+        if min_dist > 0:
+            limit = max_distance_by_file.get(filename)
+            if limit is None:
+                limit = max_distance_by_file[filename] = get_max_distance(filename, language)
+            if min_dist > limit:
+                continue
+        out.append({'filename': filename, 'ref': ref, 'matched_lemmas': matched_lemmas,
+                    'positions': positions})
+    return out, everyone
+
+
 def _lemma_fast_path_matches(language, filtered_query_lemmas, min_matched):
     """Every (filename, ref, matched_lemmas, positions) the documents index
     has for `filtered_query_lemmas`, with the distance rule already applied
@@ -2035,29 +2076,46 @@ def _lemma_fast_path_matches(language, filtered_query_lemmas, min_matched):
     instead of re-fetching and re-splitting the line's text the way
     backend.distance_filter.calculate_match_distance does for the literary
     search path."""
-    import backend.documents as docs
-    from backend.distance_filter import get_max_distance
-    out = []
-    if not filtered_query_lemmas:
-        return out
-    candidates = docs.find_co_occurring_lemmas(list(filtered_query_lemmas), language,
-                                                 min_matches=min_matched)
-    for filename, ref, matching_lemmas, positions in candidates:
-        matched_lemmas = set(matching_lemmas) & filtered_query_lemmas
-        if len(matched_lemmas) < min_matched:
-            continue
-        lists = [positions.get(l) or [] for l in matched_lemmas]
-        min_dist = 0
-        if len(lists) >= 2:
-            dists = [abs(pa - pb) for i in range(len(lists)) for j in range(i + 1, len(lists))
-                     for pa in lists[i] for pb in lists[j]]
-            if dists:
-                min_dist = min(dists)
-        if min_dist > 0 and min_dist > get_max_distance(filename, language):
-            continue
-        out.append({'filename': filename, 'ref': ref, 'matched_lemmas': matched_lemmas,
-                    'positions': positions})
-    return out
+    return _lemma_candidates(language, filtered_query_lemmas, min_matched)[0]
+
+
+class _DocumentFormulaCounter:
+    """The in-N-documents count for a set of matched lemmas, answered from
+    the candidates the query's own index lookup already returned instead of
+    one more index lookup per distinct lemma set (about 20 ms each, and 225
+    of them for one sentence: 4.4 of 5.0 seconds).
+
+    A document shares every lemma of S exactly when its candidate row
+    (the rows with at least min_matched of the query's lemmas) holds S as a
+    subset, so long as S itself has at least min_matched lemmas, which a
+    hit's matched set always has. count() equals _documents_formula_count
+    for those sets; any other set falls back to that function's lookup."""
+
+    def __init__(self, language, everyone, doc_ids, min_matched, cache):
+        self.language = language
+        self.min_matched = min_matched
+        self.cache = cache
+        groups = {}
+        for filename, ref, matched in everyone:
+            d = doc_ids.get((filename, ref))
+            if d:
+                groups.setdefault(frozenset(matched), set()).add(d)
+        self.groups = groups
+
+    def count(self, matched_lemmas):
+        if not matched_lemmas:
+            return None
+        key = frozenset(matched_lemmas)
+        if key in self.cache:
+            return self.cache[key]
+        if len(key) < self.min_matched:
+            return _documents_formula_count(self.language, matched_lemmas, self.cache)
+        docs_with_all = set()
+        for group_key, group_docs in self.groups.items():
+            if key <= group_key:
+                docs_with_all |= group_docs
+        self.cache[key] = len(docs_with_all)
+        return self.cache[key]
 
 
 def _search_documents_collection(language, search_type, query, filtered_query_lemmas,
@@ -2139,9 +2197,14 @@ def _search_documents_collection(language, search_type, query, filtered_query_le
     if search_type == 'lemma':
         if not filtered_query_lemmas:
             return [], 0, [], [], stats
-        raw_candidates = _lemma_fast_path_matches(language, filtered_query_lemmas, min_matched)
+        raw_candidates, everyone = _lemma_candidates(language, filtered_query_lemmas, min_matched)
+        doc_ids = {}
+        for filename, ref, _matched in everyone:
+            doc_ids[(filename, ref)] = docs.doc_for(language, filename, ref)
         for c in raw_candidates:
-            c['doc_id'] = docs.doc_for(language, c['filename'], c['ref'])
+            c['doc_id'] = doc_ids[(c['filename'], c['ref'])]
+        formula_counter = _DocumentFormulaCounter(language, everyone, doc_ids, min_matched,
+                                                  formula_cache)
         meta_by_id = docs.bulk_meta([c['doc_id'] for c in raw_candidates if c['doc_id']])
 
         # The stock-formula count for the WHOLE query's lemma set is
@@ -2168,7 +2231,7 @@ def _search_documents_collection(language, search_type, query, filtered_query_le
             if exclude_restored and restored_rank == 2:
                 stats['restored_excluded_count'] += 1
                 continue
-            formula_count = _documents_formula_count(language, c['matched_lemmas'], formula_cache)
+            formula_count = formula_counter.count(c['matched_lemmas'])
             if hide_formulas is not None and formula_count is not None and formula_count > hide_formulas:
                 stats['formulas_hidden_count'] += 1
                 continue
@@ -2219,8 +2282,7 @@ def _search_documents_collection(language, search_type, query, filtered_query_le
         if filtered_query_lemmas:
             stats['formula_summary'] = {
                 'query_lemmas': sorted(filtered_query_lemmas),
-                'documents_sharing_all': _documents_formula_count(
-                    language, filtered_query_lemmas, formula_cache),
+                'documents_sharing_all': formula_counter.count(filtered_query_lemmas),
             }
         return page_results, total, by_source_region, by_century, stats
 
