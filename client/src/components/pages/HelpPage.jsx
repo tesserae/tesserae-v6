@@ -1781,9 +1781,9 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
               </p>
 
               <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">The panel</h4>
-              <ul className="list-disc pl-5 text-gray-700 space-y-2 mb-3">
-                <li>
-                  <strong>Similar passages</strong> lists passages elsewhere in the corpus whose
+              <h5 className="text-base font-semibold text-gray-900 mt-4 mb-1">Similar passages tab</h5>
+              <p className="text-gray-700 mb-3">
+                  Similar passages lists passages elsewhere in the corpus whose
                   content resembles your selection, across every served language, in two groups.
                   <strong> Same people and places</strong> comes first. It lists passages in other works that
                   name the same rare people or places as your selection, so Arrian's account of Alexander at
@@ -1798,9 +1798,10 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   <strong> In other languages</strong> offers a button for each language with few matches in
                   the list, ordered by its best match, which opens that language's five closest passages. The
                   largest corpora otherwise fill the list: an Urdu passage would show mostly Persian.
-                </li>
-                <li>
-                  <strong>Verbal parallels</strong> lists corpus lines that share your
+              </p>
+              <h5 className="text-base font-semibold text-gray-900 mt-4 mb-1">Verbal parallels tab</h5>
+              <p className="text-gray-700 mb-3">
+                  Verbal parallels lists corpus lines that share your
                   selection&rsquo;s wording. A line or short phrase is searched on all of its
                   content words. A passage-sized selection is searched on its most distinctive
                   words, the rarest in the corpus by document frequency, and the panel names
@@ -1810,24 +1811,27 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   varius) are hidden here, with a note saying how many; matches survive by
                   sharing at least one distinctive word, or three or more words together. The
                   full Line Search page applies no such filter.
-                </li>
-                <li>
-                  <strong>Translation</strong> shows the aligned English where one exists, with
+              </p>
+              <h5 className="text-base font-semibold text-gray-900 mt-4 mb-1">Translation tab</h5>
+              <p className="text-gray-700 mb-3">
+                  Translation shows the aligned English where one exists, with
                   the translator named under it. Most are public domain; a few are open translations
                   used with attribution under their non-commercial terms (Silius Italicus books 9 to
                   17, A. S. Kline). Coverage is partial: over half of the Greek corpus and nearly
                   half of the Latin, so some passages have none. The translators are listed on the
                   Sources page under About.
-                </li>
-                <li>
-                  <strong>Reuse</strong> lists other works that repeat a line closely enough to
+              </p>
+              <h5 className="text-base font-semibold text-gray-900 mt-4 mb-1">Reuse tab</h5>
+              <p className="text-gray-700 mb-3">
+                  Reuse lists other works that repeat a line closely enough to
                   count as a quotation or near-quotation: a small numbered mark beside a line in
                   the text (&ldquo;quoted in N works&rdquo; on hover) opens this tab for that
                   line. It comes from a table built once over the whole corpus, not a live
                   search, so it covers only the languages built so far, Latin, Greek and English.
-                </li>
-                <li id="scholarship-sources">
-                  <strong>Scholarship</strong> lists the public-domain commentary notes the site holds,
+              </p>
+              <h5 id="scholarship-sources" className="text-base font-semibold text-gray-900 mt-4 mb-1">Scholarship tab</h5>
+              <p className="text-gray-700 mb-3">
+                  Scholarship lists the public-domain commentary notes the site holds,
                   then the articles, chapters and book pages that cite the passage, newest first. Four
                   open services supply those results. OpenAlex and Crossref are searched by title and
                   abstract. Semantic Scholar and CORE are searched in the full text of open-access
@@ -1846,8 +1850,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   page numbers mention the citation, without showing you the text itself. Every source
                   and its license are listed on the Sources page under About. To search the notes and
                   sentences by theme, use the Scholarship choice on the Theme Search page.
-                </li>
-              </ul>
+              </p>
               <p className="text-gray-700 mb-3">
                 Arriving from Theme Search, the Reader opens on the translation, selects the whole
                 passage that matched, and shows the search that brought you there, with a link
