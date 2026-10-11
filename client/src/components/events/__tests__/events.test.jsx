@@ -184,7 +184,9 @@ describe('the focus view', () => {
     render(<EventsPage setPageType={() => {}} />);
     await screen.findByRole('heading', { name: 'Battle of Marathon' });
     await userEvent.click(screen.getByRole('tab', { name: /Inscriptions & Papyri \(1\)/ }));
-    expect(screen.getByRole('link', { name: 'edh:HD1' })).toHaveAttribute('href', DETAIL.documents[0].view_url);
+    // the card leads with the edition or the type, never the internal id
+    expect(screen.getByRole('link', { name: 'Document' })).toHaveAttribute('href', DETAIL.documents[0].view_url);
+    expect(screen.queryByText('edh:HD1')).toBeNull();
     expect(screen.getByText(/12 km from Marathon/)).toBeTruthy();
     expect(screen.getByText(/Rhamnous · 500 to 450 BCE/)).toBeTruthy();
 
@@ -193,7 +195,7 @@ describe('the focus view', () => {
     expect(screen.getByText(/How and Wells: note/)).toBeTruthy();
 
     await userEvent.click(screen.getByRole('tab', { name: /Map/ }));
-    expect(screen.getByRole('img', { name: /findspots/ })).toBeTruthy();
+    expect(screen.getByRole('region', { name: /Map of the event/ })).toBeTruthy();
     const row = screen.getByRole('link', { name: 'Rhamnous' }).closest('tr');
     expect(within(row).getByText('38.2300, 24.0000')).toBeTruthy();
   });
@@ -261,12 +263,17 @@ describe('the focus view', () => {
     expect(screen.getByRole('tab', { name: /Inscriptions/ })).toBeTruthy();
     unmount();
     setCollection('scholarship', true);
-    setCollection('inscriptions', false);
-    setCollection('papyri', false);
     render(<EventsPage setPageType={() => {}} />);
     await screen.findByRole('heading', { name: 'Battle of Marathon' });
-    expect(screen.queryByRole('tab', { name: /Inscriptions/ })).toBeNull();
     expect(screen.getByRole('tab', { name: /Scholarship/ })).toBeTruthy();
+    cleanup();
+    // Events need the documents: with inscriptions and papyri off the page
+    // sends the visitor back to Search, scholarship or not (2026-10-10)
+    setCollection('inscriptions', false);
+    setCollection('papyri', false);
+    const back = vi.fn();
+    render(<EventsPage setPageType={back} />);
+    await waitFor(() => expect(back).toHaveBeenCalledWith('search'));
   });
 });
 

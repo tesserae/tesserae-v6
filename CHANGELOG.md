@@ -9,6 +9,19 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-10
 
+### Reader: tabs in the order Similar, Reuse, Parallels, Scholarship, Translation
+The owner's order for the Reader's side tabs.
+
+### Events: document cards lead with the edition, and an article is listed once
+A document card on an event page showed the internal identifier ("merged:282114", a stone both inscription databases record). It now leads with the edition reference ("CIL 09, 03200") or the document type, and names the databases that record it. The Scholarship tab listed an article once per passage it cites; it lists each article once.
+
+### Events: a real map with coastlines
+The Map tab of an event was a bare scatter of points on a white rectangle. It is now a Leaflet map (Leaflet 1.9.4, bundled from npm) on OpenStreetMap tiles with the attribution shown. The event is a red marker and each findspot of documents a grey one sized by the number of documents. Hovering names the place and clicking gives its coordinates and document count. The scroll wheel zooms only after the map is clicked. If the tiles cannot be loaded, the markers stay over a plain background with a note. The table of coordinates stays under the map, and the Privacy page lists OpenStreetMap among the third-party services.
+### Scholarship on in the Literary profile; a More menu; the Collections control explains itself
+The Literary profile now includes the Scholarship tab in the Reader, so a literary reader gets the commentaries and citing articles without changing profile. Repository and Downloads sit under a small More menu at the end of the main row, since with every collection on the row no longer fit and its last entries faded off the edge. The Collections control opens with a sentence on what the switches do.
+### Reader: both kinds of similar passage named in a box at the top
+The Similar tab opened on "Same people and places" with "Same kind of scene" folded below it, so the second choice was easy to miss. A two-button box at the top of the tab now names both with their counts and shows one at a time, the names group first, or the scene group when the passage has few distinctive names.
+
 ### Events: a Wikipedia description on each event page, and scholarship tied to its passage
 The header card of an event now shows the opening paragraph of its English Wikipedia article (at most 600 characters, cut at a sentence end) with the credit "From Wikipedia, CC BY-SA 4.0" and a link to the article. An event without an article keeps its Wikidata description. In the Scholarship tab each article names the passage that brought it in ("on caes. bel. civ. 1.16.2-1.18.5"), a link that opens the Passages tab at that passage, and the tab lists only articles citing the event's leading passages (rank 10 or better, or judged to tell of the event). The API returns `summary`, `summary_source`, `summary_url` and `summary_licence` on the event and `passage_rank` and `passage_ref` on each scholarship row, one row per article. Two scripts rebuild the database file: `scripts/events/add_summaries.py` and `scripts/events/relink_scholarship.py`. Wikipedia has a record in the sources credits and a sentence in Help. The rebuilt file is installed by hand (see docs/DATA_OPERATIONS.md).
 ### A scope box on every search page

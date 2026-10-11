@@ -89,10 +89,17 @@ function DocumentsTab({ documents, event }) {
         {documents.map((d) => (
           <li key={d.doc_id} className="bg-white border border-gray-200 rounded-lg p-3">
             <div className="flex flex-wrap items-center gap-2 text-sm">
-              <a href={d.view_url} className="text-red-700 hover:underline font-medium">{d.doc_id}</a>
+              <a href={d.view_url} className="text-red-700 hover:underline font-medium">
+                {d.edition || d.text_type || 'Document'}
+              </a>
               <span className="text-gray-600">
                 {[d.place, dateLabel(d.date_start, d.date_end)].filter(Boolean).join(' · ')}
               </span>
+              {d.sources && d.sources.length > 0 && (
+                <span className="text-xs text-gray-500" title="The databases that record this document">
+                  {d.sources.join(' and ')}
+                </span>
+              )}
               {d.distance_km !== null && d.distance_km !== undefined && (
                 <span className="ml-auto text-xs text-gray-500">{kmLabel(d.distance_km)} from {event.place || 'the event'}</span>
               )}

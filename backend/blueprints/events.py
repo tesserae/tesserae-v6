@@ -283,6 +283,21 @@ def get_event(event_id):
                 'view_url': document_url(d['doc_id'], lang),
             })
 
+        # The edition reference and the source names, so a card can lead with
+        # "CIL 09, 03200" rather than the internal id (a "merged:" id marks a
+        # stone both EDH and EDR record). Best effort: no metadata, no change.
+        try:
+            from backend.documents import bulk_meta
+            metas = bulk_meta([d['doc_id'] for d in documents]) if documents else {}
+        except Exception:  # the dossier page must not depend on metadata.db
+            metas = {}
+        for d in documents:
+            m = metas.get(d['doc_id']) or {}
+            credit = m.get('credit') or {}
+            d['edition'] = credit.get('principal_edition')
+            d['sources'] = [x for x in (credit.get('source_name'), credit.get('source_name_secondary')) if x]
+            d['text_type'] = m.get('text_type_label')
+
         scholarship = _scholarship(c, r['id'])
 
         points = []

@@ -1,45 +1,89 @@
+import { useEffect, useRef, useState } from 'react';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 
+const EVENT_COLOUR = '#b91c1c';
+const FINDSPOT_COLOUR = '#6b7280';
+const TILE_URL = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
+const ATTRIBUTION = '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors';
 
-const W = 560;
-const H = 320;
-const PAD = 28;
+/** Radius 5 to 12 pixels, growing with the number of documents found at the place. */
+export function findspotRadius(n, max) {
+  if (!n || n < 1 || !max || max < 1) return 5;
+  return 5 + 7 * (Math.sqrt(n) / Math.sqrt(max));
+}
+
+function popupNode(p) {
+  const box = document.createElement('div');
+  const title = document.createElement('strong');
+  title.textContent = p.label;
+  box.appendChild(title);
+  const lines = [p.kind === 'event' ? 'The event' : 'Findspot of documents', `${p.lat.toFixed(4)}, ${p.lon.toFixed(4)}`];
+  if (p.kind === 'findspot') lines.push(`${p.n_documents} ${p.n_documents === 1 ? 'document' : 'documents'}`);
+  lines.forEach((t) => {
+    const d = document.createElement('div');
+    d.textContent = t;
+    box.appendChild(d);
+  });
+  return box;
+}
 
 /**
- * The event and its documents' findspots. No map library is installed, so the
- * points are drawn on a plain scaled plot (no coastlines) beside a table of the
- * same coordinates, each with a link to OpenStreetMap.
+ * The event and its documents' findspots on a Leaflet map (OpenStreetMap tiles,
+ * Leaflet bundled from npm), above a table of the same coordinates, each with a
+ * link to OpenStreetMap.
  */
 export default function EventMap({ points }) {
-  if (!points || points.length === 0) {
+  const holder = useRef(null);
+  const [tilesFailed, setTilesFailed] = useState(false);
+  const has = !!points && points.length > 0;
+
+  useEffect(() => {
+    if (!has || !holder.current) return undefined;
+    const map = L.map(holder.current, { scrollWheelZoom: false });
+    const tiles = L.tileLayer(TILE_URL, { attribution: ATTRIBUTION, maxZoom: 18 });
+    let failed = false;
+    tiles.on('tileerror', () => {
+      if (!failed) { failed = true; setTilesFailed(true); }
+    });
+    tiles.addTo(map);
+    map.once('click', () => map.scrollWheelZoom.enable());
+    const maxDocs = Math.max(0, ...points.filter((p) => p.kind === 'findspot').map((p) => p.n_documents || 0));
+    const latlngs = [];
+    points.forEach((p) => {
+      const isEvent = p.kind === 'event';
+      const m = L.circleMarker([p.lat, p.lon], {
+        radius: isEvent ? 9 : findspotRadius(p.n_documents, maxDocs),
+        color: '#ffffff', weight: 2, fillColor: isEvent ? EVENT_COLOUR : FINDSPOT_COLOUR,
+        fillOpacity: 0.9,
+      });
+      m.bindTooltip(p.label);
+      m.bindPopup(popupNode(p));
+      m.addTo(map);
+      latlngs.push([p.lat, p.lon]);
+    });
+    map.fitBounds(latlngs, { padding: [30, 30], maxZoom: 10 });
+    return () => { map.remove(); };
+  }, [points, has]);
+
+  if (!has) {
     return <p className="text-sm text-gray-600">No coordinates are recorded for this event.</p>;
   }
-  const lats = points.map((p) => p.lat);
-  const lons = points.map((p) => p.lon);
-  const midLat = (Math.min(...lats) + Math.max(...lats)) / 2;
-  const k = Math.cos((midLat * Math.PI) / 180) || 1;  // a degree of longitude is shorter away from the equator
-  const xs = lons.map((l) => l * k);
-  const [x0, x1] = [Math.min(...xs), Math.max(...xs)];
-  const [y0, y1] = [Math.min(...lats), Math.max(...lats)];
-  const span = Math.max(x1 - x0, y1 - y0, 0.01);
-  const scale = (Math.min(W, H) - 2 * PAD) / span;
-  const px = (lon) => W / 2 + (lon * k - (x0 + x1) / 2) * scale;
-  const py = (lat) => H / 2 - (lat - (y0 + y1) / 2) * scale;
   const hasFindspots = points.some((p) => p.kind === 'findspot');
 
   return (
     <div>
-      <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Event location and document findspots"
-           className="w-full max-w-xl bg-white border border-gray-200 rounded-lg">
-        {points.map((p, i) => (
-          <g key={`${p.label}-${i}`}>
-            <circle cx={px(p.lon)} cy={py(p.lat)} r={p.kind === 'event' ? 7 : 5}
-                    fill={p.kind === 'event' ? '#b91c1c' : '#6b7280'} />
-            <text x={px(p.lon) + 9} y={py(p.lat) + 4} fontSize="11" fill="#374151">{p.label}</text>
-          </g>
-        ))}
-      </svg>
-      <p className="text-xs text-gray-500 mt-1">
-        Red is the event, gray the findspots of documents. A scaled plot of the coordinates, without a base map.
+      <div ref={holder} role="region" aria-label="Map of the event and the findspots of documents"
+           className="w-full h-80 sm:h-[420px] rounded-lg border border-gray-200 bg-gray-50 z-0" />
+      {tilesFailed && <p className="text-xs text-gray-600 mt-1">The base map could not be loaded.</p>}
+      <p className="text-xs text-gray-500 mt-1 flex flex-wrap items-center gap-x-4 gap-y-1">
+        <span className="inline-flex items-center gap-1">
+          <span className="inline-block w-3 h-3 rounded-full" style={{ background: EVENT_COLOUR }} /> Red is the event
+        </span>
+        <span className="inline-flex items-center gap-1">
+          <span className="inline-block w-3 h-3 rounded-full" style={{ background: FINDSPOT_COLOUR }} /> Gray are the findspots, sized by documents
+        </span>
+        <span>Click the map to zoom with the scroll wheel.</span>
       </p>
       {!hasFindspots && (
         <p className="text-xs text-gray-500 mt-1">No document findspots to show for this event.</p>
