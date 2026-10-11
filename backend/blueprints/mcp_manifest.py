@@ -505,6 +505,17 @@ MANIFEST = {
                   "covers a structured text/feature/bug request without a file, which is the "
                   "part a connector caller can act on."),
     },
+    '/api/passages/mentions': {
+        'site_only': True,
+        'reason': ("Name search inside one work for the Ask a Work page; theme_search and "
+                  "line_search already cover finding passages by subject or word."),
+    },
+    '/api/passages/ask-summary': {
+        'site_only': True,
+        'reason': ("Short model-written answer for the Ask a Work page; a connector caller "
+                  "reads the passages itself, and nothing in the request path of the "
+                  "connector should call the site's model."),
+    },
     '/api/passages/status': {
         'site_only': True,
         'reason': 'Passage-index availability/size; an operational status display.',

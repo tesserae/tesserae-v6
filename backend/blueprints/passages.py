@@ -113,17 +113,31 @@ def theme_search():
     works_arg = [w.strip() for w in (request.args.get('works') or '').split(',')
                  if w.strip()][:_MAX_RESTRICT_WORKS]
     only_works = None
+    books_searched = None
     if author_arg or works_arg:
         try:
             only_works, miss_note = passage_index.resolve_restriction(
                 author=author_arg, works=works_arg, languages=_languages())
+            # `books=1,2` or `books=1-6` with one base work: only those numbered
+            # parts. A number the index does not hold is dropped silently.
+            books_arg = (request.args.get('books') or '').strip()
+            if books_arg and only_works and len(works_arg) == 1:
+                base = passage_index.base_work(works_arg[0])
+                if base in only_works:
+                    part_ids, books_searched = passage_index.book_parts(
+                        base, passage_index.parse_books(books_arg))
+                    only_works = set(part_ids)
+                    if not only_works:
+                        miss_note = 'The index holds none of the books asked for in that work.'
         except Exception as e:
             logger.exception('[PASSAGES] theme-search restriction failed')
             return jsonify({'error': f'{type(e).__name__}: {e}', 'results': []})
         if not only_works:
             return jsonify({'query': q, 'results': [], 'restricted': True,
                             'strong_matches': 0, 'note': miss_note,
-                            'confidence': {'level': 'restricted'}})
+                            'confidence': {'level': 'restricted'},
+                            **({'books_searched': books_searched}
+                               if books_searched is not None else {})})
     K = reader_rerank.DEFAULT_K   # rows the reader re-scores (300: the whole composed list)
     reader_on = bool(os.environ.get('THEME_READER_URL')) and _reader_wanted() and offset < K
     # `fetch` counts WORKS (find_by_text's limit is one head per work, three
@@ -151,6 +165,8 @@ def theme_search():
         return jsonify({'error': f'{type(e).__name__}: {e}', 'results': []})
     # Stamped so a Theme Search can be cited reproducibly (2026-09-08).
     out['corpus_version'] = passage_index.index_version()
+    if books_searched is not None:
+        out['books_searched'] = books_searched
     out['presentation'] = (
         'Each result is a passage whose CONTENT matches the description, not its '
         'wording, so results in different languages usually share no words with '
@@ -167,6 +183,95 @@ def theme_search():
         out['reader'] = reader_meta
         out['results'] = out['results'][offset:offset + limit]
     return jsonify(out)
+
+
+@passages_bp.route('/passages/mentions')
+def mentions():
+    """Windows of one work whose description names a person or thing.
+
+    ?work=<base or part id>&names=<comma list>&books=<1,2 or 1-6>&limit=&offset=
+    A word search over the describer's participants, gist, setting and themes,
+    for the case where Theme Search ranks a named subject too low."""
+    work = (request.args.get('work') or '').strip()
+    names = [n.strip() for n in (request.args.get('names') or '').split(',') if n.strip()][:20]
+    if not names:
+        return jsonify({'error': 'names is required', 'results': [], 'total': 0})
+    if not work:
+        return jsonify({'error': 'work is required', 'results': [], 'total': 0})
+    limit = _int_arg('limit', 25)
+    offset = _int_arg('offset', 0, lo=0, hi=_MAX_OFFSET)
+    books = passage_index.parse_books(request.args.get('books')) or None
+    try:
+        out = passage_index.mentions_in_work(work, names, books=books)
+    except Exception as e:
+        logger.exception('[PASSAGES] mentions failed')
+        return jsonify({'error': f'{type(e).__name__}: {e}', 'results': [], 'total': 0})
+    hits = out['hits']
+    resp = {'work': out['work'], 'names': names, 'total': len(hits),
+            'books_searched': out['books_searched'],
+            'results': hits[offset:offset + limit]}
+    if out.get('note'):
+        resp['note'] = out['note']
+    return jsonify(resp)
+
+
+_SUMMARY_SYSTEM = (
+    "You write for scholars. You are given a question about one ancient work and a list of "
+    "passages from that work with a one-sentence description of each. Say in at most 120 words "
+    "what the work says about the subject, drawing only on the descriptions given. Cite the "
+    "passages you use by their reference in parentheses, exactly as given. Do not add anything "
+    "the descriptions do not say, and if they do not answer the question, say so in one "
+    "sentence. Plain words. No dashes, no semicolons, no lists, no headings.")
+_SUMMARY_TIMEOUT = 40
+_SUMMARY_MAX_PASSAGES = 12
+
+
+@passages_bp.route('/passages/ask-summary', methods=['POST'])
+def ask_summary():
+    """A short answer to the question, drawn only from the passages' gists."""
+    import time
+    import concurrent.futures
+    from backend.assistant import model
+    data = request.get_json(silent=True) or {}
+    question = str(data.get('question') or '').strip()
+    label = str(data.get('work_label') or '').strip()
+    passages = [p for p in (data.get('passages') or []) if isinstance(p, dict)
+                and str(p.get('ref') or '').strip() and str(p.get('gist') or '').strip()]
+    passages = passages[:_SUMMARY_MAX_PASSAGES]
+    if not question:
+        return jsonify({'available': False, 'error': 'question is required'})
+    if not passages:
+        return jsonify({'available': False, 'error': 'passages are required'})
+    if not model.is_available():
+        return jsonify({'available': False})
+    user = '\n'.join([label, question] + [f"{p['ref'].strip()}: {p['gist'].strip()}"
+                                           for p in passages])
+    t0 = time.time()
+    # complete() has its own 180 s socket timeout; the route's 40 s is enforced
+    # by waiting on a worker thread, which is then left to finish on its own.
+    pool = concurrent.futures.ThreadPoolExecutor(max_workers=1)
+    try:
+        fut = pool.submit(model.complete, _SUMMARY_SYSTEM, user, 400, 0.2)
+        try:
+            text = fut.result(timeout=_SUMMARY_TIMEOUT)
+        except concurrent.futures.TimeoutError:
+            logger.info('[PASSAGES] ask-summary %r timed out after %.1fs', question, time.time() - t0)
+            return jsonify({'available': False, 'error': 'the model took too long'})
+        except Exception as e:
+            logger.info('[PASSAGES] ask-summary %r failed after %.1fs: %s',
+                        question, time.time() - t0, type(e).__name__)
+            return jsonify({'available': False, 'error': 'the model could not answer'})
+    finally:
+        pool.shutdown(wait=False)
+    logger.info('[PASSAGES] ask-summary %r answered in %.1fs', question, time.time() - t0)
+    if not text:
+        return jsonify({'available': False, 'error': 'the model could not answer'})
+    cites = []
+    for p in passages:
+        ref = p['ref'].strip()
+        if ref in text and ref not in cites:
+            cites.append(ref)
+    return jsonify({'available': True, 'summary': text, 'cites': cites})
 
 
 def _chronological(results):

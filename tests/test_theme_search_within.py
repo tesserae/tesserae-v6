@@ -76,10 +76,11 @@ def test_author_respects_the_chosen_languages(index):
     assert works == {'homer.iliad'}
 
 
-def test_works_resolve_and_parts_collapse(index):
+def test_works_resolve_and_part_ids_are_kept(index):
+    # Since the book-level restriction a part id stays a part id.
     works, _ = passage_index.resolve_restriction(
         works=['vergil.aeneid.part.1', 'lucan.bellum_civile'])
-    assert works == {'vergil.aeneid', 'lucan.bellum_civile'}
+    assert works == {'vergil.aeneid.part.1', 'lucan.bellum_civile'}
 
 
 def test_unknown_author_gives_an_empty_set_and_a_note(index):
