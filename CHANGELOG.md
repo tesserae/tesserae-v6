@@ -9,6 +9,9 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-10
 
+### Records: Diodorus books 11 to 17 and the scholarship theme index installed
+The operations record marks the Diodorus import's production steps and the scholarship theme index install as run, with their counts and checks.
+
 ### Translations: HTML character entities decoded
 Fourteen translation files transcribed from web pages carried entities such as "C&aelig;sar" into the Reader. The files were corrected on the server, and the loader now decodes any entity it meets.
 ### Theme Search over scholarship: a Scholarship choice ranked by meaning and keyword together

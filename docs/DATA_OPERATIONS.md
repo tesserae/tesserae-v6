@@ -775,7 +775,36 @@ After a change to the documents collection, the recogniser or the journal texts,
 - Backups to keep: each file replaced in steps 4 to 6, tagged
   `bak-historians2-20261009`.
 
-## 2026-10-10 Diodorus books 11 to 17 from the Loeb Greek, steps for production (drafted with the import, NOT yet run, draft pull request because the lead has not decided whether to import these books)
+## 2026-10-10 Diodorus books 11 to 17 from the Loeb Greek, steps for production (decided 21:45 EDT, run 23:49 to 01:41)
+
+- Run, the owner having decided to import: the batch install script
+  (`tess-install-greek-batch` with `diodorus_loeb.cfg`) pulled the merge,
+  installed the regenerated whole-work translation after its checksum (the old
+  file kept beside the sources as `.bak-diodorus-loeb-20261010`), built the
+  lemma caches for the seven parts and, with its stale cache set aside, the
+  whole file, added the seven parts to the Greek index on a copy and swapped it
+  in, and rebuilt the rare-bigram table; then the whole file was re-indexed on
+  a copy with `--replace` (text 1306, 8,123 lines, 273,617 postings, was
+  142,894) and swapped in. The windows script (`tess-install-greek-windows`
+  with an explicit window pattern for the seven parts) built 915 passage
+  windows (113, 92, 148, 157, 93, 125 and 187 by book), had them described on
+  the university's gateway (stamp `qwen38-bullsai-20261010`), appended them
+  (535,272 to 536,187 windows, ids, vectors and descriptions in step), rebuilt
+  the description keyword index and the names index, encoded line vectors for
+  all eight changed files, and rebuilt the connection map (3,752,010 edges,
+  61 minutes, 1.1 GB, peak 7.6 GB). The works sidecar was rewritten (Greek 837
+  works). Coverage check: all sixteen Diodorus files complete in every store;
+  the reference search passed. A Greek line search for the lemmas of Leonidas
+  and Thermopylae returns 11.10.4 and 11.24.1 among its eight hits.
+- One slip during the run: the batch script's first attempt stopped at its own
+  count of new cache files (the pattern named the text files, which the cache
+  files are not named after) after the caches were built, and was re-run with
+  the pattern corrected. Two copies of the windows runner had been left waiting
+  and both started the description step; both were stopped, one well-formed
+  description per window was kept (725 of 915), and a single runner resumed
+  from that step. Nothing reached the index twice (the lockstep counts above).
+- Backups: every replaced file tagged `bak-diodorus-loeb-20261010`.
+
 - What: seven new part files `diodorus_siculus.bibliotheca_historica.part.11`
   to `.part.17` in `texts/grc/` (491, 401, 691, 694, 448, 513 and 719 lines,
   3,957 in all, the same work id as books 1 to 5 and 18 to 20), and the
