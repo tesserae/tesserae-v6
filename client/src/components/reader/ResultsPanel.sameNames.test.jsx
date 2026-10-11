@@ -146,7 +146,7 @@ describe('by default, same_names present and not weak', () => {
   it('shows the commentary line quietly, collapsed until clicked', async () => {
     const user = userEvent.setup();
     mount();
-    await screen.findByText(/Same people and places/);
+    await user.click(await screen.findByRole('tab', { name: /Same people and places/ }));
     const line = await screen.findByText(/Commentaries: Servius, Commentary on the Aeneid, 1 passage/);
     expect(screen.queryByText('Servius, Commentary on the Aeneid')).toBeNull();
     await user.click(line);
