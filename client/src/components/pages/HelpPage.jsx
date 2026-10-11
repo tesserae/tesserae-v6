@@ -1892,6 +1892,10 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 its Wikipedia article), passages are found by
                 the names in them and sorted by an offline language model that no person has checked, and
                 the list covers only the events whose dossiers have been built so far.
+                The short description under an event's dates is the opening paragraph of its English
+                Wikipedia article, shared under the licence CC BY-SA 4.0, and a link beside it goes to the
+                article. The Scholarship tab lists the articles that cite the event's leading passages and
+                names the passage that brings each one in.
               </p>
             </div>
           )}
@@ -1915,9 +1919,11 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 metal. You can search the legends and descriptions together (try &ldquo;capricorn&rdquo;,
                 &ldquo;harbor&rdquo; or a Greek legend typed without accents), narrow by authority, mint, denomination, material, source and date, and
                 order the results by best match or by date. A mint that nomisma.org has matched to Pleiades
-                links to its place page. Each card links to &ldquo;Type page and specimens&rdquo; on the
-                Society&rsquo;s site, which lists the museum coins of that type with their photographs. This
-                site stores no coin images.
+                links to its place page. Each card links to &ldquo;See images&rdquo; on the
+                catalogue&rsquo;s site, which lists the museum coins of that type with their photographs. This
+                site stores no coin images. Catalogues call the front and back of a coin the obverse and
+                the reverse, and the inscription on a side is its legend. The pages here say front, back
+                and inscription.
               </p>
               <p className="text-gray-700 mb-4">
                 With Coins on, the Reader gets a Coins tab beside Reuse. It shows two things, kept apart

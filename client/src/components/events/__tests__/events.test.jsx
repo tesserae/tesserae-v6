@@ -47,7 +47,8 @@ const DETAIL = {
       text_snippet: 'ΜΑΡΑΘΩΝ', view_url: '/document?doc=edh%3AHD1&lang=la&documents=1' },
   ],
   scholarship: [
-    { kind: 'article', title: 'Marathon Revisited (Doe, 1990)', page_ref: 'Hdt. 6.111', url: 'https://example.org/a' },
+    { kind: 'article', title: 'Marathon Revisited (Doe, 1990)', page_ref: 'Hdt. 6.111', url: 'https://example.org/a',
+      passage_rank: 1, passage_ref: 'hdt. 6.111.1-6.113.2' },
     { kind: 'commentary', title: 'How and Wells: note', page_ref: 'hdt. 6.112.1', url: null },
   ],
   map: [
@@ -56,12 +57,12 @@ const DETAIL = {
   ],
 };
 
-function mockApi(listOverride) {
+function mockApi(listOverride, detailOverride) {
   const calls = [];
   global.fetch = vi.fn(async (url) => {
     const u = String(url);
     calls.push(u);
-    if (u.startsWith('/api/events/')) return { ok: true, status: 200, json: async () => DETAIL };
+    if (u.startsWith('/api/events/')) return { ok: true, status: 200, json: async () => detailOverride || DETAIL };
     if (u.startsWith('/api/events')) return { ok: true, status: 200, json: async () => listOverride || LIST };
     return { ok: true, status: 200, json: async () => ({}) };
   });
@@ -194,9 +195,48 @@ describe('the focus view', () => {
     expect(screen.getByText(/How and Wells: note/)).toBeTruthy();
 
     await userEvent.click(screen.getByRole('tab', { name: /Map/ }));
-    expect(screen.getByRole('img', { name: /findspots/ })).toBeTruthy();
+    expect(screen.getByRole('region', { name: /Map of the event/ })).toBeTruthy();
     const row = screen.getByRole('link', { name: 'Rhamnous' }).closest('tr');
     expect(within(row).getByText('38.2300, 24.0000')).toBeTruthy();
+  });
+
+  it('shows the Wikipedia summary with its credit line, or the Wikidata description without one', async () => {
+    const withSummary = {
+      ...DETAIL,
+      event: { ...DETAIL.event, summary: 'The Battle of Marathon was fought in 490 BC.',
+               summary_source: 'Wikipedia', summary_url: 'https://en.wikipedia.org/wiki/Battle_of_Marathon',
+               summary_licence: 'CC BY-SA 4.0' },
+    };
+    mockApi(undefined, withSummary);
+    render(<EventsPage setPageType={() => {}} />);
+    await screen.findByRole('heading', { name: 'Battle of Marathon' });
+    expect(screen.getByText('The Battle of Marathon was fought in 490 BC.')).toBeTruthy();
+    expect(screen.queryByText(/Athenian victory/)).toBeNull();
+    const credit = screen.getByText(/CC BY-SA 4.0/);
+    expect(credit.textContent).toBe('From Wikipedia, CC BY-SA 4.0');
+    expect(within(credit).getByRole('link', { name: 'Wikipedia' }))
+      .toHaveAttribute('href', 'https://en.wikipedia.org/wiki/Battle_of_Marathon');
+    cleanup();
+    mockApi();
+    render(<EventsPage setPageType={() => {}} />);
+    await screen.findByRole('heading', { name: 'Battle of Marathon' });
+    expect(screen.getByText(/Athenian victory/)).toBeTruthy();
+    expect(screen.queryByText(/CC BY-SA 4.0/)).toBeNull();
+  });
+
+  it('names the passage under each article and opens the Passages tab at it', async () => {
+    mockApi();
+    const scroll = vi.fn();
+    window.HTMLElement.prototype.scrollIntoView = scroll;
+    render(<EventsPage setPageType={() => {}} />);
+    await screen.findByRole('heading', { name: 'Battle of Marathon' });
+    expect(document.getElementById('passage-1')).not.toBeNull();
+    await userEvent.click(screen.getByRole('tab', { name: /Scholarship/ }));
+    expect(screen.getByText(/articles that cite the event's leading passages/)).toBeTruthy();
+    await userEvent.click(screen.getByRole('link', { name: 'on hdt. 6.111.1-6.113.2' }));
+    expect(screen.getByRole('tab', { name: /Passages/, selected: true })).toBeTruthy();
+    await waitFor(() => expect(scroll).toHaveBeenCalled());
+    expect(scroll.mock.instances[0].id).toBe('passage-1');
   });
 
   it('goes back to the list', async () => {
@@ -223,12 +263,17 @@ describe('the focus view', () => {
     expect(screen.getByRole('tab', { name: /Inscriptions/ })).toBeTruthy();
     unmount();
     setCollection('scholarship', true);
-    setCollection('inscriptions', false);
-    setCollection('papyri', false);
     render(<EventsPage setPageType={() => {}} />);
     await screen.findByRole('heading', { name: 'Battle of Marathon' });
-    expect(screen.queryByRole('tab', { name: /Inscriptions/ })).toBeNull();
     expect(screen.getByRole('tab', { name: /Scholarship/ })).toBeTruthy();
+    cleanup();
+    // Events need the documents: with inscriptions and papyri off the page
+    // sends the visitor back to Search, scholarship or not (2026-10-10)
+    setCollection('inscriptions', false);
+    setCollection('papyri', false);
+    const back = vi.fn();
+    render(<EventsPage setPageType={back} />);
+    await waitFor(() => expect(back).toHaveBeenCalledWith('search'));
   });
 });
 

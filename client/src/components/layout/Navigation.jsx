@@ -53,18 +53,21 @@ const mainTabs = [
   // (beside Theme Search) does not depend on where a conditional push
   // would land it.
   { code: 'inscriptions-papyri', label: 'Inscriptions & Papyri', beta: true, trial: true },
-  // Events (battles, sieges, treaties): shown when inscriptions, papyri or
-  // scholarship is on (PAGE_NEEDS.events).
+  // Events (battles, sieges, treaties): shown when inscriptions or papyri
+  // are on (PAGE_NEEDS.events).
   { code: 'events', label: 'Events', beta: true, needs: 'events' },
   // Coins (Greek and Roman coin types): shown when the Coins collection is on (PAGE_NEEDS.coins).
   { code: 'coins', label: 'Coins', beta: true, needs: 'coins' },
   // Objects (museum catalogue descriptions): shown when the Objects collection is on (PAGE_NEEDS.objects).
   { code: 'objects', label: 'Objects', beta: true, needs: 'objects' },
   { code: 'browse', label: 'Browse Corpus' },
-  { code: 'repository', label: 'Repository' },
+  // Repository and Downloads sit under a small "More" menu at the end of the
+  // row (owner 2026-10-10: with every collection on, thirteen entries no
+  // longer fit and the last ones faded off the right edge).
+  { code: 'repository', label: 'Repository', more: true },
   // DISABLED FOR PRODUCTION - Uncomment to restore Visualizations
   // { code: 'visualizations', label: 'Visualize' },
-  { code: 'downloads', label: 'Downloads' },
+  { code: 'downloads', label: 'Downloads', more: true },
   // Research has no main-menu entry (owner 2026-10-10: most visitors will not
   // look at it regularly); it is reached from the About page and at /research.
   { code: 'about', label: 'About' },
@@ -91,6 +94,14 @@ const Navigation = ({
   setShowDownloads
 }) => {
   const [languageTabs, setLanguageTabs] = useState(defaultLanguageTabs);
+  const [moreOpen, setMoreOpen] = useState(false);
+  const moreRef = useRef(null);
+  useEffect(() => {
+    if (!moreOpen) return undefined;
+    const close = (e) => { if (moreRef.current && !moreRef.current.contains(e.target)) setMoreOpen(false); };
+    document.addEventListener('mousedown', close);
+    return () => document.removeEventListener('mousedown', close);
+  }, [moreOpen]);
   const [mainRef, mainMore] = useScrollHint(showDownloads);
   const [langRef, langMore] = useScrollHint(languageTabs.length + ':' + pageType);
   // The documents trial's client-side flag (?documents=1, remembered for
@@ -176,6 +187,7 @@ const Navigation = ({
               .filter(tab => tab.code !== 'admin')
               .filter(tab => !tab.trial || showInscriptionsPapyri)
               .filter(tab => !tab.needs || anyOn(PAGE_NEEDS[tab.needs]))
+              .filter(tab => !tab.more)
               .map(tab => (
               <button
                 key={tab.code}
@@ -211,6 +223,38 @@ const Navigation = ({
                 Downloads
               </button>
             )}
+            <div ref={moreRef} className="relative">
+              <button
+                type="button"
+                onClick={() => setMoreOpen((o) => !o)}
+                aria-haspopup="menu"
+                aria-expanded={moreOpen}
+                className={`px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap ${
+                  mainTabs.some(t => t.more && t.code === pageType)
+                    ? 'border-red-700 text-red-700 font-semibold'
+                    : 'border-transparent text-gray-500 hover:text-red-600 font-medium'
+                }`}
+              >
+                More <span aria-hidden="true">&#9662;</span>
+              </button>
+              {moreOpen && (
+                <div role="menu" className="absolute left-0 mt-1 w-40 bg-white border border-gray-200 rounded shadow-lg py-1 z-50">
+                  {mainTabs.filter(t => t.more).map(tab => (
+                    <button
+                      key={tab.code}
+                      role="menuitem"
+                      type="button"
+                      onClick={() => { setMoreOpen(false); setPageType(tab.code); }}
+                      className={`block w-full text-left px-3 py-1.5 text-sm hover:bg-red-50 ${
+                        pageType === tab.code ? 'text-red-700 font-semibold' : 'text-gray-700'
+                      }`}
+                    >
+                      {tab.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
         

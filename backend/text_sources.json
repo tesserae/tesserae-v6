@@ -2861,7 +2861,7 @@
     "author": "Avitus of Vienne",
     "work": "De Consolatoria Laude Castitatis",
     "e_source": "Corpus Corporum",
-    "e_source_url": "https://web.archive.org/web/20240812080521/http://mlat.uzh.ch/?c=2&amp;w=AviVie.DeMoHiG",
+    "e_source_url": "https://web.archive.org/web/20240812080521/http://mlat.uzh.ch/?c=2&w=AviVie.DeMoHiG",
     "print_source": "J.P. Migne (ed.). Patrologia Latina 59 Avitus Viennesis De Spiritalis Historiae Gestis. Classical Latin Orthography. Paris. 1847.",
     "added_by": "V3 Legacy Import"
   },
@@ -2869,7 +2869,7 @@
     "author": "Avitus of Vienne",
     "work": "De Spiritalis Historiae Gestis",
     "e_source": "Corpus Corporum",
-    "e_source_url": "https://web.archive.org/web/20240812080521/http://mlat.uzh.ch/?c=2&amp;w=AviVie.DeMoHiG",
+    "e_source_url": "https://web.archive.org/web/20240812080521/http://mlat.uzh.ch/?c=2&w=AviVie.DeMoHiG",
     "print_source": "J.P. Migne (ed.). Patrologia Latina 59 Avitus Viennesis De Spiritalis Historiae Gestis. Classical Latin Orthography. Paris. 1847.",
     "added_by": "V3 Legacy Import"
   },
@@ -4133,7 +4133,7 @@
     "author": "Claudius Mamertinus",
     "work": "Panegyricus",
     "e_source": "DigilibLT",
-    "e_source_url": "http://digiliblt.lett.unipmn.it/opera.php?gruppo=opere&amp;iniziale=all&amp;id=dlt000389",
+    "e_source_url": "http://digiliblt.lett.unipmn.it/opera.php?gruppo=opere&iniziale=all&id=dlt000389",
     "print_source": "D. Lassandro. XII Panegyrici LatiniAugustae Taurinorum 1992 (Corpus Scriptorum Latinorum Parauianum).",
     "added_by": "Brianna Roberts"
   },
@@ -5877,7 +5877,7 @@
     "e_source": "Perseus",
     "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.01.0087",
     "print_source": "David Kovacs, Euripides, with an English translation by David Kovacs. Cambridge: Harvard University Press, forthcoming.",
-    "added_by": "Tony R. Waleszczak &amp; Jessica Micceri"
+    "added_by": "Tony R. Waleszczak & Jessica Micceri"
   },
   {
     "author": "Euripides",
@@ -5885,7 +5885,7 @@
     "e_source": "Perseus",
     "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.01.0089",
     "print_source": "David Kovacs, Euripides, with an English translation by David Kovacs. Cambridge: Harvard University Press, forthcoming.",
-    "added_by": "Tony R. Waleszczak &amp; Jessica Micceri"
+    "added_by": "Tony R. Waleszczak & Jessica Micceri"
   },
   {
     "author": "Euripides",
@@ -5893,7 +5893,7 @@
     "e_source": "Perseus",
     "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999%3a01%3a0091",
     "print_source": "Gilbert Murray, Euripidis Fabulae, vol. 3. Oxford: Clarendon Press, Oxford, 1913.",
-    "added_by": "Tony R. Waleszczak &amp; Jessica Micceri"
+    "added_by": "Tony R. Waleszczak & Jessica Micceri"
   },
   {
     "author": "Euripides",
@@ -5901,7 +5901,7 @@
     "e_source": "Perseus",
     "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999%3a01%3a0093",
     "print_source": "David Kovacs, Euripides, with an English translation by David Kovacs. Cambridge: Harvard University Press, forthcoming.",
-    "added_by": "Tony R. Waleszczak &amp; Jessica Micceri"
+    "added_by": "Tony R. Waleszczak & Jessica Micceri"
   },
   {
     "author": "Euripides",
@@ -5909,7 +5909,7 @@
     "e_source": "Perseus",
     "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.01.0095",
     "print_source": "Gilbert Murray, Euripidis Fabulae, vol 2.. Oxford: Clarendon Press, Oxford, 1913.",
-    "added_by": "Tony R. Waleszczak &amp; Jessica Micceri"
+    "added_by": "Tony R. Waleszczak & Jessica Micceri"
   },
   {
     "author": "Euripides",
@@ -5925,7 +5925,7 @@
     "e_source": "Perseus",
     "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.01.0097",
     "print_source": "Gilbert Murray, Euripidis Fabulae, vol. 1. Oxford: Clarendon Press, Oxford, 1902.",
-    "added_by": "Tony R. Waleszczak &amp; Jessica Micceri"
+    "added_by": "Tony R. Waleszczak & Jessica Micceri"
   },
   {
     "author": "Euripides",
@@ -5933,7 +5933,7 @@
     "e_source": "Perseus",
     "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.01.0099",
     "print_source": "Gilbert Murray, Euripidis Fabulae, vol. 3. Oxford: Clarendon Press, Oxford, 1913.",
-    "added_by": "Tony R. Waleszczak &amp; Jessica Micceri"
+    "added_by": "Tony R. Waleszczak & Jessica Micceri"
   },
   {
     "author": "Euripides",
@@ -5941,7 +5941,7 @@
     "e_source": "Perseus",
     "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.01.0103",
     "print_source": "David Kovacs, Euripides, with an English translation by David Kovacs. Cambridge: Harvard University Press, forthcoming.",
-    "added_by": "Tony R. Waleszczak &amp; Jessica Micceri"
+    "added_by": "Tony R. Waleszczak & Jessica Micceri"
   },
   {
     "author": "Euripides",
@@ -5949,7 +5949,7 @@
     "e_source": "Perseus",
     "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.01.0101",
     "print_source": "Gilbert Murray, Euripidis Fabulae, vol. 2. Oxford: Clarendon Press, Oxford, 1913.",
-    "added_by": "Tony R. Waleszczak &amp; Jessica Micceri"
+    "added_by": "Tony R. Waleszczak & Jessica Micceri"
   },
   {
     "author": "Euripides",
@@ -5957,7 +5957,7 @@
     "e_source": "Perseus",
     "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.01.0105",
     "print_source": "David Kovacs, Euripides, with an English translation by David Kovacs. Cambridge: Harvard University Press, forthcoming.",
-    "added_by": "Tony R. Waleszczak &amp; Jessica Micceri"
+    "added_by": "Tony R. Waleszczak & Jessica Micceri"
   },
   {
     "author": "Euripides",
@@ -5965,7 +5965,7 @@
     "e_source": "Perseus",
     "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atex%3a1999.01.0109",
     "print_source": "Gilbert Murray, Euripidis Fabulae, vol. 2. Oxford: Clarendn Press, Oxford, 1913.",
-    "added_by": "Tony R. Waleszczak &amp; Jessica Micceri"
+    "added_by": "Tony R. Waleszczak & Jessica Micceri"
   },
   {
     "author": "Euripides",
@@ -5973,7 +5973,7 @@
     "e_source": "Perseus",
     "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atex%3a1999.01.0107",
     "print_source": "Gilbert Murray, Euripidis Fabulae, vol. 3. Oxford: Clarendn Press, Oxford, 1913.",
-    "added_by": "Tony R. Waleszczak &amp; Jessica Micceri"
+    "added_by": "Tony R. Waleszczak & Jessica Micceri"
   },
   {
     "author": "Euripides",
@@ -5981,7 +5981,7 @@
     "e_source": "Perseus",
     "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.01.0111",
     "print_source": "Gilbert Murray, Euripidis Fabulae, vol. 2. Oxford: Clarendon Press, Oxford, 1913.",
-    "added_by": "Tony R. Waleszczak &amp; Jessica Micceri"
+    "added_by": "Tony R. Waleszczak & Jessica Micceri"
   },
   {
     "author": "Euripides",
@@ -5989,7 +5989,7 @@
     "e_source": "Perseus",
     "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.01.0113",
     "print_source": "David Kovacs, Euripides, with an English translation by David Kovacs. Cambridge: Harvard University Press, forthcoming.",
-    "added_by": "Tony R. Waleszczak &amp; Jessica Micceri"
+    "added_by": "Tony R. Waleszczak & Jessica Micceri"
   },
   {
     "author": "Euripides",
@@ -5997,7 +5997,7 @@
     "e_source": "Perseus",
     "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.01.0115",
     "print_source": "Gilbert Murray, Euripidis Fabulae, vol. 3. Oxford: Clarendon Press, Oxford, 1913.",
-    "added_by": "Tony R. Waleszczak &amp; Jessica Micceri"
+    "added_by": "Tony R. Waleszczak & Jessica Micceri"
   },
   {
     "author": "Euripides",
@@ -6005,7 +6005,7 @@
     "e_source": "Perseus",
     "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.01.0117",
     "print_source": "Gilbert Murray, Euripidis Fabulae, vol. 3. Oxford: Clarendon Press, Oxford, 1913.",
-    "added_by": "Tony R. Waleszczak &amp; Jessica Micceri"
+    "added_by": "Tony R. Waleszczak & Jessica Micceri"
   },
   {
     "author": "Euripides",
@@ -6013,7 +6013,7 @@
     "e_source": "Perseus",
     "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.01.0119",
     "print_source": "Gilbert Murray, Euripidis Fabulae, vol. 3. Oxford: Clarendon Press, Oxford, 1913.",
-    "added_by": "Tony R. Waleszczak &amp; Jessica Micceri"
+    "added_by": "Tony R. Waleszczak & Jessica Micceri"
   },
   {
     "author": "Euripides",
@@ -6021,7 +6021,7 @@
     "e_source": "Perseus",
     "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.01.0121",
     "print_source": "Gilbert Murray, Euripidis Fabulae, vol 2.. Oxford: Clarendon Press, Oxford, 1913.",
-    "added_by": "Tony R. Waleszczak &amp; Jessica Micceri"
+    "added_by": "Tony R. Waleszczak & Jessica Micceri"
   },
   {
     "author": "Euripides",
@@ -6037,7 +6037,7 @@
     "e_source": "Perseus",
     "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.01.0123",
     "print_source": "Gilbert Murray, Euripidis Fabulae, vol. 2. Oxford: Clarendon Press, Oxford, 1913.",
-    "added_by": "Tony R. Waleszczak &amp; Jessica Micceri"
+    "added_by": "Tony R. Waleszczak & Jessica Micceri"
   },
   {
     "author": "Euripides",
@@ -6155,7 +6155,7 @@
     "author": "Favonius",
     "work": "Disputatio de somnio Scipionis",
     "e_source": "DigilibLT",
-    "e_source_url": "http://digiliblt.lett.unipmn.it/opera.php?gruppo=opere&amp;iniziale=all&amp;id=dlt000182",
+    "e_source_url": "http://digiliblt.lett.unipmn.it/opera.php?gruppo=opere&iniziale=all&id=dlt000182",
     "print_source": "Roger E. Van Weddingen. Favonii Eulogii Disputatio de somnio Scipionis..Bruxelles 1957 (Collection de Latomus, 27).",
     "added_by": "Caitlin Diddams"
   },
@@ -6227,7 +6227,7 @@
     "author": "Florus",
     "work": "Vergilius orator an poeta",
     "e_source": "DigilibLT",
-    "e_source_url": "http://digiliblt.lett.unipmn.it/opera.php?gruppo=opere&amp;iniziale=all&amp;id=dlt000536",
+    "e_source_url": "http://digiliblt.lett.unipmn.it/opera.php?gruppo=opere&iniziale=all&id=dlt000536",
     "print_source": "Paul Jal. Florus, Oeuvres.Paris 1967, tome II (Collection des Universités de France).",
     "added_by": "Caitlin Diddams"
   },
@@ -6908,7 +6908,7 @@
     "work": "Washingtonii Vita",
     "e_source": "Perseus",
     "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.02.0129",
-    "print_source": "J.N. Reynolds, Washingtonii Vita. New York: Harper &amp; Brothe rs, 1842.",
+    "print_source": "J.N. Reynolds, Washingtonii Vita. New York: Harper & Brothe rs, 1842.",
     "added_by": "Anna Glenn"
   },
   {
@@ -7732,7 +7732,7 @@
     "work": "Carmen Saeculare",
     "e_source": "Latin Library",
     "e_source_url": "http://thelatinlibrary.com/",
-    "print_source": "Paul Shorey, Horace: Odes and Epodes. Boston: Benj. H. Sanborn &amp; Co.",
+    "print_source": "Paul Shorey, Horace: Odes and Epodes. Boston: Benj. H. Sanborn & Co.",
     "added_by": "Chris Forstall"
   },
   {
@@ -7756,7 +7756,7 @@
     "work": "Odes",
     "e_source": "Perseus",
     "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.02.0024",
-    "print_source": "Paul Shorey and Gordon J. Laing, Horace: Odes and Epodes. Chicago: Benj. H. Sanborn &amp; Co., 1919.",
+    "print_source": "Paul Shorey and Gordon J. Laing, Horace: Odes and Epodes. Chicago: Benj. H. Sanborn & Co., 1919.",
     "added_by": "Chris Forstall"
   },
   {
@@ -9684,7 +9684,7 @@
     "author": "Macrobius",
     "work": "In Somnium Scipionis commentarii",
     "e_source": "DigilibLT",
-    "e_source_url": "http://digiliblt.lett.unipmn.it/opera.php?gruppo=opere&amp;iniziale=all&amp;id=dlt000338",
+    "e_source_url": "http://digiliblt.lett.unipmn.it/opera.php?gruppo=opere&iniziale=all&id=dlt000338",
     "print_source": "M. Armisen-Marchetti. Macrobe, Commentaire au songe du ScipionParis 2001-2003 (Collection des Universités de France).",
     "added_by": "Tessa Little"
   },
@@ -11398,7 +11398,7 @@
     "e_source": "Perseus",
     "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.02.0139",
     "print_source": "Letters.",
-    "added_by": "Tony R Waleszczak &amp; Jessica Micceri"
+    "added_by": "Tony R Waleszczak & Jessica Micceri"
   },
   {
     "author": "Plutarch",
@@ -13099,7 +13099,7 @@
     "author": "Pseudo-Vitensis",
     "work": "Notitia provinciarum et civitatum africae",
     "e_source": "Mittellateinische Bibliothek",
-    "e_source_url": "https://web.archive.org/web/20240812080521/http://www.mlat.uzh.ch/MLS/xanfang.php?tabelle=Victor_Vitensis_cps19&amp;corpus=19&amp;allow_download=0&amp;lang=0",
+    "e_source_url": "https://web.archive.org/web/20240812080521/http://www.mlat.uzh.ch/MLS/xanfang.php?tabelle=Victor_Vitensis_cps19&corpus=19&allow_download=0&lang=0",
     "print_source": "Michael Petschenig Notitia provinciarum et civitatum Africae. Osterreichische Akademie der Wissenschaften, Wien, Osterreich, 1881.",
     "added_by": "V3 Legacy Import"
   },
@@ -13355,7 +13355,7 @@
     "author": "Rufius Festus",
     "work": "Breviarium",
     "e_source": "DigilibLT",
-    "e_source_url": "http://digiliblt.lett.unipmn.it/opera.php?gruppo=opere&amp;iniziale=all&amp;id=dlt000183",
+    "e_source_url": "http://digiliblt.lett.unipmn.it/opera.php?gruppo=opere&iniziale=all&id=dlt000183",
     "print_source": "J. W. Eadie. The Breviarium of Festus. A Critical Edition with Historical Commentary London 1967.",
     "added_by": "Caitlin Diddams"
   },
@@ -15013,7 +15013,7 @@
     "work": "Epigrams",
     "e_source": "Perseus",
     "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3Atext%3A1999.01.0228%3Atext%3DEp.",
-    "print_source": "Theocritus. Idylls. R. J. Cholmeley. London. George Bell &amp; Sons. 1901.",
+    "print_source": "Theocritus. Idylls. R. J. Cholmeley. London. George Bell & Sons. 1901.",
     "added_by": "Caitlin Diddams"
   },
   {
@@ -15021,7 +15021,7 @@
     "work": "Idylls",
     "e_source": "Perseus",
     "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3Atext%3A1999.01.0228%3Atext%3DId.",
-    "print_source": "Theocritus. Idylls. R. J. Cholmeley. London. George Bell &amp; Sons. 1901.",
+    "print_source": "Theocritus. Idylls. R. J. Cholmeley. London. George Bell & Sons. 1901.",
     "added_by": "Caitlin Diddams"
   },
   {
@@ -15245,7 +15245,7 @@
     "work": "Aeneid",
     "e_source": "Perseus",
     "e_source_url": "http://www.perseus.tufts.edu/",
-    "print_source": "J. B. Greenough, Bucolics, Aeneid, and Georgics Of Vergil. Boston: Ginn &amp; Co. 1900",
+    "print_source": "J. B. Greenough, Bucolics, Aeneid, and Georgics Of Vergil. Boston: Ginn & Co. 1900",
     "added_by": "Chris Forstall"
   },
   {
@@ -15253,7 +15253,7 @@
     "work": "Eclogues",
     "e_source": "Perseus",
     "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.02.0056",
-    "print_source": "J. B. Greenough, Bucolics, Aeneid, and Georgics Of Vergil. Boston: Ginn &amp; Co. 1900",
+    "print_source": "J. B. Greenough, Bucolics, Aeneid, and Georgics Of Vergil. Boston: Ginn & Co. 1900",
     "added_by": "Chris Forstall"
   },
   {
@@ -15261,7 +15261,7 @@
     "work": "Georgics",
     "e_source": "Perseus",
     "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.02.0059",
-    "print_source": "J. B. Greenough, Bucolics, Aeneid, and Georgics Of Vergil. Boston: Ginn &amp; Co. 1900",
+    "print_source": "J. B. Greenough, Bucolics, Aeneid, and Georgics Of Vergil. Boston: Ginn & Co. 1900",
     "added_by": "Chris Forstall"
   },
   {
@@ -18637,7 +18637,7 @@
     "work": "Carmina",
     "e_source": "Perseus",
     "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.02.0024",
-    "print_source": "Paul Shorey and Gordon J. Laing, Horace: Odes and Epodes. Chicago: Benj. H. Sanborn &amp; Co., 1919.",
+    "print_source": "Paul Shorey and Gordon J. Laing, Horace: Odes and Epodes. Chicago: Benj. H. Sanborn & Co., 1919.",
     "added_by": "Tesserae Project"
   },
   {

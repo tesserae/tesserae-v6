@@ -133,9 +133,14 @@ describe('by default, same_names present and not weak', () => {
     expect(await screen.findByText(/Shared names: Celaenae, Marsyas/)).toBeTruthy();
   });
 
-  it('keeps the scene group as its own section, open by default', async () => {
+  it('shows the scene group when its button in the box at the top is chosen', async () => {
+    const user = userEvent.setup();
     mount();
+    await screen.findByText(/Same people and places/);
+    expect(screen.queryByText('Claudian, In Eutropium')).toBeNull();
+    await user.click(screen.getByRole('tab', { name: /Same kind of scene/ }));
     expect(await screen.findByText('Claudian, In Eutropium')).toBeTruthy();
+    expect(screen.queryByText('Arrian, Anabasis')).toBeNull();
   });
 
   it('shows the commentary line quietly, collapsed until clicked', async () => {

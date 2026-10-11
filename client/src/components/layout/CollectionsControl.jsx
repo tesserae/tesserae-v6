@@ -33,6 +33,7 @@ export default function CollectionsControl() {
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
         aria-haspopup="dialog"
+        title="Choose which bodies of material the site shows: literature, inscriptions, papyri, coins, objects, scholarship"
         className="px-2 sm:px-3 py-1 text-xs sm:text-sm text-gray-600 hover:text-red-700 border border-gray-300 rounded bg-white whitespace-nowrap"
       >
         Collections: <span className="font-semibold">{profileLabel}</span>
@@ -43,6 +44,11 @@ export default function CollectionsControl() {
           aria-label="Collections"
           className="absolute left-0 mt-1 w-72 bg-white border border-gray-200 rounded shadow-lg p-3 z-50 text-sm"
         >
+          <p className="text-xs text-gray-600 mb-2">
+            Choose which bodies of material the site shows. Each one you switch on adds its
+            pages to the menu, its tabs to the Reader and its choices to the searches. A profile
+            sets the switches together.
+          </p>
           <div className="text-xs uppercase tracking-wide text-gray-500 mb-1">Profile</div>
           <div className="flex flex-wrap gap-1 mb-3">
             {PROFILES.map((p) => (

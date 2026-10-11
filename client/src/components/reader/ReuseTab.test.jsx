@@ -54,7 +54,9 @@ describe('the tab asks for the selected line, not the whole work', () => {
   it('fetches /api/reuse/line with the selected ref', async () => {
     mount();
     await waitFor(() => expect(global.fetch).toHaveBeenCalled());
-    const url = global.fetch.mock.calls[0][0];
+    // the Literary profile also opens the Scholarship tab, whose own fetch
+    // may come first, so look for the reuse call among all of them
+    const url = global.fetch.mock.calls.map((c) => String(c[0])).find((u) => u.includes('/api/reuse/line'));
     expect(url).toContain('/api/reuse/line');
     expect(url).toContain('work=vergil.aeneid');
     expect(url).toContain('ref=verg.%20aen.%201.1');
