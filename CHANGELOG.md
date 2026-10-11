@@ -9,6 +9,9 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-11
 
+### Reader: the Documents tab names the words a long selection was matched on
+When a passage-sized selection is searched over the inscriptions and papyri on its rarest words, the Documents tab now says which words, as the Parallels tab does.
+
 ### Reader in the History view: Similar first, a Documents tab for inscriptions and papyri, the tab strip within the panel
 In the History view the Reader's tabs now run Similar, Documents, Coins, Scholarship, Reuse, Parallels, Translation, and Literature gains Documents after Parallels. The Documents tab sends the selected lines to Line Search over the inscriptions and papyri (`collection: 'documents'`) and lists the documents that share two or more words, with date, place, the shared words marked and a link to the document. It shows when Inscriptions or Papyri is on. From the `xl` breakpoint the panel is 32rem wide and the tab buttons are `px-2`, `text-[13px]`, which fits all seven History tabs (502 pixels measured at 1440 wide against a 511-pixel strip); below `xl` the strip scrolls and the chosen tab is kept in view.
 
