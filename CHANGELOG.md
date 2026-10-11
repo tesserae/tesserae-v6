@@ -9,6 +9,8 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-10
 
+### Inscriptions & Papyri examples lead with epigraphy; the Events box says where the events come from
+The one-click examples on the Inscriptions & Papyri page now begin with the emperors' dating formula, a town council's decree and the freedmen's priesthood, with the literary quotations last, and the Greek tab gains the decree formulas. The Events scope box names Wikidata as the source of the events and says plainly how passages are gathered (by names and by theme, merged) and where that fails.
 ### The sources of the Coins and Objects collections move into the scope box
 The Coins and Objects pages open with one short line, and the catalogues and museums, with their licences, are listed under Texts and collections in the What this search does box, after the live count.
 
