@@ -47,3 +47,34 @@ describe('Tessa on a phone', () => {
     } finally { env.restore(); }
   });
 });
+
+describe('Tessa open sheet', () => {
+  const INTRO = 'I can run searches on this corpus and explain how the site works.';
+  const openerButtons = () => screen.getAllByRole('button').filter((b) => /^(How do I run|Where does the phrase|What is the difference)/.test(b.textContent));
+
+  it('on a phone puts the box before the body, focuses it, and shows two openers', async () => {
+    const env = installPhone(true);
+    try {
+      render(<AssistantDock />);
+      fireEvent.click(await screen.findByRole('button', { name: 'Show Tessa, the AI assistant' }));
+      const input = await screen.findByPlaceholderText(/Ask about a text/);
+      const intro = screen.getByText(INTRO);
+      const form = input.closest('form');
+      expect(form.compareDocumentPosition(intro) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+      expect(document.activeElement).toBe(input);
+      expect(openerButtons()).toHaveLength(2);
+    } finally { env.restore(); }
+  });
+
+  it('on a desktop leaves the box at the bottom and shows three openers', async () => {
+    const env = installPhone(false);
+    try {
+      render(<AssistantDock />);
+      fireEvent.click(await screen.findByRole('button', { name: 'Open Tessa, the AI assistant' }));
+      const input = await screen.findByPlaceholderText(/Ask about a text/);
+      const intro = screen.getByText(INTRO);
+      expect(input.closest('form').compareDocumentPosition(intro) & Node.DOCUMENT_POSITION_PRECEDING).toBeTruthy();
+      expect(openerButtons()).toHaveLength(3);
+    } finally { env.restore(); }
+  });
+});
