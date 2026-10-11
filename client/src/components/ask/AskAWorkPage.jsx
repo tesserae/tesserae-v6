@@ -15,10 +15,12 @@ import { readerLink } from '../passages/ThemeSearchPage';
  * route collapses a book file onto its work, and a single work is returned as a
  * flat list that pages by offset with no per-work cap.
  *
- * Two facts about that route shape this page. A restricted search carries no
- * confidence band and never marks a result strong, so the strip falls back to
- * the score when no result is strong. And no line counts are held anywhere the
- * page can read, so the books of the strip have equal widths.
+ * Two facts about that route shape this page. A search within one work carries
+ * a provisional confidence band when the route could fit one (`confidence.fitted`),
+ * and marks a result strong only from it. Without a band the route marks nothing
+ * strong, so the strip falls back to the score when no result is strong. And no
+ * line counts are held anywhere the page can read, so the books of the strip
+ * have equal widths.
  */
 
 // Twenty-five a page: each card fetches its first lines, and fifty at once was a burst of
@@ -26,6 +28,14 @@ import { readerLink } from '../passages/ThemeSearchPage';
 const PAGE = 25;
 const LANGUAGES = [['la', 'Latin'], ['grc', 'Greek'], ['en', 'English'], ['he', 'Hebrew'],
   ['cop', 'Coptic'], ['fa', 'Persian'], ['ur', 'Urdu']];
+
+// What is shown when the route reports no band for the search (a work too small to rate).
+export const UNRATED_NOTE = 'Confidence is not rated for this search because the work has too few passages to compare a subject against. Read the passages before relying on them.';
+
+const BANDS = {
+  moderate: { label: 'Moderate match', className: 'bg-amber-50 text-amber-800 border-amber-200' },
+  strong: { label: 'Strong match', className: 'bg-red-50 text-red-800 border-red-200' },
+};
 
 const EXAMPLES = [
   { lang: 'la', work: 'vergil.aeneid', q: 'fathers and sons', label: 'fathers and sons', on: 'the Aeneid' },
@@ -237,8 +247,9 @@ export default function AskAWorkPage() {
   const [summary, setSummary] = useState(null);     // { state: 'loading' | 'ready', summary, cites }
   const searchId = useRef(0);
 
-  const fetchMentions = useCallback(async (names, workId, books, offset) => {
+  const fetchMentions = useCallback(async (names, workId, books, offset, question) => {
     const p = new URLSearchParams({ work: workId, names: names.join(','), limit: String(PAGE), offset: String(offset) });
+    if (question) p.set('q', question);
     if (books) p.set('books', books);
     const res = await fetch(`/api/passages/mentions?${p.toString()}`);
     return res.json();
@@ -255,7 +266,7 @@ export default function AskAWorkPage() {
     try {
       const rows = [...m.rows];
       while (rows.length < m.total) {
-        const json = await fetchMentions(m.names, m.workId, m.books, rows.length);
+        const json = await fetchMentions(m.names, m.workId, m.books, rows.length, m.question);
         if (id !== searchId.current) return;
         const got = json.results || [];
         if (!got.length) break;
@@ -296,10 +307,12 @@ export default function AskAWorkPage() {
         const w = (catalogueRef.current[code] || []).find((x) => x.id === workId);
         const names = namesIn(query);
         if (names.length) {
-          fetchMentions(names, workId, books, 0).then((m) => {
+          fetchMentions(names, workId, books, 0, query).then((m) => {
             if (id !== searchId.current) return;
             setMentions({
-              names, workId, books, total: Number(m.total) || 0, rows: m.results || [],
+              names, workId, books, question: query, total: Number(m.total) || 0, rows: m.results || [],
+              rankedBy: m.ranked_by === 'closeness' ? 'closeness' : 'mentions',
+              source: m.source === 'text' ? 'text' : 'description',
               searched: Array.isArray(m.books_searched) ? m.books_searched : null,
             });
           }).catch(() => {});
@@ -350,9 +363,13 @@ export default function AskAWorkPage() {
   const shownExamples = EXAMPLES.filter((ex) => (catalogue[ex.lang] || []).some((w) => w.id === ex.work));
 
   const level = data?.confidence?.level;
+  const fitted = Boolean(data?.confidence?.fitted);
   const weakVerdict = level === 'low';
   const emptyList = data && !results.length;
-  const listVisible = results.length > 0 && (!weakVerdict || showWeak);
+  // A low band within one work does not hide the list: in the measurement three
+  // of fifteen real questions came out low (2026-10-11), so the passages are
+  // shown under a weak-match banner and the reader judges.
+  const listVisible = results.length > 0 && (!weakVerdict || showWeak || fitted);
   const askedWork = (catalogue[asked.lang] || []).find((w) => w.id === asked.work);
   const askedRange = parseBooks(asked.books);
   // The books the strip draws: those the server says it searched, else the range, else every book.
@@ -498,16 +515,28 @@ export default function AskAWorkPage() {
 
       {data && !running && (
         <div className="mt-6">
-          {(emptyList || weakVerdict) && (
+          {weakVerdict && !emptyList && fitted && (
+            <div className="rounded border border-gray-300 bg-gray-100 px-3 py-2 text-sm text-gray-700" data-testid="ask-band">
+              <strong className="font-semibold">Weak match.</strong>{' '}
+              The passages of this work do not stand out for that subject. In testing, three of
+              fifteen real questions also came out weak, so the closest passages are shown below.
+            </div>
+          )}
+          {(emptyList || (weakVerdict && !fitted)) && (
             <div className="rounded border border-gray-300 bg-gray-100 px-3 py-2 text-sm text-gray-700">
               <strong className="font-semibold">Nothing in this work resembles that subject.</strong>
               {data.note && !emptyList ? ` ${data.note}` : ''}
             </div>
           )}
-          {!emptyList && !weakVerdict && data.note && (
-            <div className="rounded border border-gray-200 bg-gray-50 px-3 py-2 text-xs text-gray-600">{data.note}</div>
+          {!emptyList && !weakVerdict && fitted && BANDS[level] && (
+            <div className={`rounded border px-3 py-2 text-sm ${BANDS[level].className}`} data-testid="ask-band">
+              <strong className="font-semibold">{BANDS[level].label}.</strong>{' '}{data.note}
+            </div>
           )}
-          {weakVerdict && results.length > 0 && !showWeak && (
+          {!emptyList && !weakVerdict && !fitted && (
+            <div className="rounded border border-gray-200 bg-gray-50 px-3 py-2 text-xs text-gray-600" data-testid="ask-unrated">{UNRATED_NOTE}</div>
+          )}
+          {weakVerdict && !fitted && results.length > 0 && !showWeak && (
             <div className="mt-4">
               <button type="button" onClick={() => setShowWeak(true)}
                       className="text-sm text-red-700 hover:underline">
@@ -589,11 +618,11 @@ export default function AskAWorkPage() {
                 <section aria-label="Passages that name" className="mt-5" data-testid="ask-names">
                   <h2 className="text-sm font-semibold text-gray-700">Passages that name {joinNames(mentions.names)}</h2>
                   {mentions.total === 0 ? (
-                    <p className="mt-1 text-xs text-gray-500">No passage description names {joinNames(mentions.names)} in this work.</p>
+                    <p className="mt-1 text-xs text-gray-500">No passage description or text names {joinNames(mentions.names)} in this work.</p>
                   ) : (
                     <>
                       <p className="mt-1 text-xs text-gray-500">
-                        {mentions.total} {mentions.total === 1 ? 'passage whose description names' : 'passages whose description names'} {joinNames(mentions.names)}, in the order of the work
+                        {mentions.total} {mentions.total === 1 ? 'passage whose' : 'passages whose'} {mentions.source === 'text' ? 'text' : 'description'} names {joinNames(mentions.names)}, {mentions.rankedBy === 'closeness' ? 'the closest to your question first' : 'in the order of the work'}
                       </p>
                       <ul className="mt-2 space-y-2">
                         {shownNames.map((r, i) => (

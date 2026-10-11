@@ -1214,7 +1214,7 @@ export default function ThemeSearchPage() {
           {data.restricted && (
             <div className="rounded border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-700">
               {scopeLabel && <strong className="font-semibold">In {scopeLabel}.</strong>}{' '}
-              {data.note}
+              {band ? '' : data.note}
             </div>
           )}
 

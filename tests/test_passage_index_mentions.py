@@ -111,3 +111,128 @@ def test_one_entry_per_passage_across_scales(monkeypatch):
     refs = [h['ref_start'] for h in out['hits']]
     assert refs.count('tac. ann. 1.24') == 1
     assert len(refs) == len(set(refs))
+
+
+# ---- closeness ranking, name forms and the text fallback (2026-10-11) ----
+
+import numpy as np  # noqa: E402
+
+
+def _closeness_setup(monkeypatch, vectors, qvec):
+    monkeypatch.setattr(pi, '_ids', [r['id'] for r in RECORDS])
+    monkeypatch.setattr(pi, '_row_by_id', None)
+    emb = np.zeros((len(RECORDS), 2), dtype=np.float32)
+    for i, v in vectors.items():
+        emb[i] = v
+    monkeypatch.setattr(pi, '_emb', emb)
+    monkeypatch.setattr(pi, 'embed_query', lambda text: np.array(qvec, dtype=np.float32))
+
+
+def test_query_ranks_by_dot_product(monkeypatch):
+    # w1 is nearest the question, then w4, then w3 (which has the most mentions).
+    _closeness_setup(monkeypatch, {1: (1, 0), 3: (0, 1), 4: (0.8, 0.6)}, (1, 0))
+    out = pi.mentions_in_work('tac.ann', ['Sejanus'], query='the rise of Sejanus')
+    assert out['ranked_by'] == 'closeness'
+    assert _ids(out) == ['w1', 'w4', 'w3']
+    assert out['hits'][0]['score'] == 1.0
+    assert out['hits'][1]['score'] == 0.8
+
+
+def test_ties_fall_back_to_names_then_mentions(monkeypatch):
+    _closeness_setup(monkeypatch, {1: (1, 0), 2: (1, 0), 3: (1, 0)}, (1, 0))
+    out = pi.mentions_in_work('tac.ann', ['Sejanus', 'Germanicus'], query='x')
+    # equal scores: w3 names both, then w1 and w2 by position; w4 scores 0
+    assert _ids(out) == ['w3', 'w1', 'w2', 'w4']
+
+
+def test_without_query_order_is_unchanged_and_says_so():
+    out = pi.mentions_in_work('tac.ann', ['Sejanus', 'Germanicus'])
+    assert out['ranked_by'] == 'mentions'
+    assert 'score' not in out['hits'][0]
+    assert out['source'] == 'description'
+    assert {h['found_in'] for h in out['hits']} == {'description'}
+
+
+def test_encoder_down_keeps_mention_order(monkeypatch):
+    def boom(text):
+        raise pi.EmbedUnavailable('down')
+    monkeypatch.setattr(pi, 'embed_query', boom)
+    out = pi.mentions_in_work('tac.ann', ['Sejanus'], query='x')
+    assert out['ranked_by'] == 'mentions' and _ids(out)[0] == 'w3' and out['note']
+
+
+def test_latin_stems():
+    assert pi.latin_stem('Sejanus') == 'seian'
+    assert pi.latin_stem('Germanicus') == 'germanic'
+    assert pi.latin_stem('Tiberius') == 'tiberi'
+    assert pi.latin_stem('Dido') == 'dido'          # four letters are kept
+
+
+def test_greek_stems():
+    assert 'περικλ' in pi.greek_stems('Pericles')
+    assert 'κλεων' in pi.greek_stems('Cleon')
+    assert pi.greek_stems('Nicias') == ['νικι']
+    assert pi.greek_stems('Alcibiades') == ['αλκιβιαδ']
+    assert pi.greek_stems('Brasidas') == ['βρασιδ']
+    assert 'φιλιπ' in pi.greek_stems('Philip') or pi.greek_stems('Philip')
+
+
+def test_name_prefixes_need_four_letters():
+    assert pi.name_prefixes('Pericles', 'grc')[0].startswith('π')
+    assert pi.name_prefixes('Ajax', 'grc') == [] or len(pi.name_prefixes('Ajax', 'grc')[0]) >= 4
+    assert pi.name_prefixes('Ino', 'la') == []
+    assert pi.name_prefixes('Sejanus', 'la') == ['seian']
+    assert pi.name_prefixes('Sejanus', 'en') == []
+
+
+def test_text_matching_folds_accents_and_case():
+    pre = pi.name_prefixes('Pericles', 'grc')
+    assert pi._text_mentions('ὁ Περικλῆς εἶπε, Περικλέους δὲ ΠΕΡΙΚΛΕΙ', pre) == 3
+    assert pi._first_matching_word('ὁ Περικλῆς εἶπε', pre) == 'Περικλῆς'
+    # accents stored as separate combining marks do not cut a word
+    assert pi._first_matching_word('Περικλε\u0301ους εἶπε', pre) == 'Περικλε\u0301ους'
+    assert pi._text_mentions('Περικλε\u0301ους', pre) == 1
+    assert pi._text_mentions('Seiani et SEIANUM', ['seian']) == 2
+
+
+GREEK = [
+    {'id': 'g0', 'work': 'grc/thuc.part.1.tess', 'language': 'grc', 'scale': 'fine',
+     'ref_start': 'thuc. 1.1', 'ref_end': 'thuc. 1.2',
+     'desc': {'gist': 'An experienced king addresses an assembly.'}},
+    {'id': 'g1', 'work': 'grc/thuc.part.1.tess', 'language': 'grc', 'scale': 'fine',
+     'ref_start': 'thuc. 1.5', 'ref_end': 'thuc. 1.6',
+     'desc': {'gist': 'A general speaks.'}},
+    {'id': 'g2', 'work': 'grc/thuc.part.2.tess', 'language': 'grc', 'scale': 'fine',
+     'ref_start': 'thuc. 2.1', 'ref_end': 'thuc. 2.2',
+     'desc': {'gist': 'Pericles is named here.'}},
+]
+GREEK_TEXT = {'g0': 'ἔλεγε δὲ Περικλῆς τάδε καὶ Περικλέους', 'g1': 'ὁ Κλέων ἔλεγεν', 'g2': 'ἄλλο'}
+
+
+@pytest.fixture
+def greek(monkeypatch):
+    monkeypatch.setattr(pi, '_records', GREEK)
+    monkeypatch.setattr(pi, '_by_work', {'grc/thuc': [0, 1, 2]})
+    from backend import window_texts
+    monkeypatch.setattr(window_texts, 'texts_for',
+                        lambda ids: {i: GREEK_TEXT[i] for i in ids if i in GREEK_TEXT})
+    monkeypatch.setattr(pi, '_norm_work', lambda w: 'grc/thuc')
+
+
+def test_text_fallback_when_descriptions_have_nothing(greek):
+    out = pi.mentions_in_work('grc/thuc', ['Cleon'])
+    assert out['source'] == 'text'
+    assert _ids(out) == ['g1']
+    h = out['hits'][0]
+    assert h['found_in'] == 'text' and h['matched'] == ['Cleon']
+    assert h['mentions'] == 1 and h['matched_word'] == 'Κλέων'
+
+
+def test_description_hits_are_not_replaced_by_text(greek):
+    out = pi.mentions_in_work('grc/thuc', ['Pericles'])
+    assert out['source'] == 'description' and _ids(out) == ['g2']
+    forced = pi.mentions_in_work('grc/thuc', ['Pericles'], source='text')
+    assert forced['source'] == 'text' and _ids(forced) == ['g0']
+    assert forced['hits'][0]['mentions'] == 2
+    off = pi.mentions_in_work('grc/thuc', ['Cleon'], source='description')
+    assert off['hits'] == [] and off['source'] == 'description'

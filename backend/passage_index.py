@@ -1746,6 +1746,101 @@ def resolve_restriction(author=None, works=None, languages=None):
     return pool, None
 
 
+# WITHIN-WORK CONFIDENCE (Ask a Work), fitted 2026-10-11.
+#
+# A search restricted to ONE work cannot use HEAD_WEAK and HEAD_STRONG: those
+# were fitted to corpus-wide score distributions, and a single work's median
+# and head sit in a different place (the pilot judged 293 passages and the raw
+# scores did not separate the grades: mean 0.794 for grade 0, 0.794 for grade 1,
+# 0.805 for grade 2). So the same method was repeated inside the work, on 45
+# queries over the Aeneid, Thucydides and the Annals: 15 subjects the work
+# treats (the pilot's questions), 15 it does not (five per work) and 15
+# nonsense strings (five per work). Report, figures and script:
+# ask_a_work_pilot_2026-10-11/confidence/ in the backup folder.
+#
+# What separated real from absent and nonsense (accuracy of one threshold,
+# real called moderate or strong, the other thirty called low):
+#     spread (std of the work's scores)   0.889   leave-one-work-out 0.867
+#     head lift (top ten over median)     0.822   leave-one-work-out 0.756
+#     top-1 lift                          0.822   leave-one-work-out 0.689
+#     coherence of the top twenty         0.822   leave-one-work-out 0.622
+# Head lift and coherence do not hold up across works, so the band reads the
+# spread of the work's own scores: a subject the work treats pulls a group of
+# windows well above the rest and widens the distribution. Threshold WEAK is the
+# best single cut. STRONG is just above the largest spread any of the thirty
+# absent or nonsense queries produced (0.0123), the convention HEAD_STRONG uses.
+# Of the 15 real subjects, 5 fall at strong, 7 at moderate and 3 (the causes of
+# the war, Tiberius's concealment, the rise of Sejanus) at low. Two of the thirty
+# non-subjects fall at moderate. Provisional: three works, one threshold.
+WITHIN_SPREAD_WEAK = 0.0099
+WITHIN_SPREAD_STRONG = 0.0125
+# A passage is marked strong when it stands this many standard deviations above
+# the work's median score AND the search is not rated low. On the 293 judged
+# passages (gated on the band) z >= 3.0 marks 63, of which 90.5% are grade 1 or 2
+# (grade 2 alone 69.8%) and 41.5% of all grade-2 passages are caught. The rule was
+# precision for grades 1 and 2 of at least 0.85 with recall of at least 0.3.
+# z >= 2.5 clears 0.85 by less (0.869) and a bootstrap over questions puts the
+# 5th percentile of precision at 0.76 for z >= 3.0, so it is provisional too.
+# The raw score cannot do this (best precision 0.80 at recall 0.09).
+WITHIN_STRONG_Z = 3.0
+WITHIN_FITTED = 'within-work 2026-10-11'
+
+
+def within_work_signals(scores, rows):
+    """The within-work figures for the windows `rows` (global row indices) of a
+    score vector. Undescribed windows (masked at -1) are left out. Returns None
+    when fewer than ten windows remain."""
+    import numpy as np
+    rows = np.asarray(rows, dtype=np.int64)
+    s = np.asarray(scores, dtype=np.float64)[rows]
+    keep = s > -0.5
+    rows, s = rows[keep], s[keep]
+    if s.size < 10:
+        return None
+    med = float(np.median(s))
+    srt = np.sort(s)
+    k = min(10, srt.size)
+    top = rows[np.argsort(-s)[:min(COHERENCE_K, s.size)]]
+    return {'n': int(s.size), 'work_median': med,
+            'work_head_lift': float(srt[-k:].mean()) - med,
+            'work_coherence': _coherence_of_rows(top),
+            'top1_lift': float(srt[-1]) - med, 'spread': float(s.std())}
+
+
+def _restricted_rows(works_set):
+    """Row indices of every window of the chosen works or book files."""
+    rows = []
+    for base in {_norm_work(w) for w in works_set}:
+        for i in _by_work.get(base) or []:
+            w = _records[i].get('work')
+            if base in works_set or work_id(w) in works_set:
+                rows.append(i)
+    return rows
+
+
+def _within_level(spread):
+    """low / moderate / strong from the spread of the work's scores."""
+    if spread < WITHIN_SPREAD_WEAK:
+        return 'low'
+    if spread >= WITHIN_SPREAD_STRONG:
+        return 'strong'
+    return 'moderate'
+
+
+_WITHIN_NOTE = ('Confidence within one work was fitted on fifteen questions the works treat '
+                'and thirty they do not, over three works, so it is provisional.')
+
+
+def _within_note(level):
+    if level == 'strong':
+        return _WITHIN_NOTE
+    if level == 'moderate':
+        return ('Moderate confidence: this work holds passages of this kind, but the match is '
+                'looser than a clear case. Read the results before relying on them. ' + _WITHIN_NOTE)
+    return ('Anything the search returns for this subject is a nearest neighbor, not a '
+            'finding. ' + _WITHIN_NOTE)
+
+
 def find_by_text(query, limit=25, languages=None, scale=None, expand=False,
                  offset=0, only_works=None, per_work=None):
     """Theme Search: free-text description of the wanted content.
@@ -1774,8 +1869,9 @@ def find_by_text(query, limit=25, languages=None, scale=None, expand=False,
     whole ranking to those works. The page is then a FLAT list of passages, not
     one head per work with three rows each: `limit` and `offset` count passages,
     and each work may contribute `per_work` of them (RESTRICTED_PER_WORK unless
-    given). No confidence level is rated for such a search, because the figures
-    were fitted to corpus-wide queries.
+    given). The corpus-wide confidence figures do not apply to such a search.
+    One work (or some of its books) is rated from the spread of its own scores
+    (see WITHIN_SPREAD_WEAK); several works or an author are not rated.
     """
     _ensure_loaded()
     if not _state['ok']:
@@ -1817,12 +1913,18 @@ def find_by_text(query, limit=25, languages=None, scale=None, expand=False,
     strong_at = baseline + (STRONG_LIFT if level == 'strong' else 1e9)
     # The confidence figures above describe the embedding alone; the lexical
     # boost then reorders the windows (see LEXICAL_BETA).
+    within = None
+    if only_works is not None and len({_norm_work(w) for w in only_works}) == 1:
+        # One work (or some of its books): the band is read from the work's own
+        # scores, before the lexical boost reorders them, as it was fitted.
+        within = within_work_signals(scores, _restricted_rows(set(only_works)))
     n_lexical = _lexical_boost(query, scores)
 
     if only_works is not None:
         # Restricted to an author or to chosen works. The corpus-wide level was
         # fitted to queries over the whole index and says nothing about a few
-        # works, so it is withheld and no result is marked strong.
+        # works. One work is rated from its own scores (see WITHIN_SPREAD_WEAK);
+        # several works are not rated and no result is marked strong.
         works_set = set(only_works)
         # (Part ids of one work count as one work for the cap below.)
         n_bases = len({_norm_work(w) for w in works_set})
@@ -1839,15 +1941,33 @@ def find_by_text(query, limit=25, languages=None, scale=None, expand=False,
         results = _rank(scores, limit, offset=offset, languages=languages,
                         scale=scale, baseline=baseline, strong_at=1e9,
                         per_work=cap, only_works=works_set)
+        confidence = {'level': 'restricted'}
+        within_note = None
+        if within is not None:
+            wlevel = _within_level(within['spread'])
+            confidence = {'level': wlevel,
+                          'work_head_lift': round(within['work_head_lift'], 4),
+                          'work_coherence': round(within['work_coherence'], 4),
+                          'spread': round(within['spread'], 4),
+                          'work_median': round(within['work_median'], 4),
+                          'fitted': WITHIN_FITTED,
+                          'note': _within_note(wlevel)}
+            within_note = confidence['note']
+            for r in results:
+                lift = float(r.get('score', 0)) - within['work_median']
+                r['lift'] = round(lift, 4)
+                r['z'] = round(lift / within['spread'], 2) if within['spread'] > 0 else 0.0
+                r['strong'] = bool(wlevel != 'low' and within['spread'] > 0
+                                   and lift / within['spread'] >= WITHIN_STRONG_Z)
         return {
             'query': query,
             'results': results,
-            'strong_matches': 0,
+            'strong_matches': sum(1 for r in results if r.get('strong')),
             'lexical_boost': n_lexical > 0,
             'restricted': True,
             'per_work': cap,
-            'confidence': {'level': 'restricted'},
-            'note': ('Confidence is not rated for a search within one author or '
+            'confidence': confidence,
+            'note': within_note or ('Confidence is not rated for a search within one author or '
                      'work. These are the closest passages in the chosen works, '
                      'whether or not they match well, so read them before relying '
                      'on them.' + (f' Each work shows up to {cap} passages. Choose '
@@ -2664,7 +2784,87 @@ def _desc_text(desc):
     return ' '.join(parts)
 
 
-def mentions_in_work(work, names, books=None):
+_LATIN_ENDINGS = ('us', 'es', 'is', 'as', 'a', 'o')
+_GREEK_LETTERS = {'p': 'π', 'b': 'β', 't': 'τ', 'd': 'δ', 'k': 'κ', 'c': 'κ',
+                  'g': 'γ', 'l': 'λ', 'm': 'μ', 'n': 'ν', 'r': 'ρ', 's': 'σ',
+                  'x': 'ξ', 'z': 'ζ', 'a': 'α', 'e': 'ε', 'i': 'ι', 'o': 'ο',
+                  'u': 'υ', 'y': 'υ', 'h': ''}
+_GREEK_DIGRAPHS = {'ph': 'φ', 'th': 'θ', 'ch': 'χ', 'ps': 'ψ'}
+_GREEK_VARIANTS = {'ε': ('ε', 'η'), 'ο': ('ο', 'ω')}
+
+
+# Word characters plus combining marks: the stored Greek has some accents and
+# breathings as separate characters, which a plain \w would cut the word at.
+_WORD = re.compile(r'[\w\u0300-\u036f]+')
+
+
+def _fold(text):
+    """Lower case, accents and breathings removed, j as i and v as u."""
+    import unicodedata
+    t = unicodedata.normalize('NFD', str(text or '').lower())
+    t = ''.join(ch for ch in t if not unicodedata.combining(ch))
+    return t.replace('ς', 'σ')
+
+
+def latin_stem(name):
+    """The English name without a final -us, -es, -is, -as, -a or -o (never
+    leaving fewer than four letters), spelled with i for j and u for v as the
+    texts are. Sejanus gives seian, Germanicus germanic, Tiberius tiberi."""
+    n = _fold(name).strip().replace('j', 'i').replace('v', 'u')
+    n = re.sub(r'[^a-z]', '', n)
+    for end in _LATIN_ENDINGS:
+        if n.endswith(end) and len(n) - len(end) >= 4:
+            return n[:-len(end)]
+    return n
+
+
+def greek_stems(name):
+    """Greek spellings of the Latin stem, letter by letter, with eta and omega
+    tried where the stem has epsilon and omicron. Pericles gives περικλ and
+    πηρικλ, Cleon gives κλεον, κλεων, κληον and κληων."""
+    stem = latin_stem(name)
+    letters, i = [], 0
+    while i < len(stem):
+        if stem[i:i + 2] in _GREEK_DIGRAPHS:
+            letters.append(_GREEK_DIGRAPHS[stem[i:i + 2]])
+            i += 2
+            continue
+        letters.append(_GREEK_LETTERS.get(stem[i], stem[i]))
+        i += 1
+    forms = ['']
+    for g in letters:
+        opts = _GREEK_VARIANTS.get(g, (g,))
+        forms = [f + o for f in forms for o in opts][:64]
+    return sorted(set(forms))
+
+
+def name_prefixes(name, language):
+    """Word-beginnings (folded) that count as the name in a text of `language`,
+    or [] when the name is too short to match by prefix (under four letters)."""
+    stem = latin_stem(name)
+    if len(stem) < 4:
+        return []
+    if language == 'grc':
+        return [f for f in greek_stems(name) if len(f) >= 4]
+    if language == 'la':
+        return [stem]
+    return []
+
+
+def _text_mentions(text, prefixes):
+    return sum(1 for w in re.findall(_WORD, _fold(text))
+               if any(w.startswith(p) for p in prefixes))
+
+
+def _first_matching_word(text, prefixes):
+    for w in re.findall(_WORD, str(text or '')):
+        fw = _fold(w)
+        if any(fw.startswith(p) for p in prefixes):
+            return w
+    return None
+
+
+def mentions_in_work(work, names, books=None, query=None, source=None):
     """Windows of one work whose description names any of `names`.
 
     Names match as whole words, case-insensitively, in the description's
@@ -2672,15 +2872,26 @@ def mentions_in_work(work, names, books=None):
     "Dido" (the apostrophe is a word boundary), "Didonian" does not.
     `work` is a base id (the whole work) or a part id (that book alone);
     `books` (a list of ints) narrows a base id to those numbered parts.
-    Ranked by distinct names matched, then total mentions, then position.
 
-    Returns {'work', 'books_searched', 'hits': [...], 'note'?}; `hits` is the
-    full ranked list. An unknown work gives no hits and a `note`."""
+    A name the descriptions never mention is looked for in the text of the
+    windows (Latin and Greek, by word beginning, see name_prefixes), because
+    some descriptions anonymise people. source='text' forces that search for
+    every name, source='description' forbids it.
+
+    Ranked by closeness to `query` when one is given (cosine of the window
+    vector with the encoded query), then by distinct names matched, total
+    mentions and position. Without a query: distinct names, mentions, position.
+
+    Returns {'work', 'books_searched', 'hits': [...], 'ranked_by', 'source',
+    'note'?}; `hits` is the full ranked list. Each hit has 'found_in'
+    ('description' or 'text') and, with a query, 'score'. An unknown work gives
+    no hits and a `note`."""
     _ensure_loaded()
     base = _norm_work(work)
     wid = work_id(work)
     if not _state.get('ok') or not _by_work or base not in _by_work:
         return {'work': base, 'books_searched': None, 'hits': [],
+                'ranked_by': 'mentions', 'source': 'description',
                 'note': 'That work has no passage windows in the index.'}
     rows = _by_work[base]
     searched = None
@@ -2690,40 +2901,119 @@ def mentions_in_work(work, names, books=None):
         ids, searched = book_parts(base, books)
         idset = set(ids)
         rows = [i for i in rows if work_id(_records[i].get('work')) in idset]
-    pats = [(n.strip(), _name_pattern(n)) for n in names if n and n.strip()]
-    hits = []
-    for i in rows:
-        if i in _shadowed:      # the work's prose windows say it in finer pieces
-            continue
+    # The fine windows of a work with prose-scale windows are left out: the
+    # prose windows say the same chapters in finer pieces.
+    rows = [i for i in rows if i not in _shadowed]
+    names = [n.strip() for n in names if n and n.strip()]
+    pats = [(n, _name_pattern(n)) for n in names]
+    source = source if source in ('text', 'description') else None
+    note = None
+
+    def make_hit(r, matched, count, found_in, word=None):
+        h = {'id': r.get('id'), 'work': work_id(r.get('work')),
+             'ref_start': r.get('ref_start'), 'ref_end': r.get('ref_end'),
+             'language': r.get('language'),
+             'gist': (r.get('desc') or {}).get('gist'),
+             **({'sub': r['sub']} if r.get('sub') is not None else {}),
+             'matched': matched, 'mentions': count, 'found_in': found_in}
+        if word:
+            h['matched_word'] = word
+        return h
+
+    found = []     # (record index, hit)
+    named = set()
+    if source != 'text':
+        for i in rows:
+            r = _records[i]
+            text = _desc_text(r.get('desc'))
+            matched, count = [], 0
+            for n, pat in pats:
+                c = len(pat.findall(text))
+                if c:
+                    matched.append(n)
+                    count += c
+            if matched:
+                named.update(matched)
+                found.append((i, make_hit(r, matched, count, 'description')))
+    missing = [n for n in names if n not in named]
+    if source != 'description' and missing and rows:
+        from backend import window_texts
+        t0 = time.time()
+        plan = []
+        for n in missing:
+            lang = next((_records[i].get('language') for i in rows), None)
+            pre = name_prefixes(n, lang)
+            if pre:
+                plan.append((n, pre))
+        if plan:
+            texts = window_texts.texts_for([_records[i].get('id') for i in rows])
+            by_i = {}
+            for i in rows:
+                t = texts.get(_records[i].get('id'))
+                if not t:
+                    continue
+                matched, count, word = [], 0, None
+                for n, pre in plan:
+                    c = _text_mentions(t, pre)
+                    if c:
+                        matched.append(n)
+                        count += c
+                        word = word or _first_matching_word(t, pre)
+                if matched:
+                    by_i[i] = make_hit(_records[i], matched, count, 'text', word)
+            # A window the description already gave for another name keeps its
+            # description hit and gains the text hit's names.
+            have = {i: h for i, h in found}
+            for i, h in by_i.items():
+                if i in have:
+                    have[i]['matched'] = have[i]['matched'] + h['matched']
+                    have[i]['mentions'] += h['mentions']
+                else:
+                    found.append((i, h))
+            logger.info('[PASSAGES] text search for %s in %s: %d windows, %.2fs',
+                        [n for n, _ in plan], base, len(rows), time.time() - t0)
+        if missing and not plan:
+            note = 'The descriptions do not name that, and the name is too short to look for in the text.'
+    ranked_by = 'mentions'
+    qv = None
+    if (query or '').strip() and found:
+        try:
+            import numpy as np
+            qv = np.asarray(embed_query(_E5_PREFIX + query.strip()[:1500]),
+                            dtype=np.float32)
+            ranked_by = 'closeness'
+        except EmbedUnavailable:
+            note = 'The question could not be encoded, so the list is in the order of mentions.'
+    keyed = []
+    for i, h in found:
         r = _records[i]
-        text = _desc_text(r.get('desc'))
-        matched, count = [], 0
-        for n, pat in pats:
-            c = len(pat.findall(text))
-            if c:
-                matched.append(n)
-                count += c
-        if not matched:
-            continue
         coords = _ref_coords_in(r.get('work'), r.get('ref_start'))
         pn = part_number(r.get('work'))
-        hits.append(((-len(matched), -count, pn if pn is not None else 0, coords,
-                      r.get('sub') or 0),
-                     {'id': r.get('id'), 'work': work_id(r.get('work')),
-                      'ref_start': r.get('ref_start'), 'ref_end': r.get('ref_end'),
-                      'language': r.get('language'),
-                      'gist': (r.get('desc') or {}).get('gist'),
-                      **({'sub': r['sub']} if r.get('sub') is not None else {}),
-                      'matched': matched, 'mentions': count}))
-    hits.sort(key=lambda t: t[0])
+        score = None
+        if qv is not None:
+            row = _row_of(r.get('id'))
+            score = (float(np.asarray(_emb[row], dtype=np.float32) @ qv)
+                     if row is not None else -1.0)
+            h['score'] = round(score, 4)
+        keyed.append((((-score) if score is not None else 0,
+                       -len(h['matched']), -h['mentions'],
+                       pn if pn is not None else 0, coords), h))
+    keyed.sort(key=lambda t: t[0])
     # One entry per passage: the index holds a window at two scales, so the
     # same opening reference came back twice (Tac. Ann. 4.1 twice for
     # Sejanus, 2026-10-11). The higher-ranked copy stays.
     seen, out = set(), []
-    for _, h in hits:
+    for _, h in keyed:
         key = (h['work'], h['ref_start'], h.get('sub'))
         if key in seen:
             continue
         seen.add(key)
         out.append(h)
-    return {'work': base, 'books_searched': searched, 'hits': out}
+    kinds = {h['found_in'] for h in out}
+    src = ('mixed' if len(kinds) > 1 else kinds.pop() if kinds
+           else ('text' if source == 'text' else 'description'))
+    res = {'work': base, 'books_searched': searched, 'hits': out,
+           'ranked_by': ranked_by, 'source': src}
+    if note:
+        res['note'] = note
+    return res
