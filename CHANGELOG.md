@@ -14,6 +14,10 @@ On a screen narrower than 768 pixels the Reader header is one line reading the p
 ### Translations: a script to strip the facing-page OCR noise from 25 Loeb-scan files
 Twenty-five translation files aligned from Loeb scans carry the OCR of the facing Greek or Latin page in their English. `scripts/translations/strip_ocr_noise.py` removes runs of eight or more non-English tokens and the running headers, keeps every unit at its index, and refuses a file whose content words fall by more than 3 percent. Cleaned files are written to a review folder; installing them is under "to run" in docs/DATA_OPERATIONS.md.
 
+### Phrase Search: the corpus chart counts the lines the list keeps
+The "Across the corpus" chart beside a parallel counted every corpus line containing the shared words, while the list under it kept only lines that pass the closeness rule (at most three words between in prose, twenty in verse). So the chart could say "Tacitus (1)" and the list "Tacitus, 0 instances": the one hit was a whole prose chapter (Histories 3.55) with the words forty words apart. The count now applies the same rule from the index's word positions before counting, so the chart and the list agree. Two stale collections tests updated for Scholarship in the Literary profile.
+
+
 ## 2026-10-10
 
 ### Records: Diodorus books 11 to 17 and the scholarship theme index installed
