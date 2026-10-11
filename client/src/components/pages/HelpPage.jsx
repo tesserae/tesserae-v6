@@ -1730,13 +1730,16 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
               </p>
               <p className="text-gray-700 mb-4">
                 Measured in October 2026 on fifteen questions over the Aeneid, Thucydides 1 and 2
-                and Annals 1 to 6, one judge reading the first twenty passages of each. A passage
+                and Annals 1 to 6, two judges reading the first twenty passages of each, a Sonnet model and
+                the university gateway&rsquo;s Qwen model. A passage
                 directly about the subject stood in the first five for 14 of the 15 questions, and
                 of the first ten passages 0.44 were directly about it and 0.75 at least touched it.
                 It was weakest when one account fills a few windows (the plague at Athens) and when
                 the question asks for a named speaker&rsquo;s view, which came back in the
-                narrator&rsquo;s voice. Searches that name a person or a rare term are often
-                better served by Line Search, and a search takes about twenty seconds.
+                narrator&rsquo;s voice. The two judges agreed on 69 percent of grades, the second being
+                stricter on passages that only touch a subject, and both put the precision of the
+                strong marks near nine in ten. Searches that name a person or a rare term are often
+                better served by Line Search, and a search takes a few seconds.
               </p>
               <p className="text-gray-700 mb-4">
                 Above the list, a banner rates the search. It reads how widely the scores of the
