@@ -1736,6 +1736,19 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 narrator&rsquo;s voice. Searches that name a person or a rare term are often
                 better served by Line Search, and a search takes about twenty seconds.
               </p>
+              <p className="text-gray-700 mb-4">
+                Above the list, a banner rates the search. It reads how widely the scores of the
+                work&rsquo;s own passages spread, because a subject the work treats pulls a group of
+                passages well above the rest. Weak means the work probably holds nothing of the
+                kind, and the passages are kept behind a button. A passage is marked strong when
+                it stands far above the work&rsquo;s typical score. This was fitted in October 2026
+                on fifteen subjects the three works treat and thirty they do not, so it is
+                provisional. It called 12 of the 15 real subjects moderate or strong and 28 of the
+                30 others weak. It missed the causes of the war, Tiberius&rsquo;s concealment of his
+                intentions and the rise of Sejanus. Of the passages marked strong, 90 percent were
+                at least partly about the subject, and the marks caught 42 percent of the passages
+                judged directly about it.
+              </p>
             </div>
           )}
 
