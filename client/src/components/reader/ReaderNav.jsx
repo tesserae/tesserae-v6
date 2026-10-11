@@ -9,7 +9,8 @@
  * work's sections (the per-book files from the corpus hierarchy) and the
  * same onWork callback the header's Book dropdown uses.
  */
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useIsPhone } from '../../hooks/useIsPhone';
 
 /** The sections (books) of the work that contains `work`, from the corpus
  *  hierarchy, or [] when the hierarchy has not loaded or the work is unknown.
@@ -67,7 +68,7 @@ const linkCls = 'px-1.5 py-0.5 rounded border border-gray-300 bg-white text-gray
   + 'hover:bg-gray-100 hover:border-gray-400 disabled:opacity-40 disabled:hover:bg-white '
   + 'disabled:cursor-default whitespace-nowrap';
 
-function BookLinks({ sections, work, onWork, size }) {
+export function BookLinks({ sections, work, onWork, size }) {
   const books = bookSections(sections);
   const { prev, next } = neighbours(books, work);
   if (books.length < 2) return null;
@@ -95,7 +96,10 @@ function BookLinks({ sections, work, onWork, size }) {
  * line and is scrolling to it, otherwise a short message for the box to show
  * ("no line 6.9999 here", or that a bare number is ambiguous in this file).
  */
-export default function ReaderNav({ sections, work, onWork, onJump }) {
+/** The "Go to line" box. `onJump(query)` returns '' when the Reader found the
+ *  line, otherwise a short message to show. `onDone` runs after a good jump.
+ *  Used by the sticky strip and by the phone picker sheet. */
+export function GoToLineForm({ onJump, onDone, size = 'text-[11px]', className = 'flex items-center gap-1 ml-1', inputWidth = 'w-20' }) {
   const [q, setQ] = useState('');
   const [miss, setMiss] = useState('');
 
@@ -105,28 +109,46 @@ export default function ReaderNav({ sections, work, onWork, onJump }) {
     if (!query) return;
     const problem = onJump(query) || '';
     setMiss(problem);
-    if (!problem) setQ('');
+    if (!problem) {
+      setQ('');
+      if (onDone) onDone();
+    }
   };
+
+  return (
+    <form onSubmit={submit} className={className}>
+      <label className="flex items-center gap-1">
+        <span>Go to line</span>
+        <input
+          value={q}
+          onChange={(e) => { setQ(e.target.value); if (miss) setMiss(''); }}
+          placeholder="e.g. 6.851"
+          aria-label="Go to line"
+          className={`${inputWidth} rounded border border-gray-300 px-1.5 py-0.5 ${size}
+                     focus:outline-none focus:ring-1 focus:ring-red-600`}
+        />
+      </label>
+      <button type="submit" className={`${linkCls} ${size}`}>Go</button>
+      {miss && <span className="text-red-700" role="status">{miss}</span>}
+    </form>
+  );
+}
+
+/**
+ * The sticky strip. `onJump(query)` returns '' when the Reader found the
+ * line and is scrolling to it, otherwise a short message for the box to show
+ * ("no line 6.9999 here", or that a bare number is ambiguous in this file).
+ * On a phone it renders nothing: its controls live in the header's picker sheet.
+ */
+export default function ReaderNav({ sections, work, onWork, onJump }) {
+  const phone = useIsPhone();
+  if (phone) return null;
 
   return (
     <div className="sticky top-0 z-20 flex flex-wrap items-center gap-1.5 px-3 py-1
                     text-[11px] text-gray-600 border-b border-gray-200 bg-white">
       <BookLinks sections={sections} work={work} onWork={onWork} size="text-[11px]" />
-      <form onSubmit={submit} className="flex items-center gap-1 ml-1">
-        <label className="flex items-center gap-1">
-          <span>Go to line</span>
-          <input
-            value={q}
-            onChange={(e) => { setQ(e.target.value); if (miss) setMiss(''); }}
-            placeholder="e.g. 6.851"
-            aria-label="Go to line"
-            className="w-20 rounded border border-gray-300 px-1.5 py-0.5 text-[11px]
-                       focus:outline-none focus:ring-1 focus:ring-red-600"
-          />
-        </label>
-        <button type="submit" className={`${linkCls} text-[11px]`}>Go</button>
-        {miss && <span className="text-red-700" role="status">{miss}</span>}
-      </form>
+      <GoToLineForm onJump={onJump} />
       <button type="button" onClick={scrollToTop}
               className={`${linkCls} text-[11px] ml-auto`} aria-label="Back to top">
         &#9650; Top
@@ -188,5 +210,25 @@ export function ReaderFloatNav({ sections, work, onWork }) {
         </>
       )}
     </div>
+  );
+}
+
+/** Phone only: a round "Back to top" button at the bottom left, shown after
+ *  the page has scrolled more than 600 pixels and hidden while the results
+ *  sheet is open (`hidden`). It sits above the closed sheet's tab strip. */
+export function ReaderPhoneTopButton({ hidden }) {
+  const phone = useIsPhone();
+  const [far, setFar] = useState(false);
+  useEffect(() => {
+    if (!phone) return undefined;
+    const onScroll = () => setFar(window.scrollY > 600);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, [phone]);
+  if (!phone || !far || hidden) return null;
+  return (
+    <button type="button" className={`${floatCls} fixed bottom-[3.5rem] left-3 z-30 print:hidden`}
+            onClick={scrollToTop} aria-label="Back to top" title="Back to top">&#9650;</button>
   );
 }

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { cssRef } from './refId';
 import { RTL_LANGS as RTL } from '../../utils/rtl';
+import { useIsPhone } from '../../hooks/useIsPhone';
 
 /**
  * The reading surface: the text itself, with selection.
@@ -13,6 +14,9 @@ import { RTL_LANGS as RTL } from '../../utils/rtl';
  */
 export default function TextPane({ units, language, selection, onSelect, total, onMore,
                                     reuseMarks, onReuseClick, documentsTrial }) {
+  // On a phone: a narrower line-number column, a smaller gap and a hanging
+  // indent, so the text has the width and a wrapped line reads as one line.
+  const phone = useIsPhone();
   // LONG TEXTS ARRIVE IN STRETCHES. Hafez's diwan is 9,502 lines and Anvari's
   // 26,616; drawing every line and gutter tile at once froze a phone and
   // crashed its tab (2026-09-07). The page draws what it has been given
@@ -123,7 +127,7 @@ export default function TextPane({ units, language, selection, onSelect, total, 
   return (
     <div
       ref={paneRef}
-      className="flex-1 px-6 py-6 overflow-y-auto reader-text"
+      className={`flex-1 ${phone ? 'px-2 py-4' : 'px-6 py-6'} overflow-y-auto reader-text`}
       onKeyUp={(e) => { if (e.shiftKey) readSelection(); }}
     >
       {/* Gentium Book carries Latin, polytonic Greek and Cyrillic, and
@@ -155,14 +159,14 @@ export default function TextPane({ units, language, selection, onSelect, total, 
             <div
               key={u.ref}
               id={`line-${cssRef(u.ref)}`}
-              className={`grid gap-2 cursor-text ${selected ? 'bg-red-50 border-l-[3px] border-red-700 -ml-[3px] rounded-r' : ''}`}
+              className={`grid ${phone ? 'gap-1' : 'gap-2'} cursor-text ${selected ? 'bg-red-50 border-l-[3px] border-red-700 -ml-[3px] rounded-r' : ''}`}
               // The second column holds the "quoted in N works" mark. With the
               // documents trial on, a line can carry a second mark (the amber
               // inscriptions count) beside it, and 1.15rem fitted one mark only:
               // the second overlapped the line's text (seen on Aeneid 1.1,
               // 2026-10-09). Reserve room for two whenever the trial is on, so
               // every line's text stays on the same left edge.
-              style={{ gridTemplateColumns: `2.6rem ${documentsTrial ? '2.5rem' : '1.15rem'} 1fr`, minHeight: '1.75rem' }}
+              style={{ gridTemplateColumns: `${phone ? '1.6rem' : '2.6rem'} ${documentsTrial ? '2.5rem' : '1.15rem'} 1fr`, minHeight: '1.75rem' }}
               // A tap on a phone makes no text selection, so nothing used to
               // happen. A click or tap that leaves no selection selects the
               // line itself; a drag still selects the swept span.
@@ -190,7 +194,7 @@ export default function TextPane({ units, language, selection, onSelect, total, 
               }}
             >
               <span
-                className="text-[0.72rem] text-gray-500 text-right pt-[0.35em] tabular-nums select-none"
+                className={`${phone ? 'text-[10px]' : 'text-[0.72rem]'} text-gray-500 text-right pt-[0.35em] tabular-nums select-none`}
                 style={{ fontFamily: 'inherit' }}
               >
                 {showNumber ? n : ''}
@@ -310,7 +314,10 @@ export default function TextPane({ units, language, selection, onSelect, total, 
                   return null;
                 })()}
               </span>
-              <p className="m-0">{u.text}</p>
+              <p className="m-0"
+                 style={phone ? { textIndent: '-1em', [rtl ? 'paddingRight' : 'paddingLeft']: '1em' } : undefined}>
+                {u.text}
+              </p>
             </div>
           );
         })}

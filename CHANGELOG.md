@@ -7,6 +7,11 @@ so the state of the live site can be reconstructed from this file and
 docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
+## 2026-10-11
+
+### Reader on a phone: text and book choice behind the title line, legend behind Key, slimmer margin, Tessa off the tab bar
+On a screen narrower than 768 pixels the Reader header is one line reading the position ("Vergil, Aeneid, Book 1") and the line count. Tapping it opens a bottom sheet with the Language, Author, Work and Book choices, Go to line, the previous and next book buttons and the About this text content. The sticky navigation strip is replaced by a round Back to top button that appears after scrolling, the legend row keeps only Key, Original and English with the swatch lines moved into the key, the margin gutter, line numbers and page padding are narrower, a wrapped line is indented under its first, and Tessa closes to the side tab so the results sheet's tabs are free. The tab strip shows a fade at the right edge when it scrolls. Nothing is removed and the desktop layout is unchanged. This is a client change only, with the phone test in `client/src/hooks/useIsPhone.js`.
+
 ## 2026-10-10
 
 ### Records: Diodorus books 11 to 17 and the scholarship theme index installed
