@@ -181,7 +181,9 @@ describe('Ask a Work', () => {
     expect(screen.queryByText(/Confidence is not rated/)).toBeNull();
   });
 
-  it('holds the passages back for a fitted low band', async () => {
+  it('shows the passages under a weak-match banner for a fitted low band', async () => {
+    // Three of fifteen real test questions came out low (2026-10-11), so a low
+    // band within one work does not hide the list.
     reply = { query: 'q', results: RESULTS, restricted: true, note: 'Band note.',
       confidence: { level: 'low', fitted: 'within-work 2026-10-11' } };
     render(<AskAWorkPage />);
@@ -189,11 +191,12 @@ describe('Ask a Work', () => {
     await pick('Work', 'Aeneid');
     fireEvent.change(screen.getByPlaceholderText(/a subject in plain words/), { target: { value: 'airplanes' } });
     fireEvent.click(screen.getByRole('button', { name: 'Go' }));
-    expect(await screen.findByText('Nothing in this work resembles that subject.')).toBeInTheDocument();
-    expect(screen.queryByTestId('ask-band')).toBeNull();
-    expect(screen.queryByTestId('ask-card')).toBeNull();
+    const band = await screen.findByTestId('ask-band');
+    expect(band).toHaveTextContent('Weak match.');
+    expect(screen.queryByText('Nothing in this work resembles that subject.')).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Show the closest passages anyway' })).toBeNull();
+    expect(screen.getAllByTestId('ask-card').length).toBe(RESULTS.length);
   });
-
   it('says the search is not rated when the route reports no band', async () => {
     render(<AskAWorkPage />);
     await ask();

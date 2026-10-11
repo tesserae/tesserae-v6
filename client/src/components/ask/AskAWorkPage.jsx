@@ -363,7 +363,10 @@ export default function AskAWorkPage() {
   const fitted = Boolean(data?.confidence?.fitted);
   const weakVerdict = level === 'low';
   const emptyList = data && !results.length;
-  const listVisible = results.length > 0 && (!weakVerdict || showWeak);
+  // A low band within one work does not hide the list: in the measurement three
+  // of fifteen real questions came out low (2026-10-11), so the passages are
+  // shown under a weak-match banner and the reader judges.
+  const listVisible = results.length > 0 && (!weakVerdict || showWeak || fitted);
   const askedWork = (catalogue[asked.lang] || []).find((w) => w.id === asked.work);
   const askedRange = parseBooks(asked.books);
   // The books the strip draws: those the server says it searched, else the range, else every book.
@@ -509,7 +512,14 @@ export default function AskAWorkPage() {
 
       {data && !running && (
         <div className="mt-6">
-          {(emptyList || weakVerdict) && (
+          {weakVerdict && !emptyList && fitted && (
+            <div className="rounded border border-gray-300 bg-gray-100 px-3 py-2 text-sm text-gray-700" data-testid="ask-band">
+              <strong className="font-semibold">Weak match.</strong>{' '}
+              The passages of this work do not stand out for that subject. In testing, three of
+              fifteen real questions also came out weak, so the closest passages are shown below.
+            </div>
+          )}
+          {(emptyList || (weakVerdict && !fitted)) && (
             <div className="rounded border border-gray-300 bg-gray-100 px-3 py-2 text-sm text-gray-700">
               <strong className="font-semibold">Nothing in this work resembles that subject.</strong>
               {data.note && !emptyList ? ` ${data.note}` : ''}
@@ -523,7 +533,7 @@ export default function AskAWorkPage() {
           {!emptyList && !weakVerdict && !fitted && (
             <div className="rounded border border-gray-200 bg-gray-50 px-3 py-2 text-xs text-gray-600" data-testid="ask-unrated">{UNRATED_NOTE}</div>
           )}
-          {weakVerdict && results.length > 0 && !showWeak && (
+          {weakVerdict && !fitted && results.length > 0 && !showWeak && (
             <div className="mt-4">
               <button type="button" onClick={() => setShowWeak(true)}
                       className="text-sm text-red-700 hover:underline">
