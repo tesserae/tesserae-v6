@@ -9,6 +9,9 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-10
 
+### Translations: HTML character entities decoded
+Fourteen translation files transcribed from web pages carried entities such as "C&aelig;sar" into the Reader. The files were corrected on the server, and the loader now decodes any entity it meets.
+
 ### Two views, Literature and History: the same resources, two orders and two sets of defaults
 A switch at the left of the menu row chooses between a Literature view and a History view, and the Collections control becomes a smaller button beside it. Literature opens on the Search page. History turns every collection on, opens on the Reader at Tacitus, Annals 1, leads the menu with Read and Events, leads the Reader's side tabs with Reuse and Scholarship, opens the Phrase Search on Livy against Tacitus (Latin) and Herodotus against Thucydides (Greek), and puts the inscriptions, papyri, events and coins first in the Start here list. Nothing is withheld in either view. The choice is remembered, `?view=history` in a link sets it for a visit, and Help and Tessa describe it.
 ### Collections: Literature is shown as always on
