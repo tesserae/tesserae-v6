@@ -9,6 +9,8 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-11
 
+### Inscriptions and papyri: a passage-sized query searches on its rarest words
+The Reader's new Documents tab sends the whole selection to the documents search. A chapter of Tacitus (120 words) took over four minutes and a sentence eleven seconds, where the same search over literature answers in under a second because it caps a long query at its twelve rarest words. The documents search now applies the same cap, by document frequency in the documents index, and says so in the response as the literary search does.
 ### Reader: the Documents tab names the words a long selection was matched on
 When a passage-sized selection is searched over the inscriptions and papyri on its rarest words, the Documents tab now says which words, as the Parallels tab does.
 
