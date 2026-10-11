@@ -5,6 +5,7 @@ import ReaderHeader from './ReaderHeader';
 import ReaderNav, { ReaderEndNav, ReaderFloatNav, ReaderPhoneTopButton, sectionsFor, bookFileFor } from './ReaderNav';
 import { useIsPhone } from '../../hooks/useIsPhone';
 import SelectionToolbar, { scopeFor } from './SelectionToolbar';
+import { rescope } from '../../utils/sentences';
 import { useCorpus } from '../../hooks';
 import { LoadingSpinner } from '../common';
 import TextPane from './TextPane';
@@ -886,7 +887,14 @@ export default function ReaderPage() {
                   <SelectionToolbar
                     selection={selection}
                     scope={scope}
-                    onScope={setScope}
+                    onScope={(k) => {
+                      // Section widens a sentence selection to its unit, and
+                      // Sentence narrows a unit back to one sentence.
+                      const unit = units[selection.startIdx];
+                      const next = unit ? rescope(selection, unit.text, k) : selection;
+                      if (next !== selection) setSelection(next);
+                      setScope(k);
+                    }}
                     work={work}
                     language={language}
                     onAct={(t) => { if (t) setPanelTab(t); setPopupOpen(false); }}
