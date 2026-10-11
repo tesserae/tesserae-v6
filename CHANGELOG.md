@@ -9,6 +9,16 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-11
 
+### Reader on a phone: the page no longer shifts sideways after a tap on a tile
+After a tap on a reuse tile on an iPhone the whole page, menu included, came up shifted about a hundred pixels to the left. On a phone the document can no longer scroll sideways, and the Reader scrolls to a line vertically only, placing it in the part of the screen above the results sheet instead of under it.
+
+### Tessa on a phone: the question box under the header, two example questions, the sheet clear of the browser toolbar
+On a screen narrower than 768 pixels the question box and Ask button sit directly under the Tessa header, the box takes focus when the sheet opens so the keyboard comes up at once, and the introduction and examples scroll beneath it. The introduction is one sentence everywhere, the examples are cut to three (two on a phone), and the sheet is limited to 85 percent of the visible screen height with bottom padding for the phone's safe area so nothing sits under the browser toolbar. The desktop panel keeps the box at the bottom. This is a client change only, in `client/src/components/assistant/AssistantDock.jsx`.
+### Similar Passages: an unloaded index is reported as unavailable and retried
+The Reader's Similar tab said no indexed window covered Aeneid 1.20 to 22 ten minutes after a server reload. The index had not loaded on that worker, and a failed load was recorded as final for the life of the worker and reported with the wrong message. The server now tells the two cases apart, retries a failed load after a minute, and the Similar tab says the index is not available and asks again twice before giving up.
+
+### Menu on a phone: one row, the view switch as a button with Collections inside it
+Below 640 pixels the view switch and the Collections button become one button showing the current view, with Literature, History and Collections in its menu, so the page tabs share its row. The beta superscript is left off the tabs there. Wider screens are unchanged.
 ### Ask a Work: what one work says about a subject, Theme Search inside the work with a strip of where the passages fall
 A new page at `/ask-a-work` (beta, after Theme Search in both views). Pick a language, author and work, type a subject in plain words, and the passages of that work about it are listed by score, fifty at a time, with a strip called Where in the work above them. The strip lays the work's books left to right at equal widths and puts one mark at each passage, taller and darker for a better match, and tapping a mark scrolls to its card. It calls the existing `GET /api/passages/theme-search` with `works=<work id>`, so there is no new route and the connector manifest is unchanged. The Reader's About panel links to the page, Start here and Tessa gain a seventh answer, and the scope box and Help gain an Ask a Work entry whose measured row says "Not measured yet".
 
@@ -16,6 +26,10 @@ A new page at `/ask-a-work` (beta, after Theme Search in both views). Pick a lan
 On a screen narrower than 768 pixels the Reader header is one line reading the position ("Vergil, Aeneid, Book 1") and the line count. Tapping it opens a bottom sheet with the Language, Author, Work and Book choices, Go to line, the previous and next book buttons and the About this text content. The sticky navigation strip is replaced by a round Back to top button that appears after scrolling, the legend row keeps only Key, Original and English with the swatch lines moved into the key, the margin gutter, line numbers and page padding are narrower, a wrapped line is indented under its first, and Tessa closes to the side tab so the results sheet's tabs are free. The tab strip shows a fade at the right edge when it scrolls. Nothing is removed and the desktop layout is unchanged. This is a client change only, with the phone test in `client/src/hooks/useIsPhone.js`.
 ### Translations: a script to strip the facing-page OCR noise from 25 Loeb-scan files
 Twenty-five translation files aligned from Loeb scans carry the OCR of the facing Greek or Latin page in their English. `scripts/translations/strip_ocr_noise.py` removes runs of eight or more non-English tokens and the running headers, keeps every unit at its index, and refuses a file whose content words fall by more than 3 percent. Cleaned files are written to a review folder; installing them is under "to run" in docs/DATA_OPERATIONS.md.
+
+### Phrase Search: the corpus chart counts the lines the list keeps
+The "Across the corpus" chart beside a parallel counted every corpus line containing the shared words, while the list under it kept only lines that pass the closeness rule (at most three words between in prose, twenty in verse). So the chart could say "Tacitus (1)" and the list "Tacitus, 0 instances": the one hit was a whole prose chapter (Histories 3.55) with the words forty words apart. The count now applies the same rule from the index's word positions before counting, so the chart and the list agree. Two stale collections tests updated for Scholarship in the Literary profile.
+
 
 ## 2026-10-10
 

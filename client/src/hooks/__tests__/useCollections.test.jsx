@@ -13,10 +13,11 @@ beforeEach(() => {
 afterEach(() => window.history.replaceState({}, '', '/'));
 
 describe('profiles', () => {
-  it('starts a first-time visitor on Literary: literature only', () => {
+  it('starts a first-time visitor on Literary: literature and scholarship', () => {
+    // Scholarship joined the Literary profile on 2026-10-10 (#782).
     const { result } = renderHook(() => useCollections());
     expect(result.current.profile).toBe('literary');
-    expect(COLLECTION_IDS.filter((id) => result.current.isOn(id))).toEqual(['literature']);
+    expect(COLLECTION_IDS.filter((id) => result.current.isOn(id))).toEqual(['literature', 'scholarship']);
     expect(result.current.anyOn(['inscriptions', 'papyri'])).toBe(false);
   });
 
@@ -60,7 +61,7 @@ describe('URL switches', () => {
     const { result } = renderHook(() => useCollections());
     expect(result.current.isOn('inscriptions')).toBe(true);
     expect(result.current.isOn('papyri')).toBe(true);
-    expect(result.current.isOn('scholarship')).toBe(false);
+    expect(result.current.isOn('coins')).toBe(false);
     expect(window.sessionStorage.getItem('tesserae_documents_trial')).toBe('1');
     expect(window.localStorage.getItem(STORAGE_KEY)).toBeNull();
   });

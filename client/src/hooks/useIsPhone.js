@@ -1,21 +1,20 @@
 import { useEffect, useState } from 'react';
 
-const QUERY = '(max-width: 767px)';
+const PHONE_QUERY = '(max-width: 767px)';
+const NARROW_QUERY = '(max-width: 639px)';
 
-function read() {
+function read(query) {
   if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return false;
-  return !!window.matchMedia(QUERY)?.matches;
+  return !!window.matchMedia(query)?.matches;
 }
 
-/** True on a phone: a viewport narrower than 768 pixels (Tailwind's `md`).
- *  False during server rendering or where matchMedia does not exist. */
-export function useIsPhone() {
-  const [phone, setPhone] = useState(read);
+function useMedia(query) {
+  const [matches, setMatches] = useState(() => read(query));
   useEffect(() => {
     if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return undefined;
-    const mq = window.matchMedia(QUERY);
+    const mq = window.matchMedia(query);
     if (!mq) return undefined;
-    const update = () => setPhone(!!mq.matches);
+    const update = () => setMatches(!!mq.matches);
     update();
     if (mq.addEventListener) {
       mq.addEventListener('change', update);
@@ -26,8 +25,19 @@ export function useIsPhone() {
       return () => mq.removeListener(update);
     }
     return undefined;
-  }, []);
-  return phone;
+  }, [query]);
+  return matches;
+}
+
+/** True on a phone: a viewport narrower than 768 pixels (Tailwind's `md`).
+ *  False during server rendering or where matchMedia does not exist. */
+export function useIsPhone() {
+  return useMedia(PHONE_QUERY);
+}
+
+/** True below Tailwind's `sm` (640 pixels), where the main menu fits on one row. */
+export function useIsNarrow() {
+  return useMedia(NARROW_QUERY);
 }
 
 export default useIsPhone;

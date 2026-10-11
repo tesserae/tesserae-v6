@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { rememberLanguage } from '../../utils/languagePreference';
 import StartLanguageControl from './StartLanguageControl';
 import useCollections from '../../hooks/useCollections';
+import { useIsNarrow } from '../../hooks/useIsPhone';
 import { PAGE_NEEDS, VIEWS, viewById, orderBy } from '../../collections/collectionsConfig';
 import CollectionsControl from './CollectionsControl';
 
@@ -117,6 +118,24 @@ const Navigation = ({
 }) => {
   const [languageTabs, setLanguageTabs] = useState(defaultLanguageTabs);
   const [moreOpen, setMoreOpen] = useState(false);
+  // Below `sm` the view switch is one button with a small menu, so the whole
+  // main menu fits on one row.
+  const narrow = useIsNarrow();
+  const [viewMenuOpen, setViewMenuOpen] = useState(false);
+  const [collectionsOpen, setCollectionsOpen] = useState(false);
+  const viewMenuRef = useRef(null);
+  useEffect(() => {
+    if (!viewMenuOpen) return undefined;
+    const onDown = (e) => { if (viewMenuRef.current && !viewMenuRef.current.contains(e.target)) setViewMenuOpen(false); };
+    const onKey = (e) => { if (e.key === 'Escape') setViewMenuOpen(false); };
+    document.addEventListener('mousedown', onDown);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onDown);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [viewMenuOpen]);
+  useEffect(() => { if (!narrow) { setViewMenuOpen(false); setCollectionsOpen(false); } }, [narrow]);
   const moreRef = useRef(null);
   useEffect(() => {
     if (!moreOpen) return undefined;
@@ -220,16 +239,57 @@ const Navigation = ({
     if (ro && row) ro.observe(row);
     window.addEventListener('resize', refit);
     return () => { if (ro) ro.disconnect(); window.removeEventListener('resize', refit); };
-  }, [refit, tabsKey, showCollections, mainRef]);
+  }, [refit, tabsKey, showCollections, mainRef, narrow]);
 
   return (
     <nav className="bg-gray-50 border-b sticky top-0 z-40">
       <div className="max-w-7xl mx-auto px-3 sm:px-6">
-        <div className="flex flex-col sm:flex-row sm:items-center">
+        <div className="flex flex-row items-center">
           {/* The view switch first, then the Collections control as a smaller
               secondary button: the view sets the profile, the switches refine
               it. The divider stays before the page tabs. */}
-          {showCollections && (
+          {showCollections && narrow && (
+            <div ref={viewMenuRef} className="relative shrink-0 mr-1">
+              <button
+                type="button"
+                aria-haspopup="menu"
+                aria-expanded={viewMenuOpen}
+                onClick={() => { setCollectionsOpen(false); setViewMenuOpen((o) => !o); }}
+                className="px-2 py-2 text-xs border-b-2 border-transparent text-gray-700 hover:text-red-600 font-semibold whitespace-nowrap"
+              >
+                {viewById(view).label} <span aria-hidden="true">&#9662;</span>
+              </button>
+              {viewMenuOpen && (
+                <div role="menu" aria-label="View" className="absolute left-0 mt-1 w-40 bg-white border border-gray-200 rounded shadow-lg py-1 z-50">
+                  {VIEWS.map((v) => (
+                    <button
+                      key={v.id}
+                      type="button"
+                      role="menuitemradio"
+                      aria-checked={view === v.id}
+                      onClick={() => { setViewMenuOpen(false); setView(v.id); if (onViewChange) onViewChange(v.id); }}
+                      className={`block w-full text-left px-3 py-1.5 text-sm hover:bg-red-50 ${
+                        view === v.id ? 'text-red-700 font-semibold' : 'text-gray-700'
+                      }`}
+                    >
+                      {v.label}
+                    </button>
+                  ))}
+                  <div role="separator" className="my-1 border-t border-gray-200" />
+                  <button
+                    type="button"
+                    role="menuitem"
+                    onClick={() => { setViewMenuOpen(false); setCollectionsOpen(true); }}
+                    className="block w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-red-50"
+                  >
+                    Collections&hellip;
+                  </button>
+                </div>
+              )}
+              <CollectionsControl hideButton open={collectionsOpen} onOpenChange={setCollectionsOpen} />
+            </div>
+          )}
+          {showCollections && !narrow && (
             <div className="flex items-center gap-2 py-1 sm:py-0 sm:mr-3 sm:pr-3 sm:border-r sm:border-gray-200">
               <div role="group" aria-label="View" className="flex">
                 {VIEWS.map((v) => (
@@ -254,14 +314,14 @@ const Navigation = ({
           <div
             ref={mainRef}
             data-more={mainMore}
-            className="scroll-hint relative flex overflow-x-auto scrollbar-hide -mx-3 px-3 sm:mx-0 sm:px-0 sm:flex-1 sm:min-w-0"
+            className="scroll-hint relative flex overflow-x-auto scrollbar-hide flex-1 min-w-0"
           >
             {/* Hidden copy of every candidate tab, measured for the overflow. */}
             <div ref={measureRef} aria-hidden="true"
                  className="absolute left-0 top-0 flex invisible pointer-events-none whitespace-nowrap">
               {candidateTabs.map(tab => (
                 <span key={tab.code} data-tab className="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">
-                  {tab.label}{tab.beta && <span className="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>}
+                  {tab.label}{tab.beta && !narrow && <span className="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>}
                 </span>
               ))}
               <span data-more-probe className="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More &#9662;</span>
@@ -282,7 +342,7 @@ const Navigation = ({
                     Search and Tessa are all new and all still changing, and a
                     scholar deciding whether to cite something needs to know
                     that before they rely on it, not afterwards. */}
-                {tab.beta && (
+                {tab.beta && !narrow && (
                   <span className="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">
                     beta
                   </span>

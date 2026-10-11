@@ -579,6 +579,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 in both views, and the Collections button beside the switch still turns collections on and off.
                 Choosing a view moves you to its opening page, and the site remembers the choice in this browser.
                 To send someone a link that opens in History, add <code>?view=history</code> to the address.
+                On a phone the view switch is a single button showing the current view, and the Collections control sits inside its menu.
               </p>
             </div>
           )}
