@@ -9,6 +9,9 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-11
 
+### Reader: select a sentence inside a prose chapter, and the scope toggle no longer clips
+In a prose work a chapter or section longer than 400 characters is now drawn as its sentences (the text is unchanged). A click or tap selects one sentence, a drag selects the sentences it touches, and the toolbar offers Word, Sentence, Section and Passage. Similar Passages sends the sentence's character offsets and the server picks the prose window holding it (`window_for_passage` takes `char_start` and `char_end`), Parallels and Documents search the sentence's own words, and Reuse and Translation stay on the section. The scope buttons no longer cut off their labels on a narrow pane: they keep their width and the toolbar wraps.
+
 ### Records: the day's four decisions written out in plain language
 `docs/DECISIONS.md` gains entries for the prose scale (the problem of chapter-sized windows, the audit, the paragraph-sized cut, the chapter windows kept for the Reader but withdrawn from rankings, the merging of short sections for the full run, and what remains open), the second judge of the Ask a Work pilot, the confidence band within one work and the kept reader re-rank. No code changes.
 

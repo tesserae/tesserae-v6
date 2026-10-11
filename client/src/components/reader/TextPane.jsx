@@ -2,6 +2,26 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { cssRef } from './refId';
 import { RTL_LANGS as RTL } from '../../utils/rtl';
 import { useIsPhone } from '../../hooks/useIsPhone';
+import { sentencesOf, sentenceFields, sentenceRangeOf } from '../../utils/sentences';
+
+// The sentences of a long unit, cut once per text. Most units are verse lines
+// and have none (null).
+const partsCache = new Map();
+function partsOf(text) {
+  if (!text || text.length <= 400) return null;
+  if (!partsCache.has(text)) {
+    if (partsCache.size > 4000) partsCache.clear();
+    partsCache.set(text, sentencesOf(text));
+  }
+  return partsCache.get(text);
+}
+
+/** The sentence index of the <span data-sentence> holding a DOM node, or null. */
+function sentenceIndexOf(node) {
+  const el = node && (node.nodeType === 1 ? node : node.parentElement);
+  const span = el && el.closest ? el.closest('[data-sentence]') : null;
+  return span ? Number(span.getAttribute('data-sentence')) : null;
+}
 
 /**
  * The reading surface: the text itself, with selection.
@@ -50,6 +70,9 @@ export default function TextPane({ units, language, selection, onSelect, total, 
     [drag, selection, selLo, selHi]);
   const dragRef = useRef(null);
   dragRef.current = drag;
+  // The sentence the mouse went down on, so a plain click (which leaves no
+  // browser selection) can still select that sentence.
+  const downRef = useRef(null);
   useEffect(() => {
     // Releasing outside the pane still ends the drag.
     const up = () => {
@@ -60,7 +83,27 @@ export default function TextPane({ units, language, selection, onSelect, total, 
       const hi = Math.max(d.anchor, d.current);
       const el = document.getElementById(`line-${cssRef(units[hi]?.ref)}`);
       const sel = window.getSelection();
-      emit(lo, hi, el ? el.offsetTop + el.offsetHeight : 0, sel ? String(sel).trim() : '');
+      const native = sel ? String(sel).trim() : '';
+      const top = el ? el.offsetTop + el.offsetHeight : 0;
+      const parts = lo === hi ? partsOf(units[lo]?.text) : null;
+      if (!parts) { emit(lo, hi, top, native); return; }
+      // Inside one long unit: the sentences the click or the drag touched.
+      const down = downRef.current && downRef.current.i === lo ? downRef.current.sent : null;
+      const inUnit = (node) => lineIndexOf(node) === lo;
+      const aS = sel && !sel.isCollapsed && inUnit(sel.anchorNode) ? sentenceIndexOf(sel.anchorNode) : null;
+      const bS = sel && !sel.isCollapsed && inUnit(sel.focusNode) ? sentenceIndexOf(sel.focusNode) : null;
+      const a = aS ?? down;
+      const b = bS ?? a;
+      if (a == null) {
+        // Not on a sentence (the margin, or space between): the whole unit.
+        emit(lo, hi, top, native, sentenceFields(units[lo].text, parts, 0, parts.length - 1));
+        return;
+      }
+      const f = sentenceFields(units[lo].text, parts, Math.min(a, b), Math.max(a, b));
+      // A double-clicked word stays the word (the toolbar searches for it); the
+      // sentence is still recorded for the tabs.
+      const word = native && !/\s/.test(native);
+      emit(lo, hi, top, word ? native : (f.charStart == null ? native : f.text), f);
     };
     window.addEventListener('mouseup', up);
     return () => window.removeEventListener('mouseup', up);
@@ -74,7 +117,7 @@ export default function TextPane({ units, language, selection, onSelect, total, 
   // selected". Reading the native selection instead means there is only one
   // answer to what is selected, and ordinary text selection works as it does
   // everywhere else, including keyboard and double-click.
-  const emit = (a, b, anchorTop, text) => {
+  const emit = (a, b, anchorTop, text, extra) => {
     const lo = Math.min(a, b);
     const hi = Math.max(a, b);
     onSelect?.({
@@ -87,6 +130,9 @@ export default function TextPane({ units, language, selection, onSelect, total, 
       // The literal characters the reader swept, so the toolbar can tell a
       // double-clicked word from a whole line and search for the word itself.
       text: text || '',
+      // Set inside a long prose unit: charStart/charEnd (null for the whole
+      // unit), sentenceText, sentenceCount, sentenceTotal, startSentence.
+      ...(extra || {}),
     });
   };
 
@@ -172,6 +218,7 @@ export default function TextPane({ units, language, selection, onSelect, total, 
               // line itself; a drag still selects the swept span.
               onMouseDown={(e) => {
                 if (coarse || e.button !== 0) return;
+                downRef.current = { i, sent: sentenceIndexOf(e.target) };
                 setDrag({ anchor: i, current: i });
               }}
               onMouseEnter={() => {
@@ -186,14 +233,46 @@ export default function TextPane({ units, language, selection, onSelect, total, 
                 // never appears over the page (2026-09-07). A tap
                 // selects a line; a tap on another line extends the span
                 // to it; a tap inside the span narrows it to that line.
+                //
+                // INSIDE A LONG PROSE UNIT the tap selects a sentence. A tap
+                // on another sentence of the same unit extends to it, a tap
+                // on the selected sentence (or on the unit's reference
+                // label) widens to the whole unit, and a tap on one sentence
+                // of a multi-sentence selection narrows to it.
                 if (selection && (i < selLo || i > selHi)) {
                   emit(Math.min(selLo, i), Math.max(selHi, i), bottom, '');
-                } else {
-                  emit(i, i, bottom, u.text);
+                  return;
                 }
+                const parts = partsOf(u.text);
+                const k = sentenceIndexOf(e.target);
+                const onLabel = !!(e.target.closest && e.target.closest('[data-label]'));
+                const whole = () => emit(i, i, bottom, u.text,
+                  parts ? sentenceFields(u.text, parts, 0, parts.length - 1) : undefined);
+                if (!parts || onLabel || k == null) { whole(); return; }
+                const here = selection && selection.startIdx === i && selection.endIdx === i;
+                if (!here) {
+                  const f = sentenceFields(u.text, parts, k, k);
+                  emit(i, i, bottom, f.text, f);
+                  return;
+                }
+                if (selection.charStart == null) {      // the whole unit: narrow to the tapped sentence
+                  const f = sentenceFields(u.text, parts, k, k);
+                  emit(i, i, bottom, f.text, f);
+                  return;
+                }
+                const [lo, hi] = sentenceRangeOf(selection, parts);
+                if (k >= lo && k <= hi) {
+                  if (lo === hi) { whole(); return; }    // second tap on the one selected sentence
+                  const f = sentenceFields(u.text, parts, k, k);
+                  emit(i, i, bottom, f.text, f);
+                  return;
+                }
+                const f = sentenceFields(u.text, parts, Math.min(lo, k), Math.max(hi, k));
+                emit(i, i, bottom, f.text, f);
               }}
             >
               <span
+                data-label="1"
                 className={`${phone ? 'text-[10px]' : 'text-[0.72rem]'} text-gray-500 text-right pt-[0.35em] tabular-nums select-none`}
                 style={{ fontFamily: 'inherit' }}
               >
@@ -316,7 +395,24 @@ export default function TextPane({ units, language, selection, onSelect, total, 
               </span>
               <p className="m-0"
                  style={phone ? { textIndent: '-1em', [rtl ? 'paddingRight' : 'paddingLeft']: '1em' } : undefined}>
-                {u.text}
+                {(() => {
+                  // A long prose unit is drawn as its sentences (the text is
+                  // unchanged), so one can be clicked, and the selected one lit.
+                  const parts = partsOf(u.text);
+                  if (!parts) return u.text;
+                  const lit = selected && selection && selection.charStart != null
+                    && selection.startIdx === i && selection.endIdx === i
+                    ? sentenceRangeOf(selection, parts) : null;
+                  return parts.map((pt, k) => (
+                    <span
+                      key={pt.start}
+                      data-sentence={k}
+                      className={lit && k >= lit[0] && k <= lit[1] ? 'bg-red-100 rounded-sm' : undefined}
+                    >
+                      {u.text.slice(pt.start, pt.end)}
+                    </span>
+                  ));
+                })()}
               </p>
             </div>
           );

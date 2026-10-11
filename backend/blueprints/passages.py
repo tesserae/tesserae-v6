@@ -564,6 +564,12 @@ def export_theme_search():
     })
 
 
+def _opt_int(name):
+    """A non-negative integer query parameter, or None when absent or not one."""
+    raw = (request.args.get(name) or '').strip()
+    return int(raw) if raw.isdigit() else None
+
+
 @passages_bp.route('/passages/similar')
 def similar_passages():
     """Passages whose content resembles a given passage.
@@ -596,7 +602,8 @@ def similar_passages():
         out = passage_index.find_similar_to_passage(
             work, request.args.get('ref_start'), request.args.get('ref_end'),
             limit=limit, languages=langs, scale=_scale() or 'fine',
-            suppress_other_versions=not include_versions, by_language=by_language)
+            suppress_other_versions=not include_versions, by_language=by_language,
+            char_start=_opt_int('char_start'), char_end=_opt_int('char_end'))
     else:
         return jsonify({'error': 'work or window is required', 'results': []})
     if same_names_requested:
