@@ -176,8 +176,12 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
   const [langOpen, setLangOpen] = useState(null);
   const [commentaryOpen, setCommentaryOpen] = useState(false);
   const namesDefaultSet = useRef(false);
+  // One group shows at a time, chosen in the box at the top that names both
+  // (owner 2026-10-10: with the first group open first, "it's not clear
+  // that there are any other choices"). Names first, the scene group when
+  // the server flags the names weak.
   useEffect(() => {
-    setSceneOpen(true);
+    setSceneOpen(false);
     setCommentaryOpen(false);
     setNamesOpen(true);
     namesDefaultSet.current = false;
@@ -186,6 +190,7 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
     if (similar?.same_names && !namesDefaultSet.current) {
       namesDefaultSet.current = true;
       setNamesOpen(!similar.same_names.weak);
+      setSceneOpen(!!similar.same_names.weak);
     }
   }, [similar]);
 
@@ -441,16 +446,27 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
                 the ranking itself is what the group is for. */}
             {!loading && namesFlag && similar?.same_names && (
               <div className="mb-3">
-                <button
-                  onClick={() => setNamesOpen((o) => !o)}
-                  className="w-full flex items-center justify-between text-xs font-semibold
-                             text-gray-700 border border-gray-200 rounded-lg px-2.5 py-1.5
-                             hover:bg-gray-100"
-                  aria-expanded={namesOpen}
-                >
-                  <span>Same people and places &middot; {similar.same_names.results.length}</span>
-                  <span aria-hidden="true">{namesOpen ? '−' : '+'}</span>
-                </button>
+                <div role="tablist" aria-label="Kinds of similar passage"
+                     className="flex rounded-lg border border-gray-200 overflow-hidden text-xs font-semibold">
+                  <button
+                    role="tab"
+                    aria-selected={namesOpen}
+                    onClick={() => { setNamesOpen(true); setSceneOpen(false); }}
+                    className={`flex-1 px-2.5 py-1.5 text-left ${namesOpen
+                      ? 'bg-red-50 text-red-700' : 'text-gray-700 hover:bg-gray-100'}`}
+                  >
+                    Same people and places &middot; {similar.same_names.results.length}
+                  </button>
+                  <button
+                    role="tab"
+                    aria-selected={sceneOpen}
+                    onClick={() => { setSceneOpen(true); setNamesOpen(false); }}
+                    className={`flex-1 px-2.5 py-1.5 text-left border-l border-gray-200 ${sceneOpen
+                      ? 'bg-red-50 text-red-700' : 'text-gray-700 hover:bg-gray-100'}`}
+                  >
+                    Same kind of scene &middot; {similar.results?.length ?? 0}
+                  </button>
+                </div>
                 {similar.same_names.weak && (
                   <p className="text-[11px] text-gray-500 mt-1 leading-snug">
                     Few distinctive names in this passage
@@ -490,18 +506,6 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
                   </div>
                 )}
               </div>
-            )}
-            {!loading && namesFlag && similar?.same_names && (
-              <button
-                onClick={() => setSceneOpen((o) => !o)}
-                className="w-full flex items-center justify-between text-xs font-semibold
-                           text-gray-700 border border-gray-200 rounded-lg px-2.5 py-1.5
-                           hover:bg-gray-100 mb-2"
-                aria-expanded={sceneOpen}
-              >
-                <span>Same kind of scene &middot; {similar.results?.length ?? 0}</span>
-                <span aria-hidden="true">{sceneOpen ? '−' : '+'}</span>
-              </button>
             )}
             {/* OLDEST FIRST, like Theme Search. These results cross centuries
                 and the order they are read in is itself information: the
