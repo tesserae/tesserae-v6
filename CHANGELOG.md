@@ -9,6 +9,9 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-10
 
+### Reader: the Similar tab opens on Same kind of scene
+The scene group stands first in the box at the top of the Similar tab and opens by default, with Same people and places a click away.
+
 ### Records: the event dossier install
 The operations record marks the install of the dossier database with the Wikipedia summaries and passage-linked scholarship as run.
 

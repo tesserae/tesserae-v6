@@ -127,22 +127,22 @@ describe('by default, same_names present and not weak', () => {
     expect(await screen.findByText(/Same kind of scene/)).toBeTruthy();
   });
 
-  it('shows the names-group card with its shared names, open by default', async () => {
-    mount();
-    expect(await screen.findByText('Arrian, Anabasis')).toBeTruthy();
-    expect(await screen.findByText(/Shared names: Celaenae, Marsyas/)).toBeTruthy();
-  });
-
-  it('shows the scene group when its button in the box at the top is chosen', async () => {
+  it('opens on the scene group and shows the names group when its button is chosen', async () => {
     const user = userEvent.setup();
     mount();
-    await screen.findByText(/Same people and places/);
-    expect(screen.queryByText('Claudian, In Eutropium')).toBeNull();
-    await user.click(screen.getByRole('tab', { name: /Same kind of scene/ }));
     expect(await screen.findByText('Claudian, In Eutropium')).toBeTruthy();
     expect(screen.queryByText('Arrian, Anabasis')).toBeNull();
+    await user.click(screen.getByRole('tab', { name: /Same people and places/ }));
+    expect(await screen.findByText('Arrian, Anabasis')).toBeTruthy();
+    expect(screen.queryByText('Claudian, In Eutropium')).toBeNull();
   });
-
+  it('the scene button stands first in the box', async () => {
+    mount();
+    await screen.findByText(/Same kind of scene/);
+    const tabs = screen.getAllByRole('tab');
+    expect(tabs[0].textContent).toMatch(/Same kind of scene/);
+    expect(tabs[1].textContent).toMatch(/Same people and places/);
+  });
   it('shows the commentary line quietly, collapsed until clicked', async () => {
     const user = userEvent.setup();
     mount();
@@ -166,16 +166,14 @@ describe('by default, with a weak same_names group', () => {
     });
   });
 
-  it('starts the first section collapsed with the weak note', async () => {
+  it('shows the weak note and opens the names group only on a click', async () => {
     const user = userEvent.setup();
     mount();
     expect(await screen.findByText('Few distinctive names in this passage')).toBeTruthy();
     expect(screen.queryByText('Arrian, Anabasis')).toBeNull();
-    const header = await screen.findByText(/Same people and places/);
-    await user.click(header);
+    await user.click(screen.getByRole('tab', { name: /Same people and places/ }));
     expect(await screen.findByText('Arrian, Anabasis')).toBeTruthy();
   });
-
   it('still shows the scene section open', async () => {
     mount();
     expect(await screen.findByText('Claudian, In Eutropium')).toBeTruthy();
