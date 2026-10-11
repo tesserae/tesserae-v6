@@ -35,7 +35,7 @@ Conventions
   hand and are the models the helper matches.
 
 
-## 2026-10-11 Finer passage windows for long prose chapters (staged; to run)
+## 2026-10-11 Finer passage windows for long prose chapters (run 2026-10-11 12:28 to 12:50)
 
 - What: a new window scale, `prose`, for prose works whose corpus line is a
   whole chapter or section. The fine windows are a fixed twelve lines, so in
@@ -83,6 +83,8 @@ Conventions
 - Not done: the other 1,500 or so prose works (about 268,000 windows). Most are
   short works whose units are already short, so the gain is mainly the
   works with long units; the audit file lists them by median.
+- Run on production 2026-10-11 12:28 to 12:50 (`install_prose.sh` in the session scratchpad, every heavy step under tess-job): lockstep before 536,187 / 536,187 / 536,187; `window_texts.db` backed up as `.bak-prose-20261011` and 6,438 rows upserted (542,624 rows); append with the GPU vectors, 6,438 new records, index 542,625 / 542,625 / 542,625 after; keyword index rebuilt in 31 s (670 MB); names index rebuilt to `.new` in 20 minutes, checked and swapped; wsgi touched; lockstep held. The first attempt failed because the cutter demanded `--out` for the upsert step, and a `--dry-run` of that step wrote the rows anyway; both fixed in this record's pull request.
+- Checks 2026-10-11 12:50: the reference search (arma virum, 50 results, Ovid present); Ask a Work on Annals 1 to 6 for "mutinies of the legions" now leads with 1.31, 1.39, 1.30, 1.45, 1.32 and 1.16 at the prose scale (band moderate); "the death of Germanicus" with 2.73, 3.2, 2.82, 2.71, 2.70 and 2.75 (band strong); by one reading of the gists, passages directly on the subject in the first ten rose from 3 to 6 for both questions against the pilot; Similar Passages on Ann. 1.16 maps to a prose window; `GET /api/passages/lines` returns the chapter for a prose result when the reference is given in the index's own case.
 - Steps on production, once this pull request is merged and pulled. Each under
   `~/bin/tess-job`, cap 10 for anything that reads the index:
   1. Lockstep check before touching anything: ids, vectors and description
