@@ -8,6 +8,111 @@ history (index builds, cache rebuilds, corpus changes) is in
 `DATA_OPERATIONS.md`; per-release changes are in `../CHANGELOG.md`.
 
 
+## 2026-10-11: long prose works get paragraph-sized passage windows, and short sections are merged to the same size
+- Scope: the content index behind Similar Passages, Theme Search, Ask a
+  Work and the Reader's gutter, for prose works whose units (chapters,
+  sections) are long. Pull requests #814 (first run) and #821 (merging and
+  the full run). Poetry and short-unit prose are untouched.
+- The problem in plain terms. The index is made of passage windows:
+  stretches of text that each get a one-sentence description and a vector,
+  and a search compares a question with those. For poetry a window is a run
+  of twelve lines, a few hundred characters, about one scene or speech. For
+  prose the same rule took twelve "lines" of the file, and in a prose file a
+  "line" is a whole chapter or section. In Tacitus's Annals one window ran
+  from 7,500 to 15,000 characters, a dozen scenes under one description. A
+  question about one of those scenes matched the window only weakly, because
+  its description and its vector were a blend of everything in the chapter.
+  In the Ask a Work pilot the five Annals questions ranked below the
+  Aeneid's (0.40 against 0.62 of the first ten directly about the subject),
+  and the judge named the chapter-sized windows as the cause.
+- Measurement. An audit of 3,470 works found 1,511 whose median window is
+  over 3,000 characters, all but one of them prose (39,512 windows). Cutting
+  them all into windows of about 1,200 characters was estimated at 274,684
+  windows. The 3,000-character line for "long" is a judgement, chosen where
+  a window stops being one episode.
+- Decision 1, the prose scale (first run, live 2026-10-11 12:50). Long
+  prose chapters are cut at sentence boundaries into windows of about 1,200
+  characters, a paragraph, each with its own description and vector. The
+  chapter reference is kept, with a part number. The length is a chosen
+  round figure, long enough for one episode or one step of an argument and
+  short enough for a single sentence to describe. First run: the Annals (746
+  windows, median 874 characters), Thucydides (3,577) and the ten works with
+  the longest median windows (2,115), 6,438 in all. Check after the install,
+  one reader grading the descriptions against the pilot's standard: for the
+  question on the death of Germanicus the directly relevant passages in the
+  first ten rose from 3 to 6, and for the mutinies of the legions from 3
+  to 6.
+- Decision 2, what happens to the old chapter windows. They stay in the
+  index, because the Reader's position marks and the coarse-grained map
+  still use them. But a work that has prose windows no longer offers its
+  chapter windows in rankings, neighbour lists or the names list, so a
+  chapter is not offered twice, once whole and once in parts.
+- Decision 3, merging short sections (the full run, staged 2026-10-11,
+  install recorded in `DATA_OPERATIONS.md`). The first run never joined
+  neighbouring units, so Thucydides, whose sections run 300 to 500
+  characters, got one window per section: 3,577 windows too short for a
+  description to say much. For the full run, consecutive short sections of
+  one book are joined until the window reaches about 1,200 characters, and
+  the reference runs from the first section to the last. A section longer
+  than that is still cut into parts as in the first run, and a window never
+  crosses from one book into the next. Thucydides comes to 1,159 windows in
+  place of 3,577, and the remaining 991 long-prose works to 153,405 windows.
+- Open. The full run's effect is unmeasured until it is installed. The
+  pilot's Annals and Thucydides questions are to be re-run on it. The
+  describing model writes Thucydides' speeches without the speaker's name,
+  so a search for a person in Thucydides falls back to the text itself.
+
+## 2026-10-11: Ask a Work pilot graded by a second, independent judge
+- Scope: the figures quoted for Ask a Work (`/ask-a-work`) and for its
+  confidence band and strong marks.
+- Why. Every figure rested on one judge, a Sonnet model reading each
+  passage's description, opening and translation. A second model from a
+  different family (Qwen 3.8 27B, on the university gateway) re-graded the
+  same 293 passages from the same material, with the same instructions, at
+  temperature 0.
+- Result. The two judges agree exactly on 69% of passages (kappa 0.54,
+  quadratic 0.71) and agree on whether a passage is relevant at all on 81%.
+  The second judge is stricter about passages that merely touch a subject:
+  37 of the first judge's "touches it" grades become "not about it". The
+  strong marks' precision for relevant passages is 0.905 under the first
+  judge, 0.873 under the second, 0.857 where both agree.
+- Decision. The band and the strong marks stand. The site and Help report
+  the figures as a range across two judges, and the softer figure is the one
+  to quote for passages that only touch a subject.
+
+## 2026-10-11: a confidence band for a search within one work, from the spread of that work's scores, provisional
+- Scope: Theme Search restricted to one work, and Ask a Work.
+- Why. The corpus-wide confidence rating was fitted on scores over the whole
+  index and does not carry into one work, so a restricted search had no
+  rating (decision of 2026-10-09). A question that a work does not address
+  at all looked the same as one it answers.
+- Measurement. 45 queries over the Aeneid, Thucydides 1 to 2 and Annals 1
+  to 6: the pilot's 15 real questions, 15 subjects absent from the work, 15
+  nonsense strings. The spread (standard deviation) of the work's window
+  scores separates real from absent best, with accuracy 0.889 and
+  leave-one-work-out 0.867. Head lift, top-hit lift and coherence do as well in sample, but
+  their thresholds do not carry from one work to another.
+- Decision. Three bands from the spread: low below 0.0099, strong from
+  0.0125 (above the largest spread any absent subject produced), moderate
+  between. A passage is marked strong when its score stands 3 spreads above
+  the work's median and the band is not low: 63 of 293 judged passages
+  marked, precision 0.905 for relevant passages (first judge). Both are
+  labelled provisional, because they were fitted and tested on the same 45
+  queries over three works. On the Ask a Work page a low band does not hide
+  the list, because one real question in five came out low.
+
+## 2026-10-11: Ask a Work keeps the reader re-rank
+- Scope: Ask a Work and Theme Search restricted to one work.
+- Why. The reader model re-orders the top results by reading them, which
+  costs two to three seconds against under one second without it. Within one
+  work the gain was untested.
+- Measurement. The fifteen pilot questions re-run with and without the
+  reader, scored against the pilot's judgements. With it, 0.44 of the first
+  ten passages are directly about the subject and 0.75 are relevant at all.
+  Without it the figures are 0.41 and 0.59.
+- Decision. Kept on. The time is spent on a better first page.
+
+
 ## 2026-10-09: Theme Search restricted to an author or work lists up to 10 passages per work, none capped for a single work, with no confidence rating
 - Scope: `/api/passages/theme-search` with `author=` or `works=`, and the
   "Search within" picker on the Theme Search page.

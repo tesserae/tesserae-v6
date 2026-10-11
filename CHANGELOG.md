@@ -9,6 +9,9 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-11
 
+### Records: the day's four decisions written out in plain language
+`docs/DECISIONS.md` gains entries for the prose scale (the problem of chapter-sized windows, the audit, the paragraph-sized cut, the chapter windows kept for the Reader but withdrawn from rankings, the merging of short sections for the full run, and what remains open), the second judge of the Ask a Work pilot, the confidence band within one work and the kept reader re-rank. No code changes.
+
 ### Ask a Work: the measured row and Help now report two judges
 A second judge, the university gateway's Qwen model, re-graded the pilot's 293 passages: agreement with the first judge on 69 percent of grades (kappa 0.71 with quadratic weights), the strong marks' precision 0.87 for passages at least touching the subject. The scope box and the Help section say so.
 ### Prose windows for every long-prose work: merged short units, Thucydides re-cut, the full run described in the background
