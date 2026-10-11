@@ -247,8 +247,9 @@ export default function AskAWorkPage() {
   const [summary, setSummary] = useState(null);     // { state: 'loading' | 'ready', summary, cites }
   const searchId = useRef(0);
 
-  const fetchMentions = useCallback(async (names, workId, books, offset) => {
+  const fetchMentions = useCallback(async (names, workId, books, offset, question) => {
     const p = new URLSearchParams({ work: workId, names: names.join(','), limit: String(PAGE), offset: String(offset) });
+    if (question) p.set('q', question);
     if (books) p.set('books', books);
     const res = await fetch(`/api/passages/mentions?${p.toString()}`);
     return res.json();
@@ -265,7 +266,7 @@ export default function AskAWorkPage() {
     try {
       const rows = [...m.rows];
       while (rows.length < m.total) {
-        const json = await fetchMentions(m.names, m.workId, m.books, rows.length);
+        const json = await fetchMentions(m.names, m.workId, m.books, rows.length, m.question);
         if (id !== searchId.current) return;
         const got = json.results || [];
         if (!got.length) break;
@@ -306,10 +307,12 @@ export default function AskAWorkPage() {
         const w = (catalogueRef.current[code] || []).find((x) => x.id === workId);
         const names = namesIn(query);
         if (names.length) {
-          fetchMentions(names, workId, books, 0).then((m) => {
+          fetchMentions(names, workId, books, 0, query).then((m) => {
             if (id !== searchId.current) return;
             setMentions({
-              names, workId, books, total: Number(m.total) || 0, rows: m.results || [],
+              names, workId, books, question: query, total: Number(m.total) || 0, rows: m.results || [],
+              rankedBy: m.ranked_by === 'closeness' ? 'closeness' : 'mentions',
+              source: m.source === 'text' ? 'text' : 'description',
               searched: Array.isArray(m.books_searched) ? m.books_searched : null,
             });
           }).catch(() => {});
@@ -615,11 +618,11 @@ export default function AskAWorkPage() {
                 <section aria-label="Passages that name" className="mt-5" data-testid="ask-names">
                   <h2 className="text-sm font-semibold text-gray-700">Passages that name {joinNames(mentions.names)}</h2>
                   {mentions.total === 0 ? (
-                    <p className="mt-1 text-xs text-gray-500">No passage description names {joinNames(mentions.names)} in this work.</p>
+                    <p className="mt-1 text-xs text-gray-500">No passage description or text names {joinNames(mentions.names)} in this work.</p>
                   ) : (
                     <>
                       <p className="mt-1 text-xs text-gray-500">
-                        {mentions.total} {mentions.total === 1 ? 'passage whose description names' : 'passages whose description names'} {joinNames(mentions.names)}, in the order of the work
+                        {mentions.total} {mentions.total === 1 ? 'passage whose' : 'passages whose'} {mentions.source === 'text' ? 'text' : 'description'} names {joinNames(mentions.names)}, {mentions.rankedBy === 'closeness' ? 'the closest to your question first' : 'in the order of the work'}
                       </p>
                       <ul className="mt-2 space-y-2">
                         {shownNames.map((r, i) => (

@@ -204,6 +204,17 @@ describe('Ask a Work', () => {
     expect(screen.queryByTestId('ask-band')).toBeNull();
   });
 
+  it('says the list is ranked by closeness, and names the source when it is the text', async () => {
+    mentionsReply = () => ({
+      work: 'vergil.aeneid', names: ['Sejanus'], total: 2, ranked_by: 'closeness', source: 'text',
+      results: [named(0, 'verg. aen. 1.20'), named(1, 'verg. aen. 1.30')], books_searched: [1, 2, 3],
+    });
+    render(<AskAWorkPage />);
+    await ask('the rise of Sejanus');
+    const section = await screen.findByTestId('ask-names');
+    expect(within(section).getByText(/2 passages whose text names Sejanus, the closest to your question first/)).toBeInTheDocument();
+  });
+
   it('pages by offset with Show more', async () => {
     reply = { query: 'q', results: Array.from({ length: 25 }, (_, n) => row(n, `verg. aen. 1.${n + 1}`)), restricted: true, confidence: { level: 'restricted' } };
     render(<AskAWorkPage />);
@@ -302,6 +313,7 @@ describe('passages that name a person', () => {
     expect(callsTo('/api/passages/mentions')[0][0]).toContain('work=vergil.aeneid');
     expect(within(section).getByText('Passages that name Sejanus')).toBeInTheDocument();
     expect(within(section).getByText(/12 passages whose description names Sejanus, in the order of the work/)).toBeInTheDocument();
+    expect(callsTo('/api/passages/mentions')[0][0]).toContain('q=the+rise+of+Sejanus');
     expect(within(section).getAllByTestId('ask-name-card')).toHaveLength(10);
     const grey = screen.getAllByTestId('ask-mark-name');
     expect(grey).toHaveLength(12);
@@ -328,7 +340,7 @@ describe('passages that name a person', () => {
   it('says so quietly when nothing names the person', async () => {
     render(<AskAWorkPage />);
     await ask('the rise of Sejanus');
-    expect(await screen.findByText('No passage description names Sejanus in this work.')).toBeInTheDocument();
+    expect(await screen.findByText('No passage description or text names Sejanus in this work.')).toBeInTheDocument();
   });
 
   it('makes no request when the question has no capitalised word', async () => {

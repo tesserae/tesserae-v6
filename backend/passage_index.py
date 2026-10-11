@@ -2740,7 +2740,87 @@ def _desc_text(desc):
     return ' '.join(parts)
 
 
-def mentions_in_work(work, names, books=None):
+_LATIN_ENDINGS = ('us', 'es', 'is', 'as', 'a', 'o')
+_GREEK_LETTERS = {'p': 'π', 'b': 'β', 't': 'τ', 'd': 'δ', 'k': 'κ', 'c': 'κ',
+                  'g': 'γ', 'l': 'λ', 'm': 'μ', 'n': 'ν', 'r': 'ρ', 's': 'σ',
+                  'x': 'ξ', 'z': 'ζ', 'a': 'α', 'e': 'ε', 'i': 'ι', 'o': 'ο',
+                  'u': 'υ', 'y': 'υ', 'h': ''}
+_GREEK_DIGRAPHS = {'ph': 'φ', 'th': 'θ', 'ch': 'χ', 'ps': 'ψ'}
+_GREEK_VARIANTS = {'ε': ('ε', 'η'), 'ο': ('ο', 'ω')}
+
+
+# Word characters plus combining marks: the stored Greek has some accents and
+# breathings as separate characters, which a plain \w would cut the word at.
+_WORD = re.compile(r'[\w\u0300-\u036f]+')
+
+
+def _fold(text):
+    """Lower case, accents and breathings removed, j as i and v as u."""
+    import unicodedata
+    t = unicodedata.normalize('NFD', str(text or '').lower())
+    t = ''.join(ch for ch in t if not unicodedata.combining(ch))
+    return t.replace('ς', 'σ')
+
+
+def latin_stem(name):
+    """The English name without a final -us, -es, -is, -as, -a or -o (never
+    leaving fewer than four letters), spelled with i for j and u for v as the
+    texts are. Sejanus gives seian, Germanicus germanic, Tiberius tiberi."""
+    n = _fold(name).strip().replace('j', 'i').replace('v', 'u')
+    n = re.sub(r'[^a-z]', '', n)
+    for end in _LATIN_ENDINGS:
+        if n.endswith(end) and len(n) - len(end) >= 4:
+            return n[:-len(end)]
+    return n
+
+
+def greek_stems(name):
+    """Greek spellings of the Latin stem, letter by letter, with eta and omega
+    tried where the stem has epsilon and omicron. Pericles gives περικλ and
+    πηρικλ, Cleon gives κλεον, κλεων, κληον and κληων."""
+    stem = latin_stem(name)
+    letters, i = [], 0
+    while i < len(stem):
+        if stem[i:i + 2] in _GREEK_DIGRAPHS:
+            letters.append(_GREEK_DIGRAPHS[stem[i:i + 2]])
+            i += 2
+            continue
+        letters.append(_GREEK_LETTERS.get(stem[i], stem[i]))
+        i += 1
+    forms = ['']
+    for g in letters:
+        opts = _GREEK_VARIANTS.get(g, (g,))
+        forms = [f + o for f in forms for o in opts][:64]
+    return sorted(set(forms))
+
+
+def name_prefixes(name, language):
+    """Word-beginnings (folded) that count as the name in a text of `language`,
+    or [] when the name is too short to match by prefix (under four letters)."""
+    stem = latin_stem(name)
+    if len(stem) < 4:
+        return []
+    if language == 'grc':
+        return [f for f in greek_stems(name) if len(f) >= 4]
+    if language == 'la':
+        return [stem]
+    return []
+
+
+def _text_mentions(text, prefixes):
+    return sum(1 for w in re.findall(_WORD, _fold(text))
+               if any(w.startswith(p) for p in prefixes))
+
+
+def _first_matching_word(text, prefixes):
+    for w in re.findall(_WORD, str(text or '')):
+        fw = _fold(w)
+        if any(fw.startswith(p) for p in prefixes):
+            return w
+    return None
+
+
+def mentions_in_work(work, names, books=None, query=None, source=None):
     """Windows of one work whose description names any of `names`.
 
     Names match as whole words, case-insensitively, in the description's
@@ -2748,15 +2828,26 @@ def mentions_in_work(work, names, books=None):
     "Dido" (the apostrophe is a word boundary), "Didonian" does not.
     `work` is a base id (the whole work) or a part id (that book alone);
     `books` (a list of ints) narrows a base id to those numbered parts.
-    Ranked by distinct names matched, then total mentions, then position.
 
-    Returns {'work', 'books_searched', 'hits': [...], 'note'?}; `hits` is the
-    full ranked list. An unknown work gives no hits and a `note`."""
+    A name the descriptions never mention is looked for in the text of the
+    windows (Latin and Greek, by word beginning, see name_prefixes), because
+    some descriptions anonymise people. source='text' forces that search for
+    every name, source='description' forbids it.
+
+    Ranked by closeness to `query` when one is given (cosine of the window
+    vector with the encoded query), then by distinct names matched, total
+    mentions and position. Without a query: distinct names, mentions, position.
+
+    Returns {'work', 'books_searched', 'hits': [...], 'ranked_by', 'source',
+    'note'?}; `hits` is the full ranked list. Each hit has 'found_in'
+    ('description' or 'text') and, with a query, 'score'. An unknown work gives
+    no hits and a `note`."""
     _ensure_loaded()
     base = _norm_work(work)
     wid = work_id(work)
     if not _state.get('ok') or not _by_work or base not in _by_work:
         return {'work': base, 'books_searched': None, 'hits': [],
+                'ranked_by': 'mentions', 'source': 'description',
                 'note': 'That work has no passage windows in the index.'}
     rows = _by_work[base]
     searched = None
@@ -2766,36 +2857,115 @@ def mentions_in_work(work, names, books=None):
         ids, searched = book_parts(base, books)
         idset = set(ids)
         rows = [i for i in rows if work_id(_records[i].get('work')) in idset]
-    pats = [(n.strip(), _name_pattern(n)) for n in names if n and n.strip()]
-    hits = []
-    for i in rows:
+    names = [n.strip() for n in names if n and n.strip()]
+    pats = [(n, _name_pattern(n)) for n in names]
+    source = source if source in ('text', 'description') else None
+    note = None
+
+    def make_hit(r, matched, count, found_in, word=None):
+        h = {'id': r.get('id'), 'work': work_id(r.get('work')),
+             'ref_start': r.get('ref_start'), 'ref_end': r.get('ref_end'),
+             'language': r.get('language'),
+             'gist': (r.get('desc') or {}).get('gist'),
+             'matched': matched, 'mentions': count, 'found_in': found_in}
+        if word:
+            h['matched_word'] = word
+        return h
+
+    found = []     # (record index, hit)
+    named = set()
+    if source != 'text':
+        for i in rows:
+            r = _records[i]
+            text = _desc_text(r.get('desc'))
+            matched, count = [], 0
+            for n, pat in pats:
+                c = len(pat.findall(text))
+                if c:
+                    matched.append(n)
+                    count += c
+            if matched:
+                named.update(matched)
+                found.append((i, make_hit(r, matched, count, 'description')))
+    missing = [n for n in names if n not in named]
+    if source != 'description' and missing and rows:
+        from backend import window_texts
+        t0 = time.time()
+        plan = []
+        for n in missing:
+            lang = next((_records[i].get('language') for i in rows), None)
+            pre = name_prefixes(n, lang)
+            if pre:
+                plan.append((n, pre))
+        if plan:
+            texts = window_texts.texts_for([_records[i].get('id') for i in rows])
+            by_i = {}
+            for i in rows:
+                t = texts.get(_records[i].get('id'))
+                if not t:
+                    continue
+                matched, count, word = [], 0, None
+                for n, pre in plan:
+                    c = _text_mentions(t, pre)
+                    if c:
+                        matched.append(n)
+                        count += c
+                        word = word or _first_matching_word(t, pre)
+                if matched:
+                    by_i[i] = make_hit(_records[i], matched, count, 'text', word)
+            # A window the description already gave for another name keeps its
+            # description hit and gains the text hit's names.
+            have = {i: h for i, h in found}
+            for i, h in by_i.items():
+                if i in have:
+                    have[i]['matched'] = have[i]['matched'] + h['matched']
+                    have[i]['mentions'] += h['mentions']
+                else:
+                    found.append((i, h))
+            logger.info('[PASSAGES] text search for %s in %s: %d windows, %.2fs',
+                        [n for n, _ in plan], base, len(rows), time.time() - t0)
+        if missing and not plan:
+            note = 'The descriptions do not name that, and the name is too short to look for in the text.'
+    ranked_by = 'mentions'
+    qv = None
+    if (query or '').strip() and found:
+        try:
+            import numpy as np
+            qv = np.asarray(embed_query(_E5_PREFIX + query.strip()[:1500]),
+                            dtype=np.float32)
+            ranked_by = 'closeness'
+        except EmbedUnavailable:
+            note = 'The question could not be encoded, so the list is in the order of mentions.'
+    keyed = []
+    for i, h in found:
         r = _records[i]
-        text = _desc_text(r.get('desc'))
-        matched, count = [], 0
-        for n, pat in pats:
-            c = len(pat.findall(text))
-            if c:
-                matched.append(n)
-                count += c
-        if not matched:
-            continue
         coords = _ref_coords_in(r.get('work'), r.get('ref_start'))
         pn = part_number(r.get('work'))
-        hits.append(((-len(matched), -count, pn if pn is not None else 0, coords),
-                     {'id': r.get('id'), 'work': work_id(r.get('work')),
-                      'ref_start': r.get('ref_start'), 'ref_end': r.get('ref_end'),
-                      'language': r.get('language'),
-                      'gist': (r.get('desc') or {}).get('gist'),
-                      'matched': matched, 'mentions': count}))
-    hits.sort(key=lambda t: t[0])
+        score = None
+        if qv is not None:
+            row = _row_of(r.get('id'))
+            score = (float(np.asarray(_emb[row], dtype=np.float32) @ qv)
+                     if row is not None else -1.0)
+            h['score'] = round(score, 4)
+        keyed.append((((-score) if score is not None else 0,
+                       -len(h['matched']), -h['mentions'],
+                       pn if pn is not None else 0, coords), h))
+    keyed.sort(key=lambda t: t[0])
     # One entry per passage: the index holds a window at two scales, so the
     # same opening reference came back twice (Tac. Ann. 4.1 twice for
     # Sejanus, 2026-10-11). The higher-ranked copy stays.
     seen, out = set(), []
-    for _, h in hits:
+    for _, h in keyed:
         key = (h['work'], h['ref_start'])
         if key in seen:
             continue
         seen.add(key)
         out.append(h)
-    return {'work': base, 'books_searched': searched, 'hits': out}
+    kinds = {h['found_in'] for h in out}
+    src = ('mixed' if len(kinds) > 1 else kinds.pop() if kinds
+           else ('text' if source == 'text' else 'description'))
+    res = {'work': base, 'books_searched': searched, 'hits': out,
+           'ranked_by': ranked_by, 'source': src}
+    if note:
+        res['note'] = note
+    return res
