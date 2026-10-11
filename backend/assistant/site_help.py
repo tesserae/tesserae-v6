@@ -227,6 +227,13 @@ def relevant(question, k=4):
         # Favour density as well as count, so a short precise section beats a
         # long one that happens to mention everything.
         score = weight + len(overlap) / max(len(have), 1)
+        # A section whose HEADING carries the question's words is about the
+        # thing asked, so its heading words count twice over (2026-10-11: the
+        # Reader's Scholarship paragraph kept losing to every new section that
+        # mentioned scholarship once).
+        title = c.split(':', 1)[0] if ':' in c else ''
+        title_overlap = want & _words(title)
+        score += 2 * sum(math.log(1 + len(chunks) / doc_freq[w]) ** 2 for w in title_overlap)
         scored.append((score, c))
     scored.sort(key=lambda kv: -kv[0])
     return [c for _, c in scored[:k]]

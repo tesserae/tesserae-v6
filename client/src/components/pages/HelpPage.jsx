@@ -1845,8 +1845,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   runs the same search in that library&rsquo;s book scans and tells you which books and
                   page numbers mention the citation, without showing you the text itself. Every source
                   and its license are listed on the Sources page under About. To search the notes and
-                  sentences by theme, use the Scholarship choice in{' '}
-                  <button onClick={() => setActiveSection('theme-search')} className="text-red-600 hover:underline">Theme Search</button>.
+                  sentences by theme, use the Scholarship choice on the Theme Search page.
                 </li>
               </ul>
               <p className="text-gray-700 mb-3">
