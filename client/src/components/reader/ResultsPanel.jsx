@@ -57,6 +57,9 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
   // Phone only: the sheet is a bare tab strip until a tab is tapped or a
   // line selected; on desktop the panel is always open.
   const [sheetOpen, setSheetOpen] = useState(false);
+  // Retries of the Similar request while the server reports its index unavailable.
+  const [simRetries, setSimRetries] = useState(0);
+  useEffect(() => { setSimRetries(0); }, [selection]);
   // Does the tab strip run past its right edge? Then a fade says it scrolls.
   const stripRef = useRef(null);
   const [stripMore, setStripMore] = useState(false);
@@ -227,6 +230,7 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
   useEffect(() => {
     if (!selection || tab !== 'similar') return;
     let cancelled = false;
+    let retryTimer = null;
     if (simLimit === 15) setLoading(true);
     setError(null);
     const params = new URLSearchParams({
@@ -242,13 +246,22 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
       .then(asJson)
       .then((d) => {
         if (cancelled) return;
+        // The server says the index is not loaded (a reload in progress or a
+        // failed load, 2026-10-11): say so plainly and ask again twice, four
+        // seconds apart, before giving up, instead of showing the answer as
+        // if the passage had no window.
+        if (d.unavailable && simRetries < 2) {
+          setError('The passage index is not available on the server right now. Trying again.');
+          retryTimer = window.setTimeout(() => { if (!cancelled) setSimRetries((n) => n + 1); }, 4000);
+          return;
+        }
         if (d.error) setError(d.error);
         setSimilar(d);
       })
       .catch((e) => { if (!cancelled) setError(e.message); })
       .finally(() => { if (!cancelled) setLoading(false); });
-    return () => { cancelled = true; };
-  }, [selection, work, tab, simLimit, namesFlag]);
+    return () => { cancelled = true; if (retryTimer) window.clearTimeout(retryTimer); };
+  }, [selection, work, tab, simLimit, namesFlag, simRetries]);
 
   /* VERBAL PARALLELS: the selection's own wording, searched across the corpus.
    *
