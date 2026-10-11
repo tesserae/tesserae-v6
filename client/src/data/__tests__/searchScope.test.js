@@ -63,12 +63,13 @@ describe('SEARCH_SCOPE', () => {
     expect(SEARCH_SCOPE.reader_parallels.measured).toEqual(SEARCH_SCOPE.line.measured);
   });
 
-  it('has the Ask a Work entry, after Theme Search in the Help table, with its pending row', () => {
+  it('has the Ask a Work entry, after Theme Search in the Help table, with its measured row', () => {
     const e = SEARCH_SCOPE.ask_a_work;
     for (const f of FIELDS) expect(e[f], `ask_a_work.${f}`).toBeTruthy();
     expect(e.helpSection).toBe('ask-a-work');
     expect(e.measured).toHaveLength(1);
-    expect(e.measured[0].result).toBe('Not measured yet');
+    expect(e.measured[0].result).toMatch(/14 of 15 questions/);
+    expect(e.measured[0].date).toBe('October 2026');
     const searches = allMeasuredRows().map((m) => m.search);
     const themeRows = searches.filter((s) => s === 'Theme Search').length;
     expect(searches.indexOf('Ask a Work')).toBe(searches.indexOf('Theme Search') + themeRows);

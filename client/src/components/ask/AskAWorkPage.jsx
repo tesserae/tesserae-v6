@@ -21,7 +21,9 @@ import { readerLink } from '../passages/ThemeSearchPage';
  * page can read, so the books of the strip have equal widths.
  */
 
-const PAGE = 50;
+// Twenty-five a page: each card fetches its first lines, and fifty at once was a burst of
+// fifty requests on the server for one search.
+const PAGE = 25;
 const LANGUAGES = [['la', 'Latin'], ['grc', 'Greek'], ['en', 'English'], ['he', 'Hebrew'],
   ['cop', 'Coptic'], ['fa', 'Persian'], ['ur', 'Urdu']];
 
@@ -76,6 +78,13 @@ export function stripLayout(results, workId, workBooks) {
   const books = new Set(workBooks || []);
   const placed = results.map((r, i) => ({ i, book: bookOf(r.ref_start, workId), line: lineOf(r.ref_start) }));
   placed.forEach((p) => { if (p.book !== null) books.add(p.book); });
+  // Without the catalogue's list of books, every book from 1 to the highest
+  // seen is drawn, so a book with no passage still shows as a gap (the strip
+  // once drew the Aeneid as eleven books because book 4 had no hit).
+  if (!(workBooks || []).length && books.size) {
+    const top = Math.max(...books);
+    for (let b = 1; b <= top; b += 1) books.add(b);
+  }
   const order = [...books].sort((a, b) => a - b);
   const segments = order.length ? order : [null];
   const groups = new Map(segments.map((b) => [b, []]));
@@ -328,7 +337,11 @@ export default function AskAWorkPage() {
 
           {listVisible && (
             <>
-              <section aria-label="Where in the work" className="mt-4">
+              <h2 className="mt-4 text-base font-semibold text-gray-900" data-testid="ask-heading">
+                {(askedWork ? `${askedWork.author}, ${askedWork.title}` : (results[0]?.author ? `${results[0].author}, ${(results[0].title || '').replace(/, Book \d+$/, '')}` : asked.work))}
+                <span className="font-normal text-gray-600"> on {asked.q}</span>
+              </h2>
+              <section aria-label="Where in the work" className="mt-3">
                 <h2 className="text-sm font-semibold text-gray-700">Where in the work</h2>
                 <div className="relative mt-2 h-12 flex border-b border-gray-300" data-testid="ask-strip">
                   {layout.segments.map((b, k) => (

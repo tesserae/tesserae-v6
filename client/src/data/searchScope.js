@@ -22,7 +22,7 @@ const RARE_ALL = { search: "Rare words, rare pairs, line and string search", lan
 
 const NOT_YET = 'Not measured yet';
 
-const ASK_A_WORK_ROW = { search: 'Ask a Work', language: 'Latin and Greek', against: 'Fifteen questions on the Aeneid, Thucydides 1 and 2 and Annals 1 to 6, one judge', result: 'Not measured yet', date: '' };
+const ASK_A_WORK_ROW = { search: 'Ask a Work', language: 'Latin and Greek', against: 'Fifteen questions on the Aeneid, Thucydides 1 and 2 and Annals 1 to 6, one judge reading the first twenty passages of each', result: 'A passage directly about the subject in the first five for 14 of 15 questions. Of the first ten, 0.44 were directly about it and 0.75 at least touched it (nDCG at 10 of 0.75). Weakest when one account fills a few windows (the plague) or the question is a named speaker\'s view', date: 'October 2026' };
 
 const DOCUMENTS_ROW = { search: 'Inscriptions & Papyri', language: 'Latin and Greek', against: 'No test list yet', result: NOT_YET, date: '' };
 const EVENTS_ROW = { search: 'Events', language: 'Latin and Greek', against: '43 passages historians cite for twelve events', result: 'About a third of the first twenty passages listed for an event were among them (precision at 20 of 0.32 to 0.40 by method)', date: 'October 2026' };

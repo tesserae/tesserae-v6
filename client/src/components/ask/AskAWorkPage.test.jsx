@@ -97,12 +97,12 @@ describe('Ask a Work', () => {
     expect(names).toEqual(['Aeneid', 'Georgics']);
   });
 
-  it('calls the route with the work and a limit of 50', async () => {
+  it('calls the route with the work and a limit of 25', async () => {
     render(<AskAWorkPage />);
     await ask();
     const u = themeCalls()[0];
     expect(u).toContain('works=vergil.aeneid');
-    expect(u).toContain('limit=50');
+    expect(u).toContain('limit=25');
     expect(u).toContain('q=fathers%20and%20sons');
   });
 
@@ -158,12 +158,12 @@ describe('Ask a Work', () => {
   });
 
   it('pages by offset with Show more', async () => {
-    reply = { query: 'q', results: Array.from({ length: 50 }, (_, n) => row(n, `verg. aen. 1.${n + 1}`)), restricted: true, confidence: { level: 'restricted' } };
+    reply = { query: 'q', results: Array.from({ length: 25 }, (_, n) => row(n, `verg. aen. 1.${n + 1}`)), restricted: true, confidence: { level: 'restricted' } };
     render(<AskAWorkPage />);
     await ask();
     fireEvent.click(screen.getByRole('button', { name: 'Show more' }));
     await waitFor(() => expect(themeCalls()).toHaveLength(2));
-    expect(themeCalls()[1]).toContain('offset=50');
+    expect(themeCalls()[1]).toContain('offset=25');
   });
 
   it('fills the controls from the address and runs the search', async () => {
