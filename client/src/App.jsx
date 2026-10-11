@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { captureUrlOverrides, setProfile } from './collections/collectionsStore';
+import { captureUrlOverrides, setProfile, getView } from './collections/collectionsStore';
+import { viewById } from './collections/collectionsConfig';
+import useCollections from './hooks/useCollections';
 import { languageName } from './utils/languageNames';
 import { Header, Navigation } from './components/layout';
 import { SearchModeToggle, TextSelector, SearchSettings, SearchResults, LineSearch, CrossLingualSearch, WildcardSearch, SavedSearches, CorpusSearchResults, RarePairsSettings } from './components/search';
@@ -116,6 +118,23 @@ const pageTypeToPath = {
   'admin': '/admin'
 };
 
+// The address of a view's home page when that page is the Reader on a text.
+const viewHomeUrl = (view) => {
+  const home = viewById(view).home;
+  if (home.page !== 'read') return null;
+  const p = new URLSearchParams({ work: home.work, lang: home.lang });
+  return '/read?' + p.toString();
+};
+
+// A visit to the bare site address, apart from the switches that choose a
+// view or collections, which name no page of their own.
+const NON_PAGE_PARAMS = ['view', 'profile', 'collections', 'documents', 'scholarship'];
+const isPlainVisit = () => {
+  if (window.location.pathname !== '/') return false;
+  const params = new URLSearchParams(window.location.search);
+  return Array.from(params.keys()).every((k) => NON_PAGE_PARAMS.includes(k));
+};
+
 const parseSearchParams = () => {
   const params = new URLSearchParams(window.location.search);
   return {
@@ -165,8 +184,19 @@ function App() {
   const [adminSessionChecked, setAdminSessionChecked] = useState(false);
   const [pageType, setPageType] = useState(() => {
     const path = window.location.pathname;
+    // A plain visit in a view whose home is the Reader opens the Reader on
+    // that view's text. The address is rewritten before the Reader mounts so
+    // it reads the work and language from it.
+    if (isPlainVisit()) {
+      const url = viewHomeUrl(getView());
+      if (url) {
+        window.history.replaceState({}, '', url);
+        return 'read';
+      }
+    }
     return pageForPath(path);
   });
+  const { view } = useCollections();
   // When set, HelpPage opens to this section (used by the "use your own AI" flag).
   const [helpSection, setHelpSection] = useState(null);
   // When set alongside helpSection, HelpPage scrolls to this id within it (a
@@ -458,6 +488,23 @@ function App() {
     setPageType(nextPageType);
   }, [adminSessionChecked, adminSessionActive, pageType]);
 
+  // Switching view goes to the new view's home: the Reader on its text, or the
+  // Search page. Done inside the app, with no reload.
+  const goViewHome = useCallback((nextView) => {
+    if (adminSessionChecked && adminSessionActive) return;
+    const url = viewHomeUrl(nextView);
+    if (url) {
+      window.history.pushState({}, '', url);
+      // The Reader reads its work from the address on a back step, so a
+      // popstate also moves an open Reader to the new text.
+      window.dispatchEvent(new PopStateEvent('popstate'));
+      setPageType('read');
+    } else {
+      window.history.pushState({}, '', '/');
+      setPageType('search');
+    }
+  }, [adminSessionChecked, adminSessionActive]);
+
   // The "Start here" panel on the Search page (first-time visitors, and the
   // header's "Start here" link). The address is read once, at load: a visitor
   // who arrived with a search in it already knows where they are going.
@@ -550,13 +597,26 @@ function App() {
   // Track previous activeTab and corpus loading state to detect when to apply defaults
   const prevActiveTabRef = useRef(null);
   const corpusLoadedForTabRef = useRef(null);
+  // The view last seen, and the pair last set as defaults: when the view
+  // changes, a pair the visitor never picked is replaced by the new view's.
+  const prevViewRef = useRef(null);
+  const lastDefaultsRef = useRef({ source: '', target: '' });
   
   useEffect(() => {
     const tabChanged = prevActiveTabRef.current !== null && prevActiveTabRef.current !== activeTab;
     prevActiveTabRef.current = activeTab;
+    const viewChanged = prevViewRef.current !== null && prevViewRef.current !== view;
+    prevViewRef.current = view;
+    const notPicked = (!sourceText && !targetText)
+      || (sourceText === lastDefaultsRef.current.source && targetText === lastDefaultsRef.current.target);
+    const viewReset = viewChanged && notPicked;
+    if (viewReset && !tabChanged && !sourceText && !targetText) {
+      // Nothing to clear: let the defaults below apply for the new view.
+      corpusLoadedForTabRef.current = null;
+    }
     
     // Clear results AND text selections when tab changes
-    if (tabChanged) {
+    if (tabChanged || (viewReset && (sourceText || targetText))) {
       clearResults();
       setCorpusSearchResults(null);
       setCorpusSearchQuery(null);
@@ -606,7 +666,11 @@ function App() {
     
     if (shouldSetDefaults) {
       let defaultSourceId, defaultTargetId;
-      if (activeTab === 'grc') {
+      const viewPair = viewById(view).searchDefaults?.[activeTab];
+      if (viewPair) {
+        defaultSourceId = viewPair.source;
+        defaultTargetId = viewPair.target;
+      } else if (activeTab === 'grc') {
         defaultSourceId = 'homer.iliad.part.1.tess';
         defaultTargetId = 'apollonius_rhodius.argonautica.part.1.tess';
       } else if (activeTab === 'en') {
@@ -638,6 +702,7 @@ function App() {
       const defaultSource = corpus.find(t => t.id === defaultSourceId) || corpus[0];
       const defaultTarget = corpus.find(t => t.id === defaultTargetId) || corpus[1] || corpus[0];
       
+      lastDefaultsRef.current = { source: defaultSource?.id || '', target: defaultTarget?.id || '' };
       if (defaultSource) {
         setSourceAuthor(defaultSource.author_key || defaultSource.author?.toLowerCase().replace(/\s+/g, '_') || '');
         setSourceText(defaultSource.id);
@@ -647,7 +712,7 @@ function App() {
         setTargetText(defaultTarget.id);
       }
     }
-  }, [activeTab, corpus, corpusLoading, sourceText, targetText, clearResults]);
+  }, [activeTab, corpus, corpusLoading, sourceText, targetText, clearResults, view]);
 
   useEffect(() => {
     clearResults();
@@ -986,6 +1051,7 @@ function App() {
         setPageType={setPageTypeWithGuard}
         activeTab={activeTab}
         setActiveTab={setActiveTab}
+        onViewChange={goViewHome}
         lockedToAdmin={appLockedToAdmin}
         onAdminLogout={handleAdminSessionLogout}
         onLanguageReset={() => {

@@ -24,8 +24,6 @@ export default function CollectionsControl() {
     };
   }, [open]);
 
-  const profileLabel = PROFILES.find((p) => p.id === profile)?.label || 'Custom';
-
   return (
     <div ref={ref} className="relative">
       <button
@@ -34,9 +32,9 @@ export default function CollectionsControl() {
         aria-expanded={open}
         aria-haspopup="dialog"
         title="Choose which bodies of material the site shows: literature, inscriptions, papyri, coins, objects, scholarship"
-        className="px-2 sm:px-3 py-1 text-xs sm:text-sm text-gray-600 hover:text-red-700 border border-gray-300 rounded bg-white whitespace-nowrap"
+        className="px-2 py-0.5 text-xs text-gray-500 hover:text-red-700 border border-gray-300 rounded bg-white whitespace-nowrap"
       >
-        Collections: <span className="font-semibold">{profileLabel}</span>
+        Collections
       </button>
       {open && (
         <div
@@ -45,7 +43,8 @@ export default function CollectionsControl() {
           className="absolute left-0 mt-1 w-72 bg-white border border-gray-200 rounded shadow-lg p-3 z-50 text-sm"
         >
           <p className="text-xs text-gray-600 mb-2">
-            The literature is always on. Each other body of material you switch on adds its
+            The view sets the profile, and the switches below refine it. The literature is always
+            on. Each other body of material you switch on adds its
             pages to the menu, its tabs to the Reader and its choices to the searches. A profile
             sets the switches together.
           </p>

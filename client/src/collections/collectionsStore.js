@@ -8,11 +8,14 @@
  * last for the visit (sessionStorage) and never overwrite the saved choice.
  */
 import {
-  COLLECTION_IDS, DEFAULT_PROFILE, profileById, profileSwitches, matchProfile,
+  COLLECTION_IDS, DEFAULT_PROFILE, DEFAULT_VIEW, VIEWS, viewById, profileById, profileSwitches, matchProfile,
 } from './collectionsConfig';
 
 export const STORAGE_KEY = 'tesserae_collections';
 const OVERRIDE_KEY = 'tesserae_collections_override';
+// The visitor's view (Literature or History) and, for one visit, ?view= from the address.
+export const VIEW_KEY = 'tesserae_view';
+const VIEW_OVERRIDE_KEY = 'tesserae_view_override';
 // The old trial switches' own session keys (kept: other code and tests read them).
 const LEGACY = { documents_trial: ['inscriptions', 'papyri'], scholarship_tab: ['scholarship'] };
 
@@ -26,6 +29,9 @@ function readJson(store, key) {
 function writeJson(store, key, value) {
   try { store.setItem(key, JSON.stringify(value)); } catch { /* storage unavailable */ }
 }
+function getItem(store, key) {
+  try { return store.getItem(key); } catch { return null; }
+}
 function safe(getStore) {
   try { return getStore(); } catch { return null; }
 }
@@ -37,6 +43,14 @@ export function captureUrlOverrides() {
   const params = new URLSearchParams(window.location.search);
   if (params.get('documents') === '1') ss.setItem('tesserae_documents_trial', '1');
   if (params.get('scholarship') === '1') ss.setItem('tesserae_scholarship_tab', '1');
+  const view = params.get('view');
+  if (view && VIEWS.some((v) => v.id === view)) {
+    ss.setItem(VIEW_OVERRIDE_KEY, view);
+    // The view brings its profile for this visit, unless the address names collections itself.
+    if (!params.get('profile') && params.get('collections') === null) {
+      writeJson(ss, OVERRIDE_KEY, { on: profileSwitches(viewById(view).profile) });
+    }
+  }
   const profile = params.get('profile');
   if (profile && profileById(profile)) {
     writeJson(ss, OVERRIDE_KEY, { on: profileSwitches(profile) });
@@ -61,9 +75,10 @@ function captureOnce() {
     // Re-capture only if the session keys the URL calls for have gone
     // (cleared storage), so a cleared session still honours the link.
     const params = new URLSearchParams(search || '');
-    const missing = (params.get('documents') === '1' && !ss.getItem('tesserae_documents_trial'))
-      || (params.get('scholarship') === '1' && !ss.getItem('tesserae_scholarship_tab'))
-      || ((params.get('profile') || params.get('collections') !== null) && !ss.getItem(OVERRIDE_KEY));
+    const missing = (params.get('documents') === '1' && !getItem(ss, 'tesserae_documents_trial'))
+      || (params.get('scholarship') === '1' && !getItem(ss, 'tesserae_scholarship_tab'))
+      || ((params.get('profile') || params.get('collections') !== null) && !getItem(ss, OVERRIDE_KEY))
+      || (VIEWS.some((v) => v.id === params.get('view')) && !getItem(ss, VIEW_OVERRIDE_KEY));
     if (!missing) return;
   }
   lastSearch = search;
@@ -86,12 +101,27 @@ function compute() {
   }
   if (ss) {
     Object.entries(LEGACY).forEach(([key, ids]) => {
-      if (ss.getItem('tesserae_' + key) === '1') ids.forEach((id) => { on[id] = true; });
+      if (getItem(ss, 'tesserae_' + key) === '1') ids.forEach((id) => { on[id] = true; });
     });
   }
   const profile = matchProfile(on);
   const layout = (profileById(profile) || profileById(DEFAULT_PROFILE)).layout;
-  return { on, profile, layout };
+  return { on, profile, layout, view: readView() };
+}
+
+function readView() {
+  const ss = safe(() => window.sessionStorage);
+  const ls = safe(() => window.localStorage);
+  const fromUrl = ss ? getItem(ss, VIEW_OVERRIDE_KEY) : null;
+  if (fromUrl && VIEWS.some((v) => v.id === fromUrl)) return fromUrl;
+  const saved = ls ? getItem(ls, VIEW_KEY) : null;
+  return saved && VIEWS.some((v) => v.id === saved) ? saved : DEFAULT_VIEW;
+}
+
+/** The visitor's view id: this visit's ?view=, else the saved one, else Literature. */
+export function getView() {
+  captureOnce();
+  return readView();
 }
 
 /** Snapshot with a stable identity while nothing changed (for useSyncExternalStore). */
@@ -141,4 +171,25 @@ export function setCollection(id, value) {
 export function setProfile(id) {
   if (!profileById(id)) return;
   save(profileSwitches(id));
+}
+
+/**
+ * Choose a view: saved for next time, and its profile applied. Picking a
+ * collection by hand afterwards leaves the view where it is.
+ */
+export function setView(id) {
+  if (!VIEWS.some((v) => v.id === id)) return;
+  const ls = safe(() => window.localStorage);
+  if (ls) { try { ls.setItem(VIEW_KEY, id); } catch { /* storage unavailable */ } }
+  const ss = safe(() => window.sessionStorage);
+  if (ss) ss.removeItem(VIEW_OVERRIDE_KEY);
+  // Drop ?view= from the address so the link does not pull the visitor back.
+  try {
+    const url = new URL(window.location.href);
+    if (url.searchParams.has('view')) {
+      url.searchParams.delete('view');
+      window.history.replaceState(window.history.state, '', url.pathname + url.search + url.hash);
+    }
+  } catch { /* no address to edit */ }
+  setProfile(viewById(id).profile);
 }

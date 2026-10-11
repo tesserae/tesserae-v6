@@ -379,6 +379,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
 
   const sections = [
     { id: 'start-here', label: 'Start here', group: 'Start here' },
+    { id: 'views', label: 'Literature and History views', group: 'Start here' },
     { id: 'getting-started', label: 'Getting Started', group: 'Start here' },
     { id: 'search-modes', label: 'The Types of Search', group: 'Start here' },
     { id: 'how-well', label: 'How well does it work?', group: 'Start here' },
@@ -557,6 +558,26 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 The Search page opens with the question "What are you trying to do?" the first time you visit. Choosing
                 an answer takes you to the right search, and "Skip" closes the question for good. The "Start here"
                 link at the top of every page brings it back, and Tessa gives the same list when you ask her where to start.
+              </p>
+            </div>
+          )}
+
+          {activeSection === 'views' && (
+            <div className="prose max-w-none">
+              <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Literature and History views</h3>
+              <p className="text-gray-700 mb-4">
+                The site has two views, Literature and History, switched by the two words at the left of the
+                main menu. Literature opens on the Search page, set to Vergil against Lucan, with the menu led by
+                Search and Read. History opens on the Reader at the first book of Tacitus&rsquo;s Annals, with
+                every collection on, the menu led by Read and Events, and the Reader&rsquo;s side tabs led by Reuse
+                and Scholarship. History also opens the Phrase Search on Livy against Tacitus in Latin and on
+                Herodotus against Thucydides in Greek, and puts the inscriptions, papyri and events first in the Start here list.
+              </p>
+              <p className="text-gray-700 mb-4">
+                A view changes the order and the starting points. Every search and every collection can be reached
+                in both views, and the Collections button beside the switch still turns collections on and off.
+                Choosing a view moves you to its opening page, and the site remembers the choice in this browser.
+                To send someone a link that opens in History, add <code>?view=history</code> to the address.
               </p>
             </div>
           )}
@@ -2005,11 +2026,12 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
             <div className="prose max-w-none">
               <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Inscriptions &amp; Papyri</h3>
               <p className="text-gray-700 mb-4">
-                Collections decides what you see. The Collections button at the right of the main
+                Collections decides what you see. The Collections button at the left of the main
                 menu lists the source collections (literature, inscriptions, papyri, scholarship,
                 coins and objects) with a switch for each, and four profiles
                 that set the switches together: Literary, Historical, Archaeological and
-                Everything. Your choice is remembered in this browser. This page and its menu entry
+                Everything. The view you are in (Literature or History) sets the profile, and the switches refine it.
+                Your choice is remembered in this browser. This page and its menu entry
                 appear when Inscriptions or Papyri is on, and the Scholarship tab in the Reader
                 appears when Scholarship is on. Literary, the setting a new visitor starts with,
                 shows the literary texts only. This is a page for the documentary
