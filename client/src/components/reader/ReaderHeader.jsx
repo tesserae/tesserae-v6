@@ -4,6 +4,8 @@ import SearchableSelect from '../common/SearchableSelect';
 import { formatSelectionRange, useCorpusTextMap } from '../../utils/textNames';
 import { dateLabel } from '../../utils/chronology';
 import { decodeEntities } from '../../utils/htmlEntities';
+import { useIsPhone } from '../../hooks/useIsPhone';
+import { BookLinks, GoToLineForm, bookSections, sectionsFor } from './ReaderNav';
 
 /**
  * The Reader's header: where you are, and how to go somewhere else.
@@ -28,18 +30,18 @@ import { decodeEntities } from '../../utils/htmlEntities';
 // come from the one shared table (utils/languageNames.js).
 const LANG_ORDER = ['la', 'grc', 'en', 'he', 'cop', 'fa', 'ur', 'ar', 'it', 'fro', 'gmh'];
 
-function Select({ label, value, options, onChange, disabled }) {
+function Select({ label, value, options, onChange, disabled, wide }) {
   return (
-    <label className="flex items-center">
+    <label className={wide ? 'flex items-center w-full' : 'flex items-center'}>
       <span className="sr-only">{label}</span>
       <select
         aria-label={label}
         value={value || ''}
         disabled={disabled || !options.length}
         onChange={(e) => onChange(e.target.value)}
-        className="max-w-[11rem] truncate rounded border border-gray-300 bg-white px-2 py-1 text-sm
+        className={`${wide ? 'w-full py-2' : 'max-w-[11rem] py-1'} truncate rounded border border-gray-300 bg-white px-2 text-sm
                    text-gray-800 hover:border-gray-400 focus:outline-none focus:ring-1
-                   focus:ring-red-600 disabled:bg-gray-50 disabled:text-gray-500"
+                   focus:ring-red-600 disabled:bg-gray-50 disabled:text-gray-500`}
       >
         {!value && <option value="">{label}</option>}
         {options.map((o) => (
@@ -50,9 +52,33 @@ function Select({ label, value, options, onChange, disabled }) {
   );
 }
 
+/** A labelled row in the phone picker sheet. The words are for the eye only
+ *  (the control carries its own accessible name). */
+function Row({ label, wide, children }) {
+  if (!wide) return children;
+  return (
+    <div className="w-full">
+      <span aria-hidden="true" className="mb-1 block text-xs font-medium text-gray-500">{label}</span>
+      {children}
+    </div>
+  );
+}
+
 export default function ReaderHeader({
-  language, onLanguage, hierarchy, work, onWork, units, selection,
+  language, onLanguage, hierarchy, work, onWork, units, selection, onJump,
 }) {
+  const phone = useIsPhone();
+  // Phone only: the sheet that holds the text and book choice, Go to line and
+  // About this text, so the header itself is one line.
+  const [pickerOpen, setPickerOpen] = useState(false);
+  useEffect(() => { if (!phone) setPickerOpen(false); }, [phone]);
+  useEffect(() => {
+    if (!pickerOpen) return undefined;
+    const onKey = (e) => { if (e.key === 'Escape' && !e.defaultPrevented) setPickerOpen(false); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [pickerOpen]);
+
   const [languages, setLanguages] = useState([]);
   const corpusMap = useCorpusTextMap(language);
 
@@ -97,7 +123,7 @@ export default function ReaderHeader({
   const [translationAttribution, setTranslationAttribution] = useState(null);
   useEffect(() => {
     setTranslationAttribution(null);
-    if (!aboutOpen || !work) return undefined;
+    if (!(aboutOpen || (phone && pickerOpen)) || !work) return undefined;
     let dead = false;
     const p = new URLSearchParams({ work, language: language || 'la' });
     fetch(`/api/passages/translation-full?${p}`)
@@ -105,7 +131,7 @@ export default function ReaderHeader({
       .then((d) => { if (!dead) setTranslationAttribution(d?.available ? (d.attribution || null) : null); })
       .catch(() => {});
     return () => { dead = true; };
-  }, [aboutOpen, work, language]);
+  }, [aboutOpen, phone, pickerOpen, work, language]);
 
   useEffect(() => {
     let dead = false;
@@ -156,6 +182,15 @@ export default function ReaderHeader({
     const w = (entry?.works || [])[0];
     return (w?.sections || [])[0]?.file || '';
   };
+
+  // "Vergil, Aeneid, Book 1": the phone's one-line title. A book label that
+  // only repeats the work's name (a whole-file section) is left out.
+  const position = (() => {
+    const parts = [authorEntry?.author, here.work?.work].filter(Boolean);
+    const book = bookOptions.find((o) => o.value === work)?.label;
+    if (book && bookOptions.length > 1 && book !== here.work?.work) parts.push(book);
+    return parts.join(', ');
+  })();
 
   const range = (() => {
     if (selection?.refStart) {
@@ -214,6 +249,169 @@ export default function ReaderHeader({
     ? `/text-credits?author=${encodeURIComponent(facts.author)}`
     : '/text-credits';
 
+  const aboutContent = (
+    <>
+        {/* One column at reading width (about 65 characters). */}
+        {aboutTitle && (
+          <h2 className="text-base font-semibold text-gray-900">{aboutTitle}</h2>
+        )}
+        {factItems.length > 0 && (
+          <p className="mt-0.5 text-sm text-gray-500">
+            {factItems.map(([value, tip], i) => (
+              <Fragment key={tip}>
+                {i > 0 && <span aria-hidden="true"> &middot; </span>}
+                <span title={tip}>{value}</span>
+              </Fragment>
+            ))}
+          </p>
+        )}
+        <p className="mt-2 max-w-prose text-sm leading-relaxed text-gray-700">
+          {about}
+        </p>
+        {facts && (
+          <p className="mt-2 max-w-prose text-xs text-gray-500">
+            {sourcesNote}
+            <a href={creditsHref} className="text-red-700 hover:underline">Full credits</a>
+          </p>
+        )}
+    </>
+  );
+
+  const pickWork = (file) => { setPickerOpen(false); onWork(file); };
+
+  const controls = (wide) => (
+    <>
+      <Row label="Language" wide={wide}>
+        <Select label="Language" value={language} options={langOptions} wide={wide}
+                onChange={(v) => onLanguage(v)} />
+      </Row>
+      <Row label="Author" wide={wide}>
+        <div className={wide ? 'flex items-center w-full' : 'flex items-center'}>
+        <SearchableSelect
+          ariaLabel="Author"
+          value={here.author}
+          options={authorOptions}
+          placeholder="Author"
+          disabled={!authorOptions.length}
+          onChange={(v) => {
+            const entry = (hierarchy || []).find(
+              (a) => (a.author_key || a.author) === v);
+            const next = firstOf(entry);
+            if (next) pickWork(next);
+          }}
+          className={`${wide ? 'w-full py-2' : 'max-w-[11rem] py-1'} truncate rounded border border-gray-300 bg-white px-2 text-sm
+                     text-gray-800 hover:border-gray-400 disabled:bg-gray-50 disabled:text-gray-500`}
+        />
+      </div>
+      </Row>
+      <Row label="Work" wide={wide}>
+        <div className={wide ? 'flex items-center w-full' : 'flex items-center'}>
+        <SearchableSelect
+          ariaLabel="Work"
+          value={here.workKey}
+          options={workOptions}
+          placeholder="Work"
+          disabled={!workOptions.length}
+          onChange={(v) => {
+            const w = (authorEntry?.works || []).find((x) => x.work_key === v);
+            const next = (w?.sections || [])[0]?.file;
+            if (next) pickWork(next);
+          }}
+          className={`${wide ? 'w-full py-2' : 'max-w-[11rem] py-1'} truncate rounded border border-gray-300 bg-white px-2 text-sm
+                     text-gray-800 hover:border-gray-400 disabled:bg-gray-50 disabled:text-gray-500`}
+        />
+      </div>
+      </Row>
+      {bookOptions.length > 1 && (
+        <Row label="Book" wide={wide}>
+        <div className={wide ? 'flex items-center w-full' : 'flex items-center'}>
+          <SearchableSelect
+            ariaLabel="Book"
+            value={work}
+            options={bookOptions}
+            placeholder="Book"
+            onChange={(v) => pickWork(v)}
+            className={`${wide ? 'w-full py-2' : 'max-w-[11rem] py-1'} truncate rounded border border-gray-300 bg-white px-2 text-sm
+                     text-gray-800 hover:border-gray-400 disabled:bg-gray-50 disabled:text-gray-500`}
+          />
+        </div>
+      </Row>
+      )}
+    </>
+  );
+
+  const phoneSections = sectionsFor(hierarchy, work);
+  if (phone) {
+    return (
+      <>
+        <div className="flex items-center gap-2 px-3 py-2 border-b border-gray-200">
+          <button
+            type="button"
+            onClick={() => setPickerOpen(true)}
+            aria-haspopup="dialog"
+            aria-expanded={pickerOpen}
+            aria-label={`Change text: ${position || 'choose a text'}`}
+            className="flex min-w-0 items-center gap-1 text-left text-sm font-medium text-gray-900"
+          >
+            <span className="truncate">{position || 'Choose a text'}</span>
+            <svg aria-hidden="true" viewBox="0 0 20 20" className="h-4 w-4 flex-none text-gray-500"
+                 fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"
+                 strokeLinejoin="round"><path d="M5 8l5 5 5-5" /></svg>
+          </button>
+          <span className="ml-auto flex-none text-sm text-gray-600 tabular-nums">{range}</span>
+        </div>
+        {pickerOpen && (
+          <>
+            <div data-testid="picker-backdrop" className="fixed inset-0 z-40 bg-black/40"
+                 onClick={() => setPickerOpen(false)} />
+            <div role="dialog" aria-modal="true" aria-label="Choose a text"
+                 className="fixed inset-x-0 bottom-0 z-50 max-h-[85vh] overflow-y-auto rounded-t-xl
+                            bg-white px-4 pb-6 pt-4 shadow-2xl">
+              <button type="button" onClick={() => setPickerOpen(false)} aria-label="Close"
+                      className="absolute right-3 top-3 h-8 w-8 rounded-full text-xl leading-none
+                                 text-gray-500 hover:bg-gray-100">
+                &times;
+              </button>
+              <div className="flex items-center gap-2 pr-10">
+                <h2 className="font-semibold tracking-wide text-gray-900"
+                    style={{ fontFamily: '"Gentium Book", Georgia, serif' }}>
+                  Tesserae Reader
+                </h2>
+                <span className="rounded border border-amber-200 bg-amber-50 px-1.5 py-0.5 text-[10px]
+                                 font-semibold uppercase tracking-wide text-amber-800">
+                  Beta
+                </span>
+              </div>
+              <div className="mt-3 flex flex-col gap-3">
+                {controls(true)}
+              </div>
+              {onJump && (
+                <div className="mt-4 text-sm text-gray-700">
+                  <GoToLineForm onJump={onJump} onDone={() => setPickerOpen(false)}
+                                size="text-sm" inputWidth="w-28"
+                                className="flex flex-wrap items-center gap-2" />
+                </div>
+              )}
+              {bookSections(phoneSections).length > 1 && (
+                <div className="mt-4 flex flex-wrap items-center gap-2">
+                  <BookLinks sections={phoneSections} work={work} onWork={pickWork} size="text-sm" />
+                </div>
+              )}
+              {about && (
+                <section className="mt-5 border-t border-gray-200 pt-3" aria-label="About this text">
+                  {aboutContent}
+                </section>
+              )}
+            </div>
+          </>
+        )}
+        {credit && (
+          <p className="px-3 py-1 text-[11px] text-gray-400 border-b border-gray-200">{credit}</p>
+        )}
+      </>
+    );
+  }
+
   return (
     <>
     <div className="flex items-center gap-2 px-4 py-2 border-b border-gray-200 flex-wrap">
@@ -226,54 +424,7 @@ export default function ReaderHeader({
         Beta
       </span>
 
-      <Select label="Language" value={language} options={langOptions}
-              onChange={(v) => onLanguage(v)} />
-      <div className="flex items-center">
-        <SearchableSelect
-          ariaLabel="Author"
-          value={here.author}
-          options={authorOptions}
-          placeholder="Author"
-          disabled={!authorOptions.length}
-          onChange={(v) => {
-            const entry = (hierarchy || []).find(
-              (a) => (a.author_key || a.author) === v);
-            const next = firstOf(entry);
-            if (next) onWork(next);
-          }}
-          className="max-w-[11rem] truncate rounded border border-gray-300 bg-white px-2 py-1 text-sm
-                     text-gray-800 hover:border-gray-400 disabled:bg-gray-50 disabled:text-gray-500"
-        />
-      </div>
-      <div className="flex items-center">
-        <SearchableSelect
-          ariaLabel="Work"
-          value={here.workKey}
-          options={workOptions}
-          placeholder="Work"
-          disabled={!workOptions.length}
-          onChange={(v) => {
-            const w = (authorEntry?.works || []).find((x) => x.work_key === v);
-            const next = (w?.sections || [])[0]?.file;
-            if (next) onWork(next);
-          }}
-          className="max-w-[11rem] truncate rounded border border-gray-300 bg-white px-2 py-1 text-sm
-                     text-gray-800 hover:border-gray-400 disabled:bg-gray-50 disabled:text-gray-500"
-        />
-      </div>
-      {bookOptions.length > 1 && (
-        <div className="flex items-center">
-          <SearchableSelect
-            ariaLabel="Book"
-            value={work}
-            options={bookOptions}
-            placeholder="Book"
-            onChange={(v) => onWork(v)}
-            className="max-w-[11rem] truncate rounded border border-gray-300 bg-white px-2 py-1 text-sm
-                       text-gray-800 hover:border-gray-400 disabled:bg-gray-50 disabled:text-gray-500"
-          />
-        </div>
-      )}
+      {controls(false)}
       {about && (
         <button
           onClick={() => setAboutOpen((o) => !o)}
@@ -300,29 +451,7 @@ export default function ReaderHeader({
     </div>
     {aboutOpen && about && (
       <div className="border-b border-gray-200 bg-gray-50 px-4 py-3">
-        {/* One column at reading width (about 65 characters). */}
-        {aboutTitle && (
-          <h2 className="text-base font-semibold text-gray-900">{aboutTitle}</h2>
-        )}
-        {factItems.length > 0 && (
-          <p className="mt-0.5 text-sm text-gray-500">
-            {factItems.map(([value, tip], i) => (
-              <Fragment key={tip}>
-                {i > 0 && <span aria-hidden="true"> &middot; </span>}
-                <span title={tip}>{value}</span>
-              </Fragment>
-            ))}
-          </p>
-        )}
-        <p className="mt-2 max-w-prose text-sm leading-relaxed text-gray-700">
-          {about}
-        </p>
-        {facts && (
-          <p className="mt-2 max-w-prose text-xs text-gray-500">
-            {sourcesNote}
-            <a href={creditsHref} className="text-red-700 hover:underline">Full credits</a>
-          </p>
-        )}
+        {aboutContent}
       </div>
     )}
     {credit && (

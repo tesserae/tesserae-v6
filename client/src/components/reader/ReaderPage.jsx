@@ -2,7 +2,8 @@ import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import useDocumentsTrial from '../../hooks/useDocumentsTrial';
 import { cssRef } from './refId';
 import ReaderHeader from './ReaderHeader';
-import ReaderNav, { ReaderEndNav, ReaderFloatNav, sectionsFor, bookFileFor } from './ReaderNav';
+import ReaderNav, { ReaderEndNav, ReaderFloatNav, ReaderPhoneTopButton, sectionsFor, bookFileFor } from './ReaderNav';
+import { useIsPhone } from '../../hooks/useIsPhone';
 import SelectionToolbar, { scopeFor } from './SelectionToolbar';
 import { useCorpus } from '../../hooks';
 import { LoadingSpinner } from '../common';
@@ -62,6 +63,7 @@ function popupTop(selection) {
 }
 
 export default function ReaderPage() {
+  const phone = useIsPhone();
   // No work named in the address: leave it empty and let the preferred-work
   // effect below choose by language. Defaulting to the Aeneid here opened
   // Latin under an Arabic address (/read?lang=ar) (bug report, 2026-09-07).
@@ -551,6 +553,7 @@ export default function ReaderPage() {
         }}
         units={units}
         selection={selection}
+        onJump={jumpTo}
       />
 
       {loading && <div className="p-10"><LoadingSpinner /></div>}
@@ -668,20 +671,24 @@ export default function ReaderPage() {
                 Passages", so the two halves of the same screen described the
                 same two things in different words. */}
             <p className="px-3 py-1.5 text-[11px] text-gray-600 border-b border-gray-200 bg-gray-50 flex flex-wrap items-center gap-x-4 gap-y-1">
-              <span className="flex items-center gap-1.5">
-                <span className="inline-block w-[9px] h-[7px] rounded-sm bg-red-700" />
-                verbal parallels
-              </span>
-              <span className="flex items-center gap-1.5">
-                <span className="inline-block w-[9px] h-[7px] rounded-sm"
-                      style={{ backgroundColor: '#7c6bb0' }} />
-                similar passages
-              </span>
+              {!phone && (
+                <>
+                  <span className="flex items-center gap-1.5">
+                    <span className="inline-block w-[9px] h-[7px] rounded-sm bg-red-700" />
+                    verbal parallels
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <span className="inline-block w-[9px] h-[7px] rounded-sm"
+                          style={{ backgroundColor: '#7c6bb0' }} />
+                    similar passages
+                  </span>
+                </>
+              )}
               {/* "darker = more connections" is about the two gutter columns
                   only, so it sits with them, before the quotation boxes
                   (2026-09-20). The boxes come in two forms and both are named:
                   solid for a line quoted elsewhere, dashed for a possible echo. */}
-              <span className="text-gray-500">darker = more connections</span>
+              {!phone && <span className="text-gray-500">darker = more connections</span>}
               <span className="ml-auto flex items-center gap-1">
                 <button
                   type="button"
@@ -713,6 +720,20 @@ export default function ReaderPage() {
             </p>
             {keyOpen && (
               <p data-testid="reader-key" className="px-3 py-1.5 text-[11px] text-gray-600 border-b border-gray-200 bg-gray-50 flex flex-wrap items-center gap-x-4 gap-y-1">
+              {phone && (
+                <>
+                  <span className="flex items-center gap-1.5">
+                    <span className="inline-block w-[9px] h-[7px] rounded-sm bg-red-700" />
+                    verbal parallels
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <span className="inline-block w-[9px] h-[7px] rounded-sm"
+                          style={{ backgroundColor: '#7c6bb0' }} />
+                    similar passages
+                  </span>
+                  <span className="text-gray-500">darker = more connections</span>
+                </>
+              )}
               <span className="flex items-center gap-1.5">
                 <span className="inline-flex items-center justify-center text-[9px] font-bold leading-none
                                  text-red-700 bg-gray-100 border border-gray-300 rounded px-1 py-[2px]">2</span>
@@ -866,6 +887,9 @@ export default function ReaderPage() {
           )}
           {!loading && !error && units.length > 0 && (
             <ReaderFloatNav sections={sections} work={work} onWork={changeBook} />
+          )}
+          {!loading && !error && units.length > 0 && (
+            <ReaderPhoneTopButton hidden={!!selection} />
           )}
           </div>
           <ResultsPanel

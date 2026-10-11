@@ -1699,6 +1699,12 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 reader might care. The same notes appear behind the small ⓘ buttons in Browse
                 Corpus. Coverage is growing: recently added works get theirs first.
               </p>
+              <p className="text-gray-700 mb-4">
+                On a phone, the choice of text and book, Go to line and About this text are behind
+                the title line at the top of the Reader, and the key to the margin marks is behind
+                the Key button, so that the text has the width of the screen. Every control is
+                still there.
+              </p>
 
               <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">The gutter</h4>
               <p className="text-gray-700 mb-3">

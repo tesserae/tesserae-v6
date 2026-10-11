@@ -35,6 +35,54 @@ Conventions
   hand and are the models the helper matches.
 
 
+## 2026-10-11 Translation files: facing-page OCR noise stripped from 19 of 25 Loeb-scan files (run 2026-10-11 09:00)
+- What: 25 translation files aligned from Internet Archive scans of Loeb
+  volumes carry the OCR of the facing Greek or Latin page in their English
+  units (runs such as "143 ARISTOPHANES > / dwvi) juapd, yegovas ..."), the
+  fifteen Aristophanes plays, Anthology books 7 and 10 to 16, Euclid's
+  Elements, three Plato dialogues, the Catalepton and Varro's Res rusticae.
+  The script finds runs of eight or more tokens in which fewer than three of
+  every eight are English-like (English learned from the clean translation
+  files) and removes them with the running headers. Units keep their index,
+  so `ref_to_unit` is unchanged. Euclid's and the Plato files' measured
+  "junk" is diagram letters and the speaker label "Str.", and the script
+  changes almost nothing in them.
+- Script: `scripts/translations/strip_ocr_noise.py` (test:
+  `tests/test_strip_ocr_noise.py`). It refuses to write a file whose
+  content words fall by more than 3 percent.
+- Run 2026-10-11 08:50: the script over all 25 files into the backup folder.
+  Before and after, as the share of alphabetic tokens that cannot be English:
+  Wasps 13.5 to 6.1 percent, Acharnians 11.9 to 3.5, Knights 12.1 to 3.8, the
+  other seven plays 2.9 to 6.4 down to 1.6 to 3.7, Anthology books 7 and 10 to
+  16 8.4 to 10.9 down to 1.2 to 4.7 (book 8 6.1 to 3.5). 4,163 runs and 469
+  running headers removed; content words (four or more letters, in the
+  vocabulary) fell by 0 to 2.7 percent per file; two Anthology units (books 10
+  and 16) were entirely Greek OCR and are now empty. The residue is shorter
+  Greek runs under eight tokens, which the rule leaves.
+- Installed 2026-10-11 09:00: the ten Aristophanes plays and the nine
+  Anthology books (19 files), originals first copied to
+  `~/tesserae-backups/translations_ocr_clean_2026-10-11/originals/`, mode 664,
+  wsgi touched. NOT installed, after reading `samples.md`: Varro and the
+  Catalepton, where the removed runs were real quotations and citations in
+  the translator's notes (Latin verse quoted, a bibliographic reference) for
+  a gain of 0.4 and 0.0 points; Euclid and the three Plato dialogues, where
+  the measured junk is diagram letters and the speaker label and the script
+  changes nothing. Their files on production are unchanged.
+- Check 2026-10-11 09:01: Knights 196 through `/api/passages/translation`
+  no longer carries the ARISTOPHANES header or the Greek run.
+- The command, for the record (nothing is installed by this step):
+  `~/bin/tess-job --fg ocr_run 4 python3 -I scripts/translations/strip_ocr_noise.py --src /var/www/tesseraev6_flask/data/translations --out ~/tesserae-backups/translations_ocr_clean_2026-10-11/cleaned --report ~/tesserae-backups/translations_ocr_clean_2026-10-11/report.md`
+  writes the cleaned files, `report.md` and `samples.md`. Read the samples
+  before installing.
+- Install (after review): back up the 25 originals to
+  `~/tesserae-backups/translations_ocr_clean_2026-10-11/originals/`, copy each
+  cleaned file over `/var/www/tesseraev6_flask/data/translations/<name>`
+  (keep mode 664), then `touch /var/www/tesseraev6_flask/tesseraev6_flask.wsgi`.
+- Checks: `/api/passages/translation?work=aristophanes.knights&refs=arist.%20knights.%20196`
+  (Knights unit 8) no longer carries "ARISTOPHANES >" or the Greek run; the
+  Reader's Translation tab on Aristophanes, Knights 100 reads as English; the
+  `/api/passages/translations?language=grc` list still shows the 25 works.
+
 ## 2026-10-10 Translation files: HTML character entities decoded (run 2026-10-10 23:58)
 - What: 14 of the 1,043 translation files in `data/translations/` (not in git)
   held HTML entities from the web pages they were transcribed from, which the

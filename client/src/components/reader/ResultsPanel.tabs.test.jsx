@@ -9,7 +9,7 @@
  * scroll -- never a second line -- if it is still too narrow.
  */
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import ResultsPanel from './ResultsPanel';
 import { resetScholarshipLanguagesCache } from '../../utils/scholarshipLanguages';
 
@@ -110,5 +110,28 @@ describe('tab gating by Collections (saved choice, no URL switch)', () => {
     mount({ language: 'la' });
     expect(await screen.findByRole('button', { name: 'Scholarship' })).toBeTruthy();
     window.localStorage.clear();
+  });
+});
+
+describe('the strip on a phone', () => {
+  it('has no right padding held back for Tessa, who is now a side tab', () => {
+    mount();
+    const strip = screen.getByRole('button', { name: 'Reuse' }).parentElement;
+    expect(strip.className).not.toContain('pr-20');
+  });
+
+  it('shows a fade at the right edge when the strip runs past it, and not otherwise', async () => {
+    mount();
+    expect(screen.queryByTestId('tab-strip-fade')).toBeNull();
+    const strip = screen.getByRole('button', { name: 'Reuse' }).parentElement;
+    Object.defineProperty(strip, 'scrollWidth', { configurable: true, value: 600 });
+    Object.defineProperty(strip, 'clientWidth', { configurable: true, value: 300 });
+    fireEvent.scroll(strip);
+    const fade = await screen.findByTestId('tab-strip-fade');
+    expect(fade.className).toContain('pointer-events-none');
+    // scrolled to the end: the fade goes
+    strip.scrollLeft = 300;
+    fireEvent.scroll(strip);
+    await waitFor(() => expect(screen.queryByTestId('tab-strip-fade')).toBeNull());
   });
 });
