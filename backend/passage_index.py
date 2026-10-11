@@ -885,7 +885,8 @@ def _rank(scores, limit, exclude_work=None, languages=None, scale=None,
         work = _norm_work(r.get('work'))
         if exclude_work and work == exclude_work:
             continue
-        if only_works is not None and work not in only_works:
+        if (only_works is not None and work not in only_works
+                and work_id(r.get('work')) not in only_works):
             continue
         if per_work is not None and per_work_count.get(work, 0) >= per_work:
             continue
@@ -1624,6 +1625,47 @@ def _lexical_boost(query, scores):
 RESTRICTED_PER_WORK = 10
 
 
+def _part_ids(base):
+    """Ids of the part files of `base` that hold passage windows, e.g.
+    {'tacitus.annales.part.1', ...}. Empty for a work with no parts."""
+    _ensure_loaded()
+    if not _state.get('ok') or not _by_work:
+        return set()
+    return {w for w in (work_id(_records[i].get('work')) for i in _by_work.get(base) or [])
+            if is_part(w)}
+
+
+def part_number(part_id):
+    """The number after `.part.` in a part id (`x.part.2.nemeans` -> 2), or None."""
+    m = re.search(r'\.part\.(\d+)', work_id(part_id) or '')
+    return int(m.group(1)) if m else None
+
+
+def parse_books(spec, cap=500):
+    """`1,2`, `1-6` or `1-3,5` -> sorted list of ints. Junk is ignored."""
+    out = set()
+    for piece in str(spec or '').split(','):
+        piece = piece.strip()
+        m = re.fullmatch(r'(\d+)\s*-\s*(\d+)', piece)
+        if m:
+            a, b = int(m.group(1)), int(m.group(2))
+            if a <= b and b - a < cap:
+                out.update(range(a, b + 1))
+        elif piece.isdigit():
+            out.add(int(piece))
+        if len(out) >= cap:
+            break
+    return sorted(out)
+
+
+def book_parts(base, books):
+    """(part_ids, books_held) for the numbered parts of `base` whose number is in
+    `books`. A number the index does not hold is dropped silently."""
+    want = set(books or [])
+    ids = sorted(p for p in _part_ids(base) if part_number(p) in want)
+    return ids, sorted({part_number(p) for p in ids})
+
+
 def resolve_restriction(author=None, works=None, languages=None):
     """Turn an author id and/or work ids into the set of base work ids that
     have passage windows in the chosen languages.
@@ -1638,7 +1680,9 @@ def resolve_restriction(author=None, works=None, languages=None):
     `lucan.bellum_civile`). When both `author` and `works` are given, the result
     is the works that belong to that author."""
     author = (author or '').strip().lower()
-    wanted = [_norm_work(w.strip()) for w in (works or []) if w and w.strip()]
+    # A part id (`tacitus.annales.part.2`) is kept as given, so a search can be
+    # confined to chosen books; a base id still means the whole work.
+    wanted = [work_id(w.strip()) for w in (works or []) if w and w.strip()]
     if not author and not wanted:
         return None, None
     _ensure_loaded()
@@ -1656,7 +1700,8 @@ def resolve_restriction(author=None, works=None, languages=None):
     else:
         pool = available
     if wanted:
-        chosen = {w for w in wanted if w in pool}
+        chosen = {w for w in wanted
+                  if _norm_work(w) in pool and (not is_part(w) or w in _part_ids(_norm_work(w)))}
         if not chosen:
             return set(), ('None of the works named has passage windows in the '
                            'chosen languages' + (f' for author "{author}"' if author else '')
@@ -1743,13 +1788,15 @@ def find_by_text(query, limit=25, languages=None, scale=None, expand=False,
         # fitted to queries over the whole index and says nothing about a few
         # works, so it is withheld and no result is marked strong.
         works_set = set(only_works)
+        # (Part ids of one work count as one work for the cap below.)
+        n_bases = len({_norm_work(w) for w in works_set})
         # One work alone has nothing to be diverse against, and a cap would
         # make paging stop at the cap (measured: Livy came back with 10
         # passages at limit 25). Several works share the page, so each gets
         # RESTRICTED_PER_WORK.
         if per_work is not None:
             cap = per_work
-        elif len(works_set) == 1:
+        elif n_bases == 1:
             cap = None
         else:
             cap = RESTRICTED_PER_WORK
@@ -1769,7 +1816,7 @@ def find_by_text(query, limit=25, languages=None, scale=None, expand=False,
                      'whether or not they match well, so read them before relying '
                      'on them.' + (f' Each work shows up to {cap} passages. Choose '
                                    'one work to see more of it.'
-                                   if cap is not None and cap < 10**6 and len(works_set) > 1 else '')),
+                                   if cap is not None and cap < 10**6 and n_bases > 1 else '')),
         }
 
     # WHY THE PAGE IS BUILT IN TWO PASSES
@@ -2556,3 +2603,69 @@ def connection_density(work, scale='fine'):
                        'takes seconds of CPU and will block other requests.',
                        work, _DENSITY_CACHE, e)
     return result
+
+
+def _name_pattern(name):
+    return re.compile(r'(?<!\w)' + re.escape(name.strip()) + r'(?!\w)', re.IGNORECASE)
+
+
+def _desc_text(desc):
+    parts = []
+    for key in ('participants', 'gist', 'setting', 'themes'):
+        v = (desc or {}).get(key)
+        if isinstance(v, (list, tuple)):
+            v = ' '.join(str(x) for x in v)
+        if v:
+            parts.append(str(v))
+    return ' '.join(parts)
+
+
+def mentions_in_work(work, names, books=None):
+    """Windows of one work whose description names any of `names`.
+
+    Names match as whole words, case-insensitively, in the description's
+    participants, gist, setting and themes. "Dido's" counts as a match for
+    "Dido" (the apostrophe is a word boundary), "Didonian" does not.
+    `work` is a base id (the whole work) or a part id (that book alone);
+    `books` (a list of ints) narrows a base id to those numbered parts.
+    Ranked by distinct names matched, then total mentions, then position.
+
+    Returns {'work', 'books_searched', 'hits': [...], 'note'?}; `hits` is the
+    full ranked list. An unknown work gives no hits and a `note`."""
+    _ensure_loaded()
+    base = _norm_work(work)
+    wid = work_id(work)
+    if not _state.get('ok') or not _by_work or base not in _by_work:
+        return {'work': base, 'books_searched': None, 'hits': [],
+                'note': 'That work has no passage windows in the index.'}
+    rows = _by_work[base]
+    searched = None
+    if is_part(wid):
+        rows = [i for i in rows if work_id(_records[i].get('work')) == wid]
+    elif books:
+        ids, searched = book_parts(base, books)
+        idset = set(ids)
+        rows = [i for i in rows if work_id(_records[i].get('work')) in idset]
+    pats = [(n.strip(), _name_pattern(n)) for n in names if n and n.strip()]
+    hits = []
+    for i in rows:
+        r = _records[i]
+        text = _desc_text(r.get('desc'))
+        matched, count = [], 0
+        for n, pat in pats:
+            c = len(pat.findall(text))
+            if c:
+                matched.append(n)
+                count += c
+        if not matched:
+            continue
+        coords = _ref_coords_in(r.get('work'), r.get('ref_start'))
+        pn = part_number(r.get('work'))
+        hits.append(((-len(matched), -count, pn if pn is not None else 0, coords),
+                     {'id': r.get('id'), 'work': work_id(r.get('work')),
+                      'ref_start': r.get('ref_start'), 'ref_end': r.get('ref_end'),
+                      'language': r.get('language'),
+                      'gist': (r.get('desc') or {}).get('gist'),
+                      'matched': matched, 'mentions': count}))
+    hits.sort(key=lambda t: t[0])
+    return {'work': base, 'books_searched': searched, 'hits': [h for _, h in hits]}
