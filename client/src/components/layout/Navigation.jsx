@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { rememberLanguage } from '../../utils/languagePreference';
 import StartLanguageControl from './StartLanguageControl';
 import useCollections from '../../hooks/useCollections';
-import { PAGE_NEEDS } from '../../collections/collectionsConfig';
+import { PAGE_NEEDS, VIEWS, viewById, orderBy } from '../../collections/collectionsConfig';
 import CollectionsControl from './CollectionsControl';
 
 /** Tells a horizontally scrolling strip whether there is more to its right.
@@ -111,7 +111,8 @@ const Navigation = ({
   lockedToAdmin = false,
   onAdminLogout,
   showDownloads = false,
-  setShowDownloads
+  setShowDownloads,
+  onViewChange
 }) => {
   const [languageTabs, setLanguageTabs] = useState(defaultLanguageTabs);
   const [moreOpen, setMoreOpen] = useState(false);
@@ -144,7 +145,7 @@ const Navigation = ({
   // the visit) and the server switch together gate the "Inscriptions &
   // Papyri" tab -- the same two-part gate LineSearch.jsx's own documents
   // control and CorpusBrowser's Documents tab use.
-  const { anyOn } = useCollections();
+  const { anyOn, view, setView } = useCollections();
   // The Collections control is shown to every visitor (owner 2026-10-10: the
   // Start here panel named the historical collections while nothing at the
   // top of the page showed them). The default profile is still Literary, so
@@ -202,7 +203,7 @@ const Navigation = ({
     );
   }
 
-  const shownTabs = mainTabs
+  const shownTabs = orderBy(mainTabs, viewById(view).menuOrder, (t) => t.code)
     .filter(tab => tab.code !== 'admin')
     .filter(tab => !tab.trial || showInscriptionsPapyri)
     .filter(tab => !tab.needs || anyOn(PAGE_NEEDS[tab.needs]));
@@ -224,11 +225,28 @@ const Navigation = ({
     <nav className="bg-gray-50 border-b sticky top-0 z-40">
       <div className="max-w-7xl mx-auto px-3 sm:px-6">
         <div className="flex flex-col sm:flex-row sm:items-center">
-          {/* Collections first: it decides which entries the row has, so it
-              reads as the scope control, with the pages to its right (owner
-              2026-10-10: "the highest order choice"). */}
+          {/* The view switch first, then the Collections control as a smaller
+              secondary button: the view sets the profile, the switches refine
+              it. The divider stays before the page tabs. */}
           {showCollections && (
-            <div className="flex py-1 sm:py-0 sm:mr-3 sm:pr-3 sm:border-r sm:border-gray-200">
+            <div className="flex items-center gap-2 py-1 sm:py-0 sm:mr-3 sm:pr-3 sm:border-r sm:border-gray-200">
+              <div role="group" aria-label="View" className="flex">
+                {VIEWS.map((v) => (
+                  <button
+                    key={v.id}
+                    type="button"
+                    aria-pressed={view === v.id}
+                    onClick={() => { setView(v.id); if (onViewChange) onViewChange(v.id); }}
+                    className={`px-2 sm:px-3 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap ${
+                      view === v.id
+                        ? 'border-red-700 text-red-700 font-semibold'
+                        : 'border-transparent text-gray-500 hover:text-red-600 font-medium'
+                    }`}
+                  >
+                    {v.label}
+                  </button>
+                ))}
+              </div>
               <CollectionsControl />
             </div>
           )}

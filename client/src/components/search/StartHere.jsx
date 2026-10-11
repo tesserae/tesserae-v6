@@ -1,4 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
+import useCollections from '../../hooks/useCollections';
+import { viewById, orderBy } from '../../collections/collectionsConfig';
 import {
   FRONT_DOOR_CHOICES, FRONT_DOOR_OPEN_EVENT,
   frontDoorUnseen, markFrontDoorSeen, addressHasQuery,
@@ -27,6 +29,9 @@ export default function StartHere({ onChoose, onDismiss, forceOpen = false, supp
     return !hidden && frontDoorUnseen();
   });
   const ref = useRef(null);
+  const { view } = useCollections();
+  const viewData = viewById(view);
+  const choices = orderBy(FRONT_DOOR_CHOICES, viewData.startHereOrder, (c) => c.id);
 
   useEffect(() => {
     const show = () => {
@@ -80,14 +85,14 @@ export default function StartHere({ onChoose, onDismiss, forceOpen = false, supp
         </button>
       </div>
       <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-0.5">
-        {FRONT_DOOR_CHOICES.map((choice) => (
+        {choices.map((choice) => (
           <li key={choice.id}>
             <a
               href={choice.href}
               onClick={(e) => choose(e, choice)}
               className="block text-sm py-0.5 text-gray-600 hover:text-red-700"
             >
-              <span className="font-semibold text-gray-800">{choice.label}:</span>{' '}
+              <span className="font-semibold text-gray-800">{viewData.startHereLabels?.[choice.id] || choice.label}:</span>{' '}
               <span>{choice.detail}</span>
             </a>
           </li>

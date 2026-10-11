@@ -109,6 +109,9 @@ def build_holdings_sentence():
         text += (' This site also holds ' + _join(d for _, d in cols) + '. These collections are '
                  'switched on through the Collections control in the menu bar (the Historical '
                  'profile), and are in testing.')
+    text += (' The site has a Literature view and a History view, switched at the left of the menu '
+             'row. They hold the same searches and collections and differ in what opens first and '
+             'in the order of the menu and the defaults.')
     return text
 
 

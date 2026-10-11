@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import useCollections from '../../hooks/useCollections';
-import { READER_TABS } from '../../collections/collectionsConfig';
+import { READER_TABS, viewById, orderBy } from '../../collections/collectionsConfig';
 import useDocumentsTrial from '../../hooks/useDocumentsTrial';
 import { useCorpusTextMap, citationFromCorpusMap } from '../../utils/textNames';
 import { chronological, dateParts } from '../../utils/chronology';
@@ -116,7 +116,7 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
   // selection), not yet shown to every reader. ?scholarship=1 switches it on
   // and remembers that for the rest of the visit in sessionStorage, the same
   // way the names grouping was trialled behind ?names=1 first.
-  const { anyOn } = useCollections();
+  const { anyOn, view } = useCollections();
   const scholarshipFlag = anyOn(['scholarship']);
   // Offer the tab only where the site holds scholarship for THIS language
   // (/api/scholarship/sources' own languages field, not a guess): Persian
@@ -338,7 +338,7 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
   // Which tabs appear is decided by Collections (READER_TABS names the
   // collection each needs); the Scholarship tab also needs scholarship
   // installed for THIS language.
-  const tabs = allTabs.filter(([id]) => {
+  const tabs = orderBy(allTabs, viewById(view).readerTabs, (t) => t[0]).filter(([id]) => {
     const spec = READER_TABS.find((t) => t.id === id);
     if (spec && !anyOn(spec.needs)) return false;
     return id !== 'scholarship' || scholarshipAvailable;

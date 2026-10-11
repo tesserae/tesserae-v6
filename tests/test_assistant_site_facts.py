@@ -53,6 +53,12 @@ def test_sentence_follows_the_collections_present(monkeypatch, tmp_path):
     assert 'historical events' in site_facts.build_holdings_sentence()
 
 
+def test_sentence_names_the_two_views():
+    text = site_facts.build_holdings_sentence()
+    assert 'Literature view and a History view' in text
+    assert 'left of the menu row' in text
+
+
 def test_prompt_and_canned_answer_use_the_live_sentence():
     from backend.assistant import prompts, router
     text = site_facts.holdings_sentence()

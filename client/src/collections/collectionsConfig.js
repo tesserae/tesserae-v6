@@ -111,3 +111,73 @@ export const PAGE_NEEDS = {
 
 /** The documents collection is served as one unit: either switch opens it. */
 export const DOCUMENT_COLLECTIONS = ['inscriptions', 'papyri'];
+
+/**
+ * Views. A view is a profile plus a layout: it sets the collections together
+ * (through its profile), the order of the main menu and of the Reader's side
+ * tabs, the texts the Phrase Search opens on, the order of the Start here
+ * answers, and the page a plain visit opens. Nothing is withheld in either
+ * view, so every search and collection is reachable from both.
+ *
+ * `menuOrder` lists main-menu page codes, `readerTabs` Reader tab ids,
+ * `searchDefaults` the Phrase Search pair by language tab (a language not
+ * listed keeps the app's own default), `startHereOrder` the Start here answer
+ * ids (frontDoor.js), `startHereLabels` any answer a view words differently,
+ * and `home` the page a plain visit to the site opens.
+ */
+export const VIEWS = [
+  {
+    id: 'literature',
+    label: 'Literature',
+    profile: 'literary',
+    home: { page: 'search' },
+    menuOrder: [
+      'search', 'read', 'theme-search', 'inscriptions-papyri', 'events', 'coins', 'objects',
+      'browse', 'about', 'help', 'repository', 'downloads',
+    ],
+    readerTabs: ['similar', 'reuse', 'verbal', 'scholarship', 'translation', 'coins'],
+    searchDefaults: {
+      la: { source: 'vergil.aeneid.part.1.tess', target: 'lucan.bellum_civile.part.1.tess' },
+      grc: { source: 'homer.iliad.part.1.tess', target: 'apollonius_rhodius.argonautica.part.1.tess' },
+    },
+    startHereOrder: ['compare', 'phrase', 'rare', 'subject', 'read', 'documents'],
+    startHereLabels: {},
+    opensOn: 'the Search page, on Vergil against Lucan',
+  },
+  {
+    id: 'history',
+    label: 'History',
+    profile: 'everything',
+    home: { page: 'read', work: 'tacitus.annales.part.1.tess', lang: 'la' },
+    menuOrder: [
+      'read', 'events', 'inscriptions-papyri', 'theme-search', 'search', 'coins', 'objects',
+      'browse', 'about', 'help', 'repository', 'downloads',
+    ],
+    readerTabs: ['reuse', 'scholarship', 'similar', 'verbal', 'translation', 'coins'],
+    searchDefaults: {
+      la: { source: 'livy.ab_urbe_condita.part.1.books_1-10.tess', target: 'tacitus.annales.part.1.tess' },
+      grc: { source: 'herodotus.histories.part.1.tess', target: 'thucydides.peleponnesian_war.part.1.tess' },
+    },
+    startHereOrder: ['documents', 'read', 'subject', 'phrase', 'compare', 'rare'],
+    startHereLabels: { documents: 'Inscriptions, papyri, events and coins' },
+    opensOn: 'the Reader, on Tacitus, Annals 1',
+  },
+];
+
+export const DEFAULT_VIEW = 'literature';
+
+export function viewById(id) {
+  return VIEWS.find((v) => v.id === id) || VIEWS.find((v) => v.id === DEFAULT_VIEW);
+}
+
+/** Items ordered by `order` (a list of keys); keys not named keep their relative order at the end. */
+export function orderBy(items, order, keyOf) {
+  const rank = (it) => {
+    const i = order.indexOf(keyOf(it));
+    return i === -1 ? order.length : i;
+  };
+  return items
+    .map((it, n) => ({ it, n, r: rank(it) }))
+    .sort((a, b) => a.r - b.r || a.n - b.n)
+    .map((x) => x.it);
+}
