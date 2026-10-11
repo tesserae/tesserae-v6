@@ -9,6 +9,9 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-10
 
+### The main menu folds what does not fit into More
+With every collection on, the last entries of the menu row faded off the right edge. The row now measures itself and moves the trailing entries into the More menu, at any width, so nothing is cut off; Repository and Downloads stay there always.
+
 ### Inscriptions & Papyri examples lead with epigraphy; the Events box says where the events come from
 The one-click examples on the Inscriptions & Papyri page now begin with the emperors' dating formula, a town council's decree and the freedmen's priesthood, with the literary quotations last, and the Greek tab gains the decree formulas. The Events scope box names Wikidata as the source of the events and says plainly how passages are gathered (by names and by theme, merged) and where that fails.
 
