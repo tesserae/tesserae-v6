@@ -414,7 +414,7 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
     // (2026-09-07). Below the lg breakpoint it is now a sheet fixed to
     // the bottom of the screen, shown once something is selected, with its
     // own close control; with nothing selected it stays out of the way.
-    <aside className={`w-full lg:w-96 xl:w-[30rem] border-t lg:border-t-0 lg:border-l border-gray-200 bg-gray-50
+    <aside className={`w-full lg:w-96 xl:w-[32rem] border-t lg:border-t-0 lg:border-l border-gray-200 bg-gray-50
                       flex flex-col fixed inset-x-0 bottom-0 z-40 shadow-2xl
                       lg:static lg:shadow-none lg:sticky lg:top-0 lg:self-start lg:h-screen lg:max-h-none
                       ${(selection || sheetOpen) ? 'max-h-[55vh]' : 'max-h-[2.75rem] overflow-hidden'}`}>
