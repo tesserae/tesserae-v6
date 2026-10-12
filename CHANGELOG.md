@@ -9,6 +9,9 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-11
 
+### Records: the full prose-windows run and the description vocabulary installed
+The data-operations entries are marked run with the figures: 153,404 windows described and encoded, the Thucydides re-cut swapped in, the passage index at 693,611 windows, the keyword, names and vocabulary indexes rebuilt, the checks passed.
+
 ### Theme Search: the low-band sentence no longer repeats its own label
 The band label and the note both began with the words low confidence, so the banner read them twice. The note now starts with what the band means.
 ### Theme Search: a query of words no passage description contains is told so
