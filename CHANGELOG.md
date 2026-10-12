@@ -9,6 +9,9 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-12
 
+### Footer link removed; the list of requests is inside the Suggest a change dialog; Search One Text strip labels thin out
+The footer's "Requests made so far" link is gone. The same link now sits inside the Suggest a change dialog, so one button reaches both the form and the list. On Search One Text, the strip of books under "Where in the work" labelled every unit, which for Sappho's 141 fragments ran the numbers together; it now labels about thirty on a wide screen and ten on a phone.
+
 ### Search One Text: six example searches across six works, one of them Sappho
 The example chips were four Aeneid searches plus two others. They are now one search each on Sappho (jealousy at the sight of the beloved with a man), the Aeneid (Dido falls in love with Aeneas), the Odyssey (Odysseus strings the bow), Thucydides (the plague at Athens), Herodotus (Solon tells Croesus no man is happy before death) and the Annals (the Pannonian legions mutiny). Each was run live and read before being chosen: the first five answers are about the subject in every case.
 

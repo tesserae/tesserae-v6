@@ -148,7 +148,11 @@ export default function RequestDialog({
           {status === 'error' && (
             <p className="text-sm text-red-700">Something went wrong sending this. Please try again.</p>
           )}
-          <div className="flex justify-end gap-2 pt-1">
+          <div className="flex items-center justify-between gap-2 pt-1">
+            <a href="/requests" className="text-xs text-gray-500 hover:text-red-700 hover:underline">
+              Requests made so far
+            </a>
+            <div className="flex gap-2">
             <button
               type="button"
               onClick={handleClose}
@@ -163,6 +167,7 @@ export default function RequestDialog({
             >
               {status === 'sending' ? 'Sending…' : 'Send'}
             </button>
+            </div>
           </div>
         </form>
       )}

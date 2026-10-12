@@ -1569,19 +1569,10 @@ function App() {
       <footer className="bg-gray-100 border-t mt-8 py-4">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 text-center text-sm text-gray-500">
           <p>Tesserae V6</p>
-          {/* Requests workflow (2026-10-08): a link to the public Requests
-              page. The footer's own "Suggest a change" button was removed on
-              2026-10-12: the header carries the same button, and the owner
-              asked why it appeared twice. */}
-          <p className="mt-1 text-xs">
-            <button
-              type="button"
-              onClick={() => setPageTypeWithGuard('requests')}
-              className="text-gray-500 hover:text-red-700 hover:underline"
-            >
-              Requests made so far
-            </button>
-          </p>
+          {/* The requests workflow (2026-10-08) is reached from the header's
+              "Suggest a change" button; the list of requests made so far is
+              linked from inside that dialog (owner, 2026-10-12: no separate
+              link on the page). */}
         </div>
       </footer>
 
