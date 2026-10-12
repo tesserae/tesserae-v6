@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { objectDate, objectTitle, objectPath, accession } from './objectsFormat';
 
 /**
@@ -8,13 +9,15 @@ import { objectDate, objectTitle, objectPath, accession } from './objectsFormat'
  * a list card shows the start of it.
  */
 export default function ObjectCard({ object: o, open, full = false }) {
+  const [pictureFailed, setPictureFailed] = useState(false);
   const text = o.description || '';
   const shown = full || text.length <= 600 ? text : `${text.slice(0, 600).replace(/\s+\S*$/, '')}...`;
   return (
     <article className="bg-white border border-gray-200 rounded-lg p-4" data-testid="object-card">
       <div className="flex gap-4">
-        {o.image_url && (
-          <img src={o.image_url} alt={objectTitle(o)} loading="lazy"
+        {o.image_url && !pictureFailed && (
+          <img src={`/api/objects/image/${encodeURIComponent(o.id)}`} alt={objectTitle(o)} loading="lazy"
+               onError={() => setPictureFailed(true)}
                className="w-28 h-28 object-contain flex-none bg-gray-50 rounded" />
         )}
         <div className="min-w-0 flex-1">

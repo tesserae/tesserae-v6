@@ -35,6 +35,16 @@ Conventions
   hand and are the models the helper matches.
 
 
+## 2026-10-12 Object pictures cached on the server (TO RUN)
+
+Status: to run on production after the pull request for the image route is merged and deployed. The route also fetches a picture on first request, so the run only saves visitors the first wait.
+
+Command, from the production checkout, inside the job launcher:
+
+    ~/bin/tess-job --fg objimg 2 python scripts/objects/fetch_object_images.py --db data/objects/objects.sqlite --out data/objects/images --rate 2
+
+Expected: about 694 pictures (390 Art Institute of Chicago, 304 Cleveland Museum of Art), roughly six minutes at two requests a second; the final line reads `fetched 694, already cached 0, refused 0, failed 0`. Folder: `data/objects/images/` (files named by the SHA-1 of the image address). Safe to re-run: pictures already present are skipped. Not in git.
+
 ## 2026-10-11 Description vocabulary for Theme Search's unknown-word check (built 2026-10-11; installed 2026-10-11 22:03, rebuilt 23:47 after the prose append)
 
 - What: `data/passage_index/desc_vocab.json`, the words that occur in at least two passage descriptions (every lowercase alphabetic token of each row's `blob` and of the string and list values in its `desc`, counted once per row). Theme Search uses it to tell a reader which words of a query no passage description contains, and to hold the list when none of them does. Without the file the check is off and the response carries `vocab_checked: false`.

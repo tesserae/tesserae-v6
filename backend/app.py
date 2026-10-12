@@ -688,6 +688,8 @@ def make_session_permanent():
 @app.after_request
 def add_header(response):
     """Disable browser caching to ensure fresh content"""
+    if request.endpoint == 'objects.object_image' and response.status_code == 200:
+        return response  # a museum picture from our cache keeps its own 30-day Cache-Control
     response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
     response.headers['Pragma'] = 'no-cache'
     response.headers['Expires'] = '0'

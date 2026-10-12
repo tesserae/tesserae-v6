@@ -10,6 +10,10 @@
         count per museum.
     GET /api/objects/<id>
         one object.
+    GET /api/objects/image/<id>
+        the object's museum picture, fetched once by this server and served
+        from a disk cache (data/objects/images/), so a visitor's browser never
+        depends on the museum's image server.
     GET /api/objects/theme?q=
         the object descriptions nearest a free-text query, for Theme Search.
 
@@ -23,13 +27,16 @@ catalogue texts, each with its licence and credit line; an image address is
 stored only where the museum gives a web image under CC0 and the page links to
 the museum's own record for the rest.
 """
+import hashlib
 import os
 import re
 import sqlite3
+import tempfile
 import unicodedata
-from urllib.parse import quote
+from urllib.parse import quote, urlparse
 
-from flask import Blueprint, jsonify, request
+import requests
+from flask import Blueprint, Response, jsonify, request
 
 from backend import objects_theme
 from backend.logging_config import get_logger
@@ -208,6 +215,142 @@ def objects_theme_route():
                             'unavailable just now.')
     finally:
         c.close()
+
+
+# ---- Pictures served from our own cache ------------------------------------
+# Hosts present in image_url in the production database (2026-10-12), with the
+# number of objects each carries. Any other host is refused.
+IMAGE_HOSTS = {
+    'www.artic.edu': 390,                      # Art Institute of Chicago (IIIF)
+    'openaccess-cdn.clevelandart.org': 304,    # Cleveland Museum of Art open access
+}
+IMAGE_MAX_BYTES = 8 * 1024 * 1024
+IMAGE_TIMEOUT = 15
+IMAGE_MAX_REDIRECTS = 3
+IMAGE_USER_AGENT = ('Mozilla/5.0 (compatible; Tesserae/6; +https://tesserae.caset.buffalo.edu) '
+                    'object-image-cache')
+_EXT = {'image/jpeg': 'jpg', 'image/png': 'png', 'image/gif': 'gif', 'image/webp': 'webp',
+        'image/tiff': 'tif', 'image/svg+xml': 'svg'}
+
+
+def image_dir():
+    return os.environ.get('TESSERAE_OBJECT_IMAGES') or os.path.join(os.path.dirname(db_path()), 'images')
+
+
+def image_open_licence(licence):
+    """Open licence rule: the licence text names CC0, a CC BY licence or the
+    public domain. The database holds two values, 'CC0' (Cleveland) and
+    'Catalogue record CC0, description CC BY 4.0' (Chicago); both qualify.
+    Anything else, or nothing, is not served."""
+    t = (licence or '').lower()
+    return 'cc0' in t or 'cc by' in t or 'public domain' in t
+
+
+def image_host_allowed(url):
+    try:
+        u = urlparse(url or '')
+    except ValueError:
+        return False
+    return u.scheme in ('http', 'https') and (u.hostname or '').lower() in IMAGE_HOSTS
+
+
+def image_cache_key(url):
+    return hashlib.sha1(url.encode('utf-8')).hexdigest()  # nosec B324 -- a file name, not security
+
+
+def find_cached_image(url):
+    """(path, content_type) of the cached file for `url`, or None."""
+    d, key = image_dir(), image_cache_key(url)
+    for ctype, ext in _EXT.items():
+        p = os.path.join(d, f'{key}.{ext}')
+        if os.path.exists(p):
+            return p, ctype
+    return None
+
+
+def fetch_image(url):
+    """Download `url` and return (bytes, content_type). Raises ValueError on
+    anything unacceptable. Redirects are followed by hand, at most three, and
+    each hop must stay on an allowed host."""
+    cur = url
+    for _ in range(IMAGE_MAX_REDIRECTS + 1):
+        if not image_host_allowed(cur):
+            raise ValueError('host not allowed')
+        r = requests.get(cur, timeout=IMAGE_TIMEOUT, stream=True, allow_redirects=False,
+                         headers={'User-Agent': IMAGE_USER_AGENT, 'Accept': 'image/*'})
+        try:
+            if r.status_code in (301, 302, 303, 307, 308) and r.headers.get('Location'):
+                cur = requests.compat.urljoin(cur, r.headers['Location'])
+                continue
+            if r.status_code != 200:
+                raise ValueError(f'upstream status {r.status_code}')
+            ctype = (r.headers.get('Content-Type') or '').split(';')[0].strip().lower()
+            if not ctype.startswith('image/'):
+                raise ValueError('upstream is not an image')
+            body = b''
+            for chunk in r.iter_content(65536):
+                body += chunk
+                if len(body) > IMAGE_MAX_BYTES:
+                    raise ValueError('image too large')
+            if not body:
+                raise ValueError('empty image')
+            return body, ctype
+        finally:
+            r.close()
+    raise ValueError('too many redirects')
+
+
+def store_image(url, body, ctype):
+    """Write atomically (temp file, then rename) and return the path."""
+    d = image_dir()
+    os.makedirs(d, exist_ok=True)
+    path = os.path.join(d, f'{image_cache_key(url)}.{_EXT.get(ctype, "bin")}')
+    fd, tmp = tempfile.mkstemp(dir=d, suffix='.part')
+    try:
+        with os.fdopen(fd, 'wb') as f:
+            f.write(body)
+        os.chmod(tmp, 0o664)
+        os.replace(tmp, path)
+    except BaseException:
+        if os.path.exists(tmp):
+            os.unlink(tmp)
+        raise
+    return path
+
+
+def _image_response(body, ctype, host):
+    resp = Response(body, mimetype=ctype)
+    resp.headers['Cache-Control'] = 'public, max-age=2592000'
+    resp.headers['X-Image-Source'] = host
+    return resp
+
+
+@objects_bp.route('/objects/image/<path:object_id>')
+def object_image(object_id):
+    c = _conn()
+    if c is None:
+        return jsonify({'error': 'The objects collection is not installed.'}), 404
+    try:
+        r = c.execute('SELECT image_url, licence FROM objects WHERE id = ?', (object_id,)).fetchone()
+    finally:
+        c.close()
+    if r is None or not r['image_url']:
+        return jsonify({'error': 'No picture for this object.'}), 404
+    url = r['image_url']
+    if not image_open_licence(r['licence']) or not image_host_allowed(url):
+        return jsonify({'error': 'No picture for this object.'}), 404
+    host = urlparse(url).hostname.lower()
+    hit = find_cached_image(url)
+    if hit:
+        with open(hit[0], 'rb') as f:
+            return _image_response(f.read(), hit[1], host)
+    try:
+        body, ctype = fetch_image(url)
+        store_image(url, body, ctype)
+    except (ValueError, requests.RequestException, OSError) as e:
+        logger.warning('object image %s: %s', object_id, e)
+        return jsonify({'error': 'The museum picture could not be fetched just now.'}), 502
+    return _image_response(body, ctype, host)
 
 
 @objects_bp.route('/objects/<path:object_id>')
