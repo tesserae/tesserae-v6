@@ -309,7 +309,7 @@ def store_image(url, body, ctype):
     try:
         with os.fdopen(fd, 'wb') as f:
             f.write(body)
-        os.chmod(tmp, 0o664)
+        os.chmod(tmp, 0o664)  # nosec B103 -- group-writable on purpose: the tessdev group (Apache workers and the maintainer) shares data/
         os.replace(tmp, path)
     except BaseException:
         if os.path.exists(tmp):
