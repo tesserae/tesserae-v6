@@ -124,5 +124,8 @@ def test_book_files_of_one_work_count_as_one_scope(monkeypatch):
 def test_several_works_are_not_rated(monkeypatch):
     _stub(monkeypatch, WIDE)
     out = pi.find_by_text('a subject', limit=25, only_works={'tacitus.annales', 'lucan.bellum_civile'})
-    assert out['confidence'] == {'level': 'restricted'}
+    # The unknown-word check (2026-10-11) adds three fields to every
+    # confidence block; a several-works search is still unrated.
+    assert out['confidence']['level'] == 'restricted'
+    assert set(out['confidence']) >= {'level', 'vocab_checked', 'unknown_words', 'no_known_words'}
     assert out['strong_matches'] == 0
