@@ -9,6 +9,8 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-12
 
+### Footer: one link, to the requests made so far
+The footer carried "Suggest a change" beside "Requests". The header already has the Suggest a change button, so the footer's copy is gone, and the remaining link is labelled "Requests made so far" to say what the page is: the public list of suggestions and corrections filed, not a second way to file one.
 ### Inscriptions: "Hr." written out as Henchir, and "unknown" chips left off
 An inscription's findspot line carried the Heidelberg database's abbreviation as it stood ("Hr. Oumkif"); Hr. is Henchir, the North African word for a ruin site, and the card now writes it out (also Kh. for Khirbet). The three chips under the heading that each read "unknown" (text type, object, material) are left off when that is all they say. On the document page, the Reader's Documents tab and the Inscriptions & Papyri results.
 
