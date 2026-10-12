@@ -35,6 +35,16 @@ Conventions
   hand and are the models the helper matches.
 
 
+## 2026-10-11 Description vocabulary for Theme Search's unknown-word check (built 2026-10-11; install to run)
+
+- What: `data/passage_index/desc_vocab.json`, the words that occur in at least two passage descriptions (every lowercase alphabetic token of each row's `blob` and of the string and list values in its `desc`, counted once per row). Theme Search uses it to tell a reader which words of a query no passage description contains, and to hold the list when none of them does. Without the file the check is off and the response carries `vocab_checked: false`.
+- Script: `scripts/corpus/build_desc_vocab.py`, one pass over `descriptions.jsonl`, under 100 MB of memory, about 35 seconds.
+- To run on production (tess-job, cap 4), then touch the wsgi file:
+  `python scripts/corpus/build_desc_vocab.py --descriptions /var/www/tesseraev6_flask/data/passage_index/descriptions.jsonl --out /var/www/tesseraev6_flask/data/passage_index/desc_vocab.json`
+  A copy built from the 542,625 production rows (88,473 words, 1.2 MB) is in `~/tesserae-backups/desc_vocab_2026-10-11/desc_vocab.json` and can be copied over instead.
+- The file is rebuilt after every append to the passage index, listed with the keyword index and the names index in the post-append steps.
+- Check: a query of nonsense words ("xqzv plorf wibble") answers "Nothing to search for"; "establishment of democracy" shows its list.
+
 ## 2026-10-11 Prose windows for every long-prose work: merged short units, Thucydides re-cut, the full run (staged 2026-10-11; install to run)
 
 - What: the cutter (`scripts/corpus/prose_windows.py`) gains `--merge-units`

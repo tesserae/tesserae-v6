@@ -366,10 +366,20 @@ export default function AskAWorkPage() {
   const fitted = Boolean(data?.confidence?.fitted);
   const weakVerdict = level === 'low';
   const emptyList = data && !results.length;
+  // 2026-10-11: words no passage description contains. When none of the query's
+  // words is known the note says so and no list is offered; when some are, the
+  // note (or, where the note is not shown, this line) names the unknown ones.
+  const noKnownWords = Boolean(data?.confidence?.no_known_words);
+  const unknownWords = data?.confidence?.unknown_words || [];
+  const unknownLine = unknownWords.length && !noKnownWords
+    && !(data?.note || '').includes('appear in no passage description')
+    && !(data?.note || '').includes('appears in no passage description')
+    ? `${unknownWords.length === 1 ? 'The word' : 'The words'} ${unknownWords.join(', ')} ${unknownWords.length === 1 ? 'appears' : 'appear'} in no passage description, so ${unknownWords.length === 1 ? 'it' : 'they'} did not help the search.`
+    : '';
   // A low band within one work does not hide the list: in the measurement three
   // of fifteen real questions came out low (2026-10-11), so the passages are
   // shown under a weak-match banner and the reader judges.
-  const listVisible = results.length > 0 && (!weakVerdict || showWeak || fitted);
+  const listVisible = results.length > 0 && !noKnownWords && (!weakVerdict || showWeak || fitted);
   const askedWork = (catalogue[asked.lang] || []).find((w) => w.id === asked.work);
   const askedRange = parseBooks(asked.books);
   // The books the strip draws: those the server says it searched, else the range, else every book.
@@ -515,28 +525,36 @@ export default function AskAWorkPage() {
 
       {data && !running && (
         <div className="mt-6">
-          {weakVerdict && !emptyList && fitted && (
+          {noKnownWords && (
+            <div className="rounded border border-gray-300 bg-gray-100 px-3 py-2 text-sm text-gray-700" data-testid="ask-nothing">
+              <strong className="font-semibold">Nothing to search for.</strong>{' '}{data.note}
+            </div>
+          )}
+          {!noKnownWords && unknownLine && (
+            <div className="mb-2 text-xs text-gray-600" data-testid="ask-unknown-words">{unknownLine}</div>
+          )}
+          {!noKnownWords && weakVerdict && !emptyList && fitted && (
             <div className="rounded border border-gray-300 bg-gray-100 px-3 py-2 text-sm text-gray-700" data-testid="ask-band">
               <strong className="font-semibold">Weak match.</strong>{' '}
               The passages of this work do not stand out for that subject. In testing, three of
               fifteen real questions also came out weak, so the closest passages are shown below.
             </div>
           )}
-          {(emptyList || (weakVerdict && !fitted)) && (
+          {!noKnownWords && (emptyList || (weakVerdict && !fitted)) && (
             <div className="rounded border border-gray-300 bg-gray-100 px-3 py-2 text-sm text-gray-700">
               <strong className="font-semibold">Nothing in this work resembles that subject.</strong>
               {data.note && !emptyList ? ` ${data.note}` : ''}
             </div>
           )}
-          {!emptyList && !weakVerdict && fitted && BANDS[level] && (
+          {!noKnownWords && !emptyList && !weakVerdict && fitted && BANDS[level] && (
             <div className={`rounded border px-3 py-2 text-sm ${BANDS[level].className}`} data-testid="ask-band">
               <strong className="font-semibold">{BANDS[level].label}.</strong>{' '}{data.note}
             </div>
           )}
-          {!emptyList && !weakVerdict && !fitted && (
+          {!noKnownWords && !emptyList && !weakVerdict && !fitted && (
             <div className="rounded border border-gray-200 bg-gray-50 px-3 py-2 text-xs text-gray-600" data-testid="ask-unrated">{UNRATED_NOTE}</div>
           )}
-          {weakVerdict && !fitted && results.length > 0 && !showWeak && (
+          {!noKnownWords && weakVerdict && !fitted && results.length > 0 && !showWeak && (
             <div className="mt-4">
               <button type="button" onClick={() => setShowWeak(true)}
                       className="text-sm text-red-700 hover:underline">

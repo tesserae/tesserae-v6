@@ -130,7 +130,8 @@ def test_restricted_search_returns_only_the_chosen_works(index, monkeypatch):
 def test_restricted_search_withholds_confidence_and_strong_flags(index, monkeypatch):
     _stub_scores(monkeypatch)
     out = passage_index.find_by_text('storm', limit=25, only_works={'lucan.bellum_civile'})
-    assert out['confidence'] == {'level': 'restricted'}
+    assert out['confidence'] == {'level': 'restricted', 'vocab_checked': False,
+                                 'unknown_words': [], 'no_known_words': False}
     assert out['strong_matches'] == 0
     assert not any(r['strong'] for r in out['results'])
     assert 'Confidence is not rated' in out['note']
@@ -213,3 +214,15 @@ def test_route_unknown_author_answers_empty_with_a_note_not_an_error(seen):
 def test_route_unknown_work_answers_empty_with_a_note(seen):
     out = _get(app.test_client(), q='storm', works='vergil.nonesuch')
     assert out['results'] == [] and out['note'] and 'error' not in out
+
+
+def test_restricted_search_carries_the_unknown_word_fields(monkeypatch):
+    _stub_index(monkeypatch)
+    _stub_scores(monkeypatch)
+    monkeypatch.setattr(passage_index, '_vocab', {'storm': 5})
+    out = passage_index.find_by_text('storm xqzv', limit=5, only_works={'vergil.aeneid', 'vergil.georgics'})
+    assert out['confidence']['unknown_words'] == ['xqzv']
+    assert 'The word xqzv appears in no passage description' in out['note']
+    out = passage_index.find_by_text('xqzv plorf', limit=5, only_works={'lucan.bellum_civile'})
+    assert out['confidence']['no_known_words'] is True
+    assert out['note'].startswith('None of these words')

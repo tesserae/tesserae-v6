@@ -394,3 +394,26 @@ describe('what the work says', () => {
     expect(screen.queryByTestId('ask-summary')).toBeNull();
   });
 });
+
+describe('words no passage description contains', () => {
+  it('names the unknown words in one line when the note is not shown', async () => {
+    reply = { ...reply, confidence: { level: 'restricted', vocab_checked: true, unknown_words: ['potatoes'], no_known_words: false } };
+    render(<AskAWorkPage />);
+    await ask();
+    expect(await screen.findByTestId('ask-unknown-words')).toHaveTextContent(
+      'The word potatoes appears in no passage description, so it did not help the search.');
+    expect(screen.getAllByTestId('ask-card').length).toBeGreaterThan(0);
+  });
+
+  it('holds the list when no word of the question is known', async () => {
+    reply = { ...reply, confidence: { level: 'restricted', vocab_checked: true, unknown_words: ['xqzv', 'plorf'], no_known_words: true },
+      note: 'None of these words appears in any passage description: xqzv, plorf. There is nothing for Theme Search to match.' };
+    render(<AskAWorkPage />);
+    await pick('Author', 'Vergil');
+    await pick('Work', 'Aeneid');
+    fireEvent.change(screen.getByPlaceholderText(/a subject in plain words/), { target: { value: 'xqzv plorf' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Go' }));
+    expect(await screen.findByTestId('ask-nothing')).toHaveTextContent('None of these words appears');
+    expect(screen.queryAllByTestId('ask-card')).toHaveLength(0);
+  });
+});
