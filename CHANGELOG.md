@@ -9,6 +9,9 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-12
 
+### Footer: one link, to the requests made so far
+The footer carried "Suggest a change" beside "Requests". The header already has the Suggest a change button, so the footer's copy is gone, and the remaining link is labelled "Requests made so far" to say what the page is: the public list of suggestions and corrections filed, not a second way to file one.
+
 ### Theme Search scope box and Help carry the October refit
 The "What this search does" box on Theme Search gave the confidence figures of the September fit (32 subjects, 88 to 91 percent) and listed Coptic, Hebrew and English as unmeasured. It now gives the 12 October refit (178 subjects in eight language settings, 86 percent overall, with the per-language figures), says the lowest band is "Closest passages", and states the index size at the release and now in one sentence instead of two. The Help paragraph on the band carries the same figures.
 ### Reader: only the selected sentences of a prose chapter are painted
