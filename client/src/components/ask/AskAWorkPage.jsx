@@ -635,8 +635,8 @@ export default function AskAWorkPage() {
                 <p className="mt-1 text-sm text-gray-500 italic">Tessa is reading the passages.</p>
               )}
               {summary?.state === 'ready' && (
-                <section aria-label="What the work says" className="mt-3 rounded border border-gray-200 bg-gray-50 px-3 py-2" data-testid="ask-summary">
-                  <p className="text-xs font-semibold text-gray-600">What the work says, from the passages below</p>
+                <section aria-label="The work" className="mt-3 rounded border border-gray-200 bg-gray-50 px-3 py-2" data-testid="ask-summary">
+                  <p className="text-xs font-semibold text-gray-600">The work</p>
                   <p className="mt-1 text-sm text-gray-800 leading-snug">
                     <SummaryText text={summary.summary} cites={summary.cites} onJump={jumpRef} />
                   </p>
@@ -647,8 +647,8 @@ export default function AskAWorkPage() {
                 <p className="mt-1 text-sm text-gray-500 italic">Reading the secondary literature...</p>
               )}
               {scholarship?.state === 'ready' && (
-                <section aria-label="What the secondary literature says" className="mt-3 rounded border border-gray-200 bg-gray-50 px-3 py-2" data-testid="ask-scholarship">
-                  <p className="text-xs font-semibold text-gray-600">What the secondary literature says</p>
+                <section aria-label="Scholarship" className="mt-3 rounded border border-gray-200 bg-gray-50 px-3 py-2" data-testid="ask-scholarship">
+                  <p className="text-xs font-semibold text-gray-600">Scholarship</p>
                   <p className="mt-1 text-sm text-gray-800 leading-snug">
                     <ScholarshipText text={scholarship.summary} cites={scholarship.cites} />
                   </p>

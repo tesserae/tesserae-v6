@@ -382,7 +382,7 @@ describe('what the work says', () => {
     expect(body.work_label).toBe('Vergil, Aeneid');
     expect(body.passages).toHaveLength(12);
     expect(body.passages[0]).toEqual({ ref: 'verg. aen. 1.10', gist: 'Gist 1' });
-    expect(within(block).getByText('What the work says, from the passages below')).toBeInTheDocument();
+    expect(within(block).getByText('The work')).toBeInTheDocument();
     expect(within(block).getByText(/Written by Tessa from the passage descriptions/)).toBeInTheDocument();
     const cards = screen.getAllByTestId('ask-card');
     fireEvent.click(within(block).getByRole('button', { name: 'verg. aen. 1.12' }));
@@ -428,7 +428,7 @@ describe('what the secondary literature says', () => {
     const block = await screen.findByTestId('ask-scholarship');
     const [, init] = callsTo('/api/passages/ask-scholarship')[0];
     expect(JSON.parse(init.body)).toEqual({ question: 'fathers and sons', work: 'vergil.aeneid', lang: 'la' });
-    expect(within(block).getByText('What the secondary literature says')).toBeInTheDocument();
+    expect(within(block).getByText('Scholarship')).toBeInTheDocument();
     const link = within(block).getByRole('link', { name: '[2]' });
     expect(link).toHaveAttribute('href', 'https://www.jstor.org/stable/1');
     expect(link).toHaveAttribute('target', '_blank');

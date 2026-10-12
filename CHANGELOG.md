@@ -9,6 +9,9 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-12
 
+### Search One Text: the two paragraphs are headed "The work" and "Scholarship"
+In place of "What the work says, from the passages below" and "What the secondary literature says" (the owner, 2026-10-12).
+
 ### Search One Text: the example chips say "in the Aeneid", not "on"
 One word in the six example chips.
 ### Search One Text: a second paragraph on what the secondary literature says
