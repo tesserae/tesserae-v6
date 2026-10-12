@@ -18,7 +18,7 @@ those rows, so this script rebuilds each file with only the allowed rows:
                                     for the filtered index so the app finds it
 
     python3 scripts/ops/filter_passage_index.py --prod /var/www/tesseraev6_flask \
-        --out OUTDIR --languages la,grc,en,cop,he --dry-run
+        --out OUTDIR --languages la,grc,en,cop,he,it,fro,gmh --dry-run
 
 `--dry-run` reads only ids.json and descriptions.jsonl and prints how many
 windows each language would keep or lose. Nothing in --prod is ever written.
@@ -162,14 +162,14 @@ def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.split('\n\n')[0])
     ap.add_argument('--prod', default=lib.DEFAULT_PROD)
     ap.add_argument('--out', required=True, help='stage folder; files go under data/passage_index and cache/connections_map')
-    ap.add_argument('--languages', default=None, help='comma list; default: core_languages of the exclusion file')
+    ap.add_argument('--languages', default=None, help='comma list; default: core and theme-tier languages of the exclusion file')
     ap.add_argument('--registry', default=None, help='restricted registry JSON (default: the one in --prod)')
     ap.add_argument('--dry-run', action='store_true')
     ap.add_argument('--skip-map', action='store_true')
     args = ap.parse_args(argv)
 
     excl = lib.load_exclusions()
-    allowed = set((args.languages or ','.join(excl['core_languages'])).split(','))
+    allowed = set((args.languages or ','.join(lib.bundled_languages(excl))).split(','))
     restricted = lib.load_registry_ids(args.registry or lib._registry_path(args.prod, excl))
     src = lib.passage_index_sources(args.prod)
 

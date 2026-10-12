@@ -72,6 +72,11 @@ def non_core_languages(excl):
     return langs
 
 
+def bundled_languages(excl):
+    """Every language that has files in the bundle: core plus theme tier."""
+    return list(excl['core_languages']) + list(excl.get('theme_tier_languages', {}))
+
+
 def _match_path(rel, pattern):
     if any(ch in pattern for ch in '*?['):
         return fnmatch.fnmatch(rel, pattern)
@@ -117,6 +122,46 @@ def translation_licence_ok(path, excl):
     return True, lic
 
 
+def commentary_licence_ok(path, excl):
+    """(ok, licence summary, reason) for one commentary file, from the licence
+    fields in its own header. Every stated licence must be public domain or
+    Creative Commons, and none may carry a notice forbidding republication."""
+    rule = excl['commentary_licence']
+    try:
+        with open(path, encoding='utf-8') as f:
+            d = json.load(f)
+    except (OSError, ValueError):
+        return False, '', 'unreadable'
+    if not isinstance(d, dict):
+        return False, '', 'not a commentary file'
+    stated = []
+    for key in ('license', 'license_translation'):
+        v = d.get(key)
+        if key == 'license_translation' and not v and not d.get('translation'):
+            continue  # no translation in the file, so no translation licence is needed
+        stated.append(None if v is None else str(v).strip())
+    summary = '; '.join(x for x in stated if x)
+    for v in stated:
+        if not v or v.lower() in ('none', 'unknown', 'n/a'):
+            return False, summary, f'licence not stated ({v or "empty"})'
+        low = v.lower()
+        if any(re.search(p, low) for p in rule['forbidden_patterns']):
+            return False, summary, 'notice forbids republication'
+        if not any(re.search(p, low) for p in rule['accepted_patterns']):
+            return False, summary, 'licence is not public domain or Creative Commons'
+    return True, summary, ''
+
+
+def commentary_info(path):
+    """Header fields of a commentary file, for LICENSES.md."""
+    try:
+        with open(path, encoding='utf-8') as f:
+            d = json.load(f)
+    except (OSError, ValueError):
+        return {}
+    return {k: d.get(k) for k in ('commentator', 'work', 'source', 'license', 'license_translation')}
+
+
 # --------------------------------------------------------------- selection
 
 class Item:
@@ -128,6 +173,7 @@ class Item:
 
 TEXT_LICENCE = 'Per work: see data/text_sources.json and LICENSES.md'
 DERIVED_LICENCE = 'Derived from the texts in this bundle, same terms as the texts'
+THEME_TEXT_LICENCE = 'Public domain, see LICENSES.md'
 OWN_LICENCE = 'Tesserae project, MIT (derived from the texts in this bundle)'
 
 
@@ -139,10 +185,17 @@ def _walk_files(base, keep=lambda name: True):
                 yield os.path.join(root, fn)
 
 
+left_out_commentaries = []  # (file, commentator, reason, licence text); filled by select()
+
+
 def select(mode, prod, excl, restricted_ids, notes):
     """Yield Items for the files taken as they are. Excluded paths are counted
-    into `notes` (dict reason -> count) and never yielded."""
+    into `notes` (dict reason -> count) and never yielded. Commentary files that
+    fail the licence rule are listed in `left_out_commentaries`."""
+    del left_out_commentaries[:]
     core = excl['core_languages']
+    theme = list(excl.get('theme_tier_languages', {}))
+    bundled = core + theme
 
     def want(rel, group, licence):
         why = excluded_reason(rel, excl, restricted_ids)
@@ -175,6 +228,11 @@ def select(mode, prod, excl, restricted_ids, notes):
         yield from one(f'cache/bigrams/{lang}_bigrams.json', 'bigrams', DERIVED_LICENCE)
         yield from one(f'cache/frequencies/{lang}.json', 'frequencies', DERIVED_LICENCE)
 
+    for lang in theme:
+        # theme-tier languages: texts only (no lemma cache, word index or bigram table)
+        yield from tree(f'texts/{lang}', 'texts', THEME_TEXT_LICENCE,
+                        lambda n: n.endswith('.tess') or n.upper().startswith('LICENSE'))
+
     for lang in ('la', 'grc'):
         yield from one(f'data/inverted_index/{lang}_documents_index.db', 'documents',
                        'Per document: CC BY-SA 4.0, CC BY 4.0 or CC BY 3.0, see metadata.db and LICENSES.md')
@@ -191,7 +249,7 @@ def select(mode, prod, excl, restricted_ids, notes):
             if not fn.endswith('.json'):
                 continue
             rel = f'data/translations/{fn}'
-            if _LANG_PREFIX.match(fn) is None or _LANG_PREFIX.match(fn).group(1) not in core:
+            if _LANG_PREFIX.match(fn) is None or _LANG_PREFIX.match(fn).group(1) not in bundled:
                 notes['translation of a language that is not bundled'] = notes.get(
                     'translation of a language that is not bundled', 0) + 1
                 continue
@@ -205,6 +263,29 @@ def select(mode, prod, excl, restricted_ids, notes):
                     'translation licence is not public domain or open', 0) + 1
                 continue
             yield Item(rel, 'translations', lic[:200], os.path.join(prod, rel))
+
+    # commentaries: each file by the licence in its own header
+    cdir = os.path.join(prod, 'data/commentaries')
+    if os.path.isdir(cdir):
+        if os.path.isfile(os.path.join(cdir, 'README.md')):
+            yield Item('data/commentaries/README.md', 'commentaries', OWN_LICENCE,
+                       os.path.join(cdir, 'README.md'))
+        for fn in sorted(os.listdir(cdir)):
+            if not fn.endswith('.json'):
+                continue
+            rel = f'data/commentaries/{fn}'
+            why = excluded_reason(rel, excl, restricted_ids)
+            if why:
+                notes[why] = notes.get(why, 0) + 1
+                continue
+            ok, lic, reason = commentary_licence_ok(os.path.join(cdir, fn), excl)
+            if not ok:
+                info = commentary_info(os.path.join(cdir, fn))
+                key = 'commentary left out: ' + reason
+                notes[key] = notes.get(key, 0) + 1
+                left_out_commentaries.append((fn, info.get('commentator') or fn.split('__')[0], reason, lic))
+                continue
+            yield Item(rel, 'commentaries', lic[:200], os.path.join(prod, rel))
 
     for rel, lic in (('data/text_sources.json', 'Credit table for the texts (Text Credits page)'),
                      ('data/sources_credits.json', 'Credit table for every collection'),
@@ -248,7 +329,7 @@ def filtered_text_descriptions(prod, excl, restricted_ids):
     and without restricted texts."""
     with open(os.path.join(prod, 'data/text_descriptions.json'), encoding='utf-8') as f:
         data = json.load(f)
-    core = set(excl['core_languages'])
+    core = set(bundled_languages(excl))
     out = {}
     for k, v in data.items():
         if isinstance(v, dict):
@@ -311,6 +392,19 @@ ATTRIBUTION = [
      'CC BY-NC-SA 4.0 (NonCommercial). Hebrew: ETCBC BHSA, CC BY-NC 4.0 (NonCommercial). '
      'The full notices are in data/lemma_tables/*_LICENSE.txt. Because of these, the bundle as a whole '
      'may be used for non-commercial purposes only.'),
+    ('Dante Alighieri, Commedia (Italian)',
+     'Project Gutenberg #1000. Public domain in the United States. Only the text is in the bundle, not the '
+     'Project Gutenberg header or trademark text.'),
+    ('Chanson de Roland (Old French)',
+     'The French Wikisource transcription of Joseph Bedier\'s edition. Bedier died in 1938, so the edition is in the public domain.'),
+    ('Nibelungenlied (Middle High German)',
+     'Karl Bartsch, Das Nibelungenlied, Schulausgabe (1887), scanned on the Internet Archive. Bartsch died in 1888, '
+     'so the edition is in the public domain.'),
+    ('Commentaries',
+     'Each commentary file states its own licence in its header. Files under public domain or Creative Commons '
+     '(including CC BY-NC and CC BY-NC-SA, which fall under the bundle\'s non-commercial terms) are included; '
+     'the full list with commentator, source and licence line is under "Commentaries in this bundle" below. '
+     'Perseus Digital Library commentaries are CC BY-SA 3.0 US and must keep that licence when passed on.'),
 ]
 
 
@@ -322,11 +416,12 @@ def licences_md(items, excl, prod, counts):
     wanted = ('Literary texts', 'Translations', 'Inscriptions and papyri', 'Places and identifiers')
     L = []
     L.append('# Licences and attribution for the Tesserae public data bundle\n')
+    L.append('This bundle as a whole is offered for non-commercial use, because two lemma tables (Koine Greek and Hebrew) '
+             'and some commentaries carry non-commercial licences.\n')
     L.append('This bundle gathers files from several sources, each with its own licence. '
              'MANIFEST.tsv gives the licence source of every file. Keep this file with the data.\n')
     L.append('## Read this first\n')
-    L.append('Some parts are licensed for non-commercial use only (the Koine Greek and Hebrew lemma tables). '
-             'Use the bundle for scholarship and teaching, not for a commercial product. '
+    L.append('Use the bundle for scholarship and teaching, not for a commercial product. '
              'Parts under share-alike licences (CC BY-SA) must keep the same licence when you pass them on.\n')
     L.append('## Attribution lines the licences require\n')
     for title, line in ATTRIBUTION:
@@ -341,7 +436,7 @@ def licences_md(items, excl, prod, counts):
         L.append(f"- Licence: {e['licence_name']} ({e['licence_url']})")
         L.append(f"- Source: {e['url']}")
         L.append(f"- Version: {e['version']}")
-        L.append(f"- Used on the site: {e['what_we_use']} This bundle carries only the Latin, Greek, English, Coptic and Hebrew parts.")
+        L.append(f"- Used on the site: {e['what_we_use']} This bundle carries only the parts in Latin, Greek, English, Coptic, Hebrew, Italian, Old French and Middle High German.")
         if e.get('notes'):
             L.append(f"- Notes: {e['notes']}")
         L.append('')
@@ -352,6 +447,19 @@ def licences_md(items, excl, prod, counts):
     L.append('|---|---|')
     for lic, n in sorted(counts.get('translation_licences', {}).items(), key=lambda kv: -kv[1]):
         L.append(f'| {n} | {lic[:110].replace("|", "/")} |')
+    L.append('')
+    L.append('## Commentaries in this bundle\n')
+    L.append('A commentary file is included only if every licence in its own header (license, and license_translation '
+             'where there is one) is public domain or Creative Commons, and none forbids republication. '
+             'Files with no licence, an unknown licence or a no-republication notice stay out. '
+             'Commentaries bundled: %d. Left out: %d.\n' % (len(counts.get('commentaries', [])),
+                                                              len(counts.get('commentaries_left_out', []))))
+    L.append('| File | Commentator | Source | Licence |')
+    L.append('|---|---|---|---|')
+    for fn, info in counts.get('commentaries', []):
+        src = str(info.get('source') or '').replace('|', '/')[:160]
+        lic = '; '.join(str(x) for x in (info.get('license'), info.get('license_translation')) if x).replace('|', '/')[:160]
+        L.append(f"| {fn} | {str(info.get('commentator') or '').replace('|', '/')} | {src} | {lic} |")
     L.append('')
     L.append('## Literary texts by electronic source\n')
     L.append('Every text is credited in data/text_sources.json (author, work, electronic source, print source). '
@@ -371,6 +479,11 @@ def licences_md(items, excl, prod, counts):
     L.append('## Left out of this bundle, and why\n')
     withheld_tr = counts.get('excluded', {}).get('translation licence is not public domain or open', 0)
     L.append(f'- Translation files whose own licence is not public domain or open: {withheld_tr} (for example the part of the Punica of Silius Italicus that rests on a non-commercial translation)')
+    by_why = {}
+    for fn, who, why, lic in counts.get('commentaries_left_out', []):
+        by_why[why] = by_why.get(why, 0) + 1
+    for why, n in sorted(by_why.items()):
+        L.append(f'- Commentary files left out ({why}): {n}')
     for p, why in excl['never_paths'].items():
         L.append(f'- `{p}`: {why}')
     for lang, why in excl['withheld_languages'].items():
@@ -399,6 +512,20 @@ def _summary(items):
 def _registry_path(prod, excl):
     p = os.path.join(prod, excl['restricted_registry'])
     return p if os.path.isfile(p) else os.path.join(ROOT, excl['restricted_registry'])
+
+
+def print_commentary_report(counts):
+    """Counts of commentary files bundled and left out, by commentator, for the build log."""
+    tally = {}
+    for fn, info in counts['commentaries']:
+        tally.setdefault(info.get('commentator') or fn.split('__')[0], [0, 0])[0] += 1
+    for fn, who, why, lic in counts['commentaries_left_out']:
+        tally.setdefault(who, [0, 0])[1] += 1
+        print(f'  commentary left out: {fn}: {why} [{lic[:60]}]')
+    print('commentaries by commentator (bundled / left out):')
+    for who, (a, b) in sorted(tally.items()):
+        print(f'  {who:50s} {a:4d} / {b:4d}')
+    print(f"  total {sum(v[0] for v in tally.values())} bundled, {sum(v[1] for v in tally.values())} left out")
 
 
 def cmd_measure(args):
@@ -466,7 +593,11 @@ def cmd_plan(args):
     except OSError:
         pass
     counts = {'translation_licences': tl, 'text_sources': sorted(srcs.items(), key=lambda kv: -kv[1]),
-              'excluded': notes}
+              'excluded': notes,
+              'commentaries': [(os.path.basename(it.rel), commentary_info(it.abs)) for it in items
+                               if it.group == 'commentaries' and it.rel.endswith('.json')],
+              'commentaries_left_out': list(left_out_commentaries)}
+    print_commentary_report(counts)
     with open(os.path.join(stage, 'LICENSES.md'), 'w', encoding='utf-8') as f:
         f.write(licences_md(items, excl, prod, counts))
     commit = prod_commit(prod)

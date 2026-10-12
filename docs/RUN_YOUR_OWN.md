@@ -1,8 +1,8 @@
 # Run your own Tesserae
 
-This recipe takes a fresh Ubuntu 24.04 machine to a Tesserae of your own, running at http://localhost:5000, with the same search engine, the same corpus and the same indexes as the public site for Latin, Greek, English, Coptic and Hebrew. It uses the public code repository and one data bundle. A second, larger bundle adds Theme Search and Similar Passages.
+This recipe takes a fresh Ubuntu 24.04 machine to a Tesserae of your own, running at http://localhost:5000, with the same search engine, the same corpus and the same indexes as the public site for Latin, Greek, English, Coptic and Hebrew, plus Dante's Commedia, the Chanson de Roland and the Nibelungenlied for Theme Search. It uses the public code repository and one data bundle. A second, larger bundle adds Theme Search and Similar Passages.
 
-Tesserae is free for scholarship and teaching. Parts of the data carry non-commercial licences, so do not build a commercial service on it. The file LICENSES.md inside each bundle lists every source and the credit line it requires.
+The bundles are offered for non-commercial use, because two lemma tables and some commentaries carry non-commercial licences. Use Tesserae for scholarship and teaching and do not build a commercial service on it. The file LICENSES.md inside each bundle lists every source and the credit line it requires.
 
 ## What you need
 
@@ -13,7 +13,7 @@ Tesserae is free for scholarship and teaching. Parts of the data carry non-comme
 
 ## Part 1. The core bundle
 
-The core bundle holds the texts, the lemma caches, the search indexes, the word-pair tables, the aligned translations that are public domain or openly licensed, the inscriptions and papyri collection for Latin and Greek, and the credits.
+The core bundle holds the texts, the lemma caches, the search indexes, the word-pair tables, the aligned translations that are public domain or openly licensed, the commentaries whose own licence allows passing them on, the inscriptions and papyri collection for Latin and Greek, and the credits.
 
 1. Install the system packages.
 
@@ -153,10 +153,10 @@ For a private machine, a terminal window or a `tmux` session for each of the two
 ## What is not included, and why
 
 - **Persian, Urdu and Arabic.** The site serves Persian and Urdu, and holds Arabic back. The terms for passing these texts on have not been cleared, so their texts, indexes, translations, vectors and passage windows are not in either bundle. Searches in those languages will not work on your copy.
-- **Italian, Old French and Middle High German.** These are small pilot corpora in Theme Search. Their terms have not been checked for this bundle.
 - **Texts held under an indexing-only licence.** A text on the registry in data/restricted_texts.json may be searched on the public site but never passed on. The builder refuses to run if that registry has entries until they are removed from the index copies.
 - **Translations that are not public domain or openly licensed.** A translation travels only if its own license field says public domain or an open Creative Commons licence with no non-commercial term. For example, the part of the Punica of Silius Italicus that rests on a non-commercial translation stays out.
-- **Commentaries, the scholarship caches and the citation index.** Commentary licences differ from text to text, the caches hold answers from third-party services whose terms do not allow passing them on, and the citation index holds sentences quoted from journal articles. These are publisher text, so they are left out and the Scholarship tab shows nothing on your copy.
+- **Commentaries without a usable licence.** A commentary file travels only if the licence in its own header is public domain or Creative Commons. A file with no licence, an unknown licence or a notice forbidding republication stays out, and the build log lists each one with the reason. The Scholarship tab on your copy shows the commentaries that travelled and nothing from the scholarly services.
+- **The scholarship caches and the citation index.** The caches hold answers from third-party services whose terms do not allow passing them on, and the citation index holds sentences quoted from journal articles. These are publisher text.
 - **The assistant (Tessa).** It needs a large language model server and, for some features, a university gateway. Neither can be shared.
 - **The trained Theme Search reader.** It re-orders the top results. Its training data has not been confirmed to be entirely open, so it is not shared. Theme Search works without it and ranks by vector similarity and keyword match alone.
 - **The parsed-sentence databases.** The syntax channels use databases built from treebanks with mixed terms. The script scripts/download_data.py fetches them from the project's data server when that is reachable. Without them the other channels still work.

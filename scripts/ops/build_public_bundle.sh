@@ -97,7 +97,7 @@ STAMP=$(date +%Y%m%d)
 EXTRA=()
 if [[ $MODE == full ]]; then
   echo "== filtering the passage index to the bundled languages"
-  heavy 10 public-bundle-filter nice -n 19 ionice -c3 "$PY" -I "$HERE/filter_passage_index.py" \
+  heavy 12 public-bundle-filter nice -n 19 ionice -c3 "$PY" -I "$HERE/filter_passage_index.py" \
     --prod "$PROD" --out "$WORK/stage" || { echo "filter step failed" >&2; exit 1; }
   while IFS= read -r -d '' f; do
     EXTRA+=(--extra "${f#"$WORK/stage/"}=passage_index")

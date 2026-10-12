@@ -43,11 +43,19 @@ def paths_for_work(lang, work):
 
 def test_core_and_withheld_languages_do_not_overlap():
     withheld = set(EXCL['withheld_languages']) | set(EXCL['other_languages_not_bundled'])
-    assert not withheld & set(EXCL['core_languages'])
+    assert not withheld & set(lib.bundled_languages(EXCL))
+    assert not set(EXCL['theme_tier_languages']) & set(EXCL['core_languages'])
     assert {'ar', 'fa', 'ur'} <= set(EXCL['withheld_languages'])
 
 
-@pytest.mark.parametrize('lang', ['ar', 'fa', 'ur', 'it', 'fro', 'gmh'])
+def test_theme_tier_languages_are_bundled_and_the_filter_keeps_eight():
+    assert set(EXCL['theme_tier_languages']) == {'it', 'fro', 'gmh'}
+    assert len(lib.bundled_languages(EXCL)) == 8
+    for lang in ('it', 'fro', 'gmh'):
+        assert lib.excluded_reason(f'texts/{lang}/x.tess', EXCL) is None
+
+
+@pytest.mark.parametrize('lang', ['ar', 'fa', 'ur'])
 def test_every_language_scoped_path_is_excluded(lang):
     for tpl in EXCL['language_scoped_path_templates']:
         path = tpl.format(lang=lang).replace('*', 'x')
@@ -68,7 +76,7 @@ def test_concrete_files_of_withheld_languages_are_excluded(lang):
 
 @pytest.mark.parametrize('path', [
     '.env', 'instance/app.db', 'tesseraev6.sql', 'db/tesseraev6.sql', 'data/job_uploads/x.txt',
-    'cache/scholarship/abc.json', 'data/citation_index/citations.db', 'data/commentaries/rashi__genesis.json',
+    'cache/scholarship/abc.json', 'data/citation_index/citations.db',
     'models/hub/x', 'tesserae-models/theme_reader_minilm/model.bin', 'secret.pem', 'server.key',
     'cache/bigrams/la_bigrams.json.pre-rebuild-1.bak', 'data/inverted_index/syntax_latin.db',
     'data/translations/manifest.json', 'data/translations/links/x.json', 'backup_passphrase',
@@ -80,6 +88,9 @@ def test_private_paths_are_excluded(path):
 @pytest.mark.parametrize('path', [
     'texts/la/vergil.aeneid.tess', 'cache/lemmas/la.json', 'data/inverted_index/grc_index.db',
     'data/translations/la__vergil.aeneid.json', 'data/documents/metadata.db',
+    'texts/it/dante.inferno.tess', 'texts/fro/chanson_de_roland.chanson_de_roland.tess',
+    'texts/gmh/nibelungenlied.nibelungenlied.tess', 'data/commentaries/README.md',
+    'data/commentaries/rashi__genesis.json',
 ])
 def test_ordinary_paths_are_allowed(path):
     assert lib.excluded_reason(path, EXCL) is None
@@ -89,7 +100,7 @@ def test_every_registry_entry_is_excluded_in_every_core_language():
     ids = lib.load_registry_ids(REGISTRY_FILE)
     ids = ids | {'phi.test_author.test_work'}  # a synthetic entry, because the live registry may be empty
     for work in ids:
-        for lang in EXCL['core_languages']:
+        for lang in lib.bundled_languages(EXCL):
             for path in paths_for_work(lang, work):
                 assert lib.excluded_reason(path, EXCL, ids), path
 
@@ -127,7 +138,7 @@ def test_select_on_a_miniature_production_folder(tmp_path):
         f.parent.mkdir(parents=True, exist_ok=True)
         f.write_text(text, encoding='utf-8')
 
-    for lang in ('la', 'fa', 'ur', 'ar'):
+    for lang in ('la', 'fa', 'ur', 'ar', 'it', 'fro', 'gmh'):
         put(f'texts/{lang}/w.tess')
         put(f'cache/lemmas/{lang}.json')
         put(f'cache/lemmas/{lang}/w-{HASH}.json')
@@ -143,7 +154,10 @@ def test_select_on_a_miniature_production_folder(tmp_path):
     put('.env', 'SECRET=1')
     put('cache/scholarship/a.json')
     put('data/citation_index/citations.db')
-    put('data/commentaries/rashi__genesis.json')
+    put('data/commentaries/rashi__genesis.json', json.dumps({'license': 'Public Domain', 'license_translation': 'CC-BY'}))
+    put('data/commentaries/README.md', 'notes')
+    put('data/translations/it__w.json', json.dumps({'license': 'Public domain (Longfellow)'}))
+    put('data/translations/it__k.json', json.dumps({'license': 'All rights reserved'}))
     put('data/job_uploads/u.txt')
     put('data/documents/metadata.db')
 
@@ -154,20 +168,94 @@ def test_select_on_a_miniature_production_folder(tmp_path):
     assert 'data/translations/la__w.json' in got
     assert 'data/documents/metadata.db' in got
     assert 'data/translations/la__k.json' not in got
+    for lang in ('it', 'fro', 'gmh'):
+        assert f'texts/{lang}/w.tess' in got
+        assert f'cache/lemmas/{lang}.json' not in got  # no lemma cache expected, none looked for
+    assert 'data/translations/it__w.json' in got
+    assert 'data/translations/it__k.json' not in got
+    assert 'data/commentaries/rashi__genesis.json' in got
+    assert 'data/commentaries/README.md' in got
     banned = ('/fa', '/ur', '/ar', 'fa_', 'ur_', 'ar_', 'fa__', 'phi.secret', '.env', 'scholarship',
-              'citation_index', 'commentaries', 'job_uploads', '.bak')
+              'citation_index', 'job_uploads', '.bak')
     for rel in got:
         assert not any(b in rel for b in banned), rel
         assert not rel.startswith(('texts/fa', 'texts/ur', 'texts/ar')), rel
+
+
+def _commentary_folder(tmp_path):
+    prod = tmp_path / 'prod'
+    cdir = prod / 'data/commentaries'
+    cdir.mkdir(parents=True)
+    files = {
+        'verity__milton.json': {'commentator': 'A. W. Verity', 'license': 'Public domain (published before 1930)'},
+        'servius__vergil.aeneid.json': {'commentator': 'Servius', 'license': 'Creative Commons Attribution-ShareAlike 3.0 United States (CC BY-SA 3.0 US), via the Perseus Digital Library'},
+        'radak__genesis.json': {'commentator': 'Radak', 'license': 'CC-BY-NC', 'license_translation': 'CC-BY-NC', 'source': 'Sefaria'},
+        'rashi__exodus.json': {'commentator': 'Rashi', 'license': 'Public Domain', 'license_translation': 'CC0'},
+        'rashi__leviticus.json': {'commentator': 'Rashi', 'license': 'Public Domain', 'license_translation': 'unknown'},
+        'metzudat__x.json': {'commentator': 'Metzudat Zion', 'license': 'Public Domain', 'license_translation': None, 'translation': None},
+        'untranslated__x.json': {'commentator': 'Rashi', 'license': 'Public Domain', 'license_translation': None, 'translation': 'Some English'},
+        'nolicence__x.json': {'commentator': 'Nobody'},
+        'none__x.json': {'commentator': 'Nobody', 'license': None},
+        'noreprint__x.json': {'commentator': 'Somebody', 'license': 'Public domain text; republication is prohibited without permission'},
+        'rights__x.json': {'commentator': 'Somebody', 'license': 'All rights reserved'},
+    }
+    for fn, d in files.items():
+        (cdir / fn).write_text(json.dumps(d), encoding='utf-8')
+    (cdir / 'README.md').write_text('notes', encoding='utf-8')
+    return prod
+
+
+def test_commentaries_travel_by_their_own_licence(tmp_path):
+    prod = _commentary_folder(tmp_path)
+    notes = {}
+    got = {i.rel for i in lib.select('core', str(prod), EXCL, set(), notes)}
+    bundled = {r for r in got if r.startswith('data/commentaries/')}
+    assert bundled == {f'data/commentaries/{n}' for n in (
+        'README.md', 'verity__milton.json', 'servius__vergil.aeneid.json', 'radak__genesis.json', 'rashi__exodus.json',
+        'metzudat__x.json')}
+    left = {fn: why for fn, who, why, lic in lib.left_out_commentaries}
+    assert set(left) == {'rashi__leviticus.json', 'untranslated__x.json', 'nolicence__x.json', 'none__x.json', 'noreprint__x.json', 'rights__x.json'}
+    assert 'forbids republication' in left['noreprint__x.json']
+    assert 'unknown' in left['rashi__leviticus.json']
+    assert notes['commentary left out: notice forbids republication'] == 2
+    assert sum(v for k, v in notes.items() if k.startswith('commentary left out')) == 6
+
+
+def test_commentary_report_counts_by_commentator(tmp_path, capsys):
+    prod = _commentary_folder(tmp_path)
+    notes = {}
+    items = list(lib.select('core', str(prod), EXCL, set(), notes))
+    counts = {'commentaries': [(os.path.basename(i.rel), lib.commentary_info(i.abs)) for i in items
+                               if i.group == 'commentaries' and i.rel.endswith('.json')],
+              'commentaries_left_out': list(lib.left_out_commentaries)}
+    lib.print_commentary_report(counts)
+    out = capsys.readouterr().out
+    assert 'total 5 bundled, 6 left out' in out
+    assert any(line.split()[0:1] == ['Rashi'] and line.split()[-3:] == ['1', '/', '2'] for line in out.splitlines())
+
+
+def test_licences_md_opens_with_the_non_commercial_sentence(tmp_path):
+    prod = _commentary_folder(tmp_path)
+    (prod / 'data/sources_credits.json').write_text('[]', encoding='utf-8')
+    notes = {}
+    items = list(lib.select('core', str(prod), EXCL, set(), notes))
+    counts = {'commentaries': [(os.path.basename(i.rel), lib.commentary_info(i.abs)) for i in items
+                               if i.group == 'commentaries' and i.rel.endswith('.json')],
+              'commentaries_left_out': list(lib.left_out_commentaries), 'excluded': notes}
+    text = lib.licences_md(items, EXCL, str(prod), counts)
+    first = text.split('\n\n')[1]
+    assert first.startswith('This bundle as a whole is offered for non-commercial use')
+    assert 'Commentaries in this bundle' in text and 'radak__genesis.json' in text
+    assert 'Nibelungenlied' in text
 
 
 def test_text_descriptions_keep_only_bundled_languages(tmp_path):
     prod = tmp_path / 'prod'
     (prod / 'data').mkdir(parents=True)
     (prod / 'data/text_descriptions.json').write_text(json.dumps({
-        '_comment': 'c', 'la': {'a.b': 'x', 'phi.c': 'y'}, 'fa': {'z.z': 'q'}, 'ur': {}, 'ar': {}}), encoding='utf-8')
+        '_comment': 'c', 'la': {'a.b': 'x', 'phi.c': 'y'}, 'it': {'d.c': 'z'}, 'fa': {'z.z': 'q'}, 'ur': {}, 'ar': {}}), encoding='utf-8')
     out = lib.filtered_text_descriptions(str(prod), EXCL, {'phi.c'})
-    assert set(out) == {'_comment', 'la'}
+    assert set(out) == {'_comment', 'la', 'it'}
     assert out['la'] == {'a.b': 'x'}
 
 
