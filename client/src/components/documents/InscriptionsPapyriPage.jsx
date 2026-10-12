@@ -115,6 +115,7 @@ export default function InscriptionsPapyriPage({ setPageType }) {
     collection, setCollection,
     dateFrom, setDateFrom,
     dateTo, setDateTo,
+    docKind, setDocKind,
     docRegion, setDocRegion,
     docTextType, setDocTextType,
     docMaterial, setDocMaterial,
@@ -145,6 +146,7 @@ export default function InscriptionsPapyriPage({ setPageType }) {
     if (lang && LANGUAGE_OPTIONS.some(l => l.code === lang)) setLanguage(lang);
     if (type && ['lemma', 'exact', 'regex'].includes(type)) setSearchType(type);
     if (col && COLLECTION_OPTIONS.some(o => o.key === col)) setCollection(col);
+    if (['inscriptions', 'papyri'].includes(params.get('kind'))) setDocKind(params.get('kind'));
     if (params.get('region')) setDocRegion(params.get('region'));
     if (params.get('date_from')) setDateFrom(params.get('date_from'));
     if (params.get('date_to')) setDateTo(params.get('date_to'));
@@ -251,6 +253,7 @@ export default function InscriptionsPapyriPage({ setPageType }) {
     });
     if (dateFrom) params.set('date_from', dateFrom);
     if (dateTo) params.set('date_to', dateTo);
+    if (docKind) params.set('kind', docKind);
     if (docRegion) params.set('region', docRegion);
     if (docTextType) params.set('text_type', docTextType);
     if (docMaterial) params.set('material', docMaterial);
@@ -269,14 +272,7 @@ export default function InscriptionsPapyriPage({ setPageType }) {
           <h2 className="text-xl font-semibold text-gray-900">Inscriptions &amp; Papyri</h2>
           <p className="text-sm text-gray-500 mt-1">
             Search and browse the documentary corpus (Latin and Greek inscriptions and papyri)
-            alongside the literature it quotes or echoes.{' '}
-            <button
-              type="button"
-              onClick={() => window.dispatchEvent(new CustomEvent('tesserae:open-help', { detail: { section: 'documents' } }))}
-              className="text-red-700 hover:underline"
-            >
-              About this page
-            </button>
+            alongside the literature it quotes or echoes.
           </p>
         </div>
 
@@ -325,6 +321,7 @@ export default function InscriptionsPapyriPage({ setPageType }) {
               collection={collection} setCollection={setCollection}
               dateFrom={dateFrom} setDateFrom={setDateFrom}
               dateTo={dateTo} setDateTo={setDateTo}
+              docKind={docKind} setDocKind={setDocKind}
               docRegion={docRegion} setDocRegion={setDocRegion}
               docTextType={docTextType} setDocTextType={setDocTextType}
               docMaterial={docMaterial} setDocMaterial={setDocMaterial}

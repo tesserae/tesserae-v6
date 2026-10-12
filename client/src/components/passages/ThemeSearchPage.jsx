@@ -60,6 +60,15 @@ const EXAMPLE_SETS = {
     'funeral games with athletic contests held in honor of the dead',
     'a storm at sea batters ships and terrifies the crew',
   ],
+  // The History view: the same corpus, themes a historian would look for.
+  history: [
+    'a general addresses his troops before battle',
+    'a debate in the assembly over how the city should be governed',
+    'tribunes propose a law to distribute public land to the poor',
+    'a grain shortage drives up prices and the emperor fixes them',
+    'women gather in the streets to demand the repeal of a law',
+    'a plague spreads through the city and the dead lie unburied',
+  ],
   // Persian, Urdu and Arabic, with Coptic alongside. Measured 2026-09-09:
   // all four rated strong, and three of the four return Coptic passages too.
   persoArabic: [
@@ -72,9 +81,9 @@ const EXAMPLE_SETS = {
 
 /** The example set for the languages this server serves. Classical wins when
  *  any of its languages is present, so production is unchanged. */
-function examplesFor(served) {
+function examplesFor(served, view) {
   const has = (codes) => Array.isArray(served) && served.some((c) => codes.includes(c));
-  if (has(['la', 'grc', 'en'])) return EXAMPLE_SETS.classical;
+  if (has(['la', 'grc', 'en'])) return view === 'history' ? EXAMPLE_SETS.history : EXAMPLE_SETS.classical;
   if (has(['fa', 'ur', 'ar'])) return EXAMPLE_SETS.persoArabic;
   return EXAMPLE_SETS.classical;
 }
@@ -329,7 +338,7 @@ export default function ThemeSearchPage() {
   // Coins: an option of its own, shown only when the Coins collection is on.
   // It searches the coin descriptions and shows them as a separate list; it is
   // never mixed into the passage ranking.
-  const { anyOn } = useCollections();
+  const { anyOn, view } = useCollections();
   const coinsAvailable = anyOn(PAGE_NEEDS.coins);
   const [coinsChosen, setCoinsChosen] = useState(false);
   const [coinsSearch, setCoinsSearch] = useState(null);
@@ -1175,7 +1184,7 @@ export default function ThemeSearchPage() {
       </div>
 
       <div className="mt-3 flex flex-wrap gap-2">
-        {examplesFor(served).map((ex) => (
+        {examplesFor(served, view).map((ex) => (
           <button
             key={ex}
             onClick={() => { setQuery(ex); run(ex); }}

@@ -1902,7 +1902,7 @@ def _lemmatize_query_simple(query, language, text_processor):
     return query_lemmas
 
 
-def _document_passes_filters(m, date_from, date_to, region, text_type, material, source):
+def _document_passes_filters(m, date_from, date_to, region, text_type, material, source, kind=None):
     """True if a document hit's metadata (backend.documents.meta's return,
     or None) satisfies every filter the caller actually set. A filter the
     request left unset is skipped. When NO filter is active this always
@@ -1910,10 +1910,15 @@ def _document_passes_filters(m, date_from, date_to, region, text_type, material,
     at least one filter IS active and m is None, the hit cannot be
     confirmed and is excluded -- safer than showing an unfiltered row inside
     a filtered search."""
-    if not any([date_from is not None, date_to is not None, region, text_type, material, source]):
+    if not any([date_from is not None, date_to is not None, region, text_type, material, source, kind]):
         return True
     if m is None:
         return False
+    if kind:
+        # 'inscriptions' or 'papyri': the same split the browse tree uses.
+        from backend.documents_browse import _kind_for_source
+        if _kind_for_source(m.get('source')) != kind:
+            return False
     if date_from is not None:
         if m.get('date_not_after') is None or m['date_not_after'] < date_from:
             return False
@@ -1921,8 +1926,18 @@ def _document_passes_filters(m, date_from, date_to, region, text_type, material,
         if m.get('date_not_before') is None or m['date_not_before'] > date_to:
             return False
     if region:
-        if not m.get('region') or region.lower() not in m['region'].lower():
-            return False
+        # The Region drop-down offers the browse tree's normalized labels
+        # (backend.documents_browse.normalize_region: spelling variants of a
+        # region merged, a papyrus's nome taken from its ancient place, I.Sicily
+        # all "Sicilia"), which differ from the raw `region` column. A
+        # document passes when the raw column contains the text (what free
+        # typing always did) or its normalized label equals it.
+        if not (m.get('region') and region.lower() in m['region'].lower()):
+            from backend.documents_browse import _kind_for_source, normalize_region
+            _k = _kind_for_source(m.get('source'))
+            label = normalize_region(_k, m.get('source'), m.get('region'), m.get('ancient_place'))[0] if _k else None
+            if not label or label.lower() != region.lower():
+                return False
     if text_type:
         if not m.get('text_type_label') or text_type.lower() not in m['text_type_label'].lower():
             return False
@@ -2122,7 +2137,7 @@ def _search_documents_collection(language, search_type, query, filtered_query_le
                                   min_matched, offset, limit, date_from, date_to,
                                   region, text_type, material, source,
                                   exclude_restored=False, hide_formulas=None,
-                                  sort='relevance'):
+                                  sort='relevance', kind=None):
     """Document hits for the documents/both collection. Mirrors the FAST PATH
     of line_search()'s literary branch (same index-driven candidate lookup,
     same matched-word shape) against backend.documents's own documents-index
@@ -2221,7 +2236,7 @@ def _search_documents_collection(language, search_type, query, filtered_query_le
         for c in raw_candidates:
             m = meta_by_id.get(c['doc_id'])
             if not _document_passes_filters(m, date_from, date_to, region, text_type,
-                                             material, source):
+                                             material, source, kind):
                 continue
             all_positions = sorted({p for l in c['matched_lemmas']
                                      for p in (c['positions'].get(l) or [])})
@@ -2344,7 +2359,7 @@ def _search_documents_collection(language, search_type, query, filtered_query_le
             doc_id = docs.doc_for(language, filename, ref)
             m = docs.meta(doc_id) if doc_id else None
             if not _document_passes_filters(m, date_from, date_to, region, text_type,
-                                             material, source):
+                                             material, source, kind):
                 continue
             restored = docs.restored_indices(language, filename, ref)
             restored_set = set(restored.get('restored') or [])
@@ -2415,7 +2430,8 @@ def _rarest_documents_lemmas(lemmas, language, cap, conn=None):
 
 def _line_search_documents_only(query, language, search_type, offset, limit, sort, count_only,
                                  date_from, date_to, region, text_type, material, source,
-                                 search_start_time, exclude_restored=False, hide_formulas=None):
+                                 search_start_time, exclude_restored=False, hide_formulas=None,
+                                 kind=None):
     """Full /api/line-search response for collection='documents': the
     documentary corpus alone, no literary search run at all. Returns a Flask
     response directly (line_search() returns this immediately).
@@ -2455,7 +2471,8 @@ def _line_search_documents_only(query, language, search_type, offset, limit, sor
     results, total, by_source_region, by_century, doc_stats = _search_documents_collection(
         language, search_type, query, filtered_query_lemmas, min_matched, offset, limit,
         date_from, date_to, region, text_type, material, source,
-        exclude_restored=exclude_restored, hide_formulas=hide_formulas, sort=sort)
+        exclude_restored=exclude_restored, hide_formulas=hide_formulas, sort=sort,
+        kind=kind)
 
     search_time = round(time_module.time() - search_start_time, 3)
     payload = {
@@ -2761,6 +2778,10 @@ def line_search():
         doc_text_type_filter = (data.get('text_type') or '').strip() if documents_active else ''
         doc_material_filter = (data.get('material') or '').strip() if documents_active else ''
         doc_source_filter = (data.get('source') or '').strip() if documents_active else ''
+        # 'inscriptions' or 'papyri'; anything else (or omitted) means both.
+        doc_kind_filter = (data.get('kind') or '').strip().lower() if documents_active else ''
+        if doc_kind_filter not in ('inscriptions', 'papyri'):
+            doc_kind_filter = ''
 
         # Stage 3b-3: leave out a document hit whose match rests entirely on
         # restored text (documents/both only -- see _restoration_flags).
@@ -2832,7 +2853,8 @@ def line_search():
                     query, language, search_type, doc_offset, doc_limit, doc_sort, count_only,
                     date_from, date_to, doc_region_filter, doc_text_type_filter,
                     doc_material_filter, doc_source_filter, search_start_time,
-                    exclude_restored=doc_exclude_restored, hide_formulas=doc_hide_formulas)
+                    exclude_restored=doc_exclude_restored, hide_formulas=doc_hide_formulas,
+                    kind=doc_kind_filter)
             if collection == 'documents' and not documents_active:
                 # Documents requested but the switch is off, or this
                 # language has no documents index: literature's own
@@ -3514,7 +3536,7 @@ def line_search():
                     doc_offset, doc_limit, date_from, date_to, doc_region_filter,
                     doc_text_type_filter, doc_material_filter, doc_source_filter,
                     exclude_restored=doc_exclude_restored, hide_formulas=doc_hide_formulas,
-                    sort=doc_sort)
+                    sort=doc_sort, kind=doc_kind_filter)
                 payload['collection'] = 'both'
                 # Stage 4: 'documents_total' is now the TRUE total (every
                 # match after filters), not a count of a 500-row-capped

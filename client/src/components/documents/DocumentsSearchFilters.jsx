@@ -7,11 +7,14 @@
 //
 // Pure presentation: every value and setter comes from useDocumentsSearch
 // (or the caller's own state), nothing here talks to the network.
+import useDocumentFilterOptions from './useDocumentFilterOptions';
+
 export default function DocumentsSearchFilters({
   options,
   collection, setCollection,
   dateFrom, setDateFrom,
   dateTo, setDateTo,
+  docKind = '', setDocKind = () => {},
   docRegion, setDocRegion,
   docTextType, setDocTextType,
   docMaterial, setDocMaterial,
@@ -20,6 +23,7 @@ export default function DocumentsSearchFilters({
   hideFormulas, setHideFormulas,
 }) {
   const showFilters = collection !== 'literature';
+  const { regions, textTypes, materials, sources } = useDocumentFilterOptions(showFilters);
   return (
     <div>
       <label className="block text-sm font-medium text-gray-700 mb-1">Search in</label>
@@ -37,7 +41,16 @@ export default function DocumentsSearchFilters({
         ))}
       </div>
       {showFilters && (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mt-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3 mt-3">
+          <div>
+            <label htmlFor="doc-kind" className="block text-xs text-gray-500 mb-1">Kind</label>
+            <select id="doc-kind" value={docKind} onChange={e => setDocKind(e.target.value)}
+                    className="w-full border rounded px-2 py-1.5 text-sm bg-white">
+              <option value="inscriptions">Inscriptions</option>
+              <option value="papyri">Papyri</option>
+              <option value="">Both</option>
+            </select>
+          </div>
           <div>
             <label className="block text-xs text-gray-500 mb-1">Date from</label>
             <input type="number" value={dateFrom} onChange={e => setDateFrom(e.target.value)}
@@ -48,26 +61,10 @@ export default function DocumentsSearchFilters({
             <input type="number" value={dateTo} onChange={e => setDateTo(e.target.value)}
                    placeholder="e.g., 200" className="w-full border rounded px-2 py-1.5 text-sm" />
           </div>
-          <div>
-            <label className="block text-xs text-gray-500 mb-1">Region</label>
-            <input type="text" value={docRegion} onChange={e => setDocRegion(e.target.value)}
-                   placeholder="e.g., Latium" className="w-full border rounded px-2 py-1.5 text-sm" />
-          </div>
-          <div>
-            <label className="block text-xs text-gray-500 mb-1">Text type</label>
-            <input type="text" value={docTextType} onChange={e => setDocTextType(e.target.value)}
-                   placeholder="e.g., epitaph" className="w-full border rounded px-2 py-1.5 text-sm" />
-          </div>
-          <div>
-            <label className="block text-xs text-gray-500 mb-1">Material</label>
-            <input type="text" value={docMaterial} onChange={e => setDocMaterial(e.target.value)}
-                   placeholder="e.g., marble" className="w-full border rounded px-2 py-1.5 text-sm" />
-          </div>
-          <div>
-            <label className="block text-xs text-gray-500 mb-1">Source</label>
-            <input type="text" value={docSource} onChange={e => setDocSource(e.target.value)}
-                   placeholder="e.g., edh" className="w-full border rounded px-2 py-1.5 text-sm" />
-          </div>
+          <FilterSelect label="Region" value={docRegion} onChange={setDocRegion} options={regions} />
+          <FilterSelect label="Text type" value={docTextType} onChange={setDocTextType} options={textTypes} />
+          <FilterSelect label="Material" value={docMaterial} onChange={setDocMaterial} options={materials} />
+          <FilterSelect label="Source" value={docSource} onChange={setDocSource} options={sources} />
         </div>
       )}
       {showFilters && (
@@ -84,6 +81,29 @@ export default function DocumentsSearchFilters({
           </label>
         </div>
       )}
+    </div>
+  );
+}
+
+// One drop-down: "Any" first, then each choice with its document count. A
+// value that arrives in the URL but is not in the list (a restored link) is
+// kept as an extra option so the box still shows what was searched.
+function FilterSelect({ label, value, onChange, options }) {
+  const id = `doc-filter-${label.toLowerCase().replace(/\s+/g, '-')}`;
+  const known = options.some(o => o.value === value);
+  return (
+    <div>
+      <label htmlFor={id} className="block text-xs text-gray-500 mb-1">{label}</label>
+      <select id={id} value={value} onChange={e => onChange(e.target.value)}
+              className="w-full border rounded px-2 py-1.5 text-sm bg-white">
+        <option value="">Any</option>
+        {value && !known && <option value={value}>{value}</option>}
+        {options.map(o => (
+          <option key={o.value} value={o.value}>
+            {o.count != null ? `${o.label} (${o.count.toLocaleString('en-US')})` : o.label}
+          </option>
+        ))}
+      </select>
     </div>
   );
 }

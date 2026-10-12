@@ -9,6 +9,9 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-11
 
+### Inscriptions and papyri page: filters with real choices, a kind switch, sharper examples, quieter chips
+Region, Text type, Material and Source on the Inscriptions & Papyri page (and the Documents option of Lines search) are drop-downs of the values the index holds, with counts, case variants merged and values under 20 documents left out. A new Kind control (Inscriptions, Papyri, Both) sends `kind` to `/api/line-search`, which keeps only that kind of document. The example searches are replaced with well-known, pungent texts (Latin and Greek), the example chips lose their amber fill, the page's duplicate "About this page" link is removed in favour of the scope box's Details, and Theme Search offers its own six examples in the History view.
+
 ### Records: the day's four decisions written out in plain language
 `docs/DECISIONS.md` gains entries for the prose scale (the problem of chapter-sized windows, the audit, the paragraph-sized cut, the chapter windows kept for the Reader but withdrawn from rankings, the merging of short sections for the full run, and what remains open), the second judge of the Ask a Work pilot, the confidence band within one work and the kept reader re-rank. No code changes.
 
