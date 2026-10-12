@@ -9,6 +9,9 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-12
 
+### Search One Text: six example searches across six works, one of them Sappho
+The example chips were four Aeneid searches plus two others. They are now one search each on Sappho (jealousy at the sight of the beloved with a man), the Aeneid (Dido falls in love with Aeneas), the Odyssey (Odysseus strings the bow), Thucydides (the plague at Athens), Herodotus (Solon tells Croesus no man is happy before death) and the Annals (the Pannonian legions mutiny). Each was run live and read before being chosen: the first five answers are about the subject in every case.
+
 ### Objects: the picture cache folder is created group-writable
 When the server creates `data/objects/images/` on the first picture fetched, it now makes the folder writable by the shared group, so the warm-up script can add to it. Data operations: the warm-up run recorded (684 of 694 pictures cached).
 

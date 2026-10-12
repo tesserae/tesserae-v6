@@ -424,7 +424,8 @@ describe('a visit with no work chosen', () => {
     await waitFor(() => expect(screen.getByRole('combobox', { name: 'Author' })).toHaveValue('Vergil'));
     await waitFor(() => expect(screen.getByRole('combobox', { name: 'Work' })).toHaveValue('Aeneid'));
     expect(await screen.findByRole('button', { name: /Dido falls in love with Aeneas/ })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /the fall of Troy/ })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /a storm scatters the fleet/ })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /jealousy at the sight of the beloved/ })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /the Pannonian legions mutiny/ })).toBeInTheDocument();
+    expect(screen.getAllByRole('button', { name: /on the Aeneid/ })).toHaveLength(1);
   });
 });
