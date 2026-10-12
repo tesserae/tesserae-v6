@@ -296,6 +296,12 @@ export default function AskAWorkPage() {
   const nameCards = useRef({});
   const [mentions, setMentions] = useState(null);   // { names, total, rows } for the current search
   const [showAllNames, setShowAllNames] = useState(false);
+  // The list's order: by closeness to the question (the route's order), or in
+  // the order of the work (owner, 2026-10-12: "Give an option for readers to
+  // order the passages by relevance or by order of occurrence, with relevance
+  // the default"). Cards keep their original index so the strip's marks and
+  // the summary's links still find them.
+  const [order, setOrder] = useState('match');
   const [loadingNames, setLoadingNames] = useState(false);
   const [summary, setSummary] = useState(null);     // { state: 'loading' | 'ready', summary, cites }
   const [scholarship, setScholarship] = useState(null); // { state: 'loading' | 'ready' | 'none', holdings, summary, cites }
@@ -494,6 +500,11 @@ export default function AskAWorkPage() {
     }, 0);
   };
   const shownNames = mentions ? (showAllNames ? mentions.rows : mentions.rows.slice(0, 10)) : [];
+  const orderedCards = results.map((r, i) => ({ r, i }));
+  if (order === 'work') {
+    orderedCards.sort((a, b) => (bookOf(a.r.ref_start, asked.work) - bookOf(b.r.ref_start, asked.work))
+      || (lineOf(a.r.ref_start) - lineOf(b.r.ref_start)) || (a.i - b.i));
+  }
 
   return (
     <div className="max-w-4xl mx-auto p-6">
@@ -731,6 +742,60 @@ export default function AskAWorkPage() {
                 </p>
               </section>
 
+
+              <div className="mt-4 flex items-center gap-2 text-xs text-gray-600" data-testid="ask-order">
+                <span>Order</span>
+                <div className="inline-flex rounded border border-gray-300 overflow-hidden">
+                  <button type="button" aria-pressed={order === 'match'} onClick={() => setOrder('match')}
+                          className={`px-2 py-0.5 ${order === 'match' ? 'bg-gray-700 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'}`}>
+                    Best match
+                  </button>
+                  <button type="button" aria-pressed={order === 'work'} onClick={() => setOrder('work')}
+                          className={`px-2 py-0.5 border-l border-gray-300 ${order === 'work' ? 'bg-gray-700 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'}`}>
+                    Order of the work
+                  </button>
+                </div>
+              </div>
+              <ul className="mt-2 space-y-3">
+                {orderedCards.map(({ r, i }) => (
+                  <li
+                    key={r.id || `${r.ref_start}-${i}`}
+                    ref={(el) => { cards.current[i] = el; }}
+                    data-testid="ask-card"
+                    className={`border rounded p-3 bg-white transition-colors ${flash === i ? 'border-red-400 bg-red-50' : 'border-gray-200'}`}
+                  >
+                    <div className="flex items-baseline gap-2 flex-wrap">
+                      <a href={readerLink(r, asked.q)} className="text-sm text-red-800 hover:text-red-900 hover:underline">
+                        {r.ref_start}
+                      </a>
+                      {r.strong === true && (
+                        <span className="text-[10px] bg-red-50 text-red-800 border border-red-200 rounded px-1.5 py-0.5 font-medium">
+                          strong
+                        </span>
+                      )}
+                      <a href={readerLink(r, asked.q)} className="ml-auto text-xs text-gray-500 hover:underline">
+                        Open in the Reader
+                      </a>
+                    </div>
+                    {r.gist && <p className="mt-0.5 text-sm text-gray-700 leading-snug">{r.gist}</p>}
+                    <FirstLines r={r} />
+                  </li>
+                ))}
+              </ul>
+
+              {!exhausted && (
+                <div className="mt-4 text-center">
+                  <button
+                    type="button"
+                    onClick={() => run(asked.q, asked.work, asked.lang, true, asked.books || '')}
+                    disabled={loadingMore}
+                    className="rounded border border-gray-300 bg-white px-4 py-1.5 text-sm text-gray-700 hover:border-gray-400 disabled:text-gray-500"
+                  >
+                    {loadingMore ? 'Loading…' : 'Show more'}
+                  </button>
+                </div>
+              )}
+
               {mentions && (
                 <section aria-label="Passages that name" className="mt-5" data-testid="ask-names">
                   <h2 className="text-sm font-semibold text-gray-700">Passages that name {joinNames(mentions.names)}</h2>
@@ -769,46 +834,6 @@ export default function AskAWorkPage() {
                     </>
                   )}
                 </section>
-              )}
-
-              <ul className="mt-4 space-y-3">
-                {results.map((r, i) => (
-                  <li
-                    key={r.id || `${r.ref_start}-${i}`}
-                    ref={(el) => { cards.current[i] = el; }}
-                    data-testid="ask-card"
-                    className={`border rounded p-3 bg-white transition-colors ${flash === i ? 'border-red-400 bg-red-50' : 'border-gray-200'}`}
-                  >
-                    <div className="flex items-baseline gap-2 flex-wrap">
-                      <a href={readerLink(r, asked.q)} className="text-sm text-red-800 hover:text-red-900 hover:underline">
-                        {r.ref_start}
-                      </a>
-                      {r.strong === true && (
-                        <span className="text-[10px] bg-red-50 text-red-800 border border-red-200 rounded px-1.5 py-0.5 font-medium">
-                          strong
-                        </span>
-                      )}
-                      <a href={readerLink(r, asked.q)} className="ml-auto text-xs text-gray-500 hover:underline">
-                        Open in the Reader
-                      </a>
-                    </div>
-                    {r.gist && <p className="mt-0.5 text-sm text-gray-700 leading-snug">{r.gist}</p>}
-                    <FirstLines r={r} />
-                  </li>
-                ))}
-              </ul>
-
-              {!exhausted && (
-                <div className="mt-4 text-center">
-                  <button
-                    type="button"
-                    onClick={() => run(asked.q, asked.work, asked.lang, true, asked.books || '')}
-                    disabled={loadingMore}
-                    className="rounded border border-gray-300 bg-white px-4 py-1.5 text-sm text-gray-700 hover:border-gray-400 disabled:text-gray-500"
-                  >
-                    {loadingMore ? 'Loading…' : 'Show more'}
-                  </button>
-                </div>
               )}
               {exhausted && (
                 <p className="mt-4 text-center text-xs text-gray-500">End of the ranked list for this work.</p>

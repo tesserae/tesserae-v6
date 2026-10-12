@@ -253,6 +253,24 @@ const named = (n, ref, extra = {}) => ({
   gist: `Names ${n}`, matched: ['Sejanus'], mentions: 2, ...extra,
 });
 
+describe('the order of the list', () => {
+  it('is by closeness by default and by the work on request, the strip unchanged', async () => {
+    render(<AskAWorkPage />);
+    await pick('Author', 'Vergil');
+    await pick('Work', 'Aeneid');
+    fireEvent.change(screen.getByPlaceholderText(/a subject in plain words/), { target: { value: 'fathers and sons' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Go' }));
+    const before = (await screen.findAllByTestId('ask-card')).map((c) => c.querySelector('a').textContent);
+    expect(before).toEqual(RESULTS.map((r) => r.ref_start));
+    fireEvent.click(screen.getByRole('button', { name: 'Order of the work' }));
+    const after = screen.getAllByTestId('ask-card').map((c) => c.querySelector('a').textContent);
+    const key = (ref) => [bookOf(ref, 'vergil.aeneid'), Number((ref.match(/(\d+)\s*$/) || [0, 0])[1])];
+    const sorted = [...before].sort((a, b) => (key(a)[0] - key(b)[0]) || (key(a)[1] - key(b)[1]));
+    expect(after).toEqual(sorted);
+    expect(screen.getAllByTestId('ask-mark').length).toBe(RESULTS.length);
+  });
+});
+
 describe('the strip explains its shades', () => {
   it('names the shades under the strip and titles each bar', async () => {
     render(<AskAWorkPage />);

@@ -108,7 +108,7 @@ def test_a_flat_work_is_rated_low_and_nothing_is_strong(monkeypatch):
     assert c['level'] == 'low' and c['fitted'] == pi.WITHIN_FITTED
     assert set(c) >= {'level', 'work_head_lift', 'work_coherence', 'spread', 'fitted', 'note'}
     assert out['strong_matches'] == 0 and not any(r['strong'] for r in out['results'])
-    assert 'first estimate' in c['note'] and out['note'] == c['note']
+    assert c['note'].startswith('No passage stands far above') and out['note'] == c['note']
 
 
 def test_a_wide_work_is_rated_and_strong_follows_z(monkeypatch):

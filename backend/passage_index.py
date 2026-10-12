@@ -2073,23 +2073,24 @@ def _within_level(top1_lift, coherence):
     return 'low'
 
 
-_WITHIN_NOTE = ('The band inside one work was fitted on 55 subjects the works treat and 86 '
-                'they do not, over eleven works, and agrees with that set on 84 percent, so '
-                'read it as a first estimate.')
+# The sentence about the fit (55 subjects, 86 non-subjects, eleven works, 84
+# percent) is no longer printed under the band: the owner found the
+# qualifications crowding the passages out (2026-10-12). It stays in Help
+# and in the page's scope box.
+_WITHIN_NOTE = ''
 
 
 def _within_note(level):
+    """One short sentence under the band, or nothing for strong."""
     if level == 'strong':
-        return _WITHIN_NOTE
+        return None
     if level == 'moderate':
-        return ('Moderate confidence: the top passages stand out from the rest of the work, '
-                'though not by a wide margin. Read the results before relying on them. ' + _WITHIN_NOTE)
+        return 'The top passages stand out from the rest of the work, though not by a wide margin.'
     # The page prints "Closest passages." before this sentence. No absence
     # claim: on the refit set the lowest level held a right answer first for
     # Browning, Ferdowsi and the Annals (2026-10-12).
     return ('No passage stands far above the rest of the work on this subject, so the '
-            'order of the list is less certain than usual. These are the closest the work '
-            'comes. ' + _WITHIN_NOTE)
+            'order of the list is less certain than usual.')
 
 
 def find_by_text(query, limit=25, languages=None, scale=None, expand=False,
