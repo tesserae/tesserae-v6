@@ -9,6 +9,9 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-12
 
+### About page: what Tesserae is now
+The opening paragraph still described an intertext search tool and "a modern reimplementation of the V3 algorithm". It now describes the site as it is: the intertext search with its kinds of evidence, the Reader, Theme Search, Search One Text, and the inscriptions, papyri, coins, objects and events beside the literature, with the corpus's seven languages and its size. The six feature cards are rewritten to the same picture, and the technical list names the passage index and the taggers for Hebrew, Persian and Urdu.
+
 ### Inscriptions & Papyri: a search that finds nothing says so, and a one-word dictionary-form search falls back to the letters
 Searches for "rusellorum" and then "rusell" in Lemma mode found nothing, and the page showed nothing at all, so there was no way to tell whether the search had run. It now prints a line saying that no inscription or papyrus has the word as a dictionary form (or contains it, in Exact mode). When a one-word dictionary-form search finds nothing, the page runs the same search on the letters at once and, if documents come back, shows them under a note that says so. The Help page explains both.
 ### Search One Text: recent articles from the live services join the scholarship paragraph
