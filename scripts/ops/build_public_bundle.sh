@@ -118,5 +118,10 @@ cp "$WORK/stage/MANIFEST.tsv" "$OUT/MANIFEST-$MODE-$STAMP.tsv"
 cp "$WORK/stage/LICENSES.md" "$OUT/LICENSES-$MODE-$STAMP.md"
 ( cd "$OUT" && sha256sum "$(basename "$DEST")" > "$(basename "$DEST").sha256" )
 zstd -t -q "$DEST" || { echo "archive does not pass zstd -t" >&2; exit 1; }
+# Content scan (2026-10-11): every file in the archive is read for key headers,
+# connection strings, our settings variable names and key shapes, and for
+# file names like settings files or keys. A hit discards the archive.
+echo "== content scan of $DEST"
+heavy 4 public-bundle-scan "$HERE/scan_bundle_secrets.sh" "$DEST" "$WORK/scan" || { echo "content scan failed, archive discarded" >&2; rm -f "$DEST" "$DEST.sha256"; exit 1; }
 END=$(date +%s)
 echo "done: $(du -h "$DEST" | cut -f1) in $(( END - START )) seconds -> $DEST"
