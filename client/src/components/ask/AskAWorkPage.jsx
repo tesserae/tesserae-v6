@@ -628,13 +628,19 @@ export default function AskAWorkPage() {
                     );
                   })}
                 </div>
-                {!!layout.books.length && (
-                  <div className="flex text-[10px] text-gray-500">
-                    {layout.books.map((b, k) => (
-                      <div key={b} className="flex-1 text-center">{phone && k % 2 ? '' : b}</div>
-                    ))}
-                  </div>
-                )}
+                {!!layout.books.length && (() => {
+                  // A work of many short units (Sappho's fragments: 141) cannot
+                  // label every one, so the labels thin out to about thirty on a
+                  // wide screen and ten on a phone (owner, 2026-10-12).
+                  const step = Math.max(1, Math.ceil(layout.books.length / (phone ? 10 : 30)));
+                  return (
+                    <div className="flex text-[10px] text-gray-500" data-testid="ask-strip-labels">
+                      {layout.books.map((b, k) => (
+                        <div key={b} className="flex-1 text-center overflow-hidden whitespace-nowrap">{k % step ? '' : b}</div>
+                      ))}
+                    </div>
+                  );
+                })()}
                 <p className="mt-1 text-xs text-gray-500">
                   {layout.books.length > 1
                     ? `${results.length} passages in ${inBooks} of ${layout.books.length} books`

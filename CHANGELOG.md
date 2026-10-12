@@ -9,6 +9,8 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-12
 
+### Footer link removed; the list of requests is inside the Suggest a change dialog; Search One Text strip labels thin out
+The footer's "Requests made so far" link is gone. The same link now sits inside the Suggest a change dialog, so one button reaches both the form and the list. On Search One Text, the strip of books under "Where in the work" labelled every unit, which for Sappho's 141 fragments ran the numbers together; it now labels about thirty on a wide screen and ten on a phone.
 ### Search One Text: the band inside one work refitted on eleven works, and its lowest level no longer claims absence
 Three right answers had been labelled "a nearest neighbor, not a finding": Browning's sonnet 43 for the poet counting the ways she loves, Ferdowsi for Rostam and the White Div, and Annals 4.1 for the rise of Sejanus. The band read the spread of the work's scores, fitted on three works; re-measured on eleven works of very different lengths it was right 74 percent of the time and 42 percent on the Shahnameh. Nineteen measures were swept and none holds across works on its own. The band now reads the best passage's lift over the work's typical score together with the coherence of the top twenty (84 percent on the same set, 82 percent leaving each work out in turn), its lowest level is "Closest passages" with a caution about the order and no claim of absence, the list is shown under every level, and "strong" sits above every absent subject measured. Help, the scope box and tests updated; measurement in docs/DECISIONS.md.
 
