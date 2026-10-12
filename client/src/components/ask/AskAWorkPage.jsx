@@ -581,7 +581,7 @@ export default function AskAWorkPage() {
               onClick={() => example(ex)}
               className="text-xs text-red-700 hover:text-red-900 hover:bg-red-50 border border-gray-200 rounded px-2 py-1"
             >
-              {ex.label} <span className="text-gray-500">on {ex.on}</span>
+              {ex.label} <span className="text-gray-500">in {ex.on}</span>
             </button>
           ))}
         </div>
