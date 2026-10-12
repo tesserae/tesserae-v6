@@ -816,7 +816,7 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
                     a list where the passage text is the thing to read. */}
                 {r.text && (
                   <p className="text-xs text-gray-700 mt-1.5 leading-snug">
-                    <Marked text={clip(r.text, r.matched_words)}
+                    <Marked text={clip(r.text, r.matched_words, 260, language === 'la')}
                             words={r.matched_words} latin={language === 'la'} />
                   </p>
                 )}
@@ -1472,16 +1472,39 @@ function escapeRe(s) {
  *  past the cut, so the reader saw an unmarked opening and no reason the result
  *  was there at all. This keeps the window around the first match instead.
  */
-function clip(text, words, span = 260) {
+export function clip(text, words, span = 260, latin = true) {
   const s = String(text || '');
   if (s.length <= span) return s;
-  const first = (words || [])
-    .map((w) => s.toLowerCase().indexOf(String(w).toLowerCase()))
-    .filter((i) => i >= 0)
-    .sort((a, b) => a - b)[0];
-  if (first == null || first < span - 40) return `${s.slice(0, span)}…`;
+  const list = [...new Set((words || []).filter(Boolean))];
+  // Whole words, folded for u/v and i/j as Marked folds them. A plain
+  // substring search put the window at the wrong place: for Tacitus, Annals
+  // 4.58 the matched words were "Roma" and "reditus" near the end of the
+  // chapter, but "roma" was first found inside "Romanus" in the opening
+  // sentence, so the card showed the opening, which Marked (whole words
+  // only) then left unmarked (the owner, 2026-10-12: "Why does this parallel
+  // Tacitus Annales passage have no words highlighted?").
+  const pattern = (w) => (latin
+    ? escapeRe(w).replace(/[uv]/gi, '[uvUV]').replace(/[ij]/gi, '[ijIJ]')
+    : escapeRe(w));
+  let positions = [];
+  if (list.length) {
+    const re = new RegExp(`(?<![\\p{L}])(${list.map(pattern).join('|')})(?![\\p{L}])`, 'giu');
+    for (const m of s.matchAll(re)) positions.push(m.index);
+  }
+  if (!positions.length) {
+    positions = list.map((w) => s.toLowerCase().indexOf(String(w).toLowerCase())).filter((i) => i >= 0);
+  }
+  if (!positions.length) return `${s.slice(0, span)}…`;
+  positions.sort((a, b) => a - b);
+  const first = positions[0];
+  const last = positions[positions.length - 1];
+  // The window grows, up to about half again, so that a second matched word
+  // a little further on is kept in view rather than cut off.
+  const width = Math.min(Math.max(span, last - first + 120), Math.round(span * 1.6));
+  if (first < width - 40) return s.length <= width ? s : `${s.slice(0, width)}…`;
   const start = Math.max(0, first - 60);
-  return `…${s.slice(start, start + span)}…`;
+  const end = Math.min(s.length, start + width);
+  return `…${s.slice(start, end)}${end < s.length ? '…' : ''}`;
 }
 
 /** The same underlying text, ignoring the suffix and any book split.
