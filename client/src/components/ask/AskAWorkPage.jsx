@@ -201,6 +201,20 @@ function SummaryText({ text, cites, onJump }) {
   ) : part));
 }
 
+/** The scholarship paragraph with each [n] made a link to its note or article, in a new tab. */
+function ScholarshipText({ text, cites }) {
+  const byN = new Map((cites || []).map((c) => [String(c.n), c]));
+  return String(text || '').split(/(\[\d+\])/).map((part, k) => {
+    const m = /^\[(\d+)\]$/.exec(part);
+    const c = m && byN.get(m[1]);
+    if (!c || !c.link?.url) return part;
+    return (
+      <a key={k} href={c.link.url} target="_blank" rel="noopener noreferrer" title={c.label}
+         className="text-red-800 hover:text-red-900 hover:underline">{part}</a>
+    );
+  });
+}
+
 function FirstLines({ r }) {
   const [lines, setLines] = useState(null);
   useEffect(() => {
@@ -284,6 +298,7 @@ export default function AskAWorkPage() {
   const [showAllNames, setShowAllNames] = useState(false);
   const [loadingNames, setLoadingNames] = useState(false);
   const [summary, setSummary] = useState(null);     // { state: 'loading' | 'ready', summary, cites }
+  const [scholarship, setScholarship] = useState(null); // { state: 'loading' | 'ready' | 'none', holdings, summary, cites }
   const searchId = useRef(0);
 
   const fetchMentions = useCallback(async (names, workId, books, offset, question) => {
@@ -321,7 +336,7 @@ export default function AskAWorkPage() {
     if (more) setLoadingMore(true);
     else {
       setRunning(true); setData(null); setResults([]); setExhausted(false); setShowWeak(false);
-      setMentions(null); setShowAllNames(false); setSummary(null);
+      setMentions(null); setShowAllNames(false); setSummary(null); setScholarship(null);
       searchId.current += 1;
     }
     const id = searchId.current;
@@ -356,6 +371,21 @@ export default function AskAWorkPage() {
             });
           }).catch(() => {});
         }
+        setScholarship({ state: 'loading' });
+        fetch('/api/passages/ask-scholarship', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ question: query, work: workId, lang: code }),
+        }).then((res) => res.json()).then((s) => {
+          if (id !== searchId.current) return;
+          if (s && s.available && s.summary) {
+            setScholarship({ state: 'ready', holdings: s.holdings || '', summary: s.summary, cites: s.cites || [] });
+          } else if (s && s.holdings) {
+            setScholarship({ state: 'none', holdings: s.holdings });
+          } else {
+            setScholarship(null);
+          }
+        }).catch(() => { if (id === searchId.current) setScholarship(null); });
         if (json.confidence?.level !== 'low') {
           setSummary({ state: 'loading' });
           fetch('/api/passages/ask-summary', {
@@ -612,6 +642,21 @@ export default function AskAWorkPage() {
                   </p>
                   <p className="mt-1 text-xs text-gray-500">Written by Tessa from the passage descriptions. Read the passages before relying on it.</p>
                 </section>
+              )}
+              {scholarship?.state === 'loading' && (
+                <p className="mt-1 text-sm text-gray-500 italic">Reading the secondary literature...</p>
+              )}
+              {scholarship?.state === 'ready' && (
+                <section aria-label="What the secondary literature says" className="mt-3 rounded border border-gray-200 bg-gray-50 px-3 py-2" data-testid="ask-scholarship">
+                  <p className="text-xs font-semibold text-gray-600">What the secondary literature says</p>
+                  <p className="mt-1 text-sm text-gray-800 leading-snug">
+                    <ScholarshipText text={scholarship.summary} cites={scholarship.cites} />
+                  </p>
+                  {scholarship.holdings && <p className="mt-1 text-xs text-gray-500" data-testid="ask-scholarship-holdings">{scholarship.holdings}</p>}
+                </section>
+              )}
+              {scholarship?.state === 'none' && (
+                <p className="mt-2 text-xs text-gray-500" data-testid="ask-scholarship-holdings">{scholarship.holdings}</p>
               )}
               <section aria-label="Where in the work" className="mt-3">
                 <h2 className="text-sm font-semibold text-gray-700">Where in the work</h2>

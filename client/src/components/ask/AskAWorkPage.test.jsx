@@ -29,6 +29,7 @@ const RESULTS = [
 let reply;
 let mentionsReply;
 let summaryReply;
+let scholarshipReply;
 function callsTo(prefix) {
   return global.fetch.mock.calls.filter((c) => String(c[0]).startsWith(prefix));
 }
@@ -43,11 +44,13 @@ beforeEach(() => {
   reply = { query: 'q', results: RESULTS, restricted: true, confidence: { level: 'restricted' }, note: 'Confidence is not rated.' };
   mentionsReply = (u) => ({ work: 'vergil.aeneid', names: ['Sejanus'], total: 0, results: [], books_searched: [1, 2, 3], u });
   summaryReply = { available: false };
+  scholarshipReply = { available: false };
   global.fetch = vi.fn((url) => {
     const u = String(url);
     const body = u.startsWith('/api/texts') ? TEXTS
       : u.startsWith('/api/passages/mentions') ? mentionsReply(u)
       : u.startsWith('/api/passages/ask-summary') ? summaryReply
+      : u.startsWith('/api/passages/ask-scholarship') ? scholarshipReply
       : u.startsWith('/api/passages/works') ? { works: COVERED }
       : u.startsWith('/api/passages/theme-search') ? reply
       : u.startsWith('/api/passages/lines') ? { lines: [{ ref: 'a', text: 'Arma virumque cano' }] }
@@ -406,6 +409,50 @@ describe('what the work says', () => {
     await waitFor(() => expect(callsTo('/api/passages/ask-summary')).toHaveLength(1));
     await waitFor(() => expect(screen.queryByText('Tessa is reading the passages.')).toBeNull());
     expect(screen.queryByTestId('ask-summary')).toBeNull();
+  });
+});
+
+describe('what the secondary literature says', () => {
+  it('renders the paragraph with note links in new tabs and the holdings line', async () => {
+    scholarshipReply = {
+      available: true,
+      holdings: 'The secondary sources I can read include 2 notes from Servius on Vergil, Aeneid.',
+      summary: 'These notes treat her passion as divine design [1] and as tragic [2].',
+      cites: [
+        { n: 1, kind: 'commentary', label: 'Servius on verg. aen. 4.1', link: { kind: 'reader', url: '/read?work=vergil.aeneid.tess&lang=la&ref=4.1' } },
+        { n: 2, kind: 'article', label: 'Dido (1890)', link: { kind: 'jstor', url: 'https://www.jstor.org/stable/1' } },
+      ],
+    };
+    render(<AskAWorkPage />);
+    await ask();
+    const block = await screen.findByTestId('ask-scholarship');
+    const [, init] = callsTo('/api/passages/ask-scholarship')[0];
+    expect(JSON.parse(init.body)).toEqual({ question: 'fathers and sons', work: 'vergil.aeneid', lang: 'la' });
+    expect(within(block).getByText('What the secondary literature says')).toBeInTheDocument();
+    const link = within(block).getByRole('link', { name: '[2]' });
+    expect(link).toHaveAttribute('href', 'https://www.jstor.org/stable/1');
+    expect(link).toHaveAttribute('target', '_blank');
+    expect(within(block).getByTestId('ask-scholarship-holdings')).toHaveTextContent('2 notes from Servius');
+  });
+
+  it('shows only the holdings line when the collection has nothing', async () => {
+    scholarshipReply = { available: false, holdings: 'I have no secondary sources on Sappho, Fragments to draw on.' };
+    render(<AskAWorkPage />);
+    await ask();
+    expect(await screen.findByTestId('ask-scholarship-holdings')).toHaveTextContent('I have no secondary sources on Sappho');
+    expect(screen.queryByTestId('ask-scholarship')).toBeNull();
+  });
+
+  it('shows nothing when the request fails, and the summary is unaffected', async () => {
+    summaryReply = { available: true, summary: 'A summary.', cites: [] };
+    const base = global.fetch;
+    global.fetch = vi.fn((url, init) => (String(url).startsWith('/api/passages/ask-scholarship')
+      ? Promise.reject(new Error('down')) : base(url, init)));
+    render(<AskAWorkPage />);
+    await ask();
+    expect(await screen.findByTestId('ask-summary')).toBeInTheDocument();
+    expect(screen.queryByTestId('ask-scholarship')).toBeNull();
+    expect(screen.queryByTestId('ask-scholarship-holdings')).toBeNull();
   });
 });
 

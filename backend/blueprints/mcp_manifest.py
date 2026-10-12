@@ -520,6 +520,11 @@ MANIFEST = {
                   "reads the passages itself, and nothing in the request path of the "
                   "connector should call the site's model."),
     },
+    '/api/passages/ask-scholarship': {
+        'site_only': True,
+        'reason': ("Model-written paragraph on the secondary literature for the Search One Text page; "
+                  "a connector caller reads the notes through the scholarship search itself."),
+    },
     '/api/passages/status': {
         'site_only': True,
         'reason': 'Passage-index availability/size; an operational status display.',
