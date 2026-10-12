@@ -44,7 +44,7 @@ function writeOpen(id, open) {
   }
 }
 
-export default function ScopeBox({ id, className = '', label = 'What this search does.', startOpen = false }) {
+export default function ScopeBox({ id, className = '', label = 'What this search does.', startOpen = false, extra = null }) {
   const entry = SEARCH_SCOPE[id];
   const [open, setOpen] = useState(() => startOpen || readOpen(id));
   const [counts, setCounts] = useState(null);
@@ -100,6 +100,7 @@ export default function ScopeBox({ id, className = '', label = 'What this search
           <section>
             <h4 className="font-semibold uppercase tracking-wide text-gray-500">Texts and collections</h4>
             <p>{covers}</p>
+            {extra}
           </section>
           <section>
             <h4 className="font-semibold uppercase tracking-wide text-gray-500">Limits</h4>

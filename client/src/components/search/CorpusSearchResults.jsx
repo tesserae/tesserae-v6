@@ -5,7 +5,7 @@ import { Button } from '../common';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
 import { formatFullCitation, useCorpusTextMap, resolveDisplayCitation } from '../../utils/textNames';
-import { formatElapsedTime } from '../../utils/formatting';
+import { formatRunningTime } from '../../utils/formatting';
 import { displayGreekWithFinalSigma, normalizeGreek } from '../../utils/greekUtils';
 import { orderEras, ERA_COLORS } from '../../utils/eras';
 import { foldArabicScript, stripEdgePunctuation, isArabicScriptLanguage } from '../../utils/arabicScript';
@@ -327,7 +327,7 @@ export default function CorpusSearchResults({
           <div className="w-10 h-10 border-4 border-gray-200 border-t-amber-600 rounded-full animate-spin mb-4"></div>
           <p className="text-gray-600">Searching corpus for matching word combinations...</p>
           {elapsedTime > 0 && (
-            <p className="text-sm text-gray-500 mt-2">Elapsed: {formatElapsedTime(elapsedTime)}</p>
+            <p className="text-sm text-gray-500 mt-2">Elapsed: {formatRunningTime(elapsedTime)}</p>
           )}
         </div>
       </div>
