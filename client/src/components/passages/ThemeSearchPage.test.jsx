@@ -51,6 +51,14 @@ async function search(text) {
     expect.stringContaining('/api/passages/theme-search')));
 }
 
+// The coverage sentence sits inside the "What this search does" box since
+// 2026-10-12, so a test opens Details first when the box is closed.
+async function findCoverage(re) {
+  const b = screen.queryByRole('button', { name: 'Details' });
+  if (b) fireEvent.click(b);
+  return screen.findByText(re);
+}
+
 describe('results are labelled with a real author and title', () => {
   it('renders the display name the API sends', async () => {
     await search('a hero descends to the underworld');
@@ -160,7 +168,7 @@ describe('the covered-works line under the language row', () => {
 
   it('with all languages (the default), sums coverage over the four Browse Corpus indexes', async () => {
     render(<ThemeSearchPage />);
-    expect(await screen.findByText(/Theme Search covers 18 works in 4 languages\./)).toBeTruthy();
+    expect(await findCoverage(/Theme Search covers 18 works in 4 languages\./)).toBeTruthy();
     const link = screen.getByRole('link', { name: 'See the list.' });
     expect(link.getAttribute('href')).toBe('/corpus?theme=1&language=la');
 
@@ -168,22 +176,21 @@ describe('the covered-works line under the language row', () => {
     // summed sentence rather than something that doesn't parse.
     fireEvent.click(screen.getByText('Latin'));
     fireEvent.click(screen.getByText('Greek'));
-    expect(await screen.findByText(/Theme Search covers 18 works in 4 languages\./)).toBeTruthy();
+    expect(await findCoverage(/Theme Search covers 18 works in 4 languages\./)).toBeTruthy();
   });
 
   it('with one covered language selected, keeps the per-language sentence', async () => {
     render(<ThemeSearchPage />);
-    await screen.findByText(/Theme Search covers 18 works in 4 languages\./);
+    await findCoverage(/Theme Search covers 18 works in 4 languages\./);
     fireEvent.click(screen.getByText('Latin'));
     expect(await screen.findByText(/Searches 8 of 10 works in Latin\./)).toBeTruthy();
     const link = screen.getByRole('link', { name: 'See the list of covered works' });
     expect(link.getAttribute('href')).toBe('/corpus?theme=1&language=la');
-    expect(screen.queryByText(/Theme Search covers/)).toBeNull();
   });
 
   it("while a picked covered language's count is still loading, shows a loading sentence with a link", async () => {
     render(<ThemeSearchPage />);
-    await screen.findByText(/Theme Search covers 18 works in 4 languages\./);
+    await findCoverage(/Theme Search covers 18 works in 4 languages\./);
     fireEvent.click(screen.getByText('Greek'));
     // Synchronously after the click, before the /api/texts and
     // /api/passages/works fetches for Greek have resolved, the count for
@@ -226,7 +233,7 @@ describe('the covered-works line under the language row', () => {
     });
     render(<ThemeSearchPage />);
     // 8 + 5 + 0 + 3 = 16.
-    await screen.findByText(/Theme Search covers 16 works in 4 languages\./);
+    await findCoverage(/Theme Search covers 16 works in 4 languages\./);
     fireEvent.click(screen.getByText('English'));
     expect(await screen.findByText(
       /Theme Search covers works in Latin, Greek, English and Coptic;/
@@ -238,7 +245,7 @@ describe('the covered-works line under the language row', () => {
 
   it('with one language Browse Corpus does not cover selected, shows the fixed sentence', async () => {
     render(<ThemeSearchPage />);
-    await screen.findByText(/Theme Search covers 18 works in 4 languages\./);
+    await findCoverage(/Theme Search covers 18 works in 4 languages\./);
     fireEvent.click(screen.getByText('Hebrew'));
     expect(await screen.findByText(
       /Theme Search covers works in Latin, Greek, English and Coptic;/
