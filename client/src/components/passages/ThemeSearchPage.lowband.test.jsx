@@ -44,9 +44,9 @@ async function search() {
 describe('the low band and the list', () => {
   it('a low band shows the passages and a caution', async () => {
     payload = answer({ level: 'low', coherence: 0.91, head_lift: 0.06, degenerate: false },
-      'Low confidence: the top passages do not stand far above the rest of the corpus.');
+      'No passage stands far above the rest of the corpus on this subject.');
     await search();
-    await waitFor(() => expect(screen.getByText(/Low confidence\./)).toBeTruthy());
+    await waitFor(() => expect(screen.getByText(/Closest passages\./)).toBeTruthy());
     expect(screen.getByText(/collapse of Athenian democracy/)).toBeTruthy();
     expect(screen.queryByRole('button', { name: /nearest passages anyway/ })).toBeNull();
     expect(screen.queryByText('weak neighbor')).toBeNull();

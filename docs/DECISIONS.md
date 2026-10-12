@@ -8,6 +8,61 @@ history (index builds, cache rebuilds, corpus changes) is in
 `DATA_OPERATIONS.md`; per-release changes are in `../CHANGELOG.md`.
 
 
+## 2026-10-12: the lowest band is "Closest passages", and its floor is refitted to the enlarged index
+- Scope: Theme Search over the whole corpus (`/theme-search`), every
+  language. The band within one work (Ask a Work) uses its own rule and is
+  unchanged.
+- The problem. The owner ran "a debate in the assembly over how the city
+  should be governed", read a good list (Aristotle's Constitution of the
+  Athenians, Dionysius of Halicarnassus) under the label "Low confidence",
+  and said that the label was deflating. Two things were wrong. The label
+  claimed a difference the evidence does not show: on 2026-10-11 the lists
+  under this band on sixty historical subjects were as relevant as the
+  lists under the moderate band (0.75 against 0.73, share of the top ten
+  graded relevant). And the floor between this band and the moderate band
+  had been fitted on 2026-10-08 against an index of 530,917 windows; the
+  prose-windows run of 2026-10-11 took the index to 693,611, so every
+  result opened with a paragraph saying the thresholds were provisional.
+- Measurement. The 178-query probe set of 2026-10-08 (115 subjects the
+  corpus holds, 63 it does not, across eight language settings), the
+  original 57-query set, and the sixty historical subjects of 2026-10-11
+  (graded lists), all run against the live index. The sweep of the floor:
+
+  | Floor | 178-query set | 57-query set | Of 60 historical subjects, marked lowest (relevant lists among them) |
+  |---|---|---|---|
+  | 0.0738 (2026-10-08 value) | 74.7% | 66.7% | 18 (15) |
+  | 0.065 | 81.5% | 80.7% | 6 (6) |
+  | 0.060 | 86.0% | 77.2% | 2 (2) |
+  | 0.055 | about 80% | 63.2% | 0 |
+
+  At this index the two populations overlap. Subjects the corpus does not
+  hold reach 0.0767 ("soldiers fire machine guns from trenches") and
+  0.0800 ("a steam engine", 57-query set), while held subjects run down to
+  0.0551 ("a revolt of slaves", seven of its top ten about the subject).
+  No value separates them, so the 2026-10-08 design, which placed the floor
+  above every absent subject, now costs 64 of 115 held subjects. A rule
+  using coherence as well was swept and bought nothing (held subjects
+  0.927, absent 0.907, too close).
+- Decision. The floor moves to 0.060, the best value on the larger set and
+  on the two sets together (197 of 235). The cost is named: absent subjects
+  from the modern world or other cultures (a locomotive, a satellite, a
+  telephone, a sextant) read moderate rather than lowest. So the moderate
+  note no longer says the corpus holds the subject, only that the top
+  passages stand out from the rest, though not by a wide margin. The
+  strong threshold is unchanged at 0.1006, still above every absent
+  subject measured.
+- The label. The lowest band is "Closest passages", and its sentence says
+  that no passage stands far above the rest of the corpus on this subject,
+  so the order is less certain than usual. The list is shown, as since
+  2026-10-11. The "provisional" paragraph is no longer printed on the page.
+  It is kept in the answer as `confidence.calibration` for anyone checking
+  the fit, and the fitted size is now 693,611, so it is empty today and
+  will fill again only if the index drifts more than fifteen percent.
+- Data: measurements and sweep in the private working folder of
+  2026-10-12 (confidence refit); the probe sets in
+  `evaluation/probe_sets/`; the script
+  `evaluation/scripts/calibrate_confidence.py`.
+
 ## 2026-10-11: a low confidence band shows the list, and only a degenerate band hides it
 - Scope: Theme Search over the whole corpus (`/theme-search`), every language
   and every kind of text. Ask a Work and the search within one work use a

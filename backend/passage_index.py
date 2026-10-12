@@ -144,7 +144,9 @@ STRONG_COMBINED = 1.83
 # are left as a dormant record of the earlier combined-score design). This
 # tracker is shared across whichever band is active, so it now marks the
 # fit this file actually uses.
-FITTED_AT_WINDOWS = 530917
+# UPDATED 2026-10-12 to 693,611, the production index after the full
+# prose-windows run, at the HEAD_WEAK refit of that date (see below).
+FITTED_AT_WINDOWS = 693611
 FITTED_TOLERANCE = 0.15     # beyond 15% drift, stop vouching for the band
 # EVERYTHING BELOW, to the next blank line after "update both constants
 # together", is history about MODERATE_COMBINED/STRONG_COMBINED and the
@@ -1195,8 +1197,43 @@ DEGENERATE_COHERENCE = 0.995   # no structure at all: nothing resembles the quer
 # per-language value helps it either, so a language-specific override would
 # have bought nothing beyond what the single global value already gives
 # Latin and English, at the cost of three numbers to maintain instead of one.
-HEAD_WEAK = 0.0738              # below this, the top ten are not a group
-HEAD_STRONG = 0.1006           # above every absent subject in either probe set (unchanged: still clears the 0.073282 ceiling by a wide margin)
+#
+# HEAD_WEAK REFIT 2026-10-12, against the production index after the full
+# prose-windows run (693,611 windows, 31% past the 530,917 the fit above
+# was made on, so _calibration_drift() had been warning on every search).
+# Measured with evaluation/scripts/calibrate_confidence.py on the same
+# 178-query set, the 57-query combined_confidence.json, and the 60
+# historical subjects of 2026-10-11 whose top tens a model had graded
+# (~/tesserae-backups/confidence_refit_2026-10-12/, private). The picture
+# changed with the index: head lift no longer has a zero-false-positive
+# plateau. Present and absent subjects overlap between 0.055 and 0.077
+# (absent: "soldiers fire machine guns from trenches" 0.0767, "a political
+# election campaign with televised debates" 0.0754, "a locomotive crosses a
+# bridge" 0.0711; present: "a hero descends to the underworld and returns"
+# 0.0558, "a revolt of slaves" 0.0551 with 7 of its top ten about the
+# subject). The old value kept absent subjects out of 'moderate' at the
+# price of calling 64 of 115 present subjects 'low' (74.7% on the 178 set,
+# 66.7% on the 57 set), and 18 of the 60 historical subjects, 15 of them
+# with a relevant list. The sweep (0.030 to 0.080 by 0.001):
+#
+#     HEAD_WEAK     178-set    57-set    historical 60 marked low
+#     0.0738 (old)   74.7%     66.7%     18 (15 relevant lists)
+#     0.065          81.5%     80.7%      6 (6 relevant)
+#     0.060          86.0%     77.2%      2 (2 relevant)
+#     0.055          ~80%      63.2%      0
+#
+# 0.060 is the best on the 178 set and on the two sets together (197 of
+# 235). What it costs: absent subjects from the modern world or other
+# cultures (a locomotive, a satellite, a car engine, a telephone, a steam
+# engine, a sextant) read 'moderate' instead of 'low'; the moderate note
+# was reworded the same day so it no longer claims the corpus holds the
+# subject. A two-figure rule (head lift and coherence together) was swept
+# too and bought nothing: coherence runs 0.927 for present subjects against
+# 0.907 for absent, too close to split them. The owner's reading of the
+# band under this change, 2026-10-12: a good list labelled low "is deflating
+# to the user"; the label is now "Closest passages".
+HEAD_WEAK = 0.060               # below this, the top ten are not a group
+HEAD_STRONG = 0.1006           # above every absent subject in every probe set (unchanged 2026-10-12: the highest absent head lift is now 0.0800, on the 57 set)
 
 # PERVASIVE THEMES, FITTED ON LATIN AND GREEK, MISREAD IN A LYRIC CORPUS
 # (2026-10-08). head_lift and coherence above were measured against the whole,
@@ -1527,13 +1564,22 @@ def _vocab_note(note, fields):
     return f'{note} {extra}' if note else extra
 
 
-def _confidence_note(level, query=None, language=None, degenerate=False):
+def _calibration_note():
+    """The drift warning as a separate field, never in the sentence under the
+    band (2026-10-12). Until then it was prepended to the note, so after the
+    prose run took the index 31% past the fitted size every search opened
+    with three lines about thresholds and window counts, which the reader
+    cannot act on. The page does not print it; it is kept in the answer for
+    anyone checking the fit."""
     drift = _calibration_drift()
+    if not drift:
+        return None
+    now, _ = drift
+    return _UNCALIBRATED.format(fitted=FITTED_AT_WINDOWS, now=now)
+
+
+def _confidence_note(level, query=None, language=None, degenerate=False):
     base = _confidence_note_fitted(level, language, degenerate=degenerate)
-    if drift:
-        now, _ = drift
-        warning = _UNCALIBRATED.format(fitted=FITTED_AT_WINDOWS, now=now)
-        base = f'{warning} {base}' if base else warning
     # The short-query hint is kept for the degenerate case only (2026-10-11).
     # Measured on 60 historical subjects, short phrases in the low band had a
     # higher share of relevant passages in their top ten (0.82) than full
@@ -1566,16 +1612,25 @@ def _confidence_note_fitted(level, language=None, degenerate=False):
                 'examples. To find a particular kind of passage, describe what '
                 'happens in it, such as who does what, and where.')
     if level == 'moderate':
-        return ('Moderate confidence: the corpus holds passages of this kind, but the '
-                'match is looser than a clear case. Read the results before relying on them.')
+        # 2026-10-12: no longer "the corpus holds passages of this kind".
+        # Under the refit some absent modern subjects read moderate, so the
+        # note states what was measured, not what it implies.
+        return ('Moderate confidence: the top passages stand out from the rest of '
+                'the corpus, though not by a wide margin. Read the results before '
+                'relying on them.')
     if degenerate:
         return ('The corpus does not appear to contain passages of this kind. Anything '
                 'the search returns for it is a nearest neighbor, not a finding.')
-    # The page prints the band's label ("Low confidence.") before this
-    # sentence, so the sentence does not repeat it.
-    return ('The top passages do not stand far above the rest of the corpus, so the '
-            'ranking is less certain than usual. The list is still the closest the '
-            'corpus comes. Read the passages before relying on them.')
+    # The page prints the band's label ("Closest passages.") before this
+    # sentence, so the sentence does not repeat it. 2026-10-12: the label was
+    # "Low confidence" until the owner read a good list under it ("saying
+    # they're low confidence is deflating to the user"); on the 60 historical
+    # subjects the lists under this band were as relevant as those under
+    # moderate (0.75 against 0.73), so the old label claimed a difference the
+    # evidence does not show.
+    return ('No passage stands far above the rest of the corpus on this subject, '
+            'so the order of the list is less certain than usual. These are the '
+            'closest the corpus comes. Read them before relying on them.')
 
 
 # QUERY EXPANSION: make the query look like the thing being searched.
@@ -2214,6 +2269,7 @@ def find_by_text(query, limit=25, languages=None, scale=None, expand=False,
                        # list. A low band without it is a caution, not a verdict
                        # (see _confidence_note_fitted).
                        'degenerate': bool(coherence >= DEGENERATE_COHERENCE),
+                       'calibration': _calibration_note(),
                        **vocab_fields},
         'note': _vocab_note(
             _confidence_note(level, query=query,

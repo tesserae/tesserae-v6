@@ -116,8 +116,11 @@ const BAND = {
     label: 'Nothing to search for',
     className: 'bg-gray-100 text-gray-700 border-gray-300',
   },
+  // Was 'Low confidence' until 2026-10-12. The lists under this band are as
+  // relevant as those under 'moderate' on measured subjects (see the Help
+  // page), so the label is the plain fact: these are the closest passages.
   low: {
-    label: 'Low confidence',
+    label: 'Closest passages',
     className: 'bg-gray-100 text-gray-700 border-gray-300',
   },
   // A low band whose coherence is degenerate: nothing in the corpus resembles

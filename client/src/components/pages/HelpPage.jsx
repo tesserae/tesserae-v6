@@ -1638,14 +1638,14 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 Latin and Greek corpus the fit agreed with its test set on about nine queries in
                 ten (88 to 91 percent, depending on the set of 32 queries).
                 On the Persian, Urdu and Arabic corpus, fitted on 50 queries, it agreed on 74
-                percent: it kept 20 of 26 real subjects out of the low band and put 17 of 24
-                absent ones there. So read the band as a first estimate. A low band is a real
-                warning that the top results do not stand out from the background, and a strong
-                band means the corpus probably holds the subject, not that every listed passage
-                is about it.
+                percent: it kept 20 of 26 real subjects out of the lowest band and put 17 of 24
+                absent ones there. So read the band as a first estimate. The lowest band, labelled
+                "Closest passages", means that the top results do not stand far above the
+                background, so their order is less settled; a strong band means the corpus
+                probably holds the subject, not that every listed passage is about it.
               </p>
               <p className="text-gray-700 mb-3">
-                The list is shown whatever the band says. Until October 2026 a low band held the
+                The list is shown whatever the band says. Until October 2026 the lowest band held the
                 passages back behind a link, and a test of sixty historical subjects (short
                 phrases and full sentences, the top ten of each graded by a model) showed why
                 that was wrong: of thirty-one searches the band marked low, twenty-seven had a
