@@ -236,8 +236,8 @@ describe('Search One Text', () => {
 
   it('shows an example only for a work the index holds, and the example runs', async () => {
     render(<AskAWorkPage />);
-    const ex = await screen.findByRole('button', { name: /fathers and sons/ });
-    expect(screen.queryByRole('button', { name: /the rise of Sejanus/ })).toBeNull();
+    const ex = await screen.findByRole('button', { name: /Dido falls in love with Aeneas/ });
+    expect(screen.queryByRole('button', { name: /the Pannonian legions mutiny/ })).toBeNull();
     fireEvent.click(ex);
     await screen.findAllByTestId('ask-card');
     expect(themeCalls()[0]).toContain('works=vergil.aeneid');
@@ -424,7 +424,9 @@ describe('a visit with no work chosen', () => {
     await waitFor(() => expect(screen.getByRole('combobox', { name: 'Author' })).toHaveValue('Vergil'));
     await waitFor(() => expect(screen.getByRole('combobox', { name: 'Work' })).toHaveValue('Aeneid'));
     expect(await screen.findByRole('button', { name: /Dido falls in love with Aeneas/ })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /the fall of Troy/ })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /a storm scatters the fleet/ })).toBeInTheDocument();
+    // The holdings mock covers the Aeneid and the Georgics only, so the
+    // chips for other works are hidden here; one Aeneid chip is the rule.
+    expect(screen.getAllByRole('button', { name: /on the Aeneid/ })).toHaveLength(1);
+    expect(screen.queryByRole('button', { name: /the fall of Troy/ })).toBeNull();
   });
 });

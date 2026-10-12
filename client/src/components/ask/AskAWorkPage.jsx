@@ -41,13 +41,18 @@ const BANDS = {
 // page shows what it does (owner 2026-10-12).
 export const DEFAULT_WORK = { lang: 'la', work: 'vergil.aeneid' };
 
+// Six example searches, one work each, every one run live on 2026-10-12 and
+// read: the first five answers were about the subject in each case (Sappho
+// and the Annals strong, Thucydides strong, the rest moderate). The owner's
+// rule, 2026-10-12: at most one from the Aeneid, a wide spread of authors,
+// one woman among them, and nothing that is not a solid success.
 const EXAMPLES = [
+  { lang: 'grc', work: 'sappho.fragments', q: 'jealousy at the sight of the beloved sitting with a man', label: 'jealousy at the sight of the beloved with a man', on: 'Sappho' },
   { lang: 'la', work: 'vergil.aeneid', q: 'Dido falls in love with Aeneas', label: 'Dido falls in love with Aeneas', on: 'the Aeneid' },
-  { lang: 'la', work: 'vergil.aeneid', q: 'the fall of Troy', label: 'the fall of Troy', on: 'the Aeneid' },
-  { lang: 'la', work: 'vergil.aeneid', q: 'a storm scatters the fleet', label: 'a storm scatters the fleet', on: 'the Aeneid' },
-  { lang: 'la', work: 'vergil.aeneid', q: 'fathers and sons', label: 'fathers and sons', on: 'the Aeneid' },
+  { lang: 'grc', work: 'homer.odyssey', q: 'Odysseus strings the bow and kills the suitors', label: 'Odysseus strings the bow', on: 'the Odyssey' },
   { lang: 'grc', work: 'thucydides.peleponnesian_war', q: 'the plague at Athens', label: 'the plague at Athens', on: 'Thucydides' },
-  { lang: 'la', work: 'tacitus.annales', q: 'the rise of Sejanus', label: 'the rise of Sejanus', on: 'the Annals' },
+  { lang: 'grc', work: 'herodotus.histories', q: 'Solon tells Croesus that no man can be called happy before his death', label: 'Solon tells Croesus no man is happy before death', on: 'Herodotus' },
+  { lang: 'la', work: 'tacitus.annales', q: 'the legions in Pannonia mutiny after the death of Augustus', label: 'the Pannonian legions mutiny', on: 'the Annals' },
 ];
 
 /** The works of one language that have passage windows, one entry per work
