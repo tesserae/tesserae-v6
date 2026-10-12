@@ -9,6 +9,9 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-12
 
+### The stray footer link is gone; the Search One Text strip explains its shades; the scholarship search names the author
+A merge had left "Requests made so far" outside the footer at the foot of every page; it is removed, and the list is reached from inside the Suggest a change dialog. Under the strip on Search One Text a line now says what the shades mean (dark red a strong match, light red the other passages, grey the passages that name the person asked about, or darker for a closer match when nothing is strong), and each bar says on hover which passage it is. The scholarship search behind the second paragraph now carries the author's and the work's names in front of the question, keeps notes on other works that name the author, and its "no sources" sentences all say "for this question": "the plague at Athens" alone reached nothing naming Thucydides in the first thirty results, with his name in front it reaches twelve.
+
 ### Search One Text: the two paragraphs are headed "The work" and "Scholarship"
 In place of "What the work says, from the passages below" and "What the secondary literature says" (the owner, 2026-10-12).
 

@@ -96,3 +96,19 @@ def test_model_off_gives_holdings_only(monkeypatch):
     monkeypatch.setattr(model, 'is_available', lambda: False)
     out = _post({'question': 'Dido', 'work': 'vergil.aeneid', 'lang': 'la'})
     assert out['available'] is False and out['holdings']
+
+
+def test_a_note_on_another_work_that_names_the_author_is_kept(monkeypatch):
+    # 2026-10-12: Page on the Aeneid comparing Thucydides' plague counts as
+    # secondary literature on Thucydides.
+    from backend.blueprints import passages as bp
+    from backend import passage_index as pi
+    monkeypatch.setattr(pi, '_naming', lambda base: {'author': 'Thucydides', 'title': 'Peloponnesian War', 'display_name': 'Thucydides, Peloponnesian War'})
+    cards = [
+        {'kind': 'commentary', 'work': 'vergil.aeneid.part.3', 'snippet': 'Compare the plague in Thucydides ii. 47.', 'commentator': 'Page'},
+        {'kind': 'commentary', 'work': 'vergil.aeneid.part.3', 'snippet': 'A note on the dative.', 'commentator': 'Page'},
+        {'kind': 'article', 'title': 'On the plague', 'snippet': 'Lucretius alone is discussed.'},
+    ]
+    kept, info = bp._scholarship_keep(cards, 'thucydides.peleponnesian_war')
+    assert len(kept) == 1 and kept[0]['snippet'].startswith('Compare')
+    assert all('for this question' in x or 'this question' in x for x in bp._HOLDINGS_NONE)
