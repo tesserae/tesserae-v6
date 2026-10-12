@@ -1632,14 +1632,15 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 returns scattered strays.
               </p>
               <p className="text-gray-700 mb-3">
-                The thresholds are fitted against test queries, half of them subjects the corpus
-                certainly holds and half it certainly does not, and they are published with the
-                code so anyone can check them. How well they work depends on the corpus. On the
-                Latin and Greek corpus the fit agreed with its test set on about nine queries in
-                ten (88 to 91 percent, depending on the set of 32 queries).
-                On the Persian, Urdu and Arabic corpus, fitted on 50 queries, it agreed on 74
-                percent: it kept 20 of 26 real subjects out of the lowest band and put 17 of 24
-                absent ones there. So read the band as a first estimate. The lowest band, labelled
+                The thresholds are fitted against test queries, two thirds of them subjects the
+                corpus certainly holds and a third it certainly does not, and they are published
+                with the code so anyone can check them. How well they work depends on the corpus,
+                and they were refitted in October 2026 after the index grew by a third. On 178
+                test subjects in eight language settings the fit agreed with its test set on 86
+                percent: 80 percent for Latin and for Greek, 73 percent for English, 94 percent
+                for Persian, Urdu, Hebrew and Coptic. Almost every miss is a subject the corpus
+                holds that reads in the lowest band, or a subject from the modern world that
+                reads moderate over its nearest neighbours. So read the band as a first estimate. The lowest band, labelled
                 "Closest passages", means that the top results do not stand far above the
                 background, so their order is less settled; a strong band means the corpus
                 probably holds the subject, not that every listed passage is about it.
