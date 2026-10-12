@@ -440,7 +440,7 @@ describe('a visit with no work chosen', () => {
     expect(await screen.findByRole('button', { name: /Dido falls in love with Aeneas/ })).toBeInTheDocument();
     // The holdings mock covers the Aeneid and the Georgics only, so the
     // chips for other works are hidden here; one Aeneid chip is the rule.
-    expect(screen.getAllByRole('button', { name: /on the Aeneid/ })).toHaveLength(1);
+    expect(screen.getAllByRole('button', { name: /in the Aeneid/ })).toHaveLength(1);
     expect(screen.queryByRole('button', { name: /the fall of Troy/ })).toBeNull();
   });
 });

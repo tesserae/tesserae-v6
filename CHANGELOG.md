@@ -9,6 +9,9 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-12
 
+### Search One Text: the example chips say "in the Aeneid", not "on"
+One word in the six example chips.
+
 ### Search One Text: strip labels placed by position, and the unit named from the references
 The row of numbers under "Where in the work" squeezed each label into its own column, so for a work of 137 fragments "16" showed as "1". About twelve labels (six on a phone) are now placed at their columns' centres, each as wide as its number. The summary line names the unit the references use: fragments for Sappho, poems for Catullus, letters for Pliny, books otherwise.
 
