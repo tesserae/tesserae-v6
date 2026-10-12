@@ -3,7 +3,7 @@
  * collection is on, exclusive with Coins and Objects, its own list and label.
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, cleanup, fireEvent } from '@testing-library/react';
+import { render, screen, cleanup, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import ThemeSearchPage from '../../passages/ThemeSearchPage';
@@ -141,5 +141,74 @@ describe('Theme Search choice', () => {
     expect(box('Objects').checked).toBe(false);
     await userEvent.click(box('Coins'));
     expect(box('Scholarship').checked).toBe(false);
+  });
+});
+
+
+describe('Recent articles under the list', () => {
+  const rec = (title, extra = {}) => ({ title, authors: ['A. Scholar'], year: 2020, venue: 'Classical Quarterly', doi: null, oa_url: null, url: null, excerpt: '', score: 1, ...extra });
+
+  function mockRecent(answers) {
+    const calls = [];
+    global.fetch = vi.fn((url) => {
+      const u = String(url);
+      calls.push(u);
+      const reply = (body) => Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve(body) });
+      if (u.startsWith('/api/scholarship/theme')) return reply(THEME);
+      if (u.startsWith('/api/passages/recent-scholarship')) {
+        const svc = new URL(u, 'http://x').searchParams.get('service');
+        const a = answers[svc];
+        return typeof a === 'function' ? a(reply) : reply(a || { service: svc, available: true, results: [] });
+      }
+      return reply({});
+    });
+    return calls;
+  }
+
+  it('paints each service as it answers and drops the pending line when all have', async () => {
+    let release;
+    const gate = new Promise((r) => { release = r; });
+    const calls = mockRecent({
+      openalex: { service: 'openalex', available: true, results: [rec('Dido in Love', { oa_url: 'https://free.example/d.pdf' })] },
+      crossref: (reply) => gate.then(() => reply({ service: 'crossref', available: true, results: [rec('Politics of Passion', { doi: '10.1/pp', year: 2022 })] })),
+    });
+    render(<ThemeScholarship search={{ q: 'love and politics', n: 1 }} />);
+    const box = await screen.findByTestId('theme-recent');
+    expect(screen.getAllByTestId('theme-recent-item')).toHaveLength(1);
+    expect(screen.getByRole('link', { name: 'Dido in Love' })).toHaveAttribute('href', 'https://free.example/d.pdf');
+    expect(box).toHaveTextContent('free copy');
+    expect(screen.getByTestId('theme-recent-pending')).toHaveTextContent('Looking up recent articles from Crossref...');
+    release();
+    await waitFor(() => expect(screen.getAllByTestId('theme-recent-item')).toHaveLength(2));
+    await waitFor(() => expect(screen.queryByTestId('theme-recent-pending')).toBeNull());
+    expect(screen.getByRole('link', { name: 'Politics of Passion' })).toHaveAttribute('href', 'https://doi.org/10.1/pp');
+    const asks = calls.filter((c) => c.startsWith('/api/passages/recent-scholarship'));
+    expect(asks).toHaveLength(5);
+    expect(asks.every((c) => !c.includes('work='))).toBe(true);
+  });
+
+  it('passes the work when the search came from Search One Text', async () => {
+    const calls = mockRecent({});
+    render(<ThemeScholarship search={{ q: 'love', n: 1, work: 'vergil.aeneid' }} />);
+    await screen.findByTestId('theme-scholarship');
+    await waitFor(() => expect(calls.filter((c) => c.includes('recent-scholarship'))).toHaveLength(5));
+    expect(calls.filter((c) => c.includes('recent-scholarship')).every((c) => c.includes('work=vergil.aeneid'))).toBe(true);
+  });
+
+  it('shows nothing at all when every service answered with no items', async () => {
+    mockRecent({});
+    render(<ThemeScholarship search={{ q: 'love', n: 1 }} />);
+    await screen.findByTestId('theme-scholarship');
+    await waitFor(() => expect(screen.queryByTestId('theme-recent-pending')).toBeNull());
+    expect(screen.queryByTestId('theme-recent')).toBeNull();
+  });
+
+  it('Theme Search reads work from the address and hands it to the scholarship search', async () => {
+    const calls = mockRecent({ openalex: { service: 'openalex', available: true, results: [rec('Dido in Love')] } });
+    window.history.replaceState({}, '', '/theme-search?query=love&in=scholarship&work=vergil.aeneid');
+    setCollection('scholarship', true);
+    render(<ThemeSearchPage />);
+    await screen.findByTestId('theme-recent');
+    expect(calls.some((c) => c.includes('recent-scholarship') && c.includes('work=vergil.aeneid'))).toBe(true);
   });
 });

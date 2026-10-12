@@ -212,7 +212,7 @@ export const SEARCH_SCOPE = {
     id: 'scholarship_theme',
     name: 'Scholarship (Theme Search)',
     does: 'Finds commentary notes and journal sentences about a theme, a passage or a point of interpretation.',
-    scope: 'Your words are matched with each note by meaning and by keyword, and the two rankings are merged into one list. A result is a commentary note, linked to its passage in the Reader, or a sentence from a journal article, linked to the article.',
+    scope: 'Your words are matched with each note by meaning and by keyword, and the two rankings are merged into one list. A result is a commentary note, linked to its passage in the Reader, or a sentence from a journal article, linked to the article. Under the list, Recent articles are asked for live from OpenAlex, Crossref, CORE, Google Books and Semantic Scholar, and each appears as its service answers.',
     covers: '82,814 windows of commentary notes and article sentences.',
     limits: 'Only the commentaries and early journals held here are searched, and the journal sentences come from articles of 1922 and earlier. The judge read only the first 230 characters of each note, so a note that answers a question later in its text was not credited for it.',
     measured: [SCHOLARSHIP_THEME_ROW],

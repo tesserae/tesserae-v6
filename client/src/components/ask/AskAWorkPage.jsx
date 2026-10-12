@@ -5,6 +5,7 @@ import ScopeBox from '../common/ScopeBox';
 import { useIsPhone } from '../../hooks/useIsPhone';
 import { baseWorkId, fetchCoveredWorks } from '../../utils/passageCoverage';
 import { readerLink } from '../passages/ThemeSearchPage';
+import { RECENT_SERVICES, RECENT_LABELS, joinNames, mergeRecent, recentUrl, fetchRecent } from '../../utils/recentArticles';
 
 /**
  * Search One Text: pick one work, say a subject in plain words, and get the passages
@@ -166,11 +167,6 @@ export function namesIn(question) {
   return out.slice(0, 4);
 }
 
-function joinNames(names) {
-  if (names.length < 2) return names.join('');
-  return `${names.slice(0, -1).join(', ')} and ${names[names.length - 1]}`;
-}
-
 /** "2-3" -> {from: 2, to: 3}, or null for anything else. */
 function parseBooks(s) {
   const m = String(s || '').match(/^(\d+)-(\d+)$/);
@@ -202,29 +198,9 @@ function SummaryText({ text, cites, onJump }) {
   ) : part));
 }
 
-// The live services asked for recent articles (backend/scholarship_recent.py).
-// The server answers available false, reason 'off', for one it has no key for.
-const RECENT_SERVICES = ['openalex', 'crossref', 'core', 'books', 's2'];
-const RECENT_LABELS = { openalex: 'OpenAlex', crossref: 'Crossref', core: 'CORE', books: 'Google Books', s2: 'Semantic Scholar' };
 const RECENT_CAP_MS = 12000;
 
-/** Items from several services as one list: deduped by DOI, then by the first
- *  80 characters of the title, ordered by question words matched, then year. */
-export function mergeRecent(have, incoming) {
-  const out = [...have];
-  const keys = (it) => [String(it.doi || '').toLowerCase(), String(it.title || '').toLowerCase().slice(0, 80)].filter(Boolean);
-  const seen = new Set(out.flatMap(keys));
-  for (const it of incoming || []) {
-    if (!it || !it.title || keys(it).some((k) => seen.has(k))) continue;
-    keys(it).forEach((k) => seen.add(k));
-    out.push(it);
-  }
-  return out.sort((a, b) => (b.score || 0) - (a.score || 0) || (Number(b.year) || 0) - (Number(a.year) || 0));
-}
-
-function recentUrl(it) {
-  return it.oa_url || (it.doi ? `https://doi.org/${it.doi}` : null) || it.url || null;
-}
+export { mergeRecent };
 
 /** The scholarship paragraph with each [n] made a link to its note or article, in a new tab. */
 function ScholarshipText({ text, cites }) {
@@ -410,18 +386,16 @@ export default function AskAWorkPage() {
         // The paragraph follows when they have settled, or after a page-side cap,
         // and finds their answers in the server's cache.
         setRecent({ pending: [...RECENT_SERVICES], items: [] });
-        const asks = RECENT_SERVICES.map((svc) => fetch(
-          `/api/passages/recent-scholarship?question=${encodeURIComponent(query)}&work=${encodeURIComponent(workId)}&service=${svc}`,
-        ).then((res) => res.json()).catch(() => ({})).then((r) => {
+        const asks = fetchRecent(query, workId, (svc, r) => {
           if (id !== searchId.current) return;
           setRecent((cur) => (cur ? {
             pending: cur.pending.filter((x) => x !== svc),
             items: r && r.available && Array.isArray(r.results) ? mergeRecent(cur.items, r.results) : cur.items,
           } : cur));
-        }));
+        }).done;
         let capTimer;
         const capped = new Promise((resolve) => { capTimer = setTimeout(resolve, RECENT_CAP_MS); });
-        Promise.race([Promise.allSettled(asks), capped]).then(() => {
+        Promise.race([asks, capped]).then(() => {
           clearTimeout(capTimer);
           if (id !== searchId.current) return;
           return fetch('/api/passages/ask-scholarship', {
@@ -718,7 +692,7 @@ export default function AskAWorkPage() {
                       (owner, 2026-10-12: "Is it eight slots and then some
                       link you can click to see more?"). */}
                   <p className="mt-1 text-xs">
-                    <a href={`/theme-search?query=${encodeURIComponent(scholarship.queryUsed || asked.q)}&in=scholarship`}
+                    <a href={`/theme-search?query=${encodeURIComponent(scholarship.queryUsed || asked.q)}&in=scholarship&work=${encodeURIComponent(asked.work)}`}
                        className="text-red-700 hover:underline" data-testid="ask-scholarship-more">
                       See every note and article for this question
                     </a>

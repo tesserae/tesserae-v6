@@ -461,7 +461,7 @@ describe('what the secondary literature says', () => {
     const [, init] = callsTo('/api/passages/ask-scholarship')[0];
     expect(JSON.parse(init.body)).toEqual({ question: 'fathers and sons', work: 'vergil.aeneid', lang: 'la' });
     expect(within(block).getByText('Scholarship')).toBeInTheDocument();
-    expect(screen.getByTestId('ask-scholarship-more').getAttribute('href')).toMatch(/in=scholarship/);
+    expect(screen.getByTestId('ask-scholarship-more').getAttribute('href')).toMatch(/in=scholarship&work=vergil\.aeneid$/);
     const link = within(block).getByRole('link', { name: '[2]' });
     expect(link).toHaveAttribute('href', 'https://www.jstor.org/stable/1');
     expect(link).toHaveAttribute('target', '_blank');

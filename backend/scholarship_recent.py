@@ -4,13 +4,27 @@ The Reader's Scholarship tab asks OpenAlex, Crossref, CORE, Google Books and
 Semantic Scholar what cites a passage (backend/scholarship.py). This module
 asks them the same thing for a QUESTION about a work ("Dido falls in love with
 Aeneas" on the Aeneid), one service at a time so the page can paint each as it
-answers, and filters what comes back to items that name the author or the work
-and share a content word with the question.
+answers, and filters what comes back.
+
+Two modes. With a work, an item is kept when its title or abstract names the
+author or the work and shares a content word with the question, and it is
+dropped when its title is a schoolbook's or exam board's. Without a work (Theme
+Search's list, where the question is the only thing known) the services are asked
+the question alone and an item is kept when its title or abstract holds at least
+two distinct content words of the question (every one when the question has
+fewer than three), at least one of them is in the title, and a classics signal
+(an author of the corpus or a word such as Latin, Greek, epic) is present. Either way, naming
+or matching that happens only in a CORE full text or beyond the first 1,500
+characters of an abstract does not count. With a work the order is: the title
+names the work, question words matched, newest. Without one: title words
+matched, question words matched, newest.
 
 Every service call goes through scholarship._cached, so the paragraph route
 finds on disk what the page already fetched.
 """
+import functools
 import logging
+import os
 import re
 
 import requests
@@ -103,8 +117,83 @@ def _matched(text, words):
     return hit
 
 
-def _item_text(it):
-    return ' '.join(str(it.get(k) or '') for k in ('title', 'abstract', 'snippet'))
+ABSTRACT_CHARS = 1500
+
+# Without a work nothing ties an item to ancient literature (Purcell's opera
+# for Dido, watermarking contests for the bow), so the no-work mode also needs
+# one classics signal in the title or abstract: an author of the corpus (the
+# prefix of each text's file name, loaded once), one of these words, or one
+# of these famous titles.
+CLASSICS_WORDS = (
+    'latin', 'greek', 'roman', 'ancient', 'classical', 'antiquity', 'homeric', 'vergilian', 'virgilian',
+    'epic', 'tragedy', 'ode', 'elegy', 'papyrus', 'inscription', 'hebrew', 'biblical', 'persian', 'coptic',
+    'byzantine', 'hellenistic', 'archaic',
+)
+# Titles an article may name without naming the author ("the Odyssey").
+CLASSICS_TITLES = (
+    'odyssey', 'iliad', 'aeneid', 'metamorphoses', 'georgics', 'eclogues', 'theogony', 'oresteia', 'annals',
+    'thebaid', 'pharsalia', 'argonautica', 'peloponnesian', 'satyricon', 'bacchae',
+)
+# Author-prefix tokens that are ordinary English words, first names or file-name
+# filler, so they would let anything through ("young", "gray", "pope" style).
+_NOT_SIGNALS = (
+    'swift', 'blake', 'glass', 'life', 'book', 'doc', 'pope', 'king', 'saint', 'bishop', 'pseudo', 'church',
+    'catholic', 'magical', 'mysteries', 'lament', 'couplet', 'martyrdom', 'dormition', 'anonymous', 'anonymi',
+    'anonymus', 'john', 'johannes', 'paul', 'paulus', 'thomas', 'matthew', 'victor', 'basil', 'justin',
+    'gregory', 'clement', 'hilary', 'marcus', 'flavius', 'aelius', 'gaius', 'claudius', 'julius', 'iulius',
+    'hero', 'young', 'gray', 'grey', 'house', 'order', 'acts', 'hali', 'mela', 'dard', 'anis', 'insha',
+    'with', 'from', 'against', 'letter', 'epistulae', 'epistula', 'carmina', 'versus', 'miles', 'exul',
+    'english', 'german', 'elder', 'alii', 'allan', 'edgar', 'alan', 'bernard', 'philip', 'monte', 'pisa', 'lyon',
+    'arles', 'nola', 'pella', 'augustae', 'historiae', 'novum', 'graeca', 'athenian', 'apostle', 'archbishop',
+    'pilgrim', 'alexandria', 'macedonia', 'heronis', 'felix', 'magnus', 'marius', 'festus', 'lemnian',
+    'world', 'walter', 'william', 'younger', 'venerable', 'riga', 'tyre', 'rufus', 'soph', 'diaconus', 'presbyter', 'active', 'century', 'sacred', 'other', 'unknown',
+)
+TEXTS_DIR = os.path.join(sch.ROOT, 'texts')
+
+
+@functools.lru_cache(maxsize=1)
+def _author_names():
+    """Lower-cased tokens of the author prefix of every text file name under
+    texts/ (vergil, plutarch, pliny, ...) plus the spelling variants, four
+    letters or more, minus _NOT_SIGNALS. Cached once per process."""
+    names = set()
+    try:
+        for lang in os.listdir(TEXTS_DIR):
+            d = os.path.join(TEXTS_DIR, lang)
+            if os.path.isdir(d):
+                for f in os.listdir(d):
+                    if f.endswith('.tess'):
+                        names.update(f.split('.')[0].lower().split('_'))
+    except OSError as e:
+        logger.warning('[RECENT] author names not read: %s', type(e).__name__)
+    for k, v in sch.AUTHOR_VARIANTS.items():
+        names.add(k)
+        names.update(x.lower() for x in v)
+    return frozenset(n for n in names if len(n) >= 4 and n.isalpha() and n not in _NOT_SIGNALS)
+
+
+@functools.lru_cache(maxsize=1)
+def _classics_re():
+    words = sorted(set(_author_names()) | set(CLASSICS_WORDS) | set(CLASSICS_TITLES), key=len, reverse=True)
+    return re.compile(r'(?<!\w)(?:' + '|'.join(re.escape(w) for w in words) + r')(?!\w)', re.I)
+
+
+def has_classics_signal(text):
+    return bool(_classics_re().search(text or ''))
+
+# A title that is a school or exam-board book, not scholarship on the work.
+_SCHOOL_TITLE = (
+    r'\bA[- ]Level\b', r'\bAS[- ]Level\b', r'\bGCSE\b', r'\bOCR\b', r'\bComponent \d',
+    r'\bRevision Guide\b', r"\bStudent'?s? Book\b", r'\bWorkbook\b', r'\bExam\b',
+)
+_SCHOOL_RE = re.compile('|'.join(_SCHOOL_TITLE), re.I)
+
+
+def _head_text(it):
+    """Title and abstract (the first 1,500 characters): the text an item must
+    name the work or match the question in. The snippet (a CORE full-text
+    sentence, a Google Books excerpt) is left out."""
+    return (it.get('title') or '') + ' ' + str(it.get('abstract') or '')[:ABSTRACT_CHARS]
 
 
 def _excerpt(it, words):
@@ -116,25 +205,37 @@ def _excerpt(it, words):
 
 
 def _filter(items, a, words):
-    """Items that name the author or the work and share a content word with
-    the question (matched on a five-letter stem). No title, dropped. Deduped
-    by DOI, then by the first 80 characters of the title."""
+    """Items to keep (matched on a five-letter stem). With a work (a), the
+    title or abstract must name the author or the work and share a question
+    word. With a None, the title or abstract must hold two question words (all
+    of them when there are fewer than three) and the title at least one. A
+    schoolbook title, or no title, is dropped. Deduped by DOI, then by the
+    first 80 characters of the title."""
     kept, seen = [], set()
+    need = 2 if len(words) >= 3 else len(words)
     for it in items or []:
         title = (it.get('title') or '').strip()
-        if not title:
+        if not title or _SCHOOL_RE.search(title):
             continue
-        # CORE also vouches for the full text, which it searched for the names.
-        if not (names_work(_item_text(it), a) or it.get('names_work')):
-            continue
-        hit = _matched(_item_text(it), words)
-        if not hit:
-            continue
+        head = _head_text(it)
+        hit = _matched(head, words)
+        title_hits = 0
+        title_names = False
+        if a is None:
+            title_hits = len(_matched(title, words))
+            if len(hit) < need or not title_hits or not has_classics_signal(head):
+                continue
+        else:
+            title_names = names_work(title, a)
+            if not (title_names or names_work(head, a)) or not hit:
+                continue
         doi = (it.get('doi') or '').replace('https://doi.org/', '').lower()
         keys = [k for k in (doi, title.lower()[:80]) if k]
         if any(k in seen for k in keys):
             continue
         seen.update(keys)
+        # Naming in the full text or the excerpt is not a pass, only a tie-breaker.
+        full = bool(a is not None and (it.get('names_work') or names_work(it.get('snippet') or '', a)))
         kept.append({
             'title': title,
             'authors': [x for x in (it.get('authors') or []) if x][:4],
@@ -147,18 +248,25 @@ def _filter(items, a, words):
             'source': it.get('source') or '',
             'has_text': bool(it.get('has_text')),
             'score': len(hit),
+            'title_names_work': title_names,
+            'title_hits': title_hits,
+            'full_names_work': full,
         })
     return kept
 
 
 def order(items):
-    """Most question words matched first, then newest."""
+    """The title names the work (or, without a work, more question words in the
+    title) first, then most question words matched, then naming in the full
+    text, then newest."""
     def year(it):
         try:
             return int(it.get('year') or 0)
         except (TypeError, ValueError):
             return 0
-    return sorted(items, key=lambda it: (-it.get('score', 0), -year(it)))
+    return sorted(items, key=lambda it: (
+        -int(bool(it.get('title_names_work'))), -int(it.get('title_hits') or 0), -it.get('score', 0),
+        -int(bool(it.get('full_names_work'))), -year(it)))
 
 
 def merge(lists):
@@ -192,7 +300,7 @@ def _books_items(q):
 
     def run():
         try:
-            d = sch._get('https://www.googleapis.com/books/v1/volumes',
+            d = sch._get_retry('https://www.googleapis.com/books/v1/volumes',
                          {'q': q, 'maxResults': 10, 'key': key, 'printType': 'books'})
         except requests.RequestException as e:
             # The exception text carries the request URL with the key: raise a bare error.
@@ -225,7 +333,7 @@ def _core_items(query, a, words):
             for s in re.split(r'(?<=[.!?])\s+', text):
                 low = s.lower()
                 if any(n in low for n in needles):
-                    if names_work(s, a):
+                    if a is not None and names_work(s, a):
                         best = s
                         break
                     if best is None:
@@ -237,7 +345,7 @@ def _core_items(query, a, words):
                 'url': f"https://core.ac.uk/works/{w.get('id')}" if w.get('id') else None,
                 'oa_url': w.get('downloadUrl'),
                 'snippet': sch._cap_words(best or '', 500), 'abstract': (w.get('abstract') or '')[:2000],
-                'has_text': bool(full), 'names_work': bool(full) and names_work(full, a),
+                'has_text': bool(full), 'names_work': a is not None and bool(full) and names_work(full, a),
                 'source': 'core'})
         return out
     return sch._cached('recentcore|' + query, run)
@@ -246,10 +354,12 @@ def _core_items(query, a, words):
 def _core_query_forms(words, a):
     """The content words joined by AND (a question is not a phrase), then the
     first three quoted, each with the author/title in an OR group."""
-    must_terms = [a['author'], a['title']] + sch.AUTHOR_VARIANTS.get(a['author'].lower(), [])
-    must = ' OR '.join(f'"{t}"' if ' ' in t else t for t in dict.fromkeys(t for t in must_terms if t))
     anded = ' AND '.join(words[:6])
     quoted = ' AND '.join(f'"{w}"' for w in words[:3])
+    if a is None:
+        return [anded, quoted]
+    must_terms = [a['author'], a['title']] + sch.AUTHOR_VARIANTS.get(a['author'].lower(), [])
+    must = ' OR '.join(f'"{t}"' if ' ' in t else t for t in dict.fromkeys(t for t in must_terms if t))
     return [f'{anded} AND ({must})', f'{quoted} AND ({must})']
 
 
@@ -259,11 +369,11 @@ def recent(question, work, service):
     service itself fails (recent_safe wraps that)."""
     if service not in SERVICES:
         return {'service': service, 'available': False, 'results': [], 'reason': 'unknown service'}
-    a = work_names_dict(work)
-    words = _question_words_for_match(question, a)
-    if not words or not (a['author'] or a['title']):
+    a = work_names_dict(work) if work else None
+    words = _question_words_for_match(question, a) if a else content_words(question)
+    if not words or (a is not None and not (a['author'] or a['title'])):
         return {'service': service, 'available': True, 'results': [], 'reason': ''}
-    q = ' '.join(x for x in (a['author'], a['title'], question) if x)
+    q = ' '.join(x for x in ((a['author'], a['title']) if a else ()) + (question,) if x)
     if service == 'openalex':
         raw = sch._openalex(q)
     elif service == 'crossref':
@@ -271,7 +381,7 @@ def recent(question, work, service):
     elif service == 'books':
         if not sch.GOOGLE_BOOKS_KEY:
             return {'service': service, 'available': False, 'results': [], 'reason': 'off'}
-        raw = _books_items(' '.join(x for x in [a['author'], a['title']] + content_words(question) if x))
+        raw = _books_items(' '.join(x for x in ([a['author'], a['title']] if a else []) + content_words(question) if x))
     elif service == 's2':
         if not sch.S2_API_KEY:
             return {'service': service, 'available': False, 'results': [], 'reason': 'off'}

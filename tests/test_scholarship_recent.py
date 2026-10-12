@@ -125,3 +125,180 @@ def test_route_answers_items_and_rejects_unknown_service(monkeypatch):
     assert d['service'] == 'crossref' and d['available'] and len(d['results']) == 1
     r = c.get('/api/passages/recent-scholarship', query_string={'question': Q, 'work': 'vergil.aeneid', 'service': 'nope'})
     assert r.status_code == 200 and json.loads(r.get_data())['available'] is False
+
+
+# ------------------------------------------------------------ the tighter keep rule
+
+def test_filter_drops_item_naming_the_work_only_in_core_full_text():
+    milton = item('Paradise Lost and the epic tradition', 'Dido and desire in Milton.',
+                  snippet='Dido echoes the Aeneid here.', names_work=True, source='core')
+    assert sr._filter([milton], A, _words()) == []
+
+
+def test_filter_drops_item_naming_the_work_only_in_a_book_snippet():
+    book = item('Roman poetry', 'Dido in a survey.', snippet='Vergil, Aeneid 4', source='google_books')
+    assert sr._filter([book], A, _words()) == []
+
+
+def test_filter_does_not_count_abstract_text_beyond_1500_characters():
+    late = item('Epic women', 'x ' * 800 + 'Vergil and Dido.')
+    assert sr._filter([late], A, _words()) == []
+
+
+def test_filter_drops_schoolbook_titles():
+    for t in ('OCR Ancient History AS and A Level Component 2: Vergil', 'Vergil Revision Guide',
+              'GCSE Latin: Aeneid', "Aeneid Student's Book", 'The Aeneid Workbook', 'Aeneid exam practice'):
+        assert sr._filter([item(t, 'Dido in the Aeneid.')], A, _words()) == [], t
+
+
+def test_title_naming_the_work_outranks_abstract_only_naming():
+    commentary = item('Virgil, Aeneid 4: a commentary', 'Dido.', year=2020)
+    milton = item('Dido and love in Paradise Lost', 'Milton reads the Aeneid and Dido and love.', year=2023)
+    out = sr.order(sr._filter([milton, commentary], A, _words()))
+    assert out[0]['title'].startswith('Virgil, Aeneid 4') and out[0]['title_names_work'] is True
+    assert out[1]['title_names_work'] is False
+
+
+def test_full_text_naming_breaks_ties_between_equal_items():
+    a = item('Dido in Vergil', 'Dido.', year=2001)
+    b = item('Dido in Vergil, too', 'Dido.', year=2001, snippet='the Aeneid says', names_work=True)
+    out = sr.order(sr._filter([a, b], A, _words()))
+    assert out[0]['title'] == 'Dido in Vergil, too'
+
+
+# ------------------------------------------------------------ no work (Theme Search)
+
+def test_no_work_keeps_two_question_words_with_one_in_the_title():
+    two = item('Dido and Aeneas in love', 'Vergil.')
+    abstract_only = item('A study of opera', 'Dido and Aeneas in a Vergil production.')
+    one = item('Dido at Carthage', 'Vergil, nothing else.')
+    out = sr._filter([two, abstract_only, one], None, sr.content_words(Q))
+    assert [i['title'] for i in out] == ['Dido and Aeneas in love']
+
+
+def test_no_work_short_question_needs_every_word():
+    words = sr.content_words('plague Athens')
+    assert [i['title'] for i in sr._filter([item('The plague of Athens', 'Thucydides.'), item('The plague', 'Thucydides.')], None, words)] == \
+        ['The plague of Athens']
+
+
+def test_no_work_orders_by_title_matches_then_question_words_then_year():
+    words = sr.content_words(Q)
+    items = [item('Dido and Aeneas', 'love falls Vergil', year=2001), item('Dido, Aeneas and love', 'Vergil', year=1990),
+             item('Dido and Aeneas again', 'love falls Vergil', year=2020)]
+    out = sr.order(sr._filter(items, None, words))
+    assert [i['title'] for i in out] == ['Dido, Aeneas and love', 'Dido and Aeneas again', 'Dido and Aeneas']
+
+
+def test_recent_without_a_work_asks_with_the_question_alone(monkeypatch):
+    seen = []
+    monkeypatch.setattr(sch, '_openalex', lambda q: seen.append(q) or [item('Dido and Aeneas in love', 'Vergil')])
+    monkeypatch.setattr(sch, '_unpaywall', lambda doi: None)
+    out = sr.recent(Q, None, 'openalex')
+    assert seen == [Q] and len(out['results']) == 1
+
+
+def test_route_work_is_optional(monkeypatch):
+    monkeypatch.setattr(sch, '_crossref', lambda q: [item('Dido and Aeneas in love', 'Vergil', source='crossref')])
+    monkeypatch.setattr(sch, '_unpaywall', lambda doi: None)
+    d = json.loads(app.test_client().get('/api/passages/recent-scholarship', query_string={
+        'question': Q, 'service': 'crossref'}).get_data())
+    assert d['available'] and len(d['results']) == 1
+
+
+def test_core_forms_without_a_work_have_no_author_group():
+    assert sr._core_query_forms(['dido', 'love'], None) == ['dido AND love', '"dido" AND "love"']
+
+
+# ------------------------------------------------------------ Google Books: one retry
+
+def _http_error(code):
+    import requests
+    r = requests.Response()
+    r.status_code = code
+    return requests.HTTPError('boom', response=r)
+
+
+BOOK = {'items': [{'volumeInfo': {'title': 'Aeneid commentary', 'authors': ['A. B.'], 'publishedDate': '2020',
+                                  'description': 'Dido in the Aeneid.'}}]}
+
+
+def test_books_retries_once_after_a_503(monkeypatch, tmp_path):
+    monkeypatch.setattr(sch, 'CACHE_DIR', str(tmp_path))
+    monkeypatch.setattr(sch.time, 'sleep', lambda s: None)
+    monkeypatch.setattr(sch, 'GOOGLE_BOOKS_KEY', 'k')
+    calls = []
+
+    def fake(url, params):
+        calls.append(1)
+        if len(calls) == 1:
+            raise _http_error(503)
+        return BOOK
+    monkeypatch.setattr(sch, '_get', fake)
+    assert len(sr._books_items('Vergil Aeneid Dido')) == 1 and len(calls) == 2
+
+
+def test_books_two_failures_answer_available_false(monkeypatch, tmp_path):
+    monkeypatch.setattr(sch, 'CACHE_DIR', str(tmp_path))
+    monkeypatch.setattr(sch.time, 'sleep', lambda s: None)
+    monkeypatch.setattr(sch, 'GOOGLE_BOOKS_KEY', 'k')
+    monkeypatch.setattr(sr, 'work_names_dict', lambda work: dict(A))
+    calls = []
+
+    def fake(url, params):
+        calls.append(1)
+        raise _http_error(503)
+    monkeypatch.setattr(sch, '_get', fake)
+    out = sr.recent_safe(Q, 'vergil.aeneid', 'books')
+    assert out['available'] is False and len(calls) == 2
+
+
+def test_get_retry_does_not_retry_a_4xx(monkeypatch):
+    calls = []
+
+    def fake(url, params):
+        calls.append(1)
+        raise _http_error(403)
+    monkeypatch.setattr(sch, '_get', fake)
+    import pytest
+    import requests
+    with pytest.raises(requests.HTTPError):
+        sch._get_retry('https://x.example/y', {})
+    assert len(calls) == 1
+
+
+def test_reader_books_retries_once_after_a_503(monkeypatch, tmp_path):
+    monkeypatch.setattr(sch, 'CACHE_DIR', str(tmp_path))
+    monkeypatch.setattr(sch.time, 'sleep', lambda s: None)
+    monkeypatch.setattr(sch, 'GOOGLE_BOOKS_KEY', 'k')
+    calls = []
+
+    def fake(url, params):
+        calls.append(1)
+        if len(calls) == 1:
+            raise _http_error(503)
+        return {'items': [{'id': 'b1', 'volumeInfo': {'title': 'Aeneid commentary', 'authors': ['A. B.'],
+                                                       'publishedDate': '2020'},
+                           'searchInfo': {'textSnippet': 'Vergil, Aeneid 1.1 arma'}}]}
+    monkeypatch.setattr(sch, '_get', fake)
+    p = {'work': 'vergil.aeneid', 'author': 'Vergil', 'title': 'Aeneid', 'abbrev': 'Aen.', 'lo': '1.1', 'hi': '1.1'}
+    out = sch.books(p)
+    assert out['available'] and len(out['results']) == 1 and len(calls) == 3  # 503, ok, ok (second query, same book)
+
+
+def test_no_work_needs_a_classics_signal():
+    words = sr.content_words(Q)
+    bare = item('Dido and Aeneas in love', 'A staging of the opera.')
+    with_title = item('Dido and Aeneas in love', 'A staging of the opera. Compare the Odyssey.')
+    with_author = item('Dido and Aeneas in love', 'Vergil is the source.')
+    assert sr._filter([bare], None, words) == []
+    assert len(sr._filter([with_title], None, words)) == 1
+    assert len(sr._filter([with_author], None, words)) == 1
+    # a work-aware search does not need the signal
+    assert len(sr._filter([item('Dido and Aeneas in the Aeneid', 'x')], A, _words())) == 1
+
+
+def test_signal_names_leave_out_ordinary_words():
+    names = sr._author_names()
+    assert 'homer' in names or 'vergil' in names
+    assert not {'young', 'gray', 'pope', 'swift', 'blake'} & names

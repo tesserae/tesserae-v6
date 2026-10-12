@@ -691,7 +691,7 @@ export default function ThemeSearchPage() {
     // initializer above, which reads the same params), and `run` falls back
     // to `language` when its second argument is omitted.
     setQuery(q);
-    if (p.get('in') === 'scholarship') { setScholarshipSearch({ q, n: 1 }); return; }
+    if (p.get('in') === 'scholarship') { setScholarshipSearch({ q, n: 1, work: (p.get('work') || '').trim() || null }); return; }
     run(q);
   }, [run]);
 

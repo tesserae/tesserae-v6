@@ -626,16 +626,17 @@ def _recent_for_paragraph(question, work):
 
 @passages_bp.route('/passages/recent-scholarship', methods=['GET'])
 def recent_scholarship():
-    """Recent articles one live service gives for a question about a work.
+    """Recent articles one live service gives for a question, about a work when
+    one is given (work is optional: Theme Search's list has none).
     One service per request so the page can fire them in parallel and paint
     each as it lands. A service that fails answers available False, never 500."""
     from backend import scholarship_recent as sr
     question = (request.args.get('question') or '').strip()
-    work = (request.args.get('work') or '').strip()
+    work = (request.args.get('work') or '').strip() or None
     service = (request.args.get('service') or '').strip().lower()
-    if not question or not work or service not in sr.SERVICES:
+    if not question or service not in sr.SERVICES:
         return jsonify({'service': service, 'available': False, 'results': [],
-                        'reason': 'question, work and a known service are required'})
+                        'reason': 'a question and a known service are required'})
     return jsonify(sr.recent_safe(question, work, service))
 
 

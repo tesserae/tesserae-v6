@@ -1462,7 +1462,9 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 your words and once by the words it shares with them, and the two rankings are
                 merged. A note links to its passage in the Reader and a sentence from an article
                 links to the article. On fifteen test questions, thirteen had a strongly relevant
-                note in the first ten.
+                note in the first ten. Under the list, a Recent articles section asks OpenAlex,
+                Crossref, CORE, Google Books and Semantic Scholar for articles whose title or
+                abstract matches your words, and shows each service's answer as it arrives.
               </p>
 
               <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">How it works</h4>
