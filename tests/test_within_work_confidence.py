@@ -1,4 +1,4 @@
-"""Confidence for a Theme Search within ONE work (Ask a Work).
+"""Confidence for a Theme Search within ONE work (Search One Text).
 
 No built index: module state is stubbed as tests/test_theme_search_within.py
 does, with twenty windows of one work and fixed scores.

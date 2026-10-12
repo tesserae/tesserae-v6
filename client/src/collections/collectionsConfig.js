@@ -134,9 +134,9 @@ export const VIEWS = [
     id: 'literature',
     label: 'Literature',
     profile: 'literary',
-    home: { page: 'search' },
+    home: { page: 'ask-a-work' },
     menuOrder: [
-      'search', 'read', 'theme-search', 'ask-a-work', 'inscriptions-papyri', 'events', 'coins', 'objects',
+      'ask-a-work', 'search', 'read', 'theme-search', 'inscriptions-papyri', 'events', 'coins', 'objects',
       'browse', 'about', 'help', 'repository', 'downloads',
     ],
     readerTabs: ['similar', 'reuse', 'verbal', 'documents', 'scholarship', 'translation', 'coins'],
@@ -144,9 +144,9 @@ export const VIEWS = [
       la: { source: 'vergil.aeneid.part.1.tess', target: 'lucan.bellum_civile.part.1.tess' },
       grc: { source: 'homer.iliad.part.1.tess', target: 'apollonius_rhodius.argonautica.part.1.tess' },
     },
-    startHereOrder: ['compare', 'phrase', 'rare', 'subject', 'ask', 'read', 'documents'],
+    startHereOrder: ['ask', 'compare', 'phrase', 'rare', 'subject', 'read', 'documents'],
     startHereLabels: {},
-    opensOn: 'the Search page, on Vergil against Lucan',
+    opensOn: 'Search One Text, on the Aeneid',
   },
   {
     id: 'history',
@@ -154,7 +154,7 @@ export const VIEWS = [
     profile: 'everything',
     home: { page: 'read', work: 'tacitus.annales.part.1.tess', lang: 'la' },
     menuOrder: [
-      'read', 'events', 'inscriptions-papyri', 'theme-search', 'ask-a-work', 'search', 'coins', 'objects',
+      'read', 'ask-a-work', 'events', 'inscriptions-papyri', 'theme-search', 'search', 'coins', 'objects',
       'browse', 'about', 'help', 'repository', 'downloads',
     ],
     readerTabs: ['similar', 'documents', 'coins', 'scholarship', 'reuse', 'verbal', 'translation'],

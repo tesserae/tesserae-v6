@@ -24,7 +24,7 @@ describe('Navigation — selected state is announced, not just colored', () => {
   it('marks the active main tab with aria-current="page" and leaves others unmarked', () => {
     renderNav({ pageType: 'browse' });
     expect(screen.getByRole('button', { name: 'Browse Corpus' })).toHaveAttribute('aria-current', 'page');
-    expect(screen.getByRole('button', { name: 'Search' })).not.toHaveAttribute('aria-current');
+    expect(screen.getByRole('button', { name: 'Intertextual Search' })).not.toHaveAttribute('aria-current');
   });
 
   it('marks the active language tab with aria-current and leaves others unmarked', () => {
@@ -36,7 +36,7 @@ describe('Navigation — selected state is announced, not just colored', () => {
   it('gives the active main tab a heavier font weight, not just a color change', () => {
     renderNav({ pageType: 'browse' });
     const active = screen.getByRole('button', { name: 'Browse Corpus' });
-    const inactive = screen.getByRole('button', { name: 'Search' });
+    const inactive = screen.getByRole('button', { name: 'Intertextual Search' });
     expect(active.className).toMatch(/font-semibold/);
     expect(inactive.className).not.toMatch(/font-semibold/);
   });
@@ -112,10 +112,8 @@ describe('Navigation — the "Inscriptions & Papyri" item (documents trial)', ()
     expect(tab).toBeTruthy();
     const buttons = screen.getAllByRole('button').map((b) => b.textContent);
     const themeIdx = buttons.findIndex((t) => t.includes('Theme Search'));
-    const askIdx = buttons.findIndex((t) => t.includes('Ask a Work'));
     const docsIdx = buttons.findIndex((t) => t.includes('Inscriptions & Papyri'));
-    expect(askIdx).toBe(themeIdx + 1);
-    expect(docsIdx).toBe(askIdx + 1);
+    expect(docsIdx).toBe(themeIdx + 1);
   });
 
   it('turns on from ?documents=1 in the URL, without a prior session flag', async () => {

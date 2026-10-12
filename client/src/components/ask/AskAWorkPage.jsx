@@ -6,7 +6,7 @@ import { baseWorkId, fetchCoveredWorks } from '../../utils/passageCoverage';
 import { readerLink } from '../passages/ThemeSearchPage';
 
 /**
- * Ask a Work: pick one work, say a subject in plain words, and get the passages
+ * Search One Text: pick one work, say a subject in plain words, and get the passages
  * of that work about it, listed by score, with a strip across the top that shows
  * where in the work they fall.
  *
@@ -37,7 +37,14 @@ const BANDS = {
   strong: { label: 'Strong match', className: 'bg-red-50 text-red-800 border-red-200' },
 };
 
+// A visit with no work chosen opens on the Aeneid, so the first sight of the
+// page shows what it does (owner 2026-10-12).
+export const DEFAULT_WORK = { lang: 'la', work: 'vergil.aeneid' };
+
 const EXAMPLES = [
+  { lang: 'la', work: 'vergil.aeneid', q: 'Dido falls in love with Aeneas', label: 'Dido falls in love with Aeneas', on: 'the Aeneid' },
+  { lang: 'la', work: 'vergil.aeneid', q: 'the fall of Troy', label: 'the fall of Troy', on: 'the Aeneid' },
+  { lang: 'la', work: 'vergil.aeneid', q: 'a storm scatters the fleet', label: 'a storm scatters the fleet', on: 'the Aeneid' },
   { lang: 'la', work: 'vergil.aeneid', q: 'fathers and sons', label: 'fathers and sons', on: 'the Aeneid' },
   { lang: 'grc', work: 'thucydides.peleponnesian_war', q: 'the plague at Athens', label: 'the plague at Athens', on: 'Thucydides' },
   { lang: 'la', work: 'tacitus.annales', q: 'the rise of Sejanus', label: 'the rise of Sejanus', on: 'the Annals' },
@@ -188,9 +195,10 @@ export default function AskAWorkPage() {
     const p = new URLSearchParams(window.location.search);
     return { work: (p.get('work') || '').trim(), lang: (p.get('lang') || '').trim(), q: (p.get('q') || '').trim(), books: (p.get('books') || '').trim() };
   }, []);
-  const [lang, setLang] = useState(initial.lang || 'la');
-  const [author, setAuthor] = useState(initial.work ? initial.work.split('.')[0].toLowerCase() : '');
-  const [work, setWork] = useState(initial.work);
+  const startWork = initial.work || DEFAULT_WORK.work;
+  const [lang, setLang] = useState(initial.work ? (initial.lang || 'la') : DEFAULT_WORK.lang);
+  const [author, setAuthor] = useState(startWork.split('.')[0].toLowerCase());
+  const [work, setWork] = useState(startWork);
   const [q, setQ] = useState(initial.q);
   const initialRange = useMemo(() => parseBooks(initial.books), [initial]);
   const [bookFrom, setBookFrom] = useState(initialRange ? initialRange.from : null);   // null = the first book
@@ -428,7 +436,7 @@ export default function AskAWorkPage() {
 
   return (
     <div className="max-w-4xl mx-auto p-6">
-      <h1 className="text-2xl font-semibold text-gray-900">Ask a Work</h1>
+      <h1 className="text-2xl font-semibold text-gray-900">Search One Text</h1>
       <span className="ml-2 align-middle rounded border border-amber-200 bg-amber-50 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-800">
         Beta
       </span>

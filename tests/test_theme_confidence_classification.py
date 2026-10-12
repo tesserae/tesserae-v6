@@ -257,7 +257,7 @@ def test_single_language_strong_lift_is_never_demoted_by_a_low_baseline():
 
 # --- 2026-10-11: a low band shows the list; only degeneracy says "absent" ----
 #
-# Measured on 60 historical subjects plus the 15 Ask a Work pilot questions
+# Measured on 60 historical subjects plus the 15 Search One Text pilot questions
 # (judged top ten): 27 of 31 queries marked low had a relevant list. The low
 # note is therefore a caution about the ranking, and the "corpus does not
 # contain" sentence is kept for the degenerate case alone.

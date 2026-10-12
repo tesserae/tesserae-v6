@@ -9,6 +9,9 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-12
 
+### Two features renamed, and Search One Text comes first
+"Ask a Work" is now "Search One Text", and the main page that compares two texts, with Line Search and Rare words, is now "Intertextual Search". The owner's reason: "intertext search should not be first anymore. Either search one text or maybe the reader should be first." In the Literature view Search One Text now leads the menu and the Start here list, and it is the page a plain visit opens on, with the Aeneid already chosen and three example subjects shown (Dido falls in love with Aeneas, the fall of Troy, a storm scatters the fleet). In the History view it sits second, after Read. The new names appear in the menu, page titles, the Start here panel, Tessa's answer to "where do I start", the Help page and the search scope table. Page addresses (`/ask-a-work` and `/`), page codes, API routes and connector tool names are unchanged.
+
 ### Footer: one link, to the requests made so far
 The footer carried "Suggest a change" beside "Requests". The header already has the Suggest a change button, so the footer's copy is gone, and the remaining link is labelled "Requests made so far" to say what the page is: the public list of suggestions and corrections filed, not a second way to file one.
 ### Inscriptions: "Hr." written out as Henchir, and "unknown" chips left off

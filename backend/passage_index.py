@@ -1968,7 +1968,7 @@ def resolve_restriction(author=None, works=None, languages=None):
     return pool, None
 
 
-# WITHIN-WORK CONFIDENCE (Ask a Work), fitted 2026-10-11.
+# WITHIN-WORK CONFIDENCE (Search One Text), fitted 2026-10-11.
 #
 # A search restricted to ONE work cannot use HEAD_WEAK and HEAD_STRONG: those
 # were fitted to corpus-wide score distributions, and a single work's median
