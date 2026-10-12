@@ -4,7 +4,7 @@
  */
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
-import AskAWorkPage, { UNRATED_NOTE, bookOf, namesIn, stripLayout } from './AskAWorkPage';
+import AskAWorkPage, { unitWord, unitForWork, UNRATED_NOTE, bookOf, namesIn, stripLayout } from './AskAWorkPage';
 
 const TEXTS = [
   { id: 'vergil.aeneid.tess', author: 'Vergil', title: 'Aeneid', work: 'Aeneid', is_part: false },
@@ -248,6 +248,19 @@ describe('Search One Text', () => {
 const named = (n, ref, extra = {}) => ({
   id: `m${n}`, work: 'vergil.aeneid', language: 'la', ref_start: ref, ref_end: ref,
   gist: `Names ${n}`, matched: ['Sejanus'], mentions: 2, ...extra,
+});
+
+describe('the unit of the strip', () => {
+  it('reads fragments, poems, letters or books from the references', () => {
+    expect(unitWord([{ ref_start: 'sappho. frag. 31.1' }])).toBe('fragments');
+    expect(unitWord([{ ref_start: 'catu. carm. 61.93' }])).toBe('poems');
+    expect(unitWord([{ ref_start: 'plin. ep. 6.16' }])).toBe('letters');
+    expect(unitWord([{ ref_start: 'verg. aen. 1.1' }])).toBe('books');
+    expect(unitWord([])).toBe('books');
+    expect(unitForWork('sappho.fragments')).toBe('fragments');
+    expect(unitForWork('catullus.carmina')).toBe('poems');
+    expect(unitForWork('tacitus.annales')).toBe('books');
+  });
 });
 
 describe('names in a question', () => {

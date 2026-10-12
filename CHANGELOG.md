@@ -9,6 +9,9 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-12
 
+### Search One Text: strip labels placed by position, and the unit named from the references
+The row of numbers under "Where in the work" squeezed each label into its own column, so for a work of 137 fragments "16" showed as "1". About twelve labels (six on a phone) are now placed at their columns' centres, each as wide as its number. The summary line names the unit the references use: fragments for Sappho, poems for Catullus, letters for Pliny, books otherwise.
+
 ### Footer link removed; the list of requests is inside the Suggest a change dialog; Search One Text strip labels thin out
 The footer's "Requests made so far" link is gone. The same link now sits inside the Suggest a change dialog, so one button reaches both the form and the list. On Search One Text, the strip of books under "Where in the work" labelled every unit, which for Sappho's 141 fragments ran the numbers together; it now labels about thirty on a wide screen and ten on a phone.
 ### Search One Text: the band inside one work refitted on eleven works, and its lowest level no longer claims absence

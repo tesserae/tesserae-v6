@@ -128,6 +128,28 @@ export function stripLayout(results, workId, workBooks) {
   return { books: order, segments, marks };
 }
 
+/** What one segment of the strip is, read from the references: "frag." means
+ *  fragments, "carm."/"epigr."/"ecl."/"od."/"sat." poems, "ep."/"epist." letters,
+ *  otherwise books. Sappho's strip read "137 books" with the fragment numbers
+ *  squeezed into columns a few pixels wide (owner, 2026-10-12). */
+export function unitWord(results) {
+  const ref = String((results && results[0] && results[0].ref_start) || '').toLowerCase();
+  if (/\bfrag\.?/.test(ref)) return 'fragments';
+  if (/\b(carm|epigr|ecl|od|sat|eleg|idyll|hymn)\.?\s/.test(ref)) return 'poems';
+  if (/\b(ep|epist)\.?\s/.test(ref)) return 'letters';
+  return 'books';
+}
+
+/** The same, before any result exists, from the work's id: "sappho.fragments",
+ *  "catullus.carmina", "pliny.epistulae". Books when the title says nothing. */
+export function unitForWork(workId) {
+  const id = String(workId || '').toLowerCase();
+  if (/fragment/.test(id)) return 'fragments';
+  if (/(carmina|epigram|odes|eclog|satir|eleg|idyll|hymn|sonnet)/.test(id)) return 'poems';
+  if (/(epistul|epistol|letters)/.test(id)) return 'letters';
+  return 'books';
+}
+
 const NAME_STOP = new Set(['The', 'A', 'An', 'What', 'How', 'Why', 'Where', 'When', 'Who', 'Which', 'I']);
 
 /** Capitalised words of a question that may be a name: not the first word, not in
@@ -481,7 +503,7 @@ export default function AskAWorkPage() {
         </div>
         {hasBooks && (
           <div className="flex items-center gap-2 text-sm text-gray-600">
-            <span>Books</span>
+            <span>{unitForWork(work).replace(/^./, (c) => c.toUpperCase())}</span>
             <select
               aria-label="From book"
               value={fromBook}
@@ -629,21 +651,26 @@ export default function AskAWorkPage() {
                   })}
                 </div>
                 {!!layout.books.length && (() => {
-                  // A work of many short units (Sappho's fragments: 141) cannot
-                  // label every one, so the labels thin out to about thirty on a
-                  // wide screen and ten on a phone (owner, 2026-10-12).
-                  const step = Math.max(1, Math.ceil(layout.books.length / (phone ? 10 : 30)));
+                  // A work of many short units (Sappho's fragments: 137) cannot
+                  // label every one, so about twelve labels on a wide screen and
+                  // six on a phone are placed at their columns' centres, each
+                  // free to be as wide as its number (owner, 2026-10-12: the
+                  // labels had been squeezed into their columns, "16" showing
+                  // as "1").
+                  const n = layout.books.length;
+                  const step = Math.max(1, Math.ceil(n / (phone ? 6 : 12)));
                   return (
-                    <div className="flex text-[10px] text-gray-500" data-testid="ask-strip-labels">
-                      {layout.books.map((b, k) => (
-                        <div key={b} className="flex-1 text-center overflow-hidden whitespace-nowrap">{k % step ? '' : b}</div>
-                      ))}
+                    <div className="relative h-4 text-[10px] text-gray-500" data-testid="ask-strip-labels">
+                      {layout.books.map((b, k) => (k % step ? null : (
+                        <span key={b} className="absolute top-0 -translate-x-1/2 whitespace-nowrap"
+                              style={{ left: `${((k + 0.5) / n) * 100}%` }}>{b}</span>
+                      )))}
                     </div>
                   );
                 })()}
                 <p className="mt-1 text-xs text-gray-500">
                   {layout.books.length > 1
-                    ? `${results.length} passages in ${inBooks} of ${layout.books.length} books`
+                    ? `${results.length} passages in ${inBooks} of ${layout.books.length} ${results.length ? unitWord(results) : unitForWork(asked.work)}`
                     : `${results.length} passages`}
                 </p>
               </section>
