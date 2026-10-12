@@ -1715,15 +1715,19 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 purpose.
               </p>
               <p className="text-gray-700 mb-4">
-                Under the summary, a second paragraph called What the secondary literature
-                says is written from the scholarship collection: commentary notes on the work
-                (Servius, Conington and Page on Latin epic, Allen on the Homeric Hymns, Paley,
-                Verity, the rabbinic commentators on the Hebrew Bible) and the JSTOR Early Journal
-                Content articles that name the work or its author, all published before 1923.
-                Each bracketed number links to the note in the Reader or to the article on JSTOR.
-                A line in small type says what the collection holds for the work. Where it holds
-                nothing, as for Sappho, the paragraph is left out and the line says so. The
-                assistant may cite only the notes the search returned.
+                Under the summary, a second paragraph called Scholarship is written from the
+                scholarship collection: commentary notes on the work (Servius, Conington and
+                Page on Latin epic, Allen on the Homeric Hymns, Paley, Verity, the rabbinic
+                commentators on the Hebrew Bible) and the JSTOR Early Journal Content articles
+                that name the work or its author, all published before 1923. It also reads
+                recent articles that OpenAlex, Crossref, CORE and Google Books list for the
+                question. It knows those only from their abstracts or short open-access excerpts,
+                and says so when it cites one. The recent articles are listed under the paragraph
+                as each service answers, and a link goes to a free copy where one exists,
+                otherwise to the DOI. Each bracketed number in the paragraph links to its note
+                or article. A line in small type says what was found. Where nothing is found, as
+                for Sappho, the paragraph is left out and the line says so. The assistant may cite
+                only the sources it was given.
               </p>
               <p className="text-gray-700 mb-4">
                 When a work is held in books, two small menus beside the Work menu choose the
@@ -2183,7 +2187,10 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 carry their own date, place and credit line, with charts of how many came back
                 by century and by region. Restored text (filled in by an editor where the stone
                 or papyrus is damaged) is marked with a light dotted underline. A surviving
-                fragment of a damaged word is set in gray italic.
+                fragment of a damaged word is set in gray italic. When a dictionary-form search
+                of one word finds nothing, the page shows the documents whose text contains
+                those letters instead and says so. Exact match finds the letters inside longer
+                words, so a stem such as &ldquo;rusell&rdquo; finds every word that begins with it.
               </p>
 
               <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">Browsing without a search term</h4>

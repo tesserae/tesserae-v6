@@ -318,7 +318,7 @@ def ask_summary():
 
 _SCHOL_SYSTEM = (
     "You write for scholars. You are given a question about one ancient work and a numbered list "
-    "of notes from commentaries and articles about it. Write at most 120 words on what these "
+    "of notes from commentaries and articles about it. Write at most {limit} words on what these "
     "notes and articles say about the subject. Cite each claim with the bracketed number of the "
     "note it came from, for example [2]. Say nothing the notes do not say. Call the sources what the "
     "list says they are, commentary notes or journal articles, and never mention a kind of source "
@@ -330,6 +330,13 @@ _SCHOL_SYSTEM = (
     "open with a clause about where the material comes from: a line under your text already "
     "says that. Do not call the notes 'sources'. Do not use the word paragraph. Plain words. "
     "No dashes, no semicolons, no lists, no headings.")
+# Added when recent articles are in the list: they are known only from an
+# abstract or a short excerpt, and the paragraph must not claim more.
+_SCHOL_RECENT_NOTE = (
+    " The list may hold recent articles known only from an abstract or a short excerpt. "
+    "When you draw on one, say so (for example 'to judge from its abstract'), and never "
+    "claim to have read such an article.")
+_SCHOL_RECENT = 4
 _SCHOL_KEEP = 8
 _SCHOL_DEPTH = 100
 # Up to this many of the eight are reserved for journal articles when any
@@ -370,6 +377,32 @@ _HOLDINGS_NONE = (
     "The secondary sources I can read have nothing on {title} for this question.",
     "No secondary source I can read speaks to {title} on this question.",
     "I can find no secondary literature on {title} for this question in what I have access to.",
+)
+
+
+# The second clause of the holdings sentence, about the live services. Five
+# phrasings per state, picked by the same hash as the first clause. No colons,
+# semicolons or dashes.
+_RECENT_FOUND = (
+    "the live services list {m} recent {art} for this question",
+    "the live services add {m} recent {art}",
+    "I also found {m} recent {art} from the live services",
+    "{m} recent {art} turned up in the live services",
+    "the live services give {m} recent {art} on it",
+)
+_RECENT_NONE = (
+    "the live services list no recent articles for this question",
+    "the live services add nothing recent",
+    "no recent article turned up in the live services",
+    "I found no recent articles in the live services",
+    "the live services give no recent articles on it",
+)
+_RECENT_FAILED = (
+    "{k} of the live services did not answer",
+    "{k} of the live services failed to answer",
+    "{k} of the live services gave no answer",
+    "{k} of the live services could not be reached",
+    "{k} of the live services returned no answer",
 )
 
 
@@ -432,14 +465,39 @@ def _scholarship_keep(cards, work, question=''):
 
 
 def _scholarship_label(c):
-    if c.get('kind') == 'article':
+    if c.get('kind') in ('article', 'recent'):
         t = (c.get('title') or 'Article').strip()
         return f"{t} ({c['year']})" if c.get('year') else t
     who = (c.get('commentator') or 'Commentary').strip()
     return f"{who} on {c['ref_start']}" if c.get('ref_start') else who
 
 
-def _scholarship_holdings(question, kept, info, work):
+def _recent_clause(question, n_recent, n_failed):
+    """(clause for the first sentence, extra sentence). Items found: the found
+    clause, and a separate sentence when some service also failed. None found:
+    the failed clause when a service failed, else the none clause."""
+    if n_recent:
+        art = 'article' if n_recent == 1 else 'articles'
+        clause = _pick(_RECENT_FOUND, question).format(m=n_recent, art=art)
+        extra = (_pick(_RECENT_FAILED, question).format(k=n_failed) if n_failed else '')
+        return clause, (extra[0].upper() + extra[1:] + '.') if extra else ''
+    if n_failed:
+        return _pick(_RECENT_FAILED, question).format(k=n_failed), ''
+    return _pick(_RECENT_NONE, question), ''
+
+
+def _scholarship_holdings(question, kept, info, work, n_recent=None, n_failed=0):
+    """One or two sentences on what is held. n_recent None leaves the live
+    services out of it (the held sentence alone)."""
+    sentence = _scholarship_held_sentence(question, kept, info, work)
+    if n_recent is None:
+        return sentence
+    clause, extra = _recent_clause(question, n_recent, n_failed)
+    out = sentence.rstrip('.') + ' and ' + clause + '.'
+    return out + (' ' + extra if extra else '')
+
+
+def _scholarship_held_sentence(question, kept, info, work):
     title = info.get('display_name') or info.get('title') or str(work)
     if not kept:
         return _pick(_HOLDINGS_NONE, question).format(title=title)
@@ -483,40 +541,102 @@ def ask_scholarship():
         logger.info('[PASSAGES] ask-scholarship search failed: %s', type(e).__name__)
         return jsonify({'available': False, 'error': 'the scholarship search is not available'})
     kept, info = _scholarship_keep(found.get('results'), work, question)
-    holdings = _scholarship_holdings(question, kept, info, work)
-    if not kept or not model.is_available():
-        return jsonify({'available': False, 'holdings': holdings, 'query_used': query_used})
+    recent, services, n_found = _recent_for_paragraph(question, work)
+    n_failed = sum(1 for v in services.values() if v == 'failed')
+    holdings = _scholarship_holdings(question, kept, info, work, n_found, n_failed)
+    base = {'holdings': holdings, 'query_used': query_used, 'recent': recent, 'services': services}
+    if (not kept and not recent) or not model.is_available():
+        return jsonify(dict(base, available=False))
     n_art = sum(1 for c in kept if c.get('kind') == 'article')
     n_note = len(kept) - n_art
-    kinds = ('commentary notes and journal articles' if n_art and n_note
-             else ('journal articles' if n_art else 'commentary notes'))
+    kind_names = []
+    if n_note:
+        kind_names.append('commentary notes')
+    if n_art:
+        kind_names.append('journal articles')
+    if recent:
+        kind_names.append('recent articles known from abstracts')
+    kinds = kind_names[0] if len(kind_names) == 1 else ', '.join(kind_names[:-1]) + ' and ' + kind_names[-1]
     # The model is told what kinds it has, so it does not write "the
     # commentaries and articles" over notes alone (owner, 2026-10-12).
+    cards = list(kept) + [dict(r, kind='recent', link={'kind': 'web', 'url': _recent_link(r)}) for r in recent]
     lines = [f"{info.get('display_name') or work}", question,
              f"The sources below are {kinds} only. Name them as such."]
-    for i, c in enumerate(kept, 1):
-        lines.append(f"[{i}] {_scholarship_label(c)}: {c.get('snippet') or ''}")
+    for i, c in enumerate(cards, 1):
+        if c.get('kind') == 'recent':
+            venue = f", {c['venue']}" if c.get('venue') else ''
+            year = f" ({c['year']})" if c.get('year') else ''
+            lines.append(f"[{i}] Recent article, known from its abstract or an excerpt: "
+                         f"{c.get('title')}{year}{venue}: {c.get('excerpt') or ''}")
+        else:
+            lines.append(f"[{i}] {_scholarship_label(c)}: {c.get('snippet') or ''}")
+    system = _SCHOL_SYSTEM.format(limit=150 if recent else 120) + (_SCHOL_RECENT_NOTE if recent else '')
     t0 = time.time()
     pool = concurrent.futures.ThreadPoolExecutor(max_workers=1)
     try:
-        fut = pool.submit(model.complete, _SCHOL_SYSTEM, '\n'.join(lines), 400, 0.2)
+        fut = pool.submit(model.complete, system, '\n'.join(lines), 400, 0.2)
         try:
             text = fut.result(timeout=_SUMMARY_TIMEOUT)
         except concurrent.futures.TimeoutError:
             logger.info('[PASSAGES] ask-scholarship %r timed out after %.1fs', question, time.time() - t0)
-            return jsonify({'available': False, 'holdings': holdings, 'error': 'the model took too long'})
+            return jsonify(dict(base, available=False, error='the model took too long'))
         except Exception as e:
             logger.info('[PASSAGES] ask-scholarship %r failed: %s', question, type(e).__name__)
-            return jsonify({'available': False, 'holdings': holdings, 'error': 'the model could not answer'})
+            return jsonify(dict(base, available=False, error='the model could not answer'))
     finally:
         pool.shutdown(wait=False)
     if not text:
-        return jsonify({'available': False, 'holdings': holdings, 'error': 'the model could not answer'})
-    used = sorted({int(n) for n in re.findall(r'\[(\d+)\]', text) if 1 <= int(n) <= len(kept)})
-    cites = [{'n': n, 'kind': kept[n - 1].get('kind'), 'label': _scholarship_label(kept[n - 1]),
-              'link': kept[n - 1].get('link')} for n in used]
-    return jsonify({'available': True, 'holdings': holdings, 'summary': text, 'cites': cites,
-                    'query_used': query_used, 'kept': len(kept)})
+        return jsonify(dict(base, available=False, error='the model could not answer'))
+    used = sorted({int(n) for n in re.findall(r'\[(\d+)\]', text) if 1 <= int(n) <= len(cards)})
+    cites = [{'n': n, 'kind': cards[n - 1].get('kind'), 'label': _scholarship_label(cards[n - 1]),
+              'link': cards[n - 1].get('link')} for n in used]
+    return jsonify(dict(base, available=True, summary=text, cites=cites, kept=len(cards)))
+
+
+def _recent_link(item):
+    doi = item.get('doi')
+    return item.get('oa_url') or (f'https://doi.org/{doi}' if doi else None) or item.get('url')
+
+
+def _recent_for_paragraph(question, work):
+    """The live services' recent articles for the paragraph: each service asked
+    in its own thread with ten seconds for the group (the page has usually
+    fetched them already, so the answers come off the disk cache). Returns
+    (up to _SCHOL_RECENT merged items, {service: 'ok'|'none'|'failed'|'off'},
+    the number of distinct recent articles the services listed)."""
+    import concurrent.futures
+    from backend import scholarship_recent as sr
+    pool = concurrent.futures.ThreadPoolExecutor(max_workers=5)
+    try:
+        futs = {pool.submit(sr.recent_safe, question, work, name): name for name in sr.SERVICES}
+        done, _pending = concurrent.futures.wait(futs, timeout=10)
+        services, lists = {}, []
+        for f, name in futs.items():
+            if f in done:
+                res = f.result()
+                services[name] = sr.state(res)
+                lists.append(res.get('results') or [])
+            else:
+                services[name] = 'failed'
+    finally:
+        pool.shutdown(wait=False)
+    merged = sr.merge(lists)
+    return merged[:_SCHOL_RECENT], services, len(merged)
+
+
+@passages_bp.route('/passages/recent-scholarship', methods=['GET'])
+def recent_scholarship():
+    """Recent articles one live service gives for a question about a work.
+    One service per request so the page can fire them in parallel and paint
+    each as it lands. A service that fails answers available False, never 500."""
+    from backend import scholarship_recent as sr
+    question = (request.args.get('question') or '').strip()
+    work = (request.args.get('work') or '').strip()
+    service = (request.args.get('service') or '').strip().lower()
+    if not question or not work or service not in sr.SERVICES:
+        return jsonify({'service': service, 'available': False, 'results': [],
+                        'reason': 'question, work and a known service are required'})
+    return jsonify(sr.recent_safe(question, work, service))
 
 
 def _chronological(results):

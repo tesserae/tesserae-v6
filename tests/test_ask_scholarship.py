@@ -9,6 +9,15 @@ from backend.app import app  # noqa: E402
 from backend.assistant import model  # noqa: E402
 from backend import scholarship_theme  # noqa: E402
 from backend.blueprints import passages  # noqa: E402
+from backend import scholarship_recent  # noqa: E402
+import pytest  # noqa: E402
+
+
+@pytest.fixture(autouse=True)
+def no_live_services(monkeypatch):
+    """No test reaches the network: every live service answers 'none' unless a test says otherwise."""
+    monkeypatch.setattr(scholarship_recent, 'recent_safe',
+                        lambda q, w, s: {'service': s, 'available': True, 'results': [], 'reason': ''})
 
 
 def note(work, who='Servius', ref='verg. aen. 4.1', text='Dido burns with love.'):
@@ -130,3 +139,85 @@ def test_articles_hold_a_reserved_share_and_a_question_name_qualifies(monkeypatc
     assert len(kept2) == 8 and all(c['kind'] == 'commentary' for c in kept2)
     assert bp._question_names('Dido falls in love with Aeneas') == ['dido', 'aeneas']
     assert bp._question_names('The plague at Athens') == ['athens']
+
+
+RECENT = {'title': 'Dido and the Politics of Love', 'authors': ['A. Scholar'], 'year': 2015,
+          'venue': 'Classical Quarterly', 'doi': '10.1/dido', 'url': 'https://example.org/p',
+          'oa_url': None, 'excerpt': 'Dido yields to desire.', 'source': 'openalex', 'has_text': False, 'score': 2}
+
+
+def _fake_services(monkeypatch, per_service):
+    def fake(q, w, s):
+        return per_service.get(s, {'service': s, 'available': True, 'results': [], 'reason': ''})
+    monkeypatch.setattr(scholarship_recent, 'recent_safe', fake)
+
+
+def test_recent_alone_writes_the_paragraph_and_names_the_count(monkeypatch):
+    calls = []
+    _setup(monkeypatch, [], calls)
+    _fake_services(monkeypatch, {'openalex': {'service': 'openalex', 'available': True, 'results': [RECENT], 'reason': ''}})
+    out = _post({'question': 'Dido falls in love with Aeneas', 'work': 'vergil.aeneid', 'lang': 'la'})
+    assert out['available'] is True
+    assert '1 recent article' in out['holdings']
+    assert [c['kind'] for c in out['cites']] == ['recent']
+    assert out['cites'][0]['link'] == {'kind': 'web', 'url': 'https://doi.org/10.1/dido'}
+    assert out['cites'][0]['label'] == 'Dido and the Politics of Love (2015)'
+    assert out['services']['openalex'] == 'ok' and out['services']['crossref'] == 'none'
+    assert len(out['recent']) == 1
+    system, user = calls[0]
+    assert 'at most 150 words' in system and 'abstract' in system
+    assert '[1] Recent article, known from its abstract or an excerpt: Dido and the Politics of Love (2015), Classical Quarterly: Dido yields to desire.' in user
+    assert 'recent articles known from abstracts' in user
+
+
+def test_recent_items_are_numbered_after_the_held_ones_and_prefer_the_free_copy(monkeypatch):
+    _setup(monkeypatch, [note('vergil.aeneid.part.4')])
+    free = dict(RECENT, oa_url='https://free.example/p.pdf')
+    _fake_services(monkeypatch, {'crossref': {'service': 'crossref', 'available': True, 'results': [free], 'reason': ''}})
+    monkeypatch.setattr(model, 'complete', lambda *a, **k: 'Servius says so [1] and a recent article agrees [2].')
+    out = _post({'question': 'Dido in love', 'work': 'vergil.aeneid', 'lang': 'la'})
+    assert [c['n'] for c in out['cites']] == [1, 2]
+    assert out['cites'][1]['link']['url'] == 'https://free.example/p.pdf'
+
+
+def test_without_recent_items_the_limit_stays_120_and_holdings_say_none(monkeypatch):
+    calls = []
+    _setup(monkeypatch, [note('vergil.aeneid.part.4')], calls)
+    out = _post({'question': 'Dido in love', 'work': 'vergil.aeneid', 'lang': 'la'})
+    assert 'at most 120 words' in calls[0][0] and 'abstract' not in calls[0][0]
+    assert 'recent' in out['holdings'] or 'live services' in out['holdings']
+    assert out['recent'] == []
+
+
+def test_a_failed_service_changes_the_holdings_clause(monkeypatch):
+    _setup(monkeypatch, [note('vergil.aeneid.part.4')])
+    ok = _post({'question': 'Dido in love', 'work': 'vergil.aeneid', 'lang': 'la'})
+    _fake_services(monkeypatch, {'crossref': {'service': 'crossref', 'available': False, 'results': [],
+                                              'reason': 'the service did not answer'}})
+    bad = _post({'question': 'Dido in love', 'work': 'vergil.aeneid', 'lang': 'la'})
+    assert bad['services']['crossref'] == 'failed'
+    assert '1 of the live services' in bad['holdings'] and bad['holdings'] != ok['holdings']
+
+
+def test_clause_states_and_no_forbidden_punctuation():
+    info = {'display_name': 'Vergil, Aeneid'}
+    kept = [note('vergil.aeneid')]
+    for i in range(30):
+        q = f'question {i}'
+        for args in ((3, 0), (1, 0), (0, 0), (0, 2), (2, 1)):
+            for held in (kept, []):
+                s = passages._scholarship_holdings(q, held, info, 'vergil.aeneid', *args)
+                assert ':' not in s and ';' not in s and '\u2014' not in s and '\u2013' not in s
+    found = {passages._scholarship_holdings(f'q{i}', kept, info, 'w', 3, 0) for i in range(60)}
+    assert len({s.split(' and ', 1)[-1] if ' and ' in s else s for s in found}) >= 4
+    assert '3 recent articles' in passages._scholarship_holdings('q', kept, info, 'w', 3, 0)
+    assert 'no recent' in passages._scholarship_holdings('q', kept, info, 'w', 0, 0) or \
+        'nothing recent' in passages._scholarship_holdings('q', kept, info, 'w', 0, 0)
+
+
+def test_holdings_count_is_everything_the_services_listed_not_only_what_the_paragraph_reads(monkeypatch):
+    _setup(monkeypatch, [note('vergil.aeneid.part.4')])
+    items = [dict(RECENT, title=f'Dido study {i}', doi=f'10.1/{i}') for i in range(6)]
+    _fake_services(monkeypatch, {'openalex': {'service': 'openalex', 'available': True, 'results': items, 'reason': ''}})
+    out = _post({'question': 'Dido in love', 'work': 'vergil.aeneid', 'lang': 'la'})
+    assert '6 recent articles' in out['holdings'] and len(out['recent']) == 4

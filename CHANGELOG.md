@@ -9,6 +9,10 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-12
 
+### Inscriptions & Papyri: a search that finds nothing says so, and a one-word dictionary-form search falls back to the letters
+Searches for "rusellorum" and then "rusell" in Lemma mode found nothing, and the page showed nothing at all, so there was no way to tell whether the search had run. It now prints a line saying that no inscription or papyrus has the word as a dictionary form (or contains it, in Exact mode). When a one-word dictionary-form search finds nothing, the page runs the same search on the letters at once and, if documents come back, shows them under a note that says so. The Help page explains both.
+### Search One Text: recent articles from the live services join the scholarship paragraph
+The Scholarship paragraph read only the held commentaries and the pre-1923 journal articles. It now also asks OpenAlex, Crossref, CORE and Google Books (and Semantic Scholar where a key is set) for recent articles on the question, keeps those that name the author or the work and share a word with the question, and lets the paragraph cite up to four of them. They are known only from an abstract or a short open-access excerpt, and the paragraph says so when it cites one. Each service is asked in its own request, so a "Recent articles" list under the paragraph fills as each answers, with a link to a free copy where one exists, and a small line names the services still pending. The line under the paragraph now also says how many recent articles the live services listed, or that some did not answer. New route `GET /api/passages/recent-scholarship`.
 ### The running clock on a search shows whole seconds
 While a search runs, the clock under the spinner (Rare Words, Rare Pairs, the parallel search, the corpus search, Cross-Language) counted "21.0s", a decimal that never changed because the clock ticks once a second. It now reads "21s". The time shown when a search has finished keeps its decimal, since that one is measured.
 
