@@ -9,6 +9,9 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-12
 
+### Search One Text: journal articles hold a share of the scholarship paragraph
+The paragraph's eight sources filled in the search's order, and a commentary note on the very lines outranks an article's passing mention every time, so the Aeneid paragraph drew on notes alone though articles mentioning Dido and Aeneas exist. Two of the eight are now reserved for articles when any qualify, the search looks a hundred deep, and an article qualifies when its title or snippet names the author, the work, or a capitalised name from the question.
+
 ### Search One Text: the Beta mark sits beside the title, and the strip's legend says what light red is
 The mark no longer takes a line of its own. The legend reads, for example, "Dark red: a strong match, far above the work's typical score. Light red: the rest of the 25 passages closest to your question. Grey: passages that name Pannonia and Augustus, listed further down."
 ### Search One Text: the scholarship paragraph starts with what the notes say

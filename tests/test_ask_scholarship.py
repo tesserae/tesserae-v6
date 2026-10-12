@@ -112,3 +112,21 @@ def test_a_note_on_another_work_that_names_the_author_is_kept(monkeypatch):
     kept, info = bp._scholarship_keep(cards, 'thucydides.peleponnesian_war')
     assert len(kept) == 1 and kept[0]['snippet'].startswith('Compare')
     assert all('for this question' in x or 'this question' in x for x in bp._HOLDINGS_NONE)
+
+
+def test_articles_hold_a_reserved_share_and_a_question_name_qualifies(monkeypatch):
+    from backend.blueprints import passages as bp
+    from backend import passage_index as pi
+    monkeypatch.setattr(pi, '_naming', lambda base: {'author': 'Vergil', 'title': 'Aeneid', 'display_name': 'Vergil, Aeneid'})
+    notes = [{'kind': 'commentary', 'work': 'vergil.aeneid.part.1', 'snippet': f'note {i}', 'commentator': 'Page'} for i in range(12)]
+    arts = [{'kind': 'article', 'title': 'Fortuna in Latin Poetry', 'snippet': 'Dido and Aeneas part at the altar.'},
+            {'kind': 'article', 'title': 'Ablative of the Efficient', 'snippet': 'Nothing about this poem.'},
+            {'kind': 'article', 'title': 'Catullus and the Augustans', 'snippet': 'Virgil borrows from Catullus here.'}]
+    kept, _ = bp._scholarship_keep(notes + arts, 'vergil.aeneid', 'Dido falls in love with Aeneas')
+    assert len(kept) == 8
+    assert [c['kind'] for c in kept].count('article') == 2
+    assert all('Ablative' not in (c.get('title') or '') for c in kept)
+    kept2, _ = bp._scholarship_keep(notes, 'vergil.aeneid', 'Dido falls in love with Aeneas')
+    assert len(kept2) == 8 and all(c['kind'] == 'commentary' for c in kept2)
+    assert bp._question_names('Dido falls in love with Aeneas') == ['dido', 'aeneas']
+    assert bp._question_names('The plague at Athens') == ['athens']

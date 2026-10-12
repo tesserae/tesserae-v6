@@ -331,7 +331,26 @@ _SCHOL_SYSTEM = (
     "says that. Do not call the notes 'sources'. Do not use the word paragraph. Plain words. "
     "No dashes, no semicolons, no lists, no headings.")
 _SCHOL_KEEP = 8
-_SCHOL_DEPTH = 30
+_SCHOL_DEPTH = 100
+# Up to this many of the eight are reserved for journal articles when any
+# qualify (2026-10-12, the owner: "Why does the paragraph on the Aeneid have
+# to draw only on commentaries when you also have articles?"). Notes on the
+# very lines outrank an article's passing mention every time, so without a
+# reserved share the articles never reach the eight. An article qualifies
+# when its title or snippet names the author, the work, or a capitalised
+# name from the question itself (Dido, Aeneas).
+_SCHOL_ARTICLES = 2
+_SCHOL_STOP = {'The', 'A', 'An', 'What', 'How', 'Why', 'Where', 'When', 'Who', 'Which', 'I', 'In', 'On', 'Of'}
+
+
+def _question_names(question):
+    words = re.findall(r"[A-Z][\w'\u2019]+", question or '')
+    out = []
+    for w in words:
+        w = re.sub(r"['\u2019]s$", '', w)
+        if w not in _SCHOL_STOP and len(w) > 2:
+            out.append(w.lower())
+    return out[:4]
 
 # One sentence saying what the scholarship collection holds for the work. The
 # phrasing is picked by a hash of the question so a question always gets the
@@ -374,9 +393,12 @@ def _join_names(names):
 _ALIASES = {'vergil': ('virgil',), 'virgil': ('vergil',)}
 
 
-def _scholarship_keep(cards, work):
-    """The cards about this work: commentary notes on it (book files collapsed)
-    and articles whose text names its author or its title."""
+def _scholarship_keep(cards, work, question=''):
+    """The cards about this work: commentary notes on it (book files collapsed),
+    notes on other works that name its author, and articles whose title or
+    snippet names the author, the work, or a name from the question. Articles
+    hold a reserved share of the eight (_SCHOL_ARTICLES) when any qualify;
+    the rest fill in the search's order."""
     from backend import work_names
     base = work_names.base_work(work)
     info = passage_index._naming(base) or {}
@@ -388,7 +410,8 @@ def _scholarship_keep(cards, work):
     # A title of three letters or fewer ("Odes") would match anything.
     if len(title) >= 5:
         names.append(title)
-    kept = []
+    qnames = _question_names(question)
+    notes, arts = [], []
     for c in cards or []:
         hay = ' '.join(str(c.get(k) or '') for k in ('title', 'snippet')).lower()
         names_it = bool(names) and any(re.search(r'\b' + re.escape(n) + r'\b', hay) for n in names)
@@ -397,12 +420,15 @@ def _scholarship_keep(cards, work):
             # this author (Page on the Aeneid comparing Thucydides' plague is
             # secondary literature on Thucydides too, 2026-10-12).
             if (c.get('work') and work_names.base_work(c['work']) == base) or names_it:
-                kept.append(c)
-        elif c.get('kind') == 'article' and names_it:
-            kept.append(c)
-        if len(kept) >= _SCHOL_KEEP:
-            break
-    return kept, info
+                notes.append(c)
+        elif c.get('kind') == 'article':
+            if names_it or any(re.search(r'\b' + re.escape(n) + r'\b', hay) for n in qnames):
+                arts.append(c)
+    n_arts = min(len(arts), _SCHOL_ARTICLES)
+    kept = notes[:_SCHOL_KEEP - n_arts] + arts[:n_arts]
+    if len(kept) < _SCHOL_KEEP:
+        kept += arts[n_arts:_SCHOL_KEEP - len(kept) + n_arts]
+    return kept[:_SCHOL_KEEP], info
 
 
 def _scholarship_label(c):
@@ -455,7 +481,7 @@ def ask_scholarship():
     except Exception as e:
         logger.info('[PASSAGES] ask-scholarship search failed: %s', type(e).__name__)
         return jsonify({'available': False, 'error': 'the scholarship search is not available'})
-    kept, info = _scholarship_keep(found.get('results'), work)
+    kept, info = _scholarship_keep(found.get('results'), work, question)
     holdings = _scholarship_holdings(question, kept, info, work)
     if not kept or not model.is_available():
         return jsonify({'available': False, 'holdings': holdings})
