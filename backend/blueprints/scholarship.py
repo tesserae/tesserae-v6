@@ -36,7 +36,7 @@ logger = get_logger('scholarship')
 scholarship_bp = Blueprint('scholarship', __name__)
 
 LLM_URL = os.environ.get('TESSERAE_LOCAL_LLM', 'http://127.0.0.1:8081/v1/chat/completions')
-TRANSLATION_DISCLAIMER = 'Machine translation by a local model, unreviewed.'
+TRANSLATION_DISCLAIMER = 'Machine translation, unreviewed.'
 LANGUAGE_NAMES = {'la': 'Latin', 'grc': 'Greek', 'he': 'Hebrew', 'ar': 'Arabic', 'fa': 'Persian',
                   'ur': 'Urdu', 'cop': 'Coptic', 'en': 'English', 'de': 'German', 'fr': 'French', 'it': 'Italian'}
 _XLAT_DIR = os.path.join(S.CACHE_DIR, 'translations')
@@ -178,14 +178,23 @@ def translate():
               'the passage cited, into plain English. Output only the English translation, nothing else; do not '
               f'repeat the {lang}. Keep the word or phrase the note comments on in quotation marks at the start.'
               f'\n\n{label}:\n' + text + '\n\nEnglish:')
-    try:
-        r = requests.post(LLM_URL, json={'model': 'qwen3', 'temperature': 0, 'max_tokens': 500,
-                                         'messages': [{'role': 'user', 'content': prompt}]}, timeout=60)
-        r.raise_for_status()
-        english = r.json()['choices'][0]['message']['content'].strip()
-    except (requests.RequestException, KeyError, ValueError) as e:
-        logger.warning('note translation failed: %s', e)
-        return jsonify({'available': False, 'reason': 'The local translation model did not answer.'})
+    # Through the assistant's model client, pointed at the campus gateway on
+    # production (2026-10-12; this route posted to the local llama-server on
+    # its own). TESSERAE_LOCAL_LLM, when set, still names a bare chat endpoint.
+    english = None
+    if os.environ.get('TESSERAE_LOCAL_LLM'):
+        try:
+            r = requests.post(LLM_URL, json={'model': 'qwen3', 'temperature': 0, 'max_tokens': 500,
+                                             'messages': [{'role': 'user', 'content': prompt}]}, timeout=60)
+            r.raise_for_status()
+            english = r.json()['choices'][0]['message']['content'].strip()
+        except (requests.RequestException, KeyError, ValueError) as e:
+            logger.warning('note translation failed: %s', e)
+    else:
+        from backend.assistant import model as _model
+        english = _model.complete('You translate commentary notes on ancient texts into plain English.', prompt, 500, 0)
+    if not english:
+        return jsonify({'available': False, 'reason': 'The translation model did not answer.'})
     out = {'available': True, 'text': english, 'disclaimer': TRANSLATION_DISCLAIMER, 'made': time.strftime('%Y-%m-%d')}
     try:
         tmp = f'{path}.{os.getpid()}.tmp'

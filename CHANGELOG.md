@@ -9,6 +9,9 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-12
 
+### The last two calls to the local model go through the gateway client
+Theme Search's expansion of a short query into sentence-shaped forms, and the Scholarship tab's translation of a commentary note, each posted to the local model server on this machine by themselves, while the assistant and every other model call already go through the configured client, which points at the campus gateway on the live site. Both now use that client. An environment setting can still name a bare endpoint for either. With nothing left depending on it, the local model server, which holds twenty gigabytes of memory, can be stopped during heavy work.
+
 ### Inscriptions & Papyri: a search that finds nothing says so, and a one-word dictionary-form search falls back to the letters
 Searches for "rusellorum" and then "rusell" in Lemma mode found nothing, and the page showed nothing at all, so there was no way to tell whether the search had run. It now prints a line saying that no inscription or papyrus has the word as a dictionary form (or contains it, in Exact mode). When a one-word dictionary-form search finds nothing, the page runs the same search on the letters at once and, if documents come back, shows them under a note that says so. The Help page explains both.
 ### Search One Text: recent articles from the live services join the scholarship paragraph
