@@ -35,6 +35,12 @@ Conventions
   hand and are the models the helper matches.
 
 
+## 2026-10-12 The local model server mothballed (RUN 18:06)
+
+The assistant, the scholarship paragraph, Theme Search's query expansion and the Scholarship tab's note translation all go through one model client, which the live site points at the campus AI gateway. The local model server on the web machine (a llama-server holding about 20 GB of memory) had answered no request in a week, so at the owner's instruction it was stopped and disabled, leaving its unit file in place. Available memory rose from 27 to 52 GB, and the job launcher, which allowed one job at a time while that server ran, now lets jobs overlap within its 24 GB budget.
+
+Reviving it, should the gateway be unreachable, is one command on the web machine: `tess-local-model revive` starts the server and points the site's model setting at it, saving the gateway settings aside. `tess-local-model mothball` reverses that, and `tess-local-model status` reports both. No key is printed by any of the three.
+
 ## 2026-10-12 Object pictures cached on the server (RUN 10:41 to 10:47)
 
 Status: run on production 2026-10-12 at two requests a second. 684 of 694 pictures cached (134 MB); ten Art Institute of Chicago addresses answered 403 and are left out (the page hides the picture box for them). One thing went wrong first: the web worker had already created `data/objects/images/` when the deploy's live check fetched one picture, and its umask made the folder unwritable by the maintainer, so the first run failed on every file. The folder was moved aside as `data/objects/images.flask-owned/` (one file, to be deleted by the server administrator) and recreated group-writable; the route now creates the folder group-writable itself.
