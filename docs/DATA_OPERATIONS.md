@@ -35,9 +35,9 @@ Conventions
   hand and are the models the helper matches.
 
 
-## 2026-10-12 Object pictures cached on the server (TO RUN)
+## 2026-10-12 Object pictures cached on the server (RUN 10:41 to 10:47)
 
-Status: to run on production after the pull request for the image route is merged and deployed. The route also fetches a picture on first request, so the run only saves visitors the first wait.
+Status: run on production 2026-10-12 at two requests a second. 684 of 694 pictures cached (134 MB); ten Art Institute of Chicago addresses answered 403 and are left out (the page hides the picture box for them). One thing went wrong first: the web worker had already created `data/objects/images/` when the deploy's live check fetched one picture, and its umask made the folder unwritable by the maintainer, so the first run failed on every file. The folder was moved aside as `data/objects/images.flask-owned/` (one file, to be deleted by the server administrator) and recreated group-writable; the route now creates the folder group-writable itself.
 
 Command, from the production checkout, inside the job launcher:
 
