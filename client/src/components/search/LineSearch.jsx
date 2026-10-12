@@ -100,6 +100,7 @@ export default function LineSearch({ language }) {
     collection, setCollection,
     dateFrom, setDateFrom,
     dateTo, setDateTo,
+    docKind, setDocKind,
     docRegion, setDocRegion,
     docTextType, setDocTextType,
     docMaterial, setDocMaterial,
@@ -812,6 +813,7 @@ export default function LineSearch({ language }) {
                   collection={collection} setCollection={setCollection}
                   dateFrom={dateFrom} setDateFrom={setDateFrom}
                   dateTo={dateTo} setDateTo={setDateTo}
+                  docKind={docKind} setDocKind={setDocKind}
                   docRegion={docRegion} setDocRegion={setDocRegion}
                   docTextType={docTextType} setDocTextType={setDocTextType}
                   docMaterial={docMaterial} setDocMaterial={setDocMaterial}

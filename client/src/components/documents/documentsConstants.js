@@ -15,32 +15,31 @@ export const DOCUMENTS_FORMULA_DEFAULT_N = 100;
 // are ranked, a 500-row cap is gone").
 export const DOC_PAGE_SIZE = 50;
 
-// One-click example searches, verified against the live documents indexes.
-// Shown only when the documents control is itself available (the trial flag
-// plus the server switch).
+// One-click example searches, each checked against the live documents
+// indexes. Well-known, pungent texts rather than the commonest formulas on
+// stone. Shown only when the documents control is itself available (the
+// trial flag plus the server switch).
 export const DOCUMENT_EXAMPLE_SEARCHES = {
-  // Epigraphy first (owner 2026-10-10: a historian trying the page should
-  // meet meaningful inscriptions, with the literary quotations at the end).
   la: [
-    { label: '"tribunicia potestate"', hint: 'the emperors’ dating formula: the year of tribunician power',
-      query: 'tribunicia potestate', collection: 'documents', searchType: 'lemma' },
-    { label: '"decreto decurionum"', hint: 'by decree of the town council: civic honours and burials',
-      query: 'decreto decurionum', collection: 'documents', searchType: 'lemma' },
-    { label: '"sevir augustalis"', hint: 'the freedmen’s priesthood of the imperial cult',
-      query: 'sevir augustalis', collection: 'documents', searchType: 'lemma' },
-    { label: '"sit tibi terra levis"', hint: 'an epitaph wish, with its own literary echoes',
-      query: 'sit tibi terra levis', collection: 'both', searchType: 'lemma' },
-    { label: '"conticuere omnes"', hint: 'Aeneid 2.1, scratched into Pompeian walls',
-      query: 'conticuere omnes', collection: 'both', searchType: 'exact' },
-    { label: '"arma virumque cano"', hint: 'Vergil’s opening, plus a Pompeii fuller’s parody of it',
+    { label: '"balnea vina Venus"', hint: 'an epitaph: baths, wine and love ruin our bodies, and make life',
+      query: 'balnea vina Venus', collection: 'documents', searchType: 'lemma' },
+    { label: '"admiror paries te non cecidisse"', hint: 'a Pompeian graffito wondering that the wall has not fallen under so much scribbling',
+      query: 'admiror paries te non cecidisse', collection: 'documents', searchType: 'lemma' },
+    { label: '"suspirium puellarum"', hint: 'a gladiator’s graffito: the girls’ heart-throb',
+      query: 'suspirium puellarum', collection: 'documents', searchType: 'lemma' },
+    { label: '"tene me ne fugiam"', hint: 'slave collars: hold me so I do not run away',
+      query: 'tene me ne fugiam', collection: 'documents', searchType: 'lemma' },
+    { label: '"venimus huc cupidi"', hint: 'a Pompeian graffito: we came here eager, and leave more eager still',
+      query: 'venimus huc cupidi', collection: 'documents', searchType: 'lemma' },
+    { label: '"arma virumque cano"', hint: 'Vergil’s first line, scratched on Pompeian walls; searched in Both so the literature shows beside the stones',
       query: 'arma virumque cano', collection: 'both', searchType: 'lemma' },
   ],
   grc: [
-    { label: 'ἡ βουλὴ καὶ ὁ δῆμος', hint: '"the council and the people", the opening of a civic decree',
-      query: 'βουλὴ καὶ ὁ δῆμος', collection: 'documents', searchType: 'lemma' },
-    { label: 'ἀγαθῇ τύχῃ', hint: '"with good fortune", the heading of decrees and dedications',
-      query: 'ἀγαθῇ τύχῃ', collection: 'documents', searchType: 'lemma' },
-    { label: 'οὐδεὶς ἀθάνατος', hint: '"no one is immortal", a Greek epitaph phrase',
-      query: 'οὐδεὶς ἀθάνατος', collection: 'documents', searchType: 'lemma' },
+    { label: 'ἐὰν ἦν θήλεα ἔκβαλε', hint: 'a letter home from Alexandria: if it is a girl, expose it',
+      query: 'ἐὰν ἦν θήλεα ἔκβαλε', collection: 'documents', searchType: 'lemma' },
+    { label: 'Ἀπίων Ἐπιμάχῳ τῷ πατρί', hint: 'a recruit’s letter to his father from the fleet at Misenum',
+      query: 'Ἀπίων Ἐπιμάχῳ τῷ πατρί', collection: 'documents', searchType: 'lemma' },
+    { label: 'θάρσει οὐδεὶς ἀθάνατος', hint: 'an epitaph’s consolation: take heart, no one is immortal',
+      query: 'θάρσει οὐδεὶς ἀθάνατος', collection: 'documents', searchType: 'lemma' },
   ],
 };

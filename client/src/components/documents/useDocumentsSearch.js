@@ -30,6 +30,7 @@ export function useDocumentsSearch({ documentsEnabled, defaultCollection = 'lite
   const [collection, setCollection] = useState(defaultCollection);
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
+  const [docKind, setDocKind] = useState('');
   const [docRegion, setDocRegion] = useState('');
   const [docTextType, setDocTextType] = useState('');
   const [docMaterial, setDocMaterial] = useState('');
@@ -67,6 +68,7 @@ export function useDocumentsSearch({ documentsEnabled, defaultCollection = 'lite
     params.collection = collection;
     if (dateFrom.trim()) params.date_from = parseInt(dateFrom, 10);
     if (dateTo.trim()) params.date_to = parseInt(dateTo, 10);
+    if (docKind) params.kind = docKind;
     if (docRegion.trim()) params.region = docRegion.trim();
     if (docTextType.trim()) params.text_type = docTextType.trim();
     if (docMaterial.trim()) params.material = docMaterial.trim();
@@ -181,6 +183,7 @@ export function useDocumentsSearch({ documentsEnabled, defaultCollection = 'lite
     collection, setCollection,
     dateFrom, setDateFrom,
     dateTo, setDateTo,
+    docKind, setDocKind,
     docRegion, setDocRegion,
     docTextType, setDocTextType,
     docMaterial, setDocMaterial,
