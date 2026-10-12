@@ -1715,6 +1715,17 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 purpose.
               </p>
               <p className="text-gray-700 mb-4">
+                Under the summary, a second paragraph called What the secondary literature
+                says is written from the scholarship collection: commentary notes on the work
+                (Servius, Conington and Page on Latin epic, Allen on the Homeric Hymns, Paley,
+                Verity, the rabbinic commentators on the Hebrew Bible) and the JSTOR Early Journal
+                Content articles that name the work or its author, all published before 1923.
+                Each bracketed number links to the note in the Reader or to the article on JSTOR.
+                A line in small type says what the collection holds for the work. Where it holds
+                nothing, as for Sappho, the paragraph is left out and the line says so. The
+                assistant may cite only the notes the search returned.
+              </p>
+              <p className="text-gray-700 mb-4">
                 When a work is held in books, two small menus beside the Work menu choose the
                 first and last book to search. They start at the whole work. A narrower range
                 searches only those books, and the strip draws only those books.

@@ -316,6 +316,159 @@ def ask_summary():
     return jsonify({'available': True, 'summary': text, 'cites': cites})
 
 
+_SCHOL_SYSTEM = (
+    "You write for scholars. You are given a question about one ancient work and a numbered list "
+    "of notes from commentaries and articles about it. Write at most 120 words on what these "
+    "notes and articles say about the subject. Cite each claim with the bracketed number of the "
+    "note it came from, for example [2]. Say nothing the notes do not say. Report what each "
+    "note actually discusses, even when it is only a point of text or grammar, and do not "
+    "infer a reading of the subject from it. If they do not answer the question, say so in one "
+    "sentence. Begin with a short clause that tells "
+    "the reader the material comes from the commentaries and articles listed, in your own "
+    "words, for example 'Going by the commentators' or 'The sources on hand say', and "
+    "vary it each time. Do not use the word paragraph. Plain words. No dashes, no semicolons, no lists, "
+    "no headings.")
+_SCHOL_KEEP = 8
+_SCHOL_DEPTH = 30
+
+# One sentence saying what the scholarship collection holds for the work. The
+# phrasing is picked by a hash of the question so a question always gets the
+# same sentence and different questions differ. No colons, semicolons or dashes.
+_HOLDINGS_WITH = (
+    "The secondary sources I can read include {n} {things} from {who} on {title}.",
+    "For {title} I have {n} {things} from {who} to draw on.",
+    "The secondary sources I have access to give {n} {things} from {who} on {title}.",
+    "My secondary sources on {title} for this question are {n} {things} from {who}.",
+    "I found {n} {things} from {who} on {title} among the secondary sources I can read.",
+)
+_HOLDINGS_NONE = (
+    "I have no secondary sources on {title} to draw on.",
+    "I don't have access to any matching secondary sources on {title}.",
+    "The secondary sources I can read have nothing on {title} for this question.",
+    "No secondary source I can read speaks to {title} here.",
+    "I can find no matching secondary literature on {title} in what I have access to.",
+)
+
+
+def _pick(options, question):
+    import hashlib
+    h = int(hashlib.sha256((question or '').strip().lower().encode('utf-8')).hexdigest(), 16)
+    return options[h % len(options)]
+
+
+def _join_names(names):
+    names = list(dict.fromkeys(n for n in names if n))
+    if not names:
+        return 'the collection'
+    if len(names) == 1:
+        return names[0]
+    if len(names) == 2:
+        return f'{names[0]} and {names[1]}'
+    return f'{names[0]}, {names[1]} and {len(names) - 2} more'
+
+
+_ALIASES = {'vergil': ('virgil',), 'virgil': ('vergil',)}
+
+
+def _scholarship_keep(cards, work):
+    """The cards about this work: commentary notes on it (book files collapsed)
+    and articles whose text names its author or its title."""
+    from backend import work_names
+    base = work_names.base_work(work)
+    info = passage_index._naming(base) or {}
+    author = str(info.get('author') or '').strip().lower()
+    title = str(info.get('title') or '').strip().lower()
+    names = [n for n in (author,) if n]
+    for n in list(names):
+        names.extend(_ALIASES.get(n, ()))
+    # A title of three letters or fewer ("Odes") would match anything.
+    if len(title) >= 5:
+        names.append(title)
+    kept = []
+    for c in cards or []:
+        if c.get('kind') == 'commentary':
+            if c.get('work') and work_names.base_work(c['work']) == base:
+                kept.append(c)
+        elif c.get('kind') == 'article' and names:
+            hay = ' '.join(str(c.get(k) or '') for k in ('title', 'snippet')).lower()
+            if any(re.search(r'\b' + re.escape(n) + r'\b', hay) for n in names):
+                kept.append(c)
+        if len(kept) >= _SCHOL_KEEP:
+            break
+    return kept, info
+
+
+def _scholarship_label(c):
+    if c.get('kind') == 'article':
+        t = (c.get('title') or 'Article').strip()
+        return f"{t} ({c['year']})" if c.get('year') else t
+    who = (c.get('commentator') or 'Commentary').strip()
+    return f"{who} on {c['ref_start']}" if c.get('ref_start') else who
+
+
+def _scholarship_holdings(question, kept, info, work):
+    title = info.get('display_name') or info.get('title') or str(work)
+    if not kept:
+        return _pick(_HOLDINGS_NONE, question).format(title=title)
+    arts = [c for c in kept if c.get('kind') == 'article']
+    notes = [c for c in kept if c.get('kind') != 'article']
+    if arts and notes:
+        things = 'notes and articles'
+    elif arts:
+        things = 'articles' if len(kept) > 1 else 'article'
+    else:
+        things = 'notes' if len(kept) > 1 else 'note'
+    who = _join_names([c.get('commentator') for c in notes] +
+                      [c.get('journal') or 'journal articles' for c in arts])
+    return _pick(_HOLDINGS_WITH, question).format(n=len(kept), things=things, who=who, title=title)
+
+
+@passages_bp.route('/passages/ask-scholarship', methods=['POST'])
+def ask_scholarship():
+    """What the secondary literature says about the question, for one work."""
+    import time
+    import concurrent.futures
+    from backend.assistant import model
+    from backend import scholarship_theme
+    data = request.get_json(silent=True) or {}
+    question = str(data.get('question') or '').strip()
+    work = str(data.get('work') or '').strip()
+    if not question or not work:
+        return jsonify({'available': False, 'error': 'question and work are required'})
+    try:
+        found = scholarship_theme.theme(question, k=_SCHOL_DEPTH)
+    except Exception as e:
+        logger.info('[PASSAGES] ask-scholarship search failed: %s', type(e).__name__)
+        return jsonify({'available': False, 'error': 'the scholarship search is not available'})
+    kept, info = _scholarship_keep(found.get('results'), work)
+    holdings = _scholarship_holdings(question, kept, info, work)
+    if not kept or not model.is_available():
+        return jsonify({'available': False, 'holdings': holdings})
+    lines = [f"{info.get('display_name') or work}", question]
+    for i, c in enumerate(kept, 1):
+        lines.append(f"[{i}] {_scholarship_label(c)}: {c.get('snippet') or ''}")
+    t0 = time.time()
+    pool = concurrent.futures.ThreadPoolExecutor(max_workers=1)
+    try:
+        fut = pool.submit(model.complete, _SCHOL_SYSTEM, '\n'.join(lines), 400, 0.2)
+        try:
+            text = fut.result(timeout=_SUMMARY_TIMEOUT)
+        except concurrent.futures.TimeoutError:
+            logger.info('[PASSAGES] ask-scholarship %r timed out after %.1fs', question, time.time() - t0)
+            return jsonify({'available': False, 'holdings': holdings, 'error': 'the model took too long'})
+        except Exception as e:
+            logger.info('[PASSAGES] ask-scholarship %r failed: %s', question, type(e).__name__)
+            return jsonify({'available': False, 'holdings': holdings, 'error': 'the model could not answer'})
+    finally:
+        pool.shutdown(wait=False)
+    if not text:
+        return jsonify({'available': False, 'holdings': holdings, 'error': 'the model could not answer'})
+    used = sorted({int(n) for n in re.findall(r'\[(\d+)\]', text) if 1 <= int(n) <= len(kept)})
+    cites = [{'n': n, 'kind': kept[n - 1].get('kind'), 'label': _scholarship_label(kept[n - 1]),
+              'link': kept[n - 1].get('link')} for n in used]
+    return jsonify({'available': True, 'holdings': holdings, 'summary': text, 'cites': cites})
+
+
 def _chronological(results):
     """Oldest first, undated last.
 

@@ -9,6 +9,9 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-12
 
+### Search One Text: a second paragraph on what the secondary literature says
+The owner's instruction: "Maybe say in every case briefly the state of the secondary literature. So 'The secondary sources I have access to say' or something, if there is anything. If not, 'I don't have access to any matching secondary sources' or something similar. Probably better if it's not the same verbatim phrases every time." Under "What the work says", a second paragraph, "What the secondary literature says", is now written by the assistant from the commentary notes on the chosen work and from the pre-1923 journal articles that name its author or title, at most eight, each claim carrying a bracketed number that links to the note in the Reader or the article on JSTOR. A line in small grey type says what the collection holds for the work, in one of five phrasings picked from the question (the same question always gets the same line). Where the collection has nothing on the work, as for Sappho, only that line appears and the model is not called. New route `POST /api/passages/ask-scholarship`; the Help page and the scope box describe it.
+
 ### Search One Text: strip labels placed by position, and the unit named from the references
 The row of numbers under "Where in the work" squeezed each label into its own column, so for a work of 137 fragments "16" showed as "1". About twelve labels (six on a phone) are now placed at their columns' centres, each as wide as its number. The summary line names the unit the references use: fragments for Sappho, poems for Catullus, letters for Pliny, books otherwise.
 
