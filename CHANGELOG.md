@@ -9,6 +9,12 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-12
 
+### Google Books: one retry after a temporary failure
+Google Books answers some queries with a passing 503 ("service temporarily unavailable"). The Reader's book search and the recent-articles search now send the request once more after one second when the answer is a server error (5xx), and report the service as unavailable only if the second try fails too.
+### Recent articles: a tighter rule for what is kept
+An article, chapter or book is kept for a question about a work only when its title or abstract names the author or the work. Naming that happens only in a full text (CORE) or in a Google Books excerpt no longer passes, and neither does a question word found only after the first 1,500 characters of an abstract. Schoolbook and exam-board titles (A Level, GCSE, OCR, Component, Revision Guide, Student's Book, Workbook, Exam) are dropped. Items whose title names the work come first, then those matching more of the question's words, then the newest.
+### Theme Search, Scholarship choice: recent articles from the live services
+Under the commentary and journal list, Theme Search's Scholarship choice now has a Recent articles section built from OpenAlex, Crossref, CORE, Google Books and Semantic Scholar, each service's answer shown as it arrives. Without a work, an article is kept when its title or abstract holds at least two of the question's words (all of them for a short question) and the title holds at least one. The link "See every note and article for this question" in Search One Text carries the work, so the list then uses the work-aware rule. The route /api/passages/recent-scholarship takes the work as optional.
 ### Reader: a long parallel passage is cut around its matched words, found as whole words
 In the Reader's Parallels tab a long prose hit is shortened to a window around the words that matched. The window was placed by a plain letter search, so for Tacitus, Annals 4.58 the word "Roma" was first found inside "Romanus" in the opening sentence, the card showed the opening, and nothing was highlighted because the real "Roma" and "reditus" were past the cut. The window is now placed on whole words, folding u and v as the highlighting does, and grows a little to keep a second matched word in view.
 ### About page: what Tesserae is now

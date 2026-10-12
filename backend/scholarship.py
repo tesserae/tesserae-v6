@@ -69,6 +69,21 @@ def _get(url, params):
     r.raise_for_status()
     return r.json()
 
+
+def _get_retry(url, params):
+    """_get, sent once more after one second when the service answers with a
+    5xx status (Google Books answers some queries with a passing 503). Only a
+    second failure raises."""
+    try:
+        return _get(url, params)
+    except requests.RequestException as e:
+        status = getattr(getattr(e, 'response', None), 'status_code', None)
+        if not (isinstance(status, int) and status >= 500):
+            raise
+        logger.info('[SCHOLARSHIP] %s answered %s, trying once more', url.split('/')[2], status)
+        time.sleep(1)
+        return _get(url, params)
+
 # ------------------------------------------------------- naming a passage
 
 def passage_names(work, ref_start, ref_end=None):
@@ -1209,7 +1224,7 @@ def books(p, limit=8):
         out = []
         for q in (f'"{p["abbrev"]} {p["lo"]}" {p["author"]}', f'"{p["title"]} {p["lo"]}"'):
             try:
-                d = _get('https://www.googleapis.com/books/v1/volumes',
+                d = _get_retry('https://www.googleapis.com/books/v1/volumes',
                          {'q': q, 'maxResults': limit, 'key': GOOGLE_BOOKS_KEY, 'printType': 'books'})
             except requests.RequestException as e:
                 # Never log the exception text itself: it carries the request URL with the key.
