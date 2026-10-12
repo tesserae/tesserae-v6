@@ -12,7 +12,8 @@ dropped when its title is a schoolbook's or exam board's. Without a work (Theme
 Search's list, where the question is the only thing known) the services are asked
 the question alone and an item is kept when its title or abstract holds at least
 two distinct content words of the question (every one when the question has
-fewer than three) and at least one of them is in the title. Either way, naming
+fewer than three), at least one of them is in the title, and a classics signal
+(an author of the corpus or a word such as Latin, Greek, epic) is present. Either way, naming
 or matching that happens only in a CORE full text or beyond the first 1,500
 characters of an abstract does not count. With a work the order is: the title
 names the work, question words matched, newest. Without one: title words
@@ -21,7 +22,9 @@ matched, question words matched, newest.
 Every service call goes through scholarship._cached, so the paragraph route
 finds on disk what the page already fetched.
 """
+import functools
 import logging
+import os
 import re
 
 import requests
@@ -116,6 +119,68 @@ def _matched(text, words):
 
 ABSTRACT_CHARS = 1500
 
+# Without a work nothing ties an item to ancient literature (Purcell's opera
+# for Dido, watermarking contests for the bow), so the no-work mode also needs
+# one classics signal in the title or abstract: an author of the corpus (the
+# prefix of each text's file name, loaded once), one of these words, or one
+# of these famous titles.
+CLASSICS_WORDS = (
+    'latin', 'greek', 'roman', 'ancient', 'classical', 'antiquity', 'homeric', 'vergilian', 'virgilian',
+    'epic', 'tragedy', 'ode', 'elegy', 'papyrus', 'inscription', 'hebrew', 'biblical', 'persian', 'coptic',
+    'byzantine', 'hellenistic', 'archaic',
+)
+# Titles an article may name without naming the author ("the Odyssey").
+CLASSICS_TITLES = (
+    'odyssey', 'iliad', 'aeneid', 'metamorphoses', 'georgics', 'eclogues', 'theogony', 'oresteia', 'annals',
+    'thebaid', 'pharsalia', 'argonautica', 'peloponnesian', 'satyricon', 'bacchae',
+)
+# Author-prefix tokens that are ordinary English words, first names or file-name
+# filler, so they would let anything through ("young", "gray", "pope" style).
+_NOT_SIGNALS = (
+    'swift', 'blake', 'glass', 'life', 'book', 'doc', 'pope', 'king', 'saint', 'bishop', 'pseudo', 'church',
+    'catholic', 'magical', 'mysteries', 'lament', 'couplet', 'martyrdom', 'dormition', 'anonymous', 'anonymi',
+    'anonymus', 'john', 'johannes', 'paul', 'paulus', 'thomas', 'matthew', 'victor', 'basil', 'justin',
+    'gregory', 'clement', 'hilary', 'marcus', 'flavius', 'aelius', 'gaius', 'claudius', 'julius', 'iulius',
+    'hero', 'young', 'gray', 'grey', 'house', 'order', 'acts', 'hali', 'mela', 'dard', 'anis', 'insha',
+    'with', 'from', 'against', 'letter', 'epistulae', 'epistula', 'carmina', 'versus', 'miles', 'exul',
+    'english', 'german', 'elder', 'alii', 'allan', 'edgar', 'alan', 'bernard', 'philip', 'monte', 'pisa', 'lyon',
+    'arles', 'nola', 'pella', 'augustae', 'historiae', 'novum', 'graeca', 'athenian', 'apostle', 'archbishop',
+    'pilgrim', 'alexandria', 'macedonia', 'heronis', 'felix', 'magnus', 'marius', 'festus', 'lemnian',
+    'world', 'walter', 'william', 'younger', 'venerable', 'riga', 'tyre', 'rufus', 'soph', 'diaconus', 'presbyter', 'active', 'century', 'sacred', 'other', 'unknown',
+)
+TEXTS_DIR = os.path.join(sch.ROOT, 'texts')
+
+
+@functools.lru_cache(maxsize=1)
+def _author_names():
+    """Lower-cased tokens of the author prefix of every text file name under
+    texts/ (vergil, plutarch, pliny, ...) plus the spelling variants, four
+    letters or more, minus _NOT_SIGNALS. Cached once per process."""
+    names = set()
+    try:
+        for lang in os.listdir(TEXTS_DIR):
+            d = os.path.join(TEXTS_DIR, lang)
+            if os.path.isdir(d):
+                for f in os.listdir(d):
+                    if f.endswith('.tess'):
+                        names.update(f.split('.')[0].lower().split('_'))
+    except OSError as e:
+        logger.warning('[RECENT] author names not read: %s', type(e).__name__)
+    for k, v in sch.AUTHOR_VARIANTS.items():
+        names.add(k)
+        names.update(x.lower() for x in v)
+    return frozenset(n for n in names if len(n) >= 4 and n.isalpha() and n not in _NOT_SIGNALS)
+
+
+@functools.lru_cache(maxsize=1)
+def _classics_re():
+    words = sorted(set(_author_names()) | set(CLASSICS_WORDS) | set(CLASSICS_TITLES), key=len, reverse=True)
+    return re.compile(r'(?<!\w)(?:' + '|'.join(re.escape(w) for w in words) + r')(?!\w)', re.I)
+
+
+def has_classics_signal(text):
+    return bool(_classics_re().search(text or ''))
+
 # A title that is a school or exam-board book, not scholarship on the work.
 _SCHOOL_TITLE = (
     r'\bA[- ]Level\b', r'\bAS[- ]Level\b', r'\bGCSE\b', r'\bOCR\b', r'\bComponent \d',
@@ -158,7 +223,7 @@ def _filter(items, a, words):
         title_names = False
         if a is None:
             title_hits = len(_matched(title, words))
-            if len(hit) < need or not title_hits:
+            if len(hit) < need or not title_hits or not has_classics_signal(head):
                 continue
         else:
             title_names = names_work(title, a)

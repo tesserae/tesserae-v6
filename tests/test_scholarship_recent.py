@@ -169,37 +169,37 @@ def test_full_text_naming_breaks_ties_between_equal_items():
 # ------------------------------------------------------------ no work (Theme Search)
 
 def test_no_work_keeps_two_question_words_with_one_in_the_title():
-    two = item('Dido and Aeneas in love', 'x')
-    abstract_only = item('A study of opera', 'Dido and Aeneas in a production.')
-    one = item('Dido at Carthage', 'Nothing else.')
+    two = item('Dido and Aeneas in love', 'Vergil.')
+    abstract_only = item('A study of opera', 'Dido and Aeneas in a Vergil production.')
+    one = item('Dido at Carthage', 'Vergil, nothing else.')
     out = sr._filter([two, abstract_only, one], None, sr.content_words(Q))
     assert [i['title'] for i in out] == ['Dido and Aeneas in love']
 
 
 def test_no_work_short_question_needs_every_word():
     words = sr.content_words('plague Athens')
-    assert [i['title'] for i in sr._filter([item('The plague of Athens'), item('The plague')], None, words)] == \
+    assert [i['title'] for i in sr._filter([item('The plague of Athens', 'Thucydides.'), item('The plague', 'Thucydides.')], None, words)] == \
         ['The plague of Athens']
 
 
 def test_no_work_orders_by_title_matches_then_question_words_then_year():
     words = sr.content_words(Q)
-    items = [item('Dido and Aeneas', 'love falls', year=2001), item('Dido, Aeneas and love', 'x', year=1990),
-             item('Dido and Aeneas again', 'love falls', year=2020)]
+    items = [item('Dido and Aeneas', 'love falls Vergil', year=2001), item('Dido, Aeneas and love', 'Vergil', year=1990),
+             item('Dido and Aeneas again', 'love falls Vergil', year=2020)]
     out = sr.order(sr._filter(items, None, words))
     assert [i['title'] for i in out] == ['Dido, Aeneas and love', 'Dido and Aeneas again', 'Dido and Aeneas']
 
 
 def test_recent_without_a_work_asks_with_the_question_alone(monkeypatch):
     seen = []
-    monkeypatch.setattr(sch, '_openalex', lambda q: seen.append(q) or [item('Dido and Aeneas in love', 'x')])
+    monkeypatch.setattr(sch, '_openalex', lambda q: seen.append(q) or [item('Dido and Aeneas in love', 'Vergil')])
     monkeypatch.setattr(sch, '_unpaywall', lambda doi: None)
     out = sr.recent(Q, None, 'openalex')
     assert seen == [Q] and len(out['results']) == 1
 
 
 def test_route_work_is_optional(monkeypatch):
-    monkeypatch.setattr(sch, '_crossref', lambda q: [item('Dido and Aeneas in love', 'x', source='crossref')])
+    monkeypatch.setattr(sch, '_crossref', lambda q: [item('Dido and Aeneas in love', 'Vergil', source='crossref')])
     monkeypatch.setattr(sch, '_unpaywall', lambda doi: None)
     d = json.loads(app.test_client().get('/api/passages/recent-scholarship', query_string={
         'question': Q, 'service': 'crossref'}).get_data())
@@ -284,3 +284,21 @@ def test_reader_books_retries_once_after_a_503(monkeypatch, tmp_path):
     p = {'work': 'vergil.aeneid', 'author': 'Vergil', 'title': 'Aeneid', 'abbrev': 'Aen.', 'lo': '1.1', 'hi': '1.1'}
     out = sch.books(p)
     assert out['available'] and len(out['results']) == 1 and len(calls) == 3  # 503, ok, ok (second query, same book)
+
+
+def test_no_work_needs_a_classics_signal():
+    words = sr.content_words(Q)
+    bare = item('Dido and Aeneas in love', 'A staging of the opera.')
+    with_title = item('Dido and Aeneas in love', 'A staging of the opera. Compare the Odyssey.')
+    with_author = item('Dido and Aeneas in love', 'Vergil is the source.')
+    assert sr._filter([bare], None, words) == []
+    assert len(sr._filter([with_title], None, words)) == 1
+    assert len(sr._filter([with_author], None, words)) == 1
+    # a work-aware search does not need the signal
+    assert len(sr._filter([item('Dido and Aeneas in the Aeneid', 'x')], A, _words())) == 1
+
+
+def test_signal_names_leave_out_ordinary_words():
+    names = sr._author_names()
+    assert 'homer' in names or 'vergil' in names
+    assert not {'young', 'gray', 'pope', 'swift', 'blake'} & names
