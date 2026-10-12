@@ -1075,7 +1075,10 @@ function App() {
           <AdminPanel />
         ) : (
           <>
-        {pageType === 'search' && (
+        {/* The Start here panel opens on the Intertextual Search page and on
+            whichever page is the current view's home (Search One Text in
+            Literature since 2026-10-12), so a first visit still sees it. */}
+        {(pageType === 'search' || pageType === viewById(getView()).home.page) && (
           <StartHere
             onChoose={goFrontDoor}
             onDismiss={() => setFrontDoorForced(false)}

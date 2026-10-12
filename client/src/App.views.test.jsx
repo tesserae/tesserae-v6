@@ -55,6 +55,14 @@ describe('what a plain visit opens', () => {
     expect(await screen.findByRole('heading', { name: 'Search One Text' })).toBeTruthy();
   });
 
+  it('shows the Start here panel on the Literature home', async () => {
+    render(<App />);
+    await waitFor(() => expect(window.location.pathname).toBe('/ask-a-work'));
+    expect(screen.getByRole('button', { name: 'Literature' })).toHaveAttribute('aria-pressed', 'true');
+    expect(await screen.findByRole('heading', { name: 'Search One Text' })).toBeTruthy();
+    expect(screen.queryByText(/Start here/i)).toBeTruthy();
+  });
+
   it('opens the Reader on Tacitus, Annals 1, in History view', async () => {
     window.localStorage.setItem('tesserae_view', 'history');
     render(<App />);
