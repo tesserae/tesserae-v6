@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { chronological, byBestMatch, dateParts } from '../../utils/chronology';
 import { baseWorkId, coverageCounts, fetchCoveredWorks } from '../../utils/passageCoverage';
 import SearchableSelect from '../common/SearchableSelect';
+import SearchProgress from '../common/SearchProgress';
 import { LANGUAGE_NAMES as LANG_LABEL } from '../../utils/languageNames';
 import { useCorpus } from '../../hooks';
 import TextSelector from '../search/TextSelector';
@@ -1222,9 +1223,7 @@ export default function ThemeSearchPage() {
       </div>
 
       {!catalogueMode && running && (
-        <p className="mt-6 text-sm text-gray-500 italic">
-          Comparing your description against every indexed passage…
-        </p>
+        <SearchProgress text="Comparing your description against every indexed passage…" />
       )}
 
       {coinsMode && <ThemeCoins search={coinsSearch} />}
