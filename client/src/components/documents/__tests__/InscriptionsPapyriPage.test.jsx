@@ -235,3 +235,74 @@ describe('a typed search', () => {
     await waitFor(() => expect(screen.getByText(/Found 1 documents/)).toBeTruthy());
   });
 });
+
+describe('a search that finds nothing', () => {
+  beforeEach(() => { setUrl('?documents=1'); });
+
+  async function typeAndSearch(text) {
+    await waitFor(() => expect(screen.getByPlaceholderText('Enter word or phrase...')).toBeTruthy());
+    await userEvent.type(screen.getByPlaceholderText('Enter word or phrase...'), text);
+    await userEvent.click(screen.getByRole('button', { name: 'Search' }));
+  }
+
+  it('says so for a two-word dictionary-form search, with no second request', async () => {
+    const calls = mockFetch({
+      documentsEnabled: true,
+      lineSearchResponse: { collection: 'documents', total: 0, results: [] },
+    });
+    render(<InscriptionsPapyriPage />);
+    await typeAndSearch('rusell foo');
+    const line = await screen.findByTestId('documents-empty');
+    expect(line.textContent).toContain('No inscription or papyrus has "rusell foo" as a dictionary form.');
+    expect(line.textContent).toContain('Check the spelling. Exact match also finds the letters inside longer words.');
+    expect(calls.length).toBe(1);
+    expect(screen.queryByTestId('documents-fallback')).toBeNull();
+  });
+
+  it('retries a one-word dictionary-form search once in exact mode and says what it shows', async () => {
+    const calls = mockFetch({
+      documentsEnabled: true,
+      lineSearchResponse: (body) => body.search_type === 'exact'
+        ? { collection: 'documents', total: 7, results: [documentHit()] }
+        : { collection: 'documents', total: 0, results: [] },
+    });
+    render(<InscriptionsPapyriPage />);
+    await typeAndSearch('rusell');
+    const note = await screen.findByTestId('documents-fallback');
+    expect(note.textContent).toContain('No dictionary form matches "rusell". Showing the 7 documents whose text contains these letters instead.');
+    expect(calls.map(c => c.search_type)).toEqual(['lemma', 'exact']);
+    await waitFor(() => expect(screen.getByText(/Found 7 documents/)).toBeTruthy());
+    expect(screen.queryByTestId('documents-empty')).toBeNull();
+    // The reader's choice of mode is untouched.
+    expect(screen.getByDisplayValue('Lemma (dictionary form)')).toBeTruthy();
+  });
+
+  it('says so when the exact retry also finds nothing, with no third request', async () => {
+    const calls = mockFetch({
+      documentsEnabled: true,
+      lineSearchResponse: { collection: 'documents', total: 0, results: [] },
+    });
+    render(<InscriptionsPapyriPage />);
+    await typeAndSearch('rusellorum');
+    const line = await screen.findByTestId('documents-empty');
+    expect(line.textContent).toContain('No inscription or papyrus has "rusellorum" as a dictionary form.');
+    expect(calls.length).toBe(2);
+    expect(screen.queryByTestId('documents-fallback')).toBeNull();
+  });
+
+  it('uses the exact wording for an exact-mode search, with no retry', async () => {
+    const calls = mockFetch({
+      documentsEnabled: true,
+      lineSearchResponse: { collection: 'documents', total: 0, results: [] },
+    });
+    render(<InscriptionsPapyriPage />);
+    await waitFor(() => expect(screen.getByDisplayValue('Lemma (dictionary form)')).toBeTruthy());
+    await userEvent.selectOptions(screen.getByDisplayValue('Lemma (dictionary form)'), 'exact');
+    await typeAndSearch('rusellorum');
+    const line = await screen.findByTestId('documents-empty');
+    expect(line.textContent).toContain('No inscription or papyrus contains "rusellorum".');
+    expect(line.textContent).toContain('Check the spelling.');
+    expect(line.textContent).not.toContain('Exact match also finds');
+    expect(calls.length).toBe(1);
+  });
+});
