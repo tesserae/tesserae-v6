@@ -8,6 +8,53 @@ history (index builds, cache rebuilds, corpus changes) is in
 `DATA_OPERATIONS.md`; per-release changes are in `../CHANGELOG.md`.
 
 
+## 2026-10-12: the band inside one work is refitted on eleven works, and its lowest level is a caution, not a verdict
+- Scope: Search One Text (`/ask-a-work`) and any Theme Search restricted to
+  one work. The corpus-wide band has its own entry below.
+- The problem. The owner found three right answers labelled "a nearest
+  neighbor, not a finding": Browning's sonnet 43 for "the poet counts the
+  ways she loves", Ferdowsi for "Rostam fights the White Div", and Annals
+  4.1 for "the rise of Sejanus". The band of 2026-10-11 read the spread of
+  the work's own scores, fitted on 45 questions over three long works.
+- Measurement. The same 45 plus 80 new queries over eight more works chosen
+  for their lengths (Browning's Sonnets 143 windows, Sappho 320, Catullus
+  953, Hafez 2,218, Ovid's Metamorphoses 2,782, the Odyssey 2,800, Livy
+  4,729, Ferdowsi 23,150): five subjects each work treats, five it does not
+  (three modern, two from another genre) and two nonsense strings. One
+  subject was dropped on reading because its answers were wrong (Rostam and
+  Sohrab). Nineteen measures of the score distribution were swept for a
+  one-threshold rule, with the threshold also fitted on ten works and tested
+  on the eleventh.
+
+  | Measure | Accuracy, 140 queries | Leaving one work out |
+  |---|---|---|
+  | Spread of the work's scores (the 2026-10-11 rule) | 0.766 (0.738 at its shipped value) | 0.702 |
+  | Best passage's lift over the median | 0.809 | 0.752 |
+  | Mean lift of the top ten | 0.787 | 0.752 |
+  | Coherence of the top twenty | 0.766 | 0.716 |
+  | Lift divided by the spread, the interquartile range or the median deviation | 0.70 to 0.76 | 0.68 to 0.75 |
+  | Best passage's lift OR coherence (the new rule) | 0.836 | 0.821 |
+
+  The spread fails on long works, where a subject's few windows barely
+  widen the distribution (0.42 on Ferdowsi, 0.50 on Ovid), and on short
+  ones, where it is noisy (0.58 on Browning). Dividing a lift by the spread
+  is worse still, because the spread rises with the very tail being
+  measured.
+- Decision. The band reads the best passage's lift over the work's median
+  (moderate from 0.048, strong from 0.055, above every absent or nonsense
+  subject measured, 0.0546) or the coherence of the top twenty (moderate
+  from 0.925). No rule reached nine in ten across these works, so the band
+  is an estimate: its lowest level is labelled "Closest passages", says
+  that no passage stands far above the rest of the work so the order is
+  less certain, claims nothing about absence, and the list is shown under
+  every level. The per-passage strong mark (three standard deviations above
+  the work's median, not under the lowest level) is unchanged. Of the three
+  cases, Browning and Ferdowsi now read moderate and Sejanus reads lowest
+  with its list shown and no claim of absence.
+- Data: the measurement folder of 2026-10-12 (within-work refit) in the
+  private backups, with the measurement and sweep scripts; the first fit's
+  folder beside the pilot of 2026-10-11.
+
 ## 2026-10-12: the lowest band is "Closest passages", and its floor is refitted to the enlarged index
 - Scope: Theme Search over the whole corpus (`/theme-search`), every
   language. The band within one work (Ask a Work) uses its own rule and is

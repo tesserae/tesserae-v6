@@ -74,7 +74,7 @@ export const SEARCH_SCOPE = {
     does: 'Every passage in one work whose content matches a subject you describe, listed by how well it matches, with a strip showing where in the work they fall.',
     scope: 'The Theme Search index restricted to one work, or to a run of its books. The model-written description of each passage window is matched against the subject. When the question names a person, a second list gives the passages whose description contains that name, the closest to the question first. In Latin and Greek works whose descriptions leave the person unnamed, the text is searched for the name. A short summary of the best passages is written from their descriptions.',
     covers: 'Any work the passage index holds.',
-    limits: 'A passage is a window of about twenty lines, so a subject spread thinly through a long chapter can be missed. The search matches content, so it does not find a name on its own as a word search would. The summary is written from the descriptions, not the text. The confidence rating within one work was fitted on fifteen questions the works treat and thirty they do not, over three works, so it is provisional.',
+    limits: 'A passage is a window of about twenty lines, so a subject spread thinly through a long chapter can be missed. The search matches content, so it does not find a name on its own as a word search would. The summary is written from the descriptions, not the text. The band inside one work was refitted in October 2026 on 55 subjects the works treat and 86 they do not, over eleven works, and agrees with that set on 84 percent; its lowest level, "Closest passages", is a caution about the order and claims nothing about absence.',
     measured: [ASK_A_WORK_ROW],
     helpSection: 'ask-a-work',
   },

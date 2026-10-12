@@ -33,6 +33,10 @@ const LANGUAGES = [['la', 'Latin'], ['grc', 'Greek'], ['en', 'English'], ['he', 
 export const UNRATED_NOTE = 'Confidence is not rated for this search because the work has too few passages to compare a subject against. Read the passages before relying on them.';
 
 const BANDS = {
+  // The lowest level is a caution about the order, not a verdict on the work
+  // (refit of 2026-10-12: right answers came first under it for Browning,
+  // Ferdowsi and the Annals). The list is shown under every level.
+  low: { label: 'Closest passages', className: 'bg-gray-100 text-gray-700 border-gray-300' },
   moderate: { label: 'Moderate match', className: 'bg-amber-50 text-amber-800 border-amber-200' },
   strong: { label: 'Strong match', className: 'bg-red-50 text-red-800 border-red-200' },
 };
@@ -546,20 +550,13 @@ export default function AskAWorkPage() {
           {!noKnownWords && unknownLine && (
             <div className="mb-2 text-xs text-gray-600" data-testid="ask-unknown-words">{unknownLine}</div>
           )}
-          {!noKnownWords && weakVerdict && !emptyList && fitted && (
-            <div className="rounded border border-gray-300 bg-gray-100 px-3 py-2 text-sm text-gray-700" data-testid="ask-band">
-              <strong className="font-semibold">Weak match.</strong>{' '}
-              The passages of this work do not stand out for that subject. In testing, three of
-              fifteen real questions also came out weak, so the closest passages are shown below.
-            </div>
-          )}
           {!noKnownWords && (emptyList || (weakVerdict && !fitted)) && (
             <div className="rounded border border-gray-300 bg-gray-100 px-3 py-2 text-sm text-gray-700">
               <strong className="font-semibold">Nothing in this work resembles that subject.</strong>
               {data.note && !emptyList ? ` ${data.note}` : ''}
             </div>
           )}
-          {!noKnownWords && !emptyList && !weakVerdict && fitted && BANDS[level] && (
+          {!noKnownWords && !emptyList && fitted && BANDS[level] && (
             <div className={`rounded border px-3 py-2 text-sm ${BANDS[level].className}`} data-testid="ask-band">
               <strong className="font-semibold">{BANDS[level].label}.</strong>{' '}{data.note}
             </div>

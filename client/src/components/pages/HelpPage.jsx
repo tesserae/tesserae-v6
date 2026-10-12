@@ -1756,17 +1756,20 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 better served by Line Search, and a search takes a few seconds.
               </p>
               <p className="text-gray-700 mb-4">
-                Above the list, a banner rates the search. It reads how widely the scores of the
-                work&rsquo;s own passages spread, because a subject the work treats pulls a group of
-                passages well above the rest. Weak means the work probably holds nothing of the
-                kind, and the passages are kept behind a button. A passage is marked strong when
-                it stands far above the work&rsquo;s typical score. This was fitted in October 2026
-                on fifteen subjects the three works treat and thirty they do not, so it is
-                provisional. It called 12 of the 15 real subjects moderate or strong and 28 of the
-                30 others weak. It missed the causes of the war, Tiberius&rsquo;s concealment of his
-                intentions and the rise of Sejanus. Of the passages marked strong, 90 percent were
-                at least partly about the subject, and the marks caught 42 percent of the passages
-                judged directly about it.
+                Above the list, a banner rates the search. It reads how far the best passage
+                stands above the work&rsquo;s typical score, and how closely the top twenty
+                passages hang together, because a subject the work treats pulls a group of
+                passages well above the rest. The lowest level, &ldquo;Closest passages&rdquo;, is a
+                caution that the order is less certain than usual; it does not say the work
+                lacks the subject, and the list is shown under every level. A passage is marked
+                strong when it stands far above the work&rsquo;s typical score. The band was first
+                fitted in October 2026 on three works and refitted the same month on eleven, from
+                Sappho&rsquo;s fragments to the Shahnameh, with 55 subjects the works treat and 86
+                they do not: it agrees with that set on 84 percent, and no single measure did
+                better across works of such different lengths, so read it as a first estimate.
+                Of the passages marked strong in the first measurement, 90 percent were at least
+                partly about the subject, and the marks caught 42 percent of the passages judged
+                directly about it.
               </p>
             </div>
           )}
