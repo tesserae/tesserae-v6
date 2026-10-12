@@ -525,6 +525,12 @@ MANIFEST = {
         'reason': ("Model-written paragraph on the secondary literature for the Search One Text page; "
                   "a connector caller reads the notes through the scholarship search itself."),
     },
+    '/api/passages/recent-scholarship': {
+        'site_only': True,
+        'reason': ("Recent articles from the live services for the Search One Text page, one service per "
+                  "request so the page can paint each as it answers; a connector caller asks the services "
+                  "through the scholarship search itself."),
+    },
     '/api/passages/status': {
         'site_only': True,
         'reason': 'Passage-index availability/size; an operational status display.',

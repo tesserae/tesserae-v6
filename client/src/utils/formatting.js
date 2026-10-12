@@ -11,6 +11,22 @@ export const formatElapsedTime = (seconds) => {
   return `${mins}m ${secs}s`;
 };
 
+/**
+ * A running clock, ticking once a second while a search is in progress:
+ * whole seconds only ("21s", "2m 15s"). The one-decimal form above stays
+ * for a finished search's measured time ("Search completed in 3.4s").
+ * (2026-10-12, the owner: "Can we remove the '.0' here? Doesn't do much
+ * since you increment whole seconds anyway.")
+ * @param {number} seconds - Seconds since the search began
+ * @returns {string} Formatted time (e.g., "21s" or "2m 15s")
+ */
+export const formatRunningTime = (seconds) => {
+  if (seconds == null || seconds <= 0) return '';
+  const whole = Math.floor(Number(seconds));
+  if (whole < 60) return `${whole}s`;
+  return `${Math.floor(whole / 60)}m ${whole % 60}s`;
+};
+
 export const formatDate = (dateString) => {
   if (!dateString) return '';
   const date = new Date(dateString);
