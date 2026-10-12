@@ -9,6 +9,9 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-12
 
+### Inscriptions & Papyri: the whole-collection browser folds away once a search has answered
+The browser of every inscription and papyrus by kind, region, findspot and century sat under each result list, and a reader who had just searched took it for more results. Once a search has answered, it folds behind one line with a button to open it.
+
 ### Search One Text: a link from the scholarship paragraph to every note and article for the question
 The paragraph reads at most eight sources. A link under it opens Theme Search on the scholarship collection with the same question, where every matching note and article is listed. Theme Search now opens on that collection when the address says `in=scholarship`.
 

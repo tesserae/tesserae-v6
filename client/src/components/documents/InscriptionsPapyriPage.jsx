@@ -69,6 +69,7 @@ function simpleHighlight(text, matchedWords) {
  */
 export default function InscriptionsPapyriPage({ setPageType }) {
   const documentsTrial = useDocumentsTrial();
+  const [browseOpen, setBrowseOpen] = useState(false);
   const [documentsEnabled, setDocumentsEnabled] = useState(false);
   // Whether the /api/languages check above has settled (true or false).
   // A restored deep link (the back-link effect below) must not auto-run
@@ -410,9 +411,21 @@ export default function InscriptionsPapyriPage({ setPageType }) {
         );
       })()}
 
-      <div className="bg-white rounded-lg shadow p-4 sm:p-6">
-        <DocumentsBrowser documentsTrial={documentsTrial} />
-      </div>
+      {/* The whole-collection browser (kind, region, findspot, century) sat
+          under every result list, and a reader who had just searched took it
+          for more results (owner, 2026-10-12: "Then a list of I'm not sure
+          what"). Once a search has answered it folds behind one line. */}
+      {(documentPageResults || []).length > 0 && !browseOpen ? (
+        <div className="bg-white rounded-lg shadow p-4 sm:p-6 text-sm text-gray-700" data-testid="documents-browse-folded">
+          <span className="font-semibold">Browse the whole collection.</span>{' '}
+          Every inscription and papyrus by kind, region, findspot and century, apart from this search.{' '}
+          <button type="button" onClick={() => setBrowseOpen(true)} className="text-red-700 hover:underline">Open the browser</button>
+        </div>
+      ) : (
+        <div className="bg-white rounded-lg shadow p-4 sm:p-6">
+          <DocumentsBrowser documentsTrial={documentsTrial} />
+        </div>
+      )}
     </div>
   );
 }
