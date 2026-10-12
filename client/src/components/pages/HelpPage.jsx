@@ -2187,7 +2187,10 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 carry their own date, place and credit line, with charts of how many came back
                 by century and by region. Restored text (filled in by an editor where the stone
                 or papyrus is damaged) is marked with a light dotted underline. A surviving
-                fragment of a damaged word is set in gray italic.
+                fragment of a damaged word is set in gray italic. When a dictionary-form search
+                of one word finds nothing, the page shows the documents whose text contains
+                those letters instead and says so. Exact match finds the letters inside longer
+                words, so a stem such as &ldquo;rusell&rdquo; finds every word that begins with it.
               </p>
 
               <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">Browsing without a search term</h4>
