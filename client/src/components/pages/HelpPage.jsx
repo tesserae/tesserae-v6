@@ -972,6 +972,13 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 (identical surface forms), and <strong>Regular expression</strong> (patterns &mdash; see below).
               </p>
 
+              <p className="text-gray-700 mb-4">
+                In Latin Lemma mode, a word that editors print either joined or apart (<em>quousque</em> or <em>quo usque</em>,
+                <em> respublica</em> or <em>res publica</em>) is matched both ways, from a fixed list of about twenty such words.
+                A line that prints the joined word answers a query that types the parts, the joined word is highlighted when it does,
+                and a query that types the joined word finds lines that print the parts side by side.
+              </p>
+
               <div className="mt-6 border-t pt-4" id="regex-help">
                 <h4 className="text-lg font-semibold text-gray-900 mb-2">Regular Expressions (Line Search)</h4>
                 <p className="text-gray-600 text-sm mb-3">
