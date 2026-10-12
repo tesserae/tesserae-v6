@@ -22,8 +22,6 @@ describe('the view data', () => {
       expect(profileById(v.profile)).toBeTruthy();
       expect([...v.menuOrder].sort()).toEqual([...pages].sort());
       expect([...v.readerTabs].sort()).toEqual(READER_TABS.map((t) => t.id).sort());
-      expect(v.menuOrder.indexOf('ask-a-work')).toBe(v.menuOrder.indexOf('theme-search') + 1);
-      expect(v.startHereOrder.indexOf('ask')).toBe(v.startHereOrder.indexOf('subject') + 1);
       expect([...v.startHereOrder].sort()).toEqual(FRONT_DOOR_CHOICES.map((c) => c.id).sort());
       expect(v.searchDefaults.la.source && v.searchDefaults.la.target).toBeTruthy();
       expect(v.searchDefaults.grc.source && v.searchDefaults.grc.target).toBeTruthy();
@@ -35,7 +33,8 @@ describe('the view data', () => {
     const h = viewById('history');
     expect(h.profile).toBe('everything');
     expect(h.home).toEqual({ page: 'read', work: 'tacitus.annales.part.1.tess', lang: 'la' });
-    expect(h.menuOrder.slice(0, 3)).toEqual(['read', 'events', 'inscriptions-papyri']);
+    expect(h.menuOrder.slice(0, 3)).toEqual(['read', 'ask-a-work', 'events']);
+    expect(h.menuOrder.indexOf('theme-search')).toBeLessThan(h.menuOrder.indexOf('search'));
     expect(h.readerTabs).toEqual(['similar', 'documents', 'coins', 'scholarship', 'reuse', 'verbal', 'translation']);
     expect(h.searchDefaults.la).toEqual({
       source: 'livy.ab_urbe_condita.part.1.books_1-10.tess', target: 'tacitus.annales.part.1.tess',
@@ -44,10 +43,13 @@ describe('the view data', () => {
     expect(h.startHereLabels.documents).toBe('Inscriptions, papyri, events and coins');
   });
 
-  it('gives Literature the Search page and the literary profile', () => {
+  it('gives Literature Search One Text first, opening on it, and the literary profile', () => {
     const l = viewById('literature');
     expect(l.profile).toBe('literary');
-    expect(l.home.page).toBe('search');
+    expect(l.menuOrder.slice(0, 4)).toEqual(['ask-a-work', 'search', 'read', 'theme-search']);
+    expect(l.startHereOrder[0]).toBe('ask');
+    expect(l.home).toEqual({ page: 'ask-a-work' });
+    expect(l.opensOn).toBe('Search One Text, on the Aeneid');
     expect(l.readerTabs).toEqual(['similar', 'reuse', 'verbal', 'documents', 'scholarship', 'translation', 'coins']);
   });
 

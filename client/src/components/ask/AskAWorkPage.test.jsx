@@ -1,5 +1,5 @@
 /**
- * Ask a Work: one work, one question, Theme Search inside the work, and a strip
+ * Search One Text: one work, one question, Theme Search inside the work, and a strip
  * of where the passages fall.
  */
 import { describe, expect, it, vi, beforeEach } from 'vitest';
@@ -86,10 +86,10 @@ describe('reading a reference', () => {
   });
 });
 
-describe('Ask a Work', () => {
+describe('Search One Text', () => {
   it('renders the controls', async () => {
     render(<AskAWorkPage />);
-    expect(screen.getByRole('heading', { name: 'Ask a Work' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Search One Text' })).toBeInTheDocument();
     expect(screen.getByText('Pick a work and ask what it says about a subject.')).toBeInTheDocument();
     expect(screen.getByLabelText('Language')).toBeInTheDocument();
     expect(await screen.findByRole('combobox', { name: 'Author' })).toBeInTheDocument();
@@ -415,5 +415,16 @@ describe('words no passage description contains', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Go' }));
     expect(await screen.findByTestId('ask-nothing')).toHaveTextContent('None of these words appears');
     expect(screen.queryAllByTestId('ask-card')).toHaveLength(0);
+  });
+});
+
+describe('a visit with no work chosen', () => {
+  it('opens on the Aeneid, with its example subjects', async () => {
+    render(<AskAWorkPage />);
+    await waitFor(() => expect(screen.getByRole('combobox', { name: 'Author' })).toHaveValue('Vergil'));
+    await waitFor(() => expect(screen.getByRole('combobox', { name: 'Work' })).toHaveValue('Aeneid'));
+    expect(await screen.findByRole('button', { name: /Dido falls in love with Aeneas/ })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /the fall of Troy/ })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /a storm scatters the fleet/ })).toBeInTheDocument();
   });
 });

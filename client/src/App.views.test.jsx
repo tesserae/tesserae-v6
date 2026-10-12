@@ -48,12 +48,19 @@ afterEach(() => {
 });
 
 describe('what a plain visit opens', () => {
-  it('opens the Search page in Literature view', async () => {
+  it('opens Search One Text in Literature view', async () => {
     render(<App />);
-    await waitFor(() => expect(global.fetch).toHaveBeenCalled());
-    expect(window.location.pathname).toBe('/');
+    await waitFor(() => expect(window.location.pathname).toBe('/ask-a-work'));
     expect(screen.getByRole('button', { name: 'Literature' })).toHaveAttribute('aria-pressed', 'true');
-    expect(screen.getByRole('button', { name: 'Latin' })).toHaveAttribute('aria-current');
+    expect(await screen.findByRole('heading', { name: 'Search One Text' })).toBeTruthy();
+  });
+
+  it('shows the Start here panel on the Literature home', async () => {
+    render(<App />);
+    await waitFor(() => expect(window.location.pathname).toBe('/ask-a-work'));
+    expect(screen.getByRole('button', { name: 'Literature' })).toHaveAttribute('aria-pressed', 'true');
+    expect(await screen.findByRole('heading', { name: 'Search One Text' })).toBeTruthy();
+    expect(screen.queryByText(/Start here/i)).toBeTruthy();
   });
 
   it('opens the Reader on Tacitus, Annals 1, in History view', async () => {
@@ -89,7 +96,7 @@ describe('what a plain visit opens', () => {
     fireEvent.click(screen.getByRole('button', { name: 'History' }));
     await waitFor(() => expect(window.location.pathname).toBe('/read'));
     fireEvent.click(screen.getByRole('button', { name: 'Literature' }));
-    await waitFor(() => expect(window.location.pathname).toBe('/'));
+    await waitFor(() => expect(window.location.pathname).toBe('/ask-a-work'));
   });
 });
 
@@ -132,7 +139,7 @@ describe('the Phrase Search defaults follow the view', () => {
     await sourceAfter('vergil.aeneid.part.1.tess');
     fireEvent.click(screen.getByRole('button', { name: 'History' }));
     await waitFor(() => expect(window.location.pathname).toBe('/read'));
-    fireEvent.click(screen.getByRole('button', { name: 'Search' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Intertextual Search' }));
     await sourceAfter('livy.ab_urbe_condita.part.1.books_1-10.tess');
   });
 });
@@ -141,14 +148,15 @@ describe('the Start here order follows the view', () => {
   const labels = () => screen.getAllByRole('link').map((a) => a.textContent.split(':')[0])
     .filter((t) => /Search|Reader|Inscriptions|Rare|Collections/.test(t));
 
-  it('Literature: Phrase Search first, Collections answer last', async () => {
+  it('Literature: Search One Text first, Collections answer last', async () => {
     window.history.replaceState({}, '', '/?lang=la&view=literature');
     render(<App />);
     // A query in the address suppresses the panel, so open it as the header link does.
     act(() => { window.dispatchEvent(new Event('tesserae:open-start-here')); });
     await waitFor(() => expect(screen.getByText('What are you trying to do?')).toBeTruthy());
     const l = labels();
-    expect(l[0]).toBe('Phrase Search');
+    expect(l[0]).toBe('Search One Text');
+    expect(l[1]).toBe('Phrase Search');
     expect(l[l.length - 1]).toBe('Collections');
   });
 

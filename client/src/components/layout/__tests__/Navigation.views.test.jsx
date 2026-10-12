@@ -43,22 +43,23 @@ describe('the view switch', () => {
 });
 
 describe('the menu order follows the view', () => {
-  it('Literature leads with Search then Read', () => {
+  it('Literature starts with Search One Text, then Intertextual Search, then Read', () => {
     renderNav();
     const names = menuNames();
-    expect(names.indexOf('Search')).toBeLessThan(names.indexOf('Read'));
+    expect(names.indexOf('Search One Text')).toBeLessThan(names.indexOf('Intertextual Search'));
+    expect(names.indexOf('Intertextual Search')).toBeLessThan(names.indexOf('Read'));
     expect(names.indexOf('Read')).toBeLessThan(names.indexOf('Theme Search'));
-    expect(names.indexOf('Ask a Work')).toBe(names.indexOf('Theme Search') + 1);
+    expect(names[names.indexOf('Collections') + 1]).toBe('Search One Text');
   });
 
-  it('History leads with Read then Events, and Search comes after Theme Search', () => {
+  it('History leads with Read then Search One Text then Events, and Intertextual Search comes after Theme Search', () => {
     renderNav();
     fireEvent.click(screen.getByRole('button', { name: 'History' }));
     const names = menuNames();
-    expect(names.indexOf('Read')).toBeLessThan(names.indexOf('Events'));
+    expect(names.indexOf('Read')).toBeLessThan(names.indexOf('Search One Text'));
+    expect(names.indexOf('Search One Text')).toBeLessThan(names.indexOf('Events'));
     expect(names.indexOf('Events')).toBeLessThan(names.indexOf('Theme Search'));
-    expect(names.indexOf('Ask a Work')).toBe(names.indexOf('Theme Search') + 1);
-    expect(names.indexOf('Theme Search')).toBeLessThan(names.indexOf('Search'));
-    expect(names.indexOf('Search')).toBeLessThan(names.indexOf('Coins'));
+    expect(names.indexOf('Theme Search')).toBeLessThan(names.indexOf('Intertextual Search'));
+    expect(names.indexOf('Intertextual Search')).toBeLessThan(names.indexOf('Coins'));
   });
 });

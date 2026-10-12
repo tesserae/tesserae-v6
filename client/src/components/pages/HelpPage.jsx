@@ -392,7 +392,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
     { id: 'reading-results', label: 'Reading the results', group: 'The Fusion (Phrases) search' },
 
     { id: 'theme-search', label: 'Theme Search', group: 'Reading & content' },
-    { id: 'ask-a-work', label: 'Ask a Work', group: 'Reading & content' },
+    { id: 'ask-a-work', label: 'Search One Text', group: 'Reading & content' },
     { id: 'reader', label: 'The Reader', group: 'Reading & content' },
     { id: 'tessa', label: 'Tessa, the assistant', group: 'Reading & content' },
     { id: 'documents', label: 'Inscriptions & Papyri', group: 'Reading & content' },
@@ -556,7 +556,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
             <div className="prose max-w-none">
               <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Start here</h3>
               <p className="text-gray-700 mb-4">
-                The Search page opens with the question "What are you trying to do?" the first time you visit. Choosing
+                The Intertextual Search page opens with the question "What are you trying to do?" the first time you visit. Choosing
                 an answer takes you to the right search, and "Skip" closes the question for good. The "Start here"
                 link at the top of every page brings it back, and Tessa gives the same list when you ask her where to start.
               </p>
@@ -568,9 +568,9 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
               <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Literature and History views</h3>
               <p className="text-gray-700 mb-4">
                 The site has two views, Literature and History, switched by the two words at the left of the
-                main menu. Literature opens on the Search page, set to Vergil against Lucan, with the menu led by
-                Search and Read. History opens on the Reader at the first book of Tacitus&rsquo;s Annals, with
-                every collection on, the menu led by Read and Events, and the Reader&rsquo;s side panel opening on
+                main menu. Literature opens on Search One Text, on the Aeneid, with the menu led by
+                Search One Text and Intertextual Search. History opens on the Reader at the first book of Tacitus&rsquo;s Annals, with
+                every collection on, the menu led by Read and Search One Text, and the Reader&rsquo;s side panel opening on
                 Similar, then the inscriptions and papyri, the coins, the commentaries and articles, and Reuse. History also opens the Phrase Search on Livy against Tacitus in Latin and on
                 Herodotus against Thucydides in Greek, and puts the inscriptions, papyri and events first in the Start here list.
               </p>
@@ -1698,9 +1698,9 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
 
           {activeSection === 'ask-a-work' && (
             <div className="prose max-w-none">
-              <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Ask a Work</h3>
+              <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Search One Text</h3>
               <p className="text-gray-700 mb-4">
-                Ask a Work asks what one work says about a subject. Pick a
+                Search One Text asks what one work says about a subject. Pick a
                 language, an author and a work, type the subject in plain words, and press Go.
                 It is Theme Search run inside that one work, so your words are compared with the
                 description written for each passage and the closest passages come back.

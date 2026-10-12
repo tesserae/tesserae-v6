@@ -22,7 +22,7 @@ const RARE_ALL = { search: "Rare words, rare pairs, line and string search", lan
 
 const NOT_YET = 'Not measured yet';
 
-const ASK_A_WORK_ROW = { search: 'Ask a Work', language: 'Latin and Greek', against: 'Fifteen questions on the Aeneid, Thucydides 1 and 2 and Annals 1 to 6, two judges, a Sonnet model and the gateway\'s Qwen model, reading the first twenty passages of each', result: 'A passage directly about the subject in the first five for 14 of 15 questions. Of the first ten, 0.44 were directly about it and 0.75 at least touched it (nDCG at 10 of 0.75). Weakest when one account fills a few windows (the plague) or the question is a named speaker\'s view. The second judge agreed with the first on 69 percent of grades (kappa 0.71 with quadratic weights) and put the precision of the strong marks at 0.87 for passages at least touching the subject', date: 'October 2026' };
+const ASK_A_WORK_ROW = { search: 'Search One Text', language: 'Latin and Greek', against: 'Fifteen questions on the Aeneid, Thucydides 1 and 2 and Annals 1 to 6, two judges, a Sonnet model and the gateway\'s Qwen model, reading the first twenty passages of each', result: 'A passage directly about the subject in the first five for 14 of 15 questions. Of the first ten, 0.44 were directly about it and 0.75 at least touched it (nDCG at 10 of 0.75). Weakest when one account fills a few windows (the plague) or the question is a named speaker\'s view. The second judge agreed with the first on 69 percent of grades (kappa 0.71 with quadratic weights) and put the precision of the strong marks at 0.87 for passages at least touching the subject', date: 'October 2026' };
 
 const DOCUMENTS_ROW = { search: 'Inscriptions & Papyri', language: 'Latin and Greek', against: 'No test list yet', result: NOT_YET, date: '' };
 const EVENTS_ROW = { search: 'Events', language: 'Latin and Greek', against: '43 passages historians cite for twelve events', result: 'About a third of the first twenty passages listed for an event were among them (precision at 20 of 0.32 to 0.40 by method)', date: 'October 2026' };
@@ -70,7 +70,7 @@ export const SEARCH_SCOPE = {
   },
   ask_a_work: {
     id: 'ask_a_work',
-    name: 'Ask a Work',
+    name: 'Search One Text',
     does: 'Every passage in one work whose content matches a subject you describe, listed by how well it matches, with a strip showing where in the work they fall.',
     scope: 'The Theme Search index restricted to one work, or to a run of its books. The model-written description of each passage window is matched against the subject. When the question names a person, a second list gives the passages whose description contains that name, the closest to the question first. In Latin and Greek works whose descriptions leave the person unnamed, the text is searched for the name. A short summary of the best passages is written from their descriptions.',
     covers: 'Any work the passage index holds.',

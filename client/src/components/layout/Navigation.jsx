@@ -63,10 +63,10 @@ export function fitTabs(widths, available, moreWidth) {
 }
 
 const mainTabs = [
-  { code: 'search', label: 'Search' },
+  { code: 'search', label: 'Intertextual Search' },
   { code: 'read', label: 'Read', beta: true },
   { code: 'theme-search', label: 'Theme Search', beta: true },
-  { code: 'ask-a-work', label: 'Ask a Work', beta: true },
+  { code: 'ask-a-work', label: 'Search One Text', beta: true },
   // Trial: shown only when the documents trial is active, both the server
   // switch (TESSERAE_DOCUMENTS=1, read from /api/languages below) and the
   // client's own ?documents=1 session flag -- see useDocumentsTrial and

@@ -32,11 +32,11 @@ import { recordPageView } from './lib/pageViews';
 
 // What each page is called in the browser tab, the bookmark and the history.
 const PAGE_TITLES = {
-  search: 'Search',
+  search: 'Intertextual Search',
   read: 'Reader',
   document: 'Document',
   'theme-search': 'Theme Search',
-  'ask-a-work': 'Ask a Work',
+  'ask-a-work': 'Search One Text',
   'inscriptions-papyri': 'Inscriptions & Papyri',
   events: 'Events',
   coins: 'Coins',
@@ -122,9 +122,11 @@ const pageTypeToPath = {
   'admin': '/admin'
 };
 
-// The address of a view's home page when that page is the Reader on a text.
+// The address of a view's home page when that page is not the Intertextual
+// Search page at '/': the Reader on a text, or Search One Text.
 const viewHomeUrl = (view) => {
   const home = viewById(view).home;
+  if (home.page === 'ask-a-work') return '/ask-a-work';
   if (home.page !== 'read') return null;
   const p = new URLSearchParams({ work: home.work, lang: home.lang });
   return '/read?' + p.toString();
@@ -194,7 +196,7 @@ function App() {
       const url = viewHomeUrl(getView());
       if (url) {
         window.history.replaceState({}, '', url);
-        return 'read';
+        return viewById(getView()).home.page;
       }
     }
     return pageForPath(path);
@@ -492,7 +494,7 @@ function App() {
   }, [adminSessionChecked, adminSessionActive, pageType]);
 
   // Switching view goes to the new view's home: the Reader on its text, or the
-  // Search page. Done inside the app, with no reload.
+  // Intertextual Search page. Done inside the app, with no reload.
   const goViewHome = useCallback((nextView) => {
     if (adminSessionChecked && adminSessionActive) return;
     const url = viewHomeUrl(nextView);
@@ -501,7 +503,7 @@ function App() {
       // The Reader reads its work from the address on a back step, so a
       // popstate also moves an open Reader to the new text.
       window.dispatchEvent(new PopStateEvent('popstate'));
-      setPageType('read');
+      setPageType(viewById(nextView).home.page);
     } else {
       window.history.pushState({}, '', '/');
       setPageType('search');
@@ -1073,7 +1075,10 @@ function App() {
           <AdminPanel />
         ) : (
           <>
-        {pageType === 'search' && (
+        {/* The Start here panel opens on the Intertextual Search page and on
+            whichever page is the current view's home (Search One Text in
+            Literature since 2026-10-12), so a first visit still sees it. */}
+        {(pageType === 'search' || pageType === viewById(getView()).home.page) && (
           <StartHere
             onChoose={goFrontDoor}
             onDismiss={() => setFrontDoorForced(false)}

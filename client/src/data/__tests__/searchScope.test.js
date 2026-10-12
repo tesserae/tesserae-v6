@@ -72,7 +72,7 @@ describe('SEARCH_SCOPE', () => {
     expect(allMeasuredRows().map((m) => m.search)).not.toContain('Documents (Reader)');
   });
 
-  it('has the Ask a Work entry, after Theme Search in the Help table, with its measured row', () => {
+  it('has the Search One Text entry, after Theme Search in the Help table, with its measured row', () => {
     const e = SEARCH_SCOPE.ask_a_work;
     for (const f of FIELDS) expect(e[f], `ask_a_work.${f}`).toBeTruthy();
     expect(e.helpSection).toBe('ask-a-work');
@@ -81,7 +81,7 @@ describe('SEARCH_SCOPE', () => {
     expect(e.measured[0].date).toBe('October 2026');
     const searches = allMeasuredRows().map((m) => m.search);
     const themeRows = searches.filter((s) => s === 'Theme Search').length;
-    expect(searches.indexOf('Ask a Work')).toBe(searches.indexOf('Theme Search') + themeRows);
+    expect(searches.indexOf('Search One Text')).toBe(searches.indexOf('Theme Search') + themeRows);
     expect(liveCovers('ask_a_work', { passage_windows: 603594 })).toBe('The passage index, 603,594 windows now.');
   });
 

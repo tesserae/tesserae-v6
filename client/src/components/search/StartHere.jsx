@@ -8,7 +8,7 @@ import {
 
 /**
  * "What are you trying to do?": seven answers that lead to the right search.
- * Shown to a first-time visitor on the Search page, never when the address
+ * Shown to a first-time visitor on the Intertextual Search page, never when the address
  * already carries a search, and brought back by the header's "Start here"
  * link. Once hidden it takes no space.
  *
