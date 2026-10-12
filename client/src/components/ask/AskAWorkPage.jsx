@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import SearchProgress from '../common/SearchProgress';
 import SearchableSelect from '../common/SearchableSelect';
 import ScopeBox from '../common/ScopeBox';
 import { useIsPhone } from '../../hooks/useIsPhone';
@@ -600,7 +601,7 @@ export default function AskAWorkPage() {
         </div>
       )}
 
-      {running && <p className="mt-6 text-sm text-gray-500 italic">Reading the work for that subject…</p>}
+      {running && <SearchProgress text="Reading the work for that subject…" />}
       {error && (
         <div className="mt-6 rounded border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">{error}</div>
       )}

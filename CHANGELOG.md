@@ -9,6 +9,9 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-12
 
+### Theme Search and Search One Text show a spinner and a clock while they run
+While a search ran, both pages showed one line of italic text and nothing else, so a reader could not tell whether anything was still happening. Both now show a spinner, the line, and a clock in whole seconds, the same indication the other searches give.
+
 ### The running clock on a search shows whole seconds
 While a search runs, the clock under the spinner (Rare Words, Rare Pairs, the parallel search, the corpus search, Cross-Language) counted "21.0s", a decimal that never changed because the clock ticks once a second. It now reads "21s". The time shown when a search has finished keeps its decimal, since that one is measured.
 
