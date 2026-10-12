@@ -35,7 +35,7 @@ Conventions
   hand and are the models the helper matches.
 
 
-## 2026-10-11 Description vocabulary for Theme Search's unknown-word check (built 2026-10-11; install to run)
+## 2026-10-11 Description vocabulary for Theme Search's unknown-word check (built 2026-10-11; installed 2026-10-11 22:03, rebuilt 23:47 after the prose append)
 
 - What: `data/passage_index/desc_vocab.json`, the words that occur in at least two passage descriptions (every lowercase alphabetic token of each row's `blob` and of the string and list values in its `desc`, counted once per row). Theme Search uses it to tell a reader which words of a query no passage description contains, and to hold the list when none of them does. Without the file the check is off and the response carries `vocab_checked: false`.
 - Script: `scripts/corpus/build_desc_vocab.py`, one pass over `descriptions.jsonl`, under 100 MB of memory, about 35 seconds.
@@ -45,7 +45,7 @@ Conventions
 - The file is rebuilt after every append to the passage index, listed with the keyword index and the names index in the post-append steps.
 - Check: a query of nonsense words ("xqzv plorf wibble") answers "Nothing to search for"; "establishment of democracy" shows its list.
 
-## 2026-10-11 Prose windows for every long-prose work: merged short units, Thucydides re-cut, the full run (staged 2026-10-11; install to run)
+## 2026-10-11 Prose windows for every long-prose work: merged short units, Thucydides re-cut, the full run (staged 2026-10-11; run 2026-10-11 23:22 to 23:49)
 
 - What: the cutter (`scripts/corpus/prose_windows.py`) gains `--merge-units`
   (on by default; `--no-merge-units` is the first run's behaviour). Within one
@@ -125,6 +125,29 @@ Conventions
 - Checks: the reference search (arma virum); Ask a Work on Thucydides and on a
   merged work showing windows with `ref_start` different from `ref_end`; Similar
   Passages on a Thucydides section maps to a merged window.
+- RUN 2026-10-11. Describing finished 23:14 after 532 minutes (4.8 windows a
+  second at the end, 32 in flight): 153,404 of 153,405 windows described; one,
+  `celsus.de_medicina.part.4:prosem:4`, failed on every attempt and is left
+  out. Encoded on one campus GPU (job `prose-all-20261011-7c3eeda5`): 153,404
+  vectors in 100 seconds in four parts, every part's SHA-256 matching the
+  job's result lines, id order equal to the input, norms 1.000, cosine 1.000
+  against the local encoder on three samples; the job and its public input
+  deleted. Install 23:22 to 23:49 under tess-job: window texts upserted
+  (153,405 rows plus the 1,159 Thucydides rows; `window_texts.db` 697,188
+  rows, backup `.bak-prose-all-20261011`); Thucydides 3,577 rows removed
+  (index 542,625 to 539,048) and 1,159 appended (540,207); the full run
+  appended (693,611 ids, vectors and description rows, in lockstep at each
+  step); keyword index 45 seconds; names index 22.8 minutes to `.new`,
+  checked and swapped; `desc_vocab.json` rebuilt (41 seconds); wsgi touched.
+  Checks passed: lockstep 693,611; the reference search (arma virum, Ovid
+  present); Ask a Work on Thucydides for the plague gives a strong band with
+  merged windows (2.57.1 to 2.58.1 first); Similar Passages on Thuc. 2.47.3
+  maps to the merged window 2.47.1 to 2.47.4; the gibberish check still
+  answers that nothing is known. Similar Passages for Annals 1.1 now leads
+  with Appian's preface to the Civil Wars, Josephus 20.155, Tacitus'
+  Histories 1.1, Dio's book 50 and Herodian 1.1.4, all paragraph windows
+  (before the run: Plutarch, Publicola 1.1, then chapter-sized windows of
+  Dio, Zosimus and Herodian).
 
 ## 2026-10-11 Finer passage windows for long prose chapters (run 2026-10-11 12:28 to 12:50)
 
