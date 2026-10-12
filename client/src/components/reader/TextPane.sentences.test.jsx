@@ -129,6 +129,26 @@ describe('mouse', () => {
     expect(spans[1].className).toMatch(/bg-red-100/);
     expect(spans[2].className).not.toMatch(/bg-red-100/);
   });
+
+  it('paints the lit sentence, not the whole unit, when the selection is part of it', () => {
+    // 2026-10-12: with the chapter painted pink behind a lit sentence, the
+    // reader could not see which sentence was selected.
+    const selection = { startIdx: 0, endIdx: 0, refStart: UNITS[0].ref, refEnd: UNITS[0].ref,
+                        lineCount: 1, charStart: parts[1].start, charEnd: parts[1].textEnd,
+                        sentenceTotal: 3, sentenceCount: 1, startSentence: 1, text: 'x' };
+    const { container } = render(<TextPane units={UNITS} language="la" selection={selection} onSelect={() => {}} />);
+    const unit = container.querySelectorAll('[id^="line-"]')[0];
+    expect(unit.className).not.toMatch(/bg-red-50/);
+    expect(unit.className).toMatch(/border-red-700/);
+  });
+
+  it('paints the whole unit when every sentence is selected', () => {
+    const selection = { startIdx: 0, endIdx: 0, refStart: UNITS[0].ref, refEnd: UNITS[0].ref,
+                        lineCount: 1, charStart: null, charEnd: null, text: PROSE };
+    const { container } = render(<TextPane units={UNITS} language="la" selection={selection} onSelect={() => {}} />);
+    const unit = container.querySelectorAll('[id^="line-"]')[0];
+    expect(unit.className).toMatch(/bg-red-50/);
+  });
 });
 
 describe('touch', () => {

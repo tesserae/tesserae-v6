@@ -9,6 +9,9 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-12
 
+### Reader: only the selected sentences of a prose chapter are painted
+When some sentences of a long prose unit are selected, the unit is no longer painted pink behind them. The lit sentences could not be told from the rest, so a sentence selection looked like a selection of the whole chapter. The unit keeps its red left bar, and a selection of every sentence paints the unit as before.
+
 ### Theme Search: the lowest confidence band is "Closest passages", and its thresholds are refitted to the enlarged index
 The band that was labelled "Low confidence" is now labelled "Closest passages", with the sentence under it rewritten (no passage stands far above the rest of the corpus on this subject, so the order is less certain than usual). The owner read a good list under the old label and found it deflating, and the measurement of 2026-10-11 had already shown that lists under this band are as relevant as lists under the moderate band. The floor between the lowest band and the moderate band (`HEAD_WEAK`) moves from 0.0738 to 0.060, refitted against the index of 693,611 windows left by the prose-windows run: accuracy on the 178-query probe set rises from 74.7 to 86.0 percent, on the original 57-query set from 66.7 to 77.2 percent, and of sixty historical subjects whose lists a model had graded, two read lowest instead of eighteen. The moderate note no longer says the corpus holds the subject, because some absent subjects from the modern world now read moderate. The "provisional thresholds" paragraph, which had opened every result since the index grew past the fitted size, is no longer printed on the page: it travels as `confidence.calibration` in the answer for anyone checking the fit, and the fitted size is updated so it is empty today. Help text and tests updated. Measurements in docs/DECISIONS.md.
 

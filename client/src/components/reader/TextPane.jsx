@@ -201,11 +201,22 @@ export default function TextPane({ units, language, selection, onSelect, total, 
           const n = lineNumber(u.ref);
           const showNumber = n != null && n % 5 === 0;
           const selected = isSelected(i);
+          // A long prose unit is drawn as its sentences, and the selected ones
+          // are lit. When some but not all of a unit's sentences are selected,
+          // the unit itself is NOT painted: with the whole chapter pink behind
+          // them, the lit sentences could not be told from the rest, and the
+          // owner read it as "I still can't select by sentence, just by large
+          // chunk" (2026-10-12). The unit keeps its left bar either way.
+          const parts = partsOf(u.text);
+          const lit = parts && selected && selection && selection.charStart != null
+            && selection.startIdx === i && selection.endIdx === i
+            ? sentenceRangeOf(selection, parts) : null;
+          const partial = !!(lit && (lit[0] > 0 || lit[1] < parts.length - 1));
           return (
             <div
               key={u.ref}
               id={`line-${cssRef(u.ref)}`}
-              className={`grid ${phone ? 'gap-1' : 'gap-2'} cursor-text ${selected ? 'bg-red-50 border-l-[3px] border-red-700 -ml-[3px] rounded-r' : ''}`}
+              className={`grid ${phone ? 'gap-1' : 'gap-2'} cursor-text ${selected ? `${partial ? '' : 'bg-red-50 '}border-l-[3px] border-red-700 -ml-[3px] rounded-r` : ''}`}
               // The second column holds the "quoted in N works" mark. With the
               // documents trial on, a line can carry a second mark (the amber
               // inscriptions count) beside it, and 1.15rem fitted one mark only:
@@ -398,11 +409,7 @@ export default function TextPane({ units, language, selection, onSelect, total, 
                 {(() => {
                   // A long prose unit is drawn as its sentences (the text is
                   // unchanged), so one can be clicked, and the selected one lit.
-                  const parts = partsOf(u.text);
                   if (!parts) return u.text;
-                  const lit = selected && selection && selection.charStart != null
-                    && selection.startIdx === i && selection.endIdx === i
-                    ? sentenceRangeOf(selection, parts) : null;
                   return parts.map((pt, k) => (
                     <span
                       key={pt.start}
