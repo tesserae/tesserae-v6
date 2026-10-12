@@ -168,6 +168,10 @@ describe('example-search buttons', () => {
     expect(body.search_type).toBe('lemma');
     expect(screen.getByDisplayValue('arma virumque cano')).toBeTruthy();
     await waitFor(() => expect(screen.getByText(/Found 1 documents/)).toBeTruthy());
+    // Once a search has answered, the whole-collection browser folds behind one line.
+    expect(screen.getByTestId('documents-browse-folded')).toBeTruthy();
+    await userEvent.click(screen.getByRole('button', { name: 'Open the browser' }));
+    expect(screen.queryByTestId('documents-browse-folded')).toBeNull();
   });
 
   it('a documents-only example sends collection documents and search_type lemma', async () => {
