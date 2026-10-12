@@ -9,6 +9,9 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-12
 
+### Objects: the picture cache folder is created group-writable
+When the server creates `data/objects/images/` on the first picture fetched, it now makes the folder writable by the shared group, so the warm-up script can add to it. Data operations: the warm-up run recorded (684 of 694 pictures cached).
+
 ### Objects: pictures served from our own server
 An object's picture was loaded by the visitor's browser straight from the museum's image server, and in at least one browser the Art Institute of Chicago picture did not show. Our server now fetches each picture once, keeps it on disk and serves it from there (`/api/objects/image/<id>`), for the Cleveland and Chicago objects whose licence is open. If a picture cannot be had, the picture box is left out instead of showing a broken-image icon. The Object page link and credit line are unchanged. Production needs the one-off warm-up in docs/DATA_OPERATIONS.md.
 

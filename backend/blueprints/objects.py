@@ -303,7 +303,16 @@ def fetch_image(url):
 def store_image(url, body, ctype):
     """Write atomically (temp file, then rename) and return the path."""
     d = image_dir()
-    os.makedirs(d, exist_ok=True)
+    if not os.path.isdir(d):
+        # The web worker's umask makes a folder the maintainer cannot write
+        # into (2026-10-12: the first picture fetched by a worker created
+        # data/objects/images as 755, and the warm-up script then failed on
+        # every file). Create it group-writable with the group inherited.
+        os.makedirs(d, exist_ok=True)
+        try:
+            os.chmod(d, 0o2775)  # nosec B103 -- the tessdev group shares data/ on purpose
+        except OSError:
+            pass
     path = os.path.join(d, f'{image_cache_key(url)}.{_EXT.get(ctype, "bin")}')
     fd, tmp = tempfile.mkstemp(dir=d, suffix='.part')
     try:
