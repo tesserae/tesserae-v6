@@ -278,10 +278,10 @@ def test_translate_accepts_a_held_note(monkeypatch, tmp_path):
          'notes': [{'ref': 'verg. aen. 1.1', 'lemma': 'ARMA', 'text': 'multi varie disserunt'}]},
     ])
 
-    class R:
-        def raise_for_status(self): pass
-        def json(self): return {'choices': [{'message': {'content': 'many explain this variously'}}]}
-    monkeypatch.setattr(SB.requests, 'post', lambda *a, **k: R())
+    # The route goes through the assistant's model client (2026-10-12).
+    from backend.assistant import model
+    monkeypatch.delenv('TESSERAE_LOCAL_LLM', raising=False)
+    monkeypatch.setattr(model, 'complete', lambda *a, **k: 'many explain this variously')
     c = app.test_client()
     path = next(str(rule) for rule in app.url_map.iter_rules() if rule.endpoint == 'scholarship.translate')
     r = c.post(path, json={'work': 'vergil.aeneid', 'ref': 'verg. aen. 1.1',

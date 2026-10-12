@@ -1753,26 +1753,35 @@ def expand_query(query):
         return _expand_cache[q]
     import json as _json
     import re as _re
-    import urllib.error
-    import urllib.request
-    body = _json.dumps({
-        'messages': [{'role': 'system', 'content': _EXPAND_SYSTEM},
-                     {'role': 'user', 'content': q}],
-        'max_tokens': 220, 'temperature': 0.0, 'stream': False,
-    }).encode('utf-8')
-    req = urllib.request.Request(EXPAND_ENDPOINT, data=body,
-                                 headers={'Content-Type': 'application/json'})
+    # Through the assistant's model client (backend/assistant/model.py), which
+    # is pointed at the campus gateway on production, with its key and
+    # settings. This path posted to the local llama-server on port 8081 by
+    # itself, so it kept that 20 GB service alive for short Theme Search
+    # queries alone (2026-10-12). TESSERAE_EXPAND_ENDPOINT, when set, still
+    # names a bare chat endpoint to post to instead.
     forms = []
     try:
-        # A fixed http(s) endpoint from configuration, never user input.
-        with urllib.request.urlopen(req, timeout=EXPAND_TIMEOUT) as r:  # nosec B310
-            out = _json.loads(r.read())
-        txt = out['choices'][0]['message']['content'] or ''
+        if os.environ.get('TESSERAE_EXPAND_ENDPOINT'):
+            import urllib.request
+            body = _json.dumps({
+                'messages': [{'role': 'system', 'content': _EXPAND_SYSTEM},
+                             {'role': 'user', 'content': q}],
+                'max_tokens': 220, 'temperature': 0.0, 'stream': False,
+            }).encode('utf-8')
+            req = urllib.request.Request(EXPAND_ENDPOINT, data=body,
+                                         headers={'Content-Type': 'application/json'})
+            # A fixed http(s) endpoint from configuration, never user input.
+            with urllib.request.urlopen(req, timeout=EXPAND_TIMEOUT) as r:  # nosec B310
+                out = _json.loads(r.read())
+            txt = out['choices'][0]['message']['content'] or ''
+        else:
+            from backend.assistant import model as _model
+            txt = _model.complete(_EXPAND_SYSTEM, q, 220, 0.0) or ''
         m = _re.search(r'\{.*\}', txt, _re.S)
         if m:
             forms = [str(f).strip() for f in (_json.loads(m.group(0)).get('forms') or [])
                      if str(f).strip()][:3]
-    except (urllib.error.URLError, OSError, ValueError, KeyError) as e:
+    except (OSError, ValueError, KeyError) as e:
         logger.info('[PASSAGES] query expansion unavailable: %s', e)
     _expand_cache[q] = forms
     # A failed expansion is not cached: the model being down for one request is
