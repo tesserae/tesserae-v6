@@ -320,7 +320,9 @@ _SCHOL_SYSTEM = (
     "You write for scholars. You are given a question about one ancient work and a numbered list "
     "of notes from commentaries and articles about it. Write at most 120 words on what these "
     "notes and articles say about the subject. Cite each claim with the bracketed number of the "
-    "note it came from, for example [2]. Say nothing the notes do not say. Report what each "
+    "note it came from, for example [2]. Say nothing the notes do not say. Call the sources what the "
+    "list says they are, commentary notes or journal articles, and never mention a kind of source "
+    "that is not in the list. Report what each "
     "note actually discusses, even when it is only a point of text or grammar, and do not "
     "infer a reading of the subject from it. If they do not answer the question, say so in one "
     "sentence. Begin with a short clause that tells "
@@ -457,7 +459,14 @@ def ask_scholarship():
     holdings = _scholarship_holdings(question, kept, info, work)
     if not kept or not model.is_available():
         return jsonify({'available': False, 'holdings': holdings})
-    lines = [f"{info.get('display_name') or work}", question]
+    n_art = sum(1 for c in kept if c.get('kind') == 'article')
+    n_note = len(kept) - n_art
+    kinds = ('commentary notes and journal articles' if n_art and n_note
+             else ('journal articles' if n_art else 'commentary notes'))
+    # The model is told what kinds it has, so it does not write "the
+    # commentaries and articles" over notes alone (owner, 2026-10-12).
+    lines = [f"{info.get('display_name') or work}", question,
+             f"The sources below are {kinds} only. Name them as such."]
     for i, c in enumerate(kept, 1):
         lines.append(f"[{i}] {_scholarship_label(c)}: {c.get('snippet') or ''}")
     t0 = time.time()
