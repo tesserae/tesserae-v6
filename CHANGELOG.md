@@ -9,6 +9,9 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-12
 
+### Reader: a long parallel passage is cut around its matched words, found as whole words
+In the Reader's Parallels tab a long prose hit is shortened to a window around the words that matched. The window was placed by a plain letter search, so for Tacitus, Annals 4.58 the word "Roma" was first found inside "Romanus" in the opening sentence, the card showed the opening, and nothing was highlighted because the real "Roma" and "reditus" were past the cut. The window is now placed on whole words, folding u and v as the highlighting does, and grows a little to keep a second matched word in view.
+
 ### Inscriptions & Papyri: a search that finds nothing says so, and a one-word dictionary-form search falls back to the letters
 Searches for "rusellorum" and then "rusell" in Lemma mode found nothing, and the page showed nothing at all, so there was no way to tell whether the search had run. It now prints a line saying that no inscription or papyrus has the word as a dictionary form (or contains it, in Exact mode). When a one-word dictionary-form search finds nothing, the page runs the same search on the letters at once and, if documents come back, shows them under a note that says so. The Help page explains both.
 ### Search One Text: recent articles from the live services join the scholarship paragraph
