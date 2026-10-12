@@ -9,6 +9,8 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-11
 
+### Theme Search: the low-band sentence no longer repeats its own label
+The band label and the note both began with the words low confidence, so the banner read them twice. The note now starts with what the band means.
 ### Theme Search: a query of words no passage description contains is told so
 The response's `confidence` carries `vocab_checked`, `unknown_words` and `no_known_words`, read from `desc_vocab.json` (the words found in at least two passage descriptions, built by `scripts/corpus/build_desc_vocab.py`; the check is off when the file is absent). A query none of whose content words appears is answered "Nothing to search for" with no list, since no confidence score separates nonsense from a thin subject; a query with some unknown words names them in the note. Ask a Work shows the same sentence. The check runs on the typed words, not the expanded query. Help says so.
 

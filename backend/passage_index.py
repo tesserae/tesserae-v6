@@ -1571,9 +1571,11 @@ def _confidence_note_fitted(level, language=None, degenerate=False):
     if degenerate:
         return ('The corpus does not appear to contain passages of this kind. Anything '
                 'the search returns for it is a nearest neighbor, not a finding.')
-    return ('Low confidence: the top passages do not stand far above the rest of the '
-            'corpus, so the ranking is less certain than usual. The list is still the '
-            'closest the corpus comes; read the passages before relying on them.')
+    # The page prints the band's label ("Low confidence.") before this
+    # sentence, so the sentence does not repeat it.
+    return ('The top passages do not stand far above the rest of the corpus, so the '
+            'ranking is less certain than usual. The list is still the closest the '
+            'corpus comes. Read the passages before relying on them.')
 
 
 # QUERY EXPANSION: make the query look like the thing being searched.
