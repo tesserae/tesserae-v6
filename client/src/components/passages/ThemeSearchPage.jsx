@@ -67,7 +67,7 @@ const EXAMPLE_SETS = {
     'tribunes propose a law to distribute public land to the poor',
     'a grain shortage drives up prices and the emperor fixes them',
     'women gather in the streets to demand the repeal of a law',
-    'a plague spreads through the city and the dead lie unburied',
+    'a census counts the citizens and assesses their property',
   ],
   // Persian, Urdu and Arabic, with Coptic alongside. Measured 2026-09-09:
   // all four rated strong, and three of the four return Coptic passages too.

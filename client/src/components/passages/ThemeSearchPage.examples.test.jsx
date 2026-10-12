@@ -31,7 +31,7 @@ describe('Theme Search examples per view', () => {
     render(<ThemeSearchPage />);
     await waitFor(() => expect(screen.getByRole('button', { name: /a debate in the assembly over how the city should be governed/ })).toBeTruthy());
     expect(screen.getByRole('button', { name: /a general addresses his troops before battle/ })).toBeTruthy();
-    expect(screen.getByRole('button', { name: /a plague spreads through the city and the dead lie unburied/ })).toBeTruthy();
+    expect(screen.getByRole('button', { name: /a census counts the citizens and assesses their property/ })).toBeTruthy();
     expect(screen.queryByRole('button', { name: /a mother laments her dead son/ })).toBeNull();
   });
 });
