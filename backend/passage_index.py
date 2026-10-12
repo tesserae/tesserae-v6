@@ -232,6 +232,10 @@ _lock = threading.Lock()
 _state = {'loaded': False, 'ok': False, 'error': None, 'retry_at': None}
 RELOAD_RETRY_SECONDS = 60   # after a failed load, try again this much later
 _ids = None            # list[str]
+# Word -> number of passage descriptions holding it (desc_vocab.json, built by
+# scripts/corpus/build_desc_vocab.py). None when the file is absent: the
+# unknown-word check is then off.
+_vocab = None
 _undescribed = set()   # row indices with no description: excluded from results
 # Works (file ids) that have windows of scale "prose": finer windows cut at
 # sentence boundaries inside long chapters (scripts/corpus/prose_windows.py).
@@ -489,6 +493,27 @@ def works_for_language(language):
     return _works_by_language_cache.get(language, [])
 
 
+VOCAB_FILE = 'desc_vocab.json'
+
+
+def _load_vocab():
+    """Load the description vocabulary beside the other index files, if present."""
+    global _vocab
+    path = os.path.join(_DATA_DIR, VOCAB_FILE)
+    _vocab = None
+    if not os.path.exists(path):
+        logger.info('[PASSAGES] %s absent: the unknown-word check is off', VOCAB_FILE)
+        return
+    try:
+        with open(path, encoding='utf-8') as fh:
+            words = json.load(fh).get('words')
+        if isinstance(words, dict) and words:
+            _vocab = words
+            logger.info('[PASSAGES] description vocabulary: %d words', len(words))
+    except Exception as e:  # a bad vocabulary file must not break the index
+        logger.error('[PASSAGES] %s unreadable, check off: %s', VOCAB_FILE, e)
+
+
 def _ensure_loaded():
     global _ids, _records, _emb, _by_work, _by_language
     if _state['loaded']:
@@ -540,6 +565,7 @@ def _ensure_loaded():
             _by_language = {lg: np.asarray(rows, dtype=np.int64)
                             for lg, rows in by_lang_lists.items() if lg}
             _state['ok'] = True
+            _load_vocab()
             _apply_index_confidence()
             # WINDOWS WITH NO DESCRIPTION ARE POISON. 128 records were never
             # described, and an empty description embeds near the centre of the
@@ -1381,6 +1407,126 @@ _SHORT_QUERY_HINT = (
     'what, and where.')
 
 
+# THE UNKNOWN-WORD CHECK (2026-10-11). No confidence score separates a string
+# of gibberish from a real but thin subject (coherence 0.892 against 0.912).
+# What does: every content word of every real query tested occurs in at least
+# two passage descriptions, and no word of any gibberish string occurs in any.
+_STOP_WORDS = frozenset("""
+a an the and or but nor of in on at to for from by with without about against
+between into through during before after above below over under up down out off
+as than then so if while is are was were be been being am do does did doing done
+have has had having will would shall should can could may might must not no yes
+this that these those it its he him his she her hers they them their theirs we
+us our ours you your yours i me my mine who whom whose which what when where why
+how there here very too also just only some any each every all both more most
+other such own same s t don doesn didn isn aren wasn weren couldn wouldn shouldn
+won ll ve re
+""".split())
+_QUERY_TOKEN = re.compile(r"[^\W\d_]+(?:['’][^\W\d_]+)*")
+_MAX_LISTED_WORDS = 8
+
+
+def _stem_candidates(w):
+    yield w
+    if w.endswith('ies') and len(w) > 4:
+        yield w[:-3] + 'y'
+    if w.endswith('es') and len(w) > 3:
+        yield w[:-2]
+    if w.endswith('s') and len(w) > 2:
+        yield w[:-1]
+    for suffix in ('ed', 'ing'):
+        if w.endswith(suffix) and len(w) > len(suffix) + 2:
+            stem = w[:-len(suffix)]
+            yield stem
+            yield stem + 'e'
+            if len(stem) > 2 and stem[-1] == stem[-2]:
+                yield stem[:-1]
+    if w.endswith('d') and len(w) > 3:
+        yield w[:-1]
+
+
+def _word_known(w, vocab):
+    return any(vocab.get(c, 0) >= 2 for c in _stem_candidates(w))
+
+
+def _query_content_words(query):
+    """Content words of the typed query, as typed (possessive 's removed), in order.
+
+    Words with a non-ASCII letter are left out: the vocabulary is ASCII letters
+    only, so such a word could not be looked up fairly.
+    """
+    words = []
+    for tok in _QUERY_TOKEN.findall(query or ''):
+        if not tok.isascii():
+            continue
+        tok = re.sub(r"['’]s$", '', tok)
+        for part in re.split(r"['’]", tok):
+            if len(part) < 2 or part.lower() in _STOP_WORDS:
+                continue
+            words.append(part)
+    return words
+
+
+def unknown_query_words(query, vocab=None):
+    """The content words of the typed query that no passage description holds.
+
+    Runs on the reader's own words, never on an expanded query. Returns None
+    when no vocabulary is loaded (the check is off).
+    """
+    vocab = _vocab if vocab is None else vocab
+    if vocab is None:
+        return None
+    seen, out = set(), []
+    for w in _query_content_words(query):
+        lw = w.lower()
+        if lw in seen:
+            continue
+        seen.add(lw)
+        if not _word_known(lw, vocab):
+            out.append(w)
+    return out
+
+
+def _vocab_fields(query):
+    """The unknown-word fields every Theme Search confidence block carries."""
+    if _vocab is None:
+        return {'vocab_checked': False, 'unknown_words': [], 'no_known_words': False}
+    unknown = unknown_query_words(query)
+    content = {w.lower() for w in _query_content_words(query)}
+    return {'vocab_checked': True, 'unknown_words': unknown,
+            'no_known_words': bool(content) and len(unknown) == len(content)}
+
+
+def _join_words(words):
+    shown = list(words[:_MAX_LISTED_WORDS])
+    if len(words) > _MAX_LISTED_WORDS:
+        return ', '.join(shown) + f' and {len(words) - _MAX_LISTED_WORDS} more'
+    if len(shown) > 1:
+        return ', '.join(shown[:-1]) + ' and ' + shown[-1]
+    return shown[0]
+
+
+def _vocab_note(note, fields):
+    """The note after the unknown-word check: replaced, extended, or unchanged."""
+    unknown = fields.get('unknown_words') or []
+    if not unknown:
+        return note
+    if fields.get('no_known_words'):
+        shown = ', '.join(unknown[:_MAX_LISTED_WORDS])
+        if len(unknown) > _MAX_LISTED_WORDS:
+            shown += f' and {len(unknown) - _MAX_LISTED_WORDS} more'
+        return (f'None of these words appears in any passage description: {shown}. '
+                'There is nothing for Theme Search to match. Check the spelling, '
+                'or describe the scene in other words.')
+    if len(unknown) == 1:
+        extra = (f'The word {unknown[0]} appears in no passage description, '
+                 'so it did not help the search.')
+    else:
+        extra = (f'The words {_join_words(unknown)} appear in no passage description, '
+                 'so they did not help the search.')
+    return f'{note} {extra}' if note else extra
+
+
 def _confidence_note(level, query=None, language=None, degenerate=False):
     drift = _calibration_drift()
     base = _confidence_note_fitted(level, language, degenerate=degenerate)
@@ -1938,6 +2084,7 @@ def find_by_text(query, limit=25, languages=None, scale=None, expand=False,
         # scores, before the lexical boost reorders them, as it was fitted.
         within = within_work_signals(scores, _restricted_rows(set(only_works)))
     n_lexical = _lexical_boost(query, scores)
+    vocab_fields = _vocab_fields(query)
 
     if only_works is not None:
         # Restricted to an author or to chosen works. The corpus-wide level was
@@ -1978,6 +2125,19 @@ def find_by_text(query, limit=25, languages=None, scale=None, expand=False,
                 r['z'] = round(lift / within['spread'], 2) if within['spread'] > 0 else 0.0
                 r['strong'] = bool(wlevel != 'low' and within['spread'] > 0
                                    and lift / within['spread'] >= WITHIN_STRONG_Z)
+        confidence.update(vocab_fields)
+        if within_note:
+            within_note = _vocab_note(within_note, vocab_fields)
+            confidence['note'] = within_note
+        restricted_note = within_note or (
+            'Confidence is not rated for a search within one author or '
+            'work. These are the closest passages in the chosen works, '
+            'whether or not they match well, so read them before relying '
+            'on them.' + (f' Each work shows up to {cap} passages. Choose '
+                          'one work to see more of it.'
+                          if cap is not None and cap < 10**6 and n_bases > 1 else ''))
+        if not within_note:
+            restricted_note = _vocab_note(restricted_note, vocab_fields)
         return {
             'query': query,
             'results': results,
@@ -1986,12 +2146,7 @@ def find_by_text(query, limit=25, languages=None, scale=None, expand=False,
             'restricted': True,
             'per_work': cap,
             'confidence': confidence,
-            'note': within_note or ('Confidence is not rated for a search within one author or '
-                     'work. These are the closest passages in the chosen works, '
-                     'whether or not they match well, so read them before relying '
-                     'on them.' + (f' Each work shows up to {cap} passages. Choose '
-                                   'one work to see more of it.'
-                                   if cap is not None and cap < 10**6 and n_bases > 1 else '')),
+            'note': restricted_note,
         }
 
     # WHY THE PAGE IS BUILT IN TWO PASSES
@@ -2056,10 +2211,13 @@ def find_by_text(query, limit=25, languages=None, scale=None, expand=False,
                        # 2026-10-11: the one case in which the page hides the
                        # list. A low band without it is a caution, not a verdict
                        # (see _confidence_note_fitted).
-                       'degenerate': bool(coherence >= DEGENERATE_COHERENCE)},
-        'note': _confidence_note(level, query=query,
-                                 language=languages[0] if lang_rows is not None else None,
-                                 degenerate=coherence >= DEGENERATE_COHERENCE),
+                       'degenerate': bool(coherence >= DEGENERATE_COHERENCE),
+                       **vocab_fields},
+        'note': _vocab_note(
+            _confidence_note(level, query=query,
+                             language=languages[0] if lang_rows is not None else None,
+                             degenerate=coherence >= DEGENERATE_COHERENCE),
+            vocab_fields),
     }
 
 

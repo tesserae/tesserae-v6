@@ -9,6 +9,9 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-11
 
+### Theme Search: a query of words no passage description contains is told so
+The response's `confidence` carries `vocab_checked`, `unknown_words` and `no_known_words`, read from `desc_vocab.json` (the words found in at least two passage descriptions, built by `scripts/corpus/build_desc_vocab.py`; the check is off when the file is absent). A query none of whose content words appears is answered "Nothing to search for" with no list, since no confidence score separates nonsense from a thin subject; a query with some unknown words names them in the note. Ask a Work shows the same sentence. The check runs on the typed words, not the expanded query. Help says so.
+
 ### Theme Search: a low confidence band no longer hides the list
 The passages are shown whatever the band says, under a one-line caution when the band is low. Only a search nothing in the corpus resembles (degenerate coherence, the band's weak match) is held behind a link, and only that case says the corpus lacks the subject. Measured on 60 historical subjects and the 15 Ask a Work pilot questions with a model grading the top ten: of 31 queries marked low, 27 had a relevant list. The response carries `confidence.degenerate`. The short-query hint is kept for the degenerate case. The weak-neighbor tag is left off rows under a low band, where every row would carry it. Help says so.
 

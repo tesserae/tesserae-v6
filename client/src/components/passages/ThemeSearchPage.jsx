@@ -110,6 +110,12 @@ const BAND = {
     label: 'Common theme',
     className: 'bg-amber-50 text-amber-800 border-amber-200',
   },
+  // A query none of whose content words occurs in any passage description
+  // (2026-10-11): there is nothing to match, so no list is offered at all.
+  nothing: {
+    label: 'Nothing to search for',
+    className: 'bg-gray-100 text-gray-700 border-gray-300',
+  },
   low: {
     label: 'Low confidence',
     className: 'bg-gray-100 text-gray-700 border-gray-300',
@@ -684,8 +690,9 @@ export default function ThemeSearchPage() {
   // confidence is degenerate (nothing resembles the query). Measured on 60
   // historical subjects, the low band hid a relevant list 27 times in 31.
   const degenerate = !!(data?.confidence?.degenerate && data?.confidence?.level === 'low');
-  const band = data && BAND[degenerate ? 'weak' : data.confidence?.level];
-  const listHidden = degenerate && !showWeak;
+  const noKnownWords = !!data?.confidence?.no_known_words;
+  const band = data && BAND[noKnownWords ? 'nothing' : degenerate ? 'weak' : data.confidence?.level];
+  const listHidden = noKnownWords || (degenerate && !showWeak);
 
   // 'search' is Theme Search itself; 'map' is a picture of the same
   // connections at a larger scale (see client/src/components/passages/
@@ -1238,13 +1245,13 @@ export default function ThemeSearchPage() {
             </div>
           )}
 
-          {!data.results?.length && !data.restricted && (
+          {!data.results?.length && !data.restricted && !noKnownWords && (
             <p className="mt-4 text-sm text-gray-600">
               Nothing in the corpus resembles that description.
             </p>
           )}
 
-          {!data.results?.length && data.restricted && (
+          {!data.results?.length && data.restricted && !noKnownWords && (
             <p className="mt-4 text-sm text-gray-600">
               Nothing in the chosen {scopeWork ? 'work' : 'author'} resembles that description.
             </p>
@@ -1254,7 +1261,7 @@ export default function ThemeSearchPage() {
               whatever the banner says. The passages are not hidden -- knowing
               what came closest is sometimes the useful answer -- but they are
               not laid out as results until asked for. */}
-          {listHidden && !!data.results?.length && (
+          {listHidden && !noKnownWords && !!data.results?.length && (
             <div className="mt-4">
               <button
                 onClick={() => setShowWeak(true)}

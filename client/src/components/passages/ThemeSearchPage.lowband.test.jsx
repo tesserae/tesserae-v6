@@ -62,3 +62,27 @@ describe('the low band and the list', () => {
     expect(await screen.findByText(/collapse of Athenian democracy/)).toBeTruthy();
   });
 });
+
+describe('words no passage description contains', () => {
+  it('no known words: the label, the note, no list, no link, no export', async () => {
+    payload = answer({ level: 'low', coherence: 0.892, head_lift: 0.037, degenerate: false,
+                       vocab_checked: true, unknown_words: ['xqzv', 'plorf', 'wibble'], no_known_words: true },
+      'None of these words appears in any passage description: xqzv, plorf, wibble. There is nothing for Theme Search to match. Check the spelling, or describe the scene in other words.');
+    await search();
+    await waitFor(() => expect(screen.getByText(/Nothing to search for\./)).toBeTruthy());
+    expect(screen.getByText(/None of these words appears in any passage description/)).toBeTruthy();
+    expect(screen.queryByText(/collapse of Athenian democracy/)).toBeNull();
+    expect(screen.queryByRole('button', { name: /nearest passages anyway/ })).toBeNull();
+    expect(screen.queryByText(/Show more results/)).toBeNull();
+  });
+
+  it('some unknown words: the list is shown with the sentence inside the banner', async () => {
+    payload = answer({ level: 'moderate', coherence: 0.9, head_lift: 0.08, degenerate: false,
+                       vocab_checked: true, unknown_words: ['potatoes'], no_known_words: false },
+      'Moderate confidence: the corpus holds passages of this kind. The word potatoes appears in no passage description, so it did not help the search.');
+    await search();
+    await waitFor(() => expect(screen.getByText(/The word potatoes appears in no passage description/)).toBeTruthy());
+    expect(screen.getByText(/collapse of Athenian democracy/)).toBeTruthy();
+    expect(screen.queryByText(/Nothing to search for/)).toBeNull();
+  });
+});

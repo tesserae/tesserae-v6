@@ -1653,7 +1653,9 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 The band tells a real subject from nonsense, which is what it was fitted on; it
                 does not tell a good list from a poor one. The one case still held back is a
                 search nothing in the corpus resembles at all, which the band calls a weak
-                match.
+                match. A query none of whose words occurs in any passage description is told
+                so and gets no list, because the search has nothing to match. If only some of
+                its words are unknown, the note names them.
               </p>
               <p className="text-gray-700 mb-3">
                 The hardest test cases are near misses: &ldquo;a farmer lifts potatoes out of the
