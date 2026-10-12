@@ -61,7 +61,6 @@ describe('EventMap', () => {
     render(<EventMap points={POINTS} />);
     const handler = h.tiles.on.mock.calls.find((c) => c[0] === 'tileerror')[1];
     expect(screen.queryByText('The base map could not be loaded.')).toBeNull();
-    // eslint-disable-next-line testing-library/no-unnecessary-act
     return import('@testing-library/react').then(({ act }) => {
       act(() => { handler(); handler(); });
       expect(screen.getAllByText('The base map could not be loaded.')).toHaveLength(1);

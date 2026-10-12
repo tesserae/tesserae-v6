@@ -354,7 +354,6 @@ export default function LineSearch({ language }) {
       setPendingUrlSearch(q);
     }
     // Run once on mount for the initial URL.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {

@@ -1111,7 +1111,7 @@ export default function ConnectionsMap() {
     };
     window.addEventListener('popstate', onPop);
     return () => window.removeEventListener('popstate', onPop);
-  }, [loadCell, loadBooks]);   // eslint-disable-line react-hooks/exhaustive-deps
+  }, [loadCell, loadBooks]);
 
   // Author and work in full for the pair-list breadcrumb too
   // (2026-09-19), read off the first loaded pair's own windows (which already

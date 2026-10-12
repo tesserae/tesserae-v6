@@ -8,6 +8,35 @@ history (index builds, cache rebuilds, corpus changes) is in
 `DATA_OPERATIONS.md`; per-release changes are in `../CHANGELOG.md`.
 
 
+## 2026-10-12: Cleaning the code's shape without changing what it does
+- Scope: every change meant to reorganise code (splitting the large Flask
+  module into an app factory and blueprints, tests for the scoring core,
+  splitting Line Search into steps, the two oversized site components) and
+  not to alter an answer.
+- The rule. Nothing may break, change, or go backwards because of the
+  cleaning. A structural change therefore ships only with all of these:
+  1. the golden check (`scripts/review/golden_api.py`) reports every request
+     `same` against a recording from before the change, on a preview of the
+     branch, and again on the live site after the deploy;
+  2. the reference searches (`tests/search_reference_tests.md`) and the Theme
+     Search probe sets (`evaluation/probe_sets/`) give the same answers;
+  3. the linters pass (ruff and ESLint, pinned to the code of 2026-10-12, so
+     they fail only on a new fault).
+  A request whose answer is meant to change is re-recorded in the same pull
+  request, and the CHANGELOG entry says which and why.
+- A formatter (black, prettier) is not used. It would rewrite nearly every
+  file, which hides the real changes of a pull request and defeats the rule.
+- The weekly reading of the code by reviewers is not scheduled. The
+  development period is intensive and finite, so a read is run on demand,
+  after a large change.
+- Why a recorded check and not tests alone. The unit tests do not exercise the
+  search over the real index. The recording does, through the same routes the
+  site uses, so a refactor that shifts a score, an order or a field shows as a
+  difference at once. Requests that give different answers on two runs
+  (timings, cache flags) are normalised away; requests that call a language
+  model or a live outside service are left out.
+
+
 ## 2026-10-12: the band inside one work is refitted on eleven works, and its lowest level is a caution, not a verdict
 - Scope: Search One Text (`/ask-a-work`) and any Theme Search restricted to
   one work. The corpus-wide band has its own entry below.

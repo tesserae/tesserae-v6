@@ -769,7 +769,6 @@ const SearchResults = ({
       .attr('fill', '#2563eb')
       .text(d => `${trunc(d.author.replace(/_/g, ' '))}, ${fmtYear(d.year)} (${d.count})`);
     rows.append('title').text(d => `${d.author.replace(/_/g, ' ')} — ${fmtYear(d.year)} — ${d.count} occurrence${d.count !== 1 ? 's' : ''}`);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sidebarMode, corpusGroupBy, corpusData, corpusSelectedAuthor, sourceTextInfo, targetTextInfo]);
 
   const chartOptions = {
