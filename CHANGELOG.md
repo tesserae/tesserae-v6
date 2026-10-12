@@ -9,6 +9,9 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-12
 
+### Inscriptions: "Hr." written out as Henchir, and "unknown" chips left off
+An inscription's findspot line carried the Heidelberg database's abbreviation as it stood ("Hr. Oumkif"); Hr. is Henchir, the North African word for a ruin site, and the card now writes it out (also Kh. for Khirbet). The three chips under the heading that each read "unknown" (text type, object, material) are left off when that is all they say. On the document page, the Reader's Documents tab and the Inscriptions & Papyri results.
+
 ### Theme Search scope box and Help carry the October refit
 The "What this search does" box on Theme Search gave the confidence figures of the September fit (32 subjects, 88 to 91 percent) and listed Coptic, Hebrew and English as unmeasured. It now gives the 12 October refit (178 subjects in eight language settings, 86 percent overall, with the per-language figures), says the lowest band is "Closest passages", and states the index size at the release and now in one sentence instead of two. The Help paragraph on the band carries the same figures.
 ### Reader: only the selected sentences of a prose chapter are painted

@@ -45,3 +45,30 @@ export function documentDateLabel(result) {
   if (nb != null && na != null && nb !== na) return `${fmt(nb)}–${fmt(na)}`;
   return fmt(nb != null ? nb : na);
 }
+
+// Findspot abbreviations the Epigraphic Database Heidelberg uses as they
+// stand. "Hr." (Henchir, the North African word for a ruin site) was read by
+// the owner on 2026-10-12 as an unknown term, so the card writes it out.
+const PLACE_ABBREVIATIONS = [
+  [/\bHr\.\s*/g, 'Henchir '],
+  [/\bKh\.\s*/g, 'Khirbet '],
+];
+
+/** The findspot line of a document: the ancient place when known, else the
+ *  modern one, with the database's abbreviations written out. */
+export function documentPlace(r) {
+  let place = (r && (r.ancient_place || r.modern_place)) || '';
+  for (const [pattern, word] of PLACE_ABBREVIATIONS) place = place.replace(pattern, word);
+  return place || null;
+}
+
+const UNKNOWN_LABELS = new Set(['unknown', 'unbekannt', '?', 'n/a', 'none']);
+
+/** The type, object and material chips, leaving out the ones that only say
+ *  the database does not know (three "unknown" chips told the reader nothing,
+ *  2026-10-12). */
+export function documentLabels(r) {
+  if (!r) return [];
+  return [r.text_type_label, r.object_type_label, r.material_label]
+    .filter((x) => x && !UNKNOWN_LABELS.has(String(x).trim().toLowerCase()));
+}

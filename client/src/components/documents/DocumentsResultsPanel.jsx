@@ -152,9 +152,8 @@ export default function DocumentsResultsPanel({
         )}
         {documentResults.map((result, i) => {
           const credit = result.credit || {};
-          const labels = [result.text_type_label, result.object_type_label, result.material_label]
-            .filter(Boolean);
-          const place = result.ancient_place || result.modern_place;
+          const labels = documentLabels(result);
+          const place = documentPlace(result);
           const dateLabel = documentDateLabel(result);
           return (
             <div key={i} className="p-4 hover:bg-gray-50">
