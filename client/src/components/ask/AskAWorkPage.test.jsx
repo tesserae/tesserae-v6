@@ -253,6 +253,20 @@ const named = (n, ref, extra = {}) => ({
   gist: `Names ${n}`, matched: ['Sejanus'], mentions: 2, ...extra,
 });
 
+describe('the strip explains its shades', () => {
+  it('names the shades under the strip and titles each bar', async () => {
+    render(<AskAWorkPage />);
+    await pick('Author', 'Vergil');
+    await pick('Work', 'Aeneid');
+    fireEvent.change(screen.getByPlaceholderText(/a subject in plain words/), { target: { value: 'fathers and sons' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Go' }));
+    await screen.findAllByTestId('ask-card');
+    expect(screen.getByTestId('ask-strip-legend').textContent).toMatch(/Hover a bar/);
+    const marks = screen.getAllByTestId('ask-mark');
+    expect(marks[0].getAttribute('title')).toMatch(/^verg\. aen\./);
+  });
+});
+
 describe('the unit of the strip', () => {
   it('reads fragments, poems, letters or books from the references', () => {
     expect(unitWord([{ ref_start: 'sappho. frag. 31.1' }])).toBe('fragments');

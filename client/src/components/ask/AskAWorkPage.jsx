@@ -673,6 +673,7 @@ export default function AskAWorkPage() {
                         type="button"
                         data-testid="ask-mark-name"
                         aria-label={`${r.ref_start}, names ${joinNames(mentions.names)}`}
+                        title={`${r.ref_start}: names ${joinNames(mentions.names)}`}
                         onClick={() => jumpName(at)}
                         style={{ left: `${m.left * 100}%`, height: '40%', width: 2 }}
                         className="absolute bottom-0 -translate-x-1/2 rounded-t bg-gray-400 focus:outline-none focus:ring-2 focus:ring-red-300"
@@ -688,6 +689,7 @@ export default function AskAWorkPage() {
                         type="button"
                         data-testid="ask-mark"
                         aria-label={`${r.ref_start}${r.strong ? ', strong' : ''}`}
+                        title={`${r.ref_start}: ${r.strong ? 'strong match' : `match ${m.i + 1} of ${results.length}`}${typeof r.score === 'number' ? `, score ${r.score.toFixed(2)}` : ''}`}
                         onClick={() => jump(m.i)}
                         style={{ left: `${m.left * 100}%`, height: `${40 + w * 60}%`, width: w > 0.66 ? 4 : 2 }}
                         className={`absolute bottom-0 -translate-x-1/2 rounded-t focus:outline-none focus:ring-2 focus:ring-red-300 ${w > 0.66 ? 'bg-red-700' : 'bg-red-300'}`}
@@ -717,6 +719,15 @@ export default function AskAWorkPage() {
                   {layout.books.length > 1
                     ? `${results.length} passages in ${inBooks} of ${layout.books.length} ${results.length ? unitWord(results) : unitForWork(asked.work)}`
                     : `${results.length} passages`}
+                  {/* What the shades mean, asked for by the owner 2026-10-12;
+                      each bar also says on hover which passage it is. */}
+                  <span className="ml-2" data-testid="ask-strip-legend">
+                    {anyStrong
+                      ? 'Dark red: a strong match. Light red: the other passages.'
+                      : 'Red: the passages, darker the closer the match.'}
+                    {greyMarks.length ? ` Grey: passages that name ${joinNames(mentions.names)}.` : ''}
+                    {' '}Hover a bar for the passage.
+                  </span>
                 </p>
               </section>
 

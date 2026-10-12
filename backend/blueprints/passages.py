@@ -341,12 +341,14 @@ _HOLDINGS_WITH = (
     "My secondary sources on {title} for this question are {n} {things} from {who}.",
     "I found {n} {things} from {who} on {title} among the secondary sources I can read.",
 )
+# Every "none" sentence says "for this question": the collection may well hold
+# notes on the work that this question did not reach (2026-10-12, Thucydides).
 _HOLDINGS_NONE = (
-    "I have no secondary sources on {title} to draw on.",
-    "I don't have access to any matching secondary sources on {title}.",
+    "I have no secondary sources on {title} to draw on for this question.",
+    "I don't have access to any secondary sources on {title} that match this question.",
     "The secondary sources I can read have nothing on {title} for this question.",
-    "No secondary source I can read speaks to {title} here.",
-    "I can find no matching secondary literature on {title} in what I have access to.",
+    "No secondary source I can read speaks to {title} on this question.",
+    "I can find no secondary literature on {title} for this question in what I have access to.",
 )
 
 
@@ -386,13 +388,16 @@ def _scholarship_keep(cards, work):
         names.append(title)
     kept = []
     for c in cards or []:
+        hay = ' '.join(str(c.get(k) or '') for k in ('title', 'snippet')).lower()
+        names_it = bool(names) and any(re.search(r'\b' + re.escape(n) + r'\b', hay) for n in names)
         if c.get('kind') == 'commentary':
-            if c.get('work') and work_names.base_work(c['work']) == base:
+            # A note on the work itself, or a note on another work that names
+            # this author (Page on the Aeneid comparing Thucydides' plague is
+            # secondary literature on Thucydides too, 2026-10-12).
+            if (c.get('work') and work_names.base_work(c['work']) == base) or names_it:
                 kept.append(c)
-        elif c.get('kind') == 'article' and names:
-            hay = ' '.join(str(c.get(k) or '') for k in ('title', 'snippet')).lower()
-            if any(re.search(r'\b' + re.escape(n) + r'\b', hay) for n in names):
-                kept.append(c)
+        elif c.get('kind') == 'article' and names_it:
+            kept.append(c)
         if len(kept) >= _SCHOL_KEEP:
             break
     return kept, info
@@ -435,8 +440,16 @@ def ask_scholarship():
     work = str(data.get('work') or '').strip()
     if not question or not work:
         return jsonify({'available': False, 'error': 'question and work are required'})
+    # The search carries the author's and the work's names in front of the
+    # question, so notes and articles about this author rank ahead of notes
+    # on the same subject in other authors (2026-10-12: "the plague at
+    # Athens" alone reached nothing naming Thucydides in the first thirty;
+    # with his name in front, twelve).
+    from backend import work_names as _wn
+    _info = passage_index._naming(_wn.base_work(work)) or {}
+    _prefix = ' '.join(x for x in (_info.get('author'), _info.get('title')) if x)
     try:
-        found = scholarship_theme.theme(question, k=_SCHOL_DEPTH)
+        found = scholarship_theme.theme(f'{_prefix}: {question}' if _prefix else question, k=_SCHOL_DEPTH)
     except Exception as e:
         logger.info('[PASSAGES] ask-scholarship search failed: %s', type(e).__name__)
         return jsonify({'available': False, 'error': 'the scholarship search is not available'})
