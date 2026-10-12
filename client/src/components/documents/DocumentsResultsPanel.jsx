@@ -3,7 +3,7 @@ import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Toolti
 import { Bar } from 'react-chartjs-2';
 import Pagination from '../common/Pagination';
 import { dirFor } from '../../utils/rtl';
-import { renderDocumentText, documentDateLabel } from './documentDisplay';
+import { renderDocumentText, documentDateLabel, documentPlace, documentLabels } from './documentDisplay';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
