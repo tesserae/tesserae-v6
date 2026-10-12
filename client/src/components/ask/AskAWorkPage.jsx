@@ -750,7 +750,7 @@ export default function AskAWorkPage() {
               )}
               {recent?.pending.length > 0 && (
                 <p className="mt-1 text-xs text-gray-500" data-testid="ask-recent-pending">
-                  {`Looking up recent articles from ${joinNames(recent.pending.filter((x) => x !== 's2').map((x) => RECENT_LABELS[x]).concat(recent.pending.includes('s2') && recent.pending.length === 1 ? [RECENT_LABELS.s2] : []))}...`}
+                  {`Looking up recent articles from ${joinNames(recent.pending.map((x) => RECENT_LABELS[x]))}...`}
                 </p>
               )}
               <section aria-label="Where in the work" className="mt-3">
