@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { LoadingSpinner } from '../common';
 import { dirFor } from '../../utils/rtl';
 import useDocumentsTrial from '../../hooks/useDocumentsTrial';
@@ -103,6 +103,12 @@ export default function InscriptionsPapyriPage({ setPageType }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [pendingUrlSearch, setPendingUrlSearch] = useState(null);
+  // What the last search found, so a search that finds nothing says so:
+  // { kind: 'empty' | 'fallback', query, searchType, count }.
+  const [outcome, setOutcome] = useState(null);
+  // Numbers each search, so a retry that finishes after the reader has
+  // started another search is dropped.
+  const searchIdRef = useRef(0);
   // The literary companion to a "Both" search (e.g. Vergil's own opening
   // alongside the Pompeii graffito that echoes it) -- separate from the
   // documents collection's own result state, which useDocumentsSearch owns.
@@ -173,13 +179,18 @@ export default function InscriptionsPapyriPage({ setPageType }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pendingUrlSearch, query, serverChecked]);
 
+  const documentRowCount = (data) => (data.results || []).filter(r => r.collection === 'documents').length;
+
   const handleSearch = async () => {
     if (!query.trim()) return;
+    const myId = ++searchIdRef.current;
+    const q = query.trim();
     setLoading(true);
     setError(null);
+    setOutcome(null);
     try {
       const searchParams = addCollectionParams({
-        query: query.trim(),
+        query: q,
         language,
         search_type: searchType,
       });
@@ -190,6 +201,7 @@ export default function InscriptionsPapyriPage({ setPageType }) {
         body: JSON.stringify(searchParams),
       });
       const data = await res.json();
+      if (myId !== searchIdRef.current) return;
       if (data.error) {
         setError(data.error);
         setLiteratureHits([]);
@@ -200,8 +212,34 @@ export default function InscriptionsPapyriPage({ setPageType }) {
         setQueryWordCount(data.query_word_count || 0);
         setShowAllLiterature(false);
         applyDocumentsResponse(data, { sortUsed: searchParams.sort });
+        if (documentRowCount(data) === 0) {
+          let fellBack = false;
+          // One word that is no dictionary form: try the letters instead,
+          // once, with the same filters and paging.
+          if (searchType === 'lemma' && !/\s/.test(q)) {
+            const retryParams = { ...searchParams, search_type: 'exact' };
+            const res2 = await fetch('/api/line-search', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(retryParams),
+            });
+            const data2 = await res2.json();
+            if (myId !== searchIdRef.current) return;
+            if (!data2.error && documentRowCount(data2) > 0) {
+              recordSearch(retryParams);
+              applyDocumentsResponse(data2, { sortUsed: searchParams.sort });
+              setOutcome({
+                kind: 'fallback', query: q, searchType,
+                count: data2.collection === 'documents' ? (data2.total ?? 0) : (data2.documents_total ?? 0),
+              });
+              fellBack = true;
+            }
+          }
+          if (!fellBack) setOutcome({ kind: 'empty', query: q, searchType, count: 0 });
+        }
       }
     } catch (err) {
+      if (myId !== searchIdRef.current) return;
       setError('Search failed. Please try again.');
       setLiteratureHits([]);
     }
@@ -209,6 +247,8 @@ export default function InscriptionsPapyriPage({ setPageType }) {
   };
 
   const runExampleSearch = async (example) => {
+    searchIdRef.current += 1;
+    setOutcome(null);
     setQuery(example.query);
     setCollection(example.collection);
     setSearchType(example.searchType);
@@ -349,6 +389,27 @@ export default function InscriptionsPapyriPage({ setPageType }) {
       {error && (
         <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
           {error}
+        </div>
+      )}
+
+      {!loading && outcome && outcome.kind === 'empty' && (
+        <div className="bg-white rounded-lg shadow p-4 sm:p-6 text-sm text-gray-700" data-testid="documents-empty">
+          <p className="font-medium text-gray-900">
+            {outcome.searchType === 'lemma'
+              ? `No inscription or papyrus has "${outcome.query}" as a dictionary form.`
+              : outcome.searchType === 'regex'
+                ? `No inscription or papyrus matches the pattern "${outcome.query}".`
+                : `No inscription or papyrus contains "${outcome.query}".`}
+          </p>
+          <p className="mt-1">
+            Check the spelling.{outcome.searchType === 'lemma' ? ' Exact match also finds the letters inside longer words.' : ''}
+          </p>
+        </div>
+      )}
+
+      {!loading && outcome && outcome.kind === 'fallback' && (
+        <div className="bg-amber-50 border border-amber-200 text-amber-900 px-4 py-3 rounded text-sm" data-testid="documents-fallback">
+          No dictionary form matches "{outcome.query}". Showing the {outcome.count} documents whose text contains these letters instead.
         </div>
       )}
 
