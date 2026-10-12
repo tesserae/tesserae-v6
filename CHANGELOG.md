@@ -9,6 +9,8 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-12
 
+### Line Search: the inflected forms of respublica, iusiurandum, paterfamilias and senatusconsultum
+The four joined compounds that decline were found only in the forms the lemma table knew (rempublicam, reipublicae, patremfamilias). A search for "ius iurandum" missed a line printing iurisiurandi or iureiurando, "senatus consultum" missed senatusconsulto and senatusconsulti, and a search for the joined senatusconsulto found ten lines instead of the ones that print senatus consulto. Each of the four now carries its list of printed joined forms (respublica, reipublicae, rempublicam, republica, rerumpublicarum and others; iurisiurandi, iureiurando, iuraiuranda; patrisfamilias, patremfamilias, patrumfamilias, patribusfamilias and the spellings in -familiae; senatusconsulti, senatusconsulto, senatusconsulta, senatusconsultorum, senatusconsultis). A joined form in a line answers the parts a query types in any case, and a joined form in a query finds the parts side by side, in order, in any case. Nothing in the index, the lemma cache or the lemma table changed.
 ### Google Books: one retry after a temporary failure
 Google Books answers some queries with a passing 503 ("service temporarily unavailable"). The Reader's book search and the recent-articles search now send the request once more after one second when the answer is a server error (5xx), and report the service as unavailable only if the second try fails too.
 ### Recent articles: a tighter rule for what is kept
