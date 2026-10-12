@@ -9,7 +9,7 @@ import RareResultsDisplay from './components/search/RareResultsDisplay';
 import StartHere from './components/search/StartHere';
 import { addressHasQuery, FRONT_DOOR_OPEN_EVENT } from './components/search/frontDoor';
 import ScopeBox from './components/common/ScopeBox';
-import { Modal, LoadingSpinner, UpdateBanner, RequestDialog } from './components/common';
+import { Modal, LoadingSpinner, UpdateBanner } from './components/common';
 import { CorpusBrowser, RareWordsExplorer } from './components/corpus';
 import { ReaderPage } from './components/reader';
 import DocumentView from './components/documents/DocumentView';
@@ -167,7 +167,6 @@ const buildShareableUrl = (sourceText, targetText, sourceAuthor, targetAuthor, l
 
 function App() {
   const [user, setUser] = useState(null);
-  const [footerSuggestOpen, setFooterSuggestOpen] = useState(false);
   useEffect(() => {
     const open = () => setFooterSuggestOpen(true);
     window.addEventListener('tesserae:open-suggest', open);
@@ -1565,37 +1564,35 @@ function App() {
       <footer className="bg-gray-100 border-t mt-8 py-4">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 text-center text-sm text-gray-500">
           <p>Tesserae V6</p>
-          {/* Requests workflow (2026-10-08): the one site-wide entry point to
-              the suggestion dialog, plus a link to the public Requests page
-              it feeds. Deliberately not in the main navigation. */}
+          {/* Requests workflow (2026-10-08): a link to the public Requests
+              page. The footer's own "Suggest a change" button was removed on
+              2026-10-12: the header carries the same button, and the owner
+              asked why it appeared twice. */}
           <p className="mt-1 text-xs">
-            <button
-              type="button"
-              onClick={() => setFooterSuggestOpen(true)}
-              className="text-gray-500 hover:text-red-700 hover:underline"
-            >
-              Suggest a change
-            </button>
-            {' · '}
             <button
               type="button"
               onClick={() => setPageTypeWithGuard('requests')}
               className="text-gray-500 hover:text-red-700 hover:underline"
             >
-              Requests
+              Requests made so far
             </button>
           </p>
         </div>
       </footer>
 
-      <RequestDialog
-        isOpen={footerSuggestOpen}
-        onClose={() => setFooterSuggestOpen(false)}
-        type="suggestion"
-        context={{ page_url: typeof window !== 'undefined' ? window.location.href : '' }}
-      />
-
-      <AssistantDock />
+          {/* Requests workflow (2026-10-08): a link to the public Requests
+              page. The footer's own "Suggest a change" button was removed on
+              2026-10-12: the header carries the same button, and the owner
+              asked why it appeared twice. */}
+          <p className="mt-1 text-xs">
+            <button
+              type="button"
+              onClick={() => setPageTypeWithGuard('requests')}
+              className="text-gray-500 hover:text-red-700 hover:underline"
+            >
+              Requests made so far
+            </button>
+          </p>      <AssistantDock />
     </div>
   );
 }
