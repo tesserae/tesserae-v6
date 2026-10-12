@@ -253,7 +253,7 @@ def test_single_language_strong_lift_is_never_demoted_by_a_low_baseline():
 
 def test_low_note_is_a_caution_not_an_absence_claim():
     note = _confidence_note_fitted('low')
-    assert note.startswith('Low confidence')
+    assert note.startswith('The top passages do not stand far above')
     assert 'does not appear to contain' not in note
 
 
