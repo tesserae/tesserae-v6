@@ -142,17 +142,26 @@ def lookup_lemmas(lemmas, language, fallback_forms=None, conn=None):
     cursor = conn.cursor()
     results = {}
     
-    # Map expanded variants back to original lemmas for consistent counting
+    # Map expanded variants back to the query lemmas they stand for. A variant
+    # can stand for SEVERAL: the joined Latin word quousque is a fallback form
+    # of both "quo" (qui) and "usque" in a query "quo usque", and must count
+    # for each. (A single canonical per variant, as this used to hold, let the
+    # last query lemma take it and the others lose the hit.)
     lemma_mapping = {}
     expanded_lemmas = set(lemmas)
-    
+
+    def _map(variant, orig):
+        owners = lemma_mapping.setdefault(variant, [])
+        if orig not in owners:
+            owners.append(orig)
+
     for orig in lemmas:
-        lemma_mapping[orig] = orig
+        _map(orig, orig)
         if language == 'la':
             for variant in [orig.replace('u', 'v'), orig.replace('v', 'u'),
                            orig.replace('i', 'j'), orig.replace('j', 'i')]:
                 expanded_lemmas.add(variant)
-                lemma_mapping[variant] = orig
+                _map(variant, orig)
         # Fallback forms apply in every language (until 2026-10-01 only in
         # Latin, so the Hebrew homograph readings a bare query expands to
         # were ignored); the u/v and i/j spellings are Latin's alone.
@@ -160,12 +169,12 @@ def lookup_lemmas(lemmas, language, fallback_forms=None, conn=None):
             fb_list = list(fallback_forms[orig])[:30]
             for fb in fb_list:
                 expanded_lemmas.add(fb)
-                lemma_mapping[fb] = orig
+                _map(fb, orig)
                 if language == 'la':
                     for variant in [fb.replace('u', 'v'), fb.replace('v', 'u'),
                                    fb.replace('i', 'j'), fb.replace('j', 'i')]:
                         expanded_lemmas.add(variant)
-                        lemma_mapping[variant] = orig
+                        _map(variant, orig)
     
     expanded_list = list(expanded_lemmas)
     placeholders = ','.join(['?' for _ in expanded_list])
@@ -183,9 +192,10 @@ def lookup_lemmas(lemmas, language, fallback_forms=None, conn=None):
             key = (filename, ref)
             if key not in results:
                 results[key] = {'lemmas': set(), 'positions': {}}
-            canonical = lemma_mapping.get(lemma, lemma)
-            results[key]['lemmas'].add(canonical)
-            results[key]['positions'][canonical] = json.loads(positions_json)
+            positions = json.loads(positions_json)
+            for canonical in lemma_mapping.get(lemma, [lemma]):
+                results[key]['lemmas'].add(canonical)
+                results[key]['positions'][canonical] = positions
     except Exception as e:
         logger.error(f"Index lookup error: {e}")
     
