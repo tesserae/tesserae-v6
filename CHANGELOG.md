@@ -9,6 +9,8 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-12
 
+### Objects: pictures served from our own server
+An object's picture was loaded by the visitor's browser straight from the museum's image server, and in at least one browser the Art Institute of Chicago picture did not show. Our server now fetches each picture once, keeps it on disk and serves it from there (`/api/objects/image/<id>`), for the Cleveland and Chicago objects whose licence is open. If a picture cannot be had, the picture box is left out instead of showing a broken-image icon. The Object page link and credit line are unchanged. Production needs the one-off warm-up in docs/DATA_OPERATIONS.md.
 ### Two features renamed, and Search One Text comes first
 "Ask a Work" is now "Search One Text", and the main page that compares two texts, with Line Search and Rare words, is now "Intertextual Search". The owner's reason: "intertext search should not be first anymore. Either search one text or maybe the reader should be first." In the Literature view Search One Text now leads the menu and the Start here list, and it is the page a plain visit opens on, with the Aeneid already chosen and three example subjects shown (Dido falls in love with Aeneas, the fall of Troy, a storm scatters the fleet). In the History view it sits second, after Read. The new names appear in the menu, page titles, the Start here panel, Tessa's answer to "where do I start", the Help page and the search scope table. Page addresses (`/ask-a-work` and `/`), page codes, API routes and connector tool names are unchanged.
 

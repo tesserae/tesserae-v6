@@ -131,6 +131,10 @@ MANIFEST = {
         'reason': ('Live counts for the scope box on each search page; the connector '
                     'tools return their own counts.'),
     },
+    '/api/objects/image/<path:object_id>': {
+        'site_only': True,
+        'reason': 'A museum picture served from our disk cache for the Objects page; an image, not data.',
+    },
     '/api/objects/<path:object_id>': {
         'site_only': True,
         'reason': ('One object for the Objects page in testing; not yet exposed to '
