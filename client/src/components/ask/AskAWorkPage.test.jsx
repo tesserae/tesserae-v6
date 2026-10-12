@@ -4,7 +4,7 @@
  */
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
-import AskAWorkPage, { unitWord, unitForWork, UNRATED_NOTE, bookOf, namesIn, stripLayout } from './AskAWorkPage';
+import AskAWorkPage, { mergeRecent, unitWord, unitForWork, UNRATED_NOTE, bookOf, namesIn, stripLayout } from './AskAWorkPage';
 
 const TEXTS = [
   { id: 'vergil.aeneid.tess', author: 'Vergil', title: 'Aeneid', work: 'Aeneid', is_part: false },
@@ -486,6 +486,71 @@ describe('what the secondary literature says', () => {
     expect(await screen.findByTestId('ask-summary')).toBeInTheDocument();
     expect(screen.queryByTestId('ask-scholarship')).toBeNull();
     expect(screen.queryByTestId('ask-scholarship-holdings')).toBeNull();
+  });
+});
+
+describe('recent articles from the live services', () => {
+  const item = (title, extra = {}) => ({
+    title, authors: ['A. Scholar'], year: 2015, venue: 'Classical Quarterly', doi: null, url: 'https://example.org/p',
+    oa_url: null, excerpt: 'Dido yields to desire.', score: 1, ...extra,
+  });
+
+  it('merges by DOI then title and orders by score then year', () => {
+    const a = [item('Alpha', { doi: '10.1/a', score: 1, year: 2001 })];
+    const out = mergeRecent(a, [item('alpha again', { doi: '10.1/A' }), item('Beta', { score: 2, year: 1999 }), item('Beta')]);
+    expect(out.map((x) => x.title)).toEqual(['Beta', 'Alpha']);
+  });
+
+  it('paints items as each service answers, then posts the paragraph after the requests settle', async () => {
+    let releaseCrossref;
+    const gate = new Promise((r) => { releaseCrossref = r; });
+    const base = global.fetch;
+    const order = [];
+    global.fetch = vi.fn((url, init) => {
+      const u = String(url);
+      if (u.startsWith('/api/passages/recent-scholarship')) {
+        const svc = new URL(u, 'http://x').searchParams.get('service');
+        order.push(`get:${svc}`);
+        const reply = (body) => Promise.resolve({ ok: true, json: () => Promise.resolve(body) });
+        if (svc === 'openalex') return reply({ service: svc, available: true, results: [item('Dido in Love', { oa_url: 'https://free.example/d.pdf' })] });
+        if (svc === 'crossref') return gate.then(() => reply({ service: svc, available: true, results: [item('Politics of Passion', { doi: '10.1/pp', year: 2020 })] }));
+        if (svc === 's2') return reply({ service: svc, available: false, results: [], reason: 'off' });
+        return reply({ service: svc, available: true, results: [] });
+      }
+      if (u.startsWith('/api/passages/ask-scholarship')) {
+        order.push('post');
+        return Promise.resolve({ ok: true, json: () => Promise.resolve({ available: false, holdings: 'Holdings line.' }) });
+      }
+      return base(url, init);
+    });
+    render(<AskAWorkPage />);
+    await ask();
+    const first = await screen.findByTestId('ask-recent');
+    expect(within(first).getAllByTestId('ask-recent-item')).toHaveLength(1);
+    expect(within(first).getByRole('link', { name: 'Dido in Love' })).toHaveAttribute('href', 'https://free.example/d.pdf');
+    expect(within(first).getByText('free copy')).toBeInTheDocument();
+    expect(screen.getByTestId('ask-recent-pending')).toHaveTextContent('Looking up recent articles from Crossref...');
+    expect(order).not.toContain('post');
+    releaseCrossref();
+    await waitFor(() => expect(screen.getAllByTestId('ask-recent-item')).toHaveLength(2));
+    await waitFor(() => expect(screen.queryByTestId('ask-recent-pending')).toBeNull());
+    const second = screen.getAllByTestId('ask-recent-item')[1];
+    expect(within(second).getByRole('link', { name: 'Dido in Love' })).toBeInTheDocument();
+    expect(within(screen.getAllByTestId('ask-recent-item')[0]).getByRole('link', { name: 'Politics of Passion' }))
+      .toHaveAttribute('href', 'https://doi.org/10.1/pp');
+    await screen.findByTestId('ask-scholarship-holdings');
+    expect(order.filter((x) => x.startsWith('get:'))).toHaveLength(5);
+    expect(order.indexOf('post')).toBeGreaterThan(order.lastIndexOf(order.find((x) => x.startsWith('get:'))));
+    expect(order[order.length - 1]).toBe('post');
+  });
+
+  it('leaves the section out when every service answered with nothing', async () => {
+    render(<AskAWorkPage />);
+    await ask();
+    await screen.findAllByTestId('ask-card');
+    await waitFor(() => expect(callsTo('/api/passages/ask-scholarship')).toHaveLength(1));
+    expect(screen.queryByTestId('ask-recent')).toBeNull();
+    expect(screen.queryByTestId('ask-recent-pending')).toBeNull();
   });
 });
 

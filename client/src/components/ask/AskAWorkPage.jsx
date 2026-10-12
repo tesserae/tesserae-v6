@@ -201,6 +201,30 @@ function SummaryText({ text, cites, onJump }) {
   ) : part));
 }
 
+// The live services asked for recent articles (backend/scholarship_recent.py).
+// The server answers available false, reason 'off', for one it has no key for.
+const RECENT_SERVICES = ['openalex', 'crossref', 'core', 'books', 's2'];
+const RECENT_LABELS = { openalex: 'OpenAlex', crossref: 'Crossref', core: 'CORE', books: 'Google Books', s2: 'Semantic Scholar' };
+const RECENT_CAP_MS = 12000;
+
+/** Items from several services as one list: deduped by DOI, then by the first
+ *  80 characters of the title, ordered by question words matched, then year. */
+export function mergeRecent(have, incoming) {
+  const out = [...have];
+  const keys = (it) => [String(it.doi || '').toLowerCase(), String(it.title || '').toLowerCase().slice(0, 80)].filter(Boolean);
+  const seen = new Set(out.flatMap(keys));
+  for (const it of incoming || []) {
+    if (!it || !it.title || keys(it).some((k) => seen.has(k))) continue;
+    keys(it).forEach((k) => seen.add(k));
+    out.push(it);
+  }
+  return out.sort((a, b) => (b.score || 0) - (a.score || 0) || (Number(b.year) || 0) - (Number(a.year) || 0));
+}
+
+function recentUrl(it) {
+  return it.oa_url || (it.doi ? `https://doi.org/${it.doi}` : null) || it.url || null;
+}
+
 /** The scholarship paragraph with each [n] made a link to its note or article, in a new tab. */
 function ScholarshipText({ text, cites }) {
   const byN = new Map((cites || []).map((c) => [String(c.n), c]));
@@ -305,6 +329,7 @@ export default function AskAWorkPage() {
   const [loadingNames, setLoadingNames] = useState(false);
   const [summary, setSummary] = useState(null);     // { state: 'loading' | 'ready', summary, cites }
   const [scholarship, setScholarship] = useState(null); // { state: 'loading' | 'ready' | 'none', holdings, summary, cites }
+  const [recent, setRecent] = useState(null);   // { pending: [service], items: [...] } for the current search
   const searchId = useRef(0);
 
   const fetchMentions = useCallback(async (names, workId, books, offset, question) => {
@@ -342,7 +367,7 @@ export default function AskAWorkPage() {
     if (more) setLoadingMore(true);
     else {
       setRunning(true); setData(null); setResults([]); setExhausted(false); setShowWeak(false);
-      setMentions(null); setShowAllNames(false); setSummary(null); setScholarship(null);
+      setMentions(null); setShowAllNames(false); setSummary(null); setScholarship(null); setRecent(null);
       searchId.current += 1;
     }
     const id = searchId.current;
@@ -378,19 +403,40 @@ export default function AskAWorkPage() {
           }).catch(() => {});
         }
         setScholarship({ state: 'loading' });
-        fetch('/api/passages/ask-scholarship', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ question: query, work: workId, lang: code }),
-        }).then((res) => res.json()).then((s) => {
+        // The live services are asked first, one request each, and paint under the
+        // paragraph as they answer (owner, 2026-10-12: "If it helps you can have
+        // them appear in the search as they arrive to show the user progress.").
+        // The paragraph follows when they have settled, or after a page-side cap,
+        // and finds their answers in the server's cache.
+        setRecent({ pending: [...RECENT_SERVICES], items: [] });
+        const asks = RECENT_SERVICES.map((svc) => fetch(
+          `/api/passages/recent-scholarship?question=${encodeURIComponent(query)}&work=${encodeURIComponent(workId)}&service=${svc}`,
+        ).then((res) => res.json()).catch(() => ({})).then((r) => {
           if (id !== searchId.current) return;
-          if (s && s.available && s.summary) {
-            setScholarship({ state: 'ready', holdings: s.holdings || '', summary: s.summary, cites: s.cites || [], queryUsed: s.query_used || '' });
-          } else if (s && s.holdings) {
-            setScholarship({ state: 'none', holdings: s.holdings });
-          } else {
-            setScholarship(null);
-          }
+          setRecent((cur) => (cur ? {
+            pending: cur.pending.filter((x) => x !== svc),
+            items: r && r.available && Array.isArray(r.results) ? mergeRecent(cur.items, r.results) : cur.items,
+          } : cur));
+        }));
+        let capTimer;
+        const capped = new Promise((resolve) => { capTimer = setTimeout(resolve, RECENT_CAP_MS); });
+        Promise.race([Promise.allSettled(asks), capped]).then(() => {
+          clearTimeout(capTimer);
+          if (id !== searchId.current) return;
+          return fetch('/api/passages/ask-scholarship', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ question: query, work: workId, lang: code }),
+          }).then((res) => res.json()).then((s) => {
+            if (id !== searchId.current) return;
+            if (s && s.available && s.summary) {
+              setScholarship({ state: 'ready', holdings: s.holdings || '', summary: s.summary, cites: s.cites || [], queryUsed: s.query_used || '' });
+            } else if (s && s.holdings) {
+              setScholarship({ state: 'none', holdings: s.holdings });
+            } else {
+              setScholarship(null);
+            }
+          });
         }).catch(() => { if (id === searchId.current) setScholarship(null); });
         if (json.confidence?.level !== 'low') {
           setSummary({ state: 'loading' });
@@ -680,6 +726,32 @@ export default function AskAWorkPage() {
               )}
               {scholarship?.state === 'none' && (
                 <p className="mt-2 text-xs text-gray-500" data-testid="ask-scholarship-holdings">{scholarship.holdings}</p>
+              )}
+              {recent?.items.length > 0 && (
+                <section aria-label="Recent articles" className="mt-3 rounded border border-gray-200 bg-white px-3 py-2" data-testid="ask-recent">
+                  <p className="text-xs font-semibold text-gray-600">Recent articles</p>
+                  <ul className="mt-1 space-y-2">
+                    {recent.items.map((it) => {
+                      const url = recentUrl(it);
+                      const meta = [(it.authors || []).join(', '), it.year, it.venue].filter(Boolean).join(', ');
+                      return (
+                        <li key={`${it.doi || ''}|${it.title}`} className="text-sm text-gray-800 leading-snug" data-testid="ask-recent-item">
+                          {url ? (
+                            <a href={url} target="_blank" rel="noopener noreferrer" className="text-red-800 hover:text-red-900 hover:underline">{it.title}</a>
+                          ) : it.title}
+                          {meta && <span className="text-gray-600">{`, ${meta}`}</span>}
+                          {it.oa_url && <span className="ml-1 rounded bg-gray-100 px-1 text-[11px] text-gray-500">free copy</span>}
+                          {it.excerpt && <span className="block text-xs text-gray-500">{it.excerpt}</span>}
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </section>
+              )}
+              {recent?.pending.length > 0 && (
+                <p className="mt-1 text-xs text-gray-500" data-testid="ask-recent-pending">
+                  {`Looking up recent articles from ${joinNames(recent.pending.filter((x) => x !== 's2').map((x) => RECENT_LABELS[x]).concat(recent.pending.includes('s2') && recent.pending.length === 1 ? [RECENT_LABELS.s2] : []))}...`}
+                </p>
               )}
               <section aria-label="Where in the work" className="mt-3">
                 <h2 className="text-sm font-semibold text-gray-700">Where in the work</h2>

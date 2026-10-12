@@ -9,6 +9,9 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-12
 
+### Search One Text: recent articles from the live services join the scholarship paragraph
+The Scholarship paragraph read only the held commentaries and the pre-1923 journal articles. It now also asks OpenAlex, Crossref, CORE and Google Books (and Semantic Scholar where a key is set) for recent articles on the question, keeps those that name the author or the work and share a word with the question, and lets the paragraph cite up to four of them. They are known only from an abstract or a short open-access excerpt, and the paragraph says so when it cites one. Each service is asked in its own request, so a "Recent articles" list under the paragraph fills as each answers, with a link to a free copy where one exists, and a small line names the services still pending. The line under the paragraph now also says how many recent articles the live services listed, or that some did not answer. New route `GET /api/passages/recent-scholarship`.
+
 ### Inscriptions & Papyri: the whole-collection browser folds away once a search has answered
 The browser of every inscription and papyrus by kind, region, findspot and century sat under each result list, and a reader who had just searched took it for more results. Once a search has answered, it folds behind one line with a button to open it.
 

@@ -1715,15 +1715,19 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 purpose.
               </p>
               <p className="text-gray-700 mb-4">
-                Under the summary, a second paragraph called What the secondary literature
-                says is written from the scholarship collection: commentary notes on the work
-                (Servius, Conington and Page on Latin epic, Allen on the Homeric Hymns, Paley,
-                Verity, the rabbinic commentators on the Hebrew Bible) and the JSTOR Early Journal
-                Content articles that name the work or its author, all published before 1923.
-                Each bracketed number links to the note in the Reader or to the article on JSTOR.
-                A line in small type says what the collection holds for the work. Where it holds
-                nothing, as for Sappho, the paragraph is left out and the line says so. The
-                assistant may cite only the notes the search returned.
+                Under the summary, a second paragraph called Scholarship is written from the
+                scholarship collection: commentary notes on the work (Servius, Conington and
+                Page on Latin epic, Allen on the Homeric Hymns, Paley, Verity, the rabbinic
+                commentators on the Hebrew Bible) and the JSTOR Early Journal Content articles
+                that name the work or its author, all published before 1923. It also reads
+                recent articles that OpenAlex, Crossref, CORE and Google Books list for the
+                question. It knows those only from their abstracts or short open-access excerpts,
+                and says so when it cites one. The recent articles are listed under the paragraph
+                as each service answers, and a link goes to a free copy where one exists,
+                otherwise to the DOI. Each bracketed number in the paragraph links to its note
+                or article. A line in small type says what was found. Where nothing is found, as
+                for Sappho, the paragraph is left out and the line says so. The assistant may cite
+                only the sources it was given.
               </p>
               <p className="text-gray-700 mb-4">
                 When a work is held in books, two small menus beside the Work menu choose the
