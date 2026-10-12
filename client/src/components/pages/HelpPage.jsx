@@ -1645,6 +1645,17 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 is about it.
               </p>
               <p className="text-gray-700 mb-3">
+                The list is shown whatever the band says. Until October 2026 a low band held the
+                passages back behind a link, and a test of sixty historical subjects (short
+                phrases and full sentences, the top ten of each graded by a model) showed why
+                that was wrong: of thirty-one searches the band marked low, twenty-seven had a
+                relevant list, and the fifteen literary pilot questions behaved the same way.
+                The band tells a real subject from nonsense, which is what it was fitted on; it
+                does not tell a good list from a poor one. The one case still held back is a
+                search nothing in the corpus resembles at all, which the band calls a weak
+                match.
+              </p>
+              <p className="text-gray-700 mb-3">
                 The hardest test cases are near misses: &ldquo;a farmer lifts potatoes out of the
                 ground and sorts them for seed&rdquo; scores higher than eight genuinely classical
                 subjects, because everything in it except the potato is deeply present in the

@@ -163,9 +163,10 @@ def test_strong_has_no_note():
     assert _confidence_note('strong', query='love') is None
 
 
-def test_low_note_says_nothing_resembles():
-    note = _confidence_note_fitted('low')
-    assert 'does not appear to contain' in note
+def test_low_note_says_nothing_resembles_only_when_degenerate():
+    # 2026-10-11: the absence claim moved to the degenerate case.
+    assert 'does not appear to contain' in _confidence_note_fitted('low', degenerate=True)
+    assert 'does not appear to contain' not in _confidence_note_fitted('low')
 
 
 def test_moderate_note_is_the_existing_caution():
@@ -184,8 +185,8 @@ def test_pervasive_note_falls_back_without_a_known_language():
     assert 'this part of the corpus' in _confidence_note_fitted('pervasive', language='zz')
 
 
-def test_short_query_hint_appended_to_low_note():
-    note = _confidence_note('low', query='love')
+def test_short_query_hint_appended_to_degenerate_low_note():
+    note = _confidence_note('low', query='love', degenerate=True)
     assert 'does not appear to contain' in note
     assert 'only a few words' in note
 
@@ -241,3 +242,28 @@ def test_single_language_weak_lift_without_elevated_baseline_stays_low():
 
 def test_single_language_strong_lift_is_never_demoted_by_a_low_baseline():
     assert _classify(HEAD_STRONG + 0.01, 0.93, lang_baseline=0.70, global_baseline=0.78) == 'strong'
+
+
+# --- 2026-10-11: a low band shows the list; only degeneracy says "absent" ----
+#
+# Measured on 60 historical subjects plus the 15 Ask a Work pilot questions
+# (judged top ten): 27 of 31 queries marked low had a relevant list. The low
+# note is therefore a caution about the ranking, and the "corpus does not
+# contain" sentence is kept for the degenerate case alone.
+
+def test_low_note_is_a_caution_not_an_absence_claim():
+    note = _confidence_note_fitted('low')
+    assert note.startswith('Low confidence')
+    assert 'does not appear to contain' not in note
+
+
+def test_degenerate_low_note_still_says_absent():
+    note = _confidence_note_fitted('low', degenerate=True)
+    assert 'does not appear to contain' in note
+
+
+def test_short_query_hint_only_for_degenerate():
+    plain = _confidence_note('low', query='democracy', degenerate=False)
+    weak = _confidence_note('low', query='democracy', degenerate=True)
+    assert 'full sentence' not in (plain or '')
+    assert 'full sentence' in weak

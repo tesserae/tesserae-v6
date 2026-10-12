@@ -111,6 +111,12 @@ const BAND = {
     className: 'bg-amber-50 text-amber-800 border-amber-200',
   },
   low: {
+    label: 'Low confidence',
+    className: 'bg-gray-100 text-gray-700 border-gray-300',
+  },
+  // A low band whose coherence is degenerate: nothing in the corpus resembles
+  // the query. The only case in which the list is held back (2026-10-11).
+  weak: {
     label: 'Weak match',
     className: 'bg-gray-100 text-gray-700 border-gray-300',
   },
@@ -674,7 +680,12 @@ export default function ThemeSearchPage() {
     run(q);
   }, [run]);
 
-  const band = data && BAND[data.confidence?.level];
+  // 2026-10-11: the list is shown whatever the band, except when the
+  // confidence is degenerate (nothing resembles the query). Measured on 60
+  // historical subjects, the low band hid a relevant list 27 times in 31.
+  const degenerate = !!(data?.confidence?.degenerate && data?.confidence?.level === 'low');
+  const band = data && BAND[degenerate ? 'weak' : data.confidence?.level];
+  const listHidden = degenerate && !showWeak;
 
   // 'search' is Theme Search itself; 'map' is a picture of the same
   // connections at a larger scale (see client/src/components/passages/
@@ -1243,7 +1254,7 @@ export default function ThemeSearchPage() {
               whatever the banner says. The passages are not hidden -- knowing
               what came closest is sometimes the useful answer -- but they are
               not laid out as results until asked for. */}
-          {data.confidence?.level === 'low' && !!data.results?.length && !showWeak && (
+          {listHidden && !!data.results?.length && (
             <div className="mt-4">
               <button
                 onClick={() => setShowWeak(true)}
@@ -1260,13 +1271,13 @@ export default function ThemeSearchPage() {
 
           {/* Offered only where the results are, so it is not held out beside a
               low-confidence set the reader has not chosen to look at. */}
-          {(data.confidence?.level !== 'low' || showWeak) && (
+          {!listHidden && (
             <ThemeExport query={data.query || query} language={language}
                          corpusVersion={data.corpus_version}
                          ranking={data.reader?.applied && data.reader.model ? `re-ranked by reader ${data.reader.model}` : undefined}
                          count={data.results?.length || 0} />
           )}
-          {(data.confidence?.level !== 'low' || showWeak) && (
+          {!listHidden && (
           <div className="mt-4 mb-2 flex items-center gap-3 text-xs text-gray-500">
             <span className="flex rounded border border-gray-300 overflow-hidden">
               {[['score', 'Best match'], ['date', 'Oldest first']].map(([k, label]) => (
@@ -1289,7 +1300,7 @@ export default function ThemeSearchPage() {
             </span>
           </div>
           )}
-          {(data.confidence?.level !== 'low' || showWeak) && (
+          {!listHidden && (
           <ul className="space-y-3">
             {byWork(order === 'date' ? chronological(data.results) : byBestMatch(data.results))
               .map(({ key, head, items }) => (
@@ -1370,7 +1381,9 @@ export default function ThemeSearchPage() {
                         >
                           {r.ref_start}
                         </a>
-                        {r.strong === false && (
+                        {/* In a low band every row would carry the tag, so it
+                            says nothing there; shown only where it contrasts. */}
+                        {r.strong === false && data.confidence?.level !== 'low' && (
                           <span className="text-[10px] text-gray-500 border border-gray-300 rounded px-1">
                             weak neighbor
                           </span>
@@ -1405,7 +1418,7 @@ export default function ThemeSearchPage() {
           </ul>
           )}
 
-          {(data.confidence?.level !== 'low' || showWeak) &&
+          {!listHidden &&
             (data.results || []).length > 0 && !(limit >= 100 && exhausted) && (
             <div className="mt-4 text-center">
               <button
@@ -1426,12 +1439,12 @@ export default function ThemeSearchPage() {
               )}
             </div>
           )}
-          {(data.confidence?.level !== 'low' || showWeak) && limit >= 100 && exhausted && (
+          {!listHidden && limit >= 100 && exhausted && (
             <p className="mt-4 text-center text-xs text-gray-500">
               End of the ranked list. Narrowing to one language shows more of it.
             </p>
           )}
-          {(data.confidence?.level !== 'low' || showWeak) && (
+          {!listHidden && (
           <p className="mt-5 text-xs text-gray-500 leading-relaxed">
             These summaries are written by a language model from the passage
             itself, and for Coptic from its English translation, so treat them as

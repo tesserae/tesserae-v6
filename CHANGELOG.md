@@ -9,6 +9,9 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-11
 
+### Theme Search: a low confidence band no longer hides the list
+The passages are shown whatever the band says, under a one-line caution when the band is low. Only a search nothing in the corpus resembles (degenerate coherence, the band's weak match) is held behind a link, and only that case says the corpus lacks the subject. Measured on 60 historical subjects and the 15 Ask a Work pilot questions with a model grading the top ten: of 31 queries marked low, 27 had a relevant list. The response carries `confidence.degenerate`. The short-query hint is kept for the degenerate case. The weak-neighbor tag is left off rows under a low band, where every row would carry it. Help says so.
+
 ### Reader: select a sentence inside a prose chapter, and the scope toggle no longer clips
 In a prose work a chapter or section longer than 400 characters is now drawn as its sentences (the text is unchanged). A click or tap selects one sentence, a drag selects the sentences it touches, and the toolbar offers Word, Sentence, Section and Passage. Similar Passages sends the sentence's character offsets and the server picks the prose window holding it (`window_for_passage` takes `char_start` and `char_end`), Parallels and Documents search the sentence's own words, and Reuse and Translation stay on the section. The scope buttons no longer cut off their labels on a narrow pane: they keep their width and the toolbar wraps.
 ### Inscriptions and papyri page: filters with real choices, a kind switch, sharper examples, quieter chips
