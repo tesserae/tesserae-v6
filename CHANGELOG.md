@@ -9,6 +9,9 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-12
 
+### Search One Text: the band inside one work refitted on eleven works, and its lowest level no longer claims absence
+Three right answers had been labelled "a nearest neighbor, not a finding": Browning's sonnet 43 for the poet counting the ways she loves, Ferdowsi for Rostam and the White Div, and Annals 4.1 for the rise of Sejanus. The band read the spread of the work's scores, fitted on three works; re-measured on eleven works of very different lengths it was right 74 percent of the time and 42 percent on the Shahnameh. Nineteen measures were swept and none holds across works on its own. The band now reads the best passage's lift over the work's typical score together with the coherence of the top twenty (84 percent on the same set, 82 percent leaving each work out in turn), its lowest level is "Closest passages" with a caution about the order and no claim of absence, the list is shown under every level, and "strong" sits above every absent subject measured. Help, the scope box and tests updated; measurement in docs/DECISIONS.md.
+
 ### Search One Text: six example searches across six works, one of them Sappho
 The example chips were four Aeneid searches plus two others. They are now one search each on Sappho (jealousy at the sight of the beloved with a man), the Aeneid (Dido falls in love with Aeneas), the Odyssey (Odysseus strings the bow), Thucydides (the plague at Athens), Herodotus (Solon tells Croesus no man is happy before death) and the Annals (the Pannonian legions mutiny). Each was run live and read before being chosen: the first five answers are about the subject in every case.
 

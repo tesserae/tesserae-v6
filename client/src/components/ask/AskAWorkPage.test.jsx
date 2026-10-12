@@ -181,9 +181,9 @@ describe('Search One Text', () => {
     expect(screen.queryByText(/Confidence is not rated/)).toBeNull();
   });
 
-  it('shows the passages under a weak-match banner for a fitted low band', async () => {
-    // Three of fifteen real test questions came out low (2026-10-11), so a low
-    // band within one work does not hide the list.
+  it('shows the passages under a Closest passages banner for a fitted low band', async () => {
+    // The lowest level is a caution about the order, with the list shown and
+    // the route's own sentence under the label (refit 2026-10-12).
     reply = { query: 'q', results: RESULTS, restricted: true, note: 'Band note.',
       confidence: { level: 'low', fitted: 'within-work 2026-10-11' } };
     render(<AskAWorkPage />);
@@ -192,7 +192,8 @@ describe('Search One Text', () => {
     fireEvent.change(screen.getByPlaceholderText(/a subject in plain words/), { target: { value: 'airplanes' } });
     fireEvent.click(screen.getByRole('button', { name: 'Go' }));
     const band = await screen.findByTestId('ask-band');
-    expect(band).toHaveTextContent('Weak match.');
+    expect(band).toHaveTextContent('Closest passages.');
+    expect(band).toHaveTextContent('Band note.');
     expect(screen.queryByText('Nothing in this work resembles that subject.')).toBeNull();
     expect(screen.queryByRole('button', { name: 'Show the closest passages anyway' })).toBeNull();
     expect(screen.getAllByTestId('ask-card').length).toBe(RESULTS.length);

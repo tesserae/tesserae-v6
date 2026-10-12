@@ -80,10 +80,25 @@ def test_masked_windows_are_left_out_and_a_tiny_scope_is_not_rated():
 
 
 def test_the_band_thresholds():
-    assert pi._within_level(pi.WITHIN_SPREAD_WEAK - 1e-6) == 'low'
-    assert pi._within_level(pi.WITHIN_SPREAD_WEAK) == 'moderate'
-    assert pi._within_level(pi.WITHIN_SPREAD_STRONG - 1e-6) == 'moderate'
-    assert pi._within_level(pi.WITHIN_SPREAD_STRONG) == 'strong'
+    # Refit 2026-10-12: top-1 lift or coherence lifts a search out of the
+    # lowest level; strong needs a top-1 lift above every absent subject.
+    assert pi._within_level(pi.WITHIN_TOP1_WEAK - 1e-6, pi.WITHIN_COHERENCE_WEAK - 1e-6) == 'low'
+    assert pi._within_level(pi.WITHIN_TOP1_WEAK, 0.90) == 'moderate'
+    assert pi._within_level(0.03, pi.WITHIN_COHERENCE_WEAK) == 'moderate'
+    assert pi._within_level(pi.WITHIN_TOP1_STRONG - 1e-6, 0.95) == 'moderate'
+    assert pi._within_level(pi.WITHIN_TOP1_STRONG, 0.90) == 'strong'
+
+
+def test_the_three_cases_of_2026_10_12():
+    # Measured top-1 lift and coherence: Browning, "the poet counts the ways
+    # she loves" (sonnet 43 first); Ferdowsi, Siyavash through the fire;
+    # Annals, the rise of Sejanus (4.1 first). None reads as absent any more:
+    # the lowest level is a caution, with the list shown.
+    assert pi._within_level(0.0275, 0.930) == 'moderate'
+    assert pi._within_level(0.0516, 0.939) == 'moderate'
+    assert pi._within_level(0.0404, 0.913) == 'low'
+    assert 'nearest neighbor' not in pi._within_note('low')
+    assert pi._within_note('low').startswith('No passage stands far above')
 
 
 def test_a_flat_work_is_rated_low_and_nothing_is_strong(monkeypatch):
@@ -93,7 +108,7 @@ def test_a_flat_work_is_rated_low_and_nothing_is_strong(monkeypatch):
     assert c['level'] == 'low' and c['fitted'] == pi.WITHIN_FITTED
     assert set(c) >= {'level', 'work_head_lift', 'work_coherence', 'spread', 'fitted', 'note'}
     assert out['strong_matches'] == 0 and not any(r['strong'] for r in out['results'])
-    assert 'provisional' in c['note'] and out['note'] == c['note']
+    assert 'first estimate' in c['note'] and out['note'] == c['note']
 
 
 def test_a_wide_work_is_rated_and_strong_follows_z(monkeypatch):

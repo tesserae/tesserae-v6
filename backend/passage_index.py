@@ -1994,8 +1994,31 @@ def resolve_restriction(author=None, works=None, languages=None):
 # Of the 15 real subjects, 5 fall at strong, 7 at moderate and 3 (the causes of
 # the war, Tiberius's concealment, the rise of Sejanus) at low. Two of the thirty
 # non-subjects fall at moderate. Provisional: three works, one threshold.
-WITHIN_SPREAD_WEAK = 0.0099
-WITHIN_SPREAD_STRONG = 0.0125
+#
+# REFIT 2026-10-12 on eleven works. The owner saw three right answers labelled
+# "a nearest neighbor, not a finding": Browning's sonnet 43 for "the poet
+# counts the ways she loves" (143 windows), Ferdowsi for Rostam and the White
+# Div (23,150 windows) and Annals 4.1 for the rise of Sejanus. The spread rule
+# was re-measured on the pilot's 45 queries plus 80 over eight more works of
+# very different sizes (Browning, Sappho, Catullus, Hafez, the Odyssey, Ovid's
+# Metamorphoses, Livy, Ferdowsi: five subjects each work treats, five it does
+# not, two nonsense strings; one subject dropped on reading because the
+# answers were wrong). Spread fell to 0.738 over all 140 (0.42 on Ferdowsi,
+# 0.50 on Ovid, 0.58 on the Odyssey): the few windows of a subject barely
+# widen a long work's distribution, and a short work's is noisy. Of nineteen
+# signals swept, none holds across works on its own (best top-1 lift, 0.809,
+# leaving one work out 0.752; every normalised form, z over std, IQR or MAD,
+# is worse because the denominator rises with the tail). The best pair is
+# top-1 lift OR the coherence of the top twenty: 0.836 (leave one work out
+# 0.821), at the values below. The band is therefore an estimate, not a
+# verdict: the lowest level is a caution about the order and claims nothing
+# about absence (as the corpus-wide band since 2026-10-11), the list is
+# always shown, and 'strong' sits above the highest top-1 lift any absent or
+# nonsense subject produced (0.0546), the convention HEAD_STRONG uses.
+# Figures and scripts: within_work_refit_2026-10-12/ in the backup folder.
+WITHIN_TOP1_WEAK = 0.048        # top-1 lift over the work's median
+WITHIN_COHERENCE_WEAK = 0.925   # or the top twenty hang together this closely
+WITHIN_TOP1_STRONG = 0.055      # above every absent and nonsense subject measured
 # A passage is marked strong when it stands this many standard deviations above
 # the work's median score AND the search is not rated low. On the 293 judged
 # passages (gated on the band) z >= 3.0 marks 63, of which 90.5% are grade 1 or 2
@@ -2005,7 +2028,7 @@ WITHIN_SPREAD_STRONG = 0.0125
 # 5th percentile of precision at 0.76 for z >= 3.0, so it is provisional too.
 # The raw score cannot do this (best precision 0.80 at recall 0.09).
 WITHIN_STRONG_Z = 3.0
-WITHIN_FITTED = 'within-work 2026-10-11'
+WITHIN_FITTED = 'within-work 2026-10-12'
 
 
 def within_work_signals(scores, rows):
@@ -2040,27 +2063,33 @@ def _restricted_rows(works_set):
     return rows
 
 
-def _within_level(spread):
-    """low / moderate / strong from the spread of the work's scores."""
-    if spread < WITHIN_SPREAD_WEAK:
-        return 'low'
-    if spread >= WITHIN_SPREAD_STRONG:
+def _within_level(top1_lift, coherence):
+    """low / moderate / strong from the top passage's lift over the work's
+    median and the coherence of the top twenty (refit 2026-10-12)."""
+    if top1_lift >= WITHIN_TOP1_STRONG:
         return 'strong'
-    return 'moderate'
+    if top1_lift >= WITHIN_TOP1_WEAK or coherence >= WITHIN_COHERENCE_WEAK:
+        return 'moderate'
+    return 'low'
 
 
-_WITHIN_NOTE = ('Confidence within one work was fitted on fifteen questions the works treat '
-                'and thirty they do not, over three works, so it is provisional.')
+_WITHIN_NOTE = ('The band inside one work was fitted on 55 subjects the works treat and 86 '
+                'they do not, over eleven works, and agrees with that set on 84 percent, so '
+                'read it as a first estimate.')
 
 
 def _within_note(level):
     if level == 'strong':
         return _WITHIN_NOTE
     if level == 'moderate':
-        return ('Moderate confidence: this work holds passages of this kind, but the match is '
-                'looser than a clear case. Read the results before relying on them. ' + _WITHIN_NOTE)
-    return ('Anything the search returns for this subject is a nearest neighbor, not a '
-            'finding. ' + _WITHIN_NOTE)
+        return ('Moderate confidence: the top passages stand out from the rest of the work, '
+                'though not by a wide margin. Read the results before relying on them. ' + _WITHIN_NOTE)
+    # The page prints "Closest passages." before this sentence. No absence
+    # claim: on the refit set the lowest level held a right answer first for
+    # Browning, Ferdowsi and the Annals (2026-10-12).
+    return ('No passage stands far above the rest of the work on this subject, so the '
+            'order of the list is less certain than usual. These are the closest the work '
+            'comes. ' + _WITHIN_NOTE)
 
 
 def find_by_text(query, limit=25, languages=None, scale=None, expand=False,
@@ -2167,8 +2196,9 @@ def find_by_text(query, limit=25, languages=None, scale=None, expand=False,
         confidence = {'level': 'restricted'}
         within_note = None
         if within is not None:
-            wlevel = _within_level(within['spread'])
+            wlevel = _within_level(within['top1_lift'], within['work_coherence'])
             confidence = {'level': wlevel,
+                          'top1_lift': round(within['top1_lift'], 4),
                           'work_head_lift': round(within['work_head_lift'], 4),
                           'work_coherence': round(within['work_coherence'], 4),
                           'spread': round(within['spread'], 4),
