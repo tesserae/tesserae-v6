@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { documentPlace, documentLabels } from './documentDisplay';
 import { LoadingSpinner } from '../common';
 import { dirFor } from '../../utils/rtl';
 import { splitImageLinks } from './imageLinks';
@@ -123,8 +124,8 @@ export default function DocumentView() {
       {!loading && !error && data && (() => {
         const credit = data.credit || {};
         const display = data.display || {};
-        const labels = [data.text_type_label, data.object_type_label, data.material_label].filter(Boolean);
-        const place = data.ancient_place || data.modern_place;
+        const labels = documentLabels(data);
+        const place = documentPlace(data);
         const dLabel = dateLabel(data);
         const images = Array.isArray(display.image_url) ? display.image_url
           : (display.image_url ? [display.image_url] : []);

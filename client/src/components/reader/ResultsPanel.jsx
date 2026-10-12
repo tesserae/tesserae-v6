@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { documentPlace, documentLabels } from '../documents/documentDisplay';
 import useCollections from '../../hooks/useCollections';
 import { READER_TABS, viewById, orderBy } from '../../collections/collectionsConfig';
 import useDocumentsTrial from '../../hooks/useDocumentsTrial';
@@ -1296,8 +1297,8 @@ function DocumentReuseGroups({ documents, language }) {
   return (
     <div className="space-y-1.5">
       {sorted.map((d) => {
-        const labels = [d.text_type_label, d.object_type_label, d.material_label].filter(Boolean);
-        const place = d.ancient_place || d.modern_place;
+        const labels = documentLabels(d);
+        const place = documentPlace(d);
         const dateLabel = documentDateLabel(d);
         const docUrl = `/document?doc=${encodeURIComponent(d.doc_id)}&lang=${encodeURIComponent(language)}&documents=1`;
         return (
@@ -1347,8 +1348,8 @@ function DocumentReuseGroups({ documents, language }) {
  *  card with its edition or id, date and place, the text with the shared words
  *  marked, and a link to the document's own page. */
 function DocumentHitCard({ r, language }) {
-  const labels = [r.text_type_label, r.object_type_label, r.material_label].filter(Boolean);
-  const place = r.ancient_place || r.modern_place;
+  const labels = documentLabels(r);
+  const place = documentPlace(r);
   const dateLabel = documentDateLabel(r);
   const docUrl = `/document?doc=${encodeURIComponent(r.doc_id)}&lang=${encodeURIComponent(language)}&documents=1`;
   return (
