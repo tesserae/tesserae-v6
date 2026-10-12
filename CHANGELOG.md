@@ -9,6 +9,9 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-12
 
+### Search One Text: a link from the scholarship paragraph to every note and article for the question
+The paragraph reads at most eight sources. A link under it opens Theme Search on the scholarship collection with the same question, where every matching note and article is listed. Theme Search now opens on that collection when the address says `in=scholarship`.
+
 ### Search One Text: journal articles hold a share of the scholarship paragraph
 The paragraph's eight sources filled in the search's order, and a commentary note on the very lines outranks an article's passing mention every time, so the Aeneid paragraph drew on notes alone though articles mentioning Dido and Aeneas exist. Two of the eight are now reserved for articles when any qualify, the search looks a hundred deep, and an article qualifies when its title or snippet names the author, the work, or a capitalised name from the question.
 

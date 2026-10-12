@@ -367,7 +367,11 @@ export default function ThemeSearchPage() {
   // Scholarship (commentary notes and journal sentences): the third option of
   // this kind, shown only when the Scholarship collection is on.
   const scholarshipAvailable = anyOn(PAGE_NEEDS['scholarship-theme']);
-  const [scholarshipChosen, setScholarshipChosen] = useState(false);
+  // `in=scholarship` in the address opens the page on the scholarship search
+  // (the link under Search One Text's scholarship paragraph, 2026-10-12).
+  const [scholarshipChosen, setScholarshipChosen] = useState(() => {
+    try { return new URLSearchParams(window.location.search).get('in') === 'scholarship'; } catch { return false; }
+  });
   const [scholarshipSearch, setScholarshipSearch] = useState(null);
   const scholarshipMode = scholarshipAvailable && scholarshipChosen;
   const catalogueMode = coinsMode || objectsMode || scholarshipMode;
@@ -686,6 +690,7 @@ export default function ThemeSearchPage() {
     // initializer above, which reads the same params), and `run` falls back
     // to `language` when its second argument is omitted.
     setQuery(q);
+    if (p.get('in') === 'scholarship') { setScholarshipSearch({ q, n: 1 }); return; }
     run(q);
   }, [run]);
 

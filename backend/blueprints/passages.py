@@ -476,15 +476,16 @@ def ask_scholarship():
     from backend import work_names as _wn
     _info = passage_index._naming(_wn.base_work(work)) or {}
     _prefix = ' '.join(x for x in (_info.get('author'), _info.get('title')) if x)
+    query_used = f'{_prefix}: {question}' if _prefix else question
     try:
-        found = scholarship_theme.theme(f'{_prefix}: {question}' if _prefix else question, k=_SCHOL_DEPTH)
+        found = scholarship_theme.theme(query_used, k=_SCHOL_DEPTH)
     except Exception as e:
         logger.info('[PASSAGES] ask-scholarship search failed: %s', type(e).__name__)
         return jsonify({'available': False, 'error': 'the scholarship search is not available'})
     kept, info = _scholarship_keep(found.get('results'), work, question)
     holdings = _scholarship_holdings(question, kept, info, work)
     if not kept or not model.is_available():
-        return jsonify({'available': False, 'holdings': holdings})
+        return jsonify({'available': False, 'holdings': holdings, 'query_used': query_used})
     n_art = sum(1 for c in kept if c.get('kind') == 'article')
     n_note = len(kept) - n_art
     kinds = ('commentary notes and journal articles' if n_art and n_note
@@ -514,7 +515,8 @@ def ask_scholarship():
     used = sorted({int(n) for n in re.findall(r'\[(\d+)\]', text) if 1 <= int(n) <= len(kept)})
     cites = [{'n': n, 'kind': kept[n - 1].get('kind'), 'label': _scholarship_label(kept[n - 1]),
               'link': kept[n - 1].get('link')} for n in used]
-    return jsonify({'available': True, 'holdings': holdings, 'summary': text, 'cites': cites})
+    return jsonify({'available': True, 'holdings': holdings, 'summary': text, 'cites': cites,
+                    'query_used': query_used, 'kept': len(kept)})
 
 
 def _chronological(results):

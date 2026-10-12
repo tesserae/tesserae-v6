@@ -385,7 +385,7 @@ export default function AskAWorkPage() {
         }).then((res) => res.json()).then((s) => {
           if (id !== searchId.current) return;
           if (s && s.available && s.summary) {
-            setScholarship({ state: 'ready', holdings: s.holdings || '', summary: s.summary, cites: s.cites || [] });
+            setScholarship({ state: 'ready', holdings: s.holdings || '', summary: s.summary, cites: s.cites || [], queryUsed: s.query_used || '' });
           } else if (s && s.holdings) {
             setScholarship({ state: 'none', holdings: s.holdings });
           } else {
@@ -666,6 +666,16 @@ export default function AskAWorkPage() {
                     <ScholarshipText text={scholarship.summary} cites={scholarship.cites} />
                   </p>
                   {scholarship.holdings && <p className="mt-1 text-xs text-gray-500" data-testid="ask-scholarship-holdings">{scholarship.holdings}</p>}
+                  {/* The paragraph reads at most eight; the scholarship search
+                      lists every note and article for the same question
+                      (owner, 2026-10-12: "Is it eight slots and then some
+                      link you can click to see more?"). */}
+                  <p className="mt-1 text-xs">
+                    <a href={`/theme-search?query=${encodeURIComponent(scholarship.queryUsed || asked.q)}&in=scholarship`}
+                       className="text-red-700 hover:underline" data-testid="ask-scholarship-more">
+                      See every note and article for this question
+                    </a>
+                  </p>
                 </section>
               )}
               {scholarship?.state === 'none' && (
