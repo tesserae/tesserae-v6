@@ -34,10 +34,10 @@ The core bundle holds the texts, the lemma caches, the search indexes, the word-
    ```
    git clone https://github.com/tesserae/tesserae-v6.git
    cd tesserae-v6
-   git checkout <COMMIT>
+   git checkout 355e3701c9122f69e520ac3c9ad22f0d502dc714
    ```
 
-   The Downloads page names the commit next to the bundle. The data was built for that version of the code, and a newer checkout may hold texts the bundle does not match.
+   The data was built for that version of the code, and a newer checkout may hold texts the bundle does not match. The Downloads page names the current bundle and its commit.
 
 4. Make a Python environment and install the web application's packages. The list leaves out the two machine-learning packages (sentence-transformers and stanza) because the web application does not use them. Only the encoder service in Part 2 does.
 
@@ -48,23 +48,23 @@ The core bundle holds the texts, the lemma caches, the search indexes, the word-
    venv/bin/pip install -r /tmp/requirements-web.txt
    ```
 
-5. Download the core bundle and its checksum file from the address given on the Tesserae Downloads page. Replace the placeholders with the address and the date in the file name.
+5. Download the core bundle and its checksum file.
 
    ```
-   curl -L -O "<BUNDLE_ADDRESS>/tesserae-public-core-<DATE>.tar.zst"
-   curl -L -O "<BUNDLE_ADDRESS>/tesserae-public-core-<DATE>.tar.zst.sha256"
+   curl -L -O "https://tesserae.caset.buffalo.edu/static/downloads/bundle/tesserae-public-core-20261011.tar.zst"
+   curl -L -O "https://tesserae.caset.buffalo.edu/static/downloads/bundle/tesserae-public-core-20261011.tar.zst.sha256"
    ```
 
 6. Check that the download is intact. The command must print OK.
 
    ```
-   sha256sum -c tesserae-public-core-<DATE>.tar.zst.sha256
+   sha256sum -c tesserae-public-core-20261011.tar.zst.sha256
    ```
 
 7. Unpack the bundle into the checkout. The bundle files go into the folders where the application looks for them. Texts that the repository already holds are overwritten with identical or newer copies.
 
    ```
-   tar --zstd -xf tesserae-public-core-<DATE>.tar.zst -C .
+   tar --zstd -xf tesserae-public-core-20261011.tar.zst -C .
    ```
 
 8. Read LICENSES.md, which the unpacking placed in the checkout. It names the credit lines you must keep if you pass any of the data on.
@@ -109,10 +109,10 @@ Theme Search finds passages by what they are about, in plain English. Similar Pa
 13. Stop the application with Ctrl+C. Download the full bundle and its checksum, check it as in step 6, and unpack it the same way.
 
     ```
-    curl -L -O "<BUNDLE_ADDRESS>/tesserae-public-full-<DATE>.tar.zst"
-    curl -L -O "<BUNDLE_ADDRESS>/tesserae-public-full-<DATE>.tar.zst.sha256"
-    sha256sum -c tesserae-public-full-<DATE>.tar.zst.sha256
-    tar --zstd -xf tesserae-public-full-<DATE>.tar.zst -C .
+    curl -L -O "https://tesserae.caset.buffalo.edu/static/downloads/bundle/tesserae-public-full-20261011.tar.zst"
+    curl -L -O "https://tesserae.caset.buffalo.edu/static/downloads/bundle/tesserae-public-full-20261011.tar.zst.sha256"
+    sha256sum -c tesserae-public-full-20261011.tar.zst.sha256
+    tar --zstd -xf tesserae-public-full-20261011.tar.zst -C .
     ```
 
 14. Make a second Python environment for the encoder. It needs PyTorch, which is large, so use the processor-only build unless you have a graphics card.
@@ -160,13 +160,12 @@ For a private machine, a terminal window or a `tmux` session for each of the two
 - **The assistant (Tessa).** It needs a large language model server and, for some features, a university gateway. Neither can be shared.
 - **The trained Theme Search reader.** It re-orders the top results. Its training data has not been confirmed to be entirely open, so it is not shared. Theme Search works without it and ranks by vector similarity and keyword match alone.
 - **The parsed-sentence databases.** The syntax channels use databases built from treebanks with mixed terms. The script scripts/download_data.py fetches them from the project's data server when that is reachable. Without them the other channels still work.
-- **Keys, passwords, user data and the production database.** These never leave the production machine.
 
 ## If you are using an AI coding assistant
 
 You can hand this document to an AI coding assistant and ask it to do the installation for you. Open a terminal on the target machine, start the assistant there, and paste the following.
 
-> Install Tesserae on this Ubuntu machine by following docs/RUN_YOUR_OWN.md in https://github.com/tesserae/tesserae-v6, Part 1 only. Run each numbered step in order and show me each command before you run it. Stop and tell me if any step fails or if a checksum does not match. Do not create any account, key or password, and do not change anything outside the tesserae-v6 folder except the packages in step 1 and step 2. Step 5 needs the bundle address, which is <PASTE THE ADDRESS FROM THE DOWNLOADS PAGE>. When you reach step 12, show me the output of the reference check.
+> Install Tesserae on this Ubuntu machine by following docs/RUN_YOUR_OWN.md in https://github.com/tesserae/tesserae-v6, Part 1 only. Run each numbered step in order and show me each command before you run it. Stop and tell me if any step fails or if a checksum does not match. Do not create any account, key or password, and do not change anything outside the tesserae-v6 folder except the packages in step 1 and step 2. When you reach step 12, show me the output of the reference check.
 
 When Part 1 passes, paste a second request that names Part 2 and gives the full bundle's file name.
 
