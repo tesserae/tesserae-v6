@@ -8,6 +8,52 @@ history (index builds, cache rebuilds, corpus changes) is in
 `DATA_OPERATIONS.md`; per-release changes are in `../CHANGELOG.md`.
 
 
+## 2026-10-11: a low confidence band shows the list, and only a degenerate band hides it
+- Scope: Theme Search over the whole corpus (`/theme-search`), every language
+  and every kind of text. Ask a Work and the search within one work use a
+  different rule (the spread of the work's own scores) and are unchanged.
+- The problem. The owner searched "establishment of democracy" and was told
+  the corpus did not appear to contain passages of this kind, with the list
+  held behind a link. The hidden list was good: Thucydides 8.63 on the
+  oligarchy at Samos, Polybius 6.4 and 6.9 on the cycle of constitutions,
+  Diodorus 12.11 on the democracy at Sybaris, Xenophon's Hellenica. The band
+  rests on head lift, the mean of the top ten scores above the corpus median,
+  fitted on 57 queries that mixed real literary scenes with nonsense and
+  absent subjects. A real subject spread across many passages does not lift
+  its top ten far above the median, and a short phrase rarely does.
+- Measurement. Sixty historical queries (thirty subjects in a short form and
+  a sentence form) and the fifteen Ask a Work pilot questions, run corpus-wide,
+  the top ten of each graded 0, 1 or 2 by the gateway model from the
+  passage descriptions. A list counts as relevant when half or more of its
+  top ten are graded 1 or 2.
+
+  | Set | Marked low | Of those, relevant list | Shown | Of those, not relevant |
+  |---|---|---|---|---|
+  | 60 historical queries | 31 | 27 | 29 | 4 |
+  | the 30 short forms | 24 | 24 | 6 | 0 |
+  | the 30 sentence forms | 7 | 3 | 23 | 4 |
+  | 15 pilot questions | 13 | 11 | 2 | 0 |
+
+  Mean share of relevant passages in the top ten was 0.75 under a low band
+  and 0.73 under a moderate one, so on real subjects the band carried no
+  information. Short forms did better than sentences (0.82 against 0.50 in
+  the low band), the opposite of what the banner's advice to write a full
+  sentence assumed. Head lift and coherence were at chance as separators of
+  good lists from poor ones (area under the curve 0.52). The degeneracy test
+  (coherence at or above 0.995) never fired in this set, since no real
+  subject reaches it.
+- Decision. The list is shown whatever the band. A low band carries a
+  one-line caution that the ranking is less certain than usual, without the
+  claim that the corpus lacks the subject. Only a degenerate band, where
+  nothing in the corpus resembles the query, holds the list behind a link and
+  makes that claim, and only there is the short-query hint given. The
+  per-passage weak-neighbor tag is left off under a low band, where every row
+  would carry it. The response adds `confidence.degenerate`.
+- What is not changed. The thresholds and the bands themselves, which still
+  tell a real subject from nonsense. This measurement had no nonsense or
+  absent-subject queries, so the band's value against those stands as fitted.
+- Data: the queries, judgements and report are kept outside the repository.
+
 ## 2026-10-11: long prose works get paragraph-sized passage windows, and short sections are merged to the same size
 - Scope: the content index behind Similar Passages, Theme Search, Ask a
   Work and the Reader's gutter, for prose works whose units (chapters,

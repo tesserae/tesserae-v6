@@ -1381,21 +1381,36 @@ _SHORT_QUERY_HINT = (
     'what, and where.')
 
 
-def _confidence_note(level, query=None, language=None):
+def _confidence_note(level, query=None, language=None, degenerate=False):
     drift = _calibration_drift()
-    base = _confidence_note_fitted(level, language)
+    base = _confidence_note_fitted(level, language, degenerate=degenerate)
     if drift:
         now, _ = drift
         warning = _UNCALIBRATED.format(fitted=FITTED_AT_WINDOWS, now=now)
         base = f'{warning} {base}' if base else warning
-    # The pervasive note already asks for a description of what happens, so
-    # the short-query hint would repeat it.
-    if base and level not in ('strong', 'pervasive') and query is not None and _is_short_query(query):
+    # The short-query hint is kept for the degenerate case only (2026-10-11).
+    # Measured on 60 historical subjects, short phrases in the low band had a
+    # higher share of relevant passages in their top ten (0.82) than full
+    # sentences (0.50), so "a sentence matches much better" is not a claim the
+    # evidence supports for an ordinary low band.
+    if base and degenerate and query is not None and _is_short_query(query):
         base += _SHORT_QUERY_HINT
     return base
 
 
-def _confidence_note_fitted(level, language=None):
+def _confidence_note_fitted(level, language=None, degenerate=False):
+    """The sentence under the band.
+
+    2026-10-11: a low band no longer says the corpus lacks the subject unless
+    the coherence is degenerate (nothing resembles the query). Measured on 60
+    historical subjects (short and sentence forms) with a model judging the
+    top ten: of 31 queries marked low, 27 had a relevant list (half or more of
+    the top ten about the subject), and the pilot's literary questions behaved
+    the same (11 of 13 marked low were relevant). The band separates real
+    subjects from nonsense, which is what it was fitted on; it does not
+    separate a good list from a poor one. So the ordinary low note is a
+    caution about the ranking, and the list is shown.
+    """
     if level == 'strong':
         return None
     if level == 'pervasive':
@@ -1407,8 +1422,12 @@ def _confidence_note_fitted(level, language=None):
     if level == 'moderate':
         return ('Moderate confidence: the corpus holds passages of this kind, but the '
                 'match is looser than a clear case. Read the results before relying on them.')
-    return ('The corpus does not appear to contain passages of this kind. Anything '
-            'the search returns for it is a nearest neighbor, not a finding.')
+    if degenerate:
+        return ('The corpus does not appear to contain passages of this kind. Anything '
+                'the search returns for it is a nearest neighbor, not a finding.')
+    return ('Low confidence: the top passages do not stand far above the rest of the '
+            'corpus, so the ranking is less certain than usual. The list is still the '
+            'closest the corpus comes; read the passages before relying on them.')
 
 
 # QUERY EXPANSION: make the query look like the thing being searched.
@@ -2033,9 +2052,14 @@ def find_by_text(query, limit=25, languages=None, scale=None, expand=False,
         'confidence': {'top': round(top, 4), 'baseline': round(baseline, 4),
                        'head_lift': round(head_lift, 4),
                        'lift': round(lift, 4),
-                       'coherence': round(coherence, 4), 'level': level},
+                       'coherence': round(coherence, 4), 'level': level,
+                       # 2026-10-11: the one case in which the page hides the
+                       # list. A low band without it is a caution, not a verdict
+                       # (see _confidence_note_fitted).
+                       'degenerate': bool(coherence >= DEGENERATE_COHERENCE)},
         'note': _confidence_note(level, query=query,
-                                 language=languages[0] if lang_rows is not None else None),
+                                 language=languages[0] if lang_rows is not None else None,
+                                 degenerate=coherence >= DEGENERATE_COHERENCE),
     }
 
 
