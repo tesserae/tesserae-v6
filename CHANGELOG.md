@@ -9,6 +9,9 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-12
 
+### Objects: pictures served from our own server
+An object's picture was loaded by the visitor's browser straight from the museum's image server, and in at least one browser the Art Institute of Chicago picture did not show. Our server now fetches each picture once, keeps it on disk and serves it from there (`/api/objects/image/<id>`), for the Cleveland and Chicago objects whose licence is open. If a picture cannot be had, the picture box is left out instead of showing a broken-image icon. The Object page link and credit line are unchanged. Production needs the one-off warm-up in docs/DATA_OPERATIONS.md.
+
 ### Footer: one link, to the requests made so far
 The footer carried "Suggest a change" beside "Requests". The header already has the Suggest a change button, so the footer's copy is gone, and the remaining link is labelled "Requests made so far" to say what the page is: the public list of suggestions and corrections filed, not a second way to file one.
 ### Inscriptions: "Hr." written out as Henchir, and "unknown" chips left off

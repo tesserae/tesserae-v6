@@ -109,7 +109,15 @@ describe('the list', () => {
     const links = screen.getAllByRole('link', { name: 'Object page' });
     expect(links[0].getAttribute('href')).toBe(OBJ.object_url);
     expect(screen.getAllByRole('img').length).toBe(1);  // the Chicago record has no free image
-    expect(screen.getByRole('img').getAttribute('src')).toBe(OBJ.image_url);
+    expect(screen.getByRole('img').getAttribute('src')).toBe('/api/objects/image/cma%3A1966.114');
+  });
+
+  it('hides the picture box when our image route fails', async () => {
+    render(<ObjectCard object={OBJ} />);
+    const img = screen.getByRole('img');
+    expect(img.getAttribute('src')).toBe('/api/objects/image/cma%3A1966.114');
+    fireEvent.error(img);
+    expect(screen.queryByRole('img')).toBeNull();
   });
 
   it('sends the search, filters and dates to the API', async () => {
