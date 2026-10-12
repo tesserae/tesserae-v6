@@ -325,11 +325,11 @@ _SCHOL_SYSTEM = (
     "that is not in the list. Report what each "
     "note actually discusses, even when it is only a point of text or grammar, and do not "
     "infer a reading of the subject from it. If they do not answer the question, say so in one "
-    "sentence. Begin with a short clause that tells "
-    "the reader the material comes from the commentaries and articles listed, in your own "
-    "words, for example 'Going by the commentators' or 'The sources on hand say', and "
-    "vary it each time. Do not use the word paragraph. Plain words. No dashes, no semicolons, no lists, "
-    "no headings.")
+    "sentence. Start straight in with what the notes say, naming the commentator or the "
+    "article as the list does (for example 'How and Wells take the word to mean...'). Do not "
+    "open with a clause about where the material comes from: a line under your text already "
+    "says that. Do not call the notes 'sources'. Do not use the word paragraph. Plain words. "
+    "No dashes, no semicolons, no lists, no headings.")
 _SCHOL_KEEP = 8
 _SCHOL_DEPTH = 30
 
