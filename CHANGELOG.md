@@ -9,6 +9,9 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-12
 
+### Search One Text: the Beta mark sits beside the title, and the strip's legend says what light red is
+The mark no longer takes a line of its own. The legend reads, for example, "Dark red: a strong match, far above the work's typical score. Light red: the rest of the 25 passages closest to your question. Grey: passages that name Pannonia and Augustus, listed further down."
+
 ### Search One Text: the passages come first, in the order of the work on request, under a shorter banner
 The list of passages now follows the strip directly, with "Passages that name" after it, and a switch above the list orders the passages by closeness to the question (the default) or in the order of the work. The sentence under the band is one line, and the sentence about how the band was fitted is left to Help and the scope box. The scholarship paragraph is told what kinds of source it has, so it no longer writes "the commentaries and articles" over commentary notes alone.
 
