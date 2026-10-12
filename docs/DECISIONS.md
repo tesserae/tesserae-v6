@@ -103,10 +103,28 @@ history (index builds, cache rebuilds, corpus changes) is in
   than that is still cut into parts as in the first run, and a window never
   crosses from one book into the next. Thucydides comes to 1,159 windows in
   place of 3,577, and the remaining 991 long-prose works to 153,405 windows.
-- Open. The full run's effect is unmeasured until it is installed. The
-  pilot's Annals and Thucydides questions are to be re-run on it. The
-  describing model writes Thucydides' speeches without the speaker's name,
-  so a search for a person in Thucydides falls back to the text itself.
+- Measured after the full run was installed (2026-10-11 23:49). The fifteen
+  pilot questions were re-run live and the 175 passages in the new top
+  twenties that had no grade were judged with the pilot's second-judge
+  prompt (first judge's grades kept where they existed).
+
+  | | Directly relevant in top ten | Relevant at all in top ten | A direct hit in the top five |
+  |---|---|---|---|
+  | Before (pilot) | 0.44 | 0.75 | 14 of 15 |
+  | After | 0.59 | 0.80 | 15 of 15 |
+  | Annals before / after | 0.40 / 0.70 | 0.68 / 0.88 | 5 / 5 |
+  | Thucydides before / after | 0.30 / 0.46 | 0.64 / 0.58 | 4 / 5 |
+  | Aeneid (unchanged by the run) | 0.62 / 0.60 | 0.94 / 0.94 | 5 / 5 |
+
+  Ranking quality by nDCG at ten fell from 0.75 to 0.71 overall, mostly in
+  Thucydides (0.73 to 0.60), where the merged windows are coarser than the
+  single sections for two questions about one speaker's view (Pericles, and
+  justice against self-interest). The figures are not on identical ideals,
+  since the new grades enlarged the ideal ranking. Kept as installed.
+- Open. A smaller merge target for works with short sections, to be tested
+  against these figures. The describing model writes Thucydides' speeches
+  without the speaker's name, so a search for a person in Thucydides falls
+  back to the text itself.
 
 ## 2026-10-11: Ask a Work pilot graded by a second, independent judge
 - Scope: the figures quoted for Ask a Work (`/ask-a-work`) and for its
