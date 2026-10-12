@@ -137,11 +137,31 @@ const Navigation = ({
   }, [viewMenuOpen]);
   useEffect(() => { if (!narrow) { setViewMenuOpen(false); setCollectionsOpen(false); } }, [narrow]);
   const moreRef = useRef(null);
+  // The menu is positioned FIXED from the button's place on screen. It used to
+  // hang absolutely under the button inside the tab row, and the row scrolls
+  // sideways: a box that scrolls clips whatever hangs below it, so the menu
+  // opened unseen and "More" looked dead (the owner, 2026-10-12: "Clicking on
+  // More does nothing.").
+  const [morePos, setMorePos] = useState(null);
+  const toggleMore = () => {
+    const r = moreRef.current ? moreRef.current.getBoundingClientRect() : null;
+    const width = 160;
+    const left = r ? Math.max(0, Math.min(r.left, (window.innerWidth || width) - width - 8)) : 0;
+    setMorePos({ top: (r ? r.bottom : 0) + 4, left });
+    setMoreOpen((o) => !o);
+  };
   useEffect(() => {
     if (!moreOpen) return undefined;
     const close = (e) => { if (moreRef.current && !moreRef.current.contains(e.target)) setMoreOpen(false); };
+    const shut = () => setMoreOpen(false);
     document.addEventListener('mousedown', close);
-    return () => document.removeEventListener('mousedown', close);
+    window.addEventListener('scroll', shut, true);
+    window.addEventListener('resize', shut);
+    return () => {
+      document.removeEventListener('mousedown', close);
+      window.removeEventListener('scroll', shut, true);
+      window.removeEventListener('resize', shut);
+    };
   }, [moreOpen]);
   const [mainRef, mainMore] = useScrollHint(showDownloads);
   // Overflow into More: the visible tabs are measured in a hidden copy of
@@ -364,7 +384,7 @@ const Navigation = ({
             <div ref={moreRef} className="relative">
               <button
                 type="button"
-                onClick={() => setMoreOpen((o) => !o)}
+                onClick={toggleMore}
                 aria-haspopup="menu"
                 aria-expanded={moreOpen}
                 className={`px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap ${
@@ -376,7 +396,9 @@ const Navigation = ({
                 More <span aria-hidden="true">&#9662;</span>
               </button>
               {moreOpen && (
-                <div role="menu" className="absolute left-0 mt-1 w-40 bg-white border border-gray-200 rounded shadow-lg py-1 z-50">
+                <div role="menu" data-testid="more-menu"
+                     style={{ position: 'fixed', top: morePos ? morePos.top : 0, left: morePos ? morePos.left : 0 }}
+                     className="w-40 bg-white border border-gray-200 rounded shadow-lg py-1 z-50">
                   {menuTabs.map(tab => (
                     <button
                       key={tab.code}

@@ -1177,6 +1177,11 @@ def _line_lemmas_matching_query(line_lemmas, query_lemmas, fallback_forms=None):
     return set(line_lemmas) & accepted
 
 
+def _univerbation_lemmatize(word):
+    """The folded Latin lemmas of a word, for backend.univerbation."""
+    return {l for l in (_normalize_lemma(x, 'la') for x in text_processor.lemmatize_word(word, 'la')) if l}
+
+
 def _normalize_lemma(lem, language='la'):
     """Normalize a lemma for index lookup. Handles Latin u/v/j/i and Greek diacritics.
 
@@ -2671,6 +2676,13 @@ def _surface_hits(query, tokens, language, window=None):
                 if n.endswith(enc) and len(n) > len(enc) + 2 and n[:-len(enc)] in qwords:
                     hit.add(n[:-len(enc)])
         forms.append(hit)
+    if language == 'la' and forms:
+        # A joined word (quousque) realises the parts the query typed
+        # (quo usque), and parts printed apart realise a joined query word.
+        from backend.univerbation import surface_forms
+        for hit, extra in zip(forms, surface_forms(
+                [_surface_norm(t, language) for t in (tokens or ())], qwords)):
+            hit.update(extra)
     if not window or window >= len(forms):
         return len(set().union(*forms)) if forms else 0
     best = 0
@@ -3029,6 +3041,32 @@ def line_search():
                         '%s (%s); searching on all %d lemmas', language, _e,
                         len(filtered_query_lemmas))
 
+            # WORDS PRINTED EITHER JOINED OR APART (Latin, lemma mode). A query
+            # "quo usque tandem" finds a line printing "quousque tandem", and
+            # a query "quousque" finds a line printing "quo usque", for the
+            # short curated list in backend/univerbation.py. Query side only:
+            # the joined forms count as fallback readings of the parts (and
+            # the parts of the joined form) in the index lookup, and the
+            # reverse direction is verified against the line's own lemma
+            # sequence below, so "quousque tandem" does not match every line
+            # with qui and tandem.
+            univ_forward, univ_sequences = {}, {}
+            if language == 'la' and search_type == 'lemma':
+                try:
+                    from backend import univerbation as _univ
+                    _qtoks = query.lower().split()
+                    univ_forward = _univ.expand_parts(_qtoks, _univerbation_lemmatize)
+                    _rev_fb, univ_sequences = _univ.expand_joined(
+                        _qtoks, _univerbation_lemmatize, stopwords)
+                    univ_forward = {k: v for k, v in univ_forward.items() if k in filtered_query_lemmas}
+                    univ_sequences = {k: v for k, v in univ_sequences.items() if k in filtered_query_lemmas}
+                    _rev_fb = {k: v for k, v in _rev_fb.items() if k in univ_sequences}
+                    query_fallback_forms = _univ.merge_fallbacks(query_fallback_forms, univ_forward, _rev_fb)
+                except Exception:
+                    app.logger.exception('[LINE-SEARCH] univerbation expansion failed; searching without it')
+                    univ_forward, univ_sequences = {}, {}
+            univ_active = bool(univ_forward or univ_sequences)
+
             # Single-word count_only: route here ONLY when the query LITERALLY has
             # one word. A multi-word query that common-word filtering reduces to a
             # single content word is still a co-occurrence (pair) query and must
@@ -3081,6 +3119,32 @@ def line_search():
                         text_candidates[filename] = []
                     text_candidates[filename].append((ref, matching_lemmas, positions))
 
+                # A joined query word found through its parts (reverse
+                # direction) is kept only where the parts stand next to each
+                # other in the line, in order. Done before the per-work counts
+                # so they count the lines that will be listed.
+                prefetched_lines = {}
+                if univ_sequences and use_indexed_lines:
+                    for _fn in list(text_candidates):
+                        _ld = get_lines_batch(_fn, [r for r, _, _ in text_candidates[_fn]], language) or {}
+                        prefetched_lines[_fn] = _ld
+                        _kept = []
+                        for _ref, _ml, _pos in text_candidates[_fn]:
+                            _li = _ld.get(_ref)
+                            if _li:
+                                _toks = _li.get('tokens') or []
+                                _mset, _, _ = _univ.match_line(
+                                    [[_l] for _l in (_li.get('lemmas') or [])], _toks,
+                                    filtered_query_lemmas, univ_forward, univ_sequences)
+                                _ml = set(_ml) & _mset
+                                if len(_ml) < min_matched:
+                                    continue
+                            _kept.append((_ref, _ml, _pos))
+                        if _kept:
+                            text_candidates[_fn] = _kept
+                        else:
+                            del text_candidates[_fn]
+
                 # EVERY WORK'S COUNT, NOT JUST THE FIRST 500 LINES (2026-10-07).
                 # The line list stops at max_results in index order, so for a
                 # common pair (Persian "man ast") it held lines from two or three
@@ -3116,7 +3180,8 @@ def line_search():
                     refs_needed = [ref for ref, _, _ in matches]
                     lines_data = {}
                     if use_indexed_lines:
-                        lines_data = get_lines_batch(filename, refs_needed, language) or {}
+                        lines_data = (prefetched_lines.get(filename)
+                                      or get_lines_batch(filename, refs_needed, language) or {})
                     
                     # Fallback: build a lookup from the actual file if lines_data is empty
                     file_lines_lookup = {}
@@ -3160,7 +3225,13 @@ def line_search():
                         indexed_tokens = line_info.get('tokens', []) if line_info else []
 
                         # Use indexed data if available, otherwise fallback to quick token matching
-                        if indexed_lemmas:
+                        if indexed_lemmas and univ_active:
+                            # Joined words count as the parts they stand for,
+                            # and parts printed apart as the joined word.
+                            matched_lemma_set, matched_words, matched_positions = _univ.match_line(
+                                [[_l] for _l in line_info.get('lemmas', [])], indexed_tokens,
+                                filtered_query_lemmas, univ_forward, univ_sequences)
+                        elif indexed_lemmas:
                             # Match query lemmas (and a bare Hebrew word's
                             # other readings) against indexed lemmas
                             matching_query_lemmas = _line_lemmas_matching_query(
@@ -3180,7 +3251,11 @@ def line_search():
                                     matched_words.append(token)
                                     matched_lemma_set.add(token)
                         
-                        if len(set(matched_words)) < min_matched:
+                        if univ_active and indexed_lemmas:
+                            # one joined word can stand for two query words
+                            if len(matched_lemma_set) < min_matched:
+                                continue
+                        elif len(set(matched_words)) < min_matched:
                             continue
                         
                         # Exclude source line if specified (normalize both sides for robust matching)
@@ -3293,6 +3368,7 @@ def line_search():
                                     pass
                             
                             match_found = False
+                            univ_line = None
                             if search_type == 'exact':
                                 # Whole-word-start match (see _exact_phrase_pattern):
                                 # excludes substring hits like "quot" inside "aliquot".
@@ -3322,6 +3398,18 @@ def line_search():
                                         match_found = True
                                 except re.error:
                                     pass
+                            elif univ_active:
+                                # Latin words joined or apart: judged on the
+                                # line's own word sequence.
+                                _uw = re.sub(r'[^\w\s]', '', text.lower()).split()
+                                _usets = []
+                                for _w in _uw:
+                                    _ls = set(text_processor.lemmatize_word(_w, language))
+                                    _ls.add(_w)
+                                    _usets.append(_ls)
+                                univ_line = _univ.match_line(
+                                    _usets, _uw, filtered_query_lemmas, univ_forward, univ_sequences)
+                                match_found = bool(univ_line[0])
                             else:
                                 text_lower = text.lower()
                                 text_words = set(re.sub(r'[^\w\s]', '', text_lower).split())
@@ -3338,7 +3426,10 @@ def line_search():
                             if match_found:
                                 matched_words = []
                                 matched_lemmas = set()  # Track unique lemmas matched (excluding stopwords)
-                                if search_type == 'lemma':
+                                if search_type == 'lemma' and univ_line is not None:
+                                    matched_lemmas = set(univ_line[0])
+                                    matched_words = list(univ_line[1])
+                                elif search_type == 'lemma':
                                     for word in re.sub(r'[^\w\s]', '', text.lower()).split():
                                         word_lemmas = text_processor.lemmatize_word(word, language)
                                         word_lemmas.add(word)
