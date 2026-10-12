@@ -9,6 +9,8 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-12
 
+### Theme Search scope box and Help carry the October refit
+The "What this search does" box on Theme Search gave the confidence figures of the September fit (32 subjects, 88 to 91 percent) and listed Coptic, Hebrew and English as unmeasured. It now gives the 12 October refit (178 subjects in eight language settings, 86 percent overall, with the per-language figures), says the lowest band is "Closest passages", and states the index size at the release and now in one sentence instead of two. The Help paragraph on the band carries the same figures.
 ### Reader: only the selected sentences of a prose chapter are painted
 When some sentences of a long prose unit are selected, the unit is no longer painted pink behind them. The lit sentences could not be told from the rest, so a sentence selection looked like a selection of the whole chapter. The unit keeps its red left bar, and a selection of every sentence paints the unit as before.
 

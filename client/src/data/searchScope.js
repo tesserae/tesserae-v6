@@ -16,8 +16,8 @@ const FUSION_COP = { search: "Verbal parallels (Fusion)", language: "Coptic", ag
 const FUSION_HE = { search: "Verbal parallels (Fusion)", language: "Hebrew", against: "The 22 marked citations of Isaiah in Romans, searched from the Hebrew through the Septuagint into the Greek New Testament", result: "15 of 22 in the first hundred, 9 in the first ten; the direct word-for-word route found none", date: "August 2026" };
 const FUSION_EN = { search: "Verbal parallels (Fusion)", language: "English", against: "No published list of parallels has been run yet", result: "Not measured", date: "" };
 const CROSS_GRC_LA = { search: "Cross-Language (Greek to Latin)", language: "Greek and Latin", against: "412 Homeric parallels in the Aeneid from Knauer's index", result: "About 40 percent in the first fifty for a given target line, 94 percent found somewhere in the ranking; only 31 percent of the listed parallels share any vocabulary across the two languages", date: "2026" };
-const THEME_LAGRC = { search: "Theme Search", language: "Latin and Greek", against: "Confidence band: 32 test subjects, half present in the corpus and half absent. Recall: the works Curtius cites for eleven topoi (57 works held here)", result: "The band agrees with the test set on 88 to 91 percent of subjects. Of Curtius's 57 works, 23 appear somewhere in the returned lists and 7 among the first ten; a frontier language model asked the same questions from memory names 14 and 13. Precision of the first ten results, sixteen test themes, judged against a scholar's grading rule: about 29 percent by description order, about 43 percent after the reading step (see The reading step under Theme Search)", date: "September 2026" };
-const THEME_OTHER = { search: "Theme Search", language: "Coptic, Hebrew, English", against: "Included in the index; no language-specific test yet", result: "Not measured separately", date: "" };
+const THEME_LAGRC = { search: "Theme Search", language: "Latin, Greek and English", against: "Confidence band: 90 test subjects, 30 a language, two thirds present in the corpus and a third absent, refitted on 12 October 2026 to the index of 693,611 windows. Recall: the works Curtius cites for eleven topoi (57 works held here)", result: "The band agrees with the test set on 80 percent of Latin and of Greek subjects and 73 percent of English (86 percent over all 178 subjects in eight language settings). Sixty historical subjects with graded lists: two now fall in the lowest band, and lists in that band were as relevant as lists in the moderate band. Of Curtius's 57 works, 23 appear somewhere in the returned lists and 7 among the first ten; a frontier language model asked the same questions from memory names 14 and 13. Precision of the first ten results, sixteen test themes, judged against a scholar's grading rule: about 29 percent by description order, about 43 percent after the reading step (see The reading step under Theme Search)", date: "October 2026" };
+const THEME_OTHER = { search: "Theme Search", language: "Persian, Urdu, Hebrew, Coptic", against: "Confidence band: 17 or 18 test subjects a language, two thirds present and a third absent, the same refit", result: "The band agrees with the test set on 94 percent of subjects in each of the four languages", date: "October 2026" };
 const RARE_ALL = { search: "Rare words, rare pairs, line and string search", language: "All", against: "Exact lookups in the index", result: "They return every occurrence the index holds; there is no recall to measure, only the coverage of the corpus and the accuracy of the dictionary forms (see each language section)", date: "" };
 
 const NOT_YET = 'Not measured yet';
@@ -63,8 +63,8 @@ export const SEARCH_SCOPE = {
     name: 'Theme Search',
     does: 'Describe a scene or an idea in English and get the passages about it, across languages, ranked by meaning.',
     scope: 'Your description is compared with a short description written for each passage, and the closest passages come back from every indexed language at once. A result is a passage window.',
-    covers: 'The passage index, 603,594 windows at the 2026-08-25 release.',
-    limits: `A subject that is absent from the corpus gets a low confidence band and not an empty list. ${NO_CONFIDENCE_NOTE} The ranking rests on a model's description of each passage, so very short or fragmentary passages rank poorly.`,
+    covers: 'The passage index: 603,594 windows at the 2026-08-25 release, 693,611 since the prose-windows run of 2026-10-11.',
+    limits: `A subject that is absent from the corpus gets the lowest band, "Closest passages", and not an empty list, and a modern subject can read as a moderate match over its nearest neighbours. ${NO_CONFIDENCE_NOTE} The ranking rests on a model's description of each passage, so very short or fragmentary passages rank poorly.`,
     measured: [THEME_LAGRC, THEME_OTHER],
     helpSection: 'theme-search',
   },
@@ -163,7 +163,7 @@ export const SEARCH_SCOPE = {
     name: 'Similar (Reader)',
     does: 'Passages whose content is closest to the lines you selected, from every language in the index.',
     scope: 'Your selection is matched by the model-written description of its passage window against every other window\'s description, in two groups: Same kind of scene (the closest in meaning), and Same people and places (the closest that also share a rare proper name). A result is a passage with its description.',
-    covers: 'The passage index, 603,594 windows at the 2026-08-25 release.',
+    covers: 'The passage index: 603,594 windows at the 2026-08-25 release, 693,611 since the prose-windows run of 2026-10-11.',
     limits: 'The names group is weak for a passage with few distinctive names, and the scene group ranks a short or fragmentary passage poorly. Both groups are the Theme Search index at work, so they share its measured figures.',
     measured: [THEME_LAGRC, THEME_OTHER],
     helpSection: 'reader',
