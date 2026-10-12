@@ -9,6 +9,8 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-12
 
+### Reader: a long parallel passage is cut around its matched words, found as whole words
+In the Reader's Parallels tab a long prose hit is shortened to a window around the words that matched. The window was placed by a plain letter search, so for Tacitus, Annals 4.58 the word "Roma" was first found inside "Romanus" in the opening sentence, the card showed the opening, and nothing was highlighted because the real "Roma" and "reditus" were past the cut. The window is now placed on whole words, folding u and v as the highlighting does, and grows a little to keep a second matched word in view.
 ### About page: what Tesserae is now
 The opening paragraph still described an intertext search tool and "a modern reimplementation of the V3 algorithm". It now describes the site as it is: the intertext search with its kinds of evidence, the Reader, Theme Search, Search One Text, and the inscriptions, papyri, coins, objects and events beside the literature, with the corpus's seven languages and its size. The six feature cards are rewritten to the same picture, and the technical list names the passage index and the taggers for Hebrew, Persian and Urdu.
 
@@ -16,6 +18,12 @@ The opening paragraph still described an intertext search tool and "a modern rei
 Searches for "rusellorum" and then "rusell" in Lemma mode found nothing, and the page showed nothing at all, so there was no way to tell whether the search had run. It now prints a line saying that no inscription or papyrus has the word as a dictionary form (or contains it, in Exact mode). When a one-word dictionary-form search finds nothing, the page runs the same search on the letters at once and, if documents come back, shows them under a note that says so. The Help page explains both.
 ### Search One Text: recent articles from the live services join the scholarship paragraph
 The Scholarship paragraph read only the held commentaries and the pre-1923 journal articles. It now also asks OpenAlex, Crossref, CORE and Google Books (and Semantic Scholar where a key is set) for recent articles on the question, keeps those that name the author or the work and share a word with the question, and lets the paragraph cite up to four of them. They are known only from an abstract or a short open-access excerpt, and the paragraph says so when it cites one. Each service is asked in its own request, so a "Recent articles" list under the paragraph fills as each answers, with a link to a free copy where one exists, and a small line names the services still pending. The line under the paragraph now also says how many recent articles the live services listed, or that some did not answer. New route `GET /api/passages/recent-scholarship`.
+### Theme Search: a tidier head of the page
+The Beta mark sits beside the title instead of under it. The sentence "Describe what happens in a passage and this finds passages that match the description" is gone, since the "What this search does" line says the same, and the count of covered works with its link to the list has moved into that box, under Details, with the rest of what the search covers. The note "fewer languages show more of each" beside the language chips is gone.
+
+### Theme Search and Search One Text show a spinner and a clock while they run
+While a search ran, both pages showed one line of italic text and nothing else, so a reader could not tell whether anything was still happening. Both now show a spinner, the line, and a clock in whole seconds, the same indication the other searches give.
+
 ### The running clock on a search shows whole seconds
 While a search runs, the clock under the spinner (Rare Words, Rare Pairs, the parallel search, the corpus search, Cross-Language) counted "21.0s", a decimal that never changed because the clock ticks once a second. It now reads "21s". The time shown when a search has finished keeps its decimal, since that one is measured.
 
