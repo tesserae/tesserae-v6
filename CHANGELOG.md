@@ -9,6 +9,8 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-12
 
+### Search One Text: the Beta mark sits beside the title, and the strip's legend says what light red is
+The mark no longer takes a line of its own. The legend reads, for example, "Dark red: a strong match, far above the work's typical score. Light red: the rest of the 25 passages closest to your question. Grey: passages that name Pannonia and Augustus, listed further down."
 ### Search One Text: the scholarship paragraph starts with what the notes say
 It had opened with a clause about where its material came from ("The sources on hand say the notes address..."), which the line under it already states. The model is now told to start straight in, naming the commentator or article.
 
