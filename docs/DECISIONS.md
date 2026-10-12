@@ -121,10 +121,21 @@ history (index builds, cache rebuilds, corpus changes) is in
   single sections for two questions about one speaker's view (Pericles, and
   justice against self-interest). The figures are not on identical ideals,
   since the new grades enlarged the ideal ranking. Kept as installed.
-- Open. A smaller merge target for works with short sections, to be tested
-  against these figures. The describing model writes Thucydides' speeches
-  without the speaker's name, so a search for a person in Thucydides falls
-  back to the text itself.
+- A smaller merge target, tested and not adopted (2026-10-12). Thucydides
+  books 1 and 2 were re-cut at 600 and 800 characters and the five pilot
+  questions ranked offline against the installed 1,200, every passage graded
+  by the same judge: 600 beat 1,200 on every measure (directly relevant in
+  the top ten 0.64 against 0.50, nDCG 0.92 against 0.84), 800 did not. The
+  same comparison on Herodotus (books 1 to 3) and Diodorus (books 11 to 14),
+  eight new questions, did not confirm it: 600 tied on Herodotus and lost on
+  Diodorus for precision (0.26 against 0.31 overall), winning only on
+  ranking order (0.85 against 0.83) and on a direct hit in the top five
+  (8 of 8 against 6 of 8). One win, one tie and one loss on five to eight
+  questions a work is not grounds to re-cut 284 works, nor to give one work
+  a different cut from the rest. The target stays at 1,200.
+- Open. The describing model writes Thucydides' speeches without the
+  speaker's name, so a search for a person in Thucydides falls back to the
+  text itself.
 
 ## 2026-10-11: Ask a Work pilot graded by a second, independent judge
 - Scope: the figures quoted for Ask a Work (`/ask-a-work`) and for its
