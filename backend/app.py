@@ -2681,7 +2681,8 @@ def _surface_hits(query, tokens, language, window=None):
         # (quo usque), and parts printed apart realise a joined query word.
         from backend.univerbation import surface_forms
         for hit, extra in zip(forms, surface_forms(
-                [_surface_norm(t, language) for t in (tokens or ())], qwords)):
+                [_surface_norm(t, language) for t in (tokens or ())], qwords,
+                _univerbation_lemmatize)):
             hit.update(extra)
     if not window or window >= len(forms):
         return len(set().union(*forms)) if forms else 0

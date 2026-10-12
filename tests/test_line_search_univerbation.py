@@ -60,7 +60,9 @@ def test_expand_parts_maps_the_parts_to_the_joined_lemma():
 
 def test_expand_parts_reads_inflected_compounds_by_lemma():
     out = U.expand_parts(['rem', 'publicam'], LEM)
-    assert out == {'res': {'respublica'}, 'publicus': {'respublica'}}
+    assert set(out) == {'res', 'publicus'}
+    for joined in out.values():
+        assert 'respublica' in joined and {'reipublicae', 'rempublicam', 'republica'} <= joined
 
 
 def test_expand_joined_maps_the_joined_lemma_to_its_other_parts():
@@ -196,3 +198,65 @@ def test_arma_virum_is_unchanged(search, monkeypatch):
     assert d['total'] == off['total']
     assert [(r['text_id'], r['locus']) for r in d['results']] == \
         [(r['text_id'], r['locus']) for r in off['results']]
+
+
+# ------------------------------------------- inflected forms of the four
+
+def test_the_four_entries_carry_their_forms_and_lemmas_cover_every_form():
+    table = U.load_table(LEM)
+    for joined in U.INFLECTING:
+        entry = table[joined]
+        listed = U.INFLECTED_FORMS[joined]
+        assert listed and entry.forms == {U.fold_latin(f) for f in listed}
+        for f in listed:
+            assert (LEM(f) & entry.joined_lemmas) == LEM(f)
+            assert U.fold_latin(f) in entry.joined_lemmas
+        assert not any(entry.joined_lemmas & s for s in entry.part_lemmas)
+
+
+def test_expand_joined_recognises_the_inflected_forms():
+    for form, key in (('iurisiurandi', 'iurisiurandi'), ('senatusconsulto', 'senatusconsulto'),
+                      ('patremfamilias', 'paterfamilias'), ('iureiurando', 'iureiurando')):
+        fb, seq = U.expand_joined([form], LEM)
+        assert key in seq, form
+        parts, surfaces = seq[key]
+        assert surfaces is None and len(parts) == 2
+
+
+def test_expand_parts_reaches_the_inflected_joined_lemmas():
+    out = U.expand_parts(['ius', 'iurandum'], LEM)
+    assert {'iurisiurandi', 'iureiurando'} <= set().union(*out.values())
+    out = U.expand_parts(['senatus', 'consultum'], LEM)
+    assert {'senatusconsulto', 'senatusconsulti'} <= set().union(*out.values())
+
+
+def test_surface_hits_read_inflected_compounds_by_lemma():
+    from backend.app import _surface_hits
+    assert _surface_hits('ius iurandum', ['iurisiurandi'], 'la') == 2
+    assert _surface_hits('senatusconsulto', ['senatus', 'consulto'], 'la') == 1
+
+
+def _has(data, forms, marked):
+    for r in data['results']:
+        low = [w.lower() for w in r['matched_words']]
+        if any(f in low for f in forms) and all(m in low for m in marked):
+            return r
+    return None
+
+
+def test_parts_query_finds_inflected_iusiurandum(search):
+    d = search('ius iurandum')
+    assert _has(d, ['iurisiurandi', 'iureiurando'], []) is not None
+
+
+def test_parts_query_finds_inflected_senatusconsultum(search):
+    d = search('senatus consultum')
+    assert _has(d, ['senatusconsulto', 'senatusconsulti'], []) is not None
+
+
+def test_joined_query_finds_the_parts_in_any_case(search):
+    d = search('senatusconsulto')
+    assert _has(d, ['consulto'], ['senatus', 'consulto']) is not None
+    assert _has(d, ['consultum'], ['senatus', 'consultum']) is not None
+    d = search('iurisiurandi')
+    assert _has(d, ['iurandi', 'iurando'], ['iuris']) is not None or _has(d, ['iurandum'], ['ius']) is not None

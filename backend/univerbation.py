@@ -45,6 +45,23 @@ UNIVERBATIONS_LA = {
 # "quo usque", though both lemmatise to qui).
 INFLECTING = frozenset({'respublica', 'iusiurandum', 'paterfamilias', 'senatusconsultum'})
 
+# The joined surface forms of each inflecting compound, as editors print them
+# (checked against the Latin index 2026-10-12). The lemma table gives some of
+# these their joined lemma (rempublicam is respublica) and others only
+# themselves (iurisiurandi, senatusconsulto), so the lemmas of every form
+# listed here, and the forms themselves, count as the joined lemma.
+INFLECTED_FORMS = {
+    'respublica': ('respublica', 'reipublicae', 'rempublicam', 'republica', 'respublicae',
+                   'rerumpublicarum', 'respublicas', 'rebuspublicis'),
+    'iusiurandum': ('iusiurandum', 'iurisiurandi', 'iuriiurando', 'iureiurando', 'iuraiuranda',
+                    'iurejurando', 'iusjurandum'),
+    'paterfamilias': ('paterfamilias', 'patrisfamilias', 'patrifamilias', 'patremfamilias',
+                      'patrefamilias', 'patresfamilias', 'patrumfamilias', 'patribusfamilias',
+                      'patrisfamiliae', 'patrifamiliae', 'patremfamiliae', 'patrefamiliae'),
+    'senatusconsultum': ('senatusconsultum', 'senatusconsulti', 'senatusconsulto',
+                         'senatusconsulta', 'senatusconsultorum', 'senatusconsultis'),
+}
+
 
 def norm_token(token):
     """A word reduced the way the index folds it: lower case, no punctuation,
@@ -53,10 +70,11 @@ def norm_token(token):
 
 
 class Entry:
-    __slots__ = ('joined', 'parts', 'joined_lemmas', 'part_lemmas', 'inflecting')
+    __slots__ = ('joined', 'parts', 'joined_lemmas', 'part_lemmas', 'inflecting', 'forms')
 
-    def __init__(self, joined, parts, joined_lemmas, part_lemmas):
+    def __init__(self, joined, parts, joined_lemmas, part_lemmas, forms=frozenset()):
         self.joined = joined
+        self.forms = forms
         self.parts = parts
         self.joined_lemmas = joined_lemmas
         self.part_lemmas = part_lemmas
@@ -78,7 +96,14 @@ def load_table(lemmatize):
     entries = {}
     dropped = []
     for joined, parts in UNIVERBATIONS_LA.items():
+        forms = frozenset(fold_latin(f) for f in INFLECTED_FORMS.get(joined, ()))
         jl = frozenset(l for l in lemmatize(joined) if l)
+        if jl:
+            # every listed form: what the lemmatiser makes of it, and the form
+            # itself, since the index holds some under their own spelling
+            for f in INFLECTED_FORMS.get(joined, ()):
+                jl = jl | frozenset(l for l in lemmatize(f) if l)
+            jl = jl | forms
         pl = tuple(frozenset(l for l in lemmatize(p) if l) for p in parts)
         if not jl or any(not s for s in pl):
             dropped.append((joined, 'no lemma for the joined form or a part'))
@@ -86,7 +111,7 @@ def load_table(lemmatize):
         if any(jl & s for s in pl):
             dropped.append((joined, 'joined lemma equals a part lemma'))
             continue
-        entries[joined] = Entry(joined, parts, jl, pl)
+        entries[joined] = Entry(joined, parts, jl, pl, forms)
     for joined, why in dropped:
         logger.info('[UNIVERBATION] dropped %s: %s', joined, why)
     _DROPPED[:] = dropped
@@ -146,7 +171,7 @@ def expand_joined(query_tokens, lemmatize, stopwords=()):
         for entry in table.values():
             if entry.joined in seen:
                 continue
-            if n == fold_latin(entry.joined) or (lemmas & entry.joined_lemmas):
+            if n == fold_latin(entry.joined) or n in entry.forms or (lemmas & entry.joined_lemmas):
                 seen.add(entry.joined)
                 parts = set()
                 for s in entry.part_lemmas:
@@ -240,17 +265,37 @@ def match_line(token_lemmas, tokens, query_lemmas, forward=None, sequences=None)
     return matched, [by_pos[p] for p in positions], positions
 
 
-def surface_forms(tokens, query_words):
+def surface_forms(tokens, query_words, lemmatize=None):
     """Per token, the extra query words it stands for in surface form, for
     the closeness count: a joined token realises each part the query typed
     ("quousque" for "quo usque"), and a run of part tokens realises a joined
-    query word. `tokens` and `query_words` are already normalised. Returns a
-    list of sets, one per token."""
+    query word. `tokens` and `query_words` are already normalised. For the
+    compounds that inflect, pass `lemmatize` and the same is read by lemma
+    (iurisiurandi realises "ius iurandum", "iuris iurandi" realises
+    "iurisiurandi"). Returns a list of sets, one per token."""
     out = [set() for _ in tokens]
     qwords = set(query_words)
+    table = load_table(lemmatize) if lemmatize else {}
     for joined, parts in UNIVERBATIONS_LA.items():
         pf = [fold_latin(p) for p in parts]
         jf = fold_latin(joined)
+        entry = table.get(joined)
+        if entry is not None and entry.inflecting:
+            qlem = {w: frozenset(lemmatize(w)) | {w} for w in qwords}
+            typed = [[w for w in qwords if qlem[w] & entry.part_lemmas[k]] for k in range(len(parts))]
+            if all(typed):
+                words = {w for ws in typed for w in ws}
+                for i, t in enumerate(tokens):
+                    if t == jf or t in entry.forms:
+                        out[i].update(words)
+            joined_words = [w for w in qwords if w == jf or w in entry.forms]
+            if joined_words:
+                n = len(pf)
+                tl = [frozenset(lemmatize(t)) | {t} for t in tokens]
+                for i in range(len(tokens) - n + 1):
+                    if all(tl[i + k] & entry.part_lemmas[k] for k in range(n)):
+                        out[i].update(joined_words)
+            continue
         if set(pf) <= qwords:
             for i, t in enumerate(tokens):
                 if t == jf:
