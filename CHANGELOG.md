@@ -9,6 +9,9 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-12
 
+### Theme Search: a tidier head of the page
+The Beta mark sits beside the title instead of under it. The sentence "Describe what happens in a passage and this finds passages that match the description" is gone, since the "What this search does" line says the same, and the count of covered works with its link to the list has moved into that box, under Details, with the rest of what the search covers. The note "fewer languages show more of each" beside the language chips is gone.
+
 ### Theme Search and Search One Text show a spinner and a clock while they run
 While a search ran, both pages showed one line of italic text and nothing else, so a reader could not tell whether anything was still happening. Both now show a spinner, the line, and a clock in whole seconds, the same indication the other searches give.
 

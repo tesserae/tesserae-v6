@@ -787,12 +787,30 @@ export default function ThemeSearchPage() {
 
   return (
     <div className="max-w-4xl mx-auto p-6">
-      <h1 className="text-2xl font-semibold text-gray-900">Theme Search</h1>
-      <span className="ml-2 align-middle rounded border border-amber-200 bg-amber-50 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-800">
-        Beta
-      </span>
+      <div className="flex items-center gap-2">
+        <h1 className="text-2xl font-semibold text-gray-900">Theme Search</h1>
+        <span className="rounded border border-amber-200 bg-amber-50 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-800">
+          Beta
+        </span>
+      </div>
 
-      <ScopeBox id="theme" className="mt-3" />
+      {/* The coverage sentence lives in the box with the rest of what the
+          search covers (owner, 2026-10-12: "a lot of the info on the screen
+          can go into 'What this search does'"). */}
+      <ScopeBox
+        id="theme"
+        className="mt-3"
+        extra={(
+          <p data-testid="theme-coverage">
+            {allCoverage
+              ? <>Theme Search covers {allCoverage.total} works in {allCoverage.languageCount} languages.{' '}</>
+              : <>Theme Search coverage is loading.{' '}</>}
+            <a href="/corpus?theme=1&language=la" className="text-red-700 hover:underline">
+              See the list.
+            </a>
+          </p>
+        )}
+      />
 
       <div className="mt-4 inline-flex rounded border border-gray-300 overflow-hidden text-sm">
         {[['search', 'Theme Search'], ['map', 'Similarity Map'], ['compare', 'Compare two works']].map(([v, label]) => (
@@ -973,11 +991,6 @@ export default function ThemeSearchPage() {
         </div>
       ) : (
       <>
-      <p className="mt-2 text-sm text-gray-600 leading-relaxed">
-        Describe what happens in a passage and this finds passages that match the
-        description.
-      </p>
-
       <form
         className="mt-5 flex gap-2"
         onSubmit={(e) => {
@@ -1039,9 +1052,6 @@ export default function ThemeSearchPage() {
             </label>
           );
         })}
-        <span className="text-[11px] text-gray-500">
-          fewer languages show more of each
-        </span>
       </div>
 
       {coinsAvailable && (
@@ -1139,17 +1149,6 @@ export default function ThemeSearchPage() {
           <a href="/corpus?theme=1&language=la" className="text-red-700 hover:underline">
             see the list
           </a>.
-        </p>
-      )}
-
-      {!singleCoveredLang && !singleUncoveredLang && (
-        <p className="mt-1 text-[11px] text-gray-500">
-          {allCoverage
-            ? <>Theme Search covers {allCoverage.total} works in {allCoverage.languageCount} languages.{' '}</>
-            : <>Theme Search coverage is loading.{' '}</>}
-          <a href="/corpus?theme=1&language=la" className="text-red-700 hover:underline">
-            See the list.
-          </a>
         </p>
       )}
 
