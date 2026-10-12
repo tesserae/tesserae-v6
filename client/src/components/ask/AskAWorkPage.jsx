@@ -508,10 +508,12 @@ export default function AskAWorkPage() {
 
   return (
     <div className="max-w-4xl mx-auto p-6">
-      <h1 className="text-2xl font-semibold text-gray-900">Search One Text</h1>
-      <span className="ml-2 align-middle rounded border border-amber-200 bg-amber-50 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-800">
-        Beta
-      </span>
+      <div className="flex items-center gap-2">
+        <h1 className="text-2xl font-semibold text-gray-900">Search One Text</h1>
+        <span className="rounded border border-amber-200 bg-amber-50 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-800">
+          Beta
+        </span>
+      </div>
       <p className="mt-1 text-sm text-gray-600">Pick a work and ask what it says about a subject.</p>
 
       <ScopeBox id="ask_a_work" className="mt-3" />
@@ -734,9 +736,9 @@ export default function AskAWorkPage() {
                       each bar also says on hover which passage it is. */}
                   <span className="ml-2" data-testid="ask-strip-legend">
                     {anyStrong
-                      ? 'Dark red: a strong match. Light red: the other passages.'
-                      : 'Red: the passages, darker the closer the match.'}
-                    {greyMarks.length ? ` Grey: passages that name ${joinNames(mentions.names)}.` : ''}
+                      ? `Dark red: a strong match, far above the work's typical score. Light red: the rest of the ${results.length} passages closest to your question.`
+                      : `Red: the ${results.length} passages closest to your question, darker the closer.`}
+                    {greyMarks.length ? ` Grey: passages that name ${joinNames(mentions.names)}, listed further down.` : ''}
                     {' '}Hover a bar for the passage.
                   </span>
                 </p>
