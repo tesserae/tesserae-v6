@@ -9,6 +9,8 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-11
 
+### Reader: select a sentence inside a prose chapter, and the scope toggle no longer clips
+In a prose work a chapter or section longer than 400 characters is now drawn as its sentences (the text is unchanged). A click or tap selects one sentence, a drag selects the sentences it touches, and the toolbar offers Word, Sentence, Section and Passage. Similar Passages sends the sentence's character offsets and the server picks the prose window holding it (`window_for_passage` takes `char_start` and `char_end`), Parallels and Documents search the sentence's own words, and Reuse and Translation stay on the section. The scope buttons no longer cut off their labels on a narrow pane: they keep their width and the toolbar wraps.
 ### Inscriptions and papyri page: filters with real choices, a kind switch, sharper examples, quieter chips
 Region, Text type, Material and Source on the Inscriptions & Papyri page (and the Documents option of Lines search) are drop-downs of the values the index holds, with counts, case variants merged and values under 20 documents left out. A new Kind control (Inscriptions, Papyri, Both) sends `kind` to `/api/line-search`, which keeps only that kind of document. The example searches are replaced with well-known, pungent texts (Latin and Greek), the example chips lose their amber fill, the page's duplicate "About this page" link is removed in favour of the scope box's Details, and Theme Search offers its own six examples in the History view.
 

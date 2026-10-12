@@ -244,6 +244,11 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
       ref_end: selection.refEnd || selection.refStart || '',
       limit: String(simLimit),
     });
+    // A sentence selected inside one long prose unit: the window that holds it.
+    if (selection.charStart != null && selection.charEnd != null) {
+      params.set('char_start', String(selection.charStart));
+      params.set('char_end', String(selection.charEnd));
+    }
     if (namesFlag) params.set('same_names', '1');
     // Per-language sections under the main list (2026-10-07).
     params.set('by_language', '1');
@@ -285,7 +290,11 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
   useEffect(() => {
     if (!selection || tab !== 'verbal') return;
     const picked = (units || []).slice(selection.startIdx, selection.endIdx + 1);
-    const query = picked.map((u) => u.text).filter(Boolean).join(' ').trim();
+    // A sentence selection searches the sentence's own words (and sends no
+    // refs, so the server tags them rather than reading the whole unit's lemmas).
+    const bySentence = selection.charStart != null && !!selection.sentenceText;
+    const query = bySentence ? selection.sentenceText
+      : picked.map((u) => u.text).filter(Boolean).join(' ').trim();
     if (!query) { setVerbal({ results: [] }); setVerbalQuery(''); return; }
     setVerbalQuery(query);
 
@@ -309,7 +318,7 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
         exclude_locus: bareLocus(selection.refStart),
         // The selected lines by reference, so the server can take their
         // lemmas from the index instead of re-tagging the words.
-        refs: picked.map((u) => u.ref),
+        refs: bySentence ? undefined : picked.map((u) => u.ref),
         // Hide matches whose shared words are all commonplaces (quid + variis
         // matching quid + varii is Latin, not an echo). Reader-only: the Line
         // Search page keeps deliberate common-word queries intact.
@@ -340,7 +349,9 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
   useEffect(() => {
     if (!selection || tab !== 'documents') return;
     const picked = (units || []).slice(selection.startIdx, selection.endIdx + 1);
-    const query = picked.map((u) => u.text).filter(Boolean).join(' ').trim();
+    const query = (selection.charStart != null && selection.sentenceText)
+      ? selection.sentenceText
+      : picked.map((u) => u.text).filter(Boolean).join(' ').trim();
     if (!query) { setDocHits({ results: [] }); return; }
     let cancelled = false;
     setDocLoading(true);

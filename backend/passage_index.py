@@ -2414,7 +2414,8 @@ def fine_windows_covering(work, ref_start, ref_end):
     return out
 
 
-def window_for_passage(work, ref_start=None, ref_end=None, prefer='fine'):
+def window_for_passage(work, ref_start=None, ref_end=None, prefer='fine',
+                       char_start=None, char_end=None):
     """Map a reader selection to the index window that best covers it.
 
     The Reader hands us a work and a reference span; the index is built on fixed
@@ -2427,6 +2428,12 @@ def window_for_passage(work, ref_start=None, ref_end=None, prefer='fine'):
     Book 10 under a Book 3 selection. It now compares every coordinate and,
     when the caller names a book file that has windows of its own, looks only
     at that book's windows.
+
+    2026-10-11: `char_start` (and `char_end`) name a sentence inside one long
+    prose unit, as offsets in that unit's text. Several prose pieces share the
+    unit's reference; the one whose char_start..char_end contains `char_start`
+    is chosen, and the first piece still wins when none does (a window without
+    offsets, or no offsets given).
     """
     _ensure_loaded()
     if not _state['ok']:
@@ -2465,10 +2472,15 @@ def window_for_passage(work, ref_start=None, ref_end=None, prefer='fine'):
         # a window starting after it (it only overlaps the selection's tail)
         # ranks below every window that brackets the start
         key = (0, tuple(-x for x in lo)) if lo <= wn else (1, lo)
+        if char_start is not None:
+            a, b = r.get('char_start'), r.get('char_end')
+            holds = a is not None and b is not None and a <= char_start < b
+            key = (0 if holds else 1,) + key
         if best_key is None or key < best_key:
             best, best_key = r.get('id'), key
     if best is None and prefer:
-        return window_for_passage(work, ref_start, ref_end, prefer=None)
+        return window_for_passage(work, ref_start, ref_end, prefer=None,
+                                  char_start=char_start, char_end=char_end)
     return best
 
 
@@ -2567,7 +2579,8 @@ def pair_lift(work_a, ref_a, work_b, ref_b, scale='fine'):
 
 def find_similar_to_passage(work, ref_start=None, ref_end=None, limit=15,
                             languages=None, scale='fine',
-                            suppress_other_versions=True, by_language=False):
+                            suppress_other_versions=True, by_language=False,
+                            char_start=None, char_end=None):
     """Similar Passages, given a reader selection (work + reference span).
 
     Two different empty answers, told apart (2026-10-11): the index is not
@@ -2581,7 +2594,8 @@ def find_similar_to_passage(work, ref_start=None, ref_end=None, limit=15,
         return {'error': 'the passage index is not loaded on the server right now'
                          + detail + '; try again in a moment',
                 'unavailable': True, 'results': []}
-    wid = window_for_passage(work, ref_start, ref_end, prefer=scale)
+    wid = window_for_passage(work, ref_start, ref_end, prefer=scale,
+                             char_start=char_start, char_end=char_end)
     if not wid:
         return {'error': 'no indexed window covers that passage', 'results': []}
     return find_similar_to_window(wid, limit=limit, languages=languages,
