@@ -9,6 +9,9 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-12
 
+### The running clock on a search shows whole seconds
+While a search runs, the clock under the spinner (Rare Words, Rare Pairs, the parallel search, the corpus search, Cross-Language) counted "21.0s", a decimal that never changed because the clock ticks once a second. It now reads "21s". The time shown when a search has finished keeps its decimal, since that one is measured.
+
 ### Inscriptions & Papyri: the whole-collection browser folds away once a search has answered
 The browser of every inscription and papyrus by kind, region, findspot and century sat under each result list, and a reader who had just searched took it for more results. Once a search has answered, it folds behind one line with a button to open it.
 

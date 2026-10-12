@@ -2,7 +2,7 @@ import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 import { Button, LoadingSpinner, Pagination, CiteButton, InfoBadge } from '../common';
 import { usePagination, useServerPagination, MAX_PAGE_SIZE } from '../../hooks/usePagination';
 import { fetchResultPage, fetchAllResults } from '../../utils/api';
-import { formatReference, formatElapsedTime } from '../../utils/formatting';
+import { formatReference, formatElapsedTime, formatRunningTime } from '../../utils/formatting';
 import { languageName } from '../../utils/languageNames';
 import {
   useCorpusTextMap,
@@ -1139,7 +1139,7 @@ const SearchResults = ({
               {pauseUpdates ? 'Resume' : 'Pause'}
             </button>
             <span className={`text-xs ${pauseUpdates ? 'text-amber-500' : 'text-blue-500'} tabular-nums flex-shrink-0`}>
-              {elapsedTime > 0 && formatElapsedTime(elapsedTime)}
+              {elapsedTime > 0 && formatRunningTime(elapsedTime)}
             </span>
           </div>
           {fusionBatchTotal > 0 && (
