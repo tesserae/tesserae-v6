@@ -7,7 +7,7 @@ export const MIGRATED_CALL_SITES = [
   ["App.jsx", "fetchLanguages().then(data => {"],
   ["App.jsx", "getJson('/api/auth/user')"],
   ["App.jsx", "getJson(`/api/check-meter?source=${encodeURIComponent(sourceText)}&target=${encodeURIComponent(targetText)}&language=${activeTab}`)"],
-  ["App.jsx", "const data = await postJsonTo('/api/corpus-search', {"],
+  ["hooks/useCorpusSearchPanel.js", "const data = await postJsonTo('/api/corpus-search', {"],
   ["components/ask/AskAWorkPage.jsx", "getJson(`/api/passages/lines?${p.toString()}`)"],
   ["components/ask/AskAWorkPage.jsx", "getJson(`/api/texts?language=${code}`).catch(() => []).then((texts) => {"],
   ["components/ask/AskAWorkPage.jsx", "return getJson(`/api/passages/mentions?${p.toString()}`);"],

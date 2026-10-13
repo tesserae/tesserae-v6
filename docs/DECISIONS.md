@@ -270,6 +270,14 @@ history (index builds, cache rebuilds, corpus changes) is in
   Hebrew point strip, the word splitter), and 60 inputs recorded from the three
   old functions (`client/src/utils/__fixtures__/highlight_cases.json`) must
   come out character for character the same.
+- One chart library for the public pages. The corpus panel's timeline, drawn
+  by hand in D3, is redrawn as a horizontal bar chart in Chart.js, the library
+  every other public chart uses. D3 stays only for the network graph and the
+  admin map, which are genuine uses of it.
+- The App's own pieces follow the same rule as the result list: the code is
+  moved, each piece is a hook or a component with its state, and the 94
+  recorded renderings must stay identical. Recharts is left for the admin
+  Analytics tab until that tab's four charts have a render test.
 - The corpus panel's timeline keeps its hand-drawn D3 form, in a component of
   its own. #899 redrew it as a Chart.js bar chart so that the public pages
   would use one chart library, but the bar chart lost the date axis and the
