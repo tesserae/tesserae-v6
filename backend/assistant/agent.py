@@ -27,6 +27,7 @@ import json
 import os
 import re
 from collections import Counter
+from dataclasses import dataclass, field
 
 from backend.assistant import actions, model, searches
 from backend import work_names
@@ -1629,109 +1630,158 @@ def answer_stream(question, on_step=None, history=None, offered_phrase=None):
                                              and ok_quotes and ok_pairs)}})
 
 
-def _prepare(question, step, history=None, offered_phrase=None):
-    """Run the searches and build the fact block. Shared by both answer paths.
+@dataclass
+class PrepState:
+    """What the steps of _prepare share: the request, the facts gathered so far,
+    and the flags one step leaves for the next."""
+    question: str
+    step: object
+    history: object = None
+    offered_phrase: object = None
+    ran: list = field(default_factory=list)
+    all_facts: list = field(default_factory=list)
+    decision: object = None
+    carried: object = None
+    seed_holdings: bool = False
+    translations_done: bool = False
+    holdings_code: object = None
+    compare_done: bool = False
+    read_done: bool = False
+    theme_done: bool = False
+    phrase: object = None
 
-    Everything up to composing prose: seeding, the fast paths, the chooser, and
-    reducing raw results to computed facts. Returns either
-    {block, facts, ran} or {error} / {needs_model_only}.
-    """
+
+
+def _availability(st):
+    """The model must be running; otherwise an error answer."""
     if not model.is_available():
         return {'error': 'the assistant is not running just now'}
     if not model.is_available():
         return {'error': 'the assistant is not running just now'}
+    return None
 
-    ran, all_facts = [], []
 
-    # ONE judgment for the whole request, made once and read at each branch
-    # below. None when model routing is off or the model could not answer, in
-    # which case every branch keeps the heuristic it has always used.
+# ONE judgment for the whole request, made once and read at each branch
+# below. None when model routing is off or the model could not answer, in
+# which case every branch keeps the heuristic it has always used.
+def _route(st):
+    """The one routing judgment from the model (None when routing is off or it could not answer)."""
+    question, history = st.question, st.history
     decision = _decide(question, history)
+    st.decision = decision
+    return None
 
-    # A question about the tool is answered by the guide, which has the facts
-    # about connectors and CSV export. Searching the corpus for it is nonsense.
-    #
-    # DELIBERATELY NOT the classifier's 'site' verdict, which was tried here and
-    # cost more than it bought. "How do I compare Hebrew with Greek?" is fairly
-    # called a question about the site, and the classifier calls it one, but the
-    # best answer to it is the COMPUTED hand-off further down: it names the two
-    # languages and links the control, in no time at all, without the model
-    # writing a word. Short-circuiting here skipped the facts that sentence is
-    # built from, so three probe questions went from 0.0s to 11-17s and were
-    # answered by generation instead. The classifier's 'site' verdict is still
-    # used, at the point where the old code asked the same question: after every
-    # fast path has declined and there is nothing computed to say.
+
+# A question about the tool is answered by the guide, which has the facts
+# about connectors and CSV export. Searching the corpus for it is nonsense.
+#
+# DELIBERATELY NOT the classifier's 'site' verdict, which was tried here and
+# cost more than it bought. "How do I compare Hebrew with Greek?" is fairly
+# called a question about the site, and the classifier calls it one, but the
+# best answer to it is the COMPUTED hand-off further down: it names the two
+# languages and links the control, in no time at all, without the model
+# writing a word. Short-circuiting here skipped the facts that sentence is
+# built from, so three probe questions went from 0.0s to 11-17s and were
+# answered by generation instead. The classifier's 'site' verdict is still
+# used, at the point where the old code asked the same question: after every
+# fast path has declined and there is nothing computed to say.
+def _guide_shortcut(st):
+    """A question about the tool goes to the guide, with no search."""
+    question = st.question
     if _is_about_the_tool(question):
         return {'needs_model_only': True}
+    return None
 
-    # "YES" MEANS THE THING THAT WAS OFFERED.
-    #
-    # She offers the inflected forms, the reader says "yes", and she re-ran the
-    # same exact search and printed the same six lines again. The affirmative
-    # carried no content of its own, so the carry-over logic just repeated the
-    # previous question. An offer that cannot be accepted is not an offer.
-    # AN OFFER AND ITS ACCEPTANCE ARE ONE PIECE OF STATE.
-    #
-    # This was three separate conditions -- is the reply affirmative, did the
-    # previous answer mention variants, can a phrase be recovered -- and any one
-    # of them failing silently made "yes" repeat the previous answer instead. It
-    # failed three times for three different reasons, each invisible.
-    #
-    # Now the offer carries what accepting it means. If it is pending and the
-    # reader says yes, it is taken. Nothing to re-derive, nothing to match on.
+
+# "YES" MEANS THE THING THAT WAS OFFERED.
+#
+# She offers the inflected forms, the reader says "yes", and she re-ran the
+# same exact search and printed the same six lines again. The affirmative
+# carried no content of its own, so the carry-over logic just repeated the
+# previous question. An offer that cannot be accepted is not an offer.
+# AN OFFER AND ITS ACCEPTANCE ARE ONE PIECE OF STATE.
+#
+# This was three separate conditions -- is the reply affirmative, did the
+# previous answer mention variants, can a phrase be recovered -- and any one
+# of them failing silently made "yes" repeat the previous answer instead. It
+# failed three times for three different reasons, each invisible.
+#
+# Now the offer carries what accepting it means. If it is pending and the
+# reader says yes, it is taken. Nothing to re-derive, nothing to match on.
+def _accept_pending_offer(st):
+    """A "yes" after an offer takes the offer: the inflected-forms answer."""
+    question, history, offered_phrase, step = st.question, st.history, st.offered_phrase, st.step
     pending = offered_phrase or _pending_offer_from(history)
     if pending and _is_affirmative(question):
         logger.info('[ASSISTANT] accepting the pending offer: variants of %r', pending)
         return _variant_answer(pending, history, step)
+    return None
 
-    # RESOLVE THE QUESTION AGAINST THE CONVERSATION FIRST.
-    #
-    # "are you sure it's not in Eobanus?" arrived with no idea what "it" was,
-    # because nothing carried the previous turn. So no phrase was found, no
-    # search ran, and the question fell through to the guide, which has no
-    # corpus access and could only recite tool names. The user had to be told
-    # to run the search himself, which is the failure this whole module exists
-    # to remove.
-    # The model is asked whether this carries a subject AND what the subject is,
-    # so a follow-up naming an author is no longer mistaken for a fresh
-    # question. That is the pre-existing failure the four red tests in
-    # test_assistant_conversation.py describe: _TEXT_NAME treats "What about
-    # Ovid?" as naming its own subject, and the docstring of _carried_phrase
-    # cites the very case its own rule breaks.
+
+# RESOLVE THE QUESTION AGAINST THE CONVERSATION FIRST.
+#
+# "are you sure it's not in Eobanus?" arrived with no idea what "it" was,
+# because nothing carried the previous turn. So no phrase was found, no
+# search ran, and the question fell through to the guide, which has no
+# corpus access and could only recite tool names. The user had to be told
+# to run the search himself, which is the failure this whole module exists
+# to remove.
+# The model is asked whether this carries a subject AND what the subject is,
+# so a follow-up naming an author is no longer mistaken for a fresh
+# question. That is the pre-existing failure the four red tests in
+# test_assistant_conversation.py describe: _TEXT_NAME treats "What about
+# Ovid?" as naming its own subject, and the docstring of _carried_phrase
+# cites the very case its own rule breaks.
+def _resolve_subject(st):
+    """The subject a follow-up carries over from the conversation, or None."""
+    question, history, decision = st.question, st.history, st.decision
     if decision is not None:
         carried = decision.subject if decision.carries else None
     else:
         carried = _carried_phrase(question, history)
+    st.carried = carried
+    return None
 
-    # SEED THE LOOP IN CODE, not by asking. Whichever languages the question
-    # names get listed before the model chooses anything.
-    #
-    # This is the structural fix for a failure that three rounds of prompt
-    # wording could not stop. Left to choose, the model either ran a meaningless
-    # cross-language word search and read its noise as evidence of absence, or,
-    # once told not to, refused to search at all and returned nothing. Neither
-    # is acceptable, and both came from it deciding what to look at.
-    #
-    # A question that names a language gets that language's holdings -- UNLESS
-    # it is a question about the site rather than about the corpus.
-    #
-    # "Does syntax matching work for Greek and English?" names two languages, so
-    # both were listed, the counts filled the answer, and it came back "the
-    # corpus contains 1288 Greek works and 162 English works, and syntax
-    # matching is supported for both languages". Confidently false: the Help
-    # page says Latin is fully covered, Greek is in progress and English has not
-    # been started. The holdings were true and had nothing to do with the
-    # question, and having them crowded out the page that did.
-    # Holdings are seeded unless the question is about the site. With model
-    # routing on, only a question the model calls 'holdings' or 'corpus' gets
-    # them, so a themed or reading question no longer drags in a census it has
-    # no use for.
+
+# SEED THE LOOP IN CODE, not by asking. Whichever languages the question
+# names get listed before the model chooses anything.
+#
+# This is the structural fix for a failure that three rounds of prompt
+# wording could not stop. Left to choose, the model either ran a meaningless
+# cross-language word search and read its noise as evidence of absence, or,
+# once told not to, refused to search at all and returned nothing. Neither
+# is acceptable, and both came from it deciding what to look at.
+#
+# A question that names a language gets that language's holdings -- UNLESS
+# it is a question about the site rather than about the corpus.
+#
+# "Does syntax matching work for Greek and English?" names two languages, so
+# both were listed, the counts filled the answer, and it came back "the
+# corpus contains 1288 Greek works and 162 English works, and syntax
+# matching is supported for both languages". Confidently false: the Help
+# page says Latin is fully covered, Greek is in progress and English has not
+# been started. The holdings were true and had nothing to do with the
+# question, and having them crowded out the page that did.
+# Holdings are seeded unless the question is about the site. With model
+# routing on, only a question the model calls 'holdings' or 'corpus' gets
+# them, so a themed or reading question no longer drags in a census it has
+# no use for.
+def _seed_holdings(st):
+    """Decide whether the holdings of the languages named are listed first."""
+    question, decision = st.question, st.decision
     if decision is not None:
         seed_holdings = decision.kind in ('holdings', 'corpus')
     else:
         seed_holdings = not _is_about_the_site(question)
-    # A question about the translations of ONE named work is answered from the
-    # site's record of aligned translations, not from a listing of names.
+    st.seed_holdings = seed_holdings
+    return None
+
+
+# A question about the translations of ONE named work is answered from the
+# site's record of aligned translations, not from a listing of names.
+def _translations_of_one_work(st):
+    """A question about the translations of one named work is answered from the record of aligned translations."""
+    question, step, ran, all_facts, seed_holdings = st.question, st.step, st.ran, st.all_facts, st.seed_holdings
     translations_done = False
     if _translation_question(question):
         try:
@@ -1745,9 +1795,16 @@ def _prepare(question, step, history=None, offered_phrase=None):
                 seed_holdings = False
         except Exception as e:                                 # noqa: BLE001
             logger.info('[ASSISTANT] translation lookup failed: %s', e)
-    # A holdings question about ONE language, with no author or work named, is
-    # answered from that language's listing (Persian and Urdu included, which the
-    # loop below has no entry for).
+    st.translations_done, st.seed_holdings = translations_done, seed_holdings
+    return None
+
+
+# A holdings question about ONE language, with no author or work named, is
+# answered from that language's listing (Persian and Urdu included, which the
+# loop below has no entry for).
+def _one_language_holdings(st):
+    """A holdings question about one language, with no author or work named, is answered from that language listing."""
+    question, step, ran, all_facts, seed_holdings = st.question, st.step, st.ran, st.all_facts, st.seed_holdings
     holdings_code = None
     if seed_holdings:
         holdings_code = actions.holdings_language(question)
@@ -1763,6 +1820,13 @@ def _prepare(question, step, history=None, offered_phrase=None):
         except searches.SearchError as e:
             logger.info('[ASSISTANT] language listing %s failed: %s', holdings_code, e)
             holdings_code = None
+    st.holdings_code = holdings_code
+    return None
+
+
+def _seed_language_listings(st):
+    """List the corpus holdings of each language the question names."""
+    question, step, ran, all_facts, seed_holdings, holdings_code = st.question, st.step, st.ran, st.all_facts, st.seed_holdings, st.holdings_code
     for code, words in (('he', ('hebrew',)), ('grc', ('greek',)),
                         ('la', ('latin',)), ('cop', ('coptic',)),
                         ('en', ('english',))):
@@ -1775,21 +1839,25 @@ def _prepare(question, step, history=None, offered_phrase=None):
                 ran.append(f'list_texts({code})')
             except searches.SearchError as e:
                 logger.info('[ASSISTANT] seed listing %s failed: %s', code, e)
+    return None
 
+
+# TWO LANGUAGES NAMED is a different search on a different tab.
+#
+# These questions name languages, so the seeding above has already listed
+# both corpora, and the answer came back "the corpus contains 39 Hebrew
+# works and 1,288 Greek works" -- a inventory, when the question was how to
+# compare them. The count is true and it is not the answer.
+#
+# Written in code rather than sent to the model, because what is true here
+# is three flat facts and the model was getting them wrong in the direction
+# that costs a reader time: the Help page says Coptic can be searched
+# against Greek, the search agrees, and the tab has no control for it.
+def _two_languages_named(st):
+    """Two languages named with compare intent: the computed cross-language pair fact."""
+    question, ran, all_facts = st.question, st.ran, st.all_facts
     compare_done = False
     read_done = False
-
-    # TWO LANGUAGES NAMED is a different search on a different tab.
-    #
-    # These questions name languages, so the seeding above has already listed
-    # both corpora, and the answer came back "the corpus contains 39 Hebrew
-    # works and 1,288 Greek works" -- a inventory, when the question was how to
-    # compare them. The count is true and it is not the answer.
-    #
-    # Written in code rather than sent to the model, because what is true here
-    # is three flat facts and the model was getting them wrong in the direction
-    # that costs a reader time: the Help page says Coptic can be searched
-    # against Greek, the search agrees, and the tab has no control for it.
     _langs = actions.languages_named(question)
     if len(_langs) >= 2 and any(t in question.lower() for t in actions._COMPARE_INTENT):
         pair = actions.cross_pair(_langs[0], _langs[1])
@@ -1807,29 +1875,17 @@ def _prepare(question, step, history=None, offered_phrase=None):
         })
         ran.append('checked the language pair')
         compare_done = True
+    st.compare_done, st.read_done = compare_done, read_done
+    return None
 
-    # A COMPARISON IS OFFERED, NOT RUN HERE.
-    #
-    # "compare Statius Thebaid 12 with Vergil Aeneid 1" wants the fusion search:
-    # every channel, scored, over the two texts. That is what the main search
-    # page does, and Tessa's job is to set it up rather than to substitute
-    # something cheaper for it.
-    #
-    # My first attempt ran rare_words instead, because it was the only
-    # comparison tool she had, and reported its output as though it answered the
-    # question. It does not: it is one lexical pass, and rare-lemma overlap is
-    # the wrong basis for comparing two poems. A single-channel word overlap is
-    # not a comparison of two poems.
-    #
-    # So the texts are resolved, the census confirms the corpus holds them, and
-    # the fusion search is handed over as a control. Nothing heavy runs here,
-    # which also means the answer arrives immediately.
-    # The classifier's verdict counts as compare intent too, so a phrasing the
-    # list has never seen still reaches the right search.
-    # A THEME COMPARISON: two named texts and a question about what they share
-    # in content ("what does theme search show about these two books"). Runs
-    # the pairwise Theme Comparison and hands its pairs to answer_stream to
-    # read; the ordinary two-text comparison below is about wording.
+
+# A THEME COMPARISON: two named texts and a question about what they share
+# in content ("what does theme search show about these two books"). Runs
+# the pairwise Theme Comparison and hands its pairs to answer_stream to
+# read; the ordinary two-text comparison below is about wording.
+def _theme_pair_comparison(st):
+    """Two named texts and a question about what they share in content: run the Theme Comparison."""
+    question, history, step, ran, all_facts, compare_done = st.question, st.history, st.step, st.ran, st.all_facts, st.compare_done
     if _theme_pair_intent(question) and not compare_done:
         try:
             from backend.assistant import corpus_lookup
@@ -1864,7 +1920,30 @@ def _prepare(question, step, history=None, offered_phrase=None):
                 ran.append('theme_compare')
                 return {'theme_compare': out, 'theme_pair': (tpair[0], tpair[1]),
                         'facts': all_facts, 'ran': ran, 'block': ''}
+    return None
 
+
+# A COMPARISON IS OFFERED, NOT RUN HERE.
+#
+# "compare Statius Thebaid 12 with Vergil Aeneid 1" wants the fusion search:
+# every channel, scored, over the two texts. That is what the main search
+# page does, and Tessa's job is to set it up rather than to substitute
+# something cheaper for it.
+#
+# My first attempt ran rare_words instead, because it was the only
+# comparison tool she had, and reported its output as though it answered the
+# question. It does not: it is one lexical pass, and rare-lemma overlap is
+# the wrong basis for comparing two poems. A single-channel word overlap is
+# not a comparison of two poems.
+#
+# So the texts are resolved, the census confirms the corpus holds them, and
+# the fusion search is handed over as a control. Nothing heavy runs here,
+# which also means the answer arrives immediately.
+# The classifier's verdict counts as compare intent too, so a phrasing the
+# list has never seen still reaches the right search.
+def _offer_comparison(st):
+    """Two named texts to compare: the hand-off fact, and the first page of the full comparison when it can be run."""
+    question, history, step, ran, all_facts, decision, compare_done = st.question, st.history, st.step, st.ran, st.all_facts, st.decision, st.compare_done
     _status_pair = _earlier_pair(history) if (history and _status_question(question)) else None
     _compare_intent = (any(t in question.lower() for t in actions._COMPARE_INTENT)
                        or _decided(decision, 'kind', None) == 'compare'
@@ -1970,15 +2049,21 @@ def _prepare(question, step, history=None, offered_phrase=None):
                 elif results:
                     return {'fusion_results': results, 'fusion_pair': (pair[0], pair[1]),
                             'facts': all_facts, 'ran': ran, 'block': ''}
+    st.compare_done = compare_done
+    return None
 
-    # A TEXT THE READER WANTS TO OPEN goes to the Reader.
-    #
-    # "How do I read the Aeneid?" reached the chooser, which picked list_texts
-    # and answered "the corpus contains eight works titled or associated with
-    # the Aeneid" -- a catalogue entry in place of the thing asked for. The
-    # Reader is the answer to "how do I read X", and it takes a work id.
-    # A bare "book 6" after a hand-off means book 6 OF THAT TEXT. It carries no
-    # verb, so the read intent below never fires for it.
+
+# A TEXT THE READER WANTS TO OPEN goes to the Reader.
+#
+# "How do I read the Aeneid?" reached the chooser, which picked list_texts
+# and answered "the corpus contains eight works titled or associated with
+# the Aeneid" -- a catalogue entry in place of the thing asked for. The
+# Reader is the answer to "how do I read X", and it takes a work id.
+# A bare "book 6" after a hand-off means book 6 OF THAT TEXT. It carries no
+# verb, so the read intent below never fires for it.
+def _open_text_in_reader(st):
+    """A text the reader wants to open goes to the Reader."""
+    question, history, ran, all_facts, compare_done, read_done = st.question, st.history, st.ran, st.all_facts, st.compare_done, st.read_done
     followup = None if compare_done else _followup_text(question, history)
 
     if followup:
@@ -2007,17 +2092,23 @@ def _prepare(question, step, history=None, offered_phrase=None):
         })
         ran.append('resolved the text')
         read_done = True
+    st.read_done = read_done
+    return None
 
-    # A THEMATIC question goes to the passage index, not to a word search.
-    #
-    # This is why "are there any passages about a storm at sea?" answered badly:
-    # the only search available was line_search, which looks for WORDS, so the
-    # model translated the subject into Greek, searched for "θάλασσα καταιγίς",
-    # and timed out. The corpus holds the scene in Curtius, Lucan and a dozen
-    # others; none of them shares those words.
-    #
-    # Decided from the reader's own words rather than by the chooser, for the
-    # same reason the rest of this module computes rather than asks.
+
+# A THEMATIC question goes to the passage index, not to a word search.
+#
+# This is why "are there any passages about a storm at sea?" answered badly:
+# the only search available was line_search, which looks for WORDS, so the
+# model translated the subject into Greek, searched for "θάλασσα καταιγίς",
+# and timed out. The corpus holds the scene in Curtius, Lucan and a dozen
+# others; none of them shares those words.
+#
+# Decided from the reader's own words rather than by the chooser, for the
+# same reason the rest of this module computes rather than asks.
+def _theme_search(st):
+    """A thematic question goes to the passage index."""
+    question, step, ran, all_facts, decision = st.question, st.step, st.ran, st.all_facts, st.decision
     theme_done = False
     # The model decides WHETHER this is a themed question; the extractor still
     # trims it to the scene itself. Keeping both matters: the extractor returns
@@ -2043,8 +2134,14 @@ def _prepare(question, step, history=None, offered_phrase=None):
             theme_done = True
         except searches.SearchError as e:
             logger.info('[ASSISTANT] theme search failed: %s', e)
+    st.theme_done = theme_done
+    return None
 
-    # A quoted phrase needs no deliberation: run the exact search for it.
+
+# A quoted phrase needs no deliberation: run the exact search for it.
+def _phrase_search(st):
+    """A quoted or carried phrase: the exact search, the variant pass and the lines for a named author."""
+    question, step, ran, all_facts, decision, carried, theme_done, compare_done, read_done = st.question, st.step, st.ran, st.all_facts, st.decision, st.carried, st.theme_done, st.compare_done, st.read_done
     phrase = _quoted_phrase(question) or carried
     if phrase and not theme_done and not compare_done and not read_done:
         lang = next((c for c, w in (('he', 'hebrew'), ('grc', 'greek'),
@@ -2180,8 +2277,14 @@ def _prepare(question, step, history=None, offered_phrase=None):
                              'phrase is absent from this author.')})
         except searches.SearchError as e:
             logger.info('[ASSISTANT] phrase search failed: %s', e)
+    st.phrase = phrase
+    return None
 
-    # If the seed answered a holdings question, go straight to composing.
+
+# If the seed answered a holdings question, go straight to composing.
+def _choose_and_run_searches(st):
+    """Let the model choose further searches, unless a fast path already answered."""
+    question, step, ran, all_facts, phrase, theme_done, compare_done, translations_done, read_done = st.question, st.step, st.ran, st.all_facts, st.phrase, st.theme_done, st.compare_done, st.translations_done, st.read_done
     skip_chooser = bool(all_facts) and (phrase or theme_done or compare_done or translations_done
                                         or read_done or any(
         h in question.lower() for h in _HOLDINGS_QUESTION))
@@ -2221,7 +2324,12 @@ def _prepare(question, step, history=None, offered_phrase=None):
         facts.update({'search': name, 'args': args})
         all_facts.append(facts)
         ran.append(name)
+    return None
 
+
+def _site_question_to_guide(st):
+    """Nothing ran and the question is about the site: the guide answers."""
+    question, all_facts, decision = st.question, st.all_facts, st.decision
     if not all_facts and (_is_about_the_site(question)
                           if decision is None else decision.kind == 'site'):
         # A QUESTION ABOUT THE SITE, not about the corpus. Reaching here means
@@ -2235,7 +2343,12 @@ def _prepare(question, step, history=None, offered_phrase=None):
         # documentation" -- confidently, and wrongly, about a tab on the site.
         # The guide sees the Help page; this path is how it gets the chance to.
         return {'needs_model_only': True}
+    return None
 
+
+def _default_listing(st):
+    """Nothing ran and the question is not about the site: list what the corpus holds."""
+    step, ran, all_facts = st.step, st.ran, st.all_facts
     if not all_facts:
         # Falling back to the guide here is what produced "use string_search
         # with the exact phrase". The guide cannot see the corpus, so it can
@@ -2249,10 +2362,15 @@ def _prepare(question, step, history=None, offered_phrase=None):
             ran.append('list_texts(la)')
         except searches.SearchError:
             return {'needs_model_only': True}
+    return None
 
-    # The census goes in FIRST, before the search results. Without it the model
-    # reads "my search found no Greek" as "there is no Greek", and no wording of
-    # the rules prevented that.
+
+# The census goes in FIRST, before the search results. Without it the model
+# reads "my search found no Greek" as "there is no Greek", and no wording of
+# the rules prevented that.
+def _reduce_to_facts(st):
+    """Reduce the raw results to the fact block and return it."""
+    question, ran, all_facts = st.question, st.ran, st.all_facts
     try:
         census = searches.corpus_census()
     except Exception:
@@ -2303,6 +2421,40 @@ def _prepare(question, step, history=None, offered_phrase=None):
               'If a line you want is not here, say it is not shown rather than '
               'reconstructing it.\n' + body)
     return {'block': block, 'facts': all_facts, 'ran': ran}
+
+
+def _prepare(question, step, history=None, offered_phrase=None):
+    """Run the searches and build the fact block. Shared by both answer paths.
+
+    Everything up to composing prose: seeding, the fast paths, the chooser, and
+    reducing raw results to computed facts. Returns either
+    {block, facts, ran} or {error} / {needs_model_only}.
+    """
+    st = PrepState(question, step, history, offered_phrase)
+    for run_step in (
+            _availability,
+            _route,
+            _guide_shortcut,
+            _accept_pending_offer,
+            _resolve_subject,
+            _seed_holdings,
+            _translations_of_one_work,
+            _one_language_holdings,
+            _seed_language_listings,
+            _two_languages_named,
+            _theme_pair_comparison,
+            _offer_comparison,
+            _open_text_in_reader,
+            _theme_search,
+            _phrase_search,
+            _choose_and_run_searches,
+            _site_question_to_guide,
+            _default_listing,
+            _reduce_to_facts,
+    ):
+        out = run_step(st)
+        if out is not None:
+            return out
 
 
 def answer(question, on_step=None, history=None, offered_phrase=None):

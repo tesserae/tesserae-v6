@@ -206,6 +206,32 @@ history (index builds, cache rebuilds, corpus changes) is in
   syntax tree, and the tests fail only where main's do. The two loops over
   the channels stay whole blocks with no new call inside them. The
   replay of the largest fusion calls takes within 3 percent of main's time.
+- Eighth structural job under the rule: the assistant's `_prepare()` in
+  `backend/assistant/agent.py`, which runs the searches and builds the fact
+  block for Tessa, became a short body that calls named steps (see the
+  CHANGELOG entry of 2026-10-13). The model enters it through the routing
+  judgment and the chooser, and every search goes through one transport
+  function, so the recorder holds those two still with answers captured
+  once from the real gateway and the real site (143 model answers, 31 distinct
+  search responses, the two comparison routes answered by a fixed rule). It
+  runs 211 questions with model routing on and off, 422 runs: 126 from the
+  assistant test files, 40 from the graded question set, and 45 of our own
+  with a short conversation where the path needs one, covering a guide
+  question, a "yes" after an offer, follow-ups with a pronoun, holdings for
+  one language, two languages named, comparison requests, translations of
+  one work, themed, reading and nonsense questions. Three runs on main agree
+  with each other once the recorder fixes the string-hash seed, because a
+  set of work names is sorted by length and ties came out in hash order. The
+  branch gives the same returned dictionary, progress messages and ordered
+  outside calls in all 422 runs, and a deliberately altered label in three
+  places made 20 runs differ. Every comment moved with its code, and a
+  line-by-line comparison finds no removed line that is not present again,
+  apart from the dedenting of comments and the one initialization that
+  became a field default. The 19 assistant test files give 199 passed and 1
+  skipped on both, the body of each of the other 48 functions and classes
+  in the module is identical by syntax tree, and the full suite fails only
+  where main does. The 422 runs take 20.6 seconds on the branch against 20.7
+  on main (median of four).
 
 
 ## 2026-10-12: the band inside one work is refitted on eleven works, and its lowest level is a caution, not a verdict
