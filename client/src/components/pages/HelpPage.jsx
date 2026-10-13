@@ -1734,7 +1734,10 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 and says so when it cites one. Those articles are listed beside the paragraph
                 as Articles found online, each service's answer as it arrives, and a link goes to a free copy where one exists,
                 otherwise to the DOI. Each bracketed number in the paragraph links to its note
-                or article. A line in small type says what was found. Where nothing is found, as
+                or article. Greek and Hebrew words in the written paragraphs are kept in their own
+                letters, with a transliteration in parentheses made by a fixed table of letters,
+                and the link under the Scholarship box hides the transliterations or brings them back.
+                A line in small type says what was found. Where nothing is found, as
                 for Sappho, the paragraph is left out and the line says so. The assistant may cite
                 only the sources it was given.
               </p>

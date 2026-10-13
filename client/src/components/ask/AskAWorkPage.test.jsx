@@ -445,6 +445,22 @@ describe('what the work says', () => {
 });
 
 describe('what the secondary literature says', () => {
+  it('keeps Greek in its own letters, adds a transliteration and a toggle', async () => {
+    scholarshipReply = {
+      available: true,
+      holdings: 'The secondary sources I can read include 1 note from How and Wells.',
+      summary: 'How and Wells take τὸ εὖ ζῆν (the good life) to join two ideas [1].',
+      cites: [{ n: 1, kind: 'commentary', label: 'How and Wells', link: { kind: 'reader', url: '/read?x' } }],
+    };
+    render(<AskAWorkPage />);
+    await ask();
+    const block = await screen.findByTestId('ask-scholarship');
+    expect(block).toHaveTextContent('τὸ εὖ ζῆν (to eu zēn) (the good life)');
+    fireEvent.click(screen.getByTestId('transliteration-toggle'));
+    expect(block).not.toHaveTextContent('to eu zēn');
+    window.localStorage.clear();
+  });
+
   it('renders the paragraph with note links in new tabs and the holdings line', async () => {
     scholarshipReply = {
       available: true,

@@ -9,6 +9,9 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-12
 
+### Greek and Hebrew words in the written paragraphs keep their own letters
+The Scholarship paragraph on Search One Text showed "*euzen*" where the note by How and Wells has the Greek words for the good life, because the model had transliterated the Greek and put asterisks round it. The model is now told to quote Greek, Latin and Hebrew words in their own letters, and its answer is checked: asterisks and any word that is the transliteration of a Greek or Hebrew word in the notes make the server ask once more, naming the fault, and the answer carries a `script_problems` list that is empty when clean. The page then shows each Greek or Hebrew word in its own letters followed by a transliteration in parentheses, made by a fixed table of letters in the code (`backend/transliterate.py` and `client/src/utils/transliterate.js`, tested against one shared list of 52 cases), never by the model. A link under the Scholarship box hides the transliterations or shows them again, and the choice is kept in the browser. Theme Search's Scholarship list shows its notes the same way. Beta code is available as a function for export controls and is not shown on any page.
+
 ### Search One Text: the passages first, the written boxes beside them
 The summary of the work, the Scholarship paragraph and the article list sat above the passages and pushed them down the page. The passages, their strip and the named-passage list now come first, and the three boxes stand in a column to their right on a wide screen, under them on a phone. The article list is called "Articles found online" rather than "Recent articles", since the services list work of any year (a 1955 article appeared under the old heading), and the line under the Scholarship paragraph says "articles online" rather than "recent articles". Theme Search's Scholarship list uses the same heading.
 
