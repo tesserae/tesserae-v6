@@ -136,17 +136,24 @@ describe('App flows: results, Search Corpus, Save Parallel', () => {
     expect(alertSpy).not.toHaveBeenCalled();
   });
 
-  it('records what happens today when a fusion row (channels is an array) is saved', async () => {
+  it('saves a fusion row (channels is a list of names) with the channels as tags', async () => {
+    // Until 2026-10-13 this failed with ".split is not a function": the dialog
+    // handled only the one-string form a cross-language card sends.
     const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
+    const before = posted.length;
     render(<App />);
     const buttons = await screen.findAllByRole('button', { name: 'Register' }, { timeout: 15000 });
     await userEvent.click(buttons[0]);
     await screen.findByText('Rate this parallel:', {}, { timeout: 15000 });
     await userEvent.click(screen.getAllByRole('button', { name: '★' })[2]);
     await userEvent.click(screen.getAllByText('Save Parallel').find((el) => el.tagName === 'BUTTON'));
+    await waitFor(() => expect(posted.length).toBe(before + 1));
     await settle();
-    expect(alertSpy.mock.calls).toMatchSnapshot();
-    expect(posted.length).toBe(0);
+    expect(alertSpy).not.toHaveBeenCalled();
+    const body = posted[posted.length - 1];
+    const names = ['lemma', 'exact', 'lemma_min1', 'rare_word', 'semantic', 'sound', 'edit_distance'];
+    expect(body.tags.filter((t) => names.includes(t)).length).toBeGreaterThan(0);
+    expect(body.tags).toMatchSnapshot('fusion row tags');
   });
 
   it('Cancel closes the dialog and clears it', async () => {

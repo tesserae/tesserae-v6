@@ -57,8 +57,13 @@ export const useRegisterParallel = ({ user, activeTab, setPageType }) => {
       // "semantic (85%), dictionary (3 words)"), carried into the existing
       // free-text tags field so a registered cross-language parallel keeps
       // that evidence on record (spec: owner's review, 2026-10-08).
-      const channelTags = (registerPending.channels || '')
-        .split(',').map(s => s.trim()).filter(Boolean);
+      // A fusion-search row carries its channels as a list of names
+      // (['lemma', 'semantic']); a cross-language card as one string. Saving a
+      // fusion row failed with ".split is not a function" until 2026-10-13,
+      // found by the render recording made for the App.jsx split (#901).
+      const rawChannels = registerPending.channels || '';
+      const channelTags = (Array.isArray(rawChannels) ? rawChannels.map(String) : String(rawChannels).split(','))
+        .map(s => s.trim()).filter(Boolean);
 
       const res = await fetch('/api/intertexts/my', {
         method: 'POST',

@@ -8,6 +8,7 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-13
+- Save Parallel works again for a row from an Intertextual Search: the dialog read the row's channels as one string, as a cross-language card sends them, while a search row sends a list of names, so every such save failed with ".split is not a function". The channel names are now saved as tags either way. Found by the render recording made for the front-end split.
 - The Navigation view test expects the History menu order #881 set (Search One Text, then Read, then Events); it had failed on main since that change.
 
 ### App.jsx is split: the Save Parallel dialog, the routing, the Search Corpus panel, the admin-session check and the default texts are their own files
