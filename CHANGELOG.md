@@ -7,6 +7,11 @@ so the state of the live site can be reconstructed from this file and
 docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
+## 2026-10-13
+
+### Line Search is now a sequence of named steps, and its answers are unchanged
+`line_search()` in `backend/blueprints/line_search.py` was one function of 944 lines that read thirty request parameters, found the matching lines and built the answer in one pass. It is now 55 lines that call named steps (read the parameters, answer from the documents alone, build the stoplist, find the query's lemmas, the Hebrew unpointed fallbacks, drop stopwords, reduce a passage-sized query, the joined-or-apart Latin words, the one-word count, the index path, the corpus scan, sort, remove duplicates, rare focus, the answer's fields, add the documents). The code of each step is the code that was in the function, moved without change, with its comments. Reading the parameters lives in `backend/line_search_params.py`. Nothing a visitor sees changes. A recording of 258 Line Search requests (every search type and language, passage-sized queries, joined words, Hebrew without points, the Reader's path, one-word and pair counts, every document filter and sort, both collections, the error cases, GET as well as POST) gives the same answers from the new code, as does the standard recording of 68 requests. The 56 Line Search tests and the reference searches pass, and ten representative requests are no slower. The 258 requests are in `scripts/review/line_search_requests.json`.
+
 ## 2026-10-12
 
 ### Cite links and exports on every piece of scholarship
