@@ -1006,10 +1006,15 @@ def approve_and_add_text(request_id):
         try:
             from sentence_transformers import SentenceTransformer
             from backend.precompute_embeddings import compute_embeddings_for_text
-            model_name = 'all-MiniLM-L6-v2' if language == 'en' else 'bowphs/SPhilBerta'
-            model = SentenceTransformer(model_name)
+            from backend import semantic_similarity
+            model = SentenceTransformer(semantic_similarity.model_name_for(language))
             success, n_lines = compute_embeddings_for_text(filepath, language, model, force=True)
             embeddings_computed = success
+            if language == 'en':
+                # English also gets its cross-language set (SPhilBERTa).
+                cross_model = SentenceTransformer(semantic_similarity.cross_model_name_for('en'))
+                ok_cross, _ = compute_embeddings_for_text(filepath, 'en', cross_model, force=True, space='cross')
+                embeddings_computed = success and ok_cross
         except Exception as e:
             print(f"Warning: Could not compute embeddings for {filename}: {e}")
         
@@ -2002,25 +2007,31 @@ def compute_embeddings():
     language = data.get('language')
     force = data.get('force', False)
     text_path = data.get('text_path')
+    # 'mono' builds a language's own set; 'cross' builds the English set used by
+    # the cross-language search (backend/embeddings/en_cross, SPhilBERTa).
+    space = data.get('space', 'mono')
+    if space not in ('mono', 'cross'):
+        return jsonify({'error': "space must be 'mono' or 'cross'"}), 400
     
     try:
         if text_path:
             from backend.precompute_embeddings import compute_embeddings_for_text, parse_tess_file
             from sentence_transformers import SentenceTransformer
             from backend.embedding_storage import has_embeddings
-            
-            if not force and has_embeddings(text_path, language or 'la'):
+            from backend import semantic_similarity
+            if not force and has_embeddings(text_path, language or 'la', space):
                 return jsonify({
                     'success': True,
                     'message': 'Embeddings already exist',
                     'skipped': True
                 })
             
-            model_name = 'all-MiniLM-L6-v2' if language == 'en' else 'bowphs/SPhilBerta'
+            model_name = (semantic_similarity.cross_model_name_for(language or 'la') if space == 'cross'
+                          else semantic_similarity.model_name_for(language or 'la'))
             model = SentenceTransformer(model_name)
             
             success, n_lines = compute_embeddings_for_text(
-                text_path, language or 'la', model, force
+                text_path, language or 'la', model, force, space
             )
             
             return jsonify({
@@ -2031,7 +2042,7 @@ def compute_embeddings():
         else:
             from backend.precompute_embeddings import precompute_all
             
-            stats = precompute_all(language=language, force=force)
+            stats = precompute_all(language=language, force=force, space=space)
             
             return jsonify({
                 'success': True,

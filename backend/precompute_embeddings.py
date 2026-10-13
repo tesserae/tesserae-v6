@@ -69,7 +69,8 @@ def parse_tess_file(file_path: str) -> List[Dict]:
     return units
 
 def compute_embeddings_for_text(text_path: str, language: str, 
-                                 model, force: bool = False) -> Tuple[bool, int]:
+                                 model, force: bool = False,
+                                 space: str = 'mono') -> Tuple[bool, int]:
     """
     Compute and save embeddings for a single text.
     
@@ -78,7 +79,7 @@ def compute_embeddings_for_text(text_path: str, language: str,
     """
     from backend.embedding_storage import has_embeddings, save_embeddings
     
-    if not force and has_embeddings(text_path, language):
+    if not force and has_embeddings(text_path, language, space):
         return True, 0
     
     units = parse_tess_file(text_path)
@@ -91,14 +92,14 @@ def compute_embeddings_for_text(text_path: str, language: str,
     
     try:
         embeddings = model.encode(texts, show_progress_bar=False, batch_size=32)
-        success = save_embeddings(text_path, language, embeddings, refs)
+        success = save_embeddings(text_path, language, embeddings, refs, space=space)
         return success, len(texts)
     except Exception as e:
         logger.error(f"  Error computing embeddings: {e}")
         return False, 0
 
 def precompute_all(language: str = None, force: bool = False, 
-                   progress_callback=None) -> Dict:
+                   progress_callback=None, space: str = 'mono') -> Dict:
     """
     Pre-compute embeddings for all corpus texts.
     
@@ -112,6 +113,7 @@ def precompute_all(language: str = None, force: bool = False,
     """
     from sentence_transformers import SentenceTransformer
     from backend.embedding_storage import get_embedding_stats
+    from backend import semantic_similarity
     
     texts = get_all_corpus_texts()
     
@@ -137,10 +139,15 @@ def precompute_all(language: str = None, force: bool = False,
         if not lang_texts:
             continue
         
-        # Use SPhilBERTa for all languages (including English) to enable
-        # cross-lingual search. SPhilBERTa's XLM-RoBERTa base handles English
-        # well (tested: cosine 0.75+ for English-Latin translation pairs).
-        model_name = 'bowphs/SPhilBerta'
+        # The model comes from the same functions the search reads, so a rebuild
+        # cannot choose a different model from the search. English has two sets:
+        # 'mono' (MiniLM, English-English search) and 'cross' (SPhilBERTa, the
+        # space shared with Latin and Greek). For Latin and Greek the two spaces
+        # are one set, so only English is built in the cross space.
+        if space == 'cross' and lang != 'en':
+            continue
+        model_name = (semantic_similarity.cross_model_name_for(lang) if space == 'cross'
+                      else semantic_similarity.model_name_for(lang))
         
         if model_name not in models:
             print(f"\nLoading model {model_name}...")
@@ -158,7 +165,7 @@ def precompute_all(language: str = None, force: bool = False,
                 progress_callback(i + 1, len(lang_texts), filename)
             
             success, n_lines = compute_embeddings_for_text(
-                text['path'], text['language'], model, force
+                text['path'], text['language'], model, force, space
             )
             
             if n_lines > 0:
@@ -185,6 +192,8 @@ def main():
                         help='Process only specified language')
     parser.add_argument('--force', '-f', action='store_true',
                         help='Re-compute even if embeddings exist')
+    parser.add_argument('--space', choices=['mono', 'cross'], default='mono',
+                        help="'cross' builds the English set used by cross-language search")
     
     args = parser.parse_args()
     
@@ -192,7 +201,7 @@ def main():
     print("TESSERAE V6 - Pre-compute Embeddings")
     print("=" * 60)
     
-    stats = precompute_all(language=args.language, force=args.force)
+    stats = precompute_all(language=args.language, force=args.force, space=args.space)
     
     print("\n" + "=" * 60)
     print("COMPLETE")

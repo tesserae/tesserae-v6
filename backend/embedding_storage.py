@@ -27,18 +27,48 @@ MANIFEST_FILE = os.path.join(EMBEDDINGS_DIR, 'manifest.json')
 
 _manifest_cache = None
 
-def get_embedding_path(text_path: str, language: str) -> str:
+# Two embedding spaces (2026-10-13). 'mono' is the space a language's own search
+# uses (English: MiniLM, 384 dimensions). 'cross' is the space the cross-language
+# search compares in (SPhilBERTa, 768 dimensions, the Latin and Greek space). Only
+# English has two sets, in backend/embeddings/en (mono) and .../en_cross (cross).
+# Every other language has one set, which serves both spaces.
+SPACES = ('mono', 'cross')
+CROSS_SUFFIX = '_cross'
+
+
+def _check_space(space: str) -> None:
+    if space not in SPACES:
+        raise ValueError(f"space must be one of {SPACES}, not {space!r}")
+
+
+def embedding_dir(language: str, space: str = 'mono') -> str:
+    """The folder holding a language's embeddings in the given space."""
+    _check_space(space)
+    name = language + CROSS_SUFFIX if (space == 'cross' and language == 'en') else language
+    return os.path.join(EMBEDDINGS_DIR, name)
+
+
+def get_embedding_path(text_path: str, language: str, space: str = 'mono') -> str:
     """Get the storage path for a text's embeddings."""
     basename = os.path.splitext(os.path.basename(text_path))[0]
-    lang_dir = os.path.join(EMBEDDINGS_DIR, language)
+    lang_dir = embedding_dir(language, space)
     os.makedirs(lang_dir, exist_ok=True)
     return os.path.join(lang_dir, f"{basename}.npy")
 
-def get_metadata_path(text_path: str, language: str) -> str:
+def get_metadata_path(text_path: str, language: str, space: str = 'mono') -> str:
     """Get the metadata path for a text's embeddings."""
     basename = os.path.splitext(os.path.basename(text_path))[0]
-    lang_dir = os.path.join(EMBEDDINGS_DIR, language)
+    lang_dir = embedding_dir(language, space)
     return os.path.join(lang_dir, f"{basename}.meta.json")
+
+
+def cross_embeddings_available(language: str = 'en') -> bool:
+    """True when the cross space for this language holds at least one .npy file."""
+    d = embedding_dir(language, 'cross')
+    try:
+        return any(n.endswith('.npy') for n in os.listdir(d))
+    except OSError:
+        return False
 
 def load_manifest() -> Dict:
     """Load the embeddings manifest."""
@@ -85,7 +115,7 @@ def invalidate_manifest_cache():
     _manifest_cache = None
 
 def save_embeddings(text_path: str, language: str, embeddings: np.ndarray, 
-                    line_refs: List[str] = None) -> bool:
+                    line_refs: List[str] = None, space: str = 'mono') -> bool:
     """
     Save pre-computed embeddings for a text.
     
@@ -99,8 +129,8 @@ def save_embeddings(text_path: str, language: str, embeddings: np.ndarray,
         True if saved successfully
     """
     try:
-        emb_path = get_embedding_path(text_path, language)
-        meta_path = get_metadata_path(text_path, language)
+        emb_path = get_embedding_path(text_path, language, space)
+        meta_path = get_metadata_path(text_path, language, space)
         
         with fspaths.open_text(emb_path, 'wb') as f:
             np.save(f, embeddings)
@@ -118,6 +148,17 @@ def save_embeddings(text_path: str, language: str, embeddings: np.ndarray,
             json.dump(metadata, f)
         
         manifest = load_manifest()
+        if space == 'cross' and language == 'en':
+            # The cross set is listed apart so the counts of the monolingual set stay true.
+            manifest.setdefault('cross_texts', {})[text_path] = {
+                'language': language,
+                'n_lines': embeddings.shape[0],
+                'embedding_dim': embeddings.shape[1],
+                'file': os.path.basename(emb_path),
+                'created': metadata['created']
+            }
+            save_manifest()
+            return True
         manifest['texts'][text_path] = {
             'language': language,
             'n_lines': embeddings.shape[0],
@@ -135,18 +176,19 @@ def save_embeddings(text_path: str, language: str, embeddings: np.ndarray,
         logger.error(f"Error saving embeddings for {text_path}: {e}")
         return False
 
-def load_embeddings(text_path: str, language: str) -> Optional[np.ndarray]:
+def load_embeddings(text_path: str, language: str, space: str = 'mono') -> Optional[np.ndarray]:
     """
     Load pre-computed embeddings for a text.
     
     Args:
         text_path: Path to the original .tess file
         language: Language code
+        space: 'mono' (the language's own search) or 'cross' (cross-language search)
         
     Returns:
         NumPy array of embeddings or None if not found
     """
-    emb_path = get_embedding_path(text_path, language)
+    emb_path = get_embedding_path(text_path, language, space)
     
     if not fspaths.exists(emb_path):
         return None
@@ -166,9 +208,9 @@ def load_embeddings(text_path: str, language: str) -> Optional[np.ndarray]:
             logger.error(f"Fallback loading also failed: {e2}")
             return None
 
-def has_embeddings(text_path: str, language: str) -> bool:
+def has_embeddings(text_path: str, language: str, space: str = 'mono') -> bool:
     """Check if embeddings exist for a text."""
-    emb_path = get_embedding_path(text_path, language)
+    emb_path = get_embedding_path(text_path, language, space)
     return fspaths.exists(emb_path)
 
 def get_embedding_stats() -> Dict:
