@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import {
+  workTitle,
   recordFrom, toRIS, toBibTeX, toText, risList, bibList, bibKeys, parseEdition, safeName,
   loadEditions, resetEditions, withEdition,
 } from '../citations';
@@ -63,7 +64,7 @@ describe('toRIS', () => {
     expect(toRIS(servius())).toBe([
       'TY  - BOOK', 'AU  - Servius', 'TI  - Servii Grammatici qui feruntur in Vergilii carmina commentarii',
       'A2  - Georgius Thilo', 'A2  - Hermannus Hagen', 'PB  - B. G. Teubner', 'CY  - Leipzig', 'PY  - 1878',
-      'N1  - on vergil.aeneid 1.1', 'ER  - ', ''].join('\n'));
+      'N1  - on Vergil, Aeneid 1.1', 'ER  - ', ''].join('\n'));
   });
   it('puts an unparsed edition whole in TI and nothing else of it', () => {
     const r = { ...servius(), edition: 'Some old edition' };
@@ -109,7 +110,7 @@ describe('toBibTeX', () => {
     const b = toBibTeX(servius());
     expect(b).toContain('@book{servius1878servii,');
     expect(b).toContain('editor = {Georgius Thilo and Hermannus Hagen}');
-    expect(b).toContain('note = {on vergil.aeneid 1.1}');
+    expect(b).toContain('note = {on Vergil, Aeneid 1.1}');
   });
 });
 
@@ -126,8 +127,8 @@ describe('toText', () => {
     expect(toText(book())).toBe("Hardie, Philip. 1986. Virgil's Aeneid: Cosmos and Imperium. Clarendon Press. https://books.google.com/books?id=abc");
   });
   it('writes a commentary note with its locus, or the commentator alone', () => {
-    expect(toText(servius())).toBe(`Servius. ${SERVIUS_ED}. On vergil.aeneid 1.1.`);
-    expect(toText({ type: 'commentary', commentator: 'Servius', work: 'vergil.aeneid', ref_start: '1.1' })).toBe('Servius. On vergil.aeneid 1.1.');
+    expect(toText(servius())).toBe(`Servius. ${SERVIUS_ED}. On Vergil, Aeneid 1.1.`);
+    expect(toText({ type: 'commentary', commentator: 'Servius', work: 'vergil.aeneid', ref_start: '1.1' })).toBe('Servius. On Vergil, Aeneid 1.1.');
   });
   it('lets a ref that starts with letters stand alone', () => {
     expect(toText({ type: 'commentary', commentator: 'C', work: 'vergil.aeneid', ref_start: 'verg. aen. 7.641' })).toBe('C. On verg. aen. 7.641.');
@@ -160,6 +161,15 @@ describe('editions lookup', () => {
     global.fetch = vi.fn(async () => { throw new Error('down'); });
     const r = await withEdition({ type: 'commentary', commentator: 'Servius', work: 'vergil.aeneid', ref_start: '1.1' });
     expect(r.edition).toBeUndefined();
-    expect(toText(r)).toBe('Servius. On vergil.aeneid 1.1.');
+    expect(toText(r)).toBe('Servius. On Vergil, Aeneid 1.1.');
+  });
+});
+
+describe('workTitle', () => {
+  it('reads a work id as author and title', () => {
+    expect(workTitle('vergil.aeneid')).toBe('Vergil, Aeneid');
+    expect(workTitle('vergil.aeneid.part.4')).toBe('Vergil, Aeneid');
+    expect(workTitle('how_wells.herodotus.histories')).toBe('How Wells, Herodotus, Histories');
+    expect(workTitle('')).toBe('');
   });
 });

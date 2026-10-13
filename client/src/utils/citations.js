@@ -202,8 +202,15 @@ export function withEditions(recs) { return Promise.all((recs || []).map(withEdi
 
 const firstYear = (y) => (/\d{4}/.exec(str(y)) || [''])[0];
 
+/** "vergil.aeneid" as "Vergil, Aeneid" (the Theme Search list's rule), for a note's locus. */
+export function workTitle(work) {
+  const parts = str(work).replace(/\.part\.\d+.*$/, '').split('.').filter(Boolean)
+    .map((p) => p.split('_').filter(Boolean).map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(' '));
+  return parts.join(', ');
+}
+
 function locus(rec) {
-  const work = str(rec.work).replace(/\.part\.\d+.*$/, '');
+  const work = workTitle(rec.work);
   const a = str(rec.ref_start);
   const b = str(rec.ref_end);
   const range = b && b !== a ? `${a}-${b}` : a;
