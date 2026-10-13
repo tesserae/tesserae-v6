@@ -27,6 +27,7 @@ from backend.runtime import (  # noqa: F401
     ensure_caches_ready, start_cache_init, _initialize_caches_background,
 )
 from backend.frequency_cache import get_corpus_frequencies
+from backend import request_timing
 
 
 # =============================================================================
@@ -365,6 +366,8 @@ def create_app():
     # builds the same prefixed paths itself (see api_route_for in backend/runtime.py).
     for blueprint in (auth_bp, meta_bp, text_bp, documents_bp, line_search_bp, feedback_bp, features_bp):
         app.register_blueprint(blueprint)
+
+    request_timing.install(app)
 
     return app
 

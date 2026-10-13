@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { LoadingSpinner } from '../common';
 import ScopeBox from '../common/ScopeBox';
+import OriginalScript from '../common/OriginalScript';
 import CiteRecordButton from '../common/CiteRecordButton';
 import CiteAll from '../common/CiteAll';
 import { recordFrom } from '../../utils/citations';
@@ -122,7 +123,7 @@ export default function ThemeScholarship({ search }) {
           <li key={m.id} className="bg-white border border-gray-200 rounded-lg p-3" data-testid="scholarship-match">
             <p className="text-sm font-semibold text-gray-900">{heading(m)}</p>
             {m.kind === 'article' && m.title && <p className="text-sm italic text-gray-700">{m.title}</p>}
-            <p className="text-sm text-gray-900 mt-0.5">{m.snippet}</p>
+            <p className="text-sm text-gray-900 mt-0.5"><OriginalScript text={m.snippet} /></p>
             {m.link && (
               <p className="text-xs mt-1 flex flex-wrap gap-x-3">
                 <a href={m.link.url} className="text-red-700 hover:underline"

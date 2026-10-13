@@ -278,6 +278,7 @@ def ask_summary():
     import time
     import concurrent.futures
     from backend.assistant import model
+    from backend import original_script
     data = request.get_json(silent=True) or {}
     question = str(data.get('question') or '').strip()
     label = str(data.get('work_label') or '').strip()
@@ -300,6 +301,10 @@ def ask_summary():
         fut = pool.submit(model.complete, _SUMMARY_SYSTEM, user, 400, 0.2)
         try:
             text = fut.result(timeout=_SUMMARY_TIMEOUT)
+            text, script_problems = original_script.settle(
+                text, [p['gist'] for p in passages],
+                lambda note: pool.submit(model.complete, _SUMMARY_SYSTEM, user + '\n' + note,
+                                         400, 0.2).result(timeout=_SUMMARY_TIMEOUT))
         except concurrent.futures.TimeoutError:
             logger.info('[PASSAGES] ask-summary %r timed out after %.1fs', question, time.time() - t0)
             return jsonify({'available': False, 'error': 'the model took too long'})
@@ -313,7 +318,8 @@ def ask_summary():
     if not text:
         return jsonify({'available': False, 'error': 'the model could not answer'})
     text, cites = _cite_full_refs(text, [p['ref'] for p in passages])
-    return jsonify({'available': True, 'summary': text, 'cites': cites})
+    return jsonify({'available': True, 'summary': text, 'cites': cites,
+                    'script_problems': script_problems})
 
 
 _SCHOL_SYSTEM = (
@@ -336,6 +342,10 @@ _SCHOL_RECENT_NOTE = (
     " The list may hold articles found online, known only from an abstract or a short excerpt. "
     "When you draw on one, say so (for example 'to judge from its abstract'), and never "
     "claim to have read such an article.")
+# Quoted Greek and Hebrew stay in their own letters (backend/original_script.py).
+from backend.original_script import SCRIPT_RULE as _SCRIPT_RULE  # noqa: E402
+_SUMMARY_SYSTEM += _SCRIPT_RULE
+_SCHOL_SYSTEM += _SCRIPT_RULE
 _SCHOL_RECENT = 4
 _SCHOL_KEEP = 8
 _SCHOL_DEPTH = 100
@@ -531,6 +541,7 @@ def ask_scholarship():
     import concurrent.futures
     from backend.assistant import model
     from backend import scholarship_theme
+    from backend import original_script
     data = request.get_json(silent=True) or {}
     question = str(data.get('question') or '').strip()
     work = str(data.get('work') or '').strip()
@@ -587,6 +598,11 @@ def ask_scholarship():
         fut = pool.submit(model.complete, system, '\n'.join(lines), 400, 0.2)
         try:
             text = fut.result(timeout=_SUMMARY_TIMEOUT)
+            user_msg = '\n'.join(lines)
+            text, script_problems = original_script.settle(
+                text, [c.get('snippet') or c.get('excerpt') or '' for c in cards],
+                lambda note: pool.submit(model.complete, system, user_msg + '\n' + note,
+                                         400, 0.2).result(timeout=_SUMMARY_TIMEOUT))
         except concurrent.futures.TimeoutError:
             logger.info('[PASSAGES] ask-scholarship %r timed out after %.1fs', question, time.time() - t0)
             return jsonify(dict(base, available=False, error='the model took too long'))
@@ -600,7 +616,8 @@ def ask_scholarship():
     used = sorted({int(n) for n in re.findall(r'\[(\d+)\]', text) if 1 <= int(n) <= len(cards)})
     cites = [{'n': n, 'kind': cards[n - 1].get('kind'), 'label': _scholarship_label(cards[n - 1]),
               'link': cards[n - 1].get('link'), **_cite_fields(cards[n - 1])} for n in used]
-    return jsonify(dict(base, available=True, summary=text, cites=cites, kept=len(cards)))
+    return jsonify(dict(base, available=True, summary=text, cites=cites, kept=len(cards),
+                        script_problems=script_problems))
 
 
 def _recent_link(item):

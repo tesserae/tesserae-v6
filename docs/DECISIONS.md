@@ -8,6 +8,28 @@ history (index builds, cache rebuilds, corpus changes) is in
 `DATA_OPERATIONS.md`; per-release changes are in `../CHANGELOG.md`.
 
 
+## 2026-10-12: written paragraphs keep quoted words in their original script, and the transliteration is made by a table
+- Scope: the Search One Text summary and Scholarship paragraph (and the
+  Scholarship list in Theme Search).
+- Decision. The model quotes Greek, Latin and Hebrew words in their own
+  letters and is checked for it. The transliteration shown after each Greek
+  or Hebrew word is made by a fixed letter table in the code (classical
+  scholarly style for Greek, SBL general-purpose style for Hebrew), never by
+  the model, so none can be invented. Beta code is not shown on the page. It
+  is provided as a function for export controls.
+- Evidence. On Herodotus 1.32.5 the paragraph read "*euzen*" for the Greek
+  words of the note by How and Wells. The model had transliterated the Greek
+  and wrapped it in asterisks. A reader cannot check "euzen" against the note.
+- The check. After the model answers, the server looks for asterisk spans and
+  for any word of the text that is the table's transliteration of a Greek or
+  Hebrew word or phrase in the notes (words of three letters or fewer are
+  skipped, since "to" and "he" are also English). It asks once more with the
+  fault named, and strips asterisks if the second answer is still wrong. The
+  answer's `script_problems` list shows how often that happens on the live
+  site.
+- The table lives in two languages (Python and JavaScript) and both are tested
+  against one file of cases, so they cannot drift.
+
 ## 2026-10-12: Cleaning the code's shape without changing what it does
 - Scope: every change meant to reorganise code (splitting the large Flask
   module into an app factory and blueprints, tests for the scoring core,
@@ -44,6 +66,15 @@ history (index builds, cache rebuilds, corpus changes) is in
   results as main, and an import time within ten percent. The URL map and the
   function bodies are checked by two scripts kept in `scripts/review/`, so
   the next structural job can run the same proofs.
+- Second job under the rule, tests only: characterization tests for the
+  feature extractor, distance filter, syntax parser, metrical scanner,
+  wildcard search, database helpers and the untested parts of the matcher.
+  Each expected value was taken from the code as it stands and read for
+  plausibility; none was corrected. The three Latin spelling folds named
+  `normalize_latin` (the matcher's and the distance filter's are now one
+  function; the wildcard search's keeps case and folds a final -om to -um)
+  are pinned as they are in `tests/test_normalize_latin_three_ways.py`.
+  Whether to unify them is a separate decision.
 - Third structural job under the rule: `line_search()` became a sequence of
   named steps (see the CHANGELOG entry of 2026-10-13). A recording of 258
   Line Search requests made on a preview of main (none of them differs between
@@ -2473,3 +2504,7 @@ exists to measure it against.
 
 The web process runs with an ASCII file-system encoding, which Python fixes when it starts, and the server setting that would change it is not to be requested again. Thirty-six Greek texts have Greek letters in their names, so every file call on a text, translation or embedding name goes through `backend/fspaths.py`, which passes UTF-8 bytes to the operating system and returns names decoded as UTF-8. The proof is a two-locale comparison: the same requests (`scripts/review/greek_names_requests.json` and the standard list) sent to a server started in the ASCII state and one started in UTF-8 must give the same answers. Names that an operation only ever sees in ASCII (hashed cache names, index files) were left as they were.
 
+
+## 2026-10-13: record request timings before any speed work
+
+A day of timings from the live site comes before work on speed, so the effort goes where visitors wait and not where we guess. `backend/request_timing.py` records, for each API request, the time, method, path, status, milliseconds, response size and worker process, in one file per day under the folder named by `TESSERAE_TIMING_DIR` (nothing is recorded when it is unset). It does not record the query string, the request body or the answer, so no text a visitor searched for is stored. The report script collapses ids in paths into one route and ranks routes by total time spent, which is what a visitor waits on across a day.
