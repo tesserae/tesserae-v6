@@ -14,7 +14,7 @@ def test_vendored_scanners_import_without_cltk(monkeypatch):
         assert m.HendecasyllableScanner.__module__ == 'backend.prosody_lat.hendecasyllable_scanner'
         result = m.scan_latin_verse('cui dono lepidum novum libellum', 'hendecasyllable')
         assert result and result['valid'] is True
-        assert result['pattern'] == '-u-uu-u-u-u'
+        assert result['pattern'] == '---uu-u-u-u'   # 'dōnō' long-long from the macron table (2026-10-13)
         assert m.scan_latin_verse('passer deliciae meae puellae', 'hendecasyllable')['valid'] is True
     finally:
         sys.modules.pop('backend.metrical_scanner', None)

@@ -136,21 +136,57 @@ needs_scanner = pytest.mark.skipif(not ms._CLTK_AVAILABLE, reason='no Latin scan
 
 
 @needs_scanner
-def test_scan_aeneid_first_line_is_not_validated():
+def test_scan_aeneid_first_line_with_macrons():
     line = 'Arma virumque cano, Troiae qui primus ab oris'
     first = ms.scan_latin_verse(line, 'hexameter')
-    # The scanner does not accept this line. The pattern it gives
-    # ('-uu-uu---uuuu-u') is not the line's real scansion, but it says so
-    # itself: valid is False and no display form is produced.
-    assert first == {'pattern': '-uu-uu---uuuu-u', 'raw': None, 'valid': False, 'meter': 'hexameter'}
-    assert ms.scan_latin_verse(line, 'hexameter') == first          # same answer twice
+    # Until 2026-10-13 this line did not scan: without vowel lengths two
+    # syllables (qui, pri) were unknown and two patterns fitted. The macron
+    # table gives "quī prīmus ab ōrīs" and the scanner finds DDSS, the
+    # pattern MQDQ records for Aeneid 1.1.
+    assert first == {'pattern': '-uu-uu-----uu--', 'raw': '– ∪ ∪ – ∪ ∪ – – – – – ∪ ∪ – –',
+                     'valid': True, 'meter': 'hexameter'}
+    assert ms.scan_latin_verse(line, 'hexameter') == first          # same answer twice (cached)
+    assert ms._SCAN_CACHE[(line, 'hexameter')] == first
+
+
+def test_macronize_latin_keeps_case_punctuation_and_unknown_words():
+    assert ms.macronize_latin('Arma virumque cano, Troiae qui primus ab oris') == \
+        'Arma virumque canō, Trōiae quī prīmus ab ōrīs'
+    assert ms.macronize_latin('xyzzy, 123') == 'xyzzy, 123'        # not in the table: unchanged
+    assert ms.macronize_latin('') == ''
+
+
+def test_macronize_latin_without_table_returns_text(monkeypatch):
+    monkeypatch.setattr(ms, '_macrons', None)
+    monkeypatch.setattr(ms, '_MACRONS_PATH', '/nonexistent/latin_macrons.json')
+    assert ms.macronize_latin('Arma virumque cano') == 'Arma virumque cano'
+    assert ms.get_macrons() == {}
+
+
+@needs_scanner
+def test_scan_cache_is_bounded(monkeypatch):
+    monkeypatch.setattr(ms, '_SCAN_CACHE', {})
+    monkeypatch.setattr(ms, '_SCAN_CACHE_MAX', 2)
+    for line in ('Arma virumque cano, Troiae qui primus ab oris',
+                 'Italiam, fato profugus, Laviniaque venit',
+                 'litora, multum ille et terris iactatus et alto'):
+        ms.scan_latin_verse(line, 'hexameter')
+    assert len(ms._SCAN_CACHE) == 1                                  # cleared at the cap, then refilled
+
+
+def test_vendored_hexameter_scanner_optional_transform_does_not_recurse():
+    from backend.prosody_lat.hexameter_scanner import HexameterScanner
+    verse = HexameterScanner(optional_transform=True).scan('Italiam, fato profugus, Laviniaque venit')
+    assert verse.valid in (True, False)                              # returned, no RecursionError
 
 
 @needs_scanner
 def test_scan_valid_hendecasyllable_and_pentameter():
     h = ms.scan_latin_verse('Cui dono lepidum novum libellum', 'hendecasyllable')
-    assert h['valid'] is True and h['pattern'] == '-u-uu-u-u-u' and len(h['pattern']) == 11   # eleven syllables
-    assert h['raw'] == '– ∪ – ∪ ∪ – ∪ – ∪ – ∪' and h['meter'] == 'hendecasyllable'
+    # With the macron table 'dōnō' is read long-long, the spondaic base of
+    # Catullus 1.1; before 2026-10-13 the second syllable came out short.
+    assert h['valid'] is True and h['pattern'] == '---uu-u-u-u' and len(h['pattern']) == 11   # eleven syllables
+    assert h['raw'] == '– – – ∪ ∪ – ∪ – ∪ – ∪' and h['meter'] == 'hendecasyllable'
     p = ms.scan_latin_verse('Nec nos exiguae, quis mea cura, deae', 'elegiac')
     assert p['valid'] is True and p['meter'] == 'elegiac' and p['pattern'] == '------uu-uu-'
 
