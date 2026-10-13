@@ -35,6 +35,15 @@ history (index builds, cache rebuilds, corpus changes) is in
   difference at once. Requests that give different answers on two runs
   (timings, cache flags) are normalised away; requests that call a language
   model or a live outside service are left out.
+- First structural job under the rule: the Flask module became an application
+  factory with its routes in blueprints (see the CHANGELOG entry of the same
+  date). It shipped with the golden check `same` on every request a preview
+  can answer, a URL map identical in paths, methods and registration order
+  (in both the production mode and the development mode with the /api prefix),
+  the body of every moved function identical by syntax tree, the same test
+  results as main, and an import time within ten percent. The URL map and the
+  function bodies are checked by two scripts kept in `scripts/review/`, so
+  the next structural job can run the same proofs.
 
 
 ## 2026-10-12: the band inside one work is refitted on eleven works, and its lowest level is a caution, not a verdict

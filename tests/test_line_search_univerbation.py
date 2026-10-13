@@ -18,7 +18,8 @@ import pytest
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from backend import univerbation as U  # noqa: E402
-import backend.app as _appmod  # noqa: E402
+import backend.app  # noqa: E402,F401  (the application must be built first)
+import backend.blueprints.line_search as _appmod  # noqa: E402  (Line Search lives here now)
 from backend.app import app, _univerbation_lemmatize as LEM  # noqa: E402
 from backend.lexical_density import _index_path  # noqa: E402
 

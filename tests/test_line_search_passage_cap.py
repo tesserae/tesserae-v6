@@ -19,7 +19,8 @@ if not os.path.exists(_index_path('la')):
     pytest.skip('Latin inverted index not present; integration test',
                 allow_module_level=True)
 
-import backend.app as _appmod  # noqa: E402
+import backend.app  # noqa: E402,F401  (the application must be built first)
+import backend.blueprints.line_search as _appmod  # noqa: E402  (Line Search lives here now)
 from backend.app import app  # noqa: E402
 
 # The corpus-frequency stoplist augmentation is not under test, and building

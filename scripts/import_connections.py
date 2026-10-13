@@ -18,7 +18,7 @@ from datetime import datetime
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from backend.app import create_app
+from backend.app import app
 from backend.models import db, TextConnection, BatchJob
 
 
@@ -86,8 +86,6 @@ def main():
     parser.add_argument('--job-name', default='Local Import', help='Name for the batch job')
     
     args = parser.parse_args()
-    
-    app = create_app()
     
     with app.app_context():
         job = BatchJob(
