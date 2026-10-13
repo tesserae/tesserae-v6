@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import CiteRecordButton from '../common/CiteRecordButton';
+import { recordFrom } from '../../utils/citations';
 import { documentPlace, documentLabels } from './documentDisplay';
 import { LoadingSpinner } from '../common';
 import { dirFor } from '../../utils/rtl';
@@ -237,6 +239,7 @@ export default function DocumentView() {
                         {r.cites && <span>cites {r.cites}</span>}
                         {r.url && <a className="text-red-700 hover:underline" href={r.url} target="_blank" rel="noreferrer">on JSTOR</a>}
                         {r.commentary_file && <span>{r.commentary_file}{r.commentary_ref ? `, ${r.commentary_ref}` : ''}</span>}
+                        {r.source !== 'commentary' && r.title && <CiteRecordButton record={recordFrom(r, 'document')} />}
                       </p>
                     </li>
                   ))}
