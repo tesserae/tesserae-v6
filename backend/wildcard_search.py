@@ -211,7 +211,7 @@ def search_file(filepath: str, parsed_query: Dict, case_sensitive: bool = False,
     is_greek = language == 'grc'
     is_coptic = language == 'cop'
     filename = os.path.basename(filepath)
-    is_prose = detect_text_type(filename) == 'prose'
+    is_prose = detect_text_type(filename, language=language) == 'prose'
     
     try:
         with fspaths.open_text(filepath, 'r', encoding='utf-8') as f:

@@ -343,6 +343,14 @@ def test_search_file_english_and_coptic(tmp_path):
     assert refs(rows) == ['s. 1'] and 'ⲁⲩⲱ <mark class="bg-yellow-200">ⲡⲛⲟⲩⲧⲉ</mark>' in rows[0]['highlighted_text']
 
 
+def test_search_file_types_a_coptic_file_as_prose_by_its_language(tmp_path):
+    # No author or marker in the name, so only the language says prose.
+    cop = tmp_path / 'zzunlisted.sample.tess'
+    cop.write_text('<z. 1>\t' + 'ⲁⲩⲱ ⲡⲛⲟⲩⲧⲉ ⲙⲁⲣⲉϥ ' * 3 + '\n', encoding='utf-8')
+    rows = ws.search_file(str(cop), ws.parse_query('ⲡⲛⲟⲩⲧⲉ'), False, 'cop')
+    assert rows[0]['is_prose'] is True
+
+
 def test_search_file_prose_line_is_cut_to_the_matching_sentence(tmp_path):
     p = tmp_path / 'cicero.in_catilinam.tess'
     long = 'Quo usque tandem abutere, Catilina, patientia nostra. ' * 3 + 'Quam diu etiam furor iste tuus nos eludet! Nihil agis. '
