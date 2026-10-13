@@ -9,6 +9,9 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-13
 
+### Streamed answers reach the browser again as they are produced
+The request-timing record added this morning (#876) asked every answer for its size, and for a streamed answer (the Intertextual Search's progress events and batches, the downloads) Werkzeug supplies that by reading the whole stream first. From 06:04 to the fix, a fusion search showed "Searching for parallels" with no progress until the whole search was over. The record now takes the size only of an answer already held in memory and writes -1 for a stream, whose recorded time is the time to its first byte. A test sends a two-chunk stream through the hook and checks the second chunk is still unproduced when the request returns.
+
 ### An unused scoring module removed
 `backend/composite_scorer.py` (821 lines, a four-signal "composite" scorer from the first months of V6) was imported by nothing in the application, the scripts or the evaluation code. It is removed from the repository; its last state is in the git history (commit ec21eb2f and earlier) and in the project's private archive. No visible change.
 ### The History view opens on Search One Text, with history examples

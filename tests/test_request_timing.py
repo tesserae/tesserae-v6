@@ -145,3 +145,32 @@ def test_mounted_under_api_like_the_live_site(tmp_path, monkeypatch):
     got = lines(tmp_path)
     assert len(got) == 1
     assert got[0].split("\t")[1:4] == ["GET", "/api/languages", "200"]
+
+
+def test_streamed_response_is_not_read_by_the_hook(tmp_path, monkeypatch):
+    """A streamed response (server-sent events) must reach the client as it is
+    produced. The hook records -1 for its size and must not consume the
+    generator to measure it."""
+    from flask import Response
+    monkeypatch.setenv(request_timing.ENV_VAR, str(tmp_path))
+    app = Flask(__name__)
+    ran = []
+
+    @app.route("/api/stream")
+    def stream():
+        def gen():
+            ran.append("one")
+            yield "data: one\n\n"
+            ran.append("two")
+            yield "data: two\n\n"
+        return Response(gen(), mimetype="text/event-stream")
+
+    assert request_timing.install(app) is True
+    r = app.test_client().get("/api/stream")
+    # The test client pulls the first chunk to get the headers; the second is
+    # still unproduced, so the hook did not read the stream through.
+    assert ran == ["one"]
+    got = lines(tmp_path)
+    assert len(got) == 1 and got[0].split("\t")[5] == "-1"
+    assert r.get_data(as_text=True) == "data: one\n\ndata: two\n\n"
+    assert ran == ["one", "two"]

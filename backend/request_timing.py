@@ -76,7 +76,13 @@ def install(app):
         t0 = getattr(g, "_timing_t0", None)
         if t0 is not None and not g.get("_timing_done") and _full_path().startswith(PREFIX):
             g._timing_done = True
-            nbytes = response.calculate_content_length()
+            # Only a response already held in memory is measured. Asking a
+            # streamed response (the fusion search's progress events, the
+            # downloads) for its length makes Werkzeug read the whole stream
+            # first, so nothing reached the browser until the search was over
+            # (2026-10-13, the morning after this hook went live). For a
+            # stream the time recorded is the time to its first byte.
+            nbytes = response.calculate_content_length() if response.is_sequence else None
             _write(directory, response.status_code, (time.perf_counter() - t0) * 1000.0,
                    -1 if nbytes is None else nbytes)
         return response
