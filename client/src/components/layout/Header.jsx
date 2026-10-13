@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { fetchAuthStatus } from '../../utils/api';
+import { fetchAuthStatus, postJsonTo } from '../../utils/api';
 
 const API_BASE = '/api';
 
@@ -116,15 +116,10 @@ const Header = ({ user, setUser, onLogoClick }) => {
     setOrcidLinking(true);
     setOrcidError(null);
     try {
-      const res = await fetch('/api/auth/orcid/link', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          orcid: orcidInput.trim(),
-          orcid_name: orcidNameInput.trim()
-        })
+      const data = await postJsonTo('/api/auth/orcid/link', {
+        orcid: orcidInput.trim(),
+        orcid_name: orcidNameInput.trim()
       });
-      const data = await res.json();
       if (data.success) {
         setUser({ ...user, orcid: orcidInput.trim(), orcid_name: orcidNameInput.trim() });
         setShowOrcidModal(false);
@@ -169,13 +164,7 @@ const Header = ({ user, setUser, onLogoClick }) => {
         ? { email: loginEmail, password: loginPassword, first_name: loginFirstName, last_name: loginLastName }
         : { email: loginEmail, password: loginPassword };
 
-      const response = await fetch(`${API_BASE}${endpoint}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body)
-      });
-
-      const data = await response.json();
+      const data = await postJsonTo(`${API_BASE}${endpoint}`, body);
 
       if (data.success) {
         const userData = data.user;
@@ -228,16 +217,10 @@ const Header = ({ user, setUser, onLogoClick }) => {
     }
 
     try {
-      const response = await fetch(`${API_BASE}/auth/reset-password`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          new_password: resetPassword,
-          confirm_password: resetConfirmPassword
-        })
+      const data = await postJsonTo(`${API_BASE}/auth/reset-password`, {
+        new_password: resetPassword,
+        confirm_password: resetConfirmPassword
       });
-
-      const data = await response.json();
       if (data.success) {
         setShowResetModal(false);
         setResetPassword('');

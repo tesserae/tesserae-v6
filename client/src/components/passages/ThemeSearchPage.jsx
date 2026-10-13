@@ -14,6 +14,7 @@ import ThemeScholarship from '../scholarship/ThemeScholarship';
 import useCollections from '../../hooks/useCollections';
 import { PAGE_NEEDS } from '../../collections/collectionsConfig';
 import ScopeBox from '../common/ScopeBox';
+import { fetchLanguages, getJson } from '../../utils/api';
 
 /**
  * Theme Search: describe a passage in your own words, get passages that match
@@ -395,7 +396,7 @@ export default function ThemeSearchPage() {
   // few; the full row on it promised Latin and Old French, 2026-09-07).
   const [served, setServed] = useState(null);
   useEffect(() => {
-    fetch('/api/languages').then((r) => r.json()).then((d) => {
+    fetchLanguages().then((d) => {
       const codes = (d.languages || []).map((l) => l.code || l).filter(Boolean);
       if (codes.length) setServed(codes);
     }).catch(() => {});
@@ -439,7 +440,7 @@ export default function ThemeSearchPage() {
     }
     const code = codes[0];
     let dead = false;
-    fetch(`/api/texts?language=${code}`).then((r) => r.json()).catch(() => []).then((texts) => {
+    getJson(`/api/texts?language=${code}`).catch(() => []).then((texts) => {
       if (dead) return texts;
       // Right after a deploy reload the passage index can still be
       // loading on this server and /api/passages/works answers slow or
@@ -481,7 +482,7 @@ export default function ThemeSearchPage() {
     allCoverageFor.current = key;
     let dead = false;
     Promise.all(BROWSE_CORPUS_LANGUAGES.map((code) => (
-      fetch(`/api/texts?language=${code}`).then((r) => r.json()).catch(() => []).then((texts) => {
+      getJson(`/api/texts?language=${code}`).catch(() => []).then((texts) => {
         const arr = Array.isArray(texts) ? texts : [];
         return fetchCoveredWorks(code, arr.length > 0).then((works) => coverageCounts(arr, works || []));
       })
@@ -515,7 +516,7 @@ export default function ThemeSearchPage() {
     const codes = selectedLangCodes.length ? selectedLangCodes : BROWSE_CORPUS_LANGUAGES;
     let dead = false;
     Promise.all(codes.map((code) => (
-      fetch(`/api/texts?language=${code}`).then((r) => r.json()).catch(() => []).then((texts) => {
+      getJson(`/api/texts?language=${code}`).catch(() => []).then((texts) => {
         const arr = Array.isArray(texts) ? texts : [];
         return fetchCoveredWorks(code, arr.length > 0).then((covered) => {
           const have = new Set(covered || []);
@@ -599,11 +600,10 @@ export default function ThemeSearchPage() {
     const langParam = lang === undefined ? language : lang;
     const scope = scopeOverride || { author: scopeAuthor, work: scopeWork };
     try {
-      const res = await fetch(
+      const json = await getJson(
         `/api/passages/theme-search?query=${encodeURIComponent(text)}&limit=${wanted}`
         + (langParam ? `&languages=${encodeURIComponent(langParam)}` : '')
         + scopeQuery(scope));
-      const json = await res.json();
       // The API reports trouble in the body rather than by status, so that a
       // missing index degrades this panel instead of breaking the page.
       if (json.error) setError(json.error);
@@ -646,12 +646,11 @@ export default function ThemeSearchPage() {
     setError(null);
     const nextOffset = pastCap + 100;
     try {
-      const res = await fetch(
+      const json = await getJson(
         `/api/passages/theme-search?query=${encodeURIComponent(text)}`
         + `&limit=100&offset=${nextOffset}`
         + (language ? `&languages=${encodeURIComponent(language)}` : '')
         + scopeQuery({ author: scopeAuthor, work: scopeWork }));
-      const json = await res.json();
       if (json.error) {
         setError(json.error);
       } else if (!json.results || !json.results.length) {
@@ -756,8 +755,7 @@ export default function ThemeSearchPage() {
     try {
       const params = new URLSearchParams({ work_a: a, work_b: b });
       if (showPhrases) params.set('with_phrases', '1');
-      const res = await fetch(`/api/passages/compare?${params.toString()}`);
-      const json = await res.json();
+      const json = await getJson(`/api/passages/compare?${params.toString()}`);
       if (json.error) setCmpError(json.error);
       else {
         setCmpData(json);

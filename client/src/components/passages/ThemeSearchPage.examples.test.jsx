@@ -6,14 +6,15 @@ import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, waitFor, act } from '@testing-library/react';
 import ThemeSearchPage from './ThemeSearchPage';
 import { setView } from '../../collections/collectionsStore';
+import { mockResponse } from '../../test/mockResponse';
 
 beforeEach(() => {
   global.fetch = vi.fn((url) => {
     const u = String(url);
     if (u.startsWith('/api/languages')) {
-      return Promise.resolve({ json: () => Promise.resolve({ languages: [{ code: 'la' }, { code: 'grc' }, { code: 'en' }] }) });
+      return Promise.resolve(mockResponse({ json: () => Promise.resolve({ languages: [{ code: 'la' }, { code: 'grc' }, { code: 'en' }] }) }));
     }
-    return Promise.resolve({ json: () => Promise.resolve({}) });
+    return Promise.resolve(mockResponse({ json: () => Promise.resolve({}) }));
   });
 });
 afterEach(() => { act(() => setView('literature')); });

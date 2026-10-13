@@ -1,7 +1,7 @@
 import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 import { Button, LoadingSpinner, Pagination, CiteButton, InfoBadge } from '../common';
 import { usePagination, useServerPagination, MAX_PAGE_SIZE } from '../../hooks/usePagination';
-import { fetchResultPage, fetchAllResults } from '../../utils/api';
+import { fetchResultPage, fetchAllResults, postLineSearch, postJsonTo } from '../../utils/api';
 import { formatReference, formatElapsedTime, formatRunningTime } from '../../utils/formatting';
 import { languageName } from '../../utils/languageNames';
 import {
@@ -268,12 +268,7 @@ const SearchResults = ({
       work_a: workA, ref_a: r.source_locus || r.source?.ref,
       work_b: workB, ref_b: r.target_locus || r.target?.ref,
     }));
-    fetch('/api/passages/pair-lift', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ pairs }),
-    })
-      .then((res) => res.json())
+    postJsonTo('/api/passages/pair-lift', { pairs })
       .then((data) => {
         if (cancelled) return;
         const map = {};
@@ -569,11 +564,7 @@ const SearchResults = ({
     let cancelled = false;
     setCorpusLoading(true);
     setCorpusSelectedAuthor(null);
-    fetch('/api/line-search', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ query, language, search_type: 'lemma', max_results: 500 }),
-    })
-      .then(res => res.json())
+    postLineSearch({ query, language, search_type: 'lemma', max_results: 500 })
       .then(d => { if (!cancelled) setCorpusData({ query, corpus_version: d.corpus_version,
         // Every work's count (by_work_all), so the chart covers the whole corpus
         // even when the line list below stops at 500 (2026-10-07).
@@ -602,12 +593,8 @@ const SearchResults = ({
     if (has) return;
     const key = `${byWork ? 'w' : 'a'}|${corpusSelectedAuthor}`;
     let cancelled = false;
-    fetch('/api/line-search', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ query: corpusData.query, language, search_type: 'lemma', max_results: 200,
-        ...(byWork ? { work: corpusSelectedAuthor } : { author: corpusSelectedAuthor }) }),
-    })
-      .then(res => res.json())
+    postLineSearch({ query: corpusData.query, language, search_type: 'lemma', max_results: 200,
+        ...(byWork ? { work: corpusSelectedAuthor } : { author: corpusSelectedAuthor }) })
       .then(d => { if (!cancelled) setCorpusExtraLoci({ key, loci: (d.results || []).map(x => ({ era: x.era, year: x.year,
         author: x.author, work: x.work, locus: x.locus, text: x.text, matched_words: x.matched_words || [] })) }); })
       .catch(() => {});

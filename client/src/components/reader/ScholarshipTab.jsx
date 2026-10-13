@@ -4,6 +4,7 @@ import { displayRef } from './refId';
 import CiteRecordButton from '../common/CiteRecordButton';
 import CiteAll from '../common/CiteAll';
 import { recordFrom } from '../../utils/citations';
+import { getJson, postJsonTo } from '../../utils/api';
 
 /**
  * Secondary scholarship on the selected lines: the commentators' notes the
@@ -134,8 +135,7 @@ export default function ScholarshipTab({ work, language, selection, units, secon
       q.set('work2', second.work); q.set('ref2_start', second.ref_start);
       if (second.ref_end) q.set('ref2_end', second.ref_end);
     }
-    fetch(`/api/scholarship?${q.toString()}`)
-      .then((r) => r.json())
+    getJson(`/api/scholarship?${q.toString()}`)
       .then((d) => { if (!cancelled) setData(d); })
       .catch(() => { if (!cancelled) setError('The scholarship lookup did not answer.'); })
       .finally(() => { if (!cancelled) setLoading(false); });
@@ -606,10 +606,7 @@ function MachineNote({ note, commentator, language, work, section, auto, transla
     // work + ref name the note the route is being asked to translate; the
     // route only ever translates a note it already holds at that span, not
     // arbitrary text, so the exact text travels along to be checked against it.
-    fetch('/api/scholarship/translate', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ work, ref: note.ref, text: note.text, commentator, language }),
-    }).then((r) => r.json())
+    postJsonTo('/api/scholarship/translate', { work, ref: note.ref, text: note.text, commentator, language })
       .then((d) => { if (!cancelled) setEnglish(d); })
       .catch(() => { if (!cancelled) setEnglish({ available: false }); })
       .finally(() => { if (!cancelled) setBusy(false); });

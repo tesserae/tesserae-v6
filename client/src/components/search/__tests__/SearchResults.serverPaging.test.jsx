@@ -29,7 +29,8 @@ vi.mock('chart.js', () => ({
   Title: {}, Tooltip: {}, Legend: {},
 }));
 
-vi.mock('../../../utils/api', () => ({
+vi.mock('../../../utils/api', async (importOriginal) => ({
+  ...(await importOriginal()),
   fetchResultPage: vi.fn(),
   fetchAllResults: vi.fn(),
 }));

@@ -13,6 +13,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import ScholarshipTab, { findMark } from './ScholarshipTab';
+import { mockResponse } from '../../test/mockResponse';
 
 const AENEID_1_1 = { work: 'vergil.aeneid', author: 'Vergil', title: 'Aeneid', abbrev: 'Aen.', lo: '1.1', hi: '1.7' };
 
@@ -77,7 +78,7 @@ const UNITS = [{ ref: '1.1', text: 'arma virumque cano' }];
 const SELECTION = { startIdx: 0, endIdx: 0 };
 
 function respond(data) {
-  return Promise.resolve({ ok: true, json: () => Promise.resolve(data) });
+  return Promise.resolve(mockResponse({ ok: true, json: () => Promise.resolve(data) }));
 }
 
 afterEach(() => { delete global.fetch; });
@@ -94,7 +95,7 @@ describe('ScholarshipTab \u2014 shortened footer', () => {
     expect(screen.queryByText(/Found by title and abstract in OpenAlex/)).toBeNull();
     expect(screen.queryByText(/Sources and licenses are on the Sources page/)).toBeNull();
     expect(screen.queryByText(/without showing the text/)).toBeNull();
-    expect(screen.getByRole('button', { name: 'Where these results come from' })).toBeTruthy();
+    expect(await screen.findByRole('button', { name: 'Where these results come from' })).toBeTruthy();
     expect(screen.getByRole('link', { name: 'Search HathiTrust\u2019s full text for this passage' })).toBeTruthy();
   });
 
@@ -105,7 +106,7 @@ describe('ScholarshipTab \u2014 shortened footer', () => {
     render(<ScholarshipTab work="vergil.aeneid" language="la" selection={SELECTION} units={UNITS} />);
     await waitFor(() => expect(global.fetch).toHaveBeenCalled());
 
-    expect(screen.getByRole('button', { name: 'Where these results come from' })).toBeTruthy();
+    expect(await screen.findByRole('button', { name: 'Where these results come from' })).toBeTruthy();
     expect(screen.queryByRole('link', { name: /HathiTrust/ })).toBeNull();
   });
 
@@ -119,7 +120,7 @@ describe('ScholarshipTab \u2014 shortened footer', () => {
     render(<ScholarshipTab work="vergil.aeneid" language="la" selection={SELECTION} units={UNITS} />);
     await waitFor(() => expect(global.fetch).toHaveBeenCalled());
 
-    await user.click(screen.getByRole('button', { name: 'Where these results come from' }));
+    await user.click(await screen.findByRole('button', { name: 'Where these results come from' }));
     expect(handler).toHaveBeenCalledTimes(1);
     expect(handler.mock.calls[0][0].detail).toEqual({ section: 'reader', anchor: 'scholarship-sources' });
     window.removeEventListener('tesserae:open-help', handler);

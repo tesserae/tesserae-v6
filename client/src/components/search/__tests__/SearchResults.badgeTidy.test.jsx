@@ -15,7 +15,8 @@ vi.mock('chart.js', () => ({
   CategoryScale: {}, LinearScale: {}, BarElement: {},
   Title: {}, Tooltip: {}, Legend: {},
 }));
-vi.mock('../../../utils/api', () => ({
+vi.mock('../../../utils/api', async (importOriginal) => ({
+  ...(await importOriginal()),
   searchTexts: vi.fn(),
   searchTextsStream: vi.fn(),
   searchFusionStream: vi.fn(),
@@ -29,6 +30,7 @@ vi.mock('../../../utils/api', () => ({
 
 import SearchResults from '../SearchResults';
 import { __resetCorpusTextMapCacheForTests } from '../../../utils/textNames';
+import { mockResponse } from '../../../test/mockResponse';
 
 const baseProps = {
   loading: false,
@@ -56,7 +58,7 @@ afterEach(() => {
 // separately.
 describe('SearchResults — no duplicate channel count', () => {
   it('shows one badge naming the channels, never a separate count', () => {
-    global.fetch = vi.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve([]) }));
+    global.fetch = vi.fn(() => Promise.resolve(mockResponse({ ok: true, json: () => Promise.resolve([]) })));
     const row = {
       source: { ref: 'hafez. diwan. 1', text: 'a' },
       target: { ref: 'iqbal. zabur_e_ajam. 1', text: 'b' },
@@ -86,14 +88,14 @@ describe('SearchResults — Matches omitted when it only repeats the refrain', (
   });
 
   it('omits "Matches:" when every matched word is one of the refrain\'s own words', () => {
-    global.fetch = vi.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve([]) }));
+    global.fetch = vi.fn(() => Promise.resolve(mockResponse({ ok: true, json: () => Promise.resolve([]) })));
     const row = rowWithRadif(['نیامد', 'ما']);
     render(<SearchResults {...baseProps} language="fa" results={[row]} />);
     expect(screen.queryByText(/^Matches:/)).not.toBeInTheDocument();
   });
 
   it('still shows "Matches:" when a matched word is not part of the refrain', () => {
-    global.fetch = vi.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve([]) }));
+    global.fetch = vi.fn(() => Promise.resolve(mockResponse({ ok: true, json: () => Promise.resolve([]) })));
     const row = rowWithRadif(['شراب']);
     render(<SearchResults {...baseProps} language="fa" results={[row]} />);
     expect(screen.getByText(/^Matches:/)).toBeInTheDocument();
@@ -107,15 +109,15 @@ describe('SearchResults — Persian/Urdu citations resolve via the corpus list',
   it('upgrades a raw Persian locus to "Author, Work reference" once /api/texts answers', async () => {
     global.fetch = vi.fn((url) => {
       if (String(url).includes('/api/texts')) {
-        return Promise.resolve({
+        return Promise.resolve(mockResponse({
           ok: true,
           json: () => Promise.resolve([
             { id: 'hafez.diwan.tess', author: 'Hafez', title: 'Diwan' },
             { id: 'iqbal.zabur_e_ajam.tess', author: 'Iqbal', title: 'Zabur-e Ajam' },
           ]),
-        });
+        }));
       }
-      return Promise.resolve({ ok: true, json: () => Promise.resolve([]) });
+      return Promise.resolve(mockResponse({ ok: true, json: () => Promise.resolve([]) }));
     });
     const row = {
       source: { ref: 'hafez.diwan.5097', text: 'a' },
@@ -137,15 +139,15 @@ describe('SearchResults — refrain-lines popover', () => {
   it('shows the structured refrain-lines explanation on tap, not a raw-id list', async () => {
     global.fetch = vi.fn((url) => {
       if (String(url).includes('/api/texts')) {
-        return Promise.resolve({
+        return Promise.resolve(mockResponse({
           ok: true,
           json: () => Promise.resolve([
             { id: 'hafez.diwan.tess', author: 'Hafez', title: 'Diwan' },
             { id: 'iqbal.zabur_e_ajam.tess', author: 'Iqbal', title: 'Zabur-e Ajam' },
           ]),
-        });
+        }));
       }
-      return Promise.resolve({ ok: true, json: () => Promise.resolve([]) });
+      return Promise.resolve(mockResponse({ ok: true, json: () => Promise.resolve([]) }));
     });
     const row = {
       source: { ref: 'hafez.diwan.5097', text: 'a' },

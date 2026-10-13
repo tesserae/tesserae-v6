@@ -12,6 +12,7 @@ import TextPane from './TextPane';
 import ConnectionGutter from './ConnectionGutter';
 import ResultsPanel, { shortRef as shortLocus } from './ResultsPanel';
 import { startLanguage, rememberLanguage } from '../../utils/languagePreference';
+import { fetchLanguages, getJson } from '../../utils/api';
 
 // Book 1, not book 6: the Reader opens where a reader expects a poem to start,
 // and "arma virumque cano" is the line most visitors will recognise.
@@ -152,8 +153,7 @@ export default function ReaderPage() {
   useEffect(() => {
     if (focusView !== 'english' || fullTr !== null) return;
     setFullTr('loading');
-    fetch(`/api/passages/translation-full?work=${encodeURIComponent(work)}&language=${language}`)
-      .then((r) => r.json())
+    getJson(`/api/passages/translation-full?work=${encodeURIComponent(work)}&language=${language}`)
       .then(setFullTr)
       .catch((e) => setFullTr({ available: false, reason: e.message }));
   }, [focusView, fullTr, work, language]);
@@ -242,8 +242,7 @@ export default function ReaderPage() {
     setLoading(true);
     setError(null);
     setSelection(null);
-    fetch(`/api/text/${encodeURIComponent(work)}?language=${language}`)
-      .then((r) => r.json())
+    getJson(`/api/text/${encodeURIComponent(work)}?language=${language}`)
       .then((d) => {
         if (cancelled) return;
         if (d.error) {
@@ -319,8 +318,7 @@ export default function ReaderPage() {
   // the Reader moves to the first served language and its preferred work.
   useEffect(() => {
     let dead = false;
-    fetch('/api/languages')
-      .then((r) => r.json())
+    fetchLanguages()
       .then((d) => {
         if (dead) return;
         const codes = (d.languages || []).map((l) => l.code || l).filter(Boolean);

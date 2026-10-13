@@ -1,7 +1,7 @@
 /**
  * The "Across the corpus" chart needs a parallel with two or more shared
  * words. Persian results lead with refrain rows that share one word, so the
- * chart opened on "shares only one word" and looked broken (NC 2026-10-07).
+ * chart opened on "shares only one word" and looked broken (2026-10-07).
  * It now opens on the first row it can draw, and labels one-word rows.
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
@@ -16,13 +16,15 @@ vi.mock('chart.js', () => ({
   Chart: { register: () => {} },
   CategoryScale: {}, LinearScale: {}, BarElement: {}, Title: {}, Tooltip: {}, Legend: {},
 }));
-vi.mock('../../../utils/api', () => ({
+vi.mock('../../../utils/api', async (importOriginal) => ({
+  ...(await importOriginal()),
   searchTexts: vi.fn(), searchTextsStream: vi.fn(), searchFusionStream: vi.fn(),
   searchSemanticCross: vi.fn(), searchHapax: vi.fn(), searchBigrams: vi.fn(),
   fetchResultPage: vi.fn(), fetchAllResults: vi.fn(), wildcardSearch: vi.fn(),
 }));
 
 import SearchResults from '../SearchResults';
+import { mockResponse } from '../../../test/mockResponse';
 
 const row = (i, words) => ({
   source: { ref: `hafez.diwan.${i}`, text: `s${i}`, tokens: ['s'], highlight_indices: [] },
@@ -34,7 +36,7 @@ const row = (i, words) => ({
 
 beforeEach(() => {
   try { window.sessionStorage.clear(); } catch { /* ignore */ }
-  global.fetch = vi.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve({ results: [] }) }));
+  global.fetch = vi.fn(() => Promise.resolve(mockResponse({ ok: true, json: () => Promise.resolve({ results: [] }) })));
 });
 afterEach(() => { delete global.fetch; });
 

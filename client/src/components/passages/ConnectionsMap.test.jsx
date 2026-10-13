@@ -15,6 +15,7 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import ConnectionsMap, { columnLabelsNeedRotation } from './ConnectionsMap';
+import { mockResponse } from '../../test/mockResponse';
 
 const MAP_PAYLOAD = {
   view: 'author', languages: null, translations: false, top: 50,
@@ -107,24 +108,24 @@ function mockFetch(mapPayload = MAP_PAYLOAD, pairPayload = PAIR_PAYLOAD) {
     if (url.startsWith('/api/passages/map/cell')) {
       const payload = url.includes('view=genre') || url.includes('view=century')
         ? CELL_PAYLOAD_NO_MATRIX : CELL_PAYLOAD;
-      return Promise.resolve({ json: () => Promise.resolve(payload) });
+      return Promise.resolve(mockResponse({ json: () => Promise.resolve(payload) }));
     }
     if (url.startsWith('/api/passages/map/books')) {
-      return Promise.resolve({ json: () => Promise.resolve(BOOKS_PAYLOAD) });
+      return Promise.resolve(mockResponse({ json: () => Promise.resolve(BOOKS_PAYLOAD) }));
     }
     if (url.startsWith('/api/passages/map/pair')) {
-      return Promise.resolve({ json: () => Promise.resolve(pairPayload) });
+      return Promise.resolve(mockResponse({ json: () => Promise.resolve(pairPayload) }));
     }
     if (url.startsWith('/api/passages/map/work')) {
-      return Promise.resolve({ json: () => Promise.resolve(WORK_ROW_PAYLOAD) });
+      return Promise.resolve(mockResponse({ json: () => Promise.resolve(WORK_ROW_PAYLOAD) }));
     }
     if (url.startsWith('/api/passages/works')) {
-      return Promise.resolve({ json: () => Promise.resolve(WORKS_PAYLOAD) });
+      return Promise.resolve(mockResponse({ json: () => Promise.resolve(WORKS_PAYLOAD) }));
     }
     if (url.startsWith('/api/passages/map')) {
-      return Promise.resolve({ json: () => Promise.resolve(mapPayload) });
+      return Promise.resolve(mockResponse({ json: () => Promise.resolve(mapPayload) }));
     }
-    return Promise.resolve({ json: () => Promise.resolve({}) });
+    return Promise.resolve(mockResponse({ json: () => Promise.resolve({}) }));
   });
 }
 
@@ -232,7 +233,7 @@ describe('loading the map', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Refresh map' }));
     const refreshingButton = await screen.findByRole('button', { name: 'Refreshing...' });
     expect(refreshingButton).toBeDisabled();
-    resolveRefresh({ json: () => Promise.resolve(BUILT_MAP_PAYLOAD) });
+    resolveRefresh(mockResponse({ json: () => Promise.resolve(BUILT_MAP_PAYLOAD) }));
     await waitFor(() => expect(screen.getByRole('button', { name: 'Refresh map' })).toBeTruthy());
   });
 

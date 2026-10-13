@@ -232,6 +232,22 @@ history (index builds, cache rebuilds, corpus changes) is in
   in the module is identical by syntax tree, and the full suite fails only
   where main does. The 422 runs take 20.6 seconds on the branch against 20.7
   on main (median of four).
+- Rule for a bad number in a request. A parameter that must be a number and
+  is not gets a 400 with a plain JSON message (`{"error": "limit must be a
+  whole number"}`), through one helper, `int_param` (and `float_param`) in
+  `backend/request_params.py`, never a 500 that prints Python's own error. A
+  value that is absent or empty keeps its default, so every valid request
+  gives the answer it gave before. Routes that already tolerated a bad value
+  by falling back to a default, or that already returned their own 400, were
+  left as they were.
+- Rule for calls from the browser. Every call from the pages goes through the
+  helper in `client/src/utils/api.js`, which checks the status, reads the
+  text first, and reports a failure with the server's own `error` message
+  when the body has one, else the status and a short preview of the body
+  (not "Unexpected token '<'"). Pages that show the server's `error` field
+  themselves receive that body as before. The admin tabs, the assistant and
+  the calls that already check the status with their own message are
+  moved when next touched, not in one sweep.
 
 
 ## 2026-10-12: the band inside one work is refitted on eleven works, and its lowest level is a caution, not a verdict

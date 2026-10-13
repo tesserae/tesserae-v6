@@ -15,7 +15,8 @@ vi.mock('chart.js', () => ({
   CategoryScale: {}, LinearScale: {}, BarElement: {},
   Title: {}, Tooltip: {}, Legend: {},
 }));
-vi.mock('../../../utils/api', () => ({
+vi.mock('../../../utils/api', async (importOriginal) => ({
+  ...(await importOriginal()),
   searchTexts: vi.fn(),
   searchTextsStream: vi.fn(),
   searchFusionStream: vi.fn(),
@@ -28,6 +29,7 @@ vi.mock('../../../utils/api', () => ({
 }));
 
 import SearchResults from '../SearchResults';
+import { mockResponse } from '../../../test/mockResponse';
 
 const baseProps = {
   loading: false,
@@ -57,7 +59,7 @@ afterEach(() => {
 
 describe('SearchResults — restricted-text credit line', () => {
   it('shows the credit beneath a restricted source passage', () => {
-    global.fetch = vi.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve({}) }));
+    global.fetch = vi.fn(() => Promise.resolve(mockResponse({ ok: true, json: () => Promise.resolve({}) })));
     render(<SearchResults {...baseProps} results={[ROW]}
       sourceTextInfo={{ id: 'heldwork.history.tess', author: 'Held Author', title: 'History',
                         restricted: true, credit: 'Source: Test Licence Holder (example.invalid)' }}
@@ -67,7 +69,7 @@ describe('SearchResults — restricted-text credit line', () => {
   });
 
   it('shows no credit line when neither side is restricted', () => {
-    global.fetch = vi.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve({}) }));
+    global.fetch = vi.fn(() => Promise.resolve(mockResponse({ ok: true, json: () => Promise.resolve({}) })));
     render(<SearchResults {...baseProps} results={[ROW]}
       sourceTextInfo={{ id: 'ordinary.poem.tess', author: 'Ordinary Poet', title: 'Poem' }}
       targetTextInfo={{ id: 'another.poem.tess', author: 'Another Poet', title: 'Poem' }}

@@ -1,6 +1,6 @@
 /**
  * The corpus chart counts every work the search found (by_work_all), not
- * only the first 500 lines it returned (NC 2026-10-07: the Persian timeline
+ * only the first 500 lines it returned (2026-10-07: the Persian timeline
  * left out Hafez and Iqbal, the two poets compared).
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
@@ -16,13 +16,15 @@ vi.mock('chart.js', () => ({
   Chart: { register: () => {} },
   CategoryScale: {}, LinearScale: {}, BarElement: {}, Title: {}, Tooltip: {}, Legend: {},
 }));
-vi.mock('../../../utils/api', () => ({
+vi.mock('../../../utils/api', async (importOriginal) => ({
+  ...(await importOriginal()),
   searchTexts: vi.fn(), searchTextsStream: vi.fn(), searchFusionStream: vi.fn(),
   searchSemanticCross: vi.fn(), searchHapax: vi.fn(), searchBigrams: vi.fn(),
   fetchResultPage: vi.fn(), fetchAllResults: vi.fn(), wildcardSearch: vi.fn(),
 }));
 
 import SearchResults from '../SearchResults';
+import { mockResponse } from '../../../test/mockResponse';
 
 const row = {
   source: { ref: 'hafez.diwan.1545', text: 's', tokens: ['s'], highlight_indices: [] },
@@ -35,7 +37,7 @@ const row = {
 beforeEach(() => {
   barData.length = 0;
   try { window.sessionStorage.clear(); } catch { /* ignore */ }
-  global.fetch = vi.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve({
+  global.fetch = vi.fn(() => Promise.resolve(mockResponse({ ok: true, json: () => Promise.resolve({
     capped: true, lines_all: 4759,
     results: [{ author: 'Saeb', work: 'Diwan', era: 'Safavid', year: 1676, locus: '1', text: 'x' }],
     by_work_all: [
@@ -43,7 +45,7 @@ beforeEach(() => {
       { work_id: 'saeb.diwan', author: 'Saeb', work: 'Diwan of Saeb', era: 'Safavid', year: 1676, count: 2082 },
       { work_id: 'iqbal.zabur', author: 'Iqbal', work: 'Zabur', era: 'Modern', year: 1938, count: 22 },
     ],
-  }) }));
+  }) })));
 });
 afterEach(() => { delete global.fetch; });
 

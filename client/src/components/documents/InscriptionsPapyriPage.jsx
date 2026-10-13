@@ -10,6 +10,7 @@ import DocumentsResultsPanel from './DocumentsResultsPanel';
 import DocumentsBrowser from '../corpus/DocumentsBrowser';
 import { closenessSort, closenessLabel, TONE_CLASS } from '../search/closeness';
 import ScopeBox from '../common/ScopeBox';
+import { fetchLanguages, postLineSearch } from '../../utils/api';
 
 // How many literary companions a "Both" search shows before "Show all".
 const LITERATURE_FOLD = 5;
@@ -80,7 +81,7 @@ export default function InscriptionsPapyriPage({ setPageType }) {
   const [serverChecked, setServerChecked] = useState(false);
 
   useEffect(() => {
-    fetch('/api/languages').then(r => r.json()).then(data => {
+    fetchLanguages().then(data => {
       setDocumentsEnabled(!!data.documents_enabled);
     }).catch(() => {}).finally(() => setServerChecked(true));
   }, []);
@@ -195,12 +196,7 @@ export default function InscriptionsPapyriPage({ setPageType }) {
         search_type: searchType,
       });
       recordSearch(searchParams);
-      const res = await fetch('/api/line-search', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(searchParams),
-      });
-      const data = await res.json();
+      const data = await postLineSearch(searchParams);
       if (myId !== searchIdRef.current) return;
       if (data.error) {
         setError(data.error);
@@ -218,12 +214,7 @@ export default function InscriptionsPapyriPage({ setPageType }) {
           // once, with the same filters and paging.
           if (searchType === 'lemma' && !/\s/.test(q)) {
             const retryParams = { ...searchParams, search_type: 'exact' };
-            const res2 = await fetch('/api/line-search', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(retryParams),
-            });
-            const data2 = await res2.json();
+            const data2 = await postLineSearch(retryParams);
             if (myId !== searchIdRef.current) return;
             if (!data2.error && documentRowCount(data2) > 0) {
               recordSearch(retryParams);
@@ -260,12 +251,7 @@ export default function InscriptionsPapyriPage({ setPageType }) {
         collection: example.collection, offset: 0, limit: DOC_PAGE_SIZE, sort: docSort,
       };
       recordSearch(searchParams);
-      const res = await fetch('/api/line-search', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(searchParams),
-      });
-      const data = await res.json();
+      const data = await postLineSearch(searchParams);
       if (data.error) {
         setError(data.error);
         setLiteratureHits([]);

@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { LoadingSpinner, Modal } from '../common';
 import { getDictionaryUrl } from '../../utils/linkUtils';
 import { languageName } from '../../utils/languageNames';
+import { fetchLanguages, getJson } from '../../utils/api';
 
 function capitalizeWords(text) {
   if (!text) return '';
@@ -53,15 +54,14 @@ export default function RareWordsExplorer() {
     setViewerForms([word.toLowerCase()]);
     
     try {
-      const [linesRes, formsRes] = await Promise.all([
-        fetch(`/api/text/${textId}/lines?language=${language}`),
-        fetch(`/api/lemma-forms/${encodeURIComponent(word)}?language=${language}`)
+      const [linesData, formsData] = await Promise.all([
+        getJson(`/api/text/${textId}/lines?language=${language}`),
+        getJson(`/api/lemma-forms/${encodeURIComponent(word)}?language=${language}`)
       ]);
       
-      const linesData = await linesRes.json();
       setViewerLines(linesData.lines || []);
       
-      const formsData = await formsRes.json();
+
       setViewerForms(formsData.forms || [word.toLowerCase()]);
     } catch (err) {
       console.error('Failed to load text:', err);
@@ -90,7 +90,7 @@ export default function RareWordsExplorer() {
   ];
   const [languageTabs, setLanguageTabs] = useState(ALL_LANGUAGE_TABS);
   useEffect(() => {
-    fetch('/api/languages').then(r => r.json()).then(data => {
+    fetchLanguages().then(data => {
       const codes = (data.languages || []).map(l => l.code);
       const served = ALL_LANGUAGE_TABS.filter(t => codes.includes(t.code));
       if (served.length) {
@@ -129,8 +129,7 @@ export default function RareWordsExplorer() {
     setExpandedWord(lemma);
     if (!expandedDetails[lemma]) {
       try {
-        const res = await fetch(`/api/rare-word-locations/${encodeURIComponent(lemma)}?language=${language}`);
-        const data = await res.json();
+        const data = await getJson(`/api/rare-word-locations/${encodeURIComponent(lemma)}?language=${language}`);
         setExpandedDetails(prev => ({
           ...prev,
           [lemma]: {

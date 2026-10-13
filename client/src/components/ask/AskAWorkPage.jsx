@@ -14,6 +14,7 @@ import TransliterationToggle from '../common/TransliterationToggle';
 import { hasOriginalScript } from '../../utils/transliterate';
 import { getView } from '../../collections/collectionsStore';
 import { viewById } from '../../collections/collectionsConfig';
+import { getJson, postJsonTo } from '../../utils/api';
 
 /**
  * Search One Text: pick one work, say a subject in plain words, and get the passages
@@ -262,8 +263,7 @@ function FirstLines({ r }) {
   useEffect(() => {
     let dead = false;
     const p = new URLSearchParams({ work: r.work || '', ref_start: r.ref_start || '', ref_end: r.ref_end || r.ref_start || '' });
-    fetch(`/api/passages/lines?${p.toString()}`)
-      .then((res) => res.json())
+    getJson(`/api/passages/lines?${p.toString()}`)
       .then((d) => { if (!dead && Array.isArray(d.lines)) setLines(d.lines.slice(0, 3)); })
       .catch(() => {});
     return () => { dead = true; };
@@ -297,7 +297,7 @@ export default function AskAWorkPage() {
   const loadWorks = useCallback((code) => {
     if (loading.current[code]) return;
     loading.current[code] = true;
-    fetch(`/api/texts?language=${code}`).then((r) => r.json()).catch(() => []).then((texts) => {
+    getJson(`/api/texts?language=${code}`).catch(() => []).then((texts) => {
       const arr = Array.isArray(texts) ? texts : [];
       return fetchCoveredWorks(code, arr.length > 0).then((covered) => {
         setCatalogue((c) => ({ ...c, [code]: worksFrom(arr, covered) }));
@@ -355,8 +355,7 @@ export default function AskAWorkPage() {
     const p = new URLSearchParams({ work: workId, names: names.join(','), limit: String(PAGE), offset: String(offset) });
     if (question) p.set('q', question);
     if (books) p.set('books', books);
-    const res = await fetch(`/api/passages/mentions?${p.toString()}`);
-    return res.json();
+    return getJson(`/api/passages/mentions?${p.toString()}`);
   }, []);
 
   // The whole list of passages that name the person: the first page comes with the
@@ -393,11 +392,10 @@ export default function AskAWorkPage() {
     setError(null);
     const offset = more ? results.length : 0;
     try {
-      const res = await fetch(
+      const json = await getJson(
         `/api/passages/theme-search?q=${encodeURIComponent(query)}&works=${encodeURIComponent(workId)}`
         + (books ? `&books=${encodeURIComponent(books)}` : '')
         + `&limit=${PAGE}&offset=${offset}&languages=${encodeURIComponent(code)}`);
-      const json = await res.json();
       if (json.error) { setError(json.error); return; }
       const got = json.results || [];
       setData(json);
@@ -440,11 +438,7 @@ export default function AskAWorkPage() {
         Promise.race([asks, capped]).then(() => {
           clearTimeout(capTimer);
           if (id !== searchId.current) return;
-          return fetch('/api/passages/ask-scholarship', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ question: query, work: workId, lang: code }),
-          }).then((res) => res.json()).then((s) => {
+          return postJsonTo('/api/passages/ask-scholarship', { question: query, work: workId, lang: code }).then((s) => {
             if (id !== searchId.current) return;
             if (s && s.available && s.summary) {
               setScholarship({ state: 'ready', holdings: s.holdings || '', summary: s.summary, cites: s.cites || [], queryUsed: s.query_used || '' });
@@ -457,15 +451,11 @@ export default function AskAWorkPage() {
         }).catch(() => { if (id === searchId.current) setScholarship(null); });
         if (json.confidence?.level !== 'low') {
           setSummary({ state: 'loading' });
-          fetch('/api/passages/ask-summary', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              question: query,
-              work_label: workLabel(w, workId, got[0], books),
-              passages: got.slice(0, 12).map((r) => ({ ref: r.ref_start, gist: r.gist || '' })),
-            }),
-          }).then((res) => res.json()).then((s) => {
+          postJsonTo('/api/passages/ask-summary', {
+            question: query,
+            work_label: workLabel(w, workId, got[0], books),
+            passages: got.slice(0, 12).map((r) => ({ ref: r.ref_start, gist: r.gist || '' })),
+          }).then((s) => {
             if (id !== searchId.current) return;
             setSummary(s && s.available && s.summary ? { state: 'ready', summary: s.summary, cites: s.cites || [] } : null);
           }).catch(() => { if (id === searchId.current) setSummary(null); });

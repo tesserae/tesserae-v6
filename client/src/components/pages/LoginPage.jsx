@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { postJsonTo } from '../../utils/api';
 
 const API_BASE = '/api';
 
@@ -31,13 +32,7 @@ const LoginPage = ({ setUser }) => {
         ? { email, password, first_name: firstName, last_name: lastName }
         : { email, password };
 
-      const response = await fetch(`${API_BASE}${endpoint}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body)
-      });
-
-      const data = await response.json();
+      const data = await postJsonTo(`${API_BASE}${endpoint}`, body);
 
       if (data.success) {
         const user = data.user;

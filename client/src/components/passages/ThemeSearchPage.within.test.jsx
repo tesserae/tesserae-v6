@@ -5,6 +5,7 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import ThemeSearchPage, { scopeQuery } from './ThemeSearchPage';
+import { mockResponse } from '../../test/mockResponse';
 
 const TEXTS = [
   { id: 'lucan.bellum_civile.tess', author: 'Lucan', title: 'Bellum Civile' },
@@ -30,7 +31,7 @@ beforeEach(() => {
       : u.startsWith('/api/passages/works') ? { works: COVERED }
       : u.startsWith('/api/passages/theme-search') ? RESULT
       : {};
-    return Promise.resolve({ json: () => Promise.resolve(body) });
+    return Promise.resolve(mockResponse({ json: () => Promise.resolve(body) }));
   });
 });
 
@@ -124,7 +125,7 @@ describe('Search within picker', () => {
                       title: 'Bellum Civile', display_name: 'Lucan, Bellum Civile',
                       ref_start: '5.560', score: 0.8, gist: 'A storm.' }],
         } : { languages: [] };
-      return Promise.resolve({ json: () => Promise.resolve(body) });
+      return Promise.resolve(mockResponse({ json: () => Promise.resolve(body) }));
     });
     window.history.replaceState({}, '', '/theme-search?query=a+storm&author=lucan');
     render(<ThemeSearchPage />);

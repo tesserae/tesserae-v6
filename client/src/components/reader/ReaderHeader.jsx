@@ -6,6 +6,7 @@ import { dateLabel } from '../../utils/chronology';
 import { decodeEntities } from '../../utils/htmlEntities';
 import { useIsPhone } from '../../hooks/useIsPhone';
 import { BookLinks, GoToLineForm, bookSections, sectionsFor } from './ReaderNav';
+import { fetchLanguages, getJson } from '../../utils/api';
 
 /**
  * The Reader's header: where you are, and how to go somewhere else.
@@ -103,8 +104,7 @@ export default function ReaderHeader({
     if (!work) return undefined;
     let dead = false;
     const p = new URLSearchParams({ language: language || 'la', work });
-    fetch(`/api/text-descriptions?${p}`)
-      .then((r) => r.json())
+    getJson(`/api/text-descriptions?${p}`)
       .then((d) => {
         if (dead) return;
         setAbout(d.description || null);
@@ -126,8 +126,7 @@ export default function ReaderHeader({
     if (!(aboutOpen || (phone && pickerOpen)) || !work) return undefined;
     let dead = false;
     const p = new URLSearchParams({ work, language: language || 'la' });
-    fetch(`/api/passages/translation-full?${p}`)
-      .then((r) => r.json())
+    getJson(`/api/passages/translation-full?${p}`)
       .then((d) => { if (!dead) setTranslationAttribution(d?.available ? (d.attribution || null) : null); })
       .catch(() => {});
     return () => { dead = true; };
@@ -135,8 +134,7 @@ export default function ReaderHeader({
 
   useEffect(() => {
     let dead = false;
-    fetch('/api/languages')
-      .then((r) => r.json())
+    fetchLanguages()
       .then((d) => {
         if (dead) return;
         const codes = (d.languages || []).map((l) => l.code || l).filter(Boolean);

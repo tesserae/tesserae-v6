@@ -10,6 +10,7 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import ThemeSearchPage from './ThemeSearchPage';
+import { mockResponse } from '../../test/mockResponse';
 
 const RESULT = {
   query: 'a hero descends to the underworld',
@@ -32,12 +33,12 @@ beforeEach(() => {
   global.fetch = vi.fn((url) => {
     const u = String(url);
     if (u.startsWith('/api/languages')) {
-      return Promise.resolve({ json: () => Promise.resolve({ languages: [] }) });
+      return Promise.resolve(mockResponse({ json: () => Promise.resolve({ languages: [] }) }));
     }
     if (u.startsWith('/api/passages/theme-search')) {
-      return Promise.resolve({ json: () => Promise.resolve(RESULT) });
+      return Promise.resolve(mockResponse({ json: () => Promise.resolve(RESULT) }));
     }
-    return Promise.resolve({ json: () => Promise.resolve({}) });
+    return Promise.resolve(mockResponse({ json: () => Promise.resolve({}) }));
   });
 });
 
@@ -70,16 +71,16 @@ describe('results are labelled with a real author and title', () => {
     global.fetch = vi.fn((url) => {
       const u = String(url);
       if (u.startsWith('/api/languages')) {
-        return Promise.resolve({ json: () => Promise.resolve({ languages: [] }) });
+        return Promise.resolve(mockResponse({ json: () => Promise.resolve({ languages: [] }) }));
       }
       if (u.startsWith('/api/passages/theme-search')) {
-        return Promise.resolve({ json: () => Promise.resolve({
+        return Promise.resolve(mockResponse({ json: () => Promise.resolve({
           query: 'x', confidence: { level: 'high' },
           results: [{ id: 'w1', language: 'la', work: 'ovid.metamorphoses',
                       ref_start: '4.55', score: 0.8 }],
-        }) });
+        }) }));
       }
-      return Promise.resolve({ json: () => Promise.resolve({}) });
+      return Promise.resolve(mockResponse({ json: () => Promise.resolve({}) }));
     });
     await search('x');
     expect(await screen.findByText('ovid.metamorphoses')).toBeTruthy();
@@ -91,16 +92,16 @@ describe('the per-result language badge (code review 2026-09-21, finding 3)', ()
     global.fetch = vi.fn((url) => {
       const u = String(url);
       if (u.startsWith('/api/languages')) {
-        return Promise.resolve({ json: () => Promise.resolve({ languages: [] }) });
+        return Promise.resolve(mockResponse({ json: () => Promise.resolve({ languages: [] }) }));
       }
       if (u.startsWith('/api/passages/theme-search')) {
-        return Promise.resolve({ json: () => Promise.resolve({
+        return Promise.resolve(mockResponse({ json: () => Promise.resolve({
           query: 'x', confidence: { level: 'high' },
           results: [{ id: 'w1', language: 'he', work: 'genesis',
                       display_name: 'Genesis', ref_start: '1.1', score: 0.9 }],
-        }) });
+        }) }));
       }
-      return Promise.resolve({ json: () => Promise.resolve({}) });
+      return Promise.resolve(mockResponse({ json: () => Promise.resolve({}) }));
     });
     await search('x');
     await waitFor(() => expect(screen.getByText('Genesis')).toBeTruthy());
@@ -131,7 +132,7 @@ describe('the covered-works line under the language row', () => {
     return vi.fn((url) => {
       const u = String(url);
       if (u.startsWith('/api/languages')) {
-        return Promise.resolve({ json: () => Promise.resolve({ languages: [] }) });
+        return Promise.resolve(mockResponse({ json: () => Promise.resolve({ languages: [] }) }));
       }
       const textsMatch = u.match(/^\/api\/texts\?language=(\w+)/);
       if (textsMatch) {
@@ -140,19 +141,19 @@ describe('the covered-works line under the language row', () => {
         const texts = Array.from({ length: n }, (_, i) => (
           { id: `${lang}${i}.tess`, author: 'Author', title: `Work ${i}` }
         ));
-        return Promise.resolve({ json: () => Promise.resolve(texts) });
+        return Promise.resolve(mockResponse({ json: () => Promise.resolve(texts) }));
       }
       const worksMatch = u.match(/^\/api\/passages\/works\?language=(\w+)/);
       if (worksMatch) {
         const lang = worksMatch[1];
         const n = COVERED[lang] || 0;
         const works = Array.from({ length: n }, (_, i) => `${lang}${i}`);
-        return Promise.resolve({ json: () => Promise.resolve({ works }) });
+        return Promise.resolve(mockResponse({ json: () => Promise.resolve({ works }) }));
       }
       if (u.startsWith('/api/passages/theme-search')) {
-        return Promise.resolve({ json: () => Promise.resolve(RESULT) });
+        return Promise.resolve(mockResponse({ json: () => Promise.resolve(RESULT) }));
       }
-      return Promise.resolve({ json: () => Promise.resolve({}) });
+      return Promise.resolve(mockResponse({ json: () => Promise.resolve({}) }));
     });
   }
 
@@ -207,7 +208,7 @@ describe('the covered-works line under the language row', () => {
     global.fetch = vi.fn((url) => {
       const u = String(url);
       if (u.startsWith('/api/languages')) {
-        return Promise.resolve({ json: () => Promise.resolve({ languages: [] }) });
+        return Promise.resolve(mockResponse({ json: () => Promise.resolve({ languages: [] }) }));
       }
       // English has zero indexed texts in this snapshot; the other three
       // covered languages still have some.
@@ -220,16 +221,16 @@ describe('the covered-works line under the language row', () => {
         const texts = Array.from({ length: n }, (_, i) => (
           { id: `${lang}${i}.tess`, author: 'Author', title: `Work ${i}` }
         ));
-        return Promise.resolve({ json: () => Promise.resolve(texts) });
+        return Promise.resolve(mockResponse({ json: () => Promise.resolve(texts) }));
       }
       const worksMatch = u.match(/^\/api\/passages\/works\?language=(\w+)/);
       if (worksMatch) {
         const lang = worksMatch[1];
         const n = covered[lang] || 0;
         const works = Array.from({ length: n }, (_, i) => `${lang}${i}`);
-        return Promise.resolve({ json: () => Promise.resolve({ works }) });
+        return Promise.resolve(mockResponse({ json: () => Promise.resolve({ works }) }));
       }
-      return Promise.resolve({ json: () => Promise.resolve({}) });
+      return Promise.resolve(mockResponse({ json: () => Promise.resolve({}) }));
     });
     render(<ThemeSearchPage />);
     // 8 + 5 + 0 + 3 = 16.
@@ -271,12 +272,12 @@ describe('the covered-works line under the language row', () => {
     global.fetch = vi.fn((url) => {
       const u = String(url);
       if (u.startsWith('/api/languages')) {
-        return Promise.resolve({ json: () => Promise.resolve({
+        return Promise.resolve(mockResponse({ json: () => Promise.resolve({
           languages: [
             { code: 'la' }, { code: 'grc' }, { code: 'en' }, { code: 'cop' },
             { code: 'he' }, { code: 'fa' }, { code: 'ur' },
           ],
-        }) });
+        }) }));
       }
       const textsMatch = u.match(/^\/api\/texts\?language=(\w+)/);
       if (textsMatch) {
@@ -285,19 +286,19 @@ describe('the covered-works line under the language row', () => {
         const texts = Array.from({ length: n }, (_, i) => (
           { id: `${lang}${i}.tess`, author: 'Author', title: `Work ${i}` }
         ));
-        return Promise.resolve({ json: () => Promise.resolve(texts) });
+        return Promise.resolve(mockResponse({ json: () => Promise.resolve(texts) }));
       }
       const worksMatch = u.match(/^\/api\/passages\/works\?language=(\w+)/);
       if (worksMatch) {
         const lang = worksMatch[1];
         const n = COVERED[lang] || 0;
         const works = Array.from({ length: n }, (_, i) => `${lang}${i}`);
-        return Promise.resolve({ json: () => Promise.resolve({ works }) });
+        return Promise.resolve(mockResponse({ json: () => Promise.resolve({ works }) }));
       }
       if (u.startsWith('/api/passages/theme-search')) {
-        return Promise.resolve({ json: () => Promise.resolve(RESULT) });
+        return Promise.resolve(mockResponse({ json: () => Promise.resolve(RESULT) }));
       }
-      return Promise.resolve({ json: () => Promise.resolve({}) });
+      return Promise.resolve(mockResponse({ json: () => Promise.resolve({}) }));
     });
     render(<ThemeSearchPage />);
     // Arabic isn't offered as a chip once the server's real language list
@@ -421,7 +422,7 @@ describe('Compare two works', () => {
   it('calls /api/passages/compare with the two chosen works, and renders the pairs and the confidence line', async () => {
     global.fetch = mockFetchFor((u) => {
       if (u.startsWith('/api/passages/compare')) {
-        return Promise.resolve({ json: () => Promise.resolve(COMPARE_RESULT) });
+        return Promise.resolve(mockResponse({ json: () => Promise.resolve(COMPARE_RESULT) }));
       }
       return null;
     });
@@ -447,7 +448,7 @@ describe('Compare two works', () => {
     window.history.replaceState(null, '', '/theme-search?compare=vergil.aeneid&with=lucan.bellum_civile');
     global.fetch = mockFetchFor((u) => {
       if (u.startsWith('/api/passages/compare')) {
-        return Promise.resolve({ json: () => Promise.resolve(COMPARE_RESULT) });
+        return Promise.resolve(mockResponse({ json: () => Promise.resolve(COMPARE_RESULT) }));
       }
       return null;
     });
@@ -472,7 +473,7 @@ describe('Compare two works', () => {
     };
     global.fetch = mockFetchFor((u) => {
       if (u.startsWith('/api/passages/compare')) {
-        return Promise.resolve({ json: () => Promise.resolve(withPhrases) });
+        return Promise.resolve(mockResponse({ json: () => Promise.resolve(withPhrases) }));
       }
       return null;
     });
@@ -496,7 +497,7 @@ describe('Compare two works', () => {
     };
     global.fetch = mockFetchFor((u) => {
       if (u.startsWith('/api/passages/compare')) {
-        return Promise.resolve({ json: () => Promise.resolve(noPhrases) });
+        return Promise.resolve(mockResponse({ json: () => Promise.resolve(noPhrases) }));
       }
       return null;
     });
@@ -514,7 +515,7 @@ describe('Compare two works', () => {
   it('unchecking "Show shared wording inside pairs" omits with_phrases from the request', async () => {
     global.fetch = mockFetchFor((u) => {
       if (u.startsWith('/api/passages/compare')) {
-        return Promise.resolve({ json: () => Promise.resolve(COMPARE_RESULT) });
+        return Promise.resolve(mockResponse({ json: () => Promise.resolve(COMPARE_RESULT) }));
       }
       return null;
     });

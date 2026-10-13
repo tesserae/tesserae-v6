@@ -11,6 +11,7 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import CorpusBrowser from '../CorpusBrowser';
+import { mockResponse } from '../../../test/mockResponse';
 
 const TEXTS = [
   { id: 'vergil.aeneid.part.1.tess', author: 'Vergil', title: 'Aeneid 1', line_count: 756 },
@@ -20,23 +21,23 @@ const TEXTS = [
 
 function mockFetch(url) {
   if (url.startsWith('/api/texts')) {
-    return Promise.resolve({ json: () => Promise.resolve(TEXTS) });
+    return Promise.resolve(mockResponse({ json: () => Promise.resolve(TEXTS) }));
   }
   if (url.startsWith('/api/passages/translations')) {
-    return Promise.resolve({ json: () => Promise.resolve({ language: 'la', works: {} }) });
+    return Promise.resolve(mockResponse({ json: () => Promise.resolve({ language: 'la', works: {} }) }));
   }
   if (url.startsWith('/api/passages/works')) {
-    return Promise.resolve({
+    return Promise.resolve(mockResponse({
       json: () => Promise.resolve({ language: 'la', works: ['vergil.aeneid'] }),
-    });
+    }));
   }
   if (url.startsWith('/api/text-descriptions')) {
-    return Promise.resolve({ json: () => Promise.resolve({ descriptions: {} }) });
+    return Promise.resolve(mockResponse({ json: () => Promise.resolve({ descriptions: {} }) }));
   }
   if (url.startsWith('/api/stats')) {
-    return Promise.resolve({ json: () => Promise.resolve({}) });
+    return Promise.resolve(mockResponse({ json: () => Promise.resolve({}) }));
   }
-  return Promise.resolve({ json: () => Promise.resolve({}) });
+  return Promise.resolve(mockResponse({ json: () => Promise.resolve({}) }));
 }
 
 beforeEach(() => {
@@ -189,7 +190,7 @@ describe('the Theme Search coverage badge', () => {
     it('shows "coverage is loading" rather than "0 of N" on an empty works list', async () => {
       global.fetch = vi.fn((url) => {
         if (url.startsWith('/api/passages/works')) {
-          return Promise.resolve({ json: () => Promise.resolve({ language: 'la', works: [] }) });
+          return Promise.resolve(mockResponse({ json: () => Promise.resolve({ language: 'la', works: [] }) }));
         }
         return mockFetch(url);
       });
@@ -208,11 +209,11 @@ describe('the Theme Search coverage badge', () => {
         if (url.startsWith('/api/passages/works')) {
           calls += 1;
           if (calls < 2) {
-            return Promise.resolve({ json: () => Promise.resolve({ language: 'la', works: [] }) });
+            return Promise.resolve(mockResponse({ json: () => Promise.resolve({ language: 'la', works: [] }) }));
           }
-          return Promise.resolve({
+          return Promise.resolve(mockResponse({
             json: () => Promise.resolve({ language: 'la', works: ['vergil.aeneid'] }),
-          });
+          }));
         }
         return mockFetch(url);
       });
@@ -241,7 +242,7 @@ const HEBREW_TEXTS = [
 
 function mockFetchWithHebrew(url) {
   if (url.startsWith('/api/texts?language=he')) {
-    return Promise.resolve({ json: () => Promise.resolve(HEBREW_TEXTS) });
+    return Promise.resolve(mockResponse({ json: () => Promise.resolve(HEBREW_TEXTS) }));
   }
   return mockFetch(url);
 }
@@ -293,19 +294,19 @@ describe('the Hebrew tab', () => {
 function mockFetchDocumentsGate(documentsEnabled) {
   return (url) => {
     if (url.startsWith('/api/texts')) {
-      return Promise.resolve({ ok: true, json: () => Promise.resolve(TEXTS) });
+      return Promise.resolve(mockResponse({ ok: true, json: () => Promise.resolve(TEXTS) }));
     }
     if (url.startsWith('/api/languages')) {
-      return Promise.resolve({
+      return Promise.resolve(mockResponse({
         ok: true,
         json: () => Promise.resolve({
           languages: [{ code: 'la' }, { code: 'grc' }],
           documents_enabled: documentsEnabled,
         }),
-      });
+      }));
     }
     if (url.startsWith('/api/documents/browse')) {
-      return Promise.resolve({
+      return Promise.resolve(mockResponse({
         ok: true,
         json: () => Promise.resolve({
           kind_counts: [{ value: 'inscriptions', label: 'Inscriptions (Latin, Greek)', count: 1 }],
@@ -313,9 +314,9 @@ function mockFetchDocumentsGate(documentsEnabled) {
           filters: { text_types: [], materials: [], objects: [], languages: [] },
           documents: [], total: 0, page: 1, page_size: 50,
         }),
-      });
+      }));
     }
-    return Promise.resolve({ ok: true, json: () => Promise.resolve({}) });
+    return Promise.resolve(mockResponse({ ok: true, json: () => Promise.resolve({}) }));
   };
 }
 

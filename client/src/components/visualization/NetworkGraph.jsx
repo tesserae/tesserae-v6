@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import * as d3 from 'd3';
+import { getJson } from '../../utils/api';
 
 const ERA_COLORS = {
   'Archaic': '#9b2335',
@@ -52,13 +53,10 @@ export default function NetworkGraph({ language = 'la', nodeType = 'author' }) {
     setLoading(true);
     setError(null);
     try {
-      const [nodesRes, connectionsRes] = await Promise.all([
-        fetch(`/api/batch/network/nodes?language=${language}&type=${nodeType}`),
-        fetch(`/api/batch/connections?language=${language}&per_page=500`)
+      const [nodesData, connectionsData] = await Promise.all([
+        getJson(`/api/batch/network/nodes?language=${language}&type=${nodeType}`),
+        getJson(`/api/batch/connections?language=${language}&per_page=500`)
       ]);
-      
-      const nodesData = await nodesRes.json();
-      const connectionsData = await connectionsRes.json();
       
       if (nodesData.nodes) {
         setNodes(nodesData.nodes);

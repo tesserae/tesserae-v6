@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
 import { DOC_PAGE_SIZE, DOCUMENTS_FORMULA_DEFAULT_N } from './documentsConstants';
+import { postLineSearch } from '../../utils/api';
 
 /**
  * Documents-collection search state and /api/line-search plumbing, shared
@@ -136,12 +137,7 @@ export function useDocumentsSearch({ documentsEnabled, defaultCollection = 'lite
     if (setError) setError(null);
     try {
       const params = { ...base, offset, limit: DOC_PAGE_SIZE, sort };
-      const res = await fetch('/api/line-search', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(params)
-      });
-      const data = await res.json();
+      const data = await postLineSearch(params);
       if (data.error) {
         if (setError) setError(data.error);
       } else {

@@ -10,6 +10,7 @@ import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { installPhone } from '../../test/phone';
 import ReaderHeader from './ReaderHeader';
+import { mockResponse } from '../../test/mockResponse';
 
 // Two authors, one with books, shaped exactly as useCorpus builds it.
 const HIERARCHY = [
@@ -59,8 +60,8 @@ function mount(props = {}) {
 
 beforeEach(() => {
   global.fetch = vi.fn(() =>
-    Promise.resolve({ json: () => Promise.resolve({ languages: [
-      { code: 'la' }, { code: 'grc' }, { code: 'en' }] }) }));
+    Promise.resolve(mockResponse({ json: () => Promise.resolve({ languages: [
+      { code: 'la' }, { code: 'grc' }, { code: 'en' }] }) })));
 });
 
 // Author/Work/Book are now SearchableSelect (type-to-find), not a plain
@@ -128,8 +129,8 @@ describe('the dropdowns actually change something', () => {
 
   it('labels a served Hebrew option "Hebrew", not the raw code (code review 2026-09-21, finding 3)', async () => {
     global.fetch = vi.fn(() =>
-      Promise.resolve({ json: () => Promise.resolve({ languages: [
-        { code: 'la' }, { code: 'grc' }, { code: 'en' }, { code: 'he' }] }) }));
+      Promise.resolve(mockResponse({ json: () => Promise.resolve({ languages: [
+        { code: 'la' }, { code: 'grc' }, { code: 'en' }, { code: 'he' }] }) })));
     mount();
     const sel = await screen.findByLabelText('Language');
     const heOption = [...sel.options].find((o) => o.value === 'he');
@@ -177,11 +178,11 @@ describe('a selection in a language with no static abbreviation table', () => {
   it('resolves a Persian selection against the corpus text map, not the raw id', async () => {
     global.fetch = vi.fn((url) => {
       if (String(url).includes('/api/texts')) {
-        return Promise.resolve({ ok: true, json: () => Promise.resolve([
+        return Promise.resolve(mockResponse({ ok: true, json: () => Promise.resolve([
           { id: 'iqbal.asrar_e_khudi.tess', author: 'Iqbal', title: 'Asrar-e Khudi' },
-        ]) });
+        ]) }));
       }
-      return Promise.resolve({ ok: true, json: () => Promise.resolve({ languages: [{ code: 'fa' }] }) });
+      return Promise.resolve(mockResponse({ ok: true, json: () => Promise.resolve({ languages: [{ code: 'fa' }] }) }));
     });
     mount({
       language: 'fa',
@@ -198,13 +199,13 @@ describe('a restricted text (data/restricted_texts.json)', () => {
   it('shows the licence credit line beneath the header', async () => {
     global.fetch = vi.fn((url) => {
       if (String(url).includes('/api/text-descriptions')) {
-        return Promise.resolve({ json: () => Promise.resolve({
+        return Promise.resolve(mockResponse({ json: () => Promise.resolve({
           description: 'An orientation blurb.',
           restricted: true,
           credit: 'Source: Test Licence Holder (example.invalid)',
-        }) });
+        }) }));
       }
-      return Promise.resolve({ json: () => Promise.resolve({ languages: [{ code: 'la' }] }) });
+      return Promise.resolve(mockResponse({ json: () => Promise.resolve({ languages: [{ code: 'la' }] }) }));
     });
     mount();
     expect(await screen.findByText('Source: Test Licence Holder (example.invalid)'))
@@ -214,9 +215,9 @@ describe('a restricted text (data/restricted_texts.json)', () => {
   it('shows no credit line for an ordinary text', async () => {
     global.fetch = vi.fn((url) => {
       if (String(url).includes('/api/text-descriptions')) {
-        return Promise.resolve({ json: () => Promise.resolve({ description: 'A blurb.' }) });
+        return Promise.resolve(mockResponse({ json: () => Promise.resolve({ description: 'A blurb.' }) }));
       }
-      return Promise.resolve({ json: () => Promise.resolve({ languages: [{ code: 'la' }] }) });
+      return Promise.resolve(mockResponse({ json: () => Promise.resolve({ languages: [{ code: 'la' }] }) }));
     });
     mount();
     await screen.findByLabelText('About this text');
@@ -229,16 +230,16 @@ describe('the About panel: title, facts line, prose, sources footnote', () => {
     global.fetch = vi.fn((url) => {
       const u = String(url);
       if (u.includes('/api/text-descriptions')) {
-        return Promise.resolve({ json: () => Promise.resolve({
+        return Promise.resolve(mockResponse({ json: () => Promise.resolve({
           description: 'An orientation blurb.',
           ...(facts ? { facts } : {}),
-        }) });
+        }) }));
       }
       if (u.includes('/api/passages/translation-full')) {
-        return Promise.resolve({ json: () => Promise.resolve(
-          translation || { available: false, reason: 'none' }) });
+        return Promise.resolve(mockResponse({ json: () => Promise.resolve(
+          translation || { available: false, reason: 'none' }) }));
       }
-      return Promise.resolve({ json: () => Promise.resolve({ languages: [{ code: 'la' }] }) });
+      return Promise.resolve(mockResponse({ json: () => Promise.resolve({ languages: [{ code: 'la' }] }) }));
     });
   }
 
@@ -409,10 +410,10 @@ describe('on a phone: one title line and a picker sheet', () => {
   });
 
   it('carries the About content as its own section, with no toggle', async () => {
-    global.fetch = vi.fn((url) => Promise.resolve({ json: () => Promise.resolve(
+    global.fetch = vi.fn((url) => Promise.resolve(mockResponse({ json: () => Promise.resolve(
       String(url).includes('/api/text-descriptions')
         ? { description: 'An orientation blurb.', facts: { author: 'Vergil', work: 'Aeneid', part: 'Book 1', kind: 'poetry' } }
-        : { languages: [{ code: 'la' }], available: false }) }));
+        : { languages: [{ code: 'la' }], available: false }) })));
     mountPhone();
     fireEvent.click(screen.getByRole('button', { name: /Vergil, Aeneid, Book 1/ }));
     expect(await screen.findByText('An orientation blurb.')).toBeInTheDocument();

@@ -29,6 +29,7 @@ import { useCorpus, useSearch, DEFAULT_PAGE_SIZE } from './hooks';
 import { getSessionValue, setSessionValue } from './utils/storage';
 import { startLanguage } from './utils/languagePreference';
 import { recordPageView } from './lib/pageViews';
+import { fetchLanguages, getJson, postJsonTo } from './utils/api';
 
 // What each page is called in the browser tab, the bookmark and the history.
 const PAGE_TITLES = {
@@ -238,7 +239,7 @@ function App() {
   // "Loading corpus".
   const [servedLanguages, setServedLanguages] = useState(null);
   useEffect(() => {
-    fetch('/api/languages').then(r => r.json()).then(data => {
+    fetchLanguages().then(data => {
       const codes = (data.languages || []).map(l => l.code);
       if (codes.length) setServedLanguages(codes);
     }).catch(() => {});
@@ -352,8 +353,7 @@ function App() {
   ), [results, sortBy]);
 
   useEffect(() => {
-    fetch('/api/auth/user')
-      .then(res => res.json())
+    getJson('/api/auth/user')
       .then(data => {
         if (data.user) {
           const firstName = data.user.first_name || '';
@@ -751,8 +751,7 @@ function App() {
   // Auto-enable meter when both texts are poetry, auto-disable when not
   useEffect(() => {
     if (!sourceText || !targetText) return;
-    fetch(`/api/check-meter?source=${encodeURIComponent(sourceText)}&target=${encodeURIComponent(targetText)}&language=${activeTab}`)
-      .then(res => res.json())
+    getJson(`/api/check-meter?source=${encodeURIComponent(sourceText)}&target=${encodeURIComponent(targetText)}&language=${activeTab}`)
       .then(data => {
         setSettings(prev => ({ ...prev, use_meter: data.available }));
       })
@@ -926,20 +925,15 @@ function App() {
     }, 1000);
 
     try {
-      const res = await fetch('/api/corpus-search', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          lemmas,
-          language: searchLanguage,
-          // The two texts being compared used to be left out, so the corpus
-          // map and its timeline never showed the very authors in question
-          // (2026-09-07: Mir and Iqbal were missing). They are included and
-          // the chart marks them.
-          exclude_texts: []
-        })
+      const data = await postJsonTo('/api/corpus-search', {
+        lemmas,
+        language: searchLanguage,
+        // The two texts being compared used to be left out, so the corpus
+        // map and its timeline never showed the very authors in question
+        // (2026-09-07: Mir and Iqbal were missing). They are included and
+        // the chart marks them.
+        exclude_texts: []
       });
-      const data = await res.json();
       clearInterval(timerInterval);
       if (data.error) {
         setCorpusSearchError(data.error);

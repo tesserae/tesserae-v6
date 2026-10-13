@@ -11,6 +11,7 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import ThemeExport from './ThemeExport';
+import { mockResponse } from '../../test/mockResponse';
 
 const PAYLOAD = {
   query: 'warrior arming for battle',
@@ -36,7 +37,7 @@ beforeEach(() => {
   written = '';
   opened = true;
   global.fetch = vi.fn(() =>
-    Promise.resolve({ json: () => Promise.resolve(PAYLOAD) }));
+    Promise.resolve(mockResponse({ json: () => Promise.resolve(PAYLOAD) })));
   vi.stubGlobal('open', vi.fn(() => (opened ? {
     document: { write: (s) => { written += s; }, close: () => {} },
     close: () => {},
@@ -137,10 +138,10 @@ describe('the printable document', () => {
   });
 
   it('escapes markup in the passage rather than injecting it', async () => {
-    global.fetch = vi.fn(() => Promise.resolve({ json: () => Promise.resolve({
+    global.fetch = vi.fn(() => Promise.resolve(mockResponse({ json: () => Promise.resolve({
       ...PAYLOAD,
       results: [{ ...PAYLOAD.results[0], text: '<script>alert(1)</script>' }],
-    }) }));
+    }) })));
     render(<ThemeExport query="x" language="" count={1} />);
     fireEvent.click(screen.getByText('Printable page'));
     await waitFor(() => expect(written).toContain('&lt;script&gt;'));

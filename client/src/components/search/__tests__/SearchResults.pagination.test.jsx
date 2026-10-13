@@ -31,7 +31,8 @@ vi.mock('chart.js', () => ({
 }));
 
 // Every search transport lives in utils/api. Pagination must never reach it.
-vi.mock('../../../utils/api', () => ({
+vi.mock('../../../utils/api', async (importOriginal) => ({
+  ...(await importOriginal()),
   searchTexts: vi.fn(),
   searchTextsStream: vi.fn(),
   searchFusionStream: vi.fn(),
