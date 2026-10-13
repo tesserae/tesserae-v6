@@ -63,6 +63,7 @@ def scholarship_for(doc_id, path=None):
         item = {
             'source': r['source'],
             'citation': _citation_line(r),
+            'authors': [a for a in (r['authors'] or '').split('; ') if a],
             'title': r['title'], 'journal': r['journal'], 'year': r['year'], 'page': r['page'],
             'cites': r['surface'],
             'excerpt': _excerpt(r['sentence'], r['surface']),
