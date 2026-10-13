@@ -35,6 +35,44 @@ Conventions
   hand and are the models the helper matches.
 
 
+## 2026-10-13 Licensed journal text: first supervised retrieval (DRAFT, date and time to be filled in on the day)
+- What: retrieval of full text from the four Project MUSE classics journals
+  (American Journal of Philology, Transactions of the American Philological
+  Association, The Classical Journal, Arethusa) and from De Gruyter Brill's
+  Philologus and Mnemosyne, under the licensors' agreements to automated
+  retrieval at one item a minute from the web server's address. The text is
+  read once to extract passage citations and echo claims for the scholarship
+  index; it is not shown or redistributed. Status: the tooling exists and has
+  been dry-run against a local stub only. Nothing has been fetched.
+- Before the first run: the start date is sent to Project MUSE, who asked to
+  be told it. The lists are built from Crossref's public metadata by
+  `scripts/scholarship/licensed_lists.py build --publisher muse|degruyter`.
+- Run: `scripts/scholarship/licensed_fetch.py run --publisher P --list CSV
+  --out DIR --rate 60`, on the production server only (it refuses unless the
+  outgoing address is 128.205.2.231), as the deploy user, inside
+  `~/bin/tess-job`. The first run uses `--limit` and is watched.
+- Where: DIR is a folder outside the repository and outside the web root,
+  created mode 700; files are mode 600, readable by the deploy account alone.
+  Layout `DIR/<publisher>/<journal>/<doi>.<pdf|html|xml>` with a metadata
+  sidecar `<doi>.json` (status, content type, size, time) and the resumable
+  log `DIR/fetched.jsonl`.
+- Rate and manners: one article a minute (the landing page, then the full
+  text a few seconds later); a fixed User-Agent naming the project and its
+  university contact address; redirects only to the publisher's own hosts.
+- Stop rule: the first 401, 403, 429 or captcha-like page ends the run,
+  writes `DIR/STOPPED.json` and requests nothing further. Nothing is retried
+  around a refusal. The next run refuses to start until a person has read
+  `STOPPED.json` and passes `--clear-stop`. Three failures in a row (a
+  missing page, a network error) stop it too.
+- Resume: a restart skips every DOI already saved and waits out the rate
+  from the last logged request.
+- Purge rule: at project end, `licensed_fetch.py purge --out DIR --publisher
+  P` deletes that publisher's text files, keeps the metadata sidecars and the
+  log, and writes `DIR/PURGE_<publisher>_<date>.json`. Backups drop a deleted
+  file thirty days later.
+- Verification: the stub-server tests in `tests/test_licensed_fetch.py`
+  (rate, stop on refusal, resume, purge, address check).
+
 ## 2026-10-13 Translation file installed: Saadi's Gulistan, Eastwick 1880 (RUN 07:41)
 - What: `data/translations/fa__saadi.diwan.json`, built by
   `scripts/translations/align_saadi_gulistan_eastwick.py` (this pull request)
