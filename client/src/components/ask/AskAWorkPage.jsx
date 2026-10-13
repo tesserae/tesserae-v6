@@ -9,6 +9,9 @@ import CiteRecordButton from '../common/CiteRecordButton';
 import CiteAll from '../common/CiteAll';
 import { recordFrom, toText, loadEditions, withEditionSync } from '../../utils/citations';
 import { RECENT_SERVICES, RECENT_LABELS, joinNames, mergeRecent, recentUrl, fetchRecent } from '../../utils/recentArticles';
+import OriginalScript from '../common/OriginalScript';
+import TransliterationToggle from '../common/TransliterationToggle';
+import { hasOriginalScript } from '../../utils/transliterate';
 
 /**
  * Search One Text: pick one work, say a subject in plain words, and get the passages
@@ -193,12 +196,12 @@ function workLabel(w, workId, firstResult, books) {
 /** The summary text with each cited reference made a link to its card. */
 function SummaryText({ text, cites, onJump }) {
   const refs = [...new Set((cites || []).filter(Boolean))].sort((a, b) => b.length - a.length);
-  if (!refs.length) return text;
+  if (!refs.length) return <OriginalScript text={text} />;
   const re = new RegExp(`(${refs.map((c) => c.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})`);
   return text.split(re).map((part, k) => (refs.includes(part) ? (
     <button key={k} type="button" onClick={() => onJump(part)}
             className="text-red-800 hover:text-red-900 hover:underline">{part}</button>
-  ) : part));
+  ) : <OriginalScript key={k} text={part} />));
 }
 
 const RECENT_CAP_MS = 12000;
@@ -218,7 +221,7 @@ function ScholarshipText({ text, cites }) {
   return String(text || '').split(/(\[\d+\])/).map((part, k) => {
     const m = /^\[(\d+)\]$/.exec(part);
     const c = m && byN.get(m[1]);
-    if (!c) return part;
+    if (!c) return <OriginalScript key={k} text={part} />;
     const tip = toText(withEditionSync(recordFrom(c, 'cite'))) || c.label;
     if (!c.link?.url) return <span key={k} title={tip}>{part}</span>;
     return (
@@ -886,6 +889,9 @@ export default function AskAWorkPage() {
                       <p className="mt-1 text-sm text-gray-800 leading-snug">
                         <ScholarshipText text={scholarship.summary} cites={scholarship.cites} />
                       </p>
+                      {(hasOriginalScript(scholarship.summary) || hasOriginalScript(summary?.summary)) && (
+                        <p className="mt-1"><TransliterationToggle /></p>
+                      )}
                       {scholarship.holdings && <p className="mt-1 text-xs text-gray-500" data-testid="ask-scholarship-holdings">{scholarship.holdings}</p>}
                       {/* The paragraph reads at most eight; the scholarship search
                           lists every note and article for the same question
