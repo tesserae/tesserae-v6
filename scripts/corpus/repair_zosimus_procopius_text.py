@@ -10,13 +10,19 @@ the context does not fix, are removed (the damaged token is dropped, no
 numeral is invented). Perseus's Procopius has two places where a combining
 rough breathing joins two words ("ἄδοξον̔τὸ"): a space is put back.
 
-    repair_zosimus_procopius_text.py FILE.tess [FILE.tess ...]
+    repair_zosimus_procopius_text.py [--apply] FILE.tess [FILE.tess ...]
 
-Each file is rewritten in place. Prints how many replacements were made in
-each file; run on the whole-work file and the per-book files alike.
+Dry run by default: prints how many replacements each file would get. With
+--apply each file is backed up (scripts/corpus/corpus_safety.py) and then
+rewritten by rename. Run on the whole-work file and the per-book files alike.
 """
+import argparse
+import os
 import re
 import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from corpus_safety import add_apply_argument, atomic_write, backup  # noqa: E402
 
 ZOSIMUS = [
     ("μητρόπ̔??'λιν", "μητρόπολιν"),
@@ -42,7 +48,12 @@ ZOSIMUS = [
 # combining rough breathing after a consonant joins two words
 JOINED = re.compile('(?<=[βγδζθκλμνξπρστφχψς])̔(?=[Ͱ-Ͽἀ-῿])')
 
-for path in sys.argv[1:]:
+ap = argparse.ArgumentParser()
+ap.add_argument('paths', nargs='+', help='.tess files to repair')
+add_apply_argument(ap)
+args = ap.parse_args()
+
+for path in args.paths:
     text = open(path, encoding='utf-8').read()
     n = 0
     if 'zosimus' in path:
@@ -57,5 +68,11 @@ for path in sys.argv[1:]:
     else:
         text, k = JOINED.subn(' ', text)
         n += k
-    open(path, 'w', encoding='utf-8', newline='').write(text)
-    print(f'{path}: {n} replacements')
+    if args.apply:
+        backup(path, tag='zosimus-procopius')
+        atomic_write(path, text)
+        print(f'{path}: {n} replacements')
+    else:
+        print(f'{path}: {n} replacements would be made')
+if not args.apply:
+    print('dry run; pass --apply to write (a dated backup is made first)')

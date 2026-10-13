@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+# SUPERSEDED 2026-10-13: use scripts/corpus/build_hebrew_tables.py instead.
+# The replacement builds the consonantal and pointed lemma tables with homographs told apart; texts/he now comes from Sefaria.
+# Kept for the record. Do not run it against production output.
 """
 Extract Hebrew lemma table and demo .tess files from BHSA via Text-Fabric.
 
@@ -19,7 +22,7 @@ import sys
 import unicodedata
 
 # Ensure project root is in path
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.insert(0, PROJECT_ROOT)
 
 

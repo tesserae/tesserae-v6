@@ -9,6 +9,9 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-13
 
+### Superseded scripts moved aside, one hash removed, two more scripts that overwrite data made safe
+Three scripts that a newer script replaces (`build_hebrew_greek_dict.py`, `precompute_hebrew_embeddings.py`, `extract_bhsa_hebrew.py`) moved to `scripts/superseded/`, each with a header naming its replacement, so none can silently overwrite the dictionary, the Hebrew embeddings or the Hebrew tables the newer script builds. `scripts/corpus/add_texts_to_index.py` now finds a lemma cache entry through `backend.lemma_cache.get_cache_path` instead of its own copy of the hash, which missed the slash replacement and the surrogate-escape round trip (a test covers an ASCII, a Greek and a slashed filename). `latinlibrary_to_tess.py` and `repair_zosimus_procopius_text.py` now default to a dry run and, with `--apply`, back up the file and swap it in by rename; what they compute is unchanged.
+
 ### Daylight prototype: topics covered for one work and not for comparable works (nothing on the site)
 Scripts `scripts/scholarship/daylight_*.py` label the 29,055 articles of the JSTOR Early Journal Content citation index (24 journals, 1827 to 1922) against a written vocabulary of 37 approaches and 109 themes, build topic coverage tables per cited work normalised by each work's article total, group comparable works by language, genre or era and metre and by profile correlation, and score each work's gaps against its neighbours. A gap is relative to those holdings only. The labels and tables are kept outside the repository; no article text is stored.
 
