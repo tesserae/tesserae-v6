@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { cssRef } from './refId';
 import { useIsPhone } from '../../hooks/useIsPhone';
+import { getJson } from '../../utils/api';
 
 /**
  * The Reader's margin: two marks per line showing where the corpus has something
@@ -63,8 +64,7 @@ export default function ConnectionGutter({ work, units, onSelectLine, onSlowLoad
   useEffect(() => {
     if (!work) return;
     let cancelled = false;
-    fetch(`/api/passages/density?work=${encodeURIComponent(work)}`)
-      .then((r) => r.json())
+    getJson(`/api/passages/density?work=${encodeURIComponent(work)}`)
       .then((d) => {
         if (cancelled || !d.windows) return;
         // A window covers a span of lines; give each line in the span its density.

@@ -6,7 +6,7 @@ import SavedSearches from './SavedSearches';
 import ScopeBox from '../common/ScopeBox';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
-import { createSearchId, requestSearchCancellation } from '../../utils/api';
+import { createSearchId, requestSearchCancellation, fetchLanguages, fetchTextHierarchy } from '../../utils/api';
 import { dirFor } from '../../utils/rtl';
 import { exportRowsToPDF } from '../../utils/exportResults';
 import { ResultsInsight } from '../assistant';
@@ -384,8 +384,7 @@ export default function CrossLingualSearch({ onOpenHelp, onRegister, onCorpusSea
       // Urdu crashed the page).
       let served = LANG_PAIRS;
       try {
-        const lr = await fetch('/api/languages');
-        const ld = await lr.json();
+        const ld = await fetchLanguages();
         const keys = new Set((ld.crosslingual_pairs || []).map(p => p.key || `${p.source}-${p.target}`));
         if (keys.size) served = LANG_PAIRS.filter(p => keys.has(p.key));
         setHeldPairs(Array.isArray(ld.crosslingual_held) ? ld.crosslingual_held : []);
@@ -396,8 +395,8 @@ export default function CrossLingualSearch({ onOpenHelp, onRegister, onCorpusSea
       }
       const langs = [...new Set(served.flatMap(p => [p.source, p.target]))];
       const lists = await Promise.all(langs.map(lang =>
-        fetch(`/api/texts/hierarchy?language=${lang}`)
-          .then(r => r.json()).then(d => d.authors || []).catch(() => [])));
+        fetchTextHierarchy(lang)
+          .then(d => d.authors || []).catch(() => [])));
       const h = Object.fromEntries(langs.map((lang, i) => [lang, lists[i]]));
 
       // Restore a shared link (lang=cross&pair=...&source=...&target=...

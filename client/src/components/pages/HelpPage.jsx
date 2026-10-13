@@ -4,6 +4,7 @@ import FusionFlowchart from '../search/FusionFlowchart';
 import SystemChart from './SystemChart';
 import { RequestDialog } from '../common';
 import { allMeasuredRows } from '../../data/searchScope';
+import { fetchLanguages, postJsonTo } from '../../utils/api';
 
 const AI_SCHEMA_URL = 'https://tesserae.caset.buffalo.edu/tesserae-data/tesserae-openapi.yaml';
 
@@ -118,7 +119,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
   const [servedLanguages, setServedLanguages] = useState(null);
   useEffect(() => {
     let dead = false;
-    fetch('/api/languages').then((r) => r.json()).then((d) => {
+    fetchLanguages().then((d) => {
       if (!dead) setServedLanguages((d.languages || []).map((l) => l.code || l));
     }).catch(() => {});
     return () => { dead = true; };
@@ -473,17 +474,12 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
     setFeedbackSubmitting(true);
     setFeedbackStatus(null);
     try {
-      const res = await fetch('/api/feedback', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: feedbackName,
-          email: feedbackEmail,
-          type: feedbackType,
-          message: feedbackMessage
-        })
+      const data = await postJsonTo('/api/feedback', {
+        name: feedbackName,
+        email: feedbackEmail,
+        type: feedbackType,
+        message: feedbackMessage
       });
-      const data = await res.json();
       if (data.success) {
         setFeedbackStatus({ type: 'success', text: 'Thank you for your feedback!' });
         setFeedbackMessage('');

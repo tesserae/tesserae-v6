@@ -23,6 +23,7 @@ vi.mock('chart.js', () => ({
 }));
 
 import CrossLingualSearch from '../CrossLingualSearch';
+import { mockResponse } from '../../../test/mockResponse';
 
 const list = (author_key, author, work_key, work) => ({
   authors: [{ author_key, author, works: [{ work_key, work, whole_text: `${author_key}.${work_key}.tess`, parts: [] }] }],
@@ -58,14 +59,14 @@ beforeEach(() => {
   global.fetch = vi.fn((url) => {
     const u = String(url);
     if (u.includes('/api/languages')) {
-      return Promise.resolve({ json: () => Promise.resolve({ languages: [], crosslingual_pairs: SERVED }) });
+      return Promise.resolve(mockResponse({ json: () => Promise.resolve({ languages: [], crosslingual_pairs: SERVED }) }));
     }
     const m = u.match(/hierarchy\?language=(\w+)/);
-    if (m) return Promise.resolve({ json: () => Promise.resolve(LISTS[m[1]] || { authors: [] }) });
+    if (m) return Promise.resolve(mockResponse({ json: () => Promise.resolve(LISTS[m[1]] || { authors: [] }) }));
     if (u.includes('/api/search')) {
-      return Promise.resolve({ json: () => Promise.resolve(SEARCH_RESULT) });
+      return Promise.resolve(mockResponse({ json: () => Promise.resolve(SEARCH_RESULT) }));
     }
-    return Promise.resolve({ json: () => Promise.resolve({}) });
+    return Promise.resolve(mockResponse({ json: () => Promise.resolve({}) }));
   });
 });
 

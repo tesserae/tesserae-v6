@@ -6,6 +6,7 @@ import { baseWorkId, coverageCounts, fetchCoveredWorks } from '../../utils/passa
 import { languageName } from '../../utils/languageNames';
 import { ERA_ORDER_BY_LANG, eraRank } from '../../utils/eras';
 import DocumentsBrowser from './DocumentsBrowser';
+import { fetchLanguages, getJson, fetchTranslationIndex, fetchTextDescriptions, fetchStats } from '../../utils/api';
 
 // Languages the corpus tabs offer, read from the URL's `language` param so
 // a link (Help, Theme Search) can land here already on the right tab.
@@ -83,7 +84,7 @@ export default function CorpusBrowser() {
   ];
   const [languageTabs, setLanguageTabs] = useState(ALL_LANGUAGE_TABS);
   useEffect(() => {
-    fetch('/api/languages').then(r => r.json()).then(data => {
+    fetchLanguages().then(data => {
       const codes = (data.languages || []).map(l => l.code);
       const served = ALL_LANGUAGE_TABS.filter(t => codes.includes(t.code));
       if (served.length) {
@@ -131,8 +132,7 @@ export default function CorpusBrowser() {
     setExpandedAuthors(new Set());
     let loadedCorpus = [];
     try {
-      const res = await fetch(`/api/texts?language=${language}`);
-      const data = await res.json();
+      const data = await getJson(`/api/texts?language=${language}`);
       loadedCorpus = data || [];
       setCorpus(loadedCorpus);
     } catch (err) {
@@ -142,8 +142,7 @@ export default function CorpusBrowser() {
     // Which of these works have aligned English, for the EN badges. A
     // failure here only costs the badges, so it stays silent.
     try {
-      const tr = await fetch(`/api/passages/translations?language=${language}`);
-      const td = await tr.json();
+      const td = await fetchTranslationIndex(language);
       setTranslated(td?.works || {});
     } catch {
       setTranslated({});
@@ -158,8 +157,7 @@ export default function CorpusBrowser() {
     // Orientation blurbs; a failure only costs the ⓘ buttons.
     setOpenDescs(new Set());
     try {
-      const dr = await fetch(`/api/text-descriptions?language=${language}`);
-      const dd = await dr.json();
+      const dd = await fetchTextDescriptions(language);
       setDescriptions(dd?.descriptions || {});
     } catch {
       setDescriptions({});
@@ -180,8 +178,7 @@ export default function CorpusBrowser() {
 
   const loadStats = async () => {
     try {
-      const res = await fetch('/api/stats');
-      const data = await res.json();
+      const data = await fetchStats();
       setStats(data);
     } catch (err) {
       console.error('Failed to load stats:', err);

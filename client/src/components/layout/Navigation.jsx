@@ -5,6 +5,7 @@ import useCollections from '../../hooks/useCollections';
 import { useIsNarrow } from '../../hooks/useIsPhone';
 import { PAGE_NEEDS, VIEWS, viewById, orderBy } from '../../collections/collectionsConfig';
 import CollectionsControl from './CollectionsControl';
+import { fetchLanguages } from '../../utils/api';
 
 /** Tells a horizontally scrolling strip whether there is more to its right.
  *
@@ -194,8 +195,7 @@ const Navigation = ({
   const [documentsEnabled, setDocumentsEnabled] = useState(false);
 
   useEffect(() => {
-    fetch('/api/languages')
-      .then(r => r.json())
+    fetchLanguages()
       .then(data => {
         if (data.languages) {
           const tabs = data.languages.map(l => ({ code: l.code, label: l.label }));

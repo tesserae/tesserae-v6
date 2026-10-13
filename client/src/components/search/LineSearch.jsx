@@ -18,6 +18,7 @@ import { DOC_PAGE_SIZE, DOCUMENT_EXAMPLE_SEARCHES } from '../documents/documents
 import DocumentExampleButtons from '../documents/DocumentExampleButtons';
 import DocumentsSearchFilters from '../documents/DocumentsSearchFilters';
 import DocumentsResultsPanel from '../documents/DocumentsResultsPanel';
+import { fetchLanguages, postLineSearch, getJson } from '../../utils/api';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
@@ -126,7 +127,7 @@ export default function LineSearch({ language }) {
   const documentResults = documentPageResults;
 
   useEffect(() => {
-    fetch('/api/languages').then(r => r.json()).then(data => {
+    fetchLanguages().then(data => {
       setDocumentsEnabled(documentsTrial && !!data.documents_enabled);
     }).catch(() => {});
   }, []);
@@ -236,8 +237,7 @@ export default function LineSearch({ language }) {
   const loadTexts = async () => {
     setLoadingTexts(true);
     try {
-      const res = await fetch(`/api/texts?language=${language}`);
-      const data = await res.json();
+      const data = await getJson(`/api/texts?language=${language}`);
       const textList = Array.isArray(data) ? data : (data.texts || []);
       setTexts(textList);
       
@@ -275,12 +275,7 @@ export default function LineSearch({ language }) {
 
       recordSearch(searchParams);
 
-      const res = await fetch('/api/line-search', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(searchParams)
-      });
-      const data = await res.json();
+      const data = await postLineSearch(searchParams);
       if (data.error) {
         setError(data.error);
         setResults([]);
@@ -317,12 +312,7 @@ export default function LineSearch({ language }) {
         collection: example.collection, offset: 0, limit: DOC_PAGE_SIZE, sort: docSort,
       };
       recordSearch(searchParams);
-      const res = await fetch('/api/line-search', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(searchParams)
-      });
-      const data = await res.json();
+      const data = await postLineSearch(searchParams);
       if (data.error) {
         setError(data.error);
         setResults([]);
@@ -369,8 +359,7 @@ export default function LineSearch({ language }) {
     setBrowseLoading(true);
     setBrowseLines([]);
     try {
-      const res = await fetch(`/api/text/${selectedWork}/lines?language=${language}`);
-      const data = await res.json();
+      const data = await getJson(`/api/text/${selectedWork}/lines?language=${language}`);
       if (data.lines) {
         setBrowseLines(data.lines);
       }
@@ -411,12 +400,7 @@ export default function LineSearch({ language }) {
 
       recordSearch(searchParams);
 
-      const res = await fetch('/api/line-search', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(searchParams)
-      });
-      const data = await res.json();
+      const data = await postLineSearch(searchParams);
       if (data.error) {
         setError(data.error);
         setResults([]);

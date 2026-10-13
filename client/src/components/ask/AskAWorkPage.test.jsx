@@ -5,6 +5,7 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import AskAWorkPage, { mergeRecent, unitWord, unitForWork, UNRATED_NOTE, bookOf, namesIn, stripLayout } from './AskAWorkPage';
+import { mockResponse } from '../../test/mockResponse';
 
 const TEXTS = [
   { id: 'vergil.aeneid.tess', author: 'Vergil', title: 'Aeneid', work: 'Aeneid', is_part: false },
@@ -55,7 +56,7 @@ beforeEach(() => {
       : u.startsWith('/api/passages/theme-search') ? reply
       : u.startsWith('/api/passages/lines') ? { lines: [{ ref: 'a', text: 'Arma virumque cano' }] }
       : {};
-    return Promise.resolve({ ok: true, json: () => Promise.resolve(body) });
+    return Promise.resolve(mockResponse({ ok: true, json: () => Promise.resolve(body) }));
   });
 });
 
@@ -426,7 +427,7 @@ describe('what the work says', () => {
     let release;
     const base = global.fetch;
     global.fetch = vi.fn((url, init) => (String(url).startsWith('/api/passages/ask-summary')
-      ? new Promise((res) => { release = () => res({ ok: true, json: () => Promise.resolve({ available: false }) }); })
+      ? new Promise((res) => { release = () => res(mockResponse({ ok: true, json: () => Promise.resolve({ available: false }) })); })
       : base(url, init)));
     render(<AskAWorkPage />);
     await ask();
@@ -527,7 +528,7 @@ describe('recent articles from the live services', () => {
       if (u.startsWith('/api/passages/recent-scholarship')) {
         const svc = new URL(u, 'http://x').searchParams.get('service');
         order.push(`get:${svc}`);
-        const reply = (body) => Promise.resolve({ ok: true, json: () => Promise.resolve(body) });
+        const reply = (body) => Promise.resolve(mockResponse({ ok: true, json: () => Promise.resolve(body) }));
         if (svc === 'openalex') return reply({ service: svc, available: true, results: [item('Dido in Love', { oa_url: 'https://free.example/d.pdf' })] });
         if (svc === 'crossref') return gate.then(() => reply({ service: svc, available: true, results: [item('Politics of Passion', { doi: '10.1/pp', year: 2020 })] }));
         if (svc === 's2') return reply({ service: svc, available: false, results: [], reason: 'off' });
@@ -535,7 +536,7 @@ describe('recent articles from the live services', () => {
       }
       if (u.startsWith('/api/passages/ask-scholarship')) {
         order.push('post');
-        return Promise.resolve({ ok: true, json: () => Promise.resolve({ available: false, holdings: 'Holdings line.' }) });
+        return Promise.resolve(mockResponse({ ok: true, json: () => Promise.resolve({ available: false, holdings: 'Holdings line.' }) }));
       }
       return base(url, init);
     });
@@ -567,10 +568,10 @@ describe('recent articles from the live services', () => {
       if (u.startsWith('/api/passages/recent-scholarship')) {
         const svc = new URL(u, 'http://x').searchParams.get('service');
         const results = svc === 'openalex' ? [item('Dido in Love', { year: 1955 })] : [];
-        return Promise.resolve({ ok: true, json: () => Promise.resolve({ service: svc, available: true, results }) });
+        return Promise.resolve(mockResponse({ ok: true, json: () => Promise.resolve({ service: svc, available: true, results }) }));
       }
       if (u.startsWith('/api/passages/ask-scholarship')) {
-        return Promise.resolve({ ok: true, json: () => Promise.resolve({ available: false, holdings: 'Holdings line.' }) });
+        return Promise.resolve(mockResponse({ ok: true, json: () => Promise.resolve({ available: false, holdings: 'Holdings line.' }) }));
       }
       return base(url, init);
     });
@@ -648,8 +649,8 @@ describe('the History view', () => {
     const inner = global.fetch;
     global.fetch = vi.fn((url) => {
       const u = String(url);
-      if (u.startsWith('/api/texts')) return Promise.resolve({ ok: true, json: async () => texts });
-      if (u.startsWith('/api/passages/works')) return Promise.resolve({ ok: true, json: async () => ({ works: covered }) });
+      if (u.startsWith('/api/texts')) return Promise.resolve(mockResponse({ ok: true, json: async () => texts }));
+      if (u.startsWith('/api/passages/works')) return Promise.resolve(mockResponse({ ok: true, json: async () => ({ works: covered }) }));
       return inner(url);
     });
     render(<AskAWorkPage />);

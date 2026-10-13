@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import SourcesIntro from '../about/SourcesIntro';
+import { getJson } from '../../utils/api';
 
 export default function AboutPage({ onNavigate, initialAnchor = null, onAnchorConsumed }) {
   const [versionInfo, setVersionInfo] = useState({ version: '6.0', last_updated: null });
 
   useEffect(() => {
-    fetch('/api/version')
-      .then(res => res.json())
+    getJson('/api/version')
       .then(data => setVersionInfo(data))
       .catch(err => console.error('Failed to fetch version info:', err));
   }, []);

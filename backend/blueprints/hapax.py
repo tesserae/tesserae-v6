@@ -42,6 +42,8 @@ from backend.utils import resolve_text_path, format_short_locus, build_citation
 from backend.lemma_cache import load_units_cached
 from backend.services import log_search, get_user_location
 from backend.blueprints.async_poll import SearchInputError
+from backend.request_params import int_param, float_param
+from werkzeug.exceptions import HTTPException
 from backend.work_names import base_work, is_part, sql_base_work
 
 logger = get_logger('hapax')
@@ -1548,9 +1550,9 @@ def get_rare_lemmata():
     """
     try:
         language = request.args.get('language', 'la')
-        max_occ = int(request.args.get('max_occurrences', 10))
-        min_occ = int(request.args.get('min_occurrences', 1))
-        limit = int(request.args.get('limit', 500))
+        max_occ = int_param(request.args, 'max_occurrences', 10)
+        min_occ = int_param(request.args, 'min_occurrences', 1)
+        limit = int_param(request.args, 'limit', 500)
         include_locations = request.args.get('include_locations', 'false').lower() == 'true'
         
         rare_words = get_rare_words_from_cache(language, max_occ)
@@ -1589,6 +1591,8 @@ def get_rare_lemmata():
             'words': results
         })
         
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Error in rare-lemmata: {e}")
         return jsonify({'error': str(e)}), 500
@@ -2440,7 +2444,7 @@ def hapax_search():
             return jsonify({'error': str(e)}), 400
         source_language = data.get('source_language', language)
         target_language = data.get('target_language', language)
-        max_occ = int(data.get('max_occurrences', 50))
+        max_occ = int_param(data, 'max_occurrences', 50)
         exclude_proper = _coerce_bool(data.get('exclude_proper_nouns', False))
         try:
             limit = data.get('limit', data.get('top_n'))
@@ -2462,6 +2466,8 @@ def hapax_search():
 
         return jsonify(result)
 
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Error in hapax-search: {e}")
         return jsonify({'error': str(e)}), 500
@@ -2711,11 +2717,11 @@ def rare_bigram_search():
             source_id, target_id, language = _parse_search_params(data)
         except ValueError as e:
             return jsonify({'error': str(e)}), 400
-        min_rarity = float(data.get('min_rarity', 0.9))
-        limit = int(data.get('limit', 100))
+        min_rarity = float_param(data, 'min_rarity', 0.9)
+        limit = int_param(data, 'limit', 100)
 
         stoplist_basis = data.get('stoplist_basis', 'source_target')
-        stoplist_size = int(data.get('stoplist_size', 0))
+        stoplist_size = int_param(data, 'stoplist_size', 0)
         use_stoplist = _coerce_bool(data.get('stoplist', False))
         if stoplist_basis == 'none':
             use_stoplist = False
@@ -2735,6 +2741,8 @@ def rare_bigram_search():
 
         return jsonify(result)
 
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Error in rare-bigram-search: {e}")
         return jsonify({'error': str(e)}), 500
@@ -2868,8 +2876,8 @@ def get_rare_word_cloud():
     """
     try:
         language = request.args.get('language', 'la')
-        max_occ = int(request.args.get('max_occurrences', 5))
-        limit = int(request.args.get('limit', 200))
+        max_occ = int_param(request.args, 'max_occurrences', 5)
+        limit = int_param(request.args, 'limit', 200)
         
         rare_words = get_rare_words_from_cache(language, max_occ)
         
@@ -2920,6 +2928,8 @@ def get_rare_word_cloud():
             'words': words
         })
         
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Error in rare-word-cloud: {e}")
         return jsonify({'error': str(e)}), 500
@@ -2932,8 +2942,8 @@ def get_rare_bigrams():
         from backend.bigram_frequency import get_bigram_cache, is_bigram_cache_available
         
         language = request.args.get('language', 'la')
-        min_rarity = float(request.args.get('min_rarity', 0.9))
-        limit = int(request.args.get('limit', 200))
+        min_rarity = float_param(request.args, 'min_rarity', 0.9)
+        limit = int_param(request.args, 'limit', 200)
         
         if not is_bigram_cache_available(language):
             return jsonify({
@@ -2982,6 +2992,8 @@ def get_rare_bigrams():
             'bigrams': rare_bigrams
         })
         
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Error in rare-bigrams: {e}")
         return jsonify({'error': str(e)}), 500

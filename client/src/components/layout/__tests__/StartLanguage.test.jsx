@@ -1,16 +1,17 @@
 /**
  * The search page and Reader open in the language a reader chose last, or in
- * a fixed start language, kept in this browser (NC 2026-10-07).
+ * a fixed start language, kept in this browser (2026-10-07).
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import Navigation from '../Navigation';
 import { startLanguage, getStartSetting } from '../../../utils/languagePreference';
+import { mockResponse } from '../../../test/mockResponse';
 
 beforeEach(() => {
   window.localStorage.clear();
-  global.fetch = vi.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve({
-    languages: [{ code: 'la', label: 'Latin' }, { code: 'grc', label: 'Greek' }, { code: 'fa', label: 'Persian' }] }) }));
+  global.fetch = vi.fn(() => Promise.resolve(mockResponse({ ok: true, json: () => Promise.resolve({
+    languages: [{ code: 'la', label: 'Latin' }, { code: 'grc', label: 'Greek' }, { code: 'fa', label: 'Persian' }] }) })));
 });
 afterEach(() => { delete global.fetch; });
 

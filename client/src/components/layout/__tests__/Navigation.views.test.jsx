@@ -1,13 +1,14 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { cleanup, render, screen, fireEvent } from '@testing-library/react';
 import Navigation from '../Navigation';
+import { mockResponse } from '../../../test/mockResponse';
 
 const noop = () => {};
 
 beforeEach(() => {
   window.localStorage.clear();
   window.sessionStorage.clear();
-  global.fetch = vi.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve({ documents_enabled: true }) }));
+  global.fetch = vi.fn(() => Promise.resolve(mockResponse({ ok: true, json: () => Promise.resolve({ documents_enabled: true }) })));
 });
 afterEach(() => { cleanup(); delete global.fetch; });
 

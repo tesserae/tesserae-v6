@@ -6,10 +6,11 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import HelpPage from '../HelpPage';
+import { mockResponse } from '../../../test/mockResponse';
 
 function serve(codes) {
-  global.fetch = vi.fn((url) => Promise.resolve({ ok: true, json: () => Promise.resolve(
-    String(url).startsWith('/api/languages') ? { languages: codes.map((code) => ({ code })) } : { stoplists: {} }) }));
+  global.fetch = vi.fn((url) => Promise.resolve(mockResponse({ ok: true, json: () => Promise.resolve(
+    String(url).startsWith('/api/languages') ? { languages: codes.map((code) => ({ code })) } : { stoplists: {} }) })));
 }
 afterEach(() => { delete global.fetch; });
 

@@ -6,6 +6,7 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/react';
 import ThemeSearchPage from './ThemeSearchPage';
+import { mockResponse } from '../../test/mockResponse';
 
 const AUTHORS_LA = {
   authors: [
@@ -83,7 +84,7 @@ describe('Theme Comparison pair card shows a restricted work\'s credit', () => {
   it('shows the restricted side\'s credit line beneath its pair card', async () => {
     global.fetch = mockFetchFor((u) => {
       if (u.startsWith('/api/passages/compare')) {
-        return Promise.resolve({ json: () => Promise.resolve(COMPARE_RESULT) });
+        return Promise.resolve(mockResponse({ json: () => Promise.resolve(COMPARE_RESULT) }));
       }
       return null;
     });

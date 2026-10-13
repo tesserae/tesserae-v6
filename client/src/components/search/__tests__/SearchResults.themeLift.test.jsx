@@ -15,7 +15,8 @@ vi.mock('chart.js', () => ({
   CategoryScale: {}, LinearScale: {}, BarElement: {},
   Title: {}, Tooltip: {}, Legend: {},
 }));
-vi.mock('../../../utils/api', () => ({
+vi.mock('../../../utils/api', async (importOriginal) => ({
+  ...(await importOriginal()),
   searchTexts: vi.fn(),
   searchTextsStream: vi.fn(),
   searchFusionStream: vi.fn(),
@@ -28,6 +29,7 @@ vi.mock('../../../utils/api', () => ({
 }));
 
 import SearchResults from '../SearchResults';
+import { mockResponse } from '../../../test/mockResponse';
 
 const baseProps = {
   loading: false,
@@ -63,11 +65,11 @@ describe('SearchResults — theme lift badge', () => {
     global.fetch = vi.fn((url, opts) => {
       if (String(url).includes('/api/passages/pair-lift')) {
         posted = JSON.parse(opts.body);
-        return Promise.resolve({
+        return Promise.resolve(mockResponse({
           json: () => Promise.resolve({ results: [{ score: 0.9, lift: 0.11, level: 'strong' }] }),
-        });
+        }));
       }
-      return Promise.resolve({ ok: true, json: () => Promise.resolve({}) });
+      return Promise.resolve(mockResponse({ ok: true, json: () => Promise.resolve({}) }));
     });
 
     render(<SearchResults {...baseProps} results={[ROW]} />);
@@ -84,7 +86,7 @@ describe('SearchResults — theme lift badge', () => {
       if (String(url).includes('/api/passages/pair-lift')) {
         return Promise.reject(new Error('network error'));
       }
-      return Promise.resolve({ ok: true, json: () => Promise.resolve({}) });
+      return Promise.resolve(mockResponse({ ok: true, json: () => Promise.resolve({}) }));
     });
 
     render(<SearchResults {...baseProps} results={[ROW]} />);
@@ -97,7 +99,7 @@ describe('SearchResults — theme lift badge', () => {
   });
 
   it('does not call pair-lift when there is no source/target text (e.g. rare-word results)', () => {
-    global.fetch = vi.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve({}) }));
+    global.fetch = vi.fn(() => Promise.resolve(mockResponse({ ok: true, json: () => Promise.resolve({}) })));
     render(<SearchResults {...baseProps} sourceTextInfo={undefined} targetTextInfo={undefined} results={[ROW]} />);
     expect(global.fetch).not.toHaveBeenCalledWith(
       expect.stringContaining('/api/passages/pair-lift'), expect.anything());

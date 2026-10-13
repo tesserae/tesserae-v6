@@ -19,6 +19,7 @@ vi.mock('chart.js', () => ({
 }));
 
 import InscriptionsPapyriPage from '../InscriptionsPapyriPage';
+import { mockResponse } from '../../../test/mockResponse';
 
 const BROWSE_RESPONSE = {
   kind_counts: [{ value: 'inscriptions', label: 'Inscriptions (Latin, Greek)', count: 4 }],
@@ -54,18 +55,18 @@ function mockFetch({ documentsEnabled = true, lineSearchResponse } = {}) {
   global.fetch = vi.fn(async (url, init) => {
     const u = String(url);
     if (u === '/api/languages') {
-      return { json: async () => ({ languages: [{ code: 'la', label: 'Latin' }], documents_enabled: documentsEnabled }) };
+      return mockResponse({ json: async () => ({ languages: [{ code: 'la', label: 'Latin' }], documents_enabled: documentsEnabled }) });
     }
     if (u.startsWith('/api/documents/browse')) {
-      return { ok: true, status: 200, json: async () => BROWSE_RESPONSE };
+      return mockResponse({ ok: true, status: 200, json: async () => BROWSE_RESPONSE });
     }
     if (u === '/api/line-search') {
       const body = init && init.body ? JSON.parse(init.body) : {};
       calls.push(body);
       const response = typeof lineSearchResponse === 'function' ? lineSearchResponse(body) : (lineSearchResponse || { results: [] });
-      return { json: async () => response };
+      return mockResponse({ json: async () => response });
     }
-    return { json: async () => ({}) };
+    return mockResponse({ json: async () => ({}) });
   });
   global.fetch.calls = calls;
   return calls;

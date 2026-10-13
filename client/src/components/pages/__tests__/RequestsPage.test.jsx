@@ -7,6 +7,7 @@ import { describe, it, expect, vi, afterEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import RequestsPage from '../RequestsPage';
+import { mockResponse } from '../../../test/mockResponse';
 
 afterEach(() => { delete global.fetch; });
 
@@ -24,7 +25,7 @@ const LISTING = {
 };
 
 function serve(body) {
-  global.fetch = vi.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve(body) }));
+  global.fetch = vi.fn(() => Promise.resolve(mockResponse({ ok: true, json: () => Promise.resolve(body) })));
 }
 
 describe('RequestsPage', () => {

@@ -13,6 +13,8 @@ from collections import defaultdict
 from sqlalchemy import text
 
 from backend.db_utils import get_db_cursor
+from backend.request_params import int_param
+from werkzeug.exceptions import HTTPException
 from werkzeug.security import check_password_hash, generate_password_hash
 from backend.models import User, OAuth, SavedSearch, SavedIntertext, Intertext, db
 from backend.logging_config import get_logger
@@ -2246,8 +2248,8 @@ def get_dictionary_review():
         return jsonify({'error': 'Unauthorized'}), 401
     try:
         status = request.args.get('status', 'pending')
-        limit = min(int(request.args.get('limit', 50)), 200)
-        offset = int(request.args.get('offset', 0))
+        limit = min(int_param(request.args, 'limit', 50), 200)
+        offset = int_param(request.args, 'offset', 0)
 
         with get_db_cursor(commit=False) as cur:
             if status == 'all':
@@ -2298,6 +2300,8 @@ def get_dictionary_review():
                 'skipped': skipped_count
             }
         })
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Failed to get dictionary review entries: {e}")
         return jsonify({'error': str(e)}), 500

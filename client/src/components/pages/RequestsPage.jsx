@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { RequestDialog } from '../common';
+import { getJson } from '../../utils/api';
 
 /**
  * The public mirror of the requests workflow (2026-10-08): every feature,
@@ -97,8 +98,7 @@ export default function RequestsPage() {
 
   useEffect(() => {
     let dead = false;
-    fetch('/api/requests')
-      .then((r) => r.json())
+    getJson('/api/requests')
       .then((d) => { if (!dead) setData(d); })
       .catch(() => { if (!dead) setError('Could not load the requests list right now.'); });
     return () => { dead = true; };

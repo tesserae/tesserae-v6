@@ -16,6 +16,7 @@ vi.mock('chart.js', () => ({
 }));
 
 import CrossLingualSearch from '../CrossLingualSearch';
+import { mockResponse } from '../../../test/mockResponse';
 
 const list = (author_key, author, work_key, work) => ({
   authors: [{ author_key, author, works: [{ work_key, work, whole_text: `${author_key}.${work_key}.tess`, parts: [] }] }],
@@ -35,11 +36,11 @@ beforeEach(() => {
   global.fetch = vi.fn((url) => {
     const u = String(url);
     if (u.includes('/api/languages')) {
-      return Promise.resolve({ json: () => Promise.resolve({ languages: [], crosslingual_pairs: SERVED }) });
+      return Promise.resolve(mockResponse({ json: () => Promise.resolve({ languages: [], crosslingual_pairs: SERVED }) }));
     }
     const m = u.match(/hierarchy\?language=(\w+)/);
-    if (m) return Promise.resolve({ json: () => Promise.resolve(LISTS[m[1]] || { authors: [] }) });
-    return Promise.resolve({ json: () => Promise.resolve({}) });
+    if (m) return Promise.resolve(mockResponse({ json: () => Promise.resolve(LISTS[m[1]] || { authors: [] }) }));
+    return Promise.resolve(mockResponse({ json: () => Promise.resolve({}) }));
   });
 });
 
@@ -62,16 +63,16 @@ describe('held pairs', () => {
     global.fetch = vi.fn((url) => {
       const u = String(url);
       if (u.startsWith('/api/languages')) {
-        return Promise.resolve({ json: () => Promise.resolve({
+        return Promise.resolve(mockResponse({ json: () => Promise.resolve({
           languages: [],
           crosslingual_pairs: [{ key: 'grc-la', source: 'grc', target: 'la', label: 'Greek → Latin' }],
           crosslingual_held: [
             { key: 'la-en', reason: 'Latin to English searches are offline while the English texts are re-embedded.' },
             { key: 'grc-en', reason: 'Greek to English searches are offline while the English texts are re-embedded.' },
           ],
-        }) });
+        }) }));
       }
-      return Promise.resolve({ json: () => Promise.resolve({ authors: [], works: [] }) });
+      return Promise.resolve(mockResponse({ json: () => Promise.resolve({ authors: [], works: [] }) }));
     });
     render(<CrossLingualSearch />);
     const note = await screen.findByTestId('cross-held-note');

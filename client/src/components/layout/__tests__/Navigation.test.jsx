@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import Navigation from '../Navigation';
+import { mockResponse } from '../../../test/mockResponse';
 
 afterEach(() => {
   cleanup();
@@ -78,14 +79,14 @@ describe('Navigation — the "Inscriptions & Papyri" item (documents trial)', ()
   function mockLanguages(documentsEnabled) {
     global.fetch = vi.fn(async (url) => {
       if (String(url) === '/api/languages') {
-        return {
+        return mockResponse({
           json: async () => ({
             languages: [{ code: 'la', label: 'Latin' }],
             documents_enabled: documentsEnabled,
           }),
-        };
+        });
       }
-      return { json: async () => ({}) };
+      return mockResponse({ json: async () => ({}) });
     });
   }
 
