@@ -19,6 +19,8 @@ Usage:
     # Returns dict: {(text_id, ref) -> {'lemmas': [...], 'positions': [...]}}
 """
 import os
+
+from backend import fspaths
 import sqlite3
 import json
 from functools import lru_cache
@@ -390,7 +392,7 @@ def index_single_text(filepath, language, text_processor):
     Returns:
         dict with indexing results or None on error
     """
-    if not os.path.exists(filepath):
+    if not fspaths.exists(filepath):
         return {'error': 'File not found'}
     
     filename = os.path.basename(filepath)

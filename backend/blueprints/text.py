@@ -6,6 +6,7 @@ Moved out of backend/app.py unchanged (application-factory job, 2026-10-12).
 from flask import Blueprint, jsonify, request
 
 from backend.utils import resolve_text_path
+from backend import fspaths
 from backend.runtime import (
     TEXTS_DIR, api_route_for,
 )
@@ -32,7 +33,7 @@ def get_text_lines(text_id):
     
     try:
         lines = []
-        with open(filepath, 'r', encoding='utf-8') as f:
+        with fspaths.open_text(filepath, 'r', encoding='utf-8') as f:
             for line in f:
                 line = line.strip()
                 if not line or not line.startswith('<'):

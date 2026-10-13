@@ -11,6 +11,7 @@ from flask import Blueprint, jsonify, request
 from flask_login import current_user
 
 from backend.services import get_user_location, log_search
+from backend import fspaths
 from backend.utils import get_text_metadata, clean_cts_reference, resolve_text_path, exact_phrase_pattern, strip_hebrew_pointing, exact_search_text, format_short_locus
 from backend.frequency_cache import get_corpus_frequencies
 from backend.distance_filter import is_prose_text as is_prose_text_unified
@@ -653,7 +654,7 @@ def line_search():
             lang_dir = os.path.join(TEXTS_DIR, language)
             lang_dates = AUTHOR_DATES.get(language, {})
             
-            if not os.path.exists(lang_dir):
+            if not fspaths.exists(lang_dir):
                 return jsonify({'results': [], 'total': 0})
             
             # Build stoplist: ALWAYS include base stopwords (ab, et, in, etc.) 
@@ -957,7 +958,7 @@ def line_search():
                     file_lines_lookup = {}
                     if not lines_data:
                         try:
-                            with open(filepath, 'r', encoding='utf-8', errors='replace') as f:
+                            with fspaths.open_text(filepath, 'r', encoding='utf-8', errors='replace') as f:
                                 for line in f:
                                     line = line.strip()
                                     if line.startswith('<') and '>' in line:
@@ -1094,7 +1095,7 @@ def line_search():
                 he_exact = (search_type == 'exact' and language == 'he')
                 exact_query = strip_hebrew_pointing(query) if he_exact else query
                 exact_pattern = exact_phrase_pattern(exact_query) if search_type == 'exact' else None
-                text_files = [f for f in os.listdir(lang_dir) if f.endswith('.tess')]
+                text_files = [f for f in fspaths.listdir_text(lang_dir) if f.endswith('.tess')]
                 
                 for filename in text_files:
                     filepath = os.path.join(lang_dir, filename)
@@ -1112,7 +1113,7 @@ def line_search():
                     # not leak into output and plot as year 9999 on a timeline.
                     year = author_info.get('year')
 
-                    with open(filepath, 'r', encoding='utf-8') as f:
+                    with fspaths.open_text(filepath, 'r', encoding='utf-8') as f:
                         for line in f:
                             line = line.strip()
                             if not line or not line.startswith('<'):
@@ -1494,7 +1495,7 @@ def line_search_parallel():
         lang_dir = os.path.join(TEXTS_DIR, language)
         lang_dates = AUTHOR_DATES.get(language, {})
         
-        if not os.path.exists(lang_dir):
+        if not fspaths.exists(lang_dir):
             return jsonify({'results': [], 'total': 0, 'texts_searched': 0})
         
         # Get corpus-wide frequencies for global IDF
@@ -1555,7 +1556,7 @@ def line_search_parallel():
                 # Check for any missing refs and fall back to file for those
                 missing_refs = refs_needed - set(units_by_ref.keys())
                 if missing_refs:
-                    if os.path.exists(filepath):
+                    if fspaths.exists(filepath):
                         file_units = get_processed_units(filename, language, 'line', text_processor)
                         file_units_by_ref = {u.get('ref', ''): u for u in file_units}
                         for ref in missing_refs:
@@ -1577,7 +1578,7 @@ def line_search_parallel():
                 all_results.extend(text_matches[:max_per_text])
         else:
             # FALLBACK: Scan all texts (original behavior)
-            text_files = [f for f in os.listdir(lang_dir) if f.endswith('.tess')]
+            text_files = [f for f in fspaths.listdir_text(lang_dir) if f.endswith('.tess')]
             if exclude_source and source_text_id:
                 text_files = [f for f in text_files if f != source_text_id]
             
@@ -1700,7 +1701,7 @@ def corpus_search():
             filepath = resolve_text_path(TEXTS_DIR, language, filename)
             if not filepath:
                 continue
-            if not os.path.exists(filepath):
+            if not fspaths.exists(filepath):
                 continue
             metadata = get_text_metadata(filepath)
             # Computed once per text, not once per row: a result page can
@@ -1720,7 +1721,7 @@ def corpus_search():
             else:
                 lines_data = {}
                 try:
-                    with open(filepath, 'r', encoding='utf-8') as f:
+                    with fspaths.open_text(filepath, 'r', encoding='utf-8') as f:
                         for line in f:
                             if line.startswith('<'):
                                 end_tag = line.find('>')

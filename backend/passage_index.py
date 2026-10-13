@@ -2903,7 +2903,15 @@ _DENSITY_CACHE = os.path.join(
 
 
 def _density_cache_path(work, scale):
-    safe = re.sub(r'[^A-Za-z0-9._-]', '_', f'{work}.{scale}')
+    raw = f'{work}.{scale}'
+    safe = re.sub(r'[^A-Za-z0-9._-]', '_', raw)
+    if safe != raw:
+        # Every non-ASCII letter became "_", so the 36 Greek-named works that
+        # differ only in their Greek letters (pseudolucian.ἀλκυών, .ἔρωτες)
+        # shared one cache file and each showed the first one's density.
+        # A hash of the real name keeps them apart; ASCII names are unchanged.
+        import hashlib
+        safe += '.' + hashlib.md5(raw.encode('utf-8')).hexdigest()[:10]  # nosec B324
     return os.path.join(_DENSITY_CACHE, f'{index_fingerprint()}.{safe}.json')
 
 

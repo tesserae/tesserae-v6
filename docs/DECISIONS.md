@@ -2431,3 +2431,8 @@ Latin and Greek (the Latin and Greek ones also carry the old quotation
 weight), and re-warm the default pairs. Recorded in DATA_OPERATIONS.md.
 Rarity by lines rather than works stays deferred until an English gold set
 exists to measure it against.
+
+## 2026-10-12: file operations are made independent of the web server's locale in code
+
+The web process runs with an ASCII file-system encoding, which Python fixes when it starts, and the server setting that would change it is not to be requested again. Thirty-six Greek texts have Greek letters in their names, so every file call on a text, translation or embedding name goes through `backend/fspaths.py`, which passes UTF-8 bytes to the operating system and returns names decoded as UTF-8. The proof is a two-locale comparison: the same requests (`scripts/review/greek_names_requests.json` and the standard list) sent to a server started in the ASCII state and one started in UTF-8 must give the same answers. Names that an operation only ever sees in ASCII (hashed cache names, index files) were left as they were.
+

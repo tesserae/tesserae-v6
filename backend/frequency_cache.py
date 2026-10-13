@@ -4,6 +4,7 @@ import hashlib
 from collections import Counter
 from datetime import datetime
 
+from backend import fspaths
 from backend.logging_config import get_logger
 from backend.utils import safe_listdir
 from backend.work_names import base_work, is_part
@@ -48,22 +49,23 @@ def get_corpus_checksum(language):
     bytes paths sidestep that entirely.
     """
     lang_dir = os.path.join(TEXTS_DIR, language)
-    if not os.path.exists(lang_dir):
+    if not fspaths.exists(lang_dir):
         return None
 
-    lang_dir_bytes = os.fsencode(lang_dir)  # lang_dir is ASCII, so this is safe
-    names = sorted(n for n in os.listdir(lang_dir_bytes) if n.endswith(b'.tess'))
+    names = sorted(n for n in os.listdir(fspaths.fs_path(lang_dir)) if n.endswith(b'.tess'))
     file_info = []
     for name_bytes in names:
-        stat = os.stat(os.path.join(lang_dir_bytes, name_bytes))
-        f = os.fsdecode(name_bytes)
+        stat = fspaths.stat(os.path.join(fspaths.fs_path(lang_dir), name_bytes))
+        # Names are decoded as UTF-8 whatever the locale, so the checksum of a
+        # Greek-named corpus is the same under an ASCII and a UTF-8 server and
+        # matches the one a UTF-8 build stored in the frequency cache.
+        f = fspaths.fs_name(name_bytes)
         file_info.append(f"{f}:{stat.st_size}:{stat.st_mtime}")
 
-    # surrogatepass preserves surrogate-escaped names produced under an ASCII
-    # locale; for ASCII/UTF-8 names this yields the exact same bytes (and thus
-    # the same checksum) as the previous implementation, so existing frequency
-    # caches for Latin/English/Coptic are not needlessly invalidated.
-    checksum = hashlib.md5('\n'.join(file_info).encode('utf-8', 'surrogatepass')).hexdigest()  # nosec B324
+    # surrogateescape restores the original bytes of a name that is not valid
+    # UTF-8; for valid names this yields the exact same bytes (and thus the
+    # same checksum) as before.
+    checksum = hashlib.md5('\n'.join(file_info).encode('utf-8', 'surrogateescape')).hexdigest()  # nosec B324
     return checksum
 
 def get_cache_path(language):
