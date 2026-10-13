@@ -2481,6 +2481,22 @@ exists to measure it against.
 The web process runs with an ASCII file-system encoding, which Python fixes when it starts, and the server setting that would change it is not to be requested again. Thirty-six Greek texts have Greek letters in their names, so every file call on a text, translation or embedding name goes through `backend/fspaths.py`, which passes UTF-8 bytes to the operating system and returns names decoded as UTF-8. The proof is a two-locale comparison: the same requests (`scripts/review/greek_names_requests.json` and the standard list) sent to a server started in the ASCII state and one started in UTF-8 must give the same answers. Names that an operation only ever sees in ASCII (hashed cache names, index files) were left as they were.
 
 
+## 2026-10-13: the fallback Latin scanner uses a vowel-length table, not the scanner's guessing modes
+
+- Scope: Latin verse outside the MQDQ table (the table covers 103 works; everything else goes to the copied CLTK scanner).
+- Decision. The line is macronized from a fixed table before scanning. The scanner's own guessing modes (dactyl smoothing, the optional i-to-j transform) are left off, and the CLTK macronizer's part-of-speech tagger is not used.
+- Evidence (400 lines each of the Aeneid, the Metamorphoses and the Pharsalia, against MQDQ; "correct" means valid and the same pattern, "wrong" means valid and a different pattern):
+
+| Mode | Correct | Wrong |
+|---|---|---|
+| plain scanner (before) | 32 to 36 percent | 6.5 to 7.2 percent |
+| dactyl smoothing | 61 to 66 | 23 to 25 |
+| optional transform | 25 to 26 | 19 to 22 |
+| CLTK macronizer with tagger, then plain | 47 to 58 | 5.2 to 7.2 |
+| macron table, first form, then plain (chosen) | 46 to 48 | 3.5 to 4.2 |
+
+- Why this choice. The meter score is a boost on candidate parallels, so a wrong scansion is worse than none. The guessing modes roughly double the correct lines but quadruple the wrong ones. The tagger gains a few more correct lines than the table on two works but needs the full CLTK stack, which the live site does not carry, and is twenty times slower. The table costs 0.2 seconds per 400 lines and gives fewer wrong scansions than the plain scanner.
+
 ## 2026-10-13: record request timings before any speed work
 
 A day of timings from the live site comes before work on speed, so the effort goes where visitors wait and not where we guess. `backend/request_timing.py` records, for each API request, the time, method, path, status, milliseconds, response size and worker process, in one file per day under the folder named by `TESSERAE_TIMING_DIR` (nothing is recorded when it is unset). It does not record the query string, the request body or the answer, so no text a visitor searched for is stored. The report script collapses ids in paths into one route and ranks routes by total time spent, which is what a visitor waits on across a day.

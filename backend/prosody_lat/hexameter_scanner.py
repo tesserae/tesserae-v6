@@ -307,7 +307,10 @@ class HexameterScanner(VerseScanner):
 
         # if the line doesn't scan "as is", if may scan if the optional i to j transformations
         # are made, so here we set them and try again.
-        if self.optional_transform and not verse.valid:
+        # Only from the plain pass: a second pass that is itself the optional one
+        # must not start a third, or the call recurses until Python stops it
+        # (every invalid line did, 2026-10-13).
+        if self.optional_transform and not optional_transform and not verse.valid:
             return self.scan(
                 original_line, optional_transform=True, dactyl_smoothing=True
             )
