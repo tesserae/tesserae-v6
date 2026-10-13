@@ -2471,3 +2471,7 @@ exists to measure it against.
 
 The web process runs with an ASCII file-system encoding, which Python fixes when it starts, and the server setting that would change it is not to be requested again. Thirty-six Greek texts have Greek letters in their names, so every file call on a text, translation or embedding name goes through `backend/fspaths.py`, which passes UTF-8 bytes to the operating system and returns names decoded as UTF-8. The proof is a two-locale comparison: the same requests (`scripts/review/greek_names_requests.json` and the standard list) sent to a server started in the ASCII state and one started in UTF-8 must give the same answers. Names that an operation only ever sees in ASCII (hashed cache names, index files) were left as they were.
 
+
+## 2026-10-13: record request timings before any speed work
+
+A day of timings from the live site comes before work on speed, so the effort goes where visitors wait and not where we guess. `backend/request_timing.py` records, for each API request, the time, method, path, status, milliseconds, response size and worker process, in one file per day under the folder named by `TESSERAE_TIMING_DIR` (nothing is recorded when it is unset). It does not record the query string, the request body or the answer, so no text a visitor searched for is stored. The report script collapses ids in paths into one route and ranks routes by total time spent, which is what a visitor waits on across a day.
