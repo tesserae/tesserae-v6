@@ -56,6 +56,13 @@ logger = get_logger('search')
 search_bp = Blueprint('search', __name__)
 
 # Valid cross-lingual language pairs (order-independent; both directions supported)
+def _held_reason(source_language, target_language):
+    """The reason a pair is held back from searching (see meta.CROSSLINGUAL_HELD), or None."""
+    from backend.blueprints.meta import CROSSLINGUAL_HELD
+    return (CROSSLINGUAL_HELD.get(f'{source_language}-{target_language}')
+            or CROSSLINGUAL_HELD.get(f'{target_language}-{source_language}'))
+
+
 VALID_CROSSLINGUAL_PAIRS = {
     frozenset(('grc', 'la')),
     frozenset(('la', 'en')),
@@ -1267,6 +1274,9 @@ def _crosslingual_fusion_core(params, source_units, target_units, settings,
     if lang_pair not in VALID_CROSSLINGUAL_PAIRS:
         return {"error": f"Unsupported cross-lingual pair: {source_language} -> {target_language}. "
                 f"Supported: grc-la, la-en, grc-en"}
+    held = _held_reason(source_language, target_language)
+    if held:
+        return {"error": held}
 
     is_he_grc = lang_pair == frozenset(('he', 'grc'))
     hebrew_greek_route = settings.get('hebrew_greek_route', 'septuagint') if is_he_grc else 'septuagint'

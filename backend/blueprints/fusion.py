@@ -13,6 +13,8 @@ the endpoint yields intermediate fused results after each channel finishes.
 Fast channels (lemma, exact) run first, so users see results within seconds.
 """
 
+from dataclasses import dataclass
+
 from flask import Blueprint, request, Response, jsonify
 from flask_login import current_user
 import os
@@ -60,6 +62,408 @@ def init_fusion_blueprint(matcher, scorer, text_processor, texts_dir,
     _get_processed_units = get_processed_units_fn
 
 
+@dataclass
+class StreamParams:
+    """Every request parameter of the streaming fusion search, after defaults and sanitising."""
+    source_id: object
+    target_id: object
+    language: object
+    mode: object
+    max_results: object
+    source_unit_type: object
+    target_unit_type: object
+    use_meter: object
+    freq_basis: object
+    formula_max: object
+    formula_only: object
+    channel_weights: object
+    enabled_channels: object
+    skip_cache: object
+    source_path: object = None
+    target_path: object = None
+
+
+def _stream_params(data):
+    """Read the request body into a StreamParams (defaults, meter correction, weights, channel on/off)."""
+    source_id = data.get('source')
+    target_id = data.get('target')
+    language = data.get('language', 'la')
+    mode = data.get('mode', 'merged')       # line | window | merged
+    max_results = data.get('max_results', 5000)
+    source_unit_type = data.get('source_unit_type', 'line')
+    target_unit_type = data.get('target_unit_type', 'line')
+    use_meter = data.get('use_meter', False)
+    # The web's settings start with meter on and are corrected by a
+    # later /api/check-meter call; a default search fired before that
+    # correction lands carries use_meter=True for a language with no
+    # scansion and misses the cache the GET route and the warm-ups
+    # share (2026-09-06). Decide it here the way the GET route does.
+    if use_meter and not _poll_use_meter(source_id, target_id, language):
+        use_meter = False
+    freq_basis = data.get('freq_basis', 'corpus')  # corpus | meter | text_pair
+    if freq_basis not in ('corpus', 'meter', 'text_pair'):
+        freq_basis = 'corpus'
+    # Formula filter: hide (formula_max) or isolate (formula_only) rows
+    # by how many works share their shared wording. None/False (no
+    # value sent) disables it, so a plain search is unaffected.
+    formula_max = data.get('formula_max')
+    formula_only = bool(data.get('formula_only', False))
+    # Name the pair at the start: a long or memory-heavy search is
+    # otherwise anonymous in the log until its first channel reports.
+    logger.info('[FUSION] stream start: %s x %s (%s) max_results=%s use_meter=%s',
+                source_id, target_id, language, max_results, use_meter)
+    if max_results <= 0:
+        max_results = 5000  # enforce cap for browser payload size
+
+    # Optional user-supplied per-channel weight overrides (Advanced UI).
+    # Sanitized here (numbers only, known channels only, clamped) so the
+    # rest of the pipeline can trust it. Empty dict => no overrides =>
+    # default weight profile (behavior unchanged).
+    from backend.fusion import (sanitize_channel_weights,
+                                sanitize_channel_keys,
+                                get_channels_for_language)
+    channel_weights = sanitize_channel_weights(data.get('channel_weights'))
+
+    # Optional per-channel ON/OFF switches (Advanced UI). The request
+    # carries disabled_channels — the channels the user turned OFF. A
+    # disabled channel is excluded from running entirely (a true off,
+    # unlike weight=0 which still runs and can pull pairs in via
+    # convergence). We turn that into enabled_channels, the KEEP-set
+    # passed downstream: (channels available for this language) minus
+    # (the ones the user disabled). Sending the OFF list (rather than
+    # the keep list) means channels the UI never exposes — e.g.
+    # `quotation` — stay on unless explicitly disabled, and a search
+    # with nothing turned off is byte-identical to today.
+    disabled_channels = sanitize_channel_keys(data.get('disabled_channels'))
+    available_for_lang = set(get_channels_for_language(language))
+    enabled_channels = None  # None => no restriction (default behavior)
+    if disabled_channels:
+        effective_disabled = disabled_channels & available_for_lang
+        keep = available_for_lang - effective_disabled
+        # Only a real restriction if it actually drops a channel that
+        # would otherwise run AND leaves at least one running. If the
+        # user turned everything off, fall back to the full set (guard
+        # rail) rather than running an empty search.
+        if effective_disabled and keep:
+            enabled_channels = keep
+
+    skip_cache = data.get('skip_cache', False)
+    return StreamParams(
+        source_id=source_id, target_id=target_id, language=language,
+        mode=mode, max_results=max_results,
+        source_unit_type=source_unit_type, target_unit_type=target_unit_type,
+        use_meter=use_meter, freq_basis=freq_basis,
+        formula_max=formula_max, formula_only=formula_only,
+        channel_weights=channel_weights, enabled_channels=enabled_channels,
+        skip_cache=skip_cache)
+
+
+def _resolve_pair(p):
+    """Check both ids are present and resolve the two paths; return an error event string or None."""
+    source_id = p.source_id
+    target_id = p.target_id
+    language = p.language
+    if not source_id or not target_id:
+        return f"data: {json.dumps({'type': 'error', 'message': 'Please select both source and target texts'})}\n\n"
+
+    # Path resolution
+    source_path = resolve_text_path(_texts_dir, language, source_id)
+    target_path = resolve_text_path(_texts_dir, language, target_id)
+
+    if not source_path or not target_path:
+        return f"data: {json.dumps({'type': 'error', 'message': 'Text files not found'})}\n\n"
+    p.source_path = source_path
+    p.target_path = target_path
+    return None
+
+
+def _cache_key(p):
+    """Build the cache settings dict that keys this search in the results cache."""
+    mode = p.mode
+    max_results = p.max_results
+    language = p.language
+    source_unit_type = p.source_unit_type
+    target_unit_type = p.target_unit_type
+    use_meter = p.use_meter
+    freq_basis = p.freq_basis
+    channel_weights = p.channel_weights
+    enabled_channels = p.enabled_channels
+    cache_settings = {
+        'match_type': 'fusion',
+        # The merged result shape changed when single-line window
+        # duplicates began being removed.  Keep old cached fusion
+        # results from being served after deployment.
+        'result_version': 2,
+        'mode': mode,
+        'max_results': max_results,
+        'language': language,
+        'source_unit_type': source_unit_type,
+        'target_unit_type': target_unit_type,
+        'use_meter': use_meter,
+        'freq_basis': freq_basis,
+    }
+    # Only add to the cache key when the user actually supplied custom
+    # weights, so default-weight searches keep their existing cache
+    # entries (and never read/write a custom-weight result by mistake).
+    if channel_weights:
+        cache_settings['channel_weights'] = channel_weights
+    # Same for the on/off filter: only key on it when it meaningfully
+    # restricts the channel set (enabled_channels is None otherwise).
+    # Sorted list => stable, JSON-serializable, order-independent key.
+    if enabled_channels:
+        cache_settings['enabled_channels'] = sorted(enabled_channels)
+    return cache_settings
+
+
+def _cached_complete(p, cache_settings, send_event, complete_event, start_time,
+                     req_user_id, req_city, req_country, req_ip):
+    """Answer from the results cache when it holds the pair: yield the events, return True; else False."""
+    source_id = p.source_id
+    target_id = p.target_id
+    language = p.language
+    max_results = p.max_results
+    formula_max = p.formula_max
+    formula_only = p.formula_only
+    skip_cache = p.skip_cache
+    cached_results, cached_meta = (None, None) if skip_cache else \
+        get_cached_results(source_id, target_id, language, cache_settings)
+    if cached_results is not None:
+        yield send_event("progress", {
+            "step": "Loading cached fusion results", "detail": ""
+        })
+        # Annotate here too: a cache entry written before this feature
+        # shipped has no formula_count on its rows yet. Cheap and
+        # idempotent (an already-annotated row is just overwritten).
+        annotate_formula_counts(cached_results, language)
+        filtered_results, formula_hidden = apply_formula_filter(
+            cached_results, formula_max, formula_only)
+        display = filtered_results[:max_results] if max_results > 0 else filtered_results
+        meta = cached_meta or {}
+
+        # Log the cached search
+        log_search('fusion_search', language, source_id, target_id, None,
+                   'fusion', len(filtered_results), True, req_user_id, req_city, req_country, req_ip)
+
+        yield complete_event({'type': 'complete', 'results': display, 'total_matches': len(filtered_results), 'total_candidates': meta.get('total_candidates'), 'source_lines': meta.get('source_lines', 0), 'target_lines': meta.get('target_lines', 0), 'elapsed_time': round(time.time() - start_time, 2), 'cached': True, 'fusion': True, 'formula_filter': {'max': formula_max, 'only': formula_only, 'hidden': formula_hidden}})
+        return True
+    return False
+
+
+def _wait_for_slot(slot, cancellation, send_event):
+    """Wait for a concurrency slot, yielding queued events; return False after a timeout error event."""
+    try:
+        for queued_event in slot.acquire():
+            cancellation.check()
+            yield send_event("queued", {
+                "step": "Search queued — server is busy",
+                "detail": queued_event.get("reason", ""),
+                "wait_time": queued_event.get("wait_time", 0),
+            })
+    except TimeoutError as e:
+        yield f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n"
+        return False
+    cancellation.check()
+    return True
+
+
+def _register(slot, p):
+    """Register the search's metadata for the Active Search Inspector."""
+    source_id = p.source_id
+    target_id = p.target_id
+    language = p.language
+    mode = p.mode
+    # Register metadata for Active Search Inspector
+    slot.set_metadata({
+        'source_id': source_id,
+        'target_id': target_id,
+        'language': language,
+        'match_type': f'fusion ({mode})',
+    })
+
+
+def _load_units(p, send_event, cancellation):
+    """Load both texts' units, yielding the two progress events; return (source, target) units or None after an error event."""
+    source_id = p.source_id
+    target_id = p.target_id
+    language = p.language
+    source_unit_type = p.source_unit_type
+    target_unit_type = p.target_unit_type
+    # Load text units
+    yield send_event("progress", {
+        "step": "Loading source text",
+        "detail": source_id.replace('.tess', ''),
+    })
+    cancellation.check()
+    source_units = _get_processed_units(source_id, language, source_unit_type, _text_processor)
+
+    yield send_event("progress", {
+        "step": "Loading target text",
+        "detail": target_id.replace('.tess', ''),
+    })
+    cancellation.check()
+    target_units = _get_processed_units(target_id, language, target_unit_type, _text_processor)
+    cancellation.check()
+
+    if not source_units or not target_units:
+        yield f"data: {json.dumps({'type': 'error', 'message': 'Could not process text units'})}\n\n"
+        return None
+    return source_units, target_units
+
+
+def _relay_events(p, source_units, target_units, slot, cancellation, send_event, start_time):
+    """Run iter_fusion_search and translate its events into SSE events; return (results, total) or None if cancelled."""
+    from backend.fusion import iter_fusion_search
+    source_id = p.source_id
+    target_id = p.target_id
+    language = p.language
+    mode = p.mode
+    max_results = p.max_results
+    source_path = p.source_path
+    target_path = p.target_path
+    use_meter = p.use_meter
+    freq_basis = p.freq_basis
+    channel_weights = p.channel_weights
+    enabled_channels = p.enabled_channels
+    # Stream events from the generator — yields progress and
+    # intermediate results as each channel completes
+    final_results = []
+    final_total = None
+    final_formula_hidden = 0
+    for event_type, evt_data in iter_fusion_search(
+        source_units=source_units,
+        target_units=target_units,
+        matcher=_matcher,
+        scorer=_scorer,
+        source_id=source_id,
+        target_id=target_id,
+        language=language,
+        mode=mode,
+        max_results=max_results,
+        source_path=source_path,
+        target_path=target_path,
+        # formula_max/formula_only are NOT threaded in here: the cache
+        # key below does not vary on them, so the cached list must stay
+        # the one true (unfiltered) ranking for the pair at this
+        # max_results — the filter is applied after caching, below,
+        # same as the GET poll route's ref/score filters.
+        user_settings={'use_meter': use_meter},
+        freq_basis=freq_basis,
+        cancellation=cancellation,
+        channel_weights=channel_weights,
+        enabled_channels=enabled_channels,
+    ):
+        if slot.is_cancelled():
+            yield f"data: {json.dumps({'type': 'cancelled', 'message': get_cancellation_message(slot)})}\n\n"
+            return None
+
+
+        if event_type == "channel_start":
+            phase = evt_data['phase']
+            label = "window pass" if phase == "window" else f"{evt_data['step']}/{evt_data['total']} channels"
+            yield send_event("progress", {
+                "step": f"Running {evt_data['channel']} ({label})",
+                "detail": "",
+                "fusion_batch": {
+                    "phase": phase,
+                    "channel": evt_data['channel'],
+                    "index": evt_data['step'],
+                    "total": evt_data['total'],
+                    "status": "running",
+                },
+            })
+
+        elif event_type == "channel_done":
+            phase = evt_data['phase']
+            label = "window pass" if phase == "window" else f"{evt_data['step']}/{evt_data['total']} channels"
+            if evt_data.get('skipped'):
+                step_text = f"{evt_data['channel']} skipped for large search ({label})"
+            else:
+                step_text = f"{evt_data['channel']} done \u2014 {evt_data['count']} results ({label})"
+            yield send_event("progress", {
+                "step": step_text,
+                "detail": "",
+                "fusion_batch": {
+                    "phase": phase,
+                    "channel": evt_data['channel'],
+                    "index": evt_data['step'],
+                    "total": evt_data['total'],
+                    "status": "skipped" if evt_data.get('skipped') else "done",
+                    "result_count": evt_data.get('count', 0),
+                },
+            })
+
+        elif event_type == "intermediate":
+            yield f"data: {json.dumps({'type': 'intermediate', 'results': evt_data['results'], 'total_matches': evt_data['total_results'], 'channels_done': evt_data['channels_done'], 'channels_total': evt_data.get('channels_total', 9), 'phase': evt_data['phase'], 'elapsed': round(time.time() - start_time, 1)})}\n\n"
+
+        elif event_type == "heartbeat":
+            # SSE comment: transmitted as bytes (keeps TCP alive) but
+            # silently ignored by all SSE parsers and our frontend
+            # TextDecoder reader.  Prevents proxy/browser read timeouts
+            # during slow channels (edit_distance, sound, semantic).
+            yield ": keep-alive\n\n"
+
+        elif event_type == "complete":
+            final_results = evt_data["results"]
+            final_total = evt_data.get("total_results")
+    return final_results, final_total
+
+
+def _store_and_complete(p, cache_settings, final_results, final_total,
+                        source_units, target_units, complete_event, start_time,
+                        cancellation, req_user_id, req_city, req_country, req_ip):
+    """Cache the unfiltered result, apply the formula filter, log the search and yield the complete event."""
+    source_id = p.source_id
+    target_id = p.target_id
+    language = p.language
+    mode = p.mode
+    formula_max = p.formula_max
+    formula_only = p.formula_only
+    # Cache final results UNFILTERED (the formula filter is a display
+    # choice, applied below, after caching — the cache key does not
+    # vary on formula_max/formula_only, so a filtered request must
+    # never be what gets stored, or a later plain request would
+    # silently inherit someone else's filter). total_candidates is the
+    # pre-cap count of scored parallels (final_results is capped at
+    # max_results); agents quote it as the true size of the comparison.
+    metadata = {
+        'source_lines': len(source_units),
+        'target_lines': len(target_units),
+        'mode': mode,
+        'total_candidates': final_total,
+    }
+    save_cached_results(
+        source_id, target_id, language, cache_settings,
+        final_results, metadata
+    )
+
+    # Formula filter, applied over the cached (capped) list for display.
+    display_results, formula_hidden = apply_formula_filter(
+        final_results, formula_max, formula_only)
+
+    # Log the search
+    log_search('fusion_search', language, source_id, target_id, None,
+               'fusion', len(display_results), False, req_user_id, req_city, req_country, req_ip)
+
+    elapsed_time = round(time.time() - start_time, 2)
+
+    complete = {
+        "type": "complete",
+        "results": display_results,
+        "total_matches": len(display_results),
+        "total_candidates": final_total,   # pre-cap count (results are capped)
+        "source_lines": len(source_units),
+        "target_lines": len(target_units),
+        "elapsed_time": elapsed_time,
+        "fusion": True,
+        "mode": mode,
+        "formula_filter": {"max": formula_max, "only": formula_only,
+                           "hidden": formula_hidden},
+    }
+    # Last chance to honour a cancel before a paged snapshot is written.
+    cancellation.check()
+    yield complete_event(complete)
+
+
 @fusion_bp.route('/search-fusion', methods=['POST'])
 def search_fusion_stream():
     """Multi-channel weighted fusion search with progressive SSE streaming.
@@ -88,7 +492,6 @@ def search_fusion_stream():
         cancellation = None
         try:
             cancellation = SearchCancellation(data.get('search_id'))
-            from backend.fusion import iter_fusion_search
 
             start_time = time.time()
 
@@ -100,304 +503,50 @@ def search_fusion_stream():
                 "step": "Initializing fusion search", "detail": ""
             })
 
-            source_id = data.get('source')
-            target_id = data.get('target')
-            language = data.get('language', 'la')
-            mode = data.get('mode', 'merged')       # line | window | merged
-            max_results = data.get('max_results', 5000)
-            source_unit_type = data.get('source_unit_type', 'line')
-            target_unit_type = data.get('target_unit_type', 'line')
-            use_meter = data.get('use_meter', False)
-            # The web's settings start with meter on and are corrected by a
-            # later /api/check-meter call; a default search fired before that
-            # correction lands carries use_meter=True for a language with no
-            # scansion and misses the cache the GET route and the warm-ups
-            # share (2026-09-06). Decide it here the way the GET route does.
-            if use_meter and not _poll_use_meter(source_id, target_id, language):
-                use_meter = False
-            freq_basis = data.get('freq_basis', 'corpus')  # corpus | meter | text_pair
-            if freq_basis not in ('corpus', 'meter', 'text_pair'):
-                freq_basis = 'corpus'
-            # Formula filter: hide (formula_max) or isolate (formula_only) rows
-            # by how many works share their shared wording. None/False (no
-            # value sent) disables it, so a plain search is unaffected.
-            formula_max = data.get('formula_max')
-            formula_only = bool(data.get('formula_only', False))
-            # Name the pair at the start: a long or memory-heavy search is
-            # otherwise anonymous in the log until its first channel reports.
-            logger.info('[FUSION] stream start: %s x %s (%s) max_results=%s use_meter=%s',
-                        source_id, target_id, language, max_results, use_meter)
-            if max_results <= 0:
-                max_results = 5000  # enforce cap for browser payload size
+            p = _stream_params(data)
 
-            # Optional user-supplied per-channel weight overrides (Advanced UI).
-            # Sanitized here (numbers only, known channels only, clamped) so the
-            # rest of the pipeline can trust it. Empty dict => no overrides =>
-            # default weight profile (behavior unchanged).
-            from backend.fusion import (sanitize_channel_weights,
-                                        sanitize_channel_keys,
-                                        get_channels_for_language)
-            channel_weights = sanitize_channel_weights(data.get('channel_weights'))
-
-            # Optional per-channel ON/OFF switches (Advanced UI). The request
-            # carries disabled_channels — the channels the user turned OFF. A
-            # disabled channel is excluded from running entirely (a true off,
-            # unlike weight=0 which still runs and can pull pairs in via
-            # convergence). We turn that into enabled_channels, the KEEP-set
-            # passed downstream: (channels available for this language) minus
-            # (the ones the user disabled). Sending the OFF list (rather than
-            # the keep list) means channels the UI never exposes — e.g.
-            # `quotation` — stay on unless explicitly disabled, and a search
-            # with nothing turned off is byte-identical to today.
-            disabled_channels = sanitize_channel_keys(data.get('disabled_channels'))
-            available_for_lang = set(get_channels_for_language(language))
-            enabled_channels = None  # None => no restriction (default behavior)
-            if disabled_channels:
-                effective_disabled = disabled_channels & available_for_lang
-                keep = available_for_lang - effective_disabled
-                # Only a real restriction if it actually drops a channel that
-                # would otherwise run AND leaves at least one running. If the
-                # user turned everything off, fall back to the full set (guard
-                # rail) rather than running an empty search.
-                if effective_disabled and keep:
-                    enabled_channels = keep
-
-            if not source_id or not target_id:
-                yield f"data: {json.dumps({'type': 'error', 'message': 'Please select both source and target texts'})}\n\n"
-                return
-
-            # Path resolution
-            source_path = resolve_text_path(_texts_dir, language, source_id)
-            target_path = resolve_text_path(_texts_dir, language, target_id)
-
-            if not source_path or not target_path:
-                yield f"data: {json.dumps({'type': 'error', 'message': 'Text files not found'})}\n\n"
+            error_event = _resolve_pair(p)
+            if error_event:
+                yield error_event
                 return
 
             # Check cache (keyed on fusion-specific settings)
-            skip_cache = data.get('skip_cache', False)
-            cache_settings = {
-                'match_type': 'fusion',
-                # The merged result shape changed when single-line window
-                # duplicates began being removed.  Keep old cached fusion
-                # results from being served after deployment.
-                'result_version': 2,
-                'mode': mode,
-                'max_results': max_results,
-                'language': language,
-                'source_unit_type': source_unit_type,
-                'target_unit_type': target_unit_type,
-                'use_meter': use_meter,
-                'freq_basis': freq_basis,
-            }
-            # Only add to the cache key when the user actually supplied custom
-            # weights, so default-weight searches keep their existing cache
-            # entries (and never read/write a custom-weight result by mistake).
-            if channel_weights:
-                cache_settings['channel_weights'] = channel_weights
-            # Same for the on/off filter: only key on it when it meaningfully
-            # restricts the channel set (enabled_channels is None otherwise).
-            # Sorted list => stable, JSON-serializable, order-independent key.
-            if enabled_channels:
-                cache_settings['enabled_channels'] = sorted(enabled_channels)
-            cached_results, cached_meta = (None, None) if skip_cache else \
-                get_cached_results(source_id, target_id, language, cache_settings)
-            if cached_results is not None:
-                yield send_event("progress", {
-                    "step": "Loading cached fusion results", "detail": ""
-                })
-                # Annotate here too: a cache entry written before this feature
-                # shipped has no formula_count on its rows yet. Cheap and
-                # idempotent (an already-annotated row is just overwritten).
-                annotate_formula_counts(cached_results, language)
-                filtered_results, formula_hidden = apply_formula_filter(
-                    cached_results, formula_max, formula_only)
-                display = filtered_results[:max_results] if max_results > 0 else filtered_results
-                meta = cached_meta or {}
-
-                # Log the cached search
-                log_search('fusion_search', language, source_id, target_id, None,
-                           'fusion', len(filtered_results), True, req_user_id, req_city, req_country, req_ip)
-
-                yield complete_event({'type': 'complete', 'results': display, 'total_matches': len(filtered_results), 'total_candidates': meta.get('total_candidates'), 'source_lines': meta.get('source_lines', 0), 'target_lines': meta.get('target_lines', 0), 'elapsed_time': round(time.time() - start_time, 2), 'cached': True, 'fusion': True, 'formula_filter': {'max': formula_max, 'only': formula_only, 'hidden': formula_hidden}})
+            cache_settings = _cache_key(p)
+            if (yield from _cached_complete(
+                    p, cache_settings, send_event, complete_event, start_time,
+                    req_user_id, req_city, req_country, req_ip)):
                 return
 
             # Concurrency gate: wait for a slot before starting heavy work.
             # Yields "queued" SSE events while waiting so the frontend can
             # show the user a message instead of appearing frozen.
             slot = SearchSlot(cancellation=cancellation)
-            try:
-                for queued_event in slot.acquire():
-                    cancellation.check()
-                    yield send_event("queued", {
-                        "step": "Search queued — server is busy",
-                        "detail": queued_event.get("reason", ""),
-                        "wait_time": queued_event.get("wait_time", 0),
-                    })
-            except TimeoutError as e:
-                yield f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n"
+            if not (yield from _wait_for_slot(slot, cancellation, send_event)):
                 return
-            cancellation.check()
 
-            # Register metadata for Active Search Inspector
-            slot.set_metadata({
-                'source_id': source_id,
-                'target_id': target_id,
-                'language': language,
-                'match_type': f'fusion ({mode})',
-            })
+            _register(slot, p)
 
-            # Load text units
-            yield send_event("progress", {
-                "step": "Loading source text",
-                "detail": source_id.replace('.tess', ''),
-            })
-            cancellation.check()
-            source_units = _get_processed_units(source_id, language, source_unit_type, _text_processor)
-
-            yield send_event("progress", {
-                "step": "Loading target text",
-                "detail": target_id.replace('.tess', ''),
-            })
-            cancellation.check()
-            target_units = _get_processed_units(target_id, language, target_unit_type, _text_processor)
-            cancellation.check()
-
-            if not source_units or not target_units:
-                yield f"data: {json.dumps({'type': 'error', 'message': 'Could not process text units'})}\n\n"
+            units = yield from _load_units(p, send_event, cancellation)
+            if units is None:
                 return
+            source_units, target_units = units
 
             yield send_event("progress", {
                 "step": "Starting fusion search",
-                "detail": f"{len(source_units)} \u00d7 {len(target_units)} units, mode={mode}",
+                "detail": f"{len(source_units)} \u00d7 {len(target_units)} units, mode={p.mode}",
             })
 
-            # Stream events from the generator — yields progress and
-            # intermediate results as each channel completes
-            final_results = []
-            final_total = None
-            final_formula_hidden = 0
-            for event_type, evt_data in iter_fusion_search(
-                source_units=source_units,
-                target_units=target_units,
-                matcher=_matcher,
-                scorer=_scorer,
-                source_id=source_id,
-                target_id=target_id,
-                language=language,
-                mode=mode,
-                max_results=max_results,
-                source_path=source_path,
-                target_path=target_path,
-                # formula_max/formula_only are NOT threaded in here: the cache
-                # key below does not vary on them, so the cached list must stay
-                # the one true (unfiltered) ranking for the pair at this
-                # max_results — the filter is applied after caching, below,
-                # same as the GET poll route's ref/score filters.
-                user_settings={'use_meter': use_meter},
-                freq_basis=freq_basis,
-                cancellation=cancellation,
-                channel_weights=channel_weights,
-                enabled_channels=enabled_channels,
-            ):
-                if slot.is_cancelled():
-                    yield f"data: {json.dumps({'type': 'cancelled', 'message': get_cancellation_message(slot)})}\n\n"
-                    return
+            relayed = yield from _relay_events(
+                p, source_units, target_units, slot, cancellation, send_event,
+                start_time)
+            if relayed is None:
+                return
+            final_results, final_total = relayed
 
-
-                if event_type == "channel_start":
-                    phase = evt_data['phase']
-                    label = "window pass" if phase == "window" else f"{evt_data['step']}/{evt_data['total']} channels"
-                    yield send_event("progress", {
-                        "step": f"Running {evt_data['channel']} ({label})",
-                        "detail": "",
-                        "fusion_batch": {
-                            "phase": phase,
-                            "channel": evt_data['channel'],
-                            "index": evt_data['step'],
-                            "total": evt_data['total'],
-                            "status": "running",
-                        },
-                    })
-
-                elif event_type == "channel_done":
-                    phase = evt_data['phase']
-                    label = "window pass" if phase == "window" else f"{evt_data['step']}/{evt_data['total']} channels"
-                    if evt_data.get('skipped'):
-                        step_text = f"{evt_data['channel']} skipped for large search ({label})"
-                    else:
-                        step_text = f"{evt_data['channel']} done \u2014 {evt_data['count']} results ({label})"
-                    yield send_event("progress", {
-                        "step": step_text,
-                        "detail": "",
-                        "fusion_batch": {
-                            "phase": phase,
-                            "channel": evt_data['channel'],
-                            "index": evt_data['step'],
-                            "total": evt_data['total'],
-                            "status": "skipped" if evt_data.get('skipped') else "done",
-                            "result_count": evt_data.get('count', 0),
-                        },
-                    })
-
-                elif event_type == "intermediate":
-                    yield f"data: {json.dumps({'type': 'intermediate', 'results': evt_data['results'], 'total_matches': evt_data['total_results'], 'channels_done': evt_data['channels_done'], 'channels_total': evt_data.get('channels_total', 9), 'phase': evt_data['phase'], 'elapsed': round(time.time() - start_time, 1)})}\n\n"
-
-                elif event_type == "heartbeat":
-                    # SSE comment: transmitted as bytes (keeps TCP alive) but
-                    # silently ignored by all SSE parsers and our frontend
-                    # TextDecoder reader.  Prevents proxy/browser read timeouts
-                    # during slow channels (edit_distance, sound, semantic).
-                    yield ": keep-alive\n\n"
-
-                elif event_type == "complete":
-                    final_results = evt_data["results"]
-                    final_total = evt_data.get("total_results")
-
-            # Cache final results UNFILTERED (the formula filter is a display
-            # choice, applied below, after caching — the cache key does not
-            # vary on formula_max/formula_only, so a filtered request must
-            # never be what gets stored, or a later plain request would
-            # silently inherit someone else's filter). total_candidates is the
-            # pre-cap count of scored parallels (final_results is capped at
-            # max_results); agents quote it as the true size of the comparison.
-            metadata = {
-                'source_lines': len(source_units),
-                'target_lines': len(target_units),
-                'mode': mode,
-                'total_candidates': final_total,
-            }
-            save_cached_results(
-                source_id, target_id, language, cache_settings,
-                final_results, metadata
-            )
-
-            # Formula filter, applied over the cached (capped) list for display.
-            display_results, formula_hidden = apply_formula_filter(
-                final_results, formula_max, formula_only)
-
-            # Log the search
-            log_search('fusion_search', language, source_id, target_id, None,
-                       'fusion', len(display_results), False, req_user_id, req_city, req_country, req_ip)
-
-            elapsed_time = round(time.time() - start_time, 2)
-
-            complete = {
-                "type": "complete",
-                "results": display_results,
-                "total_matches": len(display_results),
-                "total_candidates": final_total,   # pre-cap count (results are capped)
-                "source_lines": len(source_units),
-                "target_lines": len(target_units),
-                "elapsed_time": elapsed_time,
-                "fusion": True,
-                "mode": mode,
-                "formula_filter": {"max": formula_max, "only": formula_only,
-                                   "hidden": formula_hidden},
-            }
-            # Last chance to honour a cancel before a paged snapshot is written.
-            cancellation.check()
-            yield complete_event(complete)
+            yield from _store_and_complete(
+                p, cache_settings, final_results, final_total, source_units,
+                target_units, complete_event, start_time, cancellation,
+                req_user_id, req_city, req_country, req_ip)
 
         except GeneratorExit:
             if cancellation is not None:

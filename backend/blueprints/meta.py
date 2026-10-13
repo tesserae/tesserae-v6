@@ -13,6 +13,15 @@ from backend.runtime import (
 )
 
 meta_bp = Blueprint('meta', __name__)
+
+# Cross-language pairs held back from the site until their data is rebuilt;
+# key -> the plain reason shown on the page. Empty when nothing is held.
+CROSSLINGUAL_HELD = {
+    'la-en': 'Latin to English searches are offline while the English texts are re-embedded '
+             'in the same space as the Latin and Greek ones; they return when that is done.',
+    'grc-en': 'Greek to English searches are offline while the English texts are re-embedded '
+              'in the same space as the Latin and Greek ones; they return when that is done.',
+}
 api_route = api_route_for(meta_bp)
 
 # api_languages() finds the texts folder as dirname(dirname(__file__)), which was the
@@ -189,6 +198,13 @@ def api_languages():
         {'key': 'la-en', 'source': 'la', 'target': 'en', 'label': 'Latin → English'},
         {'key': 'grc-en', 'source': 'grc', 'target': 'en', 'label': 'Greek → English'},
     ]
+    # Pairs held back from the page, with the reason shown to the reader
+    # (2026-10-13): the English passage embeddings were built with a
+    # different model from the Latin and Greek ones (384 against 768
+    # dimensions), so a Latin-English or Greek-English search cannot run
+    # until the English texts are re-embedded in the same space. The pairs
+    # come back when that is done. Keep this dict empty when nothing is held.
+    held = [{'key': k, 'reason': reason} for k, reason in CROSSLINGUAL_HELD.items()]
     try:
         from backend.coptic import COPTIC_ENABLED
         if COPTIC_ENABLED:
@@ -266,8 +282,9 @@ def api_languages():
             _docs_mod.is_index_available(lang) for lang in _docs_mod.SUPPORTED_LANGUAGES)
     except ImportError:
         pass
+    crosslingual_pairs = [p for p in crosslingual_pairs if p['key'] not in CROSSLINGUAL_HELD]
     return jsonify({'languages': languages, 'crosslingual_pairs': crosslingual_pairs,
-                    'documents_enabled': documents_enabled})
+                    'crosslingual_held': held, 'documents_enabled': documents_enabled})
 
 
 # =============================================================================

@@ -133,6 +133,29 @@ history (index builds, cache rebuilds, corpus changes) is in
   Latin-English calls, five runs each, have medians within 5 percent of
   main's. The fusion loop stays one block, moved whole, with no new call
   inside it.
+- Sixth structural job under the rule: the streaming fusion search
+  (`search_fusion_stream()` and its nested generator) became a sequence of
+  named steps (see the CHANGELOG entry of 2026-10-13). The standard recording
+  does not hold this route, so a recording of the stream itself was made.
+  It posts fifteen requests to a preview of main (460 events in all) and reads each stream to
+  the end, with the times removed and the paged result's identifier replaced
+  by its presence. Two runs on main agree with each other. The branch gives
+  every event of every request identical, score for score, in order. The
+  requests cover the cached and the full path of the same pair, the formula
+  filter at both settings, line and window modes, channels switched off,
+  custom weights, the meter, a Coptic pair, a Persian pair, a paged answer
+  and both error cases. A recording starts each request from the cache as the
+  script found it. The standard recording of 68 requests is the same, with
+  both previews started with the same hash seed. The body of each of the 34
+  other functions and classes in the module is identical by syntax tree. The
+  tests give the same eight known failures as main. The reference searches
+  pass. Over five runs each, the uncached search took 16.06 seconds against
+  16.09 on main, and the cached answer 27.4 milliseconds against 26.8, with
+  the first event at 3.0 against 2.9 milliseconds (a difference of 0.6
+  milliseconds on a request whose spread is 11). The loop over the search's
+  events stays one block, moved whole. The generator creates the search
+  slot and hands it to the steps that need it, so the release in its
+  `finally` still sees it.
 
 
 ## 2026-10-12: the band inside one work is refitted on eleven works, and its lowest level is a caution, not a verdict
@@ -2555,3 +2578,9 @@ The web process runs with an ASCII file-system encoding, which Python fixes when
 ## 2026-10-13: record request timings before any speed work
 
 A day of timings from the live site comes before work on speed, so the effort goes where visitors wait and not where we guess. `backend/request_timing.py` records, for each API request, the time, method, path, status, milliseconds, response size and worker process, in one file per day under the folder named by `TESSERAE_TIMING_DIR` (nothing is recorded when it is unset). It does not record the query string, the request body or the answer, so no text a visitor searched for is stored. The report script collapses ids in paths into one route and ranks routes by total time spent, which is what a visitor waits on across a day.
+
+## 2026-10-13: a lemma's document frequency is a function of the lemma alone
+
+The cache of corpus document frequencies gave a lemma a value that depended on lookup order. The first-seen u/v variant in a batch was queried and its value copied to its partner, and a headword's cached entry was either its raw count or one already raised by its own headword, depending on whether it had arrived as a lemma first. One row measured 2.815 against 3.118 for that reason. The decision is two caches, written once and never revised. Raw is the index's answer for the lemma (for Latin, the larger of the lemma and its i/j partner form, each queried alone, with u/v partners kept in separate calls because the index function sums both spellings and lets partners in one call overwrite each other). Final is the larger of the lemma's raw value and its headword's raw value, one headword step only. The meter and text-pair lookups follow the same rule.
+
+Measured on the nine recorded fusion searches replayed with identical inputs (5,123,959 rows), 10 rows changed, all one pair of lines in two searches (Aeneid 1.98 with Metamorphoses 1.552, fused score 0.7223 to 0.8893). The cause is the chain dextra to dextera to dexter. The old value for dextra was 383 when dextera had been looked up earlier and raised, and 260 otherwise. It is now always 260. Nine searches run twice in one process without clearing the caches give identical rows, the property wanted. Timing of the largest fusion call is unchanged within noise.
