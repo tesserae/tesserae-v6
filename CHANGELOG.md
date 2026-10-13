@@ -9,6 +9,9 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-13
 
+### Two merges of this morning restored
+The merge of the Latin scanner change (#880) carried a stale copy of two files and so undid two earlier merges: the fusion scorer went back to its unsplit form and its recording script disappeared (#878), and the unused scoring module came back (#879). Nothing a visitor saw changed, since the split kept every score identical. Both are restored here exactly as merged, with their decision entries. The merge chain now refuses to merge when a pull request's file list has grown beyond the records files since it was opened.
+
 ### Streamed answers reach the browser again as they are produced
 The request-timing record added this morning (#876) asked every answer for its size, and for a streamed answer (the Intertextual Search's progress events and batches, the downloads) Werkzeug supplies that by reading the whole stream first. From 06:04 to the fix, a fusion search showed "Searching for parallels" with no progress until the whole search was over. The record now takes the size only of an answer already held in memory and writes -1 for a stream, whose recorded time is the time to its first byte. A test sends a two-chunk stream through the hook and checks the second chunk is still unproduced when the request returns.
 
