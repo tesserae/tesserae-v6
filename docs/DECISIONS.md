@@ -177,6 +177,23 @@ history (index builds, cache rebuilds, corpus changes) is in
   events stays one block, moved whole. The generator creates the search
   slot and hands it to the steps that need it, so the release in its
   `finally` still sees it.
+- Seventh structural job under the rule: `iter_fusion_search()`, the generator
+  every fusion search runs, became a short body that calls named steps (see
+  the CHANGELOG entry of 2026-10-13). The recorder that stores every row of
+  every `fuse_results` call now also stores every event the generator yields
+  (type and payload, elapsed times zeroed, heartbeats counted and not
+  compared, since their number depends on timing). It covers eleven searches:
+  Latin, Greek, Coptic and Persian pairs, the frequency basis set to meter,
+  context confirmation off, three channels enabled, and custom channel
+  weights, which this generator reads. Two runs on main agree with each other
+  (11 searches, 3.16 million rows, 362 events). The branch gives every row and
+  every event identical. The fifteen-request stream recording of the sixth
+  job is the same, the standard 68-request recording taken from main's
+  preview is the same on the branch's, the reference searches pass, the body
+  of each of the 69 other functions and classes in the module is identical by
+  syntax tree, and the tests fail only where main's do. The two loops over
+  the channels stay whole blocks with no new call inside them. The
+  replay of the largest fusion calls takes within 3 percent of main's time.
 
 
 ## 2026-10-12: the band inside one work is refitted on eleven works, and its lowest level is a caution, not a verdict

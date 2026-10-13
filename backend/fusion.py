@@ -3447,47 +3447,8 @@ def _run_channel_with_heartbeat(ch_name, config, source_units, target_units,
             raise
 
 
-def iter_fusion_search(source_units, target_units, matcher, scorer,
-                       source_id, target_id, language='la',
-                       mode='merged', max_results=5000,
-                       source_path=None, target_path=None,
-                       user_settings=None,
-                       source_language=None, target_language=None,
-                       freq_basis='corpus', channel_weights=None,
-                       enabled_channels=None, cancellation=None):
-    """Generator version of run_fusion_search for progressive SSE streaming.
-
-    Yields (event_type, data) tuples as the search progresses:
-        ("channel_start", {channel, step, total, phase})
-        ("channel_done",  {channel, count, step, total, phase})
-        ("intermediate",  {results, total_results, channels_done, phase})
-        ("complete",      {results, total_results})
-
-    Uses CHANNEL_ORDER (fast channels first) so intermediate results
-    appear within seconds of starting the search.
-
-    channel_weights: optional dict of per-channel weight overrides supplied by
-    the user (Advanced UI). When None or empty, weights fall through to the
-    language-default profile and behavior is unchanged. When provided, the
-    overrides are merged over the language-default profile (so a user need
-    only override a subset of channels) and passed to every fuse_results call.
-
-    enabled_channels: optional iterable of channel keys the user has left ON
-    (Advanced UI on/off switches). When None or empty, every language-available
-    channel runs (behavior unchanged). When provided, only channels in this set
-    run at all — unchecked channels are excluded entirely, so they cannot pull
-    pairs in through the convergence bonus. As a guard rail, if the filter would
-    exclude every available channel (e.g. the user turned everything off), the
-    full available set runs instead of returning nothing.
-    """
-    user_settings = user_settings or {}
-    if cancellation:
-        cancellation.check()
-    if source_language is None:
-        source_language = language
-    if target_language is None:
-        target_language = language
-
+def _fusion_plan(language, user_settings, channel_weights, enabled_channels):
+    """Return (effective_weights, configs, available_channels, line_channels) for one search."""
     # Merge any user weight overrides over the language-default profile. When
     # no overrides are given, effective_weights stays None so fuse_results()
     # uses get_weight_profile() exactly as before (byte-identical default).
@@ -3516,8 +3477,6 @@ def iter_fusion_search(source_units, target_units, matcher, scorer,
                 c[k] = user_settings[k]
         configs[name] = c
 
-    # --- Pass 1: Line-level (language-appropriate channels, fast-first order) ---
-    line_channel_results = {}
     available_channels = get_channels_for_language(language)
     # Apply the optional user on/off filter. enabled_channels is the set of
     # channels to KEEP; unchecked channels are dropped so they never run (and
@@ -3538,6 +3497,15 @@ def iter_fusion_search(source_units, target_units, matcher, scorer,
     # Skip heavy channels weighted 0 by the effective profile — they would run
     # for minutes on a large pair and contribute nothing to the fused score.
     line_channels = _drop_zero_weight_heavy(line_channels, effective_weights, language)
+    return effective_weights, configs, available_channels, line_channels
+
+
+def _run_line_channels(line_channels, configs, line_channel_results, effective_weights,
+                       source_units, target_units, matcher, scorer,
+                       source_id, target_id, source_path, target_path,
+                       source_language, target_language, language,
+                       freq_basis, max_results, user_settings, cancellation):
+    """Generator: run the line-level channels in order, yielding their events and filling line_channel_results."""
     total_line = len(line_channels)
 
     for i, ch_name in enumerate(line_channels):
@@ -3603,6 +3571,10 @@ def iter_fusion_search(source_units, target_units, matcher, scorer,
                 "phase": "line",
             })
 
+
+def _gate_structural(line_channel_results, source_units, target_units,
+                     source_path, target_path, language):
+    """Recover semantic scores for structural pairs and gate them (changes line_channel_results in place)."""
     # Recover semantic scores for structural fingerprint pairs filtered
     # by the semantic_top_n cap.
     if "syntax_structural" in line_channel_results and source_path and target_path:
@@ -3661,16 +3633,9 @@ def iter_fusion_search(source_units, target_units, matcher, scorer,
             logger.info(f"[STRUCTURAL GATE] Kept {after}/{before} structural pairs "
                         f"(dictionary or cosine >= {MIN_COSINE_NO_DICT})")
 
-    line_fused = fuse_results(line_channel_results, weights=effective_weights,
-                               language=language,
-                               freq_basis=freq_basis,
-                               source_id=source_id, target_id=target_id)
 
-    if mode == 'line':
-        final, total, hidden = _cap_with_formula_filter(line_fused, max_results, user_settings)
-        yield ("complete", {"results": final, "total_results": total, "formula_hidden": hidden})
-        return
-
+def _both_prose(source_id, target_id, language):
+    """True when the window pass is skipped because both texts are prose (Coptic only)."""
     # The window pass was designed for poetry, where allusions span line
     # breaks (enjambment) routinely. For prose-vs-prose searches, line
     # divisions in our .tess files are usually editorial (Bible verse
@@ -3690,14 +3655,14 @@ def iter_fusion_search(source_units, target_units, matcher, scorer,
                       is_prose_text(target_id, language))
     except Exception:
         both_prose = False
-    if both_prose and mode == 'merged':
-        logger.info(f"[FUSION] Skipping window pass: both {source_id} and "
-                    f"{target_id} are prose")
-        final, total, hidden = _cap_with_formula_filter(line_fused, max_results, user_settings)
-        yield ("complete", {"results": final, "total_results": total, "formula_hidden": hidden})
-        return
+    return both_prose
 
-    # --- Pass 2: Window-level (co-occurrence channels only) ---
+
+def _run_window_channels(configs, available_channels,
+                         source_units, target_units, matcher, scorer,
+                         source_id, target_id, source_path, target_path,
+                         source_language, target_language, cancellation):
+    """Generator: run the window-level channels, yielding their events; returns window_channel_results."""
     source_windows = make_window_units(source_units)
     target_windows = make_window_units(target_units)
     window_channel_results = {}
@@ -3738,23 +3703,121 @@ def iter_fusion_search(source_units, target_units, matcher, scorer,
             "total": total_window,
             "phase": "window",
         })
+    return window_channel_results
 
+
+def _window_fusion(window_channel_results, effective_weights, language, freq_basis,
+                   source_id, target_id, mode):
+    """Fuse the window-level channel results and penalize single-line windows."""
     window_fused = fuse_results(window_channel_results, weights=effective_weights,
                                  language=language,
                                  freq_basis=freq_basis,
                                  source_id=source_id, target_id=target_id)
     window_fused = penalize_single_line_windows(
         window_fused, annotate_for_merge=(mode != 'window'))
+    return window_fused
+
+
+def _merge_levels(line_fused, window_fused):
+    """Line results first, then novel window results."""
+    return merge_line_and_window(line_fused, window_fused)
+
+
+def _final_event(results, max_results, user_settings):
+    """The closing ("complete", ...) event for a fused result list."""
+    final, total, hidden = _cap_with_formula_filter(results, max_results, user_settings)
+    return ("complete", {"results": final, "total_results": total, "formula_hidden": hidden})
+
+
+def iter_fusion_search(source_units, target_units, matcher, scorer,
+                       source_id, target_id, language='la',
+                       mode='merged', max_results=5000,
+                       source_path=None, target_path=None,
+                       user_settings=None,
+                       source_language=None, target_language=None,
+                       freq_basis='corpus', channel_weights=None,
+                       enabled_channels=None, cancellation=None):
+    """Generator version of run_fusion_search for progressive SSE streaming.
+
+    Yields (event_type, data) tuples as the search progresses:
+        ("channel_start", {channel, step, total, phase})
+        ("channel_done",  {channel, count, step, total, phase})
+        ("intermediate",  {results, total_results, channels_done, phase})
+        ("complete",      {results, total_results})
+
+    Uses CHANNEL_ORDER (fast channels first) so intermediate results
+    appear within seconds of starting the search.
+
+    channel_weights: optional dict of per-channel weight overrides supplied by
+    the user (Advanced UI). When None or empty, weights fall through to the
+    language-default profile and behavior is unchanged. When provided, the
+    overrides are merged over the language-default profile (so a user need
+    only override a subset of channels) and passed to every fuse_results call.
+
+    enabled_channels: optional iterable of channel keys the user has left ON
+    (Advanced UI on/off switches). When None or empty, every language-available
+    channel runs (behavior unchanged). When provided, only channels in this set
+    run at all — unchecked channels are excluded entirely, so they cannot pull
+    pairs in through the convergence bonus. As a guard rail, if the filter would
+    exclude every available channel (e.g. the user turned everything off), the
+    full available set runs instead of returning nothing.
+    """
+    user_settings = user_settings or {}
+    if cancellation:
+        cancellation.check()
+    if source_language is None:
+        source_language = language
+    if target_language is None:
+        target_language = language
+
+    effective_weights, configs, available_channels, line_channels = _fusion_plan(
+        language, user_settings, channel_weights, enabled_channels)
+
+    # --- Pass 1: Line-level (language-appropriate channels, fast-first order) ---
+    line_channel_results = {}
+    yield from _run_line_channels(
+        line_channels, configs, line_channel_results, effective_weights,
+        source_units, target_units, matcher, scorer,
+        source_id, target_id, source_path, target_path,
+        source_language, target_language, language,
+        freq_basis, max_results, user_settings, cancellation)
+
+    _gate_structural(line_channel_results, source_units, target_units,
+                     source_path, target_path, language)
+
+    line_fused = fuse_results(line_channel_results, weights=effective_weights,
+                               language=language,
+                               freq_basis=freq_basis,
+                               source_id=source_id, target_id=target_id)
+
+    if mode == 'line':
+        yield _final_event(line_fused, max_results, user_settings)
+        return
+
+    both_prose = _both_prose(source_id, target_id, language)
+    if both_prose and mode == 'merged':
+        logger.info(f"[FUSION] Skipping window pass: both {source_id} and "
+                    f"{target_id} are prose")
+        yield _final_event(line_fused, max_results, user_settings)
+        return
+
+    # --- Pass 2: Window-level (co-occurrence channels only) ---
+    window_channel_results = yield from _run_window_channels(
+        configs, available_channels,
+        source_units, target_units, matcher, scorer,
+        source_id, target_id, source_path, target_path,
+        source_language, target_language, cancellation)
+
+    window_fused = _window_fusion(window_channel_results, effective_weights, language,
+                                  freq_basis, source_id, target_id, mode)
 
     if mode == 'window':
-        final, total, hidden = _cap_with_formula_filter(window_fused, max_results, user_settings)
-        yield ("complete", {"results": final, "total_results": total, "formula_hidden": hidden})
+        yield _final_event(window_fused, max_results, user_settings)
         return
 
     # --- Merge: line results first, then novel window results ---
-    merged = merge_line_and_window(line_fused, window_fused)
-    final, total, hidden = _cap_with_formula_filter(merged, max_results, user_settings)
-    yield ("complete", {"results": final, "total_results": total, "formula_hidden": hidden})
+    merged = _merge_levels(line_fused, window_fused)
+    yield _final_event(merged, max_results, user_settings)
 
 
 def run_fusion_search(source_units, target_units, matcher, scorer,
