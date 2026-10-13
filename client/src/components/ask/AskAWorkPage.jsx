@@ -528,7 +528,8 @@ export default function AskAWorkPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
+    <div className="max-w-6xl mx-auto p-6">
+      <div className="max-w-4xl">
       <div className="flex items-center gap-2">
         <h1 className="text-2xl font-semibold text-gray-900">Search One Text</h1>
         <span className="rounded border border-amber-200 bg-amber-50 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-800">
@@ -626,6 +627,7 @@ export default function AskAWorkPage() {
         <div className="mt-6 rounded border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">{error}</div>
       )}
 
+      </div>
       {data && !running && (
         <div className="mt-6">
           {noKnownWords && (
@@ -665,242 +667,252 @@ export default function AskAWorkPage() {
                 {workLabel(askedWork, asked.work, results[0], asked.books)}
                 <span className="font-normal text-gray-600"> on {asked.q}</span>
               </h2>
-              {summary?.state === 'loading' && (
-                <p className="mt-1 text-sm text-gray-500 italic">Tessa is reading the passages.</p>
-              )}
-              {summary?.state === 'ready' && (
-                <section aria-label="The work" className="mt-3 rounded border border-gray-200 bg-gray-50 px-3 py-2" data-testid="ask-summary">
-                  <p className="text-xs font-semibold text-gray-600">The work</p>
-                  <p className="mt-1 text-sm text-gray-800 leading-snug">
-                    <SummaryText text={summary.summary} cites={summary.cites} onJump={jumpRef} />
-                  </p>
-                  <p className="mt-1 text-xs text-gray-500">Written by Tessa from the passage descriptions. Read the passages before relying on it.</p>
-                </section>
-              )}
-              {scholarship?.state === 'loading' && (
-                <p className="mt-1 text-sm text-gray-500 italic">Reading the secondary literature...</p>
-              )}
-              {scholarship?.state === 'ready' && (
-                <section aria-label="Scholarship" className="mt-3 rounded border border-gray-200 bg-gray-50 px-3 py-2" data-testid="ask-scholarship">
-                  <p className="text-xs font-semibold text-gray-600">Scholarship</p>
-                  <p className="mt-1 text-sm text-gray-800 leading-snug">
-                    <ScholarshipText text={scholarship.summary} cites={scholarship.cites} />
-                  </p>
-                  {scholarship.holdings && <p className="mt-1 text-xs text-gray-500" data-testid="ask-scholarship-holdings">{scholarship.holdings}</p>}
-                  {/* The paragraph reads at most eight; the scholarship search
-                      lists every note and article for the same question
-                      (owner, 2026-10-12: "Is it eight slots and then some
-                      link you can click to see more?"). */}
-                  <p className="mt-1 text-xs">
-                    <a href={`/theme-search?query=${encodeURIComponent(scholarship.queryUsed || asked.q)}&in=scholarship&work=${encodeURIComponent(asked.work)}`}
-                       className="text-red-700 hover:underline" data-testid="ask-scholarship-more">
-                      See every note and article for this question
-                    </a>
-                  </p>
-                </section>
-              )}
-              {scholarship?.state === 'none' && (
-                <p className="mt-2 text-xs text-gray-500" data-testid="ask-scholarship-holdings">{scholarship.holdings}</p>
-              )}
-              {recent?.items.length > 0 && (
-                <section aria-label="Recent articles" className="mt-3 rounded border border-gray-200 bg-white px-3 py-2" data-testid="ask-recent">
-                  <p className="text-xs font-semibold text-gray-600">Recent articles</p>
-                  <ul className="mt-1 space-y-2">
-                    {recent.items.map((it) => {
-                      const url = recentUrl(it);
-                      const meta = [(it.authors || []).join(', '), it.year, it.venue].filter(Boolean).join(', ');
+              {/* The passages come first and the three written boxes stand beside
+                  them (owner, 2026-10-12: the summary, the scholarship paragraph and
+                  the article list "buries the text results"). On a phone the boxes
+                  follow the passages. */}
+              <div className="mt-3 lg:grid lg:grid-cols-[minmax(0,1fr)_22rem] lg:gap-6 lg:items-start" data-testid="ask-columns">
+                <div className="min-w-0">
+                  <section aria-label="Where in the work" className="mt-3 lg:mt-0">
+                    <h2 className="text-sm font-semibold text-gray-700">Where in the work</h2>
+                    <div className="relative mt-2 h-12 flex border-b border-gray-300" data-testid="ask-strip">
+                      {layout.segments.map((b, k) => (
+                        <div key={String(b)} className={`flex-1 ${k > 0 ? 'border-l border-gray-200' : ''} ${k % 2 ? 'bg-gray-50' : 'bg-white'}`} />
+                      ))}
+                      {greyMarks.map((m) => {
+                        const r = namedRows[m.i - results.length];
+                        const at = (mentions?.rows || []).findIndex((x) => x.id === r.id);
+                        return (
+                          <button
+                            key={`n-${r.id || m.i}`}
+                            type="button"
+                            data-testid="ask-mark-name"
+                            aria-label={`${r.ref_start}, names ${joinNames(mentions.names)}`}
+                            title={`${r.ref_start}: names ${joinNames(mentions.names)}`}
+                            onClick={() => jumpName(at)}
+                            style={{ left: `${m.left * 100}%`, height: '40%', width: 2 }}
+                            className="absolute bottom-0 -translate-x-1/2 rounded-t bg-gray-400 focus:outline-none focus:ring-2 focus:ring-red-300"
+                          />
+                        );
+                      })}
+                      {redMarks.map((m) => {
+                        const r = results[m.i];
+                        const w = weight(r);
+                        return (
+                          <button
+                            key={r.id || m.i}
+                            type="button"
+                            data-testid="ask-mark"
+                            aria-label={`${r.ref_start}${r.strong ? ', strong' : ''}`}
+                            title={`${r.ref_start}: ${r.strong ? 'strong match' : `match ${m.i + 1} of ${results.length}`}${typeof r.score === 'number' ? `, score ${r.score.toFixed(2)}` : ''}`}
+                            onClick={() => jump(m.i)}
+                            style={{ left: `${m.left * 100}%`, height: `${40 + w * 60}%`, width: w > 0.66 ? 4 : 2 }}
+                            className={`absolute bottom-0 -translate-x-1/2 rounded-t focus:outline-none focus:ring-2 focus:ring-red-300 ${w > 0.66 ? 'bg-red-700' : 'bg-red-300'}`}
+                          />
+                        );
+                      })}
+                    </div>
+                    {!!layout.books.length && (() => {
+                      // A work of many short units (Sappho's fragments: 137) cannot
+                      // label every one, so about twelve labels on a wide screen and
+                      // six on a phone are placed at their columns' centres, each
+                      // free to be as wide as its number (owner, 2026-10-12: the
+                      // labels had been squeezed into their columns, "16" showing
+                      // as "1").
+                      const n = layout.books.length;
+                      const step = Math.max(1, Math.ceil(n / (phone ? 6 : 12)));
                       return (
-                        <li key={`${it.doi || ''}|${it.title}`} className="text-sm text-gray-800 leading-snug" data-testid="ask-recent-item">
-                          {url ? (
-                            <a href={url} target="_blank" rel="noopener noreferrer" className="text-red-800 hover:text-red-900 hover:underline">{it.title}</a>
-                          ) : it.title}
-                          {meta && <span className="text-gray-600">{`, ${meta}`}</span>}
-                          {it.oa_url && <span className="ml-1 rounded bg-gray-100 px-1 text-[11px] text-gray-500">free copy</span>}
-                          {it.excerpt && <span className="block text-xs text-gray-500">{it.excerpt}</span>}
-                        </li>
+                        <div className="relative h-4 text-[10px] text-gray-500" data-testid="ask-strip-labels">
+                          {layout.books.map((b, k) => (k % step ? null : (
+                            <span key={b} className="absolute top-0 -translate-x-1/2 whitespace-nowrap"
+                                  style={{ left: `${((k + 0.5) / n) * 100}%` }}>{b}</span>
+                          )))}
+                        </div>
                       );
-                    })}
+                    })()}
+                    <p className="mt-1 text-xs text-gray-500">
+                      {layout.books.length > 1
+                        ? `${results.length} passages in ${inBooks} of ${layout.books.length} ${results.length ? unitWord(results) : unitForWork(asked.work)}`
+                        : `${results.length} passages`}
+                      {/* What the shades mean, asked for by the owner 2026-10-12;
+                          each bar also says on hover which passage it is. */}
+                      <span className="ml-2" data-testid="ask-strip-legend">
+                        {anyStrong
+                          ? `Dark red: a strong match, far above the work's typical score. Light red: the rest of the ${results.length} passages closest to your question.`
+                          : `Red: the ${results.length} passages closest to your question, darker the closer.`}
+                        {greyMarks.length ? ` Grey: passages that name ${joinNames(mentions.names)}, listed further down.` : ''}
+                        {' '}Hover a bar for the passage.
+                      </span>
+                    </p>
+                  </section>
+
+
+                  <div className="mt-4 flex items-center gap-2 text-xs text-gray-600" data-testid="ask-order">
+                    <span>Order</span>
+                    <div className="inline-flex rounded border border-gray-300 overflow-hidden">
+                      <button type="button" aria-pressed={order === 'match'} onClick={() => setOrder('match')}
+                              className={`px-2 py-0.5 ${order === 'match' ? 'bg-gray-700 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'}`}>
+                        Best match
+                      </button>
+                      <button type="button" aria-pressed={order === 'work'} onClick={() => setOrder('work')}
+                              className={`px-2 py-0.5 border-l border-gray-300 ${order === 'work' ? 'bg-gray-700 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'}`}>
+                        Order of the work
+                      </button>
+                    </div>
+                  </div>
+                  <ul className="mt-2 space-y-3">
+                    {orderedCards.map(({ r, i }) => (
+                      <li
+                        key={r.id || `${r.ref_start}-${i}`}
+                        ref={(el) => { cards.current[i] = el; }}
+                        data-testid="ask-card"
+                        className={`border rounded p-3 bg-white transition-colors ${flash === i ? 'border-red-400 bg-red-50' : 'border-gray-200'}`}
+                      >
+                        <div className="flex items-baseline gap-2 flex-wrap">
+                          <a href={readerLink(r, asked.q)} className="text-sm text-red-800 hover:text-red-900 hover:underline">
+                            {r.ref_start}
+                          </a>
+                          {r.strong === true && (
+                            <span className="text-[10px] bg-red-50 text-red-800 border border-red-200 rounded px-1.5 py-0.5 font-medium">
+                              strong
+                            </span>
+                          )}
+                          <a href={readerLink(r, asked.q)} className="ml-auto text-xs text-gray-500 hover:underline">
+                            Open in the Reader
+                          </a>
+                        </div>
+                        {r.gist && <p className="mt-0.5 text-sm text-gray-700 leading-snug">{r.gist}</p>}
+                        <FirstLines r={r} />
+                      </li>
+                    ))}
                   </ul>
-                </section>
-              )}
-              {recent?.pending.length > 0 && (
-                <p className="mt-1 text-xs text-gray-500" data-testid="ask-recent-pending">
-                  {`Looking up recent articles from ${joinNames(recent.pending.map((x) => RECENT_LABELS[x]))}...`}
-                </p>
-              )}
-              <section aria-label="Where in the work" className="mt-3">
-                <h2 className="text-sm font-semibold text-gray-700">Where in the work</h2>
-                <div className="relative mt-2 h-12 flex border-b border-gray-300" data-testid="ask-strip">
-                  {layout.segments.map((b, k) => (
-                    <div key={String(b)} className={`flex-1 ${k > 0 ? 'border-l border-gray-200' : ''} ${k % 2 ? 'bg-gray-50' : 'bg-white'}`} />
-                  ))}
-                  {greyMarks.map((m) => {
-                    const r = namedRows[m.i - results.length];
-                    const at = (mentions?.rows || []).findIndex((x) => x.id === r.id);
-                    return (
+
+                  {!exhausted && (
+                    <div className="mt-4 text-center">
                       <button
-                        key={`n-${r.id || m.i}`}
                         type="button"
-                        data-testid="ask-mark-name"
-                        aria-label={`${r.ref_start}, names ${joinNames(mentions.names)}`}
-                        title={`${r.ref_start}: names ${joinNames(mentions.names)}`}
-                        onClick={() => jumpName(at)}
-                        style={{ left: `${m.left * 100}%`, height: '40%', width: 2 }}
-                        className="absolute bottom-0 -translate-x-1/2 rounded-t bg-gray-400 focus:outline-none focus:ring-2 focus:ring-red-300"
-                      />
-                    );
-                  })}
-                  {redMarks.map((m) => {
-                    const r = results[m.i];
-                    const w = weight(r);
-                    return (
-                      <button
-                        key={r.id || m.i}
-                        type="button"
-                        data-testid="ask-mark"
-                        aria-label={`${r.ref_start}${r.strong ? ', strong' : ''}`}
-                        title={`${r.ref_start}: ${r.strong ? 'strong match' : `match ${m.i + 1} of ${results.length}`}${typeof r.score === 'number' ? `, score ${r.score.toFixed(2)}` : ''}`}
-                        onClick={() => jump(m.i)}
-                        style={{ left: `${m.left * 100}%`, height: `${40 + w * 60}%`, width: w > 0.66 ? 4 : 2 }}
-                        className={`absolute bottom-0 -translate-x-1/2 rounded-t focus:outline-none focus:ring-2 focus:ring-red-300 ${w > 0.66 ? 'bg-red-700' : 'bg-red-300'}`}
-                      />
-                    );
-                  })}
-                </div>
-                {!!layout.books.length && (() => {
-                  // A work of many short units (Sappho's fragments: 137) cannot
-                  // label every one, so about twelve labels on a wide screen and
-                  // six on a phone are placed at their columns' centres, each
-                  // free to be as wide as its number (owner, 2026-10-12: the
-                  // labels had been squeezed into their columns, "16" showing
-                  // as "1").
-                  const n = layout.books.length;
-                  const step = Math.max(1, Math.ceil(n / (phone ? 6 : 12)));
-                  return (
-                    <div className="relative h-4 text-[10px] text-gray-500" data-testid="ask-strip-labels">
-                      {layout.books.map((b, k) => (k % step ? null : (
-                        <span key={b} className="absolute top-0 -translate-x-1/2 whitespace-nowrap"
-                              style={{ left: `${((k + 0.5) / n) * 100}%` }}>{b}</span>
-                      )))}
+                        onClick={() => run(asked.q, asked.work, asked.lang, true, asked.books || '')}
+                        disabled={loadingMore}
+                        className="rounded border border-gray-300 bg-white px-4 py-1.5 text-sm text-gray-700 hover:border-gray-400 disabled:text-gray-500"
+                      >
+                        {loadingMore ? 'Loading…' : 'Show more'}
+                      </button>
                     </div>
-                  );
-                })()}
-                <p className="mt-1 text-xs text-gray-500">
-                  {layout.books.length > 1
-                    ? `${results.length} passages in ${inBooks} of ${layout.books.length} ${results.length ? unitWord(results) : unitForWork(asked.work)}`
-                    : `${results.length} passages`}
-                  {/* What the shades mean, asked for by the owner 2026-10-12;
-                      each bar also says on hover which passage it is. */}
-                  <span className="ml-2" data-testid="ask-strip-legend">
-                    {anyStrong
-                      ? `Dark red: a strong match, far above the work's typical score. Light red: the rest of the ${results.length} passages closest to your question.`
-                      : `Red: the ${results.length} passages closest to your question, darker the closer.`}
-                    {greyMarks.length ? ` Grey: passages that name ${joinNames(mentions.names)}, listed further down.` : ''}
-                    {' '}Hover a bar for the passage.
-                  </span>
-                </p>
-              </section>
-
-
-              <div className="mt-4 flex items-center gap-2 text-xs text-gray-600" data-testid="ask-order">
-                <span>Order</span>
-                <div className="inline-flex rounded border border-gray-300 overflow-hidden">
-                  <button type="button" aria-pressed={order === 'match'} onClick={() => setOrder('match')}
-                          className={`px-2 py-0.5 ${order === 'match' ? 'bg-gray-700 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'}`}>
-                    Best match
-                  </button>
-                  <button type="button" aria-pressed={order === 'work'} onClick={() => setOrder('work')}
-                          className={`px-2 py-0.5 border-l border-gray-300 ${order === 'work' ? 'bg-gray-700 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'}`}>
-                    Order of the work
-                  </button>
-                </div>
-              </div>
-              <ul className="mt-2 space-y-3">
-                {orderedCards.map(({ r, i }) => (
-                  <li
-                    key={r.id || `${r.ref_start}-${i}`}
-                    ref={(el) => { cards.current[i] = el; }}
-                    data-testid="ask-card"
-                    className={`border rounded p-3 bg-white transition-colors ${flash === i ? 'border-red-400 bg-red-50' : 'border-gray-200'}`}
-                  >
-                    <div className="flex items-baseline gap-2 flex-wrap">
-                      <a href={readerLink(r, asked.q)} className="text-sm text-red-800 hover:text-red-900 hover:underline">
-                        {r.ref_start}
-                      </a>
-                      {r.strong === true && (
-                        <span className="text-[10px] bg-red-50 text-red-800 border border-red-200 rounded px-1.5 py-0.5 font-medium">
-                          strong
-                        </span>
-                      )}
-                      <a href={readerLink(r, asked.q)} className="ml-auto text-xs text-gray-500 hover:underline">
-                        Open in the Reader
-                      </a>
-                    </div>
-                    {r.gist && <p className="mt-0.5 text-sm text-gray-700 leading-snug">{r.gist}</p>}
-                    <FirstLines r={r} />
-                  </li>
-                ))}
-              </ul>
-
-              {!exhausted && (
-                <div className="mt-4 text-center">
-                  <button
-                    type="button"
-                    onClick={() => run(asked.q, asked.work, asked.lang, true, asked.books || '')}
-                    disabled={loadingMore}
-                    className="rounded border border-gray-300 bg-white px-4 py-1.5 text-sm text-gray-700 hover:border-gray-400 disabled:text-gray-500"
-                  >
-                    {loadingMore ? 'Loading…' : 'Show more'}
-                  </button>
-                </div>
-              )}
-
-              {mentions && (
-                <section aria-label="Passages that name" className="mt-5" data-testid="ask-names">
-                  <h2 className="text-sm font-semibold text-gray-700">Passages that name {joinNames(mentions.names)}</h2>
-                  {mentions.total === 0 ? (
-                    <p className="mt-1 text-xs text-gray-500">No passage description or text names {joinNames(mentions.names)} in this work.</p>
-                  ) : (
-                    <>
-                      <p className="mt-1 text-xs text-gray-500">
-                        {mentions.total} {mentions.total === 1 ? 'passage whose' : 'passages whose'} {mentions.source === 'text' ? 'text' : 'description'} names {joinNames(mentions.names)}, {mentions.rankedBy === 'closeness' ? 'the closest to your question first' : 'in the order of the work'}
-                      </p>
-                      <ul className="mt-2 space-y-2">
-                        {shownNames.map((r, i) => (
-                          <li
-                            key={r.id || `${r.ref_start}-${i}`}
-                            ref={(el) => { nameCards.current[i] = el; }}
-                            data-testid="ask-name-card"
-                            className="border border-gray-200 rounded px-3 py-2 bg-white"
-                          >
-                            <div className="flex items-baseline gap-2 flex-wrap">
-                              <a href={readerLink(r, asked.q)} className="text-sm text-red-800 hover:text-red-900 hover:underline">{r.ref_start}</a>
-                              {(r.matched || []).map((n) => (
-                                <span key={n} className="text-[10px] bg-gray-100 text-gray-600 border border-gray-200 rounded px-1.5 py-0.5">{n}</span>
-                              ))}
-                            </div>
-                            {r.gist && <p className="mt-0.5 text-sm text-gray-700 leading-snug">{r.gist}</p>}
-                          </li>
-                        ))}
-                      </ul>
-                      {!showAllNames && mentions.total > 10 && (
-                        <button type="button" onClick={showAllMentions}
-                                className="mt-2 text-sm text-red-700 hover:underline">
-                          Show all {mentions.total}
-                        </button>
-                      )}
-                      {loadingNames && <p className="mt-2 text-xs text-gray-500 italic">Loading…</p>}
-                    </>
                   )}
-                </section>
-              )}
-              {exhausted && (
-                <p className="mt-4 text-center text-xs text-gray-500">End of the ranked list for this work.</p>
-              )}
-              <p className="mt-5 text-xs text-gray-500 leading-relaxed">
-                These summaries are written by a language model from the passage itself, so treat them
-                as a finding aid. Read the passage before citing it.
-              </p>
+
+                  {mentions && (
+                    <section aria-label="Passages that name" className="mt-5" data-testid="ask-names">
+                      <h2 className="text-sm font-semibold text-gray-700">Passages that name {joinNames(mentions.names)}</h2>
+                      {mentions.total === 0 ? (
+                        <p className="mt-1 text-xs text-gray-500">No passage description or text names {joinNames(mentions.names)} in this work.</p>
+                      ) : (
+                        <>
+                          <p className="mt-1 text-xs text-gray-500">
+                            {mentions.total} {mentions.total === 1 ? 'passage whose' : 'passages whose'} {mentions.source === 'text' ? 'text' : 'description'} names {joinNames(mentions.names)}, {mentions.rankedBy === 'closeness' ? 'the closest to your question first' : 'in the order of the work'}
+                          </p>
+                          <ul className="mt-2 space-y-2">
+                            {shownNames.map((r, i) => (
+                              <li
+                                key={r.id || `${r.ref_start}-${i}`}
+                                ref={(el) => { nameCards.current[i] = el; }}
+                                data-testid="ask-name-card"
+                                className="border border-gray-200 rounded px-3 py-2 bg-white"
+                              >
+                                <div className="flex items-baseline gap-2 flex-wrap">
+                                  <a href={readerLink(r, asked.q)} className="text-sm text-red-800 hover:text-red-900 hover:underline">{r.ref_start}</a>
+                                  {(r.matched || []).map((n) => (
+                                    <span key={n} className="text-[10px] bg-gray-100 text-gray-600 border border-gray-200 rounded px-1.5 py-0.5">{n}</span>
+                                  ))}
+                                </div>
+                                {r.gist && <p className="mt-0.5 text-sm text-gray-700 leading-snug">{r.gist}</p>}
+                              </li>
+                            ))}
+                          </ul>
+                          {!showAllNames && mentions.total > 10 && (
+                            <button type="button" onClick={showAllMentions}
+                                    className="mt-2 text-sm text-red-700 hover:underline">
+                              Show all {mentions.total}
+                            </button>
+                          )}
+                          {loadingNames && <p className="mt-2 text-xs text-gray-500 italic">Loading…</p>}
+                        </>
+                      )}
+                    </section>
+                  )}
+                  {exhausted && (
+                    <p className="mt-4 text-center text-xs text-gray-500">End of the ranked list for this work.</p>
+                  )}
+                  <p className="mt-5 text-xs text-gray-500 leading-relaxed">
+                    These summaries are written by a language model from the passage itself, so treat them
+                    as a finding aid. Read the passage before citing it.
+                  </p>
+                </div>
+                <aside aria-label="About the work and its scholarship" className="mt-6 lg:mt-0 min-w-0" data-testid="ask-side">
+                  {summary?.state === 'loading' && (
+                    <p className="mt-1 text-sm text-gray-500 italic">Tessa is reading the passages.</p>
+                  )}
+                  {summary?.state === 'ready' && (
+                    <section aria-label="The work" className="mt-3 rounded border border-gray-200 bg-gray-50 px-3 py-2" data-testid="ask-summary">
+                      <p className="text-xs font-semibold text-gray-600">The work</p>
+                      <p className="mt-1 text-sm text-gray-800 leading-snug">
+                        <SummaryText text={summary.summary} cites={summary.cites} onJump={jumpRef} />
+                      </p>
+                      <p className="mt-1 text-xs text-gray-500">Written by Tessa from the passage descriptions. Read the passages before relying on it.</p>
+                    </section>
+                  )}
+                  {scholarship?.state === 'loading' && (
+                    <p className="mt-1 text-sm text-gray-500 italic">Reading the secondary literature...</p>
+                  )}
+                  {scholarship?.state === 'ready' && (
+                    <section aria-label="Scholarship" className="mt-3 rounded border border-gray-200 bg-gray-50 px-3 py-2" data-testid="ask-scholarship">
+                      <p className="text-xs font-semibold text-gray-600">Scholarship</p>
+                      <p className="mt-1 text-sm text-gray-800 leading-snug">
+                        <ScholarshipText text={scholarship.summary} cites={scholarship.cites} />
+                      </p>
+                      {scholarship.holdings && <p className="mt-1 text-xs text-gray-500" data-testid="ask-scholarship-holdings">{scholarship.holdings}</p>}
+                      {/* The paragraph reads at most eight; the scholarship search
+                          lists every note and article for the same question
+                          (owner, 2026-10-12: "Is it eight slots and then some
+                          link you can click to see more?"). */}
+                      <p className="mt-1 text-xs">
+                        <a href={`/theme-search?query=${encodeURIComponent(scholarship.queryUsed || asked.q)}&in=scholarship&work=${encodeURIComponent(asked.work)}`}
+                           className="text-red-700 hover:underline" data-testid="ask-scholarship-more">
+                          See every note and article for this question
+                        </a>
+                      </p>
+                    </section>
+                  )}
+                  {scholarship?.state === 'none' && (
+                    <p className="mt-2 text-xs text-gray-500" data-testid="ask-scholarship-holdings">{scholarship.holdings}</p>
+                  )}
+                  {recent?.items.length > 0 && (
+                    <section aria-label="Articles found online" className="mt-3 rounded border border-gray-200 bg-white px-3 py-2" data-testid="ask-recent">
+                      <p className="text-xs font-semibold text-gray-600">Articles found online</p>
+                      <ul className="mt-1 space-y-2">
+                        {recent.items.map((it) => {
+                          const url = recentUrl(it);
+                          const meta = [(it.authors || []).join(', '), it.year, it.venue].filter(Boolean).join(', ');
+                          return (
+                            <li key={`${it.doi || ''}|${it.title}`} className="text-sm text-gray-800 leading-snug" data-testid="ask-recent-item">
+                              {url ? (
+                                <a href={url} target="_blank" rel="noopener noreferrer" className="text-red-800 hover:text-red-900 hover:underline">{it.title}</a>
+                              ) : it.title}
+                              {meta && <span className="text-gray-600">{`, ${meta}`}</span>}
+                              {it.oa_url && <span className="ml-1 rounded bg-gray-100 px-1 text-[11px] text-gray-500">free copy</span>}
+                              {it.excerpt && <span className="block text-xs text-gray-500">{it.excerpt}</span>}
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    </section>
+                  )}
+                  {recent?.pending.length > 0 && (
+                    <p className="mt-1 text-xs text-gray-500" data-testid="ask-recent-pending">
+                      {`Asking ${joinNames(recent.pending.map((x) => RECENT_LABELS[x]))} for articles...`}
+                    </p>
+                  )}
+                </aside>
+              </div>
             </>
           )}
         </div>

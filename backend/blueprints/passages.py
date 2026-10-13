@@ -330,10 +330,10 @@ _SCHOL_SYSTEM = (
     "open with a clause about where the material comes from: a line under your text already "
     "says that. Do not call the notes 'sources'. Do not use the word paragraph. Plain words. "
     "No dashes, no semicolons, no lists, no headings.")
-# Added when recent articles are in the list: they are known only from an
+# Added when articles from the live services are in the list: they are known only from an
 # abstract or a short excerpt, and the paragraph must not claim more.
 _SCHOL_RECENT_NOTE = (
-    " The list may hold recent articles known only from an abstract or a short excerpt. "
+    " The list may hold articles found online, known only from an abstract or a short excerpt. "
     "When you draw on one, say so (for example 'to judge from its abstract'), and never "
     "claim to have read such an article.")
 _SCHOL_RECENT = 4
@@ -384,18 +384,18 @@ _HOLDINGS_NONE = (
 # phrasings per state, picked by the same hash as the first clause. No colons,
 # semicolons or dashes.
 _RECENT_FOUND = (
-    "the live services list {m} recent {art} for this question",
-    "the live services add {m} recent {art}",
-    "I also found {m} recent {art} from the live services",
-    "{m} recent {art} turned up in the live services",
-    "the live services give {m} recent {art} on it",
+    "the live services list {m} {art} for this question",
+    "the live services add {m} {art}",
+    "I also found {m} {art} online",
+    "{m} {art} turned up in the live services",
+    "the live services give {m} {art} on it",
 )
 _RECENT_NONE = (
-    "the live services list no recent articles for this question",
-    "the live services add nothing recent",
-    "no recent article turned up in the live services",
-    "I found no recent articles in the live services",
-    "the live services give no recent articles on it",
+    "the live services list no articles for this question",
+    "the live services add nothing",
+    "no article turned up in the live services",
+    "I found no articles online",
+    "the live services give no articles on it",
 )
 _RECENT_FAILED = (
     "{k} of the live services did not answer",
@@ -555,7 +555,7 @@ def ask_scholarship():
     if n_art:
         kind_names.append('journal articles')
     if recent:
-        kind_names.append('recent articles known from abstracts')
+        kind_names.append('articles found online, known from abstracts')
     kinds = kind_names[0] if len(kind_names) == 1 else ', '.join(kind_names[:-1]) + ' and ' + kind_names[-1]
     # The model is told what kinds it has, so it does not write "the
     # commentaries and articles" over notes alone (owner, 2026-10-12).
@@ -566,7 +566,7 @@ def ask_scholarship():
         if c.get('kind') == 'recent':
             venue = f", {c['venue']}" if c.get('venue') else ''
             year = f" ({c['year']})" if c.get('year') else ''
-            lines.append(f"[{i}] Recent article, known from its abstract or an excerpt: "
+            lines.append(f"[{i}] Article found online, known from its abstract or an excerpt: "
                          f"{c.get('title')}{year}{venue}: {c.get('excerpt') or ''}")
         else:
             lines.append(f"[{i}] {_scholarship_label(c)}: {c.get('snippet') or ''}")

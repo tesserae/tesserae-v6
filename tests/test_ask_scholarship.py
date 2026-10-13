@@ -158,7 +158,7 @@ def test_recent_alone_writes_the_paragraph_and_names_the_count(monkeypatch):
     _fake_services(monkeypatch, {'openalex': {'service': 'openalex', 'available': True, 'results': [RECENT], 'reason': ''}})
     out = _post({'question': 'Dido falls in love with Aeneas', 'work': 'vergil.aeneid', 'lang': 'la'})
     assert out['available'] is True
-    assert '1 recent article' in out['holdings']
+    assert '1 article' in out['holdings']
     assert [c['kind'] for c in out['cites']] == ['recent']
     assert out['cites'][0]['link'] == {'kind': 'web', 'url': 'https://doi.org/10.1/dido'}
     assert out['cites'][0]['label'] == 'Dido and the Politics of Love (2015)'
@@ -166,8 +166,8 @@ def test_recent_alone_writes_the_paragraph_and_names_the_count(monkeypatch):
     assert len(out['recent']) == 1
     system, user = calls[0]
     assert 'at most 150 words' in system and 'abstract' in system
-    assert '[1] Recent article, known from its abstract or an excerpt: Dido and the Politics of Love (2015), Classical Quarterly: Dido yields to desire.' in user
-    assert 'recent articles known from abstracts' in user
+    assert '[1] Article found online, known from its abstract or an excerpt: Dido and the Politics of Love (2015), Classical Quarterly: Dido yields to desire.' in user
+    assert 'articles found online, known from abstracts' in user
 
 
 def test_recent_items_are_numbered_after_the_held_ones_and_prefer_the_free_copy(monkeypatch):
@@ -210,9 +210,9 @@ def test_clause_states_and_no_forbidden_punctuation():
                 assert ':' not in s and ';' not in s and '\u2014' not in s and '\u2013' not in s
     found = {passages._scholarship_holdings(f'q{i}', kept, info, 'w', 3, 0) for i in range(60)}
     assert len({s.split(' and ', 1)[-1] if ' and ' in s else s for s in found}) >= 4
-    assert '3 recent articles' in passages._scholarship_holdings('q', kept, info, 'w', 3, 0)
-    assert 'no recent' in passages._scholarship_holdings('q', kept, info, 'w', 0, 0) or \
-        'nothing recent' in passages._scholarship_holdings('q', kept, info, 'w', 0, 0)
+    assert '3 articles' in passages._scholarship_holdings('q', kept, info, 'w', 3, 0)
+    none_line = passages._scholarship_holdings('q', kept, info, 'w', 0, 0)
+    assert 'no article' in none_line or 'nothing' in none_line
 
 
 def test_holdings_count_is_everything_the_services_listed_not_only_what_the_paragraph_reads(monkeypatch):
@@ -220,4 +220,4 @@ def test_holdings_count_is_everything_the_services_listed_not_only_what_the_para
     items = [dict(RECENT, title=f'Dido study {i}', doi=f'10.1/{i}') for i in range(6)]
     _fake_services(monkeypatch, {'openalex': {'service': 'openalex', 'available': True, 'results': items, 'reason': ''}})
     out = _post({'question': 'Dido in love', 'work': 'vergil.aeneid', 'lang': 'la'})
-    assert '6 recent articles' in out['holdings'] and len(out['recent']) == 4
+    assert '6 articles' in out['holdings'] and len(out['recent']) == 4

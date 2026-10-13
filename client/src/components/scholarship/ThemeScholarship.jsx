@@ -28,7 +28,7 @@ export function linkText(link) {
   return /jstor\.org/.test(link.url) ? 'Open the article on JSTOR' : 'Open the article';
 }
 
-/** The recent articles the live services give for the question (under the held list):
+/** The articles the live services give for the question (under the held list):
  *  each service's items paint as it answers. With a work (the question came from
  *  Search One Text) the server also requires the work to be named. */
 function RecentArticles({ recent }) {
@@ -36,8 +36,8 @@ function RecentArticles({ recent }) {
   return (
     <>
       {recent.items.length > 0 && (
-        <section aria-label="Recent articles" className="mt-4 rounded border border-gray-200 bg-white px-3 py-2" data-testid="theme-recent">
-          <p className="text-xs font-semibold text-gray-600">Recent articles</p>
+        <section aria-label="Articles found online" className="mt-4 rounded border border-gray-200 bg-white px-3 py-2" data-testid="theme-recent">
+          <p className="text-xs font-semibold text-gray-600">Articles found online</p>
           <ul className="mt-1 space-y-2">
             {recent.items.map((it) => {
               const url = recentUrl(it);
@@ -58,7 +58,7 @@ function RecentArticles({ recent }) {
       )}
       {recent.pending.length > 0 && (
         <p className="mt-1 text-xs text-gray-500" data-testid="theme-recent-pending">
-          {`Looking up recent articles from ${joinNames(recent.pending.map((x) => RECENT_LABELS[x]))}...`}
+          {`Asking ${joinNames(recent.pending.map((x) => RECENT_LABELS[x]))} for articles...`}
         </p>
       )}
     </>

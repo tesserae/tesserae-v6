@@ -1,4 +1,4 @@
-// The live services' recent articles (backend/scholarship_recent.py), shared by
+// The live services' articles ("Articles found online" on the page) (backend/scholarship_recent.py), shared by
 // Search One Text and Theme Search's Scholarship list.
 // The server answers available false, reason 'off', for a service it has no key for.
 export const RECENT_SERVICES = ['openalex', 'crossref', 'core', 'books', 's2'];
