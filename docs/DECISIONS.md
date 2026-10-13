@@ -112,6 +112,20 @@ history (index builds, cache rebuilds, corpus changes) is in
   other searches in the same process. A recording therefore starts each search
   from empty caches. The behaviour is unchanged by this job and is recorded
   here for the next one.
+- Fifth structural job under the rule: `_direct_crosslingual_core()` became a
+  sequence of named steps (see the CHANGELOG entry of 2026-10-13). The proof
+  is a recording made inside the function, because the standard recording
+  holds one cross-language request and compares it loosely: ten searches (nine
+  pairs and settings, plus the error the live Latin-English search raises)
+  give the same rows, field for field and score for score, on the branch as
+  on main, and two runs on main agree with each other. The standard recording
+  of 68 requests is the same on a preview, the reference searches pass, the
+  five cross-language test files pass, and the full suite fails only the
+  tests that fail on main. The body of each of the 45 other functions and
+  classes in the module is identical by syntax tree. The Greek-Latin and
+  Latin-English calls, five runs each, have medians within 5 percent of
+  main's. The fusion loop stays one block, moved whole, with no new call
+  inside it.
 
 
 ## 2026-10-12: the band inside one work is refitted on eleven works, and its lowest level is a caution, not a verdict
