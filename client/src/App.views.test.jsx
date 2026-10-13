@@ -63,23 +63,18 @@ describe('what a plain visit opens', () => {
     expect(screen.queryByText(/Start here/i)).toBeTruthy();
   });
 
-  it('opens the Reader on Tacitus, Annals 1, in History view', async () => {
+  it('opens Search One Text in History view', async () => {
     window.localStorage.setItem('tesserae_view', 'history');
     render(<App />);
-    await waitFor(() => expect(window.location.pathname).toBe('/read'));
-    const params = new URLSearchParams(window.location.search);
-    expect(params.get('work')).toBe('tacitus.annales.part.1.tess');
-    expect(params.get('lang')).toBe('la');
+    await waitFor(() => expect(window.location.pathname).toBe('/ask-a-work'));
     expect(screen.getByRole('button', { name: 'History' })).toHaveAttribute('aria-pressed', 'true');
-    await waitFor(() => expect(global.fetch.mock.calls.some(
-      ([u]) => String(u).startsWith('/api/text/tacitus.annales.part.1.tess'),
-    )).toBe(true));
+    expect(await screen.findByRole('heading', { name: 'Search One Text' })).toBeTruthy();
   });
 
   it('opens History from ?view=history', async () => {
     window.history.replaceState({}, '', '/?view=history');
     render(<App />);
-    await waitFor(() => expect(window.location.pathname).toBe('/read'));
+    await waitFor(() => expect(window.location.pathname).toBe('/ask-a-work'));
   });
 
   it('leaves an address with a search of its own alone, even in History view', async () => {
@@ -94,7 +89,7 @@ describe('what a plain visit opens', () => {
     render(<App />);
     await waitFor(() => expect(global.fetch).toHaveBeenCalled());
     fireEvent.click(screen.getByRole('button', { name: 'History' }));
-    await waitFor(() => expect(window.location.pathname).toBe('/read'));
+    await waitFor(() => expect(window.location.pathname).toBe('/ask-a-work'));
     fireEvent.click(screen.getByRole('button', { name: 'Literature' }));
     await waitFor(() => expect(window.location.pathname).toBe('/ask-a-work'));
   });
@@ -138,7 +133,7 @@ describe('the Phrase Search defaults follow the view', () => {
     render(<App />);
     await sourceAfter('vergil.aeneid.part.1.tess');
     fireEvent.click(screen.getByRole('button', { name: 'History' }));
-    await waitFor(() => expect(window.location.pathname).toBe('/read'));
+    await waitFor(() => expect(window.location.pathname).toBe('/ask-a-work'));
     fireEvent.click(screen.getByRole('button', { name: 'Intertextual Search' }));
     await sourceAfter('livy.ab_urbe_condita.part.1.books_1-10.tess');
   });

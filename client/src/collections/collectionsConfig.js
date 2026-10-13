@@ -135,6 +135,7 @@ export const VIEWS = [
     label: 'Literature',
     profile: 'literary',
     home: { page: 'ask-a-work' },
+    askDefault: { lang: 'la', work: 'vergil.aeneid' },
     menuOrder: [
       'ask-a-work', 'search', 'read', 'theme-search', 'inscriptions-papyri', 'events', 'coins', 'objects',
       'browse', 'about', 'help', 'repository', 'downloads',
@@ -152,9 +153,12 @@ export const VIEWS = [
     id: 'history',
     label: 'History',
     profile: 'everything',
-    home: { page: 'read', work: 'tacitus.annales.part.1.tess', lang: 'la' },
+    // Search One Text, on the Annals, with its own history examples
+    // (the owner, 2026-10-13); before that the Reader on Tacitus, Annals 1.
+    home: { page: 'ask-a-work' },
+    askDefault: { lang: 'la', work: 'tacitus.annales' },
     menuOrder: [
-      'read', 'ask-a-work', 'events', 'inscriptions-papyri', 'theme-search', 'search', 'coins', 'objects',
+      'ask-a-work', 'read', 'events', 'inscriptions-papyri', 'theme-search', 'search', 'coins', 'objects',
       'browse', 'about', 'help', 'repository', 'downloads',
     ],
     readerTabs: ['similar', 'documents', 'coins', 'scholarship', 'reuse', 'verbal', 'translation'],
@@ -164,7 +168,7 @@ export const VIEWS = [
     },
     startHereOrder: ['documents', 'read', 'subject', 'ask', 'phrase', 'compare', 'rare'],
     startHereLabels: { documents: 'Inscriptions, papyri, events and coins' },
-    opensOn: 'the Reader, on Tacitus, Annals 1',
+    opensOn: 'Search One Text, on the Annals',
   },
 ];
 
