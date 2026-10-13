@@ -44,6 +44,19 @@ history (index builds, cache rebuilds, corpus changes) is in
   results as main, and an import time within ten percent. The URL map and the
   function bodies are checked by two scripts kept in `scripts/review/`, so
   the next structural job can run the same proofs.
+- Third structural job under the rule: `line_search()` became a sequence of
+  named steps (see the CHANGELOG entry of 2026-10-13). A recording of 258
+  Line Search requests made on a preview of main (none of them differs between
+  two runs of the same server) gives the same answer on a preview of the
+  branch for every one. The standard recording of 68 requests is the same too.
+  The body of each of the 22 other functions and classes in the module is
+  identical by syntax tree. The 56 Line Search tests and the reference
+  searches pass. Ten timed requests (one word, a pair, twelve words, an exact
+  scan, documents, both collections, Hebrew without points, the Persian Reader
+  path, a count, a 500-row answer) have medians within 2.5 percent of main's
+  over five runs each. The steps stay in the blueprint module because tests
+  replace names in it, and only the reading of the parameters moved to its
+  own module.
 
 
 ## 2026-10-12: the band inside one work is refitted on eleven works, and its lowest level is a caution, not a verdict

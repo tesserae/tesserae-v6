@@ -1,0 +1,3005 @@
+{
+ "requests": [
+  {
+   "name": "lsx_la_lemma_1w",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "arma",
+    "language": "la",
+    "search_type": "lemma",
+    "max_results": 50
+   }
+  },
+  {
+   "name": "lsx_la_lemma_2w",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "arma virum",
+    "language": "la",
+    "search_type": "lemma",
+    "max_results": 50
+   }
+  },
+  {
+   "name": "lsx_la_lemma_3w",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "arma virumque cano",
+    "language": "la",
+    "search_type": "lemma",
+    "max_results": 50
+   }
+  },
+  {
+   "name": "lsx_la_lemma_4w",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "arma virumque cano Troiae",
+    "language": "la",
+    "search_type": "lemma",
+    "max_results": 50
+   }
+  },
+  {
+   "name": "lsx_la_lemma_12w",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "arma virumque cano Troiae qui primus ab oris Italiam fato profugus Laviniaque venit",
+    "language": "la",
+    "search_type": "lemma",
+    "max_results": 50
+   }
+  },
+  {
+   "name": "lsx_la_lemma_12w_exact12",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "arma virumque cano Troiae qui primus ab oris Italiam fato profugus",
+    "language": "la",
+    "search_type": "lemma",
+    "max_results": 50
+   }
+  },
+  {
+   "name": "lsx_la_lemma_13w",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "arma virumque cano Troiae qui primus ab oris Italiam fato profugus Laviniaque venit litora",
+    "language": "la",
+    "search_type": "lemma",
+    "max_results": 50
+   }
+  },
+  {
+   "name": "lsx_la_lemma_passage_long",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "arma virumque cano Troiae qui primus ab oris Italiam fato profugus Laviniaque venit litora multum ille et terris iactatus et alto vi superum saevae memorem Iunonis ob iram multa quoque et bello passus dum conderet urbem inferretque deos Latio genus unde Latinum Albanique patres atque altae moenia Romae",
+    "language": "la",
+    "search_type": "lemma",
+    "max_results": 50
+   }
+  },
+  {
+   "name": "lsx_la_lemma_passage_long_cap500",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "arma virumque cano Troiae qui primus ab oris Italiam fato profugus Laviniaque venit litora multum ille et terris iactatus et alto vi superum saevae memorem Iunonis ob iram",
+    "language": "la",
+    "search_type": "lemma",
+    "max_results": 500
+   }
+  },
+  {
+   "name": "lsx_la_stop_only",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "et in ab",
+    "language": "la",
+    "search_type": "lemma",
+    "max_results": 50
+   }
+  },
+  {
+   "name": "lsx_la_stop_only_one",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "et",
+    "language": "la",
+    "search_type": "lemma",
+    "max_results": 50
+   }
+  },
+  {
+   "name": "lsx_la_stop_plus_word",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "et arma",
+    "language": "la",
+    "search_type": "lemma",
+    "max_results": 50
+   }
+  },
+  {
+   "name": "lsx_la_dropped_word",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "sum arma virum",
+    "language": "la",
+    "search_type": "lemma",
+    "max_results": 50
+   }
+  },
+  {
+   "name": "lsx_la_dropped_word_pair",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "est virtus",
+    "language": "la",
+    "search_type": "lemma",
+    "max_results": 50
+   }
+  },
+  {
+   "name": "lsx_la_univ_quo_usque_tandem",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "quo usque tandem",
+    "language": "la",
+    "search_type": "lemma",
+    "max_results": 50
+   }
+  },
+  {
+   "name": "lsx_la_univ_quousque",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "quousque",
+    "language": "la",
+    "search_type": "lemma",
+    "max_results": 50
+   }
+  },
+  {
+   "name": "lsx_la_univ_quousque_tandem",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "quousque tandem",
+    "language": "la",
+    "search_type": "lemma",
+    "max_results": 50
+   }
+  },
+  {
+   "name": "lsx_la_univ_respublica",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "respublica",
+    "language": "la",
+    "search_type": "lemma",
+    "max_results": 50
+   }
+  },
+  {
+   "name": "lsx_la_univ_rei_publicae",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "rei publicae",
+    "language": "la",
+    "search_type": "lemma",
+    "max_results": 50
+   }
+  },
+  {
+   "name": "lsx_la_univ_res_publica",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "res publica",
+    "language": "la",
+    "search_type": "lemma",
+    "max_results": 50
+   }
+  },
+  {
+   "name": "lsx_la_univ_respublica_salus",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "respublica salus",
+    "language": "la",
+    "search_type": "lemma",
+    "max_results": 50
+   }
+  },
+  {
+   "name": "lsx_la_univ_exact",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "quo usque tandem",
+    "language": "la",
+    "search_type": "exact",
+    "max_results": 50
+   }
+  },
+  {
+   "name": "lsx_la_univ_count_only",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "quo usque tandem",
+    "language": "la",
+    "search_type": "lemma",
+    "max_results": 50,
+    "count_only": true
+   }
+  },
+  {
+   "name": "lsx_la_pair_cicero_author",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "quo usque tandem",
+    "language": "la",
+    "search_type": "lemma",
+    "max_results": 50,
+    "author": "Cicero"
+   }
+  },
+  {
+   "name": "lsx_la_ref_reduction_arma_cap_1",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "arma virum",
+    "language": "la",
+    "search_type": "lemma",
+    "max_results": 1
+   }
+  },
+  {
+   "name": "lsx_la_ref_reduction_arma_cap_50",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "arma virum",
+    "language": "la",
+    "search_type": "lemma",
+    "max_results": 50
+   }
+  },
+  {
+   "name": "lsx_la_ref_reduction_arma_cap_500",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "arma virum",
+    "language": "la",
+    "search_type": "lemma",
+    "max_results": 500
+   }
+  },
+  {
+   "name": "lsx_la_cap_zero",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "arma virum",
+    "language": "la",
+    "search_type": "lemma",
+    "max_results": 0
+   }
+  },
+  {
+   "name": "lsx_la_cap_negative",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "arma virum",
+    "language": "la",
+    "search_type": "lemma",
+    "max_results": -5
+   }
+  },
+  {
+   "name": "lsx_la_cap_string",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "arma virum",
+    "language": "la",
+    "search_type": "lemma",
+    "max_results": "abc"
+   }
+  },
+  {
+   "name": "lsx_la_cap_numeric_string",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "arma virum",
+    "language": "la",
+    "search_type": "lemma",
+    "max_results": "7"
+   }
+  },
+  {
+   "name": "lsx_la_cap_1000",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "arma virum",
+    "language": "la",
+    "search_type": "lemma",
+    "max_results": 1000
+   }
+  },
+  {
+   "name": "lsx_la_exact_1w",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "arma",
+    "language": "la",
+    "search_type": "exact",
+    "max_results": 50
+   }
+  },
+  {
+   "name": "lsx_la_exact_2w",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "arma virumque",
+    "language": "la",
+    "search_type": "exact",
+    "max_results": 50
+   }
+  },
+  {
+   "name": "lsx_la_exact_quo_usque_tandem_abutere",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "quo usque tandem abutere",
+    "language": "la",
+    "search_type": "exact",
+    "max_results": 50
+   }
+  },
+  {
+   "name": "lsx_la_exact_stopword_phrase",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "ad Scythiam",
+    "language": "la",
+    "search_type": "exact",
+    "max_results": 50
+   }
+  },
+  {
+   "name": "lsx_la_exact_12w",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "arma virumque cano Troiae qui primus ab oris Italiam fato profugus",
+    "language": "la",
+    "search_type": "exact",
+    "max_results": 50
+   }
+  },
+  {
+   "name": "lsx_la_regex",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "virum+que cano",
+    "language": "la",
+    "search_type": "regex",
+    "max_results": 50
+   }
+  },
+  {
+   "name": "lsx_la_regex_bad",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "(unclosed",
+    "language": "la",
+    "search_type": "regex",
+    "max_results": 50
+   }
+  },
+  {
+   "name": "lsx_la_regex_cap1",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "arm.* vir",
+    "language": "la",
+    "search_type": "regex",
+    "max_results": 1
+   }
+  },
+  {
+   "name": "lsx_la_unknown_type",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "arma virum",
+    "language": "la",
+    "search_type": "sound",
+    "max_results": 50
+   }
+  },
+  {
+   "name": "lsx_la_unknown_type2",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "arma virum",
+    "language": "la",
+    "search_type": "semantic",
+    "max_results": 50
+   }
+  },
+  {
+   "name": "lsx_la_edit_distance_type",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "arma virum",
+    "language": "la",
+    "search_type": "edit_distance",
+    "max_results": 50
+   }
+  },
+  {
+   "name": "lsx_la_exact_author",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "arma virumque",
+    "language": "la",
+    "search_type": "exact",
+    "max_results": 50,
+    "author": "Vergil"
+   }
+  },
+  {
+   "name": "lsx_la_exact_work",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "arma virumque",
+    "language": "la",
+    "search_type": "exact",
+    "max_results": 50,
+    "work": "vergil.aeneid.tess"
+   }
+  },
+  {
+   "name": "lsx_ref_arma_virum_1000",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "arma virum",
+    "language": "la",
+    "search_type": "lemma",
+    "max_results": 1000
+   }
+  },
+  {
+   "name": "lsx_ref_arma_virum_exact_1000",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "arma virum",
+    "language": "la",
+    "search_type": "exact",
+    "max_results": 1000
+   }
+  },
+  {
+   "name": "lsx_ref_quo_usque_tandere",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "quo usque tandere abutere",
+    "language": "la",
+    "search_type": "lemma",
+    "max_results": 200
+   }
+  },
+  {
+   "name": "lsx_ref_quo_usque_tandem_abutere",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "quo usque tandem abutere",
+    "language": "la",
+    "search_type": "lemma",
+    "max_results": 200
+   }
+  },
+  {
+   "name": "lsx_get_la_lemma",
+   "path": "/api/line-search",
+   "params": {
+    "query": "arma virum",
+    "language": "la",
+    "search_type": "lemma",
+    "max_results": 30
+   }
+  },
+  {
+   "name": "lsx_get_la_exact",
+   "path": "/api/line-search",
+   "params": {
+    "query": "quo usque tandem",
+    "language": "la",
+    "search_type": "exact",
+    "max_results": 30
+   }
+  },
+  {
+   "name": "lsx_get_la_count_only",
+   "path": "/api/line-search",
+   "params": {
+    "query": "arma virum",
+    "language": "la",
+    "count_only": "1"
+   }
+  },
+  {
+   "name": "lsx_get_la_count_only_yes",
+   "path": "/api/line-search",
+   "params": {
+    "query": "arma virum",
+    "language": "la",
+    "count_only": "yes"
+   }
+  },
+  {
+   "name": "lsx_get_la_count_only_false",
+   "path": "/api/line-search",
+   "params": {
+    "query": "arma virum",
+    "language": "la",
+    "count_only": "false",
+    "max_results": 10
+   }
+  },
+  {
+   "name": "lsx_get_grc",
+   "path": "/api/line-search",
+   "params": {
+    "query": "μῆνιν ἄειδε",
+    "language": "grc",
+    "max_results": 30
+   }
+  },
+  {
+   "name": "lsx_get_en",
+   "path": "/api/line-search",
+   "params": {
+    "query": "brave new world",
+    "language": "en",
+    "max_results": 30
+   }
+  },
+  {
+   "name": "lsx_get_he",
+   "path": "/api/line-search",
+   "params": {
+    "query": "אל",
+    "language": "he",
+    "max_results": 30
+   }
+  },
+  {
+   "name": "lsx_get_fa",
+   "path": "/api/line-search",
+   "params": {
+    "query": "دل",
+    "language": "fa",
+    "max_results": 30
+   }
+  },
+  {
+   "name": "lsx_get_stoplist_size_string",
+   "path": "/api/line-search",
+   "params": {
+    "query": "arma virum",
+    "language": "la",
+    "stoplist_size": "5",
+    "max_results": 5
+   }
+  },
+  {
+   "name": "lsx_get_no_query",
+   "path": "/api/line-search",
+   "params": {
+    "language": "la"
+   }
+  },
+  {
+   "name": "lsx_get_rare_focus",
+   "path": "/api/line-search",
+   "params": {
+    "query": "arma virumque cano",
+    "language": "la",
+    "rare_focus": "1",
+    "max_results": 30
+   }
+  },
+  {
+   "name": "lsx_get_documents",
+   "path": "/api/line-search",
+   "params": {
+    "query": "dis manibus",
+    "language": "la",
+    "collection": "documents",
+    "limit": 10
+   }
+  },
+  {
+   "name": "lsx_get_both",
+   "path": "/api/line-search",
+   "params": {
+    "query": "dis manibus",
+    "language": "la",
+    "collection": "both",
+    "max_results": 10,
+    "limit": 10
+   }
+  },
+  {
+   "name": "lsx_get_line_text_only",
+   "path": "/api/line-search",
+   "params": {
+    "line_text": "arma virumque cano",
+    "language": "la"
+   }
+  },
+  {
+   "name": "lsx_la_stoplist_0",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "arma virum",
+    "language": "la",
+    "search_type": "lemma",
+    "max_results": 50,
+    "stoplist_size": 0
+   }
+  },
+  {
+   "name": "lsx_la_stoplist_50",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "arma virum",
+    "language": "la",
+    "search_type": "lemma",
+    "max_results": 50,
+    "stoplist_size": 50
+   }
+  },
+  {
+   "name": "lsx_la_stoplist_200_three",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "arma virumque cano",
+    "language": "la",
+    "search_type": "lemma",
+    "max_results": 50,
+    "stoplist_size": 200
+   }
+  },
+  {
+   "name": "lsx_la_stoplist_neg",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "arma virum",
+    "language": "la",
+    "search_type": "lemma",
+    "max_results": 50,
+    "stoplist_size": -3
+   }
+  },
+  {
+   "name": "lsx_la_stoplist_string_error",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "arma virum",
+    "language": "la",
+    "search_type": "lemma",
+    "max_results": 50,
+    "stoplist_size": "5"
+   }
+  },
+  {
+   "name": "lsx_grc_lemma_1w",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "μῆνις",
+    "language": "grc",
+    "search_type": "lemma",
+    "max_results": 50
+   }
+  },
+  {
+   "name": "lsx_grc_lemma_2w",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "μῆνιν ἄειδε",
+    "language": "grc",
+    "search_type": "lemma",
+    "max_results": 50
+   }
+  },
+  {
+   "name": "lsx_grc_lemma_3w",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "μῆνιν ἄειδε θεά",
+    "language": "grc",
+    "search_type": "lemma",
+    "max_results": 50
+   }
+  },
+  {
+   "name": "lsx_grc_lemma_12w",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "μῆνιν ἄειδε θεὰ Πηληϊάδεω Ἀχιλῆος οὐλομένην ἣ μυρί᾽ Ἀχαιοῖς ἄλγε᾽ ἔθηκε",
+    "language": "grc",
+    "search_type": "lemma",
+    "max_results": 50
+   }
+  },
+  {
+   "name": "lsx_grc_exact",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "μῆνιν ἄειδε θεά",
+    "language": "grc",
+    "search_type": "exact",
+    "max_results": 50
+   }
+  },
+  {
+   "name": "lsx_grc_exact_1w",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "μῆνιν",
+    "language": "grc",
+    "search_type": "exact",
+    "max_results": 50
+   }
+  },
+  {
+   "name": "lsx_grc_stop_only",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "καὶ ὁ",
+    "language": "grc",
+    "search_type": "lemma",
+    "max_results": 50
+   }
+  },
+  {
+   "name": "lsx_grc_dropped",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "καὶ ἄνδρα μοι ἔννεπε",
+    "language": "grc",
+    "search_type": "lemma",
+    "max_results": 50
+   }
+  },
+  {
+   "name": "lsx_grc_count_only_1w",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "μῆνις",
+    "language": "grc",
+    "search_type": "lemma",
+    "max_results": 50,
+    "count_only": true
+   }
+  },
+  {
+   "name": "lsx_grc_count_only_pair",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "μῆνιν ἄειδε",
+    "language": "grc",
+    "search_type": "lemma",
+    "max_results": 50,
+    "count_only": true
+   }
+  },
+  {
+   "name": "lsx_grc_author",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "μῆνιν ἄειδε",
+    "language": "grc",
+    "search_type": "lemma",
+    "max_results": 50,
+    "author": "Homer"
+   }
+  },
+  {
+   "name": "lsx_grc_regex",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "μῆν.ν",
+    "language": "grc",
+    "search_type": "regex",
+    "max_results": 50
+   }
+  },
+  {
+   "name": "lsx_grc_rare_focus",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "μῆνιν ἄειδε θεά",
+    "language": "grc",
+    "search_type": "lemma",
+    "max_results": 50,
+    "rare_focus": true
+   }
+  },
+  {
+   "name": "lsx_en_lemma_1w",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "discontent",
+    "language": "en",
+    "search_type": "lemma",
+    "max_results": 50
+   }
+  },
+  {
+   "name": "lsx_en_lemma_2w",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "brave world",
+    "language": "en",
+    "search_type": "lemma",
+    "max_results": 50
+   }
+  },
+  {
+   "name": "lsx_en_lemma_3w",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "brave new world",
+    "language": "en",
+    "search_type": "lemma",
+    "max_results": 50
+   }
+  },
+  {
+   "name": "lsx_en_lemma_12w",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "now is the winter of our discontent made glorious summer by this sun of York",
+    "language": "en",
+    "search_type": "lemma",
+    "max_results": 50
+   }
+  },
+  {
+   "name": "lsx_en_exact",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "now is the winter of our discontent",
+    "language": "en",
+    "search_type": "exact",
+    "max_results": 50
+   }
+  },
+  {
+   "name": "lsx_en_exact_1w",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "discontent",
+    "language": "en",
+    "search_type": "exact",
+    "max_results": 50
+   }
+  },
+  {
+   "name": "lsx_en_stop_only",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "the of and",
+    "language": "en",
+    "search_type": "lemma",
+    "max_results": 50
+   }
+  },
+  {
+   "name": "lsx_en_dropped",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "the winter discontent",
+    "language": "en",
+    "search_type": "lemma",
+    "max_results": 50
+   }
+  },
+  {
+   "name": "lsx_en_regex",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "winter of (our|your)",
+    "language": "en",
+    "search_type": "regex",
+    "max_results": 50
+   }
+  },
+  {
+   "name": "lsx_en_count_only",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "brave new",
+    "language": "en",
+    "search_type": "lemma",
+    "max_results": 50,
+    "count_only": true
+   }
+  },
+  {
+   "name": "lsx_en_count_only_1w",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "winter",
+    "language": "en",
+    "search_type": "lemma",
+    "max_results": 50,
+    "count_only": true
+   }
+  },
+  {
+   "name": "lsx_en_work",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "brave new world",
+    "language": "en",
+    "search_type": "lemma",
+    "max_results": 50,
+    "work": "shakespeare.tempest.tess"
+   }
+  },
+  {
+   "name": "lsx_he_unpointed_el",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "אל",
+    "language": "he",
+    "search_type": "lemma",
+    "max_results": 50
+   }
+  },
+  {
+   "name": "lsx_he_unpointed_el_cap500",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "אל",
+    "language": "he",
+    "search_type": "lemma",
+    "max_results": 500
+   }
+  },
+  {
+   "name": "lsx_he_unpointed_pair",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "אל אדם",
+    "language": "he",
+    "search_type": "lemma",
+    "max_results": 50
+   }
+  },
+  {
+   "name": "lsx_he_unpointed_count_only",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "אל",
+    "language": "he",
+    "search_type": "lemma",
+    "max_results": 50,
+    "count_only": true
+   }
+  },
+  {
+   "name": "lsx_he_unpointed_pair_count",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "אל אדם",
+    "language": "he",
+    "search_type": "lemma",
+    "max_results": 50,
+    "count_only": true
+   }
+  },
+  {
+   "name": "lsx_he_exact",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "בראשית ברא",
+    "language": "he",
+    "search_type": "exact",
+    "max_results": 50
+   }
+  },
+  {
+   "name": "lsx_he_exact_unpointed",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "בראשית ברא אלהים",
+    "language": "he",
+    "search_type": "exact",
+    "max_results": 50
+   }
+  },
+  {
+   "name": "lsx_he_exact_1w",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "בראשית",
+    "language": "he",
+    "search_type": "exact",
+    "max_results": 50
+   }
+  },
+  {
+   "name": "lsx_he_three",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "ברא אלהים שמים",
+    "language": "he",
+    "search_type": "lemma",
+    "max_results": 50
+   }
+  },
+  {
+   "name": "lsx_he_isaiah_work",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "אל",
+    "language": "he",
+    "search_type": "lemma",
+    "max_results": 50,
+    "work": "hebrew_bible.isaiah.tess"
+   }
+  },
+  {
+   "name": "lsx_cop_lemma_1w",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "ⲕⲟⲥⲙⲟⲥ",
+    "language": "cop",
+    "search_type": "lemma",
+    "max_results": 50
+   }
+  },
+  {
+   "name": "lsx_cop_lemma_2w",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "ⲕⲟⲥⲙⲟⲥ ⲙⲟⲟϣⲉ",
+    "language": "cop",
+    "search_type": "lemma",
+    "max_results": 50
+   }
+  },
+  {
+   "name": "lsx_cop_lemma_3w",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "ⲉⲛⲙⲟⲟϣⲉ ϩⲛⲟⲩⲕⲁⲕⲓⲁ ⲙⲛⲟⲩⲫⲑⲟⲛⲟⲥ",
+    "language": "cop",
+    "search_type": "lemma",
+    "max_results": 50
+   }
+  },
+  {
+   "name": "lsx_cop_exact",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "ⲉⲛⲙⲟⲟϣⲉ ϩⲛⲟⲩⲕⲁⲕⲓⲁ",
+    "language": "cop",
+    "search_type": "exact",
+    "max_results": 50
+   }
+  },
+  {
+   "name": "lsx_cop_exact_1w",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "ⲕⲟⲥⲙⲟⲥ",
+    "language": "cop",
+    "search_type": "exact",
+    "max_results": 50
+   }
+  },
+  {
+   "name": "lsx_cop_count_only",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "ⲕⲟⲥⲙⲟⲥ ⲙⲟⲟϣⲉ",
+    "language": "cop",
+    "search_type": "lemma",
+    "max_results": 50,
+    "count_only": true
+   }
+  },
+  {
+   "name": "lsx_fa_lemma_1w",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "دل",
+    "language": "fa",
+    "search_type": "lemma",
+    "max_results": 50
+   }
+  },
+  {
+   "name": "lsx_fa_lemma_2w",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "دل جان",
+    "language": "fa",
+    "search_type": "lemma",
+    "max_results": 50
+   }
+  },
+  {
+   "name": "lsx_fa_lemma_3w",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "دل جان عشق",
+    "language": "fa",
+    "search_type": "lemma",
+    "max_results": 50
+   }
+  },
+  {
+   "name": "lsx_fa_lemma_12w",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "جز نقش تو در نظر نیامد ما را جز کوی تو رهگذر نیامد ما را",
+    "language": "fa",
+    "search_type": "lemma",
+    "max_results": 50
+   }
+  },
+  {
+   "name": "lsx_fa_exact",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "جز نقش تو",
+    "language": "fa",
+    "search_type": "exact",
+    "max_results": 50
+   }
+  },
+  {
+   "name": "lsx_fa_stop_only",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "از در",
+    "language": "fa",
+    "search_type": "lemma",
+    "max_results": 50
+   }
+  },
+  {
+   "name": "lsx_fa_count_only",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "دل جان",
+    "language": "fa",
+    "search_type": "lemma",
+    "max_results": 50,
+    "count_only": true
+   }
+  },
+  {
+   "name": "lsx_fa_count_only_1w",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "دل",
+    "language": "fa",
+    "search_type": "lemma",
+    "max_results": 50,
+    "count_only": true
+   }
+  },
+  {
+   "name": "lsx_fa_refs",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "جز نقش تو در نظر نیامد ما را",
+    "language": "fa",
+    "search_type": "lemma",
+    "max_results": 50,
+    "refs": [
+     "hafez.diwan.1"
+    ],
+    "exclude_text_id": "hafez.diwan.tess"
+   }
+  },
+  {
+   "name": "lsx_fa_refs_two",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "جز نقش تو در نظر نیامد ما را جز کوی تو رهگذر نیامد ما را",
+    "language": "fa",
+    "search_type": "lemma",
+    "max_results": 50,
+    "refs": [
+     "hafez.diwan.1",
+     "hafez.diwan.2"
+    ],
+    "exclude_text_id": "hafez.diwan",
+    "rare_focus": true
+   }
+  },
+  {
+   "name": "lsx_fa_exclude_locus_only",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "جز نقش تو در نظر نیامد ما را",
+    "language": "fa",
+    "search_type": "lemma",
+    "max_results": 50,
+    "exclude_text_id": "hafez.diwan",
+    "exclude_locus": "1"
+   }
+  },
+  {
+   "name": "lsx_fa_refs_without_exclude",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "جز نقش تو در نظر نیامد ما را",
+    "language": "fa",
+    "search_type": "lemma",
+    "max_results": 50,
+    "refs": [
+     "hafez.diwan.1"
+    ]
+   }
+  },
+  {
+   "name": "lsx_fa_work",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "دل جان",
+    "language": "fa",
+    "search_type": "lemma",
+    "max_results": 50,
+    "work": "hafez.diwan.tess"
+   }
+  },
+  {
+   "name": "lsx_ur_lemma_1w",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "دل",
+    "language": "ur",
+    "search_type": "lemma",
+    "max_results": 50
+   }
+  },
+  {
+   "name": "lsx_ur_lemma_2w",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "دل جان",
+    "language": "ur",
+    "search_type": "lemma",
+    "max_results": 50
+   }
+  },
+  {
+   "name": "lsx_ur_lemma_3w",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "آج شوق جاناں",
+    "language": "ur",
+    "search_type": "lemma",
+    "max_results": 50
+   }
+  },
+  {
+   "name": "lsx_ur_exact",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "آج آرائش",
+    "language": "ur",
+    "search_type": "exact",
+    "max_results": 50
+   }
+  },
+  {
+   "name": "lsx_ur_count_only",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "دل جان",
+    "language": "ur",
+    "search_type": "lemma",
+    "max_results": 50,
+    "count_only": true
+   }
+  },
+  {
+   "name": "lsx_ur_refs",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "آج آرائش گیسوئے دوتا ہوتی ہے",
+    "language": "ur",
+    "search_type": "lemma",
+    "max_results": 50,
+    "refs": [
+     "akbar.kulliyat_wikisource.1.1"
+    ],
+    "exclude_text_id": "akbar.kulliyat_wikisource.tess"
+   }
+  },
+  {
+   "name": "lsx_la_refs_reader",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "arma virumque cano",
+    "language": "la",
+    "search_type": "lemma",
+    "max_results": 50,
+    "refs": [
+     "verg. aen. 1.1"
+    ],
+    "exclude_text_id": "vergil.aeneid",
+    "exclude_locus": "verg. aen. 1.1",
+    "rare_focus": true
+   }
+  },
+  {
+   "name": "lsx_la_refs_list_reader",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "arma virumque cano Troiae qui primus ab oris",
+    "language": "la",
+    "search_type": "lemma",
+    "max_results": 50,
+    "refs": [
+     "verg. aen. 1.1",
+     "verg. aen. 1.2"
+    ],
+    "exclude_text_id": "vergil.aeneid.tess",
+    "exclude_locus": "verg. aen. 1.1"
+   }
+  },
+  {
+   "name": "lsx_la_exclude_text_only",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "arma virumque cano",
+    "language": "la",
+    "search_type": "lemma",
+    "max_results": 50,
+    "exclude_text_id": "vergil.aeneid"
+   }
+  },
+  {
+   "name": "lsx_la_exclude_locus_only",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "arma virumque cano",
+    "language": "la",
+    "search_type": "lemma",
+    "max_results": 50,
+    "exclude_locus": "verg. aen. 1.1"
+   }
+  },
+  {
+   "name": "lsx_la_exclude_both",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "arma virumque cano",
+    "language": "la",
+    "search_type": "lemma",
+    "max_results": 50,
+    "exclude_text_id": "vergil.aeneid",
+    "exclude_locus": "verg. aen. 1.1"
+   }
+  },
+  {
+   "name": "lsx_la_exclude_both_tess",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "arma virumque cano",
+    "language": "la",
+    "search_type": "lemma",
+    "max_results": 50,
+    "exclude_text_id": "Vergil.Aeneid.tess",
+    "exclude_locus": "Verg. Aen. 1.1"
+   }
+  },
+  {
+   "name": "lsx_la_exclude_exact",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "arma virumque cano",
+    "language": "la",
+    "search_type": "exact",
+    "max_results": 50,
+    "exclude_text_id": "vergil.aeneid",
+    "exclude_locus": "verg. aen. 1.1"
+   }
+  },
+  {
+   "name": "lsx_la_rare_focus_on",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "arma virumque cano",
+    "language": "la",
+    "search_type": "lemma",
+    "max_results": 50,
+    "rare_focus": true
+   }
+  },
+  {
+   "name": "lsx_la_rare_focus_on_string",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "arma virumque cano",
+    "language": "la",
+    "search_type": "lemma",
+    "max_results": 50,
+    "rare_focus": "true"
+   }
+  },
+  {
+   "name": "lsx_la_rare_focus_off",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "arma virumque cano",
+    "language": "la",
+    "search_type": "lemma",
+    "max_results": 50,
+    "rare_focus": false
+   }
+  },
+  {
+   "name": "lsx_la_rare_focus_exact",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "arma virumque",
+    "language": "la",
+    "search_type": "exact",
+    "max_results": 50,
+    "rare_focus": true
+   }
+  },
+  {
+   "name": "lsx_la_rare_focus_passage",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "arma virumque cano Troiae qui primus ab oris Italiam fato profugus Laviniaque venit litora multum ille",
+    "language": "la",
+    "search_type": "lemma",
+    "max_results": 100,
+    "rare_focus": true
+   }
+  },
+  {
+   "name": "lsx_line_text_only",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "line_text": "arma virumque cano",
+    "language": "la"
+   }
+  },
+  {
+   "name": "lsx_source_text_only",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "source_text_id": "vergil.aeneid.tess",
+    "language": "la"
+   }
+  },
+  {
+   "name": "lsx_err_no_query",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "language": "la"
+   }
+  },
+  {
+   "name": "lsx_err_empty_body",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {}
+  },
+  {
+   "name": "lsx_err_empty_query",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "",
+    "language": "la"
+   }
+  },
+  {
+   "name": "lsx_err_unknown_language",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "arma virum",
+    "language": "xx"
+   }
+  },
+  {
+   "name": "lsx_err_unknown_language_exact",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "arma virum",
+    "language": "xx",
+    "search_type": "exact"
+   }
+  },
+  {
+   "name": "lsx_err_unknown_language_count",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "arma virum",
+    "language": "xx",
+    "count_only": true
+   }
+  },
+  {
+   "name": "lsx_err_traversal_language",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "arma",
+    "language": "../etc"
+   }
+  },
+  {
+   "name": "lsx_err_none_lang",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "arma virum",
+    "language": null
+   }
+  },
+  {
+   "name": "lsx_la_author_vergil",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "arma virum",
+    "language": "la",
+    "search_type": "lemma",
+    "max_results": 50,
+    "author": "Vergil"
+   }
+  },
+  {
+   "name": "lsx_la_author_none",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "arma virum",
+    "language": "la",
+    "search_type": "lemma",
+    "max_results": 50,
+    "author": "Nobody At All"
+   }
+  },
+  {
+   "name": "lsx_la_work_aeneid",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "arma virum",
+    "language": "la",
+    "search_type": "lemma",
+    "max_results": 50,
+    "work": "vergil.aeneid.tess"
+   }
+  },
+  {
+   "name": "lsx_la_work_title",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "arma virum",
+    "language": "la",
+    "search_type": "lemma",
+    "max_results": 50,
+    "work": "Aeneid"
+   }
+  },
+  {
+   "name": "lsx_la_work_none",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "arma virum",
+    "language": "la",
+    "search_type": "lemma",
+    "max_results": 50,
+    "work": "no.such.work.tess"
+   }
+  },
+  {
+   "name": "lsx_la_author_work",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "arma virum",
+    "language": "la",
+    "search_type": "lemma",
+    "max_results": 50,
+    "author": "Ovid",
+    "work": "Metamorphoses"
+   }
+  },
+  {
+   "name": "lsx_la_exact_work_title",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "arma virumque",
+    "language": "la",
+    "search_type": "exact",
+    "max_results": 50,
+    "work": "Aeneid"
+   }
+  },
+  {
+   "name": "lsx_la_line_range_exact",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "arma virumque",
+    "language": "la",
+    "search_type": "exact",
+    "max_results": 50,
+    "line_start": 1,
+    "line_end": 20
+   }
+  },
+  {
+   "name": "lsx_la_line_start_exact",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "arma virumque",
+    "language": "la",
+    "search_type": "exact",
+    "max_results": 50,
+    "line_start": 100
+   }
+  },
+  {
+   "name": "lsx_la_line_end_exact",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "arma virumque",
+    "language": "la",
+    "search_type": "exact",
+    "max_results": 50,
+    "line_end": 5
+   }
+  },
+  {
+   "name": "lsx_la_line_range_regex",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "arma",
+    "language": "la",
+    "search_type": "regex",
+    "max_results": 40,
+    "line_start": 1,
+    "line_end": 10
+   }
+  },
+  {
+   "name": "lsx_la_line_range_lemma_noscan",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "arma virum",
+    "language": "la",
+    "search_type": "lemma",
+    "max_results": 50,
+    "line_start": 1,
+    "line_end": 10
+   }
+  },
+  {
+   "name": "lsx_la_line_range_lemma_string",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "arma virum",
+    "language": "la",
+    "search_type": "regex",
+    "max_results": 50,
+    "line_start": "1",
+    "line_end": "10"
+   }
+  },
+  {
+   "name": "lsx_la_line_range_exact_work",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "arma virumque",
+    "language": "la",
+    "search_type": "exact",
+    "max_results": 50,
+    "work": "vergil.aeneid.tess",
+    "line_start": 1,
+    "line_end": 3
+   }
+  },
+  {
+   "name": "lsx_la_count_only_1w",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "arma",
+    "language": "la",
+    "search_type": "lemma",
+    "max_results": 50,
+    "count_only": true
+   }
+  },
+  {
+   "name": "lsx_la_count_only_pair",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "arma virum",
+    "language": "la",
+    "search_type": "lemma",
+    "max_results": 50,
+    "count_only": true
+   }
+  },
+  {
+   "name": "lsx_la_count_only_triple",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "arma virumque cano",
+    "language": "la",
+    "search_type": "lemma",
+    "max_results": 50,
+    "count_only": true
+   }
+  },
+  {
+   "name": "lsx_la_count_only_stop_only",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "et in",
+    "language": "la",
+    "search_type": "lemma",
+    "max_results": 50,
+    "count_only": true
+   }
+  },
+  {
+   "name": "lsx_la_count_only_stop_one",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "et",
+    "language": "la",
+    "search_type": "lemma",
+    "max_results": 50,
+    "count_only": true
+   }
+  },
+  {
+   "name": "lsx_la_count_only_common_pair",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "bis nostra",
+    "language": "la",
+    "search_type": "lemma",
+    "max_results": 50,
+    "count_only": true
+   }
+  },
+  {
+   "name": "lsx_la_count_only_exact",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "arma virumque",
+    "language": "la",
+    "search_type": "exact",
+    "max_results": 50,
+    "count_only": true
+   }
+  },
+  {
+   "name": "lsx_la_count_only_string_true",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "arma virum",
+    "language": "la",
+    "search_type": "lemma",
+    "max_results": 50,
+    "count_only": "true"
+   }
+  },
+  {
+   "name": "lsx_la_count_only_string_on",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "arma virum",
+    "language": "la",
+    "search_type": "lemma",
+    "max_results": 50,
+    "count_only": "ON"
+   }
+  },
+  {
+   "name": "lsx_la_count_only_string_no",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "arma virum",
+    "language": "la",
+    "search_type": "lemma",
+    "max_results": 5,
+    "count_only": "no"
+   }
+  },
+  {
+   "name": "lsx_la_count_only_cap1",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "arma virum",
+    "language": "la",
+    "search_type": "lemma",
+    "max_results": 1,
+    "count_only": true
+   }
+  },
+  {
+   "name": "lsx_la_count_only_passage",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "arma virumque cano Troiae qui primus ab oris Italiam fato profugus Laviniaque venit litora multum ille",
+    "language": "la",
+    "search_type": "lemma",
+    "max_results": 50,
+    "count_only": true
+   }
+  },
+  {
+   "name": "lsx_doc_plain",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "dis manibus",
+    "language": "la",
+    "search_type": "lemma",
+    "collection": "documents"
+   }
+  },
+  {
+   "name": "lsx_doc_date_from",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "dis manibus",
+    "language": "la",
+    "search_type": "lemma",
+    "collection": "documents",
+    "date_from": 100
+   }
+  },
+  {
+   "name": "lsx_doc_date_to",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "dis manibus",
+    "language": "la",
+    "search_type": "lemma",
+    "collection": "documents",
+    "date_to": 100
+   }
+  },
+  {
+   "name": "lsx_doc_date_range",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "dis manibus",
+    "language": "la",
+    "search_type": "lemma",
+    "collection": "documents",
+    "date_from": 50,
+    "date_to": 150
+   }
+  },
+  {
+   "name": "lsx_doc_date_bad",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "dis manibus",
+    "language": "la",
+    "search_type": "lemma",
+    "collection": "documents",
+    "date_from": "abc",
+    "date_to": ""
+   }
+  },
+  {
+   "name": "lsx_doc_region",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "dis manibus",
+    "language": "la",
+    "search_type": "lemma",
+    "collection": "documents",
+    "region": "Roma"
+   }
+  },
+  {
+   "name": "lsx_doc_text_type",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "dis manibus",
+    "language": "la",
+    "search_type": "lemma",
+    "collection": "documents",
+    "text_type": "Epitaph"
+   }
+  },
+  {
+   "name": "lsx_doc_material",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "dis manibus",
+    "language": "la",
+    "search_type": "lemma",
+    "collection": "documents",
+    "material": "(Local) Stone"
+   }
+  },
+  {
+   "name": "lsx_doc_source",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "dis manibus",
+    "language": "la",
+    "search_type": "lemma",
+    "collection": "documents",
+    "source": "edr"
+   }
+  },
+  {
+   "name": "lsx_doc_source_edh",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "dis manibus",
+    "language": "la",
+    "search_type": "lemma",
+    "collection": "documents",
+    "source": "edh"
+   }
+  },
+  {
+   "name": "lsx_doc_kind_inscriptions",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "dis manibus",
+    "language": "la",
+    "search_type": "lemma",
+    "collection": "documents",
+    "kind": "inscriptions"
+   }
+  },
+  {
+   "name": "lsx_doc_kind_papyri",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "dis manibus",
+    "language": "la",
+    "search_type": "lemma",
+    "collection": "documents",
+    "kind": "papyri"
+   }
+  },
+  {
+   "name": "lsx_doc_kind_bad",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "dis manibus",
+    "language": "la",
+    "search_type": "lemma",
+    "collection": "documents",
+    "kind": "coins"
+   }
+  },
+  {
+   "name": "lsx_doc_exclude_restored",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "dis manibus",
+    "language": "la",
+    "search_type": "lemma",
+    "collection": "documents",
+    "exclude_restored": true
+   }
+  },
+  {
+   "name": "lsx_doc_exclude_restored_string",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "dis manibus",
+    "language": "la",
+    "search_type": "lemma",
+    "collection": "documents",
+    "exclude_restored": "1"
+   }
+  },
+  {
+   "name": "lsx_doc_hide_formulas_0",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "dis manibus",
+    "language": "la",
+    "search_type": "lemma",
+    "collection": "documents",
+    "hide_formulas": 0
+   }
+  },
+  {
+   "name": "lsx_doc_hide_formulas_5",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "dis manibus",
+    "language": "la",
+    "search_type": "lemma",
+    "collection": "documents",
+    "hide_formulas": 5
+   }
+  },
+  {
+   "name": "lsx_doc_hide_formulas_blank",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "dis manibus",
+    "language": "la",
+    "search_type": "lemma",
+    "collection": "documents",
+    "hide_formulas": ""
+   }
+  },
+  {
+   "name": "lsx_doc_hide_formulas_bad",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "dis manibus",
+    "language": "la",
+    "search_type": "lemma",
+    "collection": "documents",
+    "hide_formulas": "abc"
+   }
+  },
+  {
+   "name": "lsx_doc_sort_relevance",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "dis manibus",
+    "language": "la",
+    "search_type": "lemma",
+    "collection": "documents",
+    "sort": "relevance"
+   }
+  },
+  {
+   "name": "lsx_doc_sort_oldest",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "dis manibus",
+    "language": "la",
+    "search_type": "lemma",
+    "collection": "documents",
+    "sort": "oldest"
+   }
+  },
+  {
+   "name": "lsx_doc_sort_newest",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "dis manibus",
+    "language": "la",
+    "search_type": "lemma",
+    "collection": "documents",
+    "sort": "newest"
+   }
+  },
+  {
+   "name": "lsx_doc_sort_region",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "dis manibus",
+    "language": "la",
+    "search_type": "lemma",
+    "collection": "documents",
+    "sort": "region"
+   }
+  },
+  {
+   "name": "lsx_doc_sort_bad",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "dis manibus",
+    "language": "la",
+    "search_type": "lemma",
+    "collection": "documents",
+    "sort": "bogus"
+   }
+  },
+  {
+   "name": "lsx_doc_offset_limit",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "dis manibus",
+    "language": "la",
+    "search_type": "lemma",
+    "collection": "documents",
+    "offset": 20,
+    "limit": 10
+   }
+  },
+  {
+   "name": "lsx_doc_offset_neg",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "dis manibus",
+    "language": "la",
+    "search_type": "lemma",
+    "collection": "documents",
+    "offset": -5,
+    "limit": 10
+   }
+  },
+  {
+   "name": "lsx_doc_limit_zero",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "dis manibus",
+    "language": "la",
+    "search_type": "lemma",
+    "collection": "documents",
+    "limit": 0
+   }
+  },
+  {
+   "name": "lsx_doc_limit_big",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "dis manibus",
+    "language": "la",
+    "search_type": "lemma",
+    "collection": "documents",
+    "limit": 500
+   }
+  },
+  {
+   "name": "lsx_doc_limit_bad",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "dis manibus",
+    "language": "la",
+    "search_type": "lemma",
+    "collection": "documents",
+    "limit": "x",
+    "offset": "y"
+   }
+  },
+  {
+   "name": "lsx_doc_count_only",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "dis manibus",
+    "language": "la",
+    "search_type": "lemma",
+    "collection": "documents",
+    "count_only": true
+   }
+  },
+  {
+   "name": "lsx_doc_exact",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "dis manibus",
+    "language": "la",
+    "search_type": "exact",
+    "collection": "documents"
+   }
+  },
+  {
+   "name": "lsx_doc_exact_phrase",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "dis manibus sacrum",
+    "language": "la",
+    "search_type": "exact",
+    "collection": "documents",
+    "limit": 10
+   }
+  },
+  {
+   "name": "lsx_doc_one_word",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "sacrum",
+    "language": "la",
+    "search_type": "lemma",
+    "collection": "documents",
+    "limit": 10
+   }
+  },
+  {
+   "name": "lsx_doc_stop_only",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "et in",
+    "language": "la",
+    "search_type": "lemma",
+    "collection": "documents",
+    "limit": 10
+   }
+  },
+  {
+   "name": "lsx_doc_greek_papyri",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "καὶ",
+    "language": "grc",
+    "search_type": "lemma",
+    "collection": "documents",
+    "limit": 10
+   }
+  },
+  {
+   "name": "lsx_doc_grc_lemma",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "θεός ἀγαθός",
+    "language": "grc",
+    "search_type": "lemma",
+    "collection": "documents",
+    "limit": 10
+   }
+  },
+  {
+   "name": "lsx_doc_unknown_language",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "dis manibus",
+    "language": "xx",
+    "collection": "documents"
+   }
+  },
+  {
+   "name": "lsx_doc_language_en",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "the king",
+    "language": "en",
+    "collection": "documents"
+   }
+  },
+  {
+   "name": "lsx_doc_combined_filters",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "dis manibus",
+    "language": "la",
+    "search_type": "lemma",
+    "collection": "documents",
+    "region": "Roma",
+    "source": "edr",
+    "text_type": "Epitaph",
+    "date_from": 0,
+    "date_to": 200,
+    "hide_formulas": 5,
+    "exclude_restored": true,
+    "sort": "oldest",
+    "limit": 20
+   }
+  },
+  {
+   "name": "lsx_doc_collection_upper",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "dis manibus",
+    "language": "la",
+    "search_type": "lemma",
+    "collection": " Documents "
+   }
+  },
+  {
+   "name": "lsx_doc_collection_bad",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "arma virum",
+    "language": "la",
+    "collection": "bogus",
+    "max_results": 20
+   }
+  },
+  {
+   "name": "lsx_doc_not_active_params_ignored",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "arma virum",
+    "language": "la",
+    "date_from": 100,
+    "region": "Roma",
+    "sort": "oldest",
+    "offset": 3,
+    "limit": 5,
+    "max_results": 20
+   }
+  },
+  {
+   "name": "lsx_both_plain",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "dis manibus",
+    "language": "la",
+    "search_type": "lemma",
+    "collection": "both",
+    "max_results": 20
+   }
+  },
+  {
+   "name": "lsx_both_arma",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "arma virum",
+    "language": "la",
+    "search_type": "lemma",
+    "collection": "both",
+    "max_results": 20
+   }
+  },
+  {
+   "name": "lsx_both_arma_cap1",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "arma virum",
+    "language": "la",
+    "search_type": "lemma",
+    "collection": "both",
+    "max_results": 1
+   }
+  },
+  {
+   "name": "lsx_both_date",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "dis manibus",
+    "language": "la",
+    "search_type": "lemma",
+    "collection": "both",
+    "max_results": 20,
+    "date_from": 0,
+    "date_to": 200
+   }
+  },
+  {
+   "name": "lsx_both_region",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "dis manibus",
+    "language": "la",
+    "search_type": "lemma",
+    "collection": "both",
+    "max_results": 20,
+    "region": "Roma"
+   }
+  },
+  {
+   "name": "lsx_both_kind",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "dis manibus",
+    "language": "la",
+    "search_type": "lemma",
+    "collection": "both",
+    "max_results": 20,
+    "kind": "inscriptions"
+   }
+  },
+  {
+   "name": "lsx_both_hide_formulas_0",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "dis manibus",
+    "language": "la",
+    "search_type": "lemma",
+    "collection": "both",
+    "max_results": 20,
+    "hide_formulas": 0
+   }
+  },
+  {
+   "name": "lsx_both_hide_formulas_5",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "dis manibus",
+    "language": "la",
+    "search_type": "lemma",
+    "collection": "both",
+    "max_results": 20,
+    "hide_formulas": 5
+   }
+  },
+  {
+   "name": "lsx_both_exclude_restored",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "dis manibus",
+    "language": "la",
+    "search_type": "lemma",
+    "collection": "both",
+    "max_results": 20,
+    "exclude_restored": true
+   }
+  },
+  {
+   "name": "lsx_both_sort_oldest",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "dis manibus",
+    "language": "la",
+    "search_type": "lemma",
+    "collection": "both",
+    "max_results": 20,
+    "sort": "oldest"
+   }
+  },
+  {
+   "name": "lsx_both_offset_limit",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "dis manibus",
+    "language": "la",
+    "search_type": "lemma",
+    "collection": "both",
+    "max_results": 20,
+    "offset": 10,
+    "limit": 5
+   }
+  },
+  {
+   "name": "lsx_both_count_only",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "dis manibus",
+    "language": "la",
+    "search_type": "lemma",
+    "collection": "both",
+    "max_results": 20,
+    "count_only": true
+   }
+  },
+  {
+   "name": "lsx_both_exact",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "dis manibus",
+    "language": "la",
+    "search_type": "exact",
+    "collection": "both",
+    "max_results": 20
+   }
+  },
+  {
+   "name": "lsx_both_exact_count_only",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "dis manibus",
+    "language": "la",
+    "search_type": "exact",
+    "collection": "both",
+    "max_results": 20,
+    "count_only": true
+   }
+  },
+  {
+   "name": "lsx_both_regex",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "dis man",
+    "language": "la",
+    "search_type": "regex",
+    "collection": "both",
+    "max_results": 20
+   }
+  },
+  {
+   "name": "lsx_both_stoplist_pair",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "et arma",
+    "language": "la",
+    "search_type": "lemma",
+    "collection": "both",
+    "max_results": 20
+   }
+  },
+  {
+   "name": "lsx_both_passage",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "arma virumque cano Troiae qui primus ab oris Italiam fato profugus Laviniaque venit litora multum ille",
+    "language": "la",
+    "search_type": "lemma",
+    "collection": "both",
+    "max_results": 20
+   }
+  },
+  {
+   "name": "lsx_both_grc",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "θεός ἀγαθός",
+    "language": "grc",
+    "search_type": "lemma",
+    "collection": "both",
+    "max_results": 20,
+    "limit": 10
+   }
+  },
+  {
+   "name": "lsx_both_he",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "אל",
+    "language": "he",
+    "search_type": "lemma",
+    "collection": "both",
+    "max_results": 20
+   }
+  },
+  {
+   "name": "lsx_both_work",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "arma virum",
+    "language": "la",
+    "search_type": "lemma",
+    "collection": "both",
+    "max_results": 20,
+    "work": "vergil.aeneid.tess"
+   }
+  },
+  {
+   "name": "lsx_both_one_word",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "sacrum",
+    "language": "la",
+    "search_type": "lemma",
+    "collection": "both",
+    "max_results": 20
+   }
+  },
+  {
+   "name": "lsx_both_reader",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "arma virumque cano",
+    "language": "la",
+    "search_type": "lemma",
+    "collection": "both",
+    "max_results": 20,
+    "exclude_text_id": "vergil.aeneid",
+    "exclude_locus": "verg. aen. 1.1",
+    "rare_focus": true
+   }
+  },
+  {
+   "name": "lsx_get_both_kind",
+   "path": "/api/line-search",
+   "params": {
+    "query": "dis manibus",
+    "language": "la",
+    "collection": "both",
+    "kind": "papyri",
+    "max_results": 10
+   }
+  },
+  {
+   "name": "lsx2_la_regex_literal",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "arma virumque",
+    "language": "la",
+    "search_type": "regex",
+    "max_results": 40
+   }
+  },
+  {
+   "name": "lsx2_la_regex_line_range",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "arma virumque",
+    "language": "la",
+    "search_type": "regex",
+    "max_results": 40,
+    "line_start": 1,
+    "line_end": 10
+   }
+  },
+  {
+   "name": "lsx2_la_regex_cap1",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "arma virumque",
+    "language": "la",
+    "search_type": "regex",
+    "max_results": 1
+   }
+  },
+  {
+   "name": "lsx2_en_regex_literal",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "winter discontent",
+    "language": "en",
+    "search_type": "regex",
+    "max_results": 50
+   }
+  },
+  {
+   "name": "lsx2_en_lemma_pair",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "winter discontent",
+    "language": "en",
+    "search_type": "lemma",
+    "max_results": 50
+   }
+  },
+  {
+   "name": "lsx2_en_work",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "winter discontent",
+    "language": "en",
+    "search_type": "lemma",
+    "max_results": 50,
+    "work": "shakespeare.richard_iii.tess"
+   }
+  },
+  {
+   "name": "lsx2_en_count_only",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "winter discontent",
+    "language": "en",
+    "search_type": "lemma",
+    "max_results": 50,
+    "count_only": true
+   }
+  },
+  {
+   "name": "lsx2_grc_regex_literal",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "μῆνιν ἄειδε",
+    "language": "grc",
+    "search_type": "regex",
+    "max_results": 50
+   }
+  },
+  {
+   "name": "lsx2_cop_lemma_pair",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "ⲉⲛⲙⲟⲟϣⲉ ϩⲛⲟⲩⲕⲁⲕⲓⲁ",
+    "language": "cop",
+    "search_type": "lemma",
+    "max_results": 50
+   }
+  },
+  {
+   "name": "lsx2_ur_lemma_pair",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "آج آرائش",
+    "language": "ur",
+    "search_type": "lemma",
+    "max_results": 50
+   }
+  },
+  {
+   "name": "lsx2_fa_refs_two",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "جز نقش تو در نظر نیامد ما را جز کوی تو رهگذر نیامد ما را",
+    "language": "fa",
+    "search_type": "lemma",
+    "max_results": 50,
+    "refs": [
+     "hafez.diwan.1",
+     "hafez.diwan.2"
+    ],
+    "exclude_text_id": "hafez.diwan.tess",
+    "rare_focus": true
+   }
+  },
+  {
+   "name": "lsx2_ur_refs",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "آج آرائش گیسوئے دوتا ہوتی ہے",
+    "language": "ur",
+    "search_type": "lemma",
+    "max_results": 50,
+    "refs": [
+     "akbar.kulliyat_wikisource.1.1"
+    ],
+    "exclude_text_id": "akbar.kulliyat_wikisource.tess",
+    "exclude_locus": "1.1"
+   }
+  },
+  {
+   "name": "lsx2_doc_kind_inscriptions_hide5",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "dis manibus",
+    "language": "la",
+    "search_type": "lemma",
+    "collection": "documents",
+    "kind": "inscriptions",
+    "hide_formulas": 100000
+   }
+  },
+  {
+   "name": "lsx2_doc_hide_formulas_large",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "dis manibus",
+    "language": "la",
+    "search_type": "lemma",
+    "collection": "documents",
+    "hide_formulas": 40000
+   }
+  },
+  {
+   "name": "lsx2_both_hide_formulas_large",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "dis manibus",
+    "language": "la",
+    "search_type": "lemma",
+    "collection": "both",
+    "max_results": 20,
+    "hide_formulas": 40000
+   }
+  },
+  {
+   "name": "lsx2_la_exact_phrase_12w_short",
+   "path": "/api/line-search",
+   "method": "POST",
+   "body": {
+    "query": "arma virumque cano Troiae qui primus",
+    "language": "la",
+    "search_type": "exact",
+    "max_results": 50
+   }
+  }
+ ]
+}
