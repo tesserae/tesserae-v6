@@ -34,6 +34,23 @@ Conventions
   and `scripts/corpus/rebuild_docfreq.py` already follow the convention by
   hand and are the models the helper matches.
 
+## 2026-10-13 Translation file installed: Saadi's Gulistan, Eastwick 1880 (RUN 07:41)
+- What: `data/translations/fa__saadi.diwan.json`, built by
+  `scripts/translations/align_saadi_gulistan_eastwick.py` (this pull request)
+  from the Internet Archive scan of Edward B. Eastwick's 1880 translation,
+  public domain. One whole-work unit covering refs `saadi.diwan.29808` to
+  `.32003` (2,196 refs, the complete Gulistan embedded in the diwan file),
+  confidence exact; the Reader's Translation tab shows the whole translated
+  work for any selection in that range, with the note that the smallest unit
+  is the work.
+- How: the staged file copied into the translations folder on the live
+  server, mode 664, group tessdev. No other Saadi translation existed, so
+  nothing was replaced. The server lists the folder on each request, so no
+  reload was needed.
+- Check: `/api/translation?work=saadi.diwan&refs=saadi.diwan.30322` answers
+  available true, block_lines 2196, attribution Eastwick 1880, text opening
+  "Praise be to God!".
+
 ## Restricted texts: how they are held
 
 Some texts arrive under a licence that allows them to sit in the index and
