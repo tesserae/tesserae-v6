@@ -28,6 +28,13 @@ time    replays the largest recorded call of each of the first Latin and first
         Greek searches directly through fuse_results (inputs unpickled each
         run) and prints the times and the median.
 
+Besides the rows, record and check also store and compare the EVENTS that
+iter_fusion_search yields (NAME.events.jsonl.gz): type and payload of every
+event, in order, with any elapsed-time or timestamp field zeroed. Heartbeats
+depend on timing, so they are counted per run and not compared; the count is
+printed. The events include the progressive "intermediate" results and the
+final "complete" results.
+
 Run it under ~/bin/tess-job (it loads the lemma caches and the embeddings).
 """
 import argparse
@@ -57,6 +64,11 @@ SEARCHES = [
      {"freq_basis": "meter"}),
     ("la_aeneid1_met1_noctx", "la", "vergil.aeneid.part.1", "ovid.metamorphoses.part.1",
      {"confirm_context": False}),
+    # iter_fusion_search reads both of these, so they are recorded as well.
+    ("la_aeneid1_met1_enabled3", "la", "vergil.aeneid.part.1", "ovid.metamorphoses.part.1",
+     {"enabled_channels": ["lemma", "exact", "sound"]}),
+    ("la_aeneid1_met1_weights", "la", "vergil.aeneid.part.1", "ovid.metamorphoses.part.1",
+     {"channel_weights": {"lemma": 2.0, "exact": 0.5, "sound": 1.5}}),
 ]
 TIMED = ("la_aeneid1_met1", "grc_iliad1_argonautica1")
 
@@ -156,7 +168,18 @@ class Recorder:
         self.fh.close()
 
 
-def run_one(language, src, tgt, opts, tp, matcher, scorer, fusion):
+def _normalize(obj):
+    """Zero out elapsed-time and timestamp fields anywhere in an event payload."""
+    if isinstance(obj, dict):
+        return {k: (0 if any(t in str(k).lower() for t in ("elapsed", "timestamp", "duration", "seconds"))
+                    and isinstance(v, (int, float)) else _normalize(v))
+                for k, v in obj.items()}
+    if isinstance(obj, (list, tuple)):
+        return [_normalize(v) for v in obj]
+    return obj
+
+
+def run_one(language, src, tgt, opts, tp, matcher, scorer, fusion, events=None):
     src_path = str(ROOT / "texts" / language / f"{src}.tess")
     tgt_path = str(ROOT / "texts" / language / f"{tgt}.tess")
     su = tp.process_file(src_path, language, "line")
@@ -171,7 +194,13 @@ def run_one(language, src, tgt, opts, tp, matcher, scorer, fusion):
             source_path=src_path, target_path=tgt_path,
             user_settings={"use_meter": False},
             freq_basis=opts.get("freq_basis", "corpus"),
-            channel_weights=None, enabled_channels=None):
+            channel_weights=opts.get("channel_weights"),
+            enabled_channels=opts.get("enabled_channels")):
+        if events is not None:
+            if event_type == "heartbeat":
+                events["heartbeats"] = events.get("heartbeats", 0) + 1
+            else:
+                events.setdefault("lines", []).append(canon([event_type, _normalize(data)]))
         if event_type == "complete":
             res = data["results"]
     return len(su), len(tu), len(res), time.time() - t0
@@ -241,12 +270,32 @@ def cmd_record_or_check(args, mode):
                            force_no_ctx=(opts.get("confirm_context") is False))
             fusion.fuse_results = rec
             try:
-                ns, nt, nres, secs = run_one(language, src, tgt, opts, tp, matcher, scorer, fusion)
+                ev = {}
+                ns, nt, nres, secs = run_one(language, src, tgt, opts, tp, matcher, scorer, fusion, ev)
             finally:
                 fusion.fuse_results = orig
                 rec.close()
             line = (f"{name}: {language} {src} x {tgt} {opts or ''} lines {ns}x{nt}, "
                     f"{rec.calls} fuse_results calls, {rec.rows_total} rows, {nres} results, {secs:.0f}s")
+            ev_lines = ev.get("lines", [])
+            ev_path = out / f"{name}.events.jsonl.gz"
+            ev_note = f", {len(ev_lines)} events (+{ev.get('heartbeats', 0)} heartbeats)"
+            if mode == "record":
+                with gzip.open(ev_path, "wt", encoding="utf-8", compresslevel=3) as fh:
+                    for evl in ev_lines:
+                        fh.write(evl + "\n")
+            else:
+                with gzip.open(ev_path, "rt", encoding="utf-8") as fh:
+                    rec_ev = [evl.rstrip("\n") for evl in fh]
+                if rec_ev != ev_lines:
+                    for i in range(max(len(rec_ev), len(ev_lines))):
+                        a = rec_ev[i] if i < len(rec_ev) else None
+                        b = ev_lines[i] if i < len(ev_lines) else None
+                        if a != b:
+                            rec.diffs.append(f"EVENT {i} of {len(rec_ev)}/{len(ev_lines)}: recorded "
+                                             f"{str(a)[:250]} / now {str(b)[:250]}")
+                            break
+            line += ev_note
             if mode == "check":
                 if rec.diffs and all("TIE ORDER ONLY" in d for d in rec.diffs):
                     line += "  same except tie order (" + "; ".join(rec.diffs) + ")"
