@@ -2481,6 +2481,12 @@ exists to measure it against.
 The web process runs with an ASCII file-system encoding, which Python fixes when it starts, and the server setting that would change it is not to be requested again. Thirty-six Greek texts have Greek letters in their names, so every file call on a text, translation or embedding name goes through `backend/fspaths.py`, which passes UTF-8 bytes to the operating system and returns names decoded as UTF-8. The proof is a two-locale comparison: the same requests (`scripts/review/greek_names_requests.json` and the standard list) sent to a server started in the ASCII state and one started in UTF-8 must give the same answers. Names that an operation only ever sees in ASCII (hashed cache names, index files) were left as they were.
 
 
+## 2026-10-13: the two Latin spelling folds stay as they are
+
+- Scope: `normalize_latin` in the matcher and the distance filter (one shared function: lower case, v to u, j to i) and in the wildcard search (case kept, v to u, j to i, a final -om folded to -um).
+- Decision. Both are kept, pinned by tests (`tests/test_normalize_latin_three_ways.py`). They are not unified.
+- Why. The lemma tables hold keys in the older spelling, such as "diuom", so adding the -om rule to the matcher's fold would miss them; removing it from the search box would change what a wildcard search for "servom" finds. Neither change has a user report behind it. If one arrives, the fold that caused the miss is revisited with a recording, as the structural jobs are.
+
 ## 2026-10-13: the fallback Latin scanner uses a vowel-length table, not the scanner's guessing modes
 
 - Scope: Latin verse outside the MQDQ table (the table covers 103 works; everything else goes to the copied CLTK scanner).
