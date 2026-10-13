@@ -35,6 +35,23 @@ Conventions
   hand and are the models the helper matches.
 
 
+## 2026-10-13 Translation file installed: Saadi's Gulistan, Eastwick 1880 (RUN 07:41)
+- What: `data/translations/fa__saadi.diwan.json`, built by
+  `scripts/translations/align_saadi_gulistan_eastwick.py` (this pull request)
+  from the Internet Archive scan of Edward B. Eastwick's 1880 translation,
+  public domain. One whole-work unit covering refs `saadi.diwan.29808` to
+  `.32003` (2,196 refs, the complete Gulistan embedded in the diwan file),
+  confidence exact; the Reader's Translation tab shows the whole translated
+  work for any selection in that range, with the note that the smallest unit
+  is the work.
+- How: the staged file copied into the translations folder on the live
+  server, mode 664, group tessdev. No other Saadi translation existed, so
+  nothing was replaced. The server lists the folder on each request, so no
+  reload was needed.
+- Check: `/api/translation?work=saadi.diwan&refs=saadi.diwan.30322` answers
+  available true, block_lines 2196, attribution Eastwick 1880, text opening
+  "Praise be to God!".
+
 ## 2026-10-12 Fifteen backup copies of index files deleted (RUN 20:00)
 
 The scripts that append texts to a search index, repair references or rebuild a frequency table each leave a stamped `.bak-<tag>` copy of the index file beside it, as a way back if the change proves wrong. Fifteen such copies had accumulated under `data/inverted_index/` on the web machine, from 29 August to 10 October, 22 GB in all: six of the Latin index (7 and 8 October), three of the Greek index (4 to 10 October), two of the Persian index, and one each of the Coptic, English, Hebrew and Urdu indexes. The current indexes had been live for between two days and six weeks, the reference searches had passed after every deploy, no process had a copy open, and no code reads them. At the owner's instruction all fifteen were deleted. Free disk rose from 509 to 530 GB. The reference search check passed afterwards and Theme Search answered.
@@ -576,23 +593,6 @@ what we use, notes. The Sources and credits section of the Text Credits page
 Record only licence wording that was read at the source; say so in `notes`
 where it could not be read. `tests/test_sources_credits.py` checks the
 required fields.
-## 2026-10-13 Translation file installed: Saadi's Gulistan, Eastwick 1880 (RUN 07:41)
-- What: `data/translations/fa__saadi.diwan.json`, built by
-  `scripts/translations/align_saadi_gulistan_eastwick.py` (this pull request)
-  from the Internet Archive scan of Edward B. Eastwick's 1880 translation,
-  public domain. One whole-work unit covering refs `saadi.diwan.29808` to
-  `.32003` (2,196 refs, the complete Gulistan embedded in the diwan file),
-  confidence exact; the Reader's Translation tab shows the whole translated
-  work for any selection in that range, with the note that the smallest unit
-  is the work.
-- How: the staged file copied into the translations folder on the live
-  server, mode 664, group tessdev. No other Saadi translation existed, so
-  nothing was replaced. The server lists the folder on each request, so no
-  reload was needed.
-- Check: `/api/translation?work=saadi.diwan&refs=saadi.diwan.30322` answers
-  available true, block_lines 2196, attribution Eastwick 1880, text opening
-  "Praise be to God!".
-
 ## Restricted texts: how they are held
 
 Some texts arrive under a licence that allows them to sit in the index and
