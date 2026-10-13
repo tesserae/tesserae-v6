@@ -1,6 +1,8 @@
 import Pagination from '../common/Pagination';
 import { getSessionValue, setSessionValue } from '../../utils/storage';
 import { usePagination } from '../../hooks/usePagination';
+import { closenessSort, closenessLabel, TONE_CLASS } from './closeness';
+import useDocumentsTrial from '../../hooks/useDocumentsTrial';
 import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import { LoadingSpinner, SearchableSelect } from '../common';
 import { normalizeGreek } from '../../utils/greekUtils';
@@ -11,15 +13,22 @@ import CopticSearchInput from './CopticSearchInput';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
 import { orderEras, ERA_COLORS } from '../../utils/eras';
+import useDocumentsSearch from '../documents/useDocumentsSearch';
+import { DOC_PAGE_SIZE, DOCUMENT_EXAMPLE_SEARCHES } from '../documents/documentsConstants';
+import DocumentExampleButtons from '../documents/DocumentExampleButtons';
+import DocumentsSearchFilters from '../documents/DocumentsSearchFilters';
+import DocumentsResultsPanel from '../documents/DocumentsResultsPanel';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
-// Stage 3b-3: the "Hide stock formulas" checkbox's own fixed threshold --
-// matches backend/app.py's DOCUMENTS_FORMULA_DEFAULT_N, measured against
-// the real documents indexes (dis manibus/bene merenti/votum solvit
-// libens merito/hic situs est, thousands of sharing documents each, vs.
-// arma virumque/arma virumque cano, fewer than 20).
-const DOCUMENTS_FORMULA_DEFAULT_N = 100;
+// Literature/Documents/Both toggle shown on this page (the Inscriptions &
+// Papyri page offers a narrower Documents/Both choice -- see
+// DocumentsSearchFilters.jsx).
+const COLLECTION_OPTIONS = [
+  { key: 'literature', label: 'Literature' },
+  { key: 'documents', label: 'Documents' },
+  { key: 'both', label: 'Both' },
+];
 
 // Hebrew and Coptic loci embed the full text id (e.g.
 // "hebrew_bible.1_samuel.1.1"); strip that redundant stem so the citation
@@ -31,8 +40,17 @@ function displayLocus(locus, textId) {
     : (locus || '');
 }
 
+// ?documents=1 sets the documents trial switch, but the page used to open
+// on "Find Text to Search" regardless, where the Literature/Documents/Both
+// control is not shown -- it is under "Input Search Text". The query string
+// is the one signal both this and the trial-switch check below need, read
+// the same way in both places.
+function documentsFromUrl() {
+  return new URLSearchParams(window.location.search).get('documents') === '1';
+}
+
 export default function LineSearch({ language }) {
-  const [mode, setMode] = useState('browse');
+  const [mode, setMode] = useState(() => (documentsFromUrl() ? 'search' : 'browse'));
   const [query, setQuery] = useState('');
   const [results, setResults] = useState([]);
   // Documents-collection hits are shaped completely differently (credit/
@@ -42,7 +60,6 @@ export default function LineSearch({ language }) {
   // byte-for-byte what it always was when no document hit is present
   // (collection='literature', the default, never returns one).
   const literatureResults = useMemo(() => results.filter(r => r.collection !== 'documents'), [results]);
-  const documentResults = useMemo(() => results.filter(r => r.collection === 'documents'), [results]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [searchType, setSearchType] = useState('lemma');
@@ -52,6 +69,18 @@ export default function LineSearch({ language }) {
   const [showPoetry, setShowPoetry] = useState(true);
   const [showProse, setShowProse] = useState(true);
   const [sortOrder, setSortOrder] = useState('chronological');
+  // How many content words the last query had (from the response). A query
+  // of two or more opens on the "Closest match" order, so lines that quote
+  // the phrase come before lines sharing one word of it (see closeness.js).
+  const [queryLemmaCount, setQueryLemmaCount] = useState(0);
+  const [queryWordCount, setQueryWordCount] = useState(0);
+  const applyLiteratureResponse = (data) => {
+    setResults(data.results || []);
+    const n = data.query_lemma_count || 0;
+    setQueryLemmaCount(n);
+    setQueryWordCount(data.query_word_count || 0);
+    setSortOrder(n >= 2 ? 'closest' : 'chronological');
+  };
   // Set when a /?tab=line&q=... deep link should auto-run once its query is in state.
   const [pendingUrlSearch, setPendingUrlSearch] = useState(null);
 
@@ -61,25 +90,40 @@ export default function LineSearch({ language }) {
   // ?documents=1 switches it on and remembers that for the rest of the
   // visit, as the Scholarship tab does, and the control appears only once
   // /api/languages also confirms the server has it on.
-  const [documentsTrial] = useState(() => {
-    const fromUrl = new URLSearchParams(window.location.search).get('documents') === '1';
-    if (fromUrl) setSessionValue('documents_trial', '1');
-    return fromUrl || getSessionValue('documents_trial', '0') === '1';
-  });
+  const documentsTrial = useDocumentsTrial();
   const [documentsEnabled, setDocumentsEnabled] = useState(false);
-  const [collection, setCollection] = useState('literature');
-  const [dateFrom, setDateFrom] = useState('');
-  const [dateTo, setDateTo] = useState('');
-  const [docRegion, setDocRegion] = useState('');
-  const [docTextType, setDocTextType] = useState('');
-  const [docMaterial, setDocMaterial] = useState('');
-  const [docSource, setDocSource] = useState('');
-  // Stage 3b-3: leave out a hit whose match rests entirely on restored
-  // text, and hide stock formulas (matched words shared by more documents
-  // than DOCUMENTS_FORMULA_DEFAULT_N -- see the same constant's comment in
-  // backend/app.py for how that default was measured).
-  const [excludeRestored, setExcludeRestored] = useState(false);
-  const [hideFormulas, setHideFormulas] = useState(false);
+  // Stage 4 (owner's review of the live documents trial, 2026-10-08):
+  // document results are paged and sorted SERVER-SIDE (no 500-row
+  // ceiling). Shared with the Inscriptions & Papyri page -- see
+  // useDocumentsSearch.js.
+  const {
+    collection, setCollection,
+    dateFrom, setDateFrom,
+    dateTo, setDateTo,
+    docKind, setDocKind,
+    docRegion, setDocRegion,
+    docTextType, setDocTextType,
+    docMaterial, setDocMaterial,
+    docSource, setDocSource,
+    excludeRestored, setExcludeRestored,
+    hideFormulas, setHideFormulas,
+    documentPageResults,
+    docTotal,
+    docOffset,
+    docSort,
+    docDistribution,
+    docPageLoading,
+    docPagination,
+    addCollectionParams,
+    applyDocumentsResponse,
+    recordSearch,
+    fetchDocumentsPage,
+  } = useDocumentsSearch({ documentsEnabled, defaultCollection: 'literature', setError });
+  // Document hits are paged SERVER-SIDE (see documentPageResults above):
+  // this is simply that state under the name the render/JSX below uses,
+  // kept as its own binding so a page/sort change (fetchDocumentsPage)
+  // never has to touch `results` or literatureResults.
+  const documentResults = documentPageResults;
 
   useEffect(() => {
     fetch('/api/languages').then(r => r.json()).then(data => {
@@ -205,24 +249,6 @@ export default function LineSearch({ language }) {
     setLoadingTexts(false);
   };
 
-  // Adds collection + the documents-only filters to a search params object,
-  // only when the documents control is actually on and set away from plain
-  // Literature. With the control untouched (or the server switch off) this
-  // adds nothing, so a request is byte-for-byte what it always was.
-  const addCollectionParams = (params) => {
-    if (!documentsEnabled || collection === 'literature') return params;
-    params.collection = collection;
-    if (dateFrom.trim()) params.date_from = parseInt(dateFrom, 10);
-    if (dateTo.trim()) params.date_to = parseInt(dateTo, 10);
-    if (docRegion.trim()) params.region = docRegion.trim();
-    if (docTextType.trim()) params.text_type = docTextType.trim();
-    if (docMaterial.trim()) params.material = docMaterial.trim();
-    if (docSource.trim()) params.source = docSource.trim();
-    if (excludeRestored) params.exclude_restored = true;
-    if (hideFormulas) params.hide_formulas = DOCUMENTS_FORMULA_DEFAULT_N;
-    return params;
-  };
-
   const handleSearch = async () => {
     if (!query.trim()) return;
     setLoading(true);
@@ -235,10 +261,19 @@ export default function LineSearch({ language }) {
         search_type: searchType
       });
 
-      if (selectedAuthor) searchParams.author = selectedAuthor;
-      if (selectedWork) searchParams.work = selectedWork;
-      if (lineStart) searchParams.line_start = parseInt(lineStart);
-      if (lineEnd) searchParams.line_end = parseInt(lineEnd);
+      // Stage 4: these filter only the literature half of a search (see
+      // the "Filter by Text" section above, hidden entirely for a
+      // Documents-only search) -- never sent when the collection is
+      // documents-only, where they could not do anything.
+      const literatureFiltersApply = !(documentsEnabled && collection === 'documents');
+      if (literatureFiltersApply) {
+        if (selectedAuthor) searchParams.author = selectedAuthor;
+        if (selectedWork) searchParams.work = selectedWork;
+        if (lineStart) searchParams.line_start = parseInt(lineStart);
+        if (lineEnd) searchParams.line_end = parseInt(lineEnd);
+      }
+
+      recordSearch(searchParams);
 
       const res = await fetch('/api/line-search', {
         method: 'POST',
@@ -249,8 +284,55 @@ export default function LineSearch({ language }) {
       if (data.error) {
         setError(data.error);
         setResults([]);
+        applyDocumentsResponse({});
       } else {
-        setResults(data.results || []);
+        applyLiteratureResponse(data);
+        applyDocumentsResponse(data, { sortUsed: searchParams.sort });
+      }
+    } catch (err) {
+      setError('Search failed. Please try again.');
+      setResults([]);
+    }
+    setLoading(false);
+  };
+
+  // Stage 4 (owner's review of the live documents trial, 2026-10-08): one-
+  // click example searches, verified against the live documents indexes.
+  // Shown only when the documents control is itself available (the trial
+  // flag plus the server switch -- see documentsEnabled above).
+  // DOCUMENT_EXAMPLE_SEARCHES is shared with the Inscriptions & Papyri
+  // page -- see ../documents/documentsConstants.js.
+  const runExampleSearch = async (example) => {
+    setQuery(example.query);
+    setCollection(example.collection);
+    setSearchType(example.searchType);
+    setMode('search');
+    setSourceInfo(null);
+    setLoading(true);
+    setError(null);
+    setEraFilter(null);
+    try {
+      const searchParams = {
+        query: example.query, language, search_type: example.searchType,
+        collection: example.collection, offset: 0, limit: DOC_PAGE_SIZE, sort: docSort,
+      };
+      recordSearch(searchParams);
+      const res = await fetch('/api/line-search', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(searchParams)
+      });
+      const data = await res.json();
+      if (data.error) {
+        setError(data.error);
+        setResults([]);
+      } else {
+        applyLiteratureResponse(data);
+        // Called with the example's own collection and `force: true`:
+        // setCollection just above has not taken effect in this closure
+        // yet (React batches it), so relying on the hook's own `collection`
+        // state here would read the value from BEFORE this click.
+        applyDocumentsResponse(data, { collection: example.collection, force: true });
       }
     } catch (err) {
       setError('Search failed. Please try again.');
@@ -272,7 +354,6 @@ export default function LineSearch({ language }) {
       setPendingUrlSearch(q);
     }
     // Run once on mount for the initial URL.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -327,7 +408,9 @@ export default function LineSearch({ language }) {
         exclude_text_id: selectedWork,
         exclude_locus: line.locus || line.ref || ''
       });
-      
+
+      recordSearch(searchParams);
+
       const res = await fetch('/api/line-search', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -337,8 +420,10 @@ export default function LineSearch({ language }) {
       if (data.error) {
         setError(data.error);
         setResults([]);
+        applyDocumentsResponse({});
       } else {
-        setResults(data.results || []);
+        applyLiteratureResponse(data);
+        applyDocumentsResponse(data, { sortUsed: searchParams.sort });
       }
     } catch (err) {
       setError('Search failed. Please try again.');
@@ -606,6 +691,9 @@ export default function LineSearch({ language }) {
         return (a.work || '').localeCompare(b.work || '');
       });
     }
+    if (sortOrder === 'closest') {
+      return [...filtered].sort(closenessSort);
+    }
     return [...filtered].sort((a, b) => {
       const aYear = a.year || 9999;
       const bYear = b.year || 9999;
@@ -617,47 +705,6 @@ export default function LineSearch({ language }) {
   // Result identity changes on completion, even when the same query is run again.
   const paginationResetKey = useMemo(() => ({}), [literatureResults, eraFilter, authorFilter, showPoetry, showProse, sortOrder]);
   const pagination = usePagination(filteredResults, { resetKey: paginationResetKey });
-  const docPagination = usePagination(documentResults, { initialPageSize: 50, resetKey: documentResults });
-
-  // Document hit text, rendered by TOKEN POSITION (not a whitespace re-split
-  // of `text`) so restored-word marking lines up with restored_indices
-  // exactly as the index stored it. Falls back to the plain literary
-  // highlighter if a hit carries no token list.
-  const renderDocumentText = (result) => {
-    const tokens = result.tokens || [];
-    if (!tokens.length) {
-      return highlightMatches(result.text, result.matched_words || []);
-    }
-    const restoredSet = new Set(result.restored_indices || []);
-    const fragmentSet = new Set(result.fragment_indices || []);
-    const matchedSet = new Set((result.matched_words || []).map(w => (w || '').toLowerCase()));
-    return tokens.map((tok, i) => {
-      let el = <span>{tok}</span>;
-      if (restoredSet.has(i)) {
-        // Light dotted underline for an editorially restored word -- chosen
-        // over scholarly square brackets because the matched-word highlight
-        // below already uses <mark>, and the corpus's own angle-bracket
-        // convention (decodeEntities above) is reserved for editorial
-        // brackets carried IN the source text itself; an underline reads as
-        // "mark on top of the word" without colliding with either.
-        el = <span className="underline decoration-dotted decoration-2 decoration-sky-500" title="editorially restored">{tok}</span>;
-      } else if (fragmentSet.has(i)) {
-        el = <span className="italic text-gray-500" title="surviving fragment of a damaged word">{tok}</span>;
-      }
-      if (matchedSet.has((tok || '').toLowerCase())) {
-        el = <mark className="bg-amber-200 px-0.5 rounded">{el}</mark>;
-      }
-      return <span key={i}>{el}{' '}</span>;
-    });
-  };
-
-  const documentDateLabel = (result) => {
-    const nb = result.date_not_before, na = result.date_not_after;
-    if (nb == null && na == null) return null;
-    const fmt = (y) => (y < 0 ? `${-y} BC` : `${y} AD`);
-    if (nb != null && na != null && nb !== na) return `${fmt(nb)}–${fmt(na)}`;
-    return fmt(nb != null ? nb : na);
-  };
 
   // Stage 3b-3: the document Reader view, opened from a document hit's own
   // citation. Carries the originating query/type/language (and the
@@ -750,82 +797,47 @@ export default function LineSearch({ language }) {
                   </button>
                 </div>
               )}
+              {documentsEnabled && (
+                <DocumentExampleButtons
+                  examples={DOCUMENT_EXAMPLE_SEARCHES[language]}
+                  onRun={runExampleSearch}
+                />
+              )}
             </div>
 
             {documentsEnabled && (language === 'la' || language === 'grc') && (
               <div className="border-t pt-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Search in</label>
-                <div className="flex items-center gap-2 bg-gray-100 p-1 rounded-lg inline-flex">
-                  {[
-                    { key: 'literature', label: 'Literature' },
-                    { key: 'documents', label: 'Documents' },
-                    { key: 'both', label: 'Both' },
-                  ].map(opt => (
-                    <button
-                      key={opt.key}
-                      onClick={() => setCollection(opt.key)}
-                      className={`px-3 py-1.5 text-sm font-medium rounded ${
-                        collection === opt.key ? 'bg-white shadow text-red-700' : 'text-gray-600 hover:text-gray-800'
-                      }`}
-                    >
-                      {opt.label}
-                    </button>
-                  ))}
-                </div>
-                {collection !== 'literature' && (
-                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mt-3">
-                    <div>
-                      <label className="block text-xs text-gray-500 mb-1">Date from</label>
-                      <input type="number" value={dateFrom} onChange={e => setDateFrom(e.target.value)}
-                             placeholder="e.g., -100" className="w-full border rounded px-2 py-1.5 text-sm" />
-                    </div>
-                    <div>
-                      <label className="block text-xs text-gray-500 mb-1">Date to</label>
-                      <input type="number" value={dateTo} onChange={e => setDateTo(e.target.value)}
-                             placeholder="e.g., 200" className="w-full border rounded px-2 py-1.5 text-sm" />
-                    </div>
-                    <div>
-                      <label className="block text-xs text-gray-500 mb-1">Region</label>
-                      <input type="text" value={docRegion} onChange={e => setDocRegion(e.target.value)}
-                             placeholder="e.g., Latium" className="w-full border rounded px-2 py-1.5 text-sm" />
-                    </div>
-                    <div>
-                      <label className="block text-xs text-gray-500 mb-1">Text type</label>
-                      <input type="text" value={docTextType} onChange={e => setDocTextType(e.target.value)}
-                             placeholder="e.g., epitaph" className="w-full border rounded px-2 py-1.5 text-sm" />
-                    </div>
-                    <div>
-                      <label className="block text-xs text-gray-500 mb-1">Material</label>
-                      <input type="text" value={docMaterial} onChange={e => setDocMaterial(e.target.value)}
-                             placeholder="e.g., marble" className="w-full border rounded px-2 py-1.5 text-sm" />
-                    </div>
-                    <div>
-                      <label className="block text-xs text-gray-500 mb-1">Source</label>
-                      <input type="text" value={docSource} onChange={e => setDocSource(e.target.value)}
-                             placeholder="e.g., edh" className="w-full border rounded px-2 py-1.5 text-sm" />
-                    </div>
-                  </div>
-                )}
-                {collection !== 'literature' && (
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-3 mt-3">
-                    <label className="flex items-center gap-2 text-sm text-gray-700">
-                      <input type="checkbox" checked={excludeRestored}
-                             onChange={e => setExcludeRestored(e.target.checked)} />
-                      Leave out matches on restored words
-                    </label>
-                    <label className="flex items-center gap-2 text-sm text-gray-700">
-                      <input type="checkbox" checked={hideFormulas}
-                             onChange={e => setHideFormulas(e.target.checked)} />
-                      Hide stock formulas
-                    </label>
-                  </div>
-                )}
+                <DocumentsSearchFilters
+                  options={COLLECTION_OPTIONS}
+                  collection={collection} setCollection={setCollection}
+                  dateFrom={dateFrom} setDateFrom={setDateFrom}
+                  dateTo={dateTo} setDateTo={setDateTo}
+                  docKind={docKind} setDocKind={setDocKind}
+                  docRegion={docRegion} setDocRegion={setDocRegion}
+                  docTextType={docTextType} setDocTextType={setDocTextType}
+                  docMaterial={docMaterial} setDocMaterial={setDocMaterial}
+                  docSource={docSource} setDocSource={setDocSource}
+                  excludeRestored={excludeRestored} setExcludeRestored={setExcludeRestored}
+                  hideFormulas={hideFormulas} setHideFormulas={setHideFormulas}
+                />
               </div>
             )}
 
+            {/* Stage 4 (owner's review, 2026-10-08): this filter (author/
+                work/line range) only ever reaches the literary search --
+                see handleSearch/selectLineForSearch, which now only add it
+                when the collection is NOT documents-only. With Documents
+                selected the section is hidden entirely (nothing here would
+                do anything); with Both it stays, relabeled, since it still
+                filters only the literature half of the results. */}
+            {!(documentsEnabled && collection === 'documents') && (
             <div className="border-t pt-4">
               <div className="flex items-center justify-between mb-3">
-                <span className="text-sm font-medium text-gray-700">Filter by Text (Optional)</span>
+                <span className="text-sm font-medium text-gray-700">
+                  {documentsEnabled && collection === 'both'
+                    ? 'Filter the literature (optional)'
+                    : 'Filter by Text (Optional)'}
+                </span>
                 {(selectedAuthor || selectedWork || lineStart || lineEnd) && (
                   <button
                     onClick={clearFilters}
@@ -835,7 +847,7 @@ export default function LineSearch({ language }) {
                   </button>
                 )}
               </div>
-              
+
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                 <div>
                   <label className="block text-xs text-gray-500 mb-1">Author</label>
@@ -886,6 +898,7 @@ export default function LineSearch({ language }) {
                 </div>
               </div>
             </div>
+            )}
 
             <div className="border-t pt-4 flex justify-end">
               <button
@@ -939,6 +952,7 @@ export default function LineSearch({ language }) {
                     onChange={e => setSortOrder(e.target.value)}
                     className="text-sm border rounded px-2 py-1"
                   >
+                    {queryLemmaCount >= 2 && <option value="closest">Closest match</option>}
                     <option value="chronological">By Era</option>
                     <option value="alphabetical">A-Z</option>
                   </select>
@@ -1023,6 +1037,15 @@ export default function LineSearch({ language }) {
                             {result.era}
                           </span>
                         )}
+                        {(() => {
+                          const tag = closenessLabel(result, queryLemmaCount, queryWordCount);
+                          return tag ? (
+                            <span className={`text-xs px-1.5 py-0.5 rounded mt-1 ml-1 inline-block ${TONE_CLASS[tag.tone]}`}
+                                  title="How much of the search phrase this line shares">
+                              {tag.text}
+                            </span>
+                          ) : null;
+                        })()}
                       </div>
                       <div className="flex-1 min-w-0 break-words text-gray-700" dir={dirFor(language)}>
                         {highlightMatches(result.text, result.matched_words || query.split(/\s+/))}
@@ -1036,71 +1059,17 @@ export default function LineSearch({ language }) {
             </div>
           )}
 
-          {documentResults.length > 0 && (
-            <div className="bg-white rounded-lg shadow overflow-hidden">
-              <div className="px-4 py-3 bg-gray-50 flex items-center justify-between">
-                <span className="text-sm text-gray-600">
-                  Found {documentResults.length} documents
-                </span>
-              </div>
-              <div className="divide-y divide-gray-200">
-                {docPagination.visibleItems.map((result, i) => {
-                  const credit = result.credit || {};
-                  const labels = [result.text_type_label, result.object_type_label, result.material_label]
-                    .filter(Boolean);
-                  const place = result.ancient_place || result.modern_place;
-                  const dateLabel = documentDateLabel(result);
-                  return (
-                    <div key={i} className="p-4 hover:bg-gray-50">
-                      <div className="flex flex-col sm:flex-row sm:items-start gap-2">
-                        <span className="text-xs text-gray-500 min-w-[2.5rem] text-right shrink-0 leading-none" style={{ paddingTop: '1px' }}>
-                          {docPagination.startIndex + i + 1}.
-                        </span>
-                        <div className="sm:w-48 flex-shrink-0 min-w-0 break-words">
-                          <div className="text-sm font-medium text-gray-900">
-                            <a href={documentViewUrl(result.doc_id)} className="hover:underline">
-                              {credit.principal_edition || result.doc_id}
-                            </a>
-                          </div>
-                          <div className="text-xs text-gray-500">
-                            {[dateLabel, place, result.region].filter(Boolean).join(' · ')}
-                          </div>
-                          {labels.length > 0 && (
-                            <div className="mt-1 flex flex-wrap gap-1">
-                              {labels.map((lab, li) => (
-                                <span key={li} className="text-xs px-1.5 py-0.5 bg-gray-100 text-gray-600 rounded inline-block">
-                                  {lab}
-                                </span>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                        <div className="flex-1 min-w-0 break-words text-gray-700" dir={dirFor(language)}>
-                          {renderDocumentText(result)}
-                          {result.matched_restored && (
-                            <div className="mt-1 text-xs text-sky-700">match on restored text</div>
-                          )}
-                          {(credit.source_name || credit.source_url) && (
-                            <div className="mt-1 text-xs text-gray-500">
-                              Text:{' '}
-                              {credit.source_url ? (
-                                <a href={credit.source_url} target="_blank" rel="noopener noreferrer"
-                                   className="text-amber-700 hover:text-amber-900 underline">
-                                  {credit.source_name || 'source'}
-                                </a>
-                              ) : (credit.source_name)}
-                              {credit.licence_name && <span>, {credit.licence_name}</span>}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-              <Pagination {...docPagination} idPrefix="docsearch" itemLabel="documents" />
-            </div>
-          )}
+          <DocumentsResultsPanel
+            documentResults={documentResults}
+            docTotal={docTotal}
+            docSort={docSort}
+            onSortChange={(sort) => fetchDocumentsPage({ offset: 0, sort })}
+            docDistribution={docDistribution}
+            docPagination={docPagination}
+            docPageLoading={docPageLoading}
+            documentViewUrl={documentViewUrl}
+            language={language}
+          />
         </>
       ) : (
         <div className="bg-white rounded-lg shadow p-4 sm:p-6 space-y-4">

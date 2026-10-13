@@ -45,3 +45,19 @@ def test_pointed_query_gets_no_fallbacks():
     from backend.app import _hebrew_unpointed_fallbacks
     fallbacks, lemmas = _hebrew_unpointed_fallbacks('אֵל', {'אל³'}, set())
     assert fallbacks is None and lemmas == {'אל³'}
+
+
+def test_a_line_holding_only_another_reading_still_matches():
+    # Bare מלך: a line indexed with מלך² "he reigned" must not be dropped
+    # after the index found it (it used to be: only "king" lines showed).
+    from backend.app import _hebrew_unpointed_fallbacks, _line_lemmas_matching_query
+    fallbacks, lemmas = _hebrew_unpointed_fallbacks('מלך', {'מלך'}, set())
+    assert _line_lemmas_matching_query({'מלך²', 'שאול'}, lemmas, fallbacks) == {'מלך²'}
+    assert _line_lemmas_matching_query({'מלך', 'דוד'}, lemmas, fallbacks) == {'מלך'}
+    assert _line_lemmas_matching_query({'שאול'}, lemmas, fallbacks) == set()
+
+
+def test_without_fallbacks_a_line_matches_on_query_lemmas_only():
+    from backend.app import _line_lemmas_matching_query
+    assert _line_lemmas_matching_query({'arma', 'uir'}, {'arma'}, None) == {'arma'}
+    assert _line_lemmas_matching_query({'מלך²'}, {'מלך'}, None) == set()

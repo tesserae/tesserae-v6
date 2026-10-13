@@ -1,0 +1,320 @@
+"""Events: the read-only API behind the Events page.
+
+    GET /api/events?q=&type=&century=&page=&per_page=
+        the events in the dossier database, searchable by label, filterable
+        by type and century (a signed number: -5 is the fifth century BCE,
+        1 the first CE), paged. Also returns the types and centuries present
+        so the page can offer them.
+    GET /api/events/<id>
+        one dossier: the event, its passages (Reader links, the offline
+        relevance label "yes" first, then "mention"), nearby documents
+        (links to the document view), scholarship and map points.
+
+The data is a SQLite file written offline by scripts/events/ (see
+load_dossiers_sqlite.py); the route only reads it. The path comes from
+TESSERAE_EVENTS_DB, default data/events/event_dossiers.sqlite. With no file
+the list route answers with available=false and the detail route with 404.
+"""
+import json
+import os
+import sqlite3
+from urllib.parse import quote
+
+from flask import Blueprint, jsonify, request
+
+from backend.logging_config import get_logger
+
+logger = get_logger('events')
+events_bp = Blueprint('events', __name__)
+
+_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+DEFAULT_DB = os.path.join(_ROOT, 'data', 'events', 'event_dossiers.sqlite')
+LABEL_ORDER = {'yes': 0, 'mention': 1}
+MAX_PER_PAGE = 100
+
+
+def db_path():
+    return os.environ.get('TESSERAE_EVENTS_DB') or DEFAULT_DB
+
+
+def _conn():
+    path = db_path()
+    if not os.path.exists(path):
+        return None
+    c = sqlite3.connect(f'file:{path}?mode=ro', uri=True)
+    c.row_factory = sqlite3.Row
+    return c
+
+
+def _columns(c, table):
+    return {r['name'] for r in c.execute(f'PRAGMA table_info({table})')}
+
+
+def _json(value, default):
+    if value in (None, ''):
+        return default
+    if isinstance(value, (list, dict)):
+        return value
+    try:
+        return json.loads(value)
+    except (TypeError, ValueError):
+        return default
+
+
+def century_of(year):
+    """Signed century of a year: -490 is -5 (5th BCE), 9 is 1 (1st CE)."""
+    if year is None:
+        return None
+    y = int(year)
+    if y < 0:
+        return -((-y - 1) // 100 + 1)
+    return (y - 1) // 100 + 1 if y > 0 else -1
+
+
+def century_range(c):
+    """First and last year of a signed century."""
+    if c < 0:
+        return -(-c) * 100, -(-c - 1) * 100 - 1
+    return (c - 1) * 100 + 1, c * 100
+
+
+def _language_of(work, given=None):
+    if given in ('la', 'grc'):
+        return given
+    try:
+        from backend import window_texts
+        lang = window_texts.language_of(work)
+        if lang:
+            return lang
+    except Exception:  # the passage index may not be present (previews, tests)
+        pass
+    return 'la'
+
+
+def reader_url(work, lang, ref):
+    w = work if str(work).endswith('.tess') else f'{work}.tess'
+    return f'/read?work={quote(w)}&lang={quote(lang)}&ref={quote(ref or "")}'
+
+
+def document_url(doc_id, lang='la'):
+    return f'/document?doc={quote(str(doc_id), safe="")}&lang={lang}&documents=1'
+
+
+def _event_row(r):
+    return {
+        'id': r['id'], 'label': r['label'], 'type': r['type'],
+        'date_start': r['date_start'], 'date_end': r['date_end'],
+        'place': r['place'],
+    }
+
+
+def _scholarship(c, event_id):
+    """The event's scholarship rows. A database that records the passage each
+    article was found through (passage_rank, passage_ref) gives one row per
+    article, with the first passage that brings it in (the lowest rank), ordered
+    by that rank. An older database keeps its rows as they are."""
+    cols = _columns(c, 'scholarship')
+    linked = 'passage_rank' in cols and 'passage_ref' in cols
+    rows = c.execute('SELECT * FROM scholarship WHERE event_id = ? ORDER BY kind, rowid', (event_id,)).fetchall()
+    out = []
+    for s in rows:
+        item = {'kind': s['kind'], 'title': s['title'], 'page_ref': s['page_ref'], 'url': s['url']}
+        if linked:
+            item.update(passage_rank=s['passage_rank'], passage_ref=s['passage_ref'])
+        out.append(item)
+    if linked:
+        out = _by_passage_rank(out)
+    return out
+
+
+def _by_passage_rank(items):
+    """Per article the lowest-ranked passage, then the rows in that order (rows without a rank last)."""
+    best = {}
+    for i in items:
+        if i['kind'] == 'article':
+            k = (i['url'] or '', i['title'] or '')
+            if k not in best or _rank(i) < _rank(best[k]):
+                best[k] = i
+    keep = [i for i in items if i['kind'] != 'article' or best[(i['url'] or '', i['title'] or '')] is i]
+    order = {'article': 0, 'commentary': 1}
+    return sorted(keep, key=lambda i: (order.get(i['kind'], 2), _rank(i)))
+
+
+def _rank(i):
+    return i['passage_rank'] if i.get('passage_rank') is not None else 1e9
+
+
+@events_bp.route('/events')
+def list_events():
+    c = _conn()
+    if c is None:
+        return jsonify({'available': False, 'events': [], 'total': 0, 'page': 1,
+                        'per_page': 0, 'types': [], 'centuries': []})
+    try:
+        q = (request.args.get('q') or '').strip()
+        typ = (request.args.get('type') or '').strip()
+        century = request.args.get('century', type=int)
+        page = max(request.args.get('page', 1, type=int) or 1, 1)
+        per_page = min(max(request.args.get('per_page', 25, type=int) or 25, 1), MAX_PER_PAGE)
+        # Ordering and the empty-event filter (owner's review 2026-10-10: a
+        # list that opened on 801 BCE events with nothing attached was not
+        # persuasive). The default order puts the events with the most
+        # attached passages and nearby documents first; `sort=date` is the
+        # old chronological order. Events with neither a passage nor a
+        # document are left out unless `show=all`.
+        sort = (request.args.get('sort') or 'evidence').strip().lower()
+        if sort not in ('evidence', 'date'):
+            sort = 'evidence'
+        show_all = (request.args.get('show') or '').strip().lower() == 'all'
+
+        # Four Wikidata items carry no English label, title or description,
+        # only their Q-number: nothing a reader could recognise, so the
+        # list leaves them out (the detail route still answers for them).
+        where, args = ["NOT (label GLOB 'Q[0-9]*')"], []
+        if q:
+            esc = q.replace('\\', '\\\\').replace('%', '\\%').replace('_', '\\_')
+            where.append("(label LIKE ? ESCAPE '\\' OR place LIKE ? ESCAPE '\\')")
+            args += [f'%{esc}%', f'%{esc}%']
+        if typ:
+            where.append('type = ?')
+            args.append(typ)
+        if century:
+            lo, hi = century_range(century)
+            where.append('date_start <= ? AND COALESCE(date_end, date_start) >= ?')
+            args += [hi, lo]
+        clause_all = ('WHERE ' + ' AND '.join(where)) if where else ''
+        total_all = c.execute(f'SELECT COUNT(*) FROM events {clause_all}', args).fetchone()[0]  # nosec B608 -- clause is fixed fragments with ? placeholders; values are bound in args
+        evidence = ("(EXISTS (SELECT 1 FROM passages p WHERE p.event_id = events.id "
+                    "AND COALESCE(p.llm_label, '') IN ('yes', 'mention')) "
+                    "OR EXISTS (SELECT 1 FROM documents d WHERE d.event_id = events.id))")
+        where_shown = where if show_all else where + [evidence]
+        clause = ('WHERE ' + ' AND '.join(where_shown)) if where_shown else ''
+        total = total_all if show_all else c.execute(
+            f'SELECT COUNT(*) FROM events {clause}', args).fetchone()[0]  # nosec B608 -- clause is fixed fragments with ? placeholders; values are bound in args
+        counts = '''SELECT e.*,
+                   (SELECT COUNT(*) FROM passages p WHERE p.event_id = e.id
+                        AND COALESCE(p.llm_label, '') IN ('yes', 'mention')) AS n_passages,
+                   (SELECT COUNT(*) FROM documents d WHERE d.event_id = e.id) AS n_documents,
+                   (SELECT COUNT(*) FROM scholarship s WHERE s.event_id = e.id) AS n_scholarship
+                FROM (SELECT * FROM events '''
+        order = ('ORDER BY e.date_start, e.label' if sort == 'date'
+                 else 'ORDER BY (n_passages + n_documents) DESC, n_passages DESC, e.date_start, e.label')
+        sql = counts + clause + ') e ' + order + ' LIMIT ? OFFSET ?'  # nosec B608 -- clause and order are fixed fragments with ? placeholders; values are bound
+        rows = c.execute(sql, args + [per_page, (page - 1) * per_page]).fetchall()
+        events = []
+        for r in rows:
+            d = _event_row(r)
+            d.update(n_passages=r['n_passages'], n_documents=r['n_documents'],
+                     n_scholarship=r['n_scholarship'])
+            events.append(d)
+        # Type counts follow the empty-event setting, not the other filters,
+        # so the Type menu can say how many of each kind there are to see.
+        type_clause = '' if show_all else 'WHERE ' + evidence
+        type_rows = c.execute(
+            f'SELECT type, COUNT(*) FROM events {type_clause} GROUP BY type ORDER BY type').fetchall()  # nosec B608 -- fixed fragment
+        types = [r[0] for r in type_rows if r[0] is not None]
+        type_counts = {r[0]: r[1] for r in type_rows if r[0] is not None}
+        cents = sorted({century_of(r[0]) for r in c.execute(
+            'SELECT date_start FROM events WHERE date_start IS NOT NULL')} - {None})
+        return jsonify({'available': True, 'events': events, 'total': total, 'total_all': total_all,
+                        'sort': sort, 'show': 'all' if show_all else 'evidence',
+                        'page': page, 'per_page': per_page, 'types': types,
+                        'type_counts': type_counts, 'centuries': cents})
+    finally:
+        c.close()
+
+
+@events_bp.route('/events/<event_id>')
+def get_event(event_id):
+    c = _conn()
+    if c is None:
+        return jsonify({'error': 'The event dossiers are not installed.'}), 404
+    try:
+        r = c.execute('SELECT * FROM events WHERE id = ?', (event_id,)).fetchone()
+        if r is None:
+            return jsonify({'error': 'No such event.'}), 404
+        ev = _event_row(r)
+        wt = r['wikipedia_title']
+        ev.update(
+            lat=r['lat'], lon=r['lon'], pleiades_id=r['pleiades_id'],
+            participants=_json(r['participants'], []),
+            wikipedia_title=wt, description=r['description'],
+            wikipedia_url=('https://en.wikipedia.org/wiki/' + quote(wt.replace(' ', '_'))) if wt else None,
+            pleiades_url=(f'https://pleiades.stoa.org/places/{quote(str(r["pleiades_id"]))}'
+                          if r['pleiades_id'] else None))
+
+        ecols = set(r.keys())
+        if 'summary' in ecols and r['summary']:
+            ev.update(summary=r['summary'], summary_source=r['summary_source'],
+                      summary_url=r['summary_url'], summary_licence=r['summary_licence'])
+
+        include_all = request.args.get('all') == '1'
+        pcols = _columns(c, 'passages')
+        rows = c.execute('SELECT * FROM passages WHERE event_id = ?', (r['id'],)).fetchall()
+        passages, counts = [], {}
+        for p in rows:
+            label = p['llm_label'] or ''
+            counts[label or 'unlabelled'] = counts.get(label or 'unlabelled', 0) + 1
+            if label == 'no' and not include_all:
+                continue
+            given = p['language'] if 'language' in pcols else None
+            lang = _language_of(p['work'], given)
+            passages.append({
+                'rank': p['rank'], 'work': p['work'], 'language': lang,
+                'ref_start': p['ref_start'], 'ref_end': p['ref_end'], 'score': p['score'],
+                'llm_label': label or None,
+                'names_matched': _json(p['names_matched'], []),
+                'snippet': p['snippet'],
+                'reader_url': reader_url(p['work'], lang, p['ref_start']),
+            })
+        passages.sort(key=lambda p: (LABEL_ORDER.get(p['llm_label'], 2), p['rank'] if p['rank'] is not None else 1e9))
+
+        dcols = _columns(c, 'documents')
+        documents = []
+        for d in c.execute('SELECT * FROM documents WHERE event_id = ? ORDER BY distance_km, doc_id',
+                           (r['id'],)):
+            lang = d['language'] if 'language' in dcols and d['language'] else 'la'
+            documents.append({
+                'doc_id': d['doc_id'], 'date_start': d['date_start'], 'date_end': d['date_end'],
+                'place': d['place'], 'distance_km': d['distance_km'],
+                'text_snippet': d['text_snippet'],
+                'lat': d['lat'] if 'lat' in dcols else None,
+                'lon': d['lon'] if 'lon' in dcols else None,
+                'view_url': document_url(d['doc_id'], lang),
+            })
+
+        # The edition reference and the source names, so a card can lead with
+        # "CIL 09, 03200" rather than the internal id (a "merged:" id marks a
+        # stone both EDH and EDR record). Best effort: no metadata, no change.
+        try:
+            from backend.documents import bulk_meta
+            metas = bulk_meta([d['doc_id'] for d in documents]) if documents else {}
+        except Exception:  # the dossier page must not depend on metadata.db
+            metas = {}
+        for d in documents:
+            m = metas.get(d['doc_id']) or {}
+            credit = m.get('credit') or {}
+            d['edition'] = credit.get('principal_edition')
+            d['sources'] = [x for x in (credit.get('source_name'), credit.get('source_name_secondary')) if x]
+            d['text_type'] = m.get('text_type_label')
+
+        scholarship = _scholarship(c, r['id'])
+
+        points = []
+        if ev['lat'] is not None and ev['lon'] is not None:
+            points.append({'kind': 'event', 'label': ev['place'] or ev['label'],
+                           'lat': ev['lat'], 'lon': ev['lon'], 'n_documents': 0})
+        spots = {}
+        for d in documents:
+            if d['lat'] is None or d['lon'] is None:
+                continue
+            s = spots.setdefault((d['place'], d['lat'], d['lon']),
+                                 {'kind': 'findspot', 'label': d['place'], 'lat': d['lat'],
+                                  'lon': d['lon'], 'n_documents': 0})
+            s['n_documents'] += 1
+        points += list(spots.values())
+
+        return jsonify({'event': ev, 'passages': passages, 'passage_counts': counts,
+                        'documents': documents, 'scholarship': scholarship, 'map': points})
+    finally:
+        c.close()

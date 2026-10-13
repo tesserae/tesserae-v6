@@ -88,6 +88,20 @@ body {
    red bar, by line). The browser's blue is hidden there: in right-to-left text
    a drag that starts at the left of a line begins after its last letter, so
    the blue skipped the first and last lines of a span while the page counted
-   them, and the two highlights disagreed (NC, 2026-09-07). Copying still works. */
+   them, and the two highlights disagreed (2026-09-07). Copying still works. */
 .reader-text ::selection { background: transparent; }
 .reader-text ::-moz-selection { background: transparent; }
+
+/* On a phone the document never scrolls sideways (2026-10-11). After a tap
+   on a reuse tile in the Reader, iOS Safari showed the whole page, menu
+   included, shifted about a hundred pixels to the left: the visual viewport
+   had been panned. Nothing in the layout is wider than the screen, so the pan
+   is forbidden outright below the phone breakpoint. */
+@media (max-width: 767px) {
+  html, body { overflow-x: hidden; }
+}
+
+/* Greek quoted inside a written paragraph (components/common/OriginalScript.jsx). */
+.font-greek {
+  font-family: 'Gentium Book', 'Noto Serif Hebrew', serif;
+}

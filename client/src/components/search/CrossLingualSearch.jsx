@@ -3,6 +3,7 @@ import { usePagination } from '../../hooks/usePagination';
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { LoadingSpinner, SearchableAuthorSelect, SearchableSelect, InfoBadge, CiteButton, Button } from '../common';
 import SavedSearches from './SavedSearches';
+import ScopeBox from '../common/ScopeBox';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
 import { createSearchId, requestSearchCancellation } from '../../utils/api';
@@ -685,6 +686,8 @@ export default function CrossLingualSearch({ onOpenHelp, onRegister, onCorpusSea
         </div>
       </div>
 
+      <ScopeBox id="cross" />
+
       {/* Saved Searches and Share: parity with the single-language page's
           header row (App.jsx). Saved Searches keeps its own list, under its
           own storage key, since a pair key ("fa-ur") is not a language the
@@ -1188,6 +1191,7 @@ export default function CrossLingualSearch({ onOpenHelp, onRegister, onCorpusSea
                         </Button>
                       )}
                       <CiteButton
+                        showReportLink
                         finding={{
                           kind: 'cross-language search',
                           source: srcCitation,

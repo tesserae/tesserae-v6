@@ -7,8 +7,797 @@ so the state of the live site can be reconstructed from this file and
 docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
+## 2026-10-13
+
+### Streamed answers reach the browser again as they are produced
+The request-timing record added this morning (#876) asked every answer for its size, and for a streamed answer (the Intertextual Search's progress events and batches, the downloads) Werkzeug supplies that by reading the whole stream first. From 06:04 to the fix, a fusion search showed "Searching for parallels" with no progress until the whole search was over. The record now takes the size only of an answer already held in memory and writes -1 for a stream, whose recorded time is the time to its first byte. A test sends a two-chunk stream through the hook and checks the second chunk is still unproduced when the request returns.
+
+### An unused scoring module removed
+`backend/composite_scorer.py` (821 lines, a four-signal "composite" scorer from the first months of V6) was imported by nothing in the application, the scripts or the evaluation code. It is removed from the repository; its last state is in the git history (commit ec21eb2f and earlier) and in the project's private archive. No visible change.
+### The History view opens on Search One Text, with history examples
+A visit in the History view used to open the Reader on the first book of Tacitus's Annals. It now opens Search One Text on the Annals, as the Literature view opens it on the Aeneid, with six example subjects of its own: Lucretia and Sextus Tarquinius in Livy, the Pannonian mutiny in the Annals, Solon and Croesus in Herodotus, Caesar's bridge over the Rhine, the plague at Athens in Thucydides and the murder of Caesar in Suetonius, each run on the live site and read before it was chosen. The History menu is led by Search One Text and Read. The Help page says so.
+### The Latin scanner now knows vowel lengths, so lines like Aeneid 1.1 scan
+For texts without a scansion in the MQDQ table the site scans Latin verse itself, and that scanner read syllable length from position and from macrons only. Without macrons "Arma virumque cano, Troiae qui primus ab oris" left two syllables unknown and two patterns possible, so the line was marked invalid and got no meter score. A table of 209,072 Latin word forms with their vowel lengths (`data/scansion/latin_macrons.json`, built by `scripts/corpus/build_latin_macrons.py` from the Classical Language Toolkit's Latin models, MIT) is now applied before scanning. Measured against the MQDQ scansions of 400 lines each of the Aeneid, the Metamorphoses and the Pharsalia: lines scanned correctly rose from 32 to 36 percent to 46 to 48, and lines scanned wrongly fell from 6.5 to 7.2 percent to 3.5 to 4.2. Scansions are kept in memory per process, so a line is scanned once. A fault in the copied scanner is fixed as well: with its optional transform on, every line that did not scan called itself until Python stopped it. The scoring and parsing tests record the new scansions (Aeneid 1.1 now DDSS as MQDQ has it; the base of Catullus 1.1 now spondaic).
+
+### Tests now record what the scoring and parsing core does, module by module
+Eight modules that carry search scoring and text parsing had few or no tests: the feature extractor, the distance filter, the syntax parser, the metrical scanner, the wildcard search, the database helpers, and parts of the matcher. Each now has a test file that feeds fixed inputs and checks the exact output the code gives today (268 tests, about nine seconds, no index, database or network needed). A later cleaning step that changes what any of these functions answers now fails a test instead of passing unnoticed. The three Latin spelling folds named `normalize_latin` are pinned side by side in one file. Line coverage of the eight modules, before and after: database helpers 36% to 98%, distance filter 96% to 100%, feature extractor 55% to 95%, matcher 71% to 79%, metrical scanner 22% to 82%, syntax parser 14% to 69%, wildcard search 62% to 96%, scorer 44% unchanged (its three public methods already had tests). No application file changed.
+### The site can now record how long each API request takes
+A new switch writes one line per API request to a daily file: the time, the method, the path without anything after a question mark, the status, the milliseconds the server took, the size of the answer and the worker process. It never records what a visitor searched for, because the words of a search travel in the query string or the request body and neither is read. The switch is off unless the setting `TESSERAE_TIMING_DIR` names an existing folder, so nothing changes for a visitor. It adds about 0.06 milliseconds to a request (measured over 2,000 requests of the languages list). `scripts/review/request_timings_report.py FILE...` turns the daily files into a table per route (count, median, 90th percentile, maximum, total seconds and share of all waiting), the twenty slowest requests, the error counts and the requests per hour. The hook is `backend/request_timing.py`, with tests in `tests/test_request_timing.py`. On the live site the application is mounted under `/api` by the web server, so the recorded path is the full path the visitor sent (the mount point plus the route), and the hook decides on that full path too (#877).
+
+### Line Search is now a sequence of named steps, and its answers are unchanged
+`line_search()` in `backend/blueprints/line_search.py` was one function of 944 lines that read thirty request parameters, found the matching lines and built the answer in one pass. It is now 55 lines that call named steps (read the parameters, answer from the documents alone, build the stoplist, find the query's lemmas, the Hebrew unpointed fallbacks, drop stopwords, reduce a passage-sized query, the joined-or-apart Latin words, the one-word count, the index path, the corpus scan, sort, remove duplicates, rare focus, the answer's fields, add the documents). The code of each step is the code that was in the function, moved without change, with its comments. Reading the parameters lives in `backend/line_search_params.py`. Nothing a visitor sees changes. A recording of 258 Line Search requests (every search type and language, passage-sized queries, joined words, Hebrew without points, the Reader's path, one-word and pair counts, every document filter and sort, both collections, the error cases, GET as well as POST) gives the same answers from the new code, as does the standard recording of 68 requests. The 56 Line Search tests and the reference searches pass, and ten representative requests are no slower. The 258 requests are in `scripts/review/line_search_requests.json`.
+
+## 2026-10-12
+
+### Greek and Hebrew words in the written paragraphs keep their own letters
+The Scholarship paragraph on Search One Text showed "*euzen*" where the note by How and Wells has the Greek words for the good life, because the model had transliterated the Greek and put asterisks round it. The model is now told to quote Greek, Latin and Hebrew words in their own letters, and its answer is checked: asterisks and any word that is the transliteration of a Greek or Hebrew word in the notes make the server ask once more, naming the fault, and the answer carries a `script_problems` list that is empty when clean. The page then shows each Greek or Hebrew word in its own letters followed by a transliteration in parentheses, made by a fixed table of letters in the code (`backend/transliterate.py` and `client/src/utils/transliterate.js`, tested against one shared list of 52 cases), never by the model. A link under the Scholarship box hides the transliterations or shows them again, and the choice is kept in the browser. Theme Search's Scholarship list shows its notes the same way. Beta code is available as a function for export controls and is not shown on any page.
+
+### Cite links and exports on every piece of scholarship
+The Reader's Scholarship tab, Theme Search's Scholarship list and Search One Text now give every note and article a Cite link. It opens a plain reference to copy, with buttons to copy it as RIS for Zotero and EndNote, save an RIS file, or save a BibTeX file. Journal articles, chapters, books, theses (a Durham e-Theses record is cited as a thesis) and commentary notes each get the matching record type. A commentary note cites the edition the text comes from (for Servius, Thilo and Hagen's Teubner edition) and the passage it comments on. Each list with two or more items has an Export citations link that saves all of them in one file, and the Scholarship paragraph in Search One Text exports the notes and articles its bracketed numbers cite; hovering a bracketed number shows its reference. The scholarship rows on an inscription or papyrus page that come from journals have Cite links too. The old "copy for Zotero" link on the Reader tab is replaced by Cite. The `ask-scholarship` answer's cites carry more fields (title, authors, year, journal, venue, doi, url, oa_url, commentator, work, ref_start, ref_end), and a document's scholarship rows carry their authors; nothing was removed.
+### File operations no longer depend on the web server's locale
+Apache starts the site with a plain-ASCII file-system setting, and 36 Greek texts have Greek letters in their file names. Code that read those files by name failed without saying so. The visible effect: seventeen Greek prose texts were listed as poetry in the Greek list (the program could not open their files to measure line length), and Line Search over them applied the poetry rules. They are now listed as prose. The same silent failure sat behind Greek works whose description facts, translation text, book lookup and stored semantic vectors were not found. All file calls on text, translation and embedding names now go through `backend/fspaths.py`, which hands the operating system bytes instead of text, so the answer is the same under any locale; the frequency-cache checksum of the Greek corpus is now the same under both locales and equals the one stored in the cache. `scripts/review/greek_names_requests.json` lists 438 requests that touch the 36 texts by name; the check compares a server started in the ASCII state with one in UTF-8. The Reader's connection-density cache named every Greek-named work's file by replacing each Greek letter with an underscore, so works that differ only in their Greek letters (the pseudolucian dialogues, for one) shared one file and showed the first one's density; the file name now carries a short hash of the real name, and ASCII names are unchanged. Two request lists were measured before and after. Line Search with an exact phrase restricted to one Greek-named text still needs two lines in `backend/app.py` (the file listing and the open call in the slow path), which another change is moving, so they are not edited here. No cache was rebuilt; the old shared density files are simply no longer read. The recorded API check's Greek texts list is re-recorded with this change, since the seventeen texts now answer as prose.
+
+### Search One Text: the passages first, the written boxes beside them
+The summary of the work, the Scholarship paragraph and the article list sat above the passages and pushed them down the page. The passages, their strip and the named-passage list now come first, and the three boxes stand in a column to their right on a wide screen, under them on a phone. The article list is called "Articles found online" rather than "Recent articles", since the services list work of any year (a 1955 article appeared under the old heading), and the line under the Scholarship paragraph says "articles online" rather than "recent articles". Theme Search's Scholarship list uses the same heading.
+
+### The main Flask module is now an application factory and its routes live in blueprints
+`backend/app.py` was 4,236 lines that built the application at import and also held twenty-seven routes of its own. It now holds the application-wide hooks, the error handler and the static pages, and a `create_app()` that builds the application, registers every blueprint and returns it; `from backend.app import app` still works for the `.wsgi`, the scripts and the tests. The shared objects (text processor, matcher, scorer, loggers, author dates, table set-up, cache start-up) moved to `backend/runtime.py`, and the routes moved, unchanged, to seven new blueprints: `auth`, `meta` (health, version, languages, stats, check-meter, author dates), `text`, `documents`, `line_search`, `feedback` and `features`, with the lemma helper they share in `backend/line_search_support.py`. Nothing it answers changed, as the recorded check shows: every request in the golden list gives the same answer, the URL map is identical in paths, methods and order, and every moved function has an identical body by syntax tree. The pull request carries the figures. New helpers: `scripts/review/url_map_dump.py` and `scripts/review/moved_functions_check.py`. Six tests now look up Line Search and documents helpers (and patch the frequency loader) in the modules where they live now, and `scripts/import_connections.py` imports `app` instead of calling `create_app()`.
+### Three faults the new linters found, fixed
+The header's Suggest a change button sends an event whose handler called a setter that no longer existed after the footer's removal earlier today, so the button did nothing from the early afternoon until this fix; the dialog now lives at the top of the app again. The navigation bar ran one of its hooks after an early return for the admin-only menu, against React's rule that hooks run in the same order every render; the early return moved below the hooks. The Reader's Scholarship tab lookup appended to a list that was never defined, which would have failed with an error whenever CORE ran without its key; the list is defined and returned. Each fault's entry is removed from the linters' baselines, and a test covers each.
+
+### A recorded check that a change left the site's answers the same
+`scripts/review/golden_api.py` sends about seventy requests (Line Search in three languages, fusion search, rare words and pairs, Theme Search, Similar Passages, the Reader, documents, coins, objects, events, the corpus lists) to a server and compares the answers with a recording made earlier. It runs against a preview of a branch before a merge and against the live site after a deploy. The steps are in `scripts/review/README_GOLDEN.md`. No site behaviour changes.
+### Linters pinned to the code as it stands
+Ruff (Python) and ESLint (the React code) now run in the pull-request checks. Both pass on today's code: every fault that exists today is recorded in `ruff.toml` and `eslint-suppressions.json`, so a check fails only on a new fault. Formatting is not enforced. Four comments that switched off a check that was not reporting anything were removed; no other line of the application changed.
+### Line Search: the inflected forms of respublica, iusiurandum, paterfamilias and senatusconsultum
+The four joined compounds that decline were found only in the forms the lemma table knew (rempublicam, reipublicae, patremfamilias). A search for "ius iurandum" missed a line printing iurisiurandi or iureiurando, "senatus consultum" missed senatusconsulto and senatusconsulti, and a search for the joined senatusconsulto found ten lines instead of the ones that print senatus consulto. Each of the four now carries its list of printed joined forms (respublica, reipublicae, rempublicam, republica, rerumpublicarum and others; iurisiurandi, iureiurando, iuraiuranda; patrisfamilias, patremfamilias, patrumfamilias, patribusfamilias and the spellings in -familiae; senatusconsulti, senatusconsulto, senatusconsulta, senatusconsultorum, senatusconsultis). A joined form in a line answers the parts a query types in any case, and a joined form in a query finds the parts side by side, in order, in any case. Nothing in the index, the lemma cache or the lemma table changed.
+### Google Books: one retry after a temporary failure
+Google Books answers some queries with a passing 503 ("service temporarily unavailable"). The Reader's book search and the recent-articles search now send the request once more after one second when the answer is a server error (5xx), and report the service as unavailable only if the second try fails too.
+### Recent articles: a tighter rule for what is kept
+An article, chapter or book is kept for a question about a work only when its title or abstract names the author or the work. Naming that happens only in a full text (CORE) or in a Google Books excerpt no longer passes, and neither does a question word found only after the first 1,500 characters of an abstract. Schoolbook and exam-board titles (A Level, GCSE, OCR, Component, Revision Guide, Student's Book, Workbook, Exam) are dropped. Items whose title names the work come first, then those matching more of the question's words, then the newest.
+### Theme Search, Scholarship choice: recent articles from the live services
+Under the commentary and journal list, Theme Search's Scholarship choice now has a Recent articles section built from OpenAlex, Crossref, CORE, Google Books and Semantic Scholar, each service's answer shown as it arrives. Without a work, an article is kept when its title or abstract holds at least two of the question's words (all of them for a short question) and the title holds at least one, and it also names an author of the corpus or carries a classics word (Latin, Greek, epic, a famous title such as the Odyssey), which keeps out an opera or a watermarking contest. The link "See every note and article for this question" in Search One Text carries the work, so the list then uses the work-aware rule. The route /api/passages/recent-scholarship takes the work as optional.
+### Reader: a long parallel passage is cut around its matched words, found as whole words
+In the Reader's Parallels tab a long prose hit is shortened to a window around the words that matched. The window was placed by a plain letter search, so for Tacitus, Annals 4.58 the word "Roma" was first found inside "Romanus" in the opening sentence, the card showed the opening, and nothing was highlighted because the real "Roma" and "reditus" were past the cut. The window is now placed on whole words, folding u and v as the highlighting does, and grows a little to keep a second matched word in view.
+### About page: what Tesserae is now
+The opening paragraph still described an intertext search tool and "a modern reimplementation of the V3 algorithm". It now describes the site as it is: the intertext search with its kinds of evidence, the Reader, Theme Search, Search One Text, and the inscriptions, papyri, coins, objects and events beside the literature, with the corpus's seven languages and its size. The six feature cards are rewritten to the same picture, and the technical list names the passage index and the taggers for Hebrew, Persian and Urdu.
+### The More menu in the top bar opens where it can be seen
+Clicking More did nothing visible. The menu did open, under the button, but the button sits in the row of tabs, which scrolls sideways on a narrow screen, and a scrolling box clips whatever hangs below it. The menu is now placed from the button's position on the screen itself, outside the row, and closes when the page scrolls or the window changes size.
+### Line Search: Latin words printed joined or apart match both ways
+A Latin Lemma search for the words of a phrase that one edition prints apart (quo usque) came back with a line from another work that prints them joined (quousque), but the joined word was not marked and the line was labelled as holding only two key words, because the lemma table gives the joined form its own dictionary form and the query's parts shared nothing with it. A fixed list of nineteen such words (quousque, quamdiu, quemadmodum, quapropter, quamobrem, quodsi, siquidem, etiamsi, nihilominus, quandoquidem, quominus, postquam, antequam, priusquam, uerumtamen, respublica, iusiurandum, paterfamilias, senatusconsultum) now works in both directions. A joined word in a line answers each part the query typed and is highlighted, and the closeness label counts it as the parts it stands for. A query that types the joined word also finds lines that print the parts, but only where the parts stand next to each other in order. The index lookup now lets one fallback reading count for several query words. Nothing in the index, the lemma cache or the lemma table changed, and the Inscriptions and Papyri collection does not take part yet.
+### The last two calls to the local model go through the gateway client
+Theme Search's expansion of a short query into sentence-shaped forms, and the Scholarship tab's translation of a commentary note, each posted to the local model server on this machine by themselves, while the assistant and every other model call already go through the configured client, which points at the campus gateway on the live site. Both now use that client. An environment setting can still name a bare endpoint for either. With nothing left depending on it, the local model server, which holds twenty gigabytes of memory, can be stopped during heavy work.
+
+### Inscriptions & Papyri: a search that finds nothing says so, and a one-word dictionary-form search falls back to the letters
+Searches for "rusellorum" and then "rusell" in Lemma mode found nothing, and the page showed nothing at all, so there was no way to tell whether the search had run. It now prints a line saying that no inscription or papyrus has the word as a dictionary form (or contains it, in Exact mode). When a one-word dictionary-form search finds nothing, the page runs the same search on the letters at once and, if documents come back, shows them under a note that says so. The Help page explains both.
+### Search One Text: recent articles from the live services join the scholarship paragraph
+The Scholarship paragraph read only the held commentaries and the pre-1923 journal articles. It now also asks OpenAlex, Crossref, CORE and Google Books (and Semantic Scholar where a key is set) for recent articles on the question, keeps those that name the author or the work and share a word with the question, and lets the paragraph cite up to four of them. They are known only from an abstract or a short open-access excerpt, and the paragraph says so when it cites one. Each service is asked in its own request, so a "Recent articles" list under the paragraph fills as each answers, with a link to a free copy where one exists, and a small line names the services still pending. The line under the paragraph now also says how many recent articles the live services listed, or that some did not answer. New route `GET /api/passages/recent-scholarship`.
+### Theme Search: a tidier head of the page
+The Beta mark sits beside the title instead of under it. The sentence "Describe what happens in a passage and this finds passages that match the description" is gone, since the "What this search does" line says the same, and the count of covered works with its link to the list has moved into that box, under Details, with the rest of what the search covers. The note "fewer languages show more of each" beside the language chips is gone.
+
+### Theme Search and Search One Text show a spinner and a clock while they run
+While a search ran, both pages showed one line of italic text and nothing else, so a reader could not tell whether anything was still happening. Both now show a spinner, the line, and a clock in whole seconds, the same indication the other searches give.
+
+### The running clock on a search shows whole seconds
+While a search runs, the clock under the spinner (Rare Words, Rare Pairs, the parallel search, the corpus search, Cross-Language) counted "21.0s", a decimal that never changed because the clock ticks once a second. It now reads "21s". The time shown when a search has finished keeps its decimal, since that one is measured.
+
+### Inscriptions & Papyri: the whole-collection browser folds away once a search has answered
+The browser of every inscription and papyrus by kind, region, findspot and century sat under each result list, and a reader who had just searched took it for more results. Once a search has answered, it folds behind one line with a button to open it.
+
+### Search One Text: a link from the scholarship paragraph to every note and article for the question
+The paragraph reads at most eight sources. A link under it opens Theme Search on the scholarship collection with the same question, where every matching note and article is listed. Theme Search now opens on that collection when the address says `in=scholarship`.
+
+### Search One Text: journal articles hold a share of the scholarship paragraph
+The paragraph's eight sources filled in the search's order, and a commentary note on the very lines outranks an article's passing mention every time, so the Aeneid paragraph drew on notes alone though articles mentioning Dido and Aeneas exist. Two of the eight are now reserved for articles when any qualify, the search looks a hundred deep, and an article qualifies when its title or snippet names the author, the work, or a capitalised name from the question.
+
+### Search One Text: the Beta mark sits beside the title, and the strip's legend says what light red is
+The mark no longer takes a line of its own. The legend reads, for example, "Dark red: a strong match, far above the work's typical score. Light red: the rest of the 25 passages closest to your question. Grey: passages that name Pannonia and Augustus, listed further down."
+### Search One Text: the scholarship paragraph starts with what the notes say
+It had opened with a clause about where its material came from ("The sources on hand say the notes address..."), which the line under it already states. The model is now told to start straight in, naming the commentator or article.
+
+### Search One Text: the passages come first, in the order of the work on request, under a shorter banner
+The list of passages now follows the strip directly, with "Passages that name" after it, and a switch above the list orders the passages by closeness to the question (the default) or in the order of the work. The sentence under the band is one line, and the sentence about how the band was fitted is left to Help and the scope box. The scholarship paragraph is told what kinds of source it has, so it no longer writes "the commentaries and articles" over commentary notes alone.
+
+### The stray footer link is gone; the Search One Text strip explains its shades; the scholarship search names the author
+A merge had left "Requests made so far" outside the footer at the foot of every page; it is removed, and the list is reached from inside the Suggest a change dialog. Under the strip on Search One Text a line now says what the shades mean (dark red a strong match, light red the other passages, grey the passages that name the person asked about, or darker for a closer match when nothing is strong), and each bar says on hover which passage it is. The scholarship search behind the second paragraph now carries the author's and the work's names in front of the question, keeps notes on other works that name the author, and its "no sources" sentences all say "for this question": "the plague at Athens" alone reached nothing naming Thucydides in the first thirty results, with his name in front it reaches twelve.
+
+### Search One Text: the two paragraphs are headed "The work" and "Scholarship"
+In place of "What the work says, from the passages below" and "What the secondary literature says" (the owner, 2026-10-12).
+
+### Search One Text: the example chips say "in the Aeneid", not "on"
+One word in the six example chips.
+### Search One Text: a second paragraph on what the secondary literature says
+The owner's instruction: "Maybe say in every case briefly the state of the secondary literature. So 'The secondary sources I have access to say' or something, if there is anything. If not, 'I don't have access to any matching secondary sources' or something similar. Probably better if it's not the same verbatim phrases every time." Under "What the work says", a second paragraph, "What the secondary literature says", is now written by the assistant from the commentary notes on the chosen work and from the pre-1923 journal articles that name its author or title, at most eight, each claim carrying a bracketed number that links to the note in the Reader or the article on JSTOR. A line in small grey type says what the collection holds for the work, in one of five phrasings picked from the question (the same question always gets the same line). Where the collection has nothing on the work, as for Sappho, only that line appears and the model is not called. New route `POST /api/passages/ask-scholarship`; the Help page and the scope box describe it.
+
+### Search One Text: strip labels placed by position, and the unit named from the references
+The row of numbers under "Where in the work" squeezed each label into its own column, so for a work of 137 fragments "16" showed as "1". About twelve labels (six on a phone) are now placed at their columns' centres, each as wide as its number. The summary line names the unit the references use: fragments for Sappho, poems for Catullus, letters for Pliny, books otherwise.
+
+### Footer link removed; the list of requests is inside the Suggest a change dialog; Search One Text strip labels thin out
+The footer's "Requests made so far" link is gone. The same link now sits inside the Suggest a change dialog, so one button reaches both the form and the list. On Search One Text, the strip of books under "Where in the work" labelled every unit, which for Sappho's 141 fragments ran the numbers together; it now labels about thirty on a wide screen and ten on a phone.
+### Search One Text: the band inside one work refitted on eleven works, and its lowest level no longer claims absence
+Three right answers had been labelled "a nearest neighbor, not a finding": Browning's sonnet 43 for the poet counting the ways she loves, Ferdowsi for Rostam and the White Div, and Annals 4.1 for the rise of Sejanus. The band read the spread of the work's scores, fitted on three works; re-measured on eleven works of very different lengths it was right 74 percent of the time and 42 percent on the Shahnameh. Nineteen measures were swept and none holds across works on its own. The band now reads the best passage's lift over the work's typical score together with the coherence of the top twenty (84 percent on the same set, 82 percent leaving each work out in turn), its lowest level is "Closest passages" with a caution about the order and no claim of absence, the list is shown under every level, and "strong" sits above every absent subject measured. Help, the scope box and tests updated; measurement in docs/DECISIONS.md.
+
+### Search One Text: six example searches across six works, one of them Sappho
+The example chips were four Aeneid searches plus two others. They are now one search each on Sappho (jealousy at the sight of the beloved with a man), the Aeneid (Dido falls in love with Aeneas), the Odyssey (Odysseus strings the bow), Thucydides (the plague at Athens), Herodotus (Solon tells Croesus no man is happy before death) and the Annals (the Pannonian legions mutiny). Each was run live and read before being chosen: the first five answers are about the subject in every case.
+
+### Objects: the picture cache folder is created group-writable
+When the server creates `data/objects/images/` on the first picture fetched, it now makes the folder writable by the shared group, so the warm-up script can add to it. Data operations: the warm-up run recorded (684 of 694 pictures cached).
+
+### Objects: pictures served from our own server
+An object's picture was loaded by the visitor's browser straight from the museum's image server, and in at least one browser the Art Institute of Chicago picture did not show. Our server now fetches each picture once, keeps it on disk and serves it from there (`/api/objects/image/<id>`), for the Cleveland and Chicago objects whose licence is open. If a picture cannot be had, the picture box is left out instead of showing a broken-image icon. The Object page link and credit line are unchanged. Production needs the one-off warm-up in docs/DATA_OPERATIONS.md.
+### Two features renamed, and Search One Text comes first
+"Ask a Work" is now "Search One Text", and the main page that compares two texts, with Line Search and Rare words, is now "Intertextual Search". The owner's reason: "intertext search should not be first anymore. Either search one text or maybe the reader should be first." In the Literature view Search One Text now leads the menu and the Start here list, and it is the page a plain visit opens on, with the Aeneid already chosen and three example subjects shown (Dido falls in love with Aeneas, the fall of Troy, a storm scatters the fleet). In the History view it sits second, after Read. The new names appear in the menu, page titles, the Start here panel, Tessa's answer to "where do I start", the Help page and the search scope table. Page addresses (`/ask-a-work` and `/`), page codes, API routes and connector tool names are unchanged.
+
+### Footer: one link, to the requests made so far
+The footer carried "Suggest a change" beside "Requests". The header already has the Suggest a change button, so the footer's copy is gone, and the remaining link is labelled "Requests made so far" to say what the page is: the public list of suggestions and corrections filed, not a second way to file one.
+### Inscriptions: "Hr." written out as Henchir, and "unknown" chips left off
+An inscription's findspot line carried the Heidelberg database's abbreviation as it stood ("Hr. Oumkif"); Hr. is Henchir, the North African word for a ruin site, and the card now writes it out (also Kh. for Khirbet). The three chips under the heading that each read "unknown" (text type, object, material) are left off when that is all they say. On the document page, the Reader's Documents tab and the Inscriptions & Papyri results.
+
+### Theme Search scope box and Help carry the October refit
+The "What this search does" box on Theme Search gave the confidence figures of the September fit (32 subjects, 88 to 91 percent) and listed Coptic, Hebrew and English as unmeasured. It now gives the 12 October refit (178 subjects in eight language settings, 86 percent overall, with the per-language figures), says the lowest band is "Closest passages", and states the index size at the release and now in one sentence instead of two. The Help paragraph on the band carries the same figures.
+### Reader: only the selected sentences of a prose chapter are painted
+When some sentences of a long prose unit are selected, the unit is no longer painted pink behind them. The lit sentences could not be told from the rest, so a sentence selection looked like a selection of the whole chapter. The unit keeps its red left bar, and a selection of every sentence paints the unit as before.
+
+### Theme Search: the lowest confidence band is "Closest passages", and its thresholds are refitted to the enlarged index
+The band that was labelled "Low confidence" is now labelled "Closest passages", with the sentence under it rewritten (no passage stands far above the rest of the corpus on this subject, so the order is less certain than usual). The owner read a good list under the old label and found it deflating, and the measurement of 2026-10-11 had already shown that lists under this band are as relevant as lists under the moderate band. The floor between the lowest band and the moderate band (`HEAD_WEAK`) moves from 0.0738 to 0.060, refitted against the index of 693,611 windows left by the prose-windows run: accuracy on the 178-query probe set rises from 74.7 to 86.0 percent, on the original 57-query set from 66.7 to 77.2 percent, and of sixty historical subjects whose lists a model had graded, two read lowest instead of eighteen. The moderate note no longer says the corpus holds the subject, because some absent subjects from the modern world now read moderate. The "provisional thresholds" paragraph, which had opened every result since the index grew past the fitted size, is no longer printed on the page: it travels as `confidence.calibration` in the answer for anyone checking the fit, and the fitted size is updated so it is empty today. Help text and tests updated. Measurements in docs/DECISIONS.md.
+
+## 2026-10-11
+
+### Records: the full prose-windows run and the description vocabulary installed
+The data-operations entries are marked run with the figures: 153,404 windows described and encoded, the Thucydides re-cut swapped in, the passage index at 693,611 windows, the keyword, names and vocabulary indexes rebuilt, the checks passed.
+
+### Theme Search: the low-band sentence no longer repeats its own label
+The band label and the note both began with the words low confidence, so the banner read them twice. The note now starts with what the band means.
+### Theme Search: a query of words no passage description contains is told so
+The response's `confidence` carries `vocab_checked`, `unknown_words` and `no_known_words`, read from `desc_vocab.json` (the words found in at least two passage descriptions, built by `scripts/corpus/build_desc_vocab.py`; the check is off when the file is absent). A query none of whose content words appears is answered "Nothing to search for" with no list, since no confidence score separates nonsense from a thin subject; a query with some unknown words names them in the note. Ask a Work shows the same sentence. The check runs on the typed words, not the expanded query. Help says so.
+
+### Theme Search: a low confidence band no longer hides the list
+The passages are shown whatever the band says, under a one-line caution when the band is low. Only a search nothing in the corpus resembles (degenerate coherence, the band's weak match) is held behind a link, and only that case says the corpus lacks the subject. Measured on 60 historical subjects and the 15 Ask a Work pilot questions with a model grading the top ten: of 31 queries marked low, 27 had a relevant list. The response carries `confidence.degenerate`. The short-query hint is kept for the degenerate case. The weak-neighbor tag is left off rows under a low band, where every row would carry it. Help says so.
+
+### Reader: select a sentence inside a prose chapter, and the scope toggle no longer clips
+In a prose work a chapter or section longer than 400 characters is now drawn as its sentences (the text is unchanged). A click or tap selects one sentence, a drag selects the sentences it touches, and the toolbar offers Word, Sentence, Section and Passage. Similar Passages sends the sentence's character offsets and the server picks the prose window holding it (`window_for_passage` takes `char_start` and `char_end`), Parallels and Documents search the sentence's own words, and Reuse and Translation stay on the section. The scope buttons no longer cut off their labels on a narrow pane: they keep their width and the toolbar wraps.
+### Inscriptions and papyri page: filters with real choices, a kind switch, sharper examples, quieter chips
+Region, Text type, Material and Source on the Inscriptions & Papyri page (and the Documents option of Lines search) are drop-downs of the values the index holds, with counts, case variants merged and values under 20 documents left out. A new Kind control (Inscriptions, Papyri, Both) sends `kind` to `/api/line-search`, which keeps only that kind of document. The example searches are replaced with well-known, pungent texts (Latin and Greek), the example chips lose their amber fill, the page's duplicate "About this page" link is removed in favour of the scope box's Details, and Theme Search offers its own six examples in the History view.
+
+### Records: the day's four decisions written out in plain language
+`docs/DECISIONS.md` gains entries for the prose scale (the problem of chapter-sized windows, the audit, the paragraph-sized cut, the chapter windows kept for the Reader but withdrawn from rankings, the merging of short sections for the full run, and what remains open), the second judge of the Ask a Work pilot, the confidence band within one work and the kept reader re-rank. No code changes.
+
+### Ask a Work: the measured row and Help now report two judges
+A second judge, the university gateway's Qwen model, re-graded the pilot's 293 passages: agreement with the first judge on 69 percent of grades (kappa 0.71 with quadratic weights), the strong marks' precision 0.87 for passages at least touching the subject. The scope box and the Help section say so.
+### Prose windows for every long-prose work: merged short units, Thucydides re-cut, the full run described in the background
+The prose window cutter now joins consecutive short units of one part file into a window of about 1,200 characters (`--merge-units`, the default; a window carries the first and last unit's reference and a `units` count), which turns Thucydides' 3,577 one-section windows into 1,159, and cuts the other 991 long-prose works into 153,405 windows. `apply_passage_rows.py` gains `--mode remove`. The windows and their descriptions are staged and the description run is under way; the install is recorded as "to run" in docs/DATA_OPERATIONS.md.
+
+### Inscriptions and papyri: a passage-sized query searches on its rarest words
+The Reader's new Documents tab sends the whole selection to the documents search. A chapter of Tacitus (120 words) took over four minutes and a sentence eleven seconds, where the same search over literature answers in under a second because it caps a long query at its twelve rarest words. The documents search now applies the same cap, by document frequency in the documents index, and says so in the response as the literary search does.
+### Inscriptions and papyri: mid-length queries answer in under a second
+The documents search ran one index lookup per distinct set of matched words to fill in the in-N-documents count (225 lookups for one sentence), and asked for each file's distance limit once per hit. It now reads the count off the candidates its single lookup already returned and asks for the distance limit once per file. Same documents, same order, same counts. Measured on the production index (median of three, search only): the first sentence of Annals 1.1 3.75 s to 0.53 s, "tribunicia potestate imperator caesar augustus" 9.3 s to 0.85 s, "decreto decurionum locus datus" 2.2 s to 0.51 s, seven common Latin words 20.2 s to 0.67 s.
+### Reader: the Documents tab names the words a long selection was matched on
+When a passage-sized selection is searched over the inscriptions and papyri on its rarest words, the Documents tab now says which words, as the Parallels tab does.
+
+### Reader in the History view: Similar first, a Documents tab for inscriptions and papyri, the tab strip within the panel
+In the History view the Reader's tabs now run Similar, Documents, Coins, Scholarship, Reuse, Parallels, Translation, and Literature gains Documents after Parallels. The Documents tab sends the selected lines to Line Search over the inscriptions and papyri (`collection: 'documents'`) and lists the documents that share two or more words, with date, place, the shared words marked and a link to the document. It shows when Inscriptions or Papyri is on. From the `xl` breakpoint the panel is 32rem wide and the tab buttons are `px-2`, `text-[13px]`, which fits all seven History tabs (502 pixels measured at 1440 wide against a 511-pixel strip); below `xl` the strip scrolls and the chosen tab is kept in view.
+
+### Ask a Work: the names list ranked by closeness to the question, and names found in the text when the descriptions anonymise
+The list of passages that name a person is now ordered by how close each passage is to the question, with the number of mentions as a tie-breaker, and the route takes `q=`. A name the descriptions never mention (Pericles in Thucydides, whose descriptions say "an experienced king") is looked up in the text of the windows, in Latin and Greek, by word beginning. The route reports `ranked_by` and `source`, each hit reports `found_in`, and `source=text` forces the text search.
+
+### Ask a Work: confidence within one work, measured, and shipped only where it holds
+A Theme Search restricted to one work (or some of its books) now returns a provisional confidence band read from the spread of that work's own scores, and marks a passage strong when it stands three standard deviations above the work's median score and the search is not rated low. The corpus-wide bands could not be reused. On 45 queries over the Aeneid, Thucydides and the Annals (15 the works treat, 15 they do not, 15 nonsense), a one-threshold rule on the spread called 40 correctly (0.889, 0.867 leaving one work out), where head lift, top-hit lift and coherence reached 0.822 and fell to 0.62 to 0.76 leaving a work out. On the 293 judged passages the strong mark has precision 0.905 for grades 1 and 2 at recall 0.415 for grade 2, where the raw score reaches 0.80 at recall 0.09. Searches over several works or an author are still not rated. The page shows the Theme Search banners and the Help section and scope box state the outcome.
+
+### Finer passage windows for long prose chapters
+A new window scale, `prose`, cuts the long units of prose works (the Annals, where one fine window ran to 15,000 characters) into windows of about 1,200 characters made of whole sentences, each keeping its chapter reference and a `sub` number. A work that has them is ranked, covered and mapped at that scale and its fine windows are left out of Theme Search, so one chapter is not offered twice. The audit, the cutter, the describing script and the data are staged. The install is recorded as "to run" in docs/DATA_OPERATIONS.md.
+
+
+### Ask a Work: one entry per passage in the names list, short citations written out in the summary
+The list of passages that name a person showed a passage twice when the index holds it at two scales. The summary cited Tacitus and Thucydides by bare locus, (1.73), which the page could not link; the server now writes such citations out as the full reference and lists them.
+
+### Ask a Work on the server: passages that name a person, books of a work, a summary of what the work says
+Theme Search takes `books=1,2` or `books=1-6` with one work in `works=` and searches only those numbered books, and `works=` accepts part ids such as `tacitus.annales.part.2`. A new `GET /api/passages/mentions` lists the windows of a work whose description names a person, matched as whole words and ranked by names matched, mentions and position. A new `POST /api/passages/ask-summary` asks the assistant's model for a short answer drawn only from the gists the page sends, or answers that it is unavailable. Both routes are site-only in the connector manifest.
+### Ask a Work on the page: books of a work, passages that name a person, what the work says
+
+The page gains two menus to search a run of books, a list of passages whose description names a person in the question (grey marks on the strip), and a short summary written by Tessa from the best twelve passages, each reference linking to its card. Help and the scope box describe all three.
+
+### Reader on a phone: the page no longer shifts sideways after a tap on a tile
+After a tap on a reuse tile on an iPhone the whole page, menu included, came up shifted about a hundred pixels to the left. On a phone the document can no longer scroll sideways, and the Reader scrolls to a line vertically only, placing it in the part of the screen above the results sheet instead of under it.
+
+### Tessa on a phone: the question box under the header, two example questions, the sheet clear of the browser toolbar
+On a screen narrower than 768 pixels the question box and Ask button sit directly under the Tessa header, the box takes focus when the sheet opens so the keyboard comes up at once, and the introduction and examples scroll beneath it. The introduction is one sentence everywhere, the examples are cut to three (two on a phone), and the sheet is limited to 85 percent of the visible screen height with bottom padding for the phone's safe area so nothing sits under the browser toolbar. The desktop panel keeps the box at the bottom. This is a client change only, in `client/src/components/assistant/AssistantDock.jsx`.
+### Similar Passages: an unloaded index is reported as unavailable and retried
+The Reader's Similar tab said no indexed window covered Aeneid 1.20 to 22 ten minutes after a server reload. The index had not loaded on that worker, and a failed load was recorded as final for the life of the worker and reported with the wrong message. The server now tells the two cases apart, retries a failed load after a minute, and the Similar tab says the index is not available and asks again twice before giving up.
+
+### Menu on a phone: one row, the view switch as a button with Collections inside it
+Below 640 pixels the view switch and the Collections button become one button showing the current view, with Literature, History and Collections in its menu, so the page tabs share its row. The beta superscript is left off the tabs there. Wider screens are unchanged.
+### Ask a Work: what one work says about a subject, Theme Search inside the work with a strip of where the passages fall
+A new page at `/ask-a-work` (beta, after Theme Search in both views). Pick a language, author and work, type a subject in plain words, and the passages of that work about it are listed by score, fifty at a time, with a strip called Where in the work above them. The strip lays the work's books left to right at equal widths and puts one mark at each passage, taller and darker for a better match, and tapping a mark scrolls to its card. It calls the existing `GET /api/passages/theme-search` with `works=<work id>`, so there is no new route and the connector manifest is unchanged. The Reader's About panel links to the page, Start here and Tessa gain a seventh answer, and the scope box and Help gain an Ask a Work entry whose measured row says "Not measured yet".
+
+### Reader on a phone: text and book choice behind the title line, legend behind Key, slimmer margin, Tessa off the tab bar
+On a screen narrower than 768 pixels the Reader header is one line reading the position ("Vergil, Aeneid, Book 1") and the line count. Tapping it opens a bottom sheet with the Language, Author, Work and Book choices, Go to line, the previous and next book buttons and the About this text content. The sticky navigation strip is replaced by a round Back to top button that appears after scrolling, the legend row keeps only Key, Original and English with the swatch lines moved into the key, the margin gutter, line numbers and page padding are narrower, a wrapped line is indented under its first, and Tessa closes to the side tab so the results sheet's tabs are free. The tab strip shows a fade at the right edge when it scrolls. Nothing is removed and the desktop layout is unchanged. This is a client change only, with the phone test in `client/src/hooks/useIsPhone.js`.
+### Translations: a script to strip the facing-page OCR noise from 25 Loeb-scan files
+Twenty-five translation files aligned from Loeb scans carry the OCR of the facing Greek or Latin page in their English. `scripts/translations/strip_ocr_noise.py` removes runs of eight or more non-English tokens and the running headers, keeps every unit at its index, and refuses a file whose content words fall by more than 3 percent. Cleaned files are written to a review folder; installing them is under "to run" in docs/DATA_OPERATIONS.md.
+
+### Phrase Search: the corpus chart counts the lines the list keeps
+The "Across the corpus" chart beside a parallel counted every corpus line containing the shared words, while the list under it kept only lines that pass the closeness rule (at most three words between in prose, twenty in verse). So the chart could say "Tacitus (1)" and the list "Tacitus, 0 instances": the one hit was a whole prose chapter (Histories 3.55) with the words forty words apart. The count now applies the same rule from the index's word positions before counting, so the chart and the list agree. Two stale collections tests updated for Scholarship in the Literary profile.
+
+
+## 2026-10-10
+
+### Records: Diodorus books 11 to 17 and the scholarship theme index installed
+The operations record marks the Diodorus import's production steps and the scholarship theme index install as run, with their counts and checks.
+
+### Translations: HTML character entities decoded
+Fourteen translation files transcribed from web pages carried entities such as "C&aelig;sar" into the Reader. The files were corrected on the server, and the loader now decodes any entity it meets.
+### Theme Search over scholarship: a Scholarship choice ranked by meaning and keyword together
+Theme Search gains a Scholarship choice beside Coins and Objects, shown when the Scholarship collection is on. It searches 82,814 windows of commentary notes and journal sentences and shows its own list, never mixed into the passage ranking. `GET /api/scholarship/theme?q=&k=` (`backend/scholarship_theme.py`) encodes the query through the encoder service, takes the 50 nearest windows by cosine and the 50 best FTS5 keyword matches, merges them by reciprocal rank fusion (k = 60) and returns the top `k` (10 by default, at most 30) with a snippet, the two source ranks and a Reader or JSTOR link; without the files it answers `available: false`. The packed files come from `scripts/scholarship/pack_scholarship_theme.py` and are read from `TESSERAE_SCHOLARSHIP_THEME_DIR` (default `data/scholarship_theme/`). A `scholarship_theme` entry joins the scope box and the Help table, `/api/scope` gains `scholarship_windows`, and the route is site-only in the connector manifest. The prototype's build and evaluation scripts (#738) come with it. Install steps are under "to run" in docs/DATA_OPERATIONS.md.
+
+### Two views, Literature and History: the same resources, two orders and two sets of defaults
+A switch at the left of the menu row chooses between a Literature view and a History view, and the Collections control becomes a smaller button beside it. Literature opens on the Search page. History turns every collection on, opens on the Reader at Tacitus, Annals 1, leads the menu with Read and Events, leads the Reader's side tabs with Reuse and Scholarship, opens the Phrase Search on Livy against Tacitus (Latin) and Herodotus against Thucydides (Greek), and puts the inscriptions, papyri, events and coins first in the Start here list. Nothing is withheld in either view. The choice is remembered, `?view=history` in a link sets it for a visit, and Help and Tessa describe it.
+### Collections: Literature is shown as always on
+The Literature box in the Collections control could be unticked but changed nothing, since the Search, Read, Theme Search and Browse pages never depended on it. It is now a fixed line marked "always on", and the control's sentence says the other switches add material to the literature.
+### The main menu folds what does not fit into More
+With every collection on, the last entries of the menu row faded off the right edge. The row now measures itself and moves the trailing entries into the More menu, at any width, so nothing is cut off; Repository and Downloads stay there always.
+### Reader: each side-panel tab says what it does, with the same scope box as the search pages
+With nothing selected, the side panel lists its tabs with one line each on what they do, and shows the "What this does" box for the current tab. With a selection, a small "What this does" link above each tab's results opens the same box. The entries (Similar, Reuse, Parallels, Scholarship, Translation, Coins) live in the scope data file beside the search pages' entries, and the Help table "How well does it work?" gains the Reuse and Scholarship rows.
+
+### Inscriptions & Papyri examples lead with epigraphy; the Events box says where the events come from
+The one-click examples on the Inscriptions & Papyri page now begin with the emperors' dating formula, a town council's decree and the freedmen's priesthood, with the literary quotations last, and the Greek tab gains the decree formulas. The Events scope box names Wikidata as the source of the events and says plainly how passages are gathered (by names and by theme, merged) and where that fails.
+### The sources of the Coins and Objects collections move into the scope box
+The Coins and Objects pages open with one short line, and the catalogues and museums, with their licences, are listed under Texts and collections in the What this search does box, after the live count.
+### Reader: the Similar tab opens on Same kind of scene
+The scene group stands first in the box at the top of the Similar tab and opens by default, with Same people and places a click away.
+
+### Records: the event dossier install
+The operations record marks the install of the dossier database with the Wikipedia summaries and passage-linked scholarship as run.
+
+### Reader: tabs in the order Similar, Reuse, Parallels, Scholarship, Translation
+The owner's order for the Reader's side tabs.
+### Collections moves to the left of the menu row
+The Collections control now stands first in the menu row, before Search, as the choice that decides which entries the row has.
+
+### Events: document cards lead with the edition, and an article is listed once
+A document card on an event page showed the internal identifier ("merged:282114", a stone both inscription databases record). It now leads with the edition reference ("CIL 09, 03200") or the document type, and names the databases that record it. The Scholarship tab listed an article once per passage it cites; it lists each article once.
+
+### Events: a real map with coastlines
+The Map tab of an event was a bare scatter of points on a white rectangle. It is now a Leaflet map (Leaflet 1.9.4, bundled from npm) on OpenStreetMap tiles with the attribution shown. The event is a red marker and each findspot of documents a grey one sized by the number of documents. Hovering names the place and clicking gives its coordinates and document count. The scroll wheel zooms only after the map is clicked. If the tiles cannot be loaded, the markers stay over a plain background with a note. The table of coordinates stays under the map, and the Privacy page lists OpenStreetMap among the third-party services.
+### Scholarship on in the Literary profile; a More menu; the Collections control explains itself
+The Literary profile now includes the Scholarship tab in the Reader, so a literary reader gets the commentaries and citing articles without changing profile. Repository and Downloads sit under a small More menu at the end of the main row, since with every collection on the row no longer fit and its last entries faded off the edge. The Collections control opens with a sentence on what the switches do.
+### Reader: both kinds of similar passage named in a box at the top
+The Similar tab opened on "Same people and places" with "Same kind of scene" folded below it, so the second choice was easy to miss. A two-button box at the top of the tab now names both with their counts and shows one at a time, the names group first, or the scene group when the passage has few distinctive names.
+
+### The Reader's About this text panel and the coin page, in plain words
+The About this text panel is one column: the work's name as a heading, one quiet line of date, era, kind and length (each with a plain tooltip), the description at reading width, and the sources as a small footnote ("Text from ... through Perseus. Translation by ...") ending in Full credits. The print edition is decoded for display, and 37 records in `backend/text_sources.json` that held `&amp;` now hold `&`. The coin type page opens with a plain description built from the fields ("Silver denarius of Augustus, minted at Rome, 27 to 25 BCE"), the catalogue's own name for the type under it, Front and Back columns each with Shows and Inscription, Issued by and Portrait in words, and one link, "See coin images at Corpus Nummorum", where there were two. The identifier box is gone and the id sits on the credit line. The list cards use the same headings and a short "See images" link. Help explains obverse, reverse and legend.
+### Events: a Wikipedia description on each event page, and scholarship tied to its passage
+The header card of an event now shows the opening paragraph of its English Wikipedia article (at most 600 characters, cut at a sentence end) with the credit "From Wikipedia, CC BY-SA 4.0" and a link to the article. An event without an article keeps its Wikidata description. In the Scholarship tab each article names the passage that brought it in ("on caes. bel. civ. 1.16.2-1.18.5"), a link that opens the Passages tab at that passage, and the tab lists only articles citing the event's leading passages (rank 10 or better, or judged to tell of the event). The API returns `summary`, `summary_source`, `summary_url` and `summary_licence` on the event and `passage_rank` and `passage_ref` on each scholarship row, one row per article. Two scripts rebuild the database file: `scripts/events/add_summaries.py` and `scripts/events/relink_scholarship.py`. Wikipedia has a record in the sources credits and a sentence in Help. The rebuilt file is installed by hand (see docs/DATA_OPERATIONS.md).
+### A scope box on every search page
+Each search page opens with one grey line, "What this search does", with a Details link. Opened, it gives the search's scope, the texts and collections it covers with live counts, its limits and its measured performance, and links to the search's Help section. It appears on the five Search modes (Phrases, Line, Strings, Rare Pairs, Rare Words), Cross-Language, Theme Search, Inscriptions & Papyri, Events, Coins and Objects, and remembers whether it was open. The facts live in `client/src/data/searchScope.js`, and the Help table "How well does it work?" now renders from the same data, so a figure is written once. A new route, `/api/scope` (site-only in the connector manifest), answers the counts: works per served language, documents, passage windows, events, coins and objects, cached for ten minutes.
+### Start here: smaller, feature names first
+The Start here panel took the top of the Search page with six boxes. It is now one short card with the feature's name and a half-line of what it does ("Line Search: every line in the corpus where a phrase or a pair of words occurs"), three to a row, with Skip beside the question. The Collections button in the menu bar is now shown to every visitor, so the inscriptions, papyri, events, coins and objects the panel names can be switched on from the top of the page; the default profile is still Literary.
+### Research moves under About
+The Research entry leaves the main menu (most visitors will not look at the project's studies regularly). The page stays at /research and is reached from a Research block on the About page, beside Text Credits.
+### Coins: a Latin passage's related imagery comes from the Roman catalogues
+With the seven Greek catalogues installed, the Reader's Coins tab ranked every description for every passage, and on the ten Latin test passages the Greek types took 27 of the 50 top-five places with about three real matches (Persian kings for Actium, Dionysus heads for the Ara Pacis), so the measured hit rate fell from 0.34 to about 0.26. A Latin passage now ranks the two Roman catalogues only, which restores the measured lists; a Greek passage searches all nine. The operations record marks the Greek coins and Objects installs as run and drops a duplicated entry left by a merge.
+
+### Start here: the collections answer switches every collection on
+The sixth answer on the Start here panel ("Search inscriptions, papyri, events and coins") opened the Historical profile, which has no coins or objects. It now opens the Everything profile, so every collection it names is on.
+
+### Greek coin types in the Coins collection (in testing, off by default)
+The Coins page now lists 106,176 Greek and Roman coin types. They are the 58,715 Roman types and 47,461 Greek types from seven catalogues published through nomisma.org (IRIS 13,399, Corpus Nummorum 11,913, Seleucid Coins Online 8,694, PELLA 7,228, Ptolemaic Coins Online 3,650, BIGR 2,107, Levantine Coinages Online 470), under the Open Database Licence except Corpus Nummorum (Creative Commons non-commercial, share-alike). The Source filter shows each under a short label and each card carries its own credit line. The converter takes any number of `--dataset CODE=PATH` arguments and a new `scripts/coins/fetch_nomisma.py` downloads a catalogue's type records. A Greek legend can be typed without accents or with either sigma, and Latin look-alike capitals inside Greek words (a Latin B and A in a Seleucid legend) are read as Greek. The Help section, the Coins page text, the collection blurb and Tessa's description of the site say "Greek and Roman". `embed_descriptions.py` gains `--rows-out`, which lists each distinct description with the types that carry it (46,244, of which 19,783 are new). Seven credits records were added. The data file is rebuilt and installed by the steps in docs/DATA_OPERATIONS.md.
+### Tessa's holdings sentence is built per request, and the coins data is installed
+Tessa named only Latin, Greek and English for most of the day. Her prompt module built the holdings sentence when it was imported, before the language plugins register, and the ten-minute cache kept that version because the web workers recycle before it expires. The sentence is now built when she answers and a version naming no optional language is never cached. The records of the coins installs (database and description vectors, both run) are updated.
+### Objects: museum catalogue descriptions as a collection (in testing, off by default)
+A new Objects collection holds 1,361 Greek, Roman and Etruscan objects with the museum's own catalogue description: 305 from the Cleveland Museum of Art (CC0), 395 from the Art Institute of Chicago (records CC0, descriptions CC BY 4.0) and 661 from the Smithsonian (CC0, the National Museum of Natural History's Greek vases and Roman lamps). An object is kept when its record has a description or note of at least 40 characters. Coins are left out, because they have their own collection. The Objects page (`/objects`, `/objects/<id>`) searches titles, descriptions, labels and inscriptions and filters by museum, object type, culture, material and date. Each card carries the credit line and licence and links to the museum's own record, and shows the museum's image only where it is free to reuse. Theme Search gets an Objects choice beside Coins, ranking the description vectors on their own, never mixed into the passage list. Objects is switched on by the Archaeological and Everything profiles. The data and vectors are built offline (`scripts/objects/`) and are not in git. Not installed on the live site until the steps in docs/DATA_OPERATIONS.md are run.
+
+### Coins tab in the Reader and a Coins choice in Theme Search (in testing, off by default)
+With the Coins collection on, the Reader gains a Coins tab. "Named on coins" lists people named on a coin type (as authority or obverse portrait) and in the selected Latin lines, labelled as a name link and not an echo, each linking to the coin list for that person. "Related imagery" lists the five coin descriptions nearest the gist of the covering passage window, found through the query encoder service with a cosine against 26,461 description vectors, each with a confidence level and the measured hit rate of about one in three (17 of 50 on ten test passages). Theme Search gains a Coins choice that searches the coin descriptions on their own and shows a separate list. New routes `/api/coins/for-passage` and `/api/coins/theme` and a `person` filter on `/api/coins` (all site-only in the connector manifest), `scripts/coins/pack_descriptions.py` and `scripts/coins/measure_for_passage.py`, and the hand-written Latin name table `backend/coins_authority_names.json`. The vectors are installed by the steps in docs/DATA_OPERATIONS.md.
+### Line Search: "whole phrase" means the phrase as typed
+The first form of the closeness tag counted only the query's content words, and the lemma search drops common words such as "sit" and "tibi", so for "sit tibi terra levis" it marked 23 of 36 lines as the whole phrase, Caesar's "levibus cratibus terraque" among them, and put Martial's "Sit tibi terra leuis" twelfth. A line is now a quotation only when it also carries the query's own words in surface form, common ones included, with at most one inflected or missing. The tags say "key words" when common words were dropped ("key words together", "key words apart", "1 of 2 key words"), and the Closest match order ranks by quotation, then by how many of the typed words a line carries, then by the width of the window holding them, then by date.
+### Search: a work against itself shows where it repeats itself
+Comparing a work with itself on the Search page returned every line paired with its own twin. When source and target are the same work in the same unit, a line is no longer paired with itself and each pair of lines appears once, the earlier line as the source, so the list shows the phrases the work repeats.
+
+### Start here: a front door on the Search page
+The Search page asks a first-time visitor what they are trying to do and opens the right search; a header link brings the question back; Tessa answers 'where do I start' with the same six choices.
+### Events: the best-attested events first, empty ones hidden
+The Events list opened on the earliest events in the database, several of them with no passage and no document attached. It now opens on the events with the most attached passages and nearby documents (an Order control offers the chronological order), leaves out the events with neither until a box is ticked, says how many it left out, and shows the count of each type in the Type menu. Four Wikidata items with no label beyond their identifier are no longer listed.
+### Tessa describes what the server holds from its own state
+Asked what the site holds, Tessa named five languages from a fixed sentence in her prompt, written before Persian, Urdu, the inscriptions and papyri, the scholarship and the events were added. The sentence is now built when she answers, from the same checks the site makes: the language flags and text folders behind the language tabs, the documents indexes, the scholarship data and the events database, with the coins collection named once its database exists. A test holds the helper to the languages route so the two cannot drift apart.
+### Line Search: lines that quote the phrase come first
+A search for several words ("sit tibi terra levis") listed its literary hits by era, so lines sharing one word of the phrase stood above lines quoting it. Each literary hit now carries how many of the query's content words it shares and whether it has them all within a short window (a near quotation). A query of two or more words opens on a "Closest match" order (quotations first, then lines sharing more words, then the older text) with a tag beside each line ("whole phrase", "3 of 4 words"); By Era and A-Z remain. On the Inscriptions & Papyri page the "Both" search now shows the documents first and the literary companions after them, ranked the same way and folded to five until opened.
+### Coins collection with a Coins page and search (in testing, off by default)
+A Coins page lists 58,715 Roman coin types (56,113 from OCRE, 2,602 from CRRO, nomisma.org, ODbL), searchable over legends and descriptions and filterable by authority, mint, denomination, material, source and date, with a detail view for each type and a link to the type's own page for specimens and photographs. The new `scripts/coins/build_coins_db.py` writes the SQLite file (FTS5 index) that the new `/api/coins`, `/api/coins/facets` and `/api/coins/<id>` routes read. The converter now also records each type's obverse portrait and region. Coins is a collection switch, on in the Archaeological and Everything profiles, and the menu entry and page follow it. Help gains "Coins (in testing)". Tests cover the loader and API on a 12-type fixture, the page, the menu gate and manifest parity. The data file is built and installed by the steps in docs/DATA_OPERATIONS.md.
+
+### Usage summary: referrers from real browsers only, rotated logs read, one bot list
+A referring site now counts only when the referred address also loaded the application that month, which removes forged referrers sent by scanners. The script reads rotated copies of the access log (plain or compressed) before the current file, and takes its bot list from the module the page-view route uses.
+
+### Reader: the key folds away, and the inscriptions box opens the Reuse tab on the inscriptions
+The key to the marks in the text (gutter colours and the quotation boxes) took three rows at the top of the Reader. It is now one slim row with the two colours and a Key button that opens the rest, remembered in the browser. Clicking the amber box on a line (quoted in that many inscriptions or papyri) opens the Reuse tab with the inscriptions and papyri first and the literary quotations below under their own heading, where before the literary quotations came first.
+
+### Tessa leaves beta
+The "beta" tag on the assistant's header is gone. A live check of twenty-one questions covering what the Help page promises (holdings by language and author, where a phrase occurs, comparisons within and across languages, how the site works, follow-up questions) was answered correctly throughout after the fixes of 10 October. The translations fact she reads now names the translation's language, so she no longer calls an English translation a Latin version.
+### The site records each visit's pages in its own database, and the admin panel shows the paths
+
+Each page a browser opens during a visit is now recorded in a new `page_views` table in the site's own database, with the visit's random token, the page, the language, the outside referrer host, and the city and country the address suggests. The city and country are looked up once per visit, in the same way the search log does it. The admin Analytics tab has a new section, "Paths through the site", and the About page now says what the site records.
+
+### Tessa's collapsed button reads "Tessa"
+The closed assistant was a red circle with a bare T at the bottom right of the page, which told a first-time visitor nothing. It is now a pill of the same height that reads "Tessa".
+### Latin verse scansion on every server: the CLTK scanners carried in the backend
+The hexameter, pentameter and hendecasyllable scanners from the Classical Language Toolkit (MIT licence, eleven pure-Python modules) now live in backend/prosody_lat and are used when the CLTK distribution itself is not installed. The production server had no CLTK (its dependencies run to several gigabytes), so every verse outside the precomputed MQDQ table went unscanned. Verified in the production environment: Catullus 1.1 scans as a valid hendecasyllable.
+### Admin panel: visitors and feature use from the web server log
+The Analytics tab now has a section headed "Visitors (from the web server log)" with the addresses that loaded the application each month, the addresses that made a request, request totals, feature use by month, and the main referring sites. The existing tab reads only the search log table, which misses everyone who browses without searching. A script, `scripts/usage/build_usage_stats.py`, reads the access log once and writes a small JSON summary that a new route, `GET /api/admin/usage`, serves to administrators. Robots and the server's own addresses are removed. The summary is built by hand until the nightly timer is installed.
+
+### Metre scanner: a missing scanner is reported once, not once per verse
+On the production server the optional CLTK prosody modules are not installed, so every verse offered to the hendecasyllable scanner raised an error that was written to the web server's error log, thousands of lines per search, 22 GB by October. The scanner now returns no scansion for a metre it cannot scan and writes one warning per process.
+### Tessa: two-title comparisons, Greek-Latin pairs, the Scholarship tab, translations of a work, and a quieter number check
+
+A question that names two titles, such as Thebaid 1 and Aeneid 1, now resolves to those two works instead of one author's Silvae. A Greek-Latin pair, or any pair the Cross-Language tab serves, now runs the cross-language comparison the way a same-language pair runs, and when it does not finish she names the pair and links the Cross-Language tab with both texts chosen. Her Help excerpt now carries the Scholarship tab, the Collections button, Inscriptions and Papyri, and Events, and a question about the translations of a named work is answered from the site's record of aligned translations. The number check reads 1,326 as one number and no longer flags number words that count a listing.
+
+### Tessa lists a language's holdings when asked what the corpus holds in Persian, Urdu, Greek or Coptic
+
+A question about Persian works made Tessa look "Persian" up as a work name and name a Greek play. A question about holdings in one language is now answered from that language's listing with the authors and titles, and Arabic is reported as not served.
+
+### Site subtitle becomes "Literary and Historical Discovery"
+The header line under the title, and the two citation forms on the About page, read "Literary and Historical Discovery" in place of "Intertextual and Literary Discovery", since the site now serves inscriptions, papyri and events beside the literary texts. Chosen by the project lead on 2026-10-10.
+
+### Sources and credits: coverage of the journal index, Wikidata for the Events page, photographs as links
+The record for JSTOR Early Journal Content now says what the offline index covers (24 journals, 1827 to 1922, 29,055 articles read, 5,193 citing 437 held works, plus 956 sentences citing 742 inscriptions and papyri) and no longer calls it a live service. New records: Wikidata (CC0) for the Events page, and the photographs of inscriptions and papyri, which are links to the holding institutions and never copied. The Help page's Scholarship, Events and Inscriptions sections carry the same facts, and a document's Scholarship section says where its sentences come from. The table of literary texts drops four stale "World English Bible" rows (the files hold the King James text) and gains the King James New Testament. Data operation: seven Studies in Philology articles re-dated from 1992 to 1922 in the citation index.
+
+## 2026-10-09
+
+### Roman coins prototype: converter for OCRE and CRRO type records (draft, nothing loaded into the site)
+- `scripts/coins/convert_ocre.py` turns the 58,715 OCRE and CRRO coin types
+  (nomisma.org export, ODbL) into the documents collection's intermediate
+  JSONL, one document per type, with kind `coin`, legends as the indexed
+  text, the obverse and reverse descriptions kept separate, mint with a
+  Pleiades id, dates, authority, denomination and material. Two further
+  scripts embed the descriptions and query them with literary passages.
+  `data/sources_credits.json` gains records for OCRE and CRRO.
+
+### Inscription and papyrus pages gain a Scholarship section of journal sentences that cite the document
+- `scripts/documents/build_document_citation_index.py` runs the document-citation recogniser over the Early Journal Content full text and the commentary notes, links each reference to documents through their stored edition references, and writes `data/citation_index/document_citations.db` (one row per citing sentence and document). `GET /api/documents/<id>/scholarship` returns citation, one excerpt and a link (JSTOR stable address, or the commentary file), newest first, with a count. `/document` shows a Scholarship section under the text when there is at least one hit. The route is site-only (not a connector tool). Without the index file the section does not appear.
+### Theme Search: optional "in this author or work" restriction
+- `/api/passages/theme-search` takes `author=` (one author id, all that author's works with passage windows in the chosen languages) and `works=` (comma-separated work ids). An unknown author or work answers 200 with an empty result and a `note`. A restricted search returns a flat list of passages, up to 10 per work when several works are involved and no cap for a single work, and states that confidence is not rated, because the confidence figures were fitted to corpus-wide queries. The Theme Search page has a "Search within" picker (Author, then Work) that is closed by default, shows the restriction in the results header, and carries it in the address. The `theme_search` connector tool accepts the same two parameters. Measurement and cap choice are in docs/DECISIONS.md.
+### Tessa: the cross-language pair list matches the search again
+- The search has offered Persian with Urdu, Arabic with Persian and Arabic with Urdu since 5 September, and the assistant's own list of pairs had not been told, so its test against the search's list failed. The three pairs are added; Persian with Urdu is marked as reachable from the Cross-Language tab, the two Arabic pairs as supported while the Arabic texts are held back.
+### Reader: the selection popup sits under the selected line on every path; legend names the inscriptions marks
+- The popup used to sit at the top of the pane, over the opening lines, when the selection came from a click on a quotation mark or from a URL, because those paths set no anchor; the line is now measured from the page. With the documents trial on, the legend gains the two amber inscriptions marks (quoted in that many inscriptions or papyri; possible echo), which had no entry and could be read as the grey "possible echo" mark.
+### Inscription and papyrus pages: image links named by institution, dead hosts hidden, moved addresses rewritten
+- The Images list on `/document` shows "Photo F034014 at Epigraphic Database Heidelberg" style labels (address in the href and title) and omits links to hosts that no longer serve them, with a note giving the count. Labels and the dead-host list are in `client/src/components/documents/imageHosts.json`. `scripts/documents/image_url_rules.py` holds the rewrite rules (old Heidelberg photo host, old CIL photo files) and the extractor applies them; `scripts/documents/fix_image_urls.py --dry-run|--apply --db PATH` fixes an existing metadata.db (backup first).
+### Reader: the inscriptions mark no longer overlaps the line
+- With the documents trial on, a line can carry both the "quoted in N works" mark and the amber inscriptions mark, and the mark column fitted one: the second sat over the text (Aeneid 1.1). The column is wider whenever the trial is on, so every line keeps the same left edge. The mark's tooltip says "papyri", not "papyruses".
+### Documentary reuse: phrases common across the literature discounted, word order no longer required
+- `scripts/reuse/build_documents_reuse_table.py` gains `--max-literary-works N` (a single-phrase pair is dropped when its phrase occurs in more than N distinct literary works; pairs sharing two or more phrases are kept whatever the phrase's currency), an order-free rule (three content lemmas within six tokens in any order, so the Pompeian fullers' parody of Aeneid 1.1 is found), a candidates cache for threshold sweeps in seconds, and per-work pairs per thousand lines in the stats file. Installed at N=10 (see DATA_OPERATIONS). `backend/reuse_documents.py` admits order-free pairs (their jaccard is 0 by construction) when the table carries a `rule` column, so the Reuse tab shows them as "possible".
+### Events page (in testing): a focus view for a battle, siege or treaty
+- New `/events` list and `/events/<id>` focus view with Passages, Inscriptions & Papyri, Scholarship and Map tabs, read-only `GET /api/events` and `/api/events/<id>` over an offline dossier SQLite (`TESSERAE_EVENTS_DB`, default `data/events/event_dossiers.sqlite`, built by `scripts/events/load_dossiers_sqlite.py`). Shown when Collections has Inscriptions, Papyri or Scholarship on (`PAGE_NEEDS.events`). The Reader shows a link back to the event when opened from it. Help gains a paragraph.
+### Scholarship tab: an expired CORE key no longer switches CORE off
+- On a 401 or 403 the full-text search retries CORE once without the key, paced to CORE's keyless limit across workers, and says the key needs renewing while results keep coming. A 429 waits and retries once. `scripts/ops/check_scholarship_keys.py` and timer templates in `scripts/ops/systemd/` check both keys weekly.
+### Xenophon, Hellenica and Cassius Dio, Roman History 36 to 55, added with English translations
+- `xenophon.hellenica` (1,146 lines, seven books) and `cassius_dio.roman_history`
+  (4,403 lines, books 36 to 55), each as a whole-work file plus one file per
+  book (29 `.tess` files), from the Perseus canonical-greekLit TEI
+  (tlg0032.tlg001 and tlg0385.tlg001, CC BY-SA 4.0), converted by the new
+  `scripts/corpus/perseus_greek_history_to_tess.py`. Dio's tables of contents
+  at the head of books 37 to 55 are chapter 0, and eleven words broken across
+  a printed page are rejoined. Perseus's Greek for Dio begins at 36.18 and
+  stops at 55.9.4.
+- Translations: Brownson's Loeb (1918 to 1921) for the Hellenica, from the
+  Perseus TEI, exact by book.chapter.section, 1,146 of 1,146 lines
+  (`scripts/translations/align_hellenica.py`), and Cary's Loeb (1914 to 1927)
+  for Dio from LacusCurtius, exact by chapter and section, 4,384 of 4,403
+  lines, the other 19 being the tables of contents
+  (`scripts/translations/align_dio.py`).
+- Descriptions, provenance rows and a Dio date entry added. Production
+  steps are in docs/DATA_OPERATIONS.md under the 2026-10-09 entry for these
+  two works. Nothing has been run on production.
+### Collections control replaces the trial switches
+- A "Collections" button in the main menu turns literature, inscriptions,
+  papyri, scholarship (and later coins and objects) on and off and sets four
+  profiles (Literary, Historical, Archaeological, Everything). The choice is
+  saved in the browser; Literary is the default and matches the site as it
+  was. The Reader's Scholarship tab, the Reuse tab's inscriptions and
+  papyri group, the Inscriptions & Papyri page and menu entry, and the
+  Browse Corpus documents view follow it. `?documents=1` and
+  `?scholarship=1` still work. See docs/COLLECTIONS.md.
+
+### Scholarship tab: Semantic Scholar snippets read in their real shape, one source's failure no longer takes the tab down
+- The snippet endpoint returns authors as name strings and carries no
+  year, venue or identifiers, with the DOI only inside the open-access
+  disclaimer. The reader expected dicts and raised, and the whole
+  `/api/scholarship` route answered 500 while a key was set. It now accepts
+  both shapes, reads the DOI from the disclaimer, spaces requests at one a
+  second with one retry after a 429, and any unexpected answer from one
+  full-text source is logged and skipped with a warning in the response.
+### Documentary reuse build reads one literary cache at a time
+- `scripts/reuse/build_documents_reuse_table.py` loaded every literary lemma
+  cache at once, and the Greek build stalled at its 12 GB memory cap. It now
+  lists the corpus files first and loads one cache at a time. The Latin
+  table it builds is identical to the live one (6,769 pairs), with peak
+  memory 1.9 GB.
+- The build now also drops pairs that share fewer than two distinct content
+  lemmas (lemmas not on the new `data/documents/function_words_la.txt` and
+  `function_words_grc.txt`, taken from CLTK's stopword lists) or whose longest
+  contiguous run of shared lemmas is shorter than two. A hand check had found
+  87% of Greek and 70% of Latin pairs were coincidences sharing only function
+  words. Numerals count as non-content (Latin and Greek cardinals, ordinals and
+  distributives on the lists, Roman numerals and Greek alphabetic numerals
+  recognised in code). Pair counts: Greek 11,124 to 1,509, Latin 6,769 to
+  3,412. Options
+  `--min-content-lemmas`, `--min-run` and `--no-quality-filter`. The pairs
+  table gains a `content_shared` column, which the Reader route ignores
+  because it selects columns by name.
+### Sources and credits for every collection
+- New "Sources and credits" section at the top of the Text Credits page, grouped by collection (literary texts, translations, inscriptions and papyri, scholarship, places and identifiers), built from `data/sources_credits.json` through `/api/sources-credits`. It names each source with its licence, version and retrieval date, including the four document sources (EDH, papyri.info, I.Sicily, EDR), the commentary collections, the scholarship search services, Pleiades and Trismegistos. The Help paragraph on inscriptions and papyri now names the licences. Every future import adds one record to the file (rule in docs/DATA_OPERATIONS.md).
+
+### Scholarship tab: offered by the language of the work, not of the commentary
+- `/api/scholarship/sources` listed the languages commentaries are written
+  in (mostly English), so the Reader hid the tab on Greek works annotated in
+  English. It now lists the languages of the works commented on, with
+  scripture commentaries counting for every language that holds a Bible
+  version. On current data: Latin, Greek, Hebrew, English and Coptic.
+
+### Inscriptions & Papyri: a page of its own, papyri grouped by nome, impossible dates excluded from the century facet (#724)
+- New route `/inscriptions-papyri`, shown in the main navigation beside
+  Theme Search only when the documents trial is active (server
+  `TESSERAE_DOCUMENTS=1` and the client's `documents_trial` session flag,
+  set by `?documents=1`). The page redirects to the main search when the
+  flag is not set. It combines the documents-collection search (filters,
+  restoration/formula options, ranking, totals, paging, the century/region
+  chart) with the browse-by-facet view on one page. The search logic moved
+  out of `LineSearch.jsx` into shared code under
+  `client/src/components/documents/` so Lines search's own "Documents"/
+  "Both" option (kept as a secondary route) and the new page share one
+  implementation. Help & Support gained a short section on the page and
+  its sources.
+- Browse Corpus's Documents section now groups papyri by nome (the
+  Egyptian administrative district, e.g. "Arsinoites"), with the town or
+  village a document names (the findspot, e.g. "Karanis") nested under it.
+  The old flat region level put a document naming only a town and one
+  naming only its nome in two unrelated top-level buckets (checked
+  2026-10-09: Oxyrhynchos the town and Oxyrhynchites the nome, 4,440 and
+  1,637 documents, now one "Oxyrhynchites" group of 6,081). The nome comes
+  from HGV's own structured field where the raw papyri.info corpus records
+  it (`data/documents/papyri_nome_map.json`), with a fallback to the
+  document's own text when that names the nome directly. See
+  `docs/DECISIONS.md` for the full before/after top-20 counts.
+- The century facet's earliest buckets ("31st century BC", "16th century
+  BC", "13th century BC") are gone. All 8 documents behind them were
+  source-data errors, not genuine early material: one EDR epitaph and 7
+  `O.Trim.` ostraca from an otherwise correctly Roman/Late-Antique-dated
+  series. A `date_not_before` earlier than 1000 BC now files under a new
+  "Date uncertain" bucket. Genuinely early 7th/8th-century-BC inscriptions
+  keep their own bucket. See
+  `docs/DECISIONS.md`.
+
+### Diodorus Siculus books 11 to 17 from the Loeb Greek (draft, decision pending)
+- Seven new part files `diodorus_siculus.bibliotheca_historica.part.11` to
+  `.part.17` (3,957 lines: 491, 401, 691, 694, 448, 513 and 719) and the
+  whole-work file extended from 4,166 to 8,123 lines, with the new books
+  between 5 and 18. The Greek is Perseus canonical-greekLit
+  `tlg0060.tlg001.perseus-grc4`, the Loeb Greek of Oldfather, Sherman and
+  Welles (CC BY-SA 4.0 on the Perseus encoding). Existing part files are
+  unchanged. The converter was used as it stands. The English is the Loeb
+  translation from LacusCurtius, exact by book.chapter.section, 3,950 of
+  3,957 new lines. `scripts/translations/align_diodorus.py` now covers books
+  11 to 17. The pull request is a draft because whether to import these
+  books is undecided. Nothing has been run on production.
+
+### Diodorus Siculus (books 1 to 5, 18 to 20), Procopius' Wars, Zosimus and four Plutarch Lives added with English translations
+- `diodorus_siculus.bibliotheca_historica` (4,166 lines, books 1 to 5 and
+  18 to 20), `procopius.wars` (7,240 lines, eight books), `zosimus.historia_nova`
+  (1,071 lines, six books), each as a whole-work file plus one file per book,
+  and `plutarch.lysander` (155), `plutarch.dion` (388), `plutarch.eumenes` (98)
+  and `plutarch.demosthenes` (130) as one file each: 29 `.tess` files. The
+  Greek is the Perseus canonical-greekLit TEI for Diodorus (tlg0060.tlg001
+  grc5 and grc6, the Teubner texts), Procopius (tlg4029.tlg001, Dewing's Loeb
+  Greek) and Plutarch (tlg0007, Perrin's Loeb Greek), and First1KGreek for
+  Zosimus (tlg4084.tlg001, Mendelssohn's Teubner of 1887). All are CC BY-SA
+  4.0. Diodorus books 11 to 17 are left out. `scripts/corpus/perseus_greek_history_to_tess.py`
+  gained `--no-book` for the Plutarch Lives, drops an English source label
+  (the "Unknown" Perseus puts after two quoted lines of the Lysander) and
+  removes three stray question marks inside Greek words.
+- The Zosimus Greek is an OCR of the Teubner scan and has 20 places where a
+  letter was lost ("??" in the file). `scripts/corpus/repair_zosimus_procopius_text.py`
+  restores 18 words and drops 2 unreadable consular numerals (6.2.1), and
+  puts a space back at two places in Procopius where a combining breathing
+  joined two words.
+- Translations: Oldfather (books 1 to 5) and Geer (books 18 to 20), Loeb, from
+  LacusCurtius, exact by book.chapter.section, 4,158 of 4,166 lines
+  (`scripts/translations/align_diodorus.py`). Dewing's Loeb of the Wars from
+  LacusCurtius, exact, 7,240 of 7,240 (`align_procopius.py`). Perrin's Loeb for
+  the four Lives, from the Perseus TEI, exact by chapter.section, 771 of 771
+  lines (`align_plutarch.py`). Zosimus from the Green and Chaplin translation
+  of 1814 (Internet Archive scan, OCR), which has no chapter numbers, so each
+  Greek line is mapped to an English paragraph by dynamic programming and the
+  file is marked approximate: 1,071 of 1,071 lines in 314 blocks
+  (`align_zosimus.py`).
+- Descriptions, provenance rows and dates (Diodorus, Procopius, Zosimus) added.
+  Production steps are in docs/DATA_OPERATIONS.md under the 2026-10-09 entry for
+  these works. Nothing has been run on production.
+
 ## 2026-10-08
 
+### Reader About panel in two columns, Scholarship tab on one line, documents deep link fixed
+- The Reader's "About this text" panel is now two columns on wide screens
+  (one on phones): the description, and a facts list (author, work, date,
+  era, kind, line count, print and digital edition, attached translation,
+  with a "Full credits" link), each row left out when there is no data for
+  it. `GET /api/text-descriptions` carries the facts additively.
+- The results panel's tab row (Similar, Parallels, Translation, Reuse,
+  Scholarship) now fits one line at the panel's normal width instead of
+  wrapping the fifth tab to a second line; it scrolls horizontally rather
+  than wrapping if a narrower width still will not fit them all.
+- The Scholarship tab (behind the `?scholarship=1` trial switch) now
+  offers itself only for a language the site actually holds secondary
+  scholarship for, read from `GET /api/scholarship/sources`' new
+  `languages` field instead of a fixed list.
+- `/line-search?documents=1` now opens directly in "Input Search Text"
+  mode, where the Literature/Documents/Both control lives, instead of
+  landing on "Find Text to Search". The `documents=1` and `scholarship=1`
+  trial switches are now captured once when the app itself first loads, so
+  either holds for the rest of the visit even from a page other than the
+  one that reads it.
+
+### Reader "Shared names": a Greek name no longer cut short by a misplaced accent
+- `window_texts.db` stores some accents and breathings as combining marks
+  separate from the letter they belong to, and sometimes standing BEFORE
+  that letter rather than after it. The names-panel tokenizer treated any
+  combining mark as the end of a word, so a name cut short at the first
+  such mark: "Αναυ" for the river Anauros, "Ηρακλη", "Ποσειδα", "Ελλα",
+  "Υψιπυ". `scripts/corpus/build_window_names.py`'s la/grc/en pass now
+  normalizes each window to NFC before tokenizing, moving a leading
+  combining mark onto the letter it belongs to first so NFC can compose
+  the two, and its token regex continues through any combining mark NFC
+  had no precomposed form to fold into. A full copy of production's
+  `window_texts.db` rebuilt both ways: 61,048 of 74,365 named Greek
+  windows changed (15,587 Greek name keys before, 17,712 after), 1,517 of
+  130,342 named Latin windows changed (quoted Greek inside a Latin text),
+  and English, Hebrew, Coptic, Persian and Urdu were byte-for-byte
+  unchanged. The generic mark-repositioning rule was tried over Hebrew,
+  Coptic, Persian and Urdu too and reverted: their own tokenizers already
+  include each script's combining-mark ranges in the word regex, so none
+  of them had this truncation, and the repositioning rule actively broke
+  one Hebrew case (the traditional free-standing "Jerusalem" hiriq) by
+  moving it across a letter boundary it does not belong on either side
+  of. Tests added (`tests/test_build_window_names_marks.py`).
+
+### Reader header and selection bar: a citation for the open work, not a split abbreviation
+- The header and selection toolbar read "A, R 1.1" for Apollonius Rhodius's
+  Argonautica, because the .tess line tag ("<A.R. 1.1>") uses an
+  abbreviation the citation helper's static table does not list, which then
+  read the two letters as an author and a work. Both now build the citation
+  from the open work's own corpus-list entry (author, title, and a part's
+  label where one applies) plus the numeric locus read off the ref, so the
+  result no longer depends on whether the tag's own abbreviation is one the
+  static tables happen to carry. A survey of `texts/la`, `texts/grc` and
+  `texts/en` found 1,116, 868, and 162 files respectively whose leading tag
+  abbreviation the static tables do not resolve; this fixes the header and
+  selection bar for all of them. Tests added.
+
+### Documentary reuse in the Reuse tab
+- When a literary line is quoted or near-quoted in an inscription or
+  papyrus, the Reader's Reuse tab now shows those documents in a separate
+  group, "In inscriptions and papyri", below the literary groups, and the
+  margin gutter carries a separate "quoted in N inscriptions or papyri"
+  mark alongside the existing "quoted in N works" one (shown as its own
+  badge, not merged into that count, so an already-shipped number keeps
+  its meaning).
+- New cross-collection table per language, `cache/reuse_pairs/<lang>_documents.db`
+  (`scripts/reuse/build_documents_reuse_table.py`), built with the same
+  word-triple containment logic and strict/possible tiers as the literary
+  table (`scripts/reuse/build_reuse_table.py`), scored between literary
+  lines and documentary lines only. A shared n-gram made entirely of
+  documentary formula words (`data/documents/formula_words_<lang>.txt`,
+  or a lemma used by more than 100 individual documents) is excluded, the
+  documentary equivalent of the literary table's commonplace-word
+  exclusion; see `docs/DECISIONS.md`.
+- `GET /api/reuse/line` and `GET /api/reuse/marks` (`backend/blueprints/reuse.py`,
+  `backend/reuse_documents.py`) carry the documentary hits/counts
+  additionally, only when `TESSERAE_DOCUMENTS=1`; the existing literary
+  response is unchanged otherwise. No new route, so no connector manifest
+  change.
+- Client: behind the `documents_trial` session flag (`?documents=1`, the
+  same flag the documents collection search already uses) -- without it
+  the Reader is unchanged. Tests added for the builder, the route, and
+  the Reuse tab's new group.
+- Validation build against the dev checkout's own data (not yet on
+  production): Latin, 453,830 literary lines against 411,466 documentary
+  lines, 5,414 pairs kept, peak 11.0 GB, 9m8s; Greek figures and the
+  production install steps are in `docs/DATA_OPERATIONS.md`.
+
+### Scholarship tab: titles shared by more than one author, and a shorter footer
+- A citation of a bare work title that more than one author in the corpus
+  uses, such as Argonautica (Apollonius Rhodius and Valerius Flaccus) or
+  Metamorphoses (Ovid and Apuleius), was accepted for either author's
+  passage with no check on which one the citing piece actually names. The
+  Google Books channel has no author check of its own, so the Apollonius
+  Rhodius, Argonautica 1.5-17 tab listed "Valerio Flaco (2016).
+  Argonáuticas" and a Smallwood note on "Valerius Flaccus' Argonautica
+  1.5-21" for exactly this reason. `backend/scholarship.py` now builds the
+  list of shared titles from the corpus file list and, for one of them,
+  requires the right author's name or citation abbreviation near the
+  match (drawn from `data/citations/abbreviations.json` on production)
+  and rejects a match naming a competing author of the same title
+  instead, in the Google Books channel and in the OpenAlex, Crossref and
+  journal-index channels alike. Without that table (every dev and test
+  environment) the check does not run, so an untracked filing quirk in
+  the corpus (a stray "Aeneid"-titled duplicate of Maffeo Veggio's own
+  Supplementum) cannot force ordinary Vergil citations to name "Vergil"
+  outright. Tests added. docs/DECISIONS.md has the before and after
+  counts, measured against production's live data.
+- The long "Found by title and abstract in OpenAlex and Crossref..." and
+  HathiTrust paragraphs under every Scholarship result list are replaced
+  by one short line: "Where these results come from" (a new Help section,
+  `client/src/components/pages/HelpPage.jsx`, under The Reader) and the
+  existing HathiTrust search link on its own. Tests added.
+
+### A Documents section in Browse Corpus, behind the documents trial
+- Browse Corpus can now show the documentary corpus (inscriptions, papyri)
+  as its own section: kind (Inscriptions, Papyri and ostraca), region
+  under each kind (Roman province, or for Italy the Augustan region,
+  nome or findspot for papyri), and century under each region, every
+  level carrying its own count. Filters for text type, material, object,
+  and language narrow the same selection down to a paged list of
+  documents that open the existing document Reader view.
+- New read-only `GET /api/documents/browse` route, gated behind
+  `TESSERAE_DOCUMENTS=1` like the rest of this feature. The switch off
+  returns 404, the same as the rest of this feature.
+  `backend/documents_browse.py` builds an in-memory, normalized facet
+  index over `metadata.db` once per process and rebuilds it only if the
+  file changes. Added to `backend/blueprints/mcp_manifest.py` as
+  site-only.
+- The section itself is behind the client's own documents trial
+  (`?documents=1`, remembered for the visit), the same gate
+  `LineSearch.jsx` already uses, and lives entirely inside
+  `CorpusBrowser.jsx` as a new tab backed by
+  `client/src/components/corpus/DocumentsBrowser.jsx`.
+- Tests: `tests/test_documents_browse.py` covers region normalization,
+  century bucketing, facet counts, paging, and the gate. Vitest covers
+  the new tab and a filter.
+
+### Documents results: example searches, relevance ranking, uncapped totals, German labels translated
+- The documents trial's results page (behind the existing `?documents=1`
+  trial) gets four one-click example searches, verified against the live
+  documents indexes: "arma virumque cano" (Vergil's opening plus a Pompeii
+  fuller's parody of it, Both), "conticuere omnes" (Aeneid 2.1 scratched
+  into Pompeian walls, Both, exact match), "sit tibi terra levis" (an
+  epitaph wish with its own literary echoes, Both), and a Greek epitaph
+  phrase on the Greek tab (Documents).
+- Document results are ranked by relevance by default: an exact adjacent
+  phrase before matched words scattered across the line, a match on
+  surviving text before one resting on editorially restored text, fewer
+  restorations elsewhere on the line, then earliest date. A sort control
+  adds Oldest first, Newest first, and Region. Computed server side
+  (`backend/app.py`, `backend/documents.py`) from the same index position
+  data `find_co_occurring_lemmas` already returns, so ranking tens of
+  thousands of matches needs no extra line-text fetch.
+- A document hit no longer stops at a fixed 500-row cap. The true total is
+  counted from the documents index the same cheap way the existing
+  stock-formula count works, the list pages 50 rows at a time server side,
+  and a compact chart breaks every match down by century and by region
+  (not just the visible page), reusing the Line Search page's existing
+  chart styling.
+- German placeholder and connector words from EDH/EDCS/Trismegistos
+  metadata ("unbekannt", "bei", "oder", and others) are translated to
+  English for display. A document's place is left off the card when the
+  underlying value is one of these placeholders in German, English, or
+  Latin. The raw metadata value is never changed. The mapping table is
+  `data/documents/german_label_translations.json`, with the counts
+  behind it in `docs/DECISIONS.md`.
+- Tests: `tests/test_documents_stage4_polish.py` covers ranking order,
+  sort modes, uncapped totals, 50-row paging, the German mapping, and
+  place hiding. `client/src/components/search/__tests__/
+  LineSearch.documentsPolish.test.jsx` covers the example buttons, the
+  sort control, and chart rendering. The existing documents-collection
+  parity test and the rest of the vitest suite for the documents trial
+  both still pass unchanged.
+- The "Filter by Text" section of the Line Search page (author/work/line
+  range, which only ever filters the literature half of a search) is
+  hidden entirely when Documents alone is selected, and relabeled "Filter
+  the literature (optional)" under Both.
+
+### Records: the Rumi translation install and the editorial-prose rule
+- `docs/DATA_OPERATIONS.md` records the installation of the Masnavi opening
+  translation. `docs/DECISIONS.md` records which prose inside Persian and
+  Urdu poetry files is removed and which is kept. No code change.
+
+### Citations name the corpus version for every search
+- The Cite popup on the main pair search showed no corpus version, because
+  that response carried no stamp. The page now asks a new
+  `GET /api/corpus-version?language=` route when a search finishes.
+- The stamp itself was stale (Latin read 2026-08-16): it is written only
+  by full index rebuilds, and texts added or removed since left it behind.
+  `get_corpus_version` now uses the later of the stamp and the index
+  file's own date. Tests added.
+
+### Result cards: a "Report a problem" link beside Cite
+- Every result card on the main and Cross-Language searches shows a red
+  "Report a problem" link with a pencil icon right after Cite, opening the
+  same request form with the result's details filled in. The link inside
+  the Cite popup stays.
+
+### Suggest a change: visible in the header, and the in-context links marked
+- An outlined "Suggest a change" button with a pencil icon sits in the
+  header beside Sign In on every page (wider screens; the footer link
+  remains for phones). "Suggest a correction" in the Reader's selection bar
+  and "Report a problem with this result" in the Cite popup are shown as
+  red links with the same icon, where they were plain gray text.
+
+### A per-verse Ghalib link to Frances W. Pritchett's commentary in the Translation tab
+- Her site ("A Desertful of Roses") states no licence. Her English cannot
+  be copied into the site, so the Translation tab links to her own page for
+  the matching verse, named and opening in a new tab. A passage with an
+  aligned translation still shows it, with the link added below. Ghalib has
+  no aligned translation at all, so for Ghalib the link is the only thing
+  the tab shows.
+- `scripts/build_ghalib_pritchett_links.py` builds the lookup table
+  (`data/translations/links/ur__ghalib_pritchett_links.json`) by aligning
+  `ghalib.diwan_wikisource` (272 ghazals, the only Ghalib edition that
+  ships in `texts/ur/`) against a retired, Pritchett-numbered edition kept
+  outside the repository for exactly this cross-reference. Matching goes by
+  text, not by number, at two levels. First each ghazal's opening verse,
+  then verse by verse inside each matched pair. 2,514 of 3,345 Wikisource
+  verses (75%) now link to a verse page. Most of the rest are ghazals she
+  does not cover (expected, since she covers a selection of the diwan).
+  18 Pritchett ghazals whose verse count could not be split unambiguously
+  from the local copy are left unmapped, reported, and not guessed at.
+- `backend/translation_links.py` is the new loader. `backend/translations.py`
+  `for_passage()` adds an `external_links` field, additive alongside the
+  existing `text`/`available` fields, present (as an empty list when there
+  is nothing to show) with or without an aligned translation. The MCP
+  connector's `get_passage(translation=true)` carries the same field
+  through for parity.
+
+### Compare two works: a heading per side, plain field labels
+- Each side of Compare two works is headed "First work" or "Second work",
+  and its fields read "Language", "Author" and "Work" (they read "First
+  work Work" before). The main search keeps its "Source Author" style
+  labels. The side name stays in the screen-reader labels.
+
+### Reader: readable names in the Reuse tab and in Urdu and Persian references
+- The Reuse tab names each quoting work and line the way the rest of the
+  site does ("Sauda, Kulliyat 6.6", not "Sauda, Kulliyat Wikisource" over a
+  raw site ID), and its caption no longer limits it to Latin, Greek and
+  English.
+- References that open with a section name read as words and keep it:
+  "Ghalib, Diwan, ghazal 1.1-7", "Mir, Kulliyat, marsiya 3.2". One
+  collection can hold several numbered sections, so the name stays.
+
+### Translation aligner: Rumi's Masnavi opening ("Song of the Reed") from Nicholson's 1925/1926 translation
+- `scripts/translations/align_rumi_masnavi_nicholson.py`, built on the shared
+  `write_aligned.py` helper. Our corpus holds only the eighteen-line reed-flute
+  prologue of Book I (`texts/fa/rumi.masnavi.part.1.tess`), and R. A.
+  Nicholson's English translation (public domain, published 1925/1926, more
+  than 95 years ago) numbers its couplets continuously from 1, so this is a
+  one-to-one, exact-confidence alignment with no offset or proportional
+  block. 18/18 refs covered. Its output is staged for installation as
+  `data/translations/fa__rumi.masnavi.part.1.json` (not tracked in git).
+
+### Corpus tool fix: drop-lines-from-work rebuilds the lemma cache instead of deleting it
+- `scripts/corpus/drop_lines_from_work.py` deleted the one cached lemma
+  analysis after rewriting a work's text, on the mistaken assumption that
+  the cache filename was a hash of the file's content (it hashes the
+  work's path, not its content -- `backend/lemma_cache.py`'s
+  `get_cache_path`), so the next request would rebuild it under a new
+  name. It does not: the stale file sits at the exact path the correct
+  one belongs at, and for a language whose cache build needs a library
+  production deliberately does not carry (Urdu's Stanza pipeline), there
+  was no next request that could rebuild it there at all -- the rare-
+  bigram rebuild for that work failed until the cache was rebuilt by hand
+  under the development environment. The tool now rebuilds the one
+  work's cache itself, right after the text rewrite, with a backup of the
+  old file kept either way. If the language's processor cannot be
+  imported in the current environment, nothing is deleted or changed: the
+  old cache is left exactly as it was, the exact command to run elsewhere
+  is printed, and the tool exits non-zero so this is never silently
+  missed. Tests for both paths added to `tests/test_drop_lines_from_work.py`.
+
+### Theme Search: confidence bands refit for Latin, Greek, and English
+- `HEAD_WEAK` (the floor for a Theme Search result to count as a match)
+  moved from 0.0750 to 0.0738, refit against the production index
+  (530,917 windows) and an extended 178-query labeled set (30 queries
+  each for Latin, Greek, and English, was 17), with the original 57-query
+  set kept as a regression check. Latin rose from 56.7% to 66.7% and
+  English from 43.3% to 46.7%; Greek is unchanged (63.3%) because no Greek
+  query in this set sits in the safe range. `HEAD_STRONG` and
+  `FITTED_AT_WINDOWS` (now 530,917) were also reviewed; only
+  `FITTED_AT_WINDOWS` changed. Zero absent queries were promoted on either
+  probe set at either value. See `docs/DECISIONS.md`.
 ### Translation aligner: Saadi's Gulistan from Eastwick's 1880 translation
 - `scripts/translations/align_saadi_gulistan_eastwick.py`, on the shared
   `write_aligned.py` helper. The Gulistan is bundled whole inside

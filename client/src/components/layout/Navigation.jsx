@@ -1,6 +1,10 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { rememberLanguage } from '../../utils/languagePreference';
 import StartLanguageControl from './StartLanguageControl';
+import useCollections from '../../hooks/useCollections';
+import { useIsNarrow } from '../../hooks/useIsPhone';
+import { PAGE_NEEDS, VIEWS, viewById, orderBy } from '../../collections/collectionsConfig';
+import CollectionsControl from './CollectionsControl';
 
 /** Tells a horizontally scrolling strip whether there is more to its right.
  *
@@ -38,16 +42,56 @@ function useScrollHint(contentKey) {
   return [ref, more];
 }
 
+/**
+ * How many leading tabs fit in `available` pixels beside a More button of
+ * `moreWidth`, given each tab's width. Everything after that goes into More
+ * (owner 2026-10-10: with every collection on, "the About tab is fading away
+ * at the margin"). With no measurements (jsdom, first paint) every tab fits.
+ */
+export function fitTabs(widths, available, moreWidth) {
+  if (!widths.length || !available) return widths.length;
+  const total = widths.reduce((a, b) => a + b, 0);
+  if (total <= available) return widths.length;
+  let used = 0;
+  let n = 0;
+  for (const w of widths) {
+    if (used + w > available - moreWidth) break;
+    used += w;
+    n += 1;
+  }
+  return n;
+}
+
 const mainTabs = [
-  { code: 'search', label: 'Search' },
+  { code: 'search', label: 'Intertextual Search' },
   { code: 'read', label: 'Read', beta: true },
   { code: 'theme-search', label: 'Theme Search', beta: true },
+  { code: 'ask-a-work', label: 'Search One Text', beta: true },
+  // Trial: shown only when the documents trial is active, both the server
+  // switch (TESSERAE_DOCUMENTS=1, read from /api/languages below) and the
+  // client's own ?documents=1 session flag -- see useDocumentsTrial and
+  // the documentsEnabled state below. Filtered out of `mainTabs` at
+  // render time rather than left out of this list, so its position
+  // (beside Theme Search) does not depend on where a conditional push
+  // would land it.
+  { code: 'inscriptions-papyri', label: 'Inscriptions & Papyri', beta: true, trial: true },
+  // Events (battles, sieges, treaties): shown when inscriptions or papyri
+  // are on (PAGE_NEEDS.events).
+  { code: 'events', label: 'Events', beta: true, needs: 'events' },
+  // Coins (Greek and Roman coin types): shown when the Coins collection is on (PAGE_NEEDS.coins).
+  { code: 'coins', label: 'Coins', beta: true, needs: 'coins' },
+  // Objects (museum catalogue descriptions): shown when the Objects collection is on (PAGE_NEEDS.objects).
+  { code: 'objects', label: 'Objects', beta: true, needs: 'objects' },
   { code: 'browse', label: 'Browse Corpus' },
-  { code: 'repository', label: 'Repository' },
+  // Repository and Downloads sit under a small "More" menu at the end of the
+  // row (owner 2026-10-10: with every collection on, thirteen entries no
+  // longer fit and the last ones faded off the right edge).
+  { code: 'repository', label: 'Repository', more: true },
   // DISABLED FOR PRODUCTION - Uncomment to restore Visualizations
   // { code: 'visualizations', label: 'Visualize' },
-  { code: 'downloads', label: 'Downloads' },
-  { code: 'research', label: 'Research' },
+  { code: 'downloads', label: 'Downloads', more: true },
+  // Research has no main-menu entry (owner 2026-10-10: most visitors will not
+  // look at it regularly); it is reached from the About page and at /research.
   { code: 'about', label: 'About' },
   { code: 'help', label: 'Help & Support' },
   { code: 'admin', label: 'Admin' }
@@ -69,11 +113,85 @@ const Navigation = ({
   lockedToAdmin = false,
   onAdminLogout,
   showDownloads = false,
-  setShowDownloads
+  setShowDownloads,
+  onViewChange
 }) => {
   const [languageTabs, setLanguageTabs] = useState(defaultLanguageTabs);
+  const [moreOpen, setMoreOpen] = useState(false);
+  // Below `sm` the view switch is one button with a small menu, so the whole
+  // main menu fits on one row.
+  const narrow = useIsNarrow();
+  const [viewMenuOpen, setViewMenuOpen] = useState(false);
+  const [collectionsOpen, setCollectionsOpen] = useState(false);
+  const viewMenuRef = useRef(null);
+  useEffect(() => {
+    if (!viewMenuOpen) return undefined;
+    const onDown = (e) => { if (viewMenuRef.current && !viewMenuRef.current.contains(e.target)) setViewMenuOpen(false); };
+    const onKey = (e) => { if (e.key === 'Escape') setViewMenuOpen(false); };
+    document.addEventListener('mousedown', onDown);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onDown);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [viewMenuOpen]);
+  useEffect(() => { if (!narrow) { setViewMenuOpen(false); setCollectionsOpen(false); } }, [narrow]);
+  const moreRef = useRef(null);
+  // The menu is positioned FIXED from the button's place on screen. It used to
+  // hang absolutely under the button inside the tab row, and the row scrolls
+  // sideways: a box that scrolls clips whatever hangs below it, so the menu
+  // opened unseen and "More" looked dead (the owner, 2026-10-12: "Clicking on
+  // More does nothing.").
+  const [morePos, setMorePos] = useState(null);
+  const toggleMore = () => {
+    const r = moreRef.current ? moreRef.current.getBoundingClientRect() : null;
+    const width = 160;
+    const left = r ? Math.max(0, Math.min(r.left, (window.innerWidth || width) - width - 8)) : 0;
+    setMorePos({ top: (r ? r.bottom : 0) + 4, left });
+    setMoreOpen((o) => !o);
+  };
+  useEffect(() => {
+    if (!moreOpen) return undefined;
+    const close = (e) => { if (moreRef.current && !moreRef.current.contains(e.target)) setMoreOpen(false); };
+    const shut = () => setMoreOpen(false);
+    document.addEventListener('mousedown', close);
+    window.addEventListener('scroll', shut, true);
+    window.addEventListener('resize', shut);
+    return () => {
+      document.removeEventListener('mousedown', close);
+      window.removeEventListener('scroll', shut, true);
+      window.removeEventListener('resize', shut);
+    };
+  }, [moreOpen]);
   const [mainRef, mainMore] = useScrollHint(showDownloads);
+  // Overflow into More: the visible tabs are measured in a hidden copy of
+  // the row, and the ones past the container's width move into the menu.
+  const measureRef = useRef(null);
+  const [fitCount, setFitCount] = useState(null);
+  const refit = useCallback(() => {
+    const row = mainRef.current;
+    const probe = measureRef.current;
+    if (!row || !probe) return;
+    const items = Array.from(probe.querySelectorAll('[data-tab]'));
+    const widths = items.map((el) => el.offsetWidth || 0);
+    const moreEl = probe.querySelector('[data-more-probe]');
+    const moreWidth = moreEl ? moreEl.offsetWidth || 0 : 0;
+    const available = row.clientWidth || 0;
+    if (!available || widths.every((w) => !w)) { setFitCount(null); return; }
+    setFitCount(fitTabs(widths, available, moreWidth));
+  }, [mainRef]);
   const [langRef, langMore] = useScrollHint(languageTabs.length + ':' + pageType);
+  // The documents trial's client-side flag (?documents=1, remembered for
+  // the visit) and the server switch together gate the "Inscriptions &
+  // Papyri" tab -- the same two-part gate LineSearch.jsx's own documents
+  // control and CorpusBrowser's Documents tab use.
+  const { anyOn, view, setView } = useCollections();
+  // The Collections control is shown to every visitor (owner 2026-10-10: the
+  // Start here panel named the historical collections while nothing at the
+  // top of the page showed them). The default profile is still Literary, so
+  // the tabs change only when a visitor switches a collection on.
+  const showCollections = true;
+  const [documentsEnabled, setDocumentsEnabled] = useState(false);
 
   useEffect(() => {
     fetch('/api/languages')
@@ -84,9 +202,11 @@ const Navigation = ({
           tabs.push({ code: 'cross', label: 'Cross-Language' });
           setLanguageTabs(tabs);
         }
+        setDocumentsEnabled(!!data.documents_enabled);
       })
       .catch(() => {}); // fall back to defaults
   }, []);
+  const showInscriptionsPapyri = anyOn(PAGE_NEEDS['inscriptions-papyri']) && documentsEnabled;
   const handleLanguageClick = (tabCode) => {
     if (onLanguageReset) {
       onLanguageReset();
@@ -95,6 +215,27 @@ const Navigation = ({
     setActiveTab(tabCode);
   };
 
+
+  const shownTabs = orderBy(mainTabs, viewById(view).menuOrder, (t) => t.code)
+    .filter(tab => tab.code !== 'admin')
+    .filter(tab => !tab.trial || showInscriptionsPapyri)
+    .filter(tab => !tab.needs || anyOn(PAGE_NEEDS[tab.needs]));
+  const candidateTabs = shownTabs.filter(tab => !tab.more);
+  const nFit = fitCount === null ? candidateTabs.length : Math.min(fitCount, candidateTabs.length);
+  const rowTabs = candidateTabs.slice(0, nFit);
+  const menuTabs = candidateTabs.slice(nFit).concat(shownTabs.filter(tab => tab.more));
+  const tabsKey = candidateTabs.map(t => t.code).join(',');
+  useEffect(() => {
+    refit();
+    const row = mainRef.current;
+    const ro = typeof ResizeObserver !== 'undefined' && row ? new ResizeObserver(refit) : null;
+    if (ro && row) ro.observe(row);
+    window.addEventListener('resize', refit);
+    return () => { if (ro) ro.disconnect(); window.removeEventListener('resize', refit); };
+  }, [refit, tabsKey, showCollections, mainRef, narrow]);
+
+  // The admin-only menu returns early, AFTER every hook above, so the hooks
+  // run in the same order on every render (the linter's rules-of-hooks).
   if (lockedToAdmin) {
     return (
       <nav className="bg-gray-50 border-b sticky top-0 z-40">
@@ -122,19 +263,92 @@ const Navigation = ({
       </nav>
     );
   }
-
   return (
     <nav className="bg-gray-50 border-b sticky top-0 z-40">
       <div className="max-w-7xl mx-auto px-3 sm:px-6">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-row items-center">
+          {/* The view switch first, then the Collections control as a smaller
+              secondary button: the view sets the profile, the switches refine
+              it. The divider stays before the page tabs. */}
+          {showCollections && narrow && (
+            <div ref={viewMenuRef} className="relative shrink-0 mr-1">
+              <button
+                type="button"
+                aria-haspopup="menu"
+                aria-expanded={viewMenuOpen}
+                onClick={() => { setCollectionsOpen(false); setViewMenuOpen((o) => !o); }}
+                className="px-2 py-2 text-xs border-b-2 border-transparent text-gray-700 hover:text-red-600 font-semibold whitespace-nowrap"
+              >
+                {viewById(view).label} <span aria-hidden="true">&#9662;</span>
+              </button>
+              {viewMenuOpen && (
+                <div role="menu" aria-label="View" className="absolute left-0 mt-1 w-40 bg-white border border-gray-200 rounded shadow-lg py-1 z-50">
+                  {VIEWS.map((v) => (
+                    <button
+                      key={v.id}
+                      type="button"
+                      role="menuitemradio"
+                      aria-checked={view === v.id}
+                      onClick={() => { setViewMenuOpen(false); setView(v.id); if (onViewChange) onViewChange(v.id); }}
+                      className={`block w-full text-left px-3 py-1.5 text-sm hover:bg-red-50 ${
+                        view === v.id ? 'text-red-700 font-semibold' : 'text-gray-700'
+                      }`}
+                    >
+                      {v.label}
+                    </button>
+                  ))}
+                  <div role="separator" className="my-1 border-t border-gray-200" />
+                  <button
+                    type="button"
+                    role="menuitem"
+                    onClick={() => { setViewMenuOpen(false); setCollectionsOpen(true); }}
+                    className="block w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-red-50"
+                  >
+                    Collections&hellip;
+                  </button>
+                </div>
+              )}
+              <CollectionsControl hideButton open={collectionsOpen} onOpenChange={setCollectionsOpen} />
+            </div>
+          )}
+          {showCollections && !narrow && (
+            <div className="flex items-center gap-2 py-1 sm:py-0 sm:mr-3 sm:pr-3 sm:border-r sm:border-gray-200">
+              <div role="group" aria-label="View" className="flex">
+                {VIEWS.map((v) => (
+                  <button
+                    key={v.id}
+                    type="button"
+                    aria-pressed={view === v.id}
+                    onClick={() => { setView(v.id); if (onViewChange) onViewChange(v.id); }}
+                    className={`px-2 sm:px-3 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap ${
+                      view === v.id
+                        ? 'border-red-700 text-red-700 font-semibold'
+                        : 'border-transparent text-gray-500 hover:text-red-600 font-medium'
+                    }`}
+                  >
+                    {v.label}
+                  </button>
+                ))}
+              </div>
+              <CollectionsControl />
+            </div>
+          )}
           <div
             ref={mainRef}
             data-more={mainMore}
-            className="scroll-hint flex overflow-x-auto scrollbar-hide -mx-3 px-3 sm:mx-0 sm:px-0"
+            className="scroll-hint relative flex overflow-x-auto scrollbar-hide flex-1 min-w-0"
           >
-            {mainTabs
-              .filter(tab => tab.code !== 'admin')
-              .map(tab => (
+            {/* Hidden copy of every candidate tab, measured for the overflow. */}
+            <div ref={measureRef} aria-hidden="true"
+                 className="absolute left-0 top-0 flex invisible pointer-events-none whitespace-nowrap">
+              {candidateTabs.map(tab => (
+                <span key={tab.code} data-tab className="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">
+                  {tab.label}{tab.beta && !narrow && <span className="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>}
+                </span>
+              ))}
+              <span data-more-probe className="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More &#9662;</span>
+            </div>
+            {rowTabs.map(tab => (
               <button
                 key={tab.code}
                 onClick={() => setPageType(tab.code)}
@@ -150,7 +364,7 @@ const Navigation = ({
                     Search and Tessa are all new and all still changing, and a
                     scholar deciding whether to cite something needs to know
                     that before they rely on it, not afterwards. */}
-                {tab.beta && (
+                {tab.beta && !narrow && (
                   <span className="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">
                     beta
                   </span>
@@ -169,6 +383,40 @@ const Navigation = ({
                 Downloads
               </button>
             )}
+            <div ref={moreRef} className="relative">
+              <button
+                type="button"
+                onClick={toggleMore}
+                aria-haspopup="menu"
+                aria-expanded={moreOpen}
+                className={`px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap ${
+                  menuTabs.some(t => t.code === pageType)
+                    ? 'border-red-700 text-red-700 font-semibold'
+                    : 'border-transparent text-gray-500 hover:text-red-600 font-medium'
+                }`}
+              >
+                More <span aria-hidden="true">&#9662;</span>
+              </button>
+              {moreOpen && (
+                <div role="menu" data-testid="more-menu"
+                     style={{ position: 'fixed', top: morePos ? morePos.top : 0, left: morePos ? morePos.left : 0 }}
+                     className="w-40 bg-white border border-gray-200 rounded shadow-lg py-1 z-50">
+                  {menuTabs.map(tab => (
+                    <button
+                      key={tab.code}
+                      role="menuitem"
+                      type="button"
+                      onClick={() => { setMoreOpen(false); setPageType(tab.code); }}
+                      className={`block w-full text-left px-3 py-1.5 text-sm hover:bg-red-50 ${
+                        pageType === tab.code ? 'text-red-700 font-semibold' : 'text-gray-700'
+                      }`}
+                    >
+                      {tab.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
         

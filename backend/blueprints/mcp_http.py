@@ -693,7 +693,7 @@ def _t_theme_search(a):
     is fitted to what the first page shows, not to how deep a caller pages.
     """
     params = {'q': a.get('query') or a.get('q') or ''}
-    for k in ('limit', 'languages', 'scale'):
+    for k in ('limit', 'languages', 'scale', 'author', 'works'):
         if a.get(k):
             params[k] = a[k]
     if a.get('offset'):
@@ -715,6 +715,8 @@ def _t_theme_search(a):
                        for r in (d.get('results') or [])]}
     if d.get('error'):
         out['error'] = d['error']
+    if d.get('restricted'):
+        out['restricted'] = True
     out['presentation'] = _CONTENT_NOTE
     return out
 
@@ -772,12 +774,18 @@ def _passage_translation(work, lines):
     except requests.exceptions.RequestException as e:
         return {'available': False, 'reason': f'Translation lookup failed: {e}'}
     if not d.get('available'):
-        return {'available': False,
+        out = {'available': False,
                 'reason': d.get('reason') or 'No aligned translation for this passage.'}
+        # A translator's own page (e.g. Pritchett's Ghalib commentary) can be
+        # linked even when no aligned translation text exists for this work.
+        if d.get('external_links'):
+            out['external_links'] = d['external_links']
+        return out
     out = {'available': True, 'translator': d.get('translator'), 'text': d.get('text')}
     # Coarse-alignment caveats: when the translation covers the passage in
     # blocks rather than line-by-line, say so rather than implying a tight fit.
-    for k in ('year', 'license', 'attribution', 'approximate', 'block_only', 'note'):
+    for k in ('year', 'license', 'attribution', 'approximate', 'block_only', 'note',
+              'external_links'):
         if d.get(k) is not None:
             out[k] = d[k]
     return out
@@ -1153,13 +1161,20 @@ TOOLS = [
                      "ranking, not a fresh run) for when the first page doesn't have enough — genuine "
                      "matches for a broad topos can rank in the hundreds or thousands. Paged-in results "
                      "come back with strong:false regardless of score, since the confidence band is "
-                     "fitted to the first page."),
+                     "fitted to the first page. author (one author id, the part of a work id before "
+                     "its first dot, such as 'lucan') or works (comma-separated work ids such as "
+                     "'lucan.bellum_civile') restricts the search to that author or those works, "
+                     "for a topic within one author. A restricted search returns a flat list of "
+                     "passages, several per work allowed, and no confidence level: say so rather "
+                     "than judging whether the corpus holds the subject."),
      "inputSchema": {"type": "object",
                      "properties": {"query": _STR,
                                     "limit": {"type": "integer"},
                                     "languages": _STR,
                                     "scale": _STR,
-                                    "offset": {"type": "integer"}},
+                                    "offset": {"type": "integer"},
+                                    "author": _STR,
+                                    "works": _STR},
                      "required": ["query"]},
      "fn": _t_theme_search},
     {"name": "get_passage",
@@ -1173,7 +1188,11 @@ TOOLS = [
                      "fetch the aligned public-domain English translation the Reader shows for "
                      "these same lines, returned as translation:{available, translator, text, "
                      "...}; when none exists, available is false with a plain reason rather than "
-                     "the field being dropped."),
+                     "the field being dropped. A translator's own page can appear as "
+                     "translation.external_links (a list of {translator, site_title, "
+                     "source_url, url}) even when available is false, for a translator whose "
+                     "licence does not permit copying the text itself (currently Frances W. "
+                     "Pritchett's Ghalib commentary)."),
      "inputSchema": {"type": "object",
                      "properties": {"work": _STR, "ref_start": _STR, "ref_end": _STR,
                                     "context": {"type": "integer"},

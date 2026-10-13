@@ -39,6 +39,7 @@ export default function AdminPanel() {
   const [feedback, setFeedback] = useState([]);
   const [corpusStats, setCorpusStats] = useState(null);
   const [analytics, setAnalytics] = useState(null);
+  const [usage, setUsage] = useState(null);
   const [cacheInfo, setCacheInfo] = useState(null);
   const [loadError, setLoadError] = useState(null);
   const [bigramStats, setBigramStats] = useState({});
@@ -189,14 +190,15 @@ export default function AdminPanel() {
     setLoading(true);
     setLoadError(null);
     try {
-      const [feedbackRes, corpusRes, analyticsRes, lemmaCacheRes, searchCacheRes, frequencyCacheRes, bigramRes] = await Promise.all([
+      const [feedbackRes, corpusRes, analyticsRes, lemmaCacheRes, searchCacheRes, frequencyCacheRes, bigramRes, usageRes] = await Promise.all([
         fetch('/api/admin/feedback', { credentials: 'include' }),
         fetch('/api/corpus-status'),
         fetch('/api/admin/analytics', { credentials: 'include' }),
         fetch('/api/admin/lemma-cache/stats', { credentials: 'include' }),
         fetch('/api/admin/search-cache/stats', { credentials: 'include' }),
         fetch('/api/admin/frequency-cache/stats', { credentials: 'include' }),
-        fetch('/api/admin/bigram-cache/stats', { credentials: 'include' })
+        fetch('/api/admin/bigram-cache/stats', { credentials: 'include' }),
+        fetch('/api/admin/usage', { credentials: 'include' })
       ]);
 
       const feedbackData = feedbackRes.ok ? await feedbackRes.json() : [];
@@ -206,10 +208,12 @@ export default function AdminPanel() {
       const searchCache = searchCacheRes.ok ? await searchCacheRes.json() : {};
       const frequencyCache = frequencyCacheRes.ok ? await frequencyCacheRes.json() : {};
       const bigramData = bigramRes.ok ? await bigramRes.json() : {};
+      const usageData = usageRes.ok ? await usageRes.json() : null;
 
       setFeedback(Array.isArray(feedbackData) ? feedbackData : []);
       setCorpusStats(corpus?.summary?.total_texts || null);
       setAnalytics(analyticsData);
+      setUsage(usageData);
       setCacheInfo({
         lemma_cache_size: lemmaCache.total_count || 0,
         search_cache_size: searchCache.cached_searches || 0,
@@ -437,7 +441,7 @@ export default function AdminPanel() {
             )}
 
             {activeTab === 'analytics' && (
-              <AnalyticsTab analytics={analytics} />
+              <AnalyticsTab analytics={analytics} usage={usage} />
             )}
 
             {activeTab === 'audit' && (

@@ -10,8 +10,13 @@ const TextSelector = ({
   selectedText,
   setSelectedText,
   hierarchy,
-  fetchTexts
+  fetchTexts,
+  // When the box already carries a heading naming the side ("First work"),
+  // the fields read plainly ("Author", "Work") and the side name goes only to
+  // the screen-reader labels.
+  plainFieldLabels = false,
 }) => {
+  const fieldLabel = (name) => (plainFieldLabels ? name : `${label} ${name}`);
   const [filter, setFilter] = useState('');
   const [showDropdown, setShowDropdown] = useState(false);
   const [texts, setTexts] = useState([]);
@@ -69,7 +74,7 @@ const TextSelector = ({
     <div className="space-y-3">
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
-          {label} Author
+          {fieldLabel('Author')}
         </label>
         <SearchableAuthorSelect
           ariaLabel={`${label} author`}
@@ -86,7 +91,7 @@ const TextSelector = ({
       {authorHierarchy && authorHierarchy.works && (
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            {label} Work
+            {fieldLabel('Work')}
           </label>
           <SearchableSelect
             ariaLabel={`${label} Work`}
@@ -102,7 +107,7 @@ const TextSelector = ({
       {!authorHierarchy && texts.length > 0 && (
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            {label} Text
+            {fieldLabel('Text')}
           </label>
           <SearchableSelect
             ariaLabel={`${label} Text`}

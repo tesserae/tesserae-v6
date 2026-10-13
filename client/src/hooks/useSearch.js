@@ -154,8 +154,21 @@ export const useSearch = () => {
           elapsed_time: data.elapsed_time,
           source_lines: data.source_lines,
           target_lines: data.target_lines,
-          total_matches: data.total_matches
+          total_matches: data.total_matches,
+          corpus_version: data.corpus_version || null,
         });
+        // The pair search response carries no corpus version; ask for it so
+        // the Cite popup can name the corpus state the results came from.
+        if (!data.corpus_version) {
+          fetch(`/api/corpus-version?language=${encodeURIComponent(params.language || 'la')}`)
+            .then((r) => (r.ok ? r.json() : null))
+            .then((d) => {
+              if (d && d.corpus_version) {
+                setSearchStats((s) => (s ? { ...s, corpus_version: d.corpus_version } : s));
+              }
+            })
+            .catch(() => {});
+        }
         setProgress(100);
         setProgressText('Complete');
         setFusionProgress(null);

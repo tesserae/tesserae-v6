@@ -1,0 +1,6 @@
+[Unit]
+Description=Check the Scholarship tab's CORE and Semantic Scholar keys
+
+[Service]
+Type=oneshot
+ExecStart=/bin/bash -c 'mkdir -p %h/tesserae-backups/jobs && { date -Is; %h/tesserae-v6-dev/venv/bin/python %h/tesserae-v6-dev/scripts/ops/check_scholarship_keys.py /var/www/tesseraev6_flask/.env; echo "exit $?"; } > %h/tesserae-backups/jobs/key_check.last 2>&1'

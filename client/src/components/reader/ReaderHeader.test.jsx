@@ -6,8 +6,9 @@
  * they should work, so the only way to settle it was to mount the thing and
  * fire a change at it.
  */
-import { describe, expect, it, vi, beforeEach } from 'vitest';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { installPhone } from '../../test/phone';
 import ReaderHeader from './ReaderHeader';
 
 // Two authors, one with books, shaped exactly as useCorpus builds it.
@@ -220,5 +221,203 @@ describe('a restricted text (data/restricted_texts.json)', () => {
     mount();
     await screen.findByLabelText('About this text');
     expect(screen.queryByText(/^Source: /)).not.toBeInTheDocument();
+  });
+});
+
+describe('the About panel: title, facts line, prose, sources footnote', () => {
+  function mockFetch({ facts, translation } = {}) {
+    global.fetch = vi.fn((url) => {
+      const u = String(url);
+      if (u.includes('/api/text-descriptions')) {
+        return Promise.resolve({ json: () => Promise.resolve({
+          description: 'An orientation blurb.',
+          ...(facts ? { facts } : {}),
+        }) });
+      }
+      if (u.includes('/api/passages/translation-full')) {
+        return Promise.resolve({ json: () => Promise.resolve(
+          translation || { available: false, reason: 'none' }) });
+      }
+      return Promise.resolve({ json: () => Promise.resolve({ languages: [{ code: 'la' }] }) });
+    });
+  }
+
+  it('sets a title, a facts line, the prose and a sources footnote, with the links', async () => {
+    mockFetch({
+      facts: {
+        author: 'Seneca', work: 'Thyestes', part: 'Act 3', year: -19, era: 'Augustan',
+        date_note: null, kind: 'poetry',
+        edition: { print_source: 'Ginn &amp; Co., Boston, 1900.', e_source: 'Perseus',
+                   e_source_url: 'https://perseus.example/thyestes' },
+      },
+      translation: { available: true, attribution: 'Perseus Digital Library' },
+    });
+    mount({ units: [{ ref: 'a' }, { ref: 'b' }, { ref: 'c' }] });
+    fireEvent.click(await screen.findByLabelText('About this text'));
+
+    const title = await screen.findByRole('heading', { name: 'Seneca, Thyestes, Act 3' });
+    expect(title).toBeInTheDocument();
+    // the facts line: each fact carries a plain tooltip
+    expect(screen.getByTitle('Approximate date of the work')).toHaveTextContent('19 BCE');
+    expect(screen.getByText('Augustan')).toBeInTheDocument();
+    expect(screen.getByText('Poetry')).toBeInTheDocument();
+    expect(screen.getByTitle('The number of lines in the text open in the Reader'))
+      .toHaveTextContent('3 lines');
+    expect(screen.getByText('An orientation blurb.')).toBeInTheDocument();
+
+    const note = await screen.findByText(/Translation by Perseus Digital Library/);
+    expect(note.textContent).toContain('Text from Ginn & Co., Boston, 1900, through Perseus.');
+    expect(note.textContent).not.toContain('&amp;');
+    const source = screen.getByRole('link', { name: 'Perseus' });
+    expect(source).toHaveAttribute('href', 'https://perseus.example/thyestes');
+    expect(screen.getByRole('link', { name: 'Full credits' }))
+      .toHaveAttribute('href', '/text-credits?author=Seneca');
+    // the facts line ends with a link that asks this work a question
+    expect(screen.getByRole('link', { name: 'Ask this work a question' }))
+      .toHaveAttribute('href', '/ask-a-work?work=ovid.tristia&lang=la');
+
+    // the old uppercase label grid is gone
+    for (const label of ['Author', 'Work', 'Date', 'Era', 'Kind', 'Lines', 'Print edition',
+                         'Digital source', 'Translation']) {
+      expect(screen.queryByText(label)).not.toBeInTheDocument();
+    }
+  });
+
+  it('omits a fact with no data rather than showing it blank', async () => {
+    mockFetch({ facts: { author: 'Anonymous', work: null, year: null, era: null, kind: null } });
+    mount({ units: [] });
+    fireEvent.click(await screen.findByLabelText('About this text'));
+
+    expect(await screen.findByRole('heading', { name: 'Anonymous' })).toBeInTheDocument();
+    expect(screen.queryByTitle('Approximate date of the work')).not.toBeInTheDocument();
+    expect(screen.queryByText('Poetry')).not.toBeInTheDocument();
+    expect(screen.queryByText(/lines?$/)).not.toBeInTheDocument();
+  });
+
+  it('drops the whole facts column, including the credits link, when there are no facts at all', async () => {
+    mockFetch({});
+    mount({ units: [] });
+    fireEvent.click(await screen.findByLabelText('About this text'));
+
+    await screen.findByText('An orientation blurb.');
+    expect(screen.queryByText('Full credits')).not.toBeInTheDocument();
+  });
+
+  it('shows the attached translation\'s attribution once the panel is open', async () => {
+    mockFetch({
+      facts: { author: 'Seneca', work: 'Thyestes' },
+      translation: { available: true, attribution: 'A. S. Kline (2003)' },
+    });
+    mount();
+    fireEvent.click(await screen.findByLabelText('About this text'));
+
+    expect(await screen.findByText(/Translation by A\. S\. Kline \(2003\)\./)).toBeInTheDocument();
+  });
+
+  it('omits the Translation row when no aligned translation exists', async () => {
+    mockFetch({ facts: { author: 'Seneca', work: 'Thyestes' },
+                translation: { available: false, reason: 'none' } });
+    mount();
+    fireEvent.click(await screen.findByLabelText('About this text'));
+
+    await screen.findByRole('heading', { name: 'Seneca, Thyestes' });
+    expect(screen.queryByText(/Translation by/)).not.toBeInTheDocument();
+  });
+});
+
+describe('on a phone: one title line and a picker sheet', () => {
+  let env;
+  beforeEach(() => { env = installPhone(true); });
+  afterEach(() => { env.restore(); cleanup(); });
+
+  const PHONE_HIERARCHY = [
+    { author: 'Vergil', author_key: 'vergil',
+      works: [{ work_key: 'aeneid', work: 'Aeneid',
+        sections: [
+          { file: 'vergil.aeneid.tess', label: 'Aeneid' },
+          { file: 'vergil.aeneid.part.1.tess', label: 'Book 1' },
+          { file: 'vergil.aeneid.part.2.tess', label: 'Book 2' },
+        ] }] },
+  ];
+
+  function mountPhone(extra = {}) {
+    const onWork = vi.fn();
+    const onJump = vi.fn(() => '');
+    render(<ReaderHeader language="la" onLanguage={() => {}} hierarchy={PHONE_HIERARCHY}
+                         work="vergil.aeneid.part.1.tess" onWork={onWork} onJump={onJump}
+                         units={Array.from({ length: 756 }, (_, i) => ({ ref: `v.${i}` }))}
+                         selection={null} {...extra} />);
+    return { onWork, onJump };
+  }
+
+  it('shows the position as a button and the line count, with no dropdowns', () => {
+    mountPhone();
+    expect(screen.getByRole('button', { name: /Vergil, Aeneid, Book 1/ })).toBeInTheDocument();
+    expect(screen.getByText('756 lines')).toBeInTheDocument();
+    expect(screen.queryByLabelText('Language')).toBeNull();
+    expect(screen.queryByLabelText('Author')).toBeNull();
+    expect(screen.queryByLabelText('Go to line')).toBeNull();
+  });
+
+  it('opens a sheet with the four selects, Go to line and the book buttons', () => {
+    const { onJump } = mountPhone();
+    fireEvent.click(screen.getByRole('button', { name: /Vergil, Aeneid, Book 1/ }));
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Tesserae Reader' })).toBeInTheDocument();
+    expect(screen.getByText('Beta')).toBeInTheDocument();
+    for (const l of ['Language', 'Author', 'Work', 'Book']) {
+      expect(screen.getByLabelText(l)).toBeInTheDocument();
+    }
+    expect(screen.getByLabelText('No previous book')).toBeInTheDocument();
+    expect(screen.getByLabelText('Next: Book 2')).toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText('Go to line'), { target: { value: '1.20' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Go' }));
+    expect(onJump).toHaveBeenCalledWith('1.20');
+    // a successful jump closes the sheet
+    expect(screen.queryByRole('dialog')).toBeNull();
+  });
+
+  it('keeps the sheet open when the jump fails', () => {
+    mountPhone({ onJump: () => 'no line 9.9 here' });
+    fireEvent.click(screen.getByRole('button', { name: /Vergil, Aeneid, Book 1/ }));
+    fireEvent.change(screen.getByLabelText('Go to line'), { target: { value: '9.9' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Go' }));
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveTextContent('no line 9.9 here');
+  });
+
+  it('closes with the x, with Escape and with the backdrop', () => {
+    mountPhone();
+    const open = () => fireEvent.click(screen.getByRole('button', { name: /Vergil, Aeneid, Book 1/ }));
+    open();
+    fireEvent.click(screen.getByRole('button', { name: 'Close' }));
+    expect(screen.queryByRole('dialog')).toBeNull();
+    open();
+    fireEvent.keyDown(window, { key: 'Escape' });
+    expect(screen.queryByRole('dialog')).toBeNull();
+    open();
+    fireEvent.click(screen.getByTestId('picker-backdrop'));
+    expect(screen.queryByRole('dialog')).toBeNull();
+  });
+
+  it('choosing the next book opens it and closes the sheet', () => {
+    const { onWork } = mountPhone();
+    fireEvent.click(screen.getByRole('button', { name: /Vergil, Aeneid, Book 1/ }));
+    fireEvent.click(screen.getByLabelText('Next: Book 2'));
+    expect(onWork).toHaveBeenCalledWith('vergil.aeneid.part.2.tess');
+    expect(screen.queryByRole('dialog')).toBeNull();
+  });
+
+  it('carries the About content as its own section, with no toggle', async () => {
+    global.fetch = vi.fn((url) => Promise.resolve({ json: () => Promise.resolve(
+      String(url).includes('/api/text-descriptions')
+        ? { description: 'An orientation blurb.', facts: { author: 'Vergil', work: 'Aeneid', part: 'Book 1', kind: 'poetry' } }
+        : { languages: [{ code: 'la' }], available: false }) }));
+    mountPhone();
+    fireEvent.click(screen.getByRole('button', { name: /Vergil, Aeneid, Book 1/ }));
+    expect(await screen.findByText('An orientation blurb.')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Vergil, Aeneid, Book 1' })).toBeInTheDocument();
+    expect(screen.getByText('Poetry')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Full credits' })).toBeInTheDocument();
   });
 });

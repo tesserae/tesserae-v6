@@ -1,0 +1,850 @@
+{
+ "event": {
+  "qid": "Q178850",
+  "label": "Battle of Salamis",
+  "description": "480 BCE naval battle fought between an alliance of Greek city-states and the Persian Empire",
+  "types": [
+   "battle"
+  ],
+  "wikipedia_title": "Battle of Salamis",
+  "locations": [
+   {
+    "qid": "Q41",
+    "label": "Greece",
+    "coord": "Point(23.0 38.5)"
+   },
+   {
+    "qid": "Q202422",
+    "label": "Salamis Island",
+    "coord": "Point(23.5 37.933333)",
+    "pleiades": "580101"
+   }
+  ],
+  "participants": [
+   {
+    "qid": "Q389688",
+    "label": "Achaemenid Empire",
+    "coord": "Point(44.42083333 32.53638889)"
+   },
+   {
+    "qid": "Q25688688",
+    "label": "ancient Greeks"
+   }
+  ],
+  "part_of": [
+   {
+    "qid": "Q1122337",
+    "label": "Second Persian invasion of Greece"
+   }
+  ],
+  "span": [
+   -480,
+   -480
+  ]
+ },
+ "literary": {
+  "n_raw_windows": 2111,
+  "n_dropped_author_before_event": 5,
+  "n_after_overlap_suppression": 1021,
+  "passages": [
+   {
+    "rank": 1,
+    "window_id": "herodotus.histories.part.8:fine:150",
+    "work": "herodotus.histories",
+    "language": "grc",
+    "ref_start": "hdt. 8.73.2",
+    "ref_end": "hdt. 8.77.2",
+    "author_year": -425,
+    "score": 0.0258,
+    "n_entities": 3,
+    "idf_sum": -0.0,
+    "gist": "An ethnographic catalog of the peoples and cities of a peninsula, with a remark on who has submitted to the enemy, gives way to a scene of fear and debate in which a man privately prompts another and an assembly argues over abandoning the fleet to defend their homeland.",
+    "matched": [
+     "Artemisia [participant] = Ἀρτεμισίῳ",
+     "Psyttaleia [participant] = Ψυττάλειαν",
+     "Salamis Island [place] = Σαλαμῖνι"
+    ],
+    "hit_lines": [
+     {
+      "ref": "hdt. 8.74.1",
+      "forms": [
+       "Σαλαμῖνι"
+      ],
+      "snippet": "ντες καὶ τῇσι νηυσὶ οὐκ ἐλπίζοντες ἐλλάμψεσθαι: οἳ δὲ ἐν Σαλαμῖνι ὅμως ταῦτα πυνθανόμενοι ἀρρώδεον, οὐκ οὕτω περὶ σφίσι αὐτ"
+     },
+     {
+      "ref": "hdt. 8.76.1",
+      "forms": [
+       "Ψυττάλειαν"
+      ],
+      "snippet": "πιστὰ ἐγίνετο τὰ ἀγγελθέντα, τοῦτο μὲν ἐς τὴν νησῖδα τὴν Ψυττάλειαν, μεταξὺ Σαλαμῖνός τε κειμένην καὶ τῆς ἠπείρου, πολλοὺς τῶν"
+     },
+     {
+      "ref": "hdt. 8.76.2",
+      "forms": [
+       "Σαλαμῖνι",
+       "Ψυττάλειαν",
+       "Ἀρτεμισίῳ"
+      ],
+      "snippet": "τοῖσι ̔́Ελλησι μηδὲ φυγεῖν ἐξῇ, ἀλλ' ἀπολαμφθέντες ἐν τῇ Σαλαμῖνι δοῖεν τίσιν τῶν ἐπ' ̓Αρτεμισίῳ ἀγωνισμάτων. ἐς δὲ τὴν νησι"
+     }
+    ],
+    "text": " τὰ δὲ λοιπὰ ἔθνεα τῶν ἑπτὰ τέσσερα ἐπήλυδα ἐστί, Δωριέες τε καὶ Αἰτωλοὶ καὶ Δρύοπες καὶ Λήμνιοι. Δωριέων μὲν πολλαί τε καὶ δόκιμοι πόλιες, Αἰτωλῶν δὲ ̓͂Ηλις μούνη, Δρυόπων δὲ ̔Ερμιών τε καὶ ̓Ασίνη ἡ πρὸς Καρδαμύλῃ τῇ Λακωνικῇ, Λημνίων δὲ Παρωρεῆται πάντες.\n οἱ δὲ Κυνούριοι αὐτόχθονες ἐόντες δοκέουσι μοῦνοι εἶναι ̓́Ιωνες, ἐκδεδωρίευνται δὲ ὑπό τε ̓Αργείων ἀρχόμενοι καὶ τοῦ χρόνου, ἐόντες ̓Ορνεῆται καὶ οἱ περίοικοι. τούτ",
+    "llm_label": "yes"
+   },
+   {
+    "rank": 2,
+    "window_id": "plutarch.themistocles:fine:60",
+    "work": "plutarch.themistocles",
+    "language": "grc",
+    "ref_start": "plut. them 14.2",
+    "ref_end": "plut. them 18.1",
+    "author_year": 120,
+    "score": 0.0245,
+    "n_entities": 5,
+    "idf_sum": -0.0,
+    "gist": "A battle narrative in which a commander's timing of wind and straits turns a naval engagement, an enemy admiral is slain by boarding sailors and his body recovered, and a mysterious light and voice appear from a sacred place.",
+    "matched": [
+     "Artemisia [participant] = Ἀρτεμισία",
+     "Eurybiades [participant] = Εὐρυβιάδῃ",
+     "Salamis Island [place] = Σαλαμῖνα",
+     "Themistocles [participant] = Θεμιστοκλῆς",
+     "Xerxes [participant] = Ξέρξου"
+    ],
+    "hit_lines": [
+     {
+      "ref": "plut. them 14.2",
+      "forms": [
+       "Θεμιστοκλῆς"
+      ],
+      "snippet": "δοκεῖ δ' οὐκ ἧττον εὖ τὸν καιρὸν ὁ Θεμιστοκλῆς ἢ τὸν τόπον συνιδὼν καὶ φυλάξας μὴ πρότερον ἀντιπρῴρους κ"
+     },
+     {
+      "ref": "plut. them 14.3",
+      "forms": [
+       "Ξέρξου",
+       "Ἀρτεμισία"
+      ],
+      "snippet": "καὶ ὅτι κατ' ἐκεῖνον ὁ Ξέρξου ναύαρχος Ἀριαμένης ναῦν ἔχων μεγάλην ὥσπερ ἀπὸ τείχους ἐτ"
+     },
+     {
+      "ref": "plut. them 16.1",
+      "forms": [
+       "Θεμιστοκλῆς",
+       "Σαλαμῖνα"
+      ],
+      "snippet": "ξιν ἐπεχείρει διὰ χωμάτων ἐπάγειν τὸ πεζὸν τοῖς Ἕλλησιν εἰς Σαλαμῖνα, ἐμφράξας τὸν διὰ μέσου πόρον: Θεμιστοκλῆς δ' ἀποπειρώμενος"
+     },
+     {
+      "ref": "plut. them 16.3",
+      "forms": [
+       "Θεμιστοκλῆς"
+      ],
+      "snippet": "̀ τάχους τὸν ἄνθρωπον ἐκ τῆς Εὐρώπης.” “οὐκοῦν,” εἶπεν ὁ Θεμιστοκλῆς, “εἰ δοκεῖ ταῦτα συμφέρειν, ὥρα σκοπεῖν καὶ μηχανᾶσθαι πάντ"
+     },
+     {
+      "ref": "plut. them 16.4",
+      "forms": [
+       "Θεμιστοκλῆς"
+      ],
+      "snippet": "ν εἰς τὸν Ἑλλήσποντον ἐπὶ τὸ ζεῦγμα καὶ λύειν τὴν γέφυραν, Θεμιστοκλῆς δὲ κηδόμενος βασιλέως παραινεῖ σπεύδειν ἐπὶ τὴν ἑαυτοῦ θάλ"
+     },
+     {
+      "ref": "plut. them 16.5",
+      "forms": [
+       "Ξέρξου"
+      ],
+      "snippet": "ίδου φρόνησις ἐν Μαρδονίῳ παρέσχεν, εἴγε πολλοστημορίῳ τῆς Ξέρξου δυνάμεως διαγωνισάμενοι Πλαταιᾶσιν εἰς τὸν περὶ τῶν ὅλων κί"
+     }
+    ],
+    "text": "δοκεῖ δ' οὐκ ἧττον εὖ τὸν καιρὸν ὁ Θεμιστοκλῆς ἢ τὸν τόπον συνιδὼν καὶ φυλάξας μὴ πρότερον ἀντιπρῴρους καταστῆσαι ταῖς βαρβαρικαῖς τὰς τριήρεις, ἢ τὴν εἰωθυῖαν ὥραν παραγενέσθαι, τὸ πνεῦμα λαμπρὸν ἐκ πελάγους ἀεὶ καὶ κῦμα διὰ τῶν στενῶν κατάγουσαν: ὃ τὰς μὲν Ἑλληνικὰς οὐκ ἔβλαπτε ναῦς ἁλιτενεῖς οὔσας καὶ ταπεινοτέρας, τὰς δὲ βαρβαρικὰς ταῖς τε πρύμναις ἀνεστώσας καὶ τοῖς καταστρώμασιν ὑψορόφους καὶ βαρείας ἐπιφερομένα",
+    "llm_label": "yes"
+   },
+   {
+    "rank": 3,
+    "window_id": "herodotus.histories.part.8:fine:192",
+    "work": "herodotus.histories",
+    "language": "grc",
+    "ref_start": "hdt. 8.90.4",
+    "ref_end": "hdt. 8.96.1",
+    "author_year": -425,
+    "score": 0.0241,
+    "n_entities": 4,
+    "idf_sum": -0.0,
+    "gist": "During a great naval battle, a watching king has worthy performers recorded by name, while the fleeing fleet is ambushed by allied ships in the strait, and a captured mariner is saved when his captor's vessel is itself taken.",
+    "matched": [
+     "Artemisia [participant] = Ἀρτεμισίην",
+     "Psyttaleia [participant] = Ψυττάλειαν",
+     "Salamis Island [place] = Σαλαμῖνος",
+     "Xerxes [participant] = Ξέρξης"
+    ],
+    "hit_lines": [
+     {
+      "ref": "hdt. 8.90.4",
+      "forms": [
+       "Ξέρξης",
+       "Σαλαμῖνος"
+      ],
+      "snippet": "ὅκως γάρ τινα ἴδοι Ξέρξης τῶν ἑωυτοῦ ἔργον τι ἀποδεικνύμενον ἐν τῇ ναυμαχίῃ, κατήμ"
+     },
+     {
+      "ref": "hdt. 8.93.1",
+      "forms": [
+       "Ἀρτεμισίην"
+      ],
+      "snippet": "Εὐμένης τε ὁ ̓Αναγυράσιος καὶ ̓Αμεινίης Παλληνεύς, ὃς καὶ ̓Αρτεμισίην ἐπεδίωξε. εἰ μέν νυν ἔμαθε ὅτι ἐν ταύτῃ πλέοι ̓Αρτεμισίη"
+     },
+     {
+      "ref": "hdt. 8.95.1",
+      "forms": [
+       "Ψυττάλειαν"
+      ],
+      "snippet": "ἀκτὴν τῆς Σαλαμινίης χώρης, γένος ἐόντες ̓Αθηναῖοι, ἐς τὴν Ψυττάλειαν νῆσον ἀπέβησε ἄγων, οἳ τοὺς Πέρσας τοὺς ἐν τῇ νησῖδι τα"
+     }
+    ],
+    "text": " ὅκως γάρ τινα ἴδοι Ξέρξης τῶν ἑωυτοῦ ἔργον τι ἀποδεικνύμενον ἐν τῇ ναυμαχίῃ, κατήμενος ὑπὸ τῷ ὄρεϊ τῷ ἀντίον Σαλαμῖνος τὸ καλέεται Αἰγάλεως, ἀνεπυνθάνετο τὸν ποιήσαντα, καὶ οἱ γραμματισταὶ ἀνέγραφον πατρόθεν τὸν τριήραρχον καὶ τὴν πόλιν. πρὸς δέ τι καὶ προσεβάλετο φίλος ἐὼν ̓Αριαράμνης ἀνὴρ Πέρσης παρεὼν τούτου τοῦ Φοινικηίου πάθεος. οἳ μὲν δὴ πρὸς τοὺς Φοίνικας ἐτράποντο.\n τῶν δὲ βαρβάρων ἐς φυγὴν τραπομένων καὶ ",
+    "llm_label": "yes"
+   },
+   {
+    "rank": 4,
+    "window_id": "plutarch.aristides:fine:42",
+    "work": "plutarch.aristides",
+    "language": "grc",
+    "ref_start": "plut. arist. 8.3",
+    "ref_end": "plut. arist. 10.4",
+    "author_year": 120,
+    "score": 0.0201,
+    "n_entities": 4,
+    "idf_sum": -0.0,
+    "gist": "Two rival commanders renounce empty factional quarreling to compete in virtue for Greece's survival, planning a naval battle in the narrows as the encircling enemy fleet forces every man to fight.",
+    "matched": [
+     "Eurybiades [participant] = Εὐρυβιάδην",
+     "Psyttaleia [participant] = Ψυττάλειαν",
+     "Salamis Island [place] = Σαλαμῖνος",
+     "Xerxes [participant] = Ξέρξης"
+    ],
+    "hit_lines": [
+     {
+      "ref": "plut. arist. 8.5",
+      "forms": [
+       "Εὐρυβιάδην"
+      ],
+      "snippet": "σκευασθεῖσαν ἀπάτην πρὸς τὸν βάρβαρον, παρεκάλει πείθειν τὸν Εὐρυβιάδην καὶ διδάσκειν, ὡς ἀμήχανόν ἐστι σωθῆναι μὴ ναυμαχήσαντας: ε"
+     },
+     {
+      "ref": "plut. arist. 9.1",
+      "forms": [
+       "Σαλαμῖνος",
+       "Ψυττάλειαν"
+      ],
+      "snippet": "ναύαρχοι τῶν Ἑλλήνων ταῦτ' ἔπραττον. Ἀριστείδης δ' ὁρῶν τὴν Ψυττάλειαν, ἣ πρὸ τῆς Σαλαμῖνος ἐν τῷ πόρῳ κεῖται νῆσος οὐ μεγάλη,"
+     },
+     {
+      "ref": "plut. arist. 10.1",
+      "forms": [
+       "Ξέρξης"
+      ],
+      "snippet": "ἐκ τούτου Ξέρξης μὲν περίφοβος γενόμενος εὐθὺς ἐπὶ τὸν Ἑλλήσποντον ἠπείγετο"
+     }
+    ],
+    "text": "εἶπεν, “ὦ Θεμιστόκλεις, εἰ σωφρονοῦμεν, ἤδη τὴν κενὴν καὶ μειρακιώδη στάσιν ἀφέντες ἀρξώμεθα σωτηρίου καὶ καλῆς φιλονεικίας πρὸς ἀλλήλους ἁμιλλώμενοι σῶσαι τὴν Ἑλλάδα, σὺ μὲν ἄρχων καὶ στρατηγῶν, ἐγὼ δ' ὑπουργῶν καὶ συμβουλεύων, ἐπεὶ καὶ νῦν σε πυνθάνομαι μόνον ἅπτεσθαι τῶν ἀρίστων λογισμῶν, κελεύοντα διαναυμαχεῖν ἐν τοῖς στενοῖς τὴν ταχίστην.\nκαί σοι τῶν συμμάχων ἀντιπραττόντων οἱ πολέμιοι συνεργεῖν ἐοίκασι: τὸ γὰρ ἐν κύ",
+    "llm_label": "yes"
+   },
+   {
+    "rank": 5,
+    "window_id": "herodotus.histories.part.8:fine:78",
+    "work": "herodotus.histories",
+    "language": "grc",
+    "ref_start": "hdt. 8.39.1",
+    "ref_end": "hdt. 8.44.2",
+    "author_year": -425,
+    "score": 0.019,
+    "n_entities": 3,
+    "idf_sum": -0.0,
+    "gist": "A historical account that first describes local Delphic hero precincts and stones miraculously repelling invaders, then narrates the Greek fleet's withdrawal to Salamis at Athens' plea and the Athenians' discovery that their allies are fortifying the Isthmus rather than defending Boeotia.",
+    "matched": [
+     "Artemisia [participant] = Ἀρτεμισίου",
+     "Eurybiades [participant] = Εὐρυβιάδης",
+     "Salamis Island [place] = Σαλαμῖνα"
+    ],
+    "hit_lines": [
+     {
+      "ref": "hdt. 8.40.1",
+      "forms": [
+       "Σαλαμῖνα",
+       "Ἀρτεμισίου"
+      ],
+      "snippet": "ὁ δὲ ̔Ελλήνων ναυτικὸς στρατὸς ἀπὸ τοῦ ̓Αρτεμισίου ̓Αθηναίων δεηθέντων ἐς Σαλαμῖνα κατίσχει τὰς νέας. τῶνδε δὲ"
+     },
+     {
+      "ref": "hdt. 8.40.2",
+      "forms": [
+       "Σαλαμῖνα"
+      ],
+      "snippet": "ῦτα πυνθανόμενοι οὕτω δὴ προσεδεήθησαν σφέων σχεῖν πρὸς τὴν Σαλαμῖνα."
+     },
+     {
+      "ref": "hdt. 8.41.1",
+      "forms": [
+       "Σαλαμῖνα"
+      ],
+      "snippet": "οἱ μὲν δὴ ἄλλοι κατέσχον ἐς τὴν Σαλαμῖνα, ̓Αθηναῖοι δὲ ἐς τὴν ἑωυτῶν. μετὰ δὲ τὴν ἄπιξιν κήρυγμα ε"
+     },
+     {
+      "ref": "hdt. 8.42.1",
+      "forms": [
+       "Σαλαμῖνα",
+       "Ἀρτεμισίου"
+      ],
+      "snippet": "ἐπεὶ δὲ οἱ ἀπ' ̓Αρτεμισίου ἐς Σαλαμῖνα κατέσχον τὰς νέας, συνέρρεε καὶ ὁ λοιπὸς πυνθανο"
+     },
+     {
+      "ref": "hdt. 8.42.2",
+      "forms": [
+       "Εὐρυβιάδης"
+      ],
+      "snippet": "ναύαρχος μέν νυν ἐπῆν ὡυτὸς ὅς περ ἐπ' ̓Αρτεμισίῳ, Εὐρυβιάδης ὁ Εὐρυκλείδεω ἀνὴρ Σπαρτιήτης, οὐ μέντοι γένεος τοῦ βασιληι"
+     },
+     {
+      "ref": "hdt. 8.44.1",
+      "forms": [
+       "Ἀρτεμισίου"
+      ],
+      "snippet": "διὰ τοιόνδε τι πρῆγμα: ἀπαλλασσομένων τῶν ̔Ελλήνων ἀπὸ τοῦ ̓Αρτεμισίου, ὡς ἐγίνοντο κατὰ Χαλκίδα, οἱ Πλαταιέες ἀποβάντες ἐς τὴν π"
+     }
+    ],
+    "text": " τούτους δὲ τοὺς δύο Δελφοὶ λέγουσι εἶναι ἐπιχωρίους ἥρωας, Φύλακόν τε καὶ Αὐτόνοον, τῶν τὰ τεμένεα ἐστὶ περὶ τὸ ἱρόν, Φυλάκου μὲν παρ' αὐτὴν τὴν ὁδὸν κατύπερθε τοῦ ἱροῦ τῆς Προναίης, Αὐτονόου δὲ πέλας τῆς Κασταλίης ὑπὸ τῇ ̔Υαμπείῃ κορυφῇ.\n οἱ δὲ πεσόντες ἀπὸ τοῦ Παρνησοῦ λίθοι ἔτι καὶ ἐς ἡμέας ἦσαν σόοι, ἐν τῷ τεμένεϊ τῆς Προναίης ̓Αθηναίης κείμενοι, ἐς τὸ ἐνέσκηψαν διὰ τῶν βαρβάρων φερόμενοι. τούτων μέν νυ",
+    "llm_label": "yes"
+   },
+   {
+    "rank": 6,
+    "window_id": "herodotus.histories.part.8:fine:204",
+    "work": "herodotus.histories",
+    "language": "grc",
+    "ref_start": "hdt. 8.96.2",
+    "ref_end": "hdt. 8.100.5",
+    "author_year": -425,
+    "score": 0.0183,
+    "n_entities": 2,
+    "idf_sum": -0.0,
+    "gist": "Storm-cast wreckage confirms ancient prophecies while a king, terrified of being trapped, conceals his plan of retreat behind preparations for another battle, deceiving everyone but one close adviser.",
+    "matched": [
+     "Salamis Island [place] = Σαλαμῖνα",
+     "Xerxes [participant] = Ξέρξης"
+    ],
+    "hit_lines": [
+     {
+      "ref": "hdt. 8.97.1",
+      "forms": [
+       "Ξέρξης",
+       "Σαλαμῖνα"
+      ],
+      "snippet": "Ξέρξης δὲ ὡς ἔμαθε τὸ γεγονὸς πάθος, δείσας μή τις τῶν ̓Ιώνων ὑπ"
+     },
+     {
+      "ref": "hdt. 8.98.1",
+      "forms": [
+       "Ξέρξης"
+      ],
+      "snippet": "ταῦτά τε ἅμα Ξέρξης ἐποίεε καὶ ἔπεμπε ἐς Πέρσας ἀγγελέοντα τὴν παρεοῦσάν σφι"
+     },
+     {
+      "ref": "hdt. 8.99.1",
+      "forms": [
+       "Ξέρξης"
+      ],
+      "snippet": "μὲν δὴ πρώτη ἐς Σοῦσα ἀγγελίη ἀπικομένη, ὡς ἔχοι ̓Αθήνας Ξέρξης, ἔτερψε οὕτω δή τι Περσέων τοὺς ὑπολειφθέντας ὡς τάς τε ὁ"
+     },
+     {
+      "ref": "hdt. 8.100.1",
+      "forms": [
+       "Ξέρξης"
+      ],
+      "snippet": "μὲν ἦν ταῦτα τὸν πάντα μεταξὺ χρόνον γενόμενον, μέχρι οὗ Ξέρξης αὐτός σφεας ἀπικόμενος ἔπαυσε. Μαρδόνιος δὲ ὁρῶν μὲν Ξέρξ"
+     }
+    ],
+    "text": " τῶν δὲ ναυηγίων πολλὰ ὑπολαβὼν ἄνεμος ζέφυρος ἔφερε τῆς ̓Αττικῆς ἐπὶ τὴν ἠιόνα τὴν καλεομένην Κωλιάδα: ὥστε ἀποπλησθῆναι τὸν χρησμὸν τόν τε ἄλλον πάντα τὸν περὶ τῆς ναυμαχίης ταύτης εἰρημένοι Βάκιδι καὶ Μουσαίῳ, καὶ δὴ καὶ κατὰ τὰ ναυήγια τὰ ταύτῃ ἐξενειχθέντα τὸ εἰρημένον πολλοῖσι ἔτεσι πρότερον τούτων ἐν χρησμῷ Λυσιστράτῳ ̓Αθηναίῳ ἀνδρὶ χρησμολόγῳ, τὸ ἐλελήθεε πάντας τοὺς ̔́Ελληνας, Κωλιάδες δὲ γυναῖκες ἐρετμοῖσ",
+    "llm_label": "yes"
+   },
+   {
+    "rank": 7,
+    "window_id": "herodotus.histories.part.8:fine:108",
+    "work": "herodotus.histories",
+    "language": "grc",
+    "ref_start": "hdt. 8.55.1",
+    "ref_end": "hdt. 8.61.1",
+    "author_year": -425,
+    "score": 0.0182,
+    "n_entities": 2,
+    "idf_sum": -0.0,
+    "gist": "A sacred olive burned by invaders miraculously sprouts anew, and news of the city's fall plunges the Greek fleet into panicked deliberation until an older counselor begins to challenge a leader's plan.",
+    "matched": [
+     "Eurybiades [participant] = Εὐρυβιάδης",
+     "Salamis Island [place] = Σαλαμῖνι"
+    ],
+    "hit_lines": [
+     {
+      "ref": "hdt. 8.56.1",
+      "forms": [
+       "Σαλαμῖνι"
+      ],
+      "snippet": "οἱ δὲ ἐν Σαλαμῖνι ̔́Ελληνες, ὥς σφι ἐξηγγέλθη ὡς ἔσχε τὰ περὶ τὴν ̓Αθηναίων"
+     },
+     {
+      "ref": "hdt. 8.57.2",
+      "forms": [
+       "Εὐρυβιάδης"
+      ],
+      "snippet": "μαχήσεις: κατὰ γὰρ πόλις ἕκαστοι τρέψονται, καὶ οὔτε σφέας Εὐρυβιάδης κατέχειν δυνήσεται οὔτε τις ἀνθρώπων ἄλλος ὥστε μὴ οὐ δια"
+     },
+     {
+      "ref": "hdt. 8.60C.1",
+      "forms": [
+       "Σαλαμῖνι"
+      ],
+      "snippet": "̀ κόσμῳ, Μεγάροισί τε κερδανέομεν περιεοῦσι καὶ Αἰγίνῃ καὶ Σαλαμῖνι, ἐν τῇ ἡμῖν καὶ λόγιον ἐστὶ τῶν ἐχθρῶν κατύπερθε γενέσθ"
+     }
+    ],
+    "text": " τοῦ δὲ εἵνεκεν τούτων ἐπεμνήσθην, φράσω. ἔστι ἐν τῇ ἀκροπόλι ταύτῃ ̓Ερεχθέος τοῦ γηγενέος λεγομένου εἶναι νηός, ἐν τῷ ἐλαίη τε καὶ θάλασσα ἔνι, τὰ λόγος παρὰ ̓Αθηναίων Ποσειδέωνά τε καὶ ̓Αθηναίην ἐρίσαντας περὶ τῆς χώρης μαρτύρια θέσθαι. ταύτην ὦν τὴν ἐλαίην ἅμα τῷ ἄλλῳ ἱρῷ κατέλαβε ἐμπρησθῆναι ὑπὸ τῶν βαρβάρων: δευτέρῃ δὲ ἡμέρῃ ἀπὸ τῆς ἐμπρήσιος ̓Αθηναίων οἱ θύειν ὑπὸ βασιλέος κελευόμενοι ὡς ἀνέβησαν ἐ",
+    "llm_label": "yes"
+   },
+   {
+    "rank": 8,
+    "window_id": "herodotus.histories.part.8:fine:174",
+    "work": "herodotus.histories",
+    "language": "grc",
+    "ref_start": "hdt. 8.84.1",
+    "ref_end": "hdt. 8.88.2",
+    "author_year": -425,
+    "score": 0.017,
+    "n_entities": 3,
+    "idf_sum": -0.0,
+    "gist": "A historian's battle narrative of the opening clash of a sea fight, featuring one captain's charge that sparks the melee, a phantom woman's rebuke of the retreating Greeks, the disposition of the opposing lines, and a closing note on why the narrator names only two trierarchs.",
+    "matched": [
+     "Artemisia [participant] = Ἀρτεμισίην",
+     "Salamis Island [place] = Σαλαμῖνι",
+     "Xerxes [participant] = Ξέρξην"
+    ],
+    "hit_lines": [
+     {
+      "ref": "hdt. 8.86.1",
+      "forms": [
+       "Ξέρξην",
+       "Σαλαμῖνι"
+      ],
+      "snippet": "μέν νυν τούτους οὕτω εἶχε: τὸ δὲ πλῆθος τῶν νεῶν ἐν τῇ Σαλαμῖνι ἐκεραί̈ζετο, αἳ μὲν ὑπ' ̓Αθηναίων διαφθειρόμεναι αἳ δὲ ὑπ"
+     },
+     {
+      "ref": "hdt. 8.87.1",
+      "forms": [
+       "Ἀρτεμισίην"
+      ],
+      "snippet": "ἕκαστοι τῶν βαρβάρων ἢ τῶν ̔Ελλήνων ἠγωνίζοντο: κατὰ δὲ ̓Αρτεμισίην τάδε ἐγένετο, ἀπ' ὧν εὐδοκίμησε μᾶλλον ἔτι παρὰ βασιλέι."
+     },
+     {
+      "ref": "hdt. 8.88.2",
+      "forms": [
+       "Ἀρτεμισίην"
+      ],
+      "snippet": "βαλοῦσαν, καὶ δή τινα εἰπεῖν τῶν παρεόντων “δέσποτα, ὁρᾷς ̓Αρτεμισίην ὡς εὖ ἀγωνίζεται καὶ νέα τῶν πολεμίων κατέδυσε;” καὶ τὸν"
+     }
+    ],
+    "text": " ἐνθαῦτα ἀνῆγον τὰς νέας ἁπάσας ̔́Ελληνες, ἀναγομένοισι δέ σφι αὐτίκα ἐπεκέατο οἱ βάρβαροι. οἱ μὲν δὴ ἄλλοι ̔́Ελληνες ἐπὶ πρύμνην ἀνεκρούοντο καὶ ὤκελλον τὰς νέας, ̓Αμεινίης δὲ Παλληνεὺς ἀνὴρ ̓Αθηναῖος ἐξαναχθεὶς νηὶ ἐμβάλλει: συμπλακείσης δὲ τῆς νεὸς καὶ οὐ δυναμένων ἀπαλλαγῆναι, οὕτω δὴ οἱ ἄλλοι ̓Αμεινίῃ βοηθέοντες συνέμισγον.\n ̓Αθηναῖοι μὲν οὕτω λέγουσι τῆς ναυμαχίης γενέσθαι τὴν ἀρχήν, Αἰγινῆται δὲ τὴν κατὰ τοὺς Α",
+    "llm_label": "yes"
+   },
+   {
+    "rank": 9,
+    "window_id": "polyaenus.strategemata:fine:840",
+    "work": "polyaenus.strategemata",
+    "language": "grc",
+    "ref_start": "polyaenus.strategemata 8.53.1",
+    "ref_end": "polyaenus.strategemata 8.60",
+    "author_year": 163,
+    "score": 0.0157,
+    "n_entities": 4,
+    "idf_sum": -0.0,
+    "gist": "A collection of brief anecdotes celebrating a queen's cunning ruses in war—false flags in a naval rout, a strategically rewarded ramming, and a pious procession that concealed an ambush and won her a city.",
+    "matched": [
+     "Achaemenid Empire [participant] = Περσικὰ",
+     "Artemisia [participant] = Ἀρτεμισία",
+     "Salamis Island [place] = Σαλαμῖνα",
+     "Xerxes [participant] = Ξέρξῃ"
+    ],
+    "hit_lines": [
+     {
+      "ref": "polyaenus.strategemata 8.53.1",
+      "forms": [
+       "Ξέρξῃ",
+       "Περσικὰ",
+       "Σαλαμῖνα",
+       "Ἀρτεμισία"
+      ],
+      "snippet": "Ἀρτεμισία περὶ Σαλαμῖνα συνεναυμάχει [Ξέρξῃ]· τοὺς Πέρσας ἤδη φεύγοντας οἱ Ἕλλη"
+     },
+     {
+      "ref": "polyaenus.strategemata 8.53.2",
+      "forms": [
+       "Ἀρτεμισία"
+      ],
+      "snippet": "Ἀρτεμισία Λυγδάμιδος κατέδυσε ναῦν συμμαχίδα Καλυνδίδα καὶ τριήραρχον Δαμασίθυμ"
+     },
+     {
+      "ref": "polyaenus.strategemata 8.53.3",
+      "forms": [
+       "Ἀρτεμισία"
+      ],
+      "snippet": "Ἀρτεμισία τριηραρχοῦσα νεῶς μακρᾶς οὐ μονον τὸ τῶν βαρβάρων, ἀλλὰ καὶ τὸ τῶν Ἑλ"
+     },
+     {
+      "ref": "polyaenus.strategemata 8.53.4",
+      "forms": [
+       "Ἀρτεμισία"
+      ],
+      "snippet": "Ἀρτεμισία Λάτμον κατελάβετο τὴν μὲν ὡπλισμένην δύναμιν ἀποκρυψαμένη, αὐτὴ δὲ με"
+     },
+     {
+      "ref": "polyaenus.strategemata 8.53.5",
+      "forms": [
+       "Ξέρξῃ",
+       "Ἀρτεμισία"
+      ],
+      "snippet": "Ἀρτεμισία βασιλεύουσα Καρίας Ξέρξῃ βασιλεῖ σινεμάχησε κατὰ τῶν Ἑλλήνων, ὥστε κα"
+     }
+    ],
+    "text": "Ἀρτεμισία περὶ Σαλαμῖνα συνεναυμάχει [Ξέρξῃ]· τοὺς Πέρσας ἤδη φεύγοντας οἱ Ἕλληνες ἐδίωκον. ἡ δὲ [ἤδη] καταλαμβανομένη προσέταξε τοῖς μὲν ἐπιβάταις ἀφελεῖν τῆς νεῶς τὰ σημεῖα τὰ Περσικὰ, τῷ κυβερ- νήτῃ δὲ, ἐμβαλεῖν εἰς τὴν ναῦν τὴν προπλέουσαν Περσικήν. οἱ Ἕλληνες ταῦτα ὁρῶντες, οἰηθέντες μίαν εἶναι τῶν συμμαχίδων νεῶν, ἀπολιπόντες ταύτην ἐπὶ τὰς ἄλλας ἐτράποντο, Ἀρτεμισία δὲ τὸν κίνδυνον [τὸν] ἐπικείμενον ἐκφυγοῦσα εἰς Καρίαν ἀποπλέουσα ᾤχετο.\nἈρτεμισία Λυγδάμιδος κατέδυσε ναῦν συμμαχίδα Καλυνδ",
+    "llm_label": "yes"
+   },
+   {
+    "rank": 10,
+    "window_id": "pausanias.description_of_greece.part.1:fine:234",
+    "work": "pausanias.description_of_greece",
+    "language": "grc",
+    "ref_start": "paus. 1.34.5",
+    "ref_end": "paus. 1.36.3",
+    "author_year": 180,
+    "score": 0.0155,
+    "n_entities": 4,
+    "idf_sum": -0.0,
+    "gist": "An antiquarian description of a dream-oracle's incubation ritual, followed by accounts of islands near Attica, their name origins, and their legendary changes of possession.",
+    "matched": [
+     "Psyttaleia [participant] = Ψυττάλεια",
+     "Salamis Island [place] = Σαλαμὶς",
+     "Themistocles [participant] = Θεμιστοκλῆς",
+     "Xerxes [participant] = Ξέρξου"
+    ],
+    "hit_lines": [
+     {
+      "ref": "paus. 1.35.2",
+      "forms": [
+       "Σαλαμὶς"
+      ],
+      "snippet": "Σαλαμὶς δὲ κατὰ ̓Ελευσῖνα κειμένη παρήκει καὶ ἐς τὴν Μεγαρικήν. πρῶ"
+     },
+     {
+      "ref": "paus. 1.36.1",
+      "forms": [
+       "Θεμιστοκλῆς"
+      ],
+      "snippet": "ἐστιν ἱερόν, τοῦτο δὲ τρόπαιον ἕστηκεν ἀπὸ τῆς νίκης ἣν Θεμιστοκλῆς ὁ Νεοκλέους αἴτιος ἐγένετο γενέσθαι τοῖς ̔́Ελλησι: καὶ Κυχρε"
+     },
+     {
+      "ref": "paus. 1.36.2",
+      "forms": [
+       "Ξέρξου",
+       "Ψυττάλεια"
+      ],
+      "snippet": "νῆσος δὲ πρὸ Σαλαμῖνός ἐστι καλουμένη Ψυττάλεια: ἐς ταύτην τῶν βαρβάρων ὅσον τετρακοσίους ἀποβῆναι λέγουσιν"
+     }
+    ],
+    "text": " δοκῶ δὲ ̓Αμφιάραον ὀνειράτων διακρίσει μάλιστα προσκεῖσθαι: δῆλος δέ, ἡνίκα ἐνομίσθη θεός, δι' ὀνειράτων μαντικὴν καταστησάμενος. καὶ πρῶτον μὲν καθήρασθαι νομίζουσιν ὅστις ἦλθεν ̓Αμφιαράῳ χρησόμενος: ἔστι δὲ καθάρσιον τῷ θεῷ θύειν, θύουσι δὲ καὶ αὐτῷ καὶ πᾶσιν ὅσοις ἐστὶν ἐπὶ τῷ βωμῷ τὰ ὀνόματα: προεξειργασμένων δὲ τούτων κριὸν θύσαντες καὶ τὸ δέρμα ὑποστρωσάμενοι καθεύδουσιν ἀναμένοντες δήλωσιν ὀνείρατος.\n νῆσοι δὲ",
+    "llm_label": "yes"
+   },
+   {
+    "rank": 11,
+    "window_id": "herodotus.histories.part.8:fine:90",
+    "work": "herodotus.histories",
+    "language": "grc",
+    "ref_start": "hdt. 8.45.1",
+    "ref_end": "hdt. 8.51.1",
+    "author_year": -425,
+    "score": 0.0149,
+    "n_entities": 3,
+    "idf_sum": -0.0,
+    "gist": "A roll-call of city and island contingents stating how many warships each contributed, their ancestral origins, and brief notes on loyalty or defection from the enemy.",
+    "matched": [
+     "Artemisia [participant] = Ἀρτεμισίῳ",
+     "Salamis Island [place] = Σαλαμῖνι",
+     "Xerxes [participant] = Ξέρξῃ"
+    ],
+    "hit_lines": [
+     {
+      "ref": "hdt. 8.45.1",
+      "forms": [
+       "Ἀρτεμισίῳ"
+      ],
+      "snippet": "Μεγαρέες δὲ τὠυτὸ πλήρωμα παρείχοντο καὶ ἐπ' ̓Αρτεμισίῳ, ̓Αμπρακιῶται δὲ ἑπτὰ νέας ἔχοντες ἐπεβοήθησαν, Λευκάδιοι"
+     },
+     {
+      "ref": "hdt. 8.46.1",
+      "forms": [
+       "Σαλαμῖνι"
+      ],
+      "snippet": "ἑωυτῶν ἐφύλασσον, τριήκοντα δὲ τῇσι ἄριστα πλεούσῃσι ἐν Σαλαμῖνι ἐναυμάχησαν. Αἰγινῆται δὲ εἰσὶ Δωριέες ἀπὸ ̓Επιδαύρου:"
+     },
+     {
+      "ref": "hdt. 8.46.2",
+      "forms": [
+       "Ἀρτεμισίῳ"
+      ],
+      "snippet": "ν οὔνομα ἦν Οἰνώνη. μετὰ δὲ Αἰγινήτας Χαλκιδέες τὰς ἐπ' ̓Αρτεμισίῳ εἴκοσι παρεχόμενοι καὶ ̓Ερετριέες τὰς ἑπτά: οὗτοι δὲ ̓́Ιω"
+     },
+     {
+      "ref": "hdt. 8.46.4",
+      "forms": [
+       "Ἀρτεμισίῳ"
+      ],
+      "snippet": "Στυρέες δὲ τὰς αὐτὰς παρείχοντο νέας τάς περ ἐπ' ̓Αρτεμισίῳ, Κύθνιοι δὲ μίαν καὶ πεντηκόντερον, ἐόντες συναμφότεροι οὗ"
+     },
+     {
+      "ref": "hdt. 8.49.2",
+      "forms": [
+       "Σαλαμῖνι"
+      ],
+      "snippet": "λέγοντες τὸν λόγον τόνδε, ὡς εἰ νικηθέωσι τῇ ναυμαχίῃ, ἐν Σαλαμῖνι μὲν ἐόντες πολιορκήσονται ἐν νήσῳ, ἵνα σφι τιμωρίη οὐδεμί"
+     },
+     {
+      "ref": "hdt. 8.50.2",
+      "forms": [
+       "Ξέρξῃ"
+      ],
+      "snippet": "ὁ γὰρ διὰ Βοιωτῶν τραπόμενος στρατὸς ἅμα Ξέρξῃ, ἐμπρήσας Θεσπιέων τὴν πόλιν, αὐτῶν ἐκλελοιπότων ἐς Πελοπο"
+     }
+    ],
+    "text": " Μεγαρέες δὲ τὠυτὸ πλήρωμα παρείχοντο καὶ ἐπ' ̓Αρτεμισίῳ, ̓Αμπρακιῶται δὲ ἑπτὰ νέας ἔχοντες ἐπεβοήθησαν, Λευκάδιοι δὲ τρεῖς, ἔθνος ἐόντες οὗτοι Δωρικὸν ἀπὸ Κορίνθου.\n νησιωτέων δὲ Αἰγινῆται τριήκοντα παρείχοντο. ἦσαν μέν σφι καὶ ἄλλαι πεπληρωμέναι νέες, ἀλλὰ τῇσι μὲν τὴν ἑωυτῶν ἐφύλασσον, τριήκοντα δὲ τῇσι ἄριστα πλεούσῃσι ἐν Σαλαμῖνι ἐναυμάχησαν. Αἰγινῆται δὲ εἰσὶ Δωριέες ἀπὸ ̓Επιδαύρου:\n τῇ δὲ νήσῳ πρότερον οὔ",
+    "llm_label": "yes"
+   },
+   {
+    "rank": 12,
+    "window_id": "aeschylus.persians:fine:444",
+    "work": "aeschylus.persians",
+    "language": "grc",
+    "ref_start": "aesch. per. 446",
+    "ref_end": "aesch. per. 457",
+    "author_year": -456,
+    "score": 0.0147,
+    "n_entities": 1,
+    "idf_sum": -0.0,
+    "gist": "A messenger recounts how an ambush force posted on an islet near Salamis to slaughter shipwrecked enemies was instead doomed when a god granted the Greeks victory and they leapt ashore in bronze armor.",
+    "matched": [
+     "Salamis Island [place] = Σαλαμῖνος"
+    ],
+    "hit_lines": [
+     {
+      "ref": "aesch. per. 447",
+      "forms": [
+       "Σαλαμῖνος"
+      ],
+      "snippet": "νῆσός τις ἔστι πρόσθε Σαλαμῖνος τόπων,"
+     }
+    ],
+    "text": "ποίῳ μόρῳ δὲ τούσδε φὴς ὀλωλέναι;\nνῆσός τις ἔστι πρόσθε Σαλαμῖνος τόπων,\nβαιά, δύσορμος ναυσίν, ἣν ὁ φιλόχορος\nΠὰν ἐμβατεύει, ποντίας ἀκτῆς ἔπι.\nἐνταῦθα πέμπει τούσδ', ὅπως, ὅταν νεῶν\nφθαρέντες ἐχθροὶ νῆσον ἐκσῳζοίατο,\nκτείνοιεν εὐχείρωτον Ἑλλήνων στρατόν,\nφίλους δ' ὑπεκσῴζοιεν ἐναλίων πόρων,\nκακῶς τὸ μέλλον ἱστορῶν. ὡς γὰρ θεὸς\nναῶν ἔδωκε κῦδος Ἕλλησιν μάχης,\nαὐθημερὸν φράξαντες εὐχάλκοις δέμας\nὅπλοισι ναῶν ἐξέθρ",
+    "llm_label": "yes"
+   }
+  ],
+  "llm": {
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "counts": {
+    "yes": 23,
+    "mention": 35,
+    "no": 42,
+    "null": 0
+   }
+  }
+ },
+ "documents": {
+  "n": 2,
+  "n_date_overlap_anywhere": 1799,
+  "n_by_radius_km": {
+   "50": 1,
+   "100": 2,
+   "300": 3,
+   "1000": 1053
+  },
+  "n_dated_within_50_years": 1,
+  "n_overlapping_but_no_usable_place": 740,
+  "span_used": [
+   -490,
+   -470
+  ],
+  "radius_km": 100,
+  "items": [
+   {
+    "id": "isicily:ISic020949",
+    "source": "isicily",
+    "text_type": "unknown",
+    "object_type": "kylix",
+    "not_before": -500,
+    "not_after": -480,
+    "date_width": 20,
+    "place": "Athenae",
+    "region": null,
+    "pleiades_id": "579885",
+    "lat": 37.97164,
+    "lon": 23.72391,
+    "distance_km": 21.2,
+    "edition": "Scarci 2026 section 4.3.1 by V. Mignosa, figs. 44-45"
+   },
+   {
+    "id": "isicily:ISic020599",
+    "source": "isicily",
+    "text_type": "agonistic / ludic",
+    "object_type": "cup",
+    "not_before": -550,
+    "not_after": -451,
+    "date_width": 99,
+    "place": "Boeotia",
+    "region": null,
+    "pleiades_id": "540689",
+    "lat": 38.3169,
+    "lon": 23.13492,
+    "distance_km": 51.6,
+    "edition": "IGASM5 94"
+   }
+  ],
+  "findspots": [
+   {
+    "n": 1,
+    "pleiades_id": "579885",
+    "label": "Athenae",
+    "lat": 37.97164,
+    "lon": 23.72391
+   },
+   {
+    "n": 1,
+    "pleiades_id": "540689",
+    "label": "Boeotia",
+    "lat": 38.3169,
+    "lon": 23.13492
+   }
+  ]
+ },
+ "scholarship": {
+  "primary_passages": [
+   {
+    "work": "herodotus.histories",
+    "range": "8.40-8.97",
+    "source": "hand list"
+   },
+   {
+    "work": "aeschylus.persians",
+    "range": "249-514",
+    "source": "hand list"
+   },
+   {
+    "work": "plutarch.themistocles",
+    "range": "12.1-15.5",
+    "source": "hand list"
+   }
+  ],
+  "results": [
+   {
+    "work": "herodotus.histories",
+    "range": "8.40-8.97",
+    "source": "hand list",
+    "citations": [
+     {
+      "article_id": 1136,
+      "title": "When Is Generic MH Particular?",
+      "authors": "Laird, A. G.",
+      "journal": "The American Journal of Philology",
+      "year": 1922,
+      "page": 124,
+      "cites": "Hdt. 8. 65",
+      "url": "https://www.jstor.org/stable/289455"
+     },
+     {
+      "article_id": 2349,
+      "title": "Studies in Greek Noun-Formation: Dental Terminations II. 3",
+      "authors": "Buck, Carl D.",
+      "journal": "Classical Philology",
+      "year": 1921,
+      "page": 367,
+      "cites": "Hdt. 8. 41",
+      "url": "https://www.jstor.org/stable/262906"
+     },
+     {
+      "article_id": 8529,
+      "title": "[untitled] The Classical Journal, (1914-11-01), pages 92-93",
+      "authors": "Bassett, Samuel Eliot",
+      "journal": "The Classical Journal",
+      "year": 1914,
+      "page": 92,
+      "cites": "Hdt. viii. 83",
+      "url": "https://www.jstor.org/stable/3287225"
+     }
+    ],
+    "commentary": [
+     {
+      "commentator": "W. W. How and J. Wells",
+      "ref": "hdt. 8.40.2",
+      "lemma": "ὑποκατημένους",
+      "text": "ὑποκατημένους: transitive here only, ‘awaiting’; cf. vii. 27. 1. E. Meyer (iii, § 222) holds that this idea only grew up after the campaign of Plataea, and that immediately after Thermopylae no one would have contemplated a pitched battle in Boeotia with Xerxes (cf. App. XX, § 2). The Spartans had n"
+     },
+     {
+      "commentator": "W. W. How and J. Wells",
+      "ref": "hdt. 8.41.1",
+      "lemma": "Τροιζῆνα",
+      "text": "Τροιζῆνα. Plutarch (Them. 10) adds φιλοτίμως πάνυ τῶν Τροιζηνίων ὑποδεχομένων. καὶ γὰρ τρέφειν ἐψηφίσαντο δημοσίᾳ, δύο ὀβόλους ἑκάστῳ διδόντες, καὶ τῆς ὀπώρας λαμβάνειν τοὺς παῖδας ἐξεῖναι πανταχόθεν, ἔτι δ̓ ὑπὲρ αὐτῶν διδασκάλοις τελεῖν μισθούς. We may note that the places of refuge were all comman"
+     }
+    ]
+   },
+   {
+    "work": "aeschylus.persians",
+    "range": "249-514",
+    "source": "hand list",
+    "citations": [],
+    "commentary": []
+   },
+   {
+    "work": "plutarch.themistocles",
+    "range": "12.1-15.5",
+    "source": "hand list",
+    "citations": [
+     {
+      "article_id": 11731,
+      "title": "The Battle of Salamis",
+      "authors": "Goodwin, William W.",
+      "journal": "Harvard Studies in Classical Philology",
+      "year": 1906,
+      "page": 75,
+      "cites": "Plut. Them. 12",
+      "url": "https://www.jstor.org/stable/310311"
+     }
+    ],
+    "commentary": []
+   }
+  ]
+ },
+ "map": [
+  {
+   "kind": "event location",
+   "label": "Salamis Island",
+   "lat": 37.94267,
+   "lon": 23.48434
+  },
+  {
+   "kind": "document findspot",
+   "label": "Athenae",
+   "lat": 37.97164,
+   "lon": 23.72391,
+   "n_documents": 1
+  },
+  {
+   "kind": "document findspot",
+   "label": "Boeotia",
+   "lat": 38.3169,
+   "lon": 23.13492,
+   "n_documents": 1
+  }
+ ]
+}

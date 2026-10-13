@@ -167,6 +167,26 @@ def get_corpus_version(language):
     return v
 
 
+def list_corpus_files(language):
+    """(surviving, skipped_parts): the live base-file .tess names for
+    `language` that discover_corpus would load, without loading any cache.
+    For a caller that reads one work's cache at a time instead of holding
+    the whole corpus in memory (the Greek documents reuse build reached its
+    12 GB cap holding every Greek cache at once, 2026-10-09)."""
+    texts_dir = os.path.join(TEXTS_DIR, language)
+    if not os.path.isdir(texts_dir):
+        raise SystemExit(f"No texts/{language}/ directory found at {texts_dir}")
+    all_tess = [f for f in os.listdir(texts_dir) if f.endswith('.tess')]
+    full_versions = {f[:-len('.tess')] for f in all_tess if '.part.' not in f}
+    surviving, skipped_parts = [], []
+    for fname in all_tess:
+        if '.part.' in fname and fname.split('.part.')[0] in full_versions:
+            skipped_parts.append(fname)
+            continue
+        surviving.append(fname)
+    return sorted(surviving), skipped_parts
+
+
 def discover_corpus(language):
     """Return (kept, skipped_parts, missing_cache) where kept is
     {tess_basename: cache_dict} for the live, base-file, hash-valid-cached

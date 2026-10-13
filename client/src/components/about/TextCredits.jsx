@@ -2,10 +2,23 @@ import Pagination from '../common/Pagination';
 import useIncrementalPagination, { BATCH_PAGE_SIZE_OPTIONS } from '../../hooks/useIncrementalPagination';
 import { useState, useEffect, useCallback } from 'react';
 import { languageName } from '../../utils/languageNames';
+import SourcesCredits from './SourcesCredits';
+
+// A deep link from the Reader's About panel ("Full credits"), filtered to
+// the work's author: /text-credits?author=Name. Read once at mount, same
+// as any other page's own query-string params; the filter box then behaves
+// exactly as if the visitor had typed it.
+function authorFromUrl() {
+  try {
+    return new URLSearchParams(window.location.search).get('author') || '';
+  } catch {
+    return '';
+  }
+}
 
 export default function TextCredits() {
-  const [filter, setFilter] = useState('');
-  const [query, setQuery] = useState('');
+  const [filter, setFilter] = useState(authorFromUrl);
+  const [query, setQuery] = useState(authorFromUrl);
   // Translators (2026-09-20): Kline was named only where his translation
   // appeared; the credits page named no translator at all. Every aligned
   // translation is now listed here as well, per language.
@@ -57,7 +70,8 @@ export default function TextCredits() {
 
   return (
     <div className="bg-white rounded-lg shadow p-4 sm:p-8">
-      <h2 className="text-2xl font-semibold text-gray-900 mb-4">Sources</h2>
+      <SourcesCredits />
+      <h2 className="text-2xl font-semibold text-gray-900 mb-4">Sources of the literary texts</h2>
 
       <p className="text-gray-700 leading-relaxed mb-6">
         Below we provide the electronic sources for each of our texts. To the best of our ability, we have

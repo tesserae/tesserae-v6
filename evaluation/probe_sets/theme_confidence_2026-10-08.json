@@ -832,5 +832,239 @@
   "language": "all",
   "bucket": "absent_short",
   "present": false
+ },
+ {
+  "query": "the transformation of a human into an animal or plant",
+  "language": "la",
+  "bucket": "pervasive",
+  "present": true
+ },
+ {
+  "query": "a journey to the underworld to consult the dead",
+  "language": "la",
+  "bucket": "pervasive",
+  "present": true
+ },
+ {
+  "query": "the founding of a city under divine guidance",
+  "language": "la",
+  "bucket": "pervasive",
+  "present": true
+ },
+ {
+  "query": "the praise of rural life and farming",
+  "language": "la",
+  "bucket": "pervasive",
+  "present": true
+ },
+ {
+  "query": "a lover complains of a mistress's cruelty",
+  "language": "la",
+  "bucket": "pervasive",
+  "present": true
+ },
+ {
+  "query": "a ghost appears in a dream to give a warning",
+  "language": "la",
+  "bucket": "specific",
+  "present": true
+ },
+ {
+  "query": "a catalogue of ships or troops is listed before battle",
+  "language": "la",
+  "bucket": "specific",
+  "present": true
+ },
+ {
+  "query": "a banquet with speeches, music, and entertainment",
+  "language": "la",
+  "bucket": "specific",
+  "present": true
+ },
+ {
+  "query": "a computer displays information on a screen",
+  "language": "la",
+  "bucket": "absent",
+  "present": false
+ },
+ {
+  "query": "a car engine is repaired in a garage",
+  "language": "la",
+  "bucket": "absent",
+  "present": false
+ },
+ {
+  "query": "a satellite orbits the earth",
+  "language": "la",
+  "bucket": "absent",
+  "present": false
+ },
+ {
+  "query": "soldiers fire machine guns from trenches",
+  "language": "la",
+  "bucket": "absent",
+  "present": false
+ },
+ {
+  "query": "a factory assembly line produces cars",
+  "language": "la",
+  "bucket": "absent",
+  "present": false
+ },
+ {
+  "query": "a hero descends to the underworld and returns",
+  "language": "grc",
+  "bucket": "pervasive",
+  "present": true
+ },
+ {
+  "query": "the gods intervene directly in human affairs",
+  "language": "grc",
+  "bucket": "pervasive",
+  "present": true
+ },
+ {
+  "query": "a suppliant begs for mercy at an altar",
+  "language": "grc",
+  "bucket": "pervasive",
+  "present": true
+ },
+ {
+  "query": "the sea as a dangerous and uncontrollable force",
+  "language": "grc",
+  "bucket": "pervasive",
+  "present": true
+ },
+ {
+  "query": "rivalry and envy between men striving for honor",
+  "language": "grc",
+  "bucket": "pervasive",
+  "present": true
+ },
+ {
+  "query": "a catalogue of ships or troops is listed before battle",
+  "language": "grc",
+  "bucket": "specific",
+  "present": true
+ },
+ {
+  "query": "a messenger reports a death to the household",
+  "language": "grc",
+  "bucket": "specific",
+  "present": true
+ },
+ {
+  "query": "a philosopher questions his students using analogy",
+  "language": "grc",
+  "bucket": "specific",
+  "present": true
+ },
+ {
+  "query": "a computer displays information on a screen",
+  "language": "grc",
+  "bucket": "absent",
+  "present": false
+ },
+ {
+  "query": "a car engine is repaired in a garage",
+  "language": "grc",
+  "bucket": "absent",
+  "present": false
+ },
+ {
+  "query": "a satellite orbits the earth",
+  "language": "grc",
+  "bucket": "absent",
+  "present": false
+ },
+ {
+  "query": "soldiers fire machine guns from trenches",
+  "language": "grc",
+  "bucket": "absent",
+  "present": false
+ },
+ {
+  "query": "a factory assembly line produces cars",
+  "language": "grc",
+  "bucket": "absent",
+  "present": false
+ },
+ {
+  "query": "temptation and the struggle against sin",
+  "language": "en",
+  "bucket": "pervasive",
+  "present": true
+ },
+ {
+  "query": "the glory and power of God described in praise",
+  "language": "en",
+  "bucket": "pervasive",
+  "present": true
+ },
+ {
+  "query": "exile and wandering far from home",
+  "language": "en",
+  "bucket": "pervasive",
+  "present": true
+ },
+ {
+  "query": "death and mourning for the dead",
+  "language": "en",
+  "bucket": "pervasive",
+  "present": true
+ },
+ {
+  "query": "the contrast between light and darkness",
+  "language": "en",
+  "bucket": "pervasive",
+  "present": true
+ },
+ {
+  "query": "a vision reveals the future to a dreamer",
+  "language": "en",
+  "bucket": "specific",
+  "present": true
+ },
+ {
+  "query": "a serpent tempts with cunning words",
+  "language": "en",
+  "bucket": "specific",
+  "present": true
+ },
+ {
+  "query": "armies gather for a final battle",
+  "language": "en",
+  "bucket": "specific",
+  "present": true
+ },
+ {
+  "query": "a computer displays information on a screen",
+  "language": "en",
+  "bucket": "absent",
+  "present": false
+ },
+ {
+  "query": "a telephone rings in an office",
+  "language": "en",
+  "bucket": "absent",
+  "present": false
+ },
+ {
+  "query": "a satellite orbits the earth",
+  "language": "en",
+  "bucket": "absent",
+  "present": false
+ },
+ {
+  "query": "a factory assembly line produces cars",
+  "language": "en",
+  "bucket": "absent",
+  "present": false
+ },
+ {
+  "query": "a political election campaign with televised debates",
+  "language": "en",
+  "bucket": "absent",
+  "present": false
  }
 ]

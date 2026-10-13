@@ -7,6 +7,8 @@ from flask_login import current_user
 from datetime import datetime
 import json
 import os
+
+from backend import fspaths
 import re
 
 from backend.logging_config import get_logger
@@ -102,7 +104,7 @@ def compute_connections():
         if not os.path.exists(lang_dir):
             return jsonify({'error': f'Language directory not found: {language}'}), 400
         
-        all_texts = [f for f in os.listdir(lang_dir) if f.endswith('.tess')]
+        all_texts = [f for f in fspaths.listdir_text(lang_dir) if f.endswith('.tess')]
         source_texts = data.get('source_texts', all_texts)
         target_texts = data.get('target_texts', all_texts)
         

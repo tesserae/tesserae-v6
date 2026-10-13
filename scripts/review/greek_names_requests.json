@@ -1,0 +1,4583 @@
+{
+ "note": "Requests that touch each of the 36 Greek-named texts by name; used to compare a C-locale server with a UTF-8 one. See scripts/review/README_GOLDEN.md.",
+ "requests": [
+  {
+   "name": "grc_texts",
+   "path": "/api/texts",
+   "params": {
+    "language": "grc"
+   }
+  },
+  {
+   "name": "grc_hierarchy",
+   "path": "/api/texts/hierarchy",
+   "params": {
+    "language": "grc"
+   }
+  },
+  {
+   "name": "grc_descriptions_all",
+   "path": "/api/text-descriptions",
+   "params": {
+    "language": "grc"
+   }
+  },
+  {
+   "name": "grc_text_credits",
+   "path": "/api/text-credits",
+   "params": {
+    "language": "grc"
+   }
+  },
+  {
+   "name": "grc_translations_available",
+   "path": "/api/passages/translations",
+   "params": {
+    "language": "grc"
+   }
+  },
+  {
+   "name": "grc_passages_works",
+   "path": "/api/passages/works",
+   "params": {
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g00_reader",
+   "path": "/api/text/aelian.ἀποσπασμάτια.tess",
+   "params": {
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g00_lines",
+   "path": "/api/text/aelian.ἀποσπασμάτια.tess/lines",
+   "params": {
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g00_book_for",
+   "path": "/api/text/aelian.ἀποσπασμάτια.tess/book-for",
+   "params": {
+    "language": "grc",
+    "ref": "aelian.ἀποσπασμάτια 1"
+   }
+  },
+  {
+   "name": "g00_ls_lemma",
+   "path": "/api/line-search",
+   "params": {
+    "query": "λόγος καί",
+    "language": "grc",
+    "search_type": "lemma",
+    "work": "aelian.ἀποσπασμάτια.tess",
+    "max_results": 40
+   }
+  },
+  {
+   "name": "g00_ls_exact",
+   "path": "/api/line-search",
+   "params": {
+    "query": "καὶ τὸν",
+    "language": "grc",
+    "search_type": "exact",
+    "work": "aelian.ἀποσπασμάτια.tess",
+    "max_results": 40
+   }
+  },
+  {
+   "name": "g00_fusion",
+   "path": "/api/fusion-search",
+   "params": {
+    "source": "aelian.ἀποσπασμάτια.tess",
+    "target": "bion_of_phlossa.epitaphius.tess",
+    "language": "grc",
+    "max": 50
+   },
+   "poll": {
+    "same_url": true,
+    "every": 5,
+    "max_seconds": 900
+   },
+   "ignore": [],
+   "loose": {
+    "list": "parallels",
+    "id": [
+     "source.ref",
+     "target.ref"
+    ],
+    "top": 30,
+    "min_overlap": 0.8
+   }
+  },
+  {
+   "name": "g00_similar",
+   "path": "/api/passages/similar",
+   "params": {
+    "window": "aelian.ἀποσπασμάτια:fine:0",
+    "limit": 10
+   }
+  },
+  {
+   "name": "g00_passage_lines",
+   "path": "/api/passages/lines",
+   "params": {
+    "work": "aelian.ἀποσπασμάτια",
+    "ref_start": "aelian.ἀποσπασμάτια 1",
+    "ref_end": "aelian.ἀποσπασμάτια 3",
+    "context": 1
+   }
+  },
+  {
+   "name": "g00_density",
+   "path": "/api/passages/density",
+   "params": {
+    "work": "aelian.ἀποσπασμάτια"
+   }
+  },
+  {
+   "name": "g00_description",
+   "path": "/api/text-descriptions",
+   "params": {
+    "language": "grc",
+    "work": "aelian.ἀποσπασμάτια"
+   }
+  },
+  {
+   "name": "g00_translation",
+   "path": "/api/translation",
+   "params": {
+    "work": "aelian.ἀποσπασμάτια",
+    "refs": "aelian.ἀποσπασμάτια 1"
+   }
+  },
+  {
+   "name": "g00_translation_full",
+   "path": "/api/passages/translation-full",
+   "params": {
+    "work": "aelian.ἀποσπασμάτια",
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g01_reader",
+   "path": "/api/text/aelius_herodianus.περι_καθολικης_προσῳδιας.tess",
+   "params": {
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g01_lines",
+   "path": "/api/text/aelius_herodianus.περι_καθολικης_προσῳδιας.tess/lines",
+   "params": {
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g01_book_for",
+   "path": "/api/text/aelius_herodianus.περι_καθολικης_προσῳδιας.tess/book-for",
+   "params": {
+    "language": "grc",
+    "ref": "aelius_herodianus.περι_καθολικης_προσῳδιας 0.1"
+   }
+  },
+  {
+   "name": "g01_ls_lemma",
+   "path": "/api/line-search",
+   "params": {
+    "query": "λόγος καί",
+    "language": "grc",
+    "search_type": "lemma",
+    "work": "aelius_herodianus.περι_καθολικης_προσῳδιας.tess",
+    "max_results": 40
+   }
+  },
+  {
+   "name": "g01_ls_exact",
+   "path": "/api/line-search",
+   "params": {
+    "query": "καὶ τὸν",
+    "language": "grc",
+    "search_type": "exact",
+    "work": "aelius_herodianus.περι_καθολικης_προσῳδιας.tess",
+    "max_results": 40
+   }
+  },
+  {
+   "name": "g01_fusion",
+   "path": "/api/fusion-search",
+   "params": {
+    "source": "aelius_herodianus.περι_καθολικης_προσῳδιας.tess",
+    "target": "bion_of_phlossa.epitaphius.tess",
+    "language": "grc",
+    "max": 50
+   },
+   "poll": {
+    "same_url": true,
+    "every": 5,
+    "max_seconds": 900
+   },
+   "ignore": [],
+   "loose": {
+    "list": "parallels",
+    "id": [
+     "source.ref",
+     "target.ref"
+    ],
+    "top": 30,
+    "min_overlap": 0.8
+   }
+  },
+  {
+   "name": "g01_similar",
+   "path": "/api/passages/similar",
+   "params": {
+    "window": "aelius_herodianus.περι_καθολικης_προσῳδιας:fine:0",
+    "limit": 10
+   }
+  },
+  {
+   "name": "g01_passage_lines",
+   "path": "/api/passages/lines",
+   "params": {
+    "work": "aelius_herodianus.περι_καθολικης_προσῳδιας",
+    "ref_start": "aelius_herodianus.περι_καθολικης_προσῳδιας 0.1",
+    "ref_end": "aelius_herodianus.περι_καθολικης_προσῳδιας 0.3",
+    "context": 1
+   }
+  },
+  {
+   "name": "g01_density",
+   "path": "/api/passages/density",
+   "params": {
+    "work": "aelius_herodianus.περι_καθολικης_προσῳδιας"
+   }
+  },
+  {
+   "name": "g01_description",
+   "path": "/api/text-descriptions",
+   "params": {
+    "language": "grc",
+    "work": "aelius_herodianus.περι_καθολικης_προσῳδιας"
+   }
+  },
+  {
+   "name": "g01_translation",
+   "path": "/api/translation",
+   "params": {
+    "work": "aelius_herodianus.περι_καθολικης_προσῳδιας",
+    "refs": "aelius_herodianus.περι_καθολικης_προσῳδιας 0.1"
+   }
+  },
+  {
+   "name": "g01_translation_full",
+   "path": "/api/passages/translation-full",
+   "params": {
+    "work": "aelius_herodianus.περι_καθολικης_προσῳδιας",
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g02_reader",
+   "path": "/api/text/aeschines_sp.ἐπιστολαί.tess",
+   "params": {
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g02_lines",
+   "path": "/api/text/aeschines_sp.ἐπιστολαί.tess/lines",
+   "params": {
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g02_book_for",
+   "path": "/api/text/aeschines_sp.ἐπιστολαί.tess/book-for",
+   "params": {
+    "language": "grc",
+    "ref": "aeschines_sp.ἐπιστολαί 1.1.1"
+   }
+  },
+  {
+   "name": "g02_ls_lemma",
+   "path": "/api/line-search",
+   "params": {
+    "query": "λόγος καί",
+    "language": "grc",
+    "search_type": "lemma",
+    "work": "aeschines_sp.ἐπιστολαί.tess",
+    "max_results": 40
+   }
+  },
+  {
+   "name": "g02_ls_exact",
+   "path": "/api/line-search",
+   "params": {
+    "query": "καὶ τὸν",
+    "language": "grc",
+    "search_type": "exact",
+    "work": "aeschines_sp.ἐπιστολαί.tess",
+    "max_results": 40
+   }
+  },
+  {
+   "name": "g02_fusion",
+   "path": "/api/fusion-search",
+   "params": {
+    "source": "aeschines_sp.ἐπιστολαί.tess",
+    "target": "bion_of_phlossa.epitaphius.tess",
+    "language": "grc",
+    "max": 50
+   },
+   "poll": {
+    "same_url": true,
+    "every": 5,
+    "max_seconds": 900
+   },
+   "ignore": [],
+   "loose": {
+    "list": "parallels",
+    "id": [
+     "source.ref",
+     "target.ref"
+    ],
+    "top": 30,
+    "min_overlap": 0.8
+   }
+  },
+  {
+   "name": "g02_similar",
+   "path": "/api/passages/similar",
+   "params": {
+    "window": "aeschines_sp.ἐπιστολαί:fine:0",
+    "limit": 10
+   }
+  },
+  {
+   "name": "g02_passage_lines",
+   "path": "/api/passages/lines",
+   "params": {
+    "work": "aeschines_sp.ἐπιστολαί",
+    "ref_start": "aeschines_sp.ἐπιστολαί 1.1.1",
+    "ref_end": "aeschines_sp.ἐπιστολαί 1.2",
+    "context": 1
+   }
+  },
+  {
+   "name": "g02_density",
+   "path": "/api/passages/density",
+   "params": {
+    "work": "aeschines_sp.ἐπιστολαί"
+   }
+  },
+  {
+   "name": "g02_description",
+   "path": "/api/text-descriptions",
+   "params": {
+    "language": "grc",
+    "work": "aeschines_sp.ἐπιστολαί"
+   }
+  },
+  {
+   "name": "g02_translation",
+   "path": "/api/translation",
+   "params": {
+    "work": "aeschines_sp.ἐπιστολαί",
+    "refs": "aeschines_sp.ἐπιστολαί 1.1.1"
+   }
+  },
+  {
+   "name": "g02_translation_full",
+   "path": "/api/passages/translation-full",
+   "params": {
+    "work": "aeschines_sp.ἐπιστολαί",
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g03_reader",
+   "path": "/api/text/aesop.αισώπειων_μύθων_συναγωγή.tess",
+   "params": {
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g03_lines",
+   "path": "/api/text/aesop.αισώπειων_μύθων_συναγωγή.tess/lines",
+   "params": {
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g03_book_for",
+   "path": "/api/text/aesop.αισώπειων_μύθων_συναγωγή.tess/book-for",
+   "params": {
+    "language": "grc",
+    "ref": "aesop.αισώπειων_μύθων_συναγωγή 1.1"
+   }
+  },
+  {
+   "name": "g03_ls_lemma",
+   "path": "/api/line-search",
+   "params": {
+    "query": "λόγος καί",
+    "language": "grc",
+    "search_type": "lemma",
+    "work": "aesop.αισώπειων_μύθων_συναγωγή.tess",
+    "max_results": 40
+   }
+  },
+  {
+   "name": "g03_ls_exact",
+   "path": "/api/line-search",
+   "params": {
+    "query": "καὶ τὸν",
+    "language": "grc",
+    "search_type": "exact",
+    "work": "aesop.αισώπειων_μύθων_συναγωγή.tess",
+    "max_results": 40
+   }
+  },
+  {
+   "name": "g03_fusion",
+   "path": "/api/fusion-search",
+   "params": {
+    "source": "aesop.αισώπειων_μύθων_συναγωγή.tess",
+    "target": "bion_of_phlossa.epitaphius.tess",
+    "language": "grc",
+    "max": 50
+   },
+   "poll": {
+    "same_url": true,
+    "every": 5,
+    "max_seconds": 900
+   },
+   "ignore": [],
+   "loose": {
+    "list": "parallels",
+    "id": [
+     "source.ref",
+     "target.ref"
+    ],
+    "top": 30,
+    "min_overlap": 0.8
+   }
+  },
+  {
+   "name": "g03_similar",
+   "path": "/api/passages/similar",
+   "params": {
+    "window": "aesop.αισώπειων_μύθων_συναγωγή:fine:0",
+    "limit": 10
+   }
+  },
+  {
+   "name": "g03_passage_lines",
+   "path": "/api/passages/lines",
+   "params": {
+    "work": "aesop.αισώπειων_μύθων_συναγωγή",
+    "ref_start": "aesop.αισώπειων_μύθων_συναγωγή 1.1",
+    "ref_end": "aesop.αισώπειων_μύθων_συναγωγή 2.1",
+    "context": 1
+   }
+  },
+  {
+   "name": "g03_density",
+   "path": "/api/passages/density",
+   "params": {
+    "work": "aesop.αισώπειων_μύθων_συναγωγή"
+   }
+  },
+  {
+   "name": "g03_description",
+   "path": "/api/text-descriptions",
+   "params": {
+    "language": "grc",
+    "work": "aesop.αισώπειων_μύθων_συναγωγή"
+   }
+  },
+  {
+   "name": "g03_translation",
+   "path": "/api/translation",
+   "params": {
+    "work": "aesop.αισώπειων_μύθων_συναγωγή",
+    "refs": "aesop.αισώπειων_μύθων_συναγωγή 1.1"
+   }
+  },
+  {
+   "name": "g03_translation_full",
+   "path": "/api/passages/translation-full",
+   "params": {
+    "work": "aesop.αισώπειων_μύθων_συναγωγή",
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g04_reader",
+   "path": "/api/text/alcidamas.περὶ_σοφιστῶν.tess",
+   "params": {
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g04_lines",
+   "path": "/api/text/alcidamas.περὶ_σοφιστῶν.tess/lines",
+   "params": {
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g04_book_for",
+   "path": "/api/text/alcidamas.περὶ_σοφιστῶν.tess/book-for",
+   "params": {
+    "language": "grc",
+    "ref": "alcidamas.περὶ_σοφιστῶν 1"
+   }
+  },
+  {
+   "name": "g04_ls_lemma",
+   "path": "/api/line-search",
+   "params": {
+    "query": "λόγος καί",
+    "language": "grc",
+    "search_type": "lemma",
+    "work": "alcidamas.περὶ_σοφιστῶν.tess",
+    "max_results": 40
+   }
+  },
+  {
+   "name": "g04_ls_exact",
+   "path": "/api/line-search",
+   "params": {
+    "query": "καὶ τὸν",
+    "language": "grc",
+    "search_type": "exact",
+    "work": "alcidamas.περὶ_σοφιστῶν.tess",
+    "max_results": 40
+   }
+  },
+  {
+   "name": "g04_fusion",
+   "path": "/api/fusion-search",
+   "params": {
+    "source": "alcidamas.περὶ_σοφιστῶν.tess",
+    "target": "bion_of_phlossa.epitaphius.tess",
+    "language": "grc",
+    "max": 50
+   },
+   "poll": {
+    "same_url": true,
+    "every": 5,
+    "max_seconds": 900
+   },
+   "ignore": [],
+   "loose": {
+    "list": "parallels",
+    "id": [
+     "source.ref",
+     "target.ref"
+    ],
+    "top": 30,
+    "min_overlap": 0.8
+   }
+  },
+  {
+   "name": "g04_similar",
+   "path": "/api/passages/similar",
+   "params": {
+    "window": "alcidamas.περὶ_σοφιστῶν:fine:0",
+    "limit": 10
+   }
+  },
+  {
+   "name": "g04_passage_lines",
+   "path": "/api/passages/lines",
+   "params": {
+    "work": "alcidamas.περὶ_σοφιστῶν",
+    "ref_start": "alcidamas.περὶ_σοφιστῶν 1",
+    "ref_end": "alcidamas.περὶ_σοφιστῶν 3",
+    "context": 1
+   }
+  },
+  {
+   "name": "g04_density",
+   "path": "/api/passages/density",
+   "params": {
+    "work": "alcidamas.περὶ_σοφιστῶν"
+   }
+  },
+  {
+   "name": "g04_description",
+   "path": "/api/text-descriptions",
+   "params": {
+    "language": "grc",
+    "work": "alcidamas.περὶ_σοφιστῶν"
+   }
+  },
+  {
+   "name": "g04_translation",
+   "path": "/api/translation",
+   "params": {
+    "work": "alcidamas.περὶ_σοφιστῶν",
+    "refs": "alcidamas.περὶ_σοφιστῶν 1"
+   }
+  },
+  {
+   "name": "g04_translation_full",
+   "path": "/api/passages/translation-full",
+   "params": {
+    "work": "alcidamas.περὶ_σοφιστῶν",
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g05_reader",
+   "path": "/api/text/alcidamas.ὀδυσσεύς.tess",
+   "params": {
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g05_lines",
+   "path": "/api/text/alcidamas.ὀδυσσεύς.tess/lines",
+   "params": {
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g05_book_for",
+   "path": "/api/text/alcidamas.ὀδυσσεύς.tess/book-for",
+   "params": {
+    "language": "grc",
+    "ref": "alcidamas.ὀδυσσεύς 1.1"
+   }
+  },
+  {
+   "name": "g05_ls_lemma",
+   "path": "/api/line-search",
+   "params": {
+    "query": "λόγος καί",
+    "language": "grc",
+    "search_type": "lemma",
+    "work": "alcidamas.ὀδυσσεύς.tess",
+    "max_results": 40
+   }
+  },
+  {
+   "name": "g05_ls_exact",
+   "path": "/api/line-search",
+   "params": {
+    "query": "καὶ τὸν",
+    "language": "grc",
+    "search_type": "exact",
+    "work": "alcidamas.ὀδυσσεύς.tess",
+    "max_results": 40
+   }
+  },
+  {
+   "name": "g05_fusion",
+   "path": "/api/fusion-search",
+   "params": {
+    "source": "alcidamas.ὀδυσσεύς.tess",
+    "target": "bion_of_phlossa.epitaphius.tess",
+    "language": "grc",
+    "max": 50
+   },
+   "poll": {
+    "same_url": true,
+    "every": 5,
+    "max_seconds": 900
+   },
+   "ignore": [],
+   "loose": {
+    "list": "parallels",
+    "id": [
+     "source.ref",
+     "target.ref"
+    ],
+    "top": 30,
+    "min_overlap": 0.8
+   }
+  },
+  {
+   "name": "g05_similar",
+   "path": "/api/passages/similar",
+   "params": {
+    "window": "alcidamas.ὀδυσσεύς:fine:0",
+    "limit": 10
+   }
+  },
+  {
+   "name": "g05_passage_lines",
+   "path": "/api/passages/lines",
+   "params": {
+    "work": "alcidamas.ὀδυσσεύς",
+    "ref_start": "alcidamas.ὀδυσσεύς 1.1",
+    "ref_end": "alcidamas.ὀδυσσεύς 1.3",
+    "context": 1
+   }
+  },
+  {
+   "name": "g05_density",
+   "path": "/api/passages/density",
+   "params": {
+    "work": "alcidamas.ὀδυσσεύς"
+   }
+  },
+  {
+   "name": "g05_description",
+   "path": "/api/text-descriptions",
+   "params": {
+    "language": "grc",
+    "work": "alcidamas.ὀδυσσεύς"
+   }
+  },
+  {
+   "name": "g05_translation",
+   "path": "/api/translation",
+   "params": {
+    "work": "alcidamas.ὀδυσσεύς",
+    "refs": "alcidamas.ὀδυσσεύς 1.1"
+   }
+  },
+  {
+   "name": "g05_translation_full",
+   "path": "/api/passages/translation-full",
+   "params": {
+    "work": "alcidamas.ὀδυσσεύς",
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g06_reader",
+   "path": "/api/text/antisthenes.αἴας.tess",
+   "params": {
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g06_lines",
+   "path": "/api/text/antisthenes.αἴας.tess/lines",
+   "params": {
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g06_book_for",
+   "path": "/api/text/antisthenes.αἴας.tess/book-for",
+   "params": {
+    "language": "grc",
+    "ref": "antisthenes. 1"
+   }
+  },
+  {
+   "name": "g06_ls_lemma",
+   "path": "/api/line-search",
+   "params": {
+    "query": "λόγος καί",
+    "language": "grc",
+    "search_type": "lemma",
+    "work": "antisthenes.αἴας.tess",
+    "max_results": 40
+   }
+  },
+  {
+   "name": "g06_ls_exact",
+   "path": "/api/line-search",
+   "params": {
+    "query": "καὶ τὸν",
+    "language": "grc",
+    "search_type": "exact",
+    "work": "antisthenes.αἴας.tess",
+    "max_results": 40
+   }
+  },
+  {
+   "name": "g06_fusion",
+   "path": "/api/fusion-search",
+   "params": {
+    "source": "antisthenes.αἴας.tess",
+    "target": "bion_of_phlossa.epitaphius.tess",
+    "language": "grc",
+    "max": 50
+   },
+   "poll": {
+    "same_url": true,
+    "every": 5,
+    "max_seconds": 900
+   },
+   "ignore": [],
+   "loose": {
+    "list": "parallels",
+    "id": [
+     "source.ref",
+     "target.ref"
+    ],
+    "top": 30,
+    "min_overlap": 0.8
+   }
+  },
+  {
+   "name": "g06_similar",
+   "path": "/api/passages/similar",
+   "params": {
+    "window": "antisthenes.αἴας:fine:0",
+    "limit": 10
+   }
+  },
+  {
+   "name": "g06_passage_lines",
+   "path": "/api/passages/lines",
+   "params": {
+    "work": "antisthenes.αἴας",
+    "ref_start": "antisthenes. 1",
+    "ref_end": "antisthenes. 3",
+    "context": 1
+   }
+  },
+  {
+   "name": "g06_density",
+   "path": "/api/passages/density",
+   "params": {
+    "work": "antisthenes.αἴας"
+   }
+  },
+  {
+   "name": "g06_description",
+   "path": "/api/text-descriptions",
+   "params": {
+    "language": "grc",
+    "work": "antisthenes.αἴας"
+   }
+  },
+  {
+   "name": "g06_translation",
+   "path": "/api/translation",
+   "params": {
+    "work": "antisthenes.αἴας",
+    "refs": "antisthenes. 1"
+   }
+  },
+  {
+   "name": "g06_translation_full",
+   "path": "/api/passages/translation-full",
+   "params": {
+    "work": "antisthenes.αἴας",
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g07_reader",
+   "path": "/api/text/antisthenes.ὀδυσσεύς.tess",
+   "params": {
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g07_lines",
+   "path": "/api/text/antisthenes.ὀδυσσεύς.tess/lines",
+   "params": {
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g07_book_for",
+   "path": "/api/text/antisthenes.ὀδυσσεύς.tess/book-for",
+   "params": {
+    "language": "grc",
+    "ref": "antisthenes. 1"
+   }
+  },
+  {
+   "name": "g07_ls_lemma",
+   "path": "/api/line-search",
+   "params": {
+    "query": "λόγος καί",
+    "language": "grc",
+    "search_type": "lemma",
+    "work": "antisthenes.ὀδυσσεύς.tess",
+    "max_results": 40
+   }
+  },
+  {
+   "name": "g07_ls_exact",
+   "path": "/api/line-search",
+   "params": {
+    "query": "καὶ τὸν",
+    "language": "grc",
+    "search_type": "exact",
+    "work": "antisthenes.ὀδυσσεύς.tess",
+    "max_results": 40
+   }
+  },
+  {
+   "name": "g07_fusion",
+   "path": "/api/fusion-search",
+   "params": {
+    "source": "antisthenes.ὀδυσσεύς.tess",
+    "target": "bion_of_phlossa.epitaphius.tess",
+    "language": "grc",
+    "max": 50
+   },
+   "poll": {
+    "same_url": true,
+    "every": 5,
+    "max_seconds": 900
+   },
+   "ignore": [],
+   "loose": {
+    "list": "parallels",
+    "id": [
+     "source.ref",
+     "target.ref"
+    ],
+    "top": 30,
+    "min_overlap": 0.8
+   }
+  },
+  {
+   "name": "g07_similar",
+   "path": "/api/passages/similar",
+   "params": {
+    "window": "antisthenes.ὀδυσσεύς:fine:0",
+    "limit": 10
+   }
+  },
+  {
+   "name": "g07_passage_lines",
+   "path": "/api/passages/lines",
+   "params": {
+    "work": "antisthenes.ὀδυσσεύς",
+    "ref_start": "antisthenes. 1",
+    "ref_end": "antisthenes. 3",
+    "context": 1
+   }
+  },
+  {
+   "name": "g07_density",
+   "path": "/api/passages/density",
+   "params": {
+    "work": "antisthenes.ὀδυσσεύς"
+   }
+  },
+  {
+   "name": "g07_description",
+   "path": "/api/text-descriptions",
+   "params": {
+    "language": "grc",
+    "work": "antisthenes.ὀδυσσεύς"
+   }
+  },
+  {
+   "name": "g07_translation",
+   "path": "/api/translation",
+   "params": {
+    "work": "antisthenes.ὀδυσσεύς",
+    "refs": "antisthenes. 1"
+   }
+  },
+  {
+   "name": "g07_translation_full",
+   "path": "/api/passages/translation-full",
+   "params": {
+    "work": "antisthenes.ὀδυσσεύς",
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g08_reader",
+   "path": "/api/text/apollonius_dyscolus.περὶ_ἀντωνυμίας.tess",
+   "params": {
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g08_lines",
+   "path": "/api/text/apollonius_dyscolus.περὶ_ἀντωνυμίας.tess/lines",
+   "params": {
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g08_book_for",
+   "path": "/api/text/apollonius_dyscolus.περὶ_ἀντωνυμίας.tess/book-for",
+   "params": {
+    "language": "grc",
+    "ref": "apollonius_dyscolus.περὶ_ἀντωνυμίας 1"
+   }
+  },
+  {
+   "name": "g08_ls_lemma",
+   "path": "/api/line-search",
+   "params": {
+    "query": "λόγος καί",
+    "language": "grc",
+    "search_type": "lemma",
+    "work": "apollonius_dyscolus.περὶ_ἀντωνυμίας.tess",
+    "max_results": 40
+   }
+  },
+  {
+   "name": "g08_ls_exact",
+   "path": "/api/line-search",
+   "params": {
+    "query": "καὶ τὸν",
+    "language": "grc",
+    "search_type": "exact",
+    "work": "apollonius_dyscolus.περὶ_ἀντωνυμίας.tess",
+    "max_results": 40
+   }
+  },
+  {
+   "name": "g08_fusion",
+   "path": "/api/fusion-search",
+   "params": {
+    "source": "apollonius_dyscolus.περὶ_ἀντωνυμίας.tess",
+    "target": "bion_of_phlossa.epitaphius.tess",
+    "language": "grc",
+    "max": 50
+   },
+   "poll": {
+    "same_url": true,
+    "every": 5,
+    "max_seconds": 900
+   },
+   "ignore": [],
+   "loose": {
+    "list": "parallels",
+    "id": [
+     "source.ref",
+     "target.ref"
+    ],
+    "top": 30,
+    "min_overlap": 0.8
+   }
+  },
+  {
+   "name": "g08_similar",
+   "path": "/api/passages/similar",
+   "params": {
+    "window": "apollonius_dyscolus.περὶ_ἀντωνυμίας:fine:0",
+    "limit": 10
+   }
+  },
+  {
+   "name": "g08_passage_lines",
+   "path": "/api/passages/lines",
+   "params": {
+    "work": "apollonius_dyscolus.περὶ_ἀντωνυμίας",
+    "ref_start": "apollonius_dyscolus.περὶ_ἀντωνυμίας 1",
+    "ref_end": "apollonius_dyscolus.περὶ_ἀντωνυμίας 3",
+    "context": 1
+   }
+  },
+  {
+   "name": "g08_density",
+   "path": "/api/passages/density",
+   "params": {
+    "work": "apollonius_dyscolus.περὶ_ἀντωνυμίας"
+   }
+  },
+  {
+   "name": "g08_description",
+   "path": "/api/text-descriptions",
+   "params": {
+    "language": "grc",
+    "work": "apollonius_dyscolus.περὶ_ἀντωνυμίας"
+   }
+  },
+  {
+   "name": "g08_translation",
+   "path": "/api/translation",
+   "params": {
+    "work": "apollonius_dyscolus.περὶ_ἀντωνυμίας",
+    "refs": "apollonius_dyscolus.περὶ_ἀντωνυμίας 1"
+   }
+  },
+  {
+   "name": "g08_translation_full",
+   "path": "/api/passages/translation-full",
+   "params": {
+    "work": "apollonius_dyscolus.περὶ_ἀντωνυμίας",
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g09_reader",
+   "path": "/api/text/aristotle.αριστοτέλους_φυσικά_προβλήματα_κατ_εἶδος_συναγώγης.tess",
+   "params": {
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g09_lines",
+   "path": "/api/text/aristotle.αριστοτέλους_φυσικά_προβλήματα_κατ_εἶδος_συναγώγης.tess/lines",
+   "params": {
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g09_book_for",
+   "path": "/api/text/aristotle.αριστοτέλους_φυσικά_προβλήματα_κατ_εἶδος_συναγώγης.tess/book-for",
+   "params": {
+    "language": "grc",
+    "ref": "aristotle.αριστοτέλους_φυσικά_προβλήματα_κατ_εἶδος_συναγώγης 1.1"
+   }
+  },
+  {
+   "name": "g09_ls_lemma",
+   "path": "/api/line-search",
+   "params": {
+    "query": "λόγος καί",
+    "language": "grc",
+    "search_type": "lemma",
+    "work": "aristotle.αριστοτέλους_φυσικά_προβλήματα_κατ_εἶδος_συναγώγης.tess",
+    "max_results": 40
+   }
+  },
+  {
+   "name": "g09_ls_exact",
+   "path": "/api/line-search",
+   "params": {
+    "query": "καὶ τὸν",
+    "language": "grc",
+    "search_type": "exact",
+    "work": "aristotle.αριστοτέλους_φυσικά_προβλήματα_κατ_εἶδος_συναγώγης.tess",
+    "max_results": 40
+   }
+  },
+  {
+   "name": "g09_fusion",
+   "path": "/api/fusion-search",
+   "params": {
+    "source": "aristotle.αριστοτέλους_φυσικά_προβλήματα_κατ_εἶδος_συναγώγης.tess",
+    "target": "bion_of_phlossa.epitaphius.tess",
+    "language": "grc",
+    "max": 50
+   },
+   "poll": {
+    "same_url": true,
+    "every": 5,
+    "max_seconds": 900
+   },
+   "ignore": [],
+   "loose": {
+    "list": "parallels",
+    "id": [
+     "source.ref",
+     "target.ref"
+    ],
+    "top": 30,
+    "min_overlap": 0.8
+   }
+  },
+  {
+   "name": "g09_similar",
+   "path": "/api/passages/similar",
+   "params": {
+    "window": "aristotle.αριστοτέλους_φυσικά_προβλήματα_κατ_εἶδος_συναγώγης:fine:0",
+    "limit": 10
+   }
+  },
+  {
+   "name": "g09_passage_lines",
+   "path": "/api/passages/lines",
+   "params": {
+    "work": "aristotle.αριστοτέλους_φυσικά_προβλήματα_κατ_εἶδος_συναγώγης",
+    "ref_start": "aristotle.αριστοτέλους_φυσικά_προβλήματα_κατ_εἶδος_συναγώγης 1.1",
+    "ref_end": "aristotle.αριστοτέλους_φυσικά_προβλήματα_κατ_εἶδος_συναγώγης 1.3",
+    "context": 1
+   }
+  },
+  {
+   "name": "g09_density",
+   "path": "/api/passages/density",
+   "params": {
+    "work": "aristotle.αριστοτέλους_φυσικά_προβλήματα_κατ_εἶδος_συναγώγης"
+   }
+  },
+  {
+   "name": "g09_description",
+   "path": "/api/text-descriptions",
+   "params": {
+    "language": "grc",
+    "work": "aristotle.αριστοτέλους_φυσικά_προβλήματα_κατ_εἶδος_συναγώγης"
+   }
+  },
+  {
+   "name": "g09_translation",
+   "path": "/api/translation",
+   "params": {
+    "work": "aristotle.αριστοτέλους_φυσικά_προβλήματα_κατ_εἶδος_συναγώγης",
+    "refs": "aristotle.αριστοτέλους_φυσικά_προβλήματα_κατ_εἶδος_συναγώγης 1.1"
+   }
+  },
+  {
+   "name": "g09_translation_full",
+   "path": "/api/passages/translation-full",
+   "params": {
+    "work": "aristotle.αριστοτέλους_φυσικά_προβλήματα_κατ_εἶδος_συναγώγης",
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g10_reader",
+   "path": "/api/text/aristotle.μηχανικά.tess",
+   "params": {
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g10_lines",
+   "path": "/api/text/aristotle.μηχανικά.tess/lines",
+   "params": {
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g10_book_for",
+   "path": "/api/text/aristotle.μηχανικά.tess/book-for",
+   "params": {
+    "language": "grc",
+    "ref": "aristotle.μηχανικά 0.1"
+   }
+  },
+  {
+   "name": "g10_ls_lemma",
+   "path": "/api/line-search",
+   "params": {
+    "query": "λόγος καί",
+    "language": "grc",
+    "search_type": "lemma",
+    "work": "aristotle.μηχανικά.tess",
+    "max_results": 40
+   }
+  },
+  {
+   "name": "g10_ls_exact",
+   "path": "/api/line-search",
+   "params": {
+    "query": "καὶ τὸν",
+    "language": "grc",
+    "search_type": "exact",
+    "work": "aristotle.μηχανικά.tess",
+    "max_results": 40
+   }
+  },
+  {
+   "name": "g10_fusion",
+   "path": "/api/fusion-search",
+   "params": {
+    "source": "aristotle.μηχανικά.tess",
+    "target": "bion_of_phlossa.epitaphius.tess",
+    "language": "grc",
+    "max": 50
+   },
+   "poll": {
+    "same_url": true,
+    "every": 5,
+    "max_seconds": 900
+   },
+   "ignore": [],
+   "loose": {
+    "list": "parallels",
+    "id": [
+     "source.ref",
+     "target.ref"
+    ],
+    "top": 30,
+    "min_overlap": 0.8
+   }
+  },
+  {
+   "name": "g10_similar",
+   "path": "/api/passages/similar",
+   "params": {
+    "window": "aristotle.μηχανικά:fine:0",
+    "limit": 10
+   }
+  },
+  {
+   "name": "g10_passage_lines",
+   "path": "/api/passages/lines",
+   "params": {
+    "work": "aristotle.μηχανικά",
+    "ref_start": "aristotle.μηχανικά 0.1",
+    "ref_end": "aristotle.μηχανικά 0.3",
+    "context": 1
+   }
+  },
+  {
+   "name": "g10_density",
+   "path": "/api/passages/density",
+   "params": {
+    "work": "aristotle.μηχανικά"
+   }
+  },
+  {
+   "name": "g10_description",
+   "path": "/api/text-descriptions",
+   "params": {
+    "language": "grc",
+    "work": "aristotle.μηχανικά"
+   }
+  },
+  {
+   "name": "g10_translation",
+   "path": "/api/translation",
+   "params": {
+    "work": "aristotle.μηχανικά",
+    "refs": "aristotle.μηχανικά 0.1"
+   }
+  },
+  {
+   "name": "g10_translation_full",
+   "path": "/api/passages/translation-full",
+   "params": {
+    "work": "aristotle.μηχανικά",
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g11_reader",
+   "path": "/api/text/aristotle.περί_χρωμάτων.tess",
+   "params": {
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g11_lines",
+   "path": "/api/text/aristotle.περί_χρωμάτων.tess/lines",
+   "params": {
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g11_book_for",
+   "path": "/api/text/aristotle.περί_χρωμάτων.tess/book-for",
+   "params": {
+    "language": "grc",
+    "ref": "aristotle.περί_χρωμάτων 1.1"
+   }
+  },
+  {
+   "name": "g11_ls_lemma",
+   "path": "/api/line-search",
+   "params": {
+    "query": "λόγος καί",
+    "language": "grc",
+    "search_type": "lemma",
+    "work": "aristotle.περί_χρωμάτων.tess",
+    "max_results": 40
+   }
+  },
+  {
+   "name": "g11_ls_exact",
+   "path": "/api/line-search",
+   "params": {
+    "query": "καὶ τὸν",
+    "language": "grc",
+    "search_type": "exact",
+    "work": "aristotle.περί_χρωμάτων.tess",
+    "max_results": 40
+   }
+  },
+  {
+   "name": "g11_fusion",
+   "path": "/api/fusion-search",
+   "params": {
+    "source": "aristotle.περί_χρωμάτων.tess",
+    "target": "bion_of_phlossa.epitaphius.tess",
+    "language": "grc",
+    "max": 50
+   },
+   "poll": {
+    "same_url": true,
+    "every": 5,
+    "max_seconds": 900
+   },
+   "ignore": [],
+   "loose": {
+    "list": "parallels",
+    "id": [
+     "source.ref",
+     "target.ref"
+    ],
+    "top": 30,
+    "min_overlap": 0.8
+   }
+  },
+  {
+   "name": "g11_similar",
+   "path": "/api/passages/similar",
+   "params": {
+    "window": "aristotle.περί_χρωμάτων:fine:0",
+    "limit": 10
+   }
+  },
+  {
+   "name": "g11_passage_lines",
+   "path": "/api/passages/lines",
+   "params": {
+    "work": "aristotle.περί_χρωμάτων",
+    "ref_start": "aristotle.περί_χρωμάτων 1.1",
+    "ref_end": "aristotle.περί_χρωμάτων 1.3",
+    "context": 1
+   }
+  },
+  {
+   "name": "g11_density",
+   "path": "/api/passages/density",
+   "params": {
+    "work": "aristotle.περί_χρωμάτων"
+   }
+  },
+  {
+   "name": "g11_description",
+   "path": "/api/text-descriptions",
+   "params": {
+    "language": "grc",
+    "work": "aristotle.περί_χρωμάτων"
+   }
+  },
+  {
+   "name": "g11_translation",
+   "path": "/api/translation",
+   "params": {
+    "work": "aristotle.περί_χρωμάτων",
+    "refs": "aristotle.περί_χρωμάτων 1.1"
+   }
+  },
+  {
+   "name": "g11_translation_full",
+   "path": "/api/passages/translation-full",
+   "params": {
+    "work": "aristotle.περί_χρωμάτων",
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g12_reader",
+   "path": "/api/text/aristotle.φυσιογνωμονικά.tess",
+   "params": {
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g12_lines",
+   "path": "/api/text/aristotle.φυσιογνωμονικά.tess/lines",
+   "params": {
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g12_book_for",
+   "path": "/api/text/aristotle.φυσιογνωμονικά.tess/book-for",
+   "params": {
+    "language": "grc",
+    "ref": "aristotle.φυσιογνωμονικά 1.1"
+   }
+  },
+  {
+   "name": "g12_ls_lemma",
+   "path": "/api/line-search",
+   "params": {
+    "query": "λόγος καί",
+    "language": "grc",
+    "search_type": "lemma",
+    "work": "aristotle.φυσιογνωμονικά.tess",
+    "max_results": 40
+   }
+  },
+  {
+   "name": "g12_ls_exact",
+   "path": "/api/line-search",
+   "params": {
+    "query": "καὶ τὸν",
+    "language": "grc",
+    "search_type": "exact",
+    "work": "aristotle.φυσιογνωμονικά.tess",
+    "max_results": 40
+   }
+  },
+  {
+   "name": "g12_fusion",
+   "path": "/api/fusion-search",
+   "params": {
+    "source": "aristotle.φυσιογνωμονικά.tess",
+    "target": "bion_of_phlossa.epitaphius.tess",
+    "language": "grc",
+    "max": 50
+   },
+   "poll": {
+    "same_url": true,
+    "every": 5,
+    "max_seconds": 900
+   },
+   "ignore": [],
+   "loose": {
+    "list": "parallels",
+    "id": [
+     "source.ref",
+     "target.ref"
+    ],
+    "top": 30,
+    "min_overlap": 0.8
+   }
+  },
+  {
+   "name": "g12_similar",
+   "path": "/api/passages/similar",
+   "params": {
+    "window": "aristotle.φυσιογνωμονικά:fine:0",
+    "limit": 10
+   }
+  },
+  {
+   "name": "g12_passage_lines",
+   "path": "/api/passages/lines",
+   "params": {
+    "work": "aristotle.φυσιογνωμονικά",
+    "ref_start": "aristotle.φυσιογνωμονικά 1.1",
+    "ref_end": "aristotle.φυσιογνωμονικά 1.3",
+    "context": 1
+   }
+  },
+  {
+   "name": "g12_density",
+   "path": "/api/passages/density",
+   "params": {
+    "work": "aristotle.φυσιογνωμονικά"
+   }
+  },
+  {
+   "name": "g12_description",
+   "path": "/api/text-descriptions",
+   "params": {
+    "language": "grc",
+    "work": "aristotle.φυσιογνωμονικά"
+   }
+  },
+  {
+   "name": "g12_translation",
+   "path": "/api/translation",
+   "params": {
+    "work": "aristotle.φυσιογνωμονικά",
+    "refs": "aristotle.φυσιογνωμονικά 1.1"
+   }
+  },
+  {
+   "name": "g12_translation_full",
+   "path": "/api/passages/translation-full",
+   "params": {
+    "work": "aristotle.φυσιογνωμονικά",
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g13_reader",
+   "path": "/api/text/aristotle.ἐκ_τοῦ_περὶ_ἀκουστῶν.tess",
+   "params": {
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g13_lines",
+   "path": "/api/text/aristotle.ἐκ_τοῦ_περὶ_ἀκουστῶν.tess/lines",
+   "params": {
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g13_book_for",
+   "path": "/api/text/aristotle.ἐκ_τοῦ_περὶ_ἀκουστῶν.tess/book-for",
+   "params": {
+    "language": "grc",
+    "ref": "aristotle.ἐκ_τοῦ_περὶ_ἀκουστῶν 1"
+   }
+  },
+  {
+   "name": "g13_ls_lemma",
+   "path": "/api/line-search",
+   "params": {
+    "query": "λόγος καί",
+    "language": "grc",
+    "search_type": "lemma",
+    "work": "aristotle.ἐκ_τοῦ_περὶ_ἀκουστῶν.tess",
+    "max_results": 40
+   }
+  },
+  {
+   "name": "g13_ls_exact",
+   "path": "/api/line-search",
+   "params": {
+    "query": "καὶ τὸν",
+    "language": "grc",
+    "search_type": "exact",
+    "work": "aristotle.ἐκ_τοῦ_περὶ_ἀκουστῶν.tess",
+    "max_results": 40
+   }
+  },
+  {
+   "name": "g13_fusion",
+   "path": "/api/fusion-search",
+   "params": {
+    "source": "aristotle.ἐκ_τοῦ_περὶ_ἀκουστῶν.tess",
+    "target": "bion_of_phlossa.epitaphius.tess",
+    "language": "grc",
+    "max": 50
+   },
+   "poll": {
+    "same_url": true,
+    "every": 5,
+    "max_seconds": 900
+   },
+   "ignore": [],
+   "loose": {
+    "list": "parallels",
+    "id": [
+     "source.ref",
+     "target.ref"
+    ],
+    "top": 30,
+    "min_overlap": 0.8
+   }
+  },
+  {
+   "name": "g13_similar",
+   "path": "/api/passages/similar",
+   "params": {
+    "window": "aristotle.ἐκ_τοῦ_περὶ_ἀκουστῶν:fine:0",
+    "limit": 10
+   }
+  },
+  {
+   "name": "g13_passage_lines",
+   "path": "/api/passages/lines",
+   "params": {
+    "work": "aristotle.ἐκ_τοῦ_περὶ_ἀκουστῶν",
+    "ref_start": "aristotle.ἐκ_τοῦ_περὶ_ἀκουστῶν 1",
+    "ref_end": "aristotle.ἐκ_τοῦ_περὶ_ἀκουστῶν 3",
+    "context": 1
+   }
+  },
+  {
+   "name": "g13_density",
+   "path": "/api/passages/density",
+   "params": {
+    "work": "aristotle.ἐκ_τοῦ_περὶ_ἀκουστῶν"
+   }
+  },
+  {
+   "name": "g13_description",
+   "path": "/api/text-descriptions",
+   "params": {
+    "language": "grc",
+    "work": "aristotle.ἐκ_τοῦ_περὶ_ἀκουστῶν"
+   }
+  },
+  {
+   "name": "g13_translation",
+   "path": "/api/translation",
+   "params": {
+    "work": "aristotle.ἐκ_τοῦ_περὶ_ἀκουστῶν",
+    "refs": "aristotle.ἐκ_τοῦ_περὶ_ἀκουστῶν 1"
+   }
+  },
+  {
+   "name": "g13_translation_full",
+   "path": "/api/passages/translation-full",
+   "params": {
+    "work": "aristotle.ἐκ_τοῦ_περὶ_ἀκουστῶν",
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g14_reader",
+   "path": "/api/text/claudius_ptolemaeus.μαθηματικὴ_σύνταξις.tess",
+   "params": {
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g14_lines",
+   "path": "/api/text/claudius_ptolemaeus.μαθηματικὴ_σύνταξις.tess/lines",
+   "params": {
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g14_book_for",
+   "path": "/api/text/claudius_ptolemaeus.μαθηματικὴ_σύνταξις.tess/book-for",
+   "params": {
+    "language": "grc",
+    "ref": "claudius_ptolemaeus.μαθηματικὴ_σύνταξις 1.toc.1"
+   }
+  },
+  {
+   "name": "g14_ls_lemma",
+   "path": "/api/line-search",
+   "params": {
+    "query": "λόγος καί",
+    "language": "grc",
+    "search_type": "lemma",
+    "work": "claudius_ptolemaeus.μαθηματικὴ_σύνταξις.tess",
+    "max_results": 40
+   }
+  },
+  {
+   "name": "g14_ls_exact",
+   "path": "/api/line-search",
+   "params": {
+    "query": "καὶ τὸν",
+    "language": "grc",
+    "search_type": "exact",
+    "work": "claudius_ptolemaeus.μαθηματικὴ_σύνταξις.tess",
+    "max_results": 40
+   }
+  },
+  {
+   "name": "g14_fusion",
+   "path": "/api/fusion-search",
+   "params": {
+    "source": "claudius_ptolemaeus.μαθηματικὴ_σύνταξις.tess",
+    "target": "bion_of_phlossa.epitaphius.tess",
+    "language": "grc",
+    "max": 50
+   },
+   "poll": {
+    "same_url": true,
+    "every": 5,
+    "max_seconds": 900
+   },
+   "ignore": [],
+   "loose": {
+    "list": "parallels",
+    "id": [
+     "source.ref",
+     "target.ref"
+    ],
+    "top": 30,
+    "min_overlap": 0.8
+   }
+  },
+  {
+   "name": "g14_similar",
+   "path": "/api/passages/similar",
+   "params": {
+    "window": "claudius_ptolemaeus.μαθηματικὴ_σύνταξις:fine:0",
+    "limit": 10
+   }
+  },
+  {
+   "name": "g14_passage_lines",
+   "path": "/api/passages/lines",
+   "params": {
+    "work": "claudius_ptolemaeus.μαθηματικὴ_σύνταξις",
+    "ref_start": "claudius_ptolemaeus.μαθηματικὴ_σύνταξις 1.toc.1",
+    "ref_end": "claudius_ptolemaeus.μαθηματικὴ_σύνταξις 1.toc.3",
+    "context": 1
+   }
+  },
+  {
+   "name": "g14_density",
+   "path": "/api/passages/density",
+   "params": {
+    "work": "claudius_ptolemaeus.μαθηματικὴ_σύνταξις"
+   }
+  },
+  {
+   "name": "g14_description",
+   "path": "/api/text-descriptions",
+   "params": {
+    "language": "grc",
+    "work": "claudius_ptolemaeus.μαθηματικὴ_σύνταξις"
+   }
+  },
+  {
+   "name": "g14_translation",
+   "path": "/api/translation",
+   "params": {
+    "work": "claudius_ptolemaeus.μαθηματικὴ_σύνταξις",
+    "refs": "claudius_ptolemaeus.μαθηματικὴ_σύνταξις 1.toc.1"
+   }
+  },
+  {
+   "name": "g14_translation_full",
+   "path": "/api/passages/translation-full",
+   "params": {
+    "work": "claudius_ptolemaeus.μαθηματικὴ_σύνταξις",
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g15_reader",
+   "path": "/api/text/cleonides.εἰσαγωγὴ_ἁρμονική.tess",
+   "params": {
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g15_lines",
+   "path": "/api/text/cleonides.εἰσαγωγὴ_ἁρμονική.tess/lines",
+   "params": {
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g15_book_for",
+   "path": "/api/text/cleonides.εἰσαγωγὴ_ἁρμονική.tess/book-for",
+   "params": {
+    "language": "grc",
+    "ref": "cleonides.εἰσαγωγὴ_ἁρμονική 1.1"
+   }
+  },
+  {
+   "name": "g15_ls_lemma",
+   "path": "/api/line-search",
+   "params": {
+    "query": "λόγος καί",
+    "language": "grc",
+    "search_type": "lemma",
+    "work": "cleonides.εἰσαγωγὴ_ἁρμονική.tess",
+    "max_results": 40
+   }
+  },
+  {
+   "name": "g15_ls_exact",
+   "path": "/api/line-search",
+   "params": {
+    "query": "καὶ τὸν",
+    "language": "grc",
+    "search_type": "exact",
+    "work": "cleonides.εἰσαγωγὴ_ἁρμονική.tess",
+    "max_results": 40
+   }
+  },
+  {
+   "name": "g15_fusion",
+   "path": "/api/fusion-search",
+   "params": {
+    "source": "cleonides.εἰσαγωγὴ_ἁρμονική.tess",
+    "target": "bion_of_phlossa.epitaphius.tess",
+    "language": "grc",
+    "max": 50
+   },
+   "poll": {
+    "same_url": true,
+    "every": 5,
+    "max_seconds": 900
+   },
+   "ignore": [],
+   "loose": {
+    "list": "parallels",
+    "id": [
+     "source.ref",
+     "target.ref"
+    ],
+    "top": 30,
+    "min_overlap": 0.8
+   }
+  },
+  {
+   "name": "g15_similar",
+   "path": "/api/passages/similar",
+   "params": {
+    "window": "cleonides.εἰσαγωγὴ_ἁρμονική:fine:0",
+    "limit": 10
+   }
+  },
+  {
+   "name": "g15_passage_lines",
+   "path": "/api/passages/lines",
+   "params": {
+    "work": "cleonides.εἰσαγωγὴ_ἁρμονική",
+    "ref_start": "cleonides.εἰσαγωγὴ_ἁρμονική 1.1",
+    "ref_end": "cleonides.εἰσαγωγὴ_ἁρμονική 1.3",
+    "context": 1
+   }
+  },
+  {
+   "name": "g15_density",
+   "path": "/api/passages/density",
+   "params": {
+    "work": "cleonides.εἰσαγωγὴ_ἁρμονική"
+   }
+  },
+  {
+   "name": "g15_description",
+   "path": "/api/text-descriptions",
+   "params": {
+    "language": "grc",
+    "work": "cleonides.εἰσαγωγὴ_ἁρμονική"
+   }
+  },
+  {
+   "name": "g15_translation",
+   "path": "/api/translation",
+   "params": {
+    "work": "cleonides.εἰσαγωγὴ_ἁρμονική",
+    "refs": "cleonides.εἰσαγωγὴ_ἁρμονική 1.1"
+   }
+  },
+  {
+   "name": "g15_translation_full",
+   "path": "/api/passages/translation-full",
+   "params": {
+    "work": "cleonides.εἰσαγωγὴ_ἁρμονική",
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g16_reader",
+   "path": "/api/text/diogenianus_of_heraclea.παροιμίαι_δημώδεις_ἐκ_τῆς_διογενιανοῦ_συναγωγῆς_e_.tess",
+   "params": {
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g16_lines",
+   "path": "/api/text/diogenianus_of_heraclea.παροιμίαι_δημώδεις_ἐκ_τῆς_διογενιανοῦ_συναγωγῆς_e_.tess/lines",
+   "params": {
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g16_book_for",
+   "path": "/api/text/diogenianus_of_heraclea.παροιμίαι_δημώδεις_ἐκ_τῆς_διογενιανοῦ_συναγωγῆς_e_.tess/book-for",
+   "params": {
+    "language": "grc",
+    "ref": "diogenianus_of_heraclea.παροιμίαι_δημώδεις_ἐκ_τῆς_διογενιανοῦ_συναγωγῆς_e_ pref.a"
+   }
+  },
+  {
+   "name": "g16_ls_lemma",
+   "path": "/api/line-search",
+   "params": {
+    "query": "λόγος καί",
+    "language": "grc",
+    "search_type": "lemma",
+    "work": "diogenianus_of_heraclea.παροιμίαι_δημώδεις_ἐκ_τῆς_διογενιανοῦ_συναγωγῆς_e_.tess",
+    "max_results": 40
+   }
+  },
+  {
+   "name": "g16_ls_exact",
+   "path": "/api/line-search",
+   "params": {
+    "query": "καὶ τὸν",
+    "language": "grc",
+    "search_type": "exact",
+    "work": "diogenianus_of_heraclea.παροιμίαι_δημώδεις_ἐκ_τῆς_διογενιανοῦ_συναγωγῆς_e_.tess",
+    "max_results": 40
+   }
+  },
+  {
+   "name": "g16_fusion",
+   "path": "/api/fusion-search",
+   "params": {
+    "source": "diogenianus_of_heraclea.παροιμίαι_δημώδεις_ἐκ_τῆς_διογενιανοῦ_συναγωγῆς_e_.tess",
+    "target": "bion_of_phlossa.epitaphius.tess",
+    "language": "grc",
+    "max": 50
+   },
+   "poll": {
+    "same_url": true,
+    "every": 5,
+    "max_seconds": 900
+   },
+   "ignore": [],
+   "loose": {
+    "list": "parallels",
+    "id": [
+     "source.ref",
+     "target.ref"
+    ],
+    "top": 30,
+    "min_overlap": 0.8
+   }
+  },
+  {
+   "name": "g16_similar",
+   "path": "/api/passages/similar",
+   "params": {
+    "window": "diogenianus_of_heraclea.παροιμίαι_δημώδεις_ἐκ_τῆς_διογενιανοῦ_συναγωγῆς_e_:fine:0",
+    "limit": 10
+   }
+  },
+  {
+   "name": "g16_passage_lines",
+   "path": "/api/passages/lines",
+   "params": {
+    "work": "diogenianus_of_heraclea.παροιμίαι_δημώδεις_ἐκ_τῆς_διογενιανοῦ_συναγωγῆς_e_",
+    "ref_start": "diogenianus_of_heraclea.παροιμίαι_δημώδεις_ἐκ_τῆς_διογενιανοῦ_συναγωγῆς_e_ pref.a",
+    "ref_end": "diogenianus_of_heraclea.παροιμίαι_δημώδεις_ἐκ_τῆς_διογενιανοῦ_συναγωγῆς_e_ 1.2",
+    "context": 1
+   }
+  },
+  {
+   "name": "g16_density",
+   "path": "/api/passages/density",
+   "params": {
+    "work": "diogenianus_of_heraclea.παροιμίαι_δημώδεις_ἐκ_τῆς_διογενιανοῦ_συναγωγῆς_e_"
+   }
+  },
+  {
+   "name": "g16_description",
+   "path": "/api/text-descriptions",
+   "params": {
+    "language": "grc",
+    "work": "diogenianus_of_heraclea.παροιμίαι_δημώδεις_ἐκ_τῆς_διογενιανοῦ_συναγωγῆς_e_"
+   }
+  },
+  {
+   "name": "g16_translation",
+   "path": "/api/translation",
+   "params": {
+    "work": "diogenianus_of_heraclea.παροιμίαι_δημώδεις_ἐκ_τῆς_διογενιανοῦ_συναγωγῆς_e_",
+    "refs": "diogenianus_of_heraclea.παροιμίαι_δημώδεις_ἐκ_τῆς_διογενιανοῦ_συναγωγῆς_e_ pref.a"
+   }
+  },
+  {
+   "name": "g16_translation_full",
+   "path": "/api/passages/translation-full",
+   "params": {
+    "work": "diogenianus_of_heraclea.παροιμίαι_δημώδεις_ἐκ_τῆς_διογενιανοῦ_συναγωγῆς_e_",
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g17_reader",
+   "path": "/api/text/galen.περὶ_τῶν_ἐν_ταῖς_τροφαῖς_δυνάμεων.tess",
+   "params": {
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g17_lines",
+   "path": "/api/text/galen.περὶ_τῶν_ἐν_ταῖς_τροφαῖς_δυνάμεων.tess/lines",
+   "params": {
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g17_book_for",
+   "path": "/api/text/galen.περὶ_τῶν_ἐν_ταῖς_τροφαῖς_δυνάμεων.tess/book-for",
+   "params": {
+    "language": "grc",
+    "ref": "galen.περὶ_τῶν_ἐν_ταῖς_τροφαῖς_δυνάμεων 1.1.1"
+   }
+  },
+  {
+   "name": "g17_ls_lemma",
+   "path": "/api/line-search",
+   "params": {
+    "query": "λόγος καί",
+    "language": "grc",
+    "search_type": "lemma",
+    "work": "galen.περὶ_τῶν_ἐν_ταῖς_τροφαῖς_δυνάμεων.tess",
+    "max_results": 40
+   }
+  },
+  {
+   "name": "g17_ls_exact",
+   "path": "/api/line-search",
+   "params": {
+    "query": "καὶ τὸν",
+    "language": "grc",
+    "search_type": "exact",
+    "work": "galen.περὶ_τῶν_ἐν_ταῖς_τροφαῖς_δυνάμεων.tess",
+    "max_results": 40
+   }
+  },
+  {
+   "name": "g17_fusion",
+   "path": "/api/fusion-search",
+   "params": {
+    "source": "galen.περὶ_τῶν_ἐν_ταῖς_τροφαῖς_δυνάμεων.tess",
+    "target": "bion_of_phlossa.epitaphius.tess",
+    "language": "grc",
+    "max": 50
+   },
+   "poll": {
+    "same_url": true,
+    "every": 5,
+    "max_seconds": 900
+   },
+   "ignore": [],
+   "loose": {
+    "list": "parallels",
+    "id": [
+     "source.ref",
+     "target.ref"
+    ],
+    "top": 30,
+    "min_overlap": 0.8
+   }
+  },
+  {
+   "name": "g17_similar",
+   "path": "/api/passages/similar",
+   "params": {
+    "window": "galen.περὶ_τῶν_ἐν_ταῖς_τροφαῖς_δυνάμεων:fine:0",
+    "limit": 10
+   }
+  },
+  {
+   "name": "g17_passage_lines",
+   "path": "/api/passages/lines",
+   "params": {
+    "work": "galen.περὶ_τῶν_ἐν_ταῖς_τροφαῖς_δυνάμεων",
+    "ref_start": "galen.περὶ_τῶν_ἐν_ταῖς_τροφαῖς_δυνάμεων 1.1.1",
+    "ref_end": "galen.περὶ_τῶν_ἐν_ταῖς_τροφαῖς_δυνάμεων 1.1.3",
+    "context": 1
+   }
+  },
+  {
+   "name": "g17_density",
+   "path": "/api/passages/density",
+   "params": {
+    "work": "galen.περὶ_τῶν_ἐν_ταῖς_τροφαῖς_δυνάμεων"
+   }
+  },
+  {
+   "name": "g17_description",
+   "path": "/api/text-descriptions",
+   "params": {
+    "language": "grc",
+    "work": "galen.περὶ_τῶν_ἐν_ταῖς_τροφαῖς_δυνάμεων"
+   }
+  },
+  {
+   "name": "g17_translation",
+   "path": "/api/translation",
+   "params": {
+    "work": "galen.περὶ_τῶν_ἐν_ταῖς_τροφαῖς_δυνάμεων",
+    "refs": "galen.περὶ_τῶν_ἐν_ταῖς_τροφαῖς_δυνάμεων 1.1.1"
+   }
+  },
+  {
+   "name": "g17_translation_full",
+   "path": "/api/passages/translation-full",
+   "params": {
+    "work": "galen.περὶ_τῶν_ἐν_ταῖς_τροφαῖς_δυνάμεων",
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g18_reader",
+   "path": "/api/text/gorgias_of_leontini.ἑλένης_ἐγκώμιον.tess",
+   "params": {
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g18_lines",
+   "path": "/api/text/gorgias_of_leontini.ἑλένης_ἐγκώμιον.tess/lines",
+   "params": {
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g18_book_for",
+   "path": "/api/text/gorgias_of_leontini.ἑλένης_ἐγκώμιον.tess/book-for",
+   "params": {
+    "language": "grc",
+    "ref": "gorgias_of_leontini.ἑλένης_ἐγκώμιον 1"
+   }
+  },
+  {
+   "name": "g18_ls_lemma",
+   "path": "/api/line-search",
+   "params": {
+    "query": "λόγος καί",
+    "language": "grc",
+    "search_type": "lemma",
+    "work": "gorgias_of_leontini.ἑλένης_ἐγκώμιον.tess",
+    "max_results": 40
+   }
+  },
+  {
+   "name": "g18_ls_exact",
+   "path": "/api/line-search",
+   "params": {
+    "query": "καὶ τὸν",
+    "language": "grc",
+    "search_type": "exact",
+    "work": "gorgias_of_leontini.ἑλένης_ἐγκώμιον.tess",
+    "max_results": 40
+   }
+  },
+  {
+   "name": "g18_fusion",
+   "path": "/api/fusion-search",
+   "params": {
+    "source": "gorgias_of_leontini.ἑλένης_ἐγκώμιον.tess",
+    "target": "bion_of_phlossa.epitaphius.tess",
+    "language": "grc",
+    "max": 50
+   },
+   "poll": {
+    "same_url": true,
+    "every": 5,
+    "max_seconds": 900
+   },
+   "ignore": [],
+   "loose": {
+    "list": "parallels",
+    "id": [
+     "source.ref",
+     "target.ref"
+    ],
+    "top": 30,
+    "min_overlap": 0.8
+   }
+  },
+  {
+   "name": "g18_similar",
+   "path": "/api/passages/similar",
+   "params": {
+    "window": "gorgias_of_leontini.ἑλένης_ἐγκώμιον:fine:0",
+    "limit": 10
+   }
+  },
+  {
+   "name": "g18_passage_lines",
+   "path": "/api/passages/lines",
+   "params": {
+    "work": "gorgias_of_leontini.ἑλένης_ἐγκώμιον",
+    "ref_start": "gorgias_of_leontini.ἑλένης_ἐγκώμιον 1",
+    "ref_end": "gorgias_of_leontini.ἑλένης_ἐγκώμιον 3",
+    "context": 1
+   }
+  },
+  {
+   "name": "g18_density",
+   "path": "/api/passages/density",
+   "params": {
+    "work": "gorgias_of_leontini.ἑλένης_ἐγκώμιον"
+   }
+  },
+  {
+   "name": "g18_description",
+   "path": "/api/text-descriptions",
+   "params": {
+    "language": "grc",
+    "work": "gorgias_of_leontini.ἑλένης_ἐγκώμιον"
+   }
+  },
+  {
+   "name": "g18_translation",
+   "path": "/api/translation",
+   "params": {
+    "work": "gorgias_of_leontini.ἑλένης_ἐγκώμιον",
+    "refs": "gorgias_of_leontini.ἑλένης_ἐγκώμιον 1"
+   }
+  },
+  {
+   "name": "g18_translation_full",
+   "path": "/api/passages/translation-full",
+   "params": {
+    "work": "gorgias_of_leontini.ἑλένης_ἐγκώμιον",
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g19_reader",
+   "path": "/api/text/gorgias_of_leontini.ὑπέρ_παλαμήδους_ἀπολογία.tess",
+   "params": {
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g19_lines",
+   "path": "/api/text/gorgias_of_leontini.ὑπέρ_παλαμήδους_ἀπολογία.tess/lines",
+   "params": {
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g19_book_for",
+   "path": "/api/text/gorgias_of_leontini.ὑπέρ_παλαμήδους_ἀπολογία.tess/book-for",
+   "params": {
+    "language": "grc",
+    "ref": "gorgias_of_leontini.ὑπέρ_παλαμήδους_ἀπολογία 1"
+   }
+  },
+  {
+   "name": "g19_ls_lemma",
+   "path": "/api/line-search",
+   "params": {
+    "query": "λόγος καί",
+    "language": "grc",
+    "search_type": "lemma",
+    "work": "gorgias_of_leontini.ὑπέρ_παλαμήδους_ἀπολογία.tess",
+    "max_results": 40
+   }
+  },
+  {
+   "name": "g19_ls_exact",
+   "path": "/api/line-search",
+   "params": {
+    "query": "καὶ τὸν",
+    "language": "grc",
+    "search_type": "exact",
+    "work": "gorgias_of_leontini.ὑπέρ_παλαμήδους_ἀπολογία.tess",
+    "max_results": 40
+   }
+  },
+  {
+   "name": "g19_fusion",
+   "path": "/api/fusion-search",
+   "params": {
+    "source": "gorgias_of_leontini.ὑπέρ_παλαμήδους_ἀπολογία.tess",
+    "target": "bion_of_phlossa.epitaphius.tess",
+    "language": "grc",
+    "max": 50
+   },
+   "poll": {
+    "same_url": true,
+    "every": 5,
+    "max_seconds": 900
+   },
+   "ignore": [],
+   "loose": {
+    "list": "parallels",
+    "id": [
+     "source.ref",
+     "target.ref"
+    ],
+    "top": 30,
+    "min_overlap": 0.8
+   }
+  },
+  {
+   "name": "g19_similar",
+   "path": "/api/passages/similar",
+   "params": {
+    "window": "gorgias_of_leontini.ὑπέρ_παλαμήδους_ἀπολογία:fine:0",
+    "limit": 10
+   }
+  },
+  {
+   "name": "g19_passage_lines",
+   "path": "/api/passages/lines",
+   "params": {
+    "work": "gorgias_of_leontini.ὑπέρ_παλαμήδους_ἀπολογία",
+    "ref_start": "gorgias_of_leontini.ὑπέρ_παλαμήδους_ἀπολογία 1",
+    "ref_end": "gorgias_of_leontini.ὑπέρ_παλαμήδους_ἀπολογία 3",
+    "context": 1
+   }
+  },
+  {
+   "name": "g19_density",
+   "path": "/api/passages/density",
+   "params": {
+    "work": "gorgias_of_leontini.ὑπέρ_παλαμήδους_ἀπολογία"
+   }
+  },
+  {
+   "name": "g19_description",
+   "path": "/api/text-descriptions",
+   "params": {
+    "language": "grc",
+    "work": "gorgias_of_leontini.ὑπέρ_παλαμήδους_ἀπολογία"
+   }
+  },
+  {
+   "name": "g19_translation",
+   "path": "/api/translation",
+   "params": {
+    "work": "gorgias_of_leontini.ὑπέρ_παλαμήδους_ἀπολογία",
+    "refs": "gorgias_of_leontini.ὑπέρ_παλαμήδους_ἀπολογία 1"
+   }
+  },
+  {
+   "name": "g19_translation_full",
+   "path": "/api/passages/translation-full",
+   "params": {
+    "work": "gorgias_of_leontini.ὑπέρ_παλαμήδους_ἀπολογία",
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g20_reader",
+   "path": "/api/text/hermogenes.περὶ_τῶν_στάσεων.tess",
+   "params": {
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g20_lines",
+   "path": "/api/text/hermogenes.περὶ_τῶν_στάσεων.tess/lines",
+   "params": {
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g20_book_for",
+   "path": "/api/text/hermogenes.περὶ_τῶν_στάσεων.tess/book-for",
+   "params": {
+    "language": "grc",
+    "ref": "hermogenes.περὶ_τῶν_στάσεων 1.1"
+   }
+  },
+  {
+   "name": "g20_ls_lemma",
+   "path": "/api/line-search",
+   "params": {
+    "query": "λόγος καί",
+    "language": "grc",
+    "search_type": "lemma",
+    "work": "hermogenes.περὶ_τῶν_στάσεων.tess",
+    "max_results": 40
+   }
+  },
+  {
+   "name": "g20_ls_exact",
+   "path": "/api/line-search",
+   "params": {
+    "query": "καὶ τὸν",
+    "language": "grc",
+    "search_type": "exact",
+    "work": "hermogenes.περὶ_τῶν_στάσεων.tess",
+    "max_results": 40
+   }
+  },
+  {
+   "name": "g20_fusion",
+   "path": "/api/fusion-search",
+   "params": {
+    "source": "hermogenes.περὶ_τῶν_στάσεων.tess",
+    "target": "bion_of_phlossa.epitaphius.tess",
+    "language": "grc",
+    "max": 50
+   },
+   "poll": {
+    "same_url": true,
+    "every": 5,
+    "max_seconds": 900
+   },
+   "ignore": [],
+   "loose": {
+    "list": "parallels",
+    "id": [
+     "source.ref",
+     "target.ref"
+    ],
+    "top": 30,
+    "min_overlap": 0.8
+   }
+  },
+  {
+   "name": "g20_similar",
+   "path": "/api/passages/similar",
+   "params": {
+    "window": "hermogenes.περὶ_τῶν_στάσεων:fine:0",
+    "limit": 10
+   }
+  },
+  {
+   "name": "g20_passage_lines",
+   "path": "/api/passages/lines",
+   "params": {
+    "work": "hermogenes.περὶ_τῶν_στάσεων",
+    "ref_start": "hermogenes.περὶ_τῶν_στάσεων 1.1",
+    "ref_end": "hermogenes.περὶ_τῶν_στάσεων 1.3",
+    "context": 1
+   }
+  },
+  {
+   "name": "g20_density",
+   "path": "/api/passages/density",
+   "params": {
+    "work": "hermogenes.περὶ_τῶν_στάσεων"
+   }
+  },
+  {
+   "name": "g20_description",
+   "path": "/api/text-descriptions",
+   "params": {
+    "language": "grc",
+    "work": "hermogenes.περὶ_τῶν_στάσεων"
+   }
+  },
+  {
+   "name": "g20_translation",
+   "path": "/api/translation",
+   "params": {
+    "work": "hermogenes.περὶ_τῶν_στάσεων",
+    "refs": "hermogenes.περὶ_τῶν_στάσεων 1.1"
+   }
+  },
+  {
+   "name": "g20_translation_full",
+   "path": "/api/passages/translation-full",
+   "params": {
+    "work": "hermogenes.περὶ_τῶν_στάσεων",
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g21_reader",
+   "path": "/api/text/herodianus.συμπόσιον.tess",
+   "params": {
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g21_lines",
+   "path": "/api/text/herodianus.συμπόσιον.tess/lines",
+   "params": {
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g21_book_for",
+   "path": "/api/text/herodianus.συμπόσιον.tess/book-for",
+   "params": {
+    "language": "grc",
+    "ref": "herodianus.συμπόσιον 1"
+   }
+  },
+  {
+   "name": "g21_ls_lemma",
+   "path": "/api/line-search",
+   "params": {
+    "query": "λόγος καί",
+    "language": "grc",
+    "search_type": "lemma",
+    "work": "herodianus.συμπόσιον.tess",
+    "max_results": 40
+   }
+  },
+  {
+   "name": "g21_ls_exact",
+   "path": "/api/line-search",
+   "params": {
+    "query": "καὶ τὸν",
+    "language": "grc",
+    "search_type": "exact",
+    "work": "herodianus.συμπόσιον.tess",
+    "max_results": 40
+   }
+  },
+  {
+   "name": "g21_fusion",
+   "path": "/api/fusion-search",
+   "params": {
+    "source": "herodianus.συμπόσιον.tess",
+    "target": "bion_of_phlossa.epitaphius.tess",
+    "language": "grc",
+    "max": 50
+   },
+   "poll": {
+    "same_url": true,
+    "every": 5,
+    "max_seconds": 900
+   },
+   "ignore": [],
+   "loose": {
+    "list": "parallels",
+    "id": [
+     "source.ref",
+     "target.ref"
+    ],
+    "top": 30,
+    "min_overlap": 0.8
+   }
+  },
+  {
+   "name": "g21_similar",
+   "path": "/api/passages/similar",
+   "params": {
+    "window": "herodianus.συμπόσιον:fine:0",
+    "limit": 10
+   }
+  },
+  {
+   "name": "g21_passage_lines",
+   "path": "/api/passages/lines",
+   "params": {
+    "work": "herodianus.συμπόσιον",
+    "ref_start": "herodianus.συμπόσιον 1",
+    "ref_end": "herodianus.συμπόσιον 3",
+    "context": 1
+   }
+  },
+  {
+   "name": "g21_density",
+   "path": "/api/passages/density",
+   "params": {
+    "work": "herodianus.συμπόσιον"
+   }
+  },
+  {
+   "name": "g21_description",
+   "path": "/api/text-descriptions",
+   "params": {
+    "language": "grc",
+    "work": "herodianus.συμπόσιον"
+   }
+  },
+  {
+   "name": "g21_translation",
+   "path": "/api/translation",
+   "params": {
+    "work": "herodianus.συμπόσιον",
+    "refs": "herodianus.συμπόσιον 1"
+   }
+  },
+  {
+   "name": "g21_translation_full",
+   "path": "/api/passages/translation-full",
+   "params": {
+    "work": "herodianus.συμπόσιον",
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g22_reader",
+   "path": "/api/text/nicomachus_of_gerasa.ἀριθμητικὴ_εἰσαγωγή.tess",
+   "params": {
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g22_lines",
+   "path": "/api/text/nicomachus_of_gerasa.ἀριθμητικὴ_εἰσαγωγή.tess/lines",
+   "params": {
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g22_book_for",
+   "path": "/api/text/nicomachus_of_gerasa.ἀριθμητικὴ_εἰσαγωγή.tess/book-for",
+   "params": {
+    "language": "grc",
+    "ref": "nicomachus_of_gerasa.ἀριθμητικὴ_εἰσαγωγή 1.1"
+   }
+  },
+  {
+   "name": "g22_ls_lemma",
+   "path": "/api/line-search",
+   "params": {
+    "query": "λόγος καί",
+    "language": "grc",
+    "search_type": "lemma",
+    "work": "nicomachus_of_gerasa.ἀριθμητικὴ_εἰσαγωγή.tess",
+    "max_results": 40
+   }
+  },
+  {
+   "name": "g22_ls_exact",
+   "path": "/api/line-search",
+   "params": {
+    "query": "καὶ τὸν",
+    "language": "grc",
+    "search_type": "exact",
+    "work": "nicomachus_of_gerasa.ἀριθμητικὴ_εἰσαγωγή.tess",
+    "max_results": 40
+   }
+  },
+  {
+   "name": "g22_fusion",
+   "path": "/api/fusion-search",
+   "params": {
+    "source": "nicomachus_of_gerasa.ἀριθμητικὴ_εἰσαγωγή.tess",
+    "target": "bion_of_phlossa.epitaphius.tess",
+    "language": "grc",
+    "max": 50
+   },
+   "poll": {
+    "same_url": true,
+    "every": 5,
+    "max_seconds": 900
+   },
+   "ignore": [],
+   "loose": {
+    "list": "parallels",
+    "id": [
+     "source.ref",
+     "target.ref"
+    ],
+    "top": 30,
+    "min_overlap": 0.8
+   }
+  },
+  {
+   "name": "g22_similar",
+   "path": "/api/passages/similar",
+   "params": {
+    "window": "nicomachus_of_gerasa.ἀριθμητικὴ_εἰσαγωγή:fine:0",
+    "limit": 10
+   }
+  },
+  {
+   "name": "g22_passage_lines",
+   "path": "/api/passages/lines",
+   "params": {
+    "work": "nicomachus_of_gerasa.ἀριθμητικὴ_εἰσαγωγή",
+    "ref_start": "nicomachus_of_gerasa.ἀριθμητικὴ_εἰσαγωγή 1.1",
+    "ref_end": "nicomachus_of_gerasa.ἀριθμητικὴ_εἰσαγωγή 1.3",
+    "context": 1
+   }
+  },
+  {
+   "name": "g22_density",
+   "path": "/api/passages/density",
+   "params": {
+    "work": "nicomachus_of_gerasa.ἀριθμητικὴ_εἰσαγωγή"
+   }
+  },
+  {
+   "name": "g22_description",
+   "path": "/api/text-descriptions",
+   "params": {
+    "language": "grc",
+    "work": "nicomachus_of_gerasa.ἀριθμητικὴ_εἰσαγωγή"
+   }
+  },
+  {
+   "name": "g22_translation",
+   "path": "/api/translation",
+   "params": {
+    "work": "nicomachus_of_gerasa.ἀριθμητικὴ_εἰσαγωγή",
+    "refs": "nicomachus_of_gerasa.ἀριθμητικὴ_εἰσαγωγή 1.1"
+   }
+  },
+  {
+   "name": "g22_translation_full",
+   "path": "/api/passages/translation-full",
+   "params": {
+    "work": "nicomachus_of_gerasa.ἀριθμητικὴ_εἰσαγωγή",
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g23_reader",
+   "path": "/api/text/nicomachus_of_gerasa.ἐγχειρίδιον_ἁρμονικῆς.tess",
+   "params": {
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g23_lines",
+   "path": "/api/text/nicomachus_of_gerasa.ἐγχειρίδιον_ἁρμονικῆς.tess/lines",
+   "params": {
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g23_book_for",
+   "path": "/api/text/nicomachus_of_gerasa.ἐγχειρίδιον_ἁρμονικῆς.tess/book-for",
+   "params": {
+    "language": "grc",
+    "ref": "nicomachus_of_gerasa.ἐγχειρίδιον_ἁρμονικῆς toc.1"
+   }
+  },
+  {
+   "name": "g23_ls_lemma",
+   "path": "/api/line-search",
+   "params": {
+    "query": "λόγος καί",
+    "language": "grc",
+    "search_type": "lemma",
+    "work": "nicomachus_of_gerasa.ἐγχειρίδιον_ἁρμονικῆς.tess",
+    "max_results": 40
+   }
+  },
+  {
+   "name": "g23_ls_exact",
+   "path": "/api/line-search",
+   "params": {
+    "query": "καὶ τὸν",
+    "language": "grc",
+    "search_type": "exact",
+    "work": "nicomachus_of_gerasa.ἐγχειρίδιον_ἁρμονικῆς.tess",
+    "max_results": 40
+   }
+  },
+  {
+   "name": "g23_fusion",
+   "path": "/api/fusion-search",
+   "params": {
+    "source": "nicomachus_of_gerasa.ἐγχειρίδιον_ἁρμονικῆς.tess",
+    "target": "bion_of_phlossa.epitaphius.tess",
+    "language": "grc",
+    "max": 50
+   },
+   "poll": {
+    "same_url": true,
+    "every": 5,
+    "max_seconds": 900
+   },
+   "ignore": [],
+   "loose": {
+    "list": "parallels",
+    "id": [
+     "source.ref",
+     "target.ref"
+    ],
+    "top": 30,
+    "min_overlap": 0.8
+   }
+  },
+  {
+   "name": "g23_similar",
+   "path": "/api/passages/similar",
+   "params": {
+    "window": "nicomachus_of_gerasa.ἐγχειρίδιον_ἁρμονικῆς:fine:0",
+    "limit": 10
+   }
+  },
+  {
+   "name": "g23_passage_lines",
+   "path": "/api/passages/lines",
+   "params": {
+    "work": "nicomachus_of_gerasa.ἐγχειρίδιον_ἁρμονικῆς",
+    "ref_start": "nicomachus_of_gerasa.ἐγχειρίδιον_ἁρμονικῆς toc.1",
+    "ref_end": "nicomachus_of_gerasa.ἐγχειρίδιον_ἁρμονικῆς toc.3",
+    "context": 1
+   }
+  },
+  {
+   "name": "g23_density",
+   "path": "/api/passages/density",
+   "params": {
+    "work": "nicomachus_of_gerasa.ἐγχειρίδιον_ἁρμονικῆς"
+   }
+  },
+  {
+   "name": "g23_description",
+   "path": "/api/text-descriptions",
+   "params": {
+    "language": "grc",
+    "work": "nicomachus_of_gerasa.ἐγχειρίδιον_ἁρμονικῆς"
+   }
+  },
+  {
+   "name": "g23_translation",
+   "path": "/api/translation",
+   "params": {
+    "work": "nicomachus_of_gerasa.ἐγχειρίδιον_ἁρμονικῆς",
+    "refs": "nicomachus_of_gerasa.ἐγχειρίδιον_ἁρμονικῆς toc.1"
+   }
+  },
+  {
+   "name": "g23_translation_full",
+   "path": "/api/passages/translation-full",
+   "params": {
+    "work": "nicomachus_of_gerasa.ἐγχειρίδιον_ἁρμονικῆς",
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g24_reader",
+   "path": "/api/text/plutarch.παροιμίαι_αἷς_ἀλεξανδρεῖς_ἐχρῶντο.tess",
+   "params": {
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g24_lines",
+   "path": "/api/text/plutarch.παροιμίαι_αἷς_ἀλεξανδρεῖς_ἐχρῶντο.tess/lines",
+   "params": {
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g24_book_for",
+   "path": "/api/text/plutarch.παροιμίαι_αἷς_ἀλεξανδρεῖς_ἐχρῶντο.tess/book-for",
+   "params": {
+    "language": "grc",
+    "ref": "plutarch.παροιμίαι_αἷς_ἀλεξανδρεῖς_ἐχρῶντο 1.1"
+   }
+  },
+  {
+   "name": "g24_ls_lemma",
+   "path": "/api/line-search",
+   "params": {
+    "query": "λόγος καί",
+    "language": "grc",
+    "search_type": "lemma",
+    "work": "plutarch.παροιμίαι_αἷς_ἀλεξανδρεῖς_ἐχρῶντο.tess",
+    "max_results": 40
+   }
+  },
+  {
+   "name": "g24_ls_exact",
+   "path": "/api/line-search",
+   "params": {
+    "query": "καὶ τὸν",
+    "language": "grc",
+    "search_type": "exact",
+    "work": "plutarch.παροιμίαι_αἷς_ἀλεξανδρεῖς_ἐχρῶντο.tess",
+    "max_results": 40
+   }
+  },
+  {
+   "name": "g24_fusion",
+   "path": "/api/fusion-search",
+   "params": {
+    "source": "plutarch.παροιμίαι_αἷς_ἀλεξανδρεῖς_ἐχρῶντο.tess",
+    "target": "bion_of_phlossa.epitaphius.tess",
+    "language": "grc",
+    "max": 50
+   },
+   "poll": {
+    "same_url": true,
+    "every": 5,
+    "max_seconds": 900
+   },
+   "ignore": [],
+   "loose": {
+    "list": "parallels",
+    "id": [
+     "source.ref",
+     "target.ref"
+    ],
+    "top": 30,
+    "min_overlap": 0.8
+   }
+  },
+  {
+   "name": "g24_similar",
+   "path": "/api/passages/similar",
+   "params": {
+    "window": "plutarch.παροιμίαι_αἷς_ἀλεξανδρεῖς_ἐχρῶντο:fine:0",
+    "limit": 10
+   }
+  },
+  {
+   "name": "g24_passage_lines",
+   "path": "/api/passages/lines",
+   "params": {
+    "work": "plutarch.παροιμίαι_αἷς_ἀλεξανδρεῖς_ἐχρῶντο",
+    "ref_start": "plutarch.παροιμίαι_αἷς_ἀλεξανδρεῖς_ἐχρῶντο 1.1",
+    "ref_end": "plutarch.παροιμίαι_αἷς_ἀλεξανδρεῖς_ἐχρῶντο 1.3",
+    "context": 1
+   }
+  },
+  {
+   "name": "g24_density",
+   "path": "/api/passages/density",
+   "params": {
+    "work": "plutarch.παροιμίαι_αἷς_ἀλεξανδρεῖς_ἐχρῶντο"
+   }
+  },
+  {
+   "name": "g24_description",
+   "path": "/api/text-descriptions",
+   "params": {
+    "language": "grc",
+    "work": "plutarch.παροιμίαι_αἷς_ἀλεξανδρεῖς_ἐχρῶντο"
+   }
+  },
+  {
+   "name": "g24_translation",
+   "path": "/api/translation",
+   "params": {
+    "work": "plutarch.παροιμίαι_αἷς_ἀλεξανδρεῖς_ἐχρῶντο",
+    "refs": "plutarch.παροιμίαι_αἷς_ἀλεξανδρεῖς_ἐχρῶντο 1.1"
+   }
+  },
+  {
+   "name": "g24_translation_full",
+   "path": "/api/passages/translation-full",
+   "params": {
+    "work": "plutarch.παροιμίαι_αἷς_ἀλεξανδρεῖς_ἐχρῶντο",
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g25_reader",
+   "path": "/api/text/pseudolucian.δημοσθένους_ἐγκώμιον.tess",
+   "params": {
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g25_lines",
+   "path": "/api/text/pseudolucian.δημοσθένους_ἐγκώμιον.tess/lines",
+   "params": {
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g25_book_for",
+   "path": "/api/text/pseudolucian.δημοσθένους_ἐγκώμιον.tess/book-for",
+   "params": {
+    "language": "grc",
+    "ref": "pseudolucian.δημοσθένους_ἐγκώμιον 1"
+   }
+  },
+  {
+   "name": "g25_ls_lemma",
+   "path": "/api/line-search",
+   "params": {
+    "query": "λόγος καί",
+    "language": "grc",
+    "search_type": "lemma",
+    "work": "pseudolucian.δημοσθένους_ἐγκώμιον.tess",
+    "max_results": 40
+   }
+  },
+  {
+   "name": "g25_ls_exact",
+   "path": "/api/line-search",
+   "params": {
+    "query": "καὶ τὸν",
+    "language": "grc",
+    "search_type": "exact",
+    "work": "pseudolucian.δημοσθένους_ἐγκώμιον.tess",
+    "max_results": 40
+   }
+  },
+  {
+   "name": "g25_fusion",
+   "path": "/api/fusion-search",
+   "params": {
+    "source": "pseudolucian.δημοσθένους_ἐγκώμιον.tess",
+    "target": "bion_of_phlossa.epitaphius.tess",
+    "language": "grc",
+    "max": 50
+   },
+   "poll": {
+    "same_url": true,
+    "every": 5,
+    "max_seconds": 900
+   },
+   "ignore": [],
+   "loose": {
+    "list": "parallels",
+    "id": [
+     "source.ref",
+     "target.ref"
+    ],
+    "top": 30,
+    "min_overlap": 0.8
+   }
+  },
+  {
+   "name": "g25_similar",
+   "path": "/api/passages/similar",
+   "params": {
+    "window": "pseudolucian.δημοσθένους_ἐγκώμιον:fine:0",
+    "limit": 10
+   }
+  },
+  {
+   "name": "g25_passage_lines",
+   "path": "/api/passages/lines",
+   "params": {
+    "work": "pseudolucian.δημοσθένους_ἐγκώμιον",
+    "ref_start": "pseudolucian.δημοσθένους_ἐγκώμιον 1",
+    "ref_end": "pseudolucian.δημοσθένους_ἐγκώμιον 3",
+    "context": 1
+   }
+  },
+  {
+   "name": "g25_density",
+   "path": "/api/passages/density",
+   "params": {
+    "work": "pseudolucian.δημοσθένους_ἐγκώμιον"
+   }
+  },
+  {
+   "name": "g25_description",
+   "path": "/api/text-descriptions",
+   "params": {
+    "language": "grc",
+    "work": "pseudolucian.δημοσθένους_ἐγκώμιον"
+   }
+  },
+  {
+   "name": "g25_translation",
+   "path": "/api/translation",
+   "params": {
+    "work": "pseudolucian.δημοσθένους_ἐγκώμιον",
+    "refs": "pseudolucian.δημοσθένους_ἐγκώμιον 1"
+   }
+  },
+  {
+   "name": "g25_translation_full",
+   "path": "/api/passages/translation-full",
+   "params": {
+    "work": "pseudolucian.δημοσθένους_ἐγκώμιον",
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g26_reader",
+   "path": "/api/text/pseudolucian.κυνικός.tess",
+   "params": {
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g26_lines",
+   "path": "/api/text/pseudolucian.κυνικός.tess/lines",
+   "params": {
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g26_book_for",
+   "path": "/api/text/pseudolucian.κυνικός.tess/book-for",
+   "params": {
+    "language": "grc",
+    "ref": "pseudolucian.κυνικός 1"
+   }
+  },
+  {
+   "name": "g26_ls_lemma",
+   "path": "/api/line-search",
+   "params": {
+    "query": "λόγος καί",
+    "language": "grc",
+    "search_type": "lemma",
+    "work": "pseudolucian.κυνικός.tess",
+    "max_results": 40
+   }
+  },
+  {
+   "name": "g26_ls_exact",
+   "path": "/api/line-search",
+   "params": {
+    "query": "καὶ τὸν",
+    "language": "grc",
+    "search_type": "exact",
+    "work": "pseudolucian.κυνικός.tess",
+    "max_results": 40
+   }
+  },
+  {
+   "name": "g26_fusion",
+   "path": "/api/fusion-search",
+   "params": {
+    "source": "pseudolucian.κυνικός.tess",
+    "target": "bion_of_phlossa.epitaphius.tess",
+    "language": "grc",
+    "max": 50
+   },
+   "poll": {
+    "same_url": true,
+    "every": 5,
+    "max_seconds": 900
+   },
+   "ignore": [],
+   "loose": {
+    "list": "parallels",
+    "id": [
+     "source.ref",
+     "target.ref"
+    ],
+    "top": 30,
+    "min_overlap": 0.8
+   }
+  },
+  {
+   "name": "g26_similar",
+   "path": "/api/passages/similar",
+   "params": {
+    "window": "pseudolucian.κυνικός:fine:0",
+    "limit": 10
+   }
+  },
+  {
+   "name": "g26_passage_lines",
+   "path": "/api/passages/lines",
+   "params": {
+    "work": "pseudolucian.κυνικός",
+    "ref_start": "pseudolucian.κυνικός 1",
+    "ref_end": "pseudolucian.κυνικός 3",
+    "context": 1
+   }
+  },
+  {
+   "name": "g26_density",
+   "path": "/api/passages/density",
+   "params": {
+    "work": "pseudolucian.κυνικός"
+   }
+  },
+  {
+   "name": "g26_description",
+   "path": "/api/text-descriptions",
+   "params": {
+    "language": "grc",
+    "work": "pseudolucian.κυνικός"
+   }
+  },
+  {
+   "name": "g26_translation",
+   "path": "/api/translation",
+   "params": {
+    "work": "pseudolucian.κυνικός",
+    "refs": "pseudolucian.κυνικός 1"
+   }
+  },
+  {
+   "name": "g26_translation_full",
+   "path": "/api/passages/translation-full",
+   "params": {
+    "work": "pseudolucian.κυνικός",
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g27_reader",
+   "path": "/api/text/pseudolucian.λούκιος_ἢ_ὄνος.tess",
+   "params": {
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g27_lines",
+   "path": "/api/text/pseudolucian.λούκιος_ἢ_ὄνος.tess/lines",
+   "params": {
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g27_book_for",
+   "path": "/api/text/pseudolucian.λούκιος_ἢ_ὄνος.tess/book-for",
+   "params": {
+    "language": "grc",
+    "ref": "pseudolucian.λούκιος_ἢ_ὄνος 1"
+   }
+  },
+  {
+   "name": "g27_ls_lemma",
+   "path": "/api/line-search",
+   "params": {
+    "query": "λόγος καί",
+    "language": "grc",
+    "search_type": "lemma",
+    "work": "pseudolucian.λούκιος_ἢ_ὄνος.tess",
+    "max_results": 40
+   }
+  },
+  {
+   "name": "g27_ls_exact",
+   "path": "/api/line-search",
+   "params": {
+    "query": "καὶ τὸν",
+    "language": "grc",
+    "search_type": "exact",
+    "work": "pseudolucian.λούκιος_ἢ_ὄνος.tess",
+    "max_results": 40
+   }
+  },
+  {
+   "name": "g27_fusion",
+   "path": "/api/fusion-search",
+   "params": {
+    "source": "pseudolucian.λούκιος_ἢ_ὄνος.tess",
+    "target": "bion_of_phlossa.epitaphius.tess",
+    "language": "grc",
+    "max": 50
+   },
+   "poll": {
+    "same_url": true,
+    "every": 5,
+    "max_seconds": 900
+   },
+   "ignore": [],
+   "loose": {
+    "list": "parallels",
+    "id": [
+     "source.ref",
+     "target.ref"
+    ],
+    "top": 30,
+    "min_overlap": 0.8
+   }
+  },
+  {
+   "name": "g27_similar",
+   "path": "/api/passages/similar",
+   "params": {
+    "window": "pseudolucian.λούκιος_ἢ_ὄνος:fine:0",
+    "limit": 10
+   }
+  },
+  {
+   "name": "g27_passage_lines",
+   "path": "/api/passages/lines",
+   "params": {
+    "work": "pseudolucian.λούκιος_ἢ_ὄνος",
+    "ref_start": "pseudolucian.λούκιος_ἢ_ὄνος 1",
+    "ref_end": "pseudolucian.λούκιος_ἢ_ὄνος 3",
+    "context": 1
+   }
+  },
+  {
+   "name": "g27_density",
+   "path": "/api/passages/density",
+   "params": {
+    "work": "pseudolucian.λούκιος_ἢ_ὄνος"
+   }
+  },
+  {
+   "name": "g27_description",
+   "path": "/api/text-descriptions",
+   "params": {
+    "language": "grc",
+    "work": "pseudolucian.λούκιος_ἢ_ὄνος"
+   }
+  },
+  {
+   "name": "g27_translation",
+   "path": "/api/translation",
+   "params": {
+    "work": "pseudolucian.λούκιος_ἢ_ὄνος",
+    "refs": "pseudolucian.λούκιος_ἢ_ὄνος 1"
+   }
+  },
+  {
+   "name": "g27_translation_full",
+   "path": "/api/passages/translation-full",
+   "params": {
+    "work": "pseudolucian.λούκιος_ἢ_ὄνος",
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g28_reader",
+   "path": "/api/text/pseudolucian.φιλόπατρις_ἢ_διδασκόμενος.tess",
+   "params": {
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g28_lines",
+   "path": "/api/text/pseudolucian.φιλόπατρις_ἢ_διδασκόμενος.tess/lines",
+   "params": {
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g28_book_for",
+   "path": "/api/text/pseudolucian.φιλόπατρις_ἢ_διδασκόμενος.tess/book-for",
+   "params": {
+    "language": "grc",
+    "ref": "pseudolucian.φιλόπατρις_ἢ_διδασκόμενος 1"
+   }
+  },
+  {
+   "name": "g28_ls_lemma",
+   "path": "/api/line-search",
+   "params": {
+    "query": "λόγος καί",
+    "language": "grc",
+    "search_type": "lemma",
+    "work": "pseudolucian.φιλόπατρις_ἢ_διδασκόμενος.tess",
+    "max_results": 40
+   }
+  },
+  {
+   "name": "g28_ls_exact",
+   "path": "/api/line-search",
+   "params": {
+    "query": "καὶ τὸν",
+    "language": "grc",
+    "search_type": "exact",
+    "work": "pseudolucian.φιλόπατρις_ἢ_διδασκόμενος.tess",
+    "max_results": 40
+   }
+  },
+  {
+   "name": "g28_fusion",
+   "path": "/api/fusion-search",
+   "params": {
+    "source": "pseudolucian.φιλόπατρις_ἢ_διδασκόμενος.tess",
+    "target": "bion_of_phlossa.epitaphius.tess",
+    "language": "grc",
+    "max": 50
+   },
+   "poll": {
+    "same_url": true,
+    "every": 5,
+    "max_seconds": 900
+   },
+   "ignore": [],
+   "loose": {
+    "list": "parallels",
+    "id": [
+     "source.ref",
+     "target.ref"
+    ],
+    "top": 30,
+    "min_overlap": 0.8
+   }
+  },
+  {
+   "name": "g28_similar",
+   "path": "/api/passages/similar",
+   "params": {
+    "window": "pseudolucian.φιλόπατρις_ἢ_διδασκόμενος:fine:0",
+    "limit": 10
+   }
+  },
+  {
+   "name": "g28_passage_lines",
+   "path": "/api/passages/lines",
+   "params": {
+    "work": "pseudolucian.φιλόπατρις_ἢ_διδασκόμενος",
+    "ref_start": "pseudolucian.φιλόπατρις_ἢ_διδασκόμενος 1",
+    "ref_end": "pseudolucian.φιλόπατρις_ἢ_διδασκόμενος 3",
+    "context": 1
+   }
+  },
+  {
+   "name": "g28_density",
+   "path": "/api/passages/density",
+   "params": {
+    "work": "pseudolucian.φιλόπατρις_ἢ_διδασκόμενος"
+   }
+  },
+  {
+   "name": "g28_description",
+   "path": "/api/text-descriptions",
+   "params": {
+    "language": "grc",
+    "work": "pseudolucian.φιλόπατρις_ἢ_διδασκόμενος"
+   }
+  },
+  {
+   "name": "g28_translation",
+   "path": "/api/translation",
+   "params": {
+    "work": "pseudolucian.φιλόπατρις_ἢ_διδασκόμενος",
+    "refs": "pseudolucian.φιλόπατρις_ἢ_διδασκόμενος 1"
+   }
+  },
+  {
+   "name": "g28_translation_full",
+   "path": "/api/passages/translation-full",
+   "params": {
+    "work": "pseudolucian.φιλόπατρις_ἢ_διδασκόμενος",
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g29_reader",
+   "path": "/api/text/pseudolucian.χαρίδημος_ἢ_περὶ_κάλλους.tess",
+   "params": {
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g29_lines",
+   "path": "/api/text/pseudolucian.χαρίδημος_ἢ_περὶ_κάλλους.tess/lines",
+   "params": {
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g29_book_for",
+   "path": "/api/text/pseudolucian.χαρίδημος_ἢ_περὶ_κάλλους.tess/book-for",
+   "params": {
+    "language": "grc",
+    "ref": "pseudolucian.χαρίδημος_ἢ_περὶ_κάλλους 1"
+   }
+  },
+  {
+   "name": "g29_ls_lemma",
+   "path": "/api/line-search",
+   "params": {
+    "query": "λόγος καί",
+    "language": "grc",
+    "search_type": "lemma",
+    "work": "pseudolucian.χαρίδημος_ἢ_περὶ_κάλλους.tess",
+    "max_results": 40
+   }
+  },
+  {
+   "name": "g29_ls_exact",
+   "path": "/api/line-search",
+   "params": {
+    "query": "καὶ τὸν",
+    "language": "grc",
+    "search_type": "exact",
+    "work": "pseudolucian.χαρίδημος_ἢ_περὶ_κάλλους.tess",
+    "max_results": 40
+   }
+  },
+  {
+   "name": "g29_fusion",
+   "path": "/api/fusion-search",
+   "params": {
+    "source": "pseudolucian.χαρίδημος_ἢ_περὶ_κάλλους.tess",
+    "target": "bion_of_phlossa.epitaphius.tess",
+    "language": "grc",
+    "max": 50
+   },
+   "poll": {
+    "same_url": true,
+    "every": 5,
+    "max_seconds": 900
+   },
+   "ignore": [],
+   "loose": {
+    "list": "parallels",
+    "id": [
+     "source.ref",
+     "target.ref"
+    ],
+    "top": 30,
+    "min_overlap": 0.8
+   }
+  },
+  {
+   "name": "g29_similar",
+   "path": "/api/passages/similar",
+   "params": {
+    "window": "pseudolucian.χαρίδημος_ἢ_περὶ_κάλλους:fine:0",
+    "limit": 10
+   }
+  },
+  {
+   "name": "g29_passage_lines",
+   "path": "/api/passages/lines",
+   "params": {
+    "work": "pseudolucian.χαρίδημος_ἢ_περὶ_κάλλους",
+    "ref_start": "pseudolucian.χαρίδημος_ἢ_περὶ_κάλλους 1",
+    "ref_end": "pseudolucian.χαρίδημος_ἢ_περὶ_κάλλους 3",
+    "context": 1
+   }
+  },
+  {
+   "name": "g29_density",
+   "path": "/api/passages/density",
+   "params": {
+    "work": "pseudolucian.χαρίδημος_ἢ_περὶ_κάλλους"
+   }
+  },
+  {
+   "name": "g29_description",
+   "path": "/api/text-descriptions",
+   "params": {
+    "language": "grc",
+    "work": "pseudolucian.χαρίδημος_ἢ_περὶ_κάλλους"
+   }
+  },
+  {
+   "name": "g29_translation",
+   "path": "/api/translation",
+   "params": {
+    "work": "pseudolucian.χαρίδημος_ἢ_περὶ_κάλλους",
+    "refs": "pseudolucian.χαρίδημος_ἢ_περὶ_κάλλους 1"
+   }
+  },
+  {
+   "name": "g29_translation_full",
+   "path": "/api/passages/translation-full",
+   "params": {
+    "work": "pseudolucian.χαρίδημος_ἢ_περὶ_κάλλους",
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g30_reader",
+   "path": "/api/text/pseudolucian.ἀλκυών.tess",
+   "params": {
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g30_lines",
+   "path": "/api/text/pseudolucian.ἀλκυών.tess/lines",
+   "params": {
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g30_book_for",
+   "path": "/api/text/pseudolucian.ἀλκυών.tess/book-for",
+   "params": {
+    "language": "grc",
+    "ref": "pseudolucian.ἀλκυών 1"
+   }
+  },
+  {
+   "name": "g30_ls_lemma",
+   "path": "/api/line-search",
+   "params": {
+    "query": "λόγος καί",
+    "language": "grc",
+    "search_type": "lemma",
+    "work": "pseudolucian.ἀλκυών.tess",
+    "max_results": 40
+   }
+  },
+  {
+   "name": "g30_ls_exact",
+   "path": "/api/line-search",
+   "params": {
+    "query": "καὶ τὸν",
+    "language": "grc",
+    "search_type": "exact",
+    "work": "pseudolucian.ἀλκυών.tess",
+    "max_results": 40
+   }
+  },
+  {
+   "name": "g30_fusion",
+   "path": "/api/fusion-search",
+   "params": {
+    "source": "pseudolucian.ἀλκυών.tess",
+    "target": "bion_of_phlossa.epitaphius.tess",
+    "language": "grc",
+    "max": 50
+   },
+   "poll": {
+    "same_url": true,
+    "every": 5,
+    "max_seconds": 900
+   },
+   "ignore": [],
+   "loose": {
+    "list": "parallels",
+    "id": [
+     "source.ref",
+     "target.ref"
+    ],
+    "top": 30,
+    "min_overlap": 0.8
+   }
+  },
+  {
+   "name": "g30_similar",
+   "path": "/api/passages/similar",
+   "params": {
+    "window": "pseudolucian.ἀλκυών:fine:0",
+    "limit": 10
+   }
+  },
+  {
+   "name": "g30_passage_lines",
+   "path": "/api/passages/lines",
+   "params": {
+    "work": "pseudolucian.ἀλκυών",
+    "ref_start": "pseudolucian.ἀλκυών 1",
+    "ref_end": "pseudolucian.ἀλκυών 3",
+    "context": 1
+   }
+  },
+  {
+   "name": "g30_density",
+   "path": "/api/passages/density",
+   "params": {
+    "work": "pseudolucian.ἀλκυών"
+   }
+  },
+  {
+   "name": "g30_description",
+   "path": "/api/text-descriptions",
+   "params": {
+    "language": "grc",
+    "work": "pseudolucian.ἀλκυών"
+   }
+  },
+  {
+   "name": "g30_translation",
+   "path": "/api/translation",
+   "params": {
+    "work": "pseudolucian.ἀλκυών",
+    "refs": "pseudolucian.ἀλκυών 1"
+   }
+  },
+  {
+   "name": "g30_translation_full",
+   "path": "/api/passages/translation-full",
+   "params": {
+    "work": "pseudolucian.ἀλκυών",
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g31_reader",
+   "path": "/api/text/pseudolucian.ἔρωτες.tess",
+   "params": {
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g31_lines",
+   "path": "/api/text/pseudolucian.ἔρωτες.tess/lines",
+   "params": {
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g31_book_for",
+   "path": "/api/text/pseudolucian.ἔρωτες.tess/book-for",
+   "params": {
+    "language": "grc",
+    "ref": "pseudolucian.ἔρωτες 1"
+   }
+  },
+  {
+   "name": "g31_ls_lemma",
+   "path": "/api/line-search",
+   "params": {
+    "query": "λόγος καί",
+    "language": "grc",
+    "search_type": "lemma",
+    "work": "pseudolucian.ἔρωτες.tess",
+    "max_results": 40
+   }
+  },
+  {
+   "name": "g31_ls_exact",
+   "path": "/api/line-search",
+   "params": {
+    "query": "καὶ τὸν",
+    "language": "grc",
+    "search_type": "exact",
+    "work": "pseudolucian.ἔρωτες.tess",
+    "max_results": 40
+   }
+  },
+  {
+   "name": "g31_fusion",
+   "path": "/api/fusion-search",
+   "params": {
+    "source": "pseudolucian.ἔρωτες.tess",
+    "target": "bion_of_phlossa.epitaphius.tess",
+    "language": "grc",
+    "max": 50
+   },
+   "poll": {
+    "same_url": true,
+    "every": 5,
+    "max_seconds": 900
+   },
+   "ignore": [],
+   "loose": {
+    "list": "parallels",
+    "id": [
+     "source.ref",
+     "target.ref"
+    ],
+    "top": 30,
+    "min_overlap": 0.8
+   }
+  },
+  {
+   "name": "g31_similar",
+   "path": "/api/passages/similar",
+   "params": {
+    "window": "pseudolucian.ἔρωτες:fine:0",
+    "limit": 10
+   }
+  },
+  {
+   "name": "g31_passage_lines",
+   "path": "/api/passages/lines",
+   "params": {
+    "work": "pseudolucian.ἔρωτες",
+    "ref_start": "pseudolucian.ἔρωτες 1",
+    "ref_end": "pseudolucian.ἔρωτες 3",
+    "context": 1
+   }
+  },
+  {
+   "name": "g31_density",
+   "path": "/api/passages/density",
+   "params": {
+    "work": "pseudolucian.ἔρωτες"
+   }
+  },
+  {
+   "name": "g31_description",
+   "path": "/api/text-descriptions",
+   "params": {
+    "language": "grc",
+    "work": "pseudolucian.ἔρωτες"
+   }
+  },
+  {
+   "name": "g31_translation",
+   "path": "/api/translation",
+   "params": {
+    "work": "pseudolucian.ἔρωτες",
+    "refs": "pseudolucian.ἔρωτες 1"
+   }
+  },
+  {
+   "name": "g31_translation_full",
+   "path": "/api/passages/translation-full",
+   "params": {
+    "work": "pseudolucian.ἔρωτες",
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g32_reader",
+   "path": "/api/text/theophrastus.περί_ὀσμών.tess",
+   "params": {
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g32_lines",
+   "path": "/api/text/theophrastus.περί_ὀσμών.tess/lines",
+   "params": {
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g32_book_for",
+   "path": "/api/text/theophrastus.περί_ὀσμών.tess/book-for",
+   "params": {
+    "language": "grc",
+    "ref": "theophrastus.περί_ὀσμών 1.1"
+   }
+  },
+  {
+   "name": "g32_ls_lemma",
+   "path": "/api/line-search",
+   "params": {
+    "query": "λόγος καί",
+    "language": "grc",
+    "search_type": "lemma",
+    "work": "theophrastus.περί_ὀσμών.tess",
+    "max_results": 40
+   }
+  },
+  {
+   "name": "g32_ls_exact",
+   "path": "/api/line-search",
+   "params": {
+    "query": "καὶ τὸν",
+    "language": "grc",
+    "search_type": "exact",
+    "work": "theophrastus.περί_ὀσμών.tess",
+    "max_results": 40
+   }
+  },
+  {
+   "name": "g32_fusion",
+   "path": "/api/fusion-search",
+   "params": {
+    "source": "theophrastus.περί_ὀσμών.tess",
+    "target": "bion_of_phlossa.epitaphius.tess",
+    "language": "grc",
+    "max": 50
+   },
+   "poll": {
+    "same_url": true,
+    "every": 5,
+    "max_seconds": 900
+   },
+   "ignore": [],
+   "loose": {
+    "list": "parallels",
+    "id": [
+     "source.ref",
+     "target.ref"
+    ],
+    "top": 30,
+    "min_overlap": 0.8
+   }
+  },
+  {
+   "name": "g32_similar",
+   "path": "/api/passages/similar",
+   "params": {
+    "window": "theophrastus.περί_ὀσμών:fine:0",
+    "limit": 10
+   }
+  },
+  {
+   "name": "g32_passage_lines",
+   "path": "/api/passages/lines",
+   "params": {
+    "work": "theophrastus.περί_ὀσμών",
+    "ref_start": "theophrastus.περί_ὀσμών 1.1",
+    "ref_end": "theophrastus.περί_ὀσμών 1.3",
+    "context": 1
+   }
+  },
+  {
+   "name": "g32_density",
+   "path": "/api/passages/density",
+   "params": {
+    "work": "theophrastus.περί_ὀσμών"
+   }
+  },
+  {
+   "name": "g32_description",
+   "path": "/api/text-descriptions",
+   "params": {
+    "language": "grc",
+    "work": "theophrastus.περί_ὀσμών"
+   }
+  },
+  {
+   "name": "g32_translation",
+   "path": "/api/translation",
+   "params": {
+    "work": "theophrastus.περί_ὀσμών",
+    "refs": "theophrastus.περί_ὀσμών 1.1"
+   }
+  },
+  {
+   "name": "g32_translation_full",
+   "path": "/api/passages/translation-full",
+   "params": {
+    "work": "theophrastus.περί_ὀσμών",
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g33_reader",
+   "path": "/api/text/theophrastus.περὶ_φυτῶν_αἰτιῶν.tess",
+   "params": {
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g33_lines",
+   "path": "/api/text/theophrastus.περὶ_φυτῶν_αἰτιῶν.tess/lines",
+   "params": {
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g33_book_for",
+   "path": "/api/text/theophrastus.περὶ_φυτῶν_αἰτιῶν.tess/book-for",
+   "params": {
+    "language": "grc",
+    "ref": "theophrastus.περὶ_φυτῶν_αἰτιῶν 1.1.1"
+   }
+  },
+  {
+   "name": "g33_ls_lemma",
+   "path": "/api/line-search",
+   "params": {
+    "query": "λόγος καί",
+    "language": "grc",
+    "search_type": "lemma",
+    "work": "theophrastus.περὶ_φυτῶν_αἰτιῶν.tess",
+    "max_results": 40
+   }
+  },
+  {
+   "name": "g33_ls_exact",
+   "path": "/api/line-search",
+   "params": {
+    "query": "καὶ τὸν",
+    "language": "grc",
+    "search_type": "exact",
+    "work": "theophrastus.περὶ_φυτῶν_αἰτιῶν.tess",
+    "max_results": 40
+   }
+  },
+  {
+   "name": "g33_fusion",
+   "path": "/api/fusion-search",
+   "params": {
+    "source": "theophrastus.περὶ_φυτῶν_αἰτιῶν.tess",
+    "target": "bion_of_phlossa.epitaphius.tess",
+    "language": "grc",
+    "max": 50
+   },
+   "poll": {
+    "same_url": true,
+    "every": 5,
+    "max_seconds": 900
+   },
+   "ignore": [],
+   "loose": {
+    "list": "parallels",
+    "id": [
+     "source.ref",
+     "target.ref"
+    ],
+    "top": 30,
+    "min_overlap": 0.8
+   }
+  },
+  {
+   "name": "g33_similar",
+   "path": "/api/passages/similar",
+   "params": {
+    "window": "theophrastus.περὶ_φυτῶν_αἰτιῶν:fine:0",
+    "limit": 10
+   }
+  },
+  {
+   "name": "g33_passage_lines",
+   "path": "/api/passages/lines",
+   "params": {
+    "work": "theophrastus.περὶ_φυτῶν_αἰτιῶν",
+    "ref_start": "theophrastus.περὶ_φυτῶν_αἰτιῶν 1.1.1",
+    "ref_end": "theophrastus.περὶ_φυτῶν_αἰτιῶν 1.1.3",
+    "context": 1
+   }
+  },
+  {
+   "name": "g33_density",
+   "path": "/api/passages/density",
+   "params": {
+    "work": "theophrastus.περὶ_φυτῶν_αἰτιῶν"
+   }
+  },
+  {
+   "name": "g33_description",
+   "path": "/api/text-descriptions",
+   "params": {
+    "language": "grc",
+    "work": "theophrastus.περὶ_φυτῶν_αἰτιῶν"
+   }
+  },
+  {
+   "name": "g33_translation",
+   "path": "/api/translation",
+   "params": {
+    "work": "theophrastus.περὶ_φυτῶν_αἰτιῶν",
+    "refs": "theophrastus.περὶ_φυτῶν_αἰτιῶν 1.1.1"
+   }
+  },
+  {
+   "name": "g33_translation_full",
+   "path": "/api/passages/translation-full",
+   "params": {
+    "work": "theophrastus.περὶ_φυτῶν_αἰτιῶν",
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g34_reader",
+   "path": "/api/text/tryphon_i_grammaticus.περὶ_τρόπων.tess",
+   "params": {
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g34_lines",
+   "path": "/api/text/tryphon_i_grammaticus.περὶ_τρόπων.tess/lines",
+   "params": {
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g34_book_for",
+   "path": "/api/text/tryphon_i_grammaticus.περὶ_τρόπων.tess/book-for",
+   "params": {
+    "language": "grc",
+    "ref": "tryphon_i_grammaticus.περὶ_τρόπων p"
+   }
+  },
+  {
+   "name": "g34_ls_lemma",
+   "path": "/api/line-search",
+   "params": {
+    "query": "λόγος καί",
+    "language": "grc",
+    "search_type": "lemma",
+    "work": "tryphon_i_grammaticus.περὶ_τρόπων.tess",
+    "max_results": 40
+   }
+  },
+  {
+   "name": "g34_ls_exact",
+   "path": "/api/line-search",
+   "params": {
+    "query": "καὶ τὸν",
+    "language": "grc",
+    "search_type": "exact",
+    "work": "tryphon_i_grammaticus.περὶ_τρόπων.tess",
+    "max_results": 40
+   }
+  },
+  {
+   "name": "g34_fusion",
+   "path": "/api/fusion-search",
+   "params": {
+    "source": "tryphon_i_grammaticus.περὶ_τρόπων.tess",
+    "target": "bion_of_phlossa.epitaphius.tess",
+    "language": "grc",
+    "max": 50
+   },
+   "poll": {
+    "same_url": true,
+    "every": 5,
+    "max_seconds": 900
+   },
+   "ignore": [],
+   "loose": {
+    "list": "parallels",
+    "id": [
+     "source.ref",
+     "target.ref"
+    ],
+    "top": 30,
+    "min_overlap": 0.8
+   }
+  },
+  {
+   "name": "g34_similar",
+   "path": "/api/passages/similar",
+   "params": {
+    "window": "tryphon_i_grammaticus.περὶ_τρόπων:fine:0",
+    "limit": 10
+   }
+  },
+  {
+   "name": "g34_passage_lines",
+   "path": "/api/passages/lines",
+   "params": {
+    "work": "tryphon_i_grammaticus.περὶ_τρόπων",
+    "ref_start": "tryphon_i_grammaticus.περὶ_τρόπων p",
+    "ref_end": "tryphon_i_grammaticus.περὶ_τρόπων 2",
+    "context": 1
+   }
+  },
+  {
+   "name": "g34_density",
+   "path": "/api/passages/density",
+   "params": {
+    "work": "tryphon_i_grammaticus.περὶ_τρόπων"
+   }
+  },
+  {
+   "name": "g34_description",
+   "path": "/api/text-descriptions",
+   "params": {
+    "language": "grc",
+    "work": "tryphon_i_grammaticus.περὶ_τρόπων"
+   }
+  },
+  {
+   "name": "g34_translation",
+   "path": "/api/translation",
+   "params": {
+    "work": "tryphon_i_grammaticus.περὶ_τρόπων",
+    "refs": "tryphon_i_grammaticus.περὶ_τρόπων p"
+   }
+  },
+  {
+   "name": "g34_translation_full",
+   "path": "/api/passages/translation-full",
+   "params": {
+    "work": "tryphon_i_grammaticus.περὶ_τρόπων",
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g35_reader",
+   "path": "/api/text/zenobius_sophista.ἐπιτομὴ_ἐκ_τῶν_ταρραίου_καὶ_διδύμου_παροιμιῶν_συντ.tess",
+   "params": {
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g35_lines",
+   "path": "/api/text/zenobius_sophista.ἐπιτομὴ_ἐκ_τῶν_ταρραίου_καὶ_διδύμου_παροιμιῶν_συντ.tess/lines",
+   "params": {
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g35_book_for",
+   "path": "/api/text/zenobius_sophista.ἐπιτομὴ_ἐκ_τῶν_ταρραίου_καὶ_διδύμου_παροιμιῶν_συντ.tess/book-for",
+   "params": {
+    "language": "grc",
+    "ref": "zenobius_sophista.ἐπιτομὴ_ἐκ_τῶν_ταρραίου_καὶ_διδύμου_παροιμιῶν_συντ 1.1"
+   }
+  },
+  {
+   "name": "g35_ls_lemma",
+   "path": "/api/line-search",
+   "params": {
+    "query": "λόγος καί",
+    "language": "grc",
+    "search_type": "lemma",
+    "work": "zenobius_sophista.ἐπιτομὴ_ἐκ_τῶν_ταρραίου_καὶ_διδύμου_παροιμιῶν_συντ.tess",
+    "max_results": 40
+   }
+  },
+  {
+   "name": "g35_ls_exact",
+   "path": "/api/line-search",
+   "params": {
+    "query": "καὶ τὸν",
+    "language": "grc",
+    "search_type": "exact",
+    "work": "zenobius_sophista.ἐπιτομὴ_ἐκ_τῶν_ταρραίου_καὶ_διδύμου_παροιμιῶν_συντ.tess",
+    "max_results": 40
+   }
+  },
+  {
+   "name": "g35_fusion",
+   "path": "/api/fusion-search",
+   "params": {
+    "source": "zenobius_sophista.ἐπιτομὴ_ἐκ_τῶν_ταρραίου_καὶ_διδύμου_παροιμιῶν_συντ.tess",
+    "target": "bion_of_phlossa.epitaphius.tess",
+    "language": "grc",
+    "max": 50
+   },
+   "poll": {
+    "same_url": true,
+    "every": 5,
+    "max_seconds": 900
+   },
+   "ignore": [],
+   "loose": {
+    "list": "parallels",
+    "id": [
+     "source.ref",
+     "target.ref"
+    ],
+    "top": 30,
+    "min_overlap": 0.8
+   }
+  },
+  {
+   "name": "g35_similar",
+   "path": "/api/passages/similar",
+   "params": {
+    "window": "zenobius_sophista.ἐπιτομὴ_ἐκ_τῶν_ταρραίου_καὶ_διδύμου_παροιμιῶν_συντ:fine:0",
+    "limit": 10
+   }
+  },
+  {
+   "name": "g35_passage_lines",
+   "path": "/api/passages/lines",
+   "params": {
+    "work": "zenobius_sophista.ἐπιτομὴ_ἐκ_τῶν_ταρραίου_καὶ_διδύμου_παροιμιῶν_συντ",
+    "ref_start": "zenobius_sophista.ἐπιτομὴ_ἐκ_τῶν_ταρραίου_καὶ_διδύμου_παροιμιῶν_συντ 1.1",
+    "ref_end": "zenobius_sophista.ἐπιτομὴ_ἐκ_τῶν_ταρραίου_καὶ_διδύμου_παροιμιῶν_συντ 1.3",
+    "context": 1
+   }
+  },
+  {
+   "name": "g35_density",
+   "path": "/api/passages/density",
+   "params": {
+    "work": "zenobius_sophista.ἐπιτομὴ_ἐκ_τῶν_ταρραίου_καὶ_διδύμου_παροιμιῶν_συντ"
+   }
+  },
+  {
+   "name": "g35_description",
+   "path": "/api/text-descriptions",
+   "params": {
+    "language": "grc",
+    "work": "zenobius_sophista.ἐπιτομὴ_ἐκ_τῶν_ταρραίου_καὶ_διδύμου_παροιμιῶν_συντ"
+   }
+  },
+  {
+   "name": "g35_translation",
+   "path": "/api/translation",
+   "params": {
+    "work": "zenobius_sophista.ἐπιτομὴ_ἐκ_τῶν_ταρραίου_καὶ_διδύμου_παροιμιῶν_συντ",
+    "refs": "zenobius_sophista.ἐπιτομὴ_ἐκ_τῶν_ταρραίου_καὶ_διδύμου_παροιμιῶν_συντ 1.1"
+   }
+  },
+  {
+   "name": "g35_translation_full",
+   "path": "/api/passages/translation-full",
+   "params": {
+    "work": "zenobius_sophista.ἐπιτομὴ_ἐκ_τῶν_ταρραίου_καὶ_διδύμου_παροιμιῶν_συντ",
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g00_lexdensity",
+   "path": "/api/lexical-density",
+   "params": {
+    "work": "aelian.ἀποσπασμάτια",
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g01_lexdensity",
+   "path": "/api/lexical-density",
+   "params": {
+    "work": "aelius_herodianus.περι_καθολικης_προσῳδιας",
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g02_lexdensity",
+   "path": "/api/lexical-density",
+   "params": {
+    "work": "aeschines_sp.ἐπιστολαί",
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g03_lexdensity",
+   "path": "/api/lexical-density",
+   "params": {
+    "work": "aesop.αισώπειων_μύθων_συναγωγή",
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g04_lexdensity",
+   "path": "/api/lexical-density",
+   "params": {
+    "work": "alcidamas.περὶ_σοφιστῶν",
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g05_lexdensity",
+   "path": "/api/lexical-density",
+   "params": {
+    "work": "alcidamas.ὀδυσσεύς",
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g06_lexdensity",
+   "path": "/api/lexical-density",
+   "params": {
+    "work": "antisthenes.αἴας",
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g07_lexdensity",
+   "path": "/api/lexical-density",
+   "params": {
+    "work": "antisthenes.ὀδυσσεύς",
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g08_lexdensity",
+   "path": "/api/lexical-density",
+   "params": {
+    "work": "apollonius_dyscolus.περὶ_ἀντωνυμίας",
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g09_lexdensity",
+   "path": "/api/lexical-density",
+   "params": {
+    "work": "aristotle.αριστοτέλους_φυσικά_προβλήματα_κατ_εἶδος_συναγώγης",
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g10_lexdensity",
+   "path": "/api/lexical-density",
+   "params": {
+    "work": "aristotle.μηχανικά",
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g11_lexdensity",
+   "path": "/api/lexical-density",
+   "params": {
+    "work": "aristotle.περί_χρωμάτων",
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g12_lexdensity",
+   "path": "/api/lexical-density",
+   "params": {
+    "work": "aristotle.φυσιογνωμονικά",
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g13_lexdensity",
+   "path": "/api/lexical-density",
+   "params": {
+    "work": "aristotle.ἐκ_τοῦ_περὶ_ἀκουστῶν",
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g14_lexdensity",
+   "path": "/api/lexical-density",
+   "params": {
+    "work": "claudius_ptolemaeus.μαθηματικὴ_σύνταξις",
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g15_lexdensity",
+   "path": "/api/lexical-density",
+   "params": {
+    "work": "cleonides.εἰσαγωγὴ_ἁρμονική",
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g16_lexdensity",
+   "path": "/api/lexical-density",
+   "params": {
+    "work": "diogenianus_of_heraclea.παροιμίαι_δημώδεις_ἐκ_τῆς_διογενιανοῦ_συναγωγῆς_e_",
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g17_lexdensity",
+   "path": "/api/lexical-density",
+   "params": {
+    "work": "galen.περὶ_τῶν_ἐν_ταῖς_τροφαῖς_δυνάμεων",
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g18_lexdensity",
+   "path": "/api/lexical-density",
+   "params": {
+    "work": "gorgias_of_leontini.ἑλένης_ἐγκώμιον",
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g19_lexdensity",
+   "path": "/api/lexical-density",
+   "params": {
+    "work": "gorgias_of_leontini.ὑπέρ_παλαμήδους_ἀπολογία",
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g20_lexdensity",
+   "path": "/api/lexical-density",
+   "params": {
+    "work": "hermogenes.περὶ_τῶν_στάσεων",
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g21_lexdensity",
+   "path": "/api/lexical-density",
+   "params": {
+    "work": "herodianus.συμπόσιον",
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g22_lexdensity",
+   "path": "/api/lexical-density",
+   "params": {
+    "work": "nicomachus_of_gerasa.ἀριθμητικὴ_εἰσαγωγή",
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g23_lexdensity",
+   "path": "/api/lexical-density",
+   "params": {
+    "work": "nicomachus_of_gerasa.ἐγχειρίδιον_ἁρμονικῆς",
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g24_lexdensity",
+   "path": "/api/lexical-density",
+   "params": {
+    "work": "plutarch.παροιμίαι_αἷς_ἀλεξανδρεῖς_ἐχρῶντο",
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g25_lexdensity",
+   "path": "/api/lexical-density",
+   "params": {
+    "work": "pseudolucian.δημοσθένους_ἐγκώμιον",
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g26_lexdensity",
+   "path": "/api/lexical-density",
+   "params": {
+    "work": "pseudolucian.κυνικός",
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g27_lexdensity",
+   "path": "/api/lexical-density",
+   "params": {
+    "work": "pseudolucian.λούκιος_ἢ_ὄνος",
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g28_lexdensity",
+   "path": "/api/lexical-density",
+   "params": {
+    "work": "pseudolucian.φιλόπατρις_ἢ_διδασκόμενος",
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g29_lexdensity",
+   "path": "/api/lexical-density",
+   "params": {
+    "work": "pseudolucian.χαρίδημος_ἢ_περὶ_κάλλους",
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g30_lexdensity",
+   "path": "/api/lexical-density",
+   "params": {
+    "work": "pseudolucian.ἀλκυών",
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g31_lexdensity",
+   "path": "/api/lexical-density",
+   "params": {
+    "work": "pseudolucian.ἔρωτες",
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g32_lexdensity",
+   "path": "/api/lexical-density",
+   "params": {
+    "work": "theophrastus.περί_ὀσμών",
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g33_lexdensity",
+   "path": "/api/lexical-density",
+   "params": {
+    "work": "theophrastus.περὶ_φυτῶν_αἰτιῶν",
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g34_lexdensity",
+   "path": "/api/lexical-density",
+   "params": {
+    "work": "tryphon_i_grammaticus.περὶ_τρόπων",
+    "language": "grc"
+   }
+  },
+  {
+   "name": "g35_lexdensity",
+   "path": "/api/lexical-density",
+   "params": {
+    "work": "zenobius_sophista.ἐπιτομὴ_ἐκ_τῶν_ταρραίου_καὶ_διδύμου_παροιμιῶν_συντ",
+    "language": "grc"
+   }
+  }
+ ]
+}

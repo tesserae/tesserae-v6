@@ -44,3 +44,10 @@ jobs:
       - name: Security scan (bandit)
         run: |
           bandit -r backend/ -ll -q --skip B404,B603,B607
+
+      # Pinned to the code of 2026-10-12 by ruff.toml: passes today, fails
+      # only on a new fault. Blocking.
+      - name: Lint (ruff)
+        run: |
+          pip install ruff==0.17.0
+          ruff check .

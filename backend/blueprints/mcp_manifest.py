@@ -50,6 +50,10 @@ MANIFEST = {
     '/api/languages': {
         'tools': ['get_languages'],
     },
+    '/api/corpus-version': {
+        'site_only': True,
+        'reason': 'The date stamp for the Cite popup; connector tools already return corpus_version with their counts.',
+    },
     '/api/texts': {
         'tools': ['list_texts'],
     },
@@ -64,6 +68,88 @@ MANIFEST = {
     '/api/documents/<doc_id>': {
         'site_only': True,
         'reason': ('Document Reader view (stage 3b-3): website trial behind '
+                    '?documents=1, not yet exposed to the connector.'),
+    },
+    '/api/events': {
+        'site_only': True,
+        'reason': ('Events page (battles, sieges, treaties) in testing: reads '
+                    'an offline dossier database; not yet exposed to the connector.'),
+    },
+    '/api/events/<event_id>': {
+        'site_only': True,
+        'reason': ('Event focus view in testing: one dossier from the offline '
+                    'dossier database; not yet exposed to the connector.'),
+    },
+    '/api/coins': {
+        'site_only': True,
+        'reason': ('Coins page (OCRE and CRRO type records) in testing: reads an '
+                    'offline database; not yet exposed to the connector.'),
+    },
+    '/api/coins/facets': {
+        'site_only': True,
+        'reason': ('Filter values and counts for the Coins page in testing; not yet '
+                    'exposed to the connector.'),
+    },
+    '/api/coins/for-passage': {
+        'site_only': True,
+        'reason': ('Reader Coins tab in testing: related coin imagery and name links for a '
+                    'passage; not yet exposed to the connector.'),
+    },
+    '/api/coins/theme': {
+        'site_only': True,
+        'reason': ('Coins option of Theme Search in testing: coin descriptions nearest a '
+                    'free-text query; not yet exposed to the connector.'),
+    },
+    '/api/coins/<path:coin_id>': {
+        'site_only': True,
+        'reason': ('One coin type for the Coins page in testing; not yet exposed to '
+                    'the connector.'),
+    },
+    '/api/objects': {
+        'site_only': True,
+        'reason': ('Objects page (museum catalogue descriptions) in testing: reads an '
+                    'offline database; not yet exposed to the connector.'),
+    },
+    '/api/objects/facets': {
+        'site_only': True,
+        'reason': ('Filter values and counts for the Objects page in testing; not yet '
+                    'exposed to the connector.'),
+    },
+    '/api/scholarship/theme': {
+        'site_only': True,
+        'reason': ('Scholarship option of Theme Search in testing: commentary notes and article '
+                    'sentences nearest a free-text query by meaning and keyword together; not yet '
+                    'exposed to the connector.'),
+    },
+    '/api/objects/theme': {
+        'site_only': True,
+        'reason': ('Objects option of Theme Search in testing: object descriptions nearest a '
+                    'free-text query; not yet exposed to the connector.'),
+    },
+    '/api/scope': {
+        'site_only': True,
+        'reason': ('Live counts for the scope box on each search page; the connector '
+                    'tools return their own counts.'),
+    },
+    '/api/objects/image/<path:object_id>': {
+        'site_only': True,
+        'reason': 'A museum picture served from our disk cache for the Objects page; an image, not data.',
+    },
+    '/api/objects/<path:object_id>': {
+        'site_only': True,
+        'reason': ('One object for the Objects page in testing; not yet exposed to '
+                    'the connector.'),
+    },
+    '/api/documents/<doc_id>/scholarship': {
+        'site_only': True,
+        'reason': ('Journal sentences and commentary notes citing one document, for the '
+                    'document page: licensed scholarship shown as citation, excerpt and link '
+                    'on the site; not exposed to the connector.'),
+    },
+    '/api/documents/browse': {
+        'site_only': True,
+        'reason': ('Documents section of Browse Corpus: facet tree (kind, '
+                    'region, century) for the website trial behind '
                     '?documents=1, not yet exposed to the connector.'),
     },
     '/api/wildcard-search': {
@@ -134,6 +220,16 @@ MANIFEST = {
                 "keyed cleanly by filename). Both answer 'where did this text come from'; "
                 "only the former is wired in. Folding provenance.json in as a fallback would "
                 "raise describe_text's coverage -- flagged, not done, in the parity report."),
+    },
+    '/api/usage/page': {
+        'site_only': True,
+        'reason': ('The browser records which pages one visit opened, for the admin panel\'s '
+                   'paths section; a connector client has no pages to record.'),
+    },
+    '/api/sources-credits': {
+        'site_only': True,
+        'reason': ('Site copy for the Text Credits page (one record per source, licence and '
+                   'version); a connector client reads each text\'s own credit through describe_text.'),
     },
     '/api/text-credits': {
         'tools': ['describe_text'],
@@ -412,6 +508,28 @@ MANIFEST = {
         'reason': ("Text-request form that accepts a raw file attachment; submit_feature_request "
                   "covers a structured text/feature/bug request without a file, which is the "
                   "part a connector caller can act on."),
+    },
+    '/api/passages/mentions': {
+        'site_only': True,
+        'reason': ("Name search inside one work for the Search One Text page; theme_search and "
+                  "line_search already cover finding passages by subject or word."),
+    },
+    '/api/passages/ask-summary': {
+        'site_only': True,
+        'reason': ("Short model-written answer for the Search One Text page; a connector caller "
+                  "reads the passages itself, and nothing in the request path of the "
+                  "connector should call the site's model."),
+    },
+    '/api/passages/ask-scholarship': {
+        'site_only': True,
+        'reason': ("Model-written paragraph on the secondary literature for the Search One Text page; "
+                  "a connector caller reads the notes through the scholarship search itself."),
+    },
+    '/api/passages/recent-scholarship': {
+        'site_only': True,
+        'reason': ("Articles the live services list for the Search One Text page, one service per "
+                  "request so the page can paint each as it answers; a connector caller asks the services "
+                  "through the scholarship search itself."),
     },
     '/api/passages/status': {
         'site_only': True,

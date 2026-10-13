@@ -2,6 +2,8 @@
 Downloads Blueprint - Provides downloadable resources for users and developers
 """
 import os
+
+from backend import fspaths
 import json
 import zipfile
 import tempfile
@@ -30,7 +32,7 @@ def create_zip_from_directory(directory, prefix='', skip_files=None):
     skip_files = skip_files or set()
     memory_file = BytesIO()
     with zipfile.ZipFile(memory_file, 'w', zipfile.ZIP_DEFLATED) as zf:
-        for root, dirs, files in os.walk(directory):
+        for root, dirs, files in fspaths.walk(directory):
             for file in files:
                 if file in skip_files:
                     continue
@@ -38,7 +40,7 @@ def create_zip_from_directory(directory, prefix='', skip_files=None):
                 arcname = os.path.relpath(file_path, directory)
                 if prefix:
                     arcname = os.path.join(prefix, arcname)
-                zf.write(file_path, arcname)
+                zf.write(fspaths.fs_path(file_path), arcname)
         if skip_files:
             zf.writestr(
                 os.path.join(prefix, 'README_RESTRICTED.txt') if prefix else 'README_RESTRICTED.txt',
@@ -267,7 +269,7 @@ def download_info():
         'embeddings': {}
     }
     
-    for lang in ['la', 'grc', 'en']:
+    for lang in ['la', 'grc', 'en', 'cop', 'he']:
         lang_dir = os.path.join(TEXTS_DIR, lang)
         if os.path.exists(lang_dir):
             files = [f for f in os.listdir(lang_dir) if f.endswith('.tess')]

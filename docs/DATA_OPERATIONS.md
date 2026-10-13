@@ -34,6 +34,548 @@ Conventions
   and `scripts/corpus/rebuild_docfreq.py` already follow the convention by
   hand and are the models the helper matches.
 
+
+## 2026-10-12 Fifteen backup copies of index files deleted (RUN 20:00)
+
+The scripts that append texts to a search index, repair references or rebuild a frequency table each leave a stamped `.bak-<tag>` copy of the index file beside it, as a way back if the change proves wrong. Fifteen such copies had accumulated under `data/inverted_index/` on the web machine, from 29 August to 10 October, 22 GB in all: six of the Latin index (7 and 8 October), three of the Greek index (4 to 10 October), two of the Persian index, and one each of the Coptic, English, Hebrew and Urdu indexes. The current indexes had been live for between two days and six weeks, the reference searches had passed after every deploy, no process had a copy open, and no code reads them. At the owner's instruction all fifteen were deleted. Free disk rose from 509 to 530 GB. The reference search check passed afterwards and Theme Search answered.
+
+The files, for the record: cop_index.db.bak-letters-20260927-1451, en_index.db.bak-milton-20260916-213923, fa_index.db.bak-dropped-20261008-20261008-113645, fa_index.db.bak-swap-dropped-20261008, grc_index.db.bak-diodorus-loeb-20261010, grc_index.db.bak-historians-20261009, grc_index.db.bak-historians2-20261009, he_index.db.bak-homographs-20261001-1048, la_index.db.bak-docfreq-20261007-082418, la_index.db.bak-removed-20261007-20261007-081825, la_index.db.bak-stale-20261007-0201, la_index.db.bak-vegio-20261007, la_index.db.bak-vegiofix-20261007, la_index.db.bak-victor-minor-20261008, ur_index.db.bak-swap-dropped-20261008.
+
+Rule from here: a `.bak` copy of an index is kept until the next deploy's reference check has passed, then deleted in the same turn, and the deletion is noted in this log with the append it belonged to.
+
+## 2026-10-12 The local model server mothballed (RUN 18:06)
+
+The assistant, the scholarship paragraph, Theme Search's query expansion and the Scholarship tab's note translation all go through one model client, which the live site points at the campus AI gateway. The local model server on the web machine (a llama-server holding about 20 GB of memory) had answered no request in a week, so at the owner's instruction it was stopped and disabled, leaving its unit file in place. Available memory rose from 27 to 52 GB, and the job launcher, which allowed one job at a time while that server ran, now lets jobs overlap within its 24 GB budget.
+
+Reviving it, should the gateway be unreachable, is one command on the web machine: `tess-local-model revive` starts the server and points the site's model setting at it, saving the gateway settings aside. `tess-local-model mothball` reverses that, and `tess-local-model status` reports both. No key is printed by any of the three.
+
+## 2026-10-12 Object pictures cached on the server (RUN 10:41 to 10:47)
+
+Status: run on production 2026-10-12 at two requests a second. 684 of 694 pictures cached (134 MB); ten Art Institute of Chicago addresses answered 403 and are left out (the page hides the picture box for them). One thing went wrong first: the web worker had already created `data/objects/images/` when the deploy's live check fetched one picture, and its umask made the folder unwritable by the maintainer, so the first run failed on every file. The folder was moved aside as `data/objects/images.flask-owned/` (one file, to be deleted by the server administrator) and recreated group-writable; the route now creates the folder group-writable itself.
+
+Command, from the production checkout, inside the job launcher:
+
+    ~/bin/tess-job --fg objimg 2 python scripts/objects/fetch_object_images.py --db data/objects/objects.sqlite --out data/objects/images --rate 2
+
+Expected: about 694 pictures (390 Art Institute of Chicago, 304 Cleveland Museum of Art), roughly six minutes at two requests a second; the final line reads `fetched 694, already cached 0, refused 0, failed 0`. Folder: `data/objects/images/` (files named by the SHA-1 of the image address). Safe to re-run: pictures already present are skipped. Not in git.
+
+## 2026-10-11 Description vocabulary for Theme Search's unknown-word check (built 2026-10-11; installed 2026-10-11 22:03, rebuilt 23:47 after the prose append)
+
+- What: `data/passage_index/desc_vocab.json`, the words that occur in at least two passage descriptions (every lowercase alphabetic token of each row's `blob` and of the string and list values in its `desc`, counted once per row). Theme Search uses it to tell a reader which words of a query no passage description contains, and to hold the list when none of them does. Without the file the check is off and the response carries `vocab_checked: false`.
+- Script: `scripts/corpus/build_desc_vocab.py`, one pass over `descriptions.jsonl`, under 100 MB of memory, about 35 seconds.
+- To run on production (tess-job, cap 4), then touch the wsgi file:
+  `python scripts/corpus/build_desc_vocab.py --descriptions /var/www/tesseraev6_flask/data/passage_index/descriptions.jsonl --out /var/www/tesseraev6_flask/data/passage_index/desc_vocab.json`
+  A copy built from the 542,625 production rows (88,473 words, 1.2 MB) is in `~/tesserae-backups/desc_vocab_2026-10-11/desc_vocab.json` and can be copied over instead.
+- The file is rebuilt after every append to the passage index, listed with the keyword index and the names index in the post-append steps.
+- Check: a query of nonsense words ("xqzv plorf wibble") answers "Nothing to search for"; "establishment of democracy" shows its list.
+
+## 2026-10-11 Prose windows for every long-prose work: merged short units, Thucydides re-cut, the full run (staged 2026-10-11; run 2026-10-11 23:22 to 23:49)
+
+- What: the cutter (`scripts/corpus/prose_windows.py`) gains `--merge-units`
+  (on by default; `--no-merge-units` is the first run's behaviour). Within one
+  part file, consecutive units shorter than the target are joined into one
+  window until the next would pass 1,200 characters; the window's `ref_start`
+  is the first unit's reference, `ref_end` the last's, `units` counts them and
+  there is no `sub`. A unit longer than the target is cut into pieces with
+  `sub` and character offsets as before and closes the group before it. A
+  window never crosses a part file. Merged windows get ids
+  `<part file>:prosem:<n>`, so they never collide with the first run's
+  `<part file>:prose:<n>`. `--exclude-ids` skips the works a first run
+  already cut. `apply_passage_rows.py` gains `--mode remove --remove-ids FILE`
+  (deletes rows from `ids.json`, `embeddings.npy` and `descriptions.jsonl`
+  together, with `.bak-<tag>` copies).
+- Thucydides re-cut: its units are single sections of 300 to 500 characters.
+  With merging, 3,577 windows (median 296 characters) become 1,159 (minimum
+  319, median 1,038, 10th percentile 797, 90th 1,171, maximum 1,259, mean
+  1,003). Described (stamp `prose-all-20261011`, 16 in flight, 3.2 windows a
+  second, 6.6 minutes, no error rows) and encoded with the embed service
+  (1,159 x 1,024, unit length).
+- Replacing the old Thucydides rows: `--mode replace` works by id and only
+  rewrites rows whose ids are already indexed, and the new ids differ in
+  number and kind from the old ones, so the old 3,577 rows (ids
+  `thucydides.peleponnesian_war.part.N:prose:n`, tag `prose-20261011`) are
+  removed with `--mode remove` and the 1,159 new ones appended with
+  `--mode append`.
+- The full cut: the 1,510 prose works over the audit threshold (median fine
+  window over 3,000 characters) less the 12 works that already hold prose
+  windows (the Annals, Thucydides and the first run's ten) give 991 works and
+  153,405 windows (minimum 22, median 1,031, 10th percentile 678, 90th 1,214,
+  maximum 2,357, mean 1,009 characters; about 155 million characters). The
+  first estimate was 274,684 windows without merging.
+- Describing: job `prose-all-describe` (`~/bin/tess-job`, cap 4 GB, detached),
+  Qwen 3.8 27B FP8, thinking off, 32 in flight (16 gave 3.2 windows a second
+  on the Thucydides run, 32 gives 4.3), stamp `prose-all-20261011`, output
+  `descriptions_all.jsonl`. Started 14:22 on 2026-10-11; after ten minutes 2,615
+  rows, 4.3 windows a second (about 258 a minute), 7 error rows (the describer
+  retries them on resume), key spend 4.53 to 5.97 units for the first 2,650
+  windows, so about 80 units for the run; expected finish about 00:15 on
+  2026-10-12. Resumable: rerunning the same command skips every id that
+  already has a `desc`. Progress is the row count of `descriptions_all.jsonl`
+  against 153,405.
+- Outputs in `~/tesserae-backups/prose_windows_all_2026-10-11/`:
+  `windows_thuc.jsonl`, `descriptions_thuc.jsonl`, `vectors_thuc.npy`,
+  `ids_thuc.json`, `old_ids_thuc.json` (the 3,577 rows to remove),
+  `windows_all.jsonl` (268 MB), `windows_report_all.json`,
+  `descriptions_all.jsonl` (growing), and the describer's scripts.
+- Steps on production, to run, once this pull request is merged and pulled and
+  the description job has finished. Each under `~/bin/tess-job`, cap 10 for
+  anything that reads the index:
+  1. Resume the describer if it stopped (from the outputs folder): `~/bin/tess-job
+     prose-all-describe 4 bash -c "cd ~/tesserae-backups/prose_windows_all_2026-10-11
+     && python describe_prose_windows.py --windows windows_all.jsonl --model
+     Qwen/Qwen3.8-27B-FP8 --stamp prose-all-20261011 --out descriptions_all.jsonl
+     --no-think --concurrency 32"`. Run it once more at the end to retry the
+     error rows. Done when `descriptions_all.jsonl` holds 153,405 rows with a
+     `desc`.
+  2. Lockstep check (ids, vectors and description rows equal), one Similar
+     Passages and one Theme Search request.
+  3. Back up `window_texts.db`; upsert `windows_thuc.jsonl` and
+     `windows_all.jsonl` with `prose_windows.py --upsert-db
+     data/passage_index/window_texts.db --upsert-from FILE`. The old
+     Thucydides texts stay as unused rows.
+  4. `make_encode_blobs.py descriptions_all.jsonl blobs_all.jsonl.gz`, then
+     encode on the campus GPU by `research/threads/GPU_JOB_RECIPE.md`
+     (`vectors_all.npy`, `ids_all.json`).
+  5. Thucydides: `apply_passage_rows.py --index data/passage_index --mode remove
+     --remove-ids old_ids_thuc.json --tag prose-all-20261011`, then
+     `--mode append --sidecar descriptions_thuc.jsonl --tag prose-all-20261011
+     --vectors vectors_thuc.npy --vector-ids ids_thuc.json`.
+  6. Everything else: `apply_passage_rows.py --index data/passage_index --sidecar
+     descriptions_all.jsonl --mode append --tag prose-all-20261011 --vectors
+     vectors_all.npy --vector-ids ids_all.json` (cap 12G).
+  7. `scripts/build_desc_fts.py`; `scripts/corpus/build_window_names.py` to a
+     `.new` file, then swap in; `touch tesseraev6_flask.wsgi`; the lockstep
+     check again.
+- Checks: the reference search (arma virum); Ask a Work on Thucydides and on a
+  merged work showing windows with `ref_start` different from `ref_end`; Similar
+  Passages on a Thucydides section maps to a merged window.
+- RUN 2026-10-11. Describing finished 23:14 after 532 minutes (4.8 windows a
+  second at the end, 32 in flight): 153,404 of 153,405 windows described; one,
+  `celsus.de_medicina.part.4:prosem:4`, failed on every attempt and is left
+  out. Encoded on one campus GPU (job `prose-all-20261011-7c3eeda5`): 153,404
+  vectors in 100 seconds in four parts, every part's SHA-256 matching the
+  job's result lines, id order equal to the input, norms 1.000, cosine 1.000
+  against the local encoder on three samples; the job and its public input
+  deleted. Install 23:22 to 23:49 under tess-job: window texts upserted
+  (153,405 rows plus the 1,159 Thucydides rows; `window_texts.db` 697,188
+  rows, backup `.bak-prose-all-20261011`); Thucydides 3,577 rows removed
+  (index 542,625 to 539,048) and 1,159 appended (540,207); the full run
+  appended (693,611 ids, vectors and description rows, in lockstep at each
+  step); keyword index 45 seconds; names index 22.8 minutes to `.new`,
+  checked and swapped; `desc_vocab.json` rebuilt (41 seconds); wsgi touched.
+  Checks passed: lockstep 693,611; the reference search (arma virum, Ovid
+  present); Ask a Work on Thucydides for the plague gives a strong band with
+  merged windows (2.57.1 to 2.58.1 first); Similar Passages on Thuc. 2.47.3
+  maps to the merged window 2.47.1 to 2.47.4; the gibberish check still
+  answers that nothing is known. Similar Passages for Annals 1.1 now leads
+  with Appian's preface to the Civil Wars, Josephus 20.155, Tacitus'
+  Histories 1.1, Dio's book 50 and Herodian 1.1.4, all paragraph windows
+  (before the run: Plutarch, Publicola 1.1, then chapter-sized windows of
+  Dio, Zosimus and Herodian).
+
+## 2026-10-11 Finer passage windows for long prose chapters (run 2026-10-11 12:28 to 12:50)
+
+- What: a new window scale, `prose`, for prose works whose corpus line is a
+  whole chapter or section. The fine windows are a fixed twelve lines, so in
+  the Annals one window (and one description) ran from 7,500 to 15,000
+  characters and covered a dozen scenes; a question about one episode found
+  its material only when the summary happened to mention it. The new windows
+  are runs of whole sentences from one unit, about 1,200 characters each, with
+  `ref_start` and `ref_end` both the unit's own reference (so the Reader and
+  `GET /api/passages/lines` keep working), `sub` (ordinal in the unit, from 1)
+  and `char_start`/`char_end` (offsets in the unit). Code:
+  `scripts/corpus/prose_window_audit.py`, `scripts/corpus/prose_windows.py`,
+  `scripts/corpus/describe_prose_windows.py`, `scripts/corpus/make_encode_blobs.py`,
+  `--vectors`/`--vector-ids` in `scripts/corpus/apply_passage_rows.py`, and
+  `backend/passage_index.py` (a work with `prose` windows is ranked, covered
+  and mapped at that scale and its fine windows are left out of Theme Search,
+  the neighbour lists and the passages-that-name-a-person list; coarse windows
+  stay).
+- Audit (fine windows measured against the corpus texts; 3,470 works,
+  3,066 windows whose lines could not be located are not counted): 1,511
+  works have a median fine window over 3,000 characters, holding 39,512 fine
+  windows, and 1,510 of them are prose (39,506 windows). Cutting all 1,510 at
+  1,200 characters gives 274,684 new windows, over the 25,000 the plan allowed
+  for a full run, so the run covered the Annals, Thucydides and the ten works
+  with the longest median.
+- Run, 2026-10-11 (staged, nothing installed):
+  - Cut: `prose_windows.py --work tacitus.annales --work
+    thucydides.peleponnesian_war --audit audit.json --top 10` produced 6,438
+    windows (median 501 characters, 10th percentile 189, 90th 1,196, maximum
+    2,309). Annals 746 windows (median 874, was 7,500 to 15,000), Thucydides
+    3,577 (median 296: its units are single sections of 300 to 500
+    characters, so a window is now one section), the ten longest-median works
+    2,115.
+  - Described on the university gateway, Qwen 3.8 27B FP8 with thinking off,
+    16 in flight, stamp `prose-fine-20261011`: 6,438 of 6,438, no error rows,
+    26.3 minutes, 2.56 gateway units (key spend 1.12 to 3.67).
+  - Encoded on the campus GPU by `research/threads/GPU_JOB_RECIPE.md`
+    (job `prose-win-20261011-2d179`, one part, 19 seconds from start, 1,024
+    dimensions, SHA-256 of both parts matched the job's report; cosine
+    against the embed service on 16 random windows, minimum 0.99999857).
+    6,438 vectors for 6,438 descriptions, ids identical and in the same order.
+  - Outputs in `~/tesserae-backups/prose_windows_2026-10-11/`: `audit.json`
+    (1.0 MB), `audit.md`, `windows.jsonl` (7.4 MB), `windows_report.json`,
+    `descriptions.jsonl` (6.7 MB, the sidecar for the append), `blobs.jsonl.gz`,
+    `vectors.npy` (26.4 MB, float32) and `ids.json`.
+- Not done: the other 1,500 or so prose works (about 268,000 windows). Most are
+  short works whose units are already short, so the gain is mainly the
+  works with long units; the audit file lists them by median.
+- Run on production 2026-10-11 12:28 to 12:50 (`install_prose.sh` in the session scratchpad, every heavy step under tess-job): lockstep before 536,187 / 536,187 / 536,187; `window_texts.db` backed up as `.bak-prose-20261011` and 6,438 rows upserted (542,624 rows); append with the GPU vectors, 6,438 new records, index 542,625 / 542,625 / 542,625 after; keyword index rebuilt in 31 s (670 MB); names index rebuilt to `.new` in 20 minutes, checked and swapped; wsgi touched; lockstep held. The first attempt failed because the cutter demanded `--out` for the upsert step, and a `--dry-run` of that step wrote the rows anyway; both fixed in this record's pull request.
+- Checks 2026-10-11 12:50: the reference search (arma virum, 50 results, Ovid present); Ask a Work on Annals 1 to 6 for "mutinies of the legions" now leads with 1.31, 1.39, 1.30, 1.45, 1.32 and 1.16 at the prose scale (band moderate); "the death of Germanicus" with 2.73, 3.2, 2.82, 2.71, 2.70 and 2.75 (band strong); by one reading of the gists, passages directly on the subject in the first ten rose from 3 to 6 for both questions against the pilot; Similar Passages on Ann. 1.16 maps to a prose window; `GET /api/passages/lines` returns the chapter for a prose result when the reference is given in the index's own case.
+- Steps on production, once this pull request is merged and pulled. Each under
+  `~/bin/tess-job`, cap 10 for anything that reads the index:
+  1. Lockstep check before touching anything: ids, vectors and description
+     rows equal (535,272 and more as the index stands); one Similar Passages
+     and one Theme Search request answer.
+  2. Back up `window_texts.db`, then `python scripts/corpus/prose_windows.py
+     --upsert-db data/passage_index/window_texts.db --upsert-from
+     <outputs>/windows.jsonl` (adds 6,438 rows).
+  3. `python scripts/corpus/apply_passage_rows.py --index data/passage_index
+     --sidecar <outputs>/descriptions.jsonl --mode append --tag prose-20261011
+     --vectors <outputs>/vectors.npy --vector-ids <outputs>/ids.json` (cap 10G;
+     takes backups tagged `bak-prose-20261011`, asserts the counts before and
+     after).
+  4. Description keyword index: `scripts/build_desc_fts.py` (about 30 seconds).
+  5. Names index: `scripts/corpus/build_window_names.py` to a `.new` file, then
+     swap in.
+  6. `touch tesseraev6_flask.wsgi`, then the lockstep check again.
+  7. Not needed for the Reader or Ask a Work: line vectors (no text changed)
+     and the connection map (it reads fine windows).
+- Checks: Ask a Work on Annals 1 to 6 for "mutinies of the legions" shows
+  windows with `sub` fields and gists that name one episode; the lockstep
+  counts; the reference search ("arma virum"); `GET /api/passages/lines` for
+  the `work` and `ref_start` of a prose result returns the whole unit.
+- Backups to keep: `ids.json`, `embeddings.npy`, `descriptions.jsonl`
+  (`.bak-prose-20261011`) and `window_texts.db`, `desc_fts.sqlite`,
+  `window_names.db` as backed up in the steps.
+
+## 2026-10-11 Translation files: facing-page OCR noise stripped from 19 of 25 Loeb-scan files (run 2026-10-11 09:00)
+- What: 25 translation files aligned from Internet Archive scans of Loeb
+  volumes carry the OCR of the facing Greek or Latin page in their English
+  units (runs such as "143 ARISTOPHANES > / dwvi) juapd, yegovas ..."), the
+  fifteen Aristophanes plays, Anthology books 7 and 10 to 16, Euclid's
+  Elements, three Plato dialogues, the Catalepton and Varro's Res rusticae.
+  The script finds runs of eight or more tokens in which fewer than three of
+  every eight are English-like (English learned from the clean translation
+  files) and removes them with the running headers. Units keep their index,
+  so `ref_to_unit` is unchanged. Euclid's and the Plato files' measured
+  "junk" is diagram letters and the speaker label "Str.", and the script
+  changes almost nothing in them.
+- Script: `scripts/translations/strip_ocr_noise.py` (test:
+  `tests/test_strip_ocr_noise.py`). It refuses to write a file whose
+  content words fall by more than 3 percent.
+- Run 2026-10-11 08:50: the script over all 25 files into the backup folder.
+  Before and after, as the share of alphabetic tokens that cannot be English:
+  Wasps 13.5 to 6.1 percent, Acharnians 11.9 to 3.5, Knights 12.1 to 3.8, the
+  other seven plays 2.9 to 6.4 down to 1.6 to 3.7, Anthology books 7 and 10 to
+  16 8.4 to 10.9 down to 1.2 to 4.7 (book 8 6.1 to 3.5). 4,163 runs and 469
+  running headers removed; content words (four or more letters, in the
+  vocabulary) fell by 0 to 2.7 percent per file; two Anthology units (books 10
+  and 16) were entirely Greek OCR and are now empty. The residue is shorter
+  Greek runs under eight tokens, which the rule leaves.
+- Installed 2026-10-11 09:00: the ten Aristophanes plays and the nine
+  Anthology books (19 files), originals first copied to
+  `~/tesserae-backups/translations_ocr_clean_2026-10-11/originals/`, mode 664,
+  wsgi touched. NOT installed, after reading `samples.md`: Varro and the
+  Catalepton, where the removed runs were real quotations and citations in
+  the translator's notes (Latin verse quoted, a bibliographic reference) for
+  a gain of 0.4 and 0.0 points; Euclid and the three Plato dialogues, where
+  the measured junk is diagram letters and the speaker label and the script
+  changes nothing. Their files on production are unchanged.
+- Check 2026-10-11 09:01: Knights 196 through `/api/passages/translation`
+  no longer carries the ARISTOPHANES header or the Greek run.
+- The command, for the record (nothing is installed by this step):
+  `~/bin/tess-job --fg ocr_run 4 python3 -I scripts/translations/strip_ocr_noise.py --src /var/www/tesseraev6_flask/data/translations --out ~/tesserae-backups/translations_ocr_clean_2026-10-11/cleaned --report ~/tesserae-backups/translations_ocr_clean_2026-10-11/report.md`
+  writes the cleaned files, `report.md` and `samples.md`. Read the samples
+  before installing.
+- Install (after review): back up the 25 originals to
+  `~/tesserae-backups/translations_ocr_clean_2026-10-11/originals/`, copy each
+  cleaned file over `/var/www/tesseraev6_flask/data/translations/<name>`
+  (keep mode 664), then `touch /var/www/tesseraev6_flask/tesseraev6_flask.wsgi`.
+- Checks: `/api/passages/translation?work=aristophanes.knights&refs=arist.%20knights.%20196`
+  (Knights unit 8) no longer carries "ARISTOPHANES >" or the Greek run; the
+  Reader's Translation tab on Aristophanes, Knights 100 reads as English; the
+  `/api/passages/translations?language=grc` list still shows the 25 works.
+
+## 2026-10-10 Translation files: HTML character entities decoded (run 2026-10-10 23:58)
+- What: 14 of the 1,043 translation files in `data/translations/` (not in git)
+  held HTML entities from the web pages they were transcribed from, which the
+  Reader showed as "C&aelig;sar" and "Augustus&mdash;more" (Tacitus, Annals
+  1.1). Pliny the Elder's Natural History held 4,780 of them, Tacitus's Annals
+  667, Ammianus 581, the Histories 360, and the rest a few each (`&aelig;`
+  4,031 in all, `&mdash;` 1,120, `&oelig;` 495, `&AElig;` 482, and accented
+  letters).
+- Run: every string in each of the 14 files decoded with Python's
+  `html.unescape` and the file rewritten in place, mode 664, after a copy to
+  `~/tesserae-backups/translations_entities_bak-20261010/`; then the wsgi
+  touch. Five malformed entities remain (two each in Aristophanes' Acharnians
+  and Knights, one in Gellius), which `html.unescape` does not recognise.
+- Code: `backend/translations.py` now decodes entities when a file is loaded,
+  so a future transcription cannot show them.
+## 2026-10-10 Scholarship Theme Search, packed index and install steps (packed 2026-10-10; installed 2026-10-11 00:58 EDT)
+
+- Run: the five packed files (335 MB) were copied from
+  `~/tesserae-backups/scholarship_theme_idx_2026-10-09/packed/` into
+  `/var/www/tesseraev6_flask/data/scholarship_theme/` under temporary names
+  and renamed, mode 664, with the wsgi touch, right after #798 deployed.
+  Checks: `/api/scholarship/theme?q=the+catalogue+of+ships+as+a+poetic+device`
+  answered `available: true` with ten results (Classical Philology sentences
+  and commentary notes on the Aeneid among them); `/api/scope` reports 82,814
+  scholarship windows.
+
+- Source: the index built on 2026-10-09 with the campus GPU, `~/tesserae-backups/scholarship_theme_idx_2026-10-09/`
+  (82,814 windows: 48,043 commentary notes and 34,771 article sentences), read only.
+- Pack (run 2026-10-10, nothing on production touched):
+  `python3 scripts/scholarship/pack_scholarship_theme.py --index ~/tesserae-backups/scholarship_theme_idx_2026-10-09 --out ~/tesserae-backups/scholarship_theme_idx_2026-10-09/packed`
+  (reads `/var/www/tesseraev6_flask/data/citation_index/citations.db` for article journal, title, year and link, and
+  `/var/www/tesseraev6_flask/texts/` for the language of each work, both only read; `--citations` and `--texts` change them).
+- Files and sizes in `packed/`: `embeddings.npy` 169.6 MB (float16, 82,814 by 1,024), `ids.json` 2.1 MB,
+  `windows.jsonl` 73.8 MB, `windows_fts.db` 89.2 MB (FTS5), and `manifest.json`. 335 MB in all.
+- To run (install, after the pull request is merged and deployed): copy the four files into
+  `/var/www/tesseraev6_flask/data/scholarship_theme/` (create the folder, mode 775 group tessdev, files 664) under
+  temporary names such as `embeddings.npy.new`, rename each over its final name, then
+  `touch /var/www/tesseraev6_flask/tesseraev6_flask.wsgi`. The route reads the files again whenever one changes.
+- Checks: `curl 'https://tesserae.caset.buffalo.edu/api/scholarship/theme?q=the%20catalogue%20of%20ships%20as%20a%20poetic%20device'`
+  answers `available: true` with ten results, both commentary and article rows, each with a `link`; `/api/scope`
+  shows `scholarship_windows` 82814; `/api/languages` still answers. The query encoder service
+  (`tesserae-embed`, port 8090) has to be running.
+
+## 2026-10-10 Event summaries and scholarship tied to passages (run 2026-10-10 20:46)
+
+- Run: the rebuilt file (summaries for 1,026 of 1,485 events from the Wikipedia
+  paragraphs fetched on 2026-10-09; the scholarship table rebuilt from the
+  citation index for every passage of rank 10 or better or judged yes, 4,827
+  rows) was copied into `/var/www/tesseraev6_flask/data/events/` under a
+  temporary name and renamed, the previous file kept as
+  `event_dossiers.sqlite.bak-20261010-1800`, with the wsgi touch, right after
+  #789 deployed. Checks: `/api/events` answers; the Siege of Corfinium carries
+  the Wikipedia paragraph with its credit and licence and four articles with
+  their passage ranks (1 and 5).
+
+- What: the Events database gains a Wikipedia summary for 1,026 of 1,485 events
+  (the other 459 have no article and keep the Wikidata description) and its
+  `scholarship` table is rebuilt so that each article row names the passage that
+  brought it in (`passage_rank`, `passage_ref`). Articles are looked up in the
+  offline citation index (`data/citation_index/citations.db`, read-only) for the
+  14,356 passages with rank 10 or better or judged "yes". The table went from
+  1,693 rows to 4,827 (4,653 article rows, one per event, article and passage, and
+  the 174 commentary rows, each tied to its passage when the reference falls in
+  one). The API shows one row per article. Siege of Corfinium (Q18001862) keeps
+  5 rows: 2 for Messer's article on mutiny, 3 for the Seneca, On Benefits 3.23.3
+  to 3.28.1 articles (the passage at rank 5 spans six chapters).
+- Build (run 2026-10-10 in a scratch copy, nothing on production touched):
+  `python3 scripts/events/add_summaries.py ~/tesserae-backups/events/event_dossiers_2026-10-10.sqlite ~/tesserae-backups/sources/events/wikipedia_all/intros_all.json STAGE.sqlite`
+  then `python3 scripts/events/relink_scholarship.py STAGE.sqlite ~/tesserae-backups/events/event_dossiers_2026-10-10_summaries.sqlite`
+  (the second reads `/var/www/tesseraev6_flask/data/citation_index/citations.db`; `--citation-index PATH` changes it).
+- To run (install, after the pull request is merged and deployed):
+  `cp ~/tesserae-backups/events/event_dossiers_2026-10-10_summaries.sqlite /var/www/tesseraev6_flask/data/events/event_dossiers.sqlite.new`
+  then `mv /var/www/tesseraev6_flask/data/events/event_dossiers.sqlite.new /var/www/tesseraev6_flask/data/events/event_dossiers.sqlite`
+  then `touch /var/www/tesseraev6_flask/tesseraev6_flask.wsgi`. Keep the old file first as
+  `event_dossiers.sqlite.bak-20261010`.
+- Checks: `/api/events/Q18001862` has `event.summary` beginning "The siege of Corfinium was the first significant military confrontation" with `summary_url` ending `/Siege_of_Corfinium`, and its 5 scholarship rows carry `passage_ref`; `/api/events` still answers with 1,485 events in `total_all`.
+- Source: English Wikipedia opening paragraphs fetched 2026-10-09
+  (`~/tesserae-backups/sources/events/wikipedia_all/intros_all.json`), CC BY-SA 4.0, credited
+  in `data/sources_credits.json`.
+
+## 2026-10-10 Greek coin types added to the Coins collection (run 2026-10-10 18:30)
+
+- Run: `coins.sqlite` rebuilt with the seven Greek catalogues (106,176 types) and
+  the description vectors for all 46,244 distinct descriptions were installed in
+  `/var/www/tesseraev6_flask/data/coins/` right after #774 deployed, the Roman
+  files kept beside them as `*.bak-roman-20261010`. The vectors came from the
+  campus GPU (job coins-greek-20261010-fb2223cd: 46,244 descriptions in 25 s
+  from model load, one part, SHA-256 checked; the 26,461 Roman rows agree with
+  the installed Roman vectors at cosine 1.00000 mean, 0.9967 minimum from
+  float16 rounding). Checks: facets total 106176 over nine sources; "capricorn"
+  143; the legend "basileos seleukou" typed without accents 1,720; "elephant"
+  1,261; a Heracles theme query returns Greek types.
+- Measured after the install (`scratchpad measure_live.py`, the ten test
+  passages through the live route): over all nine catalogues the Greek types
+  took 27 of the 50 top-five places and about 3 were real parallels, so the
+  Roman figure fell from 0.34 to about 0.26. The next release restricts a
+  Latin passage's related imagery to OCRE and CRRO, which gives the 2026-10-09
+  lists back exactly (the Roman vectors are the same).
+
+- What: seven Greek catalogues published through nomisma.org join the 58,715
+  Roman types in `data/coins/coins.sqlite`, giving 106,176 types. Counts match the
+  Nomisma dataset counts exactly (IRIS 13,399, Corpus Nummorum 11,913, Seleucid
+  Coins Online 8,694, PELLA 7,228, Ptolemaic Coins Online 3,650, BIGR 2,107,
+  Levantine Coinages Online (LCO) 470).
+  The licences are ODbL for all but Corpus Nummorum (CC BY-NC-SA 3.0, from the Nomisma
+  dataset list). One record each
+  in `data/sources_credits.json`. Left out were the dataset coded AoD (Art of
+  Devastation, First World War items, not coins of Antigonid kings), Antigonid
+  Coins Online (182 types, no English descriptions), OSCAR (no English
+  descriptions), Online Coins of Ostrogothic Italy, Condottieri Medals and Iron Age Coins in
+  Britain (Celtic coinage, not Greek or Roman).
+- Fetched 2026-10-10 with `scripts/coins/fetch_nomisma.py` (about 40 minutes for
+  all seven run side by side) into one fresh folder per set under
+  `~/tesserae-backups/sources/archaeology/` (`sco`, `pella`, `pco`, `bigr`,
+  `iris`, `corpus_nummorum`, `lco`), each with a README giving the date,
+  query and licence page, and `nomisma_refs_greek_2026-10-10/` for the labels:
+  `python -I scripts/coins/fetch_nomisma.py types --dataset http://numismatics.org/sco/ --out sco/sco_types.jsonl`
+  (dataset addresses: `http://numismatics.org/{sco,pella,pco}/`,
+  `https://numismatics.org/{bigr,lco}/`, `https://greekcoinage.org/iris/`,
+  `https://www.corpus-nummorum.eu/`), then
+  `python -I scripts/coins/fetch_nomisma.py refs --types sco/sco_types.jsonl --refs nomisma_refs_greek_2026-10-10`.
+- Rebuild, each through `tess-job` (cap 8 GB, convert 10 seconds, build 15 seconds):
+  1. `python -I scripts/coins/convert_ocre.py --dataset ocre=ocre/ocre_types.jsonl --dataset crro=crro/crro_types.jsonl --dataset cn=corpus_nummorum/corpus_nummorum_types.jsonl --dataset sco=sco/sco_types.jsonl --dataset pella=pella/pella_types.jsonl --dataset pco=pco/pco_types.jsonl --dataset bigr=bigr/bigr_types.jsonl --dataset iris=iris/iris_types.jsonl --dataset lco=lco/lco_types.jsonl --refs nomisma_refs --refs nomisma_refs_greek_2026-10-10 --output coins.jsonl --stats-out coins_stats.json`
+     (paths under `~/tesserae-backups/sources/archaeology/`). Keep `ocre` and
+     `crro` first, because the order fixes the numbering of the descriptions.
+  2. `python -I scripts/coins/build_coins_db.py --input coins.jsonl --out coins.sqlite`
+     Expect `106176 types` with ocre 56113, crro 2602, cn 11913, sco 8694, pella 7228,
+     pco 3650, bigr 2107, iris 13399, lco 470.
+  3. `python scripts/coins/embed_descriptions.py --input coins.jsonl --out DIR --rows-out descriptions_input.jsonl`
+     writes one row per distinct description: 46,244 rows, of which the first
+     26,461 are the Roman descriptions in the order of the vectors already made (checked
+     string for string), and 19,783 are new. Only the new rows need embedding.
+- Install (after the pull request merges and the vectors exist):
+  1. Copy `coins.sqlite` to `/var/www/tesseraev6_flask/data/coins/coins.sqlite.new`
+     and rename it over `coins.sqlite`. The search text now folds final and
+     lunate sigma to sigma and reads Latin look-alike capitals inside Greek
+     words as Greek, so the database must be the rebuilt one, not the old one.
+  2. When the 19,783 new vectors are embedded (campus GPU, `--blobs-out` as
+     above on the full `coins.jsonl`, or `--from-parts`), run
+     `embed_descriptions.py ... --from-parts` and
+     `pack_descriptions.py --emb DIR --out data/coins`. Expect
+     `packed 46244 descriptions for 99453 coin types`. Copy `descriptions.npy` and
+     `descriptions_ids.json` to production under temporary names and rename them
+     (ids file first). Until then, `descriptions_ids.json` of the Roman build
+     still matches its own matrix, and the Greek types simply have no vectors.
+  3. `touch /var/www/tesseraev6_flask/tesseraev6_flask.wsgi`, then `curl .../api/languages`.
+- Checks: `curl .../api/coins/facets` answers `total` 106176 and nine sources.
+  A Greek legend: `curl '.../api/coins?q=%CE%B2%CE%B1%CF%83%CE%B9%CE%BB%CE%B5%CF%89%CF%83+%CF%83%CE%B5%CE%BB%CE%B5%CF%85%CE%BA%CE%BF%CF%85'`
+  (the words for "of King Seleucus" typed without accents) returns Seleucid
+  types first. A Greek description search, `curl '.../api/coins?q=elephant&source=sco'`,
+  returns Seleucid types. After the vectors are installed, rerun
+  `scripts/coins/measure_for_passage.py` on the ten test passages (Roman-only
+  figure: 17 of 50 matches right, 0.34) to see whether the Greek descriptions
+  dilute the Roman results.
+- Reader name links: the authority and portrait names of the Greek sets
+  (Alexander III, Seleucus I, Ptolemy I and so on) are now offered to the
+  name-link matcher in `backend/coins_passage.py`. Check a Latin passage that
+  names Alexander after the install.
+
+## 2026-10-10 Coins in the Reader and Theme Search, install of the description vectors (run 2026-10-10 16:50)
+
+- Run: `descriptions.npy` (54 MB) and `descriptions_ids.json` (6.6 MB), packed
+  from the 2026-10-09 vectors, were copied into
+  `/var/www/tesseraev6_flask/data/coins/` under temporary names and renamed,
+  mode 664, with the wsgi touch, right after #771 deployed. Checks: the theme
+  query returned ten results; the Reader request for Suetonius, Augustus 94
+  returned five related descriptions and the name links Augustus, Julius
+  Caesar, Agrippa and Drusus Caesar. The campus GPU run below is still to do,
+  for the record only (the installed vectors are the same encoder's output).
+## 2026-10-10 Objects collection, build and install (run 2026-10-10 17:31)
+
+- Run: the three files built on 2026-10-10 were copied into
+  `/var/www/tesseraev6_flask/data/objects/` (new folder) under temporary names
+  and renamed, with the wsgi touch, right after #773 deployed. Checks: facets
+  total 1361 (chicago 395, cleveland 305, smithsonian 661); "amazons" 2 objects
+  with the Chicago credit line; the theme query "wine mixed with water at a
+  drinking party" returned ten results with the Cleveland dinos and a Chicago
+  column krater among the first three.
+
+- What: `data/objects/objects.sqlite` (1,361 Greek, Roman and Etruscan objects with a
+  museum catalogue description) and, beside it, `descriptions.npy` and
+  `descriptions_ids.json` (one 1,024-value float16 vector for each of 1,210
+  distinct description texts, in the format of the coins vectors). Read by
+  `/api/objects`, `/api/objects/facets`, `/api/objects/<id>` and `/api/objects/theme`.
+  Sizes: 2.8 MB, 2.5 MB and 0.6 MB. None of them is in git. With no database the
+  routes answer `available: false`. Path override: `TESSERAE_OBJECTS_DB`.
+- Sources, read on 2026-10-10, each downloaded into a fresh folder under
+  `~/tesserae-backups/sources/archaeology/` with a README that quotes the licence.
+  Cleveland Museum of Art Open Access API (CC0): 688 records fetched, 305 kept.
+  Art Institute of Chicago data dump `artic-api-data.tar.bz2` (records CC0,
+  descriptions CC BY 4.0): 2,197 records in the department, 395 kept.
+  Smithsonian Open Access (CC0), National Museum of Natural History Anthropology
+  unit in the open-access bucket: 529,663 records read, 1,268 Greek, Roman or Etruscan,
+  661 kept. Kept means a description or note of at least 40 characters. Coins are left
+  out (they are the Coins collection), and for Chicago so are Byzantine, Coptic and
+  Islamic objects, anything dated after 400 CE and places far to the east. 104
+  Smithsonian cast-gem records are left out because their note says it was copied from
+  another institution's database.
+- Steps to build, each through `tess-job`, cap 8 GB:
+  1. `python -I scripts/objects/fetch_objects.py --museum cleveland --out <new folder>`
+  2. `python -I scripts/objects/fetch_objects.py --museum chicago --download --archive <new folder>/artic-api-data.tar.bz2 --out <new folder>`
+  3. `python -I scripts/objects/fetch_objects.py --museum smithsonian --download --raw <new folder>/raw --out <new folder>`
+     (about 1.1 GB of line-delimited JSON in `raw/`, which can be deleted afterwards)
+  4. `python -I scripts/objects/build_objects_db.py --cleveland <folder> --chicago <folder> --smithsonian <folder> --out data/objects/objects.sqlite`
+     Prints fetched, kept and dropped per museum and writes `objects_build_report.json`.
+     Expect 1,361 objects (305, 395, 661).
+  5. With the encoder service running, `python -I scripts/objects/embed_object_descriptions.py --db data/objects/objects.sqlite --out data/objects`
+     Expect `embedded 1210 texts`. It took 479 seconds on 2026-10-10 against the
+     site's own encoder on its processor. The script stops above 5,000 texts (that size
+     goes to the campus GPU, see `scripts/coins/embed_descriptions.py --blobs-out`).
+- Steps to install, on the production checkout, after the pull request merges:
+  1. Copy the three files to `/var/www/tesseraev6_flask/data/objects/` under temporary
+     names (`objects.sqlite.new`, `descriptions.npy.new`, `descriptions_ids.json.new`) and
+     rename them into place, the database last, then `touch tesseraev6_flask.wsgi`.
+     Nothing is installed on the server beyond these data files.
+  2. Checks, with the encoder service running. `curl '.../api/objects/facets'` reports
+     `total: 1361` and museums `{"chicago": 395, "cleveland": 305, "smithsonian": 661}`.
+     `curl '.../api/objects?q=amazons'` returns the matching objects with a credit line.
+     `curl '.../api/objects/theme?q=wine+mixed+with+water+at+a+drinking+party'` returns
+     ten results, mixing krater and dinos descriptions from Cleveland and Chicago at the top.
+- Memory: the matrix is 2.5 MB and the ids file 0.6 MB. No model is loaded.
+- Not measured: how often the nearest description is a real match. The Theme Search
+  label says so. Images are linked from the museums' servers (Cleveland, and Chicago only
+  where its public domain flag is true) and never stored here. The Smithsonian records in
+  the bucket carry no image address.
+
+
+## 2026-10-10 Coins collection, build and install of `data/coins/coins.sqlite` (run 2026-10-10 16:50)
+
+- Run: the file built on 2026-10-10 (47 MB, 58,715 types) was copied into
+  `/var/www/tesseraev6_flask/data/coins/` (new folder, group tessdev) under a
+  temporary name and renamed, mode 664, with the wsgi touch, right after
+  #771 deployed. Checks: facets `available: true`, total 58715 (ocre 56113,
+  crro 2602); "capricorn" 125 types; "harbor" 17; `/api/languages` 200.
+
+- What: the Coins page and `/api/coins` read one SQLite file of 58,715 Roman
+  coin types (56,113 from OCRE, 2,602 from CRRO, nomisma.org exports, ODbL),
+  one row per type with its legends, both descriptions, mint and Pleiades id,
+  dates, authority, portrait, denomination and material, and an FTS5 index
+  over the legends and descriptions. The export, the three small label files
+  and the converter come from the coins prototype (#736). The data file is not
+  in git.
+- Steps, in a checkout of the merged branch, each through `tess-job`:
+  1. `df -h /` (100 GB free at least).
+  2. Convert (peak under 4 GB, cap 8 GB, about a minute):
+     `python -I scripts/coins/convert_ocre.py --ocre ~/tesserae-backups/sources/archaeology/ocre/ocre_types.jsonl --crro ~/tesserae-backups/sources/archaeology/crro/crro_types.jsonl --refs ~/tesserae-backups/sources/archaeology/nomisma_refs --output coins.jsonl --stats-out coins_stats.json`
+     Expect 58,715 types (56,113 and 2,602), 53,993 with legend text.
+  3. Build (cap 4 GB, under a minute, 47 MB out):
+     `python -I scripts/coins/build_coins_db.py --input coins.jsonl --out data/coins/coins.sqlite`
+     Expect `58715 types {'ocre': 56113, 'crro': 2602}`.
+  4. Install: create `/var/www/tesseraev6_flask/data/coins/` if absent
+     (group-writable, group tessdev), copy the file in under a temporary name,
+     rename it into place, then touch `tesseraev6_flask.wsgi`.
+  5. Check: `curl .../api/coins/facets` answers `available: true` and
+     `total` 58715. `curl '.../api/coins?q=capricorn'` returns 125 types.
+     `curl .../api/languages` still answers.
+- Switching on: the Coins entry appears in the main menu only for a visitor who
+  has the Coins collection on (the Archaeological and Everything profiles, or
+  the switch by name).
+
+## 2026-10-10 Page views table (created 09:56 on the reload after #761, confirmed)
+
+Confirmed 2026-10-10 09:56: the table exists, a verification post from the server answered 204 and inserted one row, and that row (visit `0123456789abcdef01234567`) was deleted afterwards so the record starts clean.
+
+
+The application creates the `page_views` table and its two indexes itself, on its first start after the deploy, with the same `CREATE TABLE IF NOT EXISTS` step that creates the search log. No data operation is needed. To confirm, run `SELECT count(*) FROM page_views` in the production database. The count is zero until the first visit after the deploy, and the admin Analytics tab shows "not being recorded yet" until the table exists.
+
+## Standing rule: every import adds a credits record
+
+Every import of texts, documents or a scholarship source (a commentary
+collection, a citation index, a search service) adds one record to
+`data/sources_credits.json` in the same pull request: collection, name, url,
+licence_name, licence_url, version (commit, DOI or date), retrieved date,
+what we use, notes. The Sources and credits section of the Text Credits page
+(`/text-credits`) is built from that file, so no code change is needed.
+Record only licence wording that was read at the source; say so in `notes`
+where it could not be read. `tests/test_sources_credits.py` checks the
+required fields.
 ## 2026-10-13 Translation file installed: Saadi's Gulistan, Eastwick 1880 (RUN 07:41)
 - What: `data/translations/fa__saadi.diwan.json`, built by
   `scripts/translations/align_saadi_gulistan_eastwick.py` (this pull request)
@@ -83,6 +625,648 @@ When a licence ends, `scripts/corpus/remove_restricted_text.py` is the
 removal procedure: dry run by default, reporting what it would take out of
 the texts, the lemma cache, the inverted index and the passage index before
 anything is deleted, with a dated backup kept of each file it removes.
+
+## 2026-10-10 Usage summary for the admin panel (run 09:15; nightly timer installed)
+
+Run 2026-10-10 09:15 under `tess-job` (4 GB cap, 18 s): `data/usage/usage_stats.json` written with ten months (September 698 application loads), mode 664. The user timer `tess-usage-stats.timer` (03:10 nightly, `Persistent=true`) runs the script with `--force`, sets the mode, and copies the access log to `~/tesserae-backups/access_log/` so the visitor record does not depend on the server's log rotation. Rerun after the referrer rule change (same day).
+
+
+The Analytics tab reads a JSON summary of the web server's access log. The
+script `scripts/usage/build_usage_stats.py` writes it. It streams the log and
+takes under a minute. The route `GET /api/admin/usage` serves the file named
+by `TESSERAE_USAGE_STATS`, by default `data/usage/usage_stats.json`.
+
+Steps on production
+1. From the production root with the production venv, run
+   `python scripts/usage/build_usage_stats.py --out /var/www/tesseraev6_flask/data/usage/usage_stats.json`
+   (add `--force` to replace an existing file).
+2. `chmod 664 /var/www/tesseraev6_flask/data/usage/usage_stats.json` so the web workers can read it.
+3. The user timer `tess-usage-stats.timer` runs the script each night at 03:10 with `--force` (installed 2026-10-10).
+4. Check the Analytics tab shows the months table.
+
+## 2026-10-10 Journal citation index: seven Studies in Philology articles re-dated from 1992 to 1922 (run on production)
+
+`data/citation_index/citations.db` carried seven articles of Studies in Philology volume 19 with year 1992; the volume is 1922 (the journal began in 1906, one volume a year) and the Early Journal Content ends at 1922. Three of the seven cite held works and were shown as 1992 articles in the Scholarship tab. Fixed in place with a backup first:
+
+```
+cp -p data/citation_index/citations.db ~/tesserae-backups/citations.db.bak-years-20261010
+python3 -c "import sqlite3; c=sqlite3.connect('data/citation_index/citations.db'); c.execute(\"UPDATE articles SET year=1922 WHERE journal='Studies in Philology' AND year=1992\"); c.commit()"
+```
+
+Seven rows updated; `SELECT max(year) FROM articles` now returns 1922. The same change applied to the source copy `~/tesserae-backups/ejc_index_2026-09-14/citations.db` so a rebuild keeps it.
+
+## 2026-10-09 Document scholarship index built, install steps for production (run 2026-10-10 00:24 EDT)
+
+The file `data/citation_index/document_citations.db` holds the journal sentences (JSTOR Early Journal Content) and commentary notes that cite an inscription, papyrus or coin of the documents collection, linked by edition reference. Read by `GET /api/documents/<id>/scholarship` and shown as the Scholarship section of `/document`.
+
+Built 2026-10-09 by `scripts/documents/build_document_citation_index.py` under `tess-job` (4 GB cap, 3 min 32 s, peak 138 MB resident) from the copied `documents/metadata.db`, `citation_index/citations.db` (article metadata), the cached full texts in `~/tesserae-backups/ejc_index_2026-09-14/raw/` and the 392 commentary files. Result: 956 rows, 742 distinct documents, 288 distinct articles (27,244 articles read, 1,368 front and back matter skipped). A hit that matches more than three documents is dropped as too ambiguous (25). All 49 commentary hits name works outside the corpus (mostly CIG), so the index holds no commentary rows yet. The built file is kept at `~/tesserae-backups/document_citations_2026-10-09.db`.
+
+Steps for production, run 2026-10-10 00:24 after pull request #751 merged and was deployed (step 4 returned `count` 16):
+1. `cp ~/tesserae-backups/document_citations_2026-10-09.db /var/www/tesseraev6_flask/data/citation_index/document_citations.db.new && mv /var/www/tesseraev6_flask/data/citation_index/document_citations.db.new /var/www/tesseraev6_flask/data/citation_index/document_citations.db`
+2. `chmod 664 /var/www/tesseraev6_flask/data/citation_index/document_citations.db`
+3. `touch /var/www/tesseraev6_flask/tesseraev6_flask.wsgi`, then `curl .../api/languages`.
+4. Check one document: `curl '.../api/documents/edr:aEDR173504/scholarship'` returns `count` 16 with JSTOR links, and `/document?doc=edr:aEDR173504&documents=1` shows the Scholarship section.
+
+After a change to the documents collection, the recogniser or the journal texts, rebuild by running the script with `--out` set to a new file. It refuses to overwrite.
+
+## 2026-10-09 Xenophon's Hellenica and Cassius Dio, books 36 to 55: steps for production (run 16:55 to 17:17; windows and map with the second batch 19:08 to 21:41 EDT)
+- What: `xenophon.hellenica` (1,146 lines, 7 book files) and
+  `cassius_dio.roman_history` (4,403 lines, 20 book files, books 36 to 55),
+  29 `.tess` files in `texts/grc/` that arrive with the merge, each with an
+  English translation file under `data/translations/` that does not.
+- Sources and rights: Greek from PerseusDL/canonical-greekLit
+  `tlg0032.tlg001.perseus-grc2` (Marchant, OCT 1900) and
+  `tlg0385.tlg001.perseus-grc2` (Cary, Loeb Greek 1914 to 1917), both CC BY-SA
+  4.0 per the TEI headers, downloaded 2026-10-09 into
+  `~/tesserae-backups/sources/historians/`. English for the Hellenica from
+  the same repository (`tlg0032.tlg001.perseus-eng2`, Brownson, Loeb
+  1918 to 1921, US public domain by date). English for Dio from Bill
+  Thayer's LacusCurtius transcription of Cary's Loeb (1914 to 1927), pages
+  `penelope.uchicago.edu/Thayer/E/Roman/Texts/Cassius_Dio/<book>*.html`. The
+  home page states the volumes are in the public domain (earlier copyright
+  lapsed, later not renewed), and the volumes the Greek comes from (1914 to
+  1917) are public domain by date anyway. No licence doubt found. The credits
+  page needs no new record. The existing "Literary texts" and "Translations"
+  records cover them and the per-work rows are in `backend/text_sources.json`.
+- Measured before production (all in a worktree, dev copies only):
+  - conversion: the Greek letters in the TEI body and in the `.tess` lines
+    agree (Dio 967,986 of 967,986, Hellenica 352,370 of 352,445 with the
+    remainder being headings), all 29 files pass
+    `scripts/corpus/validate_tess.py`.
+  - Hellenica translation: 1,146 of 1,146 lines, one unit per line, proper
+    names 0.964 of 500, length correlation 0.964, confidence high.
+  - Dio translation: 4,384 of 4,403 lines (0.9957). 49 Greek sections whose
+    number Thayer's page does not mark share the English of the preceding
+    section in their chapter. The 19 uncovered lines are the book tables of
+    contents (37.0.0 to 55.0.0). Proper names 0.914 of 500, length
+    correlation 0.772, confidence high. Cary's English for 36.1 to 36.17 and
+    55.9.5 to 55.34, which Perseus's Greek lacks, is dropped.
+  - lemma caches built in the worktree: 29 files, 2 seconds.
+  - index extension tried on a copy of `grc_index.db`: 1,268 to 1,297 texts,
+    489,109 lines, lemma_doc_freq rebuilt, no errors.
+  - reference tests through a dev server on the worktree (Latin index
+    untouched): lemma "arma virum" 371 distinct loci with Vergil 24, Ovid
+    14, Livy 42, Quintilian 1, Seneca 3, and the exact search 21.
+- Steps on production, each under `~/bin/tess-job` with the caps shown:
+  1. After the merge, pull on production (the `.tess` files, descriptions,
+     provenance rows and Dio's date entry arrive). Run
+     `scripts/keep_old_bundles.sh save` first only if the pull changes
+     `client/`, which this one does not.
+  2. Translations: copy the two files into `data/translations/` (they are not
+     in git). They were made by `python scripts/translations/align_hellenica.py
+     <tlg0032.tlg001.perseus-eng2.xml> texts/grc/xenophon.hellenica.tess <dir>`
+     and `python scripts/translations/align_dio.py <dir of the 20 Thayer
+     pages named 36.html to 55.html> texts/grc/cassius_dio.roman_history.tess
+     <dir>`, and kept with these checksums in
+     `~/tesserae-backups/sources/historians/translations_out/`:
+     `grc__xenophon.hellenica.json` sha256
+     `e3b9b4896e60e79eac54d836b8bda3c29e456f4b0ab968723ede227aed114970`,
+     `grc__cassius_dio.roman_history.json` sha256
+     `6c9707a2976c212b67104fcc9a13bb5e6c5c62d861d76950a92070ad5279909d`.
+     The whole-work file serves the book files. Reloaded with the next
+     `touch tesseraev6_flask.wsgi`.
+  3. Lemma caches with `scripts/batch_lemma_cache.py grc` (cap 8G). Only the 29
+     new files are computed.
+  4. Extend the Greek index on a copy with `scripts/corpus/add_texts_to_index.py
+     --db <copy of grc_index.db> --language grc --cache-dir
+     <production>/cache/lemmas --add` with the 29 filenames (whole work and
+     book files, as for Herodotus and Thucydides), check integrity, swap in,
+     `touch tesseraev6_flask.wsgi`. Keep `grc_index.db.bak-historians-20261009`.
+  5. Rare-bigram table: `scripts/corpus/rebuild_bigrams.py grc`.
+  6. Passage windows, descriptions, vectors: `scripts/corpus/build_batch_windows.py
+     --upsert-db`, `scripts/corpus/describe_windows.py` on the gateway,
+     `scripts/corpus/apply_passage_rows.py --mode append`, then
+     `scripts/build_desc_fts.py`, and the window names index
+     (`scripts/corpus/build_window_names.py`). Follow the 2026-10-08 Victor
+     entry and the lockstep check (counts in
+     step, then one Similar Passages and one Theme Search request). The line
+     vectors for the semantic channel were made for earlier imports by an
+     encoding run with bowphs/SPhilBerta that has no committed script.
+  7. Connection map: `scripts/build_connections_map.py` (cap 10G, about 50
+     minutes), after step 6.
+  8. The Greek phrase and quotation tables and the Greek literary reuse table
+     are separate builds. Rebuild them only if the earlier entries do so for
+     a Greek import of this size (the reuse table build for Greek has not
+     finished within 12 GB before).
+  9. Check: `scripts/corpus/verify_text_coverage.py --root <production>
+     --language grc xenophon.hellenica cassius_dio.roman_history`, the
+     reference search, and a Greek line search that returns the new works
+     (for example the lemmas of "Pompeius" and "Mithridates" together).
+- Backups to keep: each file replaced in steps 4 to 7, tagged
+  `bak-historians-20261009`.
+
+## 2026-10-09 Event dossiers installed, then refreshed after the historians import (19:00 and 22:50 EDT)
+- What: `data/events/event_dossiers.sqlite`, read by the Events page
+  (`/api/events`, #737), built offline by the event anchor scripts of #729
+  (draft): for each of 1,485 Wikidata events (battles, sieges, treaties and
+  campaigns, 800 BC to AD 600) the passages that name it, judged by Qwen 3.8
+  27B on the university's AI gateway, the inscriptions and papyri near its
+  place and date, and the scholarship that cites those passages.
+- First install 19:00: the file built 18:54 (`event_dossiers_2026-10-09.sqlite`
+  in the backups folder): 1,485 events, 110,496 passages, 8,138 documents,
+  1,892 scholarship rows, 96,773 cached judgements; 11,350 gateway requests,
+  36.7 million prompt tokens, 108 minutes of request time. 842 events had no
+  passage judged to tell of them.
+- Refresh 21:48 to 22:42, installed 22:50 after the two historians batches
+  had their passage windows: a dated copy with the judgement cache kept, the
+  five columns the final pass adds dropped first, the four result tables
+  emptied, every event gathered again and only windows never judged sent to
+  the gateway (5,594 requests). Result: 113,645 passages, 125,298 cached
+  judgements, 787 events without a telling passage (55 filled); the new
+  historians contribute 285 passages judged to tell of an event (Procopius
+  121, Dio 66, Diodorus 46, Zosimus 30, Hellenica 20, Plutarch's Lysander 2).
+  The 19:00 file is kept beside the refreshed one in the backups folder.
+- Reload by touching the WSGI file; checked `/api/events` and the Sicilian
+  Expedition dossier (46 passages, 39 judged to tell of it) after each
+  install.
+
+## 2026-10-09 Works-by-language sidecar rewritten; passage index folder made group-writable (21:48 EDT)
+- What: `data/passage_index/works_by_language.json`, the small file Browse
+  Corpus reads for its Theme Search coverage badge (and the event gatherer
+  reads for the language of each work), had been stale since 19 September.
+  The web workers detected the stale stamp and answered from the loaded
+  index (the right answer, at about 90 seconds on each cold worker) but
+  could not write the file back because the folder was not writable by the
+  web account.
+- Done: the file rewritten from the live answer (`/api/passages/works` for
+  each language): Latin 726 to 737 works, Greek 828 to 837, Urdu 6 to 20,
+  Persian 23 to 30, Arabic 6 to 147 (Arabic windows exist and stay held back
+  from Theme Search by the index's own gate); the stamp set to the index's
+  date. The folder's group set to the web group with the setgid bit, so the
+  workers can refresh the file themselves from now on. The install script for
+  a Greek batch rewrites the file at its end. The stale copy is kept as
+  `works_by_language.json.bak-stale-20260919`.
+
+## 2026-10-09 Both historians batches: what ran on production (16:55 to 21:41 EDT)
+- Steps 1 to 5 and 9 ran once per batch with `~/bin/tess-install-greek-batch`
+  (the first batch with its one-off predecessor script): pull, translations
+  copied after a checksum, lemma caches (`scripts/batch_lemma_cache.py grc`,
+  cap 8G, 29 new files each), the Greek index extended on a copy and swapped
+  in (`scripts/corpus/add_texts_to_index.py --add`, cap 12G; after both,
+  1,326 texts and 514,834 lines, `lemma_doc_freq` rebuilt, integrity ok;
+  backups `grc_index.db.bak-historians-20261009` and
+  `.bak-historians2-20261009`), rare-bigram table rebuilt
+  (`scripts/corpus/rebuild_bigrams.py grc`, cap 8G), reference searches
+  passed after each reload.
+- Steps 6 and 7 ran once for both batches with
+  `~/bin/tess-install-greek-windows` (config `hist12.cfg`):
+  - 4,355 passage windows built (`scripts/corpus/build_batch_windows.py
+    --upsert-db`, cap 8G) for the 27 files that carry windows (the part files
+    of works that have parts, the whole file otherwise, as the index already
+    does); `window_texts.db` 530,916 to 535,271 rows, backup
+    `.bak-historians-windows-20261009`.
+  - described by Qwen 3.8 27B on the university's AI gateway with thinking
+    off (stamp `qwen38-bullsai-20261009`): 4,355 of 4,355 in 27.5 minutes at
+    2.7 a second, no errors.
+  - appended with `scripts/corpus/apply_passage_rows.py --mode append` (cap
+    10G, vectors from the encoder service): the index went from 530,917 to
+    535,272 ids, vectors and description rows, in step before and after.
+  - description keyword index rebuilt (`scripts/build_desc_fts.py`, 34 s,
+    665 MB; backup `desc_fts.sqlite.bak-historians-windows-20261009`).
+  - names index rebuilt to `.new` and swapped (`scripts/corpus/build_window_names.py`,
+    cap 4G): window-name pairs 2,504,787 to 2,593,052, distinct names 38,598
+    to 39,081; backup `window_names.db.bak-historians-windows-20261009`.
+  - line vectors for all 58 files (parts and wholes) with bowphs/SPhilBerta on
+    the processor, raw float32, same meta format as the existing files
+    (mean norms 5.6 to 5.8), written under `backend/embeddings/grc/`.
+  - connection map rebuilt (`scripts/build_connections_map.py`, cap 10G):
+    374,546 fine windows, 61.3 minutes, peak 7.38 GB.
+- Checks: lockstep held at every step; reference searches passed; the
+  coverage check reported every store present for all 58 files except the
+  Sources page rows for Cassius Dio and Procopius (fixed in this entry's
+  pull request: a row for Dio was missing and the Procopius row named the
+  work differently from the catalogue).
+- Memory: the launcher refused nothing; the steps waited for budget behind
+  the event dossier run and a verification job earlier in the evening.
+## 2026-10-09 Document image links: moved hosts rewritten in metadata.db (21:40 and 21:55 EDT)
+- What: the documents collection's `display` table (`data/documents/metadata.db`,
+  field `image_url`, 155,261 rows) carried the addresses of photographs as the
+  source projects published them. Two hosts had moved. The Epigraphic
+  Database Heidelberg's 24,851 photo addresses (`edh-www.adw.uni-heidelberg.de/fotos/F*.JPG`)
+  returned 404; they were rewritten to the photo record pages
+  `https://edh.ub.uni-heidelberg.de/edh/foto/F*` (four random samples
+  answered 200 before the change; one PDF link on the same host was moved to
+  the new host as well). The old CIL photo server's 3,018 addresses
+  (`cil-old.bbaw.de/test06/bilder/datenbank/PH*.jpg`) were rewritten to
+  `https://cil.bbaw.de/ace/resources/PH/<block>/PH*.jpg` (16 of 16 samples
+  returned 200 image/jpeg; three more checked at apply time).
+- How: the Heidelberg rows by a one-off statement after a backup
+  (`~/tesserae-backups/documents/metadata.db.bak-edhlinks-20261009`); the CIL
+  rows with `scripts/documents/fix_image_urls.py --apply` (this PR), which
+  backs the file up beside itself first. Both rules live in
+  `scripts/documents/image_url_rules.py`, which the extractor applies when it
+  writes `image_url` rows, so a rebuild does not bring the old addresses back.
+  Reload by touching the WSGI file.
+- Not rewritten: 7,008 rows (4.5 percent) point at hosts that no longer serve
+  anything and have no verified replacement (3,424 bare I.Sicily file names,
+  2,271 access.bl.uk, 1,064 wwwapp.cc.columbia.edu, and six small hosts). The
+  document page hides them and says how many were omitted
+  (`client/src/components/documents/imageHosts.json` lists the hosts). About
+  4,400 rows are on hosts that refuse scripts but serve browsers (Michigan's
+  APIS, the British Museum, the Met) and are kept; about 2,000 are on hosts
+  that answered with server errors on the audit night (Petrie Museum, several
+  papyrus collections) and are kept for a recheck. Audit record (private):
+  `research/documents/2026-10-09_image_link_audit.md`.
+
+## 2026-10-09 Documentary reuse tables rebuilt with the literary-works discount and the order-free rule (built 19:05 to 20:05, installed 20:08, reinstalled 20:45 EDT)
+- What: `cache/reuse_pairs/la_documents.db` and `grc_documents.db` (literature
+  against the inscriptions and papyri, read by the Reader's Reuse tab under
+  the documents trial) rebuilt with `scripts/reuse/build_documents_reuse_table.py
+  --max-literary-works 10` and the order-free rule on, against production's
+  texts, lemma caches and documents indexes. Each build under `~/bin/tess-job`
+  with an 8 GB cap: Latin 42 minutes, Greek 17 minutes; the candidates caches
+  (`la_candidates.sqlite`, `grc_candidates.sqlite`, kept beside the job log)
+  let a threshold sweep run in seconds.
+- Counts: Latin 4,173 pairs (3,412 before; 424 with two or more shared
+  phrases, 956 by the order-free rule), Greek 1,725 (1,509 before; 68 and 153).
+  Sweep: with the discount off, Latin 4,441 and Greek 1,785; N=5 keeps 3,332
+  and 1,375; N=10 keeps 4,050 and 1,725. N=10 was chosen because N=5 dropped
+  quotations of famous formulae that the literature itself repeats (Iliad 8.539
+  "immortal and ageless" in a papyrus, Horace Ep. 2.1.190 "equitum peditumque
+  catervae" on a stone); Aeneid 1.204 is lost at both (its one shared phrase
+  is current in 12 works, the limit of frequency alone, open). Ten random
+  pairs read per language: the two-or-more tier is nearly all real (Georgics
+  1.20 and Aeneid 12.60 inscribed, Vulgate verses on stones, the Claudian
+  titulature in Josephus and a papyrus, Iliad 1.400 in a papyrus); the
+  single-phrase tier is still mostly coincidence, which is why the Reader
+  labels it "possible".
+- Second pass the same evening: reading what N=10 removed showed 123 Latin
+  pairs with two or more shared phrases among them, all whole verses quoted
+  on stones that several Fathers also quote (edh:HD025119, 17 shared phrases
+  in 14 works; papyri:114821 in 56). The discount now applies to the
+  single-phrase tier only (shared == 1); the two-or-more tier is kept whatever
+  the phrase's currency. Rebuilt from the candidates caches in seconds and
+  reinstalled 20:45: Latin 4,050 to 4,173, Greek unchanged.
+- Backups: the 16:45 tables and stats at
+  `~/tesserae-backups/reuse_pairs/*_documents*.bak-filtered-20261009`.
+- Reload by touching the WSGI file; checked `/api/reuse/line` for Aeneid 1.1
+  (seven inscriptions and the fullers' graffito) and Ephesians 5.16.
+
+## 2026-10-09 Documentary reuse tables installed on production, then replaced by filtered builds (about 01:27 and 16:45 EDT)
+- What: `cache/reuse_pairs/la_documents.db` (Latin literature against the
+  inscriptions and papyri) installed about 01:27 from a build on production's
+  own lemma caches and documents index: 6,769 pairs. Read by
+  `backend/reuse_documents.py` for the Reader's Reuse tab under the
+  documents trial (`?documents=1`).
+- A hand check of a random sample found most pairs to be coincidences
+  sharing only function words or numerals, kept by the rare-single-ngram
+  rule. The build script gained a quality filter (#725): a pair is kept
+  only if it shares at least two distinct content lemmas, in a contiguous
+  run of at least two, with function words and numerals (spelled out, Roman,
+  Greek alphabetic) not counting as content. Lists:
+  `data/documents/function_words_la.txt` and `function_words_grc.txt`, from
+  CLTK's stopword lists plus numeral blocks, sources in the file headers.
+- Rebuilt with the filter (each under `~/bin/tess-job` with a 12G cap, peak
+  under 3 GB, 11 to 16 minutes) and installed about 16:45:
+  - Latin `la_documents.db`: 3,412 pairs (from 6,769). The unfiltered table
+    and its stats are kept at
+    `~/tesserae-backups/reuse_pairs/la_documents.db.bak-unfiltered-20261009`.
+  - Greek `grc_documents.db`: 1,509 pairs (new on production; the earlier
+    Greek build stalled at the memory cap until the one-cache-at-a-time
+    change in #725). In the labelled sample every real quotation survived
+    (Lord's Prayer, Ephesians 5.16, the Orphic gold-tablet verses, Greek
+    Anthology epigrams inscribed at Pompeii, Hesiod Theogony 305 in a papyrus).
+- Residual noise is shared technical vocabulary (medical, astronomical,
+  accounting) and stock phrases. A discount for phrases common across the
+  literature is the next step.
+- Reload by touching the WSGI file; no index or frontend change was needed
+  for the tables themselves.
+
+## 2026-10-09 Names index rebuilt with Greek forms (morning)
+- What: `cache/window_names.db` rebuilt so Greek names keep their full
+  forms in the Names panel (#721: a misplaced accent no longer cuts a name
+  short). Backup `~/tesserae-backups/window_names.db.bak-greekforms-20261009`.
+
+## 2026-10-09 Diodorus (books 1 to 5, 18 to 20), Procopius' Wars, Zosimus and four Plutarch Lives, steps for production (run 18:35 to 18:59; windows and map with the first batch 19:08 to 21:41 EDT)
+- What: `diodorus_siculus.bibliotheca_historica` (4,166 lines, 9 files),
+  `procopius.wars` (7,240 lines, 9 files), `zosimus.historia_nova` (1,071 lines,
+  7 files), `plutarch.lysander`, `plutarch.dion`, `plutarch.eumenes` and
+  `plutarch.demosthenes` (771 lines, 4 files): 29 `.tess` files in
+  `texts/grc/` that arrive with the merge, each work with an English
+  translation file under `data/translations/` that does not. Diodorus books 11
+  to 17 are not included (a decision on them is pending). The Hellenica and
+  Dio import (the entry for #733) is a separate batch with the same steps and
+  can be run in one pass with this one.
+- Sources and rights, all downloaded 2026-10-09 into
+  `~/tesserae-backups/sources/historians/`:
+  - The Greek is CC BY-SA 4.0 per the TEI headers. It comes from
+    PerseusDL/canonical-greekLit `tlg0060.tlg001.perseus-grc5` (Diodorus 1 to 5, Vogel, Teubner 1888 to
+    1890) and `perseus-grc6` (Diodorus 18 to 20, Fischer, Teubner 1903 to
+    1906), `tlg4029.tlg001.perseus-grc2` (Procopius, Dewing's Loeb Greek),
+    `tlg0007.tlg032`, `tlg041`, `tlg054` and `tlg060` `perseus-grc2`
+    (Plutarch, Perrin's Loeb Greek) and from OpenGreekAndLatin/First1KGreek
+    `tlg4084.tlg001.1st1K-grc1` (Zosimus, Mendelssohn, Teubner 1887, which
+    First1KGreek made by OCR of an Internet Archive scan).
+  - English for Diodorus: Bill Thayer's LacusCurtius transcription of the Loeb
+    volumes (pages `1A` to `5D` and `18A` to `20E` under
+    `penelope.uchicago.edu/Thayer/E/Roman/Texts/Diodorus_Siculus/`). Thayer's
+    Diodorus page states that Loeb volumes I to XI are in the public domain
+    because their copyright was not renewed, with the renewal years named
+    (volume I 1960/61, II 1962/63, III 1966/67, IX 1974/75, X 1981/82). The
+    volumes used here are I, II, III (Oldfather, 1933 to 1939) and IX, X (Geer,
+    1947 and 1954). All five are marked public domain, so no volume is skipped.
+    That rests on non-renewal, not on the date, and on Thayer's reading of the
+    1978 Copyright Act, which is the same ground the Dio volumes of #733 rest on.
+  - English for Procopius: LacusCurtius, Dewing's Loeb (1914 to 1928), pages
+    `1A` to `8J` under `.../Procopius/Wars/`. Thayer states volumes I to III
+    have lapsed and IV and V were not renewed. Book 2 chapters 5 to 10 and some
+    other pages carry his "not yet proofread" mark (`sec_for_proofing`), which
+    the aligner accepts.
+  - The English for the four Lives is Perrin's Loeb (1914 to 1926), from the Perseus
+    repository (`tlg0007.tlg032`, `041`, `054`, `060` `perseus-eng2`).
+  - English for Zosimus: "The History of Count Zosimus", London, Green and
+    Chaplin, 1814, the OCR text of Internet Archive item
+    `historyofcountzo00zosiuoft`. Public domain by date.
+  The existing "Literary texts" and "Translations" credit records cover these
+  and the per-work rows are in `backend/text_sources.json`.
+- Measured before production (all in a worktree and on scratch copies):
+  - conversion: Greek letters in the TEI body against the `.tess` lines,
+    Diodorus 1 to 5 670,405 of 670,405 and 18 to 20 456,488 of 456,488,
+    Procopius 1,191,955 of 1,192,183, Zosimus 347,749 of 347,749, Plutarch
+    0.9997 to 0.9999 (the remainder is headings). All 29 files pass
+    `scripts/corpus/validate_tess.py`.
+  - repairs: `scripts/corpus/repair_zosimus_procopius_text.py` fixes 18
+    words in Zosimus where the OCR lost a letter (20 places carried "??"
+    between breathing marks), drops 2 unreadable consular numerals (6.2.1), and
+    separates two words in Procopius 8 that a combining breathing had joined.
+    Other OCR faults in the Zosimus Greek were not searched for.
+  - Diodorus translation: 4,158 of 4,166 lines (0.9981), the other 8 being the
+    book tables of contents (chapter 0). 16 Greek sections that Thayer does not
+    mark share the English of the section before. Proper names 0.896 of 500,
+    length correlation 0.923, confidence high.
+  - Procopius translation: 7,240 of 7,240 lines, 19 sections sharing the
+    English of the one before. Proper names 0.798 of 500, length correlation
+    0.953, confidence high.
+  - Plutarch translations: exact by chapter.section, every line matched. Proper
+    names Lysander 0.943 (140), Eumenes 1.000 (90), Demosthenes 0.975 (118), Dion
+    0.818 (313). Length correlation 0.924, 0.946, 0.930, 0.930.
+  - Zosimus translation: the 1814 English has no chapter numbers, so 1,071 of
+    1,071 lines are mapped to 420 English paragraphs (314 blocks, 3.4 lines
+    each) by dynamic programming on proper names and position, recorded
+    approximate with confidence medium. Proper names 0.942 of 500. The length
+    correlation (0.08) is not meaningful for blocks. A spot check found the
+    paragraph right for four of five lines and off by a few paragraphs for one
+    (5.29.6). The scan reads well. About 5.3% of its words are not in the
+    corpus's English vocabulary, mostly names, rare words and words split across
+    lines, and a sample of 40 such words found five real OCR faults.
+  - lemma caches built in the worktree: 29 files, 7 seconds.
+  - index extension tried on a copy of `grc_index.db` with
+    `scripts/corpus/add_texts_to_index.py --add` of the 29 filenames:
+    1,268 to 1,297 texts, 478,011 to 503,736 lines (+25,725, the sum of the
+    files), lemma_doc_freq rebuilt, no errors. Lemma lookups on the copy
+    return the new works (Βελισάριος 340 postings in the Wars file, Λύσανδρος
+    77 in the Lysander, Ἀγαθοκλῆς 162 in Diodorus, Ἀλάριχος in Procopius).
+    No dev server was started, because the Greek frequency table recompute
+    killed the one tried for #733, and the Latin index and all search code are
+    untouched by this change, so the "arma virum" reference search was not rerun.
+- Steps on production, each under `~/bin/tess-job` with the caps shown:
+  1. After the merge, pull on production (the `.tess` files, descriptions,
+     provenance rows and dates arrive). `client/` is untouched.
+  2. Translations: copy the seven files into `data/translations/` (not in
+     git). They were made with `scripts/translations/align_diodorus.py`,
+     `align_procopius.py`, `align_plutarch.py` and `align_zosimus.py` and kept in
+     `~/tesserae-backups/sources/historians/translations_out/` with these
+     sha256 checksums:
+     `grc__diodorus_siculus.bibliotheca_historica.json`
+     `c355e6ce43bf1e6f41dc62644d13d7268178624d873a45c237320b22f128c192`,
+     `grc__procopius.wars.json`
+     `e553e185e3390713a3ceb975db431e1d86706187e72160f6651db9a2c781c834`,
+     `grc__zosimus.historia_nova.json`
+     `be7b99c9a54e99a94bff84a74970b81864a3a9fb7a14e01102cf071625ffbb7e`,
+     `grc__plutarch.lysander.json`
+     `08de98dccc4e2cdcdae79ff8528ff545c920b14dfc71f4c1c484b4578ab092b9`,
+     `grc__plutarch.eumenes.json`
+     `223134678eb44d0d7e279c9a55fb34a9d0ae4adb9954a1faca5557d9ddda98d8`,
+     `grc__plutarch.dion.json`
+     `8f9cc32e6b7e2a33bd6e2ba152e1e380261f2dc84d48337d457e29ec16e99b53`,
+     `grc__plutarch.demosthenes.json`
+     `f7631539f76bdcc2ae52c7f10ecc7496cf819efb8b95f7c10b033a7628a37ce1`.
+     The whole-work file serves the book files. Reloaded with the next
+     `touch tesseraev6_flask.wsgi`.
+  3. Lemma caches with `scripts/batch_lemma_cache.py grc` (cap 8G). Only the 29
+     new files are computed.
+  4. Extend the Greek index on a copy exactly as in step 4 of the #733 entry,
+     with the 29 filenames here (or all 58 in one pass), check integrity, swap
+     in, `touch tesseraev6_flask.wsgi`. Keep
+     `grc_index.db.bak-historians2-20261009`.
+  5. Rare-bigram table: `scripts/corpus/rebuild_bigrams.py grc`.
+  6. Passage windows, descriptions, vectors, names index, connection map and the
+     Greek phrase, quotation and reuse tables follow steps 6 to 8 of the #733
+     entry. Follow the lockstep check (counts in step, then one Similar
+     Passages and one Theme Search request).
+  7. Check: `scripts/corpus/verify_text_coverage.py --root <production>
+     --language grc diodorus_siculus.bibliotheca_historica procopius.wars
+     zosimus.historia_nova plutarch.lysander plutarch.dion plutarch.eumenes
+     plutarch.demosthenes`, the reference search, and a Greek line search that
+     returns the new works (for example the lemmas of "Belisarius" and
+     "Chosroes" together).
+- Backups to keep: each file replaced in steps 4 to 6, tagged
+  `bak-historians2-20261009`.
+
+## 2026-10-10 Diodorus books 11 to 17 from the Loeb Greek, steps for production (decided 21:45 EDT, run 23:49 to 01:41)
+
+- Run, the owner having decided to import: the batch install script
+  (`tess-install-greek-batch` with `diodorus_loeb.cfg`) pulled the merge,
+  installed the regenerated whole-work translation after its checksum (the old
+  file kept beside the sources as `.bak-diodorus-loeb-20261010`), built the
+  lemma caches for the seven parts and, with its stale cache set aside, the
+  whole file, added the seven parts to the Greek index on a copy and swapped it
+  in, and rebuilt the rare-bigram table; then the whole file was re-indexed on
+  a copy with `--replace` (text 1306, 8,123 lines, 273,617 postings, was
+  142,894) and swapped in. The windows script (`tess-install-greek-windows`
+  with an explicit window pattern for the seven parts) built 915 passage
+  windows (113, 92, 148, 157, 93, 125 and 187 by book), had them described on
+  the university's gateway (stamp `qwen38-bullsai-20261010`), appended them
+  (535,272 to 536,187 windows, ids, vectors and descriptions in step), rebuilt
+  the description keyword index and the names index, encoded line vectors for
+  all eight changed files, and rebuilt the connection map (3,752,010 edges,
+  61 minutes, 1.1 GB, peak 7.6 GB). The works sidecar was rewritten (Greek 837
+  works). Coverage check: all sixteen Diodorus files complete in every store;
+  the reference search passed. A Greek line search for the lemmas of Leonidas
+  and Thermopylae returns 11.10.4 and 11.24.1 among its eight hits.
+- One slip during the run: the batch script's first attempt stopped at its own
+  count of new cache files (the pattern named the text files, which the cache
+  files are not named after) after the caches were built, and was re-run with
+  the pattern corrected. Two copies of the windows runner had been left waiting
+  and both started the description step; both were stopped, one well-formed
+  description per window was kept (725 of 915), and a single runner resumed
+  from that step. Nothing reached the index twice (the lockstep counts above).
+- Backups: every replaced file tagged `bak-diodorus-loeb-20261010`.
+
+- What: seven new part files `diodorus_siculus.bibliotheca_historica.part.11`
+  to `.part.17` in `texts/grc/` (491, 401, 691, 694, 448, 513 and 719 lines,
+  3,957 in all, the same work id as books 1 to 5 and 18 to 20), and the
+  whole-work file `diodorus_siculus.bibliotheca_historica.tess` extended from
+  4,166 to 8,123 lines with the new books between 5 and 18. The nine existing
+  part files are byte for byte unchanged and the old whole file is the
+  concatenation of them, so the new whole file is the concatenation of all
+  fifteen in book order.
+- Rights, to be settled by the lead before anything is installed. The Greek is
+  the Loeb text (Oldfather vols. IV to VI, Sherman vol. VII, Welles vol. VIII,
+  1946 to 1963), not the Teubner that books 1 to 5 and 18 to 20 use. The
+  Perseus encoding is CC BY-SA 4.0 per its header, which says nothing about the
+  underlying edition. The U.S. position rests on non-renewal of the Loeb
+  volumes and on the thin protection a critical edition's running text
+  carries. A European court ruling of March 2026 makes the editor's choices
+  less safe there. The renewal records have not been checked in the Stanford
+  database for volume VIII (1963) or the others. The full note is private. The
+  fallback if a rights holder objects is to build books 11 to 17 from the
+  Teubner scans, which needs OCR correction and re-segmentation.
+- Sources, downloaded 2026-10-09 and 2026-10-10 into
+  `~/tesserae-backups/sources/historians/`: `diodorus_loeb/tlg0060.tlg001.perseus-grc4.xml`
+  (sha256 `166fd9d2ce7461a876e3a3210b88267c0e622f79854729c12b0bb0e113212289`) and,
+  for the English, 35 LacusCurtius pages `11A` to `17F` in `diodorus_en_loeb/`
+  (one request every two seconds, cached). Thayer's Diodorus page states
+  non-renewal for Loeb volumes IV (1973/74), V (1977/78), VI (1981/82), VII
+  (1979/80) and VIII (1990/91), the volumes that carry books 11 to 17. Volume IV
+  carries books 11 to 12.40, V books 12.41 to 13, VI books 14 to 15.19,
+  VII books 15.20 to 16.65 and VIII books 16.66 to 17 (the page headers say
+  which volume each page is from).
+- Measured in a worktree and on scratch copies:
+  - conversion with `scripts/corpus/perseus_greek_history_to_tess.py` as it
+    stands: Greek letters in the TEI body against the `.tess` lines 1,054,393 of
+    1,054,393. The seven new files and the new whole file pass
+    `scripts/corpus/validate_tess.py` (as do the nine existing part files).
+  - translation, `scripts/translations/align_diodorus.py` extended to books 11
+    to 17: all fifteen books together 8,108 of 8,123 lines (0.9982), the 15
+    uncovered being the book tables of contents (chapter 0). For books 11 to
+    17 alone: 3,950 of 3,957 (0.9982), the 7 uncovered being the tables of
+    contents, 9 Greek sections that Thayer does not mark sharing the English of
+    the section before, proper names 0.938 of 500, length correlation 0.928,
+    confidence high. For the whole file: 25 sections share a neighbour's
+    English, proper names 0.934 of 500, length correlation 0.924. Two English
+    sections in the new books have no Greek section (15.34.6 and 16.15.5).
+- Steps on production, if the lead decides to import. Each under
+  `~/bin/tess-job` with the caps shown:
+  1. After the merge, pull on production.
+  2. Translation. The regenerated whole-work file replaces the live one
+     (`data/translations/grc__diodorus_siculus.bibliotheca_historica.json`, not in git). The new file is kept in
+     `~/tesserae-backups/sources/historians/translations_out/diodorus_loeb/`
+     with sha256
+     `0cd02e0b814606515c8e1622171626a853d3633084224d129d3a58ed66a6b591`
+     (also in `~/tesserae-backups/jobs/configs/diodorus_loeb.sums`). Back up the live file first.
+  3. Lemma caches: delete `cache/lemmas/grc/diodorus_siculus.bibliotheca_historica.json`
+     (the whole-work file changed), then `scripts/batch_lemma_cache.py grc` (cap 8G)
+     builds it and the seven new parts.
+  4. Greek index, on a copy as in the earlier Diodorus entry.
+     Run `scripts/corpus/add_texts_to_index.py` with `--add` for the seven part
+     filenames and `--replace diodorus_siculus.bibliotheca_historica.tess`. Check integrity,
+     swap in, `touch tesseraev6_flask.wsgi`. Keep `grc_index.db.bak-diodorus-loeb-20261010`.
+  5. Rare-bigram table: `scripts/corpus/rebuild_bigrams.py grc`.
+  6. Passage windows for the seven new part files only (the whole file carries
+     none), descriptions, vectors, names index, connection map, line vectors for
+     the 8 changed or new files, and the Greek phrase, quotation and reuse
+     tables, following the "what ran on production" entry above. Follow the
+     lockstep check (counts in step, then one Similar Passages and one Theme
+     Search request).
+  7. Check: `scripts/corpus/verify_text_coverage.py --root <production> --language grc diodorus_siculus.bibliotheca_historica`,
+     the reference search, and a Greek line search that returns book 11 to 17
+     lines (for example the lemmas of "Thermopylae" and "Leonidas").
+- Backups to keep: each file replaced in steps 2 to 6, tagged
+  `bak-diodorus-loeb-20261010`.
+
+## 2026-10-08 Documentary reuse table built in dev; not yet installed on production
+- What: `scripts/reuse/build_documents_reuse_table.py` is new (feat/reuse-documents),
+  pairing every literary line against the documents collection (inscriptions,
+  papyri) with the same word-triple containment logic as the literary reuse
+  table. Writes `cache/reuse_pairs/<lang>_documents.db`, read by
+  `backend/reuse_documents.py` and served by the existing `GET /api/reuse/line`
+  and `GET /api/reuse/marks` routes (an additional `documents`/`n_documents`
+  field, only under `TESSERAE_DOCUMENTS=1`, which is already set on
+  production). See `docs/DECISIONS.md` for the formula-exclusion threshold
+  and tiers.
+- Built against the DEV checkout's own data (not copied from production;
+  this checkout already carries `data/inverted_index/{la,grc}_documents_index.db`,
+  `cache/lemmas/{la,grc}/` and `data/documents/metadata.db` from earlier
+  documents-stage work), each inside `~/bin/tess-job` with a 12G cap:
+  - Latin: `tess-job reuse-documents-la 12 venv/bin/python3
+    scripts/reuse/build_documents_reuse_table.py --language la
+    --documents-sidecar-root ~/tesserae-docs/stage3/texts_documents`
+    (the sidecar override is a dev-only path -- see below). 453,830
+    literary lines against 411,466 documentary lines; 5,414 pairs kept
+    (280 strict, 5,134 possible/rare-single-ngram) out of 632,199
+    candidates, 605,758 dropped as all-formula. Peak memory 11.0 GB
+    (`systemd-run`'s own "memory peak" figure), wall time 9m8s (548s).
+    Output `la_documents.db`, 1.14 MB.
+  - Greek: same command with `--language grc`. Ran in 159s, peak well
+    under the cap, but found 0 literary works to index: this DEV
+    checkout's Greek lemma cache (`cache/lemmas/grc/`) holds only 262
+    files against 1,269 `texts/grc/*.tess` sources, so `discover_corpus`
+    skipped all of them as "missing cache" (0 kept, 901 missing, 368
+    `.part.` files skipped) and the Greek output db has 0 pairs. This
+    matches CLAUDE.md's own note that the Greek LITERARY reuse table
+    build "never finished" here (2026-09-19, 11+ GB and incomplete) --
+    the same underlying gap, not a bug in this script. Production's
+    Greek lemma cache should be checked before rerunning there; if it is
+    materially more complete than this checkout's 262 files, the Greek
+    documentary table is worth rebuilding on production directly rather
+    than copying this (empty) result.
+  - The `--documents-sidecar-root` override points at this MACHINE's raw
+    stage-3 tree (`~/tesserae-docs/stage3/texts_documents/<lang>/
+    <bucket>.restored_words.jsonl`) because this dev checkout's own
+    `data/documents/restored/` was never populated (only the indexes and
+    metadata.db were copied here for the documents-search work). The
+    script's actual DEFAULT for `--documents-sidecar-root` is
+    `data/documents/restored/` -- the same directory and filenames
+    `backend/documents.py`'s own sidecar reader uses and which
+    PRODUCTION already has populated (264 files, see the "Documentary
+    texts in the corpus-wide phrase search" entry below) -- so the
+    production run below needs NO override at all.
+- Samples checked against the Latin output (`cache/reuse_pairs/la_documents.db`):
+  - Aeneid 1.1 ("Arma virumque cano, Troiae qui primus ab oris"): a
+    verbatim Pompeii-region graffito, `edr:aEDR175604` ("Arma virumque
+    cano, Troiae qui primus ab oris", shared 16, jaccard 1.0, strict),
+    and a longer graffito quoting lines 1-3 together, `edh:HD054282`
+    ("Arma virumque cano Troiae qui primus ab oris Italiam fato profugus
+    Lavinaque venit", shared 16, jaccard 0.52, strict). KNOWN GAP: the
+    Pompeii fullers' parody ("Fullones ululamque cano, non arma
+    virumque", `merged:249860`) is NOT found -- same three words, reverse
+    order, no shared trigram; see docs/DECISIONS.md.
+  - Aeneid 2.1 ("Conticuere omnes intentique ora tenebant"): two Pompeii-
+    region graffiti opening with "Conticuere omnes" (`edh:HD046219`,
+    `edr:aEDR159670`), both tier 'possible' (shared=1) -- the opening
+    two words alone, not enough to reach the strict thresholds.
+  - Aeneid 1.192 ("nec prius absistit, quam septem ingentia victor"):
+    verbatim in `edr:aEDR159691` (shared 13, jaccard 0.59, strict).
+  - Aeneid 6.429 / 11.28 ("abstulit atra dies et funere mersit acerbo" --
+    Vergil's own line repeated twice in the poem, of someone dying before
+    their time): verbatim, restored-text-free, in a funerary inscription,
+    `edr:aEDR166892 11` (shared 13, jaccard 1.0, strict) -- a real
+    epitaph borrowing Vergil's line about an untimely death.
+  - Vulgate Psalms 69.2 ("Deus in adiutorium meum intende, Domine ad
+    adiuvandum me festina" -- "O God, make speed to save me") quoted
+    VERBATIM in `edh:HD047192` (shared 22, jaccard 1.0, strict) -- the
+    opening of the psalm set to stone.
+- Production install (not yet done):
+  1. Copy `cache/reuse_pairs/la_documents.db` and `grc_documents.db`
+     (once both are built on production's own data) into production's
+     `cache/reuse_pairs/` -- the SAME directory the literary `la.db`/
+     `grc.db` already live in; the `_documents` suffix keeps them apart.
+  2. Or, build directly on production (its documents indexes, lemma
+     caches and `data/documents/restored/` are already in place, per the
+     "Documentary texts..." and "Documents trial opened" entries below):
+     from the production root, inside `~/bin/tess-job`,
+     `tess-job reuse-documents-la 12 venv/bin/python3
+     scripts/reuse/build_documents_reuse_table.py --language la`
+     (no overrides needed -- every default path already matches
+     production's own layout), then the same for `--language grc`.
+  3. No env change and no reload needed: `TESSERAE_DOCUMENTS=1` is
+     already set on production (see "Documents trial opened" below), and
+     `backend/blueprints/reuse.py` checks for the documents db file at
+     request time, not at process start.
+  4. Verify: `GET /api/reuse/line?work=vergil.aeneid&ref=verg.%20aen.%201.1&language=la`
+     carries a `documents` field with `edr:aEDR175604`; the existing
+     reference tests in `tests/search_reference_tests.md` still pass
+     (this change adds a field, it does not touch the literary response).
+
+## 2026-10-08 Rumi, Masnavi opening: Nicholson's translation installed (about 15:50 EDT)
+- What: `fa__rumi.masnavi.part.1.json` (built by the aligner in #703) copied
+  into production's `data/translations/` and the app reloaded. It covers
+  all 18 couplets of the opening of the Masnavi (the "Song of the Reed")
+  one to one, from R. A. Nicholson's translation of Book I (1925/1926),
+  public domain in the United States.
+- Checks: the Reader's translation route returns the English for the first
+  couplet with its attribution. Reference searches passed.
 
 ## 2026-10-08 Persian and Urdu editorial prose removed, an outage repaired, a translation and reuse tables added
 - Khayyam (about 11:36): 142 lines removed from `khayyam.diwan` (refs .713

@@ -57,9 +57,33 @@ function mockFetch({ documentsEnabled, results, trial = documentsEnabled }) {
     if (u.startsWith('/api/texts')) {
       return { json: async () => ({ texts: [] }) };
     }
+    if (u.startsWith('/api/documents/browse')) {
+      return { ok: true, json: async () => ({
+        region_counts: [{ value: 'Roma', count: 500 }],
+        filters: { text_types: [{ value: 'epitaph', count: 300 }], materials: [{ value: 'marble', count: 200 }] },
+      }) };
+    }
     if (u === '/api/line-search') {
       const body = init && init.body ? JSON.parse(init.body) : {};
-      return { json: async () => ({ query: body.query, total: results.length, results }) };
+      // Stage 4: the real backend reports the document collection's own
+      // TRUE total on 'total' (collection='documents') or
+      // 'documents_total' (collection='both'), not a client-counted
+      // array length -- see backend/app.py's _line_search_documents_only
+      // and the 'both' merge in line_search(). Mirrored here so this
+      // fixture exercises the same contract the real one does.
+      const collection = body.collection || 'literature';
+      const docCount = results.filter(r => r.collection === 'documents').length;
+      const litCount = results.filter(r => r.collection !== 'documents').length;
+      const payload = { query: body.query, collection, results };
+      if (collection === 'documents') {
+        payload.total = docCount;
+        payload.distinct_loci = docCount;
+      } else {
+        payload.total = litCount;
+        payload.distinct_loci = litCount;
+        if (collection === 'both') payload.documents_total = docCount;
+      }
+      return { json: async () => payload };
     }
     return { json: async () => ({}) };
   });
@@ -96,11 +120,12 @@ describe('documents collection control', () => {
     render(<LineSearch language="la" />);
     await switchToSearchMode();
     await waitFor(() => expect(screen.getByText('Search in')).toBeTruthy());
-    expect(screen.queryByPlaceholderText('e.g., Latium')).toBeNull();
+    expect(screen.queryByLabelText('Region')).toBeNull();
     await userEvent.click(screen.getByRole('button', { name: 'Documents' }));
-    expect(screen.getByPlaceholderText('e.g., Latium')).toBeTruthy();
-    expect(screen.getByPlaceholderText('e.g., epitaph')).toBeTruthy();
-    expect(screen.getByPlaceholderText('e.g., marble')).toBeTruthy();
+    expect(screen.getByLabelText('Region')).toBeTruthy();
+    expect(screen.getByLabelText('Text type')).toBeTruthy();
+    expect(screen.getByLabelText('Material')).toBeTruthy();
+    expect(screen.getByLabelText('Kind')).toBeTruthy();
   });
 
   it('sends collection + filters once Documents is chosen and a filter is filled in', async () => {
@@ -109,7 +134,8 @@ describe('documents collection control', () => {
     await switchToSearchMode();
     await waitFor(() => expect(screen.getByText('Search in')).toBeTruthy());
     await userEvent.click(screen.getByRole('button', { name: 'Documents' }));
-    await userEvent.type(screen.getByPlaceholderText('e.g., Latium'), 'Roma');
+    await waitFor(() => expect(screen.getByRole('option', { name: 'Roma (500)' })).toBeTruthy());
+    await userEvent.selectOptions(screen.getByLabelText('Region'), 'Roma');
     await userEvent.type(screen.getByPlaceholderText('Enter word or phrase...'), 'dis manibus');
     await userEvent.click(screen.getByRole('button', { name: 'Search Lines' }));
 
@@ -311,5 +337,24 @@ describe('stage 3b-3: restoration exclusion, formula hiding, and the document vi
     const link = screen.getByRole('link', { name: 'AE 2001, 2169.' });
     const params = new URLSearchParams(link.getAttribute('href').split('?')[1]);
     expect(params.get('documents')).toBe('1');
+  });
+});
+
+describe('opening /line-search?documents=1 directly', () => {
+  afterEach(() => { window.history.replaceState({}, '', '/'); });
+
+  it('opens already in "Input Search Text" mode, where the collection control lives', async () => {
+    window.history.pushState({}, '', '/line-search?documents=1');
+    mockFetch({ documentsEnabled: true, results: [] });
+    render(<LineSearch language="la" />);
+    // No switchToSearchMode() click: the deep link should land here already.
+    await waitFor(() => expect(screen.getByText('Search in')).toBeTruthy());
+  });
+
+  it('still opens on "Find Text to Search" without the trial param', async () => {
+    mockFetch({ documentsEnabled: true, results: [], trial: false });
+    render(<LineSearch language="la" />);
+    await waitFor(() => expect(global.fetch).toHaveBeenCalledWith('/api/languages'));
+    expect(screen.queryByText('Search in')).toBeNull();
   });
 });

@@ -1,4 +1,4 @@
-import { formatElapsedTime } from '../../utils/formatting';
+import { formatRunningTime } from '../../utils/formatting';
 
 const LoadingSpinner = ({ size = 'md', text = 'Loading...', elapsedTime = null, step = null }) => {
   const sizeClasses = {
@@ -17,7 +17,7 @@ const LoadingSpinner = ({ size = 'md', text = 'Loading...', elapsedTime = null, 
         <div className="flex items-center gap-3 text-sm text-gray-500">
           {step && <span className="font-medium">{step}</span>}
           {elapsedTime !== null && elapsedTime > 0 && (
-            <span className="tabular-nums">{formatElapsedTime(elapsedTime)} elapsed</span>
+            <span className="tabular-nums">{formatRunningTime(elapsedTime)} elapsed</span>
           )}
         </div>
       )}

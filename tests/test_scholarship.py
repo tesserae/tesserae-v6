@@ -278,10 +278,10 @@ def test_translate_accepts_a_held_note(monkeypatch, tmp_path):
          'notes': [{'ref': 'verg. aen. 1.1', 'lemma': 'ARMA', 'text': 'multi varie disserunt'}]},
     ])
 
-    class R:
-        def raise_for_status(self): pass
-        def json(self): return {'choices': [{'message': {'content': 'many explain this variously'}}]}
-    monkeypatch.setattr(SB.requests, 'post', lambda *a, **k: R())
+    # The route goes through the assistant's model client (2026-10-12).
+    from backend.assistant import model
+    monkeypatch.delenv('TESSERAE_LOCAL_LLM', raising=False)
+    monkeypatch.setattr(model, 'complete', lambda *a, **k: 'many explain this variously')
     c = app.test_client()
     path = next(str(rule) for rule in app.url_map.iter_rules() if rule.endpoint == 'scholarship.translate')
     r = c.post(path, json={'work': 'vergil.aeneid', 'ref': 'verg. aen. 1.1',
@@ -341,3 +341,350 @@ def test_commentary_sources_cached_until_a_file_changes(tmp_path, monkeypatch):
     later = _time.time() + 5
     _os.utime(p, (later, later))
     assert S.commentary_sources()[0]['notes'] == 1 and calls == [1]
+
+
+# ---------------------------------------- shared titles, more than one author
+# "Argonautica" belongs to both Apollonius Rhodius and Valerius Flaccus in the
+# corpus. A citation of the bare title must name the right one, or it is not
+# a hit for either passage. See backend/scholarship.py _shared_title_guard.
+
+_ARGONAUTICA_FIXTURE = {
+    'works': [
+        {
+            'base_id': 'apollonius_rhodius.argonautica',
+            'match_method': 'author+work (author_ratio=1.00, work_ratio=1.00)',
+            'author_names': ['Apollonius', 'Apollonius Rhodius', 'Apollonius of Rhodes', 'Apollonius the Rhodian'],
+            'work_titles': ['Argonautica', 'the Argonautica'],
+            'abbreviations': ['A. R.', 'A.R.'],
+            'author_abbreviations': ['A. R.'],
+            'work_abbreviations': [],
+        },
+        {
+            'base_id': 'valerius_flaccus.argonautica',
+            'match_method': 'author+work (author_ratio=1.00, work_ratio=1.00)',
+            'author_names': ['Valerius Flaccus', 'Gaius Valerius Flaccus', 'C. Valerius Flaccus'],
+            'work_titles': ['Argonautica', 'Argonautiche'],
+            'abbreviations': ['V. FL.', 'Val. Fl.'],
+            'author_abbreviations': ['Val. Fl.'],
+            'work_abbreviations': [],
+        },
+        # A corpus filing quirk, not a real second author: maffeo_veggio.aeneid
+        # duplicates his own "Supplementum" under the filename "aeneid" and is
+        # never resolved to a real catalogue work (empty author_names/work_titles,
+        # match_method "unmatched"). It must not force every Vergil citation to
+        # name "Vergil" outright.
+        {
+            'base_id': 'maffeo_veggio.aeneid',
+            'match_method': 'unmatched',
+            'author_names': [],
+            'work_titles': [],
+            'abbreviations': ['vegg. aen.'],
+            'author_abbreviations': [],
+            'work_abbreviations': [],
+        },
+        {
+            'base_id': 'vergil.aeneid',
+            'match_method': 'author+work (author_ratio=1.00, work_ratio=1.00)',
+            'author_names': ['Vergil', 'Virgil', 'P. Vergilius Maro'],
+            'work_titles': ['Aeneid', 'Aeneis'],
+            'abbreviations': ['Aen.', 'Verg.', 'Verg. Aen.'],
+            'author_abbreviations': ['Verg.'],
+            'work_abbreviations': ['Aen.'],
+        },
+    ]
+}
+
+
+@pytest.fixture
+def shared_title_index(tmp_path, monkeypatch):
+    """Point backend.citations at a small, deterministic abbreviations table
+    (the real data/citations/abbreviations.json is production-only, GPL-3.0
+    source data, not shipped) and clear scholarship's shared-title cache
+    before and after so tests never see each other's state."""
+    from backend import scholarship as S
+    path = tmp_path / 'abbreviations.json'
+    path.write_text(json.dumps(_ARGONAUTICA_FIXTURE))
+    monkeypatch.setattr(C, '_DATA', str(path))
+    monkeypatch.setattr(C, '_INDEX', None)
+    S._SHARED_TITLES = None
+    yield
+    monkeypatch.setattr(C, '_INDEX', None)
+    S._SHARED_TITLES = None
+
+
+def test_shared_title_guard_off_without_the_abbreviation_table(monkeypatch):
+    """Without data/citations/abbreviations.json (every dev and test box,
+    almost always) the guard is a no-op: existing behaviour for an ordinary,
+    unshared title is unchanged."""
+    from backend import scholarship as S
+    monkeypatch.setattr(C, '_DATA', '/nonexistent/abbreviations.json')
+    monkeypatch.setattr(C, '_INDEX', None)
+    S._SHARED_TITLES = None
+    a = S.passage_names('apollonius_rhodius.argonautica', '1.5', '1.17')
+    assert S._shared_title_guard(a) is None
+    assert S._mentions_work('a note on the argonautica 1.5f.', a) is True
+
+
+def test_argonautica_apollonius_accepts_only_its_own_author(shared_title_index):
+    """The four reported snippets, checked against Apollonius Rhodius,
+    Argonautica 1.5-17: the bare title or the shared abbreviation style
+    counts only with Apollonius's own name or "A.R." nearby, and a
+    competing author's name nearby (Valerius Flaccus) rejects it outright."""
+    from backend import scholarship as S
+    a = S.passage_names('apollonius_rhodius.argonautica', '1.5', '1.17')
+    assert a['title'] == 'Argonautica' and a['author'] == 'Apollonius Rhodius'
+
+    assert S._mentions_work('(a.r. 1.5-7)', a) is True   # Morrison: kept
+    assert S._mentions_work('(a. r. 1.5-17)', a) is True  # Augoustakis: kept
+    assert S._mentions_work(
+        "e. m. smallwood (1962), «valerius flaccus' argonautica 1.5-21»", a) is False  # rejected
+    assert S._mentions_work(
+        '(argonautica 1.5f.) titus raises a temple to honor the gods of rome.', a) is False  # Tanner: rejected
+
+    assert S._locus_match('(A.R. 1.5-7)', a) == 'A.R. 1.5-7'
+    assert S._locus_match('(A. R. 1.5-17)', a) == 'A. R. 1.5-17'
+    assert S._locus_match("E. M. SMALLWOOD (1962), «Valerius Flaccus' Argonautica 1.5-21»", a) is None
+    assert S._locus_match('(Argonautica 1.5f.) Titus raises a temple to honor the gods of Rome.', a) is None
+
+
+def test_argonautica_valerius_flaccus_accepts_its_own_citations(shared_title_index):
+    """The same title, checked against Valerius Flaccus instead: a citation
+    naming him (or "Val. Fl.") is kept; one naming only Apollonius or "A.R."
+    is not."""
+    from backend import scholarship as S
+    b = S.passage_names('valerius_flaccus.argonautica', '1.1', '1.21')
+    assert b['title'] == 'Argonautica' and b['author'] == 'Valerius Flaccus'
+
+    assert S._mentions_work(
+        "e. m. smallwood (1962), «valerius flaccus' argonautica 1.5-21»", b) is True
+    assert S._mentions_work('(val. fl. 1.1-21) is a close echo', b) is True
+    assert S._mentions_work('(a.r. 1.5-7) names only the other poet', b) is False
+
+
+def test_argonautica_unmatched_veggio_does_not_create_a_third_author(shared_title_index):
+    """maffeo_veggio.aeneid is in the fixture table but 'unmatched' (empty
+    author_names/work_titles): it must not appear as a competing author of
+    Vergil's Aeneid, and a plain Vergil citation needs no Vergil-name guard
+    because of it."""
+    from backend import scholarship as S
+    v = S.passage_names('vergil.aeneid', '1.1', '1.7')
+    assert v['title'] == 'Aeneid'
+    assert S._shared_title_guard(v) is None
+    assert S._mentions_work('reading bellum civile 1.1 against aeneid 1.1.', v) is True
+
+
+def test_load_shared_titles_finds_argonautica_and_metamorphoses():
+    """Built from the actual corpus file list (texts/), not a hand-written
+    table: titles truly held by more than one author's files."""
+    from backend import scholarship as S
+    S._SHARED_TITLES = None
+    shared = S._load_shared_titles()
+    assert 'argonautica' in shared
+    assert {'apollonius_rhodius', 'valerius_flaccus'} <= set(shared['argonautica'])
+    assert 'metamorphoses' in shared
+    assert {'ovid', 'apuleius'} <= set(shared['metamorphoses'])
+
+
+def _google_books_item(book_id, title, author, snippet):
+    return {'id': book_id, 'volumeInfo': {'title': title, 'authors': [author]},
+            'searchInfo': {'textSnippet': snippet}, 'accessInfo': {'viewability': 'PARTIAL'}}
+
+
+def test_books_drops_a_shared_title_s_other_author(shared_title_index, tmp_path, monkeypatch):
+    """The real false match this fix was written for: the production Google
+    Books channel (backend/scholarship.py books()) has no author check at
+    all, so a bare-title query for the Apollonius Rhodius, Argonautica
+    1.5-17 tab also returned books about Valerius Flaccus's Argonautica
+    (confirmed live against production on 2026-10-08: "Valerio Flaco
+    (2016). Argonáuticas" and a Smallwood note were both listed there)."""
+    from backend import scholarship as S
+    monkeypatch.setattr(S, 'GOOGLE_BOOKS_KEY', 'test-key')
+    monkeypatch.setattr(S, 'CACHE_DIR', str(tmp_path))
+    items = [
+        _google_books_item('morrison', 'Apollonius Rhodius, Herodotus and Historiography', 'A. D. Morrison',
+                            '... ( A.R. 1.5-7 ) Such was the oracle Pelias heard ...'),
+        _google_books_item('flaco', 'Argonáuticas', 'Valerio Flaco',
+                            "E. M. SMALLWOOD (1962), «Valerius Flaccus' Argonautica 1.5-21», Mnemosyne 15, 170-172."),
+        _google_books_item('tanner', 'The Last Descendant of Aeneas', 'Marie Tanner',
+                            '... ( Argonautica 1.5f. ) Titus raises a temple to him ...'),
+    ]
+    monkeypatch.setattr(S, '_get', lambda url, params: {'items': items})
+
+    a = S.passage_names('apollonius_rhodius.argonautica', '1.5', '1.17')
+    out = S.books(a)
+    titles = {b['title'] for b in out['results']}
+    assert titles == {'Apollonius Rhodius, Herodotus and Historiography'}
+
+
+def test_books_keeps_the_other_author_s_own_passage(shared_title_index, tmp_path, monkeypatch):
+    """The same Google Books results, looked up instead for Valerius
+    Flaccus's own Argonautica passage: his book is kept, Apollonius
+    Rhodius's is not."""
+    from backend import scholarship as S
+    monkeypatch.setattr(S, 'GOOGLE_BOOKS_KEY', 'test-key')
+    monkeypatch.setattr(S, 'CACHE_DIR', str(tmp_path))
+    items = [
+        _google_books_item('morrison', 'Apollonius Rhodius, Herodotus and Historiography', 'A. D. Morrison',
+                            '... ( A.R. 1.5-7 ) Such was the oracle Pelias heard ...'),
+        _google_books_item('flaco', 'Argonáuticas', 'Valerio Flaco',
+                            "E. M. SMALLWOOD (1962), «Valerius Flaccus' Argonautica 1.5-21», Mnemosyne 15, 170-172."),
+    ]
+    monkeypatch.setattr(S, '_get', lambda url, params: {'items': items})
+
+    b = S.passage_names('valerius_flaccus.argonautica', '1.1', '1.21')
+    out = S.books(b)
+    titles = {bk['title'] for bk in out['results']}
+    assert titles == {'Argonáuticas'}
+
+def test_sources_route_adds_the_languages_field(tmp_path, monkeypatch):
+    """/api/scholarship/sources' additive `languages` field: the Reader's
+    Scholarship tab gates itself on this, derived from the commentaries
+    actually installed rather than a hard-coded list."""
+    from backend.app import app
+    monkeypatch.setattr(S, 'COMMENTARY_DIR', str(tmp_path))
+    S._sources_cache.update(stamp=None, rows=None)
+    (tmp_path / 'servius__vergil.aeneid.json').write_text(json.dumps(
+        {'commentator': 'Servius', 'edition': 'Thilo', 'work': 'vergil.aeneid',
+         'language': 'la', 'units': [{}]}))
+    (tmp_path / 'eustathius__homer.iliad.json').write_text(json.dumps(
+        {'commentator': 'Eustathius', 'edition': 'van der Valk', 'work': 'homer.iliad',
+         'language': 'grc', 'units': [{}]}))
+    c = app.test_client()
+    path = next(str(rule) for rule in app.url_map.iter_rules() if rule.endpoint == 'scholarship.sources')
+    r = c.get(path)
+    assert r.status_code == 200
+    d = r.get_json()
+    assert d['languages'] == ['grc', 'la']
+    assert len(d['commentaries']) == 2
+
+
+def test_s2_item_reads_string_authors_and_doi_from_disclaimer():
+    # The snippet endpoint's real shape (2026-10-09): authors are name
+    # strings, no externalIds, DOI only inside the disclaimer.
+    it = {'paper': {'corpusId': '128847696', 'title': 'The Poetics of Alliance', 'authors': ['Bill Gladhill'],
+                    'openAccessInfo': {'status': 'GOLD', 'disclaimer': 'available at https://doi.org/10.4000/dictynna.260, which is'}},
+          'snippet': {'text': 'Fama per urbes'}}
+    row = S._s2_item(it)
+    assert row['authors'] == ['Bill Gladhill']
+    assert row['doi'] == '10.4000/dictynna.260'
+    assert row['url'] == 'https://www.semanticscholar.org/p/128847696'
+    assert row['oa_url'] == 'https://doi.org/10.4000/dictynna.260'
+    assert row['source'] == 'semantic_scholar'
+
+
+def test_s2_item_still_accepts_dict_authors():
+    it = {'paper': {'corpusId': '1', 'title': 'T', 'authors': [{'name': 'A. Author'}, {'name': ''}],
+                    'externalIds': {'DOI': '10.1/x'}}, 'snippet': {'text': 's'}}
+    row = S._s2_item(it)
+    assert row['authors'] == ['A. Author'] and row['doi'] == '10.1/x'
+
+
+def test_s2_item_links_doi_only_for_open_statuses():
+    base = {'paper': {'corpusId': '2', 'title': 'T', 'authors': [],
+                      'openAccessInfo': {'status': 'CLOSED', 'disclaimer': 'see https://doi.org/10.1000/closed, which'}},
+            'snippet': {'text': 's'}}
+    assert S._s2_item(base)['oa_url'] is None
+    base['paper']['openAccessInfo']['status'] = 'GREEN'
+    assert S._s2_item(base)['oa_url'] == 'https://doi.org/10.1000/closed'
+
+
+def test_fulltext_skips_a_source_that_raises_and_warns(monkeypatch, tmp_path):
+    monkeypatch.setattr(S, 'CACHE_DIR', str(tmp_path))
+    monkeypatch.setattr(S, 'S2_API_KEY', 'k')
+    monkeypatch.setattr(S, 'CORE_API_KEY', '')
+
+    def boom(*a, **k):
+        raise AttributeError("'str' object has no attribute 'get'")
+    monkeypatch.setattr(S, '_s2_snippets', boom)
+    a = {'author': 'Vergil', 'title': 'Aeneid', 'abbrev': 'Aen.', 'lo': '1.1', 'hi': '1.7'}
+    out = S.fulltext(a)
+    assert out['results'] == []
+    assert any('skipped' in w for w in out.get('warnings', []))
+
+
+def test_s2_pace_spaces_requests_across_calls(monkeypatch, tmp_path):
+    monkeypatch.setattr(S, 'CACHE_DIR', str(tmp_path))
+    monkeypatch.setattr(S, '_S2_MIN_INTERVAL', 0.3)
+    import time as _t
+    t0 = _t.time(); S._s2_pace(); S._s2_pace(); S._s2_pace()
+    assert _t.time() - t0 >= 0.55
+
+
+class _CoreResp:
+    def __init__(self, status, results=None):
+        self.status_code = status
+        self._results = results or []
+    def raise_for_status(self):
+        if self.status_code >= 400:
+            import requests
+            raise requests.HTTPError(response=self)
+    def json(self):
+        return {'results': self._results}
+
+
+def _core_setup(monkeypatch, tmp_path, statuses):
+    from backend import scholarship as S
+    monkeypatch.setattr(S, 'CACHE_DIR', str(tmp_path))
+    monkeypatch.setattr(S, 'S2_API_KEY', '')
+    monkeypatch.setattr(S, 'CORE_API_KEY', 'secret')
+    monkeypatch.setattr(S, '_core_keyless_logged', False)
+    calls = []
+    seq = list(statuses)
+    work = [{'title': 'Storms', 'id': 7, 'doi': '10.1/y', 'fullText': 'The storm of Aeneid 1.81 answers Aen. 1.1.'}]
+    def fake_get(url, params=None, timeout=None, headers=None):
+        calls.append(dict(headers or {}))
+        st = seq.pop(0)
+        return _CoreResp(st, work if st == 200 else None)
+    monkeypatch.setattr(S.requests, 'get', fake_get)
+    return S, calls
+
+
+A = {'author': 'Vergil', 'title': 'Aeneid', 'abbrev': 'Aen.', 'lo': '1.1', 'hi': '1.7'}
+
+
+def test_core_refused_key_falls_back_keyless(monkeypatch, tmp_path):
+    S, calls = _core_setup(monkeypatch, tmp_path, [401, 200, 200, 200])
+    monkeypatch.setattr(S.time, 'sleep', lambda s: None)
+    out = S.fulltext(A)
+    assert out['results'] and out['results'][0]['title'] == 'Storms'
+    assert 'core_keyless' not in out['results'][0]
+    assert 'Authorization' in calls[0] and 'Authorization' not in calls[1]
+    assert any('needs renewing' in w for w in out['warnings'])
+    assert not any('keyless fallback failed' in w for w in out['warnings'])
+
+
+def test_core_refused_key_and_keyless_refused(monkeypatch, tmp_path):
+    S, calls = _core_setup(monkeypatch, tmp_path, [401, 401] * 3)
+    monkeypatch.setattr(S.time, 'sleep', lambda s: None)
+    out = S.fulltext(A)
+    assert out['results'] == []
+    assert any('expired or been refused' in w for w in out['warnings'])
+
+
+def test_core_keyless_pacing_holds(monkeypatch, tmp_path):
+    S, calls = _core_setup(monkeypatch, tmp_path, [200, 200, 200])
+    monkeypatch.setattr(S, 'CORE_API_KEY', '')
+    sleeps = []
+    monkeypatch.setattr(S.time, 'sleep', lambda s: sleeps.append(s))
+    S._core_get({'q': 'a'})
+    S._core_get({'q': 'b'})
+    assert len(calls) == 2 and all('Authorization' not in c for c in calls)
+    assert sleeps and 0 < sleeps[0] <= S._CORE_MIN_INTERVAL
+
+
+def test_find_reports_the_keyless_core_warning(monkeypatch):
+    """find() appends to a warnings list when CORE answered keyless; the list
+    was never defined (NameError, found by the linter on 2026-10-12)."""
+    monkeypatch.setattr(S, 'passage_names', lambda work, rs, re_=None: {
+        'work': 'vergil.aeneid', 'author': 'Vergil', 'title': 'Aeneid', 'abbrev': 'Aen.',
+        'locus': '1.1', 'lo': '1.1', 'hi': '1.1'})
+    monkeypatch.setattr(S, '_openalex', lambda q: [{'title': 'A note on Aeneid 1.1', 'abstract': 'Vergil, Aeneid 1.1 is cited.',
+                                                     'doi': '10.1/x', 'source': 'openalex', 'core_keyless': True}])
+    monkeypatch.setattr(S, '_crossref', lambda q: [])
+    monkeypatch.setattr(S, '_unpaywall', lambda doi: {})
+    monkeypatch.setattr(S, 'books', lambda a: {'available': False, 'results': []})
+    monkeypatch.setattr(S, 'hathitrust_search_url', lambda a: '')
+    monkeypatch.setattr(S, 'fulltext', lambda a, quote=None: {'available': False, 'results': []})
+    monkeypatch.setattr(S, 'citation_index', lambda a: {'total': 0, 'results': []})
+    out = S.find('vergil.aeneid', '1.1')
+    assert any('CORE' in w for w in out['warnings'])

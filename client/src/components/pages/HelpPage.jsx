@@ -3,6 +3,7 @@ import { STOPLIST_INFO } from '../../data/stoplists';
 import FusionFlowchart from '../search/FusionFlowchart';
 import SystemChart from './SystemChart';
 import { RequestDialog } from '../common';
+import { allMeasuredRows } from '../../data/searchScope';
 
 const AI_SCHEMA_URL = 'https://tesserae.caset.buffalo.edu/tesserae-data/tesserae-openapi.yaml';
 
@@ -377,6 +378,8 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
   };
 
   const sections = [
+    { id: 'start-here', label: 'Start here', group: 'Start here' },
+    { id: 'views', label: 'Literature and History views', group: 'Start here' },
     { id: 'getting-started', label: 'Getting Started', group: 'Start here' },
     { id: 'search-modes', label: 'The Types of Search', group: 'Start here' },
     { id: 'how-well', label: 'How well does it work?', group: 'Start here' },
@@ -389,8 +392,13 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
     { id: 'reading-results', label: 'Reading the results', group: 'The Fusion (Phrases) search' },
 
     { id: 'theme-search', label: 'Theme Search', group: 'Reading & content' },
+    { id: 'ask-a-work', label: 'Search One Text', group: 'Reading & content' },
     { id: 'reader', label: 'The Reader', group: 'Reading & content' },
     { id: 'tessa', label: 'Tessa, the assistant', group: 'Reading & content' },
+    { id: 'documents', label: 'Inscriptions & Papyri', group: 'Reading & content' },
+    { id: 'events', label: 'Events (in testing)', group: 'Reading & content' },
+    { id: 'coins', label: 'Coins (in testing)', group: 'Reading & content' },
+    { id: 'objects', label: 'Objects (in testing)', group: 'Reading & content' },
 
     { id: 'languages', label: 'Languages overview', group: 'Languages' },
     { id: 'coptic', label: 'Coptic', group: 'Languages' },
@@ -544,6 +552,39 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
         </nav>
 
         <div ref={contentRef} className="flex-1 p-6">
+          {activeSection === 'start-here' && (
+            <div className="prose max-w-none">
+              <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Start here</h3>
+              <p className="text-gray-700 mb-4">
+                The Intertextual Search page opens with the question "What are you trying to do?" the first time you visit. Choosing
+                an answer takes you to the right search, and "Skip" closes the question for good. The "Start here"
+                link at the top of every page brings it back, and Tessa gives the same list when you ask her where to start.
+              </p>
+            </div>
+          )}
+
+          {activeSection === 'views' && (
+            <div className="prose max-w-none">
+              <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Literature and History views</h3>
+              <p className="text-gray-700 mb-4">
+                The site has two views, Literature and History, switched by the two words at the left of the
+                main menu. Literature opens on Search One Text, on the Aeneid, with the menu led by
+                Search One Text and Intertextual Search. History opens on Search One Text, on Tacitus&rsquo;s Annals, with its own examples (Lucretia, the Pannonian
+                mutiny, Solon and Croesus, the Rhine bridge, the plague at Athens, the murder of Caesar), with
+                every collection on, the menu led by Search One Text and Read, and the Reader&rsquo;s side panel opening on
+                Similar, then the inscriptions and papyri, the coins, the commentaries and articles, and Reuse. History also opens the Phrase Search on Livy against Tacitus in Latin and on
+                Herodotus against Thucydides in Greek, and puts the inscriptions, papyri and events first in the Start here list.
+              </p>
+              <p className="text-gray-700 mb-4">
+                A view changes the order and the starting points. Every search and every collection can be reached
+                in both views, and the Collections button beside the switch still turns collections on and off.
+                Choosing a view moves you to its opening page, and the site remembers the choice in this browser.
+                To send someone a link that opens in History, add <code>?view=history</code> to the address.
+                On a phone the view switch is a single button showing the current view, and the Collections control sits inside its menu.
+              </p>
+            </div>
+          )}
+
           {activeSection === 'getting-started' && (
             <div className="prose max-w-none">
               <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Getting Started</h3>
@@ -736,15 +777,9 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                     <tr><th className="py-2 pr-4">Search</th><th className="py-2 pr-4">Language</th><th className="py-2 pr-4">Measured against</th><th className="py-2 pr-4">Result</th><th className="py-2">Date</th></tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100 align-top">
-                    <tr><td className="py-2 pr-4">Verbal parallels (Fusion)</td><td className="py-2 pr-4">Latin</td><td className="py-2 pr-4">862 parallels from five published commentaries and studies (Lucan, Valerius Flaccus and Statius against Vergil, Ovid and Statius)</td><td className="py-2 pr-4">About 92 percent found (788 to 798 of 862, depending on the run); on the Valerius Flaccus set, nine of the first ten results are attested in the commentaries</td><td className="py-2">September 2026</td></tr>
-                    <tr><td className="py-2 pr-4">Verbal parallels (Fusion)</td><td className="py-2 pr-4">Greek</td><td className="py-2 pr-4">121 Homeric parallels in later epic (Iliad and Odyssey benchmarks)</td><td className="py-2 pr-4">69 percent found searching whole works, 97 percent searching book by book</td><td className="py-2">early 2026</td></tr>
-                    <tr><td className="py-2 pr-4">Verbal parallels (Fusion)</td><td className="py-2 pr-4">Coptic</td><td className="py-2 pr-4">Scripture quoted in scripture: the 22 marked citations of Isaiah in Romans (held out from all tuning), and a broad 124-pair reference list</td><td className="py-2 pr-4">On the held-out citations, 59 percent in the first hundred and eight of the first ten are genuine; on the broad list, 14.5 percent in the first hundred, since Coptic search is tuned for quotation rather than loose allusion</td><td className="py-2">August 2026</td></tr>
-                    <tr><td className="py-2 pr-4">Verbal parallels (Fusion)</td><td className="py-2 pr-4">Hebrew</td><td className="py-2 pr-4">The 22 marked citations of Isaiah in Romans, searched from the Hebrew through the Septuagint into the Greek New Testament</td><td className="py-2 pr-4">15 of 22 in the first hundred, 9 in the first ten; the direct word-for-word route found none</td><td className="py-2">August 2026</td></tr>
-                    <tr><td className="py-2 pr-4">Verbal parallels (Fusion)</td><td className="py-2 pr-4">English</td><td className="py-2 pr-4">No published list of parallels has been run yet</td><td className="py-2 pr-4">Not measured</td><td className="py-2"></td></tr>
-                    <tr><td className="py-2 pr-4">Cross-Language (Greek to Latin)</td><td className="py-2 pr-4">Greek and Latin</td><td className="py-2 pr-4">412 Homeric parallels in the Aeneid from Knauer's index</td><td className="py-2 pr-4">About 40 percent in the first fifty for a given target line, 94 percent found somewhere in the ranking; only 31 percent of the listed parallels share any vocabulary across the two languages</td><td className="py-2">2026</td></tr>
-                    <tr><td className="py-2 pr-4">Theme Search</td><td className="py-2 pr-4">Latin and Greek</td><td className="py-2 pr-4">Confidence band: 32 test subjects, half present in the corpus and half absent. Recall: the works Curtius cites for eleven topoi (57 works held here)</td><td className="py-2 pr-4">The band agrees with the test set on 88 to 91 percent of subjects. Of Curtius's 57 works, 23 appear somewhere in the returned lists and 7 among the first ten; a frontier language model asked the same questions from memory names 14 and 13. Precision of the first ten results, sixteen test themes, judged against a scholar's grading rule: about 29 percent by description order, about 43 percent after the reading step (see The reading step under Theme Search)</td><td className="py-2">September 2026</td></tr>
-                    <tr><td className="py-2 pr-4">Theme Search</td><td className="py-2 pr-4">Coptic, Hebrew, English</td><td className="py-2 pr-4">Included in the index; no language-specific test yet</td><td className="py-2 pr-4">Not measured separately</td><td className="py-2"></td></tr>
-                    <tr><td className="py-2 pr-4">Rare words, rare pairs, line and string search</td><td className="py-2 pr-4">All</td><td className="py-2 pr-4">Exact lookups in the index</td><td className="py-2 pr-4">They return every occurrence the index holds; there is no recall to measure, only the coverage of the corpus and the accuracy of the dictionary forms (see each language section)</td><td className="py-2"></td></tr>
+                    {allMeasuredRows().map((m, i) => (
+                      <tr key={i}><td className="py-2 pr-4">{m.search}</td><td className="py-2 pr-4">{m.language}</td><td className="py-2 pr-4">{m.against}</td><td className="py-2 pr-4">{m.result}</td><td className="py-2">{m.date}</td></tr>
+                    ))}
                   </tbody>
                 </table>
               </div>
@@ -936,6 +971,13 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
               <p className="text-gray-700 mb-4">
                 <strong>Line Search</strong> offers three match types: <strong>Lemma</strong> (dictionary forms), <strong>Exact</strong>
                 (identical surface forms), and <strong>Regular expression</strong> (patterns &mdash; see below).
+              </p>
+
+              <p className="text-gray-700 mb-4">
+                In Latin Lemma mode, a word that editors print either joined or apart (<em>quousque</em> or <em>quo usque</em>,
+                <em> respublica</em> or <em>res publica</em>) is matched both ways, from a fixed list of about twenty such words.
+                A line that prints the joined word answers a query that types the parts, the joined word is highlighted when it does,
+                and a query that types the joined word finds lines that print the parts side by side.
               </p>
 
               <div className="mt-6 border-t pt-4" id="regex-help">
@@ -1413,6 +1455,18 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 generic phrasing (&ldquo;a parent sacrifices a child&rdquo;) finds the scene type
                 across traditions.
               </p>
+              <p className="text-gray-700 mb-4" id="theme-scholarship">
+                When Scholarship is on in Collections, Theme Search offers a Scholarship choice
+                beside the other collection choices. It searches the commentary notes and the
+                journal sentences from the citation index and shows its own list, never mixed into
+                the passage results. Each note is ranked twice, once by how close its meaning is to
+                your words and once by the words it shares with them, and the two rankings are
+                merged. A note links to its passage in the Reader and a sentence from an article
+                links to the article. On fifteen test questions, thirteen had a strongly relevant
+                note in the first ten. Under the list, an Articles found online section asks OpenAlex,
+                Crossref, CORE, Google Books and Semantic Scholar for articles whose title or
+                abstract matches your words, from any year, and shows each service's answer as it arrives.
+              </p>
 
               <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">How it works</h4>
               <p className="text-gray-700 mb-3">
@@ -1588,17 +1642,31 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 returns scattered strays.
               </p>
               <p className="text-gray-700 mb-3">
-                The thresholds are fitted against test queries, half of them subjects the corpus
-                certainly holds and half it certainly does not, and they are published with the
-                code so anyone can check them. How well they work depends on the corpus. On the
-                Latin and Greek corpus the fit agreed with its test set on about nine queries in
-                ten (88 to 91 percent, depending on the set of 32 queries).
-                On the Persian, Urdu and Arabic corpus, fitted on 50 queries, it agreed on 74
-                percent: it kept 20 of 26 real subjects out of the low band and put 17 of 24
-                absent ones there. So read the band as a first estimate. A low band is a real
-                warning that the top results do not stand out from the background, and a strong
-                band means the corpus probably holds the subject, not that every listed passage
-                is about it.
+                The thresholds are fitted against test queries, two thirds of them subjects the
+                corpus certainly holds and a third it certainly does not, and they are published
+                with the code so anyone can check them. How well they work depends on the corpus,
+                and they were refitted in October 2026 after the index grew by a third. On 178
+                test subjects in eight language settings the fit agreed with its test set on 86
+                percent: 80 percent for Latin and for Greek, 73 percent for English, 94 percent
+                for Persian, Urdu, Hebrew and Coptic. Almost every miss is a subject the corpus
+                holds that reads in the lowest band, or a subject from the modern world that
+                reads moderate over its nearest neighbours. So read the band as a first estimate. The lowest band, labelled
+                "Closest passages", means that the top results do not stand far above the
+                background, so their order is less settled; a strong band means the corpus
+                probably holds the subject, not that every listed passage is about it.
+              </p>
+              <p className="text-gray-700 mb-3">
+                The list is shown whatever the band says. Until October 2026 the lowest band held the
+                passages back behind a link, and a test of sixty historical subjects (short
+                phrases and full sentences, the top ten of each graded by a model) showed why
+                that was wrong: of thirty-one searches the band marked low, twenty-seven had a
+                relevant list, and the fifteen literary pilot questions behaved the same way.
+                The band tells a real subject from nonsense, which is what it was fitted on; it
+                does not tell a good list from a poor one. The one case still held back is a
+                search nothing in the corpus resembles at all, which the band calls a weak
+                match. A query none of whose words occurs in any passage description is told
+                so and gets no list, because the search has nothing to match. If only some of
+                its words are unknown, the note names them.
               </p>
               <p className="text-gray-700 mb-3">
                 The hardest test cases are near misses: &ldquo;a farmer lifts potatoes out of the
@@ -1638,6 +1706,102 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
             </div>
           )}
 
+          {activeSection === 'ask-a-work' && (
+            <div className="prose max-w-none">
+              <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Search One Text</h3>
+              <p className="text-gray-700 mb-4">
+                Search One Text asks what one work says about a subject. Pick a
+                language, an author and a work, type the subject in plain words, and press Go.
+                It is Theme Search run inside that one work, so your words are compared with the
+                description written for each passage and the closest passages come back.
+              </p>
+              <p className="text-gray-700 mb-4">
+                The list is ordered by score, the best match first. Each card gives the
+                reference, the description, the first lines of the passage and a link that opens
+                it in the Reader. Above the list, the strip called Where in the work lays the
+                books of the work left to right and puts one mark at each passage found. A taller,
+                darker mark is a better match. Tapping a mark takes you to its card. The strip
+                shows position and the list shows score, so the two are in different orders on
+                purpose.
+              </p>
+              <p className="text-gray-700 mb-4">
+                Under the summary, a second paragraph called Scholarship is written from the
+                scholarship collection: commentary notes on the work (Servius, Conington and
+                Page on Latin epic, Allen on the Homeric Hymns, Paley, Verity, the rabbinic
+                commentators on the Hebrew Bible) and the JSTOR Early Journal Content articles
+                that name the work or its author, all published before 1923. It also reads
+                articles that OpenAlex, Crossref, CORE, Google Books and Semantic Scholar list
+                for the question, of any year. It knows those only from their abstracts or short open-access excerpts,
+                and says so when it cites one. Those articles are listed beside the paragraph
+                as Articles found online, each service's answer as it arrives, and a link goes to a free copy where one exists,
+                otherwise to the DOI. Each bracketed number in the paragraph links to its note
+                or article. Greek and Hebrew words in the written paragraphs are kept in their own
+                letters, with a transliteration in parentheses made by a fixed table of letters,
+                and the link under the Scholarship box hides the transliterations or brings them back.
+                A line in small type says what was found. Where nothing is found, as
+                for Sappho, the paragraph is left out and the line says so. The assistant may cite
+                only the sources it was given.
+              </p>
+              <p className="text-gray-700 mb-4">
+                When a work is held in books, two small menus beside the Work menu choose the
+                first and last book to search. They start at the whole work. A narrower range
+                searches only those books, and the strip draws only those books.
+              </p>
+              <p className="text-gray-700 mb-4">
+                When your question has a capitalised word after its first word, such as
+                Sejanus, a second list called Passages that name Sejanus appears under the
+                strip. It holds the passages whose description contains that name, the closest to
+                your question first. When no description gives the name, as in works whose
+                descriptions leave people unnamed, the text of the passages is searched for
+                the name in Latin and Greek and the list says so. A content search can put a passage about a person low in the
+                ranking, because the passage is about what he does and not about his name, so
+                this list finds them by the word. Its marks are grey on the strip.
+              </p>
+              <p className="text-gray-700 mb-4">
+                Above the strip, Tessa writes a short summary of what the work says, using the
+                best twelve passages. Each reference in it is a link to its card. The summary
+                is written from the descriptions of the passages and not from the text itself,
+                so it can be wrong. Read the passages before relying on it. When Tessa is not
+                running, the summary is left out and the rest of the page works as before.
+              </p>
+              <p className="text-gray-700 mb-4">
+                A passage is a window of about twenty lines, so a subject spread thinly through
+                a long chapter can be missed. The search matches content, so it does not find a
+                name on its own as a word search would. The list of passages that name a person
+                covers that for names. For any other word, use Line Search.
+              </p>
+              <p className="text-gray-700 mb-4">
+                Measured in October 2026 on fifteen questions over the Aeneid, Thucydides 1 and 2
+                and Annals 1 to 6, two judges reading the first twenty passages of each, a Sonnet model and
+                the university gateway&rsquo;s Qwen model. A passage
+                directly about the subject stood in the first five for 14 of the 15 questions, and
+                of the first ten passages 0.44 were directly about it and 0.75 at least touched it.
+                It was weakest when one account fills a few windows (the plague at Athens) and when
+                the question asks for a named speaker&rsquo;s view, which came back in the
+                narrator&rsquo;s voice. The two judges agreed on 69 percent of grades, the second being
+                stricter on passages that only touch a subject, and both put the precision of the
+                strong marks near nine in ten. Searches that name a person or a rare term are often
+                better served by Line Search, and a search takes a few seconds.
+              </p>
+              <p className="text-gray-700 mb-4">
+                Above the list, a banner rates the search. It reads how far the best passage
+                stands above the work&rsquo;s typical score, and how closely the top twenty
+                passages hang together, because a subject the work treats pulls a group of
+                passages well above the rest. The lowest level, &ldquo;Closest passages&rdquo;, is a
+                caution that the order is less certain than usual; it does not say the work
+                lacks the subject, and the list is shown under every level. A passage is marked
+                strong when it stands far above the work&rsquo;s typical score. The band was first
+                fitted in October 2026 on three works and refitted the same month on eleven, from
+                Sappho&rsquo;s fragments to the Shahnameh, with 55 subjects the works treat and 86
+                they do not: it agrees with that set on 84 percent, and no single measure did
+                better across works of such different lengths, so read it as a first estimate.
+                Of the passages marked strong in the first measurement, 90 percent were at least
+                partly about the subject, and the marks caught 42 percent of the passages judged
+                directly about it.
+              </p>
+            </div>
+          )}
+
           {activeSection === 'reader' && (
             <div className="prose max-w-none">
               <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">The Reader</h3>
@@ -1647,10 +1811,21 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 those connections for whatever you select.
               </p>
               <p className="text-gray-700 mb-4">
+                Each tab of the side panel explains itself under &ldquo;What this does&rdquo;.
+                That box says what the tab searches, what it covers, where it is weak and how
+                well it has been measured.
+              </p>
+              <p className="text-gray-700 mb-4">
                 For works that have one, an <strong>About</strong> button in the header opens a
                 short orientation note saying what the text is, who wrote it and when, and why a
                 reader might care. The same notes appear behind the small ⓘ buttons in Browse
                 Corpus. Coverage is growing: recently added works get theirs first.
+              </p>
+              <p className="text-gray-700 mb-4">
+                On a phone, the choice of text and book, Go to line and About this text are behind
+                the title line at the top of the Reader, and the key to the margin marks is behind
+                the Key button, so that the text has the width of the screen. Every control is
+                still there.
               </p>
 
               <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">The gutter</h4>
@@ -1734,9 +1909,9 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
               </p>
 
               <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">The panel</h4>
-              <ul className="list-disc pl-5 text-gray-700 space-y-2 mb-3">
-                <li>
-                  <strong>Similar passages</strong> lists passages elsewhere in the corpus whose
+              <h5 className="text-base font-semibold text-gray-900 mt-4 mb-1">Similar passages tab</h5>
+              <p className="text-gray-700 mb-3">
+                  Similar passages lists passages elsewhere in the corpus whose
                   content resembles your selection, across every served language, in two groups.
                   <strong> Same people and places</strong> comes first. It lists passages in other works that
                   name the same rare people or places as your selection, so Arrian's account of Alexander at
@@ -1751,9 +1926,10 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   <strong> In other languages</strong> offers a button for each language with few matches in
                   the list, ordered by its best match, which opens that language's five closest passages. The
                   largest corpora otherwise fill the list: an Urdu passage would show mostly Persian.
-                </li>
-                <li>
-                  <strong>Verbal parallels</strong> lists corpus lines that share your
+              </p>
+              <h5 className="text-base font-semibold text-gray-900 mt-4 mb-1">Verbal parallels tab</h5>
+              <p className="text-gray-700 mb-3">
+                  Verbal parallels lists corpus lines that share your
                   selection&rsquo;s wording. A line or short phrase is searched on all of its
                   content words. A passage-sized selection is searched on its most distinctive
                   words, the rarest in the corpus by document frequency, and the panel names
@@ -1763,23 +1939,56 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   varius) are hidden here, with a note saying how many; matches survive by
                   sharing at least one distinctive word, or three or more words together. The
                   full Line Search page applies no such filter.
-                </li>
-                <li>
-                  <strong>Translation</strong> shows the aligned English where one exists, with
+              </p>
+              <h5 className="text-base font-semibold text-gray-900 mt-4 mb-1">Documents tab</h5>
+              <p className="text-gray-700 mb-3">
+                  Documents appears when Inscriptions or Papyri is on. It lists the inscriptions and papyri
+                  that share two or more words with your selection, each with its date and place, the shared
+                  words marked, and a link to the document&rsquo;s page.
+              </p>
+              <h5 className="text-base font-semibold text-gray-900 mt-4 mb-1">Translation tab</h5>
+              <p className="text-gray-700 mb-3">
+                  Translation shows the aligned English where one exists, with
                   the translator named under it. Most are public domain; a few are open translations
                   used with attribution under their non-commercial terms (Silius Italicus books 9 to
                   17, A. S. Kline). Coverage is partial: over half of the Greek corpus and nearly
                   half of the Latin, so some passages have none. The translators are listed on the
                   Sources page under About.
-                </li>
-                <li>
-                  <strong>Reuse</strong> lists other works that repeat a line closely enough to
+              </p>
+              <h5 className="text-base font-semibold text-gray-900 mt-4 mb-1">Reuse tab</h5>
+              <p className="text-gray-700 mb-3">
+                  Reuse lists other works that repeat a line closely enough to
                   count as a quotation or near-quotation: a small numbered mark beside a line in
                   the text (&ldquo;quoted in N works&rdquo; on hover) opens this tab for that
                   line. It comes from a table built once over the whole corpus, not a live
                   search, so it covers only the languages built so far, Latin, Greek and English.
-                </li>
-              </ul>
+              </p>
+              <h5 id="scholarship-sources" className="text-base font-semibold text-gray-900 mt-4 mb-1">Scholarship tab</h5>
+              <p className="text-gray-700 mb-3">
+                  Scholarship lists the public-domain commentary notes the site holds,
+                  then the articles, chapters and book pages that cite the passage, newest first. Four
+                  open services supply those results. OpenAlex and Crossref are searched by title and
+                  abstract. Semantic Scholar and CORE are searched in the full text of open-access
+                  papers. The site&rsquo;s own index of citations in journals from before 1923 reads
+                  JSTOR&rsquo;s Early Journal Content. That index covers 24 philology, archaeology and
+                  biblical journals from 1827 to 1922, about 29,000 articles, of which 5,193 cite one
+                  of 437 works held here. The same journals supply the Scholarship section on an inscription or papyrus
+                  page (956 citing sentences from 288 articles). Google Books finds a citation on a book page. A result marked open access has a
+                  free, legal copy through Unpaywall. A result with only a DOI opens through your own
+                  library instead. Set your library&rsquo;s link-resolver address once, under My library
+                  in this tab. Its link then opens the article or chapter under your institution&rsquo;s
+                  access. Where neither a free copy nor your library resolves it, the result still names what
+                  cites the passage and where. Every note and article has a Cite link. It gives a plain
+                  reference to copy, RIS for Zotero and EndNote (to the clipboard, read by Zotero&rsquo;s File menu,
+                  Import from Clipboard, or as a file), and BibTeX for LaTeX. Each list has an Export citations
+                  link that saves all of its items in one file. A commentary note cites the edition the text
+                  comes from, with the passage it comments on. The same Cite link appears on the scholarship in Theme
+                  Search and Search One Text. The HathiTrust link in this tab
+                  runs the same search in that library&rsquo;s book scans and tells you which books and
+                  page numbers mention the citation, without showing you the text itself. Every source
+                  and its license are listed on the Sources page under About. To search the notes and
+                  sentences by theme, use the Scholarship choice on the Theme Search page.
+              </p>
               <p className="text-gray-700 mb-3">
                 Arriving from Theme Search, the Reader opens on the translation, selects the whole
                 passage that matched, and shows the search that brought you there, with a link
@@ -1843,6 +2052,189 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 itself. The instructions are on the{' '}
                 <button onClick={() => setActiveSection('ai-guide')} className="text-red-600 hover:underline">Use with your AI</button>{' '}
                 page, and Tessa can walk you through the setup.
+              </p>
+            </div>
+          )}
+
+          {activeSection === 'events' && (
+            <div className="prose max-w-none">
+              <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Events (in testing)</h3>
+              <p className="text-gray-700 mb-4">
+                The Events page gathers what the site holds about one battle, siege or treaty: the
+                passages in Latin and Greek historians and poets that tell of it or mention it (each
+                opens in the Reader, and the Reader links back), the inscriptions and papyri dated to
+                the same years and found near the place, the articles and commentary on those passages,
+                and a map of the place and the findspots. The page and its menu entry appear when
+                Collections has Inscriptions, Papyri or Scholarship on, as in the Historical profile.
+                This is a first version in testing: events come from Wikidata (CC0, and each event links to
+                its Wikipedia article), passages are found by
+                the names in them and sorted by an offline language model that no person has checked, and
+                the list covers only the events whose dossiers have been built so far.
+                The short description under an event's dates is the opening paragraph of its English
+                Wikipedia article, shared under the licence CC BY-SA 4.0, and a link beside it goes to the
+                article. The Scholarship tab lists the articles that cite the event's leading passages and
+                names the passage that brings each one in.
+              </p>
+            </div>
+          )}
+
+          {activeSection === 'coins' && (
+            <div className="prose max-w-none">
+              <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Coins (in testing)</h3>
+              <p className="text-gray-700 mb-4">
+                The Coins page lists 107,137 Greek and Roman coin types. The Roman types are 56,113 from the
+                Online Coins of the Roman Empire (OCRE, from Augustus to the late fifth century) and 2,602
+                from Coinage of the Roman Republic Online (CRRO). The Greek types are 13,399 from the IRIS
+                skeleton types of Greek coinage, 11,913 from Corpus Nummorum (Thrace, Moesia, Mysia and the
+                Troad), 8,694 from Seleucid Coins Online, 7,228 from PELLA (the Argead kings of Macedon),
+                3,650 from Ptolemaic Coins Online, 2,107 from Coins of the Bactrian and Indo-Greek Rulers
+                (BIGR) and 470 from Levantine Coinages Online.
+                All are catalogues shared through nomisma.org. Corpus Nummorum is under a Creative
+                Commons Attribution-NonCommercial-ShareAlike licence and the other eight are under the Open
+                Database Licence. A coin type is a catalogue entry,
+                not one coin. It records the legend on each side, the catalogue&rsquo;s description of what each
+                side shows, the mint, the dates, the issuing emperor or moneyer, the denomination and the
+                metal. You can search the legends and descriptions together (try &ldquo;capricorn&rdquo;,
+                &ldquo;harbor&rdquo; or a Greek legend typed without accents), narrow by authority, mint, denomination, material, source and date, and
+                order the results by best match or by date. A mint that nomisma.org has matched to Pleiades
+                links to its place page. Each card links to &ldquo;See images&rdquo; on the
+                catalogue&rsquo;s site, which lists the museum coins of that type with their photographs. This
+                site stores no coin images. Catalogues call the front and back of a coin the obverse and
+                the reverse, and the inscription on a side is its legend. The pages here say front, back
+                and inscription.
+              </p>
+              <p className="text-gray-700 mb-4">
+                With Coins on, the Reader gets a Coins tab beside Reuse. It shows two things, kept apart
+                because they mean different things. &ldquo;Named on coins&rdquo; lists people who are named
+                on a coin type, as the emperor or moneyer or as the portrait on the obverse, and are also
+                named in the lines you selected. It is a name link, not an echo: the coin names the same
+                person and does not quote the passage. Names are matched in Latin passages only, and a
+                namesake (another Claudius, another Antonius) can match. &ldquo;Related imagery&rdquo; lists
+                the five coin descriptions closest in meaning to a one-sentence summary of the passage, each
+                with the dates, issuers and mint of the types that carry it. For a Latin passage the coins
+                come from the two Roman catalogues (OCRE and CRRO), because in the test below the Greek
+                catalogues took over half the places and brought almost no real matches; a Greek passage
+                searches all nine. About one match in three is a
+                real parallel. In a test on ten passages with known coin parallels, 17 of 50 matches were
+                right, and the matches the tab calls &ldquo;closer&rdquo; were right about 7 times in 10 while
+                the rest were right about 1 time in 4. The matches are descriptions of coin imagery, not coins
+                known to refer to the passage, so read the coin before you rely on one. Theme Search gets a
+                Coins choice too. It searches the coin descriptions and shows its own list, never mixed
+                into the passage results. A query worded the way a catalogue words an image
+                (&ldquo;ship under full sail&rdquo;, &ldquo;infant on a goat&rdquo;) found about one right coin
+                in two in the same test, and a vague or abstract query finds fewer.
+              </p>
+              <p className="text-gray-700 mb-4">
+                Coins are off by default. Switch Coins on in Collections (the Archaeological and Everything
+                profiles include it) and the Coins entry appears in the main menu. Coin types never enter a
+                phrase search, since they have their own page, the Reader tab and the Theme Search choice. This is a
+                first version in testing.
+              </p>
+            </div>
+          )}
+
+          {activeSection === 'objects' && (
+            <div className="prose max-w-none">
+              <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Objects (in testing)</h3>
+              <p className="text-gray-700 mb-4">
+                The Objects page lists Greek, Roman and Etruscan objects from three museums, each with the
+                museum&rsquo;s own catalogue description. It holds 1,361 objects. 305 come from the
+                Cleveland Museum of Art, whose catalogue records are released under CC0. 395 come from
+                the Art Institute of Chicago, whose records are CC0 and whose descriptions are CC BY 4.0,
+                so every card names the museum as the source of the text. 661 come from the Smithsonian
+                Institution, mostly Greek vases and Roman lamps in the National Museum of Natural
+                History&rsquo;s anthropology collection, also CC0. An object is listed only when its record
+                has a description or note of at least 40 characters. Coins are left out, because they have
+                their own collection, and so are Byzantine and later objects.
+              </p>
+              <p className="text-gray-700 mb-4">
+                The descriptions are the museums&rsquo; own catalogue texts. Tesserae did not write or
+                correct them, and they vary a good deal. A Cleveland or Chicago curator&rsquo;s paragraph
+                can run to several sentences about what a vase shows. A Smithsonian note is often a line
+                from an old catalogue card. You can search titles, descriptions, labels and inscriptions
+                together (try &ldquo;Amazons&rdquo; or &ldquo;symposium&rdquo;), narrow by museum, object
+                type, culture, material and date, and order the results by best match or by date. Each card
+                shows the credit line and licence, and links to &ldquo;Object page&rdquo; on the
+                museum&rsquo;s own site. A museum&rsquo;s photograph appears only when the museum gives a web
+                image that is free to reuse. For the Art Institute of Chicago that means objects it marks
+                as public domain.
+              </p>
+              <p className="text-gray-700 mb-4">
+                Theme Search gets an Objects choice beside Coins. It searches the object descriptions by
+                meaning and shows its own list, never mixed into the passage results. Describe what an
+                object shows or how it was used (&ldquo;a warrior arming before battle&rdquo;). We have not
+                yet measured how often the nearest description is a real match, so read the object before
+                you rely on one.
+              </p>
+              <p className="text-gray-700 mb-4">
+                Objects are off by default. Switch Objects on in Collections (the Archaeological and
+                Everything profiles include it) and the Objects entry appears in the main menu. Objects
+                never enter a phrase search. This is a first version in testing.
+              </p>
+            </div>
+          )}
+
+          {activeSection === 'documents' && (
+            <div className="prose max-w-none">
+              <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Inscriptions &amp; Papyri</h3>
+              <p className="text-gray-700 mb-4">
+                Collections decides what you see. The Collections button at the left of the main
+                menu lists the source collections (literature, inscriptions, papyri, scholarship,
+                coins and objects) with a switch for each, and four profiles
+                that set the switches together: Literary, Historical, Archaeological and
+                Everything. The view you are in (Literature or History) sets the profile, and the switches refine it.
+                Your choice is remembered in this browser. This page and its menu entry
+                appear when Inscriptions or Papyri is on, and the Scholarship tab in the Reader
+                appears when Scholarship is on. Literary, the setting a new visitor starts with,
+                shows the literary texts only. This is a page for the documentary
+                corpus, Latin and Greek inscriptions and papyri, searched the same way as the
+                literary texts but shown with the markup and credit a documentary source needs. It opens
+                already set to search the documents collection, with an option to search
+                literature and documents together so a borrowing between the two shows up in one
+                pass (an epitaph&rsquo;s &ldquo;sit tibi terra levis&rdquo; and its own literary
+                echoes, for example).
+              </p>
+
+              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">Filters and results</h4>
+              <p className="text-gray-700 mb-3">
+                A date range, region, text type, material and source narrow a search, and two
+                checkboxes leave out a match resting only on an editorially restored word, or
+                hide stock formulas (phrases such as &ldquo;dis manibus&rdquo; that recur in
+                thousands of documents and would otherwise crowd out a genuine echo). Results
+                carry their own date, place and credit line, with charts of how many came back
+                by century and by region. Restored text (filled in by an editor where the stone
+                or papyrus is damaged) is marked with a light dotted underline. A surviving
+                fragment of a damaged word is set in gray italic. When a dictionary-form search
+                of one word finds nothing, the page shows the documents whose text contains
+                those letters instead and says so. Exact match finds the letters inside longer
+                words, so a stem such as &ldquo;rusell&rdquo; finds every word that begins with it.
+              </p>
+
+              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">Browsing without a search term</h4>
+              <p className="text-gray-700 mb-3">
+                Below the search sits a facet tree for exploring the collection without already
+                knowing a word to look for, by kind (inscriptions or papyri and ostraca), then
+                region (for papyri, the Egyptian nome, with the findspot, the town or village,
+                e.g. &ldquo;Karanis&rdquo;, nested under it), then century, with text type,
+                material, object and language as flat filters at any level.
+              </p>
+
+              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">Sources</h4>
+              <p className="text-gray-700 mb-3">
+                Inscriptions come from the Epigraphic Database Heidelberg (EDH), the Epigraphic
+                Database Roma (EDR), and I.Sicily. Papyri and ostraca come from the Heidelberg
+                Gesamtverzeichnis der griechischen Papyrusurkunden Ägyptens (HGV), via
+                papyri.info. Each result credits its own source and license. Where EDH and EDR
+                both cover the same inscription, both are shown. Photographs are links to the
+                institution that holds them (EDR, EDH, Ubi Erat Lupa, the CIL in Berlin and others,
+                each named on the link). No image is copied here.
+              </p>
+              <p className="text-gray-700 mb-3">
+                EDH is used under CC BY-SA 4.0, I.Sicily and the EDR deposit under CC BY 4.0, and
+                the papyri.info texts and HGV records under CC BY 3.0, with copyright and attribution
+                to the respective projects. Findspots link to Pleiades (CC BY 3.0). The full list,
+                with the version and retrieval date of each, is under{' '}
+                <a href="/text-credits" className="text-red-700 hover:underline">Sources and credits</a>.
               </p>
             </div>
           )}

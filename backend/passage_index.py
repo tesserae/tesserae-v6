@@ -25,6 +25,7 @@ import math
 import os
 import re
 import threading
+import time
 
 from backend import scripture_id
 from backend import restricted_texts
@@ -137,8 +138,27 @@ STRONG_COMBINED = 1.83
 # live index that no longer matches gets told so in its own output rather than
 # reporting a band it has not earned. Refit with
 # evaluation/scripts/calibrate_confidence.py and update both numbers together.
-FITTED_AT_WINDOWS = 603594
+# UPDATED 2026-10-08 to 530,917, the production index size at the HEAD_WEAK
+# refit above (the live bands now in effect; MODERATE_COMBINED/STRONG_COMBINED
+# just above are not used by CONF_MODE == 'head', the shipped default, and
+# are left as a dormant record of the earlier combined-score design). This
+# tracker is shared across whichever band is active, so it now marks the
+# fit this file actually uses.
+# UPDATED 2026-10-12 to 693,611, the production index after the full
+# prose-windows run, at the HEAD_WEAK refit of that date (see below).
+FITTED_AT_WINDOWS = 693611
 FITTED_TOLERANCE = 0.15     # beyond 15% drift, stop vouching for the band
+# EVERYTHING BELOW, to the next blank line after "update both constants
+# together", is history about MODERATE_COMBINED/STRONG_COMBINED and the
+# window counts of that now-dormant design (603,594 growing to 610,670 then
+# 617,137). None of those counts describe the live index any more, and
+# FITTED_AT_WINDOWS above has already moved past them to the 2026-10-08
+# HEAD_WEAK refit's own count, 530,917 -- lower than all three despite the
+# word "growth" throughout this paragraph, because corpus consolidation work
+# between the two fits (duplicate-text and dropped-window cleanup) removed
+# more than later imports added. Kept for the reasoning it records (count
+# drift is not the only thing that invalidates a fit), not for its numbers.
+#
 # Growth since the fit, recorded rather than refitted: the Latin import batches
 # and the dual-phrasing pass brought the index to 610,670, and the vernacular
 # pilot (Commedia, Roland, Nibelungenlied) to 617,137 on 2026-09-01. That is
@@ -211,9 +231,21 @@ NAMES_COMMENTARY_MARKERS = (
     'pseudo_acro', 'commentar')
 
 _lock = threading.Lock()
-_state = {'loaded': False, 'ok': False, 'error': None}
+_state = {'loaded': False, 'ok': False, 'error': None, 'retry_at': None}
+RELOAD_RETRY_SECONDS = 60   # after a failed load, try again this much later
 _ids = None            # list[str]
+# Word -> number of passage descriptions holding it (desc_vocab.json, built by
+# scripts/corpus/build_desc_vocab.py). None when the file is absent: the
+# unknown-word check is then off.
+_vocab = None
 _undescribed = set()   # row indices with no description: excluded from results
+# Works (file ids) that have windows of scale "prose": finer windows cut at
+# sentence boundaries inside long chapters (scripts/corpus/prose_windows.py).
+# Such a work's FINE windows are left out of Theme Search and the neighbour
+# lists, so one chapter is not offered at two scales, and the Reader's lookups
+# prefer the prose windows.
+_prose_works = set()
+_shadowed = set()      # row indices of the fine windows of those works
 _records = None        # list[dict] in embedding-row order
 _emb = None            # np.memmap (N, D) float16
 _by_work = None        # work -> list[row index]
@@ -463,12 +495,39 @@ def works_for_language(language):
     return _works_by_language_cache.get(language, [])
 
 
+VOCAB_FILE = 'desc_vocab.json'
+
+
+def _load_vocab():
+    """Load the description vocabulary beside the other index files, if present."""
+    global _vocab
+    path = os.path.join(_DATA_DIR, VOCAB_FILE)
+    _vocab = None
+    if not os.path.exists(path):
+        logger.info('[PASSAGES] %s absent: the unknown-word check is off', VOCAB_FILE)
+        return
+    try:
+        with open(path, encoding='utf-8') as fh:
+            words = json.load(fh).get('words')
+        if isinstance(words, dict) and words:
+            _vocab = words
+            logger.info('[PASSAGES] description vocabulary: %d words', len(words))
+    except Exception as e:  # a bad vocabulary file must not break the index
+        logger.error('[PASSAGES] %s unreadable, check off: %s', VOCAB_FILE, e)
+
+
 def _ensure_loaded():
     global _ids, _records, _emb, _by_work, _by_language
     if _state['loaded']:
         return
     with _lock:
         if _state['loaded']:
+            return
+        # A load that failed (a memory error during a server reload, a file
+        # replaced under it) used to mark the index loaded-and-broken for the
+        # life of the worker, and every Similar Passages request then said no
+        # window covered the passage (2026-10-11). It is retried after a pause.
+        if _state.get('retry_at') and time.monotonic() < _state['retry_at']:
             return
         _state['loaded'] = True
         try:
@@ -508,6 +567,7 @@ def _ensure_loaded():
             _by_language = {lg: np.asarray(rows, dtype=np.int64)
                             for lg, rows in by_lang_lists.items() if lg}
             _state['ok'] = True
+            _load_vocab()
             _apply_index_confidence()
             # WINDOWS WITH NO DESCRIPTION ARE POISON. 128 records were never
             # described, and an empty description embeds near the centre of the
@@ -527,11 +587,19 @@ def _ensure_loaded():
             if _undescribed:
                 logger.warning('[PASSAGES] %d windows have no description and are '
                                'excluded from results', len(_undescribed))
+            global _prose_works, _shadowed
+            _prose_works, _shadowed = _compute_prose_sets(_records)
+            if _prose_works:
+                logger.info('[PASSAGES] %d works have prose-scale windows; '
+                            '%d of their fine windows are left out of ranking',
+                            len(_prose_works), len(_shadowed))
             logger.info('[PASSAGES] index ready: %d windows, %d works, dim %d',
                         len(_ids), len(_by_work), _emb.shape[1])
         except Exception as e:  # index problems must not break the app
             _state['error'] = f'{type(e).__name__}: {e}'
             logger.error('[PASSAGES] index load failed: %s', _state['error'])
+            _state['loaded'] = False
+            _state['retry_at'] = time.monotonic() + RELOAD_RETRY_SECONDS
 
 
 # The query encoder runs as its own service, not inside the web application.
@@ -601,18 +669,31 @@ def encoder_available():
 _SCORE_THREADS = min(16, max(2, (os.cpu_count() or 4) - 2))
 
 
+def _compute_prose_sets(records):
+    """(works with prose-scale windows, row indices of those works' fine windows)."""
+    works = {r.get('work') for r in records
+             if r.get('scale') == 'prose' and r.get('work')}
+    shadowed = {i for i, r in enumerate(records)
+                if r.get('scale') == 'fine' and r.get('work') in works}
+    return works, shadowed
+
+
 def _mask_undescribed(scores):
     """Put undescribed windows out of reach.
 
     Done to the SCORES rather than at ranking time, because the confidence
     measure reads the score distribution: leaving them in made head lift a
     measure of how well the query matched a passage with no description.
+
+    The fine windows of a work that has prose-scale windows go the same way:
+    the prose windows cover the same chapters in smaller pieces.
     """
-    if _undescribed:
-        import numpy as np
-        idx = np.fromiter(_undescribed, dtype=np.int64, count=len(_undescribed))
-        idx = idx[idx < scores.shape[0]]
-        scores[idx] = -1.0
+    for rows in (_undescribed, _shadowed):
+        if rows:
+            import numpy as np
+            idx = np.fromiter(rows, dtype=np.int64, count=len(rows))
+            idx = idx[idx < scores.shape[0]]
+            scores[idx] = -1.0
     return scores
 
 
@@ -756,6 +837,7 @@ def _result(row, score, strong=None, extra=None):
         'scale': r.get('scale'),
         'ref_start': r.get('ref_start'),
         'ref_end': r.get('ref_end'),
+        **({'sub': r['sub']} if r.get('sub') is not None else {}),
         'score': round(float(score), 4),
         'strong': bool(strong) if strong is not None else None,
         'gist': d.get('gist'),
@@ -858,7 +940,8 @@ def _rank(scores, limit, exclude_work=None, languages=None, scale=None,
         work = _norm_work(r.get('work'))
         if exclude_work and work == exclude_work:
             continue
-        if only_works is not None and work not in only_works:
+        if (only_works is not None and work not in only_works
+                and work_id(r.get('work')) not in only_works):
             continue
         if per_work is not None and per_work_count.get(work, 0) >= per_work:
             continue
@@ -868,7 +951,16 @@ def _rank(scores, limit, exclude_work=None, languages=None, scale=None,
             continue
         if scale and r.get('scale') != scale:
             continue
-        if dedup:
+        if dedup and r.get('scale') == 'prose':
+            # Prose windows are pieces of one chapter, so they share a
+            # reference and do not overlap: only the same piece twice is a
+            # duplicate.
+            spans = seen.setdefault((work, 'prose'), [])
+            key = (_ref_coords(r.get('ref_start')), r.get('sub'))
+            if key in spans:
+                continue
+            spans.append(key)
+        elif dedup:
             # OVERLAP, not an identical start. Keying on ref_start alone let
             # near-duplicates through, because two windows over the same lines
             # rarely begin on the same one: Caesar came back as both
@@ -1045,8 +1137,103 @@ def _language_rows(languages):
 # on sentences alone and was unusable on keywords, where it rated "airplanes"
 # above "plague".
 DEGENERATE_COHERENCE = 0.995   # no structure at all: nothing resembles the query
-HEAD_WEAK = 0.0750             # below this, the top ten are not a group
-HEAD_STRONG = 0.1006           # above every absent subject in either probe set
+# HEAD_WEAK REFIT 2026-10-08, against the production index (530,917 windows)
+# and a 178-query probe set: evaluation/probe_sets/theme_confidence_2026-10-08.json,
+# extended that day to carry 30 Latin, 30 Greek, and 30 English queries (was
+# 17 each), plus the original 57-query evaluation/probe_sets/combined_confidence.json
+# kept as a regression check. The 139-query set behind the pervasive-theme fix
+# above had already shown Latin and Greek stuck at 64.7% and English at 47.1%,
+# every miss a false 'low' on an on-topic, non-pervasive scene (a specific
+# passage, not a theme the language is saturated with, so the pervasive
+# promotion below never applies to it: measured excess_baseline for these
+# queries runs slightly NEGATIVE to +0.0046, nowhere near PERVASIVE_EXCESS_BASELINE).
+#
+# evaluation/scripts/calibrate_confidence.py swept HEAD_WEAK from 0.0400 to
+# 0.0800 (HEAD_STRONG does not affect this: it only separates 'moderate' from
+# 'strong', never 'low' from the rest). The absolute ceiling is set by the
+# highest-scoring ABSENT query across every probe set and every language at
+# once -- "a surgeon administers ether before an operation" (unfiltered),
+# head_lift 0.073282 -- because this statistic never depends on which
+# language a search is narrowed to (see the PERVASIVE THEMES comment below):
+# the same number is computed from the whole corpus for a given query text
+# regardless of the `languages` filter, so one query anywhere in the combined
+# set can block a lower threshold everywhere. A single global value stayed
+# the stated preference (ahead of a per-language override) because one was
+# found that clears the constraint: the ONLY flat, zero-false-positive
+# plateau in the swept range is (0.073282, 0.074292], bounded above by three
+# Latin queries ("a banquet with speeches, music, and entertainment"
+# 0.074292, "an old nurse recognizes her former charge by a scar" 0.074418,
+# "a lover complains of a mistress's cruelty" 0.074544) that would otherwise
+# tip back to 'low'. 0.0738 sits in the middle of that plateau:
+#
+#     language        old (0.0750)   new (0.0738)   changed by
+#     Latin (30 q.)        56.7%          66.7%     +3 (the three above)
+#     Greek (30 q.)        63.3%          63.3%     unchanged (see below)
+#     English (30 q.)      43.3%          46.7%     +1 ("a garden described
+#                                                    in loving detail", 0.074782)
+#     Persian/Urdu/Hebrew/Coptic/unfiltered         unchanged on this probe
+#                                                    set (nothing of theirs
+#                                                    sits in the plateau)
+#     extended set, 178 q. (all languages)  73.0%     75.3%
+#     original 57 q. (combined_confidence.json, unfiltered, kept as a
+#       regression check, not touched by this fix's probe design)  66.7%  68.4%
+#
+# Both figures rose and nothing fell: the change can only ever move a query
+# OUT of 'low', never into it, and the 0.073282 ceiling it respects is the
+# highest-scoring absent query across BOTH sets at once, so no regression on
+# either set was possible by construction. Full table, including per-language
+# rows for Persian, Urdu, Hebrew, and Coptic: docs/DECISIONS.md, 2026-10-08.
+#
+# Greek did not move: its present, non-pervasive queries' head_lift jumps
+# straight from 0.0675 to 0.0762, straddling the entire plateau, so no
+# Greek query this probe set contains falls where a lower HEAD_WEAK could
+# reach it without crossing 0.073282 and promoting "a satellite orbits the
+# earth" (Greek's own highest absent score, 0.070457). That is a property of
+# THIS embedding and THIS probe set, not of Greek as a language: a probe
+# that happened to include a Greek scene scoring between 0.0705 and 0.0762
+# would be rescued by the same fix. Per-language bands were measured too
+# (evaluation/scripts/calibrate_confidence.py against each language's own
+# floor and ceiling) and rejected: Greek's floor-to-ceiling gap means no
+# per-language value helps it either, so a language-specific override would
+# have bought nothing beyond what the single global value already gives
+# Latin and English, at the cost of three numbers to maintain instead of one.
+#
+# HEAD_WEAK REFIT 2026-10-12, against the production index after the full
+# prose-windows run (693,611 windows, 31% past the 530,917 the fit above
+# was made on, so _calibration_drift() had been warning on every search).
+# Measured with evaluation/scripts/calibrate_confidence.py on the same
+# 178-query set, the 57-query combined_confidence.json, and the 60
+# historical subjects of 2026-10-11 whose top tens a model had graded
+# (~/tesserae-backups/confidence_refit_2026-10-12/, private). The picture
+# changed with the index: head lift no longer has a zero-false-positive
+# plateau. Present and absent subjects overlap between 0.055 and 0.077
+# (absent: "soldiers fire machine guns from trenches" 0.0767, "a political
+# election campaign with televised debates" 0.0754, "a locomotive crosses a
+# bridge" 0.0711; present: "a hero descends to the underworld and returns"
+# 0.0558, "a revolt of slaves" 0.0551 with 7 of its top ten about the
+# subject). The old value kept absent subjects out of 'moderate' at the
+# price of calling 64 of 115 present subjects 'low' (74.7% on the 178 set,
+# 66.7% on the 57 set), and 18 of the 60 historical subjects, 15 of them
+# with a relevant list. The sweep (0.030 to 0.080 by 0.001):
+#
+#     HEAD_WEAK     178-set    57-set    historical 60 marked low
+#     0.0738 (old)   74.7%     66.7%     18 (15 relevant lists)
+#     0.065          81.5%     80.7%      6 (6 relevant)
+#     0.060          86.0%     77.2%      2 (2 relevant)
+#     0.055          ~80%      63.2%      0
+#
+# 0.060 is the best on the 178 set and on the two sets together (197 of
+# 235). What it costs: absent subjects from the modern world or other
+# cultures (a locomotive, a satellite, a car engine, a telephone, a steam
+# engine, a sextant) read 'moderate' instead of 'low'; the moderate note
+# was reworded the same day so it no longer claims the corpus holds the
+# subject. A two-figure rule (head lift and coherence together) was swept
+# too and bought nothing: coherence runs 0.927 for present subjects against
+# 0.907 for absent, too close to split them. The owner's reading of the
+# band under this change, 2026-10-12: a good list labelled low "is deflating
+# to the user"; the label is now "Closest passages".
+HEAD_WEAK = 0.060               # below this, the top ten are not a group
+HEAD_STRONG = 0.1006           # above every absent subject in every probe set (unchanged 2026-10-12: the highest absent head lift is now 0.0800, on the 57 set)
 
 # PERVASIVE THEMES, FITTED ON LATIN AND GREEK, MISREAD IN A LYRIC CORPUS
 # (2026-10-08). head_lift and coherence above were measured against the whole,
@@ -1257,21 +1444,165 @@ _SHORT_QUERY_HINT = (
     'what, and where.')
 
 
-def _confidence_note(level, query=None, language=None):
+# THE UNKNOWN-WORD CHECK (2026-10-11). No confidence score separates a string
+# of gibberish from a real but thin subject (coherence 0.892 against 0.912).
+# What does: every content word of every real query tested occurs in at least
+# two passage descriptions, and no word of any gibberish string occurs in any.
+_STOP_WORDS = frozenset("""
+a an the and or but nor of in on at to for from by with without about against
+between into through during before after above below over under up down out off
+as than then so if while is are was were be been being am do does did doing done
+have has had having will would shall should can could may might must not no yes
+this that these those it its he him his she her hers they them their theirs we
+us our ours you your yours i me my mine who whom whose which what when where why
+how there here very too also just only some any each every all both more most
+other such own same s t don doesn didn isn aren wasn weren couldn wouldn shouldn
+won ll ve re
+""".split())
+_QUERY_TOKEN = re.compile(r"[^\W\d_]+(?:['’][^\W\d_]+)*")
+_MAX_LISTED_WORDS = 8
+
+
+def _stem_candidates(w):
+    yield w
+    if w.endswith('ies') and len(w) > 4:
+        yield w[:-3] + 'y'
+    if w.endswith('es') and len(w) > 3:
+        yield w[:-2]
+    if w.endswith('s') and len(w) > 2:
+        yield w[:-1]
+    for suffix in ('ed', 'ing'):
+        if w.endswith(suffix) and len(w) > len(suffix) + 2:
+            stem = w[:-len(suffix)]
+            yield stem
+            yield stem + 'e'
+            if len(stem) > 2 and stem[-1] == stem[-2]:
+                yield stem[:-1]
+    if w.endswith('d') and len(w) > 3:
+        yield w[:-1]
+
+
+def _word_known(w, vocab):
+    return any(vocab.get(c, 0) >= 2 for c in _stem_candidates(w))
+
+
+def _query_content_words(query):
+    """Content words of the typed query, as typed (possessive 's removed), in order.
+
+    Words with a non-ASCII letter are left out: the vocabulary is ASCII letters
+    only, so such a word could not be looked up fairly.
+    """
+    words = []
+    for tok in _QUERY_TOKEN.findall(query or ''):
+        if not tok.isascii():
+            continue
+        tok = re.sub(r"['’]s$", '', tok)
+        for part in re.split(r"['’]", tok):
+            if len(part) < 2 or part.lower() in _STOP_WORDS:
+                continue
+            words.append(part)
+    return words
+
+
+def unknown_query_words(query, vocab=None):
+    """The content words of the typed query that no passage description holds.
+
+    Runs on the reader's own words, never on an expanded query. Returns None
+    when no vocabulary is loaded (the check is off).
+    """
+    vocab = _vocab if vocab is None else vocab
+    if vocab is None:
+        return None
+    seen, out = set(), []
+    for w in _query_content_words(query):
+        lw = w.lower()
+        if lw in seen:
+            continue
+        seen.add(lw)
+        if not _word_known(lw, vocab):
+            out.append(w)
+    return out
+
+
+def _vocab_fields(query):
+    """The unknown-word fields every Theme Search confidence block carries."""
+    if _vocab is None:
+        return {'vocab_checked': False, 'unknown_words': [], 'no_known_words': False}
+    unknown = unknown_query_words(query)
+    content = {w.lower() for w in _query_content_words(query)}
+    return {'vocab_checked': True, 'unknown_words': unknown,
+            'no_known_words': bool(content) and len(unknown) == len(content)}
+
+
+def _join_words(words):
+    shown = list(words[:_MAX_LISTED_WORDS])
+    if len(words) > _MAX_LISTED_WORDS:
+        return ', '.join(shown) + f' and {len(words) - _MAX_LISTED_WORDS} more'
+    if len(shown) > 1:
+        return ', '.join(shown[:-1]) + ' and ' + shown[-1]
+    return shown[0]
+
+
+def _vocab_note(note, fields):
+    """The note after the unknown-word check: replaced, extended, or unchanged."""
+    unknown = fields.get('unknown_words') or []
+    if not unknown:
+        return note
+    if fields.get('no_known_words'):
+        shown = ', '.join(unknown[:_MAX_LISTED_WORDS])
+        if len(unknown) > _MAX_LISTED_WORDS:
+            shown += f' and {len(unknown) - _MAX_LISTED_WORDS} more'
+        return (f'None of these words appears in any passage description: {shown}. '
+                'There is nothing for Theme Search to match. Check the spelling, '
+                'or describe the scene in other words.')
+    if len(unknown) == 1:
+        extra = (f'The word {unknown[0]} appears in no passage description, '
+                 'so it did not help the search.')
+    else:
+        extra = (f'The words {_join_words(unknown)} appear in no passage description, '
+                 'so they did not help the search.')
+    return f'{note} {extra}' if note else extra
+
+
+def _calibration_note():
+    """The drift warning as a separate field, never in the sentence under the
+    band (2026-10-12). Until then it was prepended to the note, so after the
+    prose run took the index 31% past the fitted size every search opened
+    with three lines about thresholds and window counts, which the reader
+    cannot act on. The page does not print it; it is kept in the answer for
+    anyone checking the fit."""
     drift = _calibration_drift()
-    base = _confidence_note_fitted(level, language)
-    if drift:
-        now, _ = drift
-        warning = _UNCALIBRATED.format(fitted=FITTED_AT_WINDOWS, now=now)
-        base = f'{warning} {base}' if base else warning
-    # The pervasive note already asks for a description of what happens, so
-    # the short-query hint would repeat it.
-    if base and level not in ('strong', 'pervasive') and query is not None and _is_short_query(query):
+    if not drift:
+        return None
+    now, _ = drift
+    return _UNCALIBRATED.format(fitted=FITTED_AT_WINDOWS, now=now)
+
+
+def _confidence_note(level, query=None, language=None, degenerate=False):
+    base = _confidence_note_fitted(level, language, degenerate=degenerate)
+    # The short-query hint is kept for the degenerate case only (2026-10-11).
+    # Measured on 60 historical subjects, short phrases in the low band had a
+    # higher share of relevant passages in their top ten (0.82) than full
+    # sentences (0.50), so "a sentence matches much better" is not a claim the
+    # evidence supports for an ordinary low band.
+    if base and degenerate and query is not None and _is_short_query(query):
         base += _SHORT_QUERY_HINT
     return base
 
 
-def _confidence_note_fitted(level, language=None):
+def _confidence_note_fitted(level, language=None, degenerate=False):
+    """The sentence under the band.
+
+    2026-10-11: a low band no longer says the corpus lacks the subject unless
+    the coherence is degenerate (nothing resembles the query). Measured on 60
+    historical subjects (short and sentence forms) with a model judging the
+    top ten: of 31 queries marked low, 27 had a relevant list (half or more of
+    the top ten about the subject), and the pilot's literary questions behaved
+    the same (11 of 13 marked low were relevant). The band separates real
+    subjects from nonsense, which is what it was fitted on; it does not
+    separate a good list from a poor one. So the ordinary low note is a
+    caution about the ranking, and the list is shown.
+    """
     if level == 'strong':
         return None
     if level == 'pervasive':
@@ -1281,10 +1612,25 @@ def _confidence_note_fitted(level, language=None):
                 'examples. To find a particular kind of passage, describe what '
                 'happens in it, such as who does what, and where.')
     if level == 'moderate':
-        return ('Moderate confidence: the corpus holds passages of this kind, but the '
-                'match is looser than a clear case. Read the results before relying on them.')
-    return ('The corpus does not appear to contain passages of this kind. Anything '
-            'the search returns for it is a nearest neighbor, not a finding.')
+        # 2026-10-12: no longer "the corpus holds passages of this kind".
+        # Under the refit some absent modern subjects read moderate, so the
+        # note states what was measured, not what it implies.
+        return ('Moderate confidence: the top passages stand out from the rest of '
+                'the corpus, though not by a wide margin. Read the results before '
+                'relying on them.')
+    if degenerate:
+        return ('The corpus does not appear to contain passages of this kind. Anything '
+                'the search returns for it is a nearest neighbor, not a finding.')
+    # The page prints the band's label ("Closest passages.") before this
+    # sentence, so the sentence does not repeat it. 2026-10-12: the label was
+    # "Low confidence" until the owner read a good list under it ("saying
+    # they're low confidence is deflating to the user"); on the 60 historical
+    # subjects the lists under this band were as relevant as those under
+    # moderate (0.75 against 0.73), so the old label claimed a difference the
+    # evidence does not show.
+    return ('No passage stands far above the rest of the corpus on this subject, '
+            'so the order of the list is less certain than usual. These are the '
+            'closest the corpus comes. Read them before relying on them.')
 
 
 # QUERY EXPANSION: make the query look like the thing being searched.
@@ -1407,26 +1753,35 @@ def expand_query(query):
         return _expand_cache[q]
     import json as _json
     import re as _re
-    import urllib.error
-    import urllib.request
-    body = _json.dumps({
-        'messages': [{'role': 'system', 'content': _EXPAND_SYSTEM},
-                     {'role': 'user', 'content': q}],
-        'max_tokens': 220, 'temperature': 0.0, 'stream': False,
-    }).encode('utf-8')
-    req = urllib.request.Request(EXPAND_ENDPOINT, data=body,
-                                 headers={'Content-Type': 'application/json'})
+    # Through the assistant's model client (backend/assistant/model.py), which
+    # is pointed at the campus gateway on production, with its key and
+    # settings. This path posted to the local llama-server on port 8081 by
+    # itself, so it kept that 20 GB service alive for short Theme Search
+    # queries alone (2026-10-12). TESSERAE_EXPAND_ENDPOINT, when set, still
+    # names a bare chat endpoint to post to instead.
     forms = []
     try:
-        # A fixed http(s) endpoint from configuration, never user input.
-        with urllib.request.urlopen(req, timeout=EXPAND_TIMEOUT) as r:  # nosec B310
-            out = _json.loads(r.read())
-        txt = out['choices'][0]['message']['content'] or ''
+        if os.environ.get('TESSERAE_EXPAND_ENDPOINT'):
+            import urllib.request
+            body = _json.dumps({
+                'messages': [{'role': 'system', 'content': _EXPAND_SYSTEM},
+                             {'role': 'user', 'content': q}],
+                'max_tokens': 220, 'temperature': 0.0, 'stream': False,
+            }).encode('utf-8')
+            req = urllib.request.Request(EXPAND_ENDPOINT, data=body,
+                                         headers={'Content-Type': 'application/json'})
+            # A fixed http(s) endpoint from configuration, never user input.
+            with urllib.request.urlopen(req, timeout=EXPAND_TIMEOUT) as r:  # nosec B310
+                out = _json.loads(r.read())
+            txt = out['choices'][0]['message']['content'] or ''
+        else:
+            from backend.assistant import model as _model
+            txt = _model.complete(_EXPAND_SYSTEM, q, 220, 0.0) or ''
         m = _re.search(r'\{.*\}', txt, _re.S)
         if m:
             forms = [str(f).strip() for f in (_json.loads(m.group(0)).get('forms') or [])
                      if str(f).strip()][:3]
-    except (urllib.error.URLError, OSError, ValueError, KeyError) as e:
+    except (OSError, ValueError, KeyError) as e:
         logger.info('[PASSAGES] query expansion unavailable: %s', e)
     _expand_cache[q] = forms
     # A failed expansion is not cached: the model being down for one request is
@@ -1529,8 +1884,226 @@ def _lexical_boost(query, scores):
     return n
 
 
+# Windows one work may contribute when Theme Search is restricted to an author
+# or to chosen works. The corpus-wide cap (PASSAGES_PER_WORK) exists so one
+# huge work cannot own a page. Inside a chosen author that reasoning is gone:
+# the reader asked for this author, and a cap of three hid the second and third
+# storm in the Bellum Civile. Value and measurement: docs/DECISIONS.md.
+RESTRICTED_PER_WORK = 10
+
+
+def _part_ids(base):
+    """Ids of the part files of `base` that hold passage windows, e.g.
+    {'tacitus.annales.part.1', ...}. Empty for a work with no parts."""
+    _ensure_loaded()
+    if not _state.get('ok') or not _by_work:
+        return set()
+    return {w for w in (work_id(_records[i].get('work')) for i in _by_work.get(base) or [])
+            if is_part(w)}
+
+
+def part_number(part_id):
+    """The number after `.part.` in a part id (`x.part.2.nemeans` -> 2), or None."""
+    m = re.search(r'\.part\.(\d+)', work_id(part_id) or '')
+    return int(m.group(1)) if m else None
+
+
+def parse_books(spec, cap=500):
+    """`1,2`, `1-6` or `1-3,5` -> sorted list of ints. Junk is ignored."""
+    out = set()
+    for piece in str(spec or '').split(','):
+        piece = piece.strip()
+        m = re.fullmatch(r'(\d+)\s*-\s*(\d+)', piece)
+        if m:
+            a, b = int(m.group(1)), int(m.group(2))
+            if a <= b and b - a < cap:
+                out.update(range(a, b + 1))
+        elif piece.isdigit():
+            out.add(int(piece))
+        if len(out) >= cap:
+            break
+    return sorted(out)
+
+
+def book_parts(base, books):
+    """(part_ids, books_held) for the numbered parts of `base` whose number is in
+    `books`. A number the index does not hold is dropped silently."""
+    want = set(books or [])
+    ids = sorted(p for p in _part_ids(base) if part_number(p) in want)
+    return ids, sorted({part_number(p) for p in ids})
+
+
+def resolve_restriction(author=None, works=None, languages=None):
+    """Turn an author id and/or work ids into the set of base work ids that
+    have passage windows in the chosen languages.
+
+    Returns (work_set, note). `work_set` is a set of base work ids, or None
+    when no restriction was asked for. An unknown author or work gives an EMPTY
+    set and a plain `note`, never an error: the caller answers with no results
+    and the note, because "this author is not in the index" is a finding the
+    reader needs, not a fault.
+
+    The author is the part of the work id before its first dot (`lucan` in
+    `lucan.bellum_civile`). When both `author` and `works` are given, the result
+    is the works that belong to that author."""
+    author = (author or '').strip().lower()
+    # A part id (`tacitus.annales.part.2`) is kept as given, so a search can be
+    # confined to chosen books; a base id still means the whole work.
+    wanted = [work_id(w.strip()) for w in (works or []) if w and w.strip()]
+    if not author and not wanted:
+        return None, None
+    _ensure_loaded()
+    if not _state['ok']:
+        return set(), 'The passage index is not available, so nothing can be searched.'
+    langs = list(languages) if languages else _index_languages()
+    available = set()
+    for lang in langs:
+        available.update(works_for_language(lang))
+    if author:
+        pool = {w for w in available if w.split('.')[0].lower() == author}
+        if not pool:
+            return set(), (f'No works by "{author}" have passage windows in the '
+                           'chosen languages, so there is nothing to search.')
+    else:
+        pool = available
+    if wanted:
+        chosen = {w for w in wanted
+                  if _norm_work(w) in pool and (not is_part(w) or w in _part_ids(_norm_work(w)))}
+        if not chosen:
+            return set(), ('None of the works named has passage windows in the '
+                           'chosen languages' + (f' for author "{author}"' if author else '')
+                           + ', so there is nothing to search.')
+        return chosen, None
+    return pool, None
+
+
+# WITHIN-WORK CONFIDENCE (Search One Text), fitted 2026-10-11.
+#
+# A search restricted to ONE work cannot use HEAD_WEAK and HEAD_STRONG: those
+# were fitted to corpus-wide score distributions, and a single work's median
+# and head sit in a different place (the pilot judged 293 passages and the raw
+# scores did not separate the grades: mean 0.794 for grade 0, 0.794 for grade 1,
+# 0.805 for grade 2). So the same method was repeated inside the work, on 45
+# queries over the Aeneid, Thucydides and the Annals: 15 subjects the work
+# treats (the pilot's questions), 15 it does not (five per work) and 15
+# nonsense strings (five per work). Report, figures and script:
+# ask_a_work_pilot_2026-10-11/confidence/ in the backup folder.
+#
+# What separated real from absent and nonsense (accuracy of one threshold,
+# real called moderate or strong, the other thirty called low):
+#     spread (std of the work's scores)   0.889   leave-one-work-out 0.867
+#     head lift (top ten over median)     0.822   leave-one-work-out 0.756
+#     top-1 lift                          0.822   leave-one-work-out 0.689
+#     coherence of the top twenty         0.822   leave-one-work-out 0.622
+# Head lift and coherence do not hold up across works, so the band reads the
+# spread of the work's own scores: a subject the work treats pulls a group of
+# windows well above the rest and widens the distribution. Threshold WEAK is the
+# best single cut. STRONG is just above the largest spread any of the thirty
+# absent or nonsense queries produced (0.0123), the convention HEAD_STRONG uses.
+# Of the 15 real subjects, 5 fall at strong, 7 at moderate and 3 (the causes of
+# the war, Tiberius's concealment, the rise of Sejanus) at low. Two of the thirty
+# non-subjects fall at moderate. Provisional: three works, one threshold.
+#
+# REFIT 2026-10-12 on eleven works. The owner saw three right answers labelled
+# "a nearest neighbor, not a finding": Browning's sonnet 43 for "the poet
+# counts the ways she loves" (143 windows), Ferdowsi for Rostam and the White
+# Div (23,150 windows) and Annals 4.1 for the rise of Sejanus. The spread rule
+# was re-measured on the pilot's 45 queries plus 80 over eight more works of
+# very different sizes (Browning, Sappho, Catullus, Hafez, the Odyssey, Ovid's
+# Metamorphoses, Livy, Ferdowsi: five subjects each work treats, five it does
+# not, two nonsense strings; one subject dropped on reading because the
+# answers were wrong). Spread fell to 0.738 over all 140 (0.42 on Ferdowsi,
+# 0.50 on Ovid, 0.58 on the Odyssey): the few windows of a subject barely
+# widen a long work's distribution, and a short work's is noisy. Of nineteen
+# signals swept, none holds across works on its own (best top-1 lift, 0.809,
+# leaving one work out 0.752; every normalised form, z over std, IQR or MAD,
+# is worse because the denominator rises with the tail). The best pair is
+# top-1 lift OR the coherence of the top twenty: 0.836 (leave one work out
+# 0.821), at the values below. The band is therefore an estimate, not a
+# verdict: the lowest level is a caution about the order and claims nothing
+# about absence (as the corpus-wide band since 2026-10-11), the list is
+# always shown, and 'strong' sits above the highest top-1 lift any absent or
+# nonsense subject produced (0.0546), the convention HEAD_STRONG uses.
+# Figures and scripts: within_work_refit_2026-10-12/ in the backup folder.
+WITHIN_TOP1_WEAK = 0.048        # top-1 lift over the work's median
+WITHIN_COHERENCE_WEAK = 0.925   # or the top twenty hang together this closely
+WITHIN_TOP1_STRONG = 0.055      # above every absent and nonsense subject measured
+# A passage is marked strong when it stands this many standard deviations above
+# the work's median score AND the search is not rated low. On the 293 judged
+# passages (gated on the band) z >= 3.0 marks 63, of which 90.5% are grade 1 or 2
+# (grade 2 alone 69.8%) and 41.5% of all grade-2 passages are caught. The rule was
+# precision for grades 1 and 2 of at least 0.85 with recall of at least 0.3.
+# z >= 2.5 clears 0.85 by less (0.869) and a bootstrap over questions puts the
+# 5th percentile of precision at 0.76 for z >= 3.0, so it is provisional too.
+# The raw score cannot do this (best precision 0.80 at recall 0.09).
+WITHIN_STRONG_Z = 3.0
+WITHIN_FITTED = 'within-work 2026-10-12'
+
+
+def within_work_signals(scores, rows):
+    """The within-work figures for the windows `rows` (global row indices) of a
+    score vector. Undescribed windows (masked at -1) are left out. Returns None
+    when fewer than ten windows remain."""
+    import numpy as np
+    rows = np.asarray(rows, dtype=np.int64)
+    s = np.asarray(scores, dtype=np.float64)[rows]
+    keep = s > -0.5
+    rows, s = rows[keep], s[keep]
+    if s.size < 10:
+        return None
+    med = float(np.median(s))
+    srt = np.sort(s)
+    k = min(10, srt.size)
+    top = rows[np.argsort(-s)[:min(COHERENCE_K, s.size)]]
+    return {'n': int(s.size), 'work_median': med,
+            'work_head_lift': float(srt[-k:].mean()) - med,
+            'work_coherence': _coherence_of_rows(top),
+            'top1_lift': float(srt[-1]) - med, 'spread': float(s.std())}
+
+
+def _restricted_rows(works_set):
+    """Row indices of every window of the chosen works or book files."""
+    rows = []
+    for base in {_norm_work(w) for w in works_set}:
+        for i in _by_work.get(base) or []:
+            w = _records[i].get('work')
+            if base in works_set or work_id(w) in works_set:
+                rows.append(i)
+    return rows
+
+
+def _within_level(top1_lift, coherence):
+    """low / moderate / strong from the top passage's lift over the work's
+    median and the coherence of the top twenty (refit 2026-10-12)."""
+    if top1_lift >= WITHIN_TOP1_STRONG:
+        return 'strong'
+    if top1_lift >= WITHIN_TOP1_WEAK or coherence >= WITHIN_COHERENCE_WEAK:
+        return 'moderate'
+    return 'low'
+
+
+# The sentence about the fit (55 subjects, 86 non-subjects, eleven works, 84
+# percent) is no longer printed under the band: the owner found the
+# qualifications crowding the passages out (2026-10-12). It stays in Help
+# and in the page's scope box.
+_WITHIN_NOTE = ''
+
+
+def _within_note(level):
+    """One short sentence under the band, or nothing for strong."""
+    if level == 'strong':
+        return None
+    if level == 'moderate':
+        return 'The top passages stand out from the rest of the work, though not by a wide margin.'
+    # The page prints "Closest passages." before this sentence. No absence
+    # claim: on the refit set the lowest level held a right answer first for
+    # Browning, Ferdowsi and the Annals (2026-10-12).
+    return ('No passage stands far above the rest of the work on this subject, so the '
+            'order of the list is less certain than usual.')
+
+
 def find_by_text(query, limit=25, languages=None, scale=None, expand=False,
-                 offset=0):
+                 offset=0, only_works=None, per_work=None):
     """Theme Search: free-text description of the wanted content.
 
     `expand` now defaults to False and no in-repo caller passes True: measured
@@ -1552,6 +2125,14 @@ def find_by_text(query, limit=25, languages=None, scale=None, expand=False,
     confidence band was fitted to what page 1 shows, not to how deep a reader
     chooses to page, and individual scores can still clear STRONG_LIFT this
     deep because rank here is compressed, not confidence-ordered.
+
+    `only_works` (a set of base work ids, see resolve_restriction) restricts the
+    whole ranking to those works. The page is then a FLAT list of passages, not
+    one head per work with three rows each: `limit` and `offset` count passages,
+    and each work may contribute `per_work` of them (RESTRICTED_PER_WORK unless
+    given). The corpus-wide confidence figures do not apply to such a search.
+    One work (or some of its books) is rated from the spread of its own scores
+    (see WITHIN_SPREAD_WEAK); several works or an author are not rated.
     """
     _ensure_loaded()
     if not _state['ok']:
@@ -1593,7 +2174,77 @@ def find_by_text(query, limit=25, languages=None, scale=None, expand=False,
     strong_at = baseline + (STRONG_LIFT if level == 'strong' else 1e9)
     # The confidence figures above describe the embedding alone; the lexical
     # boost then reorders the windows (see LEXICAL_BETA).
+    within = None
+    if only_works is not None and len({_norm_work(w) for w in only_works}) == 1:
+        # One work (or some of its books): the band is read from the work's own
+        # scores, before the lexical boost reorders them, as it was fitted.
+        within = within_work_signals(scores, _restricted_rows(set(only_works)))
     n_lexical = _lexical_boost(query, scores)
+    vocab_fields = _vocab_fields(query)
+
+    if only_works is not None:
+        # Restricted to an author or to chosen works. The corpus-wide level was
+        # fitted to queries over the whole index and says nothing about a few
+        # works. One work is rated from its own scores (see WITHIN_SPREAD_WEAK);
+        # several works are not rated and no result is marked strong.
+        works_set = set(only_works)
+        # (Part ids of one work count as one work for the cap below.)
+        n_bases = len({_norm_work(w) for w in works_set})
+        # One work alone has nothing to be diverse against, and a cap would
+        # make paging stop at the cap (measured: Livy came back with 10
+        # passages at limit 25). Several works share the page, so each gets
+        # RESTRICTED_PER_WORK.
+        if per_work is not None:
+            cap = per_work
+        elif n_bases == 1:
+            cap = None
+        else:
+            cap = RESTRICTED_PER_WORK
+        results = _rank(scores, limit, offset=offset, languages=languages,
+                        scale=scale, baseline=baseline, strong_at=1e9,
+                        per_work=cap, only_works=works_set)
+        confidence = {'level': 'restricted'}
+        within_note = None
+        if within is not None:
+            wlevel = _within_level(within['top1_lift'], within['work_coherence'])
+            confidence = {'level': wlevel,
+                          'top1_lift': round(within['top1_lift'], 4),
+                          'work_head_lift': round(within['work_head_lift'], 4),
+                          'work_coherence': round(within['work_coherence'], 4),
+                          'spread': round(within['spread'], 4),
+                          'work_median': round(within['work_median'], 4),
+                          'fitted': WITHIN_FITTED,
+                          'note': _within_note(wlevel)}
+            within_note = confidence['note']
+            for r in results:
+                lift = float(r.get('score', 0)) - within['work_median']
+                r['lift'] = round(lift, 4)
+                r['z'] = round(lift / within['spread'], 2) if within['spread'] > 0 else 0.0
+                r['strong'] = bool(wlevel != 'low' and within['spread'] > 0
+                                   and lift / within['spread'] >= WITHIN_STRONG_Z)
+        confidence.update(vocab_fields)
+        if within_note:
+            within_note = _vocab_note(within_note, vocab_fields)
+            confidence['note'] = within_note
+        restricted_note = within_note or (
+            'Confidence is not rated for a search within one author or '
+            'work. These are the closest passages in the chosen works, '
+            'whether or not they match well, so read them before relying '
+            'on them.' + (f' Each work shows up to {cap} passages. Choose '
+                          'one work to see more of it.'
+                          if cap is not None and cap < 10**6 and n_bases > 1 else ''))
+        if not within_note:
+            restricted_note = _vocab_note(restricted_note, vocab_fields)
+        return {
+            'query': query,
+            'results': results,
+            'strong_matches': sum(1 for r in results if r.get('strong')),
+            'lexical_boost': n_lexical > 0,
+            'restricted': True,
+            'per_work': cap,
+            'confidence': confidence,
+            'note': restricted_note,
+        }
 
     # WHY THE PAGE IS BUILT IN TWO PASSES
     #
@@ -1653,9 +2304,18 @@ def find_by_text(query, limit=25, languages=None, scale=None, expand=False,
         'confidence': {'top': round(top, 4), 'baseline': round(baseline, 4),
                        'head_lift': round(head_lift, 4),
                        'lift': round(lift, 4),
-                       'coherence': round(coherence, 4), 'level': level},
-        'note': _confidence_note(level, query=query,
-                                 language=languages[0] if lang_rows is not None else None),
+                       'coherence': round(coherence, 4), 'level': level,
+                       # 2026-10-11: the one case in which the page hides the
+                       # list. A low band without it is a caution, not a verdict
+                       # (see _confidence_note_fitted).
+                       'degenerate': bool(coherence >= DEGENERATE_COHERENCE),
+                       'calibration': _calibration_note(),
+                       **vocab_fields},
+        'note': _vocab_note(
+            _confidence_note(level, query=query,
+                             language=languages[0] if lang_rows is not None else None,
+                             degenerate=coherence >= DEGENERATE_COHERENCE),
+            vocab_fields),
     }
 
 
@@ -1994,7 +2654,48 @@ def _ref_coords_in(work, ref):
     return tuple(int(n) for n in nums) if nums else _ref_coords(ref)
 
 
-def window_for_passage(work, ref_start=None, ref_end=None, prefer='fine'):
+def fine_windows_covering(work, ref_start, ref_end):
+    """Every FINE window of `work` whose reference range overlaps the span
+    ref_start to ref_end, as dicts with id, ref_start, ref_end and desc.
+    Where window_for_passage picks the one best window for a selection, this
+    returns all of them, for callers that choose among them by content (the
+    coins' related imagery picks the most concrete gist). When the caller
+    names a book file that has windows of its own, only that book's windows
+    are considered, as in window_for_passage."""
+    _ensure_loaded()
+    if not _state.get('ok'):
+        return []
+    group = _by_work.get(_norm_work(work)) or []
+    wid = work_id(work)
+    exact = [r for r in group if _records[r].get('work') == wid]
+    rows = exact if (is_part(wid) and exact) else group
+    want = _ref_coords_in(work, ref_start) or ()
+    want_end = _ref_coords_in(work, ref_end) or want
+    out = []
+    for row in rows:
+        r = _records[row]
+        # A work with prose-scale windows is read at that scale (finer pieces
+        # of the same chapters); its fine windows are left out.
+        if r.get('scale') != ('prose' if r.get('work') in _prose_works else 'fine'):
+            continue
+        lo = _ref_coords_in(r.get('work'), r.get('ref_start'))
+        hi = _ref_coords_in(r.get('work'), r.get('ref_end'))
+        if not (lo and hi):
+            continue
+        if want:
+            n = min(len(lo), len(hi), len(want), len(want_end))
+            if not (lo[:n] <= want_end[:n] and hi[:n] >= want[:n]):
+                continue
+        item = {'id': r.get('id'), 'ref_start': r.get('ref_start'),
+                'ref_end': r.get('ref_end'), 'desc': r.get('desc') or {}}
+        if r.get('sub') is not None:
+            item['sub'] = r['sub']
+        out.append(item)
+    return out
+
+
+def window_for_passage(work, ref_start=None, ref_end=None, prefer='fine',
+                       char_start=None, char_end=None):
     """Map a reader selection to the index window that best covers it.
 
     The Reader hands us a work and a reference span; the index is built on fixed
@@ -2007,6 +2708,12 @@ def window_for_passage(work, ref_start=None, ref_end=None, prefer='fine'):
     Book 10 under a Book 3 selection. It now compares every coordinate and,
     when the caller names a book file that has windows of its own, looks only
     at that book's windows.
+
+    2026-10-11: `char_start` (and `char_end`) name a sentence inside one long
+    prose unit, as offsets in that unit's text. Several prose pieces share the
+    unit's reference; the one whose char_start..char_end contains `char_start`
+    is chosen, and the first piece still wins when none does (a window without
+    offsets, or no offsets given).
     """
     _ensure_loaded()
     if not _state['ok']:
@@ -2022,7 +2729,10 @@ def window_for_passage(work, ref_start=None, ref_end=None, prefer='fine'):
     best, best_key = None, None
     for row in rows:
         r = _records[row]
-        if prefer and r.get('scale') != prefer:
+        # A selection in a work that has prose-scale windows maps to those
+        # (several can share the chapter's reference; the first piece wins).
+        want_scale = 'prose' if (prefer == 'fine' and r.get('work') in _prose_works) else prefer
+        if want_scale and r.get('scale') != want_scale:
             continue
         lo = _ref_coords_in(r.get('work'), r.get('ref_start'))
         hi = _ref_coords_in(r.get('work'), r.get('ref_end'))
@@ -2042,10 +2752,15 @@ def window_for_passage(work, ref_start=None, ref_end=None, prefer='fine'):
         # a window starting after it (it only overlaps the selection's tail)
         # ranks below every window that brackets the start
         key = (0, tuple(-x for x in lo)) if lo <= wn else (1, lo)
+        if char_start is not None:
+            a, b = r.get('char_start'), r.get('char_end')
+            holds = a is not None and b is not None and a <= char_start < b
+            key = (0 if holds else 1,) + key
         if best_key is None or key < best_key:
             best, best_key = r.get('id'), key
     if best is None and prefer:
-        return window_for_passage(work, ref_start, ref_end, prefer=None)
+        return window_for_passage(work, ref_start, ref_end, prefer=None,
+                                  char_start=char_start, char_end=char_end)
     return best
 
 
@@ -2144,9 +2859,23 @@ def pair_lift(work_a, ref_a, work_b, ref_b, scale='fine'):
 
 def find_similar_to_passage(work, ref_start=None, ref_end=None, limit=15,
                             languages=None, scale='fine',
-                            suppress_other_versions=True, by_language=False):
-    """Similar Passages, given a reader selection (work + reference span)."""
-    wid = window_for_passage(work, ref_start, ref_end, prefer=scale)
+                            suppress_other_versions=True, by_language=False,
+                            char_start=None, char_end=None):
+    """Similar Passages, given a reader selection (work + reference span).
+
+    Two different empty answers, told apart (2026-10-11): the index is not
+    loaded on this worker (a failed or unfinished load after a server reload),
+    which is `unavailable`, and the index is loaded but no window of it
+    covers the span. The first used to be reported as the second, so a reader
+    saw "no indexed window covers that passage" for Aeneid 1.20."""
+    _ensure_loaded()
+    if not _state['ok']:
+        detail = f" ({_state['error']})" if _state.get('error') else ''
+        return {'error': 'the passage index is not loaded on the server right now'
+                         + detail + '; try again in a moment',
+                'unavailable': True, 'results': []}
+    wid = window_for_passage(work, ref_start, ref_end, prefer=scale,
+                             char_start=char_start, char_end=char_end)
     if not wid:
         return {'error': 'no indexed window covers that passage', 'results': []}
     return find_similar_to_window(wid, limit=limit, languages=languages,
@@ -2174,7 +2903,15 @@ _DENSITY_CACHE = os.path.join(
 
 
 def _density_cache_path(work, scale):
-    safe = re.sub(r'[^A-Za-z0-9._-]', '_', f'{work}.{scale}')
+    raw = f'{work}.{scale}'
+    safe = re.sub(r'[^A-Za-z0-9._-]', '_', raw)
+    if safe != raw:
+        # Every non-ASCII letter became "_", so the 36 Greek-named works that
+        # differ only in their Greek letters (pseudolucian.ἀλκυών, .ἔρωτες)
+        # shared one cache file and each showed the first one's density.
+        # A hash of the real name keeps them apart; ASCII names are unchanged.
+        import hashlib
+        safe += '.' + hashlib.md5(raw.encode('utf-8')).hexdigest()[:10]  # nosec B324
     return os.path.join(_DENSITY_CACHE, f'{index_fingerprint()}.{safe}.json')
 
 
@@ -2332,3 +3069,253 @@ def connection_density(work, scale='fine'):
                        'takes seconds of CPU and will block other requests.',
                        work, _DENSITY_CACHE, e)
     return result
+
+
+def _name_pattern(name):
+    return re.compile(r'(?<!\w)' + re.escape(name.strip()) + r'(?!\w)', re.IGNORECASE)
+
+
+def _desc_text(desc):
+    parts = []
+    for key in ('participants', 'gist', 'setting', 'themes'):
+        v = (desc or {}).get(key)
+        if isinstance(v, (list, tuple)):
+            v = ' '.join(str(x) for x in v)
+        if v:
+            parts.append(str(v))
+    return ' '.join(parts)
+
+
+_LATIN_ENDINGS = ('us', 'es', 'is', 'as', 'a', 'o')
+_GREEK_LETTERS = {'p': 'π', 'b': 'β', 't': 'τ', 'd': 'δ', 'k': 'κ', 'c': 'κ',
+                  'g': 'γ', 'l': 'λ', 'm': 'μ', 'n': 'ν', 'r': 'ρ', 's': 'σ',
+                  'x': 'ξ', 'z': 'ζ', 'a': 'α', 'e': 'ε', 'i': 'ι', 'o': 'ο',
+                  'u': 'υ', 'y': 'υ', 'h': ''}
+_GREEK_DIGRAPHS = {'ph': 'φ', 'th': 'θ', 'ch': 'χ', 'ps': 'ψ'}
+_GREEK_VARIANTS = {'ε': ('ε', 'η'), 'ο': ('ο', 'ω')}
+
+
+# Word characters plus combining marks: the stored Greek has some accents and
+# breathings as separate characters, which a plain \w would cut the word at.
+_WORD = re.compile(r'[\w\u0300-\u036f]+')
+
+
+def _fold(text):
+    """Lower case, accents and breathings removed, j as i and v as u."""
+    import unicodedata
+    t = unicodedata.normalize('NFD', str(text or '').lower())
+    t = ''.join(ch for ch in t if not unicodedata.combining(ch))
+    return t.replace('ς', 'σ')
+
+
+def latin_stem(name):
+    """The English name without a final -us, -es, -is, -as, -a or -o (never
+    leaving fewer than four letters), spelled with i for j and u for v as the
+    texts are. Sejanus gives seian, Germanicus germanic, Tiberius tiberi."""
+    n = _fold(name).strip().replace('j', 'i').replace('v', 'u')
+    n = re.sub(r'[^a-z]', '', n)
+    for end in _LATIN_ENDINGS:
+        if n.endswith(end) and len(n) - len(end) >= 4:
+            return n[:-len(end)]
+    return n
+
+
+def greek_stems(name):
+    """Greek spellings of the Latin stem, letter by letter, with eta and omega
+    tried where the stem has epsilon and omicron. Pericles gives περικλ and
+    πηρικλ, Cleon gives κλεον, κλεων, κληον and κληων."""
+    stem = latin_stem(name)
+    letters, i = [], 0
+    while i < len(stem):
+        if stem[i:i + 2] in _GREEK_DIGRAPHS:
+            letters.append(_GREEK_DIGRAPHS[stem[i:i + 2]])
+            i += 2
+            continue
+        letters.append(_GREEK_LETTERS.get(stem[i], stem[i]))
+        i += 1
+    forms = ['']
+    for g in letters:
+        opts = _GREEK_VARIANTS.get(g, (g,))
+        forms = [f + o for f in forms for o in opts][:64]
+    return sorted(set(forms))
+
+
+def name_prefixes(name, language):
+    """Word-beginnings (folded) that count as the name in a text of `language`,
+    or [] when the name is too short to match by prefix (under four letters)."""
+    stem = latin_stem(name)
+    if len(stem) < 4:
+        return []
+    if language == 'grc':
+        return [f for f in greek_stems(name) if len(f) >= 4]
+    if language == 'la':
+        return [stem]
+    return []
+
+
+def _text_mentions(text, prefixes):
+    return sum(1 for w in re.findall(_WORD, _fold(text))
+               if any(w.startswith(p) for p in prefixes))
+
+
+def _first_matching_word(text, prefixes):
+    for w in re.findall(_WORD, str(text or '')):
+        fw = _fold(w)
+        if any(fw.startswith(p) for p in prefixes):
+            return w
+    return None
+
+
+def mentions_in_work(work, names, books=None, query=None, source=None):
+    """Windows of one work whose description names any of `names`.
+
+    Names match as whole words, case-insensitively, in the description's
+    participants, gist, setting and themes. "Dido's" counts as a match for
+    "Dido" (the apostrophe is a word boundary), "Didonian" does not.
+    `work` is a base id (the whole work) or a part id (that book alone);
+    `books` (a list of ints) narrows a base id to those numbered parts.
+
+    A name the descriptions never mention is looked for in the text of the
+    windows (Latin and Greek, by word beginning, see name_prefixes), because
+    some descriptions anonymise people. source='text' forces that search for
+    every name, source='description' forbids it.
+
+    Ranked by closeness to `query` when one is given (cosine of the window
+    vector with the encoded query), then by distinct names matched, total
+    mentions and position. Without a query: distinct names, mentions, position.
+
+    Returns {'work', 'books_searched', 'hits': [...], 'ranked_by', 'source',
+    'note'?}; `hits` is the full ranked list. Each hit has 'found_in'
+    ('description' or 'text') and, with a query, 'score'. An unknown work gives
+    no hits and a `note`."""
+    _ensure_loaded()
+    base = _norm_work(work)
+    wid = work_id(work)
+    if not _state.get('ok') or not _by_work or base not in _by_work:
+        return {'work': base, 'books_searched': None, 'hits': [],
+                'ranked_by': 'mentions', 'source': 'description',
+                'note': 'That work has no passage windows in the index.'}
+    rows = _by_work[base]
+    searched = None
+    if is_part(wid):
+        rows = [i for i in rows if work_id(_records[i].get('work')) == wid]
+    elif books:
+        ids, searched = book_parts(base, books)
+        idset = set(ids)
+        rows = [i for i in rows if work_id(_records[i].get('work')) in idset]
+    # The fine windows of a work with prose-scale windows are left out: the
+    # prose windows say the same chapters in finer pieces.
+    rows = [i for i in rows if i not in _shadowed]
+    names = [n.strip() for n in names if n and n.strip()]
+    pats = [(n, _name_pattern(n)) for n in names]
+    source = source if source in ('text', 'description') else None
+    note = None
+
+    def make_hit(r, matched, count, found_in, word=None):
+        h = {'id': r.get('id'), 'work': work_id(r.get('work')),
+             'ref_start': r.get('ref_start'), 'ref_end': r.get('ref_end'),
+             'language': r.get('language'),
+             'gist': (r.get('desc') or {}).get('gist'),
+             **({'sub': r['sub']} if r.get('sub') is not None else {}),
+             'matched': matched, 'mentions': count, 'found_in': found_in}
+        if word:
+            h['matched_word'] = word
+        return h
+
+    found = []     # (record index, hit)
+    named = set()
+    if source != 'text':
+        for i in rows:
+            r = _records[i]
+            text = _desc_text(r.get('desc'))
+            matched, count = [], 0
+            for n, pat in pats:
+                c = len(pat.findall(text))
+                if c:
+                    matched.append(n)
+                    count += c
+            if matched:
+                named.update(matched)
+                found.append((i, make_hit(r, matched, count, 'description')))
+    missing = [n for n in names if n not in named]
+    if source != 'description' and missing and rows:
+        from backend import window_texts
+        t0 = time.time()
+        plan = []
+        for n in missing:
+            lang = next((_records[i].get('language') for i in rows), None)
+            pre = name_prefixes(n, lang)
+            if pre:
+                plan.append((n, pre))
+        if plan:
+            texts = window_texts.texts_for([_records[i].get('id') for i in rows])
+            by_i = {}
+            for i in rows:
+                t = texts.get(_records[i].get('id'))
+                if not t:
+                    continue
+                matched, count, word = [], 0, None
+                for n, pre in plan:
+                    c = _text_mentions(t, pre)
+                    if c:
+                        matched.append(n)
+                        count += c
+                        word = word or _first_matching_word(t, pre)
+                if matched:
+                    by_i[i] = make_hit(_records[i], matched, count, 'text', word)
+            # A window the description already gave for another name keeps its
+            # description hit and gains the text hit's names.
+            have = {i: h for i, h in found}
+            for i, h in by_i.items():
+                if i in have:
+                    have[i]['matched'] = have[i]['matched'] + h['matched']
+                    have[i]['mentions'] += h['mentions']
+                else:
+                    found.append((i, h))
+            logger.info('[PASSAGES] text search for %s in %s: %d windows, %.2fs',
+                        [n for n, _ in plan], base, len(rows), time.time() - t0)
+        if missing and not plan:
+            note = 'The descriptions do not name that, and the name is too short to look for in the text.'
+    ranked_by = 'mentions'
+    qv = None
+    if (query or '').strip() and found:
+        try:
+            import numpy as np
+            qv = np.asarray(embed_query(_E5_PREFIX + query.strip()[:1500]),
+                            dtype=np.float32)
+            ranked_by = 'closeness'
+        except EmbedUnavailable:
+            note = 'The question could not be encoded, so the list is in the order of mentions.'
+    keyed = []
+    for i, h in found:
+        r = _records[i]
+        coords = _ref_coords_in(r.get('work'), r.get('ref_start'))
+        pn = part_number(r.get('work'))
+        score = None
+        if qv is not None:
+            row = _row_of(r.get('id'))
+            score = (float(np.asarray(_emb[row], dtype=np.float32) @ qv)
+                     if row is not None else -1.0)
+            h['score'] = round(score, 4)
+        keyed.append((((-score) if score is not None else 0,
+                       -len(h['matched']), -h['mentions'],
+                       pn if pn is not None else 0, coords), h))
+    keyed.sort(key=lambda t: t[0])
+    # One entry per passage: the index holds a window at two scales, so the
+    # same opening reference came back twice (Tac. Ann. 4.1 twice for
+    # Sejanus, 2026-10-11). The higher-ranked copy stays.
+    seen, out = set(), []
+    for _, h in keyed:
+        key = (h['work'], h['ref_start'], h.get('sub'))
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append(h)
+    kinds = {h['found_in'] for h in out}
+    src = ('mixed' if len(kinds) > 1 else kinds.pop() if kinds
+           else ('text' if source == 'text' else 'description'))
+    res = {'work': base, 'books_searched': searched, 'hits': out,
+           'ranked_by': ranked_by, 'source': src}
+    if note:
+        res['note'] = note
+    return res

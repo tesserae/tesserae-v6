@@ -138,6 +138,9 @@ from typing import Optional
 
 from lxml import etree
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from image_url_rules import rewrite_image_url  # noqa: E402
+
 TEI_NS = "http://www.tei-c.org/ns/1.0"
 EAGLE_VOC_RE = re.compile(
     r"https?://(?:www\.)?eagle-network\.eu/voc/([a-z]+)/lod/?\s*/?\s*(\d+)", re.IGNORECASE
@@ -931,7 +934,7 @@ def process_record(rec: dict, indices: dict, eagle: EagleLabels, stats: Stats) -
         if value:
             display_rows.append((rec["id"], field, value))
     for image_url in merged_fields.get("images") or []:
-        display_rows.append((rec["id"], "image_url", image_url))
+        display_rows.append((rec["id"], "image_url", rewrite_image_url(image_url)))
     stats.present(source, "image_url", merged_fields.get("images"))
 
     return {"row": row, "display_rows": display_rows}

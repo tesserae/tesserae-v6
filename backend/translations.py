@@ -12,10 +12,15 @@ Coverage is partial by nature. About 30 percent of Greek and 18 percent of Latin
 have an aligned public-domain translation, so "no translation for this passage"
 is a normal answer rather than an error.
 """
+import html
 import json
 import os
+
+from backend import fspaths
+import re
 import threading
 
+from backend import translation_links
 from backend.logging_config import get_logger
 from backend.work_names import base_work, work_id
 
@@ -39,8 +44,8 @@ def _build_index():
         if _index is not None:
             return _index
         idx = {}
-        if os.path.isdir(_DIR):
-            for fn in os.listdir(_DIR):
+        if fspaths.isdir(_DIR):
+            for fn in fspaths.listdir_text(_DIR):
                 if not fn.endswith('.json') or fn == 'manifest.json':
                     continue
                 # files are named "<lang>__<work>.json"
@@ -60,6 +65,24 @@ def _norm_work(work):
     return work_id(work)
 
 
+_ENTITY = re.compile(r'&(?:[a-zA-Z]+|#\d+|#x[0-9a-fA-F]+);')
+
+
+def _decode_entities(obj):
+    """HTML character entities decoded in every string of a translation file.
+    Translations transcribed from web pages carried "C&aelig;sar" and
+    "Augustus&mdash;more" into the Reader (owner's review 2026-10-10, Tacitus,
+    Annals 1.1); the stored files were corrected the same day, and this keeps
+    any future file from showing them."""
+    if isinstance(obj, str):
+        return html.unescape(obj) if _ENTITY.search(obj) else obj
+    if isinstance(obj, list):
+        return [_decode_entities(x) for x in obj]
+    if isinstance(obj, dict):
+        return {k: _decode_entities(v) for k, v in obj.items()}
+    return obj
+
+
 def _load(work):
     """Parsed translation file for a work, or None. Cached per work."""
     key = _norm_work(work)
@@ -74,8 +97,8 @@ def _load(work):
     data = None
     if fn:
         try:
-            with open(os.path.join(_DIR, fn), encoding='utf-8') as fh:
-                data = json.load(fh)
+            with fspaths.open_text(os.path.join(_DIR, fn), encoding='utf-8') as fh:
+                data = _decode_entities(json.load(fh))
         except (OSError, ValueError) as e:
             logger.warning('[TRANSLATIONS] could not read %s: %s', fn, e)
     _cache[key] = data
@@ -109,13 +132,18 @@ def for_passage(work, refs):
 
     Returns a dict with the translation text (deduplicated, since consecutive
     source lines often share one unit), the translator and licence, and an
-    honest note when the alignment is coarse.
+    honest note when the alignment is coarse. `external_links` is additive:
+    a translator's own page for the selection (currently Frances W.
+    Pritchett's Ghalib commentary, see backend/translation_links.py), present
+    whether or not an aligned translation is also available for this work.
     """
+    external_links = translation_links.for_refs(work, refs)
     data = _load(work)
     if not data:
         return {'available': False,
                 'reason': 'No aligned open translation for this work.',
-                'work': _norm_work(work)}
+                'work': _norm_work(work),
+                'external_links': external_links}
 
     ref_to_unit = data.get('ref_to_unit') or {}
     units = data.get('units') or []
@@ -133,7 +161,8 @@ def for_passage(work, refs):
     if not seen:
         return {'available': False,
                 'reason': 'This work has a translation, but not for the selected lines.',
-                'work': _norm_work(work)}
+                'work': _norm_work(work),
+                'external_links': external_links}
 
     sources_list = data.get('sources') or [{}]
     unit_sources = data.get('unit_sources')
@@ -204,6 +233,7 @@ def for_passage(work, refs):
         'block_only': bool(block),
         'block_lines': round(per_unit) if coarse else None,
         'note': note,
+        'external_links': external_links,
     }
 
 
@@ -220,9 +250,9 @@ _available_cache = {}      # language -> (dir_signature, {base_work: summary})
 def _dir_signature(language):
     sig = []
     try:
-        for name in sorted(os.listdir(_DIR)):
+        for name in sorted(fspaths.listdir_text(_DIR)):
             if name.startswith(f'{language}__') and name.endswith('.json'):
-                sig.append((name, os.path.getmtime(os.path.join(_DIR, name))))
+                sig.append((name, fspaths.getmtime(os.path.join(_DIR, name))))
     except OSError:
         pass
     return tuple(sig)
@@ -243,7 +273,7 @@ def available(language):
         base = name[len(language) + 2:-5]
         base = base_work(base)
         try:
-            with open(os.path.join(_DIR, name), encoding='utf-8') as fh:
+            with fspaths.open_text(os.path.join(_DIR, name), encoding='utf-8') as fh:
                 data = json.load(fh)
         except (OSError, ValueError):
             continue
@@ -276,11 +306,10 @@ def full_text(work, language=None):
         os.path.abspath(__file__))), 'texts', language)
     paths = []
     whole = os.path.join(texts_dir, base + '.tess')
-    if os.path.exists(whole):
+    if fspaths.exists(whole):
         paths = [whole]
     else:
-        import glob as _glob
-        paths = sorted(_glob.glob(os.path.join(texts_dir, base + '.part.*.tess')))
+        paths = sorted(fspaths.glob(os.path.join(texts_dir, base + '.part.*.tess')))
     if not paths:
         return {'available': False, 'work': base,
                 'reason': 'Corpus text not found for this work.'}
@@ -289,7 +318,7 @@ def full_text(work, language=None):
     blocks, cur_unit, cur_start, cur_end = [], None, None, None
     import re as _re
     for path in paths:
-        with open(path, encoding='utf-8', errors='ignore') as fh:
+        with fspaths.open_text(path, encoding='utf-8', errors='ignore') as fh:
             for line in fh:
                 m = _re.match(r'<([^>]+)>', line)
                 if not m:

@@ -6,7 +6,7 @@
 import { useState, useCallback, useRef, useMemo } from 'react';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
-import { formatElapsedTime } from '../../utils/formatting';
+import { formatElapsedTime, formatRunningTime } from '../../utils/formatting';
 import { displayGreekWithFinalSigma } from '../../utils/greekUtils';
 import { normalizeCoptic } from '../../utils/copticUtils';
 import { foldArabicScript, stripEdgePunctuation, isArabicScriptLanguage, arabicTokenMatches } from '../../utils/arabicScript';
@@ -443,7 +443,7 @@ const RareResultsDisplay = ({
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-700 mb-4"></div>
         <p className="text-gray-600">Searching for {isHapax ? 'rare words' : 'rare pairs'}...</p>
         {elapsedTime > 0 && (
-          <p className="text-sm text-gray-500 mt-2">{formatElapsedTime(elapsedTime)}</p>
+          <p className="text-sm text-gray-500 mt-2">{formatRunningTime(elapsedTime)}</p>
         )}
       </div>
     );

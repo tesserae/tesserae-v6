@@ -1,14 +1,24 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { captureUrlOverrides, setProfile, getView } from './collections/collectionsStore';
+import { viewById } from './collections/collectionsConfig';
+import useCollections from './hooks/useCollections';
 import { languageName } from './utils/languageNames';
 import { Header, Navigation } from './components/layout';
 import { SearchModeToggle, TextSelector, SearchSettings, SearchResults, LineSearch, CrossLingualSearch, WildcardSearch, SavedSearches, CorpusSearchResults, RarePairsSettings } from './components/search';
 import RareResultsDisplay from './components/search/RareResultsDisplay';
-import SearchDescription from './components/search/SearchDescription';
+import StartHere from './components/search/StartHere';
+import { addressHasQuery, FRONT_DOOR_OPEN_EVENT } from './components/search/frontDoor';
+import ScopeBox from './components/common/ScopeBox';
 import { Modal, LoadingSpinner, UpdateBanner, RequestDialog } from './components/common';
 import { CorpusBrowser, RareWordsExplorer } from './components/corpus';
 import { ReaderPage } from './components/reader';
 import DocumentView from './components/documents/DocumentView';
+import InscriptionsPapyriPage from './components/documents/InscriptionsPapyriPage';
+import EventsPage from './components/events/EventsPage';
+import CoinsPage from './components/coins/CoinsPage';
+import ObjectsPage from './components/objects/ObjectsPage';
 import ThemeSearchPage from './components/passages/ThemeSearchPage';
+import AskAWorkPage from './components/ask/AskAWorkPage';
 import { Repository } from './components/repository';
 import { AdminPanel } from './components/admin';
 import { AboutPage, HelpPage, DownloadsPage, PrivacyPage, ResearchPage, BlogArchivePage, RequestsPage } from './components/pages';
@@ -18,13 +28,19 @@ import VisualizationsPage from './components/pages/VisualizationsPage';
 import { useCorpus, useSearch, DEFAULT_PAGE_SIZE } from './hooks';
 import { getSessionValue, setSessionValue } from './utils/storage';
 import { startLanguage } from './utils/languagePreference';
+import { recordPageView } from './lib/pageViews';
 
 // What each page is called in the browser tab, the bookmark and the history.
 const PAGE_TITLES = {
-  search: 'Search',
+  search: 'Intertextual Search',
   read: 'Reader',
   document: 'Document',
   'theme-search': 'Theme Search',
+  'ask-a-work': 'Search One Text',
+  'inscriptions-papyri': 'Inscriptions & Papyri',
+  events: 'Events',
+  coins: 'Coins',
+  objects: 'Objects',
   browse: 'Browse Corpus',
   repository: 'Repository',
   'line-search': 'Line Search',
@@ -45,6 +61,11 @@ const pathToPageType = {
   '/read': 'read',
   '/document': 'document',
   '/theme-search': 'theme-search',
+  '/ask-a-work': 'ask-a-work',
+  '/inscriptions-papyri': 'inscriptions-papyri',
+  '/events': 'events',
+  '/coins': 'coins',
+  '/objects': 'objects',
   '/browse': 'browse',
   // Alias: Help and Theme Search link to "/corpus" for the covered-works
   // list (the owner's word for the page), and it lands on Browse Corpus.
@@ -66,11 +87,26 @@ const pathToPageType = {
   '/admin': 'admin'
 };
 
+// /events/<id> is the focus view of one event: a page of its own whose address
+// carries the event, so it is matched by prefix and its path is not rewritten.
+// /coins/<id> is one coin type, and /objects/<id> one object, handled the same way.
+const pageForPath = (path) => {
+  if (path === '/events' || path.startsWith('/events/')) return 'events';
+  if (path === '/coins' || path.startsWith('/coins/')) return 'coins';
+  if (path === '/objects' || path.startsWith('/objects/')) return 'objects';
+  return pathToPageType[path] || 'search';
+};
+
 const pageTypeToPath = {
   'search': '/',
   'read': '/read',
   'document': '/document',
   'theme-search': '/theme-search',
+  'ask-a-work': '/ask-a-work',
+  'inscriptions-papyri': '/inscriptions-papyri',
+  'events': '/events',
+  'coins': '/coins',
+  'objects': '/objects',
   'browse': '/browse',
   'repository': '/repository',
   'line-search': '/line-search',
@@ -84,6 +120,25 @@ const pageTypeToPath = {
   'text-credits': '/text-credits',
   'requests': '/requests',
   'admin': '/admin'
+};
+
+// The address of a view's home page when that page is not the Intertextual
+// Search page at '/': the Reader on a text, or Search One Text.
+const viewHomeUrl = (view) => {
+  const home = viewById(view).home;
+  if (home.page === 'ask-a-work') return '/ask-a-work';
+  if (home.page !== 'read') return null;
+  const p = new URLSearchParams({ work: home.work, lang: home.lang });
+  return '/read?' + p.toString();
+};
+
+// A visit to the bare site address, apart from the switches that choose a
+// view or collections, which name no page of their own.
+const NON_PAGE_PARAMS = ['view', 'profile', 'collections', 'documents', 'scholarship'];
+const isPlainVisit = () => {
+  if (window.location.pathname !== '/') return false;
+  const params = new URLSearchParams(window.location.search);
+  return Array.from(params.keys()).every((k) => NON_PAGE_PARAMS.includes(k));
 };
 
 const parseSearchParams = () => {
@@ -114,13 +169,44 @@ const buildShareableUrl = (sourceText, targetText, sourceAuthor, targetAuthor, l
 
 function App() {
   const [user, setUser] = useState(null);
-  const [footerSuggestOpen, setFooterSuggestOpen] = useState(false);
+  // The header's Suggest a change button sends this event; the dialog it
+  // opens lives here. The setter it called was lost with the footer on
+  // 2026-10-12, so the button did nothing for an afternoon; the linter's
+  // no-undef found it.
+  const [suggestOpen, setSuggestOpen] = useState(false);
+  useEffect(() => {
+    const open = () => setSuggestOpen(true);
+    window.addEventListener('tesserae:open-suggest', open);
+    return () => window.removeEventListener('tesserae:open-suggest', open);
+  }, []);
+  // Trial switches (?documents=1, ?scholarship=1) are remembered for the
+  // rest of the visit in sessionStorage, but LineSearch and ResultsPanel
+  // only wrote that key when THEY mounted with the query string still on
+  // the address -- so a link that set the flag on some other page (/read,
+  // the homepage) lost it the moment the visitor navigated to Line Search
+  // or the Reader without carrying the param along. Captured here once, at
+  // the app's own first load, the flag holds for the visit regardless of
+  // which page set it or which page is opened next.
+  useEffect(() => {
+    captureUrlOverrides();
+  }, []);
   const [adminSessionActive, setAdminSessionActive] = useState(false);
   const [adminSessionChecked, setAdminSessionChecked] = useState(false);
   const [pageType, setPageType] = useState(() => {
     const path = window.location.pathname;
-    return pathToPageType[path] || 'search';
+    // A plain visit in a view whose home is the Reader opens the Reader on
+    // that view's text. The address is rewritten before the Reader mounts so
+    // it reads the work and language from it.
+    if (isPlainVisit()) {
+      const url = viewHomeUrl(getView());
+      if (url) {
+        window.history.replaceState({}, '', url);
+        return viewById(getView()).home.page;
+      }
+    }
+    return pageForPath(path);
   });
+  const { view } = useCollections();
   // When set, HelpPage opens to this section (used by the "use your own AI" flag).
   const [helpSection, setHelpSection] = useState(null);
   // When set alongside helpSection, HelpPage scrolls to this id within it (a
@@ -346,9 +432,24 @@ function App() {
     const newPath = pageTypeToPath[pageType] || '/';
     const firstRun = !pathSyncedOnce.current;
     pathSyncedOnce.current = true;
-    if (window.location.pathname !== newPath) {
+    const onEventPage = (pageType === 'events' && window.location.pathname.startsWith('/events/'))
+      || (pageType === 'coins' && window.location.pathname.startsWith('/coins/'))
+      || (pageType === 'objects' && window.location.pathname.startsWith('/objects/'));
+    if (!onEventPage && window.location.pathname !== newPath) {
       window.history.pushState({}, '', firstRun ? newPath + window.location.search : newPath);
     }
+  }, [pageType]);
+
+  // First-party page views: one record per page opened, so paths through the
+  // site can be followed (admin Analytics tab). Never blocks and never throws.
+  useEffect(() => {
+    if (pageType === 'admin') return;
+    recordPageView({
+      path: window.location.pathname + window.location.search,
+      page: pageType,
+      language: activeTab,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pageType]);
 
   // Every page used to be called "Tesserae V6", so six open tabs, a list of
@@ -373,7 +474,7 @@ function App() {
       if (adminSessionChecked && adminSessionActive) {
         setPageType('admin');
       } else {
-        setPageType(pathToPageType[path] || 'search');
+        setPageType(pageForPath(path));
       }
     };
     window.addEventListener('popstate', handlePopState);
@@ -396,6 +497,53 @@ function App() {
     }
     setPageType(nextPageType);
   }, [adminSessionChecked, adminSessionActive, pageType]);
+
+  // Switching view goes to the new view's home: the Reader on its text, or the
+  // Intertextual Search page. Done inside the app, with no reload.
+  const goViewHome = useCallback((nextView) => {
+    if (adminSessionChecked && adminSessionActive) return;
+    const url = viewHomeUrl(nextView);
+    if (url) {
+      window.history.pushState({}, '', url);
+      // The Reader reads its work from the address on a back step, so a
+      // popstate also moves an open Reader to the new text.
+      window.dispatchEvent(new PopStateEvent('popstate'));
+      setPageType(viewById(nextView).home.page);
+    } else {
+      window.history.pushState({}, '', '/');
+      setPageType('search');
+    }
+  }, [adminSessionChecked, adminSessionActive]);
+
+  // The "Start here" panel on the Search page (first-time visitors, and the
+  // header's "Start here" link). The address is read once, at load: a visitor
+  // who arrived with a search in it already knows where they are going.
+  const [frontDoorSuppressed] = useState(() => addressHasQuery());
+  const [frontDoorForced, setFrontDoorForced] = useState(false);
+  useEffect(() => {
+    const open = () => {
+      setFrontDoorForced(true);
+      if (pageType !== 'search') setPageTypeWithGuard('search');
+    };
+    window.addEventListener(FRONT_DOOR_OPEN_EVENT, open);
+    return () => window.removeEventListener(FRONT_DOOR_OPEN_EVENT, open);
+  }, [pageType, setPageTypeWithGuard]);
+  // One of the seven answers: move inside the app, with no page reload.
+  const goFrontDoor = useCallback((choice) => {
+    setFrontDoorForced(false);
+    const url = new URL(choice.href, window.location.origin);
+    if (url.pathname === '/') {
+      const tab = url.searchParams.get('tab');
+      if (activeTab === 'cross') {
+        setActiveTab(startLanguage(['la', 'grc', 'en', 'cop', 'he', 'fa', 'ur', 'ar']) || 'la');
+      }
+      if (tab) setSearchMode(tab);
+      return;
+    }
+    const profile = url.searchParams.get('profile');
+    if (profile) setProfile(profile);
+    setPageTypeWithGuard(pageForPath(url.pathname));
+  }, [activeTab, setPageTypeWithGuard]);
 
   // Open the Help page at the "Use with your AI" section.
   const openAiHelp = useCallback(() => {
@@ -433,6 +581,15 @@ function App() {
     return () => window.removeEventListener('tesserae:open-how-to-cite', handleOpenHowToCite);
   }, [openAboutAnchor]);
 
+  // The Reader's Scholarship tab dispatches this for the same reason: it is
+  // mounted several components below this one, with no onOpenHelp prop
+  // threaded down to it (ScholarshipTab fix, 2026-10-08).
+  useEffect(() => {
+    const handleOpenHelp = (e) => openHelpSection(e.detail?.section, e.detail?.anchor ?? null);
+    window.addEventListener('tesserae:open-help', handleOpenHelp);
+    return () => window.removeEventListener('tesserae:open-help', handleOpenHelp);
+  }, [openHelpSection]);
+
   const appLockedToAdmin = adminSessionChecked && adminSessionActive;
 
   const handleAdminSessionLogout = useCallback(async () => {
@@ -450,13 +607,26 @@ function App() {
   // Track previous activeTab and corpus loading state to detect when to apply defaults
   const prevActiveTabRef = useRef(null);
   const corpusLoadedForTabRef = useRef(null);
+  // The view last seen, and the pair last set as defaults: when the view
+  // changes, a pair the visitor never picked is replaced by the new view's.
+  const prevViewRef = useRef(null);
+  const lastDefaultsRef = useRef({ source: '', target: '' });
   
   useEffect(() => {
     const tabChanged = prevActiveTabRef.current !== null && prevActiveTabRef.current !== activeTab;
     prevActiveTabRef.current = activeTab;
+    const viewChanged = prevViewRef.current !== null && prevViewRef.current !== view;
+    prevViewRef.current = view;
+    const notPicked = (!sourceText && !targetText)
+      || (sourceText === lastDefaultsRef.current.source && targetText === lastDefaultsRef.current.target);
+    const viewReset = viewChanged && notPicked;
+    if (viewReset && !tabChanged && !sourceText && !targetText) {
+      // Nothing to clear: let the defaults below apply for the new view.
+      corpusLoadedForTabRef.current = null;
+    }
     
     // Clear results AND text selections when tab changes
-    if (tabChanged) {
+    if (tabChanged || (viewReset && (sourceText || targetText))) {
       clearResults();
       setCorpusSearchResults(null);
       setCorpusSearchQuery(null);
@@ -506,7 +676,11 @@ function App() {
     
     if (shouldSetDefaults) {
       let defaultSourceId, defaultTargetId;
-      if (activeTab === 'grc') {
+      const viewPair = viewById(view).searchDefaults?.[activeTab];
+      if (viewPair) {
+        defaultSourceId = viewPair.source;
+        defaultTargetId = viewPair.target;
+      } else if (activeTab === 'grc') {
         defaultSourceId = 'homer.iliad.part.1.tess';
         defaultTargetId = 'apollonius_rhodius.argonautica.part.1.tess';
       } else if (activeTab === 'en') {
@@ -538,6 +712,7 @@ function App() {
       const defaultSource = corpus.find(t => t.id === defaultSourceId) || corpus[0];
       const defaultTarget = corpus.find(t => t.id === defaultTargetId) || corpus[1] || corpus[0];
       
+      lastDefaultsRef.current = { source: defaultSource?.id || '', target: defaultTarget?.id || '' };
       if (defaultSource) {
         setSourceAuthor(defaultSource.author_key || defaultSource.author?.toLowerCase().replace(/\s+/g, '_') || '');
         setSourceText(defaultSource.id);
@@ -547,7 +722,7 @@ function App() {
         setTargetText(defaultTarget.id);
       }
     }
-  }, [activeTab, corpus, corpusLoading, sourceText, targetText, clearResults]);
+  }, [activeTab, corpus, corpusLoading, sourceText, targetText, clearResults, view]);
 
   useEffect(() => {
     clearResults();
@@ -886,6 +1061,7 @@ function App() {
         setPageType={setPageTypeWithGuard}
         activeTab={activeTab}
         setActiveTab={setActiveTab}
+        onViewChange={goViewHome}
         lockedToAdmin={appLockedToAdmin}
         onAdminLogout={handleAdminSessionLogout}
         onLanguageReset={() => {
@@ -899,11 +1075,22 @@ function App() {
         }}
       />
       
-      <main className="max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-6">
+      <main className={`max-w-7xl mx-auto ${pageType === 'read' ? 'px-2' : 'px-3'} sm:px-6 py-4 sm:py-6`}>
         {appLockedToAdmin ? (
           <AdminPanel />
         ) : (
           <>
+        {/* The Start here panel opens on the Intertextual Search page and on
+            whichever page is the current view's home (Search One Text in
+            Literature since 2026-10-12), so a first visit still sees it. */}
+        {(pageType === 'search' || pageType === viewById(getView()).home.page) && (
+          <StartHere
+            onChoose={goFrontDoor}
+            onDismiss={() => setFrontDoorForced(false)}
+            forceOpen={frontDoorForced}
+            suppressed={frontDoorSuppressed}
+          />
+        )}
         {pageType === 'search' && activeTab !== 'cross' && (
           <div className="space-y-6">
             <div className="bg-white rounded-lg shadow p-4 sm:p-6">
@@ -956,7 +1143,7 @@ function App() {
 
               <div className="mb-6">
                 <SearchModeToggle searchMode={searchMode} setSearchMode={setSearchMode} />
-                <SearchDescription mode={searchMode} className="mt-2 px-1" />
+                <ScopeBox id={searchMode} className="mt-2" />
               </div>
 
               {searchMode === 'line' ? (
@@ -1136,6 +1323,7 @@ function App() {
         )}
 
         {pageType === 'theme-search' && <ThemeSearchPage />}
+        {pageType === 'ask-a-work' && <AskAWorkPage />}
 
         {pageType === 'read' && (
           <ReaderPage />
@@ -1143,6 +1331,22 @@ function App() {
 
         {pageType === 'document' && (
           <DocumentView />
+        )}
+
+        {pageType === 'inscriptions-papyri' && (
+          <InscriptionsPapyriPage setPageType={setPageTypeWithGuard} />
+        )}
+
+        {pageType === 'events' && (
+          <EventsPage setPageType={setPageTypeWithGuard} />
+        )}
+
+        {pageType === 'coins' && (
+          <CoinsPage setPageType={setPageTypeWithGuard} />
+        )}
+
+        {pageType === 'objects' && (
+          <ObjectsPage setPageType={setPageTypeWithGuard} />
         )}
 
         {pageType === 'browse' && (
@@ -1177,14 +1381,14 @@ function App() {
 
         {pageType === 'line-search' && (
           <div className="bg-white rounded-lg shadow p-4 sm:p-6">
-            <SearchDescription mode="line" className="mb-4" />
+            <ScopeBox id="line" className="mb-4" />
             <LineSearch key={activeTab} language={activeTab} />
           </div>
         )}
 
         {pageType === 'string-search' && (
           <div className="bg-white rounded-lg shadow p-4 sm:p-6">
-            <SearchDescription mode="string" className="mb-4" />
+            <ScopeBox id="string" className="mb-4" />
             <WildcardSearch language={activeTab} />
           </div>
         )}
@@ -1370,36 +1574,14 @@ function App() {
       <footer className="bg-gray-100 border-t mt-8 py-4">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 text-center text-sm text-gray-500">
           <p>Tesserae V6</p>
-          {/* Requests workflow (2026-10-08): the one site-wide entry point to
-              the suggestion dialog, plus a link to the public Requests page
-              it feeds. Deliberately not in the main navigation. */}
-          <p className="mt-1 text-xs">
-            <button
-              type="button"
-              onClick={() => setFooterSuggestOpen(true)}
-              className="text-gray-500 hover:text-red-700 hover:underline"
-            >
-              Suggest a change
-            </button>
-            {' · '}
-            <button
-              type="button"
-              onClick={() => setPageTypeWithGuard('requests')}
-              className="text-gray-500 hover:text-red-700 hover:underline"
-            >
-              Requests
-            </button>
-          </p>
+          {/* The requests workflow (2026-10-08) is reached from the header's
+              "Suggest a change" button; the list of requests made so far is
+              linked from inside that dialog (owner, 2026-10-12: no separate
+              link on the page). */}
         </div>
       </footer>
 
-      <RequestDialog
-        isOpen={footerSuggestOpen}
-        onClose={() => setFooterSuggestOpen(false)}
-        type="suggestion"
-        context={{ page_url: typeof window !== 'undefined' ? window.location.href : '' }}
-      />
-
+      <RequestDialog isOpen={suggestOpen} onClose={() => setSuggestOpen(false)} type="suggestion" />
       <AssistantDock />
     </div>
   );

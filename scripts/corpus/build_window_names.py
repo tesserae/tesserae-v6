@@ -65,11 +65,95 @@ def key(tok):
     t = ''.join(GR.get(c, c) for c in strip(tok).lower()); t = re.sub(r'[^a-z]', '', t)
     for a, b in (('ph','f'),('th','t'),('ch','kh'),('ae','ai'),('oe','oi'),('c','k'),('y','u'),('x','ks'),('j','i'),('v','u')): t = t.replace(a, b)
     return t[:5] if len(t) >= 4 else None
-TOK = re.compile(r"[^\W\d_]+", re.U)
+
+# -----------------------------------------------------------------
+# Combining marks stored out of order or left decomposed (2026-10-08,
+# names-panel truncation report): some window text stores an accent as a
+# separate combining mark AFTER its vowel ("υ" + U+0301, never composed into
+# "ύ"), and some stores a breathing as a combining mark BEFORE the capital
+# it belongs to ("̓Αναύρου" for "Ἀναύρου" -- the same storage convention
+# scripts/corpus/fix_greek_capital_marks.py corrects in texts/grc/ itself,
+# 2026-10-03, PR #590). TOK below stops at any combining mark (`\W` does not
+# count one as a word character), so either pattern cuts a token short: the
+# accent-after-vowel case drops everything from the accented letter on
+# ("Υψιπύλη" -> "Υψιπυ" + a lost "λη"), and the breathing-before-capital
+# case would do the same if anything else in the word also decomposes.
+#
+# Applied only to the la/grc/en pass (inside `tokens()` below), which is
+# the one pass whose word regex (TOK) excludes combining marks and so is
+# the one that can truncate a word on this. The Hebrew, Coptic, Persian
+# and Urdu passes call their own `backend.<language>.processor`
+# tokenizers, whose word regexes already include that script's own
+# combining-mark ranges (niqqud, tashkeel, the Coptic supralinear stroke),
+# so none of them has this truncation to begin with -- and a measured
+# comparison against a full copy of production's window_texts.db
+# (2026-10-08) showed why NOT to run this generic repositioning over them
+# anyway: Hebrew uses a free-standing point that belongs to neither the
+# letter before nor the one after it for one well-known case (the
+# traditional "Jerusalem" pointing, a hiriq with no consonant of its own,
+# conventionally placed before the final mem it has no letter to attach
+# to); this function's "a mark preceded by a non-letter must belong to the
+# next letter" rule is right for Greek's storage fault and wrong for that,
+# and moved the hiriq to the wrong side of the mem. Fixing this at the
+# window-names build step (rather than only at the .tess source) covers
+# window_texts.db regardless of when it was last rebuilt from the
+# corrected source.
+_COMBINING_RE = re.compile(r'[̀-ͯ]')
+
+def _reposition_leading_marks(text):
+    """Move a run of combining marks that stands before the letter it
+    belongs to -- preceded by nothing, by whitespace, by punctuation, or by
+    another non-letter, never by an already-attached base letter -- onto
+    the letter that follows it, so `unicodedata.normalize('NFC', ...)` can
+    then compose the two into one precomposed character. A run with no
+    letter immediately after it (a genuinely stray, detached mark) is left
+    exactly where it is."""
+    if not text or not _COMBINING_RE.search(text):
+        return text
+    out = []
+    i, n = 0, len(text)
+    while i < n:
+        ch = text[i]
+        if unicodedata.combining(ch):
+            j = i
+            while j < n and unicodedata.combining(text[j]):
+                j += 1
+            run = text[i:j]
+            prev = out[-1] if out else ''
+            nxt = text[j] if j < n else ''
+            if (not prev or not prev.isalpha()) and nxt.isalpha():
+                out.append(nxt); out.append(run)
+                i = j + 1
+                continue
+            out.append(run)
+            i = j
+            continue
+        out.append(ch)
+        i += 1
+    return ''.join(out)
+
+def normalize_window_text(text):
+    """NFC, after moving any leading (out-of-order) combining marks onto
+    the letter they belong to. Called from `tokens()`, the la/grc/en
+    pass's own tokenizer, so a name key and its stored display form
+    always come from the composed, undamaged word -- see the comment
+    above for why the other four language passes do not call this."""
+    return unicodedata.normalize('NFC', _reposition_leading_marks(text or ''))
+
+# A word character, or a combining mark continuing one (`̀`-`ͯ`,
+# Combining Diacritical Marks) -- a token no longer stops mid-word at a
+# mark that NFC had no precomposed target to fold into (a second accent on
+# an already-accented vowel, or a mark on a letter with no precomposed
+# form). Composition above handles the common case; this is the backstop
+# for whatever it can't compose. A token must still START on a letter, not
+# a mark, so a genuinely stray leading mark (left untouched by
+# `_reposition_leading_marks` because nothing alphabetic follows it) still
+# falls outside any token rather than starting one of its own.
+TOK = re.compile(r"[^\W\d_](?:[^\W\d_]|[̀-ͯ])*", re.U)
 END = re.compile(r'[.!?;:·;]\s*$')
 def tokens(text):
     """(form, midline) for every word; midline False at a line start or after sentence punctuation."""
-    for line in (text or '').split('\n'):
+    for line in normalize_window_text(text).split('\n'):
         first = True
         for m in TOK.finditer(line):
             w = m.group(0); before = line[max(0, m.start()-3):m.start()]

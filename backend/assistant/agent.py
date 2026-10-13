@@ -29,6 +29,7 @@ import re
 from collections import Counter
 
 from backend.assistant import actions, model, searches
+from backend import work_names
 from backend.logging_config import get_logger
 
 logger = get_logger('assistant.agent')
@@ -187,7 +188,8 @@ _QUOTED = re.compile(
 _LOOKUP_STOP = {'book', 'the', 'and', 'with', 'for', 'what', 'where', 'which',
                 'compare', 'comparing', 'between', 'against', 'search', 'text',
                 'texts', 'work', 'works', 'passage', 'corpus', 'latin', 'greek',
-                'hebrew', 'coptic', 'english', 'recommend', 'interesting'}
+                'hebrew', 'coptic', 'english', 'persian', 'urdu', 'arabic',
+                'recommend', 'interesting'}
 
 
 # Words that look like names but are not people.
@@ -649,6 +651,87 @@ def _named_works(question):
     except Exception as e:            # a lookup failure must not lose the answer
         logger.info('[ASSISTANT] work lookup failed: %s', e)
         return {}
+
+
+def _language_holdings_fact(code):
+    """What the site holds in one language, as a fact the answer is written from.
+
+    Asked "What Persian works do you hold?", Tessa looked "Persian" up as a
+    work name and answered with Aeschylus' Persians. A question about a language
+    is answered from that language's own listing: the count, then every author
+    with the titles (book files collapsed to the work). A language with hundreds
+    of works gets the authors with counts, because the titles would not fit.
+    Arabic is held back from the site, so it is reported as not served and no
+    files are listed.
+    """
+    name = actions.language_name(code)
+    if code == 'ar':
+        return {'kind': 'HOLDINGS the reader asked about', 'language': name,
+                'works': 0,
+                'note': 'The site holds no served Arabic texts. Arabic is held '
+                        'back from the site for now. Say exactly that and do '
+                        'not list any Arabic works.',
+                'search': 'list_texts', 'args': {'language': code}}
+    rows = searches.run('list_texts', {'language': code})
+    rows = rows if isinstance(rows, list) else []
+    by_author, seen = {}, set()
+    for r in rows:
+        base = work_names.base_work(str(r.get('id') or r.get('filename') or ''))
+        key = base or str(r.get('display_name') or '')
+        if key in seen:
+            continue
+        seen.add(key)
+        author = str(r.get('author') or 'Unknown')
+        by_author.setdefault(author, []).append(
+            str(r.get('title') or r.get('work') or r.get('display_name') or key))
+    fact = {'kind': 'HOLDINGS the reader asked about (complete listing)',
+            'language': name, 'works': len(seen), 'authors': len(by_author)}
+    if len(seen) <= 80:
+        fact['by_author'] = {a: sorted(set(t)) for a, t in sorted(by_author.items())}
+    else:
+        fact['authors_with_work_counts'] = {
+            a: len(t) for a, t in sorted(by_author.items())[:150]}
+        fact['note'] = 'Too many works to list titles. Offer to list one author.'
+    fact.update({'search': 'list_texts', 'args': {'language': code}})
+    return fact
+
+
+_TRANSLATION_WORDS = ('translation', 'translations', 'translated', 'translator', 'translators')
+
+
+def _translation_question(question):
+    q = (question or '').lower()
+    return any(re.search(rf'\b{w}\b', q) for w in _TRANSLATION_WORDS)
+
+
+def _translation_fact(row):
+    """Which translation the site shows for one named work, or that it shows none.
+
+    "Which translations do you show for the Aeneid?" was answered with every
+    work whose name matches "Aeneid". The site's own record of aligned
+    translations (the route behind the Browse Corpus badges) says who made the
+    translation and how it is credited, so the answer is read from that.
+    """
+    from backend.work_names import base_work
+    language = row.get('language') or 'la'
+    name = row.get('display_name') or row.get('id')
+    base = base_work(str(row.get('id') or '').replace('.tess', ''))
+    works = searches.translations_available(language)
+    entry = works.get(base)
+    fact = {'kind': 'TRANSLATIONS of the work the reader asked about, from the '
+                    'site\'s own record. Answer from this alone.',
+            'work': name, 'search': 'translations', 'args': {'language': language}}
+    if not entry:
+        fact.update({'translation_attached': False,
+                     'note': 'The site has no aligned translation attached to this '
+                             'work. Say exactly that.'})
+        return fact
+    fact.update({'translation_attached': True,
+                 'translation_language': 'English',
+                 'attribution': entry.get('attribution') or 'not recorded'})
+    if entry.get('coverage'):
+        fact['share_of_lines_aligned_percent'] = int(round(float(entry['coverage']) * 100))
+    return fact
 
 
 def _quoted_phrase(question):
@@ -1145,7 +1228,7 @@ FUSION_WAIT_SECONDS = 100
 FUSION_POLL_SECONDS = 20
 FUSION_PAGE = 25
 # "Are you still working?" names no text. After a comparison that outlasted
-# the wait, it is a question about THAT comparison (NC, 2 Oct 2026 night),
+# the wait, it is a question about THAT comparison (2 Oct 2026),
 # and the right answer is the result if the run has finished, or an honest
 # "still running" if not. A stock answer about the tool was the wrong one.
 _STATUS_WORDS = ('still working', 'still running', 'still going', 'are you done', 'is it done',
@@ -1189,9 +1272,12 @@ def _earlier_pair(history):
 FUSION_RUNNING = 'running'  # _fusion_results: the run outlasted the wait and goes on
 
 
-def _fusion_results(source_id, target_id, language, source_name, target_name, step=None):
+def _fusion_results(source_id, target_id, language, source_name, target_name, step=None,
+                    target_language=None):
     """The first page of the comparison, or None when it did not finish in
-    time. Progress goes through step(text), the same channel _prepare uses."""
+    time. Progress goes through step(text), the same channel _prepare uses.
+    With a target_language that differs from `language` it is the
+    Cross-Language comparison that runs."""
     import time as _time
     from backend.assistant import searches as _searches
     step = step or (lambda text: None)
@@ -1200,8 +1286,15 @@ def _fusion_results(source_id, target_id, language, source_name, target_name, st
     # or so, and the panel kept showing "reading your question" the whole
     # time (2 Oct).
     step(f'running the comparison of {source_name} with {target_name}')
+    cross = bool(target_language) and target_language != language
+
+    def fetch():
+        if cross:
+            return _searches.crosslingual_page(source_id, target_id, language,
+                                               target_language, FUSION_PAGE)
+        return _searches.fusion_page(source_id, target_id, language, FUSION_PAGE)
     try:
-        page = _searches.fusion_page(source_id, target_id, language, FUSION_PAGE)
+        page = fetch()
     except Exception as e:                                  # noqa: BLE001
         logger.info('[ASSISTANT] fusion fetch failed: %s', e)
         return None
@@ -1214,7 +1307,7 @@ def _fusion_results(source_id, target_id, language, source_name, target_name, st
         _time.sleep(FUSION_POLL_SECONDS)
         waited += FUSION_POLL_SECONDS
         try:
-            page = _searches.fusion_page(source_id, target_id, language, FUSION_PAGE)
+            page = fetch()
         except Exception as e:                              # noqa: BLE001
             logger.info('[ASSISTANT] fusion poll failed: %s', e)
             return None
@@ -1637,10 +1730,43 @@ def _prepare(question, step, history=None, offered_phrase=None):
         seed_holdings = decision.kind in ('holdings', 'corpus')
     else:
         seed_holdings = not _is_about_the_site(question)
+    # A question about the translations of ONE named work is answered from the
+    # site's record of aligned translations, not from a listing of names.
+    translations_done = False
+    if _translation_question(question):
+        try:
+            from backend.assistant import corpus_lookup
+            named = corpus_lookup.named_texts(question, limit=2)
+            if len(named) == 1:
+                step(f'checking which translation is attached to {named[0].get("display_name") or named[0].get("id")}')
+                all_facts.append(_translation_fact(named[0]))
+                ran.append('translations')
+                translations_done = True
+                seed_holdings = False
+        except Exception as e:                                 # noqa: BLE001
+            logger.info('[ASSISTANT] translation lookup failed: %s', e)
+    # A holdings question about ONE language, with no author or work named, is
+    # answered from that language's listing (Persian and Urdu included, which the
+    # loop below has no entry for).
+    holdings_code = None
+    if seed_holdings:
+        holdings_code = actions.holdings_language(question)
+        if holdings_code:
+            from backend.assistant import corpus_lookup
+            if corpus_lookup.named_texts(question):
+                holdings_code = None
+    if holdings_code:
+        try:
+            step(f'listing what the corpus holds in {actions.language_name(holdings_code)}')
+            all_facts.append(_language_holdings_fact(holdings_code))
+            ran.append(f'list_texts({holdings_code})')
+        except searches.SearchError as e:
+            logger.info('[ASSISTANT] language listing %s failed: %s', holdings_code, e)
+            holdings_code = None
     for code, words in (('he', ('hebrew',)), ('grc', ('greek',)),
                         ('la', ('latin',)), ('cop', ('coptic',)),
                         ('en', ('english',))):
-        if seed_holdings and any(w in question.lower() for w in words):
+        if seed_holdings and not holdings_code and any(w in question.lower() for w in words):
             try:
                 step(f'listing what the corpus holds in {words[0]}')
                 facts = _summarise('list_texts', searches.run('list_texts', {'language': code}))
@@ -1769,6 +1895,13 @@ def _prepare(question, step, history=None, offered_phrase=None):
                 if all(scoped):
                     pair = scoped
             by_author = all(p.get('matched') == 'author' for p in pair)
+            lang_a = pair[0].get('language') or 'la'
+            lang_b = pair[1].get('language') or lang_a
+            # Two languages: the Cross-Language comparison, which the site runs
+            # for the pairs in actions.CROSS_PAIRS (2026-10-10: Catullus 64 with
+            # Argonautica 3 ran nothing and was answered in generalities).
+            cross_pair = (not by_author and lang_a != lang_b
+                          and bool(actions.cross_pair(lang_a, lang_b)))
             all_facts.append({
                 'kind': 'TWO TEXTS THE READER WANTS COMPARED. They are both in '
                         'the corpus. Say so, say what a comparison of them will '
@@ -1797,8 +1930,17 @@ def _prepare(question, step, history=None, offered_phrase=None):
                          if by_author else
                          {'source': str(pair[0].get('id') or '').replace('.tess', ''),
                           'target': str(pair[1].get('id') or '').replace('.tess', ''),
-                          'language': pair[0].get('language') or 'la'}),
+                          'language': pair[0].get('language') or 'la',
+                          **({'target_language': lang_b} if cross_pair else {})}),
             })
+            if cross_pair:
+                all_facts[-1]['kind'] = (
+                    'TWO TEXTS THE READER WANTS COMPARED, IN TWO LANGUAGES. They '
+                    'are both in the corpus. Say plainly that this is a '
+                    f'{actions.cross_pair(lang_a, lang_b)[0]} comparison, which the '
+                    'Cross-Language tab runs, name both texts, and point at the '
+                    'control beneath your answer. Do NOT report any search result: '
+                    'none has been run.')
             ran.append('resolved both texts')
             compare_done = True
             # RUN IT, WHEN IT CAN BE RUN. Two texts in one language: fetch the
@@ -1809,11 +1951,14 @@ def _prepare(question, step, history=None, offered_phrase=None):
             # _prepare runs in a worker thread and reports progress through
             # step(); it must return a dict, never yield. The reading itself
             # happens in answer_stream, which streams.
-            if not by_author and pair[0].get('language') and pair[0].get('language') == pair[1].get('language'):
+            same_language = (pair[0].get('language')
+                             and pair[0].get('language') == pair[1].get('language'))
+            if not by_author and (same_language or cross_pair):
                 results = _fusion_results(
                     pair[0].get('id'), pair[1].get('id'), pair[0].get('language'),
                     pair[0].get('display_name') or pair[0].get('id'),
-                    pair[1].get('display_name') or pair[1].get('id'), step)
+                    pair[1].get('display_name') or pair[1].get('id'), step,
+                    target_language=pair[1].get('language') if cross_pair else None)
                 if results == FUSION_RUNNING:
                     # The run is still going on the server. Say so, and point
                     # at the results page, which shows the same run when it
@@ -2037,7 +2182,7 @@ def _prepare(question, step, history=None, offered_phrase=None):
             logger.info('[ASSISTANT] phrase search failed: %s', e)
 
     # If the seed answered a holdings question, go straight to composing.
-    skip_chooser = bool(all_facts) and (phrase or theme_done or compare_done
+    skip_chooser = bool(all_facts) and (phrase or theme_done or compare_done or translations_done
                                         or read_done or any(
         h in question.lower() for h in _HOLDINGS_QUESTION))
     for _ in range(0 if skip_chooser else MAX_SEARCHES):

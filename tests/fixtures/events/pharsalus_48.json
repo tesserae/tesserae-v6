@@ -1,0 +1,678 @@
+{
+ "event": {
+  "qid": "Q203681",
+  "label": "Battle of Pharsalus",
+  "description": "48 BCE decisive battle of Caesar's Civil War",
+  "types": [
+   "battle"
+  ],
+  "wikipedia_title": "Battle of Pharsalus",
+  "locations": [
+   {
+    "qid": "Q41",
+    "label": "Greece",
+    "coord": "Point(23.0 38.5)"
+   },
+   {
+    "qid": "Q985596",
+    "label": "Farsala",
+    "coord": "Point(22.38415 39.29595)"
+   }
+  ],
+  "participants": [
+   {
+    "qid": "Q271108",
+    "label": "populares"
+   },
+   {
+    "qid": "Q309155",
+    "label": "optimates"
+   }
+  ],
+  "part_of": [
+   {
+    "qid": "Q1238338",
+    "label": "Caesar's Civil War"
+   }
+  ],
+  "span": [
+   -48,
+   -48
+  ]
+ },
+ "literary": {
+  "n_raw_windows": 1438,
+  "n_dropped_author_before_event": 140,
+  "n_after_overlap_suppression": 669,
+  "passages": [
+   {
+    "rank": 1,
+    "window_id": "appian.civil_wars.part.2:fine:66",
+    "work": "appian.civil_wars",
+    "language": "grc",
+    "ref_start": "app. bc. 2.10.66",
+    "ref_end": "app. bc. 2.11.77",
+    "author_year": 165,
+    "score": 0.0186,
+    "n_entities": 3,
+    "idf_sum": -0.0,
+    "gist": "A general abundantly supplied by land and sea judges it safer to refuse battle and grind down his resource-starved but battle-hardened rival through famine, while elites and client rulers flock to his side.",
+    "matched": [
+     "Domitius [participant] = Δομίτιος",
+     "Farsala [place] = Φαρσάλου",
+     "Pharsalus Pharsalia [participant] = Φαρσάλου"
+    ],
+    "hit_lines": [
+     {
+      "ref": "app. bc. 2.11.75",
+      "forms": [
+       "Φαρσάλου"
+      ],
+      "snippet": "οῦ στρατοπέδου καταλιπὼν παρέτασσε τοὺς λοιποὺς ἐς τὸ μεταξὺ Φαρσάλου τε πόλεως καὶ ̓Ενιπέως ποταμοῦ, ἔνθα καὶ ὁ Καῖσαρ ἀντιδιεκο"
+     },
+     {
+      "ref": "app. bc. 2.11.76",
+      "forms": [
+       "Δομίτιος"
+      ],
+      "snippet": "ομπηίῳ μὲν ὁ κηδεστὴς Σκιπίων ἐν μέσῳ καὶ ἐπὶ τοῦ λαιοῦ Δομίτιος, ἐπὶ δὲ τοῦ δεξιοῦ Λέντλος: ̓Αφράνιος δὲ καὶ Πομπήιος τὸ σ"
+     }
+    ],
+    "text": " ἀγορὰ δὲ Πομπηίῳ μὲν ἦν πανταχόθεν: οὕτω γὰρ αὐτῷ προδιῴκηντο καὶ ὁδοὶ καὶ λιμένες καὶ φρούρια, ὡς ἔκ τε γῆς αἰεὶ φέρεσθαι καὶ διὰ θαλάσσης πάντα ἄνεμον αὐτῷ φέρειν: Καῖσαρ δὲ μόνον εἶχεν, ὅ τι μόλις εὕροι καὶ λάβοι κακοπαθῶν. καὶ οὐδ' ὣς αὐτὸν ἀπέλιπεν οὐδείς, ἀλλὰ σπουδῇ δαιμονίῳ συνενεχθῆναι τοῖς πολεμίοις ὠρέγοντο καὶ ἡγοῦντο πολέμῳ μὲν εἶναι παρὰ πολὺ ἀμείνους νεοστρατεύτων ἔτι ὄντων δέκα ἔτεσιν ",
+    "llm_label": "yes"
+   },
+   {
+    "rank": 2,
+    "window_id": "plutarch.pompey:fine:342",
+    "work": "plutarch.pompey",
+    "language": "grc",
+    "ref_start": "plut.pomp. 70.3",
+    "ref_end": "plut.pomp. 72.4",
+    "author_year": 120,
+    "score": 0.0184,
+    "n_entities": 1,
+    "idf_sum": -0.0,
+    "gist": "A reflection on Rome's would-be conquest of distant peoples collapses into an account of civil war, climaxing as a centurion races ahead of the line to exchange vows of victory and loyalty with his general before the battle begins.",
+    "matched": [
+     "Pharsalus Pharsalia [participant] = Φαρσάλιον"
+    ],
+    "hit_lines": [
+     {
+      "ref": "plut.pomp. 71.1",
+      "forms": [
+       "Φαρσάλιον"
+      ],
+      "snippet": "ὡς δ' οὖν τὸ Φαρσάλιον πεδίον ἀνδρῶν καὶ ἵππων καὶ ὅπλων ἀνεπέπληστο καὶ μάχης"
+     }
+    ],
+    "text": "πολὺ δὲ καί Σκυθία λειπόμενον ἔργον καί Ἰνδοί, καὶ πρόφασις οὐκ ἄδοξος ἐπὶ ταῦτα τῆς πλεονεξίας ἡμερῶσαι τὰ βαρβαρικά, τίς δ' ἂν ἢ Σκυθῶν ἵππος ἢ τοξεύματα Πάρθων ἢ πλοῦτος Ἰνδῶν ἐπέσχε μυριάδας ἑπτὰ Ῥωμαίων ἐν ὅπλοις ἐπερχομένας Πομπηΐου καί Καίσαρος ἡγουμένων, ὧν ὄνομα πολὺ πρότερον ἤκουσαν ἢ τὸ Ῥωμαίων; οὕτως ἄμικτα καί ποικίλα καί θηριώδη φῦλα νικῶντες ἐπῆλθον.\nτότε δὲ ἀλλήλοις μαχούμενοι συνῄεσαν, οὐδὲ ",
+    "llm_label": "yes"
+   },
+   {
+    "rank": 3,
+    "window_id": "appian.civil_wars.part.2:fine:78",
+    "work": "appian.civil_wars",
+    "language": "grc",
+    "ref_start": "app. bc. 2.11.78",
+    "ref_end": "app. bc. 2.13.89",
+    "author_year": 165,
+    "score": 0.0179,
+    "n_entities": 4,
+    "idf_sum": -0.0,
+    "gist": "A set-piece battle begins when one commander, fearing disorder, gives the signal first, and after skirmishing a concealed reserve routs the enemy cavalry and begins to encircle their infantry.",
+    "matched": [
+     "Domitius [participant] = Δομίτιος",
+     "Farsala [place] = Φάρσαλον",
+     "Labienus [participant] = Λαβιηνὸς",
+     "Pharsalus Pharsalia [participant] = Φάρσαλον"
+    ],
+    "hit_lines": [
+     {
+      "ref": "app. bc. 2.11.82",
+      "forms": [
+       "Δομίτιος",
+       "Φάρσαλον"
+      ],
+      "snippet": "ἐκ δὲ τῶν Πομπηίου βουλευταὶ μὲν δέκα, ὧν ἦν καὶ Λεύκιος Δομίτιος, ὁ αὐτῷ Καίσαρι πεμφθεὶς ἐπὶ τὴν Γαλατίαν διάδοχος, τῶν δ"
+     },
+     {
+      "ref": "app. bc. 2.12.87",
+      "forms": [
+       "Λαβιηνὸς",
+       "Φάρσαλον"
+      ],
+      "snippet": "̀ς τοῦ Πομπηίου, καὶ ὅσοι ἄλλοι τῶν ἐπιφανῶν ἐκ τοῦ κατὰ Φάρσαλον ἔργου διεπεφεύγεσαν, ἐπὶ Κερκύρας ἠπείγοντο πρὸς Κάτωνα, ἑ"
+     }
+    ],
+    "text": " μέλλουσι δ' ἔτι καὶ ἐς ἀλλήλους ἀποβλέπουσιν ἡ ἡμέρα προύκοπτε. καὶ τὸ μὲν ̓Ιταλικὸν ἅπαν εὐσταθῶς ἐφ' ἡσυχίας ἀκριβοῦς ἀνέμενε: τὸ δὲ συμμαχικὸν ὁ Πομπήιος αὑτοῦ ταρασσόμενον ὁρῶν ὑπὸ τῆς μελλήσεως καὶ δείσας, μὴ πρὸ τοῦ ἀγῶνος ἀταξίας κατάρξειεν, ὑπεσήμαινε πρῶτος, καὶ ἀντήχησε Καῖσαρ, αὐτίκα δ' αἵ τε σάλπιγγες αὐτοὺς ἐξώτρυνον ὀρθίοις κλαγγαῖς ὡς ἐν τοσῷδε πλήθει πολλαὶ κατὰ μέρη, καὶ οἱ κήρυκες καὶ οἱ ἐπιστ",
+    "llm_label": "yes"
+   },
+   {
+    "rank": 4,
+    "window_id": "lucan.bellum_civile.part.7:fine:534",
+    "work": "lucan.bellum_civile",
+    "language": "la",
+    "ref_start": "luc. 7.535",
+    "ref_end": "luc. 7.546",
+    "author_year": 65,
+    "score": 0.0173,
+    "n_entities": 1,
+    "idf_sum": -0.0,
+    "gist": "The narrator wishes the spilled Roman blood would suffice to stain Pharsalia's fields and pleads that the eastern nations be spared, for the Roman people must outlive its civil war.",
+    "matched": [
+     "Pharsalus Pharsalia [participant] = Pharsalia"
+    ],
+    "hit_lines": [
+     {
+      "ref": "luc. 7.535",
+      "forms": [
+       "Pharsalia"
+      ],
+      "snippet": "Inde perire potest. Utinam, Pharsalia, campis"
+     }
+    ],
+    "text": "Inde perire potest. Utinam, Pharsalia, campis\nSufficiat cruor iste tuis, quem barbara fundunt\nPectora; non alio mutentur sanguine fontes;\nHic numerus totos tibi vestiat ossibus agros:\nAut si Romano compleri sanguine mavis,\nIstis parce precor: vivant Galataeque Syrique,\nCappadoces, Gallique, extremique orbis Iberi,\nArmenii, Cilices: nam post civilia bella\nHic populus Romanus erit. Semel ortus in omnes\nIt timor, et fatis datus est pro Caesare cursus.\nVentum  erat ad robur Magni, mediasque catervas",
+    "llm_label": "yes"
+   },
+   {
+    "rank": 5,
+    "window_id": "paulus_orosius.historiae_adversum_paganos.part.6:fine:228",
+    "work": "paulus_orosius.historiae_adversum_paganos",
+    "language": "la",
+    "ref_start": "paulus_orosius. hist.adv.pag. 6.15.22",
+    "ref_end": "paulus_orosius. hist.adv.pag. 6.15.33",
+    "author_year": 420,
+    "score": 0.0172,
+    "n_entities": 1,
+    "idf_sum": -0.0,
+    "gist": "A chronicle-style narrative of the battle of Pharsalia, in which Caesar crushes the Pompeian army and the defeated general flees by sea only to be murdered on a foreign shore at Ptolemy's orders.",
+    "matched": [
+     "Thessalia [participant] = Thessaliam"
+    ],
+    "hit_lines": [
+     {
+      "ref": "paulus_orosius. hist.adv.pag. 6.15.22",
+      "forms": [
+       "Thessaliam"
+      ],
+      "snippet": "Caesar inde citato agmineper Epirum in Thessaliam perrexit; Pompeius cum maximiscopiis secutus bellumque commissum est."
+     },
+     {
+      "ref": "paulus_orosius. hist.adv.pag. 6.15.29",
+      "forms": [
+       "Thessaliam"
+      ],
+      "snippet": "Caesar conpositis apud Thessaliam rebus Alemndriamuenit perlatoque ad se ac uiso Pompei capite anuloque"
+     }
+    ],
+    "text": " Caesar inde citato agmineper Epirum in Thessaliam perrexit; Pompeius cum maximiscopiis secutus bellumque commissum est.\n itaque instruitur utrimque acies. Pompeius octoginta et octo cohortes tripliciordine locauit: fuerunt autem peditum quadraginta milia,equites in sinistro cornu sescenti, in dextro quingenti, praetereareges multi, senatores equitesque Romani plurimi, absqueleuium armaturarum magna copia.\n Caesar similiter octoginta cohortes triplici ordine disposuit , cui fuerunt minus quamtri",
+    "llm_label": "yes"
+   },
+   {
+    "rank": 6,
+    "window_id": "lucan.bellum_civile.part.7:fine:60",
+    "work": "lucan.bellum_civile",
+    "language": "la",
+    "ref_start": "luc. 7.61",
+    "ref_end": "luc. 7.72",
+    "author_year": 65,
+    "score": 0.0167,
+    "n_entities": 1,
+    "idf_sum": -0.0,
+    "gist": "In the Pompeianis camp at Pharsalia, the army's renowned orator breaks his long silence to voice their vow, praying that Fortune favor their general and that his kinsman be defeated in the civil war.",
+    "matched": [
+     "Pharsalus Pharsalia [participant] = Pharsalia"
+    ],
+    "hit_lines": [
+     {
+      "ref": "luc. 7.61",
+      "forms": [
+       "Pharsalia"
+      ],
+      "snippet": "In Pompeianis votum est Pharsalia castris."
+     }
+    ],
+    "text": "In Pompeianis votum est Pharsalia castris.\nCunctorum voces Romani maximus auctor\nTullius eloquii, cuius sub iure togaque\nPacificas saevus tremuit Catilina secures,\nPertulit, iratus bellis, cum rostra forumque\nOptaret, passus tam longa silentia miles.\nAddidit invalidae robur facundia caussae:\nHoc pro tot meritis solum te, Magne, precatur,\nUti se Fortuna velis: proceresque tuorum\nCastrorum, regesque tui cum supplice mundo\nAdfusi, vinci socerum patiare, rogamus.\nHumano generi tam   longo tempore be",
+    "llm_label": "yes"
+   },
+   {
+    "rank": 7,
+    "window_id": "florus.epitome_bellorum_omnium_annorum:fine:786",
+    "work": "florus.epitome_bellorum_omnium_annorum",
+    "language": "la",
+    "ref_start": "flor. epit. 2.13.2.38",
+    "ref_end": "flor. epit. 2.13.2.49",
+    "author_year": 140,
+    "score": 0.0145,
+    "n_entities": 1,
+    "idf_sum": -0.0,
+    "gist": "A rhetorically charged historical narrative of the provocations, delays, and ominous portents that culminate in the decisive civil-war battle in Thessaly, where the fate of Rome and the human race is staked on a single day.",
+    "matched": [
+     "Thessalia [participant] = Thessaliae"
+    ],
+    "hit_lines": [
+     {
+      "ref": "flor. epit. 2.13.2.42",
+      "forms": [
+       "Thessaliae"
+      ],
+      "snippet": "Thessaliae vastaret. Pompeius adversus haec nectere moras, tergiversari, sic hos"
+     }
+    ],
+    "text": " Caesar pro natura ferox et conficiendae rei cupidus ostentare aciem, provocare, lacessere;\n nunc obsidione castrorum, quae sedecim milium vallo obduxerat—sed quid iis obesset obsidio, qui patente mari omnibus copiis abundarent?—nunc expugnatione Dyrrachi inrita, quippe quam vel situs inexpugnabilem faceret;\n ad hoc adsiduis in eruptione hostium proeliis, quo tempore egregia virtus Scaevolae centurionis emicuit, cuius in scuto centum atque viginti tela sederunt;\n iam vero urbium direptione socia",
+    "llm_label": "yes"
+   },
+   {
+    "rank": 8,
+    "window_id": "plutarch.pompey:fine:312",
+    "work": "plutarch.pompey",
+    "language": "grc",
+    "ref_start": "plut.pomp. 64.3",
+    "ref_end": "plut.pomp. 66.5",
+    "author_year": 120,
+    "score": 0.0137,
+    "n_entities": 1,
+    "idf_sum": -0.0,
+    "gist": "As a great general musters supporters against his rival on the eve of civil war, men of every rank—defector, avenging son, grieving elder, wounded veteran—rally to him, and a just senate decree wins his cause still broader sympathy.",
+    "matched": [
+     "Labienus [participant] = Λαβιηνὸς"
+    ],
+    "hit_lines": [
+     {
+      "ref": "plut.pomp. 64.3",
+      "forms": [
+       "Λαβιηνὸς"
+      ],
+      "snippet": "κῶν ἀριθμὸς ἦν ἐντελοῦς βουλῆς περὶ αὐτόν. ἦλθε δὲ καὶ Λαβιηνὸς ἀπολιπὼν Καίσαρα φίλος γεγονὼς καὶ συνεστρατευμένος ἐν Γαλατι"
+     }
+    ],
+    "text": "ἐπεφοίτων δὲ καὶ βασιλεῖς ἐθνῶν καὶ δυνάσται, καὶ τῶν ἀπὸ Ῥώμης ἡγεμονικῶν ἀριθμὸς ἦν ἐντελοῦς βουλῆς περὶ αὐτόν. ἦλθε δὲ καὶ Λαβιηνὸς ἀπολιπὼν Καίσαρα φίλος γεγονὼς καὶ συνεστρατευμένος ἐν Γαλατίᾳ, καὶ Βροῦτος, υἱὸς ὢν Βρούτου τοῦ περὶ Γαλατίαν σφαγέντος, ἀνὴρ μεγαλόφρων καὶ μηδέποτε Πομπήϊον προσειπὼν μηδὲ ἀσπασάμενος πρότερον ὡς φονέα τοῦ πατρός, τότε δὲ ὡς ἐλευθεροῦντι τὴν Ῥώμην ὑπέταξεν ἑαυτόν.\nΚικέρων δέ, καί",
+    "llm_label": "yes"
+   },
+   {
+    "rank": 9,
+    "window_id": "caesar.de_bello_civili.part.3:fine:444",
+    "work": "caesar.de_bello_civili",
+    "language": "la",
+    "ref_start": "caes. bel. civ. 3.97.3",
+    "ref_end": "caes. bel. civ. 3.100.1",
+    "author_year": -44,
+    "score": 0.0136,
+    "n_entities": 1,
+    "idf_sum": -0.0,
+    "gist": "A victorious commander intercepts a retreating army, forces its surrender by cutting off its water, and famously spares the weeping suppliants in an act of clemency before reaching Larisam.",
+    "matched": [
+     "Domitius [participant] = Domitius"
+    ],
+    "hit_lines": [
+     {
+      "ref": "caes. bel. civ. 3.99.5",
+      "forms": [
+       "Domitius"
+      ],
+      "snippet": "L. Domitius ex castris in montem refugiens, cum vires eum lassitudine defecissent"
+     }
+    ],
+    "text": " Larisam versus recipere coeperunt. qua re animadversa Caesar copias suas divisit partemque legionum in castris Pompei remanere iussit, partem in sua castra remisit, iiii secum legiones duxit commodioreque itinere Pompeianis occurrere coepit et progressus milia passuum vi aciem instruxit.\n qua re animadversa Pompeiani in quodam monte constiterunt. hunc montem flumen subluebat. Caesar milites cohortatus, etsi totius diei continenti labore erant confecti noxque iam suberat, tamen munitione flumen ",
+    "llm_label": "yes"
+   },
+   {
+    "rank": 10,
+    "window_id": "lucan.bellum_civile.part.6:fine:312",
+    "work": "lucan.bellum_civile",
+    "language": "la",
+    "ref_start": "luc. 6.313",
+    "ref_end": "luc. 6.324",
+    "author_year": 65,
+    "score": 0.0135,
+    "n_entities": 1,
+    "idf_sum": -0.0,
+    "gist": "After the victory at Pharsalia the victor pursues his fleeing rival toward Emathias, and though companions urge refuge in Ausonia, the defeated leader vows never to re-enter his homeland except with a disbanded army, recalling he might once have fought at home.",
+    "matched": [
+     "Pharsalus Pharsalia [participant] = Pharsalia"
+    ],
+    "hit_lines": [
+     {
+      "ref": "luc. 6.313",
+      "forms": [
+       "Pharsalia"
+      ],
+      "snippet": "Exire e mediis potuit Pharsalia fatis."
+     }
+    ],
+    "text": "Exire e mediis potuit Pharsalia fatis.\nDeserit adverso possessam numine sedem\nCaesar, et Emathias lacero petit agmine terras.\nArma secuturum soceri, quacumque fugasset,\nTentavere suo comites divertere Magnum\nHortatu: patrias sedes atque hoste carentem\nAusoniam peteret. Numquam me Caesaris, inquit,\nExemplo reddam patriae, numquamque videbit\nMe nisi dimisso redeuntem, milite Roma.\nHesperiam potui, motu surgente, tenere,\nSi vellem patriis aciem committere templis,\nAc medio pugnare foro. Dum bella r",
+    "llm_label": "yes"
+   },
+   {
+    "rank": 11,
+    "window_id": "caesar.de_bello_civili.part.3:fine:384",
+    "work": "caesar.de_bello_civili",
+    "language": "la",
+    "ref_start": "caes. bel. civ. 3.85.4",
+    "ref_end": "caes. bel. civ. 3.87.6",
+    "author_year": -44,
+    "score": 0.0134,
+    "n_entities": 1,
+    "idf_sum": -0.0,
+    "gist": "On the eve of battle, one commander readies his troops for combat while the rival commander unveils a cavalry envelopment plan that his officers, especially Labienus, applaud with scornful certainty of victory.",
+    "matched": [
+     "Labienus [participant] = Labienus"
+    ],
+    "hit_lines": [
+     {
+      "ref": "caes. bel. civ. 3.87.1",
+      "forms": [
+       "Labienus"
+      ],
+      "snippet": "Hunc Labienus excepit, ut, cum Caesaris copias despiceret, Pompei consilium summis"
+     }
+    ],
+    "text": " tum Caesar apud suos, cum iam esset agmen in portis, 'differendum est' inquit 'iter in praesentia nobis et de proelio cogitandum, sicut semper depoposcimus. animo simus ad dimicandum parati; non facile occasionem postea reperiemus.' confestimque expeditas copias educit. \n Pompeius quoque, ut postea cognitum est, suorum omnium hortatu statuerat proelio decertare. namque etiam in consilio superioribus diebus dixerat, priusquam concurrerent acies, fore uti exercitus Caesaris pelleretur. \n  id cum ",
+    "llm_label": "yes"
+   },
+   {
+    "rank": 12,
+    "window_id": "caesar.de_bello_civili.part.3:fine:6",
+    "work": "caesar.de_bello_civili",
+    "language": "la",
+    "ref_start": "caes. bel. civ. 3.2.2",
+    "ref_end": "caes. bel. civ. 3.5.2",
+    "author_year": -44,
+    "score": 0.0131,
+    "n_entities": 1,
+    "idf_sum": -0.0,
+    "gist": "A historical narrative recounts how one commander's crossing is hampered by a shortage of ships and a sickened, depleted army, while his rival spends a year of peace assembling fleets, funds, and nine legions across the eastern Mediterranean.",
+    "matched": [
+     "Thessalia [participant] = Thessalia"
+    ],
+    "hit_lines": [
+     {
+      "ref": "caes. bel. civ. 3.4.2",
+      "forms": [
+       "Thessalia"
+      ],
+      "snippet": "numerum ex Thessalia Boeotia Achaia Epiroque supplementi nomine in legiones distribuerat;"
+     },
+     {
+      "ref": "caes. bel. civ. 3.5.1",
+      "forms": [
+       "Thessalia"
+      ],
+      "snippet": "Frumenti vim maximam ex Thessalia Asia Aegypto Creta Cyrenis reliquisque regionibus comparaverat."
+     }
+    ],
+    "text": " eo legiones xii, equitatum omnem venire iusserat. sed tantum navium repperit ut anguste †xv milia† legionariorum militum, d equites transportari possent. hoc unum inopia navium Caesari ad celeritatem conficiendi belli defuit. \n atque eae ipsae copiae hoc infrequentiores inponuntur, quod multi Gallia tot bellis defecerant longumque iter ex Hispania magnum numerum deminuerat, et gravis autumnus in Apulia circumque Brundisium ex saluberrimis Galliae et Hispaniae regionibus omnem exercitum valetudi",
+    "llm_label": "yes"
+   }
+  ],
+  "llm": {
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "counts": {
+    "yes": 18,
+    "mention": 24,
+    "no": 58,
+    "null": 0
+   }
+  }
+ },
+ "documents": {
+  "n": 3,
+  "n_date_overlap_anywhere": 7158,
+  "n_by_radius_km": {
+   "50": 3,
+   "100": 3,
+   "300": 9,
+   "1000": 706
+  },
+  "n_dated_within_50_years": 0,
+  "n_overlapping_but_no_usable_place": 5708,
+  "span_used": [
+   -58,
+   -38
+  ],
+  "radius_km": 100,
+  "items": [
+   {
+    "id": "merged:175809",
+    "source": "edh+edr",
+    "text_type": "unknown",
+    "object_type": "unknown",
+    "not_before": -100,
+    "not_after": -1,
+    "date_width": 99,
+    "place": "Melita",
+    "region": "Sicilia, Melita",
+    "pleiades_id": "540941",
+    "lat": 39.0384,
+    "lon": 22.45671,
+    "distance_km": 29.3,
+    "edition": "AE 1964, 0034."
+   },
+   {
+    "id": "edh:HD043085",
+    "source": "edh",
+    "text_type": "Epitaph",
+    "object_type": "plaque / stela",
+    "not_before": -100,
+    "not_after": -1,
+    "date_width": 99,
+    "place": "Atrax",
+    "region": "Macedonia",
+    "pleiades_id": "540682",
+    "lat": 39.5716,
+    "lon": 22.1921,
+    "distance_km": 34.8,
+    "edition": "AE 2002, 1275."
+   },
+   {
+    "id": "edh:HD064223",
+    "source": "edh",
+    "text_type": "unknown",
+    "object_type": "unknown",
+    "not_before": -100,
+    "not_after": -1,
+    "date_width": 99,
+    "place": "Hypata",
+    "region": "Macedonia",
+    "pleiades_id": "540827",
+    "lat": 38.8714,
+    "lon": 22.25209,
+    "distance_km": 48.6,
+    "edition": "CIL 03, 00585. (B)"
+   }
+  ],
+  "findspots": [
+   {
+    "n": 1,
+    "pleiades_id": "540941",
+    "label": "Meliteia",
+    "lat": 39.0384,
+    "lon": 22.45671
+   },
+   {
+    "n": 1,
+    "pleiades_id": "540682",
+    "label": "Atrax",
+    "lat": 39.5716,
+    "lon": 22.1921
+   },
+   {
+    "n": 1,
+    "pleiades_id": "540827",
+    "label": "Hypata",
+    "lat": 38.8714,
+    "lon": 22.25209
+   }
+  ]
+ },
+ "scholarship": {
+  "primary_passages": [
+   {
+    "work": "caesar.de_bello_civili",
+    "range": "3.82-3.99",
+    "source": "hand list"
+   },
+   {
+    "work": "plutarch.pompey",
+    "range": "68.1-72.6",
+    "source": "hand list"
+   },
+   {
+    "work": "plutarch.caesar",
+    "range": "42.1-46.4",
+    "source": "hand list"
+   },
+   {
+    "work": "appian.civil_wars",
+    "range": "2.68-2.82",
+    "source": "hand list"
+   },
+   {
+    "work": "lucan.bellum_civile",
+    "range": "7.1-7.872",
+    "source": "hand list"
+   },
+   {
+    "work": "florus.epitome_bellorum_omnium_annorum",
+    "range": "2.13-2.13",
+    "source": "hand list"
+   }
+  ],
+  "results": [
+   {
+    "work": "caesar.de_bello_civili",
+    "range": "3.82-3.99",
+    "source": "hand list",
+    "citations": [],
+    "commentary": []
+   },
+   {
+    "work": "plutarch.pompey",
+    "range": "68.1-72.6",
+    "source": "hand list",
+    "citations": [
+     {
+      "article_id": 1537,
+      "title": "Lucan as Historical Source for Appian",
+      "authors": "Perrin, B.",
+      "journal": "The American Journal of Philology",
+      "year": 1884,
+      "page": 325,
+      "cites": "Plut. Pomp. 68",
+      "url": "https://www.jstor.org/stable/287227"
+     }
+    ],
+    "commentary": []
+   },
+   {
+    "work": "plutarch.caesar",
+    "range": "42.1-46.4",
+    "source": "hand list",
+    "citations": [],
+    "commentary": []
+   },
+   {
+    "work": "appian.civil_wars",
+    "range": "2.68-2.82",
+    "source": "hand list",
+    "citations": [
+     {
+      "article_id": 1332,
+      "title": "Pharsalia, Pharsalus, Palaepharsalus",
+      "authors": "Perrin, B.",
+      "journal": "The American Journal of Philology",
+      "year": 1885,
+      "page": 170,
+      "cites": "B. C. II 70",
+      "url": "https://www.jstor.org/stable/287135"
+     },
+     {
+      "article_id": 1537,
+      "title": "Lucan as Historical Source for Appian",
+      "authors": "Perrin, B.",
+      "journal": "The American Journal of Philology",
+      "year": 1884,
+      "page": 325,
+      "cites": "B. C. II 73",
+      "url": "https://www.jstor.org/stable/287227"
+     }
+    ],
+    "commentary": []
+   },
+   {
+    "work": "lucan.bellum_civile",
+    "range": "7.1-7.872",
+    "source": "hand list",
+    "citations": [
+     {
+      "article_id": 789,
+      "title": "Some Roman Elements in the Tragedies of Seneca",
+      "authors": "Steele, R. B.",
+      "journal": "The American Journal of Philology",
+      "year": 1922,
+      "page": 1,
+      "cites": "Lucan 7, 188",
+      "url": "https://www.jstor.org/stable/289326"
+     },
+     {
+      "article_id": 2743,
+      "title": "The Method of Silius Italicus",
+      "authors": "Steele, R. B.",
+      "journal": "Classical Philology",
+      "year": 1922,
+      "page": 319,
+      "cites": "Lucan (vii. 332",
+      "url": "https://www.jstor.org/stable/263007"
+     },
+     {
+      "article_id": 5856,
+      "title": "[untitled] The Classical Weekly, (1920-05-03), pages 196-197",
+      "authors": "Durham, Donald Blythe",
+      "journal": "The Classical Weekly",
+      "year": 1920,
+      "page": 196,
+      "cites": "Lucan, 7.529",
+      "url": "https://www.jstor.org/stable/4388003"
+     }
+    ],
+    "commentary": []
+   },
+   {
+    "work": "florus.epitome_bellorum_omnium_annorum",
+    "range": "2.13-2.13",
+    "source": "hand list",
+    "citations": [],
+    "commentary": []
+   }
+  ]
+ },
+ "map": [
+  {
+   "kind": "event location",
+   "label": "Farsala",
+   "lat": 39.29595,
+   "lon": 22.38415
+  },
+  {
+   "kind": "document findspot",
+   "label": "Meliteia",
+   "lat": 39.0384,
+   "lon": 22.45671,
+   "n_documents": 1
+  },
+  {
+   "kind": "document findspot",
+   "label": "Atrax",
+   "lat": 39.5716,
+   "lon": 22.1921,
+   "n_documents": 1
+  },
+  {
+   "kind": "document findspot",
+   "label": "Hypata",
+   "lat": 38.8714,
+   "lon": 22.25209,
+   "n_documents": 1
+  }
+ ]
+}

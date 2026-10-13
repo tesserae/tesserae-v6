@@ -8,6 +8,965 @@ history (index builds, cache rebuilds, corpus changes) is in
 `DATA_OPERATIONS.md`; per-release changes are in `../CHANGELOG.md`.
 
 
+## 2026-10-12: written paragraphs keep quoted words in their original script, and the transliteration is made by a table
+- Scope: the Search One Text summary and Scholarship paragraph (and the
+  Scholarship list in Theme Search).
+- Decision. The model quotes Greek, Latin and Hebrew words in their own
+  letters and is checked for it. The transliteration shown after each Greek
+  or Hebrew word is made by a fixed letter table in the code (classical
+  scholarly style for Greek, SBL general-purpose style for Hebrew), never by
+  the model, so none can be invented. Beta code is not shown on the page. It
+  is provided as a function for export controls.
+- Evidence. On Herodotus 1.32.5 the paragraph read "*euzen*" for the Greek
+  words of the note by How and Wells. The model had transliterated the Greek
+  and wrapped it in asterisks. A reader cannot check "euzen" against the note.
+- The check. After the model answers, the server looks for asterisk spans and
+  for any word of the text that is the table's transliteration of a Greek or
+  Hebrew word or phrase in the notes (words of three letters or fewer are
+  skipped, since "to" and "he" are also English). It asks once more with the
+  fault named, and strips asterisks if the second answer is still wrong. The
+  answer's `script_problems` list shows how often that happens on the live
+  site.
+- The table lives in two languages (Python and JavaScript) and both are tested
+  against one file of cases, so they cannot drift.
+
+## 2026-10-12: Cleaning the code's shape without changing what it does
+- Scope: every change meant to reorganise code (splitting the large Flask
+  module into an app factory and blueprints, tests for the scoring core,
+  splitting Line Search into steps, the two oversized site components) and
+  not to alter an answer.
+- The rule. Nothing may break, change, or go backwards because of the
+  cleaning. A structural change therefore ships only with all of these:
+  1. the golden check (`scripts/review/golden_api.py`) reports every request
+     `same` against a recording from before the change, on a preview of the
+     branch, and again on the live site after the deploy;
+  2. the reference searches (`tests/search_reference_tests.md`) and the Theme
+     Search probe sets (`evaluation/probe_sets/`) give the same answers;
+  3. the linters pass (ruff and ESLint, pinned to the code of 2026-10-12, so
+     they fail only on a new fault).
+  A request whose answer is meant to change is re-recorded in the same pull
+  request, and the CHANGELOG entry says which and why.
+- A formatter (black, prettier) is not used. It would rewrite nearly every
+  file, which hides the real changes of a pull request and defeats the rule.
+- The weekly reading of the code by reviewers is not scheduled. The
+  development period is intensive and finite, so a read is run on demand,
+  after a large change.
+- Why a recorded check and not tests alone. The unit tests do not exercise the
+  search over the real index. The recording does, through the same routes the
+  site uses, so a refactor that shifts a score, an order or a field shows as a
+  difference at once. Requests that give different answers on two runs
+  (timings, cache flags) are normalised away; requests that call a language
+  model or a live outside service are left out.
+- First structural job under the rule: the Flask module became an application
+  factory with its routes in blueprints (see the CHANGELOG entry of the same
+  date). It shipped with the golden check `same` on every request a preview
+  can answer, a URL map identical in paths, methods and registration order
+  (in both the production mode and the development mode with the /api prefix),
+  the body of every moved function identical by syntax tree, the same test
+  results as main, and an import time within ten percent. The URL map and the
+  function bodies are checked by two scripts kept in `scripts/review/`, so
+  the next structural job can run the same proofs.
+- Second job under the rule, tests only: characterization tests for the
+  feature extractor, distance filter, syntax parser, metrical scanner,
+  wildcard search, database helpers and the untested parts of the matcher.
+  Each expected value was taken from the code as it stands and read for
+  plausibility; none was corrected. The three Latin spelling folds named
+  `normalize_latin` (the matcher's and the distance filter's are now one
+  function; the wildcard search's keeps case and folds a final -om to -um)
+  are pinned as they are in `tests/test_normalize_latin_three_ways.py`.
+  Whether to unify them is a separate decision.
+- Third structural job under the rule: `line_search()` became a sequence of
+  named steps (see the CHANGELOG entry of 2026-10-13). A recording of 258
+  Line Search requests made on a preview of main (none of them differs between
+  two runs of the same server) gives the same answer on a preview of the
+  branch for every one. The standard recording of 68 requests is the same too.
+  The body of each of the 22 other functions and classes in the module is
+  identical by syntax tree. The 56 Line Search tests and the reference
+  searches pass. Ten timed requests (one word, a pair, twelve words, an exact
+  scan, documents, both collections, Hebrew without points, the Persian Reader
+  path, a count, a 500-row answer) have medians within 2.5 percent of main's
+  over five runs each. The steps stay in the blueprint module because tests
+  replace names in it, and only the reading of the parameters moved to its
+  own module.
+
+
+## 2026-10-12: the band inside one work is refitted on eleven works, and its lowest level is a caution, not a verdict
+- Scope: Search One Text (`/ask-a-work`) and any Theme Search restricted to
+  one work. The corpus-wide band has its own entry below.
+- The problem. The owner found three right answers labelled "a nearest
+  neighbor, not a finding": Browning's sonnet 43 for "the poet counts the
+  ways she loves", Ferdowsi for "Rostam fights the White Div", and Annals
+  4.1 for "the rise of Sejanus". The band of 2026-10-11 read the spread of
+  the work's own scores, fitted on 45 questions over three long works.
+- Measurement. The same 45 plus 80 new queries over eight more works chosen
+  for their lengths (Browning's Sonnets 143 windows, Sappho 320, Catullus
+  953, Hafez 2,218, Ovid's Metamorphoses 2,782, the Odyssey 2,800, Livy
+  4,729, Ferdowsi 23,150): five subjects each work treats, five it does not
+  (three modern, two from another genre) and two nonsense strings. One
+  subject was dropped on reading because its answers were wrong (Rostam and
+  Sohrab). Nineteen measures of the score distribution were swept for a
+  one-threshold rule, with the threshold also fitted on ten works and tested
+  on the eleventh.
+
+  | Measure | Accuracy, 140 queries | Leaving one work out |
+  |---|---|---|
+  | Spread of the work's scores (the 2026-10-11 rule) | 0.766 (0.738 at its shipped value) | 0.702 |
+  | Best passage's lift over the median | 0.809 | 0.752 |
+  | Mean lift of the top ten | 0.787 | 0.752 |
+  | Coherence of the top twenty | 0.766 | 0.716 |
+  | Lift divided by the spread, the interquartile range or the median deviation | 0.70 to 0.76 | 0.68 to 0.75 |
+  | Best passage's lift OR coherence (the new rule) | 0.836 | 0.821 |
+
+  The spread fails on long works, where a subject's few windows barely
+  widen the distribution (0.42 on Ferdowsi, 0.50 on Ovid), and on short
+  ones, where it is noisy (0.58 on Browning). Dividing a lift by the spread
+  is worse still, because the spread rises with the very tail being
+  measured.
+- Decision. The band reads the best passage's lift over the work's median
+  (moderate from 0.048, strong from 0.055, above every absent or nonsense
+  subject measured, 0.0546) or the coherence of the top twenty (moderate
+  from 0.925). No rule reached nine in ten across these works, so the band
+  is an estimate: its lowest level is labelled "Closest passages", says
+  that no passage stands far above the rest of the work so the order is
+  less certain, claims nothing about absence, and the list is shown under
+  every level. The per-passage strong mark (three standard deviations above
+  the work's median, not under the lowest level) is unchanged. Of the three
+  cases, Browning and Ferdowsi now read moderate and Sejanus reads lowest
+  with its list shown and no claim of absence.
+- Data: the measurement folder of 2026-10-12 (within-work refit) in the
+  private backups, with the measurement and sweep scripts; the first fit's
+  folder beside the pilot of 2026-10-11.
+
+## 2026-10-12: the lowest band is "Closest passages", and its floor is refitted to the enlarged index
+- Scope: Theme Search over the whole corpus (`/theme-search`), every
+  language. The band within one work (Ask a Work) uses its own rule and is
+  unchanged.
+- The problem. The owner ran "a debate in the assembly over how the city
+  should be governed", read a good list (Aristotle's Constitution of the
+  Athenians, Dionysius of Halicarnassus) under the label "Low confidence",
+  and said that the label was deflating. Two things were wrong. The label
+  claimed a difference the evidence does not show: on 2026-10-11 the lists
+  under this band on sixty historical subjects were as relevant as the
+  lists under the moderate band (0.75 against 0.73, share of the top ten
+  graded relevant). And the floor between this band and the moderate band
+  had been fitted on 2026-10-08 against an index of 530,917 windows; the
+  prose-windows run of 2026-10-11 took the index to 693,611, so every
+  result opened with a paragraph saying the thresholds were provisional.
+- Measurement. The 178-query probe set of 2026-10-08 (115 subjects the
+  corpus holds, 63 it does not, across eight language settings), the
+  original 57-query set, and the sixty historical subjects of 2026-10-11
+  (graded lists), all run against the live index. The sweep of the floor:
+
+  | Floor | 178-query set | 57-query set | Of 60 historical subjects, marked lowest (relevant lists among them) |
+  |---|---|---|---|
+  | 0.0738 (2026-10-08 value) | 74.7% | 66.7% | 18 (15) |
+  | 0.065 | 81.5% | 80.7% | 6 (6) |
+  | 0.060 | 86.0% | 77.2% | 2 (2) |
+  | 0.055 | about 80% | 63.2% | 0 |
+
+  At this index the two populations overlap. Subjects the corpus does not
+  hold reach 0.0767 ("soldiers fire machine guns from trenches") and
+  0.0800 ("a steam engine", 57-query set), while held subjects run down to
+  0.0551 ("a revolt of slaves", seven of its top ten about the subject).
+  No value separates them, so the 2026-10-08 design, which placed the floor
+  above every absent subject, now costs 64 of 115 held subjects. A rule
+  using coherence as well was swept and bought nothing (held subjects
+  0.927, absent 0.907, too close).
+- Decision. The floor moves to 0.060, the best value on the larger set and
+  on the two sets together (197 of 235). The cost is named: absent subjects
+  from the modern world or other cultures (a locomotive, a satellite, a
+  telephone, a sextant) read moderate rather than lowest. So the moderate
+  note no longer says the corpus holds the subject, only that the top
+  passages stand out from the rest, though not by a wide margin. The
+  strong threshold is unchanged at 0.1006, still above every absent
+  subject measured.
+- The label. The lowest band is "Closest passages", and its sentence says
+  that no passage stands far above the rest of the corpus on this subject,
+  so the order is less certain than usual. The list is shown, as since
+  2026-10-11. The "provisional" paragraph is no longer printed on the page.
+  It is kept in the answer as `confidence.calibration` for anyone checking
+  the fit, and the fitted size is now 693,611, so it is empty today and
+  will fill again only if the index drifts more than fifteen percent.
+- Data: measurements and sweep in the private working folder of
+  2026-10-12 (confidence refit); the probe sets in
+  `evaluation/probe_sets/`; the script
+  `evaluation/scripts/calibrate_confidence.py`.
+
+## 2026-10-11: a low confidence band shows the list, and only a degenerate band hides it
+- Scope: Theme Search over the whole corpus (`/theme-search`), every language
+  and every kind of text. Ask a Work and the search within one work use a
+  different rule (the spread of the work's own scores) and are unchanged.
+- The problem. The owner searched "establishment of democracy" and was told
+  the corpus did not appear to contain passages of this kind, with the list
+  held behind a link. The hidden list was good: Thucydides 8.63 on the
+  oligarchy at Samos, Polybius 6.4 and 6.9 on the cycle of constitutions,
+  Diodorus 12.11 on the democracy at Sybaris, Xenophon's Hellenica. The band
+  rests on head lift, the mean of the top ten scores above the corpus median,
+  fitted on 57 queries that mixed real literary scenes with nonsense and
+  absent subjects. A real subject spread across many passages does not lift
+  its top ten far above the median, and a short phrase rarely does.
+- Measurement. Sixty historical queries (thirty subjects in a short form and
+  a sentence form) and the fifteen Ask a Work pilot questions, run corpus-wide,
+  the top ten of each graded 0, 1 or 2 by the gateway model from the
+  passage descriptions. A list counts as relevant when half or more of its
+  top ten are graded 1 or 2.
+
+  | Set | Marked low | Of those, relevant list | Shown | Of those, not relevant |
+  |---|---|---|---|---|
+  | 60 historical queries | 31 | 27 | 29 | 4 |
+  | the 30 short forms | 24 | 24 | 6 | 0 |
+  | the 30 sentence forms | 7 | 3 | 23 | 4 |
+  | 15 pilot questions | 13 | 11 | 2 | 0 |
+
+  Mean share of relevant passages in the top ten was 0.75 under a low band
+  and 0.73 under a moderate one, so on real subjects the band carried no
+  information. Short forms did better than sentences (0.82 against 0.50 in
+  the low band), the opposite of what the banner's advice to write a full
+  sentence assumed. Head lift and coherence were at chance as separators of
+  good lists from poor ones (area under the curve 0.52). The degeneracy test
+  (coherence at or above 0.995) never fired in this set, since no real
+  subject reaches it.
+- Decision. The list is shown whatever the band. A low band carries a
+  one-line caution that the ranking is less certain than usual, without the
+  claim that the corpus lacks the subject. Only a degenerate band, where
+  nothing in the corpus resembles the query, holds the list behind a link and
+  makes that claim, and only there is the short-query hint given. The
+  per-passage weak-neighbor tag is left off under a low band, where every row
+  would carry it. The response adds `confidence.degenerate`.
+- What is not changed. The thresholds and the bands themselves, which still
+  tell a real subject from nonsense. This measurement had no nonsense or
+  absent-subject queries, so the band's value against those stands as fitted.
+- Data: the queries, judgements and report are kept outside the repository.
+
+## 2026-10-11: long prose works get paragraph-sized passage windows, and short sections are merged to the same size
+- Scope: the content index behind Similar Passages, Theme Search, Ask a
+  Work and the Reader's gutter, for prose works whose units (chapters,
+  sections) are long. Pull requests #814 (first run) and #821 (merging and
+  the full run). Poetry and short-unit prose are untouched.
+- The problem in plain terms. The index is made of passage windows:
+  stretches of text that each get a one-sentence description and a vector,
+  and a search compares a question with those. For poetry a window is a run
+  of twelve lines, a few hundred characters, about one scene or speech. For
+  prose the same rule took twelve "lines" of the file, and in a prose file a
+  "line" is a whole chapter or section. In Tacitus's Annals one window ran
+  from 7,500 to 15,000 characters, a dozen scenes under one description. A
+  question about one of those scenes matched the window only weakly, because
+  its description and its vector were a blend of everything in the chapter.
+  In the Ask a Work pilot the five Annals questions ranked below the
+  Aeneid's (0.40 against 0.62 of the first ten directly about the subject),
+  and the judge named the chapter-sized windows as the cause.
+- Measurement. An audit of 3,470 works found 1,511 whose median window is
+  over 3,000 characters, all but one of them prose (39,512 windows). Cutting
+  them all into windows of about 1,200 characters was estimated at 274,684
+  windows. The 3,000-character line for "long" is a judgement, chosen where
+  a window stops being one episode.
+- Decision 1, the prose scale (first run, live 2026-10-11 12:50). Long
+  prose chapters are cut at sentence boundaries into windows of about 1,200
+  characters, a paragraph, each with its own description and vector. The
+  chapter reference is kept, with a part number. The length is a chosen
+  round figure, long enough for one episode or one step of an argument and
+  short enough for a single sentence to describe. First run: the Annals (746
+  windows, median 874 characters), Thucydides (3,577) and the ten works with
+  the longest median windows (2,115), 6,438 in all. Check after the install,
+  one reader grading the descriptions against the pilot's standard: for the
+  question on the death of Germanicus the directly relevant passages in the
+  first ten rose from 3 to 6, and for the mutinies of the legions from 3
+  to 6.
+- Decision 2, what happens to the old chapter windows. They stay in the
+  index, because the Reader's position marks and the coarse-grained map
+  still use them. But a work that has prose windows no longer offers its
+  chapter windows in rankings, neighbour lists or the names list, so a
+  chapter is not offered twice, once whole and once in parts.
+- Decision 3, merging short sections (the full run, staged 2026-10-11,
+  install recorded in `DATA_OPERATIONS.md`). The first run never joined
+  neighbouring units, so Thucydides, whose sections run 300 to 500
+  characters, got one window per section: 3,577 windows too short for a
+  description to say much. For the full run, consecutive short sections of
+  one book are joined until the window reaches about 1,200 characters, and
+  the reference runs from the first section to the last. A section longer
+  than that is still cut into parts as in the first run, and a window never
+  crosses from one book into the next. Thucydides comes to 1,159 windows in
+  place of 3,577, and the remaining 991 long-prose works to 153,405 windows.
+- Measured after the full run was installed (2026-10-11 23:49). The fifteen
+  pilot questions were re-run live and the 175 passages in the new top
+  twenties that had no grade were judged with the pilot's second-judge
+  prompt (first judge's grades kept where they existed).
+
+  | | Directly relevant in top ten | Relevant at all in top ten | A direct hit in the top five |
+  |---|---|---|---|
+  | Before (pilot) | 0.44 | 0.75 | 14 of 15 |
+  | After | 0.59 | 0.80 | 15 of 15 |
+  | Annals before / after | 0.40 / 0.70 | 0.68 / 0.88 | 5 / 5 |
+  | Thucydides before / after | 0.30 / 0.46 | 0.64 / 0.58 | 4 / 5 |
+  | Aeneid (unchanged by the run) | 0.62 / 0.60 | 0.94 / 0.94 | 5 / 5 |
+
+  Ranking quality by nDCG at ten fell from 0.75 to 0.71 overall, mostly in
+  Thucydides (0.73 to 0.60), where the merged windows are coarser than the
+  single sections for two questions about one speaker's view (Pericles, and
+  justice against self-interest). The figures are not on identical ideals,
+  since the new grades enlarged the ideal ranking. Kept as installed.
+- A smaller merge target, tested and not adopted (2026-10-12). Thucydides
+  books 1 and 2 were re-cut at 600 and 800 characters and the five pilot
+  questions ranked offline against the installed 1,200, every passage graded
+  by the same judge: 600 beat 1,200 on every measure (directly relevant in
+  the top ten 0.64 against 0.50, nDCG 0.92 against 0.84), 800 did not. The
+  same comparison on Herodotus (books 1 to 3) and Diodorus (books 11 to 14),
+  eight new questions, did not confirm it: 600 tied on Herodotus and lost on
+  Diodorus for precision (0.26 against 0.31 overall), winning only on
+  ranking order (0.85 against 0.83) and on a direct hit in the top five
+  (8 of 8 against 6 of 8). One win, one tie and one loss on five to eight
+  questions a work is not grounds to re-cut 284 works, nor to give one work
+  a different cut from the rest. The target stays at 1,200.
+- Open. The describing model writes Thucydides' speeches without the
+  speaker's name, so a search for a person in Thucydides falls back to the
+  text itself.
+
+## 2026-10-11: Ask a Work pilot graded by a second, independent judge
+- Scope: the figures quoted for Ask a Work (`/ask-a-work`) and for its
+  confidence band and strong marks.
+- Why. Every figure rested on one judge, a Sonnet model reading each
+  passage's description, opening and translation. A second model from a
+  different family (Qwen 3.8 27B, on the university gateway) re-graded the
+  same 293 passages from the same material, with the same instructions, at
+  temperature 0.
+- Result. The two judges agree exactly on 69% of passages (kappa 0.54,
+  quadratic 0.71) and agree on whether a passage is relevant at all on 81%.
+  The second judge is stricter about passages that merely touch a subject:
+  37 of the first judge's "touches it" grades become "not about it". The
+  strong marks' precision for relevant passages is 0.905 under the first
+  judge, 0.873 under the second, 0.857 where both agree.
+- Decision. The band and the strong marks stand. The site and Help report
+  the figures as a range across two judges, and the softer figure is the one
+  to quote for passages that only touch a subject.
+
+## 2026-10-11: a confidence band for a search within one work, from the spread of that work's scores, provisional
+- Scope: Theme Search restricted to one work, and Ask a Work.
+- Why. The corpus-wide confidence rating was fitted on scores over the whole
+  index and does not carry into one work, so a restricted search had no
+  rating (decision of 2026-10-09). A question that a work does not address
+  at all looked the same as one it answers.
+- Measurement. 45 queries over the Aeneid, Thucydides 1 to 2 and Annals 1
+  to 6: the pilot's 15 real questions, 15 subjects absent from the work, 15
+  nonsense strings. The spread (standard deviation) of the work's window
+  scores separates real from absent best, with accuracy 0.889 and
+  leave-one-work-out 0.867. Head lift, top-hit lift and coherence do as well in sample, but
+  their thresholds do not carry from one work to another.
+- Decision. Three bands from the spread: low below 0.0099, strong from
+  0.0125 (above the largest spread any absent subject produced), moderate
+  between. A passage is marked strong when its score stands 3 spreads above
+  the work's median and the band is not low: 63 of 293 judged passages
+  marked, precision 0.905 for relevant passages (first judge). Both are
+  labelled provisional, because they were fitted and tested on the same 45
+  queries over three works. On the Ask a Work page a low band does not hide
+  the list, because one real question in five came out low.
+
+## 2026-10-11: Ask a Work keeps the reader re-rank
+- Scope: Ask a Work and Theme Search restricted to one work.
+- Why. The reader model re-orders the top results by reading them, which
+  costs two to three seconds against under one second without it. Within one
+  work the gain was untested.
+- Measurement. The fifteen pilot questions re-run with and without the
+  reader, scored against the pilot's judgements. With it, 0.44 of the first
+  ten passages are directly about the subject and 0.75 are relevant at all.
+  Without it the figures are 0.41 and 0.59.
+- Decision. Kept on. The time is spent on a better first page.
+
+
+## 2026-10-09: Theme Search restricted to an author or work lists up to 10 passages per work, none capped for a single work, with no confidence rating
+- Scope: `/api/passages/theme-search` with `author=` or `works=`, and the
+  "Search within" picker on the Theme Search page.
+- Decision: a restricted search is a flat list of passages. The corpus-wide
+  rule of one head per work and three rows each (`PASSAGES_PER_WORK`) is
+  dropped, because it exists to stop one huge work owning a page of the
+  whole corpus. Several chosen works share the page at up to 10 passages
+  each (`RESTRICTED_PER_WORK`). A single chosen work has no cap, because a
+  cap would end paging at the cap. Confidence (head lift, coherence) is not
+  rated for a restricted search, the response says so in its `note`, and no
+  result is marked strong.
+- Measurement: five queries in each of Vergil and Livy (Latin) and Homer and
+  Thucydides (Greek), asking for 25 passages under per-work caps 3, 10, 25
+  and unlimited, on the production index read-only (means over the five
+  queries). Livy and Thucydides are one work each in the index.
+
+  | Author | Cap | Passages returned (of 25) | Distinct works in top 25 | Distinct books in top 10 | Most from one book in top 10 |
+  |---|---|---|---|---|---|
+  | Vergil | 3 | 8 | 2.8 | 5.4 | 2.4 |
+  | Vergil | 10 | 23.2 | 2.8 | 3.6 | 6.4 |
+  | Vergil | unlimited | 25 | 1.4 | 3.6 | 6.4 |
+  | Livy | 3 | 3 | 1 | 2.8 | 1.2 |
+  | Livy | 10 | 10 | 1 | 8.2 | 2.2 |
+  | Livy | unlimited | 25 | 1 | 8.2 | 2.2 |
+  | Homer | 3 | 9 | 3 | 7.4 | 2 |
+  | Homer | 10 | 25 | 3 | 6.4 | 3.4 |
+  | Homer | unlimited | 25 | 2.2 | 6.4 | 3.4 |
+  | Thucydides | 3 | 3 | 1 | 2 | 2 |
+  | Thucydides | 10 | 10 | 1 | 4.8 | 4.4 |
+  | Thucydides | unlimited | 25 | 1 | 4.8 | 4.4 |
+
+- Reading: cap 3 is unusable inside an author, since a single work returns
+  3 passages in all and Vergil returns 8 of 25. Cap 10 and unlimited give the
+  same top ten everywhere (a cap of 10 cannot change ten rows). They differ
+  deeper: with the Aeneid dominant, an unlimited list is 1.4 works out of
+  3 across 25 rows, while cap 10 keeps the Georgics and Eclogues in view
+  (2.8 works). The cap does not govern flooding by one book. The share of the
+  top ten taken by one book is the same at 10 and unlimited (Thucydides 4.4
+  of 10 from one book, Vergil 6.4), so that is a property of the ranking and
+  of the query, and the picker's Work step is the remedy.
+- A single work is uncapped because with cap 10, Livy ended at 10 passages and
+  Show more had nothing further to fetch.
+- Confidence: the head-lift and coherence thresholds were fitted on 57
+  queries over the whole index. Inside one or a few works the median and the
+  spread both change, so the thresholds are not comparable, and no
+  restricted-query fit has been made. The figures are withheld, and the page
+  and the connector say so. A rating that has not been validated is not
+  shown.
+
+## 2026-10-09: licensed scholarship is indexed for retrieval and shown as citation, excerpt and link, never summarised
+- Scope: every source of secondary literature the site holds under a
+  licence or a permission (journal articles, monographs, commentaries
+  from publishers, libraries and aggregators, called licensors
+  throughout). The Scholarship tab, Theme Search over scholarship (a
+  measured prototype, see below) and the assistant all follow it.
+- The rule: the full text is indexed on our own server for retrieval
+  only, as embeddings and a keyword index, and is never served in bulk.
+  What a reader sees for a passage is a citation (author, title, journal
+  or publisher, year, page, a link to the licensor's own page) ordered by
+  how closely each item bears on the passage, with at most a short
+  excerpt of the sentence that made the match. No description, abstract
+  or summary of an article is written or generated by the site. The
+  assistant answers questions about scholarship by quoting a sentence
+  with its citation and does not paraphrase an argument. Text is deleted
+  at the end of the project where a licensor asks (one publisher's term,
+  October 2026). Each source can be set to show no excerpt at all.
+- Why: a sentence-long excerpt with a link sends a reader to the article,
+  which is what the licensor's own search already does; a summary lets a
+  reader cite an article without reading it, and would be the derivative
+  work a licensor could object to. The site's own passage descriptions are
+  prose about public-domain primary texts and are not the model here.
+- Measurement behind the retrieval side (2026-10-09, 15 queries, one
+  judge, 82,814 windows of 393 commentaries and 33,386 journal sentences):
+  P@10 meaning-based 0.57, keyword 0.57, reciprocal-rank hybrid 0.57;
+  nDCG@10 0.59, 0.52, 0.64; queries with a fully relevant hit in the top
+  ten 11, 12, 13 of 15. The hybrid is the design when licensed article
+  text arrives. The quarter-sample run earlier the same day gave 0.37 and
+  0.43 for the two base systems, so the full index matters.
+- Decided by the project lead on 2026-10-09 on the recommendation above.
+
+## 2026-10-09: Inscriptions & Papyri as its own main-menu page
+- Scope: a new route, `/inscriptions-papyri`, with its own component under
+  `client/src/components/documents/`. It combines the documents-collection
+  search (filters, restoration/formula options, ranking, totals, paging,
+  the century/region chart) with the browse-by-facet view (kind, then
+  region, then century, with a findspot level added for papyri, see the
+  entry below) on one page. Before this, the documents collection was
+  reachable only as a secondary option inside Lines search and a section
+  of Browse Corpus. The search logic is factored out of `LineSearch.jsx`
+  into shared code under `client/src/components/documents/`, so the new
+  page and Lines search's own "Documents"/"Both" option (kept as a
+  secondary route, not removed) share one implementation.
+- Placement: shown in the main navigation beside Theme Search, only when
+  the documents trial is active (server `TESSERAE_DOCUMENTS=1` and the
+  client's `documents_trial` session flag, set by `?documents=1`, the
+  same gate the Lines-search documents option and Browse Corpus's
+  Documents section already use). The page itself redirects to the main
+  search when the flag is not set, so the route is never a back door to a
+  trial feature for a visitor who never opted in. It is reviewed, like
+  the rest of the documents trial, before being offered to every visitor.
+- The documents collection (inscriptions and papyri) is a different kind
+  of material from the literary corpus Lines search is built around: no
+  author/work/line-range browsing, credit/license per result, restoration
+  markup, its own facet tree. Inside Lines search it
+  read as a secondary, easy-to-miss option on a page named for something
+  else. A named page in the main menu makes it a first-class part of the
+  site for a reader who came specifically for the epigraphic or
+  papyrological material, with the existing Lines-search route left in
+  place, not duplicated or removed.
+
+## 2026-10-09: papyri grouped by nome, with the findspot nested under it
+- Scope: `backend/documents_browse.py`'s Browse Corpus facet tree grouped
+  papyri by a single flat `region` field derived from HGV's free-text
+  findspot column. A document naming only a town (e.g. "Oxyrhynchos") and
+  one naming only its administrative nome (e.g. "Oxyrhynchites") landed in
+  two unrelated top-level buckets, checked against metadata.db 2026-10-09:
+  4,440 and 1,637 documents, split, with no link between them, the same
+  pattern for Thebes/Peri Thebas, Hermopolis/Hermopolites, Elephantine/
+  Katarraktes Mikros. HGV records the nome as its own structured field in
+  the source XML (`<placeName subtype="nome">`, separate from the town's
+  own `placeName`), but the metadata extraction
+  (`scripts/documents/epidoc_convert.py`) never read it.
+- Fix: parsed the raw HGV_meta_EpiDoc XML corpus directly (68,022 files,
+  dev workspace, not production) for every (town, nome) pair HGV's own
+  structured field records anywhere in the corpus. 573 towns had at least
+  one such pair, resolved by majority vote where a town's nome varies
+  across documents (39 towns, almost always one dominant nome). Written to
+  `data/documents/papyri_nome_map.json`, a small, whitelisted reference
+  file alongside `eagle_labels.csv` and `german_label_translations.json`,
+  not the full HGV corpus. `normalize_papyri_region` now returns
+  `(nome, findspot)`. The nome comes from a document's own parenthetical
+  when it has one, else from the map for the town it names, else
+  "Unknown nome" when neither resolves (a town outside the nome system
+  entirely, or no place recorded at all). The facet tree gained a
+  `findspot` level between region (nome) and century. The browse UI labels
+  the first level "Nome" for papyri, with a new "Findspot" facet under it.
+  Full before/after top-20 counts are in this PR's description and
+  `CHANGELOG.md`.
+
+## 2026-10-09: century facet's earliest buckets, source errors excluded
+- Scope: checked every document behind the century facet's earliest
+  buckets ("31st century BC", "16th century BC", "13th century BC")
+  against the real stored date fields. All 8 are source-data errors, not
+  early material. One is an EDR epitaph (CIL 09, 03008, an ordinary
+  1st-century cinerary urn with `date_not_before` stuck at -3030). The
+  other 7 are `O.Trim. 3` ostraca from a documented 3rd/4th-century-AD
+  excavation series where 1,043 of the other 1,050 entries carry sane
+  Roman/Late Antique dates and these 7 alone carry a Bronze Age
+  `date_not_before`. Checked and left alone: the genuinely early
+  7th/8th-century-BC EDH/EDR entries, archaic Italic and Sicilian-Greek
+  epigraphy (Gabii, Praeneste, Veii, Selinus, Satricum), which are real,
+  narrowly-dated finds, not errors.
+- Fix: `century_bucket` (`backend/documents_browse.py`) now gives a
+  document with a `date_not_before` earlier than 1000 BC
+  (`_IMPOSSIBLE_DATE_FLOOR`) its own "Date uncertain" bucket, outside the
+  century facet. No
+  Latin or Greek alphabetic inscription, and no Greek/Demotic/Coptic
+  documentary papyrus in this corpus, is genuine before that floor, and
+  it sits safely below the real 7th/8th-century-BC material, which keeps
+  its own bucket. The document's own displayed date (`date_label`) is
+  unchanged. Only the century facet bucket moves, so a document's page
+  still shows what the source actually recorded.
+
+## 2026-10-08: documentary reuse table, formula exclusion threshold and tiers
+- Scope: a cross-collection table per language (`cache/reuse_pairs/<lang>_documents.db`,
+  `scripts/reuse/build_documents_reuse_table.py`) pairing each literary
+  line against the documents collection, with the SAME word-triple
+  containment logic and thresholds as the literary table
+  (`scripts/reuse/build_reuse_table.py`): `min_shared=2`/`min_jaccard=0.15`,
+  `min_shared_override=4`/`min_containment=0.5`, and the rare-single-ngram
+  rule (`rare_max_df=20`/`rare_min_containment=0.06`). Kept identical
+  rather than re-tuned for documents, since the question the thresholds
+  answer (is a shared trigram shape strong enough evidence of reuse) does
+  not change with what the other side of the pair is; `shared==1` is the
+  tier 'possible', everything else kept is 'strict' -- read-time only, no
+  stored tier column, the same derivation `backend/reuse_table.line()`
+  already uses.
+- Formula exclusion threshold: the literary table excludes a pair whose
+  shared n-grams are all built from commonplace LEMMAS (a corpus-wide
+  lemma-frequency ratio). Documents have no equivalent "commonplace lemma"
+  signal worth computing fresh -- `backend/app.py`'s stage 3b-3 decision
+  above already measured and shipped exactly this question for the
+  documents collection itself ("is a shared word a boilerplate formula or
+  a genuine parallel, by how many documents use it") and found a three-
+  order-of-magnitude gap between the smallest formula (3,535 documents)
+  and the largest genuine parallel (19): `DOCUMENTS_FORMULA_DEFAULT_N=100`.
+  Reused verbatim as `DOCUMENT_FORMULA_MAX_DOCS` here rather than
+  re-measured, plus `data/documents/formula_words_<lang>.txt` (the hand-
+  reviewed funerary/honorific/legal/dating word lists already shipped for
+  the documents-collection search's "hide stock formulas" control). A
+  shared n-gram is formula-only when every one of its three words is
+  either on that list or a lemma used by more than 100 individual
+  documents (computed once per build from the documents index's own
+  `postings` table, grouping by the ref's owning doc_id the same way
+  `backend.documents.doc_for` does -- NOT from the documents index's
+  existing `lemma_doc_freq` table, which counts frequency across the 160
+  bucket FILES, not the ~179K individual documents, and so cannot answer
+  "how many documents" at all). A pair whose shared n-grams are ALL
+  formula-only is dropped entirely, and the rare-single-ngram rule's one
+  contributing n-gram is checked the same way, mirroring the literary
+  table's `drop_all_commonplace`/`commonplace_hashes` gate.
+- Measured against the dev checkout's own Latin data: 605,758 of 632,199
+  candidate cross-collection pairs (96%) were dropped as all-formula,
+  leaving 5,414 kept pairs, only 280 of them strict (shared>=2) -- most
+  genuine literary-to-document reuse this table finds is a single rare
+  shared phrase (the 'possible' tier), not a verbatim shared line, which
+  is itself the expected shape: a document line is usually a few words
+  long, so a literal shared LINE the way two literary works share one is
+  the exception (the Pompeii "arma virumque cano" graffito, jaccard 1.0),
+  not the rule.
+- Known gap, not fixed here: matching is ORDER-SENSITIVE (contiguous or
+  one-gap-skip trigrams), inherited unchanged from the literary table. The
+  Pompeii "fullers' parody" of Aen. 1.1 ("Fullones ululamque cano, non
+  arma virumque", word order reversed) shares the same three content
+  words with Vergil's line but no trigram in common, so it is NOT found by
+  this table. Recorded here rather than silently claimed as a working
+  sample; the two genuine "arma virumque cano" graffiti this table does
+  find (CIL IV-shape, verbatim and near-verbatim) are documented in
+  `docs/DATA_OPERATIONS.md`.
+- Gutter display: a document hit is shown as a SEPARATE count ("quoted in
+  N inscriptions or papyri"), not merged into the existing "quoted in N
+  works" number. Chosen over merging because the existing number has
+  already shipped with a fixed meaning (works, not documents); silently
+  changing what it counts would be a bigger change than the Reuse tab
+  addition itself, and a document is a different kind of witness from a
+  literary work (no author, no title, a different citation shape) that
+  reads oddly folded into the same integer.
+
+## 2026-10-08: a shared title needs its own author's name nearby, not just the bare title
+
+**Question.** The Scholarship tab for Apollonius Rhodius, Argonautica 1.5-17
+listed "Valerio Flaco (2016). Argonáuticas" and a Smallwood note on
+"Valerius Flaccus' Argonautica 1.5-21." Apollonius Rhodius and Valerius
+Flaccus both wrote a work called Argonautica, and the backend accepted a
+bare match on that title for either author's passage.
+
+**Check.** The corpus holds 145 titles used by more than one author
+(`backend.scholarship._load_shared_titles`, built from the corpus file
+list), including Argonautica (Apollonius Rhodius, Valerius Flaccus),
+Metamorphoses (Ovid, Apuleius) and dozens more. The live production route
+was queried read-only for Apollonius Rhodius, Argonautica 1.5-17 and
+Valerius Flaccus, Argonautica 1.1-21 on 2026-10-08. The Google Books
+channel, which has no author check of its own, returned the same eight
+books for the Apollonius page. Three were actually about Apollonius
+Rhodius (Morrison, Berkowitz, Augoustakis, each citing "A.R." or "A. R."
+next to the locus). Five were about Valerius Flaccus instead: two editions
+titled "Valerius Flaccus' Argonautica, Book 1," the Spanish
+"Argonáuticas," and the Stover and Tanner books, all four of the last
+group citing the Smallwood 1962 note on "Valerius Flaccus' Argonautica
+1.5-21."
+
+**Decision.** For a shared title, require the target author's own name or
+citation abbreviation near the match, and reject a match naming a
+competing author of the same title instead, drawing the abbreviations from
+`data/citations/abbreviations.json` (production, read-only). Most dev and
+test machines do not have that file, and the check does nothing without
+it. Rerunning the lookup against that same production data for Apollonius
+Rhodius, Argonautica 1.5-17 now keeps the three Apollonius Rhodius books
+and drops all five Valerius Flaccus ones. The same check on Valerius
+Flaccus, Argonautica 1.1-21 keeps the three Valerius Flaccus books (the two
+editions and the Spanish translation) and drops the three Apollonius
+Rhodius ones. Stover's and Tanner's books are dropped from both pages.
+Their matched snippet quotes only the Smallwood note and never names
+either poet, so nothing in it says whose Argonautica they cite.
+
+A corpus filing quirk very nearly doubled as a second, false "Aeneid"
+author. `maffeo_veggio.aeneid.tess` duplicates his own Supplementum under
+the stray title "Aeneid" and is not a real second Aeneid. The abbreviation
+table marks it `unmatched` (no author_names, no work_titles), and the
+guard drops any title-group member the table marks that way before
+deciding whether a title is really shared, so an ordinary Vergil citation
+still needs no "Vergil" nearby.
+
+## 2026-10-08: the Documents browse scheme (kind, region, century)
+
+**Question.** The documentary corpus (inscriptions from EDH, EDR, and
+I.Sicily, papyri and ostraca from HGV via papyri.info) has no browse view
+of its own. The only way to explore it is the Line Search documents
+trial's free-text filters. What grouping lets a reader explore it without
+already knowing a search term?
+
+**Decision.** A three-level facet tree with counts at every level. Kind
+(Inscriptions, Papyri and ostraca) comes first, then region, then
+century, each level narrowing the one before it. Flat filters (text type,
+material, object, language) apply within the current selection at any
+level. Sources (EDH, EDR, I.Sicily, papyri.info) appear as a credit on
+each document, not as a browse level, because EDH and EDR both cover the
+same inscriptions and a source-first tree would double several regions.
+
+**Region.** Inscriptions use the source's own `region` field, already a
+Roman province, or for Italy an Augustan region. EDH and EDR label the
+same Italian region differently. EDR writes the fuller "Latium et
+Campania cum insulis (Regio I)". EDH writes a shorter form and marks an
+uncertain region with a trailing "?". These variants are merged to one
+canonical label per region, with the original value kept on the document
+record. I.Sicily carries no `region` column at all and is assigned
+"Sicilia" directly, since every one of its inscriptions is Sicilian by
+construction of the source. A few labels name two provinces at once
+("Tuscia et Umbria", "Macedonia, Epirus", "Sicilia, Melita"). These stay
+their own bucket, since the document genuinely spans both and a merge
+into either side would misstate where it is from.
+
+Papyri have no region column. HGV's `ancient_place` field is German-
+labeled, with 2,055 distinct values, and is parsed to find a region. A
+parenthetical qualifier that looks like an Egyptian nome ("Karanis
+(Arsinoites)") becomes the region. A qualifier that is a country,
+province, or disambiguator instead ("Masada (Palästina)", "Theben (?)")
+is dropped, and the site name in front of it is used on its own. "X oder
+Y" ("X or Y", an uncertain alternate reading) takes the first option. A
+small alias table anglicizes the most frequent bare German names (Theben
+to Thebes, Oxyrhynchos to Oxyrhynchus, unbekannt to "Unknown findspot").
+The top 80 raw values cover 85.7% of all papyri. The long tail passes
+through with only the general cleanup, not a specific alias, so some rare
+findspots keep a German or otherwise unanglicized label.
+
+**Century.** Computed from `date_not_before`, falling back to
+`date_not_after` when that bound is missing, with BC/AD assigned by the
+usual astronomical-year convention. A document whose two bounds fall in
+different centuries is filed under the earliest one, and its own date
+label, shown next to it in the leaf list, names the full span, so a
+reader is never misled into thinking it is confined to the bucket it sits
+under. A document with neither bound is its own "Undated" bucket, apart
+from every century.
+
+**Where.** `backend/documents_browse.py` holds the normalization and the
+in-memory facet cache, built once over `metadata.db`. The route is
+`GET /api/documents/browse`, behind `TESSERAE_DOCUMENTS=1`. The UI is
+`client/src/components/corpus/DocumentsBrowser.jsx`, a new tab inside
+`CorpusBrowser.jsx`, behind the client's own documents trial.
+
+## 2026-10-08: document results are ranked, a 500-row cap is gone, and German label words are translated
+
+**Question.** A documents-collection search (the `?documents=1` trial)
+returned hits in storage order with no total above 500, and the EDH source
+database's own German placeholder and connector words ("unbekannt", "bei")
+reached the page untranslated. What should rank the list, what should the
+total mean once the 500-row cap is gone, and which values actually need
+translating?
+
+**Ranking.** No score exists anywhere on this path (see the 2026-10-08
+entry below on stage 3b-3 and the 2026-08-25 fusion entries for where
+scoring does live, neither of which this touches). The default sort
+('relevance') is a four-part ordinal rank, not a score: an exact adjacent
+phrase before one whose matched words are scattered on the line, a match
+on surviving text before one resting on an editorially restored word,
+fewer restorations elsewhere on the same line, then earliest date. Every
+part is read from data the documents index already returns for a lemma
+match (the per-lemma token positions `find_co_occurring_lemmas` returns,
+and the restored-word sidecar), not from a second fetch of the line's own
+text. 'Oldest first', 'Newest first', and 'Region' are the three
+alternatives offered on the sort control.
+
+**Totals and paging.** The true total is counted the same way the
+existing stock-formula count already works. Both read the documents
+index's own postings, through `find_co_occurring_lemmas` and `doc_for`,
+never a corpus scan and never an estimate. Measured against the
+production `la_documents_index.db`/metadata.db, "dis manibus"
+(co-occurring on 35,231 documents) now returns 35,231 as its own total,
+counted and ranked in about 1.1 to 1.2 seconds warm end to end
+(candidates 0.3 to 0.7s, `doc_for` 0.12s, a chunked bulk metadata fetch
+0.4 to 0.6s, the restored-word sidecar lookup, once loaded, 0.05s),
+comfortably inside the "about 2 seconds warm" target. The expensive step
+for any one request, a line-text fetch per matched document, now runs
+only for the 50 rows of the page actually requested, grouped by bucket
+file. The one-time cold cost of loading a bucket file's restored-word
+sidecar (about 1.9 seconds the first time any request touches it, 26 MB
+of JSON Lines across 109 Latin bucket files) is paid once per process,
+which is why the 2-second figure above is stated as a warm one.
+
+**German label translation.** Every distinct value of metadata.db's
+region/ancient_place/modern_place/material_label/object_type_label/
+text_type_label fields was scanned for German words (2026-10-08, against
+the production metadata.db, 249,610,240 bytes). Counts are document ROWS
+containing the word, not distinct values (a word like "bei" recurs inside
+thousands of different place strings):
+
+| German word | English | Rows |
+|---|---|---|
+| bei | near | 14,106 |
+| unbekannt | unknown | 11,210 |
+| Ägypten | Egypt | 3,022 |
+| oder | or | 1,453 |
+| aus | from | 627 |
+| Oberägypten | Upper Egypt | 531 |
+| bzw. | or | 269 |
+| und | and | 33 |
+| von | of | 29 |
+| östlich | east | 14 |
+| oase | oasis | 5 |
+| szienit | syenite | 5 |
+| südlich | south | 4 |
+| bezirk | district | 4 |
+| gau | district | 3 |
+| nördlich | north | 2 |
+| unterägypten | Lower Egypt | 2 |
+| sekundär | secondary | 1 |
+| verwendet | used | 1 |
+| nicht | not | 1 |
+| wohl | probably | 1 |
+
+A real place spelled in German (Köln, Mainz, Wien, and every other German
+city EDH names in its own working language) is NOT in this table and is
+never touched. That is the place's own name, the same reason "Roma" is
+never translated to "Rome" anywhere else on the site. Only connector,
+placeholder, and descriptive-geography words are translated. The table is
+committed at `data/documents/german_label_translations.json` and applied
+word by word, case-preserved, on the way out (`backend.documents.
+translate_label`). The value stored in metadata.db is never rewritten.
+
+A place value recognized as a "not known" placeholder (German
+"unbekannt", English "unknown"/"unknown location", or the Latin
+"ignoratur" several principal editions still carry) is left off the
+result row entirely (`backend.documents.is_unknown_place`). The word
+"unknown" printed alone told a reader nothing, so the row carries no
+place value for that hit. The Latin and English markers are the same
+placeholder problem under a different word, so the hiding rule covers
+all three together.
+
+**Decision.** Rank by the four-part relevance order above by default,
+offer the three named alternatives, report the exact total from postings
+with no cap, page 50 rows at a time server side, and translate the words
+in the table above for display while leaving metadata.db untouched.
+
+
+## 2026-10-08: editors' prose inside a poetry text is removed, the poet's own prose is kept
+
+**Question.** Some Persian and Urdu files, built from complete-works
+collections, contain long prose. Which of it belongs in the corpus?
+
+**Check.** Every Persian and Urdu file was scanned for lines over 40 words
+and each range was read. Khayyam's Diwan held a signed 1934 introduction by
+a modern editor (142 lines, with page references and footnotes), and
+Ghalib's Wikisource Diwan held two variant-reading footnotes. The long
+prose in Attar (Tazkirat al-Awliya), Saadi (the Gulistan), Naser Khosrow
+(the Safarnama) and Sanai is the poets' own.
+
+**Decision.** Remove text written by modern editors, keep prose written by
+the author, and keep the remaining lines' references unchanged so the gap
+shows where material was taken out. Removal runs through
+`scripts/corpus/drop_lines_from_work.py`, which keeps every store in step.
+
+## 2026-10-08: Ghalib's Translation tab shows a Pritchett link, not copied English
+
+**Decision.** For Ghalib (`ghalib.diwan_wikisource`), the Reader's
+Translation tab shows a link to Frances W. Pritchett's "A Desertful of
+Roses" verse page. Ghalib has no aligned English translation. The link
+travels on a new `external_links` field on `/api/translation`. The field
+is additive. A
+work can carry this field, an aligned translation, both, or neither.
+`backend/translation_links.py` loads
+`data/translations/links/ur__ghalib_pritchett_links.json`, built by
+`scripts/build_ghalib_pritchett_links.py`.
+
+**Why.** Pritchett's site states no licence for her translations or
+commentary. They cannot be copied into the site the way the public-domain
+and non-commercial-licensed translations in `data/translations/` are.
+Linking to her own page for the matching verse is permitted and sends the
+reader to her full commentary.
+
+**How the link table was built.** Only `ghalib.diwan_wikisource` (272
+ghazals, Wikisource's numbering) ships in `texts/ur/`. A second edition,
+numbered exactly as Pritchett's site numbers it, was retired from the
+served corpus earlier, so a Ghalib passage could not appear three times
+over in Theme Search, Similar Passages, and cross-language results. It
+survives only outside the repository, as a cross-reference for this
+alignment. The two editions' ghazal numbers do not correspond, so matching
+goes by text, not number, at two levels. Each ghazal's opening verse first
+pairs up the ghazals. Verse by verse inside each matched pair comes next,
+against the retired edition's own text, never assumed from a shared verse
+count. That file is not uniformly one line per half-line. Some ghazals
+split each verse into two lines, others join both halves into one, and
+Pritchett appends unpublished manuscript-variant verses after the regular
+numbering for some ghazals. The real, ordered verse-label list for each of
+her 234 ghazals, confirmed against her site and including the
+"x"-numbered variants, came from her own per-ghazal index pages, fetched
+once each (one request at a time, a plain User-Agent, no site refusal
+encountered) and cached.
+
+**Result.** 2,514 of 3,345 Wikisource verses (75%) resolved to a Pritchett
+verse URL. The ghazal-pairing step reproduced, with no mismatches, all 67
+pairs already recorded in `data/poetics/ghalib_pritchett_to_wikisource_ghazal_map.json`
+from earlier work. Several verse-level matches were also checked against
+her live pages by eye (her own worked example {98,4} and the opening verse
+{1,1}) and read correctly. 18 of 234 Pritchett ghazals could not be split
+into verses unambiguously from the retired copy's line count against the
+real verse count. Most are short by exactly one verse, missing from that
+one-time copy. Two carry a stray extra line. These 18 are left unmapped,
+reported, and not guessed at. Ghazals she does not cover at all are also
+unmapped and expected, since she covers a selection of the diwan, along
+with a handful of tied, equally good verse matches.
+
+## 2026-10-08: Theme Search confidence: HEAD_WEAK refit for Latin, Greek, and English
+
+**Decision.** `HEAD_WEAK`, the floor above which a Theme Search result
+counts as a match at all, moved from 0.0750 to 0.0738. `HEAD_STRONG`
+(0.1006) and the coherence degeneracy threshold (0.995) are unchanged.
+`FITTED_AT_WINDOWS`, the index size the live bands are fitted to, is now
+530,917 (the production size measured for this refit), replacing the
+603,594 recorded for the superseded combined-score design.
+
+**Why.** The pervasive-theme fix above (same day, logged just below)
+promotes a single-language search when that language's own median score
+sits far above the whole corpus's, but it only ever promotes; it cannot
+help a specific, non-pervasive scene whose language-median is not
+elevated. On the 139-query set behind that fix, Latin and Greek stayed at
+64.7% and English at 47.1%, and every remaining miss was a false `low` on
+a result confirmed on topic by reading its description, because none of
+those languages' queries are pervasive by this corpus's own statistics
+(Latin's and Greek's measured excess over the whole-corpus median tops
+out at 0.0046 and 0.0076 against the 0.005 promotion floor, mostly
+negative; English peaks at -0.0003). The underlying number the fix would
+need to move, `head_lift`, had never itself been refit against the
+current, roughly 531,000-window index; it was last fitted 2026-08-25 on
+57 queries at 603,594 windows.
+
+The labeled set was extended first, keeping every existing query, to
+carry 30 queries each for Latin, Greek, and English (was 17), split
+across pervasive themes, specific scenes, and absent subjects, each
+checked against its own top results' descriptions read against the
+production index: `evaluation/probe_sets/theme_confidence_2026-10-08.json`,
+now 178 queries. The original 57-query
+`evaluation/probe_sets/combined_confidence.json` (one word to a full
+sentence, unfiltered) was kept untouched as a regression check.
+
+`evaluation/scripts/calibrate_confidence.py` swept `HEAD_WEAK` from
+0.0400 to 0.0800 against both sets at once, read-only against the
+production index. `HEAD_STRONG` does not affect this metric: it only
+separates `moderate` from `strong`, never `low` from the rest, so sweeping
+it was not useful once that was confirmed. The absolute floor any global
+value must clear is set by the single highest-scoring ABSENT query across
+both sets and every language at once, because `head_lift` is computed
+from the whole corpus for a given query text regardless of which language
+the search is narrowed to (see the PERVASIVE THEMES design, logged
+below): "a surgeon administers ether before an operation" (unfiltered),
+head_lift 0.073282. The only flat, zero-false-positive plateau the sweep
+found sits immediately above that, `(0.073282, 0.074292]`, bounded above
+by the lowest of three Latin queries that would otherwise tip back to
+`low`. 0.0738 sits in the middle of it.
+
+| probe set | queries | old (0.0750) | new (0.0738) |
+|---|---|---|---|
+| Latin | 30 | 56.7% | 66.7% |
+| Greek | 30 | 63.3% | 63.3% |
+| English | 30 | 43.3% | 46.7% |
+| Persian | 18 | 94.4% | 94.4% |
+| Urdu | 18 | 88.9% | 88.9% |
+| Hebrew | 17 | 100.0% | 100.0% |
+| Coptic | 17 | 94.1% | 94.1% |
+| unfiltered | 18 | 83.3% | 83.3% |
+| extended set, all languages | 178 | 73.0% | 75.3% |
+| original 57-query set (regression check) | 57 | 66.7% | 68.4% |
+
+(Persian, Urdu, Hebrew, Coptic, and unfiltered figures are the already-
+shipped pervasive-promoted accuracy; the three later refits, Latin,
+Greek, English, use it too, since nothing about this change touches that
+mechanism.) Latin gained three queries ("a banquet with speeches, music,
+and entertainment," "an old nurse recognizes her former charge by a
+scar," "a lover complains of a mistress's cruelty," head_lift 0.074292 to
+0.074544) and English gained one ("a garden described in loving detail,"
+0.074782). Nothing fell on either probe set: the change can only move a
+query out of `low`, never into it, and the ceiling it respects is the
+highest-scoring absent query across both sets at once, so a regression on
+either set was not possible by construction. Zero absent queries were
+promoted to `moderate` or `strong` anywhere in either set, at either
+value.
+
+Greek did not move. Its present, non-pervasive queries' `head_lift` jumps
+directly from 0.0675 to 0.0762 in this probe set, straddling the entire
+plateau, and its own highest-scoring absent query ("a satellite orbits
+the earth," 0.070457) sits inside that gap, so no value between 0.0705
+and 0.0762 helps Greek without first crossing that query into a false
+positive, and no value below 0.0705 is reachable at all without crossing
+the global 0.073282 ceiling first. This is a property of this embedding
+and this probe set, not of Greek as a language: a probe that happened to
+include a Greek scene scoring between 0.0705 and 0.0762 would be rescued
+the same way Latin's and English's were.
+
+**Single global value, not per-language bands.** Per-language `HEAD_WEAK`
+values were measured against each language's own floor (lowest present,
+non-short-query `head_lift`) and ceiling (highest absent `head_lift`) and
+rejected: Latin's and Greek's ceilings (both 0.070457, "a satellite
+orbits the earth") and English's (0.072210, "a political election
+campaign with televised debates") are each already inside the single
+global plateau or no lower than the point the global value already
+reaches, so a language-specific override would have bought nothing beyond
+what 0.0738 already gives Latin and English, and nothing at all for
+Greek, at the cost of three numbers to maintain instead of one. The
+single global value was kept.
+
+Refit the same way after a corpus-wide re-describe or a size change past
+`FITTED_TOLERANCE` (15%), with `evaluation/scripts/calibrate_confidence.py`
+against the 178-query set (extend it further first if a new error class
+shows up) and the 57-query regression set together, and update
+`FITTED_AT_WINDOWS` alongside the two constants.
+
 ## 2026-10-08: Theme Search confidence: a single-language search promotes, never recomputes
 
 **Decision.** A Theme Search narrowed to one language now gets a third
@@ -1516,3 +2475,28 @@ Latin and Greek (the Latin and Greek ones also carry the old quotation
 weight), and re-warm the default pairs. Recorded in DATA_OPERATIONS.md.
 Rarity by lines rather than works stays deferred until an English gold set
 exists to measure it against.
+
+## 2026-10-12: file operations are made independent of the web server's locale in code
+
+The web process runs with an ASCII file-system encoding, which Python fixes when it starts, and the server setting that would change it is not to be requested again. Thirty-six Greek texts have Greek letters in their names, so every file call on a text, translation or embedding name goes through `backend/fspaths.py`, which passes UTF-8 bytes to the operating system and returns names decoded as UTF-8. The proof is a two-locale comparison: the same requests (`scripts/review/greek_names_requests.json` and the standard list) sent to a server started in the ASCII state and one started in UTF-8 must give the same answers. Names that an operation only ever sees in ASCII (hashed cache names, index files) were left as they were.
+
+
+## 2026-10-13: the fallback Latin scanner uses a vowel-length table, not the scanner's guessing modes
+
+- Scope: Latin verse outside the MQDQ table (the table covers 103 works; everything else goes to the copied CLTK scanner).
+- Decision. The line is macronized from a fixed table before scanning. The scanner's own guessing modes (dactyl smoothing, the optional i-to-j transform) are left off, and the CLTK macronizer's part-of-speech tagger is not used.
+- Evidence (400 lines each of the Aeneid, the Metamorphoses and the Pharsalia, against MQDQ; "correct" means valid and the same pattern, "wrong" means valid and a different pattern):
+
+| Mode | Correct | Wrong |
+|---|---|---|
+| plain scanner (before) | 32 to 36 percent | 6.5 to 7.2 percent |
+| dactyl smoothing | 61 to 66 | 23 to 25 |
+| optional transform | 25 to 26 | 19 to 22 |
+| CLTK macronizer with tagger, then plain | 47 to 58 | 5.2 to 7.2 |
+| macron table, first form, then plain (chosen) | 46 to 48 | 3.5 to 4.2 |
+
+- Why this choice. The meter score is a boost on candidate parallels, so a wrong scansion is worse than none. The guessing modes roughly double the correct lines but quadruple the wrong ones. The tagger gains a few more correct lines than the table on two works but needs the full CLTK stack, which the live site does not carry, and is twenty times slower. The table costs 0.2 seconds per 400 lines and gives fewer wrong scansions than the plain scanner.
+
+## 2026-10-13: record request timings before any speed work
+
+A day of timings from the live site comes before work on speed, so the effort goes where visitors wait and not where we guess. `backend/request_timing.py` records, for each API request, the time, method, path, status, milliseconds, response size and worker process, in one file per day under the folder named by `TESSERAE_TIMING_DIR` (nothing is recorded when it is unset). It does not record the query string, the request body or the answer, so no text a visitor searched for is stored. The report script collapses ids in paths into one route and ranks routes by total time spent, which is what a visitor waits on across a day.

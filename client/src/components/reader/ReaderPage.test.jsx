@@ -164,19 +164,23 @@ describe('arriving from a passage pair with a selection and tab=similar', () => 
     + '&refEnd=' + encodeURIComponent('ov. tr. 3.1')
     + '&tab=similar&map=' + encodeURIComponent('Vergil');
 
-  it('scrolls the reader card into view, not only the selected line', async () => {
+  it('scrolls the window vertically to the selected line, never sideways', async () => {
+    // scrollIntoView used to do this; on iOS Safari it panned the page
+    // sideways after a tap (2026-10-11), so the Reader now computes a vertical
+    // position itself and scrolls with left: 0.
     window.history.replaceState({}, '', FROM_PAIR);
-    const scrolled = [];
-    window.HTMLElement.prototype.scrollIntoView = function (opts) {
-      scrolled.push({ testid: this.getAttribute?.('data-testid') || null, opts });
-    };
-    await mountReader();
-    await waitFor(() => expect(scrolled.some((s) => s.testid === 'reader-content')).toBe(true));
-    const cardScroll = scrolled.find((s) => s.testid === 'reader-content');
-    expect(cardScroll.opts).toMatchObject({ block: 'start' });
-    // The line itself still centers, inside its own scrolling pane, exactly
-    // as before -- this is additive, not a replacement.
-    expect(scrolled.some((s) => s.opts?.block === 'center')).toBe(true);
+    const calls = [];
+    const orig = window.scrollTo;
+    window.scrollTo = (opts) => { calls.push(opts); };
+    let intoView = 0;
+    window.HTMLElement.prototype.scrollIntoView = function () { intoView += 1; };
+    try {
+      await mountReader();
+      await waitFor(() => expect(calls.some((c) => c && typeof c.top === 'number' && c.left === 0)).toBe(true));
+      expect(intoView).toBe(0);
+    } finally {
+      window.scrollTo = orig;
+    }
   });
 
 });
@@ -410,7 +414,7 @@ describe('per-language defaults', () => {
   });
 });
 
-describe('the remembered start language (NC 2026-10-07)', () => {
+describe('the remembered start language (lead\'s report, 2026-10-07)', () => {
   afterEach(() => { window.localStorage.clear(); });
 
   it('a bare /read opens in the language chosen last', async () => {
@@ -508,7 +512,7 @@ describe('clicking a "quoted in N works" mark', () => {
 // --------------------------------------------------------------------------
 
 describe('opening a Similar Passages result, and coming back', () => {
-  // NC 2026-10-07: from Curtius to the Alexandreis through Similar, "there was
+  // Reported 2026-10-07: from Curtius to the Alexandreis through Similar, "there was
   // no back button to go back to Curtius Rufus". The result also opened the
   // other work at its top instead of at the passage.
   const CURTIUS = Array.from({ length: 40 }, (_, k) => ({ ref: `curt. 3.${k + 1}`, text: `curtius ${k + 1}` }));
@@ -584,5 +588,60 @@ describe('Similar Passages: in other languages', () => {
     expect(screen.queryByText('Dagh, Diwan')).toBeNull();
     fireEvent.click(urdu);
     expect(await screen.findByText('Dagh, Diwan')).toBeTruthy();
+  });
+});
+
+
+describe('the selection toolbar and the marks legend', () => {
+  it('sits under the selected line when the selection comes from the URL, not at the top of the pane', async () => {
+    // jsdom lays nothing out, so give every line a measured place.
+    const top = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'offsetTop');
+    const height = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'offsetHeight');
+    Object.defineProperty(HTMLElement.prototype, 'offsetTop', {
+      configurable: true, get() { return (this.id || '').startsWith('line-') ? 100 : 0; } });
+    Object.defineProperty(HTMLElement.prototype, 'offsetHeight', {
+      configurable: true, get() { return (this.id || '').startsWith('line-') ? 30 : 0; } });
+    try {
+      // The same long Iliad text and arrival URL the connections-map tests use.
+      const units = [];
+      for (let n = 1; n <= 450; n++) units.push({ ref: `hom. il. 18.${n}`, text: `line ${n}` });
+      const reply = (obj) => Promise.resolve({
+        ok: true, json: () => Promise.resolve(obj), text: () => Promise.resolve(JSON.stringify(obj)) });
+      global.fetch = vi.fn((url) => {
+        const u = String(url);
+        if (u.startsWith('/api/text/')) return reply({ units, metadata: { display_name: 'Iliad' } });
+        if (u.includes('/authors?')) return reply(AUTHORS);
+        if (u.includes('/texts?')) return reply([]);
+        if (u.startsWith('/api/languages')) return reply({ languages: [{ code: 'la' }, { code: 'grc' }] });
+        return reply({});
+      });
+      window.history.replaceState({}, '', '/read?' + new URLSearchParams({
+        work: 'homer.iliad.tess', lang: 'grc', ref: 'hom. il. 18.427', refEnd: 'hom. il. 18.438', tab: 'similar' }).toString());
+      await mountReader();
+      await waitFor(() => expect(document.getElementById('line-hom-il-18-427')).toBeTruthy());
+      const toolbar = await screen.findByRole('toolbar', { name: 'What to do with the selected passage' });
+      const wrapper = toolbar.closest('div[style]');
+      // 100 (line top) + 30 (line height) + 8 (gap): under the line, not over it.
+      expect(wrapper.style.top).toBe('138px');
+    } finally {
+      if (top) Object.defineProperty(HTMLElement.prototype, 'offsetTop', top); else delete HTMLElement.prototype.offsetTop;
+      if (height) Object.defineProperty(HTMLElement.prototype, 'offsetHeight', height); else delete HTMLElement.prototype.offsetHeight;
+    }
+  });
+
+  it('names the inscriptions marks in the legend when the documents trial is on, and not otherwise', async () => {
+    await mountReader();
+    expect(screen.queryByText(/quoted in that many inscriptions or papyri/)).toBeNull();
+    cleanup();
+    try { window.sessionStorage.setItem('tesserae_documents_trial', '1'); } catch { /* ignore */ }
+    await mountReader();
+    // The key is folded away until asked for.
+    expect(screen.queryByText(/quoted in that many inscriptions or papyri/)).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Key' }));
+    expect(screen.getByText(/quoted in that many inscriptions or papyri/)).toBeTruthy();
+    expect(screen.getByText(/possible echo in an inscription or papyrus/)).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Hide key' }));
+    expect(screen.queryByText(/quoted in that many inscriptions or papyri/)).toBeNull();
+    try { window.sessionStorage.removeItem('tesserae_documents_trial'); } catch { /* ignore */ }
   });
 });

@@ -29,6 +29,8 @@ from flask_login import current_user
 import csv
 import io
 import os
+
+from backend import fspaths
 import json
 import unicodedata
 
@@ -689,7 +691,7 @@ def get_original_word_form(text_id, ref, position, language):
             return None
         
         try:
-            with open(text_path, 'r', encoding='utf-8') as f:
+            with fspaths.open_text(text_path, 'r', encoding='utf-8') as f:
                 for line in f:
                     if line.startswith('<') and '>' in line:
                         tag_end = line.index('>')
@@ -1010,7 +1012,7 @@ def get_line_text_from_file(text_id, language, ref):
 
         try:
             lines_by_ref = {}
-            with open(text_path, 'r', encoding='utf-8') as f:
+            with fspaths.open_text(text_path, 'r', encoding='utf-8') as f:
                 for line in f:
                     line = line.strip()
                     if not line or line.startswith('#'):

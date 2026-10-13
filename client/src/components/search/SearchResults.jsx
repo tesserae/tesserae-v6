@@ -2,7 +2,7 @@ import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 import { Button, LoadingSpinner, Pagination, CiteButton, InfoBadge } from '../common';
 import { usePagination, useServerPagination, MAX_PAGE_SIZE } from '../../hooks/usePagination';
 import { fetchResultPage, fetchAllResults } from '../../utils/api';
-import { formatReference, formatElapsedTime } from '../../utils/formatting';
+import { formatReference, formatElapsedTime, formatRunningTime } from '../../utils/formatting';
 import { languageName } from '../../utils/languageNames';
 import {
   useCorpusTextMap,
@@ -769,7 +769,6 @@ const SearchResults = ({
       .attr('fill', '#2563eb')
       .text(d => `${trunc(d.author.replace(/_/g, ' '))}, ${fmtYear(d.year)} (${d.count})`);
     rows.append('title').text(d => `${d.author.replace(/_/g, ' ')} — ${fmtYear(d.year)} — ${d.count} occurrence${d.count !== 1 ? 's' : ''}`);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sidebarMode, corpusGroupBy, corpusData, corpusSelectedAuthor, sourceTextInfo, targetTextInfo]);
 
   const chartOptions = {
@@ -1139,7 +1138,7 @@ const SearchResults = ({
               {pauseUpdates ? 'Resume' : 'Pause'}
             </button>
             <span className={`text-xs ${pauseUpdates ? 'text-amber-500' : 'text-blue-500'} tabular-nums flex-shrink-0`}>
-              {elapsedTime > 0 && formatElapsedTime(elapsedTime)}
+              {elapsedTime > 0 && formatRunningTime(elapsedTime)}
             </span>
           </div>
           {fusionBatchTotal > 0 && (
@@ -1611,6 +1610,7 @@ const SearchResults = ({
                     so Cite belongs on the parallel and not only on the page
                     (interface audit, 2026-09-08). */}
                 <CiteButton
+                  showReportLink
                   finding={{
                     kind: 'fusion search',
                     source: displayLocus(r.source_locus || r.source?.ref, sourceTextInfo),

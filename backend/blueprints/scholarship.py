@@ -8,6 +8,10 @@ connector's find_scholarship / get_commentary tools.
         span. The reader's library link is built client-side from a setting.
     GET /api/scholarship/commentary?work=&ref_start=&ref_end=
         the public-domain commentaries' notes at the span.
+    GET /api/scholarship/theme?q=&k=
+        Theme Search over the scholarship windows (commentary notes and journal
+        sentences): meaning and keyword rankings merged by reciprocal rank fusion
+        (backend/scholarship_theme.py). available=false without the packed files.
     POST /api/scholarship/translate  {work, ref, text, commentator, language}
         a machine translation of one note the site already holds at that
         work and ref, by the local model, marked as such; cached, so a note
@@ -24,13 +28,15 @@ import requests
 from flask import Blueprint, jsonify, request
 
 from backend import scholarship as S
+from backend import scholarship_theme
+from backend.work_names import base_work
 from backend.logging_config import get_logger
 
 logger = get_logger('scholarship')
 scholarship_bp = Blueprint('scholarship', __name__)
 
 LLM_URL = os.environ.get('TESSERAE_LOCAL_LLM', 'http://127.0.0.1:8081/v1/chat/completions')
-TRANSLATION_DISCLAIMER = 'Machine translation by a local model, unreviewed.'
+TRANSLATION_DISCLAIMER = 'Machine translation, unreviewed.'
 LANGUAGE_NAMES = {'la': 'Latin', 'grc': 'Greek', 'he': 'Hebrew', 'ar': 'Arabic', 'fa': 'Persian',
                   'ur': 'Urdu', 'cop': 'Coptic', 'en': 'English', 'de': 'German', 'fr': 'French', 'it': 'Italian'}
 _XLAT_DIR = os.path.join(S.CACHE_DIR, 'translations')
@@ -57,6 +63,21 @@ def scholarship():
     return jsonify(out)
 
 
+@scholarship_bp.route('/scholarship/theme')
+def scholarship_theme_route():
+    q = (request.args.get('q') or request.args.get('query') or '').strip()
+    if not q:
+        return jsonify({'error': 'q is required', 'results': []})
+    k = request.args.get('k', scholarship_theme.DEFAULT_K, type=int)
+    try:
+        return jsonify(scholarship_theme.theme(q, k))
+    except scholarship_theme.EncoderUnavailable as e:
+        logger.warning('scholarship theme: encoder unavailable: %s', e)
+        return jsonify({'available': True, 'unavailable': True, 'results': [],
+                        'error': 'The query encoder service is not running, so the scholarship '
+                                 'search is unavailable just now.'})
+
+
 @scholarship_bp.route('/scholarship/commentary')
 def commentary():
     p = _args()
@@ -70,8 +91,38 @@ def commentary():
 def sources():
     """Every commentary held, grouped by commentator, with edition, source
     and licence, for the credits page: what the site shows must be credited
-    where it came from."""
-    return jsonify({'commentaries': S.commentary_sources()})
+    where it came from.
+
+    `languages` is additive: the distinct languages those commentaries
+    cover, so the Reader's Scholarship tab can offer itself only where
+    there is something to show, derived from data rather than a hard-coded
+    list."""
+    rows = S.commentary_sources()
+    # The languages of the WORKS commented on, not the language a commentary
+    # is written in (Leaf's English notes are on the Greek Iliad). Scripture
+    # keys (bible.*) count for every language that holds a Bible version.
+    texts_root = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), 'texts')
+    work_lang = {}
+    try:
+        for lang in os.listdir(texts_root):
+            d = os.path.join(texts_root, lang)
+            if not os.path.isdir(d):
+                continue
+            for fn in os.listdir(d):
+                if fn.endswith('.tess'):
+                    work_lang.setdefault(base_work(fn[:-5]), set()).add(lang)
+    except OSError:
+        pass
+    langs_present = set(os.listdir(texts_root)) if os.path.isdir(texts_root) else set()
+    bible_langs = {'he', 'grc', 'cop', 'en', 'la'} & langs_present
+    languages = set()
+    for row in rows:
+        for w in row.get('works') or []:
+            if str(w).startswith('bible.'):
+                languages.update(bible_langs)
+            languages.update(work_lang.get(w, ()))
+    languages = sorted(languages)
+    return jsonify({'commentaries': rows, 'languages': languages})
 
 
 def _held_note(work, ref, text, commentator=None):
@@ -127,14 +178,23 @@ def translate():
               'the passage cited, into plain English. Output only the English translation, nothing else; do not '
               f'repeat the {lang}. Keep the word or phrase the note comments on in quotation marks at the start.'
               f'\n\n{label}:\n' + text + '\n\nEnglish:')
-    try:
-        r = requests.post(LLM_URL, json={'model': 'qwen3', 'temperature': 0, 'max_tokens': 500,
-                                         'messages': [{'role': 'user', 'content': prompt}]}, timeout=60)
-        r.raise_for_status()
-        english = r.json()['choices'][0]['message']['content'].strip()
-    except (requests.RequestException, KeyError, ValueError) as e:
-        logger.warning('note translation failed: %s', e)
-        return jsonify({'available': False, 'reason': 'The local translation model did not answer.'})
+    # Through the assistant's model client, pointed at the campus gateway on
+    # production (2026-10-12; this route posted to the local llama-server on
+    # its own). TESSERAE_LOCAL_LLM, when set, still names a bare chat endpoint.
+    english = None
+    if os.environ.get('TESSERAE_LOCAL_LLM'):
+        try:
+            r = requests.post(LLM_URL, json={'model': 'qwen3', 'temperature': 0, 'max_tokens': 500,
+                                             'messages': [{'role': 'user', 'content': prompt}]}, timeout=60)
+            r.raise_for_status()
+            english = r.json()['choices'][0]['message']['content'].strip()
+        except (requests.RequestException, KeyError, ValueError) as e:
+            logger.warning('note translation failed: %s', e)
+    else:
+        from backend.assistant import model as _model
+        english = _model.complete('You translate commentary notes on ancient texts into plain English.', prompt, 500, 0)
+    if not english:
+        return jsonify({'available': False, 'reason': 'The translation model did not answer.'})
     out = {'available': True, 'text': english, 'disclaimer': TRANSLATION_DISCLAIMER, 'made': time.strftime('%Y-%m-%d')}
     try:
         tmp = f'{path}.{os.getpid()}.tmp'

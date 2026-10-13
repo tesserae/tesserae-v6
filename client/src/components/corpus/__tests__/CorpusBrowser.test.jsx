@@ -285,3 +285,86 @@ describe('the Hebrew tab', () => {
     expect(optionLabels).not.toContain('Republic');
   });
 });
+
+// Documents section (behind the documents trial): the tab only appears
+// once BOTH the client trial flag (?documents=1, remembered for the visit)
+// AND the server flag (/api/languages' documents_enabled) say yes -- same
+// gating LineSearch.jsx uses for its own documents control.
+function mockFetchDocumentsGate(documentsEnabled) {
+  return (url) => {
+    if (url.startsWith('/api/texts')) {
+      return Promise.resolve({ ok: true, json: () => Promise.resolve(TEXTS) });
+    }
+    if (url.startsWith('/api/languages')) {
+      return Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve({
+          languages: [{ code: 'la' }, { code: 'grc' }],
+          documents_enabled: documentsEnabled,
+        }),
+      });
+    }
+    if (url.startsWith('/api/documents/browse')) {
+      return Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve({
+          kind_counts: [{ value: 'inscriptions', label: 'Inscriptions (Latin, Greek)', count: 1 }],
+          region_counts: [], century_counts: [],
+          filters: { text_types: [], materials: [], objects: [], languages: [] },
+          documents: [], total: 0, page: 1, page_size: 50,
+        }),
+      });
+    }
+    return Promise.resolve({ ok: true, json: () => Promise.resolve({}) });
+  };
+}
+
+describe('the Documents section of Browse Corpus', () => {
+  afterEach(() => {
+    window.sessionStorage.clear();
+  });
+
+  it('is absent without the ?documents=1 trial even when the server has documents on', async () => {
+    global.fetch = vi.fn(mockFetchDocumentsGate(true));
+    render(<CorpusBrowser />);
+    await waitFor(() => expect(screen.getByText('Vergil')).toBeTruthy());
+    expect(screen.queryByText('Documents')).toBeNull();
+  });
+
+  it('is absent with the trial on but the server flag off', async () => {
+    window.history.pushState({}, '', '/corpus?documents=1');
+    global.fetch = vi.fn(mockFetchDocumentsGate(false));
+    render(<CorpusBrowser />);
+    await waitFor(() => expect(screen.getByText('Vergil')).toBeTruthy());
+    expect(screen.queryByText('Documents')).toBeNull();
+    window.history.pushState({}, '', '/');
+  });
+
+  it('appears and loads the facet tree once both the trial and the server flag are on', async () => {
+    window.history.pushState({}, '', '/corpus?documents=1');
+    global.fetch = vi.fn(mockFetchDocumentsGate(true));
+    render(<CorpusBrowser />);
+    await waitFor(() => expect(screen.getByText('Vergil')).toBeTruthy());
+    await waitFor(() => expect(screen.getByText('Documents')).toBeTruthy());
+
+    fireEvent.click(screen.getByText('Documents'));
+    await waitFor(() => expect(global.fetch).toHaveBeenCalledWith(
+      expect.stringContaining('/api/documents/browse')));
+    await waitFor(() => expect(screen.getByText(/Inscriptions \(Latin, Greek\)/)).toBeTruthy());
+    window.history.pushState({}, '', '/');
+  });
+
+  it('switching back to a language tab returns to the language corpus view', async () => {
+    window.history.pushState({}, '', '/corpus?documents=1');
+    global.fetch = vi.fn(mockFetchDocumentsGate(true));
+    render(<CorpusBrowser />);
+    await waitFor(() => expect(screen.getByText('Documents')).toBeTruthy());
+    fireEvent.click(screen.getByText('Documents'));
+    await waitFor(() => expect(screen.getByText(/Inscriptions \(Latin, Greek\)/)).toBeTruthy());
+
+    fireEvent.click(screen.getByText('Latin'));
+    await waitFor(() => expect(screen.getByText('Vergil')).toBeTruthy());
+    expect(screen.queryByText(/Inscriptions \(Latin, Greek\)/)).toBeNull();
+    window.history.pushState({}, '', '/');
+  });
+});

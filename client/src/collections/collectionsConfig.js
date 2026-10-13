@@ -1,0 +1,191 @@
+/**
+ * Collections: the one place that lists the source collections a visitor can
+ * switch on and off, the named profiles that set them together, and which
+ * Reader tabs and pages need which collection.
+ *
+ * Adding a collection (coins, say) means adding ONE entry to COLLECTIONS here
+ * (set `available: true` once its data is live), adding its id to the
+ * profiles that should include it, and, if it brings a Reader tab or a page,
+ * one line in READER_TABS or PAGE_NEEDS. Nothing else in the app lists
+ * collections.
+ */
+
+export const COLLECTIONS = [
+  // Literature is the base of the site and cannot be switched off: the
+  // Search, Read, Theme Search and Browse pages never depended on this switch,
+  // so an unticked box did nothing (owner 2026-10-10). It is shown as fixed.
+  { id: 'literature', label: 'Literature', blurb: 'The literary texts and translations', available: true, fixed: true },
+  { id: 'inscriptions', label: 'Inscriptions', blurb: 'Latin and Greek inscriptions', available: true },
+  { id: 'papyri', label: 'Papyri', blurb: 'Documentary and literary papyri', available: true },
+  { id: 'coins', label: 'Coins', blurb: 'Greek and Roman coin types and legends', available: true },
+  { id: 'objects', label: 'Objects', blurb: 'Museum objects with catalogue descriptions', available: true },
+  { id: 'scholarship', label: 'Scholarship', blurb: 'Commentaries, articles and books', available: true },
+];
+
+export const COLLECTION_IDS = COLLECTIONS.map((c) => c.id);
+
+/**
+ * Profiles. `on` lists the collections the profile switches on (all others
+ * go off). `layout` carries presentation hints a profile sets with them.
+ * Literary is the literature with the Scholarship tab (the site as it was
+ * before Collections existed, plus scholarship from 2026-10-10).
+ */
+export const PROFILES = [
+  // Literary includes Scholarship (owner 2026-10-10: "turn scholarship on in
+  // literary"): the Reader's commentaries and citing articles serve the
+  // literary reader as much as the historian.
+  { id: 'literary', label: 'Literary', on: ['literature', 'scholarship'], layout: { browseView: 'language' } },
+  {
+    id: 'historical', label: 'Historical',
+    on: ['literature', 'inscriptions', 'papyri', 'scholarship'],
+    layout: { browseView: 'language' },
+  },
+  {
+    id: 'archaeological', label: 'Archaeological',
+    on: ['literature', 'inscriptions', 'papyri', 'coins', 'objects'],
+    layout: { browseView: 'documents' },
+  },
+  // Everything means every collection, Coins included: the coin types have
+  // their own page, Reader tab and Theme Search choice and never enter a
+  // phrase search, so nothing is crowded out by having them on.
+  { id: 'everything', label: 'Everything', on: COLLECTION_IDS, layout: { browseView: 'language' } },
+];
+
+export const DEFAULT_PROFILE = 'literary';
+
+export function profileById(id) {
+  return PROFILES.find((p) => p.id === id) || null;
+}
+
+/** The on/off map a profile sets, for every collection id. */
+export function profileSwitches(id) {
+  const p = profileById(id) || profileById(DEFAULT_PROFILE);
+  const on = {};
+  COLLECTION_IDS.forEach((cid) => { on[cid] = p.on.includes(cid); });
+  return on;
+}
+
+/** The profile whose switches equal `on`, or 'custom'. */
+export function matchProfile(on) {
+  const hit = PROFILES.find((p) => {
+    const s = profileSwitches(p.id);
+    return COLLECTION_IDS.every((cid) => !!on[cid] === s[cid]);
+  });
+  return hit ? hit.id : 'custom';
+}
+
+/**
+ * Reader tabs and what each needs. `needs` is a list of collection ids of
+ * which ANY must be on (empty means always shown). The Reader builds its tab
+ * row from this, so a literary scholar never sees a tab for a collection
+ * that is off.
+ */
+export const READER_TABS = [
+  { id: 'similar', needs: [] },
+  { id: 'reuse', needs: [] },
+  { id: 'verbal', needs: [] },
+  // Inscriptions and papyri that share words with the selection.
+  { id: 'documents', needs: ['inscriptions', 'papyri'] },
+  { id: 'scholarship', needs: ['scholarship'] },
+  { id: 'translation', needs: [] },
+  // Coins that name the same people as the selection, and coin imagery close to it.
+  { id: 'coins', needs: ['coins'] },
+];
+
+/** Groups inside a tab that depend on a collection. */
+export const REUSE_GROUPS = {
+  documents: ['inscriptions', 'papyri'],
+};
+
+/** Pages (main-menu codes) and the collections that open them (any of). */
+export const PAGE_NEEDS = {
+  'inscriptions-papyri': ['inscriptions', 'papyri'],
+  // Events (battles, sieges, treaties) gather passages, documents and scholarship.
+  // Events need the documents (their dossiers are passages plus nearby
+  // inscriptions and papyri); scholarship alone does not open them, so the
+  // Literary profile, which has scholarship on, keeps the Events entry off.
+  events: ['inscriptions', 'papyri'],
+  // Greek and Roman coin types (OCRE, CRRO and seven Greek catalogues), a collection of their own.
+  coins: ['coins'],
+  // Museum objects with catalogue descriptions, a collection of their own.
+  objects: ['objects'],
+  // The Scholarship option of Theme Search (commentary notes and article sentences).
+  'scholarship-theme': ['scholarship'],
+};
+
+/** The documents collection is served as one unit: either switch opens it. */
+export const DOCUMENT_COLLECTIONS = ['inscriptions', 'papyri'];
+
+/**
+ * Views. A view is a profile plus a layout: it sets the collections together
+ * (through its profile), the order of the main menu and of the Reader's side
+ * tabs, the texts the Phrase Search opens on, the order of the Start here
+ * answers, and the page a plain visit opens. Nothing is withheld in either
+ * view, so every search and collection is reachable from both.
+ *
+ * `menuOrder` lists main-menu page codes, `readerTabs` Reader tab ids,
+ * `searchDefaults` the Phrase Search pair by language tab (a language not
+ * listed keeps the app's own default), `startHereOrder` the Start here answer
+ * ids (frontDoor.js), `startHereLabels` any answer a view words differently,
+ * and `home` the page a plain visit to the site opens.
+ */
+export const VIEWS = [
+  {
+    id: 'literature',
+    label: 'Literature',
+    profile: 'literary',
+    home: { page: 'ask-a-work' },
+    askDefault: { lang: 'la', work: 'vergil.aeneid' },
+    menuOrder: [
+      'ask-a-work', 'search', 'read', 'theme-search', 'inscriptions-papyri', 'events', 'coins', 'objects',
+      'browse', 'about', 'help', 'repository', 'downloads',
+    ],
+    readerTabs: ['similar', 'reuse', 'verbal', 'documents', 'scholarship', 'translation', 'coins'],
+    searchDefaults: {
+      la: { source: 'vergil.aeneid.part.1.tess', target: 'lucan.bellum_civile.part.1.tess' },
+      grc: { source: 'homer.iliad.part.1.tess', target: 'apollonius_rhodius.argonautica.part.1.tess' },
+    },
+    startHereOrder: ['ask', 'compare', 'phrase', 'rare', 'subject', 'read', 'documents'],
+    startHereLabels: {},
+    opensOn: 'Search One Text, on the Aeneid',
+  },
+  {
+    id: 'history',
+    label: 'History',
+    profile: 'everything',
+    // Search One Text, on the Annals, with its own history examples
+    // (the owner, 2026-10-13); before that the Reader on Tacitus, Annals 1.
+    home: { page: 'ask-a-work' },
+    askDefault: { lang: 'la', work: 'tacitus.annales' },
+    menuOrder: [
+      'ask-a-work', 'read', 'events', 'inscriptions-papyri', 'theme-search', 'search', 'coins', 'objects',
+      'browse', 'about', 'help', 'repository', 'downloads',
+    ],
+    readerTabs: ['similar', 'documents', 'coins', 'scholarship', 'reuse', 'verbal', 'translation'],
+    searchDefaults: {
+      la: { source: 'livy.ab_urbe_condita.part.1.books_1-10.tess', target: 'tacitus.annales.part.1.tess' },
+      grc: { source: 'herodotus.histories.part.1.tess', target: 'thucydides.peleponnesian_war.part.1.tess' },
+    },
+    startHereOrder: ['documents', 'read', 'subject', 'ask', 'phrase', 'compare', 'rare'],
+    startHereLabels: { documents: 'Inscriptions, papyri, events and coins' },
+    opensOn: 'Search One Text, on the Annals',
+  },
+];
+
+export const DEFAULT_VIEW = 'literature';
+
+export function viewById(id) {
+  return VIEWS.find((v) => v.id === id) || VIEWS.find((v) => v.id === DEFAULT_VIEW);
+}
+
+/** Items ordered by `order` (a list of keys); keys not named keep their relative order at the end. */
+export function orderBy(items, order, keyOf) {
+  const rank = (it) => {
+    const i = order.indexOf(keyOf(it));
+    return i === -1 ? order.length : i;
+  };
+  return items
+    .map((it, n) => ({ it, n, r: rank(it) }))
+    .sort((a, b) => a.r - b.r || a.n - b.n)
+    .map((x) => x.it);
+}

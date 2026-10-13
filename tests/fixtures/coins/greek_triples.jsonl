@@ -1,0 +1,123 @@
+{"t": "https://www.corpus-nummorum.eu/types/10069", "p": "http://nomisma.org/ontology#hasObverse", "o": {"v": "https://www.corpus-nummorum.eu/types/10069#obverse", "l": null}}
+{"t": "https://www.corpus-nummorum.eu/types/10069", "p": "http://nomisma.org/ontology#hasReverse", "o": {"v": "https://www.corpus-nummorum.eu/types/10069#reverse", "l": null}}
+{"t": "https://www.corpus-nummorum.eu/types/10069", "p": "http://rdfs.org/ns/void#inDataset", "o": {"v": "https://www.corpus-nummorum.eu/", "l": null}}
+{"t": "https://www.corpus-nummorum.eu/types/10069", "p": "http://www.w3.org/2004/02/skos/core#prefLabel", "o": {"v": "CN Type 10069", "l": "en"}}
+{"t": "https://www.corpus-nummorum.eu/types/10069", "p": "http://www.w3.org/2004/02/skos/core#definition", "o": {"v": "CN Type 10069", "l": "en"}}
+{"t": "https://www.corpus-nummorum.eu/types/10069", "p": "http://nomisma.org/ontology#hasMaterial", "o": {"v": "http://nomisma.org/id/ar", "l": null}}
+{"t": "https://www.corpus-nummorum.eu/types/10069", "p": "http://nomisma.org/ontology#hasMint", "o": {"v": "http://nomisma.org/id/dionysopolis_thrace", "l": null}}
+{"t": "https://www.corpus-nummorum.eu/types/10069", "p": "http://nomisma.org/ontology#hasDenomination", "o": {"v": "http://nomisma.org/id/tetradrachm", "l": null}}
+{"t": "https://www.corpus-nummorum.eu/types/10069", "p": "http://nomisma.org/ontology#hasStartDate", "o": {"v": "-0225", "l": null}}
+{"t": "https://www.corpus-nummorum.eu/types/10069", "p": "http://nomisma.org/ontology#hasEndDate", "o": {"v": "-0190", "l": null}}
+{"t": "https://www.corpus-nummorum.eu/types/10069", "p": "http://purl.org/dc/terms/source", "o": {"v": "http://nomisma.org/id/CN", "l": null}}
+{"t": "https://www.corpus-nummorum.eu/types/10069", "p": "http://purl.org/dc/terms/description", "o": {"v": "Head of bearded Heracles, right, wearing lion skin.", "l": "en"}, "side": "obverse"}
+{"t": "https://www.corpus-nummorum.eu/types/10069", "p": "http://purl.org/dc/terms/description", "o": {"v": "Zeus (Aëtophoros) enthroned left, holding eagle and sceptre.", "l": "en"}, "side": "reverse"}
+{"t": "https://www.corpus-nummorum.eu/types/10069", "p": "http://nomisma.org/ontology#hasLegend", "o": {"v": "ΑΛΕΞΑΝΔΡΟΥ", "l": null}, "side": "reverse"}
+{"t": "http://numismatics.org/sco/id/sc.1.1", "p": "http://nomisma.org/ontology#hasObverse", "o": {"v": "http://numismatics.org/sco/id/sc.1.1#obverse", "l": null}}
+{"t": "http://numismatics.org/sco/id/sc.1.1", "p": "http://nomisma.org/ontology#hasReverse", "o": {"v": "http://numismatics.org/sco/id/sc.1.1#reverse", "l": null}}
+{"t": "http://numismatics.org/sco/id/sc.1.1", "p": "http://rdfs.org/ns/void#inDataset", "o": {"v": "http://numismatics.org/sco/", "l": null}}
+{"t": "http://numismatics.org/sco/id/sc.1.1", "p": "http://www.w3.org/2004/02/skos/core#prefLabel", "o": {"v": "Seleucid Coins (part 1) 1", "l": "en"}}
+{"t": "http://numismatics.org/sco/id/sc.1.1", "p": "http://www.w3.org/2004/02/skos/core#definition", "o": {"v": "Seleucid Coins (part 1) 1", "l": "en"}}
+{"t": "http://numismatics.org/sco/id/sc.1.1", "p": "http://nomisma.org/ontology#hasMaterial", "o": {"v": "http://nomisma.org/id/ar", "l": null}}
+{"t": "http://numismatics.org/sco/id/sc.1.1", "p": "http://nomisma.org/ontology#hasAuthority", "o": {"v": "http://nomisma.org/id/seleucus_i", "l": null}}
+{"t": "http://numismatics.org/sco/id/sc.1.1", "p": "http://nomisma.org/ontology#hasMint", "o": {"v": "http://nomisma.org/id/pergamum", "l": null}}
+{"t": "http://numismatics.org/sco/id/sc.1.1", "p": "http://nomisma.org/ontology#hasDenomination", "o": {"v": "http://nomisma.org/id/tetradrachm", "l": null}}
+{"t": "http://numismatics.org/sco/id/sc.1.1", "p": "http://nomisma.org/ontology#hasStartDate", "o": {"v": "-0281", "l": null}}
+{"t": "http://numismatics.org/sco/id/sc.1.1", "p": "http://nomisma.org/ontology#hasEndDate", "o": {"v": "-0281", "l": null}}
+{"t": "http://numismatics.org/sco/id/sc.1.1", "p": "http://purl.org/dc/terms/source", "o": {"v": "http://nomisma.org/id/seleucid_coins", "l": null}}
+{"t": "http://numismatics.org/sco/id/sc.1.1", "p": "http://nomisma.org/ontology#representsObjectType", "o": {"v": "http://nomisma.org/id/coin", "l": null}}
+{"t": "http://numismatics.org/sco/id/sc.1.1", "p": "http://nomisma.org/ontology#hasManufacture", "o": {"v": "http://nomisma.org/id/struck", "l": null}}
+{"t": "http://numismatics.org/sco/id/sc.1.1", "p": "http://purl.org/dc/terms/description", "o": {"v": "Horned, bridled horse head right", "l": "en"}, "side": "obverse"}
+{"t": "http://numismatics.org/sco/id/sc.1.1", "p": "http://purl.org/dc/terms/description", "o": {"v": "Elephant walking right", "l": "en"}, "side": "reverse"}
+{"t": "http://numismatics.org/sco/id/sc.1.1", "p": "http://nomisma.org/ontology#hasLegend", "o": {"v": "BAΣΙΛΕΩΣ ΣΕΛΕΥΚΟΥ", "l": "grc"}, "side": "reverse"}
+{"t": "http://numismatics.org/pella/id/lerider.philip_ii.1.1", "p": "http://nomisma.org/ontology#hasObverse", "o": {"v": "http://numismatics.org/pella/id/lerider.philip_ii.1.1#obverse", "l": null}}
+{"t": "http://numismatics.org/pella/id/lerider.philip_ii.1.1", "p": "http://nomisma.org/ontology#hasReverse", "o": {"v": "http://numismatics.org/pella/id/lerider.philip_ii.1.1#reverse", "l": null}}
+{"t": "http://numismatics.org/pella/id/lerider.philip_ii.1.1", "p": "http://rdfs.org/ns/void#inDataset", "o": {"v": "http://numismatics.org/pella/", "l": null}}
+{"t": "http://numismatics.org/pella/id/lerider.philip_ii.1.1", "p": "http://www.w3.org/2004/02/skos/core#prefLabel", "o": {"v": "LeRider Philip II 1.1", "l": "en"}}
+{"t": "http://numismatics.org/pella/id/lerider.philip_ii.1.1", "p": "http://www.w3.org/2004/02/skos/core#definition", "o": {"v": "LeRider Philip II 1.1", "l": "en"}}
+{"t": "http://numismatics.org/pella/id/lerider.philip_ii.1.1", "p": "http://nomisma.org/ontology#hasMaterial", "o": {"v": "http://nomisma.org/id/ar", "l": null}}
+{"t": "http://numismatics.org/pella/id/lerider.philip_ii.1.1", "p": "http://nomisma.org/ontology#hasAuthority", "o": {"v": "http://nomisma.org/id/philip_ii", "l": null}}
+{"t": "http://numismatics.org/pella/id/lerider.philip_ii.1.1", "p": "http://nomisma.org/ontology#hasMint", "o": {"v": "http://nomisma.org/id/pella_macedon", "l": null}}
+{"t": "http://numismatics.org/pella/id/lerider.philip_ii.1.1", "p": "http://nomisma.org/ontology#hasDenomination", "o": {"v": "http://nomisma.org/id/tetradrachm", "l": null}}
+{"t": "http://numismatics.org/pella/id/lerider.philip_ii.1.1", "p": "http://nomisma.org/ontology#hasStartDate", "o": {"v": "-0359", "l": null}}
+{"t": "http://numismatics.org/pella/id/lerider.philip_ii.1.1", "p": "http://nomisma.org/ontology#hasEndDate", "o": {"v": "-0348", "l": null}}
+{"t": "http://numismatics.org/pella/id/lerider.philip_ii.1.1", "p": "http://purl.org/dc/terms/source", "o": {"v": "http://nomisma.org/id/lerider_philip_ii", "l": null}}
+{"t": "http://numismatics.org/pella/id/lerider.philip_ii.1.1", "p": "http://www.w3.org/2004/02/skos/core#broader", "o": {"v": "http://numismatics.org/pella/id/pella.philip_ii.1", "l": null}}
+{"t": "http://numismatics.org/pella/id/lerider.philip_ii.1.1", "p": "http://nomisma.org/ontology#representsObjectType", "o": {"v": "http://nomisma.org/id/coin", "l": null}}
+{"t": "http://numismatics.org/pella/id/lerider.philip_ii.1.1", "p": "http://nomisma.org/ontology#hasStatedAuthority", "o": {"v": "http://nomisma.org/id/philip_ii", "l": null}}
+{"t": "http://numismatics.org/pella/id/lerider.philip_ii.1.1", "p": "http://purl.org/dc/terms/description", "o": {"v": "Laureate head of Zeus to right", "l": "en"}, "side": "obverse"}
+{"t": "http://numismatics.org/pella/id/lerider.philip_ii.1.1", "p": "http://nomisma.org/ontology#hasPortrait", "o": {"v": "http://nomisma.org/id/zeus", "l": null}, "side": "obverse"}
+{"t": "http://numismatics.org/pella/id/lerider.philip_ii.1.1", "p": "http://nomisma.org/ontology#hasDie", "o": {"v": "D1", "l": null}, "side": "obverse"}
+{"t": "http://numismatics.org/pella/id/lerider.philip_ii.1.1", "p": "http://purl.org/dc/terms/description", "o": {"v": "Philip II wearing causia, tunic, and chlamys riding horse to left", "l": "en"}, "side": "reverse"}
+{"t": "http://numismatics.org/pella/id/lerider.philip_ii.1.1", "p": "http://nomisma.org/ontology#hasLegend", "o": {"v": "ΦΙΛΙΠΠΟΥ", "l": null}, "side": "reverse"}
+{"t": "http://numismatics.org/pella/id/lerider.philip_ii.1.1", "p": "http://nomisma.org/ontology#hasDie", "o": {"v": "R1", "l": null}, "side": "reverse"}
+{"t": "http://numismatics.org/pco/id/cpe.1_1.1", "p": "http://nomisma.org/ontology#hasObverse", "o": {"v": "http://numismatics.org/pco/id/cpe.1_1.1#obverse", "l": null}}
+{"t": "http://numismatics.org/pco/id/cpe.1_1.1", "p": "http://nomisma.org/ontology#hasReverse", "o": {"v": "http://numismatics.org/pco/id/cpe.1_1.1#reverse", "l": null}}
+{"t": "http://numismatics.org/pco/id/cpe.1_1.1", "p": "http://rdfs.org/ns/void#inDataset", "o": {"v": "http://numismatics.org/pco/", "l": null}}
+{"t": "http://numismatics.org/pco/id/cpe.1_1.1", "p": "http://www.w3.org/2004/02/skos/core#prefLabel", "o": {"v": "Coins of the Ptolemaic Empire Vol. I, Part 1, no. 1", "l": "en"}}
+{"t": "http://numismatics.org/pco/id/cpe.1_1.1", "p": "http://www.w3.org/2004/02/skos/core#definition", "o": {"v": "Coins of the Ptolemaic Empire Vol. I, Part 1, no. 1", "l": "en"}}
+{"t": "http://numismatics.org/pco/id/cpe.1_1.1", "p": "http://nomisma.org/ontology#hasMaterial", "o": {"v": "http://nomisma.org/id/ar", "l": null}}
+{"t": "http://numismatics.org/pco/id/cpe.1_1.1", "p": "http://nomisma.org/ontology#hasAuthority", "o": {"v": "http://nomisma.org/id/ptolemy_i", "l": null}}
+{"t": "http://numismatics.org/pco/id/cpe.1_1.1", "p": "http://nomisma.org/ontology#hasAuthority", "o": {"v": "http://nomisma.org/id/cleomenes_naucratis", "l": null}}
+{"t": "http://numismatics.org/pco/id/cpe.1_1.1", "p": "http://nomisma.org/ontology#hasMint", "o": {"v": "http://nomisma.org/id/memphis", "l": null}}
+{"t": "http://numismatics.org/pco/id/cpe.1_1.1", "p": "http://nomisma.org/ontology#hasDenomination", "o": {"v": "http://nomisma.org/id/hemiobol", "l": null}}
+{"t": "http://numismatics.org/pco/id/cpe.1_1.1", "p": "http://nomisma.org/ontology#hasStartDate", "o": {"v": "-0332", "l": null}}
+{"t": "http://numismatics.org/pco/id/cpe.1_1.1", "p": "http://nomisma.org/ontology#hasEndDate", "o": {"v": "-0332", "l": null}}
+{"t": "http://numismatics.org/pco/id/cpe.1_1.1", "p": "http://purl.org/dc/terms/source", "o": {"v": "http://nomisma.org/id/coins_ptolemaic_empire", "l": null}}
+{"t": "http://numismatics.org/pco/id/cpe.1_1.1", "p": "http://nomisma.org/ontology#representsObjectType", "o": {"v": "http://nomisma.org/id/coin", "l": null}}
+{"t": "http://numismatics.org/pco/id/cpe.1_1.1", "p": "http://nomisma.org/ontology#hasManufacture", "o": {"v": "http://nomisma.org/id/struck", "l": null}}
+{"t": "http://numismatics.org/pco/id/cpe.1_1.1", "p": "http://purl.org/dc/terms/description", "o": {"v": "Facing Head of Zeus Ammon, dotted border", "l": "en"}, "side": "obverse"}
+{"t": "http://numismatics.org/pco/id/cpe.1_1.1", "p": "http://nomisma.org/ontology#hasPortrait", "o": {"v": "http://collection.britishmuseum.org/id/person-institution/61143", "l": null}, "side": "obverse"}
+{"t": "http://numismatics.org/pco/id/cpe.1_1.1", "p": "http://nomisma.org/ontology#hasPortrait", "o": {"v": "http://nomisma.org/id/zeus", "l": null}, "side": "obverse"}
+{"t": "http://numismatics.org/pco/id/cpe.1_1.1", "p": "http://purl.org/dc/terms/description", "o": {"v": "Helmeted and draped bust of Athena", "l": "en"}, "side": "reverse"}
+{"t": "http://numismatics.org/pco/id/cpe.1_1.1", "p": "http://nomisma.org/ontology#hasPortrait", "o": {"v": "http://nomisma.org/id/athena", "l": null}, "side": "reverse"}
+{"t": "https://numismatics.org/bigr/id/bigr.agathocleia_strato_i.1", "p": "http://nomisma.org/ontology#hasObverse", "o": {"v": "https://numismatics.org/bigr/id/bigr.agathocleia_strato_i.1#obverse", "l": null}}
+{"t": "https://numismatics.org/bigr/id/bigr.agathocleia_strato_i.1", "p": "http://nomisma.org/ontology#hasReverse", "o": {"v": "https://numismatics.org/bigr/id/bigr.agathocleia_strato_i.1#reverse", "l": null}}
+{"t": "https://numismatics.org/bigr/id/bigr.agathocleia_strato_i.1", "p": "http://rdfs.org/ns/void#inDataset", "o": {"v": "https://numismatics.org/bigr/", "l": null}}
+{"t": "https://numismatics.org/bigr/id/bigr.agathocleia_strato_i.1", "p": "http://www.w3.org/2004/02/skos/core#prefLabel", "o": {"v": "Bactrian and Indo-Greek Coinage Strato I and Agathocleia 1", "l": "en"}}
+{"t": "https://numismatics.org/bigr/id/bigr.agathocleia_strato_i.1", "p": "http://www.w3.org/2004/02/skos/core#definition", "o": {"v": "Bactrian and Indo-Greek Coinage Strato I and Agathocleia 1", "l": "en"}}
+{"t": "https://numismatics.org/bigr/id/bigr.agathocleia_strato_i.1", "p": "http://nomisma.org/ontology#hasMaterial", "o": {"v": "http://nomisma.org/id/ar", "l": null}}
+{"t": "https://numismatics.org/bigr/id/bigr.agathocleia_strato_i.1", "p": "http://nomisma.org/ontology#hasAuthority", "o": {"v": "http://nomisma.org/id/agathocleia_bactria", "l": null}}
+{"t": "https://numismatics.org/bigr/id/bigr.agathocleia_strato_i.1", "p": "http://nomisma.org/ontology#hasAuthority", "o": {"v": "http://nomisma.org/id/strato_i_bactria", "l": null}}
+{"t": "https://numismatics.org/bigr/id/bigr.agathocleia_strato_i.1", "p": "http://nomisma.org/ontology#hasDenomination", "o": {"v": "http://nomisma.org/id/drachma", "l": null}}
+{"t": "https://numismatics.org/bigr/id/bigr.agathocleia_strato_i.1", "p": "http://nomisma.org/ontology#hasStartDate", "o": {"v": "-0105", "l": null}}
+{"t": "https://numismatics.org/bigr/id/bigr.agathocleia_strato_i.1", "p": "http://nomisma.org/ontology#hasEndDate", "o": {"v": "-0085", "l": null}}
+{"t": "https://numismatics.org/bigr/id/bigr.agathocleia_strato_i.1", "p": "http://purl.org/dc/terms/source", "o": {"v": "http://nomisma.org/id/bigr", "l": null}}
+{"t": "https://numismatics.org/bigr/id/bigr.agathocleia_strato_i.1", "p": "http://nomisma.org/ontology#representsObjectType", "o": {"v": "http://nomisma.org/id/coin", "l": null}}
+{"t": "https://numismatics.org/bigr/id/bigr.agathocleia_strato_i.1", "p": "http://nomisma.org/ontology#hasManufacture", "o": {"v": "http://nomisma.org/id/struck", "l": null}}
+{"t": "https://numismatics.org/bigr/id/bigr.agathocleia_strato_i.1", "p": "http://nomisma.org/ontology#hasShape", "o": {"v": "http://nomisma.org/id/round", "l": null}}
+{"t": "https://numismatics.org/bigr/id/bigr.agathocleia_strato_i.1", "p": "http://purl.org/dc/terms/description", "o": {"v": "Bust of Agathocleia, draped right", "l": "en"}, "side": "obverse"}
+{"t": "https://numismatics.org/bigr/id/bigr.agathocleia_strato_i.1", "p": "http://nomisma.org/ontology#hasLegend", "o": {"v": "ΒΑΣΙΛΙΣΣΗΣ ΑΓΑΘΟΚΛΕΙΑΣ", "l": null}, "side": "obverse"}
+{"t": "https://numismatics.org/bigr/id/bigr.agathocleia_strato_i.1", "p": "http://nomisma.org/ontology#hasPortrait", "o": {"v": "http://nomisma.org/id/agathocleia_bactria", "l": null}, "side": "obverse"}
+{"t": "https://numismatics.org/bigr/id/bigr.agathocleia_strato_i.1", "p": "http://purl.org/dc/terms/description", "o": {"v": "Deified ruler standing, wearing helmet and cuirass, holding palm branch in left hand, outstretched right arm right", "l": "en"}, "side": "reverse"}
+{"t": "https://numismatics.org/bigr/id/bigr.agathocleia_strato_i.1", "p": "http://nomisma.org/ontology#hasLegend", "o": {"v": "𐨨𐨱𐨪𐨗𐨯 𐨟𐨿𐨪𐨟𐨪𐨯 𐨢𐨿𐨪𐨨𐨁𐨐𐨯 𐨯𐨿𐨟𐨿𐨪𐨟𐨯", "l": null}, "side": "reverse"}
+{"t": "https://greekcoinage.org/iris/id/a", "p": "http://nomisma.org/ontology#hasObverse", "o": {"v": "https://greekcoinage.org/iris/id/a#obverse", "l": null}}
+{"t": "https://greekcoinage.org/iris/id/a", "p": "http://nomisma.org/ontology#hasReverse", "o": {"v": "https://greekcoinage.org/iris/id/a#reverse", "l": null}}
+{"t": "https://greekcoinage.org/iris/id/a", "p": "http://rdfs.org/ns/void#inDataset", "o": {"v": "https://greekcoinage.org/iris/", "l": null}}
+{"t": "https://greekcoinage.org/iris/id/a", "p": "http://www.w3.org/2004/02/skos/core#prefLabel", "o": {"v": "Amyntas II of Macedon Macedon SNG ANS 84", "l": "en"}}
+{"t": "https://greekcoinage.org/iris/id/a", "p": "http://www.w3.org/2004/02/skos/core#definition", "o": {"v": "Amyntas II of Macedon Macedon SNG ANS 84", "l": "en"}}
+{"t": "https://greekcoinage.org/iris/id/a", "p": "http://nomisma.org/ontology#hasMaterial", "o": {"v": "http://nomisma.org/id/ae", "l": null}}
+{"t": "https://greekcoinage.org/iris/id/a", "p": "http://nomisma.org/ontology#hasAuthority", "o": {"v": "http://nomisma.org/id/amyntas_ii_macedon", "l": null}}
+{"t": "https://greekcoinage.org/iris/id/a", "p": "http://nomisma.org/ontology#hasStartDate", "o": {"v": "-0394", "l": null}}
+{"t": "https://greekcoinage.org/iris/id/a", "p": "http://nomisma.org/ontology#hasEndDate", "o": {"v": "-0393", "l": null}}
+{"t": "https://greekcoinage.org/iris/id/a", "p": "http://purl.org/dc/terms/source", "o": {"v": "http://nomisma.org/id/gc_iris", "l": null}}
+{"t": "https://greekcoinage.org/iris/id/a", "p": "http://nomisma.org/ontology#representsObjectType", "o": {"v": "http://nomisma.org/id/coin", "l": null}}
+{"t": "https://greekcoinage.org/iris/id/a", "p": "http://nomisma.org/ontology#hasRegion", "o": {"v": "http://nomisma.org/id/macedon", "l": null}}
+{"t": "https://greekcoinage.org/iris/id/a", "p": "http://purl.org/dc/terms/description", "o": {"v": "Male head", "l": "en"}, "side": "obverse"}
+{"t": "https://greekcoinage.org/iris/id/a", "p": "http://purl.org/dc/terms/description", "o": {"v": "Corinthian helmet", "l": "en"}, "side": "reverse"}
+{"t": "https://numismatics.org/lco/id/lco.csc.1", "p": "http://nomisma.org/ontology#hasObverse", "o": {"v": "https://numismatics.org/lco/id/lco.csc.1#obverse", "l": null}}
+{"t": "https://numismatics.org/lco/id/lco.csc.1", "p": "http://nomisma.org/ontology#hasReverse", "o": {"v": "https://numismatics.org/lco/id/lco.csc.1#reverse", "l": null}}
+{"t": "https://numismatics.org/lco/id/lco.csc.1", "p": "http://rdfs.org/ns/void#inDataset", "o": {"v": "https://numismatics.org/lco/", "l": null}}
+{"t": "https://numismatics.org/lco/id/lco.csc.1", "p": "http://www.w3.org/2004/02/skos/core#prefLabel", "o": {"v": "Samarian Coinage 1", "l": "en"}}
+{"t": "https://numismatics.org/lco/id/lco.csc.1", "p": "http://www.w3.org/2004/02/skos/core#definition", "o": {"v": "Samarian Coinage 1", "l": "en"}}
+{"t": "https://numismatics.org/lco/id/lco.csc.1", "p": "http://nomisma.org/ontology#hasMaterial", "o": {"v": "http://nomisma.org/id/ar", "l": null}}
+{"t": "https://numismatics.org/lco/id/lco.csc.1", "p": "http://nomisma.org/ontology#hasAuthority", "o": {"v": "http://nomisma.org/id/samaria_province", "l": null}}
+{"t": "https://numismatics.org/lco/id/lco.csc.1", "p": "http://nomisma.org/ontology#hasDenomination", "o": {"v": "http://nomisma.org/id/m-h", "l": null}}
+{"t": "https://numismatics.org/lco/id/lco.csc.1", "p": "http://www.w3.org/2004/02/skos/core#exactMatch", "o": {"v": "https://greekcoinage.org/iris/id/samaria.meshorer_qedar.1999.83", "l": null}}
+{"t": "https://numismatics.org/lco/id/lco.csc.1", "p": "http://nomisma.org/ontology#hasStartDate", "o": {"v": "-0353", "l": null}}
+{"t": "https://numismatics.org/lco/id/lco.csc.1", "p": "http://nomisma.org/ontology#hasEndDate", "o": {"v": "-0332", "l": null}}
+{"t": "https://numismatics.org/lco/id/lco.csc.1", "p": "http://purl.org/dc/terms/source", "o": {"v": "http://nomisma.org/id/samarian_coinage", "l": null}}
+{"t": "https://numismatics.org/lco/id/lco.csc.1", "p": "http://nomisma.org/ontology#hasRegion", "o": {"v": "http://nomisma.org/id/samaria", "l": null}}
+{"t": "https://numismatics.org/lco/id/lco.csc.1", "p": "http://purl.org/dc/terms/description", "o": {"v": "Forepart of crouching lion to r., head facing; front r. paw resting in front; dotted circular border", "l": "en"}, "side": "obverse"}
+{"t": "https://numismatics.org/lco/id/lco.csc.1", "p": "http://purl.org/dc/terms/description", "o": {"v": "Bearded male head (Heracles?) with curly hair to l. (profile eye); incuse circle", "l": "en"}, "side": "reverse"}
+{"t": "https://numismatics.org/lco/id/lco.csc.1", "p": "http://nomisma.org/ontology#hasLegend", "o": {"v": "in r. field ŠMRYN (שמרינ, in Aramaic)", "l": null}, "side": "reverse"}
+{"t": "https://numismatics.org/lco/id/lco.csc.1", "p": "http://nomisma.org/ontology#hasPortrait", "o": {"v": "http://nomisma.org/id/heracles", "l": null}, "side": "reverse"}

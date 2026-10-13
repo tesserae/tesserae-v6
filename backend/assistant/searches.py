@@ -288,6 +288,32 @@ def fusion_page(source, target, language, limit=25):
     return None
 
 
+def translations_available(language):
+    """{work: {attribution, coverage, confidence}} for the works of a language
+    that have an aligned translation, from the route Browse Corpus reads."""
+    data = _get('/passages/translations', {'language': language})
+    works = data.get('works') if isinstance(data, dict) else None
+    return works if isinstance(works, dict) else {}
+
+
+def crosslingual_page(source, target, source_language, target_language, limit=25):
+    """One page of the Cross-Language comparison, or None while it runs.
+
+    Same shape as fusion_page, for a pair of texts in two languages. It calls
+    the polled route the Cross-Language tab's search is cached through.
+    """
+    def _id(x):
+        x = str(x or '')
+        return x if x.endswith('.tess') else x + '.tess'
+    data = _get('/crosslingual-search-poll', {
+        'source': _id(source), 'target': _id(target),
+        'source_language': source_language, 'target_language': target_language,
+        'limit': int(limit)})
+    if isinstance(data, dict) and data.get('status') == 'complete':
+        return data.get('parallels') or data.get('results') or []
+    return None
+
+
 def run(name, args):
     """Run one chosen search. Raises SearchError; never invents a result."""
     spec = TOOLS.get(name)

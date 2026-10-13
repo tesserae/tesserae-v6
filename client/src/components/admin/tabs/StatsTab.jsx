@@ -6,7 +6,7 @@ export default function StatsTab({ corpusStats }) {
       <h3 className="font-medium text-gray-900">Corpus Statistics</h3>
       {corpusStats ? (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {['la', 'grc', 'en'].map(lang => (
+          {['la', 'grc', 'en', 'he', 'cop'].map(lang => (
             <div key={lang} className="bg-gray-50 p-4 rounded">
               <div className="text-lg font-medium text-gray-900 mb-2">
                 {LANG_NAMES[lang]}

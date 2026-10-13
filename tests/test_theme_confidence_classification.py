@@ -52,6 +52,66 @@ def test_degenerate_coherence_is_low():
     assert _confidence_level(0.05, 0.999) == 'low'
 
 
+# --- HEAD_WEAK/HEAD_STRONG refit, 2026-10-08 (fixed numbers, not relative to
+# the constants) -------------------------------------------------------------
+#
+# Refit against the production index (530,917 windows) and the 178-query
+# evaluation/probe_sets/theme_confidence_2026-10-08.json (30 queries each for
+# Latin, Greek, and English, up from 17), plus the original 57-query
+# evaluation/probe_sets/combined_confidence.json kept as a regression check.
+# See backend/passage_index.py's HEAD_WEAK comment and docs/DECISIONS.md,
+# 2026-10-08, for the sweep and the measured per-language table. These pin
+# the exact plateau boundaries so a later change cannot silently widen or
+# narrow it without a test failure pointing here.
+
+def test_head_weak_is_the_refit_value():
+    # 2026-10-12 refit against the 693,611-window index: see the HEAD_WEAK
+    # comment in backend/passage_index.py and docs/DECISIONS.md, 2026-10-12.
+    assert HEAD_WEAK == 0.060
+
+
+def test_head_strong_unchanged_by_the_refit():
+    assert HEAD_STRONG == 0.1006
+
+
+def test_historical_subjects_with_relevant_lists_are_not_low():
+    # Measured 2026-10-12: "establishment of democracy" 0.0669 (7 of the top
+    # ten about the subject), "the sack of a city" 0.0607, "a tyrant
+    # overthrown" 0.0661. All read 'low' under the 0.0738 of 2026-10-08.
+    for head_lift in (0.0669, 0.0607, 0.0661):
+        assert _confidence_level(head_lift, 0.91) == 'moderate'
+
+
+def test_just_below_the_refit_floor_is_low():
+    # "a revolt of slaves", 0.0551: the lowest of the sixty historical
+    # subjects, and the price of the floor (its list was relevant too).
+    assert _confidence_level(0.0551, 0.9155) == 'low'
+    assert _confidence_level(0.0599, 0.90) == 'low'
+    assert _confidence_level(0.060, 0.90) == 'moderate'
+
+
+def test_the_three_rescued_latin_queries_are_now_moderate():
+    # "a banquet with speeches, music, and entertainment" (0.074292), "an old
+    # nurse recognizes her former charge by a scar" (0.074418), and "a lover
+    # complains of a mistress's cruelty" (0.074544): all 'low' under the prior
+    # HEAD_WEAK of 0.0750, all 'moderate' under the refit.
+    for head_lift in (0.074292, 0.074418, 0.074544):
+        assert _confidence_level(head_lift, 0.93) == 'moderate'
+
+
+def test_the_rescued_english_query_is_now_moderate():
+    # "a garden described in loving detail", 0.074782.
+    assert _confidence_level(0.074782, 0.93) == 'moderate'
+
+
+def test_head_strong_still_clears_every_absent_query():
+    # HEAD_STRONG was left unchanged at both refits because 0.1006 still sits
+    # well above the highest absent head_lift measured anywhere in any probe
+    # set (0.0800 on the 57-query set, 2026-10-12), so no absent query can
+    # reach 'strong'.
+    assert _confidence_level(0.0800, 0.90) != 'strong'
+
+
 # --- _is_pervasive: the promote-only check ----------------------------------
 
 def test_pervasive_true_when_language_baseline_well_above_global_and_level_low():
@@ -114,9 +174,10 @@ def test_strong_has_no_note():
     assert _confidence_note('strong', query='love') is None
 
 
-def test_low_note_says_nothing_resembles():
-    note = _confidence_note_fitted('low')
-    assert 'does not appear to contain' in note
+def test_low_note_says_nothing_resembles_only_when_degenerate():
+    # 2026-10-11: the absence claim moved to the degenerate case.
+    assert 'does not appear to contain' in _confidence_note_fitted('low', degenerate=True)
+    assert 'does not appear to contain' not in _confidence_note_fitted('low')
 
 
 def test_moderate_note_is_the_existing_caution():
@@ -135,8 +196,8 @@ def test_pervasive_note_falls_back_without_a_known_language():
     assert 'this part of the corpus' in _confidence_note_fitted('pervasive', language='zz')
 
 
-def test_short_query_hint_appended_to_low_note():
-    note = _confidence_note('low', query='love')
+def test_short_query_hint_appended_to_degenerate_low_note():
+    note = _confidence_note('low', query='love', degenerate=True)
     assert 'does not appear to contain' in note
     assert 'only a few words' in note
 
@@ -192,3 +253,28 @@ def test_single_language_weak_lift_without_elevated_baseline_stays_low():
 
 def test_single_language_strong_lift_is_never_demoted_by_a_low_baseline():
     assert _classify(HEAD_STRONG + 0.01, 0.93, lang_baseline=0.70, global_baseline=0.78) == 'strong'
+
+
+# --- 2026-10-11: a low band shows the list; only degeneracy says "absent" ----
+#
+# Measured on 60 historical subjects plus the 15 Search One Text pilot questions
+# (judged top ten): 27 of 31 queries marked low had a relevant list. The low
+# note is therefore a caution about the ranking, and the "corpus does not
+# contain" sentence is kept for the degenerate case alone.
+
+def test_low_note_is_a_caution_not_an_absence_claim():
+    note = _confidence_note_fitted('low')
+    assert note.startswith('No passage stands far above the rest of the corpus')
+    assert 'does not appear to contain' not in note
+
+
+def test_degenerate_low_note_still_says_absent():
+    note = _confidence_note_fitted('low', degenerate=True)
+    assert 'does not appear to contain' in note
+
+
+def test_short_query_hint_only_for_degenerate():
+    plain = _confidence_note('low', query='democracy', degenerate=False)
+    weak = _confidence_note('low', query='democracy', degenerate=True)
+    assert 'full sentence' not in (plain or '')
+    assert 'full sentence' in weak

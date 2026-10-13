@@ -30,9 +30,25 @@ const SCOPES = [
   { key: 'passage', label: 'Passage' },
 ];
 
+// Inside one long prose unit (a chapter or section) the reader can pick a
+// sentence, so the toggle offers Sentence and Section where verse has Line.
+const PROSE_SCOPES = [
+  { key: 'word', label: 'Word' },
+  { key: 'sentence', label: 'Sentence' },
+  { key: 'section', label: 'Section' },
+  { key: 'passage', label: 'Passage' },
+];
+
+/** True when the selection lies inside one unit that has sentences. */
+export function inProseUnit(selection) {
+  return !!(selection && selection.sentenceTotal && (selection.lineCount || 1) === 1);
+}
+
 const ACTION = {
   word: { label: 'Find this word', tab: null },
   line: { label: 'Find shared wording', tab: 'verbal' },
+  sentence: { label: 'Find shared wording', tab: 'verbal' },
+  section: { label: 'Find shared wording', tab: 'verbal' },
   passage: { label: 'Find similar passages', tab: 'similar' },
 };
 
@@ -50,6 +66,7 @@ export function wordOf(selection) {
 export function scopeFor(selection) {
   if (!selection) return 'line';
   if (wordOf(selection)) return 'word';
+  if (inProseUnit(selection)) return selection.charStart != null ? 'sentence' : 'section';
   return (selection.lineCount || 1) >= 3 ? 'passage' : 'line';
 }
 
@@ -63,7 +80,14 @@ export default function SelectionToolbar({
 
   const refStart = selection.refStart;
   const refEnd = selection.refEnd || refStart;
-  const shown = formatSelectionRange(refStart, refEnd, corpusMap);
+  const range = formatSelectionRange(refStart, refEnd, corpusMap, work);
+  const scopes = inProseUnit(selection) ? PROSE_SCOPES : SCOPES;
+  let shown = range;
+  if (selection.charStart != null && selection.sentenceTotal) {
+    const first = (selection.startSentence || 0) + 1;
+    const last = first + (selection.sentenceCount || 1) - 1;
+    shown = `${range}, ${last > first ? `sentences ${first}\u2013${last}` : `sentence ${first}`}`;
+  }
   const action = ACTION[scope] || ACTION.line;
   const word = wordOf(selection);
 
@@ -76,7 +100,20 @@ export default function SelectionToolbar({
       window.location.href = `/string-search?${p.toString()}`;
       return;
     }
-    if (scope === 'line') {
+    if (scope === 'sentence') {
+      // The sentence's own words, run as a Line Search (the page runs a `q`
+      // link on arrival).
+      const q = String(selection.sentenceText || selection.text || '').trim();
+      if (q) {
+        const p = new URLSearchParams({
+          work: String(work || '').replace(/\.tess$/, ''),
+          language: language || 'la', q, type: 'lemma',
+        });
+        window.location.href = `/line-search?${p.toString()}`;
+        return;
+      }
+    }
+    if (scope === 'line' || scope === 'sentence' || scope === 'section') {
       const p = new URLSearchParams({
         work: String(work || '').replace(/\.tess$/, ''),
         language: language || 'la', ref: refStart || '',
@@ -88,17 +125,17 @@ export default function SelectionToolbar({
   };
 
   return (
-    <div className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white
+    <div className="inline-flex flex-wrap items-center gap-2 max-w-full rounded-lg border border-gray-300 bg-white
                     px-2 py-1.5 shadow-xl"
          role="toolbar"
          aria-label="What to do with the selected passage">
-      <div className="flex rounded border border-gray-300 overflow-hidden">
-        {SCOPES.map((s) => (
+      <div className="flex shrink-0 rounded border border-gray-300 overflow-hidden">
+        {scopes.map((s) => (
           <button
             key={s.key}
             onClick={() => onScope?.(s.key)}
             aria-pressed={scope === s.key}
-            className={`px-2 py-1 text-xs font-medium ${
+            className={`px-2 py-1 text-xs font-medium whitespace-nowrap shrink-0 ${
               scope === s.key
                 ? 'bg-gray-100 text-gray-900'
                 : 'bg-white text-gray-500 hover:text-gray-800'}`}
@@ -124,7 +161,8 @@ export default function SelectionToolbar({
         </button>
       )}
 
-      <span className="text-[11px] text-gray-500 tabular-nums whitespace-nowrap">
+      <span className="min-w-0 truncate text-[11px] text-gray-500 tabular-nums whitespace-nowrap"
+            title={`${shown} selected`}>
         {shown} selected
       </span>
 
@@ -134,8 +172,9 @@ export default function SelectionToolbar({
       <button
         type="button"
         onClick={() => setReportOpen(true)}
-        className="text-[11px] text-gray-500 hover:text-red-700 hover:underline whitespace-nowrap"
+        className="inline-flex items-center gap-1 text-[11px] text-red-700 hover:underline whitespace-nowrap"
       >
+        <svg aria-hidden="true" viewBox="0 0 16 16" width="12" height="12" fill="none" className="shrink-0"><path d="M11 2.5l2.5 2.5L6 12.5H3.5V10L11 2.5z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" /></svg>
         Suggest a correction
       </button>
 
@@ -153,7 +192,7 @@ export default function SelectionToolbar({
         context={{
           work: String(work || '').replace(/\.tess$/, ''),
           language,
-          refs: shown,
+          refs: range,
           selected_text: selection.text || '',
         }}
       />

@@ -20,6 +20,7 @@ downloads/
 eggs/
 .eggs/
 lib/
+!client/src/lib/
 lib64/
 parts/
 sdist/
@@ -82,13 +83,24 @@ data/la_mqdq_temp/
 !data/text_descriptions.json
 !data/lemma_tables/
 !data/text_genres.csv
+!data/sources_credits.json
 !data/translation_pairs.json
+# data/translations/ holds one aligned-translation JSON per work (built
+# offline, not committed) EXCEPT the small links/ subdirectory: hand-sized
+# lookup tables (currently the Ghalib -> Pritchett verse-page links) that
+# belong in git like any other curated data file.
+!data/translations/
+data/translations/*
+!data/translations/links/
 !data/proposals/
 !data/restricted_texts.json
 !data/documents/
 data/documents/*
 !data/documents/formula_words_*.txt
+!data/documents/function_words_*.txt
 !data/documents/eagle_labels.csv
+!data/documents/german_label_translations.json
+!data/documents/papyri_nome_map.json
 !data/commentaries/
 data/commentaries/*
 !data/commentaries/README.md

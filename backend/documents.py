@@ -34,6 +34,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import sqlite3
 from functools import lru_cache
 
@@ -59,6 +60,11 @@ def _metadata_db_path():
 def _sidecar_root():
     return os.environ.get('TESSERAE_DOCUMENTS_RESTORED_DIR') or os.path.join(
         _repo_root(), 'data', 'documents', 'restored')
+
+
+def _label_map_path():
+    return os.environ.get('TESSERAE_DOCUMENTS_LABEL_MAP') or os.path.join(
+        _repo_root(), 'data', 'documents', 'german_label_translations.json')
 
 
 # Languages the stage 3b-1 build produced an index for. Any other language
@@ -295,6 +301,99 @@ def get_document_lines(language, doc_id):
 
 
 # --------------------------------------------------------------------------
+# German label translation (stage 4 polish)
+# --------------------------------------------------------------------------
+# metadata.db's region/ancient_place/modern_place/material_label/
+# object_type_label/text_type_label fields come from EDH, EDCS, Trismegistos
+# and Papyri.info, whose own working language is German for EDH's "no data"
+# placeholders and connector words ("unbekannt", "bei", "oder" -- see
+# data/documents/german_label_translations.json, built 2026-10-08 by
+# counting every distinct value of those six fields that contains one of
+# these words, against the production metadata.db; counts are in
+# docs/DECISIONS.md). A real place name spelled in German (Koeln, Mainz,
+# Wien) is NOT in the table and is never touched -- that is the place's own
+# name, the same reason 'Roma' is not translated to 'Rome' anywhere else on
+# the site. The underlying metadata.db value is never modified; translation
+# happens only on the way out, in _document_hit (backend/app.py).
+
+_label_map_cache = {'map': None, 'checked': False}
+
+
+def _label_map():
+    if _label_map_cache['checked']:
+        return _label_map_cache['map']
+    _label_map_cache['checked'] = True
+    path = _label_map_path()
+    table = {}
+    if os.path.exists(path):
+        try:
+            with open(path, 'r', encoding='utf-8') as f:
+                raw = json.load(f)
+            table = {k.lower(): v for k, v in raw.items() if not k.startswith('_')}
+        except Exception as e:                                     # noqa: BLE001
+            logger.error(f"Failed to load German label translations {path}: {e}")
+            table = {}
+    _label_map_cache['map'] = table
+    return table
+
+
+_LABEL_WORD_RE = re.compile(r"[^\W\d_]+(?:['’][^\W\d_]+)*", re.UNICODE)
+# "bzw." (an abbreviation of "beziehungsweise", always written with the
+# period) needs the period consumed along with the word, or the general
+# substitution below leaves a stray "." behind ("Alexandria or. Arsinoites").
+_LABEL_ABBREV_RE = re.compile(r'\bbzw\.', re.IGNORECASE)
+
+
+def translate_label(value):
+    """`value` with every whole word the German->English table recognizes
+    replaced by its English equivalent, word boundaries and surrounding
+    punctuation/spacing left exactly as metadata.db wrote them (so "Kostolac,
+    bei" becomes "Kostolac, near", not a different string shape), case
+    carried over per-word (an initial capital on the German word keeps an
+    initial capital on the English one). Returns `value` unchanged when it
+    is empty/None or no table word is found -- the overwhelming majority of
+    values, which are not German at all."""
+    if not value:
+        return value
+    table = _label_map()
+    if not table:
+        return value
+    value = _LABEL_ABBREV_RE.sub(
+        lambda m: 'Or' if m.group(0)[:1].isupper() else 'or', value)
+
+    def _sub(m):
+        word = m.group(0)
+        english = table.get(word.lower())
+        if english is None:
+            return word
+        if word[:1].isupper():
+            return english[:1].upper() + english[1:]
+        return english
+
+    return _LABEL_WORD_RE.sub(_sub, value)
+
+
+# Markers meaning "this document's place is not known", across the
+# languages metadata.db's own sources use for that (EDH's German
+# 'unbekannt', EDCS/Trismegistos' English 'unknown'/'unknown location', and
+# the Latin 'ignoratur' a number of principal editions still use) --
+# checked on the RAW value (before translate_label runs), case-insensitive,
+# with a trailing editorial '?' ignored. A place hit this recognizes is
+# hidden rather than shown translated as the word "unknown": printing that
+# word is no information for a reader, per the stage 4 spec.
+UNKNOWN_PLACE_MARKERS = frozenset({
+    'unbekannt', 'unknown', 'unknown location', 'ignoratur', 'incertum',
+})
+
+
+def is_unknown_place(value):
+    if not value:
+        return False
+    v = value.strip().rstrip('?').strip().lower()
+    return v in UNKNOWN_PLACE_MARKERS
+
+
+# --------------------------------------------------------------------------
 # metadata.db (credit / date / place / labels)
 # --------------------------------------------------------------------------
 
@@ -328,6 +427,8 @@ def reset_caches():
     _meta_conn_state['checked'] = False
     _sidecar_cache.clear()
     _corpus_version_cache.clear()
+    _label_map_cache['map'] = None
+    _label_map_cache['checked'] = False
     meta.cache_clear()
     display_fields.cache_clear()
 
@@ -340,26 +441,10 @@ _META_FIELDS = (
 )
 
 
-@lru_cache(maxsize=8192)
-def meta(doc_id):
-    """Credit/date/place/label fields for one document id, from
-    metadata.db's `documents` table (stage 3a). Cached: a long inscription
-    or papyrus's doc id repeats across every one of its lines. Returns None
-    when metadata.db is unavailable or the id is unknown — callers must
-    handle that (a document hit still has its text and locus with no
-    metadata; it is simply uncredited, not dropped)."""
-    conn = get_meta_connection()
-    if conn is None or not doc_id:
-        return None
-    try:
-        row = conn.execute(f"SELECT {_META_FIELDS} FROM documents WHERE id = ?",  # nosec B608
-                            (doc_id,)).fetchone()
-    except Exception as e:                                         # noqa: BLE001
-        logger.error(f"documents metadata lookup failed for {doc_id!r}: {e}")
-        return None
-    if row is None:
-        return None
-    d = dict(row)
+def _meta_row_to_dict(doc_id, d):
+    """Shared shape-builder for one `documents` table row (as a plain dict),
+    used by both `meta` (one id, cached) and `bulk_meta` (many ids, one
+    query) so the two never drift apart."""
     return {
         'doc_id': doc_id,
         'collection': d.get('collection'),
@@ -385,6 +470,72 @@ def meta(doc_id):
         'object_type_label': d.get('object_type_label'),
         'material_label': d.get('material_label'),
     }
+
+
+@lru_cache(maxsize=8192)
+def meta(doc_id):
+    """Credit/date/place/label fields for one document id, from
+    metadata.db's `documents` table (stage 3a). Cached: a long inscription
+    or papyrus's doc id repeats across every one of its lines. Returns None
+    when metadata.db is unavailable or the id is unknown — callers must
+    handle that (a document hit still has its text and locus with no
+    metadata; it is simply uncredited, not dropped)."""
+    conn = get_meta_connection()
+    if conn is None or not doc_id:
+        return None
+    try:
+        row = conn.execute(f"SELECT {_META_FIELDS} FROM documents WHERE id = ?",  # nosec B608
+                            (doc_id,)).fetchone()
+    except Exception as e:                                         # noqa: BLE001
+        logger.error(f"documents metadata lookup failed for {doc_id!r}: {e}")
+        return None
+    if row is None:
+        return None
+    return _meta_row_to_dict(doc_id, dict(row))
+
+
+# How many doc ids go in one `WHERE id IN (...)` query in bulk_meta. SQLite's
+# default compile-time limit on bound parameters is 999; comfortably under
+# that leaves room for drivers with a lower limit.
+_BULK_META_CHUNK = 500
+
+
+def bulk_meta(doc_ids):
+    """meta() for many ids in one pass (stage 4 ranking/totals: sorting and
+    counting a documents search by date/region needs every matching
+    document's metadata, and a stock phrase like "dis manibus" touches tens
+    of thousands of them -- one query per id, even lru_cache'd on repeat
+    calls, is the first time through every one of them, which measured over
+    a second on its own against the production metadata.db; chunked IN
+    queries measured under 50ms for the same ids). Returns {doc_id: meta
+    dict} for every id metadata.db actually has a row for; an id this does
+    not recognize is simply absent from the returned dict (same "uncredited,
+    not dropped" contract as `meta`, just without a None entry per miss).
+    Does not populate `meta`'s own lru_cache -- the two caches are kept
+    deliberately separate so this bulk path can never evict a hot single
+    lookup, and a caller that already has the dict from here has no reason
+    to call `meta` again for the same id."""
+    ids = sorted({d for d in doc_ids if d})
+    if not ids:
+        return {}
+    conn = get_meta_connection()
+    if conn is None:
+        return {}
+    out = {}
+    for i in range(0, len(ids), _BULK_META_CHUNK):
+        chunk = ids[i:i + _BULK_META_CHUNK]
+        placeholders = ', '.join('?' for _ in chunk)
+        try:
+            rows = conn.execute(
+                f"SELECT {_META_FIELDS} FROM documents WHERE id IN ({placeholders})",  # nosec B608
+                chunk).fetchall()
+        except Exception as e:                                     # noqa: BLE001
+            logger.error(f"bulk_meta lookup failed for a chunk of {len(chunk)} ids: {e}")
+            continue
+        for row in rows:
+            d = dict(row)
+            out[d['id']] = _meta_row_to_dict(d['id'], d)
+    return out
 
 
 # Every field name extract_metadata.py (stage 3a) writes to the `display`

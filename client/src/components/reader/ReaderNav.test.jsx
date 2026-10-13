@@ -1,9 +1,10 @@
 /**
  * ReaderNav: previous/next book, go to line, back to top (2026-09-19).
  */
-import { describe, expect, it, vi, afterEach } from 'vitest';
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
-import ReaderNav, { ReaderEndNav, sectionsFor } from './ReaderNav';
+import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
+import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
+import ReaderNav, { ReaderEndNav, ReaderPhoneTopButton, sectionsFor } from './ReaderNav';
+import { installPhone } from '../../test/phone';
 
 afterEach(cleanup);
 
@@ -118,5 +119,46 @@ describe('book files with a suffix after their number (2026-09-20)', () => {
     expect(bookSections(sections).map((s) => s.file)).toEqual([
       'dion.ant.part.1.tess', 'dion.ant.part.12.books_12-20.tess']);
     expect(bookFileFor(sections, 'dion.ant.part.12.books_12-20.tess', 'dion. ant 15.1.1')).toBe('');
+  });
+});
+
+describe('on a phone', () => {
+  let env;
+  beforeEach(() => { env = installPhone(true); });
+  afterEach(() => { env.restore(); cleanup(); window.scrollY = 0; });
+
+  it('the sticky strip renders nothing', () => {
+    const { container } = render(<ReaderNav sections={sections} work="vergil.aeneid.part.2.tess"
+                                            onWork={() => {}} onJump={() => ''} />);
+    expect(container).toBeEmptyDOMElement();
+  });
+
+  it('the end links stay', () => {
+    render(<ReaderEndNav sections={sections} work="vergil.aeneid.part.2.tess" onWork={() => {}} />);
+    expect(screen.getByLabelText('Next: Book 3')).toBeInTheDocument();
+  });
+
+  it('the round top button appears after 600 pixels of scrolling', () => {
+    render(<ReaderPhoneTopButton hidden={false} />);
+    expect(screen.queryByLabelText('Back to top')).toBeNull();
+    act(() => { window.scrollY = 700; window.dispatchEvent(new Event('scroll')); });
+    expect(screen.getByLabelText('Back to top')).toBeInTheDocument();
+    act(() => { window.scrollY = 100; window.dispatchEvent(new Event('scroll')); });
+    expect(screen.queryByLabelText('Back to top')).toBeNull();
+  });
+
+  it('the top button is absent while the results sheet is open', () => {
+    window.scrollY = 900;
+    render(<ReaderPhoneTopButton hidden />);
+    expect(screen.queryByLabelText('Back to top')).toBeNull();
+  });
+});
+
+describe('not on a phone', () => {
+  it('the top button never renders', () => {
+    window.scrollY = 900;
+    render(<ReaderPhoneTopButton hidden={false} />);
+    expect(screen.queryByLabelText('Back to top')).toBeNull();
+    window.scrollY = 0;
   });
 });

@@ -1,11 +1,19 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { chronological, byBestMatch, dateParts } from '../../utils/chronology';
-import { coverageCounts, fetchCoveredWorks } from '../../utils/passageCoverage';
+import { baseWorkId, coverageCounts, fetchCoveredWorks } from '../../utils/passageCoverage';
+import SearchableSelect from '../common/SearchableSelect';
+import SearchProgress from '../common/SearchProgress';
 import { LANGUAGE_NAMES as LANG_LABEL } from '../../utils/languageNames';
 import { useCorpus } from '../../hooks';
 import TextSelector from '../search/TextSelector';
 import ThemeExport from './ThemeExport';
 import ConnectionsMap from './ConnectionsMap';
+import ThemeCoins from '../coins/ThemeCoins';
+import ThemeObjects from '../objects/ThemeObjects';
+import ThemeScholarship from '../scholarship/ThemeScholarship';
+import useCollections from '../../hooks/useCollections';
+import { PAGE_NEEDS } from '../../collections/collectionsConfig';
+import ScopeBox from '../common/ScopeBox';
 
 /**
  * Theme Search: describe a passage in your own words, get passages that match
@@ -53,6 +61,15 @@ const EXAMPLE_SETS = {
     'funeral games with athletic contests held in honor of the dead',
     'a storm at sea batters ships and terrifies the crew',
   ],
+  // The History view: the same corpus, themes a historian would look for.
+  history: [
+    'a general addresses his troops before battle',
+    'a debate in the assembly over how the city should be governed',
+    'tribunes propose a law to distribute public land to the poor',
+    'a grain shortage drives up prices and the emperor fixes them',
+    'women gather in the streets to demand the repeal of a law',
+    'a census counts the citizens and assesses their property',
+  ],
   // Persian, Urdu and Arabic, with Coptic alongside. Measured 2026-09-09:
   // all four rated strong, and three of the four return Coptic passages too.
   persoArabic: [
@@ -65,9 +82,9 @@ const EXAMPLE_SETS = {
 
 /** The example set for the languages this server serves. Classical wins when
  *  any of its languages is present, so production is unchanged. */
-function examplesFor(served) {
+function examplesFor(served, view) {
   const has = (codes) => Array.isArray(served) && served.some((c) => codes.includes(c));
-  if (has(['la', 'grc', 'en'])) return EXAMPLE_SETS.classical;
+  if (has(['la', 'grc', 'en'])) return view === 'history' ? EXAMPLE_SETS.history : EXAMPLE_SETS.classical;
   if (has(['fa', 'ur', 'ar'])) return EXAMPLE_SETS.persoArabic;
   return EXAMPLE_SETS.classical;
 }
@@ -94,7 +111,22 @@ const BAND = {
     label: 'Common theme',
     className: 'bg-amber-50 text-amber-800 border-amber-200',
   },
+  // A query none of whose content words occurs in any passage description
+  // (2026-10-11): there is nothing to match, so no list is offered at all.
+  nothing: {
+    label: 'Nothing to search for',
+    className: 'bg-gray-100 text-gray-700 border-gray-300',
+  },
+  // Was 'Low confidence' until 2026-10-12. The lists under this band are as
+  // relevant as those under 'moderate' on measured subjects (see the Help
+  // page), so the label is the plain fact: these are the closest passages.
   low: {
+    label: 'Closest passages',
+    className: 'bg-gray-100 text-gray-700 border-gray-300',
+  },
+  // A low band whose coherence is degenerate: nothing in the corpus resembles
+  // the query. The only case in which the list is held back (2026-10-11).
+  weak: {
     label: 'Weak match',
     className: 'bg-gray-100 text-gray-700 border-gray-300',
   },
@@ -109,7 +141,7 @@ const BAND = {
  * A real href, not a click handler, so the result can be opened in a new tab and
  * kept. Scholars compare things side by side.
  */
-function readerLink(r, query) {
+export function readerLink(r, query) {
   const work = String(r.work || '').replace(/\.tess$/, '');
   const params = new URLSearchParams({
     work: `${work}.tess`,
@@ -236,11 +268,13 @@ function CompareWorkPicker({ label, langChoices, language, setLanguage,
   const { authors, hierarchy, loading, getTextsForAuthor } = useCorpus(language);
   return (
     <div className="border border-gray-200 rounded p-3 bg-white space-y-3">
+      <h3 className="text-base font-semibold text-gray-900">{label}</h3>
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
-          {label} language
+          Language
         </label>
         <select
+          aria-label={`${label} language`}
           value={language}
           onChange={(e) => { setLanguage(e.target.value); setAuthor(''); setText(''); }}
           className="w-full border rounded px-2 py-2 text-base sm:text-sm"
@@ -253,6 +287,7 @@ function CompareWorkPicker({ label, langChoices, language, setLanguage,
       ) : (
         <TextSelector
           label={label}
+          plainFieldLabels
           language={language}
           authors={authors}
           selectedAuthor={author}
@@ -304,8 +339,43 @@ function downloadComparePairsCsv(data) {
   URL.revokeObjectURL(url);
 }
 
+/** The "in this author or work" restriction as request parameters. A chosen
+ *  work wins over its author: `works=` names it exactly, `author=` means every
+ *  work of that author. Empty when nothing is chosen, so the default request
+ *  is byte for byte what it was before the restriction existed. */
+export function scopeQuery(scope) {
+  if (scope && scope.work) return `&works=${encodeURIComponent(scope.work)}`;
+  if (scope && scope.author) return `&author=${encodeURIComponent(scope.author)}`;
+  return '';
+}
+
 export default function ThemeSearchPage() {
   const [query, setQuery] = useState('');
+  // Coins: an option of its own, shown only when the Coins collection is on.
+  // It searches the coin descriptions and shows them as a separate list; it is
+  // never mixed into the passage ranking.
+  const { anyOn, view } = useCollections();
+  const coinsAvailable = anyOn(PAGE_NEEDS.coins);
+  const [coinsChosen, setCoinsChosen] = useState(false);
+  const [coinsSearch, setCoinsSearch] = useState(null);
+  const coinsMode = coinsAvailable && coinsChosen;
+  // Objects (museum catalogue descriptions): the same kind of option, beside
+  // Coins. One catalogue is searched at a time, each as its own list.
+  const objectsAvailable = anyOn(PAGE_NEEDS.objects);
+  const [objectsChosen, setObjectsChosen] = useState(false);
+  const [objectsSearch, setObjectsSearch] = useState(null);
+  const objectsMode = objectsAvailable && objectsChosen;
+  // Scholarship (commentary notes and journal sentences): the third option of
+  // this kind, shown only when the Scholarship collection is on.
+  const scholarshipAvailable = anyOn(PAGE_NEEDS['scholarship-theme']);
+  // `in=scholarship` in the address opens the page on the scholarship search
+  // (the link under Search One Text's scholarship paragraph, 2026-10-12).
+  const [scholarshipChosen, setScholarshipChosen] = useState(() => {
+    try { return new URLSearchParams(window.location.search).get('in') === 'scholarship'; } catch { return false; }
+  });
+  const [scholarshipSearch, setScholarshipSearch] = useState(null);
+  const scholarshipMode = scholarshipAvailable && scholarshipChosen;
+  const catalogueMode = coinsMode || objectsMode || scholarshipMode;
   // Read synchronously (a lazy initializer, not an effect) so that on the
   // very first render -- before any effect has run -- `language` already
   // reflects a shared link's languages= param. Without this, the aggregate
@@ -423,6 +493,65 @@ export default function ThemeSearchPage() {
     return () => { dead = true; };
   }, [singleCoveredLang, served]);
 
+  // "Search within": restrict the search to one author or one work. Read from
+  // the address so a shared link carries it. Empty strings mean the whole corpus.
+  const [scopeAuthor, setScopeAuthor] = useState(() => {
+    const p = new URLSearchParams(window.location.search);
+    const w = (p.get('works') || '').split(',')[0].trim();
+    return (p.get('author') || '').trim().toLowerCase() || (w ? w.split('.')[0].toLowerCase() : '');
+  });
+  const [scopeWork, setScopeWork] = useState(() => {
+    const p = new URLSearchParams(window.location.search);
+    return (p.get('works') || '').split(',')[0].trim();
+  });
+  const [scopeOpen, setScopeOpen] = useState(() => Boolean(scopeAuthor || scopeWork));
+  // Works that have passage windows in the chosen languages, with the author
+  // and title labels the pickers show. Loaded the first time the section is
+  // opened, because it takes one catalogue call and one coverage call per
+  // language and most searches never need it.
+  const [scopeWorks, setScopeWorks] = useState(null);
+  useEffect(() => {
+    if (!scopeOpen) return undefined;
+    const codes = selectedLangCodes.length ? selectedLangCodes : BROWSE_CORPUS_LANGUAGES;
+    let dead = false;
+    Promise.all(codes.map((code) => (
+      fetch(`/api/texts?language=${code}`).then((r) => r.json()).catch(() => []).then((texts) => {
+        const arr = Array.isArray(texts) ? texts : [];
+        return fetchCoveredWorks(code, arr.length > 0).then((covered) => {
+          const have = new Set(covered || []);
+          return arr.filter((t) => have.has(baseWorkId(t.id)));
+        });
+      })
+    ))).then((lists) => {
+      if (dead) return;
+      const byId = new Map();
+      lists.flat().forEach((t) => {
+        const id = baseWorkId(t.id);
+        if (!byId.has(id)) {
+          byId.set(id, { id, authorKey: id.split('.')[0].toLowerCase(),
+                         author: t.author || id.split('.')[0], title: t.title || t.work || id });
+        }
+      });
+      setScopeWorks([...byId.values()]);
+    }).catch(() => { if (!dead) setScopeWorks([]); });
+    return () => { dead = true; };
+  }, [scopeOpen, language, served]);
+  const scopeAuthors = (() => {
+    const m = new Map();
+    (scopeWorks || []).forEach((w) => { if (!m.has(w.authorKey)) m.set(w.authorKey, w.author); });
+    return [...m.entries()].map(([value, label]) => ({ value, label }))
+      .sort((a, b) => a.label.localeCompare(b.label));
+  })();
+  const scopeWorkOptions = (scopeWorks || []).filter((w) => w.authorKey === scopeAuthor)
+    .map((w) => ({ value: w.id, label: w.title })).sort((a, b) => a.label.localeCompare(b.label));
+  const scopeLabel = (() => {
+    const w = (scopeWorks || []).find((x) => x.id === scopeWork);
+    if (scopeWork) return w ? `${w.author}, ${w.title}` : scopeWork;
+    if (!scopeAuthor) return '';
+    const a = scopeAuthors.find((x) => x.value === scopeAuthor);
+    return a ? a.label : scopeAuthor;
+  })();
+
   const [data, setData] = useState(null);
   const [running, setRunning] = useState(false);
   const [showWeak, setShowWeak] = useState(false);
@@ -454,7 +583,7 @@ export default function ThemeSearchPage() {
   // beautifully. The API already returns work groups in score order.
   const [order, setOrder] = useState('score');
 
-  const run = useCallback(async (q, lang, depth) => {
+  const run = useCallback(async (q, lang, depth, scopeOverride) => {
     const text = (q || '').trim();
     if (!text || running || loadingMore) return;
     const wanted = depth || 25;
@@ -468,10 +597,12 @@ export default function ThemeSearchPage() {
     }
     setError(null);
     const langParam = lang === undefined ? language : lang;
+    const scope = scopeOverride || { author: scopeAuthor, work: scopeWork };
     try {
       const res = await fetch(
         `/api/passages/theme-search?query=${encodeURIComponent(text)}&limit=${wanted}`
-        + (langParam ? `&languages=${encodeURIComponent(langParam)}` : ''));
+        + (langParam ? `&languages=${encodeURIComponent(langParam)}` : '')
+        + scopeQuery(scope));
       const json = await res.json();
       // The API reports trouble in the body rather than by status, so that a
       // missing index degrades this panel instead of breaking the page.
@@ -487,6 +618,8 @@ export default function ThemeSearchPage() {
         // every refinement of the same search.
         const p = new URLSearchParams({ query: text });
         if (langParam) p.set('languages', langParam);
+        if (scope.work) p.set('works', scope.work);
+        else if (scope.author) p.set('author', scope.author);
         window.history.replaceState({}, '', `/theme-search?${p.toString()}`);
       }
     } catch (e) {
@@ -495,7 +628,7 @@ export default function ThemeSearchPage() {
       setRunning(false);
       setLoadingMore(false);
     }
-  }, [running, loadingMore, data, language]);
+  }, [running, loadingMore, data, language, scopeAuthor, scopeWork]);
 
   // Show More past `limit`'s cap of 100: fetches the next 100 ranked results
   // (offset+1 .. offset+100) and appends them. Grouping and ordering are
@@ -516,7 +649,8 @@ export default function ThemeSearchPage() {
       const res = await fetch(
         `/api/passages/theme-search?query=${encodeURIComponent(text)}`
         + `&limit=100&offset=${nextOffset}`
-        + (language ? `&languages=${encodeURIComponent(language)}` : ''));
+        + (language ? `&languages=${encodeURIComponent(language)}` : '')
+        + scopeQuery({ author: scopeAuthor, work: scopeWork }));
       const json = await res.json();
       if (json.error) {
         setError(json.error);
@@ -540,7 +674,7 @@ export default function ThemeSearchPage() {
     } finally {
       setLoadingMore(false);
     }
-  }, [data, running, loadingMore, pastCap, language, query]);
+  }, [data, running, loadingMore, pastCap, language, query, scopeAuthor, scopeWork]);
 
   // Arriving from a link with the search already in it -- from Tessa, from a
   // bookmark, from a colleague. The page runs it rather than making the reader
@@ -557,10 +691,17 @@ export default function ThemeSearchPage() {
     // initializer above, which reads the same params), and `run` falls back
     // to `language` when its second argument is omitted.
     setQuery(q);
+    if (p.get('in') === 'scholarship') { setScholarshipSearch({ q, n: 1, work: (p.get('work') || '').trim() || null }); return; }
     run(q);
   }, [run]);
 
-  const band = data && BAND[data.confidence?.level];
+  // 2026-10-11: the list is shown whatever the band, except when the
+  // confidence is degenerate (nothing resembles the query). Measured on 60
+  // historical subjects, the low band hid a relevant list 27 times in 31.
+  const degenerate = !!(data?.confidence?.degenerate && data?.confidence?.level === 'low');
+  const noKnownWords = !!data?.confidence?.no_known_words;
+  const band = data && BAND[noKnownWords ? 'nothing' : degenerate ? 'weak' : data.confidence?.level];
+  const listHidden = noKnownWords || (degenerate && !showWeak);
 
   // 'search' is Theme Search itself; 'map' is a picture of the same
   // connections at a larger scale (see client/src/components/passages/
@@ -646,10 +787,30 @@ export default function ThemeSearchPage() {
 
   return (
     <div className="max-w-4xl mx-auto p-6">
-      <h1 className="text-2xl font-semibold text-gray-900">Theme Search</h1>
-      <span className="ml-2 align-middle rounded border border-amber-200 bg-amber-50 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-800">
-        Beta
-      </span>
+      <div className="flex items-center gap-2">
+        <h1 className="text-2xl font-semibold text-gray-900">Theme Search</h1>
+        <span className="rounded border border-amber-200 bg-amber-50 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-800">
+          Beta
+        </span>
+      </div>
+
+      {/* The coverage sentence lives in the box with the rest of what the
+          search covers (owner, 2026-10-12: "a lot of the info on the screen
+          can go into 'What this search does'"). */}
+      <ScopeBox
+        id="theme"
+        className="mt-3"
+        extra={(
+          <p data-testid="theme-coverage">
+            {allCoverage
+              ? <>Theme Search covers {allCoverage.total} works in {allCoverage.languageCount} languages.{' '}</>
+              : <>Theme Search coverage is loading.{' '}</>}
+            <a href="/corpus?theme=1&language=la" className="text-red-700 hover:underline">
+              See the list.
+            </a>
+          </p>
+        )}
+      />
 
       <div className="mt-4 inline-flex rounded border border-gray-300 overflow-hidden text-sm">
         {[['search', 'Theme Search'], ['map', 'Similarity Map'], ['compare', 'Compare two works']].map(([v, label]) => (
@@ -830,14 +991,15 @@ export default function ThemeSearchPage() {
         </div>
       ) : (
       <>
-      <p className="mt-2 text-sm text-gray-600 leading-relaxed">
-        Describe what happens in a passage and this finds passages that match the
-        description.
-      </p>
-
       <form
         className="mt-5 flex gap-2"
-        onSubmit={(e) => { e.preventDefault(); run(query); }}
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (coinsMode) setCoinsSearch({ q: query.trim(), n: (coinsSearch?.n || 0) + 1 });
+          else if (objectsMode) setObjectsSearch({ q: query.trim(), n: (objectsSearch?.n || 0) + 1 });
+          else if (scholarshipMode) setScholarshipSearch({ q: query.trim(), n: (scholarshipSearch?.n || 0) + 1 });
+          else run(query);
+        }}
       >
         <input
           value={query}
@@ -847,10 +1009,10 @@ export default function ThemeSearchPage() {
         />
         <button
           type="submit"
-          disabled={running || !query.trim()}
+          disabled={(!catalogueMode && running) || !query.trim()}
           className="px-4 py-2 rounded bg-red-700 text-white text-sm font-medium hover:bg-red-800 disabled:opacity-40"
         >
-          {running ? 'Searching…' : 'Search'}
+          {!catalogueMode && running ? 'Searching…' : 'Search'}
         </button>
       </form>
 
@@ -864,7 +1026,7 @@ export default function ThemeSearchPage() {
         *
         * So a scholar working in one language was being outvoted by the breadth
         * of the corpus. The API already took `languages`; nothing exposed it. */}
-      <div className="mt-3 flex flex-wrap items-center gap-2">
+      <div className={`mt-3 flex flex-wrap items-center gap-2 ${catalogueMode ? 'opacity-40 pointer-events-none' : ''}`}>
         <span className="text-xs text-gray-600">Search in</span>
         {/* Pick any set of languages (2026-09-06). 'All' clears the set; the
             request sends the chosen codes comma-separated, which the API has
@@ -890,10 +1052,52 @@ export default function ThemeSearchPage() {
             </label>
           );
         })}
-        <span className="text-[11px] text-gray-500">
-          fewer languages show more of each
-        </span>
       </div>
+
+      {coinsAvailable && (
+        <div className="mt-2 flex flex-wrap items-center gap-2">
+          <label className={`text-xs px-2 py-0.5 rounded border cursor-pointer select-none ${coinsMode ? 'bg-red-600 text-white border-red-600' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}`}>
+            <input type="checkbox" className="sr-only" checked={coinsMode}
+                   onChange={() => { setCoinsChosen((v) => !v); setObjectsChosen(false); setScholarshipChosen(false); }} />
+            Coins
+          </label>
+          <span className="text-[11px] text-gray-500">
+            {coinsMode
+              ? 'Searching coin descriptions only, as a separate list. The languages above are not used.'
+              : 'Search the coin catalogue instead of the passages (a separate list).'}
+          </span>
+        </div>
+      )}
+
+      {objectsAvailable && (
+        <div className="mt-2 flex flex-wrap items-center gap-2">
+          <label className={`text-xs px-2 py-0.5 rounded border cursor-pointer select-none ${objectsMode ? 'bg-red-600 text-white border-red-600' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}`}>
+            <input type="checkbox" className="sr-only" checked={objectsMode}
+                   onChange={() => { setObjectsChosen((v) => !v); setCoinsChosen(false); setScholarshipChosen(false); }} />
+            Objects
+          </label>
+          <span className="text-[11px] text-gray-500">
+            {objectsMode
+              ? 'Searching museum object descriptions only, as a separate list. The languages above are not used.'
+              : 'Search the museum object descriptions instead of the passages (a separate list).'}
+          </span>
+        </div>
+      )}
+
+      {scholarshipAvailable && (
+        <div className="mt-2 flex flex-wrap items-center gap-2">
+          <label className={`text-xs px-2 py-0.5 rounded border cursor-pointer select-none ${scholarshipMode ? 'bg-red-600 text-white border-red-600' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}`}>
+            <input type="checkbox" className="sr-only" checked={scholarshipMode}
+                   onChange={() => { setScholarshipChosen((v) => !v); setCoinsChosen(false); setObjectsChosen(false); }} />
+            Scholarship
+          </label>
+          <span className="text-[11px] text-gray-500">
+            {scholarshipMode
+              ? 'Searching commentary notes and article sentences only, as a separate list. The languages above are not used.'
+              : 'Search the commentaries and journal articles, with their own list apart from the passages.'}
+          </span>
+        </div>
+      )}
 
       {singleCoveredLang && coverageResolved && coverage.total > 0 && (
         <p className="mt-1 text-[11px] text-gray-500">
@@ -948,19 +1152,65 @@ export default function ThemeSearchPage() {
         </p>
       )}
 
-      {!singleCoveredLang && !singleUncoveredLang && (
-        <p className="mt-1 text-[11px] text-gray-500">
-          {allCoverage
-            ? <>Theme Search covers {allCoverage.total} works in {allCoverage.languageCount} languages.{' '}</>
-            : <>Theme Search coverage is loading.{' '}</>}
-          <a href="/corpus?theme=1&language=la" className="text-red-700 hover:underline">
-            See the list.
-          </a>
-        </p>
-      )}
+      {/* Search within one author or work. Off by default: the page behaves
+          exactly as before until a name is chosen. */}
+      <div className="mt-3">
+        {!scopeOpen ? (
+          <button
+            type="button"
+            onClick={() => setScopeOpen(true)}
+            className="text-xs text-red-700 hover:underline"
+          >
+            Narrow to one author or work
+          </button>
+        ) : (
+          <div className="rounded border border-gray-200 bg-white p-3">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-medium text-gray-700">Search within</span>
+              <button
+                type="button"
+                onClick={() => {
+                  setScopeAuthor(''); setScopeWork(''); setScopeOpen(false);
+                  if (data && query.trim()) run(query, undefined, undefined, { author: '', work: '' });
+                }}
+                className="text-xs text-red-700 hover:underline"
+              >
+                Clear: search the whole corpus
+              </button>
+            </div>
+            {scopeWorks === null ? (
+              <p className="mt-2 text-xs text-gray-500">Loading authors…</p>
+            ) : (
+              <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <SearchableSelect
+                  ariaLabel="Search within author"
+                  value={scopeAuthor}
+                  placeholder="Author: whole corpus"
+                  options={[{ value: '', label: 'Whole corpus' }, ...scopeAuthors]}
+                  onChange={(v) => {
+                    setScopeAuthor(v); setScopeWork('');
+                    if (data && query.trim()) run(query, undefined, undefined, { author: v, work: '' });
+                  }}
+                />
+                <SearchableSelect
+                  ariaLabel="Search within work"
+                  value={scopeWork}
+                  disabled={!scopeAuthor}
+                  placeholder="Work: all of this author"
+                  options={[{ value: '', label: 'All works of this author' }, ...scopeWorkOptions]}
+                  onChange={(v) => {
+                    setScopeWork(v);
+                    if (data && query.trim()) run(query, undefined, undefined, { author: scopeAuthor, work: v });
+                  }}
+                />
+              </div>
+            )}
+          </div>
+        )}
+      </div>
 
       <div className="mt-3 flex flex-wrap gap-2">
-        {examplesFor(served).map((ex) => (
+        {examplesFor(served, view).map((ex) => (
           <button
             key={ex}
             onClick={() => { setQuery(ex); run(ex); }}
@@ -971,19 +1221,21 @@ export default function ThemeSearchPage() {
         ))}
       </div>
 
-      {running && (
-        <p className="mt-6 text-sm text-gray-500 italic">
-          Comparing your description against every indexed passage…
-        </p>
+      {!catalogueMode && running && (
+        <SearchProgress text="Comparing your description against every indexed passage…" />
       )}
 
-      {error && (
+      {coinsMode && <ThemeCoins search={coinsSearch} />}
+      {objectsMode && <ThemeObjects search={objectsSearch} />}
+      {scholarshipMode && <ThemeScholarship search={scholarshipSearch} />}
+
+      {!catalogueMode && error && (
         <div className="mt-6 rounded border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
           {error}
         </div>
       )}
 
-      {data && (
+      {!catalogueMode && data && (
         <div className="mt-6">
           {band && (
             <div className={`rounded border px-3 py-2 text-sm ${band.className}`}>
@@ -992,9 +1244,22 @@ export default function ThemeSearchPage() {
             </div>
           )}
 
-          {!data.results?.length && (
+          {data.restricted && (
+            <div className="rounded border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-700">
+              {scopeLabel && <strong className="font-semibold">In {scopeLabel}.</strong>}{' '}
+              {band ? '' : data.note}
+            </div>
+          )}
+
+          {!data.results?.length && !data.restricted && !noKnownWords && (
             <p className="mt-4 text-sm text-gray-600">
               Nothing in the corpus resembles that description.
+            </p>
+          )}
+
+          {!data.results?.length && data.restricted && !noKnownWords && (
+            <p className="mt-4 text-sm text-gray-600">
+              Nothing in the chosen {scopeWork ? 'work' : 'author'} resembles that description.
             </p>
           )}
 
@@ -1002,7 +1267,7 @@ export default function ThemeSearchPage() {
               whatever the banner says. The passages are not hidden -- knowing
               what came closest is sometimes the useful answer -- but they are
               not laid out as results until asked for. */}
-          {data.confidence?.level === 'low' && !!data.results?.length && !showWeak && (
+          {listHidden && !noKnownWords && !!data.results?.length && (
             <div className="mt-4">
               <button
                 onClick={() => setShowWeak(true)}
@@ -1019,13 +1284,13 @@ export default function ThemeSearchPage() {
 
           {/* Offered only where the results are, so it is not held out beside a
               low-confidence set the reader has not chosen to look at. */}
-          {(data.confidence?.level !== 'low' || showWeak) && (
+          {!listHidden && (
             <ThemeExport query={data.query || query} language={language}
                          corpusVersion={data.corpus_version}
                          ranking={data.reader?.applied && data.reader.model ? `re-ranked by reader ${data.reader.model}` : undefined}
                          count={data.results?.length || 0} />
           )}
-          {(data.confidence?.level !== 'low' || showWeak) && (
+          {!listHidden && (
           <div className="mt-4 mb-2 flex items-center gap-3 text-xs text-gray-500">
             <span className="flex rounded border border-gray-300 overflow-hidden">
               {[['score', 'Best match'], ['date', 'Oldest first']].map(([k, label]) => (
@@ -1048,7 +1313,7 @@ export default function ThemeSearchPage() {
             </span>
           </div>
           )}
-          {(data.confidence?.level !== 'low' || showWeak) && (
+          {!listHidden && (
           <ul className="space-y-3">
             {byWork(order === 'date' ? chronological(data.results) : byBestMatch(data.results))
               .map(({ key, head, items }) => (
@@ -1129,7 +1394,9 @@ export default function ThemeSearchPage() {
                         >
                           {r.ref_start}
                         </a>
-                        {r.strong === false && (
+                        {/* In a low band every row would carry the tag, so it
+                            says nothing there; shown only where it contrasts. */}
+                        {r.strong === false && data.confidence?.level !== 'low' && (
                           <span className="text-[10px] text-gray-500 border border-gray-300 rounded px-1">
                             weak neighbor
                           </span>
@@ -1164,7 +1431,7 @@ export default function ThemeSearchPage() {
           </ul>
           )}
 
-          {(data.confidence?.level !== 'low' || showWeak) &&
+          {!listHidden &&
             (data.results || []).length > 0 && !(limit >= 100 && exhausted) && (
             <div className="mt-4 text-center">
               <button
@@ -1185,12 +1452,12 @@ export default function ThemeSearchPage() {
               )}
             </div>
           )}
-          {(data.confidence?.level !== 'low' || showWeak) && limit >= 100 && exhausted && (
+          {!listHidden && limit >= 100 && exhausted && (
             <p className="mt-4 text-center text-xs text-gray-500">
               End of the ranked list. Narrowing to one language shows more of it.
             </p>
           )}
-          {(data.confidence?.level !== 'low' || showWeak) && (
+          {!listHidden && (
           <p className="mt-5 text-xs text-gray-500 leading-relaxed">
             These summaries are written by a language model from the passage
             itself, and for Coptic from its English translation, so treat them as

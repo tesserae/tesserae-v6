@@ -12,6 +12,8 @@ Storage format:
 """
 
 import os
+
+from backend import fspaths
 import json
 import numpy as np
 from typing import Dict, List, Optional, Tuple
@@ -100,7 +102,8 @@ def save_embeddings(text_path: str, language: str, embeddings: np.ndarray,
         emb_path = get_embedding_path(text_path, language)
         meta_path = get_metadata_path(text_path, language)
         
-        np.save(emb_path, embeddings)
+        with fspaths.open_text(emb_path, 'wb') as f:
+            np.save(f, embeddings)
         
         metadata = {
             'text_path': text_path,
@@ -111,7 +114,7 @@ def save_embeddings(text_path: str, language: str, embeddings: np.ndarray,
             'line_refs': line_refs[:10] if line_refs else None
         }
         
-        with open(meta_path, 'w') as f:
+        with fspaths.open_text(meta_path, 'w') as f:
             json.dump(metadata, f)
         
         manifest = load_manifest()
@@ -145,18 +148,19 @@ def load_embeddings(text_path: str, language: str) -> Optional[np.ndarray]:
     """
     emb_path = get_embedding_path(text_path, language)
     
-    if not os.path.exists(emb_path):
+    if not fspaths.exists(emb_path):
         return None
     
     try:
         # Explicitly disable memory mapping to avoid I/O errors on constrained VMs
         # allow_pickle=False for security, mmap_mode=None to load fully into memory
-        return np.load(emb_path, mmap_mode=None, allow_pickle=False)
+        with fspaths.open_text(emb_path, 'rb') as f:
+            return np.load(f, allow_pickle=False)
     except Exception as e:
         logger.error(f"Error loading embeddings from {emb_path}: {e}")
         # Try alternative loading approach
         try:
-            with open(emb_path, 'rb') as f:
+            with fspaths.open_text(emb_path, 'rb') as f:
                 return np.load(f, allow_pickle=False)
         except Exception as e2:
             logger.error(f"Fallback loading also failed: {e2}")
@@ -165,7 +169,7 @@ def load_embeddings(text_path: str, language: str) -> Optional[np.ndarray]:
 def has_embeddings(text_path: str, language: str) -> bool:
     """Check if embeddings exist for a text."""
     emb_path = get_embedding_path(text_path, language)
-    return os.path.exists(emb_path)
+    return fspaths.exists(emb_path)
 
 def get_embedding_stats() -> Dict:
     """Get statistics about pre-computed embeddings."""
@@ -202,10 +206,10 @@ def delete_embeddings(text_path: str, language: str) -> bool:
         emb_path = get_embedding_path(text_path, language)
         meta_path = get_metadata_path(text_path, language)
         
-        if os.path.exists(emb_path):
-            os.remove(emb_path)
-        if os.path.exists(meta_path):
-            os.remove(meta_path)
+        if fspaths.exists(emb_path):
+            os.remove(fspaths.fs_path(emb_path))
+        if fspaths.exists(meta_path):
+            os.remove(fspaths.fs_path(meta_path))
         
         manifest = load_manifest()
         if text_path in manifest['texts']:

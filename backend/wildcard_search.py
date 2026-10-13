@@ -11,6 +11,8 @@ Provides Packard Humanities Institute-style search with:
 """
 
 import os
+
+from backend import fspaths
 import re
 import unicodedata
 from typing import List, Dict, Optional, Tuple
@@ -171,7 +173,7 @@ def search_file(filepath: str, parsed_query: Dict, case_sensitive: bool = False,
     is_prose = detect_text_type(filename) == 'prose'
     
     try:
-        with open(filepath, 'r', encoding='utf-8') as f:
+        with fspaths.open_text(filepath, 'r', encoding='utf-8') as f:
             lines = f.readlines()
     except Exception as e:
         logger.error(f"Error reading {filepath}: {e}")
@@ -590,9 +592,9 @@ def wildcard_search(
         candidate = target_text if target_text.endswith('.tess') else f"{target_text}.tess"
         source_path = resolve_text_path(TEXTS_DIR, language, candidate) or \
                       resolve_text_path(TEXTS_DIR, language, target_text)
-        files_to_search = [os.path.basename(source_path)] if source_path else []
+        files_to_search = [fspaths.fs_name(os.path.basename(fspaths.fs_path(source_path)))] if source_path else []
     else:
-        files_to_search = [f for f in os.listdir(lang_dir) if f.endswith('.tess')]
+        files_to_search = [f for f in fspaths.listdir_text(lang_dir) if f.endswith('.tess')]
     
     all_results = []
     total_match_count = 0
