@@ -8,6 +8,11 @@ history (index builds, cache rebuilds, corpus changes) is in
 `DATA_OPERATIONS.md`; per-release changes are in `../CHANGELOG.md`.
 
 
+## 2026-10-13: Tessa's facts say whether a pair's shared words are common or rare, from the index's document frequency
+- Scope: the block of computed facts Tessa narrates on a results page (`backend/assistant/findings.py`, `format_for_narration`).
+- Decision. Each listed pair carries its shared words labeled rare (in under 2 percent of the language's texts), uncommon (under 15 percent) or common, with the counts, and the number of works where the pairing recurs when the search provides it. The labels come from the index's `lemma_doc_freq` table, not from the IDF or frequency in a result row, because the row's figures count occurrences in the two texts compared and say nothing about the corpus (the reason #586 replaced the first version). When the page names no language, it is taken from the index that holds most of the shared lemmas.
+- Evidence. The recorded check of the assistant's preparation step (211 questions, two routing modes) is identical before and after; new tests cover a rare word, a common word, the recurrence count present and absent, and the route.
+
 ## 2026-10-13: a coverage gap is a comparison with comparable works, never an absence alone
 - Scope: the Daylight prototype (topics treated for one work and not for comparable works), measured on the JSTOR Early Journal Content articles (1827 to 1922).
 - Decision. A topic is called a gap for a work only when its share of that work's articles falls below the share among comparable works, on counts divided by each work's total articles, for works with at least 20 articles. Comparable means the same language, the same genre (or the same era and metre), and a profile correlation of at least 0.3 after subtracting the average work's profile. An absence on its own is never reported as a gap, and every statement of a gap names the holdings it was measured on.

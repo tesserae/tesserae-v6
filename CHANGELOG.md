@@ -8,6 +8,9 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-13
+- The paragraph on Search One Text that summarizes commentary notes and articles no longer names a note or article that does not bear on the question, even to say it does not address it; the prompt now tells the model to leave such items out and name only those that answer. Tested by a string check on the prompt and by a live-model check with one relevant note and one unrelated article.
+- Ask Tessa on a results page labels each pair's shared words common, uncommon or rare, and gives the number of works where the pairing recurs, whichever page sends the rows. The page sends rows and two display names but no language code, so the labels were left out; the server now takes the language from the request when given and otherwise from the index that holds the shared lemmas. The recorded `_prepare` check (211 questions, 422 runs) is identical.
+- Commentary rows on an event page and in a document's scholarship now carry the fields the Cite control reads on commentary notes: commentator, work, the note's reference and the edition, taken from the held commentary the row names. A row whose commentary is not held carries the commentator and work only. The client does not yet show the Cite control on these two lists.
 - Save Parallel works again for a row from an Intertextual Search: the dialog read the row's channels as one string, as a cross-language card sends them, while a search row sends a list of names, so every such save failed with ".split is not a function". The channel names are now saved as tags either way. Found by the render recording made for the front-end split.
 - The Navigation view test expects the History menu order #881 set (Search One Text, then Read, then Events); it had failed on main since that change.
 
