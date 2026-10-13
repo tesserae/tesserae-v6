@@ -4618,14 +4618,6 @@ exports[`App flows: results, Search Corpus, Save Parallel > opens the Search Cor
 </div>"
 `;
 
-exports[`App flows: results, Search Corpus, Save Parallel > records what happens today when a fusion row (channels is an array) is saved 1`] = `
-[
-  [
-    "Failed to register intertext: (registerPending.channels || "").split is not a function",
-  ],
-]
-`;
-
 exports[`App flows: results, Search Corpus, Save Parallel > runs the deep-linked comparison and shows the results 1`] = `
 "<div>
 <div class="min-h-screen bg-gray-100">
@@ -6724,4 +6716,11 @@ exports[`App flows: results, Search Corpus, Save Parallel > runs the deep-linked
 </footer>
 </div>
 </div>"
+`;
+
+exports[`App flows: results, Search Corpus, Save Parallel > saves a fusion row (channels is a list of names) with the channels as tags > fusion row tags 1`] = `
+[
+  "quotation",
+  "exact",
+]
 `;
