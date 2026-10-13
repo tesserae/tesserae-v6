@@ -224,11 +224,6 @@
       "count": 3
     }
   },
-  "client/src/utils/api.js": {
-    "no-unused-vars": {
-      "count": 1
-    }
-  },
   "client/src/utils/arabicScript.js": {
     "no-misleading-character-class": {
       "count": 1
