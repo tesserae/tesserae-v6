@@ -4,12 +4,17 @@ Runs the path function and load_units only, on temporary cache folders."""
 import importlib.util
 import json
 import os
+import sys
 
 import pytest
 
-from backend.lemma_cache import get_cache_path
-
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# This file sorts first in tests/, before any module has put the project root
+# on the import path, so it does it itself (the CI runs plain `pytest tests/`).
+if ROOT not in sys.path:
+    sys.path.insert(0, ROOT)
+
+from backend.lemma_cache import get_cache_path  # noqa: E402
 
 
 @pytest.fixture(scope='module')
