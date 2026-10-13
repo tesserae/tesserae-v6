@@ -529,7 +529,7 @@ describe('recent articles from the live services', () => {
     expect(within(first).getAllByTestId('ask-recent-item')).toHaveLength(1);
     expect(within(first).getByRole('link', { name: 'Dido in Love' })).toHaveAttribute('href', 'https://free.example/d.pdf');
     expect(within(first).getByText('free copy')).toBeInTheDocument();
-    expect(screen.getByTestId('ask-recent-pending')).toHaveTextContent('Looking up recent articles from Crossref...');
+    expect(screen.getByTestId('ask-recent-pending')).toHaveTextContent('Asking Crossref for articles...');
     expect(order).not.toContain('post');
     releaseCrossref();
     await waitFor(() => expect(screen.getAllByTestId('ask-recent-item')).toHaveLength(2));
@@ -542,6 +542,36 @@ describe('recent articles from the live services', () => {
     expect(order.filter((x) => x.startsWith('get:'))).toHaveLength(5);
     expect(order.indexOf('post')).toBeGreaterThan(order.lastIndexOf(order.find((x) => x.startsWith('get:'))));
     expect(order[order.length - 1]).toBe('post');
+  });
+
+  it('stands beside the passages with the summary and the scholarship paragraph, after them in the page', async () => {
+    const base = global.fetch;
+    global.fetch = vi.fn((url, init) => {
+      const u = String(url);
+      if (u.startsWith('/api/passages/recent-scholarship')) {
+        const svc = new URL(u, 'http://x').searchParams.get('service');
+        const results = svc === 'openalex' ? [item('Dido in Love', { year: 1955 })] : [];
+        return Promise.resolve({ ok: true, json: () => Promise.resolve({ service: svc, available: true, results }) });
+      }
+      if (u.startsWith('/api/passages/ask-scholarship')) {
+        return Promise.resolve({ ok: true, json: () => Promise.resolve({ available: false, holdings: 'Holdings line.' }) });
+      }
+      return base(url, init);
+    });
+    render(<AskAWorkPage />);
+    await ask();
+    const side = await screen.findByTestId('ask-side');
+    await screen.findByTestId('ask-scholarship-holdings');
+    expect(within(side).getByTestId('ask-recent')).toBeInTheDocument();
+    expect(within(side).getByText('Articles found online')).toBeInTheDocument();
+    expect(within(side).queryByText('Recent articles')).toBeNull();
+    expect(within(side).getByTestId('ask-scholarship-holdings')).toBeInTheDocument();
+    const columns = screen.getByTestId('ask-columns');
+    const strip = screen.getByTestId('ask-strip');
+    expect(columns).toContainElement(strip);
+    expect(columns).toContainElement(side);
+    // The passages and their strip come before the side column in the page's order.
+    expect(strip.compareDocumentPosition(side) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
   it('leaves the section out when every service answered with nothing', async () => {

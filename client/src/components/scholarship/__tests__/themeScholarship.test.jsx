@@ -145,7 +145,7 @@ describe('Theme Search choice', () => {
 });
 
 
-describe('Recent articles under the list', () => {
+describe('Articles found online under the list', () => {
   const rec = (title, extra = {}) => ({ title, authors: ['A. Scholar'], year: 2020, venue: 'Classical Quarterly', doi: null, oa_url: null, url: null, excerpt: '', score: 1, ...extra });
 
   function mockRecent(answers) {
@@ -177,7 +177,7 @@ describe('Recent articles under the list', () => {
     expect(screen.getAllByTestId('theme-recent-item')).toHaveLength(1);
     expect(screen.getByRole('link', { name: 'Dido in Love' })).toHaveAttribute('href', 'https://free.example/d.pdf');
     expect(box).toHaveTextContent('free copy');
-    expect(screen.getByTestId('theme-recent-pending')).toHaveTextContent('Looking up recent articles from Crossref...');
+    expect(screen.getByTestId('theme-recent-pending')).toHaveTextContent('Asking Crossref for articles...');
     release();
     await waitFor(() => expect(screen.getAllByTestId('theme-recent-item')).toHaveLength(2));
     await waitFor(() => expect(screen.queryByTestId('theme-recent-pending')).toBeNull());

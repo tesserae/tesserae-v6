@@ -1462,9 +1462,9 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 your words and once by the words it shares with them, and the two rankings are
                 merged. A note links to its passage in the Reader and a sentence from an article
                 links to the article. On fifteen test questions, thirteen had a strongly relevant
-                note in the first ten. Under the list, a Recent articles section asks OpenAlex,
+                note in the first ten. Under the list, an Articles found online section asks OpenAlex,
                 Crossref, CORE, Google Books and Semantic Scholar for articles whose title or
-                abstract matches your words, and shows each service's answer as it arrives.
+                abstract matches your words, from any year, and shows each service's answer as it arrives.
               </p>
 
               <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">How it works</h4>
@@ -1729,10 +1729,10 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 Page on Latin epic, Allen on the Homeric Hymns, Paley, Verity, the rabbinic
                 commentators on the Hebrew Bible) and the JSTOR Early Journal Content articles
                 that name the work or its author, all published before 1923. It also reads
-                recent articles that OpenAlex, Crossref, CORE and Google Books list for the
-                question. It knows those only from their abstracts or short open-access excerpts,
-                and says so when it cites one. The recent articles are listed under the paragraph
-                as each service answers, and a link goes to a free copy where one exists,
+                articles that OpenAlex, Crossref, CORE, Google Books and Semantic Scholar list
+                for the question, of any year. It knows those only from their abstracts or short open-access excerpts,
+                and says so when it cites one. Those articles are listed beside the paragraph
+                as Articles found online, each service's answer as it arrives, and a link goes to a free copy where one exists,
                 otherwise to the DOI. Each bracketed number in the paragraph links to its note
                 or article. A line in small type says what was found. Where nothing is found, as
                 for Sappho, the paragraph is left out and the line says so. The assistant may cite
