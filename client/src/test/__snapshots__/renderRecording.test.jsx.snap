@@ -13731,8 +13731,59 @@ exports[`SearchResults render recording > corpus panel: timeline, era, work, and
 </div>
 <p class="text-xs text-gray-500 mb-1.5">Click any author to see its lines.</p>
 <div>
-<div class="w-full" style="height: 94px;">
-<button data-testid="mock-chart-bar" data-labels="[&quot;Statius, 92 CE (1)&quot;,&quot;Lucan, 65 CE (2)&quot;,&quot;Vergil, 19 BCE (3)&quot;,&quot;Ennius, 170 BCE (1)&quot;]" data-counts="[1,2,3,1]" data-colors="[&quot;rgba(37,99,235,0.75)&quot;,&quot;rgba(185,28,28,0.75)&quot;,&quot;rgba(185,28,28,0.75)&quot;,&quot;rgba(37,99,235,0.75)&quot;]" data-title="&quot;&quot;">chart bar 0</button>
+<div class="w-full">
+<svg width="340" height="91.71428571428571" font-family="inherit">
+<line x1="44" x2="44" y1="10" y2="80" stroke="#e5e7eb">
+</line>
+<g>
+<text x="2" y="73.14285714285714" dy="0.32em" font-size="9" fill="#9ca3af">150 BCE</text>
+<text x="2" y="61.714285714285715" dy="0.32em" font-size="9" fill="#9ca3af">100 BCE</text>
+<text x="2" y="50.285714285714285" dy="0.32em" font-size="9" fill="#9ca3af">50 BCE</text>
+<text x="2" y="38.857142857142854" dy="0.32em" font-size="9" fill="#9ca3af">0 CE</text>
+<text x="2" y="27.42857142857143" dy="0.32em" font-size="9" fill="#9ca3af">50 CE</text>
+<text x="2" y="16" dy="0.32em" font-size="9" fill="#9ca3af">100 CE</text>
+</g>
+<g>
+<g style="cursor: pointer;">
+<line x1="44" x2="50" y1="17.82857142857143" y2="17.82857142857143" stroke="#e5e7eb">
+</line>
+<circle cx="53" cy="17.82857142857143" r="3" fill="rgba(37,99,235,0.75)">
+</circle>
+<text class="author-label" x="64" y="17.82857142857143" dy="0.32em" font-size="9" font-weight="400" fill="#2563eb">Statius, 92 CE (1)</text>
+<title>Statius — 92 CE — 1 occurrence</title>
+</g>
+<g style="cursor: pointer;">
+<line x1="44" x2="50" y1="24" y2="33.82857142857143" stroke="#e5e7eb">
+</line>
+<circle cx="53" cy="33.82857142857143" r="3" fill="rgba(185,28,28,0.75)">
+</circle>
+<circle cx="61" cy="33.82857142857143" r="3" fill="rgba(185,28,28,0.75)">
+</circle>
+<text class="author-label" x="72" y="33.82857142857143" dy="0.32em" font-size="9" font-weight="400" fill="#2563eb">Lucan, 65 CE (2)</text>
+<title>Lucan — 65 CE — 2 occurrences</title>
+</g>
+<g style="cursor: pointer;">
+<line x1="44" x2="50" y1="43.2" y2="49.82857142857143" stroke="#e5e7eb">
+</line>
+<circle cx="53" cy="49.82857142857143" r="3" fill="rgba(185,28,28,0.75)">
+</circle>
+<circle cx="61" cy="49.82857142857143" r="3" fill="rgba(185,28,28,0.75)">
+</circle>
+<circle cx="69" cy="49.82857142857143" r="3" fill="rgba(185,28,28,0.75)">
+</circle>
+<text class="author-label" x="80" y="49.82857142857143" dy="0.32em" font-size="9" font-weight="400" fill="#2563eb">Vergil, 19 BCE (3)</text>
+<title>Vergil — 19 BCE — 3 occurrences</title>
+</g>
+<g style="cursor: pointer;">
+<line x1="44" x2="50" y1="77.71428571428571" y2="77.71428571428571" stroke="#e5e7eb">
+</line>
+<circle cx="53" cy="77.71428571428571" r="3" fill="rgba(37,99,235,0.75)">
+</circle>
+<text class="author-label" x="64" y="77.71428571428571" dy="0.32em" font-size="9" font-weight="400" fill="#2563eb">Ennius, 170 BCE (1)</text>
+<title>Ennius — 170 BCE — 1 occurrence</title>
+</g>
+</g>
+</svg>
 </div>
 </div>
 <p class="text-xs text-gray-500 mt-2">These words occur together in 7 corpus lines across 5 works; the chart counts them all. Corpus version v-fixed.</p>

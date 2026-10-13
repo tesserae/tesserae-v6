@@ -278,6 +278,14 @@ history (index builds, cache rebuilds, corpus changes) is in
   moved, each piece is a hook or a component with its state, and the 94
   recorded renderings must stay identical. Recharts is left for the admin
   Analytics tab until that tab's four charts have a render test.
+- The corpus panel's timeline keeps its hand-drawn D3 form, in a component of
+  its own. #899 redrew it as a Chart.js bar chart so that the public pages
+  would use one chart library, but the bar chart lost the date axis and the
+  one-dot-per-occurrence marks, so time clusters and gaps were no longer
+  visible. The rule for the cleaning is that nothing a visitor sees goes
+  backwards, and it outranks the one-library aim; the original drawing was
+  restored the same evening. D3 therefore stays for the timeline, the network
+  graph and the admin map.
 
 
 ## 2026-10-12: the band inside one work is refitted on eleven works, and its lowest level is a caution, not a verdict
