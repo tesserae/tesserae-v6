@@ -56,8 +56,12 @@ before doing it.
     drop_stale_index_entries.py        yes   yes   yes   yes  already correct
     fix_hebrew_clitic_spacing.py       NO    NO    NO    partial  CONVERTED
         in this PR (finding #2's named example)
-    latinlibrary_to_tess.py            no    no    no    yes  writes fresh
-        per-work .tess files to --out from scraped HTML; NOT converted here
+    latinlibrary_to_tess.py            yes   yes   yes   yes  CONVERTED
+        2026-10-13. Writes per-work .tess files to --out from scraped HTML;
+        a dry run by default, an existing file backed up, atomic swap
+    repair_zosimus_procopius_text.py   yes   yes   yes   yes  CONVERTED
+        2026-10-13. Used to rewrite its argument files in place with no
+        flag and no backup
     rebuild_bigrams.py                 n/a*  yes   yes   yes  *no --apply
         flag, but it is invoked as one step of a larger pipeline script,
         not interactively; backup + atomic swap already present

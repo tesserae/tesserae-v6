@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+# SUPERSEDED 2026-10-13: use scripts/recompute_hebrew_embeddings.py instead.
+# It writes the same files (backend/embeddings/he/*.npy) with BEREL vectors that do not share the query encoder's space; the replacement uses the shipped encoder.
+# Kept for the record. Do not run it against production output.
 """
 Pre-compute BEREL sentence embeddings for all Hebrew texts.
 
@@ -16,7 +19,7 @@ import numpy as np
 import torch
 from pathlib import Path
 
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.insert(0, PROJECT_ROOT)
 
 TEXTS_DIR = os.path.join(PROJECT_ROOT, 'texts', 'he')

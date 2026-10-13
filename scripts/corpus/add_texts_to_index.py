@@ -29,19 +29,22 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 
-def load_units(cache_dir, language, filename):
-    import hashlib
-    import unicodedata
-    base = filename[:-5] if filename.endswith('.tess') else filename
-    # the cache's canonical name is ASCII-hint + md5(text_id) (see
-    # backend/lemma_cache.get_cache_path); the bare-stem name is legacy
-    norm = unicodedata.normalize('NFC', filename)
-    digest = hashlib.md5(norm.encode('utf-8')).hexdigest()  # nosec B324
-    hint = ''.join(c if c.isalnum() or c in '._-' else '_'
-                   for c in base if ord(c) < 128).strip('._-') or 'text'
-    path = os.path.join(cache_dir, language, f'{hint[:64]}-{digest}.json')
+def cache_entry_path(cache_dir, language, filename):
+    """Path of the lemma cache entry for `filename`: the backend's own
+    get_cache_path (ASCII hint + md5 of the normalized id), falling back to
+    the legacy bare-stem name."""
+    from backend.lemma_cache import get_cache_path
+    path = get_cache_path(filename, language, cache_dir=cache_dir)
     if not os.path.exists(path):
-        path = os.path.join(cache_dir, language, base + '.json')
+        base = filename[:-5] if filename.endswith('.tess') else filename
+        legacy = os.path.join(cache_dir, language, base + '.json')
+        if os.path.exists(legacy):
+            return legacy
+    return path
+
+
+def load_units(cache_dir, language, filename):
+    path = cache_entry_path(cache_dir, language, filename)
     if not os.path.exists(path):
         raise SystemExit(f'no lemma cache entry for {filename} in '
                          f'{cache_dir}/{language}')

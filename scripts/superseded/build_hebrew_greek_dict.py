@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+# SUPERSEDED 2026-10-13: use scripts/build_hebrew_greek_parallel_dict.py instead.
+# It writes the same file (backend/synonymy/v6_additions/hebrew_greek.csv) from an English-gloss pivot; the replacement uses verse alignment against the Septuagint.
+# Kept for the record. Do not run it against production output.
 """
 Build a Hebrew-Greek cross-lingual dictionary using English as a pivot.
 
@@ -20,7 +23,7 @@ import sys
 import unicodedata
 from collections import defaultdict
 
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.insert(0, PROJECT_ROOT)
 
 

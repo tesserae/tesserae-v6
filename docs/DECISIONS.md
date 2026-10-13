@@ -80,6 +80,12 @@ history (index builds, cache rebuilds, corpus changes) is in
      they fail only on a new fault).
   A request whose answer is meant to change is re-recorded in the same pull
   request, and the CHANGELOG entry says which and why.
+- A superseded script is moved to `scripts/superseded/` with its replacement
+  named in its header, because an old build script left beside its successor
+  and writing the same output file overwrites the better data without any
+  error. A script that overwrites data defaults to a dry run, takes a stamped
+  backup before writing, and writes to a temporary path and renames it over
+  the original (`scripts/corpus/corpus_safety.py`).
 - A formatter (black, prettier) is not used. It would rewrite nearly every
   file, which hides the real changes of a pull request and defeats the rule.
 - The weekly reading of the code by reviewers is not scheduled. The

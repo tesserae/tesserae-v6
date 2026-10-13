@@ -2,7 +2,7 @@
 """Build the Hebrew lookup tables from BHSA, keyed by pointed form as well as
 by consonants, with homographs told apart.
 
-Why (issue #483). The old tables (scripts/extract_bhsa_hebrew.py) keyed every
+Why (issue #483). The old tables (scripts/superseded/extract_bhsa_hebrew.py) keyed every
 word by its consonants and kept the first lemma seen, so words that share a
 spelling collapsed into one lemma: אל is the preposition "to", the negative
 "not" and the noun "God"; עם is "with" and "people"; מלך is "king" and "he
