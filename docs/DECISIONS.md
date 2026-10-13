@@ -88,6 +88,30 @@ history (index builds, cache rebuilds, corpus changes) is in
   over five runs each. The steps stay in the blueprint module because tests
   replace names in it, and only the reading of the parameters moved to its
   own module.
+- Fourth structural job under the rule: `fuse_results()` became a sequence of
+  named steps (see the CHANGELOG entry of 2026-10-13). The function is not
+  reached by the API check alone (its two fusion requests are compared
+  loosely), so a direct recording was made from the function itself: nine real
+  searches (three Latin pairs, two Greek, one Coptic, one Persian, the first
+  Latin pair again on the meter baseline and again without the passage-context
+  pass) with every row of the 97 fusion calls they make, 5,123,959 rows. The
+  new code gives every row identical, both by rerunning the searches and by
+  replaying the recorded inputs through the function alone. The standard
+  recording of 68 requests is the same, with both previews started with the
+  same hash seed so the fusion requests are compared exactly. The body of each
+  of the 52 other functions and classes in the module is identical by syntax
+  tree. The tests give the same ten known failures as main. The loop over the
+  pairs is moved as one block of 210 identical lines with no function call
+  added inside it. Its constants arrive as local variables read once before
+  it, as the code did. The Latin and Greek first pairs run through the
+  function alone in the same time (medians 5.67 and 4.81 seconds against 5.69
+  and 4.80 over five runs). One fact the recording had to allow for: the
+  document frequencies are cached in the process, and which lemmas were looked
+  up first changes the value cached for others (the u/v variants and the
+  headword adjustment), so the same pair can score slightly differently after
+  other searches in the same process. A recording therefore starts each search
+  from empty caches. The behaviour is unchanged by this job and is recorded
+  here for the next one.
 
 
 ## 2026-10-12: the band inside one work is refitted on eleven works, and its lowest level is a caution, not a verdict
@@ -2502,6 +2526,10 @@ The web process runs with an ASCII file-system encoding, which Python fixes when
 | macron table, first form, then plain (chosen) | 46 to 48 | 3.5 to 4.2 |
 
 - Why this choice. The meter score is a boost on candidate parallels, so a wrong scansion is worse than none. The guessing modes roughly double the correct lines but quadruple the wrong ones. The tagger gains a few more correct lines than the table on two works but needs the full CLTK stack, which the live site does not carry, and is twenty times slower. The table costs 0.2 seconds per 400 lines and gives fewer wrong scansions than the plain scanner.
+
+## 2026-10-13: dead code is removed, not kept in the tree
+
+`backend/composite_scorer.py` had no importer (checked across backend, scripts and evaluation by the second structural job). It is removed; git history keeps it. The rule from here: a module that nothing imports is removed in its own small change, with the commit named in the CHANGELOG, rather than left for a reader to wonder about.
 
 ## 2026-10-13: record request timings before any speed work
 
