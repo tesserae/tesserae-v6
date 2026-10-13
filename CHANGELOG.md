@@ -9,6 +9,9 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-13
 
+### The History view opens on Search One Text, with history examples
+A visit in the History view used to open the Reader on the first book of Tacitus's Annals. It now opens Search One Text on the Annals, as the Literature view opens it on the Aeneid, with six example subjects of its own: Lucretia and Sextus Tarquinius in Livy, the Pannonian mutiny in the Annals, Solon and Croesus in Herodotus, Caesar's bridge over the Rhine, the plague at Athens in Thucydides and the murder of Caesar in Suetonius, each run on the live site and read before it was chosen. The History menu is led by Search One Text and Read. The Help page says so.
+
 ### Tests now record what the scoring and parsing core does, module by module
 Eight modules that carry search scoring and text parsing had few or no tests: the feature extractor, the distance filter, the syntax parser, the metrical scanner, the wildcard search, the database helpers, and parts of the matcher. Each now has a test file that feeds fixed inputs and checks the exact output the code gives today (268 tests, about nine seconds, no index, database or network needed). A later cleaning step that changes what any of these functions answers now fails a test instead of passing unnoticed. The three Latin spelling folds named `normalize_latin` are pinned side by side in one file. Line coverage of the eight modules, before and after: database helpers 36% to 98%, distance filter 96% to 100%, feature extractor 55% to 95%, matcher 71% to 79%, metrical scanner 22% to 82%, syntax parser 14% to 69%, wildcard search 62% to 96%, scorer 44% unchanged (its three public methods already had tests). No application file changed.
 ### The site can now record how long each API request takes
