@@ -43,7 +43,7 @@ _ARABIC_SINGLE_ROOT_MAX_PAIRS = 2_000_000
 logger = get_logger('semantic_similarity')
 
 LATIN_GREEK_MODEL = "bowphs/SPhilBerta"
-ENGLISH_MODEL = "all-MiniLM-L6-v2"
+ENGLISH_MODEL = LATIN_GREEK_MODEL  # English shares the Latin and Greek space (one space per channel)
 # Hebrew has its own within-language model: MiqraBERT (Biblical-Hebrew Sentence-BERT),
 # fine-tuned in-house on OpenBible cross-references. The he corpus embeddings are computed
 # with it. Falls back to base MiqraBERT if the fine-tuned dir is absent.

@@ -1006,7 +1006,8 @@ def approve_and_add_text(request_id):
         try:
             from sentence_transformers import SentenceTransformer
             from backend.precompute_embeddings import compute_embeddings_for_text
-            model_name = 'all-MiniLM-L6-v2' if language == 'en' else 'bowphs/SPhilBerta'
+            from backend import semantic_similarity
+            model_name = semantic_similarity.model_name_for(language or 'la')
             model = SentenceTransformer(model_name)
             success, n_lines = compute_embeddings_for_text(filepath, language, model, force=True)
             embeddings_computed = success
@@ -2016,7 +2017,8 @@ def compute_embeddings():
                     'skipped': True
                 })
             
-            model_name = 'all-MiniLM-L6-v2' if language == 'en' else 'bowphs/SPhilBerta'
+            from backend import semantic_similarity
+            model_name = semantic_similarity.model_name_for(language or 'la')
             model = SentenceTransformer(model_name)
             
             success, n_lines = compute_embeddings_for_text(

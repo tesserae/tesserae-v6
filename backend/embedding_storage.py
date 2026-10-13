@@ -57,7 +57,7 @@ def load_manifest() -> Dict:
     _manifest_cache = {
         'version': 1,
         'model': 'bowphs/SPhilBerta',
-        'english_model': 'all-MiniLM-L6-v2',
+        'english_model': 'bowphs/SPhilBerta',
         'texts': {},
         'stats': {
             'total_texts': 0,

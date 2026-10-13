@@ -35,6 +35,17 @@ Conventions
   hand and are the models the helper matches.
 
 
+## 2026-10-13 English line embeddings replaced with SPhilBERTa vectors (STAGED, install steps drafted, the date of the run to be entered)
+- What: the 164 files `backend/embeddings/en/<work>.npy` and `.meta.json` (float32 with 768 columns, one row per `.tess` line in file order) rebuilt with bowphs/SPhilBerta on one GPU of the campus cluster (181,515 lines, 72 seconds, two parts, hashes checked, input and upload folders deleted afterwards). Replaces the 384-dimensional MiniLM files of 2026-10-06. Staged at `~/tesserae-backups/english_embeddings_sphilberta_2026-10-13/en/` with `manifest_fragment.json` and its own README.
+- Checks made before staging. All 164 files are present. Each has the row count `parse_tess_file` returns for its text, 768 columns and no NaN. A line's cosine with itself is 1.0 and with an unrelated line well below 0.9 (Blake, the World English Bible New Testament, Milton's Arcades). Thirteen files that still existed from the March 2026 CPU build match at cosine 1.0000.
+- Install steps (run by the deploy user on the live server, one job at a time, the date entered here when run):
+  1. Back up the current set: `cp -a backend/embeddings/en ~/tesserae-backups/english_embeddings_minilm_2026-10-06`.
+  2. Copy the staged files over: `cp -p ~/tesserae-backups/english_embeddings_sphilberta_2026-10-13/en/* backend/embeddings/en/` (mode 664, group tessdev).
+  3. The live embeddings folder has no `manifest.json`. If one appears, run `scripts/rebuild_embedding_manifest.py` (it now writes `english_model` as SPhilBERTa).
+  4. `touch tesseraev6_flask.wsgi`. Check `/api/languages`, then run one Latin-English and one Greek-English search and one English-English fusion search.
+  5. Lift the hold on the two English cross-language pairs (#887) in a separate change.
+- Rollback: copy the backup folder back over `backend/embeddings/en/` and touch the wsgi file.
+
 ## 2026-10-13 Translation file installed: Saadi's Gulistan, Eastwick 1880 (RUN 07:41)
 - What: `data/translations/fa__saadi.diwan.json`, built by
   `scripts/translations/align_saadi_gulistan_eastwick.py` (this pull request)

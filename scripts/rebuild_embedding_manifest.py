@@ -152,7 +152,7 @@ def main():
     new_manifest = {
         'version': 1,
         'model': old_manifest.get('model', 'bowphs/SPhilBerta'),
-        'english_model': old_manifest.get('english_model', 'all-MiniLM-L6-v2'),
+        'english_model': 'bowphs/SPhilBerta',
         'texts': new_texts,
         'stats': {
             'total_texts': len(new_texts),
