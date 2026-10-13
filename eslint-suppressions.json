@@ -4,7 +4,7 @@
       "count": 1
     },
     "no-unused-vars": {
-      "count": 4
+      "count": 3
     }
   },
   "client/src/components/admin/AdminPanel.jsx": {
@@ -93,11 +93,6 @@
   "client/src/components/pages/HelpPage.jsx": {
     "no-unused-vars": {
       "count": 3
-    }
-  },
-  "client/src/components/pages/LoginPage.jsx": {
-    "no-unused-vars": {
-      "count": 1
     }
   },
   "client/src/components/pages/SystemChart.jsx": {
@@ -207,6 +202,16 @@
     }
   },
   "client/src/components/visualization/NetworkGraph.jsx": {
+    "no-unused-vars": {
+      "count": 1
+    }
+  },
+  "client/src/hooks/useAdminSession.js": {
+    "no-unused-vars": {
+      "count": 1
+    }
+  },
+  "client/src/hooks/useCorpusSearchPanel.js": {
     "no-unused-vars": {
       "count": 1
     }

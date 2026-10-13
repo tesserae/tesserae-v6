@@ -274,6 +274,10 @@ history (index builds, cache rebuilds, corpus changes) is in
   by hand in D3, is redrawn as a horizontal bar chart in Chart.js, the library
   every other public chart uses. D3 stays only for the network graph and the
   admin map, which are genuine uses of it.
+- The App's own pieces follow the same rule as the result list: the code is
+  moved, each piece is a hook or a component with its state, and the 94
+  recorded renderings must stay identical. Recharts is left for the admin
+  Analytics tab until that tab's four charts have a render test.
 
 
 ## 2026-10-12: the band inside one work is refitted on eleven works, and its lowest level is a caution, not a verdict
