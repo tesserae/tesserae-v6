@@ -167,7 +167,8 @@ def main():
     out('## Free labels that did not fit the lists (sample of 600)')
     out()
     voc = json.load(open(os.path.join(OUT, 'daylight_vocabulary.json')))
-    fa = Counter(); ft = Counter()
+    fa = Counter()
+    ft = Counter()
     for line in open(os.path.join(OUT, 'free_labels.jsonl'), encoding='utf-8'):
         d = json.loads(line)
         fa.update(set(x for x in d['approaches'] if x not in voc['approaches'] and x != 'other'))
