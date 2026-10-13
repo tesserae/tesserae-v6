@@ -25,6 +25,14 @@ ENV_VAR = "TESSERAE_TIMING_DIR"
 PREFIX = "/api/"
 
 
+def _full_path():
+    """The path as the visitor sent it. On the live site Apache mounts the
+    application under /api (WSGIScriptAlias), so inside Flask request.path is
+    "/languages" and the mount point sits in request.script_root; the development
+    server mounts at the root and request.path is already "/api/languages"."""
+    return (request.script_root or "") + request.path
+
+
 _cache = [0, "", ""]  # whole second, "YYYY-MM-DDTHH:MM:SS.", "YYYY-MM-DD"
 
 
@@ -35,7 +43,7 @@ def _write(directory, status, ms, nbytes):
         lt = time.localtime(sec)
         _cache[:] = [sec, time.strftime("%Y-%m-%dT%H:%M:%S.", lt), time.strftime("%Y-%m-%d", lt)]
     line = "%s%03d\t%s\t%s\t%d\t%.1f\t%d\t%d\n" % (
-        _cache[1], int((t - sec) * 1000), request.method, request.path,
+        _cache[1], int((t - sec) * 1000), request.method, _full_path(),
         status, ms, nbytes, os.getpid(),
     )
     try:
@@ -66,7 +74,7 @@ def install(app):
     @app.after_request
     def _timing_after(response):
         t0 = getattr(g, "_timing_t0", None)
-        if t0 is not None and not g.get("_timing_done") and request.path.startswith(PREFIX):
+        if t0 is not None and not g.get("_timing_done") and _full_path().startswith(PREFIX):
             g._timing_done = True
             nbytes = response.calculate_content_length()
             _write(directory, response.status_code, (time.perf_counter() - t0) * 1000.0,
@@ -77,7 +85,7 @@ def install(app):
     def _timing_teardown(exc):
         t0 = getattr(g, "_timing_t0", None)
         if exc is not None and t0 is not None and not g.get("_timing_done") \
-                and request.path.startswith(PREFIX):
+                and _full_path().startswith(PREFIX):
             g._timing_done = True
             _write(directory, 500, (time.perf_counter() - t0) * 1000.0, -1)
 

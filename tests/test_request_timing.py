@@ -126,3 +126,22 @@ def test_report_on_fixture():
     assert first.startswith("/api/line-search")
     assert "/api/search" in text and "5xx=2" in text
     assert "Requests per hour" in text
+
+
+def test_mounted_under_api_like_the_live_site(tmp_path, monkeypatch):
+    """Apache mounts the application at /api (WSGIScriptAlias), so Flask sees
+    script_root "/api" and path "/languages". The line must still be written,
+    with the full path the visitor sent."""
+    monkeypatch.setenv(request_timing.ENV_VAR, str(tmp_path))
+    app = Flask(__name__)
+
+    @app.route("/languages")
+    def languages():
+        return jsonify(a=1)
+
+    assert request_timing.install(app) is True
+    r = app.test_client().get("/languages", base_url="http://localhost/api")
+    assert r.status_code == 200
+    got = lines(tmp_path)
+    assert len(got) == 1
+    assert got[0].split("\t")[1:4] == ["GET", "/api/languages", "200"]
