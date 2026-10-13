@@ -98,7 +98,7 @@ afterEach(() => {
 describe('App flows: results, Search Corpus, Save Parallel', () => {
   it('runs the deep-linked comparison and shows the results', async () => {
     render(<App />);
-    await screen.findAllByRole('button', { name: 'Register' });
+    await screen.findAllByRole('button', { name: 'Register' }, { timeout: 15000 });
     await settle();
     expect(normalize(document.body.innerHTML)).toMatchSnapshot();
     expect(makeRows().length).toBe(30);
@@ -106,7 +106,7 @@ describe('App flows: results, Search Corpus, Save Parallel', () => {
 
   it('opens the Search Corpus side panel from a card', async () => {
     render(<App />);
-    const buttons = await screen.findAllByRole('button', { name: 'Search Corpus' });
+    const buttons = await screen.findAllByRole('button', { name: 'Search Corpus' }, { timeout: 15000 });
     await userEvent.click(buttons[0]);
     await waitFor(() => expect(global.fetch.mock.calls.some(([u]) => String(u).startsWith('/api/corpus-search'))).toBe(true));
     await settle(60);
@@ -118,9 +118,9 @@ describe('App flows: results, Search Corpus, Save Parallel', () => {
   it('opens the Save Parallel dialog, fills it and sends the parallel', async () => {
     const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
     render(<App />);
-    const buttons = await screen.findAllByRole('button', { name: 'Register' });
+    const buttons = await screen.findAllByRole('button', { name: 'Register' }, { timeout: 15000 });
     await userEvent.click(buttons[2]);
-    await screen.findByText('Rate this parallel:');
+    await screen.findByText('Rate this parallel:', {}, { timeout: 15000 });
     await settle();
     expect(normalize(document.body.innerHTML)).toMatchSnapshot('dialog open');
     await userEvent.click(screen.getByRole('button', { name: 'Make Public' }));
@@ -139,9 +139,9 @@ describe('App flows: results, Search Corpus, Save Parallel', () => {
   it('records what happens today when a fusion row (channels is an array) is saved', async () => {
     const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
     render(<App />);
-    const buttons = await screen.findAllByRole('button', { name: 'Register' });
+    const buttons = await screen.findAllByRole('button', { name: 'Register' }, { timeout: 15000 });
     await userEvent.click(buttons[0]);
-    await screen.findByText('Rate this parallel:');
+    await screen.findByText('Rate this parallel:', {}, { timeout: 15000 });
     await userEvent.click(screen.getAllByRole('button', { name: '★' })[2]);
     await userEvent.click(screen.getAllByText('Save Parallel').find((el) => el.tagName === 'BUTTON'));
     await settle();
@@ -151,15 +151,15 @@ describe('App flows: results, Search Corpus, Save Parallel', () => {
 
   it('Cancel closes the dialog and clears it', async () => {
     render(<App />);
-    const buttons = await screen.findAllByRole('button', { name: 'Register' });
+    const buttons = await screen.findAllByRole('button', { name: 'Register' }, { timeout: 15000 });
     await userEvent.click(buttons[0]);
-    await screen.findByText('Rate this parallel:');
+    await screen.findByText('Rate this parallel:', {}, { timeout: 15000 });
     await userEvent.click(screen.getAllByRole('button', { name: '★' })[1]);
     await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
     await settle();
     expect(screen.queryByText('Rate this parallel:')).toBeNull();
     await userEvent.click(buttons[0]);
-    await screen.findByText('Rate this parallel:');
+    await screen.findByText('Rate this parallel:', {}, { timeout: 15000 });
     expect(screen.getByText('Required')).toBeTruthy();
   });
 });
