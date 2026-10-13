@@ -35,7 +35,7 @@ Conventions
   hand and are the models the helper matches.
 
 
-## 2026-10-13 English cross-language embeddings installed as `en_cross` (STAGED, install steps drafted, the date of the run to be entered)
+## 2026-10-13 English cross-language embeddings installed as `en_cross` (RUN 13:09, live after the #892 deploy at 13:16)
 - What: the 164 files `backend/embeddings/en_cross/<work>.npy` and `.meta.json` (float32 with 768 columns, one row per `.tess` line in file order), built with bowphs/SPhilBerta on one GPU of the campus cluster (181,515 lines, 72 seconds, hashes checked, input and upload folders deleted afterwards). Staged at `~/tesserae-backups/english_embeddings_sphilberta_2026-10-13/en/`. The monolingual set `backend/embeddings/en/` (MiniLM) is not touched and stays in service for English-English search.
 - Checks made before staging. All 164 files are present. Each has the row count `parse_tess_file` returns for its text, 768 columns and no NaN. A line's cosine with itself is 1.0 and with an unrelated line well below 0.9. Thirteen files that still existed from the March 2026 CPU build match at cosine 1.0000.
 - Install steps (run by the deploy user on the live server after the pull request is merged and deployed, the date entered here when run):
@@ -44,6 +44,8 @@ Conventions
   3. Check `/api/languages` (`crosslingual_held` empty, `la-en` and `grc-en` listed), run one Latin-English and one Greek-English search, and one English-English fusion search (it must read as before).
   4. Re-record the golden `languages` request (it differs only by the lifted hold).
 - Rollback: remove the files from `backend/embeddings/en_cross/` (the folder may stay empty) and touch the wsgi file. The hold returns.
+
+- Run record: the folder was made with group tessdev and mode 2775 and the 328 files copied in at 13:09, before the code deploy, which the old code ignored; after the #892 deploy the hold on the two English pairs lifted by itself (`/api/languages` lists la-en and grc-en, nothing held). Checks: a Latin-English search (Aeneid 1 against Paradise Lost 1) answered 78 rows and a Greek-English search (Iliad 1 against Paradise Lost 1) 82 rows, the Latin top row the one the probe set expects; the live golden check differed only in the `languages` request, re-recorded. The MiniLM set in `backend/embeddings/en/` is untouched.
 
 ## 2026-10-13 Licensed journal text: first supervised retrieval (DRAFT, date and time to be filled in on the day)
 - What: retrieval of full text from the four Project MUSE classics journals
