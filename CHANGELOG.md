@@ -9,6 +9,9 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-13
 
+### A lemma's document frequency no longer depends on the lookups made before it
+In `backend/fusion.py` the corpus, meter and text-pair document-frequency lookups cached a value per lemma that depended on which lemmas had been asked for first. A Latin variant pair took whichever spelling came first in the list, and a lemma whose headword was itself looked up earlier read the headword's already-raised value. The same text pair could therefore score slightly differently after other searches in the same worker. Each lemma now has a raw value (the larger of the lemma and its i/j partner form, each form queried on its own so that u/v partners never share a call) and a final value (the larger of its raw value and its headword's raw value), both written once and never revised. On nine recorded fusion searches (5,123,959 candidate rows replayed) 10 rows changed, all one pair of lines (Aeneid 1.98 with Metamorphoses 1.552, in five early passes of two searches), by at most 0.167 in fused score. Two runs of all nine searches in one process without clearing the caches are identical. Test: `tests/test_doc_freq_order_independence.py`. The recorder `scripts/review/fusion_direct_record.py` gains `--no-clear` and `--again`.
+
 ### The two English cross-language pairs are held back until the English texts are re-embedded
 Latin to English and Greek to English searches were failing: the English passage embeddings were built with a different model from the Latin and Greek ones (384 numbers per passage against 768), so the comparison stopped with a size error. The server now lists held pairs with a plain reason, the Cross-Language page shows that reason under the pair buttons instead of offering the pairs, and a direct request for a held pair gets the same sentence back instead of an error. The pairs return when the English texts have been re-embedded in the same space, which is the next job.
 

@@ -188,7 +188,8 @@ def reset_state(fusion):
     one Latin row 2.815 vs 3.1177). A recording is therefore only repeatable
     from a defined starting state, so each search starts from empty caches.
     """
-    for name in ("_corpus_doc_freq_cache", "_total_texts_cache", "_headword_map_cache",
+    for name in ("_corpus_doc_freq_cache", "_corpus_raw_df_cache", "_meter_raw_df_cache",
+                 "_text_pair_raw_df_cache", "_total_texts_cache", "_headword_map_cache",
                  "_meter_doc_freq_cache", "_meter_total_texts_cache", "_meter_text_ids_cache",
                  "_text_pair_doc_freq_cache", "_text_pair_total_tokens_cache"):
         obj = getattr(fusion, name, None)
@@ -234,7 +235,8 @@ def cmd_record_or_check(args, mode):
             if args.only and name not in args.only:
                 continue
             path = out / f"{name}.jsonl.gz"
-            reset_state(fusion)
+            if not args.no_clear:
+                reset_state(fusion)
             rec = Recorder(fusion, mode, path, out / f"{name}.inputs" if mode == "record" else None,
                            force_no_ctx=(opts.get("confirm_context") is False))
             fusion.fuse_results = rec
@@ -331,9 +333,12 @@ def main():
     sub = ap.add_subparsers(dest="cmd", required=True)
     r = sub.add_parser("record")
     r.add_argument("--out", required=True)
+    r.add_argument("--no-clear", action="store_true", help="keep the module caches between searches")
+    r.add_argument("--again", action="store_true", help="after recording, check the same searches again in this process")
     r.add_argument("--only", nargs="*")
     c = sub.add_parser("check")
     c.add_argument("--against", required=True)
+    c.add_argument("--no-clear", action="store_true", help="keep the module caches between searches")
     c.add_argument("--only", nargs="*")
     rp = sub.add_parser("replay")
     rp.add_argument("--against", required=True)
@@ -347,7 +352,12 @@ def main():
         return cmd_time(args)
     if args.cmd == "replay":
         return cmd_replay(args)
-    return cmd_record_or_check(args, args.cmd)
+    rc = cmd_record_or_check(args, args.cmd)
+    if args.cmd == "record" and getattr(args, "again", False):
+        print("--- second pass in the same process, caches kept ---", flush=True)
+        args.against = args.out
+        rc = cmd_record_or_check(args, "check") or rc
+    return rc
 
 
 if __name__ == "__main__":
