@@ -1,0 +1,1039 @@
+[
+ {
+  "fn": "highlightMatchedWords",
+  "name": "hmw-1",
+  "args": [
+   "",
+   [
+    {
+     "source_word": "arma"
+    }
+   ],
+   "source"
+  ],
+  "output": ""
+ },
+ {
+  "fn": "highlightMatchedWords",
+  "name": "hmw-2",
+  "args": [
+   "arma virumque cano",
+   null,
+   "source"
+  ],
+  "output": "arma virumque cano"
+ },
+ {
+  "fn": "highlightMatchedWords",
+  "name": "hmw-3",
+  "args": [
+   "arma virumque cano",
+   [],
+   "source"
+  ],
+  "output": "arma virumque cano"
+ },
+ {
+  "fn": "highlightMatchedWords",
+  "name": "hmw-4",
+  "args": [
+   "arma virumque cano",
+   [
+    {
+     "source_word": "virumque"
+    }
+   ],
+   "source"
+  ],
+  "output": "arma **virumque** cano"
+ },
+ {
+  "fn": "highlightMatchedWords",
+  "name": "hmw-5",
+  "args": [
+   "arma virumque cano",
+   [
+    {
+     "source_word": "arma"
+    },
+    {
+     "source_word": "cano"
+    }
+   ],
+   "source"
+  ],
+  "output": "**arma** virumque **cano**"
+ },
+ {
+  "fn": "highlightMatchedWords",
+  "name": "hmw-6",
+  "args": [
+   "arma et arma et arma",
+   [
+    {
+     "source_word": "arma"
+    }
+   ],
+   "source"
+  ],
+  "output": "**arma** et **arma** et **arma**"
+ },
+ {
+  "fn": "highlightMatchedWords",
+  "name": "hmw-7",
+  "args": [
+   "arma virumque cano",
+   [
+    {
+     "source_word": "arma"
+    }
+   ],
+   "source"
+  ],
+  "output": "**arma** virumque cano"
+ },
+ {
+  "fn": "highlightMatchedWords",
+  "name": "hmw-8",
+  "args": [
+   "arma virumque cano",
+   [
+    {
+     "source_word": "cano"
+    }
+   ],
+   "source"
+  ],
+  "output": "arma virumque **cano**"
+ },
+ {
+  "fn": "highlightMatchedWords",
+  "name": "hmw-9",
+  "args": [
+   "\"arma,\" virumque (cano).",
+   [
+    {
+     "source_word": "arma"
+    },
+    {
+     "source_word": "cano"
+    }
+   ],
+   "source"
+  ],
+  "output": "\"**arma**,\" virumque (**cano**)."
+ },
+ {
+  "fn": "highlightMatchedWords",
+  "name": "hmw-10",
+  "args": [
+   "\"arma\" 'virum' cano;",
+   [
+    {
+     "source_word": "arma"
+    },
+    {
+     "source_word": "virum"
+    }
+   ],
+   "source"
+  ],
+  "output": "\"**arma**\" '**virum**' cano;"
+ },
+ {
+  "fn": "highlightMatchedWords",
+  "name": "hmw-11",
+  "args": [
+   "arma armat armata",
+   [
+    {
+     "source_word": "arma"
+    },
+    {
+     "source_word": "armat"
+    }
+   ],
+   "source"
+  ],
+  "output": "**arma** **armat** armata"
+ },
+ {
+  "fn": "highlightMatchedWords",
+  "name": "hmw-12",
+  "args": [
+   "Arma ARMA arma",
+   [
+    {
+     "source_word": "Arma"
+    }
+   ],
+   "source"
+  ],
+  "output": "**Arma** **ARMA** **arma**"
+ },
+ {
+  "fn": "highlightMatchedWords",
+  "name": "hmw-13",
+  "args": [
+   "μῆνιν ἄειδε θεὰ Πηληϊάδεω",
+   [
+    {
+     "source_word": "ἄειδε"
+    },
+    {
+     "source_word": "Πηληϊάδεω"
+    }
+   ],
+   "source"
+  ],
+  "output": "μῆνιν **ἄειδε** θεὰ **Πηληϊάδεω**"
+ },
+ {
+  "fn": "highlightMatchedWords",
+  "name": "hmw-14",
+  "args": [
+   "μῆνιν ἄειδε θεὰ",
+   [
+    {
+     "source_word": "αειδε"
+    }
+   ],
+   "source"
+  ],
+  "output": "μῆνιν ἄειδε θεὰ"
+ },
+ {
+  "fn": "highlightMatchedWords",
+  "name": "hmw-15",
+  "args": [
+   "arma—virum cano—arma",
+   [
+    {
+     "source_word": "arma"
+    }
+   ],
+   "source"
+  ],
+  "output": "arma—virum cano—arma"
+ },
+ {
+  "fn": "highlightMatchedWords",
+  "name": "hmw-16",
+  "args": [
+   "arma virumque cano",
+   [
+    {
+     "source_word": "arma",
+     "target_word": "virumque"
+    }
+   ],
+   "target"
+  ],
+  "output": "arma **virumque** cano"
+ },
+ {
+  "fn": "highlightMatchedWords",
+  "name": "hmw-17",
+  "args": [
+   "arma virumque cano",
+   [
+    {
+     "source_word": "arma"
+    }
+   ],
+   "target"
+  ],
+  "output": "arma virumque cano"
+ },
+ {
+  "fn": "highlightMatchedWords",
+  "name": "hmw-18",
+  "args": [
+   "— arma —",
+   [
+    {
+     "source_word": "arma"
+    },
+    {
+     "source_word": "—"
+    }
+   ],
+   "source"
+  ],
+  "output": "— **arma** —"
+ },
+ {
+  "fn": "highlightMatchedWords",
+  "name": "hmw-19",
+  "args": [
+   "the arch-fiend fell",
+   [
+    {
+     "source_word": "arch-fiend"
+    }
+   ],
+   "source"
+  ],
+  "output": "the **arch-fiend** fell"
+ },
+ {
+  "fn": "highlightMatchedWords",
+  "name": "hmw-20",
+  "args": [
+   "arma   virumque\ncano  arma",
+   [
+    {
+     "source_word": "arma"
+    },
+    {
+     "source_word": "cano"
+    }
+   ],
+   "source"
+  ],
+  "output": "**arma**   virumque\n**cano**  **arma**"
+ },
+ {
+  "fn": "renderHighlightedText",
+  "name": "rht-1",
+  "args": [
+   null,
+   "la",
+   [],
+   true,
+   null,
+   null
+  ],
+  "output": ""
+ },
+ {
+  "fn": "renderHighlightedText",
+  "name": "rht-2",
+  "args": [
+   "plain string",
+   "la",
+   [],
+   true,
+   null,
+   null
+  ],
+  "output": "plain string"
+ },
+ {
+  "fn": "renderHighlightedText",
+  "name": "rht-3",
+  "args": [
+   {
+    "text": ""
+   },
+   "la",
+   [],
+   true,
+   null,
+   null
+  ],
+  "output": ""
+ },
+ {
+  "fn": "renderHighlightedText",
+  "name": "rht-4",
+  "args": [
+   {
+    "text": "arma virumque cano",
+    "tokens": [
+     "arma",
+     "virumque",
+     "cano"
+    ],
+    "highlight_indices": [
+     0,
+     2
+    ]
+   },
+   "la",
+   [],
+   true,
+   null,
+   null
+  ],
+  "output": "<mark class=\"bg-yellow-200 px-0.5 rounded\">arma</mark> virumque <mark class=\"bg-yellow-200 px-0.5 rounded\">cano</mark>"
+ },
+ {
+  "fn": "renderHighlightedText",
+  "name": "rht-5",
+  "args": [
+   {
+    "text": "arma virumque cano",
+    "tokens": [
+     "arma",
+     "virumque",
+     "cano"
+    ],
+    "highlight_indices": []
+   },
+   "la",
+   [
+    {
+     "source_word": "arma",
+     "target_word": "virum"
+    }
+   ],
+   true,
+   null,
+   null
+  ],
+  "output": "<mark class=\"bg-yellow-200 px-0.5 rounded\">arma</mark> virumque cano"
+ },
+ {
+  "fn": "renderHighlightedText",
+  "name": "rht-6",
+  "args": [
+   {
+    "text": "arma virumque cano",
+    "tokens": [
+     "arma",
+     "virumque",
+     "cano"
+    ],
+    "highlight_indices": []
+   },
+   "la",
+   [
+    {
+     "source_word": "arma",
+     "target_word": "virumque"
+    }
+   ],
+   false,
+   null,
+   null
+  ],
+  "output": "arma <mark class=\"bg-yellow-200 px-0.5 rounded\">virumque</mark> cano"
+ },
+ {
+  "fn": "renderHighlightedText",
+  "name": "rht-7",
+  "args": [
+   {
+    "text": "Troiae primus ab oris",
+    "tokens": [],
+    "highlight_indices": []
+   },
+   "la",
+   [
+    {
+     "lemma": "Troia"
+    },
+    {
+     "lemma": "primus",
+     "source_word": ""
+    }
+   ],
+   true,
+   null,
+   null
+  ],
+  "output": "Troiae <mark class=\"bg-yellow-200 px-0.5 rounded\">primus</mark> ab oris"
+ },
+ {
+  "fn": "renderHighlightedText",
+  "name": "rht-8",
+  "args": [
+   {
+    "text": "hasta ferit hostem",
+    "tokens": [
+     "hasta",
+     "ferit",
+     "hostem"
+    ],
+    "highlight_indices": []
+   },
+   "la",
+   [
+    {
+     "lemma": "semantic",
+     "similarity": 0.8
+    }
+   ],
+   true,
+   {
+    "text": "hastam iacit hostis",
+    "tokens": [
+     "hastam",
+     "iacit",
+     "hostis"
+    ],
+    "highlight_indices": []
+   },
+   null
+  ],
+  "output": "<mark class=\"bg-yellow-200 px-0.5 rounded\">hasta</mark> ferit hostem"
+ },
+ {
+  "fn": "renderHighlightedText",
+  "name": "rht-9",
+  "args": [
+   {
+    "text": "strepitus ventorum",
+    "tokens": [
+     "strepitus",
+     "ventorum"
+    ],
+    "highlight_indices": []
+   },
+   "la",
+   [
+    {
+     "lemma": "[epi]~[epi]"
+    },
+    {
+     "lemma": "x",
+     "display": "tus~tus"
+    }
+   ],
+   true,
+   null,
+   null
+  ],
+  "output": "<mark class=\"bg-yellow-200 px-0.5 rounded\">strepitus</mark> ventorum"
+ },
+ {
+  "fn": "renderHighlightedText",
+  "name": "rht-10",
+  "args": [
+   {
+    "text": "sonitus armorum sonat",
+    "tokens": [
+     "sonitus",
+     "armorum",
+     "sonat"
+    ],
+    "highlight_indices": []
+   },
+   "la",
+   [
+    {
+     "lemma": "q",
+     "display": "[ni]~[or]"
+    }
+   ],
+   true,
+   null,
+   null
+  ],
+  "output": "<mark class=\"bg-yellow-200 px-0.5 rounded\">sonitus</mark> <mark class=\"bg-yellow-200 px-0.5 rounded\">armorum</mark> sonat"
+ },
+ {
+  "fn": "renderHighlightedText",
+  "name": "rht-11",
+  "args": [
+   {
+    "text": "uiuo uivo vivo",
+    "tokens": [
+     "uiuo",
+     "uivo",
+     "vivo"
+    ],
+    "highlight_indices": [
+     2
+    ]
+   },
+   "la",
+   [],
+   true,
+   null,
+   null
+  ],
+  "output": "<mark class=\"bg-yellow-200 px-0.5 rounded\">uiuo</mark> <mark class=\"bg-yellow-200 px-0.5 rounded\">uivo</mark> <mark class=\"bg-yellow-200 px-0.5 rounded\">vivo</mark>"
+ },
+ {
+  "fn": "renderHighlightedText",
+  "name": "rht-12",
+  "args": [
+   {
+    "text": "ⲁⲩⲱ ϣⲁⲣⲉ ⲡⲛⲟⲩⲧⲉ",
+    "tokens": [
+     "ⲁⲩⲱ",
+     "ⲛⲟⲩⲧⲉ"
+    ],
+    "highlight_indices": [
+     1
+    ]
+   },
+   "cop",
+   [
+    {
+     "lemma": "ⲁⲩⲱ",
+     "source_word": "ⲁⲩⲱ"
+    }
+   ],
+   true,
+   null,
+   null
+  ],
+  "output": "<mark class=\"bg-yellow-200 px-0.5 rounded\">ⲁⲩⲱ</mark> ϣⲁⲣⲉ <mark class=\"bg-yellow-200 px-0.5 rounded\">ⲡⲛⲟⲩⲧⲉ</mark>"
+ },
+ {
+  "fn": "renderHighlightedText",
+  "name": "rht-13",
+  "args": [
+   {
+    "text": "ϣⲁⲣⲉ ⲡⲛⲟⲩⲧⲉ ϫⲟⲟⲥ",
+    "tokens": [
+     "ⲫⲁⲣⲉ"
+    ],
+    "highlight_indices": []
+   },
+   "cop",
+   [
+    {
+     "lemma": "ⲛⲟⲩⲧⲉ"
+    }
+   ],
+   true,
+   null,
+   null
+  ],
+  "output": "ϣⲁⲣⲉ <mark class=\"bg-yellow-200 px-0.5 rounded\">ⲡⲛⲟⲩⲧⲉ</mark> ϫⲟⲟⲥ"
+ },
+ {
+  "fn": "renderHighlightedText",
+  "name": "rht-14",
+  "args": [
+   {
+    "text": "בְּרֵאשִׁית בָּרָא כְּבוֹד־אֵל",
+    "tokens": [
+     "ברא",
+     "אל"
+    ],
+    "highlight_indices": [
+     0,
+     1
+    ]
+   },
+   "he",
+   [
+    {
+     "lemma": "אל"
+    }
+   ],
+   true,
+   null,
+   null
+  ],
+  "output": "בְּרֵאשִׁית <mark class=\"bg-yellow-200 px-0.5 rounded\">בָּרָא</mark> כְּבוֹד־<mark class=\"bg-yellow-200 px-0.5 rounded\">אֵל</mark>"
+ },
+ {
+  "fn": "renderHighlightedText",
+  "name": "rht-15",
+  "args": [
+   {
+    "text": "دل من جان ast من است",
+    "tokens": [
+     "دل",
+     "من",
+     "جان",
+     "ast",
+     "من",
+     "است"
+    ],
+    "highlight_indices": [
+     5
+    ]
+   },
+   "fa",
+   [
+    {
+     "lemma": "من",
+     "source_word": "من"
+    }
+   ],
+   true,
+   null,
+   {
+    "source_rhyme_word": "جان",
+    "radif_len": 2
+   }
+  ],
+  "output": "دل <mark class=\"bg-yellow-200 px-0.5 rounded\">من</mark> جان ast <mark class=\"bg-yellow-200 px-0.5 rounded\">من</mark> <mark class=\"bg-yellow-200 px-0.5 rounded\">است</mark>"
+ },
+ {
+  "fn": "renderHighlightedText",
+  "name": "rht-16",
+  "args": [
+   {
+    "text": "دل من جان ast است",
+    "tokens": [
+     "دل",
+     "من",
+     "جان",
+     "ast",
+     "است"
+    ],
+    "highlight_indices": [
+     4
+    ]
+   },
+   "fa",
+   [
+    {
+     "lemma": "است",
+     "source_word": "است"
+    }
+   ],
+   true,
+   null,
+   {
+    "source_radif_start": 4,
+    "rhyme_only": false
+   }
+  ],
+  "output": "دل من جان ast <mark class=\"bg-yellow-200 px-0.5 rounded\">است</mark>"
+ },
+ {
+  "fn": "renderHighlightedText",
+  "name": "rht-17",
+  "args": [
+   {
+    "text": "دل من جان ast است",
+    "tokens": [],
+    "highlight_indices": []
+   },
+   "fa",
+   [
+    {
+     "lemma": "است",
+     "source_word": "است"
+    }
+   ],
+   true,
+   null,
+   {
+    "radif_len": 1,
+    "rhyme_only": false
+   }
+  ],
+  "output": "دل من جان ast <mark class=\"bg-yellow-200 px-0.5 rounded\">است</mark>"
+ },
+ {
+  "fn": "renderHighlightedText",
+  "name": "rht-18",
+  "args": [
+   {
+    "text": "Arch-fiend reply'd, and fell",
+    "tokens": [
+     "arch-fiend"
+    ],
+    "highlight_indices": []
+   },
+   "en",
+   [
+    {
+     "lemma": "fiend",
+     "source_word": "fiend"
+    },
+    {
+     "lemma": "reply",
+     "source_word": "reply"
+    }
+   ],
+   true,
+   null,
+   null
+  ],
+  "output": "<mark class=\"bg-yellow-200 px-0.5 rounded\">Arch-fiend</mark> <mark class=\"bg-yellow-200 px-0.5 rounded\">reply'd,</mark> and fell"
+ },
+ {
+  "fn": "renderHighlightedText",
+  "name": "rht-19",
+  "args": [
+   {
+    "text": "arma virumque\ncano Troiae\nprimus ab",
+    "tokens": [
+     "arma",
+     "virumque",
+     "cano",
+     "troiae",
+     "primus",
+     "ab"
+    ],
+    "highlight_indices": [
+     0,
+     3
+    ]
+   },
+   "la",
+   [],
+   true,
+   null,
+   null
+  ],
+  "output": "<mark class=\"bg-yellow-200 px-0.5 rounded\">arma</mark> virumque<br class=\"verse-break\" />cano <mark class=\"bg-yellow-200 px-0.5 rounded\">Troiae</mark><br class=\"verse-break\" />primus ab"
+ },
+ {
+  "fn": "renderHighlightedText",
+  "name": "rht-20",
+  "args": [
+   {
+    "text": "line one\nline two",
+    "tokens": [
+     "x"
+    ],
+    "highlight_indices": []
+   },
+   "la",
+   [],
+   true,
+   null,
+   null
+  ],
+  "output": "line one<br class=\"verse-break\" />line two"
+ },
+ {
+  "fn": "renderInstanceText",
+  "name": "rit-1",
+  "args": [
+   null,
+   [],
+   "la"
+  ],
+  "output": null
+ },
+ {
+  "fn": "renderInstanceText",
+  "name": "rit-2",
+  "args": [
+   "arma virumque cano",
+   [],
+   "la"
+  ],
+  "output": "arma virumque cano"
+ },
+ {
+  "fn": "renderInstanceText",
+  "name": "rit-3",
+  "args": [
+   "arma virumque cano",
+   [
+    "arma",
+    "virumque"
+   ],
+   "la"
+  ],
+  "output": "<strong class=\"font-semibold text-gray-900\">arma</strong> <strong class=\"font-semibold text-gray-900\">virumque</strong> <span>cano</span>"
+ },
+ {
+  "fn": "renderInstanceText",
+  "name": "rit-4",
+  "args": [
+   "arma virumque cano",
+   [
+    "ARMA"
+   ],
+   "la"
+  ],
+  "output": "<strong class=\"font-semibold text-gray-900\">arma</strong> <span>virumque</span> <span>cano</span>"
+ },
+ {
+  "fn": "renderInstanceText",
+  "name": "rit-5",
+  "args": [
+   "Arma, virumque; cano.",
+   [
+    "arma",
+    "cano"
+   ],
+   "la"
+  ],
+  "output": "<strong class=\"font-semibold text-gray-900\">Arma,</strong> <span>virumque;</span> <strong class=\"font-semibold text-gray-900\">cano.</strong>"
+ },
+ {
+  "fn": "renderInstanceText",
+  "name": "rit-6",
+  "args": [
+   "uiuo vivo iuuat",
+   [
+    "vivo",
+    "iuuat"
+   ],
+   "la"
+  ],
+  "output": "<strong class=\"font-semibold text-gray-900\">uiuo</strong> <strong class=\"font-semibold text-gray-900\">vivo</strong> <strong class=\"font-semibold text-gray-900\">iuuat</strong>"
+ },
+ {
+  "fn": "renderInstanceText",
+  "name": "rit-7",
+  "args": [
+   "iam Iam jam",
+   [
+    "iam"
+   ],
+   "la"
+  ],
+  "output": "<strong class=\"font-semibold text-gray-900\">iam</strong> <strong class=\"font-semibold text-gray-900\">Iam</strong> <strong class=\"font-semibold text-gray-900\">jam</strong>"
+ },
+ {
+  "fn": "renderInstanceText",
+  "name": "rit-8",
+  "args": [
+   "arma armat armata",
+   [
+    "arma"
+   ],
+   "la"
+  ],
+  "output": "<strong class=\"font-semibold text-gray-900\">arma</strong> <span>armat</span> <span>armata</span>"
+ },
+ {
+  "fn": "renderInstanceText",
+  "name": "rit-9",
+  "args": [
+   "μῆνιν ἄειδε θεὰ",
+   [
+    "αειδε",
+    "θεα"
+   ],
+   "grc"
+  ],
+  "output": "<span>μῆνιν</span> <strong class=\"font-semibold text-gray-900\">ἄειδε</strong> <strong class=\"font-semibold text-gray-900\">θεὰ</strong>"
+ },
+ {
+  "fn": "renderInstanceText",
+  "name": "rit-10",
+  "args": [
+   "μῆνιν ἄειδε θεὰ",
+   [
+    "ἄειδε"
+   ],
+   "en"
+  ],
+  "output": "<span>μῆνιν</span> <strong class=\"font-semibold text-gray-900\">ἄειδε</strong> <span>θεὰ</span>"
+ },
+ {
+  "fn": "renderInstanceText",
+  "name": "rit-11",
+  "args": [
+   "בְּרֵאשִׁית בָּרָא כְּבוֹד־אֵל",
+   [
+    "ברא",
+    "אל",
+    "כבוד"
+   ],
+   "he"
+  ],
+  "output": "<span>בְּרֵאשִׁית</span> <strong class=\"font-semibold text-gray-900\">בָּרָא</strong> <strong class=\"font-semibold text-gray-900\">כְּבוֹד</strong><span>־</span><strong class=\"font-semibold text-gray-900\">אֵל</strong>"
+ },
+ {
+  "fn": "renderInstanceText",
+  "name": "rit-12",
+  "args": [
+   "בְּרֵאשִׁית כְּבוֹד־אֵל",
+   [
+    "אל"
+   ],
+   "la"
+  ],
+  "output": "<span>בְּרֵאשִׁית</span> <span>כְּבוֹד־אֵל</span>"
+ },
+ {
+  "fn": "renderInstanceText",
+  "name": "rit-13",
+  "args": [
+   "· arma · cano ·",
+   [
+    "arma",
+    "·"
+   ],
+   "la"
+  ],
+  "output": "<span>·</span> <strong class=\"font-semibold text-gray-900\">arma</strong> <span>·</span> <span>cano</span> <span>·</span>"
+ },
+ {
+  "fn": "renderInstanceText",
+  "name": "rit-14",
+  "args": [
+   "«arma» \"cano\" — arma–",
+   [
+    "arma",
+    "cano"
+   ],
+   "la"
+  ],
+  "output": "<span>«arma»</span> <strong class=\"font-semibold text-gray-900\">&quot;cano&quot;</strong> <span>—</span> <strong class=\"font-semibold text-gray-900\">arma–</strong>"
+ },
+ {
+  "fn": "renderInstanceText",
+  "name": "rit-15",
+  "args": [
+   "arma   virumque\ncano",
+   [
+    "virumque",
+    "cano"
+   ],
+   "la"
+  ],
+  "output": "<span>arma</span>   <strong class=\"font-semibold text-gray-900\">virumque</strong>\n<strong class=\"font-semibold text-gray-900\">cano</strong>"
+ },
+ {
+  "fn": "renderInstanceText",
+  "name": "rit-16",
+  "args": [
+   "arma arma arma",
+   [
+    "arma"
+   ],
+   "la"
+  ],
+  "output": "<strong class=\"font-semibold text-gray-900\">arma</strong> <strong class=\"font-semibold text-gray-900\">arma</strong> <strong class=\"font-semibold text-gray-900\">arma</strong>"
+ },
+ {
+  "fn": "renderInstanceText",
+  "name": "rit-17",
+  "args": [
+   "Arch-fiend reply'd",
+   [
+    "reply'd",
+    "arch-fiend"
+   ],
+   "en"
+  ],
+  "output": "<strong class=\"font-semibold text-gray-900\">Arch-fiend</strong> <strong class=\"font-semibold text-gray-900\">reply&#x27;d</strong>"
+ },
+ {
+  "fn": "renderInstanceText",
+  "name": "rit-18",
+  "args": [
+   "arma virumque",
+   [
+    ""
+   ],
+   "la"
+  ],
+  "output": "arma virumque"
+ },
+ {
+  "fn": "renderInstanceText",
+  "name": "rit-19",
+  "args": [
+   "arma virumque",
+   [
+    " arma "
+   ],
+   "la"
+  ],
+  "output": "<span>arma</span> <span>virumque</span>"
+ },
+ {
+  "fn": "renderInstanceText",
+  "name": "rit-20",
+  "args": [
+   "دل من جان است",
+   [
+    "من",
+    "است"
+   ],
+   "fa"
+  ],
+  "output": "<span>دل</span> <strong class=\"font-semibold text-gray-900\">من</strong> <span>جان</span> <strong class=\"font-semibold text-gray-900\">است</strong>"
+ }
+]
