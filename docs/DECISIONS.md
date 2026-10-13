@@ -126,6 +126,29 @@ history (index builds, cache rebuilds, corpus changes) is in
   Latin-English calls, five runs each, have medians within 5 percent of
   main's. The fusion loop stays one block, moved whole, with no new call
   inside it.
+- Sixth structural job under the rule: the streaming fusion search
+  (`search_fusion_stream()` and its nested generator) became a sequence of
+  named steps (see the CHANGELOG entry of 2026-10-13). The standard recording
+  does not hold this route, so a recording of the stream itself was made.
+  It posts fifteen requests to a preview of main (460 events in all) and reads each stream to
+  the end, with the times removed and the paged result's identifier replaced
+  by its presence. Two runs on main agree with each other. The branch gives
+  every event of every request identical, score for score, in order. The
+  requests cover the cached and the full path of the same pair, the formula
+  filter at both settings, line and window modes, channels switched off,
+  custom weights, the meter, a Coptic pair, a Persian pair, a paged answer
+  and both error cases. A recording starts each request from the cache as the
+  script found it. The standard recording of 68 requests is the same, with
+  both previews started with the same hash seed. The body of each of the 34
+  other functions and classes in the module is identical by syntax tree. The
+  tests give the same eight known failures as main. The reference searches
+  pass. Over five runs each, the uncached search took 16.06 seconds against
+  16.09 on main, and the cached answer 27.4 milliseconds against 26.8, with
+  the first event at 3.0 against 2.9 milliseconds (a difference of 0.6
+  milliseconds on a request whose spread is 11). The loop over the search's
+  events stays one block, moved whole. The generator creates the search
+  slot and hands it to the steps that need it, so the release in its
+  `finally` still sees it.
 
 
 ## 2026-10-12: the band inside one work is refitted on eleven works, and its lowest level is a caution, not a verdict
