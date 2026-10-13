@@ -8,6 +8,28 @@ history (index builds, cache rebuilds, corpus changes) is in
 `DATA_OPERATIONS.md`; per-release changes are in `../CHANGELOG.md`.
 
 
+## 2026-10-12: written paragraphs keep quoted words in their original script, and the transliteration is made by a table
+- Scope: the Search One Text summary and Scholarship paragraph (and the
+  Scholarship list in Theme Search).
+- Decision. The model quotes Greek, Latin and Hebrew words in their own
+  letters and is checked for it. The transliteration shown after each Greek
+  or Hebrew word is made by a fixed letter table in the code (classical
+  scholarly style for Greek, SBL general-purpose style for Hebrew), never by
+  the model, so none can be invented. Beta code is not shown on the page. It
+  is provided as a function for export controls.
+- Evidence. On Herodotus 1.32.5 the paragraph read "*euzen*" for the Greek
+  words of the note by How and Wells. The model had transliterated the Greek
+  and wrapped it in asterisks. A reader cannot check "euzen" against the note.
+- The check. After the model answers, the server looks for asterisk spans and
+  for any word of the text that is the table's transliteration of a Greek or
+  Hebrew word or phrase in the notes (words of three letters or fewer are
+  skipped, since "to" and "he" are also English). It asks once more with the
+  fault named, and strips asterisks if the second answer is still wrong. The
+  answer's `script_problems` list shows how often that happens on the live
+  site.
+- The table lives in two languages (Python and JavaScript) and both are tested
+  against one file of cases, so they cannot drift.
+
 ## 2026-10-12: Cleaning the code's shape without changing what it does
 - Scope: every change meant to reorganise code (splitting the large Flask
   module into an app factory and blueprints, tests for the scoring core,

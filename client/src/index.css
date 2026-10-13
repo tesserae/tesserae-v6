@@ -100,3 +100,8 @@ body {
 @media (max-width: 767px) {
   html, body { overflow-x: hidden; }
 }
+
+/* Greek quoted inside a written paragraph (components/common/OriginalScript.jsx). */
+.font-greek {
+  font-family: 'Gentium Book', 'Noto Serif Hebrew', serif;
+}
