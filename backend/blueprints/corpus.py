@@ -4,6 +4,8 @@ Routes for corpus and text management
 """
 from flask import Blueprint, jsonify, request
 import os
+
+from backend import fspaths
 import re
 import json
 import threading
@@ -244,7 +246,7 @@ def _work_facts(language, work, restricted):
         return None
     filename = work if str(work).endswith('.tess') else f'{work}.tess'
     filepath = os.path.join(_texts_dir, language, filename)
-    if not os.path.exists(filepath):
+    if not fspaths.exists(filepath):
         return None
     metadata = get_text_metadata(filepath)
     author_dates = get_author_dates().get(language, {})
@@ -516,7 +518,7 @@ def _book_files(language, base):
     lang_dir = os.path.join(_texts_dir, language)
     out = []
     try:
-        names = os.listdir(lang_dir)
+        names = fspaths.listdir_text(lang_dir)
     except OSError:
         names = []
     pat = re.compile(r'^' + re.escape(base) + r'\.part\.(\d+)(?:\.[^.]+)?\.tess$')
@@ -528,7 +530,7 @@ def _book_files(language, base):
     for _, name in sorted(numbered):
         refs, keys = set(), set()
         try:
-            with open(os.path.join(lang_dir, name), encoding='utf-8', errors='replace') as fh:
+            with fspaths.open_text(os.path.join(lang_dir, name), encoding='utf-8', errors='replace') as fh:
                 for line in fh:
                     m = _TAG_RE.match(line)
                     if m:

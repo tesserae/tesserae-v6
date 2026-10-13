@@ -30,6 +30,8 @@ Lemmatization Strategy:
 # =============================================================================
 import re
 import os
+
+from backend import fspaths
 import json
 import unicodedata
 from backend.logging_config import get_logger
@@ -396,7 +398,7 @@ class TextProcessor:
             # A sentence ends when a line ends with sentence-ending punctuation (.;?!).
             # The ref for a multi-line sentence is "first_ref-last_ref".
             raw_lines = []
-            with open(filepath, 'r', encoding='utf-8') as f:
+            with fspaths.open_text(filepath, 'r', encoding='utf-8') as f:
                 for line in f:
                     line = line.strip()
                     if not line or line.startswith('#'):
@@ -465,7 +467,7 @@ class TextProcessor:
             if cop_basename.endswith('.tess'):
                 cop_basename = cop_basename[:-5]
 
-        with open(filepath, 'r', encoding='utf-8') as f:
+        with fspaths.open_text(filepath, 'r', encoding='utf-8') as f:
             for line in f:
                 line = line.strip()
                 if not line or line.startswith('#'):

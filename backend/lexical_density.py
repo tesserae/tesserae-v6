@@ -16,6 +16,8 @@ import os
 import sqlite3
 import threading
 
+from backend import fspaths
+
 from backend.logging_config import get_logger
 
 logger = get_logger('lexical_density')
@@ -135,10 +137,10 @@ def line_density(work, language='la', use_cache=True):
 
 def _read_cache(work, language):
     p = _cache_path(work, language)
-    if not os.path.exists(p):
+    if not fspaths.exists(p):
         return None
     try:
-        with open(p, encoding='utf-8') as fh:
+        with fspaths.open_text(p, encoding='utf-8') as fh:
             return json.load(fh)
     except (OSError, ValueError):
         return None
@@ -148,7 +150,7 @@ def _write_cache(work, language, data):
     try:
         with _lock:
             os.makedirs(_CACHE_DIR, exist_ok=True)
-            with open(_cache_path(work, language), 'w', encoding='utf-8') as fh:
+            with fspaths.open_text(_cache_path(work, language), 'w', encoding='utf-8') as fh:
                 json.dump(data, fh)
     except OSError as e:
         logger.warning('[LEXDENSITY] could not cache %s: %s', work, e)

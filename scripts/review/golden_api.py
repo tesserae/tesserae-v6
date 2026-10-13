@@ -46,7 +46,7 @@ def load_requests(path):
 
 
 def build_url(base, req):
-    url = base.rstrip("/") + req["path"]
+    url = base.rstrip("/") + urllib.parse.quote(req["path"], safe="/%:@")
     params = req.get("params")
     if params:
         pairs = []
