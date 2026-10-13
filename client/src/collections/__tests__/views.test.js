@@ -29,11 +29,12 @@ describe('the view data', () => {
     });
   });
 
-  it('gives History the Reader on Tacitus and the history pairs', () => {
+  it('gives History Search One Text on the Annals and the history pairs', () => {
     const h = viewById('history');
     expect(h.profile).toBe('everything');
-    expect(h.home).toEqual({ page: 'read', work: 'tacitus.annales.part.1.tess', lang: 'la' });
-    expect(h.menuOrder.slice(0, 3)).toEqual(['read', 'ask-a-work', 'events']);
+    expect(h.home).toEqual({ page: 'ask-a-work' });
+    expect(h.askDefault).toEqual({ lang: 'la', work: 'tacitus.annales' });
+    expect(h.menuOrder.slice(0, 3)).toEqual(['ask-a-work', 'read', 'events']);
     expect(h.menuOrder.indexOf('theme-search')).toBeLessThan(h.menuOrder.indexOf('search'));
     expect(h.readerTabs).toEqual(['similar', 'documents', 'coins', 'scholarship', 'reuse', 'verbal', 'translation']);
     expect(h.searchDefaults.la).toEqual({

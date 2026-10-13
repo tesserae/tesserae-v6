@@ -635,3 +635,29 @@ describe('a visit with no work chosen', () => {
     expect(screen.queryByRole('button', { name: /the fall of Troy/ })).toBeNull();
   });
 });
+
+
+describe('the History view', () => {
+  it('opens on the Annals, with the history example subjects', async () => {
+    window.localStorage.setItem('tesserae_view', 'history');
+    const texts = TEXTS.concat([
+      { id: 'tacitus.annales.tess', author: 'Tacitus', title: 'Annals', work: 'Annals', is_part: false },
+      { id: 'livy.ab_urbe_condita.tess', author: 'Livy', title: 'Ab Urbe Condita', work: 'Ab Urbe Condita', is_part: false },
+    ]);
+    const covered = COVERED.concat(['tacitus.annales', 'livy.ab_urbe_condita']);
+    const inner = global.fetch;
+    global.fetch = vi.fn((url) => {
+      const u = String(url);
+      if (u.startsWith('/api/texts')) return Promise.resolve({ ok: true, json: async () => texts });
+      if (u.startsWith('/api/passages/works')) return Promise.resolve({ ok: true, json: async () => ({ works: covered }) });
+      return inner(url);
+    });
+    render(<AskAWorkPage />);
+    await waitFor(() => expect(screen.getByRole('combobox', { name: 'Author' })).toHaveValue('Tacitus'));
+    await waitFor(() => expect(screen.getByRole('combobox', { name: 'Work' })).toHaveValue('Annals'));
+    expect(await screen.findByRole('button', { name: /Lucretia and Sextus Tarquinius/ })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /the Pannonian legions mutiny/ })).toBeInTheDocument();
+    // The Literature examples are not shown, even for a work the index holds.
+    expect(screen.queryByRole('button', { name: /Dido falls in love with Aeneas/ })).toBeNull();
+  });
+});

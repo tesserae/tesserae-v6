@@ -12,6 +12,8 @@ import { RECENT_SERVICES, RECENT_LABELS, joinNames, mergeRecent, recentUrl, fetc
 import OriginalScript from '../common/OriginalScript';
 import TransliterationToggle from '../common/TransliterationToggle';
 import { hasOriginalScript } from '../../utils/transliterate';
+import { getView } from '../../collections/collectionsStore';
+import { viewById } from '../../collections/collectionsConfig';
 
 /**
  * Search One Text: pick one work, say a subject in plain words, and get the passages
@@ -53,6 +55,12 @@ const BANDS = {
 // page shows what it does (owner 2026-10-12).
 export const DEFAULT_WORK = { lang: 'la', work: 'vergil.aeneid' };
 
+/** The work the page opens on in the current view (Literature the Aeneid,
+ *  History the Annals; see collectionsConfig askDefault). */
+export function defaultWorkFor(view) {
+  return viewById(view).askDefault || DEFAULT_WORK;
+}
+
 // Six example searches, one work each, every one run live on 2026-10-12 and
 // read: the first five answers were about the subject in each case (Sappho
 // and the Annals strong, Thucydides strong, the rest moderate). The owner's
@@ -66,6 +74,24 @@ const EXAMPLES = [
   { lang: 'grc', work: 'herodotus.histories', q: 'Solon tells Croesus that no man can be called happy before his death', label: 'Solon tells Croesus no man is happy before death', on: 'Herodotus' },
   { lang: 'la', work: 'tacitus.annales', q: 'the legions in Pannonia mutiny after the death of Augustus', label: 'the Pannonian legions mutiny', on: 'the Annals' },
 ];
+
+// The History view's six, every one run live on 2026-10-13 and read: Livy,
+// Caesar, Suetonius and Thucydides rated strong with the first passage on the
+// subject (Livy 1.58.7, Caesar 4.16.6, Suetonius Jul. 80.3, Thucydides);
+// Herodotus and the Annals are the two history examples of the Literature set.
+const HISTORY_EXAMPLES = [
+  { lang: 'la', work: 'livy.ab_urbe_condita', q: 'Lucretia is raped by Sextus Tarquinius and kills herself', label: 'Lucretia and Sextus Tarquinius', on: 'Livy' },
+  { lang: 'la', work: 'tacitus.annales', q: 'the legions in Pannonia mutiny after the death of Augustus', label: 'the Pannonian legions mutiny', on: 'the Annals' },
+  { lang: 'grc', work: 'herodotus.histories', q: 'Solon tells Croesus that no man can be called happy before his death', label: 'Solon tells Croesus no man is happy before death', on: 'Herodotus' },
+  { lang: 'la', work: 'caesar.de_bello_gallico', q: 'Caesar builds a bridge across the Rhine', label: 'Caesar bridges the Rhine', on: 'Caesar' },
+  { lang: 'grc', work: 'thucydides.peleponnesian_war', q: 'the plague at Athens', label: 'the plague at Athens', on: 'Thucydides' },
+  { lang: 'la', work: 'suetonius.de_vita_caesarum', q: 'the assassination of Julius Caesar in the senate', label: 'the assassination of Julius Caesar', on: 'Suetonius' },
+];
+
+/** The example set of the current view. */
+export function examplesFor(view) {
+  return view === 'history' ? HISTORY_EXAMPLES : EXAMPLES;
+}
 
 /** The works of one language that have passage windows, one entry per work
  *  (a book file and its whole file collapse onto one id), with the books it is
@@ -256,8 +282,9 @@ export default function AskAWorkPage() {
     const p = new URLSearchParams(window.location.search);
     return { work: (p.get('work') || '').trim(), lang: (p.get('lang') || '').trim(), q: (p.get('q') || '').trim(), books: (p.get('books') || '').trim() };
   }, []);
-  const startWork = initial.work || DEFAULT_WORK.work;
-  const [lang, setLang] = useState(initial.work ? (initial.lang || 'la') : DEFAULT_WORK.lang);
+  const viewDefault = defaultWorkFor(getView());
+  const startWork = initial.work || viewDefault.work;
+  const [lang, setLang] = useState(initial.work ? (initial.lang || 'la') : viewDefault.lang);
   const [author, setAuthor] = useState(startWork.split('.')[0].toLowerCase());
   const [work, setWork] = useState(startWork);
   const [q, setQ] = useState(initial.q);
@@ -471,7 +498,7 @@ export default function AskAWorkPage() {
     setBookFrom(null); setBookTo(null);
     run(ex.q, ex.work, ex.lang, false, '');
   };
-  const shownExamples = EXAMPLES.filter((ex) => (catalogue[ex.lang] || []).some((w) => w.id === ex.work));
+  const shownExamples = examplesFor(getView()).filter((ex) => (catalogue[ex.lang] || []).some((w) => w.id === ex.work));
 
   const level = data?.confidence?.level;
   const fitted = Boolean(data?.confidence?.fitted);
