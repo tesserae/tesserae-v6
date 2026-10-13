@@ -66,6 +66,15 @@ history (index builds, cache rebuilds, corpus changes) is in
   results as main, and an import time within ten percent. The URL map and the
   function bodies are checked by two scripts kept in `scripts/review/`, so
   the next structural job can run the same proofs.
+- Second job under the rule, tests only: characterization tests for the
+  feature extractor, distance filter, syntax parser, metrical scanner,
+  wildcard search, database helpers and the untested parts of the matcher.
+  Each expected value was taken from the code as it stands and read for
+  plausibility; none was corrected. The three Latin spelling folds named
+  `normalize_latin` (the matcher's and the distance filter's are now one
+  function; the wildcard search's keeps case and folds a final -om to -um)
+  are pinned as they are in `tests/test_normalize_latin_three_ways.py`.
+  Whether to unify them is a separate decision.
 - Third structural job under the rule: `line_search()` became a sequence of
   named steps (see the CHANGELOG entry of 2026-10-13). A recording of 258
   Line Search requests made on a preview of main (none of them differs between
