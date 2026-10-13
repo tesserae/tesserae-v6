@@ -69,13 +69,13 @@ def run(plan, language):
 
 
 def plans_for(lemmas):
-    orders = [list(lemmas), list(reversed(lemmas)), sorted(lemmas, key=lambda l: (len(l), l))]
+    orders = [list(lemmas), list(reversed(lemmas)), sorted(lemmas, key=lambda w: (len(w), w))]
     plans = []
     for o in orders:
         plans.append([o])                      # one batch
-        plans.append([[l] for l in o])         # one lemma per batch
-    heads = [l for l in lemmas if l in HEADWORDS_LA.values() or l in HEADWORDS_GRC.values()]
-    rest = [l for l in lemmas if l not in heads]
+        plans.append([[w] for w in o])         # one lemma per batch
+    heads = [w for w in lemmas if w in HEADWORDS_LA.values() or w in HEADWORDS_GRC.values()]
+    rest = [w for w in lemmas if w not in heads]
     plans.append([heads, rest] if heads else [rest])   # headwords first
     plans.append([rest, heads] if heads else [rest])
     return plans

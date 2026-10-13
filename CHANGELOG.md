@@ -9,6 +9,9 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-13
 
+### A lemma's document frequency no longer depends on the lookups made before it
+In `backend/fusion.py` the corpus, meter and text-pair document-frequency lookups cached a value per lemma that depended on which lemmas had been asked for first. A Latin variant pair took whichever spelling came first in the list, and a lemma whose headword was itself looked up earlier read the headword's already-raised value. The same text pair could therefore score slightly differently after other searches in the same worker. Each lemma now has a raw value (the larger of the lemma and its i/j partner form, each form queried on its own so that u/v partners never share a call) and a final value (the larger of its raw value and its headword's raw value), both written once and never revised. On nine recorded fusion searches (5,123,959 candidate rows replayed) 10 rows changed, all one pair of lines (Aeneid 1.98 with Metamorphoses 1.552, in five early passes of two searches), by at most 0.167 in fused score. Two runs of all nine searches in one process without clearing the caches are identical. Test: `tests/test_doc_freq_order_independence.py`. The recorder `scripts/review/fusion_direct_record.py` gains `--no-clear` and `--again`.
+
 ### Two merges of this morning restored
 The merge of the Latin scanner change (#880) carried a stale copy of two files and so undid two earlier merges: the fusion scorer went back to its unsplit form and its recording script disappeared (#878), and the unused scoring module came back (#879). Nothing a visitor saw changed, since the split kept every score identical. Both are restored here exactly as merged, with their decision entries. The merge chain now refuses to merge when a pull request's file list has grown beyond the records files since it was opened.
 
