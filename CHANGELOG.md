@@ -798,6 +798,21 @@ The record for JSTOR Early Journal Content now says what the offline index cover
   `FITTED_AT_WINDOWS` (now 530,917) were also reviewed; only
   `FITTED_AT_WINDOWS` changed. Zero absent queries were promoted on either
   probe set at either value. See `docs/DECISIONS.md`.
+### Translation aligner: Saadi's Gulistan from Eastwick's 1880 translation
+- `scripts/translations/align_saadi_gulistan_eastwick.py`, on the shared
+  `write_aligned.py` helper. The Gulistan is bundled whole inside
+  `texts/fa/saadi.diwan.tess` (refs `.29808`-`.32003`, confirmed by its own
+  opening and closing sentences, 2,196 refs). This ships as one whole-work
+  unit rather than a chapter-or-story split: this digitization of the
+  Persian has no inline chapter dividers, and a check of chapter-signature
+  word clustering across the range (king words, dervish words, and so on,
+  binned by position) found the signal too noisy to anchor a split on
+  without guessing. 2196/2196 refs covered, confidence exact (the Persian
+  range is exactly the work translated, start to finish), served as a
+  single `block_only` unit the same way Lucretius already is. Public
+  domain (Eastwick, Trübner & Co., 1880). Its output is staged for
+  installation as `data/translations/fa__saadi.diwan.json` (not tracked in
+  git).
 
 ### Records: Persian and Urdu data operations of 2026-10-08
 - `docs/DATA_OPERATIONS.md` records the Khayyam and Ghalib removals, the
