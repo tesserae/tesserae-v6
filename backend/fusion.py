@@ -66,6 +66,7 @@ import sqlite3
 import time
 import unicodedata
 from collections import Counter, defaultdict
+from dataclasses import dataclass
 from concurrent.futures import ThreadPoolExecutor
 
 import numpy as np
@@ -2342,40 +2343,37 @@ def _cap_with_formula_filter(results, max_results, user_settings):
     return capped, len(filtered), hidden
 
 
-def fuse_results(channel_results, weights=None, convergence_bonus=None,
-                  idf_floor=None, idf_threshold=None,
-                  convergence_idf_power=None, min_idf_threshold=None,
-                  min_idf_penalty=None, language='la',
-                  freq_basis='corpus', source_id=None, target_id=None,
-                  confirm_context=True):
-    """Combine results from multiple channels using weighted score fusion.
+@dataclass
+class FusionConstants:
+    """The weight profile and rarity constants one fuse_results call works with."""
+    weights: dict
+    convergence_bonus: float
+    idf_floor: float
+    idf_threshold: float
+    conv_idf_power: float
+    min_idf_threshold: float
+    min_idf_penalty: float
+    rarity_boost_weight: float
+    rarity_boost_cap: float
+    penalty_power: float
+    stoplist: set
 
-    Three-layer rarity scoring for each (source_ref, target_ref) pair:
 
-      base = sum(channel_score * channel_weight)
-      mult = piecewise_linear(geom_mean_idf, idf_floor, threshold)
-      idf_weight = min(1.0, min_word_idf)^2                     [Layer 2]
-      weighted_n = n_scoring_channels * idf_weight              [Layer 2]
-      conv = convergence_bonus * max(0, weighted_n - 1)         [Layer 2]
-      fused = base * mult^penalty_power + conv * mult^conv_power
+@dataclass
+class LoopConstants:
+    """The values computed once before the per-pair loop of _score_pairs."""
+    log_total: float
+    n_reference: int
+    idf_scale: float
+    cutoff: float
+    ramp_start: float
+    ramp_range: float
+    thresh_range: float
 
-    Layer 3 boost: when geom_idf >= threshold, mult rises above 1.0 via
-    log curve scaled by min(channel_factor, word_factor), requiring both
-    multiple channels and multiple distinct words.
 
-    Optional overrides allow testing different parameter configurations
-    without modifying module globals (used by weight optimization).
-
-    freq_basis controls which document-frequency baseline is used for IDF:
-      "corpus" (default) — full corpus (all texts in the inverted index)
-      "meter" — only texts sharing the same meter as source/target
-                (falls back to corpus if texts don't share a meter,
-                or if text_genres.csv lacks meter info)
-      "text_pair" — token-frequency baseline over the source and target texts
-                    (N = total tokens across the pair). Bypasses IDF scaling cap
-                    so rare local terms can reach corpus-calibrated IDF values.
-    source_id/target_id: filenames needed for meter and text_pair lookup.
-    """
+def _fusion_constants(weights, convergence_bonus, idf_floor, idf_threshold,
+                      convergence_idf_power, min_idf_threshold, min_idf_penalty, language):
+    """Resolve the weight profile and the rarity constants from the arguments and the module defaults."""
     # Weight profile selection: explicit `weights` argument wins; otherwise
     # fall through to the language-default profile via get_weight_profile().
     # This is what firewalls the biblical-Coptic optimization (Phase 9 of the
@@ -2393,6 +2391,14 @@ def fuse_results(channel_results, weights=None, convergence_bonus=None,
     _rarity_boost_cap = RARITY_BOOST_CAP
     _penalty_power = RARITY_PENALTY_POWER
     _stoplist = _STOPLISTS.get(language, set())
+    return FusionConstants(_weights, _convergence_bonus, _idf_floor, _idf_threshold,
+                           _conv_idf_power, _min_idf_threshold, _min_idf_penalty,
+                           _rarity_boost_weight, _rarity_boost_cap, _penalty_power, _stoplist)
+
+
+def _pair_table(channel_results, consts):
+    """Build the (source_ref, target_ref) table of summed channel scores, highlights and matched words."""
+    _weights = consts.weights
 
     pair_scores = defaultdict(lambda: {
         "score": 0.0,
@@ -2474,7 +2480,11 @@ def fuse_results(channel_results, weights=None, convergence_bonus=None,
     _t1 = _time.time()
     logger.info(f"[FUSION] Accumulated {len(pair_scores):,} unique pairs from "
                 f"{sum(len(r) for r in channel_results.values()):,} channel results in {_t1-_t0:.1f}s")
+    return pair_scores
 
+
+def _pre_fusion_cap(pair_scores):
+    """Keep only the 500,000 highest raw-scoring pairs when the table is larger."""
     # --- Pre-fusion cap: limit pairs entering rarity scoring ---
     # Rarity scoring is O(n) with expensive per-pair IDF lookups. For
     # large Greek text pairs, pair_scores can exceed 500K entries. Since
@@ -2493,28 +2503,11 @@ def fuse_results(channel_results, weights=None, convergence_bonus=None,
                           reverse=True)[:PRE_FUSION_CAP]
         pair_scores = {k: pair_scores[k] for k in top_keys}
         logger.info(f"[FUSION] Pre-fusion cap: kept top {PRE_FUSION_CAP:,} of {total_pairs:,} pairs by raw score")
+    return pair_scores
 
-    # ===================================================================
-    # RARITY SCORING: Three-layer system applied to every fused pair
-    # ===================================================================
-    #
-    # This section implements all three layers of rarity scoring in a
-    # single pass over all pairs, optimized to avoid per-pair function
-    # call overhead (~100K pairs typical; inlining reduced runtime from
-    # ~400s to ~58s for Aeneid x Met).
-    #
-    # Final formula for each pair:
-    #   fused_score = base_score * mult^2 + conv_score * mult^power
-    # where:
-    #   base_score  = sum of (channel_score * channel_weight) across channels
-    #   mult        = rarity multiplier from Layer 1 (piecewise linear on geom_idf)
-    #                 OR rarity boost from Layer 3 (log curve, for rare words)
-    #   conv_score  = convergence_bonus * (weighted_n - 1.0)   [Layer 2]
-    #   weighted_n  = n_scoring_channels * min(1.0, geom_idf)^2  [Layer 2]
-    #   power       = CONVERGENCE_IDF_POWER (currently 1.0)
-    #
-    # ===================================================================
 
+def _document_frequencies(pair_scores, freq_basis, source_id, target_id, language):
+    """Fetch the document frequencies of every matched lemma in one batch, on the chosen freq_basis."""
     # --- Pre-fetch corpus document frequencies in one batch ---
     # Collect every unique lemma across all pairs (excluding sub-lexical
     # fragments like [que], [nti] from sound/edit_distance channels),
@@ -2577,7 +2570,13 @@ def fuse_results(channel_results, weights=None, convergence_bonus=None,
         else:
             total_texts = 1429
         doc_freq_map = {}
+    return doc_freq_map, total_texts, _effective_freq_basis
 
+
+def _loop_constants(consts, total_texts, _effective_freq_basis, language):
+    """Compute the IDF scale and ramp values the per-pair loop reads."""
+    _idf_floor = consts.idf_floor
+    _idf_threshold = consts.idf_threshold
     # Pre-compute constants used in the inner loop to avoid repeated
     # arithmetic on every iteration.
     _log_total = math.log(total_texts)        # log(N) for IDF = log(N) - log(df)
@@ -2595,6 +2594,49 @@ def fuse_results(channel_results, weights=None, convergence_bonus=None,
     _ramp_start = _idf_floor + _ramp_offset   # multiplier at geom_idf = cutoff
     _ramp_range = 1.0 - _ramp_start           # span of the linear ramp
     _thresh_range = _idf_threshold - _cutoff   # IDF span of the linear ramp
+    return LoopConstants(_log_total, _N_reference, _idf_scale, _cutoff,
+                         _ramp_start, _ramp_range, _thresh_range)
+
+
+def _score_pairs(pair_scores, consts, loop_consts, doc_freq_map, _t1):
+    """Apply the three rarity layers to every pair in one loop, replacing each pair's score in place."""
+    import time as _time
+    _stoplist = consts.stoplist
+    _idf_floor = consts.idf_floor
+    _idf_threshold = consts.idf_threshold
+    _convergence_bonus = consts.convergence_bonus
+    _conv_idf_power = consts.conv_idf_power
+    _rarity_boost_weight = consts.rarity_boost_weight
+    _rarity_boost_cap = consts.rarity_boost_cap
+    _penalty_power = consts.penalty_power
+    _log_total = loop_consts.log_total
+    _N_reference = loop_consts.n_reference
+    _idf_scale = loop_consts.idf_scale
+    _cutoff = loop_consts.cutoff
+    _ramp_start = loop_consts.ramp_start
+    _ramp_range = loop_consts.ramp_range
+    _thresh_range = loop_consts.thresh_range
+
+    # ===================================================================
+    # RARITY SCORING: Three-layer system applied to every fused pair
+    # ===================================================================
+    #
+    # This section implements all three layers of rarity scoring in a
+    # single pass over all pairs, optimized to avoid per-pair function
+    # call overhead (~100K pairs typical; inlining reduced runtime from
+    # ~400s to ~58s for Aeneid x Met).
+    #
+    # Final formula for each pair:
+    #   fused_score = base_score * mult^2 + conv_score * mult^power
+    # where:
+    #   base_score  = sum of (channel_score * channel_weight) across channels
+    #   mult        = rarity multiplier from Layer 1 (piecewise linear on geom_idf)
+    #                 OR rarity boost from Layer 3 (log curve, for rare words)
+    #   conv_score  = convergence_bonus * (weighted_n - 1.0)   [Layer 2]
+    #   weighted_n  = n_scoring_channels * min(1.0, geom_idf)^2  [Layer 2]
+    #   power       = CONVERGENCE_IDF_POWER (currently 1.0)
+    #
+    # ===================================================================
 
     for key, info in pair_scores.items():
         # ---------------------------------------------------------------
@@ -2807,6 +2849,9 @@ def fuse_results(channel_results, weights=None, convergence_bonus=None,
     _t2 = _time.time()
     logger.info(f"[FUSION] Rarity scoring complete for {len(pair_scores):,} pairs in {_t2-_t1:.1f}s")
 
+
+def _output_rows(pair_scores, language):
+    """Sort the pairs by fused score and build the output rows."""
     # Sort by fused score and build output
     sorted_pairs = sorted(pair_scores.items(), key=lambda x: x[1]["score"], reverse=True)
     merged = []
@@ -2837,7 +2882,11 @@ def fuse_results(channel_results, weights=None, convergence_bonus=None,
             for ch, v in info.get("channel_token_attrs", {}).items()
         }
         merged.append(result)
+    return merged
 
+
+def _passage_context(merged, confirm_context, language, source_id, target_id):
+    """Re-rank the top pairs by whether their surrounding passages agree (final fusion only)."""
     # The passage-context pass (3,000 candidate pairs looked up in the
     # passage index) costs about a minute; the progressive intermediate
     # fusions skip it and only the final fusion pays it (2026-09-06: a
@@ -2845,7 +2894,11 @@ def fuse_results(channel_results, weights=None, convergence_bonus=None,
     if confirm_context:
         merged = apply_context_confirmation(merged, language=language,
                                             source_id=source_id, target_id=target_id)
+    return merged
 
+
+def _formula_counts(merged, language):
+    """Annotate each row with the number of works that share its wording."""
     # formula_count: how many works share this result's shared wording (the
     # two rarest shared lemmas as a bigram, or the one lemma's own work count
     # with a single shared lemma). One table lookup per row against a table
@@ -2853,6 +2906,55 @@ def fuse_results(channel_results, weights=None, convergence_bonus=None,
     # consumer (the streaming endpoint, the poll endpoint, the LXX pivot)
     # bottoms out in this function, so annotating here covers all of them.
     annotate_formula_counts(merged, language)
+
+
+def fuse_results(channel_results, weights=None, convergence_bonus=None,
+                  idf_floor=None, idf_threshold=None,
+                  convergence_idf_power=None, min_idf_threshold=None,
+                  min_idf_penalty=None, language='la',
+                  freq_basis='corpus', source_id=None, target_id=None,
+                  confirm_context=True):
+    """Combine results from multiple channels using weighted score fusion.
+
+    Three-layer rarity scoring for each (source_ref, target_ref) pair:
+
+      base = sum(channel_score * channel_weight)
+      mult = piecewise_linear(geom_mean_idf, idf_floor, threshold)
+      idf_weight = min(1.0, min_word_idf)^2                     [Layer 2]
+      weighted_n = n_scoring_channels * idf_weight              [Layer 2]
+      conv = convergence_bonus * max(0, weighted_n - 1)         [Layer 2]
+      fused = base * mult^penalty_power + conv * mult^conv_power
+
+    Layer 3 boost: when geom_idf >= threshold, mult rises above 1.0 via
+    log curve scaled by min(channel_factor, word_factor), requiring both
+    multiple channels and multiple distinct words.
+
+    Optional overrides allow testing different parameter configurations
+    without modifying module globals (used by weight optimization).
+
+    freq_basis controls which document-frequency baseline is used for IDF:
+      "corpus" (default) — full corpus (all texts in the inverted index)
+      "meter" — only texts sharing the same meter as source/target
+                (falls back to corpus if texts don't share a meter,
+                or if text_genres.csv lacks meter info)
+      "text_pair" — token-frequency baseline over the source and target texts
+                    (N = total tokens across the pair). Bypasses IDF scaling cap
+                    so rare local terms can reach corpus-calibrated IDF values.
+    source_id/target_id: filenames needed for meter and text_pair lookup.
+    """
+    consts = _fusion_constants(weights, convergence_bonus, idf_floor, idf_threshold,
+                              convergence_idf_power, min_idf_threshold, min_idf_penalty,
+                              language)
+    pair_scores = _pair_table(channel_results, consts)
+    _t1 = time.time()
+    pair_scores = _pre_fusion_cap(pair_scores)
+    doc_freq_map, total_texts, _effective_freq_basis = _document_frequencies(
+        pair_scores, freq_basis, source_id, target_id, language)
+    loop_consts = _loop_constants(consts, total_texts, _effective_freq_basis, language)
+    _score_pairs(pair_scores, consts, loop_consts, doc_freq_map, _t1)
+    merged = _output_rows(pair_scores, language)
+    merged = _passage_context(merged, confirm_context, language, source_id, target_id)
+    _formula_counts(merged, language)
     return merged
 
 
