@@ -270,10 +270,14 @@ history (index builds, cache rebuilds, corpus changes) is in
   Hebrew point strip, the word splitter), and 60 inputs recorded from the three
   old functions (`client/src/utils/__fixtures__/highlight_cases.json`) must
   come out character for character the same.
-- One chart library for the public pages. The corpus panel's timeline, drawn
-  by hand in D3, is redrawn as a horizontal bar chart in Chart.js, the library
-  every other public chart uses. D3 stays only for the network graph and the
-  admin map, which are genuine uses of it.
+- The corpus panel's timeline keeps its hand-drawn D3 form, in a component of
+  its own. #899 redrew it as a Chart.js bar chart so that the public pages
+  would use one chart library, but the bar chart lost the date axis and the
+  one-dot-per-occurrence marks, so time clusters and gaps were no longer
+  visible. The rule for the cleaning is that nothing a visitor sees goes
+  backwards, and it outranks the one-library aim; the original drawing was
+  restored the same evening. D3 therefore stays for the timeline, the network
+  graph and the admin map.
 
 
 ## 2026-10-12: the band inside one work is refitted on eleven works, and its lowest level is a caution, not a verdict

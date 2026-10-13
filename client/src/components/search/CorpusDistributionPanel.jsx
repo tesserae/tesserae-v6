@@ -1,7 +1,7 @@
 // The corpus half of the chart sidebar: where the shared words of one chosen
 // parallel recur across the whole corpus. Moved out of SearchResults.jsx
 // (cleaning job H4, 2026-10-13), state, requests and markup unchanged except
-// that the timeline is drawn by ResultsTimeline (Chart.js) instead of D3.
+// that the D3 timeline now lives in its own component, ResultsTimeline.
 // The hook keeps its state in SearchResults, as before, so hiding the chart
 // or switching to "In this comparison" does not lose the chosen parallel.
 import { useState, useEffect, useRef } from 'react';
