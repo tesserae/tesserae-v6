@@ -1728,7 +1728,8 @@ def run_channel(channel_name, config, source_units, target_units,
 # Corpus-IDF utilities for graduated rarity multiplier
 # ---------------------------------------------------------------------------
 
-_corpus_doc_freq_cache = {}
+_corpus_doc_freq_cache = {}   # (language, lemma) -> final document frequency
+_corpus_raw_df_cache = {}     # (language, lemma) -> raw document frequency
 _total_texts_cache = {}
 _headword_map_cache = {}
 
@@ -1738,6 +1739,8 @@ _meter_total_texts_cache = {}  # meter -> int
 _text_genre_cache = None     # filename -> row dict from text_genres.csv
 _meter_text_ids_cache = {}   # meter -> set of text_ids in the index
 _text_pair_doc_freq_cache = {}  # (source_id, target_id) -> {lemma: doc_freq}
+_meter_raw_df_cache = {}   # meter -> {lemma: raw doc_freq}
+_text_pair_raw_df_cache = {}  # (language, source_id, target_id) -> {lemma: raw count}
 _text_pair_total_tokens_cache = {}  # (source_id, target_id) -> int
 
 
@@ -1815,12 +1818,80 @@ def _get_meter_text_ids(meter, language='la'):
     return _meter_text_ids_cache[cache_key]
 
 
+# ---------------------------------------------------------------------------
+# Document-frequency lookup that depends on the lemma alone
+# ---------------------------------------------------------------------------
+# A lemma's value must not depend on which other lemmas were looked up before
+# it, in the same call or in an earlier one. Two layers, neither revised once
+# written:
+#   raw(lemma)   = the index's answer for the lemma. For Latin, the maximum
+#                  over the lemma and its i/j partner form; each form is
+#                  queried on its own, and get_document_frequencies_batch adds
+#                  the u/v partner of the form it is given (it sums both).
+#   final(lemma) = max(raw(lemma), raw(headword(lemma))) when a headword
+#                  exists, else raw(lemma).
+# get_document_frequencies_batch maps every u/v variant of a form back to the
+# form, so two forms that are u/v partners in the SAME call overwrite each
+# other. _doc_freq_rounds keeps such forms apart (separate calls), which also
+# makes the value independent of the batch split.
+
+def _latin_query_forms(lemma):
+    """The forms whose counts are combined (max) into a Latin lemma's raw value."""
+    return {lemma, lemma.replace('i', 'j'), lemma.replace('j', 'i')}
+
+
+def _doc_freq_rounds(forms):
+    """Split query forms into calls with no two u/v partners in the same call."""
+    groups = {}
+    for f in sorted(forms):
+        groups.setdefault(f.replace('v', 'u'), []).append(f)
+    n = max((len(g) for g in groups.values()), default=0)
+    return [[g[i] for g in groups.values() if len(g) > i] for i in range(n)]
+
+
+def _resolve_doc_freqs(lemmas, language, final_cache, raw_cache, fetch, key=lambda l: l):
+    """Fill final_cache for lemmas; fetch(set_of_forms) -> {form: count}.
+
+    final_cache and raw_cache map key(lemma) -> value.
+    """
+    headword_map = _get_headword_map(language)
+    uncached = [l for l in lemmas if key(l) not in final_cache]
+    if uncached:
+        need = set(uncached)
+        for l in uncached:
+            hw = headword_map.get(l) if headword_map else None
+            if hw and hw != l:
+                need.add(hw)
+        missing = [x for x in need if key(x) not in raw_cache]
+        if missing:
+            if language == 'la':
+                forms_of = {x: _latin_query_forms(x) for x in missing}
+                all_forms = set().union(*forms_of.values())
+                counts = {}
+                for rnd in _doc_freq_rounds(all_forms):
+                    counts.update(fetch(set(rnd)))
+                for x in missing:
+                    raw_cache[key(x)] = max(counts.get(f, 0) for f in forms_of[x])
+            else:
+                counts = fetch(set(missing))
+                for x in missing:
+                    raw_cache[key(x)] = counts.get(x, 0)
+        for l in uncached:
+            hw = headword_map.get(l) if headword_map else None
+            v = raw_cache[key(l)]
+            if hw and hw != l:
+                v = max(v, raw_cache[key(hw)])
+            final_cache[key(l)] = v
+    return {l: final_cache.get(key(l), 0) for l in lemmas}
+
+
 def _get_meter_doc_freqs(lemmas, meter, language='la'):
     """Batch-fetch meter-specific document frequencies, with caching.
 
     Like _get_corpus_doc_freqs but restricted to texts of a given meter.
     Queries the inverted index postings table filtered by text_ids that
-    belong to the meter group.
+    belong to the meter group. The value of a lemma depends on the lemma
+    alone (see _resolve_doc_freqs).
 
     Returns dict: lemma -> document count within the meter group.
     """
@@ -1828,6 +1899,7 @@ def _get_meter_doc_freqs(lemmas, meter, language='la'):
     if cache_key not in _meter_doc_freq_cache:
         _meter_doc_freq_cache[cache_key] = {}
     meter_cache = _meter_doc_freq_cache[cache_key]
+    raw_cache = _meter_raw_df_cache.setdefault(cache_key, {})
 
     uncached = [l for l in lemmas if l not in meter_cache]
     if not uncached:
@@ -1835,7 +1907,7 @@ def _get_meter_doc_freqs(lemmas, meter, language='la'):
 
     text_ids = _get_meter_text_ids(meter, language)
     if not text_ids:
-        # No texts for this meter — return zeros
+        # No texts for this meter: return zeros
         for l in uncached:
             meter_cache[l] = 0
         return {l: meter_cache.get(l, 0) for l in lemmas}
@@ -1849,80 +1921,35 @@ def _get_meter_doc_freqs(lemmas, meter, language='la'):
             return {l: meter_cache.get(l, 0) for l in lemmas}
 
         cursor = conn.cursor()
-
-        # Prepare u/v dedup for Latin (same logic as _get_corpus_doc_freqs)
-        if language == 'la':
-            canonical = {}
-            query_set = set()
-            for l in uncached:
-                norm = l.replace('v', 'u').replace('j', 'i')
-                if norm not in canonical:
-                    canonical[norm] = l
-                    query_set.add(l)
-            query_lemmas = list(query_set)
-        else:
-            query_lemmas = list(set(uncached))
-
-        # Expand u/v variants for SQL
-        expanded_map = {}  # expanded_form -> original_lemma
-        for lemma in query_lemmas:
-            variants = {lemma}
-            if language == 'la':
-                variants.add(lemma.replace('u', 'v'))
-                variants.add(lemma.replace('v', 'u'))
-            for v in variants:
-                expanded_map[v] = lemma
-
-        # Query in batches, filtering by text_ids in the meter group
         text_id_list = list(text_ids)
-        all_variants = list(expanded_map.keys())
-        batch_size = 500
 
-        # Build a temporary result dict: original_lemma -> count
-        batch_result = {}
-        for i in range(0, len(all_variants), batch_size):
-            batch = all_variants[i:i + batch_size]
-            lemma_ph = ','.join(['?' for _ in batch])
-            tid_ph = ','.join(['?' for _ in text_id_list])
-            sql = (f'SELECT lemma, COUNT(DISTINCT text_id) FROM postings '  # nosec B608
-                   f'WHERE lemma IN ({lemma_ph}) AND text_id IN ({tid_ph}) '
-                   f'GROUP BY lemma')
-            cursor.execute(sql, batch + text_id_list)
-            for row_lemma, count in cursor.fetchall():
-                original = expanded_map.get(row_lemma, row_lemma)
-                batch_result[original] = batch_result.get(original, 0) + count
+        def fetch(forms):
+            # forms holds no two u/v partners, so the variant map is one-to-one
+            expanded_map = {}  # expanded_form -> queried form
+            for form in forms:
+                variants = {form}
+                if language == 'la':
+                    variants.add(form.replace('u', 'v'))
+                    variants.add(form.replace('v', 'u'))
+                for v in variants:
+                    expanded_map[v] = form
+            all_variants = list(expanded_map.keys())
+            batch_size = 500
+            batch_result = {}
+            for i in range(0, len(all_variants), batch_size):
+                batch = all_variants[i:i + batch_size]
+                lemma_ph = ','.join(['?' for _ in batch])
+                tid_ph = ','.join(['?' for _ in text_id_list])
+                sql = (f'SELECT lemma, COUNT(DISTINCT text_id) FROM postings '  # nosec B608
+                       f'WHERE lemma IN ({lemma_ph}) AND text_id IN ({tid_ph}) '
+                       f'GROUP BY lemma')
+                cursor.execute(sql, batch + text_id_list)
+                for row_lemma, count in cursor.fetchall():
+                    original = expanded_map.get(row_lemma, row_lemma)
+                    batch_result[original] = batch_result.get(original, 0) + count
+            return batch_result
 
-        # Populate cache
-        if language == 'la':
-            for l in uncached:
-                norm = l.replace('v', 'u').replace('j', 'i')
-                canon_lemma = canonical[norm]
-                meter_cache[l] = batch_result.get(canon_lemma, 0)
-        else:
-            for l in uncached:
-                meter_cache[l] = batch_result.get(l, 0)
-
-        # Headword normalization (same as corpus version)
-        headword_map = _get_headword_map(language)
-        if headword_map:
-            hw_to_fetch = set()
-            for l in uncached:
-                hw = headword_map.get(l)
-                if hw and hw != l and hw not in meter_cache:
-                    hw_to_fetch.add(hw)
-
-            if hw_to_fetch:
-                # Recurse for headwords
-                hw_freqs = _get_meter_doc_freqs(list(hw_to_fetch), meter,
-                                                 language)
-                for hw, df in hw_freqs.items():
-                    meter_cache[hw] = df
-
-            for l in uncached:
-                hw = headword_map.get(l)
-                if hw and hw != l:
-                    hw_df = meter_cache.get(hw, 0)
-                    meter_cache[l] = max(meter_cache[l], hw_df)
+        _resolve_doc_freqs(uncached, language, meter_cache, raw_cache, fetch)
 
     except Exception as e:
         logger.error(f"[METER IDF] Batch query failed for meter '{meter}': {e}")
@@ -1946,7 +1973,8 @@ def _get_text_pair_doc_freqs(lemmas, source_id, target_id, language='la'):
 
     Like _get_corpus_doc_freqs but restricted to the two compared texts.
     Queries the inverted index postings table filtered by text_ids that
-    belong to the source and target texts.
+    belong to the source and target texts. The value of a lemma depends on
+    the lemma alone (see _resolve_doc_freqs).
 
     Returns dict: lemma -> total token count across the two texts (0 if not found).
     """
@@ -1956,8 +1984,10 @@ def _get_text_pair_doc_freqs(lemmas, source_id, target_id, language='la'):
             # Evict oldest entry (FIFO) to limit memory growth
             oldest_key = next(iter(_text_pair_doc_freq_cache))
             _text_pair_doc_freq_cache.pop(oldest_key, None)
+            _text_pair_raw_df_cache.pop(oldest_key, None)
         _text_pair_doc_freq_cache[cache_key] = {}
     pair_cache = _text_pair_doc_freq_cache[cache_key]
+    raw_cache = _text_pair_raw_df_cache.setdefault(cache_key, {})
 
     uncached = [l for l in lemmas if l not in pair_cache]
     if not uncached:
@@ -1993,76 +2023,33 @@ def _get_text_pair_doc_freqs(lemmas, source_id, target_id, language='la'):
                 pair_cache[l] = 0
             return {l: pair_cache.get(l, 0) for l in lemmas}
 
-        # Prepare u/v dedup for Latin (same logic as _get_corpus_doc_freqs)
-        if language == 'la':
-            canonical = {}
-            query_set = set()
-            for l in uncached:
-                norm = l.replace('v', 'u').replace('j', 'i')
-                if norm not in canonical:
-                    canonical[norm] = l
-                    query_set.add(l)
-            query_lemmas = list(query_set)
-        else:
-            query_lemmas = list(set(uncached))
+        def fetch(forms):
+            # forms holds no two u/v partners, so the variant map is one-to-one
+            expanded_map = {}  # expanded_form -> queried form
+            for form in forms:
+                variants = {form}
+                if language == 'la':
+                    variants.add(form.replace('u', 'v'))
+                    variants.add(form.replace('v', 'u'))
+                for v in variants:
+                    expanded_map[v] = form
+            all_variants = list(expanded_map.keys())
+            batch_size = 500
+            batch_result = {}
+            for i in range(0, len(all_variants), batch_size):
+                batch = all_variants[i:i + batch_size]
+                lemma_ph = ','.join(['?' for _ in batch])
+                tid_ph = ','.join(['?' for _ in text_ids])
+                sql = (f'SELECT lemma, SUM(LENGTH(positions) - LENGTH(REPLACE(positions, ",", "")) + 1) FROM postings '  # nosec B608
+                       f'WHERE lemma IN ({lemma_ph}) AND text_id IN ({tid_ph}) '
+                       f'GROUP BY lemma')
+                cursor.execute(sql, batch + text_ids)
+                for row_lemma, count in cursor.fetchall():
+                    original = expanded_map.get(row_lemma, row_lemma)
+                    batch_result[original] = batch_result.get(original, 0) + count
+            return batch_result
 
-        # Expand u/v variants for SQL
-        expanded_map = {}  # expanded_form -> original_lemma
-        for lemma in query_lemmas:
-            variants = {lemma}
-            if language == 'la':
-                variants.add(lemma.replace('u', 'v'))
-                variants.add(lemma.replace('v', 'u'))
-            for v in variants:
-                expanded_map[v] = lemma
-
-        # Query in batches
-        all_variants = list(expanded_map.keys())
-        batch_size = 500
-        batch_result = {}
-
-        for i in range(0, len(all_variants), batch_size):
-            batch = all_variants[i:i + batch_size]
-            lemma_ph = ','.join(['?' for _ in batch])
-            tid_ph = ','.join(['?' for _ in text_ids])
-            sql = (f'SELECT lemma, SUM(LENGTH(positions) - LENGTH(REPLACE(positions, ",", "")) + 1) FROM postings '  # nosec B608
-                   f'WHERE lemma IN ({lemma_ph}) AND text_id IN ({tid_ph}) '
-                   f'GROUP BY lemma')
-            cursor.execute(sql, batch + text_ids)
-            for row_lemma, count in cursor.fetchall():
-                original = expanded_map.get(row_lemma, row_lemma)
-                batch_result[original] = batch_result.get(original, 0) + count
-
-        # Populate cache
-        if language == 'la':
-            for l in uncached:
-                norm = l.replace('v', 'u').replace('j', 'i')
-                canon_lemma = canonical[norm]
-                pair_cache[l] = batch_result.get(canon_lemma, 0)
-        else:
-            for l in uncached:
-                pair_cache[l] = batch_result.get(l, 0)
-
-        # Headword normalization (same as corpus version)
-        headword_map = _get_headword_map(language)
-        if headword_map:
-            hw_to_fetch = set()
-            for l in uncached:
-                hw = headword_map.get(l)
-                if hw and hw != l and hw not in pair_cache:
-                    hw_to_fetch.add(hw)
-
-            if hw_to_fetch:
-                # Recurse for headwords
-                hw_freqs = _get_text_pair_doc_freqs(list(hw_to_fetch), source_id, target_id, language)
-                for hw, df in hw_freqs.items():
-                    pair_cache[hw] = df
-
-            for l in uncached:
-                hw = headword_map.get(l)
-                if hw and hw != l:
-                    hw_df = pair_cache.get(hw, 0)
-                    pair_cache[l] = max(pair_cache[l], hw_df)
+        _resolve_doc_freqs(uncached, language, pair_cache, raw_cache, fetch)
 
     except Exception as e:
         logger.error(f"[TEXT PAIR IDF] Batch query failed for {source_id}/{target_id}: {e}")
@@ -2150,74 +2137,24 @@ def _get_headword_map(language='la'):
 def _get_corpus_doc_freqs(lemmas, language='la'):
     """Batch-fetch corpus-wide document frequencies, with caching.
 
-    Reuses get_document_frequencies_batch() from hapax.py which queries the
-    inverted index (la_index.db / grc_index.db). The hapax function handles
-    u/v expansion internally for Latin.
+    Reuses get_document_frequencies_batch() from hapax.py, which queries the
+    inverted index. The value of a lemma depends on the lemma alone (see
+    _resolve_doc_freqs): the order of the lemmas, the way they are split
+    across calls and the searches made earlier do not change it.
 
-    IMPORTANT: For Latin, deduplicates u/v variants before batch querying
-    to avoid a collision bug in get_document_frequencies_batch where the
-    expanded_map overwrites entries when two input lemmas are u/v variants
-    of each other (e.g., querying {'uero', 'vero'} causes 'uero' → df=0).
+    The headword rule: "quem" (df=164) with headword "qui" (df=1426) takes
+    1426, so oblique forms of ultra-common words do not escape rarity
+    penalties.
 
-    Returns dict: lemma → document count (0 if not found).
+    Returns dict: lemma -> document count (0 if not found).
     """
-    uncached = [l for l in lemmas if l not in _corpus_doc_freq_cache]
-    if uncached:
+    def fetch(forms):
         from backend.blueprints.hapax import get_document_frequencies_batch
+        return get_document_frequencies_batch(forms, language)
 
-        if language == 'la':
-            # Deduplicate u/v variants: keep only one canonical form per
-            # variant group. Map all variants back to the same DF result.
-            canonical = {}  # u-normalized form → first lemma seen
-            query_set = set()
-            for l in uncached:
-                norm = l.replace('v', 'u').replace('j', 'i')
-                if norm not in canonical:
-                    canonical[norm] = l
-                    query_set.add(l)
-                # else: l is a u/v variant of an already-queued lemma
-
-            batch_result = get_document_frequencies_batch(query_set, language)
-
-            # Populate cache for all uncached lemmas, including variants
-            for l in uncached:
-                norm = l.replace('v', 'u').replace('j', 'i')
-                canon_lemma = canonical[norm]
-                _corpus_doc_freq_cache[l] = batch_result.get(canon_lemma, 0)
-        else:
-            batch_result = get_document_frequencies_batch(set(uncached), language)
-            for l in uncached:
-                _corpus_doc_freq_cache[l] = batch_result.get(l, 0)
-
-        # Headword normalization: for each lemma, check if its dictionary
-        # headword has a higher document frequency. This catches oblique
-        # forms of ultra-common function words that appear rare in the
-        # inverted index because they're stored under inflected forms:
-        #   "quem" (df=164) → headword "qui" (df=1426) → use 1426
-        #   "quos" (df=8)   → headword "qui" (df=1426) → use 1426
-        # Without this, these forms escape rarity penalties entirely.
-        headword_map = _get_headword_map(language)
-        if headword_map:
-            # Collect headwords that need df lookup but aren't cached yet
-            hw_to_fetch = set()
-            for l in uncached:
-                hw = headword_map.get(l)
-                if hw and hw != l and hw not in _corpus_doc_freq_cache:
-                    hw_to_fetch.add(hw)
-
-            if hw_to_fetch:
-                hw_batch = get_document_frequencies_batch(hw_to_fetch, language)
-                for hw in hw_to_fetch:
-                    _corpus_doc_freq_cache[hw] = hw_batch.get(hw, 0)
-
-            # Apply max(lemma_df, headword_df) normalization
-            for l in uncached:
-                hw = headword_map.get(l)
-                if hw and hw != l:
-                    hw_df = _corpus_doc_freq_cache.get(hw, 0)
-                    _corpus_doc_freq_cache[l] = max(_corpus_doc_freq_cache[l], hw_df)
-
-    return {l: _corpus_doc_freq_cache.get(l, 0) for l in lemmas}
+    return _resolve_doc_freqs(lemmas, language, _corpus_doc_freq_cache,
+                              _corpus_raw_df_cache, fetch,
+                              key=lambda l: (language, l))
 
 
 def _get_total_texts(language='la'):
