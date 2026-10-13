@@ -283,6 +283,11 @@ def expand_mqdq_pattern(pattern, meter_code):
     
     Latin hexameter structure: 6 feet, but MQDQ only encodes feet 1-4 (variable feet).
     Foot 5 is almost always a dactyl (–∪∪), foot 6 is always –× (adonic ending).
+
+    A pattern with any other letter (the database holds 205 lines whose
+    pattern is the text "not scanned") returns None, so the callers fall back
+    to the stored scansion. Dropping the letter would shorten the pattern and
+    pass a wrong scansion off as a real one. Spaces are ignored.
     """
     if not pattern:
         return None
@@ -301,8 +306,13 @@ def expand_mqdq_pattern(pattern, meter_code):
             expanded += '∪'
         elif char == 'X' or char == 'x':
             expanded += '×'  # Anceps
-        # Ignore other characters
-    
+        elif char.isspace():
+            continue
+        else:
+            return None
+    if not expanded:
+        return None
+
     # For hexameters, MQDQ patterns only encode feet 1-4
     # Add the 5th foot (dactyl –∪∪) and 6th foot (–×) to complete the adonic ending
     if meter_code == 'H':

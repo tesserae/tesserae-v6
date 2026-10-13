@@ -52,7 +52,11 @@ def table(monkeypatch):
     ('U-ux=', 'X', '∪–∪×–'),              # every letter code in one string
     ('DSDS', 'X', '–∪∪–––∪∪––'),          # other meters get no completion
     ('DDDDDD', 'H', '–∪∪–∪∪–∪∪–∪∪–∪∪–∪∪×'),   # long code: only a final anceps added
-    ('xyz', 'H', '×'),                    # 'x' is anceps, 'y' and 'z' are ignored; it already ends in anceps so nothing is added (odd for a hexameter, harmless)
+    ('xyz', 'H', None),                   # 'y' and 'z' are not codes: no pattern, so the caller uses the stored scansion
+    ('DDQDDD', 'H', None),                # one unknown letter among known ones: no pattern, never a shortened one
+    ('not scanned', 'H', None),           # the text the database holds for 205 unscanned lines
+    ('D S', 'P', '–∪∪––'),                # spaces are ignored
+    ('   ', 'H', None),
     ('', 'H', None),
     (None, 'H', None),
 ])
