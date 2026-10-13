@@ -3,9 +3,6 @@
     "no-empty": {
       "count": 1
     },
-    "no-undef": {
-      "count": 1
-    },
     "no-unused-vars": {
       "count": 4
     }
@@ -91,11 +88,6 @@
   "client/src/components/layout/Header.jsx": {
     "no-unused-vars": {
       "count": 5
-    }
-  },
-  "client/src/components/layout/Navigation.jsx": {
-    "react-hooks/rules-of-hooks": {
-      "count": 1
     }
   },
   "client/src/components/pages/HelpPage.jsx": {

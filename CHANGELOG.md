@@ -9,6 +9,9 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-12
 
+### Three faults the new linters found, fixed
+The header's Suggest a change button sends an event whose handler called a setter that no longer existed after the footer's removal earlier today, so the button did nothing from the early afternoon until this fix; the dialog now lives at the top of the app again. The navigation bar ran one of its hooks after an early return for the admin-only menu, against React's rule that hooks run in the same order every render; the early return moved below the hooks. The Reader's Scholarship tab lookup appended to a list that was never defined, which would have failed with an error whenever CORE ran without its key; the list is defined and returned. Each fault's entry is removed from the linters' baselines, and a test covers each.
+
 ### A recorded check that a change left the site's answers the same
 `scripts/review/golden_api.py` sends about seventy requests (Line Search in three languages, fusion search, rare words and pairs, Theme Search, Similar Passages, the Reader, documents, coins, objects, events, the corpus lists) to a server and compares the answers with a recording made earlier. It runs against a preview of a branch before a merge and against the live site after a deploy. The steps are in `scripts/review/README_GOLDEN.md`. No site behaviour changes.
 ### Linters pinned to the code as it stands

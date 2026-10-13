@@ -9,7 +9,7 @@ import RareResultsDisplay from './components/search/RareResultsDisplay';
 import StartHere from './components/search/StartHere';
 import { addressHasQuery, FRONT_DOOR_OPEN_EVENT } from './components/search/frontDoor';
 import ScopeBox from './components/common/ScopeBox';
-import { Modal, LoadingSpinner, UpdateBanner } from './components/common';
+import { Modal, LoadingSpinner, UpdateBanner, RequestDialog } from './components/common';
 import { CorpusBrowser, RareWordsExplorer } from './components/corpus';
 import { ReaderPage } from './components/reader';
 import DocumentView from './components/documents/DocumentView';
@@ -169,8 +169,13 @@ const buildShareableUrl = (sourceText, targetText, sourceAuthor, targetAuthor, l
 
 function App() {
   const [user, setUser] = useState(null);
+  // The header's Suggest a change button sends this event; the dialog it
+  // opens lives here. The setter it called was lost with the footer on
+  // 2026-10-12, so the button did nothing for an afternoon; the linter's
+  // no-undef found it.
+  const [suggestOpen, setSuggestOpen] = useState(false);
   useEffect(() => {
-    const open = () => setFooterSuggestOpen(true);
+    const open = () => setSuggestOpen(true);
     window.addEventListener('tesserae:open-suggest', open);
     return () => window.removeEventListener('tesserae:open-suggest', open);
   }, []);
@@ -1576,6 +1581,7 @@ function App() {
         </div>
       </footer>
 
+      <RequestDialog isOpen={suggestOpen} onClose={() => setSuggestOpen(false)} type="suggestion" />
       <AssistantDock />
     </div>
   );
