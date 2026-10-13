@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react';
 import { LoadingSpinner } from '../common';
 import ScopeBox from '../common/ScopeBox';
+import CiteRecordButton from '../common/CiteRecordButton';
+import CiteAll from '../common/CiteAll';
+import { recordFrom } from '../../utils/citations';
 import { RECENT_SERVICES, RECENT_LABELS, joinNames, mergeRecent, recentUrl, fetchRecent } from '../../utils/recentArticles';
 
 /**
@@ -50,6 +53,7 @@ function RecentArticles({ recent }) {
                   {meta && <span className="text-gray-600">{`, ${meta}`}</span>}
                   {it.oa_url && <span className="ml-1 rounded bg-gray-100 px-1 text-[11px] text-gray-500">free copy</span>}
                   {it.excerpt && <span className="block text-xs text-gray-500">{it.excerpt}</span>}
+                  <span className="block text-xs mt-0.5"><CiteRecordButton record={recordFrom(it, 'recent')} /></span>
                 </li>
               );
             })}
@@ -105,10 +109,14 @@ export default function ThemeScholarship({ search }) {
   }
   if (data.unavailable) return <p className="mt-4 text-sm text-gray-600">{data.error}</p>;
   const results = data.results || [];
+  const allRecords = [...results.map((m) => recordFrom(m, 'card')), ...(recent?.items || []).map((it) => recordFrom(it, 'recent'))];
   return (
     <div className="mt-4" data-testid="theme-scholarship">
       <p className="text-xs text-gray-500" data-testid="theme-scholarship-label">{data.label}</p>
       <ScopeBox id="scholarship_theme" className="mt-2" />
+      <div className="mt-1 text-right">
+        <CiteAll records={allRecords} name={search.q} />
+      </div>
       <ul className="mt-2 space-y-2">
         {results.map((m) => (
           <li key={m.id} className="bg-white border border-gray-200 rounded-lg p-3" data-testid="scholarship-match">
@@ -116,13 +124,15 @@ export default function ThemeScholarship({ search }) {
             {m.kind === 'article' && m.title && <p className="text-sm italic text-gray-700">{m.title}</p>}
             <p className="text-sm text-gray-900 mt-0.5">{m.snippet}</p>
             {m.link && (
-              <p className="text-xs mt-1">
+              <p className="text-xs mt-1 flex flex-wrap gap-x-3">
                 <a href={m.link.url} className="text-red-700 hover:underline"
                    {...(m.link.kind === 'jstor' ? { target: '_blank', rel: 'noopener noreferrer' } : {})}>
                   {linkText(m.link)}
                 </a>
+                <CiteRecordButton record={recordFrom(m, 'card')} />
               </p>
             )}
+            {!m.link && <p className="text-xs mt-1"><CiteRecordButton record={recordFrom(m, 'card')} /></p>}
           </li>
         ))}
       </ul>

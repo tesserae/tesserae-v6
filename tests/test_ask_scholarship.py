@@ -221,3 +221,16 @@ def test_holdings_count_is_everything_the_services_listed_not_only_what_the_para
     _fake_services(monkeypatch, {'openalex': {'service': 'openalex', 'available': True, 'results': items, 'reason': ''}})
     out = _post({'question': 'Dido in love', 'work': 'vergil.aeneid', 'lang': 'la'})
     assert '6 articles' in out['holdings'] and len(out['recent']) == 4
+
+
+def test_cites_carry_the_fields_a_citation_needs(monkeypatch):
+    calls = []
+    _setup(monkeypatch, [note('vergil.aeneid.part.4'), article('On Virgil', 'Virgil at length')], calls)
+    out = _post({'question': 'Dido in love', 'work': 'vergil.aeneid', 'lang': 'la'})
+    for c in out['cites']:
+        assert {'n', 'kind', 'label', 'link'} <= set(c)
+        for k in ('title', 'authors', 'year', 'journal', 'venue', 'doi', 'url', 'oa_url',
+                  'commentator', 'work', 'ref_start', 'ref_end'):
+            assert k in c
+    assert out['cites'][0]['commentator'] == 'Servius'
+    assert out['cites'][1]['title'] == 'On Virgil'

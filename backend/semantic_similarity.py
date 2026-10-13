@@ -29,6 +29,8 @@ Citation:
 """
 
 import os
+
+from backend import fspaths
 import numpy as np
 from collections import defaultdict
 from typing import List, Dict, Tuple, Optional
@@ -136,11 +138,11 @@ def _rows_for_units(text_path, language, units):
         import json
         from backend.embedding_storage import get_metadata_path
         mp = get_metadata_path(text_path, language)
-        if not os.path.exists(mp):
+        if not fspaths.exists(mp):
             return None
         refs = _META_REFS_CACHE.get(mp)
         if refs is None:
-            with open(mp, encoding='utf-8') as f:
+            with fspaths.open_text(mp, encoding='utf-8') as f:
                 refs = json.load(f).get('line_refs') or []
             _META_REFS_CACHE[mp] = refs
         pos = {r: i for i, r in enumerate(refs)}
@@ -181,10 +183,10 @@ def _gather_by_ref(units, language):
             fake_path = os.path.join('texts', language, stem + '.tess')
             arr = load_embeddings(fake_path, language)
             mp = get_metadata_path(fake_path, language)
-            if arr is None or not os.path.exists(mp):
+            if arr is None or not fspaths.exists(mp):
                 return None
             import json
-            with open(mp, encoding='utf-8') as f:
+            with fspaths.open_text(mp, encoding='utf-8') as f:
                 refs = json.load(f).get('line_refs') or []
             ent = (arr, {r: i for i, r in enumerate(refs)})
             _GATHER_CACHE[key] = ent

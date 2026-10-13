@@ -16,6 +16,8 @@ Fast channels (lemma, exact) run first, so users see results within seconds.
 from flask import Blueprint, request, Response, jsonify
 from flask_login import current_user
 import os
+
+from backend import fspaths
 import io
 import re
 import math
@@ -978,7 +980,7 @@ def _line_positions(text_path):
         return _LINE_POS_CACHE[text_path]
     book_max = {}
     try:
-        with open(text_path, encoding='utf-8', errors='replace') as f:
+        with fspaths.open_text(text_path, encoding='utf-8', errors='replace') as f:
             for ln in f:
                 m = re.match(r'^\s*<([^>]*)>', ln)
                 nums = [int(x) for x in re.findall(r'\d+', m.group(1))] if m else []

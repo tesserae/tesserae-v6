@@ -472,6 +472,16 @@ def _scholarship_label(c):
     return f"{who} on {c['ref_start']}" if c.get('ref_start') else who
 
 
+_CITE_FIELDS = ('title', 'authors', 'year', 'journal', 'venue', 'doi', 'url', 'oa_url',
+                'commentator', 'work', 'ref_start', 'ref_end')
+
+
+def _cite_fields(card):
+    """The bibliographic fields of a card, so the page can offer a citation
+    for each bracketed number. Additive to the cite's n, kind, label, link."""
+    return {k: card.get(k) for k in _CITE_FIELDS}
+
+
 def _recent_clause(question, n_recent, n_failed):
     """(clause for the first sentence, extra sentence). Items found: the found
     clause, and a separate sentence when some service also failed. None found:
@@ -589,7 +599,7 @@ def ask_scholarship():
         return jsonify(dict(base, available=False, error='the model could not answer'))
     used = sorted({int(n) for n in re.findall(r'\[(\d+)\]', text) if 1 <= int(n) <= len(cards)})
     cites = [{'n': n, 'kind': cards[n - 1].get('kind'), 'label': _scholarship_label(cards[n - 1]),
-              'link': cards[n - 1].get('link')} for n in used]
+              'link': cards[n - 1].get('link'), **_cite_fields(cards[n - 1])} for n in used]
     return jsonify(dict(base, available=True, summary=text, cites=cites, kept=len(cards)))
 
 
