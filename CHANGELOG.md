@@ -8,6 +8,14 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-13
+- Confucius Sinarum philosophus: 40 continuation lines of part 2 (and of the whole file) that carried no tag, so the parser dropped them, are joined onto the tagged heading or paragraph they belong to. No reference changes. `scripts/corpus/join_continuation_lines.py` does it for any file.
+- Libanius: the three declamation parts and the three oration parts are renamed to `libanius.declamations.part.N` and `libanius.orations.part.N`, so the whole files and their parts share a base name and corpus-wide counts no longer treat them as two works. The keyed names in `data/text_descriptions.json` and `backend/citations/` follow.
+- Salutati, De laboribus Herculis: the 97 chapter-sized units (median 1,233 words) are cut into 1,450 paragraph units of about 97 words, numbered `chapter.paragraph` on top of the old reference (1.1 becomes 1.1.1). De tyranno already has units of 111 words and is unchanged. `scripts/corpus/resegment_paragraphs.py`.
+- Septuagint Lamentations: the sentence that introduces the book before 1.1 ("And it came to pass, after Israel was taken captive...") is added as reference `1.head`, the form Isaiah 32 uses for a heading line.
+- `scripts/build_window_texts.py --work ID --db COPY` rebuilds one work's stored passage text and line rows in a copy of `window_texts.db` and touches no other row. A window whose own references are partly absent from the file now gets the lines that are present.
+- `scripts/corpus/build_batch_windows.py --min-lines N` lowers the four-line floor for windows, so a one-to-three line poem can have a window of its own.
+- Cicero's Verrines are renamed from `cicero.divinatio_in_c_verrem` to `cicero.in_verrem` (the whole file and six parts, which hold Actio prima and the five books of Actio secunda). The description now describes the Verrines, and the source rows and keyed names follow. The Divinatio in Caecilium was already in the corpus as `cicero.divinatio_in_q_caecilium`.
+- `scripts/corpus/scan_opening_lines.py`: the read-only duplicate scan by opening words, kept as a script.
 - Save Parallel works again for a row from an Intertextual Search: the dialog read the row's channels as one string, as a cross-language card sends them, while a search row sends a list of names, so every such save failed with ".split is not a function". The channel names are now saved as tags either way. Found by the render recording made for the front-end split.
 - The Navigation view test expects the History menu order #881 set (Search One Text, then Read, then Events); it had failed on main since that change.
 
