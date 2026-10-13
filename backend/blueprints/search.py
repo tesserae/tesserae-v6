@@ -31,6 +31,7 @@ from flask_login import current_user
 import os
 import json
 import time
+from dataclasses import dataclass
 from backend.utils import resolve_text_path, format_short_locus
 
 from backend.logging_config import get_logger
@@ -1326,29 +1327,26 @@ def _crosslingual_fusion_core(params, source_units, target_units, settings,
     return merged_out
 
 
-def _direct_crosslingual_core(params, source_units, target_units, settings,
-                              cancellation=None, req_meta=None):
-    """Multi-channel cross-lingual fusion: semantic + dictionary + syntax + phonetic.
+@dataclass
+class CrossSettings:
+    """The settings and the language pair of one cross-language search."""
+    source_id: str
+    target_id: str
+    language: str
+    source_language: str
+    target_language: str
+    min_matches: int
+    crosslingual_min_lemma_matches: int
+    crosslingual_lemma_gate: str
+    crosslingual_penalty_factor: float
+    lang_pair: frozenset
+    is_greek_latin: bool
+    has_english: bool
+    is_coptic_greek: bool
 
-    Supports Greek-Latin, Latin-English, Greek-English, and (as the direct,
-    non-pivoted route) Hebrew-Greek pairs.
-    Phonetic channel (Greek-Latin only): transliterates Greek → Latin alphabet,
-    then runs token-level edit distance to catch phonetic echoes (e.g. μῆνιν/mene).
-    Runs all applicable channels, merges by (source_idx, target_idx), and
-    applies a convergence bonus when multiple channels fire on the same pair.
 
-    Request-free: returns a plain dict (never a Flask response), so it can run
-    both inside an HTTP request (via :func:`_handle_crosslingual_fusion`) and in
-    a background poll thread (via the crosslingual-search-poll endpoint).
-    ``req_meta`` is an optional (user_id, city, country, ip) tuple for search
-    logging; it defaults to all-None when no request context is available.
-    """
-    import math
-    from backend.semantic_similarity import find_crosslingual_matches
-
-    if cancellation:
-        cancellation.check()
-
+def _cross_settings(params, settings):
+    """Read the ids, languages and lemma-gate settings of a cross-language search."""
     source_id = params['source_id']
     target_id = params['target_id']
     language = params['language']
@@ -1376,13 +1374,36 @@ def _direct_crosslingual_core(params, source_units, target_units, settings,
         crosslingual_lemma_gate = 'exclude'
 
     lang_pair = frozenset((source_language, target_language))
+    is_greek_latin = lang_pair == frozenset(('grc', 'la'))
+    has_english = 'en' in lang_pair
+    is_coptic_greek = lang_pair == frozenset(('cop', 'grc'))
+    return CrossSettings(
+        source_id=source_id, target_id=target_id, language=language,
+        source_language=source_language, target_language=target_language,
+        min_matches=min_matches,
+        crosslingual_min_lemma_matches=crosslingual_min_lemma_matches,
+        crosslingual_lemma_gate=crosslingual_lemma_gate,
+        crosslingual_penalty_factor=crosslingual_penalty_factor,
+        lang_pair=lang_pair, is_greek_latin=is_greek_latin,
+        has_english=has_english, is_coptic_greek=is_coptic_greek)
+
+
+def _check_pair(cs):
+    """Return the unsupported-pair error, or None when the pair is supported."""
+    source_language = cs.source_language
+    target_language = cs.target_language
+    lang_pair = cs.lang_pair
     if lang_pair not in VALID_CROSSLINGUAL_PAIRS:
         return {"error": f"Unsupported cross-lingual pair: {source_language} -> {target_language}. "
                 f"Supported: grc-la, la-en, grc-en"}
+    return None
 
-    is_greek_latin = lang_pair == frozenset(('grc', 'la'))
-    has_english = 'en' in lang_pair
 
+def _semantic_channel(source_units, target_units, cs, settings, cancellation):
+    """Channel 1: SPhilBERTa cosine, indexed by (source_idx, target_idx)."""
+    from backend.semantic_similarity import find_crosslingual_matches
+    source_language = cs.source_language
+    target_language = cs.target_language
     # --- Channel 1: Semantic (SPhilBERTa cosine) ---
     sem_settings = {**settings, 'max_results': 2000, 'semantic_top_n': 20}
     sem_matches, _ = find_crosslingual_matches(
@@ -1396,14 +1417,27 @@ def _direct_crosslingual_core(params, source_units, target_units, settings,
             cancellation.check()
         key = (m['source_idx'], m['target_idx'])
         sem_by_pair[key] = m.get('semantic_score', 0.0)
+    return sem_by_pair
 
+
+def _dictionary_channel(source_units, target_units, cs, cancellation):
+    """Channel 2: dictionary pairs, dispatched by language pair."""
+    source_language = cs.source_language
+    target_language = cs.target_language
     # --- Channel 2: Dictionary (dispatched by language pair) ---
     logger.info("Running fast dictionary matching...")
     dict_by_pair = _find_dictionary_matches_fast(
         source_units, target_units,
         source_language, target_language, cancellation)
     logger.info(f"Dictionary found {len(dict_by_pair)} pairs with matches")
+    return dict_by_pair
 
+
+def _recover_semantic(sem_by_pair, dict_by_pair, source_units, target_units, cs, settings, cancellation):
+    """Give dictionary-only pairs their cosine from the pre-computed embeddings (adds to sem_by_pair)."""
+    source_language = cs.source_language
+    target_language = cs.target_language
+    lang_pair = cs.lang_pair
     # --- Semantic recovery for dictionary-only pairs ---
     # Dictionary pairs not found by the semantic channel (filtered by top-N cap)
     # get their actual cosine looked up from pre-computed embeddings.
@@ -1451,6 +1485,12 @@ def _direct_crosslingual_core(params, source_units, target_units, settings,
         except Exception as e:
             logger.error(f"Semantic recovery failed: {e}")
 
+
+def _local_idf(source_units, target_units, cs, cancellation):
+    """Local IDF over the source and target lines: returns (calc_idf, source_needs_accent_strip, target_needs_accent_strip)."""
+    import math
+    source_language = cs.source_language
+    target_language = cs.target_language
     # --- Local IDF from source+target texts (avoids slow corpus freq lookup) ---
     import unicodedata
     def strip_accents(s):
@@ -1487,7 +1527,16 @@ def _direct_crosslingual_core(params, source_units, target_units, settings,
         key = strip_accents(lemma) if needs_accent_strip else lemma.lower()
         df = doc_freq.get(key, 1)
         return math.log((total_docs + 1) / (df + 1)) + 1
+    return calc_idf, source_needs_accent_strip, target_needs_accent_strip
 
+
+def _syntax_channel(source_units, target_units, cs, cancellation):
+    """Channel 3: UD dependency patterns at shared lemma positions (skipped for English)."""
+    source_id = cs.source_id
+    target_id = cs.target_id
+    source_language = cs.source_language
+    target_language = cs.target_language
+    has_english = cs.has_english
     # Build ref->index maps for syntax channel
     src_ref_to_idx = {u.get('ref', ''): i for i, u in enumerate(source_units)}
     tgt_ref_to_idx = {u.get('ref', ''): i for i, u in enumerate(target_units)}
@@ -1530,14 +1579,21 @@ def _direct_crosslingual_core(params, source_units, target_units, settings,
             raise
         except Exception as e:
             logger.error(f"Syntax channel failed (may not have syntax DB): {e}")
+    return syntax_by_pair
 
+
+def _phonetic_channel(source_units, target_units, cs, cancellation):
+    """Channel 4: phonetic echoes by transliteration (Greek-Latin and Coptic-Greek)."""
+    source_language = cs.source_language
+    target_language = cs.target_language
+    is_greek_latin = cs.is_greek_latin
+    is_coptic_greek = cs.is_coptic_greek
     # --- Channel 4: Cross-lingual phonetic (transliteration + edit distance) ---
     # Greek-Latin: transliterate Greek → Latin alphabet, then compare tokens
     # by edit distance to catch phonetic echoes (e.g. μῆνιν / mene).
     # Coptic-Greek: transliterate Coptic → Greek alphabet, same idea — most
     # Coptic letters map identically to Greek, only 7 are Coptic-specific.
     phonetic_by_pair = {}
-    is_coptic_greek = lang_pair == frozenset(('cop', 'grc'))
     if is_greek_latin:
         try:
             from backend.matcher import find_crosslingual_phonetic_matches
@@ -1561,12 +1617,14 @@ def _direct_crosslingual_core(params, source_units, target_units, settings,
             logger.info(f"Phonetic (cop-grc) found {len(phonetic_by_pair)} pairs with transliteration matches")
         except Exception as e:
             logger.error(f"Phonetic (cop-grc) channel failed: {e}")
+    return phonetic_by_pair
 
-    # --- Merge ---
-    # Phonetic alone is too noisy (thousands of false positives from short-word
-    # coincidences).  Only include phonetic pairs that also have semantic,
-    # dictionary, or syntax support.  Semantic recovery above ensures phonetic
-    # pairs with cosine > 0.4 get sem_by_pair entries, so they participate.
+
+def _form_channel(source_units, target_units, cs, settings, cancellation):
+    """Persian-Urdu refrain-and-rhyme poem pairs."""
+    source_language = cs.source_language
+    target_language = cs.target_language
+    lang_pair = cs.lang_pair
     # --- Refrain and rhyme across Persian and Urdu (2026-10-07) ---
     # A poem pair sharing refrain and rhyme in the shared letter forms
     # (backend/poetics.find_cross_form_matches). It enters the fusion on its own,
@@ -1587,7 +1645,16 @@ def _direct_crosslingual_core(params, source_units, target_units, settings,
             raise
         except Exception as e:
             logger.error(f"Cross form channel failed: {e}")
+    return form_by_pair
 
+
+def _merge_keys(sem_by_pair, dict_by_pair, syntax_by_pair, form_by_pair, settings):
+    """The union of pair keys and the channel weights."""
+    # --- Merge ---
+    # Phonetic alone is too noisy (thousands of false positives from short-word
+    # coincidences).  Only include phonetic pairs that also have semantic,
+    # dictionary, or syntax support.  Semantic recovery above ensures phonetic
+    # pairs with cosine > 0.4 get sem_by_pair entries, so they participate.
     all_keys = (set(sem_by_pair.keys()) | set(dict_by_pair.keys()) | set(syntax_by_pair.keys())
                 | set(form_by_pair.keys()))
 
@@ -1613,6 +1680,24 @@ def _direct_crosslingual_core(params, source_units, target_units, settings,
     # a common form is discounted inside form_score already. Only ten such poem
     # pairs exist across the whole Persian and Urdu corpora (2026-10-07).
     FORM_WEIGHT = 5.0
+    return (all_keys, SEMANTIC_WEIGHT, DICTIONARY_WEIGHT, SYNTAX_WEIGHT, PHONETIC_WEIGHT,
+            RUN_WEIGHT, CONVERGENCE_BONUS, FORM_WEIGHT)
+
+
+def _fuse_pairs(merged, sem_by_pair, dict_by_pair, syntax_by_pair, phonetic_by_pair, form_by_pair,
+                idf, source_units, target_units, cs, cancellation):
+    """Fuse the channels pair by pair into scored result rows (the loop, unsorted and uncapped)."""
+    import math
+    (all_keys, SEMANTIC_WEIGHT, DICTIONARY_WEIGHT, SYNTAX_WEIGHT, PHONETIC_WEIGHT,
+     RUN_WEIGHT, CONVERGENCE_BONUS, FORM_WEIGHT) = merged
+    calc_idf, source_needs_accent_strip, target_needs_accent_strip = idf
+    source_language = cs.source_language
+    target_language = cs.target_language
+    min_matches = cs.min_matches
+    crosslingual_min_lemma_matches = cs.crosslingual_min_lemma_matches
+    crosslingual_lemma_gate = cs.crosslingual_lemma_gate
+    crosslingual_penalty_factor = cs.crosslingual_penalty_factor
+    is_greek_latin = cs.is_greek_latin
 
     fused = []
     for key in all_keys:
@@ -1880,12 +1965,55 @@ def _direct_crosslingual_core(params, source_units, target_units, settings,
                 'form_score': form_match['form_score'],
             }} if has_form else {}),
         })
+    return fused
 
+
+def _cap(fused, settings):
+    """Sort by score, highest first, and keep the first max_results."""
     fused.sort(key=lambda x: x['overall_score'], reverse=True)
 
     max_results = settings.get('max_results', 500)
     if max_results > 0:
         fused = fused[:max_results]
+    return fused
+
+
+def _direct_crosslingual_core(params, source_units, target_units, settings,
+                              cancellation=None, req_meta=None):
+    """Multi-channel cross-lingual fusion: semantic + dictionary + syntax + phonetic.
+
+    Supports Greek-Latin, Latin-English, Greek-English, and (as the direct,
+    non-pivoted route) Hebrew-Greek pairs.
+    Phonetic channel (Greek-Latin only): transliterates Greek → Latin alphabet,
+    then runs token-level edit distance to catch phonetic echoes (e.g. μῆνιν/mene).
+    Runs all applicable channels, merges by (source_idx, target_idx), and
+    applies a convergence bonus when multiple channels fire on the same pair.
+
+    Request-free: returns a plain dict (never a Flask response), so it can run
+    both inside an HTTP request (via :func:`_handle_crosslingual_fusion`) and in
+    a background poll thread (via the crosslingual-search-poll endpoint).
+    ``req_meta`` is an optional (user_id, city, country, ip) tuple for search
+    logging; it defaults to all-None when no request context is available.
+    """
+    if cancellation:
+        cancellation.check()
+
+    cs = _cross_settings(params, settings)
+    unsupported = _check_pair(cs)
+    if unsupported is not None:
+        return unsupported
+
+    sem_by_pair = _semantic_channel(source_units, target_units, cs, settings, cancellation)
+    dict_by_pair = _dictionary_channel(source_units, target_units, cs, cancellation)
+    _recover_semantic(sem_by_pair, dict_by_pair, source_units, target_units, cs, settings, cancellation)
+    idf = _local_idf(source_units, target_units, cs, cancellation)
+    syntax_by_pair = _syntax_channel(source_units, target_units, cs, cancellation)
+    phonetic_by_pair = _phonetic_channel(source_units, target_units, cs, cancellation)
+    form_by_pair = _form_channel(source_units, target_units, cs, settings, cancellation)
+    merged = _merge_keys(sem_by_pair, dict_by_pair, syntax_by_pair, form_by_pair, settings)
+    fused = _fuse_pairs(merged, sem_by_pair, dict_by_pair, syntax_by_pair, phonetic_by_pair, form_by_pair,
+                        idf, source_units, target_units, cs, cancellation)
+    fused = _cap(fused, settings)
 
     logger.info(f"Cross-lingual fusion: {len(fused)} results "
           f"({len(sem_by_pair)} semantic, {len(dict_by_pair)} dictionary, "
@@ -1895,7 +2023,7 @@ def _direct_crosslingual_core(params, source_units, target_units, settings,
     req_user_id, req_city, req_country, req_ip = req_meta or (None, None, None, None)
 
     return _finalize_results(fused, source_units, target_units,
-                             0, settings, source_id, target_id, language,
+                             0, settings, cs.source_id, cs.target_id, cs.language,
                              req_user_id, req_city, req_country, req_ip)
 
 
