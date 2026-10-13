@@ -35,6 +35,16 @@ Conventions
   hand and are the models the helper matches.
 
 
+## 2026-10-13 English cross-language embeddings installed as `en_cross` (STAGED, install steps drafted, the date of the run to be entered)
+- What: the 164 files `backend/embeddings/en_cross/<work>.npy` and `.meta.json` (float32 with 768 columns, one row per `.tess` line in file order), built with bowphs/SPhilBerta on one GPU of the campus cluster (181,515 lines, 72 seconds, hashes checked, input and upload folders deleted afterwards). Staged at `~/tesserae-backups/english_embeddings_sphilberta_2026-10-13/en/`. The monolingual set `backend/embeddings/en/` (MiniLM) is not touched and stays in service for English-English search.
+- Checks made before staging. All 164 files are present. Each has the row count `parse_tess_file` returns for its text, 768 columns and no NaN. A line's cosine with itself is 1.0 and with an unrelated line well below 0.9. Thirteen files that still existed from the March 2026 CPU build match at cosine 1.0000.
+- Install steps (run by the deploy user on the live server after the pull request is merged and deployed, the date entered here when run):
+  1. `mkdir backend/embeddings/en_cross` and copy the staged files in: `cp -p ~/tesserae-backups/english_embeddings_sphilberta_2026-10-13/en/* backend/embeddings/en_cross/` (mode 664, group tessdev).
+  2. `touch tesseraev6_flask.wsgi`. The hold on the two English pairs lifts itself when the folder holds a file, so no code change is needed.
+  3. Check `/api/languages` (`crosslingual_held` empty, `la-en` and `grc-en` listed), run one Latin-English and one Greek-English search, and one English-English fusion search (it must read as before).
+  4. Re-record the golden `languages` request (it differs only by the lifted hold).
+- Rollback: remove the files from `backend/embeddings/en_cross/` (the folder may stay empty) and touch the wsgi file. The hold returns.
+
 ## 2026-10-13 Translation file installed: Saadi's Gulistan, Eastwick 1880 (RUN 07:41)
 - What: `data/translations/fa__saadi.diwan.json`, built by
   `scripts/translations/align_saadi_gulistan_eastwick.py` (this pull request)

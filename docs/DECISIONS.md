@@ -8,6 +8,34 @@ history (index builds, cache rebuilds, corpus changes) is in
 `DATA_OPERATIONS.md`; per-release changes are in `../CHANGELOG.md`.
 
 
+## 2026-10-13: English has two sets of line embeddings, and the English cross-language pairs are tuned on a Milton probe set
+- Scope: `backend/embeddings/en` (MiniLM, 384 dimensions) and `backend/embeddings/en_cross` (SPhilBERTa, 768), `backend/semantic_similarity.py`, `backend/blueprints/search.py` (`ENGLISH_CROSS_SETTINGS`), `evaluation/benchmarks/milton_classical_probe.json`.
+- Decision, two sets. English-English search keeps the MiniLM files, so nothing changes for it (the same pair of English texts returns identical rows before and after, checked on Adonais and Lycidas). The cross-language semantic channel and its recovery step read English from `en_cross`, in the SPhilBERTa space that Latin and Greek already share. `model_name_for('en')` returns MiniLM, which is what the English files hold, and `cross_model_name_for` returns SPhilBERTa for Latin, Greek and English. The admin builders use those two functions, so a builder cannot choose a different model from the search. The two English pairs are held while `en_cross` holds no `.npy` file and lift themselves when it does.
+- Why not one set. A single SPhilBERTa set would have changed English-English search: its cosines sit in a narrow high band (median 0.58 to 0.77 on three English pairs, against 0.52) and the monolingual channel's fixed floor of 0.6 would stop selecting. That choice is separate and was not made.
+- The probe set. 24 widely cited borrowings of Paradise Lost from Vergil, Homer and Ovid, as references only, taken from the commentary of the Longman Annotated English Poets edition and the standard studies of Milton's use of Vergil and Homer. Every reference was read against our files. All 24 were kept. Two were fixed (item 10 starts at Paradise Lost 1.619, item 22 gains 9.13 to 19) and one is marked loose (item 9, where the silence is in the Greek only). Metric: the source (Latin or Greek) book is the source and the Paradise Lost book the target, the rank of the first result whose two lines fall inside the item's ranges (one line of slack), from the first 2000 rows. 16 items have a Latin source and 13 a Greek one.
+- Before (the plain settings: two-lemma gate excludes, raw cosine). Latin-English: 1 of 16 items returned at all, recall at 10, 50, 100 of 0, 0, 1. Greek-English: 1 of 13, recall 1, 1, 1. The gate removes every pair without two dictionary hits, which an English translation of a Latin or Greek line rarely has.
+- What was tried, one value at a time from the plain settings (recall at 50 Latin / Greek, items returned Latin / Greek, median rank of the returned items). Nothing moved with the gate on, except the gate itself.
+
+| Lever | Value | Recall at 50 | Returned | Median rank |
+|---|---|---|---|---|
+| plain settings | | 0 / 1 | 1 / 1 | 69 / 5 |
+| lemma gate | penalty | 0 / 1 | 12 / 7 | 203 / 161 |
+| lemma gate | off | 0 / 1 | 12 / 7 | 204 / 147 |
+| semantic_top_n | 50, 100 | 0 / 1 | 1 / 1 | 69 / 5 |
+| semantic max_results | 5000, 20000 | 0 / 1 | 1 / 1 | 69 / 5 |
+| recovery threshold | 0.2, 0.3, 0.5 | 0 / 1 | 1 / 1 | 69 / 4 to 5 |
+| semantic weight | 0.6, 2, 3 | 0 / 1 | 1 / 1 | 69 / 5 |
+| dictionary weight | 1, 3 | 0 / 1 | 1 / 1 | 69 / 5 |
+| translated-run weight | 0, 6 | 0 / 1 | 1 / 1 | 69 / 2 to 5 |
+| early-modern spelling folded | on | 1 / 1 | 2 / 1 | 40 / 5 |
+| hubness correction (CSLS, k 10) | on | 0 / 1 | 1 / 1 | 68 / 4 |
+
+- Combinations, built on the gate change. Gate off or penalty with pure cosine ranking (dictionary weight 0) is worse (recall at 100 of 0 or 1 of 16, median rank 414 to 730). Raising the semantic weight to 2, 3 or 5 returns the same items but lowers their ranks (median 223 to 444 against 158). Lowering the dictionary weight does the same. A bonus for mutual nearest neighbours (two lines that are each other's nearest three) did not help (recall at 100 of 3 and 2, median rank 298 to 415, worse at larger values) and was removed. The adopted combination: gate penalty, early-modern spellings folded, hubness correction with 10 neighbours, every weight and cap unchanged. Around it, top_n 50, recovery 0.3 or 0.5, run weight 0 or 6, penalty factor 0.3 or 0.7, hubness 5 or 20 change nothing or one item.
+- After (adopted settings). Latin-English: 12 of 16 items returned, recall at 10, 50, 100 of 1, 1, 3, median rank of the returned items 158. Greek-English: 8 of 13 returned, recall 1, 1, 3, median rank 166. Counting missing items as beyond the list, the median rank is 245 (Latin) and 904 (Greek) out of 2000 rows. The ceiling is the encoder: for the best line pair of each item the hubness-corrected cosine ranks it in the top hundred of about 600,000 pairs in only 4 of 30 searches, and in the top 2000 in 16.
+- The standard rows read plausibly at the top. Aeneid 1 against Paradise Lost 1 ranks first "exciderant animo: manet alta mente repostum" with "Can perish: for the mind and spirit remains" and has "claudentur Belli portae, Furor impius intus" with "Rais'd impious War in Heav'n". The Iliad 1 list is weaker: swords drawn, the Muse's song and the sea appear, and several rows owe their place to two dictionary words.
+- What was not changed. Greek-Latin, Hebrew, Coptic and Persian-Urdu pairs read the plain values (their recorded rows are identical to the previous code's). The English dictionaries (4,552 Latin-English and 4,971 Greek-English entries) were not enlarged. Folding spellings recovers only elisions and plurals.
+- Open. A fuller English dictionary, a lemmatizer fit for early-modern spelling (it turns "Bees" into "be"), and a better encoder for the cross-language step are the levers left. All are larger than this change.
+
 ## 2026-10-12: written paragraphs keep quoted words in their original script, and the transliteration is made by a table
 - Scope: the Search One Text summary and Scholarship paragraph (and the
   Scholarship list in Theme Search).

@@ -57,10 +57,38 @@ search_bp = Blueprint('search', __name__)
 
 # Valid cross-lingual language pairs (order-independent; both directions supported)
 def _held_reason(source_language, target_language):
-    """The reason a pair is held back from searching (see meta.CROSSLINGUAL_HELD), or None."""
-    from backend.blueprints.meta import CROSSLINGUAL_HELD
-    return (CROSSLINGUAL_HELD.get(f'{source_language}-{target_language}')
-            or CROSSLINGUAL_HELD.get(f'{target_language}-{source_language}'))
+    """The reason a pair is held back from searching (see meta.crosslingual_held), or None."""
+    from backend.blueprints.meta import crosslingual_held
+    held = crosslingual_held()
+    return (held.get(f'{source_language}-{target_language}')
+            or held.get(f'{target_language}-{source_language}'))
+
+
+# Settings read only by the two English cross-language pairs (Latin-English and
+# Greek-English). Every other pair reads the plain values these default to
+# (top 20, 2000, 0.4, gate 'exclude', weights 1.2 / 2.0 / 3.0, no correction).
+# Measured 2026-10-13 on the Milton probe set (evaluation/benchmarks/
+# milton_classical_probe.json, 24 borrowings, recall at 100 of 16 Latin and 13
+# Greek items): with the plain values the two-lemma gate threw out every pair
+# without two dictionary hits, so 1 of 16 and 1 of 13 items were returned at all
+# (recall at 100: 1 and 1). The adopted values return 12 and 8 items (recall at
+# 100: 3 and 3). Table of every value tried: docs/DECISIONS.md.
+ENGLISH_CROSS_SETTINGS = {
+    'semantic_top_n': 20,         # nearest English (or classical) lines kept per source line
+    'semantic_max_results': 2000,  # cap on the semantic channel's pairs
+    'recovery_threshold': 0.4,    # least cosine for a dictionary-only pair to get a semantic score
+    'lemma_gate': 'penalty',      # the two-lemma gate: an English translation rarely shares two dictionary lemmas
+    'semantic_weight': 1.2,
+    'dictionary_weight': 2.0,
+    'run_weight': 3.0,
+    'early_modern_forms': True,   # fold early-modern spellings (chang'd, wolfe, bees) to dictionary headwords
+    'hubness_k': 10,              # hubness-corrected cosine (CSLS, 10 neighbours); 0 = raw cosine
+}
+
+
+def _english_cross(cs, name, default=None):
+    """The value of an English-pair setting for the two English pairs, else `default`."""
+    return ENGLISH_CROSS_SETTINGS[name] if cs is not None and cs.has_english else default
 
 
 VALID_CROSSLINGUAL_PAIRS = {
@@ -863,6 +891,41 @@ def _find_csv_dictionary_matches(source_units, target_units, source_language,
     return dict(results)
 
 
+def _early_modern_forms(word):
+    """Plain forms of an English word as spelled in early-modern verse.
+
+    Elided past endings ("chang'd", "hurld", "assayd"), the participle "fall'n",
+    a final silent e ("wolfe", "traine") and the plural of the lemmatizer's
+    failures ("bees" lemmatised to "be") are folded to the headword the
+    Latin-English and Greek-English dictionaries hold. Returns the extra
+    forms to index, not the word itself.
+    """
+    out = set()
+    w = word.strip("'")
+    if len(w) < 4:
+        return out
+    base = None
+    if w.endswith("'d") or w.endswith("'n"):
+        base = w[:-2]
+    elif w.endswith('ld') or w.endswith('rd'):
+        base = w[:-1]                    # hurld -> hurl
+    elif w.endswith('yd'):
+        base = w[:-1]                    # assayd -> assay
+    if base and len(base) >= 3:
+        out.add(base)
+        out.add(base + 'e')              # chang'd -> change
+    if w.endswith('ie') and len(w) >= 4:
+        out.add(w[:-2] + 'y')            # flie -> fly
+    if w.endswith('e') and len(w) > 4 and w[-2] not in 'aeiou':
+        out.add(w[:-1])                  # wolfe -> wolf, traine -> train
+    if w.endswith('ne') and len(w) > 5:
+        out.add(w[:-1])
+    if w.endswith('s') and not w.endswith('ss') and len(w) >= 4:
+        out.add(w[:-1])                  # bees -> bee
+    out.discard(word)
+    return out
+
+
 def _find_english_dictionary_matches(source_units, target_units, source_language,
                                      target_language, cancellation=None):
     """Fast inverted-index dictionary matching for English language pairs.
@@ -899,15 +962,27 @@ def _find_english_dictionary_matches(source_units, target_units, source_language
         cl_stoplist = CROSSLINGUAL_STOPLIST_GREEK
 
     # Build inverted index: english_lemma_lower -> [(unit_idx, token_position), ...]
+    # With the early-modern setting each position is also indexed under the plain
+    # forms of its word (see _early_modern_forms), so Milton's "chang'd" and "Bees"
+    # meet the dictionary's "change" and "bee".
+    fold_spelling = bool(ENGLISH_CROSS_SETTINGS.get('early_modern_forms'))
     en_lemma_index = {}
     for en_idx, unit in enumerate(en_units):
         if cancellation:
             cancellation.check()
-        for pos, lemma in enumerate(unit.get('lemmas', [])):
+        lemmas = unit.get('lemmas', [])
+        tokens = unit.get('tokens', [])
+        for pos, lemma in enumerate(lemmas):
             ln = lemma.lower()
-            if ln in CROSSLINGUAL_STOPLIST_ENGLISH:
-                continue
-            en_lemma_index.setdefault(ln, []).append((en_idx, pos))
+            keys = {ln}
+            if fold_spelling:
+                keys |= _early_modern_forms(ln)
+                if len(tokens) == len(lemmas):
+                    keys |= _early_modern_forms(str(tokens[pos]).lower())
+            for key in keys:
+                if key in CROSSLINGUAL_STOPLIST_ENGLISH:
+                    continue
+                en_lemma_index.setdefault(key, []).append((en_idx, pos))
 
     pair_matches = {}
 
@@ -1378,7 +1453,10 @@ def _cross_settings(params, settings):
     #     than the default.
     #   'off': no gate; preserves the pre-2026-05-20 behaviour.
     crosslingual_min_lemma_matches = settings.get('crosslingual_min_lemma_matches', 2)
-    crosslingual_lemma_gate = settings.get('crosslingual_lemma_gate', 'exclude')
+    lang_pair_en = 'en' in (source_language, target_language)
+    crosslingual_lemma_gate = settings.get(
+        'crosslingual_lemma_gate',
+        ENGLISH_CROSS_SETTINGS['lemma_gate'] if lang_pair_en else 'exclude')
     crosslingual_penalty_factor = settings.get('crosslingual_penalty_factor', 0.5)
     if crosslingual_lemma_gate not in ('penalty', 'exclude', 'off'):
         crosslingual_lemma_gate = 'exclude'
@@ -1415,7 +1493,10 @@ def _semantic_channel(source_units, target_units, cs, settings, cancellation):
     source_language = cs.source_language
     target_language = cs.target_language
     # --- Channel 1: Semantic (SPhilBERTa cosine) ---
-    sem_settings = {**settings, 'max_results': 2000, 'semantic_top_n': 20}
+    sem_settings = {**settings,
+                    'max_results': _english_cross(cs, 'semantic_max_results', 2000),
+                    'semantic_top_n': _english_cross(cs, 'semantic_top_n', 20),
+                    'hubness_k': _english_cross(cs, 'hubness_k', 0)}
     sem_matches, _ = find_crosslingual_matches(
         source_units, target_units,
         source_language, target_language, sem_settings, cancellation)
@@ -1459,14 +1540,15 @@ def _recover_semantic(sem_by_pair, dict_by_pair, source_units, target_units, cs,
     # SPhilBERTa (la/grc/en).  Cosine between them is geometrically meaningless
     # and can push spurious pairs above 0.4, so skip recovery entirely (#522).
     _INCOMPATIBLE_VECTOR_LANGS = {'he', 'cop'}
+    recovery_threshold = _english_cross(cs, 'recovery_threshold', 0.4)
     if recovery_keys and not (_INCOMPATIBLE_VECTOR_LANGS & {source_language, target_language}):
         try:
             from backend.embedding_storage import load_embeddings
             import numpy as np
             src_path = settings.get('source_text_path')
             tgt_path = settings.get('target_text_path')
-            src_emb = load_embeddings(src_path, source_language) if src_path else None
-            tgt_emb = load_embeddings(tgt_path, target_language) if tgt_path else None
+            src_emb = load_embeddings(src_path, source_language, space='cross') if src_path else None
+            tgt_emb = load_embeddings(tgt_path, target_language, space='cross') if tgt_path else None
             if src_emb is not None and tgt_emb is not None:
                 src_emb = src_emb[:len(source_units)]
                 tgt_emb = tgt_emb[:len(target_units)]
@@ -1475,6 +1557,12 @@ def _recover_semantic(sem_by_pair, dict_by_pair, source_units, target_units, cs,
                 tgt_norms = np.linalg.norm(tgt_emb, axis=1, keepdims=True)
                 src_emb = src_emb / (src_norms + 1e-8)
                 tgt_emb = tgt_emb / (tgt_norms + 1e-8)
+                hub_s = hub_t = None
+                hubness_k = _english_cross(cs, 'hubness_k', 0)
+                if hubness_k:
+                    # Same correction as the semantic channel, so recovered pairs sit on its scale.
+                    from backend.semantic_similarity import hubness_offsets
+                    hub_s, hub_t = hubness_offsets(src_emb, tgt_emb, hubness_k, cancellation)
                 recovered = 0
                 for key in recovery_keys:
                     if cancellation:
@@ -1482,11 +1570,13 @@ def _recover_semantic(sem_by_pair, dict_by_pair, source_units, target_units, cs,
                     si, ti = key
                     if si < len(src_emb) and ti < len(tgt_emb):
                         cosine = float(np.dot(src_emb[si], tgt_emb[ti]))
+                        if hub_s is not None:
+                            cosine = cosine - float(hub_s[si]) - float(hub_t[ti])
                         if lang_pair <= SHARED_SCRIPT_LANGUAGES:
                             # multilingual-e5 band: rescale as the channel does
                             from backend.semantic_similarity import E5_RESCALE_FLOOR, E5_RESCALE_SPAN
                             cosine = max(0.0, min(1.0, (cosine - E5_RESCALE_FLOOR) / E5_RESCALE_SPAN))
-                        if cosine > 0.4 or (lang_pair <= SHARED_SCRIPT_LANGUAGES and cosine > 0):
+                        if cosine > recovery_threshold or (lang_pair <= SHARED_SCRIPT_LANGUAGES and cosine > 0):
                             sem_by_pair[key] = cosine
                             recovered += 1
                 logger.info(f"Semantic recovery: {recovered}/{len(recovery_keys)} dictionary-only pairs got cosine scores")
@@ -1658,7 +1748,7 @@ def _form_channel(source_units, target_units, cs, settings, cancellation):
     return form_by_pair
 
 
-def _merge_keys(sem_by_pair, dict_by_pair, syntax_by_pair, form_by_pair, settings):
+def _merge_keys(sem_by_pair, dict_by_pair, syntax_by_pair, form_by_pair, settings, cs=None):
     """The union of pair keys and the channel weights."""
     # --- Merge ---
     # Phonetic alone is too noisy (thousands of false positives from short-word
@@ -1668,8 +1758,8 @@ def _merge_keys(sem_by_pair, dict_by_pair, syntax_by_pair, form_by_pair, setting
     all_keys = (set(sem_by_pair.keys()) | set(dict_by_pair.keys()) | set(syntax_by_pair.keys())
                 | set(form_by_pair.keys()))
 
-    SEMANTIC_WEIGHT = 1.2
-    DICTIONARY_WEIGHT = 2.0
+    SEMANTIC_WEIGHT = _english_cross(cs, 'semantic_weight', 1.2)
+    DICTIONARY_WEIGHT = _english_cross(cs, 'dictionary_weight', 2.0)
     SYNTAX_WEIGHT = 0.5
     # Phonetic is a convergence booster only: phonetic-only pairs never enter the
     # fusion (all_keys is built from semantic/dict/syntax keys), so this weight only
@@ -1683,7 +1773,7 @@ def _merge_keys(sem_by_pair, dict_by_pair, syntax_by_pair, form_by_pair, setting
     # order in the target is a near-certain alignment and is length-robust (see
     # _longest_translated_run). Additive: it only ever boosts a pair, so it cannot
     # regress recall. Tunable, like the weights above; generic across all pairs.
-    RUN_WEIGHT = float(settings.get('crosslingual_run_weight', 3.0)) if settings else 3.0
+    RUN_WEIGHT = float(settings.get('crosslingual_run_weight', _english_cross(cs, 'run_weight', 3.0))) if settings else 3.0
     CONVERGENCE_BONUS = 0.5  # additive bonus when multiple channels fire
     # A refrain-and-rhyme pair unique on both sides (form_score 1.0) ranks with the
     # best dictionary-plus-meaning pairs (about 4.6 to 4.8 on Hafez against Ghalib);
@@ -2020,7 +2110,7 @@ def _direct_crosslingual_core(params, source_units, target_units, settings,
     syntax_by_pair = _syntax_channel(source_units, target_units, cs, cancellation)
     phonetic_by_pair = _phonetic_channel(source_units, target_units, cs, cancellation)
     form_by_pair = _form_channel(source_units, target_units, cs, settings, cancellation)
-    merged = _merge_keys(sem_by_pair, dict_by_pair, syntax_by_pair, form_by_pair, settings)
+    merged = _merge_keys(sem_by_pair, dict_by_pair, syntax_by_pair, form_by_pair, settings, cs)
     fused = _fuse_pairs(merged, sem_by_pair, dict_by_pair, syntax_by_pair, phonetic_by_pair, form_by_pair,
                         idf, source_units, target_units, cs, cancellation)
     fused = _cap(fused, settings)
