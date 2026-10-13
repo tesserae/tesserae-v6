@@ -1977,8 +1977,12 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   library instead. Set your library&rsquo;s link-resolver address once, under My library
                   in this tab. Its link then opens the article or chapter under your institution&rsquo;s
                   access. Where neither a free copy nor your library resolves it, the result still names what
-                  cites the passage and where. Copy for Zotero puts the reference on your clipboard, read
-                  by Zotero&rsquo;s own File menu, Import from Clipboard. The HathiTrust link in this tab
+                  cites the passage and where. Every note and article has a Cite link. It gives a plain
+                  reference to copy, RIS for Zotero and EndNote (to the clipboard, read by Zotero&rsquo;s File menu,
+                  Import from Clipboard, or as a file), and BibTeX for LaTeX. Each list has an Export citations
+                  link that saves all of its items in one file. A commentary note cites the edition the text
+                  comes from, with the passage it comments on. The same Cite link appears on the scholarship in Theme
+                  Search and Search One Text. The HathiTrust link in this tab
                   runs the same search in that library&rsquo;s book scans and tells you which books and
                   page numbers mention the citation, without showing you the text itself. Every source
                   and its license are listed on the Sources page under About. To search the notes and

@@ -66,6 +66,19 @@ history (index builds, cache rebuilds, corpus changes) is in
   results as main, and an import time within ten percent. The URL map and the
   function bodies are checked by two scripts kept in `scripts/review/`, so
   the next structural job can run the same proofs.
+- Third structural job under the rule: `line_search()` became a sequence of
+  named steps (see the CHANGELOG entry of 2026-10-13). A recording of 258
+  Line Search requests made on a preview of main (none of them differs between
+  two runs of the same server) gives the same answer on a preview of the
+  branch for every one. The standard recording of 68 requests is the same too.
+  The body of each of the 22 other functions and classes in the module is
+  identical by syntax tree. The 56 Line Search tests and the reference
+  searches pass. Ten timed requests (one word, a pair, twelve words, an exact
+  scan, documents, both collections, Hebrew without points, the Persian Reader
+  path, a count, a 500-row answer) have medians within 2.5 percent of main's
+  over five runs each. The steps stay in the blueprint module because tests
+  replace names in it, and only the reading of the parameters moved to its
+  own module.
 
 
 ## 2026-10-12: the band inside one work is refitted on eleven works, and its lowest level is a caution, not a verdict
@@ -2453,3 +2466,8 @@ Latin and Greek (the Latin and Greek ones also carry the old quotation
 weight), and re-warm the default pairs. Recorded in DATA_OPERATIONS.md.
 Rarity by lines rather than works stays deferred until an English gold set
 exists to measure it against.
+
+## 2026-10-12: file operations are made independent of the web server's locale in code
+
+The web process runs with an ASCII file-system encoding, which Python fixes when it starts, and the server setting that would change it is not to be requested again. Thirty-six Greek texts have Greek letters in their names, so every file call on a text, translation or embedding name goes through `backend/fspaths.py`, which passes UTF-8 bytes to the operating system and returns names decoded as UTF-8. The proof is a two-locale comparison: the same requests (`scripts/review/greek_names_requests.json` and the standard list) sent to a server started in the ASCII state and one started in UTF-8 must give the same answers. Names that an operation only ever sees in ASCII (hashed cache names, index files) were left as they were.
+

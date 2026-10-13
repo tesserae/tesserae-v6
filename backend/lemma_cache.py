@@ -8,6 +8,7 @@ import json
 import hashlib
 import unicodedata
 from datetime import datetime
+from backend import fspaths
 from backend.utils import resolve_text_path
 
 CACHE_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'cache', 'lemmas')
@@ -19,7 +20,7 @@ def ensure_cache_dir():
 
 def get_file_hash(filepath):
     """Get MD5 hash of file content to detect changes"""
-    with open(filepath, 'rb') as f:
+    with fspaths.open_text(filepath, 'rb') as f:
         return hashlib.md5(f.read()).hexdigest()  # nosec B324
 
 def _is_ascii(text):
@@ -262,10 +263,10 @@ def rebuild_lemma_cache(language, text_processor, progress_callback=None,
     never reached unless this is explicitly True, so a caller that never
     passes it is byte-for-byte on the same code path as before."""
     lang_dir = os.path.join(TEXTS_DIR, language)
-    if not os.path.exists(lang_dir):
+    if not fspaths.exists(lang_dir):
         return {'error': f'Language directory not found: {language}'}
 
-    text_files = [f for f in os.listdir(lang_dir) if f.endswith('.tess')]
+    text_files = [f for f in fspaths.listdir_text(lang_dir) if f.endswith('.tess')]
     if file_filter is not None:
         allowed = set(file_filter)
         text_files = [f for f in text_files if f in allowed]

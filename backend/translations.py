@@ -15,6 +15,8 @@ is a normal answer rather than an error.
 import html
 import json
 import os
+
+from backend import fspaths
 import re
 import threading
 
@@ -42,8 +44,8 @@ def _build_index():
         if _index is not None:
             return _index
         idx = {}
-        if os.path.isdir(_DIR):
-            for fn in os.listdir(_DIR):
+        if fspaths.isdir(_DIR):
+            for fn in fspaths.listdir_text(_DIR):
                 if not fn.endswith('.json') or fn == 'manifest.json':
                     continue
                 # files are named "<lang>__<work>.json"
@@ -95,7 +97,7 @@ def _load(work):
     data = None
     if fn:
         try:
-            with open(os.path.join(_DIR, fn), encoding='utf-8') as fh:
+            with fspaths.open_text(os.path.join(_DIR, fn), encoding='utf-8') as fh:
                 data = _decode_entities(json.load(fh))
         except (OSError, ValueError) as e:
             logger.warning('[TRANSLATIONS] could not read %s: %s', fn, e)
@@ -248,9 +250,9 @@ _available_cache = {}      # language -> (dir_signature, {base_work: summary})
 def _dir_signature(language):
     sig = []
     try:
-        for name in sorted(os.listdir(_DIR)):
+        for name in sorted(fspaths.listdir_text(_DIR)):
             if name.startswith(f'{language}__') and name.endswith('.json'):
-                sig.append((name, os.path.getmtime(os.path.join(_DIR, name))))
+                sig.append((name, fspaths.getmtime(os.path.join(_DIR, name))))
     except OSError:
         pass
     return tuple(sig)
@@ -271,7 +273,7 @@ def available(language):
         base = name[len(language) + 2:-5]
         base = base_work(base)
         try:
-            with open(os.path.join(_DIR, name), encoding='utf-8') as fh:
+            with fspaths.open_text(os.path.join(_DIR, name), encoding='utf-8') as fh:
                 data = json.load(fh)
         except (OSError, ValueError):
             continue
@@ -304,11 +306,10 @@ def full_text(work, language=None):
         os.path.abspath(__file__))), 'texts', language)
     paths = []
     whole = os.path.join(texts_dir, base + '.tess')
-    if os.path.exists(whole):
+    if fspaths.exists(whole):
         paths = [whole]
     else:
-        import glob as _glob
-        paths = sorted(_glob.glob(os.path.join(texts_dir, base + '.part.*.tess')))
+        paths = sorted(fspaths.glob(os.path.join(texts_dir, base + '.part.*.tess')))
     if not paths:
         return {'available': False, 'work': base,
                 'reason': 'Corpus text not found for this work.'}
@@ -317,7 +318,7 @@ def full_text(work, language=None):
     blocks, cur_unit, cur_start, cur_end = [], None, None, None
     import re as _re
     for path in paths:
-        with open(path, encoding='utf-8', errors='ignore') as fh:
+        with fspaths.open_text(path, encoding='utf-8', errors='ignore') as fh:
             for line in fh:
                 m = _re.match(r'<([^>]+)>', line)
                 if not m:

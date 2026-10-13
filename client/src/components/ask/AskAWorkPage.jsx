@@ -5,6 +5,9 @@ import ScopeBox from '../common/ScopeBox';
 import { useIsPhone } from '../../hooks/useIsPhone';
 import { baseWorkId, fetchCoveredWorks } from '../../utils/passageCoverage';
 import { readerLink } from '../passages/ThemeSearchPage';
+import CiteRecordButton from '../common/CiteRecordButton';
+import CiteAll from '../common/CiteAll';
+import { recordFrom, toText, loadEditions, withEditionSync } from '../../utils/citations';
 import { RECENT_SERVICES, RECENT_LABELS, joinNames, mergeRecent, recentUrl, fetchRecent } from '../../utils/recentArticles';
 import OriginalScript from '../common/OriginalScript';
 import TransliterationToggle from '../common/TransliterationToggle';
@@ -208,12 +211,21 @@ export { mergeRecent };
 /** The scholarship paragraph with each [n] made a link to its note or article, in a new tab. */
 function ScholarshipText({ text, cites }) {
   const byN = new Map((cites || []).map((c) => [String(c.n), c]));
+  // A commentary note's edition comes from the sources list, fetched once
+  // when a note is cited; the tooltips are redrawn when it arrives.
+  const [, setLoaded] = useState(false);
+  const hasNote = (cites || []).some((c) => c.kind === 'commentary');
+  useEffect(() => {
+    if (hasNote) loadEditions().then(() => setLoaded(true));
+  }, [hasNote]);
   return String(text || '').split(/(\[\d+\])/).map((part, k) => {
     const m = /^\[(\d+)\]$/.exec(part);
     const c = m && byN.get(m[1]);
-    if (!c || !c.link?.url) return <OriginalScript key={k} text={part} />;
+    if (!c) return <OriginalScript key={k} text={part} />;
+    const tip = toText(withEditionSync(recordFrom(c, 'cite'))) || c.label;
+    if (!c.link?.url) return <span key={k} title={tip}>{part}</span>;
     return (
-      <a key={k} href={c.link.url} target="_blank" rel="noopener noreferrer" title={c.label}
+      <a key={k} href={c.link.url} target="_blank" rel="noopener noreferrer" title={tip}
          className="text-red-800 hover:text-red-900 hover:underline">{part}</a>
     );
   });
@@ -868,7 +880,12 @@ export default function AskAWorkPage() {
                   )}
                   {scholarship?.state === 'ready' && (
                     <section aria-label="Scholarship" className="mt-3 rounded border border-gray-200 bg-gray-50 px-3 py-2" data-testid="ask-scholarship">
-                      <p className="text-xs font-semibold text-gray-600">Scholarship</p>
+                      <div className="flex items-baseline justify-between gap-2">
+                        <p className="text-xs font-semibold text-gray-600">Scholarship</p>
+                        <CiteAll records={(scholarship.cites || []).map((c) => recordFrom(c, 'cite'))}
+                                 name={`${asked.work || 'work'} ${asked.q || ''}`}
+                                 label="Export the cited notes and articles" />
+                      </div>
                       <p className="mt-1 text-sm text-gray-800 leading-snug">
                         <ScholarshipText text={scholarship.summary} cites={scholarship.cites} />
                       </p>
@@ -906,6 +923,7 @@ export default function AskAWorkPage() {
                               {meta && <span className="text-gray-600">{`, ${meta}`}</span>}
                               {it.oa_url && <span className="ml-1 rounded bg-gray-100 px-1 text-[11px] text-gray-500">free copy</span>}
                               {it.excerpt && <span className="block text-xs text-gray-500">{it.excerpt}</span>}
+                              <span className="block text-xs mt-0.5"><CiteRecordButton record={recordFrom(it, 'recent')} /></span>
                             </li>
                           );
                         })}

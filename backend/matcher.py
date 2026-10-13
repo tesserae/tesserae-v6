@@ -409,6 +409,8 @@ from collections import defaultdict, Counter
 import heapq
 import math
 import os
+
+from backend import fspaths
 import re
 import json
 from backend.logging_config import get_logger
@@ -927,7 +929,7 @@ class Matcher:
     def load_synonyms(self, filepath):
         """Load synonym dictionary for semantic matching"""
         try:
-            with open(filepath, 'r', encoding='utf-8') as f:
+            with fspaths.open_text(filepath, 'r', encoding='utf-8') as f:
                 for line in f:
                     parts = line.strip().split('\t')
                     if len(parts) >= 2:
