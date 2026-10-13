@@ -715,6 +715,7 @@ def find(work, ref_start, ref_end=None, work2=None, ref2_start=None, ref2_end=No
     a = passage_names(work, ref_start, ref_end)
     b = passage_names(work2, ref2_start, ref2_end) if work2 and ref2_start else None
     seen = {}
+    warnings = []
     for band, q in _queries(a, b):
         for src in (_openalex, _crossref):
             try:
@@ -761,7 +762,7 @@ def find(work, ref_start, ref_end=None, work2=None, ref2_start=None, ref2_end=No
         name = scripture.citation(sc['book'], sc['chapter'], sc['verse'])[0].rsplit(' ', 1)[0].replace(' ', '_')
         links.append({'label': 'All commentaries on this verse at Sefaria',
                       'url': f"https://www.sefaria.org/{name}.{sc['chapter']}.{sc['verse']}?with=Commentary"})
-    return {'passage': a, 'passage2': b, 'results': ranked, 'fulltext': fulltext(a, quote=quote), 'index': citation_index(a), 'books': bk, 'links': links,
+    return {'passage': a, 'passage2': b, 'results': ranked, 'fulltext': fulltext(a, quote=quote), 'index': citation_index(a), 'books': bk, 'links': links, 'warnings': warnings,
             'note': ('Open metadata services only; subscription articles open through your library link or the DOI. '
                      'Band 1 cites both passages, band 2 names both works and cites the first, band 3 cites the first passage alone.')}
 

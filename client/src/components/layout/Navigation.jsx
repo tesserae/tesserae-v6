@@ -215,6 +215,27 @@ const Navigation = ({
     setActiveTab(tabCode);
   };
 
+
+  const shownTabs = orderBy(mainTabs, viewById(view).menuOrder, (t) => t.code)
+    .filter(tab => tab.code !== 'admin')
+    .filter(tab => !tab.trial || showInscriptionsPapyri)
+    .filter(tab => !tab.needs || anyOn(PAGE_NEEDS[tab.needs]));
+  const candidateTabs = shownTabs.filter(tab => !tab.more);
+  const nFit = fitCount === null ? candidateTabs.length : Math.min(fitCount, candidateTabs.length);
+  const rowTabs = candidateTabs.slice(0, nFit);
+  const menuTabs = candidateTabs.slice(nFit).concat(shownTabs.filter(tab => tab.more));
+  const tabsKey = candidateTabs.map(t => t.code).join(',');
+  useEffect(() => {
+    refit();
+    const row = mainRef.current;
+    const ro = typeof ResizeObserver !== 'undefined' && row ? new ResizeObserver(refit) : null;
+    if (ro && row) ro.observe(row);
+    window.addEventListener('resize', refit);
+    return () => { if (ro) ro.disconnect(); window.removeEventListener('resize', refit); };
+  }, [refit, tabsKey, showCollections, mainRef, narrow]);
+
+  // The admin-only menu returns early, AFTER every hook above, so the hooks
+  // run in the same order on every render (the linter's rules-of-hooks).
   if (lockedToAdmin) {
     return (
       <nav className="bg-gray-50 border-b sticky top-0 z-40">
@@ -242,25 +263,6 @@ const Navigation = ({
       </nav>
     );
   }
-
-  const shownTabs = orderBy(mainTabs, viewById(view).menuOrder, (t) => t.code)
-    .filter(tab => tab.code !== 'admin')
-    .filter(tab => !tab.trial || showInscriptionsPapyri)
-    .filter(tab => !tab.needs || anyOn(PAGE_NEEDS[tab.needs]));
-  const candidateTabs = shownTabs.filter(tab => !tab.more);
-  const nFit = fitCount === null ? candidateTabs.length : Math.min(fitCount, candidateTabs.length);
-  const rowTabs = candidateTabs.slice(0, nFit);
-  const menuTabs = candidateTabs.slice(nFit).concat(shownTabs.filter(tab => tab.more));
-  const tabsKey = candidateTabs.map(t => t.code).join(',');
-  useEffect(() => {
-    refit();
-    const row = mainRef.current;
-    const ro = typeof ResizeObserver !== 'undefined' && row ? new ResizeObserver(refit) : null;
-    if (ro && row) ro.observe(row);
-    window.addEventListener('resize', refit);
-    return () => { if (ro) ro.disconnect(); window.removeEventListener('resize', refit); };
-  }, [refit, tabsKey, showCollections, mainRef, narrow]);
-
   return (
     <nav className="bg-gray-50 border-b sticky top-0 z-40">
       <div className="max-w-7xl mx-auto px-3 sm:px-6">
