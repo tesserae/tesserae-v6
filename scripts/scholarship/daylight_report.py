@@ -10,7 +10,7 @@ import os
 from collections import Counter
 
 from daylight_common import HOLDINGS, OUT
-from daylight_tables import Profiles, fisher_p, load_meta, work_info, split_part
+from daylight_tables import Profiles, fisher_p, load_meta, work_info
 from daylight_theme import daylight_theme
 
 L = []
@@ -57,7 +57,8 @@ def main():
     lang, genre, dates = load_meta()
     info = {w: work_info(w, lang, genre, dates) for w in P.by_work}
     neigh = read('neighbours.csv')
-    nb = lambda w: [r for r in neigh if r['work'] == w and r['neighbour'] == 'yes']
+    def nb(w):
+        return [r for r in neigh if r['work'] == w and r['neighbour'] == 'yes']
 
     out('## The two examples')
     out()
