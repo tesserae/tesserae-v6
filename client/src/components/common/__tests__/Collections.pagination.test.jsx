@@ -70,7 +70,7 @@ for (const [name, Component, endpoint, field] of [
 
 describe('GenreClassificationTab shared local pagination', () => {
   it('navigates and changes sizes without requests, then resets on filters', async () => {
-    global.fetch = vi.fn(async () => ({ ok: true, json: async () => ({
+    global.fetch = vi.fn(async () => ({ ok: true, text: async () => JSON.stringify({
       texts: Array.from({ length: 125 }, (_, i) => ({ filename: `poet.work.${i}`, author: 'poet', work: `Work${i + 1}`, genre: 'epic', era: 'unknown', meter: 'unknown', confidence: 'manual' })),
       genres: ['epic'], total: 125,
     }) }));

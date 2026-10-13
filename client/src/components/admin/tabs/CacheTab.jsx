@@ -1,5 +1,9 @@
 import { useState } from 'react';
 import { LANG_NAMES, CACHE_IMPACT_INFO } from '../adminConstants';
+import {
+  clearAdminCache, recalculateFrequencies as requestFrequencyRecalculation, buildBigramCache,
+  fetchBigramCacheStatsWithHeaders
+} from '../../../utils/api';
 
 export default function CacheTab({ authHeaders, cacheInfo, bigramStats, onRefresh, onBigramStatsUpdate }) {
   const [confirmModal, setConfirmModal] = useState(null);
@@ -46,15 +50,10 @@ export default function CacheTab({ authHeaders, cacheInfo, bigramStats, onRefres
           endpoint = '/api/admin/lemma-cache/clear';
       }
 
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...authHeaders },
-        body: JSON.stringify({})
-      });
+      const response = await clearAdminCache(endpoint, authHeaders);
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || `Failed to clear ${cacheType} cache`);
+        throw new Error(response.data.error || `Failed to clear ${cacheType} cache`);
       }
 
       await onRefresh();
@@ -68,10 +67,7 @@ export default function CacheTab({ authHeaders, cacheInfo, bigramStats, onRefres
 
   const recalculateFrequencies = async () => {
     try {
-      await fetch('/api/frequencies/recalculate', {
-        method: 'POST',
-        headers: authHeaders
-      });
+      await requestFrequencyRecalculation(authHeaders);
       alert('Frequency recalculation started');
     } catch (err) {
       console.error('Failed to recalculate frequencies:', err);
@@ -83,17 +79,13 @@ export default function CacheTab({ authHeaders, cacheInfo, bigramStats, onRefres
     setBigramError(null);
     setBigramSuccess(null);
     try {
-      const res = await fetch('/api/admin/bigram-cache/build', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...authHeaders },
-        body: JSON.stringify({ language })
-      });
-      const data = await res.json();
+      const res = await buildBigramCache(authHeaders, language);
+      const data = res.data;
       if (res.ok) {
         setBigramSuccess(`${LANG_NAMES[language]} bigram index built: ${data.unique_bigrams?.toLocaleString() || 0} unique pairs`);
-        const bigramRes = await fetch('/api/admin/bigram-cache/stats', { headers: authHeaders });
+        const bigramRes = await fetchBigramCacheStatsWithHeaders(authHeaders);
         if (bigramRes.ok) {
-          onBigramStatsUpdate(await bigramRes.json());
+          onBigramStatsUpdate(bigramRes.data);
         }
       } else {
         setBigramError(data.error || 'Failed to build bigram index');

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { fetchAdminAnalyticsJson, fetchAdminPaths } from '../../../utils/api';
 import { 
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, 
   PieChart, Pie, Cell, LineChart, Line, Legend, AreaChart, Area
@@ -128,14 +129,12 @@ const AnalyticsTab = ({ usage = null }) => {
   useEffect(() => {
     const fetchAnalytics = async () => {
       try {
-        const response = await fetch('/api/admin/analytics', {
-          headers: { 'Accept': 'application/json' }
-        });
-        const result = await response.json();
-        setData(result);
+        const response = await fetchAdminAnalyticsJson();
+        if (!response.ok) throw new Error(response.data.error || `Analytics request failed (${response.status})`);
+        setData(response.data);
         try {
-          const pr = await fetch('/api/admin/paths?days=30', { headers: { 'Accept': 'application/json' } });
-          setPaths(pr.ok ? await pr.json() : null);
+          const pr = await fetchAdminPaths(30);
+          setPaths(pr.ok ? pr.data : null);
         } catch (e) {
           setPaths(null);
         }

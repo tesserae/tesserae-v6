@@ -1,4 +1,7 @@
 import { useEffect, useState } from 'react';
+import {
+  fetchAdminUsers, fetchAdminRoles, createAdminUser, changeAdminUserRole, deleteAdminUser
+} from '../../../utils/api';
 
 const roleLabel = (role) => {
   if (!role) return '';
@@ -31,16 +34,16 @@ export default function UsersTab({ authHeaders, isAdmin = false, isSuperAdmin = 
 
     try {
       const [usersRes, rolesRes] = await Promise.all([
-        fetch('/api/admin/users', { headers: authHeaders, credentials: 'include' }),
-        fetch('/api/admin/roles', { headers: authHeaders, credentials: 'include' })
+        fetchAdminUsers(authHeaders),
+        fetchAdminRoles(authHeaders)
       ]);
 
       if (!usersRes.ok) {
-        throw new Error('Unable to load users. Backend endpoint not available yet.');
+        throw new Error(usersRes.data.error || 'Unable to load users. Backend endpoint not available yet.');
       }
 
-      const usersPayload = await usersRes.json();
-      const rolesPayload = rolesRes.ok ? await rolesRes.json() : null;
+      const usersPayload = usersRes.data;
+      const rolesPayload = rolesRes.ok ? rolesRes.data : null;
 
       setUsers(usersPayload.users || []);
       setRoles(Array.isArray(rolesPayload?.roles) ? rolesPayload.roles : []);
@@ -57,23 +60,15 @@ export default function UsersTab({ authHeaders, isAdmin = false, isSuperAdmin = 
     setCreateSuccess(null);
 
     try {
-      const res = await fetch('/api/admin/users', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...authHeaders
-        },
-        credentials: 'include',
-        body: JSON.stringify({
-          email: createEmail.trim(),
-          first_name: createFirstName.trim(),
-          last_name: createLastName.trim(),
-          password: createPassword,
-          role: createRole
-        })
+      const res = await createAdminUser(authHeaders, {
+        email: createEmail.trim(),
+        first_name: createFirstName.trim(),
+        last_name: createLastName.trim(),
+        password: createPassword,
+        role: createRole
       });
 
-      const payload = await res.json();
+      const payload = res.data;
       if (!res.ok || payload.error) {
         throw new Error(payload.error || 'Failed to create user.');
       }
@@ -100,17 +95,9 @@ export default function UsersTab({ authHeaders, isAdmin = false, isSuperAdmin = 
     setBusyUserId(userId);
 
     try {
-      const res = await fetch(`/api/admin/users/${userId}/roles`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...authHeaders
-        },
-        credentials: 'include',
-        body: JSON.stringify({ role: roleName, action })
-      });
+      const res = await changeAdminUserRole(authHeaders, userId, roleName, action);
 
-      const payload = await res.json();
+      const payload = res.data;
       if (!res.ok || payload.error) {
         throw new Error(payload.error || 'Role update failed.');
       }
@@ -152,14 +139,8 @@ export default function UsersTab({ authHeaders, isAdmin = false, isSuperAdmin = 
     }
     setBusyUserId(userId);
     try {
-      const res = await fetch(`/api/admin/users/${userId}`, {
-        method: 'DELETE',
-        headers: {
-          ...authHeaders
-        },
-        credentials: 'include'
-      });
-      const payload = await res.json();
+      const res = await deleteAdminUser(authHeaders, userId);
+      const payload = res.data;
       if (!res.ok || payload.error) {
         throw new Error(payload.error || 'Failed to delete user.');
       }

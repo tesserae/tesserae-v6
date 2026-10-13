@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import useAssistantStream from './useAssistantStream';
+import { fetchAssistantStatus } from '../../utils/api';
 import { WorkingLine } from './ResultsInsight';
 import { getSessionValue, setSessionValue } from '../../utils/storage';
 import { useIsPhone } from '../../hooks/useIsPhone';
@@ -178,8 +179,7 @@ export default function AssistantDock() {
   const inputRef = useRef(null);
 
   useEffect(() => {
-    fetch('/api/assistant/status')
-      .then((r) => r.json())
+    fetchAssistantStatus()
       .then((d) => setAvailable(Boolean(d.available)))
       .catch(() => setAvailable(false));
   }, []);

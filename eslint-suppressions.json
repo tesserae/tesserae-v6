@@ -27,7 +27,7 @@
   },
   "client/src/components/admin/tabs/RequestsTab.jsx": {
     "no-unused-vars": {
-      "count": 2
+      "count": 1
     }
   },
   "client/src/components/admin/tabs/SettingsTab.jsx": {

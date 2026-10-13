@@ -17,7 +17,7 @@ const usage = {
 };
 
 beforeEach(() => {
-  global.fetch = vi.fn(() => Promise.resolve({ json: () => Promise.resolve({}) }));
+  global.fetch = vi.fn(() => Promise.resolve({ ok: true, text: () => Promise.resolve(JSON.stringify({})) }));
 });
 
 describe('AnalyticsTab visitors section', () => {

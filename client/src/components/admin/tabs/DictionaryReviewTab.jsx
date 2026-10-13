@@ -1,4 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
+import {
+  fetchDictionaryReview, updateDictionaryReviewEntry, reloadDictionaryReview, fetchDictionaryReviewExport
+} from '../../../utils/api';
 
 export default function DictionaryReviewTab() {
   const [entries, setEntries] = useState([]);
@@ -13,11 +16,8 @@ export default function DictionaryReviewTab() {
     setLoading(true);
     setError('');
     try {
-      const res = await fetch(
-        `/api/admin/dictionary-review?status=${statusFilter}&limit=${PAGE_SIZE}&offset=${page * PAGE_SIZE}`,
-        { credentials: 'include' }
-      );
-      const data = await res.json();
+      const res = await fetchDictionaryReview(statusFilter, PAGE_SIZE, page * PAGE_SIZE);
+      const data = res.data;
       if (!res.ok || data.error) throw new Error(data.error || 'Failed to load');
       setEntries(data.entries || []);
       setCounts(data.counts || { pending: 0, accepted: 0, rejected: 0 });
@@ -32,13 +32,8 @@ export default function DictionaryReviewTab() {
 
   const updateEntry = async (id, status) => {
     try {
-      const res = await fetch(`/api/admin/dictionary-review/${id}`, {
-        method: 'PUT',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status }),
-      });
-      const data = await res.json();
+      const res = await updateDictionaryReviewEntry(id, status);
+      const data = res.data;
       if (!res.ok || data.error) throw new Error(data.error || 'Failed to update');
       setEntries(prev => prev.filter(e => e.id !== id));
       setCounts(prev => {
@@ -58,11 +53,8 @@ export default function DictionaryReviewTab() {
   const reloadDictionary = async () => {
     setReloadMsg('Reloading...');
     try {
-      const res = await fetch('/api/admin/dictionary-review/reload', {
-        method: 'POST',
-        credentials: 'include',
-      });
-      const data = await res.json();
+      const res = await reloadDictionaryReview();
+      const data = res.data;
       if (!res.ok || data.error) throw new Error(data.error || 'Reload failed');
       setReloadMsg(`Loaded ${data.loaded} entries into dictionary`);
       setTimeout(() => setReloadMsg(''), 4000);
@@ -73,9 +65,7 @@ export default function DictionaryReviewTab() {
 
   const exportAccepted = async () => {
     try {
-      const res = await fetch('/api/admin/dictionary-review/export', { credentials: 'include' });
-      if (!res.ok) throw new Error('Export failed');
-      const blob = await res.blob();
+      const blob = await fetchDictionaryReviewExport();
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;

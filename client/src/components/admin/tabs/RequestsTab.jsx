@@ -1,6 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { LANG_NAMES } from '../adminConstants';
 import Pagination from '../../common/Pagination';
+import {
+  fetchAdminRequests, fetchAdminRequest, approveAdminRequestQuick, updateAdminRequest,
+  deleteAdminRequest, approveAdminRequest
+} from '../../../utils/api';
 
 const REQUEST_STATUSES = ['pending', 'approved', 'rejected', 'completed'];
 
@@ -23,17 +27,12 @@ const STATUS_BADGE = {
   completed: 'bg-green-100 text-green-700'
 };
 
-const parseApiResponse = async (response, fallbackMessage) => {
-  let data = null;
-  try {
-    data = await response.json();
-  } catch (_ignored) {
-    data = null;
-  }
-  if (!response.ok || data?.error) {
-    const reason = data?.error || data?.message || response.statusText || fallbackMessage;
-    const error = new Error(reason);
-    error.status = response.status;
+// `outcome` is what the api.js request functions return: { ok, status, data }.
+const parseApiResponse = (outcome, fallbackMessage) => {
+  const { ok, status, data } = outcome;
+  if (!ok || data?.error) {
+    const error = new Error(data?.error || data?.message || fallbackMessage);
+    error.status = status;
     throw error;
   }
   return data;
@@ -73,7 +72,7 @@ export default function RequestsTab({ authHeaders, onRefresh }) {
     });
     setListLoading(true);
     setListError('');
-    fetch(`/api/admin/requests?${params}`, { credentials: 'include', signal: controller.signal })
+    fetchAdminRequests(params, controller.signal)
       .then(res => parseApiResponse(res, 'Failed to load text requests'))
       .then(data => {
         if (controller.signal.aborted) return;
@@ -98,10 +97,7 @@ export default function RequestsTab({ authHeaders, onRefresh }) {
 
   const approveRequest = async (requestId) => {
     try {
-      await fetch(`/api/admin/requests/${requestId}/approve`, {
-        method: 'POST',
-        headers: authHeaders
-      });
+      await approveAdminRequestQuick(authHeaders, requestId);
       onRefresh();
     } catch (err) {
       console.error('Failed to approve request:', err);
@@ -110,11 +106,7 @@ export default function RequestsTab({ authHeaders, onRefresh }) {
 
   const setRequestStatus = async (requestId, status) => {
     try {
-      const res = await fetch(`/api/admin/requests/${requestId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', ...authHeaders },
-        body: JSON.stringify({ status })
-      });
+      const res = await updateAdminRequest(authHeaders, requestId, { status });
       await parseApiResponse(res, 'Failed to update request status');
       reloadList();
     } catch (err) {
@@ -128,10 +120,7 @@ export default function RequestsTab({ authHeaders, onRefresh }) {
       return;
     }
     try {
-      const res = await fetch(`/api/admin/requests/${requestId}`, {
-        method: 'DELETE',
-        headers: authHeaders
-      });
+      const res = await deleteAdminRequest(authHeaders, requestId);
       await parseApiResponse(res, 'Failed to delete text request');
       reloadList();
       setSelectedRequest(null);
@@ -149,7 +138,7 @@ export default function RequestsTab({ authHeaders, onRefresh }) {
     detailController.current = controller;
     setOpeningId(id);
     try {
-      const res = await fetch(`/api/admin/requests/${id}`, { credentials: 'include', signal: controller.signal });
+      const res = await fetchAdminRequest(id, controller.signal);
       const request = await parseApiResponse(res, 'Failed to load text request');
       if (controller.signal.aborted) return;
       setSelectedRequest(request);
@@ -221,11 +210,7 @@ export default function RequestsTab({ authHeaders, onRefresh }) {
         return;
       }
 
-      const res = await fetch(`/api/admin/requests/${selectedRequest.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', ...authHeaders },
-        body: JSON.stringify(editingRequest)
-      });
+      const res = await updateAdminRequest(authHeaders, selectedRequest.id, editingRequest);
       await parseApiResponse(res, 'Failed to save request changes');
       reloadList();
       setSelectedRequest(null);
@@ -259,20 +244,14 @@ export default function RequestsTab({ authHeaders, onRefresh }) {
       ].some((field) => normalize(editingRequest[field]) !== normalize(selectedRequest[field]));
 
       if (hasChanges) {
-        const saveRes = await fetch(`/api/admin/requests/${selectedRequest.id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json', ...authHeaders },
-          body: JSON.stringify(editingRequest)
-        });
+        const saveRes = await updateAdminRequest(authHeaders, selectedRequest.id, editingRequest);
         await parseApiResponse(saveRes, 'Failed to save request before approval');
         saveCompleted = true;
       }
 
       const approveRequestInternal = async (overwrite = false) => {
-        const approveRes = await fetch(`/api/admin/requests/${selectedRequest.id}/approve`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', ...authHeaders },
-          body: JSON.stringify({ content: editingRequest.content, overwrite })
+        const approveRes = await approveAdminRequest(authHeaders, selectedRequest.id, {
+          content: editingRequest.content, overwrite
         });
         return parseApiResponse(approveRes, 'Failed to approve and add text to corpus');
       };
