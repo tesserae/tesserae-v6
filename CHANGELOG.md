@@ -9,6 +9,10 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-12
 
+### A recorded check that a change left the site's answers the same
+`scripts/review/golden_api.py` sends about seventy requests (Line Search in three languages, fusion search, rare words and pairs, Theme Search, Similar Passages, the Reader, documents, coins, objects, events, the corpus lists) to a server and compares the answers with a recording made earlier. It runs against a preview of a branch before a merge and against the live site after a deploy. The steps are in `scripts/review/README_GOLDEN.md`. No site behaviour changes.
+### Linters pinned to the code as it stands
+Ruff (Python) and ESLint (the React code) now run in the pull-request checks. Both pass on today's code: every fault that exists today is recorded in `ruff.toml` and `eslint-suppressions.json`, so a check fails only on a new fault. Formatting is not enforced. Four comments that switched off a check that was not reporting anything were removed; no other line of the application changed.
 ### Line Search: the inflected forms of respublica, iusiurandum, paterfamilias and senatusconsultum
 The four joined compounds that decline were found only in the forms the lemma table knew (rempublicam, reipublicae, patremfamilias). A search for "ius iurandum" missed a line printing iurisiurandi or iureiurando, "senatus consultum" missed senatusconsulto and senatusconsulti, and a search for the joined senatusconsulto found ten lines instead of the ones that print senatus consulto. Each of the four now carries its list of printed joined forms (respublica, reipublicae, rempublicam, republica, rerumpublicarum and others; iurisiurandi, iureiurando, iuraiuranda; patrisfamilias, patremfamilias, patrumfamilias, patribusfamilias and the spellings in -familiae; senatusconsulti, senatusconsulto, senatusconsulta, senatusconsultorum, senatusconsultis). A joined form in a line answers the parts a query types in any case, and a joined form in a query finds the parts side by side, in order, in any case. Nothing in the index, the lemma cache or the lemma table changed.
 ### Google Books: one retry after a temporary failure

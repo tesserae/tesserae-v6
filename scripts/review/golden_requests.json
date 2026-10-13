@@ -1,0 +1,586 @@
+{
+ "requests": [
+  {
+   "name": "languages",
+   "path": "/api/languages"
+  },
+  {
+   "name": "scope",
+   "path": "/api/scope"
+  },
+  {
+   "name": "texts_la",
+   "path": "/api/texts",
+   "params": {
+    "language": "la"
+   }
+  },
+  {
+   "name": "texts_grc",
+   "path": "/api/texts",
+   "params": {
+    "language": "grc"
+   },
+   "skip_on_preview": true,
+   "note": "live types 17 Greek-named prose texts as poetry (file name not readable in its locale); a preview reads them correctly"
+  },
+  {
+   "name": "texts_en",
+   "path": "/api/texts",
+   "params": {
+    "language": "en"
+   }
+  },
+  {
+   "name": "authors_la",
+   "path": "/api/authors",
+   "params": {
+    "language": "la"
+   }
+  },
+  {
+   "name": "corpus_hierarchy_la",
+   "path": "/api/texts/hierarchy",
+   "params": {
+    "language": "la"
+   }
+  },
+  {
+   "name": "text_descriptions",
+   "path": "/api/text-descriptions"
+  },
+  {
+   "name": "sources_credits",
+   "path": "/api/sources-credits"
+  },
+  {
+   "name": "corpus_version",
+   "path": "/api/corpus-version"
+  },
+  {
+   "name": "frequencies_la",
+   "path": "/api/frequencies/la"
+  },
+  {
+   "name": "author_dates",
+   "path": "/api/author-dates"
+  },
+  {
+   "name": "api_docs_json",
+   "path": "/api/docs.json"
+  },
+  {
+   "name": "ls_lemma_arma_virum",
+   "path": "/api/line-search",
+   "params": {
+    "query": "arma virum",
+    "language": "la",
+    "search_type": "lemma",
+    "max_results": 60
+   }
+  },
+  {
+   "name": "ls_exact_quo_usque",
+   "path": "/api/line-search",
+   "params": {
+    "query": "quo usque tandem abutere",
+    "language": "la",
+    "search_type": "exact",
+    "max_results": 60
+   }
+  },
+  {
+   "name": "ls_regex_la",
+   "path": "/api/line-search",
+   "params": {
+    "query": "virumque cano",
+    "language": "la",
+    "search_type": "regex",
+    "max_results": 40
+   }
+  },
+  {
+   "name": "ls_lemma_grc",
+   "path": "/api/line-search",
+   "params": {
+    "query": "μῆνιν ἄειδε",
+    "language": "grc",
+    "search_type": "lemma",
+    "max_results": 60
+   }
+  },
+  {
+   "name": "ls_exact_grc",
+   "path": "/api/line-search",
+   "params": {
+    "query": "μῆνιν ἄειδε θεά",
+    "language": "grc",
+    "search_type": "exact",
+    "max_results": 60
+   }
+  },
+  {
+   "name": "ls_lemma_en",
+   "path": "/api/line-search",
+   "params": {
+    "query": "brave new world",
+    "language": "en",
+    "search_type": "lemma",
+    "max_results": 60
+   }
+  },
+  {
+   "name": "ls_exact_en",
+   "path": "/api/line-search",
+   "params": {
+    "query": "now is the winter of our discontent",
+    "language": "en",
+    "search_type": "exact",
+    "max_results": 60
+   }
+  },
+  {
+   "name": "ls_one_work",
+   "path": "/api/line-search",
+   "params": {
+    "query": "arma virum",
+    "language": "la",
+    "search_type": "lemma",
+    "work": "vergil.aeneid.tess",
+    "max_results": 40
+   }
+  },
+  {
+   "name": "ls_count_only",
+   "path": "/api/line-search",
+   "params": {
+    "query": "arma virum",
+    "language": "la",
+    "search_type": "lemma",
+    "count_only": "true"
+   }
+  },
+  {
+   "name": "ls_documents",
+   "path": "/api/line-search",
+   "params": {
+    "query": "dis manibus",
+    "language": "la",
+    "search_type": "lemma",
+    "collection": "documents",
+    "limit": 30
+   }
+  },
+  {
+   "name": "ls_both",
+   "path": "/api/line-search",
+   "params": {
+    "query": "arma virum",
+    "language": "la",
+    "search_type": "lemma",
+    "collection": "both",
+    "max_results": 40
+   }
+  },
+  {
+   "name": "ls_reader_parallels",
+   "path": "/api/line-search",
+   "params": {
+    "query": "arma virumque cano",
+    "language": "la",
+    "search_type": "lemma",
+    "exclude_text_id": "vergil.aeneid",
+    "exclude_locus": "verg. aen. 1.1",
+    "rare_focus": "true",
+    "max_results": 40
+   }
+  },
+  {
+   "name": "wildcard_la",
+   "path": "/api/wildcard-search",
+   "params": {
+    "query": "arm* AND vir*",
+    "language": "la",
+    "target_text": "vergil.aeneid.part.1.tess",
+    "max_results": 500
+   }
+  },
+  {
+   "name": "lexical_density",
+   "path": "/api/lexical-density",
+   "params": {
+    "work": "vergil.aeneid"
+   }
+  },
+  {
+   "name": "fusion_la_pair",
+   "path": "/api/fusion-search",
+   "params": {
+    "source": "vergil.eclogues.tess",
+    "target": "calpurnius_siculus.eclogae.tess",
+    "language": "la",
+    "max": 100
+   },
+   "poll": {
+    "same_url": true,
+    "every": 10,
+    "max_seconds": 1500
+   },
+   "loose": {
+    "list": "parallels",
+    "id": [
+     "source.ref",
+     "target.ref"
+    ],
+    "top": 30,
+    "min_overlap": 0.8
+   }
+  },
+  {
+   "name": "fusion_grc_pair",
+   "path": "/api/fusion-search",
+   "params": {
+    "source": "bion_of_phlossa.epitaphius.tess",
+    "target": "theocritus.idylls.part.1.tess",
+    "language": "grc",
+    "max": 100
+   },
+   "poll": {
+    "same_url": true,
+    "every": 10,
+    "max_seconds": 1500
+   },
+   "loose": {
+    "list": "parallels",
+    "id": [
+     "source.ref",
+     "target.ref"
+    ],
+    "top": 30,
+    "min_overlap": 0.8
+   }
+  },
+  {
+   "name": "search_crosslingual",
+   "path": "/api/search",
+   "method": "POST",
+   "body": {
+    "source": "vergil.eclogues.part.1.tess",
+    "target": "theocritus.idylls.part.1.tess",
+    "source_language": "la",
+    "target_language": "grc",
+    "match_type": "crosslingual_fusion",
+    "min_matches": 2,
+    "skip_cache": true
+   },
+   "loose": {
+    "list": "results",
+    "id": [
+     "source.ref",
+     "target.ref"
+    ],
+    "top": 30,
+    "min_overlap": 0.8
+   }
+  },
+  {
+   "name": "rare_words",
+   "path": "/api/hapax-search",
+   "params": {
+    "source": "vergil.eclogues.tess",
+    "target": "calpurnius_siculus.eclogae.tess",
+    "language": "la",
+    "limit": 60
+   }
+  },
+  {
+   "name": "rare_pairs",
+   "path": "/api/rare-bigram-search",
+   "params": {
+    "source": "vergil.eclogues.tess",
+    "target": "calpurnius_siculus.eclogae.tess",
+    "language": "la",
+    "limit": 60
+   },
+   "unordered": [
+    "results",
+    "matched_words"
+   ]
+  },
+  {
+   "name": "rare_lemmata_full",
+   "path": "/api/rare-lemmata-full",
+   "params": {
+    "language": "la",
+    "page": 1
+   }
+  },
+  {
+   "name": "fusion_default_weights",
+   "path": "/api/fusion-default-weights"
+  },
+  {
+   "name": "theme_all_languages",
+   "path": "/api/passages/theme-search",
+   "params": {
+    "q": "a warrior arms himself before battle, piece by piece"
+   },
+   "ignore": [
+    "ms"
+   ]
+  },
+  {
+   "name": "theme_latin",
+   "path": "/api/passages/theme-search",
+   "params": {
+    "q": "a warrior arms himself before battle, piece by piece",
+    "languages": "la"
+   },
+   "ignore": [
+    "ms"
+   ]
+  },
+  {
+   "name": "theme_scholarship",
+   "path": "/api/passages/theme-search",
+   "params": {
+    "q": "a warrior arms himself before battle, piece by piece",
+    "source": "scholarship"
+   },
+   "ignore": [
+    "ms"
+   ]
+  },
+  {
+   "name": "theme_one_author",
+   "path": "/api/passages/theme-search",
+   "params": {
+    "q": "the plague strikes the army",
+    "author": "Homer"
+   },
+   "ignore": [
+    "ms"
+   ]
+  },
+  {
+   "name": "passages_status",
+   "path": "/api/passages/status"
+  },
+  {
+   "name": "passages_works_la",
+   "path": "/api/passages/works",
+   "params": {
+    "language": "la"
+   }
+  },
+  {
+   "name": "similar_window",
+   "path": "/api/passages/similar",
+   "params": {
+    "window": "vergil.aeneid.part.1:fine:0",
+    "limit": 15
+   }
+  },
+  {
+   "name": "similar_reader_selection",
+   "path": "/api/passages/similar",
+   "params": {
+    "work": "vergil.aeneid",
+    "ref_start": "verg. aen. 1.1",
+    "ref_end": "verg. aen. 1.7",
+    "limit": 15
+   }
+  },
+  {
+   "name": "similar_by_language",
+   "path": "/api/passages/similar",
+   "params": {
+    "window": "vergil.aeneid.part.1:fine:0",
+    "limit": 10,
+    "by_language": "1",
+    "same_names": "1"
+   }
+  },
+  {
+   "name": "one_text_dido",
+   "path": "/api/passages/theme-search",
+   "params": {
+    "q": "Dido",
+    "works": "vergil.aeneid"
+   },
+   "ignore": [
+    "ms"
+   ]
+  },
+  {
+   "name": "one_text_mentions",
+   "path": "/api/passages/mentions",
+   "params": {
+    "work": "vergil.aeneid",
+    "names": "Dido"
+   }
+  },
+  {
+   "name": "passages_lines",
+   "path": "/api/passages/lines",
+   "params": {
+    "work": "vergil.aeneid",
+    "ref_start": "verg. aen. 4.1",
+    "ref_end": "verg. aen. 4.10",
+    "context": 2
+   }
+  },
+  {
+   "name": "passages_compare",
+   "path": "/api/passages/compare",
+   "params": {
+    "work_a": "vergil.aeneid",
+    "work_b": "homer.odyssey",
+    "scale": "fine"
+   }
+  },
+  {
+   "name": "passages_density",
+   "path": "/api/passages/density",
+   "params": {
+    "work": "vergil.aeneid"
+   }
+  },
+  {
+   "name": "reader_text",
+   "path": "/api/text/vergil.aeneid.part.1.tess",
+   "params": {
+    "language": "la"
+   }
+  },
+  {
+   "name": "reader_book_for",
+   "path": "/api/text/vergil.aeneid.tess/book-for",
+   "params": {
+    "language": "la",
+    "ref": "verg. aen. 4.1"
+   }
+  },
+  {
+   "name": "reader_reuse_marks",
+   "path": "/api/reuse/marks",
+   "params": {
+    "work": "vergil.aeneid"
+   },
+   "unordered": [
+    "lines"
+   ]
+  },
+  {
+   "name": "reader_reuse_line",
+   "path": "/api/reuse/line",
+   "params": {
+    "work": "vergil.aeneid",
+    "ref": "verg. aen. 4.12"
+   }
+  },
+  {
+   "name": "reader_translation",
+   "path": "/api/translation",
+   "params": {
+    "work": "vergil.aeneid",
+    "refs": "verg. aen. 1.1"
+   }
+  },
+  {
+   "name": "reader_translation_full",
+   "path": "/api/passages/translation-full",
+   "params": {
+    "work": "vergil.aeneid"
+   }
+  },
+  {
+   "name": "reader_translations_available",
+   "path": "/api/passages/translations",
+   "params": {
+    "language": "la"
+   }
+  },
+  {
+   "name": "map_author",
+   "path": "/api/passages/map",
+   "params": {
+    "view": "author",
+    "languages": "la,grc"
+   }
+  },
+  {
+   "name": "map_cell",
+   "path": "/api/passages/map/cell",
+   "params": {
+    "view": "author",
+    "a": "vergil::la",
+    "b": "homer::grc"
+   }
+  },
+  {
+   "name": "documents_browse",
+   "path": "/api/documents/browse",
+   "params": {
+    "page_size": 20
+   }
+  },
+  {
+   "name": "documents_one",
+   "path": "/api/documents/merged:121996"
+  },
+  {
+   "name": "documents_facets_filter",
+   "path": "/api/documents/browse",
+   "params": {
+    "page_size": 10,
+    "kind": "papyri"
+   }
+  },
+  {
+   "name": "coins_list",
+   "path": "/api/coins",
+   "params": {
+    "limit": 20
+   }
+  },
+  {
+   "name": "coins_facets",
+   "path": "/api/coins/facets"
+  },
+  {
+   "name": "coin_one",
+   "path": "/api/coins/iris:ephesus_karwiese_1995_series_i"
+  },
+  {
+   "name": "objects_list",
+   "path": "/api/objects",
+   "params": {
+    "limit": 20
+   }
+  },
+  {
+   "name": "objects_facets",
+   "path": "/api/objects/facets"
+  },
+  {
+   "name": "object_one",
+   "path": "/api/objects/cma:2000.201"
+  },
+  {
+   "name": "events_list",
+   "path": "/api/events",
+   "params": {
+    "limit": 20
+   }
+  },
+  {
+   "name": "event_one",
+   "path": "/api/events/Q844289"
+  },
+  {
+   "name": "scholarship_sources",
+   "path": "/api/scholarship/sources"
+  }
+ ]
+}
