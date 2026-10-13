@@ -115,11 +115,18 @@ large and copied where the server writes:
   kernel during a long run of Line Search, wildcard and Theme Search requests):
 
       ~/bin/tess-job preview-golden 12 bash -c "cd WORKTREE || exit 1; \
+        export $(grep -E '^(THEME_READER_URL|THEME_READER_MODEL)=' /var/www/tesseraev6_flask/.env | xargs); \
         export PORT=5077 TESSERAE_MAX_WORKERS=1 TESSERAE_DOCUMENTS=1 \
         DEPLOYMENT_ENV=marvin SESSION_SECRET=anything-throwaway \
         DATABASE_URL=sqlite:////tmp/golden.db \
         TESSERAE_LANGUAGES=la,grc,en,cop,he,fa,ur,it,gmh,fro; \
         exec /var/www/tesseraev6_flask/venv/bin/python main.py"
+
+  The first `export` gives the preview the address and name of the Theme
+  Search re-ranking service (port 8091). Without it the preview does not
+  re-rank, and every Theme Search request differs from the live recording
+  (the recorded answers carry `reader` and `reader_score`). It prints
+  no key: those two settings are an address and a model name.
 
   The database is not used by any request in the list. `DATABASE_URL` only has
   to be set so that the app starts, and the server logs a harmless "Failed to

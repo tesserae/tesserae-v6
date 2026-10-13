@@ -7,7 +7,8 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from backend import app as A  # noqa: E402
+import backend.app  # noqa: E402,F401  (the application must be built first)
+from backend.blueprints import line_search as A  # noqa: E402  (the helpers live here now)
 
 
 def test_counts_a_work_once_whole_file_preferred(monkeypatch):

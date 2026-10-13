@@ -6,7 +6,8 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from backend import app as A  # noqa: E402
+import backend.app  # noqa: E402,F401  (the application must be built first)
+from backend.blueprints import documents as A  # noqa: E402  (the helpers live here now)
 import backend.documents as docs  # noqa: E402
 from test_documents_stage3b3 import documents_app_env, _post  # noqa: E402,F401
 
