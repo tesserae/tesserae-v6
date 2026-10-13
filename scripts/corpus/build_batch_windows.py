@@ -88,10 +88,10 @@ def names_in(text, lemmas, df, n_texts):
     return out[:12]
 
 
-def windows_for(path, language, lemmas, df, n_texts):
+def windows_for(path, language, lemmas, df, n_texts, min_lines=4):
     work = os.path.basename(path)[:-5]
     lines = tess_lines(path)
-    if len(lines) < 4:
+    if len(lines) < min_lines:
         return []
     wins = []
     for scale, size, step in (('fine', 12, 6), ('coarse', 30, 15)):
@@ -99,7 +99,7 @@ def windows_for(path, language, lemmas, df, n_texts):
             continue
         for start in range(0, max(1, len(lines) - 3), step):
             chunk = lines[start:start + size]
-            if len(chunk) < 4:
+            if len(chunk) < min_lines:
                 continue
             joined = '\n'.join(t for _r, t in chunk)
             wins.append({
@@ -141,6 +141,9 @@ def main():
     ap.add_argument('--lemma-table', required=True)
     ap.add_argument('--out', required=True, help='windows JSON for the describer')
     ap.add_argument('--upsert-db', help='window_texts.db to update (back it up first)')
+    ap.add_argument('--min-lines', type=int, default=4,
+                    help='shortest window kept (default 4, the standard floor); 1 gives a '
+                         'one-window-per-file result for poems of one to three lines')
     ap.add_argument('files', nargs='+')
     args = ap.parse_args()
 
@@ -149,7 +152,7 @@ def main():
           f'table {len(lemmas):,}')
     wins = []
     for path in args.files:
-        w = windows_for(path, args.language, lemmas, df, n_texts)
+        w = windows_for(path, args.language, lemmas, df, n_texts, args.min_lines)
         named = sum(1 for x in w if x['names_present'])
         print(f'  {os.path.basename(path)}: {len(w)} windows ({named} with names)')
         wins.extend(w)
