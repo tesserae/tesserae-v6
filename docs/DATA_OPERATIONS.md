@@ -35,6 +35,14 @@ Conventions
   hand and are the models the helper matches.
 
 
+## 2026-10-12 Fifteen backup copies of index files deleted (RUN 20:00)
+
+The scripts that append texts to a search index, repair references or rebuild a frequency table each leave a stamped `.bak-<tag>` copy of the index file beside it, as a way back if the change proves wrong. Fifteen such copies had accumulated under `data/inverted_index/` on the web machine, from 29 August to 10 October, 22 GB in all: six of the Latin index (7 and 8 October), three of the Greek index (4 to 10 October), two of the Persian index, and one each of the Coptic, English, Hebrew and Urdu indexes. The current indexes had been live for between two days and six weeks, the reference searches had passed after every deploy, no process had a copy open, and no code reads them. At the owner's instruction all fifteen were deleted. Free disk rose from 509 to 530 GB. The reference search check passed afterwards and Theme Search answered.
+
+The files, for the record: cop_index.db.bak-letters-20260927-1451, en_index.db.bak-milton-20260916-213923, fa_index.db.bak-dropped-20261008-20261008-113645, fa_index.db.bak-swap-dropped-20261008, grc_index.db.bak-diodorus-loeb-20261010, grc_index.db.bak-historians-20261009, grc_index.db.bak-historians2-20261009, he_index.db.bak-homographs-20261001-1048, la_index.db.bak-docfreq-20261007-082418, la_index.db.bak-removed-20261007-20261007-081825, la_index.db.bak-stale-20261007-0201, la_index.db.bak-vegio-20261007, la_index.db.bak-vegiofix-20261007, la_index.db.bak-victor-minor-20261008, ur_index.db.bak-swap-dropped-20261008.
+
+Rule from here: a `.bak` copy of an index is kept until the next deploy's reference check has passed, then deleted in the same turn, and the deletion is noted in this log with the append it belonged to.
+
 ## 2026-10-12 The local model server mothballed (RUN 18:06)
 
 The assistant, the scholarship paragraph, Theme Search's query expansion and the Scholarship tab's note translation all go through one model client, which the live site points at the campus AI gateway. The local model server on the web machine (a llama-server holding about 20 GB of memory) had answered no request in a week, so at the owner's instruction it was stopped and disabled, leaving its unit file in place. Available memory rose from 27 to 52 GB, and the job launcher, which allowed one job at a time while that server ran, now lets jobs overlap within its 24 GB budget.
