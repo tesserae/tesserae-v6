@@ -119,11 +119,28 @@ def _scholarship(c, event_id):
     out = []
     for s in rows:
         item = {'kind': s['kind'], 'title': s['title'], 'page_ref': s['page_ref'], 'url': s['url']}
+        if s['kind'] == 'commentary':
+            item.update(_commentary_cite_fields(s['title'], s['page_ref']))
         if linked:
             item.update(passage_rank=s['passage_rank'], passage_ref=s['passage_ref'])
         out.append(item)
     if linked:
         out = _by_passage_rank(out)
+    return out
+
+
+def _commentary_cite_fields(title, ref):
+    """What the Cite control reads on a commentary note: commentator, work,
+    the note's reference and the edition, taken from the held commentary the
+    row's title ("W. W. How and J. Wells on herodotus.histories") names. Rows
+    whose commentary is not held keep the commentator and work only."""
+    who, sep, work = (title or '').rpartition(' on ')
+    if not sep or not work or ' ' in work.strip():
+        return {}
+    from backend import scholarship
+    fields = scholarship.commentary_edition_fields(commentator=who, work=work)
+    out = {'commentator': who.strip(), 'work': work.strip(), 'ref_start': ref}
+    out.update({k: v for k, v in fields.items() if k in ('edition', 'edition_title') and v})
     return out
 
 

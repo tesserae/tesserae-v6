@@ -102,3 +102,26 @@ def test_route(built, monkeypatch):
     assert j['doc_id'] == 'edh:D2' and j['count'] == 1 and j['results'][0]['url'].endswith('/2')
     monkeypatch.setattr(docs, 'enabled', lambda: False)
     assert client.get('/api/documents/edh:D2/scholarship').status_code == 404
+
+
+def test_commentary_row_carries_the_fields_the_cite_control_reads(built, monkeypatch, tmp_path):
+    """The built fixture's commentary file is x__work.json by D. Editor; the
+    held-commentary list is pointed at a folder holding the same file with an
+    edition, and the document's commentary row reads its fields from it."""
+    from backend import scholarship
+    out, _ = built
+    comm = tmp_path / 'held'
+    comm.mkdir()
+    (comm / 'x__work.json').write_text(json.dumps({
+        'work': 'work', 'commentator': 'D. Editor', 'title': 'A Commentary',
+        'edition': 'D. Editor, A Commentary (Oxford: Clarendon Press, 1900)', 'units': [{'ref': 'l. 5', 'text': 't'}]}))
+    monkeypatch.setattr(scholarship, 'COMMENTARY_DIR', str(comm))
+    monkeypatch.setitem(scholarship._sources_cache, 'stamp', None)
+    try:
+        row = ds.scholarship_for('edh:D1', str(out))['results'][1]
+        assert row['kind'] == 'commentary' and row['commentator'] == 'D. Editor'
+        assert row['edition'].endswith('1900)') and row['work'] == 'work' and row['ref_start'] == 'l. 5'
+        journal = ds.scholarship_for('edh:D1', str(out))['results'][0]
+        assert 'edition' not in journal and 'kind' not in journal
+    finally:
+        scholarship._sources_cache.update(stamp=None, rows=None)

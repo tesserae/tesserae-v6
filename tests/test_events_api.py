@@ -151,3 +151,38 @@ def test_missing_database(monkeypatch, tmp_path):
     d = c.get('/api/events').get_json()
     assert d['available'] is False and d['events'] == []
     assert c.get('/api/events/Q1').status_code == 404
+
+
+def test_commentary_rows_carry_the_fields_the_cite_control_reads(client, db, monkeypatch, tmp_path):
+    """A commentary row on the event page names its commentator, work, note
+    reference and edition, taken from the held commentary the title names."""
+    import json
+    import sqlite3
+    from backend import scholarship
+    comm = tmp_path / 'comm'
+    comm.mkdir()
+    (comm / 'how_wells__herodotus.histories.json').write_text(json.dumps({
+        'work': 'herodotus.histories', 'commentator': 'W. W. How and J. Wells',
+        'title': 'A Commentary on Herodotus',
+        'edition': 'W. W. How and J. Wells, A Commentary on Herodotus (Oxford: Clarendon Press, 1912)',
+        'units': [{'ref': '7.59.1', 'text': 'x'}]}))
+    monkeypatch.setattr(scholarship, 'COMMENTARY_DIR', str(comm))
+    monkeypatch.setitem(scholarship._sources_cache, 'stamp', None)
+    eid = client.get('/api/events?sort=date').get_json()['events'][0]['id']
+    c = sqlite3.connect(db)
+    c.executemany("INSERT INTO scholarship (event_id, kind, title, page_ref, url) VALUES (?,?,?,?,?)", [
+        (eid, 'commentary', 'W. W. How and J. Wells on herodotus.histories', 'hdt. 7.59.1', ''),
+        (eid, 'commentary', 'Nobody Known on lost.work', 'lost 1.1', '')])
+    c.commit()
+    try:
+        rows = client.get(f'/api/events/{eid}').get_json()['scholarship']
+        held = next(r for r in rows if r['title'].endswith(' on herodotus.histories'))
+        assert held['commentator'] == 'W. W. How and J. Wells' and held['work'] == 'herodotus.histories'
+        assert held['ref_start'] == 'hdt. 7.59.1' and held['edition'].endswith('1912)')
+        assert held['kind'] == 'commentary' and held['edition_title'] == 'A Commentary on Herodotus'
+        lost = next(r for r in rows if r['title'].startswith('Nobody Known on'))
+        assert lost['commentator'] == 'Nobody Known' and 'edition' not in lost
+    finally:
+        c.execute("DELETE FROM scholarship WHERE title IN ('W. W. How and J. Wells on herodotus.histories', 'Nobody Known on lost.work')")
+        c.commit()
+        scholarship._sources_cache.update(stamp=None, rows=None)
