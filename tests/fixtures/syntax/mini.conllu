@@ -1,0 +1,15 @@
+# sent_id = s1
+# text = Arma uirum cano.
+1	Arma	arma	NOUN	_	Case=Acc|Gender=Neut|Number=Plur	3	obj	_	_
+2	uirum	uir	NOUN	_	Case=Acc|Gender=Masc|Number=Sing	1	conj	_	_
+3	cano	cano	VERB	_	Mood=Ind|Number=Sing|Tense=Pres|Voice=Act	0	root	_	_
+4	.	.	PUNCT	_	_	3	punct	_	_
+
+# sent_id = s2
+# text = Arma gerit uir fortis.
+1-2	skipped	_	_	_	_	_	_	_	_
+1	Arma	arma	NOUN	_	Case=Acc|Gender=Neut|Number=Plur	2	obj	_	_
+2	gerit	gero	VERB	_	Mood=Ind|Number=Sing|Tense=Pres|Voice=Act	0	root	_	_
+3	uir	uir	NOUN	_	Case=Nom|Gender=Masc|Number=Sing	2	nsubj	_	_
+4	fortis	fortis	ADJ	_	Case=Nom|Gender=Masc|Number=Sing	3	amod	_	_
+5	.	.	PUNCT	_	_	2	punct	_	_
