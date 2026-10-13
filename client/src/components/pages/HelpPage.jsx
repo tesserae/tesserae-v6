@@ -744,7 +744,8 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   <p className="text-gray-600 text-sm mt-1">
                     Compares a text in one language with a text in another. Seven pairs are open: Greek and Latin,
                     Latin and English, Greek and English, Coptic and Greek, Hebrew and Greek, Hebrew and Latin, and
-                    Persian and Urdu.
+                    Persian and Urdu. When a pair is held back for rebuilding, the page says so under the pair
+                    buttons and the pair returns when the rebuild is done (the two English pairs, October 2026).
                   </p>
                   <p className="text-gray-500 text-sm mt-2">
                     <strong>Use for:</strong> tracing how one language's writers adapted another's, such as Vergil

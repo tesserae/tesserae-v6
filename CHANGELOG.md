@@ -9,6 +9,9 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-13
 
+### The two English cross-language pairs are held back until the English texts are re-embedded
+Latin to English and Greek to English searches were failing: the English passage embeddings were built with a different model from the Latin and Greek ones (384 numbers per passage against 768), so the comparison stopped with a size error. The server now lists held pairs with a plain reason, the Cross-Language page shows that reason under the pair buttons instead of offering the pairs, and a direct request for a held pair gets the same sentence back instead of an error. The pairs return when the English texts have been re-embedded in the same space, which is the next job.
+
 ### Two merges of this morning restored
 The merge of the Latin scanner change (#880) carried a stale copy of two files and so undid two earlier merges: the fusion scorer went back to its unsplit form and its recording script disappeared (#878), and the unused scoring module came back (#879). Nothing a visitor saw changed, since the split kept every score identical. Both are restored here exactly as merged, with their decision entries. The merge chain now refuses to merge when a pull request's file list has grown beyond the records files since it was opened.
 

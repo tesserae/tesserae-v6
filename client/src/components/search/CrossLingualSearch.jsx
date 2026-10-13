@@ -145,6 +145,8 @@ export default function CrossLingualSearch({ onOpenHelp, onRegister, onCorpusSea
   // languages, so the Persian and Urdu menus were empty everywhere
   // (2026-09-06). Falls back to the full list if the request fails.
   const [pairs, setPairs] = useState(LANG_PAIRS);
+  // Pairs the server holds back, each with the reason it gives (shown under the pair buttons).
+  const [heldPairs, setHeldPairs] = useState([]);
   const [sourceAuthor, setSourceAuthor] = useState('');
   const [sourceWork, setSourceWork] = useState('');
   const [sourceSection, setSourceSection] = useState('');
@@ -386,6 +388,7 @@ export default function CrossLingualSearch({ onOpenHelp, onRegister, onCorpusSea
         const ld = await lr.json();
         const keys = new Set((ld.crosslingual_pairs || []).map(p => p.key || `${p.source}-${p.target}`));
         if (keys.size) served = LANG_PAIRS.filter(p => keys.has(p.key));
+        setHeldPairs(Array.isArray(ld.crosslingual_held) ? ld.crosslingual_held : []);
       } catch (e) { /* keep the full list if the request fails */ }
       if (served.length) {
         setPairs(served);
@@ -685,6 +688,12 @@ export default function CrossLingualSearch({ onOpenHelp, onRegister, onCorpusSea
           ))}
         </div>
       </div>
+      {heldPairs.length > 0 && (
+        <p className="text-xs text-gray-600 mb-3" data-testid="cross-held-note">
+          {heldPairs.map(h => (LANG_PAIRS.find(p => p.key === h.key)?.label || h.key)).join(' and ')}
+          {heldPairs.length > 1 ? ' are' : ' is'} offline for now. {heldPairs[0].reason}
+        </p>
+      )}
 
       <ScopeBox id="cross" />
 
