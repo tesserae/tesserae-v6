@@ -248,6 +248,32 @@ history (index builds, cache rebuilds, corpus changes) is in
   themselves receive that body as before. The admin tabs, the assistant and
   the calls that already check the status with their own message are
   moved when next touched, not in one sweep.
+- Eighth and ninth structural jobs under the rule, the two largest front-end
+  files (see the CHANGELOG entries of 2026-10-13). The front end gets its own
+  recorded check: `client/src/test/renderRecording.test.jsx` and
+  `renderRecording.appflow.test.jsx` render the result list in each of its
+  modes (sorted by score and by locus, paged, chart open, corpus panel open,
+  each language, streaming, loading, error and empty), the App on every
+  address the router knows, and the App's search, Search Corpus and Save
+  Parallel flows, with fetch answering from fixed fixtures, and snapshot the
+  HTML. The snapshots were recorded on main before any file was split, and a
+  split passes only if every one is identical, apart from the markup of the
+  one chart that was redrawn on purpose. The check records what the code does
+  today, not what it should do (it records, for example, that saving a fusion
+  result from the Save Parallel dialog fails because the card's channels are
+  a list and the dialog expects text).
+- One way to highlight matched words. The CSV export, the result card and the
+  corpus panel's instance lines each had their own function for marking
+  matched words. They differ in what counts as a match, which punctuation is
+  cut and which letters are folded, so the module `client/src/utils/highlight.js`
+  keeps three entry points over shared pieces (the edge-punctuation strip, the
+  Hebrew point strip, the word splitter), and 60 inputs recorded from the three
+  old functions (`client/src/utils/__fixtures__/highlight_cases.json`) must
+  come out character for character the same.
+- One chart library for the public pages. The corpus panel's timeline, drawn
+  by hand in D3, is redrawn as a horizontal bar chart in Chart.js, the library
+  every other public chart uses. D3 stays only for the network graph and the
+  admin map, which are genuine uses of it.
 
 
 ## 2026-10-12: the band inside one work is refitted on eleven works, and its lowest level is a caution, not a verdict

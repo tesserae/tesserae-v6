@@ -173,10 +173,7 @@
       "count": 1
     },
     "no-unused-vars": {
-      "count": 3
-    },
-    "no-useless-escape": {
-      "count": 4
+      "count": 2
     }
   },
   "client/src/components/search/SearchSettings.jsx": {
@@ -243,6 +240,11 @@
   "client/src/utils/formatting.js": {
     "no-useless-escape": {
       "count": 2
+    }
+  },
+  "client/src/utils/highlight.js": {
+    "no-unused-vars": {
+      "count": 1
     }
   },
   "client/src/utils/storage.js": {

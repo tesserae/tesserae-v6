@@ -35,7 +35,6 @@ export const MIGRATED_CALL_SITES = [
   ["components/pages/AboutPage.jsx", "getJson('/api/version')"],
   ["components/pages/HelpPage.jsx", "fetchLanguages().then((d) => {"],
   ["components/pages/HelpPage.jsx", "const data = await postJsonTo('/api/feedback', {"],
-  ["components/pages/LoginPage.jsx", "const data = await postJsonTo(`${API_BASE}${endpoint}`, body);"],
   ["components/pages/RequestsPage.jsx", "getJson('/api/requests')"],
   ["components/passages/ConnectionsMap.jsx", "const json = await getJson(`/api/passages/map?${params}`);"],
   ["components/passages/ConnectionsMap.jsx", "Promise.all(codes.map((c) => getJson(`/api/passages/works?language=${c}`)))"],
@@ -69,8 +68,8 @@ export const MIGRATED_CALL_SITES = [
   ["components/search/LineSearch.jsx", "const data = await getJson(`/api/text/${selectedWork}/lines?language=${language}`);"],
   ["components/search/LineSearch.jsx", "const data = await postLineSearch(searchParams);"],
   ["components/search/SearchResults.jsx", "postJsonTo('/api/passages/pair-lift', { pairs })"],
-  ["components/search/SearchResults.jsx", "postLineSearch({ query, language, search_type: 'lemma', max_results: 500 })"],
-  ["components/search/SearchResults.jsx", "postLineSearch({ query: corpusData.query, language, search_type: 'lemma', max_results: 200,"],
+  ["components/search/CorpusDistributionPanel.jsx", "postLineSearch({ query, language, search_type: 'lemma', max_results: 500 })"],
+  ["components/search/CorpusDistributionPanel.jsx", "postLineSearch({ query: corpusData.query, language, search_type: 'lemma', max_results: 200,"],
   ["components/visualization/NetworkGraph.jsx", "getJson(`/api/batch/network/nodes?language=${language}&type=${nodeType}`),"],
   ["components/visualization/NetworkGraph.jsx", "getJson(`/api/batch/connections?language=${language}&per_page=500`)"],
 ];
