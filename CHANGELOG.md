@@ -9,6 +9,9 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-13
 
+### Daylight prototype: topics covered for one work and not for comparable works (nothing on the site)
+Scripts `scripts/scholarship/daylight_*.py` label the 29,055 articles of the JSTOR Early Journal Content citation index (24 journals, 1827 to 1922) against a written vocabulary of 37 approaches and 109 themes, build topic coverage tables per cited work normalised by each work's article total, group comparable works by language, genre or era and metre and by profile correlation, and score each work's gaps against its neighbours. A gap is relative to those holdings only. The labels and tables are kept outside the repository; no article text is stored.
+
 ### Tools for fetching licensed journal text, dry-run only
 `scripts/scholarship/licensed_lists.py` builds from Crossref's public metadata the article lists of the Project MUSE classics journals (American Journal of Philology, Transactions of the American Philological Association, The Classical Journal, Arethusa) and of De Gruyter Brill's Philologus and Mnemosyne, plus the classics book series Crossref records, and compares a list with the JSTOR list by DOI and by year, volume, page and author. `scripts/scholarship/licensed_fetch.py` retrieves the text one article a minute, only from the web server's address, stops on the first refusal or captcha page, resumes from its log, keeps files readable by the owner's account alone, and can delete the text at project end while keeping the metadata. It was exercised against a local stand-in server only. Nothing has been fetched from any publisher. Tests: `tests/test_licensed_fetch.py`. A draft entry for the first run is in docs/DATA_OPERATIONS.md.
 
