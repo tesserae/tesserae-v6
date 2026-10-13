@@ -527,7 +527,7 @@ MANIFEST = {
     },
     '/api/passages/recent-scholarship': {
         'site_only': True,
-        'reason': ("Recent articles from the live services for the Search One Text page, one service per "
+        'reason': ("Articles the live services list for the Search One Text page, one service per "
                   "request so the page can paint each as it answers; a connector caller asks the services "
                   "through the scholarship search itself."),
     },

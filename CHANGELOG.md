@@ -9,6 +9,9 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-12
 
+### Search One Text: the passages first, the written boxes beside them
+The summary of the work, the Scholarship paragraph and the article list sat above the passages and pushed them down the page. The passages, their strip and the named-passage list now come first, and the three boxes stand in a column to their right on a wide screen, under them on a phone. The article list is called "Articles found online" rather than "Recent articles", since the services list work of any year (a 1955 article appeared under the old heading), and the line under the Scholarship paragraph says "articles online" rather than "recent articles". Theme Search's Scholarship list uses the same heading.
+
 ### Three faults the new linters found, fixed
 The header's Suggest a change button sends an event whose handler called a setter that no longer existed after the footer's removal earlier today, so the button did nothing from the early afternoon until this fix; the dialog now lives at the top of the app again. The navigation bar ran one of its hooks after an early return for the admin-only menu, against React's rule that hooks run in the same order every render; the early return moved below the hooks. The Reader's Scholarship tab lookup appended to a list that was never defined, which would have failed with an error whenever CORE ran without its key; the list is defined and returned. Each fault's entry is removed from the linters' baselines, and a test covers each.
 
