@@ -11,7 +11,9 @@ sort the top K by reader score descending, index score as the tiebreak.
 Results past K keep the order find_by_text already gave them.
 """
 import os
+import threading
 import time
+from collections import OrderedDict
 
 from backend import reader_client
 from backend import translations
@@ -89,6 +91,61 @@ def _reader_texts(results):
     return out
 
 
+# Scores the reader has already given, by (query, window id). The reader is a
+# fixed model reading fixed text, so asking again returns the same number; a
+# second page, a refresh or a repeated search then sends it only the windows it
+# has not seen for that query (usually none). The entries are kept per worker,
+# for six hours at most, and the whole cache is dropped when the passage texts
+# file, the reader address or the model name changes.
+_SCORE_CACHE = OrderedDict()   # (query, id) -> (time, score)
+_SCORE_CACHE_MAX = 60000       # about 200 searches of 300 rows
+_SCORE_CACHE_TTL = 6 * 3600.0
+_score_cache_stamp = None
+_score_cache_lock = threading.Lock()
+
+
+def _cache_stamp():
+    try:
+        st = os.stat(window_texts.DB)
+        file_part = (st.st_mtime_ns, st.st_size)
+    except OSError:
+        file_part = None
+    return (file_part, MODEL_ID, os.environ.get('THEME_READER_URL'))
+
+
+def clear_score_cache():
+    """Forget every cached score (tests, and anything that changes the texts)."""
+    with _score_cache_lock:
+        _SCORE_CACHE.clear()
+
+
+def _cache_get(query, ids):
+    """{id: score} for the ids already scored for this query."""
+    global _score_cache_stamp
+    now = time.monotonic()
+    out = {}
+    with _score_cache_lock:
+        stamp = _cache_stamp()
+        if stamp != _score_cache_stamp:
+            _SCORE_CACHE.clear()
+            _score_cache_stamp = stamp
+        for wid in ids:
+            hit = _SCORE_CACHE.get((query, wid))
+            if hit is not None and now - hit[0] < _SCORE_CACHE_TTL:
+                out[wid] = hit[1]
+    return out
+
+
+def _cache_put(query, scores):
+    now = time.monotonic()
+    with _score_cache_lock:
+        for wid, sc in scores.items():
+            _SCORE_CACHE[(query, wid)] = (now, sc)
+            _SCORE_CACHE.move_to_end((query, wid))
+        while len(_SCORE_CACHE) > _SCORE_CACHE_MAX:
+            _SCORE_CACHE.popitem(last=False)
+
+
 def apply(query, results, k=None, timeout=None):
     """Re-rank the top `k` of `results` by reader score, index score as the
     tiebreak. `results` is assumed already sorted by index score.
@@ -113,12 +170,16 @@ def apply(query, results, k=None, timeout=None):
     tail = results[k:]
 
     t0 = time.time()
-    texts = _reader_texts(head)
-    passages = [{'id': r.get('id'), 'text': texts.get(r.get('id'), '')} for r in head]
-
-    scores = reader_client.score(query, passages, timeout=timeout)
-    if scores is None:
-        return results, {'applied': False}
+    scores = _cache_get(query, [r.get('id') for r in head])
+    todo = [r for r in head if r.get('id') not in scores]
+    if todo:
+        texts = _reader_texts(todo)
+        passages = [{'id': r.get('id'), 'text': texts.get(r.get('id'), '')} for r in todo]
+        fresh = reader_client.score(query, passages, timeout=timeout)
+        if fresh is None:
+            return results, {'applied': False}
+        _cache_put(query, fresh)
+        scores.update(fresh)
     ms = int((time.time() - t0) * 1000)
 
     missing = [r.get('id') for r in head if r.get('id') not in scores]

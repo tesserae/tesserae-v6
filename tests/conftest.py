@@ -85,3 +85,18 @@ os.environ.setdefault('DATABASE_URL', f'sqlite:///{_TEST_DB}')
 # Non-dev turns on exactly two things: the HSTS header and SESSION_COOKIE_SECURE.
 # Neither troubles a test client, and 'test' is what that module already chose.
 os.environ.setdefault('DEPLOYMENT_ENV', 'test')
+
+
+import pytest  # noqa: E402
+
+
+@pytest.fixture(autouse=True)
+def _fresh_theme_search_caches():
+    """The reader's score cache, the query-vector cache and the word-index rows
+    cache live for the life of the process. A test that stubs the reader or the
+    encoder must not be answered from an earlier test's entries."""
+    from backend import passage_index, reader_rerank
+    reader_rerank.clear_score_cache()
+    passage_index._QUERY_VECTORS.clear()
+    passage_index._lex_rows_cache.clear()
+    yield

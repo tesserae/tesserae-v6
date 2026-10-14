@@ -34,7 +34,17 @@ READER_THREADS = int(os.environ.get('READER_THREADS', '8'))
 HOST = os.environ.get('TESSERAE_READER_HOST', '127.0.0.1')
 PORT = int(os.environ.get('TESSERAE_READER_PORT', '8091'))
 
-BATCH_SIZE = 32
+# Defaults are the settings the live service has always run. Two environment
+# variables change how the same passages are batched, never what is scored:
+# READER_SORT=1 puts passages of similar length in the same batch, so short
+# ones are not padded out to the longest in their batch, and READER_BATCH_SIZE
+# sets the batch. Measured 2026-10-14 on 10 probe searches of 300 passages
+# (16 threads): 6.2 s at 32 unsorted, 4.7 s sorted at 8. The scores differ in
+# the seventh decimal (padding changes the arithmetic order, not the model);
+# the order of the 300 passages was identical on all ten. The change is left
+# off until the owner decides, because a score is not bit-for-bit the same.
+BATCH_SIZE = int(os.environ.get('READER_BATCH_SIZE', '32'))
+SORT_BY_LENGTH = os.environ.get('READER_SORT', '0').lower() in ('1', 'true', 'yes')
 MAX_LENGTH = 512
 # A malformed or hostile request should not turn into an unbounded scoring
 # job on a shared machine; a hundred is the largest Theme Search actually
@@ -72,6 +82,8 @@ def score_passages(query, passages):
     import torch
 
     scores = {}
+    if SORT_BY_LENGTH:
+        passages = sorted(passages, key=lambda p: len(p.get('text') or ''))
     with torch.no_grad():
         for i in range(0, len(passages), BATCH_SIZE):
             batch = passages[i:i + BATCH_SIZE]

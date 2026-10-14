@@ -614,14 +614,42 @@ class EmbedUnavailable(RuntimeError):
     """The encoder service could not be reached. Say so; never guess a vector."""
 
 
+# Vectors the encoder has already returned, by exact input text. The encoder
+# is deterministic, so a repeat of a query (a second page, a refresh, a shared
+# link) gets the same vector without the HTTP call. Bounded, and every entry
+# expires after an hour so a changed encoder cannot be outlived by a worker.
+_QUERY_VECTORS = {}
+_QUERY_VECTORS_MAX = 256
+_QUERY_VECTORS_TTL = 3600.0
+_query_vectors_lock = threading.Lock()
+
+
 def embed_query(text):
     """One query string to its vector, via the encoder service.
 
-    Returns a float32 numpy array. Raises EmbedUnavailable if the service is not
-    running, which the caller turns into an honest "unavailable" rather than an
-    empty result set: no results and cannot ask are different answers, and only
-    one of them means the corpus lacks the subject.
+    Returns a float32 numpy array (read-only when it came from the cache).
+    Raises EmbedUnavailable if the service is not running, which the caller
+    turns into an honest "unavailable" rather than an empty result set: no
+    results and cannot ask are different answers, and only one of them means
+    the corpus lacks the subject.
     """
+    now = time.monotonic()
+    with _query_vectors_lock:
+        hit = _QUERY_VECTORS.get(text)
+        if hit is not None and now - hit[0] < _QUERY_VECTORS_TTL:
+            return hit[1]
+    vec = _embed_query_uncached(text)
+    vec.setflags(write=False)
+    with _query_vectors_lock:
+        if len(_QUERY_VECTORS) >= _QUERY_VECTORS_MAX:
+            oldest = min(_QUERY_VECTORS, key=lambda k: _QUERY_VECTORS[k][0])
+            del _QUERY_VECTORS[oldest]
+        _QUERY_VECTORS[text] = (now, vec)
+    return vec
+
+
+def _embed_query_uncached(text):
+    """The HTTP call to the encoder service (see embed_query)."""
     import json as _json
     import urllib.error
     import urllib.request
@@ -888,7 +916,7 @@ def held_languages():
 
 def _rank(scores, limit, exclude_work=None, languages=None, scale=None,
           dedup=True, baseline=None, strong_at=None, exclude_span=None,
-          per_work=None, only_works=None, offset=0):
+          per_work=None, only_works=None, offset=0, order=None):
     """Shared ranking: sort, filter, and collapse near-duplicate windows.
 
     Duplicates are real in this corpus: a work and its .part.N file both carry
@@ -913,6 +941,10 @@ def _rank(scores, limit, exclude_work=None, languages=None, scale=None,
     what page 1 already showed, rather than a fresh ranking that happens to use
     a bigger limit (which is how the existing 25/50/75/100 stepping works, and
     why it tops out at 100: `_int_arg` caps `limit` itself there).
+
+    `order` is `np.argsort(-scores)` when the caller has already computed it:
+    Theme Search ranks the same scores three times and each sort of the whole
+    index takes about 0.1 s. It is the same array the line below would build.
     """
     import numpy as np
     if baseline is None:
@@ -921,7 +953,8 @@ def _rank(scores, limit, exclude_work=None, languages=None, scale=None,
     if strong_at is None:
         strong_at = baseline + STRONG_LIFT
     held = held_languages()
-    order = np.argsort(-scores)
+    if order is None:
+        order = np.argsort(-scores)
     seen = {}          # work -> [(start, end)] already taken, for overlap dedup
     per_work_count = {}
     by_passage = {}       # canonical scripture span -> index into out
@@ -1848,6 +1881,13 @@ def _lexical_ready():
         return True
 
 
+# Rows the word index returned, by match string (see _lexical_boost). Each is
+# at most LEXICAL_TOPN (id, bm25) pairs; the oldest goes first.
+_lex_rows_cache = {}
+_lex_rows_lock = threading.Lock()
+_LEX_ROWS_MAX = 64
+
+
 def _lexical_boost(query, scores):
     """Add LEXICAL_BETA x normalised BM25 to the scores of the windows whose
     descriptions share words with the query. Returns the number of windows
@@ -1861,14 +1901,30 @@ def _lexical_boost(query, scores):
         return 0
     import sqlite3
     match = ' OR '.join('"%s"' % w.replace('"', '') for w in words)
+    # The word index is read-only between rebuilds, so the same match string
+    # gives the same rows. The file's size and modification time are part of
+    # the key: a rebuilt index is never answered from before the rebuild.
     try:
-        conn = sqlite3.connect(f'file:{_LEX_PATH}?mode=ro', uri=True)
-        rows = conn.execute('SELECT id, bm25(desc) FROM desc WHERE desc MATCH ? '
-                            'ORDER BY bm25(desc) LIMIT ?', (match, LEXICAL_TOPN)).fetchall()
-        conn.close()
-    except Exception as e:  # noqa: BLE001
-        logger.warning('[PASSAGES] lexical lookup failed (%s); no boost this query', e)
-        return 0
+        st = os.stat(_LEX_PATH)
+        key = (match, LEXICAL_TOPN, st.st_mtime_ns, st.st_size)
+    except OSError:
+        key = None
+    with _lex_rows_lock:
+        rows = _lex_rows_cache.get(key) if key else None
+    if rows is None:
+        try:
+            conn = sqlite3.connect(f'file:{_LEX_PATH}?mode=ro', uri=True)
+            rows = conn.execute('SELECT id, bm25(desc) FROM desc WHERE desc MATCH ? '
+                                'ORDER BY bm25(desc) LIMIT ?', (match, LEXICAL_TOPN)).fetchall()
+            conn.close()
+        except Exception as e:  # noqa: BLE001
+            logger.warning('[PASSAGES] lexical lookup failed (%s); no boost this query', e)
+            return 0
+        if key:
+            with _lex_rows_lock:
+                if len(_lex_rows_cache) >= _LEX_ROWS_MAX:
+                    _lex_rows_cache.pop(next(iter(_lex_rows_cache)))
+                _lex_rows_cache[key] = rows
     if not rows:
         return 0
     vals = [-b for _, b in rows]          # bm25() is negative, lower is better
@@ -2181,6 +2237,9 @@ def find_by_text(query, limit=25, languages=None, scale=None, expand=False,
         within = within_work_signals(scores, _restricted_rows(set(only_works)))
     n_lexical = _lexical_boost(query, scores)
     vocab_fields = _vocab_fields(query)
+    # The scores are final from here on. Every ranking below sorts the same
+    # array, so sort it once.
+    order = np.argsort(-scores)
 
     if only_works is not None:
         # Restricted to an author or to chosen works. The corpus-wide level was
@@ -2202,7 +2261,7 @@ def find_by_text(query, limit=25, languages=None, scale=None, expand=False,
             cap = RESTRICTED_PER_WORK
         results = _rank(scores, limit, offset=offset, languages=languages,
                         scale=scale, baseline=baseline, strong_at=1e9,
-                        per_work=cap, only_works=works_set)
+                        per_work=cap, only_works=works_set, order=order)
         confidence = {'level': 'restricted'}
         within_note = None
         if within is not None:
@@ -2268,7 +2327,7 @@ def find_by_text(query, limit=25, languages=None, scale=None, expand=False,
     # Measured on both "warrior arming scene" and the sentence form, with the
     # same ordering both times.
     heads = _rank(scores, limit, offset=offset, languages=languages, scale=scale,
-                  baseline=baseline, strong_at=strong_at, per_work=1)
+                  baseline=baseline, strong_at=strong_at, per_work=1, order=order)
     # Multi-language pages are composed by per-language round-robin rather
     # than one global cutoff; see _interleave_languages for the measurements
     # behind the choice. `offset` shifts the pool the same way it shifts
@@ -2277,7 +2336,7 @@ def find_by_text(query, limit=25, languages=None, scale=None, expand=False,
     if not languages or len(languages) > 1:
         pool = _rank(scores, limit * 6, offset=offset, languages=languages,
                      scale=scale, baseline=baseline, strong_at=strong_at,
-                     per_work=1)
+                     per_work=1, order=order)
         heads = _interleave_languages(heads, pool)
     # Works, not offset: once the (offset-adjusted) set of works for this page
     # is chosen, each one's own top passages are fetched from the start of ITS
@@ -2286,7 +2345,7 @@ def find_by_text(query, limit=25, languages=None, scale=None, expand=False,
     chosen = [_norm_work(r.get('work')) for r in heads]
     results = _rank(scores, limit * PASSAGES_PER_WORK, languages=languages,
                     scale=scale, baseline=baseline, strong_at=strong_at,
-                    per_work=PASSAGES_PER_WORK, only_works=set(chosen))
+                    per_work=PASSAGES_PER_WORK, only_works=set(chosen), order=order)
     # Back into the order the first pass established, so the page still reads
     # best-work-first and each work's passages sit together.
     rank_of = {w: n for n, w in enumerate(chosen)}

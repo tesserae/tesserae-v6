@@ -106,6 +106,45 @@ def _base_work(work):
     return str(work or '').strip().replace('.tess', '')
 
 
+# Reading a few hundred passage texts is a few hundred random reads of a 3 GB
+# file. When those pages are not in the operating system's cache the reads wait
+# on the disk, one after another, so the reader's 300 texts took about a second.
+# A fixed set of worker threads (each keeps its own read-only connection, see
+# _conn) asks for slices of the list at the same time. sqlite3 gives up the
+# interpreter lock while it reads.
+_PARALLEL_MIN = 120      # fewer ids than this are read in the calling thread
+_SLICE = 40
+_POOL = None
+_pool_lock = threading.Lock()
+
+
+def _pool():
+    global _POOL
+    with _pool_lock:
+        if _POOL is None:
+            from concurrent.futures import ThreadPoolExecutor
+            _POOL = ThreadPoolExecutor(max_workers=8, thread_name_prefix='window-texts')
+        return _POOL
+
+
+def _read_slice(chunk):
+    """{id: text} for one slice, on the calling thread's own connection."""
+    c = _conn()
+    out = {}
+    if c is None:
+        return out
+    # `marks` is a run of '?' separated by commas and nothing else, so no value
+    # reaches the SQL text: the ids go in as bound parameters on the next line.
+    # bandit cannot see that and flags any f-string query (B608), so the reason
+    # is recorded rather than the warning silenced repo-wide.
+    marks = ','.join('?' * len(chunk))
+    for wid, text in c.execute(
+            f'SELECT id, text FROM window_texts WHERE id IN ({marks})',  # nosec B608
+            chunk):
+        out[wid] = text
+    return out
+
+
 def texts_for(ids):
     """{window id: source text} for the ids that resolve. Missing ids are simply
     absent, so a caller can tell "no text" from "empty text"."""
@@ -118,20 +157,16 @@ def texts_for(ids):
         return {}
     out = {}
     try:
-        # Chunked: SQLite's default parameter limit is 999 and an export of a
-        # few hundred results would otherwise fail only on the largest requests.
-        for i in range(0, len(ids), 500):
-            chunk = ids[i:i + 500]
-            # `marks` is a run of '?' separated by commas and nothing else, so
-            # no value reaches the SQL text: the ids go in as bound parameters
-            # on the next line. bandit cannot see that and flags any f-string
-            # query (B608), so the reason is recorded rather than the warning
-            # silenced repo-wide.
-            marks = ','.join('?' * len(chunk))
-            for wid, text in c.execute(
-                    f'SELECT id, text FROM window_texts WHERE id IN ({marks})',  # nosec B608
-                    chunk):
-                out[wid] = text
+        if len(ids) < _PARALLEL_MIN:
+            # Chunked: SQLite's default parameter limit is 999 and an export of
+            # a few hundred results would otherwise fail only on the largest
+            # requests.
+            for i in range(0, len(ids), 500):
+                out.update(_read_slice(ids[i:i + 500]))
+        else:
+            slices = [ids[i:i + _SLICE] for i in range(0, len(ids), _SLICE)]
+            for part in _pool().map(_read_slice, slices):
+                out.update(part)
     except sqlite3.Error as e:
         logger.error('[WINDOWTEXTS] %s', e)
         return out
