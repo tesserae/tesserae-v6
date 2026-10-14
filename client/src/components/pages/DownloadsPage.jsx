@@ -834,8 +834,49 @@ const DownloadsPage = () => {
         </div>
       </div>
 
+      <div className="bg-white rounded-lg shadow p-6" id="run-your-own">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Run your own Tesserae</h3>
+        <p className="text-sm text-gray-600 mb-4">
+          One archive holds everything the search engine needs: the texts, the lemma caches, the search
+          indexes, the word-pair tables, the aligned translations that are public domain or openly licensed,
+          and the commentaries whose license allows it. With the code from GitHub and the recipe below, it
+          runs on a machine of your own. The bundle is offered for non-commercial use, because two lemma
+          tables and some commentaries carry non-commercial licenses; every source and its attribution line
+          is listed in the license file inside the archive.
+        </p>
+        <div className="space-y-3 mb-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-gray-50 rounded">
+            <div>
+              <span className="font-medium">Core bundle, 14 October 2026</span>
+              <span className="text-sm text-gray-500 ml-2">(3.3 GB compressed, about 18 GB unpacked)</span>
+              <p className="text-xs text-gray-500 mt-1">Built from the production data at code version <span className="font-mono">a508a6db</span>. SHA-256 <span className="font-mono break-all">4ca251d1888efca9d2e85e3a0aaa56b1a1132ae4c93f06980ea63b1e9e34a16d</span></p>
+            </div>
+            <a
+              href="/static/downloads/bundle/tesserae-public-core-20261014.tar.zst"
+              className="px-4 py-2 bg-red-700 text-white rounded hover:bg-red-800 text-sm text-center whitespace-nowrap"
+            >
+              Download bundle
+            </a>
+          </div>
+          <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm">
+            <a href="/static/downloads/bundle/tesserae-public-core-20261014.tar.zst.sha256" className="text-red-700 hover:underline">Checksum</a>
+            <a href="/static/downloads/bundle/MANIFEST-core-20261014.tsv" className="text-red-700 hover:underline">Manifest (every file, size and checksum)</a>
+            <a href="/static/downloads/bundle/LICENSES-core-20261014.md" className="text-red-700 hover:underline">License file</a>
+            <a href="https://github.com/tesserae/tesserae-v6/blob/main/docs/RUN_YOUR_OWN.md" className="text-red-700 hover:underline" target="_blank" rel="noopener noreferrer">The recipe, step by step</a>
+          </div>
+        </div>
+        <p className="text-xs text-gray-500">
+          The full bundle, which adds the passage windows and their vectors for Similar Passages and Theme
+          Search, is not published yet. Ask through Suggest a change in the footer if you need it.
+        </p>
+      </div>
+
       <div className="bg-white rounded-lg shadow p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Developer Data Files</h3>
+        <p className="text-sm text-gray-600 mb-4">
+          The bundle above is the maintained way to install a working copy. The files below are the
+          older piecemeal downloads and stay for anyone who needs one index alone.
+        </p>
         <p className="text-sm text-gray-600 mb-4">
           To run Tesserae V6 locally, you need the Git repository plus pre-built search indexes
           (too large for GitHub). The repository itself is ~4 GB because it includes the corpus texts
