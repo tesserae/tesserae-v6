@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { fetchAdminSettings, saveAdminSettings } from '../../../utils/api';
 
 export default function SettingsTab({ authHeaders }) {
   const [notificationEmails, setNotificationEmails] = useState('');
@@ -7,8 +8,8 @@ export default function SettingsTab({ authHeaders }) {
 
   const loadSettings = async () => {
     try {
-      const res = await fetch('/api/admin/settings', { headers: authHeaders });
-      const data = await res.json();
+      const res = await fetchAdminSettings(authHeaders);
+      const data = res.data;
       setNotificationEmails(data.notification_emails || '');
     } catch (err) {
       console.error('Failed to load settings:', err);
@@ -19,12 +20,8 @@ export default function SettingsTab({ authHeaders }) {
     setSettingsSaving(true);
     setSettingsMessage(null);
     try {
-      const res = await fetch('/api/admin/settings', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...authHeaders },
-        body: JSON.stringify({ notification_emails: notificationEmails })
-      });
-      const data = await res.json();
+      const res = await saveAdminSettings(authHeaders, { notification_emails: notificationEmails });
+      const data = res.data;
       if (data.success) {
         setSettingsMessage({ type: 'success', text: 'Notification emails saved successfully!' });
       } else {

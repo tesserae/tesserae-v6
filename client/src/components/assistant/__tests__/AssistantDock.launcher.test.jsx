@@ -11,7 +11,7 @@ import { installPhone } from '../../../test/phone';
 beforeEach(() => {
   window.localStorage.clear();
   try { window.sessionStorage.clear(); } catch { /* ignore */ }
-  global.fetch = vi.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve({ available: true }) }));
+  global.fetch = vi.fn(() => Promise.resolve({ ok: true, text: () => Promise.resolve(JSON.stringify({ available: true })) }));
 });
 afterEach(() => { delete global.fetch; });
 

@@ -126,3 +126,28 @@ def test_build_stoplist_auto_is_build_stoplist_on_source_and_target():
     assert auto == mt.build_stoplist(units, units, 'source_target', 'la')
     assert 'et' in auto                                           # the commonest lemma, also a function word
     assert m.DEFAULT_LATIN_STOP_WORDS <= auto                     # the curated list is always included
+
+
+def test_build_stoplist_on_a_tiny_corpus_does_not_stoplist_every_word():
+    # Six distinct words, fewer than the elbow's minimum of ten. (xx has
+    # no curated list, so the English list is subtracted to see the corpus's own share.)
+    units = [{'lemmas': ['alpha', 'alpha', 'beta', 'gamma', 'delta'], 'tokens': []},
+             {'lemmas': ['alpha', 'beta', 'epsilon', 'zeta'], 'tokens': []}]
+    mt = m.Matcher()
+    own = mt.build_stoplist(units, [], 'source_target', 'xx') - m.DEFAULT_ENGLISH_STOP_WORDS
+    assert own == {'alpha', 'beta'}               # half of six words at most, only words found in two units
+    assert not (own & {'gamma', 'delta', 'epsilon', 'zeta'})    # one-unit words are never stoplisted
+    # One unit: no word occurs in two units, so the corpus adds nothing.
+    one = [{'lemmas': ['alpha', 'alpha', 'beta'], 'tokens': []}]
+    assert mt.build_stoplist(one, [], 'source_target', 'xx') - m.DEFAULT_ENGLISH_STOP_WORDS == set()
+
+
+def test_build_stoplist_on_a_normal_corpus_is_the_elbow_list_unchanged():
+    from collections import Counter
+    from backend.zipf import find_zipf_elbow
+    words = [f'w{i:02d}' for i in range(40)]
+    units = [{'lemmas': [w] * (41 - i), 'tokens': []} for i, w in enumerate(words)]
+    freq = Counter(x for u in units for x in u['lemmas'])
+    mt = m.Matcher()
+    assert mt.build_stoplist(units, units, 'source_target', 'xx') == (
+        find_zipf_elbow(freq, min_stopwords=10, max_stopwords=50) | m.DEFAULT_ENGLISH_STOP_WORDS)

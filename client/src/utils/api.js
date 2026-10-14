@@ -398,3 +398,258 @@ export const postJsonTo = async (url, body, { signal } = {}) => {
     signal
   }, { errorBody: true });
 };
+
+// ---------------------------------------------------------------------------
+// Admin pages and the assistant dock.
+//
+// These pages branch on the response status themselves (a failed save shows the
+// server's message, a failed side load is skipped), so `adminRequest` does not
+// throw on an error status. It returns { ok, status, data } where `data` is the
+// parsed JSON body, `{}` for an empty successful body, and `{ error: <readable
+// message> }` when an error status came with something that is not JSON (an
+// Apache or proxy error page). A successful status with a body that is not JSON
+// throws the same readable "Bad JSON" message as the helpers above. Each
+// function below sends exactly the URL, method, headers and body the page sent
+// before it was moved here.
+// ---------------------------------------------------------------------------
+const adminRequest = async (url, init) => {
+  const response = await (init === undefined ? fetch(url) : fetch(url, init));
+  const text = await response.text();
+  let data;
+  try {
+    data = text ? JSON.parse(text) : {};
+  } catch {
+    if (response.ok) {
+      throw new Error(`Bad JSON (${text.length}b) from ${url}: ${previewOf(text)}`);
+    }
+    data = { error: errorMessage(url, response.status, text) };
+    return { ok: false, status: response.status, data };
+  }
+  if (!response.ok && !text) {
+    data = { error: errorMessage(url, response.status, text) };
+  }
+  return { ok: response.ok, status: response.status, data };
+};
+
+const JSON_TYPE = { 'Content-Type': 'application/json' };
+
+// Sign-in and session
+export const fetchAdminSession = () => adminRequest('/api/admin/me', { credentials: 'include' });
+
+export const adminLogin = (password, email) => adminRequest('/api/admin/login', {
+  method: 'POST',
+  headers: { ...JSON_TYPE },
+  body: JSON.stringify({ password, email }),
+  credentials: 'include'
+});
+
+export const adminResetPassword = (body) => adminRequest('/api/admin/reset-password', {
+  method: 'POST',
+  headers: { ...JSON_TYPE },
+  credentials: 'include',
+  body: JSON.stringify(body)
+});
+
+export const adminLogout = () => adminRequest('/api/admin/logout', {
+  method: 'POST',
+  credentials: 'include'
+});
+
+// The admin overview loads these eight together.
+export const fetchAdminFeedback = () => adminRequest('/api/admin/feedback', { credentials: 'include' });
+export const fetchCorpusStatus = () => adminRequest('/api/corpus-status');
+export const fetchAdminAnalytics = () => adminRequest('/api/admin/analytics', { credentials: 'include' });
+export const fetchLemmaCacheStats = () => adminRequest('/api/admin/lemma-cache/stats', { credentials: 'include' });
+export const fetchSearchCacheStats = () => adminRequest('/api/admin/search-cache/stats', { credentials: 'include' });
+export const fetchFrequencyCacheStats = () => adminRequest('/api/admin/frequency-cache/stats', { credentials: 'include' });
+export const fetchBigramCacheStats = () => adminRequest('/api/admin/bigram-cache/stats', { credentials: 'include' });
+export const fetchAdminUsage = () => adminRequest('/api/admin/usage', { credentials: 'include' });
+
+// Analytics tab (no credentials option, an Accept header)
+export const fetchAdminAnalyticsJson = () => adminRequest('/api/admin/analytics', {
+  headers: { 'Accept': 'application/json' }
+});
+export const fetchAdminPaths = (days = 30) => adminRequest(`/api/admin/paths?days=${days}`, {
+  headers: { 'Accept': 'application/json' }
+});
+
+// Users tab
+export const fetchAdminUsers = (authHeaders) => adminRequest('/api/admin/users', {
+  headers: authHeaders, credentials: 'include'
+});
+export const fetchAdminRoles = (authHeaders) => adminRequest('/api/admin/roles', {
+  headers: authHeaders, credentials: 'include'
+});
+export const createAdminUser = (authHeaders, user) => adminRequest('/api/admin/users', {
+  method: 'POST',
+  headers: { ...JSON_TYPE, ...authHeaders },
+  credentials: 'include',
+  body: JSON.stringify(user)
+});
+export const changeAdminUserRole = (authHeaders, userId, role, action) => adminRequest(`/api/admin/users/${userId}/roles`, {
+  method: 'POST',
+  headers: { ...JSON_TYPE, ...authHeaders },
+  credentials: 'include',
+  body: JSON.stringify({ role, action })
+});
+export const deleteAdminUser = (authHeaders, userId) => adminRequest(`/api/admin/users/${userId}`, {
+  method: 'DELETE',
+  headers: { ...authHeaders },
+  credentials: 'include'
+});
+
+// Text requests tab
+export const fetchAdminRequests = (params, signal) => adminRequest(`/api/admin/requests?${params}`, {
+  credentials: 'include', signal
+});
+export const fetchAdminRequest = (id, signal) => adminRequest(`/api/admin/requests/${id}`, {
+  credentials: 'include', signal
+});
+export const approveAdminRequestQuick = (authHeaders, id) => adminRequest(`/api/admin/requests/${id}/approve`, {
+  method: 'POST',
+  headers: authHeaders
+});
+export const updateAdminRequest = (authHeaders, id, body) => adminRequest(`/api/admin/requests/${id}`, {
+  method: 'PUT',
+  headers: { ...JSON_TYPE, ...authHeaders },
+  body: JSON.stringify(body)
+});
+export const deleteAdminRequest = (authHeaders, id) => adminRequest(`/api/admin/requests/${id}`, {
+  method: 'DELETE',
+  headers: authHeaders
+});
+export const approveAdminRequest = (authHeaders, id, body) => adminRequest(`/api/admin/requests/${id}/approve`, {
+  method: 'POST',
+  headers: { ...JSON_TYPE, ...authHeaders },
+  body: JSON.stringify(body)
+});
+
+// Sources tab
+export const fetchAdminSources = (authHeaders) => adminRequest('/api/admin/sources', { headers: authHeaders });
+export const updateAdminSource = (authHeaders, id, updates) => adminRequest(`/api/admin/sources/${id}`, {
+  method: 'PUT',
+  headers: { ...JSON_TYPE, ...authHeaders },
+  body: JSON.stringify(updates)
+});
+export const deleteAdminSource = (authHeaders, id) => adminRequest(`/api/admin/sources/${id}`, {
+  method: 'DELETE',
+  headers: authHeaders
+});
+export const addAdminSource = (authHeaders, source) => adminRequest('/api/admin/sources', {
+  method: 'POST',
+  headers: { ...JSON_TYPE, ...authHeaders },
+  body: JSON.stringify(source)
+});
+
+// Settings and audit tabs
+export const fetchAdminSettings = (authHeaders) => adminRequest('/api/admin/settings', { headers: authHeaders });
+export const saveAdminSettings = (authHeaders, settings) => adminRequest('/api/admin/settings', {
+  method: 'POST',
+  headers: { ...JSON_TYPE, ...authHeaders },
+  body: JSON.stringify(settings)
+});
+export const fetchAdminAuditLog = (authHeaders) => adminRequest('/api/admin/audit-log?limit=100', { headers: authHeaders });
+
+// Cache tab
+export const clearAdminCache = (endpoint, authHeaders) => adminRequest(endpoint, {
+  method: 'POST',
+  headers: { ...JSON_TYPE, ...authHeaders },
+  body: JSON.stringify({})
+});
+export const recalculateFrequencies = (authHeaders) => adminRequest('/api/frequencies/recalculate', {
+  method: 'POST',
+  headers: authHeaders
+});
+export const buildBigramCache = (authHeaders, language) => adminRequest('/api/admin/bigram-cache/build', {
+  method: 'POST',
+  headers: { ...JSON_TYPE, ...authHeaders },
+  body: JSON.stringify({ language })
+});
+export const fetchBigramCacheStatsWithHeaders = (authHeaders) => adminRequest('/api/admin/bigram-cache/stats', {
+  headers: authHeaders
+});
+
+// Dictionary review tab
+export const fetchDictionaryReview = (status, limit, offset) => adminRequest(
+  `/api/admin/dictionary-review?status=${status}&limit=${limit}&offset=${offset}`,
+  { credentials: 'include' }
+);
+export const updateDictionaryReviewEntry = (id, status) => adminRequest(`/api/admin/dictionary-review/${id}`, {
+  method: 'PUT',
+  credentials: 'include',
+  headers: { ...JSON_TYPE },
+  body: JSON.stringify({ status })
+});
+export const reloadDictionaryReview = () => adminRequest('/api/admin/dictionary-review/reload', {
+  method: 'POST',
+  credentials: 'include'
+});
+// The accepted entries as a CSV file: returned as a Blob.
+export const fetchDictionaryReviewExport = async () => {
+  const url = '/api/admin/dictionary-review/export';
+  const response = await fetch(url, { credentials: 'include' });
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(errorMessage(url, response.status, text));
+  }
+  return response.blob();
+};
+
+// Genre classification tab
+export const fetchTextGenres = () => adminRequest('/api/admin/text-genres', { credentials: 'include' });
+export const saveTextGenres = (updates) => adminRequest('/api/admin/text-genres', {
+  method: 'POST',
+  credentials: 'include',
+  headers: { ...JSON_TYPE },
+  body: JSON.stringify({ updates })
+});
+
+// Performance tab
+export const fetchConcurrency = () => adminRequest('/api/admin/concurrency', { credentials: 'include' });
+export const fetchActiveSearches = () => adminRequest('/api/admin/concurrency/active', { credentials: 'include' });
+export const killActiveSearch = (slotId) => adminRequest(`/api/admin/concurrency/active/${slotId}`, {
+  method: 'DELETE',
+  credentials: 'include'
+});
+export const updateConcurrency = (settings) => adminRequest('/api/admin/concurrency', {
+  method: 'PUT',
+  headers: { ...JSON_TYPE },
+  credentials: 'include',
+  body: JSON.stringify(settings)
+});
+export const resetConcurrency = () => adminRequest('/api/admin/concurrency/reset', {
+  method: 'POST',
+  headers: { ...JSON_TYPE },
+  credentials: 'include',
+  body: JSON.stringify({})
+});
+export const setStressTest = (enabled) => adminRequest('/api/admin/concurrency/stress-test', {
+  method: 'POST',
+  headers: { ...JSON_TYPE },
+  credentials: 'include',
+  body: JSON.stringify({ enabled })
+});
+export const killAllActiveSearches = () => adminRequest('/api/admin/concurrency/active/all', {
+  method: 'DELETE',
+  credentials: 'include'
+});
+
+// Feedback and metadata tabs
+export const updateAdminFeedback = (feedbackId, status) => adminRequest(`/api/admin/feedback/${feedbackId}`, {
+  method: 'PUT',
+  credentials: 'include',
+  headers: { ...JSON_TYPE },
+  body: JSON.stringify({ status })
+});
+export const fetchAdminCorpusTexts = (authHeaders, language) => adminRequest(
+  `/api/admin/corpus-texts${language ? `?language=${language}` : ''}`,
+  { headers: authHeaders }
+);
+export const saveTextMetadata = (authHeaders, textId, fields) => adminRequest(`/api/admin/text-metadata/${textId}`, {
+  method: 'PUT',
+  headers: { ...JSON_TYPE, ...authHeaders },
+  body: JSON.stringify(fields)
+});
+
+// The assistant dock asks once whether the assistant is available.
+export const fetchAssistantStatus = () => jsonRequest('/api/assistant/status');

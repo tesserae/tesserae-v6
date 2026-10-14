@@ -73,5 +73,11 @@ def scholarship_for(doc_id, path=None):
         elif r['source'] == 'commentary':
             item['commentary_file'] = r['commentary_file']
             item['commentary_ref'] = r['commentary_ref']
+            # The fields the Cite control reads on a commentary note, from the
+            # held commentary the file name points at.
+            from backend import scholarship
+            fields = scholarship.commentary_edition_fields(filename=r['commentary_file'])
+            item.update(kind='commentary', ref_start=r['commentary_ref'],
+                        **{k: v for k, v in fields.items() if k in ('commentator', 'work', 'edition', 'edition_title') and v})
         out.append(item)
     return {'available': True, 'count': len(out), 'results': out}

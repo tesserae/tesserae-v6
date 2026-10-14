@@ -69,10 +69,60 @@ from backend.latin_orthography import fold_latin_surface as normalize_latin  # n
 TEXTS_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'texts')
 
 
+_QUERY_TYPES = ('empty', 'simple', 'and', 'or', 'not', 'proximity')
+
+
+def _split_on(query: str, operator: str) -> List[str]:
+    """Split on a word operator (AND, OR, NOT), case-insensitively."""
+    return re.split(r'\s+' + operator + r'\s+', query, flags=re.IGNORECASE)
+
+
+def _parse_not(query: str) -> Dict:
+    """NOT binds tightest and reads left to right: a NOT b NOT c is (a NOT b) NOT c."""
+    if ' NOT ' not in query.upper():
+        return parse_term(query)
+    parts = _split_on(query, 'NOT')
+    if len(parts) < 2:
+        return parse_term(query)
+    node = parse_term(parts[0].strip())
+    for part in parts[1:]:
+        node = {'type': 'not', 'include': node, 'exclude': parse_term(part.strip())}
+    return node
+
+
+def _strip_not(node: Dict) -> Tuple[Dict, List[Dict]]:
+    """Return the term under a chain of NOT nodes and the excluded terms, leftmost first."""
+    excluded = []
+    while node['type'] == 'not':
+        excluded.append(node['exclude'])
+        node = node['include']
+    return node, list(reversed(excluded))
+
+
+def _parse_proximity(query: str) -> Dict:
+    """Proximity takes two operands, so a NOT inside an operand is moved out to
+    cover the whole pair: a ~ b NOT c is (a ~ b) NOT c, and a NOT b ~ c is
+    (a ~ c) NOT b."""
+    if ' ~ ' not in query:
+        return _parse_not(query)
+    left, right = query.split(' ~ ', 1)
+    term1, excluded1 = _strip_not(_parse_not(left.strip()))
+    term2, excluded2 = _strip_not(_parse_not(right.strip()))
+    node = {
+        'type': 'proximity',
+        'term1': term1,
+        'term2': term2,
+        'distance': 100,  # ~100 characters as per PHI
+    }
+    for term in excluded1 + excluded2:
+        node = {'type': 'not', 'include': node, 'exclude': term}
+    return node
+
+
 def parse_query(query: str) -> Dict:
     """
     Parse a PHI-style query into structured components.
-    
+
     Supports:
     - Simple terms: amor
     - Wildcards: am* (starts with), *or (ends with), ?or (single char wildcard)
@@ -82,47 +132,38 @@ def parse_query(query: str) -> Dict:
     - Phrase (quoted): "arma virumque"
     - Proximity: amor ~ dolor (words within ~100 characters)
     - Word break: amor# (explicit word boundary)
+
+    Several operators in one query follow the ordinary precedence, tightest
+    first: NOT, then proximity (~), then AND, then OR, each read left to right.
+    So "a OR b AND c" is a OR (b AND c), and "a AND b NOT c" is a AND (b NOT c).
+    A query with one operator parses as a flat node. A mixed query nests: the
+    "terms" of an and/or node, the "include" and "exclude" of a not node, hold
+    the nested node where a plain term would be. Proximity takes two terms, so
+    a NOT written inside a proximity operand covers the whole pair.
     """
     query = query.strip()
-    
+
     if not query:
         return {'type': 'empty', 'terms': []}
-    
-    # Check for proximity operator ~ (words within ~100 chars)
-    if ' ~ ' in query:
-        parts = query.split(' ~ ', 1)
-        if len(parts) == 2:
-            return {
-                'type': 'proximity',
-                'term1': parse_term(parts[0].strip()),
-                'term2': parse_term(parts[1].strip()),
-                'distance': 100  # ~100 characters as per PHI
-            }
-    
-    if ' AND ' in query.upper():
-        parts = re.split(r'\s+AND\s+', query, flags=re.IGNORECASE)
-        return {
-            'type': 'and',
-            'terms': [parse_term(p.strip()) for p in parts if p.strip()]
-        }
-    
+
+    node = _parse_or(query)
+    if node['type'] not in _QUERY_TYPES:
+        return {'type': 'simple', 'terms': [node]}
+    return node
+
+
+def _parse_or(query: str) -> Dict:
     if ' OR ' in query.upper():
-        parts = re.split(r'\s+OR\s+', query, flags=re.IGNORECASE)
-        return {
-            'type': 'or', 
-            'terms': [parse_term(p.strip()) for p in parts if p.strip()]
-        }
-    
-    if ' NOT ' in query.upper():
-        parts = re.split(r'\s+NOT\s+', query, flags=re.IGNORECASE, maxsplit=1)
-        if len(parts) == 2:
-            return {
-                'type': 'not',
-                'include': parse_term(parts[0].strip()),
-                'exclude': parse_term(parts[1].strip())
-            }
-    
-    return {'type': 'simple', 'terms': [parse_term(query)]}
+        parts = _split_on(query, 'OR')
+        return {'type': 'or', 'terms': [_parse_and(p.strip()) for p in parts if p.strip()]}
+    return _parse_and(query)
+
+
+def _parse_and(query: str) -> Dict:
+    if ' AND ' in query.upper():
+        parts = _split_on(query, 'AND')
+        return {'type': 'and', 'terms': [_parse_proximity(p.strip()) for p in parts if p.strip()]}
+    return _parse_proximity(query)
 
 
 def parse_term(term: str) -> Dict:
@@ -170,7 +211,7 @@ def search_file(filepath: str, parsed_query: Dict, case_sensitive: bool = False,
     is_greek = language == 'grc'
     is_coptic = language == 'cop'
     filename = os.path.basename(filepath)
-    is_prose = detect_text_type(filename) == 'prose'
+    is_prose = detect_text_type(filename, language=language) == 'prose'
     
     try:
         with fspaths.open_text(filepath, 'r', encoding='utf-8') as f:
@@ -243,24 +284,46 @@ def matches_query(text: str, parsed_query: Dict, flags: int, is_greek: bool = Fa
     if query_type == 'empty':
         return False
 
-    if query_type == 'simple':
-        return all(matches_term(text, term, flags, is_greek, is_latin, is_coptic) for term in parsed_query['terms'])
+    def hit(node):
+        # A nested node (from a mixed query) is a query of its own; anything
+        # else is a plain term.
+        if node.get('type') in _QUERY_TYPES:
+            return matches_query(text, node, flags, is_greek, is_latin, is_coptic)
+        return matches_term(text, node, flags, is_greek, is_latin, is_coptic)
 
-    if query_type == 'and':
-        return all(matches_term(text, term, flags, is_greek, is_latin, is_coptic) for term in parsed_query['terms'])
+    if query_type in ('simple', 'and'):
+        return all(hit(term) for term in parsed_query['terms'])
 
     if query_type == 'or':
-        return any(matches_term(text, term, flags, is_greek, is_latin, is_coptic) for term in parsed_query['terms'])
+        return any(hit(term) for term in parsed_query['terms'])
 
     if query_type == 'not':
-        include_match = matches_term(text, parsed_query['include'], flags, is_greek, is_latin, is_coptic)
-        exclude_match = matches_term(text, parsed_query['exclude'], flags, is_greek, is_latin, is_coptic)
-        return include_match and not exclude_match
+        return hit(parsed_query['include']) and not hit(parsed_query['exclude'])
 
     if query_type == 'proximity':
         return matches_proximity(text, parsed_query, flags, is_greek, is_latin, is_coptic)
 
     return False
+
+
+def _leaf_terms(parsed_query: Dict) -> List[Dict]:
+    """The plain terms to highlight: the excluded side of a NOT is left out."""
+    query_type = parsed_query.get('type', 'simple')
+    if query_type in ('simple', 'and', 'or'):
+        nodes = parsed_query.get('terms', [])
+    elif query_type == 'not':
+        nodes = [parsed_query['include']]
+    elif query_type == 'proximity':
+        nodes = [parsed_query['term1'], parsed_query['term2']]
+    else:
+        nodes = []
+    leaves = []
+    for node in nodes:
+        if node.get('type') in _QUERY_TYPES:
+            leaves.extend(_leaf_terms(node))
+        else:
+            leaves.append(node)
+    return leaves
 
 
 def matches_proximity(text: str, parsed_query: Dict, flags: int, is_greek: bool = False, is_latin: bool = False, is_coptic: bool = False) -> bool:
@@ -328,17 +391,8 @@ def matches_term(text: str, term: Dict, flags: int, is_greek: bool = False, is_l
 def get_highlight_indices(text: str, parsed_query: Dict, flags: int, is_greek: bool = False, is_latin: bool = False) -> List[List[int]]:
     """Get character indices to highlight in the text."""
     indices = []
-    terms = []
-    
-    query_type = parsed_query.get('type', 'simple')
-    
-    if query_type in ('simple', 'and', 'or'):
-        terms = parsed_query.get('terms', [])
-    elif query_type == 'not':
-        terms = [parsed_query['include']]
-    elif query_type == 'proximity':
-        terms = [parsed_query['term1'], parsed_query['term2']]
-    
+    terms = _leaf_terms(parsed_query)
+
     if is_greek:
         search_text = normalize_greek(text)
     elif is_latin:
@@ -371,14 +425,7 @@ def get_token_highlight_indices(text: str, parsed_query: Dict, flags: int, norma
     on the raw text, so they align with apply_highlighting(). For Greek this is
     exactly word-level highlighting; for Coptic it highlights the bound group.
     """
-    terms = []
-    query_type = parsed_query.get('type', 'simple')
-    if query_type in ('simple', 'and', 'or'):
-        terms = parsed_query.get('terms', [])
-    elif query_type == 'not':
-        terms = [parsed_query['include']]
-    elif query_type == 'proximity':
-        terms = [parsed_query['term1'], parsed_query['term2']]
+    terms = _leaf_terms(parsed_query)
 
     patterns = [r'\b' + normalizer(t['pattern']) + r'\b' for t in terms]
     if not patterns:

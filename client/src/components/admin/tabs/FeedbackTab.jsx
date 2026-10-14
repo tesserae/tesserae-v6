@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { updateAdminFeedback } from '../../../utils/api';
 
 const normalizeStatus = (status) => {
   const s = (status || '').toLowerCase();
@@ -21,13 +22,8 @@ export default function FeedbackTab({ feedback, onRefresh }) {
     setActionError('');
     setUpdatingId(feedbackId);
     try {
-      const res = await fetch(`/api/admin/feedback/${feedbackId}`, {
-        method: 'PUT',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: nextStatus }),
-      });
-      const data = await res.json();
+      const res = await updateAdminFeedback(feedbackId, nextStatus);
+      const data = res.data;
       if (!res.ok || data.error) {
         throw new Error(data.error || 'Failed to update feedback status');
       }

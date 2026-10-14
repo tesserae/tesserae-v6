@@ -240,6 +240,9 @@ export default function DocumentView() {
                         {r.url && <a className="text-red-700 hover:underline" href={r.url} target="_blank" rel="noreferrer">on JSTOR</a>}
                         {r.commentary_file && <span>{r.commentary_file}{r.commentary_ref ? `, ${r.commentary_ref}` : ''}</span>}
                         {r.source !== 'commentary' && r.title && <CiteRecordButton record={recordFrom(r, 'document')} />}
+                        {r.source === 'commentary' && r.edition && (
+                          <CiteRecordButton record={recordFrom({ ...r, kind: 'commentary' }, 'cite')} />
+                        )}
                       </p>
                     </li>
                   ))}

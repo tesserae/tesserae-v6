@@ -8,7 +8,7 @@ import math
 import time as time_module
 import unicodedata
 
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, current_app, jsonify, request
 from flask_login import current_user
 
 from backend.services import get_user_location, log_search
@@ -21,7 +21,6 @@ from backend.runtime import (
     TEXTS_DIR, AUTHOR_DATES,
     app_logger, text_processor, get_processed_units, api_route_for,
 )
-from flask import current_app as app
 from backend.line_search_support import _normalize_lemma, _normalize_latin_lemma
 from backend.blueprints.documents import (
     _DOCUMENT_SORT_MODES, _search_documents_collection, _line_search_documents_only,
@@ -729,7 +728,7 @@ def _reduce_passage_query(language: str, filtered_query_lemmas: set):
             # No doc-freq table for this language: search as-is, but say
             # so, because the silent form of this fallback is how the
             # missing Hebrew and Coptic tables went unnoticed.
-            app.logger.warning(
+            current_app.logger.warning(
                 '[LINE-SEARCH] passage-query reduction unavailable for '
                 '%s (%s); searching on all %d lemmas', language, _e,
                 len(filtered_query_lemmas))
@@ -763,7 +762,7 @@ def _univerbation_variants(params: LineSearchParams, stopwords: set, filtered_qu
             _rev_fb = {k: v for k, v in _rev_fb.items() if k in univ_sequences}
             query_fallback_forms = _univ.merge_fallbacks(query_fallback_forms, univ_forward, _rev_fb)
         except Exception:
-            app.logger.exception('[LINE-SEARCH] univerbation expansion failed; searching without it')
+            current_app.logger.exception('[LINE-SEARCH] univerbation expansion failed; searching without it')
             univ_forward, univ_sequences = {}, {}
     univ_active = bool(univ_forward or univ_sequences)
     return univ_forward, univ_sequences, query_fallback_forms, univ_active

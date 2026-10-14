@@ -1,4 +1,5 @@
 import Pagination from '../../common/Pagination';
+import { fetchTextGenres, saveTextGenres } from '../../../utils/api';
 import { usePagination } from '../../../hooks/usePagination';
 import { useCallback, useEffect, useState, useMemo } from 'react';
 
@@ -107,8 +108,8 @@ export default function GenreClassificationTab() {
     setLoading(true);
     setError('');
     try {
-      const res = await fetch('/api/admin/text-genres', { credentials: 'include' });
-      const data = await res.json();
+      const res = await fetchTextGenres();
+      const data = res.data;
       if (!res.ok || data.error) throw new Error(data.error || 'Failed to load');
       setTexts(data.texts || []);
       setGenres(data.genres || []);
@@ -262,13 +263,8 @@ export default function GenreClassificationTab() {
     setError('');
     setSuccess('');
     try {
-      const res = await fetch('/api/admin/text-genres', {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ updates }),
-      });
-      const data = await res.json();
+      const res = await saveTextGenres(updates);
+      const data = res.data;
       if (!res.ok || data.error) throw new Error(data.error || 'Failed to save');
       setSuccess(`Saved ${data.updated} classification${data.updated !== 1 ? 's' : ''}.`);
       setPendingEdits({});

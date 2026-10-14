@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { LoadingSpinner, InfoBadge } from '../common';
+import CiteRecordButton from '../common/CiteRecordButton';
+import { recordFrom } from '../../utils/citations';
 import useCollections from '../../hooks/useCollections';
 import { displayRef } from '../reader/refId';
 import EventMap from './EventMap';
@@ -135,6 +137,12 @@ function ScholarshipTab({ items, openPassage, ranks }) {
                     ? <a href={s.url} target="_blank" rel="noopener noreferrer" className="text-red-700 hover:underline">{s.title}</a>
                     : <span className="text-gray-800">{s.title}</span>}
                   {s.page_ref && <span className="text-xs text-gray-500"> {' · '}{s.page_ref}</span>}
+                  {/* A commentary row the server could match to a held edition carries
+                      the fields the Reader's commentary notes cite from; without an
+                      edition there is nothing to cite and no control is shown. */}
+                  {s.kind === 'commentary' && s.edition && (
+                    <span className="ml-2"><CiteRecordButton record={recordFrom({ ...s, kind: 'commentary' }, 'cite')} /></span>
+                  )}
                   {s.passage_ref && ranks.has(s.passage_rank) && (
                     <div className="text-xs mt-1">
                       <a href={`#passage-${s.passage_rank}`} className="text-red-700 hover:underline"

@@ -82,6 +82,7 @@ export function recordFrom(item, source) {
         r.type = 'commentary';
         r.commentator = str(it.commentator);
         r.edition = str(it.edition);
+        r.title = str(it.edition_title);
         r.work = str(it.work);
         r.ref_start = str(it.ref_start);
         r.ref_end = str(it.ref_end);

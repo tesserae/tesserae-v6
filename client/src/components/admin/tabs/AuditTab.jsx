@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { LoadingSpinner } from '../../common';
+import { fetchAdminAuditLog } from '../../../utils/api';
 
 export default function AuditTab({ authHeaders }) {
   const [auditLog, setAuditLog] = useState([]);
@@ -8,9 +9,9 @@ export default function AuditTab({ authHeaders }) {
   const loadAuditLog = async () => {
     setAuditLogLoading(true);
     try {
-      const res = await fetch('/api/admin/audit-log?limit=100', { headers: authHeaders });
+      const res = await fetchAdminAuditLog(authHeaders);
       if (res.ok) {
-        const data = await res.json();
+        const data = res.data;
         setAuditLog(data.entries || []);
       }
     } catch (err) {
