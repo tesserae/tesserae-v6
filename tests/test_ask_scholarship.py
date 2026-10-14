@@ -234,3 +234,37 @@ def test_cites_carry_the_fields_a_citation_needs(monkeypatch):
             assert k in c
     assert out['cites'][0]['commentator'] == 'Servius'
     assert out['cites'][1]['title'] == 'On Virgil'
+
+
+def test_prompt_leaves_out_items_that_do_not_bear_on_the_question():
+    s = passages._SCHOL_SYSTEM
+    assert 'does not bear on the question is left out and never mentioned' in s
+    assert 'not even to say it does not address the question' in s
+
+
+@pytest.mark.skipif(not os.environ.get('TESSERAE_LLM_URL'),
+                    reason='needs the model gateway (TESSERAE_LLM_URL)')
+def test_gateway_paragraph_does_not_mention_an_irrelevant_item(monkeypatch):
+    """Live model: one note answers the question, one article is about something else."""
+    monkeypatch.undo()
+    model._availability['at'] = 0
+    if not model.is_available():
+        pytest.skip('the gateway does not answer')
+    system = passages._SCHOL_SYSTEM.format(limit=120)
+    user = '\n'.join([
+        'Vergil, Aeneid', 'Why does Dido fall in love with Aeneas?',
+        'The sources below are commentary notes and journal articles only. Name them as such.',
+        '[1] Servius, on aen. 1.1: Venus and Cupid, disguised as Ascanius, set Dido on fire with love.',
+        '[2] Journal article, The Classical Review, Harbor Tolls at Ostia: This article discusses '
+        'the collection of harbor tolls at Ostia in the second century.'])
+    # 3000 tokens, not the route's 400: the gateway model reasons first and can use up
+    # 400 before it writes a word (seen 2026-10-13).
+    text = None
+    for _ in range(3):
+        text = model.complete(system, user, 3000, 0.2)
+        if text:
+            break
+    if not text:
+        pytest.skip('the gateway model wrote nothing in three tries (reasoning used the budget)')
+    assert '[1]' in text
+    assert 'Harbor Tolls' not in text and 'Ostia' not in text and '[2]' not in text

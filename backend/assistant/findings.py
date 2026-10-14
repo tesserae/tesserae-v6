@@ -339,5 +339,34 @@ def pair_evidence_note(result, language=None):
     return '; '.join(out) if out else ''
 
 
+def infer_language(results, candidates=('la', 'grc', 'en', 'he', 'cop'), sample=25):
+    """The language of a result list whose request did not say, so the facts
+    block can still label each shared word common or rare. The Ask Tessa
+    panel sends result rows and two display names, not a language code
+    (2026-10-13). Each candidate language's index is asked how many of the
+    shared lemmas in the first rows it holds; the language holding the most
+    wins when it holds at least half of them and clearly more than the
+    runner-up. None when nothing is clear, and then the block names the words
+    without labels, as before."""
+    lemmas = []
+    for r in (results or [])[:sample]:
+        for w in (r.get('matched_words') or [])[:6]:
+            if isinstance(w, dict) and w.get('lemma'):
+                lemmas.append(w['lemma'])
+    if not lemmas:
+        return None
+    scores = {}
+    for lang in candidates:
+        table, total = _corpus_doc_freq(lang)
+        if total:
+            scores[lang] = sum(1 for lem in lemmas if lem in table)
+    ranked = sorted(scores.items(), key=lambda kv: -kv[1])
+    if not ranked or ranked[0][1] * 2 < len(lemmas):
+        return None
+    if len(ranked) > 1 and ranked[1][1] * 2 > ranked[0][1]:
+        return None
+    return ranked[0][0]
+
+
 def language_name(code):
     return {'la': 'Latin', 'grc': 'Greek', 'en': 'English', 'he': 'Hebrew', 'cop': 'Coptic'}.get(code or '', '')
