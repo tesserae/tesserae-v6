@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { LoadingSpinner } from '../../common';
 import { languageName } from '../../../utils/languageNames';
+import { fetchAdminCorpusTexts, saveTextMetadata } from '../../../utils/api';
 
 export default function MetadataTab({ authHeaders }) {
   const [corpusTexts, setCorpusTexts] = useState([]);
@@ -15,9 +16,8 @@ export default function MetadataTab({ authHeaders }) {
   const loadCorpusTexts = async () => {
     setCorpusTextsLoading(true);
     try {
-      const params = corpusTextsLang ? `?language=${corpusTextsLang}` : '';
-      const res = await fetch(`/api/admin/corpus-texts${params}`, { headers: authHeaders });
-      const data = await res.json();
+      const res = await fetchAdminCorpusTexts(authHeaders, corpusTextsLang);
+      const data = res.data;
       setCorpusTexts(data.texts || []);
     } catch (e) {
       console.error('Failed to load corpus texts:', e);
@@ -29,17 +29,13 @@ export default function MetadataTab({ authHeaders }) {
     setMetadataSaving(true);
     setMetadataMessage(null);
     try {
-      const res = await fetch(`/api/admin/text-metadata/${textId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', ...authHeaders },
-        body: JSON.stringify(fields)
-      });
+      const res = await saveTextMetadata(authHeaders, textId, fields);
       if (res.ok) {
         setMetadataMessage({ type: 'success', text: `Metadata updated for ${textId}` });
         setEditingMetadata(null);
         loadCorpusTexts();
       } else {
-        const err = await res.json();
+        const err = res.data;
         setMetadataMessage({ type: 'error', text: err.error || 'Failed to save' });
       }
     } catch (e) {

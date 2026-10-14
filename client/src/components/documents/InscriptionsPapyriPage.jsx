@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { LoadingSpinner } from '../common';
 import { dirFor } from '../../utils/rtl';
 import useDocumentsTrial from '../../hooks/useDocumentsTrial';
@@ -8,6 +8,12 @@ import DocumentExampleButtons from './DocumentExampleButtons';
 import DocumentsSearchFilters from './DocumentsSearchFilters';
 import DocumentsResultsPanel from './DocumentsResultsPanel';
 import DocumentsBrowser from '../corpus/DocumentsBrowser';
+import { closenessSort, closenessLabel, TONE_CLASS } from '../search/closeness';
+import ScopeBox from '../common/ScopeBox';
+import { fetchLanguages, postLineSearch } from '../../utils/api';
+
+// How many literary companions a "Both" search shows before "Show all".
+const LITERATURE_FOLD = 5;
 
 // Narrower than LineSearch.jsx's Literature/Documents/Both: this page's
 // whole purpose is the documents collection, so Literature is not offered
@@ -64,6 +70,7 @@ function simpleHighlight(text, matchedWords) {
  */
 export default function InscriptionsPapyriPage({ setPageType }) {
   const documentsTrial = useDocumentsTrial();
+  const [browseOpen, setBrowseOpen] = useState(false);
   const [documentsEnabled, setDocumentsEnabled] = useState(false);
   // Whether the /api/languages check above has settled (true or false).
   // A restored deep link (the back-link effect below) must not auto-run
@@ -74,7 +81,7 @@ export default function InscriptionsPapyriPage({ setPageType }) {
   const [serverChecked, setServerChecked] = useState(false);
 
   useEffect(() => {
-    fetch('/api/languages').then(r => r.json()).then(data => {
+    fetchLanguages().then(data => {
       setDocumentsEnabled(!!data.documents_enabled);
     }).catch(() => {}).finally(() => setServerChecked(true));
   }, []);
@@ -97,15 +104,26 @@ export default function InscriptionsPapyriPage({ setPageType }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [pendingUrlSearch, setPendingUrlSearch] = useState(null);
+  // What the last search found, so a search that finds nothing says so:
+  // { kind: 'empty' | 'fallback', query, searchType, count }.
+  const [outcome, setOutcome] = useState(null);
+  // Numbers each search, so a retry that finishes after the reader has
+  // started another search is dropped.
+  const searchIdRef = useRef(0);
   // The literary companion to a "Both" search (e.g. Vergil's own opening
   // alongside the Pompeii graffito that echoes it) -- separate from the
   // documents collection's own result state, which useDocumentsSearch owns.
   const [literatureHits, setLiteratureHits] = useState([]);
+  const [showAllLiterature, setShowAllLiterature] = useState(false);
+  // Content words in the last query, for the closeness tags (see closeness.js).
+  const [queryLemmaCount, setQueryLemmaCount] = useState(0);
+  const [queryWordCount, setQueryWordCount] = useState(0);
 
   const {
     collection, setCollection,
     dateFrom, setDateFrom,
     dateTo, setDateTo,
+    docKind, setDocKind,
     docRegion, setDocRegion,
     docTextType, setDocTextType,
     docMaterial, setDocMaterial,
@@ -136,6 +154,7 @@ export default function InscriptionsPapyriPage({ setPageType }) {
     if (lang && LANGUAGE_OPTIONS.some(l => l.code === lang)) setLanguage(lang);
     if (type && ['lemma', 'exact', 'regex'].includes(type)) setSearchType(type);
     if (col && COLLECTION_OPTIONS.some(o => o.key === col)) setCollection(col);
+    if (['inscriptions', 'papyri'].includes(params.get('kind'))) setDocKind(params.get('kind'));
     if (params.get('region')) setDocRegion(params.get('region'));
     if (params.get('date_from')) setDateFrom(params.get('date_from'));
     if (params.get('date_to')) setDateTo(params.get('date_to'));
@@ -161,32 +180,57 @@ export default function InscriptionsPapyriPage({ setPageType }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pendingUrlSearch, query, serverChecked]);
 
+  const documentRowCount = (data) => (data.results || []).filter(r => r.collection === 'documents').length;
+
   const handleSearch = async () => {
     if (!query.trim()) return;
+    const myId = ++searchIdRef.current;
+    const q = query.trim();
     setLoading(true);
     setError(null);
+    setOutcome(null);
     try {
       const searchParams = addCollectionParams({
-        query: query.trim(),
+        query: q,
         language,
         search_type: searchType,
       });
       recordSearch(searchParams);
-      const res = await fetch('/api/line-search', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(searchParams),
-      });
-      const data = await res.json();
+      const data = await postLineSearch(searchParams);
+      if (myId !== searchIdRef.current) return;
       if (data.error) {
         setError(data.error);
         setLiteratureHits([]);
         applyDocumentsResponse({});
       } else {
         setLiteratureHits((data.results || []).filter(r => r.collection !== 'documents'));
+        setQueryLemmaCount(data.query_lemma_count || 0);
+        setQueryWordCount(data.query_word_count || 0);
+        setShowAllLiterature(false);
         applyDocumentsResponse(data, { sortUsed: searchParams.sort });
+        if (documentRowCount(data) === 0) {
+          let fellBack = false;
+          // One word that is no dictionary form: try the letters instead,
+          // once, with the same filters and paging.
+          if (searchType === 'lemma' && !/\s/.test(q)) {
+            const retryParams = { ...searchParams, search_type: 'exact' };
+            const data2 = await postLineSearch(retryParams);
+            if (myId !== searchIdRef.current) return;
+            if (!data2.error && documentRowCount(data2) > 0) {
+              recordSearch(retryParams);
+              applyDocumentsResponse(data2, { sortUsed: searchParams.sort });
+              setOutcome({
+                kind: 'fallback', query: q, searchType,
+                count: data2.collection === 'documents' ? (data2.total ?? 0) : (data2.documents_total ?? 0),
+              });
+              fellBack = true;
+            }
+          }
+          if (!fellBack) setOutcome({ kind: 'empty', query: q, searchType, count: 0 });
+        }
       }
     } catch (err) {
+      if (myId !== searchIdRef.current) return;
       setError('Search failed. Please try again.');
       setLiteratureHits([]);
     }
@@ -194,6 +238,8 @@ export default function InscriptionsPapyriPage({ setPageType }) {
   };
 
   const runExampleSearch = async (example) => {
+    searchIdRef.current += 1;
+    setOutcome(null);
     setQuery(example.query);
     setCollection(example.collection);
     setSearchType(example.searchType);
@@ -205,17 +251,15 @@ export default function InscriptionsPapyriPage({ setPageType }) {
         collection: example.collection, offset: 0, limit: DOC_PAGE_SIZE, sort: docSort,
       };
       recordSearch(searchParams);
-      const res = await fetch('/api/line-search', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(searchParams),
-      });
-      const data = await res.json();
+      const data = await postLineSearch(searchParams);
       if (data.error) {
         setError(data.error);
         setLiteratureHits([]);
       } else {
         setLiteratureHits((data.results || []).filter(r => r.collection !== 'documents'));
+        setQueryLemmaCount(data.query_lemma_count || 0);
+        setQueryWordCount(data.query_word_count || 0);
+        setShowAllLiterature(false);
         applyDocumentsResponse(data, { collection: example.collection, force: true });
       }
     } catch (err) {
@@ -236,6 +280,7 @@ export default function InscriptionsPapyriPage({ setPageType }) {
     });
     if (dateFrom) params.set('date_from', dateFrom);
     if (dateTo) params.set('date_to', dateTo);
+    if (docKind) params.set('kind', docKind);
     if (docRegion) params.set('region', docRegion);
     if (docTextType) params.set('text_type', docTextType);
     if (docMaterial) params.set('material', docMaterial);
@@ -254,16 +299,11 @@ export default function InscriptionsPapyriPage({ setPageType }) {
           <h2 className="text-xl font-semibold text-gray-900">Inscriptions &amp; Papyri</h2>
           <p className="text-sm text-gray-500 mt-1">
             Search and browse the documentary corpus (Latin and Greek inscriptions and papyri)
-            alongside the literature it quotes or echoes.{' '}
-            <button
-              type="button"
-              onClick={() => window.dispatchEvent(new CustomEvent('tesserae:open-help', { detail: { section: 'documents' } }))}
-              className="text-red-700 hover:underline"
-            >
-              About this page
-            </button>
+            alongside the literature it quotes or echoes.
           </p>
         </div>
+
+        <ScopeBox id="documents" />
 
         <div className="space-y-4">
           <div>
@@ -308,6 +348,7 @@ export default function InscriptionsPapyriPage({ setPageType }) {
               collection={collection} setCollection={setCollection}
               dateFrom={dateFrom} setDateFrom={setDateFrom}
               dateTo={dateTo} setDateTo={setDateTo}
+              docKind={docKind} setDocKind={setDocKind}
               docRegion={docRegion} setDocRegion={setDocRegion}
               docTextType={docTextType} setDocTextType={setDocTextType}
               docMaterial={docMaterial} setDocMaterial={setDocMaterial}
@@ -337,26 +378,24 @@ export default function InscriptionsPapyriPage({ setPageType }) {
         </div>
       )}
 
-      {collection === 'both' && literatureHits.length > 0 && (
-        <div className="bg-white rounded-lg shadow overflow-hidden">
-          <div className="px-4 py-3 bg-gray-50 text-sm text-gray-600">
-            Also found in the literature ({literatureHits.length})
-          </div>
-          <div className="divide-y divide-gray-200">
-            {literatureHits.map((result, i) => (
-              <div key={i} className="p-4">
-                <div className="flex flex-col sm:flex-row sm:items-start gap-2">
-                  <div className="sm:w-48 flex-shrink-0 min-w-0 break-words">
-                    <div className="text-sm font-medium text-gray-900">{result.author}</div>
-                    <div className="text-xs text-gray-500">{result.work}, {result.locus}</div>
-                  </div>
-                  <div className="flex-1 min-w-0 break-words text-gray-700" dir={dirFor(language)}>
-                    {simpleHighlight(result.text, result.matched_words)}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+      {!loading && outcome && outcome.kind === 'empty' && (
+        <div className="bg-white rounded-lg shadow p-4 sm:p-6 text-sm text-gray-700" data-testid="documents-empty">
+          <p className="font-medium text-gray-900">
+            {outcome.searchType === 'lemma'
+              ? `No inscription or papyrus has "${outcome.query}" as a dictionary form.`
+              : outcome.searchType === 'regex'
+                ? `No inscription or papyrus matches the pattern "${outcome.query}".`
+                : `No inscription or papyrus contains "${outcome.query}".`}
+          </p>
+          <p className="mt-1">
+            Check the spelling.{outcome.searchType === 'lemma' ? ' Exact match also finds the letters inside longer words.' : ''}
+          </p>
+        </div>
+      )}
+
+      {!loading && outcome && outcome.kind === 'fallback' && (
+        <div className="bg-amber-50 border border-amber-200 text-amber-900 px-4 py-3 rounded text-sm" data-testid="documents-fallback">
+          No dictionary form matches "{outcome.query}". Showing the {outcome.count} documents whose text contains these letters instead.
         </div>
       )}
 
@@ -372,9 +411,68 @@ export default function InscriptionsPapyriPage({ setPageType }) {
         language={language}
       />
 
-      <div className="bg-white rounded-lg shadow p-4 sm:p-6">
-        <DocumentsBrowser documentsTrial={documentsTrial} />
-      </div>
+      {/* The literary companion to a "Both" search comes AFTER the documents
+          (owner's review 2026-10-10: the literature was swamping the
+          documents), ranked by closeness to the phrase (lines quoting it
+          first, then those sharing more of its words), and folded to the
+          first few until opened. */}
+      {collection === 'both' && literatureHits.length > 0 && (() => {
+        const ranked = [...literatureHits].sort(closenessSort);
+        const shown = showAllLiterature ? ranked : ranked.slice(0, LITERATURE_FOLD);
+        return (
+          <div className="bg-white rounded-lg shadow overflow-hidden">
+            <div className="px-4 py-3 bg-gray-50 text-sm text-gray-600 flex flex-wrap items-center justify-between gap-2">
+              <span>Also found in the literature ({literatureHits.length})</span>
+              {ranked.length > LITERATURE_FOLD && (
+                <button type="button" onClick={() => setShowAllLiterature(v => !v)}
+                        className="text-xs text-red-700 hover:underline">
+                  {showAllLiterature ? `Show the first ${LITERATURE_FOLD}` : `Show all ${ranked.length}`}
+                </button>
+              )}
+            </div>
+            <div className="divide-y divide-gray-200">
+              {shown.map((result, i) => {
+                const tag = closenessLabel(result, queryLemmaCount, queryWordCount);
+                return (
+                  <div key={i} className="p-4">
+                    <div className="flex flex-col sm:flex-row sm:items-start gap-2">
+                      <div className="sm:w-48 flex-shrink-0 min-w-0 break-words">
+                        <div className="text-sm font-medium text-gray-900">{result.author}</div>
+                        <div className="text-xs text-gray-500">{result.work}, {result.locus}</div>
+                        {tag && (
+                          <span className={`text-xs px-1.5 py-0.5 rounded mt-1 inline-block ${TONE_CLASS[tag.tone]}`}
+                                title="How much of the search phrase this line shares">
+                            {tag.text}
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0 break-words text-gray-700" dir={dirFor(language)}>
+                        {simpleHighlight(result.text, result.matched_words)}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })()}
+
+      {/* The whole-collection browser (kind, region, findspot, century) sat
+          under every result list, and a reader who had just searched took it
+          for more results (owner, 2026-10-12: "Then a list of I'm not sure
+          what"). Once a search has answered it folds behind one line. */}
+      {(documentPageResults || []).length > 0 && !browseOpen ? (
+        <div className="bg-white rounded-lg shadow p-4 sm:p-6 text-sm text-gray-700" data-testid="documents-browse-folded">
+          <span className="font-semibold">Browse the whole collection.</span>{' '}
+          Every inscription and papyrus by kind, region, findspot and century, apart from this search.{' '}
+          <button type="button" onClick={() => setBrowseOpen(true)} className="text-red-700 hover:underline">Open the browser</button>
+        </div>
+      ) : (
+        <div className="bg-white rounded-lg shadow p-4 sm:p-6">
+          <DocumentsBrowser documentsTrial={documentsTrial} />
+        </div>
+      )}
     </div>
   );
 }

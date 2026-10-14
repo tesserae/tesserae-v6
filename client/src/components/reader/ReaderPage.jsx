@@ -2,14 +2,17 @@ import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import useDocumentsTrial from '../../hooks/useDocumentsTrial';
 import { cssRef } from './refId';
 import ReaderHeader from './ReaderHeader';
-import ReaderNav, { ReaderEndNav, ReaderFloatNav, sectionsFor, bookFileFor } from './ReaderNav';
+import ReaderNav, { ReaderEndNav, ReaderFloatNav, ReaderPhoneTopButton, sectionsFor, bookFileFor } from './ReaderNav';
+import { useIsPhone } from '../../hooks/useIsPhone';
 import SelectionToolbar, { scopeFor } from './SelectionToolbar';
+import { rescope } from '../../utils/sentences';
 import { useCorpus } from '../../hooks';
 import { LoadingSpinner } from '../common';
 import TextPane from './TextPane';
 import ConnectionGutter from './ConnectionGutter';
 import ResultsPanel, { shortRef as shortLocus } from './ResultsPanel';
 import { startLanguage, rememberLanguage } from '../../utils/languagePreference';
+import { fetchLanguages, getJson } from '../../utils/api';
 
 // Book 1, not book 6: the Reader opens where a reader expects a poem to start,
 // and "arma virumque cano" is the line most visitors will recognise.
@@ -49,7 +52,35 @@ const PREFERRED_WORK = {
  * who is reading and wants to know what a passage touches. Results open in the
  * Reader in turn, so the corpus can be followed by association.
  */
+function popupTop(selection) {
+  // Under the last selected line. A drag in the text measures the line
+  // itself and passes anchorTop; a click on a quotation mark or an arrival
+  // by URL used to pass nothing, so the popup sat at the top of the pane
+  // and covered the opening lines, the selected one included (2026-10-09).
+  // Measure the line from the page in that case.
+  if (selection?.anchorTop != null) return selection.anchorTop;
+  const ref = selection?.refEnd || selection?.refStart;
+  const el = ref ? document.getElementById(`line-${cssRef(ref)}`) : null;
+  return el ? el.offsetTop + el.offsetHeight : 0;
+}
+
+
+/** Scroll the window vertically so that `el` sits at `where` (0 = top, 0.5 =
+ *  middle) of the part of the screen above the results sheet, and never
+ *  sideways. `scrollIntoView` was used before: on iOS Safari it panned the
+ *  visual viewport horizontally after a tap on a reuse tile, leaving the whole
+ *  page shifted (2026-10-11), and on a phone it centred the line under the
+ *  bottom sheet, which covers the lower 55 percent of the screen. */
+export function scrollLineTo(el, where = 0.5, phone = false) {
+  if (!el || typeof window === 'undefined') return;
+  const rect = el.getBoundingClientRect();
+  const visible = phone ? window.innerHeight * 0.45 : window.innerHeight;
+  const top = window.scrollY + rect.top - (visible - rect.height) * where;
+  window.scrollTo({ top: Math.max(0, top), left: 0, behavior: 'smooth' });
+}
+
 export default function ReaderPage() {
+  const phone = useIsPhone();
   // No work named in the address: leave it empty and let the preferred-work
   // effect below choose by language. Defaulting to the Aeneid here opened
   // Latin under an Arabic address (/read?lang=ar) (bug report, 2026-09-07).
@@ -91,6 +122,19 @@ export default function ReaderPage() {
   // 'english' puts the translation in the middle and the original in the
   // side panel, for when the English translation is meant to be the focus.
   const [focusView, setFocusView] = useState(() => paramOr('view', 'source'));
+  // The key to the marks (boxes and colours) is folded away by default: open,
+  // it took three rows at the top of the text (2026-10-10). The choice is
+  // remembered in this browser.
+  const [keyOpen, setKeyOpen] = useState(() => {
+    try { return window.localStorage.getItem('tesserae_reader_key') === 'open'; } catch { return false; }
+  });
+  const toggleKey = () => setKeyOpen((o) => {
+    try { window.localStorage.setItem('tesserae_reader_key', o ? 'closed' : 'open'); } catch { /* ignore */ }
+    return !o;
+  });
+  // Which group the Reuse tab shows first: 'documents' after a click on the
+  // amber box (quoted in inscriptions or papyri), otherwise the literary one.
+  const [reuseFirst, setReuseFirst] = useState(null);
   const [fullTr, setFullTr] = useState(null);
   useEffect(() => { setFullTr(null); }, [work]);
 
@@ -109,8 +153,7 @@ export default function ReaderPage() {
   useEffect(() => {
     if (focusView !== 'english' || fullTr !== null) return;
     setFullTr('loading');
-    fetch(`/api/passages/translation-full?work=${encodeURIComponent(work)}&language=${language}`)
-      .then((r) => r.json())
+    getJson(`/api/passages/translation-full?work=${encodeURIComponent(work)}&language=${language}`)
       .then(setFullTr)
       .catch((e) => setFullTr({ available: false, reason: e.message }));
   }, [focusView, fullTr, work, language]);
@@ -118,6 +161,9 @@ export default function ReaderPage() {
   // Arrival from the Similarity Map: the other side of the connection that
   // was clicked, shown in the banner, with a link back to the map tab.
   const [mapFrom, setMapFrom] = useState(() => paramOr('map', ''));
+  // Arrival from an Event page: its id and name, for a link back to the event.
+  const [eventFrom, setEventFrom] = useState(() => (
+    paramOr('event', '') ? { id: paramOr('event', ''), label: paramOr('eventLabel', '') } : null));
   const [units, setUnits] = useState([]);
   // How many lines are drawn; grows as the reader scrolls (see TextPane).
   const [visibleCount, setVisibleCount] = useState(READER_STEP);
@@ -196,8 +242,7 @@ export default function ReaderPage() {
     setLoading(true);
     setError(null);
     setSelection(null);
-    fetch(`/api/text/${encodeURIComponent(work)}?language=${language}`)
-      .then((r) => r.json())
+    getJson(`/api/text/${encodeURIComponent(work)}?language=${language}`)
       .then((d) => {
         if (cancelled) return;
         if (d.error) {
@@ -251,7 +296,7 @@ export default function ReaderPage() {
     // had been found by a search the reader had long since left. They are read
     // into state at mount, so dropping them from the URL here costs nothing and
     // `at` carries the position instead.
-    ['ref', 'refEnd', 'tab', 'q', 'map'].forEach((k) => p.delete(k));
+    ['ref', 'refEnd', 'tab', 'q', 'map', 'event', 'eventLabel'].forEach((k) => p.delete(k));
     const url = `${window.location.pathname}?${p}`;
     const key = `${work}|${language}`;
     const movedToAnotherText = lastKeyRef.current !== null && lastKeyRef.current !== key;
@@ -273,8 +318,7 @@ export default function ReaderPage() {
   // the Reader moves to the first served language and its preferred work.
   useEffect(() => {
     let dead = false;
-    fetch('/api/languages')
-      .then((r) => r.json())
+    fetchLanguages()
       .then((d) => {
         if (dead) return;
         const codes = (d.languages || []).map((l) => l.code || l).filter(Boolean);
@@ -342,9 +386,9 @@ export default function ReaderPage() {
       // Bring the card itself on screen first (a separate scroll context from
       // the text pane), then centre the line inside it; landing deep in a long
       // work otherwise left the page where it was (2026-09-19).
-      contentRef.current?.scrollIntoView({ block: 'start', behavior: 'smooth' });
       const el = document.getElementById(`line-${cssRef(units[i].ref)}`);
-      if (el) el.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      if (el) scrollLineTo(el, 0.5, phone);
+      else scrollLineTo(contentRef.current, 0, phone);
     }, 120);
     return () => window.clearTimeout(id);
   }, [wantedRef, wantedRefEnd, wantedTab, units, visibleCount, work]);
@@ -382,7 +426,7 @@ export default function ReaderPage() {
     if (i >= visibleCount) { setVisibleCount(i + READER_STEP); return undefined; }
     const id = window.setTimeout(() => {
       const el = document.getElementById(`line-${cssRef(jumpRef)}`);
-      if (el) el.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      if (el) scrollLineTo(el, 0.5, phone);
       setJumpRef('');
     }, 80);
     return () => window.clearTimeout(id);
@@ -523,6 +567,7 @@ export default function ReaderPage() {
         }}
         units={units}
         selection={selection}
+        onJump={jumpTo}
       />
 
       {loading && <div className="p-10"><LoadingSpinner /></div>}
@@ -555,6 +600,22 @@ export default function ReaderPage() {
                 The first time a text is opened this takes a few minutes, because
                 every passage in it is compared with the whole corpus. After that
                 it is instant, and the text itself is readable now.
+              </p>
+            )}
+            {eventFrom && !cameFrom && !mapFrom && (
+              <p data-testid="reader-event-banner"
+                 className="px-3 py-2 text-xs text-gray-700 border-b border-gray-200 bg-red-50 flex items-center gap-2">
+                <span className="min-w-0">
+                  From the event{' '}
+                  <span className="font-medium">{eventFrom.label || eventFrom.id}</span>
+                  <a href={`/events/${encodeURIComponent(eventFrom.id)}`} className="ml-2 text-red-700 hover:underline">
+                    back to the event
+                  </a>
+                </span>
+                <button onClick={() => setEventFrom(null)} aria-label="Dismiss"
+                        className="ml-auto shrink-0 text-gray-500 hover:text-gray-700 text-base leading-none px-1">
+                  ×
+                </button>
               </p>
             )}
             {mapFrom && !cameFrom && (
@@ -624,31 +685,33 @@ export default function ReaderPage() {
                 Passages", so the two halves of the same screen described the
                 same two things in different words. */}
             <p className="px-3 py-1.5 text-[11px] text-gray-600 border-b border-gray-200 bg-gray-50 flex flex-wrap items-center gap-x-4 gap-y-1">
-              <span className="flex items-center gap-1.5">
-                <span className="inline-block w-[9px] h-[7px] rounded-sm bg-red-700" />
-                verbal parallels
-              </span>
-              <span className="flex items-center gap-1.5">
-                <span className="inline-block w-[9px] h-[7px] rounded-sm"
-                      style={{ backgroundColor: '#7c6bb0' }} />
-                similar passages
-              </span>
+              {!phone && (
+                <>
+                  <span className="flex items-center gap-1.5">
+                    <span className="inline-block w-[9px] h-[7px] rounded-sm bg-red-700" />
+                    verbal parallels
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <span className="inline-block w-[9px] h-[7px] rounded-sm"
+                          style={{ backgroundColor: '#7c6bb0' }} />
+                    similar passages
+                  </span>
+                </>
+              )}
               {/* "darker = more connections" is about the two gutter columns
                   only, so it sits with them, before the quotation boxes
                   (2026-09-20). The boxes come in two forms and both are named:
                   solid for a line quoted elsewhere, dashed for a possible echo. */}
-              <span className="text-gray-500">darker = more connections</span>
-              <span className="flex items-center gap-1.5 border-l border-gray-300 pl-4">
-                <span className="inline-flex items-center justify-center text-[9px] font-bold leading-none
-                                 text-red-700 bg-gray-100 border border-gray-300 rounded px-1 py-[2px]">2</span>
-                quoted by that many other works
-              </span>
-              <span className="flex items-center gap-1.5">
-                <span className="inline-flex items-center justify-center text-[9px] font-bold leading-none
-                                 text-gray-500 bg-white border border-dashed border-gray-300 rounded px-1 py-[2px]">2</span>
-                possible echo (one rare shared phrase); click a box to see them
-              </span>
+              {!phone && <span className="text-gray-500">darker = more connections</span>}
               <span className="ml-auto flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={toggleKey}
+                  aria-expanded={keyOpen}
+                  className="px-1.5 py-0.5 rounded text-[11px] font-medium border bg-white text-gray-600 border-gray-300 hover:bg-gray-100 mr-2"
+                >
+                  {keyOpen ? 'Hide key' : 'Key'}
+                </button>
                 <button
                   onClick={() => setFocusView('source')}
                   className={`px-1.5 py-0.5 rounded text-[11px] font-medium border ${
@@ -669,6 +732,48 @@ export default function ReaderPage() {
                 </button>
               </span>
             </p>
+            {keyOpen && (
+              <p data-testid="reader-key" className="px-3 py-1.5 text-[11px] text-gray-600 border-b border-gray-200 bg-gray-50 flex flex-wrap items-center gap-x-4 gap-y-1">
+              {phone && (
+                <>
+                  <span className="flex items-center gap-1.5">
+                    <span className="inline-block w-[9px] h-[7px] rounded-sm bg-red-700" />
+                    verbal parallels
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <span className="inline-block w-[9px] h-[7px] rounded-sm"
+                          style={{ backgroundColor: '#7c6bb0' }} />
+                    similar passages
+                  </span>
+                  <span className="text-gray-500">darker = more connections</span>
+                </>
+              )}
+              <span className="flex items-center gap-1.5">
+                <span className="inline-flex items-center justify-center text-[9px] font-bold leading-none
+                                 text-red-700 bg-gray-100 border border-gray-300 rounded px-1 py-[2px]">2</span>
+                quoted by that many other works
+              </span>
+              <span className="flex items-center gap-1.5">
+                <span className="inline-flex items-center justify-center text-[9px] font-bold leading-none
+                                 text-gray-500 bg-white border border-dashed border-gray-300 rounded px-1 py-[2px]">2</span>
+                possible echo (one rare shared phrase); click a box to see them
+              </span>
+              {documentsTrial && (
+                <>
+                  <span className="flex items-center gap-1.5">
+                    <span className="inline-flex items-center justify-center text-[9px] font-bold leading-none
+                                     text-amber-800 bg-amber-50 border border-amber-300 rounded px-1 py-[2px]">5</span>
+                    quoted in that many inscriptions or papyri
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <span className="inline-flex items-center justify-center text-[9px] font-bold leading-none
+                                     text-amber-700 bg-white border border-dashed border-amber-300 rounded px-1 py-[2px]">1</span>
+                    possible echo in an inscription or papyrus
+                  </span>
+                </>
+              )}
+              </p>
+            )}
           {focusView === 'english' && (
             <div className="flex-1 min-w-0 overflow-y-auto px-6 py-4">
               {fullTr === 'loading' && <LoadingSpinner />}
@@ -742,7 +847,8 @@ export default function ReaderPage() {
                 selection={selection}
                 reuseMarks={reuseMarks}
                 documentsTrial={documentsTrial}
-                onReuseClick={(u) => {
+                onReuseClick={(u, kind) => {
+                  setReuseFirst(kind === 'documents' ? 'documents' : null);
                   const i = units.findIndex((x) => x.ref === u.ref);
                   const sel = { startIdx: i, endIdx: i, refStart: u.ref,
                                 refEnd: u.ref, lineCount: 1 };
@@ -752,6 +858,7 @@ export default function ReaderPage() {
                   setPopupOpen(true);
                 }}
                 onSelect={(sel) => {
+                  setReuseFirst(null);
                   setSelection(sel);
                   if (sel) setScope(scopeFor(sel));
                   // One line asks for shared wording, which is what the
@@ -774,11 +881,18 @@ export default function ReaderPage() {
                 // copy toolbar and the results sheet (2026-09-07); the
                 // sheet's tabs already do what the toolbar offers there.
                 <div className="hidden lg:block absolute left-10 z-20"
-                     style={{ top: `${(selection?.anchorTop ?? 0) + 8}px` }}>
+                     style={{ top: `${popupTop(selection) + 8}px` }}>
                   <SelectionToolbar
                     selection={selection}
                     scope={scope}
-                    onScope={setScope}
+                    onScope={(k) => {
+                      // Section widens a sentence selection to its unit, and
+                      // Sentence narrows a unit back to one sentence.
+                      const unit = units[selection.startIdx];
+                      const next = unit ? rescope(selection, unit.text, k) : selection;
+                      if (next !== selection) setSelection(next);
+                      setScope(k);
+                    }}
                     work={work}
                     language={language}
                     onAct={(t) => { if (t) setPanelTab(t); setPopupOpen(false); }}
@@ -795,6 +909,9 @@ export default function ReaderPage() {
           {!loading && !error && units.length > 0 && (
             <ReaderFloatNav sections={sections} work={work} onWork={changeBook} />
           )}
+          {!loading && !error && units.length > 0 && (
+            <ReaderPhoneTopButton hidden={!!selection} />
+          )}
           </div>
           <ResultsPanel
             selection={selection}
@@ -804,6 +921,7 @@ export default function ReaderPage() {
             units={units}
             onOpenPassage={openPassage}
             initialTab={panelTab || wantedTab || undefined}
+            reuseFirst={reuseFirst}
             onClose={() => { setSelection(null); setPopupOpen(false); }}
           />
         </div>

@@ -7,6 +7,8 @@ import json
 import logging
 import unicodedata
 
+from backend import fspaths
+
 logger = logging.getLogger(__name__)
 
 
@@ -123,8 +125,8 @@ def resolve_text_path(texts_dir, language, text_id):
     Guards against directory traversal by ensuring the resolved path stays
     within texts_dir/language. Returns the real path string or None.
     """
-    base_dir = os.path.realpath(texts_dir)
-    lang_dir = os.path.realpath(os.path.join(base_dir, language))
+    base_dir = fspaths.realpath(texts_dir)
+    lang_dir = fspaths.realpath(os.path.join(base_dir, language))
 
     # Reject traversal outside texts_dir
     try:
@@ -133,43 +135,30 @@ def resolve_text_path(texts_dir, language, text_id):
     except ValueError:
         return None
 
-    if not os.path.isdir(lang_dir):
+    if not fspaths.isdir(lang_dir):
         return None
 
-    # 1. Try direct match first. Under ASCII filesystem locales this can raise
-    # UnicodeEncodeError for Greek filenames, so fall through to byte-level
-    # directory scanning when that happens.
+    # 1. Try direct match first. Every file call goes through bytes paths
+    # (backend/fspaths.py), so a Greek file name works under any locale.
     try:
-        direct_path = os.path.realpath(os.path.join(lang_dir, text_id))
+        direct_path = fspaths.realpath(os.path.join(lang_dir, text_id))
         try:
             if os.path.commonpath([lang_dir, direct_path]) != lang_dir:
                 return None
         except ValueError:
             return None
-        if os.path.exists(direct_path):
-            return direct_path
-    except (OSError, UnicodeEncodeError):
+        if fspaths.exists(direct_path):
+            return fspaths.native_path(direct_path)
+    except (OSError, UnicodeError):
         direct_path = None
 
-    # 2. Try normalized match (NFC) against raw directory entries so we can
-    # recover surrogateescaped paths even when Python cannot encode the input
-    # Unicode filename using the current filesystem locale.
+    # 2. Try normalized match (NFC) against the raw directory entries, which
+    # recovers a name whose Unicode form differs from the one asked for.
     target_norm = unicodedata.normalize('NFC', text_id)
     try:
-        lang_dir_bytes = os.fsencode(lang_dir)
-        for filename_bytes in os.listdir(lang_dir_bytes):
-            filename = fix_surrogate_escapes(os.fsdecode(filename_bytes))
+        for filename in fspaths.listdir_text(lang_dir):
             if unicodedata.normalize('NFC', filename) == target_norm:
-                return os.fsdecode(os.path.join(lang_dir_bytes, filename_bytes))
-    except OSError:
-        pass
-
-    # 3. Final fallback using string directory listing for environments where
-    # bytes paths are unavailable.
-    try:
-        for filename in safe_listdir(lang_dir):
-            if unicodedata.normalize('NFC', filename) == target_norm:
-                return os.path.join(lang_dir, filename)
+                return fspaths.native_path(os.path.join(lang_dir, filename))
     except OSError:
         pass
 
@@ -259,10 +248,10 @@ def set_override(text_id, fields):
 def load_corpus(directory):
     """Load all .tess files from a directory"""
     texts = []
-    if not os.path.exists(directory):
+    if not fspaths.exists(directory):
         return texts
     
-    for filename in os.listdir(directory):
+    for filename in fspaths.listdir_text(directory):
         if filename.endswith('.tess'):
             filepath = os.path.join(directory, filename)
             metadata = get_text_metadata(filepath)
@@ -526,15 +515,15 @@ def _resolve_text_filepath(filename, language=None):
         langs = ['la', 'grc', 'en']
     for lang in langs:
         lang_dir = os.path.join(texts_root, lang)
-        if not os.path.isdir(lang_dir):
+        if not fspaths.isdir(lang_dir):
             continue
         candidate = os.path.join(lang_dir, filename)
-        if os.path.isfile(candidate):
+        if fspaths.isfile(candidate):
             return candidate
         # Try with .tess extension
         if not filename.endswith('.tess'):
             candidate = os.path.join(lang_dir, filename + '.tess')
-            if os.path.isfile(candidate):
+            if fspaths.isfile(candidate):
                 return candidate
     return None
 
@@ -552,7 +541,7 @@ def _estimate_text_type_from_content(filepath):
 
     lengths = []
     try:
-        with open(filepath, 'r', encoding='utf-8', errors='replace') as f:
+        with fspaths.open_text(filepath, 'r', encoding='utf-8', errors='replace') as f:
             for i, line in enumerate(f):
                 if i >= 200:
                     break
@@ -610,7 +599,7 @@ def detect_text_type(filename, content=None, filepath=None, language=None):
         resolved = filepath
         if not resolved:
             resolved = _resolve_text_filepath(filename, language)
-        if resolved and os.path.isfile(resolved):
+        if resolved and fspaths.isfile(resolved):
             result = _estimate_text_type_from_content(resolved)
             if result:
                 return result
@@ -835,10 +824,9 @@ def safe_listdir(directory):
     """List directory contents with proper UTF-8 filename handling.
     Fixes surrogate escapes from non-UTF-8 locale environments (e.g. Apache/WSGI)."""
     try:
-        entries = os.listdir(directory)
+        return fspaths.listdir_text(directory)
     except OSError:
         return []
-    return [fix_surrogate_escapes(e) for e in entries]
 
 # Source names that ended up inside work ids ("mir.kulliyat_wikisource",
 # "ghalib.diwan_pritchett"). They say where the file came from, which belongs
@@ -1048,7 +1036,7 @@ def build_text_hierarchy(texts):
 
 def load_text(filepath):
     """Load text content from a file"""
-    with open(filepath, 'r', encoding='utf-8') as f:
+    with fspaths.open_text(filepath, 'r', encoding='utf-8') as f:
         return f.read()
 
 def save_results(results, filepath):

@@ -86,6 +86,9 @@ import os
 import re
 import sys
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from corpus_safety import add_apply_argument, atomic_write, backup  # noqa: E402
+
 MANIFEST = {
     'varro.de_lingua_latina': [f'varro.ll{b}.html' for b in range(5, 11)],
     'varro.res_rusticae': [f'varro.rr{b}.html' for b in range(1, 4)],
@@ -882,17 +885,25 @@ def main():
     ap.add_argument('--src', required=True)
     ap.add_argument('--out', required=True)
     ap.add_argument('--only', help='convert a single work')
+    add_apply_argument(ap, 'write the files (default: dry run, report only; '
+                           'an existing file is backed up first)')
     args = ap.parse_args()
-    os.makedirs(args.out, exist_ok=True)
+    if args.apply:
+        os.makedirs(args.out, exist_ok=True)
     for work in MANIFEST:
         if args.only and work != args.only:
             continue
         rows = convert(work, args.src)
         dest = os.path.join(args.out, work + '.tess')
-        with open(dest, 'w', encoding='utf-8') as fh:
-            for ref, text in rows:
-                fh.write(f'<{ref}>\t{text}\n')
-        print(f'{work}: {len(rows)} lines -> {dest}')
+        if args.apply:
+            backup(dest, tag='latinlibrary')
+            atomic_write(dest, [f'<{ref}>\t{text}\n' for ref, text in rows])
+            print(f'{work}: {len(rows)} lines -> {dest}')
+        else:
+            state = 'would replace' if os.path.exists(dest) else 'would create'
+            print(f'{work}: {len(rows)} lines, {state} {dest}')
+    if not args.apply:
+        print('dry run; pass --apply to write (existing files are backed up first)')
 
 
 if __name__ == '__main__':

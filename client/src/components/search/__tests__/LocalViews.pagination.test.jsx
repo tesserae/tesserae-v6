@@ -9,6 +9,7 @@ import LineSearch from '../LineSearch';
 import WildcardSearch from '../WildcardSearch';
 import CrossLingualSearch from '../CrossLingualSearch';
 import CorpusSearchResults from '../CorpusSearchResults';
+import { mockResponse } from '../../../test/mockResponse';
 
 const rows = (tag = 'a') => Array.from({ length: 125 }, (_, i) => ({
   text: `${tag}-row-${i + 1}`, author: 'Poet', work: 'Work', title: 'Work',
@@ -24,11 +25,11 @@ beforeEach(() => {
   wildcardSearch.mockReset();
   wildcardSearch.mockImplementation(async () => ({ results: [...responseRows], total: 125 }));
   global.fetch = vi.fn(async url => {
-    if (String(url).startsWith('/api/texts/hierarchy')) return { json: async () => ({ authors: [{
+    if (String(url).startsWith('/api/texts/hierarchy')) return mockResponse({ json: async () => ({ authors: [{
       author_key: 'poet', author: 'Poet', works: [{ work_key: 'work', work: 'Work', whole_text: 'poet.work', parts: [] }],
-    }] }) };
-    if (String(url) === '/api/search' || String(url) === '/api/line-search') return { json: async () => ({ results: [...responseRows] }) };
-    return { json: async () => [] };
+    }] }) });
+    if (String(url) === '/api/search' || String(url) === '/api/line-search') return mockResponse({ json: async () => ({ results: [...responseRows] }) });
+    return mockResponse({ json: async () => [] });
   });
 });
 
@@ -138,8 +139,8 @@ for (const name of ['LineSearch', 'WildcardSearch', 'CrossLingualSearch', 'Corpu
 it('LineSearch browse list preserves its 100-line default and resets on a new load', async () => {
   let tag = 'a';
   global.fetch = vi.fn(async url => {
-    if (String(url).startsWith('/api/texts?')) return { json: async () => [{ id: 'poet.work', author: 'Poet', title: 'Work' }] };
-    return { json: async () => ({ lines: Array.from({ length: 125 }, (_, i) => ({ locus: `1.${i + 1}`, text: `${tag}-row-${i + 1}` })) }) };
+    if (String(url).startsWith('/api/texts?')) return mockResponse({ json: async () => [{ id: 'poet.work', author: 'Poet', title: 'Work' }] });
+    return mockResponse({ json: async () => ({ lines: Array.from({ length: 125 }, (_, i) => ({ locus: `1.${i + 1}`, text: `${tag}-row-${i + 1}` })) }) });
   });
   render(<LineSearch language="la" />);
   // Author/Work are SearchableSelect since 2026-10-06: a real <select> (the

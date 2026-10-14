@@ -1,3 +1,4 @@
+import re
 """
 Tesserae V6 - Scene Blueprint
 
@@ -49,6 +50,7 @@ _MAX_LIMIT = 100
 # scholar would have to be quite determined to reach, and unbounded would let
 # a request walk the whole ranking one `_rank` call at a time.
 _MAX_OFFSET = 5000
+_MAX_RESTRICT_WORKS = 200   # work ids accepted in one `works=` list
 READER_HEADS = 100   # works fetched for the reader's 300 rows (3 rows each)
 
 
@@ -104,6 +106,39 @@ def theme_search():
     # past K are served in index order as before, which the re-rank does not
     # touch. Scores are deterministic, so each page re-ranks the same K the
     # same way at the cost of one reader call per page.
+    # Optional restriction to an author or to chosen works (`author=lucan`,
+    # `works=lucan.bellum_civile,livy.ab_urbe_condita`). Resolved here so an
+    # unknown name answers 200 with a note and no results, like every other
+    # miss on this route.
+    author_arg = (request.args.get('author') or '').strip()
+    works_arg = [w.strip() for w in (request.args.get('works') or '').split(',')
+                 if w.strip()][:_MAX_RESTRICT_WORKS]
+    only_works = None
+    books_searched = None
+    if author_arg or works_arg:
+        try:
+            only_works, miss_note = passage_index.resolve_restriction(
+                author=author_arg, works=works_arg, languages=_languages())
+            # `books=1,2` or `books=1-6` with one base work: only those numbered
+            # parts. A number the index does not hold is dropped silently.
+            books_arg = (request.args.get('books') or '').strip()
+            if books_arg and only_works and len(works_arg) == 1:
+                base = passage_index.base_work(works_arg[0])
+                if base in only_works:
+                    part_ids, books_searched = passage_index.book_parts(
+                        base, passage_index.parse_books(books_arg))
+                    only_works = set(part_ids)
+                    if not only_works:
+                        miss_note = 'The index holds none of the books asked for in that work.'
+        except Exception as e:
+            logger.exception('[PASSAGES] theme-search restriction failed')
+            return jsonify({'error': f'{type(e).__name__}: {e}', 'results': []})
+        if not only_works:
+            return jsonify({'query': q, 'results': [], 'restricted': True,
+                            'strong_matches': 0, 'note': miss_note,
+                            'confidence': {'level': 'restricted'},
+                            **({'books_searched': books_searched}
+                               if books_searched is not None else {})})
     K = reader_rerank.DEFAULT_K   # rows the reader re-scores (300: the whole composed list)
     reader_on = bool(os.environ.get('THEME_READER_URL')) and _reader_wanted() and offset < K
     # `fetch` counts WORKS (find_by_text's limit is one head per work, three
@@ -112,9 +147,12 @@ def theme_search():
     fetch = max(offset + limit, READER_HEADS) if reader_on else limit
     fetch_offset = 0 if reader_on else offset
     try:
+        # Only a restricted search passes `only_works`, so the corpus-wide call
+        # is exactly the call it was before the restriction existed.
+        extra = {'only_works': only_works} if only_works else {}
         out = passage_index.find_by_text(
             q, limit=fetch, offset=fetch_offset,
-            languages=_languages(), scale=_scale())
+            languages=_languages(), scale=_scale(), **extra)
     except passage_index.EmbedUnavailable as e:
         # "cannot ask" is not "found nothing". Only one of those means the
         # corpus lacks the subject, and reporting the wrong one would be a
@@ -128,6 +166,8 @@ def theme_search():
         return jsonify({'error': f'{type(e).__name__}: {e}', 'results': []})
     # Stamped so a Theme Search can be cited reproducibly (2026-09-08).
     out['corpus_version'] = passage_index.index_version()
+    if books_searched is not None:
+        out['books_searched'] = books_searched
     out['presentation'] = (
         'Each result is a passage whose CONTENT matches the description, not its '
         'wording, so results in different languages usually share no words with '
@@ -144,6 +184,489 @@ def theme_search():
         out['reader'] = reader_meta
         out['results'] = out['results'][offset:offset + limit]
     return jsonify(out)
+
+
+@passages_bp.route('/passages/mentions')
+def mentions():
+    """Windows of one work whose description names a person or thing.
+
+    ?work=<base or part id>&names=<comma list>&books=<1,2 or 1-6>&limit=&offset=
+    &q=<the question>&source=<text|description>
+    With q the list is ranked by closeness to the question. A name the
+    descriptions never mention is looked for in the text (source=text forces
+    that for every name). A word search over the describer's participants, gist, setting and themes,
+    for the case where Theme Search ranks a named subject too low."""
+    work = (request.args.get('work') or '').strip()
+    names = [n.strip() for n in (request.args.get('names') or '').split(',') if n.strip()][:20]
+    if not names:
+        return jsonify({'error': 'names is required', 'results': [], 'total': 0})
+    if not work:
+        return jsonify({'error': 'work is required', 'results': [], 'total': 0})
+    limit = _int_arg('limit', 25)
+    offset = _int_arg('offset', 0, lo=0, hi=_MAX_OFFSET)
+    books = passage_index.parse_books(request.args.get('books')) or None
+    try:
+        q = (request.args.get('q') or '').strip() or None
+        source = (request.args.get('source') or '').strip().lower() or None
+        out = passage_index.mentions_in_work(work, names, books=books,
+                                             query=q, source=source)
+    except Exception as e:
+        logger.exception('[PASSAGES] mentions failed')
+        return jsonify({'error': f'{type(e).__name__}: {e}', 'results': [], 'total': 0})
+    hits = out['hits']
+    resp = {'work': out['work'], 'names': names, 'total': len(hits),
+            'books_searched': out['books_searched'],
+            'ranked_by': out.get('ranked_by', 'mentions'),
+            'source': out.get('source', 'description'),
+            'results': hits[offset:offset + limit]}
+    if out.get('note'):
+        resp['note'] = out['note']
+    return jsonify(resp)
+
+
+_SUMMARY_SYSTEM = (
+    "You write for scholars. You are given a question about one ancient work and a list of "
+    "passages from that work with a one-sentence description of each. Say in at most 120 words "
+    "what the work says about the subject, drawing only on the descriptions given. Cite the "
+    "passages you use by their reference in parentheses, exactly as given. Do not add anything "
+    "the descriptions do not say, and if they do not answer the question, say so in one "
+    "sentence. Plain words. No dashes, no semicolons, no lists, no headings.")
+_SUMMARY_TIMEOUT = 40
+_SUMMARY_MAX_PASSAGES = 12
+
+
+
+def _locus(ref):
+    """The numeric tail of a reference: "Tac. Ann. 1.73" gives "1.73",
+    "thuc. pele. 2.47.3" gives "2.47.3"."""
+    m = re.search(r'(\d+(?:\.\d+)*[a-z]?)\s*$', ref or '')
+    return m.group(1) if m else None
+
+
+def _cite_full_refs(text, refs):
+    """The references the summary cites, and the text with every short
+    citation written out in full. The model was asked to cite references
+    exactly as given, and for the Aeneid it did (verg. aen. 4.61), but for
+    Tacitus and Thucydides it wrote the bare locus in parentheses, (1.73) or
+    (1.23.3), so nothing matched and the page had no citation to link
+    (2026-10-11). A bare locus is recognised only inside parentheses, alone or
+    in a comma-separated list, and only when exactly one passage has it."""
+    cites = []
+    by_locus = {}
+    for ref in refs:
+        loc = _locus(ref)
+        if loc:
+            by_locus.setdefault(loc, []).append(ref)
+    def expand(match):
+        parts = [p.strip() for p in match.group(1).split(',')]
+        out = []
+        for part in parts:
+            if part in by_locus and len(by_locus[part]) == 1 and part not in refs:
+                out.append(by_locus[part][0])
+            else:
+                out.append(part)
+        return '(' + ', '.join(out) + ')'
+    text = re.sub(r'\((\d+(?:\.\d+)*[a-z]?(?:\s*,\s*\d+(?:\.\d+)*[a-z]?)*)\)', expand, text or '')
+    for ref in refs:
+        if ref in text and ref not in cites:
+            cites.append(ref)
+    return text, cites
+
+@passages_bp.route('/passages/ask-summary', methods=['POST'])
+def ask_summary():
+    """A short answer to the question, drawn only from the passages' gists."""
+    import time
+    import concurrent.futures
+    from backend.assistant import model
+    from backend import original_script
+    data = request.get_json(silent=True) or {}
+    question = str(data.get('question') or '').strip()
+    label = str(data.get('work_label') or '').strip()
+    passages = [p for p in (data.get('passages') or []) if isinstance(p, dict)
+                and str(p.get('ref') or '').strip() and str(p.get('gist') or '').strip()]
+    passages = passages[:_SUMMARY_MAX_PASSAGES]
+    if not question:
+        return jsonify({'available': False, 'error': 'question is required'})
+    if not passages:
+        return jsonify({'available': False, 'error': 'passages are required'})
+    if not model.is_available():
+        return jsonify({'available': False})
+    user = '\n'.join([label, question] + [f"{p['ref'].strip()}: {p['gist'].strip()}"
+                                           for p in passages])
+    t0 = time.time()
+    # complete() has its own 180 s socket timeout; the route's 40 s is enforced
+    # by waiting on a worker thread, which is then left to finish on its own.
+    pool = concurrent.futures.ThreadPoolExecutor(max_workers=1)
+    try:
+        fut = pool.submit(model.complete, _SUMMARY_SYSTEM, user, 400, 0.2)
+        try:
+            text = fut.result(timeout=_SUMMARY_TIMEOUT)
+            text, script_problems = original_script.settle(
+                text, [p['gist'] for p in passages],
+                lambda note: pool.submit(model.complete, _SUMMARY_SYSTEM, user + '\n' + note,
+                                         400, 0.2).result(timeout=_SUMMARY_TIMEOUT))
+        except concurrent.futures.TimeoutError:
+            logger.info('[PASSAGES] ask-summary %r timed out after %.1fs', question, time.time() - t0)
+            return jsonify({'available': False, 'error': 'the model took too long'})
+        except Exception as e:
+            logger.info('[PASSAGES] ask-summary %r failed after %.1fs: %s',
+                        question, time.time() - t0, type(e).__name__)
+            return jsonify({'available': False, 'error': 'the model could not answer'})
+    finally:
+        pool.shutdown(wait=False)
+    logger.info('[PASSAGES] ask-summary %r answered in %.1fs', question, time.time() - t0)
+    if not text:
+        return jsonify({'available': False, 'error': 'the model could not answer'})
+    text, cites = _cite_full_refs(text, [p['ref'] for p in passages])
+    return jsonify({'available': True, 'summary': text, 'cites': cites,
+                    'script_problems': script_problems})
+
+
+_SCHOL_SYSTEM = (
+    "You write for scholars. You are given a question about one ancient work and a numbered list "
+    "of notes from commentaries and articles about it. Write at most {limit} words on what these "
+    "notes and articles say about the subject. Cite each claim with the bracketed number of the "
+    "note it came from, for example [2]. Say nothing the notes do not say. Call the sources what the "
+    "list says they are, commentary notes or journal articles, and never mention a kind of source "
+    "that is not in the list. A note or article that does not bear on the question is left "
+    "out and never mentioned, not even to say it does not address the question: name only the "
+    "items that answer it. Report what each "
+    "note actually discusses, even when it is only a point of text or grammar, and do not "
+    "infer a reading of the subject from it. If they do not answer the question, say so in one "
+    "sentence. Start straight in with what the notes say, naming the commentator or the "
+    "article as the list does (for example 'How and Wells take the word to mean...'). Do not "
+    "open with a clause about where the material comes from: a line under your text already "
+    "says that. Do not call the notes 'sources'. Do not use the word paragraph. Plain words. "
+    "No dashes, no semicolons, no lists, no headings.")
+# Added when articles from the live services are in the list: they are known only from an
+# abstract or a short excerpt, and the paragraph must not claim more.
+_SCHOL_RECENT_NOTE = (
+    " The list may hold articles found online, known only from an abstract or a short excerpt. "
+    "When you draw on one, say so (for example 'to judge from its abstract'), and never "
+    "claim to have read such an article.")
+# Quoted Greek and Hebrew stay in their own letters (backend/original_script.py).
+from backend.original_script import SCRIPT_RULE as _SCRIPT_RULE  # noqa: E402
+_SUMMARY_SYSTEM += _SCRIPT_RULE
+_SCHOL_SYSTEM += _SCRIPT_RULE
+_SCHOL_RECENT = 4
+_SCHOL_KEEP = 8
+_SCHOL_DEPTH = 100
+# Up to this many of the eight are reserved for journal articles when any
+# qualify (2026-10-12, the owner: "Why does the paragraph on the Aeneid have
+# to draw only on commentaries when you also have articles?"). Notes on the
+# very lines outrank an article's passing mention every time, so without a
+# reserved share the articles never reach the eight. An article qualifies
+# when its title or snippet names the author, the work, or a capitalised
+# name from the question itself (Dido, Aeneas).
+_SCHOL_ARTICLES = 2
+_SCHOL_STOP = {'The', 'A', 'An', 'What', 'How', 'Why', 'Where', 'When', 'Who', 'Which', 'I', 'In', 'On', 'Of'}
+
+
+def _question_names(question):
+    words = re.findall(r"[A-Z][\w'\u2019]+", question or '')
+    out = []
+    for w in words:
+        w = re.sub(r"['\u2019]s$", '', w)
+        if w not in _SCHOL_STOP and len(w) > 2:
+            out.append(w.lower())
+    return out[:4]
+
+# One sentence saying what the scholarship collection holds for the work. The
+# phrasing is picked by a hash of the question so a question always gets the
+# same sentence and different questions differ. No colons, semicolons or dashes.
+_HOLDINGS_WITH = (
+    "The secondary sources I can read include {n} {things} from {who} on {title}.",
+    "For {title} I have {n} {things} from {who} to draw on.",
+    "The secondary sources I have access to give {n} {things} from {who} on {title}.",
+    "My secondary sources on {title} for this question are {n} {things} from {who}.",
+    "I found {n} {things} from {who} on {title} among the secondary sources I can read.",
+)
+# Every "none" sentence says "for this question": the collection may well hold
+# notes on the work that this question did not reach (2026-10-12, Thucydides).
+_HOLDINGS_NONE = (
+    "I have no secondary sources on {title} to draw on for this question.",
+    "I don't have access to any secondary sources on {title} that match this question.",
+    "The secondary sources I can read have nothing on {title} for this question.",
+    "No secondary source I can read speaks to {title} on this question.",
+    "I can find no secondary literature on {title} for this question in what I have access to.",
+)
+
+
+# The second clause of the holdings sentence, about the live services. Five
+# phrasings per state, picked by the same hash as the first clause. No colons,
+# semicolons or dashes.
+_RECENT_FOUND = (
+    "the live services list {m} {art} for this question",
+    "the live services add {m} {art}",
+    "I also found {m} {art} online",
+    "{m} {art} turned up in the live services",
+    "the live services give {m} {art} on it",
+)
+_RECENT_NONE = (
+    "the live services list no articles for this question",
+    "the live services add nothing",
+    "no article turned up in the live services",
+    "I found no articles online",
+    "the live services give no articles on it",
+)
+_RECENT_FAILED = (
+    "{k} of the live services did not answer",
+    "{k} of the live services failed to answer",
+    "{k} of the live services gave no answer",
+    "{k} of the live services could not be reached",
+    "{k} of the live services returned no answer",
+)
+
+
+def _pick(options, question):
+    import hashlib
+    h = int(hashlib.sha256((question or '').strip().lower().encode('utf-8')).hexdigest(), 16)
+    return options[h % len(options)]
+
+
+def _join_names(names):
+    names = list(dict.fromkeys(n for n in names if n))
+    if not names:
+        return 'the collection'
+    if len(names) == 1:
+        return names[0]
+    if len(names) == 2:
+        return f'{names[0]} and {names[1]}'
+    return f'{names[0]}, {names[1]} and {len(names) - 2} more'
+
+
+_ALIASES = {'vergil': ('virgil',), 'virgil': ('vergil',)}
+
+
+def _scholarship_keep(cards, work, question=''):
+    """The cards about this work: commentary notes on it (book files collapsed),
+    notes on other works that name its author, and articles whose title or
+    snippet names the author, the work, or a name from the question. Articles
+    hold a reserved share of the eight (_SCHOL_ARTICLES) when any qualify;
+    the rest fill in the search's order."""
+    from backend import work_names
+    base = work_names.base_work(work)
+    info = passage_index._naming(base) or {}
+    author = str(info.get('author') or '').strip().lower()
+    title = str(info.get('title') or '').strip().lower()
+    names = [n for n in (author,) if n]
+    for n in list(names):
+        names.extend(_ALIASES.get(n, ()))
+    # A title of three letters or fewer ("Odes") would match anything.
+    if len(title) >= 5:
+        names.append(title)
+    qnames = _question_names(question)
+    notes, arts = [], []
+    for c in cards or []:
+        hay = ' '.join(str(c.get(k) or '') for k in ('title', 'snippet')).lower()
+        names_it = bool(names) and any(re.search(r'\b' + re.escape(n) + r'\b', hay) for n in names)
+        if c.get('kind') == 'commentary':
+            # A note on the work itself, or a note on another work that names
+            # this author (Page on the Aeneid comparing Thucydides' plague is
+            # secondary literature on Thucydides too, 2026-10-12).
+            if (c.get('work') and work_names.base_work(c['work']) == base) or names_it:
+                notes.append(c)
+        elif c.get('kind') == 'article':
+            if names_it or any(re.search(r'\b' + re.escape(n) + r'\b', hay) for n in qnames):
+                arts.append(c)
+    n_arts = min(len(arts), _SCHOL_ARTICLES)
+    kept = notes[:_SCHOL_KEEP - n_arts] + arts[:n_arts]
+    if len(kept) < _SCHOL_KEEP:
+        kept += arts[n_arts:_SCHOL_KEEP - len(kept) + n_arts]
+    return kept[:_SCHOL_KEEP], info
+
+
+def _scholarship_label(c):
+    if c.get('kind') in ('article', 'recent'):
+        t = (c.get('title') or 'Article').strip()
+        return f"{t} ({c['year']})" if c.get('year') else t
+    who = (c.get('commentator') or 'Commentary').strip()
+    return f"{who} on {c['ref_start']}" if c.get('ref_start') else who
+
+
+_CITE_FIELDS = ('title', 'authors', 'year', 'journal', 'venue', 'doi', 'url', 'oa_url',
+                'commentator', 'work', 'ref_start', 'ref_end')
+
+
+def _cite_fields(card):
+    """The bibliographic fields of a card, so the page can offer a citation
+    for each bracketed number. Additive to the cite's n, kind, label, link."""
+    return {k: card.get(k) for k in _CITE_FIELDS}
+
+
+def _recent_clause(question, n_recent, n_failed):
+    """(clause for the first sentence, extra sentence). Items found: the found
+    clause, and a separate sentence when some service also failed. None found:
+    the failed clause when a service failed, else the none clause."""
+    if n_recent:
+        art = 'article' if n_recent == 1 else 'articles'
+        clause = _pick(_RECENT_FOUND, question).format(m=n_recent, art=art)
+        extra = (_pick(_RECENT_FAILED, question).format(k=n_failed) if n_failed else '')
+        return clause, (extra[0].upper() + extra[1:] + '.') if extra else ''
+    if n_failed:
+        return _pick(_RECENT_FAILED, question).format(k=n_failed), ''
+    return _pick(_RECENT_NONE, question), ''
+
+
+def _scholarship_holdings(question, kept, info, work, n_recent=None, n_failed=0):
+    """One or two sentences on what is held. n_recent None leaves the live
+    services out of it (the held sentence alone)."""
+    sentence = _scholarship_held_sentence(question, kept, info, work)
+    if n_recent is None:
+        return sentence
+    clause, extra = _recent_clause(question, n_recent, n_failed)
+    out = sentence.rstrip('.') + ' and ' + clause + '.'
+    return out + (' ' + extra if extra else '')
+
+
+def _scholarship_held_sentence(question, kept, info, work):
+    title = info.get('display_name') or info.get('title') or str(work)
+    if not kept:
+        return _pick(_HOLDINGS_NONE, question).format(title=title)
+    arts = [c for c in kept if c.get('kind') == 'article']
+    notes = [c for c in kept if c.get('kind') != 'article']
+    if arts and notes:
+        things = 'notes and articles'
+    elif arts:
+        things = 'articles' if len(kept) > 1 else 'article'
+    else:
+        things = 'notes' if len(kept) > 1 else 'note'
+    who = _join_names([c.get('commentator') for c in notes] +
+                      [c.get('journal') or 'journal articles' for c in arts])
+    return _pick(_HOLDINGS_WITH, question).format(n=len(kept), things=things, who=who, title=title)
+
+
+@passages_bp.route('/passages/ask-scholarship', methods=['POST'])
+def ask_scholarship():
+    """What the secondary literature says about the question, for one work."""
+    import time
+    import concurrent.futures
+    from backend.assistant import model
+    from backend import scholarship_theme
+    from backend import original_script
+    data = request.get_json(silent=True) or {}
+    question = str(data.get('question') or '').strip()
+    work = str(data.get('work') or '').strip()
+    if not question or not work:
+        return jsonify({'available': False, 'error': 'question and work are required'})
+    # The search carries the author's and the work's names in front of the
+    # question, so notes and articles about this author rank ahead of notes
+    # on the same subject in other authors (2026-10-12: "the plague at
+    # Athens" alone reached nothing naming Thucydides in the first thirty;
+    # with his name in front, twelve).
+    from backend import work_names as _wn
+    _info = passage_index._naming(_wn.base_work(work)) or {}
+    _prefix = ' '.join(x for x in (_info.get('author'), _info.get('title')) if x)
+    query_used = f'{_prefix}: {question}' if _prefix else question
+    try:
+        found = scholarship_theme.theme(query_used, k=_SCHOL_DEPTH)
+    except Exception as e:
+        logger.info('[PASSAGES] ask-scholarship search failed: %s', type(e).__name__)
+        return jsonify({'available': False, 'error': 'the scholarship search is not available'})
+    kept, info = _scholarship_keep(found.get('results'), work, question)
+    recent, services, n_found = _recent_for_paragraph(question, work)
+    n_failed = sum(1 for v in services.values() if v == 'failed')
+    holdings = _scholarship_holdings(question, kept, info, work, n_found, n_failed)
+    base = {'holdings': holdings, 'query_used': query_used, 'recent': recent, 'services': services}
+    if (not kept and not recent) or not model.is_available():
+        return jsonify(dict(base, available=False))
+    n_art = sum(1 for c in kept if c.get('kind') == 'article')
+    n_note = len(kept) - n_art
+    kind_names = []
+    if n_note:
+        kind_names.append('commentary notes')
+    if n_art:
+        kind_names.append('journal articles')
+    if recent:
+        kind_names.append('articles found online, known from abstracts')
+    kinds = kind_names[0] if len(kind_names) == 1 else ', '.join(kind_names[:-1]) + ' and ' + kind_names[-1]
+    # The model is told what kinds it has, so it does not write "the
+    # commentaries and articles" over notes alone (owner, 2026-10-12).
+    cards = list(kept) + [dict(r, kind='recent', link={'kind': 'web', 'url': _recent_link(r)}) for r in recent]
+    lines = [f"{info.get('display_name') or work}", question,
+             f"The sources below are {kinds} only. Name them as such."]
+    for i, c in enumerate(cards, 1):
+        if c.get('kind') == 'recent':
+            venue = f", {c['venue']}" if c.get('venue') else ''
+            year = f" ({c['year']})" if c.get('year') else ''
+            lines.append(f"[{i}] Article found online, known from its abstract or an excerpt: "
+                         f"{c.get('title')}{year}{venue}: {c.get('excerpt') or ''}")
+        else:
+            lines.append(f"[{i}] {_scholarship_label(c)}: {c.get('snippet') or ''}")
+    system = _SCHOL_SYSTEM.format(limit=150 if recent else 120) + (_SCHOL_RECENT_NOTE if recent else '')
+    t0 = time.time()
+    pool = concurrent.futures.ThreadPoolExecutor(max_workers=1)
+    try:
+        fut = pool.submit(model.complete, system, '\n'.join(lines), 400, 0.2)
+        try:
+            text = fut.result(timeout=_SUMMARY_TIMEOUT)
+            user_msg = '\n'.join(lines)
+            text, script_problems = original_script.settle(
+                text, [c.get('snippet') or c.get('excerpt') or '' for c in cards],
+                lambda note: pool.submit(model.complete, system, user_msg + '\n' + note,
+                                         400, 0.2).result(timeout=_SUMMARY_TIMEOUT))
+        except concurrent.futures.TimeoutError:
+            logger.info('[PASSAGES] ask-scholarship %r timed out after %.1fs', question, time.time() - t0)
+            return jsonify(dict(base, available=False, error='the model took too long'))
+        except Exception as e:
+            logger.info('[PASSAGES] ask-scholarship %r failed: %s', question, type(e).__name__)
+            return jsonify(dict(base, available=False, error='the model could not answer'))
+    finally:
+        pool.shutdown(wait=False)
+    if not text:
+        return jsonify(dict(base, available=False, error='the model could not answer'))
+    used = sorted({int(n) for n in re.findall(r'\[(\d+)\]', text) if 1 <= int(n) <= len(cards)})
+    cites = [{'n': n, 'kind': cards[n - 1].get('kind'), 'label': _scholarship_label(cards[n - 1]),
+              'link': cards[n - 1].get('link'), **_cite_fields(cards[n - 1])} for n in used]
+    return jsonify(dict(base, available=True, summary=text, cites=cites, kept=len(cards),
+                        script_problems=script_problems))
+
+
+def _recent_link(item):
+    doi = item.get('doi')
+    return item.get('oa_url') or (f'https://doi.org/{doi}' if doi else None) or item.get('url')
+
+
+def _recent_for_paragraph(question, work):
+    """The live services' recent articles for the paragraph: each service asked
+    in its own thread with ten seconds for the group (the page has usually
+    fetched them already, so the answers come off the disk cache). Returns
+    (up to _SCHOL_RECENT merged items, {service: 'ok'|'none'|'failed'|'off'},
+    the number of distinct recent articles the services listed)."""
+    import concurrent.futures
+    from backend import scholarship_recent as sr
+    pool = concurrent.futures.ThreadPoolExecutor(max_workers=5)
+    try:
+        futs = {pool.submit(sr.recent_safe, question, work, name): name for name in sr.SERVICES}
+        done, _pending = concurrent.futures.wait(futs, timeout=10)
+        services, lists = {}, []
+        for f, name in futs.items():
+            if f in done:
+                res = f.result()
+                services[name] = sr.state(res)
+                lists.append(res.get('results') or [])
+            else:
+                services[name] = 'failed'
+    finally:
+        pool.shutdown(wait=False)
+    merged = sr.merge(lists)
+    return merged[:_SCHOL_RECENT], services, len(merged)
+
+
+@passages_bp.route('/passages/recent-scholarship', methods=['GET'])
+def recent_scholarship():
+    """Recent articles one live service gives for a question, about a work when
+    one is given (work is optional: Theme Search's list has none).
+    One service per request so the page can fire them in parallel and paint
+    each as it lands. A service that fails answers available False, never 500."""
+    from backend import scholarship_recent as sr
+    question = (request.args.get('question') or '').strip()
+    work = (request.args.get('work') or '').strip() or None
+    service = (request.args.get('service') or '').strip().lower()
+    if not question or service not in sr.SERVICES:
+        return jsonify({'service': service, 'available': False, 'results': [],
+                        'reason': 'a question and a known service are required'})
+    return jsonify(sr.recent_safe(question, work, service))
 
 
 def _chronological(results):
@@ -394,6 +917,12 @@ def export_theme_search():
     })
 
 
+def _opt_int(name):
+    """A non-negative integer query parameter, or None when absent or not one."""
+    raw = (request.args.get(name) or '').strip()
+    return int(raw) if raw.isdigit() else None
+
+
 @passages_bp.route('/passages/similar')
 def similar_passages():
     """Passages whose content resembles a given passage.
@@ -426,7 +955,8 @@ def similar_passages():
         out = passage_index.find_similar_to_passage(
             work, request.args.get('ref_start'), request.args.get('ref_end'),
             limit=limit, languages=langs, scale=_scale() or 'fine',
-            suppress_other_versions=not include_versions, by_language=by_language)
+            suppress_other_versions=not include_versions, by_language=by_language,
+            char_start=_opt_int('char_start'), char_end=_opt_int('char_end'))
     else:
         return jsonify({'error': 'work or window is required', 'results': []})
     if same_names_requested:

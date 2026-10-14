@@ -1,6 +1,27 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { cssRef } from './refId';
 import { RTL_LANGS as RTL } from '../../utils/rtl';
+import { useIsPhone } from '../../hooks/useIsPhone';
+import { sentencesOf, sentenceFields, sentenceRangeOf } from '../../utils/sentences';
+
+// The sentences of a long unit, cut once per text. Most units are verse lines
+// and have none (null).
+const partsCache = new Map();
+function partsOf(text) {
+  if (!text || text.length <= 400) return null;
+  if (!partsCache.has(text)) {
+    if (partsCache.size > 4000) partsCache.clear();
+    partsCache.set(text, sentencesOf(text));
+  }
+  return partsCache.get(text);
+}
+
+/** The sentence index of the <span data-sentence> holding a DOM node, or null. */
+function sentenceIndexOf(node) {
+  const el = node && (node.nodeType === 1 ? node : node.parentElement);
+  const span = el && el.closest ? el.closest('[data-sentence]') : null;
+  return span ? Number(span.getAttribute('data-sentence')) : null;
+}
 
 /**
  * The reading surface: the text itself, with selection.
@@ -13,6 +34,9 @@ import { RTL_LANGS as RTL } from '../../utils/rtl';
  */
 export default function TextPane({ units, language, selection, onSelect, total, onMore,
                                     reuseMarks, onReuseClick, documentsTrial }) {
+  // On a phone: a narrower line-number column, a smaller gap and a hanging
+  // indent, so the text has the width and a wrapped line reads as one line.
+  const phone = useIsPhone();
   // LONG TEXTS ARRIVE IN STRETCHES. Hafez's diwan is 9,502 lines and Anvari's
   // 26,616; drawing every line and gutter tile at once froze a phone and
   // crashed its tab (2026-09-07). The page draws what it has been given
@@ -46,6 +70,9 @@ export default function TextPane({ units, language, selection, onSelect, total, 
     [drag, selection, selLo, selHi]);
   const dragRef = useRef(null);
   dragRef.current = drag;
+  // The sentence the mouse went down on, so a plain click (which leaves no
+  // browser selection) can still select that sentence.
+  const downRef = useRef(null);
   useEffect(() => {
     // Releasing outside the pane still ends the drag.
     const up = () => {
@@ -56,7 +83,27 @@ export default function TextPane({ units, language, selection, onSelect, total, 
       const hi = Math.max(d.anchor, d.current);
       const el = document.getElementById(`line-${cssRef(units[hi]?.ref)}`);
       const sel = window.getSelection();
-      emit(lo, hi, el ? el.offsetTop + el.offsetHeight : 0, sel ? String(sel).trim() : '');
+      const native = sel ? String(sel).trim() : '';
+      const top = el ? el.offsetTop + el.offsetHeight : 0;
+      const parts = lo === hi ? partsOf(units[lo]?.text) : null;
+      if (!parts) { emit(lo, hi, top, native); return; }
+      // Inside one long unit: the sentences the click or the drag touched.
+      const down = downRef.current && downRef.current.i === lo ? downRef.current.sent : null;
+      const inUnit = (node) => lineIndexOf(node) === lo;
+      const aS = sel && !sel.isCollapsed && inUnit(sel.anchorNode) ? sentenceIndexOf(sel.anchorNode) : null;
+      const bS = sel && !sel.isCollapsed && inUnit(sel.focusNode) ? sentenceIndexOf(sel.focusNode) : null;
+      const a = aS ?? down;
+      const b = bS ?? a;
+      if (a == null) {
+        // Not on a sentence (the margin, or space between): the whole unit.
+        emit(lo, hi, top, native, sentenceFields(units[lo].text, parts, 0, parts.length - 1));
+        return;
+      }
+      const f = sentenceFields(units[lo].text, parts, Math.min(a, b), Math.max(a, b));
+      // A double-clicked word stays the word (the toolbar searches for it); the
+      // sentence is still recorded for the tabs.
+      const word = native && !/\s/.test(native);
+      emit(lo, hi, top, word ? native : (f.charStart == null ? native : f.text), f);
     };
     window.addEventListener('mouseup', up);
     return () => window.removeEventListener('mouseup', up);
@@ -70,7 +117,7 @@ export default function TextPane({ units, language, selection, onSelect, total, 
   // selected". Reading the native selection instead means there is only one
   // answer to what is selected, and ordinary text selection works as it does
   // everywhere else, including keyboard and double-click.
-  const emit = (a, b, anchorTop, text) => {
+  const emit = (a, b, anchorTop, text, extra) => {
     const lo = Math.min(a, b);
     const hi = Math.max(a, b);
     onSelect?.({
@@ -83,6 +130,9 @@ export default function TextPane({ units, language, selection, onSelect, total, 
       // The literal characters the reader swept, so the toolbar can tell a
       // double-clicked word from a whole line and search for the word itself.
       text: text || '',
+      // Set inside a long prose unit: charStart/charEnd (null for the whole
+      // unit), sentenceText, sentenceCount, sentenceTotal, startSentence.
+      ...(extra || {}),
     });
   };
 
@@ -123,7 +173,7 @@ export default function TextPane({ units, language, selection, onSelect, total, 
   return (
     <div
       ref={paneRef}
-      className="flex-1 px-6 py-6 overflow-y-auto reader-text"
+      className={`flex-1 ${phone ? 'px-2 py-4' : 'px-6 py-6'} overflow-y-auto reader-text`}
       onKeyUp={(e) => { if (e.shiftKey) readSelection(); }}
     >
       {/* Gentium Book carries Latin, polytonic Greek and Cyrillic, and
@@ -151,17 +201,35 @@ export default function TextPane({ units, language, selection, onSelect, total, 
           const n = lineNumber(u.ref);
           const showNumber = n != null && n % 5 === 0;
           const selected = isSelected(i);
+          // A long prose unit is drawn as its sentences, and the selected ones
+          // are lit. When some but not all of a unit's sentences are selected,
+          // the unit itself is NOT painted: with the whole chapter pink behind
+          // them, the lit sentences could not be told from the rest, and the
+          // owner read it as "I still can't select by sentence, just by large
+          // chunk" (2026-10-12). The unit keeps its left bar either way.
+          const parts = partsOf(u.text);
+          const lit = parts && selected && selection && selection.charStart != null
+            && selection.startIdx === i && selection.endIdx === i
+            ? sentenceRangeOf(selection, parts) : null;
+          const partial = !!(lit && (lit[0] > 0 || lit[1] < parts.length - 1));
           return (
             <div
               key={u.ref}
               id={`line-${cssRef(u.ref)}`}
-              className={`grid gap-2 cursor-text ${selected ? 'bg-red-50 border-l-[3px] border-red-700 -ml-[3px] rounded-r' : ''}`}
-              style={{ gridTemplateColumns: '2.6rem 1.15rem 1fr', minHeight: '1.75rem' }}
+              className={`grid ${phone ? 'gap-1' : 'gap-2'} cursor-text ${selected ? `${partial ? '' : 'bg-red-50 '}border-l-[3px] border-red-700 -ml-[3px] rounded-r` : ''}`}
+              // The second column holds the "quoted in N works" mark. With the
+              // documents trial on, a line can carry a second mark (the amber
+              // inscriptions count) beside it, and 1.15rem fitted one mark only:
+              // the second overlapped the line's text (seen on Aeneid 1.1,
+              // 2026-10-09). Reserve room for two whenever the trial is on, so
+              // every line's text stays on the same left edge.
+              style={{ gridTemplateColumns: `${phone ? '1.6rem' : '2.6rem'} ${documentsTrial ? '2.5rem' : '1.15rem'} 1fr`, minHeight: '1.75rem' }}
               // A tap on a phone makes no text selection, so nothing used to
               // happen. A click or tap that leaves no selection selects the
               // line itself; a drag still selects the swept span.
               onMouseDown={(e) => {
                 if (coarse || e.button !== 0) return;
+                downRef.current = { i, sent: sentenceIndexOf(e.target) };
                 setDrag({ anchor: i, current: i });
               }}
               onMouseEnter={() => {
@@ -176,15 +244,47 @@ export default function TextPane({ units, language, selection, onSelect, total, 
                 // never appears over the page (2026-09-07). A tap
                 // selects a line; a tap on another line extends the span
                 // to it; a tap inside the span narrows it to that line.
+                //
+                // INSIDE A LONG PROSE UNIT the tap selects a sentence. A tap
+                // on another sentence of the same unit extends to it, a tap
+                // on the selected sentence (or on the unit's reference
+                // label) widens to the whole unit, and a tap on one sentence
+                // of a multi-sentence selection narrows to it.
                 if (selection && (i < selLo || i > selHi)) {
                   emit(Math.min(selLo, i), Math.max(selHi, i), bottom, '');
-                } else {
-                  emit(i, i, bottom, u.text);
+                  return;
                 }
+                const parts = partsOf(u.text);
+                const k = sentenceIndexOf(e.target);
+                const onLabel = !!(e.target.closest && e.target.closest('[data-label]'));
+                const whole = () => emit(i, i, bottom, u.text,
+                  parts ? sentenceFields(u.text, parts, 0, parts.length - 1) : undefined);
+                if (!parts || onLabel || k == null) { whole(); return; }
+                const here = selection && selection.startIdx === i && selection.endIdx === i;
+                if (!here) {
+                  const f = sentenceFields(u.text, parts, k, k);
+                  emit(i, i, bottom, f.text, f);
+                  return;
+                }
+                if (selection.charStart == null) {      // the whole unit: narrow to the tapped sentence
+                  const f = sentenceFields(u.text, parts, k, k);
+                  emit(i, i, bottom, f.text, f);
+                  return;
+                }
+                const [lo, hi] = sentenceRangeOf(selection, parts);
+                if (k >= lo && k <= hi) {
+                  if (lo === hi) { whole(); return; }    // second tap on the one selected sentence
+                  const f = sentenceFields(u.text, parts, k, k);
+                  emit(i, i, bottom, f.text, f);
+                  return;
+                }
+                const f = sentenceFields(u.text, parts, Math.min(lo, k), Math.max(hi, k));
+                emit(i, i, bottom, f.text, f);
               }}
             >
               <span
-                className="text-[0.72rem] text-gray-500 text-right pt-[0.35em] tabular-nums select-none"
+                data-label="1"
+                className={`${phone ? 'text-[10px]' : 'text-[0.72rem]'} text-gray-500 text-right pt-[0.35em] tabular-nums select-none`}
                 style={{ fontFamily: 'inherit' }}
               >
                 {showNumber ? n : ''}
@@ -274,8 +374,8 @@ export default function TextPane({ units, language, selection, onSelect, total, 
                       <button
                         type="button"
                         onMouseDown={(e) => e.stopPropagation()}
-                        onClick={(e) => { e.stopPropagation(); onReuseClick?.(u); }}
-                        title={`Quoted in ${nDocs} inscription${nDocs === 1 ? '' : 's'} or papyrus${nDocs === 1 ? '' : 'es'}`}
+                        onClick={(e) => { e.stopPropagation(); onReuseClick?.(u, 'documents'); }}
+                        title={`Quoted in ${nDocs} inscription${nDocs === 1 ? '' : 's'} or papyr${nDocs === 1 ? 'us' : 'i'}`}
                         aria-label={`quoted in ${nDocs} document${nDocs === 1 ? '' : 's'}`}
                         className="inline-flex items-center justify-center text-[9px] font-bold leading-none
                                    text-amber-800 bg-amber-50 border border-amber-300 rounded px-1 py-[2px]
@@ -290,8 +390,8 @@ export default function TextPane({ units, language, selection, onSelect, total, 
                       <button
                         type="button"
                         onMouseDown={(e) => e.stopPropagation()}
-                        onClick={(e) => { e.stopPropagation(); onReuseClick?.(u); }}
-                        title={`Possible echo in ${nPossibleDocs} inscription${nPossibleDocs === 1 ? '' : 's'} or papyrus${nPossibleDocs === 1 ? '' : 'es'} (one rare shared phrase)`}
+                        onClick={(e) => { e.stopPropagation(); onReuseClick?.(u, 'documents'); }}
+                        title={`Possible echo in ${nPossibleDocs} inscription${nPossibleDocs === 1 ? '' : 's'} or papyr${nPossibleDocs === 1 ? 'us' : 'i'} (one rare shared phrase)`}
                         aria-label={`possible echo in ${nPossibleDocs} document${nPossibleDocs === 1 ? '' : 's'}`}
                         className="inline-flex items-center justify-center text-[9px] font-bold leading-none
                                    text-amber-700 bg-white border border-dashed border-amber-300 rounded px-1 py-[2px]
@@ -304,7 +404,23 @@ export default function TextPane({ units, language, selection, onSelect, total, 
                   return null;
                 })()}
               </span>
-              <p className="m-0">{u.text}</p>
+              <p className="m-0"
+                 style={phone ? { textIndent: '-1em', [rtl ? 'paddingRight' : 'paddingLeft']: '1em' } : undefined}>
+                {(() => {
+                  // A long prose unit is drawn as its sentences (the text is
+                  // unchanged), so one can be clicked, and the selected one lit.
+                  if (!parts) return u.text;
+                  return parts.map((pt, k) => (
+                    <span
+                      key={pt.start}
+                      data-sentence={k}
+                      className={lit && k >= lit[0] && k <= lit[1] ? 'bg-red-100 rounded-sm' : undefined}
+                    >
+                      {u.text.slice(pt.start, pt.end)}
+                    </span>
+                  ));
+                })()}
+              </p>
             </div>
           );
         })}

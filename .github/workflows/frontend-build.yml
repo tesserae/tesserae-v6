@@ -25,3 +25,8 @@ jobs:
           
       - name: Build React App
         run: npm run build
+
+      # Pinned to the code of 2026-10-12 by eslint-suppressions.json and the
+      # warning count in package.json. Blocking.
+      - name: Lint (ESLint)
+        run: npm run lint

@@ -8,11 +8,13 @@
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "lint": "eslint client/src --max-warnings 37"
   },
   "dependencies": {
     "chart.js": "^4.4.1",
     "d3": "^7.9.0",
+    "leaflet": "^1.9.4",
     "lucide-react": "^1.14.0",
     "react": "^18.2.0",
     "react-chartjs-2": "^5.2.0",
@@ -20,11 +22,16 @@
     "recharts": "^3.8.1"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.5",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.1",
     "@vitejs/plugin-react": "^4.2.1",
     "autoprefixer": "^10.4.16",
+    "eslint": "^9.39.5",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "globals": "^17.13.0",
     "jsdom": "^29.1.1",
     "postcss": "^8.4.32",
     "tailwindcss": "^3.4.0",

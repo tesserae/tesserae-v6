@@ -1,6 +1,10 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { LoadingSpinner } from '../common';
 import { displayRef } from './refId';
+import CiteRecordButton from '../common/CiteRecordButton';
+import CiteAll from '../common/CiteAll';
+import { recordFrom } from '../../utils/citations';
+import { getJson, postJsonTo } from '../../utils/api';
 
 /**
  * Secondary scholarship on the selected lines: the commentators' notes the
@@ -131,8 +135,7 @@ export default function ScholarshipTab({ work, language, selection, units, secon
       q.set('work2', second.work); q.set('ref2_start', second.ref_start);
       if (second.ref_end) q.set('ref2_end', second.ref_end);
     }
-    fetch(`/api/scholarship?${q.toString()}`)
-      .then((r) => r.json())
+    getJson(`/api/scholarship?${q.toString()}`)
       .then((d) => { if (!cancelled) setData(d); })
       .catch(() => { if (!cancelled) setError('The scholarship lookup did not answer.'); })
       .finally(() => { if (!cancelled) setLoading(false); });
@@ -172,22 +175,22 @@ export default function ScholarshipTab({ work, language, selection, units, secon
     const out = [];
     for (const r of (data.index?.results || [])) {
       if (!take(r)) continue;
-      out.push({ year: r.year || null, key: 'idx-' + (r.url || r.title),
+      out.push({ year: r.year || null, rec: recordFrom(r, 'index'), key: 'idx-' + (r.url || r.title),
                  node: <IndexPieceLI key={'idx-' + (r.url || r.title)} r={r} passage={passage} fallbackWords={fallbackWords} /> });
     }
     for (const r of (data.fulltext?.results || [])) {
       if (!take(r)) continue;
-      out.push({ year: r.year || null, key: 'ft-' + (r.doi || r.url || r.title),
+      out.push({ year: r.year || null, rec: recordFrom(r, 'fulltext'), key: 'ft-' + (r.doi || r.url || r.title),
                  node: <FullTextPieceLI key={'ft-' + (r.doi || r.url || r.title)} r={r} library={library} passage={passage} fallbackWords={fallbackWords} /> });
     }
     for (const r of (data.results || [])) {
       if (!take(r)) continue;
-      out.push({ year: r.year || null, key: 'main-' + (r.doi || r.title),
+      out.push({ year: r.year || null, rec: recordFrom(r, 'main'), key: 'main-' + (r.doi || r.title),
                  node: <MainPieceLI key={'main-' + (r.doi || r.title)} r={r} data={data} library={library} passage={passage} fallbackWords={fallbackWords} /> });
     }
     for (const b of (data.books?.results || [])) {
       if (!take(b)) continue;
-      out.push({ year: pieceYear(b), key: 'book-' + b.id,
+      out.push({ year: pieceYear(b), rec: recordFrom(b, 'book'), key: 'book-' + b.id,
                  node: <BookPieceLI key={'book-' + b.id} b={b} passage={passage} fallbackWords={fallbackWords} /> });
     }
     out.sort((x, y) => {
@@ -198,6 +201,19 @@ export default function ScholarshipTab({ work, language, selection, units, secon
     });
     return out;
   }, [data, library, fallbackWords]);
+
+  // Everything the tab holds, for the one export: every commentary note at
+  // these lines (all commentators, not only the one picked) and every piece.
+  const allRecords = useMemo(() => {
+    if (!data) return [];
+    const notes = [];
+    for (const [sections, w] of [[data.commentary, work], [data.commentary2, second?.work]]) {
+      for (const sec of sections || []) {
+        for (const note of sec.notes || []) notes.push(recordFrom({ note, section: sec, work: w }, 'note'));
+      }
+    }
+    return [...notes, ...pieces.map((p) => p.rec)];
+  }, [data, pieces, work, second?.work]);
 
   if (!selection) return null;
 
@@ -217,7 +233,10 @@ export default function ScholarshipTab({ work, language, selection, units, secon
 
       {!loading && data && (
         <>
-          <Contents data={data} pieceCount={pieces.length} />
+          <div className="flex items-start justify-between gap-2">
+            <div className="min-w-0 flex-1"><Contents data={data} pieceCount={pieces.length} /></div>
+            <CiteAll records={allRecords} name={`${work || 'scholarship'} ${refStart || ''}`} />
+          </div>
           <CommentarySection sections={data.commentary || []} work={work} />
           {data.commentary2?.length > 0 && (
             <CommentarySection sections={data.commentary2} heading="On the compared passage" work={second?.work} />
@@ -270,38 +289,6 @@ export default function ScholarshipTab({ work, language, selection, units, secon
         </>
       )}
     </div>
-  );
-}
-
-/** RIS for one item, the interchange format Zotero imports from the clipboard
- *  (Zotero: File, Import from Clipboard) or from a saved .ris file. */
-function toRIS(r) {
-  const t = r.type || '';
-  const type = t.includes('book-chapter') || t === 'chapter' ? 'CHAP' : t.includes('book') ? 'BOOK' : 'JOUR';
-  const lines = [`TY  - ${type}`];
-  (r.authors || []).forEach((a) => lines.push(`AU  - ${a}`));
-  if (r.title) lines.push(`TI  - ${r.title}`);
-  if (r.venue) lines.push(type === 'CHAP' ? `BT  - ${r.venue}` : `JO  - ${r.venue}`);
-  if (r.year) lines.push(`PY  - ${r.year}`);
-  if (r.publisher) lines.push(`PB  - ${r.publisher}`);
-  if (r.preview && !r.doi) lines.push(`UR  - ${r.preview}`);
-  if (r.doi) { lines.push(`DO  - ${r.doi}`); lines.push(`UR  - https://doi.org/${r.doi}`); }
-  lines.push('ER  - ');
-  return lines.join('\n') + '\n';
-}
-
-function CopyRIS({ item }) {
-  const [state, setState] = useState('');
-  const copy = async () => {
-    try { await navigator.clipboard.writeText(toRIS(item)); setState('copied'); }
-    catch { setState('failed'); }
-    setTimeout(() => setState(''), 2000);
-  };
-  return (
-    <button type="button" onClick={copy} className="text-red-700 hover:underline"
-            title="Copies the reference as RIS; in Zotero choose File, Import from Clipboard.">
-      {state === 'copied' ? 'copied for Zotero' : state === 'failed' ? 'copy failed' : 'copy for Zotero'}
-    </button>
   );
 }
 
@@ -400,7 +387,7 @@ function MainPieceLI({ r, data, library, passage, fallbackWords }) {
         {r.oa_url && <a className="text-red-700 hover:underline" href={r.oa_url} target="_blank" rel="noreferrer">open copy</a>}
         {libraryLink(library, r) && <a className="text-red-700 hover:underline" href={libraryLink(library, r)} target="_blank" rel="noreferrer">open through my library</a>}
         {!r.oa_url && !libraryLink(library, r) && r.doi && <span>opens through your library or a subscription</span>}
-        <CopyRIS item={r} />
+        <CiteRecordButton record={recordFrom(r, 'main')} />
       </p>
     </li>
   );
@@ -429,7 +416,7 @@ function IndexPieceLI({ r, passage, fallbackWords }) {
         <span>cites {r.cites}{r.cites_note || ''}</span>
         {r.url_jstor && <a className="text-red-700 hover:underline" href={r.url_jstor} target="_blank" rel="noreferrer">on JSTOR</a>}
         {r.url_ia && <a className="text-red-700 hover:underline" href={r.url_ia} target="_blank" rel="noreferrer">free scan</a>}
-        <CopyRIS item={r} />
+        <CiteRecordButton record={recordFrom(r, 'index')} />
       </p>
     </li>
   );
@@ -458,7 +445,7 @@ function FullTextPieceLI({ r, library, passage, fallbackWords }) {
         {r.oa_url && <a className="text-red-700 hover:underline" href={r.oa_url} target="_blank" rel="noreferrer">open copy</a>}
         {r.url && <a className="text-red-700 hover:underline" href={r.url} target="_blank" rel="noreferrer">{r.source === 'core' ? 'at CORE' : 'at Semantic Scholar'}</a>}
         {libraryLink(library, r) && <a className="text-red-700 hover:underline" href={libraryLink(library, r)} target="_blank" rel="noreferrer">open through my library</a>}
-        <CopyRIS item={r} />
+        <CiteRecordButton record={recordFrom(r, 'fulltext')} />
       </p>
     </li>
   );
@@ -482,7 +469,7 @@ function BookPieceLI({ b, passage, fallbackWords }) {
       <p className="text-[11px] text-gray-500 mt-0.5 flex flex-wrap gap-x-3">
         {b.preview && <a className="text-red-700 hover:underline" href={b.preview} target="_blank" rel="noreferrer">open the page in Google Books</a>}
         {b.viewability && <span>{b.viewability.toLowerCase().replace('_', ' ')}</span>}
-        <CopyRIS item={{ ...b, type: 'book' }} />
+        <CiteRecordButton record={recordFrom(b, 'book')} />
       </p>
     </li>
   );
@@ -528,7 +515,7 @@ function CommentarySection({ sections, heading = 'Commentators', work }) {
         <ul className="mt-1 space-y-2">
           {c.notes.map((n, i) => (
             <Note key={c.commentator + n.ref + i} note={n} commentator={c.commentator} language={c.language}
-                  work={work} auto={i === 0} translatable={c.language !== 'en'} />
+                  section={c} work={work} auto={i === 0} translatable={c.language !== 'en'} />
           ))}
         </ul>
       </div>
@@ -579,14 +566,14 @@ function Provenance({ source, license }) {
   );
 }
 
-function Note({ note, commentator, language, work, auto, translatable = true }) {
+function Note({ note, commentator, language, work, section, auto, translatable = true }) {
   // A translation supplied with the commentary (a person's, not the
   // model's) is shown as the English, with the original one click behind.
-  if (note.text_en) return <NoteWithTranslation note={note} language={language} />;
-  return <MachineNote note={note} commentator={commentator} language={language} work={work} auto={auto} translatable={translatable} />;
+  if (note.text_en) return <NoteWithTranslation note={note} language={language} section={section} work={work} />;
+  return <MachineNote note={note} commentator={commentator} language={language} work={work} section={section} auto={auto} translatable={translatable} />;
 }
 
-function NoteWithTranslation({ note, language }) {
+function NoteWithTranslation({ note, language, section, work }) {
   const [showOriginal, setShowOriginal] = useState(false);
   return (
     <li className="text-sm text-gray-900 leading-relaxed">
@@ -597,12 +584,14 @@ function NoteWithTranslation({ note, language }) {
         <button type="button" className="text-red-700 hover:underline" onClick={() => setShowOriginal((v) => !v)}>
           {showOriginal ? 'show the translation' : 'show the original'}
         </button>
+        {' '}
+        <CiteRecordButton record={recordFrom({ note, section, work }, 'note')} />
       </span>
     </li>
   );
 }
 
-function MachineNote({ note, commentator, language, work, auto, translatable = true }) {
+function MachineNote({ note, commentator, language, work, section, auto, translatable = true }) {
   const [english, setEnglish] = useState(null);
   const [showLatin, setShowLatin] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -617,10 +606,7 @@ function MachineNote({ note, commentator, language, work, auto, translatable = t
     // work + ref name the note the route is being asked to translate; the
     // route only ever translates a note it already holds at that span, not
     // arbitrary text, so the exact text travels along to be checked against it.
-    fetch('/api/scholarship/translate', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ work, ref: note.ref, text: note.text, commentator, language }),
-    }).then((r) => r.json())
+    postJsonTo('/api/scholarship/translate', { work, ref: note.ref, text: note.text, commentator, language })
       .then((d) => { if (!cancelled) setEnglish(d); })
       .catch(() => { if (!cancelled) setEnglish({ available: false }); })
       .finally(() => { if (!cancelled) setBusy(false); });
@@ -645,6 +631,8 @@ function MachineNote({ note, commentator, language, work, auto, translatable = t
             {showLatin ? 'show the translation' : 'show the original'}
           </button>
         )}
+        {' '}
+        <CiteRecordButton record={recordFrom({ note, section, work }, 'note')} />
       </span>
     </li>
   );

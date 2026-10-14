@@ -18,7 +18,7 @@ const TEXTS = [
 
 beforeEach(() => {
   global.fetch = vi.fn(() =>
-    Promise.resolve({ ok: true, json: () => Promise.resolve({ texts: TEXTS }) }));
+    Promise.resolve({ ok: true, text: () => Promise.resolve(JSON.stringify({ texts: TEXTS })) }));
 });
 
 describe('the Lang column', () => {

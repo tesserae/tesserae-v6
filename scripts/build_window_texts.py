@@ -21,6 +21,12 @@ and the rarer path would be the one that breaks unnoticed.
 
     python scripts/build_window_texts.py            # build
     python scripts/build_window_texts.py --check    # coverage against ids.json
+    python scripts/build_window_texts.py --work ID --db COPY.db            # plan
+    python scripts/build_window_texts.py --work ID --db COPY.db --apply    # rebuild one work
+
+--work rebuilds only that work's rows (its windows and its addressable lines)
+in the window_texts.db named by --db and touches no other row. Run it on a COPY
+and swap the copy into place; the database is rewritten inside one transaction.
 
 The table is tiny to query and the file is written once per index build. It is
 NOT in git: it is derived data, about 300 MB.
@@ -141,7 +147,7 @@ def _lines_of(path):
     return out
 
 
-def build_lines(conn):
+def build_lines(conn, only=None):
     """Every line of every work, addressable by its own reference.
 
     Claude desktop, testing the connector: theme_search tells an agent "the gist
@@ -163,7 +169,7 @@ def build_lines(conn):
     files = _tess_index()
     conn.execute('CREATE TABLE IF NOT EXISTS lines ('
                  'work TEXT, ord INTEGER, ref TEXT, text TEXT)')
-    works = [r[0] for r in conn.execute(
+    works = only if only is not None else [r[0] for r in conn.execute(
         'SELECT DISTINCT work FROM window_texts WHERE work IS NOT NULL')]
     total = 0
     for work in works:
@@ -183,7 +189,7 @@ def build_lines(conn):
     return total
 
 
-def restore_line_breaks(conn):
+def restore_line_breaks(conn, only=None):
     """Replace each window's space-joined text with its real verse lines.
 
     Works work by work so only one .tess is held at a time. A window whose
@@ -193,7 +199,7 @@ def restore_line_breaks(conn):
     """
     files = _tess_index()
     print(f'\n  {len(files):,} .tess files across {len(TEXT_TREES)} trees')
-    works = [r[0] for r in conn.execute(
+    works = only if only is not None else [r[0] for r in conn.execute(
         'SELECT DISTINCT work FROM window_texts WHERE work IS NOT NULL')]
     fixed = kept = no_file = 0
     missing_works = []
@@ -228,6 +234,115 @@ def restore_line_breaks(conn):
     return fixed
 
 
+def _numkey(ref, prefix):
+    """Trailing dotted numbers of a reference as a tuple, or None."""
+    tail = ref[len(prefix):].lstrip('.') if ref.startswith(prefix) else ref.split()[-1]
+    try:
+        return tuple(int(x) for x in tail.split('.'))
+    except ValueError:
+        return None
+
+
+def clamp_empty_windows(conn, work):
+    """Give a window whose own references are not in the file the lines it can have.
+
+    A window cut when a laisse had a line that the file no longer has (the
+    Chanson de Roland: laisse 25 ends at 25.6, a window starts at 25.7) names a
+    reference that is absent. Its start is moved up to the first line at or
+    after it and its end down to the last line at or before it, in numeric
+    order; a window that then holds no line stays empty. Each is reported.
+    """
+    path = _tess_index().get(work)
+    if not path:
+        return
+    lines = _lines_of(path)
+    prefix = work
+    keyed = [(_numkey(r, prefix), t) for r, t in lines]
+    rows = conn.execute("SELECT id, ref_start, ref_end FROM window_texts "
+                        "WHERE work = ? AND (text IS NULL OR text = '')", (work,)).fetchall()
+    for wid, rs, re_ in rows:
+        a, b = _numkey(rs, prefix), _numkey(re_, prefix)
+        if a is None or b is None:
+            continue
+        got = [t for k, t in keyed if k is not None and a <= k <= b]
+        if got:
+            conn.execute('UPDATE window_texts SET text = ? WHERE id = ?', ('\n'.join(got), wid))
+            print(f'  {wid}: references {rs}..{re_} not all in the file; '
+                  f'stored the {len(got)} lines that are')
+
+
+def rebuild_work(db, work, descriptions, apply=False):
+    """Rebuild one work's window_texts rows and lines rows in `db`, nothing else.
+
+    Windows come from the window files first (first file wins, as in build())
+    and then from the index's own descriptions.jsonl for any id of this work
+    that no window file carries (the case of the vernacular batch, whose window
+    files are gone). A window gets its text by slicing the work's .tess file
+    between its ref_start and ref_end, exactly as restore_line_breaks() does;
+    one whose references are not in the file is counted and left out rather
+    than stored empty. All inside one transaction: nothing is written without
+    --apply, and a failure rolls back.
+    """
+    conn = sqlite3.connect(db)
+    old = {r[0]: r[1:] for r in conn.execute(
+        'SELECT id, language, ref_start, ref_end, text FROM window_texts WHERE work = ?',
+        (work,))}
+    old_lines = conn.execute('SELECT COUNT(*) FROM lines WHERE work = ?', (work,)).fetchone()[0]
+    wins = {}
+    for path in WINDOW_FILES:
+        if not os.path.exists(path):
+            continue
+        with open(path, encoding='utf-8') as fh:
+            for w in json.load(fh):
+                if w.get('work') == work and w.get('id') and w.get('text'):
+                    wins.setdefault(w['id'], (w.get('language'), w.get('ref_start'),
+                                              w.get('ref_end'), w['text']))
+    from_files = len(wins)
+    if not descriptions or not os.path.exists(descriptions):
+        raise SystemExit(f'descriptions.jsonl not found at {descriptions!r}: pass '
+                         '--descriptions (a window with no file text is found there)')
+    if True:
+        needle = '"work": ' + json.dumps(work)
+        with open(descriptions, encoding='utf-8') as fh:
+            for line in fh:
+                if needle not in line:
+                    continue
+                r = json.loads(line)
+                if r.get('work') == work and r['id'] not in wins:
+                    wins[r['id']] = (r.get('language'), r.get('ref_start'),
+                                     r.get('ref_end'), '')
+    print(f'{work}: {len(old)} window rows and {old_lines} line rows now; '
+          f'{len(wins)} windows to store ({from_files} from window files, '
+          f'{len(wins) - from_files} from descriptions)')
+    if not apply:
+        print('(dry run; pass --apply to write)')
+        conn.close()
+        return 0
+    conn.execute('BEGIN')
+    conn.execute('DELETE FROM window_texts WHERE work = ?', (work,))
+    conn.execute('DELETE FROM lines WHERE work = ?', (work,))
+    conn.executemany('INSERT INTO window_texts VALUES (?,?,?,?,?,?)',
+                     [(i, v[0], work, v[1], v[2], v[3]) for i, v in wins.items()])
+    restore_line_breaks(conn, only=[work])
+    build_lines(conn, only=[work])
+    clamp_empty_windows(conn, work)
+    empty = [r[0] for r in conn.execute(
+        "SELECT id FROM window_texts WHERE work = ? AND (text IS NULL OR text = '')", (work,))]
+    if empty:
+        conn.execute("DELETE FROM window_texts WHERE work = ? AND (text IS NULL OR text = '')",
+                     (work,))
+        print(f'  {len(empty)} windows have no stored text and were left out, '
+              f'e.g. {empty[:3]}')
+    conn.commit()
+    n = conn.execute('SELECT COUNT(*) FROM window_texts WHERE work = ?', (work,)).fetchone()[0]
+    changed = sum(1 for i, v in old.items()
+                  if conn.execute('SELECT text FROM window_texts WHERE id = ?', (i,)).fetchone()
+                  not in (None, (v[3],)))
+    print(f'  now {n} window rows; {changed} rows that existed before changed their text')
+    conn.close()
+    return 0 if not empty else 1
+
+
 def check():
     """Every id the index can return must resolve, or the export has holes."""
     ids_path = os.path.join(INDEX, 'ids.json')
@@ -257,7 +372,15 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--check', action='store_true',
                     help='report coverage against ids.json instead of building')
+    ap.add_argument('--work', help='rebuild only this work id in the database '
+                    'given by --db (a copy; see the module docstring)')
+    ap.add_argument('--db', default=DB, help='window_texts.db to change with --work')
+    ap.add_argument('--descriptions', default=os.path.join(INDEX, 'descriptions.jsonl'),
+                    help='descriptions.jsonl naming the work\'s window ids')
+    ap.add_argument('--apply', action='store_true', help='write (with --work)')
     args = ap.parse_args()
+    if args.work:
+        return rebuild_work(args.db, args.work, args.descriptions, args.apply)
     if args.check:
         return check()
     build()

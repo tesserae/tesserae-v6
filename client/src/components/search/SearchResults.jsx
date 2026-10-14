@@ -1,7 +1,7 @@
 import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 import { Button, LoadingSpinner, Pagination, CiteButton, InfoBadge } from '../common';
 import { usePagination, useServerPagination, MAX_PAGE_SIZE } from '../../hooks/usePagination';
-import { fetchResultPage, fetchAllResults } from '../../utils/api';
+import { fetchResultPage, fetchAllResults, postJsonTo } from '../../utils/api';
 import { formatReference, formatElapsedTime } from '../../utils/formatting';
 import { languageName } from '../../utils/languageNames';
 import {
@@ -12,31 +12,19 @@ import {
 } from '../../utils/textNames';
 import { channelLabel } from '../../utils/channels';
 import { displayGreekWithFinalSigma } from '../../utils/greekUtils';
-import { normalizeCoptic } from '../../utils/copticUtils';
-import { exportRowsToPDF } from '../../utils/exportResults';
-import { isRTL, dirFor } from '../../utils/rtl';
+import { dirFor } from '../../utils/rtl';
+import { highlightResultHtml } from '../../utils/highlight';
 import { ResultsInsight } from '../assistant';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
-import * as d3 from 'd3';
+import { citationFor } from './citationFor';
+import { exportSearchCSV, exportSearchPDF } from './exportHandlers';
+import CorpusDistributionPanel, { useCorpusDistribution } from './CorpusDistributionPanel';
+import FusionProgressBanner from './FusionProgressBanner';
+import ScansionLine from './ScansionLine';
+import { buildDistributionData } from './distributionData';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
-
-// The server now builds the full "<Author>, <Work title> <locus>" citation
-// itself (issue #566) and attaches it to each side as `citation`, the same
-// way Line Search has always shown it. Use that when a result carries it;
-// fall back to the old tag-parsing formatReference() for results from
-// before this shipped (cached searches, saved parallels); then, if that
-// still reads as the raw internal id (Persian, Urdu, or any other language
-// without a static abbreviation table -- result card tidy, 2026-10-08),
-// resolve it against the corpus list's own author/title (`corpusMap`, from
-// `useCorpusTextMap`). side is 'source' or 'target'.
-const citationFor = (r, side, language, corpusMap) => {
-  const s = r[side];
-  const raw = r[`${side}_locus`] || s?.ref;
-  const existing = (s && s.citation) || (raw ? formatReference(raw, language) : '');
-  return resolveDisplayCitation(existing, raw, corpusMap).text;
-};
 
 // Whether the "Matches:" line would say nothing the Refrain badge has not
 // already shown (result card tidy, 2026-10-08): true once every matched
@@ -111,14 +99,6 @@ const SearchResults = ({
   // Sidebar has two modes: 'comparison' (where parallels fall in this pair) and
   // 'corpus' (where a chosen parallel's shared words recur across the corpus).
   const [sidebarMode, setSidebarMode] = useState('corpus');
-  const [corpusGroupBy, setCorpusGroupBy] = useState(language === 'he' ? 'work' : 'timeline'); // 'era' | 'author' | 'work' | 'timeline'
-  const [corpusHitIdx, setCorpusHitIdx] = useState(0);
-  const [corpusData, setCorpusData] = useState(null);
-  const [corpusLoading, setCorpusLoading] = useState(false);
-  const [corpusSelectedAuthor, setCorpusSelectedAuthor] = useState(null);
-  // Lines fetched for a clicked author or work whose lines fell outside the
-  // first 500 the chart's search returned: { key, loci } (2026-10-07).
-  const [corpusExtraLoci, setCorpusExtraLoci] = useState(null);
   // Pin the sidebar via inline style (guaranteed to apply) only at the >=lg width
   // where the two-column layout is active; on narrow screens it flows normally.
   const [isWideLayout, setIsWideLayout] = useState(false);
@@ -142,15 +122,8 @@ const SearchResults = ({
     ? { position: 'sticky', top: stickyTop, alignSelf: 'flex-start', maxHeight: `calc(100vh - ${stickyTop + 16}px)`, overflowY: 'auto' }
     : undefined;
   const chartRef = useRef(null);
-  const timelineRef = useRef(null);
   const [pauseUpdates, setPauseUpdates] = useState(false);
   const [frozenResults, setFrozenResults] = useState(null);
-  const fusionBatchTotal = fusionProgress?.batchTotal || fusionProgress?.channelsTotal || 0;
-  const fusionBatchIndex = fusionProgress?.batchIndex || fusionProgress?.channelsDone?.length || 0;
-  const fusionBatchPercent = fusionBatchTotal > 0
-    ? Math.min(100, Math.round((fusionBatchIndex / fusionBatchTotal) * 100))
-    : 0;
-  const fusionPhaseLabel = fusionProgress?.phase === 'window' ? 'Window pass' : 'Line pass';
 
   // Auto-unpause when search completes
   useEffect(() => {
@@ -268,12 +241,7 @@ const SearchResults = ({
       work_a: workA, ref_a: r.source_locus || r.source?.ref,
       work_b: workB, ref_b: r.target_locus || r.target?.ref,
     }));
-    fetch('/api/passages/pair-lift', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ pairs }),
-    })
-      .then((res) => res.json())
+    postJsonTo('/api/passages/pair-lift', { pairs })
       .then((data) => {
         if (cancelled) return;
         const map = {};
@@ -301,24 +269,6 @@ const SearchResults = ({
     }));
   };
 
-  const highlightMatchedWords = useCallback((text, matchedWords, side) => {
-    if (!text || !matchedWords || matchedWords.length === 0) return text;
-    const words = new Set();
-    matchedWords.forEach(m => {
-      const w = side === 'source' ? m.source_word : m.target_word;
-      if (w) words.add(w.toLowerCase());
-    });
-    if (words.size === 0) return text;
-    return text.replace(/\S+/g, token => {
-      const stripped = token.toLowerCase().replace(/^[.,;:!?'"()\u2014\u2013-]+/, '').replace(/[.,;:!?'"()\u2014\u2013-]+$/, '');
-      if (stripped && words.has(stripped)) {
-        const start = token.toLowerCase().indexOf(stripped);
-        return token.slice(0, start) + '**' + token.slice(start, start + stripped.length) + '**' + token.slice(start + stripped.length);
-      }
-      return token;
-    });
-  }, []);
-
   // The locus as a citation names it: "verg. aen. 1.1" expanded by
   // formatReference. When a reference starts with the compared text's own id
   // (some corpora tag lines with the file id plus a locus), the author and
@@ -336,125 +286,15 @@ const SearchResults = ({
     return resolveDisplayCitation(formatReference(r, language), r, corpusMap).text;
   }, [language, corpusMap]);
 
-  const exportCSV = useCallback(async () => {
-    if (!results || results.length === 0) return;
-    let allRows;
-    try { allRows = await loadAllRows(); } catch { return; }
+  const exportCSV = useCallback(
+    () => exportSearchCSV({ results, loadAllRows }),
+    [results, loadAllRows]
+  );
 
-    // Sort by fused_score descending — the same score the on-screen list and
-    // ranking show. Falls back to score / overall_score for legacy formats.
-    // Without this explicit sort the CSV could appear unordered if the API
-    // serializes results in some other internal order.
-    const scoreOf = (r) => r.fused_score ?? r.score ?? r.overall_score ?? 0;
-    const sorted = [...allRows].sort((a, b) => scoreOf(b) - scoreOf(a));
-    const headers = ['Rank', 'Source Locus', 'Source Text', 'Target Locus', 'Target Text', 'Score', 'Matched Words', 'Channels'];
-    const rows = sorted.map((r, idx) => {
-      const mw = r.matched_words || [];
-      const sourceText = (r.source_text || r.source_snippet || r.source?.text || '').replace(/<[^>]*>/g, '').replace(/"/g, '""');
-      const targetText = (r.target_text || r.target_snippet || r.target?.text || '').replace(/<[^>]*>/g, '').replace(/"/g, '""');
-      return [
-        String(idx + 1),
-        r.source_locus || r.source?.ref || '',
-        highlightMatchedWords(sourceText, mw, 'source'),
-        r.target_locus || r.target?.ref || '',
-        highlightMatchedWords(targetText, mw, 'target'),
-        scoreOf(r).toFixed(3),
-        mw.map(w => typeof w === 'object' ? (w.lemma || w.word || '') : w).join('; '),
-        (r.channels || []).join('; '),
-      ];
-    });
-
-    const csv = [headers.join(','), ...rows.map(r => r.map(c => `"${c}"`).join(','))].join('\n');
-    // Prepend UTF-8 BOM so Excel reads non-Latin scripts (Coptic, Greek) as Unicode, not Windows-1252.
-    const blob = new Blob(['﻿', csv], { type: 'text/csv;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `tesserae_results_${new Date().toISOString().slice(0, 10)}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
-  }, [results, loadAllRows, highlightMatchedWords]);
-
-  const exportPDF = useCallback(async () => {
-    if (!results || results.length === 0) return;
-    let allRows;
-    try { allRows = await loadAllRows(); } catch { return; }
-    const headers = ['#', 'Source Locus', 'Source Text', 'Target Locus', 'Target Text', 'Score', 'Matched Words', 'Channels'];
-    // Token-based renderer: split source/target text on whitespace, compare each
-    // token against the matched-word set. Robust against any script and avoids
-    // regex word-boundary issues with non-ASCII alphabets. For Coptic the
-    // legacy/primary Unicode-block mismatch is normalised before comparing.
-    const escHtml = (s) => String(s == null ? '' : s)
-      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    const stripPunct = (s) => s.replace(/^[\s.,;:!?'"()—–·‧·\-]+/, '')
-                              .replace(/[\s.,;:!?'"()—–·‧·\-]+$/, '');
-    const isCop = language === 'cop';
-    const norm = (s) => isCop ? normalizeCoptic(s) : s.toLowerCase();
-    const renderHL = (text, mw, side) => {
-      if (!text) return '';
-      const targets = new Set();
-      (mw || []).forEach(w => {
-        const word = typeof w === 'object'
-          ? (side === 'source' ? w.source_word : w.target_word) || w.word || w.lemma
-          : w;
-        if (!word) return;
-        const s = String(word);
-        if (s.includes('~') || s.includes('[')) return; // skip composite labels
-        targets.add(norm(stripPunct(s)));
-      });
-      if (targets.size === 0) return escHtml(text);
-      return String(text).split(/(\s+)/).map(part => {
-        if (/^\s+$/.test(part) || part === '') return escHtml(part);
-        const stripped = stripPunct(part);
-        const cmp = norm(stripped);
-        let hit = targets.has(cmp);
-        if (!hit) {
-          // Substring fallback: bound-group token containing a sub-word match.
-          for (const t of targets) {
-            if (t.length >= 3 && cmp.includes(t)) { hit = true; break; }
-          }
-        }
-        return hit ? `<strong class="hl">${escHtml(part)}</strong>` : escHtml(part);
-      }).join('');
-    };
-    // Sort by fused_score descending so the PDF order matches what's shown
-    // on screen (which uses fused_score as the primary score). The API may
-    // serialize results in a different internal order; without an explicit
-    // sort the PDF could appear out of order.
-    const scoreOf = (r) => r.fused_score ?? r.score ?? r.overall_score ?? 0;
-    const sorted = [...allRows].sort((a, b) => scoreOf(b) - scoreOf(a));
-    const rows = sorted.map((r, idx) => {
-      const mw = r.matched_words || [];
-      const sourceText = (r.source_text || r.source_snippet || r.source?.text || '').replace(/<[^>]*>/g, '');
-      const targetText = (r.target_text || r.target_snippet || r.target?.text || '').replace(/<[^>]*>/g, '');
-      return [
-        String(idx + 1),
-        r.source_locus || r.source?.ref || '',
-        renderHL(sourceText, mw, 'source'),
-        r.target_locus || r.target?.ref || '',
-        renderHL(targetText, mw, 'target'),
-        scoreOf(r).toFixed(3),
-        mw.map(w => typeof w === 'object' ? (w.lemma || w.word || '') : w).join('; '),
-        (r.channels || []).join('; '),
-      ];
-    });
-    const sourceLabel = sourceTextInfo ? `${sourceTextInfo.author || ''} ${sourceTextInfo.title || sourceTextInfo.work || ''}`.trim() : '';
-    const targetLabel = targetTextInfo ? `${targetTextInfo.author || ''} ${targetTextInfo.title || targetTextInfo.work || ''}`.trim() : '';
-    const subtitle = sourceLabel && targetLabel ? `${sourceLabel} vs ${targetLabel}` : '';
-    const rtl = isRTL(language);  // he/fa/ur/ar are right-to-left (Coptic/Greek/Latin/English are LTR)
-    // Headers are ['#', 'Source Locus', 'Source Text', 'Target Locus',
-    // 'Target Text', 'Score', 'Matched Words', 'Channels']. Widths chosen
-    // to minimise row height: each column gets width roughly proportional to
-    // its typical content length, so every column wraps to a similar number
-    // of lines instead of one column blowing up the row.
-    const colWidths = ['3%', '8%', '25%', '8%', '25%', '4%', '17%', '10%'];
-    exportRowsToPDF('Tesserae V6 — Search Results', subtitle, headers, rows, {
-      htmlCells: true,
-      dir: rtl ? 'rtl' : 'ltr',
-      lang: language || '',
-      colWidths,
-    });
-  }, [results, loadAllRows, sourceTextInfo, targetTextInfo, language]);
+  const exportPDF = useCallback(
+    () => exportSearchPDF({ results, loadAllRows, sourceTextInfo, targetTextInfo, language }),
+    [results, loadAllRows, sourceTextInfo, targetTextInfo, language]
+  );
 
   const exportDistributionChart = () => {
     if (!chartRef.current) return;
@@ -471,306 +311,18 @@ const SearchResults = ({
     link.click();
   };
 
-  const getDistributionData = useCallback(() => {
-    if (!results || results.length === 0) return null;
-    const isSourceView = distributionChartView === 'source';
-    const color = isSourceView ? 'rgba(185, 28, 28, 0.7)' : 'rgba(217, 119, 6, 0.7)';
-    const border = isSourceView ? 'rgb(185, 28, 28)' : 'rgb(217, 119, 6)';
-    if (serverMode) {
-      // Computed by the server over every row (backend/result_pages.distribution).
-      const d = resultSet.aggregates?.distribution?.[distributionChartView];
-      if (!d) return null;
-      return {
-        _mode: d.mode, _band: d.band, labels: d.labels,
-        datasets: [{ label: 'Parallels', data: d.counts, backgroundColor: color, borderColor: border, borderWidth: 1 }]
-      };
-    }
-    // A locus like "1.469" -> book 1, line 469; a flat "469" -> line only.
-    const parseLoc = (locus) => {
-      const nums = (String(locus).match(/\d+/g) || []).map(Number);
-      return { book: nums.length >= 2 ? nums[0] : null, line: nums.length ? nums[nums.length - 1] : null };
-    };
-    const pts = results.map(r => parseLoc(isSourceView
-      ? (r.source_locus || r.source?.ref || '')
-      : (r.target_locus || r.target?.ref || '')));
-    const books = new Set(pts.map(p => p.book).filter(b => b != null));
+  const distributionData = buildDistributionData({ results, distributionChartView, serverMode, resultSet });
 
-    // Single book (e.g. Aeneid 1 vs Lucan 1): a by-book chart is one useless
-    // column, so show WHERE ALONG THE BOOK the parallels fall — bin by line.
-    if (books.size <= 1) {
-      const lines = pts.map(p => p.line).filter(n => n != null);
-      if (lines.length === 0) return null;
-      const maxLine = Math.max(...lines);
-      const band = [10, 25, 50, 100, 200, 500, 1000].find(b => Math.ceil(maxLine / b) <= 18) || 1000;
-      const nBands = Math.max(1, Math.ceil(maxLine / band));
-      const counts = new Array(nBands).fill(0);
-      pts.forEach(p => { if (p.line != null) counts[Math.min(nBands - 1, Math.floor((p.line - 1) / band))]++; });
-      return {
-        _mode: 'line', _band: band,
-        labels: counts.map((_, i) => `${i * band + 1}–${(i + 1) * band}`),
-        datasets: [{ label: 'Parallels', data: counts, backgroundColor: color, borderColor: border, borderWidth: 1 }]
-      };
-    }
-
-    // Multiple books: keep the by-book view.
-    const bookData = {};
-    pts.forEach(p => { const k = `Book ${p.book}`; (bookData[k] = bookData[k] || { count: 0 }).count++; });
-    const sorted = Object.keys(bookData).sort((a, b) =>
-      (parseInt(a.replace(/\D/g, '')) || 0) - (parseInt(b.replace(/\D/g, '')) || 0));
-    return {
-      _mode: 'book',
-      labels: sorted,
-      datasets: [{ label: 'Parallels', data: sorted.map(k => bookData[k].count), backgroundColor: color, borderColor: border, borderWidth: 1 }]
-    };
-  }, [results, distributionChartView, serverMode, resultSet]);
-
-  const distributionData = getDistributionData();
   const distIsLine = distributionData?._mode === 'line';
   const distWork = distributionChartView === 'source'
     ? (sourceTextInfo?.title || 'Source')
     : (targetTextInfo?.title || 'Target');
 
-  // ---- Corpus mode: where a parallel's shared words recur across the corpus ----
-  const ERA_ORDER = { 'Archaic': 0, 'Early Greek': 1, 'Classical': 2, 'Hellenistic': 3, 'Republic': 4, 'Late Republican': 5, 'Late Republic': 5, 'Augustan': 6, 'Early Imperial': 7, 'Imperial': 8, 'Later Imperial': 9, 'Late Antique': 10, 'Patristic': 10, 'Carolingian': 11, 'Medieval': 12, 'Renaissance': 13, 'Early Modern': 14, 'Modern': 15, 'Unknown': 99 };
-  const sharedLemmasOf = (r) => {
-    const raw = (r?.matched_lemmas && r.matched_lemmas.length) ? r.matched_lemmas : (r?.matched_words || []);
-    return raw
-      .map(w => (typeof w === 'object' ? (w.lemma || w.word || '') : String(w)).trim())
-      // Letters plus combining marks and the zero-width joiner, which Persian
-      // and Urdu words carry (mi-gasht is written with one), and Greek accents.
-      .filter(w => /^[\p{L}\p{M}\u200c]+$/u.test(w));
-  };
-  // The picker offers the rows on screen in server mode (the browser no longer
-  // holds every row), numbered by their place in the whole list.
-  const pickerRows = serverMode ? visibleItems : (results || EMPTY);
-  const pickerOffset = serverMode ? startIndex : 0;
-  const corpusHit = pickerRows.length ? pickerRows[Math.min(corpusHitIdx, pickerRows.length - 1)] : null;
-
-  // OPEN ON A ROW THE CHART CAN DRAW (2026-10-07). The corpus chart needs two
-  // shared words, and Persian and Urdu results lead with refrain-and-rhyme
-  // rows that share one (the refrain), so the chart opened on "shares only one
-  // word" and looked as if it never worked. When a new list arrives, pick the
-  // first row with two or more shared words; the reader can still choose any.
-  const pickerKey = `${pickerOffset}|${pickerRows.length}|${pickerRows[0]?.source_locus || pickerRows[0]?.source?.ref || ''}`;
-  const lastPickerKey = useRef('');
-  useEffect(() => {
-    if (!pickerRows.length || lastPickerKey.current === pickerKey) return;
-    lastPickerKey.current = pickerKey;
-    const first = pickerRows.findIndex((r) => sharedLemmasOf(r).length >= 2);
-    setCorpusHitIdx(first >= 0 ? first : 0);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pickerKey]);
-
-  useEffect(() => {
-    if (sidebarMode !== 'corpus' || !showDistributionChart || loading || !corpusHit) return;
-    const words = sharedLemmasOf(corpusHit);
-    const query = words.join(' ');
-    if (words.length < 2) { setCorpusData({ query, loci: [], tooFew: true }); return; }
-    let cancelled = false;
-    setCorpusLoading(true);
-    setCorpusSelectedAuthor(null);
-    fetch('/api/line-search', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ query, language, search_type: 'lemma', max_results: 500 }),
-    })
-      .then(res => res.json())
-      .then(d => { if (!cancelled) setCorpusData({ query, corpus_version: d.corpus_version,
-        // Every work's count (by_work_all), so the chart covers the whole corpus
-        // even when the line list below stops at 500 (2026-10-07).
-        byWork: d.by_work_all || null, linesAll: d.lines_all ?? null,
-        loci: (d.results || []).map(x => ({ era: x.era, year: x.year, author: x.author,
-          work: x.work, locus: x.locus, text: x.text, matched_words: x.matched_words || [] })) }); })
-      .catch(() => { if (!cancelled) setCorpusData({ query, loci: [], error: true }); })
-      .finally(() => { if (!cancelled) setCorpusLoading(false); });
-    return () => { cancelled = true; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sidebarMode, corpusHitIdx, showDistributionChart, loading, language, pickerRows]);
-
-  // The rows the corpus chart counts: one per work with its full count when the
-  // server sent them, else one per loaded line. A common pair (Persian "man ast")
-  // filled the 500-line list from two or three poets, and the chart left out
-  // the authors being compared.
-  const corpusCountRows = (cd) => (cd?.byWork?.length
-    ? cd.byWork.map(w => ({ author: w.author, work: w.work, era: w.era, year: w.year, n: w.count }))
-    : (cd?.loci || []).map(l => ({ author: l.author, work: l.work, era: l.era, year: l.year, n: 1 })));
-  // A clicked author or work with no line among the 500 loaded: fetch its own
-  // lines, so the list under the chart is never empty for a bar that is drawn.
-  useEffect(() => {
-    if (!corpusSelectedAuthor || !corpusData?.byWork?.length) return;
-    const byWork = corpusGroupBy === 'work';
-    const has = (corpusData.loci || []).some(l => ((byWork ? l.work : l.author) || 'Unknown') === corpusSelectedAuthor);
-    if (has) return;
-    const key = `${byWork ? 'w' : 'a'}|${corpusSelectedAuthor}`;
-    let cancelled = false;
-    fetch('/api/line-search', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ query: corpusData.query, language, search_type: 'lemma', max_results: 200,
-        ...(byWork ? { work: corpusSelectedAuthor } : { author: corpusSelectedAuthor }) }),
-    })
-      .then(res => res.json())
-      .then(d => { if (!cancelled) setCorpusExtraLoci({ key, loci: (d.results || []).map(x => ({ era: x.era, year: x.year,
-        author: x.author, work: x.work, locus: x.locus, text: x.text, matched_words: x.matched_words || [] })) }); })
-      .catch(() => {});
-    return () => { cancelled = true; };
-  }, [corpusSelectedAuthor, corpusData, corpusGroupBy, language]);
-
-  const CORPUS_COLOR = { backgroundColor: 'rgba(37, 99, 235, 0.7)', borderColor: 'rgb(37, 99, 235)', borderWidth: 1 };
-  const getCorpusChartData = () => {
-    const countRows = corpusCountRows(corpusData);
-    if (!countRows.length) return null;
-    if (corpusGroupBy === 'author' || corpusGroupBy === 'work') {
-      const datedYear = (l) => (l.year != null && l.year < 9999 ? l.year : null);
-      const agg = {}; // author (or work) -> { count, year }
-      countRows.forEach(l => {
-        const a = (corpusGroupBy === 'work' ? l.work : l.author) || 'Unknown';
-        if (!agg[a]) agg[a] = { count: 0, year: datedYear(l) };
-        agg[a].count += l.n;
-        if (agg[a].year == null) { const y = datedYear(l); if (y != null) agg[a].year = y; }
-      });
-      let authors = Object.keys(agg);
-      // Cap to the top 30 contributors, then order THOSE chronologically.
-      authors.sort((a, b) => agg[b].count - agg[a].count);
-      const capped = authors.length > 30;
-      authors = authors.slice(0, 30);
-      const yr = (a) => (agg[a].year != null ? agg[a].year : 9999);
-      authors.sort((a, b) => yr(a) - yr(b) || a.localeCompare(b));
-      return { _capped: capped, labels: authors,
-        datasets: [{ label: 'Occurrences', data: authors.map(a => agg[a].count), ...CORPUS_COLOR }] };
-    }
-    const byEra = {};
-    countRows.forEach(l => { const e = l.era || 'Unknown'; byEra[e] = (byEra[e] || 0) + l.n; });
-    const eras = Object.keys(byEra).sort((a, b) => (ERA_ORDER[a] ?? 50) - (ERA_ORDER[b] ?? 50));
-    return { labels: eras, datasets: [{ label: 'Occurrences', data: eras.map(e => byEra[e]), ...CORPUS_COLOR }] };
-  };
-  const corpusChartData = getCorpusChartData();
-  const corpusIsWork = corpusGroupBy === 'work';
-  // 'work' reuses the horizontal clickable-bar rendering of 'author', keyed on the
-  // book instead. Used for Hebrew, whose books share one author and carry no dates.
-  const corpusIsAuthor = corpusGroupBy === 'author' || corpusIsWork;
-  const corpusIsTimeline = corpusGroupBy === 'timeline';
-  const corpusChartOptions = {
-    responsive: true, maintainAspectRatio: false,
-    indexAxis: corpusIsAuthor ? 'y' : 'x',
-    plugins: {
-      legend: { display: false },
-      title: { display: true, text: corpusIsWork
-        ? 'Which works these words recur in'
-        : corpusIsAuthor
-        ? 'Where these words recur, by author (earliest → latest)'
-        : 'Where these words recur across the corpus' },
-      tooltip: { callbacks: { label: (c) => {
-        const v = corpusIsAuthor ? c.parsed.x : c.parsed.y;
-        return `${v} occurrence${v !== 1 ? 's' : ''}`;
-      } } },
-    },
-    onClick: (evt, elements) => {
-      if (corpusIsAuthor && elements && elements.length && corpusChartData) {
-        setCorpusSelectedAuthor(corpusChartData.labels[elements[0].index]);
-      }
-    },
-    scales: corpusIsAuthor ? {
-      x: { beginAtZero: true, ticks: { stepSize: 1 }, title: { display: true, text: 'Occurrences', font: { size: 12 } } },
-      y: { ticks: { autoSkip: false, font: { size: 10 } } },
-    } : {
-      x: { title: { display: true, text: 'Era (earliest → latest)', font: { size: 12 } } },
-      y: { beginAtZero: true, ticks: { stepSize: 1 }, title: { display: true, text: 'Occurrences', font: { size: 12 } } },
-    },
-  };
-
-  // Vertical timeline (d3): the date axis runs top (latest) to bottom (earliest);
-  // each author sits at its actual year, so time clusters and gaps are visible,
-  // with a bar for how often the shared words occur in that author. Click an
-  // author to list its actual instances below the chart.
-  useEffect(() => {
-    if (!(sidebarMode === 'corpus' && corpusGroupBy === 'timeline')) return;
-    const host = timelineRef.current;
-    if (!host) return;
-    host.innerHTML = '';
-    const countRows = corpusCountRows(corpusData);
-    if (!countRows.length) return;
-    const datedYear = (l) => (l.year != null && l.year < 9999 ? l.year : null);
-    const agg = {};
-    countRows.forEach(l => {
-      const a = l.author || 'Unknown';
-      (agg[a] = agg[a] || { count: 0, year: datedYear(l) }).count += l.n;
-      if (agg[a].year == null) { const y = datedYear(l); if (y != null) agg[a].year = y; }
-    });
-    let data = Object.entries(agg).map(([author, v]) => ({ author, count: v.count, year: v.year }))
-      .filter(d => d.year != null);
-    if (!data.length) {
-      d3.select(host).append('div').attr('class', 'text-xs text-gray-500 p-2')
-        .text('No dated authors to place on a timeline.');
-      return;
-    }
-    data = data.sort((a, b) => b.count - a.count).slice(0, 40).sort((a, b) => b.year - a.year);
-
-    const rowH = 16, marginTop = 16, marginBottom = 8, axisW = 50, labelW = 175;
-    const width = host.clientWidth || 340;
-    const baseHeight = marginTop + marginBottom + data.length * rowH;
-
-    const years = data.map(d => d.year);
-    const yScale = d3.scaleLinear().domain([d3.min(years), d3.max(years)])
-      .range([baseHeight - marginBottom, marginTop]).nice();
-    let lastY = -Infinity;
-    data.forEach(d => { d.trueY = yScale(d.year); d.y = Math.max(d.trueY, lastY + rowH); lastY = d.y; });
-    // Greedy de-overlap can push the earliest author below baseHeight when dates
-    // cluster or an outlier stretches the scale; grow the canvas so nothing clips.
-    const height = Math.max(baseHeight, lastY + marginBottom + 6);
-    const svg = d3.select(host).append('svg').attr('width', width).attr('height', height)
-      .attr('font-family', 'inherit');
-    const dotR = 3, dotGap = 8;
-    const dotCap = Math.max(1, Math.floor((width - axisW - labelW) / dotGap));
-    const fmtYear = y => (y < 0 ? `${-y} BCE` : `${y} CE`);
-    const trunc = s => (s.length > 15 ? s.slice(0, 14) + '…' : s);
-
-    svg.append('line').attr('x1', axisW - 6).attr('x2', axisW - 6)
-      .attr('y1', marginTop - 6).attr('y2', baseHeight - marginBottom).attr('stroke', '#e5e7eb');
-    // As many year labels as the axis has room for at 9px, and never more
-    // than six. A fixed six put "1840 CE" through "1660 CE" on top of one
-    // another when the timeline held two authors and was 40px tall
-    // (2026-09-10).
-    const tickCount = Math.max(2, Math.min(6, Math.floor((baseHeight - marginTop - marginBottom) / 14)));
-    svg.append('g').selectAll('text.tick').data(yScale.ticks(tickCount)).join('text')
-      .attr('x', 2).attr('y', d => yScale(d)).attr('dy', '0.32em')
-      .attr('font-size', 9).attr('fill', '#9ca3af').text(d => fmtYear(d));
-
-    const rows = svg.append('g').selectAll('g.row').data(data).join('g')
-      .style('cursor', 'pointer')
-      .on('click', (event, d) => setCorpusSelectedAuthor(d.author))
-      .on('mouseover', function () { d3.select(this).select('text.author-label').style('text-decoration', 'underline'); })
-      .on('mouseout', function () { d3.select(this).select('text.author-label').style('text-decoration', null); });
-    rows.append('line').attr('x1', axisW - 6).attr('x2', axisW)
-      .attr('y1', d => d.trueY).attr('y2', d => d.y).attr('stroke', '#e5e7eb');
-    // One dot per occurrence, so a single instance is a single dot rather than a
-    // long bar. Beyond dotCap dots a "+" marks the overflow; the exact total is in
-    // the label. dotCap is width-driven, so longer names simply leave room for fewer.
-    rows.each(function (d) {
-      const g = d3.select(this);
-      const n = Math.min(d.count, dotCap);
-      // The two texts under comparison are drawn in red so the reader can see
-      // them among the rest of the corpus (they used to be left out).
-      const compared = new Set([sourceTextInfo?.author, targetTextInfo?.author].filter(Boolean));
-      const base = compared.has(d.author) ? '185,28,28' : '37,99,235';
-      const fill = d.author === corpusSelectedAuthor ? `rgba(${base},1)` : `rgba(${base},0.75)`;
-      for (let i = 0; i < n; i++) {
-        g.append('circle').attr('cx', axisW + dotR + i * dotGap).attr('cy', d.y)
-          .attr('r', dotR).attr('fill', fill);
-      }
-      if (d.count > dotCap) {
-        g.append('text').attr('x', axisW + n * dotGap + 1).attr('y', d.y).attr('dy', '0.32em')
-          .attr('font-size', 10).attr('font-weight', 700).attr('fill', fill).text('+');
-      }
-    });
-    rows.append('text').attr('class', 'author-label')
-      .attr('x', d => axisW + Math.min(d.count, dotCap) * dotGap + (d.count > dotCap ? 9 : 0) + 6)
-      .attr('y', d => d.y).attr('dy', '0.32em')
-      .attr('font-size', 9)
-      .attr('font-weight', d => d.author === corpusSelectedAuthor ? 700 : 400)
-      .attr('fill', '#2563eb')
-      .text(d => `${trunc(d.author.replace(/_/g, ' '))}, ${fmtYear(d.year)} (${d.count})`);
-    rows.append('title').text(d => `${d.author.replace(/_/g, ' ')} — ${fmtYear(d.year)} — ${d.count} occurrence${d.count !== 1 ? 's' : ''}`);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sidebarMode, corpusGroupBy, corpusData, corpusSelectedAuthor, sourceTextInfo, targetTextInfo]);
+  // The corpus half of the sidebar (where a parallel's shared words recur
+  // across the corpus): state, requests and chart data live in the hook.
+  const corpus = useCorpusDistribution({
+    results, serverMode, visibleItems, startIndex, sidebarMode, showDistributionChart, loading, language,
+  });
 
   const chartOptions = {
     responsive: true,
@@ -823,246 +375,6 @@ const SearchResults = ({
     }
   };
 
-  const renderHighlightedText = (textData, language = null, matchedWords = [], isSource = true, otherTextData = null, poetics = null) => {
-    if (!textData) return '';
-
-    if (typeof textData === 'string') return textData;
-
-    const { text, tokens, highlight_indices } = textData;
-
-    if (!text) return '';
-
-    // Build set of words to highlight from multiple sources
-    const wordsToHighlight = new Set();
-    // For sound matching: n-grams to search for within words
-    const soundNgrams = new Set();
-
-    // 1. From highlight_indices (if available)
-    if (tokens && highlight_indices && highlight_indices.length > 0) {
-      highlight_indices.forEach(i => {
-        const token = tokens[i]?.toLowerCase();
-        if (token) wordsToHighlight.add(token);
-      });
-    }
-
-    // 2. From matched_words (for semantic and sound matches)
-    if (matchedWords && matchedWords.length > 0) {
-      matchedWords.forEach(m => {
-        // Add the source or target word based on which side we're rendering
-        const word = isSource ? m.source_word : m.target_word;
-        if (word) wordsToHighlight.add(word.toLowerCase());
-        // Also add the lemma (handles cases where lemma differs from token)
-        if (m.lemma && !m.lemma.includes('\u2248') && m.lemma !== 'semantic') {
-          // Check if this looks like a sound n-gram match (e.g., "[ngram]", "source~target")
-          const lemmaStr = String(m.lemma);
-          if (lemmaStr.includes('[') || lemmaStr.includes('~')) {
-            // Extract n-grams from sound match format
-            const ngrams = lemmaStr.split(/[\[\],~\s]+/).filter(s => s.length >= 2);
-            ngrams.forEach(ng => soundNgrams.add(ng.toLowerCase()));
-          } else {
-            wordsToHighlight.add(lemmaStr.toLowerCase());
-          }
-        }
-        // Handle display field for sound matches
-        if (m.display) {
-          const displayStr = String(m.display);
-          if (displayStr.includes('[') || displayStr.includes('~')) {
-            const ngrams = displayStr.split(/[\[\],~\s]+/).filter(s => s.length >= 2);
-            ngrams.forEach(ng => soundNgrams.add(ng.toLowerCase()));
-          }
-        }
-      });
-    }
-
-    // 3. Find common word stems between source and target (ONLY for semantic matches)
-    // For exact/lemma matches, we trust the backend highlight_indices which respect the stoplist
-    const isSemanticMatch = matchedWords?.some(m => m.similarity !== undefined || m.lemma === 'semantic');
-    if (isSemanticMatch && otherTextData && otherTextData.tokens && tokens) {
-      const thisTokens = new Set(tokens.map(t => t?.toLowerCase()).filter(Boolean));
-      const otherTokens = new Set(otherTextData.tokens.map(t => t?.toLowerCase()).filter(Boolean));
-
-      // Find tokens that share a common stem (first 4+ chars) - catches hasta/hastam
-      thisTokens.forEach(token => {
-        if (token.length >= 4) {
-          const stem = token.slice(0, Math.min(token.length - 1, 5));
-          otherTokens.forEach(otherToken => {
-            if (otherToken.length >= 4 && otherToken.startsWith(stem)) {
-              wordsToHighlight.add(token);
-            }
-          });
-        }
-      });
-    }
-
-    // Poetics (fa/ur/ar, 2026-09-06): the rhyme word sits just before the
-    // refrain (or is the last word when the match is rhyme-letter only);
-    // it gets its own colour, the refrain keeps the usual highlight.
-    const rhymeWords = new Set();
-    if (poetics) {
-      const named = isSource ? poetics.source_rhyme_word : poetics.target_rhyme_word;
-      if (named) rhymeWords.add(String(named).toLowerCase());
-      else if (tokens && tokens.length) {
-        const start = isSource ? poetics.source_radif_start : poetics.target_radif_start;
-        const idx = poetics.rhyme_only ? start : start - 1;
-        if (idx >= 0 && idx < tokens.length && tokens[idx]) rhymeWords.add(String(tokens[idx]).toLowerCase());
-      } else if (text) {
-        // results cached before the rhyme word was named: take it from the
-        // line itself, the word before the refrain (or the last word)
-        const words = text.split('\n')[0].split(/\s+/).filter(Boolean);
-        const n = poetics.rhyme_only ? 0 : (poetics.radif_len || 0);
-        const idx = words.length - 1 - n;
-        if (idx >= 0) rhymeWords.add(words[idx].toLowerCase());
-      }
-    }
-    // Compare in one script form: the stored tokens are normalized (Persian
-    // yeh and kaf folded to the Arabic letters, alef variants to alef) while
-    // the displayed line keeps its own spelling, so fold both the same way.
-    const foldScript = (w) => w
-      .replace(/[\u064B-\u065F\u0670\u06D6-\u06ED\u0640\u200C\u200F\u200E]/g, '')
-      .replace(/[\u064A\u06CC\u0649\u06D2\u06D3]/g, '\u06CC')
-      .replace(/[\u0643\u06A9]/g, '\u06A9')
-      .replace(/[\u0622\u0623\u0625\u0671]/g, '\u0627')
-      .replace(/[\u06C1\u06BE\u06C3\u0629]/g, '\u0647')
-      .replace(/\u06BA/g, '\u0646');
-    const isRhymeWord = (word) => {
-      if (!rhymeWords.size) return false;
-      const n = foldScript(word.toLowerCase().replace(/[.,;:!?'"()\u2014\u2013\u060C\u061B\u061F\u06D4-]+$/, ''));
-      for (const rw of rhymeWords) if (foldScript(rw) === n) return true;
-      return false;
-    };
-
-    // Helper to check if a word matches any highlight word or contains sound n-grams
-    const shouldHighlight = (word) => {
-      const normalized = word.toLowerCase().replace(/[.,;:!?'"()\u2014\u2013-]+$/, '').replace(/^[.,;:!?'"()\u2014\u2013-]+/, '');
-      if (wordsToHighlight.has(normalized)) return true;
-
-      // Hyphenated compounds and elided forms: "Arch-fiend" -> arch / fiend,
-      // "reply'd" -> reply. Highlight if any interior sub-part matches a
-      // highlight word. Common in English (Milton) and safe elsewhere.
-      if (normalized.includes('-') || normalized.includes("'") || normalized.includes('\u2019')) {
-        const parts = normalized.split(/[-'\u2019]/).filter(p => p.length >= 2);
-        for (const part of parts) {
-          if (wordsToHighlight.has(part)) return true;
-        }
-      }
-
-      // For sound matching: check if word contains any of the matched n-grams
-      if (soundNgrams.size > 0) {
-        for (const ngram of soundNgrams) {
-          if (normalized.includes(ngram)) return true;
-          // Also check with Greek accent normalization (strip diacritics for matching)
-          const normalizedNoAccents = normalized.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-          const ngramNoAccents = ngram.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-          if (normalizedNoAccents.includes(ngramNoAccents)) return true;
-        }
-      }
-
-      // For Latin, also check u/v equivalence
-      if (language === 'la') {
-        const uvNormalized = normalized.replace(/[uv]/g, 'u');
-        for (const hw of wordsToHighlight) {
-          if (hw.replace(/[uv]/g, 'u') === uvNormalized) return true;
-        }
-      }
-      // Coptic uses two equivalent Unicode blocks (U+03E2-03EF and
-      // U+2CB2-2CBF) for the same seven letters. Backend tokens are
-      // normalised to the latter; .tess display text uses the former.
-      // Normalise both sides before comparing. Backend tokens are
-      // sub-word morphemes (Scriptorium CoNLL-U) but the displayed text is
-      // whitespace-split into bound groups, so a sub-word match must
-      // highlight any bound group that contains it.
-      if (language === 'cop') {
-        const copNormalized = normalizeCoptic(normalized);
-        for (const hw of wordsToHighlight) {
-          const hwNorm = normalizeCoptic(hw);
-          if (!hwNorm) continue;
-          if (hwNorm === copNormalized) return true;
-          if (copNormalized.includes(hwNorm)) return true;
-        }
-      }
-      // Hebrew: the display text is fully pointed (nikkud + cantillation) but the
-      // highlight tokens/lemmas are unvocalized. Strip both before comparing.
-      if (language === 'he') {
-        const stripHe = (s) => s.normalize('NFD').replace(/[֑-ֽֿ-ׇ]/g, '').replace(/־/g, '');
-        const heNorm = stripHe(normalized);
-        for (const hw of wordsToHighlight) {
-          if (stripHe(hw) === heNorm) return true;
-        }
-      }
-      return false;
-    };
-
-    if (wordsToHighlight.size === 0 && soundNgrams.size === 0) {
-      // Still need to handle line breaks in window results
-      return text.includes('\n') ? text.replace(/\n/g, '<br class="verse-break" />') : text;
-    }
-
-    // Split text into verses (window results have \n between lines)
-    const verses = text.split('\n');
-    // Hebrew maqaf (U+05BE) joins words in display but the backend splits them.
-    const wordSplitter = language === 'he' ? /(\s+|־)/ : /(\s+)/;
-    const highlightedVerses = verses.map(verse => {
-      const parts = verse.split(wordSplitter);
-      return parts.map(part => {
-        if (/^\s+$/.test(part)) return part; // whitespace
-        if (shouldHighlight(part)) {
-          return `<mark class="bg-yellow-200 px-0.5 rounded">${part}</mark>`;
-        }
-        return part;
-      }).join('');
-    });
-
-    return highlightedVerses.join('<br class="verse-break" />');
-  };
-
-  // Bold the matched words inside a corpus-instance line. matched_words are the
-  // actual surface tokens the line-search flagged, so normalize the same way the
-  // main highlighter does (case, trailing punctuation, Latin u/v, Greek accents).
-  const renderInstanceText = (text, matchedWords, lang) => {
-    if (!text) return null;
-    const strip = (w) => w.toLowerCase()
-      .replace(/[.,;:!?'"()—–··-]+$/, '')
-      .replace(/^[.,;:!?'"()—–··-]+/, '');
-    const norm = (w) => {
-      let n = strip(w);
-      if (lang === 'la') n = n.replace(/[uv]/g, 'u').replace(/j/g, 'i');
-      if (lang === 'grc') n = n.normalize('NFD').replace(/[̀-ͯ]/g, '');
-      // Hebrew: strip nikkud + cantillation (matched_words are unvocalized, but the
-      // displayed .tess text is fully pointed) and the maqaf so it does not fuse words.
-      if (lang === 'he') n = n.normalize('NFD').replace(/[֑-ֽֿ-ׇ]/g, '').replace(/־/g, '');
-      return n;
-    };
-    const wanted = new Set((matchedWords || []).map(norm).filter(Boolean));
-    if (!wanted.size) return text;
-    // Hebrew maqaf (U+05BE) joins words in the display text but the backend splits
-    // them, so split on it too (kept as its own inert part) to highlight each word.
-    const splitter = lang === 'he' ? /(\s+|־)/ : /(\s+)/;
-    return text.split(splitter).map((part, i) => {
-      if (/^\s+$/.test(part) || !part) return part;
-      return wanted.has(norm(part))
-        ? <strong key={i} className="font-semibold text-gray-900">{part}</strong>
-        : <span key={i}>{part}</span>;
-    });
-  };
-
-  const renderScansion = (scansion) => {
-    if (!scansion || !scansion.raw) return null;
-    const meterAbbr = {
-      'hexameter': 'Hx',
-      'pentameter': 'P',
-      'hendecasyllable': 'Hn',
-      'elegiac': 'E'
-    };
-    return (
-      <div className="flex items-center gap-1 mt-1">
-        <span className="font-mono text-xs text-gray-500">{scansion.raw}</span>
-        <span className="text-xs px-1.5 py-0.5 rounded font-medium bg-gray-100 text-gray-600" title={scansion.meter}>
-          {meterAbbr[scansion.meter] || scansion.meter?.charAt(0).toUpperCase() || '?'}
-        </span>
-      </div>
-    );
-  };
-
   if (loading) {
     // Progressive streaming: if we have intermediate fusion results, show them
     // with a progress banner instead of just a spinner
@@ -1111,46 +423,13 @@ const SearchResults = ({
   return (
     <div className="space-y-4">
       {loading && fusionProgress && (
-        <div className={`${pauseUpdates ? 'bg-amber-50 border-amber-200' : 'bg-blue-50 border-blue-200'} border rounded-lg p-3`}>
-          <div className="flex items-center gap-3">
-            {!pauseUpdates && (
-              <div className="w-5 h-5 border-2 border-blue-200 border-t-blue-600 rounded-full animate-spin flex-shrink-0" />
-            )}
-            <div className="flex-1 min-w-0">
-              <div className={`text-sm font-medium ${pauseUpdates ? 'text-amber-800' : 'text-blue-800'}`}>
-                {pauseUpdates ? 'Display paused, search continues in background' : (progressText || 'Searching...')}
-              </div>
-              <div className={`mt-1 text-xs ${pauseUpdates ? 'text-amber-600' : 'text-blue-600'}`}>
-                {fusionPhaseLabel}
-                {fusionBatchTotal > 0 && ` | batch ${fusionBatchIndex} of ${fusionBatchTotal}`}
-                {fusionProgress.currentChannel && ` | ${fusionProgress.currentChannel}`}
-                {fusionProgress.totalMatches > 0 && ` | ${fusionProgress.totalMatches.toLocaleString()} candidates`}
-                {fusionProgress.resultCount > 0 && ` | showing ${fusionProgress.resultCount.toLocaleString()}`}
-              </div>
-            </div>
-            <button
-              onClick={handlePauseToggle}
-              className={`text-xs px-3 py-1 rounded font-medium flex-shrink-0 ${
-                pauseUpdates
-                  ? 'bg-amber-600 text-white hover:bg-amber-700'
-                  : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
-              }`}
-            >
-              {pauseUpdates ? 'Resume' : 'Pause'}
-            </button>
-            <span className={`text-xs ${pauseUpdates ? 'text-amber-500' : 'text-blue-500'} tabular-nums flex-shrink-0`}>
-              {elapsedTime > 0 && formatElapsedTime(elapsedTime)}
-            </span>
-          </div>
-          {fusionBatchTotal > 0 && (
-            <div className={`mt-3 h-1.5 rounded-full overflow-hidden ${pauseUpdates ? 'bg-amber-100' : 'bg-blue-100'}`}>
-              <div
-                className={`h-full transition-all duration-300 ${pauseUpdates ? 'bg-amber-500' : 'bg-blue-600'}`}
-                style={{ width: `${fusionBatchPercent}%` }}
-              />
-            </div>
-          )}
-        </div>
+        <FusionProgressBanner
+          fusionProgress={fusionProgress}
+          pauseUpdates={pauseUpdates}
+          progressText={progressText}
+          elapsedTime={elapsedTime}
+          onPauseToggle={handlePauseToggle}
+        />
       )}
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-4">
         <div>
@@ -1287,105 +566,15 @@ const SearchResults = ({
           <p className="text-xs text-gray-500 mt-2">Click a bar to filter the results list.</p>
           </>)}
 
-          {sidebarMode === 'corpus' && (<>
-          <div className="mb-2">
-            <label className="text-xs text-gray-600 block mb-1">Parallel:</label>
-            <select
-              value={corpusHitIdx}
-              onChange={(e) => setCorpusHitIdx(Number(e.target.value))}
-              className="w-full border rounded px-2 py-1 text-xs"
-            >
-              {pickerRows.map((r, i) => (
-                <option key={i} value={i}>
-                  #{pickerOffset + i + 1} · {citationFor(r, 'source', language, corpusMap)} ↔ {citationFor(r, 'target', language, corpusMap)}
-                  {sharedLemmasOf(r).length < 2 ? ' (one word, no chart)' : ''}
-                </option>
-              ))}
-            </select>
-          </div>
-          {corpusHit && (
-            <p className="text-xs text-gray-500 mb-2">
-              Shared words: <span className="font-medium">{sharedLemmasOf(corpusHit).join(', ') || '—'}</span>
-            </p>
+          {sidebarMode === 'corpus' && (
+            <CorpusDistributionPanel
+              corpus={corpus}
+              language={language}
+              corpusMap={corpusMap}
+              sourceTextInfo={sourceTextInfo}
+              targetTextInfo={targetTextInfo}
+            />
           )}
-          <div className="flex items-center gap-1 mb-2">
-            <span className="text-xs text-gray-600 mr-1">Group by:</span>
-            {language !== 'he' && (
-              <button
-                onClick={() => setCorpusGroupBy('timeline')}
-                className={`text-xs px-2.5 py-1 rounded ${corpusGroupBy === 'timeline' ? 'bg-blue-600 text-white' : 'bg-blue-100 text-blue-700 hover:bg-blue-200'}`}
-              >Timeline</button>
-            )}
-            {language !== 'he' && (
-              <button
-                onClick={() => setCorpusGroupBy('era')}
-                className={`text-xs px-2.5 py-1 rounded ${corpusGroupBy === 'era' ? 'bg-blue-600 text-white' : 'bg-blue-100 text-blue-700 hover:bg-blue-200'}`}
-              >Era</button>
-            )}
-            <button
-              onClick={() => setCorpusGroupBy('work')}
-              className={`text-xs px-2.5 py-1 rounded ${corpusGroupBy === 'work' ? 'bg-blue-600 text-white' : 'bg-blue-100 text-blue-700 hover:bg-blue-200'}`}
-            >Work</button>
-          </div>
-          {(corpusIsTimeline || corpusIsWork) && corpusData && !corpusData.tooFew && !corpusLoading && (
-            <p className="text-xs text-gray-500 mb-1.5">Click any {corpusIsWork ? 'work' : 'author'} to see its lines.</p>
-          )}
-          <div>
-            {corpusLoading ? (
-              <div className="flex items-center justify-center h-[200px] text-sm text-gray-500">Searching the corpus…</div>
-            ) : corpusData && corpusData.tooFew ? (
-              <div className="flex items-center justify-center h-[200px] text-xs text-gray-400 text-center px-2">This parallel shares only one word, so there is no corpus-wide co-occurrence to map. Pick another.</div>
-            ) : corpusIsTimeline ? (
-              <div key="corpus-timeline" ref={timelineRef} className="w-full" />
-            ) : corpusChartData ? (
-              <div key="corpus-chart" style={{ height: corpusIsAuthor ? Math.max(180, corpusChartData.labels.length * 22) : 200 }}>
-                <Bar data={corpusChartData} options={corpusChartOptions} />
-              </div>
-            ) : (
-              <div className="flex items-center justify-center h-[200px] text-xs text-gray-500">No corpus occurrences found.</div>
-            )}
-          </div>
-          {corpusIsAuthor && corpusChartData && corpusChartData._capped && (
-            <p className="text-xs text-gray-500 mt-1">Showing the 30 most-cited {corpusIsWork ? 'works' : 'authors, in chronological order'}.</p>
-          )}
-          {corpusSelectedAuthor && corpusData && corpusData.loci && (() => {
-            const loaded = corpusData.loci.filter(l => ((corpusIsWork ? l.work : l.author) || 'Unknown') === corpusSelectedAuthor);
-            const extra = corpusExtraLoci && corpusExtraLoci.key === `${corpusIsWork ? 'w' : 'a'}|${corpusSelectedAuthor}` ? corpusExtraLoci.loci : null;
-            const rows = loaded.length ? loaded : (extra || []);
-            return (
-              <div className="mt-2 border-t pt-2">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-xs font-medium text-gray-700">
-                    {corpusSelectedAuthor.replace(/_/g, ' ')} — {rows.length} instance{rows.length !== 1 ? 's' : ''}
-                  </span>
-                  <button
-                    onClick={() => setCorpusSelectedAuthor(null)}
-                    className="text-xs text-gray-500 hover:text-gray-700"
-                  >Close</button>
-                </div>
-                <div className="space-y-1.5 overflow-y-auto" style={{ maxHeight: 200 }}>
-                  {rows.map((l, i) => (
-                    <div key={i} className="text-xs leading-snug">
-                      <span className="text-gray-500">{i + 1}. </span>
-                      <span className="text-gray-500">
-                        {[l.work && l.work.replace(/_/g, ' '), l.locus].filter(Boolean).join(' ')}
-                      </span>
-                      {l.text && <span className="text-gray-700" dir={dirFor(language)}> — {renderInstanceText(l.text, l.matched_words, language)}</span>}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            );
-          })()}
-          {corpusData && corpusData.loci && corpusData.loci.length > 0 && (
-            <p className="text-xs text-gray-500 mt-2">
-              {corpusData.linesAll != null && corpusData.byWork?.length
-                ? `These words occur together in ${corpusData.linesAll.toLocaleString()} corpus lines across ${corpusData.byWork.length} works; the chart counts them all.`
-                : `These words co-occur in ${corpusData.loci.length} corpus lines.`}
-              {corpusData.corpus_version ? ` Corpus version ${corpusData.corpus_version}.` : ''}
-            </p>
-          )}
-          </>)}
         </aside>
       )}
 
@@ -1438,9 +627,9 @@ const SearchResults = ({
                 <div
                   className="text-gray-700 mt-1"
                   dir={dirFor(language)}
-                  dangerouslySetInnerHTML={{ __html: r.source_text || r.source_snippet || renderHighlightedText(r.source, language, r.matched_words, true, r.target, r.poetics) }}
+                  dangerouslySetInnerHTML={{ __html: r.source_text || r.source_snippet || highlightResultHtml(r.source, language, r.matched_words, true, r.target, r.poetics) }}
                 />
-                {r.features?.source_scansion && renderScansion(r.features.source_scansion)}
+                {r.features?.source_scansion && <ScansionLine scansion={r.features.source_scansion} />}
                 {/* Licensed for indexing and search only (data/restricted_texts.json):
                     the licence requires this line wherever the text's passages
                     are shown, so it follows the passage, not just the work's
@@ -1455,9 +644,9 @@ const SearchResults = ({
                 <div
                   className="text-gray-700 mt-1"
                   dir={dirFor(language)}
-                  dangerouslySetInnerHTML={{ __html: r.target_text || r.target_snippet || renderHighlightedText(r.target, language, r.matched_words, false, r.source, r.poetics) }}
+                  dangerouslySetInnerHTML={{ __html: r.target_text || r.target_snippet || highlightResultHtml(r.target, language, r.matched_words, false, r.source, r.poetics) }}
                 />
-                {r.features?.target_scansion && renderScansion(r.features.target_scansion)}
+                {r.features?.target_scansion && <ScansionLine scansion={r.features.target_scansion} />}
                 {targetTextInfo?.restricted && (
                   <div className="text-[10px] text-gray-400 mt-1">{targetTextInfo.credit}</div>
                 )}
@@ -1557,15 +746,6 @@ const SearchResults = ({
                     form in {r.poetics.corpus_poems} poem{r.poetics.corpus_poems !== 1 ? 's' : ''}
                   </InfoBadge>
                 )}
-                {r.channels && r.channels.length > 0 && (
-                  <InfoBadge
-                    className="bg-blue-100 text-blue-700"
-                    explanation="Which kinds of evidence found this match."
-                    more={helpMore(onOpenHelp, 'channels')}
-                  >
-                    {r.channels.map((ch) => channelLabel(ch).toLowerCase()).join(' + ')}
-                  </InfoBadge>
-                )}
                 {pairLifts[i] && typeof pairLifts[i].lift === 'number' && (
                   <InfoBadge
                     className={`bg-blue-100 text-blue-700 ${pairLifts[i].level === 'strong' ? 'font-semibold' : ''}`}
@@ -1573,6 +753,15 @@ const SearchResults = ({
                     more={helpMore(onOpenHelp, 'theme')}
                   >
                     theme {pairLifts[i].lift >= 0 ? '+' : ''}{pairLifts[i].lift.toFixed(2)}
+                  </InfoBadge>
+                )}
+                {r.channels && r.channels.length > 0 && (
+                  <InfoBadge
+                    className="bg-blue-100 text-blue-700"
+                    explanation="Which kinds of evidence found this match."
+                    more={helpMore(onOpenHelp, 'channels')}
+                  >
+                    {r.channels.map((ch) => channelLabel(ch).toLowerCase()).join(' + ')}
                   </InfoBadge>
                 )}
                 {r.matched_words && r.matched_words.length > 0 && !matchedWordsAreRefrain(r) && (

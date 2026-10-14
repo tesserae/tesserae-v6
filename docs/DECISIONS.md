@@ -8,6 +8,659 @@ history (index builds, cache rebuilds, corpus changes) is in
 `DATA_OPERATIONS.md`; per-release changes are in `../CHANGELOG.md`.
 
 
+## 2026-10-13: a text held twice under two names keeps the copy with the named edition, and a fragment file inside a longer one goes
+- Scope: the corpus and every store built from it (indexes, passage windows, registries). Found by `scripts/corpus/scan_opening_lines.py` (#904), which compares the opening lines and four-word sequences of whole-file texts.
+- Decision (the owner, 2026-10-13 22:05, on the two cases put to him): `ennodius.epigrammata` (931 lines, The Latin Library, no edition stated) shares its opening and 96 to 97 percent of its four-word sequences with `magnus_felix_ennodius.carmina_2` (932 lines, CSEL 6, Hartel 1882, through Open Greek and Latin); the named edition is kept and the other retired. `aretaeus.signorum_acutorum_morbum` (18 lines) is wholly contained in `aretaeus.curatione_acutorum_morbum` (84 lines) and is retired as a fragment of it. The rule for the next such pair: keep the copy with the named, dated edition (or the better-formed references when both are named), retire the other with an archive and a README, as on 2026-09-10 and 2026-09-19.
+- Also decided in the same run, as rules for the tools: a `.tess` already renamed by a pull is not a collision for `rename_work.py`; an index rename moves only line references that carry the old work id (a file whose references are abbreviations keeps them); `rename_work_in_passage_index.py --leaf` renames one whole work id (the Libanius part files); a set of descriptions under a few thousand is encoded with the site's own encoder (`encode_with_embed_service.py`), the GPU route staying for larger runs.
+- Record: `DATA_OPERATIONS.md`, 2026-10-13 "Small corpus leftovers: production run"; archive `~/tesserae-backups/retired_duplicates_2026-10-13/`.
+
+## 2026-10-13: Tessa's facts say whether a pair's shared words are common or rare, from the index's document frequency
+- Scope: the block of computed facts Tessa narrates on a results page (`backend/assistant/findings.py`, `format_for_narration`).
+- Decision. Each listed pair carries its shared words labeled rare (in under 2 percent of the language's texts), uncommon (under 15 percent) or common, with the counts, and the number of works where the pairing recurs when the search provides it. The labels come from the index's `lemma_doc_freq` table, not from the IDF or frequency in a result row, because the row's figures count occurrences in the two texts compared and say nothing about the corpus (the reason #586 replaced the first version). When the page names no language, it is taken from the index that holds most of the shared lemmas.
+- Evidence. The recorded check of the assistant's preparation step (211 questions, two routing modes) is identical before and after; new tests cover a rare word, a common word, the recurrence count present and absent, and the route.
+
+## 2026-10-13: a coverage gap is a comparison with comparable works, never an absence alone
+- Scope: the Daylight prototype (topics treated for one work and not for comparable works), measured on the JSTOR Early Journal Content articles (1827 to 1922).
+- Decision. A topic is called a gap for a work only when its share of that work's articles falls below the share among comparable works, on counts divided by each work's total articles, for works with at least 20 articles. Comparable means the same language, the same genre (or the same era and metre), and a profile correlation of at least 0.3 after subtracting the average work's profile. An absence on its own is never reported as a gap, and every statement of a gap names the holdings it was measured on.
+- Evidence. Uncentred profile correlations had a median of 0.80 between any two works, because textual criticism and book reviews dominate everywhere, so they could not tell neighbours from strangers. Centred on the average work, the median is 0.29, and 135 of 169 works with 20 or more articles keep at least one neighbour at 0.3. Gap score is (expected minus observed articles) over the square root of the expected articles, shown only where at least 3 were expected.
+- Where the data is. Tables and the vocabulary are staged outside the repository (coverage, normalised coverage, neighbours, gaps).
+
+## 2026-10-13: English has two sets of line embeddings, and the English cross-language pairs are tuned on a Milton probe set
+- Scope: `backend/embeddings/en` (MiniLM, 384 dimensions) and `backend/embeddings/en_cross` (SPhilBERTa, 768), `backend/semantic_similarity.py`, `backend/blueprints/search.py` (`ENGLISH_CROSS_SETTINGS`), `evaluation/benchmarks/milton_classical_probe.json`.
+- Decision, two sets. English-English search keeps the MiniLM files, so nothing changes for it (the same pair of English texts returns identical rows before and after, checked on Adonais and Lycidas). The cross-language semantic channel and its recovery step read English from `en_cross`, in the SPhilBERTa space that Latin and Greek already share. `model_name_for('en')` returns MiniLM, which is what the English files hold, and `cross_model_name_for` returns SPhilBERTa for Latin, Greek and English. The admin builders use those two functions, so a builder cannot choose a different model from the search. The two English pairs are held while `en_cross` holds no `.npy` file and lift themselves when it does.
+- Why not one set. A single SPhilBERTa set would have changed English-English search: its cosines sit in a narrow high band (median 0.58 to 0.77 on three English pairs, against 0.52) and the monolingual channel's fixed floor of 0.6 would stop selecting. That choice is separate and was not made.
+- The probe set. 24 widely cited borrowings of Paradise Lost from Vergil, Homer and Ovid, as references only, taken from the commentary of the Longman Annotated English Poets edition and the standard studies of Milton's use of Vergil and Homer. Every reference was read against our files. All 24 were kept. Two were fixed (item 10 starts at Paradise Lost 1.619, item 22 gains 9.13 to 19) and one is marked loose (item 9, where the silence is in the Greek only). Metric: the source (Latin or Greek) book is the source and the Paradise Lost book the target, the rank of the first result whose two lines fall inside the item's ranges (one line of slack), from the first 2000 rows. 16 items have a Latin source and 13 a Greek one.
+- Before (the plain settings: two-lemma gate excludes, raw cosine). Latin-English: 1 of 16 items returned at all, recall at 10, 50, 100 of 0, 0, 1. Greek-English: 1 of 13, recall 1, 1, 1. The gate removes every pair without two dictionary hits, which an English translation of a Latin or Greek line rarely has.
+- What was tried, one value at a time from the plain settings (recall at 50 Latin / Greek, items returned Latin / Greek, median rank of the returned items). Nothing moved with the gate on, except the gate itself.
+
+| Lever | Value | Recall at 50 | Returned | Median rank |
+|---|---|---|---|---|
+| plain settings | | 0 / 1 | 1 / 1 | 69 / 5 |
+| lemma gate | penalty | 0 / 1 | 12 / 7 | 203 / 161 |
+| lemma gate | off | 0 / 1 | 12 / 7 | 204 / 147 |
+| semantic_top_n | 50, 100 | 0 / 1 | 1 / 1 | 69 / 5 |
+| semantic max_results | 5000, 20000 | 0 / 1 | 1 / 1 | 69 / 5 |
+| recovery threshold | 0.2, 0.3, 0.5 | 0 / 1 | 1 / 1 | 69 / 4 to 5 |
+| semantic weight | 0.6, 2, 3 | 0 / 1 | 1 / 1 | 69 / 5 |
+| dictionary weight | 1, 3 | 0 / 1 | 1 / 1 | 69 / 5 |
+| translated-run weight | 0, 6 | 0 / 1 | 1 / 1 | 69 / 2 to 5 |
+| early-modern spelling folded | on | 1 / 1 | 2 / 1 | 40 / 5 |
+| hubness correction (CSLS, k 10) | on | 0 / 1 | 1 / 1 | 68 / 4 |
+
+- Combinations, built on the gate change. Gate off or penalty with pure cosine ranking (dictionary weight 0) is worse (recall at 100 of 0 or 1 of 16, median rank 414 to 730). Raising the semantic weight to 2, 3 or 5 returns the same items but lowers their ranks (median 223 to 444 against 158). Lowering the dictionary weight does the same. A bonus for mutual nearest neighbours (two lines that are each other's nearest three) did not help (recall at 100 of 3 and 2, median rank 298 to 415, worse at larger values) and was removed. The adopted combination: gate penalty, early-modern spellings folded, hubness correction with 10 neighbours, every weight and cap unchanged. Around it, top_n 50, recovery 0.3 or 0.5, run weight 0 or 6, penalty factor 0.3 or 0.7, hubness 5 or 20 change nothing or one item.
+- After (adopted settings). Latin-English: 12 of 16 items returned, recall at 10, 50, 100 of 1, 1, 3, median rank of the returned items 158. Greek-English: 8 of 13 returned, recall 1, 1, 3, median rank 166. Counting missing items as beyond the list, the median rank is 245 (Latin) and 904 (Greek) out of 2000 rows. The ceiling is the encoder: for the best line pair of each item the hubness-corrected cosine ranks it in the top hundred of about 600,000 pairs in only 4 of 30 searches, and in the top 2000 in 16.
+- The standard rows read plausibly at the top. Aeneid 1 against Paradise Lost 1 ranks first "exciderant animo: manet alta mente repostum" with "Can perish: for the mind and spirit remains" and has "claudentur Belli portae, Furor impius intus" with "Rais'd impious War in Heav'n". The Iliad 1 list is weaker: swords drawn, the Muse's song and the sea appear, and several rows owe their place to two dictionary words.
+- What was not changed. Greek-Latin, Hebrew, Coptic and Persian-Urdu pairs read the plain values (their recorded rows are identical to the previous code's). The English dictionaries (4,552 Latin-English and 4,971 Greek-English entries) were not enlarged. Folding spellings recovers only elisions and plurals.
+- Open. A fuller English dictionary, a lemmatizer fit for early-modern spelling (it turns "Bees" into "be"), and a better encoder for the cross-language step are the levers left. All are larger than this change.
+
+## 2026-10-12: written paragraphs keep quoted words in their original script, and the transliteration is made by a table
+- Scope: the Search One Text summary and Scholarship paragraph (and the
+  Scholarship list in Theme Search).
+- Decision. The model quotes Greek, Latin and Hebrew words in their own
+  letters and is checked for it. The transliteration shown after each Greek
+  or Hebrew word is made by a fixed letter table in the code (classical
+  scholarly style for Greek, SBL general-purpose style for Hebrew), never by
+  the model, so none can be invented. Beta code is not shown on the page. It
+  is provided as a function for export controls.
+- Evidence. On Herodotus 1.32.5 the paragraph read "*euzen*" for the Greek
+  words of the note by How and Wells. The model had transliterated the Greek
+  and wrapped it in asterisks. A reader cannot check "euzen" against the note.
+- The check. After the model answers, the server looks for asterisk spans and
+  for any word of the text that is the table's transliteration of a Greek or
+  Hebrew word or phrase in the notes (words of three letters or fewer are
+  skipped, since "to" and "he" are also English). It asks once more with the
+  fault named, and strips asterisks if the second answer is still wrong. The
+  answer's `script_problems` list shows how often that happens on the live
+  site.
+- The table lives in two languages (Python and JavaScript) and both are tested
+  against one file of cases, so they cannot drift.
+
+## 2026-10-12: Cleaning the code's shape without changing what it does
+- Scope: every change meant to reorganise code (splitting the large Flask
+  module into an app factory and blueprints, tests for the scoring core,
+  splitting Line Search into steps, the two oversized site components) and
+  not to alter an answer.
+- The rule. Nothing may break, change, or go backwards because of the
+  cleaning. A structural change therefore ships only with all of these:
+  1. the golden check (`scripts/review/golden_api.py`) reports every request
+     `same` against a recording from before the change, on a preview of the
+     branch, and again on the live site after the deploy;
+  2. the reference searches (`tests/search_reference_tests.md`) and the Theme
+     Search probe sets (`evaluation/probe_sets/`) give the same answers;
+  3. the linters pass (ruff and ESLint, pinned to the code of 2026-10-12, so
+     they fail only on a new fault).
+  A request whose answer is meant to change is re-recorded in the same pull
+  request, and the CHANGELOG entry says which and why.
+- A superseded script is moved to `scripts/superseded/` with its replacement
+  named in its header, because an old build script left beside its successor
+  and writing the same output file overwrites the better data without any
+  error. A script that overwrites data defaults to a dry run, takes a stamped
+  backup before writing, and writes to a temporary path and renames it over
+  the original (`scripts/corpus/corpus_safety.py`).
+- A formatter (black, prettier) is not used. It would rewrite nearly every
+  file, which hides the real changes of a pull request and defeats the rule.
+- The weekly reading of the code by reviewers is not scheduled. The
+  development period is intensive and finite, so a read is run on demand,
+  after a large change.
+- Why a recorded check and not tests alone. The unit tests do not exercise the
+  search over the real index. The recording does, through the same routes the
+  site uses, so a refactor that shifts a score, an order or a field shows as a
+  difference at once. Requests that give different answers on two runs
+  (timings, cache flags) are normalised away; requests that call a language
+  model or a live outside service are left out.
+- First structural job under the rule: the Flask module became an application
+  factory with its routes in blueprints (see the CHANGELOG entry of the same
+  date). It shipped with the golden check `same` on every request a preview
+  can answer, a URL map identical in paths, methods and registration order
+  (in both the production mode and the development mode with the /api prefix),
+  the body of every moved function identical by syntax tree, the same test
+  results as main, and an import time within ten percent. The URL map and the
+  function bodies are checked by two scripts kept in `scripts/review/`, so
+  the next structural job can run the same proofs.
+- Second job under the rule, tests only: characterization tests for the
+  feature extractor, distance filter, syntax parser, metrical scanner,
+  wildcard search, database helpers and the untested parts of the matcher.
+  Each expected value was taken from the code as it stands and read for
+  plausibility; none was corrected. The three Latin spelling folds named
+  `normalize_latin` (the matcher's and the distance filter's are now one
+  function; the wildcard search's keeps case and folds a final -om to -um)
+  are pinned as they are in `tests/test_normalize_latin_three_ways.py`.
+  Whether to unify them is a separate decision.
+- Third structural job under the rule: `line_search()` became a sequence of
+  named steps (see the CHANGELOG entry of 2026-10-13). A recording of 258
+  Line Search requests made on a preview of main (none of them differs between
+  two runs of the same server) gives the same answer on a preview of the
+  branch for every one. The standard recording of 68 requests is the same too.
+  The body of each of the 22 other functions and classes in the module is
+  identical by syntax tree. The 56 Line Search tests and the reference
+  searches pass. Ten timed requests (one word, a pair, twelve words, an exact
+  scan, documents, both collections, Hebrew without points, the Persian Reader
+  path, a count, a 500-row answer) have medians within 2.5 percent of main's
+  over five runs each. The steps stay in the blueprint module because tests
+  replace names in it, and only the reading of the parameters moved to its
+  own module.
+- Fourth structural job under the rule: `fuse_results()` became a sequence of
+  named steps (see the CHANGELOG entry of 2026-10-13). The function is not
+  reached by the API check alone (its two fusion requests are compared
+  loosely), so a direct recording was made from the function itself: nine real
+  searches (three Latin pairs, two Greek, one Coptic, one Persian, the first
+  Latin pair again on the meter baseline and again without the passage-context
+  pass) with every row of the 97 fusion calls they make, 5,123,959 rows. The
+  new code gives every row identical, both by rerunning the searches and by
+  replaying the recorded inputs through the function alone. The standard
+  recording of 68 requests is the same, with both previews started with the
+  same hash seed so the fusion requests are compared exactly. The body of each
+  of the 52 other functions and classes in the module is identical by syntax
+  tree. The tests give the same ten known failures as main. The loop over the
+  pairs is moved as one block of 210 identical lines with no function call
+  added inside it. Its constants arrive as local variables read once before
+  it, as the code did. The Latin and Greek first pairs run through the
+  function alone in the same time (medians 5.67 and 4.81 seconds against 5.69
+  and 4.80 over five runs). One fact the recording had to allow for: the
+  document frequencies are cached in the process, and which lemmas were looked
+  up first changes the value cached for others (the u/v variants and the
+  headword adjustment), so the same pair can score slightly differently after
+  other searches in the same process. A recording therefore starts each search
+  from empty caches. The behaviour is unchanged by this job and is recorded
+  here for the next one.
+- Fifth structural job under the rule: `_direct_crosslingual_core()` became a
+  sequence of named steps (see the CHANGELOG entry of 2026-10-13). The proof
+  is a recording made inside the function, because the standard recording
+  holds one cross-language request and compares it loosely: ten searches (nine
+  pairs and settings, plus the error the live Latin-English search raises)
+  give the same rows, field for field and score for score, on the branch as
+  on main, and two runs on main agree with each other. The standard recording
+  of 68 requests is the same on a preview, the reference searches pass, the
+  five cross-language test files pass, and the full suite fails only the
+  tests that fail on main. The body of each of the 45 other functions and
+  classes in the module is identical by syntax tree. The Greek-Latin and
+  Latin-English calls, five runs each, have medians within 5 percent of
+  main's. The fusion loop stays one block, moved whole, with no new call
+  inside it.
+- Sixth structural job under the rule: the streaming fusion search
+  (`search_fusion_stream()` and its nested generator) became a sequence of
+  named steps (see the CHANGELOG entry of 2026-10-13). The standard recording
+  does not hold this route, so a recording of the stream itself was made.
+  It posts fifteen requests to a preview of main (460 events in all) and reads each stream to
+  the end, with the times removed and the paged result's identifier replaced
+  by its presence. Two runs on main agree with each other. The branch gives
+  every event of every request identical, score for score, in order. The
+  requests cover the cached and the full path of the same pair, the formula
+  filter at both settings, line and window modes, channels switched off,
+  custom weights, the meter, a Coptic pair, a Persian pair, a paged answer
+  and both error cases. A recording starts each request from the cache as the
+  script found it. The standard recording of 68 requests is the same, with
+  both previews started with the same hash seed. The body of each of the 34
+  other functions and classes in the module is identical by syntax tree. The
+  tests give the same eight known failures as main. The reference searches
+  pass. Over five runs each, the uncached search took 16.06 seconds against
+  16.09 on main, and the cached answer 27.4 milliseconds against 26.8, with
+  the first event at 3.0 against 2.9 milliseconds (a difference of 0.6
+  milliseconds on a request whose spread is 11). The loop over the search's
+  events stays one block, moved whole. The generator creates the search
+  slot and hands it to the steps that need it, so the release in its
+  `finally` still sees it.
+- Seventh structural job under the rule: `iter_fusion_search()`, the generator
+  every fusion search runs, became a short body that calls named steps (see
+  the CHANGELOG entry of 2026-10-13). The recorder that stores every row of
+  every `fuse_results` call now also stores every event the generator yields
+  (type and payload, elapsed times zeroed, heartbeats counted and not
+  compared, since their number depends on timing). It covers eleven searches:
+  Latin, Greek, Coptic and Persian pairs, the frequency basis set to meter,
+  context confirmation off, three channels enabled, and custom channel
+  weights, which this generator reads. Two runs on main agree with each other
+  (11 searches, 3.16 million rows, 362 events). The branch gives every row and
+  every event identical. The fifteen-request stream recording of the sixth
+  job is the same, the standard 68-request recording taken from main's
+  preview is the same on the branch's, the reference searches pass, the body
+  of each of the 69 other functions and classes in the module is identical by
+  syntax tree, and the tests fail only where main's do. The two loops over
+  the channels stay whole blocks with no new call inside them. The
+  replay of the largest fusion calls takes within 3 percent of main's time.
+- Eighth structural job under the rule: the assistant's `_prepare()` in
+  `backend/assistant/agent.py`, which runs the searches and builds the fact
+  block for Tessa, became a short body that calls named steps (see the
+  CHANGELOG entry of 2026-10-13). The model enters it through the routing
+  judgment and the chooser, and every search goes through one transport
+  function, so the recorder holds those two still with answers captured
+  once from the real gateway and the real site (143 model answers, 31 distinct
+  search responses, the two comparison routes answered by a fixed rule). It
+  runs 211 questions with model routing on and off, 422 runs: 126 from the
+  assistant test files, 40 from the graded question set, and 45 of our own
+  with a short conversation where the path needs one, covering a guide
+  question, a "yes" after an offer, follow-ups with a pronoun, holdings for
+  one language, two languages named, comparison requests, translations of
+  one work, themed, reading and nonsense questions. Three runs on main agree
+  with each other once the recorder fixes the string-hash seed, because a
+  set of work names is sorted by length and ties came out in hash order. The
+  branch gives the same returned dictionary, progress messages and ordered
+  outside calls in all 422 runs, and a deliberately altered label in three
+  places made 20 runs differ. Every comment moved with its code, and a
+  line-by-line comparison finds no removed line that is not present again,
+  apart from the dedenting of comments and the one initialization that
+  became a field default. The 19 assistant test files give 199 passed and 1
+  skipped on both, the body of each of the other 48 functions and classes
+  in the module is identical by syntax tree, and the full suite fails only
+  where main does. The 422 runs take 20.6 seconds on the branch against 20.7
+  on main (median of four).
+- Rule for a bad number in a request. A parameter that must be a number and
+  is not gets a 400 with a plain JSON message (`{"error": "limit must be a
+  whole number"}`), through one helper, `int_param` (and `float_param`) in
+  `backend/request_params.py`, never a 500 that prints Python's own error. A
+  value that is absent or empty keeps its default, so every valid request
+  gives the answer it gave before. Routes that already tolerated a bad value
+  by falling back to a default, or that already returned their own 400, were
+  left as they were.
+- Rule for calls from the browser. Every call from the pages goes through the
+  helper in `client/src/utils/api.js`, which checks the status, reads the
+  text first, and reports a failure with the server's own `error` message
+  when the body has one, else the status and a short preview of the body
+  (not "Unexpected token '<'"). Pages that show the server's `error` field
+  themselves receive that body as before. The admin tabs, the assistant and
+  the calls that already check the status with their own message are
+  moved when next touched, not in one sweep.
+- Eighth and ninth structural jobs under the rule, the two largest front-end
+  files (see the CHANGELOG entries of 2026-10-13). The front end gets its own
+  recorded check: `client/src/test/renderRecording.test.jsx` and
+  `renderRecording.appflow.test.jsx` render the result list in each of its
+  modes (sorted by score and by locus, paged, chart open, corpus panel open,
+  each language, streaming, loading, error and empty), the App on every
+  address the router knows, and the App's search, Search Corpus and Save
+  Parallel flows, with fetch answering from fixed fixtures, and snapshot the
+  HTML. The snapshots were recorded on main before any file was split, and a
+  split passes only if every one is identical, apart from the markup of the
+  one chart that was redrawn on purpose. The check records what the code does
+  today, not what it should do (it records, for example, that saving a fusion
+  result from the Save Parallel dialog fails because the card's channels are
+  a list and the dialog expects text).
+- One way to highlight matched words. The CSV export, the result card and the
+  corpus panel's instance lines each had their own function for marking
+  matched words. They differ in what counts as a match, which punctuation is
+  cut and which letters are folded, so the module `client/src/utils/highlight.js`
+  keeps three entry points over shared pieces (the edge-punctuation strip, the
+  Hebrew point strip, the word splitter), and 60 inputs recorded from the three
+  old functions (`client/src/utils/__fixtures__/highlight_cases.json`) must
+  come out character for character the same.
+- One chart library for the public pages. The corpus panel's timeline, drawn
+  by hand in D3, is redrawn as a horizontal bar chart in Chart.js, the library
+  every other public chart uses. D3 stays only for the network graph and the
+  admin map, which are genuine uses of it.
+- The App's own pieces follow the same rule as the result list: the code is
+  moved, each piece is a hook or a component with its state, and the 94
+  recorded renderings must stay identical. Recharts is left for the admin
+  Analytics tab until that tab's four charts have a render test.
+- The corpus panel's timeline keeps its hand-drawn D3 form, in a component of
+  its own. #899 redrew it as a Chart.js bar chart so that the public pages
+  would use one chart library, but the bar chart lost the date axis and the
+  one-dot-per-occurrence marks, so time clusters and gaps were no longer
+  visible. The rule for the cleaning is that nothing a visitor sees goes
+  backwards, and it outranks the one-library aim; the original drawing was
+  restored the same evening. D3 therefore stays for the timeline, the network
+  graph and the admin map.
+
+
+## 2026-10-12: the band inside one work is refitted on eleven works, and its lowest level is a caution, not a verdict
+- Scope: Search One Text (`/ask-a-work`) and any Theme Search restricted to
+  one work. The corpus-wide band has its own entry below.
+- The problem. The owner found three right answers labelled "a nearest
+  neighbor, not a finding": Browning's sonnet 43 for "the poet counts the
+  ways she loves", Ferdowsi for "Rostam fights the White Div", and Annals
+  4.1 for "the rise of Sejanus". The band of 2026-10-11 read the spread of
+  the work's own scores, fitted on 45 questions over three long works.
+- Measurement. The same 45 plus 80 new queries over eight more works chosen
+  for their lengths (Browning's Sonnets 143 windows, Sappho 320, Catullus
+  953, Hafez 2,218, Ovid's Metamorphoses 2,782, the Odyssey 2,800, Livy
+  4,729, Ferdowsi 23,150): five subjects each work treats, five it does not
+  (three modern, two from another genre) and two nonsense strings. One
+  subject was dropped on reading because its answers were wrong (Rostam and
+  Sohrab). Nineteen measures of the score distribution were swept for a
+  one-threshold rule, with the threshold also fitted on ten works and tested
+  on the eleventh.
+
+  | Measure | Accuracy, 140 queries | Leaving one work out |
+  |---|---|---|
+  | Spread of the work's scores (the 2026-10-11 rule) | 0.766 (0.738 at its shipped value) | 0.702 |
+  | Best passage's lift over the median | 0.809 | 0.752 |
+  | Mean lift of the top ten | 0.787 | 0.752 |
+  | Coherence of the top twenty | 0.766 | 0.716 |
+  | Lift divided by the spread, the interquartile range or the median deviation | 0.70 to 0.76 | 0.68 to 0.75 |
+  | Best passage's lift OR coherence (the new rule) | 0.836 | 0.821 |
+
+  The spread fails on long works, where a subject's few windows barely
+  widen the distribution (0.42 on Ferdowsi, 0.50 on Ovid), and on short
+  ones, where it is noisy (0.58 on Browning). Dividing a lift by the spread
+  is worse still, because the spread rises with the very tail being
+  measured.
+- Decision. The band reads the best passage's lift over the work's median
+  (moderate from 0.048, strong from 0.055, above every absent or nonsense
+  subject measured, 0.0546) or the coherence of the top twenty (moderate
+  from 0.925). No rule reached nine in ten across these works, so the band
+  is an estimate: its lowest level is labelled "Closest passages", says
+  that no passage stands far above the rest of the work so the order is
+  less certain, claims nothing about absence, and the list is shown under
+  every level. The per-passage strong mark (three standard deviations above
+  the work's median, not under the lowest level) is unchanged. Of the three
+  cases, Browning and Ferdowsi now read moderate and Sejanus reads lowest
+  with its list shown and no claim of absence.
+- Data: the measurement folder of 2026-10-12 (within-work refit) in the
+  private backups, with the measurement and sweep scripts; the first fit's
+  folder beside the pilot of 2026-10-11.
+
+## 2026-10-12: the lowest band is "Closest passages", and its floor is refitted to the enlarged index
+- Scope: Theme Search over the whole corpus (`/theme-search`), every
+  language. The band within one work (Ask a Work) uses its own rule and is
+  unchanged.
+- The problem. The owner ran "a debate in the assembly over how the city
+  should be governed", read a good list (Aristotle's Constitution of the
+  Athenians, Dionysius of Halicarnassus) under the label "Low confidence",
+  and said that the label was deflating. Two things were wrong. The label
+  claimed a difference the evidence does not show: on 2026-10-11 the lists
+  under this band on sixty historical subjects were as relevant as the
+  lists under the moderate band (0.75 against 0.73, share of the top ten
+  graded relevant). And the floor between this band and the moderate band
+  had been fitted on 2026-10-08 against an index of 530,917 windows; the
+  prose-windows run of 2026-10-11 took the index to 693,611, so every
+  result opened with a paragraph saying the thresholds were provisional.
+- Measurement. The 178-query probe set of 2026-10-08 (115 subjects the
+  corpus holds, 63 it does not, across eight language settings), the
+  original 57-query set, and the sixty historical subjects of 2026-10-11
+  (graded lists), all run against the live index. The sweep of the floor:
+
+  | Floor | 178-query set | 57-query set | Of 60 historical subjects, marked lowest (relevant lists among them) |
+  |---|---|---|---|
+  | 0.0738 (2026-10-08 value) | 74.7% | 66.7% | 18 (15) |
+  | 0.065 | 81.5% | 80.7% | 6 (6) |
+  | 0.060 | 86.0% | 77.2% | 2 (2) |
+  | 0.055 | about 80% | 63.2% | 0 |
+
+  At this index the two populations overlap. Subjects the corpus does not
+  hold reach 0.0767 ("soldiers fire machine guns from trenches") and
+  0.0800 ("a steam engine", 57-query set), while held subjects run down to
+  0.0551 ("a revolt of slaves", seven of its top ten about the subject).
+  No value separates them, so the 2026-10-08 design, which placed the floor
+  above every absent subject, now costs 64 of 115 held subjects. A rule
+  using coherence as well was swept and bought nothing (held subjects
+  0.927, absent 0.907, too close).
+- Decision. The floor moves to 0.060, the best value on the larger set and
+  on the two sets together (197 of 235). The cost is named: absent subjects
+  from the modern world or other cultures (a locomotive, a satellite, a
+  telephone, a sextant) read moderate rather than lowest. So the moderate
+  note no longer says the corpus holds the subject, only that the top
+  passages stand out from the rest, though not by a wide margin. The
+  strong threshold is unchanged at 0.1006, still above every absent
+  subject measured.
+- The label. The lowest band is "Closest passages", and its sentence says
+  that no passage stands far above the rest of the corpus on this subject,
+  so the order is less certain than usual. The list is shown, as since
+  2026-10-11. The "provisional" paragraph is no longer printed on the page.
+  It is kept in the answer as `confidence.calibration` for anyone checking
+  the fit, and the fitted size is now 693,611, so it is empty today and
+  will fill again only if the index drifts more than fifteen percent.
+- Data: measurements and sweep in the private working folder of
+  2026-10-12 (confidence refit); the probe sets in
+  `evaluation/probe_sets/`; the script
+  `evaluation/scripts/calibrate_confidence.py`.
+
+## 2026-10-11: a low confidence band shows the list, and only a degenerate band hides it
+- Scope: Theme Search over the whole corpus (`/theme-search`), every language
+  and every kind of text. Ask a Work and the search within one work use a
+  different rule (the spread of the work's own scores) and are unchanged.
+- The problem. The owner searched "establishment of democracy" and was told
+  the corpus did not appear to contain passages of this kind, with the list
+  held behind a link. The hidden list was good: Thucydides 8.63 on the
+  oligarchy at Samos, Polybius 6.4 and 6.9 on the cycle of constitutions,
+  Diodorus 12.11 on the democracy at Sybaris, Xenophon's Hellenica. The band
+  rests on head lift, the mean of the top ten scores above the corpus median,
+  fitted on 57 queries that mixed real literary scenes with nonsense and
+  absent subjects. A real subject spread across many passages does not lift
+  its top ten far above the median, and a short phrase rarely does.
+- Measurement. Sixty historical queries (thirty subjects in a short form and
+  a sentence form) and the fifteen Ask a Work pilot questions, run corpus-wide,
+  the top ten of each graded 0, 1 or 2 by the gateway model from the
+  passage descriptions. A list counts as relevant when half or more of its
+  top ten are graded 1 or 2.
+
+  | Set | Marked low | Of those, relevant list | Shown | Of those, not relevant |
+  |---|---|---|---|---|
+  | 60 historical queries | 31 | 27 | 29 | 4 |
+  | the 30 short forms | 24 | 24 | 6 | 0 |
+  | the 30 sentence forms | 7 | 3 | 23 | 4 |
+  | 15 pilot questions | 13 | 11 | 2 | 0 |
+
+  Mean share of relevant passages in the top ten was 0.75 under a low band
+  and 0.73 under a moderate one, so on real subjects the band carried no
+  information. Short forms did better than sentences (0.82 against 0.50 in
+  the low band), the opposite of what the banner's advice to write a full
+  sentence assumed. Head lift and coherence were at chance as separators of
+  good lists from poor ones (area under the curve 0.52). The degeneracy test
+  (coherence at or above 0.995) never fired in this set, since no real
+  subject reaches it.
+- Decision. The list is shown whatever the band. A low band carries a
+  one-line caution that the ranking is less certain than usual, without the
+  claim that the corpus lacks the subject. Only a degenerate band, where
+  nothing in the corpus resembles the query, holds the list behind a link and
+  makes that claim, and only there is the short-query hint given. The
+  per-passage weak-neighbor tag is left off under a low band, where every row
+  would carry it. The response adds `confidence.degenerate`.
+- What is not changed. The thresholds and the bands themselves, which still
+  tell a real subject from nonsense. This measurement had no nonsense or
+  absent-subject queries, so the band's value against those stands as fitted.
+- Data: the queries, judgements and report are kept outside the repository.
+
+## 2026-10-11: long prose works get paragraph-sized passage windows, and short sections are merged to the same size
+- Scope: the content index behind Similar Passages, Theme Search, Ask a
+  Work and the Reader's gutter, for prose works whose units (chapters,
+  sections) are long. Pull requests #814 (first run) and #821 (merging and
+  the full run). Poetry and short-unit prose are untouched.
+- The problem in plain terms. The index is made of passage windows:
+  stretches of text that each get a one-sentence description and a vector,
+  and a search compares a question with those. For poetry a window is a run
+  of twelve lines, a few hundred characters, about one scene or speech. For
+  prose the same rule took twelve "lines" of the file, and in a prose file a
+  "line" is a whole chapter or section. In Tacitus's Annals one window ran
+  from 7,500 to 15,000 characters, a dozen scenes under one description. A
+  question about one of those scenes matched the window only weakly, because
+  its description and its vector were a blend of everything in the chapter.
+  In the Ask a Work pilot the five Annals questions ranked below the
+  Aeneid's (0.40 against 0.62 of the first ten directly about the subject),
+  and the judge named the chapter-sized windows as the cause.
+- Measurement. An audit of 3,470 works found 1,511 whose median window is
+  over 3,000 characters, all but one of them prose (39,512 windows). Cutting
+  them all into windows of about 1,200 characters was estimated at 274,684
+  windows. The 3,000-character line for "long" is a judgement, chosen where
+  a window stops being one episode.
+- Decision 1, the prose scale (first run, live 2026-10-11 12:50). Long
+  prose chapters are cut at sentence boundaries into windows of about 1,200
+  characters, a paragraph, each with its own description and vector. The
+  chapter reference is kept, with a part number. The length is a chosen
+  round figure, long enough for one episode or one step of an argument and
+  short enough for a single sentence to describe. First run: the Annals (746
+  windows, median 874 characters), Thucydides (3,577) and the ten works with
+  the longest median windows (2,115), 6,438 in all. Check after the install,
+  one reader grading the descriptions against the pilot's standard: for the
+  question on the death of Germanicus the directly relevant passages in the
+  first ten rose from 3 to 6, and for the mutinies of the legions from 3
+  to 6.
+- Decision 2, what happens to the old chapter windows. They stay in the
+  index, because the Reader's position marks and the coarse-grained map
+  still use them. But a work that has prose windows no longer offers its
+  chapter windows in rankings, neighbour lists or the names list, so a
+  chapter is not offered twice, once whole and once in parts.
+- Decision 3, merging short sections (the full run, staged 2026-10-11,
+  install recorded in `DATA_OPERATIONS.md`). The first run never joined
+  neighbouring units, so Thucydides, whose sections run 300 to 500
+  characters, got one window per section: 3,577 windows too short for a
+  description to say much. For the full run, consecutive short sections of
+  one book are joined until the window reaches about 1,200 characters, and
+  the reference runs from the first section to the last. A section longer
+  than that is still cut into parts as in the first run, and a window never
+  crosses from one book into the next. Thucydides comes to 1,159 windows in
+  place of 3,577, and the remaining 991 long-prose works to 153,405 windows.
+- Measured after the full run was installed (2026-10-11 23:49). The fifteen
+  pilot questions were re-run live and the 175 passages in the new top
+  twenties that had no grade were judged with the pilot's second-judge
+  prompt (first judge's grades kept where they existed).
+
+  | | Directly relevant in top ten | Relevant at all in top ten | A direct hit in the top five |
+  |---|---|---|---|
+  | Before (pilot) | 0.44 | 0.75 | 14 of 15 |
+  | After | 0.59 | 0.80 | 15 of 15 |
+  | Annals before / after | 0.40 / 0.70 | 0.68 / 0.88 | 5 / 5 |
+  | Thucydides before / after | 0.30 / 0.46 | 0.64 / 0.58 | 4 / 5 |
+  | Aeneid (unchanged by the run) | 0.62 / 0.60 | 0.94 / 0.94 | 5 / 5 |
+
+  Ranking quality by nDCG at ten fell from 0.75 to 0.71 overall, mostly in
+  Thucydides (0.73 to 0.60), where the merged windows are coarser than the
+  single sections for two questions about one speaker's view (Pericles, and
+  justice against self-interest). The figures are not on identical ideals,
+  since the new grades enlarged the ideal ranking. Kept as installed.
+- A smaller merge target, tested and not adopted (2026-10-12). Thucydides
+  books 1 and 2 were re-cut at 600 and 800 characters and the five pilot
+  questions ranked offline against the installed 1,200, every passage graded
+  by the same judge: 600 beat 1,200 on every measure (directly relevant in
+  the top ten 0.64 against 0.50, nDCG 0.92 against 0.84), 800 did not. The
+  same comparison on Herodotus (books 1 to 3) and Diodorus (books 11 to 14),
+  eight new questions, did not confirm it: 600 tied on Herodotus and lost on
+  Diodorus for precision (0.26 against 0.31 overall), winning only on
+  ranking order (0.85 against 0.83) and on a direct hit in the top five
+  (8 of 8 against 6 of 8). One win, one tie and one loss on five to eight
+  questions a work is not grounds to re-cut 284 works, nor to give one work
+  a different cut from the rest. The target stays at 1,200.
+- Open. The describing model writes Thucydides' speeches without the
+  speaker's name, so a search for a person in Thucydides falls back to the
+  text itself.
+
+## 2026-10-11: Ask a Work pilot graded by a second, independent judge
+- Scope: the figures quoted for Ask a Work (`/ask-a-work`) and for its
+  confidence band and strong marks.
+- Why. Every figure rested on one judge, a Sonnet model reading each
+  passage's description, opening and translation. A second model from a
+  different family (Qwen 3.8 27B, on the university gateway) re-graded the
+  same 293 passages from the same material, with the same instructions, at
+  temperature 0.
+- Result. The two judges agree exactly on 69% of passages (kappa 0.54,
+  quadratic 0.71) and agree on whether a passage is relevant at all on 81%.
+  The second judge is stricter about passages that merely touch a subject:
+  37 of the first judge's "touches it" grades become "not about it". The
+  strong marks' precision for relevant passages is 0.905 under the first
+  judge, 0.873 under the second, 0.857 where both agree.
+- Decision. The band and the strong marks stand. The site and Help report
+  the figures as a range across two judges, and the softer figure is the one
+  to quote for passages that only touch a subject.
+
+## 2026-10-11: a confidence band for a search within one work, from the spread of that work's scores, provisional
+- Scope: Theme Search restricted to one work, and Ask a Work.
+- Why. The corpus-wide confidence rating was fitted on scores over the whole
+  index and does not carry into one work, so a restricted search had no
+  rating (decision of 2026-10-09). A question that a work does not address
+  at all looked the same as one it answers.
+- Measurement. 45 queries over the Aeneid, Thucydides 1 to 2 and Annals 1
+  to 6: the pilot's 15 real questions, 15 subjects absent from the work, 15
+  nonsense strings. The spread (standard deviation) of the work's window
+  scores separates real from absent best, with accuracy 0.889 and
+  leave-one-work-out 0.867. Head lift, top-hit lift and coherence do as well in sample, but
+  their thresholds do not carry from one work to another.
+- Decision. Three bands from the spread: low below 0.0099, strong from
+  0.0125 (above the largest spread any absent subject produced), moderate
+  between. A passage is marked strong when its score stands 3 spreads above
+  the work's median and the band is not low: 63 of 293 judged passages
+  marked, precision 0.905 for relevant passages (first judge). Both are
+  labelled provisional, because they were fitted and tested on the same 45
+  queries over three works. On the Ask a Work page a low band does not hide
+  the list, because one real question in five came out low.
+
+## 2026-10-11: Ask a Work keeps the reader re-rank
+- Scope: Ask a Work and Theme Search restricted to one work.
+- Why. The reader model re-orders the top results by reading them, which
+  costs two to three seconds against under one second without it. Within one
+  work the gain was untested.
+- Measurement. The fifteen pilot questions re-run with and without the
+  reader, scored against the pilot's judgements. With it, 0.44 of the first
+  ten passages are directly about the subject and 0.75 are relevant at all.
+  Without it the figures are 0.41 and 0.59.
+- Decision. Kept on. The time is spent on a better first page.
+
+
+## 2026-10-09: Theme Search restricted to an author or work lists up to 10 passages per work, none capped for a single work, with no confidence rating
+- Scope: `/api/passages/theme-search` with `author=` or `works=`, and the
+  "Search within" picker on the Theme Search page.
+- Decision: a restricted search is a flat list of passages. The corpus-wide
+  rule of one head per work and three rows each (`PASSAGES_PER_WORK`) is
+  dropped, because it exists to stop one huge work owning a page of the
+  whole corpus. Several chosen works share the page at up to 10 passages
+  each (`RESTRICTED_PER_WORK`). A single chosen work has no cap, because a
+  cap would end paging at the cap. Confidence (head lift, coherence) is not
+  rated for a restricted search, the response says so in its `note`, and no
+  result is marked strong.
+- Measurement: five queries in each of Vergil and Livy (Latin) and Homer and
+  Thucydides (Greek), asking for 25 passages under per-work caps 3, 10, 25
+  and unlimited, on the production index read-only (means over the five
+  queries). Livy and Thucydides are one work each in the index.
+
+  | Author | Cap | Passages returned (of 25) | Distinct works in top 25 | Distinct books in top 10 | Most from one book in top 10 |
+  |---|---|---|---|---|---|
+  | Vergil | 3 | 8 | 2.8 | 5.4 | 2.4 |
+  | Vergil | 10 | 23.2 | 2.8 | 3.6 | 6.4 |
+  | Vergil | unlimited | 25 | 1.4 | 3.6 | 6.4 |
+  | Livy | 3 | 3 | 1 | 2.8 | 1.2 |
+  | Livy | 10 | 10 | 1 | 8.2 | 2.2 |
+  | Livy | unlimited | 25 | 1 | 8.2 | 2.2 |
+  | Homer | 3 | 9 | 3 | 7.4 | 2 |
+  | Homer | 10 | 25 | 3 | 6.4 | 3.4 |
+  | Homer | unlimited | 25 | 2.2 | 6.4 | 3.4 |
+  | Thucydides | 3 | 3 | 1 | 2 | 2 |
+  | Thucydides | 10 | 10 | 1 | 4.8 | 4.4 |
+  | Thucydides | unlimited | 25 | 1 | 4.8 | 4.4 |
+
+- Reading: cap 3 is unusable inside an author, since a single work returns
+  3 passages in all and Vergil returns 8 of 25. Cap 10 and unlimited give the
+  same top ten everywhere (a cap of 10 cannot change ten rows). They differ
+  deeper: with the Aeneid dominant, an unlimited list is 1.4 works out of
+  3 across 25 rows, while cap 10 keeps the Georgics and Eclogues in view
+  (2.8 works). The cap does not govern flooding by one book. The share of the
+  top ten taken by one book is the same at 10 and unlimited (Thucydides 4.4
+  of 10 from one book, Vergil 6.4), so that is a property of the ranking and
+  of the query, and the picker's Work step is the remedy.
+- A single work is uncapped because with cap 10, Livy ended at 10 passages and
+  Show more had nothing further to fetch.
+- Confidence: the head-lift and coherence thresholds were fitted on 57
+  queries over the whole index. Inside one or a few works the median and the
+  spread both change, so the thresholds are not comparable, and no
+  restricted-query fit has been made. The figures are withheld, and the page
+  and the connector say so. A rating that has not been validated is not
+  shown.
+
+## 2026-10-09: licensed scholarship is indexed for retrieval and shown as citation, excerpt and link, never summarised
+- Scope: every source of secondary literature the site holds under a
+  licence or a permission (journal articles, monographs, commentaries
+  from publishers, libraries and aggregators, called licensors
+  throughout). The Scholarship tab, Theme Search over scholarship (a
+  measured prototype, see below) and the assistant all follow it.
+- The rule: the full text is indexed on our own server for retrieval
+  only, as embeddings and a keyword index, and is never served in bulk.
+  What a reader sees for a passage is a citation (author, title, journal
+  or publisher, year, page, a link to the licensor's own page) ordered by
+  how closely each item bears on the passage, with at most a short
+  excerpt of the sentence that made the match. No description, abstract
+  or summary of an article is written or generated by the site. The
+  assistant answers questions about scholarship by quoting a sentence
+  with its citation and does not paraphrase an argument. Text is deleted
+  at the end of the project where a licensor asks (one publisher's term,
+  October 2026). Each source can be set to show no excerpt at all.
+- Why: a sentence-long excerpt with a link sends a reader to the article,
+  which is what the licensor's own search already does; a summary lets a
+  reader cite an article without reading it, and would be the derivative
+  work a licensor could object to. The site's own passage descriptions are
+  prose about public-domain primary texts and are not the model here.
+- Measurement behind the retrieval side (2026-10-09, 15 queries, one
+  judge, 82,814 windows of 393 commentaries and 33,386 journal sentences):
+  P@10 meaning-based 0.57, keyword 0.57, reciprocal-rank hybrid 0.57;
+  nDCG@10 0.59, 0.52, 0.64; queries with a fully relevant hit in the top
+  ten 11, 12, 13 of 15. The hybrid is the design when licensed article
+  text arrives. The quarter-sample run earlier the same day gave 0.37 and
+  0.43 for the two base systems, so the full index matters.
+- Decided by the project lead on 2026-10-09 on the recommendation above.
+
 ## 2026-10-11: the public data bundle's terms: non-commercial as a whole, commentaries sorted by licence, three vernacular texts in
 - Scope: the downloadable data bundle and the install recipe (pull request #739).
 - Decisions, taken by the owner on 2026-10-11 after the four questions the draft raised.
@@ -2042,3 +2695,47 @@ Latin and Greek (the Latin and Greek ones also carry the old quotation
 weight), and re-warm the default pairs. Recorded in DATA_OPERATIONS.md.
 Rarity by lines rather than works stays deferred until an English gold set
 exists to measure it against.
+
+## 2026-10-12: file operations are made independent of the web server's locale in code
+
+The web process runs with an ASCII file-system encoding, which Python fixes when it starts, and the server setting that would change it is not to be requested again. Thirty-six Greek texts have Greek letters in their names, so every file call on a text, translation or embedding name goes through `backend/fspaths.py`, which passes UTF-8 bytes to the operating system and returns names decoded as UTF-8. The proof is a two-locale comparison: the same requests (`scripts/review/greek_names_requests.json` and the standard list) sent to a server started in the ASCII state and one started in UTF-8 must give the same answers. Names that an operation only ever sees in ASCII (hashed cache names, index files) were left as they were.
+
+
+## 2026-10-13: the two Latin spelling folds stay as they are
+
+- Scope: `normalize_latin` in the matcher and the distance filter (one shared function: lower case, v to u, j to i) and in the wildcard search (case kept, v to u, j to i, a final -om folded to -um).
+- Decision. Both are kept, pinned by tests (`tests/test_normalize_latin_three_ways.py`). They are not unified.
+- Why. The lemma tables hold keys in the older spelling, such as "diuom", so adding the -om rule to the matcher's fold would miss them; removing it from the search box would change what a wildcard search for "servom" finds. Neither change has a user report behind it. If one arrives, the fold that caused the miss is revisited with a recording, as the structural jobs are.
+
+## 2026-10-13: the fallback Latin scanner uses a vowel-length table, not the scanner's guessing modes
+
+- Scope: Latin verse outside the MQDQ table (the table covers 103 works; everything else goes to the copied CLTK scanner).
+- Decision. The line is macronized from a fixed table before scanning. The scanner's own guessing modes (dactyl smoothing, the optional i-to-j transform) are left off, and the CLTK macronizer's part-of-speech tagger is not used.
+- Evidence (400 lines each of the Aeneid, the Metamorphoses and the Pharsalia, against MQDQ; "correct" means valid and the same pattern, "wrong" means valid and a different pattern):
+
+| Mode | Correct | Wrong |
+|---|---|---|
+| plain scanner (before) | 32 to 36 percent | 6.5 to 7.2 percent |
+| dactyl smoothing | 61 to 66 | 23 to 25 |
+| optional transform | 25 to 26 | 19 to 22 |
+| CLTK macronizer with tagger, then plain | 47 to 58 | 5.2 to 7.2 |
+| macron table, first form, then plain (chosen) | 46 to 48 | 3.5 to 4.2 |
+
+- Why this choice. The meter score is a boost on candidate parallels, so a wrong scansion is worse than none. The guessing modes roughly double the correct lines but quadruple the wrong ones. The tagger gains a few more correct lines than the table on two works but needs the full CLTK stack, which the live site does not carry, and is twenty times slower. The table costs 0.2 seconds per 400 lines and gives fewer wrong scansions than the plain scanner.
+
+## 2026-10-13: dead code is removed, not kept in the tree
+
+`backend/composite_scorer.py` had no importer (checked across backend, scripts and evaluation by the second structural job). It is removed; git history keeps it. The rule from here: a module that nothing imports is removed in its own small change, with the commit named in the CHANGELOG, rather than left for a reader to wonder about.
+
+- Wildcard queries with several operators follow the ordinary precedence, tightest first: NOT, then proximity (~), then AND, then OR, each left to right. Proximity takes two terms, so a NOT inside a proximity operand covers the pair.
+- A stoplist built from fewer distinct words than the elbow minimum keeps at most half the vocabulary, the commonest words, and none that occurs in a single unit.
+
+## 2026-10-13: record request timings before any speed work
+
+A day of timings from the live site comes before work on speed, so the effort goes where visitors wait and not where we guess. `backend/request_timing.py` records, for each API request, the time, method, path, status, milliseconds, response size and worker process, in one file per day under the folder named by `TESSERAE_TIMING_DIR` (nothing is recorded when it is unset). It does not record the query string, the request body or the answer, so no text a visitor searched for is stored. The report script collapses ids in paths into one route and ranks routes by total time spent, which is what a visitor waits on across a day.
+
+## 2026-10-13: a lemma's document frequency is a function of the lemma alone
+
+The cache of corpus document frequencies gave a lemma a value that depended on lookup order. The first-seen u/v variant in a batch was queried and its value copied to its partner, and a headword's cached entry was either its raw count or one already raised by its own headword, depending on whether it had arrived as a lemma first. One row measured 2.815 against 3.118 for that reason. The decision is two caches, written once and never revised. Raw is the index's answer for the lemma (for Latin, the larger of the lemma and its i/j partner form, each queried alone, with u/v partners kept in separate calls because the index function sums both spellings and lets partners in one call overwrite each other). Final is the larger of the lemma's raw value and its headword's raw value, one headword step only. The meter and text-pair lookups follow the same rule.
+
+Measured on the nine recorded fusion searches replayed with identical inputs (5,123,959 rows), 10 rows changed, all one pair of lines in two searches (Aeneid 1.98 with Metamorphoses 1.552, fused score 0.7223 to 0.8893). The cause is the chain dextra to dextera to dexter. The old value for dextra was 383 when dextera had been looked up earlier and raised, and 260 otherwise. It is now always 260. Nine searches run twice in one process without clearing the caches give identical rows, the property wanted. Timing of the largest fusion call is unchanged within noise.

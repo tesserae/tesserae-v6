@@ -1,0 +1,263 @@
+{
+  "client/src/App.jsx": {
+    "no-empty": {
+      "count": 1
+    },
+    "no-unused-vars": {
+      "count": 3
+    }
+  },
+  "client/src/components/admin/AdminPanel.jsx": {
+    "no-empty": {
+      "count": 2
+    },
+    "no-unused-vars": {
+      "count": 4
+    }
+  },
+  "client/src/components/admin/tabs/AnalyticsTab.jsx": {
+    "no-unused-vars": {
+      "count": 3
+    }
+  },
+  "client/src/components/admin/tabs/PathsSection.jsx": {
+    "no-unused-vars": {
+      "count": 1
+    }
+  },
+  "client/src/components/admin/tabs/RequestsTab.jsx": {
+    "no-unused-vars": {
+      "count": 1
+    }
+  },
+  "client/src/components/admin/tabs/SettingsTab.jsx": {
+    "no-unused-vars": {
+      "count": 1
+    }
+  },
+  "client/src/components/admin/tabs/__tests__/PathsSection.test.jsx": {
+    "no-unused-vars": {
+      "count": 1
+    }
+  },
+  "client/src/components/ask/AskAWorkPage.jsx": {
+    "no-unused-vars": {
+      "count": 1
+    }
+  },
+  "client/src/components/coins/__tests__/coinsReader.test.jsx": {
+    "no-unused-vars": {
+      "count": 1
+    }
+  },
+  "client/src/components/common/ScopeBox.jsx": {
+    "no-unused-vars": {
+      "count": 2
+    }
+  },
+  "client/src/components/corpus/RareWordsExplorer.jsx": {
+    "no-unused-vars": {
+      "count": 1
+    }
+  },
+  "client/src/components/corpus/__tests__/DocumentsBrowser.test.jsx": {
+    "no-unused-vars": {
+      "count": 1
+    }
+  },
+  "client/src/components/documents/DocumentView.jsx": {
+    "no-unused-vars": {
+      "count": 1
+    }
+  },
+  "client/src/components/documents/InscriptionsPapyriPage.jsx": {
+    "no-unused-vars": {
+      "count": 2
+    }
+  },
+  "client/src/components/documents/useDocumentsSearch.js": {
+    "no-unused-vars": {
+      "count": 1
+    }
+  },
+  "client/src/components/events/EventView.jsx": {
+    "no-unused-vars": {
+      "count": 1
+    }
+  },
+  "client/src/components/layout/Header.jsx": {
+    "no-unused-vars": {
+      "count": 5
+    }
+  },
+  "client/src/components/pages/HelpPage.jsx": {
+    "no-unused-vars": {
+      "count": 3
+    }
+  },
+  "client/src/components/pages/SystemChart.jsx": {
+    "no-unused-vars": {
+      "count": 1
+    }
+  },
+  "client/src/components/passages/ConnectionsMap.jsx": {
+    "no-unused-vars": {
+      "count": 2
+    }
+  },
+  "client/src/components/reader/ResultsPanel.restrictedCredit.test.jsx": {
+    "no-unused-vars": {
+      "count": 1
+    }
+  },
+  "client/src/components/reader/ResultsPanel.translationLinks.test.jsx": {
+    "no-unused-vars": {
+      "count": 1
+    }
+  },
+  "client/src/components/reader/ScholarshipTab.jsx": {
+    "no-unused-vars": {
+      "count": 4
+    }
+  },
+  "client/src/components/repository/Repository.jsx": {
+    "no-unused-vars": {
+      "count": 2
+    }
+  },
+  "client/src/components/search/CopticSearchInput.jsx": {
+    "no-unused-vars": {
+      "count": 1
+    }
+  },
+  "client/src/components/search/CorpusSearchResults.jsx": {
+    "no-unused-vars": {
+      "count": 3
+    },
+    "no-useless-escape": {
+      "count": 1
+    }
+  },
+  "client/src/components/search/CrossLingualSearch.jsx": {
+    "no-unused-vars": {
+      "count": 1
+    }
+  },
+  "client/src/components/search/FusionFlowchart.jsx": {
+    "no-unused-vars": {
+      "count": 1
+    }
+  },
+  "client/src/components/search/LineSearch.jsx": {
+    "no-unused-vars": {
+      "count": 8
+    }
+  },
+  "client/src/components/search/RareResultsDisplay.jsx": {
+    "no-unused-vars": {
+      "count": 4
+    }
+  },
+  "client/src/components/search/SearchDescription.jsx": {
+    "no-unused-vars": {
+      "count": 1
+    }
+  },
+  "client/src/components/search/SearchResults.jsx": {
+    "no-empty": {
+      "count": 1
+    },
+    "no-unused-vars": {
+      "count": 2
+    }
+  },
+  "client/src/components/search/SearchSettings.jsx": {
+    "no-unused-vars": {
+      "count": 2
+    }
+  },
+  "client/src/components/search/TextSelector.jsx": {
+    "no-unused-vars": {
+      "count": 1
+    }
+  },
+  "client/src/components/search/WildcardSearch.jsx": {
+    "no-unused-vars": {
+      "count": 1
+    }
+  },
+  "client/src/components/search/__tests__/CrossLingualSearch.parity.test.jsx": {
+    "no-unused-vars": {
+      "count": 1
+    }
+  },
+  "client/src/components/search/__tests__/LineSearch.documentsCollection.test.jsx": {
+    "no-unused-vars": {
+      "count": 1
+    }
+  },
+  "client/src/components/search/__tests__/SearchResults.themeLift.test.jsx": {
+    "no-unused-vars": {
+      "count": 1
+    }
+  },
+  "client/src/components/visualization/NetworkGraph.jsx": {
+    "no-unused-vars": {
+      "count": 1
+    }
+  },
+  "client/src/hooks/useAdminSession.js": {
+    "no-unused-vars": {
+      "count": 1
+    }
+  },
+  "client/src/hooks/useCorpusSearchPanel.js": {
+    "no-unused-vars": {
+      "count": 1
+    }
+  },
+  "client/src/hooks/useSearch.js": {
+    "no-unused-vars": {
+      "count": 1
+    }
+  },
+  "client/src/lib/pageViews.js": {
+    "no-unused-vars": {
+      "count": 3
+    }
+  },
+  "client/src/utils/arabicScript.js": {
+    "no-misleading-character-class": {
+      "count": 1
+    },
+    "no-useless-escape": {
+      "count": 2
+    }
+  },
+  "client/src/utils/exportResults.js": {
+    "no-irregular-whitespace": {
+      "count": 1
+    },
+    "no-unused-vars": {
+      "count": 1
+    }
+  },
+  "client/src/utils/formatting.js": {
+    "no-useless-escape": {
+      "count": 2
+    }
+  },
+  "client/src/utils/highlight.js": {
+    "no-unused-vars": {
+      "count": 1
+    }
+  },
+  "client/src/utils/storage.js": {
+    "no-empty": {
+      "count": 1
+    },
+    "no-unused-vars": {
+      "count": 2
+    }
+  }
+}

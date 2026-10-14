@@ -1,5 +1,5 @@
 import { createContext, createElement, useCallback, useContext, useMemo, useSyncExternalStore } from 'react';
-import { getSnapshot, subscribe, setCollection, setProfile } from '../collections/collectionsStore';
+import { getSnapshot, subscribe, setCollection, setProfile, setView } from '../collections/collectionsStore';
 import { COLLECTION_IDS } from '../collections/collectionsConfig';
 
 const ScopeContext = createContext(null);
@@ -30,5 +30,5 @@ export default function useCollections() {
   }, [snap, scope]);
   const isOn = useCallback((id) => !!on[id], [on]);
   const anyOn = useCallback((ids) => !ids || ids.length === 0 || ids.some((id) => !!on[id]), [on]);
-  return { on, isOn, anyOn, profile: snap.profile, layout: snap.layout, setCollection, setProfile };
+  return { on, isOn, anyOn, profile: snap.profile, layout: snap.layout, view: snap.view, setCollection, setProfile, setView };
 }

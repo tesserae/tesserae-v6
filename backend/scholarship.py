@@ -69,6 +69,21 @@ def _get(url, params):
     r.raise_for_status()
     return r.json()
 
+
+def _get_retry(url, params):
+    """_get, sent once more after one second when the service answers with a
+    5xx status (Google Books answers some queries with a passing 503). Only a
+    second failure raises."""
+    try:
+        return _get(url, params)
+    except requests.RequestException as e:
+        status = getattr(getattr(e, 'response', None), 'status_code', None)
+        if not (isinstance(status, int) and status >= 500):
+            raise
+        logger.info('[SCHOLARSHIP] %s answered %s, trying once more', url.split('/')[2], status)
+        time.sleep(1)
+        return _get(url, params)
+
 # ------------------------------------------------------- naming a passage
 
 def passage_names(work, ref_start, ref_end=None):
@@ -700,6 +715,7 @@ def find(work, ref_start, ref_end=None, work2=None, ref2_start=None, ref2_end=No
     a = passage_names(work, ref_start, ref_end)
     b = passage_names(work2, ref2_start, ref2_end) if work2 and ref2_start else None
     seen = {}
+    warnings = []
     for band, q in _queries(a, b):
         for src in (_openalex, _crossref):
             try:
@@ -746,7 +762,7 @@ def find(work, ref_start, ref_end=None, work2=None, ref2_start=None, ref2_end=No
         name = scripture.citation(sc['book'], sc['chapter'], sc['verse'])[0].rsplit(' ', 1)[0].replace(' ', '_')
         links.append({'label': 'All commentaries on this verse at Sefaria',
                       'url': f"https://www.sefaria.org/{name}.{sc['chapter']}.{sc['verse']}?with=Commentary"})
-    return {'passage': a, 'passage2': b, 'results': ranked, 'fulltext': fulltext(a, quote=quote), 'index': citation_index(a), 'books': bk, 'links': links,
+    return {'passage': a, 'passage2': b, 'results': ranked, 'fulltext': fulltext(a, quote=quote), 'index': citation_index(a), 'books': bk, 'links': links, 'warnings': warnings,
             'note': ('Open metadata services only; subscription articles open through your library link or the DOI. '
                      'Band 1 cites both passages, band 2 names both works and cites the first, band 3 cites the first passage alone.')}
 
@@ -1209,7 +1225,7 @@ def books(p, limit=8):
         out = []
         for q in (f'"{p["abbrev"]} {p["lo"]}" {p["author"]}', f'"{p["title"]} {p["lo"]}"'):
             try:
-                d = _get('https://www.googleapis.com/books/v1/volumes',
+                d = _get_retry('https://www.googleapis.com/books/v1/volumes',
                          {'q': q, 'maxResults': limit, 'key': GOOGLE_BOOKS_KEY, 'printType': 'books'})
             except requests.RequestException as e:
                 # Never log the exception text itself: it carries the request URL with the key.
@@ -1324,6 +1340,37 @@ def commentary_sources():
     rows_out = _commentary_sources_uncached()
     _sources_cache.update(stamp=stamp, rows=rows_out)
     return rows_out
+
+
+def commentary_edition_fields(commentator=None, work=None, filename=None):
+    """The edition fields of a held commentary, for a row that names its
+    commentary only by commentator and work (an event's scholarship row) or by
+    file name (a document's), so the Cite control can read the edition as it
+    does for the Reader's notes. {} when no held commentary matches.
+
+    Matches the commentator (any case) and, when given, the work. A file name
+    "who__work.json" gives the work; the row is used only when exactly one
+    commentary covers that work."""
+    if filename and not work:
+        stem = os.path.basename(str(filename))
+        work = stem[:-5] if stem.endswith('.json') else stem
+        work = work.split('__', 1)[1] if '__' in work else work
+    wanted = base_work(work) if work else None
+    who = (commentator or '').strip().lower()
+    try:
+        # commentary_sources() is None when no commentary folder exists and the
+        # list was never built (a fresh checkout, CI); never raise from here.
+        held = commentary_sources() or []
+        rows = [r for r in held
+                if (not who or (r.get('commentator') or '').lower() == who)
+                and (not wanted or wanted in (r.get('works') or []))]
+    except (TypeError, AttributeError, OSError):
+        return {}
+    if not rows or (not who and len(rows) > 1):
+        return {}
+    r = rows[0]
+    return {'commentator': r.get('commentator'), 'edition': r.get('edition'),
+            'edition_title': r.get('title'), 'work': wanted or ((r.get('works') or [None])[0])}
 
 
 def _commentary_sources_uncached():

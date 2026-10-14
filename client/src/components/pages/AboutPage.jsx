@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import SourcesIntro from '../about/SourcesIntro';
+import { getJson } from '../../utils/api';
 
 export default function AboutPage({ onNavigate, initialAnchor = null, onAnchorConsumed }) {
   const [versionInfo, setVersionInfo] = useState({ version: '6.0', last_updated: null });
 
   useEffect(() => {
-    fetch('/api/version')
-      .then(res => res.json())
+    getJson('/api/version')
       .then(data => setVersionInfo(data))
       .catch(err => console.error('Failed to fetch version info:', err));
   }, []);
@@ -36,9 +36,21 @@ export default function AboutPage({ onNavigate, initialAnchor = null, onAnchorCo
         <section>
           <h3 className="text-lg font-semibold text-gray-900 mb-3">What is Tesserae?</h3>
           <p className="text-gray-700 leading-relaxed mb-3">
-            Tesserae is an intertextual analysis tool for discovering textual parallels in classical literature.
-            It helps scholars find passages where one author may have been influenced by, alluding to, or directly
-            quoting another text. Founded in 2008 by Neil Coffee (Department of Classics) and{' '}
+            Tesserae is a free, open tool for discovering connections in ancient literature. It began as a
+            search for intertexts, the places where one author echoes, adapts or quotes another, and it still
+            does that. Give it two works and it finds the passages that share words, phrases, rare vocabulary,
+            sound, syntax or meaning, in one language or across languages. Around that search it has grown into
+            a place to read. The Reader shows a text with its parallels, similar passages, later quotations,
+            commentary and translation at the side. Theme Search finds the passages about a scene or an idea
+            you describe in English, in every language of the corpus at once. Search One Text asks a single work
+            what it says about a subject and shows where it says it. Beside the literature stand inscriptions
+            and papyri, coins, museum objects and dated events, so a passage can be read next to the documents
+            and things of its world.
+          </p>
+          <p className="text-gray-700 leading-relaxed mb-3">
+            The corpus holds more than 3,500 texts in Latin, Greek, English, Hebrew, Coptic, Persian and Urdu,
+            from Homer to the Renaissance and beyond, with an English translation wherever a public-domain one
+            exists. Founded in 2008 by Neil Coffee (Department of Classics) and{' '}
             <a
               href="https://arts-sciences.buffalo.edu/linguistics/faculty/jean-pierre-koenig.html"
               target="_blank"
@@ -47,8 +59,8 @@ export default function AboutPage({ onNavigate, initialAnchor = null, onAnchorCo
             >
               J.&nbsp;P. Koenig
             </a>{' '}
-            (Department of Linguistics) at the University at Buffalo, SUNY,
-            this is Version 6, a modern reimplementation of the V3 algorithm.
+            (Department of Linguistics) at the University at Buffalo, SUNY, Tesserae is now in its sixth
+            version, rebuilt from the ground up around the scoring its earlier versions were known for.
           </p>
           <p className="text-gray-700 leading-relaxed">
             The name "Tesserae" refers to the small tiles used in Roman mosaics. Just as these tiles combine 
@@ -132,8 +144,8 @@ export default function AboutPage({ onNavigate, initialAnchor = null, onAnchorCo
               If Tesserae contributed to published research, please cite the project:
             </p>
             <p className="bg-gray-50 border border-gray-200 rounded p-3 font-mono text-xs">
-              Coffee, N., &amp; The Tesserae Project Team (2026). Tesserae V6: Intertextual
-              and Literary Discovery (Version 6.0) [Software].
+              Coffee, N., &amp; The Tesserae Project Team (2026). Tesserae V6: Literary
+              and Historical Discovery (Version 6.0) [Software].
               https://tesserae.caset.buffalo.edu
             </p>
             <p>
@@ -150,39 +162,39 @@ export default function AboutPage({ onNavigate, initialAnchor = null, onAnchorCo
           <h3 className="text-lg font-semibold text-gray-900 mb-3">Key Features</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="bg-gray-50 p-4 rounded-lg">
-              <h4 className="font-medium text-red-700 mb-2">Multi-Language Support</h4>
+              <h4 className="font-medium text-red-700 mb-2">Intertextual Search</h4>
               <p className="text-sm text-gray-600">
-                Search within Latin, Greek, English, or Coptic texts. Our corpus includes works from Homer to medieval authors.
+                Compare two works, or one work against the whole corpus. Shared words and phrases, rare words and word pairs, sound, syntax and meaning are weighed together, and every result shows what it rests on.
               </p>
             </div>
             <div className="bg-gray-50 p-4 rounded-lg">
-              <h4 className="font-medium text-red-700 mb-2">Cross-Lingual Analysis</h4>
+              <h4 className="font-medium text-red-700 mb-2">Across Languages</h4>
               <p className="text-sm text-gray-600">
-                Discover connections between Greek and Latin texts using AI-powered semantic matching (SPhilBERTa model).
+                A passage finds its counterpart in another language through dictionaries and a model of meaning, between Greek and Latin, Latin and English, Hebrew and Greek, and Coptic and Greek.
               </p>
             </div>
             <div className="bg-gray-50 p-4 rounded-lg">
-              <h4 className="font-medium text-red-700 mb-2">Rare Word Search</h4>
+              <h4 className="font-medium text-red-700 mb-2">Theme Search</h4>
               <p className="text-sm text-gray-600">
-                Find rare vocabulary shared between texts - often indicative of direct influence.
+                Describe a scene or an idea in English and get the passages about it, from every language at once, ranked by meaning and marked with how confident the match is.
               </p>
             </div>
             <div className="bg-gray-50 p-4 rounded-lg">
-              <h4 className="font-medium text-red-700 mb-2">V3-Style Scoring</h4>
+              <h4 className="font-medium text-red-700 mb-2">The Reader</h4>
               <p className="text-sm text-gray-600">
-                Our scoring algorithm uses Inverse Document Frequency (IDF) and distance penalties for precise results.
+                Read a text with a gutter that marks every line’s connections. Open its parallels, similar passages, quotations in later writers, commentary notes, articles and a translation beside it.
               </p>
             </div>
             <div className="bg-gray-50 p-4 rounded-lg">
-              <h4 className="font-medium text-red-700 mb-2">Word Pairs Detection</h4>
+              <h4 className="font-medium text-red-700 mb-2">Search One Text</h4>
               <p className="text-sm text-gray-600">
-                Identify unusual word combinations (bigrams) that may indicate textual borrowing even when individual words are common.
+                Ask one work what it says about a subject. The passages come back in order of fit, on a strip that shows where in the work they fall, with a short account of what the work says and what the commentaries say.
               </p>
             </div>
             <div className="bg-gray-50 p-4 rounded-lg">
-              <h4 className="font-medium text-red-700 mb-2">Intertext Repository</h4>
+              <h4 className="font-medium text-red-700 mb-2">History</h4>
               <p className="text-sm text-gray-600">
-                Save and share discovered parallels with the scholarly community. Track verified intertexts.
+                Inscriptions and papyri, coins, museum objects and dated events, searchable beside the literature they quote or echo, each linked to its source collection.
               </p>
             </div>
           </div>
@@ -234,10 +246,30 @@ export default function AboutPage({ onNavigate, initialAnchor = null, onAnchorCo
         </section>
 
         <section>
+          <button
+            onClick={() => onNavigate && onNavigate('research')}
+            className="w-full text-left bg-amber-50 border border-amber-200 rounded-lg p-5 hover:bg-amber-100 hover:border-amber-300 transition-colors group cursor-pointer"
+          >
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-amber-800 group-hover:text-amber-900">
+                Research
+              </h3>
+              <svg className="w-5 h-5 text-amber-600 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </div>
+            <p className="text-sm text-amber-700 mt-2">
+              The studies, evaluations and articles behind the site: how the matching is scored, how well it works, and what was measured when a method changed.
+            </p>
+          </button>
+        </section>
+
+        <section>
           <h3 className="text-lg font-semibold text-gray-900 mb-3">Technical Details</h3>
           <ul className="list-disc list-inside text-gray-700 space-y-2">
-            <li>Lemmatization via CLTK (Classical Language Toolkit) for Latin and Greek</li>
+            <li>Lemmatization via lookup tables built from Universal Dependencies treebanks, with CLTK (Classical Language Toolkit) as the fallback for Latin and Greek; Stanza for Hebrew, Persian and Urdu</li>
             <li>NLTK for English text processing</li>
+            <li>A passage index of about 700,000 windows, each with a model-written description and an embedding, behind Theme Search, Similar Passages and the Reader</li>
             <li>SPhilBERTa model for cross-lingual semantic similarity</li>
             <li>Universal Dependencies treebank support for syntax analysis</li>
             <li>Metrical scansion data integrated from MQDQ/Pede Certo</li>
@@ -390,8 +422,8 @@ export default function AboutPage({ onNavigate, initialAnchor = null, onAnchorCo
         <section>
           <h3 className="text-lg font-semibold text-gray-900 mb-3">Citation</h3>
           <div className="bg-gray-100 p-4 rounded font-mono text-sm">
-            Coffee, Neil, Walter Scheirer, et al. Tesserae V6: Intertextual and
-            Literary Discovery. University at Buffalo, 2026{currentYear > 2026 ? `–${currentYear}` : ''}.
+            Coffee, Neil, Walter Scheirer, et al. Tesserae V6: Literary and
+            Historical Discovery. University at Buffalo, 2026{currentYear > 2026 ? `–${currentYear}` : ''}.
             https://tesserae.caset.buffalo.edu
           </div>
           <p className="text-sm text-gray-600 mt-3">
@@ -399,6 +431,13 @@ export default function AboutPage({ onNavigate, initialAnchor = null, onAnchorCo
             specific tool, corpus text, or query you used. Include the version
             (currently {versionInfo.version}) and your access date, since the
             corpus and tools are updated regularly.
+          </p>
+        </section>
+
+        <section>
+          <h3 className="text-lg font-semibold text-gray-900 mb-3">What the site records</h3>
+          <p className="text-gray-700">
+            To understand how the site is used, it records which pages a browser opens during one visit, the network address and the city and country that address suggests, and the searches run. A visit is one browser tab's session, identified by a random token that is discarded when the tab closes. No account or personal detail is involved, and nothing is sent to an outside analytics service.
           </p>
         </section>
 

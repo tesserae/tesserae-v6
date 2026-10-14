@@ -1,0 +1,781 @@
+{
+ "name": "Milton Paradise Lost classical borrowings probe",
+ "created": "2026-10-13",
+ "purpose": "Probe set for English cross-language search: widely cited borrowings of Paradise Lost from Vergil, Homer and Ovid, as references only (no text). An item is found when a result row has its English line inside a Paradise Lost range and its Latin or Greek line inside a source range of the same item, with one line of slack on each side.",
+ "scholarship": "Commentary of the Longman Annotated English Poets edition of Paradise Lost, and the standard studies of Milton's use of Vergil and Homer. Every reference was checked line by line against the files in texts/en, texts/la and texts/grc on 2026-10-13.",
+ "line_numbers": "Book.line as in the refs of our files (Paradise Lost book.line; Aeneid, Iliad, Odyssey and Metamorphoses book.line).",
+ "items": [
+  {
+   "id": 1,
+   "what": "the epic proposition and the Muse",
+   "paradise_lost": {
+    "file": "milton.paradise_lost.part.1",
+    "book": 1,
+    "ranges": [
+     [
+      1,
+      6
+     ]
+    ]
+   },
+   "sources": [
+    {
+     "language": "la",
+     "file": "vergil.aeneid.part.1",
+     "label": "Vergil, Aeneid",
+     "book": 1,
+     "ranges": [
+      [
+       1,
+       7
+      ]
+     ]
+    },
+    {
+     "language": "grc",
+     "file": "homer.iliad.part.1",
+     "label": "Homer, Iliad",
+     "book": 1,
+     "ranges": [
+      [
+       1,
+       2
+      ]
+     ]
+    }
+   ],
+   "verification": "Verified: the lines in our files say what the note says."
+  },
+  {
+   "id": 2,
+   "what": "say first what cause",
+   "paradise_lost": {
+    "file": "milton.paradise_lost.part.1",
+    "book": 1,
+    "ranges": [
+     [
+      27,
+      33
+     ]
+    ]
+   },
+   "sources": [
+    {
+     "language": "la",
+     "file": "vergil.aeneid.part.1",
+     "label": "Vergil, Aeneid",
+     "book": 1,
+     "ranges": [
+      [
+       8,
+       11
+      ]
+     ]
+    }
+   ],
+   "verification": "Verified: the lines in our files say what the note says."
+  },
+  {
+   "id": 3,
+   "what": "rebels hurled headlong",
+   "paradise_lost": {
+    "file": "milton.paradise_lost.part.1",
+    "book": 1,
+    "ranges": [
+     [
+      44,
+      49
+     ]
+    ]
+   },
+   "sources": [
+    {
+     "language": "la",
+     "file": "vergil.aeneid.part.6",
+     "label": "Vergil, Aeneid",
+     "book": 6,
+     "ranges": [
+      [
+       580,
+       584
+      ]
+     ]
+    }
+   ],
+   "verification": "Verified: the lines in our files say what the note says."
+  },
+  {
+   "id": 4,
+   "what": "how chang d from him",
+   "paradise_lost": {
+    "file": "milton.paradise_lost.part.1",
+    "book": 1,
+    "ranges": [
+     [
+      84,
+      87
+     ]
+    ]
+   },
+   "sources": [
+    {
+     "language": "la",
+     "file": "vergil.aeneid.part.2",
+     "label": "Vergil, Aeneid",
+     "book": 2,
+     "ranges": [
+      [
+       274,
+       275
+      ]
+     ]
+    }
+   ],
+   "verification": "Verified: the lines in our files say what the note says."
+  },
+  {
+   "id": 5,
+   "what": "Etna burning entrails",
+   "paradise_lost": {
+    "file": "milton.paradise_lost.part.1",
+    "book": 1,
+    "ranges": [
+     [
+      230,
+      237
+     ]
+    ]
+   },
+   "sources": [
+    {
+     "language": "la",
+     "file": "vergil.aeneid.part.3",
+     "label": "Vergil, Aeneid",
+     "book": 3,
+     "ranges": [
+      [
+       571,
+       577
+      ]
+     ]
+    }
+   ],
+   "verification": "Verified: the lines in our files say what the note says."
+  },
+  {
+   "id": 6,
+   "what": "the shield like the moon",
+   "paradise_lost": {
+    "file": "milton.paradise_lost.part.1",
+    "book": 1,
+    "ranges": [
+     [
+      284,
+      291
+     ]
+    ]
+   },
+   "sources": [
+    {
+     "language": "grc",
+     "file": "homer.iliad.part.19",
+     "label": "Homer, Iliad",
+     "book": 19,
+     "ranges": [
+      [
+       373,
+       374
+      ]
+     ]
+    }
+   ],
+   "verification": "Verified: the lines in our files say what the note says."
+  },
+  {
+   "id": 7,
+   "what": "spear like a ship mast",
+   "paradise_lost": {
+    "file": "milton.paradise_lost.part.1",
+    "book": 1,
+    "ranges": [
+     [
+      292,
+      294
+     ]
+    ]
+   },
+   "sources": [
+    {
+     "language": "grc",
+     "file": "homer.odyssey.part.9",
+     "label": "Homer, Odyssey",
+     "book": 9,
+     "ranges": [
+      [
+       319,
+       324
+      ]
+     ]
+    }
+   ],
+   "verification": "Verified: the lines in our files say what the note says."
+  },
+  {
+   "id": 8,
+   "what": "autumn leaves",
+   "paradise_lost": {
+    "file": "milton.paradise_lost.part.1",
+    "book": 1,
+    "ranges": [
+     [
+      302,
+      304
+     ]
+    ]
+   },
+   "sources": [
+    {
+     "language": "la",
+     "file": "vergil.aeneid.part.6",
+     "label": "Vergil, Aeneid",
+     "book": 6,
+     "ranges": [
+      [
+       309,
+       310
+      ]
+     ]
+    },
+    {
+     "language": "grc",
+     "file": "homer.iliad.part.6",
+     "label": "Homer, Iliad",
+     "book": 6,
+     "ranges": [
+      [
+       146,
+       149
+      ]
+     ]
+    }
+   ],
+   "verification": "Verified: the lines in our files say what the note says."
+  },
+  {
+   "id": 9,
+   "what": "army marching in silence",
+   "paradise_lost": {
+    "file": "milton.paradise_lost.part.1",
+    "book": 1,
+    "ranges": [
+     [
+      549,
+      553
+     ]
+    ]
+   },
+   "sources": [
+    {
+     "language": "grc",
+     "file": "homer.iliad.part.3",
+     "label": "Homer, Iliad",
+     "book": 3,
+     "ranges": [
+      [
+       1,
+       9
+      ]
+     ]
+    }
+   ],
+   "verification": "Verified. The silence is in the Greek (3.8 sigei menea pneontes); the English has only \"Deliberate valour breath'd\" (1.554), so this item tests a loose echo."
+  },
+  {
+   "id": 10,
+   "what": "thrice he tried, and tears",
+   "paradise_lost": {
+    "file": "milton.paradise_lost.part.1",
+    "book": 1,
+    "ranges": [
+     [
+      619,
+      621
+     ]
+    ]
+   },
+   "sources": [
+    {
+     "language": "la",
+     "file": "vergil.aeneid.part.2",
+     "label": "Vergil, Aeneid",
+     "book": 2,
+     "ranges": [
+      [
+       792,
+       794
+      ]
+     ]
+    }
+   ],
+   "verification": "Fixed: the Paradise Lost range starts at 1.619 (\"Thrice he assayd\"), one line before the tears."
+  },
+  {
+   "id": 11,
+   "what": "Mulciber fall to Lemnos",
+   "paradise_lost": {
+    "file": "milton.paradise_lost.part.1",
+    "book": 1,
+    "ranges": [
+     [
+      738,
+      746
+     ]
+    ]
+   },
+   "sources": [
+    {
+     "language": "grc",
+     "file": "homer.iliad.part.1",
+     "label": "Homer, Iliad",
+     "book": 1,
+     "ranges": [
+      [
+       590,
+       594
+      ]
+     ]
+    }
+   ],
+   "verification": "Verified: the lines in our files say what the note says."
+  },
+  {
+   "id": 12,
+   "what": "the bees",
+   "paradise_lost": {
+    "file": "milton.paradise_lost.part.1",
+    "book": 1,
+    "ranges": [
+     [
+      768,
+      776
+     ]
+    ]
+   },
+   "sources": [
+    {
+     "language": "la",
+     "file": "vergil.aeneid.part.1",
+     "label": "Vergil, Aeneid",
+     "book": 1,
+     "ranges": [
+      [
+       430,
+       436
+      ]
+     ]
+    },
+    {
+     "language": "grc",
+     "file": "homer.iliad.part.2",
+     "label": "Homer, Iliad",
+     "book": 2,
+     "ranges": [
+      [
+       87,
+       90
+      ]
+     ]
+    }
+   ],
+   "verification": "Verified: the lines in our files say what the note says."
+  },
+  {
+   "id": 13,
+   "what": "Alcides and Lichas",
+   "paradise_lost": {
+    "file": "milton.paradise_lost.part.2",
+    "book": 2,
+    "ranges": [
+     [
+      542,
+      546
+     ]
+    ]
+   },
+   "sources": [
+    {
+     "language": "la",
+     "file": "ovid.metamorphoses.part.9",
+     "label": "Ovid, Metamorphoses",
+     "book": 9,
+     "ranges": [
+      [
+       211,
+       218
+      ]
+     ]
+    }
+   ],
+   "verification": "Verified: the lines in our files say what the note says."
+  },
+  {
+   "id": 14,
+   "what": "baleful comet",
+   "paradise_lost": {
+    "file": "milton.paradise_lost.part.2",
+    "book": 2,
+    "ranges": [
+     [
+      708,
+      711
+     ]
+    ]
+   },
+   "sources": [
+    {
+     "language": "grc",
+     "file": "homer.iliad.part.22",
+     "label": "Homer, Iliad",
+     "book": 22,
+     "ranges": [
+      [
+       26,
+       31
+      ]
+     ]
+    },
+    {
+     "language": "la",
+     "file": "vergil.aeneid.part.10",
+     "label": "Vergil, Aeneid",
+     "book": 10,
+     "ranges": [
+      [
+       272,
+       275
+      ]
+     ]
+    }
+   ],
+   "verification": "Verified: the lines in our files say what the note says."
+  },
+  {
+   "id": 15,
+   "what": "gates grating on hinges",
+   "paradise_lost": {
+    "file": "milton.paradise_lost.part.2",
+    "book": 2,
+    "ranges": [
+     [
+      879,
+      883
+     ]
+    ]
+   },
+   "sources": [
+    {
+     "language": "la",
+     "file": "vergil.aeneid.part.6",
+     "label": "Vergil, Aeneid",
+     "book": 6,
+     "ranges": [
+      [
+       573,
+       574
+      ]
+     ]
+    }
+   ],
+   "verification": "Verified: the lines in our files say what the note says."
+  },
+  {
+   "id": 16,
+   "what": "golden chain",
+   "paradise_lost": {
+    "file": "milton.paradise_lost.part.2",
+    "book": 2,
+    "ranges": [
+     [
+      1049,
+      1053
+     ]
+    ]
+   },
+   "sources": [
+    {
+     "language": "grc",
+     "file": "homer.iliad.part.8",
+     "label": "Homer, Iliad",
+     "book": 8,
+     "ranges": [
+      [
+       18,
+       26
+      ]
+     ]
+    }
+   ],
+   "verification": "Verified: the lines in our files say what the note says."
+  },
+  {
+   "id": 17,
+   "what": "blind Thamyris",
+   "paradise_lost": {
+    "file": "milton.paradise_lost.part.3",
+    "book": 3,
+    "ranges": [
+     [
+      35,
+      40
+     ]
+    ]
+   },
+   "sources": [
+    {
+     "language": "grc",
+     "file": "homer.iliad.part.2",
+     "label": "Homer, Iliad",
+     "book": 2,
+     "ranges": [
+      [
+       594,
+       600
+      ]
+     ]
+    }
+   ],
+   "verification": "Verified: the lines in our files say what the note says."
+  },
+  {
+   "id": 18,
+   "what": "wolf at the fold",
+   "paradise_lost": {
+    "file": "milton.paradise_lost.part.4",
+    "book": 4,
+    "ranges": [
+     [
+      183,
+      187
+     ]
+    ]
+   },
+   "sources": [
+    {
+     "language": "la",
+     "file": "vergil.aeneid.part.9",
+     "label": "Vergil, Aeneid",
+     "book": 9,
+     "ranges": [
+      [
+       59,
+       64
+      ]
+     ]
+    }
+   ],
+   "verification": "Verified: the lines in our files say what the note says."
+  },
+  {
+   "id": 19,
+   "what": "Proserpina gathering flowers",
+   "paradise_lost": {
+    "file": "milton.paradise_lost.part.4",
+    "book": 4,
+    "ranges": [
+     [
+      268,
+      272
+     ]
+    ]
+   },
+   "sources": [
+    {
+     "language": "la",
+     "file": "ovid.metamorphoses.part.5",
+     "label": "Ovid, Metamorphoses",
+     "book": 5,
+     "ranges": [
+      [
+       385,
+       395
+      ]
+     ]
+    }
+   ],
+   "verification": "Verified: the lines in our files say what the note says."
+  },
+  {
+   "id": 20,
+   "what": "golden scales",
+   "paradise_lost": {
+    "file": "milton.paradise_lost.part.4",
+    "book": 4,
+    "ranges": [
+     [
+      1010,
+      1015
+     ]
+    ]
+   },
+   "sources": [
+    {
+     "language": "grc",
+     "file": "homer.iliad.part.8",
+     "label": "Homer, Iliad",
+     "book": 8,
+     "ranges": [
+      [
+       69,
+       72
+      ]
+     ]
+    },
+    {
+     "language": "grc",
+     "file": "homer.iliad.part.22",
+     "label": "Homer, Iliad",
+     "book": 22,
+     "ranges": [
+      [
+       209,
+       213
+      ]
+     ]
+    },
+    {
+     "language": "la",
+     "file": "vergil.aeneid.part.12",
+     "label": "Vergil, Aeneid",
+     "book": 12,
+     "ranges": [
+      [
+       725,
+       727
+      ]
+     ]
+    }
+   ],
+   "verification": "Verified: the lines in our files say what the note says."
+  },
+  {
+   "id": 21,
+   "what": "Bellerophon Aleian field",
+   "paradise_lost": {
+    "file": "milton.paradise_lost.part.7",
+    "book": 7,
+    "ranges": [
+     [
+      17,
+      20
+     ]
+    ]
+   },
+   "sources": [
+    {
+     "language": "grc",
+     "file": "homer.iliad.part.6",
+     "label": "Homer, Iliad",
+     "book": 6,
+     "ranges": [
+      [
+       200,
+       202
+      ]
+     ]
+    }
+   ],
+   "verification": "Verified: the lines in our files say what the note says."
+  },
+  {
+   "id": 22,
+   "what": "no more of talk",
+   "paradise_lost": {
+    "file": "milton.paradise_lost.part.9",
+    "book": 9,
+    "ranges": [
+     [
+      1,
+      6
+     ],
+     [
+      13,
+      19
+     ]
+    ]
+   },
+   "sources": [
+    {
+     "language": "la",
+     "file": "vergil.aeneid.part.7",
+     "label": "Vergil, Aeneid",
+     "book": 7,
+     "ranges": [
+      [
+       37,
+       45
+      ]
+     ]
+    }
+   ],
+   "verification": "Verified. A second Paradise Lost range (9.13-19, \"argument not less but more Heroic\") added: it answers Aeneid 7.44-45 (maior rerum ordo, maius opus) more closely than 9.1-6."
+  },
+  {
+   "id": 23,
+   "what": "Eve as Diana",
+   "paradise_lost": {
+    "file": "milton.paradise_lost.part.9",
+    "book": 9,
+    "ranges": [
+     [
+      386,
+      392
+     ]
+    ]
+   },
+   "sources": [
+    {
+     "language": "la",
+     "file": "vergil.aeneid.part.1",
+     "label": "Vergil, Aeneid",
+     "book": 1,
+     "ranges": [
+      [
+       498,
+       502
+      ]
+     ]
+    }
+   ],
+   "verification": "Verified: the lines in our files say what the note says."
+  },
+  {
+   "id": 24,
+   "what": "orator standing collected",
+   "paradise_lost": {
+    "file": "milton.paradise_lost.part.9",
+    "book": 9,
+    "ranges": [
+     [
+      670,
+      676
+     ]
+    ]
+   },
+   "sources": [
+    {
+     "language": "grc",
+     "file": "homer.iliad.part.3",
+     "label": "Homer, Iliad",
+     "book": 3,
+     "ranges": [
+      [
+       216,
+       224
+      ]
+     ]
+    }
+   ],
+   "verification": "Verified: the lines in our files say what the note says."
+  }
+ ]
+}

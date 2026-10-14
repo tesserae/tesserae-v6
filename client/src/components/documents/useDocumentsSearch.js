@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
 import { DOC_PAGE_SIZE, DOCUMENTS_FORMULA_DEFAULT_N } from './documentsConstants';
+import { postLineSearch } from '../../utils/api';
 
 /**
  * Documents-collection search state and /api/line-search plumbing, shared
@@ -30,6 +31,7 @@ export function useDocumentsSearch({ documentsEnabled, defaultCollection = 'lite
   const [collection, setCollection] = useState(defaultCollection);
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
+  const [docKind, setDocKind] = useState('');
   const [docRegion, setDocRegion] = useState('');
   const [docTextType, setDocTextType] = useState('');
   const [docMaterial, setDocMaterial] = useState('');
@@ -67,6 +69,7 @@ export function useDocumentsSearch({ documentsEnabled, defaultCollection = 'lite
     params.collection = collection;
     if (dateFrom.trim()) params.date_from = parseInt(dateFrom, 10);
     if (dateTo.trim()) params.date_to = parseInt(dateTo, 10);
+    if (docKind) params.kind = docKind;
     if (docRegion.trim()) params.region = docRegion.trim();
     if (docTextType.trim()) params.text_type = docTextType.trim();
     if (docMaterial.trim()) params.material = docMaterial.trim();
@@ -134,12 +137,7 @@ export function useDocumentsSearch({ documentsEnabled, defaultCollection = 'lite
     if (setError) setError(null);
     try {
       const params = { ...base, offset, limit: DOC_PAGE_SIZE, sort };
-      const res = await fetch('/api/line-search', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(params)
-      });
-      const data = await res.json();
+      const data = await postLineSearch(params);
       if (data.error) {
         if (setError) setError(data.error);
       } else {
@@ -181,6 +179,7 @@ export function useDocumentsSearch({ documentsEnabled, defaultCollection = 'lite
     collection, setCollection,
     dateFrom, setDateFrom,
     dateTo, setDateTo,
+    docKind, setDocKind,
     docRegion, setDocRegion,
     docTextType, setDocTextType,
     docMaterial, setDocMaterial,

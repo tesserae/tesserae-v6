@@ -1,4 +1,8 @@
 import { useState, useEffect } from 'react';
+import {
+  fetchConcurrency, fetchActiveSearches, killActiveSearch, updateConcurrency, resetConcurrency,
+  setStressTest, killAllActiveSearches
+} from '../../../utils/api';
 import { Activity, Cpu, Clock, AlertTriangle, RotateCcw, Settings, Zap, CheckCircle, Search, Trash2 } from 'lucide-react';
 
 export default function PerformanceTab() {
@@ -21,15 +25,15 @@ export default function PerformanceTab() {
   const fetchStatus = async () => {
     try {
       const [statusRes, activeRes] = await Promise.all([
-        fetch('/api/admin/concurrency', { credentials: 'include' }),
-        fetch('/api/admin/concurrency/active', { credentials: 'include' })
+        fetchConcurrency(),
+        fetchActiveSearches()
       ]);
 
       if (statusRes.ok) {
-        setStatus(await statusRes.json());
+        setStatus(statusRes.data);
       }
       if (activeRes.ok) {
-        const activeData = await activeRes.json();
+        const activeData = activeRes.data;
         setActiveSearches(activeData.active_searches || []);
       }
     } catch (err) {
@@ -43,11 +47,8 @@ export default function PerformanceTab() {
     setKillingSlots(prev => ({ ...prev, [slotId]: true }));
     setMessage(null);
     try {
-      const res = await fetch(`/api/admin/concurrency/active/${slotId}`, {
-        method: 'DELETE',
-        credentials: 'include'
-      });
-      const data = await res.json();
+      const res = await killActiveSearch(slotId);
+      const data = res.data;
       if (res.ok) {
         setMessage({ type: 'success', text: `Search termination signal sent.` });
         fetchStatus();
@@ -87,19 +88,14 @@ export default function PerformanceTab() {
     setSaving(true);
     setMessage(null);
     try {
-      const res = await fetch('/api/admin/concurrency', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({
-          max_searches: maxSearches,
-          memory_threshold_gb: memThreshold,
-          queue_timeout: queueTimeout,
-          emergency_ram_floor_gb: emergencyFloor,
-          reaper_enabled: reaperEnabled
-        })
+      const res = await updateConcurrency({
+        max_searches: maxSearches,
+        memory_threshold_gb: memThreshold,
+        queue_timeout: queueTimeout,
+        emergency_ram_floor_gb: emergencyFloor,
+        reaper_enabled: reaperEnabled
       });
-      const data = await res.json();
+      const data = res.data;
       if (res.ok) {
         setMessage({ type: 'success', text: 'Concurrency settings updated successfully.' });
         setIsDirty(false);
@@ -122,13 +118,8 @@ export default function PerformanceTab() {
     setStressTestToggling(true);
     setMessage(null);
     try {
-      const res = await fetch('/api/admin/concurrency/stress-test', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ enabled })
-      });
-      const data = await res.json();
+      const res = await setStressTest(enabled);
+      const data = res.data;
       if (res.ok) {
         setMessage({ type: 'success', text: enabled ? 'Stress test mode enabled.' : 'Stress test mode disabled.' });
         fetchStatus();
@@ -145,13 +136,8 @@ export default function PerformanceTab() {
     setSaving(true);
     setMessage(null);
     try {
-      const res = await fetch('/api/admin/concurrency/reset', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({})
-      });
-      const data = await res.json();
+      const res = await resetConcurrency();
+      const data = res.data;
       if (res.ok) {
         setMessage({ type: 'success', text: 'Settings reset to defaults.' });
         setIsDirty(false);
@@ -177,15 +163,12 @@ export default function PerformanceTab() {
     if (!window.confirm('Are you sure you want to terminate ALL active searches?')) return;
     setKillingAll(true);
     try {
-      const res = await fetch('/api/admin/concurrency/active/all', {
-        method: 'DELETE',
-        credentials: 'include'
-      });
+      const res = await killAllActiveSearches();
       if (res.ok) {
         setMessage({ type: 'success', text: 'Termination signal sent to all active searches.' });
         fetchStatus();
       } else {
-        const data = await res.json();
+        const data = res.data;
         setMessage({ type: 'error', text: data.error || 'Failed to kill all searches' });
       }
     } catch (err) {

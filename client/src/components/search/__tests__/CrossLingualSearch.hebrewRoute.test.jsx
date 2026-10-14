@@ -16,6 +16,7 @@ vi.mock('chart.js', () => ({
 }));
 
 import CrossLingualSearch from '../CrossLingualSearch';
+import { mockResponse } from '../../../test/mockResponse';
 
 const HE_HIERARCHY = {
   authors: [{
@@ -49,18 +50,18 @@ beforeEach(() => {
   global.fetch = vi.fn((url) => {
     const u = String(url);
     if (u.includes('language=he')) {
-      return Promise.resolve({ json: () => Promise.resolve(HE_HIERARCHY) });
+      return Promise.resolve(mockResponse({ json: () => Promise.resolve(HE_HIERARCHY) }));
     }
     if (u.includes('language=grc')) {
-      return Promise.resolve({ json: () => Promise.resolve(GRC_HIERARCHY) });
+      return Promise.resolve(mockResponse({ json: () => Promise.resolve(GRC_HIERARCHY) }));
     }
     if (u.includes('/api/texts/hierarchy')) {
-      return Promise.resolve({ json: () => Promise.resolve(EMPTY_HIERARCHY) });
+      return Promise.resolve(mockResponse({ json: () => Promise.resolve(EMPTY_HIERARCHY) }));
     }
     if (u.includes('/api/search')) {
-      return Promise.resolve({ json: () => Promise.resolve(SEARCH_RESULT) });
+      return Promise.resolve(mockResponse({ json: () => Promise.resolve(SEARCH_RESULT) }));
     }
-    return Promise.resolve({ json: () => Promise.resolve({}) });
+    return Promise.resolve(mockResponse({ json: () => Promise.resolve({}) }));
   });
 });
 

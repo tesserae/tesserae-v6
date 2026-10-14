@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { LANGUAGE_NAMES } from '../../utils/languageNames';
+import { getJson } from '../../utils/api';
 
 /**
  * The corpus connections map: a picture of Theme Search's own connections
@@ -834,8 +835,7 @@ export default function ConnectionsMap() {
       if (langParam) params.set('languages', langParam);
       if (showTranslations) params.set('translations', '1');
       if (refresh) params.set('refresh', '1');
-      const res = await fetch(`/api/passages/map?${params}`);
-      const json = await res.json();
+      const json = await getJson(`/api/passages/map?${params}`);
       if (json.error) setError(json.error);
       else setMapData(json);
     } catch (e) {
@@ -853,7 +853,7 @@ export default function ConnectionsMap() {
   // languages (or all five) from the existing Browse Corpus endpoint.
   useEffect(() => {
     const codes = languages.length ? languages : LANGUAGES.map(([c]) => c);
-    Promise.all(codes.map((c) => fetch(`/api/passages/works?language=${c}`).then((r) => r.json())))
+    Promise.all(codes.map((c) => getJson(`/api/passages/works?language=${c}`)))
       .then((results) => {
         const all = results.flatMap((r) => r.works || []);
         setWorkOptions(Array.from(new Set(all)));
@@ -881,8 +881,7 @@ export default function ConnectionsMap() {
       if (langParam) params.set('languages', langParam);
       if (showTranslations) params.set('translations', '1');
       if (refresh) params.set('refresh', '1');
-      const res = await fetch(`/api/passages/map/work?${params}`);
-      const json = await res.json();
+      const json = await getJson(`/api/passages/map/work?${params}`);
       if (json.error) setError(json.error);
       else setWorkRow(json);
     } catch (e) {
@@ -980,8 +979,7 @@ export default function ConnectionsMap() {
     setLoadingBooks(true);
     try {
       const params = new URLSearchParams({ work_a: workA, work_b: workB });
-      const res = await fetch(`/api/passages/map/books?${params}`);
-      const json = await res.json();
+      const json = await getJson(`/api/passages/map/books?${params}`);
       setBooksData(json);
       // A pair of single-book works (Plato's Epistles against Plutarch's
       // Aratus) has no books grid to show; go straight to the passages
@@ -1001,8 +999,7 @@ export default function ConnectionsMap() {
       const params = new URLSearchParams({ view: viewArg, a, b });
       if (langParam) params.set('languages', langParam);
       if (showTranslations) params.set('translations', '1');
-      const res = await fetch(`/api/passages/map/cell?${params}`);
-      const json = await res.json();
+      const json = await getJson(`/api/passages/map/cell?${params}`);
       setCellData(json);
     } catch (e2) {
       setError(e2.message || 'that cell could not be loaded');
@@ -1069,8 +1066,7 @@ export default function ConnectionsMap() {
       const params = new URLSearchParams({ work_a, work_b });
       if (book_a) params.set('book_a', book_a);
       if (book_b) params.set('book_b', book_b);
-      const res = await fetch(`/api/passages/map/pair?${params}`);
-      const json = await res.json();
+      const json = await getJson(`/api/passages/map/pair?${params}`);
       setPairData(json);
     } catch (e) {
       setError(e.message || 'that work pair could not be loaded');
@@ -1111,7 +1107,7 @@ export default function ConnectionsMap() {
     };
     window.addEventListener('popstate', onPop);
     return () => window.removeEventListener('popstate', onPop);
-  }, [loadCell, loadBooks]);   // eslint-disable-line react-hooks/exhaustive-deps
+  }, [loadCell, loadBooks]);
 
   // Author and work in full for the pair-list breadcrumb too
   // (2026-09-19), read off the first loaded pair's own windows (which already

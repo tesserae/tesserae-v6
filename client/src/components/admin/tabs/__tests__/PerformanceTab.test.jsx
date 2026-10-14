@@ -51,16 +51,16 @@ const makeFetch = (status, putResponse = null) => vi.fn((url, opts = {}) => {
   if (opts.method === 'PUT' && url === '/api/admin/concurrency') {
     return Promise.resolve({
       ok: true,
-      json: () => Promise.resolve(putResponse ?? status),
+      text: () => Promise.resolve(JSON.stringify(putResponse ?? status)),
     });
   }
   if (url === '/api/admin/concurrency') {
-    return Promise.resolve({ ok: true, json: () => Promise.resolve(status) });
+    return Promise.resolve({ ok: true, text: () => Promise.resolve(JSON.stringify(status)) });
   }
   if (url.includes('/api/admin/concurrency/active')) {
-    return Promise.resolve({ ok: true, json: () => Promise.resolve({ active_searches: [] }) });
+    return Promise.resolve({ ok: true, text: () => Promise.resolve(JSON.stringify({ active_searches: [] })) });
   }
-  return Promise.resolve({ ok: false, json: () => Promise.resolve({ error: 'unexpected url' }) });
+  return Promise.resolve({ ok: false, text: () => Promise.resolve(JSON.stringify({ error: 'unexpected url' })) });
 });
 
 // Only fake setInterval/clearInterval so the poll cycle is controllable while
@@ -125,12 +125,12 @@ describe('PerformanceTab — auto-sync sliders (issue #148)', () => {
     let serverStatus = makeStatus({ max_searches: 2, queue_timeout: 300 });
     global.fetch = vi.fn((url, opts = {}) => {
       if (opts.method === 'PUT') {
-        return Promise.resolve({ ok: true, json: () => Promise.resolve(serverStatus) });
+        return Promise.resolve({ ok: true, text: () => Promise.resolve(JSON.stringify(serverStatus)) });
       }
       if (url === '/api/admin/concurrency') {
-        return Promise.resolve({ ok: true, json: () => Promise.resolve(serverStatus) });
+        return Promise.resolve({ ok: true, text: () => Promise.resolve(JSON.stringify(serverStatus)) });
       }
-      return Promise.resolve({ ok: true, json: () => Promise.resolve({ active_searches: [] }) });
+      return Promise.resolve({ ok: true, text: () => Promise.resolve(JSON.stringify({ active_searches: [] })) });
     });
 
     render(<PerformanceTab />);
@@ -151,12 +151,12 @@ describe('PerformanceTab — auto-sync sliders (issue #148)', () => {
     let serverStatus = makeStatus({ queue_timeout: 300 });
     global.fetch = vi.fn((url, opts = {}) => {
       if (opts.method === 'PUT') {
-        return Promise.resolve({ ok: true, json: () => Promise.resolve(serverStatus) });
+        return Promise.resolve({ ok: true, text: () => Promise.resolve(JSON.stringify(serverStatus)) });
       }
       if (url === '/api/admin/concurrency') {
-        return Promise.resolve({ ok: true, json: () => Promise.resolve(serverStatus) });
+        return Promise.resolve({ ok: true, text: () => Promise.resolve(JSON.stringify(serverStatus)) });
       }
-      return Promise.resolve({ ok: true, json: () => Promise.resolve({ active_searches: [] }) });
+      return Promise.resolve({ ok: true, text: () => Promise.resolve(JSON.stringify({ active_searches: [] })) });
     });
 
     render(<PerformanceTab />);
@@ -182,12 +182,12 @@ describe('PerformanceTab — auto-sync sliders (issue #148)', () => {
     global.fetch = vi.fn((url, opts = {}) => {
       if (opts.method === 'PUT') {
         serverStatus = makeStatus({ queue_timeout: 120 });
-        return Promise.resolve({ ok: true, json: () => Promise.resolve(serverStatus) });
+        return Promise.resolve({ ok: true, text: () => Promise.resolve(JSON.stringify(serverStatus)) });
       }
       if (url === '/api/admin/concurrency') {
-        return Promise.resolve({ ok: true, json: () => Promise.resolve(serverStatus) });
+        return Promise.resolve({ ok: true, text: () => Promise.resolve(JSON.stringify(serverStatus)) });
       }
-      return Promise.resolve({ ok: true, json: () => Promise.resolve({ active_searches: [] }) });
+      return Promise.resolve({ ok: true, text: () => Promise.resolve(JSON.stringify({ active_searches: [] })) });
     });
 
     render(<PerformanceTab />);

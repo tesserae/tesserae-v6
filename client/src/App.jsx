@@ -1,18 +1,33 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { captureUrlOverrides } from './collections/collectionsStore';
+import { captureUrlOverrides, setProfile, getView } from './collections/collectionsStore';
+import { viewById } from './collections/collectionsConfig';
+import useCollections from './hooks/useCollections';
 import { languageName } from './utils/languageNames';
 import { Header, Navigation } from './components/layout';
 import { SearchModeToggle, TextSelector, SearchSettings, SearchResults, LineSearch, CrossLingualSearch, WildcardSearch, SavedSearches, CorpusSearchResults, RarePairsSettings } from './components/search';
 import RareResultsDisplay from './components/search/RareResultsDisplay';
-import SearchDescription from './components/search/SearchDescription';
+import StartHere from './components/search/StartHere';
+import { addressHasQuery, FRONT_DOOR_OPEN_EVENT } from './components/search/frontDoor';
+import ScopeBox from './components/common/ScopeBox';
 import { Modal, LoadingSpinner, UpdateBanner, RequestDialog } from './components/common';
 import { CorpusBrowser, RareWordsExplorer } from './components/corpus';
 import { ReaderPage } from './components/reader';
 import DocumentView from './components/documents/DocumentView';
 import InscriptionsPapyriPage from './components/documents/InscriptionsPapyriPage';
+import EventsPage from './components/events/EventsPage';
+import CoinsPage from './components/coins/CoinsPage';
+import ObjectsPage from './components/objects/ObjectsPage';
 import ThemeSearchPage from './components/passages/ThemeSearchPage';
+import AskAWorkPage from './components/ask/AskAWorkPage';
 import { Repository } from './components/repository';
 import { AdminPanel } from './components/admin';
+import RegisterParallelModal, { useRegisterParallel } from './components/register/RegisterParallelModal';
+import { useRoute, pageForPath } from './hooks/useRoute';
+import { defaultSearchSettings } from './utils/searchDefaults';
+import { parseSearchParams, buildShareableUrl } from './utils/searchUrl';
+import { useCorpusSearchPanel } from './hooks/useCorpusSearchPanel';
+import { useDefaultTexts } from './hooks/useDefaultTexts';
+import { useAdminSession } from './hooks/useAdminSession';
 import { AboutPage, HelpPage, DownloadsPage, PrivacyPage, ResearchPage, BlogArchivePage, RequestsPage } from './components/pages';
 import TextCredits from './components/about/TextCredits';
 import { AssistantDock } from './components/assistant';
@@ -20,108 +35,18 @@ import VisualizationsPage from './components/pages/VisualizationsPage';
 import { useCorpus, useSearch, DEFAULT_PAGE_SIZE } from './hooks';
 import { getSessionValue, setSessionValue } from './utils/storage';
 import { startLanguage } from './utils/languagePreference';
-
-// What each page is called in the browser tab, the bookmark and the history.
-const PAGE_TITLES = {
-  search: 'Search',
-  read: 'Reader',
-  document: 'Document',
-  'theme-search': 'Theme Search',
-  'inscriptions-papyri': 'Inscriptions & Papyri',
-  browse: 'Browse Corpus',
-  repository: 'Repository',
-  'line-search': 'Line Search',
-  'string-search': 'String Search',
-  visualizations: 'Visualize',
-  downloads: 'Downloads',
-  about: 'About',
-  help: 'Help & Support',
-  privacy: 'Privacy',
-  research: 'Research',
-  'blog-archive': 'Blog Archive',
-  requests: 'Requests',
-  admin: 'Admin',
-};
-
-const pathToPageType = {
-  '/': 'search',
-  '/read': 'read',
-  '/document': 'document',
-  '/theme-search': 'theme-search',
-  '/inscriptions-papyri': 'inscriptions-papyri',
-  '/browse': 'browse',
-  // Alias: Help and Theme Search link to "/corpus" for the covered-works
-  // list (the owner's word for the page), and it lands on Browse Corpus.
-  // The address then canonicalizes to /browse (see the pageType->path
-  // effect below); the query string carries the filter regardless of path.
-  '/corpus': 'browse',
-  '/repository': 'repository',
-  '/line-search': 'line-search',
-  '/string-search': 'string-search',
-  '/visualize': 'visualizations',
-  '/downloads': 'downloads',
-  '/about': 'about',
-  '/help': 'help',
-  '/privacy': 'privacy',
-  '/research': 'research',
-  '/blog-archive': 'blog-archive',
-  '/text-credits': 'text-credits',
-  '/requests': 'requests',
-  '/admin': 'admin'
-};
-
-const pageTypeToPath = {
-  'search': '/',
-  'read': '/read',
-  'document': '/document',
-  'theme-search': '/theme-search',
-  'inscriptions-papyri': '/inscriptions-papyri',
-  'browse': '/browse',
-  'repository': '/repository',
-  'line-search': '/line-search',
-  'string-search': '/string-search',
-  'visualizations': '/visualize',
-  'downloads': '/downloads',
-  'about': '/about',
-  'help': '/help',
-  'privacy': '/privacy',
-  'research': '/research',
-  'text-credits': '/text-credits',
-  'requests': '/requests',
-  'admin': '/admin'
-};
-
-const parseSearchParams = () => {
-  const params = new URLSearchParams(window.location.search);
-  return {
-    source: params.get('source') || '',
-    target: params.get('target') || '',
-    source_author: params.get('source_author') || '',
-    target_author: params.get('target_author') || '',
-    lang: params.get('lang') || params.get('language') || '',
-    tab: params.get('tab') || '',
-    match_type: params.get('match_type') || '',
-    min_matches: params.get('min_matches') ? parseInt(params.get('min_matches')) : null
-  };
-};
-
-const buildShareableUrl = (sourceText, targetText, sourceAuthor, targetAuthor, language, settings) => {
-  const params = new URLSearchParams();
-  if (sourceText) params.set('source', sourceText);
-  if (targetText) params.set('target', targetText);
-  if (sourceAuthor) params.set('source_author', sourceAuthor);
-  if (targetAuthor) params.set('target_author', targetAuthor);
-  if (language) params.set('lang', language);
-  if (settings.match_type) params.set('match_type', settings.match_type);
-  if (settings.min_matches) params.set('min_matches', settings.min_matches);
-  return `${window.location.origin}/?${params.toString()}`;
-};
+import { recordPageView } from './lib/pageViews';
+import { fetchLanguages, getJson } from './utils/api';
 
 function App() {
   const [user, setUser] = useState(null);
-  const [footerSuggestOpen, setFooterSuggestOpen] = useState(false);
+  // The header's Suggest a change button sends this event; the dialog it
+  // opens lives here. The setter it called was lost with the footer on
+  // 2026-10-12, so the button did nothing for an afternoon; the linter's
+  // no-undef found it.
+  const [suggestOpen, setSuggestOpen] = useState(false);
   useEffect(() => {
-    const open = () => setFooterSuggestOpen(true);
+    const open = () => setSuggestOpen(true);
     window.addEventListener('tesserae:open-suggest', open);
     return () => window.removeEventListener('tesserae:open-suggest', open);
   }, []);
@@ -136,12 +61,9 @@ function App() {
   useEffect(() => {
     captureUrlOverrides();
   }, []);
-  const [adminSessionActive, setAdminSessionActive] = useState(false);
-  const [adminSessionChecked, setAdminSessionChecked] = useState(false);
-  const [pageType, setPageType] = useState(() => {
-    const path = window.location.pathname;
-    return pathToPageType[path] || 'search';
-  });
+  const { adminSessionActive, adminSessionChecked } = useAdminSession();
+  const { pageType, setPageType, setPageTypeWithGuard, goViewHome } = useRoute({ adminSessionChecked, adminSessionActive });
+  const { view } = useCollections();
   // When set, HelpPage opens to this section (used by the "use your own AI" flag).
   const [helpSection, setHelpSection] = useState(null);
   // When set alongside helpSection, HelpPage scrolls to this id within it (a
@@ -173,7 +95,7 @@ function App() {
   // "Loading corpus".
   const [servedLanguages, setServedLanguages] = useState(null);
   useEffect(() => {
-    fetch('/api/languages').then(r => r.json()).then(data => {
+    fetchLanguages().then(data => {
       const codes = (data.languages || []).map(l => l.code);
       if (codes.length) setServedLanguages(codes);
     }).catch(() => {});
@@ -204,34 +126,7 @@ function App() {
   const [targetAuthor, setTargetAuthor] = useState(() => getSessionValue('targetAuthor', ''));
   const [targetText, setTargetText] = useState(() => getSessionValue('targetText', ''));
   
-  const [settings, setSettings] = useState({
-    match_type: 'fusion',
-    min_matches: 2,
-    stoplist_basis: 'source_target',
-    stoplist_size: 0,
-    custom_stopwords: '',
-    source_unit_type: 'line',
-    target_unit_type: 'line',
-    max_distance: 999,
-    max_results: 0,
-    bigram_boost: false,
-    stoplist: false,
-    use_meter: true,
-    exclude_proper_nouns: false,
-    freq_basis: 'corpus',
-    // Advanced: user-overridden fusion channel weights. Contains only the
-    // channels the user has explicitly changed; empty => use tuned defaults.
-    channel_weights: {},
-    // Advanced: fusion channels the user has turned OFF via the on/off
-    // switches. Empty => every channel runs (default). Only sent to the
-    // backend when non-empty (see request-building below).
-    disabled_channels: [],
-    // Formula filter: null/false => no filtering (default). Set together by
-    // SearchSettings' "Formulas" control (hide rows recurring in more than
-    // formula_max works, or show only those at/above it).
-    formula_max: null,
-    formula_only: false
-  });
+  const [settings, setSettings] = useState(defaultSearchSettings);
   const [showAdvancedSettings, setShowAdvancedSettings] = useState(false);
   
   // Page size is shared by every result renderer so the choice survives a new
@@ -244,18 +139,16 @@ function App() {
   const [searchRunId, setSearchRunId] = useState(0);
   const [sortBy, setSortBy] = useState('score');
   
-  const [showRegisterModal, setShowRegisterModal] = useState(false);
-  const [registerPending, setRegisterPending] = useState(null);
-  const [registerScore, setRegisterScore] = useState(0);
-  const [registerNotes, setRegisterNotes] = useState('');
-  const [registerVisibility, setRegisterVisibility] = useState('private');
+  const register = useRegisterParallel({ user, activeTab, setPageType });
+  const { handleRegister } = register;
   
-  const [corpusSearchResults, setCorpusSearchResults] = useState(null);
-  const [corpusSearchLoading, setCorpusSearchLoading] = useState(false);
-  const [corpusSearchQuery, setCorpusSearchQuery] = useState(null);
-  const [corpusSearchError, setCorpusSearchError] = useState(null);
-  const [corpusSearchElapsed, setCorpusSearchElapsed] = useState(0);
-  const [showCorpusSearch, setShowCorpusSearch] = useState(false);
+  const {
+    corpusSearchResults, setCorpusSearchResults, corpusSearchLoading, corpusSearchQuery, setCorpusSearchQuery,
+    corpusSearchError, corpusSearchElapsed, setCorpusSearchElapsed, showCorpusSearch, setShowCorpusSearch,
+    handleCorpusSearch,
+  } = useCorpusSearchPanel({ activeTab });
+  
+  
   
   const { corpus, authors, hierarchy, loading: corpusLoading, error: corpusError, retry: retryCorpus, getTextsForAuthor } = useCorpus(activeTab);
   const {
@@ -287,8 +180,7 @@ function App() {
   ), [results, sortBy]);
 
   useEffect(() => {
-    fetch('/api/auth/user')
-      .then(res => res.json())
+    getJson('/api/auth/user')
       .then(data => {
         if (data.user) {
           const firstName = data.user.first_name || '';
@@ -298,39 +190,6 @@ function App() {
         setUser(data.user);
       })
       .catch(() => {});
-  }, []);
-
-  useEffect(() => {
-    let mounted = true;
-
-    const checkAdminSession = async () => {
-      try {
-        const res = await fetch('/api/admin/me', { credentials: 'include' });
-        if (mounted) {
-          setAdminSessionActive(res.ok);
-          setAdminSessionChecked(true);
-        }
-      } catch (_err) {
-        if (mounted) {
-          setAdminSessionActive(false);
-          setAdminSessionChecked(true);
-        }
-      }
-    };
-
-    const handleAdminAuthChanged = () => {
-      checkAdminSession();
-    };
-
-    checkAdminSession();
-    window.addEventListener('focus', handleAdminAuthChanged);
-    window.addEventListener('admin-auth-changed', handleAdminAuthChanged);
-
-    return () => {
-      mounted = false;
-      window.removeEventListener('focus', handleAdminAuthChanged);
-      window.removeEventListener('admin-auth-changed', handleAdminAuthChanged);
-    };
   }, []);
 
   useEffect(() => {
@@ -353,70 +212,49 @@ function App() {
     }
   }, []);
 
-  // The first run of this effect is the page load: an alias address such as
-  // /corpus?theme=1 is rewritten to its page's own path and MUST keep its
-  // parameters (the deep link into Browse Corpus depends on it). Every later
-  // run is a tab change, and a tab change starts the new page clean: the
-  // query string used to be carried along, so after one Theme Search its
-  // "?query=..." followed the visitor to Search, Read and back, and Theme
-  // Search re-ran the old query every time its tab was opened
-  // (2026-09-20). Returning to Theme Search kept autofilling the previous
-  // query.
-  const pathSyncedOnce = useRef(false);
+
+  // First-party page views: one record per page opened, so paths through the
+  // site can be followed (admin Analytics tab). Never blocks and never throws.
   useEffect(() => {
-    const newPath = pageTypeToPath[pageType] || '/';
-    const firstRun = !pathSyncedOnce.current;
-    pathSyncedOnce.current = true;
-    if (window.location.pathname !== newPath) {
-      window.history.pushState({}, '', firstRun ? newPath + window.location.search : newPath);
-    }
+    if (pageType === 'admin') return;
+    recordPageView({
+      path: window.location.pathname + window.location.search,
+      page: pageType,
+      language: activeTab,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pageType]);
 
-  // Every page used to be called "Tesserae V6", so six open tabs, a list of
-  // bookmarks and the browser history were all indistinguishable, and a saved
-  // Reader page gave no clue what was in it (2026-09-08). The Reader sets its
-  // own title from the work it is showing; this covers the rest.
-  useEffect(() => {
-    document.title = pageType === 'read'
-      ? document.title
-      : `${PAGE_TITLES[pageType] || 'Search'} — Tesserae`;
-  }, [pageType]);
 
+  // The "Start here" panel on the Search page (first-time visitors, and the
+  // header's "Start here" link). The address is read once, at load: a visitor
+  // who arrived with a search in it already knows where they are going.
+  const [frontDoorSuppressed] = useState(() => addressHasQuery());
+  const [frontDoorForced, setFrontDoorForced] = useState(false);
   useEffect(() => {
-    if (adminSessionChecked && adminSessionActive && pageType !== 'admin') {
-      setPageType('admin');
-    }
-  }, [adminSessionChecked, adminSessionActive, pageType]);
-
-  useEffect(() => {
-    const handlePopState = () => {
-      const path = window.location.pathname;
-      if (adminSessionChecked && adminSessionActive) {
-        setPageType('admin');
-      } else {
-        setPageType(pathToPageType[path] || 'search');
-      }
+    const open = () => {
+      setFrontDoorForced(true);
+      if (pageType !== 'search') setPageTypeWithGuard('search');
     };
-    window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
-  }, [adminSessionChecked, adminSessionActive]);
-
-  const setPageTypeWithGuard = useCallback((nextPageType) => {
-    if (adminSessionChecked && adminSessionActive && nextPageType !== 'admin') {
-      setPageType('admin');
+    window.addEventListener(FRONT_DOOR_OPEN_EVENT, open);
+    return () => window.removeEventListener(FRONT_DOOR_OPEN_EVENT, open);
+  }, [pageType, setPageTypeWithGuard]);
+  // One of the seven answers: move inside the app, with no page reload.
+  const goFrontDoor = useCallback((choice) => {
+    setFrontDoorForced(false);
+    const url = new URL(choice.href, window.location.origin);
+    if (url.pathname === '/') {
+      const tab = url.searchParams.get('tab');
+      if (activeTab === 'cross') {
+        setActiveTab(startLanguage(['la', 'grc', 'en', 'cop', 'he', 'fa', 'ur', 'ar']) || 'la');
+      }
+      if (tab) setSearchMode(tab);
       return;
     }
-    // The Read tab clicked while the Reader is open used to do nothing (the
-    // page type did not change, so no effect ran). It now takes the Reader
-    // back to its starting page: a clean address and the language's opening
-    // text (2026-09-20).
-    if (nextPageType === 'read' && pageType === 'read') {
-      window.history.pushState({}, '', '/read');
-      window.dispatchEvent(new Event('tesserae:reader-home'));
-      return;
-    }
-    setPageType(nextPageType);
-  }, [adminSessionChecked, adminSessionActive, pageType]);
+    const profile = url.searchParams.get('profile');
+    if (profile) setProfile(profile);
+    setPageTypeWithGuard(pageForPath(url.pathname));
+  }, [activeTab, setPageTypeWithGuard]);
 
   // Open the Help page at the "Use with your AI" section.
   const openAiHelp = useCallback(() => {
@@ -475,109 +313,14 @@ function App() {
     window.dispatchEvent(new Event('admin-auth-changed'));
     setPageType('search');
     window.history.pushState({}, '', '/');
-  }, []);
+  }, [setPageType]);
 
-  // Track previous activeTab and corpus loading state to detect when to apply defaults
-  const prevActiveTabRef = useRef(null);
-  const corpusLoadedForTabRef = useRef(null);
-  
-  useEffect(() => {
-    const tabChanged = prevActiveTabRef.current !== null && prevActiveTabRef.current !== activeTab;
-    prevActiveTabRef.current = activeTab;
-    
-    // Clear results AND text selections when tab changes
-    if (tabChanged) {
-      clearResults();
-      setCorpusSearchResults(null);
-      setCorpusSearchQuery(null);
-      setCorpusSearchElapsed(0);
-      setShowCorpusSearch(false);
-      // Clear text selections so defaults can be applied for new language
-      setSourceAuthor('');
-      setSourceText('');
-      setTargetAuthor('');
-      setTargetText('');
-      // Reset corpus tracking so defaults will be applied when new corpus loads
-      corpusLoadedForTabRef.current = null;
-      // Exit early - let the next render cycle apply defaults with new corpus data
-      return;
-    }
-    
-    // Corpus is ready when not loading, has data, AND belongs to the active
-    // tab. Right after a tab change the previous language's list is still in
-    // hand for a render or two; treating it as ready set the new tab's
-    // defaults from the wrong corpus (Urdu opened with Persian ids and so
-    // with empty fields, 2026-09-06).
-    const corpusReady = !corpusLoading && corpus.length > 0
-      && (!corpus[0]?.language || corpus[0].language === activeTab);
-    const corpusJustLoaded = corpusReady && corpusLoadedForTabRef.current !== activeTab;
-    
-    if (corpusJustLoaded) {
-      corpusLoadedForTabRef.current = activeTab;
-    }
-    
-    // Preserve transferred selections from Browse if they exist in this corpus.
-    const sourceExists = Boolean(sourceText) && corpus.some(t => t.id === sourceText);
-    const targetExists = Boolean(targetText) && corpus.some(t => t.id === targetText);
-    const hasValidSelection = sourceExists && targetExists;
 
-    // Set defaults only when we do not already have valid selections.
-    // Defaults apply when the corpus has just loaded, when nothing is chosen,
-    // or when a remembered id is STALE (not in this corpus: an earlier session's
-    // pair, or a text since retired). The stale case is new (2026-09-19): a
-    // stale remembered English pair left the page with no texts at all. A
-    // pair mid-edit, with one side chosen and valid and the other still empty,
-    // is none of these and is left alone.
-    const sourceStale = Boolean(sourceText) && !sourceExists;
-    const targetStale = Boolean(targetText) && !targetExists;
-    const nothingChosen = !sourceAuthor && !sourceText && !targetAuthor && !targetText;
-    const shouldSetDefaults = corpusReady && !hasValidSelection
-      && (corpusJustLoaded || nothingChosen || sourceStale || targetStale);
-    
-    if (shouldSetDefaults) {
-      let defaultSourceId, defaultTargetId;
-      if (activeTab === 'grc') {
-        defaultSourceId = 'homer.iliad.part.1.tess';
-        defaultTargetId = 'apollonius_rhodius.argonautica.part.1.tess';
-      } else if (activeTab === 'en') {
-        defaultSourceId = 'milton.paradise_lost.part.1.tess';
-        defaultTargetId = 'keats.hyperion.tess';
-      } else if (activeTab === 'cop') {
-        defaultSourceId = 'sahidic.bible.tess';
-        defaultTargetId = 'shenoute.abraham.tess';
-      } else if (activeTab === 'he') {
-        defaultSourceId = 'hebrew_bible.ruth.tess';
-        defaultTargetId = 'hebrew_bible.1_samuel.tess';
-      } else if (activeTab === 'fa') {
-        // Cached showcase pairs (2026-09-06). Without these the fallback
-        // below picked the first two Persian texts alphabetically, Anvari
-        // against Attar's 196,000 lines, five billion line pairs.
-        defaultSourceId = 'hafez.diwan.tess';
-        defaultTargetId = 'iqbal.zabur_e_ajam.tess';
-      } else if (activeTab === 'ur') {
-        defaultSourceId = 'ghalib.diwan_wikisource.tess';
-        defaultTargetId = 'iqbal.bang_e_dra.tess';
-      } else if (activeTab === 'ar') {
-        defaultSourceId = 'quran.al_waqia.tess';
-        defaultTargetId = 'busiri.burda.tess';
-      } else {
-        defaultSourceId = 'vergil.aeneid.part.1.tess';
-        defaultTargetId = 'lucan.bellum_civile.part.1.tess';
-      }
-      
-      const defaultSource = corpus.find(t => t.id === defaultSourceId) || corpus[0];
-      const defaultTarget = corpus.find(t => t.id === defaultTargetId) || corpus[1] || corpus[0];
-      
-      if (defaultSource) {
-        setSourceAuthor(defaultSource.author_key || defaultSource.author?.toLowerCase().replace(/\s+/g, '_') || '');
-        setSourceText(defaultSource.id);
-      }
-      if (defaultTarget) {
-        setTargetAuthor(defaultTarget.author_key || defaultTarget.author?.toLowerCase().replace(/\s+/g, '_') || '');
-        setTargetText(defaultTarget.id);
-      }
-    }
-  }, [activeTab, corpus, corpusLoading, sourceText, targetText, clearResults]);
+  useDefaultTexts({
+    activeTab, corpus, corpusLoading, sourceAuthor, sourceText, targetAuthor, targetText, view, clearResults,
+    setSourceAuthor, setSourceText, setTargetAuthor, setTargetText,
+    setCorpusSearchResults, setCorpusSearchQuery, setCorpusSearchElapsed, setShowCorpusSearch,
+  });
 
   useEffect(() => {
     clearResults();
@@ -585,7 +328,8 @@ function App() {
     setCorpusSearchQuery(null);
     setCorpusSearchElapsed(0);
     setShowCorpusSearch(false);
-  }, [searchMode, clearResults]);
+  }, [searchMode, clearResults,
+    setCorpusSearchResults, setCorpusSearchQuery, setCorpusSearchElapsed, setShowCorpusSearch]);
 
   useEffect(() => {
     setSessionValue('sourceAuthor', sourceAuthor);
@@ -606,8 +350,7 @@ function App() {
   // Auto-enable meter when both texts are poetry, auto-disable when not
   useEffect(() => {
     if (!sourceText || !targetText) return;
-    fetch(`/api/check-meter?source=${encodeURIComponent(sourceText)}&target=${encodeURIComponent(targetText)}&language=${activeTab}`)
-      .then(res => res.json())
+    getJson(`/api/check-meter?source=${encodeURIComponent(sourceText)}&target=${encodeURIComponent(targetText)}&language=${activeTab}`)
       .then(data => {
         setSettings(prev => ({ ...prev, use_meter: data.available }));
       })
@@ -708,185 +451,8 @@ function App() {
     }
   }, [sourceText, targetText, activeTab, settings, searchMode, search, pageSize]);
 
-  const handleRegister = useCallback((result) => {
-    if (!user) {
-      window.dispatchEvent(new CustomEvent('open-public-auth-modal', {
-        detail: {
-          mode: 'login',
-          message: 'Sign in',
-        }
-      }));
-      return;
-    }
-    setRegisterPending(result);
-    setRegisterScore(0);
-    setRegisterVisibility('private');
-    setShowRegisterModal(true);
-  }, [user]);
 
-  const handleCorpusSearch = useCallback(async (result) => {
-    let lemmas;
-    let queryInfo;
-    // A cross-language card passes its own language explicitly (the source
-    // and target sides of a cross-language pair are two different
-    // languages, so there is no single activeTab to fall back to there);
-    // every other caller still searches the one language on screen.
-    const searchLanguage = (result && typeof result === 'object' && result.language) || activeTab;
 
-    if (typeof result === 'string') {
-      lemmas = result.split(/\s*\+\s*|\s+/).filter(Boolean);
-      queryInfo = {
-        source: { ref: 'Rare Word/Pair Search', text: result },
-        target: { ref: '', text: '' },
-        lemmas,
-        language: searchLanguage
-      };
-    } else {
-      // Prefer the clean matched_lemmas list (real content words, markup and
-      // function words removed). Fall back to parsing matched_words for older
-      // results that predate the field.
-      lemmas = (Array.isArray(result.matched_lemmas) && result.matched_lemmas.length)
-        ? result.matched_lemmas.slice()
-        : (result.matched_words || []).map(w =>
-            typeof w === 'object' ? (w.lemma || w.word || '') : w
-          ).filter(Boolean);
-      queryInfo = {
-        // citation: the server's own "<Author>, <Work title> <locus>" string
-        // (issue #566), carried through so the Source/Target header below
-        // can show it instead of re-parsing ref client-side.
-        source: { ref: result.source_locus || result.source?.ref, text: result.source_text || result.source?.text,
-                  citation: result.source?.citation },
-        target: { ref: result.target_locus || result.target?.ref, text: result.target_text || result.target?.text,
-                  citation: result.target?.citation },
-        lemmas,
-        language: searchLanguage
-      };
-    }
-
-    if (lemmas.length < 1) {
-      alert('At least 1 word is required for corpus search');
-      return;
-    }
-
-    setCorpusSearchQuery(queryInfo);
-    setCorpusSearchResults(null);
-    setCorpusSearchError(null);
-    setCorpusSearchLoading(true);
-    setShowCorpusSearch(true);
-    setCorpusSearchElapsed(0);
-
-    const startTime = Date.now();
-    const timerInterval = setInterval(() => {
-      setCorpusSearchElapsed(Math.floor((Date.now() - startTime) / 1000));
-    }, 1000);
-
-    try {
-      const res = await fetch('/api/corpus-search', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          lemmas,
-          language: searchLanguage,
-          // The two texts being compared used to be left out, so the corpus
-          // map and its timeline never showed the very authors in question
-          // (2026-09-07: Mir and Iqbal were missing). They are included and
-          // the chart marks them.
-          exclude_texts: []
-        })
-      });
-      const data = await res.json();
-      clearInterval(timerInterval);
-      if (data.error) {
-        setCorpusSearchError(data.error);
-      } else {
-        setCorpusSearchResults(data.results || []);
-      }
-    } catch (err) {
-      clearInterval(timerInterval);
-      setCorpusSearchError('Corpus search failed. Please try again.');
-    }
-    setCorpusSearchLoading(false);
-  }, [activeTab, sourceText, targetText]);
-
-  const handleSubmitRegister = useCallback(async () => {
-    if (!registerPending) return;
-    if (!Number.isInteger(registerScore) || registerScore < 1 || registerScore > 5) {
-      alert('Please select a star rating before saving.');
-      return;
-    }
-    try {
-      const sourceLocus = registerPending.source_locus || registerPending.source?.ref || '';
-      const sourceText = registerPending.source_text || registerPending.source_snippet || registerPending.source?.text || '';
-      const targetLocus = registerPending.target_locus || registerPending.target?.ref || '';
-      const targetText = registerPending.target_text || registerPending.target_snippet || registerPending.target?.text || '';
-      const sourceTextId = registerPending.source_text_id || registerPending.source?.text_id || sourceText?.split(' ')[0] || 'unknown';
-      const targetTextId = registerPending.target_text_id || registerPending.target?.text_id || targetText?.split(' ')[0] || 'unknown';
-      // A cross-language card carries its own two languages (they differ by
-      // definition); every other card shares the one language on screen.
-      // source_language/target_language are independent columns already
-      // (backend/models.py Intertext and SavedIntertext), so this needs no
-      // schema change.
-      const sourceLanguage = registerPending.source_language || registerPending.source?.language || activeTab;
-      const targetLanguage = registerPending.target_language || registerPending.target?.language || activeTab;
-
-      const matchedLemmas = (registerPending.matched_words || []).map(w => {
-        if (typeof w !== 'object') return w;
-        return w.lemma || w.word || w.source_lemma || w.target_lemma || w.display || '';
-      }).filter(Boolean);
-      // The channels a cross-language card found the parallel through (e.g.
-      // "semantic (85%), dictionary (3 words)"), carried into the existing
-      // free-text tags field so a registered cross-language parallel keeps
-      // that evidence on record (spec: owner's review, 2026-10-08).
-      const channelTags = (registerPending.channels || '')
-        .split(',').map(s => s.trim()).filter(Boolean);
-
-      const res = await fetch('/api/intertexts/my', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          source: {
-            text_id: sourceTextId,
-            author: registerPending.source_author || registerPending.source?.author || '',
-            work: registerPending.source_work || registerPending.source?.work || '',
-            reference: sourceLocus,
-            snippet: sourceText,
-            language: sourceLanguage
-          },
-          target: {
-            text_id: targetTextId,
-            author: registerPending.target_author || registerPending.target?.author || '',
-            work: registerPending.target_work || registerPending.target?.work || '',
-            reference: targetLocus,
-            snippet: targetText,
-            language: targetLanguage
-          },
-          matched_lemmas: matchedLemmas,
-          tags: channelTags,
-          tesserae_score: registerPending.score || registerPending.overall_score || 0,
-          intertext_score: registerScore,
-          notes: registerNotes.trim().slice(0, 500),
-          share_to_public: registerVisibility === 'public',
-        })
-      });
-      
-      if (!res.ok) {
-        const err = await res.json();
-        alert('Failed to register: ' + (err.error || 'Unknown error'));
-        return;
-      }
-      
-      setShowRegisterModal(false);
-      setRegisterPending(null);
-      setRegisterScore(0);
-      setRegisterNotes('');
-      setRegisterVisibility('private');
-      setPageType('repository');
-      window.history.pushState({}, '', '/repository');
-    } catch (err) {
-      console.error('Failed to register intertext:', err);
-      alert('Failed to register intertext: ' + err.message);
-    }
-  }, [registerPending, activeTab, registerScore, registerNotes, registerVisibility]);
 
 
   return (
@@ -916,6 +482,7 @@ function App() {
         setPageType={setPageTypeWithGuard}
         activeTab={activeTab}
         setActiveTab={setActiveTab}
+        onViewChange={goViewHome}
         lockedToAdmin={appLockedToAdmin}
         onAdminLogout={handleAdminSessionLogout}
         onLanguageReset={() => {
@@ -929,11 +496,22 @@ function App() {
         }}
       />
       
-      <main className="max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-6">
+      <main className={`max-w-7xl mx-auto ${pageType === 'read' ? 'px-2' : 'px-3'} sm:px-6 py-4 sm:py-6`}>
         {appLockedToAdmin ? (
           <AdminPanel />
         ) : (
           <>
+        {/* The Start here panel opens on the Intertextual Search page and on
+            whichever page is the current view's home (Search One Text in
+            Literature since 2026-10-12), so a first visit still sees it. */}
+        {(pageType === 'search' || pageType === viewById(getView()).home.page) && (
+          <StartHere
+            onChoose={goFrontDoor}
+            onDismiss={() => setFrontDoorForced(false)}
+            forceOpen={frontDoorForced}
+            suppressed={frontDoorSuppressed}
+          />
+        )}
         {pageType === 'search' && activeTab !== 'cross' && (
           <div className="space-y-6">
             <div className="bg-white rounded-lg shadow p-4 sm:p-6">
@@ -986,7 +564,7 @@ function App() {
 
               <div className="mb-6">
                 <SearchModeToggle searchMode={searchMode} setSearchMode={setSearchMode} />
-                <SearchDescription mode={searchMode} className="mt-2 px-1" />
+                <ScopeBox id={searchMode} className="mt-2" />
               </div>
 
               {searchMode === 'line' ? (
@@ -1166,6 +744,7 @@ function App() {
         )}
 
         {pageType === 'theme-search' && <ThemeSearchPage />}
+        {pageType === 'ask-a-work' && <AskAWorkPage />}
 
         {pageType === 'read' && (
           <ReaderPage />
@@ -1177,6 +756,18 @@ function App() {
 
         {pageType === 'inscriptions-papyri' && (
           <InscriptionsPapyriPage setPageType={setPageTypeWithGuard} />
+        )}
+
+        {pageType === 'events' && (
+          <EventsPage setPageType={setPageTypeWithGuard} />
+        )}
+
+        {pageType === 'coins' && (
+          <CoinsPage setPageType={setPageTypeWithGuard} />
+        )}
+
+        {pageType === 'objects' && (
+          <ObjectsPage setPageType={setPageTypeWithGuard} />
         )}
 
         {pageType === 'browse' && (
@@ -1211,14 +802,14 @@ function App() {
 
         {pageType === 'line-search' && (
           <div className="bg-white rounded-lg shadow p-4 sm:p-6">
-            <SearchDescription mode="line" className="mb-4" />
+            <ScopeBox id="line" className="mb-4" />
             <LineSearch key={activeTab} language={activeTab} />
           </div>
         )}
 
         {pageType === 'string-search' && (
           <div className="bg-white rounded-lg shadow p-4 sm:p-6">
-            <SearchDescription mode="string" className="mb-4" />
+            <ScopeBox id="string" className="mb-4" />
             <WildcardSearch language={activeTab} />
           </div>
         )}
@@ -1275,126 +866,7 @@ function App() {
         )}
       </main>
 
-      <Modal
-        isOpen={showRegisterModal}
-        onClose={() => {
-          setShowRegisterModal(false);
-          setRegisterPending(null);
-          setRegisterScore(0);
-          setRegisterNotes('');
-          setRegisterVisibility('private');
-        }}
-        title="Save Parallel"
-      >
-        {registerPending && (() => {
-          const sourceLocus = registerPending.source_locus || registerPending.source?.ref || '';
-          const sourceText = registerPending.source_text || registerPending.source_snippet || registerPending.source?.text || '';
-          const targetLocus = registerPending.target_locus || registerPending.target?.ref || '';
-          const targetText = registerPending.target_text || registerPending.target_snippet || registerPending.target?.text || '';
-          return (
-          <div className="space-y-4">
-            <p className="text-gray-600">
-              Save this parallel to your repository, with the option to keep it private or make it public.
-            </p>
-            <div className="bg-gray-50 p-4 rounded">
-              <div className="text-sm text-gray-500 mb-1">Source</div>
-              <div className="font-medium text-red-700">{sourceLocus}</div>
-              <div className="text-sm text-gray-700 mt-1">{sourceText?.substring(0, 100)}{sourceText?.length > 100 ? '...' : ''}</div>
-              <div className="text-sm text-gray-500 mt-3 mb-1">Target</div>
-              <div className="font-medium text-amber-600">{targetLocus}</div>
-              <div className="text-sm text-gray-700 mt-1">{targetText?.substring(0, 100)}{targetText?.length > 100 ? '...' : ''}</div>
-            </div>
-            <div className="mt-4">
-              <div className="text-sm text-gray-600 mb-2">Visibility:</div>
-              <div className="inline-flex rounded-lg border border-gray-200 bg-gray-50 p-1">
-                <button
-                  type="button"
-                  onClick={() => setRegisterVisibility('private')}
-                  className={`px-3 py-1.5 text-sm rounded ${
-                    registerVisibility === 'private'
-                      ? 'bg-white text-gray-900 shadow-sm'
-                      : 'text-gray-600 hover:text-gray-800'
-                  }`}
-                >
-                  Private
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setRegisterVisibility('public')}
-                  className={`px-3 py-1.5 text-sm rounded ${
-                    registerVisibility === 'public'
-                      ? 'bg-white text-red-700 shadow-sm'
-                      : 'text-gray-600 hover:text-gray-800'
-                  }`}
-                >
-                  Make Public
-                </button>
-              </div>
-              <p className="text-xs text-gray-500 mt-2">
-                {registerVisibility === 'public'
-                  ? 'This parallel will appear in the public repository and stay in your personal repository.'
-                  : 'This parallel will only appear in your personal repository.'}
-              </p>
-            </div>
-            <div className="mt-4">
-              <div className="text-sm text-gray-600 mb-2">Rate this parallel:</div>
-              <div className="flex gap-1">
-                {[1,2,3,4,5].map(star => (
-                  <button
-                    key={star}
-                    type="button"
-                    onClick={() => setRegisterScore(star)}
-                    className={`text-2xl ${star <= registerScore ? 'text-yellow-500' : 'text-gray-300'} hover:text-yellow-400 transition-colors`}
-                  >
-                    ★
-                  </button>
-                ))}
-                <span className="ml-2 text-sm text-gray-500 self-center">
-                  {registerScore > 0 ? `${registerScore}/5` : 'Required'}
-                </span>
-              </div>
-            </div>
-            <div className="mt-4">
-              <label className="text-sm text-gray-600 mb-2 block">
-                Notes (optional, max 500 characters):
-              </label>
-              <textarea
-                value={registerNotes}
-                onChange={(e) => setRegisterNotes(e.target.value.slice(0, 500))}
-                placeholder="Add scholarly commentary, interpretation, or notes about this parallel..."
-                className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent resize-none"
-                rows={3}
-                maxLength={500}
-              />
-              <div className="text-xs text-gray-500 text-right mt-1">
-                {registerNotes.length}/500
-              </div>
-            </div>
-            <div className="flex gap-3 justify-end">
-              <button
-                onClick={() => {
-                  setShowRegisterModal(false);
-                  setRegisterPending(null);
-                  setRegisterScore(0);
-                  setRegisterNotes('');
-                  setRegisterVisibility('private');
-                }}
-                className="px-4 py-2 bg-gray-100 text-gray-700 border border-gray-300 rounded hover:bg-gray-200"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleSubmitRegister}
-                disabled={registerScore < 1}
-                className="px-4 py-2 bg-red-700 text-white rounded hover:bg-red-800 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Save Parallel
-              </button>
-            </div>
-          </div>
-          );
-        })()}
-      </Modal>
+      <RegisterParallelModal register={register} />
 
       {/* Tessa is mounted ONCE, after the footer. A second copy sat here
           from 2026-08 until 2026-09-21: two docks fetched their own session
@@ -1404,36 +876,14 @@ function App() {
       <footer className="bg-gray-100 border-t mt-8 py-4">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 text-center text-sm text-gray-500">
           <p>Tesserae V6</p>
-          {/* Requests workflow (2026-10-08): the one site-wide entry point to
-              the suggestion dialog, plus a link to the public Requests page
-              it feeds. Deliberately not in the main navigation. */}
-          <p className="mt-1 text-xs">
-            <button
-              type="button"
-              onClick={() => setFooterSuggestOpen(true)}
-              className="text-gray-500 hover:text-red-700 hover:underline"
-            >
-              Suggest a change
-            </button>
-            {' · '}
-            <button
-              type="button"
-              onClick={() => setPageTypeWithGuard('requests')}
-              className="text-gray-500 hover:text-red-700 hover:underline"
-            >
-              Requests
-            </button>
-          </p>
+          {/* The requests workflow (2026-10-08) is reached from the header's
+              "Suggest a change" button; the list of requests made so far is
+              linked from inside that dialog (owner, 2026-10-12: no separate
+              link on the page). */}
         </div>
       </footer>
 
-      <RequestDialog
-        isOpen={footerSuggestOpen}
-        onClose={() => setFooterSuggestOpen(false)}
-        type="suggestion"
-        context={{ page_url: typeof window !== 'undefined' ? window.location.href : '' }}
-      />
-
+      <RequestDialog isOpen={suggestOpen} onClose={() => setSuggestOpen(false)} type="suggestion" />
       <AssistantDock />
     </div>
   );

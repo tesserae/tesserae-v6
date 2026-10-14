@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { fetchAdminAnalyticsJson, fetchAdminPaths } from '../../../utils/api';
 import { 
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, 
   PieChart, Pie, Cell, LineChart, Line, Legend, AreaChart, Area
@@ -8,6 +9,7 @@ import {
   MapPin, Filter, Database, FileText
 } from 'lucide-react';
 import GeographicMap from './GeographicMap';
+import PathsSection from './PathsSection';
 import { formatTesseraeIdentifier } from '../../../utils/textNames';
 import { LANGUAGE_NAMES } from '../../../utils/languageNames';
 
@@ -16,21 +18,131 @@ const TESSERAE_GOLD = '#d97706';
 const TESSERAE_GRAY = '#4b5563';
 const COLORS = [TESSERAE_RED, '#dc2626', '#ef4444', '#f87171', TESSERAE_GOLD, '#fbbf24'];
 
-const AnalyticsTab = () => {
+const VisitorsSection = ({ usage }) => {
+  if (!usage) return null;
+  const shell = 'bg-white p-6 rounded-xl border border-gray-100 shadow-sm';
+  const th = 'py-3 text-sm font-bold text-gray-500 uppercase tracking-wider';
+  return (
+    <div className={shell}>
+      <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
+        <Users className="w-5 h-5 text-[#b91c1c]" />
+        Visitors (from the web server log)
+      </h3>
+      {usage.available === false ? (
+        <p className="text-sm text-gray-600">
+          The visitor summary has not been built yet. Run scripts/usage/build_usage_stats.py on the server to build it.
+        </p>
+      ) : (
+        <VisitorsBody usage={usage} th={th} />
+      )}
+    </div>
+  );
+};
+
+const VisitorsBody = ({ usage, th }) => {
+  const months = usage.months || [];
+  const recent = months.slice(-6);
+  const featureNames = months.length ? Object.keys(months[months.length - 1].features || {}) : [];
+  const connector = usage.connector_addresses_by_month || {};
+  return (
+    <div className="space-y-8">
+      <p className="text-sm text-gray-600">
+        Summary built {usage.built_at}. Months covered: {usage.log_first_month} to {usage.log_last_month}.
+      </p>
+      <div className="overflow-x-auto">
+        <table className="w-full text-left">
+          <thead>
+            <tr className="border-b border-gray-50">
+              <th className={th}>Month</th>
+              <th className={`${th} text-right`}>App loads</th>
+              <th className={`${th} text-right`}>Addresses that made a request</th>
+              <th className={`${th} text-right`}>Requests</th>
+            </tr>
+          </thead>
+          <tbody>
+            {months.map(m => (
+              <tr key={m.month} className="border-b border-gray-50 last:border-0 hover:bg-gray-50 transition-colors">
+                <td className="py-3 text-sm text-gray-700 font-medium">{m.month}</td>
+                <td className="py-3 text-sm text-gray-900 font-bold text-right">{m.app_loads}</td>
+                <td className="py-3 text-sm text-gray-900 font-bold text-right">{m.api_users}</td>
+                <td className="py-3 text-sm text-gray-900 font-bold text-right">{m.requests}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <div className="overflow-x-auto">
+        <h4 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-3">Feature use, addresses per month</h4>
+        <table className="w-full text-left">
+          <thead>
+            <tr className="border-b border-gray-50">
+              <th className={th}>Feature</th>
+              {recent.map(m => <th key={m.month} className={`${th} text-right`}>{m.month}</th>)}
+            </tr>
+          </thead>
+          <tbody>
+            {featureNames.map(name => (
+              <tr key={name} className="border-b border-gray-50 last:border-0 hover:bg-gray-50 transition-colors">
+                <td className="py-3 text-sm text-gray-700 font-medium">{name}</td>
+                {recent.map(m => (
+                  <td key={m.month} className="py-3 text-sm text-gray-900 font-bold text-right">{(m.features || {})[name] ?? 0}</td>
+                ))}
+              </tr>
+            ))}
+            {Object.keys(connector).length > 0 && (
+              <tr className="border-b border-gray-50 last:border-0">
+                <td className="py-3 text-sm text-gray-700 font-medium">Connector (servers of AI vendors, not people)</td>
+                {recent.map(m => (
+                  <td key={m.month} className="py-3 text-sm text-gray-900 font-bold text-right">{connector[m.month]?.addresses ?? 0}</td>
+                ))}
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+      {(usage.referrers || []).length > 0 && (
+        <div>
+          <h4 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-3">Referring sites</h4>
+          <div className="space-y-2">
+            {usage.referrers.map(r => (
+              <div key={r.host} className="flex items-center justify-between border-b border-gray-50 pb-2 last:border-0">
+                <span className="text-sm text-gray-600">{r.host}</span>
+                <span className="text-sm font-bold text-gray-900 bg-gray-50 px-2 py-0.5 rounded-full">{r.count}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+      <ul className="space-y-1">
+        {(usage.notes || []).map((n, i) => <li key={i} className="text-xs text-gray-400">{n}</li>)}
+      </ul>
+    </div>
+  );
+};
+
+const AnalyticsTab = ({ usage = null }) => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [paths, setPaths] = useState(null);
+  const [loadError, setLoadError] = useState('');
   const [graphMetric, setGraphMetric] = useState('searches'); // 'searches', 'users', 'cache'
 
   useEffect(() => {
     const fetchAnalytics = async () => {
       try {
-        const response = await fetch('/api/admin/analytics', {
-          headers: { 'Accept': 'application/json' }
-        });
-        const result = await response.json();
-        setData(result);
+        const response = await fetchAdminAnalyticsJson();
+        if (!response.ok) throw new Error(response.data.error || `Analytics request failed (${response.status})`);
+        setData(response.data);
+        setLoadError('');
+        try {
+          const pr = await fetchAdminPaths(30);
+          setPaths(pr.ok ? pr.data : null);
+        } catch (e) {
+          setPaths(null);
+        }
       } catch (error) {
         console.error('Failed to fetch analytics:', error);
+        setLoadError(error.message || 'Failed to load analytics');
       } finally {
         setLoading(false);
       }
@@ -141,6 +253,17 @@ const AnalyticsTab = () => {
     </div>
   );
 
+  // Nothing has loaded yet and the last request failed: say why, and let the
+  // 30-second refresh try again, instead of drawing a page with no numbers.
+  if (!data) return (
+    <div className="space-y-4 max-w-7xl mx-auto pb-12">
+      <h2 className="text-2xl font-bold text-gray-900">Search Analytics</h2>
+      <p role="alert" className="text-sm text-red-700 bg-red-50 border border-red-200 rounded p-3">
+        Could not load the analytics: {loadError || 'no answer from the server'}
+      </p>
+    </div>
+  );
+
   const byLanguage = data?.by_language || [];
 
   return (
@@ -163,7 +286,7 @@ const AnalyticsTab = () => {
       {/* High Level Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label: 'Total Searches', value: data.total_searches, icon: Search, color: '#b91c1c' },
+          { label: 'Total Searches', value: data?.total_searches, icon: Search, color: '#b91c1c' },
           { label: 'Distinct Queries', value: data.distinct_searches, icon: Database, color: '#d97706' },
           { label: 'Registered Users', value: data.unique_users, icon: Users, color: '#4b5563' },
           { label: 'Searches Today', value: data.searches_today, icon: Activity, color: '#b91c1c' }
@@ -405,6 +528,9 @@ const AnalyticsTab = () => {
           </div>
         </div>
       </div>
+
+      <VisitorsSection usage={usage} />
+      <PathsSection paths={paths} />
     </div>
   );
 };

@@ -3,9 +3,10 @@ import { usePagination } from '../../hooks/usePagination';
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { LoadingSpinner, SearchableAuthorSelect, SearchableSelect, InfoBadge, CiteButton, Button } from '../common';
 import SavedSearches from './SavedSearches';
+import ScopeBox from '../common/ScopeBox';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
-import { createSearchId, requestSearchCancellation } from '../../utils/api';
+import { createSearchId, requestSearchCancellation, fetchLanguages, fetchTextHierarchy } from '../../utils/api';
 import { dirFor } from '../../utils/rtl';
 import { exportRowsToPDF } from '../../utils/exportResults';
 import { ResultsInsight } from '../assistant';
@@ -144,6 +145,8 @@ export default function CrossLingualSearch({ onOpenHelp, onRegister, onCorpusSea
   // languages, so the Persian and Urdu menus were empty everywhere
   // (2026-09-06). Falls back to the full list if the request fails.
   const [pairs, setPairs] = useState(LANG_PAIRS);
+  // Pairs the server holds back, each with the reason it gives (shown under the pair buttons).
+  const [heldPairs, setHeldPairs] = useState([]);
   const [sourceAuthor, setSourceAuthor] = useState('');
   const [sourceWork, setSourceWork] = useState('');
   const [sourceSection, setSourceSection] = useState('');
@@ -381,10 +384,10 @@ export default function CrossLingualSearch({ onOpenHelp, onRegister, onCorpusSea
       // Urdu crashed the page).
       let served = LANG_PAIRS;
       try {
-        const lr = await fetch('/api/languages');
-        const ld = await lr.json();
+        const ld = await fetchLanguages();
         const keys = new Set((ld.crosslingual_pairs || []).map(p => p.key || `${p.source}-${p.target}`));
         if (keys.size) served = LANG_PAIRS.filter(p => keys.has(p.key));
+        setHeldPairs(Array.isArray(ld.crosslingual_held) ? ld.crosslingual_held : []);
       } catch (e) { /* keep the full list if the request fails */ }
       if (served.length) {
         setPairs(served);
@@ -392,8 +395,8 @@ export default function CrossLingualSearch({ onOpenHelp, onRegister, onCorpusSea
       }
       const langs = [...new Set(served.flatMap(p => [p.source, p.target]))];
       const lists = await Promise.all(langs.map(lang =>
-        fetch(`/api/texts/hierarchy?language=${lang}`)
-          .then(r => r.json()).then(d => d.authors || []).catch(() => [])));
+        fetchTextHierarchy(lang)
+          .then(d => d.authors || []).catch(() => [])));
       const h = Object.fromEntries(langs.map((lang, i) => [lang, lists[i]]));
 
       // Restore a shared link (lang=cross&pair=...&source=...&target=...
@@ -684,6 +687,14 @@ export default function CrossLingualSearch({ onOpenHelp, onRegister, onCorpusSea
           ))}
         </div>
       </div>
+      {heldPairs.length > 0 && (
+        <p className="text-xs text-gray-600 mb-3" data-testid="cross-held-note">
+          {heldPairs.map(h => (LANG_PAIRS.find(p => p.key === h.key)?.label || h.key)).join(' and ')}
+          {heldPairs.length > 1 ? ' are' : ' is'} offline for now. {heldPairs[0].reason}
+        </p>
+      )}
+
+      <ScopeBox id="cross" />
 
       {/* Saved Searches and Share: parity with the single-language page's
           header row (App.jsx). Saved Searches keeps its own list, under its

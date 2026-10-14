@@ -24,6 +24,8 @@ data/text_descriptions.json.
 """
 import json
 import os
+
+from backend import fspaths
 from pathlib import Path
 
 from backend.work_names import base_work
@@ -111,7 +113,7 @@ def filenames(language, texts_root='texts'):
         return []
     lang_dir = os.path.join(texts_root, language)
     try:
-        entries = os.listdir(lang_dir)
+        entries = fspaths.listdir_text(lang_dir)
     except OSError:
         return []
     return sorted(f for f in entries if f.endswith('.tess') and is_restricted(f))

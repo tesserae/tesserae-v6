@@ -43,7 +43,7 @@ export const listBody = (rows, extra = {}) => ({
 });
 
 export const respond = (body, status = 200) =>
-  Promise.resolve({ ok: status < 400, status, json: () => Promise.resolve(body) });
+  Promise.resolve({ ok: status < 400, status, text: () => Promise.resolve(JSON.stringify(body)) });
 
 /**
  * Routes fetch by URL: the list endpoint answers with list(params), a detail URL

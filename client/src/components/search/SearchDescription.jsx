@@ -1,22 +1,15 @@
 import React from 'react';
+import { SEARCH_SCOPE } from '../../data/searchScope';
 
-// One-line, plain-language explanation of what each search mode does, shown
-// under the mode toggle (and on the standalone Line/String pages). The same
+// One-line, plain-language explanation of what each search mode does. The
+// sentences now live in data/searchScope.js, where the scope box reads them
+// too, so the two always agree. The same
 // description applies to every language. Cross-Language has no entry here:
 // the owner asked for no description line above that page (owner's review,
 // 2026-10-08).
-export const SEARCH_DESCRIPTIONS = {
-  parallel:
-    'You set only the texts to compare; the search finds the most similar phrases between them, based on a variety of similarity types.',
-  line:
-    'Enter a line to find other lines like it. Choose an existing line to search or write your own.',
-  string:
-    'Enter specific terms, optionally with wildcards (am*), phrases, or AND/OR operators.',
-  bigram:
-    'Finds rare two-word combinations that two chosen texts share. It can catch unusual pairings of otherwise ordinary words.',
-  hapax:
-    'Finds rare individual words that two chosen texts share.',
-};
+export const SEARCH_DESCRIPTIONS = Object.fromEntries(
+  ['parallel', 'line', 'string', 'bigram', 'hapax'].map((id) => [id, SEARCH_SCOPE[id].does]),
+);
 
 export default function SearchDescription({ mode, className = '' }) {
   const text = SEARCH_DESCRIPTIONS[mode];

@@ -278,10 +278,10 @@ def test_translate_accepts_a_held_note(monkeypatch, tmp_path):
          'notes': [{'ref': 'verg. aen. 1.1', 'lemma': 'ARMA', 'text': 'multi varie disserunt'}]},
     ])
 
-    class R:
-        def raise_for_status(self): pass
-        def json(self): return {'choices': [{'message': {'content': 'many explain this variously'}}]}
-    monkeypatch.setattr(SB.requests, 'post', lambda *a, **k: R())
+    # The route goes through the assistant's model client (2026-10-12).
+    from backend.assistant import model
+    monkeypatch.delenv('TESSERAE_LOCAL_LLM', raising=False)
+    monkeypatch.setattr(model, 'complete', lambda *a, **k: 'many explain this variously')
     c = app.test_client()
     path = next(str(rule) for rule in app.url_map.iter_rules() if rule.endpoint == 'scholarship.translate')
     r = c.post(path, json={'work': 'vergil.aeneid', 'ref': 'verg. aen. 1.1',
@@ -670,3 +670,21 @@ def test_core_keyless_pacing_holds(monkeypatch, tmp_path):
     S._core_get({'q': 'b'})
     assert len(calls) == 2 and all('Authorization' not in c for c in calls)
     assert sleeps and 0 < sleeps[0] <= S._CORE_MIN_INTERVAL
+
+
+def test_find_reports_the_keyless_core_warning(monkeypatch):
+    """find() appends to a warnings list when CORE answered keyless; the list
+    was never defined (NameError, found by the linter on 2026-10-12)."""
+    monkeypatch.setattr(S, 'passage_names', lambda work, rs, re_=None: {
+        'work': 'vergil.aeneid', 'author': 'Vergil', 'title': 'Aeneid', 'abbrev': 'Aen.',
+        'locus': '1.1', 'lo': '1.1', 'hi': '1.1'})
+    monkeypatch.setattr(S, '_openalex', lambda q: [{'title': 'A note on Aeneid 1.1', 'abstract': 'Vergil, Aeneid 1.1 is cited.',
+                                                     'doi': '10.1/x', 'source': 'openalex', 'core_keyless': True}])
+    monkeypatch.setattr(S, '_crossref', lambda q: [])
+    monkeypatch.setattr(S, '_unpaywall', lambda doi: {})
+    monkeypatch.setattr(S, 'books', lambda a: {'available': False, 'results': []})
+    monkeypatch.setattr(S, 'hathitrust_search_url', lambda a: '')
+    monkeypatch.setattr(S, 'fulltext', lambda a, quote=None: {'available': False, 'results': []})
+    monkeypatch.setattr(S, 'citation_index', lambda a: {'total': 0, 'results': []})
+    out = S.find('vergil.aeneid', '1.1')
+    assert any('CORE' in w for w in out['warnings'])

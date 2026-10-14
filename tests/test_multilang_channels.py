@@ -120,8 +120,11 @@ class TestSemanticModelSelection:
                                                  LATIN_GREEK_MODEL, HEBREW_MODEL)
         for lang in ('fa', 'ur', 'ar'):
             assert model_name_for(lang) == E5_MODEL
-        for lang in ('la', 'grc', 'en', 'cop'):
+        for lang in ('la', 'grc', 'cop'):
             assert model_name_for(lang) == LATIN_GREEK_MODEL
+        # English search in its own language uses the MiniLM set; the cross-language
+        # search uses SPhilBERTa (cross_model_name_for).
+        assert model_name_for('en') == 'all-MiniLM-L6-v2'
         assert model_name_for('he') == HEBREW_MODEL
 
 

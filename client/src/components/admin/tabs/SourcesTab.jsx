@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { LoadingSpinner } from '../../common';
+import { fetchAdminSources, updateAdminSource, deleteAdminSource, addAdminSource } from '../../../utils/api';
 
 export default function SourcesTab({ authHeaders }) {
   const [sourcesData, setSourcesData] = useState([]);
@@ -14,8 +15,8 @@ export default function SourcesTab({ authHeaders }) {
   const loadSources = async () => {
     setSourcesLoading(true);
     try {
-      const res = await fetch('/api/admin/sources', { headers: authHeaders });
-      const data = await res.json();
+      const res = await fetchAdminSources(authHeaders);
+      const data = res.data;
       setSourcesData(data.sources || []);
     } catch (e) {
       console.error('Failed to load sources:', e);
@@ -27,17 +28,13 @@ export default function SourcesTab({ authHeaders }) {
     setSourcesSaving(true);
     setSourcesMessage(null);
     try {
-      const res = await fetch(`/api/admin/sources/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', ...authHeaders },
-        body: JSON.stringify(updates)
-      });
+      const res = await updateAdminSource(authHeaders, id, updates);
       if (res.ok) {
         setSourcesMessage({ type: 'success', text: 'Source updated successfully' });
         setEditingSource(null);
         loadSources();
       } else {
-        const err = await res.json();
+        const err = res.data;
         setSourcesMessage({ type: 'error', text: err.error || 'Failed to update' });
       }
     } catch (e) {
@@ -49,10 +46,7 @@ export default function SourcesTab({ authHeaders }) {
   const deleteSource = async (id, author, work) => {
     if (!window.confirm(`Delete source entry for "${author} - ${work}"?`)) return;
     try {
-      const res = await fetch(`/api/admin/sources/${id}`, {
-        method: 'DELETE',
-        headers: authHeaders
-      });
+      const res = await deleteAdminSource(authHeaders, id);
       if (res.ok) {
         setSourcesMessage({ type: 'success', text: 'Source deleted' });
         loadSources();
@@ -67,18 +61,14 @@ export default function SourcesTab({ authHeaders }) {
     setSourcesSaving(true);
     setSourcesMessage(null);
     try {
-      const res = await fetch('/api/admin/sources', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...authHeaders },
-        body: JSON.stringify(newSource)
-      });
+      const res = await addAdminSource(authHeaders, newSource);
       if (res.ok) {
         setSourcesMessage({ type: 'success', text: 'Source added successfully' });
         setNewSource({ author: '', work: '', e_source: '', e_source_url: '', print_source: '', added_by: '' });
         setAddingSource(false);
         loadSources();
       } else {
-        const err = await res.json();
+        const err = res.data;
         setSourcesMessage({ type: 'error', text: err.error || 'Failed to add' });
       }
     } catch (e) {

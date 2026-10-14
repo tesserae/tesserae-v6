@@ -15,7 +15,8 @@ vi.mock('chart.js', () => ({
   CategoryScale: {}, LinearScale: {}, BarElement: {},
   Title: {}, Tooltip: {}, Legend: {},
 }));
-vi.mock('../../../utils/api', () => ({
+vi.mock('../../../utils/api', async (importOriginal) => ({
+  ...(await importOriginal()),
   searchTexts: vi.fn(),
   searchTextsStream: vi.fn(),
   searchFusionStream: vi.fn(),

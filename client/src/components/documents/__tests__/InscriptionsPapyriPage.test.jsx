@@ -19,6 +19,7 @@ vi.mock('chart.js', () => ({
 }));
 
 import InscriptionsPapyriPage from '../InscriptionsPapyriPage';
+import { mockResponse } from '../../../test/mockResponse';
 
 const BROWSE_RESPONSE = {
   kind_counts: [{ value: 'inscriptions', label: 'Inscriptions (Latin, Greek)', count: 4 }],
@@ -54,18 +55,18 @@ function mockFetch({ documentsEnabled = true, lineSearchResponse } = {}) {
   global.fetch = vi.fn(async (url, init) => {
     const u = String(url);
     if (u === '/api/languages') {
-      return { json: async () => ({ languages: [{ code: 'la', label: 'Latin' }], documents_enabled: documentsEnabled }) };
+      return mockResponse({ json: async () => ({ languages: [{ code: 'la', label: 'Latin' }], documents_enabled: documentsEnabled }) });
     }
     if (u.startsWith('/api/documents/browse')) {
-      return { ok: true, status: 200, json: async () => BROWSE_RESPONSE };
+      return mockResponse({ ok: true, status: 200, json: async () => BROWSE_RESPONSE });
     }
     if (u === '/api/line-search') {
       const body = init && init.body ? JSON.parse(init.body) : {};
       calls.push(body);
       const response = typeof lineSearchResponse === 'function' ? lineSearchResponse(body) : (lineSearchResponse || { results: [] });
-      return { json: async () => response };
+      return mockResponse({ json: async () => response });
     }
-    return { json: async () => ({}) };
+    return mockResponse({ json: async () => ({}) });
   });
   global.fetch.calls = calls;
   return calls;
@@ -113,7 +114,7 @@ describe('top-level sections, with the trial active', () => {
     // Description.
     expect(screen.getByText(/Search and browse the documentary corpus/)).toBeTruthy();
     // Example buttons (Latin tab is the page's default language).
-    await waitFor(() => expect(screen.getByText('Try a documents example:')).toBeTruthy());
+    await waitFor(() => expect(screen.getByText('Try an example:')).toBeTruthy());
     expect(screen.getByRole('button', { name: '"arma virumque cano"' })).toBeTruthy();
     // Search box.
     expect(screen.getByPlaceholderText('Enter word or phrase...')).toBeTruthy();
@@ -126,16 +127,25 @@ describe('top-level sections, with the trial active', () => {
     await waitFor(() => expect(screen.getByText(/Inscriptions \(Latin, Greek\)/)).toBeTruthy());
   });
 
-  it('has an "About this page" link that opens Help at the documents section', async () => {
+  it('has no "About this page" button (the scope box\'s Details open Help)', async () => {
     mockFetch({ documentsEnabled: true });
-    const handler = vi.fn();
-    window.addEventListener('tesserae:open-help', handler);
     render(<InscriptionsPapyriPage />);
     await waitFor(() => expect(screen.getByText('Inscriptions & Papyri')).toBeTruthy());
-    await userEvent.click(screen.getByRole('button', { name: 'About this page' }));
-    expect(handler).toHaveBeenCalled();
-    expect(handler.mock.calls[0][0].detail).toEqual({ section: 'documents' });
-    window.removeEventListener('tesserae:open-help', handler);
+    expect(screen.queryByRole('button', { name: 'About this page' })).toBeNull();
+    expect(screen.getByRole('button', { name: 'Details' })).toBeTruthy();
+  });
+
+  it('offers the new Latin examples and not the old formulas', async () => {
+    mockFetch({ documentsEnabled: true });
+    render(<InscriptionsPapyriPage />);
+    await waitFor(() => expect(screen.getByText('Try an example:')).toBeTruthy());
+    for (const q of ['balnea vina Venus', 'admiror paries te non cecidisse', 'suspirium puellarum',
+      'tene me ne fugiam', 'venimus huc cupidi', 'arma virumque cano']) {
+      expect(screen.getByRole('button', { name: `"${q}"` })).toBeTruthy();
+    }
+    for (const q of ['tribunicia potestate', 'decreto decurionum', 'sevir augustalis', 'sit tibi terra levis', 'conticuere omnes']) {
+      expect(screen.queryByRole('button', { name: `"${q}"` })).toBeNull();
+    }
   });
 });
 
@@ -148,7 +158,7 @@ describe('example-search buttons', () => {
       lineSearchResponse: { collection: 'both', total: 1, documents_total: 1, results: [documentHit()] },
     });
     render(<InscriptionsPapyriPage />);
-    await waitFor(() => expect(screen.getByText('Try a documents example:')).toBeTruthy());
+    await waitFor(() => expect(screen.getByText('Try an example:')).toBeTruthy());
 
     await userEvent.click(screen.getByRole('button', { name: '"arma virumque cano"' }));
 
@@ -159,27 +169,32 @@ describe('example-search buttons', () => {
     expect(body.search_type).toBe('lemma');
     expect(screen.getByDisplayValue('arma virumque cano')).toBeTruthy();
     await waitFor(() => expect(screen.getByText(/Found 1 documents/)).toBeTruthy());
+    // Once a search has answered, the whole-collection browser folds behind one line.
+    expect(screen.getByTestId('documents-browse-folded')).toBeTruthy();
+    await userEvent.click(screen.getByRole('button', { name: 'Open the browser' }));
+    expect(screen.queryByTestId('documents-browse-folded')).toBeNull();
   });
 
-  it('the exact-match example sends search_type exact', async () => {
+  it('a documents-only example sends collection documents and search_type lemma', async () => {
     const calls = mockFetch({
       documentsEnabled: true,
-      lineSearchResponse: { collection: 'both', total: 1, documents_total: 1, results: [documentHit()] },
+      lineSearchResponse: { collection: 'documents', total: 1, results: [documentHit()] },
     });
     render(<InscriptionsPapyriPage />);
-    await waitFor(() => expect(screen.getByText('Try a documents example:')).toBeTruthy());
-    await userEvent.click(screen.getByRole('button', { name: '"conticuere omnes"' }));
+    await waitFor(() => expect(screen.getByText('Try an example:')).toBeTruthy());
+    await userEvent.click(screen.getByRole('button', { name: '"tene me ne fugiam"' }));
     await waitFor(() => expect(calls.length).toBeGreaterThan(0));
-    expect(calls[calls.length - 1].search_type).toBe('exact');
+    expect(calls[calls.length - 1].collection).toBe('documents');
+    expect(calls[calls.length - 1].search_type).toBe('lemma');
   });
 
   it('shows the Greek example only on the Greek language choice', async () => {
     mockFetch({ documentsEnabled: true });
     render(<InscriptionsPapyriPage />);
-    await waitFor(() => expect(screen.getByText('Try a documents example:')).toBeTruthy());
-    expect(screen.queryByRole('button', { name: /ἀθάνατος/ })).toBeNull();
+    await waitFor(() => expect(screen.getByText('Try an example:')).toBeTruthy());
+    expect(screen.queryByRole('button', { name: /θήλεα/ })).toBeNull();
     await userEvent.selectOptions(screen.getByDisplayValue('Latin'), 'grc');
-    await waitFor(() => expect(screen.getByRole('button', { name: /ἀθάνατος/ })).toBeTruthy());
+    await waitFor(() => expect(screen.getByRole('button', { name: /θήλεα/ })).toBeTruthy());
   });
 });
 
@@ -219,5 +234,76 @@ describe('a typed search', () => {
     await waitFor(() => expect(calls.length).toBeGreaterThan(0));
     expect(calls[calls.length - 1].collection).toBe('documents');
     await waitFor(() => expect(screen.getByText(/Found 1 documents/)).toBeTruthy());
+  });
+});
+
+describe('a search that finds nothing', () => {
+  beforeEach(() => { setUrl('?documents=1'); });
+
+  async function typeAndSearch(text) {
+    await waitFor(() => expect(screen.getByPlaceholderText('Enter word or phrase...')).toBeTruthy());
+    await userEvent.type(screen.getByPlaceholderText('Enter word or phrase...'), text);
+    await userEvent.click(screen.getByRole('button', { name: 'Search' }));
+  }
+
+  it('says so for a two-word dictionary-form search, with no second request', async () => {
+    const calls = mockFetch({
+      documentsEnabled: true,
+      lineSearchResponse: { collection: 'documents', total: 0, results: [] },
+    });
+    render(<InscriptionsPapyriPage />);
+    await typeAndSearch('rusell foo');
+    const line = await screen.findByTestId('documents-empty');
+    expect(line.textContent).toContain('No inscription or papyrus has "rusell foo" as a dictionary form.');
+    expect(line.textContent).toContain('Check the spelling. Exact match also finds the letters inside longer words.');
+    expect(calls.length).toBe(1);
+    expect(screen.queryByTestId('documents-fallback')).toBeNull();
+  });
+
+  it('retries a one-word dictionary-form search once in exact mode and says what it shows', async () => {
+    const calls = mockFetch({
+      documentsEnabled: true,
+      lineSearchResponse: (body) => body.search_type === 'exact'
+        ? { collection: 'documents', total: 7, results: [documentHit()] }
+        : { collection: 'documents', total: 0, results: [] },
+    });
+    render(<InscriptionsPapyriPage />);
+    await typeAndSearch('rusell');
+    const note = await screen.findByTestId('documents-fallback');
+    expect(note.textContent).toContain('No dictionary form matches "rusell". Showing the 7 documents whose text contains these letters instead.');
+    expect(calls.map(c => c.search_type)).toEqual(['lemma', 'exact']);
+    await waitFor(() => expect(screen.getByText(/Found 7 documents/)).toBeTruthy());
+    expect(screen.queryByTestId('documents-empty')).toBeNull();
+    // The reader's choice of mode is untouched.
+    expect(screen.getByDisplayValue('Lemma (dictionary form)')).toBeTruthy();
+  });
+
+  it('says so when the exact retry also finds nothing, with no third request', async () => {
+    const calls = mockFetch({
+      documentsEnabled: true,
+      lineSearchResponse: { collection: 'documents', total: 0, results: [] },
+    });
+    render(<InscriptionsPapyriPage />);
+    await typeAndSearch('rusellorum');
+    const line = await screen.findByTestId('documents-empty');
+    expect(line.textContent).toContain('No inscription or papyrus has "rusellorum" as a dictionary form.');
+    expect(calls.length).toBe(2);
+    expect(screen.queryByTestId('documents-fallback')).toBeNull();
+  });
+
+  it('uses the exact wording for an exact-mode search, with no retry', async () => {
+    const calls = mockFetch({
+      documentsEnabled: true,
+      lineSearchResponse: { collection: 'documents', total: 0, results: [] },
+    });
+    render(<InscriptionsPapyriPage />);
+    await waitFor(() => expect(screen.getByDisplayValue('Lemma (dictionary form)')).toBeTruthy());
+    await userEvent.selectOptions(screen.getByDisplayValue('Lemma (dictionary form)'), 'exact');
+    await typeAndSearch('rusellorum');
+    const line = await screen.findByTestId('documents-empty');
+    expect(line.textContent).toContain('No inscription or papyrus contains "rusellorum".');
+    expect(line.textContent).toContain('Check the spelling.');
+    expect(line.textContent).not.toContain('Exact match also finds');
+    expect(calls.length).toBe(1);
   });
 });

@@ -409,6 +409,8 @@ from collections import defaultdict, Counter
 import heapq
 import math
 import os
+
+from backend import fspaths
 import re
 import json
 from backend.logging_config import get_logger
@@ -927,7 +929,7 @@ class Matcher:
     def load_synonyms(self, filepath):
         """Load synonym dictionary for semantic matching"""
         try:
-            with open(filepath, 'r', encoding='utf-8') as f:
+            with fspaths.open_text(filepath, 'r', encoding='utf-8') as f:
                 for line in f:
                     parts = line.strip().split('\t')
                     if len(parts) >= 2:
@@ -1012,7 +1014,26 @@ class Matcher:
             zipf_stops = zipf_stops.union(high_freq_stops)
         else:
             zipf_stops = find_zipf_elbow(freq, min_stopwords=10, max_stopwords=50)
-        
+
+        # A corpus with fewer distinct words than the elbow's minimum would
+        # have every word stoplisted, and nothing could match. Keep at most
+        # half the vocabulary, the commonest words, and none that occurs in a
+        # single unit. Corpora of normal size are untouched.
+        requested = 50 if use_tokens else 10
+        if len(freq) < requested:
+            if stoplist_basis == 'source':
+                counted_units = source_units
+            elif stoplist_basis == 'target':
+                counted_units = target_units
+            else:
+                counted_units = source_units + target_units
+            unit_count = Counter()
+            for unit in counted_units:
+                unit_count.update(set(unit.get(feature_key, unit.get('lemmas', []))))
+            ranked = sorted((w for w in zipf_stops if unit_count[w] >= 2),
+                            key=lambda w: (-freq[w], w))
+            zipf_stops = set(ranked[:len(freq) // 2])
+
         if language == 'la':
             base_stops = DEFAULT_LATIN_STOP_WORDS
         elif language == 'grc':

@@ -17,6 +17,7 @@ vi.mock('chart.js', () => ({
 }));
 
 import LineSearch from '../LineSearch';
+import { mockResponse } from '../../../test/mockResponse';
 
 const documentHit = {
   collection: 'documents',
@@ -51,11 +52,17 @@ function mockFetch({ documentsEnabled, results, trial = documentsEnabled }) {
   global.fetch = vi.fn(async (url, init) => {
     const u = String(url);
     if (u === '/api/languages') {
-      return { json: async () => ({ languages: [{ code: 'la', label: 'Latin' }],
-                                     crosslingual_pairs: [], documents_enabled: documentsEnabled }) };
+      return mockResponse({ json: async () => ({ languages: [{ code: 'la', label: 'Latin' }],
+                                     crosslingual_pairs: [], documents_enabled: documentsEnabled }) });
     }
     if (u.startsWith('/api/texts')) {
-      return { json: async () => ({ texts: [] }) };
+      return mockResponse({ json: async () => ({ texts: [] }) });
+    }
+    if (u.startsWith('/api/documents/browse')) {
+      return mockResponse({ ok: true, json: async () => ({
+        region_counts: [{ value: 'Roma', count: 500 }],
+        filters: { text_types: [{ value: 'epitaph', count: 300 }], materials: [{ value: 'marble', count: 200 }] },
+      }) });
     }
     if (u === '/api/line-search') {
       const body = init && init.body ? JSON.parse(init.body) : {};
@@ -77,9 +84,9 @@ function mockFetch({ documentsEnabled, results, trial = documentsEnabled }) {
         payload.distinct_loci = litCount;
         if (collection === 'both') payload.documents_total = docCount;
       }
-      return { json: async () => payload };
+      return mockResponse({ json: async () => payload });
     }
-    return { json: async () => ({}) };
+    return mockResponse({ json: async () => ({}) });
   });
 }
 
@@ -114,11 +121,12 @@ describe('documents collection control', () => {
     render(<LineSearch language="la" />);
     await switchToSearchMode();
     await waitFor(() => expect(screen.getByText('Search in')).toBeTruthy());
-    expect(screen.queryByPlaceholderText('e.g., Latium')).toBeNull();
+    expect(screen.queryByLabelText('Region')).toBeNull();
     await userEvent.click(screen.getByRole('button', { name: 'Documents' }));
-    expect(screen.getByPlaceholderText('e.g., Latium')).toBeTruthy();
-    expect(screen.getByPlaceholderText('e.g., epitaph')).toBeTruthy();
-    expect(screen.getByPlaceholderText('e.g., marble')).toBeTruthy();
+    expect(screen.getByLabelText('Region')).toBeTruthy();
+    expect(screen.getByLabelText('Text type')).toBeTruthy();
+    expect(screen.getByLabelText('Material')).toBeTruthy();
+    expect(screen.getByLabelText('Kind')).toBeTruthy();
   });
 
   it('sends collection + filters once Documents is chosen and a filter is filled in', async () => {
@@ -127,7 +135,8 @@ describe('documents collection control', () => {
     await switchToSearchMode();
     await waitFor(() => expect(screen.getByText('Search in')).toBeTruthy());
     await userEvent.click(screen.getByRole('button', { name: 'Documents' }));
-    await userEvent.type(screen.getByPlaceholderText('e.g., Latium'), 'Roma');
+    await waitFor(() => expect(screen.getByRole('option', { name: 'Roma (500)' })).toBeTruthy());
+    await userEvent.selectOptions(screen.getByLabelText('Region'), 'Roma');
     await userEvent.type(screen.getByPlaceholderText('Enter word or phrase...'), 'dis manibus');
     await userEvent.click(screen.getByRole('button', { name: 'Search Lines' }));
 

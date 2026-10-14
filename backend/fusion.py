@@ -66,6 +66,7 @@ import sqlite3
 import time
 import unicodedata
 from collections import Counter, defaultdict
+from dataclasses import dataclass
 from concurrent.futures import ThreadPoolExecutor
 
 import numpy as np
@@ -1728,7 +1729,8 @@ def run_channel(channel_name, config, source_units, target_units,
 # Corpus-IDF utilities for graduated rarity multiplier
 # ---------------------------------------------------------------------------
 
-_corpus_doc_freq_cache = {}
+_corpus_doc_freq_cache = {}   # (language, lemma) -> final document frequency
+_corpus_raw_df_cache = {}     # (language, lemma) -> raw document frequency
 _total_texts_cache = {}
 _headword_map_cache = {}
 
@@ -1738,6 +1740,8 @@ _meter_total_texts_cache = {}  # meter -> int
 _text_genre_cache = None     # filename -> row dict from text_genres.csv
 _meter_text_ids_cache = {}   # meter -> set of text_ids in the index
 _text_pair_doc_freq_cache = {}  # (source_id, target_id) -> {lemma: doc_freq}
+_meter_raw_df_cache = {}   # meter -> {lemma: raw doc_freq}
+_text_pair_raw_df_cache = {}  # (language, source_id, target_id) -> {lemma: raw count}
 _text_pair_total_tokens_cache = {}  # (source_id, target_id) -> int
 
 
@@ -1815,12 +1819,80 @@ def _get_meter_text_ids(meter, language='la'):
     return _meter_text_ids_cache[cache_key]
 
 
+# ---------------------------------------------------------------------------
+# Document-frequency lookup that depends on the lemma alone
+# ---------------------------------------------------------------------------
+# A lemma's value must not depend on which other lemmas were looked up before
+# it, in the same call or in an earlier one. Two layers, neither revised once
+# written:
+#   raw(lemma)   = the index's answer for the lemma. For Latin, the maximum
+#                  over the lemma and its i/j partner form; each form is
+#                  queried on its own, and get_document_frequencies_batch adds
+#                  the u/v partner of the form it is given (it sums both).
+#   final(lemma) = max(raw(lemma), raw(headword(lemma))) when a headword
+#                  exists, else raw(lemma).
+# get_document_frequencies_batch maps every u/v variant of a form back to the
+# form, so two forms that are u/v partners in the SAME call overwrite each
+# other. _doc_freq_rounds keeps such forms apart (separate calls), which also
+# makes the value independent of the batch split.
+
+def _latin_query_forms(lemma):
+    """The forms whose counts are combined (max) into a Latin lemma's raw value."""
+    return {lemma, lemma.replace('i', 'j'), lemma.replace('j', 'i')}
+
+
+def _doc_freq_rounds(forms):
+    """Split query forms into calls with no two u/v partners in the same call."""
+    groups = {}
+    for f in sorted(forms):
+        groups.setdefault(f.replace('v', 'u'), []).append(f)
+    n = max((len(g) for g in groups.values()), default=0)
+    return [[g[i] for g in groups.values() if len(g) > i] for i in range(n)]
+
+
+def _resolve_doc_freqs(lemmas, language, final_cache, raw_cache, fetch, key=lambda l: l):
+    """Fill final_cache for lemmas; fetch(set_of_forms) -> {form: count}.
+
+    final_cache and raw_cache map key(lemma) -> value.
+    """
+    headword_map = _get_headword_map(language)
+    uncached = [l for l in lemmas if key(l) not in final_cache]
+    if uncached:
+        need = set(uncached)
+        for l in uncached:
+            hw = headword_map.get(l) if headword_map else None
+            if hw and hw != l:
+                need.add(hw)
+        missing = [x for x in need if key(x) not in raw_cache]
+        if missing:
+            if language == 'la':
+                forms_of = {x: _latin_query_forms(x) for x in missing}
+                all_forms = set().union(*forms_of.values())
+                counts = {}
+                for rnd in _doc_freq_rounds(all_forms):
+                    counts.update(fetch(set(rnd)))
+                for x in missing:
+                    raw_cache[key(x)] = max(counts.get(f, 0) for f in forms_of[x])
+            else:
+                counts = fetch(set(missing))
+                for x in missing:
+                    raw_cache[key(x)] = counts.get(x, 0)
+        for l in uncached:
+            hw = headword_map.get(l) if headword_map else None
+            v = raw_cache[key(l)]
+            if hw and hw != l:
+                v = max(v, raw_cache[key(hw)])
+            final_cache[key(l)] = v
+    return {l: final_cache.get(key(l), 0) for l in lemmas}
+
+
 def _get_meter_doc_freqs(lemmas, meter, language='la'):
     """Batch-fetch meter-specific document frequencies, with caching.
 
     Like _get_corpus_doc_freqs but restricted to texts of a given meter.
     Queries the inverted index postings table filtered by text_ids that
-    belong to the meter group.
+    belong to the meter group. The value of a lemma depends on the lemma
+    alone (see _resolve_doc_freqs).
 
     Returns dict: lemma -> document count within the meter group.
     """
@@ -1828,6 +1900,7 @@ def _get_meter_doc_freqs(lemmas, meter, language='la'):
     if cache_key not in _meter_doc_freq_cache:
         _meter_doc_freq_cache[cache_key] = {}
     meter_cache = _meter_doc_freq_cache[cache_key]
+    raw_cache = _meter_raw_df_cache.setdefault(cache_key, {})
 
     uncached = [l for l in lemmas if l not in meter_cache]
     if not uncached:
@@ -1835,7 +1908,7 @@ def _get_meter_doc_freqs(lemmas, meter, language='la'):
 
     text_ids = _get_meter_text_ids(meter, language)
     if not text_ids:
-        # No texts for this meter — return zeros
+        # No texts for this meter: return zeros
         for l in uncached:
             meter_cache[l] = 0
         return {l: meter_cache.get(l, 0) for l in lemmas}
@@ -1849,80 +1922,35 @@ def _get_meter_doc_freqs(lemmas, meter, language='la'):
             return {l: meter_cache.get(l, 0) for l in lemmas}
 
         cursor = conn.cursor()
-
-        # Prepare u/v dedup for Latin (same logic as _get_corpus_doc_freqs)
-        if language == 'la':
-            canonical = {}
-            query_set = set()
-            for l in uncached:
-                norm = l.replace('v', 'u').replace('j', 'i')
-                if norm not in canonical:
-                    canonical[norm] = l
-                    query_set.add(l)
-            query_lemmas = list(query_set)
-        else:
-            query_lemmas = list(set(uncached))
-
-        # Expand u/v variants for SQL
-        expanded_map = {}  # expanded_form -> original_lemma
-        for lemma in query_lemmas:
-            variants = {lemma}
-            if language == 'la':
-                variants.add(lemma.replace('u', 'v'))
-                variants.add(lemma.replace('v', 'u'))
-            for v in variants:
-                expanded_map[v] = lemma
-
-        # Query in batches, filtering by text_ids in the meter group
         text_id_list = list(text_ids)
-        all_variants = list(expanded_map.keys())
-        batch_size = 500
 
-        # Build a temporary result dict: original_lemma -> count
-        batch_result = {}
-        for i in range(0, len(all_variants), batch_size):
-            batch = all_variants[i:i + batch_size]
-            lemma_ph = ','.join(['?' for _ in batch])
-            tid_ph = ','.join(['?' for _ in text_id_list])
-            sql = (f'SELECT lemma, COUNT(DISTINCT text_id) FROM postings '  # nosec B608
-                   f'WHERE lemma IN ({lemma_ph}) AND text_id IN ({tid_ph}) '
-                   f'GROUP BY lemma')
-            cursor.execute(sql, batch + text_id_list)
-            for row_lemma, count in cursor.fetchall():
-                original = expanded_map.get(row_lemma, row_lemma)
-                batch_result[original] = batch_result.get(original, 0) + count
+        def fetch(forms):
+            # forms holds no two u/v partners, so the variant map is one-to-one
+            expanded_map = {}  # expanded_form -> queried form
+            for form in forms:
+                variants = {form}
+                if language == 'la':
+                    variants.add(form.replace('u', 'v'))
+                    variants.add(form.replace('v', 'u'))
+                for v in variants:
+                    expanded_map[v] = form
+            all_variants = list(expanded_map.keys())
+            batch_size = 500
+            batch_result = {}
+            for i in range(0, len(all_variants), batch_size):
+                batch = all_variants[i:i + batch_size]
+                lemma_ph = ','.join(['?' for _ in batch])
+                tid_ph = ','.join(['?' for _ in text_id_list])
+                sql = (f'SELECT lemma, COUNT(DISTINCT text_id) FROM postings '  # nosec B608
+                       f'WHERE lemma IN ({lemma_ph}) AND text_id IN ({tid_ph}) '
+                       f'GROUP BY lemma')
+                cursor.execute(sql, batch + text_id_list)
+                for row_lemma, count in cursor.fetchall():
+                    original = expanded_map.get(row_lemma, row_lemma)
+                    batch_result[original] = batch_result.get(original, 0) + count
+            return batch_result
 
-        # Populate cache
-        if language == 'la':
-            for l in uncached:
-                norm = l.replace('v', 'u').replace('j', 'i')
-                canon_lemma = canonical[norm]
-                meter_cache[l] = batch_result.get(canon_lemma, 0)
-        else:
-            for l in uncached:
-                meter_cache[l] = batch_result.get(l, 0)
-
-        # Headword normalization (same as corpus version)
-        headword_map = _get_headword_map(language)
-        if headword_map:
-            hw_to_fetch = set()
-            for l in uncached:
-                hw = headword_map.get(l)
-                if hw and hw != l and hw not in meter_cache:
-                    hw_to_fetch.add(hw)
-
-            if hw_to_fetch:
-                # Recurse for headwords
-                hw_freqs = _get_meter_doc_freqs(list(hw_to_fetch), meter,
-                                                 language)
-                for hw, df in hw_freqs.items():
-                    meter_cache[hw] = df
-
-            for l in uncached:
-                hw = headword_map.get(l)
-                if hw and hw != l:
-                    hw_df = meter_cache.get(hw, 0)
-                    meter_cache[l] = max(meter_cache[l], hw_df)
+        _resolve_doc_freqs(uncached, language, meter_cache, raw_cache, fetch)
 
     except Exception as e:
         logger.error(f"[METER IDF] Batch query failed for meter '{meter}': {e}")
@@ -1946,7 +1974,8 @@ def _get_text_pair_doc_freqs(lemmas, source_id, target_id, language='la'):
 
     Like _get_corpus_doc_freqs but restricted to the two compared texts.
     Queries the inverted index postings table filtered by text_ids that
-    belong to the source and target texts.
+    belong to the source and target texts. The value of a lemma depends on
+    the lemma alone (see _resolve_doc_freqs).
 
     Returns dict: lemma -> total token count across the two texts (0 if not found).
     """
@@ -1956,8 +1985,10 @@ def _get_text_pair_doc_freqs(lemmas, source_id, target_id, language='la'):
             # Evict oldest entry (FIFO) to limit memory growth
             oldest_key = next(iter(_text_pair_doc_freq_cache))
             _text_pair_doc_freq_cache.pop(oldest_key, None)
+            _text_pair_raw_df_cache.pop(oldest_key, None)
         _text_pair_doc_freq_cache[cache_key] = {}
     pair_cache = _text_pair_doc_freq_cache[cache_key]
+    raw_cache = _text_pair_raw_df_cache.setdefault(cache_key, {})
 
     uncached = [l for l in lemmas if l not in pair_cache]
     if not uncached:
@@ -1993,76 +2024,33 @@ def _get_text_pair_doc_freqs(lemmas, source_id, target_id, language='la'):
                 pair_cache[l] = 0
             return {l: pair_cache.get(l, 0) for l in lemmas}
 
-        # Prepare u/v dedup for Latin (same logic as _get_corpus_doc_freqs)
-        if language == 'la':
-            canonical = {}
-            query_set = set()
-            for l in uncached:
-                norm = l.replace('v', 'u').replace('j', 'i')
-                if norm not in canonical:
-                    canonical[norm] = l
-                    query_set.add(l)
-            query_lemmas = list(query_set)
-        else:
-            query_lemmas = list(set(uncached))
+        def fetch(forms):
+            # forms holds no two u/v partners, so the variant map is one-to-one
+            expanded_map = {}  # expanded_form -> queried form
+            for form in forms:
+                variants = {form}
+                if language == 'la':
+                    variants.add(form.replace('u', 'v'))
+                    variants.add(form.replace('v', 'u'))
+                for v in variants:
+                    expanded_map[v] = form
+            all_variants = list(expanded_map.keys())
+            batch_size = 500
+            batch_result = {}
+            for i in range(0, len(all_variants), batch_size):
+                batch = all_variants[i:i + batch_size]
+                lemma_ph = ','.join(['?' for _ in batch])
+                tid_ph = ','.join(['?' for _ in text_ids])
+                sql = (f'SELECT lemma, SUM(LENGTH(positions) - LENGTH(REPLACE(positions, ",", "")) + 1) FROM postings '  # nosec B608
+                       f'WHERE lemma IN ({lemma_ph}) AND text_id IN ({tid_ph}) '
+                       f'GROUP BY lemma')
+                cursor.execute(sql, batch + text_ids)
+                for row_lemma, count in cursor.fetchall():
+                    original = expanded_map.get(row_lemma, row_lemma)
+                    batch_result[original] = batch_result.get(original, 0) + count
+            return batch_result
 
-        # Expand u/v variants for SQL
-        expanded_map = {}  # expanded_form -> original_lemma
-        for lemma in query_lemmas:
-            variants = {lemma}
-            if language == 'la':
-                variants.add(lemma.replace('u', 'v'))
-                variants.add(lemma.replace('v', 'u'))
-            for v in variants:
-                expanded_map[v] = lemma
-
-        # Query in batches
-        all_variants = list(expanded_map.keys())
-        batch_size = 500
-        batch_result = {}
-
-        for i in range(0, len(all_variants), batch_size):
-            batch = all_variants[i:i + batch_size]
-            lemma_ph = ','.join(['?' for _ in batch])
-            tid_ph = ','.join(['?' for _ in text_ids])
-            sql = (f'SELECT lemma, SUM(LENGTH(positions) - LENGTH(REPLACE(positions, ",", "")) + 1) FROM postings '  # nosec B608
-                   f'WHERE lemma IN ({lemma_ph}) AND text_id IN ({tid_ph}) '
-                   f'GROUP BY lemma')
-            cursor.execute(sql, batch + text_ids)
-            for row_lemma, count in cursor.fetchall():
-                original = expanded_map.get(row_lemma, row_lemma)
-                batch_result[original] = batch_result.get(original, 0) + count
-
-        # Populate cache
-        if language == 'la':
-            for l in uncached:
-                norm = l.replace('v', 'u').replace('j', 'i')
-                canon_lemma = canonical[norm]
-                pair_cache[l] = batch_result.get(canon_lemma, 0)
-        else:
-            for l in uncached:
-                pair_cache[l] = batch_result.get(l, 0)
-
-        # Headword normalization (same as corpus version)
-        headword_map = _get_headword_map(language)
-        if headword_map:
-            hw_to_fetch = set()
-            for l in uncached:
-                hw = headword_map.get(l)
-                if hw and hw != l and hw not in pair_cache:
-                    hw_to_fetch.add(hw)
-
-            if hw_to_fetch:
-                # Recurse for headwords
-                hw_freqs = _get_text_pair_doc_freqs(list(hw_to_fetch), source_id, target_id, language)
-                for hw, df in hw_freqs.items():
-                    pair_cache[hw] = df
-
-            for l in uncached:
-                hw = headword_map.get(l)
-                if hw and hw != l:
-                    hw_df = pair_cache.get(hw, 0)
-                    pair_cache[l] = max(pair_cache[l], hw_df)
+        _resolve_doc_freqs(uncached, language, pair_cache, raw_cache, fetch)
 
     except Exception as e:
         logger.error(f"[TEXT PAIR IDF] Batch query failed for {source_id}/{target_id}: {e}")
@@ -2150,74 +2138,24 @@ def _get_headword_map(language='la'):
 def _get_corpus_doc_freqs(lemmas, language='la'):
     """Batch-fetch corpus-wide document frequencies, with caching.
 
-    Reuses get_document_frequencies_batch() from hapax.py which queries the
-    inverted index (la_index.db / grc_index.db). The hapax function handles
-    u/v expansion internally for Latin.
+    Reuses get_document_frequencies_batch() from hapax.py, which queries the
+    inverted index. The value of a lemma depends on the lemma alone (see
+    _resolve_doc_freqs): the order of the lemmas, the way they are split
+    across calls and the searches made earlier do not change it.
 
-    IMPORTANT: For Latin, deduplicates u/v variants before batch querying
-    to avoid a collision bug in get_document_frequencies_batch where the
-    expanded_map overwrites entries when two input lemmas are u/v variants
-    of each other (e.g., querying {'uero', 'vero'} causes 'uero' → df=0).
+    The headword rule: "quem" (df=164) with headword "qui" (df=1426) takes
+    1426, so oblique forms of ultra-common words do not escape rarity
+    penalties.
 
-    Returns dict: lemma → document count (0 if not found).
+    Returns dict: lemma -> document count (0 if not found).
     """
-    uncached = [l for l in lemmas if l not in _corpus_doc_freq_cache]
-    if uncached:
+    def fetch(forms):
         from backend.blueprints.hapax import get_document_frequencies_batch
+        return get_document_frequencies_batch(forms, language)
 
-        if language == 'la':
-            # Deduplicate u/v variants: keep only one canonical form per
-            # variant group. Map all variants back to the same DF result.
-            canonical = {}  # u-normalized form → first lemma seen
-            query_set = set()
-            for l in uncached:
-                norm = l.replace('v', 'u').replace('j', 'i')
-                if norm not in canonical:
-                    canonical[norm] = l
-                    query_set.add(l)
-                # else: l is a u/v variant of an already-queued lemma
-
-            batch_result = get_document_frequencies_batch(query_set, language)
-
-            # Populate cache for all uncached lemmas, including variants
-            for l in uncached:
-                norm = l.replace('v', 'u').replace('j', 'i')
-                canon_lemma = canonical[norm]
-                _corpus_doc_freq_cache[l] = batch_result.get(canon_lemma, 0)
-        else:
-            batch_result = get_document_frequencies_batch(set(uncached), language)
-            for l in uncached:
-                _corpus_doc_freq_cache[l] = batch_result.get(l, 0)
-
-        # Headword normalization: for each lemma, check if its dictionary
-        # headword has a higher document frequency. This catches oblique
-        # forms of ultra-common function words that appear rare in the
-        # inverted index because they're stored under inflected forms:
-        #   "quem" (df=164) → headword "qui" (df=1426) → use 1426
-        #   "quos" (df=8)   → headword "qui" (df=1426) → use 1426
-        # Without this, these forms escape rarity penalties entirely.
-        headword_map = _get_headword_map(language)
-        if headword_map:
-            # Collect headwords that need df lookup but aren't cached yet
-            hw_to_fetch = set()
-            for l in uncached:
-                hw = headword_map.get(l)
-                if hw and hw != l and hw not in _corpus_doc_freq_cache:
-                    hw_to_fetch.add(hw)
-
-            if hw_to_fetch:
-                hw_batch = get_document_frequencies_batch(hw_to_fetch, language)
-                for hw in hw_to_fetch:
-                    _corpus_doc_freq_cache[hw] = hw_batch.get(hw, 0)
-
-            # Apply max(lemma_df, headword_df) normalization
-            for l in uncached:
-                hw = headword_map.get(l)
-                if hw and hw != l:
-                    hw_df = _corpus_doc_freq_cache.get(hw, 0)
-                    _corpus_doc_freq_cache[l] = max(_corpus_doc_freq_cache[l], hw_df)
-
-    return {l: _corpus_doc_freq_cache.get(l, 0) for l in lemmas}
+    return _resolve_doc_freqs(lemmas, language, _corpus_doc_freq_cache,
+                              _corpus_raw_df_cache, fetch,
+                              key=lambda l: (language, l))
 
 
 def _get_total_texts(language='la'):
@@ -2405,40 +2343,37 @@ def _cap_with_formula_filter(results, max_results, user_settings):
     return capped, len(filtered), hidden
 
 
-def fuse_results(channel_results, weights=None, convergence_bonus=None,
-                  idf_floor=None, idf_threshold=None,
-                  convergence_idf_power=None, min_idf_threshold=None,
-                  min_idf_penalty=None, language='la',
-                  freq_basis='corpus', source_id=None, target_id=None,
-                  confirm_context=True):
-    """Combine results from multiple channels using weighted score fusion.
+@dataclass
+class FusionConstants:
+    """The weight profile and rarity constants one fuse_results call works with."""
+    weights: dict
+    convergence_bonus: float
+    idf_floor: float
+    idf_threshold: float
+    conv_idf_power: float
+    min_idf_threshold: float
+    min_idf_penalty: float
+    rarity_boost_weight: float
+    rarity_boost_cap: float
+    penalty_power: float
+    stoplist: set
 
-    Three-layer rarity scoring for each (source_ref, target_ref) pair:
 
-      base = sum(channel_score * channel_weight)
-      mult = piecewise_linear(geom_mean_idf, idf_floor, threshold)
-      idf_weight = min(1.0, min_word_idf)^2                     [Layer 2]
-      weighted_n = n_scoring_channels * idf_weight              [Layer 2]
-      conv = convergence_bonus * max(0, weighted_n - 1)         [Layer 2]
-      fused = base * mult^penalty_power + conv * mult^conv_power
+@dataclass
+class LoopConstants:
+    """The values computed once before the per-pair loop of _score_pairs."""
+    log_total: float
+    n_reference: int
+    idf_scale: float
+    cutoff: float
+    ramp_start: float
+    ramp_range: float
+    thresh_range: float
 
-    Layer 3 boost: when geom_idf >= threshold, mult rises above 1.0 via
-    log curve scaled by min(channel_factor, word_factor), requiring both
-    multiple channels and multiple distinct words.
 
-    Optional overrides allow testing different parameter configurations
-    without modifying module globals (used by weight optimization).
-
-    freq_basis controls which document-frequency baseline is used for IDF:
-      "corpus" (default) — full corpus (all texts in the inverted index)
-      "meter" — only texts sharing the same meter as source/target
-                (falls back to corpus if texts don't share a meter,
-                or if text_genres.csv lacks meter info)
-      "text_pair" — token-frequency baseline over the source and target texts
-                    (N = total tokens across the pair). Bypasses IDF scaling cap
-                    so rare local terms can reach corpus-calibrated IDF values.
-    source_id/target_id: filenames needed for meter and text_pair lookup.
-    """
+def _fusion_constants(weights, convergence_bonus, idf_floor, idf_threshold,
+                      convergence_idf_power, min_idf_threshold, min_idf_penalty, language):
+    """Resolve the weight profile and the rarity constants from the arguments and the module defaults."""
     # Weight profile selection: explicit `weights` argument wins; otherwise
     # fall through to the language-default profile via get_weight_profile().
     # This is what firewalls the biblical-Coptic optimization (Phase 9 of the
@@ -2456,6 +2391,14 @@ def fuse_results(channel_results, weights=None, convergence_bonus=None,
     _rarity_boost_cap = RARITY_BOOST_CAP
     _penalty_power = RARITY_PENALTY_POWER
     _stoplist = _STOPLISTS.get(language, set())
+    return FusionConstants(_weights, _convergence_bonus, _idf_floor, _idf_threshold,
+                           _conv_idf_power, _min_idf_threshold, _min_idf_penalty,
+                           _rarity_boost_weight, _rarity_boost_cap, _penalty_power, _stoplist)
+
+
+def _pair_table(channel_results, consts):
+    """Build the (source_ref, target_ref) table of summed channel scores, highlights and matched words."""
+    _weights = consts.weights
 
     pair_scores = defaultdict(lambda: {
         "score": 0.0,
@@ -2537,7 +2480,11 @@ def fuse_results(channel_results, weights=None, convergence_bonus=None,
     _t1 = _time.time()
     logger.info(f"[FUSION] Accumulated {len(pair_scores):,} unique pairs from "
                 f"{sum(len(r) for r in channel_results.values()):,} channel results in {_t1-_t0:.1f}s")
+    return pair_scores
 
+
+def _pre_fusion_cap(pair_scores):
+    """Keep only the 500,000 highest raw-scoring pairs when the table is larger."""
     # --- Pre-fusion cap: limit pairs entering rarity scoring ---
     # Rarity scoring is O(n) with expensive per-pair IDF lookups. For
     # large Greek text pairs, pair_scores can exceed 500K entries. Since
@@ -2556,28 +2503,11 @@ def fuse_results(channel_results, weights=None, convergence_bonus=None,
                           reverse=True)[:PRE_FUSION_CAP]
         pair_scores = {k: pair_scores[k] for k in top_keys}
         logger.info(f"[FUSION] Pre-fusion cap: kept top {PRE_FUSION_CAP:,} of {total_pairs:,} pairs by raw score")
+    return pair_scores
 
-    # ===================================================================
-    # RARITY SCORING: Three-layer system applied to every fused pair
-    # ===================================================================
-    #
-    # This section implements all three layers of rarity scoring in a
-    # single pass over all pairs, optimized to avoid per-pair function
-    # call overhead (~100K pairs typical; inlining reduced runtime from
-    # ~400s to ~58s for Aeneid x Met).
-    #
-    # Final formula for each pair:
-    #   fused_score = base_score * mult^2 + conv_score * mult^power
-    # where:
-    #   base_score  = sum of (channel_score * channel_weight) across channels
-    #   mult        = rarity multiplier from Layer 1 (piecewise linear on geom_idf)
-    #                 OR rarity boost from Layer 3 (log curve, for rare words)
-    #   conv_score  = convergence_bonus * (weighted_n - 1.0)   [Layer 2]
-    #   weighted_n  = n_scoring_channels * min(1.0, geom_idf)^2  [Layer 2]
-    #   power       = CONVERGENCE_IDF_POWER (currently 1.0)
-    #
-    # ===================================================================
 
+def _document_frequencies(pair_scores, freq_basis, source_id, target_id, language):
+    """Fetch the document frequencies of every matched lemma in one batch, on the chosen freq_basis."""
     # --- Pre-fetch corpus document frequencies in one batch ---
     # Collect every unique lemma across all pairs (excluding sub-lexical
     # fragments like [que], [nti] from sound/edit_distance channels),
@@ -2640,7 +2570,13 @@ def fuse_results(channel_results, weights=None, convergence_bonus=None,
         else:
             total_texts = 1429
         doc_freq_map = {}
+    return doc_freq_map, total_texts, _effective_freq_basis
 
+
+def _loop_constants(consts, total_texts, _effective_freq_basis, language):
+    """Compute the IDF scale and ramp values the per-pair loop reads."""
+    _idf_floor = consts.idf_floor
+    _idf_threshold = consts.idf_threshold
     # Pre-compute constants used in the inner loop to avoid repeated
     # arithmetic on every iteration.
     _log_total = math.log(total_texts)        # log(N) for IDF = log(N) - log(df)
@@ -2658,6 +2594,49 @@ def fuse_results(channel_results, weights=None, convergence_bonus=None,
     _ramp_start = _idf_floor + _ramp_offset   # multiplier at geom_idf = cutoff
     _ramp_range = 1.0 - _ramp_start           # span of the linear ramp
     _thresh_range = _idf_threshold - _cutoff   # IDF span of the linear ramp
+    return LoopConstants(_log_total, _N_reference, _idf_scale, _cutoff,
+                         _ramp_start, _ramp_range, _thresh_range)
+
+
+def _score_pairs(pair_scores, consts, loop_consts, doc_freq_map, _t1):
+    """Apply the three rarity layers to every pair in one loop, replacing each pair's score in place."""
+    import time as _time
+    _stoplist = consts.stoplist
+    _idf_floor = consts.idf_floor
+    _idf_threshold = consts.idf_threshold
+    _convergence_bonus = consts.convergence_bonus
+    _conv_idf_power = consts.conv_idf_power
+    _rarity_boost_weight = consts.rarity_boost_weight
+    _rarity_boost_cap = consts.rarity_boost_cap
+    _penalty_power = consts.penalty_power
+    _log_total = loop_consts.log_total
+    _N_reference = loop_consts.n_reference
+    _idf_scale = loop_consts.idf_scale
+    _cutoff = loop_consts.cutoff
+    _ramp_start = loop_consts.ramp_start
+    _ramp_range = loop_consts.ramp_range
+    _thresh_range = loop_consts.thresh_range
+
+    # ===================================================================
+    # RARITY SCORING: Three-layer system applied to every fused pair
+    # ===================================================================
+    #
+    # This section implements all three layers of rarity scoring in a
+    # single pass over all pairs, optimized to avoid per-pair function
+    # call overhead (~100K pairs typical; inlining reduced runtime from
+    # ~400s to ~58s for Aeneid x Met).
+    #
+    # Final formula for each pair:
+    #   fused_score = base_score * mult^2 + conv_score * mult^power
+    # where:
+    #   base_score  = sum of (channel_score * channel_weight) across channels
+    #   mult        = rarity multiplier from Layer 1 (piecewise linear on geom_idf)
+    #                 OR rarity boost from Layer 3 (log curve, for rare words)
+    #   conv_score  = convergence_bonus * (weighted_n - 1.0)   [Layer 2]
+    #   weighted_n  = n_scoring_channels * min(1.0, geom_idf)^2  [Layer 2]
+    #   power       = CONVERGENCE_IDF_POWER (currently 1.0)
+    #
+    # ===================================================================
 
     for key, info in pair_scores.items():
         # ---------------------------------------------------------------
@@ -2870,6 +2849,9 @@ def fuse_results(channel_results, weights=None, convergence_bonus=None,
     _t2 = _time.time()
     logger.info(f"[FUSION] Rarity scoring complete for {len(pair_scores):,} pairs in {_t2-_t1:.1f}s")
 
+
+def _output_rows(pair_scores, language):
+    """Sort the pairs by fused score and build the output rows."""
     # Sort by fused score and build output
     sorted_pairs = sorted(pair_scores.items(), key=lambda x: x[1]["score"], reverse=True)
     merged = []
@@ -2900,7 +2882,11 @@ def fuse_results(channel_results, weights=None, convergence_bonus=None,
             for ch, v in info.get("channel_token_attrs", {}).items()
         }
         merged.append(result)
+    return merged
 
+
+def _passage_context(merged, confirm_context, language, source_id, target_id):
+    """Re-rank the top pairs by whether their surrounding passages agree (final fusion only)."""
     # The passage-context pass (3,000 candidate pairs looked up in the
     # passage index) costs about a minute; the progressive intermediate
     # fusions skip it and only the final fusion pays it (2026-09-06: a
@@ -2908,7 +2894,11 @@ def fuse_results(channel_results, weights=None, convergence_bonus=None,
     if confirm_context:
         merged = apply_context_confirmation(merged, language=language,
                                             source_id=source_id, target_id=target_id)
+    return merged
 
+
+def _formula_counts(merged, language):
+    """Annotate each row with the number of works that share its wording."""
     # formula_count: how many works share this result's shared wording (the
     # two rarest shared lemmas as a bigram, or the one lemma's own work count
     # with a single shared lemma). One table lookup per row against a table
@@ -2916,6 +2906,55 @@ def fuse_results(channel_results, weights=None, convergence_bonus=None,
     # consumer (the streaming endpoint, the poll endpoint, the LXX pivot)
     # bottoms out in this function, so annotating here covers all of them.
     annotate_formula_counts(merged, language)
+
+
+def fuse_results(channel_results, weights=None, convergence_bonus=None,
+                  idf_floor=None, idf_threshold=None,
+                  convergence_idf_power=None, min_idf_threshold=None,
+                  min_idf_penalty=None, language='la',
+                  freq_basis='corpus', source_id=None, target_id=None,
+                  confirm_context=True):
+    """Combine results from multiple channels using weighted score fusion.
+
+    Three-layer rarity scoring for each (source_ref, target_ref) pair:
+
+      base = sum(channel_score * channel_weight)
+      mult = piecewise_linear(geom_mean_idf, idf_floor, threshold)
+      idf_weight = min(1.0, min_word_idf)^2                     [Layer 2]
+      weighted_n = n_scoring_channels * idf_weight              [Layer 2]
+      conv = convergence_bonus * max(0, weighted_n - 1)         [Layer 2]
+      fused = base * mult^penalty_power + conv * mult^conv_power
+
+    Layer 3 boost: when geom_idf >= threshold, mult rises above 1.0 via
+    log curve scaled by min(channel_factor, word_factor), requiring both
+    multiple channels and multiple distinct words.
+
+    Optional overrides allow testing different parameter configurations
+    without modifying module globals (used by weight optimization).
+
+    freq_basis controls which document-frequency baseline is used for IDF:
+      "corpus" (default) — full corpus (all texts in the inverted index)
+      "meter" — only texts sharing the same meter as source/target
+                (falls back to corpus if texts don't share a meter,
+                or if text_genres.csv lacks meter info)
+      "text_pair" — token-frequency baseline over the source and target texts
+                    (N = total tokens across the pair). Bypasses IDF scaling cap
+                    so rare local terms can reach corpus-calibrated IDF values.
+    source_id/target_id: filenames needed for meter and text_pair lookup.
+    """
+    consts = _fusion_constants(weights, convergence_bonus, idf_floor, idf_threshold,
+                              convergence_idf_power, min_idf_threshold, min_idf_penalty,
+                              language)
+    pair_scores = _pair_table(channel_results, consts)
+    _t1 = time.time()
+    pair_scores = _pre_fusion_cap(pair_scores)
+    doc_freq_map, total_texts, _effective_freq_basis = _document_frequencies(
+        pair_scores, freq_basis, source_id, target_id, language)
+    loop_consts = _loop_constants(consts, total_texts, _effective_freq_basis, language)
+    _score_pairs(pair_scores, consts, loop_consts, doc_freq_map, _t1)
+    merged = _output_rows(pair_scores, language)
+    merged = _passage_context(merged, confirm_context, language, source_id, target_id)
+    _formula_counts(merged, language)
     return merged
 
 
@@ -3408,47 +3447,8 @@ def _run_channel_with_heartbeat(ch_name, config, source_units, target_units,
             raise
 
 
-def iter_fusion_search(source_units, target_units, matcher, scorer,
-                       source_id, target_id, language='la',
-                       mode='merged', max_results=5000,
-                       source_path=None, target_path=None,
-                       user_settings=None,
-                       source_language=None, target_language=None,
-                       freq_basis='corpus', channel_weights=None,
-                       enabled_channels=None, cancellation=None):
-    """Generator version of run_fusion_search for progressive SSE streaming.
-
-    Yields (event_type, data) tuples as the search progresses:
-        ("channel_start", {channel, step, total, phase})
-        ("channel_done",  {channel, count, step, total, phase})
-        ("intermediate",  {results, total_results, channels_done, phase})
-        ("complete",      {results, total_results})
-
-    Uses CHANNEL_ORDER (fast channels first) so intermediate results
-    appear within seconds of starting the search.
-
-    channel_weights: optional dict of per-channel weight overrides supplied by
-    the user (Advanced UI). When None or empty, weights fall through to the
-    language-default profile and behavior is unchanged. When provided, the
-    overrides are merged over the language-default profile (so a user need
-    only override a subset of channels) and passed to every fuse_results call.
-
-    enabled_channels: optional iterable of channel keys the user has left ON
-    (Advanced UI on/off switches). When None or empty, every language-available
-    channel runs (behavior unchanged). When provided, only channels in this set
-    run at all — unchecked channels are excluded entirely, so they cannot pull
-    pairs in through the convergence bonus. As a guard rail, if the filter would
-    exclude every available channel (e.g. the user turned everything off), the
-    full available set runs instead of returning nothing.
-    """
-    user_settings = user_settings or {}
-    if cancellation:
-        cancellation.check()
-    if source_language is None:
-        source_language = language
-    if target_language is None:
-        target_language = language
-
+def _fusion_plan(language, user_settings, channel_weights, enabled_channels):
+    """Return (effective_weights, configs, available_channels, line_channels) for one search."""
     # Merge any user weight overrides over the language-default profile. When
     # no overrides are given, effective_weights stays None so fuse_results()
     # uses get_weight_profile() exactly as before (byte-identical default).
@@ -3477,8 +3477,6 @@ def iter_fusion_search(source_units, target_units, matcher, scorer,
                 c[k] = user_settings[k]
         configs[name] = c
 
-    # --- Pass 1: Line-level (language-appropriate channels, fast-first order) ---
-    line_channel_results = {}
     available_channels = get_channels_for_language(language)
     # Apply the optional user on/off filter. enabled_channels is the set of
     # channels to KEEP; unchecked channels are dropped so they never run (and
@@ -3499,6 +3497,15 @@ def iter_fusion_search(source_units, target_units, matcher, scorer,
     # Skip heavy channels weighted 0 by the effective profile — they would run
     # for minutes on a large pair and contribute nothing to the fused score.
     line_channels = _drop_zero_weight_heavy(line_channels, effective_weights, language)
+    return effective_weights, configs, available_channels, line_channels
+
+
+def _run_line_channels(line_channels, configs, line_channel_results, effective_weights,
+                       source_units, target_units, matcher, scorer,
+                       source_id, target_id, source_path, target_path,
+                       source_language, target_language, language,
+                       freq_basis, max_results, user_settings, cancellation):
+    """Generator: run the line-level channels in order, yielding their events and filling line_channel_results."""
     total_line = len(line_channels)
 
     for i, ch_name in enumerate(line_channels):
@@ -3564,6 +3571,10 @@ def iter_fusion_search(source_units, target_units, matcher, scorer,
                 "phase": "line",
             })
 
+
+def _gate_structural(line_channel_results, source_units, target_units,
+                     source_path, target_path, language):
+    """Recover semantic scores for structural pairs and gate them (changes line_channel_results in place)."""
     # Recover semantic scores for structural fingerprint pairs filtered
     # by the semantic_top_n cap.
     if "syntax_structural" in line_channel_results and source_path and target_path:
@@ -3622,16 +3633,9 @@ def iter_fusion_search(source_units, target_units, matcher, scorer,
             logger.info(f"[STRUCTURAL GATE] Kept {after}/{before} structural pairs "
                         f"(dictionary or cosine >= {MIN_COSINE_NO_DICT})")
 
-    line_fused = fuse_results(line_channel_results, weights=effective_weights,
-                               language=language,
-                               freq_basis=freq_basis,
-                               source_id=source_id, target_id=target_id)
 
-    if mode == 'line':
-        final, total, hidden = _cap_with_formula_filter(line_fused, max_results, user_settings)
-        yield ("complete", {"results": final, "total_results": total, "formula_hidden": hidden})
-        return
-
+def _both_prose(source_id, target_id, language):
+    """True when the window pass is skipped because both texts are prose (Coptic only)."""
     # The window pass was designed for poetry, where allusions span line
     # breaks (enjambment) routinely. For prose-vs-prose searches, line
     # divisions in our .tess files are usually editorial (Bible verse
@@ -3651,14 +3655,14 @@ def iter_fusion_search(source_units, target_units, matcher, scorer,
                       is_prose_text(target_id, language))
     except Exception:
         both_prose = False
-    if both_prose and mode == 'merged':
-        logger.info(f"[FUSION] Skipping window pass: both {source_id} and "
-                    f"{target_id} are prose")
-        final, total, hidden = _cap_with_formula_filter(line_fused, max_results, user_settings)
-        yield ("complete", {"results": final, "total_results": total, "formula_hidden": hidden})
-        return
+    return both_prose
 
-    # --- Pass 2: Window-level (co-occurrence channels only) ---
+
+def _run_window_channels(configs, available_channels,
+                         source_units, target_units, matcher, scorer,
+                         source_id, target_id, source_path, target_path,
+                         source_language, target_language, cancellation):
+    """Generator: run the window-level channels, yielding their events; returns window_channel_results."""
     source_windows = make_window_units(source_units)
     target_windows = make_window_units(target_units)
     window_channel_results = {}
@@ -3699,23 +3703,121 @@ def iter_fusion_search(source_units, target_units, matcher, scorer,
             "total": total_window,
             "phase": "window",
         })
+    return window_channel_results
 
+
+def _window_fusion(window_channel_results, effective_weights, language, freq_basis,
+                   source_id, target_id, mode):
+    """Fuse the window-level channel results and penalize single-line windows."""
     window_fused = fuse_results(window_channel_results, weights=effective_weights,
                                  language=language,
                                  freq_basis=freq_basis,
                                  source_id=source_id, target_id=target_id)
     window_fused = penalize_single_line_windows(
         window_fused, annotate_for_merge=(mode != 'window'))
+    return window_fused
+
+
+def _merge_levels(line_fused, window_fused):
+    """Line results first, then novel window results."""
+    return merge_line_and_window(line_fused, window_fused)
+
+
+def _final_event(results, max_results, user_settings):
+    """The closing ("complete", ...) event for a fused result list."""
+    final, total, hidden = _cap_with_formula_filter(results, max_results, user_settings)
+    return ("complete", {"results": final, "total_results": total, "formula_hidden": hidden})
+
+
+def iter_fusion_search(source_units, target_units, matcher, scorer,
+                       source_id, target_id, language='la',
+                       mode='merged', max_results=5000,
+                       source_path=None, target_path=None,
+                       user_settings=None,
+                       source_language=None, target_language=None,
+                       freq_basis='corpus', channel_weights=None,
+                       enabled_channels=None, cancellation=None):
+    """Generator version of run_fusion_search for progressive SSE streaming.
+
+    Yields (event_type, data) tuples as the search progresses:
+        ("channel_start", {channel, step, total, phase})
+        ("channel_done",  {channel, count, step, total, phase})
+        ("intermediate",  {results, total_results, channels_done, phase})
+        ("complete",      {results, total_results})
+
+    Uses CHANNEL_ORDER (fast channels first) so intermediate results
+    appear within seconds of starting the search.
+
+    channel_weights: optional dict of per-channel weight overrides supplied by
+    the user (Advanced UI). When None or empty, weights fall through to the
+    language-default profile and behavior is unchanged. When provided, the
+    overrides are merged over the language-default profile (so a user need
+    only override a subset of channels) and passed to every fuse_results call.
+
+    enabled_channels: optional iterable of channel keys the user has left ON
+    (Advanced UI on/off switches). When None or empty, every language-available
+    channel runs (behavior unchanged). When provided, only channels in this set
+    run at all — unchecked channels are excluded entirely, so they cannot pull
+    pairs in through the convergence bonus. As a guard rail, if the filter would
+    exclude every available channel (e.g. the user turned everything off), the
+    full available set runs instead of returning nothing.
+    """
+    user_settings = user_settings or {}
+    if cancellation:
+        cancellation.check()
+    if source_language is None:
+        source_language = language
+    if target_language is None:
+        target_language = language
+
+    effective_weights, configs, available_channels, line_channels = _fusion_plan(
+        language, user_settings, channel_weights, enabled_channels)
+
+    # --- Pass 1: Line-level (language-appropriate channels, fast-first order) ---
+    line_channel_results = {}
+    yield from _run_line_channels(
+        line_channels, configs, line_channel_results, effective_weights,
+        source_units, target_units, matcher, scorer,
+        source_id, target_id, source_path, target_path,
+        source_language, target_language, language,
+        freq_basis, max_results, user_settings, cancellation)
+
+    _gate_structural(line_channel_results, source_units, target_units,
+                     source_path, target_path, language)
+
+    line_fused = fuse_results(line_channel_results, weights=effective_weights,
+                               language=language,
+                               freq_basis=freq_basis,
+                               source_id=source_id, target_id=target_id)
+
+    if mode == 'line':
+        yield _final_event(line_fused, max_results, user_settings)
+        return
+
+    both_prose = _both_prose(source_id, target_id, language)
+    if both_prose and mode == 'merged':
+        logger.info(f"[FUSION] Skipping window pass: both {source_id} and "
+                    f"{target_id} are prose")
+        yield _final_event(line_fused, max_results, user_settings)
+        return
+
+    # --- Pass 2: Window-level (co-occurrence channels only) ---
+    window_channel_results = yield from _run_window_channels(
+        configs, available_channels,
+        source_units, target_units, matcher, scorer,
+        source_id, target_id, source_path, target_path,
+        source_language, target_language, cancellation)
+
+    window_fused = _window_fusion(window_channel_results, effective_weights, language,
+                                  freq_basis, source_id, target_id, mode)
 
     if mode == 'window':
-        final, total, hidden = _cap_with_formula_filter(window_fused, max_results, user_settings)
-        yield ("complete", {"results": final, "total_results": total, "formula_hidden": hidden})
+        yield _final_event(window_fused, max_results, user_settings)
         return
 
     # --- Merge: line results first, then novel window results ---
-    merged = merge_line_and_window(line_fused, window_fused)
-    final, total, hidden = _cap_with_formula_filter(merged, max_results, user_settings)
-    yield ("complete", {"results": final, "total_results": total, "formula_hidden": hidden})
+    merged = _merge_levels(line_fused, window_fused)
+    yield _final_event(merged, max_results, user_settings)
 
 
 def run_fusion_search(source_units, target_units, matcher, scorer,

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { CiteButton } from '../common';
 import { LANGUAGE_NAMES as LANG_NAMES } from '../../utils/languageNames';
+import { getJson } from '../../utils/api';
 
 /**
  * Taking a Theme Search away with you.
@@ -47,8 +48,7 @@ export default function ThemeExport({ query, language, count, corpusVersion, ran
     // it, so the button would appear to do nothing.
     const win = window.open('', '_blank');
     try {
-      const res = await fetch(params('json'));
-      const d = await res.json();
+      const d = await getJson(params('json'));
       if (d.error) throw new Error(d.error);
       if (!win) {
         setError('Your browser blocked the new window. Allow pop-ups for this '

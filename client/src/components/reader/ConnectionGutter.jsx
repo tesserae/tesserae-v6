@@ -1,5 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { cssRef } from './refId';
+import { useIsPhone } from '../../hooks/useIsPhone';
+import { getJson } from '../../utils/api';
 
 /**
  * The Reader's margin: two marks per line showing where the corpus has something
@@ -15,6 +17,10 @@ import { cssRef } from './refId';
 const SLOW_AFTER_MS = 4000;
 
 export default function ConnectionGutter({ work, units, onSelectLine, onSlowLoad }) {
+  // On a phone the margin is slimmer so the text gets the width: a narrower
+  // gutter and smaller marks. Both hit areas and the spoken explanation stay.
+  const phone = useIsPhone();
+  const markCls = phone ? 'w-[6px] h-[6px]' : 'w-[9px] h-[7px]';
   const [content, setContent] = useState({});   // ref -> 0..1
   const [verbal, setVerbal] = useState({});     // ref -> 0..1
   // Loading has to look different from "loaded, nothing here". Both used to
@@ -58,8 +64,7 @@ export default function ConnectionGutter({ work, units, onSelectLine, onSlowLoad
   useEffect(() => {
     if (!work) return;
     let cancelled = false;
-    fetch(`/api/passages/density?work=${encodeURIComponent(work)}`)
-      .then((r) => r.json())
+    getJson(`/api/passages/density?work=${encodeURIComponent(work)}`)
       .then((d) => {
         if (cancelled || !d.windows) return;
         // A window covers a span of lines; give each line in the span its density.
@@ -151,7 +156,7 @@ export default function ConnectionGutter({ work, units, onSelectLine, onSlowLoad
 
   return (
     <div
-      className="w-9 shrink-0 border-r border-gray-200 bg-gray-50 relative"
+      className={`${phone ? 'w-5' : 'w-9'} shrink-0 border-r border-gray-200 bg-gray-50 relative`}
       style={positions ? { minHeight: `${measuredHeight}px` } : undefined}
       title={loading
         ? 'Working out what the corpus connects to this text...'
@@ -169,10 +174,10 @@ export default function ConnectionGutter({ work, units, onSelectLine, onSlowLoad
           it gave pointed at the wrong column. The chips repeat the legend's
           swatches in the legend's order instead. There is nothing left to
           decode: same colour, same order, one naming. */}
-      <div className="h-6 flex gap-[3px] justify-center items-end pb-[3px]"
+      <div className={`h-6 flex ${phone ? 'gap-[2px]' : 'gap-[3px]'} justify-center items-end pb-[3px]`}
            aria-hidden="true">
-        <span className="block w-[9px] h-[7px] rounded-sm bg-red-700" />
-        <span className="block w-[9px] h-[7px] rounded-sm"
+        <span className={`block ${markCls} rounded-sm bg-red-700`} />
+        <span className={`block ${markCls} rounded-sm`}
               style={{ backgroundColor: '#7c6bb0' }} />
       </div>
       <span className="sr-only">
@@ -209,7 +214,7 @@ export default function ConnectionGutter({ work, units, onSelectLine, onSlowLoad
               onClick={(e) => { e.stopPropagation(); onSelectLine?.(u, 'verbal'); }}
             >
               <span
-                className={`block w-[9px] h-[7px] rounded-sm ${
+                className={`block ${markCls} rounded-sm ${
                   loadingVerbal ? 'border border-red-300 animate-pulse' : 'bg-red-700'}`}
                 style={loadingVerbal ? undefined : { opacity: 0.12 + v * 0.88 }}
               />
@@ -220,7 +225,7 @@ export default function ConnectionGutter({ work, units, onSelectLine, onSlowLoad
               onClick={(e) => { e.stopPropagation(); onSelectLine?.(u, 'similar'); }}
             >
               <span
-                className={`block w-[9px] h-[7px] rounded-sm ${
+                className={`block ${markCls} rounded-sm ${
                   loadingContent ? 'border animate-pulse' : ''}`}
                 style={loadingContent
                   ? { borderColor: '#c7bfe0' }

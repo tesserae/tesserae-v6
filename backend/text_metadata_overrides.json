@@ -780,5 +780,9 @@
   "septuaginta.zacharias.tess": {
     "display_author": "Septuagint",
     "display_work": "Zechariah"
+  },
+  "diogenianus_of_heraclea.παροιμίαι_δημώδεις_ἐκ_τῆς_διογενιανοῦ_συναγωγῆς_e_.tess": {
+    "text_type": "prose",
+    "notes": "A collection of proverbs, one short entry per line; the median line length reads as verse."
   }
 }

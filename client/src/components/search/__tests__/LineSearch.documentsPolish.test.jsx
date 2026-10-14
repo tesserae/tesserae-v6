@@ -28,6 +28,7 @@ vi.mock('chart.js', () => ({
 }));
 
 import LineSearch from '../LineSearch';
+import { mockResponse } from '../../../test/mockResponse';
 
 const documentHit = (overrides = {}) => ({
   collection: 'documents',
@@ -58,11 +59,11 @@ function mockFetch({ documentsEnabled, lineSearchResponse, trial = documentsEnab
   global.fetch = vi.fn(async (url, init) => {
     const u = String(url);
     if (u === '/api/languages') {
-      return { json: async () => ({ languages: [{ code: 'la', label: 'Latin' }, { code: 'grc', label: 'Greek' }],
-                                     crosslingual_pairs: [], documents_enabled: documentsEnabled }) };
+      return mockResponse({ json: async () => ({ languages: [{ code: 'la', label: 'Latin' }, { code: 'grc', label: 'Greek' }],
+                                     crosslingual_pairs: [], documents_enabled: documentsEnabled }) });
     }
     if (u.startsWith('/api/texts')) {
-      return { json: async () => ({ texts: [] }) };
+      return mockResponse({ json: async () => ({ texts: [] }) });
     }
     if (u === '/api/line-search') {
       const body = init && init.body ? JSON.parse(init.body) : {};
@@ -70,9 +71,9 @@ function mockFetch({ documentsEnabled, lineSearchResponse, trial = documentsEnab
       const response = typeof lineSearchResponse === 'function'
         ? lineSearchResponse(body)
         : lineSearchResponse;
-      return { json: async () => response };
+      return mockResponse({ json: async () => response });
     }
-    return { json: async () => ({}) };
+    return mockResponse({ json: async () => ({}) });
   });
   global.fetch.calls = calls;
   return calls;
@@ -93,25 +94,25 @@ describe('stage 4: example search buttons', () => {
     render(<LineSearch language="la" />);
     await switchToSearchMode();
     await waitFor(() => expect(global.fetch).toHaveBeenCalledWith('/api/languages'));
-    expect(screen.queryByText('Try a documents example:')).toBeNull();
+    expect(screen.queryByText('Try an example:')).toBeNull();
   });
 
-  it('show the three Latin examples on the Latin tab', async () => {
+  it('show the Latin examples on the Latin tab', async () => {
     mockFetch({ documentsEnabled: true, lineSearchResponse: { results: [] } });
     render(<LineSearch language="la" />);
     await switchToSearchMode();
-    await waitFor(() => expect(screen.getByText('Try a documents example:')).toBeTruthy());
+    await waitFor(() => expect(screen.getByText('Try an example:')).toBeTruthy());
     expect(screen.getByRole('button', { name: '"arma virumque cano"' })).toBeTruthy();
-    expect(screen.getByRole('button', { name: '"conticuere omnes"' })).toBeTruthy();
-    expect(screen.getByRole('button', { name: '"sit tibi terra levis"' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: '"balnea vina Venus"' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: '"tene me ne fugiam"' })).toBeTruthy();
   });
 
   it('show the Greek example on the Greek tab', async () => {
     mockFetch({ documentsEnabled: true, lineSearchResponse: { results: [] } });
     render(<LineSearch language="grc" />);
     await switchToSearchMode();
-    await waitFor(() => expect(screen.getByText('Try a documents example:')).toBeTruthy());
-    expect(screen.getByRole('button', { name: /ἀθάνατος/ })).toBeTruthy();
+    await waitFor(() => expect(screen.getByText('Try an example:')).toBeTruthy());
+    expect(screen.getByRole('button', { name: /θήλεα/ })).toBeTruthy();
   });
 
   it('clicking an example fills the query, picks the collection/search type, and runs the search', async () => {
@@ -122,7 +123,7 @@ describe('stage 4: example search buttons', () => {
     });
     render(<LineSearch language="la" />);
     await switchToSearchMode();
-    await waitFor(() => expect(screen.getByText('Try a documents example:')).toBeTruthy());
+    await waitFor(() => expect(screen.getByText('Try an example:')).toBeTruthy());
 
     await userEvent.click(screen.getByRole('button', { name: '"arma virumque cano"' }));
 
@@ -136,7 +137,7 @@ describe('stage 4: example search buttons', () => {
     expect(screen.getByDisplayValue('arma virumque cano')).toBeTruthy();
   });
 
-  it('the exact-match example sends search_type exact', async () => {
+  it('a documents-only example sends collection documents with lemma search', async () => {
     const calls = mockFetch({
       documentsEnabled: true,
       lineSearchResponse: { collection: 'both', total: 1, documents_total: 4,
@@ -144,10 +145,11 @@ describe('stage 4: example search buttons', () => {
     });
     render(<LineSearch language="la" />);
     await switchToSearchMode();
-    await waitFor(() => expect(screen.getByText('Try a documents example:')).toBeTruthy());
-    await userEvent.click(screen.getByRole('button', { name: '"conticuere omnes"' }));
+    await waitFor(() => expect(screen.getByText('Try an example:')).toBeTruthy());
+    await userEvent.click(screen.getByRole('button', { name: '"tene me ne fugiam"' }));
     await waitFor(() => expect(calls.length).toBeGreaterThan(0));
-    expect(calls[calls.length - 1].search_type).toBe('exact');
+    expect(calls[calls.length - 1].search_type).toBe('lemma');
+    expect(calls[calls.length - 1].collection).toBe('documents');
   });
 });
 

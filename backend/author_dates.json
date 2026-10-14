@@ -1178,6 +1178,21 @@
    "note": "d. c. 120 CE",
    "year": 120
   },
+  "diodorus_siculus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 60-30 BCE",
+   "year": -30
+  },
+  "procopius": {
+   "era": "Late Antique",
+   "note": "c. 500-after 560 CE",
+   "year": 560
+  },
+  "zosimus": {
+   "era": "Late Antique",
+   "note": "fl. c. 500 CE",
+   "year": 500
+  },
   "plutarch_pseudo": {
    "era": "Early Imperial",
    "note": "Pseudo-Plutarch; Plutarch's era, c. 1st-2nd c. CE",

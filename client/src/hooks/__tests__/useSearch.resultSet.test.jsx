@@ -1,7 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 
-vi.mock('../../utils/api', () => ({
+vi.mock('../../utils/api', async (importOriginal) => ({
+  ...(await importOriginal()),
   searchTexts: vi.fn(),
   searchTextsStream: vi.fn(),
   searchFusionStream: vi.fn(),

@@ -392,7 +392,9 @@ def analyze():
         # The page decides the scope (top 25, top 100, everything loaded) and
         # says so in its header. A second cap here made "all 200" report on 25.
         limit=len(results))
-    block = findings.format_for_narration(facts, passages=results)
+    block = findings.format_for_narration(
+        facts, passages=results,
+        language=data.get('language') or findings.infer_language(results))
 
     if not model.is_available():
         return jsonify({'facts': facts, 'answer': None, 'model_used': False,
@@ -511,7 +513,9 @@ def analyze_stream():
             yield _sse('done', {'model_used': False,
                                 'note': 'Computed findings only: the assistant is not running.'})
             return
-        block = findings.format_for_narration(facts, passages=results)
+        block = findings.format_for_narration(
+            facts, passages=results,
+            language=data.get('language') or findings.infer_language(results))
         ask = block
         if question:
             ask = f"{block}\n\nThe scholar asks: {question}"

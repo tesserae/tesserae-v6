@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import Navigation from '../Navigation';
+import { mockResponse } from '../../../test/mockResponse';
 
 afterEach(() => {
   cleanup();
@@ -24,7 +25,7 @@ describe('Navigation — selected state is announced, not just colored', () => {
   it('marks the active main tab with aria-current="page" and leaves others unmarked', () => {
     renderNav({ pageType: 'browse' });
     expect(screen.getByRole('button', { name: 'Browse Corpus' })).toHaveAttribute('aria-current', 'page');
-    expect(screen.getByRole('button', { name: 'Search' })).not.toHaveAttribute('aria-current');
+    expect(screen.getByRole('button', { name: 'Intertextual Search' })).not.toHaveAttribute('aria-current');
   });
 
   it('marks the active language tab with aria-current and leaves others unmarked', () => {
@@ -36,7 +37,7 @@ describe('Navigation — selected state is announced, not just colored', () => {
   it('gives the active main tab a heavier font weight, not just a color change', () => {
     renderNav({ pageType: 'browse' });
     const active = screen.getByRole('button', { name: 'Browse Corpus' });
-    const inactive = screen.getByRole('button', { name: 'Search' });
+    const inactive = screen.getByRole('button', { name: 'Intertextual Search' });
     expect(active.className).toMatch(/font-semibold/);
     expect(inactive.className).not.toMatch(/font-semibold/);
   });
@@ -78,14 +79,14 @@ describe('Navigation — the "Inscriptions & Papyri" item (documents trial)', ()
   function mockLanguages(documentsEnabled) {
     global.fetch = vi.fn(async (url) => {
       if (String(url) === '/api/languages') {
-        return {
+        return mockResponse({
           json: async () => ({
             languages: [{ code: 'la', label: 'Latin' }],
             documents_enabled: documentsEnabled,
           }),
-        };
+        });
       }
-      return { json: async () => ({}) };
+      return mockResponse({ json: async () => ({}) });
     });
   }
 
@@ -131,5 +132,85 @@ describe('Navigation — the "Inscriptions & Papyri" item (documents trial)', ()
     const tab = await screen.findByRole('button', { name: /Inscriptions & Papyri/ });
     tab.click();
     expect(setPageType).toHaveBeenCalledWith('inscriptions-papyri');
+  });
+});
+
+describe('Navigation — the "Events" item follows Collections', () => {
+  beforeEach(() => { window.localStorage.clear(); window.sessionStorage.clear(); });
+  afterEach(() => { window.localStorage.clear(); });
+
+  it('is absent in the Literary profile', () => {
+    renderNav();
+    expect(screen.queryByRole('button', { name: /Events/ })).toBeNull();
+  });
+
+  it.each(['historical', 'everything'])('appears in the %s profile', async (profile) => {
+    const { setProfile } = await import('../../../collections/collectionsStore');
+    setProfile(profile);
+    renderNav();
+    expect(await screen.findByRole('button', { name: /Events/ })).toBeTruthy();
+  });
+});
+
+describe('Navigation — the "Coins" item follows Collections', () => {
+  beforeEach(() => { window.localStorage.clear(); window.sessionStorage.clear(); });
+  afterEach(() => { window.localStorage.clear(); });
+
+  it.each(['literary', 'historical'])('is absent in the %s profile', async (profile) => {
+    const { setProfile } = await import('../../../collections/collectionsStore');
+    setProfile(profile);
+    renderNav();
+    expect(screen.queryByRole('button', { name: /^Coins/ })).toBeNull();
+  });
+
+  it('appears in the Archaeological and Everything profiles and when Coins is switched on by name', async () => {
+    const { setProfile, setCollection } = await import('../../../collections/collectionsStore');
+    setProfile('archaeological');
+    renderNav();
+    expect(await screen.findByRole('button', { name: /^Coins/ })).toBeTruthy();
+    cleanup();
+    setProfile('everything');
+    renderNav();
+    expect(await screen.findByRole('button', { name: /^Coins/ })).toBeTruthy();
+    cleanup();
+    setProfile('historical');
+    setCollection('coins', true);
+    renderNav();
+    expect(await screen.findByRole('button', { name: /^Coins/ })).toBeTruthy();
+  });
+});
+
+describe('Navigation — the "Objects" item follows Collections', () => {
+  beforeEach(() => { window.localStorage.clear(); window.sessionStorage.clear(); });
+  afterEach(() => { window.localStorage.clear(); });
+
+  it.each(['literary', 'historical'])('is absent in the %s profile', async (profile) => {
+    const { setProfile } = await import('../../../collections/collectionsStore');
+    setProfile(profile);
+    renderNav();
+    expect(screen.queryByRole('button', { name: /^Objects/ })).toBeNull();
+  });
+
+  it.each(['archaeological', 'everything'])('appears in the %s profile', async (profile) => {
+    const { setProfile } = await import('../../../collections/collectionsStore');
+    setProfile(profile);
+    renderNav();
+    expect(await screen.findByRole('button', { name: /^Objects/ })).toBeTruthy();
+  });
+
+  it('appears when Objects is switched on by name, after Coins', async () => {
+    const { setProfile, setCollection } = await import('../../../collections/collectionsStore');
+    setProfile('historical');
+    setCollection('objects', true);
+    renderNav();
+    expect(await screen.findByRole('button', { name: /^Objects/ })).toBeTruthy();
+    setCollection('coins', true);
+    cleanup();
+    renderNav();
+    const names = (await screen.findAllByRole('button')).map((b) => b.textContent.trim());
+    const coins = names.findIndex((n) => /^Coins/.test(n));
+    const objects = names.findIndex((n) => /^Objects/.test(n));
+    expect(coins).toBeGreaterThan(-1);
+    expect(objects).toBe(coins + 1);
   });
 });

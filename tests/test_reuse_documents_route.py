@@ -64,9 +64,10 @@ def _write_literary_reuse_db(reuse_dir, language, pairs_rows):
     conn.close()
 
 
-def _write_documents_reuse_db(reuse_dir, language, pairs_rows):
+def _write_documents_reuse_db(reuse_dir, language, pairs_rows, with_rule=False):
     """pairs_rows: (lit_work, lit_ref, lit_seq, doc_id, doc_bucket, doc_ref,
-    doc_seq, shared, jaccard, span_len, doc_restored)."""
+    doc_seq, shared, jaccard, span_len, doc_restored[, rule]). with_rule
+    adds the `rule` column that tables built since 2026-10-09 carry."""
     os.makedirs(reuse_dir, exist_ok=True)
     db_path = os.path.join(reuse_dir, f'{language}_documents.db')
     if os.path.exists(db_path):
@@ -75,9 +76,9 @@ def _write_documents_reuse_db(reuse_dir, language, pairs_rows):
     conn.execute("""CREATE TABLE pairs (
         lit_work TEXT, lit_ref TEXT, lit_seq INTEGER,
         doc_id TEXT, doc_bucket TEXT, doc_ref TEXT, doc_seq INTEGER,
-        shared INTEGER, jaccard REAL, span_len INTEGER, doc_restored INTEGER
-    )""")
-    conn.executemany("INSERT INTO pairs VALUES (?,?,?,?,?,?,?,?,?,?,?)", pairs_rows)
+        shared INTEGER, jaccard REAL, span_len INTEGER, doc_restored INTEGER"""
+                 + (", rule TEXT" if with_rule else "") + "\n    )")
+    conn.executemany("INSERT INTO pairs VALUES (" + ','.join('?' * (12 if with_rule else 11)) + ")", pairs_rows)
     conn.execute("CREATE TABLE meta (key TEXT PRIMARY KEY, value TEXT)")
     conn.executemany("INSERT INTO meta VALUES (?,?)", [('corpus_version', '2026-10-08')])
     conn.commit()
@@ -133,6 +134,7 @@ def _reset_reuse_state(monkeypatch, tmp_path):
     reuse_table._load_work_lines.cache_clear()
     monkeypatch.setattr(reuse_documents, 'DB_DIR', str(tmp_path / 'reuse_pairs'))
     monkeypatch.setattr(reuse_documents, '_connections', {})
+    monkeypatch.setattr(reuse_documents, '_KEEP_CLAUSE', {})
     reuse_documents._doc_credit.cache_clear()
 
 
@@ -257,4 +259,31 @@ def test_marks_carries_document_counts_including_a_literary_only_miss(monkeypatc
     assert by_ref['verg. aen. 2.1']['n_documents'] == 0
     assert by_ref['verg. aen. 2.1']['n_possible_documents'] == 1
     assert by_ref['verg. aen. 2.1']['n_works'] == 0
+    docs.reset_caches()
+
+
+def test_order_free_pair_is_shown_as_possible_when_the_table_has_a_rule_column(monkeypatch, tmp_path):
+    """A pair found by the order-free rule has jaccard 0 by construction (the
+    Pompeian fullers' parody of Aeneid 1.1), so the old keep clause hid it.
+    With a `rule` column it is admitted; without one the clause is unchanged."""
+    _reset_reuse_state(monkeypatch, tmp_path)
+    index_dir, metadata_db = _build_fixture(tmp_path)
+    _write_documents_reuse_db(str(tmp_path / 'reuse_pairs'), 'la', with_rule=True, pairs_rows=[
+        ('vergil.aeneid', 'verg. aen. 1.1', 0, 'edr:GRAFFITO1', 'edr__pompeii.tess',
+         'edr:GRAFFITO1', 0, 16, 1.0, 1, 0, 'ordered'),
+        ('vergil.aeneid', 'verg. aen. 1.1', 0, 'edh:FRAG1', 'edh__pompeii.tess',
+         'edh:FRAG1', 0, 1, 0.0, 1, 1, 'reorder'),
+    ])
+    monkeypatch.setenv('TESSERAE_DOCUMENTS', '1')
+    monkeypatch.setenv('TESSERAE_DOCUMENTS_INDEX_DIR', index_dir)
+    monkeypatch.setenv('TESSERAE_DOCUMENTS_META', metadata_db)
+    docs.reset_caches()
+    client = app.test_client()
+    out = json.loads(_get(client, _route('/reuse/line'), work='vergil.aeneid', ref='verg. aen. 1.1', language='la').get_data())
+    by_id = {h['doc_id']: h for h in out['documents']}
+    assert by_id['edr:GRAFFITO1']['tier'] == 'strict'
+    assert by_id['edh:FRAG1']['tier'] == 'possible'
+    marks = json.loads(_get(client, _route('/reuse/marks'), work='vergil.aeneid', language='la').get_data())
+    line = next(l for l in marks['lines'] if l['ref'] == 'verg. aen. 1.1')
+    assert line['n_documents'] == 1 and line['n_possible_documents'] == 1
     docs.reset_caches()

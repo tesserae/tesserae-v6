@@ -33,12 +33,71 @@ try:
     from cltk.prosody.lat.pentameter_scanner import PentameterScanner
     _CLTK_AVAILABLE = True
 except ImportError:
-    pass
+    # The same scanners, copied from CLTK under its MIT licence into
+    # backend/prosody_lat, so a server without the multi-gigabyte CLTK
+    # distribution still scans every metre.
+    try:
+        from backend.prosody_lat.hexameter_scanner import HexameterScanner
+        from backend.prosody_lat.hendecasyllable_scanner import HendecasyllableScanner
+        from backend.prosody_lat.pentameter_scanner import PentameterScanner
+        _CLTK_AVAILABLE = True
+    except ImportError:
+        pass
 
 _hexameter_scanner = None
 _hendecasyllable_scanner = None
 _pentameter_scanner = None
 _mqdq_scansions = None
+# Meters already reported as having no scanner, so the warning is written once.
+_MISSING_SCANNER_NOTED = set()
+
+# Latin vowel lengths for the fallback scanner (2026-10-13). The scanners read
+# length from position and from macrons only, so without macrons a line such as
+# "Arma virumque cano, Troiae qui primus ab oris" did not scan (two syllables
+# unknown, two candidate patterns, no decision). data/scansion/latin_macrons.json
+# maps 210,761 word forms to a macronized form, built by
+# scripts/corpus/build_latin_macrons.py from the CLTK Latin models (MIT). Measured
+# against MQDQ on 400 lines each of the Aeneid, the Metamorphoses and the
+# Pharsalia: lines scanned correctly rose from 32 to 36 percent to 46 to 48, and
+# lines scanned wrongly fell from 6.5 to 7.2 percent to 3.5 to 4.2.
+_MACRONS_PATH = os.path.join(os.path.dirname(__file__), '..', 'data', 'scansion', 'latin_macrons.json')
+_macrons = None
+_LATIN_WORD = re.compile(r'[A-Za-z]+')
+# Scansions already made in this process, keyed by (text, meter): the
+# scanners are pure and the same line is asked for again by every search that
+# reaches it.
+_SCAN_CACHE = {}
+_SCAN_CACHE_MAX = 200000
+
+
+def get_macrons():
+    """The word-to-macronized-form table, loaded once; {} when the file is absent."""
+    global _macrons
+    if _macrons is None:
+        try:
+            with open(_MACRONS_PATH, encoding='utf-8') as f:
+                _macrons = json.load(f)
+        except (OSError, ValueError) as e:
+            logger.warning(f"Latin macron table not loaded ({e}); verses are scanned without vowel lengths")
+            _macrons = {}
+    return _macrons
+
+
+def macronize_latin(text):
+    """The line with each word replaced by its macronized form where the table
+    has one. A word's first letter keeps its case; everything else (spacing,
+    punctuation, words not in the table) passes through unchanged."""
+    table = get_macrons()
+    if not table:
+        return text
+
+    def rep(m):
+        w = m.group()
+        form = table.get(w.lower())
+        if not form:
+            return w
+        return form[0].upper() + form[1:] if w[0].isupper() else form
+    return _LATIN_WORD.sub(rep, text)
 
 def get_mqdq_scansions():
     """Load pre-computed MQDQ scansion database"""
@@ -224,6 +283,11 @@ def expand_mqdq_pattern(pattern, meter_code):
     
     Latin hexameter structure: 6 feet, but MQDQ only encodes feet 1-4 (variable feet).
     Foot 5 is almost always a dactyl (–∪∪), foot 6 is always –× (adonic ending).
+
+    A pattern with any other letter (the database holds 205 lines whose
+    pattern is the text "not scanned") returns None, so the callers fall back
+    to the stored scansion. Dropping the letter would shorten the pattern and
+    pass a wrong scansion off as a real one. Spaces are ignored.
     """
     if not pattern:
         return None
@@ -242,8 +306,13 @@ def expand_mqdq_pattern(pattern, meter_code):
             expanded += '∪'
         elif char == 'X' or char == 'x':
             expanded += '×'  # Anceps
-        # Ignore other characters
-    
+        elif char.isspace():
+            continue
+        else:
+            return None
+    if not expanded:
+        return None
+
     # For hexameters, MQDQ patterns only encode feet 1-4
     # Add the 5th foot (dactyl –∪∪) and 6th foot (–×) to complete the adonic ending
     if meter_code == 'H':
@@ -574,9 +643,22 @@ def scan_latin_verse(text, meter_type='hexameter'):
             scanner = get_pentameter_scanner()
         else:
             scanner = get_hexameter_scanner()
-        
-        result = scanner.scan(text)
-        
+
+        if scanner is None:
+            # No scanner for this meter (the optional CLTK module is absent).
+            # Say so once per process, not once per verse: the per-verse
+            # error line below wrote 22 GB into Apache's error log by
+            # October 2026, thousands of lines per search.
+            if meter_type not in _MISSING_SCANNER_NOTED:
+                _MISSING_SCANNER_NOTED.add(meter_type)
+                logger.warning(f"No scanner available for {meter_type}; verses in that meter go unscanned")
+            return None
+
+        key = (text, meter_type)
+        if key in _SCAN_CACHE:
+            return _SCAN_CACHE[key]
+        result = scanner.scan(macronize_latin(text))
+
         if hasattr(result, 'scansion') and result.scansion:
             is_valid = getattr(result, 'valid', False)
             raw_scansion = result.scansion.strip()
@@ -584,12 +666,16 @@ def scan_latin_verse(text, meter_type='hexameter'):
             
             formatted = format_scansion_for_display(pattern)
             
-            return {
+            out = {
                 'pattern': pattern,
                 'raw': formatted if is_valid else None,
                 'valid': is_valid,
                 'meter': meter_type
             }
+            if len(_SCAN_CACHE) >= _SCAN_CACHE_MAX:
+                _SCAN_CACHE.clear()
+            _SCAN_CACHE[key] = out
+            return out
     except Exception as e:
         logger.error(f"Error scanning verse ({meter_type}): {e}")
     

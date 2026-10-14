@@ -58,9 +58,9 @@ _RULES = [
     },
     {
         'all': [('language', 'languages'), ('support', 'available', 'which', 'what')],
-        'answer': ("Tesserae searches Latin, Greek, Hebrew, English and Coptic, and it can search across "
-                   "those languages for texts that are related in different tongues. The corpus holds "
-                   "roughly 2,100 works, most of them Latin and Greek."),
+        # Built from the server's own state (backend/assistant/site_facts.py),
+        # so the answer follows the languages and collections actually served.
+        'answer': lambda: __import__('backend.assistant.site_facts', fromlist=['holdings_sentence']).holdings_sentence(),
     },
 ]
 
@@ -116,11 +116,19 @@ def route(question):
     q = _norm(question)
     if not q.strip():
         return None
+    # A short "where do I start" gets the site's seven choices. Checked before
+    # the advice markers, which contain "where do i start" and would send it
+    # to the model. A longer question that names an author or a topic does not
+    # match (see front_door.matches).
+    from backend.assistant import front_door
+    if front_door.matches(q):
+        return front_door.answer()
     if any(_has(m, q) for m in _META):
         return None
     if any(_has(a, q) for a in _ADVICE):
         return None
     for rule in _RULES:
         if all(any(_has(term, q) for term in group) for group in rule['all']):
-            return rule['answer']
+            answer = rule['answer']
+            return answer() if callable(answer) else answer
     return None

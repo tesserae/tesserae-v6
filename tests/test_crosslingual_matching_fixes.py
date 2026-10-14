@@ -226,7 +226,7 @@ def test_semantic_recovery_still_runs_for_grc_la():
 
     load_calls = []
 
-    def recording_load(path, lang):
+    def recording_load(path, lang, space='mono'):
         load_calls.append(lang)
         return None  # Return None so recovery finds nothing; no crash.
 

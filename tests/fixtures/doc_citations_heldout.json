@@ -1,0 +1,1876 @@
+[
+{
+"n": 1,
+"src": "doc:papyri:16304/commentary",
+"stratum": "PAPser",
+"ctx": "20, 1983, S. 8 und BL IX, S. 293. Rückseite: P. Lond. III 1259 (S. 239).",
+"gold": [
+"P. Lond. III 1259"
+],
+"neutral": []
+},
+{
+"n": 2,
+"src": "doc:edh:HD074193/commentary",
+"stratum": "CLE",
+"ctx": " CIL 03, 11451: scul(p)tu(m) ines(t) lapide; CLE 0923: scul(p)tu(s) ines(t) lapidi vult[us ---; Hirschfeld: Z. 4: lapide",
+"gold": [
+"CIL 03, 11451",
+"CLE 0923"
+],
+"neutral": []
+},
+{
+"n": 3,
+"src": "doc:edh:HD056518/commentary",
+"stratum": "CIL",
+"ctx": "Z. 1: statt E auch L möglich. (B): CIL III 10004; Fadić; Selem: Z. 1 nicht angegeben; Fadić: Z. 2: Isido[rae];",
+"gold": [
+"CIL III 10004"
+],
+"neutral": []
+},
+{
+"n": 4,
+"src": "doc:papyri:10181/commentary",
+"stratum": "PAPvol",
+"ctx": "Gehört zu derselben Rolle wie BGU XIII 2270; 2271; P.Col. II 1 Recto 4; P.Graux III 30; SB XVI 13060 (Rüc",
+"gold": [
+"BGU XIII 2270",
+"P.Col. II 1",
+"P.Graux III 30",
+"SB XVI 13060"
+],
+"neutral": []
+},
+{
+"n": 5,
+"src": "doc:papyri:121889/commentary",
+"stratum": "PAPser",
+"ctx": "m Archiv des Epistates Demetrios. Rückseite: P.Sorb. III 134.",
+"gold": [
+"P.Sorb. III 134"
+],
+"neutral": []
+},
+{
+"n": 6,
+"src": "doc:edr:aEDR107151/apparatus",
+"stratum": "CIL",
+"ctx": "ricomposto unendo i due frg. CIL 11, 05982 e CIL 06, 39335, pubblicati separatamente.",
+"gold": [
+"CIL 11, 05982",
+"CIL 06, 39335"
+],
+"neutral": []
+},
+{
+"n": 8,
+"src": "doc:edr:aEDR005625/apparatus",
+"stratum": "LOOSE",
+"ctx": " a. 1998<br>v. 1: O pro D in d(iem)<br>v. 8: O pro D in ludos",
+"gold": [],
+"neutral": []
+},
+{
+"n": 9,
+"src": "doc:edh:HD017227/commentary",
+"stratum": "SEG",
+"ctx": ". 3: AE 1963: ΔΟΓΤΟΓΡΟΕ. Ariescu: ΔΟΓΤΟΓΡΟΣ. SEG 24: Δουτουρος. IScM 2: Δουτοῦρος (?). Z. 5: Auf dem Stein steht eindeut",
+"gold": [],
+"neutral": []
+},
+{
+"n": 10,
+"src": "doc:papyri:14735/commentary",
+"stratum": "PAPvol",
+"ctx": "Duplikate: SB XVIII 13292 und SB XVIII 13294.",
+"gold": [
+"SB XVIII 13292",
+"SB XVIII 13294"
+],
+"neutral": []
+},
+{
+"n": 11,
+"src": "doc:isicily:ISic001367/apparatus",
+"stratum": "LOOSE",
+"ctx": "sPalermo 8; ἔτη ε CIG IV 9484; ἔτη ε [μῆνας] IG IV 548; Alessi: ΠΡΟΤΑ; Kirchoff: προτ[έρ]ᾳ; Manni Piraino: πρὸ ⟨ι⟩α’; t",
+"gold": [
+"CIG IV 9484",
+"IG IV 548"
+],
+"neutral": []
+},
+{
+"n": 12,
+"src": "doc:edh:HD069558/commentary",
+"stratum": "RIB",
+"ctx": "(B): Zu den leichten Leseabweichungen s. RIB 0255.",
+"gold": [
+"RIB 0255"
+],
+"neutral": []
+},
+{
+"n": 13,
+"src": "doc:papyri:8347/commentary",
+"stratum": "PAPser",
+"ctx": "Zu Z. 5-6 vgl. P.Heid. IX 431 Einl., S. 83 mit Anm. 4.",
+"gold": [
+"P.Heid. IX 431"
+],
+"neutral": []
+},
+{
+"n": 14,
+"src": "comm:jebb__sophocles.oedipus_at_colonus.json",
+"stratum": "LOOSE",
+"ctx": "tly \"alone,\" but \"more than all others\": cp. O. T. 299 n.",
+"gold": [],
+"neutral": []
+},
+{
+"n": 15,
+"src": "doc:papyri:27758/commentary",
+"stratum": "PAPvol",
+"ctx": "Rückseite: SPP XX 13 II.",
+"gold": [
+"SPP XX 13"
+],
+"neutral": []
+},
+{
+"n": 16,
+"src": "doc:papyri:1383a/commentary",
+"stratum": "PAPser",
+"ctx": ".Col. III 38. Zum Ort und zur Datierung vgl. P.Col. III 38, Einleitung",
+"gold": [
+"P.Col. III 38"
+],
+"neutral": []
+},
+{
+"n": 17,
+"src": "doc:isicily:ISic001159/commentary",
+"stratum": "CIG",
+"ctx": "er, appearing in an inscription from Athens (CIG. I.1013).",
+"gold": [
+"CIG. I.1013"
+],
+"neutral": []
+},
+{
+"n": 18,
+"src": "doc:papyri:10170/commentary",
+"stratum": "PAPser",
+"ctx": "B XVI 13060 (Rückseiten: P.Col. V 1 Verso 4; P.Graux IV 31). Zum Ort vgl. P.Col. II 1 Recto 4 Einleitung, S. 99-101.",
+"gold": [
+"P.Col. V 1",
+"P.Graux IV 31",
+"P.Col. II 1"
+],
+"neutral": []
+},
+{
+"n": 19,
+"src": "doc:papyri:18411/commentary",
+"stratum": "PAPvol",
+"ctx": ". Febr. oder 25.Juli - 23. Aug. Zu Z. 3 vgl. CPR XXII 8,2 Anm. (S. 59).",
+"gold": [
+"CPR XXII 8"
+],
+"neutral": []
+},
+{
+"n": 20,
+"src": "doc:edr:aEDR146249/apparatus",
+"stratum": "COIN",
+"ctx": "17.<br>L'edizione di riferimento è quella di Crawford, eccettuati i vv. 54-57, per i quali è stata seguita l'integrazion",
+"gold": [],
+"neutral": []
+},
+{
+"n": 21,
+"src": "doc:edr:aEDR188507/apparatus",
+"stratum": "IG",
+"ctx": "ικός nella dedica a Cominia Plutogenia, cfr. IGIt Napoli 1, Roma 1990, pp. 52-54, nr. 34. Vibius Pollius, menzionato al ",
+"gold": [],
+"neutral": []
+},
+{
+"n": 22,
+"src": "doc:papyri:7799/commentary",
+"stratum": "PAPvol",
+"ctx": "= Kol. VII, Z. 279 - VIII, Z. 297 der Rolle CPR XVIII 1 - 21. Alternativdatierung: 12. Mai - 10. Juni 206 v. Chr. Zur D",
+"gold": [
+"CPR XVIII 1 - 21"
+],
+"neutral": []
+},
+{
+"n": 23,
+"src": "doc:edh:HD053048/commentary",
+"stratum": "AE",
+"ctx": "Reuter; AE 1897: Z. 1 (Ende): VII; Dahm, BJ; AE 1897: Z. 3: merito.",
+"gold": [],
+"neutral": []
+},
+{
+"n": 24,
+"src": "doc:edh:HD058139/commentary",
+"stratum": "CIL",
+"ctx": "ich für eine moderne Inschrift getilgt. (B): CIL III: Leseabweichungen.",
+"gold": [],
+"neutral": []
+},
+{
+"n": 25,
+"src": "doc:isicily:ISic000722/commentary",
+"stratum": "COIN",
+"ctx": "r of 148 BCE, L. Sempronius Pitio (Crawford, RRC no.216). The possibility is therefore either a Roman citizen with the G",
+"gold": [
+"RRC no.216"
+],
+"neutral": []
+},
+{
+"n": 26,
+"src": "doc:edr:aEDR173305/apparatus",
+"stratum": "CIL",
+"ctx": "DR173306.<br>Il titulus copriva parzialmente CIL 04, 03819 (nessun candidato riconoscibile), più antica.",
+"gold": [
+"CIL 04, 03819"
+],
+"neutral": []
+},
+{
+"n": 27,
+"src": "doc:papyri:15021/commentary",
+"stratum": "PAPvol",
+"ctx": "ur Datierung vgl. BL VIII, S. 461. Duplikat: CPR I 25. Zu Z. 6 vgl. Russo, Gioielli, S. 36f., Nr. 32; S. 176, Nr. 14 und",
+"gold": [
+"CPR I 25"
+],
+"neutral": []
+},
+{
+"n": 28,
+"src": "doc:edh:HD054502/commentary",
+"stratum": "AE",
+"ctx": "Die unter AE 2007, 1092 zitierte Literatur (S. Loma, Mileševski zapisi. Mileševa Writ",
+"gold": [
+"AE 2007, 1092"
+],
+"neutral": []
+},
+{
+"n": 29,
+"src": "doc:isicily:ISic003306/commentary",
+"stratum": "SEG",
+"ctx": "ρό and Κ(αλανδῶν) is rare but has parallels (SEG 53.1104, 1, Rome, 1st-2nd cent. CE) and could indicate the day before t",
+"gold": [
+"SEG 53.1104"
+],
+"neutral": []
+},
+{
+"n": 30,
+"src": "doc:edr:aEDR128157/apparatus",
+"stratum": "CIG",
+"ctx": "siderare dubbia la provenienza da Modena.<br>CIG 14 al posto di IG 14 e errata accentazione di alcune parole greche in (",
+"gold": [],
+"neutral": [
+"CIG 14",
+"IG 14"
+]
+},
+{
+"n": 31,
+"src": "doc:papyri:23007/commentary",
+"stratum": "PAPvol",
+"ctx": "Zur Datierung vgl. SPP XX 61 und SPP V 124 Rekto, Kol. I. Rückseite: CPR 35 18.",
+"gold": [
+"SPP XX 61",
+"SPP V 124",
+"CPR 35 18"
+],
+"neutral": []
+},
+{
+"n": 32,
+"src": "doc:edh:HD051312/commentary",
+"stratum": "LOOSE",
+"ctx": "(B): Miraj; AE 1994: Leseabweichungen.",
+"gold": [],
+"neutral": []
+},
+{
+"n": 33,
+"src": "doc:isicily:ISic003124/commentary",
+"stratum": "IG",
+"ctx": " hypothesis that the other two statue bases (IG XIV.434 and 435 = ISic001259 and ISic001260) were originally part of the",
+"gold": [
+"IG XIV.434"
+],
+"neutral": []
+},
+{
+"n": 34,
+"src": "doc:isicily:ISic001273/apparatus",
+"stratum": "CIG",
+"ctx": "ύλα Manganaro; ἡ δεῖνα Ἀρχεβ]οῦλα Franz (ap. CIG III 5652); ἀνέθεκεν ἁ β]οῦλα Kaibel (ap. IG XIV 448), Hoffmann; [ἡ δεῖν",
+"gold": [
+"CIG III 5652",
+"IG XIV 448"
+],
+"neutral": []
+},
+{
+"n": 35,
+"src": "doc:isicily:ISic003008/commentary",
+"stratum": "IG",
+"ctx": "that it is part of the lost text recorded in IG XIV.10, originally reported by Metellus (and which has ΟΙΚΟ in line 2), ",
+"gold": [
+"IG XIV.10"
+],
+"neutral": []
+},
+{
+"n": 36,
+"src": "doc:papyri:27534/commentary",
+"stratum": "PAPser",
+"ctx": "Rückseite: P.Vars. 6 (Schultext, = Pack [1965] 2666).",
+"gold": [
+"P.Vars. 6"
+],
+"neutral": []
+},
+{
+"n": 37,
+"src": "hist:SOURCES_BRIEF.md:822",
+"stratum": "COIN",
+"ctx": "online version of Michael Crawford's 1974 Roman Republican Coinage (RRC) typology,",
+"gold": [],
+"neutral": []
+},
+{
+"n": 38,
+"src": "doc:isicily:ISic003573/commentary",
+"stratum": "COIN",
+"ctx": " (cf. ISic003572 and the Augustan coinage of RPC I, nos. 630-633). In line 3, traces of a circular letter are visible, w",
+"gold": [
+"RPC I, nos. 630-633"
+],
+"neutral": []
+},
+{
+"n": 39,
+"src": "doc:edh:HD026770/commentary",
+"stratum": "AE",
+"ctx": "eldes insbesondere ab Z. 4 stark verwittert. AE 1934, 0075: nur Z. 1-3 wiedergegeben. Z. 4 (Anfang): QVI nach Saria; heu",
+"gold": [
+"AE 1934, 0075"
+],
+"neutral": []
+},
+{
+"n": 40,
+"src": "doc:merged:264093/commentary",
+"stratum": "AE",
+"ctx": "1961: Z. 2: Samneti; AE 1969/70: Verweis auf AE 1961 ohne Korrektur.",
+"gold": [],
+"neutral": []
+},
+{
+"n": 41,
+"src": "doc:merged:251049/commentary",
+"stratum": "ILS",
+"ctx": "ie CIL VI 10170 = ILS 5129 oder CIL X 1685 = ILS 1397.",
+"gold": [
+"CIL VI 10170",
+"ILS 5129",
+"CIL X 1685",
+"ILS 1397"
+],
+"neutral": []
+},
+{
+"n": 42,
+"src": "doc:papyri:18207/commentary",
+"stratum": "PAPvol",
+"ctx": " zum Hermias- und Maximos-Archiv. Rückseite: SB XIV 12211. Zur Datierung vgl. BL X, S. 212. Alternativdatierung: 15. Jan",
+"gold": [
+"SB XIV 12211"
+],
+"neutral": []
+},
+{
+"n": 43,
+"src": "doc:edr:aEDR193424/apparatus",
+"stratum": "CLE",
+"ctx": "? Se F possibile anche effugi o simili (cfr. CLE 434, 1498)? Oppure diffusor (cfr. AE 1980, 98 da Roma)?",
+"gold": [
+"CLE 434",
+"AE 1980, 98"
+],
+"neutral": []
+},
+{
+"n": 44,
+"src": "doc:papyri:4813/commentary",
+"stratum": "PAPvol",
+"ctx": "Zur Datierung vgl. BGU XVIII.1, S. 30f., Anm. 65. Alternativdatierung: 3. Nov. 79 v.Chr.",
+"gold": [],
+"neutral": []
+},
+{
+"n": 45,
+"src": "doc:isicily:ISic001289/commentary",
+"stratum": "IG",
+"ctx": "ttested in another inscription from Catania (IG 14.491 = ISic000361).",
+"gold": [
+"IG 14.491"
+],
+"neutral": []
+},
+{
+"n": 47,
+"src": "doc:edh:HD014073/commentary",
+"stratum": "LOOSE",
+"ctx": "(B): Patsch; Rey; Sestieri; AE 1978; Anamali - Ceka - Deniaux: Leseabweichungen.",
+"gold": [],
+"neutral": []
+},
+{
+"n": 48,
+"src": "doc:isicily:ISic003239/commentary",
+"stratum": "IG",
+"ctx": " verb could justify the space after ΕΣ as in IG 14.509 = ISic001330. At l. 4, Korhonen assumed the name Ζώσιμος (οr doub",
+"gold": [
+"IG 14.509"
+],
+"neutral": []
+},
+{
+"n": 49,
+"src": "doc:edh:HD070698/commentary",
+"stratum": "RIB",
+"ctx": "(B): Zu den leichten Leseabweichungen s. RIB 1514.",
+"gold": [
+"RIB 1514"
+],
+"neutral": []
+},
+{
+"n": 50,
+"src": "doc:edr:aEDR116655/apparatus",
+"stratum": "COIN",
+"ctx": "ecundum (3), contulit ad imaginem apud M. H. Crawford, Roman Statutes, London 1996, II, tav. IV, 2 Squadroni a. 2007",
+"gold": [],
+"neutral": []
+},
+{
+"n": 51,
+"src": "doc:papyri:32631/commentary",
+"stratum": "PAPser",
+"ctx": "Duplikat von P.Strasb. VIII 714.",
+"gold": [
+"P.Strasb. VIII 714"
+],
+"neutral": []
+},
+{
+"n": 52,
+"src": "doc:isicily:ISic001175/commentary",
+"stratum": "SEG",
+"ctx": "Lapiron is otherwise only attested at Locri (SEG 32.1018), although the phenomenon of such second names is common in Hel",
+"gold": [
+"SEG 32.1018"
+],
+"neutral": []
+},
+{
+"n": 53,
+"src": "doc:edh:HD072016/commentary",
+"stratum": "CIL",
+"ctx": "mit größerem Zeilenabstand geschrieben. (B): CIL 03, 10843: Z. 5: BBBF; Schallmayer - Eibl - Ott - Preuss - Wittkopf: Z.",
+"gold": [
+"CIL 03, 10843"
+],
+"neutral": []
+},
+{
+"n": 54,
+"src": "doc:papyri:8870/commentary",
+"stratum": "PAPvol",
+"ctx": "I 403. Zur Datierung vgl. BL VIII, S. 25 und CPR XXIV, S. 199 mit Anm. 13. Alternativdatierung: 3. Aug. 660. Vgl. JJP 32",
+"gold": [],
+"neutral": []
+},
+{
+"n": 55,
+"src": "doc:isicily:ISic000537/apparatus",
+"stratum": "CLE",
+"ctx": "57): [tibi qui sacramque dicavit]; Bücheler (CLE 2.7257): [miles bonus, o dea,]; Gualtherus 1624(1): VDDVXQVE; Gualtheru",
+"gold": [],
+"neutral": [
+"CLE 2.7257"
+]
+},
+{
+"n": 56,
+"src": "doc:isicily:ISic001275/apparatus",
+"stratum": "CIG",
+"ctx": "Text of CIG (Franz); Περσεφόνη Franz (ap. CIG III 5649f); Kaibel (ap. IG XIV 450); Περσεφόνῃ Manganaro; βασιλὶς Franz",
+"gold": [
+"CIG III 5649f",
+"IG XIV 450"
+],
+"neutral": []
+},
+{
+"n": 57,
+"src": "doc:papyri:4116/commentary",
+"stratum": "PAPvol",
+"ctx": "Rückseite: SB XVI 12394.",
+"gold": [
+"SB XVI 12394"
+],
+"neutral": []
+},
+{
+"n": 58,
+"src": "doc:isicily:ISic030296/apparatus",
+"stratum": "SEG",
+"ctx": "̣; other edd.: κ̣ο[ινὰ]; Lewis 78, Nenci 80, SEG 30, Asheri-Nenci 82, Dubois 89: Νακωνα̣ί̣ων̣; Nenci 91a: Νακωναίων; not",
+"gold": [],
+"neutral": []
+},
+{
+"n": 59,
+"src": "doc:papyri:70143/commentary",
+"stratum": "PAPvol",
+"ctx": "Lateinisch. Gehört zu derselben Rolle wie ChLA VI 321.",
+"gold": [
+"ChLA VI 321"
+],
+"neutral": []
+},
+{
+"n": 60,
+"src": "doc:edh:HD039488/commentary",
+"stratum": "CIL",
+"ctx": "ten in CIL III 4345 überliefert; Lesung nach CIL III 11055. (B): RIU: Z. 1 nicht gelesen.",
+"gold": [
+"CIL III 4345",
+"CIL III 11055"
+],
+"neutral": []
+},
+{
+"n": 61,
+"src": "doc:papyri:33500/commentary",
+"stratum": "PAPvol",
+"ctx": "Textus prior: SB XVIII 14039. Zum Recto vgl. Luijendijk, Greetings in the Lord, S.39, Anm",
+"gold": [
+"SB XVIII 14039"
+],
+"neutral": []
+},
+{
+"n": 62,
+"src": "doc:merged:286498/commentary",
+"stratum": "CLE",
+"ctx": "(B): CIL 1, 02102, ILLRP: Z. 1: coeraverunt; CIL 1, 02102; CIL 11, 04595, ILLRP: Z. 2: Fufidiu",
+"gold": [
+"CIL 1, 02102",
+"CIL 1, 02102",
+"CIL 11, 04595"
+],
+"neutral": []
+},
+{
+"n": 63,
+"src": "doc:edh:HD050019/commentary",
+"stratum": "LOOSE",
+"ctx": "ert werden. (10.03.2021) Textwiedergabe nach AE. Inschrift in einen Schlüssel aus Bronze gepunzt.",
+"gold": [],
+"neutral": []
+},
+{
+"n": 64,
+"src": "doc:papyri:14896b/commentary",
+"stratum": "PAPser",
+"ctx": "Gehört zu SB XX 14645. Rückseite: P.Prag. III 238. Gehört zum Heroninos - Archiv.",
+"gold": [
+"SB XX 14645",
+"P.Prag. III 238"
+],
+"neutral": []
+},
+{
+"n": 65,
+"src": "doc:edh:HD060890/commentary",
+"stratum": "CIL",
+"ctx": "elteil eines Altars oder einer Statuenbasis (CIL III: basis quadrata).",
+"gold": [],
+"neutral": []
+},
+{
+"n": 66,
+"src": "doc:edh:HD006312/commentary",
+"stratum": "AE",
+"ctx": "(B): CIL, Russu, AE 1980, IDR: geringfügig abweichende Textwiedergaben.",
+"gold": [],
+"neutral": []
+},
+{
+"n": 67,
+"src": "doc:edh:HD053382/commentary",
+"stratum": "CLE",
+"ctx": "(B): ILLRP: Z. 2/3: Zeilenfall fehlt.",
+"gold": [],
+"neutral": []
+},
+{
+"n": 68,
+"src": "doc:edr:aEDR154088/apparatus",
+"stratum": "CIL",
+"ctx": " personaggi citati in questa iscrizione e in CIL 14, 00995 fossero liberti di Sex. Fadius Secundus Musa, negotiator Narb",
+"gold": [
+"CIL 14, 00995"
+],
+"neutral": []
+},
+{
+"n": 69,
+"src": "comm:allen__homer.hymns.part.8.json",
+"stratum": "CIG",
+"ctx": " late, but may be retained in this hymn; cf. C.I.G. 6206, 6290, both inscriptions from imperial times. For the general s",
+"gold": [
+"C.I.G. 6206"
+],
+"neutral": []
+},
+{
+"n": 70,
+"src": "doc:edr:aEDR182249/apparatus",
+"stratum": "CIL",
+"ctx": "Textus secundum (1).<br>In CIL, VI 33675 sono editi altri due testi frammentari (cfr. EDR182248, EDR18",
+"gold": [
+"CIL, VI 33675"
+],
+"neutral": []
+},
+{
+"n": 71,
+"src": "doc:isicily:ISic001623/apparatus",
+"stratum": "COIN",
+"ctx": "Text of Crawford 2011 from autopsy in 2009; Orsi: [---]ΑΣ; Crawford: 'There is no t",
+"gold": [],
+"neutral": []
+},
+{
+"n": 72,
+"src": "doc:edh:HD053293/commentary",
+"stratum": "CIL",
+"ctx": "(B): CIL 03, 01738: Leseabweichungen.",
+"gold": [
+"CIL 03, 01738"
+],
+"neutral": []
+},
+{
+"n": 73,
+"src": "doc:papyri:4355a/commentary",
+"stratum": "PAPser",
+"ctx": " Archiv. Zur Datierung vgl. BL X, S. 206 und P.Heid. VII, S. 256.",
+"gold": [],
+"neutral": []
+},
+{
+"n": 74,
+"src": "doc:edr:aEDR151117/apparatus",
+"stratum": "CIL",
+"ctx": "secundum (1)<br>Iscrizione trovata insieme a CIL 14, 00553, che menziona C. Agrius Successus, forse lo stesso personaggi",
+"gold": [
+"CIL 14, 00553"
+],
+"neutral": []
+},
+{
+"n": 75,
+"src": "doc:edh:HD021175/commentary",
+"stratum": "RIB",
+"ctx": "(B): Zu den leichten Leseabweichungen s. RIB 0804. Über die Inschrift Darstellung eines Kopfes.",
+"gold": [
+"RIB 0804"
+],
+"neutral": []
+},
+{
+"n": 76,
+"src": "doc:papyri:11879/commentary",
+"stratum": "PAPser",
+"ctx": "Duplikat: P.Lund. IV 2 (= SB VI 9338; Z. 1 - 12 = SB V 8747; P.Lund. III 7).",
+"gold": [
+"P.Lund. IV 2",
+"SB VI 9338",
+"SB V 8747",
+"P.Lund. III 7"
+],
+"neutral": []
+},
+{
+"n": 77,
+"src": "comm:jebb__sophocles.trachiniae.json",
+"stratum": "CIG",
+"ctx": "; the title occurs, too, in an Attic inscr. (C. I. G. 497—506), and was frequent in poetry. I prefer, however, to keep t",
+"gold": [
+"C. I. G. 497—506"
+],
+"neutral": []
+},
+{
+"n": 78,
+"src": "doc:edh:HD002118/commentary",
+"stratum": "AE",
+"ctx": "p; Z. 2: Fedelis - AE 1955. HAEp; Fidelies - AE 1908. Material: rosa-weißer Marmor.",
+"gold": [],
+"neutral": []
+},
+{
+"n": 79,
+"src": "doc:edh:HD004213/commentary",
+"stratum": "AE",
+"ctx": "ehrte ist durch mehrere Inschriften bekannt: AE 1933, 99; 1934, 258; 1968, 536-538; CIL XI 3310a = ILS 904.",
+"gold": [
+"AE 1933, 99",
+"CIL XI 3310a",
+"ILS 904"
+],
+"neutral": []
+},
+{
+"n": 80,
+"src": "doc:isicily:ISic030296/apparatus",
+"stratum": "SEG",
+"ctx": "ther edd.: δοκιμάζων|τι; Lewis 78, Nenci 80, SEG 30: πολῖται ἑορταζόντω (i.e. πάντες omitted); Lewis 78, Nenci 80, Asher",
+"gold": [],
+"neutral": []
+},
+{
+"n": 81,
+"src": "doc:edh:HD061029/commentary",
+"stratum": "CIL",
+"ctx": "nierungsphase der legio X in Carnuntum. (B): CIL 03, 14359, 23: Z. 3: l(egionis) X g(eminae).",
+"gold": [
+"CIL 03, 14359"
+],
+"neutral": []
+},
+{
+"n": 82,
+"src": "doc:papyri:17342/commentary",
+"stratum": "PAPser",
+"ctx": "Rückseite: P.Iand. VII 135 a.",
+"gold": [
+"P.Iand. VII 135"
+],
+"neutral": []
+},
+{
+"n": 83,
+"src": "doc:papyri:41600/commentary",
+"stratum": "PAPvol",
+"ctx": "Duplikat von Kol. II: SB XXIV 16258. Zu Z. 1 vgl. P.Louvre II 108,2-3 Anm.",
+"gold": [
+"SB XXIV 16258",
+"P.Louvre II 108"
+],
+"neutral": []
+},
+{
+"n": 84,
+"src": "doc:edh:HD069422/commentary",
+"stratum": "RIB",
+"ctx": "(B): Zu den leichten Leseabweichungen s. RIB 0097.",
+"gold": [
+"RIB 0097"
+],
+"neutral": []
+},
+{
+"n": 85,
+"src": "doc:merged:144011/commentary",
+"stratum": "ILS",
+"ctx": "ng. T. Mussidius Pollianus aus CIL VI 1466 = ILS 913 bekannt.",
+"gold": [
+"CIL VI 1466",
+"ILS 913"
+],
+"neutral": []
+},
+{
+"n": 86,
+"src": "doc:papyri:2565/commentary",
+"stratum": "SEG",
+"ctx": "Zur Datierung vgl. SEG XXXVI 1414. Zur Datierung vgl. ZPE 132, 2000, S. 244-245.",
+"gold": [
+"SEG XXXVI 1414"
+],
+"neutral": []
+},
+{
+"n": 87,
+"src": "doc:edh:HD060306/commentary",
+"stratum": "LOOSE",
+"ctx": "ste mit nach unten zeigenden cornua; nach J.-P. Caillet, in: Marin u. a., Salona 4 mit (pondo) oder (libras) aufzulösen.",
+"gold": [],
+"neutral": []
+},
+{
+"n": 88,
+"src": "doc:merged:175726/apparatus",
+"stratum": "CIL",
+"ctx": "messa in relazione con un'epigrafe gozitana (CIL 10, 07501 = ILS 121) menzionante M(arcus) Livius Optatus, come flamen l",
+"gold": [
+"CIL 10, 07501",
+"ILS 121"
+],
+"neutral": []
+},
+{
+"n": 89,
+"src": "doc:edr:aEDR103365/apparatus",
+"stratum": "AE",
+"ctx": "via Phoebe compaiono anche in CIL 03, 2082 = AE 2015, 1079 Salona.",
+"gold": [
+"CIL 03, 2082",
+"AE 2015, 1079"
+],
+"neutral": []
+},
+{
+"n": 90,
+"src": "doc:edh:HD020662/commentary",
+"stratum": "AE",
+"ctx": "iehen sich auf tab. I. (B): Dušanić - Vasić; AE 1977: geringe Abweichungen in der Lesung.",
+"gold": [],
+"neutral": []
+},
+{
+"n": 91,
+"src": "doc:edh:HD024722/commentary",
+"stratum": "CIL",
+"ctx": "re Inschriften aus Jérica und Viver bekannt: CIL II (2. Aufl.) 14, 236 = AE 1984, 599, CIL II (2. Aufl.) 14, 258 = CIL I",
+"gold": [
+"CIL II (2. Aufl.) 14, 236",
+"AE 1984, 599",
+"CIL II (2. Aufl.) 14, 258"
+],
+"neutral": []
+},
+{
+"n": 92,
+"src": "doc:papyri:29259/commentary",
+"stratum": "PAPser",
+"ctx": "Descr. Rückseite: P.Oxy. II 222 (literarisch, Pack [1965] 2188).",
+"gold": [
+"P.Oxy. II 222"
+],
+"neutral": []
+},
+{
+"n": 93,
+"src": "doc:merged:125271/commentary",
+"stratum": "CIL",
+"ctx": "talica (Romae 1884) 237, Nr. 1227; vgl. auch CIL V 1877).",
+"gold": [
+"CIL V 1877"
+],
+"neutral": []
+},
+{
+"n": 94,
+"src": "doc:papyri:75968/commentary",
+"stratum": "PAPser",
+"ctx": "ur Datierung in Z. 6 (eher 15. Mai 165) vgl. O.Strasb. II, S. 164, Anm. 562.",
+"gold": [],
+"neutral": []
+},
+{
+"n": 95,
+"src": "doc:edr:aEDR175854/apparatus",
+"stratum": "CIL",
+"ctx": ".<br>Est Pompeiis quidam Felicio lupinarius (CIL 04, 03423) vel lupinopolus (CIL 04, 03483) et alii Feliciones (EDR16788",
+"gold": [
+"CIL 04, 03423",
+"CIL 04, 03483"
+],
+"neutral": []
+},
+{
+"n": 96,
+"src": "doc:edh:HD016172/commentary",
+"stratum": "AE",
+"ctx": "(B): AE 1966, AE 1969/70: Keine eindeutige Zuweisung der Textteile.",
+"gold": [],
+"neutral": []
+},
+{
+"n": 97,
+"src": "doc:edh:HD038567/commentary",
+"stratum": "AE",
+"ctx": "tius Bolanus (111 n. Chr.). (B): Bărbulescu; AE 1993: Abweichungen in Lesung und Ergänzung.",
+"gold": [],
+"neutral": []
+},
+{
+"n": 98,
+"src": "doc:edh:HD046246/commentary",
+"stratum": "CIL",
+"ctx": "iancardi: Z. 4: ex p(rovincia) B(ritannica); CIL 03, 11918: Z. 4: ex p(rovincia) B(elgica); IBR: Z. 5: cu[i]; Fabricius:",
+"gold": [
+"CIL 03, 11918"
+],
+"neutral": []
+},
+{
+"n": 99,
+"src": "doc:edh:HD061790/commentary",
+"stratum": "CIL",
+"ctx": ". Z. 4/5: überliefert ist A/CATHEMERIS. (B): CIL III 10151: Leseabweichungen.",
+"gold": [
+"CIL III 10151"
+],
+"neutral": []
+},
+{
+"n": 100,
+"src": "doc:papyri:1424b/commentary",
+"stratum": "PAPvol",
+"ctx": "Gehört zu PSI VI 625 und P.Cair. Zen. IV 59799. Neuedition: CE 53, 1978, S. 329 - 344",
+"gold": [
+"PSI VI 625",
+"P.Cair. Zen. IV 59799"
+],
+"neutral": []
+},
+{
+"n": 101,
+"src": "doc:isicily:ISic003700/commentary",
+"stratum": "SEG",
+"ctx": " Syracuse, but also attested at Catania (cf. SEG 4.60, JIWE I 150). For the deceased Πελάγια (the name is also attested ",
+"gold": [
+"SEG 4.60"
+],
+"neutral": []
+},
+{
+"n": 102,
+"src": "doc:edr:aEDR136874/apparatus",
+"stratum": "CIL",
+"ctx": "nibile anche sulla base delle annotazioni in CIL 11, 00175*, relative alle acquisizioni della collezione Chiappini; cfr.",
+"gold": [
+"CIL 11, 00175"
+],
+"neutral": []
+},
+{
+"n": 103,
+"src": "doc:edh:HD016066/commentary",
+"stratum": "RIB",
+"ctx": " XX V(aleria) v(ictrix) De[ciana] sind unter RIB 2463.54 und 2463.55 zusammengetragen worden.",
+"gold": [
+"RIB 2463.54"
+],
+"neutral": []
+},
+{
+"n": 104,
+"src": "doc:edh:HD003290/commentary",
+"stratum": "ILS",
+"ctx": ". Vibius Serenus in Frage. (B): CIL II 1660, ILS 161: Z. 2: Aug(ustus); AE 1985: Z. 3: imperator pontifex maxsumus.",
+"gold": [
+"CIL II 1660",
+"ILS 161"
+],
+"neutral": []
+},
+{
+"n": 105,
+"src": "doc:edr:aEDR010625/apparatus",
+"stratum": "LOOSE",
+"ctx": "1)-(3), contulit ad apographum PTCO Liceo G. P. Vieusseux - Prof.ssa E. Bernardini (C. Riva a. 2023).",
+"gold": [],
+"neutral": []
+},
+{
+"n": 106,
+"src": "doc:edh:HD023526/commentary",
+"stratum": "AE",
+"ctx": "(B): Kuzsinszky, AE 1937: Neptu/no; Leseschwierigkeiten aufgrund der starken Verwitterung. T",
+"gold": [],
+"neutral": []
+},
+{
+"n": 107,
+"src": "doc:edh:HD071292/commentary",
+"stratum": "RIB",
+"ctx": "(B): Zu den leichten Leseabweichungen s. RIB 2161.",
+"gold": [
+"RIB 2161"
+],
+"neutral": []
+},
+{
+"n": 108,
+"src": "doc:edr:aEDR153803/apparatus",
+"stratum": "AE",
+"ctx": " madre del princeps, l'Augusta Giulia Mamea (AE 1981, 0340=EDR078242), rinvenuta verso la fine degli anni '70 del XX sec",
+"gold": [
+"AE 1981, 0340"
+],
+"neutral": []
+},
+{
+"n": 109,
+"src": "doc:edr:aEDR146816/apparatus",
+"stratum": "LOOSE",
+"ctx": "lt. 34 cm, lat. 55 cm.<br>V. 1: T montante e O nana; V. 4, fin.: I nana inclusa nella G; v. 5: L montanti.",
+"gold": [],
+"neutral": []
+},
+{
+"n": 110,
+"src": "doc:papyri:77853/commentary",
+"stratum": "PAPser",
+"ctx": "Zu Z. 1 vgl. O.Heid. 156,1 Anm.",
+"gold": [
+"O.Heid. 156"
+],
+"neutral": []
+},
+{
+"n": 111,
+"src": "doc:edh:HD069477/commentary",
+"stratum": "RIB",
+"ctx": "(B): Zu den leichten Leseabweichungen s. RIB 0162.",
+"gold": [
+"RIB 0162"
+],
+"neutral": []
+},
+{
+"n": 112,
+"src": "doc:edh:HD053777/commentary",
+"stratum": "AE",
+"ctx": " AE 1992; Weber - Selinger: ann(orum); Z. 4: AE 1992; Weber - Selinger: so]r(or); AE 1989; Gottlieb - Kuhoff: Ocea[na so",
+"gold": [],
+"neutral": []
+},
+{
+"n": 113,
+"src": "doc:edh:HD071387/commentary",
+"stratum": "RIB",
+"ctx": "erselbe Stein mit derselben Inschrift wie in RIB 2269.",
+"gold": [
+"RIB 2269"
+],
+"neutral": []
+},
+{
+"n": 114,
+"src": "doc:edr:aEDR128856/apparatus",
+"stratum": "CIL",
+"ctx": "i ipotizza che il frammento sia solidale con CIL 11, 01158g (EDR128855).<br>Il frammento potrebbe essere connesso anche ",
+"gold": [
+"CIL 11, 01158g"
+],
+"neutral": []
+},
+{
+"n": 115,
+"src": "doc:isicily:ISic001181/commentary",
+"stratum": "SEG",
+"ctx": "c abbreviation 'lab' is attested at Halaesa (SEG 59.1100) and in IGDS II.40, a list of names on lead that may come from ",
+"gold": [
+"SEG 59.1100"
+],
+"neutral": []
+},
+{
+"n": 116,
+"src": "doc:merged:247510/commentary",
+"stratum": "AE",
+"ctx": " vorhanden. Zur Ergänzung und Datierung vgl. AE 1980, 465 (= Conti 136-137, Nr. 45).",
+"gold": [
+"AE 1980, 465"
+],
+"neutral": []
+},
+{
+"n": 117,
+"src": "doc:merged:285391/commentary",
+"stratum": "LOOSE",
+"ctx": "n. Textwiedergabe nach Cuscito. (B): Bovini, AE 1972: abweichende Lesungen / Ergänzungen.",
+"gold": [],
+"neutral": []
+},
+{
+"n": 118,
+"src": "doc:isicily:ISic030298/apparatus",
+"stratum": "SEG",
+"ctx": " 24: ἐσβ̣ο̣αθ̣ο̣ήσαντας; Lewis 78, Nenci 80, SEG 30, Asheri-Nenci 82, Dubois 89: ικισμ[ὸ]ν; Nenci 91, Nenci 93: ικισμὸ̣ν",
+"gold": [],
+"neutral": []
+},
+{
+"n": 119,
+"src": "doc:edr:aEDR146959/apparatus",
+"stratum": "ILS",
+"ctx": "; 1185 cfr. p. 1327; 3884 cfr. p. 1402 sg. = ILS 5145; EDR072730; EDR125378; EDR073339), ex apochis Iucundianis quae dic",
+"gold": [
+"ILS 5145"
+],
+"neutral": []
+},
+{
+"n": 120,
+"src": "doc:papyri:9060/commentary",
+"stratum": "PAPvol",
+"ctx": "Rückseite: BGU I 329.",
+"gold": [
+"BGU I 329"
+],
+"neutral": []
+},
+{
+"n": 121,
+"src": "doc:edh:HD036972/commentary",
+"stratum": "SEG",
+"ctx": "Zur Fundgeschichte siehe SEG 52, 0290. Zur Provenienz siehe AE 2003 und AE 2006.",
+"gold": [
+"SEG 52, 0290"
+],
+"neutral": []
+},
+{
+"n": 122,
+"src": "doc:papyri:4907/commentary",
+"stratum": "PAPvol",
+"ctx": "Rückseite: BGU VIII 1808.",
+"gold": [
+"BGU VIII 1808"
+],
+"neutral": []
+},
+{
+"n": 123,
+"src": "doc:papyri:33338/commentary",
+"stratum": "PAPser",
+"ctx": "6, 2009, S. 40, Anm. 6. Teilweiser Neudruck: P.Mich. XX, Appendix B 4.",
+"gold": [],
+"neutral": [
+"P.Mich. XX, Appendix B 4"
+]
+},
+{
+"n": 124,
+"src": "doc:edr:aEDR158973/apparatus",
+"stratum": "CIL",
+"ctx": "m municipio vide quod adnotavit Mommsen apud CIL X, p. 772. Aliqui Hirtii in titulis Liparensibus inveniuntur, de quibus",
+"gold": [],
+"neutral": []
+},
+{
+"n": 125,
+"src": "doc:papyri:11599/commentary",
+"stratum": "PAPser",
+"ctx": "Gehört zu derselben Rolle wie P.Flor. I 91. Rückseite: P.Flor. II 128 + 163 = SB VI 9468 aus dem Heronino",
+"gold": [
+"P.Flor. I 91",
+"P.Flor. II 128",
+"SB VI 9468"
+],
+"neutral": []
+},
+{
+"n": 126,
+"src": "doc:edr:aEDR115138/apparatus",
+"stratum": "COIN",
+"ctx": "io (cfr. 3). Sull'Edictum de pretiis cfr. M. Crawford, apud Classic in progress. Essays on ancient Greece and Rome, Oxfo",
+"gold": [],
+"neutral": []
+},
+{
+"n": 127,
+"src": "doc:edr:aEDR092200/apparatus",
+"stratum": "CIL",
+"ctx": "rte superiore, è del resto confrontabile con CIL 11, 3074 e CIL 11, 03077, due iscrizioni provenienti dalla medesima are",
+"gold": [
+"CIL 11, 3074",
+"CIL 11, 03077"
+],
+"neutral": []
+},
+{
+"n": 128,
+"src": "doc:papyri:13341/commentary",
+"stratum": "PAPser",
+"ctx": "Rückseite: P.Strasb. V 463 ter.",
+"gold": [
+"P.Strasb. V 463"
+],
+"neutral": []
+},
+{
+"n": 129,
+"src": "doc:papyri:41975/commentary",
+"stratum": "PAPser",
+"ctx": "Zur Datierung vgl. P.Col. VII, S. 79.",
+"gold": [],
+"neutral": []
+},
+{
+"n": 130,
+"src": "doc:isicily:ISic001291/commentary",
+"stratum": "IG",
+"ctx": " recurs in another inscription from Catania, IG 14.546 = ISic001365, and in an inscription from Syracuse, IGCVO 1339 = M",
+"gold": [
+"IG 14.546"
+],
+"neutral": []
+},
+{
+"n": 131,
+"src": "doc:edr:aEDR142031/apparatus",
+"stratum": "CLE",
+"ctx": " variazioni: cfr. EDR127137, EDR015630. Cfr. CLE 164-178.",
+"gold": [
+"CLE 164-178"
+],
+"neutral": []
+},
+{
+"n": 132,
+"src": "doc:edr:aEDR158360/apparatus",
+"stratum": "CIL",
+"ctx": "te nella sagrestia della stessa chiesa: cfr. CIL 11, p. 1353.",
+"gold": [],
+"neutral": []
+},
+{
+"n": 133,
+"src": "doc:merged:125112/commentary",
+"stratum": "ILS",
+"ctx": " den Jahren 166 u. 169 n. Chr. (CIL V 8660 = ILS 1364; H. Pais, Supplementa Italica (Romae 1884) 237, Nr. 227; vgl. auch",
+"gold": [
+"CIL V 8660",
+"ILS 1364"
+],
+"neutral": []
+},
+{
+"n": 134,
+"src": "comm:variorum__spenser.faerie_queene.part.2.json",
+"stratum": "COIN",
+"ctx": "Charles Crawford (NQ, Ser 9, 7 204) notes the use of this passage in Seltmus 1278-9",
+"gold": [],
+"neutral": []
+},
+{
+"n": 135,
+"src": "doc:papyri:21008/commentary",
+"stratum": "LOOSE",
+"ctx": "tivdatierung: Anfang 74. Zur Datierung siehe P. Masada S. 27.",
+"gold": [],
+"neutral": []
+},
+{
+"n": 136,
+"src": "doc:isicily:ISic001299/commentary",
+"stratum": "IG",
+"ctx": "e of ἴδιος as a possessive pronoun, see also IG 14.485 = ISic001308.",
+"gold": [
+"IG 14.485"
+],
+"neutral": []
+},
+{
+"n": 137,
+"src": "doc:merged:282554/commentary",
+"stratum": "CLE",
+"ctx": "labor[i]s; CLE: faciunt; laboris; Z. 5: CIL, CLE: Stygias quicunque paludes; Z. 7: CIL, CLE: futura est; Z. 9: CIL: m[a]",
+"gold": [],
+"neutral": []
+},
+{
+"n": 138,
+"src": "doc:merged:265105/commentary",
+"stratum": "AE",
+"ctx": " x -35 x 10; Frg. c: verschollen. (B): Fitz, AE 1979, Piso: abweichende Textwiedergaben.",
+"gold": [],
+"neutral": []
+},
+{
+"n": 139,
+"src": "doc:edh:HD033700/commentary",
+"stratum": "CIL",
+"ctx": "Ring. (B): CIL III: Aug(usto).",
+"gold": [],
+"neutral": []
+},
+{
+"n": 140,
+"src": "doc:edh:HD026866/commentary",
+"stratum": "AE",
+"ctx": "lesen; Boppert: Z. 3/4: He[rme]/ti; Behrens; AE 1934; Rémy - Faure: Z. 3/4: Her/[me]ti; AE 1934; Boppert; Faust: Z. 5: n",
+"gold": [],
+"neutral": []
+},
+{
+"n": 141,
+"src": "comm:jebb__sophocles.ajax.json",
+"stratum": "LOOSE",
+"ctx": "Ajax did?’—ἐπαινῶ with inf., as in El. 1322, O. C. 664 f.",
+"gold": [],
+"neutral": []
+},
+{
+"n": 142,
+"src": "doc:edh:HD067046/commentary",
+"stratum": "CIL",
+"ctx": "Vgl. auch CIL 03-neu (in Vorbereitung; Bearbeiterin: J. Visočnik).",
+"gold": [],
+"neutral": []
+},
+{
+"n": 143,
+"src": "doc:edr:aEDR150941/apparatus",
+"stratum": "AE",
+"ctx": "5-6 si trae dalla rilettura (G. Camodeca) di AE 1969/70, 0108 = AE 1983, 0194 vid. EDR078904.",
+"gold": [
+"AE 1969/70, 0108",
+"AE 1983, 0194"
+],
+"neutral": []
+},
+{
+"n": 144,
+"src": "doc:edh:HD009350/commentary",
+"stratum": "LOOSE",
+"ctx": "(B): Forni, AE 1988: nur teilweise Textwiedergabe. Lesung nach CIL bzw. Mrozek.",
+"gold": [],
+"neutral": []
+},
+{
+"n": 145,
+"src": "comm:allen__homer.hymns.part.4.json",
+"stratum": "CIG",
+"ctx": "holia). For the evidence of inscriptions cf. C. I. G. 1064 περ' ἐμεῖο (Megara), 1688 πέροδος=περίοδος (Delphi). Schulze ",
+"gold": [
+"C. I. G. 1064"
+],
+"neutral": []
+},
+{
+"n": 146,
+"src": "comm:jebb__sophocles.ajax.json",
+"stratum": "LOOSE",
+"ctx": "ve some very improbable changes; e.g., in I. T. 298 παίει σιδήρῳ λαγόνας, εἰς πλευρὰς ἱείς (where Elmsley suggested λαγό",
+"gold": [],
+"neutral": []
+},
+{
+"n": 147,
+"src": "doc:isicily:ISic001374/apparatus",
+"stratum": "CIG",
+"ctx": "[ξάνδρου Ferrua; πολυπόθητος] παρὰ ἀδε|[λφῶν CIG IV 9498; ἠγόρασα τὸν τόπον] παρὰ Ἀλε|[ξάνδρου IG XIV 555; εὐ]μοιρείτων ",
+"gold": [
+"CIG IV 9498",
+"IG XIV 555"
+],
+"neutral": []
+},
+{
+"n": 148,
+"src": "doc:edh:HD007479/commentary",
+"stratum": "ILS",
+"ctx": "is); CIL II 1610: Z. 5: suis I(?)I(?)[---]M; ILS 1981: Z. 5: suis per h[onore]m.",
+"gold": [
+"CIL II 1610",
+"ILS 1981"
+],
+"neutral": []
+},
+{
+"n": 149,
+"src": "comm:jebb__sophocles.antigone.json",
+"stratum": "LOOSE",
+"ctx": "πάρεδρος, cp. O. C. 1267 Ζηνὶ σύνθακος θρόνων | Αἰδώς: ib. 1382 Δίκη ξύνεδρος Ζηνὸς ἀρχαί",
+"gold": [],
+"neutral": []
+},
+{
+"n": 150,
+"src": "doc:papyri:958922/commentary",
+"stratum": "LOOSE",
+"ctx": "Rückseite: P. Palau Rib.Arab. 1",
+"gold": [
+"P. Palau Rib.Arab. 1"
+],
+"neutral": []
+},
+{
+"n": 152,
+"src": "doc:papyri:33258/commentary",
+"stratum": "PAPvol",
+"ctx": "II 958 b Verso (Z. 178 - 258) (kopfstehend); PSI I 24. Vgl. Antinoe cent'anni dopo, S. 74, Nr. 59. Zu demselben Kodex ge",
+"gold": [
+"PSI I 24"
+],
+"neutral": []
+},
+{
+"n": 153,
+"src": "doc:merged:244227/commentary",
+"stratum": "AE",
+"ctx": " sich wohl im unteren, verlorenen Teil. (B): AE 1975: Z. 8: Aug(usti). Datierung: zwischen dem 22.11.375 (Valentinian II",
+"gold": [],
+"neutral": []
+},
+{
+"n": 154,
+"src": "doc:edh:HD070215/commentary",
+"stratum": "RIB",
+"ctx": "(B): Zu den Leseabweichungen s. RIB 0979.",
+"gold": [
+"RIB 0979"
+],
+"neutral": []
+},
+{
+"n": 155,
+"src": "doc:edr:aEDR140239/apparatus",
+"stratum": "COIN",
+"ctx": "as prehenderunt Lundqvist, Dollings, Thayer, Crawford, et Toscano (HGP) a. 2014, iterum Nyhuis, Helms (HGP) a. 2016<br>H",
+"gold": [],
+"neutral": []
+},
+{
+"n": 156,
+"src": "doc:edh:HD047108/commentary",
+"stratum": "CIL",
+"ctx": " einer Ehreninschrift aus Kampanien bekannt (CIL X 4579).",
+"gold": [
+"CIL X 4579"
+],
+"neutral": []
+},
+{
+"n": 157,
+"src": "doc:edh:HD024340/commentary",
+"stratum": "IG",
+"ctx": "ang: 120 cm. (B): CIL III 711; CIL III 7363; IG X 2, 2, 379; Fasolo: Abweichungen in Lesung / Ergänzung.",
+"gold": [
+"CIL III 711",
+"CIL III 7363",
+"IG X 2, 2, 379"
+],
+"neutral": []
+},
+{
+"n": 158,
+"src": "comm:henry__bible.hosea.json",
+"stratum": "LOOSE",
+"ctx": " different reading and sense of this verse: \"O Israel! this has destroyed thee, that in me is thy help. Presuming upon G",
+"gold": [],
+"neutral": []
+},
+{
+"n": 159,
+"src": "comm:how_wells__herodotus.histories.json",
+"stratum": "CIG",
+"ctx": "t of birth the priesthood at the Posidonion (C.I.G. 2655) and claimed descent from Anthes, son of Poseidon. Strabo (656)",
+"gold": [
+"C.I.G. 2655"
+],
+"neutral": []
+},
+{
+"n": 160,
+"src": "doc:edh:HD061523/commentary",
+"stratum": "CLE",
+"ctx": " a (ab Z. 6) und b. Ergänzungsvorschlag nach CLE.",
+"gold": [],
+"neutral": []
+},
+{
+"n": 161,
+"src": "doc:merged:143993/commentary",
+"stratum": "LOOSE",
+"ctx": "ve: Z. 1: [V]ad[i]monium; Giordano, RAAN 46; AE 1973: Z. 1: Vadimonium; Giordano, RAAN 41; AE 1969/70; Bove: Z. 2: Idus ",
+"gold": [],
+"neutral": []
+},
+{
+"n": 162,
+"src": "doc:papyri:128645/commentary",
+"stratum": "PAPser",
+"ctx": "Rückseite: P.Eirene III 3.",
+"gold": [
+"P.Eirene III 3"
+],
+"neutral": []
+},
+{
+"n": 163,
+"src": "doc:merged:265632/commentary",
+"stratum": "AE",
+"ctx": "(B): AE 1983, Ferrua: Z. 2: Romae; AE 1983: Z. 6/7: [---] ser/[---]",
+"gold": [],
+"neutral": []
+},
+{
+"n": 164,
+"src": "doc:papyri:58145/commentary",
+"stratum": "PAPvol",
+"ctx": "Descr. Zur Datierung vgl. ChLA IX, S. 80 und ChLA VII, S. 52.",
+"gold": [],
+"neutral": []
+},
+{
+"n": 165,
+"src": "doc:edh:HD077777/commentary",
+"stratum": "CIL",
+"ctx": "fläche teilweise stark verwittert. Z. 1 nach CIL 13, 07141. Z. 3: vor H ein Kreuzzeichen. (B): CIL 13, 07041: Z. 2: HED[",
+"gold": [
+"CIL 13, 07141",
+"CIL 13, 07041"
+],
+"neutral": []
+},
+{
+"n": 166,
+"src": "doc:isicily:ISic001373/apparatus",
+"stratum": "CIG",
+"ctx": "G XIV 554; ξενι Πο[--- SGDI 5239; Ξεναγό[ρας CIG IV 9513; ἐ]|κοι[μήθη CIG IV 9513; καὶ εἴ τ[ις τολμήσει CIG IV 9513, IG ",
+"gold": [
+"CIG IV 9513",
+"CIG IV 9513",
+"CIG IV 9513"
+],
+"neutral": []
+},
+{
+"n": 167,
+"src": "doc:isicily:ISic001275/apparatus",
+"stratum": "CIG",
+"ctx": "50); Περσεφόνῃ Manganaro; βασιλὶς Franz (ap. CIG III 5649f); βασίλισ[σα Kaibel (ap. IG XIV 450); Βασιλὶς Manganaro; ΚΑΤΑ",
+"gold": [
+"CIG III 5649f",
+"IG XIV 450"
+],
+"neutral": []
+},
+{
+"n": 168,
+"src": "doc:isicily:ISic003700/commentary",
+"stratum": "IG",
+"ctx": "ανδρος used in another Sicilian epitaph, see IG XIV 191, from Syracuse).",
+"gold": [
+"IG XIV 191"
+],
+"neutral": []
+},
+{
+"n": 169,
+"src": "doc:edh:HD070940/commentary",
+"stratum": "RIB",
+"ctx": "(B): Zu den leichten Leseabweichungen s. RIB 1777.",
+"gold": [
+"RIB 1777"
+],
+"neutral": []
+},
+{
+"n": 170,
+"src": "doc:papyri:32959/commentary",
+"stratum": "PAPvol",
+"ctx": " zum Hermias- und Maximos-Archiv. Rückseite: SB XIV 12216.",
+"gold": [
+"SB XIV 12216"
+],
+"neutral": []
+},
+{
+"n": 171,
+"src": "doc:papyri:38790/commentary",
+"stratum": "PAPvol",
+"ctx": "diktion. Zur Datierung vgl. BL IX, S.347 und CPR XXII, S. 283 mit Anm. 1.",
+"gold": [],
+"neutral": []
+},
+{
+"n": 172,
+"src": "doc:edh:HD017495/commentary",
+"stratum": "AE",
+"ctx": "ung: Weihinschrift oder Ehreninschrift. (B): AE 1957Z. 1/2: Corn[u]/to.",
+"gold": [],
+"neutral": []
+},
+{
+"n": 173,
+"src": "doc:papyri:38961/commentary",
+"stratum": "PAPvol",
+"ctx": ". ZPE 149, 2004, S. 125-137. Zu Recto 4 vgl. CPR XXII 35,12 Anm.",
+"gold": [
+"CPR XXII 35"
+],
+"neutral": []
+},
+{
+"n": 174,
+"src": "doc:papyri:13302/commentary",
+"stratum": "PAPser",
+"ctx": "Gehört zu demselben Papyrus wie P.Strasb. V 416.",
+"gold": [
+"P.Strasb. V 416"
+],
+"neutral": []
+},
+{
+"n": 175,
+"src": "doc:edh:HD027710/commentary",
+"stratum": "ILS",
+"ctx": " principibus; Z. 8 (Anfang): et posthorreum; ILS 1404: Z. 1 (Anfang): [---] Quintius; Z. 2 (Anfang): [---]us; Z. 3 (Ende",
+"gold": [
+"ILS 1404"
+],
+"neutral": []
+},
+{
+"n": 176,
+"src": "doc:papyri:30064/commentary",
+"stratum": "PAPvol",
+"ctx": "Gehört zu SB XVI 12493. Zur Datierung vgl. BL XI, S. 218.",
+"gold": [
+"SB XVI 12493"
+],
+"neutral": []
+},
+{
+"n": 177,
+"src": "doc:papyri:38957/commentary",
+"stratum": "PAPvol",
+"ctx": "Zur Datierung vgl. CPR XXII 26,23 Anm.",
+"gold": [
+"CPR XXII 26"
+],
+"neutral": []
+},
+{
+"n": 178,
+"src": "doc:papyri:28812/commentary",
+"stratum": "PAPser",
+"ctx": "Zu Z. 6 und 14-15 vgl. P.Graux IV 31 Einl., S. 26, Anm. 96.",
+"gold": [
+"P.Graux IV 31"
+],
+"neutral": []
+},
+{
+"n": 179,
+"src": "doc:papyri:76982/commentary",
+"stratum": "PAPser",
+"ctx": "Zum Ort vgl. BL IX, S. 411.Zu Z. 5-6 vgl. O.Strasb. II, S. 136f., Anm. 369.",
+"gold": [],
+"neutral": []
+},
+{
+"n": 180,
+"src": "doc:edh:HD072085/commentary",
+"stratum": "AE",
+"ctx": "Ergänzungsvorschlag nach I. Piso. (B): AE 2010: Z. 3/4: Zeilenfall fehlt.",
+"gold": [],
+"neutral": []
+},
+{
+"n": 181,
+"src": "comm:jebb__sophocles.antigone.json",
+"stratum": "LOOSE",
+"ctx": "ρύχιον ἐκ κελεύσματος (and similarly Eur. I. T. 1405): Her. 6.50 ἔλεγε δὲ ταῦτα ἐξ ἐπιστολῆς τῆς Δημαρήτου.With",
+"gold": [],
+"neutral": []
+},
+{
+"n": 182,
+"src": "doc:papyri:3900/commentary",
+"stratum": "PAPser",
+"ctx": "Rückseite: P.Tebt. IV 1130. Zur Datierung vgl. BL XI, S. 284.",
+"gold": [
+"P.Tebt. IV 1130"
+],
+"neutral": []
+},
+{
+"n": 183,
+"src": "doc:isicily:ISic030296/apparatus",
+"stratum": "SEG",
+"ctx": "ci 80, SEG 30: ἐνιαυτόν; Lewis 78, Nenci 80, SEG 30: ἁμε̣ρᾶι; other edd.: ἁμέραι; Nenci 91: τοῖς; other edd.: τοῖ[ς] (ex",
+"gold": [],
+"neutral": []
+},
+{
+"n": 184,
+"src": "doc:merged:251201/commentary",
+"stratum": "CLE",
+"ctx": "g des cos.ord. wichtiger war. (B): Salomies, CLE: Aeneadum statt [A]eneadum; Z.6: De Simone: TEPIDAM PVLCRA. (C): Abweic",
+"gold": [],
+"neutral": []
+},
+{
+"n": 185,
+"src": "doc:edh:HD005952/commentary",
+"stratum": "AE",
+"ctx": "ken Nebenseite Relief eines Opferkrugs. (B): AE 1981; Forni: Z. 4-5: C(arthagine) mune(r)a(ri)us / leg(ati) pr(o) pr(aet",
+"gold": [],
+"neutral": []
+},
+{
+"n": 186,
+"src": "doc:papyri:76510/commentary",
+"stratum": "PAPser",
+"ctx": "zur Datierung vgl. BL II 1, S. 41. Duplikat: O.Bodl. II 2375. Vgl. O.Strasb. II, S. 173 mit Anm. 635.",
+"gold": [
+"O.Bodl. II 2375"
+],
+"neutral": []
+},
+{
+"n": 187,
+"src": "doc:edh:HD002332/commentary",
+"stratum": "CIL",
+"ctx": " II (2. Aufl.) 14, 237 = CIL II 3558 = 3997, CIL II (2. Aufl.) 14, 267 = CIL II 4010 = AE 1984, 600. Zum Familienstemma ",
+"gold": [
+"CIL II 3558",
+"CIL II (2. Aufl.) 14, 267",
+"CIL II 4010",
+"AE 1984, 600"
+],
+"neutral": []
+},
+{
+"n": 188,
+"src": "doc:isicily:ISic001377/apparatus",
+"stratum": "IG",
+"ctx": "τελευτᾷ τῇ πρὸ --- Ὀ]|κτω[βρίων CIG IV 9500, IG XIV 558; ἔτη ν´. [ὑπατίᾳ] | [---o]υ ΤΟ Ferrua",
+"gold": [
+"CIG IV 9500",
+"IG XIV 558"
+],
+"neutral": []
+},
+{
+"n": 189,
+"src": "doc:edr:aEDR120424/apparatus",
+"stratum": "CLE",
+"ctx": "2. <br>Benché pubblicata in CIL 01 (2 ed.) e ILLRP, l'iscrizione, per le caratteristiche paleografiche, sembra riferirsi",
+"gold": [],
+"neutral": []
+},
+{
+"n": 190,
+"src": "doc:edh:HD053204/commentary",
+"stratum": "CIL",
+"ctx": "(B): CIL III 1730; Martinović: Leseabweichungen.",
+"gold": [
+"CIL III 1730"
+],
+"neutral": []
+},
+{
+"n": 192,
+"src": "doc:edh:HD018255/commentary",
+"stratum": "CIL",
+"ctx": " D, E, F oder R möglich. (B): CIL XIII 6556; CIL XIII 11762; Fabricius; Ésperandieu; Filtzinger; Clauss; Schallmayer - E",
+"gold": [
+"CIL XIII 6556",
+"CIL XIII 11762"
+],
+"neutral": []
+},
+{
+"n": 193,
+"src": "doc:isicily:ISic000724/commentary",
+"stratum": "ILS",
+"ctx": "erator) div(i [filius]' (Manganaro points to ILS 76 and 8893). The form of the letters is notable, a relatively shallow ",
+"gold": [
+"ILS 76"
+],
+"neutral": []
+},
+{
+"n": 194,
+"src": "doc:edh:HD049083/commentary",
+"stratum": "AE",
+"ctx": "IAS gehört zu einer früheren Inschrift. (B): AE 1998: tab. II intus: VIIII MAIAS nicht angegeben.",
+"gold": [],
+"neutral": []
+},
+{
+"n": 195,
+"src": "doc:papyri:10470/commentary",
+"stratum": "PAPser",
+"ctx": "Rückseite: P.Col. II 1 Recto 1 b. Zu Z. 14 vgl. AnalPap 27, 2015, S. 130f.",
+"gold": [
+"P.Col. II 1"
+],
+"neutral": []
+},
+{
+"n": 196,
+"src": "doc:isicily:ISic030296/apparatus",
+"stratum": "SEG",
+"ctx": "nci 91: Ἀλείδα; Lewis 78, Nenci 80: [..]κ[-; SEG 30: Δεκ[.]-; SEG 30 (app.crit.): Δεκ[.?.]; other edd.: Δεκ[ί]-; other e",
+"gold": [],
+"neutral": []
+},
+{
+"n": 197,
+"src": "comm:wright__shakespeare.richard_iii.json",
+"stratum": "LOOSE",
+"ctx": "ght.* See also Julius Caesar, iv. 3. 268 : * O murderous slumber, Lay'st thou thy leaden mace upon my boy?' Ib. peise, w",
+"gold": [],
+"neutral": []
+},
+{
+"n": 198,
+"src": "doc:merged:247754/apparatus",
+"stratum": "AE",
+"ctx": " 265 e tav. V, 1, con foto (R. Bartoccini) - AE 1975; E. Schraudolph, Römische Götterweihungen mit Reliefsmuck aus Itali",
+"gold": [],
+"neutral": []
+},
+{
+"n": 199,
+"src": "doc:isicily:ISic001367/commentary",
+"stratum": "IG",
+"ctx": "des is preferred to dating by the Nones (see IG XIV 524, likewise from Catania). The name of the deceased, Ῥοδίνη, is ot",
+"gold": [
+"IG XIV 524"
+],
+"neutral": []
+},
+{
+"n": 200,
+"src": "doc:papyri:97209/commentary",
+"stratum": "PAPvol",
+"ctx": "Zur Datierung vgl. CSBE2, S. 251. Vgl. SB XXVII, S. 51.",
+"gold": [],
+"neutral": []
+}
+]

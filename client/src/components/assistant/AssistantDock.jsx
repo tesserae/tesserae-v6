@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import useAssistantStream from './useAssistantStream';
+import { fetchAssistantStatus } from '../../utils/api';
 import { WorkingLine } from './ResultsInsight';
 import { getSessionValue, setSessionValue } from '../../utils/storage';
+import { useIsPhone } from '../../hooks/useIsPhone';
 
 const TUCK_KEY = 'tesserae_tessa_tucked';
 function readTucked() {
@@ -44,11 +46,17 @@ function mark(text, terms) {
  *  text is split with a regex and rebuilt as React elements. No HTML is ever
  *  constructed from the answer.
  */
-const EMPHASIS = /(\*\*[^*\n]+\*\*|\*[^*\n]+\*|_[^_\n]+_)/g;
+const EMPHASIS = /(\[[^\]\n]+\]\(\/(?!\/)[^)\s]*\)|\*\*[^*\n]+\*\*|\*[^*\n]+\*|_[^_\n]+_)/g;
 
 function render(text, terms) {
   if (!text) return text;
   return String(text).split(EMPHASIS).map((part, i) => {
+    // A link to a page of this site, written [label](/path). Only paths that
+    // start with a slash are linked, so an answer cannot point off the site.
+    const link = /^\[([^\]\n]+)\]\((\/(?!\/)[^)\s]*)\)$/.exec(part);
+    if (link) {
+      return <a key={i} href={link[2]} className="text-red-700 underline hover:text-red-800">{link[1]}</a>;
+    }
     if (/^\*\*[^*\n]+\*\*$/.test(part)) {
       return <strong key={i} className="font-semibold">{mark(part.slice(2, -2), terms)}</strong>;
     }
@@ -137,11 +145,6 @@ const OPENERS = [
   // suggestion existed no surface of the panel said so.
   'How do I run a search?',
   'Where does the phrase arma virumque appear?',
-  'What Hebrew texts are in the corpus?',
-  // Replaces the banner that used to sit across the top of every page. The
-  // same thing is worth telling people, but as something they can ask rather
-  // than something that occupies the site whether they care or not.
-  'How can I use my AI agent with Tesserae?',
   'What is the difference between lemma and exact search?',
 ];
 
@@ -157,6 +160,9 @@ const OPENERS = [
  * dead control. The searches are the product; this is help on top of them.
  */
 export default function AssistantDock() {
+  // On a phone the closed state is always the slim side tab, so the bottom of
+  // the screen (the results sheet and its tabs) is free.
+  const phone = useIsPhone();
   const [available, setAvailable] = useState(false);
   // Reopens where it was left, because taking one of Tessa's own actions
   // reloads the page and would otherwise shut her and wipe the conversation.
@@ -170,10 +176,10 @@ export default function AssistantDock() {
   const [draft, setDraft] = useState('');
   const { text, step, running, error, highlight, offer, actions, run } = useAssistantStream();
   const scrollRef = useRef(null);
+  const inputRef = useRef(null);
 
   useEffect(() => {
-    fetch('/api/assistant/status')
-      .then((r) => r.json())
+    fetchAssistantStatus()
       .then((d) => setAvailable(Boolean(d.available)))
       .catch(() => setAvailable(false));
   }, []);
@@ -200,6 +206,12 @@ export default function AssistantDock() {
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
   }, [turns, text]);
+
+  // On a phone the box sits under the header, and opening the sheet puts the
+  // cursor in it so the keyboard comes up at once.
+  useEffect(() => {
+    if (open && phone && available && inputRef.current) inputRef.current.focus();
+  }, [open, phone, available]);
 
   useEffect(() => { saveTurns(turns); }, [turns]);
   useEffect(() => { setSessionValue('tessa_open', open ? '1' : '0'); }, [open]);
@@ -234,10 +246,10 @@ export default function AssistantDock() {
   // ("the Tessa assistant bubble permanently blocks reading that corner").
   // Closed, Tessa is now a small round button everywhere, and its x tucks it
   // into a slim tab on the right edge, remembered in this browser.
-  if (!open && tucked) {
+  if (!open && (tucked || phone)) {
     return (
       <button
-        onClick={() => setTuckedSaved(false)}
+        onClick={() => { if (phone) setOpen(true); else setTuckedSaved(false); }}
         aria-label="Show Tessa, the AI assistant"
         title="Show Tessa, the AI assistant"
         className="fixed right-0 top-1/2 -translate-y-1/2 z-40 px-1 py-3 rounded-l-md bg-red-700/80 text-white text-[11px] font-semibold shadow hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-red-400 [writing-mode:vertical-rl]"
@@ -246,16 +258,23 @@ export default function AssistantDock() {
       </button>
     );
   }
+  // Collapsed: a pill that says "Tessa". It was a circle with a bare "T",
+  // which told a first-time visitor nothing (2026-10-10).
   if (!open) {
     return (
-      <div className="fixed bottom-4 right-4 z-40 group">
+      // Between 768 and 1023 pixels the Reader's results sheet is fixed to the
+      // bottom of the screen with its tab strip (2.75rem tall) along the edge,
+      // and the pill (bottom-4) sat over the last tab (second phone pass,
+      // 2026-10-11). There the pill rides above the strip: 2.75rem + 1rem. From
+      // 1024 pixels the sheet is a side column and the pill goes back to bottom-4.
+      <div className="fixed bottom-[3.75rem] lg:bottom-4 right-4 z-40 group">
         <button
           onClick={() => setOpen(true)}
           aria-label="Open Tessa, the AI assistant"
           title="Tessa, the AI assistant"
-          className="flex items-center justify-center w-11 h-11 rounded-full bg-red-700 text-white text-lg font-semibold shadow-lg ring-1 ring-red-900/20 transition hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-red-400"
+          className="flex items-center justify-center h-11 px-4 rounded-full bg-red-700 text-white text-sm font-semibold tracking-wide shadow-lg ring-1 ring-red-900/20 transition hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-red-400"
         >
-          T
+          Tessa
         </button>
         <button
           onClick={() => setTuckedSaved(true)}
@@ -269,20 +288,40 @@ export default function AssistantDock() {
     );
   }
 
+  const form = (
+    <form
+      onSubmit={(e) => { e.preventDefault(); ask(draft); }}
+      className={`flex gap-2 p-2 border-gray-200 ${phone ? 'border-b' : 'border-t'}`}
+    >
+      <input
+        ref={inputRef}
+        value={draft}
+        onChange={(e) => setDraft(e.target.value)}
+        placeholder="Ask about a text or a phrase, what a set of results means, or how the site works"
+        className="flex-1 text-sm px-2 py-1.5 rounded border border-gray-300 focus:outline-none focus:ring-1 focus:ring-red-600"
+      />
+      <button
+        type="submit"
+        disabled={running || !draft.trim()}
+        className="px-3 py-1.5 text-sm rounded bg-red-700 text-white hover:bg-red-800 disabled:opacity-40"
+      >
+        Ask
+      </button>
+    </form>
+  );
+  const openers = phone ? OPENERS.slice(0, 2) : OPENERS;
+
   return (
     // Opened, the panel is a floating card on a desktop and a bottom sheet on a
     // phone, where a 24rem card with margins on all four sides wastes the little
     // width there is.
-    <div className="fixed z-40 inset-x-0 bottom-0 sm:inset-x-auto sm:bottom-5 sm:right-5 w-full sm:w-[24rem] sm:max-w-[calc(100vw-2.5rem)] rounded-t-xl sm:rounded-lg border-t sm:border border-gray-300 bg-white shadow-xl flex flex-col max-h-[85vh] sm:max-h-[min(32rem,calc(100vh-3rem))]">
+    <div className="fixed z-40 inset-x-0 bottom-0 sm:inset-x-auto sm:bottom-5 sm:right-5 w-full sm:w-[24rem] sm:max-w-[calc(100vw-2.5rem)] rounded-t-xl sm:rounded-lg border-t sm:border border-gray-300 bg-white shadow-xl flex flex-col max-h-[85vh] supports-[height:1dvh]:max-h-[85dvh] pb-[env(safe-area-inset-bottom)] sm:pb-0 sm:max-h-[min(32rem,calc(100vh-3rem))]">
       <header className="flex items-center justify-between px-3 py-2 border-b border-gray-200">
         <h2 className="flex items-center gap-2 text-sm font-semibold text-gray-800">
           <span className="flex items-center justify-center w-6 h-6 rounded-md bg-red-700 text-white text-xs font-semibold leading-none">
             T
           </span>
           Tessa &middot; AI Assistant
-          <span className="text-[9px] font-semibold uppercase tracking-wide text-amber-700 align-super">
-            beta
-          </span>
         </h2>
         <div className="flex items-center gap-1">
           {/* The conversation now survives a page load, so there has to be a way
@@ -311,16 +350,16 @@ export default function AssistantDock() {
         </div>
       </header>
 
+      {phone && form}
+
       <div ref={scrollRef} className="flex-1 overflow-y-auto px-3 py-3 space-y-3">
         {turns.length === 0 && !running && (
           <>
             <p className="text-sm text-gray-600 leading-relaxed">
               I can run searches on this corpus and explain how the site works.
-              Ask me where a phrase occurs, what the corpus holds, how to set up
-              a search, or what a result means.
             </p>
             <div className="flex flex-col gap-1.5">
-              {OPENERS.map((q) => (
+              {openers.map((q) => (
                 <button
                   key={q}
                   onClick={() => ask(q)}
@@ -361,24 +400,7 @@ export default function AssistantDock() {
         {error && <p className="text-xs text-amber-700">{error}</p>}
       </div>
 
-      <form
-        onSubmit={(e) => { e.preventDefault(); ask(draft); }}
-        className="flex gap-2 p-2 border-t border-gray-200"
-      >
-        <input
-          value={draft}
-          onChange={(e) => setDraft(e.target.value)}
-          placeholder="Ask about a text or a phrase, what a set of results means, or how the site works"
-          className="flex-1 text-sm px-2 py-1.5 rounded border border-gray-300 focus:outline-none focus:ring-1 focus:ring-red-600"
-        />
-        <button
-          type="submit"
-          disabled={running || !draft.trim()}
-          className="px-3 py-1.5 text-sm rounded bg-red-700 text-white hover:bg-red-800 disabled:opacity-40"
-        >
-          Ask
-        </button>
-      </form>
+      {!phone && form}
     </div>
   );
 }

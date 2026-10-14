@@ -29,6 +29,8 @@ Citation:
 """
 
 import os
+
+from backend import fspaths
 import numpy as np
 from collections import defaultdict
 from typing import List, Dict, Tuple, Optional
@@ -126,6 +128,66 @@ def top_pairs_by_block(source_embeddings, target_embeddings, top_n_per_source, m
                         break
     return out
 
+def hubness_offsets(source_embeddings, target_embeddings, k=10, cancellation=None,
+                    block_rows=SIMILARITY_BLOCK_ROWS):
+    """Per-line offsets that correct hubness in a cross-language cosine matrix.
+
+    Some lines are near neighbours of many lines of the other language, whatever
+    they say (English lines in the SPhilBERTa space sit at a mean cosine of about
+    0.5 from Latin and Greek ones), so a raw cosine ranks pairs by the line's
+    popularity as much as by the match. This is the correction of CSLS (Conneau et
+    al. 2018): subtract from each cosine half the mean cosine of the source line's
+    k nearest target lines and half the mean cosine of the target line's k nearest
+    source lines, then add back the average of the two halves so the corrected
+    value stays on the scale of a cosine.
+
+    Returns (source_offset, target_offset): corrected = cosine - source_offset[i]
+    - target_offset[j] where both offsets already include their half of the
+    constant. Blocks of rows keep the memory of the full matrix out of reach.
+    """
+    n_s, n_t = len(source_embeddings), len(target_embeddings)
+    ks, kt = max(1, min(k, n_t)), max(1, min(k, n_s))
+    row_mean = np.zeros(n_s, dtype=np.float64)
+    col_top = None
+    for start, block in iter_similarity_blocks(source_embeddings, target_embeddings, cancellation, block_rows):
+        row_mean[start:start + block.shape[0]] = np.partition(block, block.shape[1] - ks, axis=1)[:, -ks:].mean(axis=1)
+        top = np.partition(block, max(0, block.shape[0] - kt), axis=0)[-kt:, :] if block.shape[0] > kt else block
+        if col_top is None:
+            col_top = top
+        else:
+            both = np.concatenate([col_top, top], axis=0)
+            col_top = np.partition(both, max(0, both.shape[0] - kt), axis=0)[-kt:, :] if both.shape[0] > kt else both
+    col_mean = np.sort(col_top, axis=0)[-kt:, :].mean(axis=0).astype(np.float64)
+    half_s, half_t = row_mean / 2.0, col_mean / 2.0
+    const = (half_s.mean() + half_t.mean()) / 2.0
+    return (half_s - const).astype(np.float32), (half_t - const).astype(np.float32)
+
+
+def top_pairs_hubness_corrected(source_embeddings, target_embeddings, top_n_per_source, min_score,
+                                k=10, cancellation=None, block_rows=SIMILARITY_BLOCK_ROWS):
+    """(source_idx, target_idx, corrected, cosine) for each source row's best targets by the
+    hubness-corrected cosine (see hubness_offsets), at or above min_score on that corrected value."""
+    off_s, off_t = hubness_offsets(source_embeddings, target_embeddings, k, cancellation, block_rows)
+    out = []
+    want = max(1, top_n_per_source * 2)
+    for start, block in iter_similarity_blocks(source_embeddings, target_embeddings, cancellation, block_rows):
+        adj = block - off_s[start:start + block.shape[0], None] - off_t[None, :]
+        kk = min(want, adj.shape[1])
+        for r in range(adj.shape[0]):
+            row = adj[r]
+            cand = np.argpartition(-row, kk - 1)[:kk] if kk < row.shape[0] else np.arange(row.shape[0])
+            cand = cand[np.argsort(-row[cand], kind='stable')]
+            count = 0
+            for tgt_idx in cand:
+                val = float(row[tgt_idx])
+                if val >= min_score:
+                    out.append((start + r, int(tgt_idx), val, float(block[r, tgt_idx])))
+                    count += 1
+                    if count >= top_n_per_source:
+                        break
+    return out
+
+
 def _rows_for_units(text_path, language, units):
     """Row indices into a text's stored embeddings for these units, matched by
     ref through the .meta.json line_refs, so a subset or a chunk of a text
@@ -136,11 +198,11 @@ def _rows_for_units(text_path, language, units):
         import json
         from backend.embedding_storage import get_metadata_path
         mp = get_metadata_path(text_path, language)
-        if not os.path.exists(mp):
+        if not fspaths.exists(mp):
             return None
         refs = _META_REFS_CACHE.get(mp)
         if refs is None:
-            with open(mp, encoding='utf-8') as f:
+            with fspaths.open_text(mp, encoding='utf-8') as f:
                 refs = json.load(f).get('line_refs') or []
             _META_REFS_CACHE[mp] = refs
         pos = {r: i for i, r in enumerate(refs)}
@@ -181,10 +243,10 @@ def _gather_by_ref(units, language):
             fake_path = os.path.join('texts', language, stem + '.tess')
             arr = load_embeddings(fake_path, language)
             mp = get_metadata_path(fake_path, language)
-            if arr is None or not os.path.exists(mp):
+            if arr is None or not fspaths.exists(mp):
                 return None
             import json
-            with open(mp, encoding='utf-8') as f:
+            with fspaths.open_text(mp, encoding='utf-8') as f:
                 refs = json.load(f).get('line_refs') or []
             ent = (arr, {r: i for i, r in enumerate(refs)})
             _GATHER_CACHE[key] = ent
@@ -197,12 +259,32 @@ def _gather_by_ref(units, language):
 
 
 def model_name_for(language: str) -> str:
-    """Which sentence-transformer serves a language's semantic channel."""
+    """Which sentence-transformer serves a language's own (monolingual) semantic channel.
+
+    English is MiniLM: the files in backend/embeddings/en are 384-dimensional
+    MiniLM vectors. The cross-language search uses cross_model_name_for.
+    """
     if language == 'he':
         return HEBREW_MODEL
     if language in E5_LANGUAGES:
         return E5_MODEL
+    if language == 'en':
+        return ENGLISH_MODEL
     return LATIN_GREEK_MODEL
+
+
+def cross_model_name_for(language: str) -> str:
+    """Which sentence-transformer embeds a language for the cross-language search.
+
+    Latin, Greek and English share one space (SPhilBERTa, 768 dimensions), so a
+    Latin or Greek line can be compared with an English line. English has two
+    sets of line embeddings, MiniLM for English-English search (backend/embeddings/en)
+    and SPhilBERTa for this (backend/embeddings/en_cross). Every other language
+    uses the same model as its own channel.
+    """
+    if language in ('la', 'grc', 'en'):
+        return LATIN_GREEK_MODEL
+    return model_name_for(language)
 CACHE_DIR = os.path.join(os.path.dirname(__file__), 'semantic_cache')
 EMBEDDINGS_CACHE_FILE = os.path.join(CACHE_DIR, 'embeddings_cache.json')
 LEMMA_CACHE_FILE = os.path.join(CACHE_DIR, 'lemma_embeddings.json')
@@ -689,8 +771,9 @@ def find_crosslingual_matches(source_units: List[Dict], target_units: List[Dict]
         try:
             from backend.embedding_storage import load_embeddings
             
-            source_all = load_embeddings(source_path, source_language)
-            target_all = load_embeddings(target_path, target_language)
+            # English is read from its cross set (SPhilBERTa), not the MiniLM set.
+            source_all = load_embeddings(source_path, source_language, space='cross')
+            target_all = load_embeddings(target_path, target_language, space='cross')
             # Persian/Urdu/Arabic sides made of several texts (all 114 suras),
             # or chunks of a text: gather rows by ref, as the same-language
             # channel does.
@@ -767,7 +850,15 @@ def find_crosslingual_matches(source_units: List[Dict], target_units: List[Dict]
         min_score = max(min_score, e5_floor)
         logger.info(f"e5 cross-lingual floor: {e5_floor:.3f}")
 
-    for src_idx, tgt_idx, sim in top_pairs_by_block(source_embeddings, target_embeddings, top_n_per_source, min_score, cancellation):
+    hubness_k = int(settings.get('hubness_k', 0) or 0)
+    if hubness_k > 0 and e5_floor is None:
+        # Hubness-corrected ranking (English pairs, see hubness_offsets); 'cosine' stays the raw value.
+        pairs = [(i, j, adj, raw) for i, j, adj, raw in top_pairs_hubness_corrected(
+            source_embeddings, target_embeddings, top_n_per_source, min_score, hubness_k, cancellation)]
+    else:
+        pairs = [(i, j, sim, sim) for i, j, sim in top_pairs_by_block(
+            source_embeddings, target_embeddings, top_n_per_source, min_score, cancellation)]
+    for src_idx, tgt_idx, sim, raw_cosine in pairs:
         score = sim
         if e5_floor is not None:
             score = max(0.0, min(1.0, (sim - e5_floor) / max(1e-6, 1.0 - e5_floor)))
@@ -777,7 +868,7 @@ def find_crosslingual_matches(source_units: List[Dict], target_units: List[Dict]
             'matched_lemmas': [],
             'match_basis': 'semantic_cross',
             'semantic_score': score,
-            'cosine': sim,
+            'cosine': raw_cosine,
             'source_language': source_language,
             'target_language': target_language
         })

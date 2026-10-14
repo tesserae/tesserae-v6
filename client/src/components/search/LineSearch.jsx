@@ -1,6 +1,7 @@
 import Pagination from '../common/Pagination';
 import { getSessionValue, setSessionValue } from '../../utils/storage';
 import { usePagination } from '../../hooks/usePagination';
+import { closenessSort, closenessLabel, TONE_CLASS } from './closeness';
 import useDocumentsTrial from '../../hooks/useDocumentsTrial';
 import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import { LoadingSpinner, SearchableSelect } from '../common';
@@ -17,6 +18,7 @@ import { DOC_PAGE_SIZE, DOCUMENT_EXAMPLE_SEARCHES } from '../documents/documents
 import DocumentExampleButtons from '../documents/DocumentExampleButtons';
 import DocumentsSearchFilters from '../documents/DocumentsSearchFilters';
 import DocumentsResultsPanel from '../documents/DocumentsResultsPanel';
+import { fetchLanguages, postLineSearch, getJson } from '../../utils/api';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
@@ -68,6 +70,18 @@ export default function LineSearch({ language }) {
   const [showPoetry, setShowPoetry] = useState(true);
   const [showProse, setShowProse] = useState(true);
   const [sortOrder, setSortOrder] = useState('chronological');
+  // How many content words the last query had (from the response). A query
+  // of two or more opens on the "Closest match" order, so lines that quote
+  // the phrase come before lines sharing one word of it (see closeness.js).
+  const [queryLemmaCount, setQueryLemmaCount] = useState(0);
+  const [queryWordCount, setQueryWordCount] = useState(0);
+  const applyLiteratureResponse = (data) => {
+    setResults(data.results || []);
+    const n = data.query_lemma_count || 0;
+    setQueryLemmaCount(n);
+    setQueryWordCount(data.query_word_count || 0);
+    setSortOrder(n >= 2 ? 'closest' : 'chronological');
+  };
   // Set when a /?tab=line&q=... deep link should auto-run once its query is in state.
   const [pendingUrlSearch, setPendingUrlSearch] = useState(null);
 
@@ -87,6 +101,7 @@ export default function LineSearch({ language }) {
     collection, setCollection,
     dateFrom, setDateFrom,
     dateTo, setDateTo,
+    docKind, setDocKind,
     docRegion, setDocRegion,
     docTextType, setDocTextType,
     docMaterial, setDocMaterial,
@@ -112,7 +127,7 @@ export default function LineSearch({ language }) {
   const documentResults = documentPageResults;
 
   useEffect(() => {
-    fetch('/api/languages').then(r => r.json()).then(data => {
+    fetchLanguages().then(data => {
       setDocumentsEnabled(documentsTrial && !!data.documents_enabled);
     }).catch(() => {});
   }, []);
@@ -222,8 +237,7 @@ export default function LineSearch({ language }) {
   const loadTexts = async () => {
     setLoadingTexts(true);
     try {
-      const res = await fetch(`/api/texts?language=${language}`);
-      const data = await res.json();
+      const data = await getJson(`/api/texts?language=${language}`);
       const textList = Array.isArray(data) ? data : (data.texts || []);
       setTexts(textList);
       
@@ -261,18 +275,13 @@ export default function LineSearch({ language }) {
 
       recordSearch(searchParams);
 
-      const res = await fetch('/api/line-search', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(searchParams)
-      });
-      const data = await res.json();
+      const data = await postLineSearch(searchParams);
       if (data.error) {
         setError(data.error);
         setResults([]);
         applyDocumentsResponse({});
       } else {
-        setResults(data.results || []);
+        applyLiteratureResponse(data);
         applyDocumentsResponse(data, { sortUsed: searchParams.sort });
       }
     } catch (err) {
@@ -303,17 +312,12 @@ export default function LineSearch({ language }) {
         collection: example.collection, offset: 0, limit: DOC_PAGE_SIZE, sort: docSort,
       };
       recordSearch(searchParams);
-      const res = await fetch('/api/line-search', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(searchParams)
-      });
-      const data = await res.json();
+      const data = await postLineSearch(searchParams);
       if (data.error) {
         setError(data.error);
         setResults([]);
       } else {
-        setResults(data.results || []);
+        applyLiteratureResponse(data);
         // Called with the example's own collection and `force: true`:
         // setCollection just above has not taken effect in this closure
         // yet (React batches it), so relying on the hook's own `collection`
@@ -340,7 +344,6 @@ export default function LineSearch({ language }) {
       setPendingUrlSearch(q);
     }
     // Run once on mount for the initial URL.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -356,8 +359,7 @@ export default function LineSearch({ language }) {
     setBrowseLoading(true);
     setBrowseLines([]);
     try {
-      const res = await fetch(`/api/text/${selectedWork}/lines?language=${language}`);
-      const data = await res.json();
+      const data = await getJson(`/api/text/${selectedWork}/lines?language=${language}`);
       if (data.lines) {
         setBrowseLines(data.lines);
       }
@@ -398,18 +400,13 @@ export default function LineSearch({ language }) {
 
       recordSearch(searchParams);
 
-      const res = await fetch('/api/line-search', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(searchParams)
-      });
-      const data = await res.json();
+      const data = await postLineSearch(searchParams);
       if (data.error) {
         setError(data.error);
         setResults([]);
         applyDocumentsResponse({});
       } else {
-        setResults(data.results || []);
+        applyLiteratureResponse(data);
         applyDocumentsResponse(data, { sortUsed: searchParams.sort });
       }
     } catch (err) {
@@ -678,6 +675,9 @@ export default function LineSearch({ language }) {
         return (a.work || '').localeCompare(b.work || '');
       });
     }
+    if (sortOrder === 'closest') {
+      return [...filtered].sort(closenessSort);
+    }
     return [...filtered].sort((a, b) => {
       const aYear = a.year || 9999;
       const bYear = b.year || 9999;
@@ -796,6 +796,7 @@ export default function LineSearch({ language }) {
                   collection={collection} setCollection={setCollection}
                   dateFrom={dateFrom} setDateFrom={setDateFrom}
                   dateTo={dateTo} setDateTo={setDateTo}
+                  docKind={docKind} setDocKind={setDocKind}
                   docRegion={docRegion} setDocRegion={setDocRegion}
                   docTextType={docTextType} setDocTextType={setDocTextType}
                   docMaterial={docMaterial} setDocMaterial={setDocMaterial}
@@ -935,6 +936,7 @@ export default function LineSearch({ language }) {
                     onChange={e => setSortOrder(e.target.value)}
                     className="text-sm border rounded px-2 py-1"
                   >
+                    {queryLemmaCount >= 2 && <option value="closest">Closest match</option>}
                     <option value="chronological">By Era</option>
                     <option value="alphabetical">A-Z</option>
                   </select>
@@ -1019,6 +1021,15 @@ export default function LineSearch({ language }) {
                             {result.era}
                           </span>
                         )}
+                        {(() => {
+                          const tag = closenessLabel(result, queryLemmaCount, queryWordCount);
+                          return tag ? (
+                            <span className={`text-xs px-1.5 py-0.5 rounded mt-1 ml-1 inline-block ${TONE_CLASS[tag.tone]}`}
+                                  title="How much of the search phrase this line shares">
+                              {tag.text}
+                            </span>
+                          ) : null;
+                        })()}
                       </div>
                       <div className="flex-1 min-w-0 break-words text-gray-700" dir={dirFor(language)}>
                         {highlightMatches(result.text, result.matched_words || query.split(/\s+/))}
