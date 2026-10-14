@@ -86,13 +86,61 @@ def test_parse_query_operators():
     assert prox['term1']['value'] == 'amor' and prox['term2']['value'] == 'dolor'
 
 
-def test_parse_query_mixed_operators_follow_fixed_order():
-    # AND is read before OR, so the OR stays inside the second term as plain text.
-    q = ws.parse_query('amor AND dolor OR x')
-    assert q['type'] == 'and' and q['terms'][1]['value'] == 'dolor OR x'
-    # Proximity is read first and swallows everything after the tilde.
-    q = ws.parse_query('a ~ b AND c')
-    assert q['type'] == 'proximity' and q['term2']['value'] == 'b AND c'
+def _shape(node):
+    """A nested query reduced to tuples of values, to compare nesting at a glance."""
+    t = node['type']
+    if t in ('exact', 'wildcard', 'phrase'):
+        return node['value']
+    if t in ('and', 'or', 'simple'):
+        return (t, [_shape(x) for x in node['terms']])
+    if t == 'not':
+        return ('not', _shape(node['include']), _shape(node['exclude']))
+    if t == 'proximity':
+        return ('prox', _shape(node['term1']), _shape(node['term2']))
+    return t
+
+
+def test_parse_query_mixed_operators_use_ordinary_precedence():
+    # AND binds tighter than OR.
+    assert _shape(ws.parse_query('amor AND dolor OR x')) == ('or', [('and', ['amor', 'dolor']), 'x'])
+    assert _shape(ws.parse_query('x OR amor AND dolor')) == ('or', ['x', ('and', ['amor', 'dolor'])])
+    # Proximity binds tighter than AND.
+    assert _shape(ws.parse_query('a ~ b AND c')) == ('and', [('prox', 'a', 'b'), 'c'])
+    assert _shape(ws.parse_query('c AND a ~ b')) == ('and', ['c', ('prox', 'a', 'b')])
+    # NOT binds tighter than AND and OR.
+    assert _shape(ws.parse_query('a AND b NOT c')) == ('and', ['a', ('not', 'b', 'c')])
+    assert _shape(ws.parse_query('a NOT b OR c')) == ('or', [('not', 'a', 'b'), 'c'])
+    # Left to right among equals.
+    assert _shape(ws.parse_query('a NOT b NOT c')) == ('not', ('not', 'a', 'b'), 'c')
+    assert _shape(ws.parse_query('a OR b AND c OR d')) == ('or', ['a', ('and', ['b', 'c']), 'd'])
+    # A NOT inside a proximity operand covers the pair.
+    assert _shape(ws.parse_query('a ~ b NOT c')) == ('not', ('prox', 'a', 'b'), 'c')
+    assert _shape(ws.parse_query('a NOT b ~ c')) == ('not', ('prox', 'a', 'c'), 'b')
+    # Nested leaves keep the ordinary term shape.
+    node = ws.parse_query('am* AND dolor OR x')
+    assert node['terms'][0]['terms'][0] == term('wildcard', 'am*', r'am\w*', word_break=False)
+
+
+def test_mixed_query_matches_by_the_nesting():
+    line = 'amor et dolor in pectore'
+    def check(q):
+        return ws.matches_query(line, ws.parse_query(q), IGN)
+
+    assert check('amor AND dolor OR zzz') is True
+    assert check('zzz OR amor AND dolor') is True
+    assert check('zzz OR amor AND yyy') is False
+    assert check('amor OR zzz AND yyy') is True           # the old fixed order read (amor OR zzz) AND yyy: False
+    assert check('amor AND pectore NOT zzz') is True
+    assert check('amor AND pectore NOT dolor') is False
+    assert check('amor ~ dolor AND pectore') is True
+    assert check('amor ~ pectore AND zzz') is False
+
+
+def test_mixed_query_highlights_leaf_terms_only():
+    idx = ws.get_highlight_indices('amor et dolor', ws.parse_query('amor AND dolor OR zzz'), IGN)
+    assert idx == [[0, 4], [8, 13]]
+    idx = ws.get_highlight_indices('amor et dolor', ws.parse_query('amor AND et NOT dolor'), IGN)
+    assert idx == [[0, 4], [5, 7]]       # the excluded term is not marked
 
 
 def test_parse_term_word_break_and_escaping():
@@ -293,6 +341,14 @@ def test_search_file_english_and_coptic(tmp_path):
     cop.write_text('<s. 1>\tⲁⲩⲱ ⲡⲛⲟⲩⲧⲉ ⲙⲁⲣⲉϥ\n', encoding='utf-8')
     rows = ws.search_file(str(cop), ws.parse_query('ⲡⲛⲟⲩⲧⲉ'), False, 'cop')
     assert refs(rows) == ['s. 1'] and 'ⲁⲩⲱ <mark class="bg-yellow-200">ⲡⲛⲟⲩⲧⲉ</mark>' in rows[0]['highlighted_text']
+
+
+def test_search_file_types_a_coptic_file_as_prose_by_its_language(tmp_path):
+    # No author or marker in the name, so only the language says prose.
+    cop = tmp_path / 'zzunlisted.sample.tess'
+    cop.write_text('<z. 1>\t' + 'ⲁⲩⲱ ⲡⲛⲟⲩⲧⲉ ⲙⲁⲣⲉϥ ' * 3 + '\n', encoding='utf-8')
+    rows = ws.search_file(str(cop), ws.parse_query('ⲡⲛⲟⲩⲧⲉ'), False, 'cop')
+    assert rows[0]['is_prose'] is True
 
 
 def test_search_file_prose_line_is_cut_to_the_matching_sentence(tmp_path):

@@ -2710,6 +2710,9 @@ The web process runs with an ASCII file-system encoding, which Python fixes when
 
 `backend/composite_scorer.py` had no importer (checked across backend, scripts and evaluation by the second structural job). It is removed; git history keeps it. The rule from here: a module that nothing imports is removed in its own small change, with the commit named in the CHANGELOG, rather than left for a reader to wonder about.
 
+- Wildcard queries with several operators follow the ordinary precedence, tightest first: NOT, then proximity (~), then AND, then OR, each left to right. Proximity takes two terms, so a NOT inside a proximity operand covers the pair.
+- A stoplist built from fewer distinct words than the elbow minimum keeps at most half the vocabulary, the commonest words, and none that occurs in a single unit.
+
 ## 2026-10-13: record request timings before any speed work
 
 A day of timings from the live site comes before work on speed, so the effort goes where visitors wait and not where we guess. `backend/request_timing.py` records, for each API request, the time, method, path, status, milliseconds, response size and worker process, in one file per day under the folder named by `TESSERAE_TIMING_DIR` (nothing is recorded when it is unset). It does not record the query string, the request body or the answer, so no text a visitor searched for is stored. The report script collapses ids in paths into one route and ranks routes by total time spent, which is what a visitor waits on across a day.

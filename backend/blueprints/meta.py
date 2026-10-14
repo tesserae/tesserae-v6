@@ -34,9 +34,9 @@ def crosslingual_held():
 
 api_route = api_route_for(meta_bp)
 
-# api_languages() finds the texts folder as dirname(dirname(__file__)), which was the
-# repository root when this code lived in backend/app.py. Keep that meaning here.
-__file__ = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'app.py')
+# The repository root (this file is backend/blueprints/meta.py): api_languages()
+# looks for the texts folders under it.
+_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # -----------------------------------------------------------------------------
 # CACHING: never the page, forever the assets
@@ -215,7 +215,7 @@ def api_languages():
     try:
         from backend.coptic import COPTIC_ENABLED
         if COPTIC_ENABLED:
-            texts_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'texts', 'cop')
+            texts_dir = os.path.join(_ROOT, 'texts', 'cop')
             if os.path.isdir(texts_dir):
                 languages.append({'code': 'cop', 'label': 'Coptic'})
                 crosslingual_pairs.extend([
@@ -226,7 +226,7 @@ def api_languages():
     try:
         from backend.hebrew import HEBREW_ENABLED
         if HEBREW_ENABLED:
-            texts_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'texts', 'he')
+            texts_dir = os.path.join(_ROOT, 'texts', 'he')
             if os.path.isdir(texts_dir):
                 languages.append({'code': 'he', 'label': 'Hebrew'})
                 crosslingual_pairs.extend([
@@ -242,7 +242,7 @@ def api_languages():
     try:
         from backend.persian import PERSIAN_ENABLED
         if PERSIAN_ENABLED:
-            texts_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'texts', 'fa')
+            texts_dir = os.path.join(_ROOT, 'texts', 'fa')
             if os.path.isdir(texts_dir):
                 languages.append({'code': 'fa', 'label': 'Persian'})
     except ImportError:
@@ -250,7 +250,7 @@ def api_languages():
     try:
         from backend.urdu import URDU_ENABLED
         if URDU_ENABLED:
-            texts_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'texts', 'ur')
+            texts_dir = os.path.join(_ROOT, 'texts', 'ur')
             if os.path.isdir(texts_dir):
                 languages.append({'code': 'ur', 'label': 'Urdu'})
     except ImportError:
@@ -258,7 +258,7 @@ def api_languages():
     try:
         from backend.arabic import ARABIC_ENABLED
         if ARABIC_ENABLED:
-            texts_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'texts', 'ar')
+            texts_dir = os.path.join(_ROOT, 'texts', 'ar')
             if os.path.isdir(texts_dir):
                 languages.append({'code': 'ar', 'label': 'Arabic'})
     except ImportError:
