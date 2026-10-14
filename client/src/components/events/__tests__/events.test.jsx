@@ -200,6 +200,36 @@ describe('the focus view', () => {
     expect(within(row).getByText('38.2300, 24.0000')).toBeTruthy();
   });
 
+  it('shows Cite on a commentary row that carries an edition, and nothing new on one that does not', async () => {
+    const cited = {
+      ...DETAIL,
+      scholarship: [
+        { kind: 'commentary', title: 'W. W. How and J. Wells on herodotus.histories', page_ref: 'hdt. 6.112.1', url: null,
+          commentator: 'W. W. How and J. Wells', work: 'herodotus.histories', ref_start: 'hdt. 6.112.1',
+          edition: 'W. W. How and J. Wells, eds., A Commentary on Herodotus (Oxford: Clarendon Press, 1912)', edition_title: 'A Commentary on Herodotus' },
+        { kind: 'commentary', title: 'How and Wells: note', page_ref: 'hdt. 6.112.1', url: null },
+      ],
+    };
+    mockApi(undefined, cited);
+    render(<EventsPage setPageType={() => {}} />);
+    await screen.findByRole('heading', { name: 'Battle of Marathon' });
+    await userEvent.click(screen.getByRole('tab', { name: /Scholarship/ }));
+    const cites = screen.getAllByRole('button', { name: 'Cite' });
+    expect(cites).toHaveLength(1);
+    expect(cites[0].closest('li').textContent).toContain('W. W. How and J. Wells on herodotus.histories');
+    await userEvent.click(cites[0]);
+    expect(await screen.findByText(/A Commentary on Herodotus/)).toBeTruthy();
+  });
+
+  it('shows no Cite control on a commentary row without an edition', async () => {
+    mockApi();
+    render(<EventsPage setPageType={() => {}} />);
+    await screen.findByRole('heading', { name: 'Battle of Marathon' });
+    await userEvent.click(screen.getByRole('tab', { name: /Scholarship/ }));
+    expect(screen.getByText(/How and Wells: note/)).toBeTruthy();
+    expect(screen.queryByRole('button', { name: 'Cite' })).toBeNull();
+  });
+
   it('shows the Wikipedia summary with its credit line, or the Wikidata description without one', async () => {
     const withSummary = {
       ...DETAIL,

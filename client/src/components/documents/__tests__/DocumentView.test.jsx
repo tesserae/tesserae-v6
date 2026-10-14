@@ -5,6 +5,7 @@
  */
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 import DocumentView from '../DocumentView';
 
@@ -250,6 +251,25 @@ describe('DocumentView', () => {
       expect(box.textContent).toContain('The stone is AE 2001, 2169 and is cited here.');
       expect(box.textContent).toContain('someone__work.json, l. 1');
       expect(screen.getByRole('link', { name: 'on JSTOR' })).toHaveAttribute('href', 'https://www.jstor.org/stable/4470942');
+    });
+
+    it('shows Cite on a commentary note that carries an edition and not on one that does not', async () => {
+      setUrl('?doc=edh:HD047322&lang=la');
+      mockWithScholarship([
+        { source: 'commentary', kind: 'commentary', citation: 'How and Wells, Commentary on Herodotus',
+          excerpt: 'Compare AE 2001, 2169.', cites: 'AE 2001, 2169', commentary_file: 'how_wells__herodotus.json',
+          commentary_ref: 'l. 1', ref_start: 'l. 1', commentator: 'W. W. How and J. Wells', work: 'herodotus.histories',
+          edition: 'W. W. How and J. Wells, eds., A Commentary on Herodotus (Oxford: Clarendon Press, 1912)', edition_title: 'A Commentary on Herodotus' },
+        { source: 'commentary', citation: 'Some Commentator, A Commentary', excerpt: 'Another note.',
+          cites: 'AE 2001, 2169', commentary_file: 'someone__work.json', commentary_ref: 'l. 2' },
+      ]);
+      render(<DocumentView />);
+      await waitFor(() => expect(screen.getByTestId('document-scholarship')).toBeTruthy());
+      const cites = screen.getAllByRole('button', { name: 'Cite' });
+      expect(cites).toHaveLength(1);
+      expect(cites[0].closest('li').textContent).toContain('How and Wells, Commentary on Herodotus');
+      await userEvent.click(cites[0]);
+      expect(await screen.findByText(/A Commentary on Herodotus/)).toBeTruthy();
     });
 
     it('shows no Scholarship section when the index has no hit or the route is closed', async () => {
