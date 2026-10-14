@@ -26,7 +26,6 @@ windows each language would keep or lose. Nothing in --prod is ever written.
 import argparse
 import json
 import os
-import shutil
 import sqlite3
 import sys
 import time
@@ -219,7 +218,8 @@ def main(argv=None):
             if base_work(w) in restricted:
                 c.execute('DELETE FROM window_texts WHERE work=?', (w,))
                 c.execute('DELETE FROM lines WHERE work=?', (w,))
-        c.commit(); c.close()
+        c.commit()
+        c.close()
     log('window_texts.db filtered')
 
     # names: keep rows whose id is a kept window; recompute document counts
@@ -232,7 +232,9 @@ def main(argv=None):
     c.execute('DELETE FROM name_df')
     c.execute('INSERT INTO name_df SELECT k, COUNT(*) FROM window_names GROUP BY k')
     c.execute("DELETE FROM meta WHERE key LIKE 'windows!_%' ESCAPE '!' AND substr(key, 9) NOT IN (" + q + ")", langs)
-    c.commit(); c.execute('VACUUM'); c.close()
+    c.commit()
+    c.execute('VACUUM')
+    c.close()
     log('window_names.db filtered')
 
     with open(src['works_by_language.json'], encoding='utf-8') as f:

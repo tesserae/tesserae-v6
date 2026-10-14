@@ -276,7 +276,8 @@ def _make_index(prod):
     for i, lang, w in rows:
         c.execute('INSERT INTO window_texts VALUES (?,?,?,?,?,?)', (i, lang, w, '1', '2', 'text'))
         c.execute('INSERT INTO lines VALUES (?,?,?,?)', (w, 0, '1', 'line'))
-    c.commit(); c.close()
+    c.commit()
+    c.close()
     c = sqlite3.connect(pdir / 'window_names.db')
     c.execute('CREATE TABLE window_names (id text, k text, form text)')
     c.execute('CREATE TABLE name_df (k text primary key, df integer)')
@@ -285,7 +286,8 @@ def _make_index(prod):
         c.execute('INSERT INTO window_names VALUES (?,?,?)', (i, k, k))
     c.executemany('INSERT INTO name_df VALUES (?,?)', [('iesus', 2), ('rumi', 1), ('zeus', 1)])
     c.executemany('INSERT INTO meta VALUES (?,?)', [('windows', '4'), ('windows_fa', '1'), ('windows_ur', '1'), ('windows_he', '0')])
-    c.commit(); c.close()
+    c.commit()
+    c.close()
     (pdir / 'works_by_language.json').write_text(json.dumps(
         {'index_version': 'x', 'languages': {'la': ['a.w', 'phi.s'], 'fa': ['f.d'], 'ur': ['u.g'], 'grc': ['g.h']}}))
     return rows
@@ -293,7 +295,7 @@ def _make_index(prod):
 
 def test_passage_index_filter_drops_withheld_languages_and_restricted_works(tmp_path):
     prod = tmp_path / 'prod'
-    rows = _make_index(prod)
+    _make_index(prod)
     (prod / 'data').mkdir(exist_ok=True)
     reg = tmp_path / 'registry.json'
     reg.write_text(json.dumps({'texts': {'phi.s': {}}}))
@@ -345,7 +347,8 @@ def test_connections_map_filter_recomputes_pair_tables(tmp_path):
         ('a.w:0', 'g.h:0', 0.9, 'a.w', 'g.h', 0, 0), ('a.w:0', 'f.d:0', 0.9, 'a.w', 'f.d', 0, 0)])
     c.executemany('INSERT INTO work_pairs VALUES (?,?,?,?,?,?,?,?)', [
         ('a.w', 'g.h', 'la', 'grc', 4, 4, 0, 0), ('a.w', 'f.d', 'la', 'fa', 7, 7, 0, 0)])
-    c.commit(); c.close()
+    c.commit()
+    c.close()
     dst = tmp_path / 'filtered.db'
     fpi.filter_map(str(src), str(dst), {'la', 'grc'}, set(), '1.2')
     d = sqlite3.connect(dst)
@@ -361,7 +364,8 @@ def test_connections_map_filter_recomputes_pair_tables(tmp_path):
 
 def test_recheck_catches_a_production_file_that_changed_during_the_build(tmp_path):
     prod, work = tmp_path / 'prod', tmp_path / 'work'
-    prod.mkdir(); work.mkdir()
+    prod.mkdir()
+    work.mkdir()
     f = prod / 'a.txt'
     f.write_text('one')
     st = f.stat()
