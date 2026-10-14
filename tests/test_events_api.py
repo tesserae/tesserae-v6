@@ -186,3 +186,12 @@ def test_commentary_rows_carry_the_fields_the_cite_control_reads(client, db, mon
         c.execute("DELETE FROM scholarship WHERE title IN ('W. W. How and J. Wells on herodotus.histories', 'Nobody Known on lost.work')")
         c.commit()
         scholarship._sources_cache.update(stamp=None, rows=None)
+
+
+def test_edition_lookup_never_raises_when_the_held_list_or_a_field_is_missing(monkeypatch):
+    from backend import scholarship
+    monkeypatch.setattr(scholarship, 'commentary_sources', lambda: None)
+    assert scholarship.commentary_edition_fields(commentator='A', work='w.x') == {}
+    assert E._commentary_cite_fields('A on w.x', 'w 1.1') == {'commentator': 'A', 'work': 'w.x', 'ref_start': 'w 1.1'}
+    monkeypatch.setattr(scholarship, 'commentary_sources', lambda: [{'commentator': 'A', 'works': None}])
+    assert scholarship.commentary_edition_fields(commentator='A')['edition'] is None

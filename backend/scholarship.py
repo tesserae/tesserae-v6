@@ -1357,14 +1357,20 @@ def commentary_edition_fields(commentator=None, work=None, filename=None):
         work = work.split('__', 1)[1] if '__' in work else work
     wanted = base_work(work) if work else None
     who = (commentator or '').strip().lower()
-    rows = [r for r in commentary_sources()
-            if (not who or (r.get('commentator') or '').lower() == who)
-            and (not wanted or wanted in (r.get('works') or []))]
+    try:
+        # commentary_sources() is None when no commentary folder exists and the
+        # list was never built (a fresh checkout, CI); never raise from here.
+        held = commentary_sources() or []
+        rows = [r for r in held
+                if (not who or (r.get('commentator') or '').lower() == who)
+                and (not wanted or wanted in (r.get('works') or []))]
+    except (TypeError, AttributeError, OSError):
+        return {}
     if not rows or (not who and len(rows) > 1):
         return {}
     r = rows[0]
     return {'commentator': r.get('commentator'), 'edition': r.get('edition'),
-            'edition_title': r.get('title'), 'work': wanted or (r['works'][0] if r.get('works') else None)}
+            'edition_title': r.get('title'), 'work': wanted or ((r.get('works') or [None])[0])}
 
 
 def _commentary_sources_uncached():
