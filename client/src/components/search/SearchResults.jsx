@@ -746,15 +746,6 @@ const SearchResults = ({
                     form in {r.poetics.corpus_poems} poem{r.poetics.corpus_poems !== 1 ? 's' : ''}
                   </InfoBadge>
                 )}
-                {r.channels && r.channels.length > 0 && (
-                  <InfoBadge
-                    className="bg-blue-100 text-blue-700"
-                    explanation="Which kinds of evidence found this match."
-                    more={helpMore(onOpenHelp, 'channels')}
-                  >
-                    {r.channels.map((ch) => channelLabel(ch).toLowerCase()).join(' + ')}
-                  </InfoBadge>
-                )}
                 {pairLifts[i] && typeof pairLifts[i].lift === 'number' && (
                   <InfoBadge
                     className={`bg-blue-100 text-blue-700 ${pairLifts[i].level === 'strong' ? 'font-semibold' : ''}`}
@@ -762,6 +753,15 @@ const SearchResults = ({
                     more={helpMore(onOpenHelp, 'theme')}
                   >
                     theme {pairLifts[i].lift >= 0 ? '+' : ''}{pairLifts[i].lift.toFixed(2)}
+                  </InfoBadge>
+                )}
+                {r.channels && r.channels.length > 0 && (
+                  <InfoBadge
+                    className="bg-blue-100 text-blue-700"
+                    explanation="Which kinds of evidence found this match."
+                    more={helpMore(onOpenHelp, 'channels')}
+                  >
+                    {r.channels.map((ch) => channelLabel(ch).toLowerCase()).join(' + ')}
                   </InfoBadge>
                 )}
                 {r.matched_words && r.matched_words.length > 0 && !matchedWordsAreRefrain(r) && (
