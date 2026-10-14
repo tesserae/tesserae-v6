@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import useAssistantStream from './useAssistantStream';
+import { fetchAssistantStatus } from '../../utils/api';
 import { WorkingLine } from './ResultsInsight';
 import { getSessionValue, setSessionValue } from '../../utils/storage';
 import { useIsPhone } from '../../hooks/useIsPhone';
@@ -178,8 +179,7 @@ export default function AssistantDock() {
   const inputRef = useRef(null);
 
   useEffect(() => {
-    fetch('/api/assistant/status')
-      .then((r) => r.json())
+    fetchAssistantStatus()
       .then((d) => setAvailable(Boolean(d.available)))
       .catch(() => setAvailable(false));
   }, []);
@@ -262,7 +262,12 @@ export default function AssistantDock() {
   // which told a first-time visitor nothing (2026-10-10).
   if (!open) {
     return (
-      <div className="fixed bottom-4 right-4 z-40 group">
+      // Between 768 and 1023 pixels the Reader's results sheet is fixed to the
+      // bottom of the screen with its tab strip (2.75rem tall) along the edge,
+      // and the pill (bottom-4) sat over the last tab (second phone pass,
+      // 2026-10-11). There the pill rides above the strip: 2.75rem + 1rem. From
+      // 1024 pixels the sheet is a side column and the pill goes back to bottom-4.
+      <div className="fixed bottom-[3.75rem] lg:bottom-4 right-4 z-40 group">
         <button
           onClick={() => setOpen(true)}
           aria-label="Open Tessa, the AI assistant"

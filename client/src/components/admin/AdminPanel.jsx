@@ -1,4 +1,9 @@
 import { useState, useEffect } from 'react';
+import {
+  fetchAdminSession, adminLogin, adminResetPassword, adminLogout, fetchAdminFeedback, fetchCorpusStatus,
+  fetchAdminAnalytics, fetchLemmaCacheStats, fetchSearchCacheStats, fetchFrequencyCacheStats,
+  fetchBigramCacheStats, fetchAdminUsage
+} from '../../utils/api';
 import { LoadingSpinner } from '../common';
 import StatsTab from './tabs/StatsTab';
 import FeedbackTab from './tabs/FeedbackTab';
@@ -47,9 +52,9 @@ export default function AdminPanel() {
   useEffect(() => {
     const checkSession = async () => {
       try {
-        const meRes = await fetch('/api/admin/me', { credentials: 'include' });
+        const meRes = await fetchAdminSession();
         if (meRes.ok) {
-          const meData = await meRes.json();
+          const meData = meRes.data;
           const meRoles = Array.isArray(meData.roles)
             ? meData.roles.map(normalizeRole).filter(Boolean)
             : [];
@@ -80,13 +85,8 @@ export default function AdminPanel() {
       return;
     }
     try {
-      const res = await fetch('/api/admin/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password, email: adminEmail }),
-        credentials: 'include'
-      });
-      const data = await res.json();
+      const res = await adminLogin(password, adminEmail);
+      const data = res.data;
       if (data.success) {
         const normalizedRoles = Array.isArray(data.roles)
           ? data.roles.map(normalizeRole).filter(Boolean)
@@ -98,9 +98,9 @@ export default function AdminPanel() {
         setResetSuccess('');
         window.dispatchEvent(new Event('admin-auth-changed'));
         try {
-          const meRes = await fetch('/api/admin/me', { credentials: 'include' });
+          const meRes = await fetchAdminSession();
           if (meRes.ok) {
-            const meData = await meRes.json();
+            const meData = meRes.data;
             setAdminUserId(meData.user_id || null);
             const meRoles = Array.isArray(meData.roles)
               ? meData.roles.map(normalizeRole).filter(Boolean)
@@ -138,17 +138,12 @@ export default function AdminPanel() {
     }
     setResetLoading(true);
     try {
-      const res = await fetch('/api/admin/reset-password', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({
-          current_password: resetCurrent,
-          new_password: resetNext,
-          confirm_password: resetConfirm
-        })
+      const res = await adminResetPassword({
+        current_password: resetCurrent,
+        new_password: resetNext,
+        confirm_password: resetConfirm
       });
-      const data = await res.json();
+      const data = res.data;
       if (!res.ok || data.error) {
         throw new Error(data.error || 'Failed to reset password');
       }
@@ -168,10 +163,7 @@ export default function AdminPanel() {
 
   const handleLogout = async () => {
     try {
-      await fetch('/api/admin/logout', {
-        method: 'POST',
-        credentials: 'include',
-      });
+      await adminLogout();
     } catch (_ignored) {}
     setIsAuthenticated(false);
     setAdminRoles([]);
@@ -191,24 +183,24 @@ export default function AdminPanel() {
     setLoadError(null);
     try {
       const [feedbackRes, corpusRes, analyticsRes, lemmaCacheRes, searchCacheRes, frequencyCacheRes, bigramRes, usageRes] = await Promise.all([
-        fetch('/api/admin/feedback', { credentials: 'include' }),
-        fetch('/api/corpus-status'),
-        fetch('/api/admin/analytics', { credentials: 'include' }),
-        fetch('/api/admin/lemma-cache/stats', { credentials: 'include' }),
-        fetch('/api/admin/search-cache/stats', { credentials: 'include' }),
-        fetch('/api/admin/frequency-cache/stats', { credentials: 'include' }),
-        fetch('/api/admin/bigram-cache/stats', { credentials: 'include' }),
-        fetch('/api/admin/usage', { credentials: 'include' })
+        fetchAdminFeedback(),
+        fetchCorpusStatus(),
+        fetchAdminAnalytics(),
+        fetchLemmaCacheStats(),
+        fetchSearchCacheStats(),
+        fetchFrequencyCacheStats(),
+        fetchBigramCacheStats(),
+        fetchAdminUsage()
       ]);
 
-      const feedbackData = feedbackRes.ok ? await feedbackRes.json() : [];
-      const corpus = corpusRes.ok ? await corpusRes.json() : null;
-      const analyticsData = analyticsRes.ok ? await analyticsRes.json() : null;
-      const lemmaCache = lemmaCacheRes.ok ? await lemmaCacheRes.json() : {};
-      const searchCache = searchCacheRes.ok ? await searchCacheRes.json() : {};
-      const frequencyCache = frequencyCacheRes.ok ? await frequencyCacheRes.json() : {};
-      const bigramData = bigramRes.ok ? await bigramRes.json() : {};
-      const usageData = usageRes.ok ? await usageRes.json() : null;
+      const feedbackData = feedbackRes.ok ? feedbackRes.data : [];
+      const corpus = corpusRes.ok ? corpusRes.data : null;
+      const analyticsData = analyticsRes.ok ? analyticsRes.data : null;
+      const lemmaCache = lemmaCacheRes.ok ? lemmaCacheRes.data : {};
+      const searchCache = searchCacheRes.ok ? searchCacheRes.data : {};
+      const frequencyCache = frequencyCacheRes.ok ? frequencyCacheRes.data : {};
+      const bigramData = bigramRes.ok ? bigramRes.data : {};
+      const usageData = usageRes.ok ? usageRes.data : null;
 
       setFeedback(Array.isArray(feedbackData) ? feedbackData : []);
       setCorpusStats(corpus?.summary?.total_texts || null);

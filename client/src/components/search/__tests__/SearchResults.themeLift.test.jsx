@@ -81,6 +81,31 @@ describe('SearchResults — theme lift badge', () => {
     }]);
   });
 
+  // A Persian card carries one more badge ("form in 3 poems") in the same row,
+  // and the theme badge, after a long channels badge, dropped to a line of its
+  // own in 2 of the first 50 cards (2026-10-13). The short theme badge now comes
+  // first, so it fills the space the long channels badge cannot use.
+  it('puts the theme badge before the channels badge on a Persian card', async () => {
+    global.fetch = vi.fn((url) => {
+      if (String(url).includes('/api/passages/pair-lift')) {
+        return Promise.resolve(mockResponse({
+          json: () => Promise.resolve({ results: [{ score: 0.9, lift: 0.02, level: 'weak' }] }),
+        }));
+      }
+      return Promise.resolve(mockResponse({ ok: true, json: () => Promise.resolve({}) }));
+    });
+    const row = {
+      ...ROW,
+      poetics: { corpus_poems: 3 },
+      channels: ['form', 'sound', 'content'],
+    };
+    render(<SearchResults {...baseProps} language="fa" results={[row]} />);
+    const theme = await screen.findByText('theme +0.02');
+    const channels = screen.getByText('form + sound + content');
+    expect(theme.compareDocumentPosition(channels) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(screen.getByText('form in 3 poems').compareDocumentPosition(theme) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
   it('renders nothing extra when the pair-lift call fails', async () => {
     global.fetch = vi.fn((url) => {
       if (String(url).includes('/api/passages/pair-lift')) {
