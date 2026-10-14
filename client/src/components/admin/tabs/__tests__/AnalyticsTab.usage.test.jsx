@@ -35,3 +35,14 @@ describe('AnalyticsTab visitors section', () => {
     expect(screen.getByText(/build_usage_stats\.py/)).toBeTruthy();
   });
 });
+
+describe('AnalyticsTab when the server answers with an error page', () => {
+  it('shows a readable message and keeps the page standing', async () => {
+    global.fetch = vi.fn(() => Promise.resolve({
+      ok: false, status: 502, text: () => Promise.resolve('<html><body>502 Bad Gateway</body></html>'),
+    }));
+    render(<AnalyticsTab usage={null} />);
+    expect(await screen.findByRole('alert')).toHaveTextContent(/502 from \/api\/admin\/analytics: <html>/);
+    expect(screen.getByText('Search Analytics')).toBeTruthy();
+  });
+});

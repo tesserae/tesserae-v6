@@ -124,6 +124,7 @@ const AnalyticsTab = ({ usage = null }) => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [paths, setPaths] = useState(null);
+  const [loadError, setLoadError] = useState('');
   const [graphMetric, setGraphMetric] = useState('searches'); // 'searches', 'users', 'cache'
 
   useEffect(() => {
@@ -132,6 +133,7 @@ const AnalyticsTab = ({ usage = null }) => {
         const response = await fetchAdminAnalyticsJson();
         if (!response.ok) throw new Error(response.data.error || `Analytics request failed (${response.status})`);
         setData(response.data);
+        setLoadError('');
         try {
           const pr = await fetchAdminPaths(30);
           setPaths(pr.ok ? pr.data : null);
@@ -140,6 +142,7 @@ const AnalyticsTab = ({ usage = null }) => {
         }
       } catch (error) {
         console.error('Failed to fetch analytics:', error);
+        setLoadError(error.message || 'Failed to load analytics');
       } finally {
         setLoading(false);
       }
@@ -250,6 +253,17 @@ const AnalyticsTab = ({ usage = null }) => {
     </div>
   );
 
+  // Nothing has loaded yet and the last request failed: say why, and let the
+  // 30-second refresh try again, instead of drawing a page with no numbers.
+  if (!data) return (
+    <div className="space-y-4 max-w-7xl mx-auto pb-12">
+      <h2 className="text-2xl font-bold text-gray-900">Search Analytics</h2>
+      <p role="alert" className="text-sm text-red-700 bg-red-50 border border-red-200 rounded p-3">
+        Could not load the analytics: {loadError || 'no answer from the server'}
+      </p>
+    </div>
+  );
+
   const byLanguage = data?.by_language || [];
 
   return (
@@ -272,7 +286,7 @@ const AnalyticsTab = ({ usage = null }) => {
       {/* High Level Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label: 'Total Searches', value: data.total_searches, icon: Search, color: '#b91c1c' },
+          { label: 'Total Searches', value: data?.total_searches, icon: Search, color: '#b91c1c' },
           { label: 'Distinct Queries', value: data.distinct_searches, icon: Database, color: '#d97706' },
           { label: 'Registered Users', value: data.unique_users, icon: Users, color: '#4b5563' },
           { label: 'Searches Today', value: data.searches_today, icon: Activity, color: '#b91c1c' }
