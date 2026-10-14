@@ -1,0 +1,105 @@
+{
+  "_comment": "What the public data bundle (scripts/ops/build_public_bundle.sh) leaves out, and why. The script and tests/test_public_bundle.py both read this file. A language is in the bundle only if it is listed in core_languages or theme_tier_languages. Everything else is out by default, and the three languages in withheld_languages are named so a test can check that no path for them can slip in.",
+  "core_languages": [
+    "la",
+    "grc",
+    "en",
+    "cop",
+    "he"
+  ],
+  "withheld_languages": {
+    "ar": "Arabic is held back from the site itself.",
+    "fa": "Persian is served on the site, but the terms for passing the texts on are not cleared.",
+    "ur": "Urdu is served on the site, but the terms for passing the texts on are not cleared."
+  },
+  "theme_tier_languages": {
+    "it": "Italian: Dante, Commedia (Inferno, Purgatorio, Paradiso). Project Gutenberg #1000, public domain in the United States; only the text travels, not Gutenberg's header or trademark text.",
+    "fro": "Old French: Chanson de Roland, from the French Wikisource transcription of Joseph Bedier's edition (Bedier died 1938, public domain).",
+    "gmh": "Middle High German: Nibelungenlied, Karl Bartsch's 1887 Schulausgabe scanned on the Internet Archive (Bartsch died 1888, public domain)."
+  },
+  "theme_tier_note": "Theme-tier languages have texts, translations that pass the licence rule, passage-index windows, descriptions, vectors, names rows and map rows. They have no lemma cache, word index or bigram table, so none is looked for or bundled.",
+  "other_languages_not_bundled": {},
+  "language_scoped_path_templates": [
+    "texts/{lang}",
+    "cache/lemmas/{lang}",
+    "cache/lemmas/{lang}.json",
+    "cache/bigrams/{lang}_bigrams.json",
+    "cache/frequencies/{lang}.json",
+    "cache/reuse_pairs/{lang}.db",
+    "cache/reuse_pairs/{lang}_stats.json",
+    "data/inverted_index/{lang}_index.db",
+    "data/inverted_index/{lang}_documents_index.db",
+    "data/lemma_tables/{lang}_surface_lemmas.json",
+    "backend/embeddings/{lang}",
+    "data/translations/{lang}__*.json"
+  ],
+  "never_paths": {
+    ".env": "Production settings and keys.",
+    "instance": "Local application state.",
+    "tesseraev6.sql": "The PostgreSQL dump (users, search logs, reviews).",
+    "data/job_uploads": "Files uploaded by users of the site.",
+    "cache/scholarship": "Cached answers from third-party scholarly services whose terms do not allow passing them on.",
+    "data/citation_index": "Index of sentences quoted from journal articles. The sentences are publisher text, so the index stays out until its terms are reviewed.",
+    "models": "Model weights are downloaded from their publishers by the install steps.",
+    "tesserae-models": "The trained Theme Search reader. Its training data has not been confirmed to be entirely open, so it is not shared.",
+    "data/inverted_index/syntax_latin.db": "Parsed-sentence databases built from treebanks with mixed terms. Not bundled.",
+    "data/inverted_index/syntax_greek.db": "See syntax_latin.db.",
+    "data/inverted_index/syntax_coptic.db": "See syntax_latin.db.",
+    "data/translations/links": "Links for Urdu translations only.",
+    "data/translations/manifest.json": "Lists translations that are withheld. The bundle carries its own MANIFEST.tsv."
+  },
+  "never_name_patterns": [
+    "*.bak",
+    "*.bak-*",
+    "*.pre-*",
+    "*.prev-*",
+    "*.noisy-*",
+    "*.stale-*",
+    "*.tmp",
+    "*.pem",
+    "*.key",
+    "*.sql",
+    "*passphrase*",
+    "*.env",
+    "TESTWRITE"
+  ],
+  "never_dir_name_patterns": [
+    "*.bak-*",
+    "*.bak",
+    "*.stale-*",
+    "*.empty-*",
+    "*_pre-rebuild-*",
+    "__pycache__"
+  ],
+  "translation_licence": {
+    "_comment": "A translation file travels only if its license field starts with one of these and mentions none of the forbidden words. Anything else stays on the server.",
+    "allowed_prefixes": [
+      "public domain",
+      "cc by",
+      "cc0",
+      "cc-by"
+    ],
+    "forbidden_words": [
+      "non-commercial",
+      "noncommercial",
+      "kline"
+    ]
+  },
+  "restricted_registry": "data/restricted_texts.json",
+  "commentary_licence": {
+    "_comment": "A commentary file travels when every licence it states (license, and license_translation where present) is public domain or Creative Commons (BY, BY-SA, BY-NC, BY-NC-SA, CC0, in any wording that names them). A missing, empty, 'unknown' or 'None' licence, or a notice forbidding republication, keeps the file out.",
+    "accepted_patterns": [
+      "public[ -]?domain",
+      "\\bcc0\\b",
+      "creative commons",
+      "\\bcc[ -]by"
+    ],
+    "forbidden_patterns": [
+      "(do|does|may|must|shall|can) not (be )?(re)?(publish|distribut|reproduc|print)",
+      "no[ -]republication",
+      "not for (re)?(publication|distribution)",
+      "(re)?(publication|distribution|reproduction) (is )?(forbidden|prohibited|not permitted)",
+      "all rights reserved"
+    ]
+  }
+}

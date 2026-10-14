@@ -661,6 +661,17 @@ history (index builds, cache rebuilds, corpus changes) is in
   0.43 for the two base systems, so the full index matters.
 - Decided by the project lead on 2026-10-09 on the recommendation above.
 
+## 2026-10-11: the public data bundle's terms: non-commercial as a whole, commentaries sorted by licence, three vernacular texts in
+- Scope: the downloadable data bundle and the install recipe (pull request #739).
+- Decisions, taken by the owner on 2026-10-11 after the four questions the draft raised.
+  1. The Koine Greek and Hebrew lemma tables stay in, so the bundle is offered for non-commercial use as a whole. The cost is that a commercial user cannot take the bundle as it stands, which is a small price for an academic tool. The alternative, a second bundle without them, was not worth the complication.
+  2. Texts from the Latin Library and Forum Romanum stay in. They have no stated licence, and the bundle treats them as the site's own per-language downloads already do.
+  3. Commentaries are sorted by their own licence lines instead of being left out wholesale: public-domain and Creative Commons files travel, including non-commercial ones under the bundle's terms, and files with no licence or a no-republication notice stay out.
+  4. Dante's Commedia, the Chanson de Roland and the Nibelungenlied go in. All three come from public-domain sources: Project Gutenberg's Commedia (#1000), the French Wikisource transcription of Bédier's edition (Bédier died 1938), and Bartsch's 1887 edition of the Nibelungenlied scanned on the Internet Archive (Bartsch died 1888).
+- Still out: Persian, Urdu and Arabic in every form, the citation index built from journal text, the trained reader, the syntax databases, cached answers from scholarly services, and translations whose licence fails the rule.
+- Built: core bundle 3.3 GB archived, 18.6 GB unpacked; full bundle 8.6 GB archived, 29.2 GB unpacked; every manifest hash verified after unpacking.
+
+
 ## 2026-10-09: Inscriptions & Papyri as its own main-menu page
 - Scope: a new route, `/inscriptions-papyri`, with its own component under
   `client/src/components/documents/`. It combines the documents-collection
