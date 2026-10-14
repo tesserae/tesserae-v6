@@ -42,6 +42,7 @@ def test_reader_timeout_grows_with_the_rows_sent(monkeypatch):
     rows = [{'id': f'w{i}', 'score': 1.0 - i / 1000} for i in range(300)]
     rr.apply('q', rows, k=300)
     assert seen['timeout'] == 12.0
+    rr.clear_score_cache()   # the same query and windows would otherwise be answered from the cache
     rr.apply('q', rows[:100], k=100)
     assert seen['timeout'] == 6.0
     rr.apply('q', rows, k=300, timeout=3.0)
