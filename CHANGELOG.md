@@ -7,6 +7,9 @@ so the state of the live site can be reconstructed from this file and
 docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
+## 2026-10-14
+- The request-timings report no longer stops on a request path with a stray byte (a probe sent one on 2026-10-13); such a byte is shown as a replacement character.
+
 ## 2026-10-13
 - Two duplicate texts retired: Ennodius's epigrams were held twice (the CSEL edition under Magnus Felix Ennodius is kept, the Latin Library copy goes) and an 18-line Aretaeus file was a fragment of the longer one. The rename tools handle a file already renamed by a pull and files whose line references are abbreviations, and the passage-index rename takes a single work id; a small set of descriptions can be encoded with the site's own encoder. The #904 production steps were run the same evening (record in docs/DATA_OPERATIONS.md): Libanius and the Verrines under their new names everywhere, Salutati's 1,349 paragraph windows described and indexed, fourteen whole works' duplicate windows dropped, the Roland window filled.
 - The admin tabs and the assistant dock now send their requests through the shared helper in `client/src/utils/api.js`, the pass #898 left for later. The 56 `fetch` calls in `AdminPanel.jsx` and the admin tabs, and the status check in `AssistantDock.jsx`, became named functions (`fetchAdminUsers`, `updateAdminSource`, `clearAdminCache` and so on). Each sends the same URL, method, headers and body as before, and a test per function checks that. A server error page (from Apache or a proxy) now shows as a message such as "502 from /api/admin/settings: <html>...", where it used to read "Unexpected token '<'". The assistant's event stream and the world-map file loads in `GeographicMap.jsx` stay on `fetch`. The Analytics tab now says why when its first load fails. Before, an error as the first answer left it drawing an empty page and stopping.
