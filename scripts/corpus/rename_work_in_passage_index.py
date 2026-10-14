@@ -44,14 +44,27 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(
 from scripts.corpus.corpus_safety import add_apply_argument  # noqa: E402
 
 
+LEAF = False  # set by --leaf: `old` is one work id, not an author or work prefix
+
+
 def renamed(value, old, new):
     """`old.foo` becomes `new.foo`; anything else is returned unchanged.
 
     Matching on `old + '.'` is what keeps `archimedes.fragmenta` out of a
     rename of `archimède`, and what stops a shorter name matching inside a
     longer one.
+
+    With --leaf (2026-10-13, the Libanius part files renamed in #904), `old`
+    is a whole work id: the work field equal to it moves, and a window id
+    `old:scale:n` moves, while nothing that merely begins with it does.
     """
     if not isinstance(value, str):
+        return value
+    if LEAF:
+        if value == old:
+            return new
+        if value.startswith(old + ':'):
+            return new + value[len(old):]
         return value
     prefix = old + '.'
     if value.startswith(prefix):
@@ -59,10 +72,17 @@ def renamed(value, old, new):
     return value
 
 
+def affected(value, old):
+    """Whether a work field or window id carries `old` (prefix or, with --leaf, exact)."""
+    if LEAF:
+        return value == old or value.startswith(old + ':')
+    return value.startswith(old + '.')
+
+
 def count_affected(index, old):
     prefix = old + '.'
     ids = json.load(open(os.path.join(index, 'ids.json'), encoding='utf-8'))
-    n_ids = sum(1 for i in ids if i.startswith(prefix))
+    n_ids = sum(1 for i in ids if affected(i, old))
     n_desc = 0
     with open(os.path.join(index, 'descriptions.jsonl'), encoding='utf-8') as fh:
         for line in fh:
@@ -70,12 +90,13 @@ def count_affected(index, old):
                 r = json.loads(line)
             except ValueError:
                 continue
-            if str(r.get('work', '')).startswith(prefix):
+            if affected(str(r.get('work', '')), old):
                 n_desc += 1
     db = os.path.join(index, 'window_texts.db')
     con = sqlite3.connect(f'file:{db}?mode=ro', uri=True)
     n_win, = con.execute(
-        'SELECT COUNT(*) FROM window_texts WHERE work LIKE ?', (prefix + '%',)
+        'SELECT COUNT(*) FROM window_texts WHERE work = ? OR work LIKE ?',
+        (old, prefix + '%') if not LEAF else (old, old + ':%')
     ).fetchone()
     n_lines, = con.execute(
         'SELECT COUNT(*) FROM lines WHERE work LIKE ?', (prefix + '%',)
@@ -92,15 +113,19 @@ def main(argv=None):
                    help='the work prefix to rename, without a trailing dot')
     p.add_argument('--to', dest='new', required=True, help='its new form')
     p.add_argument('--tag', default='rename', help='backup tag')
+    p.add_argument('--leaf', action='store_true',
+                   help='--from is one whole work id (its ids are old:scale:n), not a prefix')
     add_apply_argument(p, 'write the rename (default: report only)')
     args = p.parse_args(argv)
     index, old, new = args.index, args.old, args.new
+    global LEAF
+    LEAF = args.leaf
     if old == new:
         print('nothing to do: the two names are the same')
         return 0
 
     before = count_affected(index, old)
-    print(f'{old}. -> {new}.')
+    print(f'{old} -> {new}' if LEAF else f'{old}. -> {new}.')
     for k, v in before.items():
         print(f'  {k:12} {v}')
     if not any(before.values()):
@@ -114,8 +139,7 @@ def main(argv=None):
     # different works. Comparing prefixes instead refused that outright.
     existing = set(json.load(open(os.path.join(index, 'ids.json'),
                                   encoding='utf-8')))
-    would_be = {renamed(i, old, new) for i in existing
-                if i.startswith(old + '.')}
+    would_be = {renamed(i, old, new) for i in existing if affected(i, old)}
     collisions = sorted(would_be & existing)
     if collisions:
         print(f'REFUSING: {len(collisions)} renamed ids already exist, '
@@ -166,9 +190,15 @@ def main(argv=None):
     db = live_db + '.renaming'
     shutil.copy2(live_db, db)
     con = sqlite3.connect(db)
+    if LEAF:
+        con.execute('UPDATE window_texts SET work = ?, '
+                    'id = ? || substr(id, ?) WHERE work = ?',
+                    (new, new, len(old) + 1, old))
+        con.execute('UPDATE lines SET work = ? WHERE work = ?', (new, old))
     like = old + '.%'
     cut = len(old) + 1
-    con.execute(
+    if not LEAF:
+      con.execute(
         'UPDATE window_texts SET work = ? || substr(work, ?), '
         'id = CASE WHEN id LIKE ? THEN ? || substr(id, ?) ELSE id END, '
         'ref_start = CASE WHEN ref_start LIKE ? THEN ? || substr(ref_start, ?) '
@@ -178,7 +208,7 @@ def main(argv=None):
         'WHERE work LIKE ?',
         (new + '.', cut + 1, like, new + '.', cut + 1,
          like, new + '.', cut + 1, like, new + '.', cut + 1, like))
-    con.execute(
+      con.execute(
         'UPDATE lines SET work = ? || substr(work, ?), '
         'ref = CASE WHEN ref LIKE ? THEN ? || substr(ref, ?) ELSE ref END '
         'WHERE work LIKE ?',

@@ -5641,14 +5641,6 @@
   },
   {
     "author": "Ennodius",
-    "work": "Epigrammata",
-    "e_source": "The Latin Library",
-    "e_source_url": "https://www.thelatinlibrary.com",
-    "print_source": "",
-    "added_by": "V6 Import"
-  },
-  {
-    "author": "Ennodius",
     "work": "Epigrammatica",
     "e_source": "Open Greek and Latin",
     "e_source_url": "http://opengreekandlatin.github.io/csel-dev/   ",
@@ -16931,14 +16923,6 @@
   {
     "author": "Aretaeus",
     "work": "Curatione Acutorum Morbum",
-    "e_source": "Perseus",
-    "e_source_url": "https://web.archive.org/web/20240812080521/http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.01.0019%3aspeech%3d1",
-    "print_source": "Francis Adams. The Extant Works of Aretaeus, the Cappadocian. Boston: Milford House. 1856.",
-    "added_by": "Tesserae Project"
-  },
-  {
-    "author": "Aretaeus",
-    "work": "Signorum Acutorum Morbum",
     "e_source": "Perseus",
     "e_source_url": "https://web.archive.org/web/20240812080521/http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.01.0019%3aspeech%3d1",
     "print_source": "Francis Adams. The Extant Works of Aretaeus, the Cappadocian. Boston: Milford House. 1856.",
