@@ -29,7 +29,9 @@ def percentile(sorted_vals, q):
 def read(files):
     rows = []
     for name in files:
-        with open(name, encoding="utf-8") as fh:
+        # A request path can carry raw bytes (a probe sent 0x89 on 2026-10-13);
+        # the report must not stop on one such row.
+        with open(name, encoding="utf-8", errors="replace") as fh:
             for line in fh:
                 f = line.rstrip("\n").split("\t")
                 if len(f) < 7:
