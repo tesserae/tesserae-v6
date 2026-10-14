@@ -8,6 +8,7 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-14
+- "Run your own Tesserae" is published: the core data bundle (3.3 GB, 14 October, code version a508a6db) with its checksum, manifest and license file under Downloads, and the recipe in docs/RUN_YOUR_OWN.md pointing at it. Offered for non-commercial use. The full bundle (passage windows and vectors) is described in the recipe but not yet published.
 - The request-timings report no longer stops on a request path with a stray byte (a probe sent one on 2026-10-13); such a byte is shown as a replacement character.
 
 ## 2026-10-13

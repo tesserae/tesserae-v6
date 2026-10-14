@@ -34,7 +34,7 @@ The core bundle holds the texts, the lemma caches, the search indexes, the word-
    ```
    git clone https://github.com/tesserae/tesserae-v6.git
    cd tesserae-v6
-   git checkout 355e3701c9122f69e520ac3c9ad22f0d502dc714
+   git checkout a508a6db803aee8bfa2c7ffa60834baeecc7ae37
    ```
 
    The data was built for that version of the code, and a newer checkout may hold texts the bundle does not match. The Downloads page names the current bundle and its commit.
@@ -51,20 +51,20 @@ The core bundle holds the texts, the lemma caches, the search indexes, the word-
 5. Download the core bundle and its checksum file.
 
    ```
-   curl -L -O "https://tesserae.caset.buffalo.edu/static/downloads/bundle/tesserae-public-core-20261011.tar.zst"
-   curl -L -O "https://tesserae.caset.buffalo.edu/static/downloads/bundle/tesserae-public-core-20261011.tar.zst.sha256"
+   curl -L -O "https://tesserae.caset.buffalo.edu/static/downloads/bundle/tesserae-public-core-20261014.tar.zst"
+   curl -L -O "https://tesserae.caset.buffalo.edu/static/downloads/bundle/tesserae-public-core-20261014.tar.zst.sha256"
    ```
 
 6. Check that the download is intact. The command must print OK.
 
    ```
-   sha256sum -c tesserae-public-core-20261011.tar.zst.sha256
+   sha256sum -c tesserae-public-core-20261014.tar.zst.sha256
    ```
 
 7. Unpack the bundle into the checkout. The bundle files go into the folders where the application looks for them. Texts that the repository already holds are overwritten with identical or newer copies.
 
    ```
-   tar --zstd -xf tesserae-public-core-20261011.tar.zst -C .
+   tar --zstd -xf tesserae-public-core-20261014.tar.zst -C .
    ```
 
 8. Read LICENSES.md, which the unpacking placed in the checkout. It names the credit lines you must keep if you pass any of the data on.
@@ -103,6 +103,9 @@ The core bundle holds the texts, the lemma caches, the search indexes, the word-
     The command ends with a pass for every check. If one fails, stop and read the message before going on.
 
 ## Part 2. The full bundle (Theme Search and Similar Passages)
+
+**October 2026: the full bundle is not published yet.** Part 2 describes it so the recipe is complete; its download links will work once it is published (the Downloads page will say so). Part 1 alone gives a working Tesserae with every search except Similar Passages and Theme Search.
+
 
 Theme Search finds passages by what they are about, in plain English. Similar Passages and the Reader's connection gutter compare passages by meaning. Both need the passage index, the line vectors and a small encoder service. The full bundle contains everything in the core bundle plus these files, so it can be used alone or unpacked over the core files.
 
