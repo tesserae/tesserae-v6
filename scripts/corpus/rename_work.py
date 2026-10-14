@@ -179,10 +179,15 @@ def apply_index(root, language, old, new):
     try:
         con.execute('UPDATE texts SET filename=?, author=?, title=? WHERE text_id=?',
                     (f'{new}.tess', new_author, new_title, text_id))
-        con.execute('UPDATE lines SET ref = ? || substr(ref, ?) WHERE text_id=?',
-                    (new + '.', cut + 1, text_id))
-        con.execute('UPDATE postings SET ref = ? || substr(ref, ?) WHERE text_id=?',
-                    (new + '.', cut + 1, text_id))
+        # Only a ref that carries the old work id moves (as the passage-index
+        # tool does). A file whose line tags are an abbreviation
+        # ('libanius. decl. 1.1', 'cic. ver. 1.1.1') keeps its refs: cutting
+        # them at the old id's length made duplicates and the UNIQUE
+        # constraint on (text_id, ref) refused the rename (2026-10-13, #904).
+        con.execute('UPDATE lines SET ref = ? || substr(ref, ?) WHERE text_id=? AND ref LIKE ?',
+                    (new + '.', cut + 1, text_id, old + '.%'))
+        con.execute('UPDATE postings SET ref = ? || substr(ref, ?) WHERE text_id=? AND ref LIKE ?',
+                    (new + '.', cut + 1, text_id, old + '.%'))
         con.commit()
         n_lines_after, = con.execute('SELECT COUNT(*) FROM lines WHERE text_id=?',
                                       (text_id,)).fetchone()
@@ -418,7 +423,10 @@ def apply_embeddings(root, language, old, new, old_tag, new_tag):
 
 def check_collisions(root, language, old, new):
     problems = []
-    if os.path.exists(tess_path(root, language, new)):
+    # A new .tess beside a missing old one means the file itself was renamed
+    # already (a pull of a pull request that used git mv, 2026-10-13, #904);
+    # the other stores still need the rename, so that is not a collision.
+    if os.path.exists(tess_path(root, language, new)) and os.path.exists(tess_path(root, language, old)):
         problems.append(f'{tess_path(root, language, new)} already exists')
     index_plan = plan_index(root, language, old, new)
     if index_plan.get('found') and index_plan.get('text_present') and index_plan.get('new_filename_exists'):
