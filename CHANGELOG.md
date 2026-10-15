@@ -8,6 +8,7 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-15
+- Similarity Map: the map build now includes Italian, Old French and Middle High German (Dante, the Chanson de Roland, the Nibelungenlied), which were served but missing from the map; takes effect at the next cache rebuild.
 - Search One Text and Theme Search: the online results box is named Books and articles found online, and each item is marked book or article, since Google Books results are books.
 - Search One Text: when none of the held notes or articles bears on the question, the "Articles found online" box comes first and the Scholarship note follows in small type, instead of an empty box above the articles.
 - Articles found online: the excerpt under a Google Books result no longer shows only the tail of the fragment ("weaknesses of each."); the leading and trailing ellipses are trimmed before the sentence is chosen, and a match under 40 characters gives way to the whole fragment.
