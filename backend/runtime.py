@@ -402,6 +402,37 @@ def start_bigram_warmup():
 start_bigram_warmup()
 
 
+# The first Theme Search, Similar Passages or Reader gutter request on each web
+# worker used to pay about 23 seconds to load the passage index (measured live
+# 2026-10-15), and workers are replaced every 1,000 requests, so some visitor
+# met that wait after every replacement. TESSERAE_WARM_PASSAGES=1 loads it in a
+# background thread at start. Workers load it on their first such request
+# anyway, so the memory is the same; only the wait moves off the visitor. The
+# loader's own lock and second check mean a request that arrives during the
+# warm-up waits for that load rather than starting another.
+def warm_passage_index():
+    """Load the passage index now. Returns True when it is loaded."""
+    try:
+        from backend import passage_index
+        passage_index._ensure_loaded()
+        return bool(passage_index._state.get('loaded'))
+    except Exception as e:
+        app_logger.error(f"Passage index warm-up failed: {e}")
+        return False
+
+
+def start_passage_warmup():
+    """Start the warm-up thread when TESSERAE_WARM_PASSAGES is set."""
+    if os.environ.get('TESSERAE_WARM_PASSAGES', '').strip().lower() not in ('1', 'true', 'yes'):
+        return None
+    thread = threading.Thread(target=warm_passage_index, name='passage-warmup', daemon=True)
+    thread.start()
+    return thread
+
+
+start_passage_warmup()
+
+
 def api_route_for(blueprint):
     """The same decorator as api_route() in backend/app.py, bound to a blueprint.
 
