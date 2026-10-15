@@ -787,9 +787,6 @@ export default function ThemeSearchPage() {
     <div className="max-w-4xl mx-auto p-6">
       <div className="flex items-center gap-2">
         <h1 className="text-2xl font-semibold text-gray-900">Theme Search</h1>
-        <span className="rounded border border-amber-200 bg-amber-50 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-800">
-          Beta
-        </span>
       </div>
 
       {/* The coverage sentence lives in the box with the rest of what the

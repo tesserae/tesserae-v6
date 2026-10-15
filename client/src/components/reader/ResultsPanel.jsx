@@ -158,7 +158,7 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
   // selection), not yet shown to every reader. ?scholarship=1 switches it on
   // and remembers that for the rest of the visit in sessionStorage, the same
   // way the names grouping was trialled behind ?names=1 first.
-  const { anyOn, view } = useCollections();
+  const { anyOn, view, setCollection } = useCollections();
   const scholarshipFlag = anyOn(['scholarship']);
   // Offer the tab only where the site holds scholarship for THIS language
   // (/api/scholarship/sources' own languages field, not a guess): Persian
@@ -1074,9 +1074,27 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
             })()}
                 </>
               );
+              // With the inscriptions and papyri switched off, the server's
+              // document hits would be silently dropped (2026-10-15: the owner
+              // looked for the Pompeii graffiti of Aen. 1.1 and found nothing).
+              // One line names them and switches the collections on.
+              const hiddenDocuments = (!documentsTrial && !reuseLoading && reuse?.documents?.length > 0) && (
+                <p className="mt-3 text-xs text-gray-600" data-testid="reuse-documents-hidden">
+                  {reuse.documents.length === 1
+                    ? 'One inscription or papyrus also quotes this line. '
+                    : `${reuse.documents.length} inscriptions and papyri also quote this line. `}
+                  <button
+                    type="button"
+                    className="text-red-700 underline hover:text-red-900"
+                    onClick={() => { setCollection('inscriptions', true); setCollection('papyri', true); }}
+                  >
+                    Show them
+                  </button>
+                </p>
+              );
               return reuseFirst === 'documents'
-                ? <>{documentGroups}{literaryGroups}</>
-                : <>{literaryGroups}{documentGroups}</>;
+                ? <>{documentGroups}{literaryGroups}{hiddenDocuments}</>
+                : <>{literaryGroups}{documentGroups}{hiddenDocuments}</>;
             })()}
           </>
         )}
