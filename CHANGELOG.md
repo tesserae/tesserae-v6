@@ -8,6 +8,7 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-15
+- Rare Words (`/api/hapax-search`) reads each work's text once per request (it read it again for every word) and does less repeated work on every line it checks. Every answer is unchanged byte for byte. On ten recorded pairs (Latin and Greek, parts and whole works) the median server time with warm caches went from 17.2 s to 1.5 s. The Aeneid with the Metamorphoses, as whole works, went from 55 s to 2.9 s, and Iliad 1 with Argonautica 1 from 21 s to 1.7 s.
 - The request-timing log gives each visitor a daily code (a keyed hash of the day, address and browser name, no address stored) and marks the server's own checks as local, so speed reports can leave them out; the Privacy page says so.
 - A translation credit that already names the translator in a short form ("H. A. Bellows") no longer repeats the name in full in front of it.
 - The Reader's About this text panel uses the whole row on a wide screen: the description on the left, a box on the right with the date, period, form and length, the edition and translation, and the two links. A translation's credit now names its translator ("Theodore C. Williams (1910), via Perseus Digital Library, Tufts University"); for 101 Latin works it had named only the website. The Downloads page's recorded rendering is updated for the bundle section added on 2026-10-14.
