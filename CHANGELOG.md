@@ -8,6 +8,8 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-15
+- Scholarship tab: names that arrive with accented letters as escape text ("Ar\ue9valo") read correctly ("Arévalo"); a record that names no author, such as an edited volume, starts with its title instead of "Unknown author"; Google Books titles carry their subtitle.
+- The Reader and Theme Search no longer carry the Beta label (menu and page headers).
 - Ennius, Annales: fragments of uncertain book and of uncertain work now read "481 (book uncertain)" and "uncertain work 37" instead of the file's labels "sedinc.481" and "opinc.37" (cards, Reader, citations). The numbers are Skutsch's.
 - The Privacy page no longer says the site is hosted on Replit or that sign-in goes through Replit: accounts are the site's own (name, email, hashed password) on the University at Buffalo server.
 - Rare Words (`/api/hapax-search`) no longer sends `all_corpus_locations`, the list of every place each word occurs in the corpus, unless the request carries `include_corpus_locations: true`. That list was 96 to 98 percent of every response (30.0 MB of 30.9 MB on the Aeneid with the Metamorphoses, 32.1 MB of 32.5 MB on Iliad 1 with Argonautica 1) and nothing on the site, in the Claude connector or in Tessa reads it. Every word is still returned. With the flag the response is byte-identical to before. The Rare Words page keeps Export CSV as it was and adds Download everything (CSV), which asks again with the flag and saves one row per corpus occurrence (word, lemma, work, citation, line text) with the source and target locations. Recorded golden requests to re-record after deploy: `rare_words`.

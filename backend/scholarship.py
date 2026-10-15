@@ -1232,7 +1232,7 @@ def books(p, limit=8):
                 logger.warning('books lookup failed: %s %s', type(e).__name__, getattr(getattr(e, 'response', None), 'status_code', '')); continue
             for it in d.get('items', []) or []:
                 v = it.get('volumeInfo') or {}; si = it.get('searchInfo') or {}; ai = it.get('accessInfo') or {}
-                out.append({'title': v.get('title'), 'authors': v.get('authors') or [], 'year': (v.get('publishedDate') or '')[:4],
+                out.append({'title': _book_title(v), 'authors': v.get('authors') or [], 'year': (v.get('publishedDate') or '')[:4],
                             'publisher': v.get('publisher'), 'snippet': _clean_snippet(si.get('textSnippet')),
                             'preview': v.get('previewLink'), 'viewability': ai.get('viewability'), 'id': it.get('id')})
         seen = set(); uniq = []
@@ -1250,6 +1250,13 @@ def books(p, limit=8):
     if out.get('results'):
         out = dict(out, results=[b for b in out['results'] if _mentions_work(_book_text(b), p)])
     return out
+
+
+def _book_title(v):
+    """Google Books keeps an edited volume's subtitle apart ("Ilias Latina" +
+    "Text, Interpretation, and Reception"); show them together."""
+    t, sub = (v.get('title') or '').strip(), (v.get('subtitle') or '').strip()
+    return '%s: %s' % (t, sub) if t and sub else t
 
 
 def _book_text(b):

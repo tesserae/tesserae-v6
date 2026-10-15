@@ -20,6 +20,27 @@ import { getJson, postJsonTo } from '../../utils/api';
 const LIBRARY_KEY = 'tesserae.libraryResolver';
 const LIBRARY_SUGGESTION = 'https://search.lib.buffalo.edu/discovery/openurl?institution=01SUNY_BUF&vid=01SUNY_BUF:everything';
 
+
+/** Some records (CORE) carry accented letters as literal escape text: "Ar\\ue9valo"
+ * for "Arévalo", sometimes with two hex digits instead of four. Decoded for display. */
+export function fixEscapes(text) {
+  return String(text || '').replace(/\\u([0-9a-fA-F]{2,4})/g, (m, hex) => {
+    const four = hex.length === 4 ? parseInt(hex, 16) : null;
+    if (four !== null && four >= 0x80 && four < 0x3000) return String.fromCharCode(four);
+    return String.fromCharCode(parseInt(hex.slice(0, 2), 16)) + hex.slice(2);
+  });
+}
+
+/** "Authors (year). Title" with the title in italics. A record that names no one,
+ * as for an edited volume, begins with the title: "Title (year)". */
+export function CitationHead({ authors, year, title, max = 3, others = false }) {
+  const names = (authors || []).filter(Boolean).map(fixEscapes);
+  const t = <span className="italic">{fixEscapes(title)}</span>;
+  if (!names.length) return <>{t}{year ? ` (${year})` : ''}</>;
+  const who = names.slice(0, max).join(', ') + (others && names.length > max ? ' and others' : '');
+  return <>{who}{year ? ` (${year}). ` : '. '}{t}</>;
+}
+
 function loadLibrary() {
   try { return localStorage.getItem(LIBRARY_KEY) || ''; } catch { return ''; }
 }
@@ -371,9 +392,7 @@ function MainPieceLI({ r, data, library, passage, fallbackWords }) {
     <li className="text-sm leading-snug">
       <KindTag>article record</KindTag>
       <p className="text-gray-900">
-        {r.authors?.length ? r.authors.slice(0, 3).join(', ') + (r.authors.length > 3 ? ' and others' : '') : 'Unknown author'}
-        {r.year ? ` (${r.year}). ` : '. '}
-        <span className="italic">{r.title}</span>
+        <CitationHead authors={r.authors} year={r.year} title={r.title} others />
         {r.venue ? `. ${r.venue}` : ''}.
       </p>
       {r.snippet && (
@@ -402,9 +421,7 @@ function IndexPieceLI({ r, passage, fallbackWords }) {
     <li className="text-sm leading-snug">
       <KindTag>{pre1923 ? 'journal article, before 1923, JSTOR' : 'journal article, JSTOR'}</KindTag>
       <p className="text-gray-900">
-        {r.authors?.length ? r.authors.slice(0, 3).join(', ') : 'Unknown author'}
-        {r.year ? ` (${r.year}). ` : '. '}
-        <span className="italic">{r.title}</span>
+        <CitationHead authors={r.authors} year={r.year} title={r.title} />
         {r.venue ? `. ${r.venue}` : ''}{r.volume ? ` ${r.volume}` : ''}{r.pages?.length ? `, p. ${r.pages.slice(0, 4).join(', ')}` : ''}.
       </p>
       {r.snippet && (
@@ -430,9 +447,8 @@ function FullTextPieceLI({ r, library, passage, fallbackWords }) {
     <li className="text-sm leading-snug">
       <KindTag>open-access article</KindTag>
       <p className="text-gray-900">
-        {r.authors?.length ? r.authors.slice(0, 3).join(', ') + (r.authors.length > 3 ? ' and others' : '') : 'Unknown author'}
-        {r.year ? ` (${r.year}). ` : '. '}
-        <span className="italic">{r.title}</span>{r.venue ? `. ${r.venue}` : ''}.
+        <CitationHead authors={r.authors} year={r.year} title={r.title} others />
+        {r.venue ? `. ${r.venue}` : ''}.
       </p>
       {r.snippet && (
         <p className="text-[12px] text-gray-700 mt-0.5 border-l-2 border-gray-200 pl-2">
@@ -458,8 +474,7 @@ function BookPieceLI({ b, passage, fallbackWords }) {
     <li className="text-sm leading-snug">
       <KindTag>book page, Google Books</KindTag>
       <p className="text-gray-900">
-        {b.authors?.length ? b.authors.slice(0, 3).join(', ') : 'Unknown author'}{b.year ? ` (${b.year}). ` : '. '}
-        <span className="italic">{b.title}</span>{b.publisher ? `. ${b.publisher}` : ''}.
+        <CitationHead authors={b.authors} year={b.year} title={b.title} />{b.publisher ? `. ${b.publisher}` : ''}.
       </p>
       {b.snippet && (
         <p className="text-[12px] text-gray-700 mt-0.5 border-l-2 border-gray-200 pl-2">
