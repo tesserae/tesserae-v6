@@ -2238,7 +2238,7 @@ def search_stream():
             # Check cache (skip if user requested a fresh search)
             skip_cache = data.get('skip_cache', False)
             cached_results, cached_meta = (None, None) if skip_cache else \
-                get_cached_results(source_id, target_id, language, settings)
+                _cached_results_in_memory(source_id, target_id, language, settings)
             if cached_results is not None:
                 yield send_progress("Loading cached results")
                 max_results = settings.get('max_results', 0)
@@ -2448,6 +2448,23 @@ def search():
     return jsonify(result_pages.paginate_payload(payload, page_size))
 
 
+def _cached_results_in_memory(source_id, target_id, language, settings):
+    """get_cached_results, with the parsed file kept in memory (a few at a
+    time, backend/result_view_cache.py) while the file is unchanged. The rows
+    are shared between requests: the caller only slices them."""
+    from backend import result_view_cache
+    from backend.cache import CACHE_DIR, get_cache_key
+    path = os.path.join(CACHE_DIR, f"{get_cache_key(source_id, target_id, language, settings)}.json")
+    stamp = result_view_cache.stamp_of(path)
+    kept = result_view_cache.get(path, stamp)
+    if kept is not None:
+        return kept
+    results, meta = get_cached_results(source_id, target_id, language, settings)
+    if results is not None and stamp[0] is not None:
+        result_view_cache.put(path, stamp, stamp[0][0], (results, meta))
+    return results, meta
+
+
 def _search_response():
     cancellation = None
     try:
@@ -2464,7 +2481,7 @@ def _search_response():
         # Check cache (skip if user requested a fresh search)
         skip_cache = data.get('skip_cache', False)
         cached_results, cached_meta = (None, None) if skip_cache else \
-            get_cached_results(source_id, target_id, language, settings)
+            _cached_results_in_memory(source_id, target_id, language, settings)
         if cached_results is not None:
             max_results = settings.get('max_results', 0)
             display_results = cached_results[:max_results] if max_results > 0 else cached_results

@@ -1,0 +1,1803 @@
+{
+ "requests": [
+  {
+   "name": "browse_default",
+   "method": "GET",
+   "path": "/api/documents/browse",
+   "params": {
+    "page_size": 20
+   }
+  },
+  {
+   "name": "browse_p2",
+   "method": "GET",
+   "path": "/api/documents/browse",
+   "params": {
+    "page_size": 50,
+    "page": 2
+   }
+  },
+  {
+   "name": "browse_p300",
+   "method": "GET",
+   "path": "/api/documents/browse",
+   "params": {
+    "page_size": 200,
+    "page": 3
+   }
+  },
+  {
+   "name": "browse_inscriptions",
+   "method": "GET",
+   "path": "/api/documents/browse",
+   "params": {
+    "kind": "inscriptions",
+    "page_size": 20
+   }
+  },
+  {
+   "name": "browse_inscriptions_Roma",
+   "method": "GET",
+   "path": "/api/documents/browse",
+   "params": {
+    "kind": "inscriptions",
+    "region": "Roma",
+    "page_size": 20
+   }
+  },
+  {
+   "name": "browse_inscriptions_Roma_c",
+   "method": "GET",
+   "path": "/api/documents/browse",
+   "params": {
+    "kind": "inscriptions",
+    "region": "Roma",
+    "century": "1st century AD (spans to 6th century AD)",
+    "page_size": 20
+   }
+  },
+  {
+   "name": "browse_inscriptions_Latium et Campania (Regio I)",
+   "method": "GET",
+   "path": "/api/documents/browse",
+   "params": {
+    "kind": "inscriptions",
+    "region": "Latium et Campania (Regio I)",
+    "page_size": 20
+   }
+  },
+  {
+   "name": "browse_inscriptions_Latium et Campania (Regio I)_c",
+   "method": "GET",
+   "path": "/api/documents/browse",
+   "params": {
+    "kind": "inscriptions",
+    "region": "Latium et Campania (Regio I)",
+    "century": "1st century AD (spans to 4th century AD)",
+    "page_size": 20
+   }
+  },
+  {
+   "name": "browse_inscriptions_Venetia et Histria (Regio X)",
+   "method": "GET",
+   "path": "/api/documents/browse",
+   "params": {
+    "kind": "inscriptions",
+    "region": "Venetia et Histria (Regio X)",
+    "page_size": 20
+   }
+  },
+  {
+   "name": "browse_inscriptions_Venetia et Histria (Regio X)_c",
+   "method": "GET",
+   "path": "/api/documents/browse",
+   "params": {
+    "kind": "inscriptions",
+    "region": "Venetia et Histria (Regio X)",
+    "century": "2nd century AD",
+    "page_size": 20
+   }
+  },
+  {
+   "name": "browse_inscriptions_text_type_Epitaph",
+   "method": "GET",
+   "path": "/api/documents/browse",
+   "params": {
+    "kind": "inscriptions",
+    "text_type": "Epitaph",
+    "page_size": 20
+   }
+  },
+  {
+   "name": "browse_inscriptions_text_type_unknown",
+   "method": "GET",
+   "path": "/api/documents/browse",
+   "params": {
+    "kind": "inscriptions",
+    "text_type": "unknown",
+    "page_size": 20
+   }
+  },
+  {
+   "name": "browse_inscriptions_material_marble",
+   "method": "GET",
+   "path": "/api/documents/browse",
+   "params": {
+    "kind": "inscriptions",
+    "material": "marble",
+    "page_size": 20
+   }
+  },
+  {
+   "name": "browse_inscriptions_material_unknown",
+   "method": "GET",
+   "path": "/api/documents/browse",
+   "params": {
+    "kind": "inscriptions",
+    "material": "unknown",
+    "page_size": 20
+   }
+  },
+  {
+   "name": "browse_inscriptions_object_sheet",
+   "method": "GET",
+   "path": "/api/documents/browse",
+   "params": {
+    "kind": "inscriptions",
+    "object": "sheet",
+    "page_size": 20
+   }
+  },
+  {
+   "name": "browse_inscriptions_object_unknown",
+   "method": "GET",
+   "path": "/api/documents/browse",
+   "params": {
+    "kind": "inscriptions",
+    "object": "unknown",
+    "page_size": 20
+   }
+  },
+  {
+   "name": "browse_inscriptions_language_la",
+   "method": "GET",
+   "path": "/api/documents/browse",
+   "params": {
+    "kind": "inscriptions",
+    "language": "la",
+    "page_size": 20
+   }
+  },
+  {
+   "name": "browse_inscriptions_language_grc",
+   "method": "GET",
+   "path": "/api/documents/browse",
+   "params": {
+    "kind": "inscriptions",
+    "language": "grc",
+    "page_size": 20
+   }
+  },
+  {
+   "name": "browse_papyri",
+   "method": "GET",
+   "path": "/api/documents/browse",
+   "params": {
+    "kind": "papyri",
+    "page_size": 20
+   }
+  },
+  {
+   "name": "browse_papyri_Unknown nome",
+   "method": "GET",
+   "path": "/api/documents/browse",
+   "params": {
+    "kind": "papyri",
+    "region": "Unknown nome",
+    "page_size": 20
+   }
+  },
+  {
+   "name": "browse_papyri_Unknown nome_fs",
+   "method": "GET",
+   "path": "/api/documents/browse",
+   "params": {
+    "kind": "papyri",
+    "region": "Unknown nome",
+    "findspot": "Unknown findspot",
+    "page_size": 20
+   }
+  },
+  {
+   "name": "browse_papyri_Unknown nome_c",
+   "method": "GET",
+   "path": "/api/documents/browse",
+   "params": {
+    "kind": "papyri",
+    "region": "Unknown nome",
+    "century": "3rd century AD",
+    "page_size": 20
+   }
+  },
+  {
+   "name": "browse_papyri_Arsinoites",
+   "method": "GET",
+   "path": "/api/documents/browse",
+   "params": {
+    "kind": "papyri",
+    "region": "Arsinoites",
+    "page_size": 20
+   }
+  },
+  {
+   "name": "browse_papyri_Arsinoites_fs",
+   "method": "GET",
+   "path": "/api/documents/browse",
+   "params": {
+    "kind": "papyri",
+    "region": "Arsinoites",
+    "findspot": "Karanis",
+    "page_size": 20
+   }
+  },
+  {
+   "name": "browse_papyri_Arsinoites_c",
+   "method": "GET",
+   "path": "/api/documents/browse",
+   "params": {
+    "kind": "papyri",
+    "region": "Arsinoites",
+    "century": "3rd century AD (spans to 4th century AD)",
+    "page_size": 20
+   }
+  },
+  {
+   "name": "browse_papyri_Peri Thebas",
+   "method": "GET",
+   "path": "/api/documents/browse",
+   "params": {
+    "kind": "papyri",
+    "region": "Peri Thebas",
+    "page_size": 20
+   }
+  },
+  {
+   "name": "browse_papyri_Peri Thebas_fs",
+   "method": "GET",
+   "path": "/api/documents/browse",
+   "params": {
+    "kind": "papyri",
+    "region": "Peri Thebas",
+    "findspot": "Thebes",
+    "page_size": 20
+   }
+  },
+  {
+   "name": "browse_papyri_Peri Thebas_c",
+   "method": "GET",
+   "path": "/api/documents/browse",
+   "params": {
+    "kind": "papyri",
+    "region": "Peri Thebas",
+    "century": "2nd century AD",
+    "page_size": 20
+   }
+  },
+  {
+   "name": "browse_papyri_text_type_receipt",
+   "method": "GET",
+   "path": "/api/documents/browse",
+   "params": {
+    "kind": "papyri",
+    "text_type": "receipt",
+    "page_size": 20
+   }
+  },
+  {
+   "name": "browse_papyri_text_type_contract",
+   "method": "GET",
+   "path": "/api/documents/browse",
+   "params": {
+    "kind": "papyri",
+    "text_type": "contract",
+    "page_size": 20
+   }
+  },
+  {
+   "name": "browse_papyri_material_papyrus",
+   "method": "GET",
+   "path": "/api/documents/browse",
+   "params": {
+    "kind": "papyri",
+    "material": "papyrus",
+    "page_size": 20
+   }
+  },
+  {
+   "name": "browse_papyri_material_ostracon",
+   "method": "GET",
+   "path": "/api/documents/browse",
+   "params": {
+    "kind": "papyri",
+    "material": "ostracon",
+    "page_size": 20
+   }
+  },
+  {
+   "name": "browse_papyri_language_grc",
+   "method": "GET",
+   "path": "/api/documents/browse",
+   "params": {
+    "kind": "papyri",
+    "language": "grc",
+    "page_size": 20
+   }
+  },
+  {
+   "name": "browse_papyri_language_cop",
+   "method": "GET",
+   "path": "/api/documents/browse",
+   "params": {
+    "kind": "papyri",
+    "language": "cop",
+    "page_size": 20
+   }
+  },
+  {
+   "name": "browse_c_4th century BC (spans to 3rd century BC)",
+   "method": "GET",
+   "path": "/api/documents/browse",
+   "params": {
+    "century": "4th century BC (spans to 3rd century BC)",
+    "page_size": 20
+   }
+  },
+  {
+   "name": "browse_c_4th century BC (spans to 2nd century BC)",
+   "method": "GET",
+   "path": "/api/documents/browse",
+   "params": {
+    "century": "4th century BC (spans to 2nd century BC)",
+    "page_size": 20
+   }
+  },
+  {
+   "name": "browse_c_4th century BC (spans to 3rd century AD)",
+   "method": "GET",
+   "path": "/api/documents/browse",
+   "params": {
+    "century": "4th century BC (spans to 3rd century AD)",
+    "page_size": 20
+   }
+  },
+  {
+   "name": "browse_c_4th century BC (spans to 1st century BC)",
+   "method": "GET",
+   "path": "/api/documents/browse",
+   "params": {
+    "century": "4th century BC (spans to 1st century BC)",
+    "page_size": 20
+   }
+  },
+  {
+   "name": "browse_lang_grc",
+   "method": "GET",
+   "path": "/api/documents/browse",
+   "params": {
+    "language": "grc",
+    "page_size": 20
+   }
+  },
+  {
+   "name": "browse_empty",
+   "method": "GET",
+   "path": "/api/documents/browse",
+   "params": {
+    "kind": "papyri",
+    "language": "la",
+    "material": "zzz",
+    "page_size": 20
+   }
+  },
+  {
+   "name": "rare_words_0",
+   "method": "GET",
+   "path": "/api/hapax-search",
+   "params": {
+    "source": "vergil.eclogues.tess",
+    "target": "calpurnius_siculus.eclogae.tess",
+    "language": "la",
+    "limit": 60
+   }
+  },
+  {
+   "name": "rare_words_1",
+   "method": "GET",
+   "path": "/api/hapax-search",
+   "params": {
+    "source": "vergil.aeneid.part.1.tess",
+    "target": "lucan.bellum_civile.part.1.tess",
+    "language": "la",
+    "limit": 60,
+    "max_occurrences": 10
+   }
+  },
+  {
+   "name": "rare_words_2",
+   "method": "GET",
+   "path": "/api/hapax-search",
+   "params": {
+    "source": "vergil.georgics.part.1.tess",
+    "target": "lucretius.de_rerum_natura.part.1.tess",
+    "language": "la",
+    "limit": 60,
+    "exclude_proper_nouns": "true"
+   }
+  },
+  {
+   "name": "rare_words_3",
+   "method": "GET",
+   "path": "/api/hapax-search",
+   "params": {
+    "source": "ovid.metamorphoses.part.1.tess",
+    "target": "vergil.aeneid.part.4.tess",
+    "language": "la",
+    "limit": 60
+   }
+  },
+  {
+   "name": "rare_words_4",
+   "method": "GET",
+   "path": "/api/hapax-search",
+   "params": {
+    "source": "statius.thebaid.part.1.tess",
+    "target": "vergil.aeneid.part.2.tess",
+    "language": "la",
+    "limit": 60
+   }
+  },
+  {
+   "name": "rare_words_5",
+   "method": "GET",
+   "path": "/api/hapax-search",
+   "params": {
+    "source": "valerius_flaccus.argonautica.part.1.tess",
+    "target": "vergil.aeneid.part.4.tess",
+    "language": "la",
+    "limit": 60,
+    "max_occurrences": 10
+   }
+  },
+  {
+   "name": "rare_words_6",
+   "method": "GET",
+   "path": "/api/hapax-search",
+   "params": {
+    "source": "silius_italicus.punica.part.1.tess",
+    "target": "vergil.aeneid.part.6.tess",
+    "language": "la",
+    "limit": 60,
+    "exclude_proper_nouns": "true"
+   }
+  },
+  {
+   "name": "rare_words_7",
+   "method": "GET",
+   "path": "/api/hapax-search",
+   "params": {
+    "source": "horace.odes.part.1.tess",
+    "target": "catullus.carmina.part.1.tess",
+    "language": "la",
+    "limit": 60
+   }
+  },
+  {
+   "name": "rare_words_8",
+   "method": "GET",
+   "path": "/api/hapax-search",
+   "params": {
+    "source": "lucan.bellum_civile.part.2.tess",
+    "target": "statius.thebaid.part.3.tess",
+    "language": "la",
+    "limit": 60
+   }
+  },
+  {
+   "name": "rare_words_9",
+   "method": "GET",
+   "path": "/api/hapax-search",
+   "params": {
+    "source": "seneca.medea.tess",
+    "target": "ovid.metamorphoses.part.7.tess",
+    "language": "la",
+    "limit": 60,
+    "max_occurrences": 10
+   }
+  },
+  {
+   "name": "rare_words_10",
+   "method": "GET",
+   "path": "/api/hapax-search",
+   "params": {
+    "source": "cicero.de_oratore.part.1.tess",
+    "target": "livy.ab_urbe_condita.part.1.books_1-10.tess",
+    "language": "la",
+    "limit": 60,
+    "exclude_proper_nouns": "true"
+   }
+  },
+  {
+   "name": "rare_words_11",
+   "method": "GET",
+   "path": "/api/hapax-search",
+   "params": {
+    "source": "vergil.aeneid.tess",
+    "target": "lucan.bellum_civile.tess",
+    "language": "la",
+    "limit": 60
+   }
+  },
+  {
+   "name": "rare_words_12",
+   "method": "GET",
+   "path": "/api/hapax-search",
+   "params": {
+    "source": "ovid.metamorphoses.part.2.tess",
+    "target": "lucretius.de_rerum_natura.part.5.tess",
+    "language": "la",
+    "limit": 60
+   }
+  },
+  {
+   "name": "rare_words_13",
+   "method": "GET",
+   "path": "/api/hapax-search",
+   "params": {
+    "source": "statius.thebaid.part.2.tess",
+    "target": "lucan.bellum_civile.part.4.tess",
+    "language": "la",
+    "limit": 60,
+    "max_occurrences": 10
+   }
+  },
+  {
+   "name": "rare_words_14",
+   "method": "GET",
+   "path": "/api/hapax-search",
+   "params": {
+    "source": "bion_of_phlossa.epitaphius.tess",
+    "target": "theocritus.idylls.part.1.tess",
+    "language": "grc",
+    "limit": 60,
+    "exclude_proper_nouns": "true"
+   }
+  },
+  {
+   "name": "rare_words_15",
+   "method": "GET",
+   "path": "/api/hapax-search",
+   "params": {
+    "source": "homer.iliad.part.1.tess",
+    "target": "apollonius_rhodius.argonautica.part.1.tess",
+    "language": "grc",
+    "limit": 60
+   }
+  },
+  {
+   "name": "rare_words_16",
+   "method": "GET",
+   "path": "/api/hapax-search",
+   "params": {
+    "source": "homer.odyssey.part.5.tess",
+    "target": "apollonius_rhodius.argonautica.part.3.tess",
+    "language": "grc",
+    "limit": 60
+   }
+  },
+  {
+   "name": "rare_words_17",
+   "method": "GET",
+   "path": "/api/hapax-search",
+   "params": {
+    "source": "hesiod.theogony.tess",
+    "target": "homer.iliad.part.2.tess",
+    "language": "grc",
+    "limit": 60,
+    "max_occurrences": 10
+   }
+  },
+  {
+   "name": "rare_words_18",
+   "method": "GET",
+   "path": "/api/hapax-search",
+   "params": {
+    "source": "hesiod.works_and_days.tess",
+    "target": "theocritus.idylls.part.2.tess",
+    "language": "grc",
+    "limit": 60,
+    "exclude_proper_nouns": "true"
+   }
+  },
+  {
+   "name": "rare_words_19",
+   "method": "GET",
+   "path": "/api/hapax-search",
+   "params": {
+    "source": "aeschylus.agamemnon.tess",
+    "target": "sophocles.oedipus_tyrannus.tess",
+    "language": "grc",
+    "limit": 60
+   }
+  },
+  {
+   "name": "rare_words_20",
+   "method": "GET",
+   "path": "/api/hapax-search",
+   "params": {
+    "source": "euripides.bacchae.tess",
+    "target": "aeschylus.persians.tess",
+    "language": "grc",
+    "limit": 60
+   }
+  },
+  {
+   "name": "rare_words_21",
+   "method": "GET",
+   "path": "/api/hapax-search",
+   "params": {
+    "source": "pindar.odes.part.3.olympians.tess",
+    "target": "homer.iliad.part.3.tess",
+    "language": "grc",
+    "limit": 60,
+    "max_occurrences": 10
+   }
+  },
+  {
+   "name": "rare_words_22",
+   "method": "GET",
+   "path": "/api/hapax-search",
+   "params": {
+    "source": "homer.iliad.part.9.tess",
+    "target": "thucydides.peleponnesian_war.part.2.tess",
+    "language": "grc",
+    "limit": 60,
+    "exclude_proper_nouns": "true"
+   }
+  },
+  {
+   "name": "rare_words_23",
+   "method": "GET",
+   "path": "/api/hapax-search",
+   "params": {
+    "source": "homer.odyssey.part.1.tess",
+    "target": "homer.iliad.part.1.tess",
+    "language": "grc",
+    "limit": 60
+   }
+  },
+  {
+   "name": "rare_words_24",
+   "method": "GET",
+   "path": "/api/hapax-search",
+   "params": {
+    "source": "milton.comus.tess",
+    "target": "spenser.faerie_queene.part.1.tess",
+    "language": "en",
+    "limit": 60,
+    "max_occurrences": 5
+   }
+  },
+  {
+   "name": "rare_words_25",
+   "method": "GET",
+   "path": "/api/hapax-search",
+   "params": {
+    "source": "shakespeare.hamlet.tess",
+    "target": "shakespeare.richard_iii.tess",
+    "language": "en",
+    "limit": 60,
+    "max_occurrences": 5
+   }
+  },
+  {
+   "name": "rare_words_26",
+   "method": "GET",
+   "path": "/api/hapax-search",
+   "params": {
+    "source": "blake.songs_of_experience.tess",
+    "target": "blake.songs_of_innocence.tess",
+    "language": "en",
+    "limit": 60,
+    "exclude_proper_nouns": "true",
+    "max_occurrences": 5
+   }
+  },
+  {
+   "name": "rare_words_27",
+   "method": "GET",
+   "path": "/api/hapax-search",
+   "params": {
+    "source": "coleridge.rime_of_the_ancient_mariner.tess",
+    "target": "milton.l_allegro.tess",
+    "language": "en",
+    "limit": 60,
+    "max_occurrences": 5
+   }
+  },
+  {
+   "name": "rare_pairs_0",
+   "method": "GET",
+   "path": "/api/rare-bigram-search",
+   "params": {
+    "source": "vergil.eclogues.tess",
+    "target": "calpurnius_siculus.eclogae.tess",
+    "language": "la",
+    "limit": 60
+   }
+  },
+  {
+   "name": "rare_pairs_1",
+   "method": "GET",
+   "path": "/api/rare-bigram-search",
+   "params": {
+    "source": "vergil.aeneid.part.1.tess",
+    "target": "lucan.bellum_civile.part.1.tess",
+    "language": "la",
+    "limit": 60
+   }
+  },
+  {
+   "name": "rare_pairs_2",
+   "method": "GET",
+   "path": "/api/rare-bigram-search",
+   "params": {
+    "source": "vergil.georgics.part.1.tess",
+    "target": "lucretius.de_rerum_natura.part.1.tess",
+    "language": "la",
+    "limit": 60
+   }
+  },
+  {
+   "name": "rare_pairs_3",
+   "method": "GET",
+   "path": "/api/rare-bigram-search",
+   "params": {
+    "source": "ovid.metamorphoses.part.1.tess",
+    "target": "vergil.aeneid.part.4.tess",
+    "language": "la",
+    "limit": 60
+   }
+  },
+  {
+   "name": "rare_pairs_4",
+   "method": "GET",
+   "path": "/api/rare-bigram-search",
+   "params": {
+    "source": "statius.thebaid.part.1.tess",
+    "target": "vergil.aeneid.part.2.tess",
+    "language": "la",
+    "limit": 60
+   }
+  },
+  {
+   "name": "rare_pairs_5",
+   "method": "GET",
+   "path": "/api/rare-bigram-search",
+   "params": {
+    "source": "valerius_flaccus.argonautica.part.1.tess",
+    "target": "vergil.aeneid.part.4.tess",
+    "language": "la",
+    "limit": 60
+   }
+  },
+  {
+   "name": "rare_pairs_6",
+   "method": "GET",
+   "path": "/api/rare-bigram-search",
+   "params": {
+    "source": "silius_italicus.punica.part.1.tess",
+    "target": "vergil.aeneid.part.6.tess",
+    "language": "la",
+    "limit": 60
+   }
+  },
+  {
+   "name": "rare_pairs_7",
+   "method": "GET",
+   "path": "/api/rare-bigram-search",
+   "params": {
+    "source": "horace.odes.part.1.tess",
+    "target": "catullus.carmina.part.1.tess",
+    "language": "la",
+    "limit": 60
+   }
+  },
+  {
+   "name": "rare_pairs_8",
+   "method": "GET",
+   "path": "/api/rare-bigram-search",
+   "params": {
+    "source": "lucan.bellum_civile.part.2.tess",
+    "target": "statius.thebaid.part.3.tess",
+    "language": "la",
+    "limit": 60
+   }
+  },
+  {
+   "name": "rare_pairs_9",
+   "method": "GET",
+   "path": "/api/rare-bigram-search",
+   "params": {
+    "source": "seneca.medea.tess",
+    "target": "ovid.metamorphoses.part.7.tess",
+    "language": "la",
+    "limit": 60
+   }
+  },
+  {
+   "name": "rare_pairs_10",
+   "method": "GET",
+   "path": "/api/rare-bigram-search",
+   "params": {
+    "source": "cicero.de_oratore.part.1.tess",
+    "target": "livy.ab_urbe_condita.part.1.books_1-10.tess",
+    "language": "la",
+    "limit": 60
+   }
+  },
+  {
+   "name": "rare_pairs_11",
+   "method": "GET",
+   "path": "/api/rare-bigram-search",
+   "params": {
+    "source": "vergil.aeneid.tess",
+    "target": "lucan.bellum_civile.tess",
+    "language": "la",
+    "limit": 60
+   }
+  },
+  {
+   "name": "rare_pairs_12",
+   "method": "GET",
+   "path": "/api/rare-bigram-search",
+   "params": {
+    "source": "ovid.metamorphoses.part.2.tess",
+    "target": "lucretius.de_rerum_natura.part.5.tess",
+    "language": "la",
+    "limit": 60
+   }
+  },
+  {
+   "name": "rare_pairs_13",
+   "method": "GET",
+   "path": "/api/rare-bigram-search",
+   "params": {
+    "source": "statius.thebaid.part.2.tess",
+    "target": "lucan.bellum_civile.part.4.tess",
+    "language": "la",
+    "limit": 60
+   }
+  },
+  {
+   "name": "rare_pairs_14",
+   "method": "GET",
+   "path": "/api/rare-bigram-search",
+   "params": {
+    "source": "bion_of_phlossa.epitaphius.tess",
+    "target": "theocritus.idylls.part.1.tess",
+    "language": "grc",
+    "limit": 60
+   }
+  },
+  {
+   "name": "rare_pairs_15",
+   "method": "GET",
+   "path": "/api/rare-bigram-search",
+   "params": {
+    "source": "homer.iliad.part.1.tess",
+    "target": "apollonius_rhodius.argonautica.part.1.tess",
+    "language": "grc",
+    "limit": 60
+   }
+  },
+  {
+   "name": "rare_pairs_16",
+   "method": "GET",
+   "path": "/api/rare-bigram-search",
+   "params": {
+    "source": "homer.odyssey.part.5.tess",
+    "target": "apollonius_rhodius.argonautica.part.3.tess",
+    "language": "grc",
+    "limit": 60
+   }
+  },
+  {
+   "name": "rare_pairs_17",
+   "method": "GET",
+   "path": "/api/rare-bigram-search",
+   "params": {
+    "source": "hesiod.theogony.tess",
+    "target": "homer.iliad.part.2.tess",
+    "language": "grc",
+    "limit": 60
+   }
+  },
+  {
+   "name": "rare_pairs_18",
+   "method": "GET",
+   "path": "/api/rare-bigram-search",
+   "params": {
+    "source": "hesiod.works_and_days.tess",
+    "target": "theocritus.idylls.part.2.tess",
+    "language": "grc",
+    "limit": 60
+   }
+  },
+  {
+   "name": "rare_pairs_19",
+   "method": "GET",
+   "path": "/api/rare-bigram-search",
+   "params": {
+    "source": "aeschylus.agamemnon.tess",
+    "target": "sophocles.oedipus_tyrannus.tess",
+    "language": "grc",
+    "limit": 60
+   }
+  },
+  {
+   "name": "rare_pairs_20",
+   "method": "GET",
+   "path": "/api/rare-bigram-search",
+   "params": {
+    "source": "euripides.bacchae.tess",
+    "target": "aeschylus.persians.tess",
+    "language": "grc",
+    "limit": 60
+   }
+  },
+  {
+   "name": "rare_pairs_21",
+   "method": "GET",
+   "path": "/api/rare-bigram-search",
+   "params": {
+    "source": "pindar.odes.part.3.olympians.tess",
+    "target": "homer.iliad.part.3.tess",
+    "language": "grc",
+    "limit": 60
+   }
+  },
+  {
+   "name": "rare_pairs_22",
+   "method": "GET",
+   "path": "/api/rare-bigram-search",
+   "params": {
+    "source": "homer.iliad.part.9.tess",
+    "target": "thucydides.peleponnesian_war.part.2.tess",
+    "language": "grc",
+    "limit": 60
+   }
+  },
+  {
+   "name": "rare_pairs_23",
+   "method": "GET",
+   "path": "/api/rare-bigram-search",
+   "params": {
+    "source": "homer.odyssey.part.1.tess",
+    "target": "homer.iliad.part.1.tess",
+    "language": "grc",
+    "limit": 60
+   }
+  },
+  {
+   "name": "rare_pairs_24",
+   "method": "GET",
+   "path": "/api/rare-bigram-search",
+   "params": {
+    "source": "milton.comus.tess",
+    "target": "spenser.faerie_queene.part.1.tess",
+    "language": "en",
+    "limit": 60
+   }
+  },
+  {
+   "name": "rare_pairs_25",
+   "method": "GET",
+   "path": "/api/rare-bigram-search",
+   "params": {
+    "source": "shakespeare.hamlet.tess",
+    "target": "shakespeare.richard_iii.tess",
+    "language": "en",
+    "limit": 60
+   }
+  },
+  {
+   "name": "rare_pairs_26",
+   "method": "GET",
+   "path": "/api/rare-bigram-search",
+   "params": {
+    "source": "blake.songs_of_experience.tess",
+    "target": "blake.songs_of_innocence.tess",
+    "language": "en",
+    "limit": 60
+   }
+  },
+  {
+   "name": "rare_pairs_27",
+   "method": "GET",
+   "path": "/api/rare-bigram-search",
+   "params": {
+    "source": "coleridge.rime_of_the_ancient_mariner.tess",
+    "target": "milton.l_allegro.tess",
+    "language": "en",
+    "limit": 60
+   }
+  },
+  {
+   "name": "rare_words_en_default_blake",
+   "method": "GET",
+   "path": "/api/hapax-search",
+   "params": {
+    "source": "blake.songs_of_experience.tess",
+    "target": "blake.songs_of_innocence.tess",
+    "language": "en",
+    "limit": 60
+   }
+  },
+  {
+   "name": "search_0_lemma",
+   "method": "POST",
+   "path": "/api/search",
+   "body": {
+    "source": "vergil.eclogues.tess",
+    "target": "calpurnius_siculus.eclogae.tess",
+    "language": "la",
+    "match_type": "lemma",
+    "min_matches": 2,
+    "max_results": 200,
+    "skip_cache": true
+   }
+  },
+  {
+   "name": "search_1_exact",
+   "method": "POST",
+   "path": "/api/search",
+   "body": {
+    "source": "vergil.aeneid.part.1.tess",
+    "target": "lucan.bellum_civile.part.1.tess",
+    "language": "la",
+    "match_type": "exact",
+    "min_matches": 2,
+    "max_results": 200,
+    "skip_cache": true
+   }
+  },
+  {
+   "name": "search_2_lemma",
+   "method": "POST",
+   "path": "/api/search",
+   "body": {
+    "source": "vergil.georgics.part.1.tess",
+    "target": "lucretius.de_rerum_natura.part.1.tess",
+    "language": "la",
+    "match_type": "lemma",
+    "min_matches": 2,
+    "max_results": 200,
+    "skip_cache": true
+   }
+  },
+  {
+   "name": "search_3_sound",
+   "method": "POST",
+   "path": "/api/search",
+   "body": {
+    "source": "ovid.metamorphoses.part.1.tess",
+    "target": "vergil.aeneid.part.4.tess",
+    "language": "la",
+    "match_type": "sound",
+    "min_matches": 2,
+    "max_results": 200,
+    "skip_cache": true
+   }
+  },
+  {
+   "name": "search_4_edit_distance",
+   "method": "POST",
+   "path": "/api/search",
+   "body": {
+    "source": "statius.thebaid.part.1.tess",
+    "target": "vergil.aeneid.part.2.tess",
+    "language": "la",
+    "match_type": "edit_distance",
+    "min_matches": 2,
+    "max_results": 200,
+    "skip_cache": true
+   }
+  },
+  {
+   "name": "search_5_lemma",
+   "method": "POST",
+   "path": "/api/search",
+   "body": {
+    "source": "valerius_flaccus.argonautica.part.1.tess",
+    "target": "vergil.aeneid.part.4.tess",
+    "language": "la",
+    "match_type": "lemma",
+    "min_matches": 2,
+    "max_results": 200,
+    "skip_cache": true
+   }
+  },
+  {
+   "name": "search_6_exact",
+   "method": "POST",
+   "path": "/api/search",
+   "body": {
+    "source": "silius_italicus.punica.part.1.tess",
+    "target": "vergil.aeneid.part.6.tess",
+    "language": "la",
+    "match_type": "exact",
+    "min_matches": 2,
+    "max_results": 200,
+    "skip_cache": true
+   }
+  },
+  {
+   "name": "search_7_lemma",
+   "method": "POST",
+   "path": "/api/search",
+   "body": {
+    "source": "horace.odes.part.1.tess",
+    "target": "catullus.carmina.part.1.tess",
+    "language": "la",
+    "match_type": "lemma",
+    "min_matches": 2,
+    "max_results": 200,
+    "skip_cache": true
+   }
+  },
+  {
+   "name": "search_8_sound",
+   "method": "POST",
+   "path": "/api/search",
+   "body": {
+    "source": "lucan.bellum_civile.part.2.tess",
+    "target": "statius.thebaid.part.3.tess",
+    "language": "la",
+    "match_type": "sound",
+    "min_matches": 2,
+    "max_results": 200,
+    "skip_cache": true
+   }
+  },
+  {
+   "name": "search_9_edit_distance",
+   "method": "POST",
+   "path": "/api/search",
+   "body": {
+    "source": "seneca.medea.tess",
+    "target": "ovid.metamorphoses.part.7.tess",
+    "language": "la",
+    "match_type": "edit_distance",
+    "min_matches": 2,
+    "max_results": 200,
+    "skip_cache": true
+   }
+  },
+  {
+   "name": "search_13_sound",
+   "method": "POST",
+   "path": "/api/search",
+   "body": {
+    "source": "statius.thebaid.part.2.tess",
+    "target": "lucan.bellum_civile.part.4.tess",
+    "language": "la",
+    "match_type": "sound",
+    "min_matches": 2,
+    "max_results": 200,
+    "skip_cache": true
+   }
+  },
+  {
+   "name": "search_14_edit_distance",
+   "method": "POST",
+   "path": "/api/search",
+   "body": {
+    "source": "bion_of_phlossa.epitaphius.tess",
+    "target": "theocritus.idylls.part.1.tess",
+    "language": "grc",
+    "match_type": "edit_distance",
+    "min_matches": 2,
+    "max_results": 200,
+    "skip_cache": true
+   }
+  },
+  {
+   "name": "search_15_lemma",
+   "method": "POST",
+   "path": "/api/search",
+   "body": {
+    "source": "homer.iliad.part.1.tess",
+    "target": "apollonius_rhodius.argonautica.part.1.tess",
+    "language": "grc",
+    "match_type": "lemma",
+    "min_matches": 2,
+    "max_results": 200,
+    "skip_cache": true
+   }
+  },
+  {
+   "name": "search_16_exact",
+   "method": "POST",
+   "path": "/api/search",
+   "body": {
+    "source": "homer.odyssey.part.5.tess",
+    "target": "apollonius_rhodius.argonautica.part.3.tess",
+    "language": "grc",
+    "match_type": "exact",
+    "min_matches": 2,
+    "max_results": 200,
+    "skip_cache": true
+   }
+  },
+  {
+   "name": "search_17_lemma",
+   "method": "POST",
+   "path": "/api/search",
+   "body": {
+    "source": "hesiod.theogony.tess",
+    "target": "homer.iliad.part.2.tess",
+    "language": "grc",
+    "match_type": "lemma",
+    "min_matches": 2,
+    "max_results": 200,
+    "skip_cache": true
+   }
+  },
+  {
+   "name": "search_18_sound",
+   "method": "POST",
+   "path": "/api/search",
+   "body": {
+    "source": "hesiod.works_and_days.tess",
+    "target": "theocritus.idylls.part.2.tess",
+    "language": "grc",
+    "match_type": "sound",
+    "min_matches": 2,
+    "max_results": 200,
+    "skip_cache": true
+   }
+  },
+  {
+   "name": "search_19_edit_distance",
+   "method": "POST",
+   "path": "/api/search",
+   "body": {
+    "source": "aeschylus.agamemnon.tess",
+    "target": "sophocles.oedipus_tyrannus.tess",
+    "language": "grc",
+    "match_type": "edit_distance",
+    "min_matches": 2,
+    "max_results": 200,
+    "skip_cache": true
+   }
+  },
+  {
+   "name": "searchhit_0_lemma",
+   "method": "POST",
+   "path": "/api/search",
+   "body": {
+    "source": "vergil.eclogues.tess",
+    "target": "calpurnius_siculus.eclogae.tess",
+    "language": "la",
+    "match_type": "lemma",
+    "min_matches": 2,
+    "max_results": 200,
+    "skip_cache": false
+   }
+  },
+  {
+   "name": "searchhit_1_exact",
+   "method": "POST",
+   "path": "/api/search",
+   "body": {
+    "source": "vergil.aeneid.part.1.tess",
+    "target": "lucan.bellum_civile.part.1.tess",
+    "language": "la",
+    "match_type": "exact",
+    "min_matches": 2,
+    "max_results": 200,
+    "skip_cache": false
+   }
+  },
+  {
+   "name": "searchhit_2_lemma",
+   "method": "POST",
+   "path": "/api/search",
+   "body": {
+    "source": "vergil.georgics.part.1.tess",
+    "target": "lucretius.de_rerum_natura.part.1.tess",
+    "language": "la",
+    "match_type": "lemma",
+    "min_matches": 2,
+    "max_results": 200,
+    "skip_cache": false
+   }
+  },
+  {
+   "name": "searchhit_3_sound",
+   "method": "POST",
+   "path": "/api/search",
+   "body": {
+    "source": "ovid.metamorphoses.part.1.tess",
+    "target": "vergil.aeneid.part.4.tess",
+    "language": "la",
+    "match_type": "sound",
+    "min_matches": 2,
+    "max_results": 200,
+    "skip_cache": false
+   }
+  },
+  {
+   "name": "searchhit_4_edit_distance",
+   "method": "POST",
+   "path": "/api/search",
+   "body": {
+    "source": "statius.thebaid.part.1.tess",
+    "target": "vergil.aeneid.part.2.tess",
+    "language": "la",
+    "match_type": "edit_distance",
+    "min_matches": 2,
+    "max_results": 200,
+    "skip_cache": false
+   }
+  },
+  {
+   "name": "searchhit_5_lemma",
+   "method": "POST",
+   "path": "/api/search",
+   "body": {
+    "source": "valerius_flaccus.argonautica.part.1.tess",
+    "target": "vergil.aeneid.part.4.tess",
+    "language": "la",
+    "match_type": "lemma",
+    "min_matches": 2,
+    "max_results": 200,
+    "skip_cache": false
+   }
+  },
+  {
+   "name": "searchhit_6_exact",
+   "method": "POST",
+   "path": "/api/search",
+   "body": {
+    "source": "silius_italicus.punica.part.1.tess",
+    "target": "vergil.aeneid.part.6.tess",
+    "language": "la",
+    "match_type": "exact",
+    "min_matches": 2,
+    "max_results": 200,
+    "skip_cache": false
+   }
+  },
+  {
+   "name": "searchhit_7_lemma",
+   "method": "POST",
+   "path": "/api/search",
+   "body": {
+    "source": "horace.odes.part.1.tess",
+    "target": "catullus.carmina.part.1.tess",
+    "language": "la",
+    "match_type": "lemma",
+    "min_matches": 2,
+    "max_results": 200,
+    "skip_cache": false
+   }
+  },
+  {
+   "name": "searchhit_8_sound",
+   "method": "POST",
+   "path": "/api/search",
+   "body": {
+    "source": "lucan.bellum_civile.part.2.tess",
+    "target": "statius.thebaid.part.3.tess",
+    "language": "la",
+    "match_type": "sound",
+    "min_matches": 2,
+    "max_results": 200,
+    "skip_cache": false
+   }
+  },
+  {
+   "name": "searchhit_9_edit_distance",
+   "method": "POST",
+   "path": "/api/search",
+   "body": {
+    "source": "seneca.medea.tess",
+    "target": "ovid.metamorphoses.part.7.tess",
+    "language": "la",
+    "match_type": "edit_distance",
+    "min_matches": 2,
+    "max_results": 200,
+    "skip_cache": false
+   }
+  },
+  {
+   "name": "searchhit_13_sound",
+   "method": "POST",
+   "path": "/api/search",
+   "body": {
+    "source": "statius.thebaid.part.2.tess",
+    "target": "lucan.bellum_civile.part.4.tess",
+    "language": "la",
+    "match_type": "sound",
+    "min_matches": 2,
+    "max_results": 200,
+    "skip_cache": false
+   }
+  },
+  {
+   "name": "searchhit_14_edit_distance",
+   "method": "POST",
+   "path": "/api/search",
+   "body": {
+    "source": "bion_of_phlossa.epitaphius.tess",
+    "target": "theocritus.idylls.part.1.tess",
+    "language": "grc",
+    "match_type": "edit_distance",
+    "min_matches": 2,
+    "max_results": 200,
+    "skip_cache": false
+   }
+  },
+  {
+   "name": "searchhit_15_lemma",
+   "method": "POST",
+   "path": "/api/search",
+   "body": {
+    "source": "homer.iliad.part.1.tess",
+    "target": "apollonius_rhodius.argonautica.part.1.tess",
+    "language": "grc",
+    "match_type": "lemma",
+    "min_matches": 2,
+    "max_results": 200,
+    "skip_cache": false
+   }
+  },
+  {
+   "name": "fusion_get_0",
+   "method": "GET",
+   "path": "/api/fusion-search",
+   "params": {
+    "source": "vergil.eclogues.tess",
+    "target": "calpurnius_siculus.eclogae.tess",
+    "language": "la",
+    "max": 100
+   }
+  },
+  {
+   "name": "fusion_get_0_p2",
+   "method": "GET",
+   "path": "/api/fusion-search",
+   "params": {
+    "source": "vergil.eclogues.tess",
+    "target": "calpurnius_siculus.eclogae.tess",
+    "language": "la",
+    "offset": 100,
+    "limit": 50
+   }
+  },
+  {
+   "name": "fusion_get_1",
+   "method": "GET",
+   "path": "/api/fusion-search",
+   "params": {
+    "source": "bion_of_phlossa.epitaphius.tess",
+    "target": "theocritus.idylls.part.1.tess",
+    "language": "grc",
+    "max": 100
+   }
+  },
+  {
+   "name": "fusion_get_1_minscore",
+   "method": "GET",
+   "path": "/api/fusion-search",
+   "params": {
+    "source": "bion_of_phlossa.epitaphius.tess",
+    "target": "theocritus.idylls.part.1.tess",
+    "language": "grc",
+    "min_score": 5
+   }
+  },
+  {
+   "name": "fusion_get_3",
+   "method": "GET",
+   "path": "/api/fusion-search",
+   "params": {
+    "source": "statius.thebaid.part.1.tess",
+    "target": "vergil.aeneid.part.1.tess",
+    "language": "la",
+    "max": 100
+   }
+  },
+  {
+   "name": "fusion_get_3_p2",
+   "method": "GET",
+   "path": "/api/fusion-search",
+   "params": {
+    "source": "statius.thebaid.part.1.tess",
+    "target": "vergil.aeneid.part.1.tess",
+    "language": "la",
+    "offset": 100,
+    "limit": 50
+   }
+  },
+  {
+   "name": "fusion_get_4",
+   "method": "GET",
+   "path": "/api/fusion-search",
+   "params": {
+    "source": "horace.odes.part.2.tess",
+    "target": "lucretius.de_rerum_natura.part.2.tess",
+    "language": "la",
+    "max": 100
+   }
+  },
+  {
+   "name": "fusion_get_5",
+   "method": "GET",
+   "path": "/api/fusion-search",
+   "params": {
+    "source": "homer.iliad.part.1.tess",
+    "target": "apollonius_rhodius.argonautica.part.1.tess",
+    "language": "grc",
+    "max": 100
+   }
+  },
+  {
+   "name": "fusion_get_5_minscore",
+   "method": "GET",
+   "path": "/api/fusion-search",
+   "params": {
+    "source": "homer.iliad.part.1.tess",
+    "target": "apollonius_rhodius.argonautica.part.1.tess",
+    "language": "grc",
+    "min_score": 5
+   }
+  },
+  {
+   "name": "fusion_get_6",
+   "method": "GET",
+   "path": "/api/fusion-search",
+   "params": {
+    "source": "statius.thebaid.part.5.tess",
+    "target": "statius.thebaid.part.7.tess",
+    "language": "la",
+    "max": 100
+   }
+  },
+  {
+   "name": "fusion_get_6_p2",
+   "method": "GET",
+   "path": "/api/fusion-search",
+   "params": {
+    "source": "statius.thebaid.part.5.tess",
+    "target": "statius.thebaid.part.7.tess",
+    "language": "la",
+    "offset": 100,
+    "limit": 50
+   }
+  },
+  {
+   "name": "fusion_get_7",
+   "method": "GET",
+   "path": "/api/fusion-search",
+   "params": {
+    "source": "propertius.elegies.tess",
+    "target": "ovid.metamorphoses.tess",
+    "language": "la",
+    "max": 100
+   }
+  },
+  {
+   "name": "fusion_get_8",
+   "method": "GET",
+   "path": "/api/fusion-search",
+   "params": {
+    "source": "ovid.metamorphoses.tess",
+    "target": "ovid.ars_amatoria.tess",
+    "language": "la",
+    "max": 100
+   }
+  },
+  {
+   "name": "fusion_get_9",
+   "method": "GET",
+   "path": "/api/fusion-search",
+   "params": {
+    "source": "valerius_flaccus.argonautica.tess",
+    "target": "lucan.bellum_civile.tess",
+    "language": "la",
+    "max": 100
+   }
+  },
+  {
+   "name": "fusion_get_9_p2",
+   "method": "GET",
+   "path": "/api/fusion-search",
+   "params": {
+    "source": "valerius_flaccus.argonautica.tess",
+    "target": "lucan.bellum_civile.tess",
+    "language": "la",
+    "offset": 100,
+    "limit": 50
+   }
+  },
+  {
+   "name": "fusion_get_9_minscore",
+   "method": "GET",
+   "path": "/api/fusion-search",
+   "params": {
+    "source": "valerius_flaccus.argonautica.tess",
+    "target": "lucan.bellum_civile.tess",
+    "language": "la",
+    "min_score": 5
+   }
+  },
+  {
+   "name": "fusion_get_10",
+   "method": "GET",
+   "path": "/api/fusion-search",
+   "params": {
+    "source": "ennius.annales.tess",
+    "target": "cicero.de_officiis.tess",
+    "language": "la",
+    "max": 100
+   }
+  },
+  {
+   "name": "fusion_get_11",
+   "method": "GET",
+   "path": "/api/fusion-search",
+   "params": {
+    "source": "septuaginta.genesis.tess",
+    "target": "anthologia_graeca.part.3.tess",
+    "language": "grc",
+    "max": 100
+   }
+  },
+  {
+   "name": "fusion_get_12",
+   "method": "GET",
+   "path": "/api/fusion-search",
+   "params": {
+    "source": "minucius_felix.octavius.tess",
+    "target": "cicero.de_natura_deorum.tess",
+    "language": "la",
+    "max": 100
+   }
+  },
+  {
+   "name": "fusion_get_12_p2",
+   "method": "GET",
+   "path": "/api/fusion-search",
+   "params": {
+    "source": "minucius_felix.octavius.tess",
+    "target": "cicero.de_natura_deorum.tess",
+    "language": "la",
+    "offset": 100,
+    "limit": 50
+   }
+  },
+  {
+   "name": "fusion_get_13",
+   "method": "GET",
+   "path": "/api/fusion-search",
+   "params": {
+    "source": "vergil.aeneid.tess",
+    "target": "augustine.de_civitate_dei.tess",
+    "language": "la",
+    "max": 100
+   }
+  },
+  {
+   "name": "fusion_get_13_minscore",
+   "method": "GET",
+   "path": "/api/fusion-search",
+   "params": {
+    "source": "vergil.aeneid.tess",
+    "target": "augustine.de_civitate_dei.tess",
+    "language": "la",
+    "min_score": 5
+   }
+  },
+  {
+   "name": "fusion_get_14",
+   "method": "GET",
+   "path": "/api/fusion-search",
+   "params": {
+    "source": "augustine.confessiones.tess",
+    "target": "ambrose.de_joseph.tess",
+    "language": "la",
+    "max": 100
+   }
+  },
+  {
+   "name": "fusion_get_16",
+   "method": "GET",
+   "path": "/api/fusion-search",
+   "params": {
+    "source": "curtius_rufus.historiae_alexandri_magni.part.3.tess",
+    "target": "justin.epitome.tess",
+    "language": "la",
+    "max": 100
+   }
+  },
+  {
+   "name": "fusion_get_17",
+   "method": "GET",
+   "path": "/api/fusion-search",
+   "params": {
+    "source": "catullus.carmina.part.42.tess",
+    "target": "catullus.carmina.tess",
+    "language": "la",
+    "max": 100
+   }
+  },
+  {
+   "name": "fusion_get_17_minscore",
+   "method": "GET",
+   "path": "/api/fusion-search",
+   "params": {
+    "source": "catullus.carmina.part.42.tess",
+    "target": "catullus.carmina.tess",
+    "language": "la",
+    "min_score": 5
+   }
+  },
+  {
+   "name": "fusion_get_20",
+   "method": "GET",
+   "path": "/api/fusion-search",
+   "params": {
+    "source": "aelius_herodianus.on_enclitics.tess",
+    "target": "apollonius_rhodius.argonautica.part.1.tess",
+    "language": "grc",
+    "max": 100
+   }
+  },
+  {
+   "name": "fusion_get_21",
+   "method": "GET",
+   "path": "/api/fusion-search",
+   "params": {
+    "source": "philo_judaeus.de_abrahamo.tess",
+    "target": "flavius_josephus.antiquitates_judaicae.tess",
+    "language": "grc",
+    "max": 100
+   }
+  },
+  {
+   "name": "fusion_get_21_p2",
+   "method": "GET",
+   "path": "/api/fusion-search",
+   "params": {
+    "source": "philo_judaeus.de_abrahamo.tess",
+    "target": "flavius_josephus.antiquitates_judaicae.tess",
+    "language": "grc",
+    "offset": 100,
+    "limit": 50
+   }
+  },
+  {
+   "name": "fusion_get_21_minscore",
+   "method": "GET",
+   "path": "/api/fusion-search",
+   "params": {
+    "source": "philo_judaeus.de_abrahamo.tess",
+    "target": "flavius_josephus.antiquitates_judaicae.tess",
+    "language": "grc",
+    "min_score": 5
+   }
+  }
+ ]
+}

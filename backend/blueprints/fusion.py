@@ -893,6 +893,39 @@ def _by_book_counts(results):
     return {'source': fmt(sc), 'target': fmt(tc)}
 
 
+def _cached_fusion_view(source_id, target_id, language, cache_settings):
+    """(results, metadata, by_book) of a cached fusion result, or three Nones.
+
+    The rows come back with formula_count annotated and the per-book counts
+    worked out. All of it is kept in memory (backend/result_view_cache.py)
+    while the result file and the two tables formula_count reads, the
+    language's bigram cache and its inverted index, are unchanged, so a
+    repeated request does not read and parse the file again. The rows are
+    shared between requests and must not be changed by the caller.
+    """
+    from backend import result_view_cache
+    from backend.bigram_frequency import get_cache_path
+    from backend.cache import CACHE_DIR, get_cache_key
+    path = os.path.join(CACHE_DIR, f"{get_cache_key(source_id, target_id, language, cache_settings)}.json")
+    stamp = result_view_cache.stamp_of(
+        path, get_cache_path(language),
+        os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                     'data', 'inverted_index', f'{language}_index.db'))
+    kept = result_view_cache.get(path, stamp)
+    if kept is not None:
+        return kept
+    results, meta = get_cached_results(source_id, target_id, language, cache_settings)
+    if results is None:
+        return None, None, None
+    # Annotate here too: a cache entry written before formula_count existed
+    # has no such field on its rows yet. Cheap and idempotent.
+    annotate_formula_counts(results, language)
+    value = (results, meta, _by_book_counts(results))
+    if stamp[0] is not None:
+        result_view_cache.put(path, stamp, stamp[0][0], value)
+    return value
+
+
 @fusion_bp.route('/fusion-search', methods=['GET'])
 def fusion_search_get():
     """Poll-able GET fusion search for URL-only assistants.
@@ -951,7 +984,8 @@ def fusion_search_get():
     ensure_cache_dir()
     job_key = get_cache_key(source_id, target_id, language, cache_settings)
 
-    cached_results, _meta = get_cached_results(source_id, target_id, language, cache_settings)
+    cached_results, _meta, cached_by_book = _cached_fusion_view(
+        source_id, target_id, language, cache_settings)
     if cached_results is not None:
         for kind in ('running', 'error', 'cancelled'):
             try:
@@ -969,10 +1003,8 @@ def fusion_search_get():
         def _norm(s):
             return ' '.join((s or '').split()).lower()
 
-        # Annotate here too: a cache entry written before formula_count existed
-        # has no such field on its rows yet. Cheap and idempotent.
-        annotate_formula_counts(cached_results, language)
-
+        # (_cached_fusion_view has annotated the rows: a cache entry written
+        # before formula_count existed has no such field on its rows yet.)
         results = cached_results
         src_pfx = _norm(request.args.get('source_ref_prefix', ''))
         tgt_pfx = _norm(request.args.get('target_ref_prefix', ''))
@@ -1022,7 +1054,7 @@ def fusion_search_get():
             total_candidates = ranked
         capped = (total_candidates is not None and total_candidates > ranked) or \
                  (total_candidates is None and ranked >= max_results)
-        by_book = _by_book_counts(cached_results)
+        by_book = dict(cached_by_book)
         by_book['population'] = {'ranked_candidates': ranked,
                                  'total_candidates': total_candidates,
                                  'capped': capped,

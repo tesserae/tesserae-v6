@@ -54,6 +54,7 @@ import json
 import os
 import re
 import threading
+from collections import OrderedDict
 from dataclasses import dataclass
 from typing import Optional
 
@@ -423,15 +424,39 @@ def _primary_language(languages_field):
 def _build_records(conn):
     records = []
     cur = conn.execute(f"SELECT {_DOC_FIELDS} FROM documents")  # nosec B608 - fixed column list
+    # The normalizers are pure and the corpus repeats the same few thousand
+    # (source, region, place) and (earliest, latest) values across 257,000
+    # documents, so each distinct input is normalized once per build.
+    kind_memo = {}
+    region_memo = {}
+    century_memo = {}
+    language_memo = {}
     for row in cur:
         (doc_id, source, text_type, object_type, material,
          date_not_before, date_not_after, ancient_place, region,
          languages, principal_edition) = row
-        kind = _kind_for_source(source)
+        if source in kind_memo:
+            kind = kind_memo[source]
+        else:
+            kind = kind_memo[source] = _kind_for_source(source)
         if kind is None:
             continue
-        region_label, findspot, region_raw = normalize_region(kind, source, region, ancient_place)
-        century, date_label = century_bucket(date_not_before, date_not_after)
+        region_key = (kind, source, region, ancient_place)
+        if region_key in region_memo:
+            region_label, findspot, region_raw = region_memo[region_key]
+        else:
+            region_label, findspot, region_raw = region_memo[region_key] = normalize_region(
+                kind, source, region, ancient_place)
+        century_key = (date_not_before, date_not_after)
+        if century_key in century_memo:
+            century, date_label = century_memo[century_key]
+        else:
+            century, date_label = century_memo[century_key] = century_bucket(
+                date_not_before, date_not_after)
+        if languages in language_memo:
+            primary_language = language_memo[languages]
+        else:
+            primary_language = language_memo[languages] = _primary_language(languages)
         records.append(DocRecord(
             doc_id=doc_id,
             kind=kind,
@@ -444,7 +469,7 @@ def _build_records(conn):
             text_type=text_type or None,
             material=material or None,
             object_type=object_type or None,
-            language=_primary_language(languages),
+            language=primary_language,
             principal_edition=principal_edition or None,
         ))
     return records
@@ -486,6 +511,10 @@ def reset_cache():
         _cache.mtime = None
     with _nome_map_lock:
         _nome_map_cache = None
+    with _view_lock:
+        _view_cache.clear()
+    with _first_lines_lock:
+        _first_lines.clear()
 
 
 def get_records():
@@ -528,25 +557,15 @@ def _counted(values):
     return counts
 
 
-def browse(kind=None, region=None, findspot=None, century=None, text_type=None, material=None,
-           object_type=None, language=None, page=1, page_size=DEFAULT_PAGE_SIZE):
-    """The facet tree (with counts) and one page of matching documents.
+_VIEW_CACHE_MAX = 32
+_view_lock = threading.Lock()
+_view_cache = OrderedDict()
 
-    The tree is cumulative: kind counts are over everything; region counts
-    are over documents of the selected kind (every kind's regions if none is
-    selected); for papyri, `region` is the nome and `findspot_counts` is a
-    second level under it (the town/village a document names within that
-    nome -- see normalize_papyri_region), empty for inscriptions, which have
-    no second region level. Century counts are over the selected
-    kind+region+findspot. The flat filters (text type, material, object
-    type, language) each count over whatever kind/region/findspot/century
-    is selected, so a filter dropdown's counts reflect the rest of the
-    current selection, not the whole corpus.
-    """
-    page = max(1, page)
-    page_size = max(1, min(MAX_PAGE_SIZE, page_size))
-    records = get_records()
 
+def _compute_view(records, kind, region, findspot, century, text_type, material, object_type, language):
+    """Everything `browse` returns except the page itself: the facet tree
+    with its counts, and the full list of matching records. It depends only
+    on the records and the filters, so `browse` keeps it per filter set."""
     kind_counts = _counted(r.kind for r in records)
     by_kind = [r for r in records if not kind or r.kind == kind]
 
@@ -570,25 +589,51 @@ def browse(kind=None, region=None, findspot=None, century=None, text_type=None, 
 
     matching = [r for r in by_findspot if not century or r.century_label == century]
 
-    filtered = [r for r in matching if _matches(
-        r, text_type=text_type, material=material, object_type=object_type, language=language)]
+    # One pass over the matching documents. A document that passes all four
+    # flat filters is a result and counts in every facet. One that fails
+    # exactly one filter counts only in that filter's own facet, which is
+    # counted over the other three filters.
+    filtered = []
+    facet_counts = ({}, {}, {}, {})
+    for r in matching:
+        v0 = r.text_type
+        v1 = r.material
+        v2 = r.object_type
+        v3 = r.language
+        f0 = bool(text_type) and v0 != text_type
+        f1 = bool(material) and v1 != material
+        f2 = bool(object_type) and v2 != object_type
+        f3 = bool(language) and v3 != language
+        failed = f0 + f1 + f2 + f3
+        if failed == 0:
+            filtered.append(r)
+            if v0:
+                facet_counts[0][v0] = facet_counts[0].get(v0, 0) + 1
+            if v1:
+                facet_counts[1][v1] = facet_counts[1].get(v1, 0) + 1
+            if v2:
+                facet_counts[2][v2] = facet_counts[2].get(v2, 0) + 1
+            if v3:
+                facet_counts[3][v3] = facet_counts[3].get(v3, 0) + 1
+        elif failed == 1:
+            if f0:
+                if v0:
+                    facet_counts[0][v0] = facet_counts[0].get(v0, 0) + 1
+            elif f1:
+                if v1:
+                    facet_counts[1][v1] = facet_counts[1].get(v1, 0) + 1
+            elif f2:
+                if v2:
+                    facet_counts[2][v2] = facet_counts[2].get(v2, 0) + 1
+            else:
+                if v3:
+                    facet_counts[3][v3] = facet_counts[3].get(v3, 0) + 1
 
-    def _facet_counts(attr, exclude):
-        pool = [r for r in matching if _matches(
-            r,
-            text_type=None if exclude == 'text_type' else text_type,
-            material=None if exclude == 'material' else material,
-            object_type=None if exclude == 'object_type' else object_type,
-            language=None if exclude == 'language' else language)]
-        counts = _counted(getattr(r, attr) for r in pool if getattr(r, attr))
+    def _facet(counts):
         return sorted(({'value': v, 'count': c} for v, c in counts.items()),
-                       key=lambda e: (-e['count'], e['value']))
+                      key=lambda e: (-e['count'], e['value']))
 
-    total = len(filtered)
-    start = (page - 1) * page_size
-    page_records = filtered[start:start + page_size]
-
-    return {
+    facets = {
         'kind_counts': sorted(
             ({'value': k, 'label': KIND_LABELS.get(k, k), 'count': c}
              for k, c in kind_counts.items()),
@@ -601,11 +646,67 @@ def browse(kind=None, region=None, findspot=None, century=None, text_type=None, 
             key=lambda e: (-e['count'], e['value'])),
         'century_counts': century_counts,
         'filters': {
-            'text_types': _facet_counts('text_type', 'text_type'),
-            'materials': _facet_counts('material', 'material'),
-            'objects': _facet_counts('object_type', 'object_type'),
-            'languages': _facet_counts('language', 'language'),
+            'text_types': _facet(facet_counts[0]),
+            'materials': _facet(facet_counts[1]),
+            'objects': _facet(facet_counts[2]),
+            'languages': _facet(facet_counts[3]),
         },
+    }
+    return facets, filtered
+
+
+def _view(records, kind, region, findspot, century, text_type, material, object_type, language):
+    key = (kind, region, findspot, century, text_type, material, object_type, language)
+    with _view_lock:
+        entry = _view_cache.get(key)
+        if entry is not None and entry[0] is records:
+            _view_cache.move_to_end(key)
+            return entry[1], entry[2]
+    facets, filtered = _compute_view(
+        records, kind, region, findspot, century, text_type, material, object_type, language)
+    with _view_lock:
+        _view_cache[key] = (records, facets, filtered)
+        _view_cache.move_to_end(key)
+        while len(_view_cache) > _VIEW_CACHE_MAX:
+            _view_cache.popitem(last=False)
+    return facets, filtered
+
+
+def browse(kind=None, region=None, findspot=None, century=None, text_type=None, material=None,
+           object_type=None, language=None, page=1, page_size=DEFAULT_PAGE_SIZE):
+    """The facet tree (with counts) and one page of matching documents.
+
+    The tree is cumulative: kind counts are over everything; region counts
+    are over documents of the selected kind (every kind's regions if none is
+    selected); for papyri, `region` is the nome and `findspot_counts` is a
+    second level under it (the town/village a document names within that
+    nome -- see normalize_papyri_region), empty for inscriptions, which have
+    no second region level. Century counts are over the selected
+    kind+region+findspot. The flat filters (text type, material, object
+    type, language) each count over whatever kind/region/findspot/century
+    is selected, so a filter dropdown's counts reflect the rest of the
+    current selection, not the whole corpus.
+
+    The counts and the matching list are kept per filter set (the last 32),
+    since they change only when the records are rebuilt; a request for
+    another page of the same selection only slices.
+    """
+    page = max(1, page)
+    page_size = max(1, min(MAX_PAGE_SIZE, page_size))
+    records = get_records()
+    facets, filtered = _view(
+        records, kind, region, findspot, century, text_type, material, object_type, language)
+
+    total = len(filtered)
+    start = (page - 1) * page_size
+    page_records = filtered[start:start + page_size]
+
+    return {
+        'kind_counts': facets['kind_counts'],
+        'region_counts': facets['region_counts'],
+        'findspot_counts': facets['findspot_counts'],
+        'century_counts': facets['century_counts'],
+        'filters': facets['filters'],
         'documents': [{
             'doc_id': r.doc_id,
             'kind': r.kind,
@@ -625,13 +726,51 @@ def browse(kind=None, region=None, findspot=None, century=None, text_type=None, 
     }
 
 
+_FIRST_LINE_MAX = 4096
+_first_lines = {}
+_first_lines_lock = threading.Lock()
+
+
+def _index_stamp():
+    """(size, mtime) of each documents index file: the first-line memo is
+    only valid for the index files it was read from."""
+    stamp = []
+    for lang in docs.SUPPORTED_LANGUAGES:
+        try:
+            st = os.stat(docs._index_db_path(lang))  # noqa: SLF001 - same accessor is_index_available uses
+            stamp.append((st.st_size, st.st_mtime_ns))
+        except OSError:
+            stamp.append(None)
+    return tuple(stamp)
+
+
 def first_line_for(doc_id, language):
     """A short snippet of the document's first line, for the leaf list --
     best-effort: returns None rather than raising when the documents index
     is unavailable, the id isn't found, or the language guess was wrong (a
     multi-language document's primary language isn't necessarily the one
-    its own index lives under)."""
+    its own index lives under).
+
+    The answer is remembered per (document, language, index files), up to
+    4,096 documents: the same pages are asked for again and again."""
+    key = (doc_id, language, _index_stamp())
+    with _first_lines_lock:
+        if key in _first_lines:
+            return _first_lines[key]
+    line, clean = _read_first_line(doc_id, language)
+    if clean:
+        with _first_lines_lock:
+            if len(_first_lines) >= _FIRST_LINE_MAX:
+                _first_lines.clear()
+            _first_lines[key] = line
+    return line
+
+
+def _read_first_line(doc_id, language):
+    """(snippet or None, clean): clean is False when a lookup raised, so a
+    transient failure is not remembered."""
     languages_to_try = [language] if language in docs.SUPPORTED_LANGUAGES else list(docs.SUPPORTED_LANGUAGES)
+    clean = True
     for lang in languages_to_try:
         if not docs.is_index_available(lang):
             continue
@@ -639,8 +778,9 @@ def first_line_for(doc_id, language):
             data = docs.get_document_lines(lang, doc_id)
         except Exception:                                           # noqa: BLE001
             data = None
+            clean = False
         if data and data.get('lines'):
             text = (data['lines'][0].get('text') or '').strip()
             if text:
-                return text[:160]
-    return None
+                return text[:160], True
+    return None, clean

@@ -29,6 +29,8 @@ from flask_login import current_user
 import csv
 import io
 import os
+import threading
+from collections import OrderedDict
 
 from backend import fspaths
 import json
@@ -129,14 +131,18 @@ def _extract_bigram_locations(units, make_bigram_key_fn, language):
     bigram_locations = {}
     for unit in units:
         lemmas = unit.get('lemmas', [])
+        # The line's normalized text is the same for every pair in it.
+        line_text = None
         for i in range(len(lemmas) - 1):
             if lemmas[i] and lemmas[i+1]:
                 bg_key = make_bigram_key_fn(lemmas[i], lemmas[i+1])
                 if bg_key not in bigram_locations:
                     bigram_locations[bg_key] = []
+                if line_text is None:
+                    line_text = normalize_line_text(unit.get('text', ''), language)
                 bigram_locations[bg_key].append({
                     'ref': unit.get('ref', ''),
-                    'text': normalize_line_text(unit.get('text', ''), language),
+                    'text': line_text,
                     'words': [lemmas[i], lemmas[i+1]]
                 })
     return bigram_locations
@@ -147,11 +153,18 @@ def _annotate_bigram_locations(locations_by_key, text_id):
     location dict in a bigram-key -> [location] map, in place. Additive only:
     `ref` is left exactly as `_extract_bigram_locations` built it."""
     for locs in locations_by_key.values():
-        for loc in locs:
-            ref = loc.get('ref', '')
-            loc['locus'] = format_short_locus(ref)
-            loc['citation'] = build_citation(text_id, ref)
+        _annotate_locations(locs, text_id)
     return locations_by_key
+
+
+def _annotate_locations(locs, text_id):
+    """The same fields for one list of locations. The rare-pair search adds them
+    only to the locations it shows, not to every occurrence of every pair."""
+    for loc in locs:
+        ref = loc.get('ref', '')
+        loc['locus'] = format_short_locus(ref)
+        loc['citation'] = build_citation(text_id, ref)
+    return locs
 
 
 def _dedup_locations_by_ref(locations):
@@ -1262,14 +1275,7 @@ def get_document_frequencies_batch(lemmas, language):
         return {}
 
 
-def lookup_lemma_locations(lemma, language):
-    """Look up all occurrences of a lemma using the inverted index"""
-    conn = get_connection(language)
-    if not conn:
-        return []
-    
-    cursor = conn.cursor()
-    
+def _lemma_lookup_variants(lemma, language):
     expanded_lemmas = {lemma}
     if language == 'la':
         expanded_lemmas.add(lemma.replace('u', 'v'))
@@ -1282,7 +1288,22 @@ def lookup_lemma_locations(lemma, language):
             expanded_lemmas.add(lemma + enc)
             expanded_lemmas.add(lemma.replace('u', 'v') + enc)
             expanded_lemmas.add(lemma.replace('v', 'u') + enc)
-    
+    return expanded_lemmas
+
+
+def _lemma_location_rows(lemma, language):
+    """Where a lemma occurs in the inverted index, without reading any text:
+    a list of {'text_id', 'ref', 'positions_json', 'language'} in the order
+    lookup_lemma_locations returns them (filename, ref), with a part dropped
+    when its whole work is also listed. lookup_lemma_locations adds the line
+    text to each; the rare-word search adds it only to the rows it shows."""
+    conn = get_connection(language)
+    if not conn:
+        return []
+
+    cursor = conn.cursor()
+    expanded_lemmas = _lemma_lookup_variants(lemma, language)
+
     placeholders = ','.join(['?' for _ in expanded_lemmas])
     query = f'''
         SELECT t.filename, p.ref, p.positions
@@ -1291,34 +1312,157 @@ def lookup_lemma_locations(lemma, language):
         WHERE p.lemma IN ({placeholders})
         ORDER BY t.filename, p.ref
     '''  # nosec B608
-    
-    locations = []
+
+    rows = []
     try:
         cursor.execute(query, list(expanded_lemmas))  # nosec B608
-        for row in cursor.fetchall():
-            filename, ref, positions_json = row
-            parts = filename.replace('.tess', '').split('.') if filename else ['unknown']
-            author = parts[0] if parts else 'unknown'
-            work_title = '.'.join(parts[1:]) if len(parts) > 1 else parts[0]
-            line_text = get_line_text_from_file(filename, language, ref)
-            locations.append({
-                'text_id': filename,
-                'author': author.replace('_', ' ').title(),
-                'work': work_title.replace('_', ' ').title(),
-                'ref': ref,
-                # Additive, server-built citation/locus (issue #566) beside
-                # the author/work this function has always computed itself
-                # from the filename -- ref unchanged so nothing that reads it
-                # breaks.
-                'locus': format_short_locus(ref),
-                'citation': build_citation(filename, ref),
-                'text': line_text or '',
-                'positions': json.loads(positions_json) if positions_json else []
-            })
+        for filename, ref, positions_json in cursor.fetchall():
+            rows.append({'text_id': filename, 'ref': ref,
+                         'positions_json': positions_json, 'language': language})
     except Exception as e:
         logger.error(f"Lemma lookup error: {e}")
-    
-    return deduplicate_locations(locations)
+
+    return deduplicate_locations(rows)
+
+
+def _location_from_row(row, line_text):
+    filename = row['text_id']
+    ref = row['ref']
+    positions_json = row['positions_json']
+    parts = filename.replace('.tess', '').split('.') if filename else ['unknown']
+    author = parts[0] if parts else 'unknown'
+    work_title = '.'.join(parts[1:]) if len(parts) > 1 else parts[0]
+    return {
+        'text_id': filename,
+        'author': author.replace('_', ' ').title(),
+        'work': work_title.replace('_', ' ').title(),
+        'ref': ref,
+        # Additive, server-built citation/locus (issue #566) beside
+        # the author/work this function has always computed itself
+        # from the filename -- ref unchanged so nothing that reads it
+        # breaks.
+        'locus': format_short_locus(ref),
+        'citation': build_citation(filename, ref),
+        'text': line_text or '',
+        'positions': json.loads(positions_json) if positions_json else []
+    }
+
+
+def lookup_lemma_locations(lemma, language):
+    """Look up all occurrences of a lemma using the inverted index"""
+    rows = _lemma_location_rows(lemma, language)
+    locations = []
+    try:
+        for row in rows:
+            line_text = get_line_text_from_file(row['text_id'], language, row['ref'])
+            locations.append(_location_from_row(row, line_text))
+    except Exception as e:
+        logger.error(f"Lemma lookup error: {e}")
+    # A row after a failure is not looked up, as before: the list stops there.
+    return locations
+
+
+# Line texts read by the rare-word search, kept between requests: the words
+# that come up most are found in the same few dozen works, and reading a work
+# means parsing the whole file. Keyed by the file's size and modification time
+# so an edited text is read again; capped by the number of lines held.
+_line_store = OrderedDict()   # (language, text_id, stamp) -> {ref: text}
+_line_store_lines = 0
+_LINE_STORE_MAX_LINES = 150000
+_line_store_lock = threading.Lock()
+
+
+class _RequestLineTexts:
+    """Line texts for one request, read a file at a time.
+
+    get_line_text_from_file keeps the last 20 files it read, so a word found
+    in hundreds of works makes it read and parse a whole file again for most
+    of them. This reads each file once, for the lines asked for, with the same
+    parsing: a line is `<ref> text`, blank and `#` lines are skipped, and when
+    a ref repeats the last line wins. What it read is kept for the next request
+    (_line_store).
+    """
+
+    def __init__(self):
+        self._lines = {}       # (language, text_id) -> {ref: text or None}
+        self._path = {}        # (language, text_id) -> (path, stamp)
+
+    def _file(self, language, text_id):
+        key = (language, text_id)
+        if key not in self._path:
+            text_path = resolve_text_path(_texts_dir, language, text_id)
+            stamp = None
+            if text_path:
+                try:
+                    st = os.stat(text_path)
+                    stamp = (st.st_size, st.st_mtime_ns)
+                except OSError:
+                    stamp = None
+            self._path[key] = (text_path, stamp)
+        return self._path[key]
+
+    def prime(self, rows):
+        global _line_store_lines
+        wanted = {}
+        for row in rows:
+            key = (row['language'], row['text_id'])
+            have = self._lines.get(key)
+            if have is None or row['ref'] not in have:
+                wanted.setdefault(key, set()).add(row['ref'])
+        for (language, text_id), refs in wanted.items():
+            found = self._lines.setdefault((language, text_id), {})
+            text_path, stamp = self._file(language, text_id)
+            if not text_path:
+                for ref in refs:
+                    found[ref] = None
+                continue
+            store_key = (language, text_id, stamp)
+            with _line_store_lock:
+                kept = _line_store.get(store_key)
+                if kept is not None:
+                    _line_store.move_to_end(store_key)
+                    for ref in refs:
+                        if ref in kept:
+                            found[ref] = kept[ref]
+            refs = {ref for ref in refs if ref not in found}
+            if not refs:
+                continue
+            read = {}
+            try:
+                with fspaths.open_text(text_path, 'r', encoding='utf-8') as f:
+                    for line in f:
+                        line = line.strip()
+                        if not line or line.startswith('#'):
+                            continue
+                        if line.startswith('<') and '>' in line:
+                            tag_end = line.index('>')
+                            line_ref = line[1:tag_end].strip()
+                            if line_ref and line_ref in refs:
+                                read[line_ref] = line[tag_end + 1:].strip()
+            except Exception as e:
+                logger.error(f"Error reading text file {text_path}: {e}")
+                read = {}
+            for ref in refs:
+                found[ref] = read.get(ref, '')
+            if stamp is not None:
+                with _line_store_lock:
+                    kept = _line_store.setdefault(store_key, {})
+                    _line_store.move_to_end(store_key)
+                    for ref in refs:
+                        if ref not in kept:
+                            kept[ref] = found[ref]
+                            _line_store_lines += 1
+                    while _line_store_lines > _LINE_STORE_MAX_LINES and len(_line_store) > 1:
+                        _, dropped = _line_store.popitem(last=False)
+                        _line_store_lines -= len(dropped)
+
+    def location(self, row):
+        self.prime([row])
+        return _location_from_row(row, self._lines[(row['language'], row['text_id'])].get(row['ref']))
+
+    def locations(self, rows):
+        self.prime(rows)
+        return [_location_from_row(r, self._lines[(r['language'], r['text_id'])].get(r['ref'])) for r in rows]
 
 
 def get_text_lemmas(text_id, language):
@@ -2342,67 +2486,130 @@ def _compute_rare_words(source_id, target_id, language, source_language, target_
     src_scan = _scan_text_lemma_locations(source_id, source_language, shared_rare) if src_scan_needed else None
     tgt_scan = _scan_text_lemma_locations(target_id, target_language, shared_rare) if tgt_scan_needed else None
 
-    results = []
-    for lemma in shared_rare:
-        corpus_count = doc_freqs.get(lemma, 0)
-        all_locations = lookup_lemma_locations(lemma, source_language)
+    # Stage 1, no text read: where each shared rare word is (index rows only)
+    # and which words occur in both works. The order of the answer is
+    # (corpus_count, lemma), so the words to show are known from this stage
+    # alone, and only those need their line texts, display forms and
+    # proper-noun test. The counts need nothing more, except the number of
+    # proper nouns dropped, which is why that filter reads texts for every
+    # candidate.
+    texts = _RequestLineTexts()
+    match_source_memo = {}
+    match_target_memo = {}
 
+    def _in_source(loc_id):
+        if loc_id not in match_source_memo:
+            match_source_memo[loc_id] = matches_source(loc_id)
+        return match_source_memo[loc_id]
+
+    def _in_target(loc_id):
+        if loc_id not in match_target_memo:
+            match_target_memo[loc_id] = matches_target(loc_id)
+        return match_target_memo[loc_id]
+
+    candidates = []
+    for lemma in shared_rare:
+        all_rows = _lemma_location_rows(lemma, source_language)
+
+        if src_scan_needed:
+            source_rows = None
+            source_count = len(src_scan.get(lemma, []))
+        else:
+            source_rows = [r for r in all_rows if _in_source(r['text_id'])]
+            source_count = len(source_rows)
+
+        if tgt_scan_needed:
+            target_rows = None
+            target_count = len(tgt_scan.get(lemma, []))
+        else:
+            target_rows = [r for r in all_rows if _in_target(r['text_id'])]
+            if source_language != target_language:
+                for r in _lemma_location_rows(lemma, target_language):
+                    if _in_target(r['text_id']):
+                        target_rows.append(r)
+            target_count = len(target_rows)
+
+        if source_count > 0 and target_count > 0:
+            candidates.append((lemma, all_rows, source_rows, target_rows))
+
+    def _show(candidate):
+        """The full row for one word: what the answer carries for it."""
+        lemma, all_rows, source_rows, target_rows = candidate
+        all_locations = texts.locations(all_rows)
+        by_row = {id(r): loc for r, loc in zip(all_rows, all_locations)}
         if src_scan_needed:
             source_locations = src_scan.get(lemma, [])
         else:
-            source_locations = [loc for loc in all_locations if matches_source(loc['text_id'])]
-
+            source_locations = [by_row.get(id(r)) or texts.location(r)
+                                for r in source_rows]
         if tgt_scan_needed:
             target_locations = tgt_scan.get(lemma, [])
         else:
-            target_locations = [loc for loc in all_locations if matches_target(loc['text_id'])]
-            if source_language != target_language:
-                for loc in lookup_lemma_locations(lemma, target_language):
-                    if matches_target(loc['text_id']):
-                        target_locations.append(loc)
+            target_locations = [by_row.get(id(r)) or texts.location(r)
+                                for r in target_rows]
+        return all_locations, source_locations, target_locations
+
+    def _proper_noun(lemma, all_locations, source_locations, target_locations):
+        # Corpus-wide OR local context; the local test catches names like
+        # Achates that are always capitalized in the source/target but have
+        # lowercase homographs elsewhere in the corpus.
+        return (is_proper_noun(lemma, source_language, all_locations) or
+                is_proper_noun(lemma, source_language, source_locations + target_locations))
+
+    def _proper_noun_of_candidate(candidate):
+        # is_proper_noun reads only the first 20 locations of each list it is
+        # given, so only those line texts are read for a word that is not shown.
+        lemma, all_rows, source_rows, target_rows = candidate
+        all_part = texts.locations(all_rows[:20])
+        src = src_scan.get(lemma, []) if src_scan_needed else source_rows
+        tgt = tgt_scan.get(lemma, []) if tgt_scan_needed else target_rows
+        combined = (list(src) + list(tgt))[:20]
+        texts.prime([x for x in combined if 'positions_json' in x])
+        local_part = [texts.location(x) if 'positions_json' in x else x for x in combined]
+        return (is_proper_noun(lemma, source_language, all_part) or
+                is_proper_noun(lemma, source_language, local_part))
+
+    proper_nouns_excluded = 0
+    if exclude_proper:
+        kept = []
+        for candidate in candidates:
+            if _proper_noun_of_candidate(candidate):
+                proper_nouns_excluded += 1
+            else:
+                kept.append(candidate)
+        candidates = kept
+
+    candidates.sort(key=lambda c: (doc_freqs.get(c[0], 0), c[0]))
+
+    total = len(candidates)
+    if limit is not None and limit > 0:
+        candidates = candidates[:limit]
+
+    results = []
+    for candidate in candidates:
+        lemma = candidate[0]
+        corpus_count = doc_freqs.get(lemma, 0)
+        all_locations, source_locations, target_locations = _show(candidate)
+        word_is_pn = _proper_noun(lemma, all_locations, source_locations, target_locations)
 
         display_form = get_display_form(lemma, source_language, source_locations + target_locations)
 
-        if len(source_locations) > 0 and len(target_locations) > 0:
-            # Check if this word is a proper noun — corpus-wide OR local context
-            # Local context catches names like Achates that are always capitalized
-            # in the source/target but have lowercase homographs elsewhere in corpus
-            word_is_pn = (is_proper_noun(lemma, source_language, all_locations) or
-                          is_proper_noun(lemma, source_language, source_locations + target_locations))
+        # Lowercase display_form for non-proper-nouns that got capitalized
+        # from line-initial sampling (e.g., "Fatalem" at start of a line)
+        if not word_is_pn and display_form and display_form[0].isupper():
+            display_form = display_form[0].lower() + display_form[1:]
 
-            # Lowercase display_form for non-proper-nouns that got capitalized
-            # from line-initial sampling (e.g., "Fatalem" at start of a line)
-            if not word_is_pn and display_form and display_form[0].isupper():
-                display_form = display_form[0].lower() + display_form[1:]
-
-            results.append({
-                'lemma': lemma,
-                'display_form': display_form,
-                'corpus_count': corpus_count,
-                'is_proper_noun': word_is_pn,
-                'source_occurrences': len(source_locations),
-                'target_occurrences': len(target_locations),
-                'source_locations': source_locations,
-                'target_locations': target_locations,
-                'all_corpus_locations': all_locations
-            })
-
-    # Apply proper noun filter if requested
-    proper_nouns_excluded = 0
-    if exclude_proper:
-        filtered = []
-        for r in results:
-            if r['is_proper_noun']:
-                proper_nouns_excluded += 1
-            else:
-                filtered.append(r)
-        results = filtered
-
-    results.sort(key=lambda x: (x['corpus_count'], x['lemma']))
-
-    total = len(results)
-    if limit is not None and limit > 0:
-        results = results[:limit]
+        results.append({
+            'lemma': lemma,
+            'display_form': display_form,
+            'corpus_count': corpus_count,
+            'is_proper_noun': word_is_pn,
+            'source_occurrences': len(source_locations),
+            'target_occurrences': len(target_locations),
+            'source_locations': source_locations,
+            'target_locations': target_locations,
+            'all_corpus_locations': all_locations
+        })
 
     return {
         'source': source_id,
@@ -2473,6 +2680,28 @@ def hapax_search():
         return jsonify({'error': str(e)}), 500
 
 
+_bigram_cache_stamps = {}  # language -> (size, mtime_ns) of the file last read
+
+
+def _load_bigram_cache_if_changed(language):
+    """Read the language's bigram cache file only when it is not in memory
+    or has changed since it was read. The search used to read and parse the
+    whole file (hundreds of megabytes) on every request, which was most of
+    its time."""
+    from backend.bigram_frequency import _bigram_cache, get_cache_path, load_bigram_cache
+    try:
+        st = os.stat(get_cache_path(language))
+        stamp = (st.st_size, st.st_mtime_ns)
+    except OSError:
+        stamp = None
+    if (stamp is not None and _bigram_cache.get(language)
+            and _bigram_cache_stamps.get(language) == stamp):
+        return
+    load_bigram_cache(language)
+    if stamp is not None:
+        _bigram_cache_stamps[language] = stamp
+
+
 def _compute_rare_bigrams(source_id, target_id, language, min_rarity, limit, stoplist_basis, stoplist_size, use_stoplist):
     """Compute shared rare bigrams between source and target texts.
 
@@ -2490,7 +2719,7 @@ def _compute_rare_bigrams(source_id, target_id, language, min_rarity, limit, sto
             f'Bigram index not built for {language}. Please build it in Admin → Cache Management.'
         )
 
-    load_bigram_cache(language)
+    _load_bigram_cache_if_changed(language)
 
     # Adapt min_rarity for small corpora: with N docs, a shared bigram
     # (doc_freq >= 2) has max rarity = 1 - 2/N. The default 0.9 threshold
@@ -2516,10 +2745,8 @@ def _compute_rare_bigrams(source_id, target_id, language, min_rarity, limit, sto
     source_units = load_units_cached(source_path, language, _text_processor, unit_type='line')
     target_units = load_units_cached(target_path, language, _text_processor, unit_type='line')
 
-    source_bigram_locations = _annotate_bigram_locations(
-        _extract_bigram_locations(source_units, make_bigram_key, language), source_id)
-    target_bigram_locations = _annotate_bigram_locations(
-        _extract_bigram_locations(target_units, make_bigram_key, language), target_id)
+    source_bigram_locations = _extract_bigram_locations(source_units, make_bigram_key, language)
+    target_bigram_locations = _extract_bigram_locations(target_units, make_bigram_key, language)
 
     dynamic_stopwords = set()
     if use_stoplist and stoplist_size > 0:
@@ -2603,7 +2830,11 @@ def _compute_rare_bigrams(source_id, target_id, language, min_rarity, limit, sto
 
         return forms1, forms2
 
-    results = []
+    # Pick the pairs to show before building any of their display fields: the
+    # answer is the first `limit` of the rare-enough pairs by rounded rarity
+    # (ties keep the order of the set), and the surface forms and dictionary
+    # forms below cost far more than the rarity test.
+    passing = []
     for bg_key in shared_bigrams:
         words = bg_key.split('|')
         lemma1 = words[0] if len(words) > 0 else ''
@@ -2619,46 +2850,55 @@ def _compute_rare_bigrams(source_id, target_id, language, min_rarity, limit, sto
 
         rarity = get_bigram_rarity_score(bg_key, language)
         if rarity >= min_rarity:
-            # Get proper dictionary forms for display
-            dict_form1 = get_dictionary_form(lemma1, language)
-            dict_form2 = get_dictionary_form(lemma2, language)
-            # Get actual matched words from all locations for highlighting
-            src_locs = source_bigram_locations[bg_key]
-            tgt_locs = target_bigram_locations[bg_key]
-            matched_words = set()
+            passing.append((bg_key, rarity))
 
-            # Gather surface forms from both source and target locations
-            for loc in (src_locs[:3] + tgt_locs[:3]):
-                text = loc.get('text', '')
-                forms1, forms2 = get_surface_forms_from_text(text, lemma1, lemma2, language)
-                matched_words.update(forms1)
-                matched_words.update(forms2)
+    passing.sort(key=lambda x: -round(x[1], 4))
+    passing = passing[:limit]
 
-            matched_words = list(matched_words)
+    results = []
+    for bg_key, rarity in passing:
+        words = bg_key.split('|')
+        lemma1 = words[0] if len(words) > 0 else ''
+        lemma2 = words[1] if len(words) > 1 else ''
+        # Get proper dictionary forms for display
+        dict_form1 = get_dictionary_form(lemma1, language)
+        dict_form2 = get_dictionary_form(lemma2, language)
+        # Get actual matched words from all locations for highlighting
+        src_locs = source_bigram_locations[bg_key]
+        tgt_locs = target_bigram_locations[bg_key]
+        matched_words = set()
 
-            # Extract first source reference for occurrence-based sorting
-            first_source_ref = ''
-            if source_bigram_locations[bg_key]:
-                first_source_ref = source_bigram_locations[bg_key][0].get('ref', '')
+        # Gather surface forms from both source and target locations
+        for loc in (src_locs[:3] + tgt_locs[:3]):
+            text = loc.get('text', '')
+            forms1, forms2 = get_surface_forms_from_text(text, lemma1, lemma2, language)
+            matched_words.update(forms1)
+            matched_words.update(forms2)
 
-            results.append({
-                'bigram': f'{dict_form1} + {dict_form2}',
-                'word1': lemma1,
-                'word2': lemma2,
-                'display1': dict_form1,
-                'display2': dict_form2,
-                'matched_words': matched_words,
-                'rarity': round(rarity, 4),
-                'rarity_percent': round(rarity * 100, 1),
-                'source_occurrences': len(source_bigram_locations[bg_key]),
-                'target_occurrences': len(target_bigram_locations[bg_key]),
-                'source_locations': _dedup_locations_by_ref(source_bigram_locations[bg_key])[:5],
-                'target_locations': _dedup_locations_by_ref(target_bigram_locations[bg_key])[:5],
-                '_first_source_ref': first_source_ref
-            })
+        matched_words = list(matched_words)
 
-    results.sort(key=lambda x: -x['rarity'])
-    results = results[:limit]
+        # Extract first source reference for occurrence-based sorting
+        first_source_ref = ''
+        if source_bigram_locations[bg_key]:
+            first_source_ref = source_bigram_locations[bg_key][0].get('ref', '')
+
+        results.append({
+            'bigram': f'{dict_form1} + {dict_form2}',
+            'word1': lemma1,
+            'word2': lemma2,
+            'display1': dict_form1,
+            'display2': dict_form2,
+            'matched_words': matched_words,
+            'rarity': round(rarity, 4),
+            'rarity_percent': round(rarity * 100, 1),
+            'source_occurrences': len(source_bigram_locations[bg_key]),
+            'target_occurrences': len(target_bigram_locations[bg_key]),
+            'source_locations': _annotate_locations(
+                _dedup_locations_by_ref(source_bigram_locations[bg_key])[:5], source_id),
+            'target_locations': _annotate_locations(
+                _dedup_locations_by_ref(target_bigram_locations[bg_key])[:5], target_id),
+            '_first_source_ref': first_source_ref
+        })
 
     out = {
         'source': source_id,
