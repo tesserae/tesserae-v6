@@ -332,14 +332,34 @@ _SCHOL_SYSTEM = (
     "out and never mentioned, not even to say it does not address the question: name only the "
     "items that answer it. Report what each "
     "note actually discusses, even when it is only a point of text or grammar, and do not "
-    "infer a reading of the subject from it. If they do not answer the question, say so in one "
-    "sentence. Start straight in with what the notes say, naming the commentator or the "
+    "infer a reading of the subject from it. If no note or article bears on the question, reply "
+    "with the single token NONE and nothing else. Start straight in with what the notes say, naming the commentator or the "
     "article as the list does (for example 'How and Wells take the word to mean...'). Do not "
     "open with a clause about where the material comes from: a line under your text already "
     "says that. Do not call the notes 'sources'. Do not use the word paragraph. Plain words. "
     "No dashes, no semicolons, no lists, no headings.")
 # Added when articles from the live services are in the list: they are known only from an
 # abstract or a short excerpt, and the paragraph must not claim more.
+# The model is told to reply NONE when nothing bears on the question. Some
+# replies say it in words instead ("The provided notes do not address ..."),
+# so the first sentence is checked too (2026-10-14).
+_NONE_FIRST_SENTENCE = re.compile(
+    r"\b(?:notes?|articles?|commentar\w*|sources?|items?|material|list)\b[^.!?]{0,80}?"
+    r"\b(?:do(?:es)?\s+not|don't|did\s+not|cannot|can't|neither|nor)\b[^.!?]{0,40}?"
+    r"\b(?:address|discuss|concern|treat|bear\s+on|deal\s+with|speak\s+to|answer|touch\s+on|mention)\w*"
+    r"|\bnone\s+of\s+the\b[^.!?]{0,80}?\b(?:address|discuss|concern|treat|bear\s+on|deal\s+with|answer|mention)\w*",
+    re.I)
+
+
+def _says_none_relevant(text):
+    """True when the reply is the token NONE or its first sentence says the notes or articles do not address the question."""
+    t = (text or '').strip()
+    if re.fullmatch(r'[\W_]*NONE[\W_]*', t, re.I):
+        return True
+    first = re.split(r'(?<=[.!?])\s', t, maxsplit=1)[0]
+    return bool(_NONE_FIRST_SENTENCE.search(first))
+
+
 _SCHOL_RECENT_NOTE = (
     " The list may hold articles found online, known only from an abstract or a short excerpt. "
     "When you draw on one, say so (for example 'to judge from its abstract'), and never "
@@ -615,6 +635,9 @@ def ask_scholarship():
         pool.shutdown(wait=False)
     if not text:
         return jsonify(dict(base, available=False, error='the model could not answer'))
+    if _says_none_relevant(text):
+        return jsonify(dict(base, available=True, summary='', cites=[], kept=len(cards),
+                            none_relevant=True, script_problems=[]))
     used = sorted({int(n) for n in re.findall(r'\[(\d+)\]', text) if 1 <= int(n) <= len(cards)})
     cites = [{'n': n, 'kind': cards[n - 1].get('kind'), 'label': _scholarship_label(cards[n - 1]),
               'link': cards[n - 1].get('link'), **_cite_fields(cards[n - 1])} for n in used]

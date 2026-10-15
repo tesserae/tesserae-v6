@@ -100,3 +100,7 @@ def _fresh_theme_search_caches():
     passage_index._QUERY_VECTORS.clear()
     passage_index._lex_rows_cache.clear()
     yield
+
+
+def pytest_configure(config):
+    config.addinivalue_line('markers', 'gateway: needs the live model gateway (skipped without it)')

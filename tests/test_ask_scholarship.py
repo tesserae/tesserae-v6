@@ -268,3 +268,53 @@ def test_gateway_paragraph_does_not_mention_an_irrelevant_item(monkeypatch):
         pytest.skip('the gateway model wrote nothing in three tries (reasoning used the budget)')
     assert '[1]' in text
     assert 'Harbor Tolls' not in text and 'Ostia' not in text and '[2]' not in text
+
+
+def _reply(monkeypatch, text):
+    _setup(monkeypatch, [note('vergil.aeneid.part.4')])
+    monkeypatch.setattr(model, 'complete', lambda *a, **k: text)
+    return _post({'question': 'the strengths and weaknesses of democracy', 'work': 'vergil.aeneid', 'lang': 'la'})
+
+
+def test_prompt_asks_for_none_when_nothing_bears_on_the_question(monkeypatch):
+    calls = []
+    _setup(monkeypatch, [note('vergil.aeneid.part.4')], calls)
+    _post({'question': 'Dido in love', 'work': 'vergil.aeneid', 'lang': 'la'})
+    assert 'single token NONE' in calls[0][0]
+
+
+def test_none_token_gives_none_relevant_and_keeps_holdings(monkeypatch):
+    for text in ('NONE', ' None. ', 'NONE\n'):
+        out = _reply(monkeypatch, text)
+        assert out['available'] is True and out['none_relevant'] is True
+        assert out['summary'] == '' and out['cites'] == [] and out['holdings']
+
+
+def test_a_do_not_address_sentence_is_treated_as_none(monkeypatch):
+    for text in ('The provided commentary notes and articles do not address the strengths and weaknesses of democracy in Thucydides [1].',
+                 'The notes listed do not discuss this question. They treat a point of grammar [1].',
+                 'None of the articles concern democracy.'):
+        out = _reply(monkeypatch, text)
+        assert out['none_relevant'] is True and out['summary'] == ''
+
+
+def test_a_normal_paragraph_is_unchanged(monkeypatch):
+    for text in ('Servius reads the lines as a divine design [1].',
+                 'Page says the notes do not settle the reading, but he takes it as tragic [1].'):
+        out = _reply(monkeypatch, text)
+        assert 'none_relevant' not in out and out['summary'] == text and out['cites'][0]['n'] == 1
+
+
+@pytest.mark.gateway
+def test_live_model_thucydides_democracy_three_runs():
+    """Needs the gateway and the real scholarship index; skipped without them."""
+    from backend.assistant import model as m
+    if not m.is_available():
+        pytest.skip('no model gateway')
+    results = []
+    for _ in range(3):
+        out = _post({'question': 'the strengths and weaknesses of democracy',
+                     'work': 'thucydides.peleponnesian_war', 'lang': 'grc'})
+        results.append(out)
+        assert out.get('none_relevant') is True or out.get('summary') or out.get('available') is False
+    print('LIVE RUNS', [(o.get('none_relevant'), (o.get('summary') or '')[:200]) for o in results])
