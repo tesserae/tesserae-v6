@@ -20,7 +20,17 @@ Stoplist Basis Options:
     - source_target: Use combined source+target frequencies
 """
 import unicodedata
+from functools import lru_cache
 
+
+# The two Greek normalizers below are pure functions of one string and return a
+# string, so their answers are memoized. One Greek edit-distance comparison of
+# two 1,600-line texts called normalize_greek about 5 to 8 million times, on
+# only a few thousand distinct words.
+_NORMALIZE_CACHE_SIZE = 200_000
+
+
+@lru_cache(maxsize=_NORMALIZE_CACHE_SIZE)
 def normalize_greek(text):
     """Strip accents/diacritics from Greek text for stoplist comparison"""
     # NFD decomposes characters, then we filter out combining marks
@@ -49,6 +59,7 @@ _GREEK_TO_LATIN = {
 }
 
 
+@lru_cache(maxsize=_NORMALIZE_CACHE_SIZE)
 def transliterate_greek_to_latin(token):
     """Transliterate a Greek token to Latin characters for phonetic comparison.
 

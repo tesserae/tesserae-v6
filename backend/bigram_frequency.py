@@ -6,6 +6,7 @@ even when individual words are common.
 import os
 import json
 import math
+import threading
 from collections import Counter
 from datetime import datetime
 from backend.logging_config import get_logger
@@ -58,18 +59,49 @@ def get_cache_path(language):
     """Get the path to the bigram cache file for a language"""
     return os.path.join(CACHE_DIR, f'{language}_bigrams.json')
 
+_load_locks = {}                    # language -> lock held while its file is parsed
+_load_locks_guard = threading.Lock()
+_loaded = {}                        # language -> (file stamp, the dict parsed from it)
+
+
+def _load_lock(language):
+    with _load_locks_guard:
+        lock = _load_locks.get(language)
+        if lock is None:
+            lock = _load_locks[language] = threading.Lock()
+        return lock
+
+
 def load_bigram_cache(language):
-    """Load cached bigram frequencies for a language"""
+    """Load cached bigram frequencies for a language.
+
+    One thread parses a language's file at a time. A thread that arrives while
+    another is parsing the same file (the start-up warm-up, or a request that
+    came first) waits for it and takes its result, instead of parsing the same
+    hundreds of megabytes again. A file that has changed since it was parsed is
+    parsed again, as before.
+    """
     global _bigram_cache
     cache_path = get_cache_path(language)
-    if os.path.exists(cache_path):
+    with _load_lock(language):
         try:
-            with open(cache_path, 'r', encoding='utf-8') as f:
-                data = json.load(f)
+            st = os.stat(cache_path)
+            stamp = (st.st_size, st.st_mtime_ns)
+        except OSError:
+            stamp = None
+        held = _loaded.get(language)
+        if (stamp is not None and held is not None and held[0] == stamp
+                and _bigram_cache.get(language) is held[1]):
+            return held[1]
+        if stamp is not None:
+            try:
+                with open(cache_path, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
                 _bigram_cache[language] = data
+                _loaded[language] = (stamp, data)
                 return data
-        except Exception as e:
-            logger.error(f"Failed to load bigram cache from {cache_path}: {e}")
+            except Exception as e:
+                logger.error(f"Failed to load bigram cache from {cache_path}: {e}")
     return None
 
 def get_bigram_cache(language):
