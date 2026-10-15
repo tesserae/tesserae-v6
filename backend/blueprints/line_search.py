@@ -421,6 +421,11 @@ def _candidate_within_distance(filename, positions, language='la', max_distance=
     return min_dist <= max_distance()
 
 
+def _is_excluded_author(filename, exclude_author):
+    """True when the text file belongs to the author named by exclude_author (the file name's first segment)."""
+    return filename.split('.')[0].lower() == exclude_author
+
+
 def _count_candidates_by_work(text_candidates, language, lang_dates):
     """[{work_id, author, work, year, era, count}] for every work holding a
     co-occurring line that also passes the closeness rule, newest-last by year
@@ -891,6 +896,14 @@ def _indexed_candidates(params: LineSearchParams, lang_dates: dict, filtered_que
             text_candidates[filename] = []
         text_candidates[filename].append((ref, matching_lemmas, positions))
 
+    # exclude_author: every work of that author leaves before anything is
+    # counted or cut, so the per-work counts describe the set that is shown and
+    # a full page of other authors comes back. Whole works, book files and
+    # `.part.` files share the work id's first segment, so one test covers all.
+    if params.exclude_author:
+        for _fn in [f for f in text_candidates if _is_excluded_author(f, params.exclude_author)]:
+            del text_candidates[_fn]
+
     # A joined query word found through its parts (reverse
     # direction) is kept only where the parts stand next to each
     # other in the line, in order. Done before the per-work counts
@@ -1185,6 +1198,8 @@ def _scanned_candidates(params: LineSearchParams, lang_dir: str, lang_dates: dic
         filepath = os.path.join(lang_dir, filename)
         # A text's title and kind are looked up when a filter needs them or
         # when a line of the text matches, not for every text of the language.
+        if params.exclude_author and _is_excluded_author(filename, params.exclude_author):
+            continue
         metadata = None
         if author_filter or work_filter:
             metadata = get_text_metadata(filepath)

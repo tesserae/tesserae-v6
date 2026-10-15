@@ -147,6 +147,8 @@ def _t_line_search(a):
              if k not in ('collection', 'date_from', 'date_to', 'region', 'text_type', 'material', 'source')}
     if a.get('collection'):
         body['collection'] = a.get('collection')
+    if a.get('exclude_author'):
+        body['exclude_author'] = a.get('exclude_author')
     for key in ('date_from', 'date_to', 'region', 'text_type', 'material', 'source'):
         if a.get(key) is not None:
             body[key] = a.get(key)
@@ -1140,6 +1142,7 @@ TOOLS = [
      "inputSchema": {"type": "object",
                      "properties": {"query": _STR, "language": _STR, "search_type": _STR,
                                     "count_only": {"type": "boolean"},
+                                    "exclude_author": {"type": "string", "description": "Leave out every work of one author, by the first part of the text id (for example vergil), e.g. to see who echoes Vergil outside Vergil."},
                                     "collection": _STR, "date_from": {"type": "integer"},
                                     "date_to": {"type": "integer"}, "region": _STR,
                                     "text_type": _STR, "material": _STR, "source": _STR},
