@@ -485,6 +485,20 @@ describe('what the secondary literature says', () => {
     expect(within(block).getByTestId('ask-scholarship-holdings')).toHaveTextContent('2 notes from Servius');
   });
 
+  it('says plainly that no held note or article discusses the question', async () => {
+    scholarshipReply = {
+      available: true, none_relevant: true, summary: '', cites: [],
+      holdings: 'The secondary sources I can read include 2 notes from Servius on Vergil, Aeneid.',
+    };
+    render(<AskAWorkPage />);
+    await ask();
+    const block = await screen.findByTestId('ask-scholarship');
+    expect(within(block).getByTestId('ask-scholarship-none')).toHaveTextContent(
+      'None of the commentary notes or journal articles held for this work discuss this question.');
+    expect(within(block).getByTestId('ask-scholarship-holdings')).toHaveTextContent('2 notes from Servius');
+    expect(screen.getByTestId('ask-scholarship-more')).toBeInTheDocument();
+  });
+
   it('shows only the holdings line when the collection has nothing', async () => {
     scholarshipReply = { available: false, holdings: 'I have no secondary sources on Sappho, Fragments to draw on.' };
     render(<AskAWorkPage />);

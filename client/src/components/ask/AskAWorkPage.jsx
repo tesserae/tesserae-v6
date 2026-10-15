@@ -440,7 +440,9 @@ export default function AskAWorkPage() {
           if (id !== searchId.current) return;
           return postJsonTo('/api/passages/ask-scholarship', { question: query, work: workId, lang: code }).then((s) => {
             if (id !== searchId.current) return;
-            if (s && s.available && s.summary) {
+            if (s && s.available && s.none_relevant) {
+              setScholarship({ state: 'ready', noneRelevant: true, holdings: s.holdings || '', summary: '', cites: [], queryUsed: s.query_used || '' });
+            } else if (s && s.available && s.summary) {
               setScholarship({ state: 'ready', holdings: s.holdings || '', summary: s.summary, cites: s.cites || [], queryUsed: s.query_used || '' });
             } else if (s && s.holdings) {
               setScholarship({ state: 'none', holdings: s.holdings });
@@ -899,13 +901,21 @@ export default function AskAWorkPage() {
                     <section aria-label="Scholarship" className="mt-3 rounded border border-gray-200 bg-gray-50 px-3 py-2" data-testid="ask-scholarship">
                       <div className="flex items-baseline justify-between gap-2">
                         <p className="text-xs font-semibold text-gray-600">Scholarship</p>
-                        <CiteAll records={(scholarship.cites || []).map((c) => recordFrom(c, 'cite'))}
-                                 name={`${asked.work || 'work'} ${asked.q || ''}`}
-                                 label="Export the cited notes and articles" />
+                        {!scholarship.noneRelevant && (
+                          <CiteAll records={(scholarship.cites || []).map((c) => recordFrom(c, 'cite'))}
+                                   name={`${asked.work || 'work'} ${asked.q || ''}`}
+                                   label="Export the cited notes and articles" />
+                        )}
                       </div>
-                      <p className="mt-1 text-sm text-gray-800 leading-snug">
-                        <ScholarshipText text={scholarship.summary} cites={scholarship.cites} />
-                      </p>
+                      {scholarship.noneRelevant ? (
+                        <p className="mt-1 text-sm text-gray-800 leading-snug" data-testid="ask-scholarship-none">
+                          None of the commentary notes or journal articles held for this work discuss this question.
+                        </p>
+                      ) : (
+                        <p className="mt-1 text-sm text-gray-800 leading-snug">
+                          <ScholarshipText text={scholarship.summary} cites={scholarship.cites} />
+                        </p>
+                      )}
                       {(hasOriginalScript(scholarship.summary) || hasOriginalScript(summary?.summary)) && (
                         <p className="mt-1"><TransliterationToggle /></p>
                       )}
