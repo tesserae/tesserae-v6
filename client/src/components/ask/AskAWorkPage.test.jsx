@@ -486,6 +486,27 @@ describe('what the secondary literature says', () => {
     expect(within(block).getByTestId('ask-scholarship-holdings')).toHaveTextContent('2 notes from Servius');
   });
 
+  it('puts the online articles above an empty Scholarship box', async () => {
+    scholarshipReply = {
+      available: true, none_relevant: true, summary: '', cites: [],
+      holdings: 'The secondary sources I can read include 2 notes from Servius on Vergil, Aeneid.',
+    };
+    const base = global.fetch;
+    global.fetch = vi.fn((url, init) => {
+      const u = String(url);
+      if (u.startsWith('/api/passages/recent-scholarship')) {
+        return Promise.resolve(mockResponse({ ok: true, json: () => Promise.resolve({ service: new URL(u, 'http://x').searchParams.get('service') || 'openalex', available: true, results: [{ title: 'Dido in Love', year: 2019, authors: ['A. Reader'] }] }) }));
+      }
+      return base(url, init);
+    });
+    render(<AskAWorkPage />);
+    await ask();
+    const recentBox = await screen.findByTestId('ask-recent');
+    const scholBox = await screen.findByTestId('ask-scholarship');
+    expect(recentBox.compareDocumentPosition(scholBox) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(within(scholBox).getByTestId('ask-scholarship-none')).toBeInTheDocument();
+  });
+
   it('says plainly that no held note or article discusses the question', async () => {
     scholarshipReply = {
       available: true, none_relevant: true, summary: '', cites: [],
