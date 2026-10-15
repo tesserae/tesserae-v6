@@ -40,8 +40,8 @@ function RecentArticles({ recent }) {
   return (
     <>
       {recent.items.length > 0 && (
-        <section aria-label="Articles found online" className="mt-4 rounded border border-gray-200 bg-white px-3 py-2" data-testid="theme-recent">
-          <p className="text-xs font-semibold text-gray-600">Articles found online</p>
+        <section aria-label="Books and articles found online" className="mt-4 rounded border border-gray-200 bg-white px-3 py-2" data-testid="theme-recent">
+          <p className="text-xs font-semibold text-gray-600">Books and articles found online</p>
           <ul className="mt-1 space-y-2">
             {recent.items.map((it) => {
               const url = recentUrl(it);
@@ -52,6 +52,7 @@ function RecentArticles({ recent }) {
                     <a href={url} target="_blank" rel="noopener noreferrer" className="text-red-800 hover:text-red-900 hover:underline">{it.title}</a>
                   ) : it.title}
                   {meta && <span className="text-gray-600">{`, ${meta}`}</span>}
+                  <span className="ml-1 rounded bg-gray-100 px-1 text-[11px] text-gray-500">{it.source === 'google_books' ? 'book' : 'article'}</span>
                   {it.oa_url && <span className="ml-1 rounded bg-gray-100 px-1 text-[11px] text-gray-500">free copy</span>}
                   {it.excerpt && <span className="block text-xs text-gray-500">{it.excerpt}</span>}
                   <span className="block text-xs mt-0.5"><CiteRecordButton record={recordFrom(it, 'recent')} /></span>
