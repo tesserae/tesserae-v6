@@ -365,6 +365,43 @@ def start_cache_init():
     thread.start()
 
 
+# Bigram tables loaded when a worker starts (opt-in).
+# The first rare-pair, rare-word or search request on each web worker used to
+# pay about five seconds to read a bigram table, and workers are replaced every
+# 1,000 requests. TESSERAE_WARM_BIGRAMS names the languages to read in a
+# background thread at start (for example "la,grc"). It is empty by default
+# because each table stays in memory for the life of the worker (about 0.5 GB
+# for Latin, 0.4 GB more for Greek). A request that arrives before the thread
+# has finished waits for the same read (the lock in backend/bigram_frequency.py)
+# and does not start a second one.
+def warm_bigram_tables(languages=None):
+    """Read the named bigram tables now. Returns the languages loaded."""
+    from backend import bigram_frequency
+    if languages is None:
+        languages = [x.strip() for x in os.environ.get('TESSERAE_WARM_BIGRAMS', '').split(',')]
+    loaded = []
+    for lang in languages:
+        if lang and bigram_frequency.is_bigram_cache_available(lang):
+            try:
+                if bigram_frequency.get_bigram_cache(lang):
+                    loaded.append(lang)
+            except Exception as e:
+                app_logger.error(f"Bigram warm-up failed for {lang}: {e}")
+    return loaded
+
+
+def start_bigram_warmup():
+    """Start the warm-up thread when TESSERAE_WARM_BIGRAMS is set."""
+    if not os.environ.get('TESSERAE_WARM_BIGRAMS', '').strip():
+        return None
+    thread = threading.Thread(target=warm_bigram_tables, name='bigram-warmup', daemon=True)
+    thread.start()
+    return thread
+
+
+start_bigram_warmup()
+
+
 def api_route_for(blueprint):
     """The same decorator as api_route() in backend/app.py, bound to a blueprint.
 
