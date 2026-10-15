@@ -46,9 +46,9 @@ export default function DocumentsSearchFilters({
             <label htmlFor="doc-kind" className="block text-xs text-gray-500 mb-1">Kind</label>
             <select id="doc-kind" value={docKind} onChange={e => setDocKind(e.target.value)}
                     className="w-full border rounded px-2 py-1.5 text-sm bg-white">
-              <option value="inscriptions">Inscriptions</option>
-              <option value="papyri">Papyri</option>
-              <option value="">Both</option>
+              <option value="">Inscriptions and papyri</option>
+              <option value="inscriptions">Inscriptions only</option>
+              <option value="papyri">Papyri only</option>
             </select>
           </div>
           <div>

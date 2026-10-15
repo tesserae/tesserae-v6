@@ -159,7 +159,7 @@ describe('stage 4: document results sort control', () => {
     render(<LineSearch language="la" />);
     await switchToSearchMode();
     await waitFor(() => expect(screen.getByText('Search in')).toBeTruthy());
-    await userEvent.click(screen.getByRole('button', { name: 'Documents' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Inscriptions and papyri' }));
     await userEvent.type(screen.getByPlaceholderText('Enter word or phrase...'), 'dis manibus');
     await userEvent.click(screen.getByRole('button', { name: 'Search Lines' }));
     await waitFor(() => expect(global.fetch).toHaveBeenCalled());
@@ -174,7 +174,7 @@ describe('stage 4: document results sort control', () => {
     render(<LineSearch language="la" />);
     await switchToSearchMode();
     await waitFor(() => expect(screen.getByText('Search in')).toBeTruthy());
-    await userEvent.click(screen.getByRole('button', { name: 'Documents' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Inscriptions and papyri' }));
     await userEvent.type(screen.getByPlaceholderText('Enter word or phrase...'), 'dis manibus');
     await userEvent.click(screen.getByRole('button', { name: 'Search Lines' }));
 
@@ -197,7 +197,7 @@ describe('stage 4: document results sort control', () => {
     render(<LineSearch language="la" />);
     await switchToSearchMode();
     await waitFor(() => expect(screen.getByText('Search in')).toBeTruthy());
-    await userEvent.click(screen.getByRole('button', { name: 'Both' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Literature, inscriptions and papyri' }));
     await userEvent.type(screen.getByPlaceholderText('Enter word or phrase...'), 'dis manibus');
     await userEvent.click(screen.getByRole('button', { name: 'Search Lines' }));
     await waitFor(() => expect(screen.getByText(/Found 1 documents/)).toBeTruthy());
@@ -230,7 +230,7 @@ describe('stage 4: document distribution chart', () => {
     render(<LineSearch language="la" />);
     await switchToSearchMode();
     await waitFor(() => expect(screen.getByText('Search in')).toBeTruthy());
-    await userEvent.click(screen.getByRole('button', { name: 'Documents' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Inscriptions and papyri' }));
     await userEvent.type(screen.getByPlaceholderText('Enter word or phrase...'), 'dis manibus');
     await userEvent.click(screen.getByRole('button', { name: 'Search Lines' }));
 
@@ -251,7 +251,7 @@ describe('stage 4: document distribution chart', () => {
     render(<LineSearch language="la" />);
     await switchToSearchMode();
     await waitFor(() => expect(screen.getByText('Search in')).toBeTruthy());
-    await userEvent.click(screen.getByRole('button', { name: 'Documents' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Inscriptions and papyri' }));
     await userEvent.type(screen.getByPlaceholderText('Enter word or phrase...'), 'dis manibus');
     await userEvent.click(screen.getByRole('button', { name: 'Search Lines' }));
 
@@ -275,7 +275,7 @@ describe('stage 4: "Filter by Text" hide/relabel per collection', () => {
     render(<LineSearch language="la" />);
     await switchToSearchMode();
     await waitFor(() => expect(screen.getByText('Search in')).toBeTruthy());
-    await userEvent.click(screen.getByRole('button', { name: 'Documents' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Inscriptions and papyri' }));
     expect(screen.queryByText('Filter by Text (Optional)')).toBeNull();
     expect(screen.queryByText('Filter the literature (optional)')).toBeNull();
     expect(screen.queryByLabelText('Author')).toBeNull();
@@ -286,7 +286,7 @@ describe('stage 4: "Filter by Text" hide/relabel per collection', () => {
     render(<LineSearch language="la" />);
     await switchToSearchMode();
     await waitFor(() => expect(screen.getByText('Search in')).toBeTruthy());
-    await userEvent.click(screen.getByRole('button', { name: 'Both' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Literature, inscriptions and papyri' }));
     expect(screen.getByText('Filter the literature (optional)')).toBeTruthy();
     expect(screen.queryByText('Filter by Text (Optional)')).toBeNull();
     expect(screen.getByLabelText('Author')).toBeTruthy();
@@ -297,7 +297,7 @@ describe('stage 4: "Filter by Text" hide/relabel per collection', () => {
     render(<LineSearch language="la" />);
     await switchToSearchMode();
     await waitFor(() => expect(screen.getByText('Search in')).toBeTruthy());
-    await userEvent.click(screen.getByRole('button', { name: 'Documents' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Inscriptions and papyri' }));
     await userEvent.type(screen.getByPlaceholderText('Enter word or phrase...'), 'dis manibus');
     await userEvent.click(screen.getByRole('button', { name: 'Search Lines' }));
 

@@ -27,8 +27,8 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 // DocumentsSearchFilters.jsx).
 const COLLECTION_OPTIONS = [
   { key: 'literature', label: 'Literature' },
-  { key: 'documents', label: 'Documents' },
-  { key: 'both', label: 'Both' },
+  { key: 'documents', label: 'Inscriptions and papyri' },
+  { key: 'both', label: 'Literature, inscriptions and papyri' },
 ];
 
 // Hebrew and Coptic loci embed the full text id (e.g.

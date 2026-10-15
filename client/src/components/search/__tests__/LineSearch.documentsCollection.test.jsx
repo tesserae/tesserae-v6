@@ -122,7 +122,7 @@ describe('documents collection control', () => {
     await switchToSearchMode();
     await waitFor(() => expect(screen.getByText('Search in')).toBeTruthy());
     expect(screen.queryByLabelText('Region')).toBeNull();
-    await userEvent.click(screen.getByRole('button', { name: 'Documents' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Inscriptions and papyri' }));
     expect(screen.getByLabelText('Region')).toBeTruthy();
     expect(screen.getByLabelText('Text type')).toBeTruthy();
     expect(screen.getByLabelText('Material')).toBeTruthy();
@@ -134,7 +134,7 @@ describe('documents collection control', () => {
     render(<LineSearch language="la" />);
     await switchToSearchMode();
     await waitFor(() => expect(screen.getByText('Search in')).toBeTruthy());
-    await userEvent.click(screen.getByRole('button', { name: 'Documents' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Inscriptions and papyri' }));
     await waitFor(() => expect(screen.getByRole('option', { name: 'Roma (500)' })).toBeTruthy());
     await userEvent.selectOptions(screen.getByLabelText('Region'), 'Roma');
     await userEvent.type(screen.getByPlaceholderText('Enter word or phrase...'), 'dis manibus');
@@ -170,7 +170,7 @@ describe('documents collection control', () => {
     render(<LineSearch language="la" />);
     await switchToSearchMode();
     await waitFor(() => expect(screen.getByText('Search in')).toBeTruthy());
-    await userEvent.click(screen.getByRole('button', { name: 'Both' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Literature, inscriptions and papyri' }));
     await userEvent.type(screen.getByPlaceholderText('Enter word or phrase...'), 'dis manibus');
     await userEvent.click(screen.getByRole('button', { name: 'Search Lines' }));
 
@@ -199,7 +199,7 @@ describe('documents collection control', () => {
     render(<LineSearch language="la" />);
     await switchToSearchMode();
     await waitFor(() => expect(screen.getByText('Search in')).toBeTruthy());
-    await userEvent.click(screen.getByRole('button', { name: 'Documents' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Inscriptions and papyri' }));
     await userEvent.type(screen.getByPlaceholderText('Enter word or phrase...'), 'dis manibus');
     await userEvent.click(screen.getByRole('button', { name: 'Search Lines' }));
 
@@ -221,7 +221,7 @@ describe('stage 3b-3: restoration exclusion, formula hiding, and the document vi
     await waitFor(() => expect(screen.getByText('Search in')).toBeTruthy());
     expect(screen.queryByText('Leave out matches on restored words')).toBeNull();
     expect(screen.queryByText('Hide stock formulas')).toBeNull();
-    await userEvent.click(screen.getByRole('button', { name: 'Documents' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Inscriptions and papyri' }));
     expect(screen.getByText('Leave out matches on restored words')).toBeTruthy();
     expect(screen.getByText('Hide stock formulas')).toBeTruthy();
   });
@@ -231,7 +231,7 @@ describe('stage 3b-3: restoration exclusion, formula hiding, and the document vi
     render(<LineSearch language="la" />);
     await switchToSearchMode();
     await waitFor(() => expect(screen.getByText('Search in')).toBeTruthy());
-    await userEvent.click(screen.getByRole('button', { name: 'Documents' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Inscriptions and papyri' }));
     await userEvent.click(screen.getByRole('checkbox', { name: 'Leave out matches on restored words' }));
     await userEvent.type(screen.getByPlaceholderText('Enter word or phrase...'), 'dis manibus');
     await userEvent.click(screen.getByRole('button', { name: 'Search Lines' }));
@@ -248,7 +248,7 @@ describe('stage 3b-3: restoration exclusion, formula hiding, and the document vi
     render(<LineSearch language="la" />);
     await switchToSearchMode();
     await waitFor(() => expect(screen.getByText('Search in')).toBeTruthy());
-    await userEvent.click(screen.getByRole('button', { name: 'Documents' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Inscriptions and papyri' }));
     await userEvent.click(screen.getByRole('checkbox', { name: 'Hide stock formulas' }));
     await userEvent.type(screen.getByPlaceholderText('Enter word or phrase...'), 'dis manibus');
     await userEvent.click(screen.getByRole('button', { name: 'Search Lines' }));
@@ -265,7 +265,7 @@ describe('stage 3b-3: restoration exclusion, formula hiding, and the document vi
     render(<LineSearch language="la" />);
     await switchToSearchMode();
     await waitFor(() => expect(screen.getByText('Search in')).toBeTruthy());
-    await userEvent.click(screen.getByRole('button', { name: 'Documents' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Inscriptions and papyri' }));
     await userEvent.type(screen.getByPlaceholderText('Enter word or phrase...'), 'dis manibus');
     await userEvent.click(screen.getByRole('button', { name: 'Search Lines' }));
 
@@ -283,7 +283,7 @@ describe('stage 3b-3: restoration exclusion, formula hiding, and the document vi
     render(<LineSearch language="la" />);
     await switchToSearchMode();
     await waitFor(() => expect(screen.getByText('Search in')).toBeTruthy());
-    await userEvent.click(screen.getByRole('button', { name: 'Documents' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Inscriptions and papyri' }));
     await userEvent.type(screen.getByPlaceholderText('Enter word or phrase...'), 'dis manibus');
     await userEvent.click(screen.getByRole('button', { name: 'Search Lines' }));
 
@@ -297,7 +297,7 @@ describe('stage 3b-3: restoration exclusion, formula hiding, and the document vi
     render(<LineSearch language="la" />);
     await switchToSearchMode();
     await waitFor(() => expect(screen.getByText('Search in')).toBeTruthy());
-    await userEvent.click(screen.getByRole('button', { name: 'Documents' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Inscriptions and papyri' }));
     await userEvent.type(screen.getByPlaceholderText('Enter word or phrase...'), 'dis manibus');
     await userEvent.click(screen.getByRole('button', { name: 'Search Lines' }));
 
@@ -310,7 +310,7 @@ describe('stage 3b-3: restoration exclusion, formula hiding, and the document vi
     render(<LineSearch language="la" />);
     await switchToSearchMode();
     await waitFor(() => expect(screen.getByText('Search in')).toBeTruthy());
-    await userEvent.click(screen.getByRole('button', { name: 'Documents' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Inscriptions and papyri' }));
     await userEvent.type(screen.getByPlaceholderText('Enter word or phrase...'), 'dis manibus');
     await userEvent.click(screen.getByRole('button', { name: 'Search Lines' }));
 
@@ -330,7 +330,7 @@ describe('stage 3b-3: restoration exclusion, formula hiding, and the document vi
     render(<LineSearch language="la" />);
     await switchToSearchMode();
     await waitFor(() => expect(screen.getByText('Search in')).toBeTruthy());
-    await userEvent.click(screen.getByRole('button', { name: 'Documents' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Inscriptions and papyri' }));
     await userEvent.type(screen.getByPlaceholderText('Enter word or phrase...'), 'dis manibus');
     await userEvent.click(screen.getByRole('button', { name: 'Search Lines' }));
 
