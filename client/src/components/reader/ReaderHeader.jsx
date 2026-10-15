@@ -219,7 +219,18 @@ export default function ReaderHeader({
       [lineCount, 'The number of lines in the text open in the Reader'],
     ].filter(([value]) => value);
   }, [facts, units]);
-  const sourcesNote = useMemo(() => {
+  const askHref = `/ask-a-work?work=${encodeURIComponent(String(work || '').replace(/\.tess$/, '').split('.part.')[0])}&lang=${encodeURIComponent(language || 'la')}`;
+  const creditsHref = facts?.author
+    ? `/text-credits?author=${encodeURIComponent(facts.author)}`
+    : '/text-credits';
+
+  // Two columns on a wide screen (owner 2026-10-15: one column at reading
+  // width left half the row empty). The description fills the left column up
+  // to the box, as an article runs up to its infobox; a quiet box on the right carries the landmark facts on one
+  // line, the edition and the translation as short sentences, and the two
+  // links. No grid of labels: that was the layout the owner rejected on
+  // 2026-10-10. On a phone the box follows the description.
+  const editionNode = (() => {
     const edition = facts?.edition || null;
     const print = edition?.print_source
       ? decodeEntities(edition.print_source).trim().replace(/[.,;\s]+$/, '') : null;
@@ -229,57 +240,47 @@ export default function ReaderHeader({
              className="text-red-700 hover:underline">{edition.e_source}</a>
         : edition.e_source)
       : null;
-    const translation = translationAttribution
-      ? decodeEntities(translationAttribution).trim().replace(/[.,;\s]+$/, '') : null;
-    if (!print && !digital && !translation) return null;
-    return (
-      <>
-        {(print || digital) && (
-          <>
-            {'Text from '}{print || digital}{print && digital ? ', through ' : ''}{print && digital ? digital : ''}{'. '}
-          </>
-        )}
-        {translation && `Translation by ${translation}. `}
-      </>
-    );
-  }, [facts, translationAttribution]);
-  const askHref = `/ask-a-work?work=${encodeURIComponent(String(work || '').replace(/\.tess$/, '').split('.part.')[0])}&lang=${encodeURIComponent(language || 'la')}`;
-  const creditsHref = facts?.author
-    ? `/text-credits?author=${encodeURIComponent(facts.author)}`
-    : '/text-credits';
-
+    if (!print && !digital) return null;
+    return <>{'Text from '}{print || digital}{print && digital ? <>{', through '}{digital}</> : null}{'.'}</>;
+  })();
+  const translationText = translationAttribution
+    ? decodeEntities(translationAttribution).trim().replace(/[.,;\s]+$/, '') : null;
+  const showBox = factItems.length > 0 || editionNode || translationText || work || facts;
   const aboutContent = (
-    <>
-        {/* One column at reading width (about 65 characters). */}
+    <div className="md:grid md:grid-cols-[minmax(0,1fr)_20rem] md:gap-8 xl:grid-cols-[minmax(0,1fr)_22rem]">
+      <div>
         {aboutTitle && (
           <h2 className="text-base font-semibold text-gray-900">{aboutTitle}</h2>
         )}
-        {(factItems.length > 0 || facts) && (
-          <p className="mt-0.5 text-sm text-gray-500">
-            {factItems.map(([value, tip], i) => (
-              <Fragment key={tip}>
-                {i > 0 && <span aria-hidden="true"> &middot; </span>}
-                <span title={tip}>{value}</span>
-              </Fragment>
-            ))}
-            {work && (
-              <>
-                {factItems.length > 0 && <span aria-hidden="true"> &middot; </span>}
-                <a href={askHref} className="text-red-700 hover:underline">Ask this work a question</a>
-              </>
-            )}
-          </p>
+        {about && (
+          <p className="mt-2 text-[15px] leading-relaxed text-gray-700">{about}</p>
         )}
-        <p className="mt-2 max-w-prose text-sm leading-relaxed text-gray-700">
-          {about}
-        </p>
-        {facts && (
-          <p className="mt-2 max-w-prose text-xs text-gray-500">
-            {sourcesNote}
-            <a href={creditsHref} className="text-red-700 hover:underline">Full credits</a>
+      </div>
+      {showBox && (
+        <div className="mt-4 self-start rounded border border-gray-200 bg-gray-50 p-3 text-sm md:mt-1">
+          {factItems.length > 0 && (
+            <p className="text-gray-700">
+              {factItems.map(([value, tip], i) => (
+                <Fragment key={tip}>
+                  {i > 0 && <span aria-hidden="true"> &middot; </span>}
+                  <span title={tip}>{value}</span>
+                </Fragment>
+              ))}
+            </p>
+          )}
+          {(editionNode || translationText) && (
+            <p className="mt-2 text-xs leading-relaxed text-gray-600">
+              {editionNode}{editionNode && translationText ? ' ' : null}
+              {translationText && `Translation by ${translationText}.`}
+            </p>
+          )}
+          <p className="mt-2 flex flex-wrap gap-x-4 gap-y-1">
+            {work && <a href={askHref} className="text-red-700 hover:underline">Ask this work a question</a>}
+            {facts && <a href={creditsHref} className="text-red-700 hover:underline">Full credits</a>}
           </p>
-        )}
-    </>
+        </div>
+      )}
+    </div>
   );
 
   const pickWork = (file) => { setPickerOpen(false); onWork(file); };

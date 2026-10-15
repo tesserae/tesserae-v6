@@ -422,3 +422,28 @@ describe('on a phone: one title line and a picker sheet', () => {
     expect(screen.getByRole('link', { name: 'Full credits' })).toBeInTheDocument();
   });
 });
+
+describe('the About panel layout (2026-10-15)', () => {
+  it('puts the description in one column and the facts, sources and links in a box beside it', async () => {
+    global.fetch = vi.fn((url) => {
+      const u = String(url);
+      if (u.includes('/api/text-descriptions')) {
+        return Promise.resolve(mockResponse({ json: () => Promise.resolve({
+          description: 'A blurb.',
+          facts: { author: 'Ovid', work: 'Tristia', year: 10, era: 'Augustan', kind: 'poetry',
+            edition: { print_source: 'Ginn, 1900', e_source: 'Perseus', e_source_url: 'https://perseus.example/x' } },
+        }) }));
+      }
+      if (u.includes('/api/passages/translation-full')) {
+        return Promise.resolve(mockResponse({ json: () => Promise.resolve({ available: false, reason: 'none' }) }));
+      }
+      return Promise.resolve(mockResponse({ json: () => Promise.resolve({ languages: [{ code: 'la' }] }) }));
+    });
+    mount({ units: [{ ref: 'a' }] });
+    fireEvent.click(await screen.findByLabelText('About this text'));
+    const blurb = await screen.findByText('A blurb.');
+    const ask = await screen.findByRole('link', { name: 'Ask this work a question' });
+    expect(blurb.parentElement.contains(ask)).toBe(false);
+    expect(ask.closest('div').textContent).toContain('Text from Ginn, 1900, through Perseus.');
+  });
+});
