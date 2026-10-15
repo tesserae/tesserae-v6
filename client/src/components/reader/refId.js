@@ -14,5 +14,15 @@ export function cssRef(ref) {
  * space before the locus). Same rule as normalize_ref() on the server. */
 export function displayRef(ref) {
   const s = String(ref || '').trim().replace(/\s+/g, ' ');
-  return s.replace(/\.{2,}(?=\S)/g, '. ').replace(/\.{2,}/g, '.').replace(/\s+/g, ' ');
+  return readableLocus(s.replace(/\.{2,}(?=\S)/g, '. ').replace(/\.{2,}/g, '.').replace(/\s+/g, ' '));
+}
+
+/** The Ennius Annales file labels fragments of uncertain book "sedinc.N" (sedis
+ * incertae) and of uncertain work "opinc.N" (operis incerti); N is Skutsch's
+ * number. Shown to a reader as "N (book uncertain)" and "uncertain work N".
+ * Same rule as format_short_locus() on the server. */
+export function readableLocus(s) {
+  return String(s || '')
+    .replace(/\bsedinc\.(\d+[a-z]?)\b/g, '$1 (book uncertain)')
+    .replace(/\bopinc\.(\d+[a-z]?)\b/g, 'uncertain work $1');
 }
