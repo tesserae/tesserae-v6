@@ -13,7 +13,7 @@ from backend import request_timing
 ROOT = Path(__file__).resolve().parent.parent
 FIXTURE = ROOT / "tests" / "fixtures" / "request_timings.tsv"
 
-LINE = re.compile(r"^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{3}\t[A-Z]+\t/[^\t?]*\t\d{3}\t\d+\.\d\t-?\d+\t\d+$")
+LINE = re.compile(r"^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{3}\t[A-Z]+\t/[^\t?]*\t\d{3}\t\d+\.\d\t-?\d+\t\d+\t(local|[0-9a-f]{10})$")
 
 
 def make_app():
@@ -174,3 +174,34 @@ def test_streamed_response_is_not_read_by_the_hook(tmp_path, monkeypatch):
     assert len(got) == 1 and got[0].split("\t")[5] == "-1"
     assert r.get_data(as_text=True) == "data: one\n\ndata: two\n\n"
     assert ran == ["one", "two"]
+
+
+def test_visitor_code_is_keyed_daily_and_never_the_address(tmp_path, monkeypatch):
+    monkeypatch.setenv(request_timing.ENV_VAR, str(tmp_path))
+    monkeypatch.setenv("SESSION_SECRET", "k1")
+    app = make_app()
+    request_timing.install(app)
+    request_timing._local.clear()
+    c = app.test_client()
+    c.get("/api/ok", environ_base={"REMOTE_ADDR": "203.0.113.7"}, headers={"User-Agent": "A"})
+    c.get("/api/ok", environ_base={"REMOTE_ADDR": "203.0.113.7"}, headers={"User-Agent": "A"})
+    c.get("/api/ok", environ_base={"REMOTE_ADDR": "198.51.100.9"}, headers={"User-Agent": "A"})
+    got = [x.split("\t")[7] for x in lines(tmp_path)]
+    assert got[0] == got[1] and got[0] != got[2]
+    text = "".join(lines(tmp_path))
+    assert "203.0.113" not in text and "198.51.100" not in text
+    with app.test_request_context("/api/ok", environ_base={"REMOTE_ADDR": "203.0.113.7"},
+                                  headers={"User-Agent": "A"}):
+        assert request_timing._visitor("2026-10-15") == got[0]
+        assert request_timing._visitor("2026-10-16") != got[0]
+
+
+def test_requests_from_the_server_are_local(tmp_path, monkeypatch):
+    monkeypatch.setenv(request_timing.ENV_VAR, str(tmp_path))
+    monkeypatch.setenv("TESSERAE_TIMING_LOCAL_ADDRS", "192.0.2.5")
+    app = make_app()
+    request_timing.install(app)
+    c = app.test_client()
+    c.get("/api/ok", environ_base={"REMOTE_ADDR": "127.0.0.1"})
+    c.get("/api/ok", environ_base={"REMOTE_ADDR": "192.0.2.5"})
+    assert [x.split("\t")[7] for x in lines(tmp_path)] == ["local", "local"]

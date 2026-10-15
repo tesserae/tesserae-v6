@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
 """Report on request-timing files written by backend/request_timing.py.
 
-Usage: request_timings_report.py FILE [FILE...]
+Usage: request_timings_report.py [--visitors-only] FILE [FILE...]
 
-Columns of a file: time, method, path, status, ms, bytes, worker (tab-separated).
+Columns of a file: time, method, path, status, ms, bytes, worker, and from
+2026-10-15 visitor (tab-separated). The visitor column holds a daily code
+for each visitor, or "local" for requests from the server itself (the site's
+own checks and tools). --visitors-only leaves the local requests out.
 Standard library only.
 """
 import re
@@ -38,7 +41,8 @@ def read(files):
                     continue
                 try:
                     rows.append({"time": f[0], "method": f[1], "route": route_of(f[2]),
-                                 "status": int(f[3]), "ms": float(f[4])})
+                                 "status": int(f[3]), "ms": float(f[4]),
+                                 "visitor": f[7] if len(f) > 7 else ""})
                 except ValueError:
                     continue
     return rows
@@ -71,6 +75,13 @@ def report(rows, out=sys.stdout):
               else "5xx" if 500 <= s < 600 else "other"] += 1
         if c["2xx"] != len(rs):
             p("%-44s 2xx=%d 4xx=%d 5xx=%d other=%d" % (route[:44], c["2xx"], c["4xx"], c["5xx"], c["other"]))
+    coded = [r for r in rows if r["visitor"]]
+    if coded:
+        local = sum(1 for r in coded if r["visitor"] == "local")
+        codes = {(r["time"][:10], r["visitor"]) for r in coded if r["visitor"] not in ("local", "-")}
+        p("\nVisitors (rows with a visitor column)")
+        p("requests from the server itself: %d; from visitors: %d; visitor codes (per day): %d" % (
+            local, len(coded) - local, len(codes)))
     p("\nRequests per hour")
     hours = defaultdict(list)
     for r in rows:
@@ -81,10 +92,15 @@ def report(rows, out=sys.stdout):
 
 
 def main(argv):
+    only = "--visitors-only" in argv
+    argv = [a for a in argv if a != "--visitors-only"]
     if not argv:
         print(__doc__)
         return 2
-    report(read(argv))
+    rows = read(argv)
+    if only:
+        rows = [r for r in rows if r["visitor"] != "local"]
+    report(rows)
     return 0
 
 

@@ -45,6 +45,16 @@ export default function PrivacyPage() {
         </section>
 
         <section>
+          <h2 className="text-lg font-semibold text-gray-900 mb-2">Speed Log</h2>
+          <p>
+            To measure how fast the site answers, the server logs each search request with its
+            time, the kind of request and how long it took. Your search terms are not logged, and
+            neither is your address. Each line carries a code that changes every day and cannot be
+            traced back to you. It only tells one visitor&apos;s requests apart from another&apos;s
+            on the same day.
+          </p>
+        </section>
+        <section>
           <h2 className="text-lg font-semibold text-gray-900 mb-2">Third-Party Services</h2>
           <p>
             Tesserae uses the following third-party services:
@@ -84,7 +94,7 @@ export default function PrivacyPage() {
         </section>
 
         <div className="text-sm text-gray-500 pt-4 border-t">
-          Last updated: January 2026
+          Last updated: October 2026
         </div>
       </div>
     </div>
