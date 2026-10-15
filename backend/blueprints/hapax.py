@@ -29,8 +29,10 @@ from flask_login import current_user
 import csv
 import io
 import os
+import re
 import threading
 from collections import OrderedDict
+from functools import lru_cache
 
 from backend import fspaths
 import json
@@ -727,13 +729,24 @@ def get_original_word_form(text_id, ref, position, language):
     return None
 
 
+_PUNCT_EDGE = re.compile(r'^[,;:.·!?\'\"\[\]\(\)«»]+|[,;:.·!?\'\"\[\]\(\)«»]+$')
+_PUNCT_CHARS = frozenset(',;:.·!?\'"[]()«»')
+
+
 def strip_punctuation(word):
     """Remove leading/trailing punctuation from a token, preserving Greek diacritics.
     Also strips stray combining marks at word boundaries."""
-    import re
     import unicodedata
+    # A word whose first and last characters are neither punctuation nor
+    # combining marks has nothing to strip (most tokens): same result, none
+    # of the regular-expression work.
+    if (word and word[0] not in _PUNCT_CHARS and word[-1] not in _PUNCT_CHARS
+            and word[-1] != '\n'
+            and not unicodedata.combining(word[0])
+            and not unicodedata.combining(word[-1])):
+        return word
     # Strip common punctuation and combining marks at word boundaries
-    word = re.sub(r'^[,;:.·!?\'\"\[\]\(\)«»]+|[,;:.·!?\'\"\[\]\(\)«»]+$', '', word)
+    word = _PUNCT_EDGE.sub('', word)
     # Also strip any trailing combining marks (accents that don't belong at word end)
     while word and unicodedata.combining(word[-1]):
         word = word[:-1]
@@ -812,19 +825,39 @@ def clean_lemma_key(lemma):
     return cleaned or lemma
 
 
+@lru_cache(maxsize=8192)
+def _lemma_for_match(lemma, language):
+    """The lemma as word_matches_lemma compares it: cleaned and lowercased,
+    with the Latin u/v and i/j folded (Latin), or its Greek form without
+    diacritics and with a plain sigma (Greek). The same lemma is compared
+    with every token of every line of a result, so this is worked out once."""
+    l = clean_lemma_key(lemma).lower()
+    if language == 'la':
+        return l.replace('v', 'u').replace('j', 'i')
+    if language == 'grc':
+        return _grc_base(l)
+    return l
+
+
+@lru_cache(maxsize=65536)
+def _grc_base(w):
+    """A lowercase Greek string without diacritics, final sigma written as
+    plain sigma: the form two Greek words are compared in."""
+    import unicodedata as _ucd
+    return ''.join(c for c in _ucd.normalize('NFD', w)
+                   if not _ucd.combining(c)).replace('ς', 'σ')
+
+
 def word_matches_lemma(word, lemma, language):
     """Check if a surface word plausibly matches a lemma (for position validation).
     Handles Latin u/v and i/j normalization, enclitics, prefix notation,
     Greek diacritics, and stem matching."""
-    import unicodedata as _ucd
     if not word or not lemma:
         return False
     w = word.lower()
-    # Clean lemma: remove prefix separators and trailing numbers
-    l = clean_lemma_key(lemma).lower()
+    l = _lemma_for_match(lemma, language)
     if language == 'la':
         w = w.replace('v', 'u').replace('j', 'i')
-        l = l.replace('v', 'u').replace('j', 'i')
         if w == l:
             return True
         # Try after stripping enclitics
@@ -840,10 +873,8 @@ def word_matches_lemma(word, lemma, language):
                 return True
     elif language == 'grc':
         # Strip diacritics and normalize sigma for comparison
-        w_base = ''.join(c for c in _ucd.normalize('NFD', w) if not _ucd.combining(c))
-        l_base = ''.join(c for c in _ucd.normalize('NFD', l) if not _ucd.combining(c))
-        w_base = w_base.replace('ς', 'σ')
-        l_base = l_base.replace('ς', 'σ')
+        w_base = _grc_base(w)
+        l_base = l
         if w_base == l_base:
             return True
         min_stem = min(4, len(l_base))
@@ -1325,24 +1356,47 @@ def _lemma_location_rows(lemma, language):
     return deduplicate_locations(rows)
 
 
-def _location_from_row(row, line_text):
+def _location_from_row(row, line_text, memo=None):
+    """One location dict from an index row and its line text. `memo`, when
+    given, is a dict owned by one request: the parts that depend only on the
+    file name or the reference (author, work, locus, citation) are worked out
+    once per file or reference instead of once per row, with the same values
+    (the citation reads the metadata files, which do not change inside one
+    request)."""
     filename = row['text_id']
     ref = row['ref']
     positions_json = row['positions_json']
-    parts = filename.replace('.tess', '').split('.') if filename else ['unknown']
-    author = parts[0] if parts else 'unknown'
-    work_title = '.'.join(parts[1:]) if len(parts) > 1 else parts[0]
+    names = memo.get(filename) if memo is not None else None
+    if names is None:
+        parts = filename.replace('.tess', '').split('.') if filename else ['unknown']
+        author = parts[0] if parts else 'unknown'
+        work_title = '.'.join(parts[1:]) if len(parts) > 1 else parts[0]
+        names = (author.replace('_', ' ').title(), work_title.replace('_', ' ').title())
+        if memo is not None:
+            memo[filename] = names
+    if memo is None:
+        cited = (format_short_locus(ref), build_citation(filename, ref))
+    else:
+        locus = memo.get(('locus', ref))
+        if locus is None:
+            locus = memo[('locus', ref)] = format_short_locus(ref)
+        display = memo.get(('display', filename))
+        if display is None:
+            # build_citation with no locus is the file's display name alone.
+            display = memo[('display', filename)] = build_citation(filename, '')
+        # The way build_citation joins them.
+        cited = (locus, f"{display} {locus}".strip() if locus else display)
     return {
         'text_id': filename,
-        'author': author.replace('_', ' ').title(),
-        'work': work_title.replace('_', ' ').title(),
+        'author': names[0],
+        'work': names[1],
         'ref': ref,
         # Additive, server-built citation/locus (issue #566) beside
         # the author/work this function has always computed itself
         # from the filename -- ref unchanged so nothing that reads it
         # breaks.
-        'locus': format_short_locus(ref),
-        'citation': build_citation(filename, ref),
+        'locus': cited[0],
+        'citation': cited[1],
         'text': line_text or '',
         'positions': json.loads(positions_json) if positions_json else []
     }
@@ -1386,6 +1440,7 @@ class _RequestLineTexts:
     def __init__(self):
         self._lines = {}       # (language, text_id) -> {ref: text or None}
         self._path = {}        # (language, text_id) -> (path, stamp)
+        self._memo = {}        # see _location_from_row
 
     def _file(self, language, text_id):
         key = (language, text_id)
@@ -1458,11 +1513,12 @@ class _RequestLineTexts:
 
     def location(self, row):
         self.prime([row])
-        return _location_from_row(row, self._lines[(row['language'], row['text_id'])].get(row['ref']))
+        return _location_from_row(row, self._lines[(row['language'], row['text_id'])].get(row['ref']), self._memo)
 
     def locations(self, rows):
         self.prime(rows)
-        return [_location_from_row(r, self._lines[(r['language'], r['text_id'])].get(r['ref'])) for r in rows]
+        return [_location_from_row(r, self._lines[(r['language'], r['text_id'])].get(r['ref']), self._memo)
+                for r in rows]
 
 
 def get_text_lemmas(text_id, language):
@@ -2569,8 +2625,21 @@ def _compute_rare_words(source_id, target_id, language, source_language, target_
         return (is_proper_noun(lemma, source_language, all_part) or
                 is_proper_noun(lemma, source_language, local_part))
 
+    def _prime_for_proper_noun_test(cands):
+        # One pass over each work for all the words, not one pass per word:
+        # a word is looked up in hundreds of works, and each word used to read
+        # every one of them again.
+        rows = []
+        for lemma, all_rows, source_rows, target_rows in cands:
+            rows.extend(all_rows[:20])
+            src = src_scan.get(lemma, []) if src_scan_needed else source_rows
+            tgt = tgt_scan.get(lemma, []) if tgt_scan_needed else target_rows
+            rows.extend(x for x in (list(src) + list(tgt))[:20] if 'positions_json' in x)
+        texts.prime(rows)
+
     proper_nouns_excluded = 0
     if exclude_proper:
+        _prime_for_proper_noun_test(candidates)
         kept = []
         for candidate in candidates:
             if _proper_noun_of_candidate(candidate):
@@ -2584,6 +2653,11 @@ def _compute_rare_words(source_id, target_id, language, source_language, target_
     total = len(candidates)
     if limit is not None and limit > 0:
         candidates = candidates[:limit]
+
+    # Every line text the answer carries, read in one pass over each work.
+    texts.prime([r for c in candidates
+                 for r in (c[1] + (c[2] or []) + (c[3] or []))
+                 if 'positions_json' in r])
 
     results = []
     for candidate in candidates:
