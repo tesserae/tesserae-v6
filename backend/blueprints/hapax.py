@@ -2466,12 +2466,17 @@ def _scan_text_lemma_locations(text_id, language, lemmas_of_interest):
     return out
 
 
-def _compute_rare_words(source_id, target_id, language, source_language, target_language, max_occ, exclude_proper, limit=None):
+def _compute_rare_words(source_id, target_id, language, source_language, target_language, max_occ, exclude_proper, limit=None,
+                       include_corpus_locations=False):
     """Compute shared rare words between source and target texts.
 
     Pure compute core extracted from the ``hapax_search`` view: no Flask
     request, current_user, or log_search references. Raises SearchInputError
     on bad input. Returns the result dict.
+
+    ``all_corpus_locations`` (every place the word occurs in the corpus, 96 to
+    98 percent of the response size) is computed for the proper-noun test but
+    left out of each row unless ``include_corpus_locations`` is true.
     """
     source_lemmas = get_text_lemmas(source_id, source_language)
     target_lemmas = get_text_lemmas(target_id, target_language)
@@ -2673,7 +2678,7 @@ def _compute_rare_words(source_id, target_id, language, source_language, target_
         if not word_is_pn and display_form and display_form[0].isupper():
             display_form = display_form[0].lower() + display_form[1:]
 
-        results.append({
+        row = {
             'lemma': lemma,
             'display_form': display_form,
             'corpus_count': corpus_count,
@@ -2682,8 +2687,10 @@ def _compute_rare_words(source_id, target_id, language, source_language, target_
             'target_occurrences': len(target_locations),
             'source_locations': source_locations,
             'target_locations': target_locations,
-            'all_corpus_locations': all_locations
-        })
+        }
+        if include_corpus_locations:
+            row['all_corpus_locations'] = all_locations
+        results.append(row)
 
     return {
         'source': source_id,
@@ -2715,6 +2722,8 @@ def hapax_search():
         target_language: target text language (for cross-lingual)
         max_occurrences: max corpus frequency to consider rare (default: 10)
         exclude_proper_nouns: filter out proper nouns like names/places (default: false)
+        include_corpus_locations: also return every corpus occurrence of each
+            word as all_corpus_locations (default: false; very large)
     """
     try:
         # Accept both POST JSON bodies and GET query-string params.
@@ -2736,7 +2745,9 @@ def hapax_search():
         try:
             result = _compute_rare_words(source_id, target_id, language,
                                          source_language, target_language,
-                                         max_occ, exclude_proper, limit)
+                                         max_occ, exclude_proper, limit,
+                                         include_corpus_locations=_coerce_bool(
+                                             data.get('include_corpus_locations', False)))
         except SearchInputError as e:
             return jsonify({'error': str(e)}), e.status
 

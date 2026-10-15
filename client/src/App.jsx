@@ -137,6 +137,7 @@ function App() {
   // Bumped once per search invocation. Renderers use it to return to page 1,
   // which array length alone cannot detect when two searches return the same count.
   const [searchRunId, setSearchRunId] = useState(0);
+  const [rareSearchParams, setRareSearchParams] = useState(null);
   const [sortBy, setSortBy] = useState('score');
   
   const register = useRegisterParallel({ user, activeTab, setPageType });
@@ -395,6 +396,7 @@ function App() {
     if (searchMode === 'parallel') {
       await search({ ...params, page_size: pageSize });
     } else if (searchMode === 'hapax') {
+      setRareSearchParams(params);
       await searchRareWords(params);
     } else if (searchMode === 'bigram') {
       await searchWordPairs(params);
@@ -673,6 +675,7 @@ function App() {
                     onCorpusSearch={handleCorpusSearch}
                     language={activeTab}
                     elapsedTime={searchElapsedTime}
+                    searchParams={searchMode === 'hapax' ? rareSearchParams : null}
                   />
                 ) : (
                   <SearchResults

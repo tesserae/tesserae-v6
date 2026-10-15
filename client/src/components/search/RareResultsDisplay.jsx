@@ -12,6 +12,8 @@ import { normalizeCoptic } from '../../utils/copticUtils';
 import { foldArabicScript, stripEdgePunctuation, isArabicScriptLanguage, arabicTokenMatches } from '../../utils/arabicScript';
 import { exportRowsToPDF } from '../../utils/exportResults';
 import { getDictionaryUrl, dictionaryLinkTitle } from '../../utils/linkUtils';
+import { searchHapax } from '../../utils/api';
+import { corpusOccurrencesCsv } from '../../utils/rareWordsExport';
 import { Pagination } from '../common';
 import { usePagination } from '../../hooks/usePagination';
 
@@ -226,12 +228,15 @@ const RareResultsDisplay = ({
   onRegister,
   onCorpusSearch,
   language = 'la',
-  elapsedTime = 0
+  elapsedTime = 0,
+  searchParams = null
 }) => {
   const [showTimeline, setShowTimeline] = useState(false);
   const [timelineView, setTimelineView] = useState('target');
   const [sortBy, setSortBy] = useState('rarity');
   const chartRef = useRef(null);
+  const [preparingDownload, setPreparingDownload] = useState(false);
+  const [downloadError, setDownloadError] = useState('');
 
   const isHapax = searchMode === 'hapax';
   const title = isHapax ? 'Shared Rare Words' : 'Shared Rare Pairs';
@@ -346,6 +351,29 @@ const RareResultsDisplay = ({
     a.click();
     URL.revokeObjectURL(url);
   }, [results, isHapax]);
+
+  // Asks again for the same search with every corpus occurrence of each word
+  // (the ordinary response leaves them out; they can run to 30 MB).
+  const downloadEverything = useCallback(async () => {
+    if (!searchParams || preparingDownload) return;
+    setPreparingDownload(true);
+    setDownloadError('');
+    try {
+      const data = await searchHapax({ ...searchParams, include_corpus_locations: true });
+      const csv = corpusOccurrencesCsv(data.results || data.shared_words || []);
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `tesserae_rare_words_everything_${new Date().toISOString().slice(0, 10)}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      setDownloadError(err.message || 'The download failed');
+    } finally {
+      setPreparingDownload(false);
+    }
+  }, [searchParams, preparingDownload]);
 
   const exportChart = () => {
     if (!chartRef.current) return;
@@ -513,9 +541,23 @@ const RareResultsDisplay = ({
             >
               Export CSV
             </button>
+            {isHapax && searchParams && (
+              <button
+                onClick={downloadEverything}
+                disabled={preparingDownload}
+                title="One row per place each word occurs in the corpus; can be a large file"
+                className="text-xs bg-amber-600 text-white px-3 py-1.5 rounded hover:bg-amber-700 whitespace-nowrap disabled:opacity-60"
+              >
+                {preparingDownload ? 'Preparing download...' : 'Download everything (CSV)'}
+              </button>
+            )}
           </div>
         </div>
       </div>
+
+      {downloadError && (
+        <p className="text-sm text-red-600">Could not prepare the download: {downloadError}</p>
+      )}
 
       {showTimeline && timelineData && (
         <div className="bg-white border rounded-lg p-4 mb-4">
