@@ -4326,6 +4326,10 @@ exports[`App render recording > page /privacy 1`] = `
 <p>Your data is stored on the University at Buffalo server that runs this site. Search configurations may be stored locally in your browser's localStorage for convenience. Intertext contributions you mark as "public" will be visible to other users. Questions put to Tessa, the assistant, and her answers are kept on the server without any identifier, so that a sample can be read for accuracy; her model runs on the university's own AI platform, so the text of a question does not leave campus.</p>
 </section>
 <section>
+<h2 class="text-lg font-semibold text-gray-900 mb-2">Speed Log</h2>
+<p>To measure how fast the site answers, the server logs each search request with its time, the kind of request and how long it took. Your search terms are not logged, and neither is your address. Each line carries a code that changes every day and cannot be traced back to you. It only tells one visitor's requests apart from another's on the same day.</p>
+</section>
+<section>
 <h2 class="text-lg font-semibold text-gray-900 mb-2">Third-Party Services</h2>
 <p>Tesserae uses the following third-party services:</p>
 <ul class="list-disc list-inside space-y-1">
@@ -4351,7 +4355,7 @@ exports[`App render recording > page /privacy 1`] = `
 <h2 class="text-lg font-semibold text-gray-900 mb-2">Contact</h2>
 <p>For privacy-related inquiries, please use the feedback form in the Help &amp; Support section or contact the Tesserae project team.</p>
 </section>
-<div class="text-sm text-gray-500 pt-4 border-t">Last updated: January 2026</div>
+<div class="text-sm text-gray-500 pt-4 border-t">Last updated: October 2026</div>
 </div>
 </div>
 </main>
