@@ -202,7 +202,7 @@ def joined_answers(forward):
     return inv
 
 
-def match_line(token_lemmas, tokens, query_lemmas, forward=None, sequences=None):
+def match_line(token_lemmas, tokens, query_lemmas, forward=None, sequences=None, answers=None):
     """Which of the query's lemmas a line answers, counting joined words as
     the parts they stand for.
 
@@ -211,13 +211,16 @@ def match_line(token_lemmas, tokens, query_lemmas, forward=None, sequences=None)
     query_lemmas  the (filtered) query lemmas
     forward       expand_parts result
     sequences     expand_joined's second result
+    answers       joined_answers(forward), for a caller that matches many lines
+                  against one query and works it out once; None works it out here
 
     Returns (matched_lemma_set, matched_words, matched_positions), words and
     positions in line order. A joined token that answers parts of the query
     is one word and one position. A run of part tokens that answers a joined
     query lemma is checked adjacent and in order, and every token of the run
     is a matched word."""
-    answers = joined_answers(forward)
+    if answers is None:
+        answers = joined_answers(forward)
     matched = set()
     by_pos = {}
     lemma_sets = [set(l) for l in token_lemmas]
@@ -226,7 +229,7 @@ def match_line(token_lemmas, tokens, query_lemmas, forward=None, sequences=None)
     # a long prose sentence holding "quousque tandem" and a stray "usque"
     # three hundred words on would otherwise be judged "key words apart".
     answered = set()
-    for i, lems in enumerate(lemma_sets):
+    for i, lems in enumerate(lemma_sets if answers else ()):
         if i >= len(tokens):
             break
         hit = set()
@@ -240,6 +243,8 @@ def match_line(token_lemmas, tokens, query_lemmas, forward=None, sequences=None)
     for i, lems in enumerate(lemma_sets):
         if i >= len(tokens):
             break
+        if lems.isdisjoint(query_lemmas):
+            continue
         hit = (lems & query_lemmas) - answered
         if hit:
             matched |= hit
@@ -249,12 +254,18 @@ def match_line(token_lemmas, tokens, query_lemmas, forward=None, sequences=None)
             continue
         part_lemmas, part_surfaces = seq
         n = len(part_lemmas)
+        first = part_lemmas[0] if n else None
         for i in range(len(token_lemmas) - n + 1):
             if i + n > len(tokens):
                 break
+            # all() below fails at k = 0 when the token holds no lemma of the
+            # first part, which is nearly every position; say so without
+            # building the generator.
+            if first is not None and lemma_sets[i].isdisjoint(first):
+                continue
             # By lemma, and for the particle compounds also by surface form
             # ("cuius usque" is qui + usque by lemma but is not quo usque).
-            if all(set(token_lemmas[i + k]) & part_lemmas[k]
+            if all(lemma_sets[i + k] & part_lemmas[k]
                    and (part_surfaces is None or norm_token(tokens[i + k]) == part_surfaces[k])
                    for k in range(n)):
                 matched.add(joined_lemma)

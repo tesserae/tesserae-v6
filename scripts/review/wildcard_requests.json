@@ -1,0 +1,549 @@
+{
+ "requests": [
+  {
+   "name": "wc00_la",
+   "path": "/api/wildcard-search",
+   "method": "POST",
+   "body": {
+    "query": "sonipes",
+    "language": "la"
+   }
+  },
+  {
+   "name": "wc01_la",
+   "path": "/api/wildcard-search",
+   "method": "POST",
+   "body": {
+    "query": "amor",
+    "language": "la"
+   }
+  },
+  {
+   "name": "wc02_la",
+   "path": "/api/wildcard-search",
+   "method": "POST",
+   "body": {
+    "query": "arma virumque",
+    "language": "la"
+   }
+  },
+  {
+   "name": "wc03_la",
+   "path": "/api/wildcard-search",
+   "method": "POST",
+   "body": {
+    "query": "am*",
+    "language": "la"
+   }
+  },
+  {
+   "name": "wc04_la",
+   "path": "/api/wildcard-search",
+   "method": "POST",
+   "body": {
+    "query": "*or",
+    "language": "la"
+   }
+  },
+  {
+   "name": "wc05_la",
+   "path": "/api/wildcard-search",
+   "method": "POST",
+   "body": {
+    "query": "?mor",
+    "language": "la"
+   }
+  },
+  {
+   "name": "wc06_la",
+   "path": "/api/wildcard-search",
+   "method": "POST",
+   "body": {
+    "query": "amor AND dolor",
+    "language": "la"
+   }
+  },
+  {
+   "name": "wc07_la",
+   "path": "/api/wildcard-search",
+   "method": "POST",
+   "body": {
+    "query": "virtus OR honos",
+    "language": "la"
+   }
+  },
+  {
+   "name": "wc08_la",
+   "path": "/api/wildcard-search",
+   "method": "POST",
+   "body": {
+    "query": "amor NOT bellum",
+    "language": "la"
+   }
+  },
+  {
+   "name": "wc09_la",
+   "path": "/api/wildcard-search",
+   "method": "POST",
+   "body": {
+    "query": "amor ~ dolor",
+    "language": "la"
+   }
+  },
+  {
+   "name": "wc10_la",
+   "path": "/api/wildcard-search",
+   "method": "POST",
+   "body": {
+    "query": "\"arma virumque\"",
+    "language": "la"
+   }
+  },
+  {
+   "name": "wc11_la",
+   "path": "/api/wildcard-search",
+   "method": "POST",
+   "body": {
+    "query": "divum",
+    "language": "la"
+   }
+  },
+  {
+   "name": "wc12_la",
+   "path": "/api/wildcard-search",
+   "method": "POST",
+   "body": {
+    "query": "diuom",
+    "language": "la"
+   }
+  },
+  {
+   "name": "wc13_la",
+   "path": "/api/wildcard-search",
+   "method": "POST",
+   "body": {
+    "query": "qu*que",
+    "language": "la"
+   }
+  },
+  {
+   "name": "wc14_la",
+   "path": "/api/wildcard-search",
+   "method": "POST",
+   "body": {
+    "query": "*ibus",
+    "language": "la"
+   }
+  },
+  {
+   "name": "wc15_la",
+   "path": "/api/wildcard-search",
+   "method": "POST",
+   "body": {
+    "query": "mon*",
+    "language": "la"
+   }
+  },
+  {
+   "name": "wc16_la",
+   "path": "/api/wildcard-search",
+   "method": "POST",
+   "body": {
+    "query": "#amor#",
+    "language": "la"
+   }
+  },
+  {
+   "name": "wc17_la",
+   "path": "/api/wildcard-search",
+   "method": "POST",
+   "body": {
+    "query": "a*a AND b*",
+    "language": "la"
+   }
+  },
+  {
+   "name": "wc18_la",
+   "path": "/api/wildcard-search",
+   "method": "POST",
+   "body": {
+    "query": "fort* ~ fortun*",
+    "language": "la"
+   }
+  },
+  {
+   "name": "wc19_la",
+   "path": "/api/wildcard-search",
+   "method": "POST",
+   "body": {
+    "query": "amor AND dolor NOT bellum",
+    "language": "la"
+   }
+  },
+  {
+   "name": "wc20_la",
+   "path": "/api/wildcard-search",
+   "method": "POST",
+   "body": {
+    "query": "rex OR regina AND urbs",
+    "language": "la"
+   }
+  },
+  {
+   "name": "wc21_la",
+   "path": "/api/wildcard-search",
+   "method": "POST",
+   "body": {
+    "query": "\"quo usque tandem\"",
+    "language": "la"
+   }
+  },
+  {
+   "name": "wc22_la",
+   "path": "/api/wildcard-search",
+   "method": "POST",
+   "body": {
+    "query": "s*s",
+    "language": "la"
+   }
+  },
+  {
+   "name": "wc23_la",
+   "path": "/api/wildcard-search",
+   "method": "POST",
+   "body": {
+    "query": "?????",
+    "language": "la"
+   }
+  },
+  {
+   "name": "wc24_la",
+   "path": "/api/wildcard-search",
+   "method": "POST",
+   "body": {
+    "query": "cano ~ arma",
+    "language": "la"
+   }
+  },
+  {
+   "name": "wc25_la",
+   "path": "/api/wildcard-search",
+   "method": "POST",
+   "body": {
+    "query": "amor",
+    "language": "la",
+    "max_results": 50
+   }
+  },
+  {
+   "name": "wc26_la",
+   "path": "/api/wildcard-search",
+   "method": "POST",
+   "body": {
+    "query": "vir*",
+    "language": "la",
+    "target_text": "vergil.aeneid.part.1"
+   }
+  },
+  {
+   "name": "wc27_la",
+   "path": "/api/wildcard-search",
+   "method": "POST",
+   "body": {
+    "query": "am*",
+    "language": "la",
+    "case_sensitive": true
+   }
+  },
+  {
+   "name": "wc28_la",
+   "path": "/api/wildcard-search",
+   "method": "POST",
+   "body": {
+    "query": "Roma",
+    "language": "la",
+    "case_sensitive": true
+   }
+  },
+  {
+   "name": "wc29_grc",
+   "path": "/api/wildcard-search",
+   "method": "POST",
+   "body": {
+    "query": "λογος",
+    "language": "grc"
+   }
+  },
+  {
+   "name": "wc30_grc",
+   "path": "/api/wildcard-search",
+   "method": "POST",
+   "body": {
+    "query": "λόγος",
+    "language": "grc"
+   }
+  },
+  {
+   "name": "wc31_grc",
+   "path": "/api/wildcard-search",
+   "method": "POST",
+   "body": {
+    "query": "μην*",
+    "language": "grc"
+   }
+  },
+  {
+   "name": "wc32_grc",
+   "path": "/api/wildcard-search",
+   "method": "POST",
+   "body": {
+    "query": "*ος",
+    "language": "grc"
+   }
+  },
+  {
+   "name": "wc33_grc",
+   "path": "/api/wildcard-search",
+   "method": "POST",
+   "body": {
+    "query": "θεα AND ανδρα",
+    "language": "grc"
+   }
+  },
+  {
+   "name": "wc34_grc",
+   "path": "/api/wildcard-search",
+   "method": "POST",
+   "body": {
+    "query": "αρχη OR τελος",
+    "language": "grc"
+   }
+  },
+  {
+   "name": "wc35_grc",
+   "path": "/api/wildcard-search",
+   "method": "POST",
+   "body": {
+    "query": "ανηρ NOT θεος",
+    "language": "grc"
+   }
+  },
+  {
+   "name": "wc36_grc",
+   "path": "/api/wildcard-search",
+   "method": "POST",
+   "body": {
+    "query": "ανηρ ~ θεος",
+    "language": "grc"
+   }
+  },
+  {
+   "name": "wc37_grc",
+   "path": "/api/wildcard-search",
+   "method": "POST",
+   "body": {
+    "query": "\"μῆνιν ἄειδε\"",
+    "language": "grc"
+   }
+  },
+  {
+   "name": "wc38_grc",
+   "path": "/api/wildcard-search",
+   "method": "POST",
+   "body": {
+    "query": "πολυ*",
+    "language": "grc"
+   }
+  },
+  {
+   "name": "wc39_grc",
+   "path": "/api/wildcard-search",
+   "method": "POST",
+   "body": {
+    "query": "ε?ω",
+    "language": "grc"
+   }
+  },
+  {
+   "name": "wc40_grc",
+   "path": "/api/wildcard-search",
+   "method": "POST",
+   "body": {
+    "query": "και",
+    "language": "grc",
+    "max_results": 100
+   }
+  },
+  {
+   "name": "wc41_cop",
+   "path": "/api/wildcard-search",
+   "method": "POST",
+   "body": {
+    "query": "ⲡⲉⲛ*",
+    "language": "cop"
+   }
+  },
+  {
+   "name": "wc42_cop",
+   "path": "/api/wildcard-search",
+   "method": "POST",
+   "body": {
+    "query": "ⲛⲟⲩⲧⲉ",
+    "language": "cop"
+   }
+  },
+  {
+   "name": "wc43_cop",
+   "path": "/api/wildcard-search",
+   "method": "POST",
+   "body": {
+    "query": "*ⲟⲥ",
+    "language": "cop"
+   }
+  },
+  {
+   "name": "wc44_cop",
+   "path": "/api/wildcard-search",
+   "method": "POST",
+   "body": {
+    "query": "ⲡⲛⲟⲩⲧⲉ AND ⲧⲉⲛ*",
+    "language": "cop"
+   }
+  },
+  {
+   "name": "wc45_cop",
+   "path": "/api/wildcard-search",
+   "method": "POST",
+   "body": {
+    "query": "ⲡⲉ ~ ⲛⲟⲩⲧⲉ",
+    "language": "cop"
+   }
+  },
+  {
+   "name": "wc46_en",
+   "path": "/api/wildcard-search",
+   "method": "POST",
+   "body": {
+    "query": "love",
+    "language": "en"
+   }
+  },
+  {
+   "name": "wc47_en",
+   "path": "/api/wildcard-search",
+   "method": "POST",
+   "body": {
+    "query": "lov*",
+    "language": "en"
+   }
+  },
+  {
+   "name": "wc48_en",
+   "path": "/api/wildcard-search",
+   "method": "POST",
+   "body": {
+    "query": "*ing",
+    "language": "en"
+   }
+  },
+  {
+   "name": "wc49_en",
+   "path": "/api/wildcard-search",
+   "method": "POST",
+   "body": {
+    "query": "love AND death",
+    "language": "en"
+   }
+  },
+  {
+   "name": "wc50_en",
+   "path": "/api/wildcard-search",
+   "method": "POST",
+   "body": {
+    "query": "love OR hate",
+    "language": "en"
+   }
+  },
+  {
+   "name": "wc51_en",
+   "path": "/api/wildcard-search",
+   "method": "POST",
+   "body": {
+    "query": "love NOT war",
+    "language": "en"
+   }
+  },
+  {
+   "name": "wc52_en",
+   "path": "/api/wildcard-search",
+   "method": "POST",
+   "body": {
+    "query": "love ~ death",
+    "language": "en"
+   }
+  },
+  {
+   "name": "wc53_en",
+   "path": "/api/wildcard-search",
+   "method": "POST",
+   "body": {
+    "query": "\"to be or not to be\"",
+    "language": "en"
+   }
+  },
+  {
+   "name": "wc54_en",
+   "path": "/api/wildcard-search",
+   "method": "POST",
+   "body": {
+    "query": "th?u",
+    "language": "en"
+   }
+  },
+  {
+   "name": "wc55_en",
+   "path": "/api/wildcard-search",
+   "method": "POST",
+   "body": {
+    "query": "#the#",
+    "language": "en"
+   }
+  },
+  {
+   "name": "wc56_he",
+   "path": "/api/wildcard-search",
+   "method": "POST",
+   "body": {
+    "query": "אל*",
+    "language": "he"
+   }
+  },
+  {
+   "name": "wc57_fa",
+   "path": "/api/wildcard-search",
+   "method": "POST",
+   "body": {
+    "query": "دل*",
+    "language": "fa"
+   }
+  },
+  {
+   "name": "wc58_grc",
+   "path": "/api/wildcard-search",
+   "method": "POST",
+   "body": {
+    "query": "*ν AND ο*",
+    "language": "grc"
+   }
+  },
+  {
+   "name": "wc59_la",
+   "path": "/api/wildcard-search",
+   "method": "POST",
+   "body": {
+    "query": "ae*",
+    "language": "la"
+   }
+  }
+ ]
+}
