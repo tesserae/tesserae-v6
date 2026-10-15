@@ -433,6 +433,42 @@ def start_passage_warmup():
 start_passage_warmup()
 
 
+# The first Rare Words request on each web worker reads the line texts of the
+# works it touches, the Greek display forms and the lemma lists (measured
+# 2026-10-15: 0.8 s Latin, 1.8 s Greek in process with warm file caches, more
+# on the live machine). TESSERAE_WARM_RAREWORDS names the languages (for
+# example "la,grc") whose sample pairs are searched in a background thread at
+# start, which fills the same per-worker stores a request fills, through the
+# same function. A request that arrives first simply does its own reading.
+def warm_rare_words(languages=None):
+    """Run the rare-word sample searches now. Returns the languages warmed."""
+    from backend.blueprints import hapax
+    if languages is None:
+        languages = [x.strip() for x in os.environ.get('TESSERAE_WARM_RAREWORDS', '').split(',')]
+    warmed = []
+    for lang in languages:
+        if not lang:
+            continue
+        try:
+            if hapax.warm_rare_word_caches(lang):
+                warmed.append(lang)
+        except Exception as e:
+            app_logger.error(f"Rare-words warm-up failed for {lang}: {e}")
+    return warmed
+
+
+def start_rare_words_warmup():
+    """Start the warm-up thread when TESSERAE_WARM_RAREWORDS is set."""
+    if not os.environ.get('TESSERAE_WARM_RAREWORDS', '').strip():
+        return None
+    thread = threading.Thread(target=warm_rare_words, name='rare-words-warmup', daemon=True)
+    thread.start()
+    return thread
+
+
+start_rare_words_warmup()
+
+
 def api_route_for(blueprint):
     """The same decorator as api_route() in backend/app.py, bound to a blueprint.
 

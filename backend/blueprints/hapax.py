@@ -30,6 +30,7 @@ import csv
 import io
 import os
 import threading
+import time
 from collections import OrderedDict
 
 from backend import fspaths
@@ -3237,3 +3238,40 @@ def get_rare_bigrams():
     except Exception as e:
         logger.error(f"Error in rare-bigrams: {e}")
         return jsonify({'error': str(e)}), 500
+
+
+# Pairs of works the rare-word search is run on at worker start when
+# TESSERAE_WARM_RAREWORDS names the language (backend/runtime.py). Each run
+# reads the line texts, display forms and lemma lists the first request on a
+# fresh worker would otherwise read, through _compute_rare_words itself, so
+# what it keeps is exactly what a request keeps and no answer can change.
+WARM_SAMPLE_PAIRS = {
+    'la': [('vergil.aeneid.tess', 'ovid.metamorphoses.tess'),
+           ('lucan.bellum_civile.tess', 'vergil.aeneid.tess'),
+           ('catullus.carmina.tess', 'propertius.elegies.tess')],
+    'grc': [('homer.iliad.tess', 'apollonius_rhodius.argonautica.tess'),
+            ('hesiod.theogony.tess', 'homer.odyssey.tess')],
+}
+
+
+def warm_rare_word_caches(language):
+    """Run the rare-word search on the sample pairs of one language and drop
+    the answers. Returns the number of pairs that ran; a pair whose file is
+    missing is skipped."""
+    ran = 0
+    # The warm-up thread starts when backend.runtime is imported, before
+    # create_app has called init_hapax_blueprint; wait for it (two minutes).
+    for _ in range(240):
+        if _texts_dir is not None and _text_processor is not None:
+            break
+        time.sleep(0.5)
+    else:
+        raise RuntimeError('the rare-words blueprint was not initialized')
+    for source_id, target_id in WARM_SAMPLE_PAIRS.get(language, []):
+        try:
+            _compute_rare_words(source_id, target_id, language, language,
+                                language, 50, False, 20)
+            ran += 1
+        except SearchInputError:
+            continue
+    return ran
