@@ -61,3 +61,40 @@ describe('Hide the author\'s own works', () => {
     expect(bodies[0].exclude_author).toBe('vergil');
   });
 });
+
+describe('Show more matches', () => {
+  const full = (n) => ({
+    capped: true,
+    results: Array.from({ length: n }, (_, i) => ({
+      author: 'Ovid', work: 'Met', text_id: 'ovid.met.tess', locus: `1.${i + 1}`,
+      year: 8, matched_words: ['arma'], text: 'arma virum',
+    })),
+  });
+
+  it('starts at 50, asks for 100 on Show more, and resets on a new selection', async () => {
+    const limits = [];
+    global.fetch = vi.fn((url, opts) => {
+      const b = JSON.parse(opts?.body || '{}');
+      limits.push(b.max_results);
+      return Promise.resolve({ json: () => Promise.resolve(full(b.max_results)) });
+    });
+    const props = { language: 'la', work: 'vergil.aeneid.part.1.tess', units: [
+      ...UNITS, { ref: 'verg. aen. 1.2', text: 'Italiam fato profugus' }],
+      onOpenPassage: vi.fn(), initialTab: 'verbal' };
+    const sel = (i) => ({ refStart: `verg. aen. 1.${i + 1}`, refEnd: `verg. aen. 1.${i + 1}`, startIdx: i, endIdx: i });
+    const { rerender } = render(<ResultsPanel {...props} selection={sel(0)} />);
+    await waitFor(() => expect(limits).toEqual([50]));
+    fireEvent.click(await screen.findByText('Show more matches'));
+    await waitFor(() => expect(limits).toContain(100));
+    rerender(<ResultsPanel {...props} selection={sel(1)} />);
+    await waitFor(() => expect(limits[limits.length - 1]).toBe(50));
+  });
+
+  it('shows no button when the list came back short', async () => {
+    global.fetch = vi.fn(() => Promise.resolve({
+      json: () => Promise.resolve({ capped: false, results: full(3).results }) }));
+    mount();
+    await screen.findByLabelText(/Hide Vergil.s own works/);
+    await waitFor(() => expect(screen.queryByText('Show more matches')).toBeNull());
+  });
+});
