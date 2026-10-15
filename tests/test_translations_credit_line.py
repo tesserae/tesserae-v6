@@ -17,3 +17,9 @@ def test_attribution_that_already_names_the_translator_is_kept():
 def test_no_sources_keeps_the_attribution_and_no_attribution_uses_the_translator():
     assert credit_line({'attribution': 'Someone'}) == 'Someone'
     assert credit_line({'sources': [{'translator': 'A. Translator'}]}) == 'A. Translator'
+
+
+def test_a_short_form_of_the_name_in_the_attribution_counts_as_named():
+    data = {'attribution': 'H. A. Bellows (1922), via Project Gutenberg',
+            'sources': [{'translator': 'Henry Adams Bellows', 'year': 1922}]}
+    assert credit_line(data) == 'H. A. Bellows (1922), via Project Gutenberg'

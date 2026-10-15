@@ -8,6 +8,7 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-15
+- A translation credit that already names the translator in a short form ("H. A. Bellows") no longer repeats the name in full in front of it.
 - The Reader's About this text panel uses the whole row on a wide screen: the description on the left, a box on the right with the date, period, form and length, the edition and translation, and the two links. A translation's credit now names its translator ("Theodore C. Williams (1910), via Perseus Digital Library, Tufts University"); for 101 Latin works it had named only the website. The Downloads page's recorded rendering is updated for the bundle section added on 2026-10-14.
 - The passage index can be loaded at web-worker start (TESSERAE_WARM_PASSAGES=1), so the first Theme Search or Similar Passages request after a worker is replaced no longer waits about 23 seconds for it.
 

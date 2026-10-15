@@ -51,7 +51,13 @@ def credit_line(data):
             continue
         year = s.get('year')
         names.append(f"{who} ({year})" if year else who)
-    missing = [n for n in names if n.split(' (')[0] not in attribution]
+    # A translator counts as named when any of the names appears: files often write
+    # the short form ("H. A. Bellows") where the sources hold the full one
+    # ("Henry Adams Bellows"), and repeating it reads as two people.
+    def named(n):
+        words = re.findall(r"[A-Z][A-Za-z'-]{2,}", n.split(' (')[0])
+        return any(w.lower() in attribution.lower() for w in words)
+    missing = [n for n in names if not named(n)]
     if not missing:
         return attribution
     lead = ', '.join(missing)
