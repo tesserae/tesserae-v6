@@ -58,8 +58,10 @@ ALIGNED_CANDIDATES_PATH = os.path.join(CACHE_DIR, 'aligned_candidates.txt')
 
 # The served languages (2026-10-07: Persian and Urdu added when they went live;
 # Arabic stays out while it is held). About 439,000 fine windows with them, up
-# from 204,000, so the run takes roughly four times as long.
-LANGUAGES = ('la', 'grc', 'en', 'cop', 'he', 'fa', 'ur')
+# from 204,000, so the run takes roughly four times as long. 2026-10-15: Italian
+# (Dante), Old French (the Chanson de Roland) and Middle High German (the
+# Nibelungenlied) added; they were served but missing from the map.
+LANGUAGES = ('la', 'grc', 'en', 'cop', 'he', 'fa', 'ur', 'it', 'fro', 'gmh')
 SCALE = 'fine'
 TOPK = 10
 QUERY_CHUNK_ROWS = 1500   # cap on rows scored per BLAS call (memory control)
