@@ -219,6 +219,13 @@ export default function InscriptionsPapyriPage({ setPageType }) {
             if (!data2.error && documentRowCount(data2) > 0) {
               recordSearch(retryParams);
               applyDocumentsResponse(data2, { sortUsed: searchParams.sort });
+              // The retry's literature side too: a "both" search for a name
+              // the dictionary lacks (Rusellae) found Livy's Rusellanum by
+              // its letters, and dropped it (2026-10-15).
+              setLiteratureHits((data2.results || []).filter(r => r.collection !== 'documents'));
+              setQueryLemmaCount(data2.query_lemma_count || 0);
+              setQueryWordCount(data2.query_word_count || 0);
+              setShowAllLiterature(false);
               setOutcome({
                 kind: 'fallback', query: q, searchType,
                 count: data2.collection === 'documents' ? (data2.total ?? 0) : (data2.documents_total ?? 0),

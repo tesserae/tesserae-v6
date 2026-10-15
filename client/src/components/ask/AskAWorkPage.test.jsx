@@ -3,7 +3,8 @@
  * of where the passages fall.
  */
 import { describe, expect, it, vi, beforeEach } from 'vitest';
-import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { setView } from '../../collections/collectionsStore';
 import AskAWorkPage, { mergeRecent, unitWord, unitForWork, UNRATED_NOTE, bookOf, namesIn, stripLayout } from './AskAWorkPage';
 import { mockResponse } from '../../test/mockResponse';
 
@@ -651,6 +652,29 @@ describe('a visit with no work chosen', () => {
   });
 });
 
+
+describe('switching the view while on the page', () => {
+  it('follows the new view when no subject has been typed', async () => {
+    const texts = TEXTS.concat([
+      { id: 'tacitus.annales.tess', author: 'Tacitus', title: 'Annals', work: 'Annals', is_part: false },
+    ]);
+    const covered = COVERED.concat(['tacitus.annales']);
+    const inner = global.fetch;
+    global.fetch = vi.fn((url) => {
+      const u = String(url);
+      if (u.startsWith('/api/texts')) return Promise.resolve(mockResponse({ ok: true, json: async () => texts }));
+      if (u.startsWith('/api/passages/works')) return Promise.resolve(mockResponse({ ok: true, json: async () => ({ works: covered }) }));
+      return inner(url);
+    });
+    render(<AskAWorkPage />);
+    await waitFor(() => expect(screen.getByRole('combobox', { name: 'Work' })).toHaveValue('Aeneid'));
+    act(() => { setView('history'); });
+    await waitFor(() => expect(screen.getByRole('combobox', { name: 'Author' })).toHaveValue('Tacitus'));
+    await waitFor(() => expect(screen.getByRole('combobox', { name: 'Work' })).toHaveValue('Annals'));
+    act(() => { setView('literature'); });
+    await waitFor(() => expect(screen.getByRole('combobox', { name: 'Work' })).toHaveValue('Aeneid'));
+  });
+});
 
 describe('the History view', () => {
   it('opens on the Annals, with the history example subjects', async () => {

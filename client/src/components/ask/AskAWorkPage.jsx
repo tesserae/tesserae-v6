@@ -13,6 +13,7 @@ import OriginalScript from '../common/OriginalScript';
 import TransliterationToggle from '../common/TransliterationToggle';
 import { hasOriginalScript } from '../../utils/transliterate';
 import { getView } from '../../collections/collectionsStore';
+import useCollections from '../../hooks/useCollections';
 import { viewById } from '../../collections/collectionsConfig';
 import { getJson, postJsonTo } from '../../utils/api';
 
@@ -291,6 +292,22 @@ export default function AskAWorkPage() {
   const initialRange = useMemo(() => parseBooks(initial.books), [initial]);
   const [bookFrom, setBookFrom] = useState(initialRange ? initialRange.from : null);   // null = the first book
   const [bookTo, setBookTo] = useState(initialRange ? initialRange.to : null);         // null = the last book
+
+  // Both views open on this page, so switching Literature and History keeps it
+  // mounted and the old view's work stayed (2026-10-15: Vergil under History).
+  // When no subject has been typed and the work is still the old view's
+  // default, follow the new view's default.
+  const { view } = useCollections();
+  const prevView = useRef(view);
+  useEffect(() => {
+    if (view === prevView.current) return;
+    const oldDefault = defaultWorkFor(prevView.current);
+    prevView.current = view;
+    if (q.trim() || work !== oldDefault.work) return;
+    const d = defaultWorkFor(view);
+    setLang(d.lang); setAuthor(d.work.split('.')[0].toLowerCase()); setWork(d.work);
+    setBookFrom(null); setBookTo(null);
+  }, [view, q, work]);
   const [catalogue, setCatalogue] = useState({});   // language -> works, once loaded
   const loading = useRef({});
 
@@ -490,7 +507,7 @@ export default function AskAWorkPage() {
     setBookFrom(null); setBookTo(null);
     run(ex.q, ex.work, ex.lang, false, '');
   };
-  const shownExamples = examplesFor(getView()).filter((ex) => (catalogue[ex.lang] || []).some((w) => w.id === ex.work));
+  const shownExamples = examplesFor(view).filter((ex) => (catalogue[ex.lang] || []).some((w) => w.id === ex.work));
 
   const level = data?.confidence?.level;
   const fitted = Boolean(data?.confidence?.fitted);
