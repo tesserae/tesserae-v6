@@ -4306,7 +4306,7 @@ exports[`App render recording > page /privacy 1`] = `
 <div class="prose max-w-none text-gray-700 space-y-6">
 <section>
 <h2 class="text-lg font-semibold text-gray-900 mb-2">Data Collection</h2>
-<p>Tesserae V6 collects minimal personal information necessary to provide our intertextual analysis services. When you sign in using Replit authentication, we receive your name and email address to identify your account and attribute your contributions.</p>
+<p>Tesserae V6 collects minimal personal information necessary to provide our intertextual analysis services. If you create an account, we keep your name, your email address and your password to identify your account and attribute your contributions. The password is stored only in scrambled (hashed) form, so no one can read it.</p>
 </section>
 <section>
 <h2 class="text-lg font-semibold text-gray-900 mb-2">How We Use Your Data</h2>
@@ -4333,8 +4333,6 @@ exports[`App render recording > page /privacy 1`] = `
 <h2 class="text-lg font-semibold text-gray-900 mb-2">Third-Party Services</h2>
 <p>Tesserae uses the following third-party services:</p>
 <ul class="list-disc list-inside space-y-1">
-<li>
-<strong>Replit:</strong> Hosting and authentication services</li>
 <li>
 <strong>Wiktionary API:</strong> Dictionary definitions for rare words</li>
 <li>
