@@ -21,8 +21,8 @@ const LITERATURE_FOLD = 5;
 // example searches below use it to also surface a document's literary
 // source alongside the inscriptions/papyri that echo it.
 const COLLECTION_OPTIONS = [
-  { key: 'documents', label: 'Documents' },
-  { key: 'both', label: 'Both' },
+  { key: 'documents', label: 'Inscriptions and papyri' },
+  { key: 'both', label: 'Inscriptions, papyri and the literature' },
 ];
 
 const LANGUAGE_OPTIONS = [

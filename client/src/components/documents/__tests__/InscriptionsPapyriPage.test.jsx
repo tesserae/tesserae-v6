@@ -120,8 +120,8 @@ describe('top-level sections, with the trial active', () => {
     expect(screen.getByPlaceholderText('Enter word or phrase...')).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Search' })).toBeTruthy();
     // The Documents/Both toggle (no Literature option on this page).
-    expect(screen.getByRole('button', { name: 'Documents' })).toBeTruthy();
-    expect(screen.getByRole('button', { name: 'Both' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Inscriptions and papyri' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Inscriptions, papyri and the literature' })).toBeTruthy();
     expect(screen.queryByRole('button', { name: 'Literature' })).toBeNull();
     // Browse view (DocumentsBrowser), below the search.
     await waitFor(() => expect(screen.getByText(/Inscriptions \(Latin, Greek\)/)).toBeTruthy());

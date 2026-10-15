@@ -33,7 +33,7 @@ function Harness({ onParams }) {
   return (
     <div>
       <DocumentsSearchFilters
-        options={[{ key: 'documents', label: 'Documents' }, { key: 'both', label: 'Both' }]}
+        options={[{ key: 'documents', label: 'Inscriptions and papyri' }, { key: 'both', label: 'Inscriptions, papyri and the literature' }]}
         collection={h.collection} setCollection={h.setCollection}
         dateFrom={h.dateFrom} setDateFrom={h.setDateFrom} dateTo={h.dateTo} setDateTo={h.setDateTo}
         docKind={h.docKind} setDocKind={h.setDocKind}
@@ -89,11 +89,11 @@ describe('DocumentsSearchFilters drop-downs', () => {
     });
   });
 
-  it('Kind offers Inscriptions, Papyri, Both and sends nothing for Both', async () => {
+  it('Kind offers both kinds first, then each alone, and sends nothing for both', async () => {
     const seen = [];
     render(<Harness onParams={p => seen.push(p)} />);
     const names = within(screen.getByLabelText('Kind')).getAllByRole('option').map(o => o.textContent);
-    expect(names).toEqual(['Inscriptions', 'Papyri', 'Both']);
+    expect(names).toEqual(['Inscriptions and papyri', 'Inscriptions only', 'Papyri only']);
     await userEvent.click(screen.getByRole('button', { name: 'params' }));
     expect(seen[0].kind).toBeUndefined();
   });
