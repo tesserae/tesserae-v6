@@ -115,9 +115,25 @@ def decode(raw):
         return {"_text": raw.decode("utf-8", "replace")}
 
 
+# Fields compared to a fixed number of decimals. The Theme Search reader's scores
+# vary in the seventh decimal from run to run since #911 (scores are kept per
+# passage, so a later search batches only the passages not yet scored, and the
+# batch changes the floating-point sums) and the length-sorted reader batches of 2026-10-14. The
+# order of the results does not change; five decimals still catches any real
+# change of score.
+ROUND_FIELDS = {"reader_score": 5}
+
+
 def scrub(obj, ignore):
     if isinstance(obj, dict):
-        return {k: scrub(v, ignore) for k, v in obj.items() if k not in ignore}
+        out = {}
+        for k, v in obj.items():
+            if k in ignore:
+                continue
+            if k in ROUND_FIELDS and isinstance(v, float):
+                v = round(v, ROUND_FIELDS[k])
+            out[k] = scrub(v, ignore)
+        return out
     if isinstance(obj, list):  # order is part of the answer
         return [scrub(v, ignore) for v in obj]
     return obj
