@@ -41,10 +41,8 @@ exports[`App render recording > page / 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Search One Text<span class="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>
 </span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read<span class="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>
-</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search<span class="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>
-</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
@@ -53,10 +51,8 @@ exports[`App render recording > page / 1`] = `
 <button aria-current="page" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold">Search One Text<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
 </button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertextual Search</button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
-</button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
-</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">About</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
@@ -218,10 +214,8 @@ exports[`App render recording > page / in History view 1`] = `
 <div aria-hidden="true" class="absolute left-0 top-0 flex invisible pointer-events-none whitespace-nowrap">
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Search One Text<span class="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>
 </span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read<span class="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>
-</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search<span class="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>
-</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
@@ -230,10 +224,8 @@ exports[`App render recording > page / in History view 1`] = `
 </div>
 <button aria-current="page" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold">Search One Text<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
 </button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
-</button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
-</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertextual Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">About</button>
@@ -397,10 +389,8 @@ exports[`App render recording > page /about 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Search One Text<span class="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>
 </span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read<span class="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>
-</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search<span class="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>
-</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
@@ -409,10 +399,8 @@ exports[`App render recording > page /about 1`] = `
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Search One Text<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
 </button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertextual Search</button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
-</button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
-</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button aria-current="page" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold">About</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
@@ -700,10 +688,8 @@ exports[`App render recording > page /admin 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Search One Text<span class="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>
 </span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read<span class="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>
-</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search<span class="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>
-</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
@@ -712,10 +698,8 @@ exports[`App render recording > page /admin 1`] = `
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Search One Text<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
 </button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertextual Search</button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
-</button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
-</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">About</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
@@ -797,10 +781,8 @@ exports[`App render recording > page /ask-a-work 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Search One Text<span class="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>
 </span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read<span class="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>
-</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search<span class="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>
-</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
@@ -809,10 +791,8 @@ exports[`App render recording > page /ask-a-work 1`] = `
 <button aria-current="page" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold">Search One Text<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
 </button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertextual Search</button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
-</button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
-</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">About</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
@@ -975,10 +955,8 @@ exports[`App render recording > page /blog-archive 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Search One Text<span class="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>
 </span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read<span class="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>
-</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search<span class="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>
-</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
@@ -987,10 +965,8 @@ exports[`App render recording > page /blog-archive 1`] = `
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Search One Text<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
 </button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertextual Search</button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
-</button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
-</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">About</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
@@ -1066,10 +1042,8 @@ exports[`App render recording > page /browse 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Search One Text<span class="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>
 </span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read<span class="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>
-</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search<span class="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>
-</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
@@ -1078,10 +1052,8 @@ exports[`App render recording > page /browse 1`] = `
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Search One Text<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
 </button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertextual Search</button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
-</button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
-</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
 <button aria-current="page" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">About</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
@@ -1209,10 +1181,8 @@ exports[`App render recording > page /coins 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Search One Text<span class="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>
 </span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read<span class="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>
-</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search<span class="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>
-</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
@@ -1221,10 +1191,8 @@ exports[`App render recording > page /coins 1`] = `
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Search One Text<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
 </button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold" aria-current="page">Intertextual Search</button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
-</button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
-</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">About</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
@@ -1430,10 +1398,8 @@ exports[`App render recording > page /coins/c1 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Search One Text<span class="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>
 </span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read<span class="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>
-</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search<span class="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>
-</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
@@ -1442,10 +1408,8 @@ exports[`App render recording > page /coins/c1 1`] = `
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Search One Text<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
 </button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold" aria-current="page">Intertextual Search</button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
-</button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
-</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">About</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
@@ -1651,10 +1615,8 @@ exports[`App render recording > page /corpus 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Search One Text<span class="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>
 </span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read<span class="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>
-</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search<span class="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>
-</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
@@ -1663,10 +1625,8 @@ exports[`App render recording > page /corpus 1`] = `
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Search One Text<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
 </button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertextual Search</button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
-</button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
-</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
 <button aria-current="page" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">About</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
@@ -1794,10 +1754,8 @@ exports[`App render recording > page /document 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Search One Text<span class="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>
 </span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read<span class="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>
-</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search<span class="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>
-</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
@@ -1806,10 +1764,8 @@ exports[`App render recording > page /document 1`] = `
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Search One Text<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
 </button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertextual Search</button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
-</button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
-</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">About</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
@@ -1876,10 +1832,8 @@ exports[`App render recording > page /downloads 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Search One Text<span class="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>
 </span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read<span class="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>
-</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search<span class="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>
-</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
@@ -1888,10 +1842,8 @@ exports[`App render recording > page /downloads 1`] = `
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Search One Text<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
 </button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertextual Search</button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
-</button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
-</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">About</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
@@ -2580,10 +2532,8 @@ exports[`App render recording > page /events 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Search One Text<span class="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>
 </span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read<span class="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>
-</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search<span class="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>
-</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
@@ -2592,10 +2542,8 @@ exports[`App render recording > page /events 1`] = `
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Search One Text<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
 </button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold" aria-current="page">Intertextual Search</button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
-</button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
-</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">About</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
@@ -2801,10 +2749,8 @@ exports[`App render recording > page /events/e1 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Search One Text<span class="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>
 </span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read<span class="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>
-</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search<span class="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>
-</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
@@ -2813,10 +2759,8 @@ exports[`App render recording > page /events/e1 1`] = `
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Search One Text<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
 </button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold" aria-current="page">Intertextual Search</button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
-</button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
-</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">About</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
@@ -3022,10 +2966,8 @@ exports[`App render recording > page /help 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Search One Text<span class="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>
 </span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read<span class="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>
-</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search<span class="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>
-</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
@@ -3034,10 +2976,8 @@ exports[`App render recording > page /help 1`] = `
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Search One Text<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
 </button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertextual Search</button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
-</button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
-</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">About</button>
 <button aria-current="page" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold">Help &amp; Support</button>
@@ -3243,10 +3183,8 @@ exports[`App render recording > page /inscriptions-papyri 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Search One Text<span class="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>
 </span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read<span class="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>
-</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search<span class="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>
-</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
@@ -3255,10 +3193,8 @@ exports[`App render recording > page /inscriptions-papyri 1`] = `
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Search One Text<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
 </button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold" aria-current="page">Intertextual Search</button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
-</button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
-</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">About</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
@@ -3464,10 +3400,8 @@ exports[`App render recording > page /line-search 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Search One Text<span class="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>
 </span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read<span class="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>
-</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search<span class="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>
-</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
@@ -3476,10 +3410,8 @@ exports[`App render recording > page /line-search 1`] = `
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Search One Text<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
 </button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertextual Search</button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
-</button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
-</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">About</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
@@ -3610,10 +3542,8 @@ exports[`App render recording > page /no-such-page 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Search One Text<span class="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>
 </span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read<span class="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>
-</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search<span class="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>
-</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
@@ -3622,10 +3552,8 @@ exports[`App render recording > page /no-such-page 1`] = `
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Search One Text<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
 </button>
 <button aria-current="page" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold">Intertextual Search</button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
-</button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
-</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">About</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
@@ -3831,10 +3759,8 @@ exports[`App render recording > page /objects 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Search One Text<span class="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>
 </span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read<span class="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>
-</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search<span class="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>
-</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
@@ -3843,10 +3769,8 @@ exports[`App render recording > page /objects 1`] = `
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Search One Text<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
 </button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold" aria-current="page">Intertextual Search</button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
-</button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
-</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">About</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
@@ -4052,10 +3976,8 @@ exports[`App render recording > page /objects/o1 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Search One Text<span class="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>
 </span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read<span class="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>
-</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search<span class="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>
-</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
@@ -4064,10 +3986,8 @@ exports[`App render recording > page /objects/o1 1`] = `
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Search One Text<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
 </button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold" aria-current="page">Intertextual Search</button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
-</button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
-</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">About</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
@@ -4273,10 +4193,8 @@ exports[`App render recording > page /privacy 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Search One Text<span class="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>
 </span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read<span class="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>
-</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search<span class="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>
-</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
@@ -4285,10 +4203,8 @@ exports[`App render recording > page /privacy 1`] = `
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Search One Text<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
 </button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertextual Search</button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
-</button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
-</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">About</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
@@ -4406,10 +4322,8 @@ exports[`App render recording > page /read 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Search One Text<span class="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>
 </span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read<span class="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>
-</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search<span class="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>
-</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
@@ -4418,10 +4332,8 @@ exports[`App render recording > page /read 1`] = `
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Search One Text<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
 </button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertextual Search</button>
-<button aria-current="page" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold">Read<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
-</button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
-</button>
+<button aria-current="page" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold">Read</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">About</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
@@ -4438,8 +4350,6 @@ exports[`App render recording > page /read 1`] = `
 <div class="flex items-center gap-2 px-4 py-2 border-b border-gray-200 flex-wrap">
 <span class="font-semibold tracking-wide text-gray-900 mr-1" style="font-family: &quot;Gentium Book&quot;, Georgia, serif;">TESSERAE <span class="text-red-700">READER</span>
 </span>
-<span class="rounded border border-amber-200 bg-amber-50 px-1.5 py-0.5 text-[10px]
-                       font-semibold uppercase tracking-wide text-amber-800">Beta</span>
 <label class="flex items-center">
 <span class="sr-only">Language</span>
 <select aria-label="Language" class="max-w-[11rem] py-1 truncate rounded border border-gray-300 bg-white px-2 text-sm
@@ -4546,10 +4456,8 @@ exports[`App render recording > page /repository 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Search One Text<span class="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>
 </span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read<span class="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>
-</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search<span class="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>
-</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
@@ -4558,10 +4466,8 @@ exports[`App render recording > page /repository 1`] = `
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Search One Text<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
 </button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertextual Search</button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
-</button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
-</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">About</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
@@ -4672,10 +4578,8 @@ exports[`App render recording > page /requests 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Search One Text<span class="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>
 </span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read<span class="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>
-</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search<span class="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>
-</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
@@ -4684,10 +4588,8 @@ exports[`App render recording > page /requests 1`] = `
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Search One Text<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
 </button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertextual Search</button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
-</button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
-</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">About</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
@@ -4774,10 +4676,8 @@ exports[`App render recording > page /research 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Search One Text<span class="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>
 </span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read<span class="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>
-</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search<span class="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>
-</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
@@ -4786,10 +4686,8 @@ exports[`App render recording > page /research 1`] = `
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Search One Text<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
 </button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertextual Search</button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
-</button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
-</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">About</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
@@ -4970,10 +4868,8 @@ exports[`App render recording > page /string-search 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Search One Text<span class="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>
 </span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read<span class="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>
-</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search<span class="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>
-</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
@@ -4982,10 +4878,8 @@ exports[`App render recording > page /string-search 1`] = `
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Search One Text<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
 </button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertextual Search</button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
-</button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
-</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">About</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
@@ -5098,10 +4992,8 @@ exports[`App render recording > page /text-credits 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Search One Text<span class="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>
 </span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read<span class="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>
-</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search<span class="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>
-</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
@@ -5110,10 +5002,8 @@ exports[`App render recording > page /text-credits 1`] = `
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Search One Text<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
 </button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertextual Search</button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
-</button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
-</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">About</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
@@ -5222,10 +5112,8 @@ exports[`App render recording > page /theme-search 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Search One Text<span class="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>
 </span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read<span class="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>
-</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search<span class="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>
-</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
@@ -5234,10 +5122,8 @@ exports[`App render recording > page /theme-search 1`] = `
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Search One Text<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
 </button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertextual Search</button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
-</button>
-<button aria-current="page" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold">Theme Search<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
-</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
+<button aria-current="page" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold">Theme Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">About</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
@@ -5253,7 +5139,6 @@ exports[`App render recording > page /theme-search 1`] = `
 <div class="max-w-4xl mx-auto p-6">
 <div class="flex items-center gap-2">
 <h1 class="text-2xl font-semibold text-gray-900">Theme Search</h1>
-<span class="rounded border border-amber-200 bg-amber-50 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-800">Beta</span>
 </div>
 <div class="rounded border border-gray-200 bg-white text-xs text-gray-600 mt-3" data-testid="scope-box-theme">
 <div class="flex items-center gap-2 px-3 py-1.5">
@@ -5354,10 +5239,8 @@ exports[`App render recording > page /visualize 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Search One Text<span class="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>
 </span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read<span class="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>
-</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search<span class="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>
-</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
@@ -5366,10 +5249,8 @@ exports[`App render recording > page /visualize 1`] = `
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Search One Text<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
 </button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertextual Search</button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
-</button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
-</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">About</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>

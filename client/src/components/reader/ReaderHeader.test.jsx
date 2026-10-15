@@ -365,7 +365,7 @@ describe('on a phone: one title line and a picker sheet', () => {
     fireEvent.click(screen.getByRole('button', { name: /Vergil, Aeneid, Book 1/ }));
     expect(screen.getByRole('dialog')).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Tesserae Reader' })).toBeInTheDocument();
-    expect(screen.getByText('Beta')).toBeInTheDocument();
+    expect(screen.queryByText('Beta')).toBeNull();
     for (const l of ['Language', 'Author', 'Work', 'Book']) {
       expect(screen.getByLabelText(l)).toBeInTheDocument();
     }

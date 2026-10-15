@@ -383,10 +383,6 @@ export default function ReaderHeader({
                     style={{ fontFamily: '"Gentium Book", Georgia, serif' }}>
                   Tesserae Reader
                 </h2>
-                <span className="rounded border border-amber-200 bg-amber-50 px-1.5 py-0.5 text-[10px]
-                                 font-semibold uppercase tracking-wide text-amber-800">
-                  Beta
-                </span>
               </div>
               <div className="mt-3 flex flex-col gap-3">
                 {controls(true)}
@@ -424,10 +420,6 @@ export default function ReaderHeader({
       <span className="font-semibold tracking-wide text-gray-900 mr-1"
             style={{ fontFamily: '"Gentium Book", Georgia, serif' }}>
         TESSERAE <span className="text-red-700">READER</span>
-      </span>
-      <span className="rounded border border-amber-200 bg-amber-50 px-1.5 py-0.5 text-[10px]
-                       font-semibold uppercase tracking-wide text-amber-800">
-        Beta
       </span>
 
       {controls(false)}

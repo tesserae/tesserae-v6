@@ -310,7 +310,7 @@ def _books_items(q):
         for it in d.get('items', []) or []:
             v = it.get('volumeInfo') or {}
             si = it.get('searchInfo') or {}
-            out.append({'title': v.get('title'), 'authors': v.get('authors') or [],
+            out.append({'title': sch._book_title(v), 'authors': v.get('authors') or [],
                         'year': (v.get('publishedDate') or '')[:4], 'venue': v.get('publisher'),
                         'snippet': sch._clean_snippet(si.get('textSnippet')),
                         'abstract': sch._clean_snippet(v.get('description'))[:1500],
