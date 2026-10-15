@@ -7,9 +7,10 @@ export default function PrivacyPage() {
         <section>
           <h2 className="text-lg font-semibold text-gray-900 mb-2">Data Collection</h2>
           <p>
-            Tesserae V6 collects minimal personal information necessary to provide our intertextual 
-            analysis services. When you sign in using Replit authentication, we receive your name 
-            and email address to identify your account and attribute your contributions.
+            Tesserae V6 collects minimal personal information necessary to provide our intertextual
+            analysis services. If you create an account, we keep your name, your email address and
+            your password to identify your account and attribute your contributions. The password is
+            stored only in scrambled (hashed) form, so no one can read it.
           </p>
         </section>
 
@@ -60,7 +61,6 @@ export default function PrivacyPage() {
             Tesserae uses the following third-party services:
           </p>
           <ul className="list-disc list-inside space-y-1">
-            <li><strong>Replit:</strong> Hosting and authentication services</li>
             <li><strong>Wiktionary API:</strong> Dictionary definitions for rare words</li>
             <li><strong>Perseus Digital Library:</strong> Fallback definitions</li>
             <li><strong>OpenStreetMap:</strong> The map on the Events page. Your browser fetches the map tiles from OpenStreetMap's servers, so OpenStreetMap sees your address and the map area requested. Nothing else is sent.</li>
