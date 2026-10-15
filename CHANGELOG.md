@@ -8,6 +8,8 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-15
+- Search One Text: when none of the held notes or articles bears on the question, the "Articles found online" box comes first and the Scholarship note follows in small type, instead of an empty box above the articles.
+- Articles found online: the excerpt under a Google Books result no longer shows only the tail of the fragment ("weaknesses of each."); the leading and trailing ellipses are trimmed before the sentence is chosen, and a match under 40 characters gives way to the whole fragment.
 - Search One Text: switching between Literature and History while on the page now moves to that view's work (the Annals for History, the Aeneid for Literature) when no subject has been typed; before, the page kept the old view's work.
 - Inscriptions and papyri: when a one-word dictionary-form search finds nothing and the page retries by letters, the literature side of a combined search is kept too (a search for Rusellae now shows Livy's and Pliny's mentions beside the inscriptions).
 - Inscriptions and papyri: the two "Both" choices are named for what they cover. "Search in" offers "Inscriptions and papyri" or "Inscriptions, papyri and the literature" (on the Lines page: "Literature", "Inscriptions and papyri", "Literature, inscriptions and papyri"); "Kind" offers "Inscriptions and papyri" first, then "Inscriptions only" and "Papyri only".

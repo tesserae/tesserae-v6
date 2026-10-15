@@ -578,6 +578,31 @@ export default function AskAWorkPage() {
       || (lineOf(a.r.ref_start) - lineOf(b.r.ref_start)) || (a.i - b.i));
   }
 
+  // With nothing held on the question, the online articles come first and the
+  // empty Scholarship box follows as a short note (2026-10-15: the owner saw
+  // an empty box hiding the two articles found online).
+  const recentSection = recent?.items.length > 0 && (<section aria-label="Articles found online" className="mt-3 rounded border border-gray-200 bg-white px-3 py-2" data-testid="ask-recent">
+                      <p className="text-xs font-semibold text-gray-600">Articles found online</p>
+                      <ul className="mt-1 space-y-2">
+                        {recent.items.map((it) => {
+                          const url = recentUrl(it);
+                          const meta = [(it.authors || []).join(', '), it.year, it.venue].filter(Boolean).join(', ');
+                          return (
+                            <li key={`${it.doi || ''}|${it.title}`} className="text-sm text-gray-800 leading-snug" data-testid="ask-recent-item">
+                              {url ? (
+                                <a href={url} target="_blank" rel="noopener noreferrer" className="text-red-800 hover:text-red-900 hover:underline">{it.title}</a>
+                              ) : it.title}
+                              {meta && <span className="text-gray-600">{`, ${meta}`}</span>}
+                              {it.oa_url && <span className="ml-1 rounded bg-gray-100 px-1 text-[11px] text-gray-500">free copy</span>}
+                              {it.excerpt && <span className="block text-xs text-gray-500">{it.excerpt}</span>}
+                              <span className="block text-xs mt-0.5"><CiteRecordButton record={recordFrom(it, 'recent')} /></span>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    </section>);
+  const noneFirst = scholarship?.state === 'ready' && scholarship.noneRelevant && !!recentSection;
+
   return (
     <div className="max-w-6xl mx-auto p-6">
       <div className="max-w-4xl">
@@ -914,6 +939,7 @@ export default function AskAWorkPage() {
                   {scholarship?.state === 'loading' && (
                     <p className="mt-1 text-sm text-gray-500 italic">Reading the secondary literature...</p>
                   )}
+                  {noneFirst && recentSection}
                   {scholarship?.state === 'ready' && (
                     <section aria-label="Scholarship" className="mt-3 rounded border border-gray-200 bg-gray-50 px-3 py-2" data-testid="ask-scholarship">
                       <div className="flex items-baseline justify-between gap-2">
@@ -925,7 +951,7 @@ export default function AskAWorkPage() {
                         )}
                       </div>
                       {scholarship.noneRelevant ? (
-                        <p className="mt-1 text-sm text-gray-800 leading-snug" data-testid="ask-scholarship-none">
+                        <p className="mt-1 text-xs text-gray-700 leading-snug" data-testid="ask-scholarship-none">
                           None of the commentary notes or journal articles held for this work discuss this question.
                         </p>
                       ) : (
@@ -952,28 +978,7 @@ export default function AskAWorkPage() {
                   {scholarship?.state === 'none' && (
                     <p className="mt-2 text-xs text-gray-500" data-testid="ask-scholarship-holdings">{scholarship.holdings}</p>
                   )}
-                  {recent?.items.length > 0 && (
-                    <section aria-label="Articles found online" className="mt-3 rounded border border-gray-200 bg-white px-3 py-2" data-testid="ask-recent">
-                      <p className="text-xs font-semibold text-gray-600">Articles found online</p>
-                      <ul className="mt-1 space-y-2">
-                        {recent.items.map((it) => {
-                          const url = recentUrl(it);
-                          const meta = [(it.authors || []).join(', '), it.year, it.venue].filter(Boolean).join(', ');
-                          return (
-                            <li key={`${it.doi || ''}|${it.title}`} className="text-sm text-gray-800 leading-snug" data-testid="ask-recent-item">
-                              {url ? (
-                                <a href={url} target="_blank" rel="noopener noreferrer" className="text-red-800 hover:text-red-900 hover:underline">{it.title}</a>
-                              ) : it.title}
-                              {meta && <span className="text-gray-600">{`, ${meta}`}</span>}
-                              {it.oa_url && <span className="ml-1 rounded bg-gray-100 px-1 text-[11px] text-gray-500">free copy</span>}
-                              {it.excerpt && <span className="block text-xs text-gray-500">{it.excerpt}</span>}
-                              <span className="block text-xs mt-0.5"><CiteRecordButton record={recordFrom(it, 'recent')} /></span>
-                            </li>
-                          );
-                        })}
-                      </ul>
-                    </section>
-                  )}
+                  {!noneFirst && recentSection}
                   {recent?.pending.length > 0 && (
                     <p className="mt-1 text-xs text-gray-500" data-testid="ask-recent-pending">
                       {`Asking ${joinNames(recent.pending.map((x) => RECENT_LABELS[x]))} for articles...`}

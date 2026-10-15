@@ -196,10 +196,19 @@ def _head_text(it):
     return (it.get('title') or '') + ' ' + str(it.get('abstract') or '')[:ABSTRACT_CHARS]
 
 
+_ELLIPSIS_EDGE = re.compile(r'^(?:\.{3}|\u2026)\s*|\s*(?:\.{3}|\u2026)$')
+
+
 def _excerpt(it, words):
-    text = it.get('snippet') or it.get('abstract') or ''
+    """The sentence of the snippet or abstract that holds a question word,
+    else its opening. A Google Books snippet is a fragment that begins and
+    ends with an ellipsis ("... the strengths and weaknesses of each."); the
+    ellipsis counted as a sentence end and the excerpt came out as the tail
+    ("weaknesses of each.", 2026-10-15). The edges are trimmed first, and a
+    sentence under 40 characters gives way to the whole fragment."""
+    text = _ELLIPSIS_EDGE.sub('', it.get('snippet') or it.get('abstract') or '').strip()
     ex = sch._sentence_with(text, [_stem(w) for w in words])
-    if ex:
+    if ex and len(ex) >= 40:
         return sch._cap_words(ex, EXCERPT_CHARS)
     return sch._cap_words(text, EXCERPT_CHARS) if text else ''
 
