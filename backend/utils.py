@@ -528,7 +528,32 @@ def _resolve_text_filepath(filename, language=None):
     return None
 
 
+_content_type_cache = {}
+
+
 def _estimate_text_type_from_content(filepath):
+    """_estimate_text_type_from_content_uncached, remembered while the file is unchanged.
+
+    The answer is read from the first 200 lines of the file, and a search asks
+    it of a thousand texts in one request. It is kept with the file's
+    modification time and size, so a text that is replaced is read again.
+    """
+    try:
+        st = os.stat(fspaths.fs_path(filepath))
+        stamp = (st.st_mtime_ns, st.st_size)
+    except OSError:
+        stamp = None
+    if stamp is not None:
+        hit = _content_type_cache.get(filepath)
+        if hit is not None and hit[0] == stamp:
+            return hit[1]
+    result = _estimate_text_type_from_content_uncached(filepath)
+    if stamp is not None and result is not None:
+        _content_type_cache[filepath] = (stamp, result)
+    return result
+
+
+def _estimate_text_type_from_content_uncached(filepath):
     """Classify by median line length. >100 chars = prose, ≤100 = poetry.
 
     Classical poetry lines are 30-55 chars (hexameter, lyric, drama).

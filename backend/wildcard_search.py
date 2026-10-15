@@ -14,13 +14,14 @@ import os
 
 from backend import fspaths
 import re
+import sys
 import unicodedata
 from typing import List, Dict, Optional, Tuple
-from concurrent.futures import ThreadPoolExecutor, as_completed
 import time
 
 from backend.logging_config import get_logger
-from backend.utils import get_text_metadata, detect_text_type, resolve_text_path
+from backend.metadata_cache import get_text_metadata_cached as get_text_metadata
+from backend.utils import detect_text_type, resolve_text_path
 
 logger = get_logger('wildcard_search')
 
@@ -42,6 +43,75 @@ def get_author_dates():
     except ImportError:
         return {}
 
+_COMBINING_RE = None
+_COMBINING_TABLE = None
+
+# Text longer than this is stripped of its combining marks with a lookup table
+# over its code points (numpy) instead of a regex substitution, which is the
+# same operation at several times the speed.
+_BULK_MARKS_FROM = 20000
+_BULK_MARKS_CHUNK = 4_000_000
+
+
+def _combining_re():
+    """A compiled class of every code point for which unicodedata.combining() is nonzero.
+
+    Built once per process from the interpreter's own Unicode tables, so a regex
+    substitution with it removes exactly the characters the per-character test
+    `unicodedata.combining(ch)` removes, at C speed.
+    """
+    global _COMBINING_RE
+    if _COMBINING_RE is None:
+        ranges = []
+        start = None
+        for cp in range(sys.maxunicode + 1):
+            if unicodedata.combining(chr(cp)):
+                if start is None:
+                    start = cp
+            elif start is not None:
+                ranges.append((start, cp - 1))
+                start = None
+        if start is not None:
+            ranges.append((start, sys.maxunicode))
+        body = ''.join(
+            f'\\U{a:08x}' if a == b else f'\\U{a:08x}-\\U{b:08x}' for a, b in ranges)
+        _COMBINING_RE = re.compile('[' + body + ']')
+    return _COMBINING_RE
+
+
+def _combining_table():
+    """A boolean array over every code point: True where unicodedata.combining() is nonzero."""
+    global _COMBINING_TABLE
+    if _COMBINING_TABLE is None:
+        import numpy as np
+        table = np.zeros(sys.maxunicode + 1, dtype=bool)
+        for cp in range(sys.maxunicode + 1):
+            if unicodedata.combining(chr(cp)):
+                table[cp] = True
+        _COMBINING_TABLE = table
+    return _COMBINING_TABLE
+
+
+def _strip_combining(decomposed: str) -> str:
+    """The text of an NFD string with every combining character removed."""
+    if len(decomposed) >= _BULK_MARKS_FROM:
+        try:
+            import numpy as np
+            table = _combining_table()
+            parts = []
+            for i in range(0, len(decomposed), _BULK_MARKS_CHUNK):
+                chunk = decomposed[i:i + _BULK_MARKS_CHUNK]
+                codes = np.frombuffer(chunk.encode('utf-32-le'), dtype='<u4')
+                marks = table[codes]
+                if marks.any():
+                    chunk = codes[~marks].tobytes().decode('utf-32-le')
+                parts.append(chunk)
+            return ''.join(parts)
+        except Exception:
+            pass  # a string numpy cannot take (a lone surrogate): the regex below handles it
+    return _combining_re().sub('', decomposed)
+
+
 def normalize_greek(text: str) -> str:
     """
     Remove Greek diacritics (accents, breathings, iota subscripts) so an
@@ -55,9 +125,15 @@ def normalize_greek(text: str) -> str:
     queries to base letters but left the NFD corpus untouched, so accented
     queries matched nothing. Case is preserved -- the caller controls
     case-sensitivity via regex flags.
+
+    The marks are removed with a table or a regex built from
+    unicodedata.combining (see _strip_combining), which gives the same string
+    as joining the characters whose combining class is zero; ASCII text, which
+    holds no mark, is returned as it is.
     """
-    decomposed = unicodedata.normalize('NFD', text)
-    return ''.join(ch for ch in decomposed if not unicodedata.combining(ch))
+    if text.isascii():
+        return text
+    return _strip_combining(unicodedata.normalize('NFD', text))
 
 # One shared rule, backend/latin_orthography.py. This is the SURFACE form:
 # case is kept and the archaic word-final -om folds to -um, so a search for
@@ -205,76 +281,271 @@ def phrase_to_regex(phrase: str) -> str:
     return pattern
 
 
-def search_file(filepath: str, parsed_query: Dict, case_sensitive: bool = False, language: str = 'la') -> List[Dict]:
-    """Search a single .tess file for matches."""
-    results = []
-    is_greek = language == 'grc'
-    is_coptic = language == 'cop'
-    filename = os.path.basename(filepath)
-    is_prose = detect_text_type(filename, language=language) == 'prose'
-    
+_REF_LINE = re.compile(r'^<([^>]+)>\s*(.+)$')
+
+
+def _is_prose_file(filename: str, language: str) -> bool:
+    return detect_text_type(filename, language=language) == 'prose'
+
+
+def _search_text(text: str, language: str) -> str:
+    """The text of one line in the form the query is matched against."""
+    if language == 'grc':
+        return normalize_greek(text)
+    if language == 'la':
+        return normalize_latin(text)
+    if language == 'cop':
+        return normalize_coptic(text)
+    return text
+
+
+def _fold_pattern(pattern: str, language: str) -> str:
+    """A term's pattern folded the way matches_term folds it."""
+    if language == 'grc':
+        return normalize_greek(pattern)
+    if language == 'la':
+        return normalize_latin(pattern)
+    if language == 'cop':
+        return normalize_coptic(pattern)
+    return pattern
+
+
+def _leaf_regex(term: Dict, flags: int, language: str):
+    """The compiled pattern matches_term and matches_proximity search with."""
+    return re.compile(r'\b' + _fold_pattern(term['pattern'], language) + r'\b', flags)
+
+
+def _build_matcher(node: Dict, flags: int, language: str):
+    """matches_query with the patterns folded and compiled once.
+
+    Returns a function of the (already folded) line text that answers exactly
+    what matches_query(text, node, flags, ...) answers for this language; the
+    folding of each pattern, which matches_query repeats for every line, is
+    done here once.
+    """
+    query_type = node.get('type', 'simple')
+
+    if query_type == 'empty':
+        return lambda text: False
+
+    def child(sub):
+        if sub.get('type') in _QUERY_TYPES:
+            return _build_matcher(sub, flags, language)
+        rx = _leaf_regex(sub, flags, language)
+        return lambda text: bool(rx.search(text))
+
+    if query_type in ('simple', 'and'):
+        subs = [child(t) for t in node['terms']]
+        return lambda text: all(m(text) for m in subs)
+
+    if query_type == 'or':
+        subs = [child(t) for t in node['terms']]
+        return lambda text: any(m(text) for m in subs)
+
+    if query_type == 'not':
+        include = child(node['include'])
+        exclude = child(node['exclude'])
+        return lambda text: include(text) and not exclude(text)
+
+    if query_type == 'proximity':
+        rx1 = _leaf_regex(node['term1'], flags, language)
+        rx2 = _leaf_regex(node['term2'], flags, language)
+        distance = node.get('distance', 100)
+        refold = language in ('grc', 'la')
+
+        def near(text):
+            if refold:
+                # matches_proximity folds the text again, as it always has
+                text = _search_text(text, language)
+            matches1 = list(rx1.finditer(text))
+            matches2 = list(rx2.finditer(text))
+            if not matches1 or not matches2:
+                return False
+            for m1 in matches1:
+                for m2 in matches2:
+                    if m1.end() <= m2.start():
+                        dist = m2.start() - m1.end()
+                    else:
+                        dist = m1.start() - m2.end()
+                    if dist <= distance:
+                        return True
+            return False
+        return near
+
+    return lambda text: False
+
+
+def _required_leaves(node: Dict):
+    """Plain terms of which a line must match at least one to match the query, or None.
+
+    A line that satisfies the query satisfies at least one of these terms, so a
+    line none of them matches can be skipped without being tested. None when
+    the node gives no such guarantee (then every line is tested).
+    """
+    query_type = node.get('type', 'simple')
+    if query_type not in _QUERY_TYPES:
+        return [node] if 'pattern' in node else None
+    if query_type in ('simple', 'and'):
+        for term in node.get('terms', []):
+            leaves = _required_leaves(term)
+            if leaves:
+                return leaves
+        return None
+    if query_type == 'or':
+        leaves = []
+        for term in node.get('terms', []):
+            sub = _required_leaves(term)
+            if not sub:
+                return None
+            leaves.extend(sub)
+        return leaves or None
+    if query_type == 'not':
+        return _required_leaves(node['include'])
+    if query_type == 'proximity':
+        return [node['term1']]
+    return None
+
+
+def _fold_whole(raw: str, language: str) -> str:
+    """The whole file folded for language; line breaks stay where they were."""
+    if language == 'grc':
+        return normalize_greek(raw)
+    if language == 'la':
+        return normalize_latin(raw)
+    if language == 'cop':
+        return normalize_coptic(raw)
+    return raw
+
+
+def _candidate_lines(raw: str, parsed_query: Dict, flags: int, language: str):
+    """Indexes (ascending) of the lines of `raw` that can match the query, or None for all.
+
+    Folds the whole file once and runs the required terms over it. A line the
+    query matches holds a match of one of those terms, and a match of the
+    folded line is also a match of the folded file around it, so every line
+    that matches is kept; the lines kept are then tested exactly, line by
+    line, as before. A match that runs over a line break marks every line it
+    touches.
+    """
+    leaves = _required_leaves(parsed_query)
+    if not leaves:
+        return None
+    folded = _fold_whole(raw, language)
+    if folded.count('\n') != raw.count('\n'):
+        return None
+    found = set()
+    for term in leaves:
+        # The term's pattern without its word-boundary tests: whatever the
+        # term matches this matches at the same place, and without the leading
+        # \b the regex engine can skip ahead to the first letter instead of
+        # trying every position (about twice as fast).
+        rx = re.compile(_fold_pattern(term['pattern'], language), flags)
+        line = 0
+        last = 0
+        for m in rx.finditer(folded):
+            start, end = m.span()
+            line += folded.count('\n', last, start)
+            last = start
+            found.add(line)
+            if end > start:
+                for k in range(1, folded.count('\n', start, end) + 1):
+                    found.add(line + k)
+    return sorted(found)
+
+
+def scan_file(filepath: str, parsed_query: Dict, case_sensitive: bool = False, language: str = 'la') -> List[Tuple[str, str]]:
+    """The (reference, text) of every line of one .tess file that matches, in file order.
+
+    Nothing is built for a match beyond those two strings; finish_match turns
+    one into the row search_file returns.
+    """
+    matches = []
     try:
         with fspaths.open_text(filepath, 'r', encoding='utf-8') as f:
-            lines = f.readlines()
+            raw = f.read()
     except Exception as e:
         logger.error(f"Error reading {filepath}: {e}")
-        return results
-    
+        return matches
+
     flags = 0 if case_sensitive else re.IGNORECASE
-    
-    for line in lines:
-        line = line.strip()
+    wanted = _candidate_lines(raw, parsed_query, flags, language)
+    if wanted is not None and not wanted:
+        return matches
+    lines = raw.split('\n')
+    matcher = _build_matcher(parsed_query, flags, language)
+
+    candidates = []
+    for i in (range(len(lines)) if wanted is None else wanted):
+        line = lines[i].strip()
         if not line or line.startswith('#'):
             continue
-        
-        match = re.match(r'^<([^>]+)>\s*(.+)$', line)
+
+        match = _REF_LINE.match(line)
         if not match:
             continue
-        
-        ref = match.group(1)
-        text = match.group(2)
-        
-        is_latin = language == 'la'
-        if is_greek:
-            search_text = normalize_greek(text)
-        elif is_latin:
-            search_text = normalize_latin(text)
-        elif is_coptic:
-            search_text = normalize_coptic(text)
+
+        candidates.append((match.group(1), match.group(2)))
+
+    # Fold the texts of the candidate lines together, in one piece. A line
+    # break is a boundary for every fold, so the folded block cut at its line
+    # breaks is each text folded alone.
+    if language in ('grc', 'la') and len(candidates) > 1:
+        folded = _fold_whole('\n'.join(text for _ref, text in candidates), language).split('\n')
+        if len(folded) != len(candidates):
+            folded = [_search_text(text, language) for _ref, text in candidates]
+    else:
+        folded = [_search_text(text, language) for _ref, text in candidates]
+
+    for (ref, text), search_text in zip(candidates, folded):
+        if matcher(search_text):
+            matches.append((ref, text))
+
+    return matches
+
+
+def finish_match(ref: str, text: str, parsed_query: Dict, case_sensitive: bool, language: str, is_prose: bool) -> Dict:
+    """The row for one matching line: display text, highlighting and flags."""
+    is_greek = language == 'grc'
+    is_latin = language == 'la'
+    is_coptic = language == 'cop'
+    flags = 0 if case_sensitive else re.IGNORECASE
+
+    # Coptic and Greek normalizers change string length (strokes /
+    # combining accents are stripped), so match positions on the
+    # normalized text don't map back to the raw display text. Highlight
+    # whole tokens for those; Latin/English keep exact-span highlights.
+    token_normalizer = normalize_coptic if is_coptic else (normalize_greek if is_greek else None)
+    if token_normalizer:
+        highlight_indices = get_token_highlight_indices(text, parsed_query, flags, token_normalizer)
+    else:
+        highlight_indices = get_highlight_indices(text, parsed_query, flags, is_greek, is_latin)
+
+    # For prose, extract only sentences containing matches
+    display_text = text
+    if is_prose and len(text) > 150:
+        display_text = extract_sentences_with_matches(text, highlight_indices)
+        if token_normalizer:
+            highlight_indices = get_token_highlight_indices(display_text, parsed_query, flags, token_normalizer)
         else:
-            search_text = text
+            highlight_indices = get_highlight_indices(display_text, parsed_query, flags, is_greek, is_latin)
 
-        if matches_query(search_text, parsed_query, flags, is_greek, is_latin, is_coptic):
-            # Coptic and Greek normalizers change string length (strokes /
-            # combining accents are stripped), so match positions on the
-            # normalized text don't map back to the raw display text. Highlight
-            # whole tokens for those; Latin/English keep exact-span highlights.
-            token_normalizer = normalize_coptic if is_coptic else (normalize_greek if is_greek else None)
-            if token_normalizer:
-                highlight_indices = get_token_highlight_indices(text, parsed_query, flags, token_normalizer)
-            else:
-                highlight_indices = get_highlight_indices(text, parsed_query, flags, is_greek, is_latin)
+    # Apply HTML highlighting
+    highlighted_text = apply_highlighting(display_text, highlight_indices)
 
-            # For prose, extract only sentences containing matches
-            display_text = text
-            if is_prose and len(text) > 150:
-                display_text = extract_sentences_with_matches(text, highlight_indices)
-                if token_normalizer:
-                    highlight_indices = get_token_highlight_indices(display_text, parsed_query, flags, token_normalizer)
-                else:
-                    highlight_indices = get_highlight_indices(display_text, parsed_query, flags, is_greek, is_latin)
-            
-            # Apply HTML highlighting
-            highlighted_text = apply_highlighting(display_text, highlight_indices)
-            
-            results.append({
-                'ref': ref,
-                'text': display_text,
-                'highlighted_text': highlighted_text,
-                'is_prose': is_prose
-            })
-    
-    return results
+    return {
+        'ref': ref,
+        'text': display_text,
+        'highlighted_text': highlighted_text,
+        'is_prose': is_prose
+    }
+
+
+def search_file(filepath: str, parsed_query: Dict, case_sensitive: bool = False, language: str = 'la') -> List[Dict]:
+    """Search a single .tess file for matches."""
+    filename = os.path.basename(filepath)
+    is_prose = _is_prose_file(filename, language)
+    return [finish_match(ref, text, parsed_query, case_sensitive, language, is_prose)
+            for ref, text in scan_file(filepath, parsed_query, case_sensitive, language)]
 
 
 def matches_query(text: str, parsed_query: Dict, flags: int, is_greek: bool = False, is_latin: bool = False, is_coptic: bool = False) -> bool:
@@ -643,7 +914,10 @@ def wildcard_search(
     else:
         files_to_search = [f for f in fspaths.listdir_text(lang_dir) if f.endswith('.tess')]
     
-    all_results = []
+    # One entry per matching line: (sort key, file, metadata, reference, text).
+    # The row itself (display text, highlighting) is built after the sort, for
+    # the lines that are returned.
+    found = []
     total_match_count = 0
     texts_searched = 0
     
@@ -651,54 +925,66 @@ def wildcard_search(
     author_dates = get_author_dates()
     lang_dates = author_dates.get(language, {})
     
-    with ThreadPoolExecutor(max_workers=8) as executor:
-        futures = {}
-        for filename in files_to_search:
-            filepath = os.path.join(lang_dir, filename)
-            metadata = get_text_metadata(filepath)
-            future = executor.submit(search_file, filepath, parsed_query, case_sensitive, language)
-            futures[future] = (filename, metadata)
-        
-        for future in as_completed(futures):
-            filename, metadata = futures[future]
-            texts_searched += 1
-            
-            try:
-                file_results = future.result()
-                total_match_count += len(file_results)
-                
-                # Format title information
-                title_info = format_title(filename, metadata)
-                
-                # Get era and year info for sorting
-                author_key = filename.split('.')[0].lower()
-                author_info = lang_dates.get(author_key, {})
-                era = author_info.get('era', 'Unknown')
-                # None (not the 9999 sentinel) for an unknown year, so it does not
-                # leak into output and plot as year 9999 on a timeline. The sort
-                # below coalesces None -> 9999 for ordering only.
-                year = author_info.get('year')
+    # The files are scanned one after another in the order the folder lists
+    # them. They used to go to eight threads and be taken in the order the
+    # scans finished, but the scan is Python code holding the interpreter lock,
+    # so the threads took turns instead of running together, and rows that
+    # share a sort key (the same reference under one author, as in a work held
+    # whole and in book files) came back in whichever order the threads
+    # happened to finish. Now they come back in folder order every time.
+    for filename in files_to_search:
+        filepath = os.path.join(lang_dir, filename)
+        texts_searched += 1
 
-                for result in file_results:
-                    result['text_id'] = filename
-                    result['author'] = title_info['author']
-                    result['title'] = title_info['title']
-                    result['display_name'] = title_info['display_name']
-                    result['era'] = era
-                    result['year'] = year
-                    result['is_poetry'] = metadata.get('is_poetry', True)
-                    # Format reference to be cleaner
-                    ref = result.get('ref', '')
-                    result['reference'] = ref
-                    all_results.append(result)
-            except Exception as e:
-                logger.error(f"Error processing {filename}: {e}")
+        try:
+            file_matches = scan_file(filepath, parsed_query, case_sensitive, language)
+            total_match_count += len(file_matches)
+            if not file_matches:
+                continue
+
+            # The title and kind of a text are worked out only for a text
+            # that has a matching line.
+            metadata = get_text_metadata(filepath)
+            # Format title information
+            title_info = format_title(filename, metadata)
+
+            # Get era and year info for sorting
+            author_key = filename.split('.')[0].lower()
+            author_info = lang_dates.get(author_key, {})
+            era = author_info.get('era', 'Unknown')
+            # None (not the 9999 sentinel) for an unknown year, so it does not
+            # leak into output and plot as year 9999 on a timeline. The sort
+            # below coalesces None -> 9999 for ordering only.
+            year = author_info.get('year')
+
+            file_info = (filename, metadata, title_info, era, year)
+            for ref, text in file_matches:
+                found.append(((year or 9999, title_info['author'], ref), file_info, ref, text))
+        except Exception as e:
+            logger.error(f"Error processing {filename}: {e}")
     
-    all_results.sort(key=lambda r: (r.get('year') or 9999, r.get('author', ''), r.get('reference', '')))
+    found.sort(key=lambda item: item[0])
     
     # Truncate after sorting
-    truncated = len(all_results) > max_results
-    all_results = all_results[:max_results]
+    truncated = len(found) > max_results
+    found = found[:max_results]
+
+    prose_of = {}
+    all_results = []
+    for _key, (filename, metadata, title_info, era, year), ref, text in found:
+        if filename not in prose_of:
+            prose_of[filename] = _is_prose_file(filename, language)
+        result = finish_match(ref, text, parsed_query, case_sensitive, language, prose_of[filename])
+        result['text_id'] = filename
+        result['author'] = title_info['author']
+        result['title'] = title_info['title']
+        result['display_name'] = title_info['display_name']
+        result['era'] = era
+        result['year'] = year
+        result['is_poetry'] = metadata.get('is_poetry', True)
+        # Format reference to be cleaner
+        result['reference'] = ref
+        all_results.append(result)
     
     search_time = time.time() - start_time
     

@@ -13,7 +13,8 @@ from flask_login import current_user
 
 from backend.services import get_user_location, log_search
 from backend import fspaths
-from backend.utils import get_text_metadata, clean_cts_reference, resolve_text_path, exact_phrase_pattern, strip_hebrew_pointing, exact_search_text, format_short_locus
+from backend.metadata_cache import get_text_metadata_cached as get_text_metadata
+from backend.utils import clean_cts_reference, resolve_text_path, exact_phrase_pattern, strip_hebrew_pointing, exact_search_text, format_short_locus
 from backend.frequency_cache import get_corpus_frequencies
 from backend.distance_filter import is_prose_text as is_prose_text_unified
 from backend.distance_filter import get_max_distance as _get_max_distance
@@ -352,7 +353,45 @@ def rare_focus_filter(results, language):
         return results, 0, []
 
 
-def _candidate_within_distance(filename, positions, language='la'):
+def _smallest_gap_between_lists(lists):
+    """The smallest |a - b| over a in one list and b in another list (two or more lists).
+
+    The smallest gap between two different lists is always between two
+    neighbours in the merged order, so the positions are merged and only
+    neighbours from different lists are compared; this gives the same number as
+    comparing every pair, in time proportional to the positions instead of to
+    their square (a prose chapter holds a common word hundreds of times).
+    """
+    if len(lists) == 2:
+        first, second = sorted(lists[0]), sorted(lists[1])
+        i = j = 0
+        best = None
+        while i < len(first) and j < len(second):
+            gap = first[i] - second[j]
+            if gap < 0:
+                gap = -gap
+                i += 1
+            elif gap > 0:
+                j += 1
+            else:
+                return 0
+            if best is None or gap < best:
+                best = gap
+        # one list ran out: the remaining elements of the other are farther than its last neighbour
+        return best
+    merged = sorted((p, k) for k, lst in enumerate(lists) for p in lst)
+    best = None
+    for (p1, k1), (p2, k2) in zip(merged, merged[1:]):
+        if k1 != k2:
+            gap = p2 - p1
+            if best is None or gap < best:
+                best = gap
+                if best == 0:
+                    break
+    return best
+
+
+def _candidate_within_distance(filename, positions, language='la', max_distance=None):
     """The closeness rule line_search applies to each line through
     passes_distance_filter, decided here from the index's own per-lemma
     position lists so a candidate can be counted without loading its line:
@@ -371,10 +410,15 @@ def _candidate_within_distance(filename, positions, language='la'):
     lists = [lst for lst in (positions or {}).values() if lst]
     if len(lists) < 2:
         return True
-    min_dist = min(abs(a - b)
-                   for i in range(len(lists)) for j in range(i + 1, len(lists))
-                   for a in lists[i] for b in lists[j])
-    return min_dist == 0 or min_dist <= _get_max_distance(filename, language)
+    min_dist = _smallest_gap_between_lists(lists)
+    if min_dist == 0:
+        return True
+    # max_distance: a function giving the text's limit, for a caller that asks
+    # about many lines of one text and keeps the answer (it is the same for every
+    # line); else the limit is looked up here.
+    if max_distance is None:
+        return min_dist <= _get_max_distance(filename, language)
+    return min_dist <= max_distance()
 
 
 def _count_candidates_by_work(text_candidates, language, lang_dates):
@@ -386,8 +430,16 @@ def _count_candidates_by_work(text_candidates, language, lang_dates):
     import re as _re_w
     groups = {}
     for filename, matches in text_candidates.items():
+        # One limit per text, looked up the first time a line of the text needs it.
+        limit = []
+
+        def text_limit(filename=filename, limit=limit):
+            if not limit:
+                limit.append(_get_max_distance(filename, language))
+            return limit[0]
+
         kept = sum(1 for m in matches
-                   if len(m) < 3 or _candidate_within_distance(filename, m[2], language))
+                   if len(m) < 3 or _candidate_within_distance(filename, m[2], language, text_limit))
         if not kept:
             continue
         base = _re_w.sub(r'\.part\.[^/]*$', '', filename[:-5] if filename.endswith('.tess') else filename)
@@ -815,6 +867,7 @@ def _indexed_candidates(params: LineSearchParams, lang_dates: dict, filtered_que
     exclude_text_id, exclude_locus = params.exclude_text_id, params.exclude_locus
     if univ_active:
         from backend import univerbation as _univ
+        _univ_answers = _univ.joined_answers(univ_forward)
 
     results = []
     seen_results = set()
@@ -854,7 +907,7 @@ def _indexed_candidates(params: LineSearchParams, lang_dates: dict, filtered_que
                     _toks = _li.get('tokens') or []
                     _mset, _, _ = _univ.match_line(
                         [[_l] for _l in (_li.get('lemmas') or [])], _toks,
-                        filtered_query_lemmas, univ_forward, univ_sequences)
+                        filtered_query_lemmas, univ_forward, univ_sequences, answers=_univ_answers)
                     _ml = set(_ml) & _mset
                     if len(_ml) < min_matched:
                         continue
@@ -949,7 +1002,7 @@ def _indexed_candidates(params: LineSearchParams, lang_dates: dict, filtered_que
                 # and parts printed apart as the joined word.
                 matched_lemma_set, matched_words, matched_positions = _univ.match_line(
                     [[_l] for _l in line_info.get('lemmas', [])], indexed_tokens,
-                    filtered_query_lemmas, univ_forward, univ_sequences)
+                    filtered_query_lemmas, univ_forward, univ_sequences, answers=_univ_answers)
             elif indexed_lemmas:
                 # Match query lemmas (and a bare Hebrew word's
                 # other readings) against indexed lemmas
@@ -1034,6 +1087,50 @@ def _indexed_candidates(params: LineSearchParams, lang_dates: dict, filtered_que
     return results, by_work_all
 
 
+def _exact_prefilter_pattern(query: str):
+    """The exact-phrase pattern without its word-start tests, for _exact_candidate_lines.
+
+    Whatever exact_phrase_pattern(query) matches, this matches at the same
+    place; it only drops the \\b that makes the regex engine try every
+    position, so it runs about twice as fast over a whole file.
+    """
+    words = unicodedata.normalize('NFC', query or '').split()
+    if not words:
+        return None
+    return re.compile(r'\s+'.join(re.escape(w) for w in words), re.IGNORECASE)
+
+
+def _exact_candidate_lines(raw: str, exact_pattern):
+    """Indexes (ascending) of the lines of a file that can hold a match of an exact phrase, or None for all.
+
+    The scan tests each line's text, put in NFC form, against the phrase
+    pattern. Here the whole file is put in NFC form once and the pattern is run
+    over it; a line the scan would match holds a match of the folded file around
+    it, so every such line is kept, and the lines kept are then tested exactly,
+    as before. A match running over a line break marks every line it touches.
+    None (test every line) when the pattern is missing, or when the file holds
+    a combining long solidus right after a tag's closing bracket, the one place
+    where putting the whole file in NFC form could join the tag to the text.
+    """
+    if exact_pattern is None or '>\u0338' in raw:
+        return None
+    folded = unicodedata.normalize('NFC', raw)
+    if folded.count('\n') != raw.count('\n'):
+        return None
+    found = set()
+    line = 0
+    last = 0
+    for m in exact_pattern.finditer(folded):
+        start, end = m.span()
+        line += folded.count('\n', last, start)
+        last = start
+        found.add(line)
+        if end > start:
+            for k in range(1, folded.count('\n', start, end) + 1):
+                found.add(line + k)
+    return sorted(found)
+
+
 def _scanned_candidates(params: LineSearchParams, lang_dir: str, lang_dates: dict, stopwords: set,
                         filtered_query_lemmas: set, univ_forward: dict, univ_sequences: dict,
                         univ_active: bool):
@@ -1045,6 +1142,7 @@ def _scanned_candidates(params: LineSearchParams, lang_dir: str, lang_dates: dic
     exclude_text_id, exclude_locus = params.exclude_text_id, params.exclude_locus
     if univ_active:
         from backend import univerbation as _univ
+        _univ_answers = _univ.joined_answers(univ_forward)
     results = []
     by_work_all = None
 
@@ -1059,15 +1157,42 @@ def _scanned_candidates(params: LineSearchParams, lang_dir: str, lang_dates: dic
     exact_query = strip_hebrew_pointing(query) if he_exact else query
     exact_pattern = exact_phrase_pattern(exact_query) if search_type == 'exact' else None
     text_files = [f for f in fspaths.listdir_text(lang_dir) if f.endswith('.tess')]
+    regex_rx = None
+    if search_type == 'regex':
+        # Compiled once. A pattern that does not compile matches no line (each
+        # search used to raise re.error on every line and be passed over), so
+        # there is nothing to scan.
+        try:
+            regex_rx = re.compile(query, re.IGNORECASE)
+        except re.error:
+            return results, by_work_all
+    prefilter_pattern = _exact_prefilter_pattern(exact_query) if (search_type == 'exact' and not he_exact) else None
     
+    # The same word is lemmatized once for the whole scan, not once per
+    # occurrence: lemmatize_word gives the same answer each time and the scan
+    # asks about the same few thousand words over and over.
+    lemma_memo = {}
+
+    def lemmas_of(word):
+        found = lemma_memo.get(word)
+        if found is None:
+            found = frozenset(text_processor.lemmatize_word(word, language))
+            if len(lemma_memo) < 400000:
+                lemma_memo[word] = found
+        return found
+
     for filename in text_files:
         filepath = os.path.join(lang_dir, filename)
-        metadata = get_text_metadata(filepath)
-        
-        if author_filter and metadata['author'] != author_filter:
-            continue
-        if work_filter and filename != work_filter and metadata['title'] != work_filter:
-            continue
+        # A text's title and kind are looked up when a filter needs them or
+        # when a line of the text matches, not for every text of the language.
+        metadata = None
+        if author_filter or work_filter:
+            metadata = get_text_metadata(filepath)
+
+            if author_filter and metadata['author'] != author_filter:
+                continue
+            if work_filter and filename != work_filter and metadata['title'] != work_filter:
+                continue
         
         author_key = filename.split('.')[0].lower()
         author_info = lang_dates.get(author_key, {})
@@ -1077,164 +1202,171 @@ def _scanned_candidates(params: LineSearchParams, lang_dir: str, lang_dates: dic
         year = author_info.get('year')
 
         with fspaths.open_text(filepath, 'r', encoding='utf-8') as f:
-            for line in f:
-                line = line.strip()
-                if not line or not line.startswith('<'):
-                    continue
+            raw = f.read()
+        lines = raw.split('\n')
+        wanted = _exact_candidate_lines(raw, prefilter_pattern) if (search_type == 'exact' and not he_exact) else None
+        if wanted is not None and not wanted:
+            continue
+
+        for line in (lines if wanted is None else (lines[i] for i in wanted)):
+            line = line.strip()
+            if not line or not line.startswith('<'):
+                continue
                 
+            try:
+                end_tag = line.index('>')
+                full_locus = line[1:end_tag].strip()
+                text = line[end_tag+1:].strip()
+            except ValueError:
+                continue
+            locus = None
+                
+            if line_start or line_end:
+                locus = format_short_locus(full_locus)
                 try:
-                    end_tag = line.index('>')
-                    full_locus = line[1:end_tag].strip()
-                    text = line[end_tag+1:].strip()
+                    parts = locus.split()
+                    line_num = int(parts[-1]) if parts else 0
+                    if line_start and line_num < line_start:
+                        continue
+                    if line_end and line_num > line_end:
+                        continue
+                except (ValueError, IndexError):
+                    pass
+                
+            match_found = False
+            univ_line = None
+            if search_type == 'exact':
+                # Whole-word-start match (see _exact_phrase_pattern):
+                # excludes substring hits like "quot" inside "aliquot".
+                # Hebrew matches on the pointing-stripped layer; other
+                # languages are NFC-normalized so a precomposed Greek query
+                # matches text stored decomposed (Homer Il. 1.1 μῆνιν ἄειδε
+                # is NFD in the corpus). Both normalize the query side too.
+                match_text = strip_hebrew_pointing(text) if he_exact else exact_search_text(text)
+                if he_exact and ('[' in match_text or '(' in match_text):
+                    # Qere/ketiv, printed "[qere] (ketiv)" or
+                    # "(ketiv) [qere]": a phrase may run through
+                    # EITHER reading. Linearize both readings of the
+                    # line and match if either contains the phrase,
+                    # so exact search for the qere or the ketiv form
+                    # both find the verse.
+                    qere_line = re.sub(r'\[([^\[\]]+)\]\s*\(([^()]+)\)', r'\1', match_text)
+                    qere_line = re.sub(r'\(([^()]+)\)\s*\[([^\[\]]+)\]', r'\2', qere_line)
+                    ketiv_line = re.sub(r'\[([^\[\]]+)\]\s*\(([^()]+)\)', r'\2', match_text)
+                    ketiv_line = re.sub(r'\(([^()]+)\)\s*\[([^\[\]]+)\]', r'\1', ketiv_line)
+                    if exact_pattern and (exact_pattern.search(qere_line) or exact_pattern.search(ketiv_line)):
+                        match_found = True
+                elif exact_pattern and exact_pattern.search(match_text):
+                    match_found = True
+            elif search_type == 'regex':
+                if regex_rx is not None and regex_rx.search(text):
+                    match_found = True
+            elif univ_active:
+                # Latin words joined or apart: judged on the
+                # line's own word sequence.
+                _uw = re.sub(r'[^\w\s]', '', text.lower()).split()
+                _usets = []
+                for _w in _uw:
+                    _ls = set(lemmas_of(_w))
+                    _ls.add(_w)
+                    _usets.append(_ls)
+                univ_line = _univ.match_line(
+                    _usets, _uw, filtered_query_lemmas, univ_forward, univ_sequences, answers=_univ_answers)
+                match_found = bool(univ_line[0])
+            else:
+                text_lower = text.lower()
+                text_words = set(re.sub(r'[^\w\s]', '', text_lower).split())
+                text_lemmas = set()
+                for word in text_words:
+                    text_lemmas.update(lemmas_of(word))
+                text_lemmas.update(text_words)
+                    
+                # Use filtered query lemmas (without stopwords)
+                if filtered_query_lemmas & text_lemmas:
+                    match_found = True
+                
+            if match_found:
+                if locus is None:
                     locus = format_short_locus(full_locus)
-                except ValueError:
-                    continue
-                
-                if line_start or line_end:
-                    try:
-                        parts = locus.split()
-                        line_num = int(parts[-1]) if parts else 0
-                        if line_start and line_num < line_start:
-                            continue
-                        if line_end and line_num > line_end:
-                            continue
-                    except (ValueError, IndexError):
-                        pass
-                
-                match_found = False
-                univ_line = None
-                if search_type == 'exact':
-                    # Whole-word-start match (see _exact_phrase_pattern):
-                    # excludes substring hits like "quot" inside "aliquot".
-                    # Hebrew matches on the pointing-stripped layer; other
-                    # languages are NFC-normalized so a precomposed Greek query
-                    # matches text stored decomposed (Homer Il. 1.1 μῆνιν ἄειδε
-                    # is NFD in the corpus). Both normalize the query side too.
-                    match_text = strip_hebrew_pointing(text) if he_exact else exact_search_text(text)
-                    if he_exact and ('[' in match_text or '(' in match_text):
-                        # Qere/ketiv, printed "[qere] (ketiv)" or
-                        # "(ketiv) [qere]": a phrase may run through
-                        # EITHER reading. Linearize both readings of the
-                        # line and match if either contains the phrase,
-                        # so exact search for the qere or the ketiv form
-                        # both find the verse.
-                        qere_line = re.sub(r'\[([^\[\]]+)\]\s*\(([^()]+)\)', r'\1', match_text)
-                        qere_line = re.sub(r'\(([^()]+)\)\s*\[([^\[\]]+)\]', r'\2', qere_line)
-                        ketiv_line = re.sub(r'\[([^\[\]]+)\]\s*\(([^()]+)\)', r'\2', match_text)
-                        ketiv_line = re.sub(r'\(([^()]+)\)\s*\[([^\[\]]+)\]', r'\1', ketiv_line)
-                        if exact_pattern and (exact_pattern.search(qere_line) or exact_pattern.search(ketiv_line)):
-                            match_found = True
-                    elif exact_pattern and exact_pattern.search(match_text):
-                        match_found = True
-                elif search_type == 'regex':
-                    try:
-                        if re.search(query, text, re.IGNORECASE):
-                            match_found = True
-                    except re.error:
-                        pass
-                elif univ_active:
-                    # Latin words joined or apart: judged on the
-                    # line's own word sequence.
-                    _uw = re.sub(r'[^\w\s]', '', text.lower()).split()
-                    _usets = []
-                    for _w in _uw:
-                        _ls = set(text_processor.lemmatize_word(_w, language))
-                        _ls.add(_w)
-                        _usets.append(_ls)
-                    univ_line = _univ.match_line(
-                        _usets, _uw, filtered_query_lemmas, univ_forward, univ_sequences)
-                    match_found = bool(univ_line[0])
+                if metadata is None:
+                    metadata = get_text_metadata(filepath)
+                matched_words = []
+                matched_lemmas = set()  # Track unique lemmas matched (excluding stopwords)
+                if search_type == 'lemma' and univ_line is not None:
+                    matched_lemmas = set(univ_line[0])
+                    matched_words = list(univ_line[1])
+                elif search_type == 'lemma':
+                    for word in re.sub(r'[^\w\s]', '', text.lower()).split():
+                        word_lemmas = set(lemmas_of(word))
+                        word_lemmas.add(word)
+                        # Only count matches with filtered lemmas (no stopwords)
+                        shared_lemmas = word_lemmas & filtered_query_lemmas
+                        if shared_lemmas:
+                            matched_words.append(word)
+                            matched_lemmas.update(shared_lemmas)
+                elif search_type == 'exact':
+                    # The exact pattern already required the whole adjacent
+                    # phrase, so every query word is present. Count them ALL,
+                    # including stopwords — they are part of the phrase the user
+                    # asked for (e.g. "ad Scythiam"), not co-occurrence noise to
+                    # filter. Without this, a phrase containing a stopword falls
+                    # below the 2-word threshold and is silently dropped.
+                    for word in query.split():
+                        wl = word.lower()
+                        matched_words.append(wl)
+                        matched_lemmas.add(wl)
                 else:
-                    text_lower = text.lower()
-                    text_words = set(re.sub(r'[^\w\s]', '', text_lower).split())
-                    text_lemmas = set()
-                    for word in text_words:
-                        lemmas = text_processor.lemmatize_word(word, language)
-                        text_lemmas.update(lemmas)
-                    text_lemmas.update(text_words)
+                    for word in query.lower().split():
+                        if word in text.lower() and word not in stopwords:
+                            matched_words.append(word)
+                            matched_lemmas.add(word)
                     
-                    # Use filtered query lemmas (without stopwords)
-                    if filtered_query_lemmas & text_lemmas:
-                        match_found = True
-                
-                if match_found:
-                    matched_words = []
-                    matched_lemmas = set()  # Track unique lemmas matched (excluding stopwords)
-                    if search_type == 'lemma' and univ_line is not None:
-                        matched_lemmas = set(univ_line[0])
-                        matched_words = list(univ_line[1])
-                    elif search_type == 'lemma':
-                        for word in re.sub(r'[^\w\s]', '', text.lower()).split():
-                            word_lemmas = text_processor.lemmatize_word(word, language)
-                            word_lemmas.add(word)
-                            # Only count matches with filtered lemmas (no stopwords)
-                            shared_lemmas = word_lemmas & filtered_query_lemmas
-                            if shared_lemmas:
-                                matched_words.append(word)
-                                matched_lemmas.update(shared_lemmas)
-                    elif search_type == 'exact':
-                        # The exact pattern already required the whole adjacent
-                        # phrase, so every query word is present. Count them ALL,
-                        # including stopwords — they are part of the phrase the user
-                        # asked for (e.g. "ad Scythiam"), not co-occurrence noise to
-                        # filter. Without this, a phrase containing a stopword falls
-                        # below the 2-word threshold and is silently dropped.
-                        for word in query.split():
-                            wl = word.lower()
-                            matched_words.append(wl)
-                            matched_lemmas.add(wl)
-                    else:
-                        for word in query.lower().split():
-                            if word in text.lower() and word not in stopwords:
-                                matched_words.append(word)
-                                matched_lemmas.add(word)
+                # Co-occurrence (lemma/regex) search needs at least 2 distinct
+                # lemmas — a single word in isolation is not a co-occurrence.
+                # Exact-phrase search is different: the user asked for that
+                # specific phrase, so a single-word query is a complete and
+                # valid match and must not be dropped here (issue #502: Coptic
+                # single-word exact queries returned nothing).
+                if search_type != 'exact' and len(matched_lemmas) < 2:
+                    continue
                     
-                    # Co-occurrence (lemma/regex) search needs at least 2 distinct
-                    # lemmas — a single word in isolation is not a co-occurrence.
-                    # Exact-phrase search is different: the user asked for that
-                    # specific phrase, so a single-word query is a complete and
-                    # valid match and must not be dropped here (issue #502: Coptic
-                    # single-word exact queries returned nothing).
-                    if search_type != 'exact' and len(matched_lemmas) < 2:
+                # Exclude source line if specified (normalize both sides for robust matching)
+                if exclude_text_id and exclude_locus:
+                    exclude_text_normalized = exclude_text_id.replace('.tess', '').lower()
+                    filename_normalized = filename.replace('.tess', '').lower()
+                    exclude_locus_clean = clean_cts_reference(exclude_locus) if exclude_locus else ''
+                    locus_clean = clean_cts_reference(locus) if locus else ''
+                    if filename_normalized == exclude_text_normalized and locus_clean == exclude_locus_clean:
                         continue
                     
-                    # Exclude source line if specified (normalize both sides for robust matching)
-                    if exclude_text_id and exclude_locus:
-                        exclude_text_normalized = exclude_text_id.replace('.tess', '').lower()
-                        filename_normalized = filename.replace('.tess', '').lower()
-                        exclude_locus_clean = clean_cts_reference(exclude_locus) if exclude_locus else ''
-                        locus_clean = clean_cts_reference(locus) if locus else ''
-                        if filename_normalized == exclude_text_normalized and locus_clean == exclude_locus_clean:
-                            continue
+                # UNIFIED DISTANCE FILTERING (same logic as pairwise search)
+                if not passes_distance_filter(text, matched_words, filename, language):
+                    continue
                     
-                    # UNIFIED DISTANCE FILTERING (same logic as pairwise search)
-                    if not passes_distance_filter(text, matched_words, filename, language):
-                        continue
+                results.append({
+                    'text_id': filename,
+                    'author': metadata['author'],
+                    'work': metadata['title'],
+                    'locus': locus,
+                    'text': text,
+                    'era': era,
+                    'year': year,
+                    'is_poetry': not is_prose_text_unified(filename, language),
+                    'matched_words': matched_words,
+                    # The distinct query lemmas this line shares,
+                    # for rarity-aware filtering downstream.
+                    'matched_lemmas': sorted(matched_lemmas),
+                    # An exact or pattern hit carries the whole
+                    # query by construction (closeness ranking).
+                    'n_matched': len(matched_lemmas),
+                    'n_surface': (len(query.split()) if search_type == 'exact'
+                                  else _surface_hits(query, text.split(), language)),
+                    'span': None,
+                    'quotation': search_type == 'exact',
+                })
                     
-                    results.append({
-                        'text_id': filename,
-                        'author': metadata['author'],
-                        'work': metadata['title'],
-                        'locus': locus,
-                        'text': text,
-                        'era': era,
-                        'year': year,
-                        'is_poetry': not is_prose_text_unified(filename, language),
-                        'matched_words': matched_words,
-                        # The distinct query lemmas this line shares,
-                        # for rarity-aware filtering downstream.
-                        'matched_lemmas': sorted(matched_lemmas),
-                        # An exact or pattern hit carries the whole
-                        # query by construction (closeness ranking).
-                        'n_matched': len(matched_lemmas),
-                        'n_surface': (len(query.split()) if search_type == 'exact'
-                                      else _surface_hits(query, text.split(), language)),
-                        'span': None,
-                        'quotation': search_type == 'exact',
-                    })
-                    
-                    if len(results) >= max_results:
-                        break
+                if len(results) >= max_results:
+                    break
         
         if len(results) >= max_results:
             break

@@ -33,6 +33,22 @@ INDEX_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data', 'in
 
 _connections = {}
 
+# json.loads wraps the C scanner in several Python calls, which costs more than
+# the scan itself for the short lists the index stores (a few hundred thousand
+# of them in one common-word search). _scan_json calls the scanner directly and
+# gives the same value; any text it cannot take whole goes to json.loads.
+_json_scan = json.decoder.JSONDecoder().scan_once
+
+
+def _scan_json(text):
+    try:
+        value, end = _json_scan(text, 0)
+        if end == len(text):
+            return value
+    except (StopIteration, ValueError, IndexError):
+        pass
+    return json.loads(text)
+
 def get_connection(language):
     """Get SQLite connection for a language index (lazy loading)"""
     if language not in _connections:
@@ -113,7 +129,7 @@ def set_corpus_version(conn, version):
                  "ON CONFLICT(key) DO UPDATE SET value=excluded.value", (version,))
     conn.commit()
 
-def lookup_lemmas(lemmas, language, fallback_forms=None, conn=None):
+def lookup_lemmas(lemmas, language, fallback_forms=None, conn=None, min_matches=1):
     """
     Look up multiple lemmas and return matching text locations.
 
@@ -132,6 +148,12 @@ def lookup_lemmas(lemmas, language, fallback_forms=None, conn=None):
                        pseudo-language — without changing this function's own behaviour
                        for every existing caller, which still passes no `conn` and gets
                        get_connection(language) as before).
+        min_matches: Locations holding fewer than this many of the query lemmas
+                       are left out (default 1: every location is returned, as
+                       always). A caller that wants only locations with several
+                       of the lemmas (find_co_occurring_lemmas) passes it, and
+                       the positions of the locations that would be dropped are
+                       not read.
 
     Returns:
         Dict mapping (text_id, ref) to list of matching lemmas and positions
@@ -189,15 +211,34 @@ def lookup_lemmas(lemmas, language, fallback_forms=None, conn=None):
     
     try:
         cursor.execute(query, expanded_list)  # nosec B608
-        for row in cursor.fetchall():
-            lemma, filename, ref, positions_json = row
-            key = (filename, ref)
-            if key not in results:
-                results[key] = {'lemmas': set(), 'positions': {}}
-            positions = json.loads(positions_json)
-            for canonical in lemma_mapping.get(lemma, [lemma]):
-                results[key]['lemmas'].add(canonical)
-                results[key]['positions'][canonical] = positions
+        if min_matches > 1:
+            # Collect each location's lemmas and the raw positions first, and
+            # read the positions only of the locations that hold enough lemmas.
+            # The locations kept, their order and their contents are those the
+            # single pass below gives.
+            pending = {}
+            for lemma, filename, ref, positions_json in cursor.fetchall():
+                entry = pending.get((filename, ref))
+                if entry is None:
+                    entry = pending[(filename, ref)] = ({}, set())
+                for canonical in lemma_mapping.get(lemma, [lemma]):
+                    entry[0][canonical] = positions_json
+                    entry[1].add(canonical)
+            for key, (raw_positions, canonicals) in pending.items():
+                if len(canonicals) < min_matches:
+                    continue
+                results[key] = {'lemmas': canonicals,
+                                'positions': {c: _scan_json(raw) for c, raw in raw_positions.items()}}
+        else:
+            for row in cursor.fetchall():
+                lemma, filename, ref, positions_json = row
+                key = (filename, ref)
+                if key not in results:
+                    results[key] = {'lemmas': set(), 'positions': {}}
+                positions = _scan_json(positions_json)
+                for canonical in lemma_mapping.get(lemma, [lemma]):
+                    results[key]['lemmas'].add(canonical)
+                    results[key]['positions'][canonical] = positions
     except Exception as e:
         logger.error(f"Index lookup error: {e}")
     
@@ -221,7 +262,7 @@ def find_co_occurring_lemmas(lemmas, language, min_matches=2, max_distance=None,
     Returns:
         List of (filename, ref, matching_lemmas, positions_dict) tuples
     """
-    all_matches = lookup_lemmas(lemmas, language, fallback_forms=fallback_forms, conn=conn)
+    all_matches = lookup_lemmas(lemmas, language, fallback_forms=fallback_forms, conn=conn, min_matches=min_matches)
     
     results = []
     for (filename, ref), data in all_matches.items():
@@ -355,8 +396,8 @@ def get_lines_batch(filename, refs, language, conn=None):
     for row in cursor.fetchall():
         results[row[0]] = {
             'text': row[1],
-            'lemmas': json.loads(row[2]) if row[2] else [],
-            'tokens': json.loads(row[3]) if row[3] else []
+            'lemmas': _scan_json(row[2]) if row[2] else [],
+            'tokens': _scan_json(row[3]) if row[3] else []
         }
     return results
 
