@@ -278,6 +278,27 @@ describe('a search that finds nothing', () => {
     expect(screen.getByDisplayValue('Lemma (dictionary form)')).toBeTruthy();
   });
 
+  it('keeps the literature side of the exact retry in a both search', async () => {
+    const livy = {
+      collection: 'literature', text_id: 'livy.ab_urbe_condita.tess', author: 'Livy', work: 'Ab Urbe Condita',
+      ref: 'livy. urbe. 10.4.5', locus: '10.4.5', citation: 'Livy, Ab Urbe Condita 10.4.5',
+      text: 'itaque confestim castra inde in agrum Rusellanum promovit.',
+      matched_words: ['Rusellanum'], matched_lemmas: ['rusellanum'], tokens: ['Rusellanum'],
+    };
+    mockFetch({
+      documentsEnabled: true,
+      lineSearchResponse: (body) => body.search_type === 'exact'
+        ? { collection: 'both', total: 1, documents_total: 7, results: [documentHit(), livy] }
+        : { collection: 'both', total: 0, documents_total: 0, results: [] },
+    });
+    render(<InscriptionsPapyriPage />);
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Inscriptions, papyri and the literature' })).toBeTruthy());
+    await userEvent.click(screen.getByRole('button', { name: 'Inscriptions, papyri and the literature' }));
+    await typeAndSearch('rusel');
+    await screen.findByTestId('documents-fallback');
+    await waitFor(() => expect(screen.getByText(/Also found in the literature \(1\)/)).toBeTruthy());
+  });
+
   it('says so when the exact retry also finds nothing, with no third request', async () => {
     const calls = mockFetch({
       documentsEnabled: true,
