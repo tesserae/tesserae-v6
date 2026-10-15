@@ -305,6 +305,14 @@ def format_short_locus(raw_ref):
     # carrying the underscore into display ("A.18 col. 2").
     tail = re.sub(r'_col(\d+)\b', r' col. \1', tail)
 
+    # The Ennius Annales file labels fragments of uncertain book "sedinc.N" (sedis
+    # incertae) and of uncertain work "opinc.N" (operis incerti), N being
+    # Skutsch's number. Without this the numeric rule below keeps only "N",
+    # which reads as an ordinary line and hides that the book is unknown.
+    m = re.match(r'^(sedinc|opinc)\.(\d+[a-z]?)$', tail)
+    if m:
+        return ('%s (book uncertain)' % m.group(2)) if m.group(1) == 'sedinc' else ('uncertain work %s' % m.group(2))
+
     # CTS URN anywhere in the tail: reuse the URN-aware cleaner.
     if 'urn:cts:' in tail:
         return clean_cts_reference(tail)

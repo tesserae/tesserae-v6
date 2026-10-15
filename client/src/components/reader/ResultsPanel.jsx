@@ -7,7 +7,7 @@ import { useCorpusTextMap, citationFromCorpusMap } from '../../utils/textNames';
 import { chronological, dateParts } from '../../utils/chronology';
 import { LoadingSpinner } from '../common';
 import { ResultsInsight } from '../assistant';
-import { displayRef } from './refId';
+import { displayRef, readableLocus } from './refId';
 import { LANGUAGE_NAMES as LANG_LABEL } from '../../utils/languageNames';
 import { scholarshipLanguages } from '../../utils/scholarshipLanguages';
 import ScholarshipTab from './ScholarshipTab';
@@ -1529,7 +1529,7 @@ function sameWork(a, b) {
 export function shortRef(ref) {
   if (!ref) return '';
   const m = String(ref).match(/(\d+[.:]\d+)\s*$/);
-  return m ? m[1] : String(ref).split(/\s+/).pop();
+  return m ? m[1] : readableLocus(String(ref).split(/\s+/).pop());
 }
 
 /** "vergil.aeneid.part.6" -> "Vergil, Aeneid 6", good enough for a result label. */
