@@ -35,6 +35,28 @@ _cache = {}          # work key -> parsed file (or None when absent)
 _index = None        # tess work name -> filename
 
 
+
+def credit_line(data):
+    """The credit a reader sees for a translation file: who translated it, when,
+    and where the text came from. Many files record the translator only in their
+    sources and carry a site name ("Perseus Digital Library, Tufts University")
+    as the attribution, which named the website as the translator (2026-10-15,
+    101 Latin works). A translator not already named in the attribution is put
+    in front of it."""
+    attribution = (data.get('attribution') or '').strip()
+    names = []
+    for s in data.get('sources') or []:
+        who = (s.get('translator') or '').strip()
+        if not who or who in names:
+            continue
+        year = s.get('year')
+        names.append(f"{who} ({year})" if year else who)
+    missing = [n for n in names if n.split(' (')[0] not in attribution]
+    if not missing:
+        return attribution
+    lead = ', '.join(missing)
+    return f"{lead}, via {attribution}" if attribution else lead
+
 def _build_index():
     """Map our work names to translation files, once."""
     global _index
@@ -278,7 +300,7 @@ def available(language):
         except (OSError, ValueError):
             continue
         entry = out.setdefault(base, {
-            'attribution': data.get('attribution', ''),
+            'attribution': credit_line(data),
             'coverage': 0.0,
             'confidence': data.get('alignment_confidence', ''),
         })
@@ -338,7 +360,7 @@ def full_text(work, language=None):
         blocks.append({'ref_start': cur_start, 'ref_end': cur_end,
                        'text': units[cur_unit]})
     return {'available': True, 'work': base,
-            'attribution': data.get('attribution', ''),
+            'attribution': credit_line(data),
             'license': data.get('license', ''),
             'alignment_confidence': data.get('alignment_confidence', ''),
             'coverage': data.get('coverage'),
