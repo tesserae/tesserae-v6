@@ -681,6 +681,8 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   <p className="text-gray-600 text-sm mt-1">
                     Finds words that appear in fewer than 50 texts corpus-wide but are shared between your source
                     and target texts. These low-frequency words often indicate meaningful textual connections.
+                    Export CSV saves the list you see. Download everything (CSV) fetches, for each word, every
+                    place it occurs in the corpus, one row per occurrence, and can be a large file.
                   </p>
                   <p className="text-gray-500 text-sm mt-2">
                     <strong>Use for:</strong> Identifying distinctive vocabulary that suggests direct borrowing or influence.

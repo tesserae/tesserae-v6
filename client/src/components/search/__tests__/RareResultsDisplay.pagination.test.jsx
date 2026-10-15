@@ -299,3 +299,24 @@ describe('RareResultsDisplay — edge cases', () => {
     expect(countRows()).toBe(30);
   });
 });
+
+describe('Download everything (CSV)', () => {
+  it('asks again with include_corpus_locations and shows the preparing state', async () => {
+    let release;
+    api.searchHapax.mockImplementation(() => new Promise((res) => { release = res; }));
+    globalThis.URL.createObjectURL = vi.fn(() => 'blob:x');
+    globalThis.URL.revokeObjectURL = vi.fn();
+    const params = { source: 's', target: 't', language: 'la', max_occurrences: 10 };
+    render(<RareResultsDisplay {...baseProps} results={makeHapax(3)} searchParams={params} />);
+    expect(screen.getByRole('button', { name: 'Export CSV' })).toBeTruthy();
+    await userEvent.click(screen.getByRole('button', { name: 'Download everything (CSV)' }));
+    expect(api.searchHapax).toHaveBeenCalledWith({ ...params, include_corpus_locations: true });
+    expect(screen.getByRole('button', { name: 'Preparing download...' })).toBeTruthy();
+    release({ results: [] });
+    expect(await screen.findByRole('button', { name: 'Download everything (CSV)' })).toBeTruthy();
+  });
+  it('is absent without search parameters', () => {
+    render(<RareResultsDisplay {...baseProps} results={makeHapax(3)} />);
+    expect(screen.queryByRole('button', { name: 'Download everything (CSV)' })).toBeNull();
+  });
+});
