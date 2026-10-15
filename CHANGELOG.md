@@ -8,6 +8,7 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-15
+- Reader, Reuse tab: when the inscriptions and papyri are switched off, a line says how many of them quote the selected line, with "Show them" to switch the collections on. Before, those hits were dropped without a word.
 - Scholarship tab: names that arrive with accented letters as escape text ("Ar\ue9valo") read correctly ("Arévalo"); a record that names no author, such as an edited volume, starts with its title instead of "Unknown author"; Google Books titles carry their subtitle.
 - The Reader and Theme Search no longer carry the Beta label (menu and page headers).
 - Ennius, Annales: fragments of uncertain book and of uncertain work now read "481 (book uncertain)" and "uncertain work 37" instead of the file's labels "sedinc.481" and "opinc.37" (cards, Reader, citations). The numbers are Skutsch's.
