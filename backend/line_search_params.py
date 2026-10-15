@@ -39,6 +39,7 @@ class LineSearchParams:
     exclude_text_id: str
     exclude_locus: str
     line_text: str
+    exclude_author: str = ''
 
 
 def _read_params(data) -> LineSearchParams:
@@ -162,6 +163,8 @@ def _read_params(data) -> LineSearchParams:
     exclude_locus = data.get('exclude_locus', '')
     
     line_text = data.get('line_text', '')
+    # Drop every work of one author (the work id's first segment, e.g. 'vergil').
+    exclude_author = str(data.get('exclude_author', '') or '').strip().lower()
 
     return LineSearchParams(
         data=data, query=query, language=language, search_type=search_type,
@@ -175,4 +178,4 @@ def _read_params(data) -> LineSearchParams:
         doc_hide_formulas=doc_hide_formulas, doc_sort=doc_sort,
         doc_offset=doc_offset, doc_limit=doc_limit,
         exclude_text_id=exclude_text_id, exclude_locus=exclude_locus,
-        line_text=line_text)
+        line_text=line_text, exclude_author=exclude_author)

@@ -8,6 +8,8 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-15
+- Reader Parallels tab: the first page is 50 matches (it was 25), and a "Show more matches" button asks for 50 more at a time, up to 200. The button shows when the search reports it reached its limit; choosing another selection starts again at 50. Line Search itself accepts any `max_results`, so 200 is the page's own limit.
+- Reader Parallels tab: a switch "Hide Vergil's own works" (the selected work's author) above the list, off by default and remembered in the browser. Line Search (`/api/line-search`) takes a new `exclude_author` parameter (the first part of the text id, for example `vergil`), which removes every work of that author, whole files and book files, before the per-work counts and the result limit, so a full page of other authors comes back and `by_work_all` and `lines_all` describe the filtered set. The single-word document-frequency count (`count_only` with one word) is not filtered. The Claude connector's `line_search` tool accepts it too. Without the parameter every answer is unchanged.
 - Reader, Reuse tab: when the inscriptions and papyri are switched off, a line says how many of them quote the selected line, with "Show them" to switch the collections on. Before, those hits were dropped without a word.
 - Scholarship tab: names that arrive with accented letters as escape text ("Ar\ue9valo") read correctly ("Arévalo"); a record that names no author, such as an edited volume, starts with its title instead of "Unknown author"; Google Books titles carry their subtitle.
 - The Reader and Theme Search no longer carry the Beta label (menu and page headers).

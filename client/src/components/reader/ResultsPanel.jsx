@@ -50,6 +50,10 @@ const READER_SCOPE_ID = {
   coins: 'reader_coins',
 };
 
+const VERBAL_FIRST = 50;
+const VERBAL_MAX = 200;
+const HIDE_OWN_KEY = 'tesserae_reader_hide_own_author';
+
 export default function ResultsPanel({ selection, focus, language, work, units, onOpenPassage,
                                        initialTab, onClose, reuseFirst }) {
   // Arriving from Theme Search, the reader has just been shown an English
@@ -97,6 +101,21 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
   const [verbalError, setVerbalError] = useState(null);
   // Kept so the panel can hand the same query on to the full Line Search page.
   const [verbalQuery, setVerbalQuery] = useState('');
+  // "Hide <Author>'s own works": drops the selected work's own author from the
+  // Parallels list. Off by default; the choice is remembered in this browser.
+  const [hideOwn, setHideOwn] = useState(() => {
+    try { return window.localStorage.getItem(HIDE_OWN_KEY) === 'on'; } catch { return false; }
+  });
+  // How many parallels to ask for: 50 first, 50 more per Show-more press, up to
+  // 200 (the server accepts any max_results). Reset on every new selection.
+  const [verbalLimit, setVerbalLimit] = useState(VERBAL_FIRST);
+  useEffect(() => { setVerbalLimit(VERBAL_FIRST); }, [selection]);
+  const chooseHideOwn = (on) => {
+    setHideOwn(on);
+    try { window.localStorage.setItem(HIDE_OWN_KEY, on ? 'on' : 'off'); } catch { /* private window */ }
+  };
+  const ownAuthorKey = String(work || '').split('.')[0].toLowerCase();
+  const ownAuthorName = cap(ownAuthorKey);
   // The Documents tab: inscriptions and papyri sharing words with the selection.
   const [docHits, setDocHits] = useState(null);
   const [docLoading, setDocLoading] = useState(false);
@@ -309,7 +328,7 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
         query,
         language,
         search_type: 'lemma',
-        max_results: 25,
+        max_results: verbalLimit,
         // The backend drops a hit only when text AND locus both match, so this
         // removes the source line itself without hiding the rest of the work:
         // a reader looking at Aeneid 6 should still be told when Aeneid 2 uses
@@ -324,6 +343,8 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
         // matching quid + varii is Latin, not an echo). Reader-only: the Line
         // Search page keeps deliberate common-word queries intact.
         rare_focus: true,
+        // Leave out the author of the selected work (the switch above the list).
+        exclude_author: hideOwn && ownAuthorKey ? ownAuthorKey : undefined,
       }),
     })
       .then(asJson)
@@ -343,7 +364,7 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
       .catch((e) => { if (!cancelled) setVerbalError(e.message); })
       .finally(() => { if (!cancelled) setVerbalLoading(false); });
     return () => { cancelled = true; };
-  }, [selection, work, units, language, tab]);
+  }, [selection, work, units, language, tab, hideOwn, ownAuthorKey, verbalLimit]);
 
   /* DOCUMENTS: the selection's words searched over the inscriptions and
    * papyri, the same Line Search the Parallels tab runs over the literature. */
@@ -752,6 +773,16 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
               </>
             )}
             {verbalError && <p className="text-sm text-red-700">{verbalError}</p>}
+            {ownAuthorKey && (
+              <label className="flex items-center gap-2 text-xs text-gray-700">
+                <input
+                  type="checkbox"
+                  checked={hideOwn}
+                  onChange={(e) => chooseHideOwn(e.target.checked)}
+                />
+                Hide {ownAuthorName}&rsquo;s own works
+              </label>
+            )}
             {!verbalLoading && verbal?.rare_focus?.hidden > 0 && (
               <p className="text-xs text-gray-500">
                 {verbal.rare_focus.hidden} match{verbal.rare_focus.hidden === 1 ? '' : 'es'} sharing
@@ -822,10 +853,21 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
                 )}
               </button>
             ))}
+            {!verbalLoading && verbal?.results?.length > 0
+              && (verbal.capped || verbal.results.length >= verbalLimit)
+              && verbalLimit < VERBAL_MAX && (
+              <button
+                onClick={() => setVerbalLimit((l) => Math.min(l + VERBAL_FIRST, VERBAL_MAX))}
+                className="w-full text-center text-xs font-medium text-red-700 border
+                           border-gray-200 rounded py-1.5 hover:bg-red-50"
+              >
+                Show more matches
+              </button>
+            )}
             {!verbalLoading && verbal?.results?.length > 0 && (
               <>
                 {/* THE WAY OUT TO THE REAL TOOLS. The panel runs one line
-                    against the corpus and shows 25; Line Search runs the same
+                    against the corpus and shows the first 50 (Show more raises it to 200); Line Search runs the same
                     query with the filters, the timeline, era and author facets,
                     and CSV export. This hands the query over rather than making
                     the reader retype it. */}
