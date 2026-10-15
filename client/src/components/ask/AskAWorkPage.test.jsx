@@ -616,7 +616,7 @@ describe('recent articles from the live services', () => {
     const side = await screen.findByTestId('ask-side');
     await screen.findByTestId('ask-scholarship-holdings');
     expect(within(side).getByTestId('ask-recent')).toBeInTheDocument();
-    expect(within(side).getByText('Articles found online')).toBeInTheDocument();
+    expect(within(side).getByText('Books and articles found online')).toBeInTheDocument();
     expect(within(side).queryByText('Recent articles')).toBeNull();
     expect(within(side).getByTestId('ask-scholarship-holdings')).toBeInTheDocument();
     const columns = screen.getByTestId('ask-columns');
