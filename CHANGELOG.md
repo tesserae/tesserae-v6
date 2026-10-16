@@ -8,6 +8,7 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-16
+- Evaluation: the cross-language recall benchmark can query every line of a Latin range and report by a grade column.
 - Evaluation: cross-language recall benchmark script generalized to any Latin work against Homer, gold passed by path.
 - Channels panel: the two links read "Channel explanations" (first) and "More in Help".
 - Phrase Search, channels panel (now headed "Channels and weights (advanced)"): a link that opens Help at the channels section, and a toggle that puts the one-line description under each channel; the intro no longer uses dashes and semicolons.
