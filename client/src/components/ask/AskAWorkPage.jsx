@@ -234,6 +234,17 @@ function SummaryText({ text, cites, onJump }) {
 }
 
 const RECENT_CAP_MS = 12000;
+// The route reads at most this many passage ranges; the page sends the first page's.
+const CITING_MAX = 25;
+const CITING_SHOWN = 8;
+const CITING_BADGE = { ejc: '1827 to 1922', muse: 'MUSE' };
+
+/** The record an exported article becomes: title, authors, journal, year and link. */
+export function citingRecord(it) {
+  return recordFrom({
+    title: it.title, authors: it.authors, year: it.year, venue: it.journal, url: it.url,
+  }, 'index');
+}
 
 export { mergeRecent };
 
@@ -367,6 +378,8 @@ export default function AskAWorkPage() {
   const [summary, setSummary] = useState(null);     // { state: 'loading' | 'ready', summary, cites }
   const [scholarship, setScholarship] = useState(null); // { state: 'loading' | 'ready' | 'none', holdings, summary, cites }
   const [recent, setRecent] = useState(null);   // { pending: [service], items: [...] } for the current search
+  const [citing, setCiting] = useState(null);   // { state: 'loading' | 'ready', items } articles in the citation indexes that cite the passages
+  const [showAllCiting, setShowAllCiting] = useState(false);
   const searchId = useRef(0);
 
   const fetchMentions = useCallback(async (names, workId, books, offset, question) => {
@@ -404,6 +417,7 @@ export default function AskAWorkPage() {
     else {
       setRunning(true); setData(null); setResults([]); setExhausted(false); setShowWeak(false);
       setMentions(null); setShowAllNames(false); setSummary(null); setScholarship(null); setRecent(null);
+      setCiting(null); setShowAllCiting(false);
       searchId.current += 1;
     }
     const id = searchId.current;
@@ -437,6 +451,16 @@ export default function AskAWorkPage() {
             });
           }).catch(() => {});
         }
+        // The journal citation indexes are asked in parallel with the two requests
+        // below: which articles cite one of the passages just found.
+        setCiting({ state: 'loading', items: [] });
+        postJsonTo('/api/passages/ask-citing', {
+          work: workId,
+          refs: got.slice(0, CITING_MAX).map((r) => ({ ref_start: r.ref_start, ref_end: r.ref_end || r.ref_start })),
+        }).then((c) => {
+          if (id !== searchId.current) return;
+          setCiting(c && c.available ? { state: 'ready', items: c.results || [] } : null);
+        }).catch(() => { if (id === searchId.current) setCiting(null); });
         setScholarship({ state: 'loading' });
         // The live services are asked first, one request each, and paint under the
         // paragraph as they answer (owner, 2026-10-12: "If it helps you can have
@@ -608,9 +632,59 @@ export default function AskAWorkPage() {
                         })}
                       </ul>
                     </div>);
+  const locusOf = (ref) => {
+    const r = results.find((x) => x.ref_start === ref);
+    return (r && r.locus) || String(ref || '').trim().split(/\s+/).pop();
+  };
+  const citingItems = citing?.items || [];
+  const citingShown = showAllCiting ? citingItems : citingItems.slice(0, CITING_SHOWN);
+  const citingSection = citing?.state === 'ready' && (
+    <div aria-label="Articles that cite these passages" className="mt-2 border-t border-gray-200 pt-2" data-testid="ask-citing">
+      <div className="flex items-baseline justify-between gap-2">
+        <p className="text-xs font-medium text-gray-700">Articles that cite these passages</p>
+        <CiteAll records={citingItems.map(citingRecord)} name={`${asked.work || 'work'} articles citing`}
+                 label="Export the citing articles" />
+      </div>
+      <p className="text-xs text-gray-500">From the journal citation indexes (journals of 1827 to 1922, and Project MUSE journals from 1996 on): articles whose pages cite one of the passages above.</p>
+      {citingItems.length === 0 ? (
+        <p className="mt-1 text-xs text-gray-700 leading-snug" data-testid="ask-citing-none">No article in the citation indexes cites these passages.</p>
+      ) : (
+        <>
+          <ul className="mt-1 space-y-2">
+            {citingShown.map((it) => (
+              <li key={`${it.source}|${it.url || ''}|${it.title}`} className="text-sm text-gray-800 leading-snug" data-testid="ask-citing-item">
+                {it.url ? (
+                  <a href={it.url} target="_blank" rel="noopener noreferrer" className="text-red-800 hover:text-red-900 hover:underline">{it.title}</a>
+                ) : it.title}
+                {[(it.authors || []).join(', '), it.journal, it.year].filter(Boolean).length > 0 && (
+                  <span className="text-gray-600">{`, ${[(it.authors || []).join(', '), it.journal, it.year].filter(Boolean).join(', ')}`}</span>
+                )}
+                <span className="ml-1 rounded bg-gray-100 px-1 text-[11px] text-gray-500">{CITING_BADGE[it.source] || it.source}</span>
+                <span className="block text-xs text-gray-600">
+                  {'cites '}
+                  {(it.cites || []).map((ref, k) => (
+                    <span key={ref}>
+                      {k > 0 && ', '}
+                      <button type="button" onClick={() => jumpRef(ref)} className="text-red-800 hover:text-red-900 hover:underline">{locusOf(ref)}</button>
+                    </span>
+                  ))}
+                </span>
+                <span className="block text-xs mt-0.5"><CiteRecordButton record={citingRecord(it)} /></span>
+              </li>
+            ))}
+          </ul>
+          {citingItems.length > CITING_SHOWN && (
+            <button type="button" onClick={() => setShowAllCiting((v) => !v)} className="mt-1 text-xs text-red-700 hover:underline" data-testid="ask-citing-toggle">
+              {showAllCiting ? 'Show fewer' : `Show all ${citingItems.length}`}
+            </button>
+          )}
+        </>
+      )}
+    </div>
+  );
   const noneFirst = scholarship?.state === 'ready' && scholarship.noneRelevant && !!recentSection;
   const showScholarshipBox = ['loading', 'ready', 'none'].includes(scholarship?.state)
-    || !!recentSection || recent?.pending.length > 0;
+    || !!recentSection || !!citingSection || recent?.pending.length > 0;
 
   return (
     <div className="max-w-6xl mx-auto p-6">
@@ -990,6 +1064,7 @@ export default function AskAWorkPage() {
                   {scholarship?.state === 'none' && (
                     <p className="mt-2 text-xs text-gray-500" data-testid="ask-scholarship-holdings">{scholarship.holdings}</p>
                   )}
+                  {citingSection}
                   {!noneFirst && recentSection}
                   {recent?.pending.length > 0 && (
                     <p className="mt-1 text-xs text-gray-500" data-testid="ask-recent-pending">
