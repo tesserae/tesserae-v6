@@ -41,6 +41,7 @@ class LineSearchParams:
     exclude_locus: str
     line_text: str
     exclude_author: str = ''
+    lemmas: tuple = ()
 
 
 def _read_params(data) -> LineSearchParams:
@@ -169,6 +170,14 @@ def _read_params(data) -> LineSearchParams:
     # Drop every work of one author (the work id's first segment, e.g. 'vergil').
     exclude_author = str(data.get('exclude_author', '') or '').strip().lower()
 
+    # Dictionary forms the caller already has (the results page's corpus
+    # panel sends a parallel's shared lemmas). With search_type 'lemma' they
+    # are the query-lemma set as given and are not lemmatized again.
+    _lemmas_raw = data.get('lemmas')
+    if isinstance(_lemmas_raw, str):
+        _lemmas_raw = _lemmas_raw.split()
+    lemmas = tuple(str(x).strip() for x in _lemmas_raw if str(x).strip()) if isinstance(_lemmas_raw, (list, tuple)) else ()
+
     return LineSearchParams(
         data=data, query=query, language=language, search_type=search_type,
         author_filter=author_filter, work_filter=work_filter,
@@ -181,4 +190,4 @@ def _read_params(data) -> LineSearchParams:
         doc_hide_formulas=doc_hide_formulas, doc_sort=doc_sort,
         doc_offset=doc_offset, doc_limit=doc_limit,
         exclude_text_id=exclude_text_id, exclude_locus=exclude_locus,
-        line_text=line_text, exclude_author=exclude_author)
+        line_text=line_text, exclude_author=exclude_author, lemmas=lemmas)
