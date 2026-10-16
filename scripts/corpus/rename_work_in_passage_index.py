@@ -15,6 +15,11 @@ said nothing about the passage index, where 181 windows, 823 line rows and
 181 descriptions carried the old name. Describing them again would have cost
 real money for text that had not changed.
 
+ALSO TOUCHED: `works_by_language.json`, the small sidecar Browse Corpus and the
+Theme Search author filter read instead of loading the index. The Thucydides
+rename of 2026-10-15 left it listing the old name, so the filter offered the
+new name and the search under it found nothing (repaired by hand that night).
+
 WHAT IS NOT TOUCHED: `embeddings.npy`. A rename does not move a row, and the
 id at position i still names the vector at position i, so the matrix is left
 exactly as it is. The count is asserted before and after all the same.
@@ -77,6 +82,37 @@ def affected(value, old):
     if LEAF:
         return value == old or value.startswith(old + ':')
     return value.startswith(old + '.')
+
+
+def rename_in_works_sidecar(index, old, new):
+    """Rename the work in works_by_language.json, if the sidecar exists.
+
+    The file holds {language: [base work id, ...]} under 'languages' and an
+    'index_version' stamp, the date of ids.json, which the reader compares
+    with the live file's date before trusting the lists. The rename has just
+    rewritten ids.json, so the stamp is recomputed the same way, else the
+    sidecar would read as stale and every worker would load the whole index
+    to answer a question this file exists to answer cheaply.
+    """
+    path = os.path.join(index, 'works_by_language.json')
+    if not os.path.exists(path):
+        return 0
+    payload = json.load(open(path, encoding='utf-8'))
+    languages = payload.get('languages') if isinstance(payload, dict) else None
+    if not isinstance(languages, dict):
+        return 0
+    changed = 0
+    for lang, works in languages.items():
+        renamed_works = sorted({renamed(w, old, new) for w in works})
+        changed += sum(1 for w in works if affected(w, old))
+        languages[lang] = renamed_works
+    import datetime
+    payload['index_version'] = datetime.date.fromtimestamp(
+        os.path.getmtime(os.path.join(index, 'ids.json'))).isoformat()
+    tmp = path + '.tmp'
+    json.dump(payload, open(tmp, 'w', encoding='utf-8'), ensure_ascii=False)
+    os.replace(tmp, path)
+    return changed
 
 
 def count_affected(index, old):
@@ -221,6 +257,8 @@ def main(argv=None):
         raise SystemExit('window_texts copy failed its integrity check; live file untouched')
     os.replace(db, live_db)
 
+    sidecar_changed = rename_in_works_sidecar(index, old, new)
+
     after_old = count_affected(index, old)
     after_new = count_affected(index, new)
     print(f'\ndescriptions rewritten: {kept} rows kept')
@@ -230,6 +268,7 @@ def main(argv=None):
     ids2 = json.load(open(ids_path, encoding='utf-8'))
     assert len(ids2) == n_before, 'the id count changed'
     print(f'ids still {len(ids2):,}; embeddings.npy untouched')
+    print(f'works_by_language.json: {sidecar_changed} entries renamed')
     print(f'backups *.bak-{args.tag}-{stamp}')
     print('\nREMEMBER: descriptions.jsonl changed, so rebuild desc_fts.sqlite '
           '(scripts/build_desc_fts.py), and the Reader margin cache is keyed '
