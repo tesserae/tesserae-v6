@@ -10,7 +10,7 @@ import { fetchFusionDefaultWeights } from '../../utils/api';
 // that runs together with Syntax and isn't separately tunable.
 // The table itself lives in utils/channels.js, shared with the findings block
 // above the results assistant, so the two panels use one vocabulary.
-import { CHANNEL_LABELS } from '../../utils/channels';
+import { CHANNEL_LABELS, channelDescription } from '../../utils/channels';
 
 const SearchSettings = ({ settings, setSettings, showAdvanced, setShowAdvanced, language = 'la' }) => {
   const stopwordExamples = {
@@ -489,7 +489,7 @@ const SearchSettings = ({ settings, setSettings, showAdvanced, setShowAdvanced, 
                     />
                     <label
                       className={`text-xs font-medium flex-1 min-w-0 truncate ${on ? 'text-gray-700' : 'text-gray-500 line-through'}`}
-                      title={label}
+                      title={channelDescription(ch) || label}
                     >
                       {label}
                       {on && channelWeights[ch] !== undefined && (
