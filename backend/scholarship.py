@@ -1242,6 +1242,46 @@ def citation_index(a, limit=40):
         note += ' Project MUSE journals from 1996 on are read under the library\'s license; one sentence is shown per citation.'
     return {'available': True, 'results': out[:limit], 'total': len(found), 'note': note}
 
+
+CITING_MAX_RANGES = 25
+
+
+def citing_articles(work, ranges, limit=40):
+    """The articles in the citation indexes that cite any of the passages on a
+    page, merged by article. `ranges` is a list of (ref_start, ref_end); each
+    result lists the ref_start of every range it cites (`cites`), and for an
+    EJC article one sentence per cited range (`sentences`: {ref, text}).
+    Project MUSE sentences are licensed text and are never returned: a MUSE
+    article carries its title, journal, year and DOI link only. Newest first,
+    then by the number of passages cited."""
+    ranges = list(ranges or [])[:CITING_MAX_RANGES]
+    merged = {}
+    available = False
+    note = ''
+    for ref_start, ref_end in ranges:
+        res = citation_index(passage_names(work, ref_start, ref_end or None), limit=limit)
+        if not res.get('available'):
+            continue
+        available = True
+        note = res.get('note') or note
+        for art in res.get('results') or []:
+            muse = art.get('source') == 'muse'
+            key = art.get('doi') or ('muse' if muse else 'ejc', art.get('title'))
+            item = merged.get(key)
+            if item is None:
+                item = merged[key] = {
+                    'title': art.get('title'), 'authors': art.get('authors') or [], 'year': art.get('year'),
+                    'journal': art.get('venue'), 'url': art.get('url') or art.get('url_jstor') or art.get('url_ia'),
+                    'source': 'muse' if muse else 'ejc', 'cites': [], 'sentences': []}
+            if ref_start not in item['cites']:
+                item['cites'].append(ref_start)
+                if not muse and art.get('snippet'):
+                    item['sentences'].append({'ref': ref_start, 'text': art['snippet']})
+    if not available:
+        return {'available': False, 'results': [], 'total': 0, 'note': ''}
+    out = sorted(merged.values(), key=lambda x: (-(x['year'] or 0), -len(x['cites']), x['title'] or ''))
+    return {'available': True, 'results': out, 'total': len(out), 'note': note}
+
 # ----------------------------------------------------------------- books
 
 GOOGLE_BOOKS_KEY = os.environ.get('GOOGLE_BOOKS_KEY', '')

@@ -676,6 +676,46 @@ def _recent_for_paragraph(question, work):
     return merged[:_SCHOL_RECENT], services, len(merged)
 
 
+_CITING_TTL = 3600
+_CITING_MAX_CACHED = 200
+_citing_cache = {}
+
+
+@passages_bp.route('/passages/ask-citing', methods=['POST'])
+def ask_citing():
+    """Articles in the journal citation indexes (1827 to 1922, and Project MUSE
+    from 1996) that cite one of the passages on the Search One Text page.
+    At most 25 ranges; MUSE sentences are never in the answer."""
+    import time
+    from backend import scholarship
+    data = request.get_json(silent=True) or {}
+    work = str(data.get('work') or '').strip()
+    raw = data.get('refs')
+    if not work or not isinstance(raw, list):
+        return jsonify({'available': False, 'results': [], 'error': 'work and refs are required'})
+    ranges = []
+    for r in raw[:scholarship.CITING_MAX_RANGES]:
+        if isinstance(r, dict) and str(r.get('ref_start') or '').strip():
+            start = str(r['ref_start']).strip()
+            ranges.append((start, str(r.get('ref_end') or '').strip() or start))
+    if not ranges:
+        return jsonify({'available': False, 'results': [], 'error': 'refs are required'})
+    key = (work, tuple(sorted(ranges)))
+    hit = _citing_cache.get(key)
+    if hit and time.time() - hit[0] < _CITING_TTL:
+        return jsonify(hit[1])
+    try:
+        out = scholarship.citing_articles(work, ranges)
+    except Exception as e:
+        logger.info('[PASSAGES] ask-citing failed: %s', type(e).__name__)
+        return jsonify({'available': False, 'results': [], 'error': 'the citation indexes are not available'})
+    if out.get('available'):
+        if len(_citing_cache) >= _CITING_MAX_CACHED:
+            _citing_cache.pop(next(iter(_citing_cache)))
+        _citing_cache[key] = (time.time(), out)
+    return jsonify(out)
+
+
 @passages_bp.route('/passages/recent-scholarship', methods=['GET'])
 def recent_scholarship():
     """Recent articles one live service gives for a question, about a work when
