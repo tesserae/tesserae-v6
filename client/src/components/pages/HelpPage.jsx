@@ -1971,8 +1971,8 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   abstract. Semantic Scholar and CORE are searched in the full text of open-access
                   papers. The site&rsquo;s own index of citations in journals from before 1923 reads
                   JSTOR&rsquo;s Early Journal Content. That index covers 24 philology, archaeology and
-                  biblical journals from 1827 to 1922, about 29,000 articles, of which 5,193 cite one
-                  of 437 works held here. The same journals supply the Scholarship section on an inscription or papyrus
+                  biblical journals from 1827 to 1922 (the live counts of articles and citations are on
+                  the Scholarship sources page). The same journals supply the Scholarship section on an inscription or papyrus
                   page (956 citing sentences from 288 articles). Where the site has the library&rsquo;s agreement, a second index reads the journals on Project MUSE from 1996 on under that license and lists each article that cites the passage with one sentence and a DOI link. Google Books finds a citation on a book page. A result marked open access has a
                   free, legal copy through Unpaywall. A result with only a DOI opens through your own
                   library instead. Set your library&rsquo;s link-resolver address once, under My library
@@ -1992,6 +1992,16 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
               <p className="text-gray-700 mb-3">
                 The journals and years in each index, the terms of each source and the method behind each part of
                 the results are on one page. <AboutSourcesLink anchor="methods" />
+              </p>
+              <p className="text-gray-700 mb-3">
+                What the site does not hold matters as much. The two citation indexes stop at 1922 and
+                resume in 1996, and the later one covers four American journals, so most of the twentieth
+                century and nearly all European journals are absent from the citation lists. In-copyright
+                books, both monographs and edited volumes, are not indexed at all. The online services
+                fill part of the gap with titles, abstracts and open-access copies, but a search of the
+                scholarship on a passage is not complete without L&rsquo;Ann&eacute;e philologique, your
+                library&rsquo;s catalog and JSTOR&rsquo;s own search. The sources page says exactly what is
+                missing and where to look for it. <AboutSourcesLink anchor="beyond" />
               </p>
               <p className="text-gray-700 mb-3">
                 Arriving from Theme Search, the Reader opens on the translation, selects the whole
