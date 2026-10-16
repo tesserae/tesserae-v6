@@ -49,14 +49,15 @@ def test_collection_books_covers_every_part_file_under_one_coarse_work(tmp_path,
         'world_english_bible.pentateuch.tess',            # bare aggregate: no book, ignored
         'world_english_bible.pentateuch.part.1.genesis.tess',
         'world_english_bible.pentateuch.part.2.exodus.tess',
-        'world_english_bible.revelation.tess',             # whole-book file, no .part.
+        'world_english_bible.new_testament.part.27.revelation.tess',  # a part of the New Testament
         'not_a_bible_book.tess',                          # wrong prefix: excluded
     ]:
         (lang_dir / name).write_text('x')
     monkeypatch.setattr(gen, 'TEXTS_DIR', str(tmp_path))
     books = gen.collection_books('en', 'world_english_bible.')
     assert books['world_english_bible.pentateuch'] == {'GEN', 'EXO'}
-    assert books['world_english_bible.revelation'] == {'REV'}
+    assert books['world_english_bible.new_testament'] == {'REV'}
+    assert 'world_english_bible.revelation' not in books
     assert 'not_a_bible_book' not in books
 
 

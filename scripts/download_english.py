@@ -19,7 +19,7 @@ ENGLISH_TEXTS = [
     "wordsworth.prelude.tess",
     "world_english_bible.pentateuch.tess",
     "world_english_bible.prophets.tess",
-    "world_english_bible.revelation.tess",
+    "world_english_bible.new_testament.part.27.revelation.tess",
     "world_english_bible.writings.tess",
 ]
 
