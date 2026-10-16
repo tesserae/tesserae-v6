@@ -356,11 +356,25 @@ def build_citation(text_id, ref):
         metadata = get_text_metadata(text_id)
         display = metadata.get('display_name') or metadata.get('author') or text_id
     except Exception:
+        metadata = {}
         display = text_id
     try:
         locus = format_short_locus(ref)
     except Exception:
         locus = str(ref or '')
+    # A book file whose part label is "Book N" (or the bare number N) and whose
+    # locus already begins with that N names the book twice ("Thucydides,
+    # Peloponnesian War, Book 2 2.57.1"). Cite the whole work instead. A part
+    # with a name (Genesis, vespasian, books_21-30) keeps its label.
+    try:
+        part_num = str(metadata.get('part_num') or '')
+        part = str(metadata.get('part') or '')
+        if (metadata.get('is_part') and part_num.isdigit()
+                and re.fullmatch(r'(?:[A-Za-z]+\s+)?%d' % int(part_num), part)
+                and re.match(r'%d(?:\.|$)' % int(part_num), locus)):
+            display = f"{metadata['author']}, {metadata['work']}"
+    except Exception:
+        pass
     return f"{display} {locus}".strip() if locus else display
 
 

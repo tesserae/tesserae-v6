@@ -7,6 +7,11 @@ so the state of the live site can be reconstructed from this file and
 docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
+## 2026-10-16
+- Citations: a book file whose part label is "Book N" and whose locus begins with N cites the whole work ("Thucydides, Peloponnesian War 2.57.1", not "Peloponnesian War, Book 2 2.57.1"). Named parts such as Genesis or books_21-30 keep their label.
+- Text credits: the Hebrew Bible Samuel, Kings and Chronicles rows read 1 and 2, as the Reader and the files do, instead of I and II.
+- Corpus browser era filter for Coptic: it already reads the Coptic table in `utils/eras.js` (the separate table that lacked the key was removed on 2026-09-21); a test now pins the table to the eras the live Coptic list sends.
+
 ## 2026-10-15
 - Passage references: every Similar Passages, Theme Search, Search One Text and gutter result now carries `locus`, `locus_start`, `locus_end` and `citation` from the server (the short locus, "2.57.1" or "2.57.1–2.58.3", never the file's tag "thuc. pele. 2.57.1"), and the Theme Search cards, Search One Text cards, the Reader's English view and the Reader panel's full translation print it, with the file's tag as hover text. `ref_start` and `ref_end` are unchanged. A test (`noRawRefs.test.js`) fails if a page prints a raw tag again.
 - Theme Search export: the order note reads "chronological: oldest first, undated last" (the test expected the word chronological and had been failing).
