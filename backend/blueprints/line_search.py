@@ -653,6 +653,11 @@ def _query_lemmas(params: LineSearchParams) -> set:
     from backend.inverted_index import has_lines_data, get_lines_batch
     query, language, search_type, data = params.query, params.language, params.search_type, params.data
 
+    # Dictionary forms sent by the caller are the lemma set, as given: no
+    # lemmatizer, no index lookup (the corpus panel's shared lemmas).
+    if search_type == 'lemma' and params.lemmas:
+        return set(n for n in (_normalize_lemma(t, language) for t in params.lemmas) if n)
+
     query_lemmas = set()
     # THE INDEX ALREADY KNOWS THE LEMMAS OF ITS OWN LINES. When the
     # Reader asks about lines of a work (it names them in `refs`, or

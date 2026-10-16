@@ -63,4 +63,23 @@ describe('corpus chart picks a row it can draw', () => {
       expect(bodies).toContain('دیر مغان');
     });
   });
+
+  it('sends the shared lemmas as lemmas, and says so when no line answers', async () => {
+    render(
+      <SearchResults loading={false} error={null} pageSize={50} onPageSizeChange={() => {}}
+        searchRunId={1} sortBy="score" setSortBy={() => {}} searchStats={null} language="grc"
+        results={[row(1, ['αγορευω', 'θεοπροπια'])]} />,
+    );
+    const show = screen.queryByRole('button', { name: 'Show chart' });
+    if (show) await userEvent.click(show);
+    const across = screen.queryByRole('button', { name: 'Across the corpus' });
+    if (across) await userEvent.click(across);
+    await waitFor(() => {
+      const bodies = global.fetch.mock.calls
+        .filter(([u]) => String(u) === '/api/line-search')
+        .map(([, init]) => JSON.parse(init.body));
+      expect(bodies.some((b) => JSON.stringify(b.lemmas) === JSON.stringify(['αγορευω', 'θεοπροπια']))).toBe(true);
+    });
+    expect(await screen.findByText('No other line in the corpus has these words together.')).toBeTruthy();
+  });
 });
