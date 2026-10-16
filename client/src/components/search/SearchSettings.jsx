@@ -483,11 +483,13 @@ const SearchSettings = ({ settings, setSettings, showAdvanced, setShowAdvanced, 
                 Leave a weight at its default to keep it unchanged.
               </p>
               <p className="text-xs mb-3 flex flex-wrap gap-x-4 gap-y-1">
-                <button type="button" onClick={openChannelsHelp} className="text-red-700 hover:underline" data-testid="channels-help-link">
-                  What each channel does, in Help
-                </button>
+                {/* Order and wording set by the owner (2026-10-16): the
+                    explanations first, then Help. */}
                 <button type="button" onClick={() => setShowChannelNotes((v) => !v)} className="text-red-700 hover:underline" aria-expanded={showChannelNotes} data-testid="channels-notes-toggle">
-                  {showChannelNotes ? 'Hide the line under each channel' : 'Show a line under each channel'}
+                  {showChannelNotes ? 'Hide channel explanations' : 'Channel explanations'}
+                </button>
+                <button type="button" onClick={openChannelsHelp} className="text-red-700 hover:underline" data-testid="channels-help-link">
+                  More in Help
                 </button>
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-3">
