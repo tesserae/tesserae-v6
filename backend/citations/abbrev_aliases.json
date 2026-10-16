@@ -11,5 +11,6 @@
     "Ap. Rhod.", "Apoll. Rhod.", "Ap. Rh.", "Apoll. Rh.", "Apollonius Rhodius",
     "Apollon. Rhod.", "Ap. Rhodius"
   ],
-  "tibullus.elegies": ["Tibull.", "Tibullus"]
+  "tibullus.elegies": ["Tibull.", "Tibullus"],
+  "epicurus.epistula_ad_herodotum": ["Ep. Hdt.", "Ep. ad Hdt.", "Epicur. Ep. Hdt.", "Epicurus Ep. Hdt.", "Epicur. Ep. ad Hdt."]
 }

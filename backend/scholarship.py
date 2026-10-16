@@ -644,12 +644,14 @@ def _citations_of(text, p):
     keys = [n for n in (_names(p) | _stems(p))]
     lo, hi = _coords(p['lo']), _coords(p['hi'])
     hits = []
+    prev = ''
     for a, b in _sentence_spans(text, p):
         sent = text[a:b]
+        before, prev = prev, sent
         low = sent.lower()
         if not any(k in low for k in keys):
             continue
-        for h in citations.extract(sent):
+        for h in citations.extract(sent, before):
             if not h.get('resolved') or h.get('work_id') != p['work']:
                 continue
             cs = _coords(h.get('locus_start') or '')

@@ -22,10 +22,12 @@ def index():
     return _INDEX
 
 
-def extract(text):
-    """Citations found in text, resolved where possible; [] without the table."""
+def extract(text, context=""):
+    """Citations found in text, resolved where possible; [] without the table.
+    `context` is the sentence before `text`: a short form such as "Mem." or
+    "Pol." counts only with its author named there or earlier in `text`."""
     idx = index()
-    return _extract(text, idx) if idx else []
+    return _extract(text, idx, context) if idx else []
 
 
 def extract_documents(text, edition_index=None):
