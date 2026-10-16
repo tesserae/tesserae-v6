@@ -230,6 +230,7 @@ describe('the focus view', () => {
     expect(screen.getByText(/Rhamnous · 500 to 450 BCE/)).toBeTruthy();
 
     await userEvent.click(screen.getByRole('tab', { name: /Scholarship/ }));
+    expect(screen.getByTestId('about-these-sources')).toHaveAttribute('href', '/scholarship-sources#journals');
     expect(screen.getByRole('link', { name: /Marathon Revisited/ })).toHaveAttribute('href', 'https://example.org/a');
     expect(screen.getByText(/How and Wells: note/)).toBeTruthy();
 

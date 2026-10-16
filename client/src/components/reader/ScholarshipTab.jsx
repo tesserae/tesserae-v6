@@ -5,6 +5,7 @@ import CiteRecordButton from '../common/CiteRecordButton';
 import CiteAll from '../common/CiteAll';
 import { recordFrom } from '../../utils/citations';
 import { getJson, postJsonTo } from '../../utils/api';
+import AboutSourcesLink from '../scholarship/AboutSourcesLink';
 
 /**
  * Secondary scholarship on the selected lines: the commentators' notes the
@@ -266,6 +267,7 @@ export default function ScholarshipTab({ work, language, selection, units, secon
           <section id="sch-scholarship">
             <div className="flex items-baseline justify-between gap-2 flex-wrap">
               <h4 className="text-xs font-semibold text-gray-800 uppercase tracking-wide">Scholarship</h4>
+              <AboutSourcesLink anchor="methods" />
               <button type="button" onClick={() => setEditingLibrary((v) => !v)}
                       className="text-[11px] text-red-700 hover:underline">
                 {library ? 'My library: set' : 'Set my library'}

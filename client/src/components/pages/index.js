@@ -5,3 +5,4 @@ export { default as PrivacyPage } from './PrivacyPage';
 export { default as ResearchPage } from './ResearchPage';
 export { default as BlogArchivePage } from './BlogArchivePage';
 export { default as RequestsPage } from './RequestsPage';
+export { default as ScholarshipSourcesPage } from './ScholarshipSourcesPage';

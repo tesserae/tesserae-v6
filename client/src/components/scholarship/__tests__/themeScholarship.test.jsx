@@ -85,6 +85,7 @@ describe('ThemeScholarship', () => {
     expect(screen.getByRole('link', { name: 'Open the article on JSTOR' }).getAttribute('href'))
       .toBe('https://www.jstor.org/stable/262736');
     expect(screen.getByTestId('scope-box-scholarship_theme')).toBeTruthy();
+    expect(screen.getByTestId('about-these-sources').getAttribute('href')).toBe('/scholarship-sources#methods');
   });
 
   it('says so when the files are not installed', async () => {

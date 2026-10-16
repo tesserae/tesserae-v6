@@ -7,6 +7,7 @@ import { bareLocus } from '../reader/refId';
 import { useCorpusTextMap } from '../../utils/textNames';
 import EventMap from './EventMap';
 import { dateLabel, kmLabel, readerLinkWithBack, shortPassageRef, workHeading } from './eventsFormat';
+import AboutSourcesLink from '../scholarship/AboutSourcesLink';
 
 const LABEL_TEXT = {
   yes: ['Tells of it', 'An offline language model judged that this passage tells of the event itself.'],
@@ -125,7 +126,8 @@ function ScholarshipTab({ items, openPassage, ranks }) {
   return (
     <div>
       <p className="text-xs text-gray-500 mb-3">
-        These are the articles that cite the event's leading passages. Each shows the passage that brings it in.
+        These are the articles that cite the event's leading passages. Each shows the passage that brings it in.{' '}
+        <AboutSourcesLink anchor="journals" />
       </p>
       {kinds.map(([kind, title]) => {
         const rows = items.filter((s) => s.kind === kind);
