@@ -136,8 +136,15 @@ class Scorer:
             all_lemmas.extend(unit['lemmas'])
         return Counter(all_lemmas)
     
-    def score_matches(self, matches, source_units, target_units, settings=None, source_id='', target_id=''):
-        """Score matches using V3-style algorithm with frequency and distance"""
+    def score_matches(self, matches, source_units, target_units, settings=None, source_id='', target_id='',
+                      freq_units=None):
+        """Score matches using V3-style algorithm with frequency and distance.
+
+        freq_units: optional (source_units, target_units) of the two WHOLE texts.
+        The frequencies then come from them instead of from the units passed,
+        so scoring one block of a source against the whole target gives the
+        scores the whole search would. None (the default) changes nothing.
+        """
         settings = settings or {}
         self._current_source_id = source_id
         self._current_target_id = target_id
@@ -149,19 +156,20 @@ class Scorer:
             total_words = sum(self.corpus_frequencies.values())
         else:
             # For exact match, use token frequencies; otherwise use lemma frequencies
+            freq_src, freq_tgt = freq_units if freq_units is not None else (source_units, target_units)
             if match_type == 'exact':
                 all_tokens = []
-                for unit in source_units:
+                for unit in freq_src:
                     all_tokens.extend(unit.get('tokens', []))
-                for unit in target_units:
+                for unit in freq_tgt:
                     all_tokens.extend(unit.get('tokens', []))
                 freq = Counter(all_tokens)
                 total_words = len(all_tokens)
             else:
                 all_lemmas = []
-                for unit in source_units:
+                for unit in freq_src:
                     all_lemmas.extend(unit['lemmas'])
-                for unit in target_units:
+                for unit in freq_tgt:
                     all_lemmas.extend(unit['lemmas'])
                 freq = Counter(all_lemmas)
                 total_words = len(all_lemmas)

@@ -329,6 +329,7 @@ def _relay_events(p, source_units, target_units, slot, cancellation, send_event,
     final_results = []
     final_total = None
     final_formula_hidden = 0
+    parts = None  # {"part", "total_parts"} while a large comparison runs in parts
     for event_type, evt_data in iter_fusion_search(
         source_units=source_units,
         target_units=target_units,
@@ -357,7 +358,26 @@ def _relay_events(p, source_units, target_units, slot, cancellation, send_event,
             return None
 
 
-        if event_type == "channel_start":
+        if event_type == "parts":
+            parts = {"part": evt_data['part'], "total_parts": evt_data['total_parts']}
+            yield send_event("progress", {
+                "step": f"Large comparison: part {parts['part']} of {parts['total_parts']}",
+                "detail": "",
+                "fusion_parts": parts,
+            })
+
+        elif event_type == "queued":
+            # Another large comparison is running in this process. The page
+            # words the message; the position is for anyone who wants it.
+            yield send_event("queued", {
+                "step": "Search queued \u2014 another large comparison is running",
+                "detail": "",
+                "wait_time": 0,
+                "large_queue": True,
+                "position": evt_data.get('position', 1),
+            })
+
+        elif event_type == "channel_start":
             phase = evt_data['phase']
             label = "window pass" if phase == "window" else f"{evt_data['step']}/{evt_data['total']} channels"
             yield send_event("progress", {
@@ -370,6 +390,7 @@ def _relay_events(p, source_units, target_units, slot, cancellation, send_event,
                     "total": evt_data['total'],
                     "status": "running",
                 },
+                **({"fusion_parts": parts} if parts else {}),
             })
 
         elif event_type == "channel_done":
@@ -390,10 +411,11 @@ def _relay_events(p, source_units, target_units, slot, cancellation, send_event,
                     "status": "skipped" if evt_data.get('skipped') else "done",
                     "result_count": evt_data.get('count', 0),
                 },
+                **({"fusion_parts": parts} if parts else {}),
             })
 
         elif event_type == "intermediate":
-            yield f"data: {json.dumps({'type': 'intermediate', 'results': evt_data['results'], 'total_matches': evt_data['total_results'], 'channels_done': evt_data['channels_done'], 'channels_total': evt_data.get('channels_total', 9), 'phase': evt_data['phase'], 'elapsed': round(time.time() - start_time, 1)})}\n\n"
+            yield f"data: {json.dumps({'type': 'intermediate', 'results': evt_data['results'], 'total_matches': evt_data['total_results'], 'channels_done': evt_data['channels_done'], 'channels_total': evt_data.get('channels_total', 9), 'phase': evt_data['phase'], 'fusion_parts': parts, 'elapsed': round(time.time() - start_time, 1)})}\n\n"
 
         elif event_type == "heartbeat":
             # SSE comment: transmitted as bytes (keeps TCP alive) but
@@ -751,7 +773,9 @@ def _write_fusion_status(job_key, event_type, evt_data):
     or ETA: channel costs are very unequal and the total step count isn't known
     until the run finishes, so any smooth percent would be fabricated."""
     status = None
-    if event_type in ('channel_start', 'channel_done'):
+    if event_type == 'parts':
+        status = {'part': evt_data.get('part'), 'total_parts': evt_data.get('total_parts')}
+    elif event_type in ('channel_start', 'channel_done'):
         step = evt_data.get('step') or 0
         status = {
             'phase': evt_data.get('phase'),
@@ -1690,6 +1714,31 @@ def comparison_map_chart():
     fig.text(0.01, 0.006, 'Static snapshot. Click-to-explore version at tesserae.caset.buffalo.edu',
              ha='left', va='bottom', fontsize=6.5, color='#9ca3af')
     return _fig_response(fig, fmt, cpath)
+
+
+@fusion_bp.route('/fusion-estimate', methods=['GET'])
+def fusion_estimate():
+    """What a fusion search of two texts will cost, before it is sent.
+
+    GET /api/fusion-estimate?source=<id>&target=<id>&language=la
+
+    Loads only the two texts' unit counts (the same cached units the search
+    reads); nothing is scored. Response: {pairs, in_parts, parts,
+    estimated_seconds, source_lines, target_lines}. in_parts is true when the
+    search will run in parts, which is what a page warns about.
+    """
+    from backend.fusion import estimate_fusion
+    source_id = request.args.get('source')
+    target_id = request.args.get('target')
+    language = request.args.get('language', 'la')
+    if not source_id or not target_id:
+        return jsonify({'error': 'Provide source and target text ids (see /api/texts).'}), 400
+    if not resolve_text_path(_texts_dir, language, source_id) or \
+            not resolve_text_path(_texts_dir, language, target_id):
+        return jsonify({'error': 'Text files not found for that source/target/language.'}), 404
+    source_units = _get_processed_units(source_id, language, _unit_type_arg('source_unit_type'), _text_processor)
+    target_units = _get_processed_units(target_id, language, _unit_type_arg('target_unit_type'), _text_processor)
+    return jsonify(estimate_fusion(len(source_units or []), len(target_units or [])))
 
 
 @fusion_bp.route('/fusion-default-weights', methods=['GET'])

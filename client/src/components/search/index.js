@@ -8,3 +8,4 @@ export { default as CrossLingualSearch } from './CrossLingualSearch';
 export { default as WildcardSearch } from './WildcardSearch';
 export { default as SavedSearches } from './SavedSearches';
 export { default as CorpusSearchResults } from './CorpusSearchResults';
+export { default as LargeComparisonPanel } from './LargeComparisonPanel';

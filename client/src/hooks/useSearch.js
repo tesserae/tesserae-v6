@@ -1,5 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { searchTexts, searchTextsStream, searchFusionStream, searchHapax, searchBigrams, searchSemanticCross, createSearchId, requestSearchCancellation } from '../utils/api';
+import { LARGE_QUEUE_TEXT, progressWithParts } from '../utils/fusionParts';
 
 export const useSearch = () => {
   const [results, setResults] = useState([]);
@@ -48,7 +49,7 @@ export const useSearch = () => {
     abortController.current = null;
   }, []);
 
-  const search = useCallback(async (params) => {
+  const search = useCallback(async (params, options = {}) => {
     if (abortController.current) {
       requestSearchCancellation(activeSearchId.current);
       abortController.current.abort();
@@ -69,11 +70,15 @@ export const useSearch = () => {
     setIsQueued(false);
     setQueuedMessage('');
 
+    // Seconds into the search at which each part began, for the time left.
+    const partStarts = {};
     const handleProgress = (step, detail, elapsed, meta = null) => {
       if (activeSearchId.current !== searchId) return;
       setIsQueued(false);
       setQueuedMessage('');
-      setProgressText(detail ? `${step}: ${detail}` : step);
+      const parts = meta?.fusion_parts;
+      if (parts && partStarts[parts.part] == null) partStarts[parts.part] = elapsed;
+      setProgressText(progressWithParts(step, detail, parts, elapsed, partStarts, options.estimatedSeconds));
       setElapsedTime(Math.floor(elapsed));
       if (meta?.fusion_batch) {
         const batch = meta.fusion_batch;
@@ -92,10 +97,12 @@ export const useSearch = () => {
       }
     };
 
-    const handleQueued = (reason, waitTime) => {
+    const handleQueued = (reason, waitTime, event) => {
       if (activeSearchId.current !== searchId) return;
       setIsQueued(true);
-      setQueuedMessage(reason || 'Server is busy, your search is queued...');
+      setQueuedMessage(event?.large_queue
+        ? LARGE_QUEUE_TEXT
+        : (reason || 'Server is busy, your search is queued...'));
     };
 
     try {

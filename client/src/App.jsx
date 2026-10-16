@@ -4,7 +4,7 @@ import { viewById } from './collections/collectionsConfig';
 import useCollections from './hooks/useCollections';
 import { languageName } from './utils/languageNames';
 import { Header, Navigation } from './components/layout';
-import { SearchModeToggle, TextSelector, SearchSettings, SearchResults, LineSearch, CrossLingualSearch, WildcardSearch, SavedSearches, CorpusSearchResults, RarePairsSettings } from './components/search';
+import { SearchModeToggle, TextSelector, SearchSettings, SearchResults, LineSearch, CrossLingualSearch, WildcardSearch, SavedSearches, CorpusSearchResults, RarePairsSettings, LargeComparisonPanel } from './components/search';
 import RareResultsDisplay from './components/search/RareResultsDisplay';
 import StartHere from './components/search/StartHere';
 import { addressHasQuery, FRONT_DOOR_OPEN_EVENT } from './components/search/frontDoor';
@@ -37,6 +37,9 @@ import { getSessionValue, setSessionValue } from './utils/storage';
 import { startLanguage } from './utils/languagePreference';
 import { recordPageView } from './lib/pageViews';
 import { fetchLanguages, getJson } from './utils/api';
+
+const textLabel = (info, id) => info?.display_name || info?.name
+  || (info?.title ? `${info.author ? `${info.author}, ` : ''}${info.title}` : id);
 
 function App() {
   const [user, setUser] = useState(null);
@@ -358,6 +361,26 @@ function App() {
       .catch(() => {});
   }, [sourceText, targetText, activeTab]);
 
+  // The warning shown before a large comparison: {estimate, params} while open.
+  const [largeComparison, setLargeComparison] = useState(null);
+  useEffect(() => {
+    setLargeComparison(null);
+  }, [sourceText, targetText, activeTab, searchMode]);
+
+  const runLargeComparison = useCallback(async () => {
+    if (!largeComparison) return;
+    const { estimate, params } = largeComparison;
+    setLargeComparison(null);
+    setSearchRunId(n => n + 1);
+    await search({ ...params, page_size: pageSize }, { estimatedSeconds: estimate.estimated_seconds });
+  }, [largeComparison, search, pageSize]);
+
+  const chooseBooksInstead = useCallback(() => {
+    setLargeComparison(null);
+    const first = document.querySelector('[aria-label="Source Work"], [aria-label="Source Text"], [aria-label="Source author"]');
+    if (first) first.focus();
+  }, []);
+
   const handleSearch = useCallback(async () => {
     if (!sourceText || !targetText) {
       return;
@@ -379,8 +402,6 @@ function App() {
       }
     }
 
-    setSearchRunId(n => n + 1);
-
     const params = {
       source: sourceText,
       target: targetText,
@@ -393,8 +414,33 @@ function App() {
       delete params.disabled_channels;
     }
 
+    // A comparison of two long works runs in parts and takes a long time: ask
+    // what it will cost first, and let the reader decide. A failed estimate
+    // never blocks the search.
+    setLargeComparison(null);
+    let estimatedSeconds;
+    if (searchMode === 'parallel' && settings.match_type === 'fusion') {
+      try {
+        const q = new URLSearchParams({
+          source: sourceText, target: targetText, language: activeTab,
+          source_unit_type: settings.source_unit_type || 'line',
+          target_unit_type: settings.target_unit_type || 'line',
+        });
+        const estimate = await getJson(`/api/fusion-estimate?${q}`);
+        if (estimate?.in_parts) {
+          setLargeComparison({ estimate, params });
+          return;
+        }
+        estimatedSeconds = estimate?.estimated_seconds;
+      } catch {
+        estimatedSeconds = undefined;
+      }
+    }
+
+    setSearchRunId(n => n + 1);
+
     if (searchMode === 'parallel') {
-      await search({ ...params, page_size: pageSize });
+      await search({ ...params, page_size: pageSize }, { estimatedSeconds });
     } else if (searchMode === 'hapax') {
       setRareSearchParams(params);
       await searchRareWords(params);
@@ -654,6 +700,18 @@ function App() {
                       <p className="text-sm text-amber-700">Please select both source and target texts</p>
                     )}
                   </div>
+
+                  {largeComparison && !searchLoading && (
+                    <div className="mt-4">
+                      <LargeComparisonPanel
+                        sourceName={textLabel(corpus.find(t => t.id === sourceText), sourceText)}
+                        targetName={textLabel(corpus.find(t => t.id === targetText), targetText)}
+                        estimate={largeComparison.estimate}
+                        onRun={runLargeComparison}
+                        onChoose={chooseBooksInstead}
+                      />
+                    </div>
+                  )}
                 </>
               )}
             </div>
