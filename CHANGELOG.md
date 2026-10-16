@@ -8,6 +8,7 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-16
+- Search One Text: choosing an author who has one work chooses that work at once.
 - Search One Text, Scholarship box: the paragraph is headed "Summary of the scholarship found" with a line saying it covers the notes and articles held here and the abstracts found online and leaves out the citing articles; the part headings and their export links wrap onto two lines instead of squeezing the heading.
 - Similarity Map, book by book: the hover names a row or column as "Genesis", "Book 7" or "Lines 101 to 200" (was "book Genesis"), and clicking a named book's cell lists its passages (the pair view now groups references the way the grid does).
 - Image host check: a host that answers the probe with a bot refusal (401, 403, 429) counts as answering, since it serves the same pages to a browser (www.uni-koeln.de, 2026-10-16); down means no answer, 404 or 410, or a server error.
