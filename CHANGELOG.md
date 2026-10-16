@@ -7,6 +7,9 @@ so the state of the live site can be reconstructed from this file and
 docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
+## 2026-10-16
+- About this text: the 187 Coptic works and 39 Hebrew works now have descriptions in `data/text_descriptions.json` (new `cop` and `he` sections, 226 entries, where none existed before). Each is a paragraph of 60 to 120 words, and Bible books name the book and the version (Sahidic, Bohairic or Hebrew Masoretic text) in the first sentence, and books that survive only in part say so. `scripts/corpus/describe_works.py` takes `cop` and `he` and repeated `--lang` flags.
+
 ## 2026-10-15
 - Passage references: every Similar Passages, Theme Search, Search One Text and gutter result now carries `locus`, `locus_start`, `locus_end` and `citation` from the server (the short locus, "2.57.1" or "2.57.1–2.58.3", never the file's tag "thuc. pele. 2.57.1"), and the Theme Search cards, Search One Text cards, the Reader's English view and the Reader panel's full translation print it, with the file's tag as hover text. `ref_start` and `ref_end` are unchanged. A test (`noRawRefs.test.js`) fails if a page prints a raw tag again.
 - Theme Search export: the order note reads "chronological: oldest first, undated last" (the test expected the word chronological and had been failing).
