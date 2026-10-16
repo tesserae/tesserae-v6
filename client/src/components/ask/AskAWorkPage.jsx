@@ -582,8 +582,13 @@ export default function AskAWorkPage() {
   // With nothing held on the question, the online articles come first and the
   // empty Scholarship box follows as a short note (2026-10-15: the owner saw
   // an empty box hiding the two articles found online).
-  const recentSection = recent?.items.length > 0 && (<section aria-label="Books and articles found online" className="mt-3 rounded border border-gray-200 bg-white px-3 py-2" data-testid="ask-recent">
-                      <p className="text-xs font-semibold text-gray-600">Books and articles found online</p>
+  // One Scholarship box holds the paragraph on the held notes and articles
+  // and, under it, the list found online (owner, 2026-10-16: two boxes
+  // looked like they should be one, and "articles found online" were partly
+  // books). The inner heading says how each list was found.
+  const recentSection = recent?.items.length > 0 && (<div aria-label="Found online for this question" className="mt-2 border-t border-gray-200 pt-2" data-testid="ask-recent">
+                      <p className="text-xs font-medium text-gray-700">Found online for this question</p>
+                      <p className="text-xs text-gray-500">Open-access books and articles matched to the words of your question by a live search of the repositories. They need not cite the passages above.</p>
                       <ul className="mt-1 space-y-2">
                         {recent.items.map((it) => {
                           const url = recentUrl(it);
@@ -602,8 +607,10 @@ export default function AskAWorkPage() {
                           );
                         })}
                       </ul>
-                    </section>);
+                    </div>);
   const noneFirst = scholarship?.state === 'ready' && scholarship.noneRelevant && !!recentSection;
+  const showScholarshipBox = ['loading', 'ready', 'none'].includes(scholarship?.state)
+    || !!recentSection || recent?.pending.length > 0;
 
   return (
     <div className="max-w-6xl mx-auto p-6">
@@ -930,22 +937,25 @@ export default function AskAWorkPage() {
                     <p className="mt-1 text-sm text-gray-500 italic">Tessa is reading the passages.</p>
                   )}
                   {summary?.state === 'ready' && (
-                    <section aria-label="The work" className="mt-3 rounded border border-gray-200 bg-gray-50 px-3 py-2" data-testid="ask-summary">
-                      <p className="text-xs font-semibold text-gray-600">The work</p>
+                    <section aria-label="Summary of the passages found" className="mt-3 rounded border border-gray-200 bg-gray-50 px-3 py-2" data-testid="ask-summary">
+                      <p className="text-xs font-semibold text-gray-600">Summary of the passages found</p>
                       <p className="mt-1 text-sm text-gray-800 leading-snug">
                         <SummaryText text={summary.summary} cites={summary.cites} onJump={jumpRef} />
                       </p>
                       <p className="mt-1 text-xs text-gray-500">Written by Tessa from the passage descriptions. Read the passages before relying on it.</p>
                     </section>
                   )}
+                  {showScholarshipBox && (
+                  <section aria-label="Scholarship" className="mt-3 rounded border border-gray-200 bg-gray-50 px-3 py-2" data-testid="ask-scholarship-box">
+                  <p className="text-xs font-semibold text-gray-600">Scholarship</p>
                   {scholarship?.state === 'loading' && (
                     <p className="mt-1 text-sm text-gray-500 italic">Reading the secondary literature...</p>
                   )}
                   {noneFirst && recentSection}
                   {scholarship?.state === 'ready' && (
-                    <section aria-label="Scholarship" className="mt-3 rounded border border-gray-200 bg-gray-50 px-3 py-2" data-testid="ask-scholarship">
+                    <div aria-label="What the notes and articles say" className="mt-1" data-testid="ask-scholarship">
                       <div className="flex items-baseline justify-between gap-2">
-                        <p className="text-xs font-semibold text-gray-600">Scholarship</p>
+                        <p className="text-xs font-medium text-gray-700">What the notes and articles say</p>
                         {!scholarship.noneRelevant && (
                           <CiteAll records={(scholarship.cites || []).map((c) => recordFrom(c, 'cite'))}
                                    name={`${asked.work || 'work'} ${asked.q || ''}`}
@@ -975,7 +985,7 @@ export default function AskAWorkPage() {
                           See every note and article for this question
                         </a>
                       </p>
-                    </section>
+                    </div>
                   )}
                   {scholarship?.state === 'none' && (
                     <p className="mt-2 text-xs text-gray-500" data-testid="ask-scholarship-holdings">{scholarship.holdings}</p>
@@ -985,6 +995,8 @@ export default function AskAWorkPage() {
                     <p className="mt-1 text-xs text-gray-500" data-testid="ask-recent-pending">
                       {`Asking ${joinNames(recent.pending.map((x) => RECENT_LABELS[x]))} for articles...`}
                     </p>
+                  )}
+                  </section>
                   )}
                 </aside>
               </div>

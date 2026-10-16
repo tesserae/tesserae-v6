@@ -10,7 +10,7 @@ import {
   siteIdFromRef,
   formatRefrainPopover,
 } from '../../utils/textNames';
-import { channelLabel } from '../../utils/channels';
+import { channelBadge } from '../../utils/channels';
 import { displayGreekWithFinalSigma } from '../../utils/greekUtils';
 import { dirFor } from '../../utils/rtl';
 import { highlightResultHtml } from '../../utils/highlight';
@@ -761,7 +761,7 @@ const SearchResults = ({
                     explanation="Which kinds of evidence found this match."
                     more={helpMore(onOpenHelp, 'channels')}
                   >
-                    {r.channels.map((ch) => channelLabel(ch).toLowerCase()).join(' + ')}
+                    {r.channels.map((ch) => channelBadge(ch)).join(' + ')}
                   </InfoBadge>
                 )}
                 {r.matched_words && r.matched_words.length > 0 && !matchedWordsAreRefrain(r) && (
