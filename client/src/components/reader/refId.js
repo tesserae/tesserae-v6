@@ -26,3 +26,13 @@ export function readableLocus(s) {
     .replace(/\bsedinc\.(\d+[a-z]?)\b/g, '$1 (book uncertain)')
     .replace(/\bopinc\.(\d+[a-z]?)\b/g, 'uncertain work $1');
 }
+
+/** The locus alone, for a page that already names the work: "thuc. pele. 1.75.5"
+ * gives "1.75.5", "hom. il. 1.1" gives "1.1". A ref with no numeric tail is
+ * shown whole, made readable by displayRef. */
+export function bareLocus(ref) {
+  const s = displayRef(ref);
+  const parts = s.split(' ');
+  const last = parts[parts.length - 1] || '';
+  return /^\d/.test(last) && parts.length > 1 ? last : s;
+}

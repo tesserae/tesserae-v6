@@ -125,7 +125,7 @@ describe('Search One Text', () => {
     await ask();
     const cards = screen.getAllByTestId('ask-card');
     expect(cards.map((c) => within(c).getAllByRole('link')[0].textContent))
-      .toEqual(['verg. aen. 2.40', 'verg. aen. 1.10', 'verg. aen. 3.50']);
+      .toEqual(['2.40', '1.10', '3.50']);
     expect(within(cards[0]).getByText('strong')).toBeInTheDocument();
     expect(within(cards[1]).queryByText('strong')).toBeNull();
     const href = within(cards[0]).getAllByRole('link')[0].getAttribute('href');
@@ -419,7 +419,7 @@ describe('what the work says', () => {
     expect(within(block).getByText('The work')).toBeInTheDocument();
     expect(within(block).getByText(/Written by Tessa from the passage descriptions/)).toBeInTheDocument();
     const cards = screen.getAllByTestId('ask-card');
-    fireEvent.click(within(block).getByRole('button', { name: 'verg. aen. 1.12' }));
+    fireEvent.click(within(block).getByRole('button', { name: '1.12' }));
     const seen = window.HTMLElement.prototype.scrollIntoView.mock.instances;
     expect(seen[seen.length - 1]).toBe(cards[2]);
   });

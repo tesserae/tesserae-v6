@@ -8,6 +8,8 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-15
+- Thucydides is titled Peloponnesian War (the file name's spelling, Peleponnesian, showed on the site).
+- Search One Text: passage references on the cards and in the work summary show the locus alone (1.75.5) instead of the file's tag (thuc. pele. 1.75.5); the full tag is in the hover text.
 - Similarity Map: author labels no longer carry the language tag ("Milton (en)"); the tag appears only where two authors of different languages share a name. Century labels keep theirs.
 - Help, How Fusion Works: the diagram shows all eleven channels (Quotation was missing) and notes the twelfth, poetic form, for Persian and Urdu; the Fusion setting's note said 9 channels and now says eleven.
 - King James Bible: Revelation moves into the New Testament. The file `world_english_bible.revelation.tess` becomes the 27th part, `world_english_bible.new_testament.part.27.revelation.tess`, and the whole-work file `world_english_bible.new_testament.tess` gains Revelation's 404 lines after Jude (7,548 to 7,952 lines). The line tags stay `<WEB Revelation N.M>`. The description, translation-pair, citation-table and download-list entries follow the new id; the search index, caches and passage index change in a production run described in docs/DATA_OPERATIONS.md.
