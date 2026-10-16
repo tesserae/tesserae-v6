@@ -237,8 +237,9 @@ def test_map_languages_filter_restricts_entities(client, fixture_db):
 def test_map_author_view_groups_by_author_and_language(client, fixture_db):
     status, body = _get(client, '/api/passages/map', view='author')
     assert status == 200
-    assert any('Homer (grc)' in lbl for lbl in body['labels'])
-    assert any('Vergil (la)' in lbl for lbl in body['labels'])
+    assert any(lbl == 'Homer' for lbl in body['labels'])
+    assert any(lbl == 'Vergil' for lbl in body['labels'])
+    assert not any('(grc)' in lbl or '(la)' in lbl for lbl in body['labels'])
 
 
 def test_map_century_view_groups_by_century_and_language(client, fixture_db):
