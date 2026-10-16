@@ -80,11 +80,6 @@
       "count": 1
     }
   },
-  "client/src/components/events/EventView.jsx": {
-    "no-unused-vars": {
-      "count": 1
-    }
-  },
   "client/src/components/layout/Header.jsx": {
     "no-unused-vars": {
       "count": 5
