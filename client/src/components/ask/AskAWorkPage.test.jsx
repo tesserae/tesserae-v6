@@ -484,7 +484,8 @@ describe('what the secondary literature says', () => {
     const [, init] = callsTo('/api/passages/ask-scholarship')[0];
     expect(JSON.parse(init.body)).toEqual({ question: 'fathers and sons', work: 'vergil.aeneid', lang: 'la' });
     expect(within(screen.getByTestId('ask-scholarship-box')).getByText('Scholarship')).toBeInTheDocument();
-    expect(within(block).getByText('What the notes and articles say')).toBeInTheDocument();
+    expect(within(block).getByText('Summary of the scholarship found')).toBeInTheDocument();
+    expect(within(block).getByTestId('ask-scholarship-covers')).toHaveTextContent('does not cover the articles that cite these passages');
     expect(screen.getByTestId('ask-scholarship-more').getAttribute('href')).toMatch(/in=scholarship&work=vergil\.aeneid$/);
     const link = within(block).getByRole('link', { name: '[2]' });
     expect(link).toHaveAttribute('href', 'https://www.jstor.org/stable/1');
