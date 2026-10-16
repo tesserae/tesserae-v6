@@ -36,6 +36,10 @@ describe('ScholarshipSourcesPage', () => {
     expect(screen.getByRole('heading', { name: 'Journal citation indexes' })).toHaveAttribute('id', 'journals');
     expect(screen.getByRole('heading', { name: 'Online services consulted live' })).toHaveAttribute('id', 'online');
     expect(screen.getByRole('heading', { name: 'Methods' })).toHaveAttribute('id', 'methods');
+    // The gap between the two indexes is computed from their year spans.
+    expect(screen.getByRole('heading', { name: 'What is not here, and where to look' })).toHaveAttribute('id', 'beyond');
+    expect(within(screen.getByTestId('beyond')).getByText(/stop at 1869 and resume in 2007\. Between 1870 and 2006/)).toBeTruthy();
+    expect(within(screen.getByTestId('beyond')).getByText(/From 2007 on the index holds Classical Journal/)).toBeTruthy();
     expect(screen.getByRole('heading', { level: 1, name: 'Scholarship: sources and methods' })).toBeTruthy();
     const ejc = screen.getByTestId('index-ejc');
     expect(within(ejc).getByText('Hermes')).toBeTruthy();
@@ -59,8 +63,9 @@ describe('Help page', () => {
   it('links the Scholarship section to the sources page', async () => {
     global.fetch = vi.fn(() => Promise.resolve(mockResponse({ ok: true, json: () => Promise.resolve({ languages: [] }) })));
     render(<HelpPage initialSection="reader" initialAnchor="scholarship-sources" onSectionConsumed={() => {}} />);
-    const link = await screen.findByTestId('about-these-sources');
-    expect(link).toHaveAttribute('href', '/scholarship-sources#methods');
+    // Two links since 2026-10-16: the methods, and what is not held.
+    const links = await screen.findAllByTestId('about-these-sources');
+    expect(links.map((l) => l.getAttribute('href'))).toEqual(['/scholarship-sources#methods', '/scholarship-sources#beyond']);
   });
 });
 

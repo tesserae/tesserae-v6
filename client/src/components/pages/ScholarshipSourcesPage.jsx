@@ -4,7 +4,8 @@
  * citation indexes with their terms, the live services, and how each part of
  * the results is built. Everything comes from GET /api/scholarship/about.
  * Each scholarship box links here, opening at one of the section anchors
- * (commentaries, journals, online, methods).
+ * (commentaries, journals, online, beyond, methods). The "beyond" section says
+ * what is not held and where a reader must look instead.
  */
 import { useEffect, useState } from 'react';
 import { getJson } from '../../utils/api';
@@ -133,6 +134,47 @@ function Online({ online }) {
   );
 }
 
+// What is not here (owner, 2026-10-16: "in addition to saying what secondary
+// scholarship we DO have, it might be useful to say what else a user would
+// need to search beyond what we give"). The years come from the indexes.
+function Beyond({ indexes }) {
+  const early = indexes.find((b) => b.id === 'ejc');
+  const late = indexes.find((b) => b.id === 'muse');
+  const lastEarly = Math.max(0, ...((early?.journals || []).map((j) => j.year_to || 0)));
+  const firstLate = Math.min(9999, ...((late?.journals || []).map((j) => j.year_from || 9999)));
+  const lateNames = [...new Set((late?.journals || []).map((j) => j.journal))].sort();
+  const haveGap = lastEarly > 0 && firstLate < 9999 && firstLate > lastEarly + 1;
+  return (
+    <section data-testid="beyond">
+      <Heading id="beyond">What is not here, and where to look</Heading>
+      <p className="text-gray-700 mb-3">
+        {haveGap
+          ? `The citation indexes stop at ${lastEarly} and resume in ${firstLate}. Between ${lastEarly + 1} and ${firstLate - 1} there is no journal text on this site. `
+          : 'The citation indexes cover two runs of years with nothing between them. '}
+        That leaves out the Classical Quarterly, the Classical Review, the Journal of Roman Studies, the Journal of
+        Hellenic Studies, Latomus, Mnemosyne, Gnomon, Philologus, and the later volumes of Hermes, Rheinisches Museum,
+        Classical Philology and Harvard Studies.
+        {lateNames.length > 0 && ` From ${firstLate} on the index holds ${lateNames.join(', ')}, and no European journal.`}
+      </p>
+      <p className="text-gray-700 mb-3">
+        No in-copyright book is indexed: no monograph, no edited volume, no modern commentary (the Cambridge, Oxford
+        and Brill series), and no reference work (Pauly-Wissowa, Der Neue Pauly, the Oxford Classical Dictionary). The
+        commentaries held are public-domain editions, so the modern commentary on a passage is not here either. The
+        Google Books search in the Reader finds books that mention a passage and shows the snippet the service
+        returns, and the HathiTrust link finds page numbers in that library&rsquo;s scans. Neither gives the text.
+      </p>
+      <p className="text-gray-700 mb-3">
+        A search of the scholarship on a passage is complete only with the field&rsquo;s own tools. L&rsquo;Ann&eacute;e
+        philologique, through your library, is the bibliography of record for every year. JSTOR&rsquo;s own full-text
+        search covers the journals from 1923 to each title&rsquo;s moving wall. Your library&rsquo;s catalog and
+        WorldCat cover books and commentaries. Google Scholar and OpenAlex cover recent articles across publishers.
+        The online services this site consults return titles, abstracts and open-access copies for a question, so
+        what they list is a sample of recent work, not the record.
+      </p>
+    </section>
+  );
+}
+
 function Methods({ methods }) {
   return (
     <section>
@@ -178,6 +220,7 @@ export default function ScholarshipSourcesPage() {
         <a href="#commentaries" className="text-red-700 hover:underline">Commentaries</a>
         <a href="#journals" className="text-red-700 hover:underline">Journals</a>
         <a href="#online" className="text-red-700 hover:underline">Online services</a>
+        <a href="#beyond" className="text-red-700 hover:underline">What is not here</a>
         <a href="#methods" className="text-red-700 hover:underline">Methods</a>
       </nav>
       {error && <p className="mt-4 text-red-700">{error}</p>}
@@ -187,6 +230,7 @@ export default function ScholarshipSourcesPage() {
           <Commentaries groups={data.commentaries || []} updated={data.updated?.commentaries} />
           <Journals indexes={data.journals || []} updated={data.updated?.indexes} />
           <Online online={data.online || { services: [], note: '' }} />
+          <Beyond indexes={data.journals || []} />
           <Methods methods={data.methods || []} />
         </>
       )}
