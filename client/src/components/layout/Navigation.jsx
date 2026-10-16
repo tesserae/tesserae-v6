@@ -365,7 +365,7 @@ const Navigation = ({
                     scholar deciding whether to cite something needs to know
                     that before they rely on it, not afterwards. */}
                 {tab.beta && !narrow && (
-                  <span className="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">
+                  <span className="ml-1 relative -top-1 inline-block leading-none text-[9px] font-semibold uppercase tracking-wide text-amber-700">
                     beta
                   </span>
                 )}
