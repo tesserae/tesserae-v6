@@ -8,6 +8,7 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-16
+- Thucydides work id renamed from `thucydides.peleponnesian_war` to `thucydides.peloponnesian_war` (the whole file and its eight part files; content and line tags unchanged). The display override added for the title is removed, and the work id is updated in the citation tables, the work description, the History view's Greek default, the Ask a Work example, the tests and the speed-request list. Production stores change by the steps in docs/DATA_OPERATIONS.md ("Thucydides work id renamed (to run)").
 - Scholarship tab (and Search One Text and Theme Search, which show it): a second citation index can be read beside the one from before 1923. The environment variable `TESSERAE_CITATIONS_EXTRA` names its database; absent, nothing changes and the answers are byte-identical, and a path that does not exist is logged once and ignored. Its rows carry `source: 'muse'`, show under the tag "journal article, Project MUSE" with the year, and link to `https://doi.org/<doi>`, with the one citing sentence and no full text. The first database, of 1,628 articles from two Project MUSE journals (11,181 citations after cleaning), is installed by the steps in docs/DATA_OPERATIONS.md. Help names Project MUSE in the Scholarship sources paragraph. Inscription and papyrus pages read their own citation database and are not changed.
 
 ## 2026-10-15
