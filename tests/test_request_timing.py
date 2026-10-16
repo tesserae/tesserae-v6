@@ -192,8 +192,9 @@ def test_visitor_code_is_keyed_daily_and_never_the_address(tmp_path, monkeypatch
     assert "203.0.113" not in text and "198.51.100" not in text
     with app.test_request_context("/api/ok", environ_base={"REMOTE_ADDR": "203.0.113.7"},
                                   headers={"User-Agent": "A"}):
-        assert request_timing._visitor("2026-10-15") == got[0]
-        assert request_timing._visitor("2026-10-16") != got[0]
+        day = lines(tmp_path)[0][:10]           # the day the line was written, whatever today is
+        assert request_timing._visitor(day) == got[0]
+        assert request_timing._visitor("1999-12-31") != got[0]
 
 
 def test_requests_from_the_server_are_local(tmp_path, monkeypatch):
