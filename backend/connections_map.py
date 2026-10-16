@@ -309,6 +309,22 @@ def _book_of(ref_start, named=False):
     return f'block{block_start}', str(block_start)
 
 
+def _book_phrase(book_id, label):
+    """What a reader is told a row or column is: "Genesis" for a named book,
+    "Book 7" for a numbered one, "Lines 101 to 200" for a block of lines.
+    The page used to print "book " before every label, which gave "book
+    Genesis" (owner, 2026-10-16)."""
+    if book_id.startswith('block'):
+        try:
+            start = int(book_id[5:])
+            return f'Lines {start} to {start + 99}'
+        except ValueError:
+            return f'Lines from {label}'
+    if book_id.startswith('n'):
+        return label
+    return f'Book {label}'
+
+
 def _book_sort_key(book_id):
     """Numeric books ("b2" before "b10") and line blocks sort by their
     number; anything unrecognised sorts after, alphabetically."""
@@ -798,8 +814,11 @@ def get_pair(work_a, work_b, limit=DEFAULT_PAIR_LIMIT, book_a=None, book_b=None)
             if book_a or book_b:
                 ref_left = (windows.get(win_left) or {}).get('ref_start')
                 ref_right = (windows.get(win_right) or {}).get('ref_start')
-                bl, _ = _book_of(ref_left)
-                br, _ = _book_of(ref_right)
+                # The same grouping the books grid used, so a named book's
+                # key ("ngenesis") matches here too.
+                from backend import scripture
+                bl, _ = _book_of(ref_left, named=scripture.is_aggregate(work_a))
+                br, _ = _book_of(ref_right, named=scripture.is_aggregate(work_b))
                 if book_a and bl != book_a:
                     continue
                 if book_b and br != book_b:
@@ -891,6 +910,8 @@ def get_books_map(work_a, work_b):
             'meta_b': {'language': wmeta[work_b]['language'], 'author_display': wmeta[work_b]['author_display']},
             'ids_a': ids_a, 'labels_a': [books_a[i] for i in ids_a],
             'ids_b': ids_b, 'labels_b': [books_b[i] for i in ids_b],
+            'names_a': [_book_phrase(i, books_a[i]) for i in ids_a],
+            'names_b': [_book_phrase(i, books_b[i]) for i in ids_b],
             'counts': counts, 'normalised': normalised, 'legend': legend,
         }, stale, meta)
     finally:

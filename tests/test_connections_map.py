@@ -1042,3 +1042,11 @@ def test_scripture_is_aggregate():
     assert scripture.is_aggregate('sahidic.bible')
     assert not scripture.is_aggregate('world_english_bible.pentateuch.part.1.genesis')
     assert not scripture.is_aggregate('milton.paradise_lost')
+
+
+# How a row or column is named in the hover (2026-10-16): the old "book "
+# prefix read "book Genesis".
+def test_book_phrase_names_each_kind_of_book():
+    assert connections_map._book_phrase('ngenesis', 'Genesis') == 'Genesis'
+    assert connections_map._book_phrase('b7', '7') == 'Book 7'
+    assert connections_map._book_phrase('block101', '101') == 'Lines 101 to 200'

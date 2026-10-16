@@ -963,7 +963,10 @@ export default function ConnectionsMap() {
   const onHoverBooks = (cell, evt) => {
     if (!cell || !booksData || booksData.error) { setHoverInfo(null); return; }
     setHoverInfo({
-      labelA: `book ${booksData.labels_a[cell.i]}`, labelB: `book ${booksData.labels_b[cell.j]}`,
+      // The server names each row and column ("Genesis", "Book 7", "Lines
+      // 101 to 200"); the old "book <label>" prefix read "book Genesis".
+      labelA: booksData.names_a?.[cell.i] ?? `Book ${booksData.labels_a[cell.i]}`,
+      labelB: booksData.names_b?.[cell.j] ?? `Book ${booksData.labels_b[cell.j]}`,
       count: booksData.counts[cell.i][cell.j], normalised: booksData.normalised[cell.i][cell.j],
       lift: booksShown.lift ? booksShown.lift[cell.i][cell.j] : null,
       diagonalText: null,
