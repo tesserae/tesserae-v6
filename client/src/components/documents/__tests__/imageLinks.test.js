@@ -28,4 +28,21 @@ describe('imageLinks', () => {
     expect(r.shown.length).toBe(1);
     expect(r.omitted).toBe(2);
   });
+  it('splitImageLinks reports a down host once, by name, and hides its links', () => {
+    const r = splitImageLinks(
+      ['https://lupa.at/1', 'https://papyri.uni-koeln.de/a', 'https://papyri.uni-koeln.de/b',
+        'https://unlisted.example.org/x', 'a.jpg'],
+      [{ host: 'papyri.uni-koeln.de', down_since: '2026-10-09' },
+        { host: 'unlisted.example.org', down_since: null }],
+    );
+    expect(r.shown.map((s) => s.url)).toEqual(['https://lupa.at/1']);
+    expect(r.omitted).toBe(1);
+    expect(r.unavailable).toEqual([
+      { host: 'papyri.uni-koeln.de', name: 'Cologne Papyrus Collection', down_since: '2026-10-09' },
+      { host: 'unlisted.example.org', name: 'unlisted.example.org', down_since: null },
+    ]);
+  });
+  it('splitImageLinks with no down hosts has an empty unavailable list', () => {
+    expect(splitImageLinks(['https://lupa.at/1']).unavailable).toEqual([]);
+  });
 });

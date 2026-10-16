@@ -699,6 +699,63 @@ def display_fields(doc_id):
 
 
 # --------------------------------------------------------------------------
+# Image hosts that have stopped answering
+# --------------------------------------------------------------------------
+# scripts/documents/check_image_hosts.py (weekly) writes the status file; a
+# host whose two most recent checks both failed is "down" and the page hides
+# its image links. Re-read when the file's mtime changes, as
+# backend/restricted_texts.py does for its registry.
+
+_image_host_cache = {'mtime': None, 'down': {}}
+
+
+def _image_host_status_path():
+    return os.environ.get('TESSERAE_IMAGE_HOST_STATUS') or os.path.join(
+        _repo_root(), 'data', 'documents', 'image_host_status.json')
+
+
+def down_image_hosts():
+    """{host: down_since or None} for hosts whose two most recent checks both
+    failed. {} when the status file is missing or unreadable."""
+    path = _image_host_status_path()
+    try:
+        mtime = os.path.getmtime(path)
+    except OSError:
+        return {}
+    if _image_host_cache['mtime'] != mtime:
+        try:
+            with open(path, encoding='utf-8') as f:
+                hosts = json.load(f).get('hosts', {}) or {}
+            down = {}
+            for host, entry in hosts.items():
+                checks = (entry or {}).get('checks') or []
+                if len(checks) >= 2 and not checks[-1].get('ok') and not checks[-2].get('ok'):
+                    down[host] = entry.get('down_since')
+            _image_host_cache['down'] = down
+            _image_host_cache['mtime'] = mtime
+        except (OSError, ValueError, AttributeError):
+            return _image_host_cache['down']
+    return _image_host_cache['down']
+
+
+def image_hosts_down_for(image_urls):
+    """[{host, down_since}], sorted by host, for the down hosts that occur in
+    this document's own image links."""
+    down = down_image_hosts()
+    if not down:
+        return []
+    from urllib.parse import urlsplit
+    present = set()
+    for u in image_urls or []:
+        if isinstance(u, str) and u.lower().startswith(('http://', 'https://')):
+            try:
+                present.add((urlsplit(u).hostname or '').lower())
+            except ValueError:
+                pass
+    return [{'host': h, 'down_since': down[h]} for h in sorted(present & set(down))]
+
+
+# --------------------------------------------------------------------------
 # Restored-word sidecars
 # --------------------------------------------------------------------------
 

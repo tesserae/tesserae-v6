@@ -1002,6 +1002,7 @@ def get_document(doc_id):
         'object_type_label': m.get('object_type_label'),
         'material_label': m.get('material_label'),
         'display': display or {},
+        'image_hosts_down': docs.image_hosts_down_for((display or {}).get('image_url')),
     }
     return jsonify(payload)
 

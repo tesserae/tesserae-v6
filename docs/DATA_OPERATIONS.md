@@ -35,6 +35,13 @@ Conventions
   hand and are the models the helper matches.
 
 
+## 2026-10-16 Image host status file seeded and weekly check installed (PLANNED, to run at deploy)
+Pull request: feat/image-hosts-down. The document page hides an image link while its host has failed two consecutive weekly checks. Steps after the pull request is merged and pulled on production:
+1. Seed the status file from the 9 and 16 October audits (seven hosts down, two recovered): `/var/www/tesseraev6_flask/venv/bin/python /var/www/tesseraev6_flask/scripts/documents/check_image_hosts.py --seed`. It writes `data/documents/image_host_status.json` (not in git) and never overwrites a check already recorded.
+2. Run one real check of the nine hosts: `... check_image_hosts.py --only petriecat.museums.ucl.ac.uk --only papyri-leipzig.dl.uni-leipzig.de --only papyri-erlangen.dl.uni-leipzig.de --only papyri-koeln.dl.uni-leipzig.de --only papyri-wuerzburg.dl.uni-leipzig.de --only www.ville-ge.ch --only papyri.uni-koeln.de --only www.uni-koeln.de --only papyri.uni-leipzig.de`. A check made on a date replaces a seeded check of the same date.
+3. Install and enable the timer (Sunday 04:30, output in `~/tesserae-backups/jobs/image_hosts.last`): copy `tess-image-hosts.service` and `tess-image-hosts.timer` to `~/.config/systemd/user/`, then `systemctl --user daemon-reload && systemctl --user enable --now tess-image-hosts.timer`.
+4. Check: `curl -s .../api/documents/<id of a Petrie Museum papyrus>` carries `image_hosts_down` with the host, and the page shows the "unavailable" line. The file is re-read when it changes, so no restart or wsgi touch is needed.
+To turn it off, delete the status file (or disable the timer and remove the file).
 ## 2026-10-16 Coptic Scriptorium corpora cloned for per-work source rows (RUN 2026-10-16, delegate)
 - **What.** `git clone --depth 1 https://github.com/CopticScriptorium/corpora.git` into `~/tesserae-backups/sources/coptic_scriptorium/corpora/` (2.5 GB, commit `3ac067f1709a0012daf39ea8da2fac79980176a5`, 5,561 files). Outside the repository and outside production; a read-only reference copy. In this commit the `sahidica.nt` CoNLL-U files are empty (2 bytes each), so its documents were listed by file name and described from `meta.json`; `sahidic.ot` ships only as zip files.
 - **What it fed.** One row per Coptic work in `backend/text_sources.json` (187 rows, 2,429 to 2,616). Metadata per document came from the TEI headers where valid (1,415 documents) and from `meta.json` otherwise (1,213): 2,628 documents, each with a document URN.

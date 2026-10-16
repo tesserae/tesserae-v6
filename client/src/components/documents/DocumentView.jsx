@@ -131,7 +131,7 @@ export default function DocumentView() {
         const dLabel = dateLabel(data);
         const images = Array.isArray(display.image_url) ? display.image_url
           : (display.image_url ? [display.image_url] : []);
-        const imageLinks = splitImageLinks(images);
+        const imageLinks = splitImageLinks(images, data.image_hosts_down);
         return (
           <div className="bg-white rounded-lg shadow p-4 sm:p-6 space-y-4">
             <div>
@@ -209,6 +209,11 @@ export default function DocumentView() {
                     ))}
                   </ul>
                 )}
+                {imageLinks.unavailable.map(({ host, name, down_since: downSince }) => (
+                  <p key={host} className="text-xs text-gray-500 mt-1" data-testid="image-host-unavailable">
+                    Image at {name} unavailable (the host has not answered since {downSince || 'the last two checks'}).
+                  </p>
+                ))}
                 {imageLinks.omitted > 0 && (
                   <p className="text-xs text-gray-500 mt-1">
                     {imageLinks.omitted} image link{imageLinks.omitted === 1 ? '' : 's'} omitted (the host no longer serves {imageLinks.omitted === 1 ? 'it' : 'them'}).
