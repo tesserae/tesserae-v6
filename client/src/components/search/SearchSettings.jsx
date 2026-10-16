@@ -22,6 +22,13 @@ const SearchSettings = ({ settings, setSettings, showAdvanced, setShowAdvanced, 
 
   // Advanced channel-weights panel state.
   const [showChannelWeights, setShowChannelWeights] = useState(false);
+  // One line under each channel saying what it matches (owner, 2026-10-16:
+  // a link to Help, or tooltips, to explain the channels; the hover text
+  // alone was easy to miss).
+  const [showChannelNotes, setShowChannelNotes] = useState(false);
+  const openChannelsHelp = () => {
+    window.dispatchEvent(new CustomEvent('tesserae:open-help', { detail: { section: 'reading-results', anchor: 'channels' } }));
+  };
   const [defaultWeights, setDefaultWeights] = useState(null);
   const [weightRange, setWeightRange] = useState({ min: 0, max: 20 });
 
@@ -458,7 +465,7 @@ const SearchSettings = ({ settings, setSettings, showAdvanced, setShowAdvanced, 
               className="flex items-center gap-1 text-sm font-medium text-gray-700 hover:text-gray-900"
             >
               <span className="text-xs">{showChannelWeights ? '▼' : '▶'}</span>
-              Advanced — Channels &amp; weights
+              Channels and weights (advanced)
               {disabledCount > 0 && (
                 <span className="ml-1 text-xs text-red-600">({disabledCount} off)</span>
               )}
@@ -469,11 +476,19 @@ const SearchSettings = ({ settings, setSettings, showAdvanced, setShowAdvanced, 
 
             {showChannelWeights && (
             <div className="mt-3">
-              <p className="text-xs text-gray-500 mb-3">
-                Advanced — the defaults are optimized; custom settings can reduce recall.
-                Uncheck a channel to turn it off (it won't run at all); each channel that
-                stays on contributes to a match's score in proportion to its weight
-                (range {weightRange.min}–{weightRange.max}). Leave a weight at its default to keep it unchanged.
+              <p className="text-xs text-gray-500 mb-2">
+                The defaults are tuned, and custom settings can reduce recall. Uncheck a channel to
+                turn it off, so it does not run at all. Each channel that stays on contributes to a
+                match's score in proportion to its weight (range {weightRange.min} to {weightRange.max}).
+                Leave a weight at its default to keep it unchanged.
+              </p>
+              <p className="text-xs mb-3 flex flex-wrap gap-x-4 gap-y-1">
+                <button type="button" onClick={openChannelsHelp} className="text-red-700 hover:underline" data-testid="channels-help-link">
+                  What each channel does, in Help
+                </button>
+                <button type="button" onClick={() => setShowChannelNotes((v) => !v)} className="text-red-700 hover:underline" aria-expanded={showChannelNotes} data-testid="channels-notes-toggle">
+                  {showChannelNotes ? 'Hide the line under each channel' : 'Show a line under each channel'}
+                </button>
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-3">
                 {CHANNEL_LABELS.filter(([ch]) => !defaultWeights || defaultWeights[ch] !== undefined).map(([ch, label]) => {
@@ -487,15 +502,20 @@ const SearchSettings = ({ settings, setSettings, showAdvanced, setShowAdvanced, 
                       aria-label={`Enable ${label} channel`}
                       className="h-4 w-4 flex-shrink-0"
                     />
-                    <label
-                      className={`text-xs font-medium flex-1 min-w-0 truncate ${on ? 'text-gray-700' : 'text-gray-500 line-through'}`}
-                      title={channelDescription(ch) || label}
-                    >
-                      {label}
-                      {on && channelWeights[ch] !== undefined && (
-                        <span className="text-red-600"> *</span>
+                    <div className="flex-1 min-w-0">
+                      <label
+                        className={`block text-xs font-medium truncate ${on ? 'text-gray-700' : 'text-gray-500 line-through'}`}
+                        title={channelDescription(ch) || label}
+                      >
+                        {label}
+                        {on && channelWeights[ch] !== undefined && (
+                          <span className="text-red-600"> *</span>
+                        )}
+                      </label>
+                      {showChannelNotes && channelDescription(ch) && (
+                        <p className="text-[11px] leading-snug text-gray-500" data-testid={`channel-note-${ch}`}>{channelDescription(ch)}</p>
                       )}
-                    </label>
+                    </div>
                     <input
                       type="number"
                       min={weightRange.min}
