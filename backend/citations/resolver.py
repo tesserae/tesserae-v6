@@ -181,17 +181,31 @@ def _expand_range(start_levels, end_levels):
     return start_levels, end_levels
 
 
+_RANGE_SIBLING_TAIL = re.compile(r"^_\d+-\d+(?:\.part\.\d+)?$")
+
+
+def _is_own_part(whole, i):
+    """i is the whole work itself, one of its '.part.N' files, or a stale
+    range record ('libanius.orations_1-11') the generated table keeps beside
+    a whole record whose file exists."""
+    if i == whole or i.startswith(whole + ".part."):
+        return True
+    return i.startswith(whole + "_") and bool(_RANGE_SIBLING_TAIL.match(i[len(whole):]))
+
+
 def _collapse_whole_and_parts(ids):
     """A work registered both whole ('livy.ab_urbe_condita') and in parts
     ('livy.ab_urbe_condita.part.2.books_21-30') carries the same
     abbreviations on every record, so a citation to 'Livy' or 'Plin. Nat.'
     tied across all of them and was never resolved. When the tied ids are
-    one whole work plus its own parts, the whole work is the answer."""
+    one whole work plus its own parts, the whole work is the answer. The
+    table also holds range records beside a few whole works
+    (libanius.orations_1-11, augustine.epistulae_1-30) whose part files do
+    not exist; they count as parts of the whole too (round 4)."""
     if len(ids) < 2:
         return ids
     for whole in ids:
-        if ".part." not in whole and all(
-                i == whole or i.startswith(whole + ".part.") for i in ids):
+        if ".part." not in whole and all(_is_own_part(whole, i) for i in ids):
             return [whole]
     return ids
 

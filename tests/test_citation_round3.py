@@ -225,9 +225,30 @@ def test_bare_forms_stay_as_they_were(idx):
 
 # ---- the patch script ---------------------------------------------------
 
+def _strip_round3(src, dst):
+    """Copy the table with the round 3 patch undone: its forms removed and
+    the works it creates dropped, so the test does not depend on whether the
+    live table already holds round 3."""
+    from backend.citations.abbrev_index import normalize_abbr
+    with open(PATCH, encoding='utf-8') as f:
+        patch = json.load(f)['works']
+    with open(src, encoding='utf-8') as f:
+        data = json.load(f)
+    data['works'] = [w for w in data['works']
+                     if not (w['base_id'] in patch and 'new_work' in patch[w['base_id']])]
+    for w in data['works']:
+        spec = patch.get(w['base_id'])
+        if spec:
+            drop = {normalize_abbr(x) for x in spec['abbreviations']}
+            w['abbreviations'] = [a for a in w.get('abbreviations', []) if normalize_abbr(a) not in drop]
+    with open(dst, 'w', encoding='utf-8') as f:
+        json.dump(data, f, indent=2, ensure_ascii=False)
+        f.write('\n')
+
+
 def test_patch_script_is_idempotent_and_backs_up(tmp_path):
     table = str(tmp_path / 'abbreviations.json')
-    shutil.copyfile(os.path.realpath(C._DATA), table)
+    _strip_round3(os.path.realpath(C._DATA), table)
     before = open(table, encoding='utf-8').read()
     dry = _run(PATCH, table)
     assert dry.returncode == 0 and 'dry run' in dry.stdout

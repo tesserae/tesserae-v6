@@ -1,0 +1,58 @@
+{
+ "_comment": "Citation recognizer round 4 (2026-10-16): forms for the orators, Pindar, Theocritus and Bacchylides that the generated table lacks. Per base_id, abbreviations to append to the production table data/citations/abbreviations.json (scripts/citations/apply_abbrev_patch.py). Most of the orators' own forms (Dem., D., Aeschin., Andoc., Din., Lycurg., Lys., Isoc., Hyp.) and Pindar's (Ol., Pyth., Nem., Isth., Pind. Ol.) are already in the table; what blocked them was the choice among many works, which backend/citations/speech_numbers.json and abbrev_context_rules.json now make. Forms short enough to mean other works (O., N., Id., B., D., P., I., Is.) are gated by author context in abbrev_context_rules.json. `allow_overlap` lists forms the patch gives to a work although the table already gives them to another (a bare Bacch. stays Plautus unless Bacchylides is named, by the defaults rule). The Libanius tie needs no patch: it is resolved in backend/citations/resolver.py. No article text.",
+ "patch": "round4",
+ "allow_overlap": [
+  "Bacch."
+ ],
+ "works": {
+  "isaeus.speeches": {
+   "abbreviations": [
+    "Isae."
+   ]
+  },
+  "hyperides.speeches": {
+   "abbreviations": [
+    "Hyperid."
+   ]
+  },
+  "isocrates.letters": {
+   "abbreviations": [
+    "Isoc. Ep.",
+    "Isoc. Epist."
+   ]
+  },
+  "pindar.odes": {
+   "abbreviations": [
+    "O.",
+    "N.",
+    "Isthm."
+   ]
+  },
+  "theocritus.idylls": {
+   "abbreviations": [
+    "Theocr.",
+    "Theoc. Id.",
+    "Theocr. Id.",
+    "Id."
+   ]
+  },
+  "theocritus.epigrams": {
+   "abbreviations": [
+    "Theoc. Ep.",
+    "Theocr. Ep."
+   ]
+  },
+  "bacchylides.epinicians": {
+   "abbreviations": [
+    "Bacch.",
+    "Bacchyl."
+   ]
+  },
+  "bacchylides.dithyrambs": {
+   "abbreviations": [
+    "Bacch.",
+    "Bacchyl."
+   ]
+  }
+ }
+}
