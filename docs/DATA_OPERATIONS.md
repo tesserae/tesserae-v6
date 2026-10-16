@@ -35,6 +35,25 @@ Conventions
   hand and are the models the helper matches.
 
 
+## 2026-10-15 King James Bible: Revelation moved into the New Testament (to run)
+The pull request renames `texts/en/world_english_bible.revelation.tess` to `world_english_bible.new_testament.part.27.revelation.tess` (content unchanged, 404 lines) and appends those 404 lines to `texts/en/world_english_bible.new_testament.tess` (7,548 to 7,952 lines, Matthew to Revelation). Line tags stay `<WEB Revelation N.M>`. The pull changes the tracked files only (texts, `data/text_descriptions.json`, `data/translation_pairs.json`, the two citation tables, `scripts/download_english.py`, one test). Every other store changes by the steps below, run by the lead after the merge and deploy, one heavy job at a time, each inside `systemd-run --user --scope -p MemoryMax=<cap>` and through `~/bin/tess-job`, with a dated backup of each store first. Fill in the times when run.
+
+1. Rename the work in the stores outside git. Dry run first, read what it reports, then apply (it moves the text, the en inverted-index rows, the lemma cache, and the line embeddings):
+   - `scripts/corpus/rename_work.py --language en --old world_english_bible.revelation --new world_english_bible.new_testament.part.27.revelation`
+   - `scripts/corpus/rename_work.py --language en --old world_english_bible.revelation --new world_english_bible.new_testament.part.27.revelation --apply`
+   - the passage-index windows: `scripts/corpus/rename_work_in_passage_index.py --leaf world_english_bible.revelation world_english_bible.new_testament.part.27.revelation` (dry run), then the same with `--apply`. Rehearse on a scratch copy first, as on 2026-10-13. The line embeddings and window vectors are untouched, because the content did not change.
+2. Give the whole-work index rows Revelation, on an index copy (cap 12G):
+   - delete `cache/lemmas/en/world_english_bible.new_testament*.json` for the whole-work file (the hashed name, as on 2026-10-13), then `scripts/batch_lemma_cache.py en` (cap 8G) rebuilds it;
+   - `scripts/corpus/add_texts_to_index.py --db <en_index.db copy> --language en --cache-dir /var/www/tesseraev6_flask/cache/lemmas --replace world_english_bible.new_testament.tess`, which also rebuilds `lemma_doc_freq`; integrity check, swap in with a dated backup, `touch tesseraev6_flask.wsgi`;
+   - `scripts/corpus/rebuild_docfreq.py --language en --apply` if the tool did not leave the table current, and `scripts/corpus/rebuild_bigrams.py en` for the rare-bigram table.
+   The whole-work file carries no passage windows (whole works with part files are dropped from the passage index), so no windows are added.
+3. Passage-index lockstep check: counts of ids, descriptions, vectors and window_texts in step; then one Similar Passages request from a Revelation window and one Theme Search request; the rename changes `descriptions.jsonl`, so rebuild the keyword index (`scripts/build_desc_fts.py`), the description vocabulary (`scripts/corpus/build_desc_vocab.py`) and the names index (`scripts/corpus/build_window_names.py`, to a `.new` file and swapped in), touching the wsgi file after each.
+4. Reference searches from `tests/search_reference_tests.md` ("arma virum" must return Ovid, Quintilian, Seneca), a search of the King James text for a Revelation phrase (the result must name `world_english_bible.new_testament.part.27.revelation`), and the translation pairs for Revelation (4 rows, `work_b` renamed).
+5. The recorded API check (`scripts/review/golden_api.py`): run it, and re-record only the requests the data change alters (the text lists, the Revelation text and description requests, and the theme requests the rename moves).
+6. The connections map (`scripts/build_connections_map.py`, cap 10G, about 50 minutes) and the passage density cache (`scripts/precompute_passage_density.py --language all`). Both are keyed by the index fingerprint, which the rename changes, so both are rebuilt; until then the Reader computes a first visit's gutter live.
+
+Rollback: restore the dated backups of the English inverted index, the lemma cache files, the passage-index database and the embeddings folder, rename the two text files back, and touch the wsgi file.
+
 ## 2026-10-13 Small corpus leftovers: production run of the #904 tail (run 22:19 to 23:5x EDT, by the lead, supervised)
 Prepared as PENDING steps in #904 (text changes by the pull; every other store by hand). Run order and what happened, with the two tool faults it found. Backups of the two inverted indexes and of ids.json and descriptions.jsonl taken first into `~/tesserae-backups/corpus_leftovers_2026-10-13/`; every tool kept its own dated `.bak-*` beside the file it changed.
 

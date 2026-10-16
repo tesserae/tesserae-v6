@@ -1475,7 +1475,7 @@
     },
     {
       "work_a": "bohairic.revelation",
-      "work_b": "world_english_bible.revelation",
+      "work_b": "world_english_bible.new_testament.part.27.revelation",
       "language_a": "cop",
       "language_b": "en",
       "reason": "scripture translation (REV)"
@@ -3687,7 +3687,7 @@
     },
     {
       "work_a": "jerome.vulgate",
-      "work_b": "world_english_bible.revelation",
+      "work_b": "world_english_bible.new_testament.part.27.revelation",
       "language_a": "la",
       "language_b": "en",
       "reason": "scripture translation (REV)"
@@ -3918,7 +3918,7 @@
     },
     {
       "work_a": "novum_testamentum.apocalypsis",
-      "work_b": "world_english_bible.revelation",
+      "work_b": "world_english_bible.new_testament.part.27.revelation",
       "language_a": "grc",
       "language_b": "en",
       "reason": "scripture translation (REV)"
@@ -4828,7 +4828,7 @@
     },
     {
       "work_a": "sahidica.revelation",
-      "work_b": "world_english_bible.revelation",
+      "work_b": "world_english_bible.new_testament.part.27.revelation",
       "language_a": "cop",
       "language_b": "en",
       "reason": "scripture translation (REV)"
