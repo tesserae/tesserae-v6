@@ -7,6 +7,9 @@ so the state of the live site can be reconstructed from this file and
 docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
+## 2026-10-16
+- Thucydides work id renamed from `thucydides.peleponnesian_war` to `thucydides.peloponnesian_war` (the whole file and its eight part files; content and line tags unchanged). The display override added for the title is removed, and the work id is updated in the citation tables, the work description, the History view's Greek default, the Ask a Work example, the tests and the speed-request list. Production stores change by the steps in docs/DATA_OPERATIONS.md ("Thucydides work id renamed (to run)").
+
 ## 2026-10-15
 - Passage references: every Similar Passages, Theme Search, Search One Text and gutter result now carries `locus`, `locus_start`, `locus_end` and `citation` from the server (the short locus, "2.57.1" or "2.57.1–2.58.3", never the file's tag "thuc. pele. 2.57.1"), and the Theme Search cards, Search One Text cards, the Reader's English view and the Reader panel's full translation print it, with the file's tag as hover text. `ref_start` and `ref_end` are unchanged. A test (`noRawRefs.test.js`) fails if a page prints a raw tag again.
 - Theme Search export: the order note reads "chronological: oldest first, undated last" (the test expected the word chronological and had been failing).

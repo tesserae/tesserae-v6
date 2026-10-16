@@ -11,7 +11,7 @@ function answer(confidence, note) {
   return {
     query: 'establishment of democracy',
     results: [
-      { work: 'thucydides.peleponnesian_war.part.8', ref_start: 'thuc. pele. 8.63.3', ref_end: 'thuc. pele. 8.63.3',
+      { work: 'thucydides.peloponnesian_war.part.8', ref_start: 'thuc. pele. 8.63.3', ref_end: 'thuc. pele. 8.63.3',
         score: 0.835, strong: false, gist: 'The collapse of Athenian democracy at Samos.', language: 'grc',
         author: 'Thucydides', title: 'Peloponnesian War' },
     ],

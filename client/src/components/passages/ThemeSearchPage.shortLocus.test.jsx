@@ -11,7 +11,7 @@ describe('Theme Search card reference', () => {
   it('uses the server locus and keeps the tag in the hover text', async () => {
     const payload = {
       query: 'the plague strikes the army',
-      results: [{ work: 'thucydides.peleponnesian_war.part.2', ref_start: 'thuc. pele. 2.57.1',
+      results: [{ work: 'thucydides.peloponnesian_war.part.2', ref_start: 'thuc. pele. 2.57.1',
         ref_end: 'thuc. pele. 2.58.3', locus: '2.57.1–2.58.3', score: 0.9, strong: true,
         gist: 'Plague reaches the army.', language: 'grc', author: 'Thucydides', title: 'Peloponnesian War' }],
       strong_matches: 1,

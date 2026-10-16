@@ -118,7 +118,7 @@ def test_a_note_on_another_work_that_names_the_author_is_kept(monkeypatch):
         {'kind': 'commentary', 'work': 'vergil.aeneid.part.3', 'snippet': 'A note on the dative.', 'commentator': 'Page'},
         {'kind': 'article', 'title': 'On the plague', 'snippet': 'Lucretius alone is discussed.'},
     ]
-    kept, info = bp._scholarship_keep(cards, 'thucydides.peleponnesian_war')
+    kept, info = bp._scholarship_keep(cards, 'thucydides.peloponnesian_war')
     assert len(kept) == 1 and kept[0]['snippet'].startswith('Compare')
     assert all('for this question' in x or 'this question' in x for x in bp._HOLDINGS_NONE)
 
@@ -314,7 +314,7 @@ def test_live_model_thucydides_democracy_three_runs():
     results = []
     for _ in range(3):
         out = _post({'question': 'the strengths and weaknesses of democracy',
-                     'work': 'thucydides.peleponnesian_war', 'lang': 'grc'})
+                     'work': 'thucydides.peloponnesian_war', 'lang': 'grc'})
         results.append(out)
         assert out.get('none_relevant') is True or out.get('summary') or out.get('available') is False
     print('LIVE RUNS', [(o.get('none_relevant'), (o.get('summary') or '')[:200]) for o in results])

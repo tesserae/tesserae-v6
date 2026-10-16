@@ -9,7 +9,7 @@ of about --target-chars characters, made of whole sentences from that one
 unit, and writes them for the describer.
 
     python scripts/corpus/prose_windows.py --work tacitus.annales \
-        --work thucydides.peleponnesian_war --target-chars 1200 --out DIR
+        --work thucydides.peloponnesian_war --target-chars 1200 --out DIR
 
     python scripts/corpus/prose_windows.py --audit audit.json --top 10 --out DIR
 
