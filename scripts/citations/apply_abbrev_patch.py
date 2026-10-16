@@ -18,7 +18,9 @@ Rules:
   backend/citations/abbrev_aliases.json, to a work that is not in the patch
   for that same form, unless --force. A form the patch gives to several works
   (an intended ambiguity such as "Rust." for Varro and Columella) is not a
-  conflict among them.
+  conflict among them. A form listed under the patch's "allow_overlap" is
+  never a conflict (the patch says the overlap is meant, and the
+  disambiguation rules in abbrev_context_rules.json decide between works).
 """
 import argparse
 import json
@@ -42,6 +44,7 @@ def plan(patch, table_path):
     idx = AbbrevIndex(table_path)
     patch_works = patch["works"]
 
+    overlap = {normalize_abbr(x) for x in patch.get("allow_overlap", [])}
     owners = {}  # normalized form -> base_ids the patch gives it to
     for base_id, spec in patch_works.items():
         for form in spec["abbreviations"]:
@@ -63,6 +66,8 @@ def plan(patch, table_path):
                 continue
             have.add(key)
             for existing, _prio, _src in idx.index.get(key, []):
+                if key in overlap:
+                    continue
                 if existing != base_id and existing not in owners[key]:
                     conflicts.append((form, base_id, existing))
             additions.append((base_id, form))

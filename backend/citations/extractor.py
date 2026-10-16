@@ -147,13 +147,14 @@ def _load_context_rules():
         veto_all = raw.get("veto_before_all")
         disambiguate = {
             key: [{
-                "work": r["work"],
+                "work": r.get("work"),
+                "family": r.get("family"),
                 "context": re.compile(r["context"]),
                 "veto_before": re.compile(r["veto_before"]) if r.get("veto_before") else None,
             } for r in lst]
             for key, lst in (raw.get("disambiguate") or {}).items()}
         _CONTEXT_RULES = {"rules": rules, "veto_all": re.compile(veto_all) if veto_all else None,
-                          "disambiguate": disambiguate}
+                          "disambiguate": disambiguate, "defaults": raw.get("defaults") or {}}
     return _CONTEXT_RULES
 
 
@@ -180,32 +181,146 @@ def _apply_context_rules(work_id, work_surface, anchor_start, text, context):
     return work_id, None
 
 
-def _disambiguate_candidates(candidates, work_surface, anchor_start, text, context, works):
+def _disambiguate_candidates(candidates, work_surface, anchor_start, text, context, works, n_levels=0):
     """Author-context choice among works that share one short form. The
     "disambiguate" table in abbrev_context_rules.json lists, per form
     ("met", "ep", "ecl"), the works it can mean and a regex for the author
     that picks each. The rule whose author is named closest before the
     citation (sentence before, or this sentence ahead of it) wins, and its
-    work becomes the only candidate, at priority 0. Returns the candidates
-    unchanged when no rule matches, so a bare "Met." stays unresolved."""
+    work becomes the only candidate, at priority 0. A rule may name a
+    "family" (an author in speech_numbers.json) instead of one work: every
+    file of that author becomes a candidate, and _route_speech_family then
+    picks the file from the speech number. When no author is named, a form
+    listed under "defaults" falls back to its default work if that work is
+    among the candidates and the citation has at least min_levels locus
+    levels ("Lys. 12.4" is Lysias, not the Lysistrata, whose lines are
+    cited with a single number). Returns the candidates unchanged when
+    nothing applies, so a bare "Met." stays unresolved."""
     if not work_surface or anchor_start is None:
         return candidates
-    rules = _load_context_rules()["disambiguate"].get(normalize_abbr(work_surface))
-    if not rules:
-        return candidates
-    ahead = (context or "")[-_CONTEXT_BEFORE:] + " " + text[max(0, anchor_start - _CONTEXT_BEFORE):anchor_start]
-    best_end, best = -1, None
-    for rule in rules:
-        if rule["work"] not in works:
+    cfg = _load_context_rules()
+    key = normalize_abbr(work_surface)
+    rules = cfg["disambiguate"].get(key)
+    if rules:
+        ahead = (context or "")[-_CONTEXT_BEFORE:] + " " + text[max(0, anchor_start - _CONTEXT_BEFORE):anchor_start]
+        best_end, best = -1, None
+        for rule in rules:
+            if rule["work"] and rule["work"] not in works:
+                continue
+            if rule["veto_before"] and rule["veto_before"].search(ahead[-_VETO_TAIL:]):
+                continue
+            for m in rule["context"].finditer(ahead):
+                if m.end() > best_end:
+                    best_end, best = m.end(), rule
+        if best is not None:
+            if best["family"]:
+                ids = sorted(set(_load_speech_numbers().get(best["family"], {}).get("ids", [])))
+                return [(i, 0, work_surface) for i in ids if i in works] or candidates
+            return [(best["work"], 0, work_surface)]
+    default = cfg["defaults"].get(key)
+    if default and n_levels >= default.get("min_levels", 1):
+        for c in candidates:
+            if c[0] == default["work"]:
+                return [(c[0], c[1], work_surface)]
+    return candidates
+
+
+# Authors the corpus files one speech (or ode group) per work: the number at
+# the head of the locus chooses the file ("Dem. 21.72" is the speech Against
+# Midias). speech_numbers.json: {author: {"21": file, ..., "1-14": file}}.
+_SPEECH_NUMBERS = None
+
+
+def _load_speech_numbers():
+    global _SPEECH_NUMBERS
+    if _SPEECH_NUMBERS is None:
+        try:
+            with open(os.path.join(_CITATIONS_DIR, "speech_numbers.json"), encoding="utf-8") as f:
+                raw = json.load(f)
+        except (OSError, json.JSONDecodeError):
+            raw = {}
+        out = {}
+        for author, table in raw.items():
+            if author.startswith("_") or not isinstance(table, dict):
+                continue
+            exact, ranges = {}, []
+            for k, work in table.items():
+                if "-" in k:
+                    lo, hi = k.split("-", 1)
+                    ranges.append((int(lo), int(hi), work))
+                else:
+                    exact[int(k)] = work
+            out[author] = {"exact": exact, "ranges": ranges,
+                           "ids": sorted(set(exact.values()) | {r[2] for r in ranges})}
+        _SPEECH_NUMBERS = out
+    return _SPEECH_NUMBERS
+
+
+def _route_speech_family(ref, works):
+    """When a citation's candidates are all files of one author in
+    speech_numbers.json ("Dem.", "Aeschin.", "Andoc.", "Din.", "B."), and
+    the first locus level is a known speech number, keep only the file that
+    holds that speech. The locus is left as written: these files are tagged
+    speech.section (<dem. 21.72>), so "Dem. 21.72" stays 21.72. Anything else
+    comes back unchanged."""
+    cands = ref.work_candidates
+    if not cands or not ref.start_levels or len(ref.start_levels) < 2:
+        return ref
+    best = min(c[1] for c in cands)
+    top = {c[0] for c in cands if c[1] == best}
+    authors = {i.split(".", 1)[0] for i in top}
+    if len(top) < 2 or len(authors) != 1:
+        return ref
+    fam = _load_speech_numbers().get(next(iter(authors)))
+    if not fam:
+        return ref
+    number = level_to_arabic(ref.start_levels[0])
+    if number is None or not number.isdigit():
+        return ref
+    n = int(number)
+    target = fam["exact"].get(n)
+    if target is None:
+        for lo, hi, work in fam["ranges"]:
+            if lo <= n <= hi:
+                target = work
+                break
+    if target is None or target not in works or target not in top:
+        return ref
+    return replace(ref, work_candidates=[(target, best, cands[0][2])])
+
+
+# Pindar: pindar.odes holds all four books under one file whose lines are
+# tagged <pind. o. 1.1>, so Olympian 1 line 1 and Pythian 1 line 1 share the
+# locus 1.1. The book letter, taken from the form that named the work
+# ("Ol.", "Pyth.", "Nem.", "Isth.", or the bare letter), is put in front:
+# o.1.1. A form that names no book (Pind., Pi.) is left alone.
+_PINDAR_BOOK = {
+    "o": "o", "ol": "o", "olymp": "o",
+    "p": "p", "py": "p", "pyth": "p",
+    "n": "n", "ne": "n", "nem": "n",
+    "i": "i", "is": "i", "isth": "i", "isthm": "i",
+}
+
+
+def _prefix_pindar_book(outs):
+    for d in outs:
+        # P. and N. are admitted by the parser only for Pindar; a single
+        # number after them is a page or a note ("P. 45").
+        if (d.get("resolved") and d.get("work_id") == "pindar.odes"
+                and normalize_abbr(d.get("work_surface") or "") in ("p", "n")
+                and "." not in (d.get("locus_start") or "")):
+            d.update(resolved=False, work_id=None, part_id=None, locus_start=None,
+                     reason="requires_two_levels:" + normalize_abbr(d["work_surface"]))
             continue
-        if rule["veto_before"] and rule["veto_before"].search(ahead[-_VETO_TAIL:]):
+        if not d.get("resolved") or d.get("work_id") != "pindar.odes" or not d.get("work_surface"):
             continue
-        for m in rule["context"].finditer(ahead):
-            if m.end() > best_end:
-                best_end, best = m.end(), rule
-    if best is None:
-        return candidates
-    return [(best["work"], 0, work_surface)]
+        book = _PINDAR_BOOK.get(normalize_abbr(d["work_surface"]).split(" ")[-1])
+        if not book or not d.get("locus_start") or d["locus_start"][:2] == book + ".":
+            continue
+        d["locus_start"] = book + "." + d["locus_start"]
+        if d.get("locus_end"):
+            d["locus_end"] = book + "." + d["locus_end"]
+    return outs
 
 
 _WORK_MAX_BOOK = None
@@ -576,7 +691,7 @@ def extract(text, index=None, context=""):
         index = get_default_index()
 
     # `context` is the sentence before `text`, for the author-context rules.
-    citations = _find_citations_raw(text, index)
+    citations = _find_citations_raw(text, index, context)
     out = []
     for cit in citations:
         inherited_candidates = None
@@ -613,9 +728,12 @@ def extract(text, index=None, context=""):
 
             key_surface = ref.work_surface if not inherited else inherited_surface
             forced = _disambiguate_candidates(
-                ref_for_resolution.work_candidates, key_surface, anchor_start, text, context, index.works_by_base_id)
+                ref_for_resolution.work_candidates, key_surface, anchor_start, text, context, index.works_by_base_id,
+                len(ref_for_resolution.start_levels or []))
             if forced is not ref_for_resolution.work_candidates:
                 ref_for_resolution = replace(ref_for_resolution, work_candidates=forced)
+            if not ref_for_resolution.book_list:
+                ref_for_resolution = _route_speech_family(ref_for_resolution, index.works_by_base_id)
 
             base_out = {
                 "surface": text[ref.start_offset:ref.end_offset],
@@ -652,9 +770,9 @@ def extract(text, index=None, context=""):
                 continue
 
             res = resolve_ref(ref_for_resolution, index.works_by_base_id)
-            ref_out = _apply_work_depth(
+            ref_out = _prefix_pindar_book(_apply_work_depth(
                 _build_out(base_out, res, ref_for_resolution, text, anchor_start, context, index.works_by_base_id),
-                ref_for_resolution)
+                ref_for_resolution))
             if inherited and chain_dropped:
                 # The ref that named the work was dropped (no author context,
                 # impossible book number): what it carried along goes too.

@@ -59,6 +59,7 @@ prose (JSTOR's Early Journal Content), fixed here:
     for separate (almost always failed) parsing rather than folded into
     this citation.
 """
+import re
 from dataclasses import dataclass, field
 from typing import List, Optional
 
@@ -141,7 +142,7 @@ class Citation:
     surface: str
 
 
-def _match_work_prefix(tokens, i, abbrev_index):
+def _match_work_prefix(tokens, i, abbrev_index, allow_stop=None):
     """Greedily match the longest run of consecutive LIT tokens starting at i
     against the abbreviation index. Returns (end_index, candidates, surface,
     start_offset, end_offset) or None."""
@@ -160,7 +161,8 @@ def _match_work_prefix(tokens, i, abbrev_index):
         # biggest source of false positives in casual testing.
         if not (any(c == "." for c in surface) or any(c.isupper() for c in surface)):
             continue
-        if length == 1 and cand[0].text.rstrip(".").lower() in GENERIC_APPARATUS_STOPLIST:
+        if (length == 1 and cand[0].text.rstrip(".").lower() in GENERIC_APPARATUS_STOPLIST
+                and not (allow_stop and allow_stop(cand[0]))):
             continue
         key = normalize_abbr(surface)
         hits = abbrev_index.lookup(key)
@@ -313,8 +315,8 @@ def _is_firm_single_level(tok):
     return tok.type == "LIT" and len(text) >= 2 and text.isupper() and is_roman_shaped(text)
 
 
-def _try_parse_ref(tokens, i, abbrev_index, inherited):
-    work_match = _match_work_prefix(tokens, i, abbrev_index)
+def _try_parse_ref(tokens, i, abbrev_index, inherited, allow_stop=None):
+    work_match = _match_work_prefix(tokens, i, abbrev_index, allow_stop)
     if work_match:
         j, hits, surface, wstart, wend = work_match
         work_candidates, work_surface = hits, surface
@@ -362,13 +364,13 @@ def _try_parse_ref(tokens, i, abbrev_index, inherited):
     return ref, locus["end_index"]
 
 
-def _try_parse_citation(tokens, i, abbrev_index):
+def _try_parse_citation(tokens, i, abbrev_index, allow_stop=None):
     refs = []
     inherited_candidates = None
     inherited_surface = None
     pos = i
     while True:
-        ref, new_pos = _try_parse_ref(tokens, pos, abbrev_index, inherited_candidates)
+        ref, new_pos = _try_parse_ref(tokens, pos, abbrev_index, inherited_candidates, allow_stop)
         if ref is None:
             break
         refs.append(ref)
@@ -385,15 +387,33 @@ def _try_parse_citation(tokens, i, abbrev_index):
     return refs, pos
 
 
-def find_citations(text, abbrev_index):
+# "P." and "N." are on the page/note stoplist, but they are also Pindar's
+# Pythians and Nemeans. A capital P. or N. passes only with Pindar named in
+# the 300 characters before it (the sentence before counts, via `context`);
+# the extractor then requires two locus levels, so "P. 45" stays a page.
+_PINDAR_NAMED = re.compile(r"Pind")
+_STOP_EXEMPT = {"p", "n"}
+
+
+def find_citations(text, abbrev_index, context=""):
     """Scan `text`, returning a list of Citation objects (each one ref chain,
-    semicolon-separated) with character offsets into `text`."""
+    semicolon-separated) with character offsets into `text`. `context` is the
+    sentence before, used only to let a capital P. or N. through when Pindar
+    is named."""
     tokens = tokenize(text)
+    prelude = (context or "")[-300:] + " "
+
+    def allow_stop(tok):
+        word = tok.text.rstrip(".")
+        if word.lower() not in _STOP_EXEMPT or not word.isupper():
+            return False
+        return bool(_PINDAR_NAMED.search(prelude + text[max(0, tok.start - 300):tok.start]))
+
     citations = []
     i = 0
     n = len(tokens)
     while i < n:
-        refs, new_i = _try_parse_citation(tokens, i, abbrev_index)
+        refs, new_i = _try_parse_citation(tokens, i, abbrev_index, allow_stop)
         if refs:
             start = refs[0].start_offset
             end = refs[-1].end_offset
