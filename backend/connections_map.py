@@ -268,7 +268,10 @@ def reset_process_caches():
 _TRAILING_LOCUS = re.compile(r'(\d+(?:\.\d+)*)\s*$')
 
 
-def _book_of(ref_start):
+_NAMED_BOOK = re.compile(r'(?:^|\s)((?:[1-3]\s+)?[A-Z][A-Za-z]+(?:\s+of\s+[A-Z][A-Za-z]+)?)\s+(\d+(?:\.\d+)*)\s*$')
+
+
+def _book_of(ref_start, named=False):
     """The "book" a ref belongs to, for the third (books x books) drill-down
     level (2026-09-19): the first level of a window's ref_start, e.g.
     "hom. il. 4.446" -> book "4". A ref carrying only one numeric level (a
@@ -281,6 +284,16 @@ def _book_of(ref_start):
     """
     if not ref_start:
         return None, None
+    if named:
+        # A scripture aggregate (the Pentateuch, a Testament, a whole Bible)
+        # carries the book's name before chapter and verse: "WEB Genesis 1.1".
+        # Its "book" is Genesis, not chapter 1, or the grid pools chapter 1 of
+        # five books into one row (owner, 2026-10-16: "Why is the Pentateuch
+        # numbering so odd?").
+        nm = _NAMED_BOOK.search(ref_start)
+        if nm:
+            name = re.sub(r'\s+', ' ', nm.group(1)).strip()
+            return f"n{name.lower().replace(' ', '_')}", name
     m = _TRAILING_LOCUS.search(ref_start)
     if not m:
         return None, None
@@ -306,6 +319,12 @@ def _book_sort_key(book_id):
         raw = book_id[5:]
     elif book_id.startswith('b'):
         raw = book_id[1:]
+    elif book_id.startswith('n'):
+        # A named book of scripture: canonical order (Genesis before Exodus),
+        # unknown names after, alphabetically.
+        from backend import scripture
+        idx = scripture.canonical_index(book_id[1:])
+        return (2, idx) if idx is not None else (3, book_id[1:])
     else:
         raw = book_id
     try:
@@ -838,6 +857,8 @@ def get_books_map(work_a, work_b):
         # (2026-09-19) -- see the matching comment in get_pair.
         current_ids = _current_ids()
 
+        from backend import scripture
+        named_a, named_b = scripture.is_aggregate(work_a), scripture.is_aggregate(work_b)
         seen = set()
         books_a, books_b = {}, {}
         cell_counts = {}
@@ -852,8 +873,8 @@ def get_books_map(work_a, work_b):
                 ref_left, ref_right = r['ref_a'], r['ref_b']
             else:
                 ref_left, ref_right = r['ref_b'], r['ref_a']
-            ba, ba_label = _book_of(ref_left)
-            bb, bb_label = _book_of(ref_right)
+            ba, ba_label = _book_of(ref_left, named=named_a)
+            bb, bb_label = _book_of(ref_right, named=named_b)
             if ba is None or bb is None:
                 continue
             books_a[ba] = ba_label
