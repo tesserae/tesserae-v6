@@ -8,6 +8,10 @@ history (index builds, cache rebuilds, corpus changes) is in
 `DATA_OPERATIONS.md`; per-release changes are in `../CHANGELOG.md`.
 
 
+## 2026-10-16: a year after a name is not a locus, and a blank line ends a locus
+
+The citation recognizer reads "Quint. 1989, 37" as book 1989, line 37 and "Livy iii. 33. 1.", a blank line, then a footnote "3" as one locus 3.33.1.3. Two rules now apply to every work. A first level that is a four-digit year from 1500 to 2030, joined to the next level by a comma, is not a locus. A blank line between two levels ends the locus. Together they removed 35 of 2,082 citations on a 2,000-article sample, nearly all glued footnote numbers (I read the first ten, and one of them, "Ath. 134, blank line, D", may have been a real Stephanus reference). A bare author name (Livy, Thucydides) followed by one word that is shaped like a Roman numeral ("Livy did", "Thucydides, I am") is not a citation unless the numeral is Arabic or has two or more capital letters. A work listed whole and in parts now resolves to the whole work when every tied candidate is that work or one of its parts. "Liv." and "Plin. Nat." could never resolve before. Bare "Plin." stays unresolved because Pliny the Elder and the Younger both match.
+
 ## 2026-10-15: Rare Words leaves the corpus-occurrence list out unless asked
 - Scope: `backend/blueprints/hapax.py` (`_compute_rare_words`, `/hapax-search`), `client/src/components/search/RareResultsDisplay.jsx`, `client/src/utils/rareWordsExport.js`.
 - Decision. Each Rare Words row carried `all_corpus_locations`, every place the word occurs in the corpus (up to 50 works' lines). It was 96 to 98 percent of each response (up to 303 MB for whole Iliad with Odyssey), and the page, the Claude connector and Tessa never read it. The field is now opt-in: send `include_corpus_locations: true` in the JSON body or query string. The server still computes the list first, because its proper-noun test uses it, and drops it from the rows at the end.

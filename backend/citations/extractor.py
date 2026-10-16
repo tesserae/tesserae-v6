@@ -551,8 +551,22 @@ _YEAR_CONTEXT_WINDOW = 20
 _TRAILING_BIB_RE = re.compile(r"^\s*,\s*(?:(pp?\.\s*\d)|(\d{4})\b)")
 
 
+def _author_year_page_should_drop(locus_start, ref):
+    """'Quint. 1989, 37' and 'Livy 1996, 12': an author-year reference with a
+    page after the comma reads as a two-level locus 1989.37. No ancient work
+    has a first level in the range of publication years, so a comma-joined
+    first level that is a four-digit year is a bibliography entry."""
+    first = locus_start.split(".")[0]
+    seps = ref.start_seps or []
+    return (first.isdigit() and len(first) == 4
+            and _YEAR_LOCUS_MIN <= int(first) <= _YEAR_LOCUS_MAX
+            and bool(seps) and seps[0] == "COMMA")
+
+
 def _year_like_locus_should_drop(work_id, locus_start, ref, text):
-    if not work_id or not locus_start or "." in locus_start:
+    if work_id and locus_start and "." in locus_start:
+        return _author_year_page_should_drop(locus_start, ref)
+    if not work_id or not locus_start:
         return False  # not single-level -- this guard never applies
     if not locus_start.isdigit() or len(locus_start) != 4:
         return False

@@ -7,6 +7,9 @@ so the state of the live site can be reconstructed from this file and
 docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
+## 2026-10-16
+- Citation recognizer: Thucydides, Livy, Pliny the Elder, Apollonius Rhodius and Tibullus are now recognized in prose. The generated abbreviation table did not list "Thuc.", "Livy", "Plin. N. H."/"Plin. HN", "Ap. Rhod." or "Tibull.", and "Liv." and "Plin. Nat." tied across a work and its parts, so none resolved (`backend/citations/abbrev_aliases.json`, whole-and-parts tie in `resolver.py`). The same change drops author-year references ("Quint. 1989, 37"), stops a locus at a blank line (a footnote number), reads OCR "Ill" as 3, and refuses a bare author name followed by one ordinary word ("Livy did"). On 2,000 sampled early-journal articles the citations went from 2,082 to 2,369, 210 of them to the five authors.
+
 ## 2026-10-15
 - Passage references: every Similar Passages, Theme Search, Search One Text and gutter result now carries `locus`, `locus_start`, `locus_end` and `citation` from the server (the short locus, "2.57.1" or "2.57.1–2.58.3", never the file's tag "thuc. pele. 2.57.1"), and the Theme Search cards, Search One Text cards, the Reader's English view and the Reader panel's full translation print it, with the file's tag as hover text. `ref_start` and `ref_end` are unchanged. A test (`noRawRefs.test.js`) fails if a page prints a raw tag again.
 - Theme Search export: the order note reads "chronological: oldest first, undated last" (the test expected the word chronological and had been failing).

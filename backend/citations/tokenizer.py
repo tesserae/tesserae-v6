@@ -31,12 +31,16 @@ _RAW_RE = re.compile(r"""
 """, re.VERBOSE | re.UNICODE)
 
 
+_BLANK_LINE_RE = re.compile(r"\n[ \t\r\f\v]*\n")
+
+
 @dataclass
 class Token:
     type: str      # NUM, LIT, DOT, COMMA, HYPH, SEMI, PAREN, OTHER
     text: str
     start: int
     end: int
+    para_break: bool = False  # a blank line separates this token from the one before
 
 
 def raw_scan(text):
@@ -108,4 +112,7 @@ def tokenize(text):
         # OTHER: boundary marker, kept so the parser can stop a scan at it
         out.append(Token("OTHER", t.text, t.start, t.end))
         i += 1
+    for prev, cur in zip(out, out[1:]):
+        if _BLANK_LINE_RE.search(text[prev.end:cur.start]):
+            cur.para_break = True
     return out
