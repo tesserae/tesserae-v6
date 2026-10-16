@@ -1,4 +1,208 @@
 {
-  "_comment": "Texts licensed for indexing and search only, never for redistribution. Each entry holds the fixed credit line the site must show wherever the text's passages appear, and the licence terms under which it is held. backend/restricted_texts.py reads this file; scripts/corpus/restricted_texts_gitignore.py turns it into the .gitignore block that keeps these texts out of the public repository and backend/blueprints/downloads.py out of the per-language downloads. The text id is the filename under texts/<lang>/ without the .tess extension and without a .part.N suffix (so one entry covers every part of a multi-file work).",
-  "texts": {}
+  "_comment": "Texts licensed for indexing and search only, never for redistribution. Each entry holds the fixed credit line the site must show wherever the text's passages appear, and the licence terms under which it is held. backend/restricted_texts.py reads this file; scripts/corpus/restricted_texts_gitignore.py turns it into the .gitignore block that keeps these texts out of the public repository and backend/blueprints/downloads.py out of the per-language downloads. The text id is the filename under texts/<lang>/ without the .tess extension and without a .part.N suffix (so one entry covers every part of a multi-file work). 2026-10-16: the Sahidica New Testament files (27 per-book files plus the whole-NT file, and sahidic.bible, which holds the same Sahidica text beside the Old Testament) entered under the Wells license, (c)2000-2006 for academic use only: searchable on the site, never redistributed. sahidica.mark and sahidica.1corinthians are included although text_sources.json labels them CC-BY 4.0, because their text is line for line identical to the Wells edition in sahidica.nt; remove those two entries if the lead decides the CC-BY label governs.",
+  "texts": {
+    "sahidic.bible": {
+      "holder": "J. Warren Wells (Sahidica), via Coptic Scriptorium",
+      "credit": "Sahidica: A New Edition of the New Testament in Sahidic Coptic, J. Warren Wells (2000 to 2006), via Coptic Scriptorium. For academic use only.",
+      "license": "(c)2000-2006 by J Warren Wells, for academic use only.; CC-BY-SA 4.0",
+      "added": "2026-10-16",
+      "ends": null
+    },
+    "sahidica.1_john": {
+      "holder": "J. Warren Wells (Sahidica), via Coptic Scriptorium",
+      "credit": "Sahidica: A New Edition of the New Testament in Sahidic Coptic, J. Warren Wells (2000 to 2006), via Coptic Scriptorium. For academic use only.",
+      "license": "(c)2000-2006 by J Warren Wells, for academic use only.",
+      "added": "2026-10-16",
+      "ends": null
+    },
+    "sahidica.1_peter": {
+      "holder": "J. Warren Wells (Sahidica), via Coptic Scriptorium",
+      "credit": "Sahidica: A New Edition of the New Testament in Sahidic Coptic, J. Warren Wells (2000 to 2006), via Coptic Scriptorium. For academic use only.",
+      "license": "(c)2000-2006 by J Warren Wells, for academic use only.",
+      "added": "2026-10-16",
+      "ends": null
+    },
+    "sahidica.1_thessalonians": {
+      "holder": "J. Warren Wells (Sahidica), via Coptic Scriptorium",
+      "credit": "Sahidica: A New Edition of the New Testament in Sahidic Coptic, J. Warren Wells (2000 to 2006), via Coptic Scriptorium. For academic use only.",
+      "license": "(c)2000-2006 by J Warren Wells, for academic use only.",
+      "added": "2026-10-16",
+      "ends": null
+    },
+    "sahidica.1_timothy": {
+      "holder": "J. Warren Wells (Sahidica), via Coptic Scriptorium",
+      "credit": "Sahidica: A New Edition of the New Testament in Sahidic Coptic, J. Warren Wells (2000 to 2006), via Coptic Scriptorium. For academic use only.",
+      "license": "(c)2000-2006 by J Warren Wells, for academic use only.",
+      "added": "2026-10-16",
+      "ends": null
+    },
+    "sahidica.1corinthians": {
+      "holder": "J. Warren Wells (Sahidica), via Coptic Scriptorium",
+      "credit": "Sahidica: A New Edition of the New Testament in Sahidic Coptic, J. Warren Wells (2000 to 2006), via Coptic Scriptorium. For academic use only.",
+      "license": "CC-BY 4.0",
+      "added": "2026-10-16",
+      "ends": null
+    },
+    "sahidica.2_corinthians": {
+      "holder": "J. Warren Wells (Sahidica), via Coptic Scriptorium",
+      "credit": "Sahidica: A New Edition of the New Testament in Sahidic Coptic, J. Warren Wells (2000 to 2006), via Coptic Scriptorium. For academic use only.",
+      "license": "(c)2000-2006 by J Warren Wells, for academic use only.",
+      "added": "2026-10-16",
+      "ends": null
+    },
+    "sahidica.2_john": {
+      "holder": "J. Warren Wells (Sahidica), via Coptic Scriptorium",
+      "credit": "Sahidica: A New Edition of the New Testament in Sahidic Coptic, J. Warren Wells (2000 to 2006), via Coptic Scriptorium. For academic use only.",
+      "license": "(c)2000-2006 by J Warren Wells, for academic use only.",
+      "added": "2026-10-16",
+      "ends": null
+    },
+    "sahidica.2_peter": {
+      "holder": "J. Warren Wells (Sahidica), via Coptic Scriptorium",
+      "credit": "Sahidica: A New Edition of the New Testament in Sahidic Coptic, J. Warren Wells (2000 to 2006), via Coptic Scriptorium. For academic use only.",
+      "license": "(c)2000-2006 by J Warren Wells, for academic use only.",
+      "added": "2026-10-16",
+      "ends": null
+    },
+    "sahidica.2_thessalonians": {
+      "holder": "J. Warren Wells (Sahidica), via Coptic Scriptorium",
+      "credit": "Sahidica: A New Edition of the New Testament in Sahidic Coptic, J. Warren Wells (2000 to 2006), via Coptic Scriptorium. For academic use only.",
+      "license": "(c)2000-2006 by J Warren Wells, for academic use only.",
+      "added": "2026-10-16",
+      "ends": null
+    },
+    "sahidica.2_timothy": {
+      "holder": "J. Warren Wells (Sahidica), via Coptic Scriptorium",
+      "credit": "Sahidica: A New Edition of the New Testament in Sahidic Coptic, J. Warren Wells (2000 to 2006), via Coptic Scriptorium. For academic use only.",
+      "license": "(c)2000-2006 by J Warren Wells, for academic use only.",
+      "added": "2026-10-16",
+      "ends": null
+    },
+    "sahidica.3_john": {
+      "holder": "J. Warren Wells (Sahidica), via Coptic Scriptorium",
+      "credit": "Sahidica: A New Edition of the New Testament in Sahidic Coptic, J. Warren Wells (2000 to 2006), via Coptic Scriptorium. For academic use only.",
+      "license": "(c)2000-2006 by J Warren Wells, for academic use only.",
+      "added": "2026-10-16",
+      "ends": null
+    },
+    "sahidica.acts_of_the_apostles": {
+      "holder": "J. Warren Wells (Sahidica), via Coptic Scriptorium",
+      "credit": "Sahidica: A New Edition of the New Testament in Sahidic Coptic, J. Warren Wells (2000 to 2006), via Coptic Scriptorium. For academic use only.",
+      "license": "(c)2000-2006 by J Warren Wells, for academic use only.",
+      "added": "2026-10-16",
+      "ends": null
+    },
+    "sahidica.colossians": {
+      "holder": "J. Warren Wells (Sahidica), via Coptic Scriptorium",
+      "credit": "Sahidica: A New Edition of the New Testament in Sahidic Coptic, J. Warren Wells (2000 to 2006), via Coptic Scriptorium. For academic use only.",
+      "license": "(c)2000-2006 by J Warren Wells, for academic use only.",
+      "added": "2026-10-16",
+      "ends": null
+    },
+    "sahidica.ephesians": {
+      "holder": "J. Warren Wells (Sahidica), via Coptic Scriptorium",
+      "credit": "Sahidica: A New Edition of the New Testament in Sahidic Coptic, J. Warren Wells (2000 to 2006), via Coptic Scriptorium. For academic use only.",
+      "license": "(c)2000-2006 by J Warren Wells, for academic use only.",
+      "added": "2026-10-16",
+      "ends": null
+    },
+    "sahidica.galatians": {
+      "holder": "J. Warren Wells (Sahidica), via Coptic Scriptorium",
+      "credit": "Sahidica: A New Edition of the New Testament in Sahidic Coptic, J. Warren Wells (2000 to 2006), via Coptic Scriptorium. For academic use only.",
+      "license": "(c)2000-2006 by J Warren Wells, for academic use only.",
+      "added": "2026-10-16",
+      "ends": null
+    },
+    "sahidica.hebrews": {
+      "holder": "J. Warren Wells (Sahidica), via Coptic Scriptorium",
+      "credit": "Sahidica: A New Edition of the New Testament in Sahidic Coptic, J. Warren Wells (2000 to 2006), via Coptic Scriptorium. For academic use only.",
+      "license": "(c)2000-2006 by J Warren Wells, for academic use only.",
+      "added": "2026-10-16",
+      "ends": null
+    },
+    "sahidica.james": {
+      "holder": "J. Warren Wells (Sahidica), via Coptic Scriptorium",
+      "credit": "Sahidica: A New Edition of the New Testament in Sahidic Coptic, J. Warren Wells (2000 to 2006), via Coptic Scriptorium. For academic use only.",
+      "license": "(c)2000-2006 by J Warren Wells, for academic use only.",
+      "added": "2026-10-16",
+      "ends": null
+    },
+    "sahidica.john": {
+      "holder": "J. Warren Wells (Sahidica), via Coptic Scriptorium",
+      "credit": "Sahidica: A New Edition of the New Testament in Sahidic Coptic, J. Warren Wells (2000 to 2006), via Coptic Scriptorium. For academic use only.",
+      "license": "(c)2000-2006 by J Warren Wells, for academic use only.",
+      "added": "2026-10-16",
+      "ends": null
+    },
+    "sahidica.jude": {
+      "holder": "J. Warren Wells (Sahidica), via Coptic Scriptorium",
+      "credit": "Sahidica: A New Edition of the New Testament in Sahidic Coptic, J. Warren Wells (2000 to 2006), via Coptic Scriptorium. For academic use only.",
+      "license": "(c)2000-2006 by J Warren Wells, for academic use only.",
+      "added": "2026-10-16",
+      "ends": null
+    },
+    "sahidica.luke": {
+      "holder": "J. Warren Wells (Sahidica), via Coptic Scriptorium",
+      "credit": "Sahidica: A New Edition of the New Testament in Sahidic Coptic, J. Warren Wells (2000 to 2006), via Coptic Scriptorium. For academic use only.",
+      "license": "(c)2000-2006 by J Warren Wells, for academic use only.",
+      "added": "2026-10-16",
+      "ends": null
+    },
+    "sahidica.mark": {
+      "holder": "J. Warren Wells (Sahidica), via Coptic Scriptorium",
+      "credit": "Sahidica: A New Edition of the New Testament in Sahidic Coptic, J. Warren Wells (2000 to 2006), via Coptic Scriptorium. For academic use only.",
+      "license": "CC-BY 4.0",
+      "added": "2026-10-16",
+      "ends": null
+    },
+    "sahidica.matthew": {
+      "holder": "J. Warren Wells (Sahidica), via Coptic Scriptorium",
+      "credit": "Sahidica: A New Edition of the New Testament in Sahidic Coptic, J. Warren Wells (2000 to 2006), via Coptic Scriptorium. For academic use only.",
+      "license": "(c)2000-2006 by J Warren Wells, for academic use only.",
+      "added": "2026-10-16",
+      "ends": null
+    },
+    "sahidica.nt": {
+      "holder": "J. Warren Wells (Sahidica), via Coptic Scriptorium",
+      "credit": "Sahidica: A New Edition of the New Testament in Sahidic Coptic, J. Warren Wells (2000 to 2006), via Coptic Scriptorium. For academic use only.",
+      "license": "(c)2000-2006 by J Warren Wells, for academic use only.",
+      "added": "2026-10-16",
+      "ends": null
+    },
+    "sahidica.philemon": {
+      "holder": "J. Warren Wells (Sahidica), via Coptic Scriptorium",
+      "credit": "Sahidica: A New Edition of the New Testament in Sahidic Coptic, J. Warren Wells (2000 to 2006), via Coptic Scriptorium. For academic use only.",
+      "license": "(c)2000-2006 by J Warren Wells, for academic use only.",
+      "added": "2026-10-16",
+      "ends": null
+    },
+    "sahidica.philippians": {
+      "holder": "J. Warren Wells (Sahidica), via Coptic Scriptorium",
+      "credit": "Sahidica: A New Edition of the New Testament in Sahidic Coptic, J. Warren Wells (2000 to 2006), via Coptic Scriptorium. For academic use only.",
+      "license": "(c)2000-2006 by J Warren Wells, for academic use only.",
+      "added": "2026-10-16",
+      "ends": null
+    },
+    "sahidica.revelation": {
+      "holder": "J. Warren Wells (Sahidica), via Coptic Scriptorium",
+      "credit": "Sahidica: A New Edition of the New Testament in Sahidic Coptic, J. Warren Wells (2000 to 2006), via Coptic Scriptorium. For academic use only.",
+      "license": "(c)2000-2006 by J Warren Wells, for academic use only.",
+      "added": "2026-10-16",
+      "ends": null
+    },
+    "sahidica.romans": {
+      "holder": "J. Warren Wells (Sahidica), via Coptic Scriptorium",
+      "credit": "Sahidica: A New Edition of the New Testament in Sahidic Coptic, J. Warren Wells (2000 to 2006), via Coptic Scriptorium. For academic use only.",
+      "license": "(c)2000-2006 by J Warren Wells, for academic use only.",
+      "added": "2026-10-16",
+      "ends": null
+    },
+    "sahidica.titus": {
+      "holder": "J. Warren Wells (Sahidica), via Coptic Scriptorium",
+      "credit": "Sahidica: A New Edition of the New Testament in Sahidic Coptic, J. Warren Wells (2000 to 2006), via Coptic Scriptorium. For academic use only.",
+      "license": "(c)2000-2006 by J Warren Wells, for academic use only.",
+      "added": "2026-10-16",
+      "ends": null
+    }
+  }
 }
