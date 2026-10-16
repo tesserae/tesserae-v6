@@ -42,7 +42,9 @@ WHOLE = os.environ.get('BLURBS_WHOLE') == '1'
 WHOLE_CHARS = int(os.environ.get('BLURBS_WHOLE_CHARS', '450000'))
 BLURBS_PATH = os.path.join(JOB_DIR, 'blurbs.jsonl')
 CHECKS_PATH = os.path.join(JOB_DIR, 'checks.jsonl')
-LANGS = ['en', 'la', 'grc']
+LANGS = ['en', 'la', 'grc', 'cop', 'he']  # cop and he added 2026-10-15
+# BLURBS_STYLE_EXTRA: text appended to the writer's system prompt (the Coptic and Hebrew run of 2026-10-15).
+STYLE_EXTRA = os.environ.get('BLURBS_STYLE_EXTRA', '')
 
 SYS_WRITE = (
     "You write short orientation blurbs for a corpus of classical and literary texts used by scholars "
@@ -255,7 +257,7 @@ def run_pool(todo, worker, out_path, concurrency, tally):
 
 def describe_one(inp):
     t0 = time.time()
-    obj = ask_with_retries(WRITE_MODEL, SYS_WRITE, render_user_prompt(inp), int(os.environ.get("BLURBS_WRITE_TOKENS", "2500")))
+    obj = ask_with_retries(WRITE_MODEL, SYS_WRITE + STYLE_EXTRA, render_user_prompt(inp), int(os.environ.get("BLURBS_WRITE_TOKENS", "2500")))
     base = {'language': inp['language'], 'work': inp['work'], 'author': inp['author'], 'title': inp['title']}
     if obj and obj.get('blurb'):
         return {**base, 'blurb': obj['blurb'].strip(), 'model': WRITE_MODEL, 'ms': int((time.time() - t0) * 1000)}
@@ -281,7 +283,7 @@ def cmd_write(args):
         held = {k for k, r in first.items() if not r.get('ok')}
         print(f'second pass: {len(held)} works held back by the first run', flush=True)
     todo = []
-    for lang in ([args.lang] if args.lang else LANGS):
+    for lang in (args.lang or LANGS):
         works_todo, works = scope_for_lang(lang, existing.get(lang, {}))
         for work in works_todo:
             if (lang, work) in done:
@@ -347,7 +349,7 @@ def cmd_merge(args):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument('--lang', choices=LANGS)
+    ap.add_argument('--lang', choices=LANGS, action='append')
     ap.add_argument('--limit', type=int, default=0)
     ap.add_argument('--concurrency', type=int, default=16)
     for flag in ('--check', '--merge', '--second-pass', '--rewrite-all', '--replace-existing'):

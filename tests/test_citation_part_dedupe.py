@@ -3,12 +3,12 @@ from backend.utils import build_citation
 
 
 def test_book_label_matching_the_locus_cites_the_whole_work():
-    assert (build_citation('thucydides.peleponnesian_war.part.2.tess', 'thuc. pele. 2.57.1')
+    assert (build_citation('thucydides.peloponnesian_war.part.2.tess', 'thuc. pele. 2.57.1')
             == 'Thucydides, Peloponnesian War 2.57.1')
 
 
 def test_book_label_not_matching_the_locus_is_kept():
-    out = build_citation('thucydides.peleponnesian_war.part.2.tess', 'thuc. pele. 57.1')
+    out = build_citation('thucydides.peloponnesian_war.part.2.tess', 'thuc. pele. 57.1')
     assert 'Book 2' in out
 
 
