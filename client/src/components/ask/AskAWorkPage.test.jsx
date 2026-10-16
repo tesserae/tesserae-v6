@@ -32,6 +32,7 @@ let reply;
 let mentionsReply;
 let summaryReply;
 let scholarshipReply;
+let citingReply;
 function callsTo(prefix) {
   return global.fetch.mock.calls.filter((c) => String(c[0]).startsWith(prefix));
 }
@@ -47,12 +48,14 @@ beforeEach(() => {
   mentionsReply = (u) => ({ work: 'vergil.aeneid', names: ['Sejanus'], total: 0, results: [], books_searched: [1, 2, 3], u });
   summaryReply = { available: false };
   scholarshipReply = { available: false };
+  citingReply = { available: false, results: [] };
   global.fetch = vi.fn((url) => {
     const u = String(url);
     const body = u.startsWith('/api/texts') ? TEXTS
       : u.startsWith('/api/passages/mentions') ? mentionsReply(u)
       : u.startsWith('/api/passages/ask-summary') ? summaryReply
       : u.startsWith('/api/passages/ask-scholarship') ? scholarshipReply
+      : u.startsWith('/api/passages/ask-citing') ? citingReply
       : u.startsWith('/api/passages/works') ? { works: COVERED }
       : u.startsWith('/api/passages/theme-search') ? reply
       : u.startsWith('/api/passages/lines') ? { lines: [{ ref: 'a', text: 'Arma virumque cano' }] }
@@ -418,7 +421,7 @@ describe('what the work says', () => {
     expect(body.work_label).toBe('Vergil, Aeneid');
     expect(body.passages).toHaveLength(12);
     expect(body.passages[0]).toEqual({ ref: 'verg. aen. 1.10', gist: 'Gist 1' });
-    expect(within(block).getByText('The work')).toBeInTheDocument();
+    expect(within(block).getByText('Summary of the passages found')).toBeInTheDocument();
     expect(within(block).getByText(/Written by Tessa from the passage descriptions/)).toBeInTheDocument();
     const cards = screen.getAllByTestId('ask-card');
     fireEvent.click(within(block).getByRole('button', { name: 'verg. aen. 1.12' }));
@@ -480,7 +483,8 @@ describe('what the secondary literature says', () => {
     const block = await screen.findByTestId('ask-scholarship');
     const [, init] = callsTo('/api/passages/ask-scholarship')[0];
     expect(JSON.parse(init.body)).toEqual({ question: 'fathers and sons', work: 'vergil.aeneid', lang: 'la' });
-    expect(within(block).getByText('Scholarship')).toBeInTheDocument();
+    expect(within(screen.getByTestId('ask-scholarship-box')).getByText('Scholarship')).toBeInTheDocument();
+    expect(within(block).getByText('What the notes and articles say')).toBeInTheDocument();
     expect(screen.getByTestId('ask-scholarship-more').getAttribute('href')).toMatch(/in=scholarship&work=vergil\.aeneid$/);
     const link = within(block).getByRole('link', { name: '[2]' });
     expect(link).toHaveAttribute('href', 'https://www.jstor.org/stable/1');
@@ -618,7 +622,11 @@ describe('recent articles from the live services', () => {
     const side = await screen.findByTestId('ask-side');
     await screen.findByTestId('ask-scholarship-holdings');
     expect(within(side).getByTestId('ask-recent')).toBeInTheDocument();
-    expect(within(side).getByText('Books and articles found online')).toBeInTheDocument();
+    expect(within(side).getByText('Found online for this question')).toBeInTheDocument();
+    // Both lists sit inside the one Scholarship box (2026-10-16).
+    const box = within(side).getByTestId('ask-scholarship-box');
+    expect(within(box).getByTestId('ask-recent')).toBeInTheDocument();
+    expect(within(box).getByTestId('ask-scholarship-holdings')).toBeInTheDocument();
     expect(within(side).queryByText('Recent articles')).toBeNull();
     expect(within(side).getByTestId('ask-scholarship-holdings')).toBeInTheDocument();
     const columns = screen.getByTestId('ask-columns');
@@ -721,5 +729,97 @@ describe('the History view', () => {
     expect(screen.getByRole('button', { name: /the Pannonian legions mutiny/ })).toBeInTheDocument();
     // The Literature examples are not shown, even for a work the index holds.
     expect(screen.queryByRole('button', { name: /Dido falls in love with Aeneas/ })).toBeNull();
+  });
+});
+
+describe('articles that cite the passages found', () => {
+  const ITEMS = [
+    { title: 'Arms and the Poem', authors: ['C. Scholar'], year: 2001, journal: 'American Journal of Philology', url: 'https://doi.org/10.1353/x.1', source: 'muse', cites: ['verg. aen. 2.40', 'verg. aen. 1.10'], sentences: [] },
+    { title: 'On the Proem', authors: [], year: 1910, journal: 'Classical Philology', url: 'https://www.jstor.org/stable/1', source: 'ejc', cites: ['verg. aen. 3.50'], sentences: [{ ref: 'verg. aen. 3.50', text: 'Invented early sentence.' }] },
+  ];
+
+  it('asks for the page\'s passages and lists the articles with badges and jump links', async () => {
+    citingReply = { available: true, results: ITEMS, total: 2, note: '' };
+    render(<AskAWorkPage />);
+    await ask();
+    const box = await screen.findByTestId('ask-citing');
+    expect(within(box).getByText('Articles that cite these passages')).toBeInTheDocument();
+    expect(box).toHaveTextContent('From the journal citation indexes (journals of 1827 to 1922, and Project MUSE journals from 1996 on): articles whose pages cite one of the passages above.');
+    const items = within(box).getAllByTestId('ask-citing-item');
+    expect(items).toHaveLength(2);
+    expect(within(items[0]).getByRole('link', { name: 'Arms and the Poem' })).toHaveAttribute('href', 'https://doi.org/10.1353/x.1');
+    expect(items[0]).toHaveTextContent('C. Scholar, American Journal of Philology, 2001');
+    expect(items[0]).toHaveTextContent('MUSE');
+    expect(items[1]).toHaveTextContent('1827 to 1922');
+    expect(items[0]).toHaveTextContent('cites 2.40, 1.10');
+    const call = callsTo('/api/passages/ask-citing')[0];
+    expect(JSON.parse(call[1].body)).toEqual({
+      work: 'vergil.aeneid',
+      refs: RESULTS.map((r) => ({ ref_start: r.ref_start, ref_end: r.ref_end })),
+    });
+    fireEvent.click(within(items[0]).getByRole('button', { name: '1.10' }));
+    expect(window.HTMLElement.prototype.scrollIntoView).toHaveBeenCalled();
+  });
+
+  it('sits inside the Scholarship box, before the list found online', async () => {
+    citingReply = { available: true, results: ITEMS, total: 2, note: '' };
+    const base = global.fetch;
+    global.fetch = vi.fn((url, init) => {
+      const u = String(url);
+      if (u.startsWith('/api/passages/recent-scholarship')) {
+        return Promise.resolve(mockResponse({ ok: true, json: () => Promise.resolve({ service: 'openalex', available: true, results: [{ title: 'Dido in Love', year: 2019, authors: ['A. Reader'] }] }) }));
+      }
+      return base(url, init);
+    });
+    render(<AskAWorkPage />);
+    await ask();
+    const citing = await screen.findByTestId('ask-citing');
+    const recentBox = await screen.findByTestId('ask-recent');
+    expect(within(screen.getByTestId('ask-scholarship-box')).getByTestId('ask-citing')).toBe(citing);
+    expect(citing.compareDocumentPosition(recentBox) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it('shows eight and a Show all toggle for a longer list', async () => {
+    citingReply = {
+      available: true, total: 11,
+      results: Array.from({ length: 11 }, (_, i) => ({ title: `Article ${i + 1}`, authors: [], year: 2000 - i, journal: 'J', url: `https://doi.org/10.1/${i}`, source: 'muse', cites: ['verg. aen. 1.10'], sentences: [] })),
+    };
+    render(<AskAWorkPage />);
+    await ask();
+    expect(await screen.findAllByTestId('ask-citing-item')).toHaveLength(8);
+    fireEvent.click(screen.getByTestId('ask-citing-toggle'));
+    expect(screen.getAllByTestId('ask-citing-item')).toHaveLength(11);
+  });
+
+  it('says plainly when no article cites the passages', async () => {
+    citingReply = { available: true, results: [], total: 0, note: '' };
+    render(<AskAWorkPage />);
+    await ask();
+    expect(await screen.findByTestId('ask-citing-none')).toHaveTextContent('No article in the citation indexes cites these passages.');
+  });
+
+  it('shows nothing when the indexes are unavailable', async () => {
+    render(<AskAWorkPage />);
+    await ask();
+    await waitFor(() => expect(callsTo('/api/passages/ask-citing')).toHaveLength(1));
+    expect(screen.queryByTestId('ask-citing')).toBeNull();
+  });
+
+  it('puts the articles in the export, with title, journal and link only', async () => {
+    citingReply = { available: true, results: ITEMS, total: 2, note: '' };
+    const blobs = [];
+    URL.createObjectURL = vi.fn((b) => { blobs.push(b); return 'blob:x'; });
+    URL.revokeObjectURL = vi.fn();
+    vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {});
+    render(<AskAWorkPage />);
+    await ask();
+    const box = await screen.findByTestId('ask-citing');
+    fireEvent.click(within(within(box).getByTestId('cite-all')).getByRole('button', { name: 'RIS' }));
+    await waitFor(() => expect(blobs).toHaveLength(1));
+    const text = await new Promise((res) => { const f = new FileReader(); f.onload = () => res(f.result); f.readAsText(blobs[0]); });
+    expect(text).toContain('Arms and the Poem');
+    expect(text).toContain('On the Proem');
+    expect(text).not.toContain('Invented early sentence.');
+    vi.restoreAllMocks();
   });
 });

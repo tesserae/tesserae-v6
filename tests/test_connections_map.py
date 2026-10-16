@@ -1010,3 +1010,35 @@ def test_map_route_without_refresh_param_does_not_reset_caches(client, fixture_d
     status, body = _get(client, '/api/passages/map', view='work')
     assert status == 200
     assert calls == []
+
+
+# Named books (2026-10-16): a scripture aggregate's references carry the
+# book's name before chapter and verse, and that name is the "book", so the
+# grid does not pool chapter 1 of Genesis with chapter 1 of Exodus.
+def test_book_of_named_scripture_uses_the_book_name():
+    assert connections_map._book_of('WEB Genesis 1.1', named=True) == ('ngenesis', 'Genesis')
+    assert connections_map._book_of('WEB 1 Kings 2.3', named=True) == ('n1_kings', '1 Kings')
+    assert connections_map._book_of('WEB Song of Solomon 1.1', named=True) == ('nsong_of_solomon', 'Song of Solomon')
+
+
+def test_book_of_named_falls_back_to_the_number_without_a_name():
+    assert connections_map._book_of('hom. il. 4.446', named=True) == ('b4', '4')
+    assert connections_map._book_of('Milton P.L. 1.1', named=True) == ('b1', '1')
+
+
+def test_book_of_default_ignores_the_name():
+    assert connections_map._book_of('WEB Genesis 1.1') == ('b1', '1')
+
+
+def test_named_books_sort_in_canonical_order():
+    ids = ['nnumbers', 'ngenesis', 'nexodus', 'ndeuteronomy', 'nleviticus']
+    assert sorted(ids, key=connections_map._book_sort_key) == ['ngenesis', 'nexodus', 'nleviticus', 'nnumbers', 'ndeuteronomy']
+
+
+def test_scripture_is_aggregate():
+    from backend import scripture
+    assert scripture.is_aggregate('world_english_bible.pentateuch')
+    assert scripture.is_aggregate('world_english_bible.new_testament')
+    assert scripture.is_aggregate('sahidic.bible')
+    assert not scripture.is_aggregate('world_english_bible.pentateuch.part.1.genesis')
+    assert not scripture.is_aggregate('milton.paradise_lost')

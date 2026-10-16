@@ -35,6 +35,17 @@ Conventions
   hand and are the models the helper matches.
 
 
+## 2026-10-16 Sahidica New Testament files leave the repository tree (PLANNED, to run at the production pull of the restricted-texts pull request)
+
+The Sahidica files carry the license "(c)2000-2006 by J Warren Wells, for academic use only". They stay in the index and searchable, but may not be redistributed. The pull request adds 29 registry entries (28 `texts/cop/sahidica.*` files, 27 books plus `sahidica.nt`, and `sahidic.bible`, which holds the same text), the `.gitignore` block, and removes the 29 files from the tree with `git rm --cached`. The repository's history still holds them; purging history is a separate decision.
+
+Production steps, in order:
+1. Before `git pull`, copy the 29 files aside (the pull deletes files the commit removed from the tree): `mkdir -p ~/tesserae-backups/sahidica_2026-10-16 && cp -p texts/cop/sahidica.*.tess texts/cop/sahidic.bible.tess ~/tesserae-backups/sahidica_2026-10-16/`; count 29.
+2. `git pull` on the production checkout.
+3. Restore them: copy the 29 files back into `texts/cop/`, keeping mode and owner. Verify `ls texts/cop | grep -c -E '^sahidica|^sahidic.bible'` is 29, and that `texts/cop/` holds 187 files in all.
+4. Touch `tesseraev6_flask.wsgi`. Verify that a Reader request for one Sahidica passage (for example `sahidica.john`) still answers and shows the credit line, and that the Coptic download bundle (`/api/downloads/info`, language `cop`) counts 158 and its zip contains no `sahidica.*` or `sahidic.bible` file.
+5. The Coptic data release under Downloads (`static/downloads/coptic_article/`) needs no rebuild for text: it holds references and a stripping script, no Sahidica line text.
+
 ## 2026-10-16 Image host status file seeded and weekly check installed (PLANNED, to run at deploy)
 Pull request: feat/image-hosts-down. The document page hides an image link while its host has failed two consecutive weekly checks. Steps after the pull request is merged and pulled on production:
 1. Seed the status file from the 9 and 16 October audits (seven hosts down, two recovered): `/var/www/tesseraev6_flask/venv/bin/python /var/www/tesseraev6_flask/scripts/documents/check_image_hosts.py --seed`. It writes `data/documents/image_host_status.json` (not in git) and never overwrites a check already recorded.

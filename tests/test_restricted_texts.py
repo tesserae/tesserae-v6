@@ -205,7 +205,7 @@ class TestGitignoreGeneration:
 
 # ---------------------------------------------------------------------------
 # The real repository, right now: vacuous today, a real guard from the first
-# entry on. Run against origin/main (never the working tree) for the ignore
+# entry on. Run against the committed HEAD (never the working tree; HEAD is origin/main after a merge, and the PR that adds an entry must pass before it) for the ignore
 # check, matching claim_check.py's own rule that a stale worktree is not
 # trustworthy evidence -- the committed .gitignore is what a fresh clone sees.
 # ---------------------------------------------------------------------------
@@ -223,10 +223,10 @@ class TestLiveRegistryAgreesWithLiveRepo:
         if not registry:
             pytest.skip('registry is empty: nothing to check yet')
         show = subprocess.run(
-            ['git', 'show', 'origin/main:.gitignore'],
+            ['git', 'show', 'HEAD:.gitignore'],
             cwd=REPO_ROOT, capture_output=True, text=True)
         if show.returncode != 0:
-            pytest.skip('origin/main not available in this checkout')
+            pytest.skip('HEAD not available in this checkout')
         scratch = tmp_path / 'origin_main_check'
         scratch.mkdir()
         subprocess.run(['git', 'init', '-q'], cwd=scratch, check=True)
@@ -248,10 +248,10 @@ class TestLiveRegistryAgreesWithLiveRepo:
         if not registry:
             pytest.skip('registry is empty: nothing to check yet')
         tracked = subprocess.run(
-            ['git', 'ls-tree', '-r', '--name-only', 'origin/main'],
+            ['git', 'ls-tree', '-r', '--name-only', 'HEAD'],
             cwd=REPO_ROOT, capture_output=True, text=True)
         if tracked.returncode != 0:
-            pytest.skip('origin/main not available in this checkout')
+            pytest.skip('HEAD not available in this checkout')
         tracked_files = set(tracked.stdout.splitlines())
         for text_id in registry:
             for path in tracked_files:
@@ -259,5 +259,5 @@ class TestLiveRegistryAgreesWithLiveRepo:
                     base = os.path.basename(path)
                     stem = base[:-len('.tess')]
                     assert restricted_texts._normalize(stem) != text_id, (
-                        f'{path} is tracked in origin/main but {text_id} is '
+                        f'{path} is tracked in HEAD but {text_id} is '
                         'in the restricted-texts registry')

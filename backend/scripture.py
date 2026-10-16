@@ -97,6 +97,32 @@ TANAKH = {'genesis', 'exodus', 'leviticus', 'numbers', 'deuteronomy', 'joshua', 
           'haggai', 'zechariah', 'malachi'}
 
 
+_AGGREGATES = ('bible', 'ot', 'nt', 'pentateuch', 'prophets', 'writings', 'new_testament')
+
+
+def is_aggregate(work):
+    """True for a scripture file that holds several books (a whole Bible, a
+    Testament, the Pentateuch, the Prophets, the Writings), whose references
+    carry the book's name before chapter and verse ("WEB Genesis 1.1")."""
+    w = (work or '').replace('.tess', '')
+    parts = w.split('.')
+    return parts[0] in _VERSIONS and parts[-1] in _AGGREGATES
+
+
+def canonical_index(name):
+    """Position of a book in canonical order, from its display name or id
+    ("Genesis", "1 Kings", "song_of_songs"), else None. Used to sort named
+    books the way a Bible lists them rather than alphabetically."""
+    slug = (name or '').strip().lower().replace(' ', '_')
+    slug = _ALIASES.get(slug, slug)
+    if slug not in _NAMES:
+        by_display = {v[0].lower(): k for k, v in _NAMES.items()}
+        slug = by_display.get((name or '').strip().lower(), slug)
+    if slug not in _NAMES:
+        return None
+    return list(_NAMES).index(slug)
+
+
 def book_of(work):
     """(version_prefix, canonical book id) for a scriptural work id, else None."""
     w = (work or '').replace('.tess', '')
