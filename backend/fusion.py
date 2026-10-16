@@ -3849,8 +3849,17 @@ _large_waiters = []
 _large_waiters_lock = threading.Lock()
 
 
-def _use_parts(source_units, target_units, in_parts):
-    """True when this search runs in parts: forced on, or above the pair threshold.
+# Seconds per million source-by-target line pairs, for the estimate shown
+# before a large comparison. Measured on 2026-10-16 with the semantic channel
+# off: the whole Thebaid against the whole Aeneid (9,731 by 9,896 lines, about
+# 96.3 million pairs) took 26 minutes 42 seconds in 500-line parts. With the
+# semantic channel on, a comparison takes longer than this estimate says.
+FUSION_SECONDS_PER_MILLION_PAIRS = 17
+FUSION_ESTIMATE_FLOOR_SECONDS = 60
+
+
+def _use_parts_counts(n_source, n_target, in_parts=None):
+    """True when a search of this many source and target lines runs in parts.
 
     in_parts=False never splits, in_parts=True always does, None (the default)
     splits above FUSION_PART_THRESHOLD pairs. A source that fits in one part
@@ -3858,11 +3867,38 @@ def _use_parts(source_units, target_units, in_parts):
     """
     if in_parts is False:
         return False
-    if len(source_units) <= FUSION_PART_SOURCE_LINES:
+    if n_source <= FUSION_PART_SOURCE_LINES:
         return False
     if in_parts is True:
         return True
-    return len(source_units) * len(target_units) > FUSION_PART_THRESHOLD
+    return n_source * n_target > FUSION_PART_THRESHOLD
+
+
+def _use_parts(source_units, target_units, in_parts):
+    """True when this search runs in parts (see _use_parts_counts)."""
+    return _use_parts_counts(len(source_units), len(target_units), in_parts)
+
+
+def estimate_fusion(n_source, n_target):
+    """What a fusion search of these two texts will cost, from the line counts alone.
+
+    Returns {pairs, in_parts, parts, estimated_seconds, source_lines,
+    target_lines}. The seconds follow FUSION_SECONDS_PER_MILLION_PAIRS with a
+    floor of FUSION_ESTIMATE_FLOOR_SECONDS.
+    """
+    pairs = n_source * n_target
+    in_parts = _use_parts_counts(n_source, n_target)
+    parts = len(_part_ranges(n_source)) if in_parts else 1
+    seconds = max(FUSION_ESTIMATE_FLOOR_SECONDS,
+                  int(round(pairs / 1_000_000 * FUSION_SECONDS_PER_MILLION_PAIRS)))
+    return {
+        'pairs': pairs,
+        'in_parts': in_parts,
+        'parts': parts,
+        'estimated_seconds': seconds,
+        'source_lines': n_source,
+        'target_lines': n_target,
+    }
 
 
 def _part_ranges(n_units):

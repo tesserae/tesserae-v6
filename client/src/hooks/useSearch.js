@@ -49,7 +49,7 @@ export const useSearch = () => {
     abortController.current = null;
   }, []);
 
-  const search = useCallback(async (params) => {
+  const search = useCallback(async (params, options = {}) => {
     if (abortController.current) {
       requestSearchCancellation(activeSearchId.current);
       abortController.current.abort();
@@ -70,11 +70,15 @@ export const useSearch = () => {
     setIsQueued(false);
     setQueuedMessage('');
 
+    // Seconds into the search at which each part began, for the time left.
+    const partStarts = {};
     const handleProgress = (step, detail, elapsed, meta = null) => {
       if (activeSearchId.current !== searchId) return;
       setIsQueued(false);
       setQueuedMessage('');
-      setProgressText(progressWithParts(step, detail, meta?.fusion_parts));
+      const parts = meta?.fusion_parts;
+      if (parts && partStarts[parts.part] == null) partStarts[parts.part] = elapsed;
+      setProgressText(progressWithParts(step, detail, parts, elapsed, partStarts, options.estimatedSeconds));
       setElapsedTime(Math.floor(elapsed));
       if (meta?.fusion_batch) {
         const batch = meta.fusion_batch;

@@ -466,6 +466,10 @@ MANIFEST = {
         'site_only': True,
         'reason': "Whether a text pair suits metrical analysis; toggles the site's use_meter control.",
     },
+    '/api/fusion-estimate': {
+        'site_only': True,
+        'reason': "Line-pair count and time estimate the page shows before a large comparison; fusion_search runs the comparison itself.",
+    },
     '/api/fusion-default-weights': {
         'site_only': True,
         'reason': ("Reference data behind the Advanced settings panel's weight sliders; "

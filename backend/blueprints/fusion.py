@@ -1716,6 +1716,31 @@ def comparison_map_chart():
     return _fig_response(fig, fmt, cpath)
 
 
+@fusion_bp.route('/fusion-estimate', methods=['GET'])
+def fusion_estimate():
+    """What a fusion search of two texts will cost, before it is sent.
+
+    GET /api/fusion-estimate?source=<id>&target=<id>&language=la
+
+    Loads only the two texts' unit counts (the same cached units the search
+    reads); nothing is scored. Response: {pairs, in_parts, parts,
+    estimated_seconds, source_lines, target_lines}. in_parts is true when the
+    search will run in parts, which is what a page warns about.
+    """
+    from backend.fusion import estimate_fusion
+    source_id = request.args.get('source')
+    target_id = request.args.get('target')
+    language = request.args.get('language', 'la')
+    if not source_id or not target_id:
+        return jsonify({'error': 'Provide source and target text ids (see /api/texts).'}), 400
+    if not resolve_text_path(_texts_dir, language, source_id) or \
+            not resolve_text_path(_texts_dir, language, target_id):
+        return jsonify({'error': 'Text files not found for that source/target/language.'}), 404
+    source_units = _get_processed_units(source_id, language, _unit_type_arg('source_unit_type'), _text_processor)
+    target_units = _get_processed_units(target_id, language, _unit_type_arg('target_unit_type'), _text_processor)
+    return jsonify(estimate_fusion(len(source_units or []), len(target_units or [])))
+
+
 @fusion_bp.route('/fusion-default-weights', methods=['GET'])
 def fusion_default_weights():
     """Return the default per-channel fusion weights for a language.
