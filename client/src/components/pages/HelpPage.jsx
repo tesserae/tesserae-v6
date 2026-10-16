@@ -1462,7 +1462,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 your words and once by the words it shares with them, and the two rankings are
                 merged. A note links to its passage in the Reader and a sentence from an article
                 links to the article. On fifteen test questions, thirteen had a strongly relevant
-                note in the first ten. Under the list, an Articles found online section asks OpenAlex,
+                note in the first ten. Under the list, a Books and articles found online section asks OpenAlex,
                 Crossref, CORE, Google Books and Semantic Scholar for articles whose title or
                 abstract matches your words, from any year, and shows each service's answer as it arrives.
               </p>
@@ -1732,7 +1732,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 articles that OpenAlex, Crossref, CORE, Google Books and Semantic Scholar list
                 for the question, of any year. It knows those only from their abstracts or short open-access excerpts,
                 and says so when it cites one. Those articles are listed beside the paragraph
-                as Articles found online, each service's answer as it arrives, and a link goes to a free copy where one exists,
+                as Books and articles found online, each service's answer as it arrives, each marked book or article, and a link goes to a free copy where one exists,
                 otherwise to the DOI. Each bracketed number in the paragraph links to its note
                 or article. Greek and Hebrew words in the written paragraphs are kept in their own
                 letters, with a transliteration in parentheses made by a fixed table of letters,
