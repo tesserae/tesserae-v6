@@ -146,6 +146,25 @@ describe('DocumentView', () => {
     expect(screen.getByText(/2 image links omitted \(the host no longer serves them\)/)).toBeTruthy();
   });
 
+  it('says which host is unavailable and still renders live links', async () => {
+    setUrl('?doc=edh:HD047322&lang=la&q=dis+manibus&type=lemma');
+    mockFetchOk({
+      ...documentPayload,
+      image_hosts_down: [{ host: 'papyri.uni-koeln.de', down_since: '2026-10-09' }],
+      display: {
+        ...documentPayload.display,
+        image_url: ['https://papyri.uni-koeln.de/a', 'https://lupa.at/16121'],
+      },
+    });
+    render(<DocumentView />);
+    await waitFor(() => expect(screen.getByText('AE 2001, 2169.')).toBeTruthy());
+    expect(screen.getByText(
+      'Image at Cologne Papyrus Collection unavailable (the host has not answered since 2026-10-09).'))
+      .toBeTruthy();
+    expect(screen.getByRole('link', { name: 'Record at Ubi Erat Lupa' })).toBeTruthy();
+    expect(screen.queryByRole('link', { name: /Cologne/ })).toBeNull();
+  });
+
   it('the back link returns to Line Search with the query, language and type intact', async () => {
     setUrl('?doc=edh:HD047322&lang=la&q=dis+manibus&type=lemma');
     mockFetchOk(documentPayload);

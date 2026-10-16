@@ -347,6 +347,38 @@ def test_get_document_returns_lines_credit_and_display(documents_app_env):
         'https://example.org/f1-a.jpg', 'https://example.org/f1-b.jpg']
 
 
+def _write_status(path, hosts):
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump({"updated": "2026-10-16T00:00:00", "hosts": hosts}, f)
+
+
+def _checks(*oks):
+    return [{"date": f"2026-10-{9 + 7 * i:02d}", "ok": ok, "codes": [200 if ok else 500]}
+            for i, ok in enumerate(oks)]
+
+
+def test_get_document_carries_only_this_documents_down_hosts(documents_app_env, tmp_path,
+                                                             monkeypatch):
+    status = os.path.join(tmp_path, "image_host_status.json")
+    _write_status(status, {
+        "example.org": {"rows": 2, "checks": _checks(False, False), "down_since": "2026-10-09"},
+        "other.example.net": {"rows": 9, "checks": _checks(False, False),
+                              "down_since": "2026-10-09"},
+    })
+    monkeypatch.setenv("TESSERAE_IMAGE_HOST_STATUS", status)
+    r = app.test_client().get('/api/documents/edh:F1?language=la')
+    assert r.get_json()['image_hosts_down'] == [
+        {'host': 'example.org', 'down_since': '2026-10-09'}]
+    assert r.get_json()['display']['image_url']  # the links themselves stay in the payload
+
+
+def test_get_document_without_status_file_has_no_down_hosts(documents_app_env, tmp_path,
+                                                            monkeypatch):
+    monkeypatch.setenv("TESSERAE_IMAGE_HOST_STATUS", os.path.join(tmp_path, "absent.json"))
+    r = app.test_client().get('/api/documents/edh:F1?language=la')
+    assert r.get_json()['image_hosts_down'] == []
+
+
 def test_get_document_tries_every_language_when_none_given(documents_app_env):
     client = app.test_client()
     r = client.get('/api/documents/edh:F1')  # no ?language=
