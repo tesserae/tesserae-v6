@@ -1,9 +1,39 @@
 import React from 'react';
+import { CHANNEL_SHORT } from '../../utils/channels';
 
 // Self-contained visual flowchart of a Fusion search, shown in the Help page's
 // "How Fusion Search Works" section. Static SVG/HTML; all CSS is scoped under
 // .ffc so it can't affect the rest of the page. Rendered via innerHTML because
 // it's non-interactive markup (no React state).
+
+// The eleven chips of the fan-out, in the order of the lead lines above them,
+// with the channels that "find a signal" in the worked example marked on.
+// Labels come from CHANNEL_SHORT so a rename happens once. Each chip is 54
+// wide on a 58 pitch inside the 660-wide viewBox; a label of two words is
+// set on two lines so "edit distance" and "single lemma" fit inside it.
+const CHIP_CHANNELS = [
+  ['lemma', true], ['lemma_min1', false], ['exact', false], ['sound', true],
+  ['edit_distance', false], ['semantic', true], ['dictionary', false],
+  ['syntax', false], ['syntax_structural', false], ['rare_word', true],
+  ['quotation', false],
+];
+export const CHIP_WIDTH = 54;
+export const CHIP_PITCH = 58;
+
+function chipSvg([name, on], i) {
+  const x = 12 + i * CHIP_PITCH;
+  const cls = on ? 'on' : 'off';
+  const words = CHANNEL_SHORT[name].split(' ');
+  const cx = x + CHIP_WIDTH / 2;
+  const text = words.length === 1
+    ? `<text class="t-${cls}" x="${cx}" y="128" text-anchor="middle">${words[0]}</text>`
+    : `<text class="t-${cls}" x="${cx}" text-anchor="middle"><tspan x="${cx}" y="122">${words[0]}</tspan><tspan x="${cx}" y="131">${words.slice(1).join(' ')}</tspan></text>`;
+  return `<g><rect class="chip-${cls}" x="${x}" y="100" width="${CHIP_WIDTH}" height="34" rx="6"/><circle class="dot-${cls}" cx="${x + 10}" cy="112" r="3"/>${text}</g>`;
+}
+
+const CHIPS = CHIP_CHANNELS.map(chipSvg).join('\n          ');
+const cap = (name) => CHANNEL_SHORT[name].charAt(0).toUpperCase() + CHANNEL_SHORT[name].slice(1);
+
 const HTML = `<style>.ffc{
     --ground:#f7f5f3; --card:#fff; --ink:#1c1917; --body:#44403c; --muted:#79716b;
     --line:#e6e1dc; --spine:#d9d2cb;
@@ -73,21 +103,11 @@ const HTML = `<style>.ffc{
           </g>
           <circle class="hub" cx="330" cy="22" r="12"/><text class="hub-t" x="330" y="9" text-anchor="middle">one line pair</text>
           <!-- on = found a signal -->
-          <g><rect class="chip-on" x="12" y="100" width="54" height="34" rx="6"/><circle class="dot-on" cx="22" cy="112" r="3"/><text class="t-on" x="18" y="128">Shared</text></g>
-          <g><rect class="chip-off" x="70" y="100" width="54" height="34" rx="6"/><circle class="dot-off" cx="80" cy="112" r="3"/><text class="t-off" x="76" y="128">Single</text></g>
-          <g><rect class="chip-off" x="128" y="100" width="54" height="34" rx="6"/><circle class="dot-off" cx="138" cy="112" r="3"/><text class="t-off" x="134" y="128">Exact</text></g>
-          <g><rect class="chip-on" x="186" y="100" width="54" height="34" rx="6"/><circle class="dot-on" cx="196" cy="112" r="3"/><text class="t-on" x="192" y="128">Sound</text></g>
-          <g><rect class="chip-off" x="244" y="100" width="54" height="34" rx="6"/><circle class="dot-off" cx="254" cy="112" r="3"/><text class="t-off" x="250" y="128">Spelling</text></g>
-          <g><rect class="chip-on" x="302" y="100" width="54" height="34" rx="6"/><circle class="dot-on" cx="312" cy="112" r="3"/><text class="t-on" x="308" y="128">Meaning</text></g>
-          <g><rect class="chip-off" x="360" y="100" width="54" height="34" rx="6"/><circle class="dot-off" cx="370" cy="112" r="3"/><text class="t-off" x="366" y="128">Synonym</text></g>
-          <g><rect class="chip-off" x="418" y="100" width="54" height="34" rx="6"/><circle class="dot-off" cx="428" cy="112" r="3"/><text class="t-off" x="424" y="128">Syntax</text></g>
-          <g><rect class="chip-off" x="476" y="100" width="54" height="34" rx="6"/><circle class="dot-off" cx="486" cy="112" r="3"/><text class="t-off" x="482" y="128">Structure</text></g>
-          <g><rect class="chip-on" x="534" y="100" width="54" height="34" rx="6"/><circle class="dot-on" cx="544" cy="112" r="3"/><text class="t-on" x="540" y="128">Rare</text></g>
-          <g><rect class="chip-off" x="592" y="100" width="54" height="34" rx="6"/><circle class="dot-off" cx="602" cy="112" r="3"/><text class="t-off" x="598" y="128">Quotation</text></g>
+          ${CHIPS}
         </svg>
         <p class="fx-note">Each channel searches independently for a different kind of similarity. For any given pair, only some channels find a signal (outlined in red).</p>
       </div>
-      <p class="stage-cap">The channels look for shared words, sound, meaning, syntax, rare vocabulary, quotation, and more, all at the same time. Persian and Urdu add a twelfth, poetic form (refrain, rhyme and meter).</p>
+      <p class="stage-cap">The channels look for shared lemmata, sound, semantic similarity, syntax, rare words, quotation, and more, all at the same time. Persian and Urdu add a twelfth, poetic form (refrain, rhyme and meter).</p>
     </div>
     <div class="arrow"><svg width="20" height="26" viewBox="0 0 20 26"><path d="M10 0 v18 M4 13 l6 7 6-7" fill="none" stroke="#c9c2bb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
 
@@ -96,10 +116,10 @@ const HTML = `<style>.ffc{
       <div class="stage-hd"><span class="stage-no">4</span><h2>Weight &amp; combine into one score</h2></div>
       <div class="viz">
         <div class="weigh">
-          <div class="wrow"><span class="wch">Rare words</span><span class="wx">×7</span><span class="wbar"><i style="width:52%;background:#8f1717"></i></span></div>
-          <div class="wrow"><span class="wch">Sound</span><span class="wx">×5</span><span class="wbar"><i style="width:29%;background:#b91c1c"></i></span></div>
-          <div class="wrow"><span class="wch">Shared words</span><span class="wx">×2</span><span class="wbar"><i style="width:13%;background:#d64c42"></i></span></div>
-          <div class="wrow"><span class="wch">Meaning</span><span class="wx">×1</span><span class="wbar"><i style="width:6%;background:#ea9089"></i></span></div>
+          <div class="wrow"><span class="wch">${cap('rare_word')}</span><span class="wx">×7</span><span class="wbar"><i style="width:52%;background:#8f1717"></i></span></div>
+          <div class="wrow"><span class="wch">${cap('sound')}</span><span class="wx">×5</span><span class="wbar"><i style="width:29%;background:#b91c1c"></i></span></div>
+          <div class="wrow"><span class="wch">${cap('lemma')}</span><span class="wx">×2</span><span class="wbar"><i style="width:13%;background:#d64c42"></i></span></div>
+          <div class="wrow"><span class="wch">${cap('semantic')}</span><span class="wx">×1</span><span class="wbar"><i style="width:6%;background:#ea9089"></i></span></div>
           <div class="wsum"><span class="wch">Fused score</span><span class="wsigma">Σ</span>
             <span class="wstack"><span style="width:52%;background:#8f1717"></span><span style="width:29%;background:#b91c1c"></span><span style="width:13%;background:#d64c42"></span><span style="width:6%;background:#ea9089"></span></span>
           </div>
@@ -158,7 +178,7 @@ const HTML = `<style>.ffc{
           <div class="pair-hd"><span>Top match · 94% confidence</span><span class="pconf">Shared &amp; rare wording</span></div>
           <div class="pline src"><span class="plab">Source · Vergil, Aeneid 1.1</span>Arma virumque <span class="mk">cano</span>, Troiae qui primus ab oris</div>
           <div class="pline tgt"><span class="plab">Target · Lucan, Civil War 1.2</span>iusque datum sceleri <span class="mk">canimus</span>, populumque potentem</div>
-          <div class="rbadges"><span class="rbadge">Shared words</span><span class="rbadge">Sound</span><span class="rbadge">Rare words</span></div>
+          <div class="rbadges"><span class="rbadge">${CHANNEL_SHORT.lemma}</span><span class="rbadge">${CHANNEL_SHORT.sound}</span><span class="rbadge">${CHANNEL_SHORT.rare_word}</span></div>
         </div>
       </div>
       <p class="stage-cap">Each result is a <b>pair of passages</b> — source and target — ranked by confidence, with the shared words highlighted in both and badges showing which channels detected them.</p>

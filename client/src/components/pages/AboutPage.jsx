@@ -164,7 +164,7 @@ export default function AboutPage({ onNavigate, initialAnchor = null, onAnchorCo
             <div className="bg-gray-50 p-4 rounded-lg">
               <h4 className="font-medium text-red-700 mb-2">Intertextual Search</h4>
               <p className="text-sm text-gray-600">
-                Compare two works, or one work against the whole corpus. Shared words and phrases, rare words and word pairs, sound, syntax and meaning are weighed together, and every result shows what it rests on.
+                Compare two works, or one work against the whole corpus. Lemma, exact form, sound, edit distance, semantic embeddings, dictionary synonyms, syntax, rare words and quotation are weighed together, and every result shows what it rests on.
               </p>
             </div>
             <div className="bg-gray-50 p-4 rounded-lg">

@@ -2399,7 +2399,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 <li><strong>Sound</strong> — words that sound alike, useful across spelling variation.</li>
                 <li><strong>Synonyms</strong> — related words drawn from the Coptic WordNet.</li>
                 <li><strong>Grammatical structure</strong> — lines built the same way.</li>
-                <li><strong>Meaning (AI)</strong> — a model that recognizes the same idea in different words (a multilingual model, for Coptic).</li>
+                <li><strong>Semantic (embeddings)</strong> — a model that recognizes the same idea in different words (a multilingual model, for Coptic).</li>
               </ul>
 
               <div className="mt-4 bg-blue-50 p-4 rounded-lg">
@@ -2475,7 +2475,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 <li><strong>Shared vocabulary</strong> — lines that share two or more dictionary words.</li>
                 <li><strong>Sound</strong> — words that sound alike, useful across spelling variation.</li>
                 <li><strong>Rare words</strong> — shared uncommon vocabulary, the strongest sign of a real echo.</li>
-                <li><strong>Meaning (AI)</strong> — MiqraBERT, a Biblical-Hebrew model fine-tuned in-house, which recognizes the same idea phrased in different words.</li>
+                <li><strong>Semantic (embeddings)</strong> — MiqraBERT, a Biblical-Hebrew model fine-tuned in-house, which recognizes the same idea phrased in different words.</li>
               </ul>
 
               <div className="mt-4 bg-blue-50 p-4 rounded-lg">
