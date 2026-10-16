@@ -10,7 +10,7 @@ import os
 import re
 from dataclasses import asdict
 
-from .abbrev_index import AbbrevIndex
+from .abbrev_index import AbbrevIndex, normalize_abbr
 from .parser import find_citations as _find_citations_raw, is_roman_shaped
 from .resolver import resolve_ref, level_to_arabic, roman_to_int, levels_to_locus_string
 
@@ -114,6 +114,107 @@ def _load_work_max_line():
         except (OSError, json.JSONDecodeError):
             _WORK_MAX_LINE = {}
     return _WORK_MAX_LINE
+
+
+# Short forms that need the author named nearby (abbrev_context_rules.json):
+# "form." for Eucherius, "Mem." for Aristotle, "Hel.", "Pol.", "Merc."...
+# A hit passes only when the rule's author regex matches the sentence before
+# this one or the text of this sentence ahead of the citation, and no
+# veto_before pattern (another author, "Ath.", "ad", a commentary title)
+# stands right in front of it.
+_CONTEXT_RULES = None
+_CONTEXT_BEFORE = 300     # characters of context searched on each side
+_VETO_TAIL = 60           # characters before the citation a veto looks at
+
+
+def _load_context_rules():
+    global _CONTEXT_RULES
+    if _CONTEXT_RULES is None:
+        try:
+            with open(os.path.join(_CITATIONS_DIR, "abbrev_context_rules.json"), encoding="utf-8") as f:
+                raw = json.load(f)
+        except (OSError, json.JSONDecodeError):
+            raw = {}
+        rules = {}
+        for key, lst in (raw.get("rules") or {}).items():
+            rules[key] = [{
+                "work": r["work"],
+                "context": re.compile(r["context"]) if r.get("context") else None,
+                "veto_before": re.compile(r["veto_before"]) if r.get("veto_before") else None,
+                "redirect": ({"context": re.compile(r["redirect"]["context"]), "work": r["redirect"]["work"]}
+                             if r.get("redirect") else None),
+            } for r in lst]
+        veto_all = raw.get("veto_before_all")
+        _CONTEXT_RULES = {"rules": rules, "veto_all": re.compile(veto_all) if veto_all else None}
+    return _CONTEXT_RULES
+
+
+def _apply_context_rules(work_id, work_surface, anchor_start, text, context):
+    """Returns (work_id, reason). work_id is None when the citation must be
+    dropped (reason says why); it may be a different work (redirect) or the
+    one given, unchanged, with reason None."""
+    if not work_id or not work_surface:
+        return work_id, None
+    cfg = _load_context_rules()
+    ahead = (context or "")[-_CONTEXT_BEFORE:] + " " + text[max(0, anchor_start - _CONTEXT_BEFORE):anchor_start]
+    tail = ahead[-_VETO_TAIL:]
+    if cfg["veto_all"] and cfg["veto_all"].search(tail):
+        return None, "commentary_or_other_author_before"
+    for rule in cfg["rules"].get(normalize_abbr(work_surface), []):
+        if rule["work"] != work_id:
+            continue
+        if rule["veto_before"] and rule["veto_before"].search(tail):
+            return None, "requires_author_context:other_author_before"
+        if rule["context"] and not rule["context"].search(ahead):
+            if rule["redirect"] and rule["redirect"]["context"].search(ahead):
+                return rule["redirect"]["work"], None
+            return None, "requires_author_context:" + normalize_abbr(work_surface)
+    return work_id, None
+
+
+_WORK_MAX_BOOK = None
+
+
+def _load_work_max_book():
+    global _WORK_MAX_BOOK
+    if _WORK_MAX_BOOK is None:
+        try:
+            with open(os.path.join(_CITATIONS_DIR, "work_max_book.json"), encoding="utf-8") as f:
+                _WORK_MAX_BOOK = json.load(f)
+        except (OSError, json.JSONDecodeError):
+            _WORK_MAX_BOOK = {}
+    return _WORK_MAX_BOOK
+
+
+def _dropped_by_round2(out_dict):
+    reason = out_dict.get("reason") or ""
+    return not out_dict["resolved"] and (
+        reason.startswith("requires_author_context:") or reason == "dropped_missing_book_number"
+        or reason == "commentary_or_other_author_before")
+
+
+def _impossible_book_locus(work_id, locus_start, works=None):
+    """"Aen. 1583": a single-level locus on a work cited at two or more
+    levels, whose number is beyond the highest first level (book) the work
+    has in the corpus. The book number is missing and the digits are a line
+    number, a page or a year, so the citation cannot be placed."""
+    if not work_id or not locus_start or "." in locus_start:
+        return False
+    if works and (works.get(work_id) or {}).get("stephanus"):
+        return False  # cited by Stephanus page, a plain number is legitimate
+    overrides = _load_work_depth_overrides()
+    depth_map, inconsistent = _load_work_depth()
+    depth = overrides.get(work_id) or (None if work_id in inconsistent else depth_map.get(work_id))
+    if not depth or depth < 2:
+        return False
+    # Terence's lines, Horace's satires and others are cited by one running
+    # number in the journals; only a work actually cited at two or more
+    # levels there (Aeneid: book and line) has a "missing book number".
+    if (_load_work_depth_journal().get(work_id) or 0) < 2:
+        return False
+    max_book = _load_work_max_book().get(work_id)
+    m = re.match(r"\d+", locus_start)
+    return bool(max_book and m and int(m.group()) > max_book)
 
 
 def _is_short_digit_run(token):
@@ -422,7 +523,7 @@ def get_default_index(abbreviations_path="data/abbreviations.json"):
     return _DEFAULT_INDEX
 
 
-def extract(text, index=None):
+def extract(text, index=None, context=""):
     """Returns a list of dicts:
       {
         surface, start, end,               # whole ref span (chain-relative)
@@ -438,11 +539,14 @@ def extract(text, index=None):
     if index is None:
         index = get_default_index()
 
+    # `context` is the sentence before `text`, for the author-context rules.
     citations = _find_citations_raw(text, index)
     out = []
     for cit in citations:
         inherited_candidates = None
         inherited_surface = None
+        anchor_start = None
+        chain_dropped = False
         for ref in cit.refs:
             effective_candidates = ref.work_candidates
             inherited = False
@@ -452,6 +556,8 @@ def extract(text, index=None):
             else:
                 inherited_candidates = effective_candidates
                 inherited_surface = ref.work_surface
+                anchor_start = ref.start_offset
+                chain_dropped = False
 
             # build a shallow copy of ref with effective candidates for resolution
             ref_for_resolution = ref
@@ -497,11 +603,24 @@ def extract(text, index=None):
                         book_list=None,
                     )
                     res = resolve_ref(book_ref, index.works_by_base_id)
-                    out.extend(_apply_work_depth(_build_out(base_out, res, book_ref, text), book_ref))
+                    book_out = _apply_work_depth(
+                        _build_out(base_out, res, book_ref, text, anchor_start, context, index.works_by_base_id), book_ref)
+                    chain_dropped = chain_dropped or any(_dropped_by_round2(d) for d in book_out)
+                    out.extend(book_out)
                 continue
 
             res = resolve_ref(ref_for_resolution, index.works_by_base_id)
-            out.extend(_apply_work_depth(_build_out(base_out, res, ref_for_resolution, text), ref_for_resolution))
+            ref_out = _apply_work_depth(
+                _build_out(base_out, res, ref_for_resolution, text, anchor_start, context, index.works_by_base_id),
+                ref_for_resolution)
+            if inherited and chain_dropped:
+                # The ref that named the work was dropped (no author context,
+                # impossible book number): what it carried along goes too.
+                ref_out = [dict(d, resolved=False, work_id=None, part_id=None, locus_start=None,
+                                reason="chain_anchor_dropped") for d in ref_out]
+            elif not inherited:
+                chain_dropped = any(_dropped_by_round2(d) for d in ref_out)
+            out.extend(ref_out)
     return out
 
 
@@ -592,7 +711,7 @@ def _year_like_locus_should_drop(work_id, locus_start, ref, text):
     return False
 
 
-def _build_out(base_out, res, ref, text):
+def _build_out(base_out, res, ref, text, anchor_start=None, context="", works=None):
     blocked = _od_book_1_4_needs_context(res, ref, text)
     rep_override = _rep_stephanus_override(res, ref)
 
@@ -608,6 +727,24 @@ def _build_out(base_out, res, ref, text):
         part_id = rep_override["part_id"]
         locus_start = rep_override["locus_start"]
         reason = "stephanus_locus_disambiguates_to_plato"
+
+    if resolved and work_id and base_out.get("work_surface"):
+        new_work, why = _apply_context_rules(
+            work_id, base_out["work_surface"],
+            ref.start_offset if anchor_start is None else anchor_start, text, context)
+        if new_work is None:
+            resolved, work_id, part_id, locus_start, reason = False, None, None, None, why
+        elif new_work != work_id:
+            work_id = new_work
+            part_id = None
+            reason = "redirected_by_author_context"
+
+    if resolved and _impossible_book_locus(work_id, locus_start, works):
+        resolved = False
+        work_id = None
+        part_id = None
+        locus_start = None
+        reason = "dropped_missing_book_number"
 
     if resolved and _year_like_locus_should_drop(work_id, locus_start, ref, text):
         resolved = False

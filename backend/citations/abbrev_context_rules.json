@@ -1,0 +1,15 @@
+{
+  "_comment": "Short forms that mean a different work, or no work, far more often than the one the table registers. Keys are normalized surfaces (lowercase, no periods). Each rule applies only when the resolved work is `work`. `context` is a regex that must match the sentence before this one, or the text of this sentence before the citation (author context); without a match the citation is dropped. `veto_before` is a regex tested against the text immediately before the citation; a match drops it (another author or a commentary title stands there). `redirect` re-points the citation to another work when its regex matches the context. `veto_before_all` applies to every explicit abbreviation.",
+  "rules": {
+    "form": [{"work": "eucherius_of_lyon.formulae_spiritalis_intellegentiae", "context": "Eucher"}],
+    "mem": [{"work": "aristotle.de_memoria_et_reminiscentia", "context": "Aristot|\\bArist\\b|Parva Naturalia|De Mem", "veto_before": "Xen(?:ophon|\\.)?[,.]?\\s*$"}],
+    "hel": [{"work": "euripides.helen", "context": "\\bEur\\b|Euripid", "veto_before": "Gorg(?:ias|\\.)?[,.]?\\s*$"}],
+    "pol": [{"work": "aristotle.politics", "context": "Aristot|\\bArist\\b", "veto_before": "\\bad\\s*$|\\bAth\\.?\\s*$|\\bLac\\.?\\s*$|\\bResp\\.?\\s*$"}],
+    "merc": [{"work": "plautus.mercator", "context": "Plaut|\\bPl\\.|Plautus", "veto_before": "\\bh\\.\\s*$|\\bHH\\s*$|Hymn\\w*\\.?\\s*$"}],
+    "apr": [{"work": "aristotle.analytica_priora", "context": "Aristot|\\bArist\\b|Prior Analytics|Analytica"}],
+    "ruf": [{"work": "rufus_of_ephesus.de_renum_et_vesicae_affectionibus", "veto_before": "\\badv\\.?\\s*$|\\bcontra\\s*$|\\b[Ii]n\\s*$|Hier\\w*\\.?,?\\s*$|Jerome,?\\s*$|Claud\\w*\\.?,?\\s*$"}],
+    "phaed": [{"work": "phaedrus.fabulae_aesopiae", "context": "Phaedr|Aesop|[Ff]able"}],
+    "astr": [{"work": "hyginus.astronomica", "context": "Hygin|\\bHyg\\b", "redirect": {"context": "Manil", "work": "manilius.astronomica"}}]
+  },
+  "veto_before_all": "\\bOn\\s+Aristotle(?:'s|’s)?\\s*$|(?:Simplicius|Philoponus|Olympiodorus|Damascius|Proclus|Ammonius|Asclepius|Themistius|Alexander of Aphrodisias)[,:]?\\s+(?:in\\s+|In\\s+|on\\s+|On\\s+|Comm\\.\\s*)?(?:Arist(?:otle|\\.)?\\s+)?$"
+}

@@ -940,15 +940,13 @@ def test_arch_ordinary_section_number_still_resolves():
     assert hit['locus_start'] == '12'
 
 
-def test_aen_year_shaped_book_only_locus_is_unaffected():
-    # vergil.aeneid is depth 2 (book.line): a bare "1888" here is an
-    # ordinary UNDER-deep book-only citation (an existing, accepted class
-    # this guard doesn't touch), not a single-level locus matching the
-    # work's own depth -- this guard never even looks at it.
-    hit = _one('Aen. 1888')
-    assert hit is not None
-    assert hit['work_id'] == 'vergil.aeneid'
-    assert hit['locus_start'] == '1888'
+def test_aen_year_shaped_book_only_locus_is_dropped():
+    # vergil.aeneid is depth 2 (book.line) and has twelve books. A bare
+    # "1888" was once kept as an under-deep book-only citation; round 2
+    # (2026-10-16) drops a single-level locus beyond the work's highest
+    # book, because the book number is missing and the digits are a line,
+    # a page or a year ("Aen. 1583").
+    assert _one('Aen. 1888') is None
 
 
 def test_depth_1_work_with_long_line_range_keeps_a_genuine_in_range_locus():

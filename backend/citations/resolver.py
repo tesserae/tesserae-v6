@@ -229,11 +229,28 @@ def _route_to_part(work_rec, locus_start_arabic):
     return None
 
 
+def _apply_stephanus_filter(candidates, levels, works_by_base_id):
+    """"Pl. Men. 97d": a page and a letter a-e is Stephanus pagination, which
+    only the Platonic works use. Among candidates, keep the Stephanus ones
+    ("Men." is Meno or Menaechmi, "Pl. Men." too); with none left, the letter
+    was read wrong (97d as 97, 500) and the citation has no work."""
+    if not candidates or not _stephanus_letter_suffix(levels):
+        return candidates
+    kept = [c for c in candidates if works_by_base_id.get(c[0], {}).get("stephanus")]
+    if kept:
+        return kept
+    # An upper-case letter may be a Roman numeral ("5 C"); only a lower-case
+    # a-e after an Arabic page is unmistakably Stephanus.
+    if levels[-1].rstrip(".").islower():
+        return []
+    return candidates
+
+
 def resolve_ref(ref, works_by_base_id):
     """ref: a parser.Ref (possibly with work_candidates=None if inherited --
     caller must have already substituted the inherited candidates before
     calling, see extractor.py)."""
-    candidates = ref.work_candidates
+    candidates = _apply_stephanus_filter(ref.work_candidates, ref.start_levels, works_by_base_id)
     base_id, priority, ambiguous, n_at_best = _pick_candidate(candidates)
 
     if base_id is None:
