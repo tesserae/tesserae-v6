@@ -43,6 +43,10 @@ MANIFEST = {
         'site_only': True,
         'reason': 'Credits list for the Sources page (every commentator, edition, licence); the notes themselves come through get_commentary.',
     },
+    '/api/scholarship/about': {
+        'site_only': True,
+        'reason': 'The "Scholarship: sources and methods" page (commentaries held, journal indexes with years and counts, online services, methods); reference text for readers, not a search.',
+    },
     '/api/scholarship/translate': {
         'site_only': True,
         'reason': "A machine translation of one commentary note for the Reader's tab; an agent reads the Latin from get_commentary.",
