@@ -20,6 +20,7 @@ rather than the matrix. Loading is lazy: nothing touches disk until the first
 query, and a missing index degrades to "unavailable" instead of failing import.
 """
 from collections import Counter
+from functools import lru_cache
 import json
 import math
 import os
@@ -832,6 +833,35 @@ def _dating(work, language):
             'date_note': info.get('note')}
 
 
+def _short_locus_fields(work, ref_start, ref_end):
+    """The reader-facing form of a window's reference, from the server.
+
+    The corpus files tag lines with abbreviations ("thuc. pele. 2.57.1"), and
+    `ref_start`/`ref_end` stay as they are because the Reader looks passages up
+    by them. A page that prints them shows the file's tag. These fields are what
+    a page prints instead: `locus` ("2.57.1" or "2.57.1\u20132.58.3"),
+    `locus_start`, `locus_end`, and `citation` ("<Author>, <Work> 2.57.1", the
+    same string Line Search builds with utils.build_citation).
+    """
+    from backend.utils import format_short_locus
+    start = format_short_locus(ref_start)
+    end = format_short_locus(ref_end)
+    locus = start
+    if end and ref_end != ref_start and end != start:
+        locus = f"{start}\u2013{end}" if start else end
+    return {'locus': locus, 'locus_start': start, 'locus_end': end,
+            'citation': f"{_citation_name(work)} {start}".strip() if start
+            else _citation_name(work)}
+
+
+@lru_cache(maxsize=4096)
+def _citation_name(work):
+    """build_citation's author-and-title part for a work id (cached: the
+    gutter calls this for every window of a work)."""
+    from backend.utils import build_citation
+    return build_citation(f'{work}.tess', '') if work else ''
+
+
 def _naming(work):
     """author / title / display_name for a work id, or {} if it cannot be read."""
     if not work:
@@ -865,6 +895,7 @@ def _result(row, score, strong=None, extra=None):
         'scale': r.get('scale'),
         'ref_start': r.get('ref_start'),
         'ref_end': r.get('ref_end'),
+        **_short_locus_fields(r.get('work'), r.get('ref_start'), r.get('ref_end')),
         **({'sub': r['sub']} if r.get('sub') is not None else {}),
         'score': round(float(score), 4),
         'strong': bool(strong) if strong is not None else None,
@@ -1029,6 +1060,8 @@ def _rank(scores, limit, exclude_work=None, languages=None, scale=None,
                     'language': r.get('language'),
                     'work': r.get('work'),
                     'ref_start': r.get('ref_start'),
+                    **_short_locus_fields(r.get('work'), r.get('ref_start'),
+                                          r.get('ref_end')),
                     'score': round(score, 4),
                 })
                 continue
@@ -2746,7 +2779,8 @@ def fine_windows_covering(work, ref_start, ref_end):
             if not (lo[:n] <= want_end[:n] and hi[:n] >= want[:n]):
                 continue
         item = {'id': r.get('id'), 'ref_start': r.get('ref_start'),
-                'ref_end': r.get('ref_end'), 'desc': r.get('desc') or {}}
+                'ref_end': r.get('ref_end'), 'desc': r.get('desc') or {},
+                **_short_locus_fields(r.get('work'), r.get('ref_start'), r.get('ref_end'))}
         if r.get('sub') is not None:
             item['sub'] = r['sub']
         out.append(item)
@@ -3009,9 +3043,17 @@ def connection_density(work, scale='fine'):
     cache_path = _density_cache_path(work, scale)
     try:
         with open(cache_path, encoding='utf-8') as fh:
-            return json.load(fh)
+            cached = json.load(fh)
     except (OSError, ValueError):
-        pass
+        cached = None
+    if cached is not None:
+        # Files cached before the short locus existed lack it. Add it from the
+        # file's own refs rather than rebuilding the cache.
+        for w in cached.get('windows') or []:
+            if isinstance(w, dict) and 'locus' not in w:
+                w.update(_short_locus_fields(work, w.get('ref_start'),
+                                             w.get('ref_end')))
+        return cached
 
     _ensure_loaded()
     if not _state['ok']:
@@ -3087,7 +3129,9 @@ def connection_density(work, scale='fine'):
                 break
         r = _records[row]
         out.append({'id': r.get('id'), 'ref_start': r.get('ref_start'),
-                    'ref_end': r.get('ref_end'), 'connections': strong,
+                    'ref_end': r.get('ref_end'),
+                    **_short_locus_fields(r.get('work'), r.get('ref_start'), r.get('ref_end')),
+                    'connections': strong,
                     'lift': round(best_lift, 4)})
     # Normalise within the work, between its own 5th and 95th percentile, so the
     # gutter uses its full range on whatever text is open. Scaling from zero
@@ -3273,6 +3317,8 @@ def mentions_in_work(work, names, books=None, query=None, source=None):
     def make_hit(r, matched, count, found_in, word=None):
         h = {'id': r.get('id'), 'work': work_id(r.get('work')),
              'ref_start': r.get('ref_start'), 'ref_end': r.get('ref_end'),
+             **_short_locus_fields(r.get('work'), r.get('ref_start'),
+                                   r.get('ref_end')),
              'language': r.get('language'),
              'gist': (r.get('desc') or {}).get('gist'),
              **({'sub': r['sub']} if r.get('sub') is not None else {}),

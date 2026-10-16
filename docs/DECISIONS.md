@@ -2766,3 +2766,7 @@ Rare Words checks the lines of a word's occurrences to decide whether the word i
 ## 2026-10-15: the Place filter matches a whole place name, with the editorial marks allowed after it
 
 The filter text is matched case-insensitively as a prefix of a document's ancient or modern place, and the prefix must end the value or be followed by a comma, a question mark or an opening bracket. A comma alone, the rule first proposed, would have left out the 1 document marked "Rusellae?" and every papyrus whose place carries a nome in brackets ("Karanis (Arsinoites)"), so a search for Karanis would have found none of its 2,000 papyri. The same marks are removed from the names in the Place list, which merges "Rusellae", "Rusellae, bei" and "Rusellae?" into one entry of 155.
+
+## 2026-10-15: passage references are shown as the short locus from the server, never the file's tag
+
+The corpus files tag lines with abbreviations ("thuc. pele. 2.57.1"), and the passage index handed them to pages as `ref_start` and `ref_end`, so each page that printed them showed the tag. The server now adds `locus`, `locus_start`, `locus_end` and `citation` to every passage-index result (one helper, `_short_locus_fields` in `backend/passage_index.py`, built on `format_short_locus` and `build_citation`), pages print `locus` with the tag as hover text, and `client/src/test/noRawRefs.test.js` fails when a component prints a raw `ref_start`, `ref_end` or `ref`.

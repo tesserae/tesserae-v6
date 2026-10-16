@@ -149,6 +149,8 @@ def _t_line_search(a):
         body['collection'] = a.get('collection')
     if a.get('exclude_author'):
         body['exclude_author'] = a.get('exclude_author')
+    if a.get('lemmas'):
+        body['lemmas'] = a.get('lemmas')
     for key in ('date_from', 'date_to', 'region', 'text_type', 'material', 'source', 'doc_place'):
         if a.get(key) is not None:
             body[key] = a.get(key)
@@ -1143,6 +1145,7 @@ TOOLS = [
                      "properties": {"query": _STR, "language": _STR, "search_type": _STR,
                                     "count_only": {"type": "boolean"},
                                     "exclude_author": {"type": "string", "description": "Leave out every work of one author, by the first part of the text id (for example vergil), e.g. to see who echoes Vergil outside Vergil."},
+                                    "lemmas": {"type": "array", "items": {"type": "string"}, "description": "Dictionary forms to search as given (with search_type lemma), instead of lemmatizing the words of query again."},
                                     "collection": _STR, "date_from": {"type": "integer"},
                                     "date_to": {"type": "integer"}, "region": _STR,
                                     "text_type": _STR, "material": _STR, "source": _STR,

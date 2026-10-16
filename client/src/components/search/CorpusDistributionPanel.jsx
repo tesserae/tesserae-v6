@@ -63,7 +63,7 @@ export const useCorpusDistribution = ({ results, serverMode, visibleItems, start
     let cancelled = false;
     setCorpusLoading(true);
     setCorpusSelectedAuthor(null);
-    postLineSearch({ query, language, search_type: 'lemma', max_results: 500 })
+    postLineSearch({ query, lemmas: words, language, search_type: 'lemma', max_results: 500 })
       .then(d => { if (!cancelled) setCorpusData({ query, corpus_version: d.corpus_version,
         // Every work's count (by_work_all), so the chart covers the whole corpus
         // even when the line list below stops at 500 (2026-10-07).
@@ -92,7 +92,7 @@ export const useCorpusDistribution = ({ results, serverMode, visibleItems, start
     if (has) return;
     const key = `${byWork ? 'w' : 'a'}|${corpusSelectedAuthor}`;
     let cancelled = false;
-    postLineSearch({ query: corpusData.query, language, search_type: 'lemma', max_results: 200,
+    postLineSearch({ query: corpusData.query, lemmas: corpusData.query.split(' '), language, search_type: 'lemma', max_results: 200,
         ...(byWork ? { work: corpusSelectedAuthor } : { author: corpusSelectedAuthor }) })
       .then(d => { if (!cancelled) setCorpusExtraLoci({ key, loci: (d.results || []).map(x => ({ era: x.era, year: x.year,
         author: x.author, work: x.work, locus: x.locus, text: x.text, matched_words: x.matched_words || [] })) }); })
@@ -221,7 +221,7 @@ const CorpusDistributionPanel = ({ corpus, language, corpusMap, sourceTextInfo, 
           className={`text-xs px-2.5 py-1 rounded ${corpusGroupBy === 'work' ? 'bg-blue-600 text-white' : 'bg-blue-100 text-blue-700 hover:bg-blue-200'}`}
         >Work</button>
       </div>
-      {(corpusIsTimeline || corpusIsWork) && corpusData && !corpusData.tooFew && !corpusLoading && (
+      {(corpusIsTimeline || corpusIsWork) && corpusData && !corpusData.tooFew && !corpusLoading && corpusCountRows(corpusData).length > 0 && (
         <p className="text-xs text-gray-500 mb-1.5">Click any {corpusIsWork ? 'work' : 'author'} to see its lines.</p>
       )}
       <div>
@@ -229,6 +229,8 @@ const CorpusDistributionPanel = ({ corpus, language, corpusMap, sourceTextInfo, 
           <div className="flex items-center justify-center h-[200px] text-sm text-gray-500">Searching the corpus…</div>
         ) : corpusData && corpusData.tooFew ? (
           <div className="flex items-center justify-center h-[200px] text-xs text-gray-400 text-center px-2">This parallel shares only one word, so there is no corpus-wide co-occurrence to map. Pick another.</div>
+        ) : corpusData && !corpusData.error && corpusCountRows(corpusData).length === 0 ? (
+          <div className="flex items-center justify-center h-[200px] text-xs text-gray-500 text-center px-2">No other line in the corpus has these words together.</div>
         ) : corpusIsTimeline ? (
           <ResultsTimeline
             key="corpus-timeline"

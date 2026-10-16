@@ -68,8 +68,8 @@ export const MIGRATED_CALL_SITES = [
   ["components/search/LineSearch.jsx", "const data = await getJson(`/api/text/${selectedWork}/lines?language=${language}`);"],
   ["components/search/LineSearch.jsx", "const data = await postLineSearch(searchParams);"],
   ["components/search/SearchResults.jsx", "postJsonTo('/api/passages/pair-lift', { pairs })"],
-  ["components/search/CorpusDistributionPanel.jsx", "postLineSearch({ query, language, search_type: 'lemma', max_results: 500 })"],
-  ["components/search/CorpusDistributionPanel.jsx", "postLineSearch({ query: corpusData.query, language, search_type: 'lemma', max_results: 200,"],
+  ["components/search/CorpusDistributionPanel.jsx", "postLineSearch({ query, lemmas: words, language, search_type: 'lemma', max_results: 500 })"],
+  ["components/search/CorpusDistributionPanel.jsx", "postLineSearch({ query: corpusData.query, lemmas: corpusData.query.split(' '), language, search_type: 'lemma', max_results: 200,"],
   ["components/visualization/NetworkGraph.jsx", "getJson(`/api/batch/network/nodes?language=${language}&type=${nodeType}`),"],
   ["components/visualization/NetworkGraph.jsx", "getJson(`/api/batch/connections?language=${language}&per_page=500`)"],
 ];
