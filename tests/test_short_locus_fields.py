@@ -16,13 +16,13 @@ def test_whole_work_tag():
 
 
 def test_part_tag():
-    r = f('thucydides.peleponnesian_war.part.2', 'thuc. pele. 2.57.1', 'thuc. pele. 2.57.1')
+    r = f('thucydides.peloponnesian_war.part.2', 'thuc. pele. 2.57.1', 'thuc. pele. 2.57.1')
     assert r['locus'] == '2.57.1'
     assert 'thuc.' not in r['citation']
 
 
 def test_range_uses_an_en_dash_and_shortens_both_ends():
-    r = f('thucydides.peleponnesian_war.part.2', 'thuc. pele. 2.57.1', 'thuc. pele. 2.58.3')
+    r = f('thucydides.peloponnesian_war.part.2', 'thuc. pele. 2.57.1', 'thuc. pele. 2.58.3')
     assert r['locus'] == '2.57.1–2.58.3'
     assert r['locus_start'] == '2.57.1' and r['locus_end'] == '2.58.3'
 
@@ -44,7 +44,7 @@ def test_no_end_means_a_single_locus():
 
 def test_export_agrees_with_the_helper():
     from backend.blueprints.passages import _export_rows
-    rows = _export_rows([{'work': 'thucydides.peleponnesian_war.part.2', 'score': 0.5,
+    rows = _export_rows([{'work': 'thucydides.peloponnesian_war.part.2', 'score': 0.5,
                           'ref_start': 'thuc. pele. 2.57.1', 'ref_end': 'thuc. pele. 2.58.3'}], {})
     assert rows[0]['locus'] == '2.57.1–2.58.3'
     rows = _export_rows([{'work': 'x', 'score': 0.5, 'locus': '9.9',
