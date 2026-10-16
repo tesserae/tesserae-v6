@@ -6,6 +6,13 @@ import time
 
 RAW_BASE = "https://raw.githubusercontent.com/tesserae/tesserae/master/texts/en"
 
+# Upstream names that this corpus stores under another name (2026-10-15:
+# Revelation is the 27th part of the New Testament here, a work of its own
+# upstream).
+LOCAL_NAMES = {
+    "world_english_bible.revelation.tess": "world_english_bible.new_testament.part.27.revelation.tess",
+}
+
 ENGLISH_TEXTS = [
     "browning.sonnets_from_the_portuguese.tess",
     "carroll.alice_in_wonderland.tess",
@@ -19,7 +26,7 @@ ENGLISH_TEXTS = [
     "wordsworth.prelude.tess",
     "world_english_bible.pentateuch.tess",
     "world_english_bible.prophets.tess",
-    "world_english_bible.new_testament.part.27.revelation.tess",
+    "world_english_bible.revelation.tess",
     "world_english_bible.writings.tess",
 ]
 
@@ -49,7 +56,7 @@ def main():
     print(f"Downloading {len(ENGLISH_TEXTS)} English texts...")
     
     for i, filename in enumerate(ENGLISH_TEXTS):
-        local_path = os.path.join(texts_dir, filename)
+        local_path = os.path.join(texts_dir, LOCAL_NAMES.get(filename, filename))
         
         if os.path.exists(local_path):
             skipped += 1
