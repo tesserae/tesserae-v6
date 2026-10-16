@@ -21,10 +21,10 @@ def _resolved(text):
 
 
 def test_thucydides_abbreviated_and_spelled_out():
-    assert _resolved('Compare also Thuc. VI 2, 4.') == [('thucydides.peleponnesian_war', '6.2.4')]
-    assert _resolved('sag Ssoi, Thuc. 3, 102, cf. b. fin.') == [('thucydides.peleponnesian_war', '3.102')]
-    assert _resolved('See Classen on Thuk. 1,6, 1, and often') == [('thucydides.peleponnesian_war', '1.6.1')]
-    assert _resolved('as evinced by Thucydides (II, 15) and others') == [('thucydides.peleponnesian_war', '2.15')]
+    assert _resolved('Compare also Thuc. VI 2, 4.') == [('thucydides.peloponnesian_war', '6.2.4')]
+    assert _resolved('sag Ssoi, Thuc. 3, 102, cf. b. fin.') == [('thucydides.peloponnesian_war', '3.102')]
+    assert _resolved('See Classen on Thuk. 1,6, 1, and often') == [('thucydides.peloponnesian_war', '1.6.1')]
+    assert _resolved('as evinced by Thucydides (II, 15) and others') == [('thucydides.peloponnesian_war', '2.15')]
 
 
 def test_livy_by_name_and_by_liv():
@@ -94,3 +94,18 @@ def test_footnote_gluing_form_is_unchanged_for_other_authors():
 def test_ocr_lowercase_l_in_a_capital_roman_numeral():
     assert _resolved('Cic. Fam. Ill, 4, 1') == [('cicero.epistulae_ad_familiares', '3.4.1')]
     assert _resolved('Sen. Ep. lxxix. 7') == [('seneca.ad_lucilium_epistulae_morales', '79.7')]
+
+
+def test_verrines_resolve_to_the_renamed_file():
+    """The abbreviations table had paired the Verrines file (renamed to
+    cicero.in_verrem on 2026-10-13) with the De Divinatione record, so Verr.
+    was never a known form and Cic. Div. was ambiguous. Corrected by hand in
+    the table on 2026-10-16 (docs/DATA_OPERATIONS.md)."""
+    assert _resolved('Cicero attacks him at Cic. Verr. 2.3.24.') == [('cicero.in_verrem', '2.3.24')]
+    assert _resolved('Cicero (Verr. 2.4.1) describes the plunder.') == [('cicero.in_verrem', '2.4.1')]
+    assert _resolved('Compare Cic. Div. 1.72 on dreams.') == [('cicero.de_divinatione', '1.72')]
+
+
+def test_divinatio_in_caecilium_short_forms():
+    assert _resolved('The prosecution speech, Div. Caec. 12, sets the tone.') == [('cicero.divinatio_in_q_caecilium', '12')]
+    assert _resolved('so Cic. Div. in Caec. 40') == [('cicero.divinatio_in_q_caecilium', '40')]
