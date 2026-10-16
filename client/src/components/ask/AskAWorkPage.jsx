@@ -16,6 +16,7 @@ import { getView } from '../../collections/collectionsStore';
 import useCollections from '../../hooks/useCollections';
 import { viewById } from '../../collections/collectionsConfig';
 import { getJson, postJsonTo } from '../../utils/api';
+import { windowLocus, fullRef } from '../reader/refId';
 
 /**
  * Search One Text: pick one work, say a subject in plain words, and get the passages
@@ -847,7 +848,7 @@ export default function AskAWorkPage() {
                       >
                         <div className="flex items-baseline gap-2 flex-wrap">
                           <a href={readerLink(r, asked.q)} className="text-sm text-red-800 hover:text-red-900 hover:underline">
-                            {r.ref_start}
+                            <span title={fullRef(r)}>{windowLocus(r)}</span>
                           </a>
                           {r.strong === true && (
                             <span className="text-[10px] bg-red-50 text-red-800 border border-red-200 rounded px-1.5 py-0.5 font-medium">
@@ -896,7 +897,7 @@ export default function AskAWorkPage() {
                                 className="border border-gray-200 rounded px-3 py-2 bg-white"
                               >
                                 <div className="flex items-baseline gap-2 flex-wrap">
-                                  <a href={readerLink(r, asked.q)} className="text-sm text-red-800 hover:text-red-900 hover:underline">{r.ref_start}</a>
+                                  <a href={readerLink(r, asked.q)} className="text-sm text-red-800 hover:text-red-900 hover:underline"><span title={fullRef(r)}>{windowLocus(r)}</span></a>
                                   {(r.matched || []).map((n) => (
                                     <span key={n} className="text-[10px] bg-gray-100 text-gray-600 border border-gray-200 rounded px-1.5 py-0.5">{n}</span>
                                   ))}

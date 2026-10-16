@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import useDocumentsTrial from '../../hooks/useDocumentsTrial';
-import { cssRef } from './refId';
+import { cssRef, windowLocus, fullRef } from './refId';
 import ReaderHeader from './ReaderHeader';
 import ReaderNav, { ReaderEndNav, ReaderFloatNav, ReaderPhoneTopButton, sectionsFor, bookFileFor } from './ReaderNav';
 import { useIsPhone } from '../../hooks/useIsPhone';
@@ -808,8 +808,7 @@ export default function ReaderPage() {
                         className={`cursor-pointer rounded p-2 -mx-2 ${
                           isSel ? 'bg-red-50 ring-1 ring-red-200' : 'hover:bg-gray-50'}`}
                       >
-                        <p className="text-[10px] text-gray-500 mb-0.5">{b.ref_start}
-                          {b.ref_end !== b.ref_start ? ` – ${b.ref_end}` : ''}</p>
+                        <p className="text-[10px] text-gray-500 mb-0.5" title={fullRef(b)}>{windowLocus(b)}</p>
                         <p className="text-[15px] leading-relaxed text-gray-900"
                            style={{ fontFamily: 'Georgia, serif' }}>{b.text}</p>
                       </div>

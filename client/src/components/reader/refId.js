@@ -26,3 +26,34 @@ export function readableLocus(s) {
     .replace(/\bsedinc\.(\d+[a-z]?)\b/g, '$1 (book uncertain)')
     .replace(/\bopinc\.(\d+[a-z]?)\b/g, 'uncertain work $1');
 }
+
+/** A ref as a reader should see it: the locus alone, without the file's
+ * abbreviation ("thuc. pele. 2.57.1" -> "2.57.1", "verg. aen. 1.1" -> "1.1").
+ * The last whitespace-separated token when it begins with a digit, else the
+ * tidied ref unchanged. Same idea as format_short_locus() on the server, for
+ * objects that do not carry the server's `locus`. */
+export function bareLocus(ref) {
+  const s = displayRef(ref);
+  const last = s.split(' ').pop();
+  return /^\d/.test(last) ? last : s;
+}
+
+/** The locus line for a passage window or translation block: the server's
+ * `locus` when the object has one, else the short form of ref_start, with
+ * ref_end after an en dash when it differs. Print this, with the full tag
+ * (`fullRef`) as hover text. */
+export function windowLocus(w) {
+  if (!w) return '';
+  if (w.locus) return w.locus;
+  const start = bareLocus(w.ref_start);
+  const end = w.ref_end ? bareLocus(w.ref_end) : '';
+  return end && end !== start ? `${start}–${end}` : start;
+}
+
+/** Hover text for a printed locus: the file's own tag(s). */
+export function fullRef(w) {
+  if (!w) return '';
+  const a = displayRef(w.ref_start);
+  const b = w.ref_end ? displayRef(w.ref_end) : '';
+  return b && b !== a ? `${a} – ${b}` : a;
+}

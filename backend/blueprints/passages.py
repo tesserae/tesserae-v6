@@ -762,17 +762,13 @@ def _export_rows(results, texts, order='date'):
     rows = []
     ordered = _by_score(results) if order == 'score' else _chronological(results)
     for i, r in enumerate(ordered, start=1):
-        # Without the work id the reference tags repeat ("mir.kulliyat_wikisource
-        # .ghazal.341.8-mir.kulliyat_wikisource.ghazal.343.7" was half the line).
-        prefix = f"{r.get('work') or ''}."
-        start = str(r.get('ref_start') or '')
-        end = str(r.get('ref_end') or '')
-        if prefix != '.':
-            start = start[len(prefix):] if start.startswith(prefix) else start
-            end = end[len(prefix):] if end.startswith(prefix) else end
-        locus = start
-        if end and end != start:
-            locus = f"{start}-{end}"
+        # The server's short locus ("341.8", never the file's tag
+        # "mir.kulliyat_wikisource.ghazal.341.8"). Results that arrive without
+        # one (an older saved list) get it from the same helper.
+        locus = r.get('locus')
+        if not locus:
+            locus = passage_index._short_locus_fields(
+                r.get('work'), r.get('ref_start'), r.get('ref_end'))['locus']
         rows.append({
             'n': i,
             'author': r.get('author') or '',
