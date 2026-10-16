@@ -126,3 +126,21 @@ describe('ScholarshipTab \u2014 shortened footer', () => {
     window.removeEventListener('tesserae:open-help', handler);
   });
 });
+
+describe('ScholarshipTab — Project MUSE rows', () => {
+  it('tags a MUSE row, links its DOI and shows no JSTOR link', async () => {
+    global.fetch = vi.fn(() => respond({
+      commentary: [], results: [], fulltext: { results: [] }, books: { results: [] },
+      index: { results: [{
+        title: 'Arms and the poem', authors: ['C. Scholar'], venue: 'American Journal of Philology', year: 2001, volume: '122',
+        pages: [9], cites: 'Aen. 1.1', cites_note: '', snippet: 'The opening line (Aen. 1.1) names arms before the man.',
+        doi: '10.1353/ajp.2001.0001', url: 'https://doi.org/10.1353/ajp.2001.0001', url_jstor: null, url_ia: null, source: 'muse',
+      }] },
+    }));
+    render(<ScholarshipTab work="vergil.aeneid" language="la" selection={SELECTION} units={UNITS} />);
+    expect(await screen.findByText('journal article, Project MUSE')).toBeTruthy();
+    const link = screen.getByRole('link', { name: 'DOI' });
+    expect(link.getAttribute('href')).toBe('https://doi.org/10.1353/ajp.2001.0001');
+    expect(screen.queryByRole('link', { name: 'on JSTOR' })).toBeNull();
+  });
+});

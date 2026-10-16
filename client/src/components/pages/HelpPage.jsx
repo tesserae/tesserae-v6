@@ -1972,7 +1972,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   JSTOR&rsquo;s Early Journal Content. That index covers 24 philology, archaeology and
                   biblical journals from 1827 to 1922, about 29,000 articles, of which 5,193 cite one
                   of 437 works held here. The same journals supply the Scholarship section on an inscription or papyrus
-                  page (956 citing sentences from 288 articles). Google Books finds a citation on a book page. A result marked open access has a
+                  page (956 citing sentences from 288 articles). Where the site has the library&rsquo;s agreement, a second index reads the journals on Project MUSE from 1996 on under that license and lists each article that cites the passage with one sentence and a DOI link. Google Books finds a citation on a book page. A result marked open access has a
                   free, legal copy through Unpaywall. A result with only a DOI opens through your own
                   library instead. Set your library&rsquo;s link-resolver address once, under My library
                   in this tab. Its link then opens the article or chapter under your institution&rsquo;s

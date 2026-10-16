@@ -1117,17 +1117,33 @@ def _citation_span(work, locus_start, locus_end, deeper_last_level, whole_work):
     return cs, ce, ''
 
 
-def citation_index(a, limit=40):
-    """Articles in the offline index that cite the passage, grouped by
-    article with the pages and sentences, newest first."""
-    if not a or not a.get('work') or not os.path.exists(CITATION_INDEX):
-        return {'available': False, 'results': [], 'reason': 'No offline citation index on this server yet.'}
+# A second index of the same shape, read only when the environment names its
+# file (the Project MUSE journals, 2026-10-16). Absent variable: off, and the
+# answers are exactly the EJC index's. A path that does not exist is logged
+# once per path and ignored.
+CITATIONS_EXTRA_ENV = 'TESSERAE_CITATIONS_EXTRA'
+_extra_missing_logged = set()
+
+
+def _extra_index_path():
+    path = (os.environ.get(CITATIONS_EXTRA_ENV) or '').strip()
+    if not path:
+        return None
+    if not os.path.exists(path):
+        if path not in _extra_missing_logged:
+            _extra_missing_logged.add(path)
+            logger.warning('%s names a file that does not exist: %s (second citation index ignored)', CITATIONS_EXTRA_ENV, path)
+        return None
+    return path
+
+
+def _index_articles(path, source, a, lo, hi, book, deeper_last_level, whole_work):
+    """{article_id: article dict} for one citation database; None if unreadable.
+    `source` is the tag the rows carry: 'citation_index' for the EJC index (the
+    value it has always had) and 'muse' for the second index."""
     import sqlite3
-    lo, hi = _coords(a['lo']), _coords(a['hi'])
-    book = lo[0] if lo else None
-    _corpus_depth, deeper_last_level, whole_work = _override_depth_shape(a['work'])
     try:
-        con = sqlite3.connect(f'file:{CITATION_INDEX}?mode=ro', uri=True)
+        con = sqlite3.connect(f'file:{path}?mode=ro', uri=True)
         con.row_factory = sqlite3.Row
         cols = ('c.article_id, c.page, c.locus_start, c.locus_end, c.open_ended, c.surface, c.sentence, '
                 'a.title, a.authors, a.journal, a.year, a.volume, a.issue, a.first_page, a.url_ia, a.url_jstor, a.doi')
@@ -1151,8 +1167,8 @@ def citation_index(a, limit=40):
                 (a['work'], f'{book}.%' if book is not None else '%', str(book) if book is not None else '')).fetchall()
         con.close()
     except sqlite3.Error as e:
-        logger.warning('citation index unreadable: %s', e)
-        return {'available': False, 'results': [], 'reason': 'The citation index could not be read.'}
+        logger.warning('citation index unreadable (%s): %s', source, e)
+        return None
     by_article = {}
     line_level = len(lo or ()) > 1
     for r in rows:
@@ -1179,18 +1195,50 @@ def citation_index(a, limit=40):
         note = _locus_depth_note(a['work'], cs)
         if span_note:
             note = f'{note}; {span_note}' if note else f' ({span_note})'
+        if source == 'muse':
+            # The license covers text processing and one sentence with its
+            # citation and a link, nothing more: link by DOI, no scan, no full text.
+            doi = r['doi'] or ''
+            link = {'url': f'https://doi.org/{doi}' if doi else None, 'url_jstor': None, 'url_ia': None}
+        else:
+            link = {'url': r['url_jstor'] or r['url_ia'], 'url_jstor': r['url_jstor'], 'url_ia': r['url_ia']}
         art = by_article.setdefault(r['article_id'], {
             'title': r['title'], 'authors': [x for x in (r['authors'] or '').split('; ') if x], 'venue': r['journal'],
             'year': r['year'], 'volume': r['volume'], 'issue': r['issue'], 'doi': r['doi'],
-            'url': r['url_jstor'] or r['url_ia'], 'url_jstor': r['url_jstor'], 'url_ia': r['url_ia'], 'pages': [],
+            **link, 'pages': [],
             'cites': clean_surface, 'cites_note': note,
             'snippet': _cap_words(re.sub(r'\s+', ' ', r['sentence'] or '').strip(), include=clean_surface),
-            'source': 'citation_index'})
+            'source': source})
         if r['page'] and r['page'] not in art['pages']:
             art['pages'].append(r['page'])
-    out = sorted(by_article.values(), key=lambda x: (-(x['year'] or 0), x['title'] or ''))
-    return {'available': True, 'results': out[:limit], 'total': len(by_article),
-            'note': 'From the full text of journals before 1923 (JSTOR Early Journal Content, on the Internet Archive), indexed by passage with the citation extractor.'}
+    return by_article
+
+
+def citation_index(a, limit=40):
+    """Articles in the offline index that cite the passage, grouped by
+    article with the pages and sentences, newest first. The EJC index and,
+    when TESSERAE_CITATIONS_EXTRA names a file, the Project MUSE index are
+    read separately and listed together."""
+    extra = _extra_index_path()
+    have_ejc = os.path.exists(CITATION_INDEX)
+    if not a or not a.get('work') or not (have_ejc or extra):
+        return {'available': False, 'results': [], 'reason': 'No offline citation index on this server yet.'}
+    lo, hi = _coords(a['lo']), _coords(a['hi'])
+    book = lo[0] if lo else None
+    _corpus_depth, deeper_last_level, whole_work = _override_depth_shape(a['work'])
+    args = (a, lo, hi, book, deeper_last_level, whole_work)
+    ejc_articles = _index_articles(CITATION_INDEX, 'citation_index', *args) if have_ejc else {}
+    muse_articles = _index_articles(extra, 'muse', *args) if extra else {}
+    if ejc_articles is None and not muse_articles:
+        return {'available': False, 'results': [], 'reason': 'The citation index could not be read.'}
+    if muse_articles is None:
+        muse_articles = {}
+    found = list((ejc_articles or {}).values()) + list(muse_articles.values())
+    out = sorted(found, key=lambda x: (-(x['year'] or 0), x['title'] or ''))
+    note = 'From the full text of journals before 1923 (JSTOR Early Journal Content, on the Internet Archive), indexed by passage with the citation extractor.'
+    if extra:
+        note += ' Project MUSE journals from 1996 on are read under the library\'s license; one sentence is shown per citation.'
+    return {'available': True, 'results': out[:limit], 'total': len(found), 'note': note}
 
 # ----------------------------------------------------------------- books
 

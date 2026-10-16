@@ -7,7 +7,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 
 describe('ReaderPage English view block header', () => {
   it('shows 2.57.1 and keeps the tag in the hover text', async () => {
-    window.history.replaceState({}, '', '/read?work=thucydides.peleponnesian_war.part.2.tess&lang=grc&view=english');
+    window.history.replaceState({}, '', '/read?work=thucydides.peloponnesian_war.part.2.tess&lang=grc&view=english');
     const reply = (obj) => Promise.resolve({
       ok: true, json: () => Promise.resolve(obj), text: () => Promise.resolve(JSON.stringify(obj)),
     });

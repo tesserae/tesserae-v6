@@ -683,6 +683,7 @@ The citation recognizer reads "Quint. 1989, 37" as book 1989, line 37 and "Livy 
   text arrives. The quarter-sample run earlier the same day gave 0.37 and
   0.43 for the two base systems, so the full index matters.
 - Decided by the project lead on 2026-10-09 on the recommendation above.
+- Applied 2026-10-16 to Project MUSE journals (agreement with the library covers text processing): their citations are kept in a separate database, read as a second index beside the one from before 1923, and shown as the article's citation, one sentence of at most 400 characters centered on the citation, and a DOI link. No full text and no abstract are shown. Rows whose locus is a year or that absorbed a footnote number are dropped at build time, so a reader is not sent to an article by a false citation.
 
 ## 2026-10-11: the public data bundle's terms: non-commercial as a whole, commentaries sorted by licence, three vernacular texts in
 - Scope: the downloadable data bundle and the install recipe (pull request #739).

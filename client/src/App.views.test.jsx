@@ -17,7 +17,7 @@ const GREEK = [
   { id: 'homer.iliad.part.1.tess', author: 'Homer', title: 'Iliad 1', line_count: 600, language: 'grc' },
   { id: 'apollonius_rhodius.argonautica.part.1.tess', author: 'Apollonius', title: 'Argonautica 1', line_count: 500, language: 'grc' },
   { id: 'herodotus.histories.part.1.tess', author: 'Herodotus', title: 'Histories 1', line_count: 900, language: 'grc' },
-  { id: 'thucydides.peleponnesian_war.part.1.tess', author: 'Thucydides', title: 'War 1', line_count: 700, language: 'grc' },
+  { id: 'thucydides.peloponnesian_war.part.1.tess', author: 'Thucydides', title: 'War 1', line_count: 700, language: 'grc' },
 ];
 
 const json = (data) => ({ ok: true, status: 200, json: () => Promise.resolve(data), text: () => Promise.resolve(JSON.stringify(data)) });
@@ -119,7 +119,7 @@ describe('the Phrase Search defaults follow the view', () => {
     window.history.replaceState({}, '', '/?lang=grc');
     render(<App />);
     await sourceAfter('herodotus.histories.part.1.tess');
-    expect(window.sessionStorage.getItem('tesserae_targetText')).toBe('thucydides.peleponnesian_war.part.1.tess');
+    expect(window.sessionStorage.getItem('tesserae_targetText')).toBe('thucydides.peloponnesian_war.part.1.tess');
   });
 
   it('Greek in Literature view: Homer against Apollonius', async () => {
