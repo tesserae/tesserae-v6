@@ -2196,7 +2196,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
 
               <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">Filters and results</h4>
               <p className="text-gray-700 mb-3">
-                A date range, region, text type, material and source narrow a search, and two
+                A date range, region, place, text type, material and source narrow a search, and two
                 checkboxes leave out a match resting only on an editorially restored word, or
                 hide stock formulas (phrases such as &ldquo;dis manibus&rdquo; that recur in
                 thousands of documents and would otherwise crowd out a genuine echo). Results
@@ -2207,6 +2207,10 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 of one word finds nothing, the page shows the documents whose text contains
                 those letters instead and says so. Exact match finds the letters inside longer
                 words, so a stem such as &ldquo;rusell&rdquo; finds every word that begins with it.
+                The Place box takes the name of a findspot, ancient or modern, and suggests
+                matching places as you type, with the number of documents found at each, so
+                &ldquo;Rusellae&rdquo; finds what was found at Rusellae and not only the
+                inscriptions that name the town.
               </p>
 
               <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">Browsing without a search term</h4>

@@ -146,6 +146,11 @@ MANIFEST = {
                     'document page: licensed scholarship shown as citation, excerpt and link '
                     'on the site; not exposed to the connector.'),
     },
+    '/api/documents/places': {
+        'site_only': True,
+        'reason': ('Suggestions for the Place box of the Inscriptions & Papyri search; '
+                   'the connector takes the place name directly as line_search doc_place.'),
+    },
     '/api/documents/browse': {
         'site_only': True,
         'reason': ('Documents section of Browse Corpus: facet tree (kind, '

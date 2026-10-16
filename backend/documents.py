@@ -431,6 +431,8 @@ def reset_caches():
     _label_map_cache['checked'] = False
     meta.cache_clear()
     display_fields.cache_clear()
+    place_ids.cache_clear()
+    _places_cache.clear()
 
 
 _META_FIELDS = (
@@ -535,6 +537,129 @@ def bulk_meta(doc_ids):
         for row in rows:
             d = dict(row)
             out[d['id']] = _meta_row_to_dict(d['id'], d)
+    return out
+
+
+# --------------------------------------------------------------------------
+# Findspot (place) filter and place list
+# --------------------------------------------------------------------------
+# A document's findspot is metadata.db's `ancient_place` (and, when that is
+# empty or the reader typed the modern name, `modern_place`). The values carry
+# editorial marks: ", bei" (near), a trailing "?" (uncertain), a parenthetical
+# nome or country ("Karanis (Arsinoites)"). The filter takes the text the reader
+# chose or typed and matches it case-insensitively as a PREFIX of either place
+# column that ends at the end of the value, a comma, a question mark or a
+# parenthesis: "Rusellae" matches "Rusellae", "Rusellae, bei" and "Rusellae?",
+# and "Cosa" does not match "Torviscosa" or "Cosana".
+
+def place_matches(place, ancient_place, modern_place):
+    """True if `place` (the filter text) names the findspot of a document
+    whose ancient and modern place columns are given (either may be None)."""
+    p = (place or '').strip().lower()
+    if not p:
+        return True
+    for value in (ancient_place, modern_place):
+        v = (value or '').strip().lower()
+        if not v.startswith(p):
+            continue
+        rest = v[len(p):]
+        if not rest or rest[0] in ',?' or rest.startswith(' ('):
+            return True
+    return False
+
+
+_PLACE_UNSURE_RE = re.compile(r'\s*\(\s*\?\s*\)\s*$')
+_MODERN_NOTE_RE = re.compile(r'\s*\([^)]*\)|\.?\s*haud recte', re.IGNORECASE)
+
+
+def place_stem(value):
+    """The place name a findspot value names, without ", bei", a trailing
+    "?" or a dangling bracket: 'Rusellae, bei' and 'Rusellae?' -> 'Rusellae'.
+    A comma inside brackets stays ('Oxyrhynchos (Oxyrhynchites, Aegypten)')."""
+    v = (value or '').strip()
+    depth = 0
+    for i, ch in enumerate(v):
+        if ch == '(':
+            depth += 1
+        elif ch == ')':
+            depth = max(0, depth - 1)
+        elif ch in ',?' and depth == 0:
+            v = v[:i]
+            break
+    v = _PLACE_UNSURE_RE.sub('', v)
+    return v.rstrip(' (/').strip()
+
+
+_NO_PLACE_PREFIXES = ('unbekannt', 'unknown', 'ohne', 'keine')
+
+
+@lru_cache(maxsize=16)
+def place_ids(place):
+    """The ids of every document whose findspot matches `place` (see
+    place_matches), as a frozenset. None when metadata.db is unavailable."""
+    conn = get_meta_connection()
+    if conn is None:
+        return None
+    ids = set()
+    try:
+        for doc_id, ancient, modern in conn.execute(
+                "SELECT id, ancient_place, modern_place FROM documents"):
+            if place_matches(place, ancient, modern):
+                ids.add(doc_id)
+    except Exception as e:                                         # noqa: BLE001
+        logger.error(f"documents place lookup failed for {place!r}: {e}")
+        return None
+    return frozenset(ids)
+
+
+_places_cache = {}
+
+
+def place_list(language=None):
+    """The distinct findspots of the documents (of one language when given:
+    'la', 'grc', ...), for the Place control. Returns
+    [{'value', 'label', 'modern', 'count'}] sorted by count, highest first.
+    `value` is the ancient name with the editorial marks removed (what the
+    filter is sent), `label` the ancient name with the commonest modern name
+    after it in parentheses when it differs. A document with no ancient name
+    is listed under its modern name. Cached per language."""
+    key = language or ''
+    if key in _places_cache:
+        return _places_cache[key]
+    conn = get_meta_connection()
+    if conn is None:
+        return []
+    sql = "SELECT ancient_place, modern_place, languages FROM documents"
+    counts = {}
+    modern_counts = {}
+    for ancient, modern, langs in conn.execute(sql):
+        if language:
+            codes = [c.strip() for c in (langs or '').split(',')]
+            if language not in codes:
+                continue
+        stem = place_stem(ancient)
+        modern_stem = _MODERN_NOTE_RE.sub('', place_stem(modern)).strip()
+        if not stem:
+            stem = modern_stem
+            modern_stem = ''
+        if not stem or stem.lower().startswith(_NO_PLACE_PREFIXES):
+            continue
+        k = stem.lower()
+        entry = counts.setdefault(k, [stem, 0])
+        entry[1] += 1
+        if modern_stem:
+            mc = modern_counts.setdefault(k, {})
+            mc[modern_stem] = mc.get(modern_stem, 0) + 1
+    out = []
+    for k, (stem, n) in counts.items():
+        mc = modern_counts.get(k)
+        modern = max(mc.items(), key=lambda kv: (kv[1], kv[0]))[0] if mc else ''
+        if modern.lower() == k:
+            modern = ''
+        out.append({'value': stem, 'label': f'{stem} ({modern})' if modern else stem,
+                    'modern': modern, 'count': n})
+    out.sort(key=lambda e: (-e['count'], e['value']))
+    _places_cache[key] = out
     return out
 
 

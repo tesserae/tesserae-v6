@@ -125,6 +125,7 @@ export default function InscriptionsPapyriPage({ setPageType }) {
     dateTo, setDateTo,
     docKind, setDocKind,
     docRegion, setDocRegion,
+    docPlace, setDocPlace,
     docTextType, setDocTextType,
     docMaterial, setDocMaterial,
     docSource, setDocSource,
@@ -156,6 +157,7 @@ export default function InscriptionsPapyriPage({ setPageType }) {
     if (col && COLLECTION_OPTIONS.some(o => o.key === col)) setCollection(col);
     if (['inscriptions', 'papyri'].includes(params.get('kind'))) setDocKind(params.get('kind'));
     if (params.get('region')) setDocRegion(params.get('region'));
+    if (params.get('doc_place')) setDocPlace(params.get('doc_place'));
     if (params.get('date_from')) setDateFrom(params.get('date_from'));
     if (params.get('date_to')) setDateTo(params.get('date_to'));
     if (params.get('text_type')) setDocTextType(params.get('text_type'));
@@ -289,6 +291,7 @@ export default function InscriptionsPapyriPage({ setPageType }) {
     if (dateTo) params.set('date_to', dateTo);
     if (docKind) params.set('kind', docKind);
     if (docRegion) params.set('region', docRegion);
+    if (docPlace) params.set('doc_place', docPlace);
     if (docTextType) params.set('text_type', docTextType);
     if (docMaterial) params.set('material', docMaterial);
     if (docSource) params.set('source', docSource);
@@ -357,6 +360,8 @@ export default function InscriptionsPapyriPage({ setPageType }) {
               dateTo={dateTo} setDateTo={setDateTo}
               docKind={docKind} setDocKind={setDocKind}
               docRegion={docRegion} setDocRegion={setDocRegion}
+              docPlace={docPlace} setDocPlace={setDocPlace}
+              language={language}
               docTextType={docTextType} setDocTextType={setDocTextType}
               docMaterial={docMaterial} setDocMaterial={setDocMaterial}
               docSource={docSource} setDocSource={setDocSource}

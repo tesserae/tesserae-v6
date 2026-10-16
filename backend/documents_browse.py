@@ -562,10 +562,15 @@ _view_lock = threading.Lock()
 _view_cache = OrderedDict()
 
 
-def _compute_view(records, kind, region, findspot, century, text_type, material, object_type, language):
+def _compute_view(records, kind, region, findspot, century, text_type, material, object_type, language,
+                  place=None):
     """Everything `browse` returns except the page itself: the facet tree
     with its counts, and the full list of matching records. It depends only
     on the records and the filters, so `browse` keeps it per filter set."""
+    if place:
+        # A findspot narrows everything, the counts of every level included.
+        ids = docs.place_ids(place) or frozenset()
+        records = [r for r in records if r.doc_id in ids]
     kind_counts = _counted(r.kind for r in records)
     by_kind = [r for r in records if not kind or r.kind == kind]
 
@@ -655,15 +660,16 @@ def _compute_view(records, kind, region, findspot, century, text_type, material,
     return facets, filtered
 
 
-def _view(records, kind, region, findspot, century, text_type, material, object_type, language):
-    key = (kind, region, findspot, century, text_type, material, object_type, language)
+def _view(records, kind, region, findspot, century, text_type, material, object_type, language,
+          place=None):
+    key = (kind, region, findspot, century, text_type, material, object_type, language, place)
     with _view_lock:
         entry = _view_cache.get(key)
         if entry is not None and entry[0] is records:
             _view_cache.move_to_end(key)
             return entry[1], entry[2]
     facets, filtered = _compute_view(
-        records, kind, region, findspot, century, text_type, material, object_type, language)
+        records, kind, region, findspot, century, text_type, material, object_type, language, place)
     with _view_lock:
         _view_cache[key] = (records, facets, filtered)
         _view_cache.move_to_end(key)
@@ -673,7 +679,7 @@ def _view(records, kind, region, findspot, century, text_type, material, object_
 
 
 def browse(kind=None, region=None, findspot=None, century=None, text_type=None, material=None,
-           object_type=None, language=None, page=1, page_size=DEFAULT_PAGE_SIZE):
+           object_type=None, language=None, page=1, page_size=DEFAULT_PAGE_SIZE, place=None):
     """The facet tree (with counts) and one page of matching documents.
 
     The tree is cumulative: kind counts are over everything; region counts
@@ -695,7 +701,7 @@ def browse(kind=None, region=None, findspot=None, century=None, text_type=None, 
     page_size = max(1, min(MAX_PAGE_SIZE, page_size))
     records = get_records()
     facets, filtered = _view(
-        records, kind, region, findspot, century, text_type, material, object_type, language)
+        records, kind, region, findspot, century, text_type, material, object_type, language, place)
 
     total = len(filtered)
     start = (page - 1) * page_size

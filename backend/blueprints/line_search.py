@@ -573,6 +573,7 @@ def _documents_only(params: LineSearchParams, search_start_time: float):
     doc_material_filter, doc_source_filter = params.doc_material_filter, params.doc_source_filter
     doc_exclude_restored, doc_hide_formulas = params.doc_exclude_restored, params.doc_hide_formulas
     doc_kind_filter = params.doc_kind_filter
+    doc_place_filter = params.doc_place_filter
     doc_offset, doc_limit, doc_sort = params.doc_offset, params.doc_limit, params.doc_sort
 
     # collection='documents': the documentary corpus alone, no
@@ -585,7 +586,7 @@ def _documents_only(params: LineSearchParams, search_start_time: float):
             date_from, date_to, doc_region_filter, doc_text_type_filter,
             doc_material_filter, doc_source_filter, search_start_time,
             exclude_restored=doc_exclude_restored, hide_formulas=doc_hide_formulas,
-            kind=doc_kind_filter)
+            kind=doc_kind_filter, place=doc_place_filter)
     if collection == 'documents' and not documents_active:
         # Documents requested but the switch is off, or this
         # language has no documents index: literature's own
@@ -1533,6 +1534,7 @@ def _append_documents(params: LineSearchParams, payload: dict, results: list, fi
     doc_material_filter, doc_source_filter = params.doc_material_filter, params.doc_source_filter
     doc_exclude_restored, doc_hide_formulas = params.doc_exclude_restored, params.doc_hide_formulas
     doc_kind_filter = params.doc_kind_filter
+    doc_place_filter = params.doc_place_filter
     doc_offset, doc_limit, doc_sort = params.doc_offset, params.doc_limit, params.doc_sort
 
     # collection='both': append the documentary corpus's own hits
@@ -1560,7 +1562,7 @@ def _append_documents(params: LineSearchParams, payload: dict, results: list, fi
             doc_offset, doc_limit, date_from, date_to, doc_region_filter,
             doc_text_type_filter, doc_material_filter, doc_source_filter,
             exclude_restored=doc_exclude_restored, hide_formulas=doc_hide_formulas,
-            sort=doc_sort, kind=doc_kind_filter)
+            sort=doc_sort, kind=doc_kind_filter, place=doc_place_filter)
         payload['collection'] = 'both'
         # Stage 4: 'documents_total' is now the TRUE total (every
         # match after filters), not a count of a 500-row-capped

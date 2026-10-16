@@ -8,6 +8,7 @@
 // Pure presentation: every value and setter comes from useDocumentsSearch
 // (or the caller's own state), nothing here talks to the network.
 import useDocumentFilterOptions from './useDocumentFilterOptions';
+import PlaceFilter from './PlaceFilter';
 
 export default function DocumentsSearchFilters({
   options,
@@ -16,6 +17,8 @@ export default function DocumentsSearchFilters({
   dateTo, setDateTo,
   docKind = '', setDocKind = () => {},
   docRegion, setDocRegion,
+  docPlace = '', setDocPlace = () => {},
+  language = '',
   docTextType, setDocTextType,
   docMaterial, setDocMaterial,
   docSource, setDocSource,
@@ -41,7 +44,7 @@ export default function DocumentsSearchFilters({
         ))}
       </div>
       {showFilters && (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3 mt-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-8 gap-3 mt-3">
           <div>
             <label htmlFor="doc-kind" className="block text-xs text-gray-500 mb-1">Kind</label>
             <select id="doc-kind" value={docKind} onChange={e => setDocKind(e.target.value)}
@@ -62,6 +65,7 @@ export default function DocumentsSearchFilters({
                    placeholder="e.g., 200" className="w-full border rounded px-2 py-1.5 text-sm" />
           </div>
           <FilterSelect label="Region" value={docRegion} onChange={setDocRegion} options={regions} />
+          <PlaceFilter value={docPlace} onChange={setDocPlace} language={language} />
           <FilterSelect label="Text type" value={docTextType} onChange={setDocTextType} options={textTypes} />
           <FilterSelect label="Material" value={docMaterial} onChange={setDocMaterial} options={materials} />
           <FilterSelect label="Source" value={docSource} onChange={setDocSource} options={sources} />
