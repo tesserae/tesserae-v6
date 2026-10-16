@@ -282,6 +282,13 @@ describe('App render recording', () => {
     window.history.replaceState({}, '', path);
     const { container } = render(<App />);
     await settle(container, { max: 60 });
+    // The blog archive loads its posts through a dynamic import, which on a
+    // busy machine can outlast the settle window and leave an empty list in
+    // the recording (2026-10-16). Wait for the first post, then settle again.
+    if (path === '/blog-archive') {
+      await screen.findByText('A Greek to Latin Dictionary', {}, { timeout: 15000 });
+      await settle(container, { max: 60 });
+    }
     expect(window.location.pathname).toMatchSnapshot('address after load');
     expect(normalize(container.innerHTML)).toMatchSnapshot();
   });

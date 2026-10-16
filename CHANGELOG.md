@@ -8,6 +8,7 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-16
+- Render recording test: the blog archive page waits for its posts (a dynamic import) before the snapshot, so the recording no longer depends on how busy the machine is.
 - Similarity Map, book by book: the hover names a row or column as "Genesis", "Book 7" or "Lines 101 to 200" (was "book Genesis"), and clicking a named book's cell lists its passages (the pair view now groups references the way the grid does).
 - Image host check: a host that answers the probe with a bot refusal (401, 403, 429) counts as answering, since it serves the same pages to a browser (www.uni-koeln.de, 2026-10-16); down means no answer, 404 or 410, or a server error.
 - Suggest a change dialog: the note under the email field reads "Email addresses only for replies to users. They are not published."
