@@ -35,6 +35,17 @@ Conventions
   hand and are the models the helper matches.
 
 
+## 2026-10-16 Citation recognizer round 3: abbreviation patch applied to the table, indexes rebuilt (PLANNED, to run by the lead after the pull request merges)
+
+The audit of the 2,407 Project MUSE articles (`analysis/recognizer_audit/`, outside the repository) found 37,208 citation occurrences in 7,568 distinct forms the recognizer does not resolve. Round 3 decides the top 150 forms (37 added, 33 resolved by author context, 29 not held or not citations, 51 left unchanged because they are footnote numbers or need other fixes): 45 abbreviations for 32 works in `data/citations/abbrev_patch_round3.json`, and the author-context choices in `backend/citations/abbrev_context_rules.json`. The context rules ship with the code and need no data step. The table is not in git, so the patch is applied by script.
+
+1. On production, from the root, with the production venv: `python scripts/citations/apply_abbrev_patch.py data/citations/abbrev_patch_round3.json data/citations/abbreviations.json` (a dry run that prints the 45 forms and 3 new works, `diodorus_siculus.bibliotheca_historica`, `xenophon.hellenica` and `cassius_dio.roman_history`, and exits 2 with CONFLICT lines if a form already resolves to another work). Then the same with `--apply`. The script copies the table to `abbreviations.json.bak-YYYYMMDD-HHMMSS` beside it, writes a temporary file beside the table and renames it over, and a second run reports "nothing to do". Never edit the table by hand.
+2. Mirror to the toolkit copy. Run the same script with `--apply` on `~/tesserae-backups/ejc_index_2026-09-14/data/citations/abbreviations.json`, and copy `backend/citations/abbrev_context_rules.json`, `abbrev_aliases.json` and the code beside it.
+3. Rebuild the EJC citation index (v13: `build_index_v13.py`, derived from v12 by the lead) and the Project MUSE index with the new table, each inside `systemd-run --user --scope -p MemoryMax=<cap>`.
+4. Install both with dated backups, touch `tesseraev6_flask.wsgi`, and run the golden check. Compare counts with the previous builds. Expect more citations to Polybius, Diodorus, Xenophon's Hellenica, Cassius Dio, Hesiod's Theogony, the Greek Anthology, Seneca's De beneficiis, Caesar and Suetonius's Augustus, and fewer unresolved rows for `Met.`, `Ep.`, `Ecl.`, `Od.`, `Tr.`, `Th.`.
+
+Rollback: copy the dated backup over the table and rebuild. Left for later: a speech-number map for `Dem.`, `D.`, `Aeschin.`, `Andoc.` and `Isoc.`, the Libanius tie (the whole record and three partial records carry the same forms), `Theoc.` and `B.` (the poem number decides), `O.` (Pindar, locus scheme unchecked), and a default work for a bare `Met.` (Ovid) if wanted.
+
 ## 2026-10-16 Sahidica New Testament files leave the repository tree (PLANNED, to run at the production pull of the restricted-texts pull request)
 
 The Sahidica files carry the license "(c)2000-2006 by J Warren Wells, for academic use only". They stay in the index and searchable, but may not be redistributed. The pull request adds 29 registry entries (28 `texts/cop/sahidica.*` files, 27 books plus `sahidica.nt`, and `sahidic.bible`, which holds the same text), the `.gitignore` block, and removes the 29 files from the tree with `git rm --cached`. The repository's history still holds them; purging history is a separate decision.

@@ -8,7 +8,7 @@ grammar reimplementation and resolver.py for locus resolution.
 import json
 import os
 import re
-from dataclasses import asdict
+from dataclasses import asdict, replace
 
 from .abbrev_index import AbbrevIndex, normalize_abbr
 from .parser import find_citations as _find_citations_raw, is_roman_shaped
@@ -145,7 +145,15 @@ def _load_context_rules():
                              if r.get("redirect") else None),
             } for r in lst]
         veto_all = raw.get("veto_before_all")
-        _CONTEXT_RULES = {"rules": rules, "veto_all": re.compile(veto_all) if veto_all else None}
+        disambiguate = {
+            key: [{
+                "work": r["work"],
+                "context": re.compile(r["context"]),
+                "veto_before": re.compile(r["veto_before"]) if r.get("veto_before") else None,
+            } for r in lst]
+            for key, lst in (raw.get("disambiguate") or {}).items()}
+        _CONTEXT_RULES = {"rules": rules, "veto_all": re.compile(veto_all) if veto_all else None,
+                          "disambiguate": disambiguate}
     return _CONTEXT_RULES
 
 
@@ -170,6 +178,34 @@ def _apply_context_rules(work_id, work_surface, anchor_start, text, context):
                 return rule["redirect"]["work"], None
             return None, "requires_author_context:" + normalize_abbr(work_surface)
     return work_id, None
+
+
+def _disambiguate_candidates(candidates, work_surface, anchor_start, text, context, works):
+    """Author-context choice among works that share one short form. The
+    "disambiguate" table in abbrev_context_rules.json lists, per form
+    ("met", "ep", "ecl"), the works it can mean and a regex for the author
+    that picks each. The rule whose author is named closest before the
+    citation (sentence before, or this sentence ahead of it) wins, and its
+    work becomes the only candidate, at priority 0. Returns the candidates
+    unchanged when no rule matches, so a bare "Met." stays unresolved."""
+    if not work_surface or anchor_start is None:
+        return candidates
+    rules = _load_context_rules()["disambiguate"].get(normalize_abbr(work_surface))
+    if not rules:
+        return candidates
+    ahead = (context or "")[-_CONTEXT_BEFORE:] + " " + text[max(0, anchor_start - _CONTEXT_BEFORE):anchor_start]
+    best_end, best = -1, None
+    for rule in rules:
+        if rule["work"] not in works:
+            continue
+        if rule["veto_before"] and rule["veto_before"].search(ahead[-_VETO_TAIL:]):
+            continue
+        for m in rule["context"].finditer(ahead):
+            if m.end() > best_end:
+                best_end, best = m.end(), rule
+    if best is None:
+        return candidates
+    return [(best["work"], 0, work_surface)]
 
 
 _WORK_MAX_BOOK = None
@@ -574,6 +610,12 @@ def extract(text, index=None, context=""):
                     book_list=ref.book_list,
                     start_seps=ref.start_seps,
                 )
+
+            key_surface = ref.work_surface if not inherited else inherited_surface
+            forced = _disambiguate_candidates(
+                ref_for_resolution.work_candidates, key_surface, anchor_start, text, context, index.works_by_base_id)
+            if forced is not ref_for_resolution.work_candidates:
+                ref_for_resolution = replace(ref_for_resolution, work_candidates=forced)
 
             base_out = {
                 "surface": text[ref.start_offset:ref.end_offset],
