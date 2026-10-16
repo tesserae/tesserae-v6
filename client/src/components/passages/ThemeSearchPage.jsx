@@ -12,6 +12,7 @@ import ThemeCoins from '../coins/ThemeCoins';
 import ThemeObjects from '../objects/ThemeObjects';
 import ThemeScholarship from '../scholarship/ThemeScholarship';
 import useCollections from '../../hooks/useCollections';
+import { windowLocus, fullRef } from '../reader/refId';
 import { PAGE_NEEDS } from '../../collections/collectionsConfig';
 import ScopeBox from '../common/ScopeBox';
 import { fetchLanguages, getJson } from '../../utils/api';
@@ -224,8 +225,7 @@ const COMPARE_LEVEL_TEXT = {
  *  rows use (`_result` in backend/passage_index.py supplies both). */
 function CompareSideCard({ side }) {
   if (!side) return null;
-  const span = side.ref_end && side.ref_end !== side.ref_start
-    ? `${side.ref_start}–${side.ref_end}` : side.ref_start;
+  const span = windowLocus(side);
   return (
     <div className="min-w-0">
       <div className="text-[10px] uppercase tracking-wide text-gray-500">
@@ -237,7 +237,7 @@ function CompareSideCard({ side }) {
       {side.reader_url && (
         <a href={side.reader_url} target="_blank" rel="noreferrer"
            className="text-sm text-red-800 hover:text-red-900 hover:underline">
-          {span} · Open in Reader
+          <span title={fullRef(side)}>{span}</span> · Open in Reader
         </a>
       )}
       {side.gist && (
@@ -1387,7 +1387,7 @@ export default function ThemeSearchPage() {
                           href={readerLink(r, data.query || query)}
                           className="text-sm text-red-800 hover:text-red-900 hover:underline"
                         >
-                          {r.ref_start}
+                          <span title={fullRef(r)}>{windowLocus(r)}</span>
                         </a>
                         {/* In a low band every row would carry the tag, so it
                             says nothing there; shown only where it contrasts. */}

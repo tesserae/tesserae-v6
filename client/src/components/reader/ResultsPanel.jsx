@@ -7,7 +7,7 @@ import { useCorpusTextMap, citationFromCorpusMap } from '../../utils/textNames';
 import { chronological, dateParts } from '../../utils/chronology';
 import { LoadingSpinner } from '../common';
 import { ResultsInsight } from '../assistant';
-import { displayRef, readableLocus } from './refId';
+import { displayRef, readableLocus, windowLocus, fullRef } from './refId';
 import { LANGUAGE_NAMES as LANG_LABEL } from '../../utils/languageNames';
 import { scholarshipLanguages } from '../../utils/scholarshipLanguages';
 import ScholarshipTab from './ScholarshipTab';
@@ -335,7 +335,7 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
         // the same words.
         // The whole-work name, since that is how the search index holds it.
         exclude_text_id: `${baseWork(work)}.tess`,
-        exclude_locus: bareLocus(selection.refStart),
+        exclude_locus: numericTail(selection.refStart),
         // The selected lines by reference, so the server can take their
         // lemmas from the index instead of re-tagging the words.
         refs: bySentence ? undefined : picked.map((u) => u.ref),
@@ -354,11 +354,11 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
         // Belt and braces over the backend's single-locus exclusion: a
         // multi-line selection sends one locus but has several, and every one
         // of them would otherwise come back as a parallel to itself.
-        const mine = new Set(picked.map((u) => bareLocus(u.ref)));
+        const mine = new Set(picked.map((u) => numericTail(u.ref)));
         setVerbal({
           ...d,
           results: (d.results || []).filter(
-            (r) => !(sameWork(r.text_id, work) && mine.has(bareLocus(r.locus)))),
+            (r) => !(sameWork(r.text_id, work) && mine.has(numericTail(r.locus)))),
         });
       })
       .catch((e) => { if (!cancelled) setVerbalError(e.message); })
@@ -533,8 +533,7 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
                 </p>
                 {fullTranslation.blocks.map((b) => (
                   <div key={b.ref_start} className="bg-white border border-gray-200 rounded p-2">
-                    <p className="text-[10px] text-gray-500 mb-1">{b.ref_start}
-                      {b.ref_end !== b.ref_start ? ` – ${b.ref_end}` : ''}</p>
+                    <p className="text-[10px] text-gray-500 mb-1" title={fullRef(b)}>{windowLocus(b)}</p>
                     <p className="text-sm text-gray-800 leading-relaxed">{b.text}</p>
                   </div>
                 ))}
@@ -1449,7 +1448,7 @@ function DocumentHitCard({ r, language }) {
 /** "verg. aen. 6.1" -> "6.1". The Reader's refs carry the work's short tag and
  *  line-search's loci do not, so the numeric tail is the only part of the two
  *  that can be compared. */
-function bareLocus(ref) {
+function numericTail(ref) {
   const m = String(ref || '').match(/(\d+(?:[.:]\d+)*)\s*$/);
   return m ? m[1] : String(ref || '').trim();
 }

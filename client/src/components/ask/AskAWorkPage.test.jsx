@@ -126,6 +126,8 @@ describe('Search One Text', () => {
     const cards = screen.getAllByTestId('ask-card');
     expect(cards.map((c) => within(c).getAllByRole('link')[0].textContent))
       .toEqual(['2.40', '1.10', '3.50']);
+    // The file's tag is the hover text, not the printed text.
+    expect(within(cards[0]).getByText('2.40').getAttribute('title')).toBe('verg. aen. 2.40');
     expect(within(cards[0]).getByText('strong')).toBeInTheDocument();
     expect(within(cards[1]).queryByText('strong')).toBeNull();
     const href = within(cards[0]).getAllByRole('link')[0].getAttribute('href');
@@ -263,7 +265,7 @@ describe('the order of the list', () => {
     fireEvent.change(screen.getByPlaceholderText(/a subject in plain words/), { target: { value: 'fathers and sons' } });
     fireEvent.click(screen.getByRole('button', { name: 'Go' }));
     const before = (await screen.findAllByTestId('ask-card')).map((c) => c.querySelector('a').textContent);
-    expect(before).toEqual(RESULTS.map((r) => r.ref_start));
+    expect(before).toEqual(RESULTS.map((r) => r.ref_start.split(' ').pop()));
     fireEvent.click(screen.getByRole('button', { name: 'Order of the work' }));
     const after = screen.getAllByTestId('ask-card').map((c) => c.querySelector('a').textContent);
     const key = (ref) => [bookOf(ref, 'vergil.aeneid'), Number((ref.match(/(\d+)\s*$/) || [0, 0])[1])];
@@ -419,7 +421,7 @@ describe('what the work says', () => {
     expect(within(block).getByText('The work')).toBeInTheDocument();
     expect(within(block).getByText(/Written by Tessa from the passage descriptions/)).toBeInTheDocument();
     const cards = screen.getAllByTestId('ask-card');
-    fireEvent.click(within(block).getByRole('button', { name: '1.12' }));
+    fireEvent.click(within(block).getByRole('button', { name: 'verg. aen. 1.12' }));
     const seen = window.HTMLElement.prototype.scrollIntoView.mock.instances;
     expect(seen[seen.length - 1]).toBe(cards[2]);
   });
