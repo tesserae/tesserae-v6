@@ -3,9 +3,10 @@ import { LoadingSpinner, InfoBadge } from '../common';
 import CiteRecordButton from '../common/CiteRecordButton';
 import { recordFrom } from '../../utils/citations';
 import useCollections from '../../hooks/useCollections';
-import { displayRef } from '../reader/refId';
+import { bareLocus } from '../reader/refId';
+import { useCorpusTextMap } from '../../utils/textNames';
 import EventMap from './EventMap';
-import { dateLabel, kmLabel, yearLabel, readerLinkWithBack } from './eventsFormat';
+import { dateLabel, kmLabel, readerLinkWithBack, shortPassageRef, workHeading } from './eventsFormat';
 import AboutSourcesLink from '../scholarship/AboutSourcesLink';
 
 const LABEL_TEXT = {
@@ -13,9 +14,38 @@ const LABEL_TEXT = {
   mention: ['Mentions it', 'An offline language model judged that this passage mentions the event without telling of it.'],
 };
 
-function workTitle(work) {
-  return String(work || '').replace(/\.tess$/, '').replace(/\.part\.\d+.*$/, '').split('.')
-    .map((s) => s.replace(/_/g, ' ')).join(': ');
+function WorkGroup({ work, items, event }) {
+  const corpusMap = useCorpusTextMap(items[0]?.language);
+  return (
+    <section className="mb-4">
+      <h4 className="text-sm font-semibold text-gray-800 mb-1">{workHeading(work, corpusMap)}</h4>
+      <ul className="space-y-2">
+        {items.map((p, i) => (
+          <li key={`${p.rank}-${i}`} id={`passage-${p.rank}`} className="bg-white border border-gray-200 rounded-lg p-3 scroll-mt-4">
+            <div className="flex flex-wrap items-center gap-2 text-sm">
+              <span className="font-medium text-gray-800" title={p.ref_start}>
+                {bareLocus(p.ref_start)}{p.ref_end && p.ref_end !== p.ref_start ? ` to ${bareLocus(p.ref_end)}` : ''}
+              </span>
+              {LABEL_TEXT[p.llm_label] && (
+                <InfoBadge className="text-xs px-1.5 py-0.5 rounded bg-gray-100 text-gray-600"
+                           explanation={LABEL_TEXT[p.llm_label][1]}>
+                  {LABEL_TEXT[p.llm_label][0]}
+                </InfoBadge>
+              )}
+              <a href={readerLinkWithBack(p.reader_url, event.id, event.label)}
+                 className="ml-auto text-red-700 hover:underline text-xs">
+                Open in the Reader
+              </a>
+            </div>
+            {p.snippet && <p className="text-sm text-gray-700 mt-1">{p.snippet}</p>}
+            {p.names_matched?.length > 0 && (
+              <p className="text-xs text-gray-500 mt-1">Names found: {p.names_matched.join('; ')}</p>
+            )}
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
 }
 
 function PassagesTab({ passages, counts, event, focusRank }) {
@@ -42,34 +72,7 @@ function PassagesTab({ passages, counts, event, focusRank }) {
         {counts?.no ? ` ${counts.no} more were judged unrelated and are left out.` : ''}
       </p>
       {groups.map(([work, items]) => (
-        <section key={work} className="mb-4">
-          <h4 className="text-sm font-semibold text-gray-800 mb-1">{workTitle(work)}</h4>
-          <ul className="space-y-2">
-            {items.map((p, i) => (
-              <li key={`${p.rank}-${i}`} id={`passage-${p.rank}`} className="bg-white border border-gray-200 rounded-lg p-3 scroll-mt-4">
-                <div className="flex flex-wrap items-center gap-2 text-sm">
-                  <span className="font-medium text-gray-800">
-                    {displayRef(p.ref_start)}{p.ref_end && p.ref_end !== p.ref_start ? ` to ${displayRef(p.ref_end)}` : ''}
-                  </span>
-                  {LABEL_TEXT[p.llm_label] && (
-                    <InfoBadge className="text-xs px-1.5 py-0.5 rounded bg-gray-100 text-gray-600"
-                               explanation={LABEL_TEXT[p.llm_label][1]}>
-                      {LABEL_TEXT[p.llm_label][0]}
-                    </InfoBadge>
-                  )}
-                  <a href={readerLinkWithBack(p.reader_url, event.id, event.label)}
-                     className="ml-auto text-red-700 hover:underline text-xs">
-                    Open in the Reader
-                  </a>
-                </div>
-                {p.snippet && <p className="text-sm text-gray-700 mt-1">{p.snippet}</p>}
-                {p.names_matched?.length > 0 && (
-                  <p className="text-xs text-gray-500 mt-1">Names found: {p.names_matched.join('; ')}</p>
-                )}
-              </li>
-            ))}
-          </ul>
-        </section>
+        <WorkGroup key={work} work={work} items={items} event={event} />
       ))}
     </div>
   );
@@ -149,7 +152,7 @@ function ScholarshipTab({ items, openPassage, ranks }) {
                     <div className="text-xs mt-1">
                       <a href={`#passage-${s.passage_rank}`} className="text-red-700 hover:underline"
                          onClick={(e) => { e.preventDefault(); openPassage(s.passage_rank); }}>
-                        on {displayRef(s.passage_ref)}
+                        on {shortPassageRef(s.passage_ref)}
                       </a>
                     </div>
                   )}

@@ -2,7 +2,7 @@
 """Rename a work across every store its name lives in OUTSIDE git.
 
 A work's id (``<author>.<work>``, from its ``.tess`` filename) is repeated
-in five places that are not tracked in the repository and so are not fixed
+in seven places that are not tracked in the repository and so are not fixed
 by a pull request alone:
 
   1. ``texts/<lang>/<old>.tess`` itself, and the line tag at the start of
@@ -50,9 +50,12 @@ as zero rewritten, not guessed at.
 
 REFUSES outright, before writing anything to ANY store, if the new id
 already exists anywhere it would collide (an existing ``.tess``, index row,
-cache file, embeddings file, or passage-index id already under the new
-name) -- renaming onto an occupied name would merge two different works
-under one id silently.
+cache file, embeddings file, passage-index id, events-store row or
+translation file already under the new name) -- renaming onto an occupied
+name would merge two different works under one id silently. ``--force``
+lifts the refusal for the events store and the translation manifest only
+(rows already under the new name are then kept beside the renamed ones); a
+translation FILE already under the new name is never overwritten.
 
     ./venv/bin/python3 scripts/corpus/rename_work.py \\
         --root . --language fa --old iqbal_lahori.diwan --new iqbal.diwan
@@ -419,9 +422,210 @@ def apply_embeddings(root, language, old, new, old_tag, new_tag):
     return {'found': plan['found'], 'written': written}
 
 
+# ------------------------------------------------------------- events store
+
+def events_db_path(root):
+    return os.path.join(root, 'data', 'events', 'event_dossiers.sqlite')
+
+
+# A window id of the work is `<id>:<scale>:<n>` or `<id>.part.N:...`; the
+# prefix test is exact (no LIKE, so an underscore in an id is not a wildcard).
+_WINDOW_MATCH = ('(substr(window_id, 1, :n) = :id AND '
+                 '(substr(window_id, :n + 1, 1) = \':\' OR substr(window_id, :n + 1, 6) = \'.part.\'))')
+_WORK_MATCH = ('(work = :id OR (substr(work, 1, :n) = :id AND substr(work, :n + 1, 6) = \'.part.\'))')
+
+
+def _events_counts(con, work_id):
+    bind = {'id': work_id, 'n': len(work_id)}
+    by_work, = con.execute(f'SELECT COUNT(*) FROM passages WHERE {_WORK_MATCH}', bind).fetchone()
+    by_window, = con.execute(f'SELECT COUNT(*) FROM passages WHERE {_WINDOW_MATCH}', bind).fetchone()
+    judged, = con.execute(f'SELECT COUNT(*) FROM judgements WHERE {_WINDOW_MATCH}', bind).fetchone()
+    return {'passages_work': by_work, 'passages_window_id': by_window, 'judgements_window_id': judged}
+
+
+def plan_events(root, old, new):
+    db = events_db_path(root)
+    if not os.path.exists(db):
+        return {'found': False}
+    con = sqlite3.connect(f'file:{db}?mode=ro', uri=True)
+    try:
+        counts = _events_counts(con, old)
+        new_counts = _events_counts(con, new)
+    finally:
+        con.close()
+    return {'found': True, 'db': db, **counts, 'new_id_rows': sum(new_counts.values())}
+
+
+def _events_has_something(plan):
+    return bool(plan.get('found')) and any(
+        plan.get(k) for k in ('passages_work', 'passages_window_id', 'judgements_window_id'))
+
+
+def apply_events(root, old, new):
+    plan = plan_events(root, old, new)
+    if not _events_has_something(plan):
+        return plan
+    db = plan['db']
+    con = sqlite3.connect(db)
+    try:
+        con.execute('PRAGMA wal_checkpoint(TRUNCATE)')
+    finally:
+        con.close()
+    backup_path = backup(db, tag='rename')
+    con = sqlite3.connect(db)
+    try:
+        bind = {'id': old, 'n': len(old), 'new': new}
+        con.execute(f"UPDATE passages SET work = :new || substr(work, :n + 1) WHERE {_WORK_MATCH}", bind)
+        con.execute(f"UPDATE passages SET window_id = :new || substr(window_id, :n + 1) "
+                    f"WHERE {_WINDOW_MATCH}", bind)
+        con.execute(f"UPDATE judgements SET window_id = :new || substr(window_id, :n + 1) "
+                    f"WHERE {_WINDOW_MATCH}", bind)
+        con.commit()
+        con.execute('PRAGMA wal_checkpoint(TRUNCATE)')
+        left = _events_counts(con, old)
+        if any(left.values()):
+            raise AssertionError(f'old id still in the events store: {left}')
+    finally:
+        con.close()
+    return {**plan, 'applied': True, 'backup': backup_path}
+
+
+# ------------------------------------------------------------- translations
+
+def translations_dir(root):
+    return os.path.join(root, 'data', 'translations')
+
+
+def _manifest_entry_names(entry, language, old):
+    """The manifest fields of one entry that name the old id."""
+    hits = []
+    if entry.get('tess_key') == f'{language}/{old}':
+        hits.append('tess_key')
+    if entry.get('file') == f'{language}__{old}.json':
+        hits.append('file')
+    if entry.get('work_id_guess') == old and entry.get('language') == language:
+        hits.append('work_id_guess')
+    return hits
+
+
+def _link_file_hits(tdir, language, old):
+    """Files in translations/links/ that name the old id: by file name, by
+    their `work` field, or by a ref key under `links`."""
+    ldir = os.path.join(tdir, 'links')
+    out = []
+    if not os.path.isdir(ldir):
+        return out
+    for fn in sorted(os.listdir(ldir)):
+        if not fn.endswith('.json'):
+            continue
+        path = os.path.join(ldir, fn)
+        try:
+            with open(path, encoding='utf-8') as f:
+                data = json.load(f)
+        except (OSError, ValueError):
+            continue
+        if not isinstance(data, dict):
+            continue
+        by_name = fn == f'{language}__{old}.json'
+        by_work = data.get('work') == old
+        links = data.get('links') if isinstance(data.get('links'), dict) else {}
+        n_keys = sum(1 for k in links if isinstance(k, str) and k.startswith(old + '.'))
+        if by_name or by_work or n_keys:
+            out.append({'file': path, 'by_name': by_name, 'work_field': by_work, 'ref_keys': n_keys})
+    return out
+
+
+def plan_translations(root, language, old, new):
+    tdir = translations_dir(root)
+    if not os.path.isdir(tdir):
+        return {'found': False}
+    file_old = os.path.join(tdir, f'{language}__{old}.json')
+    file_new = os.path.join(tdir, f'{language}__{new}.json')
+    manifest = os.path.join(tdir, 'manifest.json')
+    fields = []
+    new_entries = 0
+    if os.path.exists(manifest):
+        try:
+            with open(manifest, encoding='utf-8') as f:
+                entries = json.load(f)
+        except (OSError, ValueError):
+            entries = []
+        for e in entries if isinstance(entries, list) else []:
+            if not isinstance(e, dict):
+                continue
+            fields.extend(_manifest_entry_names(e, language, old))
+            if e.get('tess_key') == f'{language}/{new}':
+                new_entries += 1
+    links = _link_file_hits(tdir, language, old)
+    return {'found': True, 'dir': tdir, 'file': file_old if os.path.exists(file_old) else None,
+            'file_new_exists': os.path.exists(file_new), 'manifest_fields': sorted(fields),
+            'manifest_new_entries': new_entries, 'links': links}
+
+
+def _translations_has_something(plan):
+    return bool(plan.get('found')) and bool(plan.get('file') or plan.get('manifest_fields')
+                                             or plan.get('links'))
+
+
+def apply_translations(root, language, old, new):
+    plan = plan_translations(root, language, old, new)
+    if not _translations_has_something(plan):
+        return plan
+    tdir = plan['dir']
+    result = {**plan, 'applied': True}
+    file_old = os.path.join(tdir, f'{language}__{old}.json')
+    file_new = os.path.join(tdir, f'{language}__{new}.json')
+    if plan['file']:
+        if os.path.exists(file_new):
+            raise RuntimeError(f'refusing: {file_new} already exists')
+        with open(file_old, encoding='utf-8') as f:
+            data = json.load(f)
+        if isinstance(data, dict) and data.get('tess_work') == f'{language}/{old}':
+            data['tess_work'] = f'{language}/{new}'
+        atomic_write(file_new, json.dumps(data, ensure_ascii=False))
+        result['file_backup'] = backup(file_old, tag='rename')
+        os.remove(file_old)  # the dated backup beside it keeps the original
+    manifest = os.path.join(tdir, 'manifest.json')
+    if plan['manifest_fields']:
+        with open(manifest, encoding='utf-8') as f:
+            entries = json.load(f)
+        for e in entries:
+            if not isinstance(e, dict):
+                continue
+            for field in _manifest_entry_names(e, language, old):
+                if field == 'tess_key':
+                    e[field] = f'{language}/{new}'
+                elif field == 'file':
+                    e[field] = f'{language}__{new}.json'
+                else:
+                    e[field] = new
+        result['manifest_backup'] = backup(manifest, tag='rename')
+        atomic_write(manifest, json.dumps(entries, ensure_ascii=False, indent=2))
+    result['links_rewritten'] = []
+    for hit in plan['links']:
+        path = hit['file']
+        with open(path, encoding='utf-8') as f:
+            data = json.load(f)
+        if data.get('work') == old:
+            data['work'] = new
+        if isinstance(data.get('links'), dict):
+            data['links'] = {(_rewrite_prefix(k, old, new)): v for k, v in data['links'].items()}
+        dest = path
+        if hit['by_name']:
+            dest = os.path.join(os.path.dirname(path), f'{language}__{new}.json')
+            if os.path.exists(dest):
+                raise RuntimeError(f'refusing: {dest} already exists')
+        bak = backup(path, tag='rename')
+        atomic_write(dest, json.dumps(data, ensure_ascii=False, indent=1))
+        if dest != path:
+            os.remove(path)
+        result['links_rewritten'].append({'old': path, 'new': dest, 'backup': bak})
+    return result
+
+
 # --------------------------------------------------------------- orchestration
 
-def check_collisions(root, language, old, new):
+def check_collisions(root, language, old, new, force=False):
     problems = []
     # A new .tess beside a missing old one means the file itself was renamed
     # already (a pull of a pull request that used git mv, 2026-10-13, #904);
@@ -449,6 +653,17 @@ def check_collisions(root, language, old, new):
             f"passage index: author {passage_plan['old_author']!r} also holds "
             f"{passage_plan['other_works_under_author']}; an author-level rename "
             "would move them too -- handle the passage index by hand")
+    events_plan = plan_events(root, old, new)
+    if events_plan.get('found') and events_plan.get('new_id_rows') and not force:
+        problems.append(f"events store: {events_plan['new_id_rows']} row(s) already carry {new!r} "
+                        "(pass --force to keep them beside the renamed rows)")
+    tr_plan = plan_translations(root, language, old, new)
+    if tr_plan.get('found') and tr_plan.get('file') and tr_plan.get('file_new_exists'):
+        problems.append(f'translation file {language}__{new}.json already exists '
+                        '(never overwritten, even with --force)')
+    elif tr_plan.get('found') and tr_plan.get('manifest_new_entries') and not force:
+        problems.append(f"translations manifest already has {tr_plan['manifest_new_entries']} "
+                        f"entry(ies) for {language}/{new} (pass --force to keep them)")
     return problems
 
 
@@ -472,6 +687,9 @@ def main(argv=None):
                      help='the .tess line-tag prefix, if it differs from --old')
     ap.add_argument('--new-tag', dest='new_tag', default=None,
                      help='the .tess line-tag prefix, if it differs from --new')
+    ap.add_argument('--force', action='store_true',
+                     help='allow rows already under the new id in the events store and the '
+                          'translations manifest (a translation file is never overwritten)')
     add_apply_argument(ap, 'write the rename (default: report only)')
     args = ap.parse_args(argv)
 
@@ -488,6 +706,8 @@ def main(argv=None):
     lemma_plan = plan_lemma_cache(root, language, old)
     passage_plan = plan_passage_index(root, old, new)
     emb_plan = plan_embeddings(root, language, old)
+    events_plan = plan_events(root, old, new)
+    tr_plan = plan_translations(root, language, old, new)
 
     print(f'{language}/{old} -> {language}/{new}  (tag {old_tag} -> {new_tag})')
     print(f'  .tess:           {tess_plan}')
@@ -495,6 +715,8 @@ def main(argv=None):
     print(f'  lemma cache:     found={sorted(lemma_plan["found"])}')
     print(f'  passage index:   {passage_plan}')
     print(f'  embeddings:      found={sorted(emb_plan["found"])}')
+    print(f'  events store:    {events_plan}')
+    print(f'  translations:    {tr_plan}')
 
     nothing_found = (
         not tess_plan.get('found')
@@ -502,12 +724,14 @@ def main(argv=None):
         and not lemma_plan['found']
         and not _passage_has_something(passage_plan)
         and not emb_plan['found']
+        and not _events_has_something(events_plan)
+        and not _translations_has_something(tr_plan)
     )
     if nothing_found:
         print('\nnothing carries that name in any store under --root')
         return 0
 
-    problems = check_collisions(root, language, old, new)
+    problems = check_collisions(root, language, old, new, force=args.force)
     if problems:
         print('\nREFUSING: the new id already exists', file=sys.stderr)
         for p in problems:
@@ -524,6 +748,8 @@ def main(argv=None):
         root, language, old, new, tess_path(root, language, new))
     results['passage_index'] = apply_passage_index(root, old, new)
     results['embeddings'] = apply_embeddings(root, language, old, new, old_tag, new_tag)
+    results['events'] = apply_events(root, old, new)
+    results['translations'] = apply_translations(root, language, old, new)
 
     print('\napplied:')
     for k, v in results.items():

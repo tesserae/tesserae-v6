@@ -35,6 +35,10 @@ Conventions
   hand and are the models the helper matches.
 
 
+## 2026-10-16 Thucydides rename: events store and translations remapped by hand (RUN, by the lead, 2026-10-16 09:45)
+
+The Thucydides rename of 2026-10-15 and 16 (`scripts/corpus/rename_work.py`) did not know two stores, so the Events page still carried the old misspelled id. The lead remapped both by hand on production at 09:45. Events store `data/events/event_dossiers.sqlite`: 740 `passages` rows and 833 `judgements` rows (backup `event_dossiers.sqlite.bak-thucid-20261016-0945`). Translations: the file `grc__thucydides.peloponnesian_war.json` and 3 fields of `data/translations/manifest.json` (`work_id_guess`, `tess_key`, `file`; backup `manifest.json.bak-thucid-20261016-0945`). The old file is kept as `retired_grc__thucydides.peleponnesian_war.json.bak-thucid-20261016-0945`. `rename_work.py` now covers both stores, so the next rename needs no hand step for them: the events store (the three columns, backed up beside itself, checkpointed, verified to hold no row under the old id) and the translations (file, manifest, `links/`). The citation indexes are still remapped by hand, and the reuse tables and the connections map are rebuilt.
+
 ## 2026-10-16 Citation recognizer round 3: abbreviation patch applied to the table, indexes rebuilt (PLANNED, to run by the lead after the pull request merges)
 
 The audit of the 2,407 Project MUSE articles (`analysis/recognizer_audit/`, outside the repository) found 37,208 citation occurrences in 7,568 distinct forms the recognizer does not resolve. Round 3 decides the top 150 forms (37 added, 33 resolved by author context, 29 not held or not citations, 51 left unchanged because they are footnote numbers or need other fixes): 45 abbreviations for 32 works in `data/citations/abbrev_patch_round3.json`, and the author-context choices in `backend/citations/abbrev_context_rules.json`. The context rules ship with the code and need no data step. The table is not in git, so the patch is applied by script.

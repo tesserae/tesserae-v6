@@ -344,3 +344,132 @@ def test_apply_succeeds_while_a_reader_holds_the_passage_texts_open(root):
     works = {r[0] for r in wcon.execute('SELECT DISTINCT work FROM window_texts')}
     assert NEW in works and OLD not in works
     assert not os.path.exists(db + '.renaming')
+
+
+# ------------------------------------------------- events store, translations
+
+def _build_events_db(root, rows_passages, rows_judgements):
+    path = os.path.join(root, 'data', 'events', 'event_dossiers.sqlite')
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    con = sqlite3.connect(path)
+    con.execute('CREATE TABLE passages (event_id TEXT, rank INTEGER, work TEXT, ref_start TEXT, '
+                'ref_end TEXT, score REAL, llm_label TEXT, names_matched TEXT, snippet TEXT, '
+                'window_id TEXT, language TEXT)')
+    con.execute('CREATE TABLE judgements (model TEXT, event TEXT, window_id TEXT, prompt TEXT, '
+                'label TEXT, ts REAL, PRIMARY KEY (model, event, window_id, prompt))')
+    for i, (work, wid) in enumerate(rows_passages):
+        con.execute('INSERT INTO passages VALUES (?, ?, ?, ?, ?, 0.1, "yes", "[]", "s", ?, ?)',
+                    ('Q1', i, work, 'a 1.1', 'a 1.2', wid, LANG))
+    for i, wid in enumerate(rows_judgements):
+        con.execute('INSERT INTO judgements VALUES ("m", ?, ?, "v1", "no", 0.0)', (f'Q{i}', wid))
+    con.commit()
+    con.close()
+    return path
+
+
+def _events_root(root):
+    return _build_events_db(
+        root,
+        [(OLD, f'{OLD}:fine:0'), (OLD, f'{OLD}.part.2:fine:7'), ('other.work', 'other.work:fine:0')],
+        [f'{OLD}:fine:0', f'{OLD}.part.1:fine:3', 'other.work:fine:0', f'{OLD}x:fine:0'])
+
+
+def _translations_root(root):
+    tdir = os.path.join(root, 'data', 'translations')
+    os.makedirs(os.path.join(tdir, 'links'), exist_ok=True)
+    json.dump({'tess_work': f'{LANG}/{OLD}', 'language': LANG, 'units': []},
+              open(os.path.join(tdir, f'{LANG}__{OLD}.json'), 'w', encoding='utf-8'))
+    manifest = [
+        {'work_id_guess': OLD, 'tess_key': f'{LANG}/{OLD}', 'language': LANG,
+         'file': f'{LANG}__{OLD}.json'},
+        {'work_id_guess': 'other.work', 'tess_key': f'{LANG}/other.work', 'language': LANG,
+         'file': f'{LANG}__other.work.json'},
+    ]
+    json.dump(manifest, open(os.path.join(tdir, 'manifest.json'), 'w', encoding='utf-8'))
+    json.dump({'work': OLD, 'language': LANG, 'links': {f'{OLD}.1': {'url': 'u'}, 'zz.1': {'url': 'v'}}},
+              open(os.path.join(tdir, 'links', f'{LANG}__links.json'), 'w', encoding='utf-8'))
+    return tdir
+
+
+def test_events_plan_counts(root, capsys):
+    _events_root(root)
+    plan = rw.plan_events(root, OLD, NEW)
+    assert plan['passages_work'] == 2
+    assert plan['passages_window_id'] == 2
+    assert plan['judgements_window_id'] == 2  # the 'OLDx' id is not a match
+    assert plan['new_id_rows'] == 0
+    rc = rw.main(['--root', root, '--language', LANG, '--old', OLD, '--new', NEW])
+    assert rc == 0
+    assert 'events store' in capsys.readouterr().out
+
+
+def test_events_apply_rewrites_backs_up_and_verifies(root):
+    path = _events_root(root)
+    rc = rw.main(['--root', root, '--language', LANG, '--old', OLD, '--new', NEW, '--apply'])
+    assert rc == 0
+    con = sqlite3.connect(path)
+    assert con.execute('SELECT COUNT(*) FROM passages WHERE work = ?', (NEW,)).fetchone()[0] == 2
+    wids = sorted(r[0] for r in con.execute('SELECT window_id FROM passages'))
+    assert wids == sorted([f'{NEW}:fine:0', f'{NEW}.part.2:fine:7', 'other.work:fine:0'])
+    jw = sorted(r[0] for r in con.execute('SELECT window_id FROM judgements'))
+    assert jw == sorted([f'{NEW}:fine:0', f'{NEW}.part.1:fine:3', 'other.work:fine:0', f'{OLD}x:fine:0'])
+    assert con.execute('SELECT COUNT(*) FROM passages WHERE work LIKE ?', (OLD + '%',)).fetchone()[0] == 0
+    con.close()
+    assert any(f.startswith('event_dossiers.sqlite.bak-rename-')
+               for f in os.listdir(os.path.dirname(path)))
+
+
+def test_events_absent_is_skipped_silently(root):
+    assert rw.plan_events(root, OLD, NEW) == {'found': False}
+    assert rw.main(['--root', root, '--language', LANG, '--old', OLD, '--new', NEW, '--apply']) == 0
+
+
+def test_events_collision_refuses_without_force(root, capsys):
+    path = _events_root(root)
+    con = sqlite3.connect(path)
+    con.execute('INSERT INTO judgements VALUES ("m", "Qz", ?, "v1", "no", 0.0)', (f'{NEW}:fine:9',))
+    con.commit()
+    con.close()
+    rc = rw.main(['--root', root, '--language', LANG, '--old', OLD, '--new', NEW, '--apply'])
+    assert rc == 2
+    assert 'events store' in capsys.readouterr().err
+    con = sqlite3.connect(path)
+    assert con.execute('SELECT COUNT(*) FROM passages WHERE work = ?', (OLD,)).fetchone()[0] == 2
+    con.close()
+    rc = rw.main(['--root', root, '--language', LANG, '--old', OLD, '--new', NEW, '--apply', '--force'])
+    assert rc == 0
+
+
+def test_translations_plan_and_apply(root):
+    tdir = _translations_root(root)
+    plan = rw.plan_translations(root, LANG, OLD, NEW)
+    assert plan['file'].endswith(f'{LANG}__{OLD}.json')
+    assert plan['manifest_fields'] == ['file', 'tess_key', 'work_id_guess']
+    assert len(plan['links']) == 1 and plan['links'][0]['ref_keys'] == 1
+
+    rc = rw.main(['--root', root, '--language', LANG, '--old', OLD, '--new', NEW, '--apply'])
+    assert rc == 0
+    assert not os.path.exists(os.path.join(tdir, f'{LANG}__{OLD}.json'))
+    moved = json.load(open(os.path.join(tdir, f'{LANG}__{NEW}.json'), encoding='utf-8'))
+    assert moved['tess_work'] == f'{LANG}/{NEW}'
+    manifest = json.load(open(os.path.join(tdir, 'manifest.json'), encoding='utf-8'))
+    assert manifest[0] == {'work_id_guess': NEW, 'tess_key': f'{LANG}/{NEW}', 'language': LANG,
+                           'file': f'{LANG}__{NEW}.json'}
+    assert manifest[1]['work_id_guess'] == 'other.work'
+    links = json.load(open(os.path.join(tdir, 'links', f'{LANG}__links.json'), encoding='utf-8'))
+    assert links['work'] == NEW
+    assert sorted(links['links']) == [f'{NEW}.1', 'zz.1']
+    names = os.listdir(tdir)
+    assert any(n.startswith(f'{LANG}__{OLD}.json.bak-rename-') for n in names)
+    assert any(n.startswith('manifest.json.bak-rename-') for n in names)
+    assert any(n.startswith(f'{LANG}__links.json.bak-rename-') for n in os.listdir(os.path.join(tdir, 'links')))
+
+
+def test_translation_file_collision_refuses_even_with_force(root, capsys):
+    tdir = _translations_root(root)
+    json.dump({}, open(os.path.join(tdir, f'{LANG}__{NEW}.json'), 'w'))
+    for extra in ([], ['--force']):
+        rc = rw.main(['--root', root, '--language', LANG, '--old', OLD, '--new', NEW, '--apply'] + extra)
+        assert rc == 2
+        assert 'already exists' in capsys.readouterr().err
+    assert os.path.exists(os.path.join(tdir, f'{LANG}__{OLD}.json'))

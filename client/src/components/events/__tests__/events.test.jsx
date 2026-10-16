@@ -8,7 +8,8 @@ import userEvent from '@testing-library/user-event';
 
 import EventsPage from '../EventsPage';
 import EventList from '../EventList';
-import { dateLabel, centuryLabel, yearLabel } from '../eventsFormat';
+import { dateLabel, centuryLabel, yearLabel, shortPassageRef } from '../eventsFormat';
+import { __resetCorpusTextMapCacheForTests } from '../../../utils/textNames';
 import { setProfile, setCollection } from '../../../collections/collectionsStore';
 
 const LIST = {
@@ -75,7 +76,7 @@ beforeEach(() => {
   window.history.replaceState({}, '', '/events');
   setProfile('historical');
 });
-afterEach(() => { cleanup(); window.history.replaceState({}, '', '/'); });
+afterEach(() => { __resetCorpusTextMapCacheForTests(); cleanup(); window.history.replaceState({}, '', '/'); });
 
 describe('formatting', () => {
   it('writes years, ranges and centuries', () => {
@@ -169,14 +170,52 @@ describe('the focus view', () => {
     mockApi();
     render(<EventsPage setPageType={() => {}} />);
     await screen.findByRole('heading', { name: 'Battle of Marathon' });
-    expect(screen.getByRole('heading', { name: 'herodotus: histories' })).toBeTruthy();
-    expect(screen.getByRole('heading', { name: 'nepos: vitae' })).toBeTruthy();
+    expect(screen.getByRole('heading', { name: 'Herodotus, Histories' })).toBeTruthy();
+    expect(screen.getByRole('heading', { name: 'Nepos, Vitae' })).toBeTruthy();
     const links = screen.getAllByRole('link', { name: 'Open in the Reader' });
     expect(links).toHaveLength(3);
     expect(links[0].getAttribute('href')).toBe(
       '/read?work=herodotus.histories.tess&lang=grc&ref=hdt.%206.111.1&event=Q1&eventLabel=Battle%20of%20Marathon');
     expect(screen.getByText(/4 more were judged unrelated/)).toBeTruthy();
     expect(screen.getByText('Mentions it')).toBeTruthy();
+  });
+
+  it('prints the work by name and the locus short, from the corpus text map', async () => {
+    const detail = {
+      ...DETAIL,
+      passages: [
+        { rank: 1, work: 'thucydides.peloponnesian_war', language: 'grc',
+          ref_start: 'thuc. pele. 7.49.3', ref_end: 'thuc. pele. 7.53.2', llm_label: 'yes',
+          names_matched: [], snippet: 'x', reader_url: '/read?work=thucydides.peloponnesian_war.tess&lang=grc', score: 0.1 },
+        { rank: 2, work: 'obscure_author.lost_work', language: 'la',
+          ref_start: 'obs. lost 1.1', ref_end: 'obs. lost 1.1', llm_label: 'mention',
+          names_matched: [], snippet: 'y', reader_url: '/read?work=obscure_author.lost_work.tess&lang=la', score: 0.1 },
+      ],
+      scholarship: [{ kind: 'article', title: 'T', page_ref: 'p', url: null,
+                      passage_rank: 1, passage_ref: 'thuc. pele. 7.49.3-7.53.2' }],
+    };
+    global.fetch = vi.fn(async (url) => {
+      const u = String(url);
+      if (u.startsWith('/api/texts?language=grc')) {
+        return { ok: true, status: 200, json: async () => [
+          { id: 'thucydides.peloponnesian_war.tess', author: 'Thucydides', title: 'Peloponnesian War' }] };
+      }
+      if (u.startsWith('/api/texts')) return { ok: true, status: 200, json: async () => [] };
+      if (u.startsWith('/api/events/')) return { ok: true, status: 200, json: async () => detail };
+      return { ok: true, status: 200, json: async () => LIST };
+    });
+    render(<EventsPage setPageType={() => {}} />);
+    expect(await screen.findByRole('heading', { name: 'Thucydides, Peloponnesian War' })).toBeTruthy();
+    expect(screen.getByText('7.49.3 to 7.53.2')).toBeTruthy();
+    expect(screen.queryByText(/thuc\. pele\./)).toBeNull();
+    expect(screen.getByRole('heading', { name: 'Obscure Author, Lost Work' })).toBeTruthy();
+    await userEvent.click(screen.getByRole('tab', { name: /Scholarship/ }));
+    expect(screen.getByRole('link', { name: 'on 7.49.3 to 7.53.2' })).toBeTruthy();
+  });
+
+  it('shortens a scholarship passage reference', () => {
+    expect(shortPassageRef('thuc. pele. 7.49.3-7.53.2')).toBe('7.49.3 to 7.53.2');
+    expect(shortPassageRef('hdt. 6.111.1')).toBe('6.111.1');
   });
 
   it('shows documents with distance and date, scholarship and the map', async () => {
@@ -264,7 +303,7 @@ describe('the focus view', () => {
     expect(document.getElementById('passage-1')).not.toBeNull();
     await userEvent.click(screen.getByRole('tab', { name: /Scholarship/ }));
     expect(screen.getByText(/articles that cite the event's leading passages/)).toBeTruthy();
-    await userEvent.click(screen.getByRole('link', { name: 'on hdt. 6.111.1-6.113.2' }));
+    await userEvent.click(screen.getByRole('link', { name: 'on 6.111.1 to 6.113.2' }));
     expect(screen.getByRole('tab', { name: /Passages/, selected: true })).toBeTruthy();
     await waitFor(() => expect(scroll).toHaveBeenCalled());
     expect(scroll.mock.instances[0].id).toBe('passage-1');

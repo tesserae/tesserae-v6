@@ -613,7 +613,7 @@ export default function AskAWorkPage() {
   // books). The inner heading says how each list was found.
   const recentSection = recent?.items.length > 0 && (<div aria-label="Found online for this question" className="mt-2 border-t border-gray-200 pt-2" data-testid="ask-recent">
                       <p className="text-xs font-medium text-gray-700">Found online for this question</p>
-                      <p className="text-xs text-gray-500">Open-access books and articles matched to the words of your question by a live search of the repositories. They need not cite the passages above.</p>
+                      <p className="text-xs text-gray-500">Open-access books and articles matched to the words of your question by a live search of the repositories. Their abstracts feed the summary above. They need not cite the passages found.</p>
                       <ul className="mt-1 space-y-2">
                         {recent.items.map((it) => {
                           const url = recentUrl(it);
@@ -641,7 +641,7 @@ export default function AskAWorkPage() {
   const citingShown = showAllCiting ? citingItems : citingItems.slice(0, CITING_SHOWN);
   const citingSection = citing?.state === 'ready' && (
     <div aria-label="Articles that cite these passages" className="mt-2 border-t border-gray-200 pt-2" data-testid="ask-citing">
-      <div className="flex items-baseline justify-between gap-2">
+      <div className="flex flex-wrap items-baseline justify-between gap-x-2 gap-y-0.5">
         <p className="text-xs font-medium text-gray-700">Articles that cite these passages</p>
         <CiteAll records={citingItems.map(citingRecord)} name={`${asked.work || 'work'} articles citing`}
                  label="Export the citing articles" />
@@ -1031,9 +1031,12 @@ export default function AskAWorkPage() {
                   )}
                   {noneFirst && recentSection}
                   {scholarship?.state === 'ready' && (
-                    <div aria-label="What the notes and articles say" className="mt-1" data-testid="ask-scholarship">
-                      <div className="flex items-baseline justify-between gap-2">
-                        <p className="text-xs font-medium text-gray-700">What the notes and articles say</p>
+                    <div aria-label="Summary of the scholarship found" className="mt-1" data-testid="ask-scholarship">
+                      {/* The heading and the export link wrap onto two lines
+                          rather than squeeze the heading into three (owner,
+                          2026-10-16: "the layout of the box is messed up"). */}
+                      <div className="flex flex-wrap items-baseline justify-between gap-x-2 gap-y-0.5">
+                        <p className="text-xs font-medium text-gray-700">Summary of the scholarship found</p>
                         {!scholarship.noneRelevant && (
                           <CiteAll records={(scholarship.cites || []).map((c) => recordFrom(c, 'cite'))}
                                    name={`${asked.work || 'work'} ${asked.q || ''}`}
@@ -1051,6 +1054,11 @@ export default function AskAWorkPage() {
                       )}
                       {(hasOriginalScript(scholarship.summary) || hasOriginalScript(summary?.summary)) && (
                         <p className="mt-1"><TransliterationToggle /></p>
+                      )}
+                      {!scholarship.noneRelevant && (
+                        <p className="mt-1 text-xs text-gray-500" data-testid="ask-scholarship-covers">
+                          Written by Tessa from the notes and articles held here and the abstracts of those found online, both listed below. It does not cover the articles that cite these passages. Read the sources before relying on it.
+                        </p>
                       )}
                       {scholarship.holdings && <p className="mt-1 text-xs text-gray-500" data-testid="ask-scholarship-holdings">{scholarship.holdings}</p>}
                       {/* The paragraph reads at most eight; the scholarship search
