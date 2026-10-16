@@ -8,6 +8,8 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-15
+- Thucydides is titled Peloponnesian War (the file name's spelling, Peleponnesian, showed on the site).
+- Search One Text: passage references on the cards and in the work summary show the locus alone (1.75.5) instead of the file's tag (thuc. pele. 1.75.5); the full tag is in the hover text.
 - Phrase Search, "Across the corpus": the chart for a parallel is drawn for Greek, Persian, Urdu, Hebrew and Coptic shared words that are not surface forms (Iliad 1 against Argonautica 1, αγορευω θεοπροπια, showed no chart). Line Search takes an optional `lemmas` list (also on the Claude connector's line_search) that is searched as dictionary forms without lemmatizing a second time; the panel sends it, and says "No other line in the corpus has these words together." when nothing answers. Answers without `lemmas` are unchanged.
 - Similarity Map: author labels no longer carry the language tag ("Milton (en)"); the tag appears only where two authors of different languages share a name. Century labels keep theirs.
 - Help, How Fusion Works: the diagram shows all eleven channels (Quotation was missing) and notes the twelfth, poetic form, for Persian and Urdu; the Fusion setting's note said 9 channels and now says eleven.
