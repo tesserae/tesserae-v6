@@ -658,7 +658,7 @@
    "path": "/api/hapax-search",
    "params": {
     "source": "homer.iliad.part.9.tess",
-    "target": "thucydides.peleponnesian_war.part.2.tess",
+    "target": "thucydides.peloponnesian_war.part.2.tess",
     "language": "grc",
     "limit": 60,
     "exclude_proper_nouns": "true"
@@ -972,7 +972,7 @@
    "path": "/api/rare-bigram-search",
    "params": {
     "source": "homer.iliad.part.9.tess",
-    "target": "thucydides.peleponnesian_war.part.2.tess",
+    "target": "thucydides.peloponnesian_war.part.2.tess",
     "language": "grc",
     "limit": 60
    }
