@@ -34,7 +34,10 @@ GREEK_LETTER_VALUES["ς"] = GREEK_LETTER_VALUES["σ"]
 
 
 def roman_to_int(s):
-    s = s.upper().rstrip(".")
+    s = s.rstrip(".")
+    if any(c.isupper() for c in s) and "l" in s:
+        s = s.replace("l", "I")  # OCR of 'III' as 'Ill'
+    s = s.upper()
     total = 0
     prev = 0
     for ch in reversed(s):
@@ -178,6 +181,21 @@ def _expand_range(start_levels, end_levels):
     return start_levels, end_levels
 
 
+def _collapse_whole_and_parts(ids):
+    """A work registered both whole ('livy.ab_urbe_condita') and in parts
+    ('livy.ab_urbe_condita.part.2.books_21-30') carries the same
+    abbreviations on every record, so a citation to 'Livy' or 'Plin. Nat.'
+    tied across all of them and was never resolved. When the tied ids are
+    one whole work plus its own parts, the whole work is the answer."""
+    if len(ids) < 2:
+        return ids
+    for whole in ids:
+        if ".part." not in whole and all(
+                i == whole or i.startswith(whole + ".part.") for i in ids):
+            return [whole]
+    return ids
+
+
 def _pick_candidate(candidates):
     """candidates: [(base_id, priority, src), ...]. Returns (base_id, priority,
     ambiguous_bool, n_at_best_priority)."""
@@ -185,6 +203,7 @@ def _pick_candidate(candidates):
         return None, None, False, 0
     best_prio = min(c[1] for c in candidates)
     at_best = sorted(set(c[0] for c in candidates if c[1] == best_prio))
+    at_best = _collapse_whole_and_parts(at_best)
     ambiguous = len(at_best) > 1
     return at_best[0], best_prio, ambiguous, len(at_best)
 

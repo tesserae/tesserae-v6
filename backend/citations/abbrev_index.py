@@ -2,6 +2,7 @@
 extractor: normalized abbreviation/title string -> candidate Tesserae works.
 """
 import json
+import os
 import re
 from collections import defaultdict
 
@@ -19,8 +20,11 @@ def normalize_abbr(s):
     return s
 
 
+DEFAULT_ALIASES_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "abbrev_aliases.json")
+
+
 class AbbrevIndex:
-    def __init__(self, abbreviations_path="data/abbreviations.json"):
+    def __init__(self, abbreviations_path="data/abbreviations.json", aliases_path=None):
         with open(abbreviations_path) as f:
             data = json.load(f)["works"]
         self.works_by_base_id = {w["base_id"]: w for w in data}
@@ -34,6 +38,10 @@ class AbbrevIndex:
         #   4 = single author abbreviation alone (very ambiguous, lowest priority)
         self.index = defaultdict(list)
         self.min_tokens = {}  # key -> token count (for greedy longest-match)
+        # Keys that are a whole name written without a period ('livy',
+        # 'thucydides'). A single Roman-looking word after one of these is
+        # usually prose ('Livy did', 'Thucydides, I am'), see parser.py.
+        self.bare_aliases = set()
 
         for w in data:
             base_id = w["base_id"]
@@ -48,6 +56,21 @@ class AbbrevIndex:
                 self._add(t, base_id, 3)
             for aa in w.get("author_abbreviations", []):
                 self._add(aa, base_id, 4)
+
+        # Extra surface forms the generated table lacks (Thuc., Livy,
+        # Plin. HN, Ap. Rhod., Tibull.): see abbrev_aliases.json.
+        if aliases_path is None:
+            aliases_path = DEFAULT_ALIASES_PATH
+        if aliases_path and os.path.exists(aliases_path):
+            with open(aliases_path) as f:
+                aliases = json.load(f)
+            for base_id, forms in aliases.items():
+                if base_id.startswith("_") or base_id not in self.works_by_base_id:
+                    continue
+                for form in forms:
+                    self._add(form, base_id, 1)
+                    if "." not in form and " " not in form:
+                        self.bare_aliases.add(normalize_abbr(form))
 
         # collapse duplicate (key, base_id) keeping best (lowest) priority
         for key, entries in self.index.items():

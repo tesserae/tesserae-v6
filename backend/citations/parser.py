@@ -198,6 +198,11 @@ def _parse_level_seq(tokens, k):
         if k2 < len(tokens) and tokens[k2].type in ("COMMA", "DOT", "COLON"):
             sep = tokens[k2].type
             k2 += 1
+        # A blank line before the separator or the next level means a footnote
+        # number or a new paragraph, not another level of the same locus
+        # ("Livy iii. 33. 1.\n\n3").
+        if (k < len(tokens) and tokens[k].para_break) or (k2 < len(tokens) and tokens[k2].para_break):
+            break
         if k2 < len(tokens) and is_level_token(tokens[k2]):
             levels.append(tokens[k2])
             seps.append(sep)
@@ -299,6 +304,15 @@ def _parse_locus(tokens, j, has_explicit_work):
     }
 
 
+def _is_firm_single_level(tok):
+    """A lone level after a bare author name counts only if it is an Arabic
+    number or an upper-case Roman numeral of two or more letters."""
+    if tok.type == "NUM":
+        return True
+    text = tok.text.rstrip(".")
+    return tok.type == "LIT" and len(text) >= 2 and text.isupper() and is_roman_shaped(text)
+
+
 def _try_parse_ref(tokens, i, abbrev_index, inherited):
     work_match = _match_work_prefix(tokens, i, abbrev_index)
     if work_match:
@@ -321,6 +335,13 @@ def _try_parse_ref(tokens, i, abbrev_index, inherited):
 
     locus = _parse_locus(tokens, j, has_explicit_work=(work_candidates is not None))
     if locus is None:
+        return None, i
+
+    if (work_match and normalize_abbr(work_surface) in abbrev_index.bare_aliases
+            and len(locus["start_levels"]) == 1 and not locus["book_list"]
+            and not _is_firm_single_level(tokens[j])):
+        # 'Livy did', 'Thucydides, I am': a bare author name followed by one
+        # word that happens to be shaped like a Roman numeral.
         return None, i
 
     if ref_start_offset is None:
