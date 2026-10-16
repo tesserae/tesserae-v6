@@ -57,7 +57,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > opens the Save Paral
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
 <span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
 </div>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Search One Text<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Search One Text<span class="ml-1 relative -top-1 inline-block leading-none text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
 </button>
 <button aria-current="page" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold">Intertextual Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
@@ -247,7 +247,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > opens the Save Paral
 <button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-gray-100 text-gray-600">in 3 works</button>
 </span>
 <span class="relative inline-block">
-<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">verbatim run + exact</button>
+<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">quotation + exact</button>
 </span>
 <span class="text-sm text-gray-600">Matches: <span class="font-medium">conticesco</span>
 </span>
@@ -312,7 +312,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > opens the Save Paral
 <button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-gray-100 text-gray-600">in 1 work</button>
 </span>
 <span class="relative inline-block">
-<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">shared words + exact</button>
+<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">lemma + exact</button>
 </span>
 <span class="text-sm text-gray-600">Matches: <span class="font-medium">arma, virum</span>
 </span>
@@ -449,7 +449,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > opens the Save Paral
 <button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-gray-100 text-gray-600">in 14 works</button>
 </span>
 <span class="relative inline-block">
-<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">single word + rare words</button>
+<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">single lemma + rare word</button>
 </span>
 <span class="text-sm text-gray-600">Matches: <span class="font-medium">Italia, profugus</span>
 </span>
@@ -512,7 +512,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > opens the Save Paral
 <button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-gray-100 text-gray-600">in 15 works</button>
 </span>
 <span class="relative inline-block">
-<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">shared words + exact</button>
+<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">lemma + exact</button>
 </span>
 <span class="text-sm text-gray-600">Matches: <span class="font-medium">litus, multus</span>
 </span>
@@ -577,7 +577,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > opens the Save Paral
 <button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-gray-100 text-gray-600">in 1 work</button>
 </span>
 <span class="relative inline-block">
-<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">shared words</button>
+<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">lemma</button>
 </span>
 <span class="text-sm text-gray-600">Matches: <span class="font-medium">altum, supero</span>
 </span>
@@ -640,7 +640,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > opens the Save Paral
 <button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-gray-100 text-gray-600">in 17 works</button>
 </span>
 <span class="relative inline-block">
-<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">single word + rare words</button>
+<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">single lemma + rare word</button>
 </span>
 <span class="text-sm text-gray-600">Matches: <span class="font-medium">Iuno, ira</span>
 </span>
@@ -705,7 +705,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > opens the Save Paral
 <button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-gray-100 text-gray-600">in 18 works</button>
 </span>
 <span class="relative inline-block">
-<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">shared words + exact</button>
+<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">lemma + exact</button>
 </span>
 <span class="text-sm text-gray-600">Matches: <span class="font-medium">bellum, multus</span>
 </span>
@@ -768,7 +768,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > opens the Save Paral
 <button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-gray-100 text-gray-600">in 19 works</button>
 </span>
 <span class="relative inline-block">
-<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">shared words</button>
+<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">lemma</button>
 </span>
 <span class="text-sm text-gray-600">Matches: <span class="font-medium">urbs, condo</span>
 </span>
@@ -847,7 +847,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > opens the Save Paral
 <button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-gray-100 text-gray-600">form in 14 poems</button>
 </span>
 <span class="relative inline-block">
-<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">shared words + form</button>
+<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">lemma + form</button>
 </span>
 <span class="text-sm text-gray-600">Matches: <span class="font-medium">من, است</span>
 </span>
@@ -923,7 +923,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > opens the Save Paral
 <button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-gray-100 text-gray-600">form in 3 poems</button>
 </span>
 <span class="relative inline-block">
-<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">shared words + form</button>
+<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">lemma + form</button>
 </span>
 <span class="text-sm text-gray-600">Matches: <span class="font-medium">من, است</span>
 </span>
@@ -988,7 +988,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > opens the Save Paral
 <button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-gray-100 text-gray-600">in 1 work</button>
 </span>
 <span class="relative inline-block">
-<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">single word + rare words</button>
+<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">single lemma + rare word</button>
 </span>
 <span class="text-sm text-gray-600">Matches: <span class="font-medium">deus, Latium</span>
 </span>
@@ -1052,7 +1052,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > opens the Save Paral
 <div class="flex flex-wrap sm:flex-nowrap items-start sm:items-center gap-2 mt-2">
 <div class="flex flex-wrap items-center gap-2 flex-1 min-w-0">
 <span class="relative inline-block">
-<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">shared words + form</button>
+<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">lemma + form</button>
 </span>
 <span class="text-sm text-gray-600">Matches: <span class="font-medium">من, است</span>
 </span>
@@ -1115,7 +1115,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > opens the Save Paral
 <button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-gray-100 text-gray-600">in 21 works</button>
 </span>
 <span class="relative inline-block">
-<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">shared words + exact</button>
+<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">lemma + exact</button>
 </span>
 <span class="text-sm text-gray-600">Matches: <span class="font-medium">genus, Latinus</span>
 </span>
@@ -1179,7 +1179,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > opens the Save Paral
 <div class="flex flex-wrap sm:flex-nowrap items-start sm:items-center gap-2 mt-2">
 <div class="flex flex-wrap items-center gap-2 flex-1 min-w-0">
 <span class="relative inline-block">
-<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">shared words + form</button>
+<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">lemma + form</button>
 </span>
 <span class="text-sm text-gray-600">Matches: <span class="font-medium">من, است</span>
 </span>
@@ -1239,7 +1239,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > opens the Save Paral
 <div class="flex flex-wrap sm:flex-nowrap items-start sm:items-center gap-2 mt-2">
 <div class="flex flex-wrap items-center gap-2 flex-1 min-w-0">
 <span class="relative inline-block">
-<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">meaning</button>
+<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">semantic</button>
 </span>
 <span class="text-sm text-gray-600">Matches: <span class="font-medium">semantic, hasta</span>
 </span>
@@ -1292,7 +1292,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > opens the Save Paral
 <div class="flex flex-wrap sm:flex-nowrap items-start sm:items-center gap-2 mt-2">
 <div class="flex flex-wrap items-center gap-2 flex-1 min-w-0">
 <span class="relative inline-block">
-<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">meaning</button>
+<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">semantic</button>
 </span>
 <span class="text-sm text-gray-600">Matches: <span class="font-medium">semantic, cura</span>
 </span>
@@ -1345,7 +1345,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > opens the Save Paral
 <div class="flex flex-wrap sm:flex-nowrap items-start sm:items-center gap-2 mt-2">
 <div class="flex flex-wrap items-center gap-2 flex-1 min-w-0">
 <span class="relative inline-block">
-<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">meaning</button>
+<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">semantic</button>
 </span>
 <span class="text-sm text-gray-600">Matches: <span class="font-medium">semantic, ventus</span>
 </span>
@@ -1398,7 +1398,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > opens the Save Paral
 <div class="flex flex-wrap sm:flex-nowrap items-start sm:items-center gap-2 mt-2">
 <div class="flex flex-wrap items-center gap-2 flex-1 min-w-0">
 <span class="relative inline-block">
-<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">meaning</button>
+<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">semantic</button>
 </span>
 <span class="text-sm text-gray-600">Matches: <span class="font-medium">semantic, mare</span>
 </span>
@@ -1453,7 +1453,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > opens the Save Paral
 <div class="flex flex-wrap sm:flex-nowrap items-start sm:items-center gap-2 mt-2">
 <div class="flex flex-wrap items-center gap-2 flex-1 min-w-0">
 <span class="relative inline-block">
-<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">sound + spelling</button>
+<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">sound + edit distance</button>
 </span>
 <span class="text-sm text-gray-600">Matches: <span class="font-medium">[epi]~[epi], [ent]~[ent]</span>
 </span>
@@ -1511,7 +1511,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > opens the Save Paral
 <div class="flex flex-wrap sm:flex-nowrap items-start sm:items-center gap-2 mt-2">
 <div class="flex flex-wrap items-center gap-2 flex-1 min-w-0">
 <span class="relative inline-block">
-<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">sound + spelling</button>
+<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">sound + edit distance</button>
 </span>
 <span class="text-sm text-gray-600">Matches: <span class="font-medium">[epi]~[epi], [ent]~[ent]</span>
 </span>
@@ -1570,7 +1570,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > opens the Save Paral
 <div class="flex flex-wrap sm:flex-nowrap items-start sm:items-center gap-2 mt-2">
 <div class="flex flex-wrap items-center gap-2 flex-1 min-w-0">
 <span class="relative inline-block">
-<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">sound + spelling</button>
+<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">sound + edit distance</button>
 </span>
 <span class="text-sm text-gray-600">Matches: <span class="font-medium">[epi]~[epi], [ent]~[ent]</span>
 </span>
@@ -1630,7 +1630,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > opens the Save Paral
 <div class="flex flex-wrap sm:flex-nowrap items-start sm:items-center gap-2 mt-2">
 <div class="flex flex-wrap items-center gap-2 flex-1 min-w-0">
 <span class="relative inline-block">
-<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">shared words + syntax</button>
+<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">lemma + syntax</button>
 </span>
 <span class="text-sm text-gray-600">Matches: <span class="font-medium">μῆνιν, θεά</span>
 </span>
@@ -1690,7 +1690,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > opens the Save Paral
 <div class="flex flex-wrap sm:flex-nowrap items-start sm:items-center gap-2 mt-2">
 <div class="flex flex-wrap items-center gap-2 flex-1 min-w-0">
 <span class="relative inline-block">
-<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">shared words + syntax</button>
+<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">lemma + syntax</button>
 </span>
 <span class="text-sm text-gray-600">Matches: <span class="font-medium">ἄνδρα, θεά</span>
 </span>
@@ -1750,7 +1750,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > opens the Save Paral
 <div class="flex flex-wrap sm:flex-nowrap items-start sm:items-center gap-2 mt-2">
 <div class="flex flex-wrap items-center gap-2 flex-1 min-w-0">
 <span class="relative inline-block">
-<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">shared words + syntax</button>
+<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">lemma + syntax</button>
 </span>
 <span class="text-sm text-gray-600">Matches: <span class="font-medium">πολλὰ, θεά</span>
 </span>
@@ -1810,7 +1810,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > opens the Save Paral
 <div class="flex flex-wrap sm:flex-nowrap items-start sm:items-center gap-2 mt-2">
 <div class="flex flex-wrap items-center gap-2 flex-1 min-w-0">
 <span class="relative inline-block">
-<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">shared words</button>
+<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">lemma</button>
 </span>
 <span class="text-sm text-gray-600">Matches: <span class="font-medium">ⲁⲩⲱ</span>
 </span>
@@ -1870,7 +1870,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > opens the Save Paral
 <div class="flex flex-wrap sm:flex-nowrap items-start sm:items-center gap-2 mt-2">
 <div class="flex flex-wrap items-center gap-2 flex-1 min-w-0">
 <span class="relative inline-block">
-<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">shared words</button>
+<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">lemma</button>
 </span>
 <span class="text-sm text-gray-600">Matches: <span class="font-medium">ⲁⲩⲱ</span>
 </span>
@@ -1930,7 +1930,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > opens the Save Paral
 <div class="flex flex-wrap sm:flex-nowrap items-start sm:items-center gap-2 mt-2">
 <div class="flex flex-wrap items-center gap-2 flex-1 min-w-0">
 <span class="relative inline-block">
-<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">shared words</button>
+<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">lemma</button>
 </span>
 <span class="text-sm text-gray-600">Matches: <span class="font-medium">ⲁⲩⲱ</span>
 </span>
@@ -1989,7 +1989,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > opens the Save Paral
 <div class="flex flex-wrap sm:flex-nowrap items-start sm:items-center gap-2 mt-2">
 <div class="flex flex-wrap items-center gap-2 flex-1 min-w-0">
 <span class="relative inline-block">
-<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">shared words</button>
+<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">lemma</button>
 </span>
 <span class="text-sm text-gray-600">Matches: <span class="font-medium">fiend, reply</span>
 </span>
@@ -2047,7 +2047,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > opens the Save Paral
 <div class="flex flex-wrap sm:flex-nowrap items-start sm:items-center gap-2 mt-2">
 <div class="flex flex-wrap items-center gap-2 flex-1 min-w-0">
 <span class="relative inline-block">
-<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">shared words</button>
+<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">lemma</button>
 </span>
 <span class="text-sm text-gray-600">Matches: <span class="font-medium">אל, ברא</span>
 </span>
@@ -2202,7 +2202,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > opens the Save Paral
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
 <span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
 </div>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Search One Text<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Search One Text<span class="ml-1 relative -top-1 inline-block leading-none text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
 </button>
 <button aria-current="page" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold">Intertextual Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
@@ -2392,7 +2392,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > opens the Save Paral
 <button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-gray-100 text-gray-600">in 3 works</button>
 </span>
 <span class="relative inline-block">
-<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">verbatim run + exact</button>
+<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">quotation + exact</button>
 </span>
 <span class="text-sm text-gray-600">Matches: <span class="font-medium">conticesco</span>
 </span>
@@ -2457,7 +2457,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > opens the Save Paral
 <button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-gray-100 text-gray-600">in 1 work</button>
 </span>
 <span class="relative inline-block">
-<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">shared words + exact</button>
+<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">lemma + exact</button>
 </span>
 <span class="text-sm text-gray-600">Matches: <span class="font-medium">arma, virum</span>
 </span>
@@ -2594,7 +2594,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > opens the Save Paral
 <button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-gray-100 text-gray-600">in 14 works</button>
 </span>
 <span class="relative inline-block">
-<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">single word + rare words</button>
+<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">single lemma + rare word</button>
 </span>
 <span class="text-sm text-gray-600">Matches: <span class="font-medium">Italia, profugus</span>
 </span>
@@ -2657,7 +2657,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > opens the Save Paral
 <button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-gray-100 text-gray-600">in 15 works</button>
 </span>
 <span class="relative inline-block">
-<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">shared words + exact</button>
+<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">lemma + exact</button>
 </span>
 <span class="text-sm text-gray-600">Matches: <span class="font-medium">litus, multus</span>
 </span>
@@ -2722,7 +2722,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > opens the Save Paral
 <button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-gray-100 text-gray-600">in 1 work</button>
 </span>
 <span class="relative inline-block">
-<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">shared words</button>
+<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">lemma</button>
 </span>
 <span class="text-sm text-gray-600">Matches: <span class="font-medium">altum, supero</span>
 </span>
@@ -2785,7 +2785,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > opens the Save Paral
 <button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-gray-100 text-gray-600">in 17 works</button>
 </span>
 <span class="relative inline-block">
-<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">single word + rare words</button>
+<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">single lemma + rare word</button>
 </span>
 <span class="text-sm text-gray-600">Matches: <span class="font-medium">Iuno, ira</span>
 </span>
@@ -2850,7 +2850,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > opens the Save Paral
 <button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-gray-100 text-gray-600">in 18 works</button>
 </span>
 <span class="relative inline-block">
-<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">shared words + exact</button>
+<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">lemma + exact</button>
 </span>
 <span class="text-sm text-gray-600">Matches: <span class="font-medium">bellum, multus</span>
 </span>
@@ -2913,7 +2913,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > opens the Save Paral
 <button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-gray-100 text-gray-600">in 19 works</button>
 </span>
 <span class="relative inline-block">
-<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">shared words</button>
+<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">lemma</button>
 </span>
 <span class="text-sm text-gray-600">Matches: <span class="font-medium">urbs, condo</span>
 </span>
@@ -2992,7 +2992,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > opens the Save Paral
 <button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-gray-100 text-gray-600">form in 14 poems</button>
 </span>
 <span class="relative inline-block">
-<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">shared words + form</button>
+<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">lemma + form</button>
 </span>
 <span class="text-sm text-gray-600">Matches: <span class="font-medium">من, است</span>
 </span>
@@ -3068,7 +3068,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > opens the Save Paral
 <button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-gray-100 text-gray-600">form in 3 poems</button>
 </span>
 <span class="relative inline-block">
-<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">shared words + form</button>
+<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">lemma + form</button>
 </span>
 <span class="text-sm text-gray-600">Matches: <span class="font-medium">من, است</span>
 </span>
@@ -3133,7 +3133,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > opens the Save Paral
 <button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-gray-100 text-gray-600">in 1 work</button>
 </span>
 <span class="relative inline-block">
-<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">single word + rare words</button>
+<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">single lemma + rare word</button>
 </span>
 <span class="text-sm text-gray-600">Matches: <span class="font-medium">deus, Latium</span>
 </span>
@@ -3197,7 +3197,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > opens the Save Paral
 <div class="flex flex-wrap sm:flex-nowrap items-start sm:items-center gap-2 mt-2">
 <div class="flex flex-wrap items-center gap-2 flex-1 min-w-0">
 <span class="relative inline-block">
-<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">shared words + form</button>
+<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">lemma + form</button>
 </span>
 <span class="text-sm text-gray-600">Matches: <span class="font-medium">من, است</span>
 </span>
@@ -3260,7 +3260,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > opens the Save Paral
 <button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-gray-100 text-gray-600">in 21 works</button>
 </span>
 <span class="relative inline-block">
-<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">shared words + exact</button>
+<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">lemma + exact</button>
 </span>
 <span class="text-sm text-gray-600">Matches: <span class="font-medium">genus, Latinus</span>
 </span>
@@ -3324,7 +3324,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > opens the Save Paral
 <div class="flex flex-wrap sm:flex-nowrap items-start sm:items-center gap-2 mt-2">
 <div class="flex flex-wrap items-center gap-2 flex-1 min-w-0">
 <span class="relative inline-block">
-<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">shared words + form</button>
+<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">lemma + form</button>
 </span>
 <span class="text-sm text-gray-600">Matches: <span class="font-medium">من, است</span>
 </span>
@@ -3384,7 +3384,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > opens the Save Paral
 <div class="flex flex-wrap sm:flex-nowrap items-start sm:items-center gap-2 mt-2">
 <div class="flex flex-wrap items-center gap-2 flex-1 min-w-0">
 <span class="relative inline-block">
-<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">meaning</button>
+<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">semantic</button>
 </span>
 <span class="text-sm text-gray-600">Matches: <span class="font-medium">semantic, hasta</span>
 </span>
@@ -3437,7 +3437,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > opens the Save Paral
 <div class="flex flex-wrap sm:flex-nowrap items-start sm:items-center gap-2 mt-2">
 <div class="flex flex-wrap items-center gap-2 flex-1 min-w-0">
 <span class="relative inline-block">
-<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">meaning</button>
+<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">semantic</button>
 </span>
 <span class="text-sm text-gray-600">Matches: <span class="font-medium">semantic, cura</span>
 </span>
@@ -3490,7 +3490,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > opens the Save Paral
 <div class="flex flex-wrap sm:flex-nowrap items-start sm:items-center gap-2 mt-2">
 <div class="flex flex-wrap items-center gap-2 flex-1 min-w-0">
 <span class="relative inline-block">
-<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">meaning</button>
+<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">semantic</button>
 </span>
 <span class="text-sm text-gray-600">Matches: <span class="font-medium">semantic, ventus</span>
 </span>
@@ -3543,7 +3543,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > opens the Save Paral
 <div class="flex flex-wrap sm:flex-nowrap items-start sm:items-center gap-2 mt-2">
 <div class="flex flex-wrap items-center gap-2 flex-1 min-w-0">
 <span class="relative inline-block">
-<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">meaning</button>
+<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">semantic</button>
 </span>
 <span class="text-sm text-gray-600">Matches: <span class="font-medium">semantic, mare</span>
 </span>
@@ -3598,7 +3598,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > opens the Save Paral
 <div class="flex flex-wrap sm:flex-nowrap items-start sm:items-center gap-2 mt-2">
 <div class="flex flex-wrap items-center gap-2 flex-1 min-w-0">
 <span class="relative inline-block">
-<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">sound + spelling</button>
+<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">sound + edit distance</button>
 </span>
 <span class="text-sm text-gray-600">Matches: <span class="font-medium">[epi]~[epi], [ent]~[ent]</span>
 </span>
@@ -3656,7 +3656,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > opens the Save Paral
 <div class="flex flex-wrap sm:flex-nowrap items-start sm:items-center gap-2 mt-2">
 <div class="flex flex-wrap items-center gap-2 flex-1 min-w-0">
 <span class="relative inline-block">
-<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">sound + spelling</button>
+<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">sound + edit distance</button>
 </span>
 <span class="text-sm text-gray-600">Matches: <span class="font-medium">[epi]~[epi], [ent]~[ent]</span>
 </span>
@@ -3715,7 +3715,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > opens the Save Paral
 <div class="flex flex-wrap sm:flex-nowrap items-start sm:items-center gap-2 mt-2">
 <div class="flex flex-wrap items-center gap-2 flex-1 min-w-0">
 <span class="relative inline-block">
-<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">sound + spelling</button>
+<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">sound + edit distance</button>
 </span>
 <span class="text-sm text-gray-600">Matches: <span class="font-medium">[epi]~[epi], [ent]~[ent]</span>
 </span>
@@ -3775,7 +3775,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > opens the Save Paral
 <div class="flex flex-wrap sm:flex-nowrap items-start sm:items-center gap-2 mt-2">
 <div class="flex flex-wrap items-center gap-2 flex-1 min-w-0">
 <span class="relative inline-block">
-<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">shared words + syntax</button>
+<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">lemma + syntax</button>
 </span>
 <span class="text-sm text-gray-600">Matches: <span class="font-medium">μῆνιν, θεά</span>
 </span>
@@ -3835,7 +3835,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > opens the Save Paral
 <div class="flex flex-wrap sm:flex-nowrap items-start sm:items-center gap-2 mt-2">
 <div class="flex flex-wrap items-center gap-2 flex-1 min-w-0">
 <span class="relative inline-block">
-<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">shared words + syntax</button>
+<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">lemma + syntax</button>
 </span>
 <span class="text-sm text-gray-600">Matches: <span class="font-medium">ἄνδρα, θεά</span>
 </span>
@@ -3895,7 +3895,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > opens the Save Paral
 <div class="flex flex-wrap sm:flex-nowrap items-start sm:items-center gap-2 mt-2">
 <div class="flex flex-wrap items-center gap-2 flex-1 min-w-0">
 <span class="relative inline-block">
-<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">shared words + syntax</button>
+<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">lemma + syntax</button>
 </span>
 <span class="text-sm text-gray-600">Matches: <span class="font-medium">πολλὰ, θεά</span>
 </span>
@@ -3955,7 +3955,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > opens the Save Paral
 <div class="flex flex-wrap sm:flex-nowrap items-start sm:items-center gap-2 mt-2">
 <div class="flex flex-wrap items-center gap-2 flex-1 min-w-0">
 <span class="relative inline-block">
-<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">shared words</button>
+<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">lemma</button>
 </span>
 <span class="text-sm text-gray-600">Matches: <span class="font-medium">ⲁⲩⲱ</span>
 </span>
@@ -4015,7 +4015,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > opens the Save Paral
 <div class="flex flex-wrap sm:flex-nowrap items-start sm:items-center gap-2 mt-2">
 <div class="flex flex-wrap items-center gap-2 flex-1 min-w-0">
 <span class="relative inline-block">
-<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">shared words</button>
+<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">lemma</button>
 </span>
 <span class="text-sm text-gray-600">Matches: <span class="font-medium">ⲁⲩⲱ</span>
 </span>
@@ -4075,7 +4075,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > opens the Save Paral
 <div class="flex flex-wrap sm:flex-nowrap items-start sm:items-center gap-2 mt-2">
 <div class="flex flex-wrap items-center gap-2 flex-1 min-w-0">
 <span class="relative inline-block">
-<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">shared words</button>
+<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">lemma</button>
 </span>
 <span class="text-sm text-gray-600">Matches: <span class="font-medium">ⲁⲩⲱ</span>
 </span>
@@ -4134,7 +4134,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > opens the Save Paral
 <div class="flex flex-wrap sm:flex-nowrap items-start sm:items-center gap-2 mt-2">
 <div class="flex flex-wrap items-center gap-2 flex-1 min-w-0">
 <span class="relative inline-block">
-<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">shared words</button>
+<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">lemma</button>
 </span>
 <span class="text-sm text-gray-600">Matches: <span class="font-medium">fiend, reply</span>
 </span>
@@ -4192,7 +4192,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > opens the Save Paral
 <div class="flex flex-wrap sm:flex-nowrap items-start sm:items-center gap-2 mt-2">
 <div class="flex flex-wrap items-center gap-2 flex-1 min-w-0">
 <span class="relative inline-block">
-<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">shared words</button>
+<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">lemma</button>
 </span>
 <span class="text-sm text-gray-600">Matches: <span class="font-medium">אל, ברא</span>
 </span>
@@ -4390,7 +4390,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > opens the Search Cor
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
 <span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
 </div>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Search One Text<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Search One Text<span class="ml-1 relative -top-1 inline-block leading-none text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
 </button>
 <button aria-current="page" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold">Intertextual Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
@@ -4663,7 +4663,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > runs the deep-linked
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
 <span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
 </div>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Search One Text<span class="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Search One Text<span class="ml-1 relative -top-1 inline-block leading-none text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
 </button>
 <button aria-current="page" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold">Intertextual Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
@@ -4853,7 +4853,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > runs the deep-linked
 <button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-gray-100 text-gray-600">in 3 works</button>
 </span>
 <span class="relative inline-block">
-<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">verbatim run + exact</button>
+<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">quotation + exact</button>
 </span>
 <span class="text-sm text-gray-600">Matches: <span class="font-medium">conticesco</span>
 </span>
@@ -4918,7 +4918,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > runs the deep-linked
 <button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-gray-100 text-gray-600">in 1 work</button>
 </span>
 <span class="relative inline-block">
-<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">shared words + exact</button>
+<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">lemma + exact</button>
 </span>
 <span class="text-sm text-gray-600">Matches: <span class="font-medium">arma, virum</span>
 </span>
@@ -5055,7 +5055,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > runs the deep-linked
 <button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-gray-100 text-gray-600">in 14 works</button>
 </span>
 <span class="relative inline-block">
-<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">single word + rare words</button>
+<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">single lemma + rare word</button>
 </span>
 <span class="text-sm text-gray-600">Matches: <span class="font-medium">Italia, profugus</span>
 </span>
@@ -5118,7 +5118,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > runs the deep-linked
 <button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-gray-100 text-gray-600">in 15 works</button>
 </span>
 <span class="relative inline-block">
-<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">shared words + exact</button>
+<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">lemma + exact</button>
 </span>
 <span class="text-sm text-gray-600">Matches: <span class="font-medium">litus, multus</span>
 </span>
@@ -5183,7 +5183,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > runs the deep-linked
 <button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-gray-100 text-gray-600">in 1 work</button>
 </span>
 <span class="relative inline-block">
-<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">shared words</button>
+<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">lemma</button>
 </span>
 <span class="text-sm text-gray-600">Matches: <span class="font-medium">altum, supero</span>
 </span>
@@ -5246,7 +5246,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > runs the deep-linked
 <button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-gray-100 text-gray-600">in 17 works</button>
 </span>
 <span class="relative inline-block">
-<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">single word + rare words</button>
+<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">single lemma + rare word</button>
 </span>
 <span class="text-sm text-gray-600">Matches: <span class="font-medium">Iuno, ira</span>
 </span>
@@ -5311,7 +5311,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > runs the deep-linked
 <button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-gray-100 text-gray-600">in 18 works</button>
 </span>
 <span class="relative inline-block">
-<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">shared words + exact</button>
+<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">lemma + exact</button>
 </span>
 <span class="text-sm text-gray-600">Matches: <span class="font-medium">bellum, multus</span>
 </span>
@@ -5374,7 +5374,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > runs the deep-linked
 <button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-gray-100 text-gray-600">in 19 works</button>
 </span>
 <span class="relative inline-block">
-<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">shared words</button>
+<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">lemma</button>
 </span>
 <span class="text-sm text-gray-600">Matches: <span class="font-medium">urbs, condo</span>
 </span>
@@ -5453,7 +5453,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > runs the deep-linked
 <button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-gray-100 text-gray-600">form in 14 poems</button>
 </span>
 <span class="relative inline-block">
-<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">shared words + form</button>
+<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">lemma + form</button>
 </span>
 <span class="text-sm text-gray-600">Matches: <span class="font-medium">من, است</span>
 </span>
@@ -5529,7 +5529,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > runs the deep-linked
 <button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-gray-100 text-gray-600">form in 3 poems</button>
 </span>
 <span class="relative inline-block">
-<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">shared words + form</button>
+<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">lemma + form</button>
 </span>
 <span class="text-sm text-gray-600">Matches: <span class="font-medium">من, است</span>
 </span>
@@ -5594,7 +5594,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > runs the deep-linked
 <button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-gray-100 text-gray-600">in 1 work</button>
 </span>
 <span class="relative inline-block">
-<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">single word + rare words</button>
+<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">single lemma + rare word</button>
 </span>
 <span class="text-sm text-gray-600">Matches: <span class="font-medium">deus, Latium</span>
 </span>
@@ -5658,7 +5658,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > runs the deep-linked
 <div class="flex flex-wrap sm:flex-nowrap items-start sm:items-center gap-2 mt-2">
 <div class="flex flex-wrap items-center gap-2 flex-1 min-w-0">
 <span class="relative inline-block">
-<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">shared words + form</button>
+<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">lemma + form</button>
 </span>
 <span class="text-sm text-gray-600">Matches: <span class="font-medium">من, است</span>
 </span>
@@ -5721,7 +5721,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > runs the deep-linked
 <button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-gray-100 text-gray-600">in 21 works</button>
 </span>
 <span class="relative inline-block">
-<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">shared words + exact</button>
+<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">lemma + exact</button>
 </span>
 <span class="text-sm text-gray-600">Matches: <span class="font-medium">genus, Latinus</span>
 </span>
@@ -5785,7 +5785,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > runs the deep-linked
 <div class="flex flex-wrap sm:flex-nowrap items-start sm:items-center gap-2 mt-2">
 <div class="flex flex-wrap items-center gap-2 flex-1 min-w-0">
 <span class="relative inline-block">
-<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">shared words + form</button>
+<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">lemma + form</button>
 </span>
 <span class="text-sm text-gray-600">Matches: <span class="font-medium">من, است</span>
 </span>
@@ -5845,7 +5845,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > runs the deep-linked
 <div class="flex flex-wrap sm:flex-nowrap items-start sm:items-center gap-2 mt-2">
 <div class="flex flex-wrap items-center gap-2 flex-1 min-w-0">
 <span class="relative inline-block">
-<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">meaning</button>
+<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">semantic</button>
 </span>
 <span class="text-sm text-gray-600">Matches: <span class="font-medium">semantic, hasta</span>
 </span>
@@ -5898,7 +5898,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > runs the deep-linked
 <div class="flex flex-wrap sm:flex-nowrap items-start sm:items-center gap-2 mt-2">
 <div class="flex flex-wrap items-center gap-2 flex-1 min-w-0">
 <span class="relative inline-block">
-<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">meaning</button>
+<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">semantic</button>
 </span>
 <span class="text-sm text-gray-600">Matches: <span class="font-medium">semantic, cura</span>
 </span>
@@ -5951,7 +5951,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > runs the deep-linked
 <div class="flex flex-wrap sm:flex-nowrap items-start sm:items-center gap-2 mt-2">
 <div class="flex flex-wrap items-center gap-2 flex-1 min-w-0">
 <span class="relative inline-block">
-<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">meaning</button>
+<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">semantic</button>
 </span>
 <span class="text-sm text-gray-600">Matches: <span class="font-medium">semantic, ventus</span>
 </span>
@@ -6004,7 +6004,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > runs the deep-linked
 <div class="flex flex-wrap sm:flex-nowrap items-start sm:items-center gap-2 mt-2">
 <div class="flex flex-wrap items-center gap-2 flex-1 min-w-0">
 <span class="relative inline-block">
-<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">meaning</button>
+<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">semantic</button>
 </span>
 <span class="text-sm text-gray-600">Matches: <span class="font-medium">semantic, mare</span>
 </span>
@@ -6059,7 +6059,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > runs the deep-linked
 <div class="flex flex-wrap sm:flex-nowrap items-start sm:items-center gap-2 mt-2">
 <div class="flex flex-wrap items-center gap-2 flex-1 min-w-0">
 <span class="relative inline-block">
-<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">sound + spelling</button>
+<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">sound + edit distance</button>
 </span>
 <span class="text-sm text-gray-600">Matches: <span class="font-medium">[epi]~[epi], [ent]~[ent]</span>
 </span>
@@ -6117,7 +6117,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > runs the deep-linked
 <div class="flex flex-wrap sm:flex-nowrap items-start sm:items-center gap-2 mt-2">
 <div class="flex flex-wrap items-center gap-2 flex-1 min-w-0">
 <span class="relative inline-block">
-<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">sound + spelling</button>
+<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">sound + edit distance</button>
 </span>
 <span class="text-sm text-gray-600">Matches: <span class="font-medium">[epi]~[epi], [ent]~[ent]</span>
 </span>
@@ -6176,7 +6176,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > runs the deep-linked
 <div class="flex flex-wrap sm:flex-nowrap items-start sm:items-center gap-2 mt-2">
 <div class="flex flex-wrap items-center gap-2 flex-1 min-w-0">
 <span class="relative inline-block">
-<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">sound + spelling</button>
+<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">sound + edit distance</button>
 </span>
 <span class="text-sm text-gray-600">Matches: <span class="font-medium">[epi]~[epi], [ent]~[ent]</span>
 </span>
@@ -6236,7 +6236,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > runs the deep-linked
 <div class="flex flex-wrap sm:flex-nowrap items-start sm:items-center gap-2 mt-2">
 <div class="flex flex-wrap items-center gap-2 flex-1 min-w-0">
 <span class="relative inline-block">
-<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">shared words + syntax</button>
+<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">lemma + syntax</button>
 </span>
 <span class="text-sm text-gray-600">Matches: <span class="font-medium">μῆνιν, θεά</span>
 </span>
@@ -6296,7 +6296,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > runs the deep-linked
 <div class="flex flex-wrap sm:flex-nowrap items-start sm:items-center gap-2 mt-2">
 <div class="flex flex-wrap items-center gap-2 flex-1 min-w-0">
 <span class="relative inline-block">
-<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">shared words + syntax</button>
+<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">lemma + syntax</button>
 </span>
 <span class="text-sm text-gray-600">Matches: <span class="font-medium">ἄνδρα, θεά</span>
 </span>
@@ -6356,7 +6356,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > runs the deep-linked
 <div class="flex flex-wrap sm:flex-nowrap items-start sm:items-center gap-2 mt-2">
 <div class="flex flex-wrap items-center gap-2 flex-1 min-w-0">
 <span class="relative inline-block">
-<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">shared words + syntax</button>
+<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">lemma + syntax</button>
 </span>
 <span class="text-sm text-gray-600">Matches: <span class="font-medium">πολλὰ, θεά</span>
 </span>
@@ -6416,7 +6416,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > runs the deep-linked
 <div class="flex flex-wrap sm:flex-nowrap items-start sm:items-center gap-2 mt-2">
 <div class="flex flex-wrap items-center gap-2 flex-1 min-w-0">
 <span class="relative inline-block">
-<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">shared words</button>
+<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">lemma</button>
 </span>
 <span class="text-sm text-gray-600">Matches: <span class="font-medium">ⲁⲩⲱ</span>
 </span>
@@ -6476,7 +6476,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > runs the deep-linked
 <div class="flex flex-wrap sm:flex-nowrap items-start sm:items-center gap-2 mt-2">
 <div class="flex flex-wrap items-center gap-2 flex-1 min-w-0">
 <span class="relative inline-block">
-<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">shared words</button>
+<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">lemma</button>
 </span>
 <span class="text-sm text-gray-600">Matches: <span class="font-medium">ⲁⲩⲱ</span>
 </span>
@@ -6536,7 +6536,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > runs the deep-linked
 <div class="flex flex-wrap sm:flex-nowrap items-start sm:items-center gap-2 mt-2">
 <div class="flex flex-wrap items-center gap-2 flex-1 min-w-0">
 <span class="relative inline-block">
-<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">shared words</button>
+<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">lemma</button>
 </span>
 <span class="text-sm text-gray-600">Matches: <span class="font-medium">ⲁⲩⲱ</span>
 </span>
@@ -6595,7 +6595,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > runs the deep-linked
 <div class="flex flex-wrap sm:flex-nowrap items-start sm:items-center gap-2 mt-2">
 <div class="flex flex-wrap items-center gap-2 flex-1 min-w-0">
 <span class="relative inline-block">
-<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">shared words</button>
+<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">lemma</button>
 </span>
 <span class="text-sm text-gray-600">Matches: <span class="font-medium">fiend, reply</span>
 </span>
@@ -6653,7 +6653,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > runs the deep-linked
 <div class="flex flex-wrap sm:flex-nowrap items-start sm:items-center gap-2 mt-2">
 <div class="flex flex-wrap items-center gap-2 flex-1 min-w-0">
 <span class="relative inline-block">
-<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">shared words</button>
+<button type="button" aria-describedby=":rID:" aria-expanded="false" class="inline-flex items-center text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">lemma</button>
 </span>
 <span class="text-sm text-gray-600">Matches: <span class="font-medium">אל, ברא</span>
 </span>
