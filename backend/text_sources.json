@@ -19501,5 +19501,1737 @@
     "e_source_url": "https://www.gutenberg.org/",
     "print_source": "Authorized (King James) Version, 1611",
     "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Acts",
+    "work": "Pilate",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/urn:cts:copticLit:misc.acts_pilate.lacau_ed",
+    "print_source": "Lacau 1904",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus acts.pilate, 2 documents. Text prepared by: Lacau 1904. Document URNs run from urn:cts:copticLit:misc.acts_pilate.lacau_ed:9 to urn:cts:copticLit:misc.acts_pilate.lacau_ed:10-11."
+  },
+  {
+    "author": "Apophthegmata",
+    "work": "Patrum",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/AP",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus apophthegmata.patrum, 126 documents. Editions are named per document (73 different) at the Scriptorium page. Document URNs run from urn:cts:copticLit:ap.1.monbeg to urn:cts:copticLit:ap.93.monbeg."
+  },
+  {
+    "author": "Besa",
+    "work": "Letters",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/besa-letters",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus besa.letters, 5 documents. Text prepared by: SFB 1136 \"Bildung und Religion\", Coptic SCRIPTORIUM, KELLIA; So Miyagawa, SFB 1136 \"Bildung und Religion\". Editions are named per document (5 different) at the Scriptorium page. Document URNs run from urn:cts:copticLit:besa.exhortations.monbba to urn:cts:copticLit:besa.thieving.monbba."
+  },
+  {
+    "author": "Bohairic Coptic",
+    "work": "1 Corinthians",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/bohairic.nt",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus bohairic.nt, 16 documents. Text prepared by: Marcion, Hany Takla. Translation: World English Bible (WEB). Document URNs run from urn:cts:copticLit:nt.1cor.bohairic:01 to urn:cts:copticLit:nt.1cor.bohairic:16."
+  },
+  {
+    "author": "Bohairic Coptic",
+    "work": "1 John",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/bohairic.nt",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus bohairic.nt, 5 documents. Text prepared by: Marcion, Hany Takla. Translation: World English Bible (WEB). Document URNs run from urn:cts:copticLit:nt.1john.bohairic:01 to urn:cts:copticLit:nt.1john.bohairic:05."
+  },
+  {
+    "author": "Bohairic Coptic",
+    "work": "1 Peter",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/bohairic.nt",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus bohairic.nt, 5 documents. Text prepared by: Marcion, Hany Takla. Translation: World English Bible (WEB). Document URNs run from urn:cts:copticLit:nt.1pet.bohairic:01 to urn:cts:copticLit:nt.1pet.bohairic:05."
+  },
+  {
+    "author": "Bohairic Coptic",
+    "work": "1 Thessalonians",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/bohairic.nt",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus bohairic.nt, 5 documents. Text prepared by: Marcion, Hany Takla. Translation: World English Bible (WEB). Document URNs run from urn:cts:copticLit:nt.1thess.bohairic:01 to urn:cts:copticLit:nt.1thess.bohairic:05."
+  },
+  {
+    "author": "Bohairic Coptic",
+    "work": "1 Timothy",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/bohairic.nt",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus bohairic.nt, 6 documents. Text prepared by: Marcion, Hany Takla. Translation: World English Bible (WEB). Document URNs run from urn:cts:copticLit:nt.1tim.bohairic:01 to urn:cts:copticLit:nt.1tim.bohairic:06."
+  },
+  {
+    "author": "Bohairic Coptic",
+    "work": "2 Corinthians",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/bohairic.nt",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus bohairic.nt, 13 documents. Text prepared by: Marcion, Hany Takla. Translation: World English Bible (WEB). Document URNs run from urn:cts:copticLit:nt.2cor.bohairic:01 to urn:cts:copticLit:nt.2cor.bohairic:13."
+  },
+  {
+    "author": "Bohairic Coptic",
+    "work": "2 John",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/urn:cts:copticLit:nt.2john.bohairic:01",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus bohairic.nt, 1 document. Text prepared by: Marcion, Hany Takla. Translation: World English Bible (WEB). Document URN: urn:cts:copticLit:nt.2john.bohairic:01."
+  },
+  {
+    "author": "Bohairic Coptic",
+    "work": "2 Peter",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/bohairic.nt",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus bohairic.nt, 3 documents. Text prepared by: Marcion, Hany Takla. Translation: World English Bible (WEB). Document URNs run from urn:cts:copticLit:nt.2pet.bohairic:01 to urn:cts:copticLit:nt.2pet.bohairic:03."
+  },
+  {
+    "author": "Bohairic Coptic",
+    "work": "2 Thessalonians",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/bohairic.nt",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus bohairic.nt, 3 documents. Text prepared by: Marcion, Hany Takla. Translation: World English Bible (WEB). Document URNs run from urn:cts:copticLit:nt.2thess.bohairic:01 to urn:cts:copticLit:nt.2thess.bohairic:03."
+  },
+  {
+    "author": "Bohairic Coptic",
+    "work": "2 Timothy",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/bohairic.nt",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus bohairic.nt, 4 documents. Text prepared by: Marcion, Hany Takla. Translation: World English Bible (WEB). Document URNs run from urn:cts:copticLit:nt.2tim.bohairic:01 to urn:cts:copticLit:nt.2tim.bohairic:04."
+  },
+  {
+    "author": "Bohairic Coptic",
+    "work": "3 John",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/urn:cts:copticLit:nt.3john.bohairic:01",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus bohairic.nt, 1 document. Text prepared by: Marcion, Hany Takla. Translation: World English Bible (WEB). Document URN: urn:cts:copticLit:nt.3john.bohairic:01."
+  },
+  {
+    "author": "Bohairic Coptic",
+    "work": "Acts of the Apostles",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/bohairic.nt",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus bohairic.nt, 28 documents. Text prepared by: Marcion, Hany Takla. Translation: World English Bible (WEB). Document URNs run from urn:cts:copticLit:nt.acts.bohairic:01 to urn:cts:copticLit:nt.acts.bohairic:28."
+  },
+  {
+    "author": "Bohairic Coptic",
+    "work": "Amos",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/bohairic.ot",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus bohairic.ot, 9 documents. Text prepared by: Marcion, Hany Takla. Translation: The Septuagint Version of the Old Testament, L.C.L. Brenton, 1851, available at ebible.org. Document URNs run from urn:cts:copticLit:ot.amos.bohairic_ed:01 to urn:cts:copticLit:ot.amos.bohairic_ed:09."
+  },
+  {
+    "author": "Bohairic Coptic",
+    "work": "Bible (whole)",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Whole-collection file made from the Coptic SCRIPTORIUM corpus bohairic.nt, bohairic.ot (897 documents). Text prepared by: Marcion, Hany Takla."
+  },
+  {
+    "author": "Bohairic Coptic",
+    "work": "Colossians",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/bohairic.nt",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus bohairic.nt, 4 documents. Text prepared by: Marcion, Hany Takla. Translation: World English Bible (WEB). Document URNs run from urn:cts:copticLit:nt.col.bohairic:01 to urn:cts:copticLit:nt.col.bohairic:04."
+  },
+  {
+    "author": "Bohairic Coptic",
+    "work": "Daniel",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/bohairic.ot",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus bohairic.ot, 19 documents. Text prepared by: Marcion, Hany Takla. Translation: The Septuagint Version of the Old Testament, L.C.L. Brenton, 1851, available at ebible.org. Document URNs run from urn:cts:copticLit:ot.dan.bohairic_ed:01 to urn:cts:copticLit:ot.dan.bohairic_ed:19."
+  },
+  {
+    "author": "Bohairic Coptic",
+    "work": "Deuteronomy",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/bohairic.ot",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus bohairic.ot, 34 documents. Text prepared by: Marcion, Hany Takla. Translation: The Septuagint Version of the Old Testament, L.C.L. Brenton, 1851, available at ebible.org. Document URNs run from urn:cts:copticLit:ot.deut.bohairic_ed:01 to urn:cts:copticLit:ot.deut.bohairic_ed:34."
+  },
+  {
+    "author": "Bohairic Coptic",
+    "work": "Ephesians",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/bohairic.nt",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus bohairic.nt, 6 documents. Text prepared by: Marcion, Hany Takla. Translation: World English Bible (WEB). Document URNs run from urn:cts:copticLit:nt.eph.bohairic:01 to urn:cts:copticLit:nt.eph.bohairic:06."
+  },
+  {
+    "author": "Bohairic Coptic",
+    "work": "Exodus",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/bohairic.ot",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus bohairic.ot, 40 documents. Text prepared by: Marcion, Hany Takla. Translation: The Septuagint Version of the Old Testament, L.C.L. Brenton, 1851, available at ebible.org. Document URNs run from urn:cts:copticLit:ot.exod.bohairic_ed:01 to urn:cts:copticLit:ot.exod.bohairic_ed:40."
+  },
+  {
+    "author": "Bohairic Coptic",
+    "work": "Ezekiel",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/bohairic.ot",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus bohairic.ot, 48 documents. Text prepared by: Marcion, Hany Takla. Translation: The Septuagint Version of the Old Testament, L.C.L. Brenton, 1851, available at ebible.org. Document URNs run from urn:cts:copticLit:ot.ezek.bohairic_ed:01 to urn:cts:copticLit:ot.ezek.bohairic_ed:48."
+  },
+  {
+    "author": "Bohairic Coptic",
+    "work": "Galatians",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/bohairic.nt",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus bohairic.nt, 6 documents. Text prepared by: Marcion, Hany Takla. Translation: World English Bible (WEB). Document URNs run from urn:cts:copticLit:nt.gal.bohairic:01 to urn:cts:copticLit:nt.gal.bohairic:06."
+  },
+  {
+    "author": "Bohairic Coptic",
+    "work": "Genesis",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/bohairic.ot",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus bohairic.ot, 50 documents. Text prepared by: Marcion, Hany Takla. Translation: The Septuagint Version of the Old Testament, L.C.L. Brenton, 1851, available at ebible.org. Document URNs run from urn:cts:copticLit:ot.gen.bohairic_ed:01 to urn:cts:copticLit:ot.gen.bohairic_ed:50."
+  },
+  {
+    "author": "Bohairic Coptic",
+    "work": "Habakkuk",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/urn:cts:copticLit:ot.hab.bohairic_ed",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus bohairic.ot, 3 documents. Text prepared by: Marcion, Hany Takla. Translation: The Septuagint Version of the Old Testament, L.C.L. Brenton, 1851, available at ebible.org. Document URNs run from urn:cts:copticLit:ot.hab.bohairic_ed:01 to urn:cts:copticLit:ot.hab.bohairic_ed:03."
+  },
+  {
+    "author": "Bohairic Coptic",
+    "work": "Haggai",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/bohairic.ot",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus bohairic.ot, 2 documents. Text prepared by: Marcion, Hany Takla. Translation: The Septuagint Version of the Old Testament, L.C.L. Brenton, 1851, available at ebible.org. Document URNs run from urn:cts:copticLit:ot.hag.bohairic_ed:01 to urn:cts:copticLit:ot.hag.bohairic_ed:02."
+  },
+  {
+    "author": "Bohairic Coptic",
+    "work": "Hebrews",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/bohairic.nt",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus bohairic.nt, 13 documents. Text prepared by: Marcion, Hany Takla. Translation: World English Bible (WEB). Document URNs run from urn:cts:copticLit:nt.heb.bohairic:01 to urn:cts:copticLit:nt.heb.bohairic:13."
+  },
+  {
+    "author": "Bohairic Coptic",
+    "work": "Hosea",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/bohairic.ot",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus bohairic.ot, 14 documents. Text prepared by: Marcion, Hany Takla. Translation: The Septuagint Version of the Old Testament, L.C.L. Brenton, 1851, available at ebible.org. Document URNs run from urn:cts:copticLit:ot.hos.bohairic_ed:01 to urn:cts:copticLit:ot.hos.bohairic_ed:14."
+  },
+  {
+    "author": "Bohairic Coptic",
+    "work": "Isaiah",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/bohairic.ot",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus bohairic.ot, 66 documents. Text prepared by: Marcion, Hany Takla. Translation: The Septuagint Version of the Old Testament, L.C.L. Brenton, 1851, available at ebible.org. Document URNs run from urn:cts:copticLit:ot.isa.bohairic_ed:01 to urn:cts:copticLit:ot.isa.bohairic_ed:66."
+  },
+  {
+    "author": "Bohairic Coptic",
+    "work": "James",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/bohairic.nt",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus bohairic.nt, 5 documents. Text prepared by: Marcion, Hany Takla. Translation: World English Bible (WEB). Document URNs run from urn:cts:copticLit:nt.jas.bohairic:01 to urn:cts:copticLit:nt.jas.bohairic:05."
+  },
+  {
+    "author": "Bohairic Coptic",
+    "work": "Jeremiah",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/bohairic.ot",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus bohairic.ot, 52 documents. Text prepared by: Marcion, Hany Takla. Translation: The Septuagint Version of the Old Testament, L.C.L. Brenton, 1851, available at ebible.org. Document URNs run from urn:cts:copticLit:ot.jer.bohairic_ed:01 to urn:cts:copticLit:ot.jer.bohairic_ed:52."
+  },
+  {
+    "author": "Bohairic Coptic",
+    "work": "Job",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/bohairic.ot",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus bohairic.ot, 42 documents. Text prepared by: Marcion, Hany Takla. Translation: The Septuagint Version of the Old Testament, L.C.L. Brenton, 1851, available at ebible.org. Document URNs run from urn:cts:copticLit:ot.job.bohairic_ed:01 to urn:cts:copticLit:ot.job.bohairic_ed:42."
+  },
+  {
+    "author": "Bohairic Coptic",
+    "work": "Joel",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/bohairic.ot",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus bohairic.ot, 3 documents. Text prepared by: Marcion, Hany Takla. Translation: The Septuagint Version of the Old Testament, L.C.L. Brenton, 1851, available at ebible.org. Document URNs run from urn:cts:copticLit:ot.joel.bohairic_ed:01 to urn:cts:copticLit:ot.joel.bohairic_ed:03."
+  },
+  {
+    "author": "Bohairic Coptic",
+    "work": "John",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/bohairic.nt",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus bohairic.nt, 21 documents. Text prepared by: Marcion, Hany Takla. Translation: World English Bible (WEB). Document URNs run from urn:cts:copticLit:nt.john.bohairic:01 to urn:cts:copticLit:nt.john.bohairic:21."
+  },
+  {
+    "author": "Bohairic Coptic",
+    "work": "Jonah",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/urn:cts:copticLit:ot.jonah.bohairic_ed",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus bohairic.ot, 4 documents. Text prepared by: Marcion, Hany Takla. Translation: The Septuagint Version of the Old Testament, L.C.L. Brenton, 1851, available at ebible.org. Document URNs run from urn:cts:copticLit:ot.jonah.bohairic_ed:01 to urn:cts:copticLit:ot.jonah.bohairic_ed:04."
+  },
+  {
+    "author": "Bohairic Coptic",
+    "work": "Jude",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/urn:cts:copticLit:nt.jude.bohairic:01",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus bohairic.nt, 1 document. Text prepared by: Marcion, Hany Takla. Translation: World English Bible (WEB). Document URN: urn:cts:copticLit:nt.jude.bohairic:01."
+  },
+  {
+    "author": "Bohairic Coptic",
+    "work": "Lamentations",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/bohairic.ot",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus bohairic.ot, 5 documents. Text prepared by: Marcion, Hany Takla. Translation: The Septuagint Version of the Old Testament, L.C.L. Brenton, 1851, available at ebible.org. Document URNs run from urn:cts:copticLit:ot.lam.bohairic_ed:01 to urn:cts:copticLit:ot.lam.bohairic_ed:05."
+  },
+  {
+    "author": "Bohairic Coptic",
+    "work": "Leviticus",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/bohairic.ot",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus bohairic.ot, 27 documents. Text prepared by: Marcion, Hany Takla. Translation: The Septuagint Version of the Old Testament, L.C.L. Brenton, 1851, available at ebible.org. Document URNs run from urn:cts:copticLit:ot.lev.bohairic_ed:01 to urn:cts:copticLit:ot.lev.bohairic_ed:27."
+  },
+  {
+    "author": "Bohairic Coptic",
+    "work": "Luke",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/bohairic.nt",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus bohairic.nt, 24 documents. Text prepared by: Marcion, Hany Takla. Translation: World English Bible (WEB). Document URNs run from urn:cts:copticLit:nt.luke.bohairic:01 to urn:cts:copticLit:nt.luke.bohairic:24."
+  },
+  {
+    "author": "Bohairic Coptic",
+    "work": "Malachi",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/bohairic.ot",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus bohairic.ot, 4 documents. Text prepared by: Marcion, Hany Takla. Translation: The Septuagint Version of the Old Testament, L.C.L. Brenton, 1851, available at ebible.org. Document URNs run from urn:cts:copticLit:ot.mal.bohairic_ed:01 to urn:cts:copticLit:ot.mal.bohairic_ed:04."
+  },
+  {
+    "author": "Bohairic Coptic",
+    "work": "Mark",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/urn:cts:copticLit:nt.mark.bohairic_ed",
+    "print_source": "Horner 1898",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus bohairic.mark, 16 documents. Text prepared by: Hany Takla, Marcion Project. Translation: World English Bible (WEB). Document URNs run from urn:cts:copticLit:nt.mark.bohairic_ed:1 to urn:cts:copticLit:nt.mark.bohairic_ed:16."
+  },
+  {
+    "author": "Bohairic Coptic",
+    "work": "Matthew",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/bohairic.nt",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus bohairic.nt, 28 documents. Text prepared by: Marcion, Hany Takla. Translation: World English Bible (WEB). Document URNs run from urn:cts:copticLit:nt.matt.bohairic:01 to urn:cts:copticLit:nt.matt.bohairic:28."
+  },
+  {
+    "author": "Bohairic Coptic",
+    "work": "Micah",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/bohairic.ot",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus bohairic.ot, 7 documents. Text prepared by: Marcion, Hany Takla. Translation: The Septuagint Version of the Old Testament, L.C.L. Brenton, 1851, available at ebible.org. Document URNs run from urn:cts:copticLit:ot.mic.bohairic_ed:01 to urn:cts:copticLit:ot.mic.bohairic_ed:07."
+  },
+  {
+    "author": "Bohairic Coptic",
+    "work": "Nahum",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/bohairic.ot",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus bohairic.ot, 3 documents. Text prepared by: Marcion, Hany Takla. Translation: The Septuagint Version of the Old Testament, L.C.L. Brenton, 1851, available at ebible.org. Document URNs run from urn:cts:copticLit:ot.nah.bohairic_ed:01 to urn:cts:copticLit:ot.nah.bohairic_ed:03."
+  },
+  {
+    "author": "Bohairic Coptic",
+    "work": "New Testament (whole)",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/bohairic.nt",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Whole-collection file made from the Coptic SCRIPTORIUM corpus bohairic.nt (260 documents). Text prepared by: Marcion, Hany Takla. Translation: World English Bible (WEB)."
+  },
+  {
+    "author": "Bohairic Coptic",
+    "work": "Numbers",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/bohairic.ot",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus bohairic.ot, 36 documents. Text prepared by: Marcion, Hany Takla. Translation: The Septuagint Version of the Old Testament, L.C.L. Brenton, 1851, available at ebible.org. Document URNs run from urn:cts:copticLit:ot.num.bohairic_ed:01 to urn:cts:copticLit:ot.num.bohairic_ed:36."
+  },
+  {
+    "author": "Bohairic Coptic",
+    "work": "Obadiah",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/urn:cts:copticLit:ot.obad.bohairic_ed:01",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus bohairic.ot, 1 document. Text prepared by: Marcion, Hany Takla. Translation: The Septuagint Version of the Old Testament, L.C.L. Brenton, 1851, available at ebible.org. Document URN: urn:cts:copticLit:ot.obad.bohairic_ed:01."
+  },
+  {
+    "author": "Bohairic Coptic",
+    "work": "Old Testament (whole)",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/bohairic.ot",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Whole-collection file made from the Coptic SCRIPTORIUM corpus bohairic.ot (637 documents). Text prepared by: Marcion, Hany Takla. Translation: The Septuagint Version of the Old Testament, L.C.L. Brenton, 1851, available at ebible.org."
+  },
+  {
+    "author": "Bohairic Coptic",
+    "work": "Philemon",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/urn:cts:copticLit:nt.phlm.bohairic:01",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus bohairic.nt, 1 document. Text prepared by: Marcion, Hany Takla. Translation: World English Bible (WEB). Document URN: urn:cts:copticLit:nt.phlm.bohairic:01."
+  },
+  {
+    "author": "Bohairic Coptic",
+    "work": "Philippians",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/bohairic.nt",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus bohairic.nt, 4 documents. Text prepared by: Marcion, Hany Takla. Translation: World English Bible (WEB). Document URNs run from urn:cts:copticLit:nt.phil.bohairic:01 to urn:cts:copticLit:nt.phil.bohairic:04."
+  },
+  {
+    "author": "Bohairic Coptic",
+    "work": "Psalms",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/bohairic.ot",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus bohairic.ot, 151 documents. Text prepared by: Marcion, Hany Takla. Translation: The Septuagint Version of the Old Testament, L.C.L. Brenton, 1851, available at ebible.org. Document URNs run from urn:cts:copticLit:ot.pss.bohairic_ed:01 to urn:cts:copticLit:ot.pss.bohairic_ed:151."
+  },
+  {
+    "author": "Bohairic Coptic",
+    "work": "Revelation",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/bohairic.nt",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus bohairic.nt, 22 documents. Text prepared by: Marcion, Hany Takla. Translation: World English Bible (WEB). Document URNs run from urn:cts:copticLit:nt.rev.bohairic:01 to urn:cts:copticLit:nt.rev.bohairic:22."
+  },
+  {
+    "author": "Bohairic Coptic",
+    "work": "Romans",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/bohairic.nt",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus bohairic.nt, 16 documents. Text prepared by: Marcion, Hany Takla. Translation: World English Bible (WEB). Document URNs run from urn:cts:copticLit:nt.rom.bohairic:01 to urn:cts:copticLit:nt.rom.bohairic:16."
+  },
+  {
+    "author": "Bohairic Coptic",
+    "work": "Titus",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/bohairic.nt",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus bohairic.nt, 3 documents. Text prepared by: Marcion, Hany Takla. Translation: World English Bible (WEB). Document URNs run from urn:cts:copticLit:nt.titus.bohairic:01 to urn:cts:copticLit:nt.titus.bohairic:03."
+  },
+  {
+    "author": "Bohairic Coptic",
+    "work": "Zechariah",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/bohairic.ot",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus bohairic.ot, 14 documents. Text prepared by: Marcion, Hany Takla. Translation: The Septuagint Version of the Old Testament, L.C.L. Brenton, 1851, available at ebible.org. Document URNs run from urn:cts:copticLit:ot.zach.bohairic_ed:01 to urn:cts:copticLit:ot.zach.bohairic_ed:14."
+  },
+  {
+    "author": "Bohairic Coptic",
+    "work": "Zephaniah",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/bohairic.ot",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus bohairic.ot, 3 documents. Text prepared by: Marcion, Hany Takla. Translation: The Septuagint Version of the Old Testament, L.C.L. Brenton, 1851, available at ebible.org. Document URNs run from urn:cts:copticLit:ot.zeph.bohairic_ed:01 to urn:cts:copticLit:ot.zeph.bohairic_ed:03."
+  },
+  {
+    "author": "Book of Bartholomew",
+    "work": "Apocryphon",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/urn:cts:copticLit:misc.blbartholomew",
+    "print_source": "Budge Apocrypha 1913",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus book.bartholomew, 3 documents. Text prepared by: Budge Apocrypha 1913 on archive.org. Document URNs run from urn:cts:copticLit:misc.blbartholomew.budge_ed:3-11 to urn:cts:copticLit:misc.blbartholomew.budge_ed:20-25."
+  },
+  {
+    "author": "Documentary Papyri",
+    "work": "Documents",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/doc-papyri",
+    "print_source": "CPR 2 237; CPR 31 14; CPR 4 16",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus doc.papyri, 3 documents. Text prepared by: http://papyri.info/ddbdp/cpr;2;237; http://papyri.info/ddbdp/cpr;31;14; http://papyri.info/ddbdp/cpr;4;16. Document URNs run from urn:cts:copticDoc:papyri_info.tm82127.cpr_2_237 to urn:cts:copticDoc:papyri_info.tm82149.cpr_4_16."
+  },
+  {
+    "author": "Dormition",
+    "work": "John",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/urn:cts:copticLit:misc.dormition_john.budge",
+    "print_source": "Budge 1913",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus dormition.john, 1 document. Text prepared by: Marcion project, Archive.org. Translation: E. A. Wallis Budge. Document URN: urn:cts:copticLit:misc.dormition_john.budge."
+  },
+  {
+    "author": "Helias",
+    "work": "Helias",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/helias",
+    "print_source": "Sobhy 1919",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus helias, 6 documents. Text prepared by: Sobhy 1919. Document URNs run from urn:cts:copticLit:helias.encomium.sobhy_ed:0-11 to urn:cts:copticLit:helias.martyrdom.sobhy_ed:32-49."
+  },
+  {
+    "author": "Johannes",
+    "work": "Canons",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/urn:cts:copticLit:johannes.canons",
+    "print_source": "Atanassova, The Canons of Apa John the Archimandrite online",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus johannes.canons, 14 documents. Text prepared by: Diliana Atanassova, The Canons of Apa John the Archimandrite Project (FWF Project P22641-G19). Document URNs run from urn:cts:copticLit:johannes.canons.monbfa:308-330 to urn:cts:copticLit:johannes.canons.monbfa:97-122."
+  },
+  {
+    "author": "John",
+    "work": "Constantinople",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/urn:cts:copticLit:johnconst.penitence",
+    "print_source": "Budge, 1910",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus john.constantinople, 2 documents. Text prepared by: Marcion project, Archive.org. Translation: E. A. Wallis Budge. Document URNs run from urn:cts:copticLit:johnconst.penitence.budge:1-119 to urn:cts:copticLit:johnconst.penitence.budge:120-241."
+  },
+  {
+    "author": "Lament",
+    "work": "Mary",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/urn:cts:copticLit:misc.lament_mary",
+    "print_source": "Lacau 1904",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus lament.mary, 2 documents. Text prepared by: Lacau 1904. Document URNs run from urn:cts:copticLit:misc.lament_mary.lacau_ed:55-58 to urn:cts:copticLit:misc.lament_mary.lacau_ed:63-67."
+  },
+  {
+    "author": "Life",
+    "work": "Aphou",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/urn:cts:copticLit:lives.aphou",
+    "print_source": "Rossi (1885) fasc. 3:5-22",
+    "added_by": "V6 Import",
+    "license": "CC BY-NC-SA 4.0",
+    "note": "Coptic SCRIPTORIUM corpus life.aphou, 2 documents. Text prepared by: PATHS, CMCL. Translation: Aurelio La Rotta. Document URNs run from urn:cts:copticLit:lives.aphou.paths_ed:0-61 to urn:cts:copticLit:lives.aphou.paths_ed:62-132."
+  },
+  {
+    "author": "Life",
+    "work": "Cyrus",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/urn:cts:copticLit:lives.cyrus",
+    "print_source": "Budge, 1914",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus life.cyrus, 2 documents. Text prepared by: Marcion project, Archive.org. Translation: E. A. Wallis Budge. Document URNs run from urn:cts:copticLit:lives.cyrus.budge:1-9 to urn:cts:copticLit:lives.cyrus.budge:10-17."
+  },
+  {
+    "author": "Life",
+    "work": "Eustathius.theopiste",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/urn:cts:copticLit:lives.eustathius",
+    "print_source": "Budge, 1914",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus life.eustathius.theopiste, 2 documents. Text prepared by: Marcion project, Archive.org. Translation: E. A. Wallis Budge. Document URNs run from urn:cts:copticLit:lives.eustathius.budge:1-30 to urn:cts:copticLit:lives.eustathius.budge:31-56."
+  },
+  {
+    "author": "Life",
+    "work": "John.kalybites",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/urn:cts:copticLit:lives.john_kalybites",
+    "print_source": "Budge, 1914",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus life.john.kalybites, 2 documents. Text prepared by: Marcion project, Archive.org. Translation: E. A. Wallis Budge. Document URNs run from urn:cts:copticLit:lives.john_kalybites.budge:1-45 to urn:cts:copticLit:lives.john_kalybites.budge:46-90."
+  },
+  {
+    "author": "Life",
+    "work": "Longinus.lucius",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/urn:cts:copticLit:lives.longinus_lucius",
+    "print_source": "Tito Orlandi, A. Campagnano, Vite dei monaci Phif e Longino. Milano, Cisalpino Goliardica, 1975, pp. 47-93 (Vita Longinis)",
+    "added_by": "V6 Import",
+    "license": "CC BY-NC-SA 4.0",
+    "note": "Coptic SCRIPTORIUM corpus life.longinus.lucius, 5 documents. Text prepared by: PATHS, CMCL. Translation: Randy Komforty. Document URNs run from urn:cts:copticLit:lives.longinus_lucius.paths_ed:0-9 to urn:cts:copticLit:lives.longinus_lucius.paths_ed:30-39."
+  },
+  {
+    "author": "Life",
+    "work": "Onnophrius",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/urn:cts:copticLit:lives.onnophrius",
+    "print_source": "Budge, 1914; Budge 1914",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus life.onnophrius, 4 documents. Text prepared by: Marcion project, Archive.org. Translation: E. A. Wallis Budge. Document URNs run from urn:cts:copticLit:lives.onnophrius.budge:1-9 to urn:cts:copticLit:lives.onnophrius.budge:25-33."
+  },
+  {
+    "author": "Life",
+    "work": "Paul.tamma",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/urn:cts:copticLit:lives.paul_tamma",
+    "print_source": "Amélineau 1888 p. 759-769, Orlandi 1974 p. 154-161, unpublished folios",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus life.paul.tamma, 2 documents. Text prepared by: PATHS, CMCL. Document URNs run from urn:cts:copticLit:lives.paul_tamma.paths_ed:1-10 to urn:cts:copticLit:lives.paul_tamma.paths_ed:11-18."
+  },
+  {
+    "author": "Life",
+    "work": "Phib",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/urn:cts:copticLit:lives.phib",
+    "print_source": "PATHS, Orlandi (1975)",
+    "added_by": "V6 Import",
+    "license": "CC BY-NC-SA 4.0",
+    "note": "Coptic SCRIPTORIUM corpus life.phib, 2 documents. Text prepared by: PATHS, CMCL. Translation: Randy Komforty. Document URNs run from urn:cts:copticLit:lives.phib.paths_ed:0-10 to urn:cts:copticLit:lives.phib.paths_ed:11-18."
+  },
+  {
+    "author": "Life",
+    "work": "Pisentius",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/urn:cts:copticLit:lives.pisentius",
+    "print_source": "Budge, 1913; Budge 1913 pp. 93-127",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus life.pisentius, 3 documents. Text prepared by: Marcion project, Archive.org. Translation: E. A. Wallis Budge. Document URNs run from urn:cts:copticLit:lives.pisentius.budge:1-31 to urn:cts:copticLit:lives.pisentius.budge:58-84."
+  },
+  {
+    "author": "Magical",
+    "work": "Papyri",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/magical-papyri",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus magical.papyri, 8 documents. Editions are named per document (8 different) at the Scriptorium page. Document URNs run from urn:cts:copticMag:kyprianos_papyri.tm100001.bku_1_5 to urn:cts:copticMag:kyprianos.tm99993.kypt483."
+  },
+  {
+    "author": "Martyrdom",
+    "work": "Victor",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/urn:cts:copticLit:martyrdoms.victor",
+    "print_source": "Budge 1914; Budge, 1914",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus martyrdom.victor, 8 documents. Text prepared by: Marcion project, Archive.org. Translation: E. A. Wallis Budge. Document URNs run from urn:cts:copticLit:martyrdoms.victor.budge:1-6 to urn:cts:copticLit:martyrdoms.victor.budge:86-90."
+  },
+  {
+    "author": "Mercurius",
+    "work": "Mercurius",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/mercurius",
+    "print_source": "Budge 1915",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus mercurius, 4 documents. Text prepared by: Budge 1915. Document URNs run from urn:cts:copticLit:mercurius.encomium.budge_ed:0-18 to urn:cts:copticLit:mercurius.martyrdom_miracles.budge_ed:32-46."
+  },
+  {
+    "author": "Mysteries",
+    "work": "John",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/urn:cts:copticLit:misc.mysteries_john",
+    "print_source": "Budge, 1913",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus mysteries.john, 2 documents. Text prepared by: Marcion project, Archive.org. Translation: E. A. Wallis Budge. Document URNs run from urn:cts:copticLit:misc.mysteries_john.budge:1-12 to urn:cts:copticLit:misc.mysteries_john.budge:13-28."
+  },
+  {
+    "author": "Pachomius",
+    "work": "Instructions",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/urn:cts:copticLit:pachomius.instructions",
+    "print_source": "Budge, 1913",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus pachomius.instructions, 2 documents. Text prepared by: Marcion project, Archive.org. Document URNs run from urn:cts:copticLit:pachomius.instructions.budge:1-34 to urn:cts:copticLit:pachomius.instructions.budge:35-69."
+  },
+  {
+    "author": "Pistis",
+    "work": "Sophia",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/pistis-sophia",
+    "print_source": "J. H. Petermann (1851), Carl Schmidt & Violet MacDermot (1978)",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus pistis.sophia, 28 documents. Text prepared by: Marcion project, Archive.org; Marcion Project. Translation: Mead (1896), Horner (1924). Document URNs run from urn:cts:copticLit:pistissophia.2.petermann:145-146 to urn:cts:copticLit:pistissophia.2.petermann:140-144."
+  },
+  {
+    "author": "Proclus",
+    "work": "Homilies",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/proclus-homilies",
+    "print_source": "Budge, 1914",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus proclus.homilies, 2 documents. Text prepared by: Marcion project, Archive.org. Translation: E. A. Wallis Budge. Document URNs run from urn:cts:copticLit:proclus.homily13.budge to urn:cts:copticLit:proclus.homily23.budge."
+  },
+  {
+    "author": "Pseudo-Athanasius",
+    "work": "Discourses",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/pseudo-athanasius-discourses",
+    "print_source": "Budge, 1910; Budge 1910",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus pseudo.athanasius.discourses, 3 documents. Text prepared by: Marcion project, Archive.org. Translation: E. A. Wallis Budge. Document URNs run from urn:cts:copticLit:psathanasius.matthew20.budge:1-56 to urn:cts:copticLit:psathanasius.soul_body.budge:1-91."
+  },
+  {
+    "author": "Pseudo-Basil",
+    "work": "Homily",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/urn:cts:copticLit:psbasil.temple.budge:1-47",
+    "print_source": "Budge, 1910",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus pseudo.basil, 1 document. Text prepared by: Marcion project, Archive.org. Translation: E. A. Wallis Budge. Document URN: urn:cts:copticLit:psbasil.temple.budge:1-47."
+  },
+  {
+    "author": "Pseudo-Celestinus",
+    "work": "Homily",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/urn:cts:copticLit:pscelestinus.encomium",
+    "print_source": "Budge 1914",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus pseudo.celestinus, 3 documents. Text prepared by: Marcion project, Archive.org. Translation: E. A. Wallis Budge. Document URNs run from urn:cts:copticLit:pscelestinus.encomium.budge:1-31 to urn:cts:copticLit:pscelestinus.encomium.budge:56-103."
+  },
+  {
+    "author": "Pseudo-Chrysostom",
+    "work": "Homily",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/pseudo-chrysostom",
+    "print_source": "Budge, 1910; Budge 1915",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus pseudo.chrysostom, 3 documents. Text prepared by: Marcion project, Archive.org; Internet Archive. Translation: E. A. Wallis Budge. Document URNs run from urn:cts:copticLit:pschrysostom.canaanite.budge:1-51 to urn:cts:copticLit:pschrysostom.raphael.budge:1-63."
+  },
+  {
+    "author": "Pseudo-Ephrem",
+    "work": "Homily",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/pseudo-ephrem",
+    "print_source": "Budge, 1914",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus pseudo.ephrem, 3 documents. Text prepared by: Marcion project, Archive.org. Translation: E. A. Wallis Budge. Document URNs run from urn:cts:copticLit:psephrem.asceticon.budge:1-23 to urn:cts:copticLit:psephrem.letter.budge:1-9."
+  },
+  {
+    "author": "Pseudo-Flavianus",
+    "work": "Homily",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/urn:cts:copticLit:psflavianus.encomium",
+    "print_source": "Budge 1914",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus pseudo.flavianus, 2 documents. Text prepared by: Marcion project, Archive.org. Translation: E. A. Wallis Budge. Document URNs run from urn:cts:copticLit:psflavianus.encomium.budge:1-23 to urn:cts:copticLit:psflavianus.encomium.budge:24-42."
+  },
+  {
+    "author": "Pseudo-Theophilus",
+    "work": "Homily",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/pseudo-theophilus",
+    "print_source": "Alin Suciu, 'Ps.-Theophili Alexandrini Sermo de Cruce et Latrone (CPG 2622)' Zeitschrift für Antikes Christentum 16(2012):181-225; Budge 1910",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus pseudo.theophilus, 5 documents. Text prepared by: Alin Suciu; Budge 1910 on archive.org. Document URNs run from urn:cts:copticLit:pstheophilus.cross.michbr:1.1-4.14 to urn:cts:copticLit:pstheophilus.repentance.budge_ed:1-59."
+  },
+  {
+    "author": "Pseudo-Timothy",
+    "work": "Homily",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/pseudo-timothy",
+    "print_source": "Budge, 1914",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus pseudo.timothy, 2 documents. Text prepared by: Marcion project, Archive.org. Translation: E. A. Wallis Budge. Document URNs run from urn:cts:copticLit:pstimothy.abbaton.budge:1-21 to urn:cts:copticLit:timothy.discourses.on_abbaton:22-54."
+  },
+  {
+    "author": "Sahidic Coptic",
+    "work": "1 Chronicles",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/urn:cts:copticLit:ot.1chr.coptot:17",
+    "added_by": "V6 Import",
+    "license": "CC-BY-SA 4.0",
+    "note": "Coptic SCRIPTORIUM corpus sahidic.ot, 1 document. Text prepared by: Crosswire, CoptOT. Translation: The Septuagint Version of the Old Testament, L.C.L. Brenton, 1851, available at ebible.org. Document URN: urn:cts:copticLit:ot.1chr.coptot:17."
+  },
+  {
+    "author": "Sahidic Coptic",
+    "work": "1 Corinthians",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/urn:cts:copticLit:nt.1cor.sahidica_ed",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus sahidica.1corinthians, 16 documents. Text prepared by: David Brakke, Hany Takla, J Warren Wells. Translation: World English Bible (WEB). Document URNs run from urn:cts:copticLit:nt.1cor.sahidica_ed:1 to urn:cts:copticLit:nt.1cor.sahidica_ed:16."
+  },
+  {
+    "author": "Sahidic Coptic",
+    "work": "1 John",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/sahidica.nt",
+    "added_by": "V6 Import",
+    "license": "(c)2000-2006 by J Warren Wells, for academic use only.",
+    "note": "Coptic SCRIPTORIUM corpus sahidica.nt, 5 documents. Text prepared by: Sahidica - A New Edition of the New Testament in Sahidic Coptic. Translation: World English Bible (WEB). Document URNs run from urn:cts:copticLit:nt.1john.sahidica:1 to urn:cts:copticLit:nt.1john.sahidica:5."
+  },
+  {
+    "author": "Sahidic Coptic",
+    "work": "1 Kings",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/sahidic.ot",
+    "added_by": "V6 Import",
+    "license": "CC-BY-SA 4.0",
+    "note": "Coptic SCRIPTORIUM corpus sahidic.ot, 13 documents. Text prepared by: Crosswire, CoptOT. Translation: The Septuagint Version of the Old Testament, L.C.L. Brenton, 1851, available at ebible.org. Document URNs run from urn:cts:copticLit:ot.1kgs.coptot:1 to urn:cts:copticLit:ot.1kgs.coptot:22."
+  },
+  {
+    "author": "Sahidic Coptic",
+    "work": "1 Peter",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/sahidica.nt",
+    "added_by": "V6 Import",
+    "license": "(c)2000-2006 by J Warren Wells, for academic use only.",
+    "note": "Coptic SCRIPTORIUM corpus sahidica.nt, 5 documents. Text prepared by: Sahidica - A New Edition of the New Testament in Sahidic Coptic. Translation: World English Bible (WEB). Document URNs run from urn:cts:copticLit:nt.1pet.sahidica:1 to urn:cts:copticLit:nt.1pet.sahidica:5."
+  },
+  {
+    "author": "Sahidic Coptic",
+    "work": "1 Samuel",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/sahidic.ot",
+    "added_by": "V6 Import",
+    "license": "CC-BY-SA 4.0",
+    "note": "Coptic SCRIPTORIUM corpus sahidic.ot, 31 documents. Text prepared by: Crosswire, CoptOT. Translation: The Septuagint Version of the Old Testament, L.C.L. Brenton, 1851, available at ebible.org. Document URNs run from urn:cts:copticLit:ot.1sam.coptot:1 to urn:cts:copticLit:ot.1sam.coptot:31."
+  },
+  {
+    "author": "Sahidic Coptic",
+    "work": "1 Thessalonians",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/sahidica.nt",
+    "added_by": "V6 Import",
+    "license": "(c)2000-2006 by J Warren Wells, for academic use only.",
+    "note": "Coptic SCRIPTORIUM corpus sahidica.nt, 5 documents. Text prepared by: Sahidica - A New Edition of the New Testament in Sahidic Coptic. Translation: World English Bible (WEB). Document URNs run from urn:cts:copticLit:nt.1thess.sahidica:1 to urn:cts:copticLit:nt.1thess.sahidica:5."
+  },
+  {
+    "author": "Sahidic Coptic",
+    "work": "1 Timothy",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/sahidica.nt",
+    "added_by": "V6 Import",
+    "license": "(c)2000-2006 by J Warren Wells, for academic use only.",
+    "note": "Coptic SCRIPTORIUM corpus sahidica.nt, 6 documents. Text prepared by: Sahidica - A New Edition of the New Testament in Sahidic Coptic. Translation: World English Bible (WEB). Document URNs run from urn:cts:copticLit:nt.1tim.sahidica:1 to urn:cts:copticLit:nt.1tim.sahidica:6."
+  },
+  {
+    "author": "Sahidic Coptic",
+    "work": "2 Chronicles",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/sahidic.ot",
+    "added_by": "V6 Import",
+    "license": "CC-BY-SA 4.0",
+    "note": "Coptic SCRIPTORIUM corpus sahidic.ot, 3 documents. Text prepared by: Crosswire, CoptOT. Translation: The Septuagint Version of the Old Testament, L.C.L. Brenton, 1851, available at ebible.org. Document URNs run from urn:cts:copticLit:ot.2chr.coptot:5 to urn:cts:copticLit:ot.2chr.coptot:34."
+  },
+  {
+    "author": "Sahidic Coptic",
+    "work": "2 Corinthians",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/sahidica.nt",
+    "added_by": "V6 Import",
+    "license": "(c)2000-2006 by J Warren Wells, for academic use only.",
+    "note": "Coptic SCRIPTORIUM corpus sahidica.nt, 13 documents. Text prepared by: Sahidica - A New Edition of the New Testament in Sahidic Coptic. Translation: World English Bible (WEB). Document URNs run from urn:cts:copticLit:nt.2cor.sahidica:1 to urn:cts:copticLit:nt.2cor.sahidica:13."
+  },
+  {
+    "author": "Sahidic Coptic",
+    "work": "2 John",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/urn:cts:copticLit:nt.2john.sahidica:1",
+    "added_by": "V6 Import",
+    "license": "(c)2000-2006 by J Warren Wells, for academic use only.",
+    "note": "Coptic SCRIPTORIUM corpus sahidica.nt, 1 document. Text prepared by: Sahidica - A New Edition of the New Testament in Sahidic Coptic. Translation: World English Bible (WEB). Document URN: urn:cts:copticLit:nt.2john.sahidica:1."
+  },
+  {
+    "author": "Sahidic Coptic",
+    "work": "2 Kings",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/sahidic.ot",
+    "added_by": "V6 Import",
+    "license": "CC-BY-SA 4.0",
+    "note": "Coptic SCRIPTORIUM corpus sahidic.ot, 19 documents. Text prepared by: Crosswire, CoptOT. Translation: The Septuagint Version of the Old Testament, L.C.L. Brenton, 1851, available at ebible.org. Document URNs run from urn:cts:copticLit:ot.2kgs.coptot:1 to urn:cts:copticLit:ot.2kgs.coptot:25."
+  },
+  {
+    "author": "Sahidic Coptic",
+    "work": "2 Maccabees",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/sahidic.ot",
+    "added_by": "V6 Import",
+    "license": "CC-BY-SA 4.0",
+    "note": "Coptic SCRIPTORIUM corpus sahidic.ot, 3 documents. Text prepared by: Crosswire, CoptOT. Translation: The Septuagint Version of the Old Testament, L.C.L. Brenton, 1851, available at ebible.org. Document URNs run from urn:cts:copticLit:ot.2macc.coptot:5 to urn:cts:copticLit:ot.2macc.coptot:7."
+  },
+  {
+    "author": "Sahidic Coptic",
+    "work": "2 Peter",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/sahidica.nt",
+    "added_by": "V6 Import",
+    "license": "(c)2000-2006 by J Warren Wells, for academic use only.",
+    "note": "Coptic SCRIPTORIUM corpus sahidica.nt, 3 documents. Text prepared by: Sahidica - A New Edition of the New Testament in Sahidic Coptic. Translation: World English Bible (WEB). Document URNs run from urn:cts:copticLit:nt.2pet.sahidica:1 to urn:cts:copticLit:nt.2pet.sahidica:3."
+  },
+  {
+    "author": "Sahidic Coptic",
+    "work": "2 Samuel",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/sahidic.ot",
+    "added_by": "V6 Import",
+    "license": "CC-BY-SA 4.0",
+    "note": "Coptic SCRIPTORIUM corpus sahidic.ot, 24 documents. Text prepared by: Crosswire, CoptOT. Translation: The Septuagint Version of the Old Testament, L.C.L. Brenton, 1851, available at ebible.org. Document URNs run from urn:cts:copticLit:ot.2sam.coptot:1 to urn:cts:copticLit:ot.2sam.coptot:24."
+  },
+  {
+    "author": "Sahidic Coptic",
+    "work": "2 Thessalonians",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/sahidica.nt",
+    "added_by": "V6 Import",
+    "license": "(c)2000-2006 by J Warren Wells, for academic use only.",
+    "note": "Coptic SCRIPTORIUM corpus sahidica.nt, 3 documents. Text prepared by: Sahidica - A New Edition of the New Testament in Sahidic Coptic. Translation: World English Bible (WEB). Document URNs run from urn:cts:copticLit:nt.2thess.sahidica:1 to urn:cts:copticLit:nt.2thess.sahidica:3."
+  },
+  {
+    "author": "Sahidic Coptic",
+    "work": "2 Timothy",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/sahidica.nt",
+    "added_by": "V6 Import",
+    "license": "(c)2000-2006 by J Warren Wells, for academic use only.",
+    "note": "Coptic SCRIPTORIUM corpus sahidica.nt, 4 documents. Text prepared by: Sahidica - A New Edition of the New Testament in Sahidic Coptic. Translation: World English Bible (WEB). Document URNs run from urn:cts:copticLit:nt.2tim.sahidica:1 to urn:cts:copticLit:nt.2tim.sahidica:4."
+  },
+  {
+    "author": "Sahidic Coptic",
+    "work": "3 John",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/urn:cts:copticLit:nt.3john.sahidica:1",
+    "added_by": "V6 Import",
+    "license": "(c)2000-2006 by J Warren Wells, for academic use only.",
+    "note": "Coptic SCRIPTORIUM corpus sahidica.nt, 1 document. Text prepared by: Sahidica - A New Edition of the New Testament in Sahidic Coptic. Translation: World English Bible (WEB). Document URN: urn:cts:copticLit:nt.3john.sahidica:1."
+  },
+  {
+    "author": "Sahidic Coptic",
+    "work": "Acts of the Apostles",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/sahidica.nt",
+    "added_by": "V6 Import",
+    "license": "(c)2000-2006 by J Warren Wells, for academic use only.",
+    "note": "Coptic SCRIPTORIUM corpus sahidica.nt, 28 documents. Text prepared by: Sahidica - A New Edition of the New Testament in Sahidic Coptic. Translation: World English Bible (WEB). Document URNs run from urn:cts:copticLit:nt.acts.sahidica:1 to urn:cts:copticLit:nt.acts.sahidica:28."
+  },
+  {
+    "author": "Sahidic Coptic",
+    "work": "Amos",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/sahidic.ot",
+    "added_by": "V6 Import",
+    "license": "CC-BY-SA 4.0",
+    "note": "Coptic SCRIPTORIUM corpus sahidic.ot, 7 documents. Text prepared by: Crosswire, CoptOT. Translation: The Septuagint Version of the Old Testament, L.C.L. Brenton, 1851, available at ebible.org. Document URNs run from urn:cts:copticLit:ot.amos.coptot:1 to urn:cts:copticLit:ot.amos.coptot:9."
+  },
+  {
+    "author": "Sahidic Coptic",
+    "work": "Baruch",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/sahidic.ot",
+    "added_by": "V6 Import",
+    "license": "CC-BY-SA 4.0",
+    "note": "Coptic SCRIPTORIUM corpus sahidic.ot, 5 documents. Text prepared by: Crosswire, CoptOT. Translation: The Septuagint Version of the Old Testament, L.C.L. Brenton, 1851, available at ebible.org. Document URNs run from urn:cts:copticLit:ot.bar.coptot:1 to urn:cts:copticLit:ot.bar.coptot:5."
+  },
+  {
+    "author": "Sahidic Coptic",
+    "work": "Bel and the Dragon",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/urn:cts:copticLit:ot.bel.coptot:1",
+    "added_by": "V6 Import",
+    "license": "CC-BY-SA 4.0",
+    "note": "Coptic SCRIPTORIUM corpus sahidic.ot, 1 document. Text prepared by: Crosswire, CoptOT. Translation: The Septuagint Version of the Old Testament, L.C.L. Brenton, 1851, available at ebible.org. Document URN: urn:cts:copticLit:ot.bel.coptot:1."
+  },
+  {
+    "author": "Sahidic Coptic",
+    "work": "Bible (whole)",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora",
+    "added_by": "V6 Import",
+    "license": "(c)2000-2006 by J Warren Wells, for academic use only.; CC-BY-SA 4.0",
+    "note": "Whole-collection file made from the Coptic SCRIPTORIUM corpus sahidica.nt, sahidic.ot (1170 documents). Text prepared by: Sahidica - A New Edition of the New Testament in Sahidic Coptic; Crosswire, CoptOT."
+  },
+  {
+    "author": "Sahidic Coptic",
+    "work": "Colossians",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/sahidica.nt",
+    "added_by": "V6 Import",
+    "license": "(c)2000-2006 by J Warren Wells, for academic use only.",
+    "note": "Coptic SCRIPTORIUM corpus sahidica.nt, 4 documents. Text prepared by: Sahidica - A New Edition of the New Testament in Sahidic Coptic. Translation: World English Bible (WEB). Document URNs run from urn:cts:copticLit:nt.col.sahidica:1 to urn:cts:copticLit:nt.col.sahidica:4."
+  },
+  {
+    "author": "Sahidic Coptic",
+    "work": "Daniel",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/sahidic.ot",
+    "added_by": "V6 Import",
+    "license": "CC-BY-SA 4.0",
+    "note": "Coptic SCRIPTORIUM corpus sahidic.ot, 11 documents. Text prepared by: Crosswire, CoptOT. Translation: The Septuagint Version of the Old Testament, L.C.L. Brenton, 1851, available at ebible.org. Document URNs run from urn:cts:copticLit:ot.dan.coptot:1 to urn:cts:copticLit:ot.dan.coptot:11."
+  },
+  {
+    "author": "Sahidic Coptic",
+    "work": "Deuteronomy",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/sahidic.ot",
+    "added_by": "V6 Import",
+    "license": "CC-BY-SA 4.0",
+    "note": "Coptic SCRIPTORIUM corpus sahidic.ot, 34 documents. Text prepared by: Crosswire, CoptOT. Translation: The Septuagint Version of the Old Testament, L.C.L. Brenton, 1851, available at ebible.org. Document URNs run from urn:cts:copticLit:ot.deut.coptot:1 to urn:cts:copticLit:ot.deut.coptot:34."
+  },
+  {
+    "author": "Sahidic Coptic",
+    "work": "Ecclesiastes",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/sahidic.ot",
+    "added_by": "V6 Import",
+    "license": "CC-BY-SA 4.0",
+    "note": "Coptic SCRIPTORIUM corpus sahidic.ot, 12 documents. Text prepared by: Crosswire, CoptOT. Translation: The Septuagint Version of the Old Testament, L.C.L. Brenton, 1851, available at ebible.org. Document URNs run from urn:cts:copticLit:ot.eccl.coptot:1 to urn:cts:copticLit:ot.eccl.coptot:12."
+  },
+  {
+    "author": "Sahidic Coptic",
+    "work": "Ephesians",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/sahidica.nt",
+    "added_by": "V6 Import",
+    "license": "(c)2000-2006 by J Warren Wells, for academic use only.",
+    "note": "Coptic SCRIPTORIUM corpus sahidica.nt, 6 documents. Text prepared by: Sahidica - A New Edition of the New Testament in Sahidic Coptic. Translation: World English Bible (WEB). Document URNs run from urn:cts:copticLit:nt.eph.sahidica:1 to urn:cts:copticLit:nt.eph.sahidica:6."
+  },
+  {
+    "author": "Sahidic Coptic",
+    "work": "Epistle of Jeremiah",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/sahidic.ot",
+    "added_by": "V6 Import",
+    "license": "CC-BY-SA 4.0",
+    "note": "Coptic SCRIPTORIUM corpus sahidic.ot, 2 documents. Text prepared by: Crosswire, CoptOT. Translation: The Septuagint Version of the Old Testament, L.C.L. Brenton, 1851, available at ebible.org. Document URNs run from urn:cts:copticLit:ot.epjer.coptot:0 to urn:cts:copticLit:ot.epjer.coptot:1."
+  },
+  {
+    "author": "Sahidic Coptic",
+    "work": "Esther",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/sahidic.ot",
+    "added_by": "V6 Import",
+    "license": "CC-BY-SA 4.0",
+    "note": "Coptic SCRIPTORIUM corpus sahidic.ot, 10 documents. Text prepared by: Crosswire, CoptOT. Translation: The Septuagint Version of the Old Testament, L.C.L. Brenton, 1851, available at ebible.org. Document URNs run from urn:cts:copticLit:ot.esth.coptot:1 to urn:cts:copticLit:ot.esth.coptot:10."
+  },
+  {
+    "author": "Sahidic Coptic",
+    "work": "Exodus",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/sahidic.ot",
+    "added_by": "V6 Import",
+    "license": "CC-BY-SA 4.0",
+    "note": "Coptic SCRIPTORIUM corpus sahidic.ot, 33 documents. Text prepared by: Crosswire, CoptOT. Translation: The Septuagint Version of the Old Testament, L.C.L. Brenton, 1851, available at ebible.org. Document URNs run from urn:cts:copticLit:ot.exod.coptot:1 to urn:cts:copticLit:ot.exod.coptot:34."
+  },
+  {
+    "author": "Sahidic Coptic",
+    "work": "Ezekiel",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/sahidic.ot",
+    "added_by": "V6 Import",
+    "license": "CC-BY-SA 4.0",
+    "note": "Coptic SCRIPTORIUM corpus sahidic.ot, 45 documents. Text prepared by: Crosswire, CoptOT. Translation: The Septuagint Version of the Old Testament, L.C.L. Brenton, 1851, available at ebible.org. Document URNs run from urn:cts:copticLit:ot.ezek.coptot:1 to urn:cts:copticLit:ot.ezek.coptot:48."
+  },
+  {
+    "author": "Sahidic Coptic",
+    "work": "Galatians",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/sahidica.nt",
+    "added_by": "V6 Import",
+    "license": "(c)2000-2006 by J Warren Wells, for academic use only.",
+    "note": "Coptic SCRIPTORIUM corpus sahidica.nt, 6 documents. Text prepared by: Sahidica - A New Edition of the New Testament in Sahidic Coptic. Translation: World English Bible (WEB). Document URNs run from urn:cts:copticLit:nt.gal.sahidica:1 to urn:cts:copticLit:nt.gal.sahidica:6."
+  },
+  {
+    "author": "Sahidic Coptic",
+    "work": "Genesis",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/sahidic.ot",
+    "added_by": "V6 Import",
+    "license": "CC-BY-SA 4.0",
+    "note": "Coptic SCRIPTORIUM corpus sahidic.ot, 50 documents. Text prepared by: Crosswire, CoptOT. Translation: The Septuagint Version of the Old Testament, L.C.L. Brenton, 1851, available at ebible.org. Document URNs run from urn:cts:copticLit:ot.gen.coptot:1 to urn:cts:copticLit:ot.gen.coptot:50."
+  },
+  {
+    "author": "Sahidic Coptic",
+    "work": "Habakkuk",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/sahidic.ot",
+    "added_by": "V6 Import",
+    "license": "CC-BY-SA 4.0",
+    "note": "Coptic SCRIPTORIUM corpus sahidic.ot, 3 documents. Text prepared by: Crosswire, CoptOT. Translation: The Septuagint Version of the Old Testament, L.C.L. Brenton, 1851, available at ebible.org. Document URNs run from urn:cts:copticLit:ot.hab.coptot:1 to urn:cts:copticLit:ot.hab.coptot:3."
+  },
+  {
+    "author": "Sahidic Coptic",
+    "work": "Haggai",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/sahidic.ot",
+    "added_by": "V6 Import",
+    "license": "CC-BY-SA 4.0",
+    "note": "Coptic SCRIPTORIUM corpus sahidic.ot, 2 documents. Text prepared by: Crosswire, CoptOT. Translation: The Septuagint Version of the Old Testament, L.C.L. Brenton, 1851, available at ebible.org. Document URNs run from urn:cts:copticLit:ot.hag.coptot:1 to urn:cts:copticLit:ot.hag.coptot:2."
+  },
+  {
+    "author": "Sahidic Coptic",
+    "work": "Hebrews",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/sahidica.nt",
+    "added_by": "V6 Import",
+    "license": "(c)2000-2006 by J Warren Wells, for academic use only.",
+    "note": "Coptic SCRIPTORIUM corpus sahidica.nt, 13 documents. Text prepared by: Sahidica - A New Edition of the New Testament in Sahidic Coptic. Translation: World English Bible (WEB). Document URNs run from urn:cts:copticLit:nt.heb.sahidica:1 to urn:cts:copticLit:nt.heb.sahidica:13."
+  },
+  {
+    "author": "Sahidic Coptic",
+    "work": "Hosea",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/sahidic.ot",
+    "added_by": "V6 Import",
+    "license": "CC-BY-SA 4.0",
+    "note": "Coptic SCRIPTORIUM corpus sahidic.ot, 9 documents. Text prepared by: Crosswire, CoptOT. Translation: The Septuagint Version of the Old Testament, L.C.L. Brenton, 1851, available at ebible.org. Document URNs run from urn:cts:copticLit:ot.hos.coptot:2 to urn:cts:copticLit:ot.hos.coptot:14."
+  },
+  {
+    "author": "Sahidic Coptic",
+    "work": "Isaiah",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/sahidic.ot",
+    "added_by": "V6 Import",
+    "license": "CC-BY-SA 4.0",
+    "note": "Coptic SCRIPTORIUM corpus sahidic.ot, 67 documents. Text prepared by: Crosswire, CoptOT. Translation: The Septuagint Version of the Old Testament, L.C.L. Brenton, 1851, available at ebible.org. Document URNs run from urn:cts:copticLit:ot.isa.coptot:1 to urn:cts:copticLit:ot.isa.coptot:66."
+  },
+  {
+    "author": "Sahidic Coptic",
+    "work": "James",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/sahidica.nt",
+    "added_by": "V6 Import",
+    "license": "(c)2000-2006 by J Warren Wells, for academic use only.",
+    "note": "Coptic SCRIPTORIUM corpus sahidica.nt, 5 documents. Text prepared by: Sahidica - A New Edition of the New Testament in Sahidic Coptic. Translation: World English Bible (WEB). Document URNs run from urn:cts:copticLit:nt.jas.sahidica:1 to urn:cts:copticLit:nt.jas.sahidica:5."
+  },
+  {
+    "author": "Sahidic Coptic",
+    "work": "Jeremiah",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/sahidic.ot",
+    "added_by": "V6 Import",
+    "license": "CC-BY-SA 4.0",
+    "note": "Coptic SCRIPTORIUM corpus sahidic.ot, 50 documents. Text prepared by: Crosswire, CoptOT. Translation: The Septuagint Version of the Old Testament, L.C.L. Brenton, 1851, available at ebible.org. Document URNs run from urn:cts:copticLit:ot.jer.coptot:1 to urn:cts:copticLit:ot.jer.coptot:52."
+  },
+  {
+    "author": "Sahidic Coptic",
+    "work": "Job",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/sahidic.ot",
+    "added_by": "V6 Import",
+    "license": "CC-BY-SA 4.0",
+    "note": "Coptic SCRIPTORIUM corpus sahidic.ot, 42 documents. Text prepared by: Crosswire, CoptOT. Translation: The Septuagint Version of the Old Testament, L.C.L. Brenton, 1851, available at ebible.org. Document URNs run from urn:cts:copticLit:ot.job.coptot:1 to urn:cts:copticLit:ot.job.coptot:42."
+  },
+  {
+    "author": "Sahidic Coptic",
+    "work": "Joel",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/sahidic.ot",
+    "added_by": "V6 Import",
+    "license": "CC-BY-SA 4.0",
+    "note": "Coptic SCRIPTORIUM corpus sahidic.ot, 4 documents. Text prepared by: Crosswire, CoptOT. Translation: The Septuagint Version of the Old Testament, L.C.L. Brenton, 1851, available at ebible.org. Document URNs run from urn:cts:copticLit:ot.joel.coptot:1 to urn:cts:copticLit:ot.joel.coptot:4."
+  },
+  {
+    "author": "Sahidic Coptic",
+    "work": "John",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/sahidica.nt",
+    "added_by": "V6 Import",
+    "license": "(c)2000-2006 by J Warren Wells, for academic use only.",
+    "note": "Coptic SCRIPTORIUM corpus sahidica.nt, 20 documents. Text prepared by: Sahidica - A New Edition of the New Testament in Sahidic Coptic. Translation: World English Bible (WEB). Document URNs run from urn:cts:copticLit:nt.john.sahidica:1 to urn:cts:copticLit:nt.john.sahidica:21."
+  },
+  {
+    "author": "Sahidic Coptic",
+    "work": "Jonah",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/sahidic.jonah",
+    "print_source": "Coptic Old Testament Project Goettingen (edited)",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus sahidic.jonah, 4 documents. Text prepared by: Goettingen Old Testament Project (CoptOT), Thompson 1913. Translation: The Septuagint Version of the Old Testament, L.C.L. Brenton, 1851, available at ebible.org. Document URNs run from urn:cts:copticLit:ot.jonah.coptot_ed:1 to urn:cts:copticLit:ot.jonah.coptot_ed:4."
+  },
+  {
+    "author": "Sahidic Coptic",
+    "work": "Joshua",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/sahidic.ot",
+    "added_by": "V6 Import",
+    "license": "CC-BY-SA 4.0",
+    "note": "Coptic SCRIPTORIUM corpus sahidic.ot, 24 documents. Text prepared by: Crosswire, CoptOT. Translation: The Septuagint Version of the Old Testament, L.C.L. Brenton, 1851, available at ebible.org. Document URNs run from urn:cts:copticLit:ot.josh.coptot:1 to urn:cts:copticLit:ot.josh.coptot:24."
+  },
+  {
+    "author": "Sahidic Coptic",
+    "work": "Jude",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/urn:cts:copticLit:nt.jude.sahidica:1",
+    "added_by": "V6 Import",
+    "license": "(c)2000-2006 by J Warren Wells, for academic use only.",
+    "note": "Coptic SCRIPTORIUM corpus sahidica.nt, 1 document. Text prepared by: Sahidica - A New Edition of the New Testament in Sahidic Coptic. Translation: World English Bible (WEB). Document URN: urn:cts:copticLit:nt.jude.sahidica:1."
+  },
+  {
+    "author": "Sahidic Coptic",
+    "work": "Judges",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/sahidic.ot",
+    "added_by": "V6 Import",
+    "license": "CC-BY-SA 4.0",
+    "note": "Coptic SCRIPTORIUM corpus sahidic.ot, 21 documents. Text prepared by: Crosswire, CoptOT. Translation: The Septuagint Version of the Old Testament, L.C.L. Brenton, 1851, available at ebible.org. Document URNs run from urn:cts:copticLit:ot.judg.coptot:1 to urn:cts:copticLit:ot.judg.coptot:21."
+  },
+  {
+    "author": "Sahidic Coptic",
+    "work": "Judith",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/sahidic.ot",
+    "added_by": "V6 Import",
+    "license": "CC-BY-SA 4.0",
+    "note": "Coptic SCRIPTORIUM corpus sahidic.ot, 15 documents. Text prepared by: Crosswire, CoptOT. Translation: The Septuagint Version of the Old Testament, L.C.L. Brenton, 1851, available at ebible.org. Document URNs run from urn:cts:copticLit:ot.jdt.coptot:1 to urn:cts:copticLit:ot.jdt.coptot:16."
+  },
+  {
+    "author": "Sahidic Coptic",
+    "work": "Lamentations",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/sahidic.ot",
+    "added_by": "V6 Import",
+    "license": "CC-BY-SA 4.0",
+    "note": "Coptic SCRIPTORIUM corpus sahidic.ot, 5 documents. Text prepared by: Crosswire, CoptOT. Translation: The Septuagint Version of the Old Testament, L.C.L. Brenton, 1851, available at ebible.org. Document URNs run from urn:cts:copticLit:ot.lam.coptot:1 to urn:cts:copticLit:ot.lam.coptot:5."
+  },
+  {
+    "author": "Sahidic Coptic",
+    "work": "Leviticus",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/sahidic.ot",
+    "added_by": "V6 Import",
+    "license": "CC-BY-SA 4.0",
+    "note": "Coptic SCRIPTORIUM corpus sahidic.ot, 28 documents. Text prepared by: Crosswire, CoptOT. Translation: The Septuagint Version of the Old Testament, L.C.L. Brenton, 1851, available at ebible.org. Document URNs run from urn:cts:copticLit:ot.lev.coptot:0 to urn:cts:copticLit:ot.lev.coptot:27."
+  },
+  {
+    "author": "Sahidic Coptic",
+    "work": "Luke",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/sahidica.nt",
+    "added_by": "V6 Import",
+    "license": "(c)2000-2006 by J Warren Wells, for academic use only.",
+    "note": "Coptic SCRIPTORIUM corpus sahidica.nt, 24 documents. Text prepared by: Sahidica - A New Edition of the New Testament in Sahidic Coptic. Translation: World English Bible (WEB). Document URNs run from urn:cts:copticLit:nt.luke.sahidica:1 to urn:cts:copticLit:nt.luke.sahidica:24."
+  },
+  {
+    "author": "Sahidic Coptic",
+    "work": "Mark",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/urn:cts:copticLit:nt.mark.sahidica_ed",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus sahidica.mark, 16 documents. Text prepared by: David Brakke, Hany Takla, J Warren Wells. Translation: World English Bible (WEB). Document URNs run from urn:cts:copticLit:nt.mark.sahidica_ed:1 to urn:cts:copticLit:nt.mark.sahidica_ed:16."
+  },
+  {
+    "author": "Sahidic Coptic",
+    "work": "Matthew",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/sahidica.nt",
+    "added_by": "V6 Import",
+    "license": "(c)2000-2006 by J Warren Wells, for academic use only.",
+    "note": "Coptic SCRIPTORIUM corpus sahidica.nt, 28 documents. Text prepared by: Sahidica - A New Edition of the New Testament in Sahidic Coptic. Translation: World English Bible (WEB). Document URNs run from urn:cts:copticLit:nt.matt.sahidica:1 to urn:cts:copticLit:nt.matt.sahidica:28."
+  },
+  {
+    "author": "Sahidic Coptic",
+    "work": "Micah",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/sahidic.ot",
+    "added_by": "V6 Import",
+    "license": "CC-BY-SA 4.0",
+    "note": "Coptic SCRIPTORIUM corpus sahidic.ot, 6 documents. Text prepared by: Crosswire, CoptOT. Translation: The Septuagint Version of the Old Testament, L.C.L. Brenton, 1851, available at ebible.org. Document URNs run from urn:cts:copticLit:ot.mic.coptot:1 to urn:cts:copticLit:ot.mic.coptot:7."
+  },
+  {
+    "author": "Sahidic Coptic",
+    "work": "Nahum",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/sahidic.ot",
+    "added_by": "V6 Import",
+    "license": "CC-BY-SA 4.0",
+    "note": "Coptic SCRIPTORIUM corpus sahidic.ot, 2 documents. Text prepared by: Crosswire, CoptOT. Translation: The Septuagint Version of the Old Testament, L.C.L. Brenton, 1851, available at ebible.org. Document URNs run from urn:cts:copticLit:ot.nah.coptot:1 to urn:cts:copticLit:ot.nah.coptot:3."
+  },
+  {
+    "author": "Sahidic Coptic",
+    "work": "New Testament (whole)",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/sahidica.nt",
+    "added_by": "V6 Import",
+    "license": "(c)2000-2006 by J Warren Wells, for academic use only.",
+    "note": "Whole-collection file made from the Coptic SCRIPTORIUM corpus sahidica.nt (259 documents). Text prepared by: Sahidica - A New Edition of the New Testament in Sahidic Coptic. Translation: World English Bible (WEB)."
+  },
+  {
+    "author": "Sahidic Coptic",
+    "work": "Numbers",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/sahidic.ot",
+    "added_by": "V6 Import",
+    "license": "CC-BY-SA 4.0",
+    "note": "Coptic SCRIPTORIUM corpus sahidic.ot, 36 documents. Text prepared by: Crosswire, CoptOT. Translation: The Septuagint Version of the Old Testament, L.C.L. Brenton, 1851, available at ebible.org. Document URNs run from urn:cts:copticLit:ot.num.coptot:1 to urn:cts:copticLit:ot.num.coptot:36."
+  },
+  {
+    "author": "Sahidic Coptic",
+    "work": "Obadiah",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/urn:cts:copticLit:ot.obad.coptot:1",
+    "added_by": "V6 Import",
+    "license": "CC-BY-SA 4.0",
+    "note": "Coptic SCRIPTORIUM corpus sahidic.ot, 1 document. Text prepared by: Crosswire, CoptOT. Translation: The Septuagint Version of the Old Testament, L.C.L. Brenton, 1851, available at ebible.org. Document URN: urn:cts:copticLit:ot.obad.coptot:1."
+  },
+  {
+    "author": "Sahidic Coptic",
+    "work": "Old Testament (whole)",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/sahidic.ot",
+    "added_by": "V6 Import",
+    "license": "CC-BY-SA 4.0",
+    "note": "Whole-collection file made from the Coptic SCRIPTORIUM corpus sahidic.ot (911 documents). Text prepared by: Crosswire, CoptOT. Translation: The Septuagint Version of the Old Testament, L.C.L. Brenton, 1851, available at ebible.org."
+  },
+  {
+    "author": "Sahidic Coptic",
+    "work": "Philemon",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/urn:cts:copticLit:nt.phlm.sahidica:1",
+    "added_by": "V6 Import",
+    "license": "(c)2000-2006 by J Warren Wells, for academic use only.",
+    "note": "Coptic SCRIPTORIUM corpus sahidica.nt, 1 document. Text prepared by: Sahidica - A New Edition of the New Testament in Sahidic Coptic. Translation: World English Bible (WEB). Document URN: urn:cts:copticLit:nt.phlm.sahidica:1."
+  },
+  {
+    "author": "Sahidic Coptic",
+    "work": "Philippians",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/sahidica.nt",
+    "added_by": "V6 Import",
+    "license": "(c)2000-2006 by J Warren Wells, for academic use only.",
+    "note": "Coptic SCRIPTORIUM corpus sahidica.nt, 4 documents. Text prepared by: Sahidica - A New Edition of the New Testament in Sahidic Coptic. Translation: World English Bible (WEB). Document URNs run from urn:cts:copticLit:nt.phil.sahidica:1 to urn:cts:copticLit:nt.phil.sahidica:4."
+  },
+  {
+    "author": "Sahidic Coptic",
+    "work": "Prayer of Manasses",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/urn:cts:copticLit:ot.prman.coptot:1",
+    "added_by": "V6 Import",
+    "license": "CC-BY-SA 4.0",
+    "note": "Coptic SCRIPTORIUM corpus sahidic.ot, 1 document. Text prepared by: Crosswire, CoptOT. Translation: The Septuagint Version of the Old Testament, L.C.L. Brenton, 1851, available at ebible.org. Document URN: urn:cts:copticLit:ot.prman.coptot:1."
+  },
+  {
+    "author": "Sahidic Coptic",
+    "work": "Proverbs",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/sahidic.ot",
+    "added_by": "V6 Import",
+    "license": "CC-BY-SA 4.0",
+    "note": "Coptic SCRIPTORIUM corpus sahidic.ot, 31 documents. Text prepared by: Crosswire, CoptOT. Translation: The Septuagint Version of the Old Testament, L.C.L. Brenton, 1851, available at ebible.org. Document URNs run from urn:cts:copticLit:ot.prov.coptot:1 to urn:cts:copticLit:ot.prov.coptot:31."
+  },
+  {
+    "author": "Sahidic Coptic",
+    "work": "Psalms",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/sahidic.ot",
+    "added_by": "V6 Import",
+    "license": "CC-BY-SA 4.0",
+    "note": "Coptic SCRIPTORIUM corpus sahidic.ot, 151 documents. Text prepared by: Crosswire, CoptOT. Translation: The Septuagint Version of the Old Testament, L.C.L. Brenton, 1851, available at ebible.org. Document URNs run from urn:cts:copticLit:ot.pss.coptot:1 to urn:cts:copticLit:ot.pss.coptot:99."
+  },
+  {
+    "author": "Sahidic Coptic",
+    "work": "Revelation",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/sahidica.nt",
+    "added_by": "V6 Import",
+    "license": "(c)2000-2006 by J Warren Wells, for academic use only.",
+    "note": "Coptic SCRIPTORIUM corpus sahidica.nt, 22 documents. Text prepared by: Sahidica - A New Edition of the New Testament in Sahidic Coptic. Translation: World English Bible (WEB). Document URNs run from urn:cts:copticLit:nt.rev.sahidica:1 to urn:cts:copticLit:nt.rev.sahidica:22."
+  },
+  {
+    "author": "Sahidic Coptic",
+    "work": "Romans",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/sahidica.nt",
+    "added_by": "V6 Import",
+    "license": "(c)2000-2006 by J Warren Wells, for academic use only.",
+    "note": "Coptic SCRIPTORIUM corpus sahidica.nt, 16 documents. Text prepared by: Sahidica - A New Edition of the New Testament in Sahidic Coptic. Translation: World English Bible (WEB). Document URNs run from urn:cts:copticLit:nt.rom.sahidica:1 to urn:cts:copticLit:nt.rom.sahidica:16."
+  },
+  {
+    "author": "Sahidic Coptic",
+    "work": "Ruth",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/sahidic.ruth",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus sahidic.ruth, 4 documents. Text prepared by: Crosswire, CoptOT. Translation: The Septuagint Version of the Old Testament, L.C.L. Brenton, 1851, available at ebible.org. Document URNs run from urn:cts:copticLit:ot.ruth.coptot_ed:1 to urn:cts:copticLit:ot.ruth.coptot_ed:4."
+  },
+  {
+    "author": "Sahidic Coptic",
+    "work": "Sirach",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/sahidic.ot",
+    "added_by": "V6 Import",
+    "license": "CC-BY-SA 4.0",
+    "note": "Coptic SCRIPTORIUM corpus sahidic.ot, 51 documents. Text prepared by: Crosswire, CoptOT. Translation: The Septuagint Version of the Old Testament, L.C.L. Brenton, 1851, available at ebible.org. Document URNs run from urn:cts:copticLit:ot.sir.coptot:1 to urn:cts:copticLit:ot.sir.coptot:51."
+  },
+  {
+    "author": "Sahidic Coptic",
+    "work": "Song of Solomon",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/sahidic.ot",
+    "added_by": "V6 Import",
+    "license": "CC-BY-SA 4.0",
+    "note": "Coptic SCRIPTORIUM corpus sahidic.ot, 8 documents. Text prepared by: Crosswire, CoptOT. Translation: The Septuagint Version of the Old Testament, L.C.L. Brenton, 1851, available at ebible.org. Document URNs run from urn:cts:copticLit:ot.song.coptot:1 to urn:cts:copticLit:ot.song.coptot:8."
+  },
+  {
+    "author": "Sahidic Coptic",
+    "work": "Susanna",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/urn:cts:copticLit:ot.sus.coptot:1",
+    "added_by": "V6 Import",
+    "license": "CC-BY-SA 4.0",
+    "note": "Coptic SCRIPTORIUM corpus sahidic.ot, 1 document. Text prepared by: Crosswire, CoptOT. Translation: The Septuagint Version of the Old Testament, L.C.L. Brenton, 1851, available at ebible.org. Document URN: urn:cts:copticLit:ot.sus.coptot:1."
+  },
+  {
+    "author": "Sahidic Coptic",
+    "work": "Titus",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/sahidica.nt",
+    "added_by": "V6 Import",
+    "license": "(c)2000-2006 by J Warren Wells, for academic use only.",
+    "note": "Coptic SCRIPTORIUM corpus sahidica.nt, 3 documents. Text prepared by: Sahidica - A New Edition of the New Testament in Sahidic Coptic. Translation: World English Bible (WEB). Document URNs run from urn:cts:copticLit:nt.titus.sahidica:1 to urn:cts:copticLit:nt.titus.sahidica:3."
+  },
+  {
+    "author": "Sahidic Coptic",
+    "work": "Tobit",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/sahidic.ot",
+    "added_by": "V6 Import",
+    "license": "CC-BY-SA 4.0",
+    "note": "Coptic SCRIPTORIUM corpus sahidic.ot, 7 documents. Text prepared by: Crosswire, CoptOT. Translation: The Septuagint Version of the Old Testament, L.C.L. Brenton, 1851, available at ebible.org. Document URNs run from urn:cts:copticLit:ot.tob.coptot:1 to urn:cts:copticLit:ot.tob.coptot:14."
+  },
+  {
+    "author": "Sahidic Coptic",
+    "work": "Wisdom",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/sahidic.ot",
+    "added_by": "V6 Import",
+    "license": "CC-BY-SA 4.0",
+    "note": "Coptic SCRIPTORIUM corpus sahidic.ot, 19 documents. Text prepared by: Crosswire, CoptOT. Translation: The Septuagint Version of the Old Testament, L.C.L. Brenton, 1851, available at ebible.org. Document URNs run from urn:cts:copticLit:ot.wis.coptot:1 to urn:cts:copticLit:ot.wis.coptot:19."
+  },
+  {
+    "author": "Sahidic Coptic",
+    "work": "Zechariah",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/sahidic.ot",
+    "added_by": "V6 Import",
+    "license": "CC-BY-SA 4.0",
+    "note": "Coptic SCRIPTORIUM corpus sahidic.ot, 12 documents. Text prepared by: Crosswire, CoptOT. Translation: The Septuagint Version of the Old Testament, L.C.L. Brenton, 1851, available at ebible.org. Document URNs run from urn:cts:copticLit:ot.zech.coptot:1 to urn:cts:copticLit:ot.zech.coptot:14."
+  },
+  {
+    "author": "Sahidic Coptic",
+    "work": "Zephaniah",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/sahidic.ot",
+    "added_by": "V6 Import",
+    "license": "CC-BY-SA 4.0",
+    "note": "Coptic SCRIPTORIUM corpus sahidic.ot, 3 documents. Text prepared by: Crosswire, CoptOT. Translation: The Septuagint Version of the Old Testament, L.C.L. Brenton, 1851, available at ebible.org. Document URNs run from urn:cts:copticLit:ot.zeph.coptot:1 to urn:cts:copticLit:ot.zeph.coptot:3."
+  },
+  {
+    "author": "Shenoute",
+    "work": "A22",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/urn:cts:copticLit:shenoute.a22",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus shenoute.a22, 12 documents. Editions are named per document (8 different) at the Scriptorium page. Document URNs run from urn:cts:copticLit:shenoute.a22.monbya:901-914 to urn:cts:copticLit:shenoute.a22.monbzc:1001-1006."
+  },
+  {
+    "author": "Shenoute",
+    "work": "Abraham",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/urn:cts:copticLit:shenoute.abraham",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus shenoute.abraham, 7 documents. Translation: Rebecca Krawiec, Heike Behlmer. Editions are named per document (6 different) at the Scriptorium page. Document URNs run from urn:cts:copticLit:shenoute.abraham.monbxl:23-24 to urn:cts:copticLit:shenoute.abraham.monbzh:18-22."
+  },
+  {
+    "author": "Shenoute",
+    "work": "All",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://github.com/CopticScriptorium/corpora",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Whole-collection file made from the Coptic SCRIPTORIUM corpus shenoute.abraham, shenoute.a22, shenoute.considering, shenoute.crushed, shenoute.dirt, shenoute.eagerness, shenoute.errs, shenoute.fox, shenoute.house, shenoute.listen, shenoute.night, shenoute.place, shenoute.prince, shenoute.seeks, shenoute.those, shenoute.thundered, shenoute.true, shenoute.uncertain.xr, shenoute.unknown5_1, shenoute.witness (77 documents). Editions are named per document (52 different) at the Scriptorium page."
+  },
+  {
+    "author": "Shenoute",
+    "work": "Considering",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/urn:cts:copticLit:shenoute.considering.amelineau:1-2",
+    "print_source": "Amélineau Oeuvres de Schenoudi 1:8-11",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus shenoute.considering, 1 document. Text prepared by: Stephen Emmel. Document URN: urn:cts:copticLit:shenoute.considering.amelineau:1-2."
+  },
+  {
+    "author": "Shenoute",
+    "work": "Crushed",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/urn:cts:copticLit:shenoute.crushed.amelineau",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus shenoute.crushed, 5 documents. Text prepared by: Stephen Emmel. Editions are named per document (5 different) at the Scriptorium page. Document URNs run from urn:cts:copticLit:shenoute.crushed.amelineau:25-26 to urn:cts:copticLit:shenoute.crushed.amelineau:18-20."
+  },
+  {
+    "author": "Shenoute",
+    "work": "Dirt",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/urn:cts:copticLit:shenoute.dirt",
+    "print_source": "Amélineau 1907–14, 2:74-77; Zoega 1810, 493 (lines 13b–14 = XJ 95:i.15b–22; (lines 15–3 = XJ 96:i.8–ii.9); Ladeuze 1898, 367 (lines 25b–27a = XJ 95:i.15b–22; lines 27b–33 = XJ 96:i.8–ii.9); Amélineau 1907–14, 2:76–78; Ladeuze 1898, 367; Amélineau 1907–14, 2:77–79.",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus shenoute.dirt, 6 documents. Text prepared by: David Brakke. Document URNs run from urn:cts:copticLit:shenoute.dirt.monbgf:41-51 to urn:cts:copticLit:shenoute.dirt.monbxj:5-7."
+  },
+  {
+    "author": "Shenoute",
+    "work": "Eagerness",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/urn:cts:copticLit:shenoute.eagerness",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus shenoute.eagerness, 17 documents. Translation: Amir Zeldes. Editions are named per document (10 different) at the Scriptorium page. Document URNs run from urn:cts:copticLit:shenoute.eagerness.monbgf_17_18 to urn:cts:copticLit:shenoute.eagerness.monbxj_77_86."
+  },
+  {
+    "author": "Shenoute",
+    "work": "Errs",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/urn:cts:copticLit:shenoute.errs.amelineau:1-20",
+    "print_source": "Amélineau Oeuvres de Schenoudi 1:307-315",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus shenoute.errs, 1 document. Text prepared by: Stephen Emmel. Document URN: urn:cts:copticLit:shenoute.errs.amelineau:1-20."
+  },
+  {
+    "author": "Shenoute",
+    "work": "Fox",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/urn:cts:copticLit:shenoute.fox.monbxh_204_216",
+    "print_source": "Emile Chassinat, Le Quatrième Livre des Entretiens et Épîtres de Shenouti, 38-50",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus shenoute.fox, 1 document. Translation: Amir Zeldes. Document URN: urn:cts:copticLit:shenoute.fox.monbxh_204_216."
+  },
+  {
+    "author": "Shenoute",
+    "work": "House",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/urn:cts:copticLit:shenoute.house.amelineau",
+    "print_source": "Amélineau Oeuvres de Schenoudi 1:303-307; Amélineau Oeuvres de Schenoudi 1:299-303",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus shenoute.house, 2 documents. Text prepared by: Stephen Emmel. Document URNs run from urn:cts:copticLit:shenoute.house.amelineau:460-465 to urn:cts:copticLit:shenoute.house.amelineau:450-460."
+  },
+  {
+    "author": "Shenoute",
+    "work": "Listen",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/urn:cts:copticLit:shenoute.listen.amelineau:5-10",
+    "print_source": "Amélineau Oeuvres de Schenoudi 2:80-89",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus shenoute.listen, 1 document. Text prepared by: Stephen Emmel, Amélineau Oeuvres de Schenoudi 1907. Document URN: urn:cts:copticLit:shenoute.listen.amelineau:5-10."
+  },
+  {
+    "author": "Shenoute",
+    "work": "Night",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/urn:cts:copticLit:shenoute.night.monbbv:1-7",
+    "print_source": "Amelineau, Vol. 1:3-8",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus shenoute.night, 1 document. Text prepared by: Stephen Emmel. Translation: Amir Zeldes. Document URN: urn:cts:copticLit:shenoute.night.monbbv:1-7."
+  },
+  {
+    "author": "Shenoute",
+    "work": "Place",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/urn:cts:copticLit:shenoute.place.amelineau:55-56",
+    "print_source": "Amélineau Oeuvres de Schenoudi 1:1-3",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus shenoute.place, 1 document. Text prepared by: Stephen Emmel, Amélineau Oeuvres de Schenoudi 1907. Translation: Amir Zeldes. Document URN: urn:cts:copticLit:shenoute.place.amelineau:55-56."
+  },
+  {
+    "author": "Shenoute",
+    "work": "Prince",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/urn:cts:copticLit:shenoute.prince",
+    "print_source": "Chassinat (1911) pp. 19-28; Chassinat (1911) pp. 29-38",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus shenoute.prince, 2 documents. Text prepared by: Chassinat edition, OCR via So Miyagawa. Document URNs run from urn:cts:copticLit:shenoute.prince.chassinat_ed:1-28 to urn:cts:copticLit:shenoute.prince.chassinat_ed:28-55."
+  },
+  {
+    "author": "Shenoute",
+    "work": "Seeks",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/urn:cts:copticLit:shenoute.seeks.monbcz:26-36",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus shenoute.seeks, 1 document. Text prepared by: David Brakke. Document URN: urn:cts:copticLit:shenoute.seeks.monbcz:26-36."
+  },
+  {
+    "author": "Shenoute",
+    "work": "Those",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/urn:cts:copticLit:shenoute.those",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus shenoute.those, 13 documents. Translation: Amir Zeldes. Editions are named per document (5 different) at the Scriptorium page. Document URNs run from urn:cts:copticLit:shenoute.those.monbgf.0-4 to urn:cts:copticLit:shenoute.those.monbwy:12-15."
+  },
+  {
+    "author": "Shenoute",
+    "work": "Thundered",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/urn:cts:copticLit:shenoute.thundered.amelineau:26-41",
+    "print_source": "Amélineau Oeuvres de Schenoudi 2:134-143",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus shenoute.thundered, 1 document. Text prepared by: Stephen Emmel, Amélineau Oeuvres de Schenoudi 1907. Document URN: urn:cts:copticLit:shenoute.thundered.amelineau:26-41."
+  },
+  {
+    "author": "Shenoute",
+    "work": "True",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/urn:cts:copticLit:shenoute.true.amelineau:201-207",
+    "print_source": "Amélineau Oeuvres de Schenoudi 1:11-14",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus shenoute.true, 1 document. Text prepared by: Stephen Emmel. Translation: Caroline T. Schroeder, Amir Zeldes. Document URN: urn:cts:copticLit:shenoute.true.amelineau:201-207."
+  },
+  {
+    "author": "Shenoute",
+    "work": "Uncertain.xr",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/urn:cts:copticLit:shenoute.uncertain_xr.amelineau:1401-1410",
+    "print_source": "Amélineau Oeuvres de Schenoudi 1:285-298",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus shenoute.uncertain.xr, 1 document. Text prepared by: Stephen Emmel. Document URN: urn:cts:copticLit:shenoute.uncertain_xr.amelineau:1401-1410."
+  },
+  {
+    "author": "Shenoute",
+    "work": "Unknown5 1",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/urn:cts:copticLit:shenoute.unknown5_1",
+    "print_source": "Amélineau (1907–14) 1:276–277",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus shenoute.unknown5_1, 2 documents. Text prepared by: David Brakke, Paul Dilley; David Brakke, Stephen Emmel. Document URNs run from urn:cts:copticLit:shenoute.unknown5_1.monbgf:101-102 to urn:cts:copticLit:shenoute.unknown5_1.monbgf:131-139."
+  },
+  {
+    "author": "Shenoute",
+    "work": "Witness",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/urn:cts:copticLit:shenoute.witness.amelineau:44-47",
+    "print_source": "Amélineau Oeuvres de Schenoudi 2:106-108",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus shenoute.witness, 1 document. Text prepared by: Stephen Emmel. Document URN: urn:cts:copticLit:shenoute.witness.amelineau:44-47."
+  },
+  {
+    "author": "Theodosius",
+    "work": "Alexandria",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/urn:cts:copticLit:theodosiusalex.michael",
+    "print_source": "Budge Miscellaneous 1915 pp. 330-420; Budge Miscellaneous 1915 pp. 321-420",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus theodosius.alexandria, 9 documents. Text prepared by: Budge Miscellaneous 1915 on Internet Archive. Document URNs run from urn:cts:copticLit:theodosiusalex.michael.budge_al_ed:9-30 to urn:cts:copticLit:theodosiusalex.michael.budge_ai_ed:62-70."
+  },
+  {
+    "author": "Thomas",
+    "work": "Gospel",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/urn:cts:copticLit:nh.thomas.NHAM02:0-114",
+    "print_source": "Paul Dilley",
+    "added_by": "V6 Import",
+    "license": "CC-BY 4.0",
+    "note": "Coptic SCRIPTORIUM corpus thomas.gospel, 1 document. Document URN: urn:cts:copticLit:nh.thomas.NHAM02:0-114."
   }
 ]
