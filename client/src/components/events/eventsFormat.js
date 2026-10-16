@@ -1,3 +1,6 @@
+import { bareLocus } from '../reader/refId';
+import { citationFromCorpusMap } from '../../utils/textNames';
+
 /** Years are signed: -490 is 490 BCE, 9 is 9 CE. */
 export function yearLabel(y) {
   if (y === null || y === undefined) return '';
@@ -34,4 +37,26 @@ export function kmLabel(km) {
 /** The Reader link for a passage, with the way back to the event. */
 export function readerLinkWithBack(url, eventId, eventLabel) {
   return `${url}&event=${encodeURIComponent(eventId)}&eventLabel=${encodeURIComponent(eventLabel || '')}`;
+}
+
+/** The heading over one work's passages: "Thucydides, Peloponnesian War" from the
+ *  corpus text map; without an entry, the id read as words ("Herodotus, Histories"). */
+export function workHeading(work, corpusMap) {
+  const id = String(work || '').replace(/\.tess$/, '').replace(/\.part\.\d+.*$/, '');
+  const hit = citationFromCorpusMap(`${id}.0`, corpusMap);
+  if (hit && (hit.author || hit.work)) return [hit.author, hit.work].filter(Boolean).join(', ');
+  return id.split('.')
+    .map((part) => part.split('_').filter(Boolean).map((w) => w[0].toUpperCase() + w.slice(1)).join(' '))
+    .filter(Boolean).join(', ');
+}
+
+/** A scholarship row's passage_ref ("thuc. pele. 7.49.3-7.53.2") as the short locus
+ *  ("7.49.3 to 7.53.2"). A ref with no range is shortened alone. */
+export function shortPassageRef(ref) {
+  const s = String(ref || '').trim();
+  const m = /^(.*?\d[^\s]*?)\s*[-\u2013]\s*(\S*\d\S*)$/.exec(s);
+  if (!m) return bareLocus(s);
+  const a = bareLocus(m[1]);
+  const b = bareLocus(m[2]);
+  return a === b ? a : `${a} to ${b}`;
 }
