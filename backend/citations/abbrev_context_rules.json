@@ -24,7 +24,11 @@
     "pun": [{"work": "silius_italicus.punica", "context": "Sil"}],
     "imag": [{"work": "philostratus_the_lemnian.imagines", "context": "Philostr"}],
     "salt": [{"work": "lucian.de_saltatione", "context": "Luc"}],
-    "dion": [{"work": "nonnus_of_panopolis.dionysiaca", "context": "Nonn"}]
+    "dion": [{"work": "nonnus_of_panopolis.dionysiaca", "context": "Nonn"}],
+    "o": [{"work": "pindar.odes", "context": "Pind"}],
+    "n": [{"work": "pindar.odes", "context": "Pind"}],
+    "id": [{"work": "theocritus.idylls", "context": "Theoc"}],
+    "b": [{"work": "bacchylides.epinicians", "context": "Bacchyl"}, {"work": "bacchylides.dithyrambs", "context": "Bacchyl"}]
   },
   "veto_before_all": "\\bOn\\s+Aristotle(?:'s|’s)?\\s*$|(?:Simplicius|Philoponus|Olympiodorus|Damascius|Proclus|Ammonius|Asclepius|Themistius|Alexander of Aphrodisias)[,:]?\\s+(?:in\\s+|In\\s+|on\\s+|On\\s+|Comm\\.\\s*)?(?:Arist(?:otle|\\.)?\\s+)?$",
   "disambiguate": {
@@ -57,7 +61,20 @@
     "el": [{"work": "euripides.electra", "context": "Eur(?:ip|\\b)"}, {"work": "sophocles.electra", "context": "Soph"}],
     "mil": [{"work": "cicero.pro_milone", "context": "Cic"}, {"work": "plautus.miles_gloriosus", "context": "Plaut|\\bPl\\b"}],
     "lys": [{"work": "aristophanes.lysistrata", "context": "Aristoph|\\bAr\\b"}, {"work": "lysias.speeches", "context": "Lys(?:ias)?\\b"}],
-    "civ": [{"work": "caesar.de_bello_civili", "context": "Caes"}, {"work": "augustine.de_civitate_dei", "context": "Aug"}]
+    "civ": [{"work": "caesar.de_bello_civili", "context": "Caes"}, {"work": "augustine.de_civitate_dei", "context": "Aug"}],
+    "d": [{"family": "demosthenes", "context": "Demosth|\\bDem\\b"}, {"work": "nonnus_of_panopolis.dionysiaca", "context": "Nonn"}],
+    "p": [{"work": "pindar.odes", "context": "Pind"}],
+    "i": [{"work": "pindar.odes", "context": "Pind"}],
+    "is": [{"work": "isaeus.speeches", "context": "Isae"}, {"work": "pindar.odes", "context": "Pind"}],
+    "or": [{"work": "libanius.orations", "context": "Liban"}, {"work": "euripides.orestes", "context": "Eur(?:ip|\\b)"}],
+    "bacch": [{"work": "plautus.bacchides", "context": "Plaut|\\bPl\\b"}, {"family": "bacchylides", "context": "Bacchyl"}]
   },
+  "defaults": {
+    "lys": {"work": "lysias.speeches", "min_levels": 2},
+    "isoc": {"work": "isocrates.speeches", "min_levels": 2},
+    "theoc": {"work": "theocritus.idylls", "min_levels": 1},
+    "bacch": {"work": "plautus.bacchides", "min_levels": 1}
+  },
+  "_comment_defaults": "Round 4. A form that still names several works after the author-context choice falls back to this work when it is among the candidates and the citation has at least min_levels locus levels: Lysias and Isocrates are cited speech.section (two levels) while the Lysistrata is cited by line, the idylls are what Theoc. means unless Ep. is written, and a bare Bacch. keeps meaning Plautus unless Bacchylides is named.",
   "_comment_disambiguate": "Forms that name several works in the table (or one work in a collision). Keys are normalized surfaces. Each entry lists a work and a regex for its author; the author named closest before the citation (sentence before, or this sentence ahead of it) decides, and a form with no author named stays as it was (unresolved when the table ties). Added in round 3, 2026-10-16."
 }
