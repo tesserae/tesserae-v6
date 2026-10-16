@@ -40,7 +40,7 @@ describe('the view data', () => {
     expect(h.searchDefaults.la).toEqual({
       source: 'livy.ab_urbe_condita.part.1.books_1-10.tess', target: 'tacitus.annales.part.1.tess',
     });
-    expect(h.searchDefaults.grc.target).toBe('thucydides.peleponnesian_war.part.1.tess');
+    expect(h.searchDefaults.grc.target).toBe('thucydides.peloponnesian_war.part.1.tess');
     expect(h.startHereLabels.documents).toBe('Inscriptions, papyri, events and coins');
   });
 

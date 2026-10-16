@@ -18,7 +18,7 @@ describe('translation block header', () => {
       ok: true, json: () => Promise.resolve(body), text: () => Promise.resolve(JSON.stringify(body)),
       headers: { get: () => 'application/json' },
     }));
-    render(<ResultsPanel selection={null} language="grc" work="thucydides.peleponnesian_war.part.2"
+    render(<ResultsPanel selection={null} language="grc" work="thucydides.peloponnesian_war.part.2"
                          units={UNITS} initialTab="translation" />);
     fireEvent.click(await screen.findByRole('button', { name: /show full translation/i }));
     const head = await screen.findByText('2.57.1–2.58.3');

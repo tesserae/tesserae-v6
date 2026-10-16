@@ -164,7 +164,7 @@ export const VIEWS = [
     readerTabs: ['similar', 'documents', 'coins', 'scholarship', 'reuse', 'verbal', 'translation'],
     searchDefaults: {
       la: { source: 'livy.ab_urbe_condita.part.1.books_1-10.tess', target: 'tacitus.annales.part.1.tess' },
-      grc: { source: 'herodotus.histories.part.1.tess', target: 'thucydides.peleponnesian_war.part.1.tess' },
+      grc: { source: 'herodotus.histories.part.1.tess', target: 'thucydides.peloponnesian_war.part.1.tess' },
     },
     startHereOrder: ['documents', 'read', 'subject', 'ask', 'phrase', 'compare', 'rare'],
     startHereLabels: { documents: 'Inscriptions, papyri, events and coins' },

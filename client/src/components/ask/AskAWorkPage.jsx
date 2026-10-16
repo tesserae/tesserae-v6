@@ -73,7 +73,7 @@ const EXAMPLES = [
   { lang: 'grc', work: 'sappho.fragments', q: 'jealousy at the sight of the beloved sitting with a man', label: 'jealousy at the sight of the beloved with a man', on: 'Sappho' },
   { lang: 'la', work: 'vergil.aeneid', q: 'Dido falls in love with Aeneas', label: 'Dido falls in love with Aeneas', on: 'the Aeneid' },
   { lang: 'grc', work: 'homer.odyssey', q: 'Odysseus strings the bow and kills the suitors', label: 'Odysseus strings the bow', on: 'the Odyssey' },
-  { lang: 'grc', work: 'thucydides.peleponnesian_war', q: 'the plague at Athens', label: 'the plague at Athens', on: 'Thucydides' },
+  { lang: 'grc', work: 'thucydides.peloponnesian_war', q: 'the plague at Athens', label: 'the plague at Athens', on: 'Thucydides' },
   { lang: 'grc', work: 'herodotus.histories', q: 'Solon tells Croesus that no man can be called happy before his death', label: 'Solon tells Croesus no man is happy before death', on: 'Herodotus' },
   { lang: 'la', work: 'tacitus.annales', q: 'the legions in Pannonia mutiny after the death of Augustus', label: 'the Pannonian legions mutiny', on: 'the Annals' },
 ];
@@ -87,7 +87,7 @@ const HISTORY_EXAMPLES = [
   { lang: 'la', work: 'tacitus.annales', q: 'the legions in Pannonia mutiny after the death of Augustus', label: 'the Pannonian legions mutiny', on: 'the Annals' },
   { lang: 'grc', work: 'herodotus.histories', q: 'Solon tells Croesus that no man can be called happy before his death', label: 'Solon tells Croesus no man is happy before death', on: 'Herodotus' },
   { lang: 'la', work: 'caesar.de_bello_gallico', q: 'Caesar builds a bridge across the Rhine', label: 'Caesar bridges the Rhine', on: 'Caesar' },
-  { lang: 'grc', work: 'thucydides.peleponnesian_war', q: 'the plague at Athens', label: 'the plague at Athens', on: 'Thucydides' },
+  { lang: 'grc', work: 'thucydides.peloponnesian_war', q: 'the plague at Athens', label: 'the plague at Athens', on: 'Thucydides' },
   { lang: 'la', work: 'suetonius.de_vita_caesarum', q: 'the assassination of Julius Caesar in the senate', label: 'the assassination of Julius Caesar', on: 'Suetonius' },
 ];
 
