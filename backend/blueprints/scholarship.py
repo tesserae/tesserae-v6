@@ -28,8 +28,8 @@ import requests
 from flask import Blueprint, jsonify, request
 
 from backend import scholarship as S
+from backend import scholarship_about
 from backend import scholarship_theme
-from backend.work_names import base_work
 from backend.logging_config import get_logger
 
 logger = get_logger('scholarship')
@@ -101,26 +101,10 @@ def sources():
     # The languages of the WORKS commented on, not the language a commentary
     # is written in (Leaf's English notes are on the Greek Iliad). Scripture
     # keys (bible.*) count for every language that holds a Bible version.
-    texts_root = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), 'texts')
-    work_lang = {}
-    try:
-        for lang in os.listdir(texts_root):
-            d = os.path.join(texts_root, lang)
-            if not os.path.isdir(d):
-                continue
-            for fn in os.listdir(d):
-                if fn.endswith('.tess'):
-                    work_lang.setdefault(base_work(fn[:-5]), set()).add(lang)
-    except OSError:
-        pass
-    langs_present = set(os.listdir(texts_root)) if os.path.isdir(texts_root) else set()
-    bible_langs = {'he', 'grc', 'cop', 'en', 'la'} & langs_present
+    work_lang, langs_present = scholarship_about.work_language_map()
     languages = set()
     for row in rows:
-        for w in row.get('works') or []:
-            if str(w).startswith('bible.'):
-                languages.update(bible_langs)
-            languages.update(work_lang.get(w, ()))
+        languages.update(scholarship_about.row_languages(row, work_lang, langs_present))
     languages = sorted(languages)
     return jsonify({'commentaries': rows, 'languages': languages})
 
@@ -142,6 +126,15 @@ def _held_note(work, ref, text, commentator=None):
             if (note.get('text') or '').strip() == text:
                 return {'commentator': entry.get('commentator'), 'language': entry.get('language')}
     return None
+
+
+@scholarship_bp.route('/scholarship/about')
+def about():
+    """What the scholarship results are made from: the commentaries held (by
+    language of the works), the journal citation indexes with their terms, the
+    live services, the methods and when each store was last updated. Read-only,
+    kept for an hour. Feeds the page /scholarship-sources."""
+    return jsonify(scholarship_about.about())
 
 
 @scholarship_bp.route('/scholarship/translate', methods=['POST'])

@@ -5,6 +5,7 @@ import SystemChart from './SystemChart';
 import { RequestDialog } from '../common';
 import { allMeasuredRows } from '../../data/searchScope';
 import { fetchLanguages, postJsonTo } from '../../utils/api';
+import AboutSourcesLink from '../scholarship/AboutSourcesLink';
 
 const AI_SCHEMA_URL = 'https://tesserae.caset.buffalo.edu/tesserae-data/tesserae-openapi.yaml';
 
@@ -1987,6 +1988,10 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   page numbers mention the citation, without showing you the text itself. Every source
                   and its license are listed on the Sources page under About. To search the notes and
                   sentences by theme, use the Scholarship choice on the Theme Search page.
+              </p>
+              <p className="text-gray-700 mb-3">
+                The journals and years in each index, the terms of each source and the method behind each part of
+                the results are on one page. <AboutSourcesLink anchor="methods" />
               </p>
               <p className="text-gray-700 mb-3">
                 Arriving from Theme Search, the Reader opens on the translation, selects the whole

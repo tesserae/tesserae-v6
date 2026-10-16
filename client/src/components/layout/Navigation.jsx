@@ -95,6 +95,8 @@ const mainTabs = [
   // look at it regularly); it is reached from the About page and at /research.
   { code: 'about', label: 'About' },
   { code: 'help', label: 'Help & Support' },
+  // Under the More menu, after Help: what the scholarship results are made from.
+  { code: 'scholarship-sources', label: 'Scholarship sources', more: true },
   { code: 'admin', label: 'Admin' }
 ];
 

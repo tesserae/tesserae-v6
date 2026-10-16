@@ -31,6 +31,7 @@ const PAGE_TITLES = {
   research: 'Research',
   'blog-archive': 'Blog Archive',
   requests: 'Requests',
+  'scholarship-sources': 'Scholarship: sources and methods',
   admin: 'Admin',
 };
 
@@ -62,6 +63,7 @@ const pathToPageType = {
   '/blog-archive': 'blog-archive',
   '/text-credits': 'text-credits',
   '/requests': 'requests',
+  '/scholarship-sources': 'scholarship-sources',
   '/admin': 'admin'
 };
 
@@ -97,6 +99,7 @@ const pageTypeToPath = {
   'research': '/research',
   'text-credits': '/text-credits',
   'requests': '/requests',
+  'scholarship-sources': '/scholarship-sources',
   'admin': '/admin'
 };
 

@@ -4,7 +4,7 @@
  * carries the originating query back to Line Search.
  */
 import { describe, it, expect, vi, afterEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import DocumentView from '../DocumentView';
@@ -266,6 +266,7 @@ describe('DocumentView', () => {
       expect(global.fetch).toHaveBeenCalledWith('/api/documents/edh%3AHD047322/scholarship');
       const box = screen.getByTestId('document-scholarship');
       expect(box.textContent).toContain('Scholarship');
+      expect(within(box).getByTestId('about-these-sources')).toHaveAttribute('href', '/scholarship-sources#journals');
       expect(box.textContent).toContain('Metrische Inschriften aus Campanien');
       expect(box.textContent).toContain('The stone is AE 2001, 2169 and is cited here.');
       expect(box.textContent).toContain('someone__work.json, l. 1');

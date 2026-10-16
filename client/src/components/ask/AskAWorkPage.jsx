@@ -17,6 +17,7 @@ import useCollections from '../../hooks/useCollections';
 import { viewById } from '../../collections/collectionsConfig';
 import { getJson, postJsonTo } from '../../utils/api';
 import { windowLocus, fullRef } from '../reader/refId';
+import AboutSourcesLink from '../scholarship/AboutSourcesLink';
 
 /**
  * Search One Text: pick one work, say a subject in plain words, and get the passages
@@ -1021,7 +1022,10 @@ export default function AskAWorkPage() {
                   )}
                   {showScholarshipBox && (
                   <section aria-label="Scholarship" className="mt-3 rounded border border-gray-200 bg-gray-50 px-3 py-2" data-testid="ask-scholarship-box">
-                  <p className="text-xs font-semibold text-gray-600">Scholarship</p>
+                  <div className="flex items-baseline justify-between gap-2 flex-wrap">
+                    <p className="text-xs font-semibold text-gray-600">Scholarship</p>
+                    <AboutSourcesLink anchor="methods" />
+                  </div>
                   {scholarship?.state === 'loading' && (
                     <p className="mt-1 text-sm text-gray-500 italic">Reading the secondary literature...</p>
                   )}

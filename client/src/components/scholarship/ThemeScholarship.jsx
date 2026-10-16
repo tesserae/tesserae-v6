@@ -6,6 +6,7 @@ import CiteRecordButton from '../common/CiteRecordButton';
 import CiteAll from '../common/CiteAll';
 import { recordFrom } from '../../utils/citations';
 import { RECENT_SERVICES, RECENT_LABELS, joinNames, mergeRecent, recentUrl, fetchRecent } from '../../utils/recentArticles';
+import AboutSourcesLink from './AboutSourcesLink';
 
 /**
  * The Scholarship option of Theme Search: commentary notes and journal
@@ -114,7 +115,10 @@ export default function ThemeScholarship({ search }) {
   const allRecords = [...results.map((m) => recordFrom(m, 'card')), ...(recent?.items || []).map((it) => recordFrom(it, 'recent'))];
   return (
     <div className="mt-4" data-testid="theme-scholarship">
-      <p className="text-xs text-gray-500" data-testid="theme-scholarship-label">{data.label}</p>
+      <div className="flex items-baseline justify-between gap-2 flex-wrap">
+        <p className="text-xs text-gray-500" data-testid="theme-scholarship-label">{data.label}</p>
+        <AboutSourcesLink anchor="methods" />
+      </div>
       <ScopeBox id="scholarship_theme" className="mt-2" />
       <div className="mt-1 text-right">
         <CiteAll records={allRecords} name={search.q} />

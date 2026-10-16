@@ -5,6 +5,7 @@ import { documentPlace, documentLabels } from './documentDisplay';
 import { LoadingSpinner } from '../common';
 import { dirFor } from '../../utils/rtl';
 import { splitImageLinks } from './imageLinks';
+import AboutSourcesLink from '../scholarship/AboutSourcesLink';
 
 function paramOr(name, fallback) {
   const v = new URLSearchParams(window.location.search).get(name);
@@ -224,7 +225,10 @@ export default function DocumentView() {
 
             {scholarship.length > 0 && (
               <div className="border-t pt-3" data-testid="document-scholarship">
-                <div className="text-sm font-medium text-gray-700 mb-1">Scholarship</div>
+                <div className="flex items-baseline justify-between gap-2 flex-wrap mb-1">
+                  <div className="text-sm font-medium text-gray-700">Scholarship</div>
+                  <AboutSourcesLink anchor="journals" />
+                </div>
                 <p className="text-[11px] text-gray-500 mb-2">
                   Sentences that cite this document in journals from before 1923 (JSTOR Early Journal
                   Content) and in the commentaries held here. The full list of sources is under{' '}
