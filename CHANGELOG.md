@@ -8,6 +8,7 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-16
+- Search One Text: choosing an author who has one work chooses that work at once.
 - Search One Text, Scholarship box: the paragraph is headed "Summary of the scholarship found" with a line saying it covers the notes and articles held here and the abstracts found online and leaves out the citing articles; the part headings and their export links wrap onto two lines instead of squeezing the heading.
 - Events page: each work's passages are headed by author and title from the corpus text map ("Thucydides, Peloponnesian War") and show the locus short ("7.49.3 to 7.53.2") instead of the raw file tag, on the Passages and Scholarship tabs. Corpus rename tool `scripts/corpus/rename_work.py` now also renames a work in the events store (`data/events/event_dossiers.sqlite`) and in the translations (file, manifest, `links/`), with a `--force` flag for rows already under the new name. Covered by `tests/test_rename_work.py`.
 - Render recording test: the blog archive page waits for its posts (a dynamic import) before the snapshot, so the recording no longer depends on how busy the machine is.
