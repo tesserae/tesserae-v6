@@ -65,28 +65,29 @@ const HTML = `<style>.ffc{
 
     <!-- 3 -->
     <div class="stage">
-      <div class="stage-hd"><span class="stage-no">3</span><h2>Ten channels search in parallel</h2></div>
+      <div class="stage-hd"><span class="stage-no">3</span><h2>Eleven channels search in parallel</h2></div>
       <div class="viz tint">
-        <svg class="fan" viewBox="0 0 600 150" role="img" aria-label="One line pair fans out to ten detection channels; some find a signal, some do not">
+        <svg class="fan" viewBox="0 0 660 150" role="img" aria-label="One line pair fans out to eleven detection channels; some find a signal, some do not">
           <g class="lead">
-            <line x1="300" y1="34" x2="39"  y2="100"/><line x1="300" y1="34" x2="97"  y2="100"/><line x1="300" y1="34" x2="155" y2="100"/><line x1="300" y1="34" x2="213" y2="100"/><line x1="300" y1="34" x2="271" y2="100"/><line x1="300" y1="34" x2="329" y2="100"/><line x1="300" y1="34" x2="387" y2="100"/><line x1="300" y1="34" x2="445" y2="100"/><line x1="300" y1="34" x2="503" y2="100"/><line x1="300" y1="34" x2="561" y2="100"/>
+            <line x1="330" y1="34" x2="39" y2="100"/><line x1="330" y1="34" x2="97" y2="100"/><line x1="330" y1="34" x2="155" y2="100"/><line x1="330" y1="34" x2="213" y2="100"/><line x1="330" y1="34" x2="271" y2="100"/><line x1="330" y1="34" x2="329" y2="100"/><line x1="330" y1="34" x2="387" y2="100"/><line x1="330" y1="34" x2="445" y2="100"/><line x1="330" y1="34" x2="503" y2="100"/><line x1="330" y1="34" x2="561" y2="100"/><line x1="330" y1="34" x2="619" y2="100"/>
           </g>
-          <circle class="hub" cx="300" cy="22" r="12"/><text class="hub-t" x="300" y="9" text-anchor="middle">one line pair</text>
+          <circle class="hub" cx="330" cy="22" r="12"/><text class="hub-t" x="330" y="9" text-anchor="middle">one line pair</text>
           <!-- on = found a signal -->
-          <g><rect class="chip-on"  x="12"  y="100" width="54" height="34" rx="6"/><circle class="dot-on"  cx="22" cy="112" r="3"/><text class="t-on"  x="18" y="128">Shared</text></g>
-          <g><rect class="chip-off" x="70"  y="100" width="54" height="34" rx="6"/><circle class="dot-off" cx="80" cy="112" r="3"/><text class="t-off" x="76" y="128">Single</text></g>
+          <g><rect class="chip-on" x="12" y="100" width="54" height="34" rx="6"/><circle class="dot-on" cx="22" cy="112" r="3"/><text class="t-on" x="18" y="128">Shared</text></g>
+          <g><rect class="chip-off" x="70" y="100" width="54" height="34" rx="6"/><circle class="dot-off" cx="80" cy="112" r="3"/><text class="t-off" x="76" y="128">Single</text></g>
           <g><rect class="chip-off" x="128" y="100" width="54" height="34" rx="6"/><circle class="dot-off" cx="138" cy="112" r="3"/><text class="t-off" x="134" y="128">Exact</text></g>
-          <g><rect class="chip-on"  x="186" y="100" width="54" height="34" rx="6"/><circle class="dot-on"  cx="196" cy="112" r="3"/><text class="t-on"  x="192" y="128">Sound</text></g>
+          <g><rect class="chip-on" x="186" y="100" width="54" height="34" rx="6"/><circle class="dot-on" cx="196" cy="112" r="3"/><text class="t-on" x="192" y="128">Sound</text></g>
           <g><rect class="chip-off" x="244" y="100" width="54" height="34" rx="6"/><circle class="dot-off" cx="254" cy="112" r="3"/><text class="t-off" x="250" y="128">Spelling</text></g>
-          <g><rect class="chip-on"  x="302" y="100" width="54" height="34" rx="6"/><circle class="dot-on"  cx="312" cy="112" r="3"/><text class="t-on"  x="308" y="128">Meaning</text></g>
+          <g><rect class="chip-on" x="302" y="100" width="54" height="34" rx="6"/><circle class="dot-on" cx="312" cy="112" r="3"/><text class="t-on" x="308" y="128">Meaning</text></g>
           <g><rect class="chip-off" x="360" y="100" width="54" height="34" rx="6"/><circle class="dot-off" cx="370" cy="112" r="3"/><text class="t-off" x="366" y="128">Synonym</text></g>
           <g><rect class="chip-off" x="418" y="100" width="54" height="34" rx="6"/><circle class="dot-off" cx="428" cy="112" r="3"/><text class="t-off" x="424" y="128">Syntax</text></g>
           <g><rect class="chip-off" x="476" y="100" width="54" height="34" rx="6"/><circle class="dot-off" cx="486" cy="112" r="3"/><text class="t-off" x="482" y="128">Structure</text></g>
-          <g><rect class="chip-on"  x="534" y="100" width="54" height="34" rx="6"/><circle class="dot-on"  cx="544" cy="112" r="3"/><text class="t-on"  x="540" y="128">Rare</text></g>
+          <g><rect class="chip-on" x="534" y="100" width="54" height="34" rx="6"/><circle class="dot-on" cx="544" cy="112" r="3"/><text class="t-on" x="540" y="128">Rare</text></g>
+          <g><rect class="chip-off" x="592" y="100" width="54" height="34" rx="6"/><circle class="dot-off" cx="602" cy="112" r="3"/><text class="t-off" x="598" y="128">Quotation</text></g>
         </svg>
         <p class="fx-note">Each channel searches independently for a different kind of similarity. For any given pair, only some channels find a signal (outlined in red).</p>
       </div>
-      <p class="stage-cap">The channels look for shared words, sound, meaning, syntax, rare vocabulary, and more — all at the same time.</p>
+      <p class="stage-cap">The channels look for shared words, sound, meaning, syntax, rare vocabulary, quotation, and more, all at the same time. Persian and Urdu add a twelfth, poetic form (refrain, rhyme and meter).</p>
     </div>
     <div class="arrow"><svg width="20" height="26" viewBox="0 0 20 26"><path d="M10 0 v18 M4 13 l6 7 6-7" fill="none" stroke="#c9c2bb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
 
