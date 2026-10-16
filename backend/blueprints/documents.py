@@ -328,7 +328,8 @@ def _lemmatize_query_simple(query, language, text_processor):
     return query_lemmas
 
 
-def _document_passes_filters(m, date_from, date_to, region, text_type, material, source, kind=None):
+def _document_passes_filters(m, date_from, date_to, region, text_type, material, source, kind=None,
+                              place=None):
     """True if a document hit's metadata (backend.documents.meta's return,
     or None) satisfies every filter the caller actually set. A filter the
     request left unset is skipped. When NO filter is active this always
@@ -336,7 +337,8 @@ def _document_passes_filters(m, date_from, date_to, region, text_type, material,
     at least one filter IS active and m is None, the hit cannot be
     confirmed and is excluded -- safer than showing an unfiltered row inside
     a filtered search."""
-    if not any([date_from is not None, date_to is not None, region, text_type, material, source, kind]):
+    if not any([date_from is not None, date_to is not None, region, text_type, material, source, kind,
+                place]):
         return True
     if m is None:
         return False
@@ -364,6 +366,10 @@ def _document_passes_filters(m, date_from, date_to, region, text_type, material,
             label = normalize_region(_k, m.get('source'), m.get('region'), m.get('ancient_place'))[0] if _k else None
             if not label or label.lower() != region.lower():
                 return False
+    if place:
+        from backend.documents import place_matches
+        if not place_matches(place, m.get('ancient_place'), m.get('modern_place')):
+            return False
     if text_type:
         if not m.get('text_type_label') or text_type.lower() not in m['text_type_label'].lower():
             return False
@@ -563,7 +569,7 @@ def _search_documents_collection(language, search_type, query, filtered_query_le
                                   min_matched, offset, limit, date_from, date_to,
                                   region, text_type, material, source,
                                   exclude_restored=False, hide_formulas=None,
-                                  sort='relevance', kind=None):
+                                  sort='relevance', kind=None, place=None):
     """Document hits for the documents/both collection. Mirrors the FAST PATH
     of line_search()'s literary branch (same index-driven candidate lookup,
     same matched-word shape) against backend.documents's own documents-index
@@ -662,7 +668,7 @@ def _search_documents_collection(language, search_type, query, filtered_query_le
         for c in raw_candidates:
             m = meta_by_id.get(c['doc_id'])
             if not _document_passes_filters(m, date_from, date_to, region, text_type,
-                                             material, source, kind):
+                                             material, source, kind, place):
                 continue
             all_positions = sorted({p for l in c['matched_lemmas']
                                      for p in (c['positions'].get(l) or [])})
@@ -785,7 +791,7 @@ def _search_documents_collection(language, search_type, query, filtered_query_le
             doc_id = docs.doc_for(language, filename, ref)
             m = docs.meta(doc_id) if doc_id else None
             if not _document_passes_filters(m, date_from, date_to, region, text_type,
-                                             material, source, kind):
+                                             material, source, kind, place):
                 continue
             restored = docs.restored_indices(language, filename, ref)
             restored_set = set(restored.get('restored') or [])
@@ -857,7 +863,7 @@ def _rarest_documents_lemmas(lemmas, language, cap, conn=None):
 def _line_search_documents_only(query, language, search_type, offset, limit, sort, count_only,
                                  date_from, date_to, region, text_type, material, source,
                                  search_start_time, exclude_restored=False, hide_formulas=None,
-                                 kind=None):
+                                 kind=None, place=None):
     """Full /api/line-search response for collection='documents': the
     documentary corpus alone, no literary search run at all. Returns a Flask
     response directly (line_search() returns this immediately).
@@ -898,7 +904,7 @@ def _line_search_documents_only(query, language, search_type, offset, limit, sor
         language, search_type, query, filtered_query_lemmas, min_matched, offset, limit,
         date_from, date_to, region, text_type, material, source,
         exclude_restored=exclude_restored, hide_formulas=hide_formulas, sort=sort,
-        kind=kind)
+        kind=kind, place=place)
 
     search_time = round(time_module.time() - search_start_time, 3)
     payload = {
@@ -1014,6 +1020,39 @@ def get_document_scholarship(doc_id):
     return jsonify(dict(scholarship_for(doc_id), doc_id=doc_id))
 
 
+@api_route('/documents/places', methods=['GET'])
+def document_places():
+    """The findspots for the Place control of the Inscriptions & Papyri
+    search: every distinct place (ancient name, with the commonest modern
+    name after it) and how many documents it has, sorted by count, for one
+    language when `language` is given (la, grc). `q` keeps the places whose
+    name contains that text, `limit` the first N of those (`total` counts them all). See
+    backend.documents.place_list. Behind TESSERAE_DOCUMENTS=1 like the rest."""
+    import backend.documents as _docs_mod
+    if not _docs_mod.enabled():
+        return jsonify({'error': 'not found'}), 404
+    language = (request.args.get('language') or '').strip() or None
+    q = (request.args.get('q') or '').strip().lower()
+    try:
+        limit = int(request.args.get('limit', 0))
+    except (TypeError, ValueError):
+        limit = 0
+    places = _docs_mod.place_list(language)
+    if q:
+        # Names that begin with the text come first, then names with a word
+        # that begins with it, then the rest; by count within each group.
+        def _rank(p):
+            name = p['label'].lower()
+            if name.startswith(q):
+                return 0
+            return 1 if re.search(r'(?<![^\W_])' + re.escape(q), name) else 2
+        places = sorted((p for p in places if q in p['label'].lower()), key=_rank)
+    total = len(places)
+    if limit > 0:
+        places = places[:limit]
+    return jsonify({'language': language, 'places': places, 'total': total})
+
+
 @api_route('/documents/browse', methods=['GET'])
 def browse_documents():
     """The Documents section of Browse Corpus: a normalized facet tree
@@ -1045,7 +1084,7 @@ def browse_documents():
     result = browse_mod.browse(
         kind=_arg('kind'), region=_arg('region'), findspot=_arg('findspot'), century=_arg('century'),
         text_type=_arg('text_type'), material=_arg('material'),
-        object_type=_arg('object'), language=_arg('language'),
+        object_type=_arg('object'), language=_arg('language'), place=_arg('doc_place'),
         page=page, page_size=page_size)
 
     # First-line snippets are a per-document index lookup each; only done

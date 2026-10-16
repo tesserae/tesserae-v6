@@ -31,6 +31,7 @@ class LineSearchParams:
     doc_material_filter: str
     doc_source_filter: str
     doc_kind_filter: str
+    doc_place_filter: str
     doc_exclude_restored: bool
     doc_hide_formulas: Optional[int]
     doc_sort: str
@@ -107,6 +108,8 @@ def _read_params(data) -> LineSearchParams:
     if doc_kind_filter not in ('inscriptions', 'papyri'):
         doc_kind_filter = ''
 
+    doc_place_filter = (data.get('doc_place') or '').strip() if documents_active else ''
+
     # Stage 3b-3: leave out a document hit whose match rests entirely on
     # restored text (documents/both only -- see _restoration_flags).
     doc_exclude_restored = False
@@ -174,7 +177,7 @@ def _read_params(data) -> LineSearchParams:
         documents_active=documents_active, date_from=date_from, date_to=date_to,
         doc_region_filter=doc_region_filter, doc_text_type_filter=doc_text_type_filter,
         doc_material_filter=doc_material_filter, doc_source_filter=doc_source_filter,
-        doc_kind_filter=doc_kind_filter, doc_exclude_restored=doc_exclude_restored,
+        doc_kind_filter=doc_kind_filter, doc_place_filter=doc_place_filter, doc_exclude_restored=doc_exclude_restored,
         doc_hide_formulas=doc_hide_formulas, doc_sort=doc_sort,
         doc_offset=doc_offset, doc_limit=doc_limit,
         exclude_text_id=exclude_text_id, exclude_locus=exclude_locus,
