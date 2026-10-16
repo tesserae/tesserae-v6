@@ -65,8 +65,10 @@ def test_april_is_not_prior_analytics():
 
 def test_politics_needs_aristotle_and_not_ad_pol_or_ath_pol():
     assert _resolved('Seneca, ad Pol. 3.2') == []
-    assert _resolved('Ath. Pol. 22.3') == []
-    assert _resolved('Ath.Pol. 22.3', 'Aristotle (or his school) reports it.') == []
+    # never Politics; since round 3 the combined form names the Athenaion Politeia
+    assert 'aristotle.politics' not in [w for w, _ in _resolved('Ath. Pol. 22.3')]
+    assert 'aristotle.politics' not in [
+        w for w, _ in _resolved('Ath.Pol. 22.3', 'Aristotle (or his school) reports it.')]
     assert _resolved('Pol. 1.2') == []
     assert _resolved('Pol. 1.2', 'Aristotle begins with the household.') == [('aristotle.politics', '1.2')]
     assert _resolved('Arist. Pol. 1.2') == [('aristotle.politics', '1.2')]

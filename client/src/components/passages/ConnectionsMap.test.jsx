@@ -14,7 +14,7 @@
  */
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import ConnectionsMap, { columnLabelsNeedRotation } from './ConnectionsMap';
+import ConnectionsMap, { columnLabelsNeedRotation, isDiagonalCell } from './ConnectionsMap';
 import { mockResponse } from '../../test/mockResponse';
 
 const MAP_PAYLOAD = {
@@ -636,5 +636,19 @@ describe('the name column gives the grid room on a phone', () => {
     const { mapLabelGeometry } = await import('./ConnectionsMap');
     expect(mapLabelGeometry(240).rowMargin).toBe(84);
     expect(mapLabelGeometry(120).rowMargin).toBe(84);
+  });
+});
+
+// The hatched diagonal (2026-10-16): book numbers coincide across two
+// different works without naming the same thing, so a books grid of two
+// works turns the diagonal off; a work against itself keeps it.
+describe('isDiagonalCell', () => {
+  it('hatches equal ids on a square grid of one entity set', () => {
+    expect(isDiagonalCell(['b1', 'b2'], ['b1', 'b2'], 0, 0)).toBe(true);
+    expect(isDiagonalCell(['b1', 'b2'], ['b1', 'b2'], 0, 1)).toBe(false);
+  });
+  it('never hatches when the grid compares two different works', () => {
+    expect(isDiagonalCell(['b1', 'b2'], ['b1', 'b2'], 0, 0, false)).toBe(false);
+    expect(isDiagonalCell(['b1', 'b2'], ['b1', 'b2'], 1, 1, false)).toBe(false);
   });
 });

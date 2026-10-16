@@ -1,0 +1,244 @@
+{
+ "_comment": "Citation recognizer round 3 (2026-10-16): forms the Project MUSE audit found unresolved, for works the corpus holds. Per base_id, abbreviations to append to the production table data/citations/abbreviations.json (scripts/citations/apply_abbrev_patch.py). `new_work` is a full record, used only when the base_id is absent from the table. Forms short enough to mean other works are gated by the rules in backend/citations/abbrev_context_rules.json. No article text.",
+ "patch": "round3",
+ "works": {
+  "polybius.histories": {
+   "abbreviations": [
+    "Polyb."
+   ]
+  },
+  "diodorus_siculus.bibliotheca_historica": {
+   "abbreviations": [
+    "Diod.",
+    "Diod. Sic.",
+    "D.S."
+   ],
+   "new_work": {
+    "tesserae_work_id": "diodorus_siculus.bibliotheca_historica",
+    "base_id": "diodorus_siculus.bibliotheca_historica",
+    "lang": "grc",
+    "parts": null,
+    "part_locus_ranges": null,
+    "native_abbreviation": "Diod.",
+    "hucit_author_id": null,
+    "hucit_work_id": null,
+    "author_names": [],
+    "work_titles": [
+     "Bibliotheca historica"
+    ],
+    "abbreviations": [],
+    "author_abbreviations": [],
+    "work_abbreviations": [],
+    "cts_urn": null,
+    "cts_urn_is_real": false,
+    "match_method": "round3_patch"
+   }
+  },
+  "xenophon.hellenica": {
+   "abbreviations": [
+    "Xen. Hell.",
+    "X. HG",
+    "Hell."
+   ],
+   "new_work": {
+    "tesserae_work_id": "xenophon.hellenica",
+    "base_id": "xenophon.hellenica",
+    "lang": "grc",
+    "parts": null,
+    "part_locus_ranges": null,
+    "native_abbreviation": "Xen. Hell.",
+    "hucit_author_id": null,
+    "hucit_work_id": null,
+    "author_names": [],
+    "work_titles": [
+     "Hellenica"
+    ],
+    "abbreviations": [],
+    "author_abbreviations": [],
+    "work_abbreviations": [],
+    "cts_urn": null,
+    "cts_urn_is_real": false,
+    "match_method": "round3_patch"
+   }
+  },
+  "cassius_dio.roman_history": {
+   "abbreviations": [
+    "Cass.",
+    "Cass. Dio",
+    "Dio Cass."
+   ],
+   "new_work": {
+    "tesserae_work_id": "cassius_dio.roman_history",
+    "base_id": "cassius_dio.roman_history",
+    "lang": "grc",
+    "parts": null,
+    "part_locus_ranges": null,
+    "native_abbreviation": "Cass.",
+    "hucit_author_id": null,
+    "hucit_work_id": null,
+    "author_names": [],
+    "work_titles": [
+     "Roman History"
+    ],
+    "abbreviations": [],
+    "author_abbreviations": [],
+    "work_abbreviations": [],
+    "cts_urn": null,
+    "cts_urn_is_real": false,
+    "match_method": "round3_patch"
+   }
+  },
+  "nonnus_of_panopolis.dionysiaca": {
+   "abbreviations": [
+    "Dion."
+   ]
+  },
+  "hesiod.theogony": {
+   "abbreviations": [
+    "Theog.",
+    "Hes. Theog."
+   ]
+  },
+  "seneca.de_beneficiis": {
+   "abbreviations": [
+    "Ben."
+   ]
+  },
+  "vergil.georgics": {
+   "abbreviations": [
+    "G.",
+    "Geo."
+   ]
+  },
+  "plautus.mostellaria": {
+   "abbreviations": [
+    "Mostell."
+   ]
+  },
+  "ovid.heroides": {
+   "abbreviations": [
+    "Her."
+   ]
+  },
+  "varro.res_rusticae": {
+   "abbreviations": [
+    "Rust."
+   ]
+  },
+  "columella.de_re_rustica": {
+   "abbreviations": [
+    "Rust."
+   ]
+  },
+  "varro.de_lingua_latina": {
+   "abbreviations": [
+    "Ling."
+   ]
+  },
+  "apollonius_rhodius.argonautica": {
+   "abbreviations": [
+    "Arg.",
+    "Argon."
+   ]
+  },
+  "valerius_flaccus.argonautica": {
+   "abbreviations": [
+    "Arg.",
+    "Argon."
+   ]
+  },
+  "anthologia_graeca": {
+   "abbreviations": [
+    "Anth. Pal."
+   ]
+  },
+  "aratus.phaenomena": {
+   "abbreviations": [
+    "Phaen."
+   ]
+  },
+  "aeschylus.libation_bearers": {
+   "abbreviations": [
+    "Cho."
+   ]
+  },
+  "aeschylus.eumenides": {
+   "abbreviations": [
+    "Eum."
+   ]
+  },
+  "seneca_the_elder.controversiae": {
+   "abbreviations": [
+    "Controv."
+   ]
+  },
+  "caesar.de_bello_gallico": {
+   "abbreviations": [
+    "BGall.",
+    "B. Gall.",
+    "Gall."
+   ]
+  },
+  "caesar.de_bello_civili": {
+   "abbreviations": [
+    "BCiv.",
+    "B. Civ."
+   ]
+  },
+  "suetonius.de_vita_caesarum.part.2.augustus": {
+   "abbreviations": [
+    "Suet. Aug."
+   ]
+  },
+  "suetonius.de_vita_caesarum.part.1.julius": {
+   "abbreviations": [
+    "Suet. Iul."
+   ]
+  },
+  "macrobius.saturnalia": {
+   "abbreviations": [
+    "Macrob. Sat."
+   ]
+  },
+  "dionysius_halicarnassensis.antiquitates_romanae": {
+   "abbreviations": [
+    "Dion. Hal."
+   ]
+  },
+  "velleius_paterculus.historiae_romanae": {
+   "abbreviations": [
+    "Vell. Pat."
+   ]
+  },
+  "apollodorus.library": {
+   "abbreviations": [
+    "Apollod. Bibl."
+   ]
+  },
+  "plato.leges": {
+   "abbreviations": [
+    "Leg."
+   ]
+  },
+  "silius_italicus.punica": {
+   "abbreviations": [
+    "Pun."
+   ]
+  },
+  "philostratus_the_lemnian.imagines": {
+   "abbreviations": [
+    "Imag."
+   ]
+  },
+  "lucian.de_saltatione": {
+   "abbreviations": [
+    "Salt."
+   ]
+  },
+  "aristotle.res_publica_atheniensium": {
+   "abbreviations": [
+    "Ath. Pol."
+   ]
+  }
+ }
+}

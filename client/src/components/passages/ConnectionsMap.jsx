@@ -329,7 +329,12 @@ function sizeCanvasForDPR(canvas, cssWidth, cssHeight) {
 // true for a nested grid opened from an author-against-itself cell (both
 // axes list that author's own works), and never true for a rectangular grid
 // comparing two distinct entities' works, where it needs no special case.
-function isDiagonalCell(rowIds, colIds, i, j) {
+// `diagonal` is false for a books grid of two DIFFERENT works: there the
+// ids are book numbers ("b1") that coincide across the two works without
+// naming the same thing, and hatching them hid real cells (owner,
+// 2026-10-16, the Pentateuch against Paradise Lost).
+export function isDiagonalCell(rowIds, colIds, i, j, diagonal = true) {
+  if (!diagonal) return false;
   return !!(rowIds && colIds && rowIds[i] !== undefined && rowIds[i] === colIds[j]);
 }
 
@@ -390,7 +395,7 @@ function liftScale(counts) {
 
 function LabeledHeatmap({
   rowLabels, colLabels, rowIds, colIds, normalised, cellSize, onHover, onCellClick, ariaLabel,
-  outlineCell,
+  outlineCell, diagonal = true,
 }) {
   const rowCanvasRef = useRef(null);
   const gridCanvasRef = useRef(null);
@@ -546,7 +551,7 @@ function LabeledHeatmap({
     for (let i = 0; i < nRows; i++) {
       for (let j = 0; j < nCols; j++) {
         const x = j * cellSize, y = i * cellSize;
-        if (isDiagonalCell(rowIds, colIds, i, j)) {
+        if (isDiagonalCell(rowIds, colIds, i, j, diagonal)) {
           drawHatch(ctx, x, y, cellSize);
         } else {
           ctx.fillStyle = cellColor(normalised[i]?.[j]);
@@ -585,7 +590,7 @@ function LabeledHeatmap({
       ctx.restore();
     }
 
-  }, [rowLabels, colLabels, rowIds, colIds, normalised, cellSize, hover, gridWidth,
+  }, [rowLabels, colLabels, rowIds, colIds, normalised, cellSize, hover, gridWidth, diagonal,
       totalHeight, nRows, nCols, outlineCell]);
 
   // ---- header strip: the column labels, frozen while the page scrolls ----
@@ -1437,6 +1442,7 @@ export default function ConnectionsMap() {
                       onHover={onHoverBooks}
                       onCellClick={onClickBooksCell}
                       outlineCell={booksOutline}
+                      diagonal={selectedWorkCell.workA === selectedWorkCell.workB}
                       ariaLabel={`Books of ${selectedWorkCell.labelA} by books of ${selectedWorkCell.labelB}`}
                     />
                   </div>

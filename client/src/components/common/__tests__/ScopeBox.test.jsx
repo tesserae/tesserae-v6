@@ -69,6 +69,8 @@ describe('ScopeBox', () => {
     render(<ScopeBox id="line" />);
     fireEvent.click(screen.getByRole('button', { name: 'Details' }));
     await waitFor(() => expect(screen.getByText(/Works held now: Latin 1,234, Greek 56\./)).toBeTruthy());
+    // The generic standing sentence is not repeated after the live count.
+    expect(screen.queryByText(/The literary corpus, by language/)).toBeNull();
   });
 
   it('shows the dated line when the fetch fails or has no figure', async () => {

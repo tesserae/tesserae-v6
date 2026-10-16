@@ -534,6 +534,11 @@ MANIFEST = {
         'reason': ("Model-written paragraph on the secondary literature for the Search One Text page; "
                   "a connector caller reads the notes through the scholarship search itself."),
     },
+    '/api/passages/ask-citing': {
+        'site_only': True,
+        'reason': ("Articles in the journal citation indexes that cite the passages on the Search One Text "
+                  "page; a connector caller reads the same index through the scholarship search itself."),
+    },
     '/api/passages/recent-scholarship': {
         'site_only': True,
         'reason': ("Articles the live services list for the Search One Text page, one service per "

@@ -142,7 +142,7 @@ export default function RequestDialog({
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full border rounded px-3 py-2 text-sm"
               />
-              <p className="text-[11px] text-gray-500 mt-1">Only to reply to you. Never published.</p>
+              <p className="text-[11px] text-gray-500 mt-1">Email addresses only for replies to users. They are not published.</p>
             </div>
           </div>
           {status === 'error' && (
