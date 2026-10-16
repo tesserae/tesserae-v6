@@ -159,7 +159,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > opens the Save Paral
 <div>
 <label class="block text-sm font-medium text-gray-700 mb-1">Search Method</label>
 <p class="w-full border rounded px-2 py-2 text-base sm:text-sm bg-gray-50 text-gray-800">Fusion — all channels</p>
-<p class="text-xs text-gray-500 mt-1">Runs 9 channels with weighted scoring. Best recall but slower. Large text comparisons (e.g., full Aeneid vs. Metamorphoses) may take up to 15 minutes on first run; subsequent searches are cached.</p>
+<p class="text-xs text-gray-500 mt-1">Runs all eleven channels with weighted scoring. Best recall but slower. Large text comparisons (e.g., full Aeneid vs. Metamorphoses) may take up to 15 minutes on first run; subsequent searches are cached.</p>
 </div>
 </div>
 </div>
@@ -2304,7 +2304,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > opens the Save Paral
 <div>
 <label class="block text-sm font-medium text-gray-700 mb-1">Search Method</label>
 <p class="w-full border rounded px-2 py-2 text-base sm:text-sm bg-gray-50 text-gray-800">Fusion — all channels</p>
-<p class="text-xs text-gray-500 mt-1">Runs 9 channels with weighted scoring. Best recall but slower. Large text comparisons (e.g., full Aeneid vs. Metamorphoses) may take up to 15 minutes on first run; subsequent searches are cached.</p>
+<p class="text-xs text-gray-500 mt-1">Runs all eleven channels with weighted scoring. Best recall but slower. Large text comparisons (e.g., full Aeneid vs. Metamorphoses) may take up to 15 minutes on first run; subsequent searches are cached.</p>
 </div>
 </div>
 </div>
@@ -4492,7 +4492,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > opens the Search Cor
 <div>
 <label class="block text-sm font-medium text-gray-700 mb-1">Search Method</label>
 <p class="w-full border rounded px-2 py-2 text-base sm:text-sm bg-gray-50 text-gray-800">Fusion — all channels</p>
-<p class="text-xs text-gray-500 mt-1">Runs 9 channels with weighted scoring. Best recall but slower. Large text comparisons (e.g., full Aeneid vs. Metamorphoses) may take up to 15 minutes on first run; subsequent searches are cached.</p>
+<p class="text-xs text-gray-500 mt-1">Runs all eleven channels with weighted scoring. Best recall but slower. Large text comparisons (e.g., full Aeneid vs. Metamorphoses) may take up to 15 minutes on first run; subsequent searches are cached.</p>
 </div>
 </div>
 </div>
@@ -4765,7 +4765,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > runs the deep-linked
 <div>
 <label class="block text-sm font-medium text-gray-700 mb-1">Search Method</label>
 <p class="w-full border rounded px-2 py-2 text-base sm:text-sm bg-gray-50 text-gray-800">Fusion — all channels</p>
-<p class="text-xs text-gray-500 mt-1">Runs 9 channels with weighted scoring. Best recall but slower. Large text comparisons (e.g., full Aeneid vs. Metamorphoses) may take up to 15 minutes on first run; subsequent searches are cached.</p>
+<p class="text-xs text-gray-500 mt-1">Runs all eleven channels with weighted scoring. Best recall but slower. Large text comparisons (e.g., full Aeneid vs. Metamorphoses) may take up to 15 minutes on first run; subsequent searches are cached.</p>
 </div>
 </div>
 </div>

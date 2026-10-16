@@ -1339,7 +1339,7 @@ exports[`App render recording > page /coins 1`] = `
 <div>
 <label class="block text-sm font-medium text-gray-700 mb-1">Search Method</label>
 <p class="w-full border rounded px-2 py-2 text-base sm:text-sm bg-gray-50 text-gray-800">Fusion — all channels</p>
-<p class="text-xs text-gray-500 mt-1">Runs 9 channels with weighted scoring. Best recall but slower. Large text comparisons (e.g., full Aeneid vs. Metamorphoses) may take up to 15 minutes on first run; subsequent searches are cached.</p>
+<p class="text-xs text-gray-500 mt-1">Runs all eleven channels with weighted scoring. Best recall but slower. Large text comparisons (e.g., full Aeneid vs. Metamorphoses) may take up to 15 minutes on first run; subsequent searches are cached.</p>
 </div>
 </div>
 </div>
@@ -1556,7 +1556,7 @@ exports[`App render recording > page /coins/c1 1`] = `
 <div>
 <label class="block text-sm font-medium text-gray-700 mb-1">Search Method</label>
 <p class="w-full border rounded px-2 py-2 text-base sm:text-sm bg-gray-50 text-gray-800">Fusion — all channels</p>
-<p class="text-xs text-gray-500 mt-1">Runs 9 channels with weighted scoring. Best recall but slower. Large text comparisons (e.g., full Aeneid vs. Metamorphoses) may take up to 15 minutes on first run; subsequent searches are cached.</p>
+<p class="text-xs text-gray-500 mt-1">Runs all eleven channels with weighted scoring. Best recall but slower. Large text comparisons (e.g., full Aeneid vs. Metamorphoses) may take up to 15 minutes on first run; subsequent searches are cached.</p>
 </div>
 </div>
 </div>
@@ -2690,7 +2690,7 @@ exports[`App render recording > page /events 1`] = `
 <div>
 <label class="block text-sm font-medium text-gray-700 mb-1">Search Method</label>
 <p class="w-full border rounded px-2 py-2 text-base sm:text-sm bg-gray-50 text-gray-800">Fusion — all channels</p>
-<p class="text-xs text-gray-500 mt-1">Runs 9 channels with weighted scoring. Best recall but slower. Large text comparisons (e.g., full Aeneid vs. Metamorphoses) may take up to 15 minutes on first run; subsequent searches are cached.</p>
+<p class="text-xs text-gray-500 mt-1">Runs all eleven channels with weighted scoring. Best recall but slower. Large text comparisons (e.g., full Aeneid vs. Metamorphoses) may take up to 15 minutes on first run; subsequent searches are cached.</p>
 </div>
 </div>
 </div>
@@ -2907,7 +2907,7 @@ exports[`App render recording > page /events/e1 1`] = `
 <div>
 <label class="block text-sm font-medium text-gray-700 mb-1">Search Method</label>
 <p class="w-full border rounded px-2 py-2 text-base sm:text-sm bg-gray-50 text-gray-800">Fusion — all channels</p>
-<p class="text-xs text-gray-500 mt-1">Runs 9 channels with weighted scoring. Best recall but slower. Large text comparisons (e.g., full Aeneid vs. Metamorphoses) may take up to 15 minutes on first run; subsequent searches are cached.</p>
+<p class="text-xs text-gray-500 mt-1">Runs all eleven channels with weighted scoring. Best recall but slower. Large text comparisons (e.g., full Aeneid vs. Metamorphoses) may take up to 15 minutes on first run; subsequent searches are cached.</p>
 </div>
 </div>
 </div>
@@ -3341,7 +3341,7 @@ exports[`App render recording > page /inscriptions-papyri 1`] = `
 <div>
 <label class="block text-sm font-medium text-gray-700 mb-1">Search Method</label>
 <p class="w-full border rounded px-2 py-2 text-base sm:text-sm bg-gray-50 text-gray-800">Fusion — all channels</p>
-<p class="text-xs text-gray-500 mt-1">Runs 9 channels with weighted scoring. Best recall but slower. Large text comparisons (e.g., full Aeneid vs. Metamorphoses) may take up to 15 minutes on first run; subsequent searches are cached.</p>
+<p class="text-xs text-gray-500 mt-1">Runs all eleven channels with weighted scoring. Best recall but slower. Large text comparisons (e.g., full Aeneid vs. Metamorphoses) may take up to 15 minutes on first run; subsequent searches are cached.</p>
 </div>
 </div>
 </div>
@@ -3700,7 +3700,7 @@ exports[`App render recording > page /no-such-page 1`] = `
 <div>
 <label class="block text-sm font-medium text-gray-700 mb-1">Search Method</label>
 <p class="w-full border rounded px-2 py-2 text-base sm:text-sm bg-gray-50 text-gray-800">Fusion — all channels</p>
-<p class="text-xs text-gray-500 mt-1">Runs 9 channels with weighted scoring. Best recall but slower. Large text comparisons (e.g., full Aeneid vs. Metamorphoses) may take up to 15 minutes on first run; subsequent searches are cached.</p>
+<p class="text-xs text-gray-500 mt-1">Runs all eleven channels with weighted scoring. Best recall but slower. Large text comparisons (e.g., full Aeneid vs. Metamorphoses) may take up to 15 minutes on first run; subsequent searches are cached.</p>
 </div>
 </div>
 </div>
@@ -3917,7 +3917,7 @@ exports[`App render recording > page /objects 1`] = `
 <div>
 <label class="block text-sm font-medium text-gray-700 mb-1">Search Method</label>
 <p class="w-full border rounded px-2 py-2 text-base sm:text-sm bg-gray-50 text-gray-800">Fusion — all channels</p>
-<p class="text-xs text-gray-500 mt-1">Runs 9 channels with weighted scoring. Best recall but slower. Large text comparisons (e.g., full Aeneid vs. Metamorphoses) may take up to 15 minutes on first run; subsequent searches are cached.</p>
+<p class="text-xs text-gray-500 mt-1">Runs all eleven channels with weighted scoring. Best recall but slower. Large text comparisons (e.g., full Aeneid vs. Metamorphoses) may take up to 15 minutes on first run; subsequent searches are cached.</p>
 </div>
 </div>
 </div>
@@ -4134,7 +4134,7 @@ exports[`App render recording > page /objects/o1 1`] = `
 <div>
 <label class="block text-sm font-medium text-gray-700 mb-1">Search Method</label>
 <p class="w-full border rounded px-2 py-2 text-base sm:text-sm bg-gray-50 text-gray-800">Fusion — all channels</p>
-<p class="text-xs text-gray-500 mt-1">Runs 9 channels with weighted scoring. Best recall but slower. Large text comparisons (e.g., full Aeneid vs. Metamorphoses) may take up to 15 minutes on first run; subsequent searches are cached.</p>
+<p class="text-xs text-gray-500 mt-1">Runs all eleven channels with weighted scoring. Best recall but slower. Large text comparisons (e.g., full Aeneid vs. Metamorphoses) may take up to 15 minutes on first run; subsequent searches are cached.</p>
 </div>
 </div>
 </div>
