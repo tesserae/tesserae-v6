@@ -829,6 +829,14 @@ describe('articles that cite the passages found', () => {
 // silly to have to pick one"); an author with several leaves the choice open.
 describe('one work is chosen by itself', () => {
   it('picks Orator when Cicero is chosen', async () => {
+    // Cicero's one work must be in the covered list to be offered at all.
+    const covered = COVERED.concat(['cicero.orator']);
+    const inner = global.fetch;
+    global.fetch = vi.fn((url) => {
+      const u = String(url);
+      if (u.startsWith('/api/passages/works')) return Promise.resolve(mockResponse({ ok: true, json: async () => ({ works: covered }) }));
+      return inner(url);
+    });
     render(<AskAWorkPage />);
     await pick('Author', 'Cicero');
     await waitFor(() => expect(screen.getByRole('combobox', { name: 'Work' })).toHaveValue('Orator'));
