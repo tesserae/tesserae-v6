@@ -333,6 +333,25 @@ def format_short_locus(raw_ref):
     return tail
 
 
+def cite_display(metadata, display, locus):
+    """The display name a citation uses. A book file whose part label is
+    "Book N" (or the bare number N) and whose locus already begins with that N
+    would name the book twice ("Thucydides, Peloponnesian War, Book 2 2.57.1"):
+    the whole work is cited instead. A part with a name (Genesis, vespasian,
+    books_21-30) keeps its label. Shared by build_citation and the rare-words
+    row builder, so the two can never disagree."""
+    try:
+        part_num = str(metadata.get('part_num') or '')
+        part = str(metadata.get('part') or '')
+        if (metadata.get('is_part') and part_num.isdigit()
+                and re.fullmatch(r'(?:[A-Za-z]+\s+)?%d' % int(part_num), part)
+                and re.match(r'%d(?:\.|$)' % int(part_num), locus or '')):
+            return f"{metadata['author']}, {metadata['work']}"
+    except Exception:
+        pass
+    return display
+
+
 def build_citation(text_id, ref):
     """The server's one citation string for a result row: "<Author>, <Work
     title> <locus>", built from `get_text_metadata(text_id)` and
@@ -356,11 +375,13 @@ def build_citation(text_id, ref):
         metadata = get_text_metadata(text_id)
         display = metadata.get('display_name') or metadata.get('author') or text_id
     except Exception:
+        metadata = {}
         display = text_id
     try:
         locus = format_short_locus(ref)
     except Exception:
         locus = str(ref or '')
+    display = cite_display(metadata, display, locus)
     return f"{display} {locus}".strip() if locus else display
 
 

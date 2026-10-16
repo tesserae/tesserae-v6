@@ -43,6 +43,17 @@ describe('eraRank', () => {
     expect(eraRank('he', 'Biblical')).toBeLessThan(eraRank('he', 'Unknown'));
   });
 
+  it('has its own Coptic table covering every era /api/texts?language=cop sends', () => {
+    // Read from the live answer on 2026-10-16: 23 Classical Coptic, 18 Late
+    // Antique Coptic, 6 Early Coptic, 140 with no era. Without a "cop" key the
+    // Corpus Browser's era filter fell back to the Latin eras.
+    expect(ERA_ORDER_BY_LANG.cop).toBeDefined();
+    expect(ERA_ORDER_BY_LANG.cop).not.toEqual(ERA_ORDER_BY_LANG.la);
+    for (const era of ['Early Coptic', 'Classical Coptic', 'Late Antique Coptic', 'Unknown']) {
+      expect(ERA_ORDER_BY_LANG.cop).toContain(era);
+    }
+  });
+
   it('orders Coptic, where most works carry no year', () => {
     expect(eraRank('cop', 'Early Coptic'))
       .toBeLessThan(eraRank('cop', 'Classical Coptic'));

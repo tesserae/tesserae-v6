@@ -42,7 +42,7 @@ from backend.logging_config import get_logger
 from backend.frequency_cache import load_frequency_cache
 from backend.inverted_index import get_connection
 from backend.text_processor import get_latin_lemma_table, get_greek_lemma_table
-from backend.utils import resolve_text_path, format_short_locus, build_citation
+from backend.utils import resolve_text_path, format_short_locus, build_citation, cite_display, get_text_metadata
 from backend.lemma_cache import load_units_cached
 from backend.services import log_search, get_user_location
 from backend.blueprints.async_poll import SearchInputError
@@ -1384,8 +1384,16 @@ def _location_from_row(row, line_text, memo=None):
         if display is None:
             # build_citation with no locus is the file's display name alone.
             display = memo[('display', filename)] = build_citation(filename, '')
-        # The way build_citation joins them.
-        cited = (locus, f"{display} {locus}".strip() if locus else display)
+        meta = memo.get(('meta', filename))
+        if meta is None:
+            try:
+                meta = get_text_metadata(filename)
+            except Exception:
+                meta = {}
+            memo[('meta', filename)] = meta
+        # The way build_citation joins them, through the same rule.
+        shown = cite_display(meta, display, locus)
+        cited = (locus, f"{shown} {locus}".strip() if locus else shown)
     return {
         'text_id': filename,
         'author': names[0],
