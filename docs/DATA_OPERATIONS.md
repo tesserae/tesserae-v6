@@ -51,6 +51,13 @@ The pull request renames the nine files `texts/grc/thucydides.peleponnesian_war.
 Between step 1 and the deploy order, the live text list and the stores disagree: run steps 1 and 2 immediately after the deploy and touch the wsgi file after each.
 
 Rollback: restore the dated backups of the Greek inverted index, the lemma cache files, the passage-index folder and the embeddings, rename the nine text files back (and restore the nine overrides from #939 if the old id stays), and touch the wsgi file.
+## 2026-10-16 Project MUSE citation index installed as a second index (to run)
+Pull request: feat/muse-citations-second-index (reads `TESSERAE_CITATIONS_EXTRA`). Built offline on the development machine from the journal PDFs by the citation extractor (1,628 articles from two journals, 11,988 citations), then cleaned by `clean_muse_index.py`: sentences cut to at most 400 characters around the citation, rows with a year or a footnote number in the locus removed, three work ids corrected, Homeric Hymns rows given the id `homer.hymns`. No article text goes to the server, only the database. Steps after the pull request is merged and deployed:
+1. Copy the cleaned database to `data/citation_index/citations_muse.db` in the production checkout, mode 664, group tessdev.
+2. Add `TESSERAE_CITATIONS_EXTRA=/var/www/tesseraev6_flask/data/citation_index/citations_muse.db` to the production `.env`, editing in place and keeping mode 664.
+3. Touch `tesseraev6_flask.wsgi`, then check `curl .../api/languages`.
+4. Make one Scholarship request for Aeneid 1.1 (`/api/scholarship?work=vergil.aeneid&ref_start=1.1&ref_end=1.1`) and confirm `index.results` holds a row with `"source": "muse"` and a `https://doi.org/` link.
+To turn it off, remove the line from `.env` and touch the wsgi.
 
 ## 2026-10-15 King James Bible: Revelation moved into the New Testament (RUN 20:30 to 21:50 EDT, by the lead, supervised)
 Run record (the plan it followed is kept below). Pull #934 deployed 20:29. Steps and what happened:

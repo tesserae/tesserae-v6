@@ -416,10 +416,12 @@ function MainPieceLI({ r, data, library, passage, fallbackWords }) {
 // journals, more as agreements come), with the pages that cite the passage
 // and the citing sentence.
 function IndexPieceLI({ r, passage, fallbackWords }) {
+  const muse = r.source === 'muse';
   const pre1923 = !r.year || r.year < 1923;
+  const kind = muse ? 'journal article, Project MUSE' : (pre1923 ? 'journal article, before 1923, JSTOR' : 'journal article, JSTOR');
   return (
     <li className="text-sm leading-snug">
-      <KindTag>{pre1923 ? 'journal article, before 1923, JSTOR' : 'journal article, JSTOR'}</KindTag>
+      <KindTag>{kind}</KindTag>
       <p className="text-gray-900">
         <CitationHead authors={r.authors} year={r.year} title={r.title} />
         {r.venue ? `. ${r.venue}` : ''}{r.volume ? ` ${r.volume}` : ''}{r.pages?.length ? `, p. ${r.pages.slice(0, 4).join(', ')}` : ''}.
@@ -431,6 +433,7 @@ function IndexPieceLI({ r, passage, fallbackWords }) {
       )}
       <p className="text-[11px] text-gray-500 mt-0.5 flex flex-wrap gap-x-3">
         <span>cites {r.cites}{r.cites_note || ''}</span>
+        {muse && r.doi && <a className="text-red-700 hover:underline" href={`https://doi.org/${r.doi}`} target="_blank" rel="noreferrer">DOI</a>}
         {r.url_jstor && <a className="text-red-700 hover:underline" href={r.url_jstor} target="_blank" rel="noreferrer">on JSTOR</a>}
         {r.url_ia && <a className="text-red-700 hover:underline" href={r.url_ia} target="_blank" rel="noreferrer">free scan</a>}
         <CiteRecordButton record={recordFrom(r, 'index')} />
