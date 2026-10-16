@@ -204,7 +204,7 @@ export const searchFusionStream = async (params, onProgress, signal, onIntermedi
             }
           } else if (data.type === 'queued') {
             if (onQueued) {
-              onQueued(data.detail, data.wait_time);
+              onQueued(data.detail, data.wait_time, data);
             }
           } else if (data.type === 'intermediate') {
             if (onIntermediate) {

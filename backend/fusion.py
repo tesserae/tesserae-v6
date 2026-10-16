@@ -63,6 +63,7 @@ import math
 import os
 import re
 import sqlite3
+import threading
 import time
 import unicodedata
 from collections import Counter, defaultdict
@@ -1601,8 +1602,14 @@ def find_syntax_matches(source_units, target_units, source_id, target_id,
 def run_channel(channel_name, config, source_units, target_units,
                 matcher, scorer, source_id, target_id,
                 source_path=None, target_path=None,
-                source_language='la', target_language='la', cancellation=None):
-    """Run a single search channel and return scored results."""
+                source_language='la', target_language='la', cancellation=None,
+                freq_units=None):
+    """Run a single search channel and return scored results.
+
+    freq_units: (source_units, target_units) of the two whole texts when the
+    units passed are one part of a source; the lemma counts of the quick-IDF
+    pre-filter and the scorer then come from the whole texts.
+    """
     match_type = config.get("match_type", "lemma")
     settings = dict(config)
     if cancellation:
@@ -1688,13 +1695,14 @@ def run_channel(channel_name, config, source_units, target_units,
     max_results = config.get("max_results", 0)
     if max_results > 0 and len(matches) > max_results * 2:
         lemma_freq = Counter()
-        for u in source_units:
+        count_src, count_tgt = freq_units if freq_units is not None else (source_units, target_units)
+        for u in count_src:
             for lem in set(u.get('lemmas', [])):
                 lemma_freq[lem] += 1
-        for u in target_units:
+        for u in count_tgt:
             for lem in set(u.get('lemmas', [])):
                 lemma_freq[lem] += 1
-        total_docs = len(source_units) + len(target_units)
+        total_docs = len(count_src) + len(count_tgt)
 
         def _quick_idf(match):
             return sum(
@@ -1710,7 +1718,8 @@ def run_channel(channel_name, config, source_units, target_units,
         matches = matches[:kept]
 
     scored = scorer.score_matches(
-        matches, source_units, target_units, settings, source_id, target_id
+        matches, source_units, target_units, settings, source_id, target_id,
+        freq_units=freq_units,
     )
 
     # Per-channel result cap: retain only the top-scoring results from each
@@ -3413,7 +3422,8 @@ HEARTBEAT_INTERVAL = 1
 def _run_channel_with_heartbeat(ch_name, config, source_units, target_units,
                                 matcher, scorer, source_id, target_id,
                                 source_path, target_path,
-                                source_language, target_language, cancellation):
+                                source_language, target_language, cancellation,
+                                freq_units=None):
     """Run a channel in a background thread, yielding heartbeats while it executes.
 
     This is a generator that yields:
@@ -3431,7 +3441,7 @@ def _run_channel_with_heartbeat(ch_name, config, source_units, target_units,
                 matcher, scorer, source_id, target_id,
                 source_path=source_path, target_path=target_path,
                 source_language=source_language, target_language=target_language,
-                cancellation=cancellation,
+                cancellation=cancellation, freq_units=freq_units,
             )
             while not future.done():
                 time.sleep(HEARTBEAT_INTERVAL)
@@ -3504,8 +3514,13 @@ def _run_line_channels(line_channels, configs, line_channel_results, effective_w
                        source_units, target_units, matcher, scorer,
                        source_id, target_id, source_path, target_path,
                        source_language, target_language, language,
-                       freq_basis, max_results, user_settings, cancellation):
-    """Generator: run the line-level channels in order, yielding their events and filling line_channel_results."""
+                       freq_basis, max_results, user_settings, cancellation,
+                       emit_intermediate=True, freq_units=None):
+    """Generator: run the line-level channels in order, yielding their events and filling line_channel_results.
+
+    emit_intermediate=False skips the per-channel preview fusion (a run in
+    parts previews the merged best across the parts instead).
+    """
     total_line = len(line_channels)
 
     for i, ch_name in enumerate(line_channels):
@@ -3524,7 +3539,7 @@ def _run_line_channels(line_channels, configs, line_channel_results, effective_w
             matcher, scorer, source_id, target_id,
             source_path, target_path,
             source_language, target_language,
-            cancellation,
+            cancellation, freq_units=freq_units,
         ):
             if hb_type == "heartbeat":
                 yield ("heartbeat", hb_data)
@@ -3554,7 +3569,7 @@ def _run_line_channels(line_channels, configs, line_channel_results, effective_w
         # Skip when count==0 (no new data to fuse, saves bandwidth).
         # Cap intermediates at 500 (preview only) to avoid huge JSON payloads;
         # the full max_results set is sent in the final "complete" event.
-        if count > 0 and line_channel_results:
+        if emit_intermediate and count > 0 and line_channel_results:
             fused = fuse_results(line_channel_results, weights=effective_weights,
                                  language=language,
                                  freq_basis=freq_basis,
@@ -3661,7 +3676,8 @@ def _both_prose(source_id, target_id, language):
 def _run_window_channels(configs, available_channels,
                          source_units, target_units, matcher, scorer,
                          source_id, target_id, source_path, target_path,
-                         source_language, target_language, cancellation):
+                         source_language, target_language, cancellation,
+                         freq_units=None):
     """Generator: run the window-level channels, yielding their events; returns window_channel_results."""
     source_windows = make_window_units(source_units)
     target_windows = make_window_units(target_units)
@@ -3686,7 +3702,7 @@ def _run_window_channels(configs, available_channels,
             matcher, scorer, source_id, target_id,
             source_path, target_path,
             source_language, target_language,
-            cancellation,
+            cancellation, freq_units=freq_units,
         ):
             if hb_type == "heartbeat":
                 yield ("heartbeat", hb_data)
@@ -3706,16 +3722,14 @@ def _run_window_channels(configs, available_channels,
     return window_channel_results
 
 
-def _window_fusion(window_channel_results, effective_weights, language, freq_basis,
-                   source_id, target_id, mode):
-    """Fuse the window-level channel results and penalize single-line windows."""
-    window_fused = fuse_results(window_channel_results, weights=effective_weights,
-                                 language=language,
-                                 freq_basis=freq_basis,
-                                 source_id=source_id, target_id=target_id)
-    window_fused = penalize_single_line_windows(
-        window_fused, annotate_for_merge=(mode != 'window'))
-    return window_fused
+def _fuse_windows(window_channel_results, effective_weights, language, freq_basis,
+                  source_id, target_id, confirm_context=True):
+    """Fuse the window-level channel results (the single-line penalty comes later, in _finish_levels)."""
+    return fuse_results(window_channel_results, weights=effective_weights,
+                        language=language,
+                        freq_basis=freq_basis,
+                        source_id=source_id, target_id=target_id,
+                        confirm_context=confirm_context)
 
 
 def _merge_levels(line_fused, window_fused):
@@ -3723,10 +3737,273 @@ def _merge_levels(line_fused, window_fused):
     return merge_line_and_window(line_fused, window_fused)
 
 
+def _finish_levels(mode, line_fused, window_fused, ordered=False):
+    """Penalize the window rows and combine the two levels as the mode asks.
+
+    window_fused is None when the window pass did not run (mode 'line', or
+    two prose texts in 'merged' mode): the line rows are the answer.
+    """
+    if window_fused is None:
+        return line_fused
+    window_fused = penalize_single_line_windows(
+        window_fused, annotate_for_merge=(mode != 'window'))
+    if ordered:
+        # The parts path: equal scores in a fixed order before the overlap
+        # removal and after the merge.
+        window_fused = _by_score(window_fused)
+    if mode == 'window':
+        return window_fused
+    merged = _merge_levels(line_fused, window_fused)
+    return _by_score(merged) if ordered else merged
+
+
 def _final_event(results, max_results, user_settings):
     """The closing ("complete", ...) event for a fused result list."""
     final, total, hidden = _cap_with_formula_filter(results, max_results, user_settings)
     return ("complete", {"results": final, "total_results": total, "formula_hidden": hidden})
+
+
+def _fusion_block(source_units, target_units, plan, matcher, scorer,
+                  source_id, target_id, language, mode, max_results,
+                  source_path, target_path, user_settings,
+                  source_language, target_language, freq_basis, cancellation,
+                  emit_intermediate=True, confirm_context=True,
+                  freq_line=None, freq_window=None):
+    """Generator: run both passes of one fusion search over the given units.
+
+    Yields the channel events; returns (line_fused, window_fused). The window
+    list is None when the window pass is skipped. Nothing is capped here, and
+    the window rows are not yet penalized.
+    """
+    effective_weights, configs, available_channels, line_channels = plan
+
+    # --- Pass 1: Line-level (language-appropriate channels, fast-first order) ---
+    line_channel_results = {}
+    yield from _run_line_channels(
+        line_channels, configs, line_channel_results, effective_weights,
+        source_units, target_units, matcher, scorer,
+        source_id, target_id, source_path, target_path,
+        source_language, target_language, language,
+        freq_basis, max_results, user_settings, cancellation,
+        emit_intermediate=emit_intermediate, freq_units=freq_line)
+
+    _gate_structural(line_channel_results, source_units, target_units,
+                     source_path, target_path, language)
+
+    line_fused = fuse_results(line_channel_results, weights=effective_weights,
+                              language=language,
+                              freq_basis=freq_basis,
+                              source_id=source_id, target_id=target_id,
+                              confirm_context=confirm_context)
+
+    if mode == 'line':
+        return line_fused, None
+
+    both_prose = _both_prose(source_id, target_id, language)
+    if both_prose and mode == 'merged':
+        logger.info(f"[FUSION] Skipping window pass: both {source_id} and "
+                    f"{target_id} are prose")
+        return line_fused, None
+
+    # --- Pass 2: Window-level (co-occurrence channels only) ---
+    window_channel_results = yield from _run_window_channels(
+        configs, available_channels,
+        source_units, target_units, matcher, scorer,
+        source_id, target_id, source_path, target_path,
+        source_language, target_language, cancellation, freq_units=freq_window)
+
+    window_fused = _fuse_windows(window_channel_results, effective_weights, language,
+                                 freq_basis, source_id, target_id,
+                                 confirm_context=confirm_context)
+    return line_fused, window_fused
+
+
+# ---------------------------------------------------------------------------
+# Large pairwise comparisons run in parts
+# ---------------------------------------------------------------------------
+# A comparison of two whole works (the Thebaid against the Aeneid, about
+# 9,700 lines each) held 38 GB in one Apache worker on 2026-10-16, because every
+# channel keeps its candidates for all source lines against all target lines.
+# Such a comparison is never refused. It runs the source in consecutive blocks
+# of FUSION_PART_SOURCE_LINES lines, each against the whole target, so memory
+# follows the block and not the work.
+#
+# Splitting leaves every score unchanged: a pair's score depends on the pair,
+# on the two whole texts' token counts (the text-pair document frequencies are
+# keyed on the texts and the lemma, not on the block) and on the channel
+# weights. Three things that look across pairs are done once, over the merged
+# rows, never per block: the passage-context confirmation (top 3,000 rows),
+# the removal of overlapping windows, and the merge of the line and window
+# levels.
+FUSION_PART_THRESHOLD = 4_000_000        # source lines x target lines
+FUSION_PART_SOURCE_LINES = 500           # source lines per part (1,000 was killed at 10 GB)
+FUSION_PART_KEEP_MIN = 20000             # rows kept per part and level, at least
+# A window spans two lines, so adjacent parts overlap by one line: the window
+# over the last line of a part and the first line of the next belongs to the
+# earlier part.
+FUSION_PART_OVERLAP_LINES = 1
+
+# One large comparison at a time in each process. A second waits its turn.
+_LARGE_SEMAPHORE = threading.Semaphore(1)
+_large_waiters = []
+_large_waiters_lock = threading.Lock()
+
+
+def _use_parts(source_units, target_units, in_parts):
+    """True when this search runs in parts: forced on, or above the pair threshold.
+
+    in_parts=False never splits, in_parts=True always does, None (the default)
+    splits above FUSION_PART_THRESHOLD pairs. A source that fits in one part
+    is not split.
+    """
+    if in_parts is False:
+        return False
+    if len(source_units) <= FUSION_PART_SOURCE_LINES:
+        return False
+    if in_parts is True:
+        return True
+    return len(source_units) * len(target_units) > FUSION_PART_THRESHOLD
+
+
+def _part_ranges(n_units):
+    """(start, stop, own_stop) per part: stop includes the overlap line, own_stop does not."""
+    size = FUSION_PART_SOURCE_LINES
+    ranges = []
+    for start in range(0, n_units, size):
+        own_stop = min(start + size, n_units)
+        stop = min(own_stop + FUSION_PART_OVERLAP_LINES, n_units)
+        ranges.append((start, stop, own_stop))
+    return ranges
+
+
+def _keep_top(rows, keep):
+    """The best `keep` rows (rows arrive sorted by score) and how many were cut."""
+    if keep and len(rows) > keep:
+        return rows[:keep], len(rows) - keep
+    return rows, 0
+
+
+def _by_score(rows):
+    """Rows by fused score, best first; equal scores by source ref, then target ref.
+
+    The order in which equal-score rows arrive depends on the part they came
+    from, so the parts path fixes it. (The path without parts keeps its own order.)
+    """
+    return sorted(rows, key=lambda r: (-r.get('fused_score', 0),
+                                       (r.get('source') or {}).get('ref', ''),
+                                       (r.get('target') or {}).get('ref', '')))
+
+
+def _run_parts(source_units, target_units, matcher, scorer,
+               source_id, target_id, language, mode, max_results,
+               source_path, target_path, user_settings,
+               source_language, target_language, freq_basis,
+               channel_weights, enabled_channels, cancellation):
+    """Generator: the whole pipeline over consecutive source blocks, merged once."""
+    plan = _fusion_plan(language, user_settings, channel_weights, enabled_channels)
+    line_channels = plan[3]
+    ranges = _part_ranges(len(source_units))
+    total_parts = len(ranges)
+    keep = max(FUSION_PART_KEEP_MIN, 4 * max_results) if max_results > 0 else 0
+
+    # Frequencies come from the two whole texts, never from the part.
+    freq_line = (source_units, target_units)
+    freq_window = (make_window_units(source_units), make_window_units(target_units))
+    line_rows = []
+    window_rows = []
+    windows_ran = False
+    cut = 0
+    for part, (start, stop, own_stop) in enumerate(ranges, 1):
+        if cancellation:
+            cancellation.check()
+        yield ("parts", {"part": part, "total_parts": total_parts})
+        line_fused, window_fused = yield from _fusion_block(
+            source_units[start:stop], target_units, plan, matcher, scorer,
+            source_id, target_id, language, mode, max_results,
+            source_path, target_path, user_settings,
+            source_language, target_language, freq_basis, cancellation,
+            emit_intermediate=False, confirm_context=False,
+            freq_line=freq_line, freq_window=freq_window)
+
+        if stop > own_stop:
+            # The overlap line belongs to the next part's line pass.
+            overlap_refs = {u.get('ref', '') for u in source_units[own_stop:stop]}
+            line_fused = [r for r in line_fused
+                          if (r.get('source') or {}).get('ref', '') not in overlap_refs]
+        line_fused, n_cut = _keep_top(_by_score(line_fused), keep)
+        cut += n_cut
+        line_rows.extend(line_fused)
+        if window_fused is not None:
+            windows_ran = True
+            window_fused, n_cut = _keep_top(_by_score(window_fused), keep)
+            cut += n_cut
+            window_rows.extend(window_fused)
+
+        # Best so far across the parts finished. The window rows are copied
+        # because penalizing and merging change their rows.
+        preview = _finish_levels(
+            mode, _by_score(line_rows),
+            [dict(r) for r in _by_score(window_rows)] if windows_ran else None,
+            ordered=True)
+        preview_cap = min(max_results, 500) if max_results > 0 else 500
+        top, preview_total, _hidden = _cap_with_formula_filter(
+            preview, preview_cap, user_settings)
+        yield ("intermediate", {
+            "results": top,
+            "total_results": preview_total,
+            "channels_done": list(line_channels),
+            "channels_total": len(line_channels),
+            "phase": "line",
+            "part": part,
+            "total_parts": total_parts,
+        })
+
+    # One confirmation pass over the best rows of the whole comparison.
+    line_all = apply_context_confirmation(
+        _by_score(line_rows), language=language, source_id=source_id, target_id=target_id)
+    window_all = None
+    if windows_ran:
+        window_all = apply_context_confirmation(
+            _by_score(window_rows), language=language, source_id=source_id, target_id=target_id)
+    merged = _finish_levels(mode, line_all, window_all, ordered=True)
+    event_type, data = _final_event(merged, max_results, user_settings)
+    data["total_results"] += cut
+    yield (event_type, data)
+
+
+def _iter_fusion_in_parts(*args, cancellation=None, **kwargs):
+    """Generator: _run_parts, one large comparison at a time in this process.
+
+    A second request yields ("queued", {position}) and then a heartbeat each
+    second until the first finishes, checking the cancellation object as it waits.
+    """
+    ticket = object()
+    with _large_waiters_lock:
+        _large_waiters.append(ticket)
+    announced = None
+    try:
+        while True:
+            with _large_waiters_lock:
+                position = _large_waiters.index(ticket) + 1
+            if position == 1 and _LARGE_SEMAPHORE.acquire(blocking=False):
+                break
+            if position != announced:
+                announced = position
+                yield ("queued", {"position": position, "large": True})
+            time.sleep(HEARTBEAT_INTERVAL)
+            if cancellation:
+                cancellation.check()
+            yield ("heartbeat", {"channel": None})
+        with _large_waiters_lock:
+            _large_waiters.remove(ticket)
+        try:
+            yield from _run_parts(*args, cancellation=cancellation, **kwargs)
+        finally:
+            _LARGE_SEMAPHORE.release()
+    finally:
+        with _large_waiters_lock:
+            if ticket in _large_waiters:
+                _large_waiters.remove(ticket)
 
 
 def iter_fusion_search(source_units, target_units, matcher, scorer,
@@ -3736,7 +4013,8 @@ def iter_fusion_search(source_units, target_units, matcher, scorer,
                        user_settings=None,
                        source_language=None, target_language=None,
                        freq_basis='corpus', channel_weights=None,
-                       enabled_channels=None, cancellation=None):
+                       enabled_channels=None, cancellation=None,
+                       in_parts=None):
     """Generator version of run_fusion_search for progressive SSE streaming.
 
     Yields (event_type, data) tuples as the search progresses:
@@ -3744,6 +4022,9 @@ def iter_fusion_search(source_units, target_units, matcher, scorer,
         ("channel_done",  {channel, count, step, total, phase})
         ("intermediate",  {results, total_results, channels_done, phase})
         ("complete",      {results, total_results})
+    and, for a large comparison run in parts:
+        ("parts",  {part, total_parts})   before each part
+        ("queued", {position, large})     while another large comparison runs
 
     Uses CHANNEL_ORDER (fast channels first) so intermediate results
     appear within seconds of starting the search.
@@ -3761,6 +4042,13 @@ def iter_fusion_search(source_units, target_units, matcher, scorer,
     pairs in through the convergence bonus. As a guard rail, if the filter would
     exclude every available channel (e.g. the user turned everything off), the
     full available set runs instead of returning nothing.
+
+    in_parts: None (default) runs source times target lines above
+    FUSION_PART_THRESHOLD in parts of FUSION_PART_SOURCE_LINES source lines,
+    one large comparison at a time per process, so memory follows the part
+    and not the whole work. False never splits. True always splits (a source
+    of one part's length or less is still run whole). The results are the
+    same either way.
     """
     user_settings = user_settings or {}
     if cancellation:
@@ -3770,54 +4058,24 @@ def iter_fusion_search(source_units, target_units, matcher, scorer,
     if target_language is None:
         target_language = language
 
-    effective_weights, configs, available_channels, line_channels = _fusion_plan(
-        language, user_settings, channel_weights, enabled_channels)
-
-    # --- Pass 1: Line-level (language-appropriate channels, fast-first order) ---
-    line_channel_results = {}
-    yield from _run_line_channels(
-        line_channels, configs, line_channel_results, effective_weights,
-        source_units, target_units, matcher, scorer,
-        source_id, target_id, source_path, target_path,
-        source_language, target_language, language,
-        freq_basis, max_results, user_settings, cancellation)
-
-    _gate_structural(line_channel_results, source_units, target_units,
-                     source_path, target_path, language)
-
-    line_fused = fuse_results(line_channel_results, weights=effective_weights,
-                               language=language,
-                               freq_basis=freq_basis,
-                               source_id=source_id, target_id=target_id)
-
-    if mode == 'line':
-        yield _final_event(line_fused, max_results, user_settings)
+    if _use_parts(source_units, target_units, in_parts):
+        yield from _iter_fusion_in_parts(
+            source_units, target_units, matcher, scorer,
+            source_id, target_id, language, mode, max_results,
+            source_path, target_path, user_settings,
+            source_language, target_language, freq_basis,
+            channel_weights, enabled_channels, cancellation=cancellation)
         return
 
-    both_prose = _both_prose(source_id, target_id, language)
-    if both_prose and mode == 'merged':
-        logger.info(f"[FUSION] Skipping window pass: both {source_id} and "
-                    f"{target_id} are prose")
-        yield _final_event(line_fused, max_results, user_settings)
-        return
-
-    # --- Pass 2: Window-level (co-occurrence channels only) ---
-    window_channel_results = yield from _run_window_channels(
-        configs, available_channels,
-        source_units, target_units, matcher, scorer,
-        source_id, target_id, source_path, target_path,
-        source_language, target_language, cancellation)
-
-    window_fused = _window_fusion(window_channel_results, effective_weights, language,
-                                  freq_basis, source_id, target_id, mode)
-
-    if mode == 'window':
-        yield _final_event(window_fused, max_results, user_settings)
-        return
-
+    plan = _fusion_plan(language, user_settings, channel_weights, enabled_channels)
+    line_fused, window_fused = yield from _fusion_block(
+        source_units, target_units, plan, matcher, scorer,
+        source_id, target_id, language, mode, max_results,
+        source_path, target_path, user_settings,
+        source_language, target_language, freq_basis, cancellation)
     # --- Merge: line results first, then novel window results ---
-    merged = _merge_levels(line_fused, window_fused)
-    yield _final_event(merged, max_results, user_settings)
+    yield _final_event(_finish_levels(mode, line_fused, window_fused),
+                       max_results, user_settings)
 
 
 def run_fusion_search(source_units, target_units, matcher, scorer,

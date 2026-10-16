@@ -216,11 +216,6 @@
       "count": 1
     }
   },
-  "client/src/hooks/useSearch.js": {
-    "no-unused-vars": {
-      "count": 1
-    }
-  },
   "client/src/lib/pageViews.js": {
     "no-unused-vars": {
       "count": 3

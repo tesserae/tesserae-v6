@@ -1,5 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { searchTexts, searchTextsStream, searchFusionStream, searchHapax, searchBigrams, searchSemanticCross, createSearchId, requestSearchCancellation } from '../utils/api';
+import { LARGE_QUEUE_TEXT, progressWithParts } from '../utils/fusionParts';
 
 export const useSearch = () => {
   const [results, setResults] = useState([]);
@@ -73,7 +74,7 @@ export const useSearch = () => {
       if (activeSearchId.current !== searchId) return;
       setIsQueued(false);
       setQueuedMessage('');
-      setProgressText(detail ? `${step}: ${detail}` : step);
+      setProgressText(progressWithParts(step, detail, meta?.fusion_parts));
       setElapsedTime(Math.floor(elapsed));
       if (meta?.fusion_batch) {
         const batch = meta.fusion_batch;
@@ -92,10 +93,12 @@ export const useSearch = () => {
       }
     };
 
-    const handleQueued = (reason, waitTime) => {
+    const handleQueued = (reason, waitTime, event) => {
       if (activeSearchId.current !== searchId) return;
       setIsQueued(true);
-      setQueuedMessage(reason || 'Server is busy, your search is queued...');
+      setQueuedMessage(event?.large_queue
+        ? LARGE_QUEUE_TEXT
+        : (reason || 'Server is busy, your search is queued...'));
     };
 
     try {
