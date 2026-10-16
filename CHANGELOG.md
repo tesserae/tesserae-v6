@@ -8,6 +8,7 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-16
+- Evaluation: cross-language recall benchmark script generalized to any Latin work against Homer, gold passed by path.
 - Channels panel: the two links read "Channel explanations" (first) and "More in Help".
 - Phrase Search, channels panel (now headed "Channels and weights (advanced)"): a link that opens Help at the channels section, and a toggle that puts the one-line description under each channel; the intro no longer uses dashes and semicolons.
 - Data operations (2026-10-16 12:22 to 12:42, by the lead): round 4 abbreviation patch applied; the 1827 to 1922 index rebuilt as v14 (42,212 citations in 537 works) and the Project MUSE index as v7 (26,879 citations from 1,741 articles), both installed.
