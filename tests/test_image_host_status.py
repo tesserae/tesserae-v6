@@ -63,11 +63,19 @@ def test_image_hosts_down_for_filters_to_the_documents_own_hosts(tmp_path, monke
     assert docs.image_hosts_down_for(None) == []
 
 
-def test_ok_rule_is_at_least_half_200():
+def test_ok_rule_is_at_least_half_answering():
     assert chk.host_ok([200, 200, 500])
     assert chk.host_ok([200, 500])
     assert not chk.host_ok([200, 500, 500])
     assert not chk.host_ok([])
+
+
+def test_a_bot_refusal_counts_as_answering_but_404_and_5xx_do_not():
+    # www.uni-koeln.de (2026-10-16): 403 to the probe, 200 to a browser.
+    assert chk.host_ok([403, 403, 403, 403, 403, 403])
+    assert chk.host_ok([301, 200, 429])
+    assert not chk.host_ok([404, 404, 410, 200])
+    assert not chk.host_ok([0, 0, 500])
 
 
 def test_probe_host_uses_the_prober_once_per_sample():

@@ -104,8 +104,18 @@ def probe_host(urls, prober=probe_url):
     return host_ok(codes), codes
 
 
+def answering(code):
+    """True when the host answered as a working server would: a success or a
+    redirect, or a refusal aimed at automated clients (401, 403, 429). The
+    Cologne site (www.uni-koeln.de) serves its pages to a browser and answers
+    this probe with 403 on every sample (2026-10-16), so a bot refusal must
+    not count as the host being down. Down means no answer, a 404 or 410, or
+    a server error."""
+    return 200 <= code < 400 or code in (401, 403, 429)
+
+
 def host_ok(codes):
-    return bool(codes) and sum(1 for c in codes if c == 200) * 2 >= len(codes)
+    return bool(codes) and sum(1 for c in codes if answering(c)) * 2 >= len(codes)
 
 
 def load_status(path):
