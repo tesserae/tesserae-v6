@@ -1,6 +1,7 @@
 {
   "_comment": "Surface forms that scholars write for these authors but that the generated abbreviations table does not list. Each key is a base_id in data/citations/abbreviations.json; each value lists extra abbreviations, matched like the table's own combined 'Author. Work.' forms (priority 1). Ids absent from the table are ignored.",
-  "thucydides.peleponnesian_war": ["Thuc.", "Thucyd.", "Thuk.", "Thucydides"],
+  "thucydides.peloponnesian_war": ["Thuc.", "Thucyd.", "Thuk.", "Thucydides"],
+  "cicero.divinatio_in_q_caecilium": ["Div. Caec.", "Div. in Caec.", "Cic. Div. Caec.", "Div. in Q. Caec."],
   "livy.ab_urbe_condita": ["Livy", "Liv.", "Liv. Ab Urbe", "Livius"],
   "pliny_the_elder.naturalis_historia": [
     "Plin. N. H.", "Plin. N.H.", "Plin. H. N.", "Plin. HN", "Plin. NH",
