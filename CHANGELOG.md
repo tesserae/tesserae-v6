@@ -9,6 +9,7 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-15
 - Passage references: every Similar Passages, Theme Search, Search One Text and gutter result now carries `locus`, `locus_start`, `locus_end` and `citation` from the server (the short locus, "2.57.1" or "2.57.1–2.58.3", never the file's tag "thuc. pele. 2.57.1"), and the Theme Search cards, Search One Text cards, the Reader's English view and the Reader panel's full translation print it, with the file's tag as hover text. `ref_start` and `ref_end` are unchanged. A test (`noRawRefs.test.js`) fails if a page prints a raw tag again.
+- Theme Search export: the order note reads "chronological: oldest first, undated last" (the test expected the word chronological and had been failing).
 - Thucydides is titled Peloponnesian War (the file name's spelling, Peleponnesian, showed on the site).
 - Search One Text: passage references on the cards and in the work summary show the locus alone (1.75.5) instead of the file's tag (thuc. pele. 1.75.5); the full tag is in the hover text.
 - Phrase Search, "Across the corpus": the chart for a parallel is drawn for Greek, Persian, Urdu, Hebrew and Coptic shared words that are not surface forms (Iliad 1 against Argonautica 1, αγορευω θεοπροπια, showed no chart). Line Search takes an optional `lemmas` list (also on the Claude connector's line_search) that is searched as dictionary forms without lemmatizing a second time; the panel sends it, and says "No other line in the corpus has these words together." when nothing answers. Answers without `lemmas` are unchanged.

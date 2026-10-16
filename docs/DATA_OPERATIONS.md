@@ -35,7 +35,17 @@ Conventions
   hand and are the models the helper matches.
 
 
-## 2026-10-15 King James Bible: Revelation moved into the New Testament (to run)
+## 2026-10-15 King James Bible: Revelation moved into the New Testament (RUN 20:30 to 21:50 EDT, by the lead, supervised)
+Run record (the plan it followed is kept below). Pull #934 deployed 20:29. Steps and what happened:
+- **Rename, 20:30.** `rename_work.py --apply`: the .tess had already moved with the pull (0 tagged lines; the tags are `<WEB Revelation N.M>` and stay); en index text 60 renamed (404 lines, 8,730 postings), the hashed lemma cache re-stamped, the line embeddings moved. `rename_work_in_passage_index.py --leaf --apply`: 93 ids, 93 descriptions, 93 window rows moved, 0 line rows; 0 left under the old name; ids 684,503 unchanged; backups `*.bak-revelation-20261015-20261015-203143`.
+- **Whole-work file, 20:33.** Its lemma cache rebuilt (7,952 lines; `batch_lemma_cache.py en`, 1 built, 163 cached). `add_texts_to_index.py --replace world_english_bible.new_testament.tess` on a copy of `en_index.db`: text 10 now 7,952 lines; integrity ok; swapped in, backup `en_index.db.bak-revelation-20261015`. `rebuild_bigrams.py en`: 354,023 bigrams. `rebuild_docfreq.py` not needed (the tool rebuilt `lemma_doc_freq`).
+- **Derived indexes, 20:33 to 20:57.** `build_desc_fts.py`; `build_desc_vocab.py` (684,503 rows, 105,502 words); `build_window_names.py` (22 min: Persian 1,336 s, Urdu 1,343 s), each swapped in with a `.bak-revelation-20261015`; wsgi touched.
+- **Checks, 20:57.** Lockstep 684,503 = 684,503 = 684,503; Revelation ids 93 new, 0 old; Similar Passages 15 results; Theme Search 5 results; a King James search for "throne lamb" names the New Testament. Recorded API check: 12 of 69 differed, every one a version stamp (`corpus_version`, `index_version`, `index_fingerprint` 26000403... to 26522875-1792110726...) or the text list gaining "King James Bible, New Testament, Revelation"; re-recorded; all 69 same at 21:55.
+- **Connections map, 21:00 to 21:49.** `build_connections_map.py` under a 10 GB cap: 375,048 windows, 35,862 author pairs, 1,550 century pairs, 282 genre pairs, 1,105.6 MB, 49.1 min, peak 7.54 GB; the first build to include Italian, Old French and Middle High German (#933). The site served the previous map marked stale meanwhile. Two older caches removed by the builder.
+- **Density cache.** `precompute_passage_density.py --language all` queued at 21:55 under an 8 GB cap for the night (every work, since the fingerprint changed).
+- **Download list.** `scripts/download_english.py` keeps the upstream filename and saves it under the new name (`LOCAL_NAMES`).
+
+Plan as written before the run:
 The pull request renames `texts/en/world_english_bible.revelation.tess` to `world_english_bible.new_testament.part.27.revelation.tess` (content unchanged, 404 lines) and appends those 404 lines to `texts/en/world_english_bible.new_testament.tess` (7,548 to 7,952 lines, Matthew to Revelation). Line tags stay `<WEB Revelation N.M>`. The pull changes the tracked files only (texts, `data/text_descriptions.json`, `data/translation_pairs.json`, the two citation tables, `scripts/download_english.py`, one test). Every other store changes by the steps below, run by the lead after the merge and deploy, one heavy job at a time, each inside `systemd-run --user --scope -p MemoryMax=<cap>` and through `~/bin/tess-job`, with a dated backup of each store first. Fill in the times when run.
 
 1. Rename the work in the stores outside git. Dry run first, read what it reports, then apply (it moves the text, the en inverted-index rows, the lemma cache, and the line embeddings):
