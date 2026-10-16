@@ -69,8 +69,12 @@ export default function ScopeBox({ id, className = '', label = 'What this search
   // The live count first, then the standing description of what is covered
   // (the catalogues, the museums), so the sources stay in the box (owner
   // 2026-10-10: the list of coin sources belongs here, not in the heading).
+  // An entry marked liveOnly has only a generic standing sentence ("The
+  // literary corpus, by language"), which the live count already says, so it
+  // is shown only while the counts have not loaded (owner 2026-10-16: the
+  // sentence read as redundant after the counts).
   const live = liveCovers(id, counts, LANGUAGE_NAMES);
-  const covers = live ? `${live} ${entry.covers}` : entry.covers;
+  const covers = live ? (entry.liveOnly ? live : `${live} ${entry.covers}`) : entry.covers;
   const panelId = `scope-panel-${id}`;
 
   return (
