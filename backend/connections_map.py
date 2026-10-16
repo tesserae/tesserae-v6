@@ -431,7 +431,9 @@ def _entity(view, row, side):
     if view == 'work':
         return work, _work_label(work, author_display), language
     if view == 'author':
-        return f'{author_key}::{language}', f'{author_display} ({language})', language
+        # The language is added to the label later, and only when two authors
+        # of different languages would otherwise read the same (2026-10-15).
+        return f'{author_key}::{language}', author_display, language
     if view == 'century':
         if century is None:
             return None, None, None
@@ -528,6 +530,16 @@ def get_map(view, languages=None, top=DEFAULT_TOP, translations=False):
         # 2026-09-19: rows/columns should read chronologically, not by how
         # connected an author happens to be, so a scholar can trace a line
         # of descent across the grid rather than hunt for a name.
+        if view == 'author':
+            # "King James Bible (en) (tr.)" read as clutter on an English pair:
+            # the tag now appears only where two languages share a display name.
+            by_label = {}
+            for e, lbl in entity_label.items():
+                by_label.setdefault(lbl, []).append(e)
+            for lbl, es in by_label.items():
+                if len({entity_lang.get(e) for e in es}) > 1:
+                    for e in es:
+                        entity_label[e] = f'{lbl} ({entity_lang.get(e)})'
         ranked = sorted(entity_total.items(), key=lambda kv: -kv[1])[:top]
         ids = [e for e, _ in ranked]
         if view in ('author', 'work'):
