@@ -8,6 +8,7 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-15
+- Theme Search export: the order note reads "chronological: oldest first, undated last" (the test expected the word chronological and had been failing).
 - Thucydides is titled Peloponnesian War (the file name's spelling, Peleponnesian, showed on the site).
 - Search One Text: passage references on the cards and in the work summary show the locus alone (1.75.5) instead of the file's tag (thuc. pele. 1.75.5); the full tag is in the hover text.
 - Similarity Map: author labels no longer carry the language tag ("Milton (en)"); the tag appears only where two authors of different languages share a name. Century labels keep theirs.

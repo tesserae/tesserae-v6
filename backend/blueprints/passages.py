@@ -737,7 +737,7 @@ def _order():
 
 
 _ORDER_LABEL = {'score': 'strongest match first',
-                'date': 'oldest first; undated last'}
+                'date': 'chronological: oldest first, undated last'}
 
 
 def _by_score(results):
