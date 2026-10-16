@@ -86,6 +86,9 @@ def _build_passage_index(idx_dir, entries):
         lines_rows.extend((work, i, f'{work}.{i + 1}', f'line {i}') for i in range(n * 2))
 
     json.dump(ids, open(os.path.join(idx_dir, 'ids.json'), 'w', encoding='utf-8'))
+    json.dump({'index_version': '2026-01-01',
+               'languages': {LANG: sorted({w for w, _ in entries})}},
+              open(os.path.join(idx_dir, 'works_by_language.json'), 'w', encoding='utf-8'))
     with open(os.path.join(idx_dir, 'descriptions.jsonl'), 'w', encoding='utf-8') as f:
         for d in descriptions:
             f.write(json.dumps(d, ensure_ascii=False) + '\n')
@@ -260,6 +263,15 @@ def test_apply_renames_every_store(root):
     line_works = {r[0] for r in wcon.execute('SELECT DISTINCT work FROM lines')}
     assert line_works == {NEW, 'other.work'}
     wcon.close()
+
+    # 4b. the works-by-language sidecar (the Theme Search author filter reads
+    # it instead of loading the index; the 2026-10-15 Thucydides rename left
+    # it on the old name and the filter found nothing)
+    sidecar = json.load(open(os.path.join(idx, 'works_by_language.json'), encoding='utf-8'))
+    assert sidecar['languages'][LANG] == sorted([NEW, 'other.work'])
+    import datetime
+    assert sidecar['index_version'] == datetime.date.fromtimestamp(
+        os.path.getmtime(os.path.join(idx, 'ids.json'))).isoformat()
 
     # 5. embeddings
     new_npy = os.path.join(root, 'backend', 'embeddings', LANG, f'{NEW}.npy')
