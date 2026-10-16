@@ -355,6 +355,14 @@ export default function AskAWorkPage() {
   }, [works]);
   const workOptions = useMemo(() => (works || []).filter((w) => w.authorKey === author)
     .map((w) => ({ value: w.id, label: w.title })).sort((a, b) => a.label.localeCompare(b.label)), [works, author]);
+  // An author with one work has that work chosen at once (owner, 2026-10-16:
+  // "It's silly to have to pick one"). Runs after the author changes and
+  // after the catalogue arrives for an author set from the address.
+  useEffect(() => {
+    if (author && !work && workOptions.length === 1) {
+      setWork(workOptions[0].value); setBookFrom(null); setBookTo(null);
+    }
+  }, [author, work, workOptions]);
 
   const [data, setData] = useState(null);
   const [results, setResults] = useState([]);
