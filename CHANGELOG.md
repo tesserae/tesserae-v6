@@ -9,6 +9,7 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-16
 - Libanius orations: the three part files' line tags now read `<libanius. orations. N.M>` like the whole file (were `orations_1-11.`, `orations_26-50.`, `orations_51-64.`), so the whole-versus-parts check passes for all 145 works. New `scripts/corpus/fix_ref_prefix.py` (dry run by default, `--fix WORK OLD NEW`) rewrites the old prefix in the passage index, descriptions, reuse tables, events store and embeddings metadata; production steps in docs/DATA_OPERATIONS.md (planned). New `scripts/corpus/rename_stale_work_ids.py` renames the three old part work ids that the 2026-10-13 rename left in the reuse table and the events store. Tests in `tests/test_fix_ref_prefix.py` and `tests/test_rename_stale_work_ids.py`.
+- Evaluation: the cross-language recall benchmark can query every line of a Latin range and report by a grade column.
 - Evaluation: cross-language recall benchmark script generalized to any Latin work against Homer, gold passed by path.
 - Channels panel: the two links read "Channel explanations" (first) and "More in Help".
 - Phrase Search, channels panel (now headed "Channels and weights (advanced)"): a link that opens Help at the channels section, and a toggle that puts the one-line description under each channel; the intro no longer uses dashes and semicolons.
