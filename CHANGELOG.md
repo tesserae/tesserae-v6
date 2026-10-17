@@ -8,6 +8,7 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-17
+- Reference tests: the exact-mode "arma virum" expectation is 31 results dated 2026-10-17, with the two Martial lines named (#992).
 - Cross-language search, Greek-Latin: a new setting `crosslingual_scorer` (request settings, the poll route's query string and the connector's `cross_language` tool) takes `live`, the default, which leaves every search exactly as it was, or `evaluation`, which ranks pairs by the rules of the evaluation benchmarks (corpus word frequencies, the squared rarity multiplier, the benchmark's convergence bonus, syntax, and a lone dictionary pair kept from the rarity boost) with the two-lemma gate off unless asked. The phonetic channel and the translated-run boost are not part of the evaluation scorer and are left out under it. New `backend/crosslingual_evaluation_path.py`; the evaluation scorer's `make_fused_scorer` gains a `lone_pair_rule` argument (default unchanged), and a test and `scripts/review/crosslingual_evaluation_identity.py` check that on Aeneid 1 against Iliad 1 the live path's top 200 scores equal the evaluation scorer's (#991).
 - Decisions: the Greek-Latin pivot dictionary through LSJ and Lewis and Short is parked, with the measurement behind the decision (#987).
 - Line Search and Documents, exact mode: for Latin, u and v, i and j are interchangeable in the phrase, so "arma virum" finds Martial 8.55.19 "ARMA VIRVMQVE" and "iuvenis" finds "juvenis" (#986).

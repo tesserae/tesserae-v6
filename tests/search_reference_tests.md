@@ -66,15 +66,15 @@ For any corpus-wide lemma search, results should span multiple eras and authors,
 **Language**: Latin
 **Search Type**: Exact
 
-**Expected Results** (as of 2026-08-14; `total` == `distinct_loci`, deduplicated across whole-work and per-book/poem copies. The older "8+/2+" figures counted the same line twice under a whole work and its part; the whole/part dedup now reports true distinct loci, roughly halving the raw counts. Exact search matches whole words — a trailing enclitic is allowed, so "arma virum" still hits Aeneid 1.1 "arma virumque cano"):
-- Total ~21 results
+**Expected Results** (as of 2026-10-17, after #986 made u/v and i/j interchangeable in Latin exact mode, so "virum" also matches "VIRVMQVE"; `total` == `distinct_loci`, deduplicated across whole-work and per-book/poem copies. The older "8+/2+" figures counted the same line twice under a whole work and its part; the whole/part dedup now reports true distinct loci, roughly halving the raw counts. Exact search matches whole words, and a trailing enclitic is allowed, so "arma virum" still hits Aeneid 1.1 "arma virumque cano". Before #986 the total was about 21 and Martial was missing, because 8.55.19 is printed in capitals with V for U):
+- Total 31 results (live 2026-10-17)
 - Must include:
   - **Vergil**: 4 (including Aeneid 1.1 "arma virumque cano")
   - **Ovid**: 1+
   - **Quintilian**: 1+
   - **Seneca**: 1+ (Epistulae 113.25)
   - **Statius**: 1+
-  - **Martial**: 2
+  - **Martial**: 2 (8.55.19 "ARMA VIRVMQVE", 14.185.2)
 
 **Red Flags** (indicates broken search):
 - Ovid, Quintilian, or Seneca missing
