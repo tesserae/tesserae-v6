@@ -370,6 +370,7 @@ def fusion_search(source: str, target: str, language: str = "la", top: int = 20,
         "source": {"ref": x.get("source", {}).get("ref"), "text": x.get("source", {}).get("text")},
         "target": {"ref": x.get("target", {}).get("ref"), "text": x.get("target", {}).get("text")},
         "matched": x.get("matched_lemmas") or x.get("matched_words"),
+        "channel_token_attrs": x.get("channel_token_attrs"),
     } for x in latest]
     # Per-book distribution over the whole ranking, so an agent can draw the
     # distribution chart without paging; total_candidates is the true (pre-cap)

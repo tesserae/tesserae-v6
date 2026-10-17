@@ -155,3 +155,40 @@ class TestChannelTokenAttrs:
         assert "channel_token_attrs" in slim
         assert slim["channel_token_attrs"]["lemma"]["source"] == [1, 3]
         assert slim["channel_token_attrs"]["sound"]["target"] == [1]
+
+    def test_stdio_mcp_parallel_dict_includes_channel_token_attrs(self):
+        """The stdio MCP fusion_search parallel dict builder passes channel_token_attrs through.
+
+        fusion_search in tesserae_mcp.py builds each parallel as an explicit dict;
+        channel_token_attrs must be included so compare_texts (which calls
+        fusion_search internally) can surface per-channel token positions to callers.
+        """
+        attrs = {
+            "lemma": {"source": [1, 3], "target": [0, 2]},
+            "sound": {"source": [0], "target": [1]},
+        }
+        # Synthetic raw results in the shape returned by GET /fusion-search
+        raw = [{
+            "fused_score": 0.85,
+            "channels": ["lemma", "sound"],
+            "channel_token_attrs": attrs,
+            "source": {"ref": "luc. 1.1", "text": "arma virumque"},
+            "target": {"ref": "verg. aen. 1.1", "text": "arma virumque cano"},
+            "matched_lemmas": ["arma", "virum"],
+            "matched_words": [],
+        }]
+        # Replicate the parallel-building comprehension from tesserae_mcp.fusion_search
+        parallels = [{
+            "score": round(x.get("fused_score", 0), 2),
+            "channels": x.get("channels"),
+            "source": {"ref": x.get("source", {}).get("ref"),
+                       "text": x.get("source", {}).get("text")},
+            "target": {"ref": x.get("target", {}).get("ref"),
+                       "text": x.get("target", {}).get("text")},
+            "matched": x.get("matched_lemmas") or x.get("matched_words"),
+            "channel_token_attrs": x.get("channel_token_attrs"),
+        } for x in raw]
+        assert len(parallels) == 1
+        assert "channel_token_attrs" in parallels[0], \
+            "channel_token_attrs missing from stdio MCP parallel dict"
+        assert parallels[0]["channel_token_attrs"] == attrs

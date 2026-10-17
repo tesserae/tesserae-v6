@@ -428,7 +428,8 @@ def _t_compare_texts(a):
         full = fusion.get('count')
         fusion['parallels'] = [{'score': p.get('score'),
                                 'source': p.get('source'), 'target': p.get('target'),
-                                'matched': p.get('matched') or p.get('matched_lemmas')}
+                                'matched': p.get('matched') or p.get('matched_lemmas'),
+                                'channel_token_attrs': p.get('channel_token_attrs')}
                                for p in fusion['parallels'][:_COMPARE_FUSION_PREVIEW]]
         fusion['showing'] = len(fusion['parallels'])
         fusion['note'] = (f"Top {len(fusion['parallels'])} of {full}; call fusion_search "

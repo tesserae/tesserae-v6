@@ -194,3 +194,68 @@ def test_line_search_drops_documents_params_unless_connector_switch(monkeypatch)
     monkeypatch.setenv('TESSERAE_DOCUMENTS_CONNECTOR', '1')
     mcp_http._t_line_search(dict(args))
     assert sent[-1]['collection'] == 'documents' and sent[-1]['region'] == 'Roma'
+
+
+def test_compare_texts_slim_preserves_channel_token_attrs(monkeypatch):
+    """compare_texts carries channel_token_attrs through the fusion preview slice.
+
+    The preview slice rebuilds each parallel as a slim dict to keep payload size
+    down; channel_token_attrs must survive that rebuild so callers can use
+    per-channel token positions for display (bold lemma matches, italic sound
+    echoes, etc.).
+    """
+    attrs = {
+        'lemma': {'source': [1, 3], 'target': [0, 2]},
+        'sound': {'source': [0], 'target': [1]},
+    }
+    fake_parallel = {
+        'score': 0.85,
+        'source': {'ref': 'luc. 1.1', 'text': 'arma virumque'},
+        'target': {'ref': 'verg. aen. 1.1', 'text': 'arma virumque cano'},
+        'matched': ['arma', 'virum'],
+        'channels': ['lemma', 'sound'],
+        'channel_token_attrs': attrs,
+    }
+    monkeypatch.setattr(M, '_fusion_poll',
+                        lambda params, budget: {
+                            'status': 'complete', 'count': 1, 'showing': 1,
+                            'offset': 0, 'parallels': [fake_parallel]})
+    monkeypatch.setattr(M, '_t_rare_words', lambda a, timeout=None: {'results': []})
+    monkeypatch.setattr(M, '_t_rare_pairs', lambda a, timeout=None: {'results': []})
+    out = M._t_compare_texts({
+        'source': 'lucan.bellum_civile',
+        'target': 'vergil.aeneid',
+        'language': 'la',
+    })
+    parallels = out['ranked_parallels']['parallels']
+    assert len(parallels) == 1
+    assert 'channel_token_attrs' in parallels[0], \
+        "channel_token_attrs was dropped by the compare_texts slim pass"
+    assert parallels[0]['channel_token_attrs'] == attrs
+
+
+def test_fusion_search_passes_channel_token_attrs_through(monkeypatch):
+    """fusion_search does not strip channel_token_attrs from parallel results.
+
+    _t_fusion_search returns _fusion_poll output directly; this confirms the
+    field flows end-to-end without being filtered out.
+    """
+    attrs = {'lemma': {'source': [2, 5], 'target': [1, 4]}}
+    monkeypatch.setattr(M, '_fusion_poll',
+                        lambda params, budget: {
+                            'status': 'complete', 'count': 1, 'showing': 1,
+                            'offset': 0,
+                            'parallels': [{'score': 0.9, 'channels': ['lemma'],
+                                           'source': {'ref': 'luc. 1.1', 'text': 'a'},
+                                           'target': {'ref': 'verg. 1.1', 'text': 'b'},
+                                           'matched': ['arma'],
+                                           'channel_token_attrs': attrs}]})
+    out = M._t_fusion_search({
+        'source': 'lucan.bellum_civile',
+        'target': 'vergil.aeneid',
+        'language': 'la',
+    })
+    assert out['status'] == 'complete'
+    assert 'channel_token_attrs' in out['parallels'][0], \
+        "channel_token_attrs was dropped by fusion_search"
+    assert out['parallels'][0]['channel_token_attrs'] == attrs
