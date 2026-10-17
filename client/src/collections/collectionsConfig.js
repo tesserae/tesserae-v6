@@ -137,7 +137,7 @@ export const VIEWS = [
     home: { page: 'ask-a-work' },
     askDefault: { lang: 'la', work: 'vergil.aeneid' },
     menuOrder: [
-      'ask-a-work', 'search', 'read', 'theme-search', 'inscriptions-papyri', 'events', 'coins', 'objects',
+      'ask-a-work', 'search', 'read', 'theme-search', 'mentions', 'inscriptions-papyri', 'events', 'coins', 'objects',
       'browse', 'about', 'help', 'repository', 'downloads',
     ],
     readerTabs: ['similar', 'reuse', 'verbal', 'documents', 'scholarship', 'translation', 'coins'],
@@ -158,7 +158,7 @@ export const VIEWS = [
     home: { page: 'ask-a-work' },
     askDefault: { lang: 'la', work: 'tacitus.annales' },
     menuOrder: [
-      'ask-a-work', 'read', 'events', 'inscriptions-papyri', 'theme-search', 'search', 'coins', 'objects',
+      'ask-a-work', 'read', 'events', 'inscriptions-papyri', 'theme-search', 'mentions', 'search', 'coins', 'objects',
       'browse', 'about', 'help', 'repository', 'downloads',
     ],
     readerTabs: ['similar', 'documents', 'coins', 'scholarship', 'reuse', 'verbal', 'translation'],

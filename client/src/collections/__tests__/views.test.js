@@ -15,7 +15,7 @@ beforeEach(() => {
 describe('the view data', () => {
   it('has Literature and History, each complete', () => {
     expect(VIEWS.map((v) => v.id)).toEqual(['literature', 'history']);
-    const pages = ['search', 'read', 'theme-search', 'ask-a-work', 'inscriptions-papyri', 'events', 'coins', 'objects',
+    const pages = ['search', 'read', 'theme-search', 'mentions', 'ask-a-work', 'inscriptions-papyri', 'events', 'coins', 'objects',
       'browse', 'about', 'help', 'repository', 'downloads'];
     VIEWS.forEach((v) => {
       expect(v.label).toBeTruthy();

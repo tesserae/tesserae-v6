@@ -115,14 +115,17 @@ def _label(keys):
     return keys[0]['latin'][0] if keys[0]['latin'] else keys[0]['greek']
 
 
-def merge_list_entities(keys):
+def merge_list_entities(keys, duplicates=True):
     """Merge the proper-name list's keys (the scope's entities.json rows) into entities.
 
     Applied automatically: places with the same nonempty set of Pleiades ids, and keys
     with an identical English label, one type across the group and the same Pleiades
     set. Everything else that shares a label is held and written to the review rows.
     Returns (entities, review_rows). An entity is a dict with entity_id, type, label,
-    pleiades (list), keys (list of key dicts)."""
+    pleiades (list), keys (list of key dicts).
+
+    With duplicates (stage 2) the entities are then passed through merge_duplicate_entities:
+    an entity that absorbed others carries merged_from (their ids, labels, types and the rule)."""
     n = len(keys)
     parent = list(range(n))
 
@@ -200,7 +203,144 @@ def merge_list_entities(keys):
                        'english': k.get('english') or '', 'type': k['type'],
                        'pleiades_candidates': len(k['pleiades']), 'group_label': lab,
                        'proposed_entity': eid_of[i], 'action': action, 'reason': why})
+    if duplicates:
+        entities, dup_rows = merge_duplicate_entities(entities)
+        review.extend(dup_rows)
     return entities, review
+
+
+# Duplicate entries (stage 2, 2026-10-17). The same place or person can be listed twice, once from
+# the Pleiades gazetteer ("pl:" ids) and once from the proper-name list ("ln:" ids), or twice in
+# the list. Stage 1d split the windows of Troy and Olympus between their copies. Three rules, all
+# conservative, decide which pairs are one entity.
+#   label     the same label (parenthetical notes dropped, folded) and the same type.
+#   gazetteer a "pl:" place and a list entry with the same label whose Pleiades candidates include
+#             that place, whatever type the list gave (Mytilene is listed as a person and a place).
+#   forms     two list places, neither with more than DUP_MAX_PLEIADES Pleiades ids, one's ids all
+#             among the other's and at least two Latin or Greek forms in common (Troy and
+#             Ilium/Troia). A name with many referents (Antiochia, Alexandria) is never merged
+#             by this rule, nor is a pair sharing one form only (Emporion and Medma).
+# A person and a place, or a person and a deity, that share a name stay apart.
+DUP_MAX_PLEIADES = 8
+_PAREN = re.compile(r'\([^)]*\)|\[[^\]]*\]')
+
+
+def label_key(label):
+    """The label with parenthetical notes removed, folded, as the duplicate rules compare it."""
+    t = _PAREN.sub(' ', label or '')
+    return ' '.join(re.sub(r'[^a-z0-9 ]', ' ', fold(t)).split())
+
+
+def _entity_forms(e):
+    out = set()
+    for k in e['keys']:
+        g = fold(k['greek'] or '')
+        if g:
+            out.add(g)
+        for lf in k['latin']:
+            out.add(fold(lf))
+    return out
+
+
+def duplicate_pairs(entities):
+    """[(i, j, rule)] for every pair of entities (list order) that the three rules call one."""
+    out = []
+    by_label = collections.defaultdict(list)
+    for i, e in enumerate(entities):
+        lk = label_key(e['label'])
+        if lk:
+            by_label[lk].append(i)
+    seen = set()
+    for lk, grp in by_label.items():
+        for a in range(len(grp)):
+            for b in range(a + 1, len(grp)):
+                i, j = grp[a], grp[b]
+                ei_, ej = entities[i], entities[j]
+                if ei_['type'] == ej['type']:
+                    out.append((i, j, 'label'))
+                    seen.add((i, j))
+                else:
+                    for x, y in ((ei_, ej), (ej, ei_)):
+                        if x['entity_id'].startswith('pl:') and x['type'] == 'place' \
+                                and x['entity_id'][3:] in y['pleiades']:
+                            out.append((i, j, 'gazetteer'))
+                            seen.add((i, j))
+    small = [i for i, e in enumerate(entities)
+             if e['type'] == 'place' and e['entity_id'].startswith('ln:') and 0 < len(e['pleiades']) <= DUP_MAX_PLEIADES]
+    forms = {i: _entity_forms(entities[i]) for i in small}
+    by_pl = collections.defaultdict(list)
+    for i in small:
+        for pid in entities[i]['pleiades']:
+            by_pl[pid].append(i)
+    cand = set()
+    for grp in by_pl.values():
+        for a in range(len(grp)):
+            for b in range(a + 1, len(grp)):
+                cand.add((min(grp[a], grp[b]), max(grp[a], grp[b])))
+    for i, j in sorted(cand):
+        if (i, j) in seen:
+            continue
+        A, B = set(entities[i]['pleiades']), set(entities[j]['pleiades'])
+        if (A <= B or B <= A) and len(forms[i] & forms[j]) >= 2:
+            out.append((i, j, 'forms'))
+    return out
+
+
+def merge_duplicate_entities(entities):
+    """Merge the entities that duplicate_pairs calls one. The merged entity keeps the first
+    one's entity_id (and label), gains every Pleiades id and key of the others, and records
+    the others in merged_from. Returns (entities, review_rows)."""
+    pairs = duplicate_pairs(entities)
+    parent = list(range(len(entities)))
+
+    def find(a):
+        while parent[a] != a:
+            parent[a] = parent[parent[a]]
+            a = parent[a]
+        return a
+
+    rule_of = {}
+    for i, j, rule in pairs:
+        ri, rj = find(i), find(j)
+        if ri != rj:
+            parent[max(ri, rj)] = min(ri, rj)
+        rule_of[(i, j)] = rule
+    groups = collections.defaultdict(list)
+    for i in range(len(entities)):
+        groups[find(i)].append(i)
+    out, rows = [], []
+    for root in sorted(groups):
+        mem = groups[root]
+        base = dict(entities[root])
+        if len(mem) > 1:
+            others = [entities[i] for i in mem if i != root]
+            base['keys'] = list(base['keys']) + [k for o in others for k in o['keys']]
+            base['pleiades'] = sorted({p for m in mem for p in entities[m]['pleiades']}, key=int)
+            if any(entities[m]['entity_id'].startswith('pl:') and entities[m]['type'] == 'place' for m in mem):
+                base['type'] = 'place'
+            rules = {}
+            for (i, j), r in rule_of.items():
+                if find(i) == root:
+                    rules.setdefault(i, r)
+                    rules.setdefault(j, r)
+            base['merged_from'] = [{'entity_id': entities[i]['entity_id'], 'label': entities[i]['label'],
+                                    'type': entities[i]['type'], 'rule': rules.get(i, 'label')}
+                                   for i in mem if i != root]
+            for i in mem:
+                rows.append({'key_id': entities[i]['keys'][0]['id'], 'greek': entities[i]['keys'][0]['greek'],
+                             'latin': (entities[i]['keys'][0]['latin'] or [''])[0],
+                             'english': entities[i]['label'], 'type': entities[i]['type'],
+                             'pleiades_candidates': len(entities[i]['pleiades']),
+                             'group_label': label_key(entities[i]['label']),
+                             'proposed_entity': base['entity_id'], 'action': 'applied',
+                             'reason': 'duplicate:' + rules.get(i, 'label') if i != root else 'duplicate:primary'})
+        out.append(base)
+    return out, rows
+
+
+def entity_ids(e):
+    """Every id an entity answers to: its own and those of the entries merged into it."""
+    return [e['entity_id']] + [m['entity_id'] for m in e.get('merged_from', ())]
 
 
 def write_review_csv(rows, path):
@@ -458,6 +598,7 @@ CREATE TABLE windows (wid INTEGER PRIMARY KEY, window_id TEXT UNIQUE, work TEXT,
 CREATE TABLE mention_rows (eid INTEGER, wid INTEGER, form TEXT, cap INTEGER, nb INTEGER, ds INTEGER,
   confidence TEXT, matcher TEXT, homonym INTEGER);
 CREATE TABLE meta (key TEXT, value TEXT);
+CREATE TABLE entity_aliases (eid INTEGER, alias_id TEXT, label TEXT, type TEXT, rule TEXT);
 CREATE VIEW mentions AS
   SELECT e.entity_id, w.window_id, w.work, w.ref_start, w.ref_end, w.language, m.form, m.cap, m.confidence,
          m.matcher, m.homonym
@@ -574,7 +715,8 @@ def names_key(tok):
 
 def build_store(keys, passage_dir, out_path, stoplist_path=STOPLIST_PATH, review_csv=None,
                 apply_stoplist=True, matcher='stem', diagnostics=None, log=print,
-                lemma_fixes=True, lemma_threshold=0.5, lemma_decisions=None, homonym_answers=None):
+                lemma_fixes=True, lemma_threshold=0.5, lemma_decisions=None, homonym_answers=None,
+                duplicates=True, answers_loader=None):
     """Build the whole store from scratch into out_path (replaced if present).
 
     keys: the proper-name list as the scope's entity rows (id, greek, latin, english, type,
@@ -584,10 +726,14 @@ def build_store(keys, passage_dir, out_path, stoplist_path=STOPLIST_PATH, review
     'lemma'). diagnostics, a dict, receives the lemma matcher's working tables when given.
     lemma_decisions and homonym_answers (stage 1d, backend/entity_lemma.py) carry the model's
     judgments of the lemma sets and of the windows that name one of several entities.
+    answers_loader (stage 2) is a function of the merged entity list that returns the window
+    answers keyed by entity index, as entity_lemma.reuse_answers does. The caller cannot compute
+    them before build_store has merged the duplicate entries.
+    duplicates (stage 2) merges duplicate entries first, see merge_duplicate_entities.
     Returns (counts, rows, entities); counts is also written to the meta table."""
     t0 = time.time()
     counts = {}
-    entities, review = merge_list_entities(keys)
+    entities, review = merge_list_entities(keys, duplicates=duplicates)
     if review_csv:
         write_review_csv(review, review_csv)
     counts['list_keys'] = len(keys)
@@ -595,6 +741,7 @@ def build_store(keys, passage_dir, out_path, stoplist_path=STOPLIST_PATH, review
     counts['entities_list_by_type'] = dict(collections.Counter(e['type'] for e in entities))
     counts['review_rows'] = len(review)
     counts['review_held'] = sum(1 for r in review if r['action'] == 'held')
+    counts['entities_merged_duplicates'] = sum(len(e.get('merged_from', ())) for e in entities)
     log(f"entities: {len(keys)} keys -> {len(entities)} entities {counts['entities_list_by_type']}")
 
     exact = build_matchers(entities)
@@ -621,10 +768,10 @@ def build_store(keys, passage_dir, out_path, stoplist_path=STOPLIST_PATH, review
             diagnostics.update(info)
             diagnostics['types'] = types
             diagnostics['tok2ents'] = tok2ents
-        if lemma_decisions or homonym_answers:
+        if lemma_decisions or homonym_answers or answers_loader:
             rows, wmeta, tally = el.scan_windows_lemma(
                 texts, unit, tok2ents, log=log, amb_tokens=info['amb_tokens'],
-                answers=el.answers_by_index(entities, homonym_answers))
+                answers=(answers_loader(entities) if answers_loader else el.answers_by_index(entities, homonym_answers)))
         else:
             rows, wmeta, tally = el.scan_windows_lemma(texts, unit, tok2ents, log=log)
         texts.close()
@@ -700,6 +847,8 @@ def build_store(keys, passage_dir, out_path, stoplist_path=STOPLIST_PATH, review
                    (eid, e['entity_id'], e['type'], e['label'], 'list',
                     pl[0] if len(pl) == 1 else None, json.dumps(pl) if pl else None, None, hg, nk,
                     0 if multi[idx] else 1, n_by_eidx.get(idx, 0)))
+        for m in e.get('merged_from', ()):
+            db.execute('insert into entity_aliases values (?,?,?,?,?)', (eid, m['entity_id'], m['label'], m['type'], m['rule']))
         seen = set()
         for k in e['keys']:
             for lf in k['latin']:
