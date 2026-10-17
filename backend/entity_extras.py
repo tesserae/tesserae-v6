@@ -141,7 +141,7 @@ def add_line_refs(store_path, texts_db, log=print):
             at.setdefault(normalize_ref(ref), pos)
         toks = {}
 
-        def tokens_of(pos):
+        def tokens_of(pos, toks=toks, lines=lines):
             t = toks.get(pos)
             if t is None:
                 folded = ei.fold(lines[pos][2])
@@ -486,7 +486,7 @@ def build_document_mentions(store_path, documents_dir, log=print, max_form_docum
         skipped_docs = {}
         doc_skipped = set()
 
-        def matches(tok):
+        def matches(tok, cache=cache, ex=ex, st=st, skip=skip, skipped_docs=skipped_docs, lang=lang):
             hit = cache.get(tok)
             if hit is not None:
                 return hit
@@ -509,7 +509,7 @@ def build_document_mentions(store_path, documents_dir, log=print, max_form_docum
         rows, cur_doc, cur = [], None, {}
         n_docs = 0
 
-        def flush():
+        def flush(cur_doc, cur, rows, lang=lang):
             for eid, (pr, form, kind, adj) in cur.items():
                 rows.append((eid, cur_doc, lang, form, kind, 1 if adj else 0))
 
@@ -517,7 +517,7 @@ def build_document_mentions(store_path, documents_dir, log=print, max_form_docum
             doc = ref.split(' ', 1)[0]
             if doc != cur_doc:
                 if cur_doc is not None:
-                    flush()
+                    flush(cur_doc, cur, rows)
                     if len(rows) >= 50000:
                         db.executemany('insert into document_mentions values (?,?,?,?,?,?)', rows)
                         rows = []
@@ -541,7 +541,7 @@ def build_document_mentions(store_path, documents_dir, log=print, max_form_docum
                     if old is None or pr < old[0]:
                         cur[eid] = (pr, ei.fold(tok), kind, adj)
         if cur_doc is not None:
-            flush()
+            flush(cur_doc, cur, rows)
         db.executemany('insert into document_mentions values (?,?,?,?,?,?)', rows)
         db.commit()
         src.close()
