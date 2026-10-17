@@ -41,6 +41,18 @@ def test_case_insensitive_and_empty():
     assert exact_phrase_pattern("   ") is None
 
 
+def test_latin_folds_u_v_and_i_j():
+    # Martial 8.55.19 in the corpus: "Protinus ITALIAM concepit et ARMA VIRVMQVE,"
+    la = exact_phrase_pattern("arma virum", "la")
+    assert la.search("Protinus ITALIAM concepit et ARMA VIRVMQVE,")
+    assert la.search("arma uirumque cano")
+    assert exact_phrase_pattern("iuvenis", "la").search("juvenis erat")
+    assert exact_phrase_pattern("Iuppiter", "la").search("IVPPITER omnipotens")
+    # The fold is Latin only: a Greek or unmarked query is matched as typed.
+    assert not _matches("arma virum", "ARMA VIRVMQVE")
+    assert not exact_phrase_pattern("arma virum", "grc").search("ARMA VIRVMQVE")
+
+
 # ── Coptic single-word exact search (issue #502) ─────────────────────────────
 # Before the fix, a single-word exact query produced matched_lemmas of size 1,
 # which the slow-path 2-lemma co-occurrence gate then dropped silently.

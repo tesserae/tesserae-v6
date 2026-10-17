@@ -743,7 +743,7 @@ def _search_documents_collection(language, search_type, query, filtered_query_le
     conn = docs.get_connection(language)
     if conn is None:
         return [], 0, [], [], stats
-    exact_pattern = exact_phrase_pattern(query) if search_type == 'exact' else None
+    exact_pattern = exact_phrase_pattern(query, language) if search_type == 'exact' else None
     try:
         text_rows = conn.execute('SELECT text_id, filename FROM texts').fetchall()
     except Exception:                                               # noqa: BLE001
