@@ -224,13 +224,38 @@ def cap_share_of(stats, lang, lem):
     return (s[3] / s[2]) if s[2] else (s[1] / s[0])
 
 
+def id_index(entities):
+    """{entity id: index}, an entity answering to its own id and to the ids merged into it."""
+    return {i: n for n, e in enumerate(entities) for i in ei.entity_ids(e)}
+
+
+_RANK = {'keep': 3, 'other': 2, 'drop': 1}
+
+
+def decisions_by_index(entities, decisions):
+    """{(lang, entity index, lemma): judgment} from {(lang, entity id, lemma): judgment}. Two
+    entries merged into one entity can carry different judgments of the same lemma. Then keep
+    beats other, and other beats drop: a lemma one copy holds as its name is the merged
+    entity's name."""
+    by_id = id_index(entities)
+    out = {}
+    for (lang, eid, lem), v in (decisions or {}).items():
+        idx = by_id.get(eid)
+        if idx is None:
+            continue
+        k = (lang, idx, lem)
+        if k not in out or _RANK[v] > _RANK[out[k]]:
+            out[k] = v
+    return out
+
+
 def load_overrides(entities, path=None):
     """{lang: {folded token: set of entity indexes}} from the per-entity override file."""
     path = path or OVERRIDES_PATH
     out = {lg: collections.defaultdict(set) for lg in ei.LANGS}
     if not path or not os.path.exists(path):
         return out
-    by_id = {e['entity_id']: i for i, e in enumerate(entities)}
+    by_id = id_index(entities)
     for o in json.load(open(path, encoding='utf-8'))['overrides']:
         idx = by_id.get(o['entity_id'])
         if idx is None:
@@ -254,8 +279,7 @@ def assemble_matcher(entities, types, prep, threshold=MAJORITY, audit_fixes=True
     that the mention scan asks the window). A decision replaces the audit's proposal for its
     pair. Pairs without a decision follow the audit."""
     t0 = time.time()
-    by_id = {e['entity_id']: i for i, e in enumerate(entities)}
-    dec = {(lang, by_id[eid], lem): v for (lang, eid, lem), v in (decisions or {}).items() if eid in by_id}
+    dec = decisions_by_index(entities, decisions)
     type_lemma, stats = prep['type_lemma'], prep['stats']
     ent_lemmas = {lg: collections.defaultdict(set) for lg in ei.LANGS}
     diag = collections.Counter()
@@ -377,6 +401,41 @@ def answers_by_index(entities, answers):
         key = (wid, tuple(sorted(by_id[c] for c in cands)))
         out[key] = -1 if chosen is None else by_id.get(chosen, -1)
     return out
+
+
+def reuse_answers(entities, fwd, rev=None):
+    """Window answers from earlier judgment records, carried over a merge of entities.
+
+    fwd and rev are lists of records {'window_id', 'cands' (entity ids), 'chosen' (entity id or
+    None), 'answer'}, rev being the same questions asked with the candidates in the opposite
+    order. Returns (answers, asked). answers is {(window id, sorted candidate indexes): chosen
+    index, or -1 for none}. asked is the set of keys that were put to the model, answered or
+    not. A question with two or more candidates counts only when both orders name the same
+    entity after the merge, so two orders that named the two copies of one entity now agree.
+    Records that land on one key must agree or the key stays unresolved."""
+    by_id = id_index(entities)
+    revmap = {}
+    for r in rev or ():
+        if r.get('answer') is not None:
+            revmap[(r['window_id'], tuple(sorted(r['cands'])))] = r['chosen']
+    got, asked = {}, set()
+    for r in fwd:
+        if r.get('answer') is None or not all(c in by_id for c in r['cands']):
+            continue
+        key = (r['window_id'], tuple(sorted({by_id[c] for c in r['cands']})))
+        asked.add(key)
+        mapped = -1 if r['chosen'] is None else by_id.get(r['chosen'], -1)
+        if len(r['cands']) >= 2:
+            rk = (r['window_id'], tuple(sorted(r['cands'])))
+            if rk not in revmap:
+                continue
+            rc = revmap[rk]
+            rmapped = -1 if rc is None else by_id.get(rc, -1)
+            if rmapped != mapped:
+                continue
+        got.setdefault(key, set()).add(mapped)
+    answers = {k: next(iter(v)) for k, v in got.items() if len(v) == 1}
+    return answers, asked
 
 
 def trigger_state(wid, i, es, f, lang, amb_tokens, answers):

@@ -14,6 +14,14 @@ STEP, in order:
     eval      the fixed graded pairs before and after each pass
     build     write the store with both passes applied (--out)
     draw      draw the fresh pairs from that store (--seed)
+    evalstore the graded pairs, kept or dropped, in a built store (--out), against the 1d store (--compare)
+    movers    entity counts in two stores, the largest movers (--out, --compare)
+
+Stage 2 (2026-10-17) merges duplicate entries (backend/entity_index.merge_duplicate_entities) and
+carries the stage 1d judgments over the merge: --reuse-dir names the stage 1d work folder (read
+only), whose judgment files are read beside the ones in --work-dir. Pass one asks only about
+(entity, lemma) pairs with no judgment under any id of the merged entity, pass two only about
+windows whose candidate set was never put to the model.
 
 The gateway address and key are read by backend/entity_gateway.py from the production .env and
 are never printed or written. The judgments, prompts and graded files stay in --work-dir, which is
@@ -63,6 +71,13 @@ def read_jsonl(path):
     return out
 
 
+def read_jsonl_all(paths):
+    out = []
+    for q in paths:
+        out.extend(read_jsonl(q))
+    return out
+
+
 def write_jsonl(path, rows):
     with open(path, 'w', encoding='utf-8') as f:
         for r in rows:
@@ -80,11 +95,21 @@ def open_texts(a):
 
 # ------------------------------------------------------------------ judgments
 
+def judgment_paths(a, name):
+    """The stage 1d file (read only, --reuse-dir) and the stage 2 file of the same kind."""
+    out = []
+    if a.reuse_dir:
+        out.append(os.path.join(a.reuse_dir, name))
+    out.append(p(a, name))
+    return out
+
+
 def load_decisions(path):
     """{(lang, entity_id, lemma): 'drop'|'keep'|'other'} from the pass-one judgments (the last
-    answer for a pair wins, a missing answer leaves the pair to the audit)."""
+    answer for a pair wins, a missing answer leaves the pair to the audit). path is one file or
+    a list of files read in order."""
     last = {}
-    for r in read_jsonl(path):
+    for r in (read_jsonl_all(path) if isinstance(path, (list, tuple)) else read_jsonl(path)):
         last[(r['lang'], r['entity_id'], r['lemma'])] = r.get('answer')
     mapping = {'yes': 'keep', 'demonym': 'drop', 'common': 'drop', 'other': 'other'}
     return {k: mapping[v] for k, v in last.items() if v in mapping}
@@ -112,6 +137,14 @@ def load_answers(path, rev_path=None):
         elif (key[0], tuple(sorted(key[1]))) in rev and rev[(key[0], tuple(sorted(key[1])))] == chosen:
             out[key] = chosen
     return out
+
+
+def load_answers_index(a, entities):
+    """(answers by entity index, keys already asked) from every stage 1d and stage 2 judgment
+    file, carried over the merge of duplicate entries (entity_lemma.reuse_answers)."""
+    fwd = read_jsonl_all(judgment_paths(a, 'stage1d_homonym_judgments.jsonl'))
+    rev = read_jsonl_all(judgment_paths(a, 'stage1d_homonym_judgments_rev.jsonl'))
+    return el.reuse_answers(entities, fwd, rev)
 
 
 # ------------------------------------------------------------------ gateway runs
@@ -206,7 +239,7 @@ def step_prepare(a):
     pickle.dump({'types': types, 'prep': prep}, open(p(a, 'state.pkl'), 'wb'), protocol=4)
 
     t2e, info = el.assemble_matcher(entities, types, prep, log=lambda *_: None)
-    by_id = {e['entity_id']: i for i, e in enumerate(entities)}
+    by_id = el.id_index(entities)
     pairs = set()
     for r in csv.DictReader(open(a.audit_csv, encoding='utf-8')):
         pairs.add((r['language'], by_id[r['entity_id']], r['lemma']))
@@ -260,6 +293,13 @@ def step_prepare(a):
 def step_pass1(a):
     global client_stats
     jobs = read_jsonl(p(a, 'pass1_jobs.jsonl'))
+    if a.reuse_dir:
+        keys, entities = load_world(a)
+        have = set(el.decisions_by_index(entities, load_decisions(judgment_paths(a, 'stage1d_lemma_judgments.jsonl'))))
+        idx = el.id_index(entities)
+        before = len(jobs)
+        jobs = [j for j in jobs if (j['lang'], idx[j['entity_id']], j['lemma']) not in have]
+        print(f'{before - len(jobs)} of {before} pass-one questions already judged under the stage 1d ids; {len(jobs)} new', flush=True)
     cl = make_client()
     client_stats = cl.stats
 
@@ -313,9 +353,10 @@ def describe_candidates(a, entities, idxs):
     out = {}
     for i in idxs:
         e = entities[i]
+        ids = ei.entity_ids(e)
         rows = store.execute(
             "select w.work, count(*) c from mention_rows m join windows w on w.wid=m.wid join entities x on x.eid=m.eid "
-            "where x.entity_id=? group by w.work", (e['entity_id'],)).fetchall()
+            "where x.entity_id in (%s) group by w.work" % ','.join('?' * len(ids)), ids).fetchall()
         by = collections.Counter()
         for w, c in rows:
             by[mp.author_of(w)] += c
@@ -337,14 +378,19 @@ def step_plan2(a):
     t0 = time.time()
     keys, entities = load_world(a)
     types, prep = load_state(a)
-    decisions = load_decisions(p(a, 'stage1d_lemma_judgments.jsonl'))
+    decisions = load_decisions(judgment_paths(a, 'stage1d_lemma_judgments.jsonl'))
     t2e, info = el.assemble_matcher(entities, types, prep, decisions=decisions, log=lambda *_: None)
     texts = open_texts(a)
     ids = json.load(open(os.path.join(a.passage_dir, 'ids.json')))
     unit = ei.unit_windows(ids)
     del ids
     collect = {}
-    rows, wmeta, tally = el.scan_windows_lemma(texts, unit, t2e, amb_tokens=info['amb_tokens'], collect=collect)
+    answers, asked = load_answers_index(a, entities)
+    rows, wmeta, tally = el.scan_windows_lemma(texts, unit, t2e, amb_tokens=info['amb_tokens'], answers=answers,
+                                               collect=collect)
+    n_collected = len(collect)
+    collect = {k: v for k, v in collect.items() if k not in asked}
+    print(f'{n_collected} windows with an unresolved ambiguous name, {len(collect)} never put to the model', flush=True)
     by_lang = collections.Counter(r['lang'] for r in rows)
     print('pass-one table: mentions', len(rows), dict(by_lang), 'diag', json.dumps(info['diag']), flush=True)
     idxs = sorted({i for (_w, es) in collect for i in es})
@@ -359,7 +405,7 @@ def step_plan2(a):
                      'prompt': mp.pass2_prompt(mp.clip_words(text, raw), raw, cands)})
         mentions_asked += len(es)
     write_jsonl(p(a, 'pass2_jobs.jsonl'), jobs)
-    summ = {'questions': len(jobs), 'mentions_covered_upper_bound': mentions_asked,
+    summ = {'questions': len(jobs), 'unresolved_windows_before_filter': n_collected, 'mentions_covered_upper_bound': mentions_asked,
             'questions_by_language': dict(collections.Counter(j['lang'] for j in jobs)),
             'candidates_per_question': dict(collections.Counter(len(j['cands']) for j in jobs)),
             'pass_one_table_mentions': len(rows), 'pass_one_table_by_language': dict(by_lang),
@@ -437,10 +483,10 @@ def tally(res):
 def step_eval(a):
     keys, entities = load_world(a)
     types, prep = load_state(a)
-    decisions = load_decisions(p(a, 'stage1d_lemma_judgments.jsonl'))
-    answers = el.answers_by_index(entities, load_answers(p(a, 'stage1d_homonym_judgments.jsonl'), p(a, 'stage1d_homonym_judgments_rev.jsonl')))
+    decisions = load_decisions(judgment_paths(a, 'stage1d_lemma_judgments.jsonl'))
+    answers, _asked = load_answers_index(a, entities)
     pairs = load_pairs(a.graded_dir)
-    idx_of = {e['entity_id']: i for i, e in enumerate(entities)}
+    idx_of = el.id_index(entities)
     texts = open_texts(a)
     tc = {q['window_id']: texts.execute('select text from window_texts where id=?', (q['window_id'],)).fetchone()[0]
           for q in pairs}
@@ -470,10 +516,15 @@ def step_eval(a):
 
 def step_build(a):
     keys = json.load(open(a.entities_json, encoding='utf-8'))
-    decisions = load_decisions(p(a, 'stage1d_lemma_judgments.jsonl'))
-    answers = load_answers(p(a, 'stage1d_homonym_judgments.jsonl'), p(a, 'stage1d_homonym_judgments_rev.jsonl'))
-    counts, _rows, _ents = ei.build_store(keys, a.passage_dir, a.out, matcher='lemma',
-                                          lemma_decisions=decisions, homonym_answers=answers)
+    decisions = load_decisions(judgment_paths(a, 'stage1d_lemma_judgments.jsonl'))
+    if a.reuse_dir:
+        counts, _rows, _ents = ei.build_store(keys, a.passage_dir, a.out, matcher='lemma', lemma_decisions=decisions,
+                                              answers_loader=lambda ents: load_answers_index(a, ents)[0],
+                                              review_csv=a.review_csv)
+    else:
+        answers = load_answers(p(a, 'stage1d_homonym_judgments.jsonl'), p(a, 'stage1d_homonym_judgments_rev.jsonl'))
+        counts, _rows, _ents = ei.build_store(keys, a.passage_dir, a.out, matcher='lemma',
+                                              lemma_decisions=decisions, homonym_answers=answers, duplicates=False)
     print('mentions by language', counts['list_mentions_by_language'], 'windows', counts['windows_with_mentions'])
 
 
@@ -493,9 +544,108 @@ def step_draw(a):
     print(len(rows), 'candidate rows; drew 40 with seed', a.seed)
 
 
+def store_pairs(path):
+    """({(entity id, window id)} for the list mentions, {alias id: entity id}) of a store."""
+    db = sqlite3.connect(f'file:{path}?mode=ro', uri=True)
+    pairs = set(db.execute("select e.entity_id, w.window_id from mention_rows m join entities e on e.eid=m.eid "
+                           "join windows w on w.wid=m.wid where e.source='list'"))
+    try:
+        alias = dict(db.execute("select a.alias_id, e.entity_id from entity_aliases a join entities e on e.eid=a.eid"))
+    except sqlite3.OperationalError:
+        alias = {}
+    db.close()
+    return pairs, alias
+
+
+def step_evalstore(a):
+    """The graded pairs in a store: correct kept, correct dropped, wrong kept, wrong dropped. The
+    pairs are not regraded. A pair is kept when the store has its (entity, window) row, the entity
+    being looked up under the id of the entry it was merged into."""
+    new, alias_new = store_pairs(a.out)
+    old, alias_old = store_pairs(a.compare)
+    pairs = load_pairs(a.graded_dir)
+    fresh = []
+    if a.fresh40:
+        fresh = [dict(q, file='precision_1d_holdout40') for q in json.load(open(a.fresh40, encoding='utf-8'))['pairs']]
+
+    def kept_in(st, alias, q):
+        return (alias.get(q['entity_id'], q['entity_id']), q['window_id']) in st
+
+    def one(group, st, alias, right):
+        c = collections.Counter()
+        for q in group:
+            r = right(q)
+            k = kept_in(st, alias, q)
+            c[('ck' if r else 'wk') if k else ('cd' if r else 'wd')] += 1
+        kept = c['ck'] + c['wk']
+        return {'correct_kept': c['ck'], 'correct_dropped': c['cd'], 'wrong_kept': c['wk'], 'wrong_dropped': c['wd'],
+                'kept': kept, 'precision_on_kept': round(c['ck'] / kept, 4) if kept else None}
+
+    out = {'fixed_180': {}, 'fresh_40': {}, 'changes': []}
+    groups = [('all 180', pairs)] + [(g, [q for q in pairs if q['file'] == g]) for g in GRADED]
+    for name, grp in groups:
+        right = lambda q: q['verdict'] == 'right'  # noqa: E731
+        out['fixed_180'][name] = {'before': one(grp, old, alias_old, right), 'after': one(grp, new, alias_new, right)}
+    for q in pairs + fresh:
+        b, f = kept_in(old, alias_old, q), kept_in(new, alias_new, q)
+        if b != f:
+            out['changes'].append({'file': q['file'], 'n': q['n'], 'window_id': q['window_id'], 'entity_id': q['entity_id'],
+                                   'verdict': q['verdict'], 'kept_before': b, 'kept_after': f})
+    if fresh:
+        for name, right in (('strict (metonymy wrong)', lambda q: q['verdict'] == 'right'),
+                            ('lenient (metonymy right)', lambda q: q['verdict'] in ('right', 'metonymy'))):
+            out['fresh_40'][name] = {'before': one(fresh, old, alias_old, right), 'after': one(fresh, new, alias_new, right)}
+    json.dump(out, open(p(a, 'stage2_evalstore.json'), 'w'), indent=1, ensure_ascii=False)
+    for name, v in out['fixed_180'].items():
+        print(name, 'before', json.dumps(v['before']), 'after', json.dumps(v['after']))
+    for name, v in out['fresh_40'].items():
+        print('fresh 40', name, 'before', json.dumps(v['before']), 'after', json.dumps(v['after']))
+    print('pairs whose kept state changed:', len(out['changes']))
+    for c in out['changes']:
+        print(' ', json.dumps(c, ensure_ascii=False))
+
+
+def step_movers(a):
+    """Windows per list entity in two stores. The earlier store's count for an entity that
+    absorbed others is the union of their windows, and the absorbed ones are listed beside it."""
+    def per(path):
+        db = sqlite3.connect(f'file:{path}?mode=ro', uri=True)
+        by = collections.defaultdict(set)
+        label = {}
+        for eid, label_, wid in db.execute("select e.entity_id, e.label, w.window_id from mention_rows m join entities e on e.eid=m.eid "
+                                           "join windows w on w.wid=m.wid where e.source='list'"):
+            by[eid].add(wid)
+        for eid, lab in db.execute("select entity_id, label from entities where source='list'"):
+            label[eid] = lab
+        try:
+            al = db.execute("select e.entity_id, a.alias_id from entity_aliases a join entities e on e.eid=a.eid").fetchall()
+        except sqlite3.OperationalError:
+            al = []
+        db.close()
+        return by, label, al
+    new, lab_new, aliases = per(a.out)
+    old, lab_old, _ = per(a.compare)
+    rows = []
+    for eid, lab in lab_new.items():
+        members = [eid] + [x for e2, x in aliases if e2 == eid]
+        before = set().union(*(old.get(m, set()) for m in members))
+        rows.append({'entity_id': eid, 'label': lab, 'merged_ids': members[1:],
+                     'before_windows': len(before), 'before_by_id': {m: len(old.get(m, ())) for m in members},
+                     'after_windows': len(new.get(eid, ())), 'change': len(new.get(eid, ())) - len(before)})
+    rows.sort(key=lambda r: -abs(r['change']))
+    json.dump(rows, open(p(a, 'stage2_movers.json'), 'w'), indent=1, ensure_ascii=False)
+    print('top 20 movers')
+    for r in rows[:20]:
+        print(r['label'], r['entity_id'], r['before_windows'], '->', r['after_windows'], r['before_by_id'])
+    for r in rows:
+        if r['merged_ids']:
+            print('merged', r['label'], r['entity_id'], r['before_by_id'], '->', r['after_windows'])
+    print('entities rising', sum(1 for r in rows if r['change'] > 0), 'falling', sum(1 for r in rows if r['change'] < 0))
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument('step', choices=['prepare', 'pass1', 'plan2', 'pass2', 'eval', 'build', 'draw'])
+    ap.add_argument('step', choices=['prepare', 'pass1', 'plan2', 'pass2', 'eval', 'build', 'draw', 'evalstore', 'movers'])
     ap.add_argument('--entities-json')
     ap.add_argument('--passage-dir', default=os.path.join(ROOT, 'data', 'passage_index'))
     ap.add_argument('--audit-csv')
@@ -503,7 +653,11 @@ def main():
     ap.add_argument('--work-dir', required=True)
     ap.add_argument('--store', help='the stage 1c store (a candidate\'s works)')
     ap.add_argument('--pleiades-places')
-    ap.add_argument('--out', help='store to write (build) or read (draw)')
+    ap.add_argument('--out', help='store to write (build) or read (draw, evalstore, movers)')
+    ap.add_argument('--reuse-dir', help='stage 1d work folder, read only: its judgments are carried over a merge of duplicate entries')
+    ap.add_argument('--compare', help='evalstore, movers: the store to compare against (the stage 1d store)')
+    ap.add_argument('--review-csv')
+    ap.add_argument('--fresh40', help='evalstore: the graded fresh pairs of the earlier stage (precision_1d_holdout40.json)')
     ap.add_argument('--threads', type=int, default=8)
     ap.add_argument('--reverse', action='store_true', help='pass2: ask the multi-candidate questions again with the candidates in reverse order')
     ap.add_argument('--fixed-threads', type=int, default=0, help='after the probe segments, use this many threads')

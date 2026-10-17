@@ -130,6 +130,23 @@ MANIFEST = {
         'reason': ('Objects option of Theme Search in testing: object descriptions nearest a '
                     'free-text query; not yet exposed to the connector.'),
     },
+    # Entity mentions, stage 2 (2026-10-17): a trial page behind ?entities=1. The connector
+    # tools stay off for the trial, as for the Scholarship tab (2026-10-08).
+    '/api/entities/search': {
+        'site_only': True,
+        'reason': ('Entity mentions in testing (stage 2): places, people and gods by name; '
+                    'not yet exposed to the connector.'),
+    },
+    '/api/entities/<entity_id>': {
+        'site_only': True,
+        'reason': ('One entity with its mention counts by work, for the Mentions page in testing '
+                    '(stage 2); not yet exposed to the connector.'),
+    },
+    '/api/entities/<entity_id>/mentions': {
+        'site_only': True,
+        'reason': ('The windows that name one entity, for the Mentions page in testing '
+                    '(stage 2); not yet exposed to the connector.'),
+    },
     '/api/scope': {
         'site_only': True,
         'reason': ('Live counts for the scope box on each search page; the connector '

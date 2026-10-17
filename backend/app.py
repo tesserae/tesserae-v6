@@ -312,6 +312,8 @@ def create_app():
     app.register_blueprint(objects_bp, url_prefix=API_PREFIX or None)
     from backend.blueprints.scope import scope_bp  # noqa: E402
     app.register_blueprint(scope_bp, url_prefix=API_PREFIX or None)
+    from backend.blueprints.entities import entities_bp  # noqa: E402
+    app.register_blueprint(entities_bp, url_prefix=API_PREFIX or None)
 
     app_logger.info(f"Blueprints registered (API_PREFIX='{API_PREFIX}', env={DEPLOYMENT_ENV})")
 

@@ -14,6 +14,7 @@ const PAGE_TITLES = {
   read: 'Reader',
   document: 'Document',
   'theme-search': 'Theme Search',
+  mentions: 'Mentions',
   'ask-a-work': 'Search One Text',
   'inscriptions-papyri': 'Inscriptions & Papyri',
   events: 'Events',
@@ -40,6 +41,7 @@ const pathToPageType = {
   '/read': 'read',
   '/document': 'document',
   '/theme-search': 'theme-search',
+  '/mentions': 'mentions',
   '/ask-a-work': 'ask-a-work',
   '/inscriptions-papyri': 'inscriptions-papyri',
   '/events': 'events',
@@ -82,6 +84,7 @@ const pageTypeToPath = {
   'read': '/read',
   'document': '/document',
   'theme-search': '/theme-search',
+  'mentions': '/mentions',
   'ask-a-work': '/ask-a-work',
   'inscriptions-papyri': '/inscriptions-papyri',
   'events': '/events',
@@ -115,7 +118,7 @@ const viewHomeUrl = (view) => {
 
 // A visit to the bare site address, apart from the switches that choose a
 // view or collections, which name no page of their own.
-const NON_PAGE_PARAMS = ['view', 'profile', 'collections', 'documents', 'scholarship'];
+const NON_PAGE_PARAMS = ['view', 'profile', 'collections', 'documents', 'scholarship', 'entities'];
 const isPlainVisit = () => {
   if (window.location.pathname !== '/') return false;
   const params = new URLSearchParams(window.location.search);

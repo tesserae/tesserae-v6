@@ -185,3 +185,81 @@ def test_real_resolver_lemmatizes_capitalized_latin_and_greek_forms():
     assert la == {'romam': 'roma', 'troiae': 'troia', 'uergilium': 'uergilius'}
     grc = r.lemmas('grc', ['Ἀχιλλέα'.lower(), 'Ἀθήνας'.lower(), 'Ὀδυσσέως'.lower()])
     assert list(grc.values()) == ['αχιλλευσ', 'αθηναι', 'οδυσσευσ']
+
+
+# ---------------------------------------------------------------- stage 2: duplicate entries
+
+def _k(i, greek, latin, english, typ, pl):
+    return {'id': i, 'greek': greek, 'latin': latin, 'english': english, 'type': typ, 'pleiades': pl}
+
+
+DUP_KEYS = [
+    _k('E1', 'Τροία', ['Ilio', 'Troia'], 'Ilium/Troia', 'place', ['1', '2']),
+    _k('E2', 'Τροία', ['Ilio', 'Troia', 'Ilium'], 'Troy', 'place', ['1', '2', '3']),
+    _k('E3', 'Ὄλυμπος', ['Olympus'], 'Olympus (mountain)', 'place', ['10']),
+    _k('E4', 'Ὄλυμπος', ['Olympus'], 'Olympus', 'place', ['10', '11']),
+    _k('E5', 'Μιτυλήνη', ['Mytilene'], 'Mytilene', 'person', ['20']),
+    _k('E6', 'Καλλιόπη', ['Calliope'], 'Calliope', 'person', []),
+    _k('E7', 'Καλλιόπη', ['Calliope'], 'Calliope', 'deity', []),
+    _k('E8', 'Ἐμπόριον', ['Emporion', 'Medma'], 'Emporion', 'place', ['30', '31']),
+    _k('E9', 'Μέδμα', ['Medma'], 'Medma', 'place', ['31']),
+]
+
+
+def test_duplicate_entries_merge_by_label_and_forms_but_a_person_and_a_deity_stay_apart():
+    ents, review = ei.merge_list_entities(DUP_KEYS + [
+        dict(_k('P1', '', [], 'Mytilene', 'place', ['20']), id='P1')], duplicates=True)
+    troy = [e for e in ents if e.get('merged_from') and e['label'] == 'Ilium/Troia'][0]
+    assert [m['entity_id'] for m in troy['merged_from']] == ['ln:E2'] and troy['merged_from'][0]['rule'] == 'forms'
+    assert troy['pleiades'] == ['1', '2', '3']
+    olympus = [e for e in ents if e['label'].startswith('Olympus')]
+    assert len(olympus) == 1 and olympus[0]['merged_from'][0]['rule'] == 'label'
+    assert len([e for e in ents if e['label'] == 'Calliope']) == 2          # person and deity stay apart
+    assert len([e for e in ents if e['label'] in ('Emporion', 'Medma')]) == 2   # one shared form is not enough
+    assert any(r['reason'] == 'duplicate:forms' for r in review)
+    # without the pass nothing is merged
+    plain, _ = ei.merge_list_entities(DUP_KEYS, duplicates=False)
+    assert len(plain) == len(DUP_KEYS)
+    assert ei.entity_ids(olympus[0]) == [olympus[0]['entity_id'], olympus[0]['merged_from'][0]['entity_id']]
+
+
+def test_gazetteer_place_absorbs_a_list_entry_of_another_type_with_its_id():
+    keys = [dict(_k('E5', 'Μιτυλήνη', ['Mytilene'], 'Mytilene', 'person', ['20'])),
+            _k('E6', '', [], 'Other', 'place', ['99'])]
+    # the Pleiades-only place has the id pl:20 when it is the only candidate
+    pl = _k('P20', '', [], 'Mytilene', 'place', ['20'])
+    ents, _ = ei.merge_list_entities(keys + [pl], duplicates=True)
+    m = [e for e in ents if e['label'] == 'Mytilene']
+    assert len(m) == 1 and m[0]['type'] == 'place'
+
+
+def test_a_name_with_many_pleiades_ids_is_not_merged_by_forms():
+    big = [str(i) for i in range(1, 12)]
+    keys = [_k('A', 'Α', ['Antiochia', 'Alexandria'], 'Antiochia', 'place', big),
+            _k('B', 'Β', ['Alexandria', 'Antiochia'], 'Alexandria/Merv', 'place', big[:5])]
+    ents, _ = ei.merge_list_entities(keys, duplicates=True)
+    assert len(ents) == 2
+
+
+def test_judgments_carry_over_a_merge():
+    from backend import entity_lemma as el
+    ents, _ = ei.merge_list_entities(DUP_KEYS, duplicates=True)
+    idx = el.id_index(ents)
+    m = idx['ln:E1']
+    assert idx['ln:E2'] == m
+    # keep beats other beats drop when two copies disagree
+    dec = el.decisions_by_index(ents, {('la', 'ln:E1', 'troia'): 'keep', ('la', 'ln:E2', 'troia'): 'other',
+                                       ('la', 'ln:E2', 'troianus'): 'drop', ('la', 'ln:E1', 'troianus'): 'other'})
+    assert dec[('la', m, 'troia')] == 'keep' and dec[('la', m, 'troianus')] == 'other'
+    fwd = [{'window_id': 'w1', 'cands': ['ln:E1', 'ln:E2'], 'chosen': 'ln:E1', 'answer': 1},
+           {'window_id': 'w2', 'cands': ['ln:E1', 'ln:E6'], 'chosen': 'ln:E1', 'answer': 1},
+           {'window_id': 'w3', 'cands': ['ln:E2'], 'chosen': None, 'answer': 0}]
+    rev = [{'window_id': 'w1', 'cands': ['ln:E2', 'ln:E1'], 'chosen': 'ln:E2', 'answer': 1},
+           {'window_id': 'w2', 'cands': ['ln:E6', 'ln:E1'], 'chosen': 'ln:E6', 'answer': 1}]
+    answers, asked = el.reuse_answers(ents, fwd, rev)
+    # w1: the two orders named the two copies, which are one entity now
+    assert answers[('w1', (m,))] == m
+    # w2: the orders still disagree, so the window stays unresolved but counts as asked
+    k2 = ('w2', tuple(sorted((m, idx['ln:E6']))))
+    assert k2 not in answers and k2 in asked
+    assert answers[('w3', (m,))] == -1

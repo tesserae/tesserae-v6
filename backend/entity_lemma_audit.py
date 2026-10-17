@@ -17,6 +17,8 @@ import json
 import os
 import unicodedata
 
+from backend import entity_index as ei
+
 SUFFIX_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'entity_lemma_suffixes.json')
 _SUFFIXES = None
 _EXEMPT = None
@@ -75,9 +77,9 @@ def propose(entities, ent_lemmas, stats):
         for idx, lems in per.items():
             etype = entities[idx]['type']
             has_plain = {lem for lem in lems if not (etype == 'place' and suffix_of(lang, lem)
-                                                     and not exempt(entities[idx]['entity_id'], lang, lem))}
+                                                     and not any(exempt(x, lang, lem) for x in ei.entity_ids(entities[idx])))}
             for lem in lems:
-                suf = suffix_of(lang, lem) if etype == 'place' and not exempt(entities[idx]['entity_id'], lang, lem) else ''
+                suf = suffix_of(lang, lem) if etype == 'place' and not any(exempt(x, lang, lem) for x in ei.entity_ids(entities[idx])) else ''
                 ls = lower_share(stats, lang, lem)
                 others = holders[(lang, lem)] - {idx}
                 if suf and has_plain:
