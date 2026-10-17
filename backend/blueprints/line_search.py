@@ -865,7 +865,7 @@ def _single_word_count(params: LineSearchParams, content_lemmas: set, n_query_wo
     # (22 places) into a work-count for "bis" (368 works). A one-word query
     # can't co-occur with anything, so answer how common the word is across
     # the corpus (document frequency) instead of a silent zero.
-    if count_only and n_query_words <= 1:
+    if count_only and n_query_words <= 1 and params.search_type != 'regex':
         from backend.blueprints.hapax import get_document_frequencies_batch
         if content_lemmas:
             dfs = get_document_frequencies_batch(content_lemmas, language)
@@ -1198,6 +1198,7 @@ def _scanned_candidates(params: LineSearchParams, lang_dir: str, lang_dates: dic
     exact_pattern = exact_phrase_pattern(exact_query, language) if search_type == 'exact' else None
     text_files = [f for f in fspaths.listdir_text(lang_dir) if f.endswith('.tess')]
     regex_rx = None
+    regex_single = search_type == 'regex' and bool(query.strip()) and not re.search(r'\s', query.strip())
     if search_type == 'regex':
         # Compiled once. A pattern that does not compile matches no line (each
         # search used to raise re.error on every line and be passed over), so
@@ -1357,6 +1358,17 @@ def _scanned_candidates(params: LineSearchParams, lang_dir: str, lang_dates: dic
                         wl = word.lower()
                         matched_words.append(wl)
                         matched_lemmas.add(wl)
+                elif regex_single:
+                    # One pattern with no whitespace is a listing search, as a
+                    # single exact word is: the words it matched in the line
+                    # are the matched words (the pattern itself need not occur
+                    # in the text, as in rus+ell).
+                    for mt in regex_rx.finditer(text):
+                        if mt.group(0):
+                            wl = mt.group(0).lower()
+                            if wl not in matched_lemmas:
+                                matched_words.append(wl)
+                                matched_lemmas.add(wl)
                 else:
                     for word in query.lower().split():
                         if word in text.lower() and word not in stopwords:
@@ -1368,8 +1380,10 @@ def _scanned_candidates(params: LineSearchParams, lang_dir: str, lang_dates: dic
                 # Exact-phrase search is different: the user asked for that
                 # specific phrase, so a single-word query is a complete and
                 # valid match and must not be dropped here (issue #502: Coptic
-                # single-word exact queries returned nothing).
-                if search_type != 'exact' and len(matched_lemmas) < 2:
+                # single-word exact queries returned nothing). A regex of one
+                # token with no whitespace is a listing search of the same
+                # kind; a regex with whitespace still asks for co-occurrence.
+                if search_type != 'exact' and not regex_single and len(matched_lemmas) < 2:
                     continue
                     
                 # Exclude source line if specified (normalize both sides for robust matching)
