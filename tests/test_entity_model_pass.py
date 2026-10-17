@@ -208,3 +208,11 @@ def test_a_window_is_answered_only_when_both_orders_agree(tmp_path):
         row('w1', ['b', 'a'], 'a'), row('w2', ['b', 'a'], 'b'), row('w3', ['b', 'a'], None, 0)]))
     out = m.load_answers(str(fwd), str(rev))
     assert out == {('w1', ('a', 'b')): 'a', ('w3', ('a', 'b')): None, ('w4', ('a',)): 'a'}
+
+
+def test_chat_url_accepts_only_web_schemes():
+    import pytest
+    assert gw.chat_url('https://gw.example/v1') == 'https://gw.example/v1/chat/completions'
+    assert gw.chat_url('http://127.0.0.1:9/v1/chat/completions') == 'http://127.0.0.1:9/v1/chat/completions'
+    with pytest.raises(ValueError):
+        gw.chat_url('file:///etc/passwd')

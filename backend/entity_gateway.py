@@ -32,6 +32,10 @@ def load_config(env_path=DEFAULT_ENV):
 
 
 def chat_url(url):
+    """The chat-completions address for a gateway base address. Only http and https are
+    accepted, so a file or custom scheme from a misread setting cannot reach urlopen."""
+    if not url.startswith(('https://', 'http://')):
+        raise ValueError('gateway address must start with https:// or http://')
     if url.endswith('/chat/completions'):
         return url
     u = url.rstrip('/')
@@ -69,7 +73,7 @@ class Gateway:
             try:
                 req = urllib.request.Request(self._url, data=body, headers={
                     'Authorization': 'Bearer ' + self._key, 'Content-Type': 'application/json'})
-                with urllib.request.urlopen(req, timeout=self.timeout) as r:
+                with urllib.request.urlopen(req, timeout=self.timeout) as r:  # nosec B310
                     txt = json.loads(r.read())['choices'][0]['message'].get('content') or ''
                 self._bump('answered')
                 return txt
