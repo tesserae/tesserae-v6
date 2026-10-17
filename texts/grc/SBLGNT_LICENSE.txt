@@ -1,4 +1,4 @@
-Greek New Testament text — License and Attribution
+Greek New Testament text, License and Attribution
 ==================================================
 
 The Greek New Testament text in this directory
@@ -10,21 +10,25 @@ The Greek New Testament text in this directory
   https://sblgnt.com/    https://sbl-site.org/    https://logos.com/
   Source repository: https://github.com/Faithlife/SBLGNT
 
-License: the SBLGNT End User License Agreement — https://sblgnt.com/license/
+License: Creative Commons Attribution 4.0 International (CC BY 4.0).
+The SBLGNT was first distributed under its own End User License Agreement.
+Version 1.1 of the public text (19 December 2022, github.com/Faithlife/SBLGNT)
+is released under CC BY 4.0, and https://sblgnt.com/license/ carries the
+CC BY 4.0 text. Tesserae checked both on 16 October 2026.
 
-Key terms, and how Tesserae complies:
-  - Free redistribution is permitted. The SBLGNT may NOT be sold on its own.
-    Tesserae is a free, non-commercial scholarly tool, so this is satisfied.
-  - Attribution is required. Because Tesserae reproduces 100 or more verses,
-    the required statement is: "Scripture quotations marked SBLGNT are from
-    The Greek New Testament: SBL Edition. Copyright 2010 Society of Biblical
-    Literature and Logos Bible Software." The site credits carry this notice
-    with the required links to sblgnt.com, sbl-site.org, and logos.com.
-  - The SBLGNT may not be used in a Greek-English diglot without a license.
-    Tesserae is not a diglot: it presents the Greek text for intertextual
-    matching, not paralleled against an English translation.
+How Tesserae complies:
+  - Attribution: the required statement for 100 or more verses is kept.
+    "Scripture quotations marked SBLGNT are from The Greek New Testament:
+    SBL Edition. Copyright 2010 Society of Biblical Literature and Logos
+    Bible Software." The site credits carry this notice with links to
+    sblgnt.com, sbl-site.org, and logos.com, and name the license.
+  - Adaptation: the .tess conversion below is an adaptation and is shared
+    under terms that do not restrict what CC BY 4.0 allows.
+  - The earlier agreement's restriction on Greek-English diglots does not
+    apply under CC BY 4.0. Tesserae shows the public-domain World English
+    Bible beside the Greek in the Reader.
 
 Modifications by Tesserae V6: converted to .tess line-reference markup. The
 critical-apparatus sigla of the SBL edition are retained in the source files.
-This notice applies to the Greek New Testament TEXT files only; other Greek
+This notice applies to the Greek New Testament TEXT files only. Other Greek
 texts and all other Tesserae components carry their own separate licenses.

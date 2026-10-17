@@ -43,8 +43,8 @@ export default function SourcesIntro() {
       <IntroLink name="The Greek New Testament: SBL Edition" url={SOURCE_LINKS['The Greek New Testament: SBL Edition']} />{' '}
       (SBLGNT), edited by Michael W. Holmes, ©2010{' '}
       <IntroLink name="Society of Biblical Literature" url={SOURCE_LINKS['Society of Biblical Literature']} /> and{' '}
-      <IntroLink name="Logos Bible Software" url={SOURCE_LINKS['Logos Bible Software']} />, used by permission
-      under the SBLGNT End User License Agreement.
+      <IntroLink name="Logos Bible Software" url={SOURCE_LINKS['Logos Bible Software']} />, licensed
+      under Creative Commons Attribution 4.0.
       {' '}Coptic texts (Sahidic and Bohairic) come from{' '}
       <IntroLink name="Coptic Scriptorium" url={SOURCE_LINKS['Coptic Scriptorium']} /> (CC-BY 4.0; the
       Sahidica New Testament is additionally subject to its own academic-use license, ©2000–2006
