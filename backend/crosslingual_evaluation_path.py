@@ -70,7 +70,7 @@ def _load_common():
             if not COMMON_PATH.is_file():
                 raise EvaluationPathError(
                     'The evaluation scorer is not installed on this server '
-                    f'({COMMON_PATH.relative_to(PROJECT_ROOT)} is missing).')
+                    '(evaluation/scripts/crosslingual_common.py is missing).')
             spec = importlib.util.spec_from_file_location('tesserae_crosslingual_common', COMMON_PATH)
             module = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(module)
