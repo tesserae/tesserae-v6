@@ -1,0 +1,13 @@
+{
+ "note": "Surface forms that count as a name for one entity when written with a capital, for names the lemmatizer cannot reach (it leaves an inflected name as its own lemma, or sends it to a common word). Forms are Latin and are listed as the corpus writes them, each attested capitalized in the counted windows. The lemma table is not changed. Stage 1c, 2026-10-17.",
+ "overrides": [
+  {"entity_id": "pl:383741", "label": "Placentia", "lang": "la", "forms": ["Placentia", "Placentiae", "Placentiam", "Placentiamque"], "evidence": "Placentia is lemmatized to placeo; Placentiam (Livy 21-30, window 210)."},
+  {"entity_id": "pl:413151", "label": "Fulginiae", "lang": "la", "forms": ["Fulginiae", "Fulginia", "Fulginis"], "evidence": "Fulginis is lemmatized to fulgo (Itinerarium Hierosolymitanum, window 540)."},
+  {"entity_id": "ln:E0345", "label": "Atalanta", "lang": "la", "forms": ["Atalanta", "Atalantae", "Atalantam", "Atalante", "Atalanten", "Atalantes"], "evidence": "Atalantes is its own lemma, not atalanta (Ovid Amores 3, window 96)."},
+  {"entity_id": "pl:541140", "label": "Thermopylae", "lang": "la", "forms": ["Thermopylae", "Thermopylas", "Thermopylis", "Thermopylarum"], "evidence": "Thermopylas is its own lemma, Thermopylarum goes to thermopylaris (Livy 31-40, window 1032)."},
+  {"entity_id": "pl:433185", "label": "Venafrum", "lang": "la", "forms": ["Venafrum", "Venafro", "Venafri"], "evidence": "Venafro is lemmatized to uenafro, never to the entity's lemma (Silius Punica 8, window 402)."},
+  {"entity_id": "pl:599616", "label": "Europos/Euromos", "lang": "la", "forms": ["Euromo", "Euromi"], "evidence": "Euromo is its own lemma and the entity's form Eurome is never capitalized in the corpus (Livy 31-40, window 1344)."},
+  {"entity_id": "pl:462086", "label": "Acragas", "lang": "la", "forms": ["Acragas", "Agrigentum", "Agrigento", "Agrigenti"], "evidence": "Agrigenti and Agrigentum are their own lemmas (Cicero In Verrem, window 158)."},
+  {"entity_id": "ln:E0889", "label": "Libya/Africa", "lang": "la", "forms": ["Libye"], "evidence": "Libye is its own lemma (Martial 9, window 468)."}
+ ]
+}

@@ -20,6 +20,8 @@ Lemmas are computed once per distinct token (the lemmatizers look at one token a
 time, except the Greek Stanza fallback, which is given a batch of isolated tokens here).
 """
 import collections
+import json
+import os
 import re
 import sqlite3
 import time
@@ -29,6 +31,7 @@ from backend import entity_index as ei
 
 SENT_END = '.;?!·'
 MAJORITY = 0.5
+OVERRIDES_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'entity_lemma_overrides.json')
 
 
 def first_letter(raw):
@@ -179,12 +182,11 @@ def entity_forms(entities):
     return out
 
 
-def build_lemma_matcher(entities, types, resolver, log=print):
-    """Return (tok2ents, info). tok2ents[lang][folded token] = tuple of entity indexes,
-    for every token type that is written with a capital at least once and whose lemma is
-    in the entity's lemma set. info holds the diagnostics the report needs."""
+def prepare_lemmas(entities, types, resolver, log=print):
+    """The slow, threshold-free part of the matcher: the lemma of every token type, each
+    lemma's capitalization counts, and the lemma of every form each entity is looked up on.
+    Returns a dict that assemble_matcher() turns into a token table for any threshold."""
     t0 = time.time()
-    # lemma of every token type
     type_lemma = {l: {} for l in ei.LANGS}
     for lang in ei.LANGS:
         d = types[lang]
@@ -192,7 +194,6 @@ def build_lemma_matcher(entities, types, resolver, log=print):
         res = resolver.lemmas(lang, inp.values())
         type_lemma[lang] = {f: res[i] for f, i in inp.items() if i in res}
         log(f'  lemmatized {lang}: {len(type_lemma[lang])} of {len(d)} types, {time.time() - t0:.0f}s')
-    # capitalization of each lemma
     stats = {l: collections.defaultdict(lambda: [0, 0, 0, 0]) for l in ei.LANGS}
     for lang in ei.LANGS:
         for f, v in types[lang].items():
@@ -204,49 +205,89 @@ def build_lemma_matcher(entities, types, resolver, log=print):
             s[1] += v[1]
             s[2] += v[2]
             s[3] += v[3]
-
-    def cap_share(lang, lem):
-        s = stats[lang].get(lem)
-        if not s or s[0] == 0:
-            return None
-        return (s[3] / s[2]) if s[2] else (s[1] / s[0])
-
     forms = entity_forms(entities)
-    form_types = {}
+    form_lemma = []          # (lang, eidx, folded form, lemma or None)
     for lang in ei.LANGS:
         inp = {}
         for idx, f in forms[lang]:
             rep = types[lang].get(f)
             inp[f] = lemma_input(lang, f, rep[4] if rep else f)
-        form_types[lang] = resolver.lemmas(lang, inp.values()), inp
-    ent_lemmas = {l: collections.defaultdict(set) for l in ei.LANGS}
-    lemma_ents = {l: collections.defaultdict(set) for l in ei.LANGS}
-    diag = collections.Counter()
-    no_lemma = collections.defaultdict(set)    # lang -> entity indexes with no kept lemma
-    tried = collections.defaultdict(set)
-    reasons = collections.defaultdict(dict)    # (lang, eidx) -> list of why a form was dropped
-    for lang in ei.LANGS:
-        res, inp = form_types[lang]
+        res = resolver.lemmas(lang, inp.values())
         for idx, f in forms[lang]:
-            tried[lang].add(idx)
-            lem = res.get(inp[f])
-            if lem is None:
-                diag[f'{lang}_form_without_lemma'] += 1
-                reasons[(lang, idx)].setdefault('why', []).append(f'{f}: no lemma')
-                continue
-            share = cap_share(lang, lem)
-            if share is None:
-                diag[f'{lang}_lemma_not_in_corpus'] += 1
-                reasons[(lang, idx)].setdefault('why', []).append(f'{f}->{lem}: lemma not in corpus')
-                continue
-            if share < MAJORITY:
-                diag[f'{lang}_lemma_mostly_lower_case'] += 1
-                reasons[(lang, idx)].setdefault('why', []).append(
-                    f'{f}->{lem}: capitalized {share:.2f} of inner occurrences')
-                continue
-            ent_lemmas[lang][idx].add(lem)
-            lemma_ents[lang][lem].add(idx)
-            diag[f'{lang}_form_kept'] += 1
+            form_lemma.append((lang, idx, f, res.get(inp[f])))
+    return {'type_lemma': type_lemma, 'stats': stats, 'form_lemma': form_lemma,
+            'form_source': dict(resolver.source)}
+
+
+def cap_share_of(stats, lang, lem):
+    s = stats[lang].get(lem)
+    if not s or s[0] == 0:
+        return None
+    return (s[3] / s[2]) if s[2] else (s[1] / s[0])
+
+
+def load_overrides(entities, path=None):
+    """{lang: {folded token: set of entity indexes}} from the per-entity override file."""
+    path = path or OVERRIDES_PATH
+    out = {l: collections.defaultdict(set) for l in ei.LANGS}
+    if not path or not os.path.exists(path):
+        return out
+    by_id = {e['entity_id']: i for i, e in enumerate(entities)}
+    for o in json.load(open(path, encoding='utf-8'))['overrides']:
+        idx = by_id.get(o['entity_id'])
+        if idx is None:
+            continue
+        for form in o['forms']:
+            out[o['lang']][ei._fold_tok(form)].add(idx)
+    return out
+
+
+def assemble_matcher(entities, types, prep, threshold=MAJORITY, audit_fixes=True, overrides=True, log=print):
+    """Return (tok2ents, info). tok2ents[lang][folded token] = tuple of entity indexes,
+    for every token type that is written with a capital at least once and whose lemma is
+    in the entity's lemma set. With audit_fixes the lemmas that entity_lemma_audit proposes
+    to drop are removed first, and with overrides the surface forms of the override file
+    are added. info holds the diagnostics the report needs."""
+    t0 = time.time()
+    type_lemma, stats = prep['type_lemma'], prep['stats']
+    ent_lemmas = {l: collections.defaultdict(set) for l in ei.LANGS}
+    diag = collections.Counter()
+    tried = collections.defaultdict(set)
+    reasons = collections.defaultdict(dict)
+    for lang, idx, f, lem in prep['form_lemma']:
+        tried[lang].add(idx)
+        if lem is None:
+            diag[f'{lang}_form_without_lemma'] += 1
+            reasons[(lang, idx)].setdefault('why', []).append(f'{f}: no lemma')
+            continue
+        share = cap_share_of(stats, lang, lem)
+        if share is None:
+            diag[f'{lang}_lemma_not_in_corpus'] += 1
+            reasons[(lang, idx)].setdefault('why', []).append(f'{f}->{lem}: lemma not in corpus')
+            continue
+        if share < threshold:
+            diag[f'{lang}_lemma_mostly_lower_case'] += 1
+            reasons[(lang, idx)].setdefault('why', []).append(
+                f'{f}->{lem}: capitalized {share:.2f} of inner occurrences')
+            continue
+        ent_lemmas[lang][idx].add(lem)
+        diag[f'{lang}_form_kept'] += 1
+    candidate = {l: {i: set(v) for i, v in ent_lemmas[l].items()} for l in ei.LANGS}
+    proposals = {}
+    if audit_fixes:
+        from backend import entity_lemma_audit as ela
+        proposals = ela.propose(entities, ent_lemmas, stats)
+        for (lang, idx, lem), (action, why) in proposals.items():
+            if action == 'drop':
+                ent_lemmas[lang][idx].discard(lem)
+                diag[f'{lang}_dropped_{why}'] += 1
+    lemma_ents = {l: collections.defaultdict(set) for l in ei.LANGS}
+    for lang in ei.LANGS:
+        for idx, lems in ent_lemmas[lang].items():
+            for lem in lems:
+                lemma_ents[lang][lem].add(idx)
+    no_lemma = collections.defaultdict(set)
+    for lang in ei.LANGS:
         for idx in tried[lang]:
             if not ent_lemmas[lang].get(idx):
                 no_lemma[lang].add(idx)
@@ -261,12 +302,30 @@ def build_lemma_matcher(entities, types, resolver, log=print):
             es = lemma_ents[lang].get(lem)
             if es:
                 tok2ents[lang][f] = tuple(sorted(es))
+    n_over = 0
+    if overrides:
+        for lang, m in load_overrides(entities).items():
+            for tok, es in m.items():
+                cur = set(tok2ents[lang].get(tok, ()))
+                new = cur | es
+                if new != cur:
+                    n_over += 1
+                    tok2ents[lang][tok] = tuple(sorted(new))
+    diag['override_tokens_added'] = n_over
     info = {'diag': dict(diag), 'no_lemma': no_lemma, 'tried': tried, 'ent_lemmas': ent_lemmas,
-            'reasons': reasons, 'type_lemma': type_lemma, 'stats': stats, 'cap_share': cap_share,
-            'form_source': {k: v for k, v in resolver.source.items()}}
+            'candidate_lemmas': candidate, 'proposals': proposals,
+            'reasons': reasons, 'type_lemma': type_lemma, 'stats': stats,
+            'cap_share': lambda lang, lem: cap_share_of(stats, lang, lem),
+            'form_source': prep['form_source']}
     log(f'  lemma matcher: ' + ', '.join(f'{l} {len(tok2ents[l])} token types' for l in ei.LANGS)
         + f', {time.time() - t0:.0f}s')
     return tok2ents, info
+
+
+def build_lemma_matcher(entities, types, resolver, log=print, threshold=MAJORITY, audit_fixes=True,
+                        overrides=True):
+    prep = prepare_lemmas(entities, types, resolver, log=log)
+    return assemble_matcher(entities, types, prep, threshold, audit_fixes, overrides, log=log)
 
 
 def scan_windows_lemma(texts_conn, unit, tok2ents, log=print):
