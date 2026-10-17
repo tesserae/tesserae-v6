@@ -18,6 +18,16 @@ const ENTITY = {
   id: 'ln:E2', label: 'Ares/Mars', type: 'deity', identifiers: {}, mention_counts: { la: 1 },
   label_shared: true, label_shared_with: [],
   works: [{ work: 'vergil.aeneid', title: 'Aeneid', author: 'Vergil', language: 'la', count: 1 }],
+  corpus_names: [{ id: 'nm:marsi', label: 'Marsi', mention_counts: { la: 6 }, mentions_total: 6, adjective: true }],
+  document_counts: { la: 3 },
+};
+const DOCUMENTS = {
+  total: 1,
+  results: [{ doc_id: 'edr:aEDR020542', language: 'la', locus: 'edr:aEDR020542', text: 'Publicum Coloniae Rusellanorum',
+              matched_form: 'rusellanorum', match_kind: 'adjective_stem', adjective: true,
+              credit: { principal_edition: 'EDR020542', source_name: 'Epigraphic Database Roma', source_url: 'https://example.org/edr',
+                        licence_name: 'CC BY-SA 4.0' },
+              date_not_before: 1, date_not_after: 100, ancient_place: 'Rusellae', text_type_label: 'tessera' }],
 };
 const MENTIONS = {
   total: 1,
@@ -28,7 +38,9 @@ const MENTIONS = {
 
 function stubFetch() {
   global.fetch = vi.fn((url) => {
-    const body = String(url).includes('/mentions') ? MENTIONS : String(url).includes('/search') ? SEARCH : ENTITY;
+    const u = String(url);
+    const body = u.includes('/documents') ? DOCUMENTS : u.includes('/mentions') ? MENTIONS
+      : u.includes('/search') ? (global.__search || SEARCH) : ENTITY;
     return Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve(body) });
   });
 }
@@ -73,7 +85,7 @@ describe('the page', () => {
     render(<MentionsPage setPageType={() => {}} />);
     await user.type(screen.getByLabelText('A place, person or god'), 'mars{enter}');
     const item = await screen.findByTestId('entity-result');
-    expect(item.textContent).toMatch(/God · Latin 9 · Greek 4 · English 2/);
+    expect(item.textContent).toMatch(/God · Latin 9 lines · Greek 4 lines · English 2 lines/);
     await user.click(screen.getByRole('link', { name: 'Ares/Mars' }));
     expect(await screen.findByRole('heading', { name: 'Ares/Mars' })).toBeInTheDocument();
     await user.click(await screen.findByRole('button', { name: /Vergil, Aeneid/ }));
@@ -82,6 +94,59 @@ describe('the page', () => {
     expect(row.querySelector('a').getAttribute('href')).toBe(
       '/read?work=vergil.aeneid.tess&lang=la&ref=verg.+aen.+1.1&refEnd=verg.+aen.+1.2&tab=similar');
     expect(screen.getByTestId('shared-label').textContent).toBe('name shared with Mars (Roman family) and Marsi');
+  });
+});
+
+describe('stage 2b', () => {
+  beforeEach(() => { window.sessionStorage.setItem(ENTITIES_KEY, '1'); });
+  afterEach(() => { delete global.__search; });
+
+  it('puts corpus names under a gray heading below the list entities', async () => {
+    global.__search = { available: true, total: 2, results: [
+      SEARCH.results[0],
+      { id: 'nm:rusel', label: 'Rusellanum', type: 'name', source: 'corpus', mention_counts: { la: 6 }, mentions_total: 6 }] };
+    const user = userEvent.setup();
+    render(<MentionsPage setPageType={() => {}} />);
+    await user.type(screen.getByLabelText('A place, person or god'), 'rusel{enter}');
+    expect((await screen.findByTestId('corpus-heading')).textContent).toBe('Names in the corpus');
+    const items = screen.getAllByTestId('entity-result');
+    expect(items).toHaveLength(2);
+    expect(items[1].textContent).toMatch(/Rusellanum/);
+    expect(items[1].textContent).toMatch(/Name in the corpus · Latin 6 lines/);
+  });
+
+  it('offers near spellings when nothing matches', async () => {
+    global.__search = { available: true, total: 0, results: [],
+                        suggestions: [{ id: 'pl:413288', label: 'Rusellae', type: 'place', distance: 1 }] };
+    const user = userEvent.setup();
+    render(<MentionsPage setPageType={() => {}} />);
+    await user.type(screen.getByLabelText('A place, person or god'), 'russelae{enter}');
+    const box = await screen.findByTestId('suggestions');
+    expect(box.textContent).toBe('Did you mean Rusellae?');
+    expect(screen.getByRole('link', { name: 'Rusellae' })).toBeInTheDocument();
+  });
+
+  it('names the corpus forms, marks adjectives, and lists inscriptions with their credit', async () => {
+    window.history.replaceState({}, '', '/mentions?e=ln:E2');
+    const user = userEvent.setup();
+    render(<MentionsPage setPageType={() => {}} />);
+    const line = await screen.findByTestId('corpus-names');
+    expect(line.textContent).toBe('Named in the corpus as Marsi (6) (adjective)');
+    await user.click(await screen.findByRole('button', { name: /Inscriptions and papyri/ }));
+    const row = await screen.findByTestId('document-row');
+    expect(row.textContent).toMatch(/Text: Epigraphic Database Roma, CC BY-SA 4.0/);
+    expect(row.querySelector('mark').textContent).toBe('Rusellanorum');
+    expect(row.querySelector('a').getAttribute('href')).toBe('/document?doc=edr%3AaEDR020542&lang=la&documents=1');
+  });
+
+  it('counts lines and shows the line locus of a row', async () => {
+    const user = userEvent.setup();
+    window.history.replaceState({}, '', '/mentions?e=ln:E2');
+    render(<MentionsPage setPageType={() => {}} />);
+    expect((await screen.findByRole('button', { name: /Vergil, Aeneid/ })).textContent).toMatch(/1 line/);
+    expect(TRIAL_NOTE).toMatch(/matched by the name's forms alone, without the model's check\.$/);
+    await user.click(screen.getByRole('button', { name: /Vergil, Aeneid/ }));
+    expect((await screen.findByTestId('mention-row')).textContent).toMatch(/^1\.1/);
   });
 });
 
