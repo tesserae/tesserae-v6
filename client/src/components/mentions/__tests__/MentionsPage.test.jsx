@@ -6,7 +6,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, cleanup } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import MentionsPage, { MentionRow, sharedLabel, sortedCounts, TRIAL_NOTE } from '../MentionsPage';
+import MentionsPage, { MentionRow, headingOf, sharedLabel, sortedCounts, TRIAL_NOTE } from '../MentionsPage';
 import { entitiesTrialOn, ENTITIES_KEY } from '../../../hooks/useEntitiesTrial';
 
 const SEARCH = {
@@ -40,7 +40,7 @@ function stubFetch() {
   global.fetch = vi.fn((url) => {
     const u = String(url);
     const body = u.includes('/documents') ? DOCUMENTS : u.includes('/mentions') ? MENTIONS
-      : u.includes('/search') ? (global.__search || SEARCH) : ENTITY;
+      : u.includes('/search') ? (global.__search || SEARCH) : (global.__entity || ENTITY);
     return Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve(body) });
   });
 }
@@ -163,5 +163,37 @@ describe('a row', () => {
     expect(sharedLabel(['A', 'B', 'C'])).toBe('name shared with A, B and C');
     expect(sharedLabel([])).toBe('');
     expect(sortedCounts({ en: 1, la: 2, grc: 3, cop: 4 }).map(([k]) => k)).toEqual(['la', 'grc', 'en', 'cop']);
+  });
+});
+
+describe('stage 3a', () => {
+  const PROMOTED = { id: 'pn:sarpe', label: 'Sarpedon', display_label: 'Sarpedon', display_label_grc: 'Σαρπηδών',
+                     type: 'person', source: 'promoted', description: 'Son of Zeus and Europa, king of Lycia.',
+                     provenance: 'Named in the corpus, identified by a language model',
+                     mention_counts: { la: 69, grc: 100 }, mentions_total: 169 };
+  beforeEach(() => { window.sessionStorage.setItem(ENTITIES_KEY, '1'); });
+  afterEach(() => { delete global.__search; delete global.__entity; });
+
+  it('pairs the Latin heading with the Greek form', () => {
+    expect(headingOf(PROMOTED)).toBe('Sarpedon · Σαρπηδών');
+    expect(headingOf({ label: 'Troy' })).toBe('Troy');
+    expect(headingOf({ label: 'Troy', display_label: 'Troy', display_label_grc: 'Troy' })).toBe('Troy');
+  });
+
+  it('shows type, description and the model note in the result row, and the heading in the entity view', async () => {
+    global.__search = { available: true, total: 1, results: [PROMOTED] };
+    global.__entity = { ...PROMOTED, identifiers: {}, label_shared: false, works: [], corpus_names: [], document_counts: {} };
+    const user = userEvent.setup();
+    render(<MentionsPage setPageType={() => {}} />);
+    await user.type(screen.getByLabelText('A place, person or god'), 'sarpedon{enter}');
+    const item = await screen.findByTestId('entity-result');
+    expect(item.textContent).toMatch(/^Sarpedon · Σαρπηδών/);
+    expect(item.textContent).toMatch(/Person · Latin 69 lines · Greek 100 lines/);
+    expect(screen.getByTestId('result-description').textContent).toBe('Son of Zeus and Europa, king of Lycia.');
+    expect(screen.getByTestId('result-provenance').textContent).toBe('Named in the corpus, identified by a language model');
+    expect(screen.queryByTestId('corpus-heading')).toBeNull();          // a promoted entity sits with the list entries
+    await user.click(screen.getByRole('link', { name: 'Sarpedon · Σαρπηδών' }));
+    expect(await screen.findByRole('heading', { name: 'Sarpedon · Σαρπηδών' })).toBeInTheDocument();
+    expect(screen.getByTestId('entity-provenance').textContent).toBe('Named in the corpus, identified by a language model');
   });
 });

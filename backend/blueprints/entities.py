@@ -31,6 +31,7 @@ from flask import Blueprint, jsonify, request
 
 from backend import entity_extras as extras
 from backend import entity_index as ei
+from backend import entity_promote as extras_promote
 from backend import passage_index
 from backend import window_texts
 from backend.logging_config import get_logger
@@ -95,7 +96,7 @@ def _catalog(path):
         rows = [json.loads(d) for (d,) in c.execute('select data from entity_catalog')]
     else:
         rows = extras.build_catalog(c)
-    ents = {r['eid']: r for r in rows if r['source'] == 'list'}
+    ents = {r['eid']: r for r in rows if r['source'] in ('list', 'promoted')}
     names = {r['eid']: r for r in rows if r['source'] == 'corpus'}
     name_index = extras.NameIndex([(n['eid'], {n['folded_label']} | set(n['forms'])) for n in names.values()])
     labels = [(e, {e['folded_label'], e['label_key']} | set(e['label_key'].split())) for e in ents.values()]
@@ -125,12 +126,18 @@ def _public(e):
         ids['pleiades'] = e['pleiades']
     if e['merged_ids']:
         ids['also_listed_as'] = e['merged_ids']
-    return {'id': e['id'], 'label': e['label'], 'type': e['type'], 'source': e['source'],
-            'identifiers': ids, 'mention_unit': 'lines',
-            'mention_counts': counts, 'mentions_total': e['total'],
-            'label_shared': bool(e['shared_label_with']) or e['homonym_mentions'] > 0,
-            'label_shared_with': e['shared_label_with'][:5],
-            'shared_name_mentions': e['homonym_mentions']}
+    label = e.get('display_label') or e['label']
+    out = {'id': e['id'], 'label': label, 'type': e['type'], 'source': e['source'],
+           'display_label': label, 'display_label_la': e.get('display_label_la'),
+           'display_label_grc': e.get('display_label_grc'), 'description': e.get('description'),
+           'identifiers': ids, 'mention_unit': 'lines',
+           'mention_counts': counts, 'mentions_total': e['total'],
+           'label_shared': bool(e['shared_label_with']) or e['homonym_mentions'] > 0,
+           'label_shared_with': e['shared_label_with'][:5],
+           'shared_name_mentions': e['homonym_mentions']}
+    if e['source'] == 'promoted':
+        out['provenance'] = extras_promote.PROVENANCE
+    return out
 
 
 def _rank(e, f, raw):
@@ -230,7 +237,7 @@ def _group_key(cat):
 
 def _corpus_names_of(cat, e):
     """The corpus names that belong to a list entity, with their line counts."""
-    return e.get('corpus_names', []) if e['source'] == 'list' else []
+    return e.get('corpus_names', []) if e['source'] in ('list', 'promoted') else []
 
 
 def _document_counts(path, e):
