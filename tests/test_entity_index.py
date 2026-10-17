@@ -105,3 +105,40 @@ def test_lockstep_check_reports_a_store_left_behind(tmp_path):
     json.dump(ids + ['w:fine:3'], open(os.path.join(pdir, 'ids.json'), 'w'))
     problems = ei.check_lockstep(out, pdir)
     assert any('unit_windows' in p for p in problems)
+
+
+class _FakeResolver:
+    """Stands in for backend.entity_lemma.Resolver: a fixed form-to-lemma map."""
+    source = {}
+
+    def __init__(self, table):
+        self.table = table
+
+    def lemmas(self, lang, forms):
+        return {f: self.table[f] for f in dict.fromkeys(forms) if f in self.table}
+
+
+def test_lemma_matcher_needs_a_capital_and_a_name_like_lemma(tmp_path):
+    from backend import entity_lemma as el
+    pdir = _passage_dir(tmp_path)
+    texts = sqlite3.connect(os.path.join(pdir, 'window_texts.db'))
+    unit = {w[0] for w in WINDOWS}
+    types = el.count_types(texts, unit, log=lambda *_: None)
+    # "roma" is written with a capital inside sentences, "romae" once with one
+    assert types['la']['roma'][1] >= 1
+    ents, _ = ei.merge_list_entities(KEYS)
+    res = _FakeResolver({'roma': 'roma', 'romae': 'roma', 'sinon': 'sinon', 'pax': 'pax', 'nihil': 'nihil'})
+    tok2ents, info = el.build_lemma_matcher(ents, types, res, log=lambda *_: None)
+    rome = [i for i, e in enumerate(ents) if e['label'] == 'Rome'][0]
+    # both Rome forms map to the lemma roma, and the lower-case "roma" in window 1 is not a mention
+    assert tok2ents['la']['romae'] == (rome,)
+    rows, _, _ = el.scan_windows_lemma(texts, unit, tok2ents, log=lambda *_: None)
+    got = sorted((r['wid'], r['form']) for r in rows if r['eidx'] == rome)
+    assert got == [('w:fine:0', 'Roma'), ('w:fine:1', 'Romae')]
+    assert all(not r['homonym'] for r in rows)
+
+
+def test_first_letter_skips_combining_marks():
+    from backend import entity_lemma as el
+    assert el.is_cap('̓Ατρεί̈δη')   # breathing before a capital
+    assert not el.is_cap('ατρείδη')

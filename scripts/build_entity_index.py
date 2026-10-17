@@ -2,7 +2,7 @@
 
     venv/bin/python scripts/build_entity_index.py --entities-json KEYS.json \
         [--passage-dir data/passage_index] [--out data/entity_index/entities.sqlite] \
-        [--review-csv merge_review.csv] [--no-stoplist]
+        [--review-csv merge_review.csv] [--no-stoplist] [--matcher stem|lemma]
     venv/bin/python scripts/build_entity_index.py --check
 
 KEYS.json is the proper-name list as entity rows (id, greek, latin, english, type, pleiades),
@@ -29,6 +29,8 @@ def main():
     ap.add_argument('--out', default=os.path.join(ROOT, 'data', 'entity_index', 'entities.sqlite'))
     ap.add_argument('--review-csv')
     ap.add_argument('--no-stoplist', action='store_true')
+    ap.add_argument('--matcher', choices=('stem', 'lemma'), default='stem',
+                    help='stem: name stems plus case endings (default). lemma: lemmas of the names.')
     ap.add_argument('--check', action='store_true')
     a = ap.parse_args()
     if a.check:
@@ -46,7 +48,7 @@ def main():
     keys = json.load(open(a.entities_json, encoding='utf-8'))
     os.makedirs(os.path.dirname(a.out), exist_ok=True)
     counts, _rows, _ents = ei.build_store(keys, a.passage_dir, a.out, review_csv=a.review_csv,
-                                          apply_stoplist=not a.no_stoplist)
+                                          apply_stoplist=not a.no_stoplist, matcher=a.matcher)
     print('entities by type', counts['entities_list_by_type'], 'names', counts['name_entities'])
     print('mentions by language', counts['list_mentions_by_language'])
     print('windows covered', counts['windows_with_mentions'])

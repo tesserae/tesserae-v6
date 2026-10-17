@@ -30,6 +30,10 @@ Disambiguation (measured in the stage 1 report):
        (backend/entity_stoplists.json "neighbor_words").
     c  description confirmation: the entity's label appears in the window's
        participants, setting or gist.
+A second matcher, backend/entity_lemma.py (build_store(matcher='lemma'), build_entity_index.py
+--matcher lemma), compares lemmas instead of stems and gives every mention confidence 'lemma'.
+It was measured against the stem matcher on 140 hand-graded pairs before it was added.
+
 An entity is "distinctive" when its matched stem has six or more letters and it has at
 most one referent. Distinctive mentions have confidence 'distinctive'. Every other
 mention is 'neighbor', 'description', 'neighbor+description' or 'unconfirmed'. Nothing
@@ -452,10 +456,11 @@ CREATE TABLE variants (eid INTEGER, form TEXT, language TEXT, role TEXT, source 
 CREATE TABLE windows (wid INTEGER PRIMARY KEY, window_id TEXT UNIQUE, work TEXT, ref_start TEXT,
   ref_end TEXT, language TEXT);
 CREATE TABLE mention_rows (eid INTEGER, wid INTEGER, form TEXT, cap INTEGER, nb INTEGER, ds INTEGER,
-  confidence TEXT);
+  confidence TEXT, matcher TEXT, homonym INTEGER);
 CREATE TABLE meta (key TEXT, value TEXT);
 CREATE VIEW mentions AS
-  SELECT e.entity_id, w.window_id, w.work, w.ref_start, w.ref_end, w.language, m.form, m.cap, m.confidence
+  SELECT e.entity_id, w.window_id, w.work, w.ref_start, w.ref_end, w.language, m.form, m.cap, m.confidence,
+         m.matcher, m.homonym
   FROM mention_rows m JOIN entities e ON e.eid = m.eid JOIN windows w ON w.wid = m.wid;
 '''
 INDEXES = '''
@@ -568,12 +573,15 @@ def names_key(tok):
 
 
 def build_store(keys, passage_dir, out_path, stoplist_path=STOPLIST_PATH, review_csv=None,
-                apply_stoplist=True, log=print):
+                apply_stoplist=True, matcher='stem', diagnostics=None, log=print):
     """Build the whole store from scratch into out_path (replaced if present).
 
     keys: the proper-name list as the scope's entity rows (id, greek, latin, english, type,
     pleiades). passage_dir: a folder with ids.json, window_texts.db, window_names.db and
-    descriptions.jsonl. Returns the counts dict (also written to the meta table)."""
+    descriptions.jsonl. matcher is 'stem' (stems plus case endings, with the tiers of
+    the module docstring) or 'lemma' (backend/entity_lemma.py, every mention has confidence
+    'lemma'). diagnostics, a dict, receives the lemma matcher's working tables when given.
+    Returns (counts, rows, entities); counts is also written to the meta table."""
     t0 = time.time()
     counts = {}
     entities, review = merge_list_entities(keys)
@@ -598,36 +606,62 @@ def build_store(keys, passage_dir, out_path, stoplist_path=STOPLIST_PATH, review
     counts['unit_windows'] = len(unit)
     del ids
     texts = sqlite3.connect(f"file:{os.path.join(passage_dir, 'window_texts.db')}?mode=ro", uri=True)
-    rows, wmeta, tally = scan_windows(texts, unit, entities, exact, None, stop_forms, nb_words, log=log)
-    texts.close()
-    counts.update({k: v for k, v in tally.items()})
-    counts['mentions_before_stoplist'] = len(rows)
-    rows_kept = [r for r in rows if not r['stopped']]
-    counts['removed_by_stoplist'] = len(rows) - len(rows_kept)
-    counts['removed_by_stoplist_top'] = collections.Counter(
-        entities[r['eidx']]['label'] for r in rows if r['stopped']).most_common(15)
-    log(f"list mentions: {len(rows)} before stoplist, {len(rows_kept)} after")
+    counts['matcher'] = matcher
+    if matcher == 'lemma':
+        from backend import entity_lemma as el
+        types = el.count_types(texts, unit, log=log)
+        resolver = el.Resolver(log=log)
+        tok2ents, info = el.build_lemma_matcher(entities, types, resolver, log=log)
+        if diagnostics is not None:
+            diagnostics.update(info)
+            diagnostics['types'] = types
+            diagnostics['tok2ents'] = tok2ents
+        rows, wmeta, tally = el.scan_windows_lemma(texts, unit, tok2ents, log=log)
+        texts.close()
+        counts.update({k: v for k, v in tally.items()})
+        counts['lemma_diagnostics'] = info['diag']
+        rows_kept = rows
+        counts['mentions_before_stoplist'] = len(rows)
+        counts['removed_by_stoplist'] = 0
+        log(f"list mentions (lemma): {len(rows)}")
+        counts['list_mentions'] = len(rows_kept)
+        counts['list_mentions_by_language'] = dict(collections.Counter(r['lang'] for r in rows_kept))
+        counts['list_mentions_homonym'] = sum(1 for r in rows_kept if r['homonym'])
+        counts['list_mentions_by_confidence'] = {'lemma': len(rows_kept)}
+    elif matcher == 'stem':
+        rows, wmeta, tally = scan_windows(texts, unit, entities, exact, None, stop_forms, nb_words, log=log)
+        texts.close()
+        counts.update({k: v for k, v in tally.items()})
+        counts['mentions_before_stoplist'] = len(rows)
+        rows_kept = [r for r in rows if not r['stopped']]
+        counts['removed_by_stoplist'] = len(rows) - len(rows_kept)
+        counts['removed_by_stoplist_top'] = collections.Counter(
+            entities[r['eidx']]['label'] for r in rows if r['stopped']).most_common(15)
+        log(f"list mentions: {len(rows)} before stoplist, {len(rows_kept)} after")
 
-    for r in rows_kept:
-        r['distinctive'] = (not multi[r['eidx']]) and r['stem'] >= DISTINCTIVE_STEM
-    wanted = collections.defaultdict(set)
-    for r in rows_kept:
-        if not r['distinctive']:
-            wanted[r['wid']].add(r['eidx'])
-    desc_path = os.path.join(passage_dir, 'descriptions.jsonl')
-    dh = description_hits(desc_path, wanted, exact, log=log) if os.path.exists(desc_path) else set()
-    for r in rows_kept:
-        r['ds'] = (r['wid'], r['eidx']) in dh
-        r['conf'] = confidence_of(r['distinctive'], r['nb'], r['ds'])
-    cc = collections.Counter(r['conf'] for r in rows_kept)
-    counts['list_mentions'] = len(rows_kept)
-    counts['list_mentions_by_confidence'] = dict(cc)
-    counts['list_mentions_by_language'] = dict(collections.Counter(r['lang'] for r in rows_kept))
-    unc = [r for r in rows_kept if not r['distinctive']]
-    counts['uncertain_mentions'] = len(unc)
-    counts['removed_by_neighbor_step'] = sum(1 for r in unc if not r['nb'])
-    counts['removed_by_neighbor_or_description'] = sum(1 for r in unc if not (r['nb'] or r['ds']))
-    counts['restored_by_description'] = counts['removed_by_neighbor_step'] - counts['removed_by_neighbor_or_description']
+        for r in rows_kept:
+            r['distinctive'] = (not multi[r['eidx']]) and r['stem'] >= DISTINCTIVE_STEM
+        wanted = collections.defaultdict(set)
+        for r in rows_kept:
+            if not r['distinctive']:
+                wanted[r['wid']].add(r['eidx'])
+        desc_path = os.path.join(passage_dir, 'descriptions.jsonl')
+        dh = description_hits(desc_path, wanted, exact, log=log) if os.path.exists(desc_path) else set()
+        for r in rows_kept:
+            r['ds'] = (r['wid'], r['eidx']) in dh
+            r['conf'] = confidence_of(r['distinctive'], r['nb'], r['ds'])
+            r['homonym'] = False
+        cc = collections.Counter(r['conf'] for r in rows_kept)
+        counts['list_mentions'] = len(rows_kept)
+        counts['list_mentions_by_confidence'] = dict(cc)
+        counts['list_mentions_by_language'] = dict(collections.Counter(r['lang'] for r in rows_kept))
+        unc = [r for r in rows_kept if not r['distinctive']]
+        counts['uncertain_mentions'] = len(unc)
+        counts['removed_by_neighbor_step'] = sum(1 for r in unc if not r['nb'])
+        counts['removed_by_neighbor_or_description'] = sum(1 for r in unc if not (r['nb'] or r['ds']))
+        counts['restored_by_description'] = counts['removed_by_neighbor_step'] - counts['removed_by_neighbor_or_description']
+    else:
+        raise ValueError(f'unknown matcher {matcher!r}')
 
     # names source
     names_path = os.path.join(passage_dir, 'window_names.db')
@@ -692,11 +726,11 @@ def build_store(keys, passage_dir, out_path, stoplist_path=STOPLIST_PATH, review
             db.execute('insert into windows values (?,?,?,?,?,?)', (w, window_id, work, rs, re_, lang))
         return w
 
-    db.executemany('insert into mention_rows values (?,?,?,?,?,?,?)',
-                   ((r['eidx'] + 1, wid_for(r['wid']), r['form'], 1, int(r['nb']), int(r['ds']), r['conf'])
-                    for r in rows_kept))
-    db.executemany('insert into mention_rows values (?,?,?,?,?,?,?)',
-                   ((nm_eid[k], wid_for(w), f, 1, 0, 0, 'name') for k, w, f in nm_rows if w in wmeta))
+    db.executemany('insert into mention_rows values (?,?,?,?,?,?,?,?,?)',
+                   ((r['eidx'] + 1, wid_for(r['wid']), r['form'], 1, int(r['nb']), int(r['ds']), r['conf'],
+                     matcher, int(r['homonym'])) for r in rows_kept))
+    db.executemany('insert into mention_rows values (?,?,?,?,?,?,?,?,?)',
+                   ((nm_eid[k], wid_for(w), f, 1, 0, 0, 'name', 'names', 0) for k, w, f in nm_rows if w in wmeta))
     counts['windows_with_mentions'] = len(wid_of)
     counts['windows_with_list_mentions'] = len({r['wid'] for r in rows_kept})
     counts['linked_name_keys'] = db.execute('select count(*) from entities where source="list" and name_key is not null').fetchone()[0]
