@@ -8,6 +8,7 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-17
+- Entity mentions, stage 1 (no page, no route): `backend/entity_index.py` and `scripts/build_entity_index.py` build `data/entity_index/entities.sqlite`, the places, people and deities of the proper-name list merged by Pleiades id and label, their mentions in the Latin, Greek and English passage windows, and the corpus's own capitalized names from `window_names.db` as a second source. A per-entity stoplist and a neighbor-word list are in `backend/entity_stoplists.json`. `scripts/build_entity_index.py --check` reports the store stale when the passage index or the names store changed, and `drop_lines_from_work.py` lists it among the follow-up steps. Tests in `tests/test_entity_index.py`.
 - Line Search and Documents, exact mode: for Latin, u and v, i and j are interchangeable in the phrase, so "arma virum" finds Martial 8.55.19 "ARMA VIRVMQVE" and "iuvenis" finds "juvenis" (#986).
 - Line Search: punctuation on the ends of a query word is stripped before lemmatizing, so a Reader line sent as it stands ("fatorum," "colla;") no longer loses every word before a mark (#985).
 - Connector: `channel_token_attrs` passes through the MCP compare_texts slim dictionary and the stdio fusion_search, an outside contribution (#983, merged 2026-10-16).

@@ -106,6 +106,9 @@ session to run, in the order that must hold:
   names     data/passage_index/window_names.db is built FROM window_texts.db
             (scripts/corpus/build_window_names.py); once windows are
             dropped it is stale and must be rebuilt, whole-corpus.
+  entities  data/entity_index/entities.sqlite counts the same windows
+            (scripts/build_entity_index.py); --check reports it stale, rebuild
+            after the names store.
   connmap   cache/connections_map/*.db is fingerprinted to the passage
             index's own state (scripts/build_connections_map.py's
             docstring); once windows are dropped the live cache's
@@ -398,6 +401,8 @@ def format_plan(plan):
     if win.get('present') and win['window_ids']:
         lines.append('    venv/bin/python scripts/corpus/build_window_names.py <out.db>   '
                      '# then swap in as data/passage_index/window_names.db')
+        lines.append('    venv/bin/python scripts/build_entity_index.py --check   '
+                     '# entity store in step? if not, rebuild it after the names store')
         lines.append('    systemd-run --user --scope -p MemoryMax=10G '
                      'venv/bin/python3 scripts/build_connections_map.py')
     return '\n'.join(lines)
@@ -759,6 +764,7 @@ def apply_drop(plan, tag=None):
     report.append(f"  venv/bin/python scripts/corpus/rebuild_bigrams.py {plan['lang']}")
     if win.get('present') and win['window_ids']:
         report.append('  scripts/corpus/build_window_names.py, then swap in as window_names.db')
+        report.append('  scripts/build_entity_index.py --check (rebuild the entity store after the names store)')
         report.append('  systemd-run --user --scope -p MemoryMax=10G venv/bin/python3 scripts/build_connections_map.py')
     return report
 
