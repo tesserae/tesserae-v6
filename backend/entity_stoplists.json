@@ -1,0 +1,676 @@
+{
+ "_note": "entities: per-entity forms dropped as common words or different names, keyed by the Greek key of the proper-name list. neighbor_words: titles and place words that confirm a name when they stand within three tokens of it.",
+ "entities": {
+  "ιουδαια": {
+   "label": "Iudaea (region)",
+   "reason": "demonym",
+   "forms": [
+    "Iudaei",
+    "Iudaeis",
+    "Iudaeorum",
+    "Iudaeos",
+    "Iudaeus"
+   ]
+  },
+  "αιγυπτος": {
+   "label": "Egypt",
+   "reason": "demonym",
+   "forms": [
+    "Αἰγυπτία",
+    "Αἰγυπτίαν",
+    "Αἰγυπτίας",
+    "Αἰγυπτίοις",
+    "Αἰγυπτίου",
+    "Αἰγυπτίους",
+    "Αἰγυπτίων",
+    "Αἰγύπτιαι",
+    "Αἰγύπτιοι",
+    "Αἰγύπτιον",
+    "Αἰγύπτιος"
+   ]
+  },
+  "σιγνια": {
+   "label": "Signia",
+   "reason": "common word",
+   "forms": [
+    "Signa",
+    "Signae",
+    "Signam",
+    "Signarum",
+    "Signas",
+    "Signe",
+    "Signi",
+    "Signibus",
+    "Signis",
+    "Signo",
+    "Signorum",
+    "Signos",
+    "Signum"
+   ]
+  },
+  "πομπηια": {
+   "label": "Pompeii",
+   "reason": "other name",
+   "forms": [
+    "Πομπήιε",
+    "Πομπήιοι",
+    "Πομπήιον",
+    "Πομπήιος",
+    "Πομπηίου",
+    "Πομπηίῳ"
+   ]
+  },
+  "πυργος λιβισσωνος": {
+   "label": "Turris Libisonis",
+   "reason": "other name",
+   "forms": [
+    "Turre",
+    "Turrem",
+    "Turres",
+    "Turri",
+    "Turribus",
+    "Turrim",
+    "Turris",
+    "Turrium"
+   ]
+  },
+  "ρασεννα": {
+   "label": "Etruria/Tuscia (region)",
+   "reason": "demonym",
+   "forms": [
+    "Tusci",
+    "Tuscis",
+    "Tuscorum",
+    "Tuscos",
+    "Tuscus"
+   ]
+  },
+  "αιολου νησοι": {
+   "label": "Aeoliae (islands)",
+   "reason": "other name",
+   "forms": [
+    "Volcani",
+    "Volcano",
+    "Volcanum",
+    "Volcanus"
+   ]
+  },
+  "ηεφαιστιαδες": {
+   "label": "Aeoliae (islands)",
+   "reason": "other name",
+   "forms": [
+    "Volcani",
+    "Volcano",
+    "Volcanum",
+    "Volcanus"
+   ]
+  },
+  "λιπαραιαι νεσοι": {
+   "label": "Aeoliae (islands)",
+   "reason": "other name",
+   "forms": [
+    "Volcani",
+    "Volcano",
+    "Volcanum",
+    "Volcanus"
+   ]
+  },
+  "δαναος": {
+   "label": "Danaus",
+   "reason": "demonym",
+   "forms": [
+    "Δαναοί",
+    "Δαναούς",
+    "Δαναοῖς",
+    "Δαναῶν"
+   ]
+  },
+  "δημητρα": {
+   "label": "Demeter",
+   "reason": "other name",
+   "forms": [
+    "Δημήτριοι",
+    "Δημήτριον",
+    "Δημήτριος",
+    "Δημητρίοις",
+    "Δημητρίου",
+    "Δημητρίους",
+    "Δημητρίων"
+   ]
+  },
+  "ελλας": {
+   "label": "Greece",
+   "reason": "adjective",
+   "forms": [
+    "Graeca",
+    "Graecae",
+    "Graecam",
+    "Graecarum",
+    "Graecas",
+    "Graece",
+    "Graeci",
+    "Graecibus",
+    "Graecis",
+    "Graeco",
+    "Graecorum",
+    "Graecos",
+    "Graecum",
+    "Graecus"
+   ]
+  },
+  "παριον": {
+   "label": "Parium/Col. Gemella Iulia *Hadriana",
+   "reason": "adjective",
+   "forms": [
+    "Paria",
+    "Pariae",
+    "Pariam",
+    "Pariarum",
+    "Parias",
+    "Parie",
+    "Paries",
+    "Parii",
+    "Pariis",
+    "Pario",
+    "Pariorum",
+    "Parios",
+    "Parius"
+   ]
+  },
+  "αθηνα": {
+   "label": "Athena/Minerva",
+   "reason": "other name",
+   "forms": [
+    "Ἀθήναις",
+    "Ἀθῆναι"
+   ]
+  },
+  "αντιοχεια ενυδρος": {
+   "label": "Alexandria/Antiochia/Merv",
+   "reason": "other name",
+   "forms": [
+    "Antiochi",
+    "Antiochis",
+    "Antiocho",
+    "Antiochorum",
+    "Antiochos",
+    "Antiochum",
+    "Antiochus"
+   ]
+  },
+  "αντιοχεια τη επι δαφνη": {
+   "label": "Antiochia/Theoupolis",
+   "reason": "other name",
+   "forms": [
+    "Antiochi",
+    "Antiochis",
+    "Antiocho",
+    "Antiochorum",
+    "Antiochos",
+    "Antiochum",
+    "Antiochus"
+   ]
+  },
+  "ολυμπος": {
+   "label": "Olympus",
+   "reason": "other name",
+   "forms": [
+    "Ὀλυμπία",
+    "Ὀλυμπίαι",
+    "Ὀλυμπίαις",
+    "Ὀλυμπίαν",
+    "Ὀλυμπίας",
+    "Ὀλυμπίδα",
+    "Ὀλυμπίδος"
+   ]
+  },
+  "ουλυμπος": {
+   "label": "Olympus",
+   "reason": "other name",
+   "forms": [
+    "Ὀλυμπία",
+    "Ὀλυμπίαι",
+    "Ὀλυμπίαις",
+    "Ὀλυμπίαν",
+    "Ὀλυμπίας",
+    "Ὀλυμπίδα",
+    "Ὀλυμπίδος"
+   ]
+  },
+  "πετρα": {
+   "label": "Petra",
+   "reason": "other name",
+   "forms": [
+    "Petre",
+    "Petri",
+    "Petro",
+    "Petrum",
+    "Petrus"
+   ]
+  },
+  "νυμφαιον": {
+   "label": "Nymphaion",
+   "reason": "common word",
+   "forms": [
+    "Νύμφαι",
+    "Νύμφαις"
+   ]
+  },
+  "λατινος": {
+   "label": "Latinus",
+   "reason": "adjective",
+   "forms": [
+    "Latina",
+    "Latinae",
+    "Latinam",
+    "Latinarum",
+    "Latinas",
+    "Latinis",
+    "Latinorum",
+    "Latinos"
+   ]
+  },
+  "κολχις": {
+   "label": "Colchis",
+   "reason": "demonym",
+   "forms": [
+    "Colchi",
+    "Colchorum",
+    "Colchos"
+   ]
+  },
+  "παν": {
+   "label": "Pan",
+   "reason": "common word",
+   "forms": [
+    "Πᾶν"
+   ]
+  },
+  "αμφινομη": {
+   "label": "Amphinome",
+   "reason": "other name",
+   "forms": [
+    "Ἀμφίνομον",
+    "Ἀμφίνομος",
+    "Ἀμφινόμου",
+    "Ἀμφινόμῳ"
+   ]
+  },
+  "ορραον": {
+   "label": "Orraon/Horreum",
+   "reason": "demonym",
+   "forms": [
+    "Horreorum"
+   ]
+  },
+  "ακρα λευκη": {
+   "label": "Lucentum",
+   "reason": "common word",
+   "forms": [
+    "Lucentem",
+    "Lucentes",
+    "Lucenti",
+    "Lucentia",
+    "Lucentibus",
+    "Lucentis",
+    "Lucentium"
+   ]
+  },
+  "παρθενιον": {
+   "label": "Parthenion",
+   "reason": "common word",
+   "forms": [
+    "Παρθένε",
+    "Παρθένοι",
+    "Παρθένοις",
+    "Παρθένον",
+    "Παρθένος",
+    "Παρθένου",
+    "Παρθένους",
+    "Παρθένων"
+   ]
+  },
+  "καινυς": {
+   "label": "Kainys (promontory)",
+   "reason": "common word",
+   "forms": [
+    "Caena",
+    "Caenae",
+    "Caeni",
+    "Caeno",
+    "Caenum"
+   ]
+  },
+  "ακταιων": {
+   "label": "Actaeon",
+   "reason": "other name",
+   "forms": [
+    "Ἀκταίου",
+    "Ἀκταίῳ",
+    "Ἀκταῖοι",
+    "Ἀκταῖον",
+    "Ἀκταῖος"
+   ]
+  },
+  "ακρατοποτης": {
+   "label": "Acratopotes",
+   "reason": "common word",
+   "forms": [
+    "Ἀκρατοπότα",
+    "Ἀκρατοπόται",
+    "Ἀκρατοπόταις",
+    "Ἀκρατοπότας",
+    "Ἀκρατοπότην",
+    "Ἀκρατοπότης",
+    "Ἀκρατοπότου",
+    "Ἀκρατοπότων"
+   ]
+  },
+  "αντιφας": {
+   "label": "Antiphas",
+   "reason": "other name",
+   "forms": [
+    "Antipho",
+    "Antiphone",
+    "Antiphonem",
+    "Antiphoni",
+    "Antiphonis"
+   ]
+  },
+  "αλκιμενης": {
+   "label": "Alcimenes",
+   "reason": "other name",
+   "forms": [
+    "Alcimena",
+    "Alcimenae",
+    "Alcimenam"
+   ]
+  },
+  "κισσια": {
+   "label": "Cissia",
+   "reason": "common word",
+   "forms": [
+    "Κισσοί",
+    "Κισσούς",
+    "Κισσοῖς",
+    "Κισσοῦ",
+    "Κισσόν",
+    "Κισσός",
+    "Κισσῶν",
+    "Κισσῷ"
+   ]
+  },
+  "φερουσα": {
+   "label": "Pherusa",
+   "reason": "common word",
+   "forms": [
+    "φέρουσα",
+    "φέρουσαι",
+    "φέρουσαν",
+    "φερουσῶν",
+    "φερούσαις",
+    "φερούσας",
+    "φερούσης"
+   ]
+  },
+  "κρανων": {
+   "label": "Cranon",
+   "reason": "common word",
+   "forms": [
+    "Κράνιοι",
+    "Κράνιος",
+    "Κρανία",
+    "Κρανίαν",
+    "Κρανίας",
+    "Κρανίον",
+    "Κρανίου",
+    "Κρανίων"
+   ]
+  },
+  "αρπαλευς": {
+   "label": "Harpaleus",
+   "reason": "other name",
+   "forms": [
+    "Ἁρπάλου",
+    "Ἁρπάλῳ",
+    "Ἅρπαλοι",
+    "Ἅρπαλον",
+    "Ἅρπαλος"
+   ]
+  },
+  "βριτομαρτις": {
+   "label": "Britomartis",
+   "reason": "other name",
+   "forms": [
+    "Βριτομάρτου",
+    "Βριτομάρτῳ",
+    "Βριτόμαρτον",
+    "Βριτόμαρτος"
+   ]
+  },
+  "αντιοχεια": {
+   "label": "Antiochia/Theoupolis",
+   "reason": "other name",
+   "forms": [
+    "Antiochi",
+    "Antiochis",
+    "Antiocho",
+    "Antiochorum",
+    "Antiochos",
+    "Antiochum",
+    "Antiochus"
+   ]
+  }
+ },
+ "neighbor_words": {
+  "la": [
+   "rex",
+   "regis",
+   "regi",
+   "regem",
+   "rege",
+   "reges",
+   "regum",
+   "regina",
+   "reginae",
+   "reginam",
+   "urbs",
+   "urbis",
+   "urbem",
+   "urbe",
+   "oppidum",
+   "oppidi",
+   "oppido",
+   "civitas",
+   "civitatis",
+   "civitatem",
+   "flumen",
+   "fluminis",
+   "flumine",
+   "fluvius",
+   "fluvii",
+   "fluvium",
+   "amnis",
+   "amnem",
+   "mons",
+   "montis",
+   "montem",
+   "monte",
+   "insula",
+   "insulae",
+   "insulam",
+   "terra",
+   "terrae",
+   "terram",
+   "regio",
+   "regionis",
+   "regionem",
+   "provincia",
+   "provinciae",
+   "populus",
+   "populi",
+   "populum",
+   "gens",
+   "gentis",
+   "gentem",
+   "dux",
+   "ducis",
+   "ducem",
+   "imperator",
+   "imperatoris",
+   "consul",
+   "consulis",
+   "consulem",
+   "dea",
+   "deae",
+   "deam",
+   "deus",
+   "dei",
+   "deum",
+   "filius",
+   "filii",
+   "filium",
+   "filia",
+   "filiae",
+   "pater",
+   "patris",
+   "patrem",
+   "frater",
+   "fratris",
+   "fratrem",
+   "uxor",
+   "uxoris",
+   "heros",
+   "herous",
+   "sanctus",
+   "sancti",
+   "sanctum",
+   "dominus",
+   "domini",
+   "dominum",
+   "episcopus",
+   "episcopi",
+   "episcopum",
+   "propheta",
+   "prophetae",
+   "tyrannus",
+   "tyranni",
+   "iuxta",
+   "prope"
+  ],
+  "grc": [
+   "βασιλευς",
+   "βασιλεως",
+   "βασιλει",
+   "βασιλεα",
+   "βασιλεις",
+   "βασιλεων",
+   "βασιλισσα",
+   "πολις",
+   "πολεως",
+   "πολιν",
+   "πολει",
+   "ποταμος",
+   "ποταμου",
+   "ποταμον",
+   "ποταμω",
+   "ορος",
+   "ορους",
+   "νησος",
+   "νησου",
+   "νησον",
+   "γη",
+   "γης",
+   "γην",
+   "χωρα",
+   "χωρας",
+   "χωραν",
+   "εθνος",
+   "εθνους",
+   "δημος",
+   "δημου",
+   "στρατηγος",
+   "στρατηγου",
+   "στρατηγον",
+   "θεος",
+   "θεου",
+   "θεον",
+   "θεα",
+   "θεας",
+   "υιος",
+   "υιου",
+   "υιον",
+   "θυγατηρ",
+   "θυγατρος",
+   "πατηρ",
+   "πατρος",
+   "πατερα",
+   "αδελφος",
+   "αδελφου",
+   "γυνη",
+   "γυναικος",
+   "ηρως",
+   "ηρωος",
+   "τυραννος",
+   "τυραννου",
+   "αρχων",
+   "αρχοντος",
+   "ιερευς",
+   "ιερεως",
+   "προφητης",
+   "προφητου",
+   "κυριος",
+   "κυριου",
+   "επισκοπος",
+   "επισκοπου",
+   "πλησιον"
+  ],
+  "en": [
+   "king",
+   "kings",
+   "queen",
+   "city",
+   "cities",
+   "town",
+   "river",
+   "rivers",
+   "mount",
+   "mountain",
+   "island",
+   "isle",
+   "land",
+   "country",
+   "kingdom",
+   "province",
+   "people",
+   "nation",
+   "tribe",
+   "son",
+   "daughter",
+   "father",
+   "brother",
+   "wife",
+   "god",
+   "goddess",
+   "hero",
+   "lord",
+   "prince",
+   "emperor",
+   "duke",
+   "sir",
+   "saint",
+   "captain",
+   "general",
+   "consul",
+   "tyrant",
+   "bishop",
+   "prophet",
+   "priest",
+   "near",
+   "bay",
+   "coast",
+   "shore",
+   "sea"
+  ]
+ }
+}
