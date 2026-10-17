@@ -14,7 +14,7 @@ from flask_login import current_user
 from backend.services import get_user_location, log_search
 from backend import fspaths
 from backend.metadata_cache import get_text_metadata_cached as get_text_metadata
-from backend.utils import clean_cts_reference, resolve_text_path, exact_phrase_pattern, strip_hebrew_pointing, exact_search_text, format_short_locus
+from backend.utils import clean_cts_reference, resolve_text_path, exact_phrase_pattern, exact_query_words, strip_hebrew_pointing, exact_search_text, format_short_locus
 from backend.frequency_cache import get_corpus_frequencies
 from backend.distance_filter import is_prose_text as is_prose_text_unified
 from backend.distance_filter import get_max_distance as _get_max_distance
@@ -1127,17 +1127,17 @@ def _indexed_candidates(params: LineSearchParams, lang_dates: dict, filtered_que
     return results, by_work_all
 
 
-def _exact_prefilter_pattern(query: str):
+def _exact_prefilter_pattern(query: str, language=None):
     """The exact-phrase pattern without its word-start tests, for _exact_candidate_lines.
 
     Whatever exact_phrase_pattern(query) matches, this matches at the same
     place; it only drops the \\b that makes the regex engine try every
     position, so it runs about twice as fast over a whole file.
     """
-    words = unicodedata.normalize('NFC', query or '').split()
+    words = exact_query_words(query, language)
     if not words:
         return None
-    return re.compile(r'\s+'.join(re.escape(w) for w in words), re.IGNORECASE)
+    return re.compile(r'\s+'.join(words), re.IGNORECASE)
 
 
 def _exact_candidate_lines(raw: str, exact_pattern):
@@ -1195,7 +1195,7 @@ def _scanned_candidates(params: LineSearchParams, lang_dir: str, lang_dates: dic
     # display). See strip_hebrew_pointing.
     he_exact = (search_type == 'exact' and language == 'he')
     exact_query = strip_hebrew_pointing(query) if he_exact else query
-    exact_pattern = exact_phrase_pattern(exact_query) if search_type == 'exact' else None
+    exact_pattern = exact_phrase_pattern(exact_query, language) if search_type == 'exact' else None
     text_files = [f for f in fspaths.listdir_text(lang_dir) if f.endswith('.tess')]
     regex_rx = None
     if search_type == 'regex':
@@ -1206,7 +1206,7 @@ def _scanned_candidates(params: LineSearchParams, lang_dir: str, lang_dates: dic
             regex_rx = re.compile(query, re.IGNORECASE)
         except re.error:
             return results, by_work_all
-    prefilter_pattern = _exact_prefilter_pattern(exact_query) if (search_type == 'exact' and not he_exact) else None
+    prefilter_pattern = _exact_prefilter_pattern(exact_query, language) if (search_type == 'exact' and not he_exact) else None
     
     # The same word is lemmatized once for the whole scan, not once per
     # occurrence: lemmatize_word gives the same answer each time and the scan

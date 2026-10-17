@@ -50,7 +50,36 @@ def infer_coptic_dialect(filename, author=None):
     return 'sahidic'
 
 
-def exact_phrase_pattern(query):
+def _fold_latin_letters(escaped_word):
+    """u and v, i and j made interchangeable in an escaped regex word.
+
+    Latin texts in the corpus spell the same word "virum", "uirum" and, in
+    capitals, "VIRVMQVE" (Martial 8.55.19), and a reader types any of them.
+    re.escape leaves letters alone, so each letter can be widened here."""
+    out = []
+    for ch in escaped_word:
+        low = ch.lower()
+        if low in ('u', 'v'):
+            out.append('[uv]')
+        elif low in ('i', 'j'):
+            out.append('[ij]')
+        else:
+            out.append(ch)
+    return ''.join(out)
+
+
+def exact_query_words(query, language=None):
+    """The escaped regex pieces of an exact phrase, one per query word, with
+    u/v and i/j folded for Latin. Shared by the phrase pattern and the
+    line-search prefilter so the two match at the same places."""
+    query = unicodedata.normalize('NFC', query or '')
+    words = [re.escape(w) for w in query.split()]
+    if language == 'la':
+        words = [_fold_latin_letters(w) for w in words]
+    return words
+
+
+def exact_phrase_pattern(query, language=None):
     """Compile the regex for an *exact* line-search phrase.
 
     Each query word must START at a word boundary, so a query word is not matched
@@ -58,14 +87,14 @@ def exact_phrase_pattern(query):
     are joined by whitespace. There is deliberately NO trailing boundary, so a
     final word may carry a Latin enclitic — "arma virum" still matches "arma
     virum-que cano" (the canonical arma-virum reference match). Unicode-aware
-    (\\b/\\w cover Greek and Coptic). Returns a compiled case-insensitive pattern,
-    or None for an empty query.
+    (\\b/\\w cover Greek and Coptic). For Latin (`language` 'la') u and v,
+    i and j are interchangeable, so "arma virum" also matches "ARMA VIRVMQVE".
+    Returns a compiled case-insensitive pattern, or None for an empty query.
     """
-    query = unicodedata.normalize('NFC', query or '')
-    words = query.split()
+    words = exact_query_words(query, language)
     if not words:
         return None
-    return re.compile(r'\s+'.join(r'\b' + re.escape(w) for w in words), re.IGNORECASE)
+    return re.compile(r'\s+'.join(r'\b' + w for w in words), re.IGNORECASE)
 
 
 def exact_search_text(text):
