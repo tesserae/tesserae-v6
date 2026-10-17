@@ -18,6 +18,7 @@ import json
 import re
 import sqlite3
 import time
+import unicodedata
 
 from backend import entity_index as ei
 from backend.entity_lemma_audit import adjective_form, token_language
@@ -205,8 +206,15 @@ def line_counts(db):
 
 # ---------------------------------------------------------------- catalog
 
-TYPE_OUT = {'place': 'place', 'person': 'person', 'deity': 'deity'}
+TYPE_OUT = {'place': 'place', 'person': 'person', 'deity': 'deity', 'people': 'people'}
 LANG_ORDER = ('la', 'grc', 'en')
+
+
+def script_is_latin(s):
+    for ch in s or '':
+        if ch.isalpha():
+            return unicodedata.name(ch, '').startswith('LATIN')
+    return False
 
 
 def build_catalog(db):
@@ -215,18 +223,23 @@ def build_catalog(db):
     shared-name facts, whether a corpus name is a list entity's own form, and for a list entity
     the corpus names that belong to it. JSON-safe, so it can be stored (write_catalog)."""
     ents, names = {}, {}
-    for eid, entity_id, typ, label, pid, cands, group in db.execute(
-            "select eid, entity_id, type, label, pleiades_id, pleiades_candidates, homonym_group "
-            "from entities where source = 'list'"):
+    labels = {}
+    if db.execute("select 1 from sqlite_master where name = 'entity_labels'").fetchone():
+        for eid, dl, dla, dgr, desc in db.execute('select eid, display_label, display_label_la, display_label_grc, '
+                                                  'description from entity_labels'):
+            labels[eid] = (dl, dla, dgr, desc)
+    for eid, entity_id, typ, label, pid, cands, group, source in db.execute(
+            "select eid, entity_id, type, label, pleiades_id, pleiades_candidates, homonym_group, source "
+            "from entities where source in ('list', 'promoted')"):
         try:
             pl = json.loads(cands) if cands else ([pid] if pid else [])
         except ValueError:
             pl = [pid] if pid else []
         ents[eid] = {'eid': eid, 'id': entity_id, 'label': label, 'type': TYPE_OUT.get(typ, 'other'),
-                     'list_type': typ, 'source': 'list', 'pleiades': [str(x) for x in pl], 'forms': [],
+                     'list_type': typ, 'source': source, 'pleiades': [str(x) for x in pl], 'forms': [],
                      'merged_ids': [], 'counts': {}, 'label_key': ei.label_key(label), 'homonym_mentions': 0}
-    for eid, form in db.execute("select eid, form from variants where source = 'list'"):
-        if eid in ents:
+    for eid, form, source in db.execute("select eid, form, source from variants where source in ('list', 'promoted', 'names')"):
+        if eid in ents and (source != 'names' or ents[eid]['source'] == 'promoted'):
             ents[eid]['forms'].append(form)
     for eid, alias in db.execute("select eid, alias_id from entity_aliases"):
         if eid in ents:
@@ -255,16 +268,30 @@ def build_catalog(db):
         e['shared_label_with'] = [o['label'] for o in by_key.get(e['label_key'], ()) if o is not e]
         e['total'] = sum(e['counts'].values())
         e['folded_label'] = ei.fold(e['label'])
+        dl, dla, dgr, desc = labels.get(e['eid'], (None, None, None, None))
+        e['display_label'] = dl or e['label']
+        e['display_label_la'] = dla or (e['label'] if script_is_latin(e['label']) else None)
+        e['display_label_grc'] = dgr
+        e['description'] = desc
         list_strings |= {e['folded_label'], e['label_key']} | {ei.fold(f) for f in e['forms']}
     list_strings.discard('')
+    merged_into = {}
+    if db.execute("select 1 from sqlite_master where name = 'entity_merges'").fetchone():
+        merged_into = dict(db.execute('select eid, list_eid from entity_merges'))
     for n in names.values():
+        dl, dla, dgr, _d = labels.get(n['eid'], (None, None, None, None))
+        n['display_label'] = dl or n['label']
+        n['display_label_la'] = dla
+        n['display_label_grc'] = dgr
+        n['description'] = None
         n['total'] = sum(n['counts'].values())
-        n['duplicate'] = bool(({n['folded_label']} | set(n['forms'])) & list_strings)
+        n['duplicate'] = bool(({n['folded_label']} | set(n['forms'])) & list_strings) or n['eid'] in merged_into
     index = NameIndex([(n['eid'], {n['folded_label']} | set(n['forms'])) for n in names.values()])
     dup = {n['eid'] for n in names.values() if n['duplicate']}
     for e in ents.values():
         out = []
-        for nid in attached_names(index, e['label_key'], e['forms'], dup, e['list_type'] == 'place'):
+        explicit = {nid for nid, lid in merged_into.items() if lid == e['eid'] and nid in names}
+        for nid in attached_names(index, e['label_key'], e['forms'], dup - explicit, e['list_type'] == 'place') | explicit:
             n = names[nid]
             if n['total'] == 0:
                 continue

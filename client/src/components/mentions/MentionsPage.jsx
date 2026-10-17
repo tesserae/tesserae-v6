@@ -11,7 +11,14 @@ const PAGE = 50;
 
 export const TRIAL_NOTE = "Trial. Mentions are found by name and checked by a language model, and a god's name standing for a thing (Mars for war) counts as a mention. Inscriptions and papyri are matched by the name's forms alone, without the model's check.";
 
-const TYPE_LABEL = { place: 'Place', person: 'Person', deity: 'God', name: 'Name in the corpus', other: 'Other' };
+const TYPE_LABEL = { place: 'Place', person: 'Person', deity: 'God', people: 'People', name: 'Name in the corpus', other: 'Other' };
+
+/** "Sarpedon · Σαρπηδών": the Latin-script heading with the Greek form beside it, for every source. */
+export function headingOf(e) {
+  const label = e.display_label || e.label;
+  const grc = e.display_label_grc;
+  return grc && grc !== label ? `${label} · ${grc}` : label;
+}
 
 export function sortedCounts(counts) {
   const keys = Object.keys(counts || {});
@@ -263,7 +270,9 @@ function EntityView({ id, back, open }) {
       {!data && !error && <LoadingSpinner text="Loading..." />}
       {data && (
         <>
-          <h3 className="text-xl font-bold text-gray-900">{data.label}</h3>
+          <h3 className="text-xl font-bold text-gray-900">{headingOf(data)}</h3>
+          {data.description && <p className="text-sm text-gray-800 mt-0.5" data-testid="entity-description">{data.description}</p>}
+          {data.provenance && <p className="text-xs text-gray-500 mt-0.5" data-testid="entity-provenance">{data.provenance}</p>}
           <p className="text-xs text-gray-600 mt-0.5">
             {TYPE_LABEL[data.type] || 'Other'}
             {data.identifiers?.pleiades?.length > 0 && ` · Pleiades ${data.identifiers.pleiades.slice(0, 3).join(', ')}`}
@@ -313,11 +322,13 @@ function EntityResult({ e, open }) {
       <a href={`/mentions?e=${encodeURIComponent(e.id)}`}
          onClick={(ev) => { ev.preventDefault(); open(e.id); }}
          className="text-red-700 hover:underline font-semibold">
-        {e.label}
+        {headingOf(e)}
       </a>
       <p className="text-xs text-gray-600 mt-0.5">
         {TYPE_LABEL[e.type] || 'Other'} · <CountsLine counts={e.mention_counts} />
       </p>
+      {e.description && <p className="text-xs text-gray-700 mt-0.5" data-testid="result-description">{e.description}</p>}
+      {e.provenance && <p className="text-xs text-gray-500 mt-0.5" data-testid="result-provenance">{e.provenance}</p>}
       {e.label_shared && (
         <p className="text-xs text-gray-500 mt-0.5">
           {e.label_shared_with?.length > 0 ? sharedLabel(e.label_shared_with) : 'some mentions share their name with another entry'}
