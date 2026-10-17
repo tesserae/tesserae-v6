@@ -48,11 +48,20 @@ def store_path():
 
 
 def _conn(path):
-    """A read-only connection for this thread (an sqlite3 connection cannot be shared)."""
+    """A read-only connection for this thread (an sqlite3 connection cannot be shared).
+    Keyed by the file's identity as well as its path, so a store swapped in by a rename is
+    reopened on the next request instead of being read through the old file handle."""
+    st = os.stat(path)
+    key = (path, st.st_ino, st.st_mtime_ns, st.st_size)
     c = getattr(_local, 'conn', None)
-    if c is None or getattr(_local, 'path', None) != path:
+    if c is None or getattr(_local, 'key', None) != key:
+        if c is not None:
+            try:
+                c.close()
+            except sqlite3.Error:
+                pass
         c = sqlite3.connect(f'file:{path}?mode=ro', uri=True, check_same_thread=False)
-        _local.conn, _local.path = c, path
+        _local.conn, _local.key = c, key
     return c
 
 
