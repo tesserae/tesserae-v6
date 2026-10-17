@@ -8,6 +8,8 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-16
+- Decisions: the Hebrew-to-Greek route through the Septuagint (default since 2026-08-27, a per-search choice since 2026-09-30, with a server switch) now has its entry in docs/DECISIONS.md.
+- Evaluation: the lost LSJ/Lewis-Short pivot filter rewritten as a tracked script, `evaluation/scripts/finalize_lsj_pivot.py` (#981; the pivot dictionary itself stays undeployed pending a decision).
 - Greek New Testament license: the SBLGNT is Creative Commons Attribution 4.0 since its public version 1.1 (2022-12-19); the site credit and `texts/grc/SBLGNT_LICENSE.txt` now say so instead of citing the earlier end user agreement (docs/DECISIONS.md entry).
 - Data operations: Libanius orations tail run on production (lemma caches, Greek index rows, five stores, two stores' stale work ids, connections map, Theme Search word index); the planned entry is now a run record.
 - Libanius orations: the three part files' line tags now read `<libanius. orations. N.M>` like the whole file (were `orations_1-11.`, `orations_26-50.`, `orations_51-64.`), so the whole-versus-parts check passes for all 145 works. New `scripts/corpus/fix_ref_prefix.py` (dry run by default, `--fix WORK OLD NEW`) rewrites the old prefix in the passage index, descriptions, reuse tables, events store and embeddings metadata; production steps in docs/DATA_OPERATIONS.md (planned). New `scripts/corpus/rename_stale_work_ids.py` renames the three old part work ids that the 2026-10-13 rename left in the reuse table and the events store. Tests in `tests/test_fix_ref_prefix.py` and `tests/test_rename_stale_work_ids.py`.
