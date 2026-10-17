@@ -147,6 +147,11 @@ MANIFEST = {
         'reason': ('The windows that name one entity, for the Mentions page in testing '
                     '(stage 2); not yet exposed to the connector.'),
     },
+    '/api/entities/<entity_id>/documents': {
+        'site_only': True,
+        'reason': ('The inscriptions and papyri that name one entity, for the Mentions page in testing '
+                    '(stage 2b); not yet exposed to the connector.'),
+    },
     '/api/scope': {
         'site_only': True,
         'reason': ('Live counts for the scope box on each search page; the connector '

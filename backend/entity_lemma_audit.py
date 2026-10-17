@@ -95,3 +95,38 @@ def propose(entities, ent_lemmas, stats):
                 else:
                     out[(lang, idx, lem)] = ('keep', '')
     return out
+
+
+_GREEK_CHAR = None
+
+
+def token_language(tok):
+    """'grc' when the token holds a Greek letter, else 'la'."""
+    for ch in tok:
+        if '\u0370' <= ch <= '\u03ff' or '\u1f00' <= ch <= '\u1fff':
+            return 'grc'
+    return 'la'
+
+
+def adjective_form(tok, lang=None):
+    """True when a token (any case ending) reads as a demonym or an adjective by the suffix
+    rule: stripping a case ending and restoring a nominative ending (-us, -is, Greek -os)
+    leaves a lemma that ends in one of the listed endings. Rusellanorum -> rusellanus -> anus."""
+    f = ei.fold(tok)
+    lang = lang or token_language(f)
+    ends = ei.GR_END if lang == 'grc' else ei.LA_END
+    adds = ('οσ',) if lang == 'grc' else ('us', 'is')
+    if suffix_of(lang, f):
+        return True
+    seen = set()
+    for end in ends:
+        if not end or not f.endswith(end):
+            continue
+        base = f[:len(f) - len(end)]
+        if len(base) < 3 or base in seen:
+            continue
+        seen.add(base)
+        for a in adds:
+            if suffix_of(lang, base + a):
+                return True
+    return False
