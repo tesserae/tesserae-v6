@@ -37,6 +37,7 @@ from backend.utils import resolve_text_path, format_short_locus
 from backend.logging_config import get_logger
 from backend.services import get_user_location, log_search
 from backend.cache import get_cached_results, save_cached_results, clear_cache
+from backend.crosslingual_evaluation_path import EvaluationPathError
 from backend.concurrency_gate import SearchSlot, get_cancellation_message
 
 from backend.matcher import get_curated_stoplists
@@ -193,7 +194,7 @@ def _parse_search_request(data):
                 'stoplist_basis', 'stoplist_size', 'source_unit_type', 'target_unit_type',
                 'use_meter', 'use_pos', 'use_syntax', 'use_sound', 'use_edit_distance',
                 'bigram_boost', 'custom_stopwords', 'hebrew_greek_route',
-                'formula_max', 'formula_only']:
+                'crosslingual_scorer', 'formula_max', 'formula_only']:
         if key in data and key not in settings:
             settings[key] = data[key]
 
@@ -1428,6 +1429,9 @@ class CrossSettings:
     is_greek_latin: bool
     has_english: bool
     is_coptic_greek: bool
+    # 'live' (the channels below) or 'evaluation' (the evaluation scorer's rules,
+    # Greek-Latin only; see backend/crosslingual_evaluation_path.py).
+    crosslingual_scorer: str = 'live'
 
 
 def _cross_settings(params, settings):
@@ -1463,6 +1467,16 @@ def _cross_settings(params, settings):
 
     lang_pair = frozenset((source_language, target_language))
     is_greek_latin = lang_pair == frozenset(('grc', 'la'))
+
+    # Scorer (2026-10-17): 'live' is the channel fusion below, unchanged.
+    # 'evaluation' ranks Greek-Latin pairs by the evaluation benchmarks' rules
+    # and has the two-lemma gate off unless the request names a gate. Any other
+    # value, and any other language pair, stays on 'live'.
+    crosslingual_scorer = settings.get('crosslingual_scorer', 'live')
+    if crosslingual_scorer != 'evaluation' or not is_greek_latin:
+        crosslingual_scorer = 'live'
+    elif 'crosslingual_lemma_gate' not in settings:
+        crosslingual_lemma_gate = 'off'
     has_english = 'en' in lang_pair
     is_coptic_greek = lang_pair == frozenset(('cop', 'grc'))
     return CrossSettings(
@@ -1473,7 +1487,8 @@ def _cross_settings(params, settings):
         crosslingual_lemma_gate=crosslingual_lemma_gate,
         crosslingual_penalty_factor=crosslingual_penalty_factor,
         lang_pair=lang_pair, is_greek_latin=is_greek_latin,
-        has_english=has_english, is_coptic_greek=is_coptic_greek)
+        has_english=has_english, is_coptic_greek=is_coptic_greek,
+        crosslingual_scorer=crosslingual_scorer)
 
 
 def _check_pair(cs):
@@ -1784,6 +1799,199 @@ def _merge_keys(sem_by_pair, dict_by_pair, syntax_by_pair, form_by_pair, setting
             RUN_WEIGHT, CONVERGENCE_BONUS, FORM_WEIGHT)
 
 
+def _build_row(src_idx, tgt_idx, source_units, target_units, cs, *, score, cosine,
+               has_semantic, has_dict, dict_wms, dict_word_count, dict_score,
+               has_syntax, syntax_score, has_phonetic, phonetic_matches, phonetic_score,
+               has_form, form_match, form_score, n_channels,
+               lemma_gate_triggered, gate_lemma_count):
+    """One result row of a cross-language search: the two lines, the matched words
+    with their highlights, the channel summary and the features. Shared by the
+    live fusion (_fuse_pairs) and the evaluation scorer's path."""
+    source_language = cs.source_language
+    target_language = cs.target_language
+    is_greek_latin = cs.is_greek_latin
+    # Build result
+    src_unit = source_units[src_idx]
+    tgt_unit = target_units[tgt_idx]
+    src_tokens = src_unit.get('tokens', [])
+    tgt_tokens = tgt_unit.get('tokens', [])
+    src_original = src_unit.get('original_tokens', src_tokens)
+    tgt_original = tgt_unit.get('original_tokens', tgt_tokens)
+
+    # Get word-level matches for highlighting
+    matched_words = []
+    source_highlights = []
+    target_highlights = []
+
+    if has_dict:
+        for wm in dict_wms:
+            # Use unified keys (source_indices/target_indices), fall back to
+            # legacy greek_indices/latin_indices for Greek-Latin path
+            s_indices = wm.get('source_indices')
+            t_indices = wm.get('target_indices')
+            if s_indices is None:
+                # Legacy Greek-Latin word match dicts
+                grc_indices = wm.get('greek_indices', [])
+                lat_indices = wm.get('latin_indices', [])
+                if source_language == 'grc':
+                    s_indices, t_indices = grc_indices, lat_indices
+                else:
+                    s_indices, t_indices = lat_indices, grc_indices
+
+            src_lemma = wm.get('source_lemma', wm.get('greek_lemma', ''))
+            tgt_lemma = wm.get('target_lemma', wm.get('latin_lemma', ''))
+
+            src_word = (src_original[s_indices[0]]
+                        if s_indices and s_indices[0] < len(src_original)
+                        else src_lemma)
+            tgt_word = (tgt_original[t_indices[0]]
+                        if t_indices and t_indices[0] < len(tgt_original)
+                        else tgt_lemma)
+            mw_entry = {
+                'source_word': src_word,
+                'target_word': tgt_word,
+                'source_lemma': src_lemma,
+                'target_lemma': tgt_lemma,
+                'display': f"{src_word}\u2192{tgt_word}",
+                'type': 'cross_lingual',
+                'idf': wm.get('idf_score', 0)
+            }
+            # Preserve legacy keys for Greek-Latin frontend compatibility
+            if is_greek_latin:
+                mw_entry['greek_word'] = src_word if source_language == 'grc' else tgt_word
+                mw_entry['latin_word'] = tgt_word if source_language == 'grc' else src_word
+                mw_entry['greek_lemma'] = wm.get('greek_lemma', src_lemma if source_language == 'grc' else tgt_lemma)
+                mw_entry['latin_lemma'] = wm.get('latin_lemma', tgt_lemma if source_language == 'grc' else src_lemma)
+            matched_words.append(mw_entry)
+            source_highlights.extend(s_indices)
+            target_highlights.extend(t_indices)
+    elif has_semantic:
+        # Semantic-only: try dictionary lookup for highlights
+        src_lemmas = src_unit.get('lemmas', [])
+        tgt_lemmas = tgt_unit.get('lemmas', [])
+        try:
+            highlight_matches = _get_semantic_highlight_matches(
+                src_lemmas, tgt_lemmas, source_language, target_language)
+            for g in highlight_matches:
+                s_idx_list = g.get('source_indices', [])
+                t_idx_list = g.get('target_indices', [])
+                source_highlights.extend(s_idx_list)
+                target_highlights.extend(t_idx_list)
+                src_w = src_tokens[s_idx_list[0]] if s_idx_list and s_idx_list[0] < len(src_tokens) else g.get('source_lemma', '')
+                tgt_w = tgt_tokens[t_idx_list[0]] if t_idx_list and t_idx_list[0] < len(tgt_tokens) else g.get('target_lemma', '')
+                mw_entry = {
+                    'source_word': src_w, 'target_word': tgt_w,
+                    'source_lemma': g.get('source_lemma', ''),
+                    'target_lemma': g.get('target_lemma', ''),
+                    'display': f"{src_w}\u2192{tgt_w}",
+                    'type': 'cross_lingual'
+                }
+                if is_greek_latin:
+                    mw_entry['greek_word'] = src_w if source_language == 'grc' else tgt_w
+                    mw_entry['latin_word'] = tgt_w if source_language == 'grc' else src_w
+                    mw_entry['greek_lemma'] = g.get('source_lemma', '') if source_language == 'grc' else g.get('target_lemma', '')
+                    mw_entry['latin_lemma'] = g.get('target_lemma', '') if source_language == 'grc' else g.get('source_lemma', '')
+                matched_words.append(mw_entry)
+        except Exception as e:
+            logger.warning(f"Failed to process cross-lingual match entry: {e}")
+
+    # Add phonetic match highlighting
+    if has_phonetic:
+        for pm in phonetic_matches:
+            src_orig = pm['source_original']
+            tgt_orig = pm['target_original']
+            sim_pct = int(pm['similarity'] * 100)
+            # Find token indices for highlighting
+            src_idx_h = next((i for i, t in enumerate(src_tokens)
+                              if t.lower() == src_orig.lower() or t == src_orig), None)
+            tgt_idx_h = next((i for i, t in enumerate(tgt_tokens)
+                              if t.lower() == tgt_orig.lower() or t == tgt_orig), None)
+            if src_idx_h is not None:
+                source_highlights.append(src_idx_h)
+            if tgt_idx_h is not None:
+                target_highlights.append(tgt_idx_h)
+            mw_entry = {
+                'source_word': src_orig,
+                'target_word': tgt_orig,
+                'display': f"{src_orig}\u2248{tgt_orig} ({sim_pct}%)",
+                'type': 'phonetic',
+            }
+            if is_greek_latin:
+                if source_language == 'grc':
+                    mw_entry['greek_word'] = src_orig
+                    mw_entry['latin_word'] = tgt_orig
+                else:
+                    mw_entry['greek_word'] = tgt_orig
+                    mw_entry['latin_word'] = src_orig
+            matched_words.append(mw_entry)
+
+    if has_form:
+        # Colour the refrain on both lines, as the single-language card does.
+        s_pos, t_pos = form_match['source_position'], form_match['target_position']
+        source_highlights.extend(range(s_pos, s_pos + form_match['radif_len']))
+        target_highlights.extend(range(t_pos, t_pos + form_match['target_radif_len']))
+
+    if not matched_words and not has_form:
+        matched_words = [{
+            'type': 'semantic_cross',
+            'similarity': cosine,
+            'display': f'Semantic similarity ({int(cosine*100)}%)',
+            'lemma': 'semantic_cross'
+        }]
+
+    channels = []
+    if has_semantic:
+        channels.append(f'semantic ({int(cosine*100)}%)')
+    if has_dict:
+        channels.append(f'dictionary ({dict_word_count} words)')
+    if has_syntax:
+        channels.append(f'syntax ({syntax_score:.2f})')
+    if has_phonetic:
+        channels.append(f'phonetic ({len(phonetic_matches)} tokens)')
+    if has_form:
+        channels.append(f"refrain and rhyme ({form_match['radif']})")
+
+    return {
+        'source': {
+            'ref': format_short_locus(src_unit.get('ref', '')),
+            'text': src_unit.get('text', ''),
+            'tokens': src_original,
+            'highlight_indices': sorted(set(source_highlights))
+        },
+        'target': {
+            'ref': format_short_locus(tgt_unit.get('ref', '')),
+            'text': tgt_unit.get('text', ''),
+            'tokens': tgt_original,
+            'highlight_indices': sorted(set(target_highlights))
+        },
+        'matched_words': matched_words,
+        'match_count': dict_word_count,
+        'overall_score': score,
+        'features': {
+            'semantic_score': cosine,
+            'dict_score': dict_score,
+            'syntax_score': syntax_score,
+            'phonetic_score': phonetic_score,
+            'form_score': form_score,
+            'n_channels': n_channels,
+            'lemma_gate_triggered': lemma_gate_triggered,
+            'lemma_match_count': gate_lemma_count,
+        },
+        'channels': ', '.join(channels),
+        'match_basis': 'crosslingual_fusion',
+        **({'poetics': {
+            'radif': form_match['radif'],
+            'target_radif': form_match['target_radif'],
+            'qafia': form_match['qafia'],
+            'meter': form_match['meter'],
+            'source_lines': form_match['source_lines'],
+            'target_lines': form_match['target_lines'],
+            'corpus_poems': form_match['form_corpus_poems'],
+            'form_score': form_match['form_score'],
+        }} if has_form else {}),
+    }
+
+
 def _fuse_pairs(merged, sem_by_pair, dict_by_pair, syntax_by_pair, phonetic_by_pair, form_by_pair,
                 idf, source_units, target_units, cs, cancellation):
     """Fuse the channels pair by pair into scored result rows (the loop, unsorted and uncapped)."""
@@ -1885,186 +2093,55 @@ def _fuse_pairs(merged, sem_by_pair, dict_by_pair, syntax_by_pair, phonetic_by_p
         if lemma_gate_triggered and crosslingual_lemma_gate == 'penalty' and not has_form:
             score *= crosslingual_penalty_factor
 
-        # Build result
-        src_unit = source_units[src_idx]
-        tgt_unit = target_units[tgt_idx]
-        src_tokens = src_unit.get('tokens', [])
-        tgt_tokens = tgt_unit.get('tokens', [])
-        src_original = src_unit.get('original_tokens', src_tokens)
-        tgt_original = tgt_unit.get('original_tokens', tgt_tokens)
+        fused.append(_build_row(
+            src_idx, tgt_idx, source_units, target_units, cs, score=score, cosine=cosine,
+            has_semantic=has_semantic, has_dict=has_dict, dict_wms=dict_wms,
+            dict_word_count=dict_word_count, dict_score=dict_score,
+            has_syntax=has_syntax, syntax_score=syntax_score,
+            has_phonetic=has_phonetic, phonetic_matches=phonetic_matches,
+            phonetic_score=phonetic_score, has_form=has_form, form_match=form_match,
+            form_score=form_score, n_channels=n_channels,
+            lemma_gate_triggered=lemma_gate_triggered, gate_lemma_count=gate_lemma_count))
+    return fused
 
-        # Get word-level matches for highlighting
-        matched_words = []
-        source_highlights = []
-        target_highlights = []
 
-        if has_dict:
-            for wm in dict_wms:
-                # Use unified keys (source_indices/target_indices), fall back to
-                # legacy greek_indices/latin_indices for Greek-Latin path
-                s_indices = wm.get('source_indices')
-                t_indices = wm.get('target_indices')
-                if s_indices is None:
-                    # Legacy Greek-Latin word match dicts
-                    grc_indices = wm.get('greek_indices', [])
-                    lat_indices = wm.get('latin_indices', [])
-                    if source_language == 'grc':
-                        s_indices, t_indices = grc_indices, lat_indices
-                    else:
-                        s_indices, t_indices = lat_indices, grc_indices
-
-                src_lemma = wm.get('source_lemma', wm.get('greek_lemma', ''))
-                tgt_lemma = wm.get('target_lemma', wm.get('latin_lemma', ''))
-
-                src_word = (src_original[s_indices[0]]
-                            if s_indices and s_indices[0] < len(src_original)
-                            else src_lemma)
-                tgt_word = (tgt_original[t_indices[0]]
-                            if t_indices and t_indices[0] < len(tgt_original)
-                            else tgt_lemma)
-                mw_entry = {
-                    'source_word': src_word,
-                    'target_word': tgt_word,
-                    'source_lemma': src_lemma,
-                    'target_lemma': tgt_lemma,
-                    'display': f"{src_word}\u2192{tgt_word}",
-                    'type': 'cross_lingual',
-                    'idf': wm.get('idf_score', 0)
-                }
-                # Preserve legacy keys for Greek-Latin frontend compatibility
-                if is_greek_latin:
-                    mw_entry['greek_word'] = src_word if source_language == 'grc' else tgt_word
-                    mw_entry['latin_word'] = tgt_word if source_language == 'grc' else src_word
-                    mw_entry['greek_lemma'] = wm.get('greek_lemma', src_lemma if source_language == 'grc' else tgt_lemma)
-                    mw_entry['latin_lemma'] = wm.get('latin_lemma', tgt_lemma if source_language == 'grc' else src_lemma)
-                matched_words.append(mw_entry)
-                source_highlights.extend(s_indices)
-                target_highlights.extend(t_indices)
-        elif has_semantic:
-            # Semantic-only: try dictionary lookup for highlights
-            src_lemmas = src_unit.get('lemmas', [])
-            tgt_lemmas = tgt_unit.get('lemmas', [])
-            try:
-                highlight_matches = _get_semantic_highlight_matches(
-                    src_lemmas, tgt_lemmas, source_language, target_language)
-                for g in highlight_matches:
-                    s_idx_list = g.get('source_indices', [])
-                    t_idx_list = g.get('target_indices', [])
-                    source_highlights.extend(s_idx_list)
-                    target_highlights.extend(t_idx_list)
-                    src_w = src_tokens[s_idx_list[0]] if s_idx_list and s_idx_list[0] < len(src_tokens) else g.get('source_lemma', '')
-                    tgt_w = tgt_tokens[t_idx_list[0]] if t_idx_list and t_idx_list[0] < len(tgt_tokens) else g.get('target_lemma', '')
-                    mw_entry = {
-                        'source_word': src_w, 'target_word': tgt_w,
-                        'source_lemma': g.get('source_lemma', ''),
-                        'target_lemma': g.get('target_lemma', ''),
-                        'display': f"{src_w}\u2192{tgt_w}",
-                        'type': 'cross_lingual'
-                    }
-                    if is_greek_latin:
-                        mw_entry['greek_word'] = src_w if source_language == 'grc' else tgt_w
-                        mw_entry['latin_word'] = tgt_w if source_language == 'grc' else src_w
-                        mw_entry['greek_lemma'] = g.get('source_lemma', '') if source_language == 'grc' else g.get('target_lemma', '')
-                        mw_entry['latin_lemma'] = g.get('target_lemma', '') if source_language == 'grc' else g.get('source_lemma', '')
-                    matched_words.append(mw_entry)
-            except Exception as e:
-                logger.warning(f"Failed to process cross-lingual match entry: {e}")
-
-        # Add phonetic match highlighting
-        if has_phonetic:
-            for pm in phonetic_matches:
-                src_orig = pm['source_original']
-                tgt_orig = pm['target_original']
-                sim_pct = int(pm['similarity'] * 100)
-                # Find token indices for highlighting
-                src_idx_h = next((i for i, t in enumerate(src_tokens)
-                                  if t.lower() == src_orig.lower() or t == src_orig), None)
-                tgt_idx_h = next((i for i, t in enumerate(tgt_tokens)
-                                  if t.lower() == tgt_orig.lower() or t == tgt_orig), None)
-                if src_idx_h is not None:
-                    source_highlights.append(src_idx_h)
-                if tgt_idx_h is not None:
-                    target_highlights.append(tgt_idx_h)
-                mw_entry = {
-                    'source_word': src_orig,
-                    'target_word': tgt_orig,
-                    'display': f"{src_orig}\u2248{tgt_orig} ({sim_pct}%)",
-                    'type': 'phonetic',
-                }
-                if is_greek_latin:
-                    if source_language == 'grc':
-                        mw_entry['greek_word'] = src_orig
-                        mw_entry['latin_word'] = tgt_orig
-                    else:
-                        mw_entry['greek_word'] = tgt_orig
-                        mw_entry['latin_word'] = src_orig
-                matched_words.append(mw_entry)
-
-        if has_form:
-            # Colour the refrain on both lines, as the single-language card does.
-            s_pos, t_pos = form_match['source_position'], form_match['target_position']
-            source_highlights.extend(range(s_pos, s_pos + form_match['radif_len']))
-            target_highlights.extend(range(t_pos, t_pos + form_match['target_radif_len']))
-
-        if not matched_words and not has_form:
-            matched_words = [{
-                'type': 'semantic_cross',
-                'similarity': cosine,
-                'display': f'Semantic similarity ({int(cosine*100)}%)',
-                'lemma': 'semantic_cross'
-            }]
-
-        channels = []
-        if has_semantic:
-            channels.append(f'semantic ({int(cosine*100)}%)')
-        if has_dict:
-            channels.append(f'dictionary ({dict_word_count} words)')
-        if has_syntax:
-            channels.append(f'syntax ({syntax_score:.2f})')
-        if has_phonetic:
-            channels.append(f'phonetic ({len(phonetic_matches)} tokens)')
-        if has_form:
-            channels.append(f"refrain and rhyme ({form_match['radif']})")
-
-        fused.append({
-            'source': {
-                'ref': format_short_locus(src_unit.get('ref', '')),
-                'text': src_unit.get('text', ''),
-                'tokens': src_original,
-                'highlight_indices': sorted(set(source_highlights))
-            },
-            'target': {
-                'ref': format_short_locus(tgt_unit.get('ref', '')),
-                'text': tgt_unit.get('text', ''),
-                'tokens': tgt_original,
-                'highlight_indices': sorted(set(target_highlights))
-            },
-            'matched_words': matched_words,
-            'match_count': dict_word_count,
-            'overall_score': score,
-            'features': {
-                'semantic_score': cosine,
-                'dict_score': dict_score,
-                'syntax_score': syntax_score,
-                'phonetic_score': phonetic_score,
-                'form_score': form_score,
-                'n_channels': n_channels,
-                'lemma_gate_triggered': lemma_gate_triggered,
-                'lemma_match_count': gate_lemma_count,
-            },
-            'channels': ', '.join(channels),
-            'match_basis': 'crosslingual_fusion',
-            **({'poetics': {
-                'radif': form_match['radif'],
-                'target_radif': form_match['target_radif'],
-                'qafia': form_match['qafia'],
-                'meter': form_match['meter'],
-                'source_lines': form_match['source_lines'],
-                'target_lines': form_match['target_lines'],
-                'corpus_poems': form_match['form_corpus_poems'],
-                'form_score': form_match['form_score'],
-            }} if has_form else {}),
-        })
+def _evaluation_fused(source_units, target_units, cs, settings, cancellation):
+    """Result rows ranked by the evaluation scorer (Greek-Latin only), unsorted and uncapped
+    beyond what the scorer itself cuts. See backend/crosslingual_evaluation_path.py for the
+    rules and for what is left out (phonetic, translated-run boost, live candidate list)."""
+    from backend.embedding_storage import load_embeddings
+    from backend import crosslingual_evaluation_path as ev
+    if (settings.get('source_unit_type', 'line') != 'line'
+            or settings.get('target_unit_type', 'line') != 'line'):
+        raise EvaluationPathError('The evaluation scorer compares whole lines. Set both texts to line units.')
+    src_path = settings.get('source_text_path')
+    tgt_path = settings.get('target_text_path')
+    src_emb = load_embeddings(src_path, cs.source_language, space='cross') if src_path else None
+    tgt_emb = load_embeddings(tgt_path, cs.target_language, space='cross') if tgt_path else None
+    max_results = settings.get('max_results', 500)
+    scored = ev.score_pairs(
+        source_units, target_units, cs.source_language, src_path, tgt_path, src_emb, tgt_emb,
+        gate=cs.crosslingual_lemma_gate, penalty_factor=cs.crosslingual_penalty_factor,
+        min_lemma_matches=cs.crosslingual_min_lemma_matches, min_matches=cs.min_matches,
+        max_results=max_results, cancellation=cancellation)
+    greek_is_source = cs.source_language == 'grc'
+    fused = []
+    for r in scored:
+        si, ti = r['src_idx'], r['tgt_idx']
+        grc_unit, lat_unit = (source_units[si], target_units[ti]) if greek_is_source \
+            else (target_units[ti], source_units[si])
+        dict_wms = ev.display_word_matches(r['pairs'], r['idf'], grc_unit, lat_unit, greek_is_source) \
+            if r['has_dict'] else None
+        row = _build_row(
+            si, ti, source_units, target_units, cs, score=r['score'], cosine=r['cosine'],
+            has_semantic=r['has_semantic'], has_dict=r['has_dict'], dict_wms=dict_wms or [],
+            dict_word_count=r['distinct'], dict_score=0.0,
+            has_syntax=r['has_syntax'], syntax_score=r['syntax_score'],
+            has_phonetic=False, phonetic_matches=None, phonetic_score=0.0,
+            has_form=False, form_match=None, form_score=0.0, n_channels=r['n_channels'],
+            lemma_gate_triggered=r['triggered'], gate_lemma_count=r['distinct'])
+        row['features']['scorer'] = 'evaluation'
+        fused.append(row)
     return fused
 
 
@@ -2102,6 +2179,20 @@ def _direct_crosslingual_core(params, source_units, target_units, settings,
     unsupported = _check_pair(cs)
     if unsupported is not None:
         return unsupported
+
+    if cs.crosslingual_scorer == 'evaluation':
+        try:
+            fused = _evaluation_fused(source_units, target_units, cs, settings, cancellation)
+        except EvaluationPathError as e:
+            return {"error": str(e)}
+        fused = _cap(fused, settings)
+        req_user_id, req_city, req_country, req_ip = req_meta or (None, None, None, None)
+        out = _finalize_results(fused, source_units, target_units,
+                                0, settings, cs.source_id, cs.target_id, cs.language,
+                                req_user_id, req_city, req_country, req_ip)
+        if isinstance(out, dict):
+            out['crosslingual_scorer'] = 'evaluation'
+        return out
 
     sem_by_pair = _semantic_channel(source_units, target_units, cs, settings, cancellation)
     dict_by_pair = _dictionary_channel(source_units, target_units, cs, cancellation)
@@ -2780,20 +2871,30 @@ def crosslingual_search_poll():
     hebrew_greek_route = data.get('hebrew_greek_route', 'septuagint')
     if hebrew_greek_route not in ('septuagint', 'direct', 'both'):
         hebrew_greek_route = 'septuagint'
+    # 'live' (default) or 'evaluation'; see backend/crosslingual_evaluation_path.py.
+    crosslingual_scorer = data.get('crosslingual_scorer', 'live')
+    if crosslingual_scorer not in ('live', 'evaluation'):
+        crosslingual_scorer = 'live'
 
     # Full ranked list cached once per (pair, languages, min_matches, route);
     # pagination slices this cached list per request, so offset/limit are NOT
-    # part of the key.
+    # part of the key. The scorer joins the key only when it is not the default,
+    # so a default request keeps its key.
     RANKED_CAP = 2000
-    key = make_job_key('xlingual', source, target,
-                       source_language, target_language, min_matches, RANKED_CAP,
-                       hebrew_greek_route)
+    key_args = ['xlingual', source, target,
+                source_language, target_language, min_matches, RANKED_CAP,
+                hebrew_greek_route]
+    if crosslingual_scorer != 'live':
+        key_args.append(crosslingual_scorer)
+    key = make_job_key(*key_args)
 
     def compute():
         req = {'source': source, 'target': target,
                'source_language': source_language, 'target_language': target_language,
                'match_type': 'crosslingual_fusion', 'min_matches': min_matches,
                'max_results': RANKED_CAP, 'hebrew_greek_route': hebrew_greek_route}
+        if crosslingual_scorer != 'live':
+            req['crosslingual_scorer'] = crosslingual_scorer
         params = _parse_search_request(req)
         settings = params['settings']
         su, tu = _load_units(params)

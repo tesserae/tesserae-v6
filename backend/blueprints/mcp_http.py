@@ -598,6 +598,8 @@ def _xlang_params(a):
     route = a.get('hebrew_greek_route')
     if route in ('septuagint', 'direct', 'both'):
         p['hebrew_greek_route'] = route
+    if a.get('crosslingual_scorer') == 'evaluation':
+        p['crosslingual_scorer'] = 'evaluation'
     try:
         mm = int(a.get('min_matches')) if a.get('min_matches') is not None else None
         if mm is not None:
@@ -1359,7 +1361,9 @@ TOOLS = [
                                     "min_matches": {"type": "integer"},
                                     "offset": {"type": "integer"}, "limit": {"type": "integer"},
                                     "hebrew_greek_route": {"type": "string",
-                                                           "enum": ["septuagint", "direct", "both"]}},
+                                                           "enum": ["septuagint", "direct", "both"]},
+                                    "crosslingual_scorer": {"type": "string",
+                                                            "enum": ["live", "evaluation"]}},
                      "required": ["source", "target", "source_language", "target_language"]},
      "fn": _t_cross_language},
     {"name": "submit_feature_request",
