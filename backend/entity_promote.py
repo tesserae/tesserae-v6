@@ -24,6 +24,7 @@ import unicodedata
 
 from backend import entity_extras as extras
 from backend import entity_index as ei
+from backend import entity_model_pass as mp
 
 TYPES = ('person', 'place', 'deity', 'people', 'other')
 PROMOTED_TYPES = ('person', 'place', 'deity', 'people')
@@ -430,3 +431,225 @@ def promote_store(db, judgments, log=print):
     _refresh_windows(db, touched)
     log(f"promoted {rep['promoted']}, merged {rep['merged']}, ambiguous {rep['ambiguous']}, split {rep['split_promoted']}")
     return rep
+
+
+# ---------------------------------------------------------------- context lines
+
+def context_lines(db, tx, eid, n=5, tag=''):
+    """Up to n lines of a name's mentions from n different works: [author, language, line]. The
+    choice is seeded by the entity's name key and `tag`, so a rerun gives the same lines."""
+    import random
+    lang_name = {'la': 'Latin', 'grc': 'Greek', 'en': 'English'}
+    key = db.execute('select name_key, entity_id from entities where eid = ?', (eid,)).fetchone()
+    rnd = random.Random(f'{tag}:{key[0] or key[1]}')
+    by_work = {}
+    for work, lang, form, ref in db.execute(
+            'select w.work, w.language, m.form, m.line_ref from mention_rows m join windows w on w.wid = m.wid '
+            'where m.eid = ? and m.line_ref is not null order by m.wid', (eid,)):
+        by_work.setdefault(work, []).append((lang, form, ref))
+    works = sorted(by_work)
+    rnd.shuffle(works)
+    out = []
+    for work in works:
+        lang, form, ref = rnd.choice(by_work[work])
+        r = tx.execute('select text from lines where work = ? and ref = ? limit 1', (work, ref)).fetchone()
+        if not r or form not in r[0]:
+            continue
+        out.append([mp.author_of(work), lang_name.get(lang, lang), mp.line_snippet(r[0], form, 160)])
+        if len(out) == n:
+            break
+    return out
+
+
+# ---------------------------------------------------------------- a split that contradicts its label
+
+def _common_prefix(a, b):
+    n = 0
+    for x, y in zip(a, b):
+        if x != y:
+            break
+        n += 1
+    return n
+
+
+def contradicts_label(j):
+    """True when a split answer (distinct names) lists main spellings that share no five-letter
+    start (three for a short label) with the transliterated Latin or Greek label: the key rhodo
+    answered Rhodes and listed the spellings of Rhodope."""
+    if not j.get('distinct_names') or j['type'] not in PROMOTED_TYPES:
+        return False
+    labels = [ei.translit(x) for x in (j['latin'], j['greek']) if x]
+    mains = [ei.translit(f) for f in j['main_forms']]
+    for lab in labels:
+        for m in mains:
+            if lab and m and _common_prefix(lab, m) >= min(5, len(lab), len(m)):
+                return False
+    return True
+
+
+SPLIT_SYSTEM = (
+    'You help catalog the proper names found in a corpus of ancient Latin, Greek and English texts. You are given '
+    'a name, its type, the spellings found under one key with their counts, and five lines from different works. '
+    'The key can hold more than one name. Say which of the listed spellings belong to the given name as these lines '
+    'use it. Answer with one JSON object and nothing else, {"belong": [the spellings, copied exactly]}.')
+
+
+def split_question(label, typ, forms, snippets):
+    lines = [f'Name: {label} ({typ})', 'Spellings found: ' + ', '.join(f'{f} ({n})' for f, n in forms), 'Lines:']
+    for i, (author, lang, text) in enumerate(snippets, 1):
+        lines.append(f'{i}. [{author}, {lang}] {text}')
+    return '\n'.join(lines)
+
+
+def parse_split(text, spellings):
+    """The listed spellings the model says belong to the name, or None for an unusable reply."""
+    obj = _json_object(text)
+    if obj is None or not isinstance(obj.get('belong'), list):
+        return None
+    listed = {ei.fold(s): s for s in spellings}
+    out = []
+    for m in obj['belong']:
+        sp = listed.get(ei.fold(str(m)))
+        if sp and sp not in out:
+            out.append(sp)
+    return out
+
+
+def apply_split_fix(judgments, fixes):
+    """Replace main_forms by the confirmed spellings. fixes: {key: [spellings]}. A key whose fix is
+    empty is left as it was. Returns the number of groups changed."""
+    n = 0
+    for key, belong in fixes.items():
+        j = judgments.get(key)
+        if not j or not belong:
+            continue
+        if set(belong) != set(j['main_forms']):
+            n += 1
+        j['main_forms'] = belong
+        j['distinct_names'] = True
+    return n
+
+
+# ---------------------------------------------------------------- duplicates among promoted entities
+
+def dedupe_promoted(db, log=print):
+    """Merge promoted entities that share a type and a folded Latin label, or whose Latin label
+    equals another's Greek label after the names transliteration. The survivor is the one with
+    the most lines. Every key stays in entity_aliases, forms, mentions and documents are united."""
+    lines = {}
+    for (eid, _lang), n in extras.line_counts(db).items():
+        lines[eid] = lines.get(eid, 0) + n
+    ents = {}
+    for eid, entity_id, typ, label in db.execute("select eid, entity_id, type, label from entities where source = 'promoted'"):
+        ents[eid] = {'id': entity_id, 'type': typ, 'label': label, 'greek': None}
+    for eid, grc in db.execute('select eid, display_label_grc from entity_labels'):
+        if eid in ents:
+            ents[eid]['greek'] = grc
+    parent = {e: e for e in ents}
+
+    def find(x):
+        while parent[x] != x:
+            parent[x] = parent[parent[x]]
+            x = parent[x]
+        return x
+
+    def union(a, b):
+        parent[find(a)] = find(b)
+
+    first, by_trans = {}, {}
+    for eid, e in ents.items():
+        first.setdefault((e['type'], ei.fold(e['label'])), []).append(eid)
+        by_trans.setdefault((e['type'], ei.translit(e['label'])), []).append(eid)
+    for grp in first.values():
+        for x in grp[1:]:
+            union(grp[0], x)
+    for eid, e in ents.items():
+        if e['greek']:
+            for other in by_trans.get((e['type'], ei.translit(e['greek'])), ()):
+                union(eid, other)
+    groups = {}
+    for eid in ents:
+        groups.setdefault(find(eid), []).append(eid)
+    rep = {'before': len(ents), 'groups': 0, 'merged_away': 0, 'examples': []}
+    touched = []
+    for members in groups.values():
+        if len(members) < 2:
+            continue
+        surv = max(members, key=lambda e: (lines.get(e, 0), -e))
+        rep['groups'] += 1
+        for other in members:
+            if other == surv:
+                continue
+            _move_rows(db, other, surv, None)
+            have = {v[0] for v in db.execute('select form from variants where eid = ?', (surv,))}
+            db.executemany('insert into variants values (?,?,?,?,?)',
+                           [(surv, f, lang, role, src) for f, lang, role, src in
+                            db.execute('select form, language, role, source from variants where eid = ?', (other,)).fetchall()
+                            if f not in have])
+            db.execute('delete from variants where eid = ?', (other,))
+            db.execute('update entity_aliases set eid = ? where eid = ?', (surv, other))
+            db.execute('insert into entity_aliases values (?,?,?,?,?)',
+                       (surv, ents[other]['id'], ents[other]['label'], ents[other]['type'], 'promoted_duplicate'))
+            if not ents[surv]['greek'] and ents[other]['greek']:
+                db.execute('update entity_labels set display_label_grc = ? where eid = ?', (ents[other]['greek'], surv))
+                ents[surv]['greek'] = ents[other]['greek']
+            db.execute('delete from entity_labels where eid = ?', (other,))
+            db.execute('delete from entities where eid = ?', (other,))
+            rep['merged_away'] += 1
+        touched.append(surv)
+        if len(rep['examples']) < 20:
+            rep['examples'].append({'label': ents[surv]['label'], 'type': ents[surv]['type'], 'kept': ents[surv]['id'],
+                                    'also': sorted(ents[m]['id'] for m in members if m != surv),
+                                    'lines': sum(lines.get(m, 0) for m in members)})
+    _refresh_windows(db, touched)
+    rep['after'] = rep['before'] - rep['merged_away']
+    log(f"promoted entities {rep['before']} -> {rep['after']} in {rep['groups']} groups")
+    return rep
+
+
+# ---------------------------------------------------------------- the description confirmation
+
+CONFIRM_SYSTEM = (
+    'You help catalog the proper names found in a corpus of ancient Latin, Greek and English texts. You are given a '
+    'name with its Latin and Greek labels, its type, a one-line description, and five lines from different works. '
+    'Is this description right for the name as these lines use it? Answer with one JSON object and nothing else, '
+    '{"answer": "yes" or "no", "description": a corrected description of at most twelve words, empty when the '
+    'answer is yes}.')
+
+
+def confirm_question(latin, greek, typ, description, snippets):
+    lines = [f'Name: {latin}' + (f' · {greek}' if greek else ''), f'Type: {typ}', f'Description: {description}', 'Lines:']
+    for i, (author, lang, text) in enumerate(snippets, 1):
+        lines.append(f'{i}. [{author}, {lang}] {text}')
+    return '\n'.join(lines)
+
+
+def parse_confirm(text):
+    """(True, '') for yes, (False, corrected description) for no, None for an unusable reply."""
+    obj = _json_object(text)
+    if obj is None:
+        return None
+    a = str(obj.get('answer') or '').strip().lower()
+    if a.startswith('y'):
+        return True, ''
+    if a.startswith('n'):
+        return False, ' '.join(re.sub(r'\s+', ' ', str(obj.get('description') or '')).strip().split()[:14])
+    return None
+
+
+def final_description(original, first, second):
+    """The description to store. first: the parse_confirm result for the original, second: the one
+    for the correction (or None when none was asked). Kept when the model confirms the original,
+    or corrects it and then confirms the correction, else empty."""
+    if first is None:
+        return ''
+    if first[0]:
+        return original or ''
+    if first[1] and second is not None and second[0]:
+        return first[1]
+    return ''
+
+
+def apply_descriptions(db, final):
+    """final: {eid: description}. Stores them in entity_labels (empty as NULL)."""
+    db.executemany('update entity_labels set description = ? where eid = ?', [(d or None, eid) for eid, d in final.items()])

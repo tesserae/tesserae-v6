@@ -701,15 +701,22 @@ _GR = {'α': 'a', 'β': 'b', 'γ': 'g', 'δ': 'd', 'ε': 'e', 'ζ': 'z', 'η': '
        'υ': 'u', 'φ': 'f', 'χ': 'kh', 'ψ': 'ps', 'ω': 'o'}
 
 
-def names_key(tok):
-    """Same key as scripts/corpus/build_window_names.py key(): accent-stripped, Greek
-    transliterated, first five letters. Keep the two in step."""
+def translit(tok):
+    """The names-store transliteration without the cut to five letters: accent-stripped, Greek
+    transliterated, a few spelling pairs collapsed. names_key is its first five letters."""
     t = COMB.sub('', unicodedata.normalize('NFD', tok)).lower()
     t = ''.join(_GR.get(c, c) for c in t)
     t = re.sub(r'[^a-z]', '', t)
     for a, b in (('ph', 'f'), ('th', 't'), ('ch', 'kh'), ('ae', 'ai'), ('oe', 'oi'), ('c', 'k'),
                  ('y', 'u'), ('x', 'ks'), ('j', 'i'), ('v', 'u')):
         t = t.replace(a, b)
+    return t
+
+
+def names_key(tok):
+    """Same key as scripts/corpus/build_window_names.py key(): accent-stripped, Greek
+    transliterated, first five letters. Keep the two in step."""
+    t = translit(tok)
     return t[:5] if len(t) >= 4 else None
 
 

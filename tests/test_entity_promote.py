@@ -186,3 +186,63 @@ def test_an_older_store_without_labels_still_answers(tmp_path, monkeypatch):
     ent._cache.clear()
     r = app.test_client().get(f'{P}/search?q=sarpedon').get_json()
     assert r['results'][0]['display_label'] == 'Σαρπηδόνα' and r['results'][0]['display_label_grc'] is None
+
+
+def test_a_split_that_contradicts_its_label_is_found_and_fixed():
+    j = {'type': 'place', 'latin': 'Rhodes', 'greek': '', 'description': '', 'distinct_names': True,
+         'main_forms': ['Rhodopen', 'Rhodopes']}
+    assert pr.contradicts_label(j)
+    assert not pr.contradicts_label(dict(j, latin='Rhodope'))
+    assert not pr.contradicts_label(dict(j, distinct_names=False))
+    assert not pr.contradicts_label(dict(j, latin='Roma', main_forms=['Romam']))     # a short label needs fewer letters
+    spell = ['Rhodon', 'Rhodopen', 'Rhodopes']
+    assert pr.parse_split('{"belong": ["Rhodon", "Rhodon", "nope"]}', spell) == ['Rhodon']
+    assert pr.parse_split('{"belong": "all"}', spell) is None
+    judgments = {'rhodo': dict(j), 'x': dict(j)}
+    assert pr.apply_split_fix(judgments, {'rhodo': ['Rhodon'], 'x': []}) == 1       # an empty answer changes nothing
+    assert judgments['rhodo']['main_forms'] == ['Rhodon'] and judgments['x']['main_forms'] == ['Rhodopen', 'Rhodopes']
+
+
+def test_promoted_entities_with_one_label_become_one(tmp_path):
+    db = _build(str(tmp_path / 'd.sqlite'))
+    pr.write_display_labels(db, log=lambda *_: None)
+    gaius = {'type': 'person', 'latin': 'Gaius', 'greek': '', 'description': 'A forename.', 'distinct_names': False, 'main_forms': []}
+    # Sabini is judged a person called Gaius and Gaivs a person called Gaius: one name under two keys
+    rep = pr.promote_store(db, {'gaiu': gaius, 'sabin': dict(gaius, greek='Γάιος')}, log=lambda *_: None)
+    assert rep['promoted'] == 2
+    dd = pr.dedupe_promoted(db, log=lambda *_: None)
+    assert (dd['before'], dd['after'], dd['groups']) == (2, 1, 1)
+    eid, ent = db.execute("select eid, entity_id from entities where source = 'promoted'").fetchone()
+    assert ent == 'pn:sabin'                                                         # the key with more lines survives
+    assert db.execute('select count(*) from mention_rows where eid = ?', (eid,)).fetchone()[0] == 5
+    assert {r[0] for r in db.execute('select alias_id from entity_aliases where eid = ?', (eid,))} >= {'pn:gaiu', 'nm:gaiu', 'nm:sabin'}
+    assert db.execute('select display_label_grc from entity_labels where eid = ?', (eid,)).fetchone() == ('Γάιος',)
+    # a Latin label that equals another's Greek label after the names transliteration also joins them
+    db2 = _build(str(tmp_path / 'e.sqlite'))
+    pr.write_display_labels(db2, log=lambda *_: None)
+    pr.promote_store(db2, {'gaiu': dict(gaius, latin='Caius'), 'sabin': dict(gaius, latin='Other', greek='Καΐυς')}, log=lambda *_: None)
+    assert pr.dedupe_promoted(db2, log=lambda *_: None)['after'] == 1
+
+
+def test_a_description_is_kept_only_when_confirmed():
+    assert pr.parse_confirm('{"answer": "yes", "description": ""}') == (True, '')
+    assert pr.parse_confirm('{"answer": "No", "description": "Lake in Thessaly."}') == (False, 'Lake in Thessaly.')
+    assert pr.parse_confirm('perhaps') is None
+    assert pr.final_description('Old.', (True, ''), None) == 'Old.'
+    assert pr.final_description('Old.', (False, 'New.'), (True, '')) == 'New.'
+    assert pr.final_description('Old.', (False, 'New.'), (False, 'Newer.')) == ''
+    assert pr.final_description('Old.', (False, ''), None) == ''
+    assert pr.final_description('Old.', None, None) == ''
+
+
+def test_stored_descriptions_reach_the_routes(built, client):
+    path, _ = built
+    db = sqlite3.connect(path)
+    eid = db.execute("select eid from entities where entity_id = 'pn:gaiu'").fetchone()[0]
+    pr.apply_descriptions(db, {eid: ''})
+    db.commit()
+    db.close()
+    extras.write_catalog(path, log=lambda *_: None)
+    ent._cache.clear()
+    r = client.get(f'{P}/pn:gaiu').get_json()
+    assert r['description'] is None and r['type'] == 'person'
