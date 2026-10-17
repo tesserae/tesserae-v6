@@ -102,12 +102,12 @@ def _world():
         {'id': 'E4', 'greek': '', 'latin': ['Argos'], 'english': 'Argos', 'type': 'place', 'pleiades': ['2']},
     ]
     entities, _ = ei.merge_list_entities(keys)
-    types = {l: {} for l in ei.LANGS}
+    types = {lg: {} for lg in ei.LANGS}
     for tok, lem in [('alexander', 'alexander'), ('romanus', 'romanus'), ('roma', 'roma'), ('argo', 'argo'),
                      ('argos', 'argos')]:
         types['la'][tok] = [10, 10, 10, 10, tok]
     prep = {'type_lemma': {'la': {t: t for t in types['la']}, 'grc': {}, 'en': {}},
-            'stats': {l: {} for l in ei.LANGS}, 'form_source': {},
+            'stats': {lg: {} for lg in ei.LANGS}, 'form_source': {},
             'form_lemma': [('la', 0, 'alexander', 'alexander'), ('la', 1, 'alexander', 'alexander'),
                            ('la', 2, 'roma', 'roma'), ('la', 2, 'romanus', 'romanus'),
                            ('la', 3, 'argos', 'argos'), ('la', 3, 'argo', 'argo')]}

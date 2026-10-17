@@ -22,8 +22,6 @@ time, except the Greek Stanza fallback, which is given a batch of isolated token
 import collections
 import json
 import os
-import re
-import sqlite3
 import time
 import unicodedata
 
@@ -67,7 +65,7 @@ def tokens_of(text):
 def count_types(texts_conn, unit, log=print):
     """types[lang][folded] = [n_all, cap_all, n_inner, cap_inner, representative]. `inner`
     leaves out the words that open a line, a window or a sentence."""
-    types = {l: {} for l in ei.LANGS}
+    types = {lg: {} for lg in ei.LANGS}
     t0 = time.time()
     done = 0
     for wid, lang, text in texts_conn.execute('select id, language, text from window_texts'):
@@ -88,7 +86,7 @@ def count_types(texts_conn, unit, log=print):
                 e[2] += 1
                 e[3] += cap
     log(f'  type counts: {done} windows, {time.time() - t0:.0f}s, '
-        + ', '.join(f'{l} {len(d)}' for l, d in types.items()))
+        + ', '.join(f'{lg} {len(d)}' for lg, d in types.items()))
     return types
 
 
@@ -158,7 +156,7 @@ def entity_forms(entities):
     """{lang: [(eidx, folded form)]}: the forms each entity is looked up on, per window
     language. Latin forms are used for Latin and for English windows, as in the stem
     matcher."""
-    out = {l: [] for l in ei.LANGS}
+    out = {lg: [] for lg in ei.LANGS}
     for idx, e in enumerate(entities):
         seen = set()
         for k in e['keys']:
@@ -187,14 +185,14 @@ def prepare_lemmas(entities, types, resolver, log=print):
     lemma's capitalization counts, and the lemma of every form each entity is looked up on.
     Returns a dict that assemble_matcher() turns into a token table for any threshold."""
     t0 = time.time()
-    type_lemma = {l: {} for l in ei.LANGS}
+    type_lemma = {lg: {} for lg in ei.LANGS}
     for lang in ei.LANGS:
         d = types[lang]
         inp = {f: lemma_input(lang, f, v[4]) for f, v in d.items()}
         res = resolver.lemmas(lang, inp.values())
         type_lemma[lang] = {f: res[i] for f, i in inp.items() if i in res}
         log(f'  lemmatized {lang}: {len(type_lemma[lang])} of {len(d)} types, {time.time() - t0:.0f}s')
-    stats = {l: collections.defaultdict(lambda: [0, 0, 0, 0]) for l in ei.LANGS}
+    stats = {lg: collections.defaultdict(lambda: [0, 0, 0, 0]) for lg in ei.LANGS}
     for lang in ei.LANGS:
         for f, v in types[lang].items():
             lem = type_lemma[lang].get(f)
@@ -229,7 +227,7 @@ def cap_share_of(stats, lang, lem):
 def load_overrides(entities, path=None):
     """{lang: {folded token: set of entity indexes}} from the per-entity override file."""
     path = path or OVERRIDES_PATH
-    out = {l: collections.defaultdict(set) for l in ei.LANGS}
+    out = {lg: collections.defaultdict(set) for lg in ei.LANGS}
     if not path or not os.path.exists(path):
         return out
     by_id = {e['entity_id']: i for i, e in enumerate(entities)}
@@ -259,7 +257,7 @@ def assemble_matcher(entities, types, prep, threshold=MAJORITY, audit_fixes=True
     by_id = {e['entity_id']: i for i, e in enumerate(entities)}
     dec = {(lang, by_id[eid], lem): v for (lang, eid, lem), v in (decisions or {}).items() if eid in by_id}
     type_lemma, stats = prep['type_lemma'], prep['stats']
-    ent_lemmas = {l: collections.defaultdict(set) for l in ei.LANGS}
+    ent_lemmas = {lg: collections.defaultdict(set) for lg in ei.LANGS}
     diag = collections.Counter()
     tried = collections.defaultdict(set)
     reasons = collections.defaultdict(dict)
@@ -281,7 +279,7 @@ def assemble_matcher(entities, types, prep, threshold=MAJORITY, audit_fixes=True
             continue
         ent_lemmas[lang][idx].add(lem)
         diag[f'{lang}_form_kept'] += 1
-    candidate = {l: {i: set(v) for i, v in ent_lemmas[l].items()} for l in ei.LANGS}
+    candidate = {lg: {i: set(v) for i, v in ent_lemmas[lg].items()} for lg in ei.LANGS}
     proposals = {}
     if audit_fixes:
         from backend import entity_lemma_audit as ela
@@ -290,7 +288,7 @@ def assemble_matcher(entities, types, prep, threshold=MAJORITY, audit_fixes=True
             if action == 'drop' and dec.get((lang, idx, lem)) not in ('keep', 'other'):
                 ent_lemmas[lang][idx].discard(lem)
                 diag[f'{lang}_dropped_{why}'] += 1
-    amb_lemmas = {l: set() for l in ei.LANGS}
+    amb_lemmas = {lg: set() for lg in ei.LANGS}
     for (lang, idx, lem), v in dec.items():
         if v == 'drop':
             if lem in ent_lemmas[lang].get(idx, ()):
@@ -299,13 +297,13 @@ def assemble_matcher(entities, types, prep, threshold=MAJORITY, audit_fixes=True
         elif v == 'other':
             amb_lemmas[lang].add(lem)
             diag[f'{lang}_lemma_judged_other'] += 1
-    amb_tokens = {l: set() for l in ei.LANGS}
+    amb_tokens = {lg: set() for lg in ei.LANGS}
     for lang in ei.LANGS:
         if amb_lemmas[lang]:
             for f, lem in type_lemma[lang].items():
                 if lem in amb_lemmas[lang]:
                     amb_tokens[lang].add(f)
-    lemma_ents = {l: collections.defaultdict(set) for l in ei.LANGS}
+    lemma_ents = {lg: collections.defaultdict(set) for lg in ei.LANGS}
     for lang in ei.LANGS:
         for idx, lems in ent_lemmas[lang].items():
             for lem in lems:
@@ -315,7 +313,7 @@ def assemble_matcher(entities, types, prep, threshold=MAJORITY, audit_fixes=True
         for idx in tried[lang]:
             if not ent_lemmas[lang].get(idx):
                 no_lemma[lang].add(idx)
-    tok2ents = {l: {} for l in ei.LANGS}
+    tok2ents = {lg: {} for lg in ei.LANGS}
     for lang in ei.LANGS:
         for f, v in types[lang].items():
             if not v[1]:
@@ -341,7 +339,7 @@ def assemble_matcher(entities, types, prep, threshold=MAJORITY, audit_fixes=True
             'reasons': reasons, 'type_lemma': type_lemma, 'stats': stats,
             'cap_share': lambda lang, lem: cap_share_of(stats, lang, lem),
             'form_source': prep['form_source'], 'amb_tokens': amb_tokens}
-    log(f'  lemma matcher: ' + ', '.join(f'{l} {len(tok2ents[l])} token types' for l in ei.LANGS)
+    log('  lemma matcher: ' + ', '.join(f'{lg} {len(tok2ents[lg])} token types' for lg in ei.LANGS)
         + f', {time.time() - t0:.0f}s')
     return tok2ents, info
 

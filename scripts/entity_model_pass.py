@@ -201,7 +201,7 @@ def step_prepare(a):
     types = el.count_types(texts, unit)
     resolver = el.Resolver()
     prep = el.prepare_lemmas(entities, types, resolver)
-    prep['stats'] = {l: dict(v) for l, v in prep['stats'].items()}
+    prep['stats'] = {lg: dict(v) for lg, v in prep['stats'].items()}
     print(f'prepared {time.time() - t0:.0f}s', flush=True)
     pickle.dump({'types': types, 'prep': prep}, open(p(a, 'state.pkl'), 'wb'), protocol=4)
 
@@ -218,10 +218,10 @@ def step_prepare(a):
 
     # forms and example lines: one pass over the windows
     type_lemma = info['type_lemma']
-    wanted = {l: {} for l in ei.LANGS}
+    wanted = {lg: {} for lg in ei.LANGS}
     for lang, idx, lem in pairs:
         wanted[lang][lem] = True
-    wf = {l: {f for f, lem in type_lemma[l].items() if lem in wanted[l]} for l in ei.LANGS}
+    wf = {lg: {f for f, lem in type_lemma[lg].items() if lem in wanted[lg]} for lg in ei.LANGS}
     rnd = random.Random(SEED_SNIPPETS)
     seen = collections.Counter()
     res = collections.defaultdict(list)

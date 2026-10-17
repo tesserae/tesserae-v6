@@ -99,10 +99,10 @@ def load_stoplists(path=STOPLIST_PATH):
     """Return (forms, neighbor) where forms is {greek key: set of folded forms}
     and neighbor is {language: set of folded words}."""
     if not os.path.exists(path):
-        return {}, {l: set() for l in LANGS}
+        return {}, {lg: set() for lg in LANGS}
     d = json.load(open(path, encoding='utf-8'))
     forms = {k: {fold(x) for x in v.get('forms', [])} for k, v in d.get('entities', {}).items()}
-    nb = {l: {fold(w) for w in d.get('neighbor_words', {}).get(l, [])} for l in LANGS}
+    nb = {lg: {fold(w) for w in d.get('neighbor_words', {}).get(lg, [])} for lg in LANGS}
     return forms, nb
 
 
@@ -229,7 +229,7 @@ def build_matchers(entities):
     """exact[lang][folded token] -> {entity index: stem length}; plus the per-entity
     homonym flags. Greek and Latin keys are matched by stem plus closed endings,
     English by the label or a Latin form with a capital initial."""
-    exact = {l: collections.defaultdict(dict) for l in LANGS}
+    exact = {lg: collections.defaultdict(dict) for lg in LANGS}
 
     def add(lang, tok, idx, stem):
         cur = exact[lang][tok].get(idx)
