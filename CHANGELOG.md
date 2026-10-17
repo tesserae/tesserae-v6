@@ -8,7 +8,7 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-17
-- Decisions: the Greek-Latin pivot dictionary through LSJ and Lewis and Short is parked, with the measurement behind the decision (#PR).
+- Decisions: the Greek-Latin pivot dictionary through LSJ and Lewis and Short is parked, with the measurement behind the decision (#987).
 - Line Search and Documents, exact mode: for Latin, u and v, i and j are interchangeable in the phrase, so "arma virum" finds Martial 8.55.19 "ARMA VIRVMQVE" and "iuvenis" finds "juvenis" (#986).
 - Line Search: punctuation on the ends of a query word is stripped before lemmatizing, so a Reader line sent as it stands ("fatorum," "colla;") no longer loses every word before a mark (#985).
 - Connector: `channel_token_attrs` passes through the MCP compare_texts slim dictionary and the stdio fusion_search, an outside contribution (#983, merged 2026-10-16).
