@@ -55,6 +55,13 @@ def get_cache_key(source_id, target_id, language, settings):
         key_parts['channel_weights'] = settings['channel_weights']
     if settings.get('enabled_channels'):
         key_parts['enabled_channels'] = settings['enabled_channels']
+    # The evaluation scorer (2026-10-17) ranks Greek-Latin pairs differently, and
+    # under it the lemma gate has its own default. Added only when requested, so a
+    # default search keeps its key.
+    if settings.get('crosslingual_scorer', 'live') != 'live':
+        key_parts['crosslingual_scorer'] = settings['crosslingual_scorer']
+        key_parts['crosslingual_lemma_gate'] = settings.get('crosslingual_lemma_gate', 'off')
+        key_parts['crosslingual_penalty_factor'] = settings.get('crosslingual_penalty_factor', 0.5)
     # Only version caches that explicitly opt in.  Leaving this out preserves
     # cache keys for unrelated search implementations.
     if 'result_version' in settings:

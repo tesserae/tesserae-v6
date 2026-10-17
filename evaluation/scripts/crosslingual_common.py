@@ -104,13 +104,27 @@ def build_dictionary_scores(grc_units, lat_units, lat_indices=None):
 
 
 def make_fused_scorer(grc_path, lat_path, grc_units, lat_units, grc_emb, lat_emb,
-                      lat_indices=None, verbose=True):
+                      lat_indices=None, verbose=True, lone_pair_rule=None,
+                      cancellation=None):
     """Return fused_score(grc_idx, lat_idx) for one Greek text against one Latin text.
 
     grc_emb and lat_emb are the loaded embedding arrays (or None). lat_indices
     limits the dictionary channel to those Latin units (see build_dictionary_scores).
     The IDF tables and the syntax channel always use the whole of both texts.
+
+    lone_pair_rule 'baseline' leaves the rarity multiplier as it is. 'v2' holds the
+    multiplier at 1.0 for a pair with exactly one matched dictionary pair and no
+    syntax (the rarity boost then cannot lift a lone pair). None reads the
+    environment variable XL_RARITY_VARIANT, default 'baseline', so every existing
+    caller keeps its numbers. The returned function carries the parts it scores
+    from as fused_score.parts (cosine matrix, dictionary matches, syntax scores,
+    the IDF function), which the live search's evaluation path reads.
+    cancellation, when given, is passed to the syntax search.
     """
+    if lone_pair_rule is None:
+        lone_pair_rule = os.environ.get('XL_RARITY_VARIANT', 'baseline')
+    if lone_pair_rule not in ('baseline', 'v2'):
+        raise ValueError(f"lone_pair_rule must be 'baseline' or 'v2', not {lone_pair_rule!r}")
     grc_file = os.path.basename(str(grc_path))
     lat_file = os.path.basename(str(lat_path))
 
@@ -186,6 +200,7 @@ def make_fused_scorer(grc_path, lat_path, grc_units, lat_units, grc_emb, lat_emb
             grc_units, lat_units, grc_file, lat_file,
             min_score=0.1, max_results=50000,
             source_language='grc', target_language='la',
+            **({'cancellation': cancellation} if cancellation is not None else {}),
         )
         if isinstance(syntax_results, dict):
             grc_ref_to_idx = {u.get('ref', ''): i for i, u in enumerate(grc_units)}
@@ -263,6 +278,11 @@ def make_fused_scorer(grc_path, lat_path, grc_units, lat_units, grc_emb, lat_emb
                          * math.log(geom_mean_idf / RARITY_IDF_THRESHOLD_X))
                 rarity_mult = min(RARITY_BOOST_CAP_X, 1.0 + boost)
 
+        # A lone dictionary pair without syntax cannot be lifted by the rarity boost.
+        if (lone_pair_rule == 'v2' and has_dict and dict_word_count == 1
+                and not has_syntax and rarity_mult > 1.0):
+            rarity_mult = 1.0
+
         base = (cosine * SEMANTIC_WEIGHT) + (dict_score * DICTIONARY_WEIGHT) + (syn_score * SYNTAX_WEIGHT)
         score = base * (rarity_mult ** 2)
 
@@ -274,4 +294,10 @@ def make_fused_scorer(grc_path, lat_path, grc_units, lat_units, grc_emb, lat_emb
 
         return score
 
+    fused_score.parts = {
+        'cosine_matrix': cosine_matrix,
+        'dict_matches': dict_matches,
+        'syntax_scores': syntax_scores,
+        'calc_idf': calc_idf,
+    }
     return fused_score, len(syntax_scores)

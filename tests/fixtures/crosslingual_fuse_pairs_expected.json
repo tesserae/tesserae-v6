@@ -1,0 +1,843 @@
+{
+ "exclude": [
+  {
+   "channels": "semantic (71%), dictionary (2 words), syntax (0.40)",
+   "features": {
+    "dict_score": 0.31858879428580233,
+    "form_score": 0.0,
+    "lemma_gate_triggered": false,
+    "lemma_match_count": 2,
+    "n_channels": 3,
+    "phonetic_score": 0.0,
+    "semantic_score": 0.71,
+    "syntax_score": 0.4
+   },
+   "match_basis": "crosslingual_fusion",
+   "match_count": 2,
+   "matched_words": [
+    {
+     "display": "θεὰ→dea",
+     "greek_lemma": "θεά",
+     "greek_word": "θεὰ",
+     "idf": 2.252762968495368,
+     "latin_lemma": "dea",
+     "latin_word": "dea",
+     "source_lemma": "θεά",
+     "source_word": "θεὰ",
+     "target_lemma": "dea",
+     "target_word": "dea",
+     "type": "cross_lingual"
+    },
+    {
+     "display": "μῆνιν→ira",
+     "greek_lemma": "μῆνις",
+     "greek_word": "μῆνιν",
+     "idf": 2.252762968495368,
+     "latin_lemma": "ira",
+     "latin_word": "ira",
+     "source_lemma": "μῆνις",
+     "source_word": "μῆνιν",
+     "target_lemma": "ira",
+     "target_word": "ira",
+     "type": "cross_lingual"
+    }
+   ],
+   "overall_score": 2.1891775885716047,
+   "source": {
+    "highlight_indices": [
+     0,
+     2
+    ],
+    "ref": "1.1",
+    "text": "μῆνιν ἄειδε θεὰ",
+    "tokens": [
+     "μῆνιν",
+     "ἄειδε",
+     "θεὰ"
+    ]
+   },
+   "target": {
+    "highlight_indices": [
+     0,
+     2
+    ],
+    "ref": "1.2",
+    "text": "dea mens ira",
+    "tokens": [
+     "dea",
+     "mens",
+     "ira"
+    ]
+   }
+  },
+  {
+   "channels": "semantic (66%), dictionary (2 words)",
+   "features": {
+    "dict_score": 0.31858879428580233,
+    "form_score": 0.0,
+    "lemma_gate_triggered": false,
+    "lemma_match_count": 2,
+    "n_channels": 2,
+    "phonetic_score": 0.0,
+    "semantic_score": 0.66,
+    "syntax_score": 0.0
+   },
+   "match_basis": "crosslingual_fusion",
+   "match_count": 2,
+   "matched_words": [
+    {
+     "display": "πολλὰς→multa",
+     "greek_lemma": "πολύς",
+     "greek_word": "πολλὰς",
+     "idf": 2.252762968495368,
+     "latin_lemma": "multus",
+     "latin_word": "multa",
+     "source_lemma": "πολύς",
+     "source_word": "πολλὰς",
+     "target_lemma": "multus",
+     "target_word": "multa",
+     "type": "cross_lingual"
+    },
+    {
+     "display": "ψυχὰς→anima",
+     "greek_lemma": "ψυχή",
+     "greek_word": "ψυχὰς",
+     "idf": 2.252762968495368,
+     "latin_lemma": "anima",
+     "latin_word": "anima",
+     "source_lemma": "ψυχή",
+     "source_word": "ψυχὰς",
+     "target_lemma": "anima",
+     "target_word": "anima",
+     "type": "cross_lingual"
+    }
+   ],
+   "overall_score": 1.9291775885716047,
+   "source": {
+    "highlight_indices": [
+     0,
+     3
+    ],
+    "ref": "1.3",
+    "text": "πολλὰς δ ἰφθίμους ψυχὰς",
+    "tokens": [
+     "πολλὰς",
+     "δ",
+     "ἰφθίμους",
+     "ψυχὰς"
+    ]
+   },
+   "target": {
+    "highlight_indices": [
+     0,
+     1
+    ],
+    "ref": "1.3",
+    "text": "anima multa canit",
+    "tokens": [
+     "anima",
+     "multa",
+     "canit"
+    ]
+   }
+  }
+ ],
+ "off": [
+  {
+   "channels": "semantic (71%), dictionary (2 words), syntax (0.40)",
+   "features": {
+    "dict_score": 0.31858879428580233,
+    "form_score": 0.0,
+    "lemma_gate_triggered": false,
+    "lemma_match_count": 2,
+    "n_channels": 3,
+    "phonetic_score": 0.0,
+    "semantic_score": 0.71,
+    "syntax_score": 0.4
+   },
+   "match_basis": "crosslingual_fusion",
+   "match_count": 2,
+   "matched_words": [
+    {
+     "display": "θεὰ→dea",
+     "greek_lemma": "θεά",
+     "greek_word": "θεὰ",
+     "idf": 2.252762968495368,
+     "latin_lemma": "dea",
+     "latin_word": "dea",
+     "source_lemma": "θεά",
+     "source_word": "θεὰ",
+     "target_lemma": "dea",
+     "target_word": "dea",
+     "type": "cross_lingual"
+    },
+    {
+     "display": "μῆνιν→ira",
+     "greek_lemma": "μῆνις",
+     "greek_word": "μῆνιν",
+     "idf": 2.252762968495368,
+     "latin_lemma": "ira",
+     "latin_word": "ira",
+     "source_lemma": "μῆνις",
+     "source_word": "μῆνιν",
+     "target_lemma": "ira",
+     "target_word": "ira",
+     "type": "cross_lingual"
+    }
+   ],
+   "overall_score": 2.1891775885716047,
+   "source": {
+    "highlight_indices": [
+     0,
+     2
+    ],
+    "ref": "1.1",
+    "text": "μῆνιν ἄειδε θεὰ",
+    "tokens": [
+     "μῆνιν",
+     "ἄειδε",
+     "θεὰ"
+    ]
+   },
+   "target": {
+    "highlight_indices": [
+     0,
+     2
+    ],
+    "ref": "1.2",
+    "text": "dea mens ira",
+    "tokens": [
+     "dea",
+     "mens",
+     "ira"
+    ]
+   }
+  },
+  {
+   "channels": "semantic (66%), dictionary (2 words)",
+   "features": {
+    "dict_score": 0.31858879428580233,
+    "form_score": 0.0,
+    "lemma_gate_triggered": false,
+    "lemma_match_count": 2,
+    "n_channels": 2,
+    "phonetic_score": 0.0,
+    "semantic_score": 0.66,
+    "syntax_score": 0.0
+   },
+   "match_basis": "crosslingual_fusion",
+   "match_count": 2,
+   "matched_words": [
+    {
+     "display": "πολλὰς→multa",
+     "greek_lemma": "πολύς",
+     "greek_word": "πολλὰς",
+     "idf": 2.252762968495368,
+     "latin_lemma": "multus",
+     "latin_word": "multa",
+     "source_lemma": "πολύς",
+     "source_word": "πολλὰς",
+     "target_lemma": "multus",
+     "target_word": "multa",
+     "type": "cross_lingual"
+    },
+    {
+     "display": "ψυχὰς→anima",
+     "greek_lemma": "ψυχή",
+     "greek_word": "ψυχὰς",
+     "idf": 2.252762968495368,
+     "latin_lemma": "anima",
+     "latin_word": "anima",
+     "source_lemma": "ψυχή",
+     "source_word": "ψυχὰς",
+     "target_lemma": "anima",
+     "target_word": "anima",
+     "type": "cross_lingual"
+    }
+   ],
+   "overall_score": 1.9291775885716047,
+   "source": {
+    "highlight_indices": [
+     0,
+     3
+    ],
+    "ref": "1.3",
+    "text": "πολλὰς δ ἰφθίμους ψυχὰς",
+    "tokens": [
+     "πολλὰς",
+     "δ",
+     "ἰφθίμους",
+     "ψυχὰς"
+    ]
+   },
+   "target": {
+    "highlight_indices": [
+     0,
+     1
+    ],
+    "ref": "1.3",
+    "text": "anima multa canit",
+    "tokens": [
+     "anima",
+     "multa",
+     "canit"
+    ]
+   }
+  },
+  {
+   "channels": "semantic (42%), dictionary (1 words), phonetic (1 tokens)",
+   "features": {
+    "dict_score": 0.20500304144412856,
+    "form_score": 0.0,
+    "lemma_gate_triggered": true,
+    "lemma_match_count": 1,
+    "n_channels": 3,
+    "phonetic_score": 0.62,
+    "semantic_score": 0.42,
+    "syntax_score": 0.0
+   },
+   "match_basis": "crosslingual_fusion",
+   "match_count": 1,
+   "matched_words": [
+    {
+     "display": "ἄειδε→cano",
+     "greek_lemma": "ἀείδω",
+     "greek_word": "ἄειδε",
+     "idf": 2.0500304144412858,
+     "latin_lemma": "cano",
+     "latin_word": "cano",
+     "source_lemma": "ἀείδω",
+     "source_word": "ἄειδε",
+     "target_lemma": "cano",
+     "target_word": "cano",
+     "type": "cross_lingual"
+    },
+    {
+     "display": "ἄειδε≈cano (62%)",
+     "greek_word": "ἄειδε",
+     "latin_word": "cano",
+     "source_word": "ἄειδε",
+     "target_word": "cano",
+     "type": "phonetic"
+    }
+   ],
+   "overall_score": 1.724006082888257,
+   "source": {
+    "highlight_indices": [
+     1
+    ],
+    "ref": "1.1",
+    "text": "μῆνιν ἄειδε θεὰ",
+    "tokens": [
+     "μῆνιν",
+     "ἄειδε",
+     "θεὰ"
+    ]
+   },
+   "target": {
+    "highlight_indices": [
+     2
+    ],
+    "ref": "1.1",
+    "text": "arma virumque cano",
+    "tokens": [
+     "arma",
+     "virumque",
+     "cano"
+    ]
+   }
+  },
+  {
+   "channels": "dictionary (1 words)",
+   "features": {
+    "dict_score": 0.22527629684953682,
+    "form_score": 0.0,
+    "lemma_gate_triggered": true,
+    "lemma_match_count": 1,
+    "n_channels": 1,
+    "phonetic_score": 0.0,
+    "semantic_score": 0.0,
+    "syntax_score": 0.0
+   },
+   "match_basis": "crosslingual_fusion",
+   "match_count": 1,
+   "matched_words": [
+    {
+     "display": "μυρί→mens",
+     "greek_lemma": "μυρίος",
+     "greek_word": "μυρί",
+     "idf": 2.252762968495368,
+     "latin_lemma": "mens",
+     "latin_word": "mens",
+     "source_lemma": "μυρίος",
+     "source_word": "μυρί",
+     "target_lemma": "mens",
+     "target_word": "mens",
+     "type": "cross_lingual"
+    }
+   ],
+   "overall_score": 0.45055259369907363,
+   "source": {
+    "highlight_indices": [
+     2
+    ],
+    "ref": "1.2",
+    "text": "οὐλομένην ἣ μυρί",
+    "tokens": [
+     "οὐλομένην",
+     "ἣ",
+     "μυρί"
+    ]
+   },
+   "target": {
+    "highlight_indices": [
+     1
+    ],
+    "ref": "1.2",
+    "text": "dea mens ira",
+    "tokens": [
+     "dea",
+     "mens",
+     "ira"
+    ]
+   }
+  },
+  {
+   "channels": "semantic (35%)",
+   "features": {
+    "dict_score": 0.0,
+    "form_score": 0.0,
+    "lemma_gate_triggered": true,
+    "lemma_match_count": 0,
+    "n_channels": 1,
+    "phonetic_score": 0.0,
+    "semantic_score": 0.35,
+    "syntax_score": 0.0
+   },
+   "match_basis": "crosslingual_fusion",
+   "match_count": 0,
+   "matched_words": [
+    {
+     "display": "Semantic similarity (35%)",
+     "lemma": "semantic_cross",
+     "similarity": 0.35,
+     "type": "semantic_cross"
+    }
+   ],
+   "overall_score": 0.42,
+   "source": {
+    "highlight_indices": [],
+    "ref": "1.2",
+    "text": "οὐλομένην ἣ μυρί",
+    "tokens": [
+     "οὐλομένην",
+     "ἣ",
+     "μυρί"
+    ]
+   },
+   "target": {
+    "highlight_indices": [],
+    "ref": "1.3",
+    "text": "anima multa canit",
+    "tokens": [
+     "anima",
+     "multa",
+     "canit"
+    ]
+   }
+  },
+  {
+   "channels": "semantic (20%)",
+   "features": {
+    "dict_score": 0.0,
+    "form_score": 0.0,
+    "lemma_gate_triggered": true,
+    "lemma_match_count": 0,
+    "n_channels": 1,
+    "phonetic_score": 0.0,
+    "semantic_score": 0.2,
+    "syntax_score": 0.0
+   },
+   "match_basis": "crosslingual_fusion",
+   "match_count": 0,
+   "matched_words": [
+    {
+     "display": "Semantic similarity (20%)",
+     "lemma": "semantic_cross",
+     "similarity": 0.2,
+     "type": "semantic_cross"
+    }
+   ],
+   "overall_score": 0.24,
+   "source": {
+    "highlight_indices": [],
+    "ref": "1.2",
+    "text": "οὐλομένην ἣ μυρί",
+    "tokens": [
+     "οὐλομένην",
+     "ἣ",
+     "μυρί"
+    ]
+   },
+   "target": {
+    "highlight_indices": [],
+    "ref": "1.1",
+    "text": "arma virumque cano",
+    "tokens": [
+     "arma",
+     "virumque",
+     "cano"
+    ]
+   }
+  }
+ ],
+ "penalty": [
+  {
+   "channels": "semantic (71%), dictionary (2 words), syntax (0.40)",
+   "features": {
+    "dict_score": 0.31858879428580233,
+    "form_score": 0.0,
+    "lemma_gate_triggered": false,
+    "lemma_match_count": 2,
+    "n_channels": 3,
+    "phonetic_score": 0.0,
+    "semantic_score": 0.71,
+    "syntax_score": 0.4
+   },
+   "match_basis": "crosslingual_fusion",
+   "match_count": 2,
+   "matched_words": [
+    {
+     "display": "θεὰ→dea",
+     "greek_lemma": "θεά",
+     "greek_word": "θεὰ",
+     "idf": 2.252762968495368,
+     "latin_lemma": "dea",
+     "latin_word": "dea",
+     "source_lemma": "θεά",
+     "source_word": "θεὰ",
+     "target_lemma": "dea",
+     "target_word": "dea",
+     "type": "cross_lingual"
+    },
+    {
+     "display": "μῆνιν→ira",
+     "greek_lemma": "μῆνις",
+     "greek_word": "μῆνιν",
+     "idf": 2.252762968495368,
+     "latin_lemma": "ira",
+     "latin_word": "ira",
+     "source_lemma": "μῆνις",
+     "source_word": "μῆνιν",
+     "target_lemma": "ira",
+     "target_word": "ira",
+     "type": "cross_lingual"
+    }
+   ],
+   "overall_score": 2.1891775885716047,
+   "source": {
+    "highlight_indices": [
+     0,
+     2
+    ],
+    "ref": "1.1",
+    "text": "μῆνιν ἄειδε θεὰ",
+    "tokens": [
+     "μῆνιν",
+     "ἄειδε",
+     "θεὰ"
+    ]
+   },
+   "target": {
+    "highlight_indices": [
+     0,
+     2
+    ],
+    "ref": "1.2",
+    "text": "dea mens ira",
+    "tokens": [
+     "dea",
+     "mens",
+     "ira"
+    ]
+   }
+  },
+  {
+   "channels": "semantic (66%), dictionary (2 words)",
+   "features": {
+    "dict_score": 0.31858879428580233,
+    "form_score": 0.0,
+    "lemma_gate_triggered": false,
+    "lemma_match_count": 2,
+    "n_channels": 2,
+    "phonetic_score": 0.0,
+    "semantic_score": 0.66,
+    "syntax_score": 0.0
+   },
+   "match_basis": "crosslingual_fusion",
+   "match_count": 2,
+   "matched_words": [
+    {
+     "display": "πολλὰς→multa",
+     "greek_lemma": "πολύς",
+     "greek_word": "πολλὰς",
+     "idf": 2.252762968495368,
+     "latin_lemma": "multus",
+     "latin_word": "multa",
+     "source_lemma": "πολύς",
+     "source_word": "πολλὰς",
+     "target_lemma": "multus",
+     "target_word": "multa",
+     "type": "cross_lingual"
+    },
+    {
+     "display": "ψυχὰς→anima",
+     "greek_lemma": "ψυχή",
+     "greek_word": "ψυχὰς",
+     "idf": 2.252762968495368,
+     "latin_lemma": "anima",
+     "latin_word": "anima",
+     "source_lemma": "ψυχή",
+     "source_word": "ψυχὰς",
+     "target_lemma": "anima",
+     "target_word": "anima",
+     "type": "cross_lingual"
+    }
+   ],
+   "overall_score": 1.9291775885716047,
+   "source": {
+    "highlight_indices": [
+     0,
+     3
+    ],
+    "ref": "1.3",
+    "text": "πολλὰς δ ἰφθίμους ψυχὰς",
+    "tokens": [
+     "πολλὰς",
+     "δ",
+     "ἰφθίμους",
+     "ψυχὰς"
+    ]
+   },
+   "target": {
+    "highlight_indices": [
+     0,
+     1
+    ],
+    "ref": "1.3",
+    "text": "anima multa canit",
+    "tokens": [
+     "anima",
+     "multa",
+     "canit"
+    ]
+   }
+  },
+  {
+   "channels": "semantic (42%), dictionary (1 words), phonetic (1 tokens)",
+   "features": {
+    "dict_score": 0.20500304144412856,
+    "form_score": 0.0,
+    "lemma_gate_triggered": true,
+    "lemma_match_count": 1,
+    "n_channels": 3,
+    "phonetic_score": 0.62,
+    "semantic_score": 0.42,
+    "syntax_score": 0.0
+   },
+   "match_basis": "crosslingual_fusion",
+   "match_count": 1,
+   "matched_words": [
+    {
+     "display": "ἄειδε→cano",
+     "greek_lemma": "ἀείδω",
+     "greek_word": "ἄειδε",
+     "idf": 2.0500304144412858,
+     "latin_lemma": "cano",
+     "latin_word": "cano",
+     "source_lemma": "ἀείδω",
+     "source_word": "ἄειδε",
+     "target_lemma": "cano",
+     "target_word": "cano",
+     "type": "cross_lingual"
+    },
+    {
+     "display": "ἄειδε≈cano (62%)",
+     "greek_word": "ἄειδε",
+     "latin_word": "cano",
+     "source_word": "ἄειδε",
+     "target_word": "cano",
+     "type": "phonetic"
+    }
+   ],
+   "overall_score": 0.8620030414441285,
+   "source": {
+    "highlight_indices": [
+     1
+    ],
+    "ref": "1.1",
+    "text": "μῆνιν ἄειδε θεὰ",
+    "tokens": [
+     "μῆνιν",
+     "ἄειδε",
+     "θεὰ"
+    ]
+   },
+   "target": {
+    "highlight_indices": [
+     2
+    ],
+    "ref": "1.1",
+    "text": "arma virumque cano",
+    "tokens": [
+     "arma",
+     "virumque",
+     "cano"
+    ]
+   }
+  },
+  {
+   "channels": "dictionary (1 words)",
+   "features": {
+    "dict_score": 0.22527629684953682,
+    "form_score": 0.0,
+    "lemma_gate_triggered": true,
+    "lemma_match_count": 1,
+    "n_channels": 1,
+    "phonetic_score": 0.0,
+    "semantic_score": 0.0,
+    "syntax_score": 0.0
+   },
+   "match_basis": "crosslingual_fusion",
+   "match_count": 1,
+   "matched_words": [
+    {
+     "display": "μυρί→mens",
+     "greek_lemma": "μυρίος",
+     "greek_word": "μυρί",
+     "idf": 2.252762968495368,
+     "latin_lemma": "mens",
+     "latin_word": "mens",
+     "source_lemma": "μυρίος",
+     "source_word": "μυρί",
+     "target_lemma": "mens",
+     "target_word": "mens",
+     "type": "cross_lingual"
+    }
+   ],
+   "overall_score": 0.22527629684953682,
+   "source": {
+    "highlight_indices": [
+     2
+    ],
+    "ref": "1.2",
+    "text": "οὐλομένην ἣ μυρί",
+    "tokens": [
+     "οὐλομένην",
+     "ἣ",
+     "μυρί"
+    ]
+   },
+   "target": {
+    "highlight_indices": [
+     1
+    ],
+    "ref": "1.2",
+    "text": "dea mens ira",
+    "tokens": [
+     "dea",
+     "mens",
+     "ira"
+    ]
+   }
+  },
+  {
+   "channels": "semantic (35%)",
+   "features": {
+    "dict_score": 0.0,
+    "form_score": 0.0,
+    "lemma_gate_triggered": true,
+    "lemma_match_count": 0,
+    "n_channels": 1,
+    "phonetic_score": 0.0,
+    "semantic_score": 0.35,
+    "syntax_score": 0.0
+   },
+   "match_basis": "crosslingual_fusion",
+   "match_count": 0,
+   "matched_words": [
+    {
+     "display": "Semantic similarity (35%)",
+     "lemma": "semantic_cross",
+     "similarity": 0.35,
+     "type": "semantic_cross"
+    }
+   ],
+   "overall_score": 0.21,
+   "source": {
+    "highlight_indices": [],
+    "ref": "1.2",
+    "text": "οὐλομένην ἣ μυρί",
+    "tokens": [
+     "οὐλομένην",
+     "ἣ",
+     "μυρί"
+    ]
+   },
+   "target": {
+    "highlight_indices": [],
+    "ref": "1.3",
+    "text": "anima multa canit",
+    "tokens": [
+     "anima",
+     "multa",
+     "canit"
+    ]
+   }
+  },
+  {
+   "channels": "semantic (20%)",
+   "features": {
+    "dict_score": 0.0,
+    "form_score": 0.0,
+    "lemma_gate_triggered": true,
+    "lemma_match_count": 0,
+    "n_channels": 1,
+    "phonetic_score": 0.0,
+    "semantic_score": 0.2,
+    "syntax_score": 0.0
+   },
+   "match_basis": "crosslingual_fusion",
+   "match_count": 0,
+   "matched_words": [
+    {
+     "display": "Semantic similarity (20%)",
+     "lemma": "semantic_cross",
+     "similarity": 0.2,
+     "type": "semantic_cross"
+    }
+   ],
+   "overall_score": 0.12,
+   "source": {
+    "highlight_indices": [],
+    "ref": "1.2",
+    "text": "οὐλομένην ἣ μυρί",
+    "tokens": [
+     "οὐλομένην",
+     "ἣ",
+     "μυρί"
+    ]
+   },
+   "target": {
+    "highlight_indices": [],
+    "ref": "1.1",
+    "text": "arma virumque cano",
+    "tokens": [
+     "arma",
+     "virumque",
+     "cano"
+    ]
+   }
+  }
+ ]
+}
