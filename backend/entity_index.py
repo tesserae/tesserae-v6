@@ -573,7 +573,8 @@ def names_key(tok):
 
 
 def build_store(keys, passage_dir, out_path, stoplist_path=STOPLIST_PATH, review_csv=None,
-                apply_stoplist=True, matcher='stem', diagnostics=None, log=print):
+                apply_stoplist=True, matcher='stem', diagnostics=None, log=print,
+                lemma_fixes=True, lemma_threshold=0.5):
     """Build the whole store from scratch into out_path (replaced if present).
 
     keys: the proper-name list as the scope's entity rows (id, greek, latin, english, type,
@@ -611,7 +612,9 @@ def build_store(keys, passage_dir, out_path, stoplist_path=STOPLIST_PATH, review
         from backend import entity_lemma as el
         types = el.count_types(texts, unit, log=log)
         resolver = el.Resolver(log=log)
-        tok2ents, info = el.build_lemma_matcher(entities, types, resolver, log=log)
+        tok2ents, info = el.build_lemma_matcher(entities, types, resolver, log=log,
+                                                  threshold=lemma_threshold, audit_fixes=lemma_fixes,
+                                                  overrides=lemma_fixes)
         if diagnostics is not None:
             diagnostics.update(info)
             diagnostics['types'] = types

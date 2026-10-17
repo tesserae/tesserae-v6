@@ -1,0 +1,38 @@
+{
+ "note": "Endings that mark a demonym or an adjective made from a place name. Greek endings are written without accents or breathing marks and compared with the lemma after the same stripping. Used by backend/entity_lemma_audit.py, and only for entities of type place. The exempt list names (entity, lemma) pairs whose ending is part of the place's own name.",
+ "la": [
+  "ensis",
+  "anus",
+  "inus",
+  "ius",
+  "icus",
+  "aeus"
+ ],
+ "grc": [
+  "ιος",
+  "αιος",
+  "ικος",
+  "ιτης",
+  "ευς",
+  "ηνος",
+  "ανος",
+  "ινος",
+  "ειος"
+ ],
+ "en": [
+  "ian",
+  "ean",
+  "ese",
+  "ish",
+  "ic",
+  "ite"
+ ],
+ "exempt": [
+  {
+   "entity_id": "ln:E1129",
+   "lang": "la",
+   "lemma": "piraeus",
+   "why": "the ending is part of the place's own name (Piraeus), not an adjective"
+  }
+ ]
+}

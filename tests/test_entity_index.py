@@ -142,3 +142,46 @@ def test_first_letter_skips_combining_marks():
     from backend import entity_lemma as el
     assert el.is_cap('̓Ατρεί̈δη')   # breathing before a capital
     assert not el.is_cap('ατρείδη')
+
+
+def test_audit_drops_a_place_adjective_and_keeps_the_place_name():
+    from backend import entity_lemma_audit as ela
+    ents = [{'entity_id': 'pl:1', 'type': 'place', 'label': 'Latium'},
+            {'entity_id': 'ln:2', 'type': 'person', 'label': 'Latius'}]
+    stats = {'la': {'latium': [10, 10, 8, 8], 'latius': [10, 10, 8, 8]}, 'grc': {}, 'en': {}}
+    out = ela.propose(ents, {'la': {0: {'latium', 'latius'}, 1: {'latius'}}, 'grc': {}, 'en': {}}, stats)
+    assert out[('la', 0, 'latius')] == ('drop', 'demonym_or_adjective')
+    assert out[('la', 0, 'latium')][0] == 'keep'
+    # the person keeps the lemma it shares, flagged for review
+    assert out[('la', 1, 'latius')][0] == 'review'
+    assert ela.suffix_of('grc', 'Ἀθηναῖος') == 'αιος'
+
+
+def test_override_form_counts_as_a_name_for_its_entity():
+    from backend import entity_lemma as el
+    ents, _ = ei.merge_list_entities(KEYS)
+    sinon = [i for i, e in enumerate(ents) if e['label'] == 'Sinon'][0]
+    path = None
+    import tempfile
+    with tempfile.TemporaryDirectory() as td:
+        path = os.path.join(td, 'o.json')
+        json.dump({'overrides': [{'entity_id': ents[sinon]['entity_id'], 'lang': 'la', 'forms': ['Sinonem']}]},
+                  open(path, 'w'))
+        got = el.load_overrides(ents, path)
+    assert got['la']['sinonem'] == {sinon}
+
+
+def test_real_resolver_lemmatizes_capitalized_latin_and_greek_forms():
+    """Runs the site's own lemmatizers through entity_lemma.Resolver (no fake), so a renamed
+    private method in text_processor fails here. Skipped when the lemma tables are absent."""
+    import pytest
+    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    for t in ('latin_lemmas.json', 'greek_lemmas.json'):
+        if not os.path.exists(os.path.join(root, 'data', 'lemma_tables', t)):
+            pytest.skip('lemma tables absent')
+    from backend import entity_lemma as el
+    r = el.Resolver(log=lambda *_: None)
+    la = r.lemmas('la', [ei.fold(w) for w in ('Romam', 'Troiae', 'Vergilium')])
+    assert la == {'romam': 'roma', 'troiae': 'troia', 'uergilium': 'uergilius'}
+    grc = r.lemmas('grc', ['Ἀχιλλέα'.lower(), 'Ἀθήνας'.lower(), 'Ὀδυσσέως'.lower()])
+    assert list(grc.values()) == ['αχιλλευσ', 'αθηναι', 'οδυσσευσ']
