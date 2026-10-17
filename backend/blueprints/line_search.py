@@ -470,6 +470,27 @@ def _count_candidates_by_work(text_candidates, language, lang_dates):
 _SURFACE_ENCLITICS = ('que', 'ue', 'ne')
 
 
+def _query_words(query):
+    """The words of a typed or pasted query, each with punctuation taken
+    off its ends. A Reader line arrives with its commas and semicolons
+    attached ("fatorum;"), and the lemmatizer returns such a token
+    unchanged, so every word before a mark was lost from the search
+    (found 2026-10-17 on the asserted-parallels recall check). A mark
+    inside a word (a hyphen) stays, as do vowel points and accents,
+    which are combining marks and not punctuation. An elision
+    apostrophe at the end goes, as the corpus tokenizer drops it."""
+    words = []
+    for w in str(query or '').split():
+        i, j = 0, len(w)
+        while i < j and unicodedata.category(w[i]).startswith('P'):
+            i += 1
+        while j > i and unicodedata.category(w[j - 1]).startswith('P'):
+            j -= 1
+        if j > i:
+            words.append(w[i:j])
+    return words
+
+
 def _surface_norm(token, language):
     """A token reduced for a surface comparison: lower case, no diacritics
     (Greek accents, Hebrew points), no punctuation, u for v and i for j in
@@ -681,7 +702,7 @@ def _query_lemmas(params: LineSearchParams) -> set:
         for _row in _rows.values():
             query_lemmas.update(_normalize_lemma(l, language) for l in (_row.get('lemmas') or []) if l)
     if search_type == 'lemma' and not query_lemmas:
-        query_tokens = query.lower().split()
+        query_tokens = _query_words(query.lower())
         try:
             from backend.perso_arabic import _base_normalize
         except ImportError:
@@ -717,7 +738,7 @@ def _query_lemmas(params: LineSearchParams) -> set:
         if not query_lemmas:
             query_lemmas = set(_normalize_lemma(t, language) for t in query_tokens)
     else:
-        query_lemmas = set(_normalize_lemma(t, language) for t in query.lower().split())
+        query_lemmas = set(_normalize_lemma(t, language) for t in _query_words(query.lower()))
     return query_lemmas
 
 

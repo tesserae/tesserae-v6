@@ -7,6 +7,10 @@ so the state of the live site can be reconstructed from this file and
 docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
+## 2026-10-17
+- Line Search: punctuation on the ends of a query word is stripped before lemmatizing, so a Reader line sent as it stands ("fatorum," "colla;") no longer loses every word before a mark (#985).
+- Connector: `channel_token_attrs` passes through the MCP compare_texts slim dictionary and the stdio fusion_search, an outside contribution (#983, merged 2026-10-16).
+
 ## 2026-10-16
 - Decisions: the Hebrew-to-Greek route through the Septuagint (default since 2026-08-27, a per-search choice since 2026-09-30, with a server switch) now has its entry in docs/DECISIONS.md.
 - Evaluation: the lost LSJ/Lewis-Short pivot filter rewritten as a tracked script, `evaluation/scripts/finalize_lsj_pivot.py` (#981; the pivot dictionary itself stays undeployed pending a decision).
