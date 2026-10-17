@@ -574,7 +574,7 @@ def names_key(tok):
 
 def build_store(keys, passage_dir, out_path, stoplist_path=STOPLIST_PATH, review_csv=None,
                 apply_stoplist=True, matcher='stem', diagnostics=None, log=print,
-                lemma_fixes=True, lemma_threshold=0.5):
+                lemma_fixes=True, lemma_threshold=0.5, lemma_decisions=None, homonym_answers=None):
     """Build the whole store from scratch into out_path (replaced if present).
 
     keys: the proper-name list as the scope's entity rows (id, greek, latin, english, type,
@@ -582,6 +582,8 @@ def build_store(keys, passage_dir, out_path, stoplist_path=STOPLIST_PATH, review
     descriptions.jsonl. matcher is 'stem' (stems plus case endings, with the tiers of
     the module docstring) or 'lemma' (backend/entity_lemma.py, every mention has confidence
     'lemma'). diagnostics, a dict, receives the lemma matcher's working tables when given.
+    lemma_decisions and homonym_answers (stage 1d, backend/entity_lemma.py) carry the model's
+    judgments of the lemma sets and of the windows that name one of several entities.
     Returns (counts, rows, entities); counts is also written to the meta table."""
     t0 = time.time()
     counts = {}
@@ -614,12 +616,17 @@ def build_store(keys, passage_dir, out_path, stoplist_path=STOPLIST_PATH, review
         resolver = el.Resolver(log=log)
         tok2ents, info = el.build_lemma_matcher(entities, types, resolver, log=log,
                                                   threshold=lemma_threshold, audit_fixes=lemma_fixes,
-                                                  overrides=lemma_fixes)
+                                                  overrides=lemma_fixes, decisions=lemma_decisions)
         if diagnostics is not None:
             diagnostics.update(info)
             diagnostics['types'] = types
             diagnostics['tok2ents'] = tok2ents
-        rows, wmeta, tally = el.scan_windows_lemma(texts, unit, tok2ents, log=log)
+        if lemma_decisions or homonym_answers:
+            rows, wmeta, tally = el.scan_windows_lemma(
+                texts, unit, tok2ents, log=log, amb_tokens=info['amb_tokens'],
+                answers=el.answers_by_index(entities, homonym_answers))
+        else:
+            rows, wmeta, tally = el.scan_windows_lemma(texts, unit, tok2ents, log=log)
         texts.close()
         counts.update({k: v for k, v in tally.items()})
         counts['lemma_diagnostics'] = info['diag']

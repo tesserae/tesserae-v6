@@ -242,13 +242,22 @@ def load_overrides(entities, path=None):
     return out
 
 
-def assemble_matcher(entities, types, prep, threshold=MAJORITY, audit_fixes=True, overrides=True, log=print):
+def assemble_matcher(entities, types, prep, threshold=MAJORITY, audit_fixes=True, overrides=True, log=print,
+                     decisions=None):
     """Return (tok2ents, info). tok2ents[lang][folded token] = tuple of entity indexes,
     for every token type that is written with a capital at least once and whose lemma is
     in the entity's lemma set. With audit_fixes the lemmas that entity_lemma_audit proposes
     to drop are removed first, and with overrides the surface forms of the override file
-    are added. info holds the diagnostics the report needs."""
+    are added. info holds the diagnostics the report needs.
+
+    decisions (stage 1d) maps (lang, entity_id, lemma) to the model's judgment of that lemma:
+    'drop' (a demonym or a common word), 'keep' (a name of the entity) or 'other' (the name
+    of a different entity: the lemma stays and its tokens are listed in info['amb_tokens'] so
+    that the mention scan asks the window). A decision replaces the audit's proposal for its
+    pair. Pairs without a decision follow the audit."""
     t0 = time.time()
+    by_id = {e['entity_id']: i for i, e in enumerate(entities)}
+    dec = {(lang, by_id[eid], lem): v for (lang, eid, lem), v in (decisions or {}).items() if eid in by_id}
     type_lemma, stats = prep['type_lemma'], prep['stats']
     ent_lemmas = {l: collections.defaultdict(set) for l in ei.LANGS}
     diag = collections.Counter()
@@ -278,9 +287,24 @@ def assemble_matcher(entities, types, prep, threshold=MAJORITY, audit_fixes=True
         from backend import entity_lemma_audit as ela
         proposals = ela.propose(entities, ent_lemmas, stats)
         for (lang, idx, lem), (action, why) in proposals.items():
-            if action == 'drop':
+            if action == 'drop' and dec.get((lang, idx, lem)) not in ('keep', 'other'):
                 ent_lemmas[lang][idx].discard(lem)
                 diag[f'{lang}_dropped_{why}'] += 1
+    amb_lemmas = {l: set() for l in ei.LANGS}
+    for (lang, idx, lem), v in dec.items():
+        if v == 'drop':
+            if lem in ent_lemmas[lang].get(idx, ()):
+                ent_lemmas[lang][idx].discard(lem)
+                diag[f'{lang}_dropped_by_model'] += 1
+        elif v == 'other':
+            amb_lemmas[lang].add(lem)
+            diag[f'{lang}_lemma_judged_other'] += 1
+    amb_tokens = {l: set() for l in ei.LANGS}
+    for lang in ei.LANGS:
+        if amb_lemmas[lang]:
+            for f, lem in type_lemma[lang].items():
+                if lem in amb_lemmas[lang]:
+                    amb_tokens[lang].add(f)
     lemma_ents = {l: collections.defaultdict(set) for l in ei.LANGS}
     for lang in ei.LANGS:
         for idx, lems in ent_lemmas[lang].items():
@@ -316,21 +340,71 @@ def assemble_matcher(entities, types, prep, threshold=MAJORITY, audit_fixes=True
             'candidate_lemmas': candidate, 'proposals': proposals,
             'reasons': reasons, 'type_lemma': type_lemma, 'stats': stats,
             'cap_share': lambda lang, lem: cap_share_of(stats, lang, lem),
-            'form_source': prep['form_source']}
+            'form_source': prep['form_source'], 'amb_tokens': amb_tokens}
     log(f'  lemma matcher: ' + ', '.join(f'{l} {len(tok2ents[l])} token types' for l in ei.LANGS)
         + f', {time.time() - t0:.0f}s')
     return tok2ents, info
 
 
 def build_lemma_matcher(entities, types, resolver, log=print, threshold=MAJORITY, audit_fixes=True,
-                        overrides=True):
+                        overrides=True, decisions=None):
     prep = prepare_lemmas(entities, types, resolver, log=log)
-    return assemble_matcher(entities, types, prep, threshold, audit_fixes, overrides, log=log)
+    return assemble_matcher(entities, types, prep, threshold, audit_fixes, overrides, log=log,
+                            decisions=decisions)
 
 
-def scan_windows_lemma(texts_conn, unit, tok2ents, log=print):
+def window_triggers(text, t2e):
+    """{eidx: [(raw token, folded token, candidate entity indexes)]}: every capitalized
+    token of the window that the matcher assigns to the entity, in reading order."""
+    out = {}
+    for m in ei.WORD.finditer(text):
+        raw = m.group(0)
+        es = t2e.get(ei._fold_tok(raw))
+        if not es or not is_cap(raw):
+            continue
+        f = ei._fold_tok(raw)
+        for i in es:
+            out.setdefault(i, []).append((raw, f, es))
+    return out
+
+
+def answers_by_index(entities, answers):
+    """{(window id, sorted candidate indexes): chosen index, or -1 for none} from
+    {(window id, candidate entity ids): chosen entity id or None}."""
+    by_id = {e['entity_id']: i for i, e in enumerate(entities)}
+    out = {}
+    for (wid, cands), chosen in (answers or {}).items():
+        if not all(c in by_id for c in cands):
+            continue
+        key = (wid, tuple(sorted(by_id[c] for c in cands)))
+        out[key] = -1 if chosen is None else by_id.get(chosen, -1)
+    return out
+
+
+def trigger_state(wid, i, es, f, lang, amb_tokens, answers):
+    """For one token of entity i: (survives, ambiguous, resolved). A token is ambiguous when
+    two or more entities hold it or its lemma was judged to be another entity's name. An
+    ambiguous token survives for the entity the window's answer names, and for every
+    entity when the window has no answer."""
+    ambiguous = amb_tokens is not None and (len(es) > 1 or f in amb_tokens.get(lang, ()))
+    if not ambiguous:
+        return True, False, False
+    ans = answers.get((wid, es)) if answers else None
+    if ans is None:
+        return True, True, False
+    return ans == i, True, True
+
+
+def scan_windows_lemma(texts_conn, unit, tok2ents, log=print, amb_tokens=None, answers=None, collect=None):
     """Return (rows, wmeta, tally). rows: dict(eidx, wid, form, tok, homonym, lang) for the
-    first capitalized token of each (entity, window)."""
+    first surviving capitalized token of each (entity, window).
+
+    With amb_tokens (stage 1d) a token shared by two entities, or one whose lemma the model
+    judged to be another entity's name, is ambiguous. answers (from answers_by_index) says
+    which candidate the window names, or -1 for none, and ambiguous tokens survive only for
+    that candidate. collect, a dict, receives {(window id, candidates): (raw, lang, text)}
+    for every ambiguous token that has no answer yet. Without amb_tokens the scan is the
+    stage 1b one: every capitalized token counts and a shared lemma sets the homonym flag."""
     rows, wmeta = [], {}
     tally = collections.Counter()
     t0 = time.time()
@@ -347,19 +421,21 @@ def scan_windows_lemma(texts_conn, unit, tok2ents, log=print):
         if done % 100000 == 0:
             log(f'  scanned {done} windows {time.time() - t0:.0f}s')
         t2e = tok2ents[lang]
-        found = {}
-        for m in ei.WORD.finditer(text):
-            raw = m.group(0)
-            es = t2e.get(ei._fold_tok(raw))
-            if not es or not is_cap(raw):
+        for i, trs in window_triggers(text, t2e).items():
+            first = None
+            for raw, f, es in trs:
+                ok, amb, resolved = trigger_state(wid, i, es, f, lang, amb_tokens, answers)
+                if amb and not resolved and collect is not None:
+                    collect.setdefault((wid, es), (raw, lang, text))
+                if ok and first is None:
+                    first = (raw, f, (len(es) > 1) and not resolved)
+            if first is None:
+                tally['mentions_removed_by_answer'] += 1
                 continue
-            for i in es:
-                if i not in found:
-                    found[i] = (raw, len(es) > 1)
-        for i, (raw, hom) in found.items():
+            raw, f, hom = first
             if ei.COMB.match(raw[:1]):
                 tally['mentions_first_char_is_mark'] += 1
-            rows.append({'eidx': i, 'wid': wid, 'form': raw, 'tok': ei._fold_tok(raw),
+            rows.append({'eidx': i, 'wid': wid, 'form': raw, 'tok': f,
                          'homonym': hom, 'lang': lang, 'nb': False, 'ds': False, 'conf': 'lemma',
                          'stem': 0, 'stopped': False, 'distinctive': False})
     tally['scan_seconds'] = round(time.time() - t0)
