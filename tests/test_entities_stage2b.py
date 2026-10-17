@@ -174,7 +174,8 @@ def test_document_build_matches_forms_and_adjectives_and_stores_no_text(document
     assert ('nm:mento', 'edr:A1', 'la', 'mentor', 'form', 0) not in rows
     assert all(len(r) == 6 for r in rows)
     assert documents['rows'] == len(rows) and documents['documents_scanned_la'] == 2
-    assert extras.extras_problems(store) == ['line_ref not built: run scripts/build_entity_index.py --lines']
+    problems = extras.extras_problems(store)
+    assert len(problems) == 2 and problems[0].startswith('line_ref not built') and problems[1].startswith('catalog not built')
     meta = dict(db.execute('select key, value from meta'))
     assert 'document_mentions' in meta and 'documents_fingerprint' in meta
 
@@ -219,3 +220,41 @@ def test_line_refs_find_the_line_that_holds_the_token(tmp_path, store):
     db = sqlite3.connect(store)
     assert set(db.execute('select distinct line_ref from mention_rows where eid = 11').fetchall()) == {('14.93.2',)}
     assert db.execute('select form_key from mention_rows where eid = 20').fetchone() == ('rusellanum',)
+
+
+def test_a_list_entity_claims_only_its_forms_and_a_place_its_adjectives():
+    names = {1: {'mars', 'marti'}, 2: {'marsi'}, 3: {'marsyas'}, 4: {'romanus'}, 5: {'romulus'}, 6: {'roma'},
+             7: {'romae'}, 8: {'rusellanorum'}, 9: {'rusellae'}}
+    index = extras.NameIndex(list(names.items()))
+    mars = extras.attached_names(index, 'ares mars', ['ares', 'mars'], is_place=False)
+    assert mars == {1}                                            # Marsi and Marsyas are other names
+    roma = extras.attached_names(index, 'roma', ['roma'], is_place=True)
+    assert roma == {4, 6, 7}                                      # Romanus is the adjective, Romulus is not
+    assert extras.attached_names(index, 'roma', ['roma'], is_place=False) == {6, 7}
+    assert extras.attached_names(index, 'rusellae', ['rusellae'], is_place=True) == {8, 9}
+
+
+def test_the_stored_catalog_gives_the_same_answers_as_the_catalog_built_on_demand(store):
+    before = {u: get(u).get_json() for u in (f'{P}/search?q=rusell', f'{P}/search?q=russelae', f'{P}/pl:413288', f'{P}/ln:M')}
+    assert ent._catalog(store)['stored_catalog'] is False
+    assert extras.write_catalog(store, log=lambda *a: None) == 4
+    ent._cache.clear()
+    assert ent._catalog(store)['stored_catalog'] is True
+    after = {u: get(u).get_json() for u in before}
+    assert after == before
+    db = sqlite3.connect(store)
+    extras.drop_catalog(db)
+    db.commit()
+    db.close()
+    ent._cache.clear()
+    assert ent._catalog(store)['stored_catalog'] is False
+
+
+def test_formulas_and_mostly_lower_case_words_are_left_out_of_the_documents(tmp_path, store, monkeypatch):
+    d = _fixture_documents(tmp_path)
+    counts = extras.build_document_mentions(store, d, log=lambda *a: None,
+                                            excluded_forms={'la': {'rusellae', 'rusellanorum'}, 'grc': set()})
+    assert counts['rows'] == 0
+    assert counts['excluded_forms_la'] == {'rusellanorum': 1, 'rusellae': 1}
+    rows = extras.build_document_mentions(store, d, log=lambda *a: None)['rows']
+    assert rows == 2

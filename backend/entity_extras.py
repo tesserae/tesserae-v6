@@ -23,7 +23,6 @@ from backend import entity_index as ei
 from backend.entity_lemma_audit import adjective_form, token_language
 
 STEM_MIN = 4
-PREFIX_FORM_MIN = 5
 
 
 class NameIndex:
@@ -39,39 +38,78 @@ class NameIndex:
         hi = bisect.bisect_left(self.keys, p + '￿')
         return set(self.eids[lo:hi])
 
+    def prefix_pairs(self, p):
+        lo = bisect.bisect_left(self.keys, p)
+        hi = bisect.bisect_left(self.keys, p + '\uffff')
+        return list(zip(self.keys[lo:hi], self.eids[lo:hi]))
+
     def exact(self, s):
         lo = bisect.bisect_left(self.keys, s)
         hi = bisect.bisect_right(self.keys, s)
         return set(self.eids[lo:hi])
 
 
-def attach_keys(label_key, forms):
-    """(stems, prefix forms, exact forms) a list entity uses to claim corpus names. A stem is a
-    label word with its last two letters removed, at least four letters kept. A form of five
-    letters or more claims every name that starts with it, a shorter form only an equal name."""
+FIRST_DECLENSION = ('a', 'ae', 'am', 'as', 'arum', 'is')
+
+
+def case_variants(form, ends):
+    """The form and the same stem with each closed case ending, by the matcher's own rule
+    (entity_index.variants, four letters of stem). One addition: a four-letter Latin form in -a
+    (Roma, Cyme) also takes the first-declension endings, so that Roma gives Romae and Romam. A
+    shorter stem for every form was tried and let hero take Herem."""
+    out = ei.variants(form, ends)[0]
+    if len(form) == 4 and form.endswith('a') and ends is ei.LA_END:
+        out |= {form[:-1] + e for e in FIRST_DECLENSION}
+    return out
+
+
+def _ends_for(s):
+    return ei.GR_END if token_language(s) == 'grc' else ei.LA_END
+
+
+def name_forms_of(label_key, forms):
+    """Every folded string a list entity's name can take: its label words and name forms, each
+    with the case endings the matcher allows (entity_index.variants)."""
+    base = {part for part in (label_key or '').split() if len(part) >= 3}
+    for f in forms:
+        ff = ei.fold(f)
+        if len(ff) >= 3:
+            base.add(ff)
+    out = set()
+    for s in base:
+        out |= case_variants(s, _ends_for(s))
+    return out
+
+
+def place_stems(label_key, forms):
+    """Stems of a place's name, four letters at least: each label word with its last two letters
+    removed, and each name form with a case ending removed."""
     stems = set()
     for part in (label_key or '').split():
         if len(part) >= STEM_MIN:
             stems.add(part[:max(STEM_MIN, len(part) - 2)])
-    prefixes, exact = set(), set()
     for f in forms:
         ff = ei.fold(f)
-        if len(ff) >= PREFIX_FORM_MIN:
-            prefixes.add(ff)
-        elif len(ff) >= 3:
-            exact.add(ff)
-    return stems, prefixes, exact
+        st = ei.strip_end(ff, _ends_for(ff), STEM_MIN)
+        if len(st) >= STEM_MIN:
+            stems.add(st)
+    return stems
 
 
-def attached_names(index, label_key, forms, excluded=frozenset()):
-    """Corpus-name entity ids claimed by a list entity, minus `excluded` (names that are the
-    list entity's own forms, which the search already shows as the entity)."""
-    stems, prefixes, exact = attach_keys(label_key, forms)
+def attached_names(index, label_key, forms, excluded=frozenset(), is_place=False):
+    """Corpus-name entity ids that belong to a list entity, and nothing else. (a) A name equal to
+    one of the entity's name forms or label words, with a case ending the matcher allows. (b) For
+    a place, a name that is the place's stem plus an adjective suffix (backend/
+    entity_lemma_suffixes.json, as entity_lemma_audit.adjective_form reads it). `excluded` are
+    names that are the list entity's own forms, which the search already shows as the entity."""
     out = set()
-    for s in stems | prefixes:
-        out |= index.prefix(s)
-    for s in exact:
-        out |= index.exact(s)
+    for v in name_forms_of(label_key, forms):
+        out |= index.exact(v)
+    if is_place:
+        for st in place_stems(label_key, forms):
+            for string, nid in index.prefix_pairs(st):
+                if nid not in out and adjective_form(string):
+                    out.add(nid)
     return out - set(excluded)
 
 
@@ -138,6 +176,7 @@ def add_line_refs(store_path, texts_db, log=print):
             log(f'  line refs: {n}/{len(works)} works, {found} mentions placed')
     db.execute('create index if not exists ix_mr_line on mention_rows(eid, line_ref)')
     stats = {'placed': found, 'unplaced': missing}
+    drop_catalog(db)
     db.execute("delete from meta where key in ('line_refs', 'line_refs_seconds')")
     db.execute("insert into meta values ('line_refs', ?)", (json.dumps(stats),))
     db.execute("insert into meta values ('line_refs_seconds', ?)", (str(round(time.time() - t0)),))
@@ -164,7 +203,144 @@ def line_counts(db):
     return lines
 
 
+# ---------------------------------------------------------------- catalog
+
+TYPE_OUT = {'place': 'place', 'person': 'person', 'deity': 'deity'}
+LANG_ORDER = ('la', 'grc', 'en')
+
+
+def build_catalog(db):
+    """One dict per entity (list entities and corpus names) with everything the routes need to
+    search and show it: label, type, identifiers, name forms, mention counts by language (lines),
+    shared-name facts, whether a corpus name is a list entity's own form, and for a list entity
+    the corpus names that belong to it. JSON-safe, so it can be stored (write_catalog)."""
+    ents, names = {}, {}
+    for eid, entity_id, typ, label, pid, cands, group in db.execute(
+            "select eid, entity_id, type, label, pleiades_id, pleiades_candidates, homonym_group "
+            "from entities where source = 'list'"):
+        try:
+            pl = json.loads(cands) if cands else ([pid] if pid else [])
+        except ValueError:
+            pl = [pid] if pid else []
+        ents[eid] = {'eid': eid, 'id': entity_id, 'label': label, 'type': TYPE_OUT.get(typ, 'other'),
+                     'list_type': typ, 'source': 'list', 'pleiades': [str(x) for x in pl], 'forms': [],
+                     'merged_ids': [], 'counts': {}, 'label_key': ei.label_key(label), 'homonym_mentions': 0}
+    for eid, form in db.execute("select eid, form from variants where source = 'list'"):
+        if eid in ents:
+            ents[eid]['forms'].append(form)
+    for eid, alias in db.execute("select eid, alias_id from entity_aliases"):
+        if eid in ents:
+            ents[eid]['merged_ids'].append(alias)
+    for eid, entity_id, label in db.execute("select eid, entity_id, label from entities where source = 'names'"):
+        f = ei.fold(label)
+        names[eid] = {'eid': eid, 'id': entity_id, 'label': label, 'type': 'name', 'source': 'corpus',
+                      'pleiades': [], 'forms': [], 'merged_ids': [], 'counts': {}, 'label_key': f,
+                      'folded_label': f, 'homonym_mentions': 0, 'shared_label_with': []}
+    for eid, form in db.execute("select eid, form from variants where source = 'names'"):
+        if eid in names:
+            names[eid]['forms'].append(ei.fold(form))
+    for (eid, lang), n in line_counts(db).items():
+        e = ents.get(eid) or names.get(eid)
+        if e is not None:
+            e['counts'][lang] = n
+    for eid, hom in db.execute("select eid, count(*) from mention_rows where homonym = 1 group by eid"):
+        if eid in ents:
+            ents[eid]['homonym_mentions'] += hom or 0
+    by_key = {}
+    for e in ents.values():
+        if e['label_key']:
+            by_key.setdefault(e['label_key'], []).append(e)
+    list_strings = set()
+    for e in ents.values():
+        e['shared_label_with'] = [o['label'] for o in by_key.get(e['label_key'], ()) if o is not e]
+        e['total'] = sum(e['counts'].values())
+        e['folded_label'] = ei.fold(e['label'])
+        list_strings |= {e['folded_label'], e['label_key']} | {ei.fold(f) for f in e['forms']}
+    list_strings.discard('')
+    for n in names.values():
+        n['total'] = sum(n['counts'].values())
+        n['duplicate'] = bool(({n['folded_label']} | set(n['forms'])) & list_strings)
+    index = NameIndex([(n['eid'], {n['folded_label']} | set(n['forms'])) for n in names.values()])
+    dup = {n['eid'] for n in names.values() if n['duplicate']}
+    for e in ents.values():
+        out = []
+        for nid in attached_names(index, e['label_key'], e['forms'], dup, e['list_type'] == 'place'):
+            n = names[nid]
+            if n['total'] == 0:
+                continue
+            out.append({'id': n['id'], 'label': n['label'],
+                        'mention_counts': {lg: n['counts'][lg] for lg in LANG_ORDER if lg in n['counts']},
+                        'mentions_total': n['total'],
+                        'adjective': e['list_type'] == 'place' and adjective_form(n['label'])})
+        out.sort(key=lambda r: (-r['mentions_total'], r['label']))
+        e['corpus_names'] = out[:30]
+    return list(ents.values()) + list(names.values())
+
+
+def write_catalog(store_path, log=print):
+    """Store the catalog as the table entity_catalog (one JSON row per entity), so a worker reads
+    it in one select instead of building it from the whole store on its first request."""
+    t0 = time.time()
+    db = sqlite3.connect(store_path)
+    rows = build_catalog(db)
+    db.executescript('DROP TABLE IF EXISTS entity_catalog; CREATE TABLE entity_catalog (eid INTEGER PRIMARY KEY, data TEXT);')
+    db.executemany('insert into entity_catalog values (?, ?)', [(r['eid'], json.dumps(r, ensure_ascii=False)) for r in rows])
+    db.execute("delete from meta where key = 'catalog_built'")
+    db.execute("insert into meta values ('catalog_built', ?)", (time.strftime('%Y-%m-%d %H:%M:%S'),))
+    db.commit()
+    db.close()
+    log(f'catalog: {len(rows)} entities, {time.time() - t0:.0f}s')
+    return len(rows)
+
+
+def drop_catalog(db):
+    """A step that changes counts makes the stored catalog stale, so it is dropped (the routes
+    then build it in memory, slowly, until write_catalog runs again)."""
+    db.execute('DROP TABLE IF EXISTS entity_catalog')
+    db.execute("delete from meta where key = 'catalog_built'")
+
+
 # ---------------------------------------------------------------- documents
+
+def formula_forms(formula_dir):
+    """{'la': set, 'grc': set} of folded words in the documents collection's formula lists."""
+    import os
+    out = {}
+    for lang in ('la', 'grc'):
+        words = set()
+        path = os.path.join(formula_dir, f'formula_words_{lang}.txt')
+        if os.path.exists(path):
+            for line in open(path, encoding='utf-8'):
+                line = line.strip()
+                if line and not line.startswith('#'):
+                    words.add(ei.fold(line))
+        out[lang] = words
+    return out
+
+
+def common_forms(passage_dir, log=print, cache_path=None):
+    """{'la': set, 'grc': set} of folded forms that are mostly lower case in the literary
+    corpus (the stage 1b measure: the share of inner occurrences that are lower case is above
+    one half). Counts the counted windows of the passage index; cached as JSON when a path is
+    given, because the count takes minutes."""
+    import os
+    from backend import entity_lemma as el
+    if cache_path and os.path.exists(cache_path):
+        data = json.load(open(cache_path))
+        return {lg: set(data[lg]) for lg in ('la', 'grc')}
+    ids = json.load(open(os.path.join(passage_dir, 'ids.json')))
+    unit = ei.unit_windows(ids)
+    del ids
+    tx = sqlite3.connect(f"file:{os.path.join(passage_dir, 'window_texts.db')}?mode=ro", uri=True)
+    types = el.count_types(tx, unit, log)
+    tx.close()
+    out = {}
+    for lg in ('la', 'grc'):
+        out[lg] = {f for f, v in types[lg].items() if v[0] and ((v[3] / v[2]) if v[2] else (v[1] / v[0])) < 0.5}
+    if cache_path:
+        json.dump({lg: sorted(v) for lg, v in out.items()}, open(cache_path, 'w'))
+    return out
+
 
 DOC_SCHEMA = '''
 DROP TABLE IF EXISTS document_mentions;
@@ -205,7 +381,7 @@ def attached_for(e, index, name_strings, duplicate_names):
     forms = set()
     for lg in ('la', 'grc', 'en'):
         forms |= e['forms'][lg]
-    return attached_names(index, ei.label_key(e['label']), forms, duplicate_names)
+    return attached_names(index, ei.label_key(e['label']), forms, duplicate_names, e['type'] == 'place')
 
 
 def build_maps(ents, log=print):
@@ -228,7 +404,7 @@ def build_maps(ents, log=print):
                     ff = ei.fold(f)
                     if not ff:
                         continue
-                    for v in ei.variants(ff, ends)[0]:
+                    for v in case_variants(ff, ends):
                         add(target, v, e['eid'], 'form', False)
             att = attached_for(e, index, name_strings, duplicate_names)
             n_attached += len(att)
@@ -236,19 +412,11 @@ def build_maps(ents, log=print):
                 for s in name_strings[nid]:
                     add(token_language(s), s, e['eid'], 'corpus_name', e['type'] == 'place' and adjective_form(s))
             if e['type'] == 'place':
-                for lg, ends, target in (('la', ei.LA_END, 'la'), ('en', ei.LA_END, 'la'), ('grc', ei.GR_END, 'grc')):
-                    sts = set()
-                    for f in e['forms'][lg]:
-                        ff = ei.fold(f)
-                        st = ei.strip_end(ff, ends, STEM_MIN)
-                        if len(st) >= STEM_MIN:
-                            sts.add(st)
-                    if lg == 'la':
-                        for part in ei.label_key(e['label']).split():
-                            if len(part) >= STEM_MIN:
-                                sts.add(part[:max(STEM_MIN, len(part) - 2)])
-                    for st in sts:
-                        stems[target].setdefault(st[:STEM_MIN], []).append((st, e['eid']))
+                allf = set()
+                for lg in ('la', 'grc', 'en'):
+                    allf |= {ei.fold(f) for f in e['forms'][lg]}
+                for st in place_stems(ei.label_key(e['label']), allf):
+                    stems[token_language(st)].setdefault(st[:STEM_MIN], []).append((st, e['eid']))
         elif e['eid'] not in duplicate_names:
             for s in name_strings[e['eid']]:
                 if len(s) >= 3:
@@ -275,6 +443,8 @@ def extras_problems(store_path, documents_dir=None):
     db.close()
     if 'line_refs' not in meta:
         problems.append('line_ref not built: run scripts/build_entity_index.py --lines')
+    if 'catalog_built' not in meta:
+        problems.append('catalog not built (the routes build it slowly on first use): run scripts/build_entity_index.py --catalog')
     if 'document_mentions' not in meta:
         problems.append('document_mentions not built: run scripts/build_entity_index.py --documents')
     elif documents_dir and meta.get('documents_fingerprint') != documents_fingerprint(documents_dir):
@@ -283,14 +453,17 @@ def extras_problems(store_path, documents_dir=None):
     return problems
 
 
-def build_document_mentions(store_path, documents_dir, log=print, max_form_documents=0):
+def build_document_mentions(store_path, documents_dir, log=print, max_form_documents=0, excluded_forms=None):
     """Fill document_mentions in the store: for every list entity and every corpus name, the
     documents whose text holds one of its forms as a whole token, case and accent folded.
     Forms are the entity's name forms with the case endings, the forms of the corpus names
     attached to it, and (places only) any token that starts with one of the place's stems and
     reads as a demonym or an adjective by the suffix rule. One row per entity and document, the
     best kind winning (form, then corpus name, then adjective). Nothing of the document text is
-    stored. max_form_documents, when above zero, drops every row of a form that appears in more
+    stored. excluded_forms ({'la': set, 'grc': set} of folded words, see formula_forms and
+    common_forms) leaves out every token in the set: documentary formulas and words that are
+    mostly lower case in the literary corpus. The counts of the documents each excluded word would
+    have matched go in the returned counts. max_form_documents, when above zero, drops every row of a form that appears in more
     documents of a language than that number (stock words such as dis and manibus); the default
     keeps them all. The documents index has no token table (its postings hold lemmas), so the build reads
     every line's token list once per language. Returns the counts."""
@@ -309,12 +482,20 @@ def build_document_mentions(store_path, documents_dir, log=print, max_form_docum
         src = sqlite3.connect(f'file:{path}?mode=ro&immutable=1', uri=True)
         cache = {}
         ex, st = exact[lang], stems[lang]
+        skip = (excluded_forms or {}).get(lang, set())
+        skipped_docs = {}
+        doc_skipped = set()
 
         def matches(tok):
             hit = cache.get(tok)
             if hit is not None:
                 return hit
             f = ei.fold(tok)
+            if f in skip:
+                cache[tok] = res = []
+                if ex.get(f) or (f[:STEM_MIN] in st and adjective_form(f, lang)):
+                    skipped_docs.setdefault(f, 0)
+                return res
             res = list(ex.get(f, ()))
             if f[:STEM_MIN] in st and adjective_form(f, lang):
                 have = {x[0] for x in res}
@@ -341,13 +522,20 @@ def build_document_mentions(store_path, documents_dir, log=print, max_form_docum
                         db.executemany('insert into document_mentions values (?,?,?,?,?,?)', rows)
                         rows = []
                 cur_doc, cur = doc, {}
+                doc_skipped.clear()
                 n_docs += 1
             try:
                 toks = json.loads(tokens) if tokens else []
             except ValueError:
                 continue
             for tok in toks:
-                for eid, kind, adj in matches(tok):
+                found = matches(tok)
+                if skip:
+                    ft = ei.fold(tok)
+                    if ft in skipped_docs and ft not in doc_skipped:
+                        doc_skipped.add(ft)
+                        skipped_docs[ft] += 1
+                for eid, kind, adj in found:
                     pr = PRIORITY[kind]
                     old = cur.get(eid)
                     if old is None or pr < old[0]:
@@ -357,6 +545,7 @@ def build_document_mentions(store_path, documents_dir, log=print, max_form_docum
         db.executemany('insert into document_mentions values (?,?,?,?,?,?)', rows)
         db.commit()
         src.close()
+        counts[f'excluded_forms_{lang}'] = dict(sorted(skipped_docs.items(), key=lambda kv: -kv[1]))
         log(f'  {lang}: {n_docs} documents scanned')
         counts[f'documents_scanned_{lang}'] = n_docs
     dropped = 0

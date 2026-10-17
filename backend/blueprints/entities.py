@@ -22,7 +22,6 @@ counts are counts of lines, not windows (two overlapping windows that hold one l
 The page behind these routes is a trial (?entities=1). The connector tools stay off: the routes
 are listed as site only in backend/blueprints/mcp_manifest.py.
 """
-import collections
 import json
 import os
 import sqlite3
@@ -32,7 +31,6 @@ from flask import Blueprint, jsonify, request
 
 from backend import entity_extras as extras
 from backend import entity_index as ei
-from backend.entity_lemma_audit import adjective_form
 from backend import passage_index
 from backend import window_texts
 from backend.logging_config import get_logger
@@ -46,7 +44,6 @@ SEARCH_LIMIT = 50
 DEFAULT_LIMIT = 50
 MAX_LIMIT = 200
 LANG_ORDER = ('la', 'grc', 'en')
-_TYPE_OUT = {'place': 'place', 'person': 'person', 'deity': 'deity'}
 
 _local = threading.local()
 _cache = {}
@@ -81,13 +78,11 @@ def _unavailable():
     return resp
 
 
-def _type_out(t):
-    return _TYPE_OUT.get(t, 'other')
-
-
 def _catalog(path):
     """Every list entity and every corpus name, cached until the store file changes: id, label,
-    type, identifiers, name forms, mention counts by language (lines), shared-name facts."""
+    type, identifiers, name forms, mention counts by language (lines), shared-name facts, and the
+    corpus names that belong to each list entity. Read from the table entity_catalog (one select)
+    when the store has it, else built in memory from the whole store (several seconds)."""
     st = os.stat(path)
     key = (path, st.st_mtime_ns, st.st_size)
     with _cache_lock:
@@ -95,54 +90,13 @@ def _catalog(path):
         if hit and hit[0] == key:
             return hit[1]
     c = _conn(path)
-    ents = {}
-    for eid, entity_id, typ, label, pid, cands, group in c.execute(
-            "select eid, entity_id, type, label, pleiades_id, pleiades_candidates, homonym_group "
-            "from entities where source = 'list'"):
-        try:
-            pl = json.loads(cands) if cands else ([pid] if pid else [])
-        except ValueError:
-            pl = [pid] if pid else []
-        ents[eid] = {'eid': eid, 'id': entity_id, 'label': label, 'type': _type_out(typ), 'list_type': typ,
-                     'source': 'list', 'pleiades': [str(x) for x in pl], 'forms': [], 'merged_ids': [],
-                     'counts': {}, 'label_key': ei.label_key(label), 'homonym_mentions': 0}
-    for eid, form in c.execute("select eid, form from variants where source = 'list'"):
-        if eid in ents:
-            ents[eid]['forms'].append(form)
-    for eid, alias in c.execute("select eid, alias_id from entity_aliases"):
-        if eid in ents:
-            ents[eid]['merged_ids'].append(alias)
-    names = {}
-    for eid, entity_id, label in c.execute("select eid, entity_id, label from entities where source = 'names'"):
-        f = ei.fold(label)
-        names[eid] = {'eid': eid, 'id': entity_id, 'label': label, 'type': 'name', 'source': 'corpus',
-                      'pleiades': [], 'forms': [], 'merged_ids': [], 'counts': {}, 'label_key': f,
-                      'folded_label': f, 'homonym_mentions': 0, 'shared_label_with': []}
-    for eid, form in c.execute("select eid, form from variants where source = 'names'"):
-        if eid in names:
-            names[eid]['forms'].append(ei.fold(form))
-    for (eid, lang), n in extras.line_counts(c).items():
-        e = ents.get(eid) or names.get(eid)
-        if e is not None:
-            e['counts'][lang] = n
-    for eid, hom in c.execute("select eid, count(*) from mention_rows where homonym = 1 group by eid"):
-        if eid in ents:
-            ents[eid]['homonym_mentions'] += hom or 0
-    by_key = collections.defaultdict(list)
-    for e in ents.values():
-        if e['label_key']:
-            by_key[e['label_key']].append(e)
-    list_strings = set()
-    for e in ents.values():
-        others = [o['label'] for o in by_key.get(e['label_key'], ()) if o is not e]
-        e['shared_label_with'] = others
-        e['total'] = sum(e['counts'].values())
-        e['folded_label'] = ei.fold(e['label'])
-        list_strings |= {e['folded_label'], e['label_key']} | {ei.fold(f) for f in e['forms']}
-    list_strings.discard('')
-    for n in names.values():
-        n['total'] = sum(n['counts'].values())
-        n['duplicate'] = bool(({n['folded_label']} | set(n['forms'])) & list_strings)
+    has_table = c.execute("select 1 from sqlite_master where name = 'entity_catalog'").fetchone() is not None
+    if has_table:
+        rows = [json.loads(d) for (d,) in c.execute('select data from entity_catalog')]
+    else:
+        rows = extras.build_catalog(c)
+    ents = {r['eid']: r for r in rows if r['source'] == 'list'}
+    names = {r['eid']: r for r in rows if r['source'] == 'corpus'}
     name_index = extras.NameIndex([(n['eid'], {n['folded_label']} | set(n['forms'])) for n in names.values()])
     labels = [(e, {e['folded_label'], e['label_key']} | set(e['label_key'].split())) for e in ents.values()]
     try:
@@ -150,7 +104,8 @@ def _catalog(path):
     except sqlite3.Error:
         has_docs = False
     out = {'by_eid': ents, 'names': names, 'name_index': name_index, 'labels': labels,
-           'has_documents_table': has_docs, 'has_lines': 'line_ref' in {r[1] for r in c.execute('pragma table_info(mention_rows)')},
+           'has_documents_table': has_docs, 'stored_catalog': has_table,
+           'has_lines': 'line_ref' in {r[1] for r in c.execute('pragma table_info(mention_rows)')},
            'by_id': {e['id']: e for e in ents.values()}}
     for n in names.values():
         out['by_id'].setdefault(n['id'], n)
@@ -275,20 +230,7 @@ def _group_key(cat):
 
 def _corpus_names_of(cat, e):
     """The corpus names that belong to a list entity, with their line counts."""
-    if e['source'] != 'list':
-        return []
-    ids = extras.attached_names(cat['name_index'], e['label_key'], e['forms'],
-                                {n['eid'] for n in cat['names'].values() if n['duplicate']})
-    out = []
-    for nid in ids:
-        n = cat['names'].get(nid)
-        if n is None or n['total'] == 0:
-            continue
-        row = {'id': n['id'], 'label': n['label'], 'mention_counts': {lg: n['counts'][lg] for lg in LANG_ORDER if lg in n['counts']},
-               'mentions_total': n['total'], 'adjective': e['list_type'] == 'place' and adjective_form(n['label'])}
-        out.append(row)
-    out.sort(key=lambda r: (-r['mentions_total'], r['label']))
-    return out[:30]
+    return e.get('corpus_names', []) if e['source'] == 'list' else []
 
 
 def _document_counts(path, e):

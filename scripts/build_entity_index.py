@@ -5,6 +5,7 @@
         [--review-csv merge_review.csv] [--no-stoplist] [--matcher stem|lemma] [--no-audit-fixes]
     venv/bin/python scripts/build_entity_index.py --lines [--out STORE] [--passage-dir DIR]
     venv/bin/python scripts/build_entity_index.py --documents [--out STORE] [--documents-dir DIR]
+    venv/bin/python scripts/build_entity_index.py --catalog [--out STORE]
     venv/bin/python scripts/build_entity_index.py --check [--documents-dir DIR]
 
 KEYS.json is the proper-name list as entity rows (id, greek, latin, english, type, pleiades),
@@ -13,7 +14,7 @@ change, in the same chain as build_window_names.py, build_desc_fts.py and
 build_desc_vocab.py. Build to a new file, then swap in. Under 6 GB; run it inside
 `tess-job --fg NAME 6`. --check reports the store as stale when the counted-window count or
 the names store's window count differs from what the store was built against, or when the
-stage 2b tables are missing. --lines (about the line of each mention, so overlapping windows that
+stage 2b tables are missing. --catalog (the search catalog stored as a table, run last) and --lines (about the line of each mention, so overlapping windows that
 hold one line count once) and --documents (the inscriptions and papyri that name each entity)
 add their tables to the store given by --out in place; run them after a build, on a copy, then
 swap in. --documents reads the production documents index read-only. Under 4 GB.
@@ -42,14 +43,21 @@ def main():
     ap.add_argument('--check', action='store_true')
     ap.add_argument('--lines', action='store_true')
     ap.add_argument('--documents', action='store_true')
+    ap.add_argument('--catalog', action='store_true')
     ap.add_argument('--max-form-documents', type=int, default=0,
                     help='--documents: drop forms found in more documents than this (default 0: keep all)')
+    ap.add_argument('--formula-dir', default=None,
+                    help='--documents: folder with formula_words_la.txt and formula_words_grc.txt '
+                         '(default: data/documents)')
+    ap.add_argument('--common-forms-json', default=None,
+                    help='--documents: cache of the forms that are mostly lower case in the literary '
+                         'corpus (built from the passage index when absent; takes minutes)')
     ap.add_argument('--documents-dir', default=None,
                     help='folder with la_documents_index.db and grc_documents_index.db '
                          '(default: data/inverted_index)')
     a = ap.parse_args()
     docs_dir = a.documents_dir or os.path.join(ROOT, 'data', 'inverted_index')
-    if a.lines or a.documents:
+    if a.lines or a.documents or a.catalog:
         import time
         import resource
         from backend import entity_extras as ex
@@ -58,8 +66,16 @@ def main():
             stats = ex.add_line_refs(a.out, os.path.join(a.passage_dir, 'window_texts.db'))
             print('line refs', stats)
         if a.documents:
-            stats = ex.build_document_mentions(a.out, docs_dir, max_form_documents=a.max_form_documents)
+            formulas = ex.formula_forms(a.formula_dir or os.path.join(ROOT, 'data', 'documents'))
+            common = ex.common_forms(a.passage_dir, cache_path=a.common_forms_json)
+            excluded = {lg: formulas[lg] | common[lg] for lg in ('la', 'grc')}
+            print('excluded forms: formulas', {k: len(v) for k, v in formulas.items()},
+                  'mostly lower case', {k: len(v) for k, v in common.items()})
+            stats = ex.build_document_mentions(a.out, docs_dir, max_form_documents=a.max_form_documents,
+                                               excluded_forms=excluded)
             print(json.dumps(stats, indent=1))
+        if a.catalog:
+            print('catalog entities', ex.write_catalog(a.out))
         print(f'seconds {time.time() - t0:.0f}, peak {resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1e6:.2f} GB')
         return 0
     if a.check:
