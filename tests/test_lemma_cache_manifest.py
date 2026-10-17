@@ -45,16 +45,21 @@ def test_write_then_check_in_step(tmp_path, capsys):
     assert 'in step' in capsys.readouterr().out
 
 
-def test_changed_table_tokenizer_or_count_is_stale(tmp_path, capsys):
+def test_changed_table_or_tokenizer_is_stale_but_a_grown_corpus_is_not(tmp_path, capsys):
     repo, cache = _fake_repo(tmp_path), _fake_cache(tmp_path)
     lcm.write_manifest(str(cache), repo=str(repo))
+    # A text appended with its cache built under the same tables is growth, not staleness.
+    (cache / 'la' / 'extra-4.json').write_text('{}')
+    assert lcm.check_manifest(str(cache), repo=str(repo)) == []
+    assert lcm.main(['--check', str(cache), '--repo', str(repo)]) == 0
+    out = capsys.readouterr().out
+    assert out.startswith('in step') and 'la holds 3 cache files, 2 at the build' in out
     (repo / lcm.TABLES[0]).write_text('{"a": "c"}')
     reasons = lcm.check_manifest(str(cache), repo=str(repo))
     assert len(reasons) == 1 and 'latin_lemmas.json' in reasons[0]
     (repo / lcm.TOKENIZER).write_text('# tokenizer v2\n')
-    (cache / 'la' / 'extra-4.json').write_text('{}')
     reasons = lcm.check_manifest(str(cache), repo=str(repo))
-    assert len(reasons) == 3
+    assert len(reasons) == 2
     assert lcm.main(['--check', str(cache), '--repo', str(repo)]) == 1
     assert capsys.readouterr().out.startswith('stale: ')
 

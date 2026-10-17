@@ -109,11 +109,19 @@ def check_manifest(cache_dir, repo=DEFAULT_REPO):
         if now['sha256'] != entry.get('sha256'):
             reasons.append('%s changed since the build (built against %s, now %s)'
                            % (rel, (entry.get('sha256') or 'missing')[:12], (now['sha256'] or 'missing')[:12]))
+    return reasons
+
+
+def count_notes(cache_dir, manifest):
+    """Informational only: how the file counts moved since the build. A corpus that grows
+    adds cache files built under the same tables, which is not staleness, so a count
+    difference is reported beside the verdict and never turns it."""
     counts = count_files(cache_dir)
+    notes = []
     for lang, n in (manifest.get('file_counts') or {}).items():
         if counts.get(lang) != n:
-            reasons.append('%s holds %s cache files, the manifest records %s' % (lang, counts.get(lang), n))
-    return reasons
+            notes.append('%s holds %s cache files, %s at the build' % (lang, counts.get(lang), n))
+    return notes
 
 
 def main(argv=None):
@@ -127,12 +135,19 @@ def main(argv=None):
     ap.add_argument('--differing-share', nargs='*', default=[], metavar='LANG=PERCENT')
     ns = ap.parse_args(argv)
     if ns.check:
-        cache_dir = ns.args[-1]
+        if len(ns.args) != 1:
+            ap.error('usage: --check CACHE_DIR')
+        cache_dir = ns.args[0]
         reasons = check_manifest(cache_dir, ns.repo)
+        manifest_path = os.path.join(cache_dir, MANIFEST_NAME)
+        notes = []
+        if os.path.exists(manifest_path):
+            with open(manifest_path, encoding='utf-8') as f:
+                notes = count_notes(cache_dir, json.load(f))
         if reasons:
             print('stale: ' + '; '.join(reasons))
             return 1
-        print('in step')
+        print('in step' + ('; ' + '; '.join(notes) if notes else ''))
         return 0
     if ns.args[0] != 'write' or len(ns.args) != 2:
         ap.error('usage: write CACHE_DIR [options], or --check CACHE_DIR')
