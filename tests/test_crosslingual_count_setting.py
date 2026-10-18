@@ -1,6 +1,6 @@
 """The Greek-Latin counting and lone-pair settings of the evaluation scorer (2026-10-17).
 
-crosslingual_dict_count  pairs (default) | words
+crosslingual_dict_count  words (default since 2026-10-18) | pairs
 crosslingual_lone_pair   keep (default)  | rare | drop
 
 The scorer tests use a fixture of one Greek line and one Latin line with a crafted dictionary
@@ -30,11 +30,14 @@ def _params(source_language='grc', target_language='la'):
 
 def test_defaults_and_bad_values():
     cs = sm._cross_settings(_params(), {'crosslingual_scorer': 'evaluation'})
-    assert (cs.crosslingual_dict_count, cs.crosslingual_lone_pair) == ('pairs', 'keep')
+    assert (cs.crosslingual_dict_count, cs.crosslingual_lone_pair) == ('words', 'keep')
     bad = sm._cross_settings(_params(), {'crosslingual_scorer': 'evaluation',
                                          'crosslingual_dict_count': 'bogus',
                                          'crosslingual_lone_pair': 'bogus'})
-    assert (bad.crosslingual_dict_count, bad.crosslingual_lone_pair) == ('pairs', 'keep')
+    assert (bad.crosslingual_dict_count, bad.crosslingual_lone_pair) == ('words', 'keep')
+    pairs = sm._cross_settings(_params(), {'crosslingual_scorer': 'evaluation',
+                                           'crosslingual_dict_count': 'pairs'})
+    assert pairs.crosslingual_dict_count == 'pairs'
     named = sm._cross_settings(_params('la', 'grc'), {'crosslingual_scorer': 'evaluation',
                                                       'crosslingual_dict_count': 'words',
                                                       'crosslingual_lone_pair': 'rare'})
@@ -52,27 +55,56 @@ def test_request_carries_the_settings_from_the_top_level(monkeypatch):
     assert params['settings']['crosslingual_lone_pair'] == 'drop'
 
 
-def test_cache_keys_unchanged_by_default_and_distinct_otherwise():
+def test_cache_keys_by_default_and_by_setting():
     base = {'match_type': 'crosslingual_fusion', 'source_language': 'grc', 'target_language': 'la'}
     k_live = cache.get_cache_key('a', 'b', 'grc', dict(base))
-    # Under the live scorer the two settings change nothing, so they join no key.
-    assert cache.get_cache_key('a', 'b', 'grc', {**base, 'crosslingual_dict_count': 'words',
-                                                 'crosslingual_lone_pair': 'drop'}) == k_live
+    # (b) Under the live scorer the two settings change nothing, so they join no key.
+    for extra in ({'crosslingual_dict_count': 'words', 'crosslingual_lone_pair': 'drop'},
+                  {'crosslingual_dict_count': 'pairs'}):
+        assert cache.get_cache_key('a', 'b', 'grc', {**base, **extra}) == k_live
     ev = {**base, 'crosslingual_scorer': 'evaluation'}
     k0 = cache.get_cache_key('a', 'b', 'grc', ev)
     # Naming the defaults is the same request as not naming them.
-    assert cache.get_cache_key('a', 'b', 'grc', {**ev, 'crosslingual_dict_count': 'pairs',
+    assert cache.get_cache_key('a', 'b', 'grc', {**ev, 'crosslingual_dict_count': 'words',
                                                  'crosslingual_lone_pair': 'keep'}) == k0
-    keys = {k0}
-    for extra in ({'crosslingual_dict_count': 'words'},
-                  {'crosslingual_dict_count': 'words', 'crosslingual_lone_pair': 'rare'},
+    # (a) The default evaluation key differs from the key with 'pairs'.
+    k_pairs = cache.get_cache_key('a', 'b', 'grc', {**ev, 'crosslingual_dict_count': 'pairs'})
+    assert k_pairs != k0
+    keys = {k0, k_pairs}
+    for extra in ({'crosslingual_dict_count': 'words', 'crosslingual_lone_pair': 'rare'},
                   {'crosslingual_dict_count': 'words', 'crosslingual_lone_pair': 'drop'},
-                  {'crosslingual_lone_pair': 'rare'}):
+                  {'crosslingual_dict_count': 'pairs', 'crosslingual_lone_pair': 'rare'}):
         keys.add(cache.get_cache_key('a', 'b', 'grc', {**ev, **extra}))
     assert len(keys) == 5
 
 
-def test_poll_job_key_has_the_options_only_when_not_default(monkeypatch):
+def test_evaluation_key_differs_from_the_key_the_old_rule_produced():
+    import hashlib
+    import inspect
+    import json
+    base = {'match_type': 'crosslingual_fusion', 'source_language': 'grc', 'target_language': 'la'}
+    ev = {**base, 'crosslingual_scorer': 'evaluation'}
+    new_key = cache.get_cache_key('a', 'b', 'grc', ev)
+    # (c) The count is always among the key parts under the evaluation scorer, so an entry
+    # cached before 2026-10-18 (no count part, computed under 'pairs') is never reached.
+    assert "key_parts['crosslingual_dict_count']" in inspect.getsource(cache.get_cache_key)
+    captured = {}
+    real = json.dumps
+
+    def spy(obj, *a, **k):
+        captured['parts'] = dict(obj) if isinstance(obj, dict) else obj
+        return real(obj, *a, **k)
+    import unittest.mock as mock
+    with mock.patch.object(cache.json, 'dumps', spy):
+        cache.get_cache_key('a', 'b', 'grc', ev)
+    parts = captured['parts']
+    assert parts['crosslingual_dict_count'] == 'words'
+    old_parts = {k: v for k, v in parts.items() if k != 'crosslingual_dict_count'}
+    old_key = hashlib.md5(real(old_parts, sort_keys=True).encode()).hexdigest()  # nosec B324
+    assert old_key != new_key
+
+
+def test_poll_job_key_has_the_count_under_evaluation_and_lone_pair_only_when_not_default(monkeypatch):
     from flask import Flask
     from backend.blueprints import async_poll
     seen = []
@@ -88,8 +120,9 @@ def test_poll_job_key_has_the_options_only_when_not_default(monkeypatch):
                   '&crosslingual_dict_count=words&crosslingual_lone_pair=drop'):
         client.get(q + extra)
     assert seen[0] == seen[5]                  # live ignores the options
-    assert seen[1] == seen[2]                  # named defaults, same job
-    assert len({seen[1], seen[3], seen[4]}) == 3
+    assert seen[1] == seen[3]                  # 'words' named is the default, same job
+    assert seen[2] != seen[1]                  # 'pairs' has its own job
+    assert len({seen[0], seen[1], seen[2], seen[4]}) == 4
 
 
 # --- The scorer ---------------------------------------------------------------------
@@ -142,10 +175,11 @@ def test_one_to_two_match_counts_two_under_pairs_and_one_under_words(fixture_sco
 
 def test_defaults_equal_named_defaults_and_environment(fixture_scorer, monkeypatch):
     base = fixture_scorer()
-    named = fixture_scorer(dict_count='pairs', lone_pair='keep')
+    named = fixture_scorer(dict_count='words', lone_pair='keep')
     assert base(0, 0) == named(0, 0)
-    monkeypatch.setenv('XL_DICT_COUNT', 'words')
-    assert fixture_scorer()(0, 0) == fixture_scorer(dict_count='words')(0, 0)
+    monkeypatch.setenv('XL_DICT_COUNT', 'pairs')
+    assert fixture_scorer()(0, 0) == fixture_scorer(dict_count='pairs')(0, 0)
+    assert fixture_scorer()(0, 0) != base(0, 0)
     monkeypatch.setenv('XL_LONE_PAIR', 'bogus')
     with pytest.raises(ValueError):
         fixture_scorer()
@@ -195,10 +229,29 @@ def test_score_pairs_lists_by_the_settings(fixture_scorer):
     rare = run(dict_count='words', lone_pair='rare')
     assert len(rare) == 1 and not rare[0]['has_dict'] and rare[0]['distinct'] == 0 and rare[0]['pairs'] == []
     assert run(dict_count='words', lone_pair='drop') == []
-    # The default listing is the pairs count with the pair kept.
+    # The default listing is the words count with the pair kept.
     default = run()
     assert default[0]['has_dict'] and default[0]['distinct'] == 1
     # A request for a dictionary-confirmed list (min_matches 2) also loses the dropped-to-cosine row.
     assert ev.score_pairs(grc, lat, 'grc', 'g.tess', 'l.tess', emb, emb, gate='off', penalty_factor=0.5,
                           min_lemma_matches=2, min_matches=2, max_results=10,
                           dict_count='words', lone_pair='rare') == []
+
+
+def test_make_fused_scorer_defaults_with_a_clean_environment(fixture_scorer, monkeypatch):
+    """No arguments and no environment variables: words, keep and the v2 rarity rule."""
+    for name in ('XL_DICT_COUNT', 'XL_LONE_PAIR', 'XL_RARITY_VARIANT'):
+        monkeypatch.delenv(name, raising=False)
+    fixture_scorer.state['matches'] = {(0, 0): {('x', 'achilles'), ('πηληιαδησ', 'achilles')}}
+    fixture_scorer.state['grc_df']['x'] = 5
+    grc = [{'lemmas': ['πηληιαδησ', 'x']}]
+    lat = [{'lemmas': ['achilles']}]
+    emb = np.array([[1.0, 0.0, 0.0, 0.0]])
+    plain, _ = cc.make_fused_scorer('g.tess', 'l.tess', grc, lat, emb, emb, verbose=False)
+    named, _ = cc.make_fused_scorer('g.tess', 'l.tess', grc, lat, emb, emb, verbose=False,
+                                    dict_count='words', lone_pair='keep', lone_pair_rule='v2')
+    old, _ = cc.make_fused_scorer('g.tess', 'l.tess', grc, lat, emb, emb, verbose=False,
+                                  dict_count='pairs', lone_pair='keep', lone_pair_rule='baseline')
+    assert plain(0, 0) == named(0, 0)
+    assert plain(0, 0) != old(0, 0)
+    assert plain.parts['effective'](0, 0) == named.parts['effective'](0, 0)

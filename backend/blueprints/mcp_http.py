@@ -600,8 +600,8 @@ def _xlang_params(a):
         p['hebrew_greek_route'] = route
     if a.get('crosslingual_scorer') == 'evaluation':
         p['crosslingual_scorer'] = 'evaluation'
-        if a.get('crosslingual_dict_count') == 'words':
-            p['crosslingual_dict_count'] = 'words'
+        if a.get('crosslingual_dict_count') in ('pairs', 'words'):
+            p['crosslingual_dict_count'] = a['crosslingual_dict_count']
         if a.get('crosslingual_lone_pair') in ('rare', 'drop'):
             p['crosslingual_lone_pair'] = a['crosslingual_lone_pair']
     try:
@@ -1358,7 +1358,10 @@ TOOLS = [
                      "only, hebrew_greek_route picks how the search is answered: 'septuagint' (default) "
                      "pivots through the Septuagint text when the Hebrew book has one; 'direct' always "
                      "uses the dictionary route; 'both' runs both and merges, each parallel carrying "
-                     "route so you can say which found it."),
+                     "route so you can say which found it. With crosslingual_scorer 'evaluation', "
+                     "the evaluation scorer counts distinct words by default (since 2026-10-18) and "
+                     "gives a pair resting on one word no rarity lift; crosslingual_dict_count 'pairs' "
+                     "restores the earlier counting."),
      "inputSchema": {"type": "object",
                      "properties": {"source": _STR, "target": _STR,
                                     "source_language": _STR, "target_language": _STR,

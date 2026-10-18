@@ -119,17 +119,17 @@ def make_fused_scorer(grc_path, lat_path, grc_units, lat_units, grc_emb, lat_emb
     lone_pair_rule 'baseline' leaves the rarity multiplier as it is. 'v2' holds the
     multiplier at 1.0 for a pair with exactly one matched dictionary pair and no
     syntax (the rarity boost then cannot lift a lone pair). None reads the
-    environment variable XL_RARITY_VARIANT, default 'baseline', so every existing
-    caller keeps its numbers. The returned function carries the parts it scores
+    environment variable XL_RARITY_VARIANT, default 'v2' since 2026-10-18 (it was
+    'baseline' before; XL_RARITY_VARIANT=baseline restores the earlier numbers). The returned function carries the parts it scores
     from as fused_score.parts (cosine matrix, dictionary matches, syntax scores,
     the IDF function), which the live search's evaluation path reads.
     cancellation, when given, is passed to the syntax search.
 
-    dict_count (2026-10-17) says what the dictionary count of a pair is. 'pairs'
-    (default, every earlier number) counts matched (Greek lemma, Latin lemma)
-    pairs, so one Latin word matched to two Greek words counts as two. 'words'
-    counts distinct words, the smaller of the number of distinct Greek and
-    distinct Latin lemmas among the matched pairs, as the lemma gate does. The
+    dict_count (2026-10-17) says what the dictionary count of a pair is. 'words'
+    (default since 2026-10-18) counts distinct words, the smaller of the number of
+    distinct Greek and distinct Latin lemmas among the matched pairs, as the lemma
+    gate does. 'pairs' (the default before 2026-10-18, every earlier number) counts matched (Greek lemma, Latin lemma)
+    pairs, so one Latin word matched to two Greek words counts as two. The
     count feeds dict_score and the lone-pair rule 'v2'. The average IDF stays an
     average over the matched pairs.
     lone_pair (2026-10-17) treats a pair whose matches hold exactly one distinct
@@ -143,11 +143,13 @@ def make_fused_scorer(grc_path, lat_path, grc_units, lat_units, grc_emb, lat_emb
     the IDF may use, because a table counted inside one meter has far fewer texts
     than the threshold was fitted to. The decision for a pair is in
     fused_score.parts['effective'](grc_idx, lat_idx).
-    Both arguments read XL_DICT_COUNT and XL_LONE_PAIR from the environment when
-    None, default 'pairs' and 'keep'.
+    The three arguments read XL_DICT_COUNT, XL_LONE_PAIR and XL_RARITY_VARIANT from
+    the environment when None. Defaults since 2026-10-18: 'words', 'keep' and
+    'v2'. XL_DICT_COUNT=pairs XL_RARITY_VARIANT=baseline restores the figures before
+    that date.
     """
     if dict_count is None:
-        dict_count = os.environ.get('XL_DICT_COUNT', 'pairs')
+        dict_count = os.environ.get('XL_DICT_COUNT', 'words')
     if dict_count not in DICT_COUNT_VALUES:
         raise ValueError(f"dict_count must be one of {DICT_COUNT_VALUES}, not {dict_count!r}")
     if lone_pair is None:
@@ -155,7 +157,7 @@ def make_fused_scorer(grc_path, lat_path, grc_units, lat_units, grc_emb, lat_emb
     if lone_pair not in LONE_PAIR_VALUES:
         raise ValueError(f"lone_pair must be one of {LONE_PAIR_VALUES}, not {lone_pair!r}")
     if lone_pair_rule is None:
-        lone_pair_rule = os.environ.get('XL_RARITY_VARIANT', 'baseline')
+        lone_pair_rule = os.environ.get('XL_RARITY_VARIANT', 'v2')
     if lone_pair_rule not in ('baseline', 'v2'):
         raise ValueError(f"lone_pair_rule must be 'baseline' or 'v2', not {lone_pair_rule!r}")
     grc_file = os.path.basename(str(grc_path))

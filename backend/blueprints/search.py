@@ -1433,11 +1433,12 @@ class CrossSettings:
     # 'live' (the channels below) or 'evaluation' (the evaluation scorer's rules,
     # Greek-Latin only; see backend/crosslingual_evaluation_path.py).
     crosslingual_scorer: str = 'live'
-    # How the evaluation scorer counts dictionary matches ('pairs' or 'words') and what it
+    # How the evaluation scorer counts dictionary matches ('words', the default since
+    # 2026-10-18, or 'pairs') and what it
     # does with a pair that rests on one distinct word ('keep', 'rare' or 'drop'). The live
     # scorer ignores both: it already counts distinct words (see _fuse_pairs) and has the
     # two-lemma gate for lone pairs. See evaluation/scripts/crosslingual_common.py.
-    crosslingual_dict_count: str = 'pairs'
+    crosslingual_dict_count: str = 'words'
     crosslingual_lone_pair: str = 'keep'
 
 
@@ -1486,9 +1487,9 @@ def _cross_settings(params, settings):
         crosslingual_lemma_gate = 'off'
     # Counting and lone-pair settings of the evaluation scorer (2026-10-17). Any other
     # value is the default, so the defaults leave every number as it was.
-    crosslingual_dict_count = settings.get('crosslingual_dict_count', 'pairs')
+    crosslingual_dict_count = settings.get('crosslingual_dict_count', 'words')
     if crosslingual_dict_count not in ('pairs', 'words'):
-        crosslingual_dict_count = 'pairs'
+        crosslingual_dict_count = 'words'
     crosslingual_lone_pair = settings.get('crosslingual_lone_pair', 'keep')
     if crosslingual_lone_pair not in ('keep', 'rare', 'drop'):
         crosslingual_lone_pair = 'keep'
@@ -2893,10 +2894,12 @@ def crosslingual_search_poll():
     crosslingual_scorer = data.get('crosslingual_scorer', 'live')
     if crosslingual_scorer not in ('live', 'evaluation'):
         crosslingual_scorer = 'live'
-    # Evaluation-scorer options; any other value is the default and joins no key.
-    crosslingual_dict_count = data.get('crosslingual_dict_count', 'pairs')
+    # Evaluation-scorer options. The count always joins the key under the evaluation
+    # scorer (an entry cached before 2026-10-18 carries no count and was computed under
+    # 'pairs'); the lone-pair option joins only when it is not 'keep'.
+    crosslingual_dict_count = data.get('crosslingual_dict_count', 'words')
     if crosslingual_dict_count not in ('pairs', 'words'):
-        crosslingual_dict_count = 'pairs'
+        crosslingual_dict_count = 'words'
     crosslingual_lone_pair = data.get('crosslingual_lone_pair', 'keep')
     if crosslingual_lone_pair not in ('keep', 'rare', 'drop'):
         crosslingual_lone_pair = 'keep'
@@ -2911,8 +2914,7 @@ def crosslingual_search_poll():
                 hebrew_greek_route]
     if crosslingual_scorer != 'live':
         key_args.append(crosslingual_scorer)
-        if crosslingual_dict_count != 'pairs':
-            key_args.append('count_' + crosslingual_dict_count)
+        key_args.append('count_' + crosslingual_dict_count)
         if crosslingual_lone_pair != 'keep':
             key_args.append('lone_' + crosslingual_lone_pair)
     key = make_job_key(*key_args)

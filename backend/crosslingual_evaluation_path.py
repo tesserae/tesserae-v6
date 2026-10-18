@@ -118,7 +118,7 @@ def _best_cosine_only(cosine, keyed, limit, block=256):
 def score_pairs(source_units, target_units, source_language, source_path, target_path,
                 source_emb, target_emb, *, gate, penalty_factor, min_lemma_matches,
                 min_matches, max_results, cancellation=None,
-                dict_count='pairs', lone_pair='keep'):
+                dict_count='words', lone_pair='keep'):
     """Score the candidate pairs with the evaluation scorer.
 
     Returns a list of dicts, one per listed pair, sorted by score (highest
@@ -129,7 +129,7 @@ def score_pairs(source_units, target_units, source_language, source_path, target
     distinct (the gate count), triggered (below the gate threshold),
     n_channels and idf (the scorer's pair IDF, by matched pair).
 
-    dict_count ('pairs' or 'words') and lone_pair ('keep', 'rare' or 'drop') are the
+    dict_count ('words', the default since 2026-10-18, or 'pairs') and lone_pair ('keep', 'rare' or 'drop') are the
     settings crosslingual_dict_count and crosslingual_lone_pair, passed to the
     scorer (see make_fused_scorer in evaluation/scripts/crosslingual_common.py). Under
     lone_pair 'rare' a lone pair that is not rare loses its dictionary channel (it is
