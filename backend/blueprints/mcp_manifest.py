@@ -131,11 +131,10 @@ MANIFEST = {
                     'free-text query; not yet exposed to the connector.'),
     },
     # Entity mentions, stage 2 (2026-10-17): a trial page behind ?entities=1. The connector
-    # tools stay off for the trial, as for the Scholarship tab (2026-10-08).
+    # tool find_mentions is hidden unless TESSERAE_ENTITY_TOOLS=1, as for the Scholarship tab (2026-10-08).
     '/api/entities/search': {
-        'site_only': True,
-        'reason': ('Entity mentions in testing (stage 2): places, people and gods by name; '
-                    'not yet exposed to the connector.'),
+        'tools': ['find_mentions'],
+        'note': 'Gated by TESSERAE_ENTITY_TOOLS=1 while the Mentions page is a trial (?entities=1).',
     },
     '/api/entities/<entity_id>': {
         'site_only': True,
@@ -143,9 +142,8 @@ MANIFEST = {
                     '(stage 2); not yet exposed to the connector.'),
     },
     '/api/entities/<entity_id>/mentions': {
-        'site_only': True,
-        'reason': ('The windows that name one entity, for the Mentions page in testing '
-                    '(stage 2); not yet exposed to the connector.'),
+        'tools': ['find_mentions'],
+        'note': 'Gated by TESSERAE_ENTITY_TOOLS=1 while the Mentions page is a trial (?entities=1).',
     },
     '/api/entities/<entity_id>/documents': {
         'site_only': True,

@@ -394,6 +394,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
     { id: 'reading-results', label: 'Reading the results', group: 'The Fusion (Phrases) search' },
 
     { id: 'theme-search', label: 'Theme Search', group: 'Reading & content' },
+    { id: 'mentions', label: 'Mentions', group: 'Reading & content' },
     { id: 'ask-a-work', label: 'Search One Text', group: 'Reading & content' },
     { id: 'reader', label: 'The Reader', group: 'Reading & content' },
     { id: 'tessa', label: 'Tessa, the assistant', group: 'Reading & content' },
@@ -1703,6 +1704,64 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   loads. After that it is well under a second.
                 </li>
               </ul>
+            </div>
+          )}
+
+          {activeSection === 'mentions' && (
+            <div className="prose max-w-none">
+              <h3 id="mentions" className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Mentions</h3>
+              <p className="text-gray-700 mb-4">
+                Mentions lists every line in the corpus where a named person, place or god is
+                mentioned. Each person, place or god has one heading, and under it the lines are
+                grouped by work. The page covers the Latin, Greek and English works. Inscriptions
+                and papyri have their own table at the foot of an entry, listing the documents
+                that carry the name.
+              </p>
+              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">How to search</h4>
+              <p className="text-gray-700 mb-4">
+                Type a name and press Search. An English name such as Rhodes or Lyon finds the
+                ancient entity, Rhodos or Lugdunum. Latin and Greek spellings work too. For a
+                longer name, spellings close to the one you typed are offered under Near spellings,
+                so a small slip in spelling still reaches the right entry. When nothing matches,
+                the page suggests the closest names.
+              </p>
+              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">How a heading is chosen</h4>
+              <p className="text-gray-700 mb-4">
+                The heading is the most frequent nominative form of the name in the corpus, with
+                the Greek form beside it where the corpus has one, for example Sarpedon with
+                &Sigma;&alpha;&rho;&pi;&eta;&delta;&#974;&nu;. A heading may stand for several
+                spellings that the page has grouped together.
+              </p>
+              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">Reading an entry</h4>
+              <p className="text-gray-700 mb-4">
+                Open an entry to see its works. Each work shows how many lines name the entity,
+                and a click on the work shows the lines themselves, with the name marked in
+                yellow. The reference above a line opens the Reader at that line. The figures at
+                the head of an entry count lines, works and languages. A line that two
+                overlapping passages both contain is counted once.
+              </p>
+              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">What to keep in mind</h4>
+              <p className="text-gray-700 mb-4">
+                The groupings are made by rules and a language model, so they can be wrong. A name
+                shared by two people, such as Mars the god and Mars the Roman family, can belong to
+                both, and the line is then marked as sharing its name with the other entry. A
+                god&rsquo;s name standing for a thing (Mars for war) counts as a mention. A few
+                headings are still wrong. If you find one, use{' '}
+                <button type="button" onClick={() => setSuggestDialogOpen(true)} className="text-red-700 hover:underline">
+                  Suggest a change
+                </button>{' '}
+                and say which entry and what it should be.
+              </p>
+              <p className="text-gray-700 mb-4">
+                Inscriptions and papyri are matched by the forms of the name alone, without the
+                language model&rsquo;s check.
+              </p>
+              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">A trial</h4>
+              <p className="text-gray-700 mb-4">
+                Mentions is a trial. It is reached by adding ?entities=1 to the address of the
+                site, and it stays open for the rest of your visit. It will be switched on for
+                everyone once it has been checked further.
+              </p>
             </div>
           )}
 

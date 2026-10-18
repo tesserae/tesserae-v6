@@ -231,3 +231,15 @@ describe('stage 3b', () => {
     expect(screen.queryByTestId('near-heading')).toBeNull();
   });
 });
+
+describe('a link from the Reader', () => {
+  beforeEach(() => { window.sessionStorage.setItem(ENTITIES_KEY, '1'); });
+
+  it('reads ?q= on load and runs the search at once', async () => {
+    window.history.replaceState({}, '', '/mentions?q=Troy');
+    render(<MentionsPage setPageType={() => {}} />);
+    expect(screen.getByLabelText('A place, person or god').value).toBe('Troy');
+    expect(await screen.findByTestId('entity-result')).toBeInTheDocument();
+    expect(global.fetch.mock.calls.some(([u]) => String(u) === '/api/entities/search?q=Troy')).toBe(true);
+  });
+});

@@ -342,6 +342,11 @@ function entityFromAddress() {
   return new URLSearchParams(window.location.search).get('e');
 }
 
+/** The name a link such as the Reader's "Shared names" carries in ?q=, trimmed. */
+function queryFromAddress() {
+  return (new URLSearchParams(window.location.search).get('q') || '').trim();
+}
+
 /**
  * Mentions (trial, ?entities=1): search a place, person or god by name, then read every
  * passage that names it, grouped by work, each with a link into the Reader.
@@ -349,8 +354,8 @@ function entityFromAddress() {
  */
 export default function MentionsPage({ setPageType }) {
   const allowed = entitiesTrialOn();
-  const [typed, setTyped] = useState('');
-  const [q, setQ] = useState('');
+  const [typed, setTyped] = useState(queryFromAddress);
+  const [q, setQ] = useState(queryFromAddress);
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
   const [entityId, setEntityId] = useState(entityFromAddress);
