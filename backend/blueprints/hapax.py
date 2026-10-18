@@ -437,8 +437,8 @@ def load_dictionary_tables():
     latin_path = os.path.join(base_dir, 'data', 'lemma_tables', 'latin_lemmas.json')
     if os.path.exists(latin_path):
         try:
-            with open(latin_path, 'r', encoding='utf-8') as f:
-                _latin_lemma_table = json.load(f)
+            from backend.lemma_tables import load_latin_lemma_table
+            _latin_lemma_table = load_latin_lemma_table(latin_path)
             _latin_valid_lemmas = set(_latin_lemma_table.values())
             _latin_valid_lemmas.update(_latin_lemma_table.keys())
             _latin_valid_lemmas.discard(':')

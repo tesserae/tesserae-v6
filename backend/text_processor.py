@@ -32,6 +32,7 @@ import re
 import os
 
 from backend import fspaths
+from backend.lemma_tables import load_latin_lemma_table
 import json
 import unicodedata
 from backend.logging_config import get_logger
@@ -89,13 +90,13 @@ def load_lemma_tables():
     
     if os.path.exists(latin_path):
         try:
-            with open(latin_path, 'r', encoding='utf-8') as f:
-                LATIN_LEMMA_TABLE = json.load(f)
+            # Table plus the corrections file beside it (backend/lemma_tables.py).
+            LATIN_LEMMA_TABLE = load_latin_lemma_table(latin_path)
             for form, lemma in LATIN_LEMMA_TABLE.items():
                 if lemma not in LATIN_REVERSE_LEMMA:
                     LATIN_REVERSE_LEMMA[lemma] = set()
                 LATIN_REVERSE_LEMMA[lemma].add(form)
-            logger.info(f"Loaded {len(LATIN_LEMMA_TABLE)} Latin lemma mappings from UD treebanks")
+            logger.info(f"Loaded {len(LATIN_LEMMA_TABLE)} Latin lemma mappings (UD treebanks plus corrections)")
         except Exception as e:
             logger.error(f"Failed to load Latin lemma table: {e}")
     else:

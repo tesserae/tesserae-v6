@@ -934,8 +934,8 @@ def _load_latin_lemmas():
     lemma_file = os.path.join(os.path.dirname(__file__), '..', '..', 'data', 'lemma_tables', 'latin_lemmas.json')
     if os.path.exists(lemma_file):
         try:
-            with open(lemma_file, 'r') as f:
-                _latin_lemma_table = json.load(f)
+            from backend.lemma_tables import load_latin_lemma_table
+            _latin_lemma_table = load_latin_lemma_table(lemma_file)
             _latin_lemma_to_forms = {}
             for form, lemma in _latin_lemma_table.items():
                 if lemma not in _latin_lemma_to_forms:

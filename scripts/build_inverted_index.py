@@ -63,8 +63,13 @@ def load_lemma_table(language):
         return None
     if not os.path.exists(path):
         return None
-    with open(path, 'r', encoding='utf-8') as f:
-        table = json.load(f)
+    if language == 'la':
+        # Table plus the corrections file beside it (backend/lemma_tables.py).
+        from backend.lemma_tables import load_latin_lemma_table
+        table = load_latin_lemma_table(path)
+    else:
+        with open(path, 'r', encoding='utf-8') as f:
+            table = json.load(f)
     print(f"  Loaded {len(table)} lemma mappings from {os.path.basename(path)}", flush=True)
     return table
 

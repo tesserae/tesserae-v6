@@ -2136,7 +2136,11 @@ def _get_headword_map(language='la'):
         'grc': project_root / 'data' / 'lemma_tables' / 'greek_lemmas.json',
     }
     path = table_map.get(language)
-    if path and path.exists():
+    if path and path.exists() and language == 'la':
+        # Table plus the corrections file beside it (backend/lemma_tables.py).
+        from backend.lemma_tables import load_latin_lemma_table
+        _headword_map_cache[language] = load_latin_lemma_table(str(path))
+    elif path and path.exists():
         with open(path, 'r', encoding='utf-8') as f:
             _headword_map_cache[language] = json.load(f)
     else:
