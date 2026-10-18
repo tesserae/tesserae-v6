@@ -7,7 +7,7 @@ per search unit, so a file with more rows than the text has lines shifts
 every later line onto the vector of the line before it. The 2026-10-06
 vector fill counted tag lines rather than text lines, and a text with empty
 tag lines (an Achilleid line that holds only its tag, say) got one row per
-tag line. The 2026-10-18 census found 33 such files among 3,478.
+tag line. The 2026-10-18 census found 33 such files among 3,479.
 
   census  --root /var/www/tesseraev6_flask --out census.csv
       Every .npy under backend/embeddings/{la,grc,en} of the root: rows,
@@ -50,9 +50,7 @@ def point_caches_at(root):
 
 
 def rows_of(path):
-    with open(path, 'rb') as f:
-        version = np.lib.format.read_magic(f)
-        shape, _, _ = np.lib.format._read_array_header(f, version)
+    shape = np.load(path, mmap_mode='r').shape
     return shape[0], (shape[1] if len(shape) > 1 else None)
 
 
