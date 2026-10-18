@@ -54,6 +54,29 @@ describe('the date shown on a card', () => {
   it('returns nothing for an undated work', () => {
     expect(dateParts(UNDATED)).toBeNull();
   });
+
+  // Quintus Smyrnaeus's card read "3" over "flourished · rd c. CE (disputed;
+  // late 2nd-4th)": the year pattern took the first digit of a century.
+  it('keeps a century whole in the chip', () => {
+    const d = dateParts({ year: 300, date_note: 'fl. 3rd c. CE (disputed; late 2nd-4th)' });
+    expect(d.date).toBe('3rd c. CE');
+    expect(d.kind).toBe('flourished');
+    expect(d.about).toBe('disputed; late 2nd-4th');
+  });
+
+  it('reads the century forms the author notes use', () => {
+    expect(dateParts({ date_note: 'fl. c. 2nd cent. CE' }).date).toBe('c. 2nd cent. CE');
+    expect(dateParts({ date_note: 'comp. c. 2nd-3rd c. CE (Orphic Hymns)' })).toEqual(
+      { date: 'c. 2nd-3rd c. CE', kind: 'composed', about: 'Orphic Hymns' });
+    expect(dateParts({ date_note: 'fl. 3rd-early 4th c. CE' }).date).toBe('3rd-early 4th c. CE');
+    expect(dateParts({ date_note: 'fl. c. 1st c. BCE/CE' }).date).toBe('c. 1st c. BCE/CE');
+    expect(dateParts({ date_note: 'c. 3rd cent. BCE' }).date).toBe('c. 3rd cent. BCE');
+  });
+
+  it('still reads years as before', () => {
+    expect(dateParts({ date_note: 'd. c. 215 CE (c. 150-215), Clement of Alexandria' }).date).toBe('c. 215 CE');
+    expect(dateParts({ date_note: 'fl. c. 100 CE' }).date).toBe('c. 100 CE');
+  });
 });
 
 describe('same-year grouping (added with the best-work tie-break)', () => {
