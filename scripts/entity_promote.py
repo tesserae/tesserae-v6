@@ -205,6 +205,41 @@ def step_splitfix(a):
     run_pool(a, items, ask, out_path)
 
 
+# ------------------------------------------------------------------ the label of a split (stage 3b)
+
+def step_labelfix(a):
+    """Ask for the label itself of every split whose main spellings still share no start with it:
+    what name do these spellings spell. Reads --store (the stage 2b store) for the lines."""
+    j = load_judgments(a, labelfix=False)
+    forms = {r['key']: r['spellings'] for r in read_jsonl(p(a, 'judgments.jsonl')) if r.get('answer')}
+    bad = pr.still_contradicts(j)
+    out_path = p(a, 'judgments_labelfix.jsonl')
+    done = {r['key'] for r in read_jsonl(out_path) if r.get('answer') is not None}
+    todo = [k for k in bad if k not in done]
+    print(f'{len(bad)} splits still contradict their label, {len(todo)} to ask', flush=True)
+    db, tx = ro(a.store), ro(os.path.join(a.passage_dir, 'window_texts.db'))
+    eids = dict(db.execute("select name_key, eid from entities where source = 'names'"))
+    items = []
+    for k in todo:
+        main = j[k]['main_forms']
+        counts = dict((f, c) for f, c in forms[k])
+        items.append({'key': k, 'type': j[k]['type'], 'was': j[k]['latin'], 'forms': [[f, counts.get(f, 0)] for f in main],
+                      'snippets': pr.context_lines(db, tx, eids[k], 5, 'label', only={ei_fold(f) for f in main})})
+
+    def ask(client, it):
+        txt = client.ask(pr.LABEL_SYSTEM, pr.label_question(it['type'], it['forms'], it['snippets']), max_tokens=200)
+        ans = pr.parse_label(txt)
+        return {'key': it['key'], 'was': it['was'], 'answer': None if ans is None else {'latin': ans[0], 'greek': ans[1]},
+                'reply': txt if ans is None else None}
+
+    run_pool(a, items, ask, out_path)
+
+
+def ei_fold(x):
+    from backend import entity_index as ei
+    return ei.fold(x)
+
+
 # ------------------------------------------------------------------ the description confirmation
 
 def promoted_rows(db):
@@ -282,8 +317,9 @@ def step_describe(a):
 
 # ------------------------------------------------------------------ judgments
 
-def load_judgments(a, fixes=True):
-    """{key: judgment}: the last usable answer for each key, with the split fix applied."""
+def load_judgments(a, fixes=True, labelfix=True):
+    """{key: judgment}: the last usable answer for each key, with the split fix applied, then (stage 3b)
+    the label fix of the splits that still contradict their label."""
     out = {}
     for r in read_jsonl(p(a, 'judgments.jsonl')):
         if r.get('answer'):
@@ -291,6 +327,10 @@ def load_judgments(a, fixes=True):
     if fixes:
         fx = {r['key']: r['answer'] for r in read_jsonl(p(a, 'judgments_splitfix.jsonl')) if r.get('answer')}
         a.split_fixed = pr.apply_split_fix(out, fx)
+        if labelfix:
+            lf = {r['key']: (r['answer']['latin'], r['answer']['greek']) for r in read_jsonl(p(a, 'judgments_labelfix.jsonl'))
+                  if r.get('answer')}
+            a.label_fixed = pr.apply_label_fix(out, lf)
     return out
 
 
@@ -314,6 +354,7 @@ def step_build(a):
     judgments = load_judgments(a)
     rep = pr.promote_store(db, judgments)
     rep['split_fixed'] = getattr(a, 'split_fixed', 0)
+    rep['label_fixed'] = getattr(a, 'label_fixed', 0)
     dd = pr.dedupe_promoted(db)
     rep['duplicates'] = {k: v for k, v in dd.items() if k != 'examples'}
     rep['duplicate_examples'] = dd['examples']
@@ -352,7 +393,7 @@ def step_draw(a):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument('step', choices=['prepare', 'ask', 'splitfix', 'build', 'confirm', 'describe', 'draw', 'stats'])
+    ap.add_argument('step', choices=['prepare', 'ask', 'splitfix', 'labelfix', 'build', 'confirm', 'describe', 'draw', 'stats'])
     ap.add_argument('--store', help='the stage 2b store (read only)')
     ap.add_argument('--out', help='the stage 3a store to write (build) or read (draw)')
     ap.add_argument('--passage-dir', default=os.path.join(ROOT, 'data', 'passage_index'))

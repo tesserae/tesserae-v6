@@ -208,7 +208,7 @@ def test_promoted_entities_with_one_label_become_one(tmp_path):
     pr.write_display_labels(db, log=lambda *_: None)
     gaius = {'type': 'person', 'latin': 'Gaius', 'greek': '', 'description': 'A forename.', 'distinct_names': False, 'main_forms': []}
     # Sabini is judged a person called Gaius and Gaivs a person called Gaius: one name under two keys
-    rep = pr.promote_store(db, {'gaiu': gaius, 'sabin': dict(gaius, greek='Γάιος')}, log=lambda *_: None)
+    rep = pr.promote_store(db, {'gaiu': gaius, 'sabin': dict(gaius, greek='Σαβίν')}, log=lambda *_: None)
     assert rep['promoted'] == 2
     dd = pr.dedupe_promoted(db, log=lambda *_: None)
     assert (dd['before'], dd['after'], dd['groups']) == (2, 1, 1)
@@ -216,11 +216,11 @@ def test_promoted_entities_with_one_label_become_one(tmp_path):
     assert ent == 'pn:sabin'                                                         # the key with more lines survives
     assert db.execute('select count(*) from mention_rows where eid = ?', (eid,)).fetchone()[0] == 5
     assert {r[0] for r in db.execute('select alias_id from entity_aliases where eid = ?', (eid,))} >= {'pn:gaiu', 'nm:gaiu', 'nm:sabin'}
-    assert db.execute('select display_label_grc from entity_labels where eid = ?', (eid,)).fetchone() == ('Γάιος',)
+    assert db.execute('select display_label_grc from entity_labels where eid = ?', (eid,)).fetchone() == ('Σαβίν',)      # its names key (sabin) is the entity's key
     # a Latin label that equals another's Greek label after the names transliteration also joins them
     db2 = _build(str(tmp_path / 'e.sqlite'))
     pr.write_display_labels(db2, log=lambda *_: None)
-    pr.promote_store(db2, {'gaiu': dict(gaius, latin='Caius'), 'sabin': dict(gaius, latin='Other', greek='Καΐυς')}, log=lambda *_: None)
+    pr.promote_store(db2, {'gaiu': dict(gaius, latin='Sabin'), 'sabin': dict(gaius, latin='Other', greek='Σαβίν')}, log=lambda *_: None)
     assert pr.dedupe_promoted(db2, log=lambda *_: None)['after'] == 1
 
 

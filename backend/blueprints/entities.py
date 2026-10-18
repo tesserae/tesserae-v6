@@ -141,13 +141,23 @@ def _public(e):
 
 
 def _rank(e, f, raw):
-    """Lower is better. None when the entity does not match."""
+    """Lower is better. None when the entity does not match. A search name (stage 3b: the usual English
+    name and other spellings a reader might type) ranks like a label, 0 for equality and 1 for a prefix.
+    The first search name is the usual English name and ranks exactly like a label. The other search
+    names rank half a step behind, so that Rhodes finds the island (usual name Rhodes) ahead of the
+    Rhodians (who are also called Rhodes), however many more lines the Rhodians have."""
     label = e['folded_label']
     key = e['label_key']
-    if label == f or key == f:
+    names = e.get('search_names') or ()
+    usual = names[:1]
+    if label == f or key == f or f in usual:
         return 0
-    if label.startswith(f) or key.startswith(f):
+    if f in names:
+        return 0.5
+    if label.startswith(f) or key.startswith(f) or any(x.startswith(f) for x in usual):
         return 1
+    if any(x.startswith(f) for x in names):
+        return 1.5
     if any(x == f for x in e['forms']):
         return 2
     if any(x.startswith(f) for x in e['forms']):
@@ -187,6 +197,38 @@ def _suggestions(cat, f):
     return [{'id': t[3]['id'], 'label': t[3]['label'], 'type': t[3]['type'], 'distance': t[0]} for t in top]
 
 
+NEAR_LIMIT = 5
+
+
+def _near_spellings(cat, f, hits, name_hits):
+    """List and promoted entities within an edit distance of two of the folded query, offered under
+    "Near spellings" in two cases: the exact and prefix matches are only corpus names (or there are
+    none), or the best exact or prefix match has fewer lines than the near entity. The search names
+    count as spellings of the entity, so a reader who types Rhodes finds Rhodos."""
+    if len(f) < 3:
+        return []
+    strong_ents = {h[3]['eid'] for h in hits if h[0] < 2}
+    best_total = max([h[3]['total'] for h in hits if h[0] < 2] + [h[3]['total'] for h in name_hits if h[0] < 2],
+                     default=-1)
+    found = {}
+    for e, strings in cat['labels']:
+        if e['eid'] in strong_ents or e['total'] <= 0:
+            continue
+        if strong_ents and e['total'] <= best_total:
+            continue
+        cands = set(strings) | set(e.get('search_names') or ())
+        best = min((_edit_distance(f, x) for x in cands if x), default=3)
+        if best <= 2:
+            found[e['eid']] = (best, -e['total'], e['label'], e)
+    top = sorted(found.values(), key=lambda x: x[:3])[:NEAR_LIMIT]
+    out = []
+    for dist, _t, _l, e in top:
+        row = _public(e)
+        row['distance'] = dist
+        out.append(row)
+    return out
+
+
 @entities_bp.route('/entities/search')
 def search():
     path = store_path()
@@ -221,6 +263,10 @@ def search():
            'list_total': len(hits), 'corpus_total': len(name_hits)}
     if not results:
         out['suggestions'] = _suggestions(cat, f)
+    else:
+        near = _near_spellings(cat, f, hits, name_hits)
+        if near:
+            out['near_spellings'] = near
     return jsonify(out)
 
 

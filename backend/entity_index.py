@@ -723,7 +723,7 @@ def names_key(tok):
 def build_store(keys, passage_dir, out_path, stoplist_path=STOPLIST_PATH, review_csv=None,
                 apply_stoplist=True, matcher='stem', diagnostics=None, log=print,
                 lemma_fixes=True, lemma_threshold=0.5, lemma_decisions=None, homonym_answers=None,
-                duplicates=True, answers_loader=None):
+                duplicates=True, answers_loader=None, case_forms=False):
     """Build the whole store from scratch into out_path (replaced if present).
 
     keys: the proper-name list as the scope's entity rows (id, greek, latin, english, type,
@@ -737,6 +737,8 @@ def build_store(keys, passage_dir, out_path, stoplist_path=STOPLIST_PATH, review
     answers keyed by entity index, as entity_lemma.reuse_answers does. The caller cannot compute
     them before build_store has merged the duplicate entries.
     duplicates (stage 2) merges duplicate entries first, see merge_duplicate_entities.
+    case_forms (stage 3b) adds to each lemma set the lemma of every capitalized case form of a
+    listed form's stem, see entity_lemma.case_form_extension.
     Returns (counts, rows, entities); counts is also written to the meta table."""
     t0 = time.time()
     counts = {}
@@ -770,7 +772,8 @@ def build_store(keys, passage_dir, out_path, stoplist_path=STOPLIST_PATH, review
         resolver = el.Resolver(log=log)
         tok2ents, info = el.build_lemma_matcher(entities, types, resolver, log=log,
                                                   threshold=lemma_threshold, audit_fixes=lemma_fixes,
-                                                  overrides=lemma_fixes, decisions=lemma_decisions)
+                                                  overrides=lemma_fixes, decisions=lemma_decisions,
+                                                  case_forms=case_forms)
         if diagnostics is not None:
             diagnostics.update(info)
             diagnostics['types'] = types

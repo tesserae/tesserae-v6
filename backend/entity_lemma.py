@@ -265,8 +265,58 @@ def load_overrides(entities, path=None):
     return out
 
 
+CASE_LANGS = ('la', 'grc')
+STEM_MIN = 4
+
+
+def case_stems(form, lang):
+    """The stem of a listed form: the form minus a nominative ending of the matcher's list,
+    four letters at least. A form with no ending to remove is its own stem (Hannibal)."""
+    ends = ei.GR_END if lang == 'grc' else ei.LA_END
+    st = ei.strip_end(form, ends, STEM_MIN)
+    return st if len(st) >= STEM_MIN else None
+
+
+def case_form_extension(entities, types, prep, present, threshold=MAJORITY):
+    """Stage 3b. The lemma sets are built from the lemma of each LISTED form, so a name whose
+    oblique cases carry another table lemma than its nominative (Rhodus -> rhodus, Rhodi ->
+    rhodos) loses every oblique mention. For each listed form this takes its stem, finds every
+    token type of the corpus (written with a capital at least once) that is the stem plus one
+    of the language's case endings (the matcher's own lists, Latin and Greek), and returns the
+    table lemma of each such token that is not already in the entity's lemma set and is
+    name-like by the same capitalization threshold.
+
+    present is {lang: {entity index: set of lemmas}}. Returns {(lang, entity index, lemma):
+    sorted list of the tokens that carry it}."""
+    out = collections.defaultdict(set)
+    stats, type_lemma = prep['stats'], prep['type_lemma']
+    seen = set()
+    for lang, idx, f, _lem in prep['form_lemma']:
+        if lang not in CASE_LANGS or (lang, idx, f) in seen:
+            continue
+        seen.add((lang, idx, f))
+        st = case_stems(f, lang)
+        if st is None:
+            continue
+        ends = ei.GR_END if lang == 'grc' else ei.LA_END
+        have = present[lang].get(idx, ())
+        for e in ends:
+            tok = st + e
+            v = types[lang].get(tok)
+            if v is None or not v[1]:
+                continue
+            lem = type_lemma[lang].get(tok)
+            if lem is None or lem in have:
+                continue
+            share = cap_share_of(stats, lang, lem)
+            if share is None or share < threshold:
+                continue
+            out[(lang, idx, lem)].add(tok)
+    return {k: sorted(v) for k, v in out.items()}
+
+
 def assemble_matcher(entities, types, prep, threshold=MAJORITY, audit_fixes=True, overrides=True, log=print,
-                     decisions=None):
+                     decisions=None, case_forms=False):
     """Return (tok2ents, info). tok2ents[lang][folded token] = tuple of entity indexes,
     for every token type that is written with a capital at least once and whose lemma is
     in the entity's lemma set. With audit_fixes the lemmas that entity_lemma_audit proposes
@@ -303,6 +353,12 @@ def assemble_matcher(entities, types, prep, threshold=MAJORITY, audit_fixes=True
             continue
         ent_lemmas[lang][idx].add(lem)
         diag[f'{lang}_form_kept'] += 1
+    extension = {}
+    if case_forms:
+        extension = case_form_extension(entities, types, prep, ent_lemmas, threshold)
+        for (lang, idx, lem), toks in extension.items():
+            ent_lemmas[lang][idx].add(lem)
+            diag[f'{lang}_lemma_from_case_forms'] += 1
     candidate = {lg: {i: set(v) for i, v in ent_lemmas[lg].items()} for lg in ei.LANGS}
     proposals = {}
     if audit_fixes:
@@ -362,17 +418,17 @@ def assemble_matcher(entities, types, prep, threshold=MAJORITY, audit_fixes=True
             'candidate_lemmas': candidate, 'proposals': proposals,
             'reasons': reasons, 'type_lemma': type_lemma, 'stats': stats,
             'cap_share': lambda lang, lem: cap_share_of(stats, lang, lem),
-            'form_source': prep['form_source'], 'amb_tokens': amb_tokens}
+            'form_source': prep['form_source'], 'amb_tokens': amb_tokens, 'extension': extension}
     log('  lemma matcher: ' + ', '.join(f'{lg} {len(tok2ents[lg])} token types' for lg in ei.LANGS)
         + f', {time.time() - t0:.0f}s')
     return tok2ents, info
 
 
 def build_lemma_matcher(entities, types, resolver, log=print, threshold=MAJORITY, audit_fixes=True,
-                        overrides=True, decisions=None):
+                        overrides=True, decisions=None, case_forms=False):
     prep = prepare_lemmas(entities, types, resolver, log=log)
     return assemble_matcher(entities, types, prep, threshold, audit_fixes, overrides, log=log,
-                            decisions=decisions)
+                            decisions=decisions, case_forms=case_forms)
 
 
 def window_triggers(text, t2e):
