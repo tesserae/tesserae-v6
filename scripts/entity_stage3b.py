@@ -15,6 +15,8 @@ STEP, in order:
     eval        the fixed graded pairs under the new matcher
     names       ask the English and other search names of every list and promoted entity
     labels      the questions for the label faults
+    The case-form extension is OFF unless --case-forms is given to plan2 and build. The installed store is the
+    one built without it. The extension is a measured option (stage 3b report, fix pass).
     (the store itself is built by entity_model_pass.py build, build_entity_index.py and
     entity_promote.py build, see the stage 3b report)
 
@@ -236,7 +238,7 @@ def step_plan2(a):
     keys, entities = load_world(a)
     types, prep = load_state(a)
     dec = load_decisions(a)
-    t2e, info = el.assemble_matcher(entities, types, prep, decisions=dec, case_forms=True, case_allowed=load_allowed(a),
+    t2e, info = el.assemble_matcher(entities, types, prep, decisions=dec, case_forms=a.case_forms, case_allowed=load_allowed(a) if a.case_forms else None,
                                      log=lambda *_: None)
     texts = emp.open_texts(a)
     ids = json.load(open(os.path.join(a.passage_dir, 'ids.json')))
@@ -388,8 +390,8 @@ def step_build(a):
     keys = json.load(open(a.entities_json, encoding='utf-8'))
     decisions = load_decisions(a)
     counts, _rows, _ents = ei.build_store(keys, a.passage_dir, a.out, matcher='lemma', lemma_decisions=decisions,
-                                          answers_loader=lambda ents: answers_index(a, ents)[0], case_forms=True,
-                                          case_allowed=load_allowed(a))
+                                          answers_loader=lambda ents: answers_index(a, ents)[0], case_forms=a.case_forms,
+                                          case_allowed=load_allowed(a) if a.case_forms else None)
     print('mentions by language', counts['list_mentions_by_language'], 'windows', counts['windows_with_mentions'])
 
 
@@ -616,6 +618,9 @@ def main():
     ap.add_argument('--probe-jobs', type=int, default=0)
     ap.add_argument('--budget', type=int, default=480)
     ap.add_argument('--reverse', action='store_true')
+    ap.add_argument('--case-forms', action='store_true',
+                    help='plan2, build: switch the case-form lemma extension ON (default off). The extension is a measured option, '
+                         'see the fix pass in the stage 3b report. It needs confirm_caseforms.jsonl in --work-dir.')
     ap.add_argument('--shard', help='K/N: ask every Nth question, output to a separate .sK file')
     ap.add_argument('--seed', type=int, default=20261022)
     a = ap.parse_args()

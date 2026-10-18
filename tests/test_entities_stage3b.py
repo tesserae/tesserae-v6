@@ -252,3 +252,10 @@ def test_a_second_label_is_accepted_only_when_it_passes_the_tests():
         judgments = {'rhodo': dict(j)}
         assert pr.apply_label_fix(judgments, {'rhodo': bad}) == 0
         assert judgments['rhodo']['latin'] == 'Rhodes' and judgments['rhodo']['greek'] == 'Ῥόδος'    # the earlier label stays
+
+
+def test_the_case_form_extension_is_off_by_default():
+    import inspect
+    assert inspect.signature(ei.build_store).parameters['case_forms'].default is False
+    assert inspect.signature(el.assemble_matcher).parameters['case_forms'].default is False
+    assert inspect.signature(el.build_lemma_matcher).parameters['case_forms'].default is False
