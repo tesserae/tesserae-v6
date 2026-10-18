@@ -179,3 +179,36 @@ describe('by default, with a weak same_names group', () => {
     expect(await screen.findByText('Claudian, In Eutropium')).toBeTruthy();
   });
 });
+
+describe('shared names and the Mentions trial', () => {
+  beforeEach(() => {
+    window.sessionStorage.clear();
+    window.history.pushState({}, '', '/reader');
+    global.fetch = vi.fn(() => Promise.resolve({
+      headers: { get: () => 'application/json' }, ok: true,
+      json: () => Promise.resolve(withSameNames(false)),
+    }));
+  });
+  afterEach(() => { window.sessionStorage.clear(); });
+
+  async function openNames() {
+    const user = userEvent.setup();
+    mount();
+    await user.click(await screen.findByRole('tab', { name: /Same people and places/ }));
+    await screen.findByText('Arrian, Anabasis');
+  }
+
+  it('links each name to the Mentions page with the trial on', async () => {
+    window.sessionStorage.setItem('tesserae_entities_trial', '1');
+    await openNames();
+    const link = screen.getByRole('link', { name: 'Marsyas' });
+    expect(link.getAttribute('href')).toBe('/mentions?entities=1&q=Marsyas');
+    expect(screen.getByRole('link', { name: 'Celaenae' })).toBeTruthy();
+  });
+
+  it('leaves the names as plain text with the trial off', async () => {
+    await openNames();
+    expect(screen.queryByRole('link', { name: 'Marsyas' })).toBeNull();
+    expect(screen.getByText(/Shared names:/).textContent.replace(/\s+/g, ' ').trim()).toBe('Shared names: Celaenae, Marsyas');
+  });
+});

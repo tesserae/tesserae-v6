@@ -845,6 +845,78 @@ def _t_get_commentary(a):
     return d
 
 
+def _t_find_mentions(a):
+    """Where a named place, person or god is mentioned in the corpus (the Mentions trial).
+
+    With `name`, the matching entities with their headings, types and line counts per
+    language. With `entity_id` (from that list), one page of that entity's mention lines
+    with work, reference and text, at most MENTIONS_PAGE lines a page.
+    """
+    import requests as _requests
+    from urllib.parse import quote
+    entity_id = (a.get('entity_id') or '').strip()
+    name = (a.get('name') or '').strip()
+    try:
+        if entity_id:
+            try:
+                page = max(1, int(a.get('page') or 1))
+            except (TypeError, ValueError):
+                page = 1
+            params = {'offset': (page - 1) * MENTIONS_PAGE, 'limit': MENTIONS_PAGE}
+            if a.get('language'):
+                params['lang'] = a['language']
+            d = _get(f'/entities/{quote(entity_id, safe="")}/mentions', params)
+            ent = d.get('entity') or {}
+            rows = []
+            for r in d.get('results') or []:
+                rows.append({'work': r.get('work'), 'author': r.get('author'), 'title': r.get('title'),
+                             'language': r.get('language'), 'reference': r.get('locus') or r.get('ref_start'),
+                             'ref_start': r.get('ref_start'), 'ref_end': r.get('ref_end'),
+                             'text': r.get('text'), 'matched_form': r.get('token'),
+                             'name_shared_with': r.get('shared_with') or []})
+            total = d.get('total') or 0
+            return {'entity': {'id': ent.get('id'), 'heading': _mention_heading(ent), 'type': ent.get('type'),
+                               'mention_counts': ent.get('mention_counts')},
+                    'language': d.get('lang'), 'page': page, 'page_size': MENTIONS_PAGE, 'total_lines': total,
+                    'has_more': page * MENTIONS_PAGE < total, 'results': rows,
+                    'presentation': _MENTIONS_PRESENTATION}
+        if not name:
+            return {'error': 'Give a name (such as Rhodes or Lugdunum) or an entity_id from an earlier call.'}
+        d = _get('/entities/search', {'q': name})
+        keep = ('id', 'type', 'description', 'mention_counts', 'mentions_total', 'label_shared', 'label_shared_with')
+
+        def slim(e):
+            out = {k: e.get(k) for k in keep}
+            out['heading'] = _mention_heading(e)
+            return out
+        out = {'name': name, 'total': d.get('total', 0), 'results': [slim(e) for e in (d.get('results') or [])[:20]],
+               'presentation': _MENTIONS_PRESENTATION}
+        if d.get('near_spellings'):
+            out['near_spellings'] = [slim(e) for e in d['near_spellings']]
+        if d.get('suggestions'):
+            out['suggestions'] = d['suggestions']
+        return out
+    except _requests.HTTPError as ex:
+        if ex.response is not None and ex.response.status_code == 503:
+            return {'error': 'The mentions store is not installed on this server.'}
+        if ex.response is not None and ex.response.status_code == 404:
+            return {'error': f'No entity {entity_id}.'}
+        raise
+
+
+MENTIONS_PAGE = 50
+_MENTIONS_PRESENTATION = ('Mentions are lines that name the person, place or god, found by name and checked by a '
+                          'language model. The groupings are made by rules and a model: a shared name can belong to '
+                          'two people (see name_shared_with), and a few headings are still wrong. Counts are lines. '
+                          'This is a trial. Quote a line only as the corpus text it is.')
+
+
+def _mention_heading(e):
+    label = e.get('display_label') or e.get('label')
+    grc = e.get('display_label_grc')
+    return f'{label} \u00b7 {grc}' if grc and grc != label else label
+
+
 def _t_similar_passages(a):
     """Passages elsewhere in the corpus whose content resembles a given passage.
 
@@ -1412,6 +1484,20 @@ TOOLS = [
                      "properties": {"work": _STR, "ref_start": _STR, "ref_end": _STR},
                      "required": ["work", "ref_start"]},
      "fn": _t_get_commentary},
+    {"name": "find_mentions",
+     "description": ("Where a named place, person or god is mentioned in the corpus (Latin, Greek and English "
+                     "works), one heading per entity. Two forms. With `name` (an English or ancient spelling "
+                     "such as Rhodes, Rhodos or Lugdunum): the matching entities with heading, type and line "
+                     "counts per language, plus near spellings for longer names. With `entity_id` (from that "
+                     "list), optional `language` (la, grc, en) and `page`: that entity's mention lines, 50 a "
+                     "page, each with work, reference and text. Mentions are found by name and checked by a "
+                     "language model, so a shared name can belong to two people and a few headings are still "
+                     "wrong. Inscriptions and papyri are not included. This is a trial feature."),
+     "inputSchema": {"type": "object",
+                     "properties": {"name": _STR, "entity_id": _STR, "language": _STR,
+                                    "page": {"type": "integer"}},
+                     "required": []},
+     "fn": _t_find_mentions},
 ]
 _TOOLS_BY_NAME = {t["name"]: t for t in TOOLS}
 # Gated by TESSERAE_SCHOLARSHIP_TOOLS=1, re-checked per request rather than
@@ -1424,10 +1510,21 @@ def _scholarship_tools_enabled():
     return os.environ.get('TESSERAE_SCHOLARSHIP_TOOLS') == '1'
 
 
+# Gated by TESSERAE_ENTITY_TOOLS=1 the same way, off until the Mentions trial is switched on.
+_ENTITY_TOOL_NAMES = {'find_mentions'}
+
+
+def _entity_tools_enabled():
+    return os.environ.get('TESSERAE_ENTITY_TOOLS') == '1'
+
+
+def _tool_hidden(name):
+    return ((name in _SCHOLARSHIP_TOOL_NAMES and not _scholarship_tools_enabled())
+            or (name in _ENTITY_TOOL_NAMES and not _entity_tools_enabled()))
+
+
 def _visible_tools():
-    if _scholarship_tools_enabled():
-        return TOOLS
-    return [t for t in TOOLS if t['name'] not in _SCHOLARSHIP_TOOL_NAMES]
+    return [t for t in TOOLS if not _tool_hidden(t['name'])]
 
 
 # --------------------------------------------------------------------------
@@ -1487,7 +1584,7 @@ def _handle(msg):
         name = params.get('name')
         args = params.get('arguments') or {}
         tool = _TOOLS_BY_NAME.get(name)
-        if tool and name in _SCHOLARSHIP_TOOL_NAMES and not _scholarship_tools_enabled():
+        if tool and _tool_hidden(name):
             tool = None  # same as an unknown name: the flag is off, so this tool does not exist
         if not tool:
             return _error(mid, -32602, f"Unknown tool: {name}")

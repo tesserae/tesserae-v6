@@ -3815,6 +3815,9 @@ exports[`App render recording > page /help 1`] = `
 <button class="w-full text-left pl-6 pr-3 py-1.5 rounded text-sm text-gray-700 hover:bg-gray-100">Theme Search</button>
 </li>
 <li>
+<button class="w-full text-left pl-6 pr-3 py-1.5 rounded text-sm text-gray-700 hover:bg-gray-100">Mentions</button>
+</li>
+<li>
 <button class="w-full text-left pl-6 pr-3 py-1.5 rounded text-sm text-gray-700 hover:bg-gray-100">Search One Text</button>
 </li>
 <li>

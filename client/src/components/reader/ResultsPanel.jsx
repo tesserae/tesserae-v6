@@ -14,6 +14,7 @@ import ScholarshipTab from './ScholarshipTab';
 import CoinsTab from './CoinsTab';
 import ScopeBox from '../common/ScopeBox';
 import { SEARCH_SCOPE } from '../../data/searchScope';
+import { entitiesTrialOn } from '../../hooks/useEntitiesTrial';
 
 /** Parse a response as JSON, failing with a message a reader can act on.
  *  While the server reloads, Apache answers API calls with an HTML error
@@ -1192,7 +1193,21 @@ function SimilarResultCard({ r, onOpenPassage }) {
           same_names_for_window). */}
       {r.shared_names?.length > 0 && (
         <p className="text-[11px] text-gray-600 mt-1 leading-snug">
-          Shared names: {r.shared_names.join(', ')}
+          Shared names:{' '}
+          {r.shared_names.map((n, i) => (
+            <span key={n}>
+              {i > 0 && ', '}
+              {entitiesTrialOn() ? (
+                <a
+                  href={`/mentions?entities=1&q=${encodeURIComponent(n)}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-red-700 hover:underline"
+                  title={`Every line in the corpus that mentions ${n}`}
+                >{n}</a>
+              ) : n}
+            </span>
+          ))}
         </p>
       )}
       {/* One scriptural passage the corpus holds in several versions,

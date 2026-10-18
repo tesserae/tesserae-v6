@@ -1,0 +1,39 @@
+/**
+ * Help has a Mentions topic after Theme Search, and the section carries the anchor #mentions.
+ */
+import { describe, it, expect, vi, afterEach } from 'vitest';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import HelpPage from '../HelpPage';
+import { mockResponse } from '../../../test/mockResponse';
+
+function serve() {
+  global.fetch = vi.fn((url) => Promise.resolve(mockResponse({ ok: true, json: () => Promise.resolve(
+    String(url).startsWith('/api/languages') ? { languages: [{ code: 'la' }] } : { stoplists: {} }) })));
+}
+afterEach(() => { delete global.fetch; });
+
+describe('Help: Mentions', () => {
+  it('lists the topic right after Theme Search', async () => {
+    serve();
+    render(<HelpPage />);
+    const labels = (await screen.findAllByRole('button')).map((b) => b.textContent);
+    expect(labels.indexOf('Mentions')).toBe(labels.indexOf('Theme Search') + 1);
+  });
+
+  it('opens the section with the anchor #mentions and the trial note', async () => {
+    serve();
+    const user = userEvent.setup();
+    render(<HelpPage />);
+    await user.click(await screen.findByRole('button', { name: 'Mentions' }));
+    await waitFor(() => expect(document.getElementById('mentions')).not.toBeNull());
+    expect(screen.getByText(/entities=1/)).toBeTruthy();
+    expect(screen.getAllByRole('button', { name: 'Suggest a change' })).toHaveLength(2);
+  });
+
+  it('opens straight at the section when asked', async () => {
+    serve();
+    render(<HelpPage initialSection="mentions" initialAnchor="mentions" onSectionConsumed={() => {}} />);
+    expect(await screen.findByRole('heading', { name: 'Mentions' })).toBeTruthy();
+  });
+});
