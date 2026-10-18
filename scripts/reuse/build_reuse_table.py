@@ -78,6 +78,24 @@ Run under a memory cap in production, e.g.:
   systemd-run --user --scope -p MemoryMax=12G \\
       venv/bin/python3 scripts/reuse/build_reuse_table.py --language la
 
+Memory (2026-10-18): the lemma caches are read ONE AT A TIME (stream_corpus /
+CorpusLoader) and the per-line tokens and lemmas the commonplace pass needs
+are stored in the temporary index database (table line_tok), so nothing
+holds the corpus. Before this, every cache sat in one dictionary and the
+Greek build (5.7 GB of cache JSON) stalled at 12.2 GB resident on
+2026-10-17. Measured against the production checkout with
+/usr/bin/time -v: Greek (902 works, 380,800 lines) peak 0.91 GB resident,
+16 min 27 s; Latin (783 works, 655,578 lines) peak 0.89 GB, 14 min 30 s.
+Stage 1 itself peaks at 0.89 GB (Greek) and 0.87 GB (Latin), and every later
+stage stays at or under 0.73 GB (Greek) and 0.71 GB (Latin), so the whole
+build is set by the largest single cache file. The build prints a
+resident-memory line (current and peak) at each stage ("RSS at ..."). The
+temporary index database (system temp folder) was 2.2 GB ten minutes into
+the Greek build, so keep several GB of scratch disk free. --root DIR reads texts/, cache/lemmas/ and
+data/inverted_index/ from another checkout (for example
+--root /var/www/tesseraev6_flask) while the output goes to --out-db and
+--stats-out.
+
 Rebuild after any corpus change to that language (new imports, retirements,
 lemma-cache rebuilds) -- this table is a snapshot, not live-computed.
 """
@@ -187,50 +205,91 @@ def list_corpus_files(language):
     return sorted(surviving), skipped_parts
 
 
-def discover_corpus(language):
-    """Return (kept, skipped_parts, missing_cache) where kept is
-    {tess_basename: cache_dict} for the live, base-file, hash-valid-cached
-    corpus -- cache_dict is the already-loaded, already file_hash-validated
-    JSON payload from backend.lemma_cache.get_cached_units.
+class CorpusLoader:
+    """Iterates (tess_basename, cache_dict) one cache file at a time, so only
+    one work's lemma cache is ever in memory (the all-at-once dictionary the
+    builder used to hold reached 12.2 GB on Greek, 5.7 GB of JSON on disk,
+    2026-10-17). Each cache is validated exactly as get_cached_units does
+    (hashed name, legacy plain name, file_hash match). A base file with no
+    valid cache is appended to `missing_cache` as it is met, so that list is
+    complete only after the iteration has finished. Can be iterated once."""
+
+    def __init__(self, language, surviving):
+        self.language = language
+        self.surviving = list(surviving)
+        self.missing_cache = []
+
+    def __len__(self):
+        return len(self.surviving)
+
+    def __iter__(self):
+        for fname in self.surviving:
+            cached = get_cached_units(fname, self.language)
+            if cached is None:
+                self.missing_cache.append(fname)
+                continue
+            yield fname, cached
+
+
+def stream_corpus(language):
+    """Return (surviving, skipped_parts, loader): the live base-file .tess
+    names, the skipped .part. names, and a CorpusLoader that yields
+    (tess_basename, cache_dict) one file at a time for the hash-valid cached
+    ones and records the rest in loader.missing_cache. What main() uses.
 
     Source of truth for "live" is texts/<lang>/*.tess, not cache/lemmas/, so
     a text retired from texts/ (simply absent there now) is never included
     even if a stale cache file for it still exists."""
-    texts_dir = os.path.join(TEXTS_DIR, language)
     cache_dir = os.path.join(CACHE_DIR, language)
-    if not os.path.isdir(texts_dir):
-        raise SystemExit(f"No texts/{language}/ directory found at {texts_dir}")
+    surviving, skipped_parts = list_corpus_files(language)
     if not os.path.isdir(cache_dir):
         raise SystemExit(f"No cache/lemmas/{language}/ directory found at {cache_dir}")
+    return surviving, skipped_parts, CorpusLoader(language, surviving)
 
-    all_tess = [f for f in os.listdir(texts_dir) if f.endswith('.tess')]
 
-    # part-file skip: base file present in texts/ => drop its .part.N siblings.
-    full_versions = set()
-    for fname in all_tess:
-        if '.part.' not in fname:
-            full_versions.add(fname[:-len('.tess')])
+def discover_corpus(language):
+    """The all-at-once form: (kept, skipped_parts, missing_cache) with kept =
+    {tess_basename: cache_dict} holding EVERY cache in memory. Kept for the
+    documents builder and its tests, which read a small literary side; the
+    Greek or Latin table build uses stream_corpus instead."""
+    _, skipped_parts, loader = stream_corpus(language)
+    kept = dict(loader)
+    return kept, skipped_parts, loader.missing_cache
 
-    surviving = []
-    skipped_parts = []
-    for fname in all_tess:
-        if '.part.' in fname:
-            base = fname.split('.part.')[0]
-            if base in full_versions:
-                skipped_parts.append(fname)
-                continue
-        surviving.append(fname)
 
-    kept = {}
-    missing_cache = []
-    for fname in surviving:
-        cached = get_cached_units(fname, language)
-        if cached is not None:
-            kept[fname] = cached
-        else:
-            missing_cache.append(fname)
+def set_root(root):
+    """Read texts/, cache/lemmas/ and data/inverted_index/ from the checkout
+    `root` instead of this script's own. backend.lemma_cache keeps its
+    directories in module constants, so those are pointed at the root too
+    (the way scripts/corpus/embedding_census.py does)."""
+    global TEXTS_DIR, CACHE_DIR, INDEX_DIR
+    root = os.path.abspath(root)
+    TEXTS_DIR = os.path.join(root, 'texts')
+    CACHE_DIR = os.path.join(root, 'cache', 'lemmas')
+    INDEX_DIR = os.path.join(root, 'data', 'inverted_index')
+    from backend import lemma_cache
+    lemma_cache.CACHE_DIR = CACHE_DIR
+    lemma_cache.TEXTS_DIR = TEXTS_DIR
 
-    return kept, skipped_parts, missing_cache
+
+def _rss_mb():
+    """(current, peak) resident set in MB from /proc/self/status."""
+    cur = peak = 0.0
+    try:
+        with open('/proc/self/status') as f:
+            for line in f:
+                if line.startswith('VmRSS:'):
+                    cur = int(line.split()[1]) / 1024
+                elif line.startswith('VmHWM:'):
+                    peak = int(line.split()[1]) / 1024
+    except OSError:
+        pass
+    return cur, peak
+
+
+def log_rss(stage):
+    cur, peak = _rss_mb()
+    print(f"[build_reuse_table] RSS at {stage}: {cur:.0f} MB resident, {peak:.0f} MB peak so far")
 
 
 def _repair_surrogates(text, fallback):
@@ -273,8 +332,9 @@ def _fold(token):
 
 
 def build_index(cache_data, index_db_path, max_df, commonplace_ratio=0.08, language=None):
-    """Stage 1: stream per-line n-grams from cache_data (already-loaded,
-    already-validated {tess_basename: cache_dict}, from discover_corpus)
+    """Stage 1: stream per-line n-grams from cache_data (a CorpusLoader from
+    stream_corpus, or any iterable of (tess_basename, cache_dict) pairs, or
+    a plain {tess_basename: cache_dict}; consumed one cache at a time)
     into a temporary SQLite index DB (lines, postings after banality
     filtering). Returns (stats, commonplace_hashes). Mirrors
     research/reuse_table/build_reuse_index.py.
@@ -348,7 +408,14 @@ def build_index(cache_data, index_db_path, max_df, commonplace_ratio=0.08, langu
     # docstring above for why lemmas rather than surface tokens.
     lemma_df = defaultdict(int)
 
-    for tess_basename, data in cache_data.items():
+    if isinstance(cache_data, dict):
+        cache_data = cache_data.items()
+    # Per-line tokens and lemmas the commonplace pass needs after lemma_df is
+    # complete are kept in the index db (table line_tok), not in memory.
+    conn.execute("CREATE TABLE line_tok (line_id INTEGER PRIMARY KEY, toks TEXT, lems TEXT)")
+    tok_rows = []
+
+    for tess_basename, data in cache_data:
         work_id = data.get('text_id', tess_basename)
         # Some Greek lemma caches were written under an ASCII locale, so a
         # Greek file name sits in text_id as surrogate-escaped bytes; SQLite
@@ -375,6 +442,8 @@ def build_index(cache_data, index_db_path, max_df, commonplace_ratio=0.08, langu
                 line_rows.append((line_id, work_id, ref, len(tokens), seq))
                 line_id += 1
                 continue
+            tok_rows.append((line_id, json.dumps(tokens, ensure_ascii=True),
+                             None if lemmas is tokens else json.dumps(lemmas, ensure_ascii=True)))
             seen_this_line = set()
             for gram in gen_ngrams(tokens):
                 h = hash_ngram(gram)
@@ -390,11 +459,19 @@ def build_index(cache_data, index_db_path, max_df, commonplace_ratio=0.08, langu
             if len(line_rows) >= BATCH:
                 conn.executemany("INSERT INTO lines VALUES (?,?,?,?,?)", line_rows)
                 line_rows = []
+            if len(tok_rows) >= 50000:
+                conn.executemany("INSERT INTO line_tok VALUES (?,?,?)", tok_rows)
+                tok_rows = []
+        data = None  # drop this work's cache before the next is read
 
     flush_postings()
+    if tok_rows:
+        conn.executemany("INSERT INTO line_tok VALUES (?,?,?)", tok_rows)
+        tok_rows = []
     if line_rows:
         conn.executemany("INSERT INTO lines VALUES (?,?,?,?,?)", line_rows)
     conn.commit()
+    log_rss("end of stage 1 cache read")
 
     if n_ids_repaired:
         print(f"[build_reuse_table] index: {n_ids_repaired} work id(s) carried surrogate-escaped "
@@ -403,8 +480,8 @@ def build_index(cache_data, index_db_path, max_df, commonplace_ratio=0.08, langu
           f"({n_lines_too_short} lines under 3 tokens, kept with no n-grams), "
           f"{n_gram_instances} n-gram instances, elapsed {time.time()-t0:.1f}s")
 
-    # Which n-grams are commonplace-LEMMA-only: a second, in-memory-only
-    # pass (cache_data is already loaded; no re-reading from disk) now that
+    # Which n-grams are commonplace-LEMMA-only: a second pass, over the
+    # line_tok table stored above (no cache is re-read or held) now that
     # lemma_df's totals -- and so the commonplace threshold -- are known.
     # Kept as a Python set of hashes (keyed on the SURFACE n-gram, since
     # that is what postings/pair_hits key on): bounded by the lemma
@@ -421,21 +498,21 @@ def build_index(cache_data, index_db_path, max_df, commonplace_ratio=0.08, langu
                 or _fold(lem) in stopset or _fold(tok) in stopset)
 
     commonplace_hashes = set()
-    for tess_basename, data in cache_data.items():
-        for unit in data.get('units_line', []):
-            tokens = unit.get('tokens') or []
-            if len(tokens) < 3:
-                continue
-            lemmas = _line_lemmas(unit)
-            for idxs in gen_ngram_indices(len(tokens)):
-                lemma_gram = tuple(lemmas[i] for i in idxs)
-                token_gram = tuple(tokens[i] for i in idxs)
-                if all(_commonplace(lem, tok) for lem, tok in zip(lemma_gram, token_gram)):
-                    h = hash_ngram(token_gram)
-                    if h not in commonplace_hashes and not all(
-                            lemma_df.get(lem, 0) >= commonplace_threshold for lem in lemma_gram):
-                        n_stoplist_only += 1
-                    commonplace_hashes.add(h)
+    for toks_json, lems_json in conn.execute("SELECT toks, lems FROM line_tok ORDER BY line_id"):
+        tokens = json.loads(toks_json)
+        lemmas = tokens if lems_json is None else json.loads(lems_json)
+        for idxs in gen_ngram_indices(len(tokens)):
+            lemma_gram = tuple(lemmas[i] for i in idxs)
+            token_gram = tuple(tokens[i] for i in idxs)
+            if all(_commonplace(lem, tok) for lem, tok in zip(lemma_gram, token_gram)):
+                h = hash_ngram(token_gram)
+                if h not in commonplace_hashes and not all(
+                        lemma_df.get(lem, 0) >= commonplace_threshold for lem in lemma_gram):
+                    n_stoplist_only += 1
+                commonplace_hashes.add(h)
+    conn.execute("DROP TABLE line_tok")
+    conn.commit()
+    log_rss("end of commonplace pass")
     print(f"[build_reuse_table] index: {len(lemma_df)} distinct lemmas, "
           f"commonplace threshold {commonplace_threshold:.0f} (of max lemma df {max_lemma_df}), "
           f"{len(commonplace_hashes)} n-grams are commonplace-word-only "
@@ -471,6 +548,7 @@ def build_index(cache_data, index_db_path, max_df, commonplace_ratio=0.08, langu
     conn.commit()
     conn.execute("VACUUM")
 
+    log_rss("after postings filter")
     print("[build_reuse_table] index: creating indexes...")
     conn.execute("CREATE INDEX idx_postings_ngram ON postings(ngram_hash)")
     conn.execute("CREATE INDEX idx_postings_line ON postings(line_id)")
@@ -614,6 +692,7 @@ def find_pairs(index_db_path, min_shared, min_jaccard, min_shared_override, min_
         line_base[line_id] = work.split('.part.')[0] if '.part.' in work else work
     n_lines = len(line_meta)
     print(f"[build_reuse_table] pairs: {n_lines} lines loaded, elapsed {time.time()-t0:.1f}s")
+    log_rss("stage 2 start (lines loaded)")
 
     line_ngram_count = defaultdict(int)
 
@@ -693,6 +772,7 @@ def find_pairs(index_db_path, min_shared, min_jaccard, min_shared_override, min_
           f"({n_commonplace_groups_skipped} commonplace-word-only n-grams flagged), "
           f"{n_pair_increments} pair-occurrences written, elapsed {time.time()-t0:.1f}s")
 
+    log_rss("after postings scan")
     print("[build_reuse_table] pairs: aggregating candidate pairs (SQL GROUP BY, not a Python dict)...")
     conn.execute("CREATE INDEX idx_pair_hits_ab ON pair_hits(a, b)")
     conn.commit()
@@ -748,6 +828,7 @@ def find_pairs(index_db_path, min_shared, min_jaccard, min_shared_override, min_
 
     conn.execute("DROP TABLE pair_hits")
     conn.commit()
+    log_rss("after pair aggregation")
 
     print(f"[build_reuse_table] pairs: {n_candidate_pairs} candidate cross-work line pairs, "
           f"{len(kept)} pairs kept after threshold "
@@ -873,6 +954,10 @@ def main():
                           'containment no matter how genuine the match (0.0625 for Aen. 1.1 '
                           'against Seneca Ep. 113.25); rarity alone with no containment floor '
                           'floods (measured 6.4M pairs on the live Latin corpus, see find_pairs)')
+    ap.add_argument('--root', default=None,
+                    help='checkout whose texts/, cache/lemmas/ and data/inverted_index/ are read '
+                         '(default: this script\'s own checkout). Output still goes to --out-db / '
+                         '--stats-out when given.')
     ap.add_argument('--out-db', default=None)
     ap.add_argument('--drop-all-commonplace', choices=['auto', 'on', 'off'], default='auto',
                     help='drop a candidate pair whose shared n-grams are all commonplace-only '
@@ -887,27 +972,24 @@ def main():
     drop_all_commonplace = (args.drop_all_commonplace == 'on'
                             or (args.drop_all_commonplace == 'auto' and args.language == 'en'))
 
-    os.makedirs(OUT_DIR, exist_ok=True)
+    if args.root:
+        set_root(args.root)
+    if not (args.out_db and args.stats_out):
+        os.makedirs(OUT_DIR, exist_ok=True)
     out_db = args.out_db or os.path.join(OUT_DIR, f'{args.language}.db')
     stats_out = args.stats_out or os.path.join(OUT_DIR, f'{args.language}_stats.json')
 
     t_start = time.time()
 
-    cache_data, skipped_parts, missing_cache = discover_corpus(args.language)
-    print(f"[build_reuse_table] {len(cache_data)} works to index "
-          f"({len(skipped_parts)} .part. files skipped in favor of their base file, "
-          f"{len(missing_cache)} base files skipped for missing/invalid lemma cache)")
-    if missing_cache:
-        print(f"[build_reuse_table] WARN: {len(missing_cache)} live .tess files have no "
-              f"file_hash-valid lemma cache under either the current hashed name or the "
-              f"legacy plain name, and are excluded from this run (rebuild their cache to "
-              f"close the gap): "
-              + ', '.join(sorted(missing_cache)[:10]) + (' ...' if len(missing_cache) > 10 else ''))
+    surviving, skipped_parts, loader = stream_corpus(args.language)
+    print(f"[build_reuse_table] {len(surviving)} base files to read, caches streamed one at a time "
+          f"({len(skipped_parts)} .part. files skipped in favor of their base file)")
+    log_rss("start")
 
     tmp_dir = tempfile.mkdtemp(prefix=f'reuse_table_{args.language}_')
     index_db_path = os.path.join(tmp_dir, f'{args.language}_index.db')
     try:
-        index_stats, commonplace_hashes = build_index(cache_data, index_db_path, args.max_df,
+        index_stats, commonplace_hashes = build_index(loader, index_db_path, args.max_df,
                                                       language=args.language)
         pair_info, line_to_other_works, pair_stats = find_pairs(
             index_db_path, args.min_shared, args.min_jaccard,
@@ -915,12 +997,21 @@ def main():
             args.rare_min_containment, commonplace_hashes,
             drop_all_commonplace=drop_all_commonplace)
 
+        missing_cache = loader.missing_cache
+        print(f"[build_reuse_table] {index_stats['works_indexed']} works indexed, "
+              f"{len(missing_cache)} base files skipped for missing/invalid lemma cache")
+        if missing_cache:
+            print(f"[build_reuse_table] WARN: {len(missing_cache)} live .tess files have no "
+                  f"file_hash-valid lemma cache under either the current hashed name or the "
+                  f"legacy plain name, and are excluded from this run (rebuild their cache to "
+                  f"close the gap): " + ', '.join(sorted(missing_cache)))
+
         corpus_version = get_corpus_version(args.language)
         built_at = datetime.now(timezone.utc).isoformat()
         meta = {
             'built_at': built_at,
             'corpus_version': corpus_version,
-            'corpus_file_count': len(cache_data),
+            'corpus_file_count': len(surviving) - len(missing_cache),
             'language': args.language,
             'max_df': args.max_df,
             'min_shared': args.min_shared,
@@ -939,7 +1030,9 @@ def main():
             'skipped_part_files': len(skipped_parts),
             'skipped_missing_cache': len(missing_cache),
         }
+        log_rss("before writing output db")
         write_output_db(out_db, pair_info, line_to_other_works, meta)
+        log_rss("after writing output db")
     finally:
         if args.keep_index_db:
             kept_path = os.path.join(OUT_DIR, f'{args.language}_index.db')

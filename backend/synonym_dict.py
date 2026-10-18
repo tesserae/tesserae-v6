@@ -405,7 +405,7 @@ def load_accepted_review_entries():
     Safe to call multiple times — merges without duplicating.
     """
     try:
-        from backend.db import get_db_cursor
+        from backend.db_utils import get_db_cursor
         count = 0
         with get_db_cursor(commit=False) as cur:
             cur.execute(
