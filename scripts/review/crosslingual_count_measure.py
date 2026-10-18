@@ -2,7 +2,7 @@
 """Measurements for the Greek-Latin counting and lone-pair settings (2026-10-17).
 
 Settings of the evaluation scorer (evaluation/scripts/crosslingual_common.py, make_fused_scorer):
-  crosslingual_dict_count  pairs (default) | words
+  crosslingual_dict_count  words (default since 2026-10-18) | pairs
   crosslingual_lone_pair   keep (default)  | rare | drop
 Four variants are measured:  a = pairs/keep, b = words/keep, c = words/rare, d = words/drop.
 All use the evaluation path's lone-pair rule v2 and the two-lemma gate off.
@@ -47,7 +47,10 @@ PROD_EMBEDDINGS = "/var/www/tesseraev6_flask/backend/embeddings"
 # Optional: another copy of the Achilleid vectors with one row per text line (see install()).
 ALT_ACHILLEID = os.environ.get("XL_ACHILLEID_VECTORS")
 VARIANTS = {"a": ("pairs", "keep"), "b": ("words", "keep"),
-            "c": ("words", "rare"), "d": ("words", "drop")}
+            "c": ("words", "rare"), "d": ("words", "drop"),
+            # 'default' sets no environment variable at all: the figures a person gets who runs
+            # the benchmark scripts as they stand (words, keep and v2 since 2026-10-18).
+            "default": ("words", "keep")}
 GREEK, LATIN = "homer.iliad.part.1", "vergil.aeneid.part.1"
 LATIN_BOOK = "vergil.aeneid.part.1"
 
@@ -97,6 +100,10 @@ def install(cache_dir):
 
 def set_variant(v):
     count, lone = VARIANTS[v]
+    if v == "default":
+        for k in ("XL_DICT_COUNT", "XL_LONE_PAIR", "XL_RARITY_VARIANT"):
+            os.environ.pop(k, None)
+        return count, lone
     os.environ["XL_DICT_COUNT"] = count
     os.environ["XL_LONE_PAIR"] = lone
     # The evaluation path always uses the v2 lone-pair rule; XL_RULE=baseline reproduces the
@@ -394,13 +401,29 @@ def cmd_identity(a):
     lp = TEXTS_DIR / "la" / f"{LATIN}.tess"
     gu, lu = tp.process_file(str(gp), "grc"), tp.process_file(str(lp), "la")
     ge, le = load_embeddings(str(gp), "grc"), load_embeddings(str(lp), "la")
-    for k in ("XL_DICT_COUNT", "XL_LONE_PAIR"):
+    for k in ("XL_DICT_COUNT", "XL_LONE_PAIR", "XL_RARITY_VARIANT"):
         os.environ.pop(k, None)
+    # a.settings 'old' names the pre-2026-10-18 settings explicitly (pairs, keep, and the rule of
+    # the row); 'new' leaves them to the changed defaults (words, keep, v2) and compares
+    # that with the old scorer under ITS defaults (pairs, keep, baseline): they must differ.
     out = {}
-    for rule in ("baseline", "v2"):
-        f_old, _ = old.make_fused_scorer(gp, lp, gu, lu, ge, le, verbose=False, lone_pair_rule=rule)
-        f_new, _ = new.make_fused_scorer(gp, lp, gu, lu, ge, le, verbose=False, lone_pair_rule=rule)
-        worst, differ, n = 0.0, 0, 0
+    if a.settings == "old":
+        runs = [("baseline", "baseline"), ("v2", "v2")]
+    else:
+        runs = [("defaults", None)]
+    for label, rule in runs:
+        if a.settings == "old":
+            f_old, _ = old.make_fused_scorer(gp, lp, gu, lu, ge, le, verbose=False, lone_pair_rule=rule)
+            f_new, _ = new.make_fused_scorer(gp, lp, gu, lu, ge, le, verbose=False, lone_pair_rule=rule,
+                                             dict_count="pairs", lone_pair="keep")
+        else:
+            f_old, _ = old.make_fused_scorer(gp, lp, gu, lu, ge, le, verbose=False)
+            f_new, _ = new.make_fused_scorer(gp, lp, gu, lu, ge, le, verbose=False)
+        f_ref = None
+        if a.settings == "new":
+            f_ref, _ = new.make_fused_scorer(gp, lp, gu, lu, ge, le, verbose=False,
+                                             dict_count="words", lone_pair="keep", lone_pair_rule="v2")
+        worst, differ, n, differ_ref = 0.0, 0, 0, 0
         top_old, top_new = [], []
         for g in range(len(gu)):
             for lx in range(len(lu)):
@@ -409,16 +432,26 @@ def cmd_identity(a):
                 d = abs(so - sn)
                 if so != sn:
                     differ += 1
+                if f_ref is not None and f_ref(g, lx) != sn:
+                    differ_ref += 1
                 worst = max(worst, d)
                 top_old.append((-so, g, lx))
                 top_new.append((-sn, g, lx))
         top_old.sort()
         top_new.sort()
-        out[rule] = {"pairs": n, "pairs_with_different_score": differ, "largest_difference": worst,
-                     "top200_same_order": top_old[:200] == top_new[:200]}
-        print(rule, out[rule], flush=True)
+        out[label] = {"pairs": n, "pairs_with_different_score": differ, "largest_difference": worst,
+                      "top200_same_order": top_old[:200] == top_new[:200]}
+        if f_ref is not None:
+            out[label]["pairs_differing_from_words_keep_v2_explicit"] = differ_ref
+        out[label]["top200"] = [[gu[g]["ref"], lu[lx]["ref"], -sc] for sc, g, lx in top_new[:200]]
+        print(label, {k: v for k, v in out[label].items() if k != "top200"}, flush=True)
+    if a.out:
+        json.dump(out, open(a.out, "w"))
     print(f"peak {peak_mb():.0f} MB")
-    return 0 if all(v["pairs_with_different_score"] == 0 and v["top200_same_order"] for v in out.values()) else 1
+    if a.settings == "old":
+        return 0 if all(v["pairs_with_different_score"] == 0 and v["top200_same_order"] for v in out.values()) else 1
+    return 0 if all(v["pairs_with_different_score"] > 0 and v["pairs_differing_from_words_keep_v2_explicit"] == 0
+                    for v in out.values()) else 1
 
 
 # --------------------------------------------------------------------------------------
@@ -532,6 +565,9 @@ def main():
     p.add_argument("out")
     p = sub.add_parser("identity")
     p.add_argument("--old", required=True)
+    p.add_argument("--settings", choices=("old", "new"), default="old",
+                   help="old: name pairs/keep explicitly, must equal --old; new: the changed defaults, must differ")
+    p.add_argument("--out", help="write the result and the top 200 as JSON")
     p = sub.add_parser("sheet")
     p.add_argument("out_dir")
     p.add_argument("--seed", type=int, default=20261018)
