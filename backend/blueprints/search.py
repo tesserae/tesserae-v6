@@ -194,7 +194,8 @@ def _parse_search_request(data):
                 'stoplist_basis', 'stoplist_size', 'source_unit_type', 'target_unit_type',
                 'use_meter', 'use_pos', 'use_syntax', 'use_sound', 'use_edit_distance',
                 'bigram_boost', 'custom_stopwords', 'hebrew_greek_route',
-                'crosslingual_scorer', 'formula_max', 'formula_only']:
+                'crosslingual_scorer', 'crosslingual_dict_count', 'crosslingual_lone_pair',
+                'formula_max', 'formula_only']:
         if key in data and key not in settings:
             settings[key] = data[key]
 
@@ -1432,6 +1433,12 @@ class CrossSettings:
     # 'live' (the channels below) or 'evaluation' (the evaluation scorer's rules,
     # Greek-Latin only; see backend/crosslingual_evaluation_path.py).
     crosslingual_scorer: str = 'live'
+    # How the evaluation scorer counts dictionary matches ('pairs' or 'words') and what it
+    # does with a pair that rests on one distinct word ('keep', 'rare' or 'drop'). The live
+    # scorer ignores both: it already counts distinct words (see _fuse_pairs) and has the
+    # two-lemma gate for lone pairs. See evaluation/scripts/crosslingual_common.py.
+    crosslingual_dict_count: str = 'pairs'
+    crosslingual_lone_pair: str = 'keep'
 
 
 def _cross_settings(params, settings):
@@ -1477,6 +1484,14 @@ def _cross_settings(params, settings):
         crosslingual_scorer = 'live'
     elif 'crosslingual_lemma_gate' not in settings:
         crosslingual_lemma_gate = 'off'
+    # Counting and lone-pair settings of the evaluation scorer (2026-10-17). Any other
+    # value is the default, so the defaults leave every number as it was.
+    crosslingual_dict_count = settings.get('crosslingual_dict_count', 'pairs')
+    if crosslingual_dict_count not in ('pairs', 'words'):
+        crosslingual_dict_count = 'pairs'
+    crosslingual_lone_pair = settings.get('crosslingual_lone_pair', 'keep')
+    if crosslingual_lone_pair not in ('keep', 'rare', 'drop'):
+        crosslingual_lone_pair = 'keep'
     has_english = 'en' in lang_pair
     is_coptic_greek = lang_pair == frozenset(('cop', 'grc'))
     return CrossSettings(
@@ -1488,7 +1503,9 @@ def _cross_settings(params, settings):
         crosslingual_penalty_factor=crosslingual_penalty_factor,
         lang_pair=lang_pair, is_greek_latin=is_greek_latin,
         has_english=has_english, is_coptic_greek=is_coptic_greek,
-        crosslingual_scorer=crosslingual_scorer)
+        crosslingual_scorer=crosslingual_scorer,
+        crosslingual_dict_count=crosslingual_dict_count,
+        crosslingual_lone_pair=crosslingual_lone_pair)
 
 
 def _check_pair(cs):
@@ -2123,7 +2140,8 @@ def _evaluation_fused(source_units, target_units, cs, settings, cancellation):
         source_units, target_units, cs.source_language, src_path, tgt_path, src_emb, tgt_emb,
         gate=cs.crosslingual_lemma_gate, penalty_factor=cs.crosslingual_penalty_factor,
         min_lemma_matches=cs.crosslingual_min_lemma_matches, min_matches=cs.min_matches,
-        max_results=max_results, cancellation=cancellation)
+        max_results=max_results, cancellation=cancellation,
+        dict_count=cs.crosslingual_dict_count, lone_pair=cs.crosslingual_lone_pair)
     greek_is_source = cs.source_language == 'grc'
     fused = []
     for r in scored:
@@ -2875,6 +2893,13 @@ def crosslingual_search_poll():
     crosslingual_scorer = data.get('crosslingual_scorer', 'live')
     if crosslingual_scorer not in ('live', 'evaluation'):
         crosslingual_scorer = 'live'
+    # Evaluation-scorer options; any other value is the default and joins no key.
+    crosslingual_dict_count = data.get('crosslingual_dict_count', 'pairs')
+    if crosslingual_dict_count not in ('pairs', 'words'):
+        crosslingual_dict_count = 'pairs'
+    crosslingual_lone_pair = data.get('crosslingual_lone_pair', 'keep')
+    if crosslingual_lone_pair not in ('keep', 'rare', 'drop'):
+        crosslingual_lone_pair = 'keep'
 
     # Full ranked list cached once per (pair, languages, min_matches, route);
     # pagination slices this cached list per request, so offset/limit are NOT
@@ -2886,6 +2911,10 @@ def crosslingual_search_poll():
                 hebrew_greek_route]
     if crosslingual_scorer != 'live':
         key_args.append(crosslingual_scorer)
+        if crosslingual_dict_count != 'pairs':
+            key_args.append('count_' + crosslingual_dict_count)
+        if crosslingual_lone_pair != 'keep':
+            key_args.append('lone_' + crosslingual_lone_pair)
     key = make_job_key(*key_args)
 
     def compute():
@@ -2895,6 +2924,8 @@ def crosslingual_search_poll():
                'max_results': RANKED_CAP, 'hebrew_greek_route': hebrew_greek_route}
         if crosslingual_scorer != 'live':
             req['crosslingual_scorer'] = crosslingual_scorer
+            req['crosslingual_dict_count'] = crosslingual_dict_count
+            req['crosslingual_lone_pair'] = crosslingual_lone_pair
         params = _parse_search_request(req)
         settings = params['settings']
         su, tu = _load_units(params)

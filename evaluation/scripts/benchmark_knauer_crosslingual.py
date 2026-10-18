@@ -91,11 +91,15 @@ def run_benchmark_for_book(grc_file, lat_file, gold_pairs, book_num):
         # Score ALL Greek lines for this Latin target line
         gold_score = fused_score(src_idx, lat_idx)
         rank = 1  # 1-indexed
-        for gi in range(len(grc_units)):
-            if gi == src_idx:
-                continue
-            if fused_score(gi, lat_idx) > gold_score:
-                rank += 1
+        if gold_score == float('-inf'):
+            # Removed by XL_LONE_PAIR=drop: the pair is not listed, so it is not retrieved.
+            rank = len(grc_units) + 1
+        else:
+            for gi in range(len(grc_units)):
+                if gi == src_idx:
+                    continue
+                if fused_score(gi, lat_idx) > gold_score:
+                    rank += 1
 
         for cutoff in found_at:
             if rank <= cutoff:

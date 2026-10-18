@@ -216,6 +216,8 @@ def evaluate_group(tp, load_embeddings, latin_cache, latin_work, homer_work, hom
             # exact: best rank among the range lines, rank = 1 + strictly higher others
             for h in r['_homer_is']:
                 gold = scores[h]
+                if gold == float('-inf'):
+                    continue  # removed by XL_LONE_PAIR=drop: not listed, so not retrieved
                 rank = 1 + sum(1 for g, s in enumerate(scores) if g != h and s > gold)
                 if best_rank is None or rank < best_rank:
                     best_rank = rank
@@ -224,6 +226,8 @@ def evaluate_group(tp, load_embeddings, latin_cache, latin_work, homer_work, hom
             for pos, g in enumerate(order[:max(top_k_max, 200)]):
                 if best_pos is not None and pos + 1 >= best_pos:
                     break
+                if scores[g] == float('-inf'):
+                    break  # the rest are removed pairs (XL_LONE_PAIR=drop), not listed
                 line = grc_lines[g][1] if grc_lines[g] else None
                 if line is not None and any(abs(line - gl) <= tolerance for gl in gold_lines):
                     best_pos = pos + 1
