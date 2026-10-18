@@ -524,7 +524,6 @@ def step_gates(a):
     keys, entities = load_world(a)
     types, prep = load_state(a)
     dec = load_decisions(a)
-    decided = el.decisions_by_index(entities, dec)
     quiet = lambda *_: None  # noqa: E731
     _t, info0 = el.assemble_matcher(entities, types, prep, decisions=dec, log=quiet)
     present = {lg: {i: set(v) for i, v in info0['candidate_lemmas'][lg].items()} for lg in ei.LANGS}
