@@ -575,3 +575,45 @@ def test_title_change_moves_the_passage_index_through_leaf_mode(tmp_path):
     assert con.execute('SELECT COUNT(*) FROM lines WHERE work = ?', (other,)).fetchone()[0] == 2
     sidecar = json.load(open(os.path.join(idx, 'works_by_language.json'), encoding='utf-8'))
     assert sorted(sidecar['languages'][LANG]) == sorted([SP_NEW, other])
+
+
+def test_broken_tag_postings_and_an_abbreviation_ref_in_leaf_mode(tmp_path):
+    """The review of #1013 asked for two more checks: the postings refs of the
+    broken-tag case, and that a reference which is an abbreviation (the Libanius
+    part files, 'libanius. decl. 1.1') is left alone by the leaf-mode ref rules."""
+    old, new = 'antisthenes.αἴας', 'antisthenes.aiax'
+    lines = [('antisthenes. 1', 'Ἐβουλόμην ἂν'), ('antisthenes. 2', 'Σχεδὸν μὲν οὖν')]
+    r = _space_root(tmp_path, old, lines)
+    assert rw.main(['--root', r, '--language', LANG, '--old', old, '--new', new,
+                    '--old-tag', 'antisthenes.', '--new-tag', new, '--apply']) == 0
+    con = sqlite3.connect(os.path.join(r, 'data', 'inverted_index', f'{LANG}_index.db'))
+    assert sorted(x for (x,) in con.execute('SELECT ref FROM postings')) == [f'{new} 1', f'{new} 2']
+    # leaf-mode ref rules: the work's own id moves with either separator, an abbreviation stays
+    from scripts.corpus import rename_work_in_passage_index as pr
+    assert pr.renamed_ref('libanius.declamationes.part.1 7', 'libanius.declamationes.part.1', 'libanius.decl.1') == 'libanius.decl.1 7'
+    assert pr.renamed_ref('libanius.declamationes.part.1.7', 'libanius.declamationes.part.1', 'libanius.decl.1') == 'libanius.decl.1.7'
+    assert pr.renamed_ref('libanius. decl. 1.1', 'libanius.declamationes.part.1', 'libanius.decl.1') == 'libanius. decl. 1.1'
+    assert pr.renamed_ref('libanius.declamationes.part.10 3', 'libanius.declamationes.part.1', 'libanius.decl.1') == 'libanius.declamationes.part.10 3'
+
+
+def test_entity_store_windows_and_mention_refs_move(tmp_path):
+    r = _space_root(tmp_path, SP_OLD, SP_LINES)
+    ent_dir = os.path.join(r, 'data', 'entity_index')
+    os.makedirs(ent_dir)
+    con = sqlite3.connect(os.path.join(ent_dir, 'entities.sqlite'))
+    con.execute('CREATE TABLE windows (wid INTEGER PRIMARY KEY, window_id TEXT UNIQUE, work TEXT, ref_start TEXT, ref_end TEXT)')
+    con.execute('CREATE TABLE mention_rows (rid INTEGER PRIMARY KEY, eid INTEGER, line_ref TEXT)')
+    con.executemany('INSERT INTO windows (window_id, work, ref_start, ref_end) VALUES (?, ?, ?, ?)',
+                    [(f'{SP_OLD}:prosem:2', SP_OLD, f'{SP_OLD} 3', f'{SP_OLD} 11'),
+                     ('pseudolucian.κυνικός:prosem:0', 'pseudolucian.κυνικός', 'pseudolucian.κυνικός 1', 'pseudolucian.κυνικός 9')])
+    con.executemany('INSERT INTO mention_rows (eid, line_ref) VALUES (?, ?)',
+                    [(1, f'{SP_OLD} 3'), (1, 'pseudolucian.κυνικός 1'), (2, 'agnell_rav. lib_pont. 1.24')])
+    con.commit(); con.close()
+    assert rw.main(['--root', r, '--language', LANG, '--old', SP_OLD, '--new', SP_NEW, '--apply']) == 0
+    con = sqlite3.connect(os.path.join(ent_dir, 'entities.sqlite'))
+    assert con.execute('SELECT window_id, work, ref_start, ref_end FROM windows WHERE work = ?', (SP_NEW,)).fetchall() == \
+        [(f'{SP_NEW}:prosem:2', SP_NEW, f'{SP_NEW} 3', f'{SP_NEW} 11')]
+    assert con.execute("SELECT COUNT(*) FROM windows WHERE work = 'pseudolucian.κυνικός'").fetchone()[0] == 1
+    assert sorted(x for (x,) in con.execute('SELECT line_ref FROM mention_rows')) == \
+        sorted([f'{SP_NEW} 3', 'pseudolucian.κυνικός 1', 'agnell_rav. lib_pont. 1.24'])
+    assert any(f.startswith('entities.sqlite.bak-rename') for f in os.listdir(ent_dir))

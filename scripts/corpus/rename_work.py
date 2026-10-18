@@ -446,6 +446,79 @@ def apply_embeddings(root, language, old, new, old_tag, new_tag):
     return {'found': plan['found'], 'written': written}
 
 
+# ------------------------------------------------------------ entity store
+#
+# The Mentions store (data/entity_index/entities.sqlite, 2026-10-17) holds the
+# work id in its windows table (work, window_id '<work>:<scale>:<n>',
+# ref_start, ref_end) and in the line reference of every mention row
+# (mention_rows.line_ref, '<work> N' or '<work>.N'). Added 2026-10-18 for the
+# Greek-titled renames. Absent store or tables: reported and skipped.
+
+def entities_db_path(root):
+    return os.path.join(root, 'data', 'entity_index', 'entities.sqlite')
+
+
+def plan_entities(root, old, new):
+    db = entities_db_path(root)
+    if not os.path.exists(db):
+        return {'found': False}
+    con = sqlite3.connect(f'file:{db}?mode=ro', uri=True)
+    try:
+        tables = {t for (t,) in con.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+        if 'windows' not in tables:
+            return {'found': False}
+        n_win, = con.execute('SELECT COUNT(*) FROM windows WHERE work = ?', (old,)).fetchone()
+        n_new, = con.execute('SELECT COUNT(*) FROM windows WHERE work = ?', (new,)).fetchone()
+        n_rows = 0
+        if 'mention_rows' in tables:
+            n_rows, = con.execute('SELECT COUNT(*) FROM mention_rows WHERE line_ref LIKE ? OR line_ref LIKE ?',
+                                  (old + '.%', old + ' %')).fetchone()
+    finally:
+        con.close()
+    return {'found': True, 'db': db, 'windows': n_win, 'mention_rows': n_rows, 'new_id_windows': n_new}
+
+
+def _entities_has_something(plan):
+    return bool(plan.get('found') and (plan.get('windows') or plan.get('mention_rows')))
+
+
+def apply_entities(root, old, new):
+    plan = plan_entities(root, old, new)
+    if not _entities_has_something(plan):
+        return plan
+    if plan['new_id_windows']:
+        raise RuntimeError(f'refusing: the entity store already holds windows of {new!r}')
+    db = plan['db']
+    tmp = f'{db}.tmp-rename-{os.getpid()}'
+    shutil.copy2(db, tmp)
+    con = sqlite3.connect(tmp)
+    try:
+        n = len(old) + 1  # substr is 1-based: from here on is the separator and the rest
+        con.execute('UPDATE windows SET work = ?, window_id = ? || substr(window_id, ?), '
+                    'ref_start = CASE WHEN ref_start LIKE ? OR ref_start LIKE ? THEN ? || substr(ref_start, ?) ELSE ref_start END, '
+                    'ref_end = CASE WHEN ref_end LIKE ? OR ref_end LIKE ? THEN ? || substr(ref_end, ?) ELSE ref_end END '
+                    'WHERE work = ?',
+                    (new, new, n, old + '.%', old + ' %', new, n, old + '.%', old + ' %', new, n, old))
+        if plan['mention_rows']:
+            con.execute('UPDATE mention_rows SET line_ref = ? || substr(line_ref, ?) '
+                        'WHERE line_ref LIKE ? OR line_ref LIKE ?',
+                        (new, n, old + '.%', old + ' %'))
+        con.commit()
+        left, = con.execute('SELECT COUNT(*) FROM windows WHERE work = ?', (old,)).fetchone()
+        if left:
+            raise AssertionError('old-named windows remain in the entity store')
+        if con.execute('PRAGMA quick_check').fetchone()[0] != 'ok':
+            raise AssertionError('quick_check failed on the renamed entity store copy')
+    except BaseException:
+        con.close()
+        os.remove(tmp)
+        raise
+    con.close()
+    backup_path = backup(db, tag='rename')
+    os.replace(tmp, db)
+    return {**plan, 'applied': True, 'backup': backup_path}
+
+
 # ------------------------------------------------------------- events store
 
 def events_db_path(root):
@@ -688,6 +761,9 @@ def check_collisions(root, language, old, new, force=False):
     elif tr_plan.get('found') and tr_plan.get('manifest_new_entries') and not force:
         problems.append(f"translations manifest already has {tr_plan['manifest_new_entries']} "
                         f"entry(ies) for {language}/{new} (pass --force to keep them)")
+    ent_plan = plan_entities(root, old, new)
+    if _entities_has_something(ent_plan) and ent_plan.get('new_id_windows'):
+        problems.append(f"entity store: {ent_plan['new_id_windows']} window(s) already carry {new!r}")
     return problems
 
 
@@ -732,6 +808,7 @@ def main(argv=None):
     emb_plan = plan_embeddings(root, language, old)
     events_plan = plan_events(root, old, new)
     tr_plan = plan_translations(root, language, old, new)
+    ent_plan = plan_entities(root, old, new)
 
     print(f'{language}/{old} -> {language}/{new}  (tag {old_tag} -> {new_tag})')
     print(f'  .tess:           {tess_plan}')
@@ -741,6 +818,7 @@ def main(argv=None):
     print(f'  embeddings:      found={sorted(emb_plan["found"])}')
     print(f'  events store:    {events_plan}')
     print(f'  translations:    {tr_plan}')
+    print(f'  entity store:    {ent_plan}')
 
     nothing_found = (
         not tess_plan.get('found')
@@ -750,6 +828,7 @@ def main(argv=None):
         and not emb_plan['found']
         and not _events_has_something(events_plan)
         and not _translations_has_something(tr_plan)
+        and not _entities_has_something(ent_plan)
     )
     if nothing_found:
         print('\nnothing carries that name in any store under --root')
@@ -774,6 +853,7 @@ def main(argv=None):
     results['embeddings'] = apply_embeddings(root, language, old, new, old_tag, new_tag)
     results['events'] = apply_events(root, old, new)
     results['translations'] = apply_translations(root, language, old, new)
+    results['entities'] = apply_entities(root, old, new)
 
     print('\napplied:')
     for k, v in results.items():
