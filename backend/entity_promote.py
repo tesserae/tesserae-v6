@@ -409,8 +409,14 @@ def promote_store(db, judgments, log=print):
                    (f'pn:{key}', j['type'], j['latin'], new))
         if label_fold and not db.execute('select 1 from variants where eid = ? and form = ?', (new, label_fold)).fetchone():
             db.execute('insert into variants values (?,?,?,?,?)', (new, label_fold, '', 'form', 'promoted'))
+        grc = j['greek'] or None
+        if grc and not greek_label_ok(grc, [v[0] for v in main_variants]):
+            rep['greek_label_dropped'] = rep.get('greek_label_dropped', 0) + 1
+            if len(rep.setdefault('greek_label_dropped_examples', [])) < 40:
+                rep['greek_label_dropped_examples'].append({'key': key, 'latin': j['latin'], 'greek': grc})
+            grc = None
         db.execute('insert or replace into entity_labels values (?,?,?,?,?)',
-                   (new, j['latin'], j['latin'], j['greek'] or None, j['description'] or None))
+                   (new, j['latin'], j['latin'], grc, j['description'] or None))
         if main is None:
             db.execute('insert into entity_aliases values (?,?,?,?,?)', (new, f'nm:{key}', old_label, 'name', 'corpus_name'))
         touched.add(new)
@@ -435,9 +441,10 @@ def promote_store(db, judgments, log=print):
 
 # ---------------------------------------------------------------- context lines
 
-def context_lines(db, tx, eid, n=5, tag=''):
+def context_lines(db, tx, eid, n=5, tag='', only=None):
     """Up to n lines of a name's mentions from n different works: [author, language, line]. The
-    choice is seeded by the entity's name key and `tag`, so a rerun gives the same lines."""
+    choice is seeded by the entity's name key and `tag`, so a rerun gives the same lines. With `only`
+    (a set of folded spellings) just the mentions of those spellings are used."""
     import random
     lang_name = {'la': 'Latin', 'grc': 'Greek', 'en': 'English'}
     key = db.execute('select name_key, entity_id from entities where eid = ?', (eid,)).fetchone()
@@ -446,6 +453,8 @@ def context_lines(db, tx, eid, n=5, tag=''):
     for work, lang, form, ref in db.execute(
             'select w.work, w.language, m.form, m.line_ref from mention_rows m join windows w on w.wid = m.wid '
             'where m.eid = ? and m.line_ref is not null order by m.wid', (eid,)):
+        if only is not None and ei.fold(form) not in only:
+            continue
         by_work.setdefault(work, []).append((lang, form, ref))
     works = sorted(by_work)
     rnd.shuffle(works)
@@ -530,6 +539,112 @@ def apply_split_fix(judgments, fixes):
     return n
 
 
+# ---------------------------------------------------------------- the Greek label and the label of a split (stage 3b)
+
+def _greek_stem(s):
+    """The folded form minus a nominative or case ending of the matcher's list, three letters left at least."""
+    return ei.strip_end(ei.fold(s), ei.GR_END, 3)
+
+
+def greek_label_ok(greek, forms=()):
+    """Fix pass. A promoted entity keeps its Greek label when it has no Greek-script form (the stage 3a
+    behavior) or when at least one Greek-script form's stem starts with the label's stem and the label's
+    stem is at least as long as that form's stem minus two letters. Key equality dropped labels that
+    are right (Abraham, Baruch, Apulia), because a Greek spelling and a Latin spelling of one name have
+    different transliterated keys."""
+    if not greek:
+        return False
+    gf = [f for f in forms if script_of(f) == 'greek']
+    if not gf:
+        return True
+    ls = _greek_stem(greek)
+    return any(_greek_stem(f).startswith(ls) and len(ls) >= len(_greek_stem(f)) - 2 for f in gf)
+
+
+LABEL_SYSTEM = (
+    'You help catalog the proper names found in a corpus of ancient Latin, Greek and English texts. You are given '
+    'the type of a name, the spellings that belong to it with their counts, and five lines from different works '
+    'that use these spellings. Say what the name is. Answer with one JSON object and nothing else, '
+    '{"latin": the standard English or Latin nominative name, "greek": the Greek nominative, accented, if the '
+    'spellings are Greek or have Greek forms, else an empty string}. The name must be the one these spellings '
+    'spell, not a similar name.')
+
+
+def label_question(typ, forms, snippets):
+    lines = [f'Type: {typ}', 'Spellings: ' + ', '.join(f'{f} ({n})' for f, n in forms), 'Lines:']
+    for i, (author, lang, text) in enumerate(snippets, 1):
+        lines.append(f'{i}. [{author}, {lang}] {text}')
+    return '\n'.join(lines)
+
+
+def parse_label(text):
+    """(latin, greek) from the label question's reply, or None for an unusable reply."""
+    obj = _json_object(text)
+    if obj is None:
+        return None
+    clean = lambda v: re.sub(r'\s+', ' ', str(v or '')).strip()  # noqa: E731
+    latin, greek = clean(obj.get('latin')), clean(obj.get('greek'))
+    return (latin, greek) if latin else None
+
+
+def _one_script(label, script):
+    letters = [c for c in label if c.isalpha()]
+    return bool(letters) and all(script_of(c) == script for c in letters)
+
+
+def apply_label_fix(judgments, fixes):
+    """Replace the Latin and Greek label of a split answer by the label asked for from its main
+    spellings. fixes: {key: (latin, greek)}. Fix pass: the new label is accepted only when it passes the
+    five-letter test against the main spellings (contradicts_label) and is in one script each (a Latin
+    label all Latin letters, a Greek label all Greek letters). Otherwise the earlier label stays.
+    Returns the number of labels that changed."""
+    n = 0
+    for key, (latin, greek) in fixes.items():
+        j = judgments.get(key)
+        if not j or not latin:
+            continue
+        if not _one_script(latin, 'latin') or (greek and not _one_script(greek, 'greek')):
+            continue
+        if contradicts_label(dict(j, latin=latin, greek=greek or '')):
+            continue
+        if ei.fold(latin) != ei.fold(j['latin']) or (greek or '') != (j['greek'] or ''):
+            n += 1
+        j['latin'], j['greek'] = latin, greek or ''
+    return n
+
+
+def still_contradicts(judgments):
+    return sorted(k for k, j in judgments.items() if contradicts_label(j))
+
+
+# ---------------------------------------------------------------- the label of a merged group
+
+# A group of promoted entities merged by dedupe_promoted takes its label by the heading rule of the
+# corpus names (a nominative-looking Latin form first, then the most lines), not from the surviving key.
+# 'ae' is added to the strong endings for this choice: it is the nominative plural of a first-declension
+# place name (Baiae, Athenae), against the accusative plural -as of the same name.
+GROUP_LA_STRONG = LA_STRONG + ('ae',)
+
+
+def group_rank(label, script):
+    f = _plain(label)
+    if script == 'latin':
+        strong, weak = GROUP_LA_STRONG, LA_WEAK
+    else:
+        strong, weak = tuple(_plain(x) for x in GR_STRONG), tuple(_plain(x) for x in GR_WEAK)
+    if f.endswith(strong):
+        return 0
+    return 1 if f.endswith(weak) else 2
+
+
+def pick_group_label(cands, script):
+    """cands: [(label, lines)]. The nominative-looking label with the most lines."""
+    cands = [(lab, n) for lab, n in cands if lab]
+    if not cands:
+        return None
+    return min(cands, key=lambda c: (group_rank(c[0], script), -c[1], c[0]))[0]
+
+
 # ---------------------------------------------------------------- duplicates among promoted entities
 
 def dedupe_promoted(db, log=print):
@@ -577,6 +692,10 @@ def dedupe_promoted(db, log=print):
             continue
         surv = max(members, key=lambda e: (lines.get(e, 0), -e))
         rep['groups'] += 1
+        # stage 3b: the group's labels come from the heading rule, not from the surviving key
+        lat_cands = [(ents[m]['label'], lines.get(m, 0)) for m in members]
+        orig_grc = ents[surv]['greek']
+        grc_cands = [(ents[m]['greek'], lines.get(m, 0)) for m in members if ents[m]['greek']]
         for other in members:
             if other == surv:
                 continue
@@ -590,12 +709,28 @@ def dedupe_promoted(db, log=print):
             db.execute('update entity_aliases set eid = ? where eid = ?', (surv, other))
             db.execute('insert into entity_aliases values (?,?,?,?,?)',
                        (surv, ents[other]['id'], ents[other]['label'], ents[other]['type'], 'promoted_duplicate'))
-            if not ents[surv]['greek'] and ents[other]['greek']:
-                db.execute('update entity_labels set display_label_grc = ? where eid = ?', (ents[other]['greek'], surv))
-                ents[surv]['greek'] = ents[other]['greek']
             db.execute('delete from entity_labels where eid = ?', (other,))
             db.execute('delete from entities where eid = ?', (other,))
             rep['merged_away'] += 1
+        forms_now = [f for (f,) in db.execute('select form from variants where eid = ?', (surv,))]
+        best_la = pick_group_label(lat_cands, 'latin') or ents[surv]['label']
+        best_grc = pick_group_label([(g, n) for g, n in grc_cands if greek_label_ok(g, forms_now)], 'greek')
+        if best_la != ents[surv]['label']:
+            rep['labels_changed'] = rep.get('labels_changed', 0) + 1
+            rep.setdefault('label_change_examples', []).append({'was': ents[surv]['label'], 'now': best_la,
+                                                                'kept': ents[surv]['id'], 'type': ents[surv]['type']})
+            db.execute('update entities set label = ? where eid = ?', (best_la, surv))
+            db.execute('update entity_labels set display_label = ?, display_label_la = ? where eid = ?',
+                       (best_la, best_la, surv))
+            lf = ei.fold(best_la)
+            if lf and not db.execute('select 1 from variants where eid = ? and form = ?', (surv, lf)).fetchone():
+                db.execute('insert into variants values (?,?,?,?,?)', (surv, lf, '', 'form', 'promoted'))
+        db.execute('update entity_labels set display_label_grc = ? where eid = ?', (best_grc, surv))
+        if best_grc != orig_grc:
+            rep['greek_changed'] = rep.get('greek_changed', 0) + 1
+            if orig_grc and not best_grc:
+                rep['greek_dropped_in_groups'] = rep.get('greek_dropped_in_groups', 0) + 1
+                rep.setdefault('greek_dropped_group_examples', []).append({'label': best_la, 'greek': orig_grc})
         touched.append(surv)
         if len(rep['examples']) < 20:
             rep['examples'].append({'label': ents[surv]['label'], 'type': ents[surv]['type'], 'kept': ents[surv]['id'],

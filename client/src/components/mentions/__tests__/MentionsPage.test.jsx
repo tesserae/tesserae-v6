@@ -197,3 +197,37 @@ describe('stage 3a', () => {
     expect(screen.getByTestId('entity-provenance').textContent).toBe('Named in the corpus, identified by a language model');
   });
 });
+
+describe('stage 3b', () => {
+  beforeEach(() => { window.sessionStorage.setItem(ENTITIES_KEY, '1'); });
+  afterEach(() => { delete global.__search; });
+
+  it('lists near spellings under their own heading, between the list entries and the corpus names', async () => {
+    global.__search = {
+      available: true, total: 2,
+      results: [
+        { id: 'nm:rhode', label: 'Rhodes', type: 'name', source: 'corpus', mention_counts: { la: 3 }, mentions_total: 3 },
+      ],
+      near_spellings: [
+        { id: 'pl:590031', label: 'Rhodos (island)', type: 'place', source: 'list', mention_counts: { grc: 221, la: 160 },
+          mentions_total: 381, distance: 1 }],
+    };
+    const user = userEvent.setup();
+    render(<MentionsPage setPageType={() => {}} />);
+    await user.type(screen.getByLabelText('A place, person or god'), 'rhodes{enter}');
+    expect((await screen.findByTestId('near-heading')).textContent).toBe('Near spellings');
+    const items = screen.getAllByTestId('entity-result');
+    expect(items).toHaveLength(2);
+    expect(items[0].textContent).toMatch(/Rhodos \(island\)/);          // the near spelling comes before the corpus name
+    expect(items[1].textContent).toMatch(/Rhodes/);
+    expect(screen.getByTestId('corpus-heading').textContent).toBe('Names in the corpus');
+  });
+
+  it('draws no heading when the search offers none', async () => {
+    const user = userEvent.setup();
+    render(<MentionsPage setPageType={() => {}} />);
+    await user.type(screen.getByLabelText('A place, person or god'), 'mars{enter}');
+    await screen.findAllByTestId('entity-result');
+    expect(screen.queryByTestId('near-heading')).toBeNull();
+  });
+});
