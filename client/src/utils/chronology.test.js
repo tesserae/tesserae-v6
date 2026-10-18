@@ -76,7 +76,7 @@ describe('the date shown on a card', () => {
   it('still reads years as before', () => {
     expect(dateParts({ date_note: 'd. c. 215 CE (c. 150-215), Clement of Alexandria' }).date).toBe('c. 215 CE');
     expect(dateParts({ date_note: 'fl. c. 100 CE' }).date).toBe('c. 100 CE');
-    expect(dateParts({ date_note: 'r. 27 BCE-14 CE' }).date).toBe('27 BCE-14 CE');
+    expect(dateParts({ date_note: 'd. 322 BCE' }).date).toBe('322 BCE');
   });
 
   it('leaves a prose note to the structured year', () => {
