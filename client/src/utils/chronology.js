@@ -79,8 +79,17 @@ const QUALIFIER = [
   [/^active\s+/i, 'active'],
 ];
 
+// A century at the front of what is left: "3rd c. CE", "c. 2nd cent. CE",
+// "2nd-3rd c. CE", "3rd-early 4th c. CE", "c. 1st c. BCE/CE". Forty-four
+// author notes are written this way (Quintus Smyrnaeus, Pausanias, Longus,
+// Diogenes Laertius, the Septuagint ...), and the year pattern below used to
+// take the "3" of "3rd c. CE" as the date and leave "rd c. CE" for the note,
+// so the chip read "3" (2026-10-18).
+const CENTURY_CORE = /^(?:c\.\s*)?\d{1,2}(?:st|nd|rd|th)(?:\s*[-–]\s*(?:early|late|mid)?[-\s]*(?:c\.\s*)?\d{1,2}(?:st|nd|rd|th))?\s*(?:c\.|cent\.|century)(?:\s*(?:BCE\/CE|BCE|CE|BC|AD))?/i;
+
 // A date at the front of what is left: "322 BCE", "c. 1020 CE", "c. 150-215".
-const DATE_CORE = /^(?:c\.\s*)?\d{1,4}(?:\s*[-–]\s*(?:c\.\s*)?\d{1,4})?(?:\s*(?:BCE|CE|BC|AD))?/i;
+// A number followed by an ordinal ending is a century, never a year.
+const DATE_CORE = /^(?:c\.\s*)?\d{1,4}(?!\s*(?:st|nd|rd|th)\b)(?:\s*[-–]\s*(?:c\.\s*)?\d{1,4}(?!\s*(?:st|nd|rd|th)\b))?(?:\s*(?:BCE\/CE|BCE|CE|BC|AD))?/i;
 
 function yearLabel(year) {
   return year < 0 ? `${Math.abs(year)} BCE` : `${year} CE`;
@@ -111,7 +120,7 @@ export function dateParts(r) {
     for (const [re, word] of QUALIFIER) {
       if (re.test(rest)) { kind = word; rest = rest.replace(re, '').trim(); break; }
     }
-    const m = rest.match(DATE_CORE);
+    const m = rest.match(CENTURY_CORE) || rest.match(DATE_CORE);
     if (m && m[0].trim()) {
       return { date: m[0].trim(), kind, about: tidy(rest.slice(m[0].length)) || null };
     }
