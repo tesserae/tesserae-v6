@@ -236,7 +236,8 @@ def step_plan2(a):
     keys, entities = load_world(a)
     types, prep = load_state(a)
     dec = load_decisions(a)
-    t2e, info = el.assemble_matcher(entities, types, prep, decisions=dec, case_forms=True, log=lambda *_: None)
+    t2e, info = el.assemble_matcher(entities, types, prep, decisions=dec, case_forms=True, case_allowed=load_allowed(a),
+                                     log=lambda *_: None)
     texts = emp.open_texts(a)
     ids = json.load(open(os.path.join(a.passage_dir, 'ids.json')))
     unit = ei.unit_windows(ids)
@@ -367,6 +368,10 @@ def step_names(a):
         return {'entity_id': job['entity_id'], 'source': job['source'], 'label': job['label'], 'answer': names,
                 'reply': txt if names is None else None}
 
+    import glob
+    done = {r['entity_id'] for f in [p(a, 'search_names.jsonl')] + glob.glob(p(a, 'search_names.s[0-9]*.jsonl'))
+            for r in read_jsonl(f) if r.get('answer')}
+    jobs = [j for j in jobs if j['entity_id'] not in done]
     name = 'search_names.jsonl'
     if a.shard:
         k, n = (int(x) for x in a.shard.split('/'))
@@ -383,7 +388,8 @@ def step_build(a):
     keys = json.load(open(a.entities_json, encoding='utf-8'))
     decisions = load_decisions(a)
     counts, _rows, _ents = ei.build_store(keys, a.passage_dir, a.out, matcher='lemma', lemma_decisions=decisions,
-                                          answers_loader=lambda ents: answers_index(a, ents)[0], case_forms=True)
+                                          answers_loader=lambda ents: answers_index(a, ents)[0], case_forms=True,
+                                          case_allowed=load_allowed(a))
     print('mentions by language', counts['list_mentions_by_language'], 'windows', counts['windows_with_mentions'])
 
 
@@ -450,6 +456,149 @@ def step_searchnames(a):
     print(f'{n} search names for {len(rows)} entities; {len(missing)} entities without an answer')
     if missing:
         json.dump(missing, open(p(a, 'search_names_missing.json'), 'w'))
+
+
+# ------------------------------------------------------------------ fix pass, gates 2 and 3
+
+CONFIRM_SYSTEM = (
+    'A catalog of ancient names is being checked. You see one entity (its label, type and listed forms) and one '
+    'candidate lemma (a dictionary form written without accents), the capitalized forms in which it occurs and '
+    'example lines from the corpus. Decide what the candidate is. Answer with one JSON object and nothing else, '
+    '{"answer": "name" or "demonym" or "other_name" or "common"}.\n'
+    'name: an inflected case form or a spelling of the entity\'s own name, so that every capitalized form of the '
+    'lemma would name this entity.\n'
+    'demonym: an adjective, or a word for the inhabitants, descendants or followers, made from the name.\n'
+    'other_name: a different person, place, ship or group with a similar name.\n'
+    'common: an ordinary word.')
+
+
+def confirm_prompt(e, lemma, lang, pass1_prompt):
+    """The confirmation question for one pair, from the pass-one prompt's forms and example lines."""
+    forms = ''
+    lines = []
+    grab = False
+    for ln in pass1_prompt.split('\n'):
+        if ln.startswith('Most frequent capitalized forms:'):
+            forms = ln.split(':', 1)[1].strip()
+        elif ln == 'Example lines:':
+            grab = True
+        elif grab:
+            lines.append(ln)
+    listed = sorted({x for k in e['keys'] for x in k['latin']} | {k['greek'] for k in e['keys'] if k['greek']})
+    ids = ', '.join(e.get('pleiades') or []) or 'none'
+    out = [f"Entity: {e['label']} ({e['type']}; Pleiades {ids})", 'Description: none given',
+           'Listed forms: ' + (', '.join(listed[:10]) or '(none)'), f'Language of the texts: {lang}',
+           f'Candidate lemma: {lemma}', 'Most frequent capitalized forms: ' + (forms or '(none)'), 'Example lines:']
+    out.extend(lines or ['(none)'])
+    return '\n'.join(out)
+
+
+def parse_confirm(text):
+    import re
+    if not text:
+        return None
+    t = re.sub(r'^```(?:json)?|```$', '', text.strip(), flags=re.M).strip()
+    a, b = t.find('{'), t.rfind('}')
+    if a < 0 or b <= a:
+        return None
+    try:
+        v = str(json.loads(t[a:b + 1]).get('answer') or '').strip().lower()
+    except (ValueError, AttributeError):
+        return None
+    return v if v in ('name', 'demonym', 'other_name', 'common') else None
+
+
+def load_allowed(a):
+    """{(lang, entity id, lemma)} the confirmation question called a name (gate 3)."""
+    out = set()
+    for r in read_jsonl(p(a, 'confirm_caseforms.jsonl')):
+        if r.get('answer') == 'name':
+            out.add((r['lang'], r['entity_id'], r['lemma']))
+    return out
+
+
+def step_gates(a):
+    """Gate 2 (stem consistency) over the 4,314 pairs, the nine flipped graded pairs, how the Greek
+    lemma Ellen entered Greece's candidates, and the gate 3 questions (confirm_cf_jobs.jsonl)."""
+    t0 = time.time()
+    keys, entities = load_world(a)
+    types, prep = load_state(a)
+    dec = load_decisions(a)
+    decided = el.decisions_by_index(entities, dec)
+    quiet = lambda *_: None  # noqa: E731
+    _t, info0 = el.assemble_matcher(entities, types, prep, decisions=dec, log=quiet)
+    present = {lg: {i: set(v) for i, v in info0['candidate_lemmas'][lg].items()} for lg in ei.LANGS}
+    why = {}
+    ungated = el.case_form_extension(entities, types, prep, present, stem_gate=False, why=why)
+    gated = el.case_form_extension(entities, types, prep, present, stem_gate=True)
+    by_lang = collections.Counter(k[0] for k in ungated)
+    pass_lang = collections.Counter(k[0] for k in gated)
+    summ = {'pairs': len(ungated), 'pairs_by_language': dict(by_lang), 'pass_gate2': len(gated),
+            'pass_gate2_by_language': dict(pass_lang)}
+    # pass-one answers
+    ans = {}
+    for r in emp.read_jsonl_all(judgment_files(a, 'stage1d_lemma_judgments.jsonl')):
+        ans[(r['lang'], r['entity_id'], r['lemma'])] = r.get('answer')
+    g1 = {k for k in gated if ans.get((k[0], entities[k[1]]['entity_id'], k[2])) in ('yes', 'other')}
+    summ['pass_gates_1_and_2'] = len(g1)
+    summ['pass_gates_1_and_2_by_language'] = dict(collections.Counter(k[0] for k in g1))
+    summ['pass_gate1_only'] = sum(1 for k in ungated if ans.get((k[0], entities[k[1]]['entity_id'], k[2])) in ('yes', 'other'))
+    # Greece and Ellen
+    byid = {e['entity_id']: i for i, e in enumerate(entities)}
+    gi = byid.get('pl:1001896')
+    summ['greece_hellen'] = {'listed_greek_forms': [k['greek'] for k in entities[gi]['keys'] if k['greek']],
+                             'why': {f'{k[0]}:{k[2]}': v[:4] for k, v in why.items() if k[1] == gi},
+                             'passes_gate2': {f'{k[0]}:{k[2]}': True for k in gated if k[1] == gi}}
+    # the nine flipped pairs
+    evalj = json.load(open(p(a, 'stage2_evalstore.json')))
+    texts = emp.open_texts(a)
+    t2e, _info = el.assemble_matcher(entities, types, prep, decisions=dec, case_forms=True, stem_gate=False, log=quiet)
+    flips = []
+    for c in evalj['changes']:
+        i = byid[c['entity_id']]
+        lang, text = texts.execute('select language, text from window_texts where id=?', (c['window_id'],)).fetchone()
+        for raw, f, es in el.window_triggers(text, t2e[lang]).get(i, []):
+            lem = types and prep['type_lemma'][lang].get(f)
+            k = (lang, i, lem)
+            flips.append({'n': c['n'], 'file': c['file'], 'verdict': c['verdict'], 'entity': entities[i]['label'], 'token': raw,
+                          'lemma': lem, 'new_pair': k in ungated, 'passes_gate2': k in gated,
+                          'listed_forms': sorted({fm for fm, _t2 in why.get(k, [])})[:3]})
+            break
+    summ['flipped'] = flips
+    json.dump(summ, open(p(a, 'fixpass_gates.json'), 'w'), ensure_ascii=False, indent=1)
+    print(json.dumps({k: v for k, v in summ.items() if k != 'flipped'}, ensure_ascii=False, indent=1))
+    for fl in flips:
+        print(json.dumps(fl, ensure_ascii=False))
+    # gate 3 questions
+    p1 = {(r['lang'], r['entity_id'], r['lemma']): r for r in read_jsonl(p(a, 'pass1_jobs.jsonl'))}
+    jobs = []
+    for k in sorted(g1, key=lambda k: (entities[k[1]]['entity_id'], k[0], k[2])):
+        e = entities[k[1]]
+        r = p1.get((k[0], e['entity_id'], k[2]))
+        if r is None:
+            continue
+        jobs.append({'entity_id': e['entity_id'], 'lang': k[0], 'lemma': k[2], 'prompt': confirm_prompt(e, k[2], k[0], r['prompt'])})
+    emp.write_jsonl(p(a, 'confirm_cf_jobs.jsonl'), jobs)
+    print(f'{len(jobs)} confirmation questions written, {time.time() - t0:.0f}s')
+
+
+def step_confirmcf(a):
+    jobs = read_jsonl(p(a, 'confirm_cf_jobs.jsonl'))
+    cl = emp.make_client()
+    emp.client_stats = cl.stats
+
+    def ask(job):
+        txt = cl.ask(CONFIRM_SYSTEM, job['prompt'], max_tokens=40)
+        return {'entity_id': job['entity_id'], 'lang': job['lang'], 'lemma': job['lemma'], 'answer': parse_confirm(txt),
+                'reply': txt if parse_confirm(txt) is None else None}
+
+    name = 'confirm_caseforms.jsonl'
+    if a.shard:
+        k, n = (int(x) for x in a.shard.split('/'))
+        jobs = [j for i, j in enumerate(jobs) if i % n == k]
+        name = 'confirm_caseforms.s%d.jsonl' % k
+    emp.run_stage(a, jobs, ask, None, p(a, name), lambda r: (r['lang'], r['entity_id'], r['lemma']), [(100, 16), (100, 48)])
+    json.dump(cl.stats, open(p(a, 'confirmcf_gateway_%d.json' % int(time.time())), 'w'))
 
 
 def main():

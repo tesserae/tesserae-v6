@@ -410,7 +410,7 @@ def promote_store(db, judgments, log=print):
         if label_fold and not db.execute('select 1 from variants where eid = ? and form = ?', (new, label_fold)).fetchone():
             db.execute('insert into variants values (?,?,?,?,?)', (new, label_fold, '', 'form', 'promoted'))
         grc = j['greek'] or None
-        if grc and not greek_label_ok(grc, {key}, [v[0] for v in main_variants]):
+        if grc and not greek_label_ok(grc, [v[0] for v in main_variants]):
             rep['greek_label_dropped'] = rep.get('greek_label_dropped', 0) + 1
             if len(rep.setdefault('greek_label_dropped_examples', [])) < 40:
                 rep['greek_label_dropped_examples'].append({'key': key, 'latin': j['latin'], 'greek': grc})
@@ -541,19 +541,24 @@ def apply_split_fix(judgments, fixes):
 
 # ---------------------------------------------------------------- the Greek label and the label of a split (stage 3b)
 
-def greek_label_ok(greek, keys, forms=()):
-    """A promoted entity's Greek label is kept only when its names key (the first five transliterated
-    letters) equals the entity's own key, the key of one of the keys merged into it, or the key of one
-    of its Latin-script forms. Greek-script forms are left out of the check, because a Greek spelling
-    always agrees with a Greek label: Carnutes (key karnu) lost the Greek label Κάρνοι (key karno)
-    although the entity also carries the Greek spelling Καρνούτων, whose key is karno too."""
+def _greek_stem(s):
+    """The folded form minus a nominative or case ending of the matcher's list, three letters left at least."""
+    return ei.strip_end(ei.fold(s), ei.GR_END, 3)
+
+
+def greek_label_ok(greek, forms=()):
+    """Fix pass. A promoted entity keeps its Greek label when it has no Greek-script form (the stage 3a
+    behavior) or when at least one Greek-script form's stem starts with the label's stem and the label's
+    stem is at least as long as that form's stem minus two letters. Key equality dropped labels that
+    are right (Abraham, Baruch, Apulia), because a Greek spelling and a Latin spelling of one name have
+    different transliterated keys."""
     if not greek:
         return False
-    k = ei.names_key(greek)
-    if k is None:
-        return False
-    have = set(keys) | {ei.names_key(f) for f in forms if script_of(f) != 'greek'}
-    return k in have
+    gf = [f for f in forms if script_of(f) == 'greek']
+    if not gf:
+        return True
+    ls = _greek_stem(greek)
+    return any(_greek_stem(f).startswith(ls) and len(ls) >= len(_greek_stem(f)) - 2 for f in gf)
 
 
 LABEL_SYSTEM = (
@@ -582,13 +587,25 @@ def parse_label(text):
     return (latin, greek) if latin else None
 
 
+def _one_script(label, script):
+    letters = [c for c in label if c.isalpha()]
+    return bool(letters) and all(script_of(c) == script for c in letters)
+
+
 def apply_label_fix(judgments, fixes):
     """Replace the Latin and Greek label of a split answer by the label asked for from its main
-    spellings. fixes: {key: (latin, greek)}. Returns the number of labels that changed."""
+    spellings. fixes: {key: (latin, greek)}. Fix pass: the new label is accepted only when it passes the
+    five-letter test against the main spellings (contradicts_label) and is in one script each (a Latin
+    label all Latin letters, a Greek label all Greek letters). Otherwise the earlier label stays.
+    Returns the number of labels that changed."""
     n = 0
     for key, (latin, greek) in fixes.items():
         j = judgments.get(key)
         if not j or not latin:
+            continue
+        if not _one_script(latin, 'latin') or (greek and not _one_script(greek, 'greek')):
+            continue
+        if contradicts_label(dict(j, latin=latin, greek=greek or '')):
             continue
         if ei.fold(latin) != ei.fold(j['latin']) or (greek or '') != (j['greek'] or ''):
             n += 1
@@ -678,10 +695,6 @@ def dedupe_promoted(db, log=print):
         # stage 3b: the group's labels come from the heading rule, not from the surviving key
         lat_cands = [(ents[m]['label'], lines.get(m, 0)) for m in members]
         orig_grc = ents[surv]['greek']
-        # the survivor's own forms, before the others are united into it: a Greek label that only the
-        # united forms support (Carnutes joined the key karno, whose spellings are the Greek Κάρνοι)
-        # is not checked against them
-        own_forms = [f for (f,) in db.execute('select form from variants where eid = ?', (surv,))]
         grc_cands = [(ents[m]['greek'], lines.get(m, 0)) for m in members if ents[m]['greek']]
         for other in members:
             if other == surv:
@@ -699,9 +712,9 @@ def dedupe_promoted(db, log=print):
             db.execute('delete from entity_labels where eid = ?', (other,))
             db.execute('delete from entities where eid = ?', (other,))
             rep['merged_away'] += 1
-        skey = ents[surv]['id'][3:]
+        forms_now = [f for (f,) in db.execute('select form from variants where eid = ?', (surv,))]
         best_la = pick_group_label(lat_cands, 'latin') or ents[surv]['label']
-        best_grc = pick_group_label([(g, n) for g, n in grc_cands if greek_label_ok(g, {skey}, own_forms)], 'greek')
+        best_grc = pick_group_label([(g, n) for g, n in grc_cands if greek_label_ok(g, forms_now)], 'greek')
         if best_la != ents[surv]['label']:
             rep['labels_changed'] = rep.get('labels_changed', 0) + 1
             rep.setdefault('label_change_examples', []).append({'was': ents[surv]['label'], 'now': best_la,

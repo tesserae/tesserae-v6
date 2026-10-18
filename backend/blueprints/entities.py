@@ -198,15 +198,18 @@ def _suggestions(cat, f):
 
 
 NEAR_LIMIT = 5
+NEAR_MIN_LETTERS = 5      # a shorter query is too short for a near spelling to mean anything
 
 
 def _near_spellings(cat, f, hits, name_hits):
-    """List and promoted entities within an edit distance of two of the folded query, offered under
+    """List and promoted entities within an edit distance of the folded query, offered under
     "Near spellings" in two cases: the exact and prefix matches are only corpus names (or there are
     none), or the best exact or prefix match has fewer lines than the near entity. The search names
-    count as spellings of the entity, so a reader who types Rhodes finds Rhodos."""
-    if len(f) < 3:
+    count as spellings of the entity, so a reader who types Rhodes finds Rhodos. Fix pass: only for a
+    query of five letters or more, at distance one for five or six letters and two for seven or more."""
+    if len(f) < NEAR_MIN_LETTERS:
         return []
+    limit = 1 if len(f) <= 6 else 2
     strong_ents = {h[3]['eid'] for h in hits if h[0] < 2}
     best_total = max([h[3]['total'] for h in hits if h[0] < 2] + [h[3]['total'] for h in name_hits if h[0] < 2],
                      default=-1)
@@ -217,8 +220,8 @@ def _near_spellings(cat, f, hits, name_hits):
         if strong_ents and e['total'] <= best_total:
             continue
         cands = set(strings) | set(e.get('search_names') or ())
-        best = min((_edit_distance(f, x) for x in cands if x), default=3)
-        if best <= 2:
+        best = min((_edit_distance(f, x, limit) for x in cands if x), default=limit + 1)
+        if best <= limit:
             found[e['eid']] = (best, -e['total'], e['label'], e)
     top = sorted(found.values(), key=lambda x: x[:3])[:NEAR_LIMIT]
     out = []

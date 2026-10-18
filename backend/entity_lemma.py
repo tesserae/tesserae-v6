@@ -277,7 +277,19 @@ def case_stems(form, lang):
     return st if len(st) >= STEM_MIN else None
 
 
-def case_form_extension(entities, types, prep, present, threshold=MAJORITY):
+def stem_consistent(lem, form, lang):
+    """Stage 3b fix pass, gate 2. The candidate lemma minus a nominative ending of the matcher's list
+    (four letters left at least) equals the listed form's stem, or the lemma is the listed form."""
+    if lem == form:
+        return True
+    st = case_stems(form, lang)
+    if st is None:
+        return False
+    ends = ei.GR_END if lang == 'grc' else ei.LA_END
+    return ei.strip_end(lem, ends, STEM_MIN) == st
+
+
+def case_form_extension(entities, types, prep, present, threshold=MAJORITY, stem_gate=True, why=None):
     """Stage 3b. The lemma sets are built from the lemma of each LISTED form, so a name whose
     oblique cases carry another table lemma than its nominative (Rhodus -> rhodus, Rhodi ->
     rhodos) loses every oblique mention. For each listed form this takes its stem, finds every
@@ -285,6 +297,10 @@ def case_form_extension(entities, types, prep, present, threshold=MAJORITY):
     of the language's case endings (the matcher's own lists, Latin and Greek), and returns the
     table lemma of each such token that is not already in the entity's lemma set and is
     name-like by the same capitalization threshold.
+
+    With stem_gate (the fix pass) the lemma must also be consistent with the listed form that
+    produced it, see stem_consistent. why, a dict, receives {(lang, entity index, lemma):
+    [(listed form, token)]} for every pair that passed the first checks, gated or not.
 
     present is {lang: {entity index: set of lemmas}}. Returns {(lang, entity index, lemma):
     sorted list of the tokens that carry it}."""
@@ -311,12 +327,16 @@ def case_form_extension(entities, types, prep, present, threshold=MAJORITY):
             share = cap_share_of(stats, lang, lem)
             if share is None or share < threshold:
                 continue
+            if why is not None:
+                why.setdefault((lang, idx, lem), []).append((f, tok))
+            if stem_gate and not stem_consistent(lem, f, lang):
+                continue
             out[(lang, idx, lem)].add(tok)
     return {k: sorted(v) for k, v in out.items()}
 
 
 def assemble_matcher(entities, types, prep, threshold=MAJORITY, audit_fixes=True, overrides=True, log=print,
-                     decisions=None, case_forms=False):
+                     decisions=None, case_forms=False, case_allowed=None, stem_gate=True):
     """Return (tok2ents, info). tok2ents[lang][folded token] = tuple of entity indexes,
     for every token type that is written with a capital at least once and whose lemma is
     in the entity's lemma set. With audit_fixes the lemmas that entity_lemma_audit proposes
@@ -355,7 +375,11 @@ def assemble_matcher(entities, types, prep, threshold=MAJORITY, audit_fixes=True
         diag[f'{lang}_form_kept'] += 1
     extension = {}
     if case_forms:
-        extension = case_form_extension(entities, types, prep, ent_lemmas, threshold)
+        extension = case_form_extension(entities, types, prep, ent_lemmas, threshold, stem_gate=stem_gate)
+        if case_allowed is not None:
+            by_id = id_index(entities)
+            allowed = {(lg, by_id[eid], lem) for (lg, eid, lem) in case_allowed if eid in by_id}
+            extension = {k: v for k, v in extension.items() if k in allowed}
         for (lang, idx, lem), toks in extension.items():
             ent_lemmas[lang][idx].add(lem)
             diag[f'{lang}_lemma_from_case_forms'] += 1
@@ -375,8 +399,11 @@ def assemble_matcher(entities, types, prep, threshold=MAJORITY, audit_fixes=True
                 ent_lemmas[lang][idx].discard(lem)
                 diag[f'{lang}_dropped_by_model'] += 1
         elif v == 'other':
-            amb_lemmas[lang].add(lem)
-            diag[f'{lang}_lemma_judged_other'] += 1
+            # only for an entity that holds the lemma: a pair the fix pass's gates removed from the
+            # extension must not make the lemma's tokens ambiguous for the entities that own it
+            if lem in ent_lemmas[lang].get(idx, ()):
+                amb_lemmas[lang].add(lem)
+                diag[f'{lang}_lemma_judged_other'] += 1
     amb_tokens = {lg: set() for lg in ei.LANGS}
     for lang in ei.LANGS:
         if amb_lemmas[lang]:
@@ -425,10 +452,10 @@ def assemble_matcher(entities, types, prep, threshold=MAJORITY, audit_fixes=True
 
 
 def build_lemma_matcher(entities, types, resolver, log=print, threshold=MAJORITY, audit_fixes=True,
-                        overrides=True, decisions=None, case_forms=False):
+                        overrides=True, decisions=None, case_forms=False, case_allowed=None):
     prep = prepare_lemmas(entities, types, resolver, log=log)
     return assemble_matcher(entities, types, prep, threshold, audit_fixes, overrides, log=log,
-                            decisions=decisions, case_forms=case_forms)
+                            decisions=decisions, case_forms=case_forms, case_allowed=case_allowed)
 
 
 def window_triggers(text, t2e):

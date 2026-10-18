@@ -29,19 +29,23 @@ def _lemma_fixture():
                  'keys': [{'latin': ['Rhodus'], 'greek': '', 'english': None}]}]
     types = {'la': {'rhodus': [14, 13, 14, 13, 'rhodus'], 'rhodi': [58, 46, 58, 46, 'rhodi'],
                     'rhodum': [121, 110, 121, 110, 'rhodum'], 'rhodo': [56, 2, 56, 2, 'rhodo'],
-                    'rhodae': [3, 0, 3, 0, 'rhodae'], 'rhodis': [4, 4, 4, 4, 'rhodis']},
+                    'rhodae': [3, 0, 3, 0, 'rhodae'], 'rhodis': [4, 4, 4, 4, 'rhodis'], 'rhodam': [5, 5, 5, 5, 'rhodam']},
              'grc': {}, 'en': {}}
     stats = {'la': {'rhodus': [14, 13, 14, 13], 'rhodos': [179, 156, 179, 156], 'rhodo': [56, 2, 56, 2],
-                    'rhodae': [3, 0, 3, 0]}, 'grc': {}, 'en': {}}
+                    'rhodae': [3, 0, 3, 0], 'rhodan': [5, 5, 5, 5]}, 'grc': {}, 'en': {}}
     prep = {'type_lemma': {'la': {'rhodus': 'rhodus', 'rhodi': 'rhodos', 'rhodum': 'rhodos', 'rhodo': 'rhodo',
-                                  'rhodae': 'rhodae', 'rhodis': 'rhodus'}, 'grc': {}, 'en': {}},
+                                  'rhodae': 'rhodae', 'rhodis': 'rhodus', 'rhodam': 'rhodan'}, 'grc': {}, 'en': {}},
             'stats': stats, 'form_lemma': [('la', 0, 'rhodus', 'rhodus')], 'form_source': {}}
     return entities, types, prep
 
 
 def test_the_lemma_of_an_oblique_case_joins_the_set_when_it_is_a_name():
     entities, types, prep = _lemma_fixture()
-    ext = el.case_form_extension(entities, types, prep, {'la': {0: {'rhodus'}}, 'grc': {}, 'en': {}})
+    present = {'la': {0: {'rhodus'}}, 'grc': {}, 'en': {}}
+    ext = el.case_form_extension(entities, types, prep, present)
+    # rhodam carries the lemma rhodan, which minus no ending is not the stem rhod: the stem gate refuses it
+    assert set(el.case_form_extension(entities, types, prep, present, stem_gate=False)) == {
+        ('la', 0, 'rhodos'), ('la', 0, 'rhodan')}
     # rhodi and rhodum carry the lemma rhodos, which is mostly capitalized. rhodo is a common word
     # (2 of 56 capitalized), rhodae is never capitalized, and rhodis is the lemma already held.
     assert ext == {('la', 0, 'rhodos'): ['rhodi', 'rhodum']}
@@ -61,6 +65,22 @@ def test_a_model_decision_still_removes_a_case_form_lemma():
     new, info = el.assemble_matcher(entities, types, prep, audit_fixes=False, overrides=False, log=lambda *_: None,
                                     case_forms=True, decisions={('la', 'pl:1', 'rhodos'): 'other'})
     assert new['la']['rhodi'] == (0,) and 'rhodi' in info['amb_tokens']['la']     # kept, and its windows are asked
+
+
+def test_the_stem_gate():
+    assert el.stem_consistent('rhodos', 'rhodus', 'la')            # rhodos minus os is rhod, the stem of rhodus
+    assert el.stem_consistent('rhodus', 'rhodus', 'la')            # the lemma is the listed form
+    assert not el.stem_consistent('rhodan', 'rhodus', 'la')
+    assert not el.stem_consistent('alexander', 'alexandra', 'la')  # a different name with a similar start
+    assert el.stem_consistent('αθηναι', 'αθηνα', 'grc')
+    assert not el.stem_consistent('ελλην', 'ελλασ', 'grc')         # Hellen is not a case form of Hellas
+    entities, types, prep = _lemma_fixture()
+    new, info = el.assemble_matcher(entities, types, prep, audit_fixes=False, overrides=False, log=lambda *_: None,
+                                    case_forms=True, case_allowed={('la', 'pl:1', 'rhodos')})
+    assert new['la']['rhodi'] == (0,)
+    new, info = el.assemble_matcher(entities, types, prep, audit_fixes=False, overrides=False, log=lambda *_: None,
+                                    case_forms=True, case_allowed=set())       # the confirmation kept nothing
+    assert 'rhodi' not in new['la'] and info['extension'] == {}
 
 
 def test_the_stem_needs_four_letters():
@@ -147,22 +167,32 @@ def test_near_spellings_when_only_corpus_names_match(store):
 
 
 def test_near_spellings_when_the_best_match_has_fewer_lines(store):
-    r = get(f'{P}/search?q=thebe').get_json()
-    # Thebe (5 lines) and Thebes (50) match by equality and prefix. Thebas (60) is two edits away and has more
-    # lines than the best match, so it is offered. Thebar (4 lines) has fewer and is not.
-    assert r['results'][0]['id'] == 'pl:thebi'
-    assert [x['id'] for x in r['near_spellings']] == ['pl:thbas']
+    r = get(f'{P}/search?q=thebes').get_json()
+    # Thebes (50 lines) matches by equality. Thebas (60) is one edit away and has more lines than the best
+    # match, so it is offered. Thebe (5) and Thebar (4) have fewer and are not.
+    assert r['results'][0]['id'] == 'pl:thebe'
+    assert [(x['id'], x['distance']) for x in r['near_spellings']] == [('pl:thbas', 1)]
     assert 'near_spellings' not in get(f'{P}/search?q=rusellae').get_json()
+
+
+def test_near_spellings_are_bounded_by_the_length_of_the_query(store):
+    cat = ent._catalog(store)
+    near = lambda q: [x['id'] for x in ent._near_spellings(cat, q, [], [])]     # noqa: E731
+    assert near('thbe') == [] and near('thebs') != []         # four letters, none. five letters, one edit (Thebes, Thebas)
+    assert set(near('thebus')) == {'pl:thbas', 'pl:thebe'}                       # six letters allow one edit
+    assert near('thabus') == []                                 # and not two: thabus is two edits from Thebas
+    assert 'pl:413288' in near('russelae')                      # eight letters allow two
 
 
 # ---------------------------------------------------------------- the three label faults
 
-def test_a_greek_label_needs_the_entitys_key_or_a_form_key():
-    assert not pr.greek_label_ok('Κάρνοι', {'karnu'}, ['carnutes', 'carnuti'])      # Carnutes lost it
-    assert not pr.greek_label_ok('Κάρνοι', {'karnu'}, ['carnutes', 'Καρνούτων'])    # a Greek spelling does not rescue it
-    assert pr.greek_label_ok('Βαΐαι', {'baiai'})
-    assert pr.greek_label_ok('Βαΐαι', {'other'}, ['Baiae'])                          # a Latin form of the entity carries the key
-    assert not pr.greek_label_ok('', {'baiai'})
+def test_a_greek_label_needs_a_greek_form_that_agrees_with_it():
+    assert pr.greek_label_ok('Ἀβραάμ', [])                                           # no Greek-script form: kept
+    assert pr.greek_label_ok('Ἀβραάμ', ['abraham', 'abrahami'])                      # Latin forms only: kept
+    assert pr.greek_label_ok('Ἀπουλία', ['apulia', 'απουλιασ'])                      # a Greek form with the same stem
+    assert pr.greek_label_ok('Ἀβραάμ', ['αβρααμ'])
+    assert not pr.greek_label_ok('Κάρνοι', ['carnutes', 'καρνουτων'])                # stem karn against karnout: too short
+    assert not pr.greek_label_ok('', ['abraham'])
 
 
 def test_a_merged_group_takes_the_nominative_looking_label():
@@ -195,8 +225,8 @@ def test_a_group_label_and_greek_label_are_rederived_in_the_merge(tmp_path):
     assert rep['after'] == 1 and rep['labels_changed'] == 1
     eid, ent_id, label = db.execute("select eid, entity_id, label from entities where source = 'promoted'").fetchone()
     assert ent_id == 'pn:baias' and label == 'Baiae'                                  # the key survives, the label is the heading
-    # the Greek label belongs to the key baiai, not to the surviving key baias, and no Latin form of the survivor carries it
-    assert db.execute('select display_label, display_label_grc from entity_labels where eid = ?', (eid,)).fetchone() == ('Baiae', None)
+    # neither entity has a Greek-script form, so the Greek label stays (the stage 3a behavior)
+    assert db.execute('select display_label, display_label_grc from entity_labels where eid = ?', (eid,)).fetchone() == ('Baiae', 'Βαΐαι')
 
 
 def test_the_label_of_a_split_is_asked_from_its_main_spellings():
@@ -211,3 +241,14 @@ def test_the_label_of_a_split_is_asked_from_its_main_spellings():
     assert pr.apply_label_fix(judgments, {'rhodo': ('Rhodope', 'Ῥοδόπη')}) == 1
     assert judgments['rhodo']['latin'] == 'Rhodope' and pr.still_contradicts(judgments) == []
     assert pr.apply_label_fix(judgments, {'rhodo': ('Rhodope', 'Ῥοδόπη')}) == 0         # the same label again is no change
+
+
+def test_a_second_label_is_accepted_only_when_it_passes_the_tests():
+    j = {'type': 'place', 'latin': 'Rhodes', 'greek': 'Ῥόδος', 'description': '', 'distinct_names': True,
+         'main_forms': ['Rhodopen', 'Rhodopes']}
+    for bad in (('Rhoda', 'Ῥόδα'),                # shares only four letters with the main spellings
+                ('Rhodοpe', 'Ῥοδόπη'),            # a Greek omicron inside a Latin label
+                ('Rhodope', 'Rhodope')):          # a Latin word as the Greek label
+        judgments = {'rhodo': dict(j)}
+        assert pr.apply_label_fix(judgments, {'rhodo': bad}) == 0
+        assert judgments['rhodo']['latin'] == 'Rhodes' and judgments['rhodo']['greek'] == 'Ῥόδος'    # the earlier label stays
