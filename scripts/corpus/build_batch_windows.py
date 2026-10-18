@@ -26,6 +26,7 @@ import json
 import os
 import re
 import sqlite3
+import sys
 import unicodedata
 
 GENERIC = {
@@ -57,7 +58,13 @@ def tess_lines(path):
 def load_rarity(index_db, lemma_table_path):
     lemmas = {}
     if lemma_table_path and os.path.exists(lemma_table_path):
-        lemmas = json.load(open(lemma_table_path, encoding='utf-8'))
+        if os.path.basename(lemma_table_path) == 'latin_lemmas.json':
+            # Table plus the corrections file beside it (backend/lemma_tables.py).
+            sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+            from backend.lemma_tables import load_latin_lemma_table
+            lemmas = load_latin_lemma_table(lemma_table_path)
+        else:
+            lemmas = json.load(open(lemma_table_path, encoding='utf-8'))
     df, n = {}, 0
     if index_db and os.path.exists(index_db):
         con = sqlite3.connect(index_db)

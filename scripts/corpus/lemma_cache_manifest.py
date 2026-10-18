@@ -28,6 +28,7 @@ import sys
 DEFAULT_REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 MANIFEST_NAME = 'MANIFEST.json'
 TABLES = ('data/lemma_tables/latin_lemmas.json',
+          'data/lemma_tables/latin_corrections.json',
           'data/lemma_tables/greek_lemmas.json',
           'data/lemma_tables/greek_koine_lemmas.json',
           'data/lemma_tables/greek_classical_lemmas.json')
@@ -101,6 +102,12 @@ def check_manifest(cache_dir, repo=DEFAULT_REPO):
         manifest = json.load(f)
     reasons = []
     recorded = [manifest.get('tokenizer') or {}] + list(manifest.get('tables') or [])
+    # A table file that exists now but is not in the manifest at all was not read by the build
+    # (the corrections file, added 2026-10-18, is absent from every earlier manifest).
+    known = {entry.get('path') for entry in recorded}
+    for rel in TABLES:
+        if rel not in known and describe_file(repo, rel)['sha256'] is not None:
+            reasons.append('%s exists now but the manifest does not record it (the cache was built without it)' % rel)
     for entry in recorded:
         rel = entry.get('path')
         if not rel:
