@@ -236,7 +236,6 @@ abigentem,abigo,parse_fill,parser 3 of 3 (100%); 3 tokens,2026-10-18
 abigentes,abigo,parse_fill,parser 4 of 4 (100%); 4 tokens,2026-10-18
 abigerent,abigo,parse_fill,parser 2 of 2 (100%); 4 tokens,2026-10-18
 abigeres,abigo,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
-abigerunt,fero,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 abiget,abigo,parse_fill,parser 4 of 4 (100%); 6 tokens,2026-10-18
 abigis,abigo,parse_fill,parser 6 of 6 (100%); 7 tokens,2026-10-18
 abigite,abigo,parse_fill,parser 2 of 2 (100%); 1 tokens,2026-10-18
@@ -541,7 +540,6 @@ abscesserunt,abscedo,parse_fill,parser 12 of 12 (100%); 18 tokens,2026-10-18
 abscessibus,abscessus,parse_fill,parser 12 of 12 (100%); 12 tokens,2026-10-18
 abscessimus,abscedo,parse_fill,parser 4 of 4 (100%); 4 tokens,2026-10-18
 abscessisset,abscedo,parse_fill,parser 5 of 5 (100%); 14 tokens,2026-10-18
-abscessurum,abdo,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 abscidam,abscido,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 abscidamus,abscido,parse_fill,parser 1 of 1 (100%); 3 tokens,2026-10-18
 abscidant,abscido,parse_fill,parser 5 of 5 (100%); 4 tokens,2026-10-18
@@ -579,7 +577,6 @@ abscindunt,abscindo,parse_fill,parser 1 of 1 (100%); 4 tokens,2026-10-18
 abscinduntur,abscindo,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 abscisae,abscido,parse_fill,parser 9 of 9 (100%); 21 tokens,2026-10-18
 abscisam,abscido,parse_fill,parser 10 of 10 (100%); 11 tokens,2026-10-18
-abscisurum,abdo,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 abscondam,abscondo,parse_fill,parser 18 of 18 (100%); 27 tokens,2026-10-18
 abscondamini,abscondo,parse_fill,parser 3 of 3 (100%); 3 tokens,2026-10-18
 abscondamur,abscondo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
@@ -787,7 +784,6 @@ abstrudendam,abstrudo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 abstrudi,abstrudo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 abstruditur,abstrudo,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 abstrudunt,abstrudo,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
-abstulissem,tollo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 absumam,absumo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 absumamus,absumo,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 absumantur,absumo,parse_fill,parser 10 of 10 (100%); 11 tokens,2026-10-18
@@ -944,7 +940,6 @@ accensionem,accensio,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 accensit,accendo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 accensu,accensus,parse_fill,parser 5 of 5 (100%); 4 tokens,2026-10-18
 accensurum,accendo,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
-acceperimus,acco,parse_fill,parser 52 of 62 (84%); 61 tokens,2026-10-18
 acceptabili,acceptabilis,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 acceptabilia,acceptabilis,parse_fill,parser 6 of 6 (100%); 4 tokens,2026-10-18
 acceptabilior,acceptabilis,parse_fill,parser 5 of 5 (100%); 5 tokens,2026-10-18
@@ -980,7 +975,6 @@ acceptissimis,acceptus,parse_fill,parser 3 of 3 (100%); 4 tokens,2026-10-18
 acceptissimum,acceptus,parse_fill,parser 7 of 7 (100%); 11 tokens,2026-10-18
 acceptius,acceptus,parse_fill,parser 11 of 11 (100%); 20 tokens,2026-10-18
 acceptorem,acceptor,parse_fill,parser 4 of 4 (100%); 3 tokens,2026-10-18
-accepts,acco,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 acceptu,acceptus,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 accepturae,accipio,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 accepturis,accipio,parse_fill,parser 3 of 3 (100%); 2 tokens,2026-10-18
@@ -995,11 +989,9 @@ accessionis,accessio,parse_fill,parser 36 of 36 (100%); 36 tokens,2026-10-18
 accessionum,accessio,parse_fill,parser 3 of 3 (100%); 6 tokens,2026-10-18
 accessisses,accedo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 accessuram,accedo,parse_fill,parser 3 of 3 (100%); 4 tokens,2026-10-18
-accibant,acco,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 accidas,accido,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 accidebat,accido,parse_fill,parser 15 of 15 (100%); 29 tokens,2026-10-18
 accidentalia,accidentalis,parse_fill,parser 1 of 1 (100%); 4 tokens,2026-10-18
-acciderim,acco,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 acciditur,accido,parse_fill,parser 3 of 3 (100%); 2 tokens,2026-10-18
 acciendos,accio,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 acciet,accio,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
@@ -1044,7 +1036,6 @@ accipitrum,accipiter,parse_fill,parser 16 of 18 (89%); 20 tokens,2026-10-18
 accipiunda,accipio,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 accipiundum,accipio,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 accire,accio,parse_fill,parser 5 of 5 (100%); 7 tokens,2026-10-18
-accirem,acco,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 accirentur,accio,parse_fill,parser 2 of 2 (100%); 6 tokens,2026-10-18
 acciretur,accio,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 accisa,accido,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
@@ -1052,7 +1043,6 @@ accisus,accido,parse_fill,parser 2 of 2 (100%); 3 tokens,2026-10-18
 accitarum,accio,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 accitas,accio,parse_fill,parser 5 of 6 (83%); 7 tokens,2026-10-18
 accite,accio,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
-accitorum,acco,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 acclama,acclamo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 acclamabamus,acclamo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 acclamabant,acclamo,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
@@ -1086,7 +1076,6 @@ accliuitates,accliuitas,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 accliuitatis,accliuitas,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 accolam,accola,parse_fill,parser 2 of 2 (100%); 4 tokens,2026-10-18
 accolas,accola,parse_fill,parser 36 of 36 (100%); 60 tokens,2026-10-18
-accolentium,acco,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 accommodabat,accommodo,parse_fill,parser 2 of 2 (100%); 3 tokens,2026-10-18
 accommodabitur,accommodo,parse_fill,parser 11 of 11 (100%); 11 tokens,2026-10-18
 accommodabo,accommodo,parse_fill,parser 3 of 3 (100%); 3 tokens,2026-10-18
@@ -1358,7 +1347,6 @@ actuose,actuosus,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 actuosi,actuosus,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 actuosior,actuosus,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 actuosum,actuosus,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
-acturis,icio,parse_fill,parser 3 of 3 (100%); 3 tokens,2026-10-18
 acuamur,acuo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 acuamus,acuo,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 acuantur,acuo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
@@ -2094,7 +2082,6 @@ adipiscerer,adipiscor,parse_fill,parser 2 of 2 (100%); 1 tokens,2026-10-18
 adipisceris,adipiscor,parse_fill,parser 2 of 2 (100%); 3 tokens,2026-10-18
 adipiscetur,adipiscor,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 adipiscimur,adipiscor,parse_fill,parser 7 of 7 (100%); 9 tokens,2026-10-18
-adirier,eo,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 adissem,adeo,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 aditae,adeo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 adite,adeo,parse_fill,parser 6 of 7 (86%); 7 tokens,2026-10-18
@@ -3056,7 +3043,6 @@ adpropinques,adpropinquo,parse_fill,parser 5 of 5 (100%); 6 tokens,2026-10-18
 adpropinquetis,adpropinquo,parse_fill,parser 2 of 2 (100%); 4 tokens,2026-10-18
 adpulerant,appello,assimilated_prefix,other spelling appulerant (adp>app); 2 tokens,2026-10-18
 adpulerat,appello,assimilated_prefix,other spelling appulerat (adp>app); 5 tokens,2026-10-18
-adpulerit,affero,parse_fill,parser 3 of 3 (100%); 3 tokens,2026-10-18
 adpulisse,appello,assimilated_prefix,other spelling appulisse (adp>app); 1 tokens,2026-10-18
 adpulissent,appello,assimilated_prefix,other spelling appulissent (adp>app); 6 tokens,2026-10-18
 adpulisset,appello,assimilated_prefix,other spelling appulisset (adp>app); 2 tokens,2026-10-18
@@ -3345,7 +3331,6 @@ adspirent,adspiro,parse_fill,parser 3 of 3 (100%); 4 tokens,2026-10-18
 adspiret,adspiro,parse_fill,parser 17 of 17 (100%); 25 tokens,2026-10-18
 adstipulatore,adstipulator,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 adstipulatores,adstipulator,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
-adstrata,affero,parse_fill,parser 4 of 4 (100%); 2 tokens,2026-10-18
 adstringamur,adstringo,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 adstringant,adstringo,parse_fill,parser 6 of 6 (100%); 8 tokens,2026-10-18
 adstringantur,adstringo,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
@@ -3435,9 +3420,6 @@ adsumptam,assumo,assimilated_prefix,other spelling assumptam (ads>ass); 15 token
 adsumptionem,assumptio,assimilated_prefix,other spelling assumptionem (ads>ass); 28 tokens,2026-10-18
 adsumptioni,assumptio,assimilated_prefix,other spelling assumptioni (ads>ass); 1 tokens,2026-10-18
 adsumpturus,assumo,assimilated_prefix,other spelling assumpturus (ads>ass); 4 tokens,2026-10-18
-adsumsit,assuo,parse_fill,parser 25 of 29 (86%); 32 tokens,2026-10-18
-adsumtis,assuo,parse_fill,parser 10 of 10 (100%); 10 tokens,2026-10-18
-adsumtus,assuo,parse_fill,parser 8 of 8 (100%); 12 tokens,2026-10-18
 adsumuntur,adsumo,parse_fill,parser 19 of 19 (100%); 21 tokens,2026-10-18
 adsurge,assurgo,assimilated_prefix,other spelling assurge (ads>ass); 1 tokens,2026-10-18
 adsurgite,assurgo,assimilated_prefix,other spelling assurgite (ads>ass); 3 tokens,2026-10-18
@@ -4023,7 +4005,6 @@ aemuler,aemulor,parse_fill,parser 3 of 3 (100%); 3 tokens,2026-10-18
 aemuleris,aemulor,parse_fill,parser 18 of 18 (100%); 17 tokens,2026-10-18
 aemulis,aemulus,parse_fill,parser 53 of 53 (100%); 72 tokens,2026-10-18
 aemulo,aemulus,parse_fill,parser 38 of 38 (100%); 81 tokens,2026-10-18
-aenam,aenus,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 aenei,aeneus,parse_fill,parser 7 of 7 (100%); 13 tokens,2026-10-18
 aeneo,aeneus,parse_fill,parser 16 of 17 (94%); 26 tokens,2026-10-18
 aeneorum,aeneus,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
@@ -4113,7 +4094,6 @@ aeramine,aeramen,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 aeraria,aerarium,parse_fill,parser 9 of 10 (90%); 12 tokens,2026-10-18
 aerariam,aerarius,parse_fill,parser 5 of 5 (100%); 6 tokens,2026-10-18
 aerarias,aeraria,parse_fill,parser 1 of 1 (100%); 4 tokens,2026-10-18
-aeratarum,aeo,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 aerearum,aereus,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 aereo,aereus,parse_fill,parser 38 of 38 (100%); 43 tokens,2026-10-18
 aeres,aer,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
@@ -4124,7 +4104,6 @@ aeriorum,aerius,parse_fill,parser 6 of 6 (100%); 6 tokens,2026-10-18
 aeripedes,aeripes,parse_fill,parser 35 of 35 (100%); 36 tokens,2026-10-18
 aeripedis,aeripes,parse_fill,parser 3 of 3 (100%); 3 tokens,2026-10-18
 aeripedum,aeripes,parse_fill,parser 8 of 10 (80%); 12 tokens,2026-10-18
-aeruero,uero,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 aerugine,aerugo,parse_fill,parser 26 of 30 (87%); 31 tokens,2026-10-18
 aeruginem,aerugo,parse_fill,parser 19 of 19 (100%); 21 tokens,2026-10-18
 aeruginis,aerugo,parse_fill,parser 52 of 57 (91%); 59 tokens,2026-10-18
@@ -4386,7 +4365,6 @@ afflatam,afflo,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 afflate,afflo,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 afflatis,afflo,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 afflatos,afflo,assimilated_prefix,other spelling adflatos (aff>adf); 3 tokens,2026-10-18
-afflatoue,ue,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 afflatur,afflo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 afflauerat,afflo,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 afflebant,afflo,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
@@ -5011,7 +4989,6 @@ altores,altor,parse_fill,parser 2 of 2 (100%); 3 tokens,2026-10-18
 altoris,altor,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 altricia,altrix,parse_fill,parser 2 of 2 (100%); 1 tokens,2026-10-18
 altu,altus,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
-aluerim,ano,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 alumnarum,alumna,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 alumne,alumnus,parse_fill,parser 18 of 18 (100%); 18 tokens,2026-10-18
 aluorum,aluus,parse_fill,parser 11 of 12 (92%); 21 tokens,2026-10-18
@@ -5702,7 +5679,6 @@ annuerint,annuo,assimilated_prefix,other spelling adnuerint (ann>adn); 4 tokens,
 annuerit,annuo,assimilated_prefix,other spelling adnuerit (ann>adn); 11 tokens,2026-10-18
 annuero,annuo,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 annuet,annuo,parse_fill,parser 4 of 4 (100%); 4 tokens,2026-10-18
-annuisse,ano,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 annuisset,annuo,assimilated_prefix,other spelling adnuisset (ann>adn); 5 tokens,2026-10-18
 annuite,annuo,assimilated_prefix,other spelling adnuite (ann>adn); 1 tokens,2026-10-18
 annuitur,annuo,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
@@ -5848,7 +5824,6 @@ anteposui,antepono,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 antesignana,antesignanus,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 antesignanis,antesignanus,parse_fill,parser 10 of 10 (100%); 21 tokens,2026-10-18
 antesignanum,antesignanus,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
-antetulit,affero,parse_fill,parser 2 of 2 (100%); 4 tokens,2026-10-18
 antiades,antias,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 anticam,anticus,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 anticas,anticus,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
@@ -6300,9 +6275,6 @@ appropinquent,appropinquo,assimilated_prefix,other spelling adpropinquent (app>a
 appropinquet,appropinquo,parse_fill,parser 7 of 7 (100%); 5 tokens,2026-10-18
 appropriato,approprio,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 appuleiae,appuleius,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
-appulerint,affero,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
-appulimus,affero,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
-appulisti,fero,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 appulsu,appulsus,parse_fill,parser 3 of 3 (100%); 7 tokens,2026-10-18
 apricante,aprico,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 apricanti,aprico,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
@@ -6553,7 +6525,6 @@ ardebis,ardeo,parse_fill,parser 4 of 4 (100%); 4 tokens,2026-10-18
 ardebitis,ardeo,parse_fill,parser 2 of 2 (100%); 1 tokens,2026-10-18
 ardebo,ardeo,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 ardendo,ardeo,parse_fill,parser 2 of 2 (100%); 5 tokens,2026-10-18
-ardenterue,ue,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 ardentum,ardeo,parse_fill,parser 4 of 4 (100%); 4 tokens,2026-10-18
 arderem,ardeo,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 ardes,ardeo,parse_fill,parser 16 of 16 (100%); 16 tokens,2026-10-18
@@ -7081,7 +7052,6 @@ asportauerunt,asporto,parse_fill,parser 5 of 5 (100%); 10 tokens,2026-10-18
 asportauit,asporto,parse_fill,parser 6 of 6 (100%); 9 tokens,2026-10-18
 asportor,asporto,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 aspram,asper,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
-assae,aeo,parse_fill,parser 1 of 1 (100%); 7 tokens,2026-10-18
 assare,asso,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 assari,asso,parse_fill,parser 3 of 3 (100%); 4 tokens,2026-10-18
 assata,asso,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
@@ -7319,7 +7289,6 @@ assuefaciunt,assuefacio,parse_fill,parser 3 of 3 (100%); 2 tokens,2026-10-18
 assuefacta,assuefacio,parse_fill,parser 4 of 4 (100%); 3 tokens,2026-10-18
 assuefactus,assuefacio,assimilated_prefix,other spelling adsuefactus (ass>ads); 3 tokens,2026-10-18
 assuefecit,assuefacio,assimilated_prefix,other spelling adsuefecit (ass>ads); 3 tokens,2026-10-18
-assuendo,assuo,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 assuerant,assuesco,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 assuerat,assuesco,parse_fill,parser 3 of 3 (100%); 6 tokens,2026-10-18
 assuescant,assuesco,parse_fill,parser 4 of 4 (100%); 5 tokens,2026-10-18
@@ -7335,7 +7304,6 @@ assuescunt,assuesco,parse_fill,parser 2 of 2 (100%); 1 tokens,2026-10-18
 assuetudo,assuetudo,assimilated_prefix,other spelling adsuetudo (ass>ads); 4 tokens,2026-10-18
 assueuerant,assuesco,assimilated_prefix,other spelling adsueuerant (ass>ads); 1 tokens,2026-10-18
 assueuerat,assuesco,assimilated_prefix,other spelling adsueuerat (ass>ads); 7 tokens,2026-10-18
-assueuerit,assuo,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 assueuit,assuesco,assimilated_prefix,other spelling adsueuit (ass>ads); 7 tokens,2026-10-18
 assuit,assuo,assimilated_prefix,other spelling adsuit (ass>ads); 3 tokens,2026-10-18
 assultibus,assultus,assimilated_prefix,other spelling adsultibus (ass>ads); 37 tokens,2026-10-18
@@ -7363,12 +7331,6 @@ assumpsere,assumo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 assumpseris,assumo,parse_fill,parser 3 of 3 (100%); 4 tokens,2026-10-18
 assumpsimus,assumo,parse_fill,parser 3 of 3 (100%); 5 tokens,2026-10-18
 assumptos,adsumo,assimilated_prefix,other spelling adsumptos (ass>ads); 3 tokens,2026-10-18
-assumsit,assuo,parse_fill,parser 9 of 9 (100%); 6 tokens,2026-10-18
-assumta,assuo,parse_fill,parser 9 of 9 (100%); 5 tokens,2026-10-18
-assumtae,assuo,parse_fill,parser 6 of 6 (100%); 4 tokens,2026-10-18
-assumtam,assuo,parse_fill,parser 4 of 4 (100%); 2 tokens,2026-10-18
-assumti,assuo,parse_fill,parser 6 of 6 (100%); 4 tokens,2026-10-18
-assumtum,assuo,parse_fill,parser 2 of 2 (100%); 1 tokens,2026-10-18
 assumuntur,assumo,parse_fill,parser 11 of 11 (100%); 20 tokens,2026-10-18
 assumus,adsum,assimilated_prefix,other spelling adsumus (ass>ads); 4 tokens,2026-10-18
 assunt,adsum,assimilated_prefix,other spelling adsunt (ass>ads); 19 tokens,2026-10-18
@@ -7382,7 +7344,6 @@ assurgentem,assurgo,parse_fill,parser 2 of 2 (100%); 4 tokens,2026-10-18
 assurgentes,assurgo,parse_fill,parser 4 of 4 (100%); 5 tokens,2026-10-18
 assurgunt,assurgo,assimilated_prefix,other spelling adsurgunt (ass>ads); 13 tokens,2026-10-18
 assurrexerunt,assurgo,parse_fill,parser 1 of 1 (100%); 3 tokens,2026-10-18
-assuti,assuo,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 astabimus,asto,parse_fill,parser 3 of 3 (100%); 2 tokens,2026-10-18
 astabo,asto,parse_fill,parser 6 of 6 (100%); 4 tokens,2026-10-18
 astaci,astacus,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
@@ -7467,7 +7428,6 @@ astutu,astutus,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 asylorum,asylum,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 atauum,atauus,parse_fill,parser 2 of 2 (100%); 5 tokens,2026-10-18
 atere,atus,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
-ates,as,parse_fill,parser 1 of 1 (100%); 3 tokens,2026-10-18
 atheniense,atheniensis,parse_fill,parser 18 of 18 (100%); 18 tokens,2026-10-18
 atomum,atomus,parse_fill,parser 8 of 10 (80%); 20 tokens,2026-10-18
 atramenti,atramentum,parse_fill,parser 41 of 41 (100%); 46 tokens,2026-10-18
@@ -8312,7 +8272,6 @@ beauerat,beo,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 beaueris,beo,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 beauit,beo,parse_fill,parser 25 of 28 (89%); 44 tokens,2026-10-18
 became,beo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
-been,sem,parse_fill,parser 13 of 14 (93%); 14 tokens,2026-10-18
 bellabant,bello,parse_fill,parser 6 of 6 (100%); 8 tokens,2026-10-18
 bellabimus,bello,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 bellabit,bello,parse_fill,parser 1 of 1 (100%); 3 tokens,2026-10-18
@@ -8739,7 +8698,6 @@ bucolico,bucolicus,parse_fill,parser 2 of 2 (100%); 5 tokens,2026-10-18
 buculam,bucula,parse_fill,parser 3 of 3 (100%); 4 tokens,2026-10-18
 buculas,bucula,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 buculis,bucula,parse_fill,parser 3 of 3 (100%); 2 tokens,2026-10-18
-buit,beo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 bulbi,bulbus,parse_fill,parser 32 of 32 (100%); 48 tokens,2026-10-18
 bulbis,bulbus,parse_fill,parser 18 of 18 (100%); 25 tokens,2026-10-18
 bulbo,bulbus,parse_fill,parser 11 of 11 (100%); 19 tokens,2026-10-18
@@ -8777,7 +8735,6 @@ cacuminum,cacumen,parse_fill,parser 5 of 5 (100%); 13 tokens,2026-10-18
 cadamus,cado,parse_fill,parser 5 of 5 (100%); 8 tokens,2026-10-18
 cadatis,cado,parse_fill,parser 11 of 11 (100%); 12 tokens,2026-10-18
 cade,cado,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
-cadem,idem,parse_fill,parser 1 of 1 (100%); 3 tokens,2026-10-18
 cademus,cado,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 cadendo,cado,parse_fill,parser 29 of 29 (100%); 48 tokens,2026-10-18
 caderemus,cado,parse_fill,parser 2 of 2 (100%); 1 tokens,2026-10-18
@@ -9077,7 +9034,6 @@ calliditatibus,calliditas,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 callidorum,callidus,parse_fill,parser 5 of 5 (100%); 6 tokens,2026-10-18
 callosas,callosus,parse_fill,parser 3 of 3 (100%); 4 tokens,2026-10-18
 callosior,callosus,parse_fill,parser 4 of 4 (100%); 4 tokens,2026-10-18
-callosiorue,ue,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 callosis,callosus,parse_fill,parser 5 of 5 (100%); 5 tokens,2026-10-18
 callosorum,callosus,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 callosum,callosus,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
@@ -9188,7 +9144,6 @@ candidissimum,candidus,parse_fill,parser 5 of 5 (100%); 8 tokens,2026-10-18
 candidissimus,candidus,parse_fill,parser 6 of 6 (100%); 7 tokens,2026-10-18
 candidius,candidus,parse_fill,parser 27 of 29 (93%); 41 tokens,2026-10-18
 candidorum,candidus,parse_fill,parser 3 of 3 (100%); 5 tokens,2026-10-18
-cando,co,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 candores,candor,parse_fill,parser 4 of 4 (100%); 7 tokens,2026-10-18
 candori,candor,parse_fill,parser 8 of 8 (100%); 16 tokens,2026-10-18
 candoribus,candor,parse_fill,parser 3 of 3 (100%); 4 tokens,2026-10-18
@@ -9284,7 +9239,6 @@ cantitasse,cantito,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 cantitata,cantito,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 cantites,cantito,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 cantos,cantus,parse_fill,parser 5 of 5 (100%); 3 tokens,2026-10-18
-cantur,co,parse_fill,parser 6 of 6 (100%); 7 tokens,2026-10-18
 canuerat,cano,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 capacitates,capacitas,parse_fill,parser 2 of 2 (100%); 1 tokens,2026-10-18
 capacitati,capacitas,parse_fill,parser 1 of 1 (100%); 5 tokens,2026-10-18
@@ -9726,8 +9680,6 @@ catinorum,catinus,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 catinos,catinus,parse_fill,parser 4 of 4 (100%); 5 tokens,2026-10-18
 catinum,catinus,parse_fill,parser 15 of 16 (94%); 24 tokens,2026-10-18
 catis,catus,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
-catorum,co,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
-catur,co,parse_fill,parser 11 of 11 (100%); 12 tokens,2026-10-18
 cauabant,cauo,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 cauando,cauo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 cauantem,cauo,parse_fill,parser 4 of 4 (100%); 4 tokens,2026-10-18
@@ -9966,7 +9918,6 @@ celsissimum,celsus,parse_fill,parser 5 of 5 (100%); 5 tokens,2026-10-18
 celsissimus,celsus,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 celsitudines,celsitudo,parse_fill,parser 5 of 5 (100%); 6 tokens,2026-10-18
 celsorum,celsus,parse_fill,parser 11 of 11 (100%); 17 tokens,2026-10-18
-cemus,co,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 cenabam,ceno,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 cenabant,ceno,parse_fill,parser 3 of 3 (100%); 5 tokens,2026-10-18
 cenabimus,ceno,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
@@ -10002,7 +9953,6 @@ cenauerit,ceno,parse_fill,parser 1 of 1 (100%); 4 tokens,2026-10-18
 cenauerunt,ceno,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 cenaui,ceno,parse_fill,parser 7 of 7 (100%); 9 tokens,2026-10-18
 cenauimus,ceno,parse_fill,parser 1 of 1 (100%); 3 tokens,2026-10-18
-cendum,co,parse_fill,parser 2 of 2 (100%); 1 tokens,2026-10-18
 cenent,ceno,parse_fill,parser 3 of 3 (100%); 5 tokens,2026-10-18
 cenet,ceno,parse_fill,parser 9 of 9 (100%); 15 tokens,2026-10-18
 censeamini,censeo,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
@@ -10039,7 +9989,6 @@ centenarios,centenarius,parse_fill,parser 2 of 2 (100%); 4 tokens,2026-10-18
 centenas,centeni,parse_fill,parser 23 of 24 (96%); 28 tokens,2026-10-18
 centesimarum,centesimus,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 centesimos,centesimus,parse_fill,parser 2 of 2 (100%); 1 tokens,2026-10-18
-centibus,co,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 centra,centrum,parse_fill,parser 8 of 9 (89%); 24 tokens,2026-10-18
 centre,centrum,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 centris,centrum,parse_fill,parser 3 of 3 (100%); 7 tokens,2026-10-18
@@ -10065,11 +10014,8 @@ cerberos,cerberus,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 cereae,cereus,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 ceream,cereus,parse_fill,parser 1 of 1 (100%); 4 tokens,2026-10-18
 cerebris,cerebrum,parse_fill,parser 5 of 5 (100%); 7 tokens,2026-10-18
-cerem,cio,parse_fill,parser 2 of 2 (100%); 1 tokens,2026-10-18
 cereo,cereus,parse_fill,parser 2 of 2 (100%); 5 tokens,2026-10-18
 cereorum,cereus,parse_fill,parser 3 of 3 (100%); 4 tokens,2026-10-18
-ceret,cio,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
-ceretur,cio,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 cerinthum,cerinthus,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 cernamur,cerno,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 cernantur,cerno,parse_fill,parser 21 of 21 (100%); 22 tokens,2026-10-18
@@ -10204,7 +10150,6 @@ ceto,cetus,parse_fill,parser 13 of 15 (87%); 16 tokens,2026-10-18
 cetorum,cetus,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 cetu,cetus,parse_fill,parser 6 of 6 (100%); 7 tokens,2026-10-18
 cetum,cetus,parse_fill,parser 23 of 25 (92%); 26 tokens,2026-10-18
-cetur,co,parse_fill,parser 3 of 3 (100%); 4 tokens,2026-10-18
 chalcidos,chalcis,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 chamae,chama,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 chamaeleontes,chamaeleon,parse_fill,parser 4 of 4 (100%); 6 tokens,2026-10-18
@@ -10241,8 +10186,6 @@ christos,christus,parse_fill,parser 35 of 35 (100%); 34 tokens,2026-10-18
 chrysoliti,chrysolitus,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 chrysoprasso,chrysoprassus,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 chrysoprassos,chrysoprassus,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
-ciant,cio,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
-ciat,cio,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 cibabis,cibo,parse_fill,parser 2 of 2 (100%); 3 tokens,2026-10-18
 cibabo,cibo,parse_fill,parser 16 of 16 (100%); 18 tokens,2026-10-18
 cibam,cibus,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
@@ -10283,30 +10226,14 @@ cicutam,cicuta,parse_fill,parser 17 of 17 (100%); 25 tokens,2026-10-18
 cicutas,cicuta,parse_fill,parser 10 of 10 (100%); 13 tokens,2026-10-18
 cicutis,cicuta,parse_fill,parser 9 of 9 (100%); 13 tokens,2026-10-18
 ciebam,cieo,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
-ciebamus,cio,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
-ciebatur,cio,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 ciebis,cieo,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
-cienda,cio,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
-ciendae,cio,parse_fill,parser 4 of 4 (100%); 6 tokens,2026-10-18
-ciendam,cio,parse_fill,parser 2 of 2 (100%); 4 tokens,2026-10-18
-ciendi,cio,parse_fill,parser 7 of 7 (100%); 7 tokens,2026-10-18
-ciendis,cio,parse_fill,parser 2 of 2 (100%); 3 tokens,2026-10-18
-ciendos,cio,parse_fill,parser 8 of 8 (100%); 8 tokens,2026-10-18
-ciendus,cio,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
-ciente,cio,parse_fill,parser 4 of 4 (100%); 7 tokens,2026-10-18
-cientibus,cio,parse_fill,parser 5 of 5 (100%); 7 tokens,2026-10-18
-cientium,cio,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 cientur,cieo,parse_fill,parser 6 of 6 (100%); 15 tokens,2026-10-18
-cieras,cio,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
-cieris,cio,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
-cietis,cio,parse_fill,parser 3 of 3 (100%); 2 tokens,2026-10-18
 cietur,cieo,parse_fill,parser 11 of 11 (100%); 18 tokens,2026-10-18
 cilicie,cilicia,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 cilicina,cilicinus,parse_fill,parser 6 of 6 (100%); 9 tokens,2026-10-18
 cillum,cillus,parse_fill,parser 2 of 2 (100%); 1 tokens,2026-10-18
 cimicem,cimex,parse_fill,parser 3 of 3 (100%); 3 tokens,2026-10-18
 cimicibus,cimex,parse_fill,parser 5 of 5 (100%); 6 tokens,2026-10-18
-cimus,cio,parse_fill,parser 4 of 5 (80%); 5 tokens,2026-10-18
 cinaeda,cinaedus,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 cinaede,cinaedus,parse_fill,parser 7 of 8 (88%); 12 tokens,2026-10-18
 cinaediorem,cinaedus,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
@@ -10339,7 +10266,6 @@ cinnama,cinnamum,parse_fill,parser 35 of 37 (95%); 57 tokens,2026-10-18
 cinnamis,cinnamum,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 cinnamo,cinnamum,parse_fill,parser 27 of 27 (100%); 28 tokens,2026-10-18
 cinyphiam,cinyphius,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
-cione,cio,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 circense,circensis,parse_fill,parser 5 of 5 (100%); 9 tokens,2026-10-18
 circensi,circensis,parse_fill,parser 5 of 5 (100%); 11 tokens,2026-10-18
 circinum,circinus,parse_fill,parser 11 of 11 (100%); 22 tokens,2026-10-18
@@ -10703,12 +10629,10 @@ circumuentione,circumuentio,parse_fill,parser 9 of 9 (100%); 6 tokens,2026-10-18
 circumuentiones,circumuentio,parse_fill,parser 2 of 2 (100%); 4 tokens,2026-10-18
 circumuentionibus,circumuentio,parse_fill,parser 5 of 5 (100%); 7 tokens,2026-10-18
 circumuenturi,circumuenio,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
-cisi,cio,parse_fill,parser 2 of 2 (100%); 1 tokens,2026-10-18
 cistarum,cista,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 cistas,cista,parse_fill,parser 6 of 6 (100%); 10 tokens,2026-10-18
 cisternam,cisterna,parse_fill,parser 18 of 18 (100%); 26 tokens,2026-10-18
 cistophorum,cistophorus,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
-cit,cio,parse_fill,parser 3 of 3 (100%); 7 tokens,2026-10-18
 citabamus,cito,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 citabantur,cito,parse_fill,parser 5 of 5 (100%); 5 tokens,2026-10-18
 citabimus,cito,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
@@ -10762,7 +10686,6 @@ citu,citus,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 ciuilior,ciuilis,parse_fill,parser 1 of 1 (100%); 3 tokens,2026-10-18
 ciuilius,ciuilis,parse_fill,parser 2 of 2 (100%); 9 tokens,2026-10-18
 ciuitatulae,ciuitatula,parse_fill,parser 1 of 1 (100%); 3 tokens,2026-10-18
-ciunt,cio,parse_fill,parser 2 of 2 (100%); 3 tokens,2026-10-18
 clamabantur,clamo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 clamabatis,clamo,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 clamabimus,clamo,parse_fill,parser 3 of 3 (100%); 3 tokens,2026-10-18
@@ -10981,7 +10904,6 @@ clues,clueo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 cluet,clueo,parse_fill,parser 10 of 12 (83%); 15 tokens,2026-10-18
 clusae,cludo,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 clusis,cludo,parse_fill,parser 9 of 9 (100%); 14 tokens,2026-10-18
-cmus,co,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 cnido,cnidus,parse_fill,parser 6 of 6 (100%); 6 tokens,2026-10-18
 coaceruabit,coaceruo,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 coaceruabitur,coaceruo,parse_fill,parser 1 of 1 (100%); 3 tokens,2026-10-18
@@ -11234,7 +11156,6 @@ cocleae,coclea,parse_fill,parser 94 of 94 (100%); 112 tokens,2026-10-18
 cocleam,coclea,parse_fill,parser 13 of 13 (100%); 18 tokens,2026-10-18
 cocleis,coclea,parse_fill,parser 23 of 23 (100%); 27 tokens,2026-10-18
 coctile,coctilis,parse_fill,parser 1 of 1 (100%); 4 tokens,2026-10-18
-codem,idem,parse_fill,parser 2 of 2 (100%); 3 tokens,2026-10-18
 coeam,coeo,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 coemam,coemo,parse_fill,parser 2 of 2 (100%); 1 tokens,2026-10-18
 coemamus,coemo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
@@ -11884,7 +11805,6 @@ comeret,como,parse_fill,parser 3 of 3 (100%); 3 tokens,2026-10-18
 comeretur,como,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 comeso,comedo,parse_fill,parser 4 of 4 (100%); 4 tokens,2026-10-18
 comessationum,comessatio,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
-comesurus,eo,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 cometem,comes,parse_fill,parser 7 of 7 (100%); 6 tokens,2026-10-18
 comibus,comis,parse_fill,parser 3 of 3 (100%); 3 tokens,2026-10-18
 comicae,comicus,parse_fill,parser 4 of 4 (100%); 7 tokens,2026-10-18
@@ -13018,7 +12938,6 @@ comproberis,comprobo,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 comprobes,conprobo,assimilated_prefix,other spelling conprobes (comp>conp); 8 tokens,2026-10-18
 compserit,como,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 compulerint,compello,parse_fill,parser 3 of 3 (100%); 4 tokens,2026-10-18
-compulisti,fero,parse_fill,parser 2 of 2 (100%); 3 tokens,2026-10-18
 compunctae,compungo,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 compuncti,compungo,assimilated_prefix,other spelling conpuncti (comp>conp); 15 tokens,2026-10-18
 compunctione,compunctio,parse_fill,parser 2 of 2 (100%); 3 tokens,2026-10-18
@@ -14615,7 +14534,6 @@ congregemus,congrego,parse_fill,parser 4 of 4 (100%); 4 tokens,2026-10-18
 congregent,congrego,parse_fill,parser 2 of 2 (100%); 3 tokens,2026-10-18
 congreger,congrego,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 congregor,congrego,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
-congressurum,eo,parse_fill,parser 2 of 2 (100%); 5 tokens,2026-10-18
 congressuum,congressus,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 congruamus,congruo,parse_fill,parser 3 of 3 (100%); 3 tokens,2026-10-18
 congruatis,congruo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
@@ -17261,7 +17179,6 @@ contueare,contueor,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 contuebatur,conor,parse_fill,parser 1 of 1 (100%); 3 tokens,2026-10-18
 contuebitur,contueor,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 contuebuntur,conor,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
-contulisti,fero,parse_fill,parser 26 of 32 (81%); 38 tokens,2026-10-18
 contumacias,contumacia,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 contumacissimi,contumax,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 contumeliarum,contumelia,parse_fill,parser 29 of 29 (100%); 39 tokens,2026-10-18
@@ -18525,7 +18442,6 @@ crystallinorum,crystallinus,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 crystallinos,crystallinus,parse_fill,parser 4 of 4 (100%); 4 tokens,2026-10-18
 crystallinum,crystallinus,parse_fill,parser 2 of 2 (100%); 7 tokens,2026-10-18
 crystallis,crystallum,parse_fill,parser 2 of 2 (100%); 4 tokens,2026-10-18
-ctis,cio,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 cubabit,cubo,parse_fill,parser 5 of 5 (100%); 5 tokens,2026-10-18
 cubandum,cubo,parse_fill,parser 4 of 4 (100%); 5 tokens,2026-10-18
 cubant,cubo,parse_fill,parser 7 of 7 (100%); 15 tokens,2026-10-18
@@ -18719,7 +18635,6 @@ cunctorem,cunctor,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 cuneorum,cuneus,parse_fill,parser 8 of 8 (100%); 16 tokens,2026-10-18
 cuniculi,cuniculus,parse_fill,parser 10 of 10 (100%); 17 tokens,2026-10-18
 cuniculum,cuniculus,parse_fill,parser 12 of 12 (100%); 40 tokens,2026-10-18
-cunt,co,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 cunulis,cunulus,parse_fill,parser 2 of 2 (100%); 3 tokens,2026-10-18
 cupae,cupa,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 cupam,cupa,parse_fill,parser 11 of 11 (100%); 10 tokens,2026-10-18
@@ -18895,7 +18810,6 @@ curuetur,curuo,parse_fill,parser 15 of 15 (100%); 16 tokens,2026-10-18
 curuom,curuus,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 curuorum,curuus,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 cuspidi,cuspis,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
-custod,co,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 custodiantur,custodio,parse_fill,parser 7 of 7 (100%); 14 tokens,2026-10-18
 custodiarum,custodia,parse_fill,parser 10 of 10 (100%); 15 tokens,2026-10-18
 custodiatis,custodio,parse_fill,parser 17 of 17 (100%); 22 tokens,2026-10-18
@@ -18950,10 +18864,7 @@ cyrei,cyreus,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 cytisi,cytisus,parse_fill,parser 15 of 15 (100%); 22 tokens,2026-10-18
 cyzici,cyzicus,parse_fill,parser 13 of 13 (100%); 17 tokens,2026-10-18
 dabamus,do,parse_fill,parser 7 of 7 (100%); 8 tokens,2026-10-18
-dabatu,do,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
-dabi,do,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 daemonii,daemonium,parse_fill,parser 16 of 16 (100%); 14 tokens,2026-10-18
-dahit,do,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 damione,damio,parse_fill,parser 12 of 12 (100%); 12 tokens,2026-10-18
 dammam,damma,parse_fill,parser 1 of 1 (100%); 4 tokens,2026-10-18
 dammarum,damma,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
@@ -19025,7 +18936,6 @@ dapum,daps,parse_fill,parser 1 of 1 (100%); 7 tokens,2026-10-18
 dardanas,dardanus,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 darer,do,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 dareris,do,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
-dasset,do,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 dationes,datio,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 dationibus,datio,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 datiui,datiuus,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
@@ -19036,7 +18946,6 @@ datori,dator,parse_fill,parser 7 of 7 (100%); 9 tokens,2026-10-18
 datoris,dator,parse_fill,parser 5 of 5 (100%); 4 tokens,2026-10-18
 datu,do,parse_fill,parser 1 of 1 (100%); 4 tokens,2026-10-18
 daturo,do,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
-dauisse,do,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 daunum,daunus,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 dealbabitur,dealbo,parse_fill,parser 4 of 4 (100%); 2 tokens,2026-10-18
 dealbabo,dealbo,parse_fill,parser 10 of 10 (100%); 8 tokens,2026-10-18
@@ -19091,7 +19000,6 @@ deauratum,deauro,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 deauratur,deauro,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 deauratus,deauro,parse_fill,parser 3 of 3 (100%); 3 tokens,2026-10-18
 deaurauit,deauro,parse_fill,parser 3 of 3 (100%); 6 tokens,2026-10-18
-debat,do,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 debebam,debeo,parse_fill,parser 23 of 23 (100%); 27 tokens,2026-10-18
 debebamus,debeo,parse_fill,parser 9 of 9 (100%); 11 tokens,2026-10-18
 debebantur,debeo,parse_fill,parser 11 of 11 (100%); 19 tokens,2026-10-18
@@ -19706,7 +19614,6 @@ dedendis,dedo,parse_fill,parser 1 of 1 (100%); 4 tokens,2026-10-18
 dedendos,dedo,parse_fill,parser 3 of 3 (100%); 10 tokens,2026-10-18
 dedendum,dedo,parse_fill,parser 9 of 9 (100%); 12 tokens,2026-10-18
 dedendus,dedo,parse_fill,parser 2 of 2 (100%); 1 tokens,2026-10-18
-dedenibus,do,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 dedent,dedo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 dedente,dedo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 dedentis,dedo,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
@@ -19756,13 +19663,11 @@ dedicentur,dedico,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 dedices,dedico,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 dedicet,dedico,parse_fill,parser 7 of 7 (100%); 13 tokens,2026-10-18
 dediderim,dedo,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
-dedideris,do,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 dediderit,dedo,parse_fill,parser 10 of 10 (100%); 15 tokens,2026-10-18
 dedidi,dedo,parse_fill,parser 3 of 3 (100%); 3 tokens,2026-10-18
 dedidicerant,dedico,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 dedidimus,dedo,parse_fill,parser 5 of 5 (100%); 8 tokens,2026-10-18
 dedidisti,dedo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
-dedier,do,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 dedignabor,dedigno,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 dedignandae,dedigno,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 dedignant,dedigno,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
@@ -19821,8 +19726,6 @@ deductionibus,deductio,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 deductionis,deductio,parse_fill,parser 6 of 6 (100%); 6 tokens,2026-10-18
 deductura,deduco,parse_fill,parser 7 of 7 (100%); 8 tokens,2026-10-18
 deduntur,dedo,parse_fill,parser 6 of 6 (100%); 15 tokens,2026-10-18
-dedw,do,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
-deerimus,do,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 defaecant,defaeco,parse_fill,parser 2 of 2 (100%); 3 tokens,2026-10-18
 defaecata,defaeco,parse_fill,parser 6 of 6 (100%); 11 tokens,2026-10-18
 defaecati,defaeco,parse_fill,parser 2 of 2 (100%); 1 tokens,2026-10-18
@@ -21552,7 +21455,6 @@ derelinquitur,derelinquo,parse_fill,parser 12 of 12 (100%); 9 tokens,2026-10-18
 derelinquuntur,derelinquo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 dereliquisset,derelinquo,parse_fill,parser 11 of 11 (100%); 12 tokens,2026-10-18
 derepere,derepo,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
-deretur,do,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 derideamus,derideo,parse_fill,parser 4 of 4 (100%); 3 tokens,2026-10-18
 derideant,derideo,parse_fill,parser 5 of 5 (100%); 4 tokens,2026-10-18
 derideantur,derideo,parse_fill,parser 6 of 6 (100%); 7 tokens,2026-10-18
@@ -22492,7 +22394,6 @@ detruduntur,detrudo,parse_fill,parser 2 of 2 (100%); 4 tokens,2026-10-18
 detrusis,detrudo,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 detrusurus,detrudo,parse_fill,parser 2 of 2 (100%); 3 tokens,2026-10-18
 detuleras,defero,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
-detulisti,fero,parse_fill,parser 8 of 9 (89%); 20 tokens,2026-10-18
 deturpa,deturpo,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 deturpabat,deturpo,parse_fill,parser 3 of 3 (100%); 4 tokens,2026-10-18
 deturpabitur,deturpo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
@@ -22754,7 +22655,6 @@ deuoueat,deuoueo,parse_fill,parser 3 of 3 (100%); 5 tokens,2026-10-18
 deuouemus,deuoueo,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 deuouentur,deuoueo,parse_fill,parser 3 of 3 (100%); 3 tokens,2026-10-18
 deuouerent,deuoueo,parse_fill,parser 3 of 3 (100%); 4 tokens,2026-10-18
-deusdet,do,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 dexteritate,dexteritas,parse_fill,parser 11 of 11 (100%); 17 tokens,2026-10-18
 diabole,diabolus,parse_fill,parser 6 of 6 (100%); 5 tokens,2026-10-18
 diabolicae,diabolicus,parse_fill,parser 55 of 55 (100%); 50 tokens,2026-10-18
@@ -22778,7 +22678,6 @@ diapsalmate,diapsalma,parse_fill,parser 7 of 7 (100%); 4 tokens,2026-10-18
 diapsalmis,diapsalma,parse_fill,parser 2 of 2 (100%); 1 tokens,2026-10-18
 dias,dius,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 diat,dio,parse_fill,parser 3 of 3 (100%); 2 tokens,2026-10-18
-dicaa,do,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 dicabam,dico,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 dicabantur,dico,parse_fill,parser 4 of 4 (100%); 4 tokens,2026-10-18
 dicabat,dico,parse_fill,parser 6 of 6 (100%); 8 tokens,2026-10-18
@@ -22822,7 +22721,6 @@ dicebamur,dico,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 dicebautur,dico,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 diceis,dio,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 dicem,dico,parse_fill,parser 2 of 2 (100%); 3 tokens,2026-10-18
-dicen,do,parse_fill,parser 1 of 1 (100%); 3 tokens,2026-10-18
 dicendarum,dico,parse_fill,parser 5 of 5 (100%); 6 tokens,2026-10-18
 dicendd,dico,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 dicendos,dico,parse_fill,parser 5 of 5 (100%); 7 tokens,2026-10-18
@@ -22921,7 +22819,6 @@ diderant,dido,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 didere,dido,parse_fill,parser 2 of 2 (100%); 4 tokens,2026-10-18
 didiceras,disco,parse_fill,parser 3 of 3 (100%); 3 tokens,2026-10-18
 didiceront,dido,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
-dididerunt,do,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 didita,dido,parse_fill,parser 8 of 9 (89%); 12 tokens,2026-10-18
 diditur,dido,parse_fill,parser 14 of 16 (88%); 25 tokens,2026-10-18
 didragmae,didragma,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
@@ -23058,7 +22955,6 @@ diffusiora,diffusus,parse_fill,parser 5 of 5 (100%); 6 tokens,2026-10-18
 diffusiore,diffusus,parse_fill,parser 1 of 1 (100%); 3 tokens,2026-10-18
 diffusiorem,diffusus,parse_fill,parser 1 of 1 (100%); 4 tokens,2026-10-18
 diffusioribus,diffusus,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
-dig,d,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 digeram,digero,parse_fill,parser 5 of 5 (100%); 6 tokens,2026-10-18
 digerant,digero,parse_fill,parser 8 of 8 (100%); 9 tokens,2026-10-18
 digerantur,digero,parse_fill,parser 10 of 10 (100%); 15 tokens,2026-10-18
@@ -23131,7 +23027,6 @@ digredientes,digredior,parse_fill,parser 4 of 5 (80%); 12 tokens,2026-10-18
 digredientis,digredior,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 digredientium,digredior,parse_fill,parser 2 of 2 (100%); 4 tokens,2026-10-18
 digrediuntur,digredior,parse_fill,parser 3 of 3 (100%); 10 tokens,2026-10-18
-digresse,eo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 digressibus,digressus,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 digressionibus,digressio,parse_fill,parser 3 of 3 (100%); 3 tokens,2026-10-18
 diiudica,diiudico,parse_fill,parser 1 of 1 (100%); 3 tokens,2026-10-18
@@ -23440,7 +23335,6 @@ dimoueat,dimoueo,parse_fill,parser 4 of 4 (100%); 3 tokens,2026-10-18
 dimouerant,dimoueo,parse_fill,parser 2 of 2 (100%); 1 tokens,2026-10-18
 dimoueret,dimoueo,parse_fill,parser 6 of 6 (100%); 8 tokens,2026-10-18
 dinarchum,dinarchus,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
-dinem,do,parse_fill,parser 5 of 6 (83%); 5 tokens,2026-10-18
 dinoscamus,dinosco,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 dinoscantur,dinosco,parse_fill,parser 3 of 3 (100%); 3 tokens,2026-10-18
 dinoscas,dinosco,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
@@ -23590,7 +23484,6 @@ diritati,diritas,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 diritatis,diritas,parse_fill,parser 3 of 3 (100%); 4 tokens,2026-10-18
 dirius,dire,parse_fill,parser 8 of 10 (80%); 7 tokens,2026-10-18
 dirorum,dirus,parse_fill,parser 3 of 3 (100%); 3 tokens,2026-10-18
-dirua,do,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 diruam,diruo,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 diruamus,diruo,parse_fill,parser 4 of 4 (100%); 4 tokens,2026-10-18
 diruas,diruo,parse_fill,parser 4 of 4 (100%); 4 tokens,2026-10-18
@@ -24343,7 +24236,6 @@ disseruerunt,dissero,parse_fill,parser 6 of 6 (100%); 8 tokens,2026-10-18
 disserundi,dissero,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 disserundum,dissero,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 disseruntur,dissero,parse_fill,parser 19 of 19 (100%); 17 tokens,2026-10-18
-disset,do,parse_fill,parser 2 of 2 (100%); 1 tokens,2026-10-18
 dissice,dissicio,parse_fill,parser 9 of 9 (100%); 13 tokens,2026-10-18
 dissicerent,dissicio,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 dissiceretur,dissicio,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
@@ -24704,7 +24596,6 @@ distringitur,distringo,parse_fill,parser 5 of 5 (100%); 8 tokens,2026-10-18
 distringor,distringo,parse_fill,parser 6 of 6 (100%); 7 tokens,2026-10-18
 distringunt,distringo,parse_fill,parser 5 of 5 (100%); 6 tokens,2026-10-18
 distrinxit,distringo,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
-distulissem,tollo,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 disturb,disto,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 disturbabas,disturbo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 disturbandam,disturbo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
@@ -24769,7 +24660,6 @@ ditentur,dito,parse_fill,parser 2 of 2 (100%); 3 tokens,2026-10-18
 diteris,dito,parse_fill,parser 2 of 2 (100%); 4 tokens,2026-10-18
 ditet,dito,parse_fill,parser 2 of 2 (100%); 9 tokens,2026-10-18
 ditetis,dito,parse_fill,parser 5 of 5 (100%); 3 tokens,2026-10-18
-ditur,do,parse_fill,parser 8 of 9 (89%); 9 tokens,2026-10-18
 diuaricabat,diuarico,parse_fill,parser 3 of 3 (100%); 2 tokens,2026-10-18
 diuaricare,diuarico,parse_fill,parser 3 of 3 (100%); 2 tokens,2026-10-18
 diuaricari,diuarico,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
@@ -25175,7 +25065,6 @@ dragmae,dragma,parse_fill,parser 8 of 8 (100%); 8 tokens,2026-10-18
 dragmatis,dragma,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 drepanin,drepanis,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 druidis,druis,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
-duaeritis,do,parse_fill,parser 2 of 2 (100%); 1 tokens,2026-10-18
 dualitate,dualitas,parse_fill,parser 3 of 3 (100%); 4 tokens,2026-10-18
 dualitatem,dualitas,parse_fill,parser 5 of 5 (100%); 5 tokens,2026-10-18
 dubiarum,dubius,parse_fill,parser 4 of 4 (100%); 4 tokens,2026-10-18
@@ -25274,7 +25163,6 @@ dumo,dumus,parse_fill,parser 3 of 3 (100%); 3 tokens,2026-10-18
 dumosae,dumosus,parse_fill,parser 4 of 4 (100%); 6 tokens,2026-10-18
 dumosi,dumosus,parse_fill,parser 5 of 5 (100%); 6 tokens,2026-10-18
 dumoso,dumosus,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
-duntur,do,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 duodenarum,duodenus,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 duodeni,duodenus,parse_fill,parser 14 of 15 (93%); 15 tokens,2026-10-18
 duodeno,duodenus,parse_fill,parser 4 of 4 (100%); 6 tokens,2026-10-18
@@ -25385,10 +25273,8 @@ dusit,duco,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 duxeramus,duco,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 duxistis,duco,parse_fill,parser 14 of 14 (100%); 18 tokens,2026-10-18
 duxti,duco,parse_fill,parser 3 of 3 (100%); 4 tokens,2026-10-18
-dwelt,do,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 dysenteriae,dysenteria,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 dysenteriam,dysenteria,parse_fill,parser 4 of 4 (100%); 4 tokens,2026-10-18
-eare,eo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 eatur,eo,parse_fill,parser 25 of 25 (100%); 31 tokens,2026-10-18
 ebibant,ebibo,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 ebibent,ebibo,parse_fill,parser 2 of 2 (100%); 3 tokens,2026-10-18
@@ -25444,7 +25330,6 @@ echinorum,echinus,parse_fill,parser 6 of 6 (100%); 7 tokens,2026-10-18
 echone,echo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 echonem,echo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 eclipsin,eclipsis,parse_fill,parser 2 of 2 (100%); 5 tokens,2026-10-18
-ecoedeusiudiciumreddet,eo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 edace,edax,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 edacis,edax,parse_fill,parser 10 of 11 (91%); 9 tokens,2026-10-18
 edantur,edo,parse_fill,parser 12 of 12 (100%); 14 tokens,2026-10-18
@@ -25641,8 +25526,6 @@ eduxerint,educo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 eduxeris,educo,parse_fill,parser 5 of 5 (100%); 7 tokens,2026-10-18
 eduxissem,educo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 eduxistis,educo,parse_fill,parser 2 of 2 (100%); 4 tokens,2026-10-18
-eedem,idem,parse_fill,parser 2 of 2 (100%); 1 tokens,2026-10-18
-eeodem,idem,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 effabiles,effabilis,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 effabilibus,effabilis,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 effabor,effor,parse_fill,parser 4 of 4 (100%); 4 tokens,2026-10-18
@@ -25983,8 +25866,6 @@ egeres,egeo,parse_fill,parser 2 of 2 (100%); 3 tokens,2026-10-18
 egeretis,egeo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 egerones,egero,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 egeruntur,egero,parse_fill,parser 5 of 5 (100%); 8 tokens,2026-10-18
-egesseris,ago,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
-egessisti,ago,parse_fill,parser 2 of 2 (100%); 1 tokens,2026-10-18
 egestates,egestas,parse_fill,parser 5 of 5 (100%); 6 tokens,2026-10-18
 egestatibus,egestas,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 egestionem,egestio,parse_fill,parser 2 of 2 (100%); 3 tokens,2026-10-18
@@ -26640,7 +26521,6 @@ emptiones,emptio,parse_fill,parser 3 of 3 (100%); 3 tokens,2026-10-18
 emptioni,emptio,parse_fill,parser 2 of 2 (100%); 4 tokens,2026-10-18
 emptoris,emptor,parse_fill,parser 7 of 7 (100%); 9 tokens,2026-10-18
 empturas,emo,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
-emtum,eo,parse_fill,parser 2 of 2 (100%); 3 tokens,2026-10-18
 emtus,emo,parse_fill,parser 2 of 2 (100%); 3 tokens,2026-10-18
 emunda,emundo,parse_fill,parser 8 of 8 (100%); 10 tokens,2026-10-18
 emundabat,emundo,parse_fill,parser 2 of 2 (100%); 1 tokens,2026-10-18
@@ -27048,7 +26928,6 @@ ereos,ereus,parse_fill,parser 2 of 2 (100%); 1 tokens,2026-10-18
 ereptione,ereptio,parse_fill,parser 3 of 3 (100%); 4 tokens,2026-10-18
 ereptionis,ereptio,parse_fill,parser 2 of 2 (100%); 3 tokens,2026-10-18
 ergastulorum,ergastulum,parse_fill,parser 4 of 4 (100%); 8 tokens,2026-10-18
-erib,eo,parse_fill,parser 2 of 2 (100%); 1 tokens,2026-10-18
 ericam,ericus,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 erigamur,erigo,parse_fill,parser 4 of 4 (100%); 4 tokens,2026-10-18
 erigaris,erigo,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
@@ -27106,8 +26985,6 @@ eripitis,eripio,parse_fill,parser 9 of 9 (100%); 11 tokens,2026-10-18
 eripiundum,eripio,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 eripiuntur,eripio,parse_fill,parser 10 of 10 (100%); 15 tokens,2026-10-18
 eripuisti,eripio,parse_fill,parser 24 of 24 (100%); 26 tokens,2026-10-18
-erni,aenus,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
-erno,aenus,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 erogabamus,erogo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 erogabant,erogo,parse_fill,parser 2 of 2 (100%); 4 tokens,2026-10-18
 erogabantur,erogo,parse_fill,parser 2 of 2 (100%); 11 tokens,2026-10-18
@@ -27400,7 +27277,6 @@ esuritionis,esuritio,parse_fill,parser 2 of 2 (100%); 1 tokens,2026-10-18
 esuritionum,esuritio,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 esuritur,esurio,parse_fill,parser 7 of 7 (100%); 8 tokens,2026-10-18
 esurus,edo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
-etdedi,eo,parse_fill,parser 2 of 2 (100%); 3 tokens,2026-10-18
 etesia,etesius,parse_fill,parser 4 of 4 (100%); 4 tokens,2026-10-18
 etesium,etesius,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 etherea,ethereus,parse_fill,parser 7 of 7 (100%); 12 tokens,2026-10-18
@@ -27420,7 +27296,6 @@ ethnico,ethnicus,parse_fill,parser 16 of 16 (100%); 15 tokens,2026-10-18
 ethnicorum,ethnicus,parse_fill,parser 33 of 33 (100%); 35 tokens,2026-10-18
 ethnicos,ethnicus,parse_fill,parser 31 of 31 (100%); 29 tokens,2026-10-18
 ethnicum,ethnicus,parse_fill,parser 17 of 17 (100%); 14 tokens,2026-10-18
-etiameodem,idem,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 etymologias,etymologia,parse_fill,parser 2 of 2 (100%); 3 tokens,2026-10-18
 euacuabatur,euacuo,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 euacuabo,euacuo,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
@@ -27902,7 +27777,6 @@ euomueritis,euomo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 euomunt,euomo,parse_fill,parser 5 of 5 (100%); 10 tokens,2026-10-18
 euripos,euripus,parse_fill,parser 4 of 4 (100%); 6 tokens,2026-10-18
 euulsi,euello,parse_fill,parser 13 of 13 (100%); 10 tokens,2026-10-18
-euut,eo,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 exacerbabant,exacerbo,parse_fill,parser 2 of 2 (100%); 1 tokens,2026-10-18
 exacerbabat,exacerbo,parse_fill,parser 4 of 4 (100%); 4 tokens,2026-10-18
 exacerbabitur,exacerbo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
@@ -28889,7 +28763,6 @@ exemplarunt,exemplo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 exemplasse,exemplo,parse_fill,parser 2 of 2 (100%); 1 tokens,2026-10-18
 exemplauerunt,exemplo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 exemplauit,exemplo,parse_fill,parser 11 of 11 (100%); 9 tokens,2026-10-18
-exeodem,idem,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 exequendae,exsequor,parse_fill,parser 8 of 8 (100%); 5 tokens,2026-10-18
 exerceam,exerceo,parse_fill,parser 2 of 2 (100%); 6 tokens,2026-10-18
 exerceamur,exerceo,parse_fill,parser 8 of 8 (100%); 12 tokens,2026-10-18
@@ -30143,13 +30016,11 @@ expugnent,expugno,parse_fill,parser 6 of 6 (100%); 10 tokens,2026-10-18
 expugnentur,expugno,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 expugnes,expugno,parse_fill,parser 2 of 2 (100%); 3 tokens,2026-10-18
 expugnet,expugno,parse_fill,parser 7 of 7 (100%); 9 tokens,2026-10-18
-expulerim,effero,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 expulsare,expulso,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 expulsiones,expulsio,parse_fill,parser 3 of 3 (100%); 5 tokens,2026-10-18
 expulsionis,expulsio,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 expulsorem,expulsor,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 expulsores,expulsor,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
-expunxerim,effero,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 expurga,expurgo,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 expurgabat,expurgo,parse_fill,parser 2 of 2 (100%); 1 tokens,2026-10-18
 expurganda,expurgo,parse_fill,parser 3 of 3 (100%); 3 tokens,2026-10-18
@@ -30303,7 +30174,6 @@ exsiccaret,exsicco,parse_fill,parser 2 of 2 (100%); 1 tokens,2026-10-18
 exsiccat,exsicco,parse_fill,parser 10 of 10 (100%); 15 tokens,2026-10-18
 exsiccata,exsicco,parse_fill,parser 4 of 4 (100%); 9 tokens,2026-10-18
 exsiccatae,exsicco,parse_fill,parser 3 of 3 (100%); 3 tokens,2026-10-18
-exsiccataue,ue,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 exsiccati,exsicco,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 exsiccato,exsicco,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 exsiccatos,exsicco,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
@@ -31600,7 +31470,6 @@ fauebam,faueo,parse_fill,parser 4 of 4 (100%); 3 tokens,2026-10-18
 fauebatur,faueo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 fauebis,faueo,parse_fill,parser 3 of 3 (100%); 3 tokens,2026-10-18
 fauebitis,faueo,parse_fill,parser 2 of 2 (100%); 3 tokens,2026-10-18
-fauerant,fo,parse_fill,parser 5 of 6 (83%); 7 tokens,2026-10-18
 fauerem,faueo,parse_fill,parser 3 of 3 (100%); 4 tokens,2026-10-18
 faueremus,faueo,parse_fill,parser 2 of 2 (100%); 1 tokens,2026-10-18
 faueto,faueo,parse_fill,parser 6 of 6 (100%); 11 tokens,2026-10-18
@@ -31625,7 +31494,6 @@ febricitet,febricito,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 febriculae,febricula,parse_fill,parser 2 of 2 (100%); 3 tokens,2026-10-18
 febriculas,febricula,parse_fill,parser 5 of 5 (100%); 5 tokens,2026-10-18
 febriculis,febricula,parse_fill,parser 6 of 6 (100%); 8 tokens,2026-10-18
-fecissit,facio,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 fecundabit,fecundo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 fecundanda,fecundo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 fecundandam,fecundo,parse_fill,parser 3 of 3 (100%); 4 tokens,2026-10-18
@@ -31665,7 +31533,6 @@ felibus,felis,parse_fill,parser 2 of 2 (100%); 5 tokens,2026-10-18
 felicitando,felicito,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 felicitari,felicito,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 felicum,felix,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
-felt,fo,parse_fill,parser 3 of 3 (100%); 3 tokens,2026-10-18
 femellas,femella,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 femellis,femella,parse_fill,parser 4 of 4 (100%); 4 tokens,2026-10-18
 feminee,femineus,parse_fill,parser 3 of 3 (100%); 3 tokens,2026-10-18
@@ -33763,7 +33630,6 @@ gentilitatum,gentilitas,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 genubus,genus,parse_fill,parser 2 of 2 (100%); 4 tokens,2026-10-18
 genuinae,genuinus,parse_fill,parser 13 of 13 (100%); 12 tokens,2026-10-18
 genuinis,genuinus,parse_fill,parser 5 of 5 (100%); 7 tokens,2026-10-18
-genuissemus,ueneo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 genum,genus,parse_fill,parser 2 of 2 (100%); 3 tokens,2026-10-18
 geographiae,geographia,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 geometricae,geometricus,parse_fill,parser 11 of 11 (100%); 11 tokens,2026-10-18
@@ -33819,9 +33685,6 @@ gerundis,gero,parse_fill,parser 8 of 8 (100%); 11 tokens,2026-10-18
 gerundo,gero,parse_fill,parser 3 of 3 (100%); 6 tokens,2026-10-18
 gerundum,gero,parse_fill,parser 4 of 4 (100%); 8 tokens,2026-10-18
 gerundus,gero,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
-gessissem,aeo,parse_fill,parser 5 of 6 (83%); 8 tokens,2026-10-18
-gessisses,aeo,parse_fill,parser 5 of 5 (100%); 4 tokens,2026-10-18
-gessistis,aeo,parse_fill,parser 4 of 5 (80%); 15 tokens,2026-10-18
 gestabamus,gesto,parse_fill,parser 2 of 2 (100%); 1 tokens,2026-10-18
 gestabimus,gesto,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 gestabis,gesto,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
@@ -34537,7 +34400,6 @@ hastato,hastatus,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 hastatorum,hastatus,parse_fill,parser 6 of 6 (100%); 17 tokens,2026-10-18
 hastatum,hastatus,parse_fill,parser 2 of 2 (100%); 4 tokens,2026-10-18
 hastilium,hastilis,parse_fill,parser 3 of 3 (100%); 4 tokens,2026-10-18
-hat,ho,parse_fill,parser 1 of 1 (100%); 30 tokens,2026-10-18
 hauriantur,haurio,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 hauriatis,haurio,parse_fill,parser 3 of 3 (100%); 2 tokens,2026-10-18
 hauriatur,haurio,parse_fill,parser 11 of 11 (100%); 15 tokens,2026-10-18
@@ -34759,7 +34621,6 @@ historiographos,historiographus,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-1
 histriae,histria,parse_fill,parser 13 of 13 (100%); 16 tokens,2026-10-18
 histrione,histrio,parse_fill,parser 13 of 13 (100%); 13 tokens,2026-10-18
 histrioni,histrio,parse_fill,parser 11 of 11 (100%); 14 tokens,2026-10-18
-hitur,eo,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 hodierne,hodiernus,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 hodiernis,hodiernus,parse_fill,parser 2 of 2 (100%); 4 tokens,2026-10-18
 hodiernos,hodiernus,parse_fill,parser 2 of 2 (100%); 4 tokens,2026-10-18
@@ -35196,18 +35057,12 @@ iamborum,iambus,parse_fill,parser 5 of 5 (100%); 5 tokens,2026-10-18
 iambum,iambus,parse_fill,parser 9 of 9 (100%); 11 tokens,2026-10-18
 ianitore,ianitor,parse_fill,parser 5 of 5 (100%); 6 tokens,2026-10-18
 ianitoris,ianitor,parse_fill,parser 3 of 3 (100%); 5 tokens,2026-10-18
-iantes,io,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 ianuarum,ianua,parse_fill,parser 8 of 8 (100%); 10 tokens,2026-10-18
 iaspidi,iaspis,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 iaspidibus,iaspis,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 iaspim,iaspis,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 iaspin,iaspis,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
-iatur,io,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 ibatur,eo,parse_fill,parser 5 of 5 (100%); 6 tokens,2026-10-18
-ibont,eo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
-icientes,icio,parse_fill,parser 2 of 2 (100%); 1 tokens,2026-10-18
-icit,icio,parse_fill,parser 46 of 52 (88%); 30 tokens,2026-10-18
-icitur,icio,parse_fill,parser 9 of 11 (82%); 6 tokens,2026-10-18
 idalien,idalius,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 idealem,idealis,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 ideant,ideo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
@@ -35388,7 +35243,6 @@ ignotissimis,ignotus,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 ignotissimo,ignotus,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 ignotissimum,ignotus,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 ignotorum,ignotus,parse_fill,parser 24 of 30 (80%); 33 tokens,2026-10-18
-iineta,uinetum,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 iisse,eo,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 illabatur,illabor,parse_fill,parser 6 of 6 (100%); 5 tokens,2026-10-18
 illabuntur,illabor,parse_fill,parser 5 of 5 (100%); 6 tokens,2026-10-18
@@ -39095,7 +38949,6 @@ inlustrationis,illustratio,assimilated_prefix,other spelling illustrationis (inl
 inlustratur,illustro,assimilated_prefix,other spelling illustratur (inl>ill); 30 tokens,2026-10-18
 inlustratus,illustro,assimilated_prefix,other spelling illustratus (inl>ill); 17 tokens,2026-10-18
 inlustrauit,illustro,assimilated_prefix,other spelling illustrauit (inl>ill); 32 tokens,2026-10-18
-inlustrentue,ue,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 inlustret,illustro,assimilated_prefix,other spelling illustret (inl>ill); 16 tokens,2026-10-18
 inlustriora,illustris,assimilated_prefix,other spelling illustriora (inl>ill); 13 tokens,2026-10-18
 inlustrissimos,inlustris,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
@@ -41925,7 +41778,6 @@ intuendum,intuor,parse_fill,parser 63 of 75 (84%); 101 tokens,2026-10-18
 intueris,intuor,parse_fill,parser 9 of 11 (82%); 17 tokens,2026-10-18
 intuitur,intuor,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 intulerim,infero,parse_fill,parser 5 of 5 (100%); 4 tokens,2026-10-18
-intuleritis,io,parse_fill,parser 3 of 3 (100%); 4 tokens,2026-10-18
 intumescant,intumesco,parse_fill,parser 9 of 9 (100%); 14 tokens,2026-10-18
 intumescebant,intumesco,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 intumescebat,intumesco,parse_fill,parser 2 of 2 (100%); 4 tokens,2026-10-18
@@ -41940,7 +41792,6 @@ intumescitis,intumesco,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 intumuerunt,intumesco,parse_fill,parser 4 of 4 (100%); 6 tokens,2026-10-18
 intutam,intutus,parse_fill,parser 4 of 5 (80%); 7 tokens,2026-10-18
 intutas,intutus,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
-inu,do,parse_fill,parser 1 of 1 (100%); 5 tokens,2026-10-18
 inuadam,inuado,parse_fill,parser 3 of 3 (100%); 3 tokens,2026-10-18
 inuadamus,inuado,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 inuadas,inuado,parse_fill,parser 1 of 1 (100%); 4 tokens,2026-10-18
@@ -42452,7 +42303,6 @@ iocunditati,iocunditas,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 iocunditatis,iocunditas,parse_fill,parser 14 of 14 (100%); 12 tokens,2026-10-18
 iocundo,iocundus,parse_fill,parser 3 of 3 (100%); 7 tokens,2026-10-18
 iocundos,iocundus,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
-ionibus,io,parse_fill,parser 2 of 2 (100%); 3 tokens,2026-10-18
 ionica,ionicus,parse_fill,parser 7 of 7 (100%); 15 tokens,2026-10-18
 ionicae,ionicus,parse_fill,parser 6 of 7 (86%); 14 tokens,2026-10-18
 ionicam,ionicus,parse_fill,parser 3 of 3 (100%); 5 tokens,2026-10-18
@@ -42936,7 +42786,6 @@ iurabunt,iuro,parse_fill,parser 7 of 7 (100%); 6 tokens,2026-10-18
 iuramentorum,iuramentum,parse_fill,parser 6 of 6 (100%); 18 tokens,2026-10-18
 iuramus,iuro,parse_fill,parser 11 of 11 (100%); 11 tokens,2026-10-18
 iurandus,iuro,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
-iurantum,iuo,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 iurarant,iuro,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 iuraras,iuro,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 iurarc,iuro,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
@@ -42954,7 +42803,6 @@ iuratis,iuro,parse_fill,parser 18 of 18 (100%); 25 tokens,2026-10-18
 iurato,iuro,parse_fill,parser 15 of 15 (100%); 18 tokens,2026-10-18
 iuratorum,iuro,parse_fill,parser 4 of 4 (100%); 4 tokens,2026-10-18
 iuratos,iuro,parse_fill,parser 8 of 8 (100%); 13 tokens,2026-10-18
-iuratura,iuo,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 iuraturi,iuro,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 iuraturos,iuro,parse_fill,parser 1 of 1 (100%); 4 tokens,2026-10-18
 iuraturum,iuro,parse_fill,parser 2 of 2 (100%); 5 tokens,2026-10-18
@@ -42979,7 +42827,6 @@ iurisconsultis,iurisconsultus,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-
 iurisconsultorum,iurisconsultus,parse_fill,parser 4 of 4 (100%); 8 tokens,2026-10-18
 iurisconsultum,iurisconsultus,parse_fill,parser 2 of 2 (100%); 1 tokens,2026-10-18
 iurisdictiones,iurisdictio,parse_fill,parser 5 of 5 (100%); 6 tokens,2026-10-18
-iurta,iuo,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 iurulenta,iurulentus,parse_fill,parser 12 of 12 (100%); 13 tokens,2026-10-18
 iurulentae,iurulentus,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 iurulentis,iurulentus,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
@@ -43049,7 +42896,6 @@ iuuabatur,iuuo,parse_fill,parser 1 of 1 (100%); 3 tokens,2026-10-18
 iuuabis,iuuo,parse_fill,parser 2 of 2 (100%); 5 tokens,2026-10-18
 iuuabunt,iuuo,parse_fill,parser 11 of 11 (100%); 21 tokens,2026-10-18
 iuuamus,iuuo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
-iuuan,iuo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 iuuanda,iuuo,parse_fill,parser 9 of 9 (100%); 12 tokens,2026-10-18
 iuuandae,iuuo,parse_fill,parser 3 of 3 (100%); 5 tokens,2026-10-18
 iuuandam,iuuo,parse_fill,parser 4 of 4 (100%); 5 tokens,2026-10-18
@@ -43080,11 +42926,8 @@ iuuenalia,iuuenalis,parse_fill,parser 23 of 23 (100%); 26 tokens,2026-10-18
 iuuencarum,iuuenca,parse_fill,parser 3 of 3 (100%); 3 tokens,2026-10-18
 iuuenilium,iuuenilis,parse_fill,parser 1 of 1 (100%); 3 tokens,2026-10-18
 iuuentuten,iuuentus,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
-iuuero,iuo,parse_fill,parser 7 of 7 (100%); 7 tokens,2026-10-18
 iuuetis,iuuo,parse_fill,parser 3 of 3 (100%); 7 tokens,2026-10-18
-iuuimus,io,parse_fill,parser 2 of 2 (100%); 4 tokens,2026-10-18
 iuuissem,iuuo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
-iuuistis,iuo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 lababant,labo,parse_fill,parser 4 of 4 (100%); 4 tokens,2026-10-18
 lababat,labo,parse_fill,parser 4 of 4 (100%); 4 tokens,2026-10-18
 lababit,labo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
@@ -43573,8 +43416,6 @@ lanios,lanius,parse_fill,parser 5 of 5 (100%); 5 tokens,2026-10-18
 lanistae,lanista,parse_fill,parser 10 of 10 (100%); 17 tokens,2026-10-18
 lanistam,lanista,parse_fill,parser 4 of 4 (100%); 4 tokens,2026-10-18
 lanistas,lanista,parse_fill,parser 4 of 4 (100%); 4 tokens,2026-10-18
-lans,lo,parse_fill,parser 2 of 2 (100%); 1 tokens,2026-10-18
-lant,lo,parse_fill,parser 2 of 2 (100%); 6 tokens,2026-10-18
 lanternae,lanterna,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 lanternam,lanterna,parse_fill,parser 4 of 4 (100%); 5 tokens,2026-10-18
 lanternarum,lanterna,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
@@ -43629,7 +43470,6 @@ lapsare,lapso,parse_fill,parser 4 of 4 (100%); 6 tokens,2026-10-18
 lapsarent,lapso,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 lapsaret,lapso,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 lapsui,lapsus,parse_fill,parser 6 of 6 (100%); 7 tokens,2026-10-18
-lapsuri,eo,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 lapsuum,lapsus,parse_fill,parser 6 of 6 (100%); 7 tokens,2026-10-18
 largae,largus,parse_fill,parser 6 of 6 (100%); 14 tokens,2026-10-18
 largiamini,largior,parse_fill,parser 3 of 3 (100%); 2 tokens,2026-10-18
@@ -43818,7 +43658,6 @@ latrunculos,latrunculus,parse_fill,parser 9 of 9 (100%); 20 tokens,2026-10-18
 latuerit,lateo,parse_fill,parser 22 of 22 (100%); 24 tokens,2026-10-18
 latuissent,lateo,parse_fill,parser 4 of 4 (100%); 4 tokens,2026-10-18
 latuisti,lateo,parse_fill,parser 1 of 1 (100%); 3 tokens,2026-10-18
-latur,lo,parse_fill,parser 2 of 2 (100%); 3 tokens,2026-10-18
 lau,laus,parse_fill,parser 5 of 5 (100%); 4 tokens,2026-10-18
 lauabam,lauo,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 lauabar,lauo,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
@@ -43982,9 +43821,7 @@ laxioris,laxus,parse_fill,parser 3 of 3 (100%); 5 tokens,2026-10-18
 laxissimae,laxus,parse_fill,parser 2 of 2 (100%); 1 tokens,2026-10-18
 laxissimas,laxus,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 laxitatem,laxitas,parse_fill,parser 4 of 4 (100%); 9 tokens,2026-10-18
-leans,leo,parse_fill,parser 3 of 3 (100%); 2 tokens,2026-10-18
 lebetibus,lebes,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
-lebnr,lo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 lecticae,lectica,parse_fill,parser 13 of 13 (100%); 24 tokens,2026-10-18
 lecticarum,lectica,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 lecticas,lectica,parse_fill,parser 3 of 3 (100%); 6 tokens,2026-10-18
@@ -44040,7 +43877,6 @@ legentum,lego,parse_fill,parser 6 of 6 (100%); 7 tokens,2026-10-18
 leger,lego,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 legeramus,lego,parse_fill,parser 3 of 3 (100%); 2 tokens,2026-10-18
 legetur,lego,parse_fill,parser 8 of 8 (100%); 18 tokens,2026-10-18
-legimns,leo,parse_fill,parser 2 of 2 (100%); 1 tokens,2026-10-18
 legimur,lego,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 legionariae,legionarius,parse_fill,parser 1 of 1 (100%); 4 tokens,2026-10-18
 legionariam,legionarius,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
@@ -44645,7 +44481,6 @@ litabis,lito,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 litabitur,lito,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 litabo,lito,parse_fill,parser 3 of 3 (100%); 4 tokens,2026-10-18
 litabunt,lito,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
-litam,leo,parse_fill,parser 2 of 2 (100%); 3 tokens,2026-10-18
 litamus,lito,parse_fill,parser 5 of 5 (100%); 4 tokens,2026-10-18
 litanda,lito,parse_fill,parser 3 of 3 (100%); 4 tokens,2026-10-18
 litandi,lito,parse_fill,parser 3 of 3 (100%); 2 tokens,2026-10-18
@@ -44736,7 +44571,6 @@ litteraturae,litteratura,parse_fill,parser 25 of 25 (100%); 23 tokens,2026-10-18
 littoribus,litus,parse_fill,parser 10 of 10 (100%); 22 tokens,2026-10-18
 lituorum,lituus,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 liturarum,litura,parse_fill,parser 3 of 3 (100%); 3 tokens,2026-10-18
-liuabit,uiuo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 liueat,liueo,parse_fill,parser 4 of 4 (100%); 5 tokens,2026-10-18
 liuentibus,liueo,parse_fill,parser 10 of 11 (91%); 13 tokens,2026-10-18
 liuere,liueo,parse_fill,parser 8 of 10 (80%); 17 tokens,2026-10-18
@@ -44808,7 +44642,6 @@ loces,loco,parse_fill,parser 2 of 2 (100%); 3 tokens,2026-10-18
 locet,loco,parse_fill,parser 12 of 12 (100%); 20 tokens,2026-10-18
 locetis,loco,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 locetur,loco,parse_fill,parser 20 of 20 (100%); 23 tokens,2026-10-18
-locoiuelim,uolo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 locor,loco,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 locu,locus,parse_fill,parser 1 of 1 (100%); 3 tokens,2026-10-18
 loculi,loculus,parse_fill,parser 6 of 6 (100%); 12 tokens,2026-10-18
@@ -44856,7 +44689,6 @@ logicis,logicus,parse_fill,parser 2 of 2 (100%); 5 tokens,2026-10-18
 logicum,logicus,parse_fill,parser 2 of 2 (100%); 4 tokens,2026-10-18
 lolia,lolium,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 lolligines,lolligo,parse_fill,parser 11 of 11 (100%); 11 tokens,2026-10-18
-lonem,lo,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 longaeuam,longaeuus,parse_fill,parser 12 of 12 (100%); 16 tokens,2026-10-18
 longaeuas,longaeuus,parse_fill,parser 6 of 6 (100%); 8 tokens,2026-10-18
 longaeuis,longaeuus,parse_fill,parser 2 of 2 (100%); 5 tokens,2026-10-18
@@ -44887,7 +44719,6 @@ loquacitati,loquacitas,parse_fill,parser 4 of 4 (100%); 6 tokens,2026-10-18
 loquacitatis,loquacitas,parse_fill,parser 25 of 25 (100%); 29 tokens,2026-10-18
 loquaris,loquor,parse_fill,parser 105 of 105 (100%); 131 tokens,2026-10-18
 loqucbatur,loquor,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
-loqueb,ob,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 loquentiam,loquentia,parse_fill,parser 2 of 2 (100%); 4 tokens,2026-10-18
 loquimnr,loquor,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 loquundi,loquor,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
@@ -45094,7 +44925,6 @@ luentis,luo,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 luentum,luo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 lueretur,luo,parse_fill,parser 4 of 4 (100%); 7 tokens,2026-10-18
 luerint,luo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
-luerit,leo,parse_fill,parser 6 of 7 (86%); 11 tokens,2026-10-18
 luetur,luo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 lugeamus,lugeo,parse_fill,parser 18 of 18 (100%); 16 tokens,2026-10-18
 lugeant,lugeo,parse_fill,parser 7 of 7 (100%); 11 tokens,2026-10-18
@@ -45122,7 +44952,6 @@ lugubria,lugubris,parse_fill,parser 16 of 16 (100%); 22 tokens,2026-10-18
 lugubriore,lugubris,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 lugubrius,lugubris,parse_fill,parser 6 of 6 (100%); 4 tokens,2026-10-18
 luiturum,ludo,parse_fill,parser 2 of 2 (100%); 3 tokens,2026-10-18
-luiturus,eo,parse_fill,parser 1 of 1 (100%); 3 tokens,2026-10-18
 lumborum,lumbus,parse_fill,parser 52 of 52 (100%); 91 tokens,2026-10-18
 lumbum,lumbus,parse_fill,parser 7 of 7 (100%); 11 tokens,2026-10-18
 luminariis,luminarium,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
@@ -45151,7 +44980,6 @@ lunone,luno,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 lunonem,luno,parse_fill,parser 3 of 3 (100%); 5 tokens,2026-10-18
 lunoni,luno,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 lunonis,luno,parse_fill,parser 2 of 2 (100%); 3 tokens,2026-10-18
-lunt,lo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 luparum,lupa,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 lupas,lupa,parse_fill,parser 9 of 9 (100%); 9 tokens,2026-10-18
 lupinam,lupinus,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
@@ -46028,7 +45856,6 @@ mauretaniarum,mauretania,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 mauretanias,mauretania,parse_fill,parser 4 of 4 (100%); 3 tokens,2026-10-18
 mauricae,mauricus,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 mausolo,mausolus,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
-mauultl,molo,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 maxillares,maxillaris,parse_fill,parser 8 of 8 (100%); 8 tokens,2026-10-18
 maxillis,maxilla,parse_fill,parser 26 of 29 (90%); 37 tokens,2026-10-18
 maximiane,maximianus,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
@@ -46525,7 +46352,6 @@ migret,migro,parse_fill,parser 13 of 13 (100%); 17 tokens,2026-10-18
 migretis,migro,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 migretur,migro,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 mila,mia,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
-milesimo,uicesimus,parse_fill,parser 4 of 4 (100%); 4 tokens,2026-10-18
 miliarii,miliarium,parse_fill,parser 6 of 6 (100%); 7 tokens,2026-10-18
 miliario,miliarium,parse_fill,parser 63 of 72 (88%); 86 tokens,2026-10-18
 milita,milito,parse_fill,parser 1 of 1 (100%); 5 tokens,2026-10-18
@@ -46565,7 +46391,6 @@ milleno,millenus,parse_fill,parser 10 of 10 (100%); 12 tokens,2026-10-18
 millenorum,millenus,parse_fill,parser 4 of 4 (100%); 4 tokens,2026-10-18
 millesimi,millesimus,parse_fill,parser 5 of 5 (100%); 5 tokens,2026-10-18
 millesimum,millesimus,parse_fill,parser 5 of 5 (100%); 8 tokens,2026-10-18
-millessimo,uicesimus,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 miluis,miluus,parse_fill,parser 3 of 3 (100%); 2 tokens,2026-10-18
 miluorum,miluus,parse_fill,parser 3 of 3 (100%); 4 tokens,2026-10-18
 mime,mimus,parse_fill,parser 1 of 1 (100%); 3 tokens,2026-10-18
@@ -46710,7 +46535,6 @@ minutissimos,minutus,parse_fill,parser 3 of 3 (100%); 3 tokens,2026-10-18
 minutissimum,minutus,parse_fill,parser 5 of 5 (100%); 7 tokens,2026-10-18
 minutissimus,minutus,parse_fill,parser 3 of 3 (100%); 3 tokens,2026-10-18
 minutorum,minutus,parse_fill,parser 5 of 6 (83%); 6 tokens,2026-10-18
-minxisti,aio,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 minyade,minyas,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 mirabiliora,mirabilis,parse_fill,parser 13 of 14 (93%); 13 tokens,2026-10-18
 mirabiliore,mirabilis,parse_fill,parser 5 of 6 (83%); 9 tokens,2026-10-18
@@ -47806,10 +47630,7 @@ nanciscendam,nanciscor,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 nanciscerentur,nanciscor,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 nancisceretur,nanciscor,parse_fill,parser 5 of 5 (100%); 6 tokens,2026-10-18
 nanciscetur,nanciscor,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
-nanda,no,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 nano,nanus,parse_fill,parser 5 of 5 (100%); 9 tokens,2026-10-18
-nantia,no,parse_fill,parser 5 of 5 (100%); 5 tokens,2026-10-18
-nantur,no,parse_fill,parser 3 of 3 (100%); 3 tokens,2026-10-18
 napi,napus,parse_fill,parser 4 of 4 (100%); 6 tokens,2026-10-18
 napo,napus,parse_fill,parser 2 of 2 (100%); 4 tokens,2026-10-18
 napum,napus,parse_fill,parser 2 of 2 (100%); 5 tokens,2026-10-18
@@ -48211,15 +48032,10 @@ negotiosissimo,negotiosus,parse_fill,parser 2 of 2 (100%); 1 tokens,2026-10-18
 negotiosissimum,negotiosus,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 negotiosius,negotiosus,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 negotiosorum,negotiosus,parse_fill,parser 2 of 2 (100%); 1 tokens,2026-10-18
-neiit,num,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
-nelos,nilus,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 nemoroso,nemorosus,parse_fill,parser 7 of 7 (100%); 11 tokens,2026-10-18
 nemorosum,nemorosus,parse_fill,parser 14 of 14 (100%); 17 tokens,2026-10-18
-nenda,no,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 neniae,nenia,parse_fill,parser 13 of 14 (93%); 14 tokens,2026-10-18
 neniam,nenia,parse_fill,parser 2 of 2 (100%); 6 tokens,2026-10-18
-nens,no,parse_fill,parser 1 of 1 (100%); 3 tokens,2026-10-18
-nentem,no,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 neomeniam,neomenia,parse_fill,parser 3 of 3 (100%); 5 tokens,2026-10-18
 neomeniarum,neomenia,parse_fill,parser 3 of 3 (100%); 5 tokens,2026-10-18
 neophytis,neophytus,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
@@ -48345,7 +48161,6 @@ nitra,nitrum,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 nitri,nitrum,parse_fill,parser 94 of 97 (97%); 108 tokens,2026-10-18
 nituerunt,niteo,parse_fill,parser 8 of 8 (100%); 13 tokens,2026-10-18
 nituisse,niteo,parse_fill,parser 5 of 5 (100%); 5 tokens,2026-10-18
-nitur,no,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 niuale,niualis,parse_fill,parser 4 of 4 (100%); 5 tokens,2026-10-18
 niualem,niualis,parse_fill,parser 23 of 23 (100%); 33 tokens,2026-10-18
 niuales,niualis,parse_fill,parser 6 of 6 (100%); 8 tokens,2026-10-18
@@ -48427,7 +48242,6 @@ nodosissimi,nodosus,parse_fill,parser 2 of 2 (100%); 1 tokens,2026-10-18
 nodosius,nodosus,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 nodosos,nodosus,parse_fill,parser 2 of 2 (100%); 3 tokens,2026-10-18
 nodulis,nodulus,parse_fill,parser 4 of 4 (100%); 6 tokens,2026-10-18
-nole,nex,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 nolebamus,nolo,parse_fill,parser 6 of 7 (86%); 6 tokens,2026-10-18
 nolendo,nolo,parse_fill,parser 17 of 17 (100%); 17 tokens,2026-10-18
 nolentis,nolo,parse_fill,parser 11 of 11 (100%); 16 tokens,2026-10-18
@@ -48490,10 +48304,6 @@ nonnullo,nonnullus,parse_fill,parser 8 of 8 (100%); 9 tokens,2026-10-18
 nonnullorum,nonnullus,parse_fill,parser 49 of 50 (98%); 42 tokens,2026-10-18
 nonorum,nonus,parse_fill,parser 2 of 2 (100%); 1 tokens,2026-10-18
 nonos,nonus,parse_fill,parser 2 of 2 (100%); 3 tokens,2026-10-18
-nonsit,num,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
-noramus,no,parse_fill,parser 3 of 3 (100%); 3 tokens,2026-10-18
-noratia,no,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
-noratis,no,parse_fill,parser 5 of 5 (100%); 5 tokens,2026-10-18
 normis,norma,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 noscamur,nosco,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 noscas,nosco,parse_fill,parser 20 of 20 (100%); 22 tokens,2026-10-18
@@ -48528,7 +48338,6 @@ noscitetur,noscito,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 noscito,nosco,parse_fill,parser 2 of 2 (100%); 4 tokens,2026-10-18
 noscunt,nosco,parse_fill,parser 8 of 8 (100%); 12 tokens,2026-10-18
 nosmetipsi,nosmetipse,parse_fill,parser 1 of 1 (100%); 3 tokens,2026-10-18
-nostramdatur,no,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 notabam,noto,parse_fill,parser 2 of 2 (100%); 1 tokens,2026-10-18
 notabantur,noto,parse_fill,parser 4 of 4 (100%); 6 tokens,2026-10-18
 notabilibus,notabilis,parse_fill,parser 2 of 2 (100%); 3 tokens,2026-10-18
@@ -48851,7 +48660,6 @@ nuncupetur,nuncupo,parse_fill,parser 47 of 47 (100%); 40 tokens,2026-10-18
 nuncupor,nuncupo,parse_fill,parser 2 of 2 (100%); 4 tokens,2026-10-18
 nundinarium,nundinarius,parse_fill,parser 6 of 6 (100%); 5 tokens,2026-10-18
 nundinis,nundina,parse_fill,parser 45 of 45 (100%); 66 tokens,2026-10-18
-nunt,no,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 nuntiabis,nuntio,parse_fill,parser 3 of 3 (100%); 6 tokens,2026-10-18
 nuntiabitur,nuntio,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 nuntiabo,nuntio,parse_fill,parser 26 of 26 (100%); 32 tokens,2026-10-18
@@ -49125,7 +48933,6 @@ obiciobantur,obicio,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 obicitis,obicio,parse_fill,parser 35 of 35 (100%); 33 tokens,2026-10-18
 obiecerim,obfero,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 obiecimus,obicio,parse_fill,parser 6 of 6 (100%); 6 tokens,2026-10-18
-obiecissem,oclo,parse_fill,parser 1 of 1 (100%); 3 tokens,2026-10-18
 obiectabant,obiecto,parse_fill,parser 3 of 3 (100%); 6 tokens,2026-10-18
 obiectabantur,obiecto,parse_fill,parser 2 of 2 (100%); 3 tokens,2026-10-18
 obiectabatur,obiecto,parse_fill,parser 2 of 2 (100%); 3 tokens,2026-10-18
@@ -49886,8 +49693,6 @@ obstupescimus,obstupesco,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 obstupescit,obstupesco,parse_fill,parser 4 of 4 (100%); 7 tokens,2026-10-18
 obstupida,obstupidus,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 obsumus,obsum,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
-obtamus,offero,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
-obtata,offero,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 obtegant,obtego,parse_fill,parser 6 of 6 (100%); 7 tokens,2026-10-18
 obtegat,obtego,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 obtegatur,obtego,parse_fill,parser 3 of 3 (100%); 5 tokens,2026-10-18
@@ -50292,7 +50097,6 @@ occulentibus,occulo,parse_fill,parser 2 of 2 (100%); 4 tokens,2026-10-18
 occulerant,occulo,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 occulerat,occulo,parse_fill,parser 3 of 3 (100%); 3 tokens,2026-10-18
 occuleretur,occulo,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
-occulimus,offero,parse_fill,parser 2 of 2 (100%); 3 tokens,2026-10-18
 occulito,occulo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 occultabam,occulto,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 occultabantur,occulto,parse_fill,parser 7 of 7 (100%); 10 tokens,2026-10-18
@@ -51438,7 +51242,6 @@ ostreis,ostrea,parse_fill,parser 31 of 37 (84%); 46 tokens,2026-10-18
 ostrinos,ostrinus,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 ostris,ostrum,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 otas,otus,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
-ote,os,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 otiamur,otior,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 otiandi,otior,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 otiante,otior,parse_fill,parser 3 of 3 (100%); 2 tokens,2026-10-18
@@ -51462,7 +51265,6 @@ ouant,ouo,parse_fill,parser 5 of 5 (100%); 5 tokens,2026-10-18
 ouante,ouo,parse_fill,parser 2 of 2 (100%); 4 tokens,2026-10-18
 ouantium,ouo,parse_fill,parser 4 of 4 (100%); 5 tokens,2026-10-18
 ouare,ouo,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
-ouasse,uuo,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 ouationem,ouatio,parse_fill,parser 1 of 1 (100%); 3 tokens,2026-10-18
 ouet,ouo,parse_fill,parser 1 of 1 (100%); 5 tokens,2026-10-18
 ouilium,ouilis,parse_fill,parser 2 of 2 (100%); 3 tokens,2026-10-18
@@ -52970,7 +52772,6 @@ perduretis,perduro,parse_fill,parser 2 of 2 (100%); 1 tokens,2026-10-18
 perduxerint,perduco,parse_fill,parser 8 of 10 (80%); 10 tokens,2026-10-18
 perduxeris,perduco,parse_fill,parser 1 of 1 (100%); 4 tokens,2026-10-18
 perduxistis,perduco,parse_fill,parser 2 of 2 (100%); 1 tokens,2026-10-18
-peregisti,aeo,parse_fill,parser 1 of 1 (100%); 5 tokens,2026-10-18
 peregrinabantur,peregrinor,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 peregrinabar,peregrinor,parse_fill,parser 4 of 4 (100%); 3 tokens,2026-10-18
 peregrinabatur,peregrinor,parse_fill,parser 5 of 5 (100%); 6 tokens,2026-10-18
@@ -53266,7 +53067,6 @@ perhorrescentes,perhorresco,parse_fill,parser 3 of 3 (100%); 3 tokens,2026-10-18
 perhorrescere,perhorresco,parse_fill,parser 4 of 4 (100%); 7 tokens,2026-10-18
 perhorruerant,pereo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 perhorruissent,pereo,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
-peribam,eo,parse_fill,parser 2 of 2 (100%); 1 tokens,2026-10-18
 periclitabere,periclitor,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 periclitamini,periclitor,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 periclitandae,periclitor,parse_fill,parser 2 of 2 (100%); 3 tokens,2026-10-18
@@ -53290,7 +53090,6 @@ periculosissimae,periculosus,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-1
 periculosissimam,periculosus,parse_fill,parser 2 of 2 (100%); 1 tokens,2026-10-18
 periculosissimis,periculosus,parse_fill,parser 8 of 8 (100%); 7 tokens,2026-10-18
 periculosissimo,periculosus,parse_fill,parser 5 of 5 (100%); 5 tokens,2026-10-18
-perieram,sem,parse_fill,parser 3 of 3 (100%); 5 tokens,2026-10-18
 perieritis,pereo,parse_fill,parser 2 of 2 (100%); 1 tokens,2026-10-18
 perillustre,perillustris,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 perimam,perimo,parse_fill,parser 4 of 4 (100%); 5 tokens,2026-10-18
@@ -53775,7 +53574,6 @@ perplexitatem,perplexitas,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 perplexitatibus,perplexitas,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 perplexo,perplexus,parse_fill,parser 5 of 5 (100%); 10 tokens,2026-10-18
 perpulerit,perfero,parse_fill,parser 2 of 2 (100%); 3 tokens,2026-10-18
-perpulisti,fero,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 perquiram,perquiro,parse_fill,parser 5 of 5 (100%); 4 tokens,2026-10-18
 perquiramus,perquiro,parse_fill,parser 3 of 3 (100%); 3 tokens,2026-10-18
 perquirant,perquiro,parse_fill,parser 9 of 9 (100%); 7 tokens,2026-10-18
@@ -53865,7 +53663,6 @@ perscrutatoribus,perscrutator,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-
 perscrutatum,perscrutor,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 perscrutentur,perscrutor,parse_fill,parser 4 of 4 (100%); 2 tokens,2026-10-18
 persecutionum,persecutio,parse_fill,parser 39 of 39 (100%); 28 tokens,2026-10-18
-persecutoremecclesiarumfuisse,sem,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 persecutori,persecutor,parse_fill,parser 14 of 14 (100%); 13 tokens,2026-10-18
 persecutrices,persecutrix,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 persequamini,persequor,parse_fill,parser 6 of 6 (100%); 7 tokens,2026-10-18
@@ -58904,7 +58701,6 @@ prospectauit,prospecto,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 prospecte,prospectus,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 prospectem,prospecto,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 prospectent,prospecto,parse_fill,parser 2 of 2 (100%); 3 tokens,2026-10-18
-prospecturi,eo,parse_fill,parser 2 of 2 (100%); 1 tokens,2026-10-18
 prosperabantur,prospero,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 prosperaberis,prospero,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 prosperabo,prospero,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
@@ -59130,7 +58926,6 @@ protrahuntur,protraho,parse_fill,parser 3 of 3 (100%); 6 tokens,2026-10-18
 protraxerat,protraho,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 protraxerit,protraho,parse_fill,parser 2 of 2 (100%); 4 tokens,2026-10-18
 protritum,protero,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
-protulissem,tollo,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 proturba,proturbo,parse_fill,parser 2 of 2 (100%); 1 tokens,2026-10-18
 proturbabat,proturbo,parse_fill,parser 6 of 6 (100%); 7 tokens,2026-10-18
 proturbabuntur,proturbo,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
@@ -60098,7 +59893,6 @@ quernis,quernus,parse_fill,parser 2 of 2 (100%); 5 tokens,2026-10-18
 queruli,querulus,parse_fill,parser 7 of 7 (100%); 12 tokens,2026-10-18
 querulis,querulus,parse_fill,parser 23 of 23 (100%); 35 tokens,2026-10-18
 queuis,quiuis,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
-quiaibo,eo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 quicquidlibet,quilibet,parse_fill,parser 2 of 2 (100%); 1 tokens,2026-10-18
 quicumuis,quiuis,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 quidquidlibet,quilibet,parse_fill,parser 6 of 6 (100%); 3 tokens,2026-10-18
@@ -60134,7 +59928,6 @@ quinaria,quinarius,parse_fill,parser 3 of 3 (100%); 9 tokens,2026-10-18
 quinarii,quinarius,parse_fill,parser 3 of 3 (100%); 4 tokens,2026-10-18
 quinario,quinarius,parse_fill,parser 4 of 4 (100%); 4 tokens,2026-10-18
 quinas,quini,parse_fill,parser 21 of 25 (84%); 42 tokens,2026-10-18
-quineodem,idem,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 quingenis,quingeni,parse_fill,parser 7 of 8 (88%); 11 tokens,2026-10-18
 quingentarum,quingenti,parse_fill,parser 1 of 1 (100%); 5 tokens,2026-10-18
 quingentorum,quingenti,parse_fill,parser 36 of 36 (100%); 77 tokens,2026-10-18
@@ -60157,7 +59950,6 @@ quintiorum,quintius,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 quintis,quintus,parse_fill,parser 6 of 7 (86%); 16 tokens,2026-10-18
 quisquiliae,quisquilia,parse_fill,parser 2 of 2 (100%); 3 tokens,2026-10-18
 quita,queo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
-quiueris,iuo,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 quoedam,quidam,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 quosuis,quiuis,parse_fill,parser 4 of 5 (80%); 9 tokens,2026-10-18
 quotae,quotus,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
@@ -60966,7 +60758,6 @@ rectu,rectus,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 recubitu,recubitus,parse_fill,parser 8 of 8 (100%); 6 tokens,2026-10-18
 recubuerunt,recumbo,parse_fill,parser 2 of 2 (100%); 1 tokens,2026-10-18
 recubuisse,recumbo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
-recubus,ros,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 recucurrit,recurro,parse_fill,parser 3 of 3 (100%); 3 tokens,2026-10-18
 reculam,recula,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 recumbam,recumbo,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
@@ -61033,8 +60824,6 @@ recursabant,recurso,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 recursans,recurso,parse_fill,parser 5 of 5 (100%); 6 tokens,2026-10-18
 recursant,recurso,parse_fill,parser 4 of 4 (100%); 5 tokens,2026-10-18
 recursantes,recurso,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
-recursuri,eo,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
-recursurus,eo,parse_fill,parser 2 of 2 (100%); 1 tokens,2026-10-18
 recuruando,recuruo,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 recuruans,recuruo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 recuruant,recuruo,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
@@ -61193,7 +60982,6 @@ redigite,redigo,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 redigito,redigo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 redigor,redigo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 rediguntur,redigo,parse_fill,parser 11 of 11 (100%); 23 tokens,2026-10-18
-rediise,eo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 redimamur,redimo,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 redimamus,redimo,parse_fill,parser 8 of 8 (100%); 6 tokens,2026-10-18
 redimant,redimo,parse_fill,parser 8 of 8 (100%); 7 tokens,2026-10-18
@@ -61744,7 +61532,6 @@ regaui,rego,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 regebant,rego,parse_fill,parser 18 of 18 (100%); 28 tokens,2026-10-18
 regebas,rego,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 regebus,rego,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
-regefuerat,sem,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 regemus,rego,parse_fill,parser 2 of 2 (100%); 4 tokens,2026-10-18
 regendam,rego,parse_fill,parser 28 of 28 (100%); 39 tokens,2026-10-18
 regendorum,rego,parse_fill,parser 2 of 2 (100%); 3 tokens,2026-10-18
@@ -62163,7 +61950,6 @@ remeando,remeo,parse_fill,parser 4 of 4 (100%); 4 tokens,2026-10-18
 remeandum,remeo,parse_fill,parser 3 of 3 (100%); 3 tokens,2026-10-18
 remeanti,remeo,parse_fill,parser 5 of 5 (100%); 6 tokens,2026-10-18
 remearat,remeo,parse_fill,parser 4 of 5 (80%); 5 tokens,2026-10-18
-remeares,eo,parse_fill,parser 2 of 2 (100%); 1 tokens,2026-10-18
 remearo,remeo,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 remeassent,remeo,parse_fill,parser 5 of 5 (100%); 3 tokens,2026-10-18
 remeasti,remeo,parse_fill,parser 3 of 3 (100%); 2 tokens,2026-10-18
@@ -62184,7 +61970,6 @@ rememorari,rememoror,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 rememorati,rememoror,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 rememoratus,rememoror,parse_fill,parser 3 of 3 (100%); 2 tokens,2026-10-18
 rememoremini,rememoror,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
-remensuri,eo,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 remetiar,remetior,parse_fill,parser 3 of 3 (100%); 3 tokens,2026-10-18
 remetiatur,remetior,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 remetientur,remetior,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
@@ -62277,7 +62062,6 @@ remorati,remoror,parse_fill,parser 2 of 2 (100%); 4 tokens,2026-10-18
 remoratus,remoror,parse_fill,parser 11 of 11 (100%); 16 tokens,2026-10-18
 remorer,remoror,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 remoreris,remoror,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
-remosse,eo,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 remotioni,remotio,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 remotioris,remotus,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 remotissime,remote,parse_fill,parser 3 of 3 (100%); 4 tokens,2026-10-18
@@ -63181,7 +62965,6 @@ repugnauerit,repugno,parse_fill,parser 6 of 6 (100%); 7 tokens,2026-10-18
 repugnaui,repugno,parse_fill,parser 2 of 2 (100%); 3 tokens,2026-10-18
 repugnes,repugno,parse_fill,parser 4 of 4 (100%); 9 tokens,2026-10-18
 repugnetis,repugno,parse_fill,parser 3 of 3 (100%); 2 tokens,2026-10-18
-repulisti,fero,parse_fill,parser 8 of 8 (100%); 6 tokens,2026-10-18
 repullulant,repullulo,parse_fill,parser 1 of 1 (100%); 5 tokens,2026-10-18
 repullulantibus,repullulo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 repullulantis,repullulo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
@@ -63190,7 +62973,6 @@ repullulasse,repullulo,parse_fill,parser 4 of 4 (100%); 3 tokens,2026-10-18
 repullulastis,repullulo,parse_fill,parser 3 of 3 (100%); 2 tokens,2026-10-18
 repullulat,repullulo,parse_fill,parser 4 of 4 (100%); 6 tokens,2026-10-18
 repunt,repo,parse_fill,parser 45 of 45 (100%); 44 tokens,2026-10-18
-repuntue,ue,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 repurganda,repurgo,parse_fill,parser 6 of 6 (100%); 6 tokens,2026-10-18
 repurgandae,repurgo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 repurgando,repurgo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
@@ -64164,7 +63946,6 @@ retrogrado,retrogradus,parse_fill,parser 3 of 3 (100%); 7 tokens,2026-10-18
 retrogradum,retrogradus,parse_fill,parser 4 of 4 (100%); 5 tokens,2026-10-18
 rettuderim,refero,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 rettulerim,refero,parse_fill,parser 5 of 5 (100%); 8 tokens,2026-10-18
-rettulissem,tollo,parse_fill,parser 9 of 9 (100%); 9 tokens,2026-10-18
 retuderunt,retundo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 retulerant,refero,parse_fill,parser 1 of 1 (100%); 4 tokens,2026-10-18
 retulerat,refero,parse_fill,parser 8 of 8 (100%); 8 tokens,2026-10-18
@@ -64595,9 +64376,6 @@ rimosos,rimosus,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 rimosum,rimosus,parse_fill,parser 1 of 1 (100%); 4 tokens,2026-10-18
 rimulae,rimula,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 rimulas,rimula,parse_fill,parser 6 of 6 (100%); 5 tokens,2026-10-18
-riora,rus,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
-riore,rus,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
-rioribus,rus,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 ripai,ripa,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 riparum,ripa,parse_fill,parser 48 of 50 (96%); 68 tokens,2026-10-18
 ripulae,ripula,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
@@ -65635,7 +65413,6 @@ satagit,satago,parse_fill,parser 17 of 17 (100%); 31 tokens,2026-10-18
 satagite,satago,parse_fill,parser 5 of 5 (100%); 5 tokens,2026-10-18
 satagitis,satago,parse_fill,parser 3 of 3 (100%); 2 tokens,2026-10-18
 satagitur,satago,parse_fill,parser 3 of 3 (100%); 4 tokens,2026-10-18
-sataria,sextarius,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 satellitio,satellitium,parse_fill,parser 5 of 5 (100%); 5 tokens,2026-10-18
 satiabant,satio,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 satiabar,satio,parse_fill,parser 4 of 4 (100%); 3 tokens,2026-10-18
@@ -65784,7 +65561,6 @@ saucientur,saucio,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 saucies,saucio,parse_fill,parser 2 of 2 (100%); 5 tokens,2026-10-18
 sauciet,saucio,parse_fill,parser 6 of 6 (100%); 6 tokens,2026-10-18
 sauciorum,saucius,parse_fill,parser 7 of 7 (100%); 11 tokens,2026-10-18
-saw,uo,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 saxeae,saxeus,parse_fill,parser 4 of 4 (100%); 6 tokens,2026-10-18
 saxeam,saxeus,parse_fill,parser 3 of 3 (100%); 5 tokens,2026-10-18
 saxee,saxeus,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
@@ -67414,7 +67190,6 @@ situlam,situla,parse_fill,parser 3 of 3 (100%); 6 tokens,2026-10-18
 situum,situs,parse_fill,parser 4 of 4 (100%); 4 tokens,2026-10-18
 smaragde,smaragdus,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 smaragdina,smaragdinus,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
-snperatus,supero,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 sobole,soboles,parse_fill,parser 20 of 20 (100%); 19 tokens,2026-10-18
 sobriam,sobrius,parse_fill,parser 26 of 26 (100%); 27 tokens,2026-10-18
 sobrinum,sobrinus,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
@@ -68796,7 +68571,6 @@ suaderem,suadeo,parse_fill,parser 7 of 7 (100%); 5 tokens,2026-10-18
 suaderes,suadeo,parse_fill,parser 2 of 2 (100%); 1 tokens,2026-10-18
 suaderi,suadeo,parse_fill,parser 17 of 17 (100%); 17 tokens,2026-10-18
 suadete,suadeo,parse_fill,parser 2 of 2 (100%); 3 tokens,2026-10-18
-suaeeadem,idem,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 suasione,suasio,parse_fill,parser 16 of 16 (100%); 15 tokens,2026-10-18
 suasionem,suasio,parse_fill,parser 6 of 6 (100%); 7 tokens,2026-10-18
 suasiones,suasio,parse_fill,parser 3 of 3 (100%); 4 tokens,2026-10-18
@@ -68910,7 +68684,6 @@ subduxisti,subduco,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 subduxti,subdo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 subeantur,subeo,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 subeatur,subeo,parse_fill,parser 7 of 7 (100%); 9 tokens,2026-10-18
-subeodem,idem,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 suberi,suber,parse_fill,parser 4 of 4 (100%); 6 tokens,2026-10-18
 suberis,suber,parse_fill,parser 3 of 3 (100%); 6 tokens,2026-10-18
 subeundam,subeo,parse_fill,parser 25 of 25 (100%); 21 tokens,2026-10-18
@@ -69958,7 +69731,6 @@ sucinis,sucinum,parse_fill,parser 10 of 12 (83%); 12 tokens,2026-10-18
 sucino,sucinum,parse_fill,parser 10 of 10 (100%); 13 tokens,2026-10-18
 sucinorum,sucinum,parse_fill,parser 2 of 2 (100%); 5 tokens,2026-10-18
 sucorum,sucus,parse_fill,parser 10 of 12 (83%); 16 tokens,2026-10-18
-suctuue,ue,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 sucu,sucus,parse_fill,parser 2 of 2 (100%); 3 tokens,2026-10-18
 suculam,sucula,parse_fill,parser 5 of 5 (100%); 8 tokens,2026-10-18
 sucularum,sucula,parse_fill,parser 3 of 3 (100%); 6 tokens,2026-10-18
@@ -71386,8 +71158,6 @@ talione,talio,parse_fill,parser 9 of 9 (100%); 21 tokens,2026-10-18
 talionibus,talio,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 talpam,talpa,parse_fill,parser 1 of 1 (100%); 3 tokens,2026-10-18
 talpis,talpa,parse_fill,parser 11 of 11 (100%); 12 tokens,2026-10-18
-tamur,to,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
-tanda,to,parse_fill,parser 2 of 2 (100%); 1 tokens,2026-10-18
 tangamus,tango,parse_fill,parser 12 of 12 (100%); 14 tokens,2026-10-18
 tangebamus,tango,parse_fill,parser 3 of 3 (100%); 3 tokens,2026-10-18
 tangebantur,tango,parse_fill,parser 1 of 1 (100%); 4 tokens,2026-10-18
@@ -71405,9 +71175,6 @@ tangeretur,tango,parse_fill,parser 9 of 9 (100%); 9 tokens,2026-10-18
 tangetis,tango,parse_fill,parser 10 of 10 (100%); 11 tokens,2026-10-18
 tangetur,tango,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 tangimur,tango,parse_fill,parser 4 of 4 (100%); 5 tokens,2026-10-18
-tans,to,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
-tant,to,parse_fill,parser 3 of 3 (100%); 11 tokens,2026-10-18
-tantadem,idem,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 tantilla,tantillus,parse_fill,parser 2 of 2 (100%); 3 tokens,2026-10-18
 tantillae,tantillus,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 tantillam,tantillus,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
@@ -71415,7 +71182,6 @@ tantilli,tantillus,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 tantillis,tantillus,parse_fill,parser 2 of 2 (100%); 1 tokens,2026-10-18
 tantillos,tantillus,parse_fill,parser 2 of 2 (100%); 1 tokens,2026-10-18
 tantulis,tantulus,parse_fill,parser 4 of 4 (100%); 4 tokens,2026-10-18
-tantur,to,parse_fill,parser 2 of 2 (100%); 4 tokens,2026-10-18
 tardabam,tardo,parse_fill,parser 2 of 2 (100%); 1 tokens,2026-10-18
 tardabant,tardo,parse_fill,parser 6 of 6 (100%); 11 tokens,2026-10-18
 tardabantur,tardo,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
@@ -71476,8 +71242,6 @@ tates,tas,parse_fill,parser 11 of 11 (100%); 9 tokens,2026-10-18
 tatibus,tas,parse_fill,parser 5 of 5 (100%); 5 tokens,2026-10-18
 tatis,tas,parse_fill,parser 30 of 32 (94%); 32 tokens,2026-10-18
 tatu,tatus,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
-tauerat,to,parse_fill,parser 2 of 2 (100%); 1 tokens,2026-10-18
-tauerit,to,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 taures,taurus,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 taurini,taurinus,parse_fill,parser 35 of 35 (100%); 39 tokens,2026-10-18
 taxa,taxo,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
@@ -71693,7 +71457,6 @@ tenderes,tendo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 tendes,tendo,parse_fill,parser 2 of 2 (100%); 3 tokens,2026-10-18
 tendet,tendo,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 tendiculae,tendicula,parse_fill,parser 3 of 3 (100%); 2 tokens,2026-10-18
-tendum,to,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 teneamini,teneo,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 tenearis,teneo,parse_fill,parser 11 of 11 (100%); 11 tokens,2026-10-18
 tenebatis,teneo,parse_fill,parser 7 of 7 (100%); 6 tokens,2026-10-18
@@ -71772,7 +71535,6 @@ tententur,tento,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 tentes,tento,parse_fill,parser 8 of 9 (89%); 13 tokens,2026-10-18
 tentet,tento,parse_fill,parser 14 of 14 (100%); 33 tokens,2026-10-18
 tenueram,teneo,parse_fill,parser 2 of 2 (100%); 1 tokens,2026-10-18
-tenueramus,sem,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 tenuerant,teneo,parse_fill,parser 20 of 23 (87%); 36 tokens,2026-10-18
 tenuerimus,teneo,parse_fill,parser 22 of 22 (100%); 20 tokens,2026-10-18
 tenuerint,teneo,parse_fill,parser 21 of 23 (91%); 36 tokens,2026-10-18
@@ -72029,7 +71791,6 @@ tetricas,tetricus,parse_fill,parser 9 of 9 (100%); 12 tokens,2026-10-18
 tetrici,tetricus,parse_fill,parser 4 of 5 (80%); 8 tokens,2026-10-18
 tetricis,tetricus,parse_fill,parser 9 of 9 (100%); 18 tokens,2026-10-18
 tetrico,tetricus,parse_fill,parser 14 of 14 (100%); 14 tokens,2026-10-18
-tetulisti,fero,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 texam,texo,parse_fill,parser 1 of 1 (100%); 3 tokens,2026-10-18
 texamus,texo,parse_fill,parser 3 of 3 (100%); 5 tokens,2026-10-18
 texant,texo,parse_fill,parser 6 of 6 (100%); 8 tokens,2026-10-18
@@ -72178,7 +71939,6 @@ tincti,tingo,parse_fill,parser 28 of 28 (100%); 22 tokens,2026-10-18
 tineam,tinea,parse_fill,parser 3 of 3 (100%); 7 tokens,2026-10-18
 tinearum,tinea,parse_fill,parser 2 of 2 (100%); 3 tokens,2026-10-18
 tineis,tinea,parse_fill,parser 20 of 25 (80%); 30 tokens,2026-10-18
-tinem,to,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 tingamus,tingo,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 tingantur,tingo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 tingatis,tingo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
@@ -72213,7 +71973,6 @@ tintinnabula,tintinnabulum,parse_fill,parser 3 of 3 (100%); 10 tokens,2026-10-18
 tintinnabulorum,tintinnabulum,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 tinxerim,tingo,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 tinximus,tingo,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
-tiores,tus,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 tirociniis,tirocinium,parse_fill,parser 3 of 3 (100%); 6 tokens,2026-10-18
 tironum,tiro,parse_fill,parser 30 of 30 (100%); 60 tokens,2026-10-18
 tirynthii,tirynthius,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
@@ -72765,7 +72524,6 @@ transcurritur,transcurro,parse_fill,parser 2 of 2 (100%); 1 tokens,2026-10-18
 transeatis,transeo,parse_fill,parser 4 of 4 (100%); 2 tokens,2026-10-18
 transeatur,transeo,parse_fill,parser 19 of 19 (100%); 21 tokens,2026-10-18
 transegerint,trio,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
-transegisses,aro,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 transertos,transeo,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 transeundae,transeo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 transeundas,transeo,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
@@ -72919,7 +72677,6 @@ transgressionibus,transgressio,parse_fill,parser 6 of 6 (100%); 5 tokens,2026-10
 transgressore,transgressor,parse_fill,parser 2 of 2 (100%); 1 tokens,2026-10-18
 transgressorem,transgressor,parse_fill,parser 8 of 8 (100%); 9 tokens,2026-10-18
 transgressori,transgressor,parse_fill,parser 6 of 6 (100%); 6 tokens,2026-10-18
-transibam,eo,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 transigam,transigo,parse_fill,parser 3 of 3 (100%); 4 tokens,2026-10-18
 transigamus,transigo,parse_fill,parser 2 of 2 (100%); 3 tokens,2026-10-18
 transigant,transigo,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
@@ -73278,7 +73035,6 @@ tricesimi,tricesimus,parse_fill,parser 4 of 4 (100%); 2 tokens,2026-10-18
 tricesimos,tricesimus,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 tricorporibus,tricorpor,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 tridentes,tridens,parse_fill,parser 4 of 4 (100%); 6 tokens,2026-10-18
-tried,to,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 triennia,triennium,parse_fill,parser 5 of 5 (100%); 5 tokens,2026-10-18
 triennii,triennium,parse_fill,parser 8 of 8 (100%); 15 tokens,2026-10-18
 trienniis,triennium,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
@@ -73970,7 +73726,6 @@ ualueritis,ualeo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 ualui,ualeo,parse_fill,parser 29 of 29 (100%); 40 tokens,2026-10-18
 ualuimus,ualeo,parse_fill,parser 18 of 18 (100%); 21 tokens,2026-10-18
 ualuissent,ualeo,parse_fill,parser 25 of 25 (100%); 37 tokens,2026-10-18
-uamini,uo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 uanarum,uanus,parse_fill,parser 9 of 9 (100%); 11 tokens,2026-10-18
 uanescamus,uanesco,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 uanescant,uanesco,parse_fill,parser 4 of 4 (100%); 5 tokens,2026-10-18
@@ -74157,7 +73912,6 @@ uastissimus,uastus,parse_fill,parser 1 of 1 (100%); 3 tokens,2026-10-18
 uastitates,uastitas,parse_fill,parser 5 of 5 (100%); 5 tokens,2026-10-18
 uastitati,uastitas,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 uastorum,uastus,parse_fill,parser 6 of 6 (100%); 8 tokens,2026-10-18
-uata,uo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 uaticinabantur,uaticinor,parse_fill,parser 2 of 2 (100%); 4 tokens,2026-10-18
 uaticinamini,uaticinor,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 uaticinandi,uaticinor,parse_fill,parser 9 of 11 (82%); 13 tokens,2026-10-18
@@ -74179,7 +73933,6 @@ uberrumi,uber,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 ubertates,ubertas,parse_fill,parser 7 of 7 (100%); 6 tokens,2026-10-18
 ubertati,ubertas,parse_fill,parser 7 of 7 (100%); 8 tokens,2026-10-18
 ubertatibus,ubertas,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
-ubiuult,uolo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 udam,udus,parse_fill,parser 5 of 5 (100%); 10 tokens,2026-10-18
 udorum,udus,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 udum,udus,parse_fill,parser 9 of 10 (90%); 12 tokens,2026-10-18
@@ -74400,7 +74153,6 @@ uendibilium,uendibilis,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 uendideras,uendo,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 uendiderim,uendo,parse_fill,parser 2 of 2 (100%); 3 tokens,2026-10-18
 uendidimus,uendo,parse_fill,parser 5 of 5 (100%); 6 tokens,2026-10-18
-uendidissem,uo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 uendimus,uendo,parse_fill,parser 4 of 4 (100%); 7 tokens,2026-10-18
 uendis,uendo,parse_fill,parser 8 of 8 (100%); 12 tokens,2026-10-18
 uenditabant,uendito,parse_fill,parser 7 of 7 (100%); 7 tokens,2026-10-18
@@ -74496,7 +74248,6 @@ ueniretis,uenio,parse_fill,parser 11 of 11 (100%); 13 tokens,2026-10-18
 ueniro,uenio,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 uenita,uenio,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 uenitote,uenio,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
-ueniturum,eo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 ueniundum,uenio,parse_fill,parser 2 of 2 (100%); 4 tokens,2026-10-18
 ueniuut,uenio,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 ueno,uenus,parse_fill,parser 5 of 5 (100%); 10 tokens,2026-10-18
@@ -74598,7 +74349,6 @@ uenustissimus,uenustus,parse_fill,parser 6 of 6 (100%); 10 tokens,2026-10-18
 uenusto,uenustus,parse_fill,parser 16 of 16 (100%); 31 tokens,2026-10-18
 uenustos,uenustus,parse_fill,parser 5 of 5 (100%); 7 tokens,2026-10-18
 ueprium,uepris,parse_fill,parser 3 of 3 (100%); 12 tokens,2026-10-18
-uerabant,uero,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 uerace,uerax,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 ueracis,uerax,parse_fill,parser 9 of 9 (100%); 9 tokens,2026-10-18
 uerarum,uerus,parse_fill,parser 22 of 22 (100%); 21 tokens,2026-10-18
@@ -74677,7 +74427,6 @@ uerecundioribus,uerecundus,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 uerecundis,uerecundus,parse_fill,parser 7 of 7 (100%); 13 tokens,2026-10-18
 uerecundissimas,uerecundus,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 uerecundissimus,uerecundus,parse_fill,parser 4 of 4 (100%); 6 tokens,2026-10-18
-uerendorum,uero,parse_fill,parser 10 of 12 (83%); 12 tokens,2026-10-18
 uerentem,uereor,parse_fill,parser 9 of 11 (82%); 19 tokens,2026-10-18
 uergamur,uergo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 uergebant,uergo,parse_fill,parser 7 of 7 (100%); 7 tokens,2026-10-18
@@ -74746,12 +74495,10 @@ uerrente,uerro,parse_fill,parser 4 of 4 (100%); 4 tokens,2026-10-18
 uerrentes,uerro,parse_fill,parser 12 of 12 (100%); 16 tokens,2026-10-18
 uerrentibus,uerro,parse_fill,parser 3 of 3 (100%); 7 tokens,2026-10-18
 uerreret,uerro,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
-uerret,uero,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 uerrucarum,uerruca,parse_fill,parser 8 of 8 (100%); 8 tokens,2026-10-18
 uerrucas,uerruca,parse_fill,parser 45 of 45 (100%); 50 tokens,2026-10-18
 uerrucis,uerruca,parse_fill,parser 8 of 10 (80%); 12 tokens,2026-10-18
 uerruntur,uerro,parse_fill,parser 5 of 5 (100%); 5 tokens,2026-10-18
-uersabalur,uero,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 uersabam,uerso,parse_fill,parser 2 of 2 (100%); 1 tokens,2026-10-18
 uersabamur,uerso,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 uersabant,uerso,parse_fill,parser 9 of 9 (100%); 11 tokens,2026-10-18
@@ -74780,7 +74527,6 @@ uersarem,uerso,parse_fill,parser 3 of 3 (100%); 3 tokens,2026-10-18
 uersarent,uerso,parse_fill,parser 5 of 5 (100%); 6 tokens,2026-10-18
 uersarentur,uerso,parse_fill,parser 19 of 19 (100%); 24 tokens,2026-10-18
 uersarer,uerso,parse_fill,parser 6 of 6 (100%); 10 tokens,2026-10-18
-uersarere,uero,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 uersareris,uerso,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 uersarunt,uerso,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 uersasse,uerso,parse_fill,parser 5 of 5 (100%); 6 tokens,2026-10-18
@@ -75025,7 +74771,6 @@ uetustarum,uetustus,parse_fill,parser 4 of 4 (100%); 6 tokens,2026-10-18
 uetustates,uetustas,parse_fill,parser 3 of 3 (100%); 2 tokens,2026-10-18
 uetustatibus,uetustas,parse_fill,parser 9 of 9 (100%); 9 tokens,2026-10-18
 uetustatum,uetustas,parse_fill,parser 4 of 4 (100%); 4 tokens,2026-10-18
-ueut,uo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 uexa,uexo,parse_fill,parser 1 of 1 (100%); 4 tokens,2026-10-18
 uexabit,uexo,parse_fill,parser 15 of 15 (100%); 14 tokens,2026-10-18
 uexabitis,uexo,parse_fill,parser 4 of 4 (100%); 3 tokens,2026-10-18
@@ -75078,7 +74823,6 @@ uexetis,uexo,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 uexetur,uexo,parse_fill,parser 8 of 8 (100%); 13 tokens,2026-10-18
 uexi,uexo,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 uexillorum,uexillum,parse_fill,parser 5 of 5 (100%); 5 tokens,2026-10-18
-ueximus,uo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 uexisse,uexo,parse_fill,parser 4 of 5 (80%); 7 tokens,2026-10-18
 uexisset,uexo,parse_fill,parser 2 of 2 (100%); 3 tokens,2026-10-18
 uexisti,uexo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
@@ -75122,7 +74866,6 @@ uicariis,uicarius,parse_fill,parser 17 of 17 (100%); 25 tokens,2026-10-18
 uicenae,uiceni,parse_fill,parser 10 of 10 (100%); 11 tokens,2026-10-18
 uicenas,uiceni,parse_fill,parser 18 of 18 (100%); 24 tokens,2026-10-18
 uiceram,uinco,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
-uicesimae,uicesimus,parse_fill,parser 3 of 3 (100%); 4 tokens,2026-10-18
 uicinior,uicinus,parse_fill,parser 33 of 35 (94%); 62 tokens,2026-10-18
 uiciniore,uicinus,parse_fill,parser 2 of 2 (100%); 3 tokens,2026-10-18
 uiciniores,uicinus,parse_fill,parser 4 of 4 (100%); 8 tokens,2026-10-18
@@ -75154,7 +74897,6 @@ uidentia,uideo,parse_fill,parser 2 of 2 (100%); 3 tokens,2026-10-18
 uideon,uideo,parse_fill,parser 4 of 4 (100%); 5 tokens,2026-10-18
 uideunt,uideo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 uideur,uio,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
-uidim,uo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 uiduanda,uiduo,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 uiduandam,uiduo,parse_fill,parser 2 of 2 (100%); 1 tokens,2026-10-18
 uiduant,uiduo,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
@@ -76111,7 +75853,6 @@ uocitum,uoco,parse_fill,parser 2 of 2 (100%); 1 tokens,2026-10-18
 uocitus,uoco,parse_fill,parser 5 of 5 (100%); 3 tokens,2026-10-18
 uoconti,uoco,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
 uocularum,uocula,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
-uoept,uo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 uolandi,uolo,parse_fill,parser 21 of 21 (100%); 22 tokens,2026-10-18
 uolandum,uolo,parse_fill,parser 11 of 12 (92%); 14 tokens,2026-10-18
 uolarat,uolo,parse_fill,parser 2 of 2 (100%); 2 tokens,2026-10-18
@@ -76185,7 +75926,6 @@ uoluendus,uoluo,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
 uoluente,uoluo,parse_fill,parser 18 of 18 (100%); 24 tokens,2026-10-18
 uoluentis,uoluo,parse_fill,parser 13 of 13 (100%); 13 tokens,2026-10-18
 uoluentium,uoluo,parse_fill,parser 3 of 3 (100%); 4 tokens,2026-10-18
-uoluer,uo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 uolueramus,uolo,parse_fill,parser 4 of 4 (100%); 4 tokens,2026-10-18
 uoluerant,uolo,parse_fill,parser 10 of 10 (100%); 16 tokens,2026-10-18
 uoluerat,uolo,parse_fill,parser 69 of 69 (100%); 94 tokens,2026-10-18
@@ -76328,8 +76068,6 @@ uorent,uoro,parse_fill,parser 11 of 11 (100%); 11 tokens,2026-10-18
 uoret,uoro,parse_fill,parser 10 of 10 (100%); 14 tokens,2026-10-18
 uoretur,uoro,parse_fill,parser 2 of 2 (100%); 1 tokens,2026-10-18
 uoror,uoro,parse_fill,parser 1 of 1 (100%); 2 tokens,2026-10-18
-uortier,eo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
-uotes,uo,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
 uotiuae,uotiuus,parse_fill,parser 1 of 1 (100%); 5 tokens,2026-10-18
 uotiuas,uotiuus,parse_fill,parser 7 of 7 (100%); 8 tokens,2026-10-18
 uotiuos,uotiuus,parse_fill,parser 6 of 6 (100%); 5 tokens,2026-10-18
@@ -76646,7 +76384,6 @@ zelotypa,zelotypus,parse_fill,parser 2 of 2 (100%); 3 tokens,2026-10-18
 zelotypi,zelotypus,parse_fill,parser 3 of 3 (100%); 3 tokens,2026-10-18
 zelotypo,zelotypus,parse_fill,parser 4 of 4 (100%); 6 tokens,2026-10-18
 zelotyporum,zelotypus,parse_fill,parser 1 of 1 (100%); 1 tokens,2026-10-18
-zio,ius,parse_fill,parser 3 of 3 (100%); 4 tokens,2026-10-18
 zizaniae,zizania,parse_fill,parser 3 of 3 (100%); 3 tokens,2026-10-18
 zmaragdum,zmaragdus,parse_fill,parser 2 of 2 (100%); 4 tokens,2026-10-18
 zodiaco,zodiacus,parse_fill,parser 15 of 15 (100%); 20 tokens,2026-10-18
