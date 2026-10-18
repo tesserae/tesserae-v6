@@ -103,9 +103,13 @@ def build_dictionary_scores(grc_units, lat_units, lat_indices=None):
     return pair_matches
 
 
+DICT_COUNT_VALUES = ('pairs', 'words')
+LONE_PAIR_VALUES = ('keep', 'rare', 'drop')
+
+
 def make_fused_scorer(grc_path, lat_path, grc_units, lat_units, grc_emb, lat_emb,
                       lat_indices=None, verbose=True, lone_pair_rule=None,
-                      cancellation=None):
+                      cancellation=None, dict_count=None, lone_pair=None):
     """Return fused_score(grc_idx, lat_idx) for one Greek text against one Latin text.
 
     grc_emb and lat_emb are the loaded embedding arrays (or None). lat_indices
@@ -120,7 +124,36 @@ def make_fused_scorer(grc_path, lat_path, grc_units, lat_units, grc_emb, lat_emb
     from as fused_score.parts (cosine matrix, dictionary matches, syntax scores,
     the IDF function), which the live search's evaluation path reads.
     cancellation, when given, is passed to the syntax search.
+
+    dict_count (2026-10-17) says what the dictionary count of a pair is. 'pairs'
+    (default, every earlier number) counts matched (Greek lemma, Latin lemma)
+    pairs, so one Latin word matched to two Greek words counts as two. 'words'
+    counts distinct words, the smaller of the number of distinct Greek and
+    distinct Latin lemmas among the matched pairs, as the lemma gate does. The
+    count feeds dict_score and the lone-pair rule 'v2'. The average IDF stays an
+    average over the matched pairs.
+    lone_pair (2026-10-17) treats a pair whose matches hold exactly one distinct
+    word on the smaller side. 'keep' (default) leaves it alone. 'rare' keeps its
+    dictionary channel only when every matched word on both sides has a corpus
+    document frequency at or under its language's rarity threshold
+    (backend.blueprints.hapax.rare_word_threshold), and otherwise drops the
+    dictionary channel so the pair stands on its other channels. 'drop' removes
+    such a pair altogether (its score is -inf). Both read the corpus-wide document
+    frequency (backend.fusion._get_corpus_doc_freqs), not the genre-aware table
+    the IDF may use, because a table counted inside one meter has far fewer texts
+    than the threshold was fitted to. The decision for a pair is in
+    fused_score.parts['effective'](grc_idx, lat_idx).
+    Both arguments read XL_DICT_COUNT and XL_LONE_PAIR from the environment when
+    None, default 'pairs' and 'keep'.
     """
+    if dict_count is None:
+        dict_count = os.environ.get('XL_DICT_COUNT', 'pairs')
+    if dict_count not in DICT_COUNT_VALUES:
+        raise ValueError(f"dict_count must be one of {DICT_COUNT_VALUES}, not {dict_count!r}")
+    if lone_pair is None:
+        lone_pair = os.environ.get('XL_LONE_PAIR', 'keep')
+    if lone_pair not in LONE_PAIR_VALUES:
+        raise ValueError(f"lone_pair must be one of {LONE_PAIR_VALUES}, not {lone_pair!r}")
     if lone_pair_rule is None:
         lone_pair_rule = os.environ.get('XL_RARITY_VARIANT', 'baseline')
     if lone_pair_rule not in ('baseline', 'v2'):
@@ -192,6 +225,54 @@ def make_fused_scorer(grc_path, lat_path, grc_units, lat_units, grc_emb, lat_emb
             total = lat_total
         return math.log((total + 1) / (df + 1)) + 1
 
+    # --- Rarity cut for a lone pair (corpus-wide document frequency) ---
+    rare_info = {}
+    if lone_pair != 'keep':
+        from backend.blueprints.hapax import rare_word_threshold
+        rare_grc_df = _get_corpus_doc_freqs(grc_lemmas, 'grc')
+        rare_lat_df = _get_corpus_doc_freqs(lat_lemmas, 'la')
+        rare_info = {'grc_threshold': rare_word_threshold('grc'),
+                     'la_threshold': rare_word_threshold('la'),
+                     'grc_df': rare_grc_df, 'la_df': rare_lat_df}
+
+    def pair_is_rare(wms):
+        """True when every matched Greek and Latin lemma is at or under its language's threshold."""
+        for grc_l, lat_l in wms:
+            if rare_info['grc_df'].get(strip_accents(grc_l), 0) > rare_info['grc_threshold']:
+                return False
+            if rare_info['la_df'].get(lat_l.lower(), 0) > rare_info['la_threshold']:
+                return False
+        return True
+
+    def distinct_words(wms):
+        return min(len({a for a, _ in wms}), len({b for _, b in wms}))
+
+    _effective_cache = {}
+
+    def effective(grc_idx, lat_idx):
+        """(matches, distinct, removed) for a pair after the lone-pair treatment.
+
+        matches is the set of matched pairs the scorer uses (None when the
+        dictionary channel is absent or dropped), distinct the distinct-word count
+        of the original matches before any treatment (0 without matches), and
+        removed True when lone_pair is 'drop' and the pair must not be listed.
+        """
+        key = (grc_idx, lat_idx)
+        hit = _effective_cache.get(key)
+        if hit is not None:
+            return hit
+        wms = dict_matches.get(key)
+        if not wms:
+            out = (None, 0, False)
+        else:
+            distinct = distinct_words(wms)
+            if distinct == 1 and lone_pair != 'keep' and not pair_is_rare(wms):
+                out = (None, distinct, lone_pair == 'drop')
+            else:
+                out = (wms, distinct, False)
+        _effective_cache[key] = out
+        return out
+
     # --- Syntax matches (structural fingerprint, cross-lingual) ---
     syntax_scores = {}
     try:
@@ -240,9 +321,19 @@ def make_fused_scorer(grc_path, lat_path, grc_units, lat_units, grc_emb, lat_emb
         cosine = float(cosine_matrix[grc_idx, lat_idx])
         has_semantic = cosine > 0.3
 
-        wms = dict_matches.get((grc_idx, lat_idx))
+        if lone_pair == 'keep' and dict_count == 'pairs':
+            wms = dict_matches.get((grc_idx, lat_idx))
+        else:
+            wms, _, removed = effective(grc_idx, lat_idx)
+            if removed:
+                return float('-inf')
         has_dict = wms is not None and len(wms) > 0
-        dict_word_count = len(wms) if has_dict else 0
+        if not has_dict:
+            dict_word_count = 0
+        elif dict_count == 'words':
+            dict_word_count = distinct_words(wms)
+        else:
+            dict_word_count = len(wms)
 
         syn_score = syntax_scores.get((grc_idx, lat_idx), 0.0)
         has_syntax = syn_score > 0
@@ -299,5 +390,10 @@ def make_fused_scorer(grc_path, lat_path, grc_units, lat_units, grc_emb, lat_emb
         'dict_matches': dict_matches,
         'syntax_scores': syntax_scores,
         'calc_idf': calc_idf,
+        'effective': effective,
+        'distinct_words': distinct_words,
+        'rare_info': rare_info,
+        'dict_count': dict_count,
+        'lone_pair': lone_pair,
     }
     return fused_score, len(syntax_scores)

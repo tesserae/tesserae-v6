@@ -117,7 +117,8 @@ def _best_cosine_only(cosine, keyed, limit, block=256):
 
 def score_pairs(source_units, target_units, source_language, source_path, target_path,
                 source_emb, target_emb, *, gate, penalty_factor, min_lemma_matches,
-                min_matches, max_results, cancellation=None):
+                min_matches, max_results, cancellation=None,
+                dict_count='pairs', lone_pair='keep'):
     """Score the candidate pairs with the evaluation scorer.
 
     Returns a list of dicts, one per listed pair, sorted by score (highest
@@ -127,6 +128,13 @@ def score_pairs(source_units, target_units, source_language, source_path, target
     pairs (the matched (greek lemma, latin lemma) pairs, accent-stripped Greek),
     distinct (the gate count), triggered (below the gate threshold),
     n_channels and idf (the scorer's pair IDF, by matched pair).
+
+    dict_count ('pairs' or 'words') and lone_pair ('keep', 'rare' or 'drop') are the
+    settings crosslingual_dict_count and crosslingual_lone_pair, passed to the
+    scorer (see make_fused_scorer in evaluation/scripts/crosslingual_common.py). Under
+    lone_pair 'rare' a lone pair that is not rare loses its dictionary channel (it is
+    listed on its other channels, with has_dict False and distinct 0), and under 'drop'
+    it is not listed.
     """
     common = _load_common()
 
@@ -151,10 +159,12 @@ def score_pairs(source_units, target_units, source_language, source_path, target
 
     fused_score, _ = common.make_fused_scorer(
         grc_path, lat_path, grc_units, lat_units, grc_emb, lat_emb,
-        verbose=False, lone_pair_rule='v2', cancellation=cancellation)
+        verbose=False, lone_pair_rule='v2', cancellation=cancellation,
+        dict_count=dict_count, lone_pair=lone_pair)
     parts = fused_score.parts
     cosine = parts['cosine_matrix']
     dict_matches = parts['dict_matches']
+    effective = parts['effective']
     syntax_scores = parts['syntax_scores']
 
     # Candidate pairs: every pair with a dictionary or syntax match, and the best
@@ -174,11 +184,12 @@ def score_pairs(source_units, target_units, source_language, source_path, target
     for n, (g, lt) in enumerate(candidates):
         if cancellation and n % 5000 == 0:
             cancellation.check()
-        wms = dict_matches.get((g, lt))
+        wms, distinct, removed = effective(g, lt)
+        if removed:
+            continue
         has_dict = bool(wms)
-        distinct = 0
-        if has_dict:
-            distinct = min(len({a for a, _ in wms}), len({b for _, b in wms}))
+        if not has_dict:
+            distinct = 0
         if min_matches > 1 and distinct < min_matches:
             continue
         triggered = distinct < min_lemma_matches

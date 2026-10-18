@@ -62,6 +62,11 @@ def get_cache_key(source_id, target_id, language, settings):
         key_parts['crosslingual_scorer'] = settings['crosslingual_scorer']
         key_parts['crosslingual_lemma_gate'] = settings.get('crosslingual_lemma_gate', 'off')
         key_parts['crosslingual_penalty_factor'] = settings.get('crosslingual_penalty_factor', 0.5)
+        # The counting and lone-pair options join the key only when they are not the default.
+        if settings.get('crosslingual_dict_count', 'pairs') != 'pairs':
+            key_parts['crosslingual_dict_count'] = settings['crosslingual_dict_count']
+        if settings.get('crosslingual_lone_pair', 'keep') != 'keep':
+            key_parts['crosslingual_lone_pair'] = settings['crosslingual_lone_pair']
     # Only version caches that explicitly opt in.  Leaving this out preserves
     # cache keys for unrelated search implementations.
     if 'result_version' in settings:

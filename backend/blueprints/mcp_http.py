@@ -600,6 +600,10 @@ def _xlang_params(a):
         p['hebrew_greek_route'] = route
     if a.get('crosslingual_scorer') == 'evaluation':
         p['crosslingual_scorer'] = 'evaluation'
+        if a.get('crosslingual_dict_count') == 'words':
+            p['crosslingual_dict_count'] = 'words'
+        if a.get('crosslingual_lone_pair') in ('rare', 'drop'):
+            p['crosslingual_lone_pair'] = a['crosslingual_lone_pair']
     try:
         mm = int(a.get('min_matches')) if a.get('min_matches') is not None else None
         if mm is not None:
@@ -1363,7 +1367,11 @@ TOOLS = [
                                     "hebrew_greek_route": {"type": "string",
                                                            "enum": ["septuagint", "direct", "both"]},
                                     "crosslingual_scorer": {"type": "string",
-                                                            "enum": ["live", "evaluation"]}},
+                                                            "enum": ["live", "evaluation"]},
+                                    "crosslingual_dict_count": {"type": "string",
+                                                                "enum": ["pairs", "words"]},
+                                    "crosslingual_lone_pair": {"type": "string",
+                                                               "enum": ["keep", "rare", "drop"]}},
                      "required": ["source", "target", "source_language", "target_language"]},
      "fn": _t_cross_language},
     {"name": "submit_feature_request",
