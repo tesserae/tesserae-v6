@@ -438,6 +438,14 @@ export default function MentionsPage({ setPageType }) {
                 <ul className="space-y-2">
                   {data.results.filter((e) => e.source !== 'corpus').map((e) => <EntityResult key={e.id} e={e} open={open} />)}
                 </ul>
+                {data.near_spellings?.length > 0 && (
+                  <>
+                    <h3 className="text-sm font-semibold text-gray-500 mt-4 mb-2" data-testid="near-heading">Near spellings</h3>
+                    <ul className="space-y-2">
+                      {data.near_spellings.map((e) => <EntityResult key={e.id} e={e} open={open} />)}
+                    </ul>
+                  </>
+                )}
                 {data.results.some((e) => e.source === 'corpus') && (
                   <>
                     <h3 className="text-sm font-semibold text-gray-500 mt-4 mb-2" data-testid="corpus-heading">Names in the corpus</h3>

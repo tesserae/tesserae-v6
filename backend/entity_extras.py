@@ -244,6 +244,16 @@ def build_catalog(db):
     for eid, alias in db.execute("select eid, alias_id from entity_aliases"):
         if eid in ents:
             ents[eid]['merged_ids'].append(alias)
+    if db.execute("select 1 from sqlite_master where name = 'search_names'").fetchone():
+        # stage 3b: names a reader might type (the usual English name and other spellings), used by the
+        # search only, never to match a mention
+        for eid, name in db.execute('select eid, name from search_names order by rowid'):
+            if eid in ents:
+                f = ei.fold(name)
+                if f and f not in ents[eid].setdefault('search_names', []):
+                    ents[eid]['search_names'].append(f)
+    for e in ents.values():
+        e.setdefault('search_names', [])
     for eid, entity_id, label in db.execute("select eid, entity_id, label from entities where source = 'names'"):
         f = ei.fold(label)
         names[eid] = {'eid': eid, 'id': entity_id, 'label': label, 'type': 'name', 'source': 'corpus',
