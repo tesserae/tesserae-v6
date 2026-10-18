@@ -473,3 +473,105 @@ def test_translation_file_collision_refuses_even_with_force(root, capsys):
         assert rc == 2
         assert 'already exists' in capsys.readouterr().err
     assert os.path.exists(os.path.join(tdir, f'{LANG}__{OLD}.json'))
+
+
+# ------------------------------------------------- space-separated tags ----
+#
+# The Greek corpus tags its lines '<work N>' with a space, not '<work.N>', and
+# a few files carry a broken tag whose work part is empty ('<antisthenes. 1>').
+# The 2026-10-18 renaming of 37 Greek-titled works needed the tool to keep each
+# ref's own separator in the .tess file, the index and the lemma cache.
+
+SP_OLD = 'pseudolucian.λούκιος_ἢ_ὄνος'
+SP_NEW = 'pseudolucian.asinus'
+SP_LINES = [(f'{SP_OLD} 1', 'Ἀπῄειν ποτὲ ἐς Θετταλίαν'), (f'{SP_OLD} 2', 'ἦν δέ μοι πατρῷον')]
+
+
+def _space_root(tmp_path, old, lines):
+    r = str(tmp_path)
+    _write_tess(os.path.join(r, 'texts', LANG, f'{old}.tess'), lines)
+    _build_index_db(os.path.join(r, 'data', 'inverted_index', f'{LANG}_index.db'),
+                    [(1, f'{old}.tess', old.split('.')[0], old.split('.', 1)[1], [l[0] for l in lines])])
+    cache_dir = os.path.join(r, 'cache', 'lemmas')
+    payload = {'text_id': f'{old}.tess', 'language': LANG, 'file_hash': 'x', 'cached_at': 'now',
+               'units_line': [{'ref': ref, 'text': text, 'tokens': []} for ref, text in lines], 'units_phrase': []}
+    hashed = get_cache_path(f'{old}.tess', LANG, cache_dir=cache_dir)
+    os.makedirs(os.path.dirname(hashed), exist_ok=True)
+    json.dump(payload, open(hashed, 'w', encoding='utf-8'), ensure_ascii=False)
+    return r
+
+
+def test_space_separated_tags_keep_their_separator(tmp_path):
+    r = _space_root(tmp_path, SP_OLD, SP_LINES)
+    assert rw.main(['--root', r, '--language', LANG, '--old', SP_OLD, '--new', SP_NEW, '--apply']) == 0
+    content = open(os.path.join(r, 'texts', LANG, f'{SP_NEW}.tess'), encoding='utf-8').read()
+    assert f'<{SP_NEW} 1>' in content and f'<{SP_OLD}' not in content
+    con = sqlite3.connect(os.path.join(r, 'data', 'inverted_index', f'{LANG}_index.db'))
+    refs = sorted(x for (x,) in con.execute('SELECT ref FROM lines'))
+    assert refs == [f'{SP_NEW} 1', f'{SP_NEW} 2']
+    assert sorted(x for (x,) in con.execute('SELECT ref FROM postings')) == refs
+    cache = json.load(open(get_cache_path(f'{SP_NEW}.tess', LANG,
+                                          cache_dir=os.path.join(r, 'cache', 'lemmas')), encoding='utf-8'))
+    assert [u['ref'] for u in cache['units_line']] == [f'{SP_NEW} 1', f'{SP_NEW} 2']
+
+
+def test_broken_tag_with_empty_work_part_is_repaired_through_old_tag(tmp_path):
+    old, new = 'antisthenes.αἴας', 'antisthenes.aiax'
+    lines = [('antisthenes. 1', 'Ἐβουλόμην ἂν'), ('antisthenes. 2', 'Σχεδὸν μὲν οὖν')]
+    r = _space_root(tmp_path, old, lines)
+    assert rw.main(['--root', r, '--language', LANG, '--old', old, '--new', new,
+                             '--old-tag', 'antisthenes.', '--new-tag', new, '--apply']) == 0
+    content = open(os.path.join(r, 'texts', LANG, f'{new}.tess'), encoding='utf-8').read()
+    assert f'<{new} 1>' in content and '<antisthenes. ' not in content
+    con = sqlite3.connect(os.path.join(r, 'data', 'inverted_index', f'{LANG}_index.db'))
+    assert sorted(x for (x,) in con.execute('SELECT ref FROM lines')) == [f'{new} 1', f'{new} 2']
+
+
+def _space_passage_index(idx_dir, work, n, other):
+    """Like _build_passage_index, with the Greek corpus's 'work N' references."""
+    os.makedirs(idx_dir, exist_ok=True)
+    ids, descriptions, windows, lines_rows = [], [], [], []
+    for w, count in ((work, n), (other, 1)):
+        for i in range(count):
+            wid = f'{w}:fine:{i}'
+            ids.append(wid)
+            rs, re_ = f'{w} {i * 2 + 1}', f'{w} {i * 2 + 2}'
+            descriptions.append({'id': wid, 'language': LANG, 'work': w, 'scale': 'fine',
+                                 'ref_start': rs, 'ref_end': re_, 'desc': f'desc {i}'})
+            windows.append((wid, LANG, w, rs, re_, 'window text'))
+        lines_rows.extend((w, i, f'{w} {i + 1}', f'line {i}') for i in range(count * 2))
+    json.dump(ids, open(os.path.join(idx_dir, 'ids.json'), 'w', encoding='utf-8'))
+    json.dump({'index_version': '2026-01-01', 'languages': {LANG: sorted([work, other])}},
+              open(os.path.join(idx_dir, 'works_by_language.json'), 'w', encoding='utf-8'))
+    with open(os.path.join(idx_dir, 'descriptions.jsonl'), 'w', encoding='utf-8') as f:
+        for d in descriptions:
+            f.write(json.dumps(d, ensure_ascii=False) + '\n')
+    con = sqlite3.connect(os.path.join(idx_dir, 'window_texts.db'))
+    con.execute('CREATE TABLE window_texts (id TEXT PRIMARY KEY, language TEXT, work TEXT, '
+                'ref_start TEXT, ref_end TEXT, text TEXT)')
+    con.execute('CREATE TABLE lines (work TEXT, ord INTEGER, ref TEXT, text TEXT)')
+    con.executemany('INSERT INTO window_texts VALUES (?, ?, ?, ?, ?, ?)', windows)
+    con.executemany('INSERT INTO lines VALUES (?, ?, ?, ?)', lines_rows)
+    con.commit()
+    con.close()
+
+
+def test_title_change_moves_the_passage_index_through_leaf_mode(tmp_path):
+    r = _space_root(tmp_path, SP_OLD, SP_LINES)
+    # a second Pseudo-Lucian work under the same author must stay where it is
+    other = 'pseudolucian.κυνικός'
+    _space_passage_index(os.path.join(r, 'data', 'passage_index'), SP_OLD, 2, other)
+    assert rw.main(['--root', r, '--language', LANG, '--old', SP_OLD, '--new', SP_NEW, '--apply']) == 0
+    idx = os.path.join(r, 'data', 'passage_index')
+    ids = json.load(open(os.path.join(idx, 'ids.json'), encoding='utf-8'))
+    assert sorted(ids) == sorted([f'{SP_NEW}:fine:0', f'{SP_NEW}:fine:1', f'{other}:fine:0'])
+    descs = [json.loads(l) for l in open(os.path.join(idx, 'descriptions.jsonl'), encoding='utf-8')]
+    mine = [d for d in descs if d['work'] == SP_NEW]
+    assert len(mine) == 2 and mine[0]['ref_start'] == f'{SP_NEW} 1' and mine[1]['ref_end'] == f'{SP_NEW} 4'
+    assert [d for d in descs if d['work'] == other][0]['ref_start'] == f'{other} 1'
+    con = sqlite3.connect(os.path.join(idx, 'window_texts.db'))
+    assert sorted(x for (x,) in con.execute('SELECT ref_start FROM window_texts WHERE work = ?', (SP_NEW,))) == [f'{SP_NEW} 1', f'{SP_NEW} 3']
+    assert sorted(x for (x,) in con.execute('SELECT ref FROM lines WHERE work = ?', (SP_NEW,))) == [f'{SP_NEW} 1', f'{SP_NEW} 2', f'{SP_NEW} 3', f'{SP_NEW} 4']
+    assert con.execute('SELECT COUNT(*) FROM lines WHERE work = ?', (other,)).fetchone()[0] == 2
+    sidecar = json.load(open(os.path.join(idx, 'works_by_language.json'), encoding='utf-8'))
+    assert sorted(sidecar['languages'][LANG]) == sorted([SP_NEW, other])

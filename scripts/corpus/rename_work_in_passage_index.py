@@ -77,6 +77,20 @@ def renamed(value, old, new):
     return value
 
 
+def renamed_ref(value, old, new):
+    """A reference that carries the work id ('old 12' or 'old.12') moves with
+    it, keeping its own separator. Greek files tag lines '<work N>' with a
+    space; Latin files use '<work.N>'. Used for ref fields only, so a work
+    that merely begins with `old` (a part file) is never touched through it
+    (2026-10-18, the 37 Greek-titled works renamed with --leaf)."""
+    if not isinstance(value, str):
+        return value
+    for sep in ('.', ' '):
+        if value.startswith(old + sep):
+            return new + sep + value[len(old) + 1:]
+    return value
+
+
 def affected(value, old):
     """Whether a work field or window id carries `old` (prefix or, with --leaf, exact)."""
     if LEAF:
@@ -135,7 +149,8 @@ def count_affected(index, old):
         (old, prefix + '%') if not LEAF else (old, old + ':%')
     ).fetchone()
     n_lines, = con.execute(
-        'SELECT COUNT(*) FROM lines WHERE work LIKE ?', (prefix + '%',)
+        'SELECT COUNT(*) FROM lines WHERE work LIKE ?' if not LEAF else 'SELECT COUNT(*) FROM lines WHERE work = ?',
+        (prefix + '%',) if not LEAF else (old,)
     ).fetchone()
     con.close()
     return {'ids': n_ids, 'descriptions': n_desc,
@@ -212,7 +227,7 @@ def main(argv=None):
                 continue
             for field in ('id', 'work', 'ref_start', 'ref_end'):
                 if field in r:
-                    r[field] = renamed(r[field], old, new)
+                    r[field] = (renamed_ref if LEAF and field in ('ref_start', 'ref_end') else renamed)(r[field], old, new)
             out.write(json.dumps(r, ensure_ascii=False) + '\n')
             kept += 1
     os.replace(tmp, desc_path)
@@ -227,10 +242,20 @@ def main(argv=None):
     shutil.copy2(live_db, db)
     con = sqlite3.connect(db)
     if LEAF:
+        # The refs carry the work id in most corpora ('old 12' in Greek files,
+        # 'old.12' in Latin ones) and keep their own separator; a ref that is
+        # an abbreviation ('libanius. decl. 1.1') does not match and stays.
+        n = len(old) + 1
         con.execute('UPDATE window_texts SET work = ?, '
-                    'id = ? || substr(id, ?) WHERE work = ?',
-                    (new, new, len(old) + 1, old))
-        con.execute('UPDATE lines SET work = ? WHERE work = ?', (new, old))
+                    'id = ? || substr(id, ?), '
+                    'ref_start = CASE WHEN ref_start LIKE ? OR ref_start LIKE ? THEN ? || substr(ref_start, ?) ELSE ref_start END, '
+                    'ref_end = CASE WHEN ref_end LIKE ? OR ref_end LIKE ? THEN ? || substr(ref_end, ?) ELSE ref_end END '
+                    'WHERE work = ?',
+                    (new, new, n, old + '.%', old + ' %', new, n, old + '.%', old + ' %', new, n, old))
+        con.execute('UPDATE lines SET work = ?, '
+                    'ref = CASE WHEN ref LIKE ? OR ref LIKE ? THEN ? || substr(ref, ?) ELSE ref END '
+                    'WHERE work = ?',
+                    (new, old + '.%', old + ' %', new, n, old))
     like = old + '.%'
     cut = len(old) + 1
     if not LEAF:

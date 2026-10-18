@@ -95,9 +95,12 @@ def _rewrite_prefix(value, old, new):
     happens to start with old from being mangled."""
     if not isinstance(value, str):
         return value
-    prefix = old + '.'
-    if value.startswith(prefix):
-        return new + '.' + value[len(prefix):]
+    # Greek files tag their lines '<work N>' with a space where Latin files
+    # use '<work.N>' (2026-10-18, 37 renames): either separator is kept as it was.
+    for sep in ('.', ' '):
+        prefix = old + sep
+        if value.startswith(prefix):
+            return new + sep + value[len(prefix):]
     return value
 
 
@@ -112,7 +115,7 @@ def plan_tess(root, language, old, old_tag):
     if not os.path.exists(path):
         return {'found': False}
     content = read_text_preserving_eol(path)
-    pattern = re.compile(r'^<' + re.escape(old_tag) + r'\.', re.MULTILINE)
+    pattern = re.compile(r'^<' + re.escape(old_tag) + r'([. ])', re.MULTILINE)
     n_tagged = len(pattern.findall(content))
     n_lines = len(content.splitlines())
     return {'found': True, 'path': path, 'tagged_lines': n_tagged, 'total_lines': n_lines}
@@ -126,8 +129,8 @@ def apply_tess(root, language, old, new, old_tag, new_tag):
     if os.path.exists(new_path):
         raise RuntimeError(f'refusing: {new_path} already exists')
     content = read_text_preserving_eol(old_path)
-    pattern = re.compile(r'^<' + re.escape(old_tag) + r'\.', re.MULTILINE)
-    new_content, n = pattern.subn(f'<{new_tag}.', content)
+    pattern = re.compile(r'^<' + re.escape(old_tag) + r'([. ])', re.MULTILINE)
+    new_content, n = pattern.subn(lambda m: f'<{new_tag}{m.group(1)}', content)
     backup_path = backup(old_path, tag='rename')
     atomic_write(new_path, new_content)
     os.remove(old_path)
@@ -165,7 +168,9 @@ def plan_index(root, language, old, new):
         con.close()
 
 
-def apply_index(root, language, old, new):
+def apply_index(root, language, old, new, old_tag=None, new_tag=None):
+    old_tag = old_tag or old
+    new_tag = new_tag or new
     plan = plan_index(root, language, old, new)
     if not plan.get('found') or not plan.get('text_present'):
         return plan
@@ -175,7 +180,9 @@ def apply_index(root, language, old, new):
     text_id = plan['text_id']
     new_author, new_rest = split_id(new)
     new_title = new_rest or new_author
-    cut = len(old) + 1
+    # substr is 1-based: substr(ref, len(tag) + 1) is the separator and the
+    # rest, so the ref keeps its own separator ('.' or ' ') under the new tag.
+    cut = len(old_tag) + 1
     tmp = f'{db}.tmp-rename-{os.getpid()}'
     shutil.copy2(db, tmp)
     con = sqlite3.connect(tmp)
@@ -187,10 +194,11 @@ def apply_index(root, language, old, new):
         # ('libanius. decl. 1.1', 'cic. ver. 1.1.1') keeps its refs: cutting
         # them at the old id's length made duplicates and the UNIQUE
         # constraint on (text_id, ref) refused the rename (2026-10-13, #904).
-        con.execute('UPDATE lines SET ref = ? || substr(ref, ?) WHERE text_id=? AND ref LIKE ?',
-                    (new + '.', cut + 1, text_id, old + '.%'))
-        con.execute('UPDATE postings SET ref = ? || substr(ref, ?) WHERE text_id=? AND ref LIKE ?',
-                    (new + '.', cut + 1, text_id, old + '.%'))
+        if old_tag != new_tag:
+            con.execute('UPDATE lines SET ref = ? || substr(ref, ?) WHERE text_id=? AND (ref LIKE ? OR ref LIKE ?)',
+                        (new_tag, cut, text_id, old_tag + '.%', old_tag + ' %'))
+            con.execute('UPDATE postings SET ref = ? || substr(ref, ?) WHERE text_id=? AND (ref LIKE ? OR ref LIKE ?)',
+                        (new_tag, cut, text_id, old_tag + '.%', old_tag + ' %'))
         con.commit()
         n_lines_after, = con.execute('SELECT COUNT(*) FROM lines WHERE text_id=?',
                                       (text_id,)).fetchone()
@@ -200,8 +208,10 @@ def apply_index(root, language, old, new):
             raise AssertionError('line row count changed')
         if n_postings_after != plan['postings']:
             raise AssertionError('postings row count changed')
-        stray, = con.execute('SELECT COUNT(*) FROM lines WHERE text_id=? AND ref LIKE ?',
-                              (text_id, old + '.%')).fetchone()
+        stray = 0
+        if old_tag != new_tag:
+            stray, = con.execute('SELECT COUNT(*) FROM lines WHERE text_id=? AND (ref LIKE ? OR ref LIKE ?)',
+                                  (text_id, old_tag + '.%', old_tag + ' %')).fetchone()
         if stray:
             raise AssertionError('old-named refs remain in lines')
         if con.execute('PRAGMA integrity_check').fetchone()[0] != 'ok':
@@ -233,7 +243,7 @@ def plan_lemma_cache(root, language, old):
     return {'found': found}
 
 
-def _rewrite_cache_payload(data, old, new, new_file_hash):
+def _rewrite_cache_payload(data, old, new, new_file_hash, old_tag=None, new_tag=None):
     data = dict(data)
     old_text_id, new_text_id = f'{old}.tess', f'{new}.tess'
     if data.get('text_id') == old_text_id:
@@ -246,7 +256,7 @@ def _rewrite_cache_payload(data, old, new, new_file_hash):
         for u in units:
             u = dict(u)
             if 'ref' in u:
-                u['ref'] = _rewrite_prefix(u['ref'], old, new)
+                u['ref'] = _rewrite_prefix(u['ref'], old_tag or old, new_tag or new)
             rewritten.append(u)
         data[key] = rewritten
     if new_file_hash is not None:
@@ -254,7 +264,7 @@ def _rewrite_cache_payload(data, old, new, new_file_hash):
     return data
 
 
-def apply_lemma_cache(root, language, old, new, new_tess_path):
+def apply_lemma_cache(root, language, old, new, new_tess_path, old_tag=None, new_tag=None):
     plan = plan_lemma_cache(root, language, old)
     if not plan['found']:
         return {'found': {}, 'written': []}
@@ -271,7 +281,7 @@ def apply_lemma_cache(root, language, old, new, new_tess_path):
         with open(old_path, encoding='utf-8') as f:
             data = json.load(f)
         backup(old_path, tag='rename')  # the un-renamed original stays too
-        new_data = _rewrite_cache_payload(data, old, new, new_hash)
+        new_data = _rewrite_cache_payload(data, old, new, new_hash, old_tag, new_tag)
         new_path = new_paths[kind]
         os.makedirs(os.path.dirname(new_path), exist_ok=True)
         atomic_write(new_path, json.dumps(new_data, ensure_ascii=False))
@@ -325,10 +335,17 @@ def plan_passage_index(root, old, new):
     if old not in works:
         return {'found': False}  # this work isn't in the passage index at all
     if old_rest != new_rest:
-        return {'found': True, 'index': idx, 'supported': False,
-                'reason': ("rename_work_in_passage_index.py only reuses cleanly for an "
-                           "author-level move (unchanged work title); this rename changes "
-                           "the work title too, so the passage index needs its own pass")}
+        # A change of the work title: the passage tool's --leaf mode (one
+        # whole work id, 2026-10-13) moves exactly this work's ids, work
+        # fields and refs, and nothing that merely begins with the id.
+        passage_rename.LEAF = True
+        try:
+            counts = passage_rename.count_affected(idx, old)
+        finally:
+            passage_rename.LEAF = False
+        return {'found': True, 'index': idx, 'supported': True, 'leaf': True,
+                'old_author': old_author, 'new_author': new_author,
+                'other_works_under_author': [], **counts}
     other_works = sorted(w for w in works if w != old)
     counts = passage_rename.count_affected(idx, old_author)
     return {'found': True, 'index': idx, 'supported': True,
@@ -342,6 +359,9 @@ def passage_index_would_collide(root, old, new):
         return False
     idx = plan['index']
     existing = set(_passage_ids(idx))
+    if plan.get('leaf'):
+        would_be = {new + i[len(old):] for i in existing if i.startswith(old + ':')}
+        return bool(would_be & existing)
     would_be = {passage_rename.renamed(i, plan['old_author'], plan['new_author'])
                 for i in existing if i.startswith(plan['old_author'] + '.')}
     return bool(would_be & existing)
@@ -358,8 +378,12 @@ def apply_passage_index(root, old, new):
             "an author-level rename would move them as well -- handle this one by hand")
     if not any(plan.get(k) for k in ('ids', 'descriptions', 'windows', 'line rows')):
         return {**plan, 'applied': False, 'reason': 'nothing under the old name'}
-    rc = passage_rename.main(['--index', plan['index'], '--from', plan['old_author'],
-                               '--to', plan['new_author'], '--tag', 'rename', '--apply'])
+    if plan.get('leaf'):
+        rc = passage_rename.main(['--index', plan['index'], '--from', old, '--to', new,
+                                   '--leaf', '--tag', 'rename', '--apply'])
+    else:
+        rc = passage_rename.main(['--index', plan['index'], '--from', plan['old_author'],
+                                   '--to', plan['new_author'], '--tag', 'rename', '--apply'])
     if rc != 0:
         raise RuntimeError(f'rename_work_in_passage_index.py refused or failed (exit {rc})')
     return {**plan, 'applied': True}
@@ -743,9 +767,9 @@ def main(argv=None):
         return 0
 
     results = {'tess': apply_tess(root, language, old, new, old_tag, new_tag)}
-    results['index'] = apply_index(root, language, old, new)
+    results['index'] = apply_index(root, language, old, new, old_tag, new_tag)
     results['lemma_cache'] = apply_lemma_cache(
-        root, language, old, new, tess_path(root, language, new))
+        root, language, old, new, tess_path(root, language, new), old_tag, new_tag)
     results['passage_index'] = apply_passage_index(root, old, new)
     results['embeddings'] = apply_embeddings(root, language, old, new, old_tag, new_tag)
     results['events'] = apply_events(root, old, new)
