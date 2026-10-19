@@ -8,6 +8,22 @@ history (index builds, cache rebuilds, corpus changes) is in
 `DATA_OPERATIONS.md`; per-release changes are in `../CHANGELOG.md`.
 
 
+## 2026-10-19: ten more data sets offered for download, each with its license and its exclusions
+
+The project lead approved offering every data set that the audit of 2026-10-19 recommended (the Urdu index, the People & Places store, the events store, coins, museum objects, dictionaries, the Latin lemma tables, citation indexes without sentences, text descriptions and a filtered window-text archive). The delegate that built the archives set the exclusions below, and the project lead can widen or narrow any of them. Each archive carries a LICENSE.txt naming its license, sources and required credit, and a README.txt. The license position of each, in one line:
+
+- Urdu index. CC BY-SA 4.0 (Urdu Wikisource transcriptions of public-domain poets). The four Iqbal collections are left out because their source dataset has no license file.
+- People & Places store. CC BY-SA 4.0 (the share-alike of EDH governs the whole), with Pleiades (CC BY 3.0) and Wikidata (CC0) credited. The live store held windows of Coptic, Hebrew, Persian and Urdu works as well, among them 752 windows of the Sahidica New Testament. The public copy keeps Latin, Greek and English windows only, which removes 62,291 windows, 116,714 mention rows and the 2,986 entities that were mentioned only there.
+- Events store. CC BY-SA 4.0 (Wikidata CC0, Wikipedia summaries CC BY-SA 4.0, EDH CC BY-SA 4.0, EDR and I.Sicily CC BY 4.0, papyri.info CC BY 3.0). The tables `judgements` and `requests` are model working logs and are left out.
+- Coins. ODbL 1.0 for the eight nomisma catalogs (94,263 types) and CC BY-NC-SA 3.0, non-commercial, for the 11,913 Corpus Nummorum types in a separate file.
+- Museum objects. CC0 for Cleveland, Chicago records and the Smithsonian, CC BY 4.0 for Chicago descriptions. Image addresses stay, image files are not offered.
+- Dictionaries. CC BY 4.0 for the Tesserae V3 and V6 files and the review pairs, CC BY-SA for the files drawn from Perseus and the Coptic loanword sources, stated file by file. The Coptic WordNet file and every Hebrew file are left out (the Hebrew files derive from CATSS or BHSA).
+- Latin lemma tables. CC BY-NC-SA 4.0, non-commercial, because the Perseus and PROIEL treebanks that feed the table carry that license and the table does not record which treebank gave each form.
+- Citation indexes. Bibliographic facts and citations to the corpus, offered under CC BY 4.0. The `sentence` column, which holds publisher text, is emptied in every row.
+- Text descriptions. CC BY 4.0, written by language models. The Arabic entries, the Sahidica entries and four Urdu Iqbal entries are left out.
+- Window texts. The license of each work, and non-commercial as a whole because the file holds the Hebrew Bible. The file is rebuilt without the 25 Sahidica works (1,800 windows), the Arabic works, the Persian works and eleven Iqbal collections. This closes the item that has been open since 2026-10-11.
+
+Two things are not offered. Arabic stays out in every form, because it is held back from the site and its sources have no recorded terms. The sentences of journal articles stay out, because the Early Journal Content terms and the Project MUSE library agreement cover processing and do not cover redistribution.
 ## 2026-10-19: every page of People, Places & Things is listed in both views
 
 The menu had listed only the pages whose collections were on, so the Literature view showed People & Places alone with a note that inscriptions, coins and objects appear when their collections are switched on. The project lead asked why the selection should be smaller under Literature when the menu is there anyway ("Why not put everything in the Literature one as well?"). From 2026-10-19 the menu lists all five pages in every view and every profile. The collection switches keep their other effects, what a search covers and which Reader tabs show. The one gate left on the menu is the server switch for the documents collection, which hides Inscriptions & Papyri when no documents index is installed. The client-side trial flag for the documents pages no longer gates the menu.
