@@ -172,6 +172,60 @@ function DocumentsTab({ documents, event }) {
   );
 }
 
+function ScholarshipRow({ s, openPassage, ranks }) {
+  return (
+    <li className="bg-white border border-gray-200 rounded-lg p-3 text-sm">
+      {s.url
+        ? <a href={s.url} target="_blank" rel="noopener noreferrer" className="text-red-700 hover:underline">{s.title}</a>
+        : <span className="text-gray-800">{s.title}</span>}
+      {s.relevance === 'partly' && (
+        <span className="ml-2 text-xs bg-gray-100 text-gray-600 rounded px-1.5 py-0.5"
+              title={s.relevance_reason || 'Treats the passage or the work in a way that touches the event'}>partly</span>
+      )}
+      {s.page_ref && <span className="text-xs text-gray-500"> {' · '}{s.page_ref}</span>}
+      {/* A commentary row the server could match to a held edition carries
+          the fields the Reader's commentary notes cite from; without an
+          edition there is nothing to cite and no control is shown. */}
+      {s.kind === 'commentary' && s.edition && (
+        <span className="ml-2"><CiteRecordButton record={recordFrom({ ...s, kind: 'commentary' }, 'cite')} /></span>
+      )}
+      {s.scope === 'span' && s.passage_ref && (
+        <div className="text-xs mt-1 text-gray-600">within {shortPassageRef(s.passage_ref)}</div>
+      )}
+      {s.scope !== 'span' && s.passage_ref && ranks.has(s.passage_rank) && (
+        <div className="text-xs mt-1">
+          <a href={`#passage-${s.passage_rank}`} className="text-red-700 hover:underline"
+             onClick={(e) => { e.preventDefault(); openPassage(s.passage_rank); }}>
+            on {shortPassageRef(s.passage_ref)}
+          </a>
+        </div>
+      )}
+      {s.relevance === 'no' && s.relevance_reason && (
+        <div className="text-xs mt-1 text-gray-500">{s.relevance_reason}</div>
+      )}
+    </li>
+  );
+}
+
+/** The articles the model judged to cite the passage for another reason, under one line that opens on click. */
+function OtherReasonRows({ rows, openPassage, ranks }) {
+  const [open, setOpen] = useState(false);
+  const n = rows.length;
+  return (
+    <div className="mt-2">
+      <button type="button" aria-expanded={open} onClick={() => setOpen(!open)}
+              className="text-xs text-gray-600 hover:underline">
+        {open ? '\u25BE' : '\u25B8'} {n} {n === 1 ? 'article cites' : 'articles cite'} the passage for another reason
+      </button>
+      {open && (
+        <ul className="space-y-2 mt-2">
+          {rows.map((s, i) => <ScholarshipRow key={i} s={s} openPassage={openPassage} ranks={ranks} />)}
+        </ul>
+      )}
+    </div>
+  );
+}
+
 function ScholarshipTab({ items, openPassage, ranks }) {
   if (items.length === 0) {
     return <p className="text-sm text-gray-600">No article or commentary was found on the passages for this event.</p>;
@@ -184,42 +238,22 @@ function ScholarshipTab({ items, openPassage, ranks }) {
   return (
     <div>
       <p className="text-xs text-gray-500 mb-3">
-        The first group holds the articles that cite one of the event's leading passages, each with the passage that brings it in. The second holds the articles that cite another place in the same works between the first and the last of those passages (for example another chapter of the same book), each with the span.{' '}
+        The first group holds the articles that cite one of the event's leading passages, each with the passage that brings it in. The second holds the articles that cite another place in the same works between the first and the last of those passages (for example another chapter of the same book), each with the span.
+        Where an article was read for its bearing on the event, those that bear on it come first, a small tag marks those that touch it only in part, and those that cite the passage for another reason are kept under one line.{' '}
         <AboutSourcesLink anchor="journals" />
       </p>
       {groups.map(([kind, scope, title]) => {
         const rows = items.filter((s) => s.kind === kind && (scope === null || (s.scope || 'passage') === scope));
         if (rows.length === 0) return null;
+        const shown = rows.filter((s) => s.relevance !== 'no');
+        const other = rows.filter((s) => s.relevance === 'no');
         return (
           <section key={`${kind}-${scope}`} className="mb-4">
             <h4 className="text-sm font-semibold text-gray-800 mb-1">{title}</h4>
             <ul className="space-y-2">
-              {rows.map((s, i) => (
-                <li key={i} className="bg-white border border-gray-200 rounded-lg p-3 text-sm">
-                  {s.url
-                    ? <a href={s.url} target="_blank" rel="noopener noreferrer" className="text-red-700 hover:underline">{s.title}</a>
-                    : <span className="text-gray-800">{s.title}</span>}
-                  {s.page_ref && <span className="text-xs text-gray-500"> {' · '}{s.page_ref}</span>}
-                  {/* A commentary row the server could match to a held edition carries
-                      the fields the Reader's commentary notes cite from; without an
-                      edition there is nothing to cite and no control is shown. */}
-                  {s.kind === 'commentary' && s.edition && (
-                    <span className="ml-2"><CiteRecordButton record={recordFrom({ ...s, kind: 'commentary' }, 'cite')} /></span>
-                  )}
-                  {s.scope === 'span' && s.passage_ref && (
-                    <div className="text-xs mt-1 text-gray-600">within {shortPassageRef(s.passage_ref)}</div>
-                  )}
-                  {s.scope !== 'span' && s.passage_ref && ranks.has(s.passage_rank) && (
-                    <div className="text-xs mt-1">
-                      <a href={`#passage-${s.passage_rank}`} className="text-red-700 hover:underline"
-                         onClick={(e) => { e.preventDefault(); openPassage(s.passage_rank); }}>
-                        on {shortPassageRef(s.passage_ref)}
-                      </a>
-                    </div>
-                  )}
-                </li>
-              ))}
+              {shown.map((s, i) => <ScholarshipRow key={i} s={s} openPassage={openPassage} ranks={ranks} />)}
             </ul>
+            {other.length > 0 && <OtherReasonRows rows={other} openPassage={openPassage} ranks={ranks} />}
           </section>
         );
       })}

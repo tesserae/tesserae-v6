@@ -258,3 +258,45 @@ def test_scholarship_order_names_event_then_cites_and_drops_apparatus():
                                          'The Consecutive Sentence in Greek', 'Sicilian Coinage', 'C']
     assert out[0]['names_event'] is True and out[1]['cites'] == 2 and out[2]['cites'] == 1
     assert out[3]['scope'] == 'span' and out[3]['names_event'] is True
+
+
+def test_scholarship_verdict_bands_come_first_within_each_group():
+    """The model's verdict orders each group: YES, then PARTLY (and an article not
+    judged), then NO. Within a band the names-event and cites order still holds."""
+    def art(title, url, rel, rank, scope='passage', ref='thuc. 7.1'):
+        i = {'kind': 'article', 'title': title, 'url': url, 'passage_rank': rank, 'passage_ref': ref, 'scope': scope}
+        if rel:
+            i['relevance'] = rel
+        return i
+    items = [art('No one', 'u1', 'no', 1), art('Partly one', 'u2', 'partly', 2), art('Unjudged', 'u3', None, 3),
+             art('Gylippus at Syracuse', 'u4', 'no', 4), art('Yes one', 'u5', 'yes', 9),
+             art('Span no', 'u6', 'no', None, 'span'), art('Span yes', 'u7', 'yes', None, 'span')]
+    out = E._by_passage_rank(items, ('Sicilian Expedition', 'Sicily', ['Gylippus']))
+    assert [i['title'] for i in out] == ['Yes one', 'Partly one', 'Unjudged', 'Gylippus at Syracuse', 'No one',
+                                         'Span yes', 'Span no']
+
+
+def test_detail_carries_relevance_when_the_table_exists_and_works_without_it(client, db):
+    import sqlite3
+    eid = client.get('/api/events?sort=date').get_json()['events'][0]['id']
+    c = sqlite3.connect(db)
+    c.execute("INSERT INTO scholarship (event_id, kind, title, page_ref, url) VALUES (?,?,?,?,?)", (eid, 'article', 'Judged article', 'p', 'http://j'))
+    c.execute("INSERT INTO scholarship (event_id, kind, title, page_ref, url) VALUES (?,?,?,?,?)", (eid, 'article', 'Plain article', 'p', 'http://p'))
+    c.commit()
+    try:
+        # the table is missing: rows carry no verdict and nothing fails
+        rows = client.get(f'/api/events/{eid}').get_json()['scholarship']
+        assert {r['title'] for r in rows} >= {'Judged article', 'Plain article'}
+        assert all('relevance' not in r for r in rows)
+        c.execute('CREATE TABLE scholarship_relevance (event_id TEXT, url TEXT, title TEXT, verdict TEXT, reason TEXT, model TEXT, judged_at TEXT)')
+        c.execute("INSERT INTO scholarship_relevance VALUES (?,?,?,?,?,?,?)", (eid, 'http://j', 'Judged article', 'PARTLY', 'Touches the event.', 'm', 't'))
+        c.commit()
+        rows = client.get(f'/api/events/{eid}').get_json()['scholarship']
+        judged = next(r for r in rows if r['title'] == 'Judged article')
+        plain = next(r for r in rows if r['title'] == 'Plain article')
+        assert judged['relevance'] == 'partly' and judged['relevance_reason'] == 'Touches the event.'
+        assert 'relevance' not in plain
+    finally:
+        c.execute('DROP TABLE IF EXISTS scholarship_relevance')
+        c.execute("DELETE FROM scholarship WHERE title IN ('Judged article', 'Plain article')")
+        c.commit()

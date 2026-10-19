@@ -118,8 +118,13 @@ def _scholarship(c, event_id, names=()):
     article, with the first passage that brings it in (the lowest rank), ordered
     by that rank. Rows with scope 'span' are articles that cite within the span
     the leading passages cover but not a leading passage itself, and follow the
-    others. An older database keeps its rows as they are."""
+    others. An older database keeps its rows as they are. When the store holds
+    scholarship_relevance (the gateway model's verdict on each article for this
+    event), each article row carries relevance ('yes', 'partly' or 'no') and a
+    one-line reason, and within each group the YES rows come first, then PARTLY,
+    then NO."""
     cols = _columns(c, 'scholarship')
+    verdicts = _relevance_verdicts(c, event_id)
     linked = 'passage_rank' in cols and 'passage_ref' in cols
     rows = c.execute('SELECT * FROM scholarship WHERE event_id = ? ORDER BY kind, rowid', (event_id,)).fetchall()
     out = []
@@ -127,6 +132,9 @@ def _scholarship(c, event_id, names=()):
         item = {'kind': s['kind'], 'title': s['title'], 'page_ref': s['page_ref'], 'url': s['url']}
         if s['kind'] == 'commentary':
             item.update(_commentary_cite_fields(s['title'], s['page_ref']))
+        v = verdicts.get((s['url'] or '', s['title'] or '')) if s['kind'] == 'article' else None
+        if v:
+            item.update(relevance=v[0], relevance_reason=v[1])
         if linked:
             item.update(passage_rank=s['passage_rank'], passage_ref=s['passage_ref'])
             if 'scope' in cols:
@@ -134,6 +142,22 @@ def _scholarship(c, event_id, names=()):
         out.append(item)
     if linked:
         out = _by_passage_rank(out, names)
+    return out
+
+
+_RELEVANCE_BAND = {'yes': 0, 'partly': 1, 'no': 2}
+
+
+def _relevance_verdicts(c, event_id):
+    """{(url, title): (verdict, reason)} from scholarship_relevance, lower-cased
+    verdicts; empty when the store has no such table (an older store)."""
+    if 'verdict' not in _columns(c, 'scholarship_relevance'):
+        return {}
+    out = {}
+    for r in c.execute('SELECT url, title, verdict, reason FROM scholarship_relevance WHERE event_id = ?', (event_id,)):
+        v = (r['verdict'] or '').lower()
+        if v in _RELEVANCE_BAND:
+            out[(r['url'] or '', r['title'] or '')] = (v, r['reason'] or '')
     return out
 
 
@@ -185,7 +209,8 @@ def _by_passage_rank(items, names=()):
     rows) by three things in turn: whether the title names the event (its
     label, place or a participant), how many of the event's passages the
     article cites, and the rank of the first passage that brought it in.
-    Journal apparatus titles are dropped. Commentary rows follow."""
+    Journal apparatus titles are dropped. Commentary rows follow. Where the
+    model's verdict is present it comes first within each group: YES, PARTLY, NO."""
     words = _event_words(*names) if names else set()
     best, cites = {}, {}
     for i in items:
@@ -206,7 +231,9 @@ def _by_passage_rank(items, names=()):
         i['names_event'] = bool(words) and _title_names_event(i['title'], words)
         keep.append(i)
     order = {'article': 0, 'commentary': 1}
+    # An article the model has not judged sits with PARTLY, between YES and NO.
     return sorted(keep, key=lambda i: (order.get(i['kind'], 2), i.get('scope') == 'span',
+                                       _RELEVANCE_BAND.get(i.get('relevance'), 1),
                                        not i.get('names_event'), -i.get('cites', 0), _rank(i)))
 
 

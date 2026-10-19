@@ -280,6 +280,32 @@ describe('the focus view', () => {
     expect(screen.getByText('within 6.1 to 7.87')).toBeTruthy();
   });
 
+  it('keeps the articles judged to cite the passage for another reason under one line and tags the partly ones', async () => {
+    const detail = {
+      ...DETAIL,
+      scholarship: [
+        { kind: 'article', title: 'Great Harbor article', page_ref: 'p', url: null, passage_rank: 1, passage_ref: 'hdt. 6.111.1', scope: 'passage', relevance: 'yes' },
+        { kind: 'article', title: 'Background article', page_ref: 'p', url: null, passage_rank: 1, passage_ref: 'hdt. 6.111.1', scope: 'passage', relevance: 'partly', relevance_reason: 'Touches it.' },
+        { kind: 'article', title: 'Grammar article', page_ref: 'p', url: null, passage_rank: 1, passage_ref: 'hdt. 6.111.1', scope: 'passage', relevance: 'no', relevance_reason: 'Cites it for a Greek word.' },
+        { kind: 'article', title: 'Syntax article', page_ref: 'p', url: null, passage_rank: 1, passage_ref: 'hdt. 6.111.1', scope: 'passage', relevance: 'no', relevance_reason: 'Cites it for syntax.' },
+      ],
+    };
+    mockApi(undefined, detail);
+    render(<EventsPage setPageType={() => {}} />);
+    await screen.findByRole('heading', { name: 'Battle of Marathon' });
+    await userEvent.click(screen.getByRole('tab', { name: /Scholarship/ }));
+    expect(screen.getByText('Great Harbor article')).toBeTruthy();
+    expect(screen.getByText('Background article')).toBeTruthy();
+    expect(screen.getByText('partly')).toBeTruthy();
+    expect(screen.queryByText('Grammar article')).toBeNull();
+    const line = screen.getByRole('button', { name: /2 articles cite the passage for another reason/ });
+    await userEvent.click(line);
+    expect(screen.getByText('Grammar article')).toBeTruthy();
+    expect(screen.getByText('Cites it for syntax.')).toBeTruthy();
+    await userEvent.click(line);
+    expect(screen.queryByText('Grammar article')).toBeNull();
+  });
+
   it('shortens a scholarship passage reference', () => {
     expect(shortPassageRef('thuc. pele. 7.49.3-7.53.2')).toBe('7.49.3 to 7.53.2');
     expect(shortPassageRef('hdt. 6.111.1')).toBe('6.111.1');
