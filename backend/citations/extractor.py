@@ -154,12 +154,19 @@ def _load_context_rules():
                 "veto_before": re.compile(r["veto_before"]) if r.get("veto_before") else None,
             } for r in lst]
             for key, lst in (raw.get("disambiguate") or {}).items()}
+        ap = raw.get("author_prefix") or {}
+        bible = raw.get("bible") or {}
         _CONTEXT_RULES = {"rules": rules, "veto_all": re.compile(veto_all) if veto_all else None,
-                          "disambiguate": disambiguate, "defaults": raw.get("defaults") or {}}
+                          "disambiguate": disambiguate, "defaults": raw.get("defaults") or {},
+                          "author_prefix": re.compile(ap["regex"]) if ap.get("regex") else None,
+                          "author_prefix_works": ap.get("authors") or {},
+                          "bible_forms": set(bible.get("forms") or []),
+                          "bible_neighbor": re.compile(bible["neighbor"]) if bible.get("neighbor") else None,
+                          "exceeds": raw.get("exceeds") or {}}
     return _CONTEXT_RULES
 
 
-def _apply_context_rules(work_id, work_surface, anchor_start, text, context, n_levels=0):
+def _apply_context_rules(work_id, work_surface, anchor_start, text, context, n_levels=0, seps=None):
     """Returns (work_id, reason). work_id is None when the citation must be
     dropped (reason says why); it may be a different work (redirect) or the
     one given, unchanged, with reason None."""
@@ -170,6 +177,21 @@ def _apply_context_rules(work_id, work_surface, anchor_start, text, context, n_l
     tail = ahead[-_VETO_TAIL:]
     if cfg["veto_all"] and cfg["veto_all"].search(tail):
         return None, "commentary_or_other_author_before"
+    # "Tert. de Poen. 1 1", "Lact. de Ira": an author abbreviation stands right
+    # before a short title. The citation is to that author, so a work of any
+    # other author (Plautus's Poenulus, Seneca's De ira) is wrong.
+    if cfg["author_prefix"]:
+        m = cfg["author_prefix"].search(tail)
+        if m:
+            prefix = cfg["author_prefix_works"].get(m.group(1).lower())
+            if prefix and not work_id.startswith(prefix):
+                return None, "requires_author_context:other_author_before"
+    # A biblical book (Marc., Num., Luc., Joh.): chapter:verse with a tight
+    # colon, or another biblical book with chapter and verse just before.
+    form = normalize_abbr(work_surface)
+    if form in cfg["bible_forms"] and (
+            "COLON" in (seps or []) or (cfg["bible_neighbor"] and cfg["bible_neighbor"].search(ahead))):
+        return None, "requires_author_context:biblical_book"
     for rule in cfg["rules"].get(normalize_abbr(work_surface), []):
         if rule["work"] != work_id:
             continue
@@ -315,6 +337,9 @@ _PINDAR_BOOK = {
 _PINDAR_LETTER_LEVEL = re.compile(r"[\s,:]*(O|P|N|I)\.?[\s,]+\d")
 
 
+_MAX_PINDAR_ODES = 14
+
+
 def _prefix_pindar_book(outs):
     for d in outs:
         # P. and N. are admitted by the parser only for Pindar; a single
@@ -339,6 +364,12 @@ def _prefix_pindar_book(outs):
                 if d.get("locus_end") and d["locus_end"].count(".") == 2:
                     d["locus_end"] = d["locus_end"].split(".", 1)[1]
         if not book or not d.get("locus_start") or d["locus_start"][:2] == book + ".":
+            continue
+        if d["locus_start"].isdigit() and int(d["locus_start"]) > _MAX_PINDAR_ODES:
+            # "Pyth. 143": a single number after a book letter is an ode, and no
+            # book has more than fourteen
+            d.update(resolved=False, work_id=None, part_id=None, locus_start=None, locus_end=None,
+                     reason="ode_number_beyond_book")
             continue
         d["locus_start"] = book + "." + d["locus_start"]
         if d.get("locus_end"):
@@ -368,11 +399,13 @@ def _dropped_by_round2(out_dict):
 
 
 def _impossible_book_locus(work_id, locus_start, works=None):
-    """"Aen. 1583": a single-level locus on a work cited at two or more
-    levels, whose number is beyond the highest first level (book) the work
-    has in the corpus. The book number is missing and the digits are a line
-    number, a page or a year, so the citation cannot be placed."""
-    if not work_id or not locus_start or "." in locus_start:
+    """"Aen. 1583": a locus on a work cited at two or more levels whose first
+    number is beyond the highest first level (book) the work has in the corpus.
+    With one level, the book number is missing and the digits are a line
+    number, a page or a year. With more ("Div. 11, 67", OCR of II for 11), the
+    first level cannot be a book (round 6). Either way the citation cannot be
+    placed."""
+    if not work_id or not locus_start:
         return False
     if works and (works.get(work_id) or {}).get("stephanus"):
         return False  # cited by Stephanus page, a plain number is legitimate
@@ -521,7 +554,11 @@ def _apply_work_depth(out_dict, ref, depth_map=None, inconsistent=None, journal_
         # path entirely:
         if max_line_map is None:
             max_line_map = _load_work_max_line()
-        joined = _join_short_digit_levels(ref.start_levels)
+        # OCR splits one number across whitespace or a thousands comma ("Ach. 1 1
+        # 24", "Ach. 1,124"). A point-joined item of a comma list ("AJ 4.100,
+        # 9.7, 14.54") is chapter and verse, not a split number (round 6).
+        joined = (None if "DOT" in (ref.start_seps or []) and (ref.after_comma or ref.comma_chain)
+                  else _join_short_digit_levels(ref.start_levels))
         max_line = max_line_map.get(work_id)
         if joined is not None and max_line is not None and 1 <= int(joined) <= max_line:
             rejoined = dict(out_dict)
@@ -716,11 +753,18 @@ def extract(text, index=None, context=""):
     # `context` is the sentence before `text`, for the author-context rules.
     citations = _find_citations_raw(text, index, context)
     out = []
+    chain_author = None
+    prev_cit_end = 0
     for cit in citations:
         inherited_candidates = None
         inherited_surface = None
         anchor_start = None
         chain_dropped = False
+        # The author of the previous reference carries over to a bare title that
+        # follows within a list ("Sen. Ep. 95, 22; 24,14; de Ira, 2, 33, 4").
+        if not _LIST_GAP.fullmatch(text[prev_cit_end:cit.start_offset]):
+            chain_author = None
+        prev_cit_end = cit.end_offset
         for ref in cit.refs:
             effective_candidates = ref.work_candidates
             inherited = False
@@ -736,19 +780,17 @@ def extract(text, index=None, context=""):
             # build a shallow copy of ref with effective candidates for resolution
             ref_for_resolution = ref
             if inherited:
-                ref_for_resolution = type(ref)(
-                    work_surface=ref.work_surface,
-                    work_candidates=effective_candidates,
-                    start_levels=ref.start_levels,
-                    end_levels=ref.end_levels,
-                    following_marker=ref.following_marker,
-                    start_offset=ref.start_offset,
-                    end_offset=ref.end_offset,
-                    locus_start_offset=ref.locus_start_offset,
-                    book_list=ref.book_list,
-                    start_seps=ref.start_seps,
-                )
+                ref_for_resolution = replace(ref, work_candidates=effective_candidates)
 
+            if not inherited:
+                near = _author_named_nearby(ref_for_resolution.work_candidates, ref.work_surface,
+                                            ref.start_offset, text, chain_author, index)
+                if near is not ref_for_resolution.work_candidates:
+                    ref_for_resolution = replace(ref_for_resolution, work_candidates=near)
+                first_word = (ref.work_surface or "").split(" ")[0].rstrip(".")
+                if first_word[:1].isupper() and (" " in (ref.work_surface or "").strip()
+                                                 or min(c[1] for c in ref.work_candidates) < 2):
+                    chain_author = first_word  # an "Author. Work." form names its author
             key_surface = ref.work_surface if not inherited else inherited_surface
             forced = _disambiguate_candidates(
                 ref_for_resolution.work_candidates, key_surface, anchor_start, text, context, index.works_by_base_id,
@@ -787,16 +829,16 @@ def extract(text, index=None, context=""):
                         book_list=None,
                     )
                     res = resolve_ref(book_ref, index.works_by_base_id)
-                    book_out = _prefix_pindar_book(_apply_work_depth(
-                        _build_out(base_out, res, book_ref, text, anchor_start, context, index.works_by_base_id), book_ref))
+                    book_out = _finish_ref(
+                        _build_out(base_out, res, book_ref, text, anchor_start, context, index.works_by_base_id), book_ref)
                     chain_dropped = chain_dropped or any(_dropped_by_round2(d) for d in book_out)
                     out.extend(book_out)
                 continue
 
             res = resolve_ref(ref_for_resolution, index.works_by_base_id)
-            ref_out = _prefix_pindar_book(_apply_work_depth(
+            ref_out = _finish_ref(
                 _build_out(base_out, res, ref_for_resolution, text, anchor_start, context, index.works_by_base_id),
-                ref_for_resolution))
+                ref_for_resolution)
             if inherited and chain_dropped:
                 # The ref that named the work was dropped (no author context,
                 # impossible book number): what it carried along goes too.
@@ -895,6 +937,227 @@ def _year_like_locus_should_drop(work_id, locus_start, ref, text):
     return False
 
 
+
+# ---------------------------------------------------------------------------
+# Round 6.
+
+# "Thucydides, 1873", "Arch. I., 1900, pp. 155-195", "Man 21: 1-17. ---. 1996":
+# a citation followed by "pp." or by a publication year (with at most a page
+# range between) is a bibliography entry. A single "p." is not enough: "Plat.
+# Rep. VIII, p. 549 E" gives the page of the edition the ancient text is cited by. A year that is a plausible line of
+# the work ("Ar. Av. 1745") is not a year.
+_AFTER_PP = re.compile(r"^\s{0,3},?\s{0,3}(?:pp\.|pages\b)\s*\d")
+_AFTER_YEAR = re.compile(r"^[\s.,;:\-‐-―]*(?:[A-Z]{1,4}[\s.,;:]+)?"
+                         r"(?:\d{1,4}\s*[-‐-―]\s*\d{1,4}[\s.,;:\-‐-―]*)?"
+                         r"(1[5-9]\d\d|20[0-3]\d)\b")
+_AFTER_WINDOW = 40
+
+
+def _modern_reference(work_id, locus_start, ref, text):
+    """True when the citation is a modern bibliographic reference: a locus that
+    is a publication year no line or book of the work reaches, or a locus
+    followed by "pp." or by a year."""
+    if not work_id or not locus_start:
+        return False
+    max_line = _load_work_max_line().get(work_id)
+    max_book = _load_work_max_book().get(work_id)
+    if locus_start.isdigit() and len(locus_start) == 4 and _YEAR_LOCUS_MIN <= int(locus_start) <= _YEAR_LOCUS_MAX:
+        value = int(locus_start)
+        if (not max_line or max_line < value) and (not max_book or max_book < value):
+            return True
+    after = text[ref.end_offset:ref.end_offset + _AFTER_WINDOW]
+    if _AFTER_PP.match(after):
+        return True
+    m = _AFTER_YEAR.match(after)
+    if m and not (max_line and max_line >= int(m.group(1))):
+        return True
+    return False
+
+
+def _apply_exceeds(work_id, work_surface, locus_start, works):
+    """A short form that two authors share ("Phoen.", "Juv.") is read as the
+    default work. A locus beyond the last line (or book) of that work cannot be
+    it: the citation goes to the other work when its extent admits the locus,
+    and is dropped when no other work is named. Returns (work_id, reason)."""
+    cfg = _load_context_rules()["exceeds"].get(normalize_abbr(work_surface or ""))
+    if not cfg or not locus_start:
+        return work_id, None
+    max_line, max_book = _load_work_max_line(), _load_work_max_book()
+    parts = locus_start.split(".")
+    if not parts[0].isdigit():
+        return work_id, None
+
+    def beyond(w):
+        if len(parts) == 1:
+            return bool(max_line.get(w)) and int(parts[0]) > max_line[w]
+        return bool(max_book.get(w)) and int(parts[0]) > max_book[w]
+
+    for rule in cfg:
+        if rule["work"] != work_id or not beyond(work_id):
+            continue
+        other = rule.get("instead")
+        if other and other in works and not beyond(other):
+            return other, None
+        return None, "requires_author_context:locus_beyond_work"
+    return work_id, None
+
+
+_LIST_GAP = re.compile(r"[\s;,.]*(?:[dD]e\s+)?")
+_AUTHOR_BEFORE = re.compile(r"\b([A-Z][a-z]{1,8})\.?,?\s+(?:[dD]e\s+|[iI]n\s+)?$")
+_NEAR_AUTHOR_CHARS = 40
+
+
+def _author_named_nearby(candidates, work_surface, start_offset, text, chain_author, index):
+    """"Sen. Ep. 95, 22; 24,14; de Ira, 2, 33, 4": the bare title Ira names
+    Lactantius in the table, but the author named right before it ("Sen. de
+    Ira") or in the previous item of the same list has a work of that title
+    ("Sen. Ira" is the table's form for Seneca's De ira). Looks the title up
+    with that author in front and returns the work found as the only
+    candidate. A form that is itself an author's abbreviation ("Quint.") is
+    left alone. Returns the candidates unchanged when no author
+    helps or when the form already names its author."""
+    if not work_surface or not candidates or min(c[1] for c in candidates) < 2:
+        return candidates
+    key = normalize_abbr(work_surface)
+    for c in candidates:
+        authors = index.works_by_base_id.get(c[0], {}).get("author_abbreviations") or []
+        if key in {normalize_abbr(a) for a in authors}:
+            return candidates
+    tail = text[max(0, start_offset - _NEAR_AUTHOR_CHARS):start_offset]
+    m = _AUTHOR_BEFORE.search(tail)
+    words = [m.group(1)] if m else []
+    if chain_author:
+        words.append(chain_author)
+    seen = set()
+    for word in words:
+        if word in seen:
+            continue
+        seen.add(word)
+        hits = index.lookup(normalize_abbr(word + " " + work_surface))
+        if hits:
+            best = min(h[1] for h in hits)
+            ids = sorted({h[0] for h in hits if h[1] == best})
+            return [(i, 0, work_surface) for i in ids]
+    return candidates
+
+
+# Chapter-and-section numbering. Cicero's prose is cited by book, chapter and
+# section ("de orat. 1, 52, 225"), while the corpus numbers it by book and
+# section ("1.225"). For a work listed in work_section_numbered.json (consistent
+# corpus depth n, section numbering) a printed locus with n + 1 levels drops its
+# second-to-last level, the chapter.
+_WORK_SECTION_NUMBERED = None
+
+
+def _load_work_section_numbered():
+    global _WORK_SECTION_NUMBERED
+    if _WORK_SECTION_NUMBERED is None:
+        try:
+            with open(os.path.join(_CITATIONS_DIR, "work_section_numbered.json"), encoding="utf-8") as f:
+                raw = json.load(f)
+        except (OSError, json.JSONDecodeError):
+            raw = {}
+        _WORK_SECTION_NUMBERED = set(raw.get("works") or [])
+    return _WORK_SECTION_NUMBERED
+
+
+def _drop_chapter_level(out_dict, ref):
+    work_id = out_dict.get("work_id")
+    if not out_dict.get("resolved") or not work_id or not out_dict.get("locus_start"):
+        return out_dict
+    if work_id not in _load_work_section_numbered():
+        return out_dict
+    depth_map, inconsistent = _load_work_depth()
+    depth = depth_map.get(work_id)
+    if not depth or work_id in inconsistent:
+        return out_dict
+    start = out_dict["locus_start"].split(".")
+    if len(start) != depth + 1 or not all(p.isdigit() for p in start):
+        return out_dict
+    # Both printed levels must be Arabic numbers ("2, 89 vix" is no section),
+    # and a section number runs on through the book, so it is never smaller than
+    # its chapter ("Tusc. 3.26.13" has a subsection, not a section, at the end).
+    last_two = (ref.start_levels or [])[-2:]
+    if len(last_two) < 2 or not all(t.isdigit() for t in last_two) or int(start[-1]) < int(start[-2]):
+        return out_dict
+    out = dict(out_dict, locus_start=".".join(start[:-2] + start[-1:]), reason="chapter_level_dropped")
+    if out.get("locus_end"):
+        end = out["locus_end"].split(".")
+        if len(end) == depth + 1 and all(p.isdigit() for p in end):
+            out["locus_end"] = ".".join(end[:-2] + end[-1:])
+    return out
+
+
+def _use_parenthesized_numbering(out_dict, ref):
+    """"Men. 1, 1, 26 (102)", "Haut 4, 4, 21 (v. 743)": the parenthesis holds the
+    same line in the other numbering. The corpus numbers Plautus by continuous
+    line and Terence by act, scene and line, so the form with as many levels as
+    the work's corpus depth is the locus and the other form is dropped."""
+    if not out_dict.get("resolved") or not out_dict.get("locus_start"):
+        return out_dict
+    paren = ref.paren_levels
+    if not paren:
+        return out_dict
+    depth_map, inconsistent = _load_work_depth()
+    work_id = out_dict["work_id"]
+    depth = depth_map.get(work_id)
+    if not depth or work_id in inconsistent:
+        return out_dict
+    if len(ref.start_levels) == depth or len(paren) != depth:
+        return out_dict
+    start = levels_to_locus_string(paren)
+    if start is None:
+        return out_dict
+    out = dict(out_dict, locus_start=start, locus_end=None, reason="parenthesized_numbering_used")
+    if ref.paren_end_levels:
+        out["locus_end"] = levels_to_locus_string(ref.paren_end_levels)
+    return out
+
+
+# Plautus is cited by act, scene and line, or by one running line, and the corpus
+# holds it by running line (depth 1), so "Mil. 146, 298" is two lines, since no
+# act number reaches 146. A level that is not a number ("Aul. 538, I should")
+# is not a line.
+_MAX_ACT = 5
+
+
+def _split_line_list(out_dict, ref):
+    if not out_dict.get("resolved") or not out_dict.get("locus_start") or out_dict.get("locus_end"):
+        return [out_dict]
+    levels = ref.start_levels or []
+    seps = ref.start_seps or []
+    if len(levels) < 2 or not seps or any(sep != "COMMA" for sep in seps):
+        return [out_dict]
+    depth_map, inconsistent = _load_work_depth()
+    work_id = out_dict["work_id"]
+    if depth_map.get(work_id) != 1 or work_id in inconsistent:
+        return [out_dict]
+    if not work_id.startswith("plautus."):
+        return [out_dict]  # Plautus is held by running line but cited by act, scene and line
+    if len(out_dict["locus_start"].split(".")) != len(levels):
+        return [out_dict]  # another rule has already changed the locus
+    if not levels[0].isdigit() or int(levels[0]) <= _MAX_ACT:
+        return [out_dict]
+    outs = []
+    for lv in levels:
+        if lv.isdigit():
+            outs.append(dict(out_dict, locus_start=lv, locus_end=None, reason="split_line_list"))
+    return outs or [out_dict]
+
+
+def _finish_ref(out_dict, ref):
+    """Everything that turns one resolved reference into its output rows
+    (round 6 order: parenthesized numbering, chapter level, line lists, then the
+    depth rule of rounds 3 and 4 and the Pindar book letter)."""
+    out = _use_parenthesized_numbering(out_dict, ref)
+    out = _drop_chapter_level(out, ref)
+    outs = _split_line_list(out, ref)
+    rows = []
+    for o in outs:
+        rows.extend(_apply_work_depth(o, ref) if len(outs) == 1 else [o])
+    return _prefix_pindar_book(rows)
+
+
 def _build_out(base_out, res, ref, text, anchor_start=None, context="", works=None):
     blocked = _od_book_1_4_needs_context(res, ref, text)
     rep_override = _rep_stephanus_override(res, ref)
@@ -916,13 +1179,29 @@ def _build_out(base_out, res, ref, text, anchor_start=None, context="", works=No
         new_work, why = _apply_context_rules(
             work_id, base_out["work_surface"],
             ref.start_offset if anchor_start is None else anchor_start, text, context,
-            len(ref.start_levels or []))
+            len(ref.start_levels or []), ref.start_seps)
         if new_work is None:
             resolved, work_id, part_id, locus_start, reason = False, None, None, None, why
         elif new_work != work_id:
             work_id = new_work
             part_id = None
             reason = "redirected_by_author_context"
+
+    if resolved and work_id and base_out.get("work_surface"):
+        new_work, why = _apply_exceeds(work_id, base_out["work_surface"], locus_start, works or {})
+        if new_work is None:
+            resolved, work_id, part_id, locus_start, reason = False, None, None, None, why
+        elif new_work != work_id:
+            work_id = new_work
+            part_id = None
+            reason = "redirected_locus_beyond_work"
+
+    if resolved and _modern_reference(work_id, locus_start, ref, text):
+        resolved = False
+        work_id = None
+        part_id = None
+        locus_start = None
+        reason = "dropped_modern_reference"
 
     if resolved and _impossible_book_locus(work_id, locus_start, works):
         resolved = False

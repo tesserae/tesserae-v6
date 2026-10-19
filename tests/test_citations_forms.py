@@ -78,7 +78,7 @@ def test_semicolon_chain_does_not_extend_past_a_bare_number_continuation():
 
 
 def test_semicolon_chain_bare_number_ends_the_citation_not_the_sentence():
-    hits = _all_resolved('Cic. Leg. 3. 6; 11; and 2. 19.')
+    hits = _all_resolved('Tac. Ann. 3. 6; 11; and 2. 19.')
     assert len(hits) == 1
     assert hits[0]['locus_start'] == '3.6'
 
@@ -380,13 +380,13 @@ def test_dot_joined_over_depth_locus_is_left_alone():
     # a comma) is left untouched -- this is the corpus-resolution-gap
     # case (a work conventionally cited more precisely than this corpus's
     # tagging supports), not a fabricated chain. Also guards against a
-    # real regression: "Cic. Leg." resolves (via a pre-existing, unrelated
-    # abbreviation-table entry) to the depth-1 cicero.de_amicitia, so a
-    # naive "always truncate when over depth" rule would mangle this bare-
-    # number-continuation test case.
-    hits = _all_resolved('Cic. Leg. 3. 6; 11; and 2. 19.')
+    # real regression: a naive "always truncate when over depth" rule would
+    # mangle this bare-number-continuation test case. (Round 6 moved it from
+    # "Cic. Leg.", which the table resolves to the depth-1 De amicitia, whose
+    # chapter level the section rule now drops, to Tacitus.)
+    hits = _all_resolved('Tac. Ann. 3. 53. 7; 11; and 2. 19.')
     assert len(hits) == 1
-    assert hits[0]['locus_start'] == '3.6'
+    assert hits[0]['locus_start'] == '3.53.7'
 
 
 def test_range_over_depth_is_truncated_never_split():
@@ -583,10 +583,11 @@ def test_hand_reviewed_additions_are_in_the_overrides_file():
         assert overrides.get(work_id) == depth, work_id
 
 
-def test_cicero_in_catilinam_kept_whole_book_chapter_section():
+def test_cicero_in_catilinam_chapter_dropped_for_section():
+    # Round 6: the corpus numbers the speeches by section, so the chapter goes.
     hits = _all_resolved('Cic. Cat. I 13, 31')
     assert len(hits) == 1
-    assert hits[0]['locus_start'] == '1.13.31'
+    assert hits[0]['locus_start'] == '1.31'
 
 
 def test_athenaeus_kept_whole_book_page():
@@ -595,10 +596,10 @@ def test_athenaeus_kept_whole_book_page():
     assert hits[0]['locus_start'] == '10.411'
 
 
-def test_cicero_philippicae_kept_whole_speech_chapter_section():
+def test_cicero_philippicae_chapter_dropped_for_section():
     hits = _all_resolved('Cic. Phil. I 6, 15')
     assert len(hits) == 1
-    assert hits[0]['locus_start'] == '1.6.15'
+    assert hits[0]['locus_start'] == '1.15'
 
 
 def test_rufus_de_renum_kept_whole_book_chapter_section():
@@ -607,16 +608,16 @@ def test_rufus_de_renum_kept_whole_book_chapter_section():
     assert hits[0]['locus_start'] == '5.2.21'
 
 
-def test_cicero_pro_cluentio_kept_whole_chapter_section():
+def test_cicero_pro_cluentio_chapter_dropped_for_section():
     hits = _all_resolved('Cluent. 32, 87')
     assert len(hits) == 1
-    assert hits[0]['locus_start'] == '32.87'
+    assert hits[0]['locus_start'] == '87'
 
 
-def test_cicero_de_lege_agraria_kept_whole_speech_chapter_section():
+def test_cicero_de_lege_agraria_chapter_dropped_for_section():
     hits = _all_resolved('leg. agr. i. 5. 16')
     assert len(hits) == 1
-    assert hits[0]['locus_start'] == '1.5.16'
+    assert hits[0]['locus_start'] == '1.16'
 
 
 def test_cicero_pro_sestio_left_out_of_the_overrides_file():
@@ -823,22 +824,22 @@ def test_cicero_de_oratore_and_second_pass_additions_are_in_the_overrides_file()
         assert overrides.get(work_id) == depth, work_id
 
 
-def test_cicero_de_oratore_kept_whole_book_chapter_section():
+def test_cicero_de_oratore_chapter_dropped_for_section():
     hits = _all_resolved('Cic. de Or. I 22, 104')
     assert len(hits) == 1
-    assert hits[0]['locus_start'] == '1.22.104'
+    assert hits[0]['locus_start'] == '1.104'
 
 
-def test_cicero_de_officiis_kept_whole():
+def test_cicero_de_officiis_chapter_dropped_for_section():
     hits = _all_resolved('Cic. Off. I 16, 52')
     assert len(hits) == 1
-    assert hits[0]['locus_start'] == '1.16.52'
+    assert hits[0]['locus_start'] == '1.52'
 
 
-def test_cicero_pro_balbo_kept_whole():
+def test_cicero_pro_balbo_chapter_dropped_for_section():
     hits = _all_resolved('Balb. 28, 64')
     assert len(hits) == 1
-    assert hits[0]['locus_start'] == '28.64'
+    assert hits[0]['locus_start'] == '64'
 
 
 def test_cicero_orator_and_ptolemy_musica_left_out_of_overrides():

@@ -31,6 +31,10 @@ _RAW_RE = re.compile(r"""
 """, re.VERBOSE | re.UNICODE)
 
 
+# "l'inclita", "d'oro", "dell'Ode", "qu'il": an elided article or preposition in
+# Italian or French. The apostrophe is glued to the end of the word.
+_APOSTROPHES = "'\u2019\u02bc\u2032`"
+
 _BLANK_LINE_RE = re.compile(r"\n[ \t\r\f\v]*\n")
 
 
@@ -42,6 +46,8 @@ class Token:
     end: int
     para_break: bool = False  # a blank line separates this token from the one before
     close_paren: bool = False  # a closing parenthesis directly follows this token
+    open_paren: bool = False   # an opening parenthesis or bracket directly precedes this token
+    apos_after: bool = False   # an apostrophe (straight or curly) is glued to the end of this token
 
 
 def raw_scan(text):
@@ -116,6 +122,12 @@ def tokenize(text):
         out.append(Token("OTHER", t.text, t.start, t.end))
         i += 1
     for prev, cur in zip(out, out[1:]):
-        if _BLANK_LINE_RE.search(text[prev.end:cur.start]):
+        gap = text[prev.end:cur.start]
+        if _BLANK_LINE_RE.search(gap):
             cur.para_break = True
+        if "(" in gap or "[" in gap:
+            cur.open_paren = True
+    for tok in out:
+        if tok.end < len(text) and text[tok.end] in _APOSTROPHES:
+            tok.apos_after = True
     return out

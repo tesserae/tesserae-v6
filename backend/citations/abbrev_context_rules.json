@@ -7,6 +7,8 @@
     "pol": [{"work": "aristotle.politics", "context": "Aristot|\\bArist\\b", "veto_before": "\\bad\\s*$|\\bAth\\.?\\s*$|\\bLac\\.?\\s*$|\\bResp\\.?\\s*$"}],
     "merc": [{"work": "plautus.mercator", "context": "Plaut|\\bPl\\.|Plautus", "veto_before": "\\bh\\.\\s*$|\\bHH\\s*$|Hymn\\w*\\.?\\s*$"}],
     "apr": [{"work": "aristotle.analytica_priora", "context": "Aristot|\\bArist\\b|Prior Analytics|Analytica"}],
+    "att": [{"work": "cicero.letters_to_atticus", "veto_before": "\\b[Vv]it(?:a|\\.)\\s*$|\\bLife of\\s*$"}],
+    "apo": [{"work": "aristotle.analytica_priora", "context": "Aristot|\\bArist\\b|Prior Analytics|Analytica"}],
     "ruf": [{"work": "rufus_of_ephesus.de_renum_et_vesicae_affectionibus", "veto_before": "\\badv\\.?\\s*$|\\bcontra\\s*$|\\b[Ii]n\\s*$|Hier\\w*\\.?,?\\s*$|Jerome,?\\s*$|Claud\\w*\\.?,?\\s*$"}],
     "phaed": [{"work": "phaedrus.fabulae_aesopiae", "context": "Phaedr|Aesop|[Ff]able"}],
     "astr": [{"work": "hyginus.astronomica", "context": "Hygin|\\bHyg\\b", "redirect": {"context": "Manil", "work": "manilius.astronomica"}}],
@@ -55,6 +57,7 @@
     "off": [{"work": "cicero.de_officiis", "context": "Cic"}],
     "supp": [{"work": "aeschylus.suppliant_women", "context": "Aesch"}, {"work": "euripides.suppliants", "context": "Eur(?:ip|\\b)"}],
     "ant": [{"work": "plutarch.antony", "context": "Plut|\\bPlu\\b"}, {"work": "sophocles.antigone", "context": "Soph"}],
+    "juv": [{"work": "juvenal.satires", "context": "Juvenal|Satir"}, {"work": "juvencus.historia_evangelica", "context": "Juvenc|Ennod|Avit\\b|Avit\\.|Sedul|Prudent|Arator|Dracont|Fortunat"}],
     "pers": [{"work": "persius.saturae", "context": "Pers(?:ius|\b)"}, {"work": "aeschylus.persians", "context": "Aesch"}],
     "hec": [{"work": "terence.hecyra", "context": "Ter"}, {"work": "euripides.hecuba", "context": "Eur(?:ip|\\b)"}],
     "alc": [{"work": "euripides.alcestis", "context": "Eur(?:ip|\\b)"}, {"work": "plutarch.alcibiades", "context": "Plut|\\bPlu\\b"}],
@@ -69,6 +72,9 @@
     "or": [{"work": "libanius.orations", "context": "Liban"}, {"work": "euripides.orestes", "context": "Eur(?:ip|\\b)"}],
     "bacch": [{"work": "plautus.bacchides", "context": "Plaut|\\bPl\\b"}, {"family": "bacchylides", "context": "Bacchyl"}]
   },
+  "author_prefix": {"regex": "\\b(Tert|Lact|Nep|Juvenc)[A-Za-z]*\\.?,?\\s+(?:[dD]e\\s+|[iI]n\\s+|[vV]it(?:a|\\.)?\\s+)?$", "authors": {"tert": "tertullian", "lact": "lactantius", "nep": "nepos", "juvenc": "juvencus"}},
+  "bible": {"forms": ["marc", "luc", "num", "joh", "matth", "matt", "exod", "deut", "gen", "lev", "levit", "rom", "isa", "jer", "ezek"], "neighbor": "\\b(?:Exod|Deut|Levit|Matth?|Joh|Rom|Cor|Isa|Jer|Ezek)\\.\\s*(?:\\d+|[A-Za-z]{1,5})[.,:]?\\s*\\d"},
+  "exceeds": {"phoen": [{"work": "seneca.phoenissae", "instead": "euripides.phoenissae"}], "poen": [{"work": "plautus.poenulus"}], "juv": [{"work": "juvencus.historia_evangelica", "instead": "juvenal.satires"}, {"work": "juvenal.satires", "instead": "juvencus.historia_evangelica"}]},
   "defaults": {
     "lys": {"work": "lysias.speeches", "min_levels": 2},
     "isoc": {"work": "isocrates.speeches", "min_levels": 2},
@@ -80,5 +86,6 @@
     "arr": {"work": "arrian.anabasis", "min_levels": 3, "firm_first": true}
   },
   "_comment_defaults": "Round 4. A form that still names several works after the author-context choice falls back to this work when it is among the candidates and the citation has at least min_levels locus levels: Lysias and Isocrates are cited speech.section (two levels) while the Lysistrata is cited by line, the idylls are what Theoc. means unless Ep. is written, and a bare Bacch. keeps meaning Plautus unless Bacchylides is named. Round 5 adds Ann. (Tacitus, two levels: Ennius is cited by line), Th. (Thucydides, two levels: the Theogony and the Seven against Thebes are cited by line), Str. (Strabo) and Arr. (the Anabasis, three levels: the Cynegeticus has chapters only). These four need an Arabic number or an upper-case Roman numeral as the first level (firm_first), because a lower-case d or c reads as 500 or 100 (\"Ann. d. 1\" is the Annali dell'Istituto). A rule in \"rules\" may carry min_levels_alone: with that many levels the form counts without its author named (Ben. with book, chapter and section is Seneca).",
+  "_comment_round6": "Round 6. disambiguate.juv: Juvenal or Juvencus by the author named nearest (a list of Christian poets makes Juv. Juvencus). author_prefix: an author abbreviation (Tert., Lact., Nep., Juvenc.) right before a short title makes it that author's work, and a work of any other author is dropped. bible: a short form that is also a biblical book (Marc., Luc., Num.) is dropped with chapter:verse in a tight colon or with another biblical book and chapter and verse just before. exceeds: a locus beyond the last line (or book) of the default work of a shared short form (Phoen. 1005 is beyond Seneca's 664 lines) goes to the other work when its extent admits the locus, otherwise it is dropped.",
   "_comment_disambiguate": "Forms that name several works in the table (or one work in a collision). Keys are normalized surfaces. Each entry lists a work and a regex for its author; the author named closest before the citation (sentence before, or this sentence ahead of it) decides, and a form with no author named stays as it was (unresolved when the table ties). Added in round 3, 2026-10-16."
 }
