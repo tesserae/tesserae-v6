@@ -130,24 +130,24 @@ MANIFEST = {
         'reason': ('Objects option of Theme Search in testing: object descriptions nearest a '
                     'free-text query; not yet exposed to the connector.'),
     },
-    # Entity mentions, stage 2 (2026-10-17): a trial page behind ?entities=1. The connector
-    # tool find_mentions is hidden unless TESSERAE_ENTITY_TOOLS=1, as for the Scholarship tab (2026-10-08).
+    # Entity mentions (People & Places, live for everyone since 2026-10-19). The connector
+    # tool find_mentions is listed when TESSERAE_ENTITY_TOOLS=1 (on since 2026-10-19 09:01), as for the Scholarship tab (2026-10-08).
     '/api/entities/search': {
         'tools': ['find_mentions'],
-        'note': 'Gated by TESSERAE_ENTITY_TOOLS=1 while the People & Places page is a trial (?entities=1).',
+        'note': 'Listed when TESSERAE_ENTITY_TOOLS=1 (on in production since 2026-10-19).',
     },
     '/api/entities/<entity_id>': {
         'site_only': True,
-        'reason': ('One entity with its mention counts by work, for the People & Places page in testing '
-                    '(stage 2); not yet exposed to the connector.'),
+        'reason': ('One entity with its mention counts by work, for the People & Places page; '
+                    'not yet exposed to the connector.'),
     },
     '/api/entities/<entity_id>/mentions': {
         'tools': ['find_mentions'],
-        'note': 'Gated by TESSERAE_ENTITY_TOOLS=1 while the People & Places page is a trial (?entities=1).',
+        'note': 'Listed when TESSERAE_ENTITY_TOOLS=1 (on in production since 2026-10-19).',
     },
     '/api/entities/<entity_id>/documents': {
         'site_only': True,
-        'reason': ('The inscriptions and papyri that name one entity, for the People & Places page in testing '
+        'reason': ('The inscriptions and papyri that name one entity, for the People & Places page '
                     '(stage 2b); not yet exposed to the connector.'),
     },
     '/api/scope': {
