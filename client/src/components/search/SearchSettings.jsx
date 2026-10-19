@@ -27,7 +27,7 @@ const SearchSettings = ({ settings, setSettings, showAdvanced, setShowAdvanced, 
   // alone was easy to miss).
   const [showChannelNotes, setShowChannelNotes] = useState(false);
   const openChannelsHelp = () => {
-    window.dispatchEvent(new CustomEvent('tesserae:open-help', { detail: { section: 'reading-results', anchor: 'channels' } }));
+    window.dispatchEvent(new CustomEvent('tesserae:open-help', { detail: { section: 'results', anchor: 'channels' } }));
   };
   const [defaultWeights, setDefaultWeights] = useState(null);
   const [weightRange, setWeightRange] = useState({ min: 0, max: 20 });

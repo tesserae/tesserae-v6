@@ -87,7 +87,7 @@
   },
   "client/src/components/pages/HelpPage.jsx": {
     "no-unused-vars": {
-      "count": 3
+      "count": 1
     }
   },
   "client/src/components/pages/SystemChart.jsx": {

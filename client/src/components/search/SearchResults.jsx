@@ -44,7 +44,7 @@ const matchedWordsAreRefrain = (r) => {
 // "Reading the results" section (result card tidy, second pass, 2026-10-08).
 const helpMore = (onOpenHelp, anchor) => ({
   anchor,
-  onClick: () => onOpenHelp && onOpenHelp('reading-results', anchor),
+  onClick: () => onOpenHelp && onOpenHelp('results', anchor),
 });
 
 const EMPTY = [];
@@ -599,7 +599,7 @@ const SearchResults = ({
           <span>Hover over or tap any label for its meaning.</span>
           <button
             type="button"
-            onClick={() => onOpenHelp && onOpenHelp('reading-results')}
+            onClick={() => onOpenHelp && onOpenHelp('results')}
             className="text-amber-700 hover:text-amber-900 underline"
           >
             Reading the results

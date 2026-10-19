@@ -111,8 +111,17 @@ function CopyBlock({ text, label = 'Copy' }) {
   );
 }
 
+// Sections that were merged into others (2026-10-19). An old link or navigation
+// call that carries one of these opens the section it merged into.
+export const HELP_SECTION_ALIASES = {
+  'getting-started': 'start-here',
+  'search-modes': 'start-here',
+  'reading-results': 'results'
+};
+export const resolveHelpSection = (id) => HELP_SECTION_ALIASES[id] || id;
+
 export default function HelpPage({ initialSection = null, initialAnchor = null, onSectionConsumed } = {}) {
-  const [activeSection, setActiveSection] = useState(initialSection || 'getting-started');
+  const [activeSection, setActiveSection] = useState(resolveHelpSection(initialSection) || 'start-here');
   const contentRef = useRef(null);
   // Which languages this site serves (2026-10-07). Arabic is indexed but held
   // until a reader has graded it, so its page leaves the menu and its card and
@@ -136,7 +145,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
   // paragraph instead, once the section has rendered.
   useEffect(() => {
     if (initialSection) {
-      setActiveSection(initialSection);
+      setActiveSection(resolveHelpSection(initialSection));
       if (onSectionConsumed) onSectionConsumed();
       requestAnimationFrame(() => {
         const target = initialAnchor && document.getElementById(initialAnchor);
@@ -155,18 +164,6 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
   const [expandedStoplists, setExpandedStoplists] = useState({});
   const [curatedStoplists, setCuratedStoplists] = useState(null);
   const [stoplistsError, setStoplistsError] = useState(null);
-  const [requestName, setRequestName] = useState('');
-  const [requestEmail, setRequestEmail] = useState('');
-  const [requestAuthor, setRequestAuthor] = useState('');
-  const [requestWork, setRequestWork] = useState('');
-  const [requestLanguage, setRequestLanguage] = useState('');
-  const [requestNotes, setRequestNotes] = useState('');
-  const [requestESource, setRequestESource] = useState('');
-  const [requestESourceUrl, setRequestESourceUrl] = useState('');
-  const [requestPrintSource, setRequestPrintSource] = useState('');
-  const [requestFile, setRequestFile] = useState(null);
-  const [requestSubmitting, setRequestSubmitting] = useState(false);
-  const [requestMessage, setRequestMessage] = useState(null);
   const [feedbackName, setFeedbackName] = useState('');
   const [feedbackEmail, setFeedbackEmail] = useState('');
   const [feedbackType, setFeedbackType] = useState('suggestion');
@@ -178,17 +175,6 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
   // this one files a public GitHub issue, see RequestDialog).
   const [suggestDialogOpen, setSuggestDialogOpen] = useState(false);
   
-  // Formatter utility state
-  const [formatterAuthor, setFormatterAuthor] = useState('');
-  const [formatterWork, setFormatterWork] = useState('');
-  const [formatterTextType, setFormatterTextType] = useState('');
-  const [formatterSubsectionCount, setFormatterSubsectionCount] = useState('1');
-  const [formatterSlots, setFormatterSlots] = useState([
-    { id: 1, startValues: ['1'], rawText: '' }
-  ]);
-  const [formatterOutput, setFormatterOutput] = useState('');
-  const [formatterCopied, setFormatterCopied] = useState(false);
-
   useEffect(() => {
     let cancelled = false;
 
@@ -239,139 +225,6 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
     return () => { cancelled = true; };
   }, []);
 
-  const updateFormatterSlot = (slotId, field, value) => {
-    setFormatterCopied(false);
-    setFormatterSlots(prev => prev.map(slot => (
-      slot.id === slotId ? { ...slot, [field]: value } : slot
-    )));
-  };
-
-  const resizeStartValues = (values, count) => (
-    Array.from({ length: count }, (_, index) => values?.[index] || '1')
-  );
-
-  const handleFormatterSubsectionCountChange = (value) => {
-    const count = Math.min(5, Math.max(1, parseInt(value) || 1));
-    setFormatterSubsectionCount(String(count));
-    setFormatterCopied(false);
-    setFormatterOutput('');
-    setFormatterSlots(prev => prev.map(slot => ({
-      ...slot,
-      startValues: resizeStartValues(slot.startValues, count)
-    })));
-  };
-
-  const updateFormatterStartValue = (slotId, index, value) => {
-    setFormatterCopied(false);
-    setFormatterOutput('');
-    setFormatterSlots(prev => prev.map(slot => {
-      if (slot.id !== slotId) return slot;
-      const nextStartValues = resizeStartValues(slot.startValues, parseInt(formatterSubsectionCount) || 1);
-      nextStartValues[index] = value;
-      return { ...slot, startValues: nextStartValues };
-    }));
-  };
-
-  const addFormatterSlot = () => {
-    const count = parseInt(formatterSubsectionCount) || 1;
-    setFormatterCopied(false);
-    setFormatterOutput('');
-    setFormatterSlots(prev => ([
-      ...prev,
-      {
-        id: prev.length ? Math.max(...prev.map(slot => slot.id)) + 1 : 1,
-        startValues: resizeStartValues(null, count),
-        rawText: ''
-      }
-    ]));
-  };
-
-  const removeFormatterSlot = (slotId) => {
-    setFormatterCopied(false);
-    setFormatterOutput('');
-    setFormatterSlots(prev => prev.filter(slot => slot.id !== slotId));
-  };
-
-  const handleFormatterTextTypeChange = (value) => {
-    setFormatterTextType(value);
-    setFormatterCopied(false);
-    setFormatterOutput('');
-    if (!value) {
-      setFormatterSubsectionCount('1');
-      setFormatterSlots([{ id: 1, startValues: ['1'], rawText: '' }]);
-    }
-  };
-
-  const formatFormatterSlot = (author, work, slot) => {
-    const lines = slot.rawText.split('\n').filter(line => line.trim());
-
-    const subsectionDepth = Math.min(5, Math.max(1, parseInt(formatterSubsectionCount) || 1));
-    const baseRefParts = resizeStartValues(slot.startValues, subsectionDepth);
-    let currentLine = parseInt(baseRefParts[baseRefParts.length - 1]) || 1;
-
-    return lines.map((line) => {
-      const trimmedLine = line.trim();
-
-      if (!trimmedLine) return null;
-
-      const refParts = [...baseRefParts];
-      refParts[refParts.length - 1] = String(currentLine);
-      const tag = `<${author}.${work} ${refParts.join('.')}>`;
-      currentLine++;
-
-      return `${tag} ${trimmedLine}`;
-    }).filter(Boolean).join('\n');
-  };
-
-  const formatToTess = () => {
-    if (!formatterAuthor.trim() || !formatterWork.trim() || !formatterTextType) {
-      return;
-    }
-
-    const author = formatterAuthor.toLowerCase().replace(/\s+/g, '_');
-    const work = formatterWork.toLowerCase().replace(/\s+/g, '_');
-
-    const combinedOutput = formatterSlots
-      .map(slot => formatFormatterSlot(author, work, slot))
-      .filter(Boolean)
-      .join('\n');
-
-    setFormatterCopied(false);
-    setFormatterOutput(combinedOutput);
-  };
-  
-  const romanToInt = (roman) => {
-    const romanNumerals = { i: 1, v: 5, x: 10, l: 50, c: 100 };
-    let result = 0;
-    const r = roman.toLowerCase();
-    for (let i = 0; i < r.length; i++) {
-      const curr = romanNumerals[r[i]] || 0;
-      const next = romanNumerals[r[i + 1]] || 0;
-      result += curr < next ? -curr : curr;
-    }
-    return result || 1;
-  };
-  
-  const copyFormatterOutput = () => {
-    navigator.clipboard.writeText(formatterOutput);
-    setFormatterCopied(true);
-    setTimeout(() => setFormatterCopied(false), 2000);
-  };
-  
-  const downloadFormatterOutput = () => {
-    const author = formatterAuthor.toLowerCase().replace(/\s+/g, '_');
-    const work = formatterWork.toLowerCase().replace(/\s+/g, '_');
-    const blob = new Blob([formatterOutput], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${author}.${work}.tess`;
-    a.click();
-    URL.revokeObjectURL(url);
-  };
-
-  const hasFormatterRawText = formatterSlots.some(slot => slot.rawText.trim());
-
   const toggleStoplist = (language) => {
     setExpandedStoplists((current) => ({
       ...current,
@@ -383,26 +236,25 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
     { id: 'start-here', label: 'Start here', group: 'Start here' },
     { id: 'views', label: 'Literature and History views', group: 'Start here' },
     { id: 'site-controls', label: 'Collections, Beta marks and other controls', group: 'Start here' },
-    { id: 'getting-started', label: 'Getting Started', group: 'Start here' },
-    { id: 'search-modes', label: 'The Types of Search', group: 'Start here' },
     { id: 'how-well', label: 'How well does it work?', group: 'Start here' },
 
-    { id: 'fusion-search', label: 'How Fusion Search Works', group: 'The Fusion (Phrases) search' },
-    { id: 'match-types', label: 'Match Types', group: 'The Fusion (Phrases) search' },
-    { id: 'settings', label: 'Search Settings', group: 'The Fusion (Phrases) search' },
-    { id: 'stoplists', label: 'Stoplists', group: 'The Fusion (Phrases) search' },
-    { id: 'results', label: 'Understanding Results', group: 'The Fusion (Phrases) search' },
-    { id: 'reading-results', label: 'Reading the results', group: 'The Fusion (Phrases) search' },
+    { id: 'fusion-search', label: 'Intertextual Search, how it works', group: 'Searching the literature' },
+    { id: 'match-types', label: 'Match Types', group: 'Searching the literature' },
+    { id: 'settings', label: 'Search Settings', group: 'Searching the literature' },
+    { id: 'stoplists', label: 'Stoplists', group: 'Searching the literature' },
+    { id: 'results', label: 'Reading the results', group: 'Searching the literature' },
+    { id: 'ask-a-work', label: 'Search One Text', group: 'Searching the literature' },
+    { id: 'theme-search', label: 'Theme Search', group: 'Searching the literature' },
+    { id: 'cross-lingual', label: 'Cross-Language Search', group: 'Searching the literature' },
 
-    { id: 'theme-search', label: 'Theme Search', group: 'Reading & content' },
-    { id: 'mentions', label: 'People & Places', group: 'Reading & content' },
-    { id: 'ask-a-work', label: 'Search One Text', group: 'Reading & content' },
-    { id: 'reader', label: 'The Reader', group: 'Reading & content' },
-    { id: 'tessa', label: 'Tessa, the assistant', group: 'Reading & content' },
-    { id: 'documents', label: 'Inscriptions & Papyri', group: 'Reading & content' },
-    { id: 'events', label: 'Events', group: 'Reading & content' },
-    { id: 'coins', label: 'Coins', group: 'Reading & content' },
-    { id: 'objects', label: 'Objects', group: 'Reading & content' },
+    { id: 'reader', label: 'The Reader', group: 'Reading' },
+    { id: 'tessa', label: 'Tessa, the assistant', group: 'Reading' },
+
+    { id: 'mentions', label: 'People & Places', group: 'People, Places & Things' },
+    { id: 'events', label: 'Events', group: 'People, Places & Things' },
+    { id: 'documents', label: 'Inscriptions & Papyri', group: 'People, Places & Things' },
+    { id: 'coins', label: 'Coins', group: 'People, Places & Things' },
+    { id: 'objects', label: 'Objects', group: 'People, Places & Things' },
 
     { id: 'languages', label: 'Languages overview', group: 'Languages' },
     { id: 'coptic', label: 'Coptic', group: 'Languages' },
@@ -411,62 +263,15 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
     { id: 'urdu', label: 'Urdu', group: 'Languages' },
     { id: 'arabic', label: 'Arabic', group: 'Languages' },
     { id: 'poetics', label: 'Poetic form: Persian, Urdu, Arabic', group: 'Languages' },
-    { id: 'cross-lingual', label: 'Cross-Language Search', group: 'Languages' },
 
     { id: 'ai-guide', label: 'Use with your AI', group: 'Reference & tools' },
     { id: 'syntax-texts', label: 'Syntax', group: 'Reference & tools' },
     { id: 'best-practices', label: 'Search Tips', group: 'Reference & tools' },
     { id: 'repository', label: 'Repository', group: 'Reference & tools' },
-    { id: 'upload-text', label: 'Upload Your Text', group: 'Reference & tools' },
     { id: 'faq', label: 'FAQ', group: 'Reference & tools' },
     { id: 'how-built', label: 'How the system is built', group: 'Reference & tools' },
     { id: 'feedback', label: 'Send Feedback', group: 'Reference & tools' }
   ];
-
-  const submitTextRequest = async (e) => {
-    e.preventDefault();
-    if (!requestAuthor.trim() || !requestWork.trim()) {
-      setRequestMessage({ type: 'error', text: 'Please enter author and work title' });
-      return;
-    }
-    setRequestSubmitting(true);
-    setRequestMessage(null);
-    try {
-      const formData = new FormData();
-      formData.append('name', requestName);
-      formData.append('email', requestEmail);
-      formData.append('author', requestAuthor);
-      formData.append('work', requestWork);
-      formData.append('language', requestLanguage);
-      formData.append('notes', requestNotes);
-      formData.append('e_source', requestESource);
-      formData.append('e_source_url', requestESourceUrl);
-      formData.append('print_source', requestPrintSource);
-      if (requestFile) {
-        formData.append('file', requestFile);
-      }
-      const res = await fetch('/api/request', {
-        method: 'POST',
-        body: formData
-      });
-      const data = await res.json();
-      if (data.success) {
-        setRequestMessage({ type: 'success', text: 'Text uploaded successfully! We will review and add it to the corpus soon.' });
-        setRequestAuthor('');
-        setRequestWork('');
-        setRequestNotes('');
-        setRequestESource('');
-        setRequestESourceUrl('');
-        setRequestPrintSource('');
-        setRequestFile(null);
-      } else {
-        setRequestMessage({ type: 'error', text: data.error || 'Failed to submit text' });
-      }
-    } catch (err) {
-      setRequestMessage({ type: 'error', text: 'Failed to submit request' });
-    }
-    setRequestSubmitting(false);
-  };
 
   const submitFeedback = async (e) => {
     e.preventDefault();
@@ -555,10 +360,120 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
             <div className="prose max-w-none">
               <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Start here</h3>
               <p className="text-gray-700 mb-4">
-                The Search One Text page, where a visit starts, and the Intertextual Search page open with the question "What are you trying to do?" the first time you visit. Choosing
-                an answer takes you to the right search, and "Skip" closes the question for good. The "Start here"
-                link at the top of every page brings it back, and Tessa gives the same list when you ask her where to start.
+                Tesserae finds passages that echo one another in Latin, Greek, English, Coptic, Hebrew, Persian and Urdu,
+                whether through shared words, shared sounds, or a shared subject. It offers eight kinds of search, listed
+                below in the order of the "What are you trying to do?" panel. The Search One Text page, where a visit starts,
+                and the Intertextual Search page show that panel the first time you visit. Choosing an answer takes you to the
+                right search, and "Skip" closes the panel for good. The "Start here" link at the top of every page brings it
+                back, and Tessa gives the same list when you ask her where to start.
               </p>
+
+              <div className="space-y-5">
+                <div className="border-l-4 border-gray-300 pl-4">
+                  <h4 className="text-lg font-semibold text-gray-900">Phrase Search</h4>
+                  <p className="text-gray-600 text-sm mt-1">
+                    Compares a source text with a target text and ranks the passages they share. The default match type is
+                    Fusion, which combines eleven detection methods. Use it to discover allusions, quotations and echoes between
+                    two works. See{' '}
+                    <button onClick={() => setActiveSection('fusion-search')} className="text-red-600 hover:underline">Intertextual Search, how it works</button>{' '}
+                    and{' '}
+                    <button onClick={() => setActiveSection('match-types')} className="text-red-600 hover:underline">Match types</button>.
+                  </p>
+                </div>
+
+                <div className="border-l-4 border-gray-300 pl-4">
+                  <h4 className="text-lg font-semibold text-gray-900">Line Search</h4>
+                  <p className="text-gray-600 text-sm mt-1">
+                    Finds every line in the corpus that shares vocabulary with one line, chosen from a text or typed in. Match
+                    on dictionary forms, on identical forms, or with a regular expression, and Greek may be typed with or without
+                    accents. For example, "arma virumque cano" finds every line sharing "arma" and "vir". See{' '}
+                    <button onClick={() => setActiveSection('match-types')} className="text-red-600 hover:underline">Match types</button>.
+                  </p>
+                </div>
+
+                <div className="border-l-4 border-gray-300 pl-4">
+                  <h4 className="text-lg font-semibold text-gray-900">Rare Words, Rare Pairs and String Search</h4>
+                  <p className="text-gray-600 text-sm mt-1">
+                    Rare Words lists words found in fewer than 50 texts that your two texts share, and Rare Pairs lists unusual
+                    word pairs that few texts contain together. Both suggest direct borrowing or a stylistic fingerprint. Export CSV
+                    saves the list you see, and Download everything (CSV) fetches every place each word occurs in the corpus, which
+                    can be a large file. String Search looks for words, patterns and combinations across the whole corpus, with
+                    wildcards and the operators AND, OR, NOT and proximity. The patterns are explained under{' '}
+                    <button onClick={() => setActiveSection('match-types')} className="text-red-600 hover:underline">Match types</button>,
+                    and{' '}
+                    <button onClick={() => setActiveSection('best-practices')} className="text-red-600 hover:underline">Search Tips</button>{' '}
+                    suggests when to try the rare-word modes.
+                  </p>
+                </div>
+
+                <div className="border-l-4 border-gray-300 pl-4">
+                  <h4 className="text-lg font-semibold text-gray-900">Theme Search</h4>
+                  <p className="text-gray-600 text-sm mt-1">
+                    Finds passages on a subject you describe in your own words, in every indexed language at once, even when they
+                    share no vocabulary with your description. Use it when you do not know what words a scene is phrased in. See{' '}
+                    <button onClick={() => setActiveSection('theme-search')} className="text-red-600 hover:underline">Theme Search</button>.
+                  </p>
+                </div>
+
+                <div className="border-l-4 border-gray-300 pl-4">
+                  <h4 className="text-lg font-semibold text-gray-900">Search One Text</h4>
+                  <p className="text-gray-600 text-sm mt-1">
+                    Asks one work what it says about a subject, in plain words. It is Theme Search run inside that one work, and
+                    the closest passages come back. See{' '}
+                    <button onClick={() => setActiveSection('ask-a-work')} className="text-red-600 hover:underline">Search One Text</button>.
+                  </p>
+                </div>
+
+                <div className="border-l-4 border-gray-300 pl-4">
+                  <h4 className="text-lg font-semibold text-gray-900">Reader</h4>
+                  <p className="text-gray-600 text-sm mt-1">
+                    Shows a text with a gutter marking where the rest of the corpus connects to each line, and a panel with those
+                    connections, the translation and the scholarship on the passage. See{' '}
+                    <button onClick={() => setActiveSection('reader')} className="text-red-600 hover:underline">The Reader</button>.
+                  </p>
+                </div>
+
+                <div className="border-l-4 border-gray-300 pl-4">
+                  <h4 className="text-lg font-semibold text-gray-900">People &amp; Places</h4>
+                  <p className="text-gray-600 text-sm mt-1">
+                    Lists every line where a person, place or god is named, in Latin, Greek and English. See{' '}
+                    <button onClick={() => setActiveSection('mentions')} className="text-red-600 hover:underline">People &amp; Places</button>.
+                  </p>
+                </div>
+
+                <div className="border-l-4 border-gray-300 pl-4">
+                  <h4 className="text-lg font-semibold text-gray-900">Collections</h4>
+                  <p className="text-gray-600 text-sm mt-1">
+                    Adds inscriptions, papyri, events, coins and museum objects, switched on from the top row. See{' '}
+                    <button onClick={() => setActiveSection('site-controls')} className="text-red-600 hover:underline">Collections, Beta marks and other controls</button>.
+                  </p>
+                </div>
+              </div>
+
+              <h4 className="text-lg font-semibold text-gray-900 mt-8 mb-2">Choosing a language and two texts</h4>
+              <p className="text-gray-700 mb-3">
+                The Intertextual Search page has one tab for each language (Latin, Greek, English, Coptic, Hebrew, Persian and
+                Urdu) and a Cross-Language tab for a pair of languages. Seven pairs are open. If a pair is ever held back for
+                rebuilding, the page says so under the pair buttons and the pair returns when the rebuild is done. No pair is held
+                at present. The author, work and book menus accept typing, so a few letters of a name will find it. Choose a{' '}
+                <strong>source</strong>, usually the earlier text, and a <strong>target</strong> that may echo it, and click "Find Parallels". Results are
+                ranked by confidence, with the matched words highlighted and badges showing which methods found each pair. See{' '}
+                <button onClick={() => setActiveSection('cross-lingual')} className="text-red-600 hover:underline">Cross-Language Search</button>{' '}
+                and{' '}
+                <button onClick={() => setActiveSection('results')} className="text-red-600 hover:underline">Reading the results</button>.
+              </p>
+              <div className="mt-4 bg-amber-50 p-4 rounded-lg">
+                <p className="text-amber-700 text-sm">
+                  <strong>Tip.</strong> Start with a smaller section, such as Book 1. Large comparisons, such as the whole Aeneid
+                  against the Metamorphoses, take longer on the first run, and later searches of the same pair are cached.
+                </p>
+              </div>
+              <div className="mt-4 bg-gray-50 p-4 rounded-lg">
+                <p className="text-gray-700 text-sm">
+                  <strong>Example:</strong> Compare Vergil's Aeneid Book 1 (source) with Lucan's Civil War Book 1 (target) to find how
+                  Lucan echoes Vergil.
+                </p>
+              </div>
             </div>
           )}
 
@@ -591,7 +506,8 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
               <p className="text-gray-700 mb-4">
                 The Collections button at the left of the top row decides which source collections the site
                 shows. Literature is always on. Inscriptions, Papyri, Coins, Objects and Scholarship each have a
-                switch, and a page or Reader tab that depends on a collection appears only while its switch is on.
+                switch. The switches decide what a search covers and which Reader tabs show. They do not hide any page
+                from the People, Places &amp; Things menu, which lists all five pages in both views.
                 The Literature and History buttons beside it each set a profile (Literary for Literature and
                 Everything for History), and the switches can then be changed one at a time. The choice is
                 remembered in this browser.
@@ -616,183 +532,6 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 The Downloads page is under More at the right end of the top row. It offers the corpus texts by
                 language, pre-computed data files for running your own copy, and the benchmark lists.
               </p>
-            </div>
-          )}
-
-          {activeSection === 'getting-started' && (
-            <div className="prose max-w-none">
-              <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Getting Started</h3>
-              <p className="text-gray-700 mb-4">
-                Tesserae offers several kinds of search. Most people start with the default, <strong>Phrases</strong>, which
-                compares two texts and finds the passages most similar to each other. Here is the quick path:
-              </p>
-              <ol className="list-decimal list-inside space-y-4 text-gray-700">
-                <li><strong>Select a language:</strong> Latin, Greek, English, Coptic, Hebrew, Persian or Urdu, from the tabs, or Cross-Language for a pair. The author, work and book menus accept typing, so you can type a few letters of a name to find it.</li>
-                <li><strong>Choose a search type:</strong> the default is <strong>Phrases</strong> (compare two texts). See{' '}
-                  <button onClick={() => setActiveSection('search-modes')} className="text-red-600 hover:underline">The Types of Search</button>{' '}
-                  for the others (Lines, String Search, Rare Pairs, Rare Words).</li>
-                <li><strong>Choose your texts:</strong> a <strong>source</strong> (usually the earlier text) and a <strong>target</strong> that may echo it.</li>
-                <li><strong>Run the search:</strong> click "Find Parallels." Results are ranked by confidence, matched words are highlighted, and badges show which methods detected each pair.</li>
-              </ol>
-              <div className="mt-6 bg-amber-50 p-4 rounded-lg">
-                <h4 className="text-sm font-semibold uppercase tracking-wide text-amber-800 mb-2">Tip</h4>
-                <p className="text-amber-700 text-sm">Start with a smaller section (e.g., Book 1) rather than complete works for faster results. Large comparisons like the full Aeneid vs. Metamorphoses take longer on the first run, and later searches of the same pair are cached.</p>
-              </div>
-              <div className="mt-4 bg-gray-50 p-4 rounded-lg">
-                <p className="text-gray-700 text-sm">
-                  <strong>Example:</strong> Compare Vergil's Aeneid Book 1 (source) with Lucan's Civil War Book 1 (target) to find how Lucan echoes Vergil.
-                </p>
-              </div>
-            </div>
-          )}
-
-          {activeSection === 'search-modes' && (
-            <div className="prose max-w-none">
-              <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">The Types of Search</h3>
-              <p className="text-gray-700 mb-6">Tesserae offers eight kinds of search:</p>
-
-              <div className="space-y-6">
-                <div className="border-l-4 border-gray-300 pl-4">
-                  <h4 className="text-lg font-semibold text-gray-900">Phrases (Parallel Search)</h4>
-                  <p className="text-gray-600 text-sm mt-1">
-                    Compare a source text against a target text. The default match type is <strong>Fusion (All Channels)</strong>, which
-                    runs eleven independent detection methods (lemma, single-lemma, exact, semantic, dictionary, sound,
-                    edit distance, syntax, structural syntax, verbatim quotation and rare vocabulary) and combines
-                    their results for the best recall.
-                    You can also select individual match types (Lemma, Exact, Sound, etc.) from the dropdown.
-                  </p>
-                  <p className="text-gray-500 text-sm mt-2">
-                    <strong>Use for:</strong> Discovering allusions, quotations, and thematic parallels between texts.
-                    See{' '}
-                    <button onClick={() => setActiveSection('match-types')} className="text-red-600 hover:underline">Match Types</button>{' '}for what each of the eleven channels detects.
-                  </p>
-                </div>
-
-                <div className="border-l-4 border-gray-300 pl-4">
-                  <h4 className="text-lg font-semibold text-gray-900">Theme Search <span className="text-xs text-gray-500">(its own tab)</span></h4>
-                  <p className="text-gray-600 text-sm mt-1">
-                    Describe what happens in a passage, in your own words, and find passages that match
-                    the description rather than the wording. Results come back in every indexed language
-                    at once and usually share no vocabulary with the query or with each other.
-                  </p>
-                  <p className="text-gray-500 text-sm mt-2">
-                    <strong>Use for:</strong> finding a scene, motif or situation when you do not know
-                    what words it is phrased in, or when it crosses languages. See{' '}
-                    <button onClick={() => setActiveSection('theme-search')} className="text-red-600 hover:underline">Theme Search</button>.
-                  </p>
-                </div>
-
-                <div className="border-l-4 border-gray-300 pl-4">
-                  <h4 className="text-lg font-semibold text-gray-900">Read <span className="text-xs text-gray-500">(its own tab)</span></h4>
-                  <p className="text-gray-600 text-sm mt-1">
-                    Read a text with a gutter showing where the rest of the corpus connects to each line,
-                    by wording and by content, and a panel of those connections plus the translation where
-                    one exists.
-                  </p>
-                  <p className="text-gray-500 text-sm mt-2">
-                    <strong>Use for:</strong> working through a passage and seeing what it touches. See{' '}
-                    <button onClick={() => setActiveSection('reader')} className="text-red-600 hover:underline">The Reader</button>.
-                  </p>
-                </div>
-
-                <div className="border-l-4 border-gray-300 pl-4">
-                  <h4 className="text-lg font-semibold text-gray-900">Lines (Line Search)</h4>
-                  <p className="text-gray-600 text-sm mt-1">
-                    Search for parallels to a specific line across the entire corpus. Select a line from any text,
-                    or type/paste Latin or Greek text directly. For Greek, you can enter text with or without diacritics.
-                    Three match types are available: <strong>Lemma</strong> (matches dictionary forms), <strong>Exact</strong> (identical
-                    surface forms only), and <strong>Regular expression</strong> (pattern matching, see{' '}
-                    <button onClick={() => setActiveSection('match-types')} className="text-red-600 hover:underline">
-                      Match Types
-                    </button>{' '}for details and examples).
-                  </p>
-                  <p className="text-gray-500 text-sm mt-2">
-                    <strong>Use for:</strong> Finding all passages in the corpus that share vocabulary with a specific line of interest.
-                  </p>
-                  <div className="bg-gray-50 p-3 rounded mt-2 text-sm">
-                    <strong>Example:</strong> Search for "arma virumque cano" to find all lines sharing "arma" and "vir" across 500+ results.
-                  </div>
-                </div>
-
-                <div className="border-l-4 border-gray-300 pl-4">
-                  <h4 className="text-lg font-semibold text-gray-900">Rare Words</h4>
-                  <p className="text-gray-600 text-sm mt-1">
-                    Finds words that appear in fewer than 50 texts corpus-wide but are shared between your source
-                    and target texts. These low-frequency words often indicate meaningful textual connections.
-                    Export CSV saves the list you see. Download everything (CSV) fetches, for each word, every
-                    place it occurs in the corpus, one row per occurrence, and can be a large file.
-                  </p>
-                  <p className="text-gray-500 text-sm mt-2">
-                    <strong>Use for:</strong> Identifying distinctive vocabulary that suggests direct borrowing or influence.
-                  </p>
-                  <div className="bg-gray-50 p-3 rounded mt-2 text-sm">
-                    <strong>Example:</strong> If "spumifer" appears in only 3 texts corpus-wide, and both Statius and Vergil use it, that's significant.
-                  </div>
-                </div>
-
-                <div className="border-l-4 border-gray-300 pl-4">
-                  <h4 className="text-lg font-semibold text-gray-900">Rare Pairs</h4>
-                  <p className="text-gray-600 text-sm mt-1">
-                    Discovers unusual word combinations (bigrams) that appear together in very few texts.
-                    Even if individual words are common, their pairing may be distinctive.
-                  </p>
-                  <p className="text-gray-500 text-sm mt-2">
-                    <strong>Use for:</strong> Detecting stylistic fingerprints, <em>kakemphaton</em>, or formulaic expressions shared between authors.
-                  </p>
-                </div>
-
-                <div className="border-l-4 border-gray-300 pl-4">
-                  <h4 className="text-lg font-semibold text-gray-900">String Search</h4>
-                  <p className="text-gray-600 text-sm mt-1">
-                    Wildcard and boolean search across the entire corpus. Perfect for finding
-                    specific words, word patterns, or co-occurrences.
-                  </p>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3 text-sm">
-                    <div className="bg-amber-50 p-3 rounded border border-amber-200">
-                      <strong className="text-amber-800">Wildcards</strong>
-                      <ul className="text-gray-600 mt-1 space-y-1">
-                        <li><code className="bg-amber-100 px-1 rounded">*</code> - any characters (am* = amor, amicus...)</li>
-                        <li><code className="bg-amber-100 px-1 rounded">?</code> - single character (?or = cor, for, mor)</li>
-                        <li><code className="bg-amber-100 px-1 rounded">#</code> - word break (am# = am but not amor)</li>
-                      </ul>
-                    </div>
-                    <div className="bg-amber-50 p-3 rounded border border-amber-200">
-                      <strong className="text-amber-800">Boolean Operators</strong>
-                      <ul className="text-gray-600 mt-1 space-y-1">
-                        <li><code className="bg-amber-100 px-1 rounded">AND</code> - both words required</li>
-                        <li><code className="bg-amber-100 px-1 rounded">OR</code> - either word matches</li>
-                        <li><code className="bg-amber-100 px-1 rounded">NOT</code> - exclude a word</li>
-                        <li><code className="bg-amber-100 px-1 rounded">~</code> - proximity (~100 chars apart)</li>
-                      </ul>
-                    </div>
-                  </div>
-                  <div className="bg-gray-50 p-3 rounded mt-3 text-sm">
-                    <strong>Examples:</strong>
-                    <ul className="mt-1 space-y-1 text-gray-600">
-                      <li><code className="bg-gray-200 px-1 rounded">arma ~ virum</code> - finds "arma" within ~100 characters of "virum"</li>
-                      <li><code className="bg-gray-200 px-1 rounded">mort* NOT vita</code> - words starting with "mort" but not in lines with "vita"</li>
-                    </ul>
-                  </div>
-                </div>
-
-                <div className="border-l-4 border-gray-300 pl-4">
-                  <h4 className="text-lg font-semibold text-gray-900">Cross-Language Search</h4>
-                  <p className="text-gray-600 text-sm mt-1">
-                    Compares a text in one language with a text in another. Seven pairs are open: Greek and Latin,
-                    Latin and English, Greek and English, Coptic and Greek, Hebrew and Greek, Hebrew and Latin, and
-                    Persian and Urdu. If a pair is ever held back for rebuilding, the page says so under the pair
-                    buttons and the pair returns when the rebuild is done. No pair is held at present.
-                  </p>
-                  <p className="text-gray-500 text-sm mt-2">
-                    <strong>Use for:</strong> tracing how one language's writers adapted another's, such as Vergil
-                    echoing Homer, or Ghalib reworking Hafez. How each pair is matched is on the{' '}
-                    <button onClick={() => setActiveSection('cross-lingual')} className="text-red-600 hover:underline">
-                      Cross-Language Search
-                    </button>
-                    {' '}page.
-                  </p>
-                </div>
-              </div>
             </div>
           )}
 
@@ -1043,6 +782,40 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   It does not use lemmatization, and patterns match against the actual text as it appears.
                 </p>
               </div>
+
+              <div className="mt-6 border-t pt-4" id="string-search-help">
+                <h4 className="text-lg font-semibold text-gray-900 mb-2">String Search patterns</h4>
+                <p className="text-gray-600 text-sm mb-3">
+                  String Search uses wildcards and boolean operators across the entire corpus, to find
+                  specific words, word patterns or co-occurrences.
+                </p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3 text-sm">
+                    <div className="bg-amber-50 p-3 rounded border border-amber-200">
+                      <strong className="text-amber-800">Wildcards</strong>
+                      <ul className="text-gray-600 mt-1 space-y-1">
+                        <li><code className="bg-amber-100 px-1 rounded">*</code> - any characters (am* = amor, amicus...)</li>
+                        <li><code className="bg-amber-100 px-1 rounded">?</code> - single character (?or = cor, for, mor)</li>
+                        <li><code className="bg-amber-100 px-1 rounded">#</code> - word break (am# = am but not amor)</li>
+                      </ul>
+                    </div>
+                    <div className="bg-amber-50 p-3 rounded border border-amber-200">
+                      <strong className="text-amber-800">Boolean Operators</strong>
+                      <ul className="text-gray-600 mt-1 space-y-1">
+                        <li><code className="bg-amber-100 px-1 rounded">AND</code> - both words required</li>
+                        <li><code className="bg-amber-100 px-1 rounded">OR</code> - either word matches</li>
+                        <li><code className="bg-amber-100 px-1 rounded">NOT</code> - exclude a word</li>
+                        <li><code className="bg-amber-100 px-1 rounded">~</code> - proximity (~100 chars apart)</li>
+                      </ul>
+                    </div>
+                  </div>
+                  <div className="bg-gray-50 p-3 rounded mt-3 text-sm">
+                    <strong>Examples:</strong>
+                    <ul className="mt-1 space-y-1 text-gray-600">
+                      <li><code className="bg-gray-200 px-1 rounded">arma ~ virum</code> - finds "arma" within ~100 characters of "virum"</li>
+                      <li><code className="bg-gray-200 px-1 rounded">mort* NOT vita</code> - words starting with "mort" but not in lines with "vita"</li>
+                    </ul>
+                  </div>
+              </div>
             </div>
           )}
 
@@ -1266,12 +1039,29 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
 
           {activeSection === 'results' && (
             <div className="prose max-w-none">
-              <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Understanding Results</h3>
+              <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Reading the results</h3>
+              <p className="text-gray-600 text-sm mb-4">
+                Every badge on a result card opens a short explanation on hover, focus, or tap. This
+                page gives the fuller version of each one.
+              </p>
+              <p className="text-gray-600 text-sm mb-4">
+                One citation of Tesserae per publication is enough. Individual parallels do
+                not need their own. See{' '}
+                <button
+                  type="button"
+                  onClick={() => window.dispatchEvent(new CustomEvent('tesserae:open-how-to-cite'))}
+                  className="text-red-600 hover:underline"
+                >
+                  How to cite Tesserae
+                </button>.
+              </p>
               <div className="space-y-4">
-                <div>
+                <div id="score">
                   <h4 className="text-lg font-semibold text-gray-900">Score</h4>
                   <p className="text-gray-600 text-sm mb-2">
-                    Higher scores indicate more significant parallels. The scoring method depends on the search mode:
+                    The score combines every channel that found the match into one ranking number. A higher
+                    score is a stronger candidate for a real textual connection, but it is a ranking aid, not
+                    a verdict. The scoring method depends on the search mode:
                   </p>
                   <div className="bg-red-50 p-3 rounded border border-red-200 mb-2">
                     <p className="text-sm text-gray-700">
@@ -1289,9 +1079,6 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                       distance penalty (closer matched words score higher), and match count.
                     </p>
                   </div>
-                </div>
-                <div>
-                  <h4 className="text-lg font-semibold text-gray-900">Reading the Scores</h4>
                   <p className="text-gray-600 text-sm mb-2">
                     The score ranks the results of a single search from most to least likely to be a real
                     connection. Read the list from the top and stop where the results stop being useful.
@@ -1318,11 +1105,15 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                         you make by reading the two passages in context.</li>
                   </ul>
                 </div>
-                <div>
-                  <h4 className="text-lg font-semibold text-gray-900">Channel Badges</h4>
+                <div id="channels">
+                  <h4 className="text-lg font-semibold text-gray-900">Channels and channel badges</h4>
                   <p className="text-gray-600 text-sm">
-                    In Fusion mode, each result displays colored badges showing which channels detected it.
-                    More badges generally indicates a stronger, more reliable parallel. Badges are grouped by category:
+                    Tesserae finds a match through one or more independent channels: shared
+                    dictionary forms, identical words, sound, meaning, and the others described in{' '}
+                    <button onClick={() => setActiveSection('fusion-search')} className="text-red-600 hover:underline">Intertextual Search, how it works</button>.
+                    Agreement between independent channels is stronger evidence of a real
+                    connection than any one channel alone. In Fusion mode, each result displays colored
+                    badges showing which channels detected it, grouped by category:
                   </p>
                   <ul className="list-disc list-inside text-gray-600 text-sm mt-1 ml-4">
                     <li><span className="text-red-600 font-medium">Red</span>: Vocabulary channels (lemma, exact, dictionary, rare word)</li>
@@ -1330,62 +1121,23 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                     <li><span className="text-amber-600 font-medium">Amber</span>: Sound channels (sound, edit distance)</li>
                     <li><span className="text-purple-600 font-medium">Purple</span>: Structure channels (syntax)</li>
                   </ul>
-                  <p className="text-gray-600 text-sm mt-2">
-                    A gray <strong>in N works</strong> badge says how many works in the corpus share the result's
-                    wording. A high count marks a recurring formula or set phrase rather than a one-off echo. The
-                    <strong> Formulas</strong> setting under Search Settings can hide formulas that recur in more than a
-                    chosen number of works, or show only them.
+                </div>
+                <div id="works-count">
+                  <h4 className="text-lg font-semibold text-gray-900">In N works</h4>
+                  <p className="text-gray-600 text-sm">
+                    This gray badge counts how many works in the whole corpus contain the shared wording
+                    a result is built on. A high count marks a common expression or formula rather
+                    than a pointed echo. The Formulas setting under Search Settings can hide results
+                    built on wording that recurs in more than a chosen number of works, or show only them.
                   </p>
                 </div>
-                <div>
-                  <h4 className="text-lg font-semibold text-gray-900">Highlighting</h4>
-                  <ul className="list-disc list-inside text-gray-600 text-sm mt-1">
-                    <li><span className="bg-yellow-200 px-1 rounded">Yellow</span>: Matched lemmas (shared dictionary forms)</li>
-                    <li><span className="bg-indigo-200 px-1 rounded">Indigo</span>: Synonym matches (dictionary or semantic similarity)</li>
-                    <li>In Persian, Urdu and Arabic, a refrain-and-rhyme result marks the shared refrain in
-                      <span className="bg-yellow-200 px-1 rounded"> yellow</span> and each line's rhyme word in
-                      <span className="bg-rose-200 px-1 rounded"> rose</span>, with Refrain, Rhyme and Meter badges. See{' '}
-                      <button onClick={() => setActiveSection('poetics')} className="text-red-600 hover:underline">Poetic form</button>.</li>
-                  </ul>
-                </div>
-                <div>
-                  <h4 className="text-lg font-semibold text-gray-900">Actions</h4>
-                  <ul className="list-disc list-inside text-gray-600 text-sm mt-1">
-                    <li><strong>Export CSV</strong>: Download all results as a spreadsheet</li>
-                    <li><strong>Search Corpus</strong>: Find these matched words across all texts</li>
-                    <li><strong>Register</strong>: Save to the Intertext Repository</li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {activeSection === 'reading-results' && (
-            <div className="prose max-w-none">
-              <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Reading the results</h3>
-              <p className="text-gray-600 text-sm mb-4">
-                Every badge on a result card opens a short explanation on hover, focus, or tap. This
-                page gives the fuller version of each one.
-              </p>
-              <p className="text-gray-600 text-sm mb-4">
-                One citation of Tesserae per publication is enough. Individual parallels do
-                not need their own. See{' '}
-                <button
-                  type="button"
-                  onClick={() => window.dispatchEvent(new CustomEvent('tesserae:open-how-to-cite'))}
-                  className="text-red-600 hover:underline"
-                >
-                  How to cite Tesserae
-                </button>.
-              </p>
-              <div className="space-y-4">
-                <div id="score">
-                  <h4 className="text-lg font-semibold text-gray-900">Score</h4>
+                <div id="theme">
+                  <h4 className="text-lg font-semibold text-gray-900">Theme</h4>
                   <p className="text-gray-600 text-sm">
-                    The score combines every channel that found the match (shared words, sound,
-                    meaning, and the rest) into one ranking number. A higher score is a stronger
-                    candidate for a real textual connection, but it is a ranking aid, not a verdict.
-                    Read the two passages before deciding what a match means.
+                    This badge compares how alike two specific lines are in content against how
+                    alike the two works are overall. A positive number means the lines resemble
+                    each other in theme more than two random lines from the same two works would,
+                    independent of the wording-based channels above.
                   </p>
                 </div>
                 <div id="refrain">
@@ -1424,48 +1176,30 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                     than repeating it line by line.
                   </p>
                 </div>
-                <div id="works-count">
-                  <h4 className="text-lg font-semibold text-gray-900">In N works</h4>
-                  <p className="text-gray-600 text-sm">
-                    This badge counts how many works in the whole corpus contain the shared wording
-                    a result is built on. A high count marks a common expression or formula rather
-                    than a pointed echo. The Formulas setting under Search Settings can hide results
-                    built on wording that recurs in more than a chosen number of works.
-                  </p>
-                </div>
                 <div id="form-count">
                   <h4 className="text-lg font-semibold text-gray-900">Form in N poems</h4>
                   <p className="text-gray-600 text-sm">
                     This badge counts how many poems in the whole corpus end on the same refrain
                     and rhyme as this result. A high count marks a common form that many poets
                     used, rather than one poem specifically answering another, and the score is
-                    discounted accordingly.
-                  </p>
-                </div>
-                <div id="channels">
-                  <h4 className="text-lg font-semibold text-gray-900">Channels</h4>
-                  <p className="text-gray-600 text-sm">
-                    Tesserae finds a match through one or more independent channels: shared
-                    dictionary forms, identical words, sound, meaning, and the others described in{' '}
-                    <button onClick={() => setActiveSection('fusion-search')} className="text-red-600 hover:underline">How Fusion Search Works</button>.
-                    Agreement between independent channels is stronger evidence of a real
-                    connection than any one channel alone.
-                  </p>
-                </div>
-                <div id="theme">
-                  <h4 className="text-lg font-semibold text-gray-900">Theme</h4>
-                  <p className="text-gray-600 text-sm">
-                    This badge compares how alike two specific lines are in content against how
-                    alike the two works are overall. A positive number means the lines resemble
-                    each other in theme more than two random lines from the same two works would,
-                    independent of the wording-based channels above.
+                    discounted accordingly. See{' '}
+                    <button onClick={() => setActiveSection('poetics')} className="text-red-600 hover:underline">Poetic form</button>.
                   </p>
                 </div>
                 <div id="highlight-colors">
                   <h4 className="text-lg font-semibold text-gray-900">Highlight colors</h4>
                   <ul className="list-disc list-inside text-gray-600 text-sm mt-1">
                     <li><span className="bg-yellow-200 px-1 rounded">Yellow</span> marks a word both lines share: a matched lemma, an exact word, or a shared refrain.</li>
+                    <li><span className="bg-indigo-200 px-1 rounded">Indigo</span> marks a synonym match (dictionary or semantic similarity).</li>
                     <li><span className="bg-rose-200 px-1 rounded">Rose</span> marks each line's rhyme word, the word right before the refrain. The two sides rhyme the same way but are usually different words.</li>
+                  </ul>
+                </div>
+                <div>
+                  <h4 className="text-lg font-semibold text-gray-900">Actions</h4>
+                  <ul className="list-disc list-inside text-gray-600 text-sm mt-1">
+                    <li><strong>Export CSV</strong>: Download all results as a spreadsheet</li>
+                    <li><strong>Search Corpus</strong>: Find these matched words across all texts</li>
+                    <li><strong>Register</strong>: Save to the Intertext Repository</li>
                   </ul>
                 </div>
               </div>
@@ -1482,7 +1216,9 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 share no vocabulary with what you typed, or with each other. The comparison is
                 between your description and a short description written for each passage. A
                 passage whose description also shares words with yours gets a small extra
-                credit, which helps when a scene is described in the same terms you used.
+                credit, which helps when a scene is described in the same terms you used. How the
+                descriptions are written and compared is under{' '}
+                <button onClick={() => setActiveSection('how-built')} className="text-red-600 hover:underline">How the system is built</button>.
               </p>
               <p className="text-gray-700 mb-4">
                 Results open with the strongest matches first. A toggle switches to oldest-first
@@ -1496,45 +1232,12 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 When Scholarship is on in Collections, Theme Search offers a Scholarship choice
                 beside the other collection choices. It searches the commentary notes and the
                 journal sentences from the citation index and shows its own list, never mixed into
-                the passage results. Each note is ranked twice, once by how close its meaning is to
-                your words and once by the words it shares with them, and the two rankings are
-                merged. A note links to its passage in the Reader and a sentence from an article
-                links to the article. On fifteen test questions, thirteen had a strongly relevant
-                note in the first ten. Under the list, a Books and articles found online section asks OpenAlex,
+                the passage results. A note links to its passage in the Reader and a sentence from an
+                article links to the article. Under the list, a Books and articles found online section asks OpenAlex,
                 Crossref, CORE, Google Books and Semantic Scholar for articles whose title or
                 abstract matches your words, from any year, and shows each service's answer as it arrives.
               </p>
 
-              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">How it works</h4>
-              <p className="text-gray-700 mb-3">
-                Every text in the corpus is cut into overlapping <strong>passage windows</strong>:
-                twelve lines starting a new window every six, and a coarser thirty lines every
-                fifteen. Since October 2026 a long prose work (about a thousand works) is cut instead into
-                paragraph-sized windows, and its chapter-sized windows are dropped. The overlap matters, because a passage that straddles a boundary would
-                otherwise be split down the middle and neither half would describe it.
-              </p>
-              <p className="text-gray-700 mb-3">
-                A language model then writes a structured English description of each window.
-                The description always has the same eight fields. One of them is fixed: the
-                <strong> kind of passage</strong>, chosen from nine categories (narrative, speech,
-                lyric, argument, description, catalog, prayer, prophecy, dialogue). The others
-                are written freely in English: the setting, who is present, what happens step by
-                step, the objects in it, two to five <strong>theme words</strong> (the model is
-                shown examples such as mortality, exile, hospitality, divine anger, love, war, but
-                chooses its own), the dominant imagery and tone, and a one-sentence gist.
-              </p>
-              <p className="text-gray-700 mb-3">
-                Your query is compared against the whole description, all eight fields joined,
-                not against the original words. So a query can name the kind of passage, the
-                situation, the people, the action, an object, or a theme, and the search treats
-                them alike. Under each result the site shows the gist sentence as the summary and
-                the theme words as tags. The tags are the model&rsquo;s own words for that window,
-                not a controlled list, so &ldquo;transience&rdquo; on one passage and
-                &ldquo;impermanence&rdquo; on another mean the same thing. There are about
-                685,000 descriptions on the site, covering Latin, Greek, English, Coptic,
-                Hebrew, Persian and Urdu, with a few works in Italian, Old French and Middle
-                High German.
-              </p>
               <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">Names and paraphrases</h4>
               <p className="text-gray-700 mb-3">
                 The descriptions name the people in a passage, so a name is precise and a
@@ -1548,77 +1251,36 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 turns out to be kin&rdquo;. When a search finds less than you expect, try the
                 name, then the scene in its own words.
               </p>
-              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">The reading step</h4>
-              <p className="text-gray-700 mb-3">
-                Comparing descriptions is quick and shallow, so the first page is then read. A
-                small model on our own server takes the 300 rows of the composed list (about a hundred
-                works, three passages each),
-                reads each one against your query, and gives it a score for how fully it is the
-                scene you described. The page is ordered by that score. It was trained once on
-                32,000 readings by a larger model and costs nothing to run, so it stays on. Only
-                those 300 rows are read: a passage the comparison did not bring into the
-                list cannot be promoted by the reading. On sixteen test themes judged against a
-                scholar's grading rule, the share of the first ten results that is the scene rose
-                from about 29 to about 43 percent (the larger paid model, on the hundred closest passages, reaches 71). The result
-                citation names the reading model, and adding <code>&amp;reader=0</code> to a
-                search address shows the order without it.
-              </p>
-              <p className="text-gray-700 mb-3">
-                This is why a Persian passage can answer an English description of a Greek scene.
-                Nothing is being translated and no words are being matched: two passages are
-                being compared by what they are about.
-              </p>
-              <p className="text-gray-700 mb-3">
-                Theme Search and Similar Passages only reach works that have been cut into
-                passage windows: about 1,990 works and 685,000 passage windows. A work outside that
-                index never appears in either feature, whatever it contains.
-              </p>
 
               <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">Which works Theme Search covers</h4>
               <p className="text-gray-700 mb-3">
-                Theme Search covers the works that have passage descriptions, not the whole
-                corpus. The list is in Browse Corpus:{' '}
+                Theme Search and Similar Passages cover the works that have passage descriptions, about
+                1,990 works and 685,000 passage windows, not the whole corpus. A work outside that
+                index never appears in either feature. The list is in Browse Corpus:{' '}
                 <a href="/corpus?theme=1&language=la" className="text-red-600 hover:underline">
                   See the list of covered works
                 </a>. A small &ldquo;Theme Search&rdquo; badge marks each covered work there.
               </p>
+
               <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">The Similarity Map</h4>
               <p className="text-gray-700 mb-3">
-                The &ldquo;Similarity Map&rdquo; tab beside Theme Search is a picture of these same
-                connections at a larger scale: a grid of how strongly authors, works, centuries
+                The &ldquo;Similarity Map&rdquo; tab beside Theme Search is a grid of how strongly authors, works, centuries
                 or genres connect to one another, built from the same description comparison
-                Theme Search and Similar Passages use, not a separate signal. A dark cell means
-                many passages of the two authors came out close in their descriptions, the same
-                relationship a passage-by-passage Similar Passages lookup would show. Authors
-                run in chronological order along both edges, so the diagonal and its
-                neighborhood show authors talking to their contemporaries, and the far corners
-                show links across the centuries.
+                Theme Search and Similar Passages use. A dark cell means
+                many passages of the two authors came out close in their descriptions. Authors
+                run in chronological order along both edges, so the diagonal shows authors talking to their
+                contemporaries and the far corners show links across the centuries.
               </p>
               <p className="text-gray-700 mb-3">
-                Two ways of coloring are offered. &ldquo;Links&rdquo; colors a cell by the raw
-                number of close passage pairs, on a scale that lets the many faint cells stay
-                visible beside the few very strong ones. &ldquo;Relative to size&rdquo; divides
-                that number by what the two authors&rsquo; sizes alone would predict, so a large
-                author does not light up a whole row simply by having more passages. It is the
-                better view for spotting a small author who is unexpectedly close to another.
-                Translation pairs (the same text in two languages, such as the Vulgate and the
-                Septuagint) are hidden by default, because that signal is so much stronger than
-                allusion that it crowds out everything else. A switch shows them.
-              </p>
-              <p className="text-gray-700 mb-3">
-                Moving the pointer over a cell highlights its row and column and names both
-                authors, so you can read a cell in the middle of the grid without tracing back
-                to the edges. Clicking a cell opens the pair work by work below the grid.
-                Clicking a work pair opens it book by book where the works have books, or
-                straight to the strongest passage pairs where they do not. Clicking a
-                passage pair opens the Reader on one passage with the other showing as a
-                connection. The browser&rsquo;s Back button unwinds these steps one at a time.
-              </p>
-              <p className="text-gray-700 mb-3">
-                The map is computed in advance from the whole passage index and stored, which is
-                why it opens at once. A line under the grid gives the date it was built, and a
-                &ldquo;Refresh map&rdquo; button reloads it, which matters only after the corpus
-                has changed and the map has been rebuilt.
+                &ldquo;Links&rdquo; colors a cell by the raw number of close passage pairs.
+                &ldquo;Relative to size&rdquo; divides that number by what the two authors&rsquo; sizes alone
+                would predict, which is the better view for spotting a small author who is unexpectedly
+                close to another. Translation pairs, such as the Vulgate and the Septuagint, are hidden by
+                default because that signal is so much stronger than allusion, and a switch shows them.
+                Clicking a cell opens the pair work by work, then book by book, then passage by passage,
+                and a passage pair opens in the Reader. The browser&rsquo;s Back button unwinds these steps one at a time.
+                The map is computed in advance and stored. A line under the grid gives the date it was built,
+                and &ldquo;Refresh map&rdquo; reloads it.
               </p>
 
               <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">Comparing two works</h4>
@@ -1626,23 +1288,19 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 The &ldquo;Compare two works&rdquo; tab beside the search box reads two whole
                 works, or two books, against each other rather than against a description you
                 write. Pick a work on each side and the page finds which of their passage
-                windows resemble each other most in content. It works across languages the same
-                way the rest of Theme Search does, so a Latin epic and a Greek one can be
-                compared for shared scenes even though they share no vocabulary. A
+                windows resemble each other most in content, across languages as well. A
                 &ldquo;strong&rdquo; mark on a pair means it stands well above the two
                 works&rsquo; general resemblance to each other, and the confidence line above
                 the results says whether the two works genuinely echo one another or only
                 resemble each other the ordinary amount most texts do. When a word-level search
                 of the same two works has already been run, each pair also lists the shared
-                wording found inside it, with a link to run that search when none exists yet. A
-                word-level result can likewise carry a small &ldquo;theme&rdquo; badge showing
-                how much its own two lines resemble each other in content.
+                wording found inside it.
               </p>
 
               <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">Reading the results</h4>
               <ul className="list-disc pl-5 text-gray-700 space-y-2 mb-3">
                 <li>
-                  <strong>Results are ordered oldest first</strong>, with the author&rsquo;s date at
+                  <strong>Results are ordered oldest first</strong> when that toggle is on, with the author&rsquo;s date at
                   the left, so you can see a subject move through time. Undated authors are
                   listed last.
                 </li>
@@ -1656,19 +1314,15 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 </li>
                 <li>
                   <strong>The confidence band</strong> at the top estimates whether the corpus
-                  really contains what you asked for. It is a rough guide, right about three
-                  times in four on test questions, and the passages themselves are the check:
-                  see below.
+                  really contains what you asked for.
                 </li>
                 <li>
-                  <strong>&ldquo;Weak neighbor&rdquo; beside a passage</strong> is a second,
-                  narrower judgment. The band weighs the top results as a group. The tag says
-                  whether this one passage, on its own, stands clearly above the corpus average.
-                  A strong band over a list of weak neighbors is a common and meaningful
-                  outcome: the corpus holds the subject, but it is spread across many passages
-                  of ordinary closeness rather than concentrated in one outstanding hit. In the
-                  Persian and Urdu ghazal corpora, where longing, love and separation recur in
-                  almost every poem, that is the usual shape of an answer.
+                  <strong>&ldquo;Weak neighbor&rdquo; beside a passage</strong> says that this one passage, on its own,
+                  does not stand clearly above the corpus average. A strong band over a list of weak
+                  neighbors is a common and meaningful outcome: the corpus holds the subject, but it is
+                  spread across many passages of ordinary closeness rather than concentrated in one
+                  outstanding hit. In the Persian and Urdu ghazal corpora, where longing, love and
+                  separation recur in almost every poem, that is the usual shape of an answer.
                 </li>
               </ul>
 
@@ -1678,40 +1332,18 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 of the kind, so the band tells you which situation you are in. It combines how
                 far the best result stands above the corpus average with how much the top
                 results resemble each other. A real subject returns a cluster. An absent one
-                returns scattered strays.
+                returns scattered strays. The band is a rough guide, right about three times in four on
+                test questions, and the passages themselves are the check. A strong band means the corpus
+                probably holds the subject, not that every listed passage is about it. The lowest band,
+                labeled &ldquo;Closest passages&rdquo;, means that the top results do not stand far above the
+                background, so their order is less settled.
               </p>
               <p className="text-gray-700 mb-3">
-                The thresholds are fitted against test queries, two thirds of them subjects the
-                corpus certainly holds and a third it certainly does not, and they are published
-                with the code so anyone can check them. How well they work depends on the corpus,
-                and they were refitted in October 2026 after the index grew by a third. On 178
-                test subjects in eight language settings the fit agreed with its test set on 86
-                percent: 80 percent for Latin and for Greek, 73 percent for English, 94 percent
-                for Persian, Urdu, Hebrew and Coptic. Almost every miss is a subject the corpus
-                holds that reads in the lowest band, or a subject from the modern world that
-                reads moderate over its nearest neighbors. So read the band as a first estimate. The lowest band, labeled
-                "Closest passages", means that the top results do not stand far above the
-                background, so their order is less settled. A strong band means the corpus
-                probably holds the subject, not that every listed passage is about it.
-              </p>
-              <p className="text-gray-700 mb-3">
-                The list is shown whatever the band says. Until October 2026 the lowest band held the
-                passages back behind a link, and a test of sixty historical subjects (short
-                phrases and full sentences, the top ten of each graded by a model) showed why
-                that was wrong: of thirty-one searches the band marked low, twenty-seven had a
-                relevant list, and the fifteen literary pilot questions behaved the same way.
-                The band tells a real subject from nonsense, which is what it was fitted on. It
-                does not tell a good list from a poor one. The one case still held back is a
-                search nothing in the corpus resembles at all, which the band calls a weak
-                match. A query none of whose words occurs in any passage description is told
-                so and gets no list, because the search has nothing to match. If only some of
+                The list is shown whatever the band says. The band tells a real subject from nonsense,
+                which is what it was fitted on, and does not tell a good list from a poor one. The one case
+                still held back is a search nothing in the corpus resembles at all. A query none of whose
+                words occurs in any passage description is told so and gets no list, and if only some of
                 its words are unknown, the note names them.
-              </p>
-              <p className="text-gray-700 mb-3">
-                The hardest test cases are near misses: &ldquo;a farmer lifts potatoes out of the
-                ground and sorts them for seed&rdquo; scores higher than eight genuinely classical
-                subjects, because everything in it except the potato is deeply present in the
-                corpus.
               </p>
 
               <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">Limits worth knowing</h4>
@@ -1738,9 +1370,8 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   whole mode of response is invisible here.
                 </li>
                 <li>
-                  A new search takes about eight seconds the first time, because the small model reads
-                  the passages, and a repeat of it takes about a second. The first search after a long quiet
-                  period can take about twenty seconds while the passage index loads.
+                  A new search takes about eight seconds the first time, and a repeat of it takes about a second. The
+                  first search after a long quiet period can take about twenty seconds while the passage index loads.
                 </li>
               </ul>
             </div>
@@ -1758,8 +1389,8 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
               </p>
               <p className="text-gray-700 mb-4">
                 The page sits under the People, Places &amp; Things menu in the top row, together with
-                Events, Inscriptions &amp; Papyri, Coins and Objects, which appear as their collections
-                are switched on.
+                Events, Inscriptions &amp; Papyri, Coins and Objects, and all five are listed in both the
+                Literature and the History view.
               </p>
               <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">How to search</h4>
               <p className="text-gray-700 mb-4">
@@ -1918,24 +1549,17 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
               <p className="text-gray-700 mb-4">
                 The Reader shows a text one line at a time with two things beside it: a gutter of
                 marks showing where the rest of the corpus connects to each line, and a panel of
-                those connections for whatever you select.
-              </p>
-              <p className="text-gray-700 mb-4">
-                Each tab of the side panel explains itself under &ldquo;What this does&rdquo;.
-                That box says what the tab searches, what it covers, where it is weak and how
-                well it has been measured.
+                those connections for whatever you select. Each tab of the side panel explains itself
+                under &ldquo;What this does&rdquo;. That box says what the tab searches, what it covers,
+                where it is weak and how well it has been measured.
               </p>
               <p className="text-gray-700 mb-4">
                 For works that have one, an <strong>About</strong> button in the header opens a
                 short orientation note saying what the text is, who wrote it and when, and why a
                 reader might care. The same notes appear behind the small ⓘ buttons in Browse
-                Corpus. Coverage is growing, and recently added works get theirs first.
-              </p>
-              <p className="text-gray-700 mb-4">
-                On a phone, the choice of text and book, Go to line and About this text are behind
+                Corpus. On a phone, the choice of text and book, Go to line and About this text are behind
                 the title line at the top of the Reader, and the key to the margin marks is behind
-                the Key button, so that the text has the width of the screen. Every control is
-                still there.
+                the Key button, so that the text has the width of the screen.
               </p>
 
               <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">The gutter</h4>
@@ -1955,31 +1579,18 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
               </ul>
               <p className="text-gray-700 mb-3">
                 A darker mark means more connections. The two columns fill in independently as
-                each answer arrives, so one may be marked while the other is still working.
-                Clicking a mark selects that line and opens the matching panel tab: a red mark
-                opens Verbal Parallels, a purple one opens Similar Passages.
+                each answer arrives. Clicking a mark selects that line and opens the matching panel
+                tab: a red mark opens Verbal Parallels, a purple one opens Similar Passages.
               </p>
 
               <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">The quotation boxes</h4>
               <p className="text-gray-700 mb-3">
                 A small numbered box beside a line means the line is quoted elsewhere in the
-                corpus. The number is how many other works quote it. The boxes come in two forms:
-              </p>
-              <ul className="list-disc pl-5 text-gray-700 space-y-2 mb-3">
-                <li>
-                  <strong>A solid box</strong> marks a quotation: another work shares two or more
-                  distinctive words with this line, or a longer run of its wording.
-                </li>
-                <li>
-                  <strong>A dashed box</strong> marks a possible echo. Another work shares one rare
-                  phrase with this line, which is weaker evidence and more often a coincidence. A long prose
-                  paragraph that shares a single phrase and little else is not counted.
-                </li>
-              </ul>
-              <p className="text-gray-700 mb-3">
-                Click a box to open the <strong>Reuse</strong> tab, which lists the works that quote
-                the line with the shared words marked. The boxes are only as good as the quotation
-                tables behind them, which are built for Latin, Greek and English.
+                corpus. The number is how many other works quote it. A <strong>solid box</strong> marks a
+                quotation: another work shares two or more distinctive words with this line, or a longer
+                run of its wording. A <strong>dashed box</strong> marks a possible echo, where another work
+                shares one rare phrase with this line, which is weaker evidence and more often a coincidence.
+                Click a box to open the <strong>Reuse</strong> tab. The boxes are built for Latin, Greek and English.
               </p>
 
               <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">Moving around a long work</h4>
@@ -1992,17 +1603,15 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
 
               <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">Selecting text</h4>
               <p className="text-gray-700 mb-3">
-                Select lines the way you would select any text, by clicking and dragging across them or
-                by double-clicking a single word. A small toolbar appears under the selection with a
-                three-way scope switch, <strong>Word / Line / Passage</strong>, which is set
-                automatically from the size of what you selected and can be corrected in one
-                click. The scope decides the question the button asks:
+                Select lines by clicking and dragging across them or by double-clicking a single word.
+                A small toolbar appears under the selection with a three-way scope switch,{' '}
+                <strong>Word / Line / Passage</strong>, which is set automatically from the size of
+                what you selected and can be corrected in one click:
               </p>
               <ul className="list-disc pl-5 text-gray-700 space-y-2 mb-3">
                 <li>
                   <strong>Word</strong> looks up one word across the whole corpus (String
-                  Search). It needs a single double-clicked word. With a longer selection the
-                  toolbar says so instead of offering a search.
+                  Search). It needs a single double-clicked word.
                 </li>
                 <li>
                   <strong>Line</strong> takes the line to the full Line Search page to find
@@ -2025,33 +1634,20 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   content resembles your selection, across every served language, in two groups.
                   <strong> Same people and places</strong> comes first. It lists passages in other works that
                   name the same rare people or places as your selection, so Arrian's account of Alexander at
-                  Celaenae appears beside Curtius'. Commentaries on a work are set aside, and the group
-                  starts collapsed when the selection's names are few or very famous. <strong>Same kind
-                  of scene</strong> follows, ranked on content alone. Names are found by capital
-                  letters in Latin, Greek and English, by the part-of-speech tags of the Hebrew and Coptic
-                  corpora (proper nouns in the Hebrew Bible's morphology and in Coptic Scriptorium's
-                  annotation), and in Persian and Urdu, which have no capitals, by the tagger's proper-noun
-                  tags plus a short list of prophets, lovers of romance and, for Urdu, the figures of Karbala. Fifteen
-                  passages show at first, and <strong>Show more matches</strong> extends the list. Below the list,
-                  <strong> In other languages</strong> offers a button for each language with few matches in
-                  the list, ordered by its best match, which opens that language's five closest passages. The
-                  largest corpora otherwise fill the list, so an Urdu passage would show mostly Persian.
+                  Celaenae appears beside Curtius'. <strong>Same kind of scene</strong> follows, ranked on
+                  content alone. Fifteen passages show at first, and <strong>Show more matches</strong> extends
+                  the list. Below it, <strong>In other languages</strong> offers a button for each language with few
+                  matches in the list, which opens that language's five closest passages.
               </p>
               <h5 className="text-base font-semibold text-gray-900 mt-4 mb-1">Verbal parallels tab</h5>
               <p className="text-gray-700 mb-3">
                   Verbal parallels lists corpus lines that share your
-                  selection&rsquo;s wording. A line or short phrase is searched on all of its
-                  content words. A passage-sized selection is searched on its most distinctive
-                  words, the rarest in the corpus by document frequency, and the panel names
-                  which words those were. Rare shared vocabulary is what marks a genuine echo.
-                  A couple of common words shared with a long passage is a commonplace. For the
-                  same reason, matches that share nothing but very common words (quid, ipse,
-                  varius) are hidden here, with a note saying how many. Matches survive by
-                  sharing at least one distinctive word, or three or more words together. The
+                  selection&rsquo;s wording. A passage-sized selection is searched on its most distinctive
+                  words, and the panel names which words those were. Matches that share nothing but very
+                  common words (quid, ipse, varius) are hidden, with a note saying how many. The
                   full Line Search page applies no such filter. When Inscriptions or Papyri is
-                  on, the same search also runs over the inscriptions and papyri and lists them
-                  under the literary parallels, under the same rules. Each shows its date and
-                  place, with the shared words marked and a link to the document&rsquo;s page.
+                  on, the same search also lists the inscriptions and papyri under the literary
+                  parallels, each with its date and place and a link to the document&rsquo;s page.
               </p>
               <h5 className="text-base font-semibold text-gray-900 mt-4 mb-1">Translation tab</h5>
               <p className="text-gray-700 mb-3">
@@ -2065,36 +1661,20 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
               <h5 className="text-base font-semibold text-gray-900 mt-4 mb-1">Reuse tab</h5>
               <p className="text-gray-700 mb-3">
                   Reuse lists other works that repeat a line closely enough to
-                  count as a quotation or near-quotation. A small numbered mark beside a line in
-                  the text (&ldquo;quoted in N works&rdquo; on hover) opens this tab for that
-                  line. It comes from a table built once over the whole corpus, not a live
-                  search, so it covers only the languages built so far, Latin, Greek and English.
+                  count as a quotation or near-quotation, with the shared words marked. It comes from a
+                  table built once over the whole corpus, not a live search, so it covers only Latin,
+                  Greek and English.
               </p>
               <h5 id="scholarship-sources" className="text-base font-semibold text-gray-900 mt-4 mb-1">Scholarship tab</h5>
               <p className="text-gray-700 mb-3">
                   Scholarship lists the public-domain commentary notes the site holds,
-                  then the articles, chapters and book pages that cite the passage, newest first. Four
-                  open services supply those results. OpenAlex and Crossref are searched by title and
-                  abstract. Semantic Scholar and CORE are searched in the full text of open-access
-                  papers. The site&rsquo;s own index of citations in journals from before 1923 reads
-                  JSTOR&rsquo;s Early Journal Content. That index covers 24 philology, archaeology and
-                  biblical journals from 1827 to 1922 (the live counts of articles and citations are on
-                  the Scholarship sources page). The same journals supply the Scholarship section on an inscription or papyrus
-                  page (956 citing sentences from 288 articles). Where the site has the library&rsquo;s agreement, a second index reads the journals on Project MUSE from 1996 on under that license and lists each article that cites the passage with one sentence and a DOI link. Google Books finds a citation on a book page. A result marked open access has a
-                  free, legal copy through Unpaywall. A result with only a DOI opens through your own
-                  library instead. Set your library&rsquo;s link-resolver address once, under My library
-                  in this tab. Its link then opens the article or chapter under your institution&rsquo;s
-                  access. Where neither a free copy nor your library resolves it, the result still names what
-                  cites the passage and where. Every note and article has a Cite link. It gives a plain
-                  reference to copy, RIS for Zotero and EndNote (to the clipboard, read by Zotero&rsquo;s File menu,
-                  Import from Clipboard, or as a file), and BibTeX for LaTeX. Each list has an Export citations
-                  link that saves all of its items in one file. A commentary note cites the edition the text
-                  comes from, with the passage it comments on. The same Cite link appears on the scholarship in Theme
-                  Search and Search One Text. The HathiTrust link in this tab
-                  runs the same search in that library&rsquo;s book scans and tells you which books and
-                  page numbers mention the citation, without showing you the text itself. Every source
-                  and its license are listed on the Sources page under About. To search the notes and
-                  sentences by theme, use the Scholarship choice on the Theme Search page.
+                  then the articles, chapters and book pages that cite the passage, newest first. A result marked
+                  open access has a free, legal copy through Unpaywall. A result with only a DOI opens through your
+                  own library, once you set your library&rsquo;s link-resolver address under My library in this tab.
+                  Every note and article has a Cite link that gives a plain reference, RIS for Zotero and EndNote,
+                  and BibTeX, and each list has an Export citations link. Every source and its license are listed on
+                  the Sources page under About. To search the notes and sentences by theme, use the Scholarship
+                  choice on the Theme Search page.
               </p>
               <p className="text-gray-700 mb-3">
                 The journals and years in each index, the terms of each source and the method behind each part of
@@ -2104,22 +1684,22 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 What the site does not hold matters as much. The two citation indexes stop at 1922 and
                 resume in 1996, and the later one covers four American journals, so most of the twentieth
                 century and nearly all European journals are absent from the citation lists. In-copyright
-                books, both monographs and edited volumes, are not indexed at all. The online services
-                fill part of the gap with titles, abstracts and open-access copies, but a search of the
-                scholarship on a passage is not complete without L&rsquo;Ann&eacute;e philologique, your
-                library&rsquo;s catalog and JSTOR&rsquo;s own search. The sources page says exactly what is
-                missing and where to look for it. <AboutSourcesLink anchor="beyond" />
+                books are not indexed at all. A search of the scholarship on a passage is not complete
+                without L&rsquo;Ann&eacute;e philologique, your library&rsquo;s catalog and JSTOR&rsquo;s own
+                search. The sources page says exactly what is missing and where to look for it.{' '}
+                <AboutSourcesLink anchor="beyond" />
               </p>
               <p className="text-gray-700 mb-3">
                 Arriving from Theme Search, the Reader opens on the translation, selects the whole
                 passage that matched, and shows the search that brought you there, with a link
-                back to the results.
-              </p>
-              <p className="text-gray-700 mb-3">
-                Opening a result from Similar passages, Verbal parallels or Reuse takes you to that
+                back to the results. Opening a result from Similar passages, Verbal parallels or Reuse takes you to that
                 passage in the other work, selected. A banner names the passage you came from with a
                 <strong> back to</strong> link that returns to it, and the browser&rsquo;s Back button
                 returns to the same line.
+              </p>
+              <p className="text-gray-700 mb-3">
+                How the panel finds names, picks distinctive words and gathers scholarship is under{' '}
+                <button onClick={() => setActiveSection('how-built')} className="text-red-600 hover:underline">How the system is built</button>.
               </p>
             </div>
           )}
@@ -2185,9 +1765,8 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 passages in Latin and Greek historians and poets that tell of it or mention it (each
                 opens in the Reader, and the Reader links back), the inscriptions and papyri dated to
                 the same years and found near the place, the articles and commentary on those passages,
-                and a map of the place and the findspots. The page and its menu entry appear when
-                Collections has Inscriptions or Papyri on, as in the Historical profile. Scholarship alone does not open
-                it, so the Literary profile does not show it. The Events entry is marked Beta in the top row while its
+                and a map of the place and the findspots. The page is always in the People, Places &amp; Things menu, and the
+                Collections switches decide which documents and scholarship it draws on. The Events entry is marked Beta in the top row while its
                 documents and scholarship lists are checked. Events come from Wikidata (CC0, and each event links to
                 its Wikipedia article), passages are found by
                 the names in them and sorted by an offline language model that no person has checked, and
@@ -2261,9 +1840,9 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 in two in the same test, and a vague or abstract query finds fewer.
               </p>
               <p className="text-gray-700 mb-4">
-                Coins are on in the History view, whose profile is Everything, and off in the Literature view.
-                Switch Coins on in Collections (the Archaeological and Everything profiles include it) and the
-                Coins entry appears in the People, Places &amp; Things menu. Coin types never enter a
+                The Coins page is always in the People, Places &amp; Things menu, in both views. The Coins switch in
+                Collections (on in the Archaeological and Everything profiles) decides whether coins
+                appear in the Reader tab and the Theme Search choice. Coin types never enter a
                 phrase search, since they have their own page, the Reader tab and the Theme Search choice.
               </p>
             </div>
@@ -2303,9 +1882,9 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 you rely on one.
               </p>
               <p className="text-gray-700 mb-4">
-                Objects are on in the History view, whose profile is Everything, and off in the Literature view.
-                Switch Objects on in Collections (the Archaeological and Everything profiles include it) and the
-                Objects entry appears in the People, Places &amp; Things menu. Objects
+                The Objects page is always in the People, Places &amp; Things menu, in both views. The Objects switch in
+                Collections (on in the Archaeological and Everything profiles) decides whether objects
+                appear in the Reader tab and the Theme Search choice. Objects
                 never enter a phrase search.
               </p>
             </div>
@@ -2320,9 +1899,8 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 coins and objects) with a switch for each, and four profiles
                 that set the switches together: Literary, Historical, Archaeological and
                 Everything. The view you are in (Literature or History) sets the profile, and the switches refine it.
-                Your choice is remembered in this browser. This page and its menu entry
-                appear when Inscriptions or Papyri is on, and the Scholarship tab in the Reader
-                appears when Scholarship is on. Literary, the setting a new visitor starts with,
+                Your choice is remembered in this browser. This page is always in the People, Places &amp; Things
+                menu, and the Scholarship tab in the Reader appears when Scholarship is on. Literary, the setting a new visitor starts with,
                 shows the literary texts and the Scholarship tab, and no documents. This is a page for the documentary
                 corpus, Latin and Greek inscriptions and papyri, searched the same way as the
                 literary texts but shown with the markup and credit a documentary source needs. It opens
@@ -3449,297 +3027,12 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
           )}
 
           {activeSection === 'upload-text' && (
-            <div>
+            <div className="prose max-w-none">
               <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Upload Your Text</h3>
-              <p className="text-gray-600 mb-4">
-                Have a text you'd like to add to the Tesserae corpus? Upload it here and we'll review it for inclusion.
-                Pre-formatting your text speeds up the process significantly.
+              <p className="text-gray-700 mb-4">
+                Uploading a text now has its own page, with the formatting guidelines and the upload form.{' '}
+                <a href="/upload-help" className="text-red-600 hover:underline">Open Upload Your Text</a>.
               </p>
-              
-              {/* Formatting Instructions */}
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-                <h4 className="text-sm font-semibold uppercase tracking-wide text-blue-800 mb-2">Text Formatting Guidelines</h4>
-                <p className="text-blue-800 text-sm mb-3">
-                  Tesserae uses a simple <code className="bg-blue-100 px-1 rounded">.tess</code> format. 
-                  Each line should have a section tag followed by the text content.
-                </p>
-                
-                <div className="bg-white rounded p-3 mb-3 font-mono text-xs overflow-x-auto">
-                  <div className="text-gray-500 mb-2"># Example format (Latin poetry):</div>
-                  <div>&lt;vergil.aeneid 1.1&gt; Arma virumque cano, Troiae qui primus ab oris</div>
-                  <div>&lt;vergil.aeneid 1.2&gt; Italiam, fato profugus, Laviniaque venit</div>
-                  <div>&lt;vergil.aeneid 1.3&gt; litora, multum ille et terris iactatus et alto</div>
-                  <div className="text-gray-500 mt-3 mb-2"># Example format (Greek prose):</div>
-                  <div>&lt;plato.republic 1.327a&gt; Κατέβην χθὲς εἰς Πειραιᾶ μετὰ Γλαύκωνος</div>
-                  <div className="text-gray-500 mt-3 mb-2"># Example format (English):</div>
-                  <div>&lt;shakespeare.hamlet 1.1.1&gt; Who's there?</div>
-                </div>
-                
-                <div className="text-sm text-blue-800 space-y-2">
-                  <p><strong>Tag Format:</strong> <code className="bg-blue-100 px-1 rounded">&lt;author.work section&gt;</code></p>
-                  <ul className="list-disc list-inside ml-2 space-y-1">
-                    <li>Use lowercase author and work names with periods as separators</li>
-                    <li>For poetry: use line numbers (e.g., <code className="bg-blue-100 px-1 rounded">1.1</code> for Book 1, Line 1)</li>
-                    <li>For prose: use standard section references (e.g., <code className="bg-blue-100 px-1 rounded">1.327a</code>)</li>
-                    <li>For drama: use act.scene.line (e.g., <code className="bg-blue-100 px-1 rounded">1.1.1</code>)</li>
-                    <li>Plain text only - no HTML, markdown, or special formatting</li>
-                    <li>UTF-8 encoding for Greek characters</li>
-                  </ul>
-                </div>
-              </div>
-              
-              {/* Text Formatter Utility */}
-              <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6">
-                <h4 className="text-sm font-semibold uppercase tracking-wide text-amber-800 mb-3">Text Formatter Utility</h4>
-                <p className="text-amber-900 text-sm mb-4">
-                  Paste your plain text below and we'll convert it to .tess format automatically.
-                </p>
-                
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-3">
-                  <div>
-                    <label className="block text-xs font-medium text-amber-900 mb-1">Author</label>
-                    <input 
-                      type="text" 
-                      value={formatterAuthor} 
-                      onChange={e => setFormatterAuthor(e.target.value)}
-                      placeholder="e.g., Vergil"
-                      className="w-full border border-amber-300 rounded px-2 py-1 text-sm"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium text-amber-900 mb-1">Work</label>
-                    <input 
-                      type="text" 
-                      value={formatterWork} 
-                      onChange={e => setFormatterWork(e.target.value)}
-                      placeholder="e.g., Aeneid"
-                      className="w-full border border-amber-300 rounded px-2 py-1 text-sm"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium text-amber-900 mb-1">Text Type</label>
-                    <select 
-                      value={formatterTextType} 
-                      onChange={e => handleFormatterTextTypeChange(e.target.value)}
-                      className="w-full border border-amber-300 rounded px-2 py-1 text-sm"
-                    >
-                      <option value="">Select text type</option>
-                      <option value="poetry">Poetry</option>
-                      <option value="prose">Prose</option>
-                      <option value="drama">Drama</option>
-                    </select>
-                  </div>
-                  {formatterTextType && (
-                    <div>
-                      <label className="block text-xs font-medium text-amber-900 mb-1">Subsections</label>
-                      <select
-                        value={formatterSubsectionCount}
-                        onChange={e => handleFormatterSubsectionCountChange(e.target.value)}
-                        className="w-full border border-amber-300 rounded px-2 py-1 text-sm"
-                      >
-                        {[1, 2, 3, 4, 5].map(count => (
-                          <option key={count} value={count}>{count}</option>
-                        ))}
-                      </select>
-                    </div>
-                  )}
-                </div>
-
-                {formatterTextType && (
-                  <>
-                    <div className="space-y-4">
-                      {formatterSlots.map((slot, index) => (
-                        <div key={slot.id} className="rounded-lg border border-amber-200 bg-white/70 p-3">
-                          <div className="flex items-center justify-between gap-3 mb-3">
-                            <div className="text-xs font-semibold uppercase tracking-wide text-amber-900">
-                              Text Slot {index + 1}
-                            </div>
-                            {index > 0 && (
-                              <button
-                                type="button"
-                                onClick={() => removeFormatterSlot(slot.id)}
-                                className="text-xs font-medium text-amber-800 underline underline-offset-2 hover:text-amber-950"
-                              >
-                                Close
-                              </button>
-                            )}
-                          </div>
-
-                          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3 mb-3">
-                            {resizeStartValues(slot.startValues, parseInt(formatterSubsectionCount) || 1).map((value, partIndex) => (
-                              <div key={partIndex}>
-                                <label className="block text-xs font-medium text-amber-900 mb-1">
-                                  Subsection {partIndex + 1}
-                                </label>
-                                <input
-                                  type="number"
-                                  min="1"
-                                  value={value}
-                                  onChange={e => updateFormatterStartValue(slot.id, partIndex, e.target.value)}
-                                  className="w-full border border-amber-300 rounded px-2 py-1 text-sm"
-                                />
-                              </div>
-                            ))}
-                          </div>
-
-                          <div>
-                            <label className="block text-xs font-medium text-amber-900 mb-1">Paste Raw Text (one line per row)</label>
-                            <textarea
-                              value={slot.rawText}
-                              onChange={e => updateFormatterSlot(slot.id, 'rawText', e.target.value)}
-                              placeholder="Arma virumque cano, Troiae qui primus ab oris&#10;Italiam, fato profugus, Laviniaque venit&#10;litora, multum ille et terris iactatus et alto"
-                              rows={8}
-                              className="w-full border border-amber-300 rounded px-2 py-2 text-sm font-mono"
-                            />
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-
-                    <div className="flex flex-wrap gap-2 mt-4">
-                      <button
-                        type="button"
-                        onClick={addFormatterSlot}
-                        className="px-4 py-2 bg-white text-amber-900 border border-amber-300 rounded hover:bg-amber-100"
-                      >
-                        Add More
-                      </button>
-                      <button
-                        type="button"
-                        onClick={formatToTess}
-                        disabled={!formatterAuthor.trim() || !formatterWork.trim() || !hasFormatterRawText}
-                        className="px-4 py-2 bg-amber-600 text-white rounded hover:bg-amber-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        Format Text
-                      </button>
-                    </div>
-
-                    <div className="mt-4">
-                      <label className="block text-xs font-medium text-amber-900 mb-1">Formatted .tess Output</label>
-                      <textarea
-                        value={formatterOutput}
-                        readOnly
-                        rows={10}
-                        className="w-full border border-amber-300 rounded px-2 py-2 text-sm font-mono bg-white"
-                        placeholder="Formatted output will appear here..."
-                      />
-                      {formatterOutput && (
-                        <div className="flex gap-2 mt-2">
-                          <button
-                            type="button"
-                            onClick={copyFormatterOutput}
-                            className="px-3 py-1 text-xs bg-amber-600 text-white rounded hover:bg-amber-700"
-                          >
-                            {formatterCopied ? 'Copied!' : 'Copy to Clipboard'}
-                          </button>
-                          <button
-                            type="button"
-                            onClick={downloadFormatterOutput}
-                            className="px-3 py-1 text-xs bg-amber-700 text-white rounded hover:bg-amber-800"
-                          >
-                            Download .tess File
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  </>
-                )}
-              </div>
-              
-              <h4 className="text-lg font-semibold text-gray-900 mb-3">Submit Your Formatted Text</h4>
-              <form onSubmit={submitTextRequest} className="space-y-4 max-w-lg">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Your Name (optional)</label>
-                    <input type="text" value={requestName} onChange={e => setRequestName(e.target.value)}
-                      className="w-full border rounded px-3 py-2 text-sm" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Email (optional)</label>
-                    <input type="email" value={requestEmail} onChange={e => setRequestEmail(e.target.value)}
-                      className="w-full border rounded px-3 py-2 text-sm" />
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Author *</label>
-                    <input type="text" value={requestAuthor} onChange={e => setRequestAuthor(e.target.value)}
-                      placeholder="e.g., Tacitus" required className="w-full border rounded px-3 py-2 text-sm" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Language *</label>
-                    <select value={requestLanguage} onChange={e => setRequestLanguage(e.target.value)}
-                      required className="w-full border rounded px-3 py-2 text-sm">
-                      <option value="">Select language...</option>
-                      <option value="latin">Latin</option>
-                      <option value="greek">Greek</option>
-                      <option value="english">English</option>
-                    </select>
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Work Title *</label>
-                  <input type="text" value={requestWork} onChange={e => setRequestWork(e.target.value)}
-                    placeholder="e.g., Annales" required className="w-full border rounded px-3 py-2 text-sm" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Upload Text File</label>
-                  <input 
-                    type="file" 
-                    accept=".txt,.tess"
-                    onChange={e => setRequestFile(e.target.files[0])}
-                    className="w-full border rounded px-3 py-2 text-sm file:mr-3 file:py-1 file:px-3 file:border-0 file:bg-gray-100 file:text-gray-700 file:rounded file:cursor-pointer" 
-                  />
-                  <p className="text-xs text-gray-500 mt-1">
-                    Accepts .txt or .tess files. Pre-formatted files are processed faster.
-                  </p>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">e-Source</label>
-                  <input
-                    type="text"
-                    value={requestESource}
-                    onChange={e => setRequestESource(e.target.value)}
-                    placeholder="e.g., Perseus"
-                    className="w-full border rounded px-3 py-2 text-sm"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">e-Source URL</label>
-                  <input
-                    type="url"
-                    value={requestESourceUrl}
-                    onChange={e => setRequestESourceUrl(e.target.value)}
-                    placeholder="https://..."
-                    className="w-full border rounded px-3 py-2 text-sm"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Print Source (citation)</label>
-                  <textarea
-                    value={requestPrintSource}
-                    onChange={e => setRequestPrintSource(e.target.value)}
-                    placeholder="Edition/citation details"
-                    rows={2}
-                    className="w-full border rounded px-3 py-2 text-sm"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Notes (optional)</label>
-                  <textarea value={requestNotes} onChange={e => setRequestNotes(e.target.value)}
-                    placeholder="Source edition, date, or any additional information..."
-                    rows={3} className="w-full border rounded px-3 py-2 text-sm" />
-                </div>
-                {requestMessage && (
-                  <div className={`p-3 rounded text-sm ${requestMessage.type === 'success' ? 'bg-amber-50 text-amber-700' : 'bg-red-50 text-red-700'}`}>
-                    {requestMessage.text}
-                  </div>
-                )}
-                <button type="submit" disabled={requestSubmitting}
-                  className="px-4 py-2 bg-red-700 text-white rounded hover:bg-red-800 disabled:opacity-50">
-                  {requestSubmitting ? 'Uploading...' : 'Upload Text'}
-                </button>
-              </form>
             </div>
           )}
 
@@ -3786,10 +3079,10 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   <h4 className="text-lg font-semibold text-gray-900">Can I request a text that's not in the corpus?</h4>
                   <p className="text-gray-600 text-sm mt-1">
                     Yes! Use the{' '}
-                    <button onClick={() => setActiveSection('upload-text')} className="text-red-600 hover:underline">
+                    <a href="/upload-help" className="text-red-600 hover:underline">
                       Upload Your Text
-                    </button>
-                    {' '}section in this Help page.
+                    </a>
+                    {' '}page.
                   </p>
                 </div>
                 <div>
@@ -3859,6 +3152,100 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 with its own credential, that the server holds and uses to start jobs itself. No
                 credential of either kind is in the public code or in this page.
               </p>
+              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">Theme Search, in detail</h4>
+              <p className="text-gray-700 text-sm mb-3">
+                Every text in the corpus is cut into overlapping <strong>passage windows</strong>:
+                twelve lines starting a new window every six, and a coarser thirty lines every
+                fifteen. Since October 2026 a long prose work (about a thousand works) is cut instead into
+                paragraph-sized windows, and its chapter-sized windows are dropped. The overlap matters, because a passage that straddles a boundary would
+                otherwise be split down the middle and neither half would describe it.
+              </p>
+              <p className="text-gray-700 text-sm mb-3">
+                A language model then writes a structured English description of each window.
+                The description always has the same eight fields. One of them is fixed: the
+                <strong> kind of passage</strong>, chosen from nine categories (narrative, speech,
+                lyric, argument, description, catalog, prayer, prophecy, dialogue). The others
+                are written freely in English: the setting, who is present, what happens step by
+                step, the objects in it, two to five <strong>theme words</strong>, the dominant imagery and tone, and a one-sentence gist.
+                Your query is compared against the whole description, all eight fields joined,
+                not against the original words. Under each result the site shows the gist sentence as the summary and
+                the theme words as tags. The tags are the model&rsquo;s own words for that window,
+                not a controlled list, so &ldquo;transience&rdquo; on one passage and
+                &ldquo;impermanence&rdquo; on another mean the same thing. There are about
+                685,000 descriptions on the site, covering Latin, Greek, English, Coptic,
+                Hebrew, Persian and Urdu, with a few works in Italian, Old French and Middle
+                High German. This is why a Persian passage can answer an English description of a Greek scene.
+                Nothing is being translated and no words are being matched.
+              </p>
+              <p className="text-gray-700 text-sm mb-3">
+                Comparing descriptions is quick and shallow, so the first page is then read. A
+                small model on our own server takes the 300 rows of the composed list (about a hundred
+                works, three passages each),
+                reads each one against your query, and gives it a score for how fully it is the
+                scene you described. The page is ordered by that score. It was trained once on
+                32,000 readings by a larger model and costs nothing to run, so it stays on. Only
+                those 300 rows are read: a passage the comparison did not bring into the
+                list cannot be promoted by the reading. On sixteen test themes judged against a
+                scholar's grading rule, the share of the first ten results that is the scene rose
+                from about 29 to about 43 percent (the larger paid model, on the hundred closest passages, reaches 71). The result
+                citation names the reading model, and adding <code>&amp;reader=0</code> to a
+                search address shows the order without it. A new search takes about eight seconds the first time because the small model reads
+                the passages.
+              </p>
+              <p className="text-gray-700 text-sm mb-3">
+                The confidence band&rsquo;s thresholds are fitted against test queries, two thirds of them subjects the
+                corpus certainly holds and a third it certainly does not, and they are published
+                with the code so anyone can check them. They were refitted in October 2026 after the index grew by a third. On 178
+                test subjects in eight language settings the fit agreed with its test set on 86
+                percent: 80 percent for Latin and for Greek, 73 percent for English, 94 percent
+                for Persian, Urdu, Hebrew and Coptic. Almost every miss is a subject the corpus
+                holds that reads in the lowest band, or a subject from the modern world that
+                reads moderate over its nearest neighbors. Until October 2026 the lowest band held the
+                passages back behind a link, and a test of sixty historical subjects (short
+                phrases and full sentences, the top ten of each graded by a model) showed why
+                that was wrong: of thirty-one searches the band marked low, twenty-seven had a
+                relevant list. The hardest test cases are near misses: &ldquo;a farmer lifts potatoes out of the
+                ground and sorts them for seed&rdquo; scores higher than eight genuinely classical
+                subjects, because everything in it except the potato is deeply present in the
+                corpus.
+              </p>
+              <p className="text-gray-700 text-sm mb-3">
+                The Scholarship choice in Theme Search ranks each note twice, once by how close its meaning is to
+                your words and once by the words it shares with them, and merges the two rankings. On fifteen test
+                questions, thirteen had a strongly relevant note in the first ten.
+              </p>
+
+              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">The Reader&rsquo;s panel, in detail</h4>
+              <p className="text-gray-700 text-sm mb-3">
+                In Similar passages, names are found by capital letters in Latin, Greek and English, by the
+                part-of-speech tags of the Hebrew and Coptic corpora (proper nouns in the Hebrew Bible&rsquo;s morphology
+                and in Coptic Scriptorium&rsquo;s annotation), and in Persian and Urdu, which have no capitals, by the
+                tagger&rsquo;s proper-noun tags plus a short list of prophets, lovers of romance and, for Urdu, the
+                figures of Karbala. Commentaries on a work are set aside, and the Same people and places group starts
+                collapsed when the selection&rsquo;s names are few or very famous. The In other languages buttons exist
+                because the largest corpora would otherwise fill the list, so an Urdu passage would show mostly Persian.
+              </p>
+              <p className="text-gray-700 text-sm mb-3">
+                In Verbal parallels, a line or short phrase is searched on all of its content words, and a passage-sized
+                selection on its most distinctive words, the rarest in the corpus by document frequency. Rare shared
+                vocabulary is what marks a genuine echo, and a couple of common words shared with a long passage is a
+                commonplace. Matches survive by sharing at least one distinctive word, or three or more words together.
+                Inscriptions and papyri are searched under the same rules.
+              </p>
+              <p className="text-gray-700 text-sm mb-3">
+                In Scholarship, four open services supply the online results. OpenAlex and Crossref are searched by title and
+                abstract. Semantic Scholar and CORE are searched in the full text of open-access papers. The site&rsquo;s own
+                index of citations in journals from before 1923 reads JSTOR&rsquo;s Early Journal Content and covers 24
+                philology, archaeology and biblical journals from 1827 to 1922. The same journals supply the Scholarship
+                section on an inscription or papyrus page (956 citing sentences from 288 articles). Where the site has the
+                library&rsquo;s agreement, a second index reads the journals on Project MUSE from 1996 on under that license
+                and lists each article that cites the passage with one sentence and a DOI link. Google Books finds a citation
+                on a book page. The RIS export goes to the clipboard, read by Zotero&rsquo;s File menu, Import from Clipboard,
+                or as a file. A commentary note cites the edition the text comes from, with the passage it comments on. The
+                HathiTrust link runs the same search in that library&rsquo;s book scans and tells you which books and page
+                numbers mention the citation, without showing you the text itself.
+              </p>
+
               <p className="text-gray-600 text-sm mt-4">
                 The code is public at{' '}
                 <a href="https://github.com/tesserae/tesserae-v6" className="text-red-700 hover:underline" target="_blank" rel="noopener noreferrer">

@@ -89,7 +89,7 @@ export const SEARCH_SCOPE = {
     liveOnly: true,
     limits: 'It matches dictionary forms, so an inflected form is found but a misspelling is not. Common words are dropped unless the phrase is only common words. It searches one language at a time.',
     measured: [RARE_ALL],
-    helpSection: 'search-modes',
+    helpSection: 'start-here',
   },
   string: {
     id: 'string',
@@ -100,7 +100,7 @@ export const SEARCH_SCOPE = {
     liveOnly: true,
     limits: 'It matches exact characters only, so it does not join an inflected form to its dictionary form. It searches one language at a time.',
     measured: [RARE_ALL],
-    helpSection: 'search-modes',
+    helpSection: 'start-here',
   },
   bigram: {
     id: 'bigram',
@@ -111,7 +111,7 @@ export const SEARCH_SCOPE = {
     liveOnly: true,
     limits: 'Rarity is measured against the corpus held here, so a word that was common in lost literature can look rare.',
     measured: [RARE_ALL],
-    helpSection: 'search-modes',
+    helpSection: 'start-here',
   },
   hapax: {
     id: 'hapax',
@@ -122,7 +122,7 @@ export const SEARCH_SCOPE = {
     liveOnly: true,
     limits: 'Rarity is measured against the corpus held here, so a word that was common in lost literature can look rare.',
     measured: [RARE_ALL],
-    helpSection: 'search-modes',
+    helpSection: 'start-here',
   },
   documents: {
     id: 'documents',
@@ -193,7 +193,7 @@ export const SEARCH_SCOPE = {
     liveOnly: true,
     limits: 'It matches dictionary forms, so an inflected form is found but a misspelling is not. Common words are dropped unless the phrase is only common words. It searches one language at a time.',
     measured: [RARE_ALL],
-    helpSection: 'search-modes',
+    helpSection: 'start-here',
   },
   reader_scholarship: {
     id: 'reader_scholarship',
