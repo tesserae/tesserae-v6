@@ -35,6 +35,14 @@ Conventions
   hand and are the models the helper matches.
 
 
+## 2026-10-19 Events store: every Scholarship article judged for its bearing on its event, verdicts installed (RUN 03:30 EDT, by the lead)
+
+Why. The Scholarship tab of an event listed every article that cites one of the event's passages, and most cite a passage for another reason (a grammar paper on an optative in Thucydides 7.59 under the Sicilian Expedition). #1037 adds a verdict per article and event from the gateway model and orders and folds the tab by it.
+
+What. `scripts/events/judge_scholarship_relevance.py` read a copy of the live store and asked GLM-5.3-Flash through the campus gateway, for each distinct (event, article) pair, whether the article bears on the event (YES), touches it in part (PARTLY) or cites the passage for another reason (NO), given the article's title, authors, journal and year and up to four sentences in which it cites the event's passages. It wrote the verdicts into a new table `scholarship_relevance` and left the other tables unchanged. 13,212 of 13,213 pairs judged (one reply never gave a verdict, and that article sorts with PARTLY), across 1,082 of 1,083 events with articles: YES 318, PARTLY 952, NO 11,942. The judged store was installed at 03:30 by copy and rename, the previous file kept as `event_dossiers.sqlite.bak-20261019-prerelevance`. The route reads the table when present, so an older store behaves as before. About 15,500 gateway requests, 6 to 7 million prompt tokens, no quota refusal.
+
+Checks. Integrity check ok. The four other tables compare identical to the previous store row for row. The live route for the Sicilian Expedition (Q844289) answers its 132 article rows with YES 7, PARTLY 31, NO 94, the YES rows first in each group, no unjudged row.
+
 ## 2026-10-19 Citation indexes rebuilt with recognizer round 5 and installed (RUN 02:14 EDT, by the lead); document image links rewritten for two hosts (RUN 00:32 EDT, by the lead)
 
 Why. Round 5 of the citation recognizer (#1035) resolves Pindar book letters across lists of odes, stops page numbers glued after a colon from becoming locus levels, drops lower-case words read as works (317 false Manilius rows), and gives the bare forms Ann., Th., Str., Arr. and Ben. their default authors when the locus shape is firm (a single Roman numeral I, V or X counts as a first level). The image rules of #1030 came from a five-id browser check per host.
