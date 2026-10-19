@@ -118,7 +118,7 @@ export default function CrossLingualSearch({ onOpenHelp, onRegister, onCorpusSea
   // 2026-10-08).
   const helpMore = (anchor) => ({
     anchor,
-    onClick: () => onOpenHelp && onOpenHelp('reading-results', anchor),
+    onClick: () => onOpenHelp && onOpenHelp('results', anchor),
   });
   const [hierarchy, setHierarchy] = useState({ grc: [], la: [], en: [] });
   const [loading, setLoading] = useState(true);
@@ -1017,7 +1017,7 @@ export default function CrossLingualSearch({ onOpenHelp, onRegister, onCorpusSea
                 <span>Hover over or tap any label for its meaning.</span>
                 <button
                   type="button"
-                  onClick={() => onOpenHelp && onOpenHelp('reading-results')}
+                  onClick={() => onOpenHelp && onOpenHelp('results')}
                   className="text-amber-700 hover:text-amber-900 underline"
                 >
                   Reading the results

@@ -30,7 +30,7 @@ describe('SearchSettings channels panel: help link and notes', () => {
     window.addEventListener('tesserae:open-help', onHelp);
     fireEvent.click(screen.getByTestId('channels-help-link'));
     window.removeEventListener('tesserae:open-help', onHelp);
-    expect(seen).toEqual([{ section: 'reading-results', anchor: 'channels' }]);
+    expect(seen).toEqual([{ section: 'results', anchor: 'channels' }]);
 
     expect(screen.queryByTestId('channel-note-lemma')).toBeNull();
     fireEvent.click(screen.getByTestId('channels-notes-toggle'));

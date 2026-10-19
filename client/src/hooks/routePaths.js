@@ -30,6 +30,7 @@ const pathToPageType = {
   '/blog-archive': 'blog-archive',
   '/text-credits': 'text-credits',
   '/requests': 'requests',
+  '/upload-help': 'upload-help',
   '/scholarship-sources': 'scholarship-sources',
   '/admin': 'admin'
 };

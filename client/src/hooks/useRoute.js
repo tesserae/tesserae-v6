@@ -36,6 +36,7 @@ const PAGE_TITLES = {
   research: 'Research',
   'blog-archive': 'Blog Archive',
   requests: 'Requests',
+  'upload-help': 'Upload Your Text',
   'scholarship-sources': 'Scholarship: sources and methods',
   admin: 'Admin',
 };
@@ -63,6 +64,7 @@ const pageTypeToPath = {
   'research': '/research',
   'text-credits': '/text-credits',
   'requests': '/requests',
+  'upload-help': '/upload-help',
   'scholarship-sources': '/scholarship-sources',
   'admin': '/admin'
 };
