@@ -91,13 +91,14 @@
     {
       "filename": "window_texts.db.tar.gz",
       "extract_to": "data/passage_index/window_texts.db",
-      "description": "Passage text for every window, so results show the passage and not only its description. Covers the eight languages whose sources ship in texts/ (Latin, Greek, English, Coptic, Hebrew, Italian, Middle High German, Old French). Persian, Urdu and Arabic windows are indexed but their texts are not published, so those rows are absent.",
-      "size_bytes": 1880000000,
-      "size_human": "1.9 GB",
-      "size_compressed": 318836300,
-      "sha256": "214caa5a27a1ae41e5e4a2518945b3c0423da397b8a946a8e1c65b5adbb2e577",
+      "description": "Text of 460,652 passage windows and the lines of each work. Republished 19 October 2026 without the 25 Sahidica New Testament works, the Arabic and Persian works and eleven Iqbal collections. Each work keeps its own license and the whole is non-commercial because it includes the Hebrew Bible. The archive also holds LICENSE.txt and README.txt.",
+      "size_bytes": 2542161920,
+      "size_human": "2.5 GB",
+      "size_compressed": 495728110,
+      "sha256": "626cf4964c0ab47da5aff247cfc2e77135bd38999ae29b8f13b36c3b6a46dc5a",
       "required": false,
-      "rebuild_instructions": "Run: python scripts/build_window_texts.py"
+      "rebuild_instructions": "Run: python scripts/build_window_texts.py",
+      "sha256_extracted": "c889beefed080ffc603d9893e3d9e7ea55359f02eef7dbee2e18d2ee26b74499"
     },
     {
       "filename": "fa_index.db.tar.gz",
@@ -109,6 +110,115 @@
       "size_human": "870 MB",
       "sha256": "6dea30a905add47b574886eab6d10d7035a47e8b8541b3e68cc695a2c9d04271",
       "size_compressed": 183371737
+    },
+    {
+      "filename": "ur_index.db.tar.gz",
+      "extract_to": "data/downloads_extra/ur_index/ur_index.db",
+      "required": false,
+      "description": "Urdu inverted index of 14 Urdu Wikisource collections, CC BY-SA 4.0, without the four Iqbal collections. Copy ur_index.db to data/inverted_index/ to use it. The archive also holds LICENSE.txt and README.txt.",
+      "size_bytes": 64237568,
+      "size_human": "64 MB",
+      "sha256": "159133a7073bed05a2adb1475b8ba743678ed1e33079c55f81dc3700eb895562",
+      "sha256_extracted": "5ca85cd429ef4e9f973b9337cb30a0a56621f7cb9e221e3410598ee84b9a700a",
+      "size_compressed": 12481097,
+      "rebuild_instructions": "Not rebuilt by a script. See docs/DATA_OPERATIONS.md, the entry of 2026-10-19 for the data sets added to the Downloads page."
+    },
+    {
+      "filename": "entities.sqlite.tar.gz",
+      "extract_to": "data/downloads_extra/entities/entities.sqlite",
+      "required": false,
+      "description": "People & Places store, CC BY-SA 4.0: entities and their mentions in Latin, Greek and English works. The archive also holds LICENSE.txt and README.txt.",
+      "size_bytes": 293339136,
+      "size_human": "293 MB",
+      "sha256": "a90b6d2edd18e69e023c581f170b606b7402c309baa4492ea3a97c48ab18adf3",
+      "sha256_extracted": "2cc779f8ee18d8b5d52505f4797a8ca19376b39e781ba22fc981be3c9396d3df",
+      "size_compressed": 67926814,
+      "rebuild_instructions": "Not rebuilt by a script. See docs/DATA_OPERATIONS.md, the entry of 2026-10-19 for the data sets added to the Downloads page."
+    },
+    {
+      "filename": "event_dossiers.sqlite.tar.gz",
+      "extract_to": "data/downloads_extra/events/event_dossiers.sqlite",
+      "required": false,
+      "description": "Events store, CC BY-SA 4.0: events, ranked passages, documents and scholarship references, without the model working logs. The archive also holds LICENSE.txt and README.txt.",
+      "size_bytes": 61775872,
+      "size_human": "62 MB",
+      "sha256": "a9ced2bdc7f47c57cd0ac00f29fbdf4664c44acc4a86abbea5c1b0088b33cdea",
+      "sha256_extracted": "5df2e7c2ec8c5124fe26cc9315bef0471fe115aa4f066f5eb057c30e3b597f74",
+      "size_compressed": 18924924,
+      "rebuild_instructions": "Not rebuilt by a script. See docs/DATA_OPERATIONS.md, the entry of 2026-10-19 for the data sets added to the Downloads page."
+    },
+    {
+      "filename": "coins.tar.gz",
+      "extract_to": "data/downloads_extra/coins/odbl/coins_odbl.sqlite",
+      "extract_dir": "data/downloads_extra/coins",
+      "required": false,
+      "description": "Coin types in two SQLite files: odbl/coins_odbl.sqlite (ODbL 1.0) and corpus_nummorum/coins_corpus_nummorum.sqlite (CC BY-NC-SA 3.0, non-commercial). The archive also holds LICENSE.txt and README.txt. The two files together unpack to 79 MB.",
+      "size_bytes": 79278080,
+      "size_human": "79 MB",
+      "sha256": "69be4ac1c6497479833ea4dafa2caa5ff898ad9f87cd148b99e8604aaf90d646",
+      "sha256_extracted": "c4b035266db4afdd5bf425a4ae0f6fd342e976f8013f50326acf22b808f3eaf0",
+      "size_compressed": 10808721,
+      "rebuild_instructions": "Not rebuilt by a script. See docs/DATA_OPERATIONS.md, the entry of 2026-10-19 for the data sets added to the Downloads page."
+    },
+    {
+      "filename": "objects.sqlite.tar.gz",
+      "extract_to": "data/downloads_extra/objects/objects.sqlite",
+      "required": false,
+      "description": "Museum objects from Cleveland, Chicago and the Smithsonian (CC0, Chicago descriptions CC BY 4.0), image addresses only. The archive also holds LICENSE.txt and README.txt.",
+      "size_bytes": 2842624,
+      "size_human": "3 MB",
+      "sha256": "0a4ba7824a1d32de60ffeaffeca759fa940d17e5be8950c381b36f2b539f814d",
+      "sha256_extracted": "cb97d6038a5045a570b83dcf2f88bdef40162e16cac8dc5b3cb46d66484fb41c",
+      "size_compressed": 693543,
+      "rebuild_instructions": "Not rebuilt by a script. See docs/DATA_OPERATIONS.md, the entry of 2026-10-19 for the data sets added to the Downloads page."
+    },
+    {
+      "filename": "dictionaries.tar.gz",
+      "extract_to": "data/downloads_extra/dictionaries/dictionary_review_accepted.csv",
+      "required": false,
+      "description": "Synonym and cross-language dictionaries and the accepted review pairs as CSV, license file by file, without the Coptic WordNet and Hebrew files. The archive also holds LICENSE.txt and README.txt.",
+      "size_bytes": 949828,
+      "size_human": "950 KB",
+      "sha256": "d3314a79307a5854213097a7a646a5fbb6ad4b357ad2319afef031cbf51dea1e",
+      "sha256_extracted": "a68ac1012d9a4f116c972e4eeddd4f1ab3c1caf7a43c1b1bbed5f5c2db026347",
+      "size_compressed": 2168240,
+      "rebuild_instructions": "Not rebuilt by a script. See docs/DATA_OPERATIONS.md, the entry of 2026-10-19 for the data sets added to the Downloads page."
+    },
+    {
+      "filename": "latin_lemma_tables.tar.gz",
+      "extract_to": "data/downloads_extra/latin_lemma_tables/latin_lemmas.json",
+      "required": false,
+      "description": "Latin lemma table, corrections file and provenance. CC BY-NC-SA 4.0, non-commercial. The archive also holds LICENSE.txt and README.txt.",
+      "size_bytes": 2677101,
+      "size_human": "3 MB",
+      "sha256": "c5a4a3cfca51df907059f59d2e1f1ab76b9d5549df9f72105a3ae1cf618ae3d5",
+      "sha256_extracted": "677f1ba2d4cc5ad2978318f2c795865c989ef439d53b2761af8cd856cf49929b",
+      "size_compressed": 1372614,
+      "rebuild_instructions": "Not rebuilt by a script. See docs/DATA_OPERATIONS.md, the entry of 2026-10-19 for the data sets added to the Downloads page."
+    },
+    {
+      "filename": "text_descriptions.tar.gz",
+      "extract_to": "data/downloads_extra/text_descriptions/text_descriptions.json",
+      "required": false,
+      "description": "Model-written descriptions of works, CC BY 4.0, without Arabic and restricted works. The archive also holds LICENSE.txt and README.txt.",
+      "size_bytes": 1571497,
+      "size_human": "2 MB",
+      "sha256": "690baf787fc6be87a0730470b7cbbcb84953daf5a125b7e2a110c80b19e69a77",
+      "sha256_extracted": "a42686485ea953ba65b5bedf81041cac975c643f0ca09a0030724a87bd847aa8",
+      "size_compressed": 560999,
+      "rebuild_instructions": "Not rebuilt by a script. See docs/DATA_OPERATIONS.md, the entry of 2026-10-19 for the data sets added to the Downloads page."
+    },
+    {
+      "filename": "citations_without_sentences.tar.gz",
+      "extract_to": "data/downloads_extra/citations/citations.db",
+      "required": false,
+      "description": "Citation indexes (JSTOR Early Journal Content and Project MUSE) with the sentence column emptied, CC BY 4.0. The archive also holds LICENSE.txt and README.txt.",
+      "size_bytes": 12525568,
+      "size_human": "13 MB",
+      "sha256": "4c3d035dcf282123ba95b6c3326d0a72d2180aad544f6866460d891c5b0d4854",
+      "sha256_extracted": "29ef0836d6750f8d1bbb183a1b8d2c039570d4fcb68be88243180e5a3d2a4599",
+      "size_compressed": 4434974,
+      "rebuild_instructions": "Not rebuilt by a script. See docs/DATA_OPERATIONS.md, the entry of 2026-10-19 for the data sets added to the Downloads page."
     }
   ],
   "notes": {
@@ -121,6 +231,7 @@
       "data/lemma_tables/*.json (lemma lookup tables, ~40 MB)",
       "data/pedecerto/ (metrical scansion XML data)"
     ],
-    "passage_index": "The passage window index (Theme Search, Similar Passages) ships as per-language slices on the download page, passage_index_<lang>.tar.gz with index.json, because the slices differ in licence (Hebrew CC BY-NC, Coptic CC BY, the rest public domain or Ganjoor). Reassemble with scripts/merge_index.py. The single passage_index.tar.gz of 2 September 2026 was withdrawn on 19 October 2026."
+    "passage_index": "The passage window index (Theme Search, Similar Passages) ships as per-language slices on the download page, passage_index_<lang>.tar.gz with index.json, because the slices differ in licence (Hebrew CC BY-NC, Coptic CC BY, the rest public domain or Ganjoor). Reassemble with scripts/merge_index.py. The single passage_index.tar.gz of 2 September 2026 was withdrawn on 19 October 2026.",
+    "checksums_added_2026_10_19": "For the ten entries added on 19 October 2026 (and the window_texts entry as updated), sha256 is the checksum of the archive, which download_data.py verifies, and sha256_extracted is the checksum of the first extracted file."
   }
 }
