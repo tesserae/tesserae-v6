@@ -13,10 +13,10 @@ beforeEach(() => {
 });
 
 describe('StartHere', () => {
-  it('shows on a first visit with seven answers', () => {
+  it('shows on a first visit with eight answers', () => {
     render(<StartHere />);
     expect(screen.getByText(QUESTION)).toBeTruthy();
-    expect(screen.getAllByRole('link')).toHaveLength(7);
+    expect(screen.getAllByRole('link')).toHaveLength(8);
   });
 
   it('hides after an answer and remembers it', () => {
