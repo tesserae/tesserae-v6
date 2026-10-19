@@ -86,16 +86,20 @@ def commentary_passage(ref, passages):
 
 
 def span_of(plist):
-    """[(work, lo_ref, hi_ref)] for each work and citation prefix among the passages
-    (dicts with work, ref_start, ref_end), from the lowest start to the highest end.
-    A group whose span is one passage, or has no numeric locus, is left out."""
+    """[(work, lo_ref, hi_ref)] for each work, citation prefix and top-level division among
+    the passages (dicts with work, ref_start, ref_end). The division is the first segment of
+    the locus (the book of Thucydides), or the whole work when the locus has a single level
+    (a Life cited by chapter). Only a division that holds two or more passages has a span,
+    from its lowest start to its highest end, so a stray passage in another book adds none."""
     groups = {}
     for p in plist:
-        if not _coords(p['ref_start']):
+        c = _coords(p['ref_start'])
+        if not c:
             continue
-        groups.setdefault((p['work'], _prefix(p['ref_start'])), []).append(p)
+        div = c[0] if len(c) > 1 else None
+        groups.setdefault((p['work'], _prefix(p['ref_start']), div), []).append(p)
     out = []
-    for (work, _pre), ps in groups.items():
+    for (work, _pre, _div), ps in groups.items():
         if len(ps) < 2:
             continue
         lo = min(ps, key=lambda p: _coords(p['ref_start']))

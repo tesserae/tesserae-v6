@@ -161,19 +161,21 @@ def test_scholarship_reads_both_indexes_and_counts_each(stores, monkeypatch, cap
     assert seen['extra'] is None
 
 
-def test_span_of_takes_lowest_to_highest_locus_per_work():
-    ps = [dict(work='w.a', ref_start='thuc. 6.30', ref_end='thuc. 6.32'),
-          dict(work='w.a', ref_start='thuc. 7.10', ref_end='thuc. 7.12'),
-          dict(work='w.a', ref_start='thuc. 6.5', ref_end='thuc. 6.6'),
-          dict(work='w.b', ref_start='plut. 12.1', ref_end='plut. 12.3')]
-    assert R.span_of(ps) == [('w.a', 'thuc. 6.5', 'thuc. 7.12')]      # w.b has one passage, no span
+def test_span_of_is_per_book_and_ignores_stray_passages():
+    def P(work, a, b):
+        return dict(work=work, ref_start=a, ref_end=b)
+    ps = [P('w.a', 'thuc. 6.30', 'thuc. 6.32'), P('w.a', 'thuc. 7.10', 'thuc. 7.12'), P('w.a', 'thuc. 6.5', 'thuc. 6.6'),
+          P('w.a', 'thuc. 7.80', 'thuc. 7.85'), P('w.a', 'thuc. 4.64', 'thuc. 4.65'), P('w.a', 'thuc. 8.47', 'thuc. 8.48'),
+          P('w.b', 'plut. 12.1', 'plut. 12.3'), P('w.c', 'plut. 12', 'plut. 13'), P('w.c', 'plut. 30', 'plut. 30')]
+    got = sorted(R.span_of(ps))
+    assert got == [('w.a', 'thuc. 6.5', 'thuc. 6.32'), ('w.a', 'thuc. 7.10', 'thuc. 7.85'), ('w.c', 'plut. 12', 'plut. 30')]
 
 
 def test_scholarship_span_group_follows_and_is_not_repeated(stores, monkeypatch, capsys):
     from backend import scholarship as S
     c = sqlite3.connect(stores['ev'])
     c.executemany("INSERT INTO passages VALUES ('E1', ?, 'thucydides.history', ?, ?, 'yes')",
-                  [(1, 'thuc. 6.30', 'thuc. 6.32'), (2, 'thuc. 7.10', 'thuc. 7.12')])
+                  [(1, 'thuc. 6.30', 'thuc. 6.32'), (2, 'thuc. 6.50', 'thuc. 6.52'), (3, 'thuc. 4.10', 'thuc. 4.11')])
     c.commit()
     c.close()
     ejc = stores['tmp'] / 'citations.db'
@@ -185,7 +187,7 @@ def test_scholarship_span_group_follows_and_is_not_repeated(stores, monkeypatch,
 
     def fake_index(a, limit=40):
         asked.append((a['lo'], a['hi']))
-        wide = a['lo'] == 'thuc. 6.30' and a['hi'] == 'thuc. 7.12'
+        wide = a['lo'] == 'thuc. 6.30' and a['hi'] == 'thuc. 6.52'
         res = [{'title': 'Same', 'url': 'u1', 'source': 'citation_index'}]
         if wide:
             res.append({'title': 'Elsewhere', 'url': 'u9', 'source': 'citation_index'})
@@ -197,6 +199,6 @@ def test_scholarship_span_group_follows_and_is_not_repeated(stores, monkeypatch,
     R.main([stores['ev'], out, '--citation-index', str(ejc), '--extra-index', ''])
     rows = sqlite3.connect(out).execute(
         "SELECT title, passage_rank, passage_ref, scope FROM scholarship WHERE event_id = 'E1' ORDER BY rowid").fetchall()
-    assert [r for r in rows if r[3] == 'span'] == [('Elsewhere', None, 'thuc. 6.30-7.12', 'span')]
-    assert sum(1 for r in rows if r[0] == 'Same') == 2          # once per leading passage, never again in the span group
+    assert [r for r in rows if r[3] == 'span'] == [('Elsewhere', None, 'thuc. 6.30-6.52', 'span')]
+    assert sum(1 for r in rows if r[0] == 'Same') == 3          # once per leading passage, never again in the span group
     assert 'ejc span: 1 distinct articles, 1 rows' in capsys.readouterr().out
