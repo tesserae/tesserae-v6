@@ -354,6 +354,12 @@ def format_short_locus(raw_ref):
     for s in reversed(segs):
         if s and re.match(r'^\d+[a-z]?$', s):
             numeric.insert(0, s)
+        elif numeric and re.match(r'^[IVXLCDM]{1,5}$', s):
+            # A Roman-numeral level ahead of numeric ones is part of the locus
+            # (the plays: "hamlet III.1.66" is act, scene and line), not a
+            # text-id prefix. It used to be cut, so the card read "1.66"
+            # (2026-10-18).
+            numeric.insert(0, s)
         else:
             break
     if numeric and len(numeric) < len(segs):
