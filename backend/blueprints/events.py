@@ -17,6 +17,7 @@ the list route answers with available=false and the detail route with 404.
 """
 import json
 import os
+import re
 import sqlite3
 from urllib.parse import quote
 
@@ -111,7 +112,7 @@ def _event_row(r):
     }
 
 
-def _scholarship(c, event_id):
+def _scholarship(c, event_id, names=()):
     """The event's scholarship rows. A database that records the passage each
     article was found through (passage_rank, passage_ref) gives one row per
     article, with the first passage that brings it in (the lowest rank), ordered
@@ -132,7 +133,7 @@ def _scholarship(c, event_id):
                 item['scope'] = s['scope'] or 'passage'
         out.append(item)
     if linked:
-        out = _by_passage_rank(out)
+        out = _by_passage_rank(out, names)
     return out
 
 
@@ -151,17 +152,62 @@ def _commentary_cite_fields(title, ref):
     return out
 
 
-def _by_passage_rank(items):
-    """Per article the lowest-ranked passage, then the rows in that order (rows without a rank last)."""
-    best = {}
+# Journal apparatus the citation indexes carry as if it were an article
+# (2026-10-18, the project lead on the Sicilian Expedition: "neither of
+# which seems to closely pertain"). Rows with these titles are dropped.
+_APPARATUS_TITLES = re.compile(
+    r'^\s*(\[untitled\]|reports?\b|brief mention|volume information|front matter|back matter|'
+    r'books? received|notes and news|proceedings of the|classical articles in non-classical|'
+    r'summaries of (periodicals|dissertations)|index to volume|errata|corrigenda)', re.I)
+
+
+def _event_words(label, place, participants):
+    """Words of four letters or more from the event's label, place and
+    participants, lower-cased and cut to six letters, so Syracuse matches
+    Syracusan and Sicily matches Sicilian. Generic event words are left out."""
+    words = set()
+    for text in [label or '', place or ''] + list(participants or []):
+        for w in re.findall(r"[A-Za-z\u00C0-\u024F]{4,}", str(text)):
+            w = w.lower()
+            if w in ('battle', 'siege', 'expedition', 'campaign', 'revolt', 'treaty', 'conspiracy'):
+                continue
+            words.add(w[:6])
+    return words
+
+
+def _title_names_event(title, words):
+    low = (title or '').lower()
+    return any(re.search(r'\b' + re.escape(w), low) for w in words)
+
+
+def _by_passage_rank(items, names=()):
+    """One row per article, ordered within its group (passage rows, then span
+    rows) by three things in turn: whether the title names the event (its
+    label, place or a participant), how many of the event's passages the
+    article cites, and the rank of the first passage that brought it in.
+    Journal apparatus titles are dropped. Commentary rows follow."""
+    words = _event_words(*names) if names else set()
+    best, cites = {}, {}
     for i in items:
         if i['kind'] == 'article':
             k = (i['url'] or '', i['title'] or '')
+            cites[k] = cites.get(k, set()) | {i.get('passage_ref')}
             if k not in best or _rank(i) < _rank(best[k]):
                 best[k] = i
-    keep = [i for i in items if i['kind'] != 'article' or best[(i['url'] or '', i['title'] or '')] is i]
+    keep = []
+    for i in items:
+        if i['kind'] != 'article':
+            keep.append(i)
+            continue
+        k = (i['url'] or '', i['title'] or '')
+        if best[k] is not i or _APPARATUS_TITLES.match(i['title'] or ''):
+            continue
+        i['cites'] = len(cites[k])
+        i['names_event'] = bool(words) and _title_names_event(i['title'], words)
+        keep.append(i)
     order = {'article': 0, 'commentary': 1}
-    return sorted(keep, key=lambda i: (order.get(i['kind'], 2), i.get('scope') == 'span', _rank(i)))
+    return sorted(keep, key=lambda i: (order.get(i['kind'], 2), i.get('scope') == 'span',
+                                       not i.get('names_event'), -i.get('cites', 0), _rank(i)))
 
 
 def _rank(i):
@@ -385,7 +431,11 @@ def get_event(event_id):
             d['sources'] = [x for x in (credit.get('source_name'), credit.get('source_name_secondary')) if x]
             d['text_type'] = m.get('text_type_label')
 
-        scholarship = _scholarship(c, r['id'])
+        try:
+            participants = json.loads(r['participants']) if 'participants' in r.keys() and r['participants'] else []
+        except (TypeError, ValueError):
+            participants = []
+        scholarship = _scholarship(c, r['id'], (r['label'], r['place'], participants))
 
         points = []
         if ev['lat'] is not None and ev['lon'] is not None:

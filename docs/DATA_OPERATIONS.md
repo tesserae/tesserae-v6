@@ -35,6 +35,14 @@ Conventions
   hand and are the models the helper matches.
 
 
+## 2026-10-18 Events store: documents that name the participants or the place added, Scholarship table rebuilt against both citation indexes (RUN 23:33 to 23:39 EDT, by the lead)
+
+Why. The Sicilian Expedition's Scholarship tab listed two articles, both on Plutarch's Nicias, because the table had been built before the Thucydides file ids were repaired and from the EJC index alone. The Inscriptions & Papyri tab held the fifty documents nearest the event's place among those dated within its years, none of which named a participant or the place. Pull requests #1021 and #1026 added the rules and the scripts.
+
+What. `scripts/events/add_naming_documents.py` with `--undated drop` on the live `data/events/event_dossiers.sqlite` (dry run first, then `--apply`): 316 events gained 4,375 document rows that the Mentions store links to their participants or place, dated within the event's years widened by fifty, at most fifty per event, nearest first (documents rows 8,138 to 12,513). Then `scripts/events/relink_scholarship.py` on that output against both indexes (`citations.db` and `citations_muse.db`): scholarship rows 4,827 to 14,816 (11,075 articles citing a leading passage, 3,567 citing within the per-book span of the leading passages, 174 commentary rows; EJC 1,359 and 753 distinct articles in the two groups, MUSE 713 and 372). The live file was copied to `event_dossiers.sqlite.bak-20261018-events2`, the new file copied beside it and renamed into place at 23:39, and the previous file's empty write-ahead files removed.
+
+Checks. The live route for Q844289 answers 200 with 154 article rows (65 citing a leading passage, 89 within Thucydides 6 and 7) and 49 dated documents, none naming a participant or Sicily, as the measurement on the copy predicted (the 29 I.Sicily documents that name Sicily are all dated 120 BCE or later). The rows still include articles that cite a passage for another reason (grammar, textual notes), so the route orders each group by title match and citation count in the pull request that carries this entry, and a gateway-model relevance verdict per article is being prepared as the next step.
+
 ## 2026-10-18 Thirty-six Greek-titled works and Ferdowsi's Shahnameh renamed to Latin titles in every store (RUN 21:55 to 23:09 EDT, by the lead)
 
 Why. Thirty-six Greek works carried their Greek title inside the file id (`gorgias_of_leontini.ἑλένης_ἐγκώμιον`), so the Theme Search cards showed a Greek title where every other work shows a Latin one, and `ferdowsi.diwan` held the Shahnameh. Pull request #1017 renamed the text files and the records; the list with each new Latin title is in that pull request. The maintainer approved the list.

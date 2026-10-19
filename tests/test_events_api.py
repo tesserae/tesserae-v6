@@ -237,3 +237,24 @@ def test_scholarship_span_rows_follow_passage_rows():
     ]
     out = E._by_passage_rank(items)
     assert [i['title'] for i in out] == ['Direct', 'Span', 'C']
+
+
+def test_scholarship_order_names_event_then_cites_and_drops_apparatus():
+    """2026-10-18: within a group, an article whose title names the event
+    (label, place or a participant) comes first, then the one citing more of
+    the event's passages, then by rank; journal apparatus rows are dropped."""
+    items = [
+        {'kind': 'article', 'title': 'Reports', 'url': 'u0', 'passage_rank': 1, 'passage_ref': 'thuc. 7.1', 'scope': 'passage'},
+        {'kind': 'article', 'title': 'The Consecutive Sentence in Greek', 'url': 'u1', 'passage_rank': 1, 'passage_ref': 'thuc. 7.1', 'scope': 'passage'},
+        {'kind': 'article', 'title': 'Atrocities in Greek Warfare', 'url': 'u2', 'passage_rank': 6, 'passage_ref': 'thuc. 7.86', 'scope': 'passage'},
+        {'kind': 'article', 'title': 'Atrocities in Greek Warfare', 'url': 'u2', 'passage_rank': 9, 'passage_ref': 'thuc. 7.30', 'scope': 'passage'},
+        {'kind': 'article', 'title': 'Gylippus at Syracuse', 'url': 'u3', 'passage_rank': 12, 'passage_ref': 'thuc. 7.2', 'scope': 'passage'},
+        {'kind': 'article', 'title': 'Sicilian Coinage', 'url': 'u4', 'passage_rank': None, 'passage_ref': 'thuc. 6.1-7.87', 'scope': 'span'},
+        {'kind': 'commentary', 'title': 'C', 'url': None, 'passage_rank': None, 'passage_ref': None, 'scope': 'passage'},
+    ]
+    names = ('Sicilian Expedition', 'Sicily', ['Hermocrates', 'Gylippus'])
+    out = E._by_passage_rank(items, names)
+    assert [i['title'] for i in out] == ['Gylippus at Syracuse', 'Atrocities in Greek Warfare',
+                                         'The Consecutive Sentence in Greek', 'Sicilian Coinage', 'C']
+    assert out[0]['names_event'] is True and out[1]['cites'] == 2 and out[2]['cites'] == 1
+    assert out[3]['scope'] == 'span' and out[3]['names_event'] is True
