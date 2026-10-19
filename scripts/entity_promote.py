@@ -15,6 +15,9 @@ STEP, in order:
               with a spelling of the key outside the main forms that has the label's stem (Carnutes and Κάρνοι)
     build     copy --store to --out, write display labels, promote and merge, rebuild the catalog
               (about 30 seconds, under 0.2 GB)
+    merge4d   stage 4d: put back the carved names that split one referent in two (layer 1 stems, layer 2 the model
+              SAME/DIFFERENT/UNCLEAR), copy --store to --out with the merges applied
+              (--max-seconds, resumable from the answers file beside --out)
     draw      draw the fresh promoted entities for grading (--seed)
     stats     type counts and split counts of the judgments
 
@@ -35,6 +38,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
 from backend import entity_extras as extras  # noqa: E402
 from backend import entity_gateway as gw  # noqa: E402
+from backend import entity_mergeback as mb  # noqa: E402
 from backend import entity_model_pass as mp  # noqa: E402
 from backend import entity_promote as pr  # noqa: E402
 
@@ -566,6 +570,282 @@ def step_build(a):
     print(json.dumps({k: v for k, v in rep.items() if not k.endswith('examples')}), f'seconds {time.time() - t0:.0f}')
 
 
+# ------------------------------------------------------------------ merge pass 4d
+
+PROTECTED_LABELS = ('Rome', 'Roma', 'Romans')     # the lead decides Rome separately (2026-10-19)
+MERGE_MODEL = 'openai/gpt-oss-120b'
+MERGE_THREADS = 8
+MERGE_PAIR_CAP = 30
+
+
+def merge_entity(db, eid, tx, seed, exclude=(), only_forms=None, n_lines=3):
+    """What the merge question and layer 1 need about an entity: label, type, Greek and Latin labels,
+    description, listed spellings, mention rows by spelling, up to three lines from different works.
+    only_forms restricts the rows to those spellings (a carved name that sits inside an older entity)."""
+    e = db.execute('select e.entity_id, e.label, e.type, e.homonym_group, l.display_label_grc, l.display_label_la, '
+                   'l.description from entities e left join entity_labels l on l.eid = e.eid where e.eid = ?', (eid,)).fetchone()
+    forms = collections.Counter()
+    by_work = collections.defaultdict(list)
+    for work, form, ref in db.execute('select w.work, m.form, m.line_ref from mention_rows m join windows w on w.wid = m.wid '
+                                      'where m.eid = ?', (eid,)):
+        if only_forms is not None and form not in only_forms:
+            continue
+        forms[form] += 1
+        if ref is not None and form not in exclude:
+            by_work[work].append((form, ref))
+    lines = []
+    if tx is not None:
+        rnd = random.Random(f'{seed}:{e[0]}')
+        works = sorted(by_work)
+        rnd.shuffle(works)
+        for work in works:
+            form, ref = rnd.choice(by_work[work])
+            r = tx.execute('select text from lines where work = ? and ref = ? limit 1', (work, ref)).fetchone()
+            if not r or form not in r[0]:
+                continue
+            t = r[0].strip()
+            i = t.index(form)
+            lo, hi = max(0, i - 90), min(len(t), i + len(form) + 90)
+            lines.append(f'[{work}] ' + ('…' if lo else '') + t[lo:i] + '⟦' + form + '⟧' + t[i + len(form):hi]
+                         + ('…' if hi < len(t) else ''))
+            if len(lines) == n_lines:
+                break
+    return {'eid': eid, 'id': e[0], 'label': e[1], 'type': e[2], 'carved': e[3] == pr.COLLISION_MARK, 'greek': e[4],
+            'latin': e[5], 'description': e[6], 'forms': forms.most_common(), 'lines': lines,
+            'listed': [f for (f,) in db.execute('select form from variants where eid = ?', (eid,))]}
+
+
+def merge_groups(db, report, cand):
+    """{key: {'parent': eid or None, 'heir': the heir's name in the report, 'carved': [unit]}} from the collision
+    report. The parent is the entity of 'pn:<key>' (or the list or promoted entity that id is an alias of). A
+    carved unit is {'uid', 'host', 'whole', 'name', 'type', 'forms'}: a whole entity of collision mark (the carve
+    made it), or, when the build merged the carved name into an older entity (260 names), that host and the
+    spellings of the carved name inside it, which are the only rows a merge moves."""
+    alias = {a: e for e, a in db.execute('select eid, alias_id from entity_aliases')}
+    byid = dict((i, e) for e, i in db.execute('select eid, entity_id from entities'))
+    mark = dict(db.execute('select eid, homonym_group from entities'))
+
+    def eid_of(x):
+        return byid.get(x) or alias.get(x)
+
+    out = {}
+    for key in sorted(report):
+        parent = eid_of('pn:' + key) if report[key]['heir'] else None
+        units = []
+        for n in report[key]['names']:
+            host = eid_of('pn:' + n['key'])
+            if host is None or host == parent:
+                continue
+            forms = set()
+            for st in n['groups']:
+                forms |= set(cand[key][st]['forms'])
+            whole = mark.get(host) == pr.COLLISION_MARK
+            uid = host if whole else f'{host}:{n["key"]}'
+            if any(u['uid'] == uid for u in units):
+                continue
+            units.append({'uid': uid, 'host': host, 'whole': whole, 'name': n['latin'], 'type': n['type'],
+                          'forms': forms, 'name_key': n['key']})
+        out[key] = {'parent': parent, 'heir': report[key]['heir'], 'carved': units}
+    return out
+
+
+def merge_prompt(a, b):
+    return mb.merge_question(a, b)
+
+
+def merge_ask(client, job):
+    txt = client.ask(mb.MERGE_CONFIRM_SYSTEM if job['kind'] == 'confirm' else mb.MERGE_SYSTEM, job['prompt'], max_tokens=1500)
+    v, reason = mb.parse_answer(txt)
+    rec = {'qid': job['qid'], 'key': job['key'], 'a': job['a'], 'b': job['b'], 'kind': job['kind'],
+           'answer': v, 'reason': reason if v else None}
+    if v is None:
+        rec['reply'] = (txt or '')[:300]
+    return rec
+
+
+def step_merge4d(a):
+    t0 = time.time()
+    report = json.load(open(p(a, 'collision_report.json'), encoding='utf-8'))['keys']
+    cand = json.load(open(p(a, a.collide_tag + '_candidates.json'), encoding='utf-8'))
+    db = ro(a.store)
+    tx = ro(os.path.join(a.passage_dir, 'window_texts.db'))
+    groups = merge_groups(db, report, cand)
+    if a.keys_file:
+        keep = set(json.load(open(a.keys_file, encoding='utf-8')))
+        groups = {k: g for k, g in groups.items() if k in keep}
+    ans_path = a.out + '.merge_answers.jsonl'
+    answers = {}
+    for r in read_jsonl(ans_path):
+        if r.get('answer'):
+            answers[r['qid']] = r
+    info = {}
+
+    def unit_info(u, key):
+        k = ('u', u['uid'])
+        if k not in info:
+            d = merge_entity(db, u['host'], tx, 'merge4d:' + key, only_forms=None if u['whole'] else u['forms'])
+            d.update({'id': f"{d['id']}#{u['name_key']}" if not u['whole'] else d['id'], 'label': u['name'], 'type': u['type']})
+            if not u['whole']:
+                d.update({'greek': None, 'latin': None, 'description': None})
+            info[k] = d
+        return info[k]
+
+    def parent_info(g, key, exclude):
+        k = ('p', g['parent'], tuple(sorted(exclude)))
+        if k not in info:
+            d = merge_entity(db, g['parent'], tx, 'merge4d:' + key, exclude=exclude)
+            d['headings'] = [x for x in (g['heir'], d['label'], d['greek'], d['latin']) if x]
+            if g['heir'] and g['heir'] != d['label']:
+                d['label'] = f"{g['heir']} (listed as {d['label']})"
+            info[k] = d
+        return info[k]
+
+    decisions = {}     # carved uid -> {'into': eid, 'rule': ..., 'key': key}
+    jobs = []
+    stats = collections.Counter()
+    for key, g in groups.items():
+        if g['parent'] is None:
+            stats['keys_no_parent'] += 1
+        units = g['carved']
+        if not units:
+            stats['keys_without_carved_unit'] += 1
+            continue
+        allforms = set().union(*[u['forms'] for u in units])
+        parent = parent_info(g, key, allforms) if g['parent'] else None
+        if (parent and parent['label'].split(' (listed')[0] in PROTECTED_LABELS) or any(u['name'] in PROTECTED_LABELS for u in units):
+            stats['protected_keys'] += 1
+            continue
+        open_units = []
+        for u in units:
+            c = unit_info(u, key)
+            if parent is not None:
+                if mb.same_stem(parent['headings'], dict(c['forms']), parent['type'], c['type'], parent['listed']):
+                    decisions[u['uid']] = {'into': parent['eid'], 'rule': 'stem', 'key': key, 'unit': u}
+                    continue
+                qid = f"{key}|{parent['id']}|{c['id']}"
+                if qid in answers:
+                    if answers[qid]['answer'] == 'SAME':
+                        if mb.kind_veto(parent, c):
+                            stats['model_same_vetoed'] += 1
+                        else:
+                            second = answers.get(qid + '|confirm') if a.confirm_same else {'answer': 'SAME'}
+                            if second is None:
+                                jobs.append({'qid': qid + '|confirm', 'key': key, 'a': parent['id'], 'b': c['id'], 'kind': 'confirm',
+                                             'prompt': merge_prompt(parent, c)})
+                            elif second['answer'] == 'SAME':
+                                decisions[u['uid']] = {'into': parent['eid'], 'rule': 'model', 'key': key, 'unit': u}
+                                continue
+                            else:
+                                stats['model_same_not_confirmed'] += 1
+                else:
+                    jobs.append({'qid': qid, 'key': key, 'a': parent['id'], 'b': c['id'], 'kind': 'parent',
+                                 'prompt': merge_prompt(parent, c)})
+            open_units.append(u)
+        # whole carved entities against each other, same type, after every parent question of the key is answered
+        if any(j['key'] == key for j in jobs):
+            continue
+        whole = sorted((u for u in open_units if u['whole']), key=lambda u: -sum(n for _f, n in unit_info(u, key)['forms']))
+        asked = 0
+        for i, big in enumerate(whole):
+            for small in whole[i + 1:]:
+                if small['uid'] in decisions or big['uid'] in decisions or small['type'] != big['type']:
+                    continue
+                cb, cs = unit_info(big, key), unit_info(small, key)
+                if mb.same_stem([x for x in (cb['label'], cb['greek'], cb['latin']) if x], dict(cs['forms']),
+                                cb['type'], cs['type'], cb['listed']):
+                    decisions[small['uid']] = {'into': big['host'], 'rule': 'stem_pair', 'key': key, 'unit': small}
+                    continue
+                qid = f"{key}|{cb['id']}|{cs['id']}"
+                if qid in answers:
+                    if answers[qid]['answer'] == 'SAME':
+                        if mb.kind_veto(cb, cs):
+                            stats['model_same_vetoed'] += 1
+                        else:
+                            second = answers.get(qid + '|confirm') if a.confirm_same else {'answer': 'SAME'}
+                            if second is None:
+                                jobs.append({'qid': qid + '|confirm', 'key': key, 'a': cb['id'], 'b': cs['id'], 'kind': 'confirm',
+                                             'prompt': merge_prompt(cb, cs)})
+                            elif second['answer'] == 'SAME':
+                                decisions[small['uid']] = {'into': big['host'], 'rule': 'model_pair', 'key': key, 'unit': small}
+                            else:
+                                stats['model_same_not_confirmed'] += 1
+                elif asked < MERGE_PAIR_CAP:
+                    asked += 1
+                    jobs.append({'qid': qid, 'key': key, 'a': cb['id'], 'b': cs['id'], 'kind': 'pair',
+                                 'prompt': merge_prompt(cb, cs)})
+    print(f'groups {len(groups)}, layer 1 and earlier answers decided {len(decisions)}, questions pending {len(jobs)}', flush=True)
+    if jobs:
+        url, secret = gw.load_config()
+        client = gw.Gateway(url, secret, model=MERGE_MODEL)
+        f = open(ans_path, 'a', encoding='utf-8')
+        asked = 0
+        try:
+            while asked < len(jobs) and time.time() - t0 < a.max_seconds:
+                piece = jobs[asked:asked + MERGE_THREADS * 4]
+                results, _s = gw.run_jobs(piece, lambda j: merge_ask(client, j), MERGE_THREADS)
+                for r in results:
+                    f.write(json.dumps(r, ensure_ascii=False) + '\n')
+                f.flush()
+                asked += len(piece)
+        finally:
+            f.close()
+        stats_path = ans_path + '.gateway.json'
+        prev = json.load(open(stats_path)) if os.path.exists(stats_path) else {}
+        for k, v in client.stats.items():
+            if k == 'errors':
+                prev.setdefault('errors', {})
+                for e, n in v.items():
+                    prev['errors'][e] = prev['errors'].get(e, 0) + n
+            else:
+                prev[k] = prev.get(k, 0) + v
+        json.dump(prev, open(stats_path, 'w'))
+        print(f'asked {asked} of {len(jobs)} this run, gateway {json.dumps(client.stats)}', flush=True)
+        print('rerun to continue' if asked < len(jobs) else 'all asked; rerun to decide the pairs and build', flush=True)
+        return
+    if a.keys_file:
+        json.dump({str(c): {k: v for k, v in d.items() if k != 'unit'} | {'name': d['unit']['name']} for c, d in decisions.items()}, open(a.out + '.decisions_partial.json', 'w'), ensure_ascii=False)
+        print('keys-file run: the decisions are in', a.out + '.decisions_partial.json', 'and no store was written')
+        return
+    # nothing left to ask: write the store
+    if os.path.exists(a.out):
+        os.remove(a.out)
+    shutil.copyfile(a.store, a.out)
+    out = sqlite3.connect(a.out)
+    done = collections.Counter()
+    moved = dropped = forms = 0
+    log = []
+    order = sorted(decisions, key=lambda u: (decisions[u]['rule'].endswith('pair'), str(u)))
+    final = {}
+    for uid in order:
+        d = decisions[uid]
+        u = d['unit']
+        dst = d['into']
+        while dst in final:
+            dst = final[dst]
+        sid = out.execute('select entity_id, label from entities where eid = ?', (u['host'],)).fetchone()
+        if u['whole']:
+            r = mb.apply_merge(out, u['host'], dst, 'merge4d_' + d['rule'])
+            final[u['host']] = dst
+        else:
+            r = mb.apply_partial(out, u['host'], dst, u['forms'])
+        done[d['rule'] + ('' if u['whole'] else '_partial')] += 1
+        moved += r['moved']
+        dropped += r['dropped']
+        forms += r['forms']
+        log.append({'key': d['key'], 'name': u['name'], 'type': u['type'], 'from': sid[0], 'into': dst, 'rule': d['rule'],
+                    'whole': u['whole'], **r})
+    extras.add_form_search_names(out)
+    rep = {'merged': len(decisions), 'by_rule': dict(done), 'rows_moved': moved, 'rows_dropped_as_duplicates': dropped,
+           'spellings_added': forms, 'keys': len(groups), **dict(stats)}
+    out.execute("delete from meta where key = 'merge4d'")
+    out.execute("insert into meta values ('merge4d', ?)", (json.dumps(rep),))
+    out.commit()
+    out.close()
+    extras.write_catalog(a.out)
+    json.dump({'summary': rep, 'merges': log}, open(a.out + '.merge_report.json', 'w'), ensure_ascii=False, indent=1)
+    print(json.dumps(rep), f'seconds {time.time() - t0:.0f}')
+
+
 # ------------------------------------------------------------------ draw
 
 def step_draw(a):
@@ -587,7 +867,7 @@ def step_draw(a):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument('step', choices=['prepare', 'ask', 'splitfix', 'labelfix', 'collide', 'greekfix', 'build', 'confirm', 'describe', 'draw', 'stats'])
+    ap.add_argument('step', choices=['prepare', 'ask', 'splitfix', 'labelfix', 'collide', 'greekfix', 'build', 'confirm', 'describe', 'merge4d', 'draw', 'stats'])
     ap.add_argument('--store', help='the stage 2b store (read only)')
     ap.add_argument('--out', help='the stage 3a store to write (build) or read (draw)')
     ap.add_argument('--passage-dir', default=os.path.join(ROOT, 'data', 'passage_index'))
@@ -595,6 +875,10 @@ def main():
     ap.add_argument('--threads', type=int, default=48)
     ap.add_argument('--budget', type=int, default=480, help='seconds the ask step may run')
     ap.add_argument('--seed', type=int, default=20261021)
+    ap.add_argument('--confirm-same', action='store_true',
+                    help='merge4d: a model SAME merges only when a second, skeptical question also says SAME (tried 2026-10-19, off by default: it kept 5 of the 11 wrong carves against 7)')
+    ap.add_argument('--keys-file', help='merge4d: a JSON list of keys to decide, no store is written (prompt trials)')
+    ap.add_argument('--max-seconds', type=int, default=420, help='merge4d: seconds the model questions may run')
     ap.add_argument('--pleiades-types', default='/home/ncoffee/licensed_text/analysis/entity_mentions/pleiades/places_place_types.csv')
     ap.add_argument('--collide-tag', default='collide4b', help='collide, build: the file prefix of the stem test (stage 4 used collide)')
     ap.add_argument('--reuse-tag', default='collide', help='collide: earlier answers for the same spellings are reused')
