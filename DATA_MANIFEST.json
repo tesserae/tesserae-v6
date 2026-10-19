@@ -9,10 +9,11 @@
       "description": "Latin inverted index (the live search index, rebuilt 18 October 2026 after the Latin lemma corrections)",
       "size_bytes": 2012102656,
       "size_human": "2.0 GB",
-      "sha256": "26686c0eaa6871fdc0e9f3ddc0b6357f1c35eacbb48fd89d20e2f3bb75a1edd6",
+      "sha256": "c78df71e1d3c22bf4f354a55149ec28f3f7375044dee55d70bd5087a355c7410",
       "required": true,
       "rebuild_instructions": "Run: python scripts/build_inverted_index.py --language la --use-syntax-db --force",
-      "size_compressed": 567358249
+      "size_compressed": 567358249,
+      "sha256_extracted": "26686c0eaa6871fdc0e9f3ddc0b6357f1c35eacbb48fd89d20e2f3bb75a1edd6"
     },
     {
       "filename": "grc_index.db.tar.gz",
@@ -20,9 +21,10 @@
       "description": "Greek inverted index (the live search index, 18 October 2026)",
       "size_bytes": 2883391488,
       "size_human": "2.9 GB",
-      "sha256": "908165513de6874d1abb4fa605f3fb1f587e02fc463b719443b0e7f005d3c5fb",
+      "sha256": "72b52fd8e37ebf8123f1475ae02ddb04f5e271653ec25abd2c126f4106fe4bb8",
       "rebuild_instructions": "Run: python scripts/build_inverted_index.py --language grc --fast --force",
-      "size_compressed": 563608491
+      "size_compressed": 563608491,
+      "sha256_extracted": "908165513de6874d1abb4fa605f3fb1f587e02fc463b719443b0e7f005d3c5fb"
     },
     {
       "filename": "en_index.db.tar.gz",
@@ -30,9 +32,10 @@
       "description": "English inverted index (15 October 2026)",
       "size_bytes": 226500608,
       "size_human": "227 MB",
-      "sha256": "f54ab4f7bcbdffc88b40da807ce444d17482e70bdc631a5670fc15628a75dd57",
+      "sha256": "f34a971fd0c2e9998df956b37a6eae6b31927c2dce6b1c8684273093083ff271",
       "rebuild_instructions": "Run: python scripts/build_inverted_index.py --language en --force",
-      "size_compressed": 72206800
+      "size_compressed": 72206800,
+      "sha256_extracted": "f54ab4f7bcbdffc88b40da807ce444d17482e70bdc631a5670fc15628a75dd57"
     },
     {
       "filename": "syntax_latin.db.tar.gz",
@@ -63,8 +66,9 @@
       "rebuild_instructions": "Run: python scripts/build_inverted_index.py --language cop --force",
       "size_bytes": 234057728,
       "size_human": "234 MB",
-      "sha256": "9a107e078f1ab487a845505880b90266127db662fc183813035e7c06d50baa55",
-      "size_compressed": 39294127
+      "sha256": "4696f27b8417327148f5c3fab0e84470346ca7dadd9a8a7f0e7c8caabd324a05",
+      "size_compressed": 39294127,
+      "sha256_extracted": "9a107e078f1ab487a845505880b90266127db662fc183813035e7c06d50baa55"
     },
     {
       "filename": "he_index.db.tar.gz",
@@ -74,8 +78,9 @@
       "rebuild_instructions": "Run: python scripts/build_inverted_index.py --language he --force",
       "size_bytes": 47079424,
       "size_human": "47 MB",
-      "sha256": "b41472611ee4634d2e6da51ab25e83b02e775adf36482b50161a8cea720a6eeb",
-      "size_compressed": 11133816
+      "sha256": "f1ca6c5d3d1cb0ac31dc910e06cc868d788fa98dd178b450c4bee91c8f68b90c",
+      "size_compressed": 11133816,
+      "sha256_extracted": "b41472611ee4634d2e6da51ab25e83b02e775adf36482b50161a8cea720a6eeb"
     },
     {
       "filename": "syntax_coptic.db.tar.gz",
@@ -99,17 +104,6 @@
       "required": false,
       "rebuild_instructions": "Run: python scripts/build_window_texts.py",
       "sha256_extracted": "c889beefed080ffc603d9893e3d9e7ea55359f02eef7dbee2e18d2ee26b74499"
-    },
-    {
-      "filename": "fa_index.db.tar.gz",
-      "extract_to": "data/inverted_index/fa_index.db",
-      "required": false,
-      "rebuild_instructions": "Run: python scripts/build_inverted_index.py --language fa --force",
-      "description": "Persian inverted index (Ganjoor texts, 18 October 2026)",
-      "size_bytes": 869634048,
-      "size_human": "870 MB",
-      "sha256": "6dea30a905add47b574886eab6d10d7035a47e8b8541b3e68cc695a2c9d04271",
-      "size_compressed": 183371737
     },
     {
       "filename": "ur_index.db.tar.gz",
@@ -224,12 +218,12 @@
   "notes": {
     "total_size": "about 8 GB uncompressed for the search indexes and syntax databases",
     "hosting": "Files are hosted on the Tesserae server (tesserae.caset.buffalo.edu) and served via Apache.",
-    "checksums": "SHA256 checksums are of the extracted file; the page also carries SHA256SUMS.txt over the archives. Regenerated 19 October 2026 for la, grc, en, he and fa.",
+    "checksums": "sha256 is the checksum of the archive as served, which scripts/download_data.py verifies after the download. sha256_extracted, where present, is the checksum of the first extracted file. Regenerated 19 October 2026 for la, grc, en, cop and he; the five entries' earlier sha256 values were of the extracted file and were moved to sha256_extracted on 19 October 2026. The Persian index entry was removed the same day: Persian texts are not offered for download (DECISIONS 2026-10-11) and the archive is no longer served.",
     "already_on_github": [
       "texts/ (2,176 .tess files, ~308 MB)",
-      "backend/embeddings/ (pre-computed semantic embeddings, ~2 GB)",
       "data/lemma_tables/*.json (lemma lookup tables, ~40 MB)",
-      "data/pedecerto/ (metrical scansion XML data)"
+      "data/pedecerto/ (metrical scansion XML data)",
+      "backend/embeddings/ left the repository on 19 October 2026 (the per-line vector files are production data, not in git)"
     ],
     "passage_index": "The passage window index (Theme Search, Similar Passages) ships as per-language slices on the download page, passage_index_<lang>.tar.gz with index.json, because the slices differ in licence (Hebrew CC BY-NC, Coptic CC BY, the rest public domain or Ganjoor). Reassemble with scripts/merge_index.py. The single passage_index.tar.gz of 2 September 2026 was withdrawn on 19 October 2026.",
     "checksums_added_2026_10_19": "For the ten entries added on 19 October 2026 (and the window_texts entry as updated), sha256 is the checksum of the archive, which download_data.py verifies, and sha256_extracted is the checksum of the first extracted file."
