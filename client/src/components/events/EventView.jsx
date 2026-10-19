@@ -180,7 +180,7 @@ function ScholarshipRow({ s, openPassage, ranks }) {
         : <span className="text-gray-800">{s.title}</span>}
       {s.relevance === 'partly' && (
         <span className="ml-2 text-xs bg-gray-100 text-gray-600 rounded px-1.5 py-0.5"
-              title={s.relevance_reason || 'Treats the passage or the work in a way that touches the event'}>partly</span>
+              title="Treats the passage or the work in a way that touches the event">partly</span>
       )}
       {s.page_ref && <span className="text-xs text-gray-500"> {' · '}{s.page_ref}</span>}
       {/* A commentary row the server could match to a held edition carries
@@ -200,7 +200,12 @@ function ScholarshipRow({ s, openPassage, ranks }) {
           </a>
         </div>
       )}
-      {s.relevance === 'no' && s.relevance_reason && (
+      {/* The model's one-line reason under every judged row, not only the
+          rejected ones. A title alone ("The Origin of Plato's Cave") does not
+          say why an article is listed for a battle (the project lead,
+          2026-10-19: "I can't tell that any of the top hits ... have anything
+          to do with it"). */}
+      {s.relevance_reason && (
         <div className="text-xs mt-1 text-gray-500">{s.relevance_reason}</div>
       )}
     </li>

@@ -284,7 +284,7 @@ describe('the focus view', () => {
     const detail = {
       ...DETAIL,
       scholarship: [
-        { kind: 'article', title: 'Great Harbor article', page_ref: 'p', url: null, passage_rank: 1, passage_ref: 'hdt. 6.111.1', scope: 'passage', relevance: 'yes' },
+        { kind: 'article', title: 'Great Harbor article', page_ref: 'p', url: null, passage_rank: 1, passage_ref: 'hdt. 6.111.1', scope: 'passage', relevance: 'yes', relevance_reason: 'Discusses the battle itself.' },
         { kind: 'article', title: 'Background article', page_ref: 'p', url: null, passage_rank: 1, passage_ref: 'hdt. 6.111.1', scope: 'passage', relevance: 'partly', relevance_reason: 'Touches it.' },
         { kind: 'article', title: 'Grammar article', page_ref: 'p', url: null, passage_rank: 1, passage_ref: 'hdt. 6.111.1', scope: 'passage', relevance: 'no', relevance_reason: 'Cites it for a Greek word.' },
         { kind: 'article', title: 'Syntax article', page_ref: 'p', url: null, passage_rank: 1, passage_ref: 'hdt. 6.111.1', scope: 'passage', relevance: 'no', relevance_reason: 'Cites it for syntax.' },
@@ -294,6 +294,7 @@ describe('the focus view', () => {
     render(<EventsPage setPageType={() => {}} />);
     await screen.findByRole('heading', { name: 'Battle of Marathon' });
     await userEvent.click(screen.getByRole('tab', { name: /Scholarship/ }));
+    expect(screen.getByText('Discusses the battle itself.')).toBeTruthy(); // the reason shows under a YES row too (2026-10-19)
     expect(screen.getByText('Great Harbor article')).toBeTruthy();
     expect(screen.getByText('Background article')).toBeTruthy();
     expect(screen.getByText('partly')).toBeTruthy();
