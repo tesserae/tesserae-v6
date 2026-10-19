@@ -244,3 +244,27 @@ def test_score_rejects_a_reader_url_without_an_http_scheme(monkeypatch):
                         lambda *a, **k: called.append(a))
     assert reader_client.score('q', [{'id': 'x', 'text': 't'}]) is None
     assert called == []
+
+
+def test_strong_marks_follow_the_reader_order_and_keep_their_count(monkeypatch, _no_lookups):
+    """Strong was set from the index score before the re-order, so a strong
+    result could sit below unmarked ones (Hamlet, 2026-10-18). The marks move
+    to the head of the reader's order, as many as the band gave."""
+    results = [_result('w0', 0.90), _result('w1', 0.80), _result('w2', 0.70), _result('w3', 0.60)]
+    for r, strong in zip(results, (True, True, False, False)):
+        r['strong'] = strong
+    monkeypatch.setattr(reader_client, 'score',
+                        lambda query, passages, timeout=6.0:
+                        {'w0': 0.2, 'w1': 0.9, 'w2': 0.9, 'w3': 0.1})
+    out, meta = reader_rerank.apply('a query', results, k=4)
+    assert [r['id'] for r in out] == ['w1', 'w2', 'w0', 'w3']
+    assert [r['strong'] for r in out] == [True, True, False, False]
+
+
+def test_results_without_strong_marks_gain_none(monkeypatch, _no_lookups):
+    results = [_result('w0', 0.90), _result('w1', 0.80)]
+    for r in results:
+        del r['strong']   # the fixture marks everything strong; these carry no mark at all
+    monkeypatch.setattr(reader_client, 'score', lambda query, passages, timeout=6.0: {'w0': 0.1, 'w1': 0.9})
+    out, _meta = reader_rerank.apply('a query', results, k=2)
+    assert all('strong' not in r for r in out)

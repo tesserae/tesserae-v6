@@ -198,4 +198,15 @@ def apply(query, results, k=None, timeout=None):
         return (-reader_score, -(r.get('score') or 0.0))
 
     head_sorted = sorted(head, key=sort_key)
-    return head_sorted + tail, {'applied': True, 'k': k, 'ms': ms, 'model': MODEL_ID}
+    out = head_sorted + tail
+    # The strong marks were set before this re-order, from the index score
+    # against the work's band, so a marked result could stand below unmarked
+    # ones in the list the reader orders (Hamlet, 2026-10-18: the soliloquy
+    # marked strong at place six). Keep the band's count of strong results and
+    # give the marks to the head of the reader's order.
+    if any('strong' in r for r in out):
+        n_strong = sum(1 for r in out if r.get('strong') is True)
+        for i, r in enumerate(out):
+            if 'strong' in r:
+                r['strong'] = i < n_strong
+    return out, {'applied': True, 'k': k, 'ms': ms, 'model': MODEL_ID}
