@@ -195,3 +195,35 @@ def test_edition_lookup_never_raises_when_the_held_list_or_a_field_is_missing(mo
     assert E._commentary_cite_fields('A on w.x', 'w 1.1') == {'commentator': 'A', 'work': 'w.x', 'ref_start': 'w 1.1'}
     monkeypatch.setattr(scholarship, 'commentary_sources', lambda: [{'commentator': 'A', 'works': None}])
     assert scholarship.commentary_edition_fields(commentator='A')['edition'] is None
+
+
+def _doc(doc_id, a, b, km):
+    return {'doc_id': doc_id, 'date_start': a, 'date_end': b, 'distance_km': km}
+
+
+def test_documents_wider_than_fifty_years_are_left_out_and_naming_ones_come_first():
+    docs = [_doc('wide', -450, -401, 1), _doc('limit', -460, -410, 2),   # spans 49 and 50
+            _doc('toowide', -470, -410, 0.5),                            # 60 years
+            _doc('tight_far', -415, -413, 90), _doc('tight_near', -415, -413, 3),
+            _doc('named_wide_span', -430, -400, 80), _doc('named_tight', -414, -414, 70)]
+    out = E.rank_documents(docs, {'named_wide_span', 'named_tight', 'toowide'})
+    ids = [d['doc_id'] for d in out]
+    assert 'toowide' not in ids
+    assert [d['group'] for d in out] == ['names', 'names'] + ['dated'] * 4
+    assert ids[:2] == ['named_tight', 'named_wide_span']             # tighter dating first
+    assert ids[2:] == ['tight_near', 'tight_far', 'wide', 'limit']   # span, then distance, then id order
+    assert E.MAX_DOCUMENT_SPAN == 50
+
+
+def test_detail_documents_carry_group_counts_and_record_ids(client, monkeypatch):
+    first = client.get('/api/events/' + _id(client, 'pharsalus')).get_json()
+    stored = first['documents']
+    assert len(stored) == 2 and all(d['group'] == 'dated' for d in stored)   # the 99-year one is left out
+    assert first['document_counts'] == {'names': 0, 'dated': 2, 'left_out': 1}
+    pick = stored[-1]['doc_id']
+    monkeypatch.setattr(E, '_documents_naming', lambda ids, names: {pick})
+    d = client.get('/api/events/' + _id(client, 'pharsalus')).get_json()
+    assert d['documents'][0]['doc_id'] == pick and d['documents'][0]['group'] == 'names'
+    assert d['document_counts']['names'] == 1
+    assert d['document_counts']['names'] + d['document_counts']['dated'] + d['document_counts']['left_out'] == len(stored) + 1
+    assert all(x['doc_id'] for x in d['documents'])

@@ -31,6 +31,9 @@ _ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__
 DEFAULT_DB = os.path.join(_ROOT, 'data', 'events', 'event_dossiers.sqlite')
 LABEL_ORDER = {'yes': 0, 'mention': 1}
 MAX_PER_PAGE = 100
+# A document whose dating span is wider than this says little about a short
+# event ("450 to 401 BCE" loom weights for an event of 415 to 413).
+MAX_DOCUMENT_SPAN = 50
 
 
 def db_path():
@@ -159,6 +162,61 @@ def _by_passage_rank(items):
 
 def _rank(i):
     return i['passage_rank'] if i.get('passage_rank') is not None else 1e9
+
+
+def _documents_naming(doc_ids, names):
+    """Of `doc_ids`, those that the Mentions store records as naming any of
+    `names` (the event's participants and place), by document_mentions."""
+    from backend import entity_extras
+    from backend.blueprints.entities import store_path
+    path = store_path()
+    if not doc_ids or not os.path.exists(path):
+        return set()
+    try:
+        eids = {x for x in (entity_extras.resolve_name_to_eid(path, n) for n in names) if x is not None}
+        if not eids:
+            return set()
+        c = sqlite3.connect(f'file:{path}?mode=ro', uri=True)
+    except Exception:  # the dossier page must not depend on the Mentions store
+        logger.exception('[EVENTS] the Mentions store could not be read')
+        return set()
+    found = set()
+    try:
+        wanted = list(doc_ids)
+        marks = ','.join('?' * len(eids))
+        for i in range(0, len(wanted), 400):
+            chunk = wanted[i:i + 400]
+            q = (f'SELECT DISTINCT doc_id FROM document_mentions WHERE eid IN ({marks}) '  # nosec B608
+                 f'AND doc_id IN ({",".join("?" * len(chunk))})')  # placeholders only; values are bound
+            found.update(r[0] for r in c.execute(q, list(eids) + chunk))
+    except sqlite3.Error:
+        return set()
+    finally:
+        c.close()
+    return found
+
+
+def rank_documents(documents, naming):
+    """Apply the Inscriptions & Papyri rule to the documents of one event:
+    leave out any whose dating span is wider than MAX_DOCUMENT_SPAN years;
+    put those in `naming` (doc ids that name a participant or the place)
+    first, group "names"; the rest follow, group "dated". Inside each group
+    the tighter dating comes first, then the nearer findspot. A document with
+    no dating is unknown: it cannot fail the rule, and it follows every dated
+    document of its group."""
+    kept = []
+    for d in documents:
+        a, b = d['date_start'], d['date_end']
+        span = (b - a) if (a is not None and b is not None) else None
+        if span is not None and span > MAX_DOCUMENT_SPAN:
+            continue
+        d['date_span'] = span
+        d['group'] = 'names' if d['doc_id'] in naming else 'dated'
+        kept.append(d)
+    far = 1e12
+    kept.sort(key=lambda d: (d['group'] != 'names', d['date_span'] is None, d['date_span'] or 0,
+                             d['distance_km'] if d['distance_km'] is not None else far, d['doc_id']))
+    return kept
 
 
 @events_bp.route('/events')
@@ -300,6 +358,14 @@ def get_event(event_id):
                 'view_url': document_url(d['doc_id'], lang),
             })
 
+        n_stored = len(documents)
+        naming = _documents_naming([d['doc_id'] for d in documents],
+                                   list(ev['participants']) + ([ev['place']] if ev['place'] else []))
+        documents = rank_documents(documents, naming)
+        document_counts = {'names': sum(1 for d in documents if d['group'] == 'names'),
+                           'dated': sum(1 for d in documents if d['group'] == 'dated'),
+                           'left_out': n_stored - len(documents)}
+
         # The edition reference and the source names, so a card can lead with
         # "CIL 09, 03200" rather than the internal id (a "merged:" id marks a
         # stone both EDH and EDR record). Best effort: no metadata, no change.
@@ -332,6 +398,7 @@ def get_event(event_id):
         points += list(spots.values())
 
         return jsonify({'event': ev, 'passages': passages, 'passage_counts': counts,
-                        'documents': documents, 'scholarship': scholarship, 'map': points})
+                        'documents': documents, 'document_counts': document_counts,
+                        'scholarship': scholarship, 'map': points})
     finally:
         c.close()

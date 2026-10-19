@@ -3,7 +3,7 @@
  * (tabs, Reader links with the way back), and the Collections gate.
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, waitFor, within, cleanup } from '@testing-library/react';
+import { render, screen, waitFor, within, cleanup, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import EventsPage from '../EventsPage';
@@ -152,6 +152,44 @@ describe('the list', () => {
   });
 });
 
+describe('the Inscriptions & Papyri tab', () => {
+  beforeEach(() => window.history.replaceState({}, '', '/events/Q1'));
+
+  it('shows two groups in order with the record id and a caption', async () => {
+    const mk = (doc_id, group, edition) => ({
+      doc_id, group, edition, date_start: -415, date_end: -413, place: 'Gela', distance_km: 3,
+      text_snippet: 'x', view_url: `/document?doc=${doc_id}` });
+    mockApi(undefined, { ...DETAIL, documents: [
+      mk('isicily:ISic020570', 'names', 'I.Sicily 1'),
+      mk('isicily:ISic020571', 'dated', 'I.Sicily 20570'),
+      mk('isicily:ISic020572', 'dated', 'I.Sicily 20570'),
+    ] });
+    render(<EventsPage setPageType={() => {}} />);
+    await screen.findByRole('heading', { name: 'Battle of Marathon' });
+    await userEvent.click(screen.getByRole('tab', { name: /Inscriptions & Papyri/ }));
+    const heads = screen.getAllByRole('heading', { level: 4 }).map((h) => h.textContent);
+    expect(heads).toEqual(['Name a participant or the place', "Dated within the event's years, nearest first"]);
+    expect(screen.getByText('Record ISic020570')).toBeTruthy();
+    expect(screen.getByText('Record ISic020572')).toBeTruthy();
+    expect(screen.getByText(/dating span of no more than fifty years/)).toBeTruthy();
+  });
+});
+
+describe('the Events tab in the navigation', () => {
+  beforeEach(() => window.history.replaceState({}, '', '/events/Q1'));
+
+  it('returns from an open event to the list', async () => {
+    mockApi();
+    render(<EventsPage setPageType={() => {}} />);
+    await screen.findByRole('heading', { name: 'Battle of Marathon' });
+    window.history.pushState({}, '', '/events');
+    act(() => { window.dispatchEvent(new Event('tesserae:events-home')); });
+    expect(await screen.findByText('Siege of Syracuse')).toBeTruthy();
+    expect(screen.queryByRole('heading', { name: 'Battle of Marathon' })).toBeNull();
+    expect(window.location.pathname).toBe('/events');
+  });
+});
+
 describe('the focus view', () => {
   beforeEach(() => window.history.replaceState({}, '', '/events/Q1'));
 
@@ -177,7 +215,11 @@ describe('the focus view', () => {
     expect(links[0].getAttribute('href')).toBe(
       '/read?work=herodotus.histories.tess&lang=grc&ref=hdt.%206.111.1&event=Q1&eventLabel=Battle%20of%20Marathon');
     expect(screen.getByText(/4 more were judged unrelated/)).toBeTruthy();
-    expect(screen.getByText('Mentions it')).toBeTruthy();
+    expect(screen.getByText('Mention')).toBeTruthy();
+    expect(screen.getAllByText('Narrative')).toHaveLength(2);
+    expect(screen.queryByText('Tells of it')).toBeNull();
+    expect(screen.queryByText('Mentions it')).toBeNull();
+    expect(screen.getByText(/2 Narrative, 1 Mention\./)).toBeTruthy();
   });
 
   it('prints the work by name and the locus short, from the corpus text map', async () => {

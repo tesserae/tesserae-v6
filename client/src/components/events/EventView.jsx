@@ -10,8 +10,8 @@ import { dateLabel, kmLabel, readerLinkWithBack, shortPassageRef, workHeading } 
 import AboutSourcesLink from '../scholarship/AboutSourcesLink';
 
 const LABEL_TEXT = {
-  yes: ['Tells of it', 'An offline language model judged that this passage tells of the event itself.'],
-  mention: ['Mentions it', 'An offline language model judged that this passage mentions the event without telling of it.'],
+  yes: ['Narrative', 'An offline language model judged that this passage is a narrative of the event itself.'],
+  mention: ['Mention', 'An offline language model judged that this passage is a mention of the event, naming it without recounting it.'],
 };
 
 function WorkGroup({ work, items, event }) {
@@ -69,6 +69,7 @@ function PassagesTab({ passages, counts, event, focusRank }) {
     <div>
       <p className="text-xs text-gray-500 mb-3">
         {passages.length} passages in {groups.length} {groups.length === 1 ? 'work' : 'works'}.
+        {` ${counts?.yes || 0} Narrative, ${counts?.mention || 0} Mention.`}
         {counts?.no ? ` ${counts.no} more were judged unrelated and are left out.` : ''}
       </p>
       {groups.map(([work, items]) => (
@@ -78,42 +79,65 @@ function PassagesTab({ passages, counts, event, focusRank }) {
   );
 }
 
+const DOCUMENT_GROUPS = [
+  ['names', 'Name a participant or the place'],
+  ['dated', "Dated within the event's years, nearest first"],
+];
+
+function DocumentCard({ d, event }) {
+  return (
+    <li className="bg-white border border-gray-200 rounded-lg p-3">
+      <div className="flex flex-wrap items-center gap-2 text-sm">
+        <a href={d.view_url} className="text-red-700 hover:underline font-medium">
+          {d.edition || d.text_type || 'Document'}
+        </a>
+        <span className="text-xs text-gray-500" title="The record number of this document in its database">
+          Record {String(d.doc_id).replace(/^[a-z]+:/i, '')}
+        </span>
+        <span className="text-gray-600">
+          {[d.place, dateLabel(d.date_start, d.date_end)].filter(Boolean).join(' · ')}
+        </span>
+        {d.sources && d.sources.length > 0 && (
+          <span className="text-xs text-gray-500" title="The databases that record this document">
+            {d.sources.join(' and ')}
+          </span>
+        )}
+        {d.distance_km !== null && d.distance_km !== undefined && (
+          <span className="ml-auto text-xs text-gray-500">{kmLabel(d.distance_km)} from {event.place || 'the event'}</span>
+        )}
+      </div>
+      {d.text_snippet && <p className="text-sm text-gray-700 mt-1">{d.text_snippet}</p>}
+    </li>
+  );
+}
+
 function DocumentsTab({ documents, event }) {
   if (documents.length === 0) {
     return (
       <p className="text-sm text-gray-600">
-        No inscription or papyrus is dated to the years of this event and found near it.
+        No inscription or papyrus is dated to the years of this event, within fifty years of dating, and found near it.
       </p>
     );
   }
   return (
     <div>
       <p className="text-xs text-gray-500 mb-3">
-        Documents dated within the years of the event, nearest first, with the distance from the event's place.
+        Documents dated within the years of the event, with a dating span of no more than fifty years.
+        The first group names one of the event's participants or its place. The second group follows, the
+        most tightly dated first, then the nearest to the event's place.
       </p>
-      <ul className="space-y-2">
-        {documents.map((d) => (
-          <li key={d.doc_id} className="bg-white border border-gray-200 rounded-lg p-3">
-            <div className="flex flex-wrap items-center gap-2 text-sm">
-              <a href={d.view_url} className="text-red-700 hover:underline font-medium">
-                {d.edition || d.text_type || 'Document'}
-              </a>
-              <span className="text-gray-600">
-                {[d.place, dateLabel(d.date_start, d.date_end)].filter(Boolean).join(' · ')}
-              </span>
-              {d.sources && d.sources.length > 0 && (
-                <span className="text-xs text-gray-500" title="The databases that record this document">
-                  {d.sources.join(' and ')}
-                </span>
-              )}
-              {d.distance_km !== null && d.distance_km !== undefined && (
-                <span className="ml-auto text-xs text-gray-500">{kmLabel(d.distance_km)} from {event.place || 'the event'}</span>
-              )}
-            </div>
-            {d.text_snippet && <p className="text-sm text-gray-700 mt-1">{d.text_snippet}</p>}
-          </li>
-        ))}
-      </ul>
+      {DOCUMENT_GROUPS.map(([key, title]) => {
+        const rows = documents.filter((d) => (d.group || 'dated') === key);
+        if (rows.length === 0) return null;
+        return (
+          <section key={key} className="mb-4">
+            <h4 className="text-sm font-semibold text-gray-800 mb-1">{title}</h4>
+            <ul className="space-y-2">
+              {rows.map((d) => <DocumentCard key={d.doc_id} d={d} event={event} />)}
+            </ul>
+          </section>
+        );
+      })}
     </div>
   );
 }

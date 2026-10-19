@@ -206,6 +206,12 @@ export const useRoute = ({ adminSessionChecked, adminSessionActive }) => {
       window.dispatchEvent(new Event('tesserae:reader-home'));
       return;
     }
+    // The same for the Events tab while an event is open: back to the list.
+    if (nextPageType === 'events' && pageType === 'events') {
+      window.history.pushState({}, '', '/events');
+      window.dispatchEvent(new Event('tesserae:events-home'));
+      return;
+    }
     setPageType(nextPageType);
   }, [adminSessionChecked, adminSessionActive, pageType]);
 
