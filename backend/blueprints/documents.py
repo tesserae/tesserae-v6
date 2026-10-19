@@ -53,6 +53,17 @@ import unicodedata as _documents_ud
 # them with wide margin on both sides.
 DOCUMENTS_FORMULA_DEFAULT_N = 100
 
+# Fewest candidate hits for which `hide_formulas` drops formula hits before
+# looking up their metadata, restored words and ranking keys. Measured on
+# the Latin documents index (median of three warm runs, 2026-10-19): the
+# early drop saves about 15 microseconds per hidden hit (dis manibus,
+# 35,607 hits: 1.57 s down to 1.02 s; bene merenti, 12,010: 0.43 s down to
+# 0.23 s) and costs a dictionary lookup per hit. Below 2,000 candidates the
+# saving (under 30 ms) is inside the run-to-run noise of one request, so
+# those queries keep the single code path. Results and the hidden count are
+# identical on both paths (checked on 14 queries).
+_FORMULA_PREHIDE_MIN = 2000
+
 # A plain `None` default for `_document_hit`'s `meta_override` would be
 # indistinguishable from "looked this id up and it is genuinely
 # uncredited" (a real, meaningful value); this sentinel means "the caller
@@ -133,6 +144,38 @@ def _date_sort_value(m):
     return v
 
 
+_formula_lemma_cache = {}
+
+
+def _formula_lemmas(language):
+    """The lemmas of the language's stock-formula words
+    (backend.documents.formula_words), so a hit's matched LEMMAS can be
+    tested against a list that was written in surface forms ("manibus",
+    "dis"). Each word contributes every lemma the lemmatizer offers for it.
+    Cached per process, rebuilt when the word list is reloaded."""
+    import backend.documents as docs
+    words = docs.formula_words(language)
+    cached = _formula_lemma_cache.get(language)
+    if cached is not None and cached[0] is words:
+        return cached[1]
+    lemmas = set()
+    if words:
+        from backend.runtime import text_processor
+        for w in words:
+            for lem in text_processor.lemmatize_word(w, language):
+                lemmas.add(_normalize_lemma(lem, language))
+    lemmas = frozenset(lemmas)
+    _formula_lemma_cache[language] = (words, lemmas)
+    return lemmas
+
+
+def _is_formula_only(matched_lemmas, formula_lemmas):
+    """True when every lemma a hit matched on belongs to the stock-formula
+    list: the match rests on "dis manibus", "vixit annis" and the like and
+    carries nothing distinctive. False for an empty set (no information)."""
+    return bool(matched_lemmas) and set(matched_lemmas) <= formula_lemmas
+
+
 def _document_sort_key(sort, rank):
     """The tuple to sort a document hit's own `rank` dict (built in
     _search_documents_collection: adjacency/restored_rank/
@@ -148,8 +191,13 @@ def _document_sort_key(sort, rank):
     if sort == 'region':
         region = (rank.get('region') or '').lower()
         return (region == '', region, rank['doc_id'])
-    return (rank['adjacency'], rank['restored_rank'], rank['extra_restorations'],
-            date_known is False, date if date_known else 0, rank['doc_id'])
+    # A hit whose matched words are all stock-formula words (the lists in
+    # data/documents/formula_words_*.txt) goes behind every hit that matched
+    # something distinctive. It is a soft penalty: the hit stays in the
+    # results, ordered among its own kind by the same keys as before.
+    return (bool(rank.get('formula_only')), rank['adjacency'], rank['restored_rank'],
+            rank['extra_restorations'], date_known is False, date if date_known else 0,
+            rank['doc_id'])
 
 
 def _century_label(year):
@@ -601,12 +649,18 @@ def _search_documents_collection(language, search_type, query, filtered_query_le
     hits whenever this filter is on would be a much bigger behavior change
     than the spec asked for.
 
-    Formula words (data/documents/formula_words_la.txt/_grc.txt, spec item
-    6): NOT applied as a down-rank here, and deliberately so: the
-    'relevance' sort above is a document-provenance measure (adjacency/
-    restoration/date), not a word-rarity one, and there is still no
-    mechanism on this path for a soft lexical penalty to attach to.
-    Recorded in docs/DECISIONS.md.
+    Formula words (data/documents/formula_words_<language>.txt): they enter
+    the 'relevance' sort as a soft penalty. A hit whose matched lemmas all
+    belong to the lemmas of the list's words (_is_formula_only) sorts behind
+    every hit that matched anything else (see _document_sort_key). The
+    other sorts (oldest, newest, region) are unchanged.
+
+    Speed of `hide_formulas`: the stock-formula count of a hit needs only
+    the candidate lists, not the hit's metadata, restored words or ranking
+    keys. When no other filter is active and exclude_restored is off, the
+    hits to be hidden are therefore counted and dropped BEFORE those
+    per-hit lookups run (measured, see _FORMULA_PREHIDE_MIN below), which
+    gives the same results and the same formulas_hidden_count as before.
 
     Stage 4 (owner's review of the live trial, 2026-10-08): no 500-row
     ceiling. `offset`/`limit` page a SORTED, FULLY-FILTERED candidate list
@@ -652,8 +706,6 @@ def _search_documents_collection(language, search_type, query, filtered_query_le
             c['doc_id'] = doc_ids[(c['filename'], c['ref'])]
         formula_counter = _DocumentFormulaCounter(language, everyone, doc_ids, min_matched,
                                                   formula_cache)
-        meta_by_id = docs.bulk_meta([c['doc_id'] for c in raw_candidates if c['doc_id']])
-
         # The stock-formula count for the WHOLE query's lemma set is
         # exactly the distinct-document count this pass already computed,
         # whenever min_matched asked for every one of filtered_query_
@@ -663,6 +715,27 @@ def _search_documents_collection(language, search_type, query, filtered_query_le
         if min_matched == len(filtered_query_lemmas):
             stats_doc_ids = {c['doc_id'] for c in raw_candidates if c['doc_id']}
             formula_cache[frozenset(filtered_query_lemmas)] = len(stats_doc_ids)
+
+        # Early drop for hide_formulas (see the docstring): with no filter
+        # and no restored-word exclusion, a hit's fate depends on its
+        # formula count alone, so the hits to hide are counted and removed
+        # before bulk_meta, the sidecar and the ranking keys run for them.
+        no_filters = not any([date_from is not None, date_to is not None, region, text_type,
+                              material, source, kind, place])
+        counts_by_candidate = {}
+        if (hide_formulas is not None and no_filters and not exclude_restored
+                and len(raw_candidates) >= _FORMULA_PREHIDE_MIN):
+            survivors = []
+            for c in raw_candidates:
+                fc = formula_counter.count(c['matched_lemmas'])
+                if fc is not None and fc > hide_formulas:
+                    stats['formulas_hidden_count'] += 1
+                else:
+                    counts_by_candidate[id(c)] = fc
+                    survivors.append(c)
+            raw_candidates = survivors
+        meta_by_id = docs.bulk_meta([c['doc_id'] for c in raw_candidates if c['doc_id']])
+        formula_lemmas = _formula_lemmas(language)
 
         kept = []
         for c in raw_candidates:
@@ -678,10 +751,13 @@ def _search_documents_collection(language, search_type, query, filtered_query_le
             if exclude_restored and restored_rank == 2:
                 stats['restored_excluded_count'] += 1
                 continue
-            formula_count = formula_counter.count(c['matched_lemmas'])
-            if hide_formulas is not None and formula_count is not None and formula_count > hide_formulas:
-                stats['formulas_hidden_count'] += 1
-                continue
+            if id(c) in counts_by_candidate:
+                formula_count = counts_by_candidate[id(c)]
+            else:
+                formula_count = formula_counter.count(c['matched_lemmas'])
+                if hide_formulas is not None and formula_count is not None and formula_count > hide_formulas:
+                    stats['formulas_hidden_count'] += 1
+                    continue
             adjacency = _min_adjacent_span_rank(c['positions'], c['matched_lemmas'])
             kept.append({
                 'filename': c['filename'], 'ref': c['ref'], 'doc_id': c['doc_id'],
@@ -690,6 +766,7 @@ def _search_documents_collection(language, search_type, query, filtered_query_le
                 'rank': {
                     'adjacency': adjacency, 'restored_rank': restored_rank,
                     'extra_restorations': extra_restorations,
+                    'formula_only': _is_formula_only(c['matched_lemmas'], formula_lemmas),
                     'date': _date_sort_value(m), 'region': (m or {}).get('region'),
                     'doc_id': c['doc_id'] or '',
                 },

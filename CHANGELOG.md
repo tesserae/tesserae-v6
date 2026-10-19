@@ -7,6 +7,9 @@ so the state of the live site can be reconstructed from this file and
 docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
+## 2026-10-19
+- Documents search: the default relevance order puts a hit whose matched words are all stock formula words (the lists in `data/documents/formula_words_*.txt`) behind every hit that matched something else, and `hide_formulas` drops the formula hits before their metadata, restored-word and ranking lookups (same results and hidden count; dis manibus 1.6 s to 1.0 s, hic situs est 1.1 s to 0.2 s worst case). `data/documents/formula_words_cop.txt` added for Coptic (function words, 91 lemmas).
+
 ## 2026-10-18
 - Events: the Scholarship tab orders each group by whether the article's title names the event (its label, place or a participant), then by how many of the event's passages it cites, then by passage rank, and journal apparatus rows ("Reports", "Brief Mention", "Volume Information") are dropped. The production events store was rebuilt the same night with the documents that name the participants or the place and the Scholarship table against both citation indexes (docs/DATA_OPERATIONS.md).
 - Search One Text: Tessa's summary of the passages found is a synthesis of up to 220 words over the first twenty passages, naming the aspects of the subject with cited examples (was 120 words over twelve). Reader: the first-visit notice is three short sentences. Fourteen Coptic texts named from file fragments ("Life, John.kalybites") now read "Sahidic Coptic, Life of John Kalybites" and the like, and Theodosius of Alexandria's Encomium on Michael the Archangel is named.
