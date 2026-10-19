@@ -22,7 +22,6 @@ counts are counts of lines, not windows (two overlapping windows that hold one l
 The page behind these routes is a trial (?entities=1). The connector tools stay off: the routes
 are listed as site only in backend/blueprints/mcp_manifest.py.
 """
-import json
 import os
 import sqlite3
 import threading
