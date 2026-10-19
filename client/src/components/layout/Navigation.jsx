@@ -3,7 +3,7 @@ import { rememberLanguage } from '../../utils/languagePreference';
 import StartLanguageControl from './StartLanguageControl';
 import useCollections from '../../hooks/useCollections';
 import { useIsNarrow } from '../../hooks/useIsPhone';
-import { PAGE_NEEDS, VIEWS, viewById, orderBy } from '../../collections/collectionsConfig';
+import { VIEWS, viewById, orderBy } from '../../collections/collectionsConfig';
 import CollectionsControl from './CollectionsControl';
 import { fetchLanguages } from '../../utils/api';
 
@@ -100,7 +100,6 @@ function useFixedMenu(width) {
 // The pages about what the texts refer to sit under one menu in the top row
 // (the project lead, 2026-10-19). Each member keeps its own flags below.
 const THINGS_GROUP = { code: 'things', label: 'People, Places & Things' };
-const THINGS_NOTE = 'Inscriptions, coins and objects appear here when their collections are on.';
 
 const mainTabs = [
   { code: 'search', label: 'Intertextual Search' },
@@ -117,13 +116,12 @@ const mainTabs = [
   // (beside Theme Search) does not depend on where a conditional push
   // would land it.
   { code: 'inscriptions-papyri', label: 'Inscriptions & Papyri', beta: true, trial: true, group: 'things' },
-  // Events (battles, sieges, treaties): shown when inscriptions or papyri
-  // are on (PAGE_NEEDS.events).
+  // Events (battles, sieges, treaties).
   { code: 'events', label: 'Events', beta: true, needs: 'events', group: 'things' },
-  // Coins (Greek and Roman coin types): shown when the Coins collection is on (PAGE_NEEDS.coins).
+  // Coins (Greek and Roman coin types).
   // No beta mark since 2026-10-19 (the project lead): the page lists the coin types as OCRE and CRRO publish them, nothing on it is the site's own inference.
   { code: 'coins', label: 'Coins', needs: 'coins', group: 'things' },
-  // Objects (museum catalogue descriptions): shown when the Objects collection is on (PAGE_NEEDS.objects). No beta mark since 2026-10-19, for the same reason as Coins.
+  // Objects (museum catalogue descriptions). No beta mark since 2026-10-19, for the same reason as Coins.
   { code: 'objects', label: 'Objects', needs: 'objects', group: 'things' },
   { code: 'browse', label: 'Browse Corpus' },
   // Repository and Downloads sit under a small "More" menu at the end of the
@@ -204,7 +202,7 @@ const Navigation = ({
   // the visit) and the server switch together gate the "Inscriptions &
   // Papyri" tab -- the same two-part gate LineSearch.jsx's own documents
   // control and CorpusBrowser's Documents tab use.
-  const { anyOn, view, setView } = useCollections();
+  const { view, setView } = useCollections();
   // The Collections control is shown to every visitor (owner 2026-10-10: the
   // Start here panel named the historical collections while nothing at the
   // top of the page showed them). The default profile is still Literary, so
@@ -224,7 +222,10 @@ const Navigation = ({
       })
       .catch(() => {}); // fall back to defaults
   }, []);
-  const showInscriptionsPapyri = anyOn(PAGE_NEEDS['inscriptions-papyri']) && documentsEnabled;
+  // The documents pages are listed whenever the server switch is on; the
+  // client's ?documents=1 flag and the collection switches no longer gate
+  // the menu (2026-10-19).
+  const showInscriptionsPapyri = documentsEnabled;
   const handleLanguageClick = (tabCode) => {
     if (onLanguageReset) {
       onLanguageReset();
@@ -236,12 +237,15 @@ const Navigation = ({
 
   const orderedTabs = orderBy(mainTabs, viewById(view).menuOrder, (t) => t.code)
     .filter(tab => tab.code !== 'admin')
-    .filter(tab => !tab.trial || showInscriptionsPapyri)
-    .filter(tab => !tab.needs || anyOn(PAGE_NEEDS[tab.needs]));
-  // The available members of the group are replaced by one tab, placed where
-  // the first member stands in the view's order.
+    .filter(tab => !tab.trial || showInscriptionsPapyri);
+  // Every page of the group is listed in every view (the project lead,
+  // 2026-10-19: "Why not put everything in the Literature one as well?").
+  // The collection switches still decide what a search covers and which
+  // Reader tabs show; they no longer hide pages from this menu. The server
+  // switch for the documents collection (trial above) is the one gate kept.
+  // The members are replaced by one tab, placed where the first member stands
+  // in the view's order.
   const thingsMembers = orderedTabs.filter(tab => tab.group === THINGS_GROUP.code);
-  const someHidden = thingsMembers.length < mainTabs.filter(tab => tab.group === THINGS_GROUP.code).length;
   const shownTabs = [];
   orderedTabs.forEach((tab) => {
     if (tab.group !== THINGS_GROUP.code) shownTabs.push(tab);
@@ -418,12 +422,6 @@ const Navigation = ({
                         )}
                       </button>
                     ))}
-                    {someHidden && (
-                      <>
-                        <div role="separator" className="my-1 border-t border-gray-200" />
-                        <p className="px-3 py-1.5 text-xs text-gray-500">{THINGS_NOTE}</p>
-                      </>
-                    )}
                   </div>
                 )}
               </div>

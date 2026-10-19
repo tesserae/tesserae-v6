@@ -8,6 +8,10 @@ history (index builds, cache rebuilds, corpus changes) is in
 `DATA_OPERATIONS.md`; per-release changes are in `../CHANGELOG.md`.
 
 
+## 2026-10-19: every page of People, Places & Things is listed in both views
+
+The menu had listed only the pages whose collections were on, so the Literature view showed People & Places alone with a note that inscriptions, coins and objects appear when their collections are switched on. The project lead asked why the selection should be smaller under Literature when the menu is there anyway ("Why not put everything in the Literature one as well?"). From 2026-10-19 the menu lists all five pages in every view and every profile. The collection switches keep their other effects, what a search covers and which Reader tabs show. The one gate left on the menu is the server switch for the documents collection, which hides Inscriptions & Papyri when no documents index is installed. The client-side trial flag for the documents pages no longer gates the menu.
+
 ## 2026-10-19: which pages keep a Beta mark
 
 A Beta mark on a page in the top row means the page is new and still changing, so a scholar should not yet cite from it. The project lead reviewed the five marks on 2026-10-19. Coins and Objects lose theirs. Both pages present the coin types (OCRE and CRRO) and the museum objects (the museums' own catalog descriptions) as their sources publish them, nothing on them is the site's own inference, and together they have had five small changes since they appeared. Search One Text keeps its mark as the most changed page on the site (45 change-log entries since 2026-10-12). Inscriptions & Papyri keeps it until the Latin documents index, built on 2026-10-08 before the Latin lemma corrections, is rebuilt. Events keeps it because the document and scholarship tightenings of 2026-10-18 and the relevance verdicts of 2026-10-19 have not yet been read on the page.
