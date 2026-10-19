@@ -67,20 +67,22 @@ describe('Navigation — selected state is announced, not just colored', () => {
 });
 
 /**
- * "Inscriptions & Papyri" (the documents trial's own main-menu item) is
- * gated on BOTH the client's ?documents=1 session flag (useDocumentsTrial)
- * and the server switch (documents_enabled from /api/languages) -- the
- * same two-part gate LineSearch.jsx's own documents control already uses.
- * Mirrors the mock-fetch pattern LineSearch.documentsCollection.test.jsx
- * uses for the identical gate.
+ * The People, Places & Things menu lists every page of the group in every
+ * view (the project lead, 2026-10-19). The collection switches decide what a
+ * search covers and which Reader tabs show, not which pages the menu offers.
+ * The one gate left is the server switch for the documents collection
+ * (documents_enabled from /api/languages), which hides Inscriptions & Papyri
+ * when the documents index is not installed.
  */
-describe('Navigation — the "Inscriptions & Papyri" item (documents trial)', () => {
+describe('Navigation — the People, Places & Things menu lists every page', () => {
   const originalFetch = global.fetch;
   beforeEach(() => {
+    window.localStorage.clear();
     try { window.sessionStorage.clear(); } catch { /* ignore */ }
     window.history.replaceState({}, '', '/');
   });
   afterEach(() => {
+    window.localStorage.clear();
     window.history.replaceState({}, '', '/');
     global.fetch = originalFetch;
   });
@@ -99,41 +101,40 @@ describe('Navigation — the "Inscriptions & Papyri" item (documents trial)', ()
     });
   }
 
-  it('is absent when the server switch is on but the client never opted in', async () => {
+  it('lists all five pages in the Literary profile once the server switch is read', async () => {
     mockLanguages(true);
     renderNav();
     await waitFor(() => expect(global.fetch).toHaveBeenCalledWith('/api/languages'));
-    expect(screen.queryByRole('button', { name: /Inscriptions & Papyri/ })).toBeNull();
+    const menu = await openThings();
+    await waitFor(() => expect(thingsNames(menu)).toEqual(['People & Places', 'Inscriptions & Papyri', 'Events', 'Coins', 'Objects']));
   });
 
-  it('is absent when the client opted in but the server switch is off', async () => {
-    window.sessionStorage.setItem('tesserae_documents_trial', '1');
+  it.each(['historical', 'archaeological', 'everything'])('lists all five pages in the %s profile', async (profile) => {
+    const { setProfile } = await import('../../../collections/collectionsStore');
+    setProfile(profile);
+    mockLanguages(true);
+    renderNav();
+    await waitFor(() => expect(global.fetch).toHaveBeenCalledWith('/api/languages'));
+    const menu = await openThings();
+    await waitFor(() => expect(thingsNames(menu)).toHaveLength(5));
+  });
+
+  it('leaves out Inscriptions & Papyri only while the server switch is off', async () => {
     mockLanguages(false);
     renderNav();
     await waitFor(() => expect(global.fetch).toHaveBeenCalledWith('/api/languages'));
-    expect(screen.queryByRole('button', { name: /Inscriptions & Papyri/ })).toBeNull();
+    const menu = await openThings();
+    expect(thingsNames(menu)).toEqual(['People & Places', 'Events', 'Coins', 'Objects']);
   });
 
-  it('appears in the People, Places & Things menu, after People & Places, once both the trial flag and the server switch are on', async () => {
-    window.sessionStorage.setItem('tesserae_documents_trial', '1');
+  it('shows no note about collections', async () => {
     mockLanguages(true);
     renderNav();
     const menu = await openThings();
-    await waitFor(() => expect(thingsNames(menu)).toEqual(['People & Places', 'Inscriptions & Papyri', 'Events']));
+    expect(within(menu).queryByText(/appear here when their collections are on/)).toBeNull();
   });
 
-  it('turns on from ?documents=1 in the URL, without a prior session flag', async () => {
-    window.history.pushState({}, '', '/?documents=1');
-    mockLanguages(true);
-    renderNav();
-    await waitFor(async () => {
-      const menu = await openThings();
-      expect(within(menu).getByRole('menuitem', { name: /Inscriptions & Papyri/ })).toBeTruthy();
-    });
-  });
-
-  it('clicking it calls setPageType with its code', async () => {
-    window.sessionStorage.setItem('tesserae_documents_trial', '1');
+  it('clicking a member calls setPageType with its code', async () => {
     mockLanguages(true);
     const setPageType = vi.fn();
     renderNav({ setPageType });
@@ -145,91 +146,11 @@ describe('Navigation — the "Inscriptions & Papyri" item (documents trial)', ()
   });
 });
 
-describe('Navigation — the "Events" item follows Collections', () => {
-  beforeEach(() => { window.localStorage.clear(); window.sessionStorage.clear(); });
-  afterEach(() => { window.localStorage.clear(); });
-
-  it('is absent in the Literary profile', () => {
-    renderNav();
-    expect(screen.queryByRole('button', { name: /^Events/ })).toBeNull();
-  });
-
-  it.each(['historical', 'everything'])('appears in the %s profile', async (profile) => {
-    const { setProfile } = await import('../../../collections/collectionsStore');
-    setProfile(profile);
-    renderNav();
-    expect(within(await openThings()).getByRole('menuitem', { name: /Events/ })).toBeTruthy();
-  });
-});
-
-describe('Navigation — the "Coins" item follows Collections', () => {
-  beforeEach(() => { window.localStorage.clear(); window.sessionStorage.clear(); });
-  afterEach(() => { window.localStorage.clear(); });
-
-  it.each(['literary', 'historical'])('is absent in the %s profile', async (profile) => {
-    const { setProfile } = await import('../../../collections/collectionsStore');
-    setProfile(profile);
-    renderNav();
-    expect(screen.queryByRole('button', { name: /^Coins/ })).toBeNull();
-  });
-
-  it('appears in the Archaeological and Everything profiles and when Coins is switched on by name', async () => {
-    const { setProfile, setCollection } = await import('../../../collections/collectionsStore');
-    setProfile('archaeological');
-    renderNav();
-    expect(within(await openThings()).getByRole('menuitem', { name: /^Coins/ })).toBeTruthy();
-    cleanup();
-    setProfile('everything');
-    renderNav();
-    expect(within(await openThings()).getByRole('menuitem', { name: /^Coins/ })).toBeTruthy();
-    cleanup();
-    setProfile('historical');
-    setCollection('coins', true);
-    renderNav();
-    expect(within(await openThings()).getByRole('menuitem', { name: /^Coins/ })).toBeTruthy();
-  });
-});
-
-describe('Navigation — the "Objects" item follows Collections', () => {
-  beforeEach(() => { window.localStorage.clear(); window.sessionStorage.clear(); });
-  afterEach(() => { window.localStorage.clear(); });
-
-  it.each(['literary', 'historical'])('is absent in the %s profile', async (profile) => {
-    const { setProfile } = await import('../../../collections/collectionsStore');
-    setProfile(profile);
-    renderNav();
-    expect(screen.queryByRole('button', { name: /^Objects/ })).toBeNull();
-  });
-
-  it.each(['archaeological', 'everything'])('appears in the %s profile', async (profile) => {
-    const { setProfile } = await import('../../../collections/collectionsStore');
-    setProfile(profile);
-    renderNav();
-    expect(within(await openThings()).getByRole('menuitem', { name: /^Objects/ })).toBeTruthy();
-  });
-
-  it('appears when Objects is switched on by name, after Coins', async () => {
-    const { setProfile, setCollection } = await import('../../../collections/collectionsStore');
-    setProfile('historical');
-    setCollection('objects', true);
-    renderNav();
-    expect(within(await openThings()).getByRole('menuitem', { name: /^Objects/ })).toBeTruthy();
-    setCollection('coins', true);
-    cleanup();
-    renderNav();
-    const names = thingsNames(await openThings());
-    const coins = names.findIndex((n) => /^Coins/.test(n));
-    const objects = names.findIndex((n) => /^Objects/.test(n));
-    expect(coins).toBeGreaterThan(-1);
-    expect(objects).toBe(coins + 1);
-  });
-});
-
 describe('Navigation — the People, Places & Things menu', () => {
   beforeEach(() => { window.localStorage.clear(); window.sessionStorage.clear(); });
   afterEach(() => { window.localStorage.clear(); });
 
-  it('is one button with a menu that lists People & Places alone in the default profile, with the muted line', async () => {
+  it('is one button with a menu that lists the four pages the server switch does not gate, before /api/languages answers', async () => {
     renderNav();
     const button = screen.getByRole('button', THINGS);
     expect(button).toHaveAttribute('aria-haspopup', 'menu');
@@ -237,39 +158,24 @@ describe('Navigation — the People, Places & Things menu', () => {
     expect(screen.queryByRole('button', { name: /^People & Places/ })).toBeNull();
     const menu = await openThings();
     expect(button).toHaveAttribute('aria-expanded', 'true');
-    expect(thingsNames(menu)).toEqual(['People & Places']);
+    expect(thingsNames(menu)).toEqual(['People & Places', 'Events', 'Coins', 'Objects']);
     expect(menu.style.position).toBe('fixed');
-    expect(within(menu).getByText('Inscriptions, coins and objects appear here when their collections are on.')).toBeTruthy();
   });
 
-  it('lists the available members in the order of the view when the documents collections are on', async () => {
+  it('lists the members in the order of the History view', async () => {
     const { setProfile } = await import('../../../collections/collectionsStore');
     setProfile('historical');
+    const { setView } = await import('../../../collections/collectionsStore');
+    if (setView) setView('history');
     global.fetch = vi.fn(async () => mockResponse({
       json: async () => ({ languages: [{ code: 'la', label: 'Latin' }], documents_enabled: true }),
     }));
     renderNav();
     await waitFor(async () => {
       const menu = await openThings();
-      expect(thingsNames(menu)).toEqual(['People & Places', 'Inscriptions & Papyri', 'Events']);
+      expect(thingsNames(menu)).toEqual(['Events', 'Inscriptions & Papyri', 'Coins', 'Objects', 'People & Places']);
       fireEvent.click(screen.getByRole('button', THINGS));
     });
-  });
-
-  it('shows no muted line when every member is available', async () => {
-    const { setProfile } = await import('../../../collections/collectionsStore');
-    setProfile('everything');
-    global.fetch = vi.fn(async () => mockResponse({
-      json: async () => ({ languages: [{ code: 'la', label: 'Latin' }], documents_enabled: true }),
-    }));
-    renderNav();
-    await waitFor(async () => {
-      const menu = await openThings();
-      expect(thingsNames(menu)).toHaveLength(5);
-      fireEvent.click(screen.getByRole('button', THINGS));
-    });
-    const menu = await openThings();
-    expect(within(menu).queryByText(/appear here when/)).toBeNull();
   });
 
   it('clicking a member closes the menu and calls setPageType with its code', async () => {
