@@ -35,6 +35,18 @@ Conventions
   hand and are the models the helper matches.
 
 
+## 2026-10-19 Public Coptic index download rebuilt without the Sahidica New Testament (PENDING, to be run by the lead)
+
+Why. The Sahidica New Testament (J. Warren Wells's edition) is held for academic use only, so the public Coptic index download may not carry it. The site search keeps it. The download of 2 September still held it and was left out of the regeneration earlier today for that reason.
+
+What. A copy of the live `cop_index.db` was filtered with `scripts/corpus/filter_index_by_registry.py` (the live file was only read). The registry names 29 works. The live index held 27 of them (the 27 `sahidica.*` books of the New Testament), and the other two ids have no indexed file. Before and after, texts 180 to 153, lines 70,842 to 62,919, postings 1,466,155 to 1,300,852, `lemma_doc_freq` rows 29,323 to 27,981. The checks found no registry work left in `texts`, no orphan rows in `lines` or `postings`, zero occurrences of "sahidica" in a full dump of the copy and a clean integrity check, and lemma lookups through `backend.inverted_index` pointed at the copy answer for three Coptic searches. Peak memory 18 MB. The archive `cop_index.db.tar.gz` is 39,294,127 bytes (SHA-256 `4696f27b8417327148f5c3fab0e84470346ca7dadd9a8a7f0e7c8caabd324a05`), the extracted file 234,057,728 bytes (SHA-256 `9a107e078f1ab487a845505880b90266127db662fc183813035e7c06d50baa55`). The new `index.html` and `SHA256SUMS.txt` are built beside it. The staging folder is `~/tesserae-backups/public_data_2026-10-19_cop/`, with `CHECKS.md`.
+
+Install (by the lead):
+1. `mkdir -p ~/tesserae-backups/public_data_old_2026-10-19/cop_before_filter && cp -p /var/www/tesseraev6_flask/public_data/{cop_index.db.tar.gz,index.html,SHA256SUMS.txt} ~/tesserae-backups/public_data_old_2026-10-19/cop_before_filter/`, which keeps the earlier backups in the folder apart.
+2. `cp ~/tesserae-backups/public_data_2026-10-19_cop/{cop_index.db.tar.gz,index.html,SHA256SUMS.txt} /var/www/tesseraev6_flask/public_data/`
+3. Verify from the public URL. Download `cop_index.db.tar.gz`, compare its SHA-256 with `SHA256SUMS.txt`, and read the Coptic row on the page.
+
+## 2026-10-19 Per-line vector files untracked from git, production and dev checkouts kept whole (PENDING, by the lead)
 ## 2026-10-19 Per-line vector files untracked from git, production and dev checkouts kept whole (RUN 07:42 to 07:54 EDT, by the lead)
 
 **Run record.** #1041 merged by hand at 07:42 (the review and classifier jobs could not fetch a 1,703-file diff; test and build passed). Production: 7,130 files (9.5 GB) copied to `~/tesserae-backups/embeddings_untrack_2026-10-19/production/`, the 66 locally modified tracked files reverted, the pull removed 1,703 files (5,463 left), the copy restored to 7,130, file lists identical, git clean under the folder, the vector census 3,479 files with 0 mismatches, WSGI touched, languages 200, 80 files compared by checksum with the backup with 0 differences. Dev checkout the same at 07:51 to 07:54 (3,626 files, 3.6 GB, 40 checksums compared, 0 differences). The golden check against the 18 October baseline showed 20 of 69 requests different, all from the night's data operations (renames, map and reuse rebuilds, events store) and none a vector-dependent result, and the baseline was re-recorded as `2026-10-19_live`.
