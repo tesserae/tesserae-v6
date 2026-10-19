@@ -1,0 +1,24 @@
+{
+ "description": "Pass 4e (2026-10-19): merges of pass 4d the lead reverted (the carve stays as in 4c) and merges made by hand whatever the model said.",
+ "undo_merges": [
+  "delia",
+  "diokl",
+  "flaui",
+  "iberi",
+  "ikaro",
+  "iohan",
+  "kares",
+  "kreta",
+  "nerei",
+  "porki",
+  "prisk",
+  "tarku",
+  "tauge",
+  "tisbe"
+ ],
+ "hand_merges": [
+  "aigok",
+  "kaat",
+  "sibul"
+ ]
+}

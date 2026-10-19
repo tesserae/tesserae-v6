@@ -700,6 +700,7 @@ def step_merge4d(a):
             info[k] = d
         return info[k]
 
+    undo, hand = mb.load_hand_lists() if a.hand_lists else (set(), set())
     decisions = {}     # carved uid -> {'into': eid, 'rule': ..., 'key': key}
     jobs = []
     stats = collections.Counter()
@@ -709,6 +710,13 @@ def step_merge4d(a):
         units = g['carved']
         if not units:
             stats['keys_without_carved_unit'] += 1
+            continue
+        if key in undo:
+            stats['keys_reverted_by_hand'] += 1
+            continue
+        if key in hand and g['parent'] is not None:
+            for u in units:
+                decisions[u['uid']] = {'into': g['parent'], 'rule': 'hand', 'key': key, 'unit': u}
             continue
         allforms = set().union(*[u['forms'] for u in units])
         parent = parent_info(g, key, allforms) if g['parent'] else None
@@ -877,6 +885,7 @@ def main():
     ap.add_argument('--seed', type=int, default=20261021)
     ap.add_argument('--confirm-same', action='store_true',
                     help='merge4d: a model SAME merges only when a second, skeptical question also says SAME (tried 2026-10-19, off by default: it kept 5 of the 11 wrong carves against 7)')
+    ap.add_argument('--hand-lists', action='store_true', help='merge4d: pass 4e, revert the keys of undo_merges and merge the keys of hand_merges (backend/entity_merge_hand_lists.json)')
     ap.add_argument('--keys-file', help='merge4d: a JSON list of keys to decide, no store is written (prompt trials)')
     ap.add_argument('--max-seconds', type=int, default=420, help='merge4d: seconds the model questions may run')
     ap.add_argument('--pleiades-types', default='/home/ncoffee/licensed_text/analysis/entity_mentions/pleiades/places_place_types.csv')

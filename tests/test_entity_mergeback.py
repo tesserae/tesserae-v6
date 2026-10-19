@@ -154,3 +154,43 @@ def test_apply_partial_moves_only_the_named_spellings_and_keeps_the_host():
     assert r['moved'] == 2 and r['dropped'] == 0
     assert db.execute('select count(*) from entities').fetchone()[0] == 2
     assert [f for (f,) in db.execute('select form from mention_rows where eid = 2')] == ['Nereus']
+
+
+def test_hand_lists_of_pass_4e():
+    undo, hand = mb.load_hand_lists()
+    assert len(undo) == 14 and len(hand) == 3 and not undo & hand
+    assert {'iberi', 'delia', 'tarku', 'prisk'} <= undo
+    assert hand == {'kaat', 'sibul', 'aigok'}
+
+
+def test_a_place_and_its_inhabitants_and_a_person_and_a_family_stay_apart():
+    crete = {'label': 'Crete', 'type': 'place', 'forms': [], 'headings': ['Crete', 'Κρήτη']}
+    cretans = {'label': 'Cretans', 'type': 'people',
+               'forms': [('Cretenses', 30), ('Cretensium', 20), ('Κρητῶν', 25), ('Cretan', 5)]}
+    assert mb.kind_veto(crete, cretans)                     # the model's SAME is turned back
+    assert not mb.same_stem(crete['headings'], dict(cretans['forms']), 'place', 'people')
+    porcia = {'label': 'Porcia', 'type': 'person', 'forms': [], 'headings': ['Porcia']}
+    porcii = {'label': 'Porcii', 'type': 'people', 'forms': [('Porcii', 60), ('Porciorum', 30), ('Porciis', 10)]}
+    assert mb.kind_veto(porcia, porcii)
+    assert not mb.same_stem(porcia['headings'], dict(porcii['forms']), 'person', 'people')
+
+
+def test_a_veto_does_not_fire_on_the_same_kind_or_on_shared_case_forms():
+    place = {'label': 'Crete', 'type': 'place', 'forms': [], 'headings': ['Crete']}
+    assert not mb.kind_veto(place, {'label': 'Creta', 'type': 'place', 'forms': [('Creta', 5)]})
+    assert not mb.kind_veto(place, {'label': 'Cretae', 'type': 'people', 'forms': [('Cretae', 9), ('Cretam', 4)]})
+    # Julii is a case form of the heading Julius (the genitive), so the pair is not vetoed and the model decides
+    assert not mb.kind_veto({'label': 'Julius', 'type': 'person', 'forms': []}, {'label': 'Julii', 'type': 'people', 'forms': [('Julii', 8)]})
+
+
+def test_atalanta_and_atalaric_stay_apart_in_every_check():
+    forms = {'Atalaricus': 40, 'Atalarici': 9}
+    assert not mb.same_stem(['Atalanta', 'Ἀταλάντη'], forms, 'person', 'person')
+    assert mb.case_form_of('Atalaricus', ['Atalanta']) is None
+    assert not mb.kind_veto({'label': 'Atalanta', 'type': 'person', 'forms': []}, {'label': 'Atalaric', 'type': 'person', 'forms': list(forms.items())})
+
+
+def test_the_greek_eis_is_not_a_case_form_of_a_first_declension_name():
+    assert mb.case_form_of('Φωκαιεῖς', ['Φώκαια']) is None
+    assert mb.case_form_of('Φωκαίας', ['Φώκαια']) is not None
+    assert mb.case_form_of('Μεγαρεῖς', ['Μέγαρα']) is None

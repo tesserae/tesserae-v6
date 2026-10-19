@@ -24,6 +24,7 @@ into the survivor and removes it. apply_partial() does the same for the spelling
 build had merged into an older entity (the entity stays). Nothing here reads the gateway address or the key.
 """
 import json
+import os
 import re
 
 from backend import entity_index as ei
@@ -285,3 +286,13 @@ def apply_partial(db, host, dst, forms):
     db.executemany('delete from variants where rowid = ?', [(r[0],) for r in rows])
     pr._refresh_windows(db, [host, dst])
     return {'moved': moved, 'dropped': dropped, 'forms': len(add)}
+
+
+HAND_LISTS = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'entity_merge_hand_lists.json')
+
+
+def load_hand_lists(path=HAND_LISTS):
+    """(undo, hand): the sets of collision keys whose merge of pass 4d is reverted (the carve stays as in 4c)
+    and the keys whose carved names are merged into the parent by hand, whatever the model answers (pass 4e)."""
+    d = json.load(open(path, encoding='utf-8'))
+    return set(d['undo_merges']), set(d['hand_merges'])
