@@ -1,5 +1,28 @@
 import { useState } from 'react';
 
+const DEVELOPER_FILES = [
+  { file: 'la_index.db.tar.gz', name: 'Latin Search Index', note: 'about 1,430 texts, 567 MB packed, 2.0 GB unpacked' },
+  { file: 'grc_index.db.tar.gz', name: 'Greek Search Index', note: 'about 650 texts, 564 MB packed, 2.9 GB unpacked' },
+  { file: 'en_index.db.tar.gz', name: 'English Search Index', note: '72 MB packed, 227 MB unpacked' },
+  { file: 'cop_index.db.tar.gz', name: 'Coptic Search Index', note: 'the Sahidica New Testament is left out, 39 MB packed' },
+  { file: 'he_index.db.tar.gz', name: 'Hebrew Search Index', note: 'Tanakh, CC BY-NC 4.0, 11 MB packed' },
+  { file: 'syntax_latin.db.tar.gz', name: 'Latin Syntax Parses', note: 'LatinPipe UD annotations for about 1,430 texts, 243 MB packed, 1.6 GB unpacked' },
+  { file: 'syntax_greek.db.tar.gz', name: 'Greek Syntax Parses', note: 'about 650 texts, UD annotations, 139 MB packed, 967 MB unpacked' },
+  { file: 'syntax_coptic.db.tar.gz', name: 'Coptic Syntax Parses', note: '40 MB packed, 351 MB unpacked' },
+  { file: 'passage_index_la.tar.gz', name: 'Latin Passage Windows', note: 'descriptions and vectors, 497 MB' },
+  { file: 'passage_index_grc.tar.gz', name: 'Greek Passage Windows', note: '355 MB' },
+  { file: 'passage_index_en.tar.gz', name: 'English Passage Windows', note: '62 MB' },
+  { file: 'passage_index_cop.tar.gz', name: 'Coptic Passage Windows', note: 'Sahidica left out, 26 MB' },
+  { file: 'passage_index_he.tar.gz', name: 'Hebrew Passage Windows', note: 'CC BY-NC 4.0, 12 MB' },
+];
+
+const DEVELOPER_TOOLS = [
+  { file: 'tesserae-openapi.yaml', note: 'describes the web API.' },
+  { file: 'tesserae_mcp.py', note: 'is the local connector for AI assistants.' },
+  { file: 'ai-guide.html', note: 'is a guide to paste into an AI assistant.' },
+  { file: 'tesserae-api-privacy.html', note: 'is the privacy note for the API.' },
+];
+
 const DownloadsPage = () => {
   const [downloading, setDownloading] = useState({});
 
@@ -30,14 +53,11 @@ const DownloadsPage = () => {
   };
 
   const languages = [
-    { code: 'la', name: 'Latin', texts: '~1,850', embeddings: true },
-    { code: 'grc', name: 'Greek', texts: '~1,290', embeddings: true },
-    { code: 'en', name: 'English', texts: '~160', embeddings: false },
-    { code: 'cop', name: 'Coptic', texts: '~185', embeddings: false },
-    { code: 'he', name: 'Hebrew', texts: '~40', embeddings: false },
-    { code: 'fa', name: 'Persian', texts: '28', embeddings: true },
-    { code: 'ur', name: 'Urdu', texts: '18', embeddings: true },
-    { code: 'ar', name: 'Arabic', texts: '148', embeddings: true },
+    { code: 'la', name: 'Latin', texts: 'about 1,830', embeddings: true },
+    { code: 'grc', name: 'Greek', texts: 'about 1,330', embeddings: true },
+    { code: 'en', name: 'English', texts: 'about 160', embeddings: false },
+    { code: 'cop', name: 'Coptic', texts: 'about 160, without the Sahidica New Testament', embeddings: false },
+    { code: 'he', name: 'Hebrew', texts: 'about 40', embeddings: false },
   ];
 
   return (
@@ -54,6 +74,8 @@ const DownloadsPage = () => {
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Corpus Texts</h3>
           <p className="text-sm text-gray-600 mb-4">
             Download all texts in .tess format for a language. Texts are organized by author and work.
+            Persian and Urdu texts are searchable on the site but are not offered for download
+            pending their sources' terms.
           </p>
           <div className="space-y-3">
             {languages.map(lang => (
@@ -77,9 +99,8 @@ const DownloadsPage = () => {
         <div className="bg-white rounded-lg shadow p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Semantic Embeddings</h3>
           <p className="text-sm text-gray-600 mb-4">
-            Pre-computed line embeddings for semantic search: SPhilBERTa for Latin and Greek,
-            multilingual-e5-large for Persian, Urdu and Arabic. One .npy array plus a .meta.json
-            of line references per text.
+            Pre-computed line embeddings for semantic search, made with SPhilBERTa for Latin and Greek.
+            One .npy array plus a .meta.json of line references per text.
           </p>
           <div className="space-y-3">
             {languages.filter(l => l.embeddings).map(lang => (
@@ -605,11 +626,11 @@ const DownloadsPage = () => {
         <div className="mt-4 pt-4 border-t border-gray-200">
           <p className="text-xs text-gray-500">
             <strong>Format:</strong> CSV files include a comment header (lines starting with #) with provenance metadata.
-            JSON files are flat arrays of objects. See{' '}
-            <a href="https://github.com/tesserae/tesserae-v6/blob/main/evaluation/benchmarks/BENCHMARK_METHODOLOGY.md"
+            JSON files are flat arrays of objects. The methods are described in the{' '}
+            <a href="https://github.com/tesserae/tesserae-v6/blob/main/docs/ARTICLE_METHODS_DRAFT.md"
                target="_blank" rel="noopener noreferrer"
-               className="text-red-600 hover:underline">BENCHMARK_METHODOLOGY.md</a>
-            {' '}for full documentation.
+               className="text-red-600 hover:underline">methods draft</a>
+            {' '}and in the Help page section &ldquo;How well does it work?&rdquo;.
           </p>
         </div>
       </div>
@@ -837,36 +858,23 @@ const DownloadsPage = () => {
       <div className="bg-white rounded-lg shadow p-6" id="run-your-own">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Run your own Tesserae</h3>
         <p className="text-sm text-gray-600 mb-4">
-          One archive holds everything the search engine needs: the texts, the lemma caches, the search
+          A bundle is one archive that holds everything the search engine needs, namely the texts, the lemma caches, the search
           indexes, the word-pair tables, the aligned translations that are public domain or openly licensed,
           and the commentaries whose license allows it. With the code from GitHub and the recipe below, it
-          runs on a machine of your own. The bundle is offered for non-commercial use, because two lemma
+          runs on a machine of your own. A bundle is offered for non-commercial use, because two lemma
           tables and some commentaries carry non-commercial licenses; every source and its attribution line
           is listed in the license file inside the archive.
         </p>
-        <div className="space-y-3 mb-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-gray-50 rounded">
-            <div>
-              <span className="font-medium">Core bundle, 14 October 2026</span>
-              <span className="text-sm text-gray-500 ml-2">(3.3 GB compressed, about 18 GB unpacked)</span>
-              <p className="text-xs text-gray-500 mt-1">Built from the production data at code version <span className="font-mono">a508a6db</span>. SHA-256 <span className="font-mono break-all">4ca251d1888efca9d2e85e3a0aaa56b1a1132ae4c93f06980ea63b1e9e34a16d</span></p>
-            </div>
-            <a
-              href="/static/downloads/bundle/tesserae-public-core-20261014.tar.zst"
-              className="px-4 py-2 bg-red-700 text-white rounded hover:bg-red-800 text-sm text-center whitespace-nowrap"
-            >
-              Download bundle
-            </a>
-          </div>
-          <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm">
-            <a href="/static/downloads/bundle/tesserae-public-core-20261014.tar.zst.sha256" className="text-red-700 hover:underline">Checksum</a>
-            <a href="/static/downloads/bundle/MANIFEST-core-20261014.tsv" className="text-red-700 hover:underline">Manifest (every file, size and checksum)</a>
-            <a href="/static/downloads/bundle/LICENSES-core-20261014.md" className="text-red-700 hover:underline">License file</a>
-            <a href="https://github.com/tesserae/tesserae-v6/blob/main/docs/RUN_YOUR_OWN.md" className="text-red-700 hover:underline" target="_blank" rel="noopener noreferrer">The recipe, step by step</a>
-          </div>
+        <p className="text-sm text-gray-700 mb-3">
+          The 14 October core bundle was withdrawn on 19 October because it contained the Sahidica New
+          Testament, whose license allows academic use only and no redistribution. A rebuilt bundle
+          without those texts will take its place.
+        </p>
+        <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm mb-4">
+          <a href="https://github.com/tesserae/tesserae-v6/blob/main/docs/RUN_YOUR_OWN.md" className="text-red-700 hover:underline" target="_blank" rel="noopener noreferrer">The recipe, step by step</a>
         </div>
         <p className="text-xs text-gray-500">
-          The full bundle, which adds the passage windows and their vectors for Similar Passages and Theme
+          A full bundle, which adds the passage windows and their vectors for Similar Passages and Theme
           Search, is not published yet. Ask through Suggest a change in the footer if you need it.
         </p>
       </div>
@@ -874,22 +882,29 @@ const DownloadsPage = () => {
       <div className="bg-white rounded-lg shadow p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Developer Data Files</h3>
         <p className="text-sm text-gray-600 mb-4">
-          The bundle above is the maintained way to install a working copy. The files below are the
-          older piecemeal downloads and stay for anyone who needs one index alone.
+          Until the rebuilt bundle is published, these files are the way to install a working copy.
+          Each is a .tar.gz archive. Unpack it with <span className="font-mono">tar -xzf</span> into the
+          path given on the folder page, and check it against{' '}
+          <a href="https://tesserae.caset.buffalo.edu/tesserae-data/SHA256SUMS.txt"
+             target="_blank" rel="noopener noreferrer"
+             className="text-red-600 hover:underline">SHA256SUMS.txt</a>{' '}
+          (the checksums there are those of the archives).
         </p>
         <p className="text-sm text-gray-600 mb-4">
           To run Tesserae V6 locally, you need the Git repository plus pre-built search indexes
-          (too large for GitHub). The repository itself is ~4 GB because it includes the corpus texts
-          (~308 MB) and pre-computed semantic embeddings (~3.5 GB). The search indexes add another ~6.3 GB.
+          (too large for GitHub). The repository holds the corpus texts, the lemma tables and the code.
+          The pre-computed embeddings left the repository on 19 October 2026 and are offered
+          as ZIP files above and in the passage window archives below. The search indexes add about
+          8 GB packed.
         </p>
 
         <div className="bg-gray-50 rounded p-4 mb-4 overflow-x-auto">
           <p className="text-xs sm:text-sm font-mono text-gray-700 mb-1">
-            <span className="text-gray-500"># 1. Clone the repository (~4 GB, includes texts + embeddings):</span>
+            <span className="text-gray-500"># 1. Clone the repository:</span>
           </p>
           <p className="text-xs sm:text-sm font-mono text-gray-800 mb-3 whitespace-nowrap">git clone https://github.com/tesserae/tesserae-v6.git</p>
           <p className="text-xs sm:text-sm font-mono text-gray-700 mb-1">
-            <span className="text-gray-500"># 2. Download search indexes (~1.3 GB compressed, ~6.3 GB uncompressed):</span>
+            <span className="text-gray-500"># 2. Download the search indexes (about 8 GB packed):</span>
           </p>
           <p className="text-xs sm:text-sm font-mono text-gray-800 mb-3">python scripts/download_data.py</p>
           <p className="text-xs sm:text-sm font-mono text-gray-700 mb-1">
@@ -904,75 +919,27 @@ const DownloadsPage = () => {
         </p>
 
         <div className="space-y-3">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-gray-50 rounded">
-            <div>
-              <span className="font-medium">Latin Search Index</span>
-              <span className="text-sm text-gray-500 ml-2">(1,429 texts, 2.2 GB)</span>
+          {DEVELOPER_FILES.map(f => (
+            <div key={f.file} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-gray-50 rounded">
+              <div>
+                <span className="font-medium">{f.name}</span>
+                <span className="text-sm text-gray-500 ml-2">({f.note})</span>
+              </div>
+              <a
+                href={`https://tesserae.caset.buffalo.edu/tesserae-data/${f.file}`}
+                target="_blank" rel="noopener noreferrer"
+                className="px-4 py-2 bg-red-700 text-white rounded hover:bg-red-800 text-sm"
+              >
+                Download
+              </a>
             </div>
-            <a
-              href="https://tesserae.caset.buffalo.edu/tesserae-data/la_index.db.tar.gz"
-              target="_blank" rel="noopener noreferrer"
-              className="px-4 py-2 bg-red-700 text-white rounded hover:bg-red-800 text-sm"
-            >
-              Download
-            </a>
-          </div>
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-gray-50 rounded">
-            <div>
-              <span className="font-medium">Greek Search Index</span>
-              <span className="text-sm text-gray-500 ml-2">(659 texts, 1.4 GB)</span>
-            </div>
-            <a
-              href="https://tesserae.caset.buffalo.edu/tesserae-data/grc_index.db.tar.gz"
-              target="_blank" rel="noopener noreferrer"
-              className="px-4 py-2 bg-red-700 text-white rounded hover:bg-red-800 text-sm"
-            >
-              Download
-            </a>
-          </div>
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-gray-50 rounded">
-            <div>
-              <span className="font-medium">English Search Index</span>
-              <span className="text-sm text-gray-500 ml-2">(14 texts, 79 MB)</span>
-            </div>
-            <a
-              href="https://tesserae.caset.buffalo.edu/tesserae-data/en_index.db.tar.gz"
-              target="_blank" rel="noopener noreferrer"
-              className="px-4 py-2 bg-red-700 text-white rounded hover:bg-red-800 text-sm"
-            >
-              Download
-            </a>
-          </div>
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-gray-50 rounded">
-            <div>
-              <span className="font-medium">Latin Syntax Parses</span>
-              <span className="text-sm text-gray-500 ml-2">(LatinPipe UD annotations, 1.6 GB)</span>
-            </div>
-            <a
-              href="https://tesserae.caset.buffalo.edu/tesserae-data/syntax_latin.db.tar.gz"
-              target="_blank" rel="noopener noreferrer"
-              className="px-4 py-2 bg-red-700 text-white rounded hover:bg-red-800 text-sm"
-            >
-              Download
-            </a>
-          </div>
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-gray-50 rounded">
-            <div>
-              <span className="font-medium">Greek Syntax Parses</span>
-              <span className="text-sm text-gray-500 ml-2">(650 texts, UD annotations, 967 MB)</span>
-            </div>
-            <a
-              href="https://tesserae.caset.buffalo.edu/tesserae-data/syntax_greek.db.tar.gz"
-              target="_blank" rel="noopener noreferrer"
-              className="px-4 py-2 bg-red-700 text-white rounded hover:bg-red-800 text-sm"
-            >
-              Download
-            </a>
-          </div>
+          ))}
         </div>
 
         <p className="text-xs text-gray-500 mt-4">
-          Total: ~10 GB (repository + indexes). The download script reads DATA_MANIFEST.json and
+          The window-text archive (the text of each passage window) is withdrawn for the same reason as
+          the bundle, until a filtered copy is built. The passage window archives are cut by language
+          because the languages differ in license. The download script reads DATA_MANIFEST.json and
           skips files already present. See the{' '}
           <a
             href="https://github.com/tesserae/tesserae-v6/blob/main/docs/DATA_FILES_REFERENCE.md"
@@ -982,8 +949,35 @@ const DownloadsPage = () => {
           >
             Data Files Reference
           </a>{' '}
-          for full documentation.
+          for full documentation, and the{' '}
+          <a
+            href="https://tesserae.caset.buffalo.edu/tesserae-data/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-red-600 hover:underline"
+          >
+            data folder
+          </a>{' '}
+          for the license of each archive.
         </p>
+      </div>
+
+      <div className="bg-white rounded-lg shadow p-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">For developers</h3>
+        <ul className="text-sm text-gray-600 space-y-1 list-disc pl-5">
+          {DEVELOPER_TOOLS.map(t => (
+            <li key={t.file}>
+              <a
+                href={`https://tesserae.caset.buffalo.edu/tesserae-data/${t.file}`}
+                target="_blank" rel="noopener noreferrer"
+                className="text-red-600 hover:underline"
+              >
+                {t.file}
+              </a>
+              {' '}{t.note}
+            </li>
+          ))}
+        </ul>
       </div>
 
       <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">

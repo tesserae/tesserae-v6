@@ -3,21 +3,38 @@ import { render, screen } from '@testing-library/react';
 
 import DownloadsPage from '../DownloadsPage';
 
-// The "Run your own Tesserae" section (2026-10-14): the core bundle's download,
-// its checksum, manifest, license file and the recipe, and the non-commercial
-// sentence, are on the Downloads page.
+// The "Run your own Tesserae" section. The core bundle of 14 October 2026 was
+// withdrawn on 19 October 2026 (it held the Sahidica New Testament), so the
+// page carries the recipe link and the notice, and no bundle download.
 describe('Downloads page, the public bundle', () => {
-  it('links the core bundle, its checksum, manifest, license file and the recipe', () => {
+  it('says the bundle is withdrawn and links no bundle file', () => {
     vi.stubGlobal('fetch', vi.fn());
-    render(<DownloadsPage />);
+    const { container } = render(<DownloadsPage />);
     expect(screen.getByRole('heading', { name: 'Run your own Tesserae' })).toBeTruthy();
-    const bundle = screen.getByRole('link', { name: 'Download bundle' });
-    expect(bundle.getAttribute('href')).toMatch(/^\/static\/downloads\/bundle\/tesserae-public-core-\d{8}\.tar\.zst$/);
-    expect(screen.getByRole('link', { name: 'Checksum' }).getAttribute('href')).toMatch(/\.tar\.zst\.sha256$/);
-    expect(screen.getByRole('link', { name: /Manifest/ }).getAttribute('href')).toMatch(/MANIFEST-core-\d{8}\.tsv$/);
-    expect(screen.getByRole('link', { name: 'License file' }).getAttribute('href')).toMatch(/LICENSES-core-\d{8}\.md$/);
+    expect(screen.getByText(/bundle was withdrawn on 19 October/)).toBeTruthy();
+    expect(screen.getByText(/Sahidica New\s+Testament, whose license allows academic use only/)).toBeTruthy();
+    expect(container.querySelector('a[href*="/static/downloads/bundle/"]')).toBeNull();
+    expect(screen.queryByRole('link', { name: 'Download bundle' })).toBeNull();
     expect(screen.getByRole('link', { name: /The recipe/ }).getAttribute('href')).toBe('https://github.com/tesserae/tesserae-v6/blob/main/docs/RUN_YOUR_OWN.md');
     expect(screen.getByText(/offered for non-commercial use/)).toBeTruthy();
-    expect(screen.getByText(/full bundle.*not published yet/)).toBeTruthy();
+  });
+
+  it('offers no Persian, Urdu or Arabic buttons and no window-text archive', () => {
+    vi.stubGlobal('fetch', vi.fn());
+    const { container } = render(<DownloadsPage />);
+    expect(screen.queryByText('Persian')).toBeNull();
+    expect(screen.queryByText('Urdu')).toBeNull();
+    expect(screen.queryByText('Arabic')).toBeNull();
+    expect(screen.getByText(/Persian and Urdu texts are searchable on the site/)).toBeTruthy();
+    expect(container.querySelector('a[href*="window_texts"]')).toBeNull();
+    expect(screen.getByText(/window-text archive/)).toBeTruthy();
+  });
+
+  it('lists the developer files', () => {
+    vi.stubGlobal('fetch', vi.fn());
+    render(<DownloadsPage />);
+    expect(screen.getByRole('heading', { name: 'For developers' })).toBeTruthy();
+    expect(screen.getByRole('link', { name: 'tesserae-openapi.yaml' })).toBeTruthy();
+    expect(screen.getByRole('link', { name: 'tesserae_mcp.py' })).toBeTruthy();
   });
 });

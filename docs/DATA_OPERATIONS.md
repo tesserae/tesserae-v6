@@ -35,6 +35,14 @@ Conventions
   hand and are the models the helper matches.
 
 
+## 2026-10-19 Three public downloads withdrawn: window texts archive, 14 October bundle, GPU job inputs (RUN 15:40 EDT, by the project lead)
+
+**Run record.** At 15:40 the project lead took three things off the public server. (1) `window_texts.db.tar.gz` (319 MB, served at `/tesserae-data/`). (2) The core bundle of 14 October (`/static/downloads/bundle/`, 3.3 GB, with its checksum, manifest and license file). (3) The four GPU job input folders under `public_data/jobs/` (about 211 MB: `glm-embed-20261003`, `multilang-windows-20261006`, `semantic-fill-20261006`, `semantic-fill2-20261006`). The copies are in `~/tesserae-backups/public_data_offline_2026-10-19/`. In the data folder `index.json`, `index.html` and `SHA256SUMS.txt` were edited to drop the archive, and the earlier versions sit beside the copies in the backup folder with a `.pre` suffix. After the edit the remaining 16 archives verify with `sha256sum -c SHA256SUMS.txt`, and the checksum of `index.json` matches.
+
+The reason is the license. The window-text archive held 1,800 windows of 25 Sahidica works, and the bundle held the Sahidica New Testament (85 manifest entries, including the Coptic text files, their lemma caches and the Coptic index). The Sahidica license allows academic use only and no redistribution, and `data/restricted_texts.json` lists these works. The GPU job inputs held model-written descriptions of windows that include the Sahidica works and of Arabic works (Arabic is a held language), and the raw line text of 586,862 Latin, Greek and English lines, each readable by direct address although the folder listing was refused.
+
+Gated item D7 still owes a window-text archive filtered through `scripts/corpus/filter_index_by_registry.py`'s registry, and a rebuilt core bundle without the restricted texts. The Downloads page says both are withdrawn and no link to either remains in `client/src/components/pages/DownloadsPage.jsx`.
+
 ## 2026-10-19 Cicero, De legibus added (PENDING, staged by a delegate, install by the lead)
 
 Staged, not installed. Every store below was built on a copy in `~/tesserae-backups/de_legibus_2026-10-19/`, with `CHECKS.md` holding the figures. Nothing under `/var/www/tesseraev6_flask` was written.
