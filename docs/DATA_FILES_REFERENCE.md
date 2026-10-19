@@ -26,8 +26,7 @@ python scripts/download_data.py --check
 
 | Directory | Size | Contents |
 |-----------|------|----------|
-| `texts/` | ~308 MB | 2,176 `.tess` text files (Latin, Greek, English) |
-| `backend/embeddings/` | ~2 GB | Pre-computed semantic embeddings (SPhilBERTa), not in git since 2026-10-19 |
+| `texts/` | ~308 MB | 3,531 `.tess` text files in eight language folders (Latin, Greek, English, Coptic, Hebrew, Italian, Old French, Middle High German). The Persian, Urdu and Arabic texts are not in git |
 | `data/lemma_tables/*.json` | ~40 MB | Lemma lookup tables (Latin, Greek) |
 | `data/pedecerto/` | ~5 MB | Metrical scansion XML data |
 | `cache/` | ~5 MB | Pre-computed rare words and bigrams |
@@ -45,9 +44,18 @@ These are SQLite database files (blocked by `*.db` in `.gitignore`). They are ho
 | `data/inverted_index/cop_index.db` | 234 MB | No | Coptic search index, 153 texts, 19 October 2026. The public copy leaves out the Sahidica New Testament. The text is at Coptic Scriptorium (copticscriptorium.org) |
 | `data/inverted_index/syntax_latin.db` | 1.6 GB | Yes | Latin syntax parses (LatinPipe UD annotations) |
 | `data/inverted_index/syntax_greek.db` | 967 MB | Yes | Greek syntax parses (650 texts, UD annotations) |
-| `data/lemma_tables/latin_lemmas_extended.db` | 15 MB | No | Extended Latin lemma table |
+| `data/inverted_index/he_index.db` | 47 MB | No | Biblical Hebrew search index (Tanakh, BHSA, CC BY-NC 4.0) |
+| `data/inverted_index/fa_index.db` | 870 MB | No | Persian search index |
+| `data/inverted_index/syntax_coptic.db` | 351 MB | No | Coptic syntax parses |
+| `data/passage_index/` slices (`passage_index_la`, `_grc`, `_en`, `_fa`, `_ur`, `_cop`, `_he` `.tar.gz`) | 497 MB, 355 MB, 62 MB, 476 MB, 32 MB, 26 MB, 12 MB | No | The passage window index (descriptions, vectors) cut by language because the licenses differ. Windows per slice are in `index.json` beside them. Reassemble with `scripts/merge_index.py`. The Coptic slice leaves out the Sahidica New Testament |
+| `data/passage_index/window_texts.db` (`window_texts.db.tar.gz`, 319 MB) | 1.9 GB | No | The text of each passage window. The project lead withdrew it on 2026-10-19. It held 1,800 windows of the Sahidica New Testament, whose license allows academic use only. A filtered copy is owed (gated item D7) |
+| Core bundle `tesserae-public-core-20261014.tar.zst` | 3.3 GB | No | The project lead withdrew it on 2026-10-19 for the same reason, because it held the Sahidica texts. A rebuilt bundle without them is owed |
 
-**Total to download: about 8 GB** (the passage window index slices on the download page come on top)
+The Persian and Urdu archives above exist in the data folder. The decision of 2026-10-11 keeps Persian and Urdu out of the bundle and the Downloads page does not list them.
+
+**Total to download: about 8 GB for the indexes and parses** (the passage window slices come on top, about 1.5 GB)
+
+Embeddings (`backend/embeddings/`, about 2 GB for Latin and Greek, more for the other languages) are not in git since 2026-10-19. Build them with the scripts in `embedding_toolkit/` or take the Latin and Greek ZIP files from the Downloads page.
 
 The manifest of all downloadable files, including URLs, sizes, and checksums, is maintained in `DATA_MANIFEST.json` at the project root.
 
@@ -164,7 +172,7 @@ Two files serve complementary purposes:
 ## Notes
 
 1. **`.gitignore` blocks `*.db` files** — This is why the SQLite indexes don't end up on GitHub even though their parent directories are tracked.
-2. **The texts are on GitHub** — Unlike many large NLP projects, the full text corpus is committed to Git (~308 MB).
+2. **The texts are on GitHub.** Unlike many large NLP projects, the corpus texts for eight languages are committed to Git (~308 MB, 3,531 `.tess` files).
 3. **Embeddings are not on GitHub** since 2026-10-19. They were committed until then for ease of setup, but the copies on GitHub fell behind the ones in production after text repairs, so they are now built or downloaded like the indexes.
 4. **Index rebuilds require texts** — You need the text corpus present before rebuilding any search index.
 5. **Latin syntax DB requires LatinPipe** — `syntax_latin.db` can only be rebuilt on Marvin where the LatinPipe model is available. `syntax_greek.db` is built from pre-existing treebank data and can be rebuilt anywhere.
