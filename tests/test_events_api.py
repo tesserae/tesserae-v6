@@ -300,3 +300,38 @@ def test_detail_carries_relevance_when_the_table_exists_and_works_without_it(cli
         c.execute('DROP TABLE IF EXISTS scholarship_relevance')
         c.execute("DELETE FROM scholarship WHERE title IN ('Judged article', 'Plain article')")
         c.commit()
+
+
+def test_names_route_lists_every_event_once(client, db):
+    """/api/events/names answers every listed event (with or without evidence)
+    in the list's order, with the compact fields, and is cacheable."""
+    import json
+    import sqlite3
+    E._NAMES_CACHE.clear()
+    c = sqlite3.connect(db)
+    c.execute("INSERT INTO events (id, label, type, date_start, date_end, place) VALUES ('Q910', 'Battle of Emptiness', 'battle', -300, -299, 'Nowhere')")
+    c.execute("INSERT INTO events (id, label, type, date_start, date_end) VALUES ('Q911', 'Q911', 'treaty', -300, -300)")
+    c.commit()
+    try:
+        r = client.get('/api/events/names')
+        assert r.status_code == 200 and r.mimetype == 'application/json'
+        assert r.headers['Cache-Control'] == 'public, max-age=3600'
+        names = r.get_json()
+        listing = client.get('/api/events?show=all&per_page=100').get_json()
+        assert len(names) == listing['total'] == len({n['id'] for n in names})
+        assert set(names[0]) == {'id', 'label', 'place', 'year_start', 'year_end', 'type',
+                                 'n_passages', 'n_documents'}
+        assert 'Q911' not in {n['id'] for n in names}
+        empty = next(n for n in names if n['id'] == 'Q910')
+        assert (empty['n_passages'], empty['n_documents'], empty['year_start']) == (0, 0, -300)
+        weights = [n['n_passages'] + n['n_documents'] for n in names]
+        assert weights == sorted(weights, reverse=True)
+        # the second call is served from the process cache
+        c.execute("DELETE FROM events WHERE id = 'Q910'")
+        c.commit()
+        assert any(n['id'] == 'Q910' for n in client.get('/api/events/names').get_json())
+        assert json.loads(client.get('/api/events/names').data)
+    finally:
+        E._NAMES_CACHE.clear()
+        c.execute("DELETE FROM events WHERE id IN ('Q910', 'Q911')")
+        c.commit()

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { LoadingSpinner } from '../common';
 import { dateLabel, centuryLabel } from './eventsFormat';
+import EventNameBox from './EventNameBox';
 import ScopeBox from '../common/ScopeBox';
 
 const PER_PAGE = 20;
@@ -57,11 +58,9 @@ export default function EventList({ openEvent }) {
       <ScopeBox id="events" className="mb-4" />
 
       <form onSubmit={submit} className="bg-white border border-gray-200 rounded-lg p-3 flex flex-wrap gap-2 items-end">
-        <label className="flex-1 min-w-[12rem] text-xs text-gray-600">
-          Search by name or place
-          <input value={typed} onChange={(e) => setTyped(e.target.value)} placeholder="Cannae"
-                 className="mt-1 block w-full border border-gray-300 rounded px-2 py-1.5 text-sm text-gray-900" />
-        </label>
+        <div className="flex-1 min-w-[12rem]">
+          <EventNameBox value={typed} onChange={setTyped} openEvent={openEvent} />
+        </div>
         <label className="text-xs text-gray-600">
           Type
           <select value={type} onChange={(e) => { setType(e.target.value); setPage(1); }}

@@ -79,6 +79,11 @@ MANIFEST = {
         'reason': ('Events page (battles, sieges, treaties) in testing: reads '
                     'an offline dossier database; not yet exposed to the connector.'),
     },
+    '/api/events/names': {
+        'site_only': True,
+        'reason': ('Name suggestions for the Events page box in testing: every event '
+                    'once, compact; not yet exposed to the connector.'),
+    },
     '/api/events/<event_id>': {
         'site_only': True,
         'reason': ('Event focus view in testing: one dossier from the offline '

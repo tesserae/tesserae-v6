@@ -8,6 +8,7 @@ import userEvent from '@testing-library/user-event';
 
 import EventsPage from '../EventsPage';
 import EventList from '../EventList';
+import { __resetEventNamesForTests } from '../EventNameBox';
 import { dateLabel, centuryLabel, yearLabel, shortPassageRef } from '../eventsFormat';
 import { __resetCorpusTextMapCacheForTests } from '../../../utils/textNames';
 import { setProfile, setCollection } from '../../../collections/collectionsStore';
@@ -58,11 +59,20 @@ const DETAIL = {
   ],
 };
 
+const NAMES = [
+  { id: 'Q1', label: 'Battle of Marathon', place: 'Marathon', year_start: -490, year_end: -490, type: 'battle', n_passages: 8, n_documents: 2 },
+  { id: 'Q3', label: 'Marathon Campaign', place: 'Attica', year_start: -491, year_end: -490, type: 'campaign', n_passages: 3, n_documents: 0 },
+  { id: 'Q4', label: 'Siege of Syracuse', place: 'Syracuse', year_start: -213, year_end: -211, type: 'siege', n_passages: 1, n_documents: 0 },
+  { id: 'Q5', label: 'Marathonomachia', place: 'Marathon', year_start: -490, year_end: -490, type: 'battle', n_passages: 0, n_documents: 0 },
+  { id: 'Q6', label: 'Battle of Cannae', place: 'Apulia', year_start: -216, year_end: -216, type: 'battle', n_passages: 5, n_documents: 0 },
+];
+
 function mockApi(listOverride, detailOverride) {
   const calls = [];
   global.fetch = vi.fn(async (url) => {
     const u = String(url);
     calls.push(u);
+    if (u === '/api/events/names') return { ok: true, status: 200, json: async () => NAMES };
     if (u.startsWith('/api/events/')) return { ok: true, status: 200, json: async () => detailOverride || DETAIL };
     if (u.startsWith('/api/events')) return { ok: true, status: 200, json: async () => listOverride || LIST };
     return { ok: true, status: 200, json: async () => ({}) };
@@ -71,6 +81,7 @@ function mockApi(listOverride, detailOverride) {
 }
 
 beforeEach(() => {
+  __resetEventNamesForTests();
   window.localStorage.clear();
   window.sessionStorage.clear();
   window.history.replaceState({}, '', '/events');
@@ -149,6 +160,99 @@ describe('the list', () => {
     mockApi({ ...LIST, events: [], total: 0 });
     render(<EventList openEvent={() => {}} />);
     expect(await screen.findByText(/No event matches/)).toBeTruthy();
+  });
+});
+
+describe('the name box suggestions', () => {
+  const suggestions = () => within(screen.getByRole('listbox', { hidden: true })).queryAllByRole('option');
+  async function typeInto(text) {
+    const box = screen.getByLabelText(/Search by name/);
+    await userEvent.click(box);
+    await userEvent.type(box, text);
+    return box;
+  }
+
+  it('suggests events as you type, label starts first, then word starts, then the rest', async () => {
+    const calls = mockApi();
+    render(<EventList openEvent={() => {}} />);
+    await screen.findByText('Battle of Marathon');
+    const box = await typeInto('marat');
+    await waitFor(() => expect(suggestions()).toHaveLength(3));
+    const options = suggestions();
+    expect(options.map((o) => o.querySelector('.font-bold').textContent)).toEqual(
+      ['Marathon Campaign', 'Marathonomachia', 'Battle of Marathon']);
+    expect(box.getAttribute('aria-expanded')).toBe('true');
+    expect(within(options[1]).getByText('no passages yet')).toBeTruthy();
+    expect(within(options[2]).queryByText('no passages yet')).toBeNull();
+    expect(options[2].textContent).toContain('490 BCE');
+    expect(options[2].textContent).toContain('Marathon');
+    expect(calls.filter((u) => u === '/api/events/names')).toHaveLength(1);
+  });
+
+  it('matches places, folds accents and waits for two characters', async () => {
+    mockApi();
+    render(<EventList openEvent={() => {}} />);
+    await screen.findByText('Battle of Marathon');
+    await typeInto('c');
+    expect(suggestions()).toHaveLength(0);
+    await userEvent.type(screen.getByLabelText(/Search by name/), 'ánn');
+    expect(await within(screen.getByRole('listbox')).findByRole('option', { name: /Battle of Cannae/ })).toBeTruthy();
+    await userEvent.clear(screen.getByLabelText(/Search by name/));
+    await userEvent.type(screen.getByLabelText(/Search by name/), 'apul');
+    expect(await within(screen.getByRole('listbox')).findByRole('option', { name: /Battle of Cannae/ })).toBeTruthy();
+  });
+
+  it('moves with the arrow keys and opens the highlighted event on Enter', async () => {
+    mockApi();
+    const open = vi.fn();
+    render(<EventList openEvent={open} />);
+    await screen.findByText('Battle of Marathon');
+    const box = await typeInto('marat');
+    await waitFor(() => expect(suggestions().length).toBeGreaterThan(0));
+    await userEvent.keyboard('{ArrowDown}{ArrowDown}');
+    const second = suggestions()[1];
+    expect(box.getAttribute('aria-activedescendant')).toBe(second.id);
+    await userEvent.keyboard('{Enter}');
+    expect(open).toHaveBeenCalledWith('Q5');
+  });
+
+  it('opens an event on a click and closes on Escape', async () => {
+    mockApi();
+    const open = vi.fn();
+    render(<EventList openEvent={open} />);
+    await screen.findByText('Battle of Marathon');
+    const box = await typeInto('marat');
+    await waitFor(() => expect(suggestions().length).toBeGreaterThan(0));
+    await userEvent.keyboard('{Escape}');
+    expect(suggestions()).toHaveLength(0);
+    expect(box.getAttribute('aria-expanded')).toBe('false');
+    await userEvent.type(box, 'h');
+    await userEvent.click(await within(screen.getByRole('listbox')).findByRole('option', { name: /Marathon Campaign/ }));
+    expect(open).toHaveBeenCalledWith('Q3');
+  });
+
+  it('says so when nothing matches and still submits the form', async () => {
+    const calls = mockApi();
+    const open = vi.fn();
+    render(<EventList openEvent={open} />);
+    await screen.findByText('Battle of Marathon');
+    await typeInto('zzzq');
+    expect(await screen.findByText(/No event by that name\. Press Search to look through places and descriptions\./)).toBeTruthy();
+    await userEvent.keyboard('{Enter}');
+    await waitFor(() => expect(calls.some((c) => c.includes('q=zzzq'))).toBe(true));
+    expect(open).not.toHaveBeenCalled();
+  });
+
+  it('submits the form on Enter when nothing is highlighted', async () => {
+    const calls = mockApi();
+    const open = vi.fn();
+    render(<EventList openEvent={open} />);
+    await screen.findByText('Battle of Marathon');
+    await typeInto('marat');
+    await waitFor(() => expect(suggestions().length).toBeGreaterThan(0));
+    await userEvent.keyboard('{Enter}');
+    await waitFor(() => expect(calls.some((c) => c.includes('q=marat'))).toBe(true));
+    expect(open).not.toHaveBeenCalled();
   });
 });
 
