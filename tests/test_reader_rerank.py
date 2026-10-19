@@ -268,3 +268,15 @@ def test_results_without_strong_marks_gain_none(monkeypatch, _no_lookups):
     monkeypatch.setattr(reader_client, 'score', lambda query, passages, timeout=6.0: {'w0': 0.1, 'w1': 0.9})
     out, _meta = reader_rerank.apply('a query', results, k=2)
     assert all('strong' not in r for r in out)
+
+
+def test_marks_past_the_re_scored_head_move_up_to_the_head(monkeypatch, _no_lookups):
+    """A mark in the tail (past k) counts, and the marks still go to the head of the
+    reader's order, so the badges never sit below unmarked rows."""
+    results = [_result('w0', 0.90), _result('w1', 0.80), _result('w2', 0.70), _result('w3', 0.60)]
+    for r, strong in zip(results, (True, False, True, False)):
+        r['strong'] = strong
+    monkeypatch.setattr(reader_client, 'score', lambda query, passages, timeout=6.0: {'w0': 0.1, 'w1': 0.9})
+    out, _meta = reader_rerank.apply('a query', results, k=2)
+    assert [r['id'] for r in out] == ['w1', 'w0', 'w2', 'w3']
+    assert [r['strong'] for r in out] == [True, True, False, False]
