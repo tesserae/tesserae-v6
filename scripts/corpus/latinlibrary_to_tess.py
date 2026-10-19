@@ -110,6 +110,7 @@ MANIFEST = {
     'obsequens.liber_de_prodigiis': ['obsequens.html'],
     'pseudo_aurelius_victor.de_viris_illustribus': ['victor.ill.html'],
     'pseudo_aurelius_victor.origo_gentis_romanae': ['victor.origio.html'],
+    'cicero.de_legibus': [f'cicero_leg{b}.shtml' for b in range(1, 4)],
 }
 
 ABBREV = {
@@ -133,6 +134,7 @@ ABBREV = {
     'obsequens.liber_de_prodigiis': 'obseq.',
     'pseudo_aurelius_victor.de_viris_illustribus': 'ps-vict. vir. ill.',
     'pseudo_aurelius_victor.origo_gentis_romanae': 'ps-vict. orig.',
+    'cicero.de_legibus': 'cic. leg.',
 }
 
 ROMAN_RE = re.compile(r'^([IVXLCDM]+)\.?$')
@@ -814,6 +816,56 @@ def origo_gentis_romanae(page, abbrev, out):
                 flush(out, abbrev, f'{chap}.{mk.group(1)}', [body])
 
 
+def de_legibus(page, abbrev, book, out):
+    """Cicero De Legibus (thelatinlibrary's cicero/leg1-3.shtml, one page per
+    book): '[N]' section markers, each preceded by an '<A name="N">' anchor,
+    sit inside or at the start of the speaker paragraphs and a section can
+    run over several of them, so the paragraphs are read as one stream and
+    split at the markers. The speakers' names are printed as bold labels
+    ('<B>Atticvs:</B>'); they are kept in the line as inline text in the form
+    cicero.de_republica.tess uses ('Tum Scipio: ...'), with the page's
+    spelling of the three names (Atticvs, Qvintvs, Marcvs) written in their
+    ordinary form. Book 3 prints a stray roman numeral before its [1]
+    ('I  [1]'), which is dropped. The page's u for consonantal v in the
+    text itself (uetus) is left as printed."""
+    stream = []
+    for attrs, inner in paragraphs(page):
+        if is_noise(attrs, inner):
+            continue
+        inner = re.sub(r'(?is)<a\s+name="[^"]*"\s*>\s*</a>', ' ', inner)
+        txt = clean(inner)
+        if not txt:
+            continue
+        stream.append(txt)
+    joined = ' '.join(stream)
+    # The page's editorial matter is not Cicero's text: the two bracketed
+    # testimonia (Plutarch, Macrobius, in books 2 and 3), lacuna marks
+    # ('*', a row of dots in brackets) and the stray characters that stand
+    # for a lost line-end ('Ü', 'ë'). Square brackets round supplied letters
+    # are dropped and the letters kept, as '<...>' is in clean().
+    joined = re.sub(r'\[\s*\*?\s*(?:Plutarch|Macrobius)[^\]]*\]:?', ' ', joined)
+    joined = re.sub(r'\[[\s.]*\]', ' ', joined.replace('[ . . . . ]', ' '))
+    joined = re.sub(r'(?<!\w)\*|\*(?!\w)|[Üë]', ' ', joined)
+    joined = re.sub(r'\[(?!\d+\])([^\]]*)\]', r'\1', joined)
+    joined = re.sub(r'(?i)\bAtticvs\b', 'Atticus', joined)
+    joined = re.sub(r'(?i)\bQvintvs\b', 'Quintus', joined)
+    joined = re.sub(r'(?i)\bMarcvs\b', 'Marcus', joined)
+    pieces = re.split(r'\[(\d+)\]', joined)
+    # pieces[0] is heading noise before [1]. Where the page prints the label
+    # ahead of the marker ('<B>Atticvs:</B><A name="1"></A>[1] Lucus'), the
+    # label belongs to the section that follows, so it is carried over.
+    lab_rx = re.compile(r'\s*\b(Atticus|Quintus|Marcus):\s*$')
+    leads = {}
+    for i in range(1, len(pieces), 2):
+        ml = lab_rx.search(pieces[i - 1])
+        if ml:
+            leads[i] = ml.group(1) + ': '
+            pieces[i - 1] = pieces[i - 1][:ml.start()]
+    for i in range(1, len(pieces), 2):
+        body = re.sub(r'\s+', ' ', leads.get(i, '') + pieces[i + 1]).strip()
+        flush(out, abbrev, f'{book}.{int(pieces[i])}', [body])
+
+
 # ---------------------------------------------------------------- driver
 
 def convert(work, src):
@@ -875,6 +927,9 @@ def convert(work, src):
             de_viris_illustribus(page, abbrev, out)
         elif work == 'pseudo_aurelius_victor.origo_gentis_romanae':
             origo_gentis_romanae(page, abbrev, out)
+        elif work == 'cicero.de_legibus':
+            book = int(re.search(r'leg(\d)', page_file).group(1))
+            de_legibus(page, abbrev, book, out)
         else:
             raise SystemExit(f'no handler for {work}')
     return out

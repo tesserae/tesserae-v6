@@ -1,0 +1,87 @@
+{
+ "_comment": "Citation recognizer round 7 (2026-10-19): Cicero, De legibus, imported from The Latin Library as texts/la/cicero.de_legibus.tess (cic. leg. book.section). The table had no record for it, so the 50 journal citations to it were mis-sent to De amicitia (removed 2026-10-19 morning) or could not link. Per base_id, the record to add (new_work) and the forms to append, for scripts/citations/apply_abbrev_patch.py, to be applied to data/citations/abbreviations.json when the citation indexes are next rebuilt. Author forms are Cic., C. and CIC.; work forms are Leg., Legg., de Leg., De Legibus and Laws. `allow_overlap` lists the author forms every Cicero record already carries (Cic., C., CIC.) and the two bare work forms Leg. and Laws, which plato.leges also carries: without the list the dry run reports 136 conflicts. A bare Leg. should stay with Plato unless Cicero is named, as the rule \"leg\" in backend/citations/abbrev_context_rules.json already makes it; a rule for cicero.de_legibus with an author-context test is needed alongside this patch. No article text.",
+ "patch": "round7",
+ "works": {
+  "cicero.de_legibus": {
+   "abbreviations": [
+    "Cic.",
+    "C.",
+    "CIC.",
+    "Cic. Leg.",
+    "Cic. Legg.",
+    "Cic. de Leg.",
+    "Cic. De Legibus",
+    "Cic. Laws",
+    "C. Leg.",
+    "C. Legg.",
+    "CIC. Leg.",
+    "CIC. Legg.",
+    "Leg.",
+    "Legg.",
+    "de Leg.",
+    "De Legibus",
+    "Laws",
+    "cic. leg."
+   ],
+   "new_work": {
+    "tesserae_work_id": "cicero.de_legibus",
+    "base_id": "cicero.de_legibus",
+    "lang": "la",
+    "parts": null,
+    "part_locus_ranges": null,
+    "native_abbreviation": "cic. leg.",
+    "hucit_author_id": "431",
+    "hucit_work_id": null,
+    "author_names": [
+     "Cicero",
+     "Cicero Arpinius",
+     "Cicero Orator",
+     "Cicerone",
+     "Cicerón",
+     "Cicéron",
+     "M. T. Cicero",
+     "M. Tullius Cicero",
+     "Marco Tulio Cicerón",
+     "Marco Tullio Cicerone",
+     "Marcus Tullius Cicero",
+     "Tully"
+    ],
+    "work_titles": [
+     "De Legibus",
+     "De legibus",
+     "On the Laws",
+     "The Laws",
+     "Laws",
+     "Treatise on the Laws",
+     "Sobre las leyes",
+     "Sulle leggi",
+     "Des lois",
+     "Über die Gesetze"
+    ],
+    "abbreviations": [],
+    "author_abbreviations": [
+     "Cic.",
+     "C.",
+     "CIC."
+    ],
+    "work_abbreviations": [
+     "Leg.",
+     "Legg.",
+     "de Leg.",
+     "De Legibus",
+     "Laws"
+    ],
+    "cts_urn": null,
+    "cts_urn_is_real": false,
+    "match_method": "round7_patch"
+   }
+  }
+ },
+ "allow_overlap": [
+  "Cic.",
+  "C.",
+  "CIC.",
+  "Leg.",
+  "Laws"
+ ]
+}
