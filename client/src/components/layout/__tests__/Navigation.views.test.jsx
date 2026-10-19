@@ -61,6 +61,9 @@ describe('the menu order follows the view', () => {
     expect(names.indexOf('Read')).toBeLessThan(names.indexOf('Events'));
     expect(names.indexOf('Events')).toBeLessThan(names.indexOf('Theme Search'));
     expect(names.indexOf('Theme Search')).toBeLessThan(names.indexOf('Intertextual Search'));
-    expect(names.indexOf('Intertextual Search')).toBeLessThan(names.indexOf('Coins'));
+    // Coins and Objects sit with Inscriptions & Papyri, ahead of both searches (2026-10-18).
+    expect(names.indexOf('Inscriptions & Papyri')).toBeLessThan(names.indexOf('Coins'));
+    expect(names.indexOf('Coins')).toBeLessThan(names.indexOf('Theme Search'));
+    expect(names.indexOf('Objects')).toBeLessThan(names.indexOf('Intertextual Search'));
   });
 });
