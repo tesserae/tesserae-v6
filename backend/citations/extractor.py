@@ -223,7 +223,8 @@ def _disambiguate_candidates(candidates, work_surface, anchor_start, text, conte
             return [(best["work"], 0, work_surface)]
     default = cfg["defaults"].get(key)
     if default and default.get("firm_first") and not (
-            first_level.isdigit() or (len(first_level) >= 2 and first_level.isupper() and is_roman_shaped(first_level))):
+            first_level.isdigit() or (first_level.isupper() and is_roman_shaped(first_level)
+                                        and (len(first_level) >= 2 or first_level in ("I", "V", "X")))):
         # "Ann. d. 1" (Annali dell'Istituto) reads d as 500: a default work
         # needs an Arabic number or an upper-case Roman numeral to start on.
         default = None

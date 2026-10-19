@@ -418,6 +418,29 @@ def get_meta_connection():
     return conn
 
 
+_formula_words_cache = {}
+
+
+def formula_words(language):
+    """The hand-reviewed stock-formula surface words for `language`
+    (data/documents/formula_words_<language>.txt, one lowercase word per
+    line, `#` lines are the header), as a frozenset. Empty when the language
+    has no list. Read once per process; reset_caches() drops it."""
+    if language not in _formula_words_cache:
+        path = os.path.join(_repo_root(), 'data', 'documents', f'formula_words_{language}.txt')
+        words = set()
+        try:
+            with open(path, encoding='utf-8') as f:
+                for line in f:
+                    line = line.strip()
+                    if line and not line.startswith('#'):
+                        words.add(line.lower())
+        except OSError:
+            pass
+        _formula_words_cache[language] = frozenset(words)
+    return _formula_words_cache[language]
+
+
 def reset_caches():
     """Drop every cached connection/table (index, metadata, sidecars) so a
     changed env var or a swapped-in index/metadata file takes effect
@@ -426,6 +449,7 @@ def reset_caches():
     _meta_conn_state['conn'] = None
     _meta_conn_state['checked'] = False
     _sidecar_cache.clear()
+    _formula_words_cache.clear()
     _corpus_version_cache.clear()
     _label_map_cache['map'] = None
     _label_map_cache['checked'] = False

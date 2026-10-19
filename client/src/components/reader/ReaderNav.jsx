@@ -145,7 +145,7 @@ export default function ReaderNav({ sections, work, onWork, onJump }) {
   if (phone) return null;
 
   return (
-    <div className="sticky top-0 z-20 flex flex-wrap items-center gap-1.5 px-3 py-1
+    <div data-reader-nav-strip className="sticky top-0 z-20 flex flex-wrap items-center gap-1.5 px-3 py-1
                     text-[11px] text-gray-600 border-b border-gray-200 bg-white">
       <BookLinks sections={sections} work={work} onWork={onWork} size="text-[11px]" />
       <GoToLineForm onJump={onJump} />

@@ -152,3 +152,19 @@ def test_lowercase_apparatus_words_are_not_works(text):
 
 def test_capital_man_is_still_manilius():
     assert _one('Man. 1.189')[0] == 'manilius.astronomica'
+
+
+@pytest.mark.parametrize('text,work,locus', [
+    ('Compare Th. I.22 and', 'thucydides.peloponnesian_war', '1.22'),
+    ('Compare Ann. I.2.', 'tacitus.annales', '1.2'),
+    ('See Str. V.8.30', 'strabo.geography', '5.8.30'),
+    ('Ann. X.1', 'tacitus.annales', '10.1'),
+])
+def test_single_letter_roman_book_i_v_x_starts_a_default(text, work, locus):
+    assert _one(text)[:2] == (work, locus)
+
+
+def test_single_letter_roman_other_than_i_v_x_does_not():
+    assert _hits('Ann. D. 1') == []
+    assert _hits('Ann. A. 1') == []
+    assert _hits('Wissowa, Ann. d. 1st. 1883') == []

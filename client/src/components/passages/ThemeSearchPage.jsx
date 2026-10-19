@@ -350,6 +350,19 @@ export function scopeQuery(scope) {
   return '';
 }
 
+// The "weak neighbor" tag: a result the route did not mark strong, in a list
+// whose band is not low, and never the best-scoring result of the list.
+export function isWeakNeighbor(r, data) {
+  if (r.strong !== false || data?.confidence?.level === 'low') return false;
+  const rows = data?.results || [];
+  const scores = rows.map((x) => Number(x.score)).filter((n) => Number.isFinite(n));
+  if (!scores.length) {
+    // No scores to compare: the first non-strong row counts as the best.
+    return rows.find((x) => x.strong === false) !== r;
+  }
+  return Number(r.score) < Math.max(...scores);
+}
+
 export default function ThemeSearchPage() {
   const [query, setQuery] = useState('');
   // Coins: an option of its own, shown only when the Coins collection is on.
@@ -1390,8 +1403,11 @@ export default function ThemeSearchPage() {
                           <span title={fullRef(r)}>{windowLocus(r)}</span>
                         </a>
                         {/* In a low band every row would carry the tag, so it
-                            says nothing there; shown only where it contrasts. */}
-                        {r.strong === false && data.confidence?.level !== 'low' && (
+                            says nothing there; shown only where it contrasts.
+                            The best-scoring result never carries it: a tag on
+                            the first row of a moderate list read as a verdict
+                            on the whole answer (2026-10-19). */}
+                        {isWeakNeighbor(r, data) && (
                           <span className="text-[10px] text-gray-500 border border-gray-300 rounded px-1">
                             weak neighbor
                           </span>
