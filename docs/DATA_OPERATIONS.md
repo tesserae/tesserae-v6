@@ -35,6 +35,24 @@ Conventions
   hand and are the models the helper matches.
 
 
+## 2026-10-19 Citation indexes rebuilt with recognizer round 6 and installed, the De legibus table slip fixed, events Scholarship table relinked (RUN 11:07 to 11:13 EDT, by the lead)
+
+Why. Round 6 of the citation recognizer (#1049) came from the hand check of 200 round 5 rows: elided ranges, bibliography entries read as citations (a citation followed by `pp.` or a publication year), short titles resolved by the author named nearest, a parenthesized alternate line numbering, comma-separated lists of lines, Cicero's chapter-and-section numbering reduced to the corpus's section numbering (54 works, `backend/citations/work_section_numbered.json`), and a locus beyond the last line or book of a shared short form's default work (Phoen., Juv., Poen.). On the 200 hand-checked rows no correct row changed and 29 of the 41 wrong rows were fixed or dropped (bar 20). A spot check of 20 chapter-and-section rows from the MUSE index found all 20 right.
+
+What. The two indexes were rebuilt by the delegate from the held article text (EJC 42,199 rows to 41,819, MUSE 27,708 to 28,524). Before the install the lead fixed one table slip the delegate found. The abbreviation table sent `Cic. Leg.`, `C. Leg.`, `CIC. Leg.` and `Cic. Legg.` to `cicero.de_amicitia` (De legibus is not in the corpus), so the four forms were removed from that record in the production table `data/citations/abbreviations.json` (backup `.bak-leg-20261019-1107` beside it) and in the rebuild toolkit's copy, and the 27 EJC and 23 MUSE rows they had produced were deleted from the rebuilt files. Installed at 11:07 by copy and rename, the round 5 files kept as `citations.db.bak-round5-20261019` and `citations_muse.db.bak-round5-20261019`, WSGI touched. Installed counts: EJC 41,792, MUSE 28,501, integrity ok. The rebuild toolkit was re-mirrored from `main` (recognizer code, rule tables, depth and maximum tables).
+
+Then `scripts/events/relink_scholarship.py` ran on a copy of the live events store against the installed indexes (article rows 15,219 to 15,265, events with articles 1,088 to 1,113), `judge_scholarship_relevance.py` judged the 245 new (event, article) pairs on the copy (242 judged, 3 replies without a verdict), and the store went live at 11:13 by copy and rename, the previous file kept as `event_dossiers.sqlite.bak-20261019-round5links`. Verdicts in the live store: YES 335, PARTLY 1,007, NO 12,611.
+
+Checks. `/api/languages` 200 after each swap. The live Scholarship route answers for the passages the new rules touched (Cicero, In Verrem 2.4.117 and Plutarch, Marcellus 9 each list articles from the index). The Sicilian Expedition event answers 133 article rows, YES 7, PARTLY 31, NO 95. Open for a later round: a single-level locus beyond a work's last line for forms without a configured rule (7 EJC rows cite Josephus's Life beyond its 430 sections), a parenthesized alternate book number (`Cic. Ac. 1(4).15`), and a fresh 200-row hand check to measure round 6 precision out of sample.
+
+## 2026-10-19 Connector tool find_mentions switched on (RUN 09:01 EDT, by the lead)
+
+Why. People & Places went live for everyone at 08:49 (#1045), and the project lead asked for the connector's mentions tool to follow.
+
+What. `TESSERAE_ENTITY_TOOLS=1` appended to the production `.env` (mode kept 664, a copy of the previous file at `~/tesserae-backups/env_pre_entity_tools_2026-10-19.bak`), WSGI touched at 09:01. The gate in `backend/blueprints/mcp_http.py` is read per request, so the tool `find_mentions` is listed from the next request on.
+
+Checks. `/api/languages` 200. The tools list needs the connector's own token, so the gate function was read in-process with the production environment and returned true. The connector notes that still called the page a trial are corrected in this pull request.
+
 ## 2026-10-19 People & Places: repaired entity store (pass 4e) installed and the page live for everyone (RUN 08:46 to 08:49 EDT, by the lead)
 
 Why. The project lead decided on 2026-10-19 to run the repair first and then take People & Places live. The repaired store (#1016, passes 4b to 4e, report in the private research notes) carves names that two people or places share, then merges back the carves that split one referent in two. The merge pass uses a stem rule, a model question (openai/gpt-oss-120b on the campus gateway, 1,158 requests, no failures), and the lead's reading of the 69 merges (55 kept, 14 reverted by a committed hand list, `backend/entity_merge_hand_lists.json`, plus 3 hand merges). Measured on the store: the 180 fixed pairs 90 of 101, the stage 1d fresh 40 at 33 and 38 of 40, new list mentions 25 of 37, wrong splits on fresh samples 3 of 30 after against 11 of 47 before.
@@ -58,7 +76,6 @@ Install (by the lead):
 2. `cp ~/tesserae-backups/public_data_2026-10-19_cop/{cop_index.db.tar.gz,index.html,SHA256SUMS.txt} /var/www/tesseraev6_flask/public_data/`
 3. Verify from the public URL. Download `cop_index.db.tar.gz`, compare its SHA-256 with `SHA256SUMS.txt`, and read the Coptic row on the page.
 
-## 2026-10-19 Per-line vector files untracked from git, production and dev checkouts kept whole (PENDING, by the lead)
 ## 2026-10-19 Per-line vector files untracked from git, production and dev checkouts kept whole (RUN 07:42 to 07:54 EDT, by the lead)
 
 **Run record.** #1041 merged by hand at 07:42 (the review and classifier jobs could not fetch a 1,703-file diff; test and build passed). Production: 7,130 files (9.5 GB) copied to `~/tesserae-backups/embeddings_untrack_2026-10-19/production/`, the 66 locally modified tracked files reverted, the pull removed 1,703 files (5,463 left), the copy restored to 7,130, file lists identical, git clean under the folder, the vector census 3,479 files with 0 mismatches, WSGI touched, languages 200, 80 files compared by checksum with the backup with 0 differences. Dev checkout the same at 07:51 to 07:54 (3,626 files, 3.6 GB, 40 checksums compared, 0 differences). The golden check against the 18 October baseline showed 20 of 69 requests different, all from the night's data operations (renames, map and reuse rebuilds, events store) and none a vector-dependent result, and the baseline was re-recorded as `2026-10-19_live`.

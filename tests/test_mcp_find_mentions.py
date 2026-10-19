@@ -65,7 +65,7 @@ def test_by_name_returns_entities_with_headings_and_counts(through_site, monkeyp
     assert out['results'][0]['heading']
     assert out['results'][0]['type'] == 'place'
     assert out['results'][0]['mention_counts'] == {'la': 1, 'grc': 1}
-    assert 'trial' in out['presentation']
+    assert 'checked by a language model' in out['presentation']  # the trial wording left on 2026-10-19 when the page went live
 
 
 def test_by_entity_id_returns_lines_with_work_reference_and_text(through_site):

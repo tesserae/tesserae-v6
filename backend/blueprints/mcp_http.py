@@ -846,7 +846,7 @@ def _t_get_commentary(a):
 
 
 def _t_find_mentions(a):
-    """Where a named place, person or god is mentioned in the corpus (the People & Places page, in trial).
+    """Where a named place, person or god is mentioned in the corpus (the People & Places page).
 
     With `name`, the matching entities with their headings, types and line counts per
     language. With `entity_id` (from that list), one page of that entity's mention lines
@@ -908,7 +908,7 @@ MENTIONS_PAGE = 50
 _MENTIONS_PRESENTATION = ('Mentions are lines that name the person, place or god, found by name and checked by a '
                           'language model. The groupings are made by rules and a model: a shared name can belong to '
                           'two people (see name_shared_with), and a few headings are still wrong. Counts are lines. '
-                          'This is a trial. Quote a line only as the corpus text it is.')
+                          'Quote a line only as the corpus text it is.')
 
 
 def _mention_heading(e):
@@ -1492,7 +1492,7 @@ TOOLS = [
                      "list), optional `language` (la, grc, en) and `page`: that entity's mention lines, 50 a "
                      "page, each with work, reference and text. Mentions are found by name and checked by a "
                      "language model, so a shared name can belong to two people and a few headings are still "
-                     "wrong. Inscriptions and papyri are not included. This is a trial feature."),
+                     "wrong. Inscriptions and papyri are not included."),
      "inputSchema": {"type": "object",
                      "properties": {"name": _STR, "entity_id": _STR, "language": _STR,
                                     "page": {"type": "integer"}},
@@ -1510,7 +1510,7 @@ def _scholarship_tools_enabled():
     return os.environ.get('TESSERAE_SCHOLARSHIP_TOOLS') == '1'
 
 
-# Gated by TESSERAE_ENTITY_TOOLS=1 the same way, off until the People & Places trial is switched on.
+# Gated by TESSERAE_ENTITY_TOOLS=1 the same way (on in production since 2026-10-19, with People & Places live for everyone).
 _ENTITY_TOOL_NAMES = {'find_mentions'}
 
 
