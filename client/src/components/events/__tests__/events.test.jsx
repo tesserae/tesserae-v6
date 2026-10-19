@@ -175,6 +175,26 @@ describe('the Inscriptions & Papyri tab', () => {
   });
 });
 
+describe('the Inscriptions & Papyri tab when nothing names the event', () => {
+  beforeEach(() => window.history.replaceState({}, '', '/events/Q1'));
+
+  it('says so and keeps the regional list behind a disclosure (2026-10-18)', async () => {
+    const mk = (doc_id, edition) => ({
+      doc_id, group: 'dated', edition, date_start: -425, date_end: -401, place: 'Gela', distance_km: 6,
+      text_snippet: 'loom weight', view_url: `/document?doc=${doc_id}` });
+    mockApi(undefined, { ...DETAIL, documents: [mk('isicily:ISic020576', 'IGASM2[2] 115'), mk('isicily:ISic020577', 'IGASM2[2] 116')] });
+    render(<EventsPage setPageType={() => {}} />);
+    await screen.findByRole('heading', { name: 'Battle of Marathon' });
+    await userEvent.click(screen.getByRole('tab', { name: /Inscriptions & Papyri/ }));
+    expect(screen.getByText(/No inscription or papyrus in the collection names a participant or the place/)).toBeTruthy();
+    const details = screen.getByTestId('events-documents-regional');
+    expect(details.open).toBe(false);
+    expect(details.textContent).toMatch(/2 documents from the region dated within the event's years, none naming/);
+    expect(screen.queryByRole('heading', { level: 4 })).toBeNull();
+    expect(screen.getByText('Record ISic020576')).toBeTruthy();
+  });
+});
+
 describe('the Events tab in the navigation', () => {
   beforeEach(() => window.history.replaceState({}, '', '/events/Q1'));
 

@@ -119,6 +119,36 @@ function DocumentsTab({ documents, event }) {
       </p>
     );
   }
+  const naming = documents.filter((d) => d.group === 'names');
+  const dated = documents.filter((d) => (d.group || 'dated') === 'dated');
+  /* HONEST EMPTY (2026-10-18): when no document names a participant or the
+     place, the regional list is not evidence about the event (the project
+     lead on the Sicilian Expedition: "loom weights?"), so the page says so
+     and keeps the list behind a disclosure. The collection (EDR, EDH,
+     papyri.info, I.Sicily) holds no Attic inscriptions, so Greek classical
+     events usually land here. */
+  if (naming.length === 0) {
+    return (
+      <div>
+        <p className="text-sm text-gray-700">
+          No inscription or papyrus in the collection names a participant or the place of this event
+          within its years.
+        </p>
+        <details className="mt-2" data-testid="events-documents-regional">
+          <summary className="text-sm text-gray-600 cursor-pointer">
+            {dated.length} document{dated.length === 1 ? '' : 's'} from the region dated within the event's years,
+            none naming a participant or the place
+          </summary>
+          <p className="text-xs text-gray-500 mt-2 mb-2">
+            Dating span of no more than fifty years, the most tightly dated first, then the nearest to the event's place.
+          </p>
+          <ul className="space-y-2">
+            {dated.map((d) => <DocumentCard key={d.doc_id} d={d} event={event} />)}
+          </ul>
+        </details>
+      </div>
+    );
+  }
   return (
     <div>
       <p className="text-xs text-gray-500 mb-3">
