@@ -1715,7 +1715,7 @@ anvari.diwan.tess,anvari,diwan,Seljuk,unknown,panegyric,auto
 attar.diwan.tess,attar,diwan,Khwarazmian,unknown,lyric,auto
 bidel.diwan.tess,bidel,diwan,Mughal,unknown,lyric,auto
 farrokhi.diwan.tess,farrokhi,diwan,Ghaznavid,unknown,panegyric,auto
-ferdowsi.diwan.tess,ferdowsi,diwan,Ghaznavid,unknown,epic,auto
+ferdowsi.shahnameh.tess,ferdowsi,shahnameh,Ghaznavid,unknown,epic,auto
 hafez.diwan.tess,hafez,diwan,Muzaffarid,unknown,lyric,auto
 iqbal.armaghan_e_hijaz_persian.tess,iqbal,armaghan_e_hijaz_persian,Modern,unknown,lyric,auto
 iqbal.asrar_e_khudi.tess,iqbal,asrar_e_khudi,Modern,unknown,philosophy,auto

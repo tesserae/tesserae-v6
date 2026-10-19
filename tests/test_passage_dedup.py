@@ -55,8 +55,8 @@ def test_touching_spans_do_overlap():
 
 def test_single_number_references_still_work():
     """Persian and Urdu references carry one coordinate, not book.line."""
-    assert _ref_coords('ferdowsi.diwan.27931') == (27931,)
-    assert overlaps('ferdowsi.diwan.27931', 'ferdowsi.diwan.27942',
-                    'ferdowsi.diwan.27935', 'ferdowsi.diwan.27950')
-    assert not overlaps('ferdowsi.diwan.27931', 'ferdowsi.diwan.27942',
-                        'ferdowsi.diwan.30000', 'ferdowsi.diwan.30010')
+    assert _ref_coords('ferdowsi.shahnameh.27931') == (27931,)
+    assert overlaps('ferdowsi.shahnameh.27931', 'ferdowsi.shahnameh.27942',
+                    'ferdowsi.shahnameh.27935', 'ferdowsi.shahnameh.27950')
+    assert not overlaps('ferdowsi.shahnameh.27931', 'ferdowsi.shahnameh.27942',
+                        'ferdowsi.shahnameh.30000', 'ferdowsi.shahnameh.30010')

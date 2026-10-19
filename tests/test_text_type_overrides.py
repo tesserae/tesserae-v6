@@ -2,7 +2,7 @@
 
 from backend.utils import detect_text_type
 
-DIOGENIANUS = 'diogenianus_of_heraclea.παροιμίαι_δημώδεις_ἐκ_τῆς_διογενιανοῦ_συναγωγῆς_e_.tess'
+DIOGENIANUS = 'diogenianus_of_heraclea.paroemiae.tess'
 
 
 def test_diogenianus_proverb_collection_is_prose_not_verse(tmp_path):

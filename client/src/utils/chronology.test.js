@@ -12,7 +12,7 @@ import { chronological, byBestMatch, dateParts } from './chronology';
 const STATIUS = { work: 'statius.silvae', year: 96, date_note: 'd. c. 96 CE', score: 0.9 };
 const SILIUS = { work: 'silius_italicus.punica', year: 101, date_note: 'd. 101 CE', score: 0.8 };
 const OVID = { work: 'ovid.metamorphoses', year: 17, date_note: 'd. 17/18 CE', score: 0.7 };
-const UNDATED = { work: 'ferdowsi.diwan', score: 0.95 };
+const UNDATED = { work: 'ferdowsi.shahnameh', score: 0.95 };
 
 describe('oldest first', () => {
   it('orders by year, not by score', () => {
@@ -30,7 +30,7 @@ describe('oldest first', () => {
 
   it('puts undated works last rather than guessing', () => {
     const out = chronological([UNDATED, OVID, STATIUS]);
-    expect(out[out.length - 1].work).toBe('ferdowsi.diwan');
+    expect(out[out.length - 1].work).toBe('ferdowsi.shahnameh');
   });
 
   it('does not mutate its input', () => {
