@@ -17,7 +17,15 @@ beside it, the Project MUSE file citations_muse.db (--extra-index PATH names
 another, --extra-index '' reads the EJC file alone). The backend reads the MUSE
 index only through the environment variable TESSERAE_CITATIONS_EXTRA, which this
 script sets before it asks, so one run joins both. The summary prints how many
-distinct articles, and how many rows, come from each index. The module also
+distinct articles, and how many rows, come from each index.
+
+Each row also carries `scope`. 'passage' is an article that cites one of the event's
+leading passages itself (as before). 'span' is an article that cites anywhere within the
+span the event's leading passages cover in a work, from the lowest to the highest locus
+of those passages (per work and per citation abbreviation), at the book or chapter level
+the citation index resolves. Such a row has no passage rank, and its passage_ref names
+the span. An article already listed in the first group for the event is not repeated in
+the second. Commentary rows have scope 'passage'. The module also
 reads the texts' metadata from the repository it is run in (TESSERAE_ROOT is
 not needed). Run from the repository root.
 """
@@ -77,6 +85,25 @@ def commentary_passage(ref, passages):
     return None
 
 
+def span_of(plist):
+    """[(work, lo_ref, hi_ref)] for each work and citation prefix among the passages
+    (dicts with work, ref_start, ref_end), from the lowest start to the highest end.
+    A group whose span is one passage, or has no numeric locus, is left out."""
+    groups = {}
+    for p in plist:
+        if not _coords(p['ref_start']):
+            continue
+        groups.setdefault((p['work'], _prefix(p['ref_start'])), []).append(p)
+    out = []
+    for (work, _pre), ps in groups.items():
+        if len(ps) < 2:
+            continue
+        lo = min(ps, key=lambda p: _coords(p['ref_start']))
+        hi = max(ps, key=lambda p: _coords(p['ref_end'] or p['ref_start']))
+        out.append((work, lo['ref_start'], hi['ref_end'] or hi['ref_start']))
+    return out
+
+
 def passage_ref(p):
     a, b = p['ref_start'], p['ref_end']
     if not b or b == a:
@@ -116,12 +143,20 @@ def main(argv=None):
     c.executescript('''
         DROP TABLE scholarship;
         CREATE TABLE scholarship (event_id TEXT, kind TEXT, title TEXT, page_ref TEXT, url TEXT,
-                                  passage_rank INTEGER, passage_ref TEXT);
+                                  passage_rank INTEGER, passage_ref TEXT, scope TEXT);
         CREATE INDEX scholarship_event ON scholarship(event_id);''')
     cache = {}
     n_article = 0
+    n_span = 0
+
+    def tally(r, title, scope):
+        src = 'muse' if r.get('source') == 'muse' else 'ejc'
+        d = per_source.setdefault((src, scope), {'rows': 0, 'articles': set()})
+        d['rows'] += 1
+        d['articles'].add((r.get('url') or '', title))
     events = [r[0] for r in c.execute('SELECT id FROM events')]
     for eid in events:
+        first = set()
         plist = [dict(r) for r in c.execute(
             'SELECT rank, work, ref_start, ref_end FROM passages WHERE event_id = ? '
             "AND (rank <= 10 OR llm_label = 'yes') ORDER BY rank", (eid,))]
@@ -136,29 +171,46 @@ def main(argv=None):
                     cache[key] = []
             for r in cache[key]:
                 title, page_ref = article_row(r)
-                c.execute('INSERT INTO scholarship VALUES (?,?,?,?,?,?,?)',
-                          (eid, 'article', title, page_ref, r.get('url'), p['rank'], passage_ref(p)))
+                c.execute('INSERT INTO scholarship VALUES (?,?,?,?,?,?,?,?)',
+                          (eid, 'article', title, page_ref, r.get('url'), p['rank'], passage_ref(p), 'passage'))
                 n_article += 1
-                src = 'muse' if r.get('source') == 'muse' else 'ejc'
-                per_source.setdefault(src, {'rows': 0, 'articles': set()})
-                per_source[src]['rows'] += 1
-                per_source[src]['articles'].add((r.get('url') or '', title))
+                first.add((r.get('url') or '', title))
+                tally(r, title, 'passage')
+        for work, lo, hi in span_of(plist):
+            key = ('span', work, lo, hi)
+            if key not in cache:
+                try:
+                    cache[key] = S.citation_index(S.passage_names(work, lo, hi), limit=MAX_ARTICLES).get('results', [])
+                except Exception as e:
+                    print(f'  {eid} span {work} {lo}-{hi}: {type(e).__name__}: {e}', file=sys.stderr)
+                    cache[key] = []
+            ref = passage_ref({'ref_start': lo, 'ref_end': hi})
+            for r in cache[key]:
+                title, page_ref = article_row(r)
+                if (r.get('url') or '', title) in first:
+                    continue
+                first.add((r.get('url') or '', title))
+                c.execute('INSERT INTO scholarship VALUES (?,?,?,?,?,?,?,?)',
+                          (eid, 'article', title, page_ref, r.get('url'), None, ref, 'span'))
+                n_span += 1
+                tally(r, title, 'span')
     allp = {}
     for r in c.execute('SELECT event_id, rank, ref_start, ref_end FROM passages'):
         allp.setdefault(r['event_id'], []).append(dict(r))
     n_comm = 0
     for r in old_commentary:
         p = commentary_passage(r['page_ref'], allp.get(r['event_id'], []))
-        c.execute('INSERT INTO scholarship VALUES (?,?,?,?,?,?,?)',
+        c.execute('INSERT INTO scholarship VALUES (?,?,?,?,?,?,?,?)',
                   (r['event_id'], 'commentary', r['title'], r['page_ref'], r['url'],
-                   p['rank'] if p else None, passage_ref(p) if p else None))
+                   p['rank'] if p else None, passage_ref(p) if p else None, 'passage'))
         n_comm += 1
     c.commit()
     after = c.execute('SELECT COUNT(*) FROM scholarship').fetchone()[0]
-    print(f'scholarship rows before {before}, after {after} ({n_article} article, {n_comm} commentary)')
+    print(f'scholarship rows before {before}, after {after} ({n_article} article, {n_span} article within the span, {n_comm} commentary)')
     for src in ('ejc', 'muse'):
-        d = per_source.get(src, {'rows': 0, 'articles': ()})
-        print(f'  {src}: {len(d["articles"])} distinct articles, {d["rows"]} rows')
+        for scope in ('passage', 'span'):
+            d = per_source.get((src, scope), {'rows': 0, 'articles': ()})
+            print(f'  {src} {scope}: {len(d["articles"])} distinct articles, {d["rows"]} rows')
     with_sch = c.execute('SELECT COUNT(DISTINCT event_id) FROM scholarship').fetchone()[0]
     print(f'events with any scholarship row: {with_sch} of {len(events)}')
     rows = c.execute("SELECT kind, passage_rank, passage_ref, title FROM scholarship WHERE event_id = 'Q18001862' "

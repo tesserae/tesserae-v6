@@ -227,3 +227,13 @@ def test_detail_documents_carry_group_counts_and_record_ids(client, monkeypatch)
     assert d['document_counts']['names'] == 1
     assert d['document_counts']['names'] + d['document_counts']['dated'] + d['document_counts']['left_out'] == len(stored) + 1
     assert all(x['doc_id'] for x in d['documents'])
+
+
+def test_scholarship_span_rows_follow_passage_rows():
+    items = [
+        {'kind': 'article', 'title': 'Span', 'url': 'u2', 'passage_rank': None, 'passage_ref': 'thuc. 6.1-7.2', 'scope': 'span'},
+        {'kind': 'article', 'title': 'Direct', 'url': 'u1', 'passage_rank': 3, 'passage_ref': 'thuc. 7.1', 'scope': 'passage'},
+        {'kind': 'commentary', 'title': 'C', 'url': None, 'passage_rank': None, 'passage_ref': None, 'scope': 'passage'},
+    ]
+    out = E._by_passage_rank(items)
+    assert [i['title'] for i in out] == ['Direct', 'Span', 'C']

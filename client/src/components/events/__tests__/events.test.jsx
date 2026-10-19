@@ -234,7 +234,9 @@ describe('the focus view', () => {
           names_matched: [], snippet: 'y', reader_url: '/read?work=obscure_author.lost_work.tess&lang=la', score: 0.1 },
       ],
       scholarship: [{ kind: 'article', title: 'T', page_ref: 'p', url: null,
-                      passage_rank: 1, passage_ref: 'thuc. pele. 7.49.3-7.53.2' }],
+                      passage_rank: 1, passage_ref: 'thuc. pele. 7.49.3-7.53.2', scope: 'passage' },
+                    { kind: 'article', title: 'Elsewhere article', page_ref: 'p', url: null,
+                      passage_rank: null, passage_ref: 'thuc. pele. 6.1-7.87', scope: 'span' }],
     };
     global.fetch = vi.fn(async (url) => {
       const u = String(url);
@@ -253,6 +255,9 @@ describe('the focus view', () => {
     expect(screen.getByRole('heading', { name: 'Obscure Author, Lost Work' })).toBeTruthy();
     await userEvent.click(screen.getByRole('tab', { name: /Scholarship/ }));
     expect(screen.getByRole('link', { name: 'on 7.49.3 to 7.53.2' })).toBeTruthy();
+    expect(screen.getByRole('heading', { name: 'Articles citing a leading passage' })).toBeTruthy();
+    expect(screen.getByRole('heading', { name: /Articles citing elsewhere within the span/ })).toBeTruthy();
+    expect(screen.getByText('within 6.1 to 7.87')).toBeTruthy();
   });
 
   it('shortens a scholarship passage reference', () => {
@@ -344,7 +349,7 @@ describe('the focus view', () => {
     await screen.findByRole('heading', { name: 'Battle of Marathon' });
     expect(document.getElementById('passage-1')).not.toBeNull();
     await userEvent.click(screen.getByRole('tab', { name: /Scholarship/ }));
-    expect(screen.getByText(/articles that cite the event's leading passages/)).toBeTruthy();
+    expect(screen.getByText(/articles that cite one of the event's leading passages/)).toBeTruthy();
     await userEvent.click(screen.getByRole('link', { name: 'on 6.111.1 to 6.113.2' }));
     expect(screen.getByRole('tab', { name: /Passages/, selected: true })).toBeTruthy();
     await waitFor(() => expect(scroll).toHaveBeenCalled());
