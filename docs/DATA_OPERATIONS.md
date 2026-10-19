@@ -35,6 +35,16 @@ Conventions
   hand and are the models the helper matches.
 
 
+## 2026-10-19 People & Places: repaired entity store (pass 4e) installed and the page live for everyone (RUN 08:46 to 08:49 EDT, by the lead)
+
+Why. The project lead decided on 2026-10-19 to run the repair first and then take People & Places live. The repaired store (#1016, passes 4b to 4e, report in the private research notes) carves names that two people or places share, then merges back the carves that split one referent in two. The merge pass uses a stem rule, a model question (openai/gpt-oss-120b on the campus gateway, 1,158 requests, no failures), and the lead's reading of the 69 merges (55 kept, 14 reverted by a committed hand list, `backend/entity_merge_hand_lists.json`, plus 3 hand merges). Measured on the store: the 180 fixed pairs 90 of 101, the stage 1d fresh 40 at 33 and 38 of 40, new list mentions 25 of 37, wrong splits on fresh samples 3 of 30 after against 11 of 47 before.
+
+What. After #1016 deployed (08:46, production 42d4f11f): the live `data/entity_index/entities.sqlite` (stage 3b store, 340,160,512 bytes) copied to `~/tesserae-backups/entity_store_pre_4e_2026-10-19/entities.sqlite`. The 4e store (349,736,960 bytes, integrity ok, 42,355 entities, 92,151 spellings, 89,442 search names, 290,496 windows, the same 3,297 works as the live store with the 18 October renames) was copied beside it and moved into place, mode 664. WSGI touched 08:47, languages 200. Then #1045 (the trial gate removed, Help rewritten, DECISIONS entry) merged and deployed by the chain at 08:49 with the front end rebuilt.
+
+Checks. Eight entity searches before and after the install: Massilia now returns Massilia (before only Massiliensium), Diocletian its own entry (before Diocles), Hercules five entries with Heracles and Alcides (before two), Carnutes with Carni and Carnuntum, Crete adds Cretenses, Rome 23 entries headed Roma then Rome, Masinissa and Delos unchanged. The golden check against the 2026-10-19_live baseline (which has no entity request) differed in one request, the cross-language search, which the dictionary load of 08:04 changed and which was re-recorded. Reversal: copy the backup back over `entities.sqlite` and touch the WSGI file.
+
+Left for later passes (private list): Roma and Rome are two entries (a Latin against English split), the Cypriots entity holds Κύπρις, the Carii entity holds the Caresus river, the stem rule needs a Greek -es exclusion for the place-against-inhabitants veto, and the connector's entity tools stay behind `TESSERAE_ENTITY_TOOLS`.
+
 ## 2026-10-19 Public Coptic index download rebuilt without the Sahidica New Testament (RUN 08:16 EDT, by the lead)
 
 **Run record.** Installed at 08:16 from the staging folder: the 2 September archive, the page and the checksum file copied to `~/tesserae-backups/public_data_old_2026-10-19/` first, then the new `cop_index.db.tar.gz` (39,294,127 bytes), `index.html` and `SHA256SUMS.txt` moved into `public_data/` with mode 664. The page note was reworded to drop the file count (the live index held 27 of the registry's 29 works). `sha256sum -c` passed on every archive, and the archive fetched from `https://tesserae.caset.buffalo.edu/tesserae-data/cop_index.db.tar.gz` has the recorded SHA-256 `4696f27b…324a05`. The page at `/tesserae-data/index.html` shows the note.
