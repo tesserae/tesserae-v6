@@ -8,6 +8,12 @@ history (index builds, cache rebuilds, corpus changes) is in
 `DATA_OPERATIONS.md`; per-release changes are in `../CHANGELOG.md`.
 
 
+## 2026-10-19: the judged Greek-Latin harvest loads through the review table under one source name
+
+Decided by the project lead. Set A, the 13,831 Greek-Latin pairs that both gateway models (Qwen3.8-27B and gpt-oss-120b) accepted out of 22,144 judged, is loaded into the live dictionary through the `dictionary_review` table with status `accepted` and the source name `harvest_2026-10-19_set_a`. The app already reads accepted rows of that table at start, so no code in the search path changes, and `scripts/dictionary/load_review_entries.py --unload harvest_2026-10-19_set_a --apply` removes the whole set in one step. Pairs the project lead excludes after a hand audit of about 80 rows are left out through an exclusion file. The 5,876 pairs on which the models disagreed stay out until the project lead's verdict on a 200-row sample.
+
+Measurement. The Knauer benchmark is no longer a test of the dictionary, because 500 candidates were harvested from its misses (a control run scored 170 against 171 at baseline). The independent test is the Juhnke set, which scored 43.1 percent at baseline and 44.6 percent with set A, against 16.3 percent for chance. Figures are from the judging report and the Knauer re-measure report of 2026-10-18, kept outside this repository.
+
 ## 2026-10-18: a strong mark follows the order of the list
 
 Theme Search and Search One Text order their results by the reader model (the trained second judge, `services/reader_server.py`, since 2026-09-20), and mark a result strong from the index score against the work's confidence band (2026-10-12). The two signals disagreed: the Hamlet soliloquy stood at place six with a strong mark below five unmarked results. Decided (the project lead asked why a strong result stood below unmarked ones, 2026-10-18): the band still decides how many results are strong, and the marks go to the head of the reader's order, so a reader sees the badges where the list is strongest. A strong mark is therefore a statement about the list as ordered, not about one passage's index score. Code `backend/reader_rerank.apply`, tests in `tests/test_reader_rerank.py`.
