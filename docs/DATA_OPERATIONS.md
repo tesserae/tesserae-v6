@@ -35,7 +35,9 @@ Conventions
   hand and are the models the helper matches.
 
 
-## 2026-10-19 Public Coptic index download rebuilt without the Sahidica New Testament (PENDING, to be run by the lead)
+## 2026-10-19 Public Coptic index download rebuilt without the Sahidica New Testament (RUN 08:16 EDT, by the lead)
+
+**Run record.** Installed at 08:16 from the staging folder: the 2 September archive, the page and the checksum file copied to `~/tesserae-backups/public_data_old_2026-10-19/` first, then the new `cop_index.db.tar.gz` (39,294,127 bytes), `index.html` and `SHA256SUMS.txt` moved into `public_data/` with mode 664. The page note was reworded to drop the file count (the live index held 27 of the registry's 29 works). `sha256sum -c` passed on every archive, and the archive fetched from `https://tesserae.caset.buffalo.edu/tesserae-data/cop_index.db.tar.gz` has the recorded SHA-256 `4696f27b…324a05`. The page at `/tesserae-data/index.html` shows the note.
 
 Why. The Sahidica New Testament (J. Warren Wells's edition) is held for academic use only, so the public Coptic index download may not carry it. The site search keeps it. The download of 2 September still held it and was left out of the regeneration earlier today for that reason.
 
@@ -47,6 +49,9 @@ Install (by the lead):
 3. Verify from the public URL. Download `cop_index.db.tar.gz`, compare its SHA-256 with `SHA256SUMS.txt`, and read the Coptic row on the page.
 
 ## 2026-10-19 Per-line vector files untracked from git, production and dev checkouts kept whole (PENDING, by the lead)
+## 2026-10-19 Per-line vector files untracked from git, production and dev checkouts kept whole (RUN 07:42 to 07:54 EDT, by the lead)
+
+**Run record.** #1041 merged by hand at 07:42 (the review and classifier jobs could not fetch a 1,703-file diff; test and build passed). Production: 7,130 files (9.5 GB) copied to `~/tesserae-backups/embeddings_untrack_2026-10-19/production/`, the 66 locally modified tracked files reverted, the pull removed 1,703 files (5,463 left), the copy restored to 7,130, file lists identical, git clean under the folder, the vector census 3,479 files with 0 mismatches, WSGI touched, languages 200, 80 files compared by checksum with the backup with 0 differences. Dev checkout the same at 07:51 to 07:54 (3,626 files, 3.6 GB, 40 checksums compared, 0 differences). The golden check against the 18 October baseline showed 20 of 69 requests different, all from the night's data operations (renames, map and reuse rebuilds, events store) and none a vector-dependent result, and the baseline was re-recorded as `2026-10-19_live`.
 
 Why. The 1,703 files under `backend/embeddings/` (the per-line SPhilBERTa vectors, about 2 GB) were tracked in the public repository since January. Thirty-four of them were replaced in production on 2026-10-18 after the vector census found them out of step with their texts, and twenty show as modified in the dev checkout, so the copies on GitHub were stale and a `git pull` carried a risk of overwriting repaired vectors. The project lead decided on 2026-10-19 to untrack them (#1041). The directory stays in `.gitignore`.
 
@@ -58,7 +63,9 @@ Hazard. A pull of a commit that deletes tracked files removes those files from t
 5. Touch the WSGI file, `curl .../api/languages`, one Similar Passages request.
 
 Production tail rule added. Every text replacement or repair re-encodes the work's vector file (`scripts/corpus/encode_with_embed_service.py` or the GPU route) and runs the census, alongside the lemma cache, index rows, bigram tables, passage index and reuse tables already listed.
-## 2026-10-19 Greek-Latin set A loaded through the review table (PENDING, to be run by the lead)
+## 2026-10-19 Greek-Latin set A loaded through the review table (RUN 08:04 to 08:08 EDT, by the lead)
+
+**Run record.** Dry run then `--apply` from the production checkout at dc027534 with the production environment sourced inside one shell, `PYTHONPATH` set to the checkout because the script lacked a repository-root path line (added in this pull request). Input 13,831 pairs (0 duplicates), 67 excluded by the lead's hand audit of the 142 Knauer-harvested rows and the 35 rows with a wide Latin target (proper names turned into titles such as Agamemnon to rex, Latin sides that are inflected forms, one-passage glosses, wide common nouns), 4 already in the curated dictionary, 13,760 inserted under source `harvest_2026-10-19_set_a` with status accepted. Accepted rows in the table 183 before, 13,943 after. The production code then reads 13,943 accepted entries and the Greek-Latin dictionary holds 10,864 Greek keys (2,201 before). One cached cross-language job file moved to `~/tesserae-backups/results_cache_pre_seta_2026-10-19/`, WSGI touched 08:05, languages 200. Check: Od. 5.306 against Aen. 1.94 computed fresh on the live site ranks 15 of 526 candidate pairs (semantic 69 percent plus 3 dictionary words), against 7 of 445 on 18 October before the load, so the larger dictionary adds candidates above it. Reversal: `--unload harvest_2026-10-19_set_a --apply`.
 
 Why. Both gateway models accepted 13,831 harvested Greek-Latin pairs (see DECISIONS.md, 2026-10-19). They go in as rows of `dictionary_review` with status `accepted` under one source name, so one command removes them. The CSV already holds the live dictionary's key form (no accents, final sigma as sigma), and the loader applies the app's own normalizer to be safe. Four pairs are already in the curated dictionary and are skipped, leaving 13,827 to insert before the exclusion file.
 

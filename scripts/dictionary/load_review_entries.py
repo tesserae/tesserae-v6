@@ -23,6 +23,9 @@ import sys
 import unicodedata
 from datetime import datetime
 
+# Run from any folder: the repository root (two levels up) holds `backend`.
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+
 REVIEWER = 'the project lead (judged harvest)'
 NOTES_LIMIT = 500
 BATCH_SIZE = 500

@@ -8,6 +8,14 @@ history (index builds, cache rebuilds, corpus changes) is in
 `DATA_OPERATIONS.md`; per-release changes are in `../CHANGELOG.md`.
 
 
+## 2026-10-19: People & Places keeps Rome and the Romans as two entries
+
+The repaired entity store carves the Greek Ῥωμαῖοι and the Latin Romani into a Romans entry (a people, 14,584 lines) beside Rome (a place, 4,771 lines). The project lead decided on 2026-10-19 that they stay separate, since one is a people and one a place, and a query for Rome returns both. The merge pass of 2026-10-19 (pass 4d) leaves that carve alone.
+
+## 2026-10-19: the Sahidica New Testament leaves the public Coptic index download
+
+The Sahidica files (J. Warren Wells's edition, 27 works in the live Coptic index) carry a license for academic use only and no redistribution. They stay searchable on the site. The project lead decided on 2026-10-19 that the downloadable Coptic index archive is rebuilt without them, and that the downloads page says so and points readers to Coptic Scriptorium for the text.
+
 ## 2026-10-19: the judged Greek-Latin harvest loads through the review table under one source name
 
 Decided by the project lead. Set A, the 13,831 Greek-Latin pairs that both gateway models (Qwen3.8-27B and gpt-oss-120b) accepted out of 22,144 judged, is loaded into the live dictionary through the `dictionary_review` table with status `accepted` and the source name `harvest_2026-10-19_set_a`. The app already reads accepted rows of that table at start, so no code in the search path changes, and `scripts/dictionary/load_review_entries.py --unload harvest_2026-10-19_set_a --apply` removes the whole set in one step. Pairs the project lead excludes after a hand audit of about 80 rows are left out through an exclusion file. The 5,876 pairs on which the models disagreed stay out until the project lead's verdict on a 200-row sample.
