@@ -82,10 +82,17 @@ MAX_WORK_PREFIX_TOKENS = 4
 # outright, regardless of what the
 # abbreviation index says, UNLESS it is combined with another token (e.g.
 # 'Hor. C.' is fine; a bare 'P.' or 'p.' by itself is not).
-# Lower-case only: "man. 5" (manuscript hand), "long. 99" (longitude),
+# Lower-case only: "man. 5" (manuscript hand), "long. 99" (longitude), "de\\mos. 1" (a footnote number after "demos"),
 # "lat. 40" and "publ. C. V." are not Manilius, Aristotle, Livy or Plutarch,
 # while a capital "Man. 3.25" or "Long. 2.7" stays a candidate.
-LOWERCASE_ONLY_STOPLIST = {"man", "long", "lat", "publ"}
+LOWERCASE_ONLY_STOPLIST = {"man", "long", "lat", "publ", "mos"}
+
+# Elided articles and prepositions of Italian and French ("l'inclita", "d'oro",
+# "dell'Ode", "qu'il", "s'en", "c'est"). With the apostrophe glued to the word, a
+# lone l, d or c is never a Roman numeral and the word never part of an
+# abbreviation ("Per l'interpretazione" is not Plutarch's Pericles).
+ELISION_WORDS = {"l", "d", "c", "s", "m", "n", "t", "j", "qu", "dell", "nell", "all", "dall", "sull",
+                 "coll", "quell", "un", "gl", "de", "i"}
 
 GENERIC_APPARATUS_STOPLIST = {
     "p", "pp", "v", "vv", "l", "ll", "n", "nn", "ch", "chh",
@@ -108,6 +115,8 @@ def is_greek_book_letter(text):
 
 
 def is_level_token(tok: Token):
+    if tok.type == "LIT" and tok.apos_after:
+        return False
     if tok.type == "NUM":
         # No locus level starts with a zero: "01" and "07" are OCR noise.
         return not (len(tok.text) > 1 and tok.text.startswith("0"))
@@ -129,6 +138,14 @@ class Ref:
     book_list: Optional[List[str]] = None  # set instead of a single locus when this
                                             # ref is a comma-separated list of Roman-
                                             # numeral book numbers (see module docstring)
+    paren_levels: Optional[List[str]] = None  # a parenthesized alternative numbering right after
+                                               # the locus ("Men. 1, 1, 26 (102)", "Haut 4, 4, 21 (v. 743)"):
+                                               # the extractor takes whichever form the corpus uses
+    paren_end_levels: Optional[List[str]] = None  # the end of a parenthesized range
+    after_comma: bool = False                # this ref follows a comma that separated loci
+    comma_chain: bool = False                # this ref ended at a comma that separates loci
+                                              # ("Iul. 2, 49.1-4", "Mil. 146, 298"): the next ref
+                                              # continues the same work
     start_seps: Optional[List[str]] = None  # separator TYPE ('COMMA'/'DOT'/'COLON'/None
                                              # for whitespace-only) between each pair of
                                              # consecutive start_levels -- one shorter than
@@ -155,6 +172,8 @@ def _match_work_prefix(tokens, i, abbrev_index, allow_stop=None):
     lit_run = []
     k = i
     while k < len(tokens) and tokens[k].type == "LIT" and len(lit_run) < MAX_WORK_PREFIX_TOKENS:
+        if tokens[k].apos_after and tokens[k].text.rstrip(".").lower() in ELISION_WORDS:
+            break
         lit_run.append(tokens[k])
         k += 1
     for length in range(len(lit_run), 0, -1):
@@ -186,7 +205,66 @@ def _match_work_prefix(tokens, i, abbrev_index, allow_stop=None):
     return None
 
 
-def _parse_level_seq(tokens, k):
+# Words that mark a parenthesized line number ("(v. 743)", "(ll. 10-12)").
+_PAREN_LINE_MARKERS = {"v", "vv", "vs", "l", "ll", "line", "lines", "vers", "verse", "verses"}
+
+
+def _parse_paren_alt(tokens, k):
+    """A parenthesized alternative numbering that follows a locus: "(102)",
+    "(v. 743)", "(ll. 10-12)". tokens[k] is the first token after the opening
+    parenthesis. Returns (levels, end_levels, index_after) or None when the
+    parenthesis holds anything but a line marker, a number and an optional
+    range end, closed by a parenthesis."""
+    j = k
+    if j < len(tokens) and tokens[j].type == "LIT" and tokens[j].text.rstrip(".").lower() in _PAREN_LINE_MARKERS:
+        j += 1
+    if j >= len(tokens) or tokens[j].type != "NUM":
+        return None
+    first = tokens[j]
+    j += 1
+    end = None
+    if first.close_paren:
+        return [first.text], None, j
+    if j + 1 < len(tokens) and tokens[j].type == "HYPH" and tokens[j + 1].type == "NUM" and tokens[j + 1].close_paren:
+        return [first.text], [tokens[j + 1].text], j + 2
+    return None
+
+
+def _comma_starts_new_locus(tokens, prev_idx, k2, n_levels=1, in_range_end=False):
+    """tokens[k2 - 1] is a comma that follows the level at tokens[prev_idx]. True
+    when the comma separates two loci instead of two levels of one: a comma
+    plus a space and then a number that itself carries a point or a range
+    ("Iul. 2, 49.1-4", "Lucr. 1.823-27, 2.688-99", "Dem. 20.35, 49.52"), or a
+    Roman-numeral book after an Arabic chapter or after a locus of two levels
+    ("Hdt. I 191, VIII 40", also with an OCR slip: "I I9I, VIII 40"). A
+    tight comma ("1,124") is a level separator and never starts a locus."""
+    comma = tokens[k2 - 1]
+    if k2 >= len(tokens) or tokens[k2].start <= comma.end:
+        return False
+    nxt = tokens[k2]
+    if nxt.type == "NUM":
+        if k2 + 2 < len(tokens) and tokens[k2 + 1].type == "DOT" and tokens[k2 + 2].type == "NUM" \
+                and tokens[k2 + 1].start == nxt.end and tokens[k2 + 2].start == tokens[k2 + 1].end:
+            # four numbers joined by points are an IP address ("[128.205.2.231]"
+            # on a Project MUSE page), not a locus
+            if (k2 + 6 < len(tokens) and tokens[k2 + 3].type == "DOT" and tokens[k2 + 4].type == "NUM"
+                    and tokens[k2 + 5].type == "DOT" and tokens[k2 + 6].type == "NUM"):
+                return False
+            return True
+        if k2 + 2 < len(tokens) and tokens[k2 + 1].type == "HYPH" and tokens[k2 + 2].type == "NUM":
+            # a range after a comma is a new locus when the locus before it
+            # already has two levels or is itself a range ("Theog. 53-79,
+            # 915-17"); after one level it is the second level ("Livy 34, 1-8")
+            return in_range_end or n_levels >= 2
+        return False
+    if nxt.type == "LIT" and prev_idx is not None and (tokens[prev_idx].type == "NUM" or n_levels >= 2):
+        core = nxt.text.rstrip(".")
+        return (core.isupper() and is_roman_shaped(core) and k2 + 1 < len(tokens)
+                and tokens[k2 + 1].type == "NUM")
+    return False
+
+
+def _parse_level_seq(tokens, k, extras=None, in_range_end=False):
     """LEVEL (SEP? LEVEL)* -- SEP (comma/dot) is optional so that adjacent
     numeral-shaped tokens separated only by whitespace ('I 1') are also
     accepted as consecutive levels. Returns (level_tokens, separators,
@@ -212,6 +290,12 @@ def _parse_level_seq(tokens, k):
         # 7.803-17).2", "Cic. de Orat. 3.197):16") is a note or a page.
         if tokens[k - 1].close_paren:
             break
+        # A comma that starts a new locus ends this one; the caller carries the
+        # work over to the next (comma_chain).
+        if sep == "COMMA" and k2 < len(tokens) and _comma_starts_new_locus(tokens, k - 1, k2, len(levels), in_range_end):
+            if extras is not None:
+                extras["comma_chain"] = True
+            break
         # A blank line before the separator or the next level means a footnote
         # number or a new paragraph, not another level of the same locus
         # ("Livy iii. 33. 1.\n\n3").
@@ -223,6 +307,12 @@ def _parse_level_seq(tokens, k):
         if (sep == "COLON" and k2 < len(tokens) and k2 > 0
                 and tokens[k2].start > tokens[k2 - 1].end):
             break
+        if (extras is not None and len(levels) >= 2 and k2 < len(tokens) and tokens[k2].open_paren
+                and sep is None and not tokens[k2].apos_after):
+            alt = _parse_paren_alt(tokens, k2)
+            if alt is not None:
+                extras["paren_levels"], extras["paren_end_levels"], k = alt[0], alt[1], alt[2]
+                break
         if k2 < len(tokens) and is_level_token(tokens[k2]):
             levels.append(tokens[k2])
             seps.append(sep)
@@ -236,7 +326,8 @@ def _parse_level_seq(tokens, k):
 def _parse_locus(tokens, j, has_explicit_work):
     """Returns a dict with start_levels/end_levels/following_marker/end_index
     /end_offset/book_list, or None if no valid locus starts at j."""
-    start_toks, start_seps, _start_idx_after, k = _parse_level_seq(tokens, j)
+    extras = {}
+    start_toks, start_seps, _start_idx_after, k = _parse_level_seq(tokens, j, extras)
     if start_toks is None:
         return None
 
@@ -281,11 +372,14 @@ def _parse_locus(tokens, j, has_explicit_work):
             "end_index": k,
             "end_offset": end_offset,
             "book_list": [t.text.rstrip(".") for t in start_toks],
+            "comma_chain": False,
         }
 
     end_toks = None
     if k < len(tokens) and tokens[k].type == "HYPH":
-        maybe_end, _end_seps, end_idx_after, k3 = _parse_level_seq(tokens, k + 1)
+        end_extras = {}
+        maybe_end, _end_seps, end_idx_after, k3 = _parse_level_seq(tokens, k + 1, end_extras, True)
+        extras.update(end_extras)
         if maybe_end is not None:
             if len(maybe_end) > len(start_toks):
                 # Range depth mismatch: the naive scan found more levels at
@@ -321,6 +415,9 @@ def _parse_locus(tokens, j, has_explicit_work):
         "end_index": k,
         "end_offset": end_offset,
         "book_list": None,
+        "paren_levels": extras.get("paren_levels"),
+        "paren_end_levels": extras.get("paren_end_levels"),
+        "comma_chain": bool(extras.get("comma_chain")) and not following_marker,
     }
 
 
@@ -333,7 +430,14 @@ def _is_firm_single_level(tok):
     return tok.type == "LIT" and len(text) >= 2 and text.isupper() and is_roman_shaped(text)
 
 
-def _try_parse_ref(tokens, i, abbrev_index, inherited, allow_stop=None):
+def _locus_after_paren_comma(tokens, j):
+    """"(Eur. Hipp.), 2.10": the number after a closing parenthesis and its
+    comma belongs to the next list item, not to the work before the
+    parenthesis. tokens[j] is the comma after the work abbreviation."""
+    return tokens[j].type == "COMMA" and tokens[j - 1].close_paren
+
+
+def _try_parse_ref(tokens, i, abbrev_index, inherited, allow_stop=None, comma_continue=False):
     work_match = _match_work_prefix(tokens, i, abbrev_index, allow_stop)
     if work_match:
         j, hits, surface, wstart, wend = work_match
@@ -344,6 +448,8 @@ def _try_parse_ref(tokens, i, abbrev_index, inherited, allow_stop=None):
         # 'Aen.: 2.504') rather than a level separator itself -- skip at most
         # one before parsing the locus.
         if j < len(tokens) and tokens[j].type in ("COMMA", "COLON"):
+            if _locus_after_paren_comma(tokens, j):
+                return None, i
             j += 1
     else:
         j = i
@@ -353,7 +459,7 @@ def _try_parse_ref(tokens, i, abbrev_index, inherited, allow_stop=None):
     if work_candidates is None and inherited is None:
         return None, i
 
-    locus = _parse_locus(tokens, j, has_explicit_work=(work_candidates is not None))
+    locus = _parse_locus(tokens, j, has_explicit_work=(work_candidates is not None) or comma_continue)
     if locus is None:
         return None, i
 
@@ -378,6 +484,10 @@ def _try_parse_ref(tokens, i, abbrev_index, inherited, allow_stop=None):
         locus_start_offset=tokens[j].start if j < len(tokens) else locus["end_offset"],
         book_list=locus.get("book_list"),
         start_seps=locus.get("start_seps"),
+        paren_levels=locus.get("paren_levels"),
+        paren_end_levels=locus.get("paren_end_levels"),
+        comma_chain=locus.get("comma_chain", False),
+        after_comma=comma_continue,
     )
     return ref, locus["end_index"]
 
@@ -387,17 +497,26 @@ def _try_parse_citation(tokens, i, abbrev_index, allow_stop=None):
     inherited_candidates = None
     inherited_surface = None
     pos = i
+    comma_continue = False
     while True:
-        ref, new_pos = _try_parse_ref(tokens, pos, abbrev_index, inherited_candidates, allow_stop)
+        ref, new_pos = _try_parse_ref(tokens, pos, abbrev_index, inherited_candidates, allow_stop,
+                                      comma_continue)
         if ref is None:
+            if comma_continue:
+                pos -= 1  # the comma was not a list separator after all
             break
         refs.append(ref)
         if ref.work_candidates is not None:
             inherited_candidates = ref.work_candidates
             inherited_surface = ref.work_surface
         pos = new_pos
+        comma_continue = False
         if pos < len(tokens) and tokens[pos].type == "SEMI":
             pos += 1
+            continue
+        if ref.comma_chain and pos < len(tokens) and tokens[pos].type == "COMMA":
+            pos += 1
+            comma_continue = True
             continue
         break
     if not refs:
@@ -411,6 +530,33 @@ def _try_parse_citation(tokens, i, abbrev_index, allow_stop=None):
 # the extractor then requires two locus levels, so "P. 45" stays a page.
 _PINDAR_NAMED = re.compile(r"Pind")
 _STOP_EXEMPT = {"p", "n"}
+
+
+# "Tid. for fil. og paed. vi 231": a capitalized word that is no abbreviation of
+# an ancient author or work, followed by for, fur, of, de or zur, opens a journal
+# title (Tidsskrift for Filologi og Paedagogik, Revue de Philologie). The words
+# that follow it are title words, so none of them starts a citation.
+_TITLE_LINKS = {"for", "für", "fur", "of", "de", "zur", "voor"}
+_TITLE_ZONE_TOKENS = 6
+
+
+def _journal_title_zones(tokens, abbrev_index):
+    zones = set()
+    n = len(tokens)
+    for i in range(n - 1):
+        t = tokens[i]
+        if t.type != "LIT" or not t.text[:1].isupper() or not t.text.endswith(".") or tokens[i + 1].type != "LIT":
+            continue
+        if tokens[i + 1].text.lower() not in _TITLE_LINKS:
+            continue
+        if abbrev_index.lookup(normalize_abbr(t.text)) or _match_work_prefix(tokens, i, abbrev_index):
+            continue
+        zones.add(i)
+        j = i + 1
+        while j < n and j <= i + _TITLE_ZONE_TOKENS and tokens[j].type == "LIT" and not tokens[j].para_break:
+            zones.add(j)
+            j += 1
+    return zones
 
 
 def find_citations(text, abbrev_index, context=""):
@@ -427,10 +573,14 @@ def find_citations(text, abbrev_index, context=""):
             return False
         return bool(_PINDAR_NAMED.search(prelude + text[max(0, tok.start - 300):tok.start]))
 
+    zones = _journal_title_zones(tokens, abbrev_index)
     citations = []
     i = 0
     n = len(tokens)
     while i < n:
+        if i in zones:
+            i += 1
+            continue
         refs, new_i = _try_parse_citation(tokens, i, abbrev_index, allow_stop)
         if refs:
             start = refs[0].start_offset

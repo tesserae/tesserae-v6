@@ -236,9 +236,10 @@ def test_literary_extraction_is_unchanged_by_document_citations():
     text = 'Verg. Aen. 1.1; Il. 1.1-7; CIL VI 1234'
     lit = [(h['surface'], h['work_id'], h['locus_start']) for h in C.extract(text) if h['resolved']]
     assert ('Verg. Aen. 1.1', 'vergil.aeneid', '1.1') in lit
-    # extract() is untouched, so it still reads "CIL VI 1234" as Iliad 6.1234 ...
-    assert any(s.startswith('CIL') for s, _, _ in lit)
-    # ... and extract_all() is the call that removes that clash.
+    # extract() would read "CIL VI 1234" as Iliad book 151 (CIL is a Roman numeral),
+    # which is beyond the Iliad's last book, so round 6 drops it there too ...
+    assert not any(s.startswith('CIL') for s, _, _ in lit)
+    # ... and extract_all() is the call that removes the clash for the other works.
     both = C.extract_all(text)
     assert [h['surface'] for h in both['literary']] == ['Verg. Aen. 1.1', 'Il. 1.1-7']
     assert [h['key'] for h in both['documents']] == ['CIL:CIL:6:1234:']
