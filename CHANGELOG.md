@@ -7,6 +7,9 @@ so the state of the live site can be reconstructed from this file and
 docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
+## 2026-10-19
+- Citation recognizer round 5: a Pindar book letter now also reaches a list of odes (`Pind. Pyth. IV, V, IX` gives p.4, p.5, p.9) and a letter written after the author's name (`Pi. I. 8.47` gives i.8.47); a colon followed by a space or a closing parenthesis ends a locus, so a page number after it no longer joins on (`Isth. I, 23: 07`, `Aen. 7.803-17).2`); a level that starts with a zero is not a level; the lower-case words `man.`, `long.`, `lat.` and `publ.` are not works; `Ann.` (two levels), `Th.` (two levels), `Str.` (two levels), `Arr.` (three levels) and `Ben.` (three levels) resolve to Tacitus, Thucydides, Strabo, the Anabasis and Seneca when no author is named. Tests in `tests/test_citation_round5.py`; the table and index steps are the lead's.
+
 ## 2026-10-18
 - Events: the Scholarship tab orders each group by whether the article's title names the event (its label, place or a participant), then by how many of the event's passages it cites, then by passage rank, and journal apparatus rows ("Reports", "Brief Mention", "Volume Information") are dropped. The production events store was rebuilt the same night with the documents that name the participants or the place and the Scholarship table against both citation indexes (docs/DATA_OPERATIONS.md).
 - Search One Text: Tessa's summary of the passages found is a synthesis of up to 220 words over the first twenty passages, naming the aspects of the subject with cited examples (was 120 words over twelve). Reader: the first-visit notice is three short sentences. Fourteen Coptic texts named from file fragments ("Life, John.kalybites") now read "Sahidic Coptic, Life of John Kalybites" and the like, and Theodosius of Alexandria's Encomium on Michael the Archangel is named.

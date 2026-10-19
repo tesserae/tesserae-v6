@@ -41,6 +41,7 @@ class Token:
     start: int
     end: int
     para_break: bool = False  # a blank line separates this token from the one before
+    close_paren: bool = False  # a closing parenthesis directly follows this token
 
 
 def raw_scan(text):
@@ -71,6 +72,8 @@ def tokenize(text):
     while i < n:
         t = raw[i]
         if t.type == "WS" or t.type == "PAREN":
+            if t.type == "PAREN" and t.text == ")" and out:
+                out[-1].close_paren = True
             i += 1
             continue
         if t.type == "WORD":
