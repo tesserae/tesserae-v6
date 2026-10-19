@@ -35,6 +35,16 @@ Conventions
   hand and are the models the helper matches.
 
 
+## 2026-10-19 Citation indexes rebuilt with recognizer round 5 and installed (RUN 02:14 EDT, by the lead); document image links rewritten for two hosts (RUN 00:32 EDT, by the lead)
+
+Why. Round 5 of the citation recognizer (#1035) resolves Pindar book letters across lists of odes, stops page numbers glued after a colon from becoming locus levels, drops lower-case words read as works (317 false Manilius rows), and gives the bare forms Ann., Th., Str., Arr. and Ben. their default authors when the locus shape is firm (a single Roman numeral I, V or X counts as a first level). The image rules of #1030 came from a five-id browser check per host.
+
+What. The two indexes were rebuilt by the delegate from the held article text into a private folder and installed at 02:14 by copy and rename, the previous files kept as `citations.db.bak-round4-20261019` and `citations_muse.db.bak-round4-20261019`, then the WSGI file touched. EJC `citations.db`: 42,212 rows to 42,199 (Arrian Anabasis 7 to 162, Tacitus Annales 545 to 703, Strabo 543 to 603, Manilius minus 317). MUSE `citations_muse.db`: 26,879 to 27,708. A gateway-model reading of a 200-row sample (100 per index) judged 171 correct, 85.5 percent (Wilson interval 80.0 to 89.7), with 17 wrong loci, 7 non-citations and 5 wrong works; a hand check of the sample is still owed before the figure is published. The Events store's Scholarship table (rebuilt 23:33 the night before from the round 4 indexes) was not relinked, so the new rows reach the Scholarship tab of Search One Text and the Reader at once and the Events page at its next relink.
+
+Also. `scripts/documents/fix_image_urls.py --apply` ran on the live `data/documents/metadata.db` at 00:32 after #1030 merged and before any front-end build: 77 rows rewritten (59 U.S. Epigraphy Project image addresses to record pages, 18 old CIL viewer addresses to `cil.bbaw.de/ace/id`), the script's own backup at `metadata.db.bak-2026-10-19`. Still on dead hosts with no rule: 6,931 rows (3,424 bare I.Sicily file names, 2,271 access.bl.uk, 1,064 APIS, and smaller hosts); APIS needs a handle mapping table and the I.Sicily site refuses a headless browser.
+
+Checks. `/api/languages` 200 after the reload. The installed indexes answer the row counts above, and the Events route for the Sicilian Expedition answers with its 132 article rows.
+
 ## 2026-10-19 Public data downloads regenerated: five index archives, the passage index as per-language slices, new page and checksums (RUN 00:50 to 01:05 EDT, by the lead)
 
 Why. The downloads page served index archives of 10 February and a single passage-index bundle of 2 September, both far behind the live stores (the Latin index alone was rebuilt on 17 and 18 October), and the single bundle forced one licence onto slices that differ (the design in `scripts/build_passage_index_release.py`: Hebrew CC BY-NC, Coptic CC BY, the rest public domain or Ganjoor). The work-list item from 28 September asked for the regeneration.
