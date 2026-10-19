@@ -74,3 +74,15 @@ def test_normalize_ref_is_idempotent_on_repaired_tags():
     for ref in ('sal.  Cat..58.15', 'pl. poen.  1', 'hp. Epid..1.1.1', 'a..b..1.1'):
         once = utils.normalize_ref(ref)
         assert utils.normalize_ref(once) == once
+
+
+def test_a_work_filed_under_its_own_name_is_not_named_twice():
+    """chanson_de_roland.chanson_de_roland read "Chanson de Roland, Chanson de Roland"
+    on every card (2026-10-18). The title stands alone; a part keeps its part."""
+    m = utils.get_text_metadata('chanson_de_roland.chanson_de_roland.tess')
+    assert m['author'] == 'Chanson de Roland' and m['title'] == 'Chanson de Roland'
+    assert m['display_name'] == 'Chanson de Roland'
+    assert utils.get_text_metadata('nibelungenlied.nibelungenlied.tess')['display_name'] == 'Nibelungenlied'
+    assert utils.get_text_metadata('vergil.aeneid.tess')['display_name'] == 'Vergil, Aeneid'
+    part = utils.get_text_metadata('nibelungenlied.nibelungenlied.part.2.tess')
+    assert part['display_name'].startswith('Nibelungenlied, ') and 'Nibelungenlied, Nibelungenlied' not in part['display_name']

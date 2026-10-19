@@ -428,6 +428,12 @@ function App() {
           source: sourceText, target: targetText, language: activeTab,
           source_unit_type: settings.source_unit_type || 'line',
           target_unit_type: settings.target_unit_type || 'line',
+          // The same two values the search is keyed on in the results cache,
+          // so the server can say the answer is already there (the lead,
+          // 2026-10-18: the Persian pair warned of a long search and then
+          // answered at once from the cache).
+          max_results: String(params.max_results ?? settings.max_results ?? 5000),
+          use_meter: settings.use_meter ? '1' : '0',
         });
         const estimate = await getJson(`/api/fusion-estimate?${q}`);
         if (estimate?.in_parts) {

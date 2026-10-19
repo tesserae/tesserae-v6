@@ -321,6 +321,14 @@ export default function AskAWorkPage() {
     setLang(d.lang); setAuthor(d.work.split('.')[0].toLowerCase()); setWork(d.work);
     setBookFrom(null); setBookTo(null);
   }, [view, q, work]);
+  // The author control follows the work. A work set by another path (a view
+  // switch, an example, a link) must never sit under another author, which
+  // showed as an author with an empty work box (the lead, 2026-10-18).
+  useEffect(() => {
+    if (work && author && !work.toLowerCase().startsWith(author.toLowerCase() + '.')) {
+      setAuthor(work.split('.')[0].toLowerCase());
+    }
+  }, [work, author]);
   const [catalogue, setCatalogue] = useState({});   // language -> works, once loaded
   const loading = useRef({});
 

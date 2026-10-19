@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import useDocumentsTrial from '../../hooks/useDocumentsTrial';
+import useCollections from '../../hooks/useCollections';
 import { cssRef, windowLocus, fullRef } from './refId';
 import ReaderHeader from './ReaderHeader';
 import ReaderNav, { ReaderEndNav, ReaderFloatNav, ReaderPhoneTopButton, sectionsFor, bookFileFor } from './ReaderNav';
@@ -22,6 +23,17 @@ const DEFAULT_WORK = 'vergil.aeneid.part.1.tess';
 // on production nothing changes for those texts; only the diwans and long
 // whole-work files arrive in stretches.
 const READER_STEP = 1000;
+// The History view opens on a historian instead (the lead, 2026-10-18: the
+// Reader kept opening on the Aeneid under History). The same two works
+// Intertextual Search starts from in that view (collectionsConfig).
+const HISTORY_PREFERRED_WORK = {
+  la: 'livy.ab_urbe_condita.part.1.books_1-10.tess',
+  grc: 'herodotus.histories.part.1.tess',
+};
+export function preferredWork(language, view) {
+  if (view === 'history' && HISTORY_PREFERRED_WORK[language]) return HISTORY_PREFERRED_WORK[language];
+  return PREFERRED_WORK[language];
+}
 const DEFAULT_LANGUAGE = 'la';
 const READER_LANGUAGES = ['la', 'grc', 'en', 'cop', 'he', 'fa', 'ur', 'ar', 'it', 'gmh', 'fro'];
 // Where each language's corpus opens when no work is chosen yet.
@@ -192,6 +204,7 @@ export default function ReaderPage() {
   // show the n_documents/n_possible_documents counts the marks fetch below
   // already carries whenever the server has TESSERAE_DOCUMENTS=1 on.
   const documentsTrial = useDocumentsTrial();
+  const { view } = useCollections();
   useEffect(() => {
     if (!work) { setReuseMarks({}); return undefined; }
     let cancelled = false;
@@ -468,7 +481,7 @@ export default function ReaderPage() {
   // page. App.jsx sends this event instead of re-mounting the page.
   useEffect(() => {
     const onHome = () => {
-      setWork(PREFERRED_WORK[language] || DEFAULT_WORK);
+      setWork(preferredWork(language, view) || DEFAULT_WORK);
       setSelection(null);
       setCameFrom('');
       setMapFrom('');
@@ -500,7 +513,7 @@ export default function ReaderPage() {
     // Greek on Argonautica 1), not on whichever author sorts first. If the
     // preferred file is missing or broken the failed-work guard has already
     // recorded it, and the hierarchy scan below takes over.
-    const preferred = PREFERRED_WORK[language];
+    const preferred = preferredWork(language, view);
     if (preferred && preferred !== failedWorkRef.current) {
       setWork(preferred);
       return;
@@ -511,7 +524,20 @@ export default function ReaderPage() {
         if (file) { setWork(file); return; }
       }
     }
-  }, [work, language, hierarchy, corpusLoading]);
+  }, [work, language, hierarchy, corpusLoading, view]);
+
+  // Switching Literature and History while the Reader is open: when the
+  // reader has not chosen anything (the work is still the old view's start
+  // text and nothing is selected), follow the new view's start text.
+  const prevViewRef = useRef(view);
+  useEffect(() => {
+    if (view === prevViewRef.current) return;
+    const oldPreferred = preferredWork(language, prevViewRef.current);
+    prevViewRef.current = view;
+    if (selection || work !== oldPreferred) return;
+    const next = preferredWork(language, view);
+    if (next && next !== work) setWork(next);
+  }, [view, work, language, selection]);
 
   const openPassage = useCallback((result) => {
     if (!result?.work) return;
