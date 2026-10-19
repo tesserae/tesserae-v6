@@ -1,5 +1,6 @@
-import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { useState, useEffect, useLayoutEffect, useCallback, useMemo, useRef } from 'react';
 import useDocumentsTrial from '../../hooks/useDocumentsTrial';
+import useCollections from '../../hooks/useCollections';
 import { cssRef, windowLocus, fullRef } from './refId';
 import ReaderHeader from './ReaderHeader';
 import ReaderNav, { ReaderEndNav, ReaderFloatNav, ReaderPhoneTopButton, sectionsFor, bookFileFor } from './ReaderNav';
@@ -22,6 +23,17 @@ const DEFAULT_WORK = 'vergil.aeneid.part.1.tess';
 // on production nothing changes for those texts; only the diwans and long
 // whole-work files arrive in stretches.
 const READER_STEP = 1000;
+// The History view opens on a historian instead (the lead, 2026-10-18: the
+// Reader kept opening on the Aeneid under History). The same two works
+// Intertextual Search starts from in that view (collectionsConfig).
+const HISTORY_PREFERRED_WORK = {
+  la: 'livy.ab_urbe_condita.part.1.books_1-10.tess',
+  grc: 'herodotus.histories.part.1.tess',
+};
+export function preferredWork(language, view) {
+  if (view === 'history' && HISTORY_PREFERRED_WORK[language]) return HISTORY_PREFERRED_WORK[language];
+  return PREFERRED_WORK[language];
+}
 const DEFAULT_LANGUAGE = 'la';
 const READER_LANGUAGES = ['la', 'grc', 'en', 'cop', 'he', 'fa', 'ur', 'ar', 'it', 'gmh', 'fro'];
 // Where each language's corpus opens when no work is chosen yet.
@@ -52,7 +64,43 @@ const PREFERRED_WORK = {
  * who is reading and wants to know what a passage touches. Results open in the
  * Reader in turn, so the corpus can be followed by association.
  */
-function popupTop(selection) {
+const TOOLBAR_GAP = 8;
+const TOOLBAR_GUESS = 64;
+
+/** Where the selection toolbar goes, so that it covers none of the selected
+ *  lines and as little of the text as it can. Above the first selected line
+ *  when the pane and the screen have room for the toolbar's whole height,
+ *  otherwise below the last selected line. The toolbar used to hang from the
+ *  last line's bottom edge by a fixed 8 pixels whatever its height, and when
+ *  its two rows wrapped it covered the two lines after the selection
+ *  (2026-10-19). All arguments are in the pane's coordinates except
+ *  `viewportRoom`, the space between the first line and the sticky strip on
+ *  the screen. */
+export function toolbarTopFor({ firstTop, lastBottom, height, viewportRoom = Infinity, gap = TOOLBAR_GAP }) {
+  const above = firstTop - height - gap;
+  if (above >= 0 && viewportRoom >= height + gap) return above;
+  return lastBottom + gap;
+}
+
+function lineElement(ref) {
+  return ref ? document.getElementById(`line-${cssRef(ref)}`) : null;
+}
+
+function popupTop(selection, height = TOOLBAR_GUESS) {
+  const first = lineElement(selection?.refStart);
+  const bottom = popupBottom(selection);
+  if (!first) return bottom + TOOLBAR_GAP;
+  const nav = document.querySelector('[data-reader-nav-strip]');
+  const floor = nav ? nav.getBoundingClientRect().bottom : 0;
+  return toolbarTopFor({
+    firstTop: first.offsetTop,
+    lastBottom: bottom,
+    height,
+    viewportRoom: first.getBoundingClientRect().top - floor,
+  });
+}
+
+function popupBottom(selection) {
   // Under the last selected line. A drag in the text measures the line
   // itself and passes anchorTop; a click on a quotation mark or an arrival
   // by URL used to pass nothing, so the popup sat at the top of the pane
@@ -178,6 +226,14 @@ export default function ReaderPage() {
   // comment on SLOW_AFTER_MS in ConnectionGutter.
   const [gutterSlow, setGutterSlow] = useState(false);
   const [selection, setSelection] = useState(null);
+  // The selection toolbar's measured height: its controls wrap to two rows
+  // in a narrow pane, so the position cannot assume one.
+  const toolbarBoxRef = useRef(null);
+  const [toolbarHeight, setToolbarHeight] = useState(TOOLBAR_GUESS);
+  useLayoutEffect(() => {
+    const h = toolbarBoxRef.current?.offsetHeight;
+    if (h && h !== toolbarHeight) setToolbarHeight(h);
+  }, [popupOpen, selection, scope, toolbarHeight]);
   // "Quoted in N works": per-line reuse counts for the currently open work,
   // from the corpus-wide reuse table (Latin only as of 2026-09-19; a 404
   // for any other language just leaves this empty, no error shown).
@@ -192,6 +248,7 @@ export default function ReaderPage() {
   // show the n_documents/n_possible_documents counts the marks fetch below
   // already carries whenever the server has TESSERAE_DOCUMENTS=1 on.
   const documentsTrial = useDocumentsTrial();
+  const { view } = useCollections();
   useEffect(() => {
     if (!work) { setReuseMarks({}); return undefined; }
     let cancelled = false;
@@ -468,7 +525,7 @@ export default function ReaderPage() {
   // page. App.jsx sends this event instead of re-mounting the page.
   useEffect(() => {
     const onHome = () => {
-      setWork(PREFERRED_WORK[language] || DEFAULT_WORK);
+      setWork(preferredWork(language, view) || DEFAULT_WORK);
       setSelection(null);
       setCameFrom('');
       setMapFrom('');
@@ -500,7 +557,7 @@ export default function ReaderPage() {
     // Greek on Argonautica 1), not on whichever author sorts first. If the
     // preferred file is missing or broken the failed-work guard has already
     // recorded it, and the hierarchy scan below takes over.
-    const preferred = PREFERRED_WORK[language];
+    const preferred = preferredWork(language, view);
     if (preferred && preferred !== failedWorkRef.current) {
       setWork(preferred);
       return;
@@ -511,7 +568,20 @@ export default function ReaderPage() {
         if (file) { setWork(file); return; }
       }
     }
-  }, [work, language, hierarchy, corpusLoading]);
+  }, [work, language, hierarchy, corpusLoading, view]);
+
+  // Switching Literature and History while the Reader is open: when the
+  // reader has not chosen anything (the work is still the old view's start
+  // text and nothing is selected), follow the new view's start text.
+  const prevViewRef = useRef(view);
+  useEffect(() => {
+    if (view === prevViewRef.current) return;
+    const oldPreferred = preferredWork(language, prevViewRef.current);
+    prevViewRef.current = view;
+    if (selection || work !== oldPreferred) return;
+    const next = preferredWork(language, view);
+    if (next && next !== work) setWork(next);
+  }, [view, work, language, selection]);
 
   const openPassage = useCallback((result) => {
     if (!result?.work) return;
@@ -595,11 +665,9 @@ export default function ReaderPage() {
                 first click of the ×, and the reader is never stuck with it. */}
             {gutterSlow && (
               <p className="px-3 py-1.5 text-[11px] text-gray-600 border-b border-gray-200 bg-amber-50">
-                Working out where the rest of the corpus connects to
-                {' '}<span className="font-medium">{metadata?.display_name || 'this text'}</span>.
-                The first time a text is opened this takes a few minutes, because
-                every passage in it is compared with the whole corpus. After that
-                it is instant, and the text itself is readable now.
+                Finding the corpus connections of
+                {' '}<span className="font-medium">{metadata?.display_name || 'this text'}</span>
+                {' '}for the first time. This takes a few minutes and happens once. The text is readable now.
               </p>
             )}
             {eventFrom && !cameFrom && !mapFrom && (
@@ -879,8 +947,8 @@ export default function ReaderPage() {
                 // Desktop only. On a phone it piled up with the browser's own
                 // copy toolbar and the results sheet (2026-09-07); the
                 // sheet's tabs already do what the toolbar offers there.
-                <div className="hidden lg:block absolute left-10 z-20"
-                     style={{ top: `${popupTop(selection) + 8}px` }}>
+                <div ref={toolbarBoxRef} className="hidden lg:block absolute left-10 z-20"
+                     style={{ top: `${popupTop(selection, toolbarHeight)}px` }}>
                   <SelectionToolbar
                     selection={selection}
                     scope={scope}

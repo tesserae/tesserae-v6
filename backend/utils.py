@@ -354,6 +354,12 @@ def format_short_locus(raw_ref):
     for s in reversed(segs):
         if s and re.match(r'^\d+[a-z]?$', s):
             numeric.insert(0, s)
+        elif numeric and re.match(r'^[IVXLCDM]{1,5}$', s):
+            # A Roman-numeral level ahead of numeric ones is part of the locus
+            # (the plays: "hamlet III.1.66" is act, scene and line), not a
+            # text-id prefix. It used to be cut, so the card read "1.66"
+            # (2026-10-18).
+            numeric.insert(0, s)
         else:
             break
     if numeric and len(numeric) < len(segs):
@@ -1013,7 +1019,10 @@ def get_text_metadata(filepath):
         'part_num': part_num,
         'is_part': is_part,
         'title': title,
-        'display_name': f"{author}, {title}",
+        # An anonymous work filed under its own name (chanson_de_roland.chanson_de_roland,
+        # nibelungenlied.nibelungenlied) read "Chanson de Roland, Chanson de Roland" on
+        # every card (the lead, 2026-10-18): the title alone, then.
+        'display_name': title if author_raw == work_raw else f"{author}, {title}",
         # NOTE: the absolute server 'filepath' is intentionally NOT serialized —
         # it leaked the server's filesystem layout (/var/www/...) into public
         # /api/texts responses. Internal callers pass the path in; none read it

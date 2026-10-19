@@ -333,6 +333,24 @@ function sizeCanvasForDPR(canvas, cssWidth, cssHeight) {
 // ids are book numbers ("b1") that coincide across the two works without
 // naming the same thing, and hatching them hid real cells (owner,
 // 2026-10-16, the Pentateuch against Paradise Lost).
+// What the third-level grid's rows and columns are. The server (see
+// _book_phrase in backend/connections_map.py) gives a work with no book
+// structure blocks of 100 lines with ids "block101", "block201" and so on,
+// and a header reading "Book by book" over "Lines 101 to 200" was wrong.
+const isLineBlocks = (ids) => (ids || []).length > 0 && ids.every((id) => String(id).startsWith('block'));
+
+export function booksGridNoun(data) {
+  return isLineBlocks(data?.ids_a) && isLineBlocks(data?.ids_b) ? 'Blocks' : 'Books';
+}
+
+export function booksGridHeading(data) {
+  const a = isLineBlocks(data?.ids_a);
+  const b = isLineBlocks(data?.ids_b);
+  if (a && b) return 'Blocks of 100 lines (the works have no book divisions)';
+  if (a || b) return 'Book by book, or blocks of 100 lines where a work has no books';
+  return 'Book by book';
+}
+
 export function isDiagonalCell(rowIds, colIds, i, j, diagonal = true) {
   if (!diagonal) return false;
   return !!(rowIds && colIds && rowIds[i] !== undefined && rowIds[i] === colIds[j]);
@@ -1428,7 +1446,7 @@ export default function ConnectionsMap() {
           {selectedWorkCell && (
             <div ref={booksSectionRef} className="mt-4">
               <p className="text-xs uppercase tracking-wide text-gray-500 font-semibold">
-                Book by book: {selectedWorkCell.labelA} &times; {selectedWorkCell.labelB}
+                {booksGridHeading(booksData)}: {selectedWorkCell.labelA} &times; {selectedWorkCell.labelB}
               </p>
               {loadingBooks && <p className="text-gray-500 italic mt-1">Loading…</p>}
               {booksData?.error && <p className="text-amber-700 mt-1">{booksData.error}</p>}
@@ -1446,7 +1464,7 @@ export default function ConnectionsMap() {
                       onCellClick={onClickBooksCell}
                       outlineCell={booksOutline}
                       diagonal={selectedWorkCell.workA === selectedWorkCell.workB}
-                      ariaLabel={`Books of ${selectedWorkCell.labelA} by books of ${selectedWorkCell.labelB}`}
+                      ariaLabel={`${booksGridNoun(booksData)} of ${selectedWorkCell.labelA} by ${booksGridNoun(booksData).toLowerCase()} of ${selectedWorkCell.labelB}`}
                     />
                   </div>
                 ) : (

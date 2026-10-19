@@ -15,8 +15,10 @@ Three pieces, all read-only against the passage index and the documents index:
 """
 import bisect
 import json
+import os
 import re
 import sqlite3
+import threading
 import time
 import unicodedata
 
@@ -658,3 +660,128 @@ def build_document_mentions(store_path, documents_dir, log=print, max_form_docum
     db.commit()
     db.close()
     return counts
+
+
+CATALOG_CACHE = {}
+CATALOG_LOCK = threading.Lock()
+
+
+def load_catalog(path, conn=None):
+    """Every list entity and every corpus name, cached until the store file changes: id, label,
+    type, identifiers, name forms, mention counts by language (lines), shared-name facts, and the
+    corpus names that belong to each list entity. Read from the table entity_catalog (one select)
+    when the store has it, else built in memory from the whole store (several seconds)."""
+    st = os.stat(path)
+    key = (path, st.st_mtime_ns, st.st_size)
+    with CATALOG_LOCK:
+        hit = CATALOG_CACHE.get('catalog')
+        if hit and hit[0] == key:
+            return hit[1]
+    own = conn is None
+    c = sqlite3.connect(f'file:{path}?mode=ro', uri=True) if own else conn
+    try:
+        return _build_catalog(path, key, c)
+    finally:
+        if own:
+            c.close()
+
+
+def _build_catalog(path, key, c):
+    has_table = c.execute("select 1 from sqlite_master where name = 'entity_catalog'").fetchone() is not None
+    if has_table:
+        rows = [json.loads(d) for (d,) in c.execute('select data from entity_catalog')]
+    else:
+        rows = build_catalog(c)
+    ents = {r['eid']: r for r in rows if r['source'] in ('list', 'promoted')}
+    names = {r['eid']: r for r in rows if r['source'] == 'corpus'}
+    name_index = NameIndex([(n['eid'], {n['folded_label']} | set(n['forms'])) for n in names.values()])
+    labels = [(e, {e['folded_label'], e['label_key']} | set(e['label_key'].split())) for e in ents.values()]
+    try:
+        has_docs = c.execute("select 1 from sqlite_master where name = 'document_mentions'").fetchone() is not None
+    except sqlite3.Error:
+        has_docs = False
+    out = {'by_eid': ents, 'names': names, 'name_index': name_index, 'labels': labels,
+           'has_documents_table': has_docs, 'stored_catalog': has_table,
+           'has_lines': 'line_ref' in {r[1] for r in c.execute('pragma table_info(mention_rows)')},
+           'by_id': {e['id']: e for e in ents.values()}}
+    for n in names.values():
+        out['by_id'].setdefault(n['id'], n)
+    for e in ents.values():
+        for a in e['merged_ids']:
+            out['by_id'].setdefault(a, e)
+    with CATALOG_LOCK:
+        CATALOG_CACHE['catalog'] = (key, out)
+    return out
+
+
+def rank_match(e, f, raw, fs=None):
+    """Lower is better. None when the entity does not match. Stage 4: fs is the folded query cut to its stem
+    (form_stem). An entity whose spellings, cut the same way (form_stems), include the query or its stem
+    ranks 2.5, so a nominative (Massilia) finds an entity whose spellings are all oblique. A search name (stage 3b: the usual English
+    name and other spellings a reader might type) ranks like a label, 0 for equality and 1 for a prefix.
+    The first search name is the usual English name and ranks exactly like a label. The other search
+    names rank half a step behind, so that Rhodes finds the island (usual name Rhodes) ahead of the
+    Rhodians (who are also called Rhodes), however many more lines the Rhodians have."""
+    label = e['folded_label']
+    key = e['label_key']
+    names = e.get('search_names') or ()
+    usual = names[:1]
+    if label == f or key == f or f in usual:
+        return 0
+    if f in names:
+        return 0.5
+    if label.startswith(f) or key.startswith(f) or any(x.startswith(f) for x in usual):
+        return 1
+    if any(x.startswith(f) for x in names):
+        return 1.5
+    if any(x == f for x in e['forms']):
+        return 2
+    stems = e.get('form_stems')
+    if stems and (f in stems or (fs and fs in stems)):
+        return 2.5
+    if any(x.startswith(f) for x in e['forms']):
+        return 3
+    if f in label or f in key:
+        return 4
+    if any(f in x for x in e['forms']):
+        return 5
+    return None
+
+
+SEARCH_ENTITY_LIMIT = 50
+
+
+def rank_entities(cat, q):
+    """The entities and the corpus names that match the typed text `q`, best first: the two
+    sorted lists (entity hits, name hits) of (rank, -mentions, label, entity) the search route
+    shows, entity hits before name hits. One implementation for the Mentions search and for
+    anything that must resolve a name the way it does."""
+    f = ei.fold(q)
+    fs = form_stem(f)
+    hits = []
+    for e in cat['by_eid'].values():
+        r = rank_match(e, f, q, fs)
+        if r is not None:
+            hits.append((r, -e['total'], e['label'], e))
+    hits.sort(key=lambda x: x[:3])
+    name_hits = []
+    for n in cat['names'].values():
+        if n['duplicate'] or n['total'] == 0:
+            continue
+        r = rank_match(n, f, q, fs)
+        if r is not None:
+            name_hits.append((r, -n['total'], n['label'], n))
+    name_hits.sort(key=lambda x: x[:3])
+    return hits, name_hits
+
+
+def resolve_name_to_eid(store_path, name):
+    """The entity id the Mentions search lists first for `name` (the first entity of a matching
+    heading or search name, else the first corpus name), or None when nothing matches, the text
+    is under two characters or the store is missing. No Flask context."""
+    name = (name or '').strip()
+    if len(name) < 2 or not os.path.exists(store_path):
+        return None
+    hits, name_hits = rank_entities(load_catalog(store_path), name)
+    first = (hits or name_hits or [None])[0]
+    return first[3]['eid'] if first else None

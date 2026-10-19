@@ -22,7 +22,6 @@ counts are counts of lines, not windows (two overlapping windows that hold one l
 The page behind these routes is a trial (?entities=1). The connector tools stay off: the routes
 are listed as site only in backend/blueprints/mcp_manifest.py.
 """
-import json
 import os
 import sqlite3
 import threading
@@ -47,8 +46,8 @@ MAX_LIMIT = 200
 LANG_ORDER = ('la', 'grc', 'en')
 
 _local = threading.local()
-_cache = {}
-_cache_lock = threading.Lock()
+_cache = extras.CATALOG_CACHE
+_cache_lock = extras.CATALOG_LOCK
 
 
 def store_path():
@@ -80,42 +79,8 @@ def _unavailable():
 
 
 def _catalog(path):
-    """Every list entity and every corpus name, cached until the store file changes: id, label,
-    type, identifiers, name forms, mention counts by language (lines), shared-name facts, and the
-    corpus names that belong to each list entity. Read from the table entity_catalog (one select)
-    when the store has it, else built in memory from the whole store (several seconds)."""
-    st = os.stat(path)
-    key = (path, st.st_mtime_ns, st.st_size)
-    with _cache_lock:
-        hit = _cache.get('catalog')
-        if hit and hit[0] == key:
-            return hit[1]
-    c = _conn(path)
-    has_table = c.execute("select 1 from sqlite_master where name = 'entity_catalog'").fetchone() is not None
-    if has_table:
-        rows = [json.loads(d) for (d,) in c.execute('select data from entity_catalog')]
-    else:
-        rows = extras.build_catalog(c)
-    ents = {r['eid']: r for r in rows if r['source'] in ('list', 'promoted')}
-    names = {r['eid']: r for r in rows if r['source'] == 'corpus'}
-    name_index = extras.NameIndex([(n['eid'], {n['folded_label']} | set(n['forms'])) for n in names.values()])
-    labels = [(e, {e['folded_label'], e['label_key']} | set(e['label_key'].split())) for e in ents.values()]
-    try:
-        has_docs = c.execute("select 1 from sqlite_master where name = 'document_mentions'").fetchone() is not None
-    except sqlite3.Error:
-        has_docs = False
-    out = {'by_eid': ents, 'names': names, 'name_index': name_index, 'labels': labels,
-           'has_documents_table': has_docs, 'stored_catalog': has_table,
-           'has_lines': 'line_ref' in {r[1] for r in c.execute('pragma table_info(mention_rows)')},
-           'by_id': {e['id']: e for e in ents.values()}}
-    for n in names.values():
-        out['by_id'].setdefault(n['id'], n)
-    for e in ents.values():
-        for a in e['merged_ids']:
-            out['by_id'].setdefault(a, e)
-    with _cache_lock:
-        _cache['catalog'] = (key, out)
-    return out
+    """The catalog of the store (see entity_extras.load_catalog), read through this thread's connection."""
+    return extras.load_catalog(path, _conn(path))
 
 
 def _public(e):
@@ -140,39 +105,7 @@ def _public(e):
     return out
 
 
-def _rank(e, f, raw, fs=None):
-    """Lower is better. None when the entity does not match. Stage 4: fs is the folded query cut to its stem
-    (extras.form_stem); an entity whose spellings, cut the same way (form_stems), include the query or its stem
-    ranks 2.5, so a nominative (Massilia) finds an entity whose spellings are all oblique (massiliam,
-    massiliae). A search name (stage 3b: the usual English
-    name and other spellings a reader might type) ranks like a label, 0 for equality and 1 for a prefix.
-    The first search name is the usual English name and ranks exactly like a label. The other search
-    names rank half a step behind, so that Rhodes finds the island (usual name Rhodes) ahead of the
-    Rhodians (who are also called Rhodes), however many more lines the Rhodians have."""
-    label = e['folded_label']
-    key = e['label_key']
-    names = e.get('search_names') or ()
-    usual = names[:1]
-    if label == f or key == f or f in usual:
-        return 0
-    if f in names:
-        return 0.5
-    if label.startswith(f) or key.startswith(f) or any(x.startswith(f) for x in usual):
-        return 1
-    if any(x.startswith(f) for x in names):
-        return 1.5
-    if any(x == f for x in e['forms']):
-        return 2
-    stems = e.get('form_stems')
-    if stems and (f in stems or (fs and fs in stems)):
-        return 2.5
-    if any(x.startswith(f) for x in e['forms']):
-        return 3
-    if f in label or f in key:
-        return 4
-    if any(f in x for x in e['forms']):
-        return 5
-    return None
+_rank = extras.rank_match
 
 
 def _edit_distance(a, b, limit=2):
@@ -252,21 +185,7 @@ def search():
     except sqlite3.Error as e:
         logger.exception('[ENTITIES] store unreadable')
         return jsonify({'error': f'The mentions store could not be read: {e}', 'available': False}), 503
-    fs = extras.form_stem(f)
-    hits = []
-    for e in cat['by_eid'].values():
-        r = _rank(e, f, q, fs)
-        if r is not None:
-            hits.append((r, -e['total'], e['label'], e))
-    hits.sort(key=lambda x: x[:3])
-    name_hits = []
-    for n in cat['names'].values():
-        if n['duplicate'] or n['total'] == 0:
-            continue
-        r = _rank(n, f, q, fs)
-        if r is not None:
-            name_hits.append((r, -n['total'], n['label'], n))
-    name_hits.sort(key=lambda x: x[:3])
+    hits, name_hits = extras.rank_entities(cat, q)
     results = [_public(h[3]) for h in hits[:SEARCH_LIMIT]]
     results += [_public(h[3]) for h in name_hits[:max(0, SEARCH_LIMIT - len(results))]]
     out = {'q': q, 'available': True, 'total': len(hits) + len(name_hits), 'results': results,

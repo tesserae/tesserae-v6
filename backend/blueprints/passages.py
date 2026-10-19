@@ -226,13 +226,16 @@ def mentions():
 
 _SUMMARY_SYSTEM = (
     "You write for scholars. You are given a question about one ancient work and a list of "
-    "passages from that work with a one-sentence description of each. Say in at most 120 words "
-    "what the work says about the subject, drawing only on the descriptions given. Cite the "
-    "passages you use by their reference in parentheses, exactly as given. Do not add anything "
-    "the descriptions do not say, and if they do not answer the question, say so in one "
-    "sentence. Plain words. No dashes, no semicolons, no lists, no headings.")
+    "passages from that work with a one-sentence description of each. Write at most 220 words "
+    "on what the work says about the subject, drawing only on the descriptions given. Give a "
+    "synthesis, not a list: name the distinct aspects of the subject the passages show, and for "
+    "each aspect cite one or two passages as examples, by their reference in parentheses, exactly "
+    "as given. Do not add anything the descriptions do not say, and if they do not answer the "
+    "question, say so in one sentence. Plain words. No dashes, no semicolons, no lists, no headings.")
+# 2026-10-18: the project lead found the 120-word, 12-passage summary meager next
+# to Tessa's earlier syntheses, so the cap is 220 words over up to 20 passages.
 _SUMMARY_TIMEOUT = 40
-_SUMMARY_MAX_PASSAGES = 12
+_SUMMARY_MAX_PASSAGES = 20
 
 
 
@@ -298,13 +301,13 @@ def ask_summary():
     # by waiting on a worker thread, which is then left to finish on its own.
     pool = concurrent.futures.ThreadPoolExecutor(max_workers=1)
     try:
-        fut = pool.submit(model.complete, _SUMMARY_SYSTEM, user, 400, 0.2)
+        fut = pool.submit(model.complete, _SUMMARY_SYSTEM, user, 700, 0.2)
         try:
             text = fut.result(timeout=_SUMMARY_TIMEOUT)
             text, script_problems = original_script.settle(
                 text, [p['gist'] for p in passages],
                 lambda note: pool.submit(model.complete, _SUMMARY_SYSTEM, user + '\n' + note,
-                                         400, 0.2).result(timeout=_SUMMARY_TIMEOUT))
+                                         700, 0.2).result(timeout=_SUMMARY_TIMEOUT))
         except concurrent.futures.TimeoutError:
             logger.info('[PASSAGES] ask-summary %r timed out after %.1fs', question, time.time() - t0)
             return jsonify({'available': False, 'error': 'the model took too long'})

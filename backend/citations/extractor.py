@@ -141,6 +141,7 @@ def _load_context_rules():
                 "work": r["work"],
                 "context": re.compile(r["context"]) if r.get("context") else None,
                 "veto_before": re.compile(r["veto_before"]) if r.get("veto_before") else None,
+                "min_levels_alone": r.get("min_levels_alone", 0),
                 "redirect": ({"context": re.compile(r["redirect"]["context"]), "work": r["redirect"]["work"]}
                              if r.get("redirect") else None),
             } for r in lst]
@@ -158,7 +159,7 @@ def _load_context_rules():
     return _CONTEXT_RULES
 
 
-def _apply_context_rules(work_id, work_surface, anchor_start, text, context):
+def _apply_context_rules(work_id, work_surface, anchor_start, text, context, n_levels=0):
     """Returns (work_id, reason). work_id is None when the citation must be
     dropped (reason says why); it may be a different work (redirect) or the
     one given, unchanged, with reason None."""
@@ -175,13 +176,16 @@ def _apply_context_rules(work_id, work_surface, anchor_start, text, context):
         if rule["veto_before"] and rule["veto_before"].search(tail):
             return None, "requires_author_context:other_author_before"
         if rule["context"] and not rule["context"].search(ahead):
+            if rule["min_levels_alone"] and n_levels >= rule["min_levels_alone"]:
+                continue
             if rule["redirect"] and rule["redirect"]["context"].search(ahead):
                 return rule["redirect"]["work"], None
             return None, "requires_author_context:" + normalize_abbr(work_surface)
     return work_id, None
 
 
-def _disambiguate_candidates(candidates, work_surface, anchor_start, text, context, works, n_levels=0):
+def _disambiguate_candidates(candidates, work_surface, anchor_start, text, context, works, n_levels=0,
+                             first_level=""):
     """Author-context choice among works that share one short form. The
     "disambiguate" table in abbrev_context_rules.json lists, per form
     ("met", "ep", "ecl"), the works it can mean and a regex for the author
@@ -218,6 +222,12 @@ def _disambiguate_candidates(candidates, work_surface, anchor_start, text, conte
                 return [(i, 0, work_surface) for i in ids if i in works] or candidates
             return [(best["work"], 0, work_surface)]
     default = cfg["defaults"].get(key)
+    if default and default.get("firm_first") and not (
+            first_level.isdigit() or (first_level.isupper() and is_roman_shaped(first_level)
+                                        and (len(first_level) >= 2 or first_level in ("I", "V", "X")))):
+        # "Ann. d. 1" (Annali dell'Istituto) reads d as 500: a default work
+        # needs an Arabic number or an upper-case Roman numeral to start on.
+        default = None
     if default and n_levels >= default.get("min_levels", 1):
         for c in candidates:
             if c[0] == default["work"]:
@@ -302,6 +312,9 @@ _PINDAR_BOOK = {
 }
 
 
+_PINDAR_LETTER_LEVEL = re.compile(r"[\s,:]*(O|P|N|I)\.?[\s,]+\d")
+
+
 def _prefix_pindar_book(outs):
     for d in outs:
         # P. and N. are admitted by the parser only for Pindar; a single
@@ -315,6 +328,16 @@ def _prefix_pindar_book(outs):
         if not d.get("resolved") or d.get("work_id") != "pindar.odes" or not d.get("work_surface"):
             continue
         book = _PINDAR_BOOK.get(normalize_abbr(d["work_surface"]).split(" ")[-1])
+        if not book and d.get("locus_start") and d["locus_start"].count(".") == 2:
+            # "Pi. I. 8.47": the book letter came after the author's name and
+            # was read as a first level (I = 1). Three levels with a letter
+            # in front are letter, ode, line.
+            m = _PINDAR_LETTER_LEVEL.match((d.get("surface") or "")[len(d["work_surface"]):])
+            if m:
+                book = _PINDAR_BOOK[m.group(1).lower()]
+                d["locus_start"] = d["locus_start"].split(".", 1)[1]
+                if d.get("locus_end") and d["locus_end"].count(".") == 2:
+                    d["locus_end"] = d["locus_end"].split(".", 1)[1]
         if not book or not d.get("locus_start") or d["locus_start"][:2] == book + ".":
             continue
         d["locus_start"] = book + "." + d["locus_start"]
@@ -729,7 +752,8 @@ def extract(text, index=None, context=""):
             key_surface = ref.work_surface if not inherited else inherited_surface
             forced = _disambiguate_candidates(
                 ref_for_resolution.work_candidates, key_surface, anchor_start, text, context, index.works_by_base_id,
-                len(ref_for_resolution.start_levels or []))
+                len(ref_for_resolution.start_levels or []),
+                (ref_for_resolution.start_levels or [""])[0])
             if forced is not ref_for_resolution.work_candidates:
                 ref_for_resolution = replace(ref_for_resolution, work_candidates=forced)
             if not ref_for_resolution.book_list:
@@ -763,8 +787,8 @@ def extract(text, index=None, context=""):
                         book_list=None,
                     )
                     res = resolve_ref(book_ref, index.works_by_base_id)
-                    book_out = _apply_work_depth(
-                        _build_out(base_out, res, book_ref, text, anchor_start, context, index.works_by_base_id), book_ref)
+                    book_out = _prefix_pindar_book(_apply_work_depth(
+                        _build_out(base_out, res, book_ref, text, anchor_start, context, index.works_by_base_id), book_ref))
                     chain_dropped = chain_dropped or any(_dropped_by_round2(d) for d in book_out)
                     out.extend(book_out)
                 continue
@@ -891,7 +915,8 @@ def _build_out(base_out, res, ref, text, anchor_start=None, context="", works=No
     if resolved and work_id and base_out.get("work_surface"):
         new_work, why = _apply_context_rules(
             work_id, base_out["work_surface"],
-            ref.start_offset if anchor_start is None else anchor_start, text, context)
+            ref.start_offset if anchor_start is None else anchor_start, text, context,
+            len(ref.start_levels or []))
         if new_work is None:
             resolved, work_id, part_id, locus_start, reason = False, None, None, None, why
         elif new_work != work_id:

@@ -312,16 +312,25 @@ export default function TextPane({ units, language, selection, onSelect, total, 
                   two-or-more-shared-word matches the solid mark stands for,
                   and a 30-pair sample of that rule's yield was still mostly
                   coincidental, 2026-09-19). A line with any strict pair
-                  gets the solid mark (unchanged); only a line with NO
-                  strict pair but at least one possible one gets a lighter,
-                  dashed-outline mark instead -- never both at once. */}
+                  gets the solid mark; a line with possible pairs gets the
+                  lighter, dashed-outline mark, beside the solid one when
+                  the line has both (2026-10-18; before that the solid mark
+                  hid the dashed one). */}
               <span className="pt-[0.3em] flex items-center gap-0.5">
                 {reuseMarks?.[u.ref] && (() => {
                   const strict = reuseMarks[u.ref].n_works || 0;
                   const possible = reuseMarks[u.ref].n_possible_works || 0;
+                  /* BOTH MARKS (2026-10-18): a line quoted outright AND
+                     echoed elsewhere shows both boxes, the solid one first.
+                     Until tonight the solid mark hid the dashed one, so
+                     Aen. 1.1 showed "2" while the Reuse tab listed seven
+                     possible echoes, and the project lead asked why the
+                     gutter gave no sign of them. */
+                  const marks = [];
                   if (strict > 0) {
-                    return (
+                    marks.push(
                       <button
+                        key="strict"
                         type="button"
                         onMouseDown={(e) => e.stopPropagation()}
                         onClick={(e) => { e.stopPropagation(); onReuseClick?.(u); }}
@@ -336,8 +345,9 @@ export default function TextPane({ units, language, selection, onSelect, total, 
                     );
                   }
                   if (possible > 0) {
-                    return (
+                    marks.push(
                       <button
+                        key="possible"
                         type="button"
                         onMouseDown={(e) => e.stopPropagation()}
                         onClick={(e) => { e.stopPropagation(); onReuseClick?.(u); }}
@@ -351,7 +361,7 @@ export default function TextPane({ units, language, selection, onSelect, total, 
                       </button>
                     );
                   }
-                  return null;
+                  return marks.length ? marks : null;
                 })()}
                 {/* DOCUMENTARY REUSE (2026-10-08): a separate badge, not
                     merged into the strict/possible "quoted in N works"

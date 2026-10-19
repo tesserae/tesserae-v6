@@ -1342,3 +1342,18 @@
 κότος,ira,odium,invidia
 νεμεσάω,indignor,irascor
 ὀργή,ira,furor
+# Numeral adverbs (the project lead, 2026-10-18): Od. 5.306 "τρὶς μάκαρες ... καὶ τετράκις" against Aen. 1.94 "o terque quaterque beati"
+# shared one dictionary word (μάκαρ = beatus) and the two-word gate dropped the best-known Knauer parallel.
+δίς,bis
+τρίς,ter
+τετράκις,quater
+πεντάκις,quinquies
+ἑξάκις,sexies
+ἑπτάκις,septies
+ὀκτάκις,octies
+ἐνάκις,novies
+δεκάκις,decies
+εἰκοσάκις,vicies
+ἑκατοντάκις,centies
+ὁσάκις,quotiens
+τοσάκις,totiens

@@ -195,3 +195,108 @@ def test_edition_lookup_never_raises_when_the_held_list_or_a_field_is_missing(mo
     assert E._commentary_cite_fields('A on w.x', 'w 1.1') == {'commentator': 'A', 'work': 'w.x', 'ref_start': 'w 1.1'}
     monkeypatch.setattr(scholarship, 'commentary_sources', lambda: [{'commentator': 'A', 'works': None}])
     assert scholarship.commentary_edition_fields(commentator='A')['edition'] is None
+
+
+def _doc(doc_id, a, b, km):
+    return {'doc_id': doc_id, 'date_start': a, 'date_end': b, 'distance_km': km}
+
+
+def test_documents_wider_than_fifty_years_are_left_out_and_naming_ones_come_first():
+    docs = [_doc('wide', -450, -401, 1), _doc('limit', -460, -410, 2),   # spans 49 and 50
+            _doc('toowide', -470, -410, 0.5),                            # 60 years
+            _doc('tight_far', -415, -413, 90), _doc('tight_near', -415, -413, 3),
+            _doc('named_wide_span', -430, -400, 80), _doc('named_tight', -414, -414, 70)]
+    out = E.rank_documents(docs, {'named_wide_span', 'named_tight', 'toowide'})
+    ids = [d['doc_id'] for d in out]
+    assert 'toowide' not in ids
+    assert [d['group'] for d in out] == ['names', 'names'] + ['dated'] * 4
+    assert ids[:2] == ['named_tight', 'named_wide_span']             # tighter dating first
+    assert ids[2:] == ['tight_near', 'tight_far', 'wide', 'limit']   # span, then distance, then id order
+    assert E.MAX_DOCUMENT_SPAN == 50
+
+
+def test_detail_documents_carry_group_counts_and_record_ids(client, monkeypatch):
+    first = client.get('/api/events/' + _id(client, 'pharsalus')).get_json()
+    stored = first['documents']
+    assert len(stored) == 2 and all(d['group'] == 'dated' for d in stored)   # the 99-year one is left out
+    assert first['document_counts'] == {'names': 0, 'dated': 2, 'left_out': 1}
+    pick = stored[-1]['doc_id']
+    monkeypatch.setattr(E, '_documents_naming', lambda ids, names: {pick})
+    d = client.get('/api/events/' + _id(client, 'pharsalus')).get_json()
+    assert d['documents'][0]['doc_id'] == pick and d['documents'][0]['group'] == 'names'
+    assert d['document_counts']['names'] == 1
+    assert d['document_counts']['names'] + d['document_counts']['dated'] + d['document_counts']['left_out'] == len(stored) + 1
+    assert all(x['doc_id'] for x in d['documents'])
+
+
+def test_scholarship_span_rows_follow_passage_rows():
+    items = [
+        {'kind': 'article', 'title': 'Span', 'url': 'u2', 'passage_rank': None, 'passage_ref': 'thuc. 6.1-7.2', 'scope': 'span'},
+        {'kind': 'article', 'title': 'Direct', 'url': 'u1', 'passage_rank': 3, 'passage_ref': 'thuc. 7.1', 'scope': 'passage'},
+        {'kind': 'commentary', 'title': 'C', 'url': None, 'passage_rank': None, 'passage_ref': None, 'scope': 'passage'},
+    ]
+    out = E._by_passage_rank(items)
+    assert [i['title'] for i in out] == ['Direct', 'Span', 'C']
+
+
+def test_scholarship_order_names_event_then_cites_and_drops_apparatus():
+    """2026-10-18: within a group, an article whose title names the event
+    (label, place or a participant) comes first, then the one citing more of
+    the event's passages, then by rank; journal apparatus rows are dropped."""
+    items = [
+        {'kind': 'article', 'title': 'Reports', 'url': 'u0', 'passage_rank': 1, 'passage_ref': 'thuc. 7.1', 'scope': 'passage'},
+        {'kind': 'article', 'title': 'The Consecutive Sentence in Greek', 'url': 'u1', 'passage_rank': 1, 'passage_ref': 'thuc. 7.1', 'scope': 'passage'},
+        {'kind': 'article', 'title': 'Atrocities in Greek Warfare', 'url': 'u2', 'passage_rank': 6, 'passage_ref': 'thuc. 7.86', 'scope': 'passage'},
+        {'kind': 'article', 'title': 'Atrocities in Greek Warfare', 'url': 'u2', 'passage_rank': 9, 'passage_ref': 'thuc. 7.30', 'scope': 'passage'},
+        {'kind': 'article', 'title': 'Gylippus at Syracuse', 'url': 'u3', 'passage_rank': 12, 'passage_ref': 'thuc. 7.2', 'scope': 'passage'},
+        {'kind': 'article', 'title': 'Sicilian Coinage', 'url': 'u4', 'passage_rank': None, 'passage_ref': 'thuc. 6.1-7.87', 'scope': 'span'},
+        {'kind': 'commentary', 'title': 'C', 'url': None, 'passage_rank': None, 'passage_ref': None, 'scope': 'passage'},
+    ]
+    names = ('Sicilian Expedition', 'Sicily', ['Hermocrates', 'Gylippus'])
+    out = E._by_passage_rank(items, names)
+    assert [i['title'] for i in out] == ['Gylippus at Syracuse', 'Atrocities in Greek Warfare',
+                                         'The Consecutive Sentence in Greek', 'Sicilian Coinage', 'C']
+    assert out[0]['names_event'] is True and out[1]['cites'] == 2 and out[2]['cites'] == 1
+    assert out[3]['scope'] == 'span' and out[3]['names_event'] is True
+
+
+def test_scholarship_verdict_bands_come_first_within_each_group():
+    """The model's verdict orders each group: YES, then PARTLY (and an article not
+    judged), then NO. Within a band the names-event and cites order still holds."""
+    def art(title, url, rel, rank, scope='passage', ref='thuc. 7.1'):
+        i = {'kind': 'article', 'title': title, 'url': url, 'passage_rank': rank, 'passage_ref': ref, 'scope': scope}
+        if rel:
+            i['relevance'] = rel
+        return i
+    items = [art('No one', 'u1', 'no', 1), art('Partly one', 'u2', 'partly', 2), art('Unjudged', 'u3', None, 3),
+             art('Gylippus at Syracuse', 'u4', 'no', 4), art('Yes one', 'u5', 'yes', 9),
+             art('Span no', 'u6', 'no', None, 'span'), art('Span yes', 'u7', 'yes', None, 'span')]
+    out = E._by_passage_rank(items, ('Sicilian Expedition', 'Sicily', ['Gylippus']))
+    assert [i['title'] for i in out] == ['Yes one', 'Partly one', 'Unjudged', 'Gylippus at Syracuse', 'No one',
+                                         'Span yes', 'Span no']
+
+
+def test_detail_carries_relevance_when_the_table_exists_and_works_without_it(client, db):
+    import sqlite3
+    eid = client.get('/api/events?sort=date').get_json()['events'][0]['id']
+    c = sqlite3.connect(db)
+    c.execute("INSERT INTO scholarship (event_id, kind, title, page_ref, url) VALUES (?,?,?,?,?)", (eid, 'article', 'Judged article', 'p', 'http://j'))
+    c.execute("INSERT INTO scholarship (event_id, kind, title, page_ref, url) VALUES (?,?,?,?,?)", (eid, 'article', 'Plain article', 'p', 'http://p'))
+    c.commit()
+    try:
+        # the table is missing: rows carry no verdict and nothing fails
+        rows = client.get(f'/api/events/{eid}').get_json()['scholarship']
+        assert {r['title'] for r in rows} >= {'Judged article', 'Plain article'}
+        assert all('relevance' not in r for r in rows)
+        c.execute('CREATE TABLE scholarship_relevance (event_id TEXT, url TEXT, title TEXT, verdict TEXT, reason TEXT, model TEXT, judged_at TEXT)')
+        c.execute("INSERT INTO scholarship_relevance VALUES (?,?,?,?,?,?,?)", (eid, 'http://j', 'Judged article', 'PARTLY', 'Touches the event.', 'm', 't'))
+        c.commit()
+        rows = client.get(f'/api/events/{eid}').get_json()['scholarship']
+        judged = next(r for r in rows if r['title'] == 'Judged article')
+        plain = next(r for r in rows if r['title'] == 'Plain article')
+        assert judged['relevance'] == 'partly' and judged['relevance_reason'] == 'Touches the event.'
+        assert 'relevance' not in plain
+    finally:
+        c.execute('DROP TABLE IF EXISTS scholarship_relevance')
+        c.execute("DELETE FROM scholarship WHERE title IN ('Judged article', 'Plain article')")
+        c.commit()

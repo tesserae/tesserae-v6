@@ -2145,6 +2145,19 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 article. The Scholarship tab lists the articles that cite the event's leading passages and
                 names the passage that brings each one in.
               </p>
+              <p className="text-gray-700 mb-4">
+                Each passage carries one of two labels. A Narrative passage recounts the event itself. A
+                Mention passage names the event in passing without recounting it. An offline language
+                model makes both judgments from the passage text and the event&rsquo;s description, and the
+                event page shows how many passages received each label.
+              </p>
+              <p className="text-gray-700 mb-4">
+                The Inscriptions &amp; Papyri tab leaves out any document whose dating span is wider than
+                fifty years. It lists first the documents that name one of the event&rsquo;s participants or
+                its place, then the others dated within the event&rsquo;s years, the most tightly dated first.
+                Each card shows the record number of the document beside its edition, because a database can
+                publish two documents under one edition number.
+              </p>
             </div>
           )}
 

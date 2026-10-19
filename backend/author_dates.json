@@ -682,8 +682,9 @@
   },
   "anthologia_graeca": {
    "era": "Hellenistic",
-   "note": "Anthologia Palatina; a compilation of epigrams by hundreds of poets spanning roughly the 7th c. BCE to the 10th c. CE, gathered by Constantinus Cephalas c. 900 CE and copied into the Palatine manuscript c. 940 CE; individual poets range from Hellenistic (e.g. Meleager) to early Byzantine",
-   "year": -100
+   "note": "poems of the 7th c. BCE to the 10th c. CE, gathered c. 900 CE",
+   "year": -100,
+   "editorial": "Anthologia Palatina; a compilation of epigrams by hundreds of poets spanning roughly the 7th c. BCE to the 10th c. CE, gathered by Constantinus Cephalas c. 900 CE and copied into the Palatine manuscript c. 940 CE; individual poets range from Hellenistic (e.g. Meleager) to early Byzantine"
   },
   "antiphon": {
    "era": "Classical",
@@ -1814,8 +1815,9 @@
   },
   "eberhard_the_german": {
    "era": "Medieval",
-   "note": "fl. c. 1213 CE (Laborintus); Eberhardus Alemannus / Evrard the German, not to be confused with Evrardus Bethuniensis, author of the Graecismus",
-   "year": 1213
+   "note": "fl. c. 1213 CE (Laborintus)",
+   "year": 1213,
+   "editorial": "fl. c. 1213 CE (Laborintus); Eberhardus Alemannus / Evrard the German, not to be confused with Evrardus Bethuniensis, author of the Graecismus"
   },
   "fardulfus": {
    "era": "Carolingian",

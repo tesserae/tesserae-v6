@@ -1638,7 +1638,11 @@ function sameWork(a, b) {
 /** Trailing book.line of a reference tag, which is what a reader recognises. */
 export function shortRef(ref) {
   if (!ref) return '';
-  const m = String(ref).match(/(\d+[.:]\d+)\s*$/);
+  // The whole locus at the end of the tag, every level of it: "3.9.359" for
+  // Spenser (book, canto, line) and "III.1.66" for Hamlet (act, scene, line).
+  // It used to keep the last two levels only, so a Faerie Queene card under
+  // "Book 3" read "9.359" and a Hamlet card "1.66" (the lead, 2026-10-18).
+  const m = String(ref).match(/((?:[IVXLCDM]{1,5}|\d+[a-z]?)(?:[.:](?:[IVXLCDM]{1,5}|\d+[a-z]?))+)\s*$/);
   return m ? m[1] : readableLocus(String(ref).split(/\s+/).pop());
 }
 

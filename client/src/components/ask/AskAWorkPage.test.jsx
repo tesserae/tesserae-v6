@@ -191,6 +191,19 @@ describe('Search One Text', () => {
     expect(screen.queryByText(/Confidence is not rated/)).toBeNull();
   });
 
+  it('carries no band label or band color when the route note says confidence is not rated', async () => {
+    reply = { query: 'q', results: RESULTS, restricted: true,
+      note: 'Confidence is not rated for a search within one author or work. These are the closest passages in the chosen works.',
+      confidence: { level: 'strong', fitted: 'within-work 2026-10-11' } };
+    render(<AskAWorkPage />);
+    await ask();
+    const band = screen.getByTestId('ask-band');
+    expect(band).toHaveTextContent('Confidence is not rated');
+    expect(band).not.toHaveTextContent('Strong match');
+    expect(band.className).not.toMatch(/red|amber/);
+    expect(band.className).toMatch(/gray/);
+  });
+
   it('shows the passages under a Closest passages banner for a fitted low band', async () => {
     // The lowest level is a caution about the order, with the list shown and
     // the route's own sentence under the label (refit 2026-10-12).
@@ -409,8 +422,8 @@ describe('passages that name a person', () => {
 });
 
 describe('what the work says', () => {
-  it('sends the first twelve passages and renders the summary with reference links', async () => {
-    reply = { ...reply, results: Array.from({ length: 14 }, (_, n) => row(n + 1, `verg. aen. 1.${n + 10}`)) };
+  it('sends the first twenty passages and renders the summary with reference links', async () => {
+    reply = { ...reply, results: Array.from({ length: 24 }, (_, n) => row(n + 1, `verg. aen. 1.${n + 10}`)) };
     summaryReply = { available: true, summary: 'Fathers are lost in verg. aen. 1.10 and mourned in verg. aen. 1.12.', cites: ['verg. aen. 1.10', 'verg. aen. 1.12'] };
     render(<AskAWorkPage />);
     await ask();
@@ -419,7 +432,7 @@ describe('what the work says', () => {
     const body = JSON.parse(init.body);
     expect(body.question).toBe('fathers and sons');
     expect(body.work_label).toBe('Vergil, Aeneid');
-    expect(body.passages).toHaveLength(12);
+    expect(body.passages).toHaveLength(20);
     expect(body.passages[0]).toEqual({ ref: 'verg. aen. 1.10', gist: 'Gist 1' });
     expect(within(block).getByText('Summary of the passages found')).toBeInTheDocument();
     expect(within(block).getByText(/Written by Tessa from the passage descriptions/)).toBeInTheDocument();

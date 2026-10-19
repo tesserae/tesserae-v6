@@ -5,8 +5,10 @@ addresses that stopped working. `fix_image_urls.py` applies the same table to an
 existing metadata.db. Dead hosts (no verified replacement) are listed in
 client/src/components/documents/imageHosts.json, which the page also reads.
 
-Every rule below was checked on 2026-10-09 against at least five live
-addresses (see the audit report). A rule is a (name, compiled pattern,
+Every rule below was checked against at least five live addresses (the
+EDH and CIL photo rules on 2026-10-09, the USEP and CIL viewer rules on
+2026-10-19 by headless browser: five ids each, the new page showed the
+object's photographs). A rule is a (name, compiled pattern,
 replacement) triple. The replacement is a string for `re.sub` or a function
 taking the match and returning the new address.
 """
@@ -32,6 +34,12 @@ def _cil_ace(m: "re.Match") -> str:
             % (prefix, start, start + size - 1, prefix, digits))
 
 
+def _usep_record(m: "re.Match") -> str:
+    """The old image path 404s. The inscription's own page on the same site
+    shows its photographs (checked in a browser on 2026-10-19)."""
+    return "https://usepigraphy.brown.edu/projects/usep/inscription/%s/" % m.group(1)
+
+
 RULES = [
     ("edh-photo-moved",
      re.compile(r"^https?://edh-www\.adw\.uni-heidelberg\.de/fotos/(F\d+)\.jpg$", re.I),
@@ -39,6 +47,12 @@ RULES = [
     ("cil-photo-moved",
      re.compile(r"^https?://cil-old\.bbaw\.de/test\d+/bilder/datenbank/([A-Z]+)(\d+)\.jpg$"),
      _cil_ace),
+    ("usep-image-to-record",
+     re.compile(r"^https?://usepigraphy\.brown\.edu/Pictures/Images/([^/?#]+)\.jpg$"),
+     _usep_record),
+    ("cil-viewer-to-ace",
+     re.compile(r"^https?://cil-old\.bbaw\.de/dateien/(?:cil_view|db)\.php\?KO=(KO\d+)(?:#.*)?$"),
+     r"https://cil.bbaw.de/ace/id/\1"),
 ]
 
 

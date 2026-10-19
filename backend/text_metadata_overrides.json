@@ -1,6 +1,6 @@
 {
   "_description": "Per-text metadata overrides. Keyed by text filename (e.g. 'eobanus.heroidum.tess'). Fields: text_type (poetry/prose), display_author, display_work, year, era, notes. Only include fields you want to override.",
-  "_last_updated": "2026-10-15",
+  "_last_updated": "2026-10-18",
   "bohairic.abdias.tess": {
     "display_author": "Bohairic Coptic",
     "display_work": "Obadiah"
@@ -781,8 +781,78 @@
     "display_author": "Septuagint",
     "display_work": "Zechariah"
   },
-  "diogenianus_of_heraclea.παροιμίαι_δημώδεις_ἐκ_τῆς_διογενιανοῦ_συναγωγῆς_e_.tess": {
+  "diogenianus_of_heraclea.paroemiae.tess": {
     "text_type": "prose",
     "notes": "A collection of proverbs, one short entry per line; the median line length reads as verse."
+  },
+  "life.aphou.tess": {
+    "display_author": "Sahidic Coptic",
+    "display_work": "Life of Aphou",
+    "notes": "2026-10-18: the file name split into a fragment author and title (the lead saw \"Life, John.kalybites\" on a Theme Search card)."
+  },
+  "life.cyrus.tess": {
+    "display_author": "Sahidic Coptic",
+    "display_work": "Life of Cyrus",
+    "notes": "2026-10-18: the file name split into a fragment author and title (the lead saw \"Life, John.kalybites\" on a Theme Search card)."
+  },
+  "life.eustathius.theopiste.tess": {
+    "display_author": "Sahidic Coptic",
+    "display_work": "Life of Eustathius and Theopiste",
+    "notes": "2026-10-18: the file name split into a fragment author and title (the lead saw \"Life, John.kalybites\" on a Theme Search card)."
+  },
+  "life.john.kalybites.tess": {
+    "display_author": "Sahidic Coptic",
+    "display_work": "Life of John Kalybites",
+    "notes": "2026-10-18: the file name split into a fragment author and title (the lead saw \"Life, John.kalybites\" on a Theme Search card)."
+  },
+  "life.longinus.lucius.tess": {
+    "display_author": "Sahidic Coptic",
+    "display_work": "Life of Longinus and Lucius",
+    "notes": "2026-10-18: the file name split into a fragment author and title (the lead saw \"Life, John.kalybites\" on a Theme Search card)."
+  },
+  "life.onnophrius.tess": {
+    "display_author": "Sahidic Coptic",
+    "display_work": "Life of Onnophrius",
+    "notes": "2026-10-18: the file name split into a fragment author and title (the lead saw \"Life, John.kalybites\" on a Theme Search card)."
+  },
+  "life.paul.tamma.tess": {
+    "display_author": "Sahidic Coptic",
+    "display_work": "Life of Paul of Tamma",
+    "notes": "2026-10-18: the file name split into a fragment author and title (the lead saw \"Life, John.kalybites\" on a Theme Search card)."
+  },
+  "life.phib.tess": {
+    "display_author": "Sahidic Coptic",
+    "display_work": "Life of Phib",
+    "notes": "2026-10-18: the file name split into a fragment author and title (the lead saw \"Life, John.kalybites\" on a Theme Search card)."
+  },
+  "life.pisentius.tess": {
+    "display_author": "Sahidic Coptic",
+    "display_work": "Life of Pisentius",
+    "notes": "2026-10-18: the file name split into a fragment author and title (the lead saw \"Life, John.kalybites\" on a Theme Search card)."
+  },
+  "mercurius.tess": {
+    "display_author": "Sahidic Coptic",
+    "display_work": "Encomium and Martyrdom of Mercurius",
+    "notes": "2026-10-18: the file name split into a fragment author and title (the lead saw \"Life, John.kalybites\" on a Theme Search card)."
+  },
+  "mysteries.john.tess": {
+    "display_author": "Sahidic Coptic",
+    "display_work": "Mysteries of John the Apostle",
+    "notes": "2026-10-18: the file name split into a fragment author and title (the lead saw \"Life, John.kalybites\" on a Theme Search card)."
+  },
+  "pistis.sophia.tess": {
+    "display_author": "Sahidic Coptic",
+    "display_work": "Pistis Sophia",
+    "notes": "2026-10-18: the file name split into a fragment author and title (the lead saw \"Life, John.kalybites\" on a Theme Search card)."
+  },
+  "thomas.gospel.tess": {
+    "display_author": "Sahidic Coptic",
+    "display_work": "Gospel of Thomas",
+    "notes": "2026-10-18: the file name split into a fragment author and title (the lead saw \"Life, John.kalybites\" on a Theme Search card)."
+  },
+  "theodosius.alexandria.tess": {
+    "display_author": "Theodosius of Alexandria",
+    "display_work": "Encomium on Michael the Archangel",
+    "notes": "2026-10-18: Coptic SCRIPTORIUM theodosiusalex.michael (Budge, Miscellaneous Coptic Texts, 1915)."
   }
 }

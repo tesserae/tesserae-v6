@@ -1,0 +1,119 @@
+# Coptic stock-word list (2026-10-19)
+#
+# Source: the corpus's own lemma frequency, filtered through the curated
+# Coptic function-word list. Lemma counts come from the per-file lemma
+# caches of the Coptic texts (cache/lemmas/cop, 5,302,757 lemma tokens in
+# 29,323 distinct lemmas, lemmas taken from Coptic SCRIPTORIUM annotations).
+# The curated list is backend/coptic/stopwords.py (143 Sahidic and Bohairic
+# articles, particles, prepositions, pronouns and conjunctions, built from
+# the SCRIPTORIUM annotations). CLTK has no Coptic stoplist, so no CLTK list
+# was used.
+# Method: the 300 most frequent lemmas of the corpus, kept when they appear
+# in that curated list (91 of the 143 do). Content lemmas that are frequent
+# in the corpus (ϫⲟⲉⲓⲥ "lord", ⲛⲟⲩⲧⲉ "god", ϣⲏⲣⲉ "son" and similar) are
+# left out.
+# Explicitly EXCLUDES personal names and numerals.
+# There is no Coptic documentary collection (the documents indexes cover
+# Latin and Greek only), so no list of documentary formula vocabulary could
+# be derived from document frequency as for the Latin and Greek lists. This
+# list holds the function words that would carry no weight in a Coptic
+# documentary match, and it is not read by any search until such a
+# collection exists.
+#
+# USE: a SOFT penalty on matches built from these words (like a function
+# word list), not a hard stoplist.
+#
+# One word per line, in the normalized U+2CB2 to U+2CBF Coptic letter forms
+# the lemma caches use, not finalized for production use without a second
+# review.
+ϣⲁⲣⲉ
+ϣⲱⲡⲉ
+ϣⲱⲡⲓ
+ϧⲉⲛ
+ϩⲁ
+ϩⲓ
+ϩⲓⲧⲛ
+ϩⲛ
+ϫⲉ
+ϫⲓⲛ
+ϫⲱ
+ϭⲉ
+ϯ
+ⲁ
+ⲁⲗⲗⲁ
+ⲁⲛ
+ⲁⲛⲟⲕ
+ⲁⲛⲟⲛ
+ⲁⲩⲱ
+ⲅⲁⲣ
+ⲇⲉ
+ⲉ
+ⲉϩⲟⲩⲛ
+ⲉϩⲣⲁⲓ
+ⲉϫⲉⲛ
+ⲉϫⲛ
+ⲉⲃⲟⲗ
+ⲉⲓ
+ⲉⲓⲣⲉ
+ⲉⲓⲥ
+ⲉⲣⲉ
+ⲉⲧ
+ⲉⲧⲃⲉ
+ⲉⲧⲉ
+ⲉⲧⲉⲣⲉ
+ⲏ
+ⲓ
+ⲓⲣⲓ
+ⲕⲁⲧⲁ
+ⲕⲉ
+ⲙⲁ
+ⲙⲁⲣⲉ
+ⲙⲙⲁⲩ
+ⲙⲙⲟⲛ
+ⲙⲛ
+ⲙⲡⲉ
+ⲙⲡⲣ
+ⲛ
+ⲛϭⲓ
+ⲛⲁ
+ⲛⲉⲙ
+ⲛⲉⲣⲉ
+ⲛⲑⲟϥ
+ⲛⲑⲟⲕ
+ⲛⲑⲟⲥ
+ⲛⲑⲱⲟⲩ
+ⲛⲑⲱⲧⲉⲛ
+ⲛⲓⲙ
+ⲛⲥⲁ
+ⲛⲧⲉ
+ⲛⲧⲉⲣⲉ
+ⲛⲧⲟ
+ⲛⲧⲟϥ
+ⲛⲧⲟⲕ
+ⲛⲧⲟⲟⲩ
+ⲛⲧⲟⲥ
+ⲛⲧⲱⲧⲛ
+ⲟⲛ
+ⲟⲩ
+ⲟⲩⲛ
+ⲟⲩⲟϩ
+ⲟⲩⲱⲙ
+ⲡ
+ⲡⲁ
+ⲡⲁⲓ
+ⲡⲉ
+ⲡⲉϥ
+ⲡⲉϫⲉ
+ⲡⲉⲓ
+ⲡⲉⲕ
+ⲡⲉⲛ
+ⲡⲉⲥ
+ⲡⲉⲧⲛ
+ⲡⲉⲩ
+ⲡⲓ
+ⲡⲟⲩ
+ⲧⲉⲛⲟⲩ
+ⲧⲏⲣ
+ⲧⲙ
+ⲫⲁⲓ
+ⲫⲏ

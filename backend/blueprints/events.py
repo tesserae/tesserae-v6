@@ -17,6 +17,7 @@ the list route answers with available=false and the detail route with 404.
 """
 import json
 import os
+import re
 import sqlite3
 from urllib.parse import quote
 
@@ -31,6 +32,9 @@ _ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__
 DEFAULT_DB = os.path.join(_ROOT, 'data', 'events', 'event_dossiers.sqlite')
 LABEL_ORDER = {'yes': 0, 'mention': 1}
 MAX_PER_PAGE = 100
+# A document whose dating span is wider than this says little about a short
+# event ("450 to 401 BCE" loom weights for an event of 415 to 413).
+MAX_DOCUMENT_SPAN = 50
 
 
 def db_path():
@@ -108,12 +112,19 @@ def _event_row(r):
     }
 
 
-def _scholarship(c, event_id):
+def _scholarship(c, event_id, names=()):
     """The event's scholarship rows. A database that records the passage each
     article was found through (passage_rank, passage_ref) gives one row per
     article, with the first passage that brings it in (the lowest rank), ordered
-    by that rank. An older database keeps its rows as they are."""
+    by that rank. Rows with scope 'span' are articles that cite within the span
+    the leading passages cover but not a leading passage itself, and follow the
+    others. An older database keeps its rows as they are. When the store holds
+    scholarship_relevance (the gateway model's verdict on each article for this
+    event), each article row carries relevance ('yes', 'partly' or 'no') and a
+    one-line reason, and within each group the YES rows come first, then PARTLY,
+    then NO."""
     cols = _columns(c, 'scholarship')
+    verdicts = _relevance_verdicts(c, event_id)
     linked = 'passage_rank' in cols and 'passage_ref' in cols
     rows = c.execute('SELECT * FROM scholarship WHERE event_id = ? ORDER BY kind, rowid', (event_id,)).fetchall()
     out = []
@@ -121,11 +132,32 @@ def _scholarship(c, event_id):
         item = {'kind': s['kind'], 'title': s['title'], 'page_ref': s['page_ref'], 'url': s['url']}
         if s['kind'] == 'commentary':
             item.update(_commentary_cite_fields(s['title'], s['page_ref']))
+        v = verdicts.get((s['url'] or '', s['title'] or '')) if s['kind'] == 'article' else None
+        if v:
+            item.update(relevance=v[0], relevance_reason=v[1])
         if linked:
             item.update(passage_rank=s['passage_rank'], passage_ref=s['passage_ref'])
+            if 'scope' in cols:
+                item['scope'] = s['scope'] or 'passage'
         out.append(item)
     if linked:
-        out = _by_passage_rank(out)
+        out = _by_passage_rank(out, names)
+    return out
+
+
+_RELEVANCE_BAND = {'yes': 0, 'partly': 1, 'no': 2}
+
+
+def _relevance_verdicts(c, event_id):
+    """{(url, title): (verdict, reason)} from scholarship_relevance, lower-cased
+    verdicts; empty when the store has no such table (an older store)."""
+    if 'verdict' not in _columns(c, 'scholarship_relevance'):
+        return {}
+    out = {}
+    for r in c.execute('SELECT url, title, verdict, reason FROM scholarship_relevance WHERE event_id = ?', (event_id,)):
+        v = (r['verdict'] or '').lower()
+        if v in _RELEVANCE_BAND:
+            out[(r['url'] or '', r['title'] or '')] = (v, r['reason'] or '')
     return out
 
 
@@ -144,21 +176,124 @@ def _commentary_cite_fields(title, ref):
     return out
 
 
-def _by_passage_rank(items):
-    """Per article the lowest-ranked passage, then the rows in that order (rows without a rank last)."""
-    best = {}
+# Journal apparatus the citation indexes carry as if it were an article
+# (2026-10-18, the project lead on the Sicilian Expedition: "neither of
+# which seems to closely pertain"). Rows with these titles are dropped.
+_APPARATUS_TITLES = re.compile(
+    r'^\s*(\[untitled\]|reports?\b|brief mention|volume information|front matter|back matter|'
+    r'books? received|notes and news|proceedings of the|classical articles in non-classical|'
+    r'summaries of (periodicals|dissertations)|index to volume|errata|corrigenda)', re.I)
+
+
+def _event_words(label, place, participants):
+    """Words of four letters or more from the event's label, place and
+    participants, lower-cased and cut to six letters, so Syracuse matches
+    Syracusan and Sicily matches Sicilian. Generic event words are left out."""
+    words = set()
+    for text in [label or '', place or ''] + list(participants or []):
+        for w in re.findall(r"[A-Za-z\u00C0-\u024F]{4,}", str(text)):
+            w = w.lower()
+            if w in ('battle', 'siege', 'expedition', 'campaign', 'revolt', 'treaty', 'conspiracy'):
+                continue
+            words.add(w[:6])
+    return words
+
+
+def _title_names_event(title, words):
+    low = (title or '').lower()
+    return any(re.search(r'\b' + re.escape(w), low) for w in words)
+
+
+def _by_passage_rank(items, names=()):
+    """One row per article, ordered within its group (passage rows, then span
+    rows) by three things in turn: whether the title names the event (its
+    label, place or a participant), how many of the event's passages the
+    article cites, and the rank of the first passage that brought it in.
+    Journal apparatus titles are dropped. Commentary rows follow. Where the
+    model's verdict is present it comes first within each group: YES, PARTLY, NO."""
+    words = _event_words(*names) if names else set()
+    best, cites = {}, {}
     for i in items:
         if i['kind'] == 'article':
             k = (i['url'] or '', i['title'] or '')
+            cites[k] = cites.get(k, set()) | {i.get('passage_ref')}
             if k not in best or _rank(i) < _rank(best[k]):
                 best[k] = i
-    keep = [i for i in items if i['kind'] != 'article' or best[(i['url'] or '', i['title'] or '')] is i]
+    keep = []
+    for i in items:
+        if i['kind'] != 'article':
+            keep.append(i)
+            continue
+        k = (i['url'] or '', i['title'] or '')
+        if best[k] is not i or _APPARATUS_TITLES.match(i['title'] or ''):
+            continue
+        i['cites'] = len(cites[k])
+        i['names_event'] = bool(words) and _title_names_event(i['title'], words)
+        keep.append(i)
     order = {'article': 0, 'commentary': 1}
-    return sorted(keep, key=lambda i: (order.get(i['kind'], 2), _rank(i)))
+    # An article the model has not judged sits with PARTLY, between YES and NO.
+    return sorted(keep, key=lambda i: (order.get(i['kind'], 2), i.get('scope') == 'span',
+                                       _RELEVANCE_BAND.get(i.get('relevance'), 1),
+                                       not i.get('names_event'), -i.get('cites', 0), _rank(i)))
 
 
 def _rank(i):
     return i['passage_rank'] if i.get('passage_rank') is not None else 1e9
+
+
+def _documents_naming(doc_ids, names):
+    """Of `doc_ids`, those that the Mentions store records as naming any of
+    `names` (the event's participants and place), by document_mentions."""
+    from backend import entity_extras
+    from backend.blueprints.entities import store_path
+    path = store_path()
+    if not doc_ids or not os.path.exists(path):
+        return set()
+    try:
+        eids = {x for x in (entity_extras.resolve_name_to_eid(path, n) for n in names) if x is not None}
+        if not eids:
+            return set()
+        c = sqlite3.connect(f'file:{path}?mode=ro', uri=True)
+    except Exception:  # the dossier page must not depend on the Mentions store
+        logger.exception('[EVENTS] the Mentions store could not be read')
+        return set()
+    found = set()
+    try:
+        wanted = list(doc_ids)
+        marks = ','.join('?' * len(eids))
+        for i in range(0, len(wanted), 400):
+            chunk = wanted[i:i + 400]
+            q = (f'SELECT DISTINCT doc_id FROM document_mentions WHERE eid IN ({marks}) '  # nosec B608
+                 f'AND doc_id IN ({",".join("?" * len(chunk))})')  # placeholders only; values are bound
+            found.update(r[0] for r in c.execute(q, list(eids) + chunk))
+    except sqlite3.Error:
+        return set()
+    finally:
+        c.close()
+    return found
+
+
+def rank_documents(documents, naming):
+    """Apply the Inscriptions & Papyri rule to the documents of one event:
+    leave out any whose dating span is wider than MAX_DOCUMENT_SPAN years;
+    put those in `naming` (doc ids that name a participant or the place)
+    first, group "names"; the rest follow, group "dated". Inside each group
+    the tighter dating comes first, then the nearer findspot. A document with
+    no dating is unknown: it cannot fail the rule, and it follows every dated
+    document of its group."""
+    kept = []
+    for d in documents:
+        a, b = d['date_start'], d['date_end']
+        span = (b - a) if (a is not None and b is not None) else None
+        if span is not None and span > MAX_DOCUMENT_SPAN:
+            continue
+        d['date_span'] = span
+        d['group'] = 'names' if d['doc_id'] in naming else 'dated'
+        kept.append(d)
+    far = 1e12
+    kept.sort(key=lambda d: (d['group'] != 'names', d['date_span'] is None, d['date_span'] or 0,
+                             d['distance_km'] if d['distance_km'] is not None else far, d['doc_id']))
+    return kept
 
 
 @events_bp.route('/events')
@@ -300,6 +435,14 @@ def get_event(event_id):
                 'view_url': document_url(d['doc_id'], lang),
             })
 
+        n_stored = len(documents)
+        naming = _documents_naming([d['doc_id'] for d in documents],
+                                   list(ev['participants']) + ([ev['place']] if ev['place'] else []))
+        documents = rank_documents(documents, naming)
+        document_counts = {'names': sum(1 for d in documents if d['group'] == 'names'),
+                           'dated': sum(1 for d in documents if d['group'] == 'dated'),
+                           'left_out': n_stored - len(documents)}
+
         # The edition reference and the source names, so a card can lead with
         # "CIL 09, 03200" rather than the internal id (a "merged:" id marks a
         # stone both EDH and EDR record). Best effort: no metadata, no change.
@@ -315,7 +458,11 @@ def get_event(event_id):
             d['sources'] = [x for x in (credit.get('source_name'), credit.get('source_name_secondary')) if x]
             d['text_type'] = m.get('text_type_label')
 
-        scholarship = _scholarship(c, r['id'])
+        try:
+            participants = json.loads(r['participants']) if 'participants' in r.keys() and r['participants'] else []
+        except (TypeError, ValueError):
+            participants = []
+        scholarship = _scholarship(c, r['id'], (r['label'], r['place'], participants))
 
         points = []
         if ev['lat'] is not None and ev['lon'] is not None:
@@ -332,6 +479,7 @@ def get_event(event_id):
         points += list(spots.values())
 
         return jsonify({'event': ev, 'passages': passages, 'passage_counts': counts,
-                        'documents': documents, 'scholarship': scholarship, 'map': points})
+                        'documents': documents, 'document_counts': document_counts,
+                        'scholarship': scholarship, 'map': points})
     finally:
         c.close()

@@ -13,7 +13,7 @@
     "g": [{"work": "vergil.georgics", "context": "Verg|Virg|Georg"}],
     "geo": [{"work": "vergil.georgics", "context": "Verg|Virg|Georg"}],
     "her": [{"work": "ovid.heroides", "context": "Ovid|\\bOv\\b|Heroid"}],
-    "ben": [{"work": "seneca.de_beneficiis", "context": "Sen", "veto_before": "Reg(?:ula)?\\.?\\s*$"}],
+    "ben": [{"work": "seneca.de_beneficiis", "context": "Sen", "veto_before": "Reg(?:ula)?\\.?\\s*$", "min_levels_alone": 3}],
     "theog": [{"work": "hesiod.theogony", "veto_before": "Theogn\\w*\\.?,?\\s*$"}],
     "leg": [{"work": "plato.leges", "context": "Plat|\\bPl\\b"}],
     "ling": [{"work": "varro.de_lingua_latina", "context": "Varr"}],
@@ -73,8 +73,12 @@
     "lys": {"work": "lysias.speeches", "min_levels": 2},
     "isoc": {"work": "isocrates.speeches", "min_levels": 2},
     "theoc": {"work": "theocritus.idylls", "min_levels": 1},
-    "bacch": {"work": "plautus.bacchides", "min_levels": 1}
+    "bacch": {"work": "plautus.bacchides", "min_levels": 1},
+    "ann": {"work": "tacitus.annales", "min_levels": 2, "firm_first": true},
+    "th": {"work": "thucydides.peloponnesian_war", "min_levels": 2, "firm_first": true},
+    "str": {"work": "strabo.geography", "min_levels": 2, "firm_first": true},
+    "arr": {"work": "arrian.anabasis", "min_levels": 3, "firm_first": true}
   },
-  "_comment_defaults": "Round 4. A form that still names several works after the author-context choice falls back to this work when it is among the candidates and the citation has at least min_levels locus levels: Lysias and Isocrates are cited speech.section (two levels) while the Lysistrata is cited by line, the idylls are what Theoc. means unless Ep. is written, and a bare Bacch. keeps meaning Plautus unless Bacchylides is named.",
+  "_comment_defaults": "Round 4. A form that still names several works after the author-context choice falls back to this work when it is among the candidates and the citation has at least min_levels locus levels: Lysias and Isocrates are cited speech.section (two levels) while the Lysistrata is cited by line, the idylls are what Theoc. means unless Ep. is written, and a bare Bacch. keeps meaning Plautus unless Bacchylides is named. Round 5 adds Ann. (Tacitus, two levels: Ennius is cited by line), Th. (Thucydides, two levels: the Theogony and the Seven against Thebes are cited by line), Str. (Strabo) and Arr. (the Anabasis, three levels: the Cynegeticus has chapters only). These four need an Arabic number or an upper-case Roman numeral as the first level (firm_first), because a lower-case d or c reads as 500 or 100 (\"Ann. d. 1\" is the Annali dell'Istituto). A rule in \"rules\" may carry min_levels_alone: with that many levels the form counts without its author named (Ben. with book, chapter and section is Seneca).",
   "_comment_disambiguate": "Forms that name several works in the table (or one work in a collision). Keys are normalized surfaces. Each entry lists a work and a regex for its author; the author named closest before the citation (sentence before, or this sentence ahead of it) decides, and a form with no author named stays as it was (unresolved when the table ties). Added in round 3, 2026-10-16."
 }

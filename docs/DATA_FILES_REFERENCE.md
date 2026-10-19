@@ -39,14 +39,14 @@ These are SQLite database files (blocked by `*.db` in `.gitignore`). They are ho
 
 | File | Size | Required? | Description |
 |------|------|-----------|-------------|
-| `data/inverted_index/la_index.db` | 2.2 GB | Yes | Latin search index (1,429 texts, 298,757 lemmas) |
-| `data/inverted_index/grc_index.db` | 1.4 GB | Yes | Greek search index (659 texts, 360,429 lemmas) |
-| `data/inverted_index/en_index.db` | 79 MB | Yes | English search index (14 texts, 22,867 lemmas) |
+| `data/inverted_index/la_index.db` | 2.0 GB | Yes | Latin search index, rebuilt 18 October 2026 |
+| `data/inverted_index/grc_index.db` | 2.9 GB | Yes | Greek search index, 18 October 2026 |
+| `data/inverted_index/en_index.db` | 227 MB | Yes | English search index, 15 October 2026 |
 | `data/inverted_index/syntax_latin.db` | 1.6 GB | Yes | Latin syntax parses (LatinPipe UD annotations) |
 | `data/inverted_index/syntax_greek.db` | 967 MB | Yes | Greek syntax parses (650 texts, UD annotations) |
 | `data/lemma_tables/latin_lemmas_extended.db` | 15 MB | No | Extended Latin lemma table |
 
-**Total to download: ~6.3 GB**
+**Total to download: about 8 GB** (the passage window index slices on the download page come on top)
 
 The manifest of all downloadable files, including URLs, sizes, and checksums, is maintained in `DATA_MANIFEST.json` at the project root.
 

@@ -26,3 +26,15 @@ describe('translation block header', () => {
     expect(screen.queryByText(/thuc\. pele\./)).toBeNull();
   });
 });
+
+
+describe('shortRef keeps every level of the locus', () => {
+  it('keeps a Roman act and a book number', async () => {
+    const { shortRef } = await import('./ResultsPanel');
+    expect(shortRef('hamlet III.1.66')).toBe('III.1.66');
+    expect(shortRef('Spenser F.Q. 3.9.359')).toBe('3.9.359');
+    expect(shortRef('thuc. pele. 2.57.1')).toBe('2.57.1');
+    expect(shortRef('verg. aen. 1.1')).toBe('1.1');
+    expect(shortRef('ennius ann. sedinc.481')).toBe('481 (book uncertain)');
+  });
+});

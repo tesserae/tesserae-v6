@@ -82,6 +82,11 @@ MAX_WORK_PREFIX_TOKENS = 4
 # outright, regardless of what the
 # abbreviation index says, UNLESS it is combined with another token (e.g.
 # 'Hor. C.' is fine; a bare 'P.' or 'p.' by itself is not).
+# Lower-case only: "man. 5" (manuscript hand), "long. 99" (longitude),
+# "lat. 40" and "publ. C. V." are not Manilius, Aristotle, Livy or Plutarch,
+# while a capital "Man. 3.25" or "Long. 2.7" stays a candidate.
+LOWERCASE_ONLY_STOPLIST = {"man", "long", "lat", "publ"}
+
 GENERIC_APPARATUS_STOPLIST = {
     "p", "pp", "v", "vv", "l", "ll", "n", "nn", "ch", "chh",
     "no", "vol", "ed", "cf", "sec", "col",
@@ -104,7 +109,8 @@ def is_greek_book_letter(text):
 
 def is_level_token(tok: Token):
     if tok.type == "NUM":
-        return True
+        # No locus level starts with a zero: "01" and "07" are OCR noise.
+        return not (len(tok.text) > 1 and tok.text.startswith("0"))
     if tok.type == "LIT":
         return is_roman_shaped(tok.text) or is_greek_book_letter(tok.text)
     return False
@@ -164,6 +170,8 @@ def _match_work_prefix(tokens, i, abbrev_index, allow_stop=None):
         if (length == 1 and cand[0].text.rstrip(".").lower() in GENERIC_APPARATUS_STOPLIST
                 and not (allow_stop and allow_stop(cand[0]))):
             continue
+        if length == 1 and cand[0].text.rstrip(".") in LOWERCASE_ONLY_STOPLIST:
+            continue
         key = normalize_abbr(surface)
         hits = abbrev_index.lookup(key)
         if not hits and length > 1:
@@ -200,10 +208,20 @@ def _parse_level_seq(tokens, k):
         if k2 < len(tokens) and tokens[k2].type in ("COMMA", "DOT", "COLON"):
             sep = tokens[k2].type
             k2 += 1
+        # A closing parenthesis ends the citation: what follows it ("Aen.
+        # 7.803-17).2", "Cic. de Orat. 3.197):16") is a note or a page.
+        if tokens[k - 1].close_paren:
+            break
         # A blank line before the separator or the next level means a footnote
         # number or a new paragraph, not another level of the same locus
         # ("Livy iii. 33. 1.\n\n3").
         if (k < len(tokens) and tokens[k].para_break) or (k2 < len(tokens) and tokens[k2].para_break):
+            break
+        # A colon followed by a space ends the locus: it introduces a page
+        # number or a quotation ("Verg. A. 7.259: di", "Isth. I, 23: 07",
+        # "Fast. 5.379-414): 1"), where a tight colon ("21:1") is a level.
+        if (sep == "COLON" and k2 < len(tokens) and k2 > 0
+                and tokens[k2].start > tokens[k2 - 1].end):
             break
         if k2 < len(tokens) and is_level_token(tokens[k2]):
             levels.append(tokens[k2])

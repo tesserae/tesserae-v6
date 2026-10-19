@@ -7,7 +7,6 @@
     "nms.scran.ac.uk",
     "sites.smu.edu",
     "bazhum.muzhp.pl",
-    "usepigraphy.brown.edu",
     "cil-old.bbaw.de"
   ],
   "hosts": {
@@ -18,6 +17,7 @@
     "www.lupa.at": {"name": "Ubi Erat Lupa", "kind": "Record"},
     "berlpap.smb.museum": {"name": "Berliner Papyrusdatenbank", "kind": "Record"},
     "data.onb.ac.at": {"name": "Austrian National Library papyrus collection", "kind": "Record"},
+    "usepigraphy.brown.edu": {"name": "U.S. Epigraphy Project", "kind": "Record"},
     "cil.bbaw.de": {"name": "Corpus Inscriptionum Latinarum (Berlin-Brandenburg Academy)", "kind": "Image"},
     "quod.lib.umich.edu": {"name": "University of Michigan Library", "kind": "Record"},
     "www.psi-online.it": {"name": "Papiri della Societa Italiana online", "kind": "Record"},
