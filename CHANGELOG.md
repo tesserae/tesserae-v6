@@ -7,6 +7,9 @@ so the state of the live site can be reconstructed from this file and
 docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
+## 2026-10-19
+- Front-end faults: Search One Text shows no band label and no band color when the route's note says confidence is not rated (it printed "Strong match." over that sentence). The Reader's selection toolbar goes above the first selected line when the pane and the screen have room for its measured height, otherwise below the last selected line, so it no longer hangs over the two lines after the selection. Theme Search never puts the "weak neighbor" tag on the best-scoring result. The comparison grid's header reads "Blocks of 100 lines" when the works have no book divisions. The Cross-Language page offers Coptic to Greek, which the server already listed.
+
 ## 2026-10-18
 - Events: the Scholarship tab orders each group by whether the article's title names the event (its label, place or a participant), then by how many of the event's passages it cites, then by passage rank, and journal apparatus rows ("Reports", "Brief Mention", "Volume Information") are dropped. The production events store was rebuilt the same night with the documents that name the participants or the place and the Scholarship table against both citation indexes (docs/DATA_OPERATIONS.md).
 - Search One Text: Tessa's summary of the passages found is a synthesis of up to 220 words over the first twenty passages, naming the aspects of the subject with cited examples (was 120 words over twelve). Reader: the first-visit notice is three short sentences. Fourteen Coptic texts named from file fragments ("Life, John.kalybites") now read "Sahidic Coptic, Life of John Kalybites" and the like, and Theodosius of Alexandria's Encomium on Michael the Archangel is named.

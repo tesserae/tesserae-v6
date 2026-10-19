@@ -87,3 +87,28 @@ describe('words no passage description contains', () => {
     expect(screen.queryByText(/Nothing to search for/)).toBeNull();
   });
 });
+
+describe('the weak neighbor tag in a moderate list', () => {
+  it('is never on the best-scoring row and sits on the weaker rows that are not strong', async () => {
+    payload = {
+      query: 'establishment of democracy',
+      results: [
+        { work: 'thucydides.peloponnesian_war.part.8', ref_start: 'thuc. pele. 8.63.3', ref_end: 'thuc. pele. 8.63.3',
+          score: 0.835, strong: false, gist: 'First passage gist.', language: 'grc', author: 'Thucydides', title: 'Peloponnesian War' },
+        { work: 'aristotle.politics', ref_start: 'arist. pol. 1.1', ref_end: 'arist. pol. 1.1',
+          score: 0.80, strong: false, gist: 'Second passage gist.', language: 'grc', author: 'Aristotle', title: 'Politics' },
+      ],
+      strong_matches: 0,
+      confidence: { level: 'moderate', coherence: 0.91, head_lift: 0.08, degenerate: false },
+      note: 'Some passages stand out.',
+    };
+    await search();
+    await waitFor(() => expect(screen.getByText(/First passage gist/)).toBeTruthy());
+    const tags = screen.getAllByText('weak neighbor');
+    expect(tags).toHaveLength(1);
+    const second = screen.getByText(/Second passage gist/).closest('li');
+    expect(second.textContent).toContain('weak neighbor');
+    const first = screen.getByText(/First passage gist/).closest('li');
+    expect(first.textContent).not.toContain('weak neighbor');
+  });
+});

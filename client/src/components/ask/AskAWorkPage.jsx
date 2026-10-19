@@ -55,6 +55,11 @@ const BANDS = {
   strong: { label: 'Strong match', className: 'bg-red-50 text-red-800 border-red-200' },
 };
 
+// A route note that says confidence is not rated carries no band label and no
+// band color: a label such as "Strong match." would contradict the sentence.
+const NEUTRAL_BAND = 'bg-gray-50 text-gray-700 border-gray-200';
+const UNRATED_NOTE_START = /^\s*Confidence is not rated/i;
+
 // A visit with no work chosen opens on the Aeneid, so the first sight of the
 // page shows what it does (owner 2026-10-12).
 export const DEFAULT_WORK = { lang: 'la', work: 'vergil.aeneid' };
@@ -554,6 +559,7 @@ export default function AskAWorkPage() {
   const level = data?.confidence?.level;
   const fitted = Boolean(data?.confidence?.fitted);
   const weakVerdict = level === 'low';
+  const noteUnrated = UNRATED_NOTE_START.test(data?.note || '');
   const emptyList = data && !results.length;
   // 2026-10-11: words no passage description contains. When none of the query's
   // words is known the note says so and no list is offered; when some are, the
@@ -821,8 +827,8 @@ export default function AskAWorkPage() {
             </div>
           )}
           {!noKnownWords && !emptyList && fitted && BANDS[level] && (
-            <div className={`rounded border px-3 py-2 text-sm ${BANDS[level].className}`} data-testid="ask-band">
-              <strong className="font-semibold">{BANDS[level].label}.</strong>{' '}{data.note}
+            <div className={`rounded border px-3 py-2 text-sm ${noteUnrated ? NEUTRAL_BAND : BANDS[level].className}`} data-testid="ask-band">
+              {!noteUnrated && <><strong className="font-semibold">{BANDS[level].label}.</strong>{' '}</>}{data.note}
             </div>
           )}
           {!noKnownWords && !emptyList && !weakVerdict && !fitted && (

@@ -82,3 +82,30 @@ describe('held pairs', () => {
     expect(screen.getByRole('button', { name: 'Greek → Latin' })).toBeTruthy();
   });
 });
+
+describe('Coptic to Greek', () => {
+  it('offers the cop-grc pair the server lists and loads both text lists', async () => {
+    global.fetch = vi.fn((url) => {
+      const u = String(url);
+      if (u.includes('/api/languages')) {
+        return Promise.resolve(mockResponse({ json: () => Promise.resolve({
+          languages: [],
+          crosslingual_pairs: [
+            { key: 'grc-la', source: 'grc', target: 'la' },
+            { key: 'cop-grc', source: 'cop', target: 'grc', label: 'Coptic → Greek' },
+          ],
+        }) }));
+      }
+      const m = u.match(/hierarchy\?language=(\w+)/);
+      const lists = { ...LISTS, cop: list('sahidic_coptic', 'Sahidic Coptic', 'john', 'John') };
+      if (m) return Promise.resolve(mockResponse({ json: () => Promise.resolve(lists[m[1]] || { authors: [] }) }));
+      return Promise.resolve(mockResponse({ json: () => Promise.resolve({}) }));
+    });
+    render(<CrossLingualSearch />);
+    const cop = await screen.findByRole('button', { name: /Coptic → Greek/ });
+    fireEvent.click(cop);
+    await waitFor(() => expect(screen.getByText('Coptic Source')).toBeTruthy());
+    const fetched = global.fetch.mock.calls.map(c => String(c[0]));
+    expect(fetched.some(u => u.includes('hierarchy?language=cop'))).toBe(true);
+  });
+});

@@ -14,7 +14,7 @@
  */
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import ConnectionsMap, { columnLabelsNeedRotation, isDiagonalCell } from './ConnectionsMap';
+import ConnectionsMap, { booksGridHeading, columnLabelsNeedRotation, isDiagonalCell } from './ConnectionsMap';
 import { mockResponse } from '../../test/mockResponse';
 
 const MAP_PAYLOAD = {
@@ -650,5 +650,37 @@ describe('isDiagonalCell', () => {
   it('never hatches when the grid compares two different works', () => {
     expect(isDiagonalCell(['b1', 'b2'], ['b1', 'b2'], 0, 0, false)).toBe(false);
     expect(isDiagonalCell(['b1', 'b2'], ['b1', 'b2'], 1, 1, false)).toBe(false);
+  });
+});
+
+describe('the third-level grid header', () => {
+  it('names the columns as blocks of 100 lines when neither work has books', () => {
+    const heading = booksGridHeading({ ids_a: ['block1', 'block101'], ids_b: ['block1', 'block101'] });
+    expect(heading).toMatch(/blocks of 100 lines/i);
+    expect(heading).not.toMatch(/^Book/);
+  });
+
+  it('keeps "Book by book" when both works have books, and says so for a mix', () => {
+    expect(booksGridHeading({ ids_a: ['b1'], ids_b: ['b1'] })).toBe('Book by book');
+    expect(booksGridHeading({ ids_a: ['b1'], ids_b: ['block1'] })).toMatch(/blocks of 100 lines/);
+  });
+
+  it('shows the blocks header over a grid of line blocks', async () => {
+    const base = mockFetch();
+    global.fetch = vi.fn((url, ...rest) => {
+      if (String(url).startsWith('/api/passages/map/books')) {
+        return Promise.resolve(mockResponse({ json: () => Promise.resolve({
+          ...BOOKS_PAYLOAD, ids_a: ['block1'], labels_a: ['1'], ids_b: ['block201'], labels_b: ['201'],
+          names_a: ['Lines 1 to 100'], names_b: ['Lines 201 to 300'] }) }));
+      }
+      return base(url, ...rest);
+    });
+    render(<ConnectionsMap />);
+    await waitFor(() => expect(screen.getByLabelText(/Connections map/)).toBeTruthy());
+    fireEvent.click(screen.getByRole('button', { name: 'Works' }));
+    const canvas = await screen.findByLabelText(/Connections map, work view/);
+    fireEvent.click(canvas, cellCenter(28, 0, 1));
+    expect(await screen.findByText(/Blocks of 100 lines/)).toBeTruthy();
+    expect(screen.queryByText(/^Book by book/)).toBeNull();
   });
 });
