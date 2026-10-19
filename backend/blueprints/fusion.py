@@ -1726,6 +1726,13 @@ def fusion_estimate():
     reads); nothing is scored. Response: {pairs, in_parts, parts,
     estimated_seconds, source_lines, target_lines}. in_parts is true when the
     search will run in parts, which is what a page warns about.
+
+    A pair whose result is already in the results cache runs no parts at all,
+    so the answer then carries cached=True, in_parts=False and
+    estimated_seconds=0 (2026-10-18: the Persian default pair warned of a
+    long search and answered at once). The cache key is the default fusion
+    key for the given max_results, use_meter and unit types, the same one
+    GET /fusion-search and the default POST path use.
     """
     from backend.fusion import estimate_fusion
     source_id = request.args.get('source')
@@ -1736,9 +1743,25 @@ def fusion_estimate():
     if not resolve_text_path(_texts_dir, language, source_id) or \
             not resolve_text_path(_texts_dir, language, target_id):
         return jsonify({'error': 'Text files not found for that source/target/language.'}), 404
-    source_units = _get_processed_units(source_id, language, _unit_type_arg('source_unit_type'), _text_processor)
-    target_units = _get_processed_units(target_id, language, _unit_type_arg('target_unit_type'), _text_processor)
-    return jsonify(estimate_fusion(len(source_units or []), len(target_units or [])))
+    source_unit_type = _unit_type_arg('source_unit_type')
+    target_unit_type = _unit_type_arg('target_unit_type')
+    try:
+        max_results = int(request.args.get('max_results') or 5000)
+    except (TypeError, ValueError):
+        max_results = 5000
+    use_meter = (request.args.get('use_meter') or '').strip().lower() in ('1', 'true', 'yes', 'on')
+    cache_settings = _default_fusion_cache_settings(language, max_results, use_meter=use_meter,
+                                                    source_unit_type=source_unit_type,
+                                                    target_unit_type=target_unit_type)
+    cached_results, _cached_meta = get_cached_results(source_id, target_id, language, cache_settings)
+    if cached_results is not None:
+        return jsonify({'pairs': 0, 'in_parts': False, 'parts': 0, 'estimated_seconds': 0,
+                        'cached': True, 'source_lines': None, 'target_lines': None})
+    source_units = _get_processed_units(source_id, language, source_unit_type, _text_processor)
+    target_units = _get_processed_units(target_id, language, target_unit_type, _text_processor)
+    out = estimate_fusion(len(source_units or []), len(target_units or []))
+    out['cached'] = False
+    return jsonify(out)
 
 
 @fusion_bp.route('/fusion-default-weights', methods=['GET'])

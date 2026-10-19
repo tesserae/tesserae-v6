@@ -43,7 +43,7 @@ def test_whole_thebaid_against_whole_aeneid_is_in_parts(client):
     assert body == {
         'pairs': 9731 * 9896, 'in_parts': True,
         'parts': 20, 'estimated_seconds': round(9731 * 9896 / 1e6 * 17),
-        'source_lines': 9731, 'target_lines': 9896,
+        'source_lines': 9731, 'target_lines': 9896, 'cached': False,
     }
     assert 1600 <= body['estimated_seconds'] <= 1650      # the measured 26 min 42 s
 
@@ -81,3 +81,17 @@ def test_phrase_unit_type_is_passed_on(client):
     ask(client, 'small_a.tess', 'small_b.tess', source_unit_type='phrase')
     assert ('small_a.tess', 'phrase') in client.loaded
     assert ('small_b.tess', 'line') in client.loaded
+
+
+def test_cached_pair_runs_no_parts_and_says_so(client, tmp_path, monkeypatch):
+    """A pair already in the results cache answers at once, so the page must not
+    warn of a long search (2026-10-18, the Persian default pair)."""
+    import backend.cache as C
+    monkeypatch.setattr(C, 'CACHE_DIR', str(tmp_path / 'results_cache'))
+    settings = F._default_fusion_cache_settings('la', 5000, use_meter=False)
+    C.save_cached_results('big_a.tess', 'big_b.tess', 'la', settings, [{'score': 1}], {'total': 1})
+    body = ask(client, 'big_a.tess', 'big_b.tess', max_results='5000', use_meter='0').get_json()
+    assert body['cached'] is True and body['in_parts'] is False and body['estimated_seconds'] == 0
+    # another key (meter on) is not cached and is estimated as before
+    body = ask(client, 'big_a.tess', 'big_b.tess', max_results='5000', use_meter='1').get_json()
+    assert body['cached'] is False and body['in_parts'] is True and body['parts'] == 20

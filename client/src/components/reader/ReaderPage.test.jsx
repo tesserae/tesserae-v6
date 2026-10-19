@@ -645,3 +645,29 @@ describe('the selection toolbar and the marks legend', () => {
     try { window.sessionStorage.removeItem('tesserae_documents_trial'); } catch { /* ignore */ }
   });
 });
+
+describe('the History view', () => {
+  // The Reader opened on the Aeneid under History too (the lead, 2026-10-18).
+  it('opens Latin on Livy when no work is named', async () => {
+    window.history.replaceState({}, '', '/read?lang=la');
+    window.localStorage.setItem('tesserae_view', 'history');
+    try {
+      await mountReader();
+      await waitFor(() => expect(asked).toContain('livy.ab_urbe_condita.part.1.books_1-10.tess'));
+      expect(asked).not.toContain('vergil.aeneid.part.1.tess');
+    } finally {
+      window.localStorage.removeItem('tesserae_view');
+    }
+  });
+
+  it('opens Latin on the Aeneid under Literature, as before', async () => {
+    window.history.replaceState({}, '', '/read?lang=la');
+    window.localStorage.setItem('tesserae_view', 'literature');
+    try {
+      await mountReader();
+      await waitFor(() => expect(asked).toContain('vergil.aeneid.part.1.tess'));
+    } finally {
+      window.localStorage.removeItem('tesserae_view');
+    }
+  });
+});
