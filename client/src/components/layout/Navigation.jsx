@@ -121,9 +121,10 @@ const mainTabs = [
   // are on (PAGE_NEEDS.events).
   { code: 'events', label: 'Events', beta: true, needs: 'events', group: 'things' },
   // Coins (Greek and Roman coin types): shown when the Coins collection is on (PAGE_NEEDS.coins).
-  { code: 'coins', label: 'Coins', beta: true, needs: 'coins', group: 'things' },
-  // Objects (museum catalogue descriptions): shown when the Objects collection is on (PAGE_NEEDS.objects).
-  { code: 'objects', label: 'Objects', beta: true, needs: 'objects', group: 'things' },
+  // No beta mark since 2026-10-19 (the project lead): the page lists the coin types as OCRE and CRRO publish them, nothing on it is the site's own inference.
+  { code: 'coins', label: 'Coins', needs: 'coins', group: 'things' },
+  // Objects (museum catalogue descriptions): shown when the Objects collection is on (PAGE_NEEDS.objects). No beta mark since 2026-10-19, for the same reason as Coins.
+  { code: 'objects', label: 'Objects', needs: 'objects', group: 'things' },
   { code: 'browse', label: 'Browse Corpus' },
   // Repository and Downloads sit under a small "More" menu at the end of the
   // row (owner 2026-10-10: with every collection on, thirteen entries no
