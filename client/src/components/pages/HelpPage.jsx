@@ -1997,13 +1997,10 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   same reason, matches that share nothing but very common words (quid, ipse,
                   varius) are hidden here, with a note saying how many; matches survive by
                   sharing at least one distinctive word, or three or more words together. The
-                  full Line Search page applies no such filter.
-              </p>
-              <h5 className="text-base font-semibold text-gray-900 mt-4 mb-1">Documents tab</h5>
-              <p className="text-gray-700 mb-3">
-                  Documents appears when Inscriptions or Papyri is on. It lists the inscriptions and papyri
-                  that share two or more words with your selection, each with its date and place, the shared
-                  words marked, and a link to the document&rsquo;s page.
+                  full Line Search page applies no such filter. When Inscriptions or Papyri is
+                  on, the same search also runs over the inscriptions and papyri and lists them
+                  under the literary parallels, under the same rules. Each shows its date and
+                  place, with the shared words marked and a link to the document&rsquo;s page.
               </p>
               <h5 className="text-base font-semibold text-gray-900 mt-4 mb-1">Translation tab</h5>
               <p className="text-gray-700 mb-3">

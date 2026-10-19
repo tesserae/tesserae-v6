@@ -63,15 +63,6 @@ describe('SEARCH_SCOPE', () => {
     expect(SEARCH_SCOPE.reader_parallels.measured).toEqual(SEARCH_SCOPE.line.measured);
   });
 
-  it('has the Reader Documents entry, with the documents entry\'s row and limits, outside the Help table order', () => {
-    const e = SEARCH_SCOPE.reader_documents;
-    for (const f of FIELDS) expect(e[f], `reader_documents.${f}`).toBeTruthy();
-    expect(e.does).toBe('Inscriptions and papyri that share words with the lines you selected.');
-    expect(e.measured).toEqual(SEARCH_SCOPE.documents.measured);
-    expect(e.limits).toBe(SEARCH_SCOPE.documents.limits);
-    expect(allMeasuredRows().map((m) => m.search)).not.toContain('Documents (Reader)');
-  });
-
   it('has the Search One Text entry, after Theme Search in the Help table, with its measured row', () => {
     const e = SEARCH_SCOPE.ask_a_work;
     for (const f of FIELDS) expect(e[f], `ask_a_work.${f}`).toBeTruthy();

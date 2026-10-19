@@ -45,7 +45,6 @@ const READER_SCOPE_ID = {
   similar: 'reader_similar',
   reuse: 'reader_reuse',
   verbal: 'reader_parallels',
-  documents: 'reader_documents',
   scholarship: 'reader_scholarship',
   translation: 'reader_translation',
   coins: 'reader_coins',
@@ -53,6 +52,11 @@ const READER_SCOPE_ID = {
 
 const VERBAL_FIRST = 50;
 const VERBAL_MAX = 200;
+// Inscriptions and papyri under Verbal parallels: 20 first, then 15 more per press.
+// The server pages documents 50 at a time at most.
+const DOCS_FIRST = 20;
+const DOCS_STEP = 15;
+const DOCS_MAX = 50;
 const HIDE_OWN_KEY = 'tesserae_reader_hide_own_author';
 
 export default function ResultsPanel({ selection, focus, language, work, units, onOpenPassage,
@@ -117,10 +121,12 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
   };
   const ownAuthorKey = String(work || '').split('.')[0].toLowerCase();
   const ownAuthorName = cap(ownAuthorKey);
-  // The Documents tab: inscriptions and papyri sharing words with the selection.
+  // The "Inscriptions and papyri" section of Verbal parallels (collection on only).
   const [docHits, setDocHits] = useState(null);
   const [docLoading, setDocLoading] = useState(false);
   const [docError, setDocError] = useState(null);
+  const [docLimit, setDocLimit] = useState(DOCS_FIRST);
+  useEffect(() => { setDocLimit(DOCS_FIRST); }, [selection]);
   // The whole work's translation, fetched on demand from the Translation
   // tab's no-selection state. null = not asked; 'loading'; or the payload.
   const [fullTranslation, setFullTranslation] = useState(null);
@@ -367,13 +373,14 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
     return () => { cancelled = true; };
   }, [selection, work, units, language, tab, hideOwn, ownAuthorKey, verbalLimit]);
 
-  /* DOCUMENTS: the selection's words searched over the inscriptions and
-   * papyri, the same Line Search the Parallels tab runs over the literature. */
+  /* INSCRIPTIONS AND PAPYRI: the same request as Verbal parallels (same query,
+   * refs and rare_focus) over the documents collection. The source-work
+   * exclusions do not apply to documents and are left out. */
   useEffect(() => {
-    if (!selection || tab !== 'documents') return;
+    if (!selection || tab !== 'verbal' || !documentsTrial) return;
     const picked = (units || []).slice(selection.startIdx, selection.endIdx + 1);
-    const query = (selection.charStart != null && selection.sentenceText)
-      ? selection.sentenceText
+    const bySentence = selection.charStart != null && !!selection.sentenceText;
+    const query = bySentence ? selection.sentenceText
       : picked.map((u) => u.text).filter(Boolean).join(' ').trim();
     if (!query) { setDocHits({ results: [] }); return; }
     let cancelled = false;
@@ -387,7 +394,11 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
         language,
         collection: 'documents',
         search_type: 'lemma',
-        max_results: 30,
+        max_results: docLimit,
+        // The documents collection pages by `limit` (at most 50).
+        limit: docLimit,
+        refs: bySentence ? undefined : picked.map((u) => u.ref),
+        rare_focus: true,
       }),
     })
       .then(asJson)
@@ -395,7 +406,7 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
       .catch((e) => { if (!cancelled) setDocError(e.message); })
       .finally(() => { if (!cancelled) setDocLoading(false); });
     return () => { cancelled = true; };
-  }, [selection, units, language, tab]);
+  }, [selection, units, language, tab, documentsTrial, docLimit]);
 
   useEffect(() => {
     if (!selection || tab !== 'translation') return;
@@ -422,7 +433,6 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
     ['similar', 'Similar', 'Similar Passages'],
     ['reuse', 'Reuse', 'Reuse'],
     ['verbal', 'Parallels', 'Verbal Parallels'],
-    ['documents', 'Documents', 'Inscriptions and papyri'],
     // In the English-focused reading view the middle column IS the
     // translation, so this tab holds the original instead.
     ['scholarship', 'Scholarship', 'Commentators, articles and books on the selection'],
@@ -736,29 +746,6 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
           </>
         )}
 
-        {selection && tab === 'documents' && (
-          <>
-            {docLoading && <LoadingSpinner />}
-            {docError && <p className="text-sm text-red-700">{docError}</p>}
-            {!docLoading && docHits?.query_reduced && (
-              /* The same note the Parallels tab gives: a passage-sized
-                 selection is matched on its rarest words, named here. */
-              <p className="text-xs text-gray-500" data-testid="documents-reduced">
-                Passage-sized selection: matched on its most distinctive words
-                ({docHits.query_reduced.to_lemmas.join(', ')}).
-              </p>
-            )}
-            {!docLoading && !docError && docHits?.results?.length === 0 && (
-              <p className="text-sm text-gray-500">
-                No inscription or papyrus shares two words with this selection.
-              </p>
-            )}
-            {!docLoading && (docHits?.results || []).map((r, i) => (
-              <DocumentHitCard key={`${r.doc_id}-${r.locus}-${i}`} r={r} language={language} />
-            ))}
-          </>
-        )}
-
         {selection && tab === 'verbal' && (
           <>
             {verbalLoading && (
@@ -885,6 +872,55 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
                   {verbal.capped && ' The corpus holds more than are shown here.'}
                 </p>
               </>
+            )}
+            {documentsTrial && (
+              <section className="pt-3 mt-2 border-t border-gray-200" data-testid="verbal-documents">
+                <h3 className="text-sm font-bold text-gray-800">
+                  Inscriptions and papyri
+                  {!docLoading && docHits?.results?.length > 0 && (
+                    <span className="ml-1 font-normal text-gray-500">&middot; {docHits.results.length}</span>
+                  )}
+                </h3>
+                {docLoading && (
+                  <p className="text-xs text-gray-500 mt-1" data-testid="documents-loading">
+                    Searching the inscriptions and papyri...
+                  </p>
+                )}
+                {docError && <p className="text-sm text-red-700 mt-1">{docError}</p>}
+                {!docLoading && docHits?.rare_focus?.hidden > 0 && (
+                  <p className="text-xs text-gray-500 mt-1" data-testid="documents-hidden">
+                    {docHits.rare_focus.hidden} inscription{docHits.rare_focus.hidden === 1 ? '' : 's'} or
+                    papyr{docHits.rare_focus.hidden === 1 ? 'us' : 'i'} sharing only common words
+                    ({docHits.rare_focus.common_lemmas.join(', ')}) not shown.
+                  </p>
+                )}
+                {!docLoading && docHits?.query_reduced && (
+                  <p className="text-xs text-gray-500 mt-1" data-testid="documents-reduced">
+                    Passage-sized selection: matched on its most distinctive words
+                    ({docHits.query_reduced.to_lemmas.join(', ')}).
+                  </p>
+                )}
+                {!docLoading && !docError && docHits?.results?.length === 0 && (
+                  <p className="text-sm text-gray-500 mt-1">
+                    No inscription or papyrus shares a distinctive word with this selection.
+                  </p>
+                )}
+                <div className="space-y-2 mt-2">
+                  {!docLoading && (docHits?.results || []).map((r, i) => (
+                    <DocumentHitCard key={`${r.doc_id}-${r.locus}-${i}`} r={r} language={language} />
+                  ))}
+                </div>
+                {!docLoading && docHits?.results?.length > 0 && docLimit < DOCS_MAX
+                  && (docHits.total ?? 0) > docLimit && (
+                  <button
+                    onClick={() => setDocLimit((l) => Math.min(l + DOCS_STEP, DOCS_MAX))}
+                    className="w-full text-center text-xs font-medium text-red-700 border
+                               border-gray-200 rounded py-1.5 mt-2 hover:bg-red-50"
+                  >
+                    Show more inscriptions and papyri
+                  </button>
+                )}
+              </section>
             )}
           </>
         )}
