@@ -29,6 +29,17 @@ export default function EventsPage({ setPageType }) {
     return () => window.removeEventListener('popstate', onPop);
   }, []);
 
+  // The Events tab clicked while an event is open (the app has already
+  // pushed /events onto the history).
+  useEffect(() => {
+    const onHome = () => {
+      setPath('/events');
+      window.scrollTo?.(0, 0);
+    };
+    window.addEventListener('tesserae:events-home', onHome);
+    return () => window.removeEventListener('tesserae:events-home', onHome);
+  }, []);
+
   const go = useCallback((to) => {
     window.history.pushState({}, '', to);
     setPath(to);
