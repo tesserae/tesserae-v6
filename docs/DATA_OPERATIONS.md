@@ -35,6 +35,14 @@ Conventions
   hand and are the models the helper matches.
 
 
+## 2026-10-19 Public data downloads regenerated: five index archives, the passage index as per-language slices, new page and checksums (RUN 00:50 to 01:05 EDT, by the lead)
+
+Why. The downloads page served index archives of 10 February and a single passage-index bundle of 2 September, both far behind the live stores (the Latin index alone was rebuilt on 17 and 18 October), and the single bundle forced one licence onto slices that differ (the design in `scripts/build_passage_index_release.py`: Hebrew CC BY-NC, Coptic CC BY, the rest public domain or Ganjoor). The work-list item from 28 September asked for the regeneration.
+
+What. From the live production stores: `la_index.db`, `grc_index.db`, `en_index.db`, `he_index.db` and (new) `fa_index.db` packed as `.tar.gz`; the passage index split by `build_passage_index_release.py` (run against the production index with its paths pointed at it) into seven slices (la 226,821 windows, grc 164,266, en 27,973, he 5,372, cop 11,400 with 1,800 search-only windows withheld, ur 14,751, fa 219,974) with `index.json`, each packed as `passage_index_<lang>.tar.gz`; a new `index.html` with a date column and the licence in each description; `SHA256SUMS.txt` over every archive. The old `passage_index.tar.gz` and the four replaced archives, with the old page and checksums, were moved to `~/tesserae-backups/public_data_old_2026-10-19/`. Not regenerated: `cop_index.db.tar.gz` (2 September; the Coptic index holds the 29 Sahidica works whose terms are an open decision), the three syntax databases (unchanged since March and May) and `window_texts.db.tar.gz` (2 September; a filtered rebuild without the search-only texts is the gated item D7). `DATA_MANIFEST.json` carries the new checksums (of the extracted files) and sizes, the Persian index as an optional entry, and the slices as a note; `docs/DATA_FILES_REFERENCE.md` rows updated.
+
+Checks. The page answers 200 and the Latin slice and the Latin index archive are served with their full lengths. Italian, Old French and Middle High German windows (Dante, the Chanson de Roland, the Nibelungenlied) are withheld from the release because the release script has no licence entry for them yet.
+
 ## 2026-10-19 Latin documents index and documents reuse table rebuilt with the corrected lemma table and installed (RUN 23:56 to 00:21 EDT, by the lead)
 
 Why. The 18 October Latin lemma corrections (#1009) were applied to the literary stores, and the record left the Latin documents index and the documents reuse table as "still to do", since they lemmatize the inscriptions and papyri with the same table.
