@@ -14,6 +14,16 @@ const DEVELOPER_FILES = [
   { file: 'passage_index_en.tar.gz', name: 'English Passage Windows', note: '62 MB' },
   { file: 'passage_index_cop.tar.gz', name: 'Coptic Passage Windows', note: 'Sahidica left out, 26 MB' },
   { file: 'passage_index_he.tar.gz', name: 'Hebrew Passage Windows', note: 'CC BY-NC 4.0, 12 MB' },
+  { file: 'window_texts.db.tar.gz', name: 'Window Texts', note: 'the text of 460,652 passage windows and the lines of each work, 496 MB packed, 2.5 GB unpacked, each work under its own license and non-commercial as a whole, without the Sahidica New Testament, the Arabic and Persian works and eleven Iqbal collections' },
+  { file: 'ur_index.db.tar.gz', name: 'Urdu Search Index', note: 'CC BY-SA 4.0, 14 Urdu Wikisource collections, the four Iqbal collections left out, 12 MB packed, 64 MB unpacked' },
+  { file: 'entities.sqlite.tar.gz', name: 'People & Places Store', note: 'CC BY-SA 4.0, 39,369 entities and their mentions in Latin, Greek and English works, descriptions written by models, 68 MB packed, 293 MB unpacked' },
+  { file: 'event_dossiers.sqlite.tar.gz', name: 'Events Store', note: 'CC BY-SA 4.0, 1,485 events with passages, documents and scholarship references, the model working logs left out, 19 MB packed, 62 MB unpacked' },
+  { file: 'coins.tar.gz', name: 'Coin Types', note: 'two files: 94,263 types under ODbL 1.0 and 11,913 Corpus Nummorum types under CC BY-NC-SA 3.0, non-commercial, no images, 11 MB packed' },
+  { file: 'objects.sqlite.tar.gz', name: 'Museum Objects', note: 'CC0, with Chicago descriptions under CC BY 4.0, 1,361 records, image addresses only, 0.7 MB packed' },
+  { file: 'dictionaries.tar.gz', name: 'Synonym Dictionaries', note: 'CC BY 4.0 and CC BY-SA file by file, with the 13,943 accepted review pairs, without the Coptic WordNet and Hebrew files, 2 MB packed' },
+  { file: 'latin_lemma_tables.tar.gz', name: 'Latin Lemma Tables', note: 'CC BY-NC-SA 4.0, non-commercial, 111,739 forms with 76,391 corrections and their provenance, 1.4 MB packed' },
+  { file: 'text_descriptions.tar.gz', name: 'Text Descriptions', note: 'CC BY 4.0, written by language models, 1,901 works, Arabic and restricted works left out, 0.6 MB packed' },
+  { file: 'citations_without_sentences.tar.gz', name: 'Citation Indexes', note: 'CC BY 4.0, which article cites which passage (70,293 citations in 32,089 articles), without the article sentences, 4 MB packed' },
 ];
 
 const DEVELOPER_TOOLS = [
@@ -74,8 +84,9 @@ const DownloadsPage = () => {
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Corpus Texts</h3>
           <p className="text-sm text-gray-600 mb-4">
             Download all texts in .tess format for a language. Texts are organized by author and work.
-            Persian and Urdu texts are searchable on the site but are not offered for download
-            pending their sources' terms.
+            Persian and Urdu texts are searchable on the site but are not offered as ZIP files
+            pending their sources' terms. The Urdu search index, which holds the line text of
+            fourteen Wikisource collections, is offered under the developer data files below.
           </p>
           <div className="space-y-3">
             {languages.map(lang => (
@@ -937,8 +948,10 @@ const DownloadsPage = () => {
         </div>
 
         <p className="text-xs text-gray-500 mt-4">
-          The window-text archive (the text of each passage window) is withdrawn for the same reason as
-          the bundle, until a filtered copy is built. The passage window archives are cut by language
+          The window-text archive was withdrawn on 19 October 2026 because it held Sahidica New
+          Testament windows, and it is offered again without them. Every archive in this list carries a
+          LICENSE.txt and a README.txt. The Latin lemma tables, the Corpus Nummorum coins and the window
+          texts are for non-commercial use only. The passage window archives are cut by language
           because the languages differ in license. The download script reads DATA_MANIFEST.json and
           skips files already present. See the{' '}
           <a
