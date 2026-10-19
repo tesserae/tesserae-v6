@@ -36,6 +36,10 @@ describe('the view data', () => {
     expect(h.askDefault).toEqual({ lang: 'la', work: 'tacitus.annales' });
     expect(h.menuOrder.slice(0, 3)).toEqual(['ask-a-work', 'read', 'events']);
     expect(h.menuOrder.indexOf('theme-search')).toBeLessThan(h.menuOrder.indexOf('search'));
+    // Coins and Objects sit with the collections, ahead of Intertextual Search (2026-10-18).
+    expect(h.menuOrder.indexOf('coins')).toBeLessThan(h.menuOrder.indexOf('search'));
+    expect(h.menuOrder.indexOf('objects')).toBeLessThan(h.menuOrder.indexOf('search'));
+    expect(h.menuOrder.indexOf('inscriptions-papyri')).toBeLessThan(h.menuOrder.indexOf('coins'));
     expect(h.readerTabs).toEqual(['similar', 'coins', 'scholarship', 'reuse', 'verbal', 'translation']);
     expect(h.searchDefaults.la).toEqual({
       source: 'livy.ab_urbe_condita.part.1.books_1-10.tess', target: 'tacitus.annales.part.1.tess',

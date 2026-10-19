@@ -155,8 +155,10 @@ export const VIEWS = [
     // (the owner, 2026-10-13); before that the Reader on Tacitus, Annals 1.
     home: { page: 'ask-a-work' },
     askDefault: { lang: 'la', work: 'tacitus.annales' },
+    // Coins and Objects beside the other collections and ahead of
+    // Intertextual Search (the project lead, 2026-10-18).
     menuOrder: [
-      'ask-a-work', 'read', 'events', 'inscriptions-papyri', 'theme-search', 'mentions', 'search', 'coins', 'objects',
+      'ask-a-work', 'read', 'events', 'inscriptions-papyri', 'coins', 'objects', 'theme-search', 'mentions', 'search',
       'browse', 'about', 'help', 'repository', 'downloads',
     ],
     readerTabs: ['similar', 'coins', 'scholarship', 'reuse', 'verbal', 'translation'],
