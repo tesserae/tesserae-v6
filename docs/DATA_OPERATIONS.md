@@ -35,6 +35,16 @@ Conventions
   hand and are the models the helper matches.
 
 
+## 2026-10-19 Latin documents index and documents reuse table rebuilt with the corrected lemma table and installed (RUN 23:56 to 00:21 EDT, by the lead)
+
+Why. The 18 October Latin lemma corrections (#1009) were applied to the literary stores, and the record left the Latin documents index and the documents reuse table as "still to do", since they lemmatize the inscriptions and papyri with the same table.
+
+What. Built in a staging folder (`~/tesserae-backups/docs_rebuild_2026-10-18/`) with the production interpreter: `scripts/documents/build_documents_index.py --language la` over the stage 3 document texts with a fresh lemma cache and scratch folder (the script refuses to write under the live checkout, so the index, cache and scratch all live in staging), then `scripts/reuse/build_documents_reuse_table.py --language la --max-literary-works 10` against the staged index and production's texts and lemma caches, each under an 8 GB cap. The index: 160 text files, 411,466 lines, 179,070 documents, 2,495,435 postings and 139,134 lemmas with a document-frequency count (the installed one had 2,492,715 and 135,748; the corrections split forms that the old table had collapsed). The reuse table: 4,344 pairs (4,173 before), 1,022 of them by the order-free rule, 17.5 minutes for the index and 2 minutes for the pairs. Installed at 00:21 by copy and rename with the previous files kept as `la_documents_index.db.bak-lemfix-20261019` and `cache/reuse_pairs/la_documents.db.bak-lemfix-20261019`, then the WSGI file touched.
+
+Checks. `/api/languages` 200. A documents phrase search for "sit tibi terra levis" answers 1,779 documents with the collection fields present.
+
+Also that night. The connections map cache was rebuilt after the 37 renames changed the index fingerprint (`scripts/build_connections_map.py`, 48.8 minutes, peak 7.53 GB, 1,105 MB) and the superseded cache of 16 October deleted. The live map no longer reports its cache stale and the two map requests of the golden set were re-recorded. The cached cross-language result lists (`cache/asyncjob_xlingual_*.json`, 17 files) were deleted after #1023 loaded the numeral adverbs, because the poll route has no cache bypass and kept serving pre-change lists. Odyssey 5.306 against Aeneid 1.94 then ranks 7 of 445 on the default request. Rule recorded: delete those files after every dictionary change.
+
 ## 2026-10-18 Events store: documents that name the participants or the place added, Scholarship table rebuilt against both citation indexes (RUN 23:33 to 23:39 EDT, by the lead)
 
 Why. The Sicilian Expedition's Scholarship tab listed two articles, both on Plutarch's Nicias, because the table had been built before the Thucydides file ids were repaired and from the EJC index alone. The Inscriptions & Papyri tab held the fifty documents nearest the event's place among those dated within its years, none of which named a participant or the place. Pull requests #1021 and #1026 added the rules and the scripts.
