@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Tie each scholarship article on an event page to the passage that brings it in.
 
-  relink_scholarship.py INPUT.sqlite OUTPUT.sqlite [--citation-index PATH]
+  relink_scholarship.py INPUT.sqlite OUTPUT.sqlite [--citation-index PATH] [--extra-index PATH]
 
 The loader that wrote `scholarship` dropped the link between an article and the
 passage it cites. This rebuilds the table with two more columns, passage_rank
@@ -11,8 +11,13 @@ articles cite each passage with rank <= 10 or llm_label = 'yes'. One row per
 (event, article, passage). Commentary rows are kept, with the lowest-ranked
 passage whose range holds the commentary's reference, else rank NULL.
 
-The citation index is opened read-only. Default: the production file
-/var/www/tesseraev6_flask/data/citation_index/citations.db. The module also
+The citation indexes are opened read-only. Default: the production EJC file
+/var/www/tesseraev6_flask/data/citation_index/citations.db and, when it exists
+beside it, the Project MUSE file citations_muse.db (--extra-index PATH names
+another, --extra-index '' reads the EJC file alone). The backend reads the MUSE
+index only through the environment variable TESSERAE_CITATIONS_EXTRA, which this
+script sets before it asks, so one run joins both. The summary prints how many
+distinct articles, and how many rows, come from each index. The module also
 reads the texts' metadata from the repository it is run in (TESSERAE_ROOT is
 not needed). Run from the repository root.
 """
@@ -27,6 +32,12 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspa
 
 DEFAULT_INDEX = '/var/www/tesseraev6_flask/data/citation_index/citations.db'
 MAX_ARTICLES = 100000
+EXTRA_NAME = 'citations_muse.db'
+
+
+def default_extra(citation_index):
+    p = os.path.join(os.path.dirname(os.path.abspath(citation_index)), EXTRA_NAME)
+    return p if os.path.exists(p) else ''
 
 
 def article_row(r):
@@ -81,11 +92,21 @@ def main(argv=None):
     ap.add_argument('input')
     ap.add_argument('output')
     ap.add_argument('--citation-index', default=DEFAULT_INDEX)
+    ap.add_argument('--extra-index', default=None)
     a = ap.parse_args(argv)
     from backend import scholarship as S
     S.CITATION_INDEX = a.citation_index
     if not os.path.exists(S.CITATION_INDEX):
         sys.exit(f'citation index not found: {S.CITATION_INDEX}')
+    extra = default_extra(a.citation_index) if a.extra_index is None else a.extra_index
+    if extra and not os.path.exists(extra):
+        sys.exit(f'extra citation index not found: {extra}')
+    if extra:
+        os.environ[S.CITATIONS_EXTRA_ENV] = extra
+    else:
+        os.environ.pop(S.CITATIONS_EXTRA_ENV, None)
+    print(f'EJC index {S.CITATION_INDEX}; extra index {extra or "none"}')
+    per_source = {}
 
     shutil.copyfile(a.input, a.output)
     c = sqlite3.connect(a.output)
@@ -118,6 +139,10 @@ def main(argv=None):
                 c.execute('INSERT INTO scholarship VALUES (?,?,?,?,?,?,?)',
                           (eid, 'article', title, page_ref, r.get('url'), p['rank'], passage_ref(p)))
                 n_article += 1
+                src = 'muse' if r.get('source') == 'muse' else 'ejc'
+                per_source.setdefault(src, {'rows': 0, 'articles': set()})
+                per_source[src]['rows'] += 1
+                per_source[src]['articles'].add((r.get('url') or '', title))
     allp = {}
     for r in c.execute('SELECT event_id, rank, ref_start, ref_end FROM passages'):
         allp.setdefault(r['event_id'], []).append(dict(r))
@@ -131,6 +156,11 @@ def main(argv=None):
     c.commit()
     after = c.execute('SELECT COUNT(*) FROM scholarship').fetchone()[0]
     print(f'scholarship rows before {before}, after {after} ({n_article} article, {n_comm} commentary)')
+    for src in ('ejc', 'muse'):
+        d = per_source.get(src, {'rows': 0, 'articles': ()})
+        print(f'  {src}: {len(d["articles"])} distinct articles, {d["rows"]} rows')
+    with_sch = c.execute('SELECT COUNT(DISTINCT event_id) FROM scholarship').fetchone()[0]
+    print(f'events with any scholarship row: {with_sch} of {len(events)}')
     rows = c.execute("SELECT kind, passage_rank, passage_ref, title FROM scholarship WHERE event_id = 'Q18001862' "
                      'ORDER BY passage_rank').fetchall()
     print(f'Q18001862 (Siege of Corfinium): {len(rows)} rows')
