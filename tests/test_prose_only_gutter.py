@@ -35,6 +35,14 @@ RECORDS = [
      'ref_start': 'cic. leg. 1.1', 'ref_end': 'cic. leg. 1.2', 'language': 'la'},
     {'id': 'cicero.de_legibus:prosem:1', 'work': 'cicero.de_legibus', 'scale': 'prose',
      'ref_start': 'cic. leg. 1.3', 'ref_end': 'cic. leg. 1.4', 'language': 'la'},
+    # Parts of one work: an early part with fine windows and a later part cut
+    # into prose windows only (Cassius Dio books 36 to 55 are in that state).
+    # The parts are different text, so both belong in the map, each with the
+    # windows it has.
+    {'id': 'cassius_dio.roman_history.part.1:fine:0', 'work': 'cassius_dio.roman_history.part.1',
+     'scale': 'fine', 'ref_start': 'dio 1.1', 'ref_end': 'dio 1.2', 'language': 'grc'},
+    {'id': 'cassius_dio.roman_history.part.36:prosem:0', 'work': 'cassius_dio.roman_history.part.36',
+     'scale': 'prose', 'ref_start': 'dio 36.1', 'ref_end': 'dio 36.3', 'language': 'grc'},
     # A prose-only work in a language the map does not serve.
     {'id': 'ibn.kitab:prosem:0', 'work': 'ibn.kitab', 'scale': 'prose',
      'ref_start': 'ibn. 1.1', 'ref_end': 'ibn. 1.2', 'language': 'ar'},
@@ -97,7 +105,24 @@ def test_map_subset_includes_prose_windows_of_works_without_fine_windows():
     sub = mod.select_subset(RECORDS)
     ids = [RECORDS[i]['id'] for i in sub]
     assert ids == ['vergil.aeneid.part.1:fine:0', 'livy.ab_urbe_condita:fine:0',
-                   'cicero.de_legibus:prosem:0', 'cicero.de_legibus:prosem:1']
+                   'cicero.de_legibus:prosem:0', 'cicero.de_legibus:prosem:1',
+                   'cassius_dio.roman_history.part.1:fine:0',
+                   'cassius_dio.roman_history.part.36:prosem:0']
+
+
+def test_a_prose_only_part_joins_the_map_beside_its_fine_parts():
+    """The rule keys on the part id the Reader opens, not on the whole work.
+    In the live index of 2026-10-19 the 37 prose-only works were mostly later
+    parts of works whose earlier parts have fine windows (Cassius Dio 36 to
+    55, Diodorus 1 to 5 and 18 to 20, Appian 1), and no whole-work id with
+    fine windows stood beside prose-only parts of the same work, so keying
+    on the part id adds the missing parts without doubling any text."""
+    mod = _builder()
+    sub = mod.select_subset(RECORDS)
+    ids = [RECORDS[i]['id'] for i in sub]
+    assert 'cassius_dio.roman_history.part.36:prosem:0' in ids
+    assert 'cassius_dio.roman_history.part.1:fine:0' in ids
+    assert 'livy.ab_urbe_condita:prosem:0' not in ids
 
 
 def test_map_subset_respects_the_served_languages():
