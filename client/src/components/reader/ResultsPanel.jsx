@@ -459,7 +459,7 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
     // the bottom of the screen, shown once something is selected, with its
     // own close control; with nothing selected it stays out of the way.
     <aside className={`w-full lg:w-96 xl:w-[32rem] border-t lg:border-t-0 lg:border-l border-gray-200 bg-gray-50
-                      flex flex-col fixed inset-x-0 bottom-0 z-40 shadow-2xl
+                      flex flex-col fixed inset-x-0 bottom-0 z-40 lg:z-30 shadow-2xl
                       lg:static lg:shadow-none lg:sticky lg:top-0 lg:self-start lg:h-screen lg:max-h-none
                       ${(selection || sheetOpen) ? 'max-h-[55vh]' : 'max-h-[2.75rem] overflow-hidden'}`}>
       {/* One row of tabs. With five tabs (Scholarship added), WRAPPING put the
@@ -1239,7 +1239,7 @@ function SimilarResultCard({ r, onOpenPassage }) {
                   target="_blank"
                   rel="noreferrer"
                   className="text-red-700 hover:underline"
-                  title={`Every line in the corpus that mentions ${n}`}
+                  title={`Every line in the corpus that mentions ${n} (People & Places)`}
                 >{n}</a>
               ) : n}
             </span>

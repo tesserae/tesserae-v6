@@ -69,7 +69,7 @@ const mainTabs = [
   { code: 'read', label: 'Read' },
   { code: 'theme-search', label: 'Theme Search' },
   // Trial (?entities=1, remembered for the visit): where a place, person or god is named.
-  { code: 'mentions', label: 'Mentions', beta: true, entities: true },
+  { code: 'mentions', label: 'People & Places', beta: true, entities: true },
   { code: 'ask-a-work', label: 'Search One Text', beta: true },
   // Trial: shown only when the documents trial is active, both the server
   // switch (TESSERAE_DOCUMENTS=1, read from /api/languages below) and the

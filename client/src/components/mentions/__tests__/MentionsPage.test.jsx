@@ -75,7 +75,7 @@ describe('the page', () => {
 
   it('shows the title, the gray trial note and a search box', () => {
     render(<MentionsPage setPageType={() => {}} />);
-    expect(screen.getByRole('heading', { name: 'Mentions' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'People & Places' })).toBeInTheDocument();
     expect(screen.getByTestId('trial-note').textContent).toBe(TRIAL_NOTE);
     expect(screen.getByLabelText('A place, person or god')).toBeInTheDocument();
   });

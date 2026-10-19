@@ -846,7 +846,7 @@ def _t_get_commentary(a):
 
 
 def _t_find_mentions(a):
-    """Where a named place, person or god is mentioned in the corpus (the Mentions trial).
+    """Where a named place, person or god is mentioned in the corpus (the People & Places page, in trial).
 
     With `name`, the matching entities with their headings, types and line counts per
     language. With `entity_id` (from that list), one page of that entity's mention lines
@@ -1510,7 +1510,7 @@ def _scholarship_tools_enabled():
     return os.environ.get('TESSERAE_SCHOLARSHIP_TOOLS') == '1'
 
 
-# Gated by TESSERAE_ENTITY_TOOLS=1 the same way, off until the Mentions trial is switched on.
+# Gated by TESSERAE_ENTITY_TOOLS=1 the same way, off until the People & Places trial is switched on.
 _ENTITY_TOOL_NAMES = {'find_mentions'}
 
 

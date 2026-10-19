@@ -134,20 +134,20 @@ MANIFEST = {
     # tool find_mentions is hidden unless TESSERAE_ENTITY_TOOLS=1, as for the Scholarship tab (2026-10-08).
     '/api/entities/search': {
         'tools': ['find_mentions'],
-        'note': 'Gated by TESSERAE_ENTITY_TOOLS=1 while the Mentions page is a trial (?entities=1).',
+        'note': 'Gated by TESSERAE_ENTITY_TOOLS=1 while the People & Places page is a trial (?entities=1).',
     },
     '/api/entities/<entity_id>': {
         'site_only': True,
-        'reason': ('One entity with its mention counts by work, for the Mentions page in testing '
+        'reason': ('One entity with its mention counts by work, for the People & Places page in testing '
                     '(stage 2); not yet exposed to the connector.'),
     },
     '/api/entities/<entity_id>/mentions': {
         'tools': ['find_mentions'],
-        'note': 'Gated by TESSERAE_ENTITY_TOOLS=1 while the Mentions page is a trial (?entities=1).',
+        'note': 'Gated by TESSERAE_ENTITY_TOOLS=1 while the People & Places page is a trial (?entities=1).',
     },
     '/api/entities/<entity_id>/documents': {
         'site_only': True,
-        'reason': ('The inscriptions and papyri that name one entity, for the Mentions page in testing '
+        'reason': ('The inscriptions and papyri that name one entity, for the People & Places page in testing '
                     '(stage 2b); not yet exposed to the connector.'),
     },
     '/api/scope': {

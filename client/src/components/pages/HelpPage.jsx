@@ -394,7 +394,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
     { id: 'reading-results', label: 'Reading the results', group: 'The Fusion (Phrases) search' },
 
     { id: 'theme-search', label: 'Theme Search', group: 'Reading & content' },
-    { id: 'mentions', label: 'Mentions', group: 'Reading & content' },
+    { id: 'mentions', label: 'People & Places', group: 'Reading & content' },
     { id: 'ask-a-work', label: 'Search One Text', group: 'Reading & content' },
     { id: 'reader', label: 'The Reader', group: 'Reading & content' },
     { id: 'tessa', label: 'Tessa, the assistant', group: 'Reading & content' },
@@ -1709,9 +1709,9 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
 
           {activeSection === 'mentions' && (
             <div className="prose max-w-none">
-              <h3 id="mentions" className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Mentions</h3>
+              <h3 id="mentions" className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">People &amp; Places</h3>
               <p className="text-gray-700 mb-4">
-                Mentions lists every line in the corpus where a named person, place or god is
+                People &amp; Places lists every line in the corpus where a named person, place or god is
                 mentioned. Each person, place or god has one heading, and under it the lines are
                 grouped by work. The page covers the Latin, Greek and English works. Inscriptions
                 and papyri have their own table at the foot of an entry, listing the documents
@@ -1758,7 +1758,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
               </p>
               <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">A trial</h4>
               <p className="text-gray-700 mb-4">
-                Mentions is a trial. It is reached by adding ?entities=1 to the address of the
+                People &amp; Places is a trial. It is reached by adding ?entities=1 to the address of the
                 site, and it stays open for the rest of your visit. It will be switched on for
                 everyone once it has been checked further.
               </p>
