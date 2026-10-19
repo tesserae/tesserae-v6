@@ -3395,6 +3395,14 @@
   },
   {
     "author": "Cicero",
+    "work": "De Legibus",
+    "e_source": "The Latin Library",
+    "e_source_url": "https://www.thelatinlibrary.com/cicero/leg1.shtml, https://www.thelatinlibrary.com/cicero/leg2.shtml, https://www.thelatinlibrary.com/cicero/leg3.shtml",
+    "print_source": "Edition not stated by the site. Retrieved 2026-10-19. The page prints u for consonantal v in book 1 (uetus, Qvintvs) and the spelling is kept; the speaker labels are written in their ordinary form, and the page's bracketed testimonia and lacuna marks are left out.",
+    "added_by": "V6 Import (Cicero De Legibus, 2026-10-19)"
+  },
+  {
+    "author": "Cicero",
     "work": "De lege agraria contra Rullum",
     "e_source": "Perseus",
     "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.02.0013",

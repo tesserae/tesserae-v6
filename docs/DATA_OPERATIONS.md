@@ -35,6 +35,38 @@ Conventions
   hand and are the models the helper matches.
 
 
+## 2026-10-19 Cicero, De legibus added (PENDING, staged by a delegate, install by the lead)
+
+Staged, not installed. Every store below was built on a copy in `~/tesserae-backups/de_legibus_2026-10-19/`, with `CHECKS.md` holding the figures. Nothing under `/var/www/tesseraev6_flask` was written.
+
+What. `cicero.de_legibus` (`texts/la/cicero.de_legibus.tess`, reference form `cic. leg. book.section`) from The Latin Library pages `cicero/leg1.shtml`, `leg2.shtml`, `leg3.shtml` (edition not stated, retrieved 2026-10-19). 181 lines: 63, 69 and 49 sections in books 1 to 3, matching the pages' printed brackets, 18,633 words. Speakers are written inline as `Atticus:`, `Quintus:`, `Marcus:`, as `cicero.de_republica.tess` writes `Scipio:`. The pages' u for consonantal v is kept. The pages' bracketed testimonia (Plutarch, Macrobius), lacuna marks and stray characters are removed by the converter. The translation is Francis Barham's 1841 version of the treatise as reprinted in Bohn's Classical Library (ed. C. D. Yonge, 1878 printing), from the archive.org OCR `treatisesofcicer00ciceuoft`, public domain. It numbers the old chapters and not sections, so `scripts/translations/align_de_legibus.py` aligns by speaker turn (89, 83 and 50 English turns against 90, 82 and 50 Latin turns in the three books, with sections that share a turn sharing a unit): 181 of 181 sections covered, 69 units, name check 0.868 on 174 sections that name someone.
+
+Staged outputs (all in the staging folder).
+- `out/cicero.de_legibus.tess`, the converter output (identical to the file in the pull request).
+- `lemma_cache/la/cicero.de_legibus-7a7421f2112e243d5c876367d0ef7cbc.json` (`batch_lemma_cache.py`, one file, 181 lines).
+- `stores/la_index.db.new`: the live Latin index plus text id 1834 (13,380 postings), 1,834 texts, 955,043 lines, `lemma_doc_freq` rebuilt (248,485 lemmas), integrity ok.
+- `stage_cache/bigrams/la_bigrams.json`: the rare-bigram table rebuilt over 784 documents (783 live), 3,550,849 keys, 15,345,317 occurrences.
+- `stores/window_texts.db.new`: 189 rows added (42 fine and coarse windows from `build_batch_windows.py --upsert-db`, not described, and 147 prose windows) and the 181 line rows. The prose-scale cutter of 2026-10-11 applies by its own rule (a prose work whose median fine window is 8,302 characters against the 3,000 threshold). `prose_windows.py` cut 147 merged windows (median 830 characters, maximum 1,254), ids `cicero.de_legibus:prosem:0` to `:146`. The fine and coarse rows stay in the database as unused rows, as the old Thucydides rows did.
+- `windows/descriptions.jsonl`: 147 of 147 described on the university gateway (`describe_prose_windows.py`, Qwen/Qwen3.8-27B-FP8, thinking off, stamp `legibus-20261019`, 0.7 minutes, 0 failures). `windows/vectors.npy` and `windows/ids.json`: 147 x 1024 unit vectors from the site's encoder service (`encode_with_embed_service.py`). `apply_passage_rows.py --mode append` was rehearsed on a staged copy of `ids.json`, `descriptions.jsonl` and `embeddings.npy` only (684,503 to 684,650 ids, vectors and descriptions in step). The live index was not touched.
+- `vectors/la/cicero.de_legibus.npy` and `.meta.json`: 181 x 768 line vectors from bowphs/SPhilBerta, raw (mean norm 5.806, no NaN), as the existing files are.
+- `translations/la__cicero.de_legibus.json`: the aligned translation (attribution "Francis Barham (1841)").
+- `citations/dryrun_round7.txt`: the dry run of `data/citations/abbrev_patch_round7.json` against a copy of the production table: one new work, 14 forms to add, no conflicts with the patch's `allow_overlap` list (Cic., C., CIC. as every Cicero record carries them, Leg. and Laws, which `plato.leges` also carries). Without that list the dry run refuses on 136 conflicts. A bare Leg. stays with Plato by the rule "leg" in `backend/citations/abbrev_context_rules.json` until a rule for `cicero.de_legibus` with an author-context test is added.
+
+Install (by the lead, after the pull request is merged and pulled). Each step runs under `~/bin/tess-job`, one at a time, and `touch tesseraev6_flask.wsgi` follows each swap. Replace `S` with `~/tesserae-backups/de_legibus_2026-10-19`.
+1. Latin index swap, with a dated backup. `cp -p data/inverted_index/la_index.db data/inverted_index/la_index.db.bak-legibus-$(date +%Y%m%d)`, then `mv S/stores/la_index.db.new` over it beside the live file (write beside and rename over, because the web account owns the live file).
+2. Lemma cache: `cp S/lemma_cache/la/cicero.de_legibus-*.json cache/lemmas/la/`.
+3. Bigram table: back up `cache/bigrams/la_bigrams.json` as `la_bigrams.json.pre-legibus-$(date +%Y%m%d).bak`, then copy `S/stage_cache/bigrams/la_bigrams.json` in beside it and rename over.
+4. Passage windows: back up `data/passage_index/window_texts.db`, then swap in `S/stores/window_texts.db.new`. Then `scripts/corpus/apply_passage_rows.py --index data/passage_index --sidecar S/windows/descriptions.jsonl --mode append --tag legibus-20261019 --vectors S/windows/vectors.npy --vector-ids S/windows/ids.json` (cap 12G). Check that ids, vectors and descriptions agree (684,650).
+5. Derived indexes: `scripts/build_desc_fts.py`, `scripts/corpus/build_desc_vocab.py`, `scripts/corpus/build_window_names.py` to a `.new` file swapped in.
+6. Line vectors: `cp S/vectors/la/cicero.de_legibus.* backend/embeddings/la/` (mode 664, group tessdev).
+7. Translation: `cp S/translations/la__cicero.de_legibus.json data/translations/` (mode 664).
+8. Connection map: `scripts/build_connections_map.py`, cap 10G, about 50 minutes, then `scripts/precompute_passage_density.py --language all`.
+9. Abbreviation table: `python scripts/citations/apply_abbrev_patch.py data/citations/abbrev_patch_round7.json data/citations/abbreviations.json --apply`, add the author-context rule for bare Leg., then rebuild the citation indexes when next due.
+10. `python scripts/corpus/verify_text_coverage.py` for `cicero.de_legibus`, one Similar Passages and one Theme Search request, the reference searches ("arma virum" must return Ovid, Quintilian, Seneca), a search for a phrase of the work, and `touch tesseraev6_flask.wsgi`.
+
+Rollback: restore the dated backups of the index, the bigram table and `window_texts.db`, remove the new rows from the passage index with `apply_passage_rows.py --mode remove` (ids in `S/windows/ids.json`), delete the lemma cache, vector and translation files, and touch the wsgi file.
+
+
 ## 2026-10-19 Citation indexes rebuilt with recognizer round 6 and installed, the De legibus table slip fixed, events Scholarship table relinked (RUN 11:07 to 11:13 EDT, by the lead)
 
 Why. Round 6 of the citation recognizer (#1049) came from the hand check of 200 round 5 rows: elided ranges, bibliography entries read as citations (a citation followed by `pp.` or a publication year), short titles resolved by the author named nearest, a parenthesized alternate line numbering, comma-separated lists of lines, Cicero's chapter-and-section numbering reduced to the corpus's section numbering (54 works, `backend/citations/work_section_numbered.json`), and a locus beyond the last line or book of a shared short form's default work (Phoen., Juv., Poen.). On the 200 hand-checked rows no correct row changed and 29 of the 41 wrong rows were fixed or dropped (bar 20). A spot check of 20 chapter-and-section rows from the MUSE index found all 20 right.
