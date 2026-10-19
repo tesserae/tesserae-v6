@@ -95,9 +95,12 @@ def _rewrite_prefix(value, old, new):
     happens to start with old from being mangled."""
     if not isinstance(value, str):
         return value
-    prefix = old + '.'
-    if value.startswith(prefix):
-        return new + '.' + value[len(prefix):]
+    # Greek files tag their lines '<work N>' with a space where Latin files
+    # use '<work.N>' (2026-10-18, 37 renames): either separator is kept as it was.
+    for sep in ('.', ' '):
+        prefix = old + sep
+        if value.startswith(prefix):
+            return new + sep + value[len(prefix):]
     return value
 
 
@@ -112,7 +115,7 @@ def plan_tess(root, language, old, old_tag):
     if not os.path.exists(path):
         return {'found': False}
     content = read_text_preserving_eol(path)
-    pattern = re.compile(r'^<' + re.escape(old_tag) + r'\.', re.MULTILINE)
+    pattern = re.compile(r'^<' + re.escape(old_tag) + r'([. ])', re.MULTILINE)
     n_tagged = len(pattern.findall(content))
     n_lines = len(content.splitlines())
     return {'found': True, 'path': path, 'tagged_lines': n_tagged, 'total_lines': n_lines}
@@ -126,8 +129,8 @@ def apply_tess(root, language, old, new, old_tag, new_tag):
     if os.path.exists(new_path):
         raise RuntimeError(f'refusing: {new_path} already exists')
     content = read_text_preserving_eol(old_path)
-    pattern = re.compile(r'^<' + re.escape(old_tag) + r'\.', re.MULTILINE)
-    new_content, n = pattern.subn(f'<{new_tag}.', content)
+    pattern = re.compile(r'^<' + re.escape(old_tag) + r'([. ])', re.MULTILINE)
+    new_content, n = pattern.subn(lambda m: f'<{new_tag}{m.group(1)}', content)
     backup_path = backup(old_path, tag='rename')
     atomic_write(new_path, new_content)
     os.remove(old_path)
@@ -165,7 +168,9 @@ def plan_index(root, language, old, new):
         con.close()
 
 
-def apply_index(root, language, old, new):
+def apply_index(root, language, old, new, old_tag=None, new_tag=None):
+    old_tag = old_tag or old
+    new_tag = new_tag or new
     plan = plan_index(root, language, old, new)
     if not plan.get('found') or not plan.get('text_present'):
         return plan
@@ -175,7 +180,9 @@ def apply_index(root, language, old, new):
     text_id = plan['text_id']
     new_author, new_rest = split_id(new)
     new_title = new_rest or new_author
-    cut = len(old) + 1
+    # substr is 1-based: substr(ref, len(tag) + 1) is the separator and the
+    # rest, so the ref keeps its own separator ('.' or ' ') under the new tag.
+    cut = len(old_tag) + 1
     tmp = f'{db}.tmp-rename-{os.getpid()}'
     shutil.copy2(db, tmp)
     con = sqlite3.connect(tmp)
@@ -187,10 +194,11 @@ def apply_index(root, language, old, new):
         # ('libanius. decl. 1.1', 'cic. ver. 1.1.1') keeps its refs: cutting
         # them at the old id's length made duplicates and the UNIQUE
         # constraint on (text_id, ref) refused the rename (2026-10-13, #904).
-        con.execute('UPDATE lines SET ref = ? || substr(ref, ?) WHERE text_id=? AND ref LIKE ?',
-                    (new + '.', cut + 1, text_id, old + '.%'))
-        con.execute('UPDATE postings SET ref = ? || substr(ref, ?) WHERE text_id=? AND ref LIKE ?',
-                    (new + '.', cut + 1, text_id, old + '.%'))
+        if old_tag != new_tag:
+            con.execute('UPDATE lines SET ref = ? || substr(ref, ?) WHERE text_id=? AND (ref LIKE ? OR ref LIKE ?)',
+                        (new_tag, cut, text_id, old_tag + '.%', old_tag + ' %'))
+            con.execute('UPDATE postings SET ref = ? || substr(ref, ?) WHERE text_id=? AND (ref LIKE ? OR ref LIKE ?)',
+                        (new_tag, cut, text_id, old_tag + '.%', old_tag + ' %'))
         con.commit()
         n_lines_after, = con.execute('SELECT COUNT(*) FROM lines WHERE text_id=?',
                                       (text_id,)).fetchone()
@@ -200,8 +208,10 @@ def apply_index(root, language, old, new):
             raise AssertionError('line row count changed')
         if n_postings_after != plan['postings']:
             raise AssertionError('postings row count changed')
-        stray, = con.execute('SELECT COUNT(*) FROM lines WHERE text_id=? AND ref LIKE ?',
-                              (text_id, old + '.%')).fetchone()
+        stray = 0
+        if old_tag != new_tag:
+            stray, = con.execute('SELECT COUNT(*) FROM lines WHERE text_id=? AND (ref LIKE ? OR ref LIKE ?)',
+                                  (text_id, old_tag + '.%', old_tag + ' %')).fetchone()
         if stray:
             raise AssertionError('old-named refs remain in lines')
         if con.execute('PRAGMA integrity_check').fetchone()[0] != 'ok':
@@ -233,7 +243,7 @@ def plan_lemma_cache(root, language, old):
     return {'found': found}
 
 
-def _rewrite_cache_payload(data, old, new, new_file_hash):
+def _rewrite_cache_payload(data, old, new, new_file_hash, old_tag=None, new_tag=None):
     data = dict(data)
     old_text_id, new_text_id = f'{old}.tess', f'{new}.tess'
     if data.get('text_id') == old_text_id:
@@ -246,7 +256,7 @@ def _rewrite_cache_payload(data, old, new, new_file_hash):
         for u in units:
             u = dict(u)
             if 'ref' in u:
-                u['ref'] = _rewrite_prefix(u['ref'], old, new)
+                u['ref'] = _rewrite_prefix(u['ref'], old_tag or old, new_tag or new)
             rewritten.append(u)
         data[key] = rewritten
     if new_file_hash is not None:
@@ -254,7 +264,7 @@ def _rewrite_cache_payload(data, old, new, new_file_hash):
     return data
 
 
-def apply_lemma_cache(root, language, old, new, new_tess_path):
+def apply_lemma_cache(root, language, old, new, new_tess_path, old_tag=None, new_tag=None):
     plan = plan_lemma_cache(root, language, old)
     if not plan['found']:
         return {'found': {}, 'written': []}
@@ -271,7 +281,7 @@ def apply_lemma_cache(root, language, old, new, new_tess_path):
         with open(old_path, encoding='utf-8') as f:
             data = json.load(f)
         backup(old_path, tag='rename')  # the un-renamed original stays too
-        new_data = _rewrite_cache_payload(data, old, new, new_hash)
+        new_data = _rewrite_cache_payload(data, old, new, new_hash, old_tag, new_tag)
         new_path = new_paths[kind]
         os.makedirs(os.path.dirname(new_path), exist_ok=True)
         atomic_write(new_path, json.dumps(new_data, ensure_ascii=False))
@@ -325,10 +335,17 @@ def plan_passage_index(root, old, new):
     if old not in works:
         return {'found': False}  # this work isn't in the passage index at all
     if old_rest != new_rest:
-        return {'found': True, 'index': idx, 'supported': False,
-                'reason': ("rename_work_in_passage_index.py only reuses cleanly for an "
-                           "author-level move (unchanged work title); this rename changes "
-                           "the work title too, so the passage index needs its own pass")}
+        # A change of the work title: the passage tool's --leaf mode (one
+        # whole work id, 2026-10-13) moves exactly this work's ids, work
+        # fields and refs, and nothing that merely begins with the id.
+        passage_rename.LEAF = True
+        try:
+            counts = passage_rename.count_affected(idx, old)
+        finally:
+            passage_rename.LEAF = False
+        return {'found': True, 'index': idx, 'supported': True, 'leaf': True,
+                'old_author': old_author, 'new_author': new_author,
+                'other_works_under_author': [], **counts}
     other_works = sorted(w for w in works if w != old)
     counts = passage_rename.count_affected(idx, old_author)
     return {'found': True, 'index': idx, 'supported': True,
@@ -342,6 +359,9 @@ def passage_index_would_collide(root, old, new):
         return False
     idx = plan['index']
     existing = set(_passage_ids(idx))
+    if plan.get('leaf'):
+        would_be = {new + i[len(old):] for i in existing if i.startswith(old + ':')}
+        return bool(would_be & existing)
     would_be = {passage_rename.renamed(i, plan['old_author'], plan['new_author'])
                 for i in existing if i.startswith(plan['old_author'] + '.')}
     return bool(would_be & existing)
@@ -358,8 +378,12 @@ def apply_passage_index(root, old, new):
             "an author-level rename would move them as well -- handle this one by hand")
     if not any(plan.get(k) for k in ('ids', 'descriptions', 'windows', 'line rows')):
         return {**plan, 'applied': False, 'reason': 'nothing under the old name'}
-    rc = passage_rename.main(['--index', plan['index'], '--from', plan['old_author'],
-                               '--to', plan['new_author'], '--tag', 'rename', '--apply'])
+    if plan.get('leaf'):
+        rc = passage_rename.main(['--index', plan['index'], '--from', old, '--to', new,
+                                   '--leaf', '--tag', 'rename', '--apply'])
+    else:
+        rc = passage_rename.main(['--index', plan['index'], '--from', plan['old_author'],
+                                   '--to', plan['new_author'], '--tag', 'rename', '--apply'])
     if rc != 0:
         raise RuntimeError(f'rename_work_in_passage_index.py refused or failed (exit {rc})')
     return {**plan, 'applied': True}
@@ -420,6 +444,79 @@ def apply_embeddings(root, language, old, new, old_tag, new_tag):
                          'line_refs_rewritten': n_rewritten,
                          'line_refs_total': len(refs or [])})
     return {'found': plan['found'], 'written': written}
+
+
+# ------------------------------------------------------------ entity store
+#
+# The Mentions store (data/entity_index/entities.sqlite, 2026-10-17) holds the
+# work id in its windows table (work, window_id '<work>:<scale>:<n>',
+# ref_start, ref_end) and in the line reference of every mention row
+# (mention_rows.line_ref, '<work> N' or '<work>.N'). Added 2026-10-18 for the
+# Greek-titled renames. Absent store or tables: reported and skipped.
+
+def entities_db_path(root):
+    return os.path.join(root, 'data', 'entity_index', 'entities.sqlite')
+
+
+def plan_entities(root, old, new):
+    db = entities_db_path(root)
+    if not os.path.exists(db):
+        return {'found': False}
+    con = sqlite3.connect(f'file:{db}?mode=ro', uri=True)
+    try:
+        tables = {t for (t,) in con.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+        if 'windows' not in tables:
+            return {'found': False}
+        n_win, = con.execute('SELECT COUNT(*) FROM windows WHERE work = ?', (old,)).fetchone()
+        n_new, = con.execute('SELECT COUNT(*) FROM windows WHERE work = ?', (new,)).fetchone()
+        n_rows = 0
+        if 'mention_rows' in tables:
+            n_rows, = con.execute('SELECT COUNT(*) FROM mention_rows WHERE line_ref LIKE ? OR line_ref LIKE ?',
+                                  (old + '.%', old + ' %')).fetchone()
+    finally:
+        con.close()
+    return {'found': True, 'db': db, 'windows': n_win, 'mention_rows': n_rows, 'new_id_windows': n_new}
+
+
+def _entities_has_something(plan):
+    return bool(plan.get('found') and (plan.get('windows') or plan.get('mention_rows')))
+
+
+def apply_entities(root, old, new):
+    plan = plan_entities(root, old, new)
+    if not _entities_has_something(plan):
+        return plan
+    if plan['new_id_windows']:
+        raise RuntimeError(f'refusing: the entity store already holds windows of {new!r}')
+    db = plan['db']
+    tmp = f'{db}.tmp-rename-{os.getpid()}'
+    shutil.copy2(db, tmp)
+    con = sqlite3.connect(tmp)
+    try:
+        n = len(old) + 1  # substr is 1-based: from here on is the separator and the rest
+        con.execute('UPDATE windows SET work = ?, window_id = ? || substr(window_id, ?), '
+                    'ref_start = CASE WHEN ref_start LIKE ? OR ref_start LIKE ? THEN ? || substr(ref_start, ?) ELSE ref_start END, '
+                    'ref_end = CASE WHEN ref_end LIKE ? OR ref_end LIKE ? THEN ? || substr(ref_end, ?) ELSE ref_end END '
+                    'WHERE work = ?',
+                    (new, new, n, old + '.%', old + ' %', new, n, old + '.%', old + ' %', new, n, old))
+        if plan['mention_rows']:
+            con.execute('UPDATE mention_rows SET line_ref = ? || substr(line_ref, ?) '
+                        'WHERE line_ref LIKE ? OR line_ref LIKE ?',
+                        (new, n, old + '.%', old + ' %'))
+        con.commit()
+        left, = con.execute('SELECT COUNT(*) FROM windows WHERE work = ?', (old,)).fetchone()
+        if left:
+            raise AssertionError('old-named windows remain in the entity store')
+        if con.execute('PRAGMA quick_check').fetchone()[0] != 'ok':
+            raise AssertionError('quick_check failed on the renamed entity store copy')
+    except BaseException:
+        con.close()
+        os.remove(tmp)
+        raise
+    con.close()
+    backup_path = backup(db, tag='rename')
+    os.replace(tmp, db)
+    return {**plan, 'applied': True, 'backup': backup_path}
 
 
 # ------------------------------------------------------------- events store
@@ -664,6 +761,9 @@ def check_collisions(root, language, old, new, force=False):
     elif tr_plan.get('found') and tr_plan.get('manifest_new_entries') and not force:
         problems.append(f"translations manifest already has {tr_plan['manifest_new_entries']} "
                         f"entry(ies) for {language}/{new} (pass --force to keep them)")
+    ent_plan = plan_entities(root, old, new)
+    if _entities_has_something(ent_plan) and ent_plan.get('new_id_windows'):
+        problems.append(f"entity store: {ent_plan['new_id_windows']} window(s) already carry {new!r}")
     return problems
 
 
@@ -708,6 +808,7 @@ def main(argv=None):
     emb_plan = plan_embeddings(root, language, old)
     events_plan = plan_events(root, old, new)
     tr_plan = plan_translations(root, language, old, new)
+    ent_plan = plan_entities(root, old, new)
 
     print(f'{language}/{old} -> {language}/{new}  (tag {old_tag} -> {new_tag})')
     print(f'  .tess:           {tess_plan}')
@@ -717,6 +818,7 @@ def main(argv=None):
     print(f'  embeddings:      found={sorted(emb_plan["found"])}')
     print(f'  events store:    {events_plan}')
     print(f'  translations:    {tr_plan}')
+    print(f'  entity store:    {ent_plan}')
 
     nothing_found = (
         not tess_plan.get('found')
@@ -726,6 +828,7 @@ def main(argv=None):
         and not emb_plan['found']
         and not _events_has_something(events_plan)
         and not _translations_has_something(tr_plan)
+        and not _entities_has_something(ent_plan)
     )
     if nothing_found:
         print('\nnothing carries that name in any store under --root')
@@ -743,13 +846,14 @@ def main(argv=None):
         return 0
 
     results = {'tess': apply_tess(root, language, old, new, old_tag, new_tag)}
-    results['index'] = apply_index(root, language, old, new)
+    results['index'] = apply_index(root, language, old, new, old_tag, new_tag)
     results['lemma_cache'] = apply_lemma_cache(
-        root, language, old, new, tess_path(root, language, new))
+        root, language, old, new, tess_path(root, language, new), old_tag, new_tag)
     results['passage_index'] = apply_passage_index(root, old, new)
     results['embeddings'] = apply_embeddings(root, language, old, new, old_tag, new_tag)
     results['events'] = apply_events(root, old, new)
     results['translations'] = apply_translations(root, language, old, new)
+    results['entities'] = apply_entities(root, old, new)
 
     print('\napplied:')
     for k, v in results.items():
