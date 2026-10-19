@@ -354,8 +354,12 @@ export function scopeQuery(scope) {
 // whose band is not low, and never the best-scoring result of the list.
 export function isWeakNeighbor(r, data) {
   if (r.strong !== false || data?.confidence?.level === 'low') return false;
-  const scores = (data?.results || []).map((x) => Number(x.score)).filter((n) => Number.isFinite(n));
-  if (!scores.length) return true;
+  const rows = data?.results || [];
+  const scores = rows.map((x) => Number(x.score)).filter((n) => Number.isFinite(n));
+  if (!scores.length) {
+    // No scores to compare: the first non-strong row counts as the best.
+    return rows.find((x) => x.strong === false) !== r;
+  }
   return Number(r.score) < Math.max(...scores);
 }
 

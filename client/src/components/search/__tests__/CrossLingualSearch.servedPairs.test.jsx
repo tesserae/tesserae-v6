@@ -97,7 +97,10 @@ describe('Coptic to Greek', () => {
         }) }));
       }
       const m = u.match(/hierarchy\?language=(\w+)/);
-      const lists = { ...LISTS, cop: list('sahidic_coptic', 'Sahidic Coptic', 'john', 'John') };
+      const lists = { ...LISTS, cop: { authors: [
+        { author_key: 'sahidic_coptic', author: 'Sahidic Coptic', works: [{ work_key: 'john', work: 'Mysteries of John', whole_text: 'mysteries.john.tess', parts: [] }] },
+        { author_key: 'bohairic_coptic', author: 'Bohairic Coptic', works: [{ work_key: 'john', work: 'John', whole_text: 'bohairic.john.tess', parts: [] }] },
+      ] } };
       if (m) return Promise.resolve(mockResponse({ json: () => Promise.resolve(lists[m[1]] || { authors: [] }) }));
       return Promise.resolve(mockResponse({ json: () => Promise.resolve({}) }));
     });
@@ -107,5 +110,11 @@ describe('Coptic to Greek', () => {
     await waitFor(() => expect(screen.getByText('Coptic Source')).toBeTruthy());
     const fetched = global.fetch.mock.calls.map(c => String(c[0]));
     expect(fetched.some(u => u.includes('hierarchy?language=cop'))).toBe(true);
+    // The default text is an id the served list contains (the live ids are
+    // bohairic.john.tess, sahidica.john.tess and so on).
+    const served = ['mysteries.john.tess', 'bohairic.john.tess'];
+    const values = screen.getAllByRole('combobox').map(el => el.value);
+    expect(values.some(v => served.includes(v))).toBe(true);
+    expect(values).toContain('bohairic.john.tess');
   });
 });

@@ -104,7 +104,7 @@ const LANG_DEFAULTS = {
   la: { author: 'vergil', work: 'aeneid', part: '.part.1.' },
   en: { author: 'milton', work: 'paradise_lost', part: null },
   he: { author: 'hebrew_bible', work: 'ruth', part: null },
-  cop: { author: 'sahidic_coptic', work: 'john', part: null },
+  cop: { author: 'bohairic_coptic', work: 'john', part: null },
   fa: { author: 'hafez', work: 'diwan', part: null },
   ur: { author: 'ghalib', work: 'diwan_wikisource', part: null },
   // Al-Baqara, the longest sura: 158 parallels to Hafez and 22 to Ghalib in
