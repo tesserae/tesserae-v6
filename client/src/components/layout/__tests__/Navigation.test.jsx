@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { cleanup, render, screen, waitFor } from '@testing-library/react';
+import { cleanup, render, screen, waitFor, fireEvent, within } from '@testing-library/react';
 import Navigation from '../Navigation';
 import { mockResponse } from '../../../test/mockResponse';
 
@@ -20,6 +20,15 @@ const renderNav = (props = {}) =>
       {...props}
     />
   );
+
+// The pages about what the texts refer to sit under one menu. Opens it and
+// returns the menu element once it is on screen.
+const THINGS = { name: /^People, Places & Things/ };
+const openThings = async () => {
+  fireEvent.click(await screen.findByRole('button', THINGS));
+  return screen.getByTestId('things-menu');
+};
+const thingsNames = (menu) => within(menu).getAllByRole('menuitem').map((b) => b.textContent.replace(/beta$/i, '').trim());
 
 describe('Navigation — selected state is announced, not just colored', () => {
   it('marks the active main tab with aria-current="page" and leaves others unmarked', () => {
@@ -105,25 +114,22 @@ describe('Navigation — the "Inscriptions & Papyri" item (documents trial)', ()
     expect(screen.queryByRole('button', { name: /Inscriptions & Papyri/ })).toBeNull();
   });
 
-  it('appears, after Theme Search and People & Places, once both the trial flag and the server switch are on', async () => {
+  it('appears in the People, Places & Things menu, after People & Places, once both the trial flag and the server switch are on', async () => {
     window.sessionStorage.setItem('tesserae_documents_trial', '1');
     mockLanguages(true);
     renderNav();
-    const tab = await screen.findByRole('button', { name: /Inscriptions & Papyri/ });
-    expect(tab).toBeTruthy();
-    const buttons = screen.getAllByRole('button').map((b) => b.textContent);
-    const themeIdx = buttons.findIndex((t) => t.includes('Theme Search'));
-    const docsIdx = buttons.findIndex((t) => t.includes('Inscriptions & Papyri'));
-    const placesIdx = buttons.findIndex((t) => t.includes('People & Places'));
-    expect(placesIdx).toBe(themeIdx + 1);
-    expect(docsIdx).toBe(themeIdx + 2);
+    const menu = await openThings();
+    await waitFor(() => expect(thingsNames(menu)).toEqual(['People & Places', 'Inscriptions & Papyri', 'Events']));
   });
 
   it('turns on from ?documents=1 in the URL, without a prior session flag', async () => {
     window.history.pushState({}, '', '/?documents=1');
     mockLanguages(true);
     renderNav();
-    expect(await screen.findByRole('button', { name: /Inscriptions & Papyri/ })).toBeTruthy();
+    await waitFor(async () => {
+      const menu = await openThings();
+      expect(within(menu).getByRole('menuitem', { name: /Inscriptions & Papyri/ })).toBeTruthy();
+    });
   });
 
   it('clicking it calls setPageType with its code', async () => {
@@ -131,8 +137,10 @@ describe('Navigation — the "Inscriptions & Papyri" item (documents trial)', ()
     mockLanguages(true);
     const setPageType = vi.fn();
     renderNav({ setPageType });
-    const tab = await screen.findByRole('button', { name: /Inscriptions & Papyri/ });
-    tab.click();
+    await waitFor(async () => {
+      const menu = await openThings();
+      fireEvent.click(within(menu).getByRole('menuitem', { name: /Inscriptions & Papyri/ }));
+    });
     expect(setPageType).toHaveBeenCalledWith('inscriptions-papyri');
   });
 });
@@ -143,14 +151,14 @@ describe('Navigation — the "Events" item follows Collections', () => {
 
   it('is absent in the Literary profile', () => {
     renderNav();
-    expect(screen.queryByRole('button', { name: /Events/ })).toBeNull();
+    expect(screen.queryByRole('button', { name: /^Events/ })).toBeNull();
   });
 
   it.each(['historical', 'everything'])('appears in the %s profile', async (profile) => {
     const { setProfile } = await import('../../../collections/collectionsStore');
     setProfile(profile);
     renderNav();
-    expect(await screen.findByRole('button', { name: /Events/ })).toBeTruthy();
+    expect(within(await openThings()).getByRole('menuitem', { name: /Events/ })).toBeTruthy();
   });
 });
 
@@ -169,16 +177,16 @@ describe('Navigation — the "Coins" item follows Collections', () => {
     const { setProfile, setCollection } = await import('../../../collections/collectionsStore');
     setProfile('archaeological');
     renderNav();
-    expect(await screen.findByRole('button', { name: /^Coins/ })).toBeTruthy();
+    expect(within(await openThings()).getByRole('menuitem', { name: /^Coins/ })).toBeTruthy();
     cleanup();
     setProfile('everything');
     renderNav();
-    expect(await screen.findByRole('button', { name: /^Coins/ })).toBeTruthy();
+    expect(within(await openThings()).getByRole('menuitem', { name: /^Coins/ })).toBeTruthy();
     cleanup();
     setProfile('historical');
     setCollection('coins', true);
     renderNav();
-    expect(await screen.findByRole('button', { name: /^Coins/ })).toBeTruthy();
+    expect(within(await openThings()).getByRole('menuitem', { name: /^Coins/ })).toBeTruthy();
   });
 });
 
@@ -197,7 +205,7 @@ describe('Navigation — the "Objects" item follows Collections', () => {
     const { setProfile } = await import('../../../collections/collectionsStore');
     setProfile(profile);
     renderNav();
-    expect(await screen.findByRole('button', { name: /^Objects/ })).toBeTruthy();
+    expect(within(await openThings()).getByRole('menuitem', { name: /^Objects/ })).toBeTruthy();
   });
 
   it('appears when Objects is switched on by name, after Coins', async () => {
@@ -205,14 +213,100 @@ describe('Navigation — the "Objects" item follows Collections', () => {
     setProfile('historical');
     setCollection('objects', true);
     renderNav();
-    expect(await screen.findByRole('button', { name: /^Objects/ })).toBeTruthy();
+    expect(within(await openThings()).getByRole('menuitem', { name: /^Objects/ })).toBeTruthy();
     setCollection('coins', true);
     cleanup();
     renderNav();
-    const names = (await screen.findAllByRole('button')).map((b) => b.textContent.trim());
+    const names = thingsNames(await openThings());
     const coins = names.findIndex((n) => /^Coins/.test(n));
     const objects = names.findIndex((n) => /^Objects/.test(n));
     expect(coins).toBeGreaterThan(-1);
     expect(objects).toBe(coins + 1);
+  });
+});
+
+describe('Navigation — the People, Places & Things menu', () => {
+  beforeEach(() => { window.localStorage.clear(); window.sessionStorage.clear(); });
+  afterEach(() => { window.localStorage.clear(); });
+
+  it('is one button with a menu that lists People & Places alone in the default profile, with the muted line', async () => {
+    renderNav();
+    const button = screen.getByRole('button', THINGS);
+    expect(button).toHaveAttribute('aria-haspopup', 'menu');
+    expect(button).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.queryByRole('button', { name: /^People & Places/ })).toBeNull();
+    const menu = await openThings();
+    expect(button).toHaveAttribute('aria-expanded', 'true');
+    expect(thingsNames(menu)).toEqual(['People & Places']);
+    expect(menu.style.position).toBe('fixed');
+    expect(within(menu).getByText('Inscriptions, coins and objects appear here when their collections are on.')).toBeTruthy();
+  });
+
+  it('lists the available members in the order of the view when the documents collections are on', async () => {
+    const { setProfile } = await import('../../../collections/collectionsStore');
+    setProfile('historical');
+    global.fetch = vi.fn(async () => mockResponse({
+      json: async () => ({ languages: [{ code: 'la', label: 'Latin' }], documents_enabled: true }),
+    }));
+    renderNav();
+    await waitFor(async () => {
+      const menu = await openThings();
+      expect(thingsNames(menu)).toEqual(['People & Places', 'Inscriptions & Papyri', 'Events']);
+      fireEvent.click(screen.getByRole('button', THINGS));
+    });
+  });
+
+  it('shows no muted line when every member is available', async () => {
+    const { setProfile } = await import('../../../collections/collectionsStore');
+    setProfile('everything');
+    global.fetch = vi.fn(async () => mockResponse({
+      json: async () => ({ languages: [{ code: 'la', label: 'Latin' }], documents_enabled: true }),
+    }));
+    renderNav();
+    await waitFor(async () => {
+      const menu = await openThings();
+      expect(thingsNames(menu)).toHaveLength(5);
+      fireEvent.click(screen.getByRole('button', THINGS));
+    });
+    const menu = await openThings();
+    expect(within(menu).queryByText(/appear here when/)).toBeNull();
+  });
+
+  it('clicking a member closes the menu and calls setPageType with its code', async () => {
+    const setPageType = vi.fn();
+    renderNav({ setPageType });
+    const menu = await openThings();
+    fireEvent.click(within(menu).getByRole('menuitem', { name: /People & Places/ }));
+    expect(setPageType).toHaveBeenCalledWith('mentions');
+    expect(screen.queryByTestId('things-menu')).toBeNull();
+  });
+
+  it('is highlighted when the open page is one of its members', async () => {
+    const { setProfile } = await import('../../../collections/collectionsStore');
+    setProfile('everything');
+    renderNav({ pageType: 'events' });
+    expect(screen.getByRole('button', THINGS).className).toMatch(/text-red-700/);
+    cleanup();
+    renderNav({ pageType: 'browse' });
+    expect(screen.getByRole('button', THINGS).className).not.toMatch(/text-red-700/);
+  });
+
+  it('lists its members by their own labels in More when the group falls past the row', async () => {
+    const widths = { 'data-tab': 100 };
+    const spy = vi.spyOn(HTMLElement.prototype, 'offsetWidth', 'get').mockImplementation(function () {
+      return this.hasAttribute('data-tab') || this.hasAttribute('data-more-probe') ? widths['data-tab'] : 0;
+    });
+    const clientSpy = vi.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockImplementation(function () {
+      return this.className && String(this.className).includes('scroll-hint') ? 350 : 0;
+    });
+    renderNav();
+    await waitFor(() => expect(screen.queryByRole('button', THINGS)).toBeNull());
+    fireEvent.click(screen.getByRole('button', { name: /More/ }));
+    const more = screen.getByTestId('more-menu');
+    const labels = within(more).getAllByRole('menuitem').map((b) => b.textContent.trim());
+    expect(labels).toContain('People & Places');
+    expect(labels).not.toContain('People, Places & Things');
+    spy.mockRestore();
+    clientSpy.mockRestore();
   });
 });

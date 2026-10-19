@@ -1717,6 +1717,11 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 and papyri have their own table at the foot of an entry, listing the documents
                 that carry the name.
               </p>
+              <p className="text-gray-700 mb-4">
+                The page sits under the People, Places &amp; Things menu in the top row, together with
+                Events, Inscriptions &amp; Papyri, Coins and Objects, which appear as their collections
+                are switched on.
+              </p>
               <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">How to search</h4>
               <p className="text-gray-700 mb-4">
                 Type a name and press Search. An English name such as Rhodes or Lyon finds the

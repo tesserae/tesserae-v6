@@ -63,12 +63,51 @@ export function fitTabs(widths, available, moreWidth) {
   return n;
 }
 
+/**
+ * A small menu hung from a button and positioned FIXED from the button's place
+ * on screen (the More menu and the People, Places & Things menu use it). A menu
+ * hanging absolutely under its button inside the tab row was clipped by the
+ * row, which scrolls sideways, and opened unseen (the owner, 2026-10-12:
+ * "Clicking on More does nothing."). The menu closes on a click elsewhere, on
+ * scrolling and on resizing.
+ */
+function useFixedMenu(width) {
+  const ref = useRef(null);
+  const [open, setOpen] = useState(false);
+  const [pos, setPos] = useState(null);
+  const toggle = () => {
+    const r = ref.current ? ref.current.getBoundingClientRect() : null;
+    const left = r ? Math.max(0, Math.min(r.left, (window.innerWidth || width) - width - 8)) : 0;
+    setPos({ top: (r ? r.bottom : 0) + 4, left });
+    setOpen((o) => !o);
+  };
+  useEffect(() => {
+    if (!open) return undefined;
+    const close = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    const shut = () => setOpen(false);
+    document.addEventListener('mousedown', close);
+    window.addEventListener('scroll', shut, true);
+    window.addEventListener('resize', shut);
+    return () => {
+      document.removeEventListener('mousedown', close);
+      window.removeEventListener('scroll', shut, true);
+      window.removeEventListener('resize', shut);
+    };
+  }, [open]);
+  return { ref, open, setOpen, pos, toggle };
+}
+
+// The pages about what the texts refer to sit under one menu in the top row
+// (the project lead, 2026-10-19). Each member keeps its own flags below.
+const THINGS_GROUP = { code: 'things', label: 'People, Places & Things' };
+const THINGS_NOTE = 'Inscriptions, coins and objects appear here when their collections are on.';
+
 const mainTabs = [
   { code: 'search', label: 'Intertextual Search' },
   { code: 'read', label: 'Read' },
   { code: 'theme-search', label: 'Theme Search' },
   // Where a place, person or god is named.
-  { code: 'mentions', label: 'People & Places' },
+  { code: 'mentions', label: 'People & Places', group: 'things' },
   { code: 'ask-a-work', label: 'Search One Text', beta: true },
   // Trial: shown only when the documents trial is active, both the server
   // switch (TESSERAE_DOCUMENTS=1, read from /api/languages below) and the
@@ -77,14 +116,14 @@ const mainTabs = [
   // render time rather than left out of this list, so its position
   // (beside Theme Search) does not depend on where a conditional push
   // would land it.
-  { code: 'inscriptions-papyri', label: 'Inscriptions & Papyri', beta: true, trial: true },
+  { code: 'inscriptions-papyri', label: 'Inscriptions & Papyri', beta: true, trial: true, group: 'things' },
   // Events (battles, sieges, treaties): shown when inscriptions or papyri
   // are on (PAGE_NEEDS.events).
-  { code: 'events', label: 'Events', beta: true, needs: 'events' },
+  { code: 'events', label: 'Events', beta: true, needs: 'events', group: 'things' },
   // Coins (Greek and Roman coin types): shown when the Coins collection is on (PAGE_NEEDS.coins).
-  { code: 'coins', label: 'Coins', beta: true, needs: 'coins' },
+  { code: 'coins', label: 'Coins', beta: true, needs: 'coins', group: 'things' },
   // Objects (museum catalogue descriptions): shown when the Objects collection is on (PAGE_NEEDS.objects).
-  { code: 'objects', label: 'Objects', beta: true, needs: 'objects' },
+  { code: 'objects', label: 'Objects', beta: true, needs: 'objects', group: 'things' },
   { code: 'browse', label: 'Browse Corpus' },
   // Repository and Downloads sit under a small "More" menu at the end of the
   // row (owner 2026-10-10: with every collection on, thirteen entries no
@@ -122,7 +161,6 @@ const Navigation = ({
   onViewChange
 }) => {
   const [languageTabs, setLanguageTabs] = useState(defaultLanguageTabs);
-  const [moreOpen, setMoreOpen] = useState(false);
   // Below `sm` the view switch is one button with a small menu, so the whole
   // main menu fits on one row.
   const narrow = useIsNarrow();
@@ -141,33 +179,8 @@ const Navigation = ({
     };
   }, [viewMenuOpen]);
   useEffect(() => { if (!narrow) { setViewMenuOpen(false); setCollectionsOpen(false); } }, [narrow]);
-  const moreRef = useRef(null);
-  // The menu is positioned FIXED from the button's place on screen. It used to
-  // hang absolutely under the button inside the tab row, and the row scrolls
-  // sideways: a box that scrolls clips whatever hangs below it, so the menu
-  // opened unseen and "More" looked dead (the owner, 2026-10-12: "Clicking on
-  // More does nothing.").
-  const [morePos, setMorePos] = useState(null);
-  const toggleMore = () => {
-    const r = moreRef.current ? moreRef.current.getBoundingClientRect() : null;
-    const width = 160;
-    const left = r ? Math.max(0, Math.min(r.left, (window.innerWidth || width) - width - 8)) : 0;
-    setMorePos({ top: (r ? r.bottom : 0) + 4, left });
-    setMoreOpen((o) => !o);
-  };
-  useEffect(() => {
-    if (!moreOpen) return undefined;
-    const close = (e) => { if (moreRef.current && !moreRef.current.contains(e.target)) setMoreOpen(false); };
-    const shut = () => setMoreOpen(false);
-    document.addEventListener('mousedown', close);
-    window.addEventListener('scroll', shut, true);
-    window.addEventListener('resize', shut);
-    return () => {
-      document.removeEventListener('mousedown', close);
-      window.removeEventListener('scroll', shut, true);
-      window.removeEventListener('resize', shut);
-    };
-  }, [moreOpen]);
+  const moreMenu = useFixedMenu(160);
+  const thingsMenu = useFixedMenu(260);
   const [mainRef, mainMore] = useScrollHint(showDownloads);
   // Overflow into More: the visible tabs are measured in a hidden copy of
   // the row, and the ones past the container's width move into the menu.
@@ -220,15 +233,28 @@ const Navigation = ({
   };
 
 
-  const shownTabs = orderBy(mainTabs, viewById(view).menuOrder, (t) => t.code)
+  const orderedTabs = orderBy(mainTabs, viewById(view).menuOrder, (t) => t.code)
     .filter(tab => tab.code !== 'admin')
     .filter(tab => !tab.trial || showInscriptionsPapyri)
     .filter(tab => !tab.needs || anyOn(PAGE_NEEDS[tab.needs]));
+  // The available members of the group are replaced by one tab, placed where
+  // the first member stands in the view's order.
+  const thingsMembers = orderedTabs.filter(tab => tab.group === THINGS_GROUP.code);
+  const someHidden = thingsMembers.length < mainTabs.filter(tab => tab.group === THINGS_GROUP.code).length;
+  const shownTabs = [];
+  orderedTabs.forEach((tab) => {
+    if (tab.group !== THINGS_GROUP.code) shownTabs.push(tab);
+    else if (tab === thingsMembers[0]) shownTabs.push({ ...THINGS_GROUP, isGroup: true, members: thingsMembers });
+  });
+  const thingsOpenPage = thingsMembers.some(t => t.code === pageType);
   const candidateTabs = shownTabs.filter(tab => !tab.more);
   const nFit = fitCount === null ? candidateTabs.length : Math.min(fitCount, candidateTabs.length);
   const rowTabs = candidateTabs.slice(0, nFit);
-  const menuTabs = candidateTabs.slice(nFit).concat(shownTabs.filter(tab => tab.more));
-  const tabsKey = candidateTabs.map(t => t.code).join(',');
+  // A group that falls into More is listed there by its members.
+  const menuTabs = candidateTabs.slice(nFit)
+    .flatMap(tab => (tab.isGroup ? tab.members : [tab]))
+    .concat(shownTabs.filter(tab => tab.more));
+  const tabsKey = candidateTabs.map(t => (t.isGroup ? t.members.map(m => m.code).join('+') : t.code)).join(',');
   useEffect(() => {
     refit();
     const row = mainRef.current;
@@ -347,12 +373,60 @@ const Navigation = ({
                  className="absolute left-0 top-0 flex invisible pointer-events-none whitespace-nowrap">
               {candidateTabs.map(tab => (
                 <span key={tab.code} data-tab className="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">
-                  {tab.label}{tab.beta && !narrow && <span className="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>}
+                  {tab.label}
+                  {tab.isGroup && <span> &#9662;</span>}
+                  {tab.beta && !narrow && <span className="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>}
                 </span>
               ))}
               <span data-more-probe className="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More &#9662;</span>
             </div>
-            {rowTabs.map(tab => (
+            {rowTabs.map(tab => (tab.isGroup ? (
+              <div key={tab.code} ref={thingsMenu.ref} className="relative">
+                <button
+                  type="button"
+                  onClick={thingsMenu.toggle}
+                  aria-haspopup="menu"
+                  aria-expanded={thingsMenu.open}
+                  className={`px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap ${
+                    thingsOpenPage
+                      ? 'border-red-700 text-red-700 font-semibold'
+                      : 'border-transparent text-gray-500 hover:text-red-600 font-medium'
+                  }`}
+                >
+                  {tab.label} <span aria-hidden="true">&#9662;</span>
+                </button>
+                {thingsMenu.open && (
+                  <div role="menu" data-testid="things-menu"
+                       style={{ position: 'fixed', top: thingsMenu.pos ? thingsMenu.pos.top : 0, left: thingsMenu.pos ? thingsMenu.pos.left : 0 }}
+                       className="w-64 bg-white border border-gray-200 rounded shadow-lg py-1 z-50">
+                    {tab.members.map(member => (
+                      <button
+                        key={member.code}
+                        role="menuitem"
+                        type="button"
+                        onClick={() => { thingsMenu.setOpen(false); setPageType(member.code); }}
+                        className={`block w-full text-left px-3 py-1.5 text-sm hover:bg-red-50 ${
+                          pageType === member.code ? 'text-red-700 font-semibold' : 'text-gray-700'
+                        }`}
+                      >
+                        {member.label}
+                        {member.beta && !narrow && (
+                          <span className="ml-1 relative -top-1 inline-block leading-none text-[9px] font-semibold uppercase tracking-wide text-amber-700">
+                            beta
+                          </span>
+                        )}
+                      </button>
+                    ))}
+                    {someHidden && (
+                      <>
+                        <div role="separator" className="my-1 border-t border-gray-200" />
+                        <p className="px-3 py-1.5 text-xs text-gray-500">{THINGS_NOTE}</p>
+                      </>
+                    )}
+                  </div>
+                )}
+              </div>
+            ) : (
               <button
                 key={tab.code}
                 onClick={() => setPageType(tab.code)}
@@ -374,7 +448,7 @@ const Navigation = ({
                   </span>
                 )}
               </button>
-            ))}
+            )))}
             {showDownloads && setShowDownloads && (
               <button
                 onClick={() => setShowDownloads(true)}
@@ -387,12 +461,12 @@ const Navigation = ({
                 Downloads
               </button>
             )}
-            <div ref={moreRef} className="relative">
+            <div ref={moreMenu.ref} className="relative">
               <button
                 type="button"
-                onClick={toggleMore}
+                onClick={moreMenu.toggle}
                 aria-haspopup="menu"
-                aria-expanded={moreOpen}
+                aria-expanded={moreMenu.open}
                 className={`px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap ${
                   menuTabs.some(t => t.code === pageType)
                     ? 'border-red-700 text-red-700 font-semibold'
@@ -401,16 +475,16 @@ const Navigation = ({
               >
                 More <span aria-hidden="true">&#9662;</span>
               </button>
-              {moreOpen && (
+              {moreMenu.open && (
                 <div role="menu" data-testid="more-menu"
-                     style={{ position: 'fixed', top: morePos ? morePos.top : 0, left: morePos ? morePos.left : 0 }}
+                     style={{ position: 'fixed', top: moreMenu.pos ? moreMenu.pos.top : 0, left: moreMenu.pos ? moreMenu.pos.left : 0 }}
                      className="w-40 bg-white border border-gray-200 rounded shadow-lg py-1 z-50">
                   {menuTabs.map(tab => (
                     <button
                       key={tab.code}
                       role="menuitem"
                       type="button"
-                      onClick={() => { setMoreOpen(false); setPageType(tab.code); }}
+                      onClick={() => { moreMenu.setOpen(false); setPageType(tab.code); }}
                       className={`block w-full text-left px-3 py-1.5 text-sm hover:bg-red-50 ${
                         pageType === tab.code ? 'text-red-700 font-semibold' : 'text-gray-700'
                       }`}
