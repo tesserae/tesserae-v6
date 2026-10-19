@@ -96,8 +96,8 @@ def test_persian_which_has_no_other_route_to_its_text(client, route):
     It is the case the whole line store exists for: without it a third of the
     index could be searched and never read.
     """
-    got = get(client, route, work='ferdowsi.diwan',
-              ref_start='ferdowsi.diwan.1', ref_end='ferdowsi.diwan.4')
+    got = get(client, route, work='ferdowsi.shahnameh',
+              ref_start='ferdowsi.shahnameh.1', ref_end='ferdowsi.shahnameh.4')
     assert not got.get('error'), got.get('error')
     assert len(got['lines']) == 4
     assert got['language'] == 'fa'
