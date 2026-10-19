@@ -607,7 +607,8 @@ def _documents_only(params: LineSearchParams, search_start_time: float):
             date_from, date_to, doc_region_filter, doc_text_type_filter,
             doc_material_filter, doc_source_filter, search_start_time,
             exclude_restored=doc_exclude_restored, hide_formulas=doc_hide_formulas,
-            kind=doc_kind_filter, place=doc_place_filter)
+            kind=doc_kind_filter, place=doc_place_filter,
+            rare_focus_filter=rare_focus_filter if params.rare_focus else None)
     if collection == 'documents' and not documents_active:
         # Documents requested but the switch is off, or this
         # language has no documents index: literature's own

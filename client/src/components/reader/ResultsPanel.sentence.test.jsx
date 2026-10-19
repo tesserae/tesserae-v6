@@ -1,7 +1,7 @@
 /**
  * The tabs answer for a SENTENCE when the selection is one inside a long prose
  * unit (2026-10-11): Similar sends the character offsets, Parallels and
- * Documents search the sentence's words, Reuse and Translation stay on the unit.
+ * its Inscriptions and papyri section search the sentence's words, Reuse and Translation stay on the unit.
  */
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import { cleanup, render, waitFor } from '@testing-library/react';
@@ -71,15 +71,15 @@ describe('Parallels', () => {
   });
 });
 
-describe('Documents', () => {
+describe('Inscriptions and papyri section', () => {
   it('searches the sentence words', async () => {
-    mount(SENTENCE, 'documents');
+    mount(SENTENCE, 'verbal');
     await waitFor(() => expect(calls.some((c) => c.body?.collection === 'documents')).toBe(true));
     expect(calls.find((c) => c.body?.collection === 'documents').body.query).toBe(SECOND);
   });
 
   it('searches the unit when the whole unit is selected', async () => {
-    mount(WHOLE, 'documents');
+    mount(WHOLE, 'verbal');
     await waitFor(() => expect(calls.some((c) => c.body?.collection === 'documents')).toBe(true));
     expect(calls.find((c) => c.body?.collection === 'documents').body.query).toBe(UNIT);
   });

@@ -36,7 +36,7 @@ describe('the view data', () => {
     expect(h.askDefault).toEqual({ lang: 'la', work: 'tacitus.annales' });
     expect(h.menuOrder.slice(0, 3)).toEqual(['ask-a-work', 'read', 'events']);
     expect(h.menuOrder.indexOf('theme-search')).toBeLessThan(h.menuOrder.indexOf('search'));
-    expect(h.readerTabs).toEqual(['similar', 'documents', 'coins', 'scholarship', 'reuse', 'verbal', 'translation']);
+    expect(h.readerTabs).toEqual(['similar', 'coins', 'scholarship', 'reuse', 'verbal', 'translation']);
     expect(h.searchDefaults.la).toEqual({
       source: 'livy.ab_urbe_condita.part.1.books_1-10.tess', target: 'tacitus.annales.part.1.tess',
     });
@@ -51,7 +51,7 @@ describe('the view data', () => {
     expect(l.startHereOrder[0]).toBe('ask');
     expect(l.home).toEqual({ page: 'ask-a-work' });
     expect(l.opensOn).toBe('Search One Text, on the Aeneid');
-    expect(l.readerTabs).toEqual(['similar', 'reuse', 'verbal', 'documents', 'scholarship', 'translation', 'coins']);
+    expect(l.readerTabs).toEqual(['similar', 'reuse', 'verbal', 'scholarship', 'translation', 'coins']);
   });
 
   it('orders by a list and keeps unnamed items last in their own order', () => {

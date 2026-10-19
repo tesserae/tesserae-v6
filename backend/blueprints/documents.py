@@ -863,7 +863,7 @@ def _rarest_documents_lemmas(lemmas, language, cap, conn=None):
 def _line_search_documents_only(query, language, search_type, offset, limit, sort, count_only,
                                  date_from, date_to, region, text_type, material, source,
                                  search_start_time, exclude_restored=False, hide_formulas=None,
-                                 kind=None, place=None):
+                                 kind=None, place=None, rare_focus_filter=None):
     """Full /api/line-search response for collection='documents': the
     documentary corpus alone, no literary search run at all. Returns a Flask
     response directly (line_search() returns this immediately).
@@ -906,6 +906,15 @@ def _line_search_documents_only(query, language, search_type, offset, limit, sor
         exclude_restored=exclude_restored, hide_formulas=hide_formulas, sort=sort,
         kind=kind, place=place)
 
+    # rare_focus (the Reader): the same filter the literary path applies, passed
+    # in by line_search so this module does not import it. A document sharing
+    # only commonplaces is hidden and counted in payload['rare_focus'].
+    rare_focus_report = None
+    if rare_focus_filter is not None and search_type == 'lemma':
+        results, hidden, commons = rare_focus_filter(results, language)
+        if hidden:
+            rare_focus_report = {'hidden': hidden, 'common_lemmas': commons}
+
     search_time = round(time_module.time() - search_start_time, 3)
     payload = {
         'collection': 'documents',
@@ -920,6 +929,8 @@ def _line_search_documents_only(query, language, search_type, offset, limit, sor
     }
     if filtered_common_words:
         payload['filtered_common_words'] = filtered_common_words
+    if rare_focus_report:
+        payload['rare_focus'] = rare_focus_report
     if reduced_from:
         payload['query_reduced'] = {
             'from_lemmas': reduced_from,
