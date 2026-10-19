@@ -218,7 +218,7 @@
   "notes": {
     "total_size": "about 8 GB uncompressed for the search indexes and syntax databases",
     "hosting": "Files are hosted on the Tesserae server (tesserae.caset.buffalo.edu) and served via Apache.",
-    "checksums": "sha256 is the checksum of the archive as served, which scripts/download_data.py verifies after the download. sha256_extracted, where present, is the checksum of the first extracted file. Regenerated 19 October 2026 for la, grc, en, cop and he; the five entries' earlier sha256 values were of the extracted file and were moved to sha256_extracted on 19 October 2026. The Persian index entry was removed the same day: Persian texts are not offered for download (DECISIONS 2026-10-11) and the archive is no longer served.",
+    "checksums": "sha256 is the checksum of the archive as served, which scripts/download_data.py verifies after the download. sha256_extracted, where present, is the checksum of the first extracted file. The la, grc, en, cop and he entries were regenerated on 19 October 2026. Their earlier sha256 values were of the extracted file and were moved to sha256_extracted on 19 October 2026. The Persian index entry was removed the same day, because Persian texts are not offered for download (DECISIONS 2026-10-11) and the archive is no longer served.",
     "already_on_github": [
       "texts/ (2,176 .tess files, ~308 MB)",
       "data/lemma_tables/*.json (lemma lookup tables, ~40 MB)",
