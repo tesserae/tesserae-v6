@@ -20,7 +20,7 @@ import os
 import sqlite3
 from urllib.parse import quote
 
-from flask import Blueprint, current_app, jsonify, request
+from flask import Blueprint, jsonify, request
 
 from backend.logging_config import get_logger
 
@@ -164,41 +164,21 @@ def _rank(i):
     return i['passage_rank'] if i.get('passage_rank') is not None else 1e9
 
 
-def _entity_id_for(name):
-    """The entity id the Mentions search puts first for `name`: the first
-    entity of a matching heading or search name. It asks /api/entities/search
-    itself (the route function, in a request context of its own), so the two
-    never resolve a name differently. None when nothing matches or the store
-    is not installed."""
-    from backend.blueprints import entities
-    if not name or not os.path.exists(entities.store_path()):
-        return None
-    try:
-        with current_app.test_request_context('/entities/search', query_string={'q': name}):
-            resp = entities.search()
-        if isinstance(resp, tuple):
-            return None
-        results = (resp.get_json() or {}).get('results') or []
-        if not results:
-            return None
-        cat = entities._catalog(entities.store_path())
-        e = cat['by_id'].get(results[0]['id'])
-        return e['eid'] if e else None
-    except Exception:  # the dossier page must not depend on the Mentions store
-        logger.exception('[EVENTS] could not resolve %r in the Mentions store', name)
-        return None
-
-
 def _documents_naming(doc_ids, names):
     """Of `doc_ids`, those that the Mentions store records as naming any of
     `names` (the event's participants and place), by document_mentions."""
-    from backend.blueprints import entities
-    eids = {x for x in (_entity_id_for(n) for n in names) if x is not None}
-    if not eids or not doc_ids:
+    from backend import entity_extras
+    from backend.blueprints.entities import store_path
+    path = store_path()
+    if not doc_ids or not os.path.exists(path):
         return set()
     try:
-        c = sqlite3.connect(f'file:{entities.store_path()}?mode=ro', uri=True)
-    except sqlite3.Error:
+        eids = {x for x in (entity_extras.resolve_name_to_eid(path, n) for n in names) if x is not None}
+        if not eids:
+            return set()
+        c = sqlite3.connect(f'file:{path}?mode=ro', uri=True)
+    except Exception:  # the dossier page must not depend on the Mentions store
+        logger.exception('[EVENTS] the Mentions store could not be read')
         return set()
     found = set()
     try:
@@ -221,18 +201,20 @@ def rank_documents(documents, naming):
     leave out any whose dating span is wider than MAX_DOCUMENT_SPAN years;
     put those in `naming` (doc ids that name a participant or the place)
     first, group "names"; the rest follow, group "dated". Inside each group
-    the tighter dating comes first, then the nearer findspot."""
+    the tighter dating comes first, then the nearer findspot. A document with
+    no dating is unknown: it cannot fail the rule, and it follows every dated
+    document of its group."""
     kept = []
     for d in documents:
         a, b = d['date_start'], d['date_end']
-        span = (b - a) if (a is not None and b is not None) else 0
-        if span > MAX_DOCUMENT_SPAN:
+        span = (b - a) if (a is not None and b is not None) else None
+        if span is not None and span > MAX_DOCUMENT_SPAN:
             continue
         d['date_span'] = span
         d['group'] = 'names' if d['doc_id'] in naming else 'dated'
         kept.append(d)
     far = 1e12
-    kept.sort(key=lambda d: (d['group'] != 'names', d['date_span'],
+    kept.sort(key=lambda d: (d['group'] != 'names', d['date_span'] is None, d['date_span'] or 0,
                              d['distance_km'] if d['distance_km'] is not None else far, d['doc_id']))
     return kept
 
