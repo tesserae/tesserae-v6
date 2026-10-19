@@ -146,18 +146,22 @@ function ScholarshipTab({ items, openPassage, ranks }) {
   if (items.length === 0) {
     return <p className="text-sm text-gray-600">No article or commentary was found on the passages for this event.</p>;
   }
-  const kinds = [['article', 'Articles citing the passages'], ['commentary', 'Commentary on the passages']];
+  const groups = [
+    ['article', 'passage', 'Articles citing a leading passage'],
+    ['article', 'span', 'Articles citing elsewhere within the span the leading passages cover'],
+    ['commentary', null, 'Commentary on the passages'],
+  ];
   return (
     <div>
       <p className="text-xs text-gray-500 mb-3">
-        These are the articles that cite the event's leading passages. Each shows the passage that brings it in.{' '}
+        The first group holds the articles that cite one of the event's leading passages, each with the passage that brings it in. The second holds the articles that cite another place in the same works between the first and the last of those passages (for example another chapter of the same book), each with the span.{' '}
         <AboutSourcesLink anchor="journals" />
       </p>
-      {kinds.map(([kind, title]) => {
-        const rows = items.filter((s) => s.kind === kind);
+      {groups.map(([kind, scope, title]) => {
+        const rows = items.filter((s) => s.kind === kind && (scope === null || (s.scope || 'passage') === scope));
         if (rows.length === 0) return null;
         return (
-          <section key={kind} className="mb-4">
+          <section key={`${kind}-${scope}`} className="mb-4">
             <h4 className="text-sm font-semibold text-gray-800 mb-1">{title}</h4>
             <ul className="space-y-2">
               {rows.map((s, i) => (
@@ -172,7 +176,10 @@ function ScholarshipTab({ items, openPassage, ranks }) {
                   {s.kind === 'commentary' && s.edition && (
                     <span className="ml-2"><CiteRecordButton record={recordFrom({ ...s, kind: 'commentary' }, 'cite')} /></span>
                   )}
-                  {s.passage_ref && ranks.has(s.passage_rank) && (
+                  {s.scope === 'span' && s.passage_ref && (
+                    <div className="text-xs mt-1 text-gray-600">within {shortPassageRef(s.passage_ref)}</div>
+                  )}
+                  {s.scope !== 'span' && s.passage_ref && ranks.has(s.passage_rank) && (
                     <div className="text-xs mt-1">
                       <a href={`#passage-${s.passage_rank}`} className="text-red-700 hover:underline"
                          onClick={(e) => { e.preventDefault(); openPassage(s.passage_rank); }}>
