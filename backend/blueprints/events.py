@@ -186,8 +186,8 @@ def _documents_naming(doc_ids, names):
         marks = ','.join('?' * len(eids))
         for i in range(0, len(wanted), 400):
             chunk = wanted[i:i + 400]
-            q = (f'SELECT DISTINCT doc_id FROM document_mentions WHERE eid IN ({marks}) '
-                 f'AND doc_id IN ({",".join("?" * len(chunk))})')
+            q = (f'SELECT DISTINCT doc_id FROM document_mentions WHERE eid IN ({marks}) '  # nosec B608
+                 f'AND doc_id IN ({",".join("?" * len(chunk))})')  # placeholders only; values are bound
             found.update(r[0] for r in c.execute(q, list(eids) + chunk))
     except sqlite3.Error:
         return set()
