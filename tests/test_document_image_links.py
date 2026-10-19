@@ -27,9 +27,30 @@ def test_cil_rule_buckets():
         "https://cil.bbaw.de/ace/resources/PEC/0005001-0010000/PEC0008986.jpg"
 
 
-def test_cil_viewer_pages_have_no_rule():
-    u = "http://cil-old.bbaw.de/dateien/cil_view.php?KO=KO0033048"
-    assert rewrite_image_url(u) == u
+def test_cil_viewer_rule():
+    f = rewrite_image_url
+    assert f("http://cil-old.bbaw.de/dateien/cil_view.php?KO=KO0033048") == \
+        "https://cil.bbaw.de/ace/id/KO0033048"
+    assert f("http://cil-old.bbaw.de/dateien/db.php?KO=KO0030671#PH0009791") == \
+        "https://cil.bbaw.de/ace/id/KO0030671"
+    other = "http://cil-old.bbaw.de/dateien/other.php?KO=KO0000001"
+    assert f(other) == other
+
+
+def test_usep_rule():
+    f = rewrite_image_url
+    assert f("http://usepigraphy.brown.edu/Pictures/Images/CA.Berk.UC.HMA.L.8-4289.jpg") == \
+        "https://usepigraphy.brown.edu/projects/usep/inscription/CA.Berk.UC.HMA.L.8-4289/"
+    assert f("http://usepigraphy.brown.edu/Pictures/Images/MD.Balt.JHU.L.81.jpg") == \
+        "https://usepigraphy.brown.edu/projects/usep/inscription/MD.Balt.JHU.L.81/"
+    other = "https://usepigraphy.brown.edu/projects/usep/inscription/MD.Balt.JHU.L.81/"
+    assert f(other) == other
+
+
+def test_rewritten_hosts_are_not_dead():
+    dead = load_dead_hosts()
+    assert not is_dead(rewrite_image_url("http://cil-old.bbaw.de/dateien/cil_view.php?KO=KO0033048"), dead)
+    assert not is_dead(rewrite_image_url("http://usepigraphy.brown.edu/Pictures/Images/MD.Balt.JHU.L.81.jpg"), dead)
 
 
 def test_host_and_dead():
