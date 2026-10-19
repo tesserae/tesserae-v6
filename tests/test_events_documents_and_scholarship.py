@@ -1,6 +1,5 @@
 """scripts/events/add_naming_documents.py and the two-index run of
 scripts/events/relink_scholarship.py, on small fixture stores."""
-import json
 import os
 import sqlite3
 import sys
