@@ -100,8 +100,14 @@ def download_with_progress(url, dest_path):
     return True, "ok"
 
 
-def extract_archive(archive_path, extract_to):
-    extract_dir = os.path.dirname(os.path.join(PROJECT_ROOT, extract_to))
+def extract_archive(archive_path, extract_to, extract_dir=None):
+    # An archive whose members sit in subfolders (coins.tar.gz holds
+    # odbl/ and corpus_nummorum/) names the folder to unpack into with
+    # extract_dir; otherwise the folder of extract_to is used.
+    if extract_dir:
+        extract_dir = os.path.join(PROJECT_ROOT, extract_dir)
+    else:
+        extract_dir = os.path.dirname(os.path.join(PROJECT_ROOT, extract_to))
     os.makedirs(extract_dir, exist_ok=True)
 
     with tarfile.open(archive_path, "r:gz") as tar:
@@ -225,7 +231,7 @@ def download_files(manifest, file_filter=None):
 
         print(f"  Extracting to {entry['extract_to']}...")
         try:
-            extract_archive(archive_path, entry["extract_to"])
+            extract_archive(archive_path, entry["extract_to"], entry.get("extract_dir"))
             print(f"  Done.")
             downloaded += 1
         except Exception as e:
