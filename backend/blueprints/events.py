@@ -5,6 +5,8 @@
         by type and century (a signed number: -5 is the fifth century BCE,
         1 the first CE), paged. Also returns the types and centuries present
         so the page can offer them.
+    GET /api/events/names
+        every event once, compact, for the Events page's name suggestions.
     GET /api/events/<id>
         one dossier: the event, its passages (Reader links, the offline
         relevance label "yes" first, then "mention"), nearby documents
@@ -21,7 +23,7 @@ import re
 import sqlite3
 from urllib.parse import quote
 
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, current_app, jsonify, request
 
 from backend.logging_config import get_logger
 
@@ -374,6 +376,45 @@ def list_events():
                         'type_counts': type_counts, 'centuries': cents})
     finally:
         c.close()
+
+
+_NAMES_CACHE = {}
+
+
+@events_bp.route('/events/names')
+def event_names():
+    """Every listed event once, in the list's own order (most passages and
+    documents first), for the suggestion box under the Events name field.
+    Events with no evidence are included (n_passages and n_documents are 0).
+    Kept in the process after the first call: the store changes only at an
+    install, which touches the WSGI file and restarts the workers."""
+    path = db_path()
+    body = _NAMES_CACHE.get(path)
+    if body is None:
+        c = _conn()
+        if c is None:
+            body = '[]'
+        else:
+            try:
+                rows = c.execute(
+                    """SELECT e.id, e.label, e.place, e.date_start, e.date_end, e.type,
+                       (SELECT COUNT(*) FROM passages p WHERE p.event_id = e.id
+                            AND COALESCE(p.llm_label, '') IN ('yes', 'mention')) AS n_passages,
+                       (SELECT COUNT(*) FROM documents d WHERE d.event_id = e.id) AS n_documents
+                       FROM events e WHERE NOT (e.label GLOB 'Q[0-9]*')
+                       ORDER BY (n_passages + n_documents) DESC, n_passages DESC, e.date_start, e.label"""
+                ).fetchall()
+            finally:
+                c.close()
+            body = json.dumps([
+                {'id': r['id'], 'label': r['label'], 'place': r['place'],
+                 'year_start': r['date_start'], 'year_end': r['date_end'],
+                 'type': r['type'], 'n_passages': r['n_passages'],
+                 'n_documents': r['n_documents']} for r in rows], separators=(',', ':'))
+            _NAMES_CACHE[path] = body
+    resp = current_app.response_class(body, mimetype='application/json')
+    resp.headers['Cache-Control'] = 'public, max-age=3600'
+    return resp
 
 
 @events_bp.route('/events/<event_id>')
