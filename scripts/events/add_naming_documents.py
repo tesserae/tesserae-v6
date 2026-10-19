@@ -7,7 +7,7 @@
 The events store keeps for each event the fifty documents nearest its place among those
 dated within its years. For a region such as Sicily none of the fifty names a participant
 or the place. This script resolves each event's participants and place to Mentions-store
-entities (the same resolver the Events page uses), takes every document the store's
+entities (backend.entity_extras.resolve_name_to_eid, the resolver the Events page uses), takes every document the store's
 document_mentions table links to them, drops those already in the event's documents rows,
 keeps those whose dating overlaps the event's years widened by 50 on each side (or that
 have no dating at all), and inserts at most N per event, nearest first.
@@ -84,35 +84,14 @@ def load_points(path):
 
 
 def make_resolver(entities_path):
-    """name -> entity id, the way /api/entities/search puts the first hit: a list entity
-    ranked by backend.blueprints.entities._rank, then a corpus name. The route's own ranking
-    and catalog are used, so the two never resolve a name differently."""
-    os.environ['TESSERAE_ENTITY_STORE'] = entities_path
-    from backend.blueprints import entities as E
-    cat = E._catalog(entities_path)
+    """name -> entity id through backend.entity_extras.resolve_name_to_eid, the plain function
+    the Events route shares with the Mentions search, so the two never resolve a name differently."""
+    from backend import entity_extras
     cache = {}
 
     def resolve(name):
-        if not name or len(name.strip()) < 2:
-            return None
-        if name in cache:
-            return cache[name]
-        f = E.ei.fold(name.strip())
-        hits = []
-        for e in cat['by_eid'].values():
-            r = E._rank(e, f, name.strip())
-            if r is not None:
-                hits.append((r, -e['total'], e['label'], e))
-        hits.sort(key=lambda x: x[:3])
-        if not hits:
-            for n in cat['names'].values():
-                if n['duplicate'] or n['total'] == 0:
-                    continue
-                r = E._rank(n, f, name.strip())
-                if r is not None:
-                    hits.append((r, -n['total'], n['label'], n))
-            hits.sort(key=lambda x: x[:3])
-        cache[name] = hits[0][3]['eid'] if hits else None
+        if name not in cache:
+            cache[name] = entity_extras.resolve_name_to_eid(entities_path, name)
         return cache[name]
     return resolve
 
