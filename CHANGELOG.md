@@ -8,6 +8,7 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-19
+- The Start here panel scrolls to just below the sticky bars when opened from the header (it used to land half under them), gains an eighth answer for People & Places, and its descriptions are brought up to date (the Reader's translations and scholarship, Theme Search in every corpus language, Collections switched on from the top row). Tessa's "where do I start" answer changes with it.
 - Records: the round 6 citation indexes installed with the De legibus table slip fixed and the events Scholarship table relinked, the connector mentions tool switched on at 09:01, and the connector notes that still called People & Places a trial corrected.
 - Coins and Objects lose their Beta marks in the top row (the project lead, 2026-10-19): both pages show the coin types and museum objects as their sources publish them, and neither has changed in substance since it appeared. Search One Text, Inscriptions & Papyri and Events keep theirs.
 - The top row groups People & Places, Events, Inscriptions & Papyri, Coins and Objects under one menu labeled "People, Places & Things" (the literary pages stay direct tabs), and a bare visit to the site address opens the page and address the visitor last left, kept in the browser only.

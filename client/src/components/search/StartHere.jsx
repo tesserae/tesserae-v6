@@ -7,7 +7,7 @@ import {
 } from './frontDoor';
 
 /**
- * "What are you trying to do?": seven answers that lead to the right search.
+ * "What are you trying to do?": eight answers that lead to the right search.
  * Shown to a first-time visitor on the Intertextual Search page, never when the address
  * already carries a search, and brought back by the header's "Start here"
  * link. Once hidden it takes no space.
@@ -38,7 +38,18 @@ export default function StartHere({ onChoose, onDismiss, forceOpen = false, supp
       setOpen(true);
       setTimeout(() => {
         const el = ref.current;
-        if (el && el.scrollIntoView) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        if (!el) return;
+        // The top bars are sticky (the page tabs and the language row, about
+        // 150 px together), so scrolling the panel to the top of the window
+        // put its heading and first answers under them (the project lead,
+        // 2026-10-19: "a weird half position ... cut off"). Scroll to just
+        // below the bars instead, measured, with the plain scroll as the
+        // fallback where window.scrollTo is missing (jsdom).
+        const nav = document.querySelector('nav.sticky');
+        const bars = nav ? nav.getBoundingClientRect().height : 0;
+        const top = el.getBoundingClientRect().top + window.scrollY - bars - 12;
+        if (typeof window.scrollTo === 'function') window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+        else if (el.scrollIntoView) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }, 0);
     };
     window.addEventListener(FRONT_DOOR_OPEN_EVENT, show);
