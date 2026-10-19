@@ -191,6 +191,19 @@ describe('Search One Text', () => {
     expect(screen.queryByText(/Confidence is not rated/)).toBeNull();
   });
 
+  it('carries no band label or band color when the route note says confidence is not rated', async () => {
+    reply = { query: 'q', results: RESULTS, restricted: true,
+      note: 'Confidence is not rated for a search within one author or work. These are the closest passages in the chosen works.',
+      confidence: { level: 'strong', fitted: 'within-work 2026-10-11' } };
+    render(<AskAWorkPage />);
+    await ask();
+    const band = screen.getByTestId('ask-band');
+    expect(band).toHaveTextContent('Confidence is not rated');
+    expect(band).not.toHaveTextContent('Strong match');
+    expect(band.className).not.toMatch(/red|amber/);
+    expect(band.className).toMatch(/gray/);
+  });
+
   it('shows the passages under a Closest passages banner for a fitted low band', async () => {
     // The lowest level is a caution about the order, with the list shown and
     // the route's own sentence under the label (refit 2026-10-12).

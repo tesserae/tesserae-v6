@@ -80,6 +80,7 @@ const LANG_PAIRS = [
   { key: 'grc-la', source: 'grc', target: 'la', label: 'Greek → Latin' },
   { key: 'la-en', source: 'la', target: 'en', label: 'Latin → English' },
   { key: 'grc-en', source: 'grc', target: 'en', label: 'Greek → English' },
+  { key: 'cop-grc', source: 'cop', target: 'grc', label: 'Coptic → Greek' },
   { key: 'he-grc', source: 'he', target: 'grc', label: 'Hebrew → Greek' },
   { key: 'he-la', source: 'he', target: 'la', label: 'Hebrew → Latin' },
   { key: 'fa-ur', source: 'fa', target: 'ur', label: 'Persian → Urdu' },
@@ -92,6 +93,7 @@ const LANG_LABELS = {
   la: { name: 'Latin', color: 'red', bgClass: 'bg-red-50', textClass: 'text-red-700', refClass: 'text-red-600', btnClass: 'bg-red-700 text-white' },
   en: { name: 'English', color: 'red', bgClass: 'bg-red-50', textClass: 'text-red-700', refClass: 'text-red-600', btnClass: 'bg-red-700 text-white' },
   he: { name: 'Hebrew', color: 'red', bgClass: 'bg-red-50', textClass: 'text-red-700', refClass: 'text-red-600', btnClass: 'bg-red-700 text-white' },
+  cop: { name: 'Coptic', color: 'red', bgClass: 'bg-red-50', textClass: 'text-red-700', refClass: 'text-red-600', btnClass: 'bg-red-700 text-white' },
   fa: { name: 'Persian', color: 'red', bgClass: 'bg-red-50', textClass: 'text-red-700', refClass: 'text-red-600', btnClass: 'bg-red-700 text-white' },
   ur: { name: 'Urdu', color: 'red', bgClass: 'bg-red-50', textClass: 'text-red-700', refClass: 'text-red-600', btnClass: 'bg-red-700 text-white' },
   ar: { name: 'Arabic', color: 'red', bgClass: 'bg-red-50', textClass: 'text-red-700', refClass: 'text-red-600', btnClass: 'bg-red-700 text-white' },
@@ -102,6 +104,7 @@ const LANG_DEFAULTS = {
   la: { author: 'vergil', work: 'aeneid', part: '.part.1.' },
   en: { author: 'milton', work: 'paradise_lost', part: null },
   he: { author: 'hebrew_bible', work: 'ruth', part: null },
+  cop: { author: 'bohairic_coptic', work: 'john', part: null },
   fa: { author: 'hafez', work: 'diwan', part: null },
   ur: { author: 'ghalib', work: 'diwan_wikisource', part: null },
   // Al-Baqara, the longest sura: 158 parallels to Hafez and 22 to Ghalib in
