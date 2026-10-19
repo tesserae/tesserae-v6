@@ -35,6 +35,18 @@ Conventions
   hand and are the models the helper matches.
 
 
+## 2026-10-19 Per-line vector files untracked from git, production and dev checkouts kept whole (PENDING, by the lead)
+
+Why. The 1,703 files under `backend/embeddings/` (the per-line SPhilBERTa vectors, about 2 GB) were tracked in the public repository since January. Thirty-four of them were replaced in production on 2026-10-18 after the vector census found them out of step with their texts, and twenty show as modified in the dev checkout, so the copies on GitHub were stale and a `git pull` carried a risk of overwriting repaired vectors. The project lead decided on 2026-10-19 to untrack them (#1041). The directory stays in `.gitignore`.
+
+Hazard. A pull of a commit that deletes tracked files removes those files from the working tree, and refuses to merge where a file is modified locally. So the deploy is by hand, not by the merge chain, in this order on each checkout (production first):
+1. `rsync -a backend/embeddings/ ~/tesserae-backups/embeddings_untrack_2026-10-19/<checkout>/` and count the files (1,703 tracked plus any untracked ones).
+2. `git checkout -- backend/embeddings` (reverts the locally modified tracked files to their old content for the length of the pull).
+3. `git pull` (git deletes the 1,703 files from the working tree).
+4. `rsync -a` the backup back; count the files again; `scripts/corpus/embedding_census.py` must report 0 mismatches.
+5. Touch the WSGI file, `curl .../api/languages`, one Similar Passages request.
+
+Production tail rule added. Every text replacement or repair re-encodes the work's vector file (`scripts/corpus/encode_with_embed_service.py` or the GPU route) and runs the census, alongside the lemma cache, index rows, bigram tables, passage index and reuse tables already listed.
 ## 2026-10-19 Greek-Latin set A loaded through the review table (PENDING, to be run by the lead)
 
 Why. Both gateway models accepted 13,831 harvested Greek-Latin pairs (see DECISIONS.md, 2026-10-19). They go in as rows of `dictionary_review` with status `accepted` under one source name, so one command removes them. The CSV already holds the live dictionary's key form (no accents, final sigma as sigma), and the loader applies the app's own normalizer to be safe. Four pairs are already in the curated dictionary and are skipped, leaving 13,827 to insert before the exclusion file.

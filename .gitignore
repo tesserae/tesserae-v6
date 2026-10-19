@@ -143,14 +143,13 @@ evaluation/
 !tests/
 !tests/**
 
-# Pre-computed embeddings: 1,704 files, about 2 GB, ARE committed already
-# (docs/DATA_FILES_REFERENCE.md calls that a deliberate choice for ease of
-# setup), and they stay tracked -- an ignore rule never untracks anything.
-# The directory stays ignored for what comes NEXT, because an embedding run
-# writes gigabytes of binary files that can always be recomputed from the
-# texts, and 3.6 GB of them appearing in `git status` would bury everything
-# else. Committing a new one is therefore a deliberate act: `git add -f`.
-# Unlike a text file, nothing is lost if it never reaches git.
+# Pre-computed per-line vectors (backend/embeddings/, about 2 GB) were
+# tracked until 2026-10-19 and are untracked since (#1041, by the project
+# lead's decision): an embedding run writes gigabytes of binary files that
+# are recomputed from the texts, the copies on GitHub had fallen behind the
+# ones in production, and a text replacement now re-encodes its vector file
+# as a documented production step. The files are built or downloaded, never
+# committed.
 backend/embeddings/
 
 # Research directory (private plans, writing, evaluation output)
