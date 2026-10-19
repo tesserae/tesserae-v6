@@ -6,33 +6,33 @@
     {
       "filename": "la_index.db.tar.gz",
       "extract_to": "data/inverted_index/la_index.db",
-      "description": "Latin inverted index (1,429 texts, 298,757 lemmas)",
-      "size_bytes": 2203607040,
-      "size_human": "2.2 GB",
-      "sha256": "2ab3b00760ee436864ea76dec56da13d1b24d1ef90860c65870916b0976a6fbf",
+      "description": "Latin inverted index (the live search index, rebuilt 18 October 2026 after the Latin lemma corrections)",
+      "size_bytes": 2012102656,
+      "size_human": "2.0 GB",
+      "sha256": "26686c0eaa6871fdc0e9f3ddc0b6357f1c35eacbb48fd89d20e2f3bb75a1edd6",
       "required": true,
       "rebuild_instructions": "Run: python scripts/build_inverted_index.py --language la --use-syntax-db --force",
-      "size_compressed": 663467818
+      "size_compressed": 567358249
     },
     {
       "filename": "grc_index.db.tar.gz",
       "extract_to": "data/inverted_index/grc_index.db",
-      "description": "Greek inverted index (659 texts, 360,429 lemmas)",
-      "size_bytes": 1489494016,
-      "size_human": "1.4 GB",
-      "sha256": "ae768c7831c3b7d480e3ef2ae179ad341f5f60b2f621c9292137965d0e0cf6ba",
+      "description": "Greek inverted index (the live search index, 18 October 2026)",
+      "size_bytes": 2883391488,
+      "size_human": "2.9 GB",
+      "sha256": "908165513de6874d1abb4fa605f3fb1f587e02fc463b719443b0e7f005d3c5fb",
       "rebuild_instructions": "Run: python scripts/build_inverted_index.py --language grc --fast --force",
-      "size_compressed": 296869346
+      "size_compressed": 563608491
     },
     {
       "filename": "en_index.db.tar.gz",
       "extract_to": "data/inverted_index/en_index.db",
-      "description": "English inverted index (14 texts, 22,867 lemmas)",
-      "size_bytes": 83283968,
-      "size_human": "79 MB",
-      "sha256": "4f492c47ec471b4481a9f0b44aab86c06de748b2d0b461244a96c614a4b208ca",
+      "description": "English inverted index (15 October 2026)",
+      "size_bytes": 226500608,
+      "size_human": "227 MB",
+      "sha256": "f54ab4f7bcbdffc88b40da807ce444d17482e70bdc631a5670fc15628a75dd57",
       "rebuild_instructions": "Run: python scripts/build_inverted_index.py --language en --force",
-      "size_compressed": 24347088
+      "size_compressed": 72206800
     },
     {
       "filename": "syntax_latin.db.tar.gz",
@@ -69,13 +69,13 @@
     {
       "filename": "he_index.db.tar.gz",
       "extract_to": "data/inverted_index/he_index.db",
-      "description": "Biblical Hebrew inverted index (Tanakh, 39 books)",
+      "description": "Biblical Hebrew inverted index (Tanakh, 39 books; BHSA, CC BY-NC 4.0)",
       "required": false,
       "rebuild_instructions": "Run: python scripts/build_inverted_index.py --language he --force",
-      "size_bytes": 46723072,
+      "size_bytes": 47079424,
       "size_human": "47 MB",
-      "sha256": "0b3eaba9baf27513d91f3fbba83a7fcd588b3aa9b5b5354373c5e9b3b75ece74",
-      "size_compressed": 10975292
+      "sha256": "b41472611ee4634d2e6da51ab25e83b02e775adf36482b50161a8cea720a6eeb",
+      "size_compressed": 11133816
     },
     {
       "filename": "syntax_coptic.db.tar.gz",
@@ -89,17 +89,6 @@
       "size_compressed": 40249033
     },
     {
-      "filename": "passage_index.tar.gz",
-      "extract_to": "data/passage_index/embeddings.npy",
-      "description": "Passage window index behind Theme Search and Similar Passages: ids.json, embeddings.npy, descriptions.jsonl. Does NOT include window_texts.db (3 GB), so results rank correctly but carry no passage text until that is rebuilt locally. Theme Search also needs the query encoder service (services/embed_server.py).",
-      "required": false,
-      "rebuild_instructions": "See research/studies/2026-08-25_content_search_shipped/REPORT.md",
-      "size_bytes": 2251664711,
-      "size_human": "2.3 GB",
-      "sha256": "8ff7e7f326ecb70a027bc7ea3362c2771a3b81e1c50baca0442e69280f536d0e",
-      "size_compressed": 1358767570
-    },
-    {
       "filename": "window_texts.db.tar.gz",
       "extract_to": "data/passage_index/window_texts.db",
       "description": "Passage text for every window, so results show the passage and not only its description. Covers the eight languages whose sources ship in texts/ (Latin, Greek, English, Coptic, Hebrew, Italian, Middle High German, Old French). Persian, Urdu and Arabic windows are indexed but their texts are not published, so those rows are absent.",
@@ -109,17 +98,29 @@
       "sha256": "214caa5a27a1ae41e5e4a2518945b3c0423da397b8a946a8e1c65b5adbb2e577",
       "required": false,
       "rebuild_instructions": "Run: python scripts/build_window_texts.py"
+    },
+    {
+      "filename": "fa_index.db.tar.gz",
+      "extract_to": "data/inverted_index/fa_index.db",
+      "required": false,
+      "rebuild_instructions": "Run: python scripts/build_inverted_index.py --language fa --force",
+      "description": "Persian inverted index (Ganjoor texts, 18 October 2026)",
+      "size_bytes": 869634048,
+      "size_human": "870 MB",
+      "sha256": "6dea30a905add47b574886eab6d10d7035a47e8b8541b3e68cc695a2c9d04271",
+      "size_compressed": 183371737
     }
   ],
   "notes": {
-    "total_size": "~6.3 GB (uncompressed)",
+    "total_size": "about 8 GB uncompressed for the search indexes and syntax databases",
     "hosting": "Files are hosted on the Tesserae server (tesserae.caset.buffalo.edu) and served via Apache.",
-    "checksums": "SHA256 checksums are populated by running scripts/package_data.sh on Marvin.",
+    "checksums": "SHA256 checksums are of the extracted file; the page also carries SHA256SUMS.txt over the archives. Regenerated 19 October 2026 for la, grc, en, he and fa.",
     "already_on_github": [
       "texts/ (2,176 .tess files, ~308 MB)",
       "backend/embeddings/ (pre-computed semantic embeddings, ~2 GB)",
       "data/lemma_tables/*.json (lemma lookup tables, ~40 MB)",
       "data/pedecerto/ (metrical scansion XML data)"
-    ]
+    ],
+    "passage_index": "The passage window index (Theme Search, Similar Passages) ships as per-language slices on the download page, passage_index_<lang>.tar.gz with index.json, because the slices differ in licence (Hebrew CC BY-NC, Coptic CC BY, the rest public domain or Ganjoor). Reassemble with scripts/merge_index.py. The single passage_index.tar.gz of 2 September 2026 was withdrawn on 19 October 2026."
   }
 }
