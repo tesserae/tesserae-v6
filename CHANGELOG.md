@@ -8,6 +8,7 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-18
+- Reader: a line quoted outright and echoed elsewhere now shows both gutter boxes, the solid count first and the dashed possible-echo count beside it. The solid mark had hidden the dashed one, so Aeneid 1.1 showed "2" while its Reuse tab listed seven possible echoes.
 - Loci keep every level: a Hamlet card read "1.66" for III.1.66 and a Faerie Queene card under Book 3 read "9.359" for 3.9.359, because the server's short-locus rule cut a Roman-numeral act as if it were a text-id prefix and the Reader's card rule kept the last two levels only. Both now keep the whole locus (`format_short_locus`, `shortRef`).
 - Greek-Latin dictionary: the numeral adverbs (δίς bis, τρίς ter, τετράκις quater, through μυριάκις milies, with ὁσάκις quotiens and τοσάκις totiens) are added. The best-known Knauer parallel, Od. 5.306 "τρὶς μάκαρες Δαναοὶ καὶ τετράκις" against Aen. 1.94 "o terque quaterque beati", shared one dictionary word (μάκαρ = beatus) and the two-word gate of the Greek-Latin search dropped it; it now shares three. Approved by the project lead.
 - History view: Coins and Objects move up the menu to sit with Inscriptions & Papyri, ahead of Theme Search and Intertextual Search (they had fallen into the More menu on ordinary screens).
