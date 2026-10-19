@@ -477,16 +477,45 @@ def step_newpairs(a):
 
     emp.run_stage(a, jobs, ask, None, p(a, 'newpairs_confirm.jsonl'), lambda r: (r['lang'], r['entity_id'], r['lemma']),
                   [(20, 16), (20, 16)])
-    json.dump(cl.stats, open(p(a, 'newpairs_gateway_%d.json' % int(time.time())), 'w'))
     answers = {(r['lang'], r['entity_id'], r['lemma']): r for r in read_jsonl(p(a, 'newpairs_confirm.jsonl')) if r.get('answer')}
-    blocks = []
+    # fix pass 4c. A pair the first question calls a name gets a second question, name itself or derived adjective
+    # or ethnic, and the lemma shapes of derived adjectives are blocked by rule (entity_lemma.derived_adjective_shape).
+    by_id = {e['entity_id']: e for e in entities}
+    second = []
+    ruled = {}
     for j in jobs:
         r = answers.get((j['lang'], j['entity_id'], j['lemma']))
         if r is None or r['answer'] != 'name':
+            continue
+        e = by_id[j['entity_id']]
+        listed = sorted({x for k in e['keys'] for x in k['latin']} | {k['greek'] for k in e['keys'] if k['greek']})
+        if el.derived_adjective_shape(j['lemma'], j['lang'], listed):
+            ruled[(j['lang'], j['entity_id'], j['lemma'])] = True
+            continue
+        second.append(dict(j, prompt=j['prompt'] + '\nQuestion: is the candidate lemma the name itself, or an adjective or ethnic formed from it?'))
+
+    def ask2(job):
+        txt = cl.ask(DERIVED_SYSTEM, job['prompt'], max_tokens=40)
+        v = parse_derived(txt)
+        return {'entity_id': job['entity_id'], 'lang': job['lang'], 'lemma': job['lemma'], 'tokens': job['tokens'],
+                'answer': v, 'reply': txt if v is None else None}
+
+    emp.run_stage(a, second, ask2, None, p(a, 'newpairs_derived.jsonl'), lambda r: (r['lang'], r['entity_id'], r['lemma']),
+                  [(20, 16), (20, 16)])
+    json.dump(cl.stats, open(p(a, 'newpairs_gateway_%d.json' % int(time.time())), 'w'))
+    derived = {(r['lang'], r['entity_id'], r['lemma']): r for r in read_jsonl(p(a, 'newpairs_derived.jsonl')) if r.get('answer')}
+    blocks = []
+    for j in jobs:
+        k = (j['lang'], j['entity_id'], j['lemma'])
+        r = answers.get(k)
+        if r is None or r['answer'] != 'name' or k in ruled or (derived.get(k) or {}).get('answer') != 'NAME':
             blocks.extend([j['lang'], j['entity_id'], t] for t in j['tokens'])
     json.dump(blocks, open(p(a, 'token_blocks.json'), 'w'), ensure_ascii=False)
     kept = sum(1 for j in jobs if answers.get((j['lang'], j['entity_id'], j['lemma']), {}).get('answer') == 'name')
-    print(f'{len(jobs)} pairs asked, {kept} called a name, {len(blocks)} token links blocked', flush=True)
+    final = sum(1 for j in jobs if (derived.get((j['lang'], j['entity_id'], j['lemma'])) or {}).get('answer') == 'NAME'
+                and (j['lang'], j['entity_id'], j['lemma']) not in ruled)
+    print(f'{len(jobs)} pairs asked, {kept} called a name, {len(ruled)} blocked by the adjective shape, {final} kept after the '
+          f'second question, {len(blocks)} token links blocked', flush=True)
 
 
 def step_docs(a):
@@ -604,6 +633,29 @@ def parse_confirm(text):
     except (ValueError, AttributeError):
         return None
     return v if v in ('name', 'demonym', 'other_name', 'common') else None
+
+
+DERIVED_SYSTEM = (
+    'A catalog of ancient names is being checked. You see one entity (its label, type and listed forms) and one '
+    'candidate lemma (a dictionary form written without accents), the capitalized forms in which it occurs and example '
+    'lines from the corpus. Is the candidate the name itself, or an adjective or an ethnic formed from the name '
+    '(Palatinus from Palatium, Romanus from Roma)? Answer with one JSON object and nothing else, '
+    '{"answer": "NAME" or "DERIVED"}.')
+
+
+def parse_derived(text):
+    import re
+    if not text:
+        return None
+    t = re.sub(r'^```(?:json)?|```$', '', text.strip(), flags=re.M).strip()
+    a, b = t.find('{'), t.rfind('}')
+    if a < 0 or b <= a:
+        return None
+    try:
+        v = str(json.loads(t[a:b + 1]).get('answer') or '').strip().upper()
+    except (ValueError, AttributeError):
+        return None
+    return v if v in ('NAME', 'DERIVED') else None
 
 
 def load_allowed(a):

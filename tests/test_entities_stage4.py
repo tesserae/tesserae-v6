@@ -369,3 +369,25 @@ def test_a_nominative_finds_an_entity_whose_spellings_are_all_oblique(stems_stor
 
 def get(url):
     return app.test_client().get(url)
+
+
+# ---------------------------------------------------------------- fix pass 4c, adjectives formed from a name
+
+def test_a_derived_adjective_shape_is_blocked_when_the_entity_has_a_noun_form():
+    from backend import entity_lemma as el
+    assert el.derived_adjective_shape('palatinus', 'la', ['palatium', 'palatinus'])
+    assert el.derived_adjective_shape('dardanus', 'la', ['dardania', 'dardanus'])
+    assert el.derived_adjective_shape('ἀρκαδικός', 'grc', ['Ἀρκαδία'])
+    assert not el.derived_adjective_shape('palatinus', 'la', ['palatinus'])             # no noun form of its own: the name itself
+    assert not el.derived_adjective_shape('cerberus', 'la', ['cerberus'])
+    assert not el.derived_adjective_shape('alcaeus', 'la', ['alcaeus', 'alkaios'])      # a noun form that does not share five letters
+    assert not el.derived_adjective_shape('iris', 'la', ['iris'])
+
+
+def test_the_second_question_keeps_only_the_name():
+    import importlib.util
+    spec = importlib.util.spec_from_file_location('es3b', os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'scripts', 'entity_stage3b.py'))
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    assert mod.parse_derived('{"answer": "name"}') == 'NAME' and mod.parse_derived('```json\n{"answer": "DERIVED"}\n```') == 'DERIVED'
+    assert mod.parse_derived('{"answer": "maybe"}') is None and mod.parse_derived('') is None

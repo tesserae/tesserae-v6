@@ -597,3 +597,31 @@ def scan_windows_lemma(texts_conn, unit, tok2ents, log=print, amb_tokens=None, a
                          'stem': 0, 'stopped': False, 'distinctive': False})
     tally['scan_seconds'] = round(time.time() - t0)
     return rows, wmeta, tally
+
+
+# ---------------------------------------------------------------- adjectives formed from a name (fix pass 4c)
+
+# A form of the Latin or Greek lemma table that is an adjective or an ethnic made from a name (Palatinus, Dardanus,
+# Argaeus, Romanus) is not a mention of the place or person. The tables carry no part of speech, so the shape of
+# the lemma stands in for it. A lemma that ends in one of these endings is taken for a derived adjective when the
+# entity also has a listed form of its own name that does not end in one of them and shares five letters with the
+# lemma (Palatinus and Palatium). Greek endings are written without accents or breathing marks.
+DERIVED_ENDINGS = {'la': ('inus', 'anus', 'ius', 'icus', 'aeus', 'ensis'),
+                   'grc': ('ιος', 'ικος', 'αιος', 'ηνος')}
+DERIVED_PREFIX = 5
+
+
+def derived_adjective_shape(lemma, lang, listed_forms):
+    """True when the lemma has a derived-adjective ending and a listed form of the entity, without such an ending,
+    begins with the same DERIVED_PREFIX letters. lemma and the forms are folded here."""
+    ends = tuple(ei.fold(x) for x in DERIVED_ENDINGS.get(lang, ()))
+    if not ends:
+        return False
+    lem = ei.fold(lemma)
+    if not lem.endswith(ends) or len(lem) < DERIVED_PREFIX:
+        return False
+    for f in listed_forms:
+        g = ei.fold(f)
+        if len(g) >= DERIVED_PREFIX and not g.endswith(ends) and g[:DERIVED_PREFIX] == lem[:DERIVED_PREFIX]:
+            return True
+    return False
