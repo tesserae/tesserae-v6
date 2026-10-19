@@ -8,9 +8,13 @@ history (index builds, cache rebuilds, corpus changes) is in
 `DATA_OPERATIONS.md`; per-release changes are in `../CHANGELOG.md`.
 
 
+## 2026-10-19: which pages keep a Beta mark
+
+A Beta mark on a page in the top row means the page is new and still changing, so a scholar should not yet cite from it. The project lead reviewed the five marks on 2026-10-19. Coins and Objects lose theirs. Both pages present the coin types (OCRE and CRRO) and the museum objects (the museums' own catalog descriptions) as their sources publish them, nothing on them is the site's own inference, and together they have had five small changes since they appeared. Search One Text keeps its mark as the most changed page on the site (45 change-log entries since 2026-10-12). Inscriptions & Papyri keeps it until the Latin documents index, built on 2026-10-08 before the Latin lemma corrections, is rebuilt. Events keeps it because the document and scholarship tightenings of 2026-10-18 and the relevance verdicts of 2026-10-19 have not yet been read on the page.
+
 ## 2026-10-19: the pages about what the texts refer to sit under one menu, and a returning visitor opens where they left off
 
-The project lead decided on 2026-10-19 that the five pages about what the texts refer to (People & Places, Events, Inscriptions & Papyri, Coins, Objects) are grouped under one menu in the top row labeled "People, Places & Things". The label is his wording, chosen over "Index" and "The Ancient World", and over "named entities", which he rejected as jargon. The literary pages (Search One Text, Intertextual Search, Read, Theme Search, Browse Corpus) stay as direct tabs, because a menu puts a page one click deeper. The menu shows the same label in every profile, even when People & Places is its only member. A returning visitor opens the site where they left off: the last page and address are kept in the browser only and never sent to the server, and only a bare visit to the site address restores them.
+The project lead decided on 2026-10-19 that the five pages about what the texts refer to (People & Places, Events, Inscriptions & Papyri, Coins, Objects) are grouped under one menu in the top row labeled "People, Places & Things". The label is his wording, chosen over "Index" and "The Ancient World", and over "named entities", which he rejected as jargon. The literary pages (Search One Text, Intertextual Search, Read, Theme Search, Browse Corpus) stay as direct tabs, because a menu puts a page one click deeper. The menu shows the same label in every profile, even when People & Places is its only member. A returning visitor opens the site where they left off. The last page and address are kept in the browser only and never sent to the server, and only a bare visit to the site address restores them.
 
 ## 2026-10-19: People & Places goes live for everyone on the repaired store
 

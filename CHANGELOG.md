@@ -8,6 +8,7 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-19
+- Coins and Objects lose their Beta marks in the top row (the project lead, 2026-10-19): both pages show the coin types and museum objects as their sources publish them, and neither has changed in substance since it appeared. Search One Text, Inscriptions & Papyri and Events keep theirs.
 - The top row groups People & Places, Events, Inscriptions & Papyri, Coins and Objects under one menu labeled "People, Places & Things" (the literary pages stay direct tabs), and a bare visit to the site address opens the page and address the visitor last left, kept in the browser only.
 - Records: the repaired People & Places store (pass 4e) installed on production and the page live for everyone, with the before-and-after entity search checks (#1046).
 - People & Places goes live for everyone on the repaired entity store: the `?entities=1` trial gate and its hook are removed, so the navigation entry (no longer marked beta), the page, the Reader's Shared names links and the Help section show to every visitor, and the Help section describes the page as a live feature. No route refuses without a flag, and the connector tools stay off until `TESSERAE_ENTITY_TOOLS=1` (the lead's production step). Installing the repaired store is also the lead's step.
