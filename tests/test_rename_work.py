@@ -608,7 +608,8 @@ def test_entity_store_windows_and_mention_refs_move(tmp_path):
                      ('pseudolucian.κυνικός:prosem:0', 'pseudolucian.κυνικός', 'pseudolucian.κυνικός 1', 'pseudolucian.κυνικός 9')])
     con.executemany('INSERT INTO mention_rows (eid, line_ref) VALUES (?, ?)',
                     [(1, f'{SP_OLD} 3'), (1, 'pseudolucian.κυνικός 1'), (2, 'agnell_rav. lib_pont. 1.24')])
-    con.commit(); con.close()
+    con.commit()
+    con.close()
     assert rw.main(['--root', r, '--language', LANG, '--old', SP_OLD, '--new', SP_NEW, '--apply']) == 0
     con = sqlite3.connect(os.path.join(ent_dir, 'entities.sqlite'))
     assert con.execute('SELECT window_id, work, ref_start, ref_end FROM windows WHERE work = ?', (SP_NEW,)).fetchall() == \
