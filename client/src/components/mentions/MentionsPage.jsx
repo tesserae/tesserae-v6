@@ -134,7 +134,7 @@ function WorkGroup({ entityId, w }) {
       </button>
       {open && (
         <div className="px-3 pb-2">
-          {error && <p className="text-sm text-red-700">Mentions could not be loaded ({error}).</p>}
+          {error && <p className="text-sm text-red-700">The mentions could not be loaded ({error}).</p>}
           <ul>{rows.map((r) => <MentionRow key={r.window_id} r={r} />)}</ul>
           {busy && <LoadingSpinner text="Loading..." />}
           {!busy && rows.length < total && (
@@ -400,7 +400,7 @@ export default function MentionsPage({ setPageType }) {
   if (!allowed) return null;
   return (
     <div className="max-w-4xl mx-auto px-4 py-6">
-      <h2 className="text-2xl font-bold text-gray-900">Mentions</h2>
+      <h2 className="text-2xl font-bold text-gray-900">People &amp; Places</h2>
       <p className="text-xs text-gray-500 mt-1 mb-4" data-testid="trial-note">{TRIAL_NOTE}</p>
       {entityId ? <EntityView id={entityId} back={back} open={open} /> : (
         <>
@@ -415,7 +415,7 @@ export default function MentionsPage({ setPageType }) {
             </button>
           </form>
           <div className="mt-4">
-            {error && <p className="text-sm text-red-700">Mentions could not be searched ({error}).</p>}
+            {error && <p className="text-sm text-red-700">The search could not be run ({error}).</p>}
             {data && data.results.length === 0 && (
               <div className="text-sm text-gray-600 bg-white border border-gray-200 rounded-lg p-4">
                 <p>No place, person or god matches. Try a shorter name or another spelling.</p>

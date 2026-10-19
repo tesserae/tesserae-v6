@@ -18,14 +18,14 @@ describe('Help: Mentions', () => {
     serve();
     render(<HelpPage />);
     const labels = (await screen.findAllByRole('button')).map((b) => b.textContent);
-    expect(labels.indexOf('Mentions')).toBe(labels.indexOf('Theme Search') + 1);
+    expect(labels.indexOf('People & Places')).toBe(labels.indexOf('Theme Search') + 1);
   });
 
   it('opens the section with the anchor #mentions and the trial note', async () => {
     serve();
     const user = userEvent.setup();
     render(<HelpPage />);
-    await user.click(await screen.findByRole('button', { name: 'Mentions' }));
+    await user.click(await screen.findByRole('button', { name: 'People & Places' }));
     await waitFor(() => expect(document.getElementById('mentions')).not.toBeNull());
     expect(screen.getByText(/entities=1/)).toBeTruthy();
     expect(screen.getAllByRole('button', { name: 'Suggest a change' })).toHaveLength(2);
@@ -34,6 +34,6 @@ describe('Help: Mentions', () => {
   it('opens straight at the section when asked', async () => {
     serve();
     render(<HelpPage initialSection="mentions" initialAnchor="mentions" onSectionConsumed={() => {}} />);
-    expect(await screen.findByRole('heading', { name: 'Mentions' })).toBeTruthy();
+    expect(await screen.findByRole('heading', { name: 'People & Places' })).toBeTruthy();
   });
 });
