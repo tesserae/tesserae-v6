@@ -2,14 +2,13 @@ import { useCallback, useEffect, useState } from 'react';
 import { LoadingSpinner } from '../common';
 import { languageName } from '../../utils/languageNames';
 import { windowLocus, fullRef } from '../reader/refId';
-import { entitiesTrialOn } from '../../hooks/useEntitiesTrial';
 import { documentDateLabel, documentPlace, documentLabels } from '../documents/documentDisplay';
 
 /** Latin, Greek, English, as everywhere on the site; any other language after them. */
 export const LANG_ORDER = ['la', 'grc', 'en'];
 const PAGE = 50;
 
-export const TRIAL_NOTE = "Trial. Mentions are found by name and checked by a language model, and a god's name standing for a thing (Mars for war) counts as a mention. Inscriptions and papyri are matched by the name's forms alone, without the model's check.";
+export const MENTIONS_NOTE = "Mentions are found by name and checked by a language model, and a god's name standing for a thing (Mars for war) counts as a mention. Inscriptions and papyri are matched by the name's forms alone, without the model's check.";
 
 const TYPE_LABEL = { place: 'Place', person: 'Person', deity: 'God', people: 'People', name: 'Name in the corpus', other: 'Other' };
 
@@ -348,21 +347,15 @@ function queryFromAddress() {
 }
 
 /**
- * Mentions (trial, ?entities=1): search a place, person or god by name, then read every
+ * Mentions (People & Places): search a place, person or god by name, then read every
  * passage that names it, grouped by work, each with a link into the Reader.
- * Without the switch the page does not exist: a direct link lands on Search.
  */
-export default function MentionsPage({ setPageType }) {
-  const allowed = entitiesTrialOn();
+export default function MentionsPage() {
   const [typed, setTyped] = useState(queryFromAddress);
   const [q, setQ] = useState(queryFromAddress);
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
   const [entityId, setEntityId] = useState(entityFromAddress);
-
-  useEffect(() => {
-    if (!allowed && setPageType) setPageType('search');
-  }, [allowed, setPageType]);
 
   useEffect(() => {
     const onPop = () => setEntityId(entityFromAddress());
@@ -371,7 +364,7 @@ export default function MentionsPage({ setPageType }) {
   }, []);
 
   useEffect(() => {
-    if (!allowed || q.length < 2) { setData(null); return undefined; }
+    if (q.length < 2) { setData(null); return undefined; }
     let dead = false;
     setError(null);
     fetch(`/api/entities/search?q=${encodeURIComponent(q)}`)
@@ -383,7 +376,7 @@ export default function MentionsPage({ setPageType }) {
       })
       .catch((e) => { if (!dead) setError(e.message); });
     return () => { dead = true; };
-  }, [q, allowed]);
+  }, [q]);
 
   const open = (id) => {
     const url = `/mentions?e=${encodeURIComponent(id)}`;
@@ -397,11 +390,10 @@ export default function MentionsPage({ setPageType }) {
   };
   const submit = (e) => { e.preventDefault(); setQ(typed.trim()); };
 
-  if (!allowed) return null;
   return (
     <div className="max-w-4xl mx-auto px-4 py-6">
       <h2 className="text-2xl font-bold text-gray-900">People &amp; Places</h2>
-      <p className="text-xs text-gray-500 mt-1 mb-4" data-testid="trial-note">{TRIAL_NOTE}</p>
+      <p className="text-xs text-gray-500 mt-1 mb-4" data-testid="mentions-note">{MENTIONS_NOTE}</p>
       {entityId ? <EntityView id={entityId} back={back} open={open} /> : (
         <>
           <form onSubmit={submit} className="bg-white border border-gray-200 rounded-lg p-3 flex gap-2 items-end">

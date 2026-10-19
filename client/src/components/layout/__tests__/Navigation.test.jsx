@@ -105,7 +105,7 @@ describe('Navigation — the "Inscriptions & Papyri" item (documents trial)', ()
     expect(screen.queryByRole('button', { name: /Inscriptions & Papyri/ })).toBeNull();
   });
 
-  it('appears, beside Theme Search, once both the trial flag and the server switch are on', async () => {
+  it('appears, after Theme Search and People & Places, once both the trial flag and the server switch are on', async () => {
     window.sessionStorage.setItem('tesserae_documents_trial', '1');
     mockLanguages(true);
     renderNav();
@@ -114,7 +114,9 @@ describe('Navigation — the "Inscriptions & Papyri" item (documents trial)', ()
     const buttons = screen.getAllByRole('button').map((b) => b.textContent);
     const themeIdx = buttons.findIndex((t) => t.includes('Theme Search'));
     const docsIdx = buttons.findIndex((t) => t.includes('Inscriptions & Papyri'));
-    expect(docsIdx).toBe(themeIdx + 1);
+    const placesIdx = buttons.findIndex((t) => t.includes('People & Places'));
+    expect(placesIdx).toBe(themeIdx + 1);
+    expect(docsIdx).toBe(themeIdx + 2);
   });
 
   it('turns on from ?documents=1 in the URL, without a prior session flag', async () => {

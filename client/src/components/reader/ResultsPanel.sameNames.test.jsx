@@ -180,7 +180,7 @@ describe('by default, with a weak same_names group', () => {
   });
 });
 
-describe('shared names and the Mentions trial', () => {
+describe('shared names and the Mentions page', () => {
   beforeEach(() => {
     window.sessionStorage.clear();
     window.history.pushState({}, '', '/reader');
@@ -198,17 +198,10 @@ describe('shared names and the Mentions trial', () => {
     await screen.findByText('Arrian, Anabasis');
   }
 
-  it('links each name to the Mentions page with the trial on', async () => {
-    window.sessionStorage.setItem('tesserae_entities_trial', '1');
+  it('links each name to the Mentions page', async () => {
     await openNames();
     const link = screen.getByRole('link', { name: 'Marsyas' });
-    expect(link.getAttribute('href')).toBe('/mentions?entities=1&q=Marsyas');
+    expect(link.getAttribute('href')).toBe('/mentions?q=Marsyas');
     expect(screen.getByRole('link', { name: 'Celaenae' })).toBeTruthy();
-  });
-
-  it('leaves the names as plain text with the trial off', async () => {
-    await openNames();
-    expect(screen.queryByRole('link', { name: 'Marsyas' })).toBeNull();
-    expect(screen.getByText(/Shared names:/).textContent.replace(/\s+/g, ' ').trim()).toBe('Shared names: Celaenae, Marsyas');
   });
 });

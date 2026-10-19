@@ -1,13 +1,12 @@
 /**
- * The Mentions page (trial): hidden without ?entities=1, the search list, the entity view with
+ * The Mentions page: the search list, the entity view with
  * mentions grouped by work, and the row of a shared name.
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, cleanup } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import MentionsPage, { MentionRow, headingOf, sharedLabel, sortedCounts, TRIAL_NOTE } from '../MentionsPage';
-import { entitiesTrialOn, ENTITIES_KEY } from '../../../hooks/useEntitiesTrial';
+import MentionsPage, { MentionRow, headingOf, sharedLabel, sortedCounts, MENTIONS_NOTE } from '../MentionsPage';
 
 const SEARCH = {
   available: true, total: 1,
@@ -52,31 +51,11 @@ beforeEach(() => {
 });
 afterEach(() => { cleanup(); vi.restoreAllMocks(); });
 
-describe('the trial switch', () => {
-  it('is off by default and on after ?entities=1, for the rest of the visit', () => {
-    expect(entitiesTrialOn()).toBe(false);
-    window.history.replaceState({}, '', '/?entities=1');
-    expect(entitiesTrialOn()).toBe(true);
-    expect(window.sessionStorage.getItem(ENTITIES_KEY)).toBe('1');
-    window.history.replaceState({}, '', '/theme-search');
-    expect(entitiesTrialOn()).toBe(true);
-  });
-
-  it('sends a visitor without it to Search and draws nothing', () => {
-    const setPageType = vi.fn();
-    const { container } = render(<MentionsPage setPageType={setPageType} />);
-    expect(container).toBeEmptyDOMElement();
-    expect(setPageType).toHaveBeenCalledWith('search');
-  });
-});
-
 describe('the page', () => {
-  beforeEach(() => { window.sessionStorage.setItem(ENTITIES_KEY, '1'); });
-
-  it('shows the title, the gray trial note and a search box', () => {
+  it('shows the title, the gray note and a search box', () => {
     render(<MentionsPage setPageType={() => {}} />);
     expect(screen.getByRole('heading', { name: 'People & Places' })).toBeInTheDocument();
-    expect(screen.getByTestId('trial-note').textContent).toBe(TRIAL_NOTE);
+    expect(screen.getByTestId('mentions-note').textContent).toBe(MENTIONS_NOTE);
     expect(screen.getByLabelText('A place, person or god')).toBeInTheDocument();
   });
 
@@ -98,7 +77,6 @@ describe('the page', () => {
 });
 
 describe('stage 2b', () => {
-  beforeEach(() => { window.sessionStorage.setItem(ENTITIES_KEY, '1'); });
   afterEach(() => { delete global.__search; });
 
   it('puts corpus names under a gray heading below the list entities', async () => {
@@ -144,7 +122,7 @@ describe('stage 2b', () => {
     window.history.replaceState({}, '', '/mentions?e=ln:E2');
     render(<MentionsPage setPageType={() => {}} />);
     expect((await screen.findByRole('button', { name: /Vergil, Aeneid/ })).textContent).toMatch(/1 line/);
-    expect(TRIAL_NOTE).toMatch(/matched by the name's forms alone, without the model's check\.$/);
+    expect(MENTIONS_NOTE).toMatch(/matched by the name's forms alone, without the model's check\.$/);
     await user.click(screen.getByRole('button', { name: /Vergil, Aeneid/ }));
     expect((await screen.findByTestId('mention-row')).textContent).toMatch(/^1\.1/);
   });
@@ -171,7 +149,6 @@ describe('stage 3a', () => {
                      type: 'person', source: 'promoted', description: 'Son of Zeus and Europa, king of Lycia.',
                      provenance: 'Named in the corpus, identified by a language model',
                      mention_counts: { la: 69, grc: 100 }, mentions_total: 169 };
-  beforeEach(() => { window.sessionStorage.setItem(ENTITIES_KEY, '1'); });
   afterEach(() => { delete global.__search; delete global.__entity; });
 
   it('pairs the Latin heading with the Greek form', () => {
@@ -199,7 +176,6 @@ describe('stage 3a', () => {
 });
 
 describe('stage 3b', () => {
-  beforeEach(() => { window.sessionStorage.setItem(ENTITIES_KEY, '1'); });
   afterEach(() => { delete global.__search; });
 
   it('lists near spellings under their own heading, between the list entries and the corpus names', async () => {
@@ -233,8 +209,6 @@ describe('stage 3b', () => {
 });
 
 describe('a link from the Reader', () => {
-  beforeEach(() => { window.sessionStorage.setItem(ENTITIES_KEY, '1'); });
-
   it('reads ?q= on load and runs the search at once', async () => {
     window.history.replaceState({}, '', '/mentions?q=Troy');
     render(<MentionsPage setPageType={() => {}} />);

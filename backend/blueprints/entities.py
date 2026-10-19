@@ -1,4 +1,4 @@
-"""Entity mentions: "where else is this place, person or god named?" (stage 2, trial).
+"""Entity mentions: "where else is this place, person or god named?" (stage 2).
 
 Read-only routes over the entity store built by scripts/entity_model_pass.py (backend/
 entity_index.py holds the schema). The store path comes from TESSERAE_ENTITY_STORE and
@@ -19,7 +19,8 @@ Stage 2b: the search also lists the corpus's own capitalized names (source 'name
 view lists the corpus names that belong to it, a search with no match offers near spellings, and
 counts are counts of lines, not windows (two overlapping windows that hold one line are one).
 
-The page behind these routes is a trial (?entities=1). The connector tools stay off: the routes
+No route refuses without a flag, and the page behind these routes is live for everyone (2026-10-19).
+The connector tools stay off until TESSERAE_ENTITY_TOOLS=1: the routes
 are listed as site only in backend/blueprints/mcp_manifest.py.
 """
 import os

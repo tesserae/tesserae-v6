@@ -1745,8 +1745,8 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 The groupings are made by rules and a language model, so they can be wrong. A name
                 shared by two people, such as Mars the god and Mars the Roman family, can belong to
                 both, and the line is then marked as sharing its name with the other entry. A
-                god&rsquo;s name standing for a thing (Mars for war) counts as a mention. A few
-                headings are still wrong. If you find one, use{' '}
+                god&rsquo;s name standing for a thing (Mars for war) counts as a mention. A name
+                shared by two people or places can still be grouped wrongly. If you find one, use{' '}
                 <button type="button" onClick={() => setSuggestDialogOpen(true)} className="text-red-700 hover:underline">
                   Suggest a change
                 </button>{' '}
@@ -1756,11 +1756,18 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 Inscriptions and papyri are matched by the forms of the name alone, without the
                 language model&rsquo;s check.
               </p>
-              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">A trial</h4>
+              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">How the entries were built</h4>
               <p className="text-gray-700 mb-4">
-                People &amp; Places is a trial. It is reached by adding ?entities=1 to the address of the
-                site, and it stays open for the rest of your visit. It will be switched on for
-                everyone once it has been checked further.
+                The entries were built in stages and repaired on 2026-10-19. A name that two
+                people or places share is first split into separate entries. A merge pass then
+                puts back the splits that cut one person or place in two, using a spelling rule
+                and a question put to a language model, and the project lead read the merges it
+                made.
+              </p>
+              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">From the Reader</h4>
+              <p className="text-gray-700 mb-4">
+                In the Reader, a result that shares names with another passage lists them as
+                Shared names. Each name is a link that opens People &amp; Places at that name.
               </p>
             </div>
           )}
