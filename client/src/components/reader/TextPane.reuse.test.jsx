@@ -63,14 +63,17 @@ describe('the strict (solid) reuse mark', () => {
     expect(onSelect).not.toHaveBeenCalled();
   });
 
-  it('takes priority over a possible count on the same line', () => {
+  it('stands beside the possible mark when a line has both, solid first (2026-10-18)', () => {
     render(
       <TextPane units={UNITS} language="la" selection={null} onSelect={() => {}}
-                reuseMarks={{ 'verg. aen. 1.1': { n_works: 2, n_possible_works: 1 } }}
+                reuseMarks={{ 'verg. aen. 1.1': { n_works: 2, n_possible_works: 7 } }}
                 onReuseClick={() => {}} />
     );
-    expect(screen.getByTitle('Quoted in 2 other works')).toBeTruthy();
-    expect(screen.queryByTitle(/Possible echo/, { exact: false })).toBeNull();
+    const strict = screen.getByTitle('Quoted in 2 other works');
+    const possible = screen.getByLabelText('possible echo in 7 works');
+    expect(strict.textContent).toBe('2');
+    expect(possible.textContent).toBe('7');
+    expect(strict.compareDocumentPosition(possible) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 });
 
