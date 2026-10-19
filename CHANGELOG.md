@@ -7,6 +7,9 @@ so the state of the live site can be reconstructed from this file and
 docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
+## 2026-10-19
+- Document image links: two more rewrite rules, each checked in a headless browser on five ids. The U.S. Epigraphy Project's dead image paths (59 rows) now point to the inscription's own page, which shows its photographs, and the 18 leftover old CIL viewer links point to `cil.bbaw.de/ace/id/KO...`, which lists the photographs. The USEP host leaves the dead-host list. The APIS (papyri.info) and I.Sicily replacements were checked too and fail: the APIS page shows metadata with no image (and one id gave 404), and the I.Sicily host refuses a browser with an access-denied page, so those rows stay hidden. Rules and tests in `scripts/documents/image_url_rules.py` and `tests/test_document_image_links.py`. Production needs `fix_image_urls.py --apply` run before the page code is deployed, or the 59 USEP rows show their old addresses.
+
 ## 2026-10-18
 - Events: when no inscription or papyrus names a participant or the place of the event, the Inscriptions & Papyri tab says so and keeps the regional list (documents from the region dated within the event's years) behind a disclosure, instead of presenting loom weights and votives as evidence about the event.
 - Events: the Scholarship tab orders each group by whether the article's title names the event (its label, place or a participant), then by how many of the event's passages it cites, then by passage rank, and journal apparatus rows ("Reports", "Brief Mention", "Volume Information") are dropped. The production events store was rebuilt the same night with the documents that name the participants or the place and the Scholarship table against both citation indexes (docs/DATA_OPERATIONS.md).
