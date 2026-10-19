@@ -37,7 +37,7 @@ def test_prompt_carries_question_label_and_every_line(monkeypatch):
     monkeypatch.setattr(model, 'complete', fake)
     out = _post(_body())
     assert out['available'] is True
-    assert 'at most 120 words' in seen['system']
+    assert 'at most 220 words' in seen['system']
     lines = seen['user'].split('\n')
     assert lines[0] == 'Tacitus, Annals' and lines[1] == 'the rise of Sejanus'
     for p in PASSAGES:
@@ -65,15 +65,15 @@ def test_timeout(monkeypatch):
     assert out['available'] is False and out['error']
 
 
-def test_at_most_twelve_passages(monkeypatch):
+def test_at_most_twenty_passages(monkeypatch):
     seen = {}
     monkeypatch.setattr(model, 'is_available', lambda: True)
     monkeypatch.setattr(model, 'complete',
                         lambda s, u, *a, **k: seen.setdefault('u', u) and 'x')
     body = _body()
-    body['passages'] = [{'ref': f'r{i}', 'gist': f'g{i}'} for i in range(20)]
+    body['passages'] = [{'ref': f'r{i}', 'gist': f'g{i}'} for i in range(25)]
     _post(body)
-    assert len(seen['u'].split('\n')) == 2 + 12
+    assert len(seen['u'].split('\n')) == 2 + 20
 
 
 def test_short_citations_are_written_out_and_counted(monkeypatch):

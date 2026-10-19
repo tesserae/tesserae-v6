@@ -515,7 +515,7 @@ export default function AskAWorkPage() {
           postJsonTo('/api/passages/ask-summary', {
             question: query,
             work_label: workLabel(w, workId, got[0], books),
-            passages: got.slice(0, 12).map((r) => ({ ref: r.ref_start, gist: r.gist || '' })),
+            passages: got.slice(0, 20).map((r) => ({ ref: r.ref_start, gist: r.gist || '' })),
           }).then((s) => {
             if (id !== searchId.current) return;
             setSummary(s && s.available && s.summary ? { state: 'ready', summary: s.summary, cites: s.cites || [] } : null);

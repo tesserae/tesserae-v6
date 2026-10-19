@@ -621,11 +621,9 @@ export default function ReaderPage() {
                 first click of the ×, and the reader is never stuck with it. */}
             {gutterSlow && (
               <p className="px-3 py-1.5 text-[11px] text-gray-600 border-b border-gray-200 bg-amber-50">
-                Working out where the rest of the corpus connects to
-                {' '}<span className="font-medium">{metadata?.display_name || 'this text'}</span>.
-                The first time a text is opened this takes a few minutes, because
-                every passage in it is compared with the whole corpus. After that
-                it is instant, and the text itself is readable now.
+                Finding the corpus connections of
+                {' '}<span className="font-medium">{metadata?.display_name || 'this text'}</span>
+                {' '}for the first time. This takes a few minutes and happens once. The text is readable now.
               </p>
             )}
             {eventFrom && !cameFrom && !mapFrom && (
