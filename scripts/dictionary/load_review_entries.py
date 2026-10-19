@@ -10,10 +10,10 @@ Without --apply this is a dry run: it prints the counts and ten sample rows and
 writes nothing. DATABASE_URL comes from the environment only.
 
 Examples (run inside one bash -c that sources the production environment):
-  python scripts/dictionary/load_review_entries.py --csv extra_A.csv \
-      --source harvest_2026-10-19_set_a --notes-from judged_candidates.csv
-  python scripts/dictionary/load_review_entries.py --csv extra_A.csv \
-      --source harvest_2026-10-19_set_a --notes-from judged_candidates.csv --apply
+  python scripts/dictionary/load_review_entries.py --csv PAIRS.csv \
+      --source harvest_2026-10-19_set_a --notes-from VERDICTS.csv
+  python scripts/dictionary/load_review_entries.py --csv PAIRS.csv \
+      --source harvest_2026-10-19_set_a --notes-from VERDICTS.csv --apply
   python scripts/dictionary/load_review_entries.py --unload harvest_2026-10-19_set_a --apply
 """
 import argparse
@@ -23,8 +23,6 @@ import sys
 import unicodedata
 from datetime import datetime
 
-REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-DEFAULT_CSV = os.path.join(REPO_ROOT, 'research', 'dictionary', 'judged', 'extra_A.csv')
 REVIEWER = 'the project lead (judged harvest)'
 NOTES_LIMIT = 500
 BATCH_SIZE = 500
@@ -194,7 +192,7 @@ def connect():
 
 def main(argv=None, connect_fn=None, curated=None):
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument('--csv', default=DEFAULT_CSV)
+    ap.add_argument('--csv', help='CSV with columns greek_lemma and latin_lemma (required unless --unload)')
     ap.add_argument('--source')
     ap.add_argument('--exclude')
     ap.add_argument('--notes-from')
@@ -217,6 +215,8 @@ def main(argv=None, connect_fn=None, curated=None):
         print('Next: delete cache/asyncjob_xlingual_*.json and touch the wsgi file.')
         return 0
 
+    if not args.csv:
+        ap.error('--csv is required')
     if not args.source:
         ap.error('--source is required')
     if not os.environ.get('DATABASE_URL'):

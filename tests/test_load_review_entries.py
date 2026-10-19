@@ -167,3 +167,9 @@ def test_refuses_without_database_url(files, monkeypatch):
         lre.main(['--csv', files[0], '--source', 's'], curated={})
     with pytest.raises(SystemExit):
         lre.main(['--unload', 's', '--apply'])
+
+
+def test_csv_is_required(monkeypatch):
+    monkeypatch.setenv('DATABASE_URL', 'postgres://fake')
+    with pytest.raises(SystemExit):
+        lre.main(['--source', 's'], curated={})
