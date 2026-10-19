@@ -451,7 +451,9 @@ def step_searchnames(a):
             n += 1
     db.execute('CREATE INDEX ix_sn_eid ON search_names(eid)')
     db.execute("delete from meta where key = 'search_names'")
-    db.execute("insert into meta values ('search_names', ?)", (json.dumps({'entities': len(rows), 'names': n, 'missing': len(missing)}),))
+    n_form = ex.add_form_search_names(db)
+    db.execute("insert into meta values ('search_names', ?)",
+               (json.dumps({'entities': len(rows), 'names': n, 'missing': len(missing), 'form_stems': n_form}),))
     db.commit()
     db.close()
     ex.write_catalog(a.out)

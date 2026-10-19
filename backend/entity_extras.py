@@ -244,16 +244,21 @@ def build_catalog(db):
     for eid, alias in db.execute("select eid, alias_id from entity_aliases"):
         if eid in ents:
             ents[eid]['merged_ids'].append(alias)
+    stems = []
     if db.execute("select 1 from sqlite_master where name = 'search_names'").fetchone():
         # stage 3b: names a reader might type (the usual English name and other spellings), used by the
-        # search only, never to match a mention
-        for eid, name in db.execute('select eid, name from search_names order by rowid'):
-            if eid in ents:
+        # search only, never to match a mention. Stage 4: source 'form' rows are the stems of the entity's
+        # own spellings (form_stems), kept apart because they are not names a reader would be shown.
+        for eid, name, source in db.execute('select eid, name, source from search_names order by rowid'):
+            if source == 'form':
+                stems.append((eid, name))
+            elif eid in ents:
                 f = ei.fold(name)
                 if f and f not in ents[eid].setdefault('search_names', []):
                     ents[eid]['search_names'].append(f)
     for e in ents.values():
         e.setdefault('search_names', [])
+        e.setdefault('form_stems', [])
     for eid, entity_id, label in db.execute("select eid, entity_id, label from entities where source = 'names'"):
         f = ei.fold(label)
         names[eid] = {'eid': eid, 'id': entity_id, 'label': label, 'type': 'name', 'source': 'corpus',
@@ -262,6 +267,12 @@ def build_catalog(db):
     for eid, form in db.execute("select eid, form from variants where source = 'names'"):
         if eid in names:
             names[eid]['forms'].append(ei.fold(form))
+    for n in names.values():
+        n['form_stems'] = []
+    for eid, stem in stems:
+        e = ents.get(eid) or names.get(eid)
+        if e is not None and stem not in e['form_stems']:
+            e['form_stems'].append(stem)
     for (eid, lang), n in line_counts(db).items():
         e = ents.get(eid) or names.get(eid)
         if e is not None:
@@ -327,6 +338,43 @@ def write_catalog(store_path, log=print):
     db.commit()
     db.close()
     log(f'catalog: {len(rows)} entities, {time.time() - t0:.0f}s')
+    return len(rows)
+
+
+# ---------------------------------------------------------------- search names made from the spellings (stage 4)
+
+FORM_STEM_MIN = 5
+_GREEK_LETTER = re.compile('[α-ω]')
+
+
+def form_stem(folded):
+    """A folded spelling cut to its stem: minus a case ending of the matcher's list (Latin or Greek by the
+    script of the spelling), five letters left at least. A spelling with no such ending is its own stem."""
+    ends = ei.GR_END if _GREEK_LETTER.search(folded) else ei.LA_END
+    return ei.strip_end(folded, ends, FORM_STEM_MIN)
+
+
+def add_form_search_names(db, log=print):
+    """Stage 4. For every corpus name and every promoted entity, one search_names row (source 'form') for each
+    distinct stem of its spellings. They are read by the search only (a query that is a nominative, Massilia,
+    finds an entity whose spellings are all oblique, massiliam and massiliae) and never displayed. Rows of
+    source 'form' that exist are replaced. Returns the number of rows written."""
+    db.execute('CREATE TABLE IF NOT EXISTS search_names (eid INTEGER, name TEXT, source TEXT)')
+    db.execute("delete from search_names where source = 'form'")
+    rows = []
+    seen = set()
+    for eid, form in db.execute("select v.eid, v.form from variants v join entities e on e.eid = v.eid "
+                                "where e.source in ('names', 'promoted')"):
+        f = ei.fold(form)
+        if not f:
+            continue
+        st = form_stem(f)
+        if (eid, st) not in seen:
+            seen.add((eid, st))
+            rows.append((eid, st, 'form'))
+    db.executemany('insert into search_names values (?,?,?)', rows)
+    db.execute('CREATE INDEX IF NOT EXISTS ix_sn_eid ON search_names(eid)')
+    log(f'search names from spellings: {len(rows)} stems')
     return len(rows)
 
 

@@ -140,8 +140,11 @@ def _public(e):
     return out
 
 
-def _rank(e, f, raw):
-    """Lower is better. None when the entity does not match. A search name (stage 3b: the usual English
+def _rank(e, f, raw, fs=None):
+    """Lower is better. None when the entity does not match. Stage 4: fs is the folded query cut to its stem
+    (extras.form_stem); an entity whose spellings, cut the same way (form_stems), include the query or its stem
+    ranks 2.5, so a nominative (Massilia) finds an entity whose spellings are all oblique (massiliam,
+    massiliae). A search name (stage 3b: the usual English
     name and other spellings a reader might type) ranks like a label, 0 for equality and 1 for a prefix.
     The first search name is the usual English name and ranks exactly like a label. The other search
     names rank half a step behind, so that Rhodes finds the island (usual name Rhodes) ahead of the
@@ -160,6 +163,9 @@ def _rank(e, f, raw):
         return 1.5
     if any(x == f for x in e['forms']):
         return 2
+    stems = e.get('form_stems')
+    if stems and (f in stems or (fs and fs in stems)):
+        return 2.5
     if any(x.startswith(f) for x in e['forms']):
         return 3
     if f in label or f in key:
@@ -246,9 +252,10 @@ def search():
     except sqlite3.Error as e:
         logger.exception('[ENTITIES] store unreadable')
         return jsonify({'error': f'The mentions store could not be read: {e}', 'available': False}), 503
+    fs = extras.form_stem(f)
     hits = []
     for e in cat['by_eid'].values():
-        r = _rank(e, f, q)
+        r = _rank(e, f, q, fs)
         if r is not None:
             hits.append((r, -e['total'], e['label'], e))
     hits.sort(key=lambda x: x[:3])
@@ -256,7 +263,7 @@ def search():
     for n in cat['names'].values():
         if n['duplicate'] or n['total'] == 0:
             continue
-        r = _rank(n, f, q)
+        r = _rank(n, f, q, fs)
         if r is not None:
             name_hits.append((r, -n['total'], n['label'], n))
     name_hits.sort(key=lambda x: x[:3])
