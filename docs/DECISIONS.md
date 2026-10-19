@@ -8,6 +8,10 @@ history (index builds, cache rebuilds, corpus changes) is in
 `DATA_OPERATIONS.md`; per-release changes are in `../CHANGELOG.md`.
 
 
+## 2026-10-19: the pages about what the texts refer to sit under one menu, and a returning visitor opens where they left off
+
+The project lead decided on 2026-10-19 that the five pages about what the texts refer to (People & Places, Events, Inscriptions & Papyri, Coins, Objects) are grouped under one menu in the top row labeled "People, Places & Things". The label is his wording, chosen over "Index" and "The Ancient World", and over "named entities", which he rejected as jargon. The literary pages (Search One Text, Intertextual Search, Read, Theme Search, Browse Corpus) stay as direct tabs, because a menu puts a page one click deeper. The menu shows the same label in every profile, even when People & Places is its only member. A returning visitor opens the site where they left off: the last page and address are kept in the browser only and never sent to the server, and only a bare visit to the site address restores them.
+
 ## 2026-10-19: People & Places goes live for everyone on the repaired store
 
 The project lead decided on 2026-10-19 that People & Places goes live for everyone once the repaired entity store is installed, and the `?entities=1` trial gate comes off. The repair carves names that two people or places share into separate entries, then merges back the carves that split one referent in two, by a stem rule (18 merges) and a model question (51 merges). The lead read the 69 merges and kept 55. Figures from the stage 4 report: the 180 fixed pairs hold at 90 of 101 kept pairs right, the stage 1d fresh 40 hold at 33 of 40 strict and 38 of 40 lenient, the new list mentions are right in 25 of 37, and the share of splits read as wrong fell from 11 of 47 to 3 of 30 on fresh samples. Rome and the Romans stay two entries (the decision below). A name shared by two people or places can still be grouped wrongly, and the Help section says so and points to the Suggest a change button. The connector tools stay off until `TESSERAE_ENTITY_TOOLS=1`.

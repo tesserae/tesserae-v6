@@ -17,7 +17,7 @@ const renderNav = (props = {}) => render(
 );
 
 // The names of the main-menu buttons, in order, after the view switch and the Collections button.
-const menuNames = () => screen.getAllByRole('button').map((b) => b.textContent.replace(/beta$/i, '').trim());
+const menuNames = () => screen.getAllByRole('button').map((b) => b.textContent.replace(/beta$/i, '').replace(/\s*\u25BE$/, '').trim());
 
 describe('the view switch', () => {
   it('shows both views and marks Literature as pressed for a new visitor', () => {
@@ -53,17 +53,20 @@ describe('the menu order follows the view', () => {
     expect(names[names.indexOf('Collections') + 1]).toBe('Search One Text');
   });
 
-  it('History leads with Search One Text then Read then Events, and Intertextual Search comes after Theme Search', () => {
+  it('History leads with Search One Text then Read then the People, Places & Things menu, and Intertextual Search comes after Theme Search', () => {
     renderNav();
     fireEvent.click(screen.getByRole('button', { name: 'History' }));
     const names = menuNames();
     expect(names.indexOf('Search One Text')).toBeLessThan(names.indexOf('Read'));
-    expect(names.indexOf('Read')).toBeLessThan(names.indexOf('Events'));
-    expect(names.indexOf('Events')).toBeLessThan(names.indexOf('Theme Search'));
+    expect(names.indexOf('Read')).toBeLessThan(names.indexOf('People, Places & Things'));
+    expect(names.indexOf('People, Places & Things')).toBeLessThan(names.indexOf('Theme Search'));
     expect(names.indexOf('Theme Search')).toBeLessThan(names.indexOf('Intertextual Search'));
-    // Coins and Objects sit with Inscriptions & Papyri, ahead of both searches (2026-10-18).
-    expect(names.indexOf('Inscriptions & Papyri')).toBeLessThan(names.indexOf('Coins'));
-    expect(names.indexOf('Coins')).toBeLessThan(names.indexOf('Theme Search'));
-    expect(names.indexOf('Objects')).toBeLessThan(names.indexOf('Intertextual Search'));
+  });
+
+  it('Literature places the People, Places & Things menu after Theme Search and before Browse Corpus', () => {
+    renderNav();
+    const names = menuNames();
+    expect(names.indexOf('Theme Search') + 1).toBe(names.indexOf('People, Places & Things'));
+    expect(names.indexOf('People, Places & Things') + 1).toBe(names.indexOf('Browse Corpus'));
   });
 });

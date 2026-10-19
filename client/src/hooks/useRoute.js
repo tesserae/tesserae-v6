@@ -7,6 +7,10 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { getView } from '../collections/collectionsStore';
 import { viewById } from '../collections/collectionsConfig';
+import { pageForPath } from './routePaths';
+import { rememberLastPlace, readLastPlace } from '../utils/lastPlace';
+
+export { pageForPath };
 
 // What each page is called in the browser tab, the bookmark and the history.
 const PAGE_TITLES = {
@@ -34,49 +38,6 @@ const PAGE_TITLES = {
   requests: 'Requests',
   'scholarship-sources': 'Scholarship: sources and methods',
   admin: 'Admin',
-};
-
-const pathToPageType = {
-  '/': 'search',
-  '/read': 'read',
-  '/document': 'document',
-  '/theme-search': 'theme-search',
-  '/mentions': 'mentions',
-  '/ask-a-work': 'ask-a-work',
-  '/inscriptions-papyri': 'inscriptions-papyri',
-  '/events': 'events',
-  '/coins': 'coins',
-  '/objects': 'objects',
-  '/browse': 'browse',
-  // Alias: Help and Theme Search link to "/corpus" for the covered-works
-  // list (the owner's word for the page), and it lands on Browse Corpus.
-  // The address then canonicalizes to /browse (see the pageType->path
-  // effect below); the query string carries the filter regardless of path.
-  '/corpus': 'browse',
-  '/repository': 'repository',
-  '/line-search': 'line-search',
-  '/string-search': 'string-search',
-  '/visualize': 'visualizations',
-  '/downloads': 'downloads',
-  '/about': 'about',
-  '/help': 'help',
-  '/privacy': 'privacy',
-  '/research': 'research',
-  '/blog-archive': 'blog-archive',
-  '/text-credits': 'text-credits',
-  '/requests': 'requests',
-  '/scholarship-sources': 'scholarship-sources',
-  '/admin': 'admin'
-};
-
-// /events/<id> is the focus view of one event: a page of its own whose address
-// carries the event, so it is matched by prefix and its path is not rewritten.
-// /coins/<id> is one coin type, and /objects/<id> one object, handled the same way.
-export const pageForPath = (path) => {
-  if (path === '/events' || path.startsWith('/events/')) return 'events';
-  if (path === '/coins' || path.startsWith('/coins/')) return 'coins';
-  if (path === '/objects' || path.startsWith('/objects/')) return 'objects';
-  return pathToPageType[path] || 'search';
 };
 
 const pageTypeToPath = {
@@ -128,6 +89,17 @@ const isPlainVisit = () => {
 export const useRoute = ({ adminSessionChecked, adminSessionActive }) => {
   const [pageType, setPageType] = useState(() => {
     const path = window.location.pathname;
+    // A bare visit to the site address, with no query string at all, opens
+    // where the visitor left off (2026-10-19). A stored place beats the view
+    // home. The address is rewritten before the first render, as for the
+    // view home below.
+    if (path === '/' && window.location.search === '') {
+      const last = readLastPlace();
+      if (last) {
+        window.history.replaceState({}, '', last);
+        return pageForPath(last.split(/[?#]/)[0]);
+      }
+    }
     // A plain visit in a view whose home is the Reader opens the Reader on
     // that view's text. The address is rewritten before the Reader mounts so
     // it reads the work and language from it.
@@ -161,7 +133,19 @@ export const useRoute = ({ adminSessionChecked, adminSessionActive }) => {
     if (!onEventPage && window.location.pathname !== newPath) {
       window.history.pushState({}, '', firstRun ? newPath + window.location.search : newPath);
     }
+    rememberLastPlace();
   }, [pageType]);
+
+  // The Reader and the Events page rewrite their own address while the visitor
+  // moves within them, so the spot inside a text is captured on leaving.
+  useEffect(() => {
+    window.addEventListener('pagehide', rememberLastPlace);
+    window.addEventListener('beforeunload', rememberLastPlace);
+    return () => {
+      window.removeEventListener('pagehide', rememberLastPlace);
+      window.removeEventListener('beforeunload', rememberLastPlace);
+    };
+  }, []);
 
   // Every page used to be called "Tesserae V6", so six open tabs, a list of
   // bookmarks and the browser history were all indistinguishable, and a saved
