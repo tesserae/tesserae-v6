@@ -382,6 +382,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
   const sections = [
     { id: 'start-here', label: 'Start here', group: 'Start here' },
     { id: 'views', label: 'Literature and History views', group: 'Start here' },
+    { id: 'site-controls', label: 'Collections, Beta marks and other controls', group: 'Start here' },
     { id: 'getting-started', label: 'Getting Started', group: 'Start here' },
     { id: 'search-modes', label: 'The Types of Search', group: 'Start here' },
     { id: 'how-well', label: 'How well does it work?', group: 'Start here' },
@@ -399,9 +400,9 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
     { id: 'reader', label: 'The Reader', group: 'Reading & content' },
     { id: 'tessa', label: 'Tessa, the assistant', group: 'Reading & content' },
     { id: 'documents', label: 'Inscriptions & Papyri', group: 'Reading & content' },
-    { id: 'events', label: 'Events (in testing)', group: 'Reading & content' },
-    { id: 'coins', label: 'Coins (in testing)', group: 'Reading & content' },
-    { id: 'objects', label: 'Objects (in testing)', group: 'Reading & content' },
+    { id: 'events', label: 'Events', group: 'Reading & content' },
+    { id: 'coins', label: 'Coins', group: 'Reading & content' },
+    { id: 'objects', label: 'Objects', group: 'Reading & content' },
 
     { id: 'languages', label: 'Languages overview', group: 'Languages' },
     { id: 'coptic', label: 'Coptic', group: 'Languages' },
@@ -554,7 +555,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
             <div className="prose max-w-none">
               <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Start here</h3>
               <p className="text-gray-700 mb-4">
-                The Intertextual Search page opens with the question "What are you trying to do?" the first time you visit. Choosing
+                The Search One Text page, where a visit starts, and the Intertextual Search page open with the question "What are you trying to do?" the first time you visit. Choosing
                 an answer takes you to the right search, and "Skip" closes the question for good. The "Start here"
                 link at the top of every page brings it back, and Tessa gives the same list when you ask her where to start.
               </p>
@@ -570,7 +571,8 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 Search One Text and Intertextual Search. History opens on Search One Text, on Tacitus&rsquo;s Annals, with its own examples (Lucretia, the Pannonian
                 mutiny, Solon and Croesus, the Rhine bridge, the plague at Athens, the murder of Caesar), with
                 every collection on, the menu led by Search One Text and Read, and the Reader&rsquo;s side panel opening on
-                Similar, then the inscriptions and papyri, the coins, the commentaries and articles, and Reuse. History also opens the Phrase Search on Livy against Tacitus in Latin and on
+                Similar, then the coins, the commentaries and articles, Reuse, Verbal and Translation (the inscriptions and papyri appear
+                as a group inside Reuse and Verbal). History also opens the Phrase Search on Livy against Tacitus in Latin and on
                 Herodotus against Thucydides in Greek, and puts the inscriptions, papyri and events first in the Start here list.
               </p>
               <p className="text-gray-700 mb-4">
@@ -583,11 +585,45 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
             </div>
           )}
 
+          {activeSection === 'site-controls' && (
+            <div className="prose max-w-none">
+              <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Collections, Beta marks and other controls</h3>
+              <p className="text-gray-700 mb-4">
+                The Collections button at the left of the top row decides which source collections the site
+                shows. Literature is always on. Inscriptions, Papyri, Coins, Objects and Scholarship each have a
+                switch, and a page or Reader tab that depends on a collection appears only while its switch is on.
+                The Literature and History buttons beside it each set a profile (Literary for Literature and
+                Everything for History), and the switches can then be changed one at a time. The choice is
+                remembered in this browser.
+              </p>
+              <p className="text-gray-700 mb-4">
+                A Beta mark beside a page name in the top row means the page is new and still changing. Its results
+                are worth using, and worth citing with care, because the wording, grouping or ranking on the page
+                may still change. At present Search One Text, Inscriptions &amp; Papyri and Events carry the mark.
+              </p>
+              <p className="text-gray-700 mb-4">
+                The Suggest a change button in the header, on every page, opens a short form. Use it to report a
+                wrong grouping or any other problem, to ask for a text that is missing, or to ask for a feature.
+                The address of the page you were on goes with your note. Contact details are optional and are never
+                published. The Requests made so far link inside the form opens the public list of earlier requests.
+              </p>
+              <p className="text-gray-700 mb-4">
+                The site remembers the last page and address you were on, in your browser only and never on the
+                server, and opens there when you visit the plain address of the site. A link to a particular page
+                still opens that page. The administration, Downloads, privacy and credits pages are not remembered.
+              </p>
+              <p className="text-gray-700 mb-4">
+                The Downloads page is under More at the right end of the top row. It offers the corpus texts by
+                language, pre-computed data files for running your own copy, and the benchmark lists.
+              </p>
+            </div>
+          )}
+
           {activeSection === 'getting-started' && (
             <div className="prose max-w-none">
               <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Getting Started</h3>
               <p className="text-gray-700 mb-4">
-                Tesserae offers several kinds of search. Most people start with the default — <strong>Phrases</strong>, which
+                Tesserae offers several kinds of search. Most people start with the default, <strong>Phrases</strong>, which
                 compares two texts and finds the passages most similar to each other. Here is the quick path:
               </p>
               <ol className="list-decimal list-inside space-y-4 text-gray-700">
@@ -600,7 +636,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
               </ol>
               <div className="mt-6 bg-amber-50 p-4 rounded-lg">
                 <h4 className="text-sm font-semibold uppercase tracking-wide text-amber-800 mb-2">Tip</h4>
-                <p className="text-amber-700 text-sm">Start with a smaller section (e.g., Book 1) rather than complete works for faster results. Large comparisons like the full Aeneid vs. Metamorphoses can take up to 15 minutes on first run; subsequent searches are cached.</p>
+                <p className="text-amber-700 text-sm">Start with a smaller section (e.g., Book 1) rather than complete works for faster results. Large comparisons like the full Aeneid vs. Metamorphoses take longer on the first run, and later searches of the same pair are cached.</p>
               </div>
               <div className="mt-4 bg-gray-50 p-4 rounded-lg">
                 <p className="text-gray-700 text-sm">
@@ -613,13 +649,13 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
           {activeSection === 'search-modes' && (
             <div className="prose max-w-none">
               <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">The Types of Search</h3>
-              <p className="text-gray-700 mb-6">Tesserae offers six search modes on the search page, plus Theme Search and the Reader on their own tabs:</p>
+              <p className="text-gray-700 mb-6">Tesserae offers eight kinds of search:</p>
 
               <div className="space-y-6">
                 <div className="border-l-4 border-gray-300 pl-4">
                   <h4 className="text-lg font-semibold text-gray-900">Phrases (Parallel Search)</h4>
                   <p className="text-gray-600 text-sm mt-1">
-                    Compare a source text against a target text. The default match type is <strong>Fusion — All Channels</strong>, which
+                    Compare a source text against a target text. The default match type is <strong>Fusion (All Channels)</strong>, which
                     runs eleven independent detection methods (lemma, single-lemma, exact, semantic, dictionary, sound,
                     edit distance, syntax, structural syntax, verbatim quotation and rare vocabulary) and combines
                     their results for the best recall.
@@ -665,7 +701,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                     Search for parallels to a specific line across the entire corpus. Select a line from any text,
                     or type/paste Latin or Greek text directly. For Greek, you can enter text with or without diacritics.
                     Three match types are available: <strong>Lemma</strong> (matches dictionary forms), <strong>Exact</strong> (identical
-                    surface forms only), and <strong>Regular expression</strong> (pattern matching — see{' '}
+                    surface forms only), and <strong>Regular expression</strong> (pattern matching, see{' '}
                     <button onClick={() => setActiveSection('match-types')} className="text-red-600 hover:underline">
                       Match Types
                     </button>{' '}for details and examples).
@@ -744,8 +780,8 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   <p className="text-gray-600 text-sm mt-1">
                     Compares a text in one language with a text in another. Seven pairs are open: Greek and Latin,
                     Latin and English, Greek and English, Coptic and Greek, Hebrew and Greek, Hebrew and Latin, and
-                    Persian and Urdu. When a pair is held back for rebuilding, the page says so under the pair
-                    buttons and the pair returns when the rebuild is done (the two English pairs, October 2026).
+                    Persian and Urdu. If a pair is ever held back for rebuilding, the page says so under the pair
+                    buttons and the pair returns when the rebuild is done. No pair is held at present.
                   </p>
                   <p className="text-gray-500 text-sm mt-2">
                     <strong>Use for:</strong> tracing how one language's writers adapted another's, such as Vergil
@@ -766,10 +802,10 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
               <p className="text-gray-700 mb-4">
                 Every figure below was measured against a published list of parallels or a test set, and
                 each is dated, because the corpus and the scoring change. Recall is the share of a
-                list's known parallels that the search returns within a cutoff; it says how much a
+                list's known parallels that the search returns within a cutoff. It says how much a
                 search finds, not how good its first page is. Where a search or a language has not
                 been measured yet, the table says so. Articles with full details, methods and data are
-                in preparation; the Coptic data release and the benchmark lists for Latin, Greek and
+                in preparation. The Coptic data release and the benchmark lists for Latin, Greek and
                 Cross-Language are already on the Downloads page.
               </p>
               <div className="overflow-x-auto">
@@ -785,10 +821,10 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 </table>
               </div>
               <p className="text-gray-700 mt-4">
-                Two cautions. A published list is a test of what the search finds, and the lists that exist
+                A published list is a test of what the search finds, and the lists that exist
                 were made by scholars looking for particular kinds of parallel, so a high figure on one
-                list says little about another kind. And the first page matters more to a reader than the
-                whole ranking: the Latin and Coptic first-ten figures above are the closest thing to a
+                list says little about another kind. The first page also matters more to a reader than the
+                whole ranking, and the Latin and Coptic first-ten figures above are the closest thing to a
                 precision measure so far, and a human-graded precision test is under way.
               </p>
               <Invitation language="these languages" />
@@ -799,16 +835,16 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
             <div className="prose max-w-none">
               <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">How Fusion Search Works</h3>
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4 text-sm text-blue-900">
-                <strong>A note on examples:</strong> this section — and the ones that follow — uses <strong>Latin</strong> for its
+                <strong>A note on examples:</strong> this section, and the ones that follow, uses <strong>Latin</strong> for its
                 examples, but the same process applies to Greek, English, Coptic, Hebrew, Persian and Urdu. Where a language
-                differs, it is noted along the way: English has no syntax data and Greek has it for about half its texts, Coptic is
+                differs, it is noted along the way. English has no syntax data and Greek has it for about half its texts, Coptic is
                 tuned for quotation, and Persian and Urdu add a refrain-and-rhyme channel for the ghazal.
               </div>
               <p className="text-gray-700 mb-4">
-                Tesserae's default search — <strong>Phrases</strong> — runs <strong>up to eleven independent detection channels</strong> and combines their results. Persian and Urdu
+                Tesserae's default search, <strong>Phrases</strong>, runs <strong>up to eleven independent detection channels</strong> and combines their results. Persian and Urdu
                 run nine: eight of the eleven, all but the synonym dictionary and the two syntax channels, which need resources
                 those languages do not yet have, plus a refrain-and-rhyme channel of their own.
-                Each channel looks for a different kind of textual similarity — shared vocabulary, phonetic echo, semantic meaning,
+                Each channel looks for a different kind of textual similarity, such as shared vocabulary, phonetic echo, semantic meaning,
                 grammatical structure, and more. By fusing these signals, the system finds parallels that no single method could detect alone.
                 The diagram below walks through the whole process step by step.
               </p>
@@ -817,21 +853,21 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
 
 
               <p className="text-gray-700 mb-3">
-                For a catalog of what each of the eleven channels detects — and how to run a single one on its own — see{' '}
+                For a catalog of what each of the eleven channels detects, and how to run a single one on its own, see{' '}
                 <button onClick={() => setActiveSection('match-types')} className="text-red-600 hover:underline">Match Types</button>.
               </p>
 
               <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">How Results Are Combined</h4>
               <p className="text-gray-700 mb-3">
-                Each channel produces its own candidate list with scores. The fusion step combines them using <strong>weighted score fusion</strong>:
-                each channel's score is multiplied by a weight reflecting its precision, and the weighted scores are summed. Channels that produce
+                Each channel produces its own candidate list with scores. The fusion step combines them using <strong>weighted score fusion</strong>.
+                Each channel's score is multiplied by a weight reflecting its precision, and the weighted scores are summed. Channels that produce
                 fewer but more reliable results (like sound and edit distance) receive higher weights. The single-word lemma channel, which
                 casts a wider net, receives a lower weight.
               </p>
               <p className="text-gray-700 mb-3">
                 A <strong>convergence bonus</strong> rewards pairs found independently by multiple channels. If six out of eleven channels all
-                flag the same pair of lines, that agreement is strong evidence of a real connection — stronger than any single channel's
-                score alone. The convergence bonus is weighted by word rarity: pairs sharing rare vocabulary get the full bonus,
+                flag the same pair of lines, that agreement is strong evidence of a real connection, stronger than any single channel's
+                score alone. The convergence bonus is weighted by word rarity. Pairs sharing rare vocabulary get the full bonus,
                 while pairs whose weakest word is very common receive a reduced bonus proportional to that word's frequency.
               </p>
 
@@ -842,20 +878,20 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
               </p>
               <ul className="list-disc list-inside text-gray-600 text-sm space-y-2 ml-2 mb-3">
                 <li><strong>IDF multiplier:</strong> Each result's score is scaled by the geometric mean of its matched words' corpus
-                  rarity (inverse document frequency). Common-word pairs are reduced proportionally; rare-word pairs are preserved or boosted.</li>
+                  rarity (inverse document frequency). Common-word pairs are reduced proportionally. Rare-word pairs are preserved or boosted.</li>
                 <li><strong>Convergence weighting:</strong> The convergence bonus is gated by the rarest word's IDF. Pairs containing
                   a very common word receive less convergence credit, since multiple channels agreeing on a common word is expected, not meaningful.</li>
-                <li><strong>Rarity boost:</strong> Rare multi-channel matches — where distinctive vocabulary is confirmed by several
-                  independent channels — receive a bonus that promotes them above common-word results.</li>
+                <li><strong>Rarity boost:</strong> Rare multi-channel matches, where distinctive vocabulary is confirmed by several
+                  independent channels, receive a bonus that promotes them above common-word results.</li>
               </ul>
               <p className="text-gray-700 mb-3">
                 To cleanly separate function words from content words, the scoring uses a <strong>curated stoplist</strong> of
-                function words for each language (91 Latin, 195 Greek, 275 English, with lists for Coptic, Hebrew, Persian and Urdu; pronouns,
-                conjunctions, prepositions, and common verbs like <em>sum</em>), all shown on the Stoplists page.
+                function words for each language (91 Latin, 195 Greek, 275 English, with lists for Coptic, Hebrew, Persian and Urdu), such as pronouns,
+                conjunctions, prepositions, and common verbs like <em>sum</em>, all shown on the Stoplists page.
                 Matches where all shared words are function words (e.g., sharing only <em>tum</em> + <em>inde</em>) are heavily
                 penalized. Matches where a function word co-occurs with a content word (e.g., <em>nec</em> + <em>priorem</em>)
-                are scored on the content word alone — the function word adds no allusion signal.
-                This approach is more precise than pure frequency-based filtering: it correctly penalizes <em>tum</em> (a function word)
+                are scored on the content word alone, because the function word adds no allusion signal.
+                This approach is more precise than pure frequency-based filtering, because it correctly penalizes <em>tum</em> (a function word)
                 without penalizing <em>pectore</em> (a content word that happens to be common).
               </p>
 
@@ -863,42 +899,42 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
               <p className="text-gray-700 mb-3">
                 By default, word rarity is measured against the <strong>full Latin corpus</strong>.
                 This means a word like <em>arma</em> that appears in 57% of all Latin texts gets a low rarity score.
-                But among hexameter poetry specifically, <em>arma</em> appears in 89% of texts — it is
+                But among hexameter poetry specifically, <em>arma</em> appears in 89% of texts, so it is
                 metrically convenient filler, not a distinctive vocabulary choice.
               </p>
               <p className="text-gray-700 mb-3">
                 The <strong>Same meter</strong> frequency baseline (available under Advanced Settings for Latin fusion searches)
-                computes rarity against only texts in the same metrical tradition — hexameter, elegiac, lyric, dramatic, or prose.
+                computes rarity against only texts in the same metrical tradition (hexameter, elegiac, lyric, dramatic, or prose).
                 This deflates vocabulary that is conventional within a meter while preserving the rarity of genuinely distinctive words.
-                For example, when comparing two hexameter poems, <em>Neptunia proles</em> ("Neptune's offspring") — a standard
-                epic epithet — receives less of a rarity boost under hexameter IDF, while a word rare even in hexameter
+                For example, when comparing two hexameter poems, <em>Neptunia proles</em> ("Neptune's offspring"), a standard
+                epic epithet, receives less of a rarity boost under hexameter IDF, while a word rare even in hexameter
                 retains its premium.
               </p>
               <p className="text-gray-700 mb-3 text-sm">
                 The system automatically rescales meter-specific IDF values so that the scoring thresholds
-                remain consistent regardless of which baseline you choose. Switching baselines does not affect recall — the
-                same pairs are found — but it changes how they are ranked.
+                remain consistent regardless of which baseline you choose. Switching baselines does not affect recall. The
+                same pairs are found, but it changes how they are ranked.
               </p>
 
               <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">Sliding Windows</h4>
               <p className="text-gray-700 mb-3">
                 Poets don't always confine allusions to a single line. To catch vocabulary split across line breaks (enjambment),
-                the system also searches <strong>two-line sliding windows</strong> — each consecutive pair of lines merged into one unit.
+                the system also searches <strong>two-line sliding windows</strong>, each consecutive pair of lines merged into one unit.
                 Window results that are genuinely new are appended after line-mode results, adding recall without diluting precision.
               </p>
 
               <div className="mt-6 bg-gray-50 p-4 rounded-lg">
                 <h4 className="text-lg font-semibold text-gray-900 mb-2">Performance</h4>
                 <p className="text-gray-700 text-sm">
-                  Evaluated against five benchmark datasets (862 parallels from published commentaries), fusion search finds <strong>92% of known Latin parallels</strong> —
-                  up from ~27% in Tesserae V3. Other languages are measured separately, on the How well does it work? page. On the Valerius Flaccus benchmark, 9 of the top 10 results are attested in scholarly commentary.
+                  Evaluated against five benchmark datasets (862 parallels from published commentaries), fusion search found <strong>92% of known Latin parallels</strong> in August 2026,
+                  up from ~27% in Tesserae V3. That figure was measured before the Latin lemma table was corrected in October 2026 and has not been re-run since. Other languages are measured separately, on the How well does it work? page. On the Valerius Flaccus benchmark, 9 of the top 10 results are attested in scholarly commentary.
                 </p>
               </div>
 
               <div className="mt-4 bg-gray-50 p-4 rounded-lg">
                 <h4 className="text-lg font-semibold text-gray-900 mb-2">The settings behind these results</h4>
                 <p className="text-gray-700 text-sm">
-                  Every choice this page summarises is written down in full, with the measurement behind it:
+                  Every choice this page summarizes is written down in full, with the measurement behind it:
                   what each channel does and how word rarity is judged in{' '}
                   <a href="https://github.com/tesserae/tesserae-v6/blob/main/docs/HOW_TESSERAE_SEARCHES.md"
                      target="_blank" rel="noopener noreferrer"
@@ -929,13 +965,13 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
               <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Match Types</h3>
               <p className="text-gray-700 mb-4">
                 The default Phrases search runs all channels together (<strong>Fusion</strong>). You can also run a
-                <strong> single method</strong> on its own — choose it from the Match Type dropdown — when you want just one kind of
+                <strong> single method</strong> on its own (choose it from the Match Type dropdown) when you want just one kind of
                 match, such as only exact quotations or only sound. Here is what each method (channel) detects:
               </p>
               <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">The Detection Channels</h4>
               <div className="space-y-3">
                 <div className="border-l-4 border-gray-300 pl-3">
-                  <p className="text-sm text-gray-700"><strong>Lemma (2-word):</strong> The classic Tesserae approach — finds lines sharing two or more content-word dictionary forms. The workhorse channel for direct verbal echo.</p>
+                  <p className="text-sm text-gray-700"><strong>Lemma (2-word):</strong> The classic Tesserae approach, which finds lines sharing two or more content-word dictionary forms. The workhorse channel for direct verbal echo.</p>
                 </div>
                 <div className="border-l-4 border-gray-300 pl-3">
                   <p className="text-sm text-gray-700"><strong>Lemma (1-word):</strong> Same method, but requires only one shared word. Catches allusions built around a single pivotal term, like Lucan's <em>canimus</em> echoing Vergil's <em>cano</em>.</p>
@@ -947,16 +983,16 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   <p className="text-sm text-gray-700"><strong>Semantic (AI):</strong> Uses SPhilBERTa neural embeddings to detect lines with similar meaning, even with completely different vocabulary.</p>
                 </div>
                 <div className="border-l-4 border-gray-300 pl-3">
-                  <p className="text-sm text-gray-700"><strong>Dictionary:</strong> Detects synonym substitution (<em>uariatio</em>) using 23,833 curated Latin word pairs — e.g., <em>gladius/ensis</em>, <em>mare/pontus</em>.</p>
+                  <p className="text-sm text-gray-700"><strong>Dictionary:</strong> Detects synonym substitution (<em>uariatio</em>) using about 29,500 curated Latin word pairs, such as <em>gladius/ensis</em>, <em>mare/pontus</em>.</p>
                 </div>
                 <div className="border-l-4 border-gray-300 pl-3">
                   <p className="text-sm text-gray-700"><strong>Sound:</strong> Measures phonetic similarity via character trigram patterns. Detects alliteration, assonance, and phonetic echo.</p>
                 </div>
                 <div className="border-l-4 border-gray-300 pl-3">
-                  <p className="text-sm text-gray-700"><strong>Edit Distance:</strong> Fuzzy character-level matching for morphological variants — <em>ferrea</em> matching <em>ferratos</em>, <em>belligeri</em> matching <em>belli</em>.</p>
+                  <p className="text-sm text-gray-700"><strong>Edit Distance:</strong> Fuzzy character-level matching for morphological variants, with <em>ferrea</em> matching <em>ferratos</em>, <em>belligeri</em> matching <em>belli</em>.</p>
                 </div>
                 <div className="border-l-4 border-gray-300 pl-3">
-                  <p className="text-sm text-gray-700"><strong>Syntax:</strong> Compares grammatical dependency structures (parsed by LatinPipe) to detect parallel sentence construction. Includes a structural fingerprint path that matches lines with identical grammatical patterns even when they share no vocabulary — catching allusions built on structural imitation with complete lexical substitution. Because many unrelated Latin lines share common syntactic patterns, structural matches are confirmed by a two-tier gate: they must have either a dictionary synonym pair between the two lines or high semantic similarity (cosine ≥ 0.70). In validation testing on Vergil's <em>Georgics</em> 3 vs. Lucretius <em>DRN</em> 6, this gate preserved all meaningful structural parallels while filtering over 90% of coincidental pattern matches.</p>
+                  <p className="text-sm text-gray-700"><strong>Syntax:</strong> Compares grammatical dependency structures (parsed by LatinPipe) to detect parallel sentence construction. Includes a structural fingerprint path that matches lines with identical grammatical patterns even when they share no vocabulary, which catches allusions built on structural imitation with complete lexical substitution. Because many unrelated Latin lines share common syntactic patterns, structural matches are confirmed by a two-tier gate: they must have either a dictionary synonym pair between the two lines or high semantic similarity (cosine ≥ 0.70). In validation testing on Vergil's <em>Georgics</em> 3 vs. Lucretius <em>DRN</em> 6, this gate preserved all meaningful structural parallels while filtering over 90% of coincidental pattern matches.</p>
                 </div>
                 <div className="border-l-4 border-gray-300 pl-3">
                   <p className="text-sm text-gray-700"><strong>Rare Vocabulary:</strong> Flags shared words that appear in fewer than about one in eight works of the language (roughly 100 for Latin and Greek, 6 for English). A rare shared word is unlikely to be coincidence.</p>
@@ -966,7 +1002,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 </div>
               </div>
               <p className="text-gray-600 text-sm mt-3">
-                Which channels run depends on the data a language has: the synonym dictionary needs a synonym list and the syntax channels need grammatical parses. Each language's page says which it has.
+                Which channels run depends on the data a language has. The synonym dictionary needs a synonym list and the syntax channels need grammatical parses. Each language's page says which it has.
               </p>
 
               <p className="text-gray-700 mb-4">
@@ -992,19 +1028,19 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   <p className="font-medium text-gray-800">Common patterns:</p>
                   <table className="w-full text-left text-xs sm:text-sm">
                     <tbody className="divide-y divide-gray-200">
-                      <tr><td className="py-1 pr-4 font-mono text-red-700 whitespace-nowrap">arm.</td><td className="py-1 text-gray-600">Matches "arma", "arms", "army" — the dot matches any single character</td></tr>
+                      <tr><td className="py-1 pr-4 font-mono text-red-700 whitespace-nowrap">arm.</td><td className="py-1 text-gray-600">Matches "arma", "arms", "army". The dot matches any single character</td></tr>
                       <tr><td className="py-1 pr-4 font-mono text-red-700 whitespace-nowrap">amor|bellum</td><td className="py-1 text-gray-600">Matches lines containing "amor" OR "bellum"</td></tr>
-                      <tr><td className="py-1 pr-4 font-mono text-red-700 whitespace-nowrap">ferr[aeiou]</td><td className="py-1 text-gray-600">Matches "ferra", "ferre", "ferri", "ferro", "ferru" — brackets match any one character listed</td></tr>
+                      <tr><td className="py-1 pr-4 font-mono text-red-700 whitespace-nowrap">ferr[aeiou]</td><td className="py-1 text-gray-600">Matches "ferra", "ferre", "ferri", "ferro", "ferru". Brackets match any one character listed</td></tr>
                       <tr><td className="py-1 pr-4 font-mono text-red-700 whitespace-nowrap">^arma</td><td className="py-1 text-gray-600">Matches "arma" only at the start of a line</td></tr>
                       <tr><td className="py-1 pr-4 font-mono text-red-700 whitespace-nowrap">cano$</td><td className="py-1 text-gray-600">Matches "cano" only at the end of a line</td></tr>
-                      <tr><td className="py-1 pr-4 font-mono text-red-700 whitespace-nowrap">reg(is|em|i|e)</td><td className="py-1 text-gray-600">Matches "regis", "regem", "regi", "rege" — parentheses group alternatives</td></tr>
-                      <tr><td className="py-1 pr-4 font-mono text-red-700 whitespace-nowrap">.*pietas.*arma.*</td><td className="py-1 text-gray-600">Matches any line containing "pietas" followed later by "arma" — <code>.*</code> means "any characters"</td></tr>
+                      <tr><td className="py-1 pr-4 font-mono text-red-700 whitespace-nowrap">reg(is|em|i|e)</td><td className="py-1 text-gray-600">Matches "regis", "regem", "regi", "rege". Parentheses group alternatives</td></tr>
+                      <tr><td className="py-1 pr-4 font-mono text-red-700 whitespace-nowrap">.*pietas.*arma.*</td><td className="py-1 text-gray-600">Matches any line containing "pietas" followed later by "arma". The pattern <code>.*</code> means "any characters"</td></tr>
                     </tbody>
                   </table>
                 </div>
                 <p className="text-gray-500 text-sm mt-2">
                   Regex search checks each line in the corpus for a match against your pattern.
-                  It does not use lemmatization — patterns match against the actual text as it appears.
+                  It does not use lemmatization, and patterns match against the actual text as it appears.
                 </p>
               </div>
             </div>
@@ -1071,8 +1107,8 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
 
               <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">Advanced: Channels &amp; weights</h4>
               <p className="text-gray-700 text-sm mb-3">
-                The Phrases (fusion) search blends several detection methods — called <em>channels</em> (shared words,
-                sound, meaning, syntax, rare vocabulary, and more). Under <strong>Search Settings → Advanced —
+                The Phrases (fusion) search blends several detection methods, called <em>channels</em> (shared words,
+                sound, meaning, syntax, rare vocabulary, and more). Under <strong>Search Settings → Advanced →
                 Channels &amp; weights</strong> you can tune how much each channel counts, or switch channels off
                 entirely. Leaving this untouched uses Tesserae's tuned defaults, so your results are unchanged unless
                 you deliberately adjust it.
@@ -1083,13 +1119,13 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                     <dt className="font-medium text-gray-900">Weights</dt>
                     <dd className="text-gray-600 text-sm mt-1">
                       Raise or lower how much each channel contributes to a result's score. A higher weight makes that
-                      kind of similarity count for more; the numbers are relative, not percentages.
+                      kind of similarity count for more. The numbers are relative, not percentages.
                     </dd>
                   </div>
                   <div>
                     <dt className="font-medium text-gray-900">On / off switches</dt>
                     <dd className="text-gray-600 text-sm mt-1">
-                      Turn a channel off to exclude it from the search entirely — for example, to look for parallels
+                      Turn a channel off to exclude it from the search entirely, for example to look for parallels
                       using only sound and syntax. Switching a channel <em>off</em> is different from setting its weight
                       to zero: a channel at weight 0 still runs and can pull a pair into the results when it agrees with
                       other channels, whereas an off channel does not run at all.
@@ -1098,7 +1134,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   <div>
                     <dt className="font-medium text-gray-900">Only the channels that apply</dt>
                     <dd className="text-gray-600 text-sm mt-1">
-                      The panel shows only the channels available for your chosen language — for instance, English does
+                      The panel shows only the channels available for your chosen language. For instance, English does
                       not show the syntax or dictionary channels, since those rely on data Tesserae doesn't have for English.
                     </dd>
                   </div>
@@ -1133,8 +1169,8 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
 
               <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">Curated Stop Words by Language</h4>
               <p className="text-gray-600 text-sm mb-3">
-                Expand a language to see every curated entry. Greek entries are shown in polytonic (accented) form;
-                the matcher itself filters on the accentless normalized form. Hebrew entries are consonantal (no vowel
+                Expand a language to see every curated entry. Greek entries are shown in polytonic (accented) form.
+                The matcher itself filters on the accentless normalized form. Hebrew entries are consonantal (no vowel
                 points), as the matcher compares them.
               </p>
               {curatedStoplists === null && !stoplistsError ? (
@@ -1241,8 +1277,8 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                     <p className="text-sm text-gray-700">
                       <strong>Fusion mode (default):</strong> Each channel produces its own score, which is multiplied by a
                       channel-specific weight and summed. A <em>convergence bonus</em> rewards pairs detected by multiple
-                      independent channels. The combined score is then scaled by the <em>rarity</em> of the matched vocabulary:
-                      pairs sharing rare content words score higher than pairs sharing common function words. A curated
+                      independent channels. The combined score is then scaled by the <em>rarity</em> of the matched vocabulary.
+                      Pairs sharing rare content words score higher than pairs sharing common function words. A curated
                       stoplist of function words (like <em>et</em>, <em>tum</em>, <em>nec</em>) ensures that grammatical
                       co-occurrence does not inflate scores.
                     </p>
@@ -1277,7 +1313,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                         shared rare vocabulary and agreement across several channels. Below it you are
                         mostly looking at coincidental overlaps of common words, including function words
                         like conjunctions and pronouns.</li>
-                    <li>Judge the passages, not the number. Tesserae finds candidates; whether a parallel is
+                    <li>Judge the passages, not the number. Tesserae finds candidates. Whether a parallel is
                         a real allusion, an echo, a shared formula, or a coincidence is a scholarly judgment
                         you make by reading the two passages in context.</li>
                   </ul>
@@ -1289,10 +1325,10 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                     More badges generally indicates a stronger, more reliable parallel. Badges are grouped by category:
                   </p>
                   <ul className="list-disc list-inside text-gray-600 text-sm mt-1 ml-4">
-                    <li><span className="text-red-600 font-medium">Red</span> — Vocabulary channels (lemma, exact, dictionary, rare word)</li>
-                    <li><span className="text-blue-600 font-medium">Blue</span> — Semantic channels (AI semantic)</li>
-                    <li><span className="text-amber-600 font-medium">Amber</span> — Sound channels (sound, edit distance)</li>
-                    <li><span className="text-purple-600 font-medium">Purple</span> — Structure channels (syntax)</li>
+                    <li><span className="text-red-600 font-medium">Red</span>: Vocabulary channels (lemma, exact, dictionary, rare word)</li>
+                    <li><span className="text-blue-600 font-medium">Blue</span>: Semantic channels (AI semantic)</li>
+                    <li><span className="text-amber-600 font-medium">Amber</span>: Sound channels (sound, edit distance)</li>
+                    <li><span className="text-purple-600 font-medium">Purple</span>: Structure channels (syntax)</li>
                   </ul>
                   <p className="text-gray-600 text-sm mt-2">
                     A gray <strong>in N works</strong> badge says how many works in the corpus share the result's
@@ -1304,8 +1340,8 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 <div>
                   <h4 className="text-lg font-semibold text-gray-900">Highlighting</h4>
                   <ul className="list-disc list-inside text-gray-600 text-sm mt-1">
-                    <li><span className="bg-yellow-200 px-1 rounded">Yellow</span> — Matched lemmas (shared dictionary forms)</li>
-                    <li><span className="bg-indigo-200 px-1 rounded">Indigo</span> — Synonym matches (dictionary or semantic similarity)</li>
+                    <li><span className="bg-yellow-200 px-1 rounded">Yellow</span>: Matched lemmas (shared dictionary forms)</li>
+                    <li><span className="bg-indigo-200 px-1 rounded">Indigo</span>: Synonym matches (dictionary or semantic similarity)</li>
                     <li>In Persian, Urdu and Arabic, a refrain-and-rhyme result marks the shared refrain in
                       <span className="bg-yellow-200 px-1 rounded"> yellow</span> and each line's rhyme word in
                       <span className="bg-rose-200 px-1 rounded"> rose</span>, with Refrain, Rhyme and Meter badges. See{' '}
@@ -1444,12 +1480,12 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 passages that match the description rather than the wording. Because it works
                 from content, results come back in every indexed language at once and usually
                 share no vocabulary with what you typed, or with each other. The comparison is
-                between your description and a short description written for each passage; a
+                between your description and a short description written for each passage. A
                 passage whose description also shares words with yours gets a small extra
                 credit, which helps when a scene is described in the same terms you used.
               </p>
               <p className="text-gray-700 mb-4">
-                Results open with the strongest matches first; a toggle switches to oldest-first
+                Results open with the strongest matches first. A toggle switches to oldest-first
                 for tracing a theme through time. Show more results extends the list in steps of
                 25, and narrowing to one language shows more of that language. Two phrasing tips:
                 naming names (&ldquo;Abraham sacrifices Isaac&rdquo;) finds a specific story, while
@@ -1473,7 +1509,8 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
               <p className="text-gray-700 mb-3">
                 Every text in the corpus is cut into overlapping <strong>passage windows</strong>:
                 twelve lines starting a new window every six, and a coarser thirty lines every
-                fifteen. The overlap matters, because a passage that straddles a boundary would
+                fifteen. Since October 2026 a long prose work (about a thousand works) is cut instead into
+                paragraph-sized windows, and its chapter-sized windows are dropped. The overlap matters, because a passage that straddles a boundary would
                 otherwise be split down the middle and neither half would describe it.
               </p>
               <p className="text-gray-700 mb-3">
@@ -1494,7 +1531,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 the theme words as tags. The tags are the model&rsquo;s own words for that window,
                 not a controlled list, so &ldquo;transience&rdquo; on one passage and
                 &ldquo;impermanence&rdquo; on another mean the same thing. There are about
-                525,000 descriptions on the site, covering Latin, Greek, English, Coptic,
+                685,000 descriptions on the site, covering Latin, Greek, English, Coptic,
                 Hebrew, Persian and Urdu, with a few works in Italian, Old French and Middle
                 High German.
               </p>
@@ -1502,11 +1539,11 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
               <p className="text-gray-700 mb-3">
                 The descriptions name the people in a passage, so a name is precise and a
                 paraphrase is broad. &ldquo;Tiresias&rdquo; finds the passages where he
-                appears; &ldquo;an old man prophesying&rdquo; finds prophets of every kind and
+                appears, while &ldquo;an old man prophesying&rdquo; finds prophets of every kind and
                 can miss the ones the description calls by name. The same holds for places
                 and gods. A query that names a category rather than a scene, such as
                 &ldquo;recognition&rdquo; or &ldquo;reversal of fortune&rdquo;, matches little,
-                because the descriptions record what happens: say instead what happens on the
+                because the descriptions record what happens. Say instead what happens on the
                 page, for example &ldquo;a character learns the true identity of a stranger who
                 turns out to be kin&rdquo;. When a search finds less than you expect, try the
                 name, then the scene in its own words.
@@ -1514,12 +1551,13 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
               <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">The reading step</h4>
               <p className="text-gray-700 mb-3">
                 Comparing descriptions is quick and shallow, so the first page is then read. A
-                small model on our own server takes the hundred passages that scored highest,
+                small model on our own server takes the 300 rows of the composed list (about a hundred
+                works, three passages each),
                 reads each one against your query, and gives it a score for how fully it is the
-                scene you described; the page is ordered by that score. It was trained once on
+                scene you described. The page is ordered by that score. It was trained once on
                 32,000 readings by a larger model and costs nothing to run, so it stays on. Only
-                the top hundred are read: a passage the comparison did not bring into the
-                hundred cannot be promoted by the reading. On sixteen test themes judged against a
+                those 300 rows are read: a passage the comparison did not bring into the
+                list cannot be promoted by the reading. On sixteen test themes judged against a
                 scholar's grading rule, the share of the first ten results that is the scene rose
                 from about 29 to about 43 percent (the larger paid model, on the hundred closest passages, reaches 71). The result
                 citation names the reading model, and adding <code>&amp;reader=0</code> to a
@@ -1532,7 +1570,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
               </p>
               <p className="text-gray-700 mb-3">
                 Theme Search and Similar Passages only reach works that have been cut into
-                passage windows: about 1,840 works and 525,000 passages. A work outside that
+                passage windows: about 1,990 works and 685,000 passage windows. A work outside that
                 index never appears in either feature, whatever it contains.
               </p>
 
@@ -1561,18 +1599,18 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 number of close passage pairs, on a scale that lets the many faint cells stay
                 visible beside the few very strong ones. &ldquo;Relative to size&rdquo; divides
                 that number by what the two authors&rsquo; sizes alone would predict, so a large
-                author does not light up a whole row simply by having more passages; it is the
+                author does not light up a whole row simply by having more passages. It is the
                 better view for spotting a small author who is unexpectedly close to another.
                 Translation pairs (the same text in two languages, such as the Vulgate and the
                 Septuagint) are hidden by default, because that signal is so much stronger than
-                allusion that it crowds out everything else; a switch shows them.
+                allusion that it crowds out everything else. A switch shows them.
               </p>
               <p className="text-gray-700 mb-3">
                 Moving the pointer over a cell highlights its row and column and names both
                 authors, so you can read a cell in the middle of the grid without tracing back
-                to the edges. Clicking a cell opens the pair work by work below the grid;
-                clicking a work pair opens it book by book where the works have books, or
-                straight to the strongest passage pairs where they do not; and clicking a
+                to the edges. Clicking a cell opens the pair work by work below the grid.
+                Clicking a work pair opens it book by book where the works have books, or
+                straight to the strongest passage pairs where they do not. Clicking a
                 passage pair opens the Reader on one passage with the other showing as a
                 connection. The browser&rsquo;s Back button unwinds these steps one at a time.
               </p>
@@ -1610,7 +1648,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 </li>
                 <li>
                   <strong>Several passages from one work are grouped under it.</strong> The work is
-                  named once; each passage keeps its own reference and summary.
+                  named once. Each passage keeps its own reference and summary.
                 </li>
                 <li>
                   <strong>Click a reference</strong> to open the passage in the Reader, with the
@@ -1624,7 +1662,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 </li>
                 <li>
                   <strong>&ldquo;Weak neighbor&rdquo; beside a passage</strong> is a second,
-                  narrower judgment. The band weighs the top results as a group; the tag says
+                  narrower judgment. The band weighs the top results as a group. The tag says
                   whether this one passage, on its own, stands clearly above the corpus average.
                   A strong band over a list of weak neighbors is a common and meaningful
                   outcome: the corpus holds the subject, but it is spread across many passages
@@ -1639,7 +1677,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 A search always returns its closest matches, even when the corpus holds nothing
                 of the kind, so the band tells you which situation you are in. It combines how
                 far the best result stands above the corpus average with how much the top
-                results resemble each other. A real subject returns a cluster; an absent one
+                results resemble each other. A real subject returns a cluster. An absent one
                 returns scattered strays.
               </p>
               <p className="text-gray-700 mb-3">
@@ -1651,9 +1689,9 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 percent: 80 percent for Latin and for Greek, 73 percent for English, 94 percent
                 for Persian, Urdu, Hebrew and Coptic. Almost every miss is a subject the corpus
                 holds that reads in the lowest band, or a subject from the modern world that
-                reads moderate over its nearest neighbours. So read the band as a first estimate. The lowest band, labelled
+                reads moderate over its nearest neighbors. So read the band as a first estimate. The lowest band, labeled
                 "Closest passages", means that the top results do not stand far above the
-                background, so their order is less settled; a strong band means the corpus
+                background, so their order is less settled. A strong band means the corpus
                 probably holds the subject, not that every listed passage is about it.
               </p>
               <p className="text-gray-700 mb-3">
@@ -1662,7 +1700,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 phrases and full sentences, the top ten of each graded by a model) showed why
                 that was wrong: of thirty-one searches the band marked low, twenty-seven had a
                 relevant list, and the fifteen literary pilot questions behaved the same way.
-                The band tells a real subject from nonsense, which is what it was fitted on; it
+                The band tells a real subject from nonsense, which is what it was fitted on. It
                 does not tell a good list from a poor one. The one case still held back is a
                 search nothing in the corpus resembles at all, which the band calls a weak
                 match. A query none of whose words occurs in any passage description is told
@@ -1685,7 +1723,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 <li>
                   <strong>Names are checked, and failures are shown.</strong> Where a summary names
                   someone the passage does not appear to name, the result says so. That is a flag
-                  to check, not proof of error: a passage may call Jupiter &ldquo;Pater&rdquo; or
+                  to check, not proof of error, because a passage may call Jupiter &ldquo;Pater&rdquo; or
                   refer to Achilles only as &ldquo;he&rdquo;.
                 </li>
                 <li>
@@ -1694,14 +1732,15 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   evidence at one remove.
                 </li>
                 <li>
-                  <strong>Persian and Urdu intertextuality often works through form</strong> — a
-                  poem answering another in the same metre, rhyme and radif, sometimes with almost
+                  <strong>Persian and Urdu intertextuality often works through form</strong>. A
+                  poem answering another in the same meter, rhyme and radif, sometimes with almost
                   no shared vocabulary. These descriptions capture content, not form, so that
                   whole mode of response is invisible here.
                 </li>
                 <li>
-                  The first search after a quiet period takes about ten seconds while the model
-                  loads. After that it is well under a second.
+                  A new search takes about eight seconds the first time, because the small model reads
+                  the passages, and a repeat of it takes about a second. The first search after a long quiet
+                  period can take about twenty seconds while the passage index loads.
                 </li>
               </ul>
             </div>
@@ -1826,7 +1865,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 descriptions leave people unnamed, the text of the passages is searched for
                 the name in Latin and Greek and the list says so. A content search can put a passage about a person low in the
                 ranking, because the passage is about what he does and not about his name, so
-                this list finds them by the word. Its marks are grey on the strip.
+                this list finds them by the word. Its marks are gray on the strip.
               </p>
               <p className="text-gray-700 mb-4">
                 Above the strip, Tessa writes a short summary of what the work says, using the
@@ -1836,7 +1875,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 running, the summary is left out and the rest of the page works as before.
               </p>
               <p className="text-gray-700 mb-4">
-                A passage is a window of about twenty lines, so a subject spread thinly through
+                A passage is a window of about twelve lines of verse, or a paragraph of long prose, so a subject spread thinly through
                 a long chapter can be missed. The search matches content, so it does not find a
                 name on its own as a word search would. The list of passages that name a person
                 covers that for names. For any other word, use Line Search.
@@ -1859,7 +1898,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 stands above the work&rsquo;s typical score, and how closely the top twenty
                 passages hang together, because a subject the work treats pulls a group of
                 passages well above the rest. The lowest level, &ldquo;Closest passages&rdquo;, is a
-                caution that the order is less certain than usual; it does not say the work
+                caution that the order is less certain than usual. It does not say the work
                 lacks the subject, and the list is shown under every level. A passage is marked
                 strong when it stands far above the work&rsquo;s typical score. The band was first
                 fitted in October 2026 on three works and refitted the same month on eleven, from
@@ -1890,7 +1929,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 For works that have one, an <strong>About</strong> button in the header opens a
                 short orientation note saying what the text is, who wrote it and when, and why a
                 reader might care. The same notes appear behind the small ⓘ buttons in Browse
-                Corpus. Coverage is growing: recently added works get theirs first.
+                Corpus. Coverage is growing, and recently added works get theirs first.
               </p>
               <p className="text-gray-700 mb-4">
                 On a phone, the choice of text and book, Go to line and About this text are behind
@@ -1932,7 +1971,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   distinctive words with this line, or a longer run of its wording.
                 </li>
                 <li>
-                  <strong>A dashed box</strong> marks a possible echo: another work shares one rare
+                  <strong>A dashed box</strong> marks a possible echo. Another work shares one rare
                   phrase with this line, which is weaker evidence and more often a coincidence. A long prose
                   paragraph that shares a single phrase and little else is not counted.
                 </li>
@@ -1953,8 +1992,8 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
 
               <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">Selecting text</h4>
               <p className="text-gray-700 mb-3">
-                Select lines the way you would select any text: click and drag across them, or
-                double-click a single word. A small toolbar appears under the selection with a
+                Select lines the way you would select any text, by clicking and dragging across them or
+                by double-clicking a single word. A small toolbar appears under the selection with a
                 three-way scope switch, <strong>Word / Line / Passage</strong>, which is set
                 automatically from the size of what you selected and can be corrected in one
                 click. The scope decides the question the button asks:
@@ -1962,7 +2001,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
               <ul className="list-disc pl-5 text-gray-700 space-y-2 mb-3">
                 <li>
                   <strong>Word</strong> looks up one word across the whole corpus (String
-                  Search). It needs a single double-clicked word; with a longer selection the
+                  Search). It needs a single double-clicked word. With a longer selection the
                   toolbar says so instead of offering a search.
                 </li>
                 <li>
@@ -1996,7 +2035,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   passages show at first, and <strong>Show more matches</strong> extends the list. Below the list,
                   <strong> In other languages</strong> offers a button for each language with few matches in
                   the list, ordered by its best match, which opens that language's five closest passages. The
-                  largest corpora otherwise fill the list: an Urdu passage would show mostly Persian.
+                  largest corpora otherwise fill the list, so an Urdu passage would show mostly Persian.
               </p>
               <h5 className="text-base font-semibold text-gray-900 mt-4 mb-1">Verbal parallels tab</h5>
               <p className="text-gray-700 mb-3">
@@ -2004,10 +2043,10 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   selection&rsquo;s wording. A line or short phrase is searched on all of its
                   content words. A passage-sized selection is searched on its most distinctive
                   words, the rarest in the corpus by document frequency, and the panel names
-                  which words those were. Rare shared vocabulary is what marks a genuine echo;
-                  a couple of common words shared with a long passage is a commonplace. For the
+                  which words those were. Rare shared vocabulary is what marks a genuine echo.
+                  A couple of common words shared with a long passage is a commonplace. For the
                   same reason, matches that share nothing but very common words (quid, ipse,
-                  varius) are hidden here, with a note saying how many; matches survive by
+                  varius) are hidden here, with a note saying how many. Matches survive by
                   sharing at least one distinctive word, or three or more words together. The
                   full Line Search page applies no such filter. When Inscriptions or Papyri is
                   on, the same search also runs over the inscriptions and papyri and lists them
@@ -2017,16 +2056,16 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
               <h5 className="text-base font-semibold text-gray-900 mt-4 mb-1">Translation tab</h5>
               <p className="text-gray-700 mb-3">
                   Translation shows the aligned English where one exists, with
-                  the translator named under it. Most are public domain; a few are open translations
+                  the translator named under it. Most are public domain. A few are open translations
                   used with attribution under their non-commercial terms (Silius Italicus books 9 to
-                  17, A. S. Kline). Coverage is partial: over half of the Greek corpus and nearly
-                  half of the Latin, so some passages have none. The translators are listed on the
+                  17, A. S. Kline). Coverage is partial (in August 2026, about 61 percent of the Greek lines and
+                  48 percent of the Latin lines), so some passages have none. The translators are listed on the
                   Sources page under About.
               </p>
               <h5 className="text-base font-semibold text-gray-900 mt-4 mb-1">Reuse tab</h5>
               <p className="text-gray-700 mb-3">
                   Reuse lists other works that repeat a line closely enough to
-                  count as a quotation or near-quotation: a small numbered mark beside a line in
+                  count as a quotation or near-quotation. A small numbered mark beside a line in
                   the text (&ldquo;quoted in N works&rdquo; on hover) opens this tab for that
                   line. It comes from a table built once over the whole corpus, not a live
                   search, so it covers only the languages built so far, Latin, Greek and English.
@@ -2140,20 +2179,21 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
 
           {activeSection === 'events' && (
             <div className="prose max-w-none">
-              <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Events (in testing)</h3>
+              <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Events</h3>
               <p className="text-gray-700 mb-4">
                 The Events page gathers what the site holds about one battle, siege or treaty: the
                 passages in Latin and Greek historians and poets that tell of it or mention it (each
                 opens in the Reader, and the Reader links back), the inscriptions and papyri dated to
                 the same years and found near the place, the articles and commentary on those passages,
                 and a map of the place and the findspots. The page and its menu entry appear when
-                Collections has Inscriptions, Papyri or Scholarship on, as in the Historical profile.
-                This is a first version in testing: events come from Wikidata (CC0, and each event links to
+                Collections has Inscriptions or Papyri on, as in the Historical profile. Scholarship alone does not open
+                it, so the Literary profile does not show it. The Events entry is marked Beta in the top row while its
+                documents and scholarship lists are checked. Events come from Wikidata (CC0, and each event links to
                 its Wikipedia article), passages are found by
                 the names in them and sorted by an offline language model that no person has checked, and
                 the list covers only the events whose dossiers have been built so far.
                 The short description under an event's dates is the opening paragraph of its English
-                Wikipedia article, shared under the licence CC BY-SA 4.0, and a link beside it goes to the
+                Wikipedia article, shared under the license CC BY-SA 4.0, and a link beside it goes to the
                 article. The Scholarship tab lists the articles that cite the event's leading passages and
                 names the passage that brings each one in.
               </p>
@@ -2175,26 +2215,26 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
 
           {activeSection === 'coins' && (
             <div className="prose max-w-none">
-              <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Coins (in testing)</h3>
+              <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Coins</h3>
               <p className="text-gray-700 mb-4">
-                The Coins page lists 107,137 Greek and Roman coin types. The Roman types are 56,113 from the
+                The Coins page lists 106,176 Greek and Roman coin types. The Roman types are 56,113 from the
                 Online Coins of the Roman Empire (OCRE, from Augustus to the late fifth century) and 2,602
                 from Coinage of the Roman Republic Online (CRRO). The Greek types are 13,399 from the IRIS
                 skeleton types of Greek coinage, 11,913 from Corpus Nummorum (Thrace, Moesia, Mysia and the
                 Troad), 8,694 from Seleucid Coins Online, 7,228 from PELLA (the Argead kings of Macedon),
                 3,650 from Ptolemaic Coins Online, 2,107 from Coins of the Bactrian and Indo-Greek Rulers
                 (BIGR) and 470 from Levantine Coinages Online.
-                All are catalogues shared through nomisma.org. Corpus Nummorum is under a Creative
-                Commons Attribution-NonCommercial-ShareAlike licence and the other eight are under the Open
-                Database Licence. A coin type is a catalogue entry,
-                not one coin. It records the legend on each side, the catalogue&rsquo;s description of what each
+                All are catalogs shared through nomisma.org. Corpus Nummorum is under a Creative
+                Commons Attribution-NonCommercial-ShareAlike license and the other eight are under the Open
+                Database License. A coin type is a catalog entry,
+                not one coin. It records the legend on each side, the catalog&rsquo;s description of what each
                 side shows, the mint, the dates, the issuing emperor or moneyer, the denomination and the
                 metal. You can search the legends and descriptions together (try &ldquo;capricorn&rdquo;,
                 &ldquo;harbor&rdquo; or a Greek legend typed without accents), narrow by authority, mint, denomination, material, source and date, and
                 order the results by best match or by date. A mint that nomisma.org has matched to Pleiades
                 links to its place page. Each card links to &ldquo;See images&rdquo; on the
-                catalogue&rsquo;s site, which lists the museum coins of that type with their photographs. This
-                site stores no coin images. Catalogues call the front and back of a coin the obverse and
+                catalog&rsquo;s site, which lists the museum coins of that type with their photographs. This
+                site stores no coin images. Catalogs call the front and back of a coin the obverse and
                 the reverse, and the inscription on a side is its legend. The pages here say front, back
                 and inscription.
               </p>
@@ -2207,34 +2247,34 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 namesake (another Claudius, another Antonius) can match. &ldquo;Related imagery&rdquo; lists
                 the five coin descriptions closest in meaning to a one-sentence summary of the passage, each
                 with the dates, issuers and mint of the types that carry it. For a Latin passage the coins
-                come from the two Roman catalogues (OCRE and CRRO), because in the test below the Greek
-                catalogues took over half the places and brought almost no real matches; a Greek passage
+                come from the two Roman catalogs (OCRE and CRRO), because in the test below the Greek
+                catalogs took over half the places and brought almost no real matches. A Greek passage
                 searches all nine. About one match in three is a
                 real parallel. In a test on ten passages with known coin parallels, 17 of 50 matches were
                 right, and the matches the tab calls &ldquo;closer&rdquo; were right about 7 times in 10 while
                 the rest were right about 1 time in 4. The matches are descriptions of coin imagery, not coins
                 known to refer to the passage, so read the coin before you rely on one. Theme Search gets a
                 Coins choice too. It searches the coin descriptions and shows its own list, never mixed
-                into the passage results. A query worded the way a catalogue words an image
+                into the passage results. A query worded the way a catalog words an image
                 (&ldquo;ship under full sail&rdquo;, &ldquo;infant on a goat&rdquo;) found about one right coin
                 in two in the same test, and a vague or abstract query finds fewer.
               </p>
               <p className="text-gray-700 mb-4">
-                Coins are off by default. Switch Coins on in Collections (the Archaeological and Everything
-                profiles include it) and the Coins entry appears in the main menu. Coin types never enter a
-                phrase search, since they have their own page, the Reader tab and the Theme Search choice. This is a
-                first version in testing.
+                Coins are on in the History view, whose profile is Everything, and off in the Literature view.
+                Switch Coins on in Collections (the Archaeological and Everything profiles include it) and the
+                Coins entry appears in the People, Places &amp; Things menu. Coin types never enter a
+                phrase search, since they have their own page, the Reader tab and the Theme Search choice.
               </p>
             </div>
           )}
 
           {activeSection === 'objects' && (
             <div className="prose max-w-none">
-              <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Objects (in testing)</h3>
+              <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Objects</h3>
               <p className="text-gray-700 mb-4">
                 The Objects page lists Greek, Roman and Etruscan objects from three museums, each with the
-                museum&rsquo;s own catalogue description. It holds 1,361 objects. 305 come from the
-                Cleveland Museum of Art, whose catalogue records are released under CC0. 395 come from
+                museum&rsquo;s own catalog description. It holds 1,361 objects. 305 come from the
+                Cleveland Museum of Art, whose catalog records are released under CC0. 395 come from
                 the Art Institute of Chicago, whose records are CC0 and whose descriptions are CC BY 4.0,
                 so every card names the museum as the source of the text. 661 come from the Smithsonian
                 Institution, mostly Greek vases and Roman lamps in the National Museum of Natural
@@ -2243,13 +2283,13 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 their own collection, and so are Byzantine and later objects.
               </p>
               <p className="text-gray-700 mb-4">
-                The descriptions are the museums&rsquo; own catalogue texts. Tesserae did not write or
+                The descriptions are the museums&rsquo; own catalog texts. Tesserae did not write or
                 correct them, and they vary a good deal. A Cleveland or Chicago curator&rsquo;s paragraph
                 can run to several sentences about what a vase shows. A Smithsonian note is often a line
-                from an old catalogue card. You can search titles, descriptions, labels and inscriptions
+                from an old catalog card. You can search titles, descriptions, labels and inscriptions
                 together (try &ldquo;Amazons&rdquo; or &ldquo;symposium&rdquo;), narrow by museum, object
                 type, culture, material and date, and order the results by best match or by date. Each card
-                shows the credit line and licence, and links to &ldquo;Object page&rdquo; on the
+                shows the credit line and license, and links to &ldquo;Object page&rdquo; on the
                 museum&rsquo;s own site. A museum&rsquo;s photograph appears only when the museum gives a web
                 image that is free to reuse. For the Art Institute of Chicago that means objects it marks
                 as public domain.
@@ -2262,9 +2302,10 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 you rely on one.
               </p>
               <p className="text-gray-700 mb-4">
-                Objects are off by default. Switch Objects on in Collections (the Archaeological and
-                Everything profiles include it) and the Objects entry appears in the main menu. Objects
-                never enter a phrase search. This is a first version in testing.
+                Objects are on in the History view, whose profile is Everything, and off in the Literature view.
+                Switch Objects on in Collections (the Archaeological and Everything profiles include it) and the
+                Objects entry appears in the People, Places &amp; Things menu. Objects
+                never enter a phrase search.
               </p>
             </div>
           )}
@@ -2281,7 +2322,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 Your choice is remembered in this browser. This page and its menu entry
                 appear when Inscriptions or Papyri is on, and the Scholarship tab in the Reader
                 appears when Scholarship is on. Literary, the setting a new visitor starts with,
-                shows the literary texts only. This is a page for the documentary
+                shows the literary texts and the Scholarship tab, and no documents. This is a page for the documentary
                 corpus, Latin and Greek inscriptions and papyri, searched the same way as the
                 literary texts but shown with the markup and credit a documentary source needs. It opens
                 already set to search the documents collection, with an option to search
@@ -2321,8 +2362,9 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
               <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">Sources</h4>
               <p className="text-gray-700 mb-3">
                 Inscriptions come from the Epigraphic Database Heidelberg (EDH), the Epigraphic
-                Database Roma (EDR), and I.Sicily. Papyri and ostraca come from the Heidelberg
-                Gesamtverzeichnis der griechischen Papyrusurkunden Ägyptens (HGV), via
+                Database Roma (EDR), and I.Sicily. The papyri and ostraca texts come from the Duke
+                Databank of Documentary Papyri (DDbDP), and their records come from the Heidelberg
+                Gesamtverzeichnis der griechischen Papyrusurkunden Ägyptens (HGV), both via
                 papyri.info. Each result credits its own source and license. Where EDH and EDR
                 both cover the same inscription, both are shown. Photographs are links to the
                 institution that holds them (EDR, EDH, Ubi Erat Lupa, the CIL in Berlin and others,
@@ -2344,7 +2386,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
               <p className="text-gray-700 mb-5">
                 Tesserae searches seven languages: Latin, Greek, English, Coptic, Hebrew, Persian and Urdu. Arabic is indexed and waiting for a specialist's review before it opens. They share the same search types, but differ in how much of the corpus
                 is covered and which detection channels have data to work with. Each language has its own page in this
-                section; Persian, Urdu and Arabic also share a page on poetic form.
+                section. Persian, Urdu and Arabic also share a page on poetic form.
               </p>
               <p className="text-gray-700 mb-5">
                 The search page and the Reader open in the language you chose last. To always start in one language,
@@ -2355,7 +2397,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 <div className="border-l-4 border-gray-300 pl-4">
                   <h4 className="text-lg font-semibold text-gray-900">Latin</h4>
                   <p className="text-gray-600 text-sm mt-1">
-                    The best-developed corpus: 848 works (1,832 files, counting books held separately). All eleven channels
+                    The best-developed corpus: about 750 works (about 1,830 files, counting books held separately). All eleven channels
                     are available, and 1,433 of the files are grammatically parsed, so the syntax channels contribute for most pairs. Latin has the most thoroughly evaluated results
                     (about 92 percent recall across five standard Latin allusion benchmarks, as of August 2026;
                     see <button type="button" onClick={() => setActiveSection('how-well')} className="text-red-700 hover:underline">How well does it work?</button>).
@@ -2365,8 +2407,8 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 <div className="border-l-4 border-gray-300 pl-4">
                   <h4 className="text-lg font-semibold text-gray-900">Greek</h4>
                   <p className="text-gray-600 text-sm mt-1">
-                    A large corpus: 885 works (1,268 files, counting books held separately). Vocabulary, sound, meaning, and
-                    rare-word channels all work; searches are accent-insensitive, so you can enter text with or without
+                    A large corpus: about 870 works (about 1,330 files, counting books held separately). Vocabulary, sound, meaning, and
+                    rare-word channels all work. Searches are accent-insensitive, so you can enter text with or without
                     diacritics. About half the Greek corpus is grammatically parsed (650 texts, Homer among them), so the
                     syntax channels contribute where both texts are parsed and nothing where either is not.
                     On 121 Homeric parallels in later epic, the search finds 69 percent searching whole works and
@@ -2377,7 +2419,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 <div className="border-l-4 border-gray-300 pl-4">
                   <h4 className="text-lg font-semibold text-gray-900">English</h4>
                   <p className="text-gray-600 text-sm mt-1">
-                    52 works (164 files): the King James Bible, Spenser, Shakespeare, Milton, Bunyan, Swift and the
+                    About 40 works (164 files): the King James Bible, Spenser, Shakespeare, Milton, Bunyan, Swift and the
                     Romantic poets, among others. The vocabulary and meaning channels apply, and there is no syntax data.
                   </p>
                 </div>
@@ -2387,14 +2429,14 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                     Sahidic and Bohairic (187 texts), the Coptic Bible plus monastic literature (Shenoute of Atripe and Besa).
                     Coptic is tuned for <strong>quotation and close reuse</strong> rather than allusion, with a verbatim-quotation
                     channel, sub-word lemmatization, and grammatical parses wired into the syntax channel. You can also search a
-                    Coptic text against the Greek corpus to surface its Greek source. See{' '}
+                    Coptic text against the Greek corpus to find its Greek source. See{' '}
                     <button onClick={() => setActiveSection('coptic')} className="text-red-600 hover:underline">the Coptic page</button>.
                   </p>
                 </div>
                 <div className="border-l-4 border-gray-300 pl-4">
                   <h4 className="text-lg font-semibold text-gray-900">Hebrew</h4>
                   <p className="text-gray-600 text-sm mt-1">
-                    The full Hebrew Bible — all 39 books of the Tanakh — in the Miqra according to the Masorah (Aleppo
+                    The full Hebrew Bible (all 39 books of the Tanakh) in the Miqra according to the Masorah (Aleppo
                     Codex). Hebrew reads right-to-left, and its fully vowel-pointed text is matched on the consonantal
                     words, so vowel points and cantillation marks do not affect a match. You can also search the Hebrew
                     Bible against the Greek Septuagint and the Latin Vulgate. See{' '}
@@ -2405,7 +2447,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   <h4 className="text-lg font-semibold text-gray-900">Persian</h4>
                   <p className="text-gray-600 text-sm mt-1">
                     Twenty-eight divans, about 943,000 lines, from Rudaki to Iqbal. Nine channels run, including the
-                    refrain-and-rhyme channel that finds answer poems; poem boundaries and meters for the major divans
+                    refrain-and-rhyme channel that finds answer poems. Poem boundaries and meters for the major divans
                     come from Ganjoor. See{' '}
                     <button onClick={() => setActiveSection('persian')} className="text-red-600 hover:underline">the Persian page</button>
                     {' '}and{' '}
@@ -2438,7 +2480,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                     The Qur'an (one text per sura), the pre-Islamic odes, al-Mutanabbi and the classical diwans, the
                     Burda tradition, two hadith collections and the modern revival: 149 texts, about 31,700 lines. Ten
                     channels run, including a root channel for near-quotation and rhyme-and-meter matching of answer
-                    poems; Arabic → Persian and Arabic → Urdu find Qur'anic and hadith phrases inside later verse. See{' '}
+                    poems. Arabic → Persian and Arabic → Urdu find Qur'anic and hadith phrases inside later verse. See{' '}
                     <button onClick={() => setActiveSection('arabic')} className="text-red-600 hover:underline">the Arabic page</button>.
                   </p>
                 </div>
@@ -2446,7 +2488,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
               </div>
               <div className="mt-5 bg-gray-50 p-4 rounded-lg text-sm text-gray-700">
                 <strong>Across languages:</strong> when a language lacks data for a channel (for example, syntax for Greek and English),
-                that channel simply contributes nothing — the other channels still run.
+                that channel simply contributes nothing, and the other channels still run.
               </div>
             </div>
           )}
@@ -2456,18 +2498,18 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
               <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Coptic Search</h3>
               <p className="text-gray-700 mb-4">
                 Tesserae searches Sahidic Coptic alongside Latin, Greek, and English. The Coptic corpus combines the
-                Coptic Bible with major works of monastic literature — the sermons and letters of Shenoute of Atripe
-                and his successor Besa — so you can trace how Coptic authors quote scripture and reuse one another.
+                Coptic Bible with major works of monastic literature (the sermons and letters of Shenoute of Atripe
+                and his successor Besa), so you can trace how Coptic authors quote scripture and reuse one another.
               </p>
               <p className="text-gray-700 mb-4">
                 Coptic search is tuned differently from the classical languages. Where Latin and Greek search looks for
-                allusion — shared rare vocabulary spread across a line — Coptic search is tuned for <strong>quotation
+                allusion (shared rare vocabulary spread across a line), Coptic search is tuned for <strong>quotation
                 and close reuse</strong>, the way Coptic monastic authors most often engage their sources.
               </p>
               <p className="text-gray-700 mb-2">
                 How well it works, measured (August 2026): on the 22 marked citations of Isaiah in Romans, a test
                 held out from all tuning, 59 percent are found in the first hundred results and eight of the
-                first ten results are genuine citations; on a broad reference list of 124 scriptural parallels of
+                first ten results are genuine citations. On a broad reference list of 124 scriptural parallels of
                 every kind, 14.5 percent are found in the first hundred, the price of tuning for quotation. The
                 data and the ranked runs are on the Downloads page.
               </p>
@@ -2477,7 +2519,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 <h4 className="text-sm font-semibold uppercase tracking-wide text-gray-700 mb-2">Verbatim-quotation detection</h4>
                 <p className="text-gray-700 text-sm">
                   Coptic search's standout feature finds runs of identical consecutive words, catching direct
-                  scriptural quotations even where the author gives no citation. In practice the highest-ranked
+                  scriptural quotations even where the author gives no citation. The highest-ranked
                   Coptic results are reliable quotations.
                 </p>
               </div>
@@ -2486,18 +2528,18 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 Alongside quotation detection, Coptic search runs the same battery of methods as the other languages:
               </p>
               <ul className="list-disc list-inside space-y-1 text-gray-700 text-sm mb-4">
-                <li><strong>Shared vocabulary</strong> — lines that share two or more dictionary words.</li>
-                <li><strong>Sound</strong> — words that sound alike, useful across spelling variation.</li>
-                <li><strong>Synonyms</strong> — related words drawn from the Coptic WordNet.</li>
-                <li><strong>Grammatical structure</strong> — lines built the same way.</li>
-                <li><strong>Semantic (embeddings)</strong> — a model that recognizes the same idea in different words (a multilingual model, for Coptic).</li>
+                <li><strong>Shared vocabulary</strong>: lines that share two or more dictionary words.</li>
+                <li><strong>Sound</strong>: words that sound alike, useful across spelling variation.</li>
+                <li><strong>Synonyms</strong>: related words drawn from the Coptic WordNet.</li>
+                <li><strong>Grammatical structure</strong>: lines built the same way.</li>
+                <li><strong>Semantic (embeddings)</strong>: a model that recognizes the same idea in different words (a multilingual model, for Coptic).</li>
               </ul>
 
               <div className="mt-4 bg-blue-50 p-4 rounded-lg">
                 <h4 className="text-sm font-semibold uppercase tracking-wide text-blue-800 mb-1">Coptic → Greek</h4>
                 <p className="text-blue-800 text-sm">
                   Because much of Coptic scripture and literature was translated from Greek, you can search a Coptic
-                  text against the Greek corpus to surface the Greek source behind a translation. Choose the
+                  text against the Greek corpus to find the Greek source behind a translation. Choose the
                   Coptic → Greek pair on the Cross-Language tab.
                 </p>
               </div>
@@ -2520,7 +2562,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 </p>
                 <ul className="list-disc list-inside space-y-1 text-amber-900 text-sm mb-2">
                   <li><code className="bg-amber-100 px-1 rounded">sh</code> = shai, <code className="bg-amber-100 px-1 rounded">h</code> = hori, <code className="bg-amber-100 px-1 rounded">f</code> = fai, <code className="bg-amber-100 px-1 rounded">j</code> = djandja, <code className="bg-amber-100 px-1 rounded">c</code> = kjima, <code className="bg-amber-100 px-1 rounded">+</code> = ti, <code className="bg-amber-100 px-1 rounded">x</code> = khai (Bohairic)</li>
-                  <li>Capital <code className="bg-amber-100 px-1 rounded">E</code> = eta (long e) and capital <code className="bg-amber-100 px-1 rounded">O</code> = omega (long o); digraphs <code className="bg-amber-100 px-1 rounded">th ph kh ps ks</code> as expected.</li>
+                  <li>Capital <code className="bg-amber-100 px-1 rounded">E</code> = eta (long e) and capital <code className="bg-amber-100 px-1 rounded">O</code> = omega (long o), and digraphs <code className="bg-amber-100 px-1 rounded">th ph kh ps ks</code> as expected.</li>
                 </ul>
                 <p className="text-amber-900 text-sm">
                   Coptic writes words joined into groups, so <strong>whole-word and phrase matching may miss a
@@ -2536,14 +2578,14 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
               <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Hebrew Search</h3>
               <p className="text-gray-700 mb-4">
                 Tesserae searches the Hebrew Bible alongside Latin, Greek, English, and Coptic. The corpus is the
-                full Tanakh — all 39 books — in the Miqra according to the Masorah (MAM) edition, based on the
+                full Tanakh (all 39 books) in the Miqra according to the Masorah (MAM) edition, based on the
                 Aleppo Codex. You can compare any two books to trace inner-biblical reuse, from a poem preserved in
                 two places (Psalm 18 and 2 Samuel 22) to a phrase quoted in a later prophet.
               </p>
               <p className="text-gray-700 mb-2">
                 How well it works, measured (August 2026): searching the 22 marked citations of Isaiah in Romans from
                 the Hebrew, through the Septuagint, into the Greek New Testament finds 15 in the first hundred
-                results and 9 in the first ten; a direct word-for-word route found none. Inner-biblical Hebrew reuse
+                results and 9 in the first ten, while a direct word-for-word route found none. Inner-biblical Hebrew reuse
                 has been checked on known pairs (Psalm 18 and 2 Samuel 22, Isaiah 12:2 and Exodus 15:2) but not
                 yet against a published list.
               </p>
@@ -2563,10 +2605,10 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 Hebrew search runs the same battery of methods as the other languages:
               </p>
               <ul className="list-disc list-inside space-y-1 text-gray-700 text-sm mb-4">
-                <li><strong>Shared vocabulary</strong> — lines that share two or more dictionary words.</li>
-                <li><strong>Sound</strong> — words that sound alike, useful across spelling variation.</li>
-                <li><strong>Rare words</strong> — shared uncommon vocabulary, the strongest sign of a real echo.</li>
-                <li><strong>Semantic (embeddings)</strong> — MiqraBERT, a Biblical-Hebrew model fine-tuned in-house, which recognizes the same idea phrased in different words.</li>
+                <li><strong>Shared vocabulary</strong>: lines that share two or more dictionary words.</li>
+                <li><strong>Sound</strong>: words that sound alike, useful across spelling variation.</li>
+                <li><strong>Rare words</strong>: shared uncommon vocabulary, the strongest sign of a real echo.</li>
+                <li><strong>Semantic (embeddings)</strong>: MiqraBERT, a Biblical-Hebrew model fine-tuned in-house, which recognizes the same idea phrased in different words.</li>
               </ul>
 
               <div className="mt-4 bg-blue-50 p-4 rounded-lg">
@@ -2574,7 +2616,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 <p className="text-blue-800 text-sm mb-2">
                   On the Cross-Language tab you can search the Hebrew Bible against the Greek New Testament or the Latin
                   Vulgate, to see how a Hebrew passage was quoted, rendered, or echoed. Hebrew-to-Greek uses the
-                  CATSS Masoretic-Septuagint alignment; Hebrew-to-Latin bridges that through Greek to the Vulgate.
+                  CATSS Masoretic-Septuagint alignment. Hebrew-to-Latin bridges that through Greek to the Vulgate.
                 </p>
                 <p className="text-blue-800 text-sm mb-2">
                   <strong>Searching for Old Testament quotations in the Greek New Testament routes through the
@@ -2589,7 +2631,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   On a benchmark of the 22 explicitly marked citations of Isaiah in Romans, this routing finds 15 in
                   the top 100 results and 9 in the top ten, where the direct word-for-word route found none in the top
                   100. A few books are not routed because their Septuagint versification diverges too far from the
-                  Hebrew (Jeremiah, Ezra-Nehemiah, Ecclesiastes, Lamentations); those fall back to the direct
+                  Hebrew (Jeremiah, Ezra-Nehemiah, Ecclesiastes, Lamentations). Those fall back to the direct
                   dictionary search.
                 </p>
                 <p className="text-blue-800 text-sm">
@@ -2611,9 +2653,9 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
               <div className="mt-4 bg-gray-50 p-4 rounded-lg">
                 <h4 className="text-sm font-semibold uppercase tracking-wide text-gray-700 mb-1">Sources and licenses</h4>
                 <p className="text-gray-700 text-sm">
-                  The Hebrew text is from Sefaria (Miqra according to the Masorah / Aleppo Codex, CC-BY-SA); the
-                  morphology is from ETCBC/BHSA (CC-BY-NC); the meaning model is MiqraBERT (D. M. Smiley), fine-tuned
-                  on OpenBible.info cross-references; and the Hebrew-Greek dictionary comes from the CATSS alignment
+                  The Hebrew text is from Sefaria (Miqra according to the Masorah / Aleppo Codex, CC-BY-SA). The
+                  morphology is from ETCBC/BHSA (CC-BY-NC). The meaning model is MiqraBERT (D. M. Smiley), fine-tuned
+                  on OpenBible.info cross-references. The Hebrew-Greek dictionary comes from the CATSS alignment
                   (E. Tov). Full source and license details are on the About page.
                 </p>
               </div>
@@ -2638,9 +2680,9 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   <li>Persian reads <strong>right-to-left</strong>, and results are shown that way.</li>
                   <li><strong>Each line is a hemistich</strong> (misra), so a couplet occupies two consecutive lines and a
                     result may cite either half.</li>
-                  <li>Matching works on <strong>normalized</strong> forms: Persian and Arabic letter variants (ye, kaf, the
+                  <li>Matching works on <strong>normalized</strong> forms. Persian and Arabic letter variants (ye, kaf, the
                     alef forms) are folded together, so spelling differences between editions do not block a match.</li>
-                  <li>Dictionary forms come from the Stanza Persian model; a curated list of about 90 function words
+                  <li>Dictionary forms come from the Stanza Persian model. A curated list of about 90 function words
                     (prepositions, pronouns, the copula, the commonest auxiliaries) is set aside so that lines are not
                     matched on "was" and "is".</li>
                 </ul>
@@ -2654,13 +2696,13 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 <button onClick={() => setActiveSection('match-types')} className="text-red-600 hover:underline">Match Types</button>):
               </p>
               <ul className="list-disc ml-6 space-y-1 text-gray-700 text-sm mb-4">
-                <li><strong>Shared vocabulary</strong> (two or more dictionary forms in common, and a second channel for a single shared form) — the most heavily weighted evidence.</li>
-                <li><strong>Exact words</strong> — the same surface forms, spelling and all.</li>
-                <li><strong>Quotation</strong> — runs of three or more identical consecutive words: tazmin, iqtibas, a borrowed hemistich.</li>
-                <li><strong>Rare words</strong> — shared uncommon vocabulary, weighted below Latin's because a divan is full of names and rare forms that coincide by chance.</li>
-                <li><strong>Sound</strong> and <strong>spelling similarity</strong> — words that sound or look alike.</li>
-                <li><strong>Semantic</strong> — lines the multilingual model finds alike in content even when they share no words.</li>
-                <li><strong>Refrain &amp; rhyme</strong> — a channel of its own, run on every search in these languages: it segments each text into poems, reads each poem's refrain, rhyme and meter, and pairs poems that share them, so answer poems rise to the top even when their wording differs. It is explained in full, with the poetics behind it, under 
+                <li><strong>Shared vocabulary</strong> (two or more dictionary forms in common, and a second channel for a single shared form): the most heavily weighted evidence.</li>
+                <li><strong>Exact words</strong>: the same surface forms, spelling and all.</li>
+                <li><strong>Quotation</strong>: runs of three or more identical consecutive words: tazmin, iqtibas, a borrowed hemistich.</li>
+                <li><strong>Rare words</strong>: shared uncommon vocabulary, weighted below Latin's because a divan is full of names and rare forms that coincide by chance.</li>
+                <li><strong>Sound</strong> and <strong>spelling similarity</strong> (words that sound or look alike).</li>
+                <li><strong>Semantic</strong>: lines the multilingual model finds alike in content even when they share no words.</li>
+                <li><strong>Refrain &amp; rhyme</strong>: a channel of its own, run on every search in these languages: it segments each text into poems, reads each poem's refrain, rhyme and meter, and pairs poems that share them, so answer poems rise to the top even when their wording differs. It is explained in full, with the poetics behind it, under 
                   <button onClick={() => setActiveSection('poetics')} className="text-red-600 hover:underline">Poetic form: Persian, Urdu, Arabic</button>.</li>
               </ul>
 
@@ -2674,11 +2716,11 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   Iqbal's <em>andāz</em> ghazal, which keeps Hafez's form and changes the words, now leads a
                   Hafez-against-Zabur-e-Ajam search, and two poems on the same refrain but different meters are set
                   apart. Each pair of poems appears once in the results, with the poems' other refrain lines listed on the card, and a refrain and rhyme that many poems in the corpus share counts for less (the card says in how many). Refrain-less ghazals are not paired this way. Lines that share no words can still be paired by
-                  the <em>semantic</em> method when their content is alike; that method is new and its weighting provisional.
+                  the <em>semantic</em> method when their content is alike. That method is new and its weighting provisional.
                 </p>
                 <p className="text-blue-800 text-sm">
-                  Good first searches: Hafez against Iqbal's Zabur-e Ajam; Rumi against Iqbal's Persian divan;
-                  Saadi against Ferdowsi. Persian → Urdu on the Cross-Language tab finds the Persian phrases Ghalib
+                  Good first searches: Hafez against Iqbal's Zabur-e Ajam, Rumi against Iqbal's Persian divan,
+                  and Saadi against Ferdowsi. Persian → Urdu on the Cross-Language tab finds the Persian phrases Ghalib
                   carried into Urdu. When Arabic opens, Arabic → Persian will find Iqbal's Qur'anic quotations inside his Persian lines.
                 </p>
               </div>
@@ -2708,8 +2750,8 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 <h4 className="text-sm font-semibold uppercase tracking-wide text-amber-800 mb-1">Reading and matching Urdu</h4>
                 <ul className="list-disc list-inside space-y-1 text-amber-900 text-sm">
                   <li>Urdu reads <strong>right-to-left</strong>, and results are shown that way.</li>
-                  <li><strong>Each line is a hemistich</strong>; the two halves of a couplet are consecutive lines.</li>
-                  <li>Matching works on normalized forms: Urdu ye, kaf and he are folded to their Arabic-script
+                  <li><strong>Each line is a hemistich</strong>. The two halves of a couplet are consecutive lines.</li>
+                  <li>Matching works on normalized forms. Urdu ye, kaf and he are folded to their Arabic-script
                     counterparts, so an edition's spelling habits do not block a match.</li>
                   <li>A curated list of 80 function words (postpositions, pronouns, the auxiliaries "is", "was",
                     "does") is set aside before matching.</li>
@@ -2726,13 +2768,13 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 <button onClick={() => setActiveSection('match-types')} className="text-red-600 hover:underline">Match Types</button>):
               </p>
               <ul className="list-disc ml-6 space-y-1 text-gray-700 text-sm mb-4">
-                <li><strong>Shared vocabulary</strong> (two or more dictionary forms in common, and a second channel for a single shared form) — the most heavily weighted evidence.</li>
-                <li><strong>Exact words</strong> — the same surface forms, spelling and all.</li>
-                <li><strong>Quotation</strong> — runs of three or more identical consecutive words: tazmin, iqtibas, a borrowed hemistich.</li>
-                <li><strong>Rare words</strong> — shared uncommon vocabulary, weighted below Latin's because a divan is full of names and rare forms that coincide by chance.</li>
-                <li><strong>Sound</strong> and <strong>spelling similarity</strong> — words that sound or look alike.</li>
-                <li><strong>Semantic</strong> — lines the multilingual model finds alike in content even when they share no words.</li>
-                <li><strong>Refrain &amp; rhyme</strong> — a channel of its own, run on every search in these languages: it segments each text into poems, reads each poem's refrain, rhyme and meter, and pairs poems that share them, so answer poems rise to the top even when their wording differs. It is explained in full, with the poetics behind it, under 
+                <li><strong>Shared vocabulary</strong> (two or more dictionary forms in common, and a second channel for a single shared form): the most heavily weighted evidence.</li>
+                <li><strong>Exact words</strong>: the same surface forms, spelling and all.</li>
+                <li><strong>Quotation</strong>: runs of three or more identical consecutive words: tazmin, iqtibas, a borrowed hemistich.</li>
+                <li><strong>Rare words</strong>: shared uncommon vocabulary, weighted below Latin's because a divan is full of names and rare forms that coincide by chance.</li>
+                <li><strong>Sound</strong> and <strong>spelling similarity</strong> (words that sound or look alike).</li>
+                <li><strong>Semantic</strong>: lines the multilingual model finds alike in content even when they share no words.</li>
+                <li><strong>Refrain &amp; rhyme</strong>: a channel of its own, run on every search in these languages: it segments each text into poems, reads each poem's refrain, rhyme and meter, and pairs poems that share them, so answer poems rise to the top even when their wording differs. It is explained in full, with the poetics behind it, under 
                   <button onClick={() => setActiveSection('poetics')} className="text-red-600 hover:underline">Poetic form: Persian, Urdu, Arabic</button>.</li>
               </ul>
 
@@ -2741,12 +2783,12 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 <p className="text-blue-800 text-sm mb-2">
                   The Urdu ghazal answers earlier ghazals by taking over their radif, the refrain that ends every
                   couplet. When the refrain is distinctive (<em>rakhte hain</em>, <em>hotā hai</em>, <em>chāhiye</em>), a
-                  Ghalib-against-Mir search puts the refrain-sharing couplets at the top of the list; when the refrain
+                  Ghalib-against-Mir search puts the refrain-sharing couplets at the top of the list. When the refrain
                   is a single common word (<em>hai</em>, <em>kā</em>, <em>thā</em>), it is set aside as a function word and
                   the search falls back to the other words the couplets share, which is usually the right result.
                 </p>
                 <p className="text-blue-800 text-sm">
-                  Good first searches: Ghalib (numbered edition) against Mir; Iqbal's Bang-e Dara against Ghalib.
+                  Good first searches: Ghalib (numbered edition) against Mir, and Iqbal's Bang-e Dara against Ghalib.
                   On the Cross-Language tab, Persian → Urdu searches the Persian divans against the Urdu ones through
                   their shared vocabulary and their shared refrains (Hafez against Ghalib puts Ghalib's ghazal in Hafez's
                   form and his Persian phrases at the top). When Arabic opens, Arabic → Urdu will find Qur'anic phrases inside Urdu lines.
@@ -2784,9 +2826,9 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 <h4 className="text-sm font-semibold uppercase tracking-wide text-amber-800 mb-1">Reading and matching Arabic</h4>
                 <ul className="list-disc list-inside space-y-1 text-amber-900 text-sm">
                   <li>Arabic reads <strong>right-to-left</strong>, and results are shown that way.</li>
-                  <li>Each poem line is a full verse (bayt) with its two hemistichs separated by a bar; each Qur'an line
+                  <li>Each poem line is a full verse (bayt) with its two hemistichs separated by a bar. Each Qur'an line
                     is one aya.</li>
-                  <li>Matching works on normalized forms: hamza variants are folded to alef, alef maqsura to ya, and
+                  <li>Matching works on normalized forms. Hamza variants are folded to alef, alef maqsura to ya, and
                     vowel marks are removed.</li>
                   <li>Dictionary forms come from the Stanza Arabic model. Attached particles (<em>wa-</em>, <em>fa-</em>,
                     <em>ka-</em>, <em>li-</em>, <em>bi-</em>) and pronoun endings stay on the word, so the function-word
@@ -2802,14 +2844,14 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 <button onClick={() => setActiveSection('match-types')} className="text-red-600 hover:underline">Match Types</button>):
               </p>
               <ul className="list-disc ml-6 space-y-1 text-gray-700 text-sm mb-4">
-                <li><strong>Shared vocabulary</strong> (two or more dictionary forms in common, and a second channel for a single shared form) — the most heavily weighted evidence.</li>
-                <li><strong>Exact words</strong> — the same surface forms, spelling and all.</li>
-                <li><strong>Quotation</strong> — runs of three or more identical consecutive words: tazmin, iqtibas, a borrowed hemistich.</li>
-                <li><strong>Rare words</strong> — shared uncommon vocabulary, weighted below Latin's because a divan is full of names and rare forms that coincide by chance.</li>
-                <li><strong>Sound</strong> and <strong>spelling similarity</strong> — words that sound or look alike.</li>
-                <li><strong>Semantic</strong> — lines the multilingual model finds alike in content even when they share no words.</li>
-                <li><strong>Roots</strong> (Arabic only) — words of one root in different forms, the trace a near-quotation leaves; a single shared root counts on a small comparison, two on a large one.</li>
-                <li><strong>Refrain &amp; rhyme</strong> — a channel of its own, run on every search in these languages: it segments each text into poems, reads each poem's refrain, rhyme and meter, and pairs poems that share them, so answer poems rise to the top even when their wording differs. It is explained in full, with the poetics behind it, under 
+                <li><strong>Shared vocabulary</strong> (two or more dictionary forms in common, and a second channel for a single shared form): the most heavily weighted evidence.</li>
+                <li><strong>Exact words</strong>: the same surface forms, spelling and all.</li>
+                <li><strong>Quotation</strong>: runs of three or more identical consecutive words: tazmin, iqtibas, a borrowed hemistich.</li>
+                <li><strong>Rare words</strong>: shared uncommon vocabulary, weighted below Latin's because a divan is full of names and rare forms that coincide by chance.</li>
+                <li><strong>Sound</strong> and <strong>spelling similarity</strong> (words that sound or look alike).</li>
+                <li><strong>Semantic</strong>: lines the multilingual model finds alike in content even when they share no words.</li>
+                <li><strong>Roots</strong> (Arabic only): words of one root in different forms, the trace a near-quotation leaves. A single shared root counts on a small comparison, two on a large one.</li>
+                <li><strong>Refrain &amp; rhyme</strong>: a channel of its own, run on every search in these languages: it segments each text into poems, reads each poem's refrain, rhyme and meter, and pairs poems that share them, so answer poems rise to the top even when their wording differs. It is explained in full, with the poetics behind it, under 
                   <button onClick={() => setActiveSection('poetics')} className="text-red-600 hover:underline">Poetic form: Persian, Urdu, Arabic</button>.</li>
               </ul>
 
@@ -2824,15 +2866,15 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 </p>
                 <p className="text-blue-800 text-sm">
                   A mu'arada answers an earlier poem in its meter and rhyme. Each poem's rhyme letter is read from its
-                  verses and its meter from a classifier of classical Arabic verse; a single-poem text (the Burda, a
+                  verses and its meter from a classifier of classical Arabic verse. A single-poem text (the Burda, a
                   Mu'allaqa) is one poem, and a diwan (al-Mutanabbi's 286 poems, Shawqi's) is split on its poem
                   numbers, each poem with its own meter. So the Burda against Nahj al-Burda is tagged
                   <em>refrain &amp; rhyme</em> at the top (both <em>basīṭ</em>, rhyme <em>-mi</em>), while two poems that
                   share only a rhyme letter across different meters are not paired at all. Below the form tag, the wording matches
                   are the motifs the poems share: the slanderers, the lion, the camel-driver between Ka'b and Busiri.
                   A Qur'anic phrase used in a different grammatical form (same root) is matched through a root
-                  dictionary, which is coarse: many such near-quotations still rank low. Good first searches:
-                  al-Waqi'a or an-Najm against the Burda; the Burda against Nahj al-Burda; on the Cross-Language tab,
+                  dictionary, which is coarse. Many such near-quotations still rank low. Good first searches:
+                  al-Waqi'a or an-Najm against the Burda, the Burda against Nahj al-Burda, and on the Cross-Language tab,
                   al-Baqara against Iqbal's Rumuz-e Bekhudi (Arabic → Persian).
                 </p>
               </div>
@@ -2840,7 +2882,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
               <div className="mt-4 bg-gray-50 p-4 rounded-lg">
                 <h4 className="text-sm font-semibold uppercase tracking-wide text-gray-700 mb-1">Sources and licenses</h4>
                 <p className="text-gray-700 text-sm">
-                  The Qur'an text is the Tanzil Project's (CC-BY 3.0, verbatim); the Burda poems and the Mu'allaqat
+                  The Qur'an text is the Tanzil Project's (CC-BY 3.0, verbatim). The Burda poems and the Mu'allaqat
                   come from Arabic Wikisource (public-domain poems, transcription CC-BY-SA 4.0). Full details on the
                   About page.
                 </p>
@@ -2864,7 +2906,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 script and much Arabic vocabulary after the Islamic conquest, built the ghazal and its refrain. Urdu,
                 the spoken language of the north Indian cities, took the Persian system whole in the eighteenth century,
                 forms, meters, images and words, while Persian remained the language of court and learning until the
-                1830s; so a poet writing in both, as Ghalib and Iqbal did, is the ordinary case, much as Petrarch wrote
+                1830s, so a poet writing in both, as Ghalib and Iqbal did, is the ordinary case, much as Petrarch wrote
                 Latin and Italian. This page explains the forms and the kinds of reuse they carry, and then how each
                 Tesserae method reads them. The three language pages give the sources and the searches to try.
               </p>
@@ -2874,7 +2916,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 <ul className="list-disc ml-5 text-gray-700 text-sm space-y-1">
                   <li><strong>Ghazal.</strong> A short lyric of about five to fifteen couplets, each a self-contained thought. The
                     form of Hafez, Mir, Ghalib and Iqbal.</li>
-                  <li><strong>Qasida.</strong> The long Arabic ode, often in praise; the <em>Burda</em> and <em>Banat Su'ad</em> are qasidas.</li>
+                  <li><strong>Qasida.</strong> The long Arabic ode, often in praise. The <em>Burda</em> and <em>Banat Su'ad</em> are qasidas.</li>
                   <li><strong>Masnavi.</strong> Rhymed couplets, each with its own rhyme, for long narrative and didactic poems
                     (Rumi's <em>Masnavi</em>, Ferdowsi, Iqbal's <em>Asrar-e Khudi</em>).</li>
                   <li><strong>Rubai.</strong> The four-line quatrain (Khayyam).</li>
@@ -2885,15 +2927,15 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 <h4 id="poetics-line" className="text-base font-semibold text-gray-800 mb-2">How a line is built</h4>
                 <p className="text-gray-700 text-sm mb-2">
                   The unit is the couplet (<em>bayt</em>), made of two half-lines (<em>misra</em>), each a complete
-                  metrical line; manuscripts write the two side by side, modern books one under the other. In a ghazal
+                  metrical line. Manuscripts write the two side by side, modern books one under the other. In a ghazal
                   or qasida the whole poem keeps one rhyme. In Persian and Urdu the rhyme has two parts: the
                   <em>qafia</em>, the rhyming syllable, and the <em>radif</em>, a word or phrase repeated identically
                   after it, a refrain built into the line. Both half-lines of the opening couplet carry rhyme and
-                  refrain; after that only the second half-line of each couplet does. The last couplet usually names
+                  refrain. After that only the second half-line of each couplet does. The last couplet usually names
                   the poet. Meter is quantitative, long and short syllables as in Latin and Greek, borrowed from Arabic,
                   and one meter runs through a whole poem. In our files Persian and Urdu lines are half-lines (a couplet
                   is two consecutive lines) except in Iqbal's collections, where a line is a couplet with a bar between
-                  its halves; Arabic lines are whole verses.
+                  its halves. Arabic lines are whole verses.
                 </p>
                 <p className="text-gray-700 text-sm">
                   Example, Hafez (our lines 881 to 888), refrain <em>shumā</em> "you", rhyme <em>-ān</em>: "O radiance
@@ -2909,11 +2951,11 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 <h4 id="poetics-reuse" className="text-base font-semibold text-gray-800 mb-2">The kinds of reuse</h4>
                 <ul className="list-disc ml-5 text-gray-700 text-sm space-y-1">
                   <li><strong>Scriptural quotation</strong> (<em>iqtibas</em>): Qur'anic phrases woven into a poem, in Arabic
-                    even inside a Persian or Urdu line. The Burda's "hidden pearl" (Q 56:23); Iqbal's <em>fī l-qiṣāṣ
+                    even inside a Persian or Urdu line. The Burda's "hidden pearl" (Q 56:23). Iqbal's <em>fī l-qiṣāṣ
                     ḥayāt</em> (Q 2:179).</li>
-                  <li><strong>Answer poems</strong> (<em>javab</em>, <em>nazira</em> in Persian and Urdu; <em>mu'arada</em> in
+                  <li><strong>Answer poems</strong> (<em>javab</em>, <em>nazira</em> in Persian and Urdu. <em>Mu'arada</em> in
                     Arabic): a new poem in the model's meter, rhyme and refrain, honoring or contesting it, with little
-                    shared wording. Iqbal answers Hafez; Ghalib writes on Mir's refrains; Shawqi's <em>Nahj al-Burda</em>
+                    shared wording. Iqbal answers Hafez. Ghalib writes on Mir's refrains. Shawqi's <em>Nahj al-Burda</em>
                     answers al-Busiri, whose <em>Burda</em> looks back to Ka'b's.</li>
                   <li><strong>Embedded lines</strong> (<em>tazmin</em>): a famous couplet quoted inside a new poem.</li>
                   <li><strong>The shared image stock</strong>: nightingale and rose, moth and candle, the fire and smoke of the
@@ -2930,28 +2972,28 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                     (<em>ast</em>, <em>rā</em>, <em>hai</em>, <em>wa-</em>) are set aside by a curated list for each language.</li>
                   <li><strong>Answer poems</strong> are found by the <em>refrain &amp; rhyme</em> method, which runs on every
                     Persian, Urdu and Arabic search. It groups lines into poems (by the file's numbering where it has
-                    one; for the line-numbered Persian divans by poem boundaries fetched from Ganjoor, which also give
-                    each poem's meter; for Arabic a classifier of classical verse gives each poem its meter, a
+                    one, by poem boundaries fetched from Ganjoor for the line-numbered Persian divans, which also give
+                    each poem's meter, and for Arabic by a classifier of classical verse that gives each poem its meter, a
                     single-poem file counting as one poem and a diwan being split on its poem numbers), reads each
                     poem's refrain, rhyme and meter, and pairs poems that share them, opening line
                     against opening line, with the poem's other line pairs sharing a smaller part of the score. A form
-                    that many poems carry (the Urdu refrain <em>hai</em>) is discounted by how common it is; a shared
+                    that many poems carry (the Urdu refrain <em>hai</em>) is discounted by how common it is. A shared
                     refrain across two different meters keeps a small part of the score, since an answer keeps its
                     model's meter. In Arabic, where a qasida has no refrain, the signature is the rhyme letter and the
                     meter, and both must agree. Refrain-less ghazals are not paired this way, and Urdu has no meter
                     source yet.
-                    In the result list such a pair carries <em>Refrain</em>, <em>Rhyme</em> and <em>Meter</em> badges:
-                    the shared refrain is marked in yellow in both lines, the rhyme word before it in rose, and the
+                    In the result list such a pair carries <em>Refrain</em>, <em>Rhyme</em> and <em>Meter</em> badges.
+                    The shared refrain is marked in yellow in both lines, the rhyme word before it in rose, and the
                     meter badge appears only when both poems carry the same label.</li>
                   <li><strong>Near-quotation in Arabic</strong> (the same root in a different form, <em>yastaghfirūn</em> /
-                    <em>al-ghafūr</em>) is matched through roots from a rule-based stemmer, which is coarse; many
+                    <em>al-ghafūr</em>) is matched through roots from a rule-based stemmer, which is coarse. Many
                     documented near-quotations still rank low.</li>
-                  <li><strong>Shared imagery</strong> is read by the <em>semantic</em> method: each line has a vector from a
+                  <li><strong>Shared imagery</strong> is read by the <em>semantic</em> method. Each line has a vector from a
                     multilingual model, and lines whose vectors are alike beyond the top tenth of a percent of the
                     pair's line pairs are matched, with no words in common required. It does not see a quoted phrase
                     inside a line, and its weighting is provisional.</li>
                   <li><strong>Across the three languages</strong> (Cross-Language tab: Persian → Urdu now, Arabic → Persian and
-                    Arabic → Urdu when Arabic opens), no dictionary is needed: the languages are matched through the vocabulary they share, after
+                    Arabic → Urdu when Arabic opens), no dictionary is needed. The languages are matched through the vocabulary they share, after
                     the spelling conventions are reconciled (Urdu's extra letters, Arabic's <em>tā' marbūṭa</em>), on
                     both the dictionary form and the surface word, so a Qur'anic phrase inside a Persian line matches
                     the Arabic. A matched phrase extends through its function words so <em>innā lillāhi wa-innā
@@ -2970,8 +3012,8 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 <p className="text-gray-700 text-sm">
                   Persian, seven documented answer poems (Hafez to Iqbal): all seven in the top ten. Arabic, 44
                   documented Burda–Qur'an pairings: the verbatim quotations at ranks 1 to 3 and all six in the top
-                  5,000; near-quotations mostly deep in the list; allusions out of reach. Urdu, 23 refrains Ghalib
-                  shares with Mir: six in the top ten. Cross-language and imagery have no benchmark yet; on inspection,
+                  5,000. Near-quotations mostly deep in the list. Allusions out of reach. Urdu, 23 refrains Ghalib
+                  shares with Mir: six in the top ten. Cross-language and imagery have no benchmark yet. On inspection,
                   Persian → Urdu puts the Persian phrases Ghalib carried into Urdu at the top, and Arabic → Persian, tested
                   before Arabic was held back, put Iqbal's Qur'anic quotations at the top. The Arabic figures above come from a
                   test copy of the site. The benchmarks are small and new. Where a documented
@@ -3030,10 +3072,10 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                     Finds shared vocabulary across languages using four matching layers:
                   </p>
                   <ul className="text-gray-700 text-sm space-y-1 ml-4 list-disc list-inside">
-                    <li><strong>Curated pairs</strong> — 925 hand-verified Greek-Latin translation equivalences across 17 semantic categories (e.g., ἀνήρ→vir, ἐνέπω→cano, μένος→furor)</li>
-                    <li><strong>V3 dictionary</strong> — 34,500+ Greek-Latin word pairs from Lewis & Short / LSJ</li>
-                    <li><strong>Proper names</strong> — 1,500+ Greek-Latin name pairs from Wikidata and the Pleiades gazetteer (e.g., Ἀχιλλεύς→Achilles)</li>
-                    <li><strong>Cognate detection</strong> — automatic transliteration matching (e.g., Greek <em>philosophia</em> → Latin <em>philosophia</em>)</li>
+                    <li><strong>Curated pairs</strong>: 925 hand-verified Greek-Latin translation equivalences across 17 semantic categories (e.g., ἀνήρ→vir, ἐνέπω→cano, μένος→furor)</li>
+                    <li><strong>V3 dictionary</strong>: 34,500+ Greek-Latin word pairs from Lewis & Short / LSJ, with about 4,400 pairs added in V6 and the judged pairs loaded since October 2026</li>
+                    <li><strong>Proper names</strong>: 1,500+ Greek-Latin name pairs from Wikidata and the Pleiades gazetteer (e.g., Ἀχιλλεύς→Achilles)</li>
+                    <li><strong>Cognate detection</strong>: automatic transliteration matching (e.g., Greek <em>philosophia</em> → Latin <em>philosophia</em>)</li>
                   </ul>
                   <p className="text-gray-700 text-sm mt-2">
                     Matched dictionary words are highlighted in the results. Scores use word rarity (IDF)
@@ -3045,7 +3087,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   <p className="text-gray-700 text-sm">
                     Compares grammatical dependency structures across languages. Because Universal Dependencies labels
                     (nsubj, obj, obl, etc.) are language-independent, lines with identical dependency patterns are
-                    matched directly — no shared vocabulary needed.
+                    matched directly, with no shared vocabulary needed.
                   </p>
                 </div>
                 <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
@@ -3053,7 +3095,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   <p className="text-gray-700 text-sm">
                     Transliterates Greek tokens to Latin characters (e.g., μῆνιν → <em>menin</em>, Ἀχιλλεύς → <em>achileus</em>)
                     and compares them by edit distance against Latin tokens. Detects phonetic echoes across the script
-                    boundary, such as Homer's μῆνιν echoed in Vergil's <em>Mene</em>. Acts as a convergence booster —
+                    boundary, such as Homer's μῆνιν echoed in Vergil's <em>Mene</em>. Acts as a convergence booster that
                     strengthens pairs already found by semantic or dictionary channels.
                   </p>
                 </div>
@@ -3064,7 +3106,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                     {' '}<em>Aeneid</em> 1.1 is detected semantically (48% cosine) and confirmed by dictionary matches
                     (ἄνδρα→virum, ἔννεπε→cano), so the convergence bonus pushes it above pairs detected by only one channel.
                     The "Min Matches" setting lets you require a minimum number
-                    of dictionary word matches — set to 1 to include semantic-only pairs, or raise it to focus on
+                    of dictionary word matches. Set it to 1 to include semantic-only pairs, or raise it to focus on
                     vocabulary-confirmed parallels.
                   </p>
                 </div>
@@ -3092,7 +3134,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   <li><strong>~40%</strong> of gold-standard parallels found in top 50 (per-target-line ranking)</li>
                   <li><strong>~24%</strong> found in top 10</li>
                   <li>Only 31% of scholarly parallels have any shared vocabulary across languages</li>
-                  <li>94% are found somewhere in the full ranking: most of the parallels outside the top 50 share no words and are found through meaning, but rank lower</li>
+                  <li>94% are found somewhere in the full ranking. Most of the parallels outside the top 50 share no words and are found through meaning, but rank lower</li>
                 </ul>
                 <p className="text-gray-700 text-sm mt-2">
                   For comparison, the Latin fusion system achieves 91.9% recall across five benchmarks using
@@ -3114,7 +3156,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 subscription (see below).
               </p>
 
-              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">Free, with any AI <span className="text-sm font-normal text-gray-500">— you search, the AI interprets</span></h4>
+              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">Free, with any AI <span className="text-sm font-normal text-gray-500">(you search, the AI interprets)</span></h4>
               <p className="text-gray-700 text-sm mb-2">
                 This needs nothing beyond a chat window and works with any assistant, free or paid, including ones that
                 cannot reach the API themselves:
@@ -3137,10 +3179,10 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 standard Gemini cannot do this at any tier, so for Gemini use the free option above.
               </p>
 
-              <h5 className="text-base font-semibold text-gray-900 mt-4 mb-2">Claude <span className="text-sm font-normal text-gray-500">— one URL, the smoothest route</span></h5>
+              <h5 className="text-base font-semibold text-gray-900 mt-4 mb-2">Claude <span className="text-sm font-normal text-gray-500">(one URL, the smoothest route)</span></h5>
               <p className="text-gray-700 text-sm mb-2">
-                Add Tesserae to Claude once, and regular chat Claude can run everything — including the full fusion
-                search — with no Python and no guide-pasting. In <strong>Claude Desktop</strong> or <strong>claude.ai
+                Add Tesserae to Claude once, and regular chat Claude can run everything, including the full fusion
+                search, with no Python and no guide-pasting. In <strong>Claude Desktop</strong> or <strong>claude.ai
                 on a computer</strong>, go to <strong>Settings → Connectors → “Add custom connector”</strong> and paste
                 this URL:
               </p>
@@ -3151,7 +3193,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 <strong> Claude Pro</strong>. Connectors are added on desktop or web, not the mobile app.
               </p>
               <details className="text-sm text-gray-600 mb-6">
-                <summary className="cursor-pointer text-gray-700 font-medium">Advanced: run the connector locally instead (offline; no account/connector needed)</summary>
+                <summary className="cursor-pointer text-gray-700 font-medium">Advanced: run the connector locally instead (offline, no account or connector needed)</summary>
                 <div className="mt-2 pl-1">
                   <p className="mb-2">Prefer to run the server on your own machine? Download <a href="/tesserae-data/tesserae_mcp.py" target="_blank" rel="noopener noreferrer" className="text-blue-700 underline">tesserae_mcp.py</a> and install its dependencies:</p>
                   <CopyBlock text={MCP_PIP} />
@@ -3163,11 +3205,11 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 </div>
               </details>
 
-              <h5 className="text-base font-semibold text-gray-900 mt-6 mb-2">ChatGPT <span className="text-sm font-normal text-gray-500">— paste in the guide</span></h5>
+              <h5 className="text-base font-semibold text-gray-900 mt-6 mb-2">ChatGPT <span className="text-sm font-normal text-gray-500">(paste in the guide)</span></h5>
 
               {OFFICIAL_GPT_URL ? (
                 <>
-                  <p className="text-gray-700 text-sm mb-2 font-medium">Use the official Tesserae GPT — no setup.</p>
+                  <p className="text-gray-700 text-sm mb-2 font-medium">Use the official Tesserae GPT, with no setup.</p>
                   <p className="mb-3">
                     <a href={OFFICIAL_GPT_URL} target="_blank" rel="noopener noreferrer"
                       className="inline-block bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-medium px-4 py-2 rounded no-underline">
@@ -3175,7 +3217,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                     </a>
                   </p>
                   <p className="text-gray-700 text-sm mb-4">
-                    Open it and just ask it to find, compare, or investigate parallels — it calls the Tesserae API for you.
+                    Open it and just ask it to find, compare, or investigate parallels. It calls the Tesserae API for you.
                     If it asks permission to contact <code>tesserae.caset.buffalo.edu</code>, choose <em>Allow</em>.
                   </p>
                 </>
@@ -3190,7 +3232,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                     custom-GPT creation to those (see below).
                   </p>
                   <p className="mb-4">
-                    <a href="/tesserae-data/ai-guide.html" target="_blank" rel="noopener noreferrer"
+                    <a href="/static/downloads/ai-guide.html" target="_blank" rel="noopener noreferrer"
                       className="inline-block bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded no-underline">
                       Open the paste-in guide →
                     </a>
@@ -3208,8 +3250,8 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                     paste the guide above instead.
                   </p>
                   <p>
-                    <strong>Building or editing a GPT must be done in ChatGPT in a web browser</strong> at <code>chatgpt.com</code>
-                    — the desktop app doesn't clearly expose the GPT-builder. (Once built, you and anyone you share it with
+                    <strong>Building or editing a GPT must be done in ChatGPT in a web browser</strong> at <code>chatgpt.com</code>.
+                    The desktop app doesn't clearly expose the GPT-builder. (Once built, you and anyone you share it with
                     just chat with it normally, on any client, and you can edit it later.)
                   </p>
                   <ol className="list-decimal list-inside space-y-1">
@@ -3217,7 +3259,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                     <li>Paste the <em>Instructions</em> below into the Instructions box.</li>
                     <li><strong>Actions → Create new action → Import from URL</strong>, paste the schema URL below, set <strong>Authentication: None</strong>.</li>
                     <li>If you plan to share the GPT by link or publish it, add a <strong>Privacy policy</strong> URL (see the link below).</li>
-                    <li>Test it (e.g. “List Vergil's texts”), then <strong>Create</strong> — privately or as a shared link.</li>
+                    <li>Test it (e.g. “List Vergil's texts”), then <strong>Create</strong>, privately or as a shared link.</li>
                   </ol>
                   <p className="font-medium mb-1">Schema URL (for the Action):</p>
                   <CopyBlock text={AI_SCHEMA_URL} />
@@ -3228,7 +3270,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                     <a href={API_PRIVACY_URL} target="_blank" rel="noopener noreferrer" className="text-blue-700 underline break-all">{API_PRIVACY_URL}</a>
                   </p>
                   <p className="text-gray-500 text-xs">
-                    A custom GPT can run everything, including the full fusion search — it polls the fusion job until the
+                    A custom GPT can run everything, including the full fusion search. It polls the fusion job until the
                     results are ready. Building GPTs is included in ChatGPT Plus.
                   </p>
                 </div>
@@ -3238,14 +3280,14 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 <strong>A note on the full fusion search.</strong> Tesserae's most comprehensive comparison (“full fusion”)
                 usually takes about <strong>2–3 minutes</strong>. It keeps running on the Tesserae server even after your
                 assistant has replied, and the finished result is cached. If it's still running, just ask your assistant to
-                “<em>check the fusion search</em>” after a couple of minutes — it will retrieve and discuss the completed
+                “<em>check the fusion search</em>” after a couple of minutes. It will retrieve and discuss the completed
                 results. The faster “rare-pairs” and “rare-words” searches return in seconds.
               </div>
 
               <div className="bg-amber-50 p-4 rounded border border-amber-200">
                 <h4 className="text-sm font-semibold uppercase tracking-wide text-amber-800 mb-2">A note on scholarly use</h4>
                 <p className="text-gray-700 text-sm">
-                  Tesserae's results are transparent and reproducible — anyone can re-run a search and inspect why a
+                  Tesserae's results are transparent and reproducible. Anyone can re-run a search and inspect why a
                   parallel ranked where it did. Whatever your AI concludes from there is its own product. When you
                   publish, cite Tesserae for the parallels it found, and present the surrounding analysis as
                   AI-assisted interpretation you have checked.
@@ -3263,50 +3305,50 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
             <div className="prose max-w-none">
               <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Syntax</h3>
               <p className="text-gray-700 mb-3">
-                Syntax matching compares the <strong>grammatical structure</strong> of two lines — how the words relate as
-                subjects, objects, and modifiers — rather than which words they use. In the Fusion search it works as
+                Syntax matching compares the <strong>grammatical structure</strong> of two lines (how the words relate as
+                subjects, objects, and modifiers) rather than which words they use. In the Fusion search it works as
                 <strong> two channels</strong>:
               </p>
               <ul className="list-disc list-inside text-gray-700 text-sm space-y-1 mb-3">
-                <li><strong>Shared-word syntax:</strong> when two lines already share vocabulary, it checks whether those words sit in the same grammatical roles — a small confirmation that the parallel is structural, not coincidental.</li>
+                <li><strong>Shared-word syntax:</strong> when two lines already share vocabulary, it checks whether those words sit in the same grammatical roles, a small confirmation that the parallel is structural, not coincidental.</li>
                 <li><strong>Structural fingerprint:</strong> matches two lines with the same dependency skeleton (e.g. subject–verb–object) even when they share <em>no</em> vocabulary. To avoid firing on ordinary grammar, it only counts when another channel (synonyms or meaning) also links the pair.</li>
               </ul>
               <p className="text-gray-700 mb-4">
-                Both add to the fused score on a <strong>sliding scale</strong>, but with low weight — syntax
+                Both add to the fused score on a <strong>sliding scale</strong>, but with low weight. Syntax
                 <strong> supplements</strong> the other channels rather than driving results. A separate <strong>Syntax</strong>{' '}
                 checkbox in Search Settings can also apply it as a simple on/off boost.
               </p>
 
               <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-4">
-                <h4 className="text-sm font-semibold uppercase tracking-wide text-gray-700 mb-2">Latin — Full Coverage</h4>
+                <h4 className="text-sm font-semibold uppercase tracking-wide text-gray-700 mb-2">Latin: Full Coverage</h4>
                 <p className="text-sm text-gray-700">
-                  <strong>1,433 of the 1,832 Latin files</strong> (639,000+ lines) have been parsed for syntactic
+                  <strong>1,433 of about 1,830 Latin files</strong> (639,000+ lines) have been parsed for syntactic
                   dependencies using LatinPipe, a Latin dependency parser. Syntax matching works for any pair of
                   parsed texts. Works added since the parse contribute nothing to the syntax channels until they are parsed.
                 </p>
               </div>
 
               <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-4">
-                <h4 className="text-sm font-semibold uppercase tracking-wide text-gray-700 mb-2">Coptic — Available</h4>
+                <h4 className="text-sm font-semibold uppercase tracking-wide text-gray-700 mb-2">Coptic: Available</h4>
                 <p className="text-sm text-gray-700">
                   The Coptic corpus (187 Sahidic and Bohairic texts, 186 of them parsed) is grammatically parsed and wired into the same syntax
                   channels, so Coptic searches use syntax the same way Latin does.
                 </p>
               </div>
               <div className="bg-amber-50 p-4 rounded border border-amber-200 mb-4">
-                <h4 className="text-sm font-semibold uppercase tracking-wide text-amber-800 mb-2">Greek — Partial</h4>
+                <h4 className="text-sm font-semibold uppercase tracking-wide text-amber-800 mb-2">Greek: Partial</h4>
                 <p className="text-sm text-gray-700">
-                  650 of the 1,268 Greek files in the corpus have been parsed (239,000+ lines), using Stanza with
+                  650 of the about 1,330 Greek files in the corpus have been parsed (239,000+ lines), using Stanza with
                   the {' '}<code className="bg-gray-200 px-1 rounded">grc_proiel</code> model. Homer is among them.
                   Syntax matching <strong>does</strong> work for Greek pairs where both texts are parsed, and contributes
-                  nothing where either is not; the other channels run normally either way.
+                  nothing where either is not. The other channels run normally either way.
                 </p>
               </div>
               <div className="bg-gray-50 p-4 rounded border border-gray-200 mb-4">
-                <h4 className="text-sm font-semibold uppercase tracking-wide text-gray-700 mb-2">English — Not Yet</h4>
+                <h4 className="text-sm font-semibold uppercase tracking-wide text-gray-700 mb-2">English: Not Yet</h4>
                 <p className="text-sm text-gray-700">
-                  English texts have not been parsed for grammar, so the syntax channels contribute nothing for English —
-                  its other channels still run normally. (Because grammatical labels are language-independent,
+                  English texts have not been parsed for grammar, so the syntax channels contribute nothing for English.
+                  Its other channels still run normally. (Because grammatical labels are language-independent,
                   cross-language structural matching becomes possible wherever both sides are parsed.)
                 </p>
               </div>
@@ -3317,7 +3359,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   Each line is represented as a set of dependency relation patterns (e.g., <code className="bg-gray-200 px-1 rounded">nsubj→VERB</code>,
                   {' '}<code className="bg-gray-200 px-1 rounded">amod→NOUN</code>). Lines with similar grammatical structures
                   receive high syntax similarity scores. This catches parallels where an author mirrors sentence
-                  structure — subject-verb-object order, subordinate clause placement, participial constructions — without
+                  structure (subject-verb-object order, subordinate clause placement, participial constructions) without
                   reusing any of the same words.
                 </p>
               </div>
@@ -3364,7 +3406,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 <li><strong>Select complete works</strong>: Search entire texts rather than individual books</li>
                 <li><strong>Results are not capped</strong>: by default every result is returned. Set Max Results to a number to keep only the top ones.</li>
                 <li><strong>Use the Lines tab</strong>: Search a single line against every text in its language</li>
-                <li><strong>Try Rare Words or Rare Pairs</strong>: These specialized modes find distinctive vocabulary connections that complement Fusion</li>
+                <li><strong>Try Rare Words or Rare Pairs.</strong> These specialized modes find distinctive vocabulary connections that complement Fusion</li>
               </ul>
 
               <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">General Tips</h4>
@@ -3372,7 +3414,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 <li><strong>Export for analysis</strong>: Download CSV files to analyze results in spreadsheet software</li>
                 <li><strong>Check the corpus</strong>: Use "Search Corpus" on a result to see where else those words co-occur</li>
                 <li><strong>Register discoveries</strong>: Add significant parallels to the Repository for future reference</li>
-                <li><strong>Greek diacritics are optional</strong>: You can search Greek with or without accents and breathings</li>
+                <li><strong>Greek diacritics are optional.</strong> You can search Greek with or without accents and breathings</li>
               </ul>
             </div>
           )}
@@ -3708,7 +3750,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   <h4 className="text-lg font-semibold text-gray-900">What is Fusion search and should I use it?</h4>
                   <p className="text-gray-600 text-sm mt-1">
                     Fusion is the default search mode. It runs eleven independent detection channels simultaneously
-                    and combines their results, finding 92% of known parallels in the Latin benchmark tests. Unless you need
+                    and combines their results, finding 92% of known parallels in the Latin benchmark tests of August 2026 (not re-run since the Latin lemma table was corrected in October 2026). Unless you need
                     to isolate a specific detection method, Fusion is recommended for general use.
                   </p>
                 </div>
@@ -3717,7 +3759,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   <p className="text-gray-600 text-sm mt-1">
                     Fusion search runs eleven channels, which takes longer than a single-channel search.
                     Try searching smaller sections (e.g., individual books) for faster results. Large text pairs
-                    like the full Aeneid vs. Metamorphoses can take up to 15 minutes on first run but are cached
+                    like the full Aeneid vs. Metamorphoses take longer on the first run but are cached
                     for subsequent searches. A progress timer is shown during the search.
                   </p>
                 </div>
@@ -3735,7 +3777,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   <p className="text-gray-600 text-sm mt-1">
                     When the server is already running heavy searches for other users, your search is placed in a
                     queue to prevent the server from running out of memory. You'll see a "Search queued" message
-                    with a spinner. Your search will start automatically when a slot opens — typically within a few
+                    with a spinner. Your search will start automatically when a slot opens, typically within a few
                     minutes. You can cancel and retry later if you prefer.
                   </p>
                 </div>
@@ -3781,9 +3823,9 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 <div>
                   <h4 className="text-lg font-semibold text-gray-900">Does syntax matching work for Greek and English?</h4>
                   <p className="text-gray-600 text-sm mt-1">
-                    For Greek, yes, on about half the corpus: 650 of the 1,268 Greek files are parsed,
-                    Homer among them, so syntax matching works where both texts are parsed. For English, no:
-                    English is not parsed at all. Latin (1,433 of 1,832 files) and Coptic (186 of 187) are parsed too. Where
+                    For Greek, yes, on about half the corpus: 650 of the about 1,330 Greek files are parsed,
+                    Homer among them, so syntax matching works where both texts are parsed. For English, no, because
+                    English is not parsed at all. Latin (1,433 of about 1,830 files) and Coptic (186 of 187) are parsed too. Where
                     parsing is unavailable the syntax channel contributes nothing and the other channels run
                     normally.
                   </p>
