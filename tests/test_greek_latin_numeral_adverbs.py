@@ -25,5 +25,5 @@ def test_numeral_adverbs_are_paired():
 def test_the_storm_parallel_now_shares_three_dictionary_words():
     greek = ['τρίς', 'μάκαρ', 'τετράκις']
     latin = {'ter', 'beatus', 'quater'}
-    shared = {l for g in greek for l in _latin(g) if l in latin}
+    shared = {lat for g in greek for lat in _latin(g) if lat in latin}
     assert shared == latin
