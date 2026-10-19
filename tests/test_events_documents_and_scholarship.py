@@ -155,7 +155,48 @@ def test_scholarship_reads_both_indexes_and_counts_each(stores, monkeypatch, cap
     R.main([stores['ev'], out, '--citation-index', str(ejc)])      # the MUSE file beside it is found
     text = capsys.readouterr().out
     assert seen['extra'] == str(muse)
-    assert 'ejc: 1 distinct articles, 1 rows' in text and 'muse: 2 distinct articles, 2 rows' in text
+    assert 'ejc passage: 1 distinct articles, 1 rows' in text and 'muse passage: 2 distinct articles, 2 rows' in text
     assert 'events with any scholarship row: 1 of 3' in text
     R.main([stores['ev'], out, '--citation-index', str(ejc), '--extra-index', ''])
     assert seen['extra'] is None
+
+
+def test_span_of_takes_lowest_to_highest_locus_per_work():
+    ps = [dict(work='w.a', ref_start='thuc. 6.30', ref_end='thuc. 6.32'),
+          dict(work='w.a', ref_start='thuc. 7.10', ref_end='thuc. 7.12'),
+          dict(work='w.a', ref_start='thuc. 6.5', ref_end='thuc. 6.6'),
+          dict(work='w.b', ref_start='plut. 12.1', ref_end='plut. 12.3')]
+    assert R.span_of(ps) == [('w.a', 'thuc. 6.5', 'thuc. 7.12')]      # w.b has one passage, no span
+
+
+def test_scholarship_span_group_follows_and_is_not_repeated(stores, monkeypatch, capsys):
+    from backend import scholarship as S
+    c = sqlite3.connect(stores['ev'])
+    c.executemany("INSERT INTO passages VALUES ('E1', ?, 'thucydides.history', ?, ?, 'yes')",
+                  [(1, 'thuc. 6.30', 'thuc. 6.32'), (2, 'thuc. 7.10', 'thuc. 7.12')])
+    c.commit()
+    c.close()
+    ejc = stores['tmp'] / 'citations.db'
+    ejc.write_bytes(b'')
+    asked = []
+
+    def fake_names(work, a, b=None):
+        return {'work': work, 'lo': a, 'hi': b}
+
+    def fake_index(a, limit=40):
+        asked.append((a['lo'], a['hi']))
+        wide = a['lo'] == 'thuc. 6.30' and a['hi'] == 'thuc. 7.12'
+        res = [{'title': 'Same', 'url': 'u1', 'source': 'citation_index'}]
+        if wide:
+            res.append({'title': 'Elsewhere', 'url': 'u9', 'source': 'citation_index'})
+        return {'results': res}
+
+    monkeypatch.setattr(S, 'passage_names', fake_names)
+    monkeypatch.setattr(S, 'citation_index', fake_index)
+    out = str(stores['tmp'] / 'rel2.sqlite')
+    R.main([stores['ev'], out, '--citation-index', str(ejc), '--extra-index', ''])
+    rows = sqlite3.connect(out).execute(
+        "SELECT title, passage_rank, passage_ref, scope FROM scholarship WHERE event_id = 'E1' ORDER BY rowid").fetchall()
+    assert [r for r in rows if r[3] == 'span'] == [('Elsewhere', None, 'thuc. 6.30-7.12', 'span')]
+    assert sum(1 for r in rows if r[0] == 'Same') == 2          # once per leading passage, never again in the span group
+    assert 'ejc span: 1 distinct articles, 1 rows' in capsys.readouterr().out

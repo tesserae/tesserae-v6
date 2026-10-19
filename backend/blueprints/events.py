@@ -115,7 +115,9 @@ def _scholarship(c, event_id):
     """The event's scholarship rows. A database that records the passage each
     article was found through (passage_rank, passage_ref) gives one row per
     article, with the first passage that brings it in (the lowest rank), ordered
-    by that rank. An older database keeps its rows as they are."""
+    by that rank. Rows with scope 'span' are articles that cite within the span
+    the leading passages cover but not a leading passage itself, and follow the
+    others. An older database keeps its rows as they are."""
     cols = _columns(c, 'scholarship')
     linked = 'passage_rank' in cols and 'passage_ref' in cols
     rows = c.execute('SELECT * FROM scholarship WHERE event_id = ? ORDER BY kind, rowid', (event_id,)).fetchall()
@@ -126,6 +128,8 @@ def _scholarship(c, event_id):
             item.update(_commentary_cite_fields(s['title'], s['page_ref']))
         if linked:
             item.update(passage_rank=s['passage_rank'], passage_ref=s['passage_ref'])
+            if 'scope' in cols:
+                item['scope'] = s['scope'] or 'passage'
         out.append(item)
     if linked:
         out = _by_passage_rank(out)
@@ -157,7 +161,7 @@ def _by_passage_rank(items):
                 best[k] = i
     keep = [i for i in items if i['kind'] != 'article' or best[(i['url'] or '', i['title'] or '')] is i]
     order = {'article': 0, 'commentary': 1}
-    return sorted(keep, key=lambda i: (order.get(i['kind'], 2), _rank(i)))
+    return sorted(keep, key=lambda i: (order.get(i['kind'], 2), i.get('scope') == 'span', _rank(i)))
 
 
 def _rank(i):
