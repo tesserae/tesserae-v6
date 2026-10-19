@@ -2,7 +2,7 @@
 
 ## Quick Summary
 
-Most data files are included in the Git repository (~4 GB, including texts and embeddings). The only files you need to download separately are the **SQLite search indexes** (~6.3 GB total). A script handles this automatically.
+Most data files are included in the Git repository (texts, lemma tables, descriptions). The files you need to build or download separately are the **SQLite search indexes** (~6.3 GB total) and the **per-line semantic vectors** in `backend/embeddings/` (about 2 GB, untracked since 2026-10-19; build them with the scripts in `embedding_toolkit/` or take them from the downloads page). A script handles the indexes automatically.
 
 ```bash
 git clone https://github.com/tesserae/tesserae-v6.git    # ~4 GB
@@ -27,7 +27,7 @@ python scripts/download_data.py --check
 | Directory | Size | Contents |
 |-----------|------|----------|
 | `texts/` | ~308 MB | 2,176 `.tess` text files (Latin, Greek, English) |
-| `backend/embeddings/` | ~3.5 GB | Pre-computed semantic embeddings (SPhilBERTa) |
+| `backend/embeddings/` | ~2 GB | Pre-computed semantic embeddings (SPhilBERTa), not in git since 2026-10-19 |
 | `data/lemma_tables/*.json` | ~40 MB | Lemma lookup tables (Latin, Greek) |
 | `data/pedecerto/` | ~5 MB | Metrical scansion XML data |
 | `cache/` | ~5 MB | Pre-computed rare words and bigrams |
@@ -135,7 +135,7 @@ Most of the time, nothing changes. The index files only need updating when you a
 | Lemmatization improvements | Inverted index (full rebuild) | Rarely |
 | LatinPipe re-parse | `syntax_latin.db` | Rarely |
 | Greek treebank updates | `syntax_greek.db` | Rarely |
-| New embedding model | Embeddings (already in Git) | Very rarely |
+| New embedding model | Embeddings (built, not in Git) | Very rarely |
 
 There is no automatic notification when indexes are updated. Inform collaborators when you push a new manifest ("Pull and re-run the download script").
 
@@ -164,6 +164,6 @@ Two files serve complementary purposes:
 
 1. **`.gitignore` blocks `*.db` files** — This is why the SQLite indexes don't end up on GitHub even though their parent directories are tracked.
 2. **The texts are on GitHub** — Unlike many large NLP projects, the full text corpus is committed to Git (~308 MB).
-3. **Embeddings are on GitHub** — The ~3.5 GB of pre-computed embeddings are also committed. This was a deliberate choice for ease of setup.
+3. **Embeddings are not on GitHub** since 2026-10-19. They were committed until then for ease of setup, but the copies on GitHub fell behind the ones in production after text repairs, so they are now built or downloaded like the indexes.
 4. **Index rebuilds require texts** — You need the text corpus present before rebuilding any search index.
 5. **Latin syntax DB requires LatinPipe** — `syntax_latin.db` can only be rebuilt on Marvin where the LatinPipe model is available. `syntax_greek.db` is built from pre-existing treebank data and can be rebuilt anywhere.
