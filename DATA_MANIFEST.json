@@ -222,10 +222,12 @@
     "already_on_github": [
       "texts/ (2,176 .tess files, ~308 MB)",
       "data/lemma_tables/*.json (lemma lookup tables, ~40 MB)",
-      "data/pedecerto/ (metrical scansion XML data)",
-      "backend/embeddings/ left the repository on 19 October 2026 (the per-line vector files are production data, not in git)"
+      "data/pedecerto/ (metrical scansion XML data)"
     ],
     "passage_index": "The passage window index (Theme Search, Similar Passages) ships as per-language slices on the download page, passage_index_<lang>.tar.gz with index.json, because the slices differ in licence (Hebrew CC BY-NC, Coptic CC BY, the rest public domain or Ganjoor). Reassemble with scripts/merge_index.py. The single passage_index.tar.gz of 2 September 2026 was withdrawn on 19 October 2026.",
-    "checksums_added_2026_10_19": "For the ten entries added on 19 October 2026 (and the window_texts entry as updated), sha256 is the checksum of the archive, which download_data.py verifies, and sha256_extracted is the checksum of the first extracted file."
+    "checksums_added_2026_10_19": "For the ten entries added on 19 October 2026 (and the window_texts entry as updated), sha256 is the checksum of the archive, which download_data.py verifies, and sha256_extracted is the checksum of the first extracted file.",
+    "left_github": [
+      "backend/embeddings/ (the per-line vector files, about 2 GB) left the repository on 19 October 2026 and are production data, not offered as a download"
+    ]
   }
 }
