@@ -35,7 +35,9 @@ Conventions
   hand and are the models the helper matches.
 
 
-## 2026-10-19 Public Coptic index download rebuilt without the Sahidica New Testament (PENDING, to be run by the lead)
+## 2026-10-19 Public Coptic index download rebuilt without the Sahidica New Testament (RUN 08:16 EDT, by the lead)
+
+**Run record.** Installed at 08:16 from the staging folder: the 2 September archive, the page and the checksum file copied to `~/tesserae-backups/public_data_old_2026-10-19/` first, then the new `cop_index.db.tar.gz` (39,294,127 bytes), `index.html` and `SHA256SUMS.txt` moved into `public_data/` with mode 664. The page note was reworded to drop the file count (the live index held 27 of the registry's 29 works). `sha256sum -c` passed on every archive, and the archive fetched from `https://tesserae.caset.buffalo.edu/tesserae-data/cop_index.db.tar.gz` has the recorded SHA-256 `4696f27b…324a05`. The page at `/tesserae-data/index.html` shows the note.
 
 Why. The Sahidica New Testament (J. Warren Wells's edition) is held for academic use only, so the public Coptic index download may not carry it. The site search keeps it. The download of 2 September still held it and was left out of the regeneration earlier today for that reason.
 
