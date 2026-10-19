@@ -14,7 +14,6 @@ import ScholarshipTab from './ScholarshipTab';
 import CoinsTab from './CoinsTab';
 import ScopeBox from '../common/ScopeBox';
 import { SEARCH_SCOPE } from '../../data/searchScope';
-import { entitiesTrialOn } from '../../hooks/useEntitiesTrial';
 
 /** Parse a response as JSON, failing with a message a reader can act on.
  *  While the server reloads, Apache answers API calls with an HTML error
@@ -1233,15 +1232,13 @@ function SimilarResultCard({ r, onOpenPassage }) {
           {r.shared_names.map((n, i) => (
             <span key={n}>
               {i > 0 && ', '}
-              {entitiesTrialOn() ? (
-                <a
-                  href={`/mentions?entities=1&q=${encodeURIComponent(n)}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-red-700 hover:underline"
-                  title={`Every line in the corpus that mentions ${n} (People & Places)`}
-                >{n}</a>
-              ) : n}
+              <a
+                href={`/mentions?q=${encodeURIComponent(n)}`}
+                target="_blank"
+                rel="noreferrer"
+                className="text-red-700 hover:underline"
+                title={`Every line in the corpus that mentions ${n} (People & Places)`}
+              >{n}</a>
             </span>
           ))}
         </p>

@@ -6,7 +6,6 @@ import { useIsNarrow } from '../../hooks/useIsPhone';
 import { PAGE_NEEDS, VIEWS, viewById, orderBy } from '../../collections/collectionsConfig';
 import CollectionsControl from './CollectionsControl';
 import { fetchLanguages } from '../../utils/api';
-import { entitiesTrialOn } from '../../hooks/useEntitiesTrial';
 
 /** Tells a horizontally scrolling strip whether there is more to its right.
  *
@@ -68,8 +67,8 @@ const mainTabs = [
   { code: 'search', label: 'Intertextual Search' },
   { code: 'read', label: 'Read' },
   { code: 'theme-search', label: 'Theme Search' },
-  // Trial (?entities=1, remembered for the visit): where a place, person or god is named.
-  { code: 'mentions', label: 'People & Places', beta: true, entities: true },
+  // Where a place, person or god is named.
+  { code: 'mentions', label: 'People & Places' },
   { code: 'ask-a-work', label: 'Search One Text', beta: true },
   // Trial: shown only when the documents trial is active, both the server
   // switch (TESSERAE_DOCUMENTS=1, read from /api/languages below) and the
@@ -224,7 +223,6 @@ const Navigation = ({
   const shownTabs = orderBy(mainTabs, viewById(view).menuOrder, (t) => t.code)
     .filter(tab => tab.code !== 'admin')
     .filter(tab => !tab.trial || showInscriptionsPapyri)
-    .filter(tab => !tab.entities || entitiesTrialOn())
     .filter(tab => !tab.needs || anyOn(PAGE_NEEDS[tab.needs]));
   const candidateTabs = shownTabs.filter(tab => !tab.more);
   const nFit = fitCount === null ? candidateTabs.length : Math.min(fitCount, candidateTabs.length);

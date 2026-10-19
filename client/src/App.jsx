@@ -15,7 +15,6 @@ import { ReaderPage } from './components/reader';
 import DocumentView from './components/documents/DocumentView';
 import InscriptionsPapyriPage from './components/documents/InscriptionsPapyriPage';
 import EventsPage from './components/events/EventsPage';
-import { entitiesTrialOn } from './hooks/useEntitiesTrial';
 import MentionsPage from './components/mentions/MentionsPage';
 import CoinsPage from './components/coins/CoinsPage';
 import ObjectsPage from './components/objects/ObjectsPage';
@@ -65,7 +64,6 @@ function App() {
   // which page set it or which page is opened next.
   useEffect(() => {
     captureUrlOverrides();
-    entitiesTrialOn();   // the Mentions trial (?entities=1) is captured the same way
   }, []);
   const { adminSessionActive, adminSessionChecked } = useAdminSession();
   const { pageType, setPageType, setPageTypeWithGuard, goViewHome } = useRoute({ adminSessionChecked, adminSessionActive });

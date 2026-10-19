@@ -21,13 +21,15 @@ describe('Help: Mentions', () => {
     expect(labels.indexOf('People & Places')).toBe(labels.indexOf('Theme Search') + 1);
   });
 
-  it('opens the section with the anchor #mentions and the trial note', async () => {
+  it('opens the section with the anchor #mentions, as a live feature', async () => {
     serve();
     const user = userEvent.setup();
     render(<HelpPage />);
     await user.click(await screen.findByRole('button', { name: 'People & Places' }));
     await waitFor(() => expect(document.getElementById('mentions')).not.toBeNull());
-    expect(screen.getByText(/entities=1/)).toBeTruthy();
+    expect(screen.queryByText(/entities=1/)).toBeNull();
+    expect(screen.queryByText(/is a trial/)).toBeNull();
+    expect(screen.getByText(/repaired on 2026-10-19/)).toBeTruthy();
     expect(screen.getAllByRole('button', { name: 'Suggest a change' })).toHaveLength(2);
   });
 

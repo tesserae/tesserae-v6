@@ -8,6 +8,10 @@ history (index builds, cache rebuilds, corpus changes) is in
 `DATA_OPERATIONS.md`; per-release changes are in `../CHANGELOG.md`.
 
 
+## 2026-10-19: People & Places goes live for everyone on the repaired store
+
+The project lead decided on 2026-10-19 that People & Places goes live for everyone once the repaired entity store is installed, and the `?entities=1` trial gate comes off. The repair carves names that two people or places share into separate entries, then merges back the carves that split one referent in two, by a stem rule (18 merges) and a model question (51 merges). The lead read the 69 merges and kept 55. Figures from the stage 4 report: the 180 fixed pairs hold at 90 of 101 kept pairs right, the stage 1d fresh 40 hold at 33 of 40 strict and 38 of 40 lenient, the new list mentions are right in 25 of 37, and the share of splits read as wrong fell from 11 of 47 to 3 of 30 on fresh samples. Rome and the Romans stay two entries (the decision below). A name shared by two people or places can still be grouped wrongly, and the Help section says so and points to the Suggest a change button. The connector tools stay off until `TESSERAE_ENTITY_TOOLS=1`.
+
 ## 2026-10-19: People & Places keeps Rome and the Romans as two entries
 
 The repaired entity store carves the Greek Ῥωμαῖοι and the Latin Romani into a Romans entry (a people, 14,584 lines) beside Rome (a place, 4,771 lines). The project lead decided on 2026-10-19 that they stay separate, since one is a people and one a place, and a query for Rome returns both. The merge pass of 2026-10-19 (pass 4d) leaves that carve alone.
