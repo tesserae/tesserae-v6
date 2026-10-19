@@ -336,7 +336,7 @@ def case_form_extension(entities, types, prep, present, threshold=MAJORITY, stem
 
 
 def assemble_matcher(entities, types, prep, threshold=MAJORITY, audit_fixes=True, overrides=True, log=print,
-                     decisions=None, case_forms=False, case_allowed=None, stem_gate=True):
+                     decisions=None, case_forms=False, case_allowed=None, stem_gate=True, token_blocks=None):
     """Return (tok2ents, info). tok2ents[lang][folded token] = tuple of entity indexes,
     for every token type that is written with a capital at least once and whose lemma is
     in the entity's lemma set. With audit_fixes the lemmas that entity_lemma_audit proposes
@@ -441,6 +441,22 @@ def assemble_matcher(entities, types, prep, threshold=MAJORITY, audit_fixes=True
                     n_over += 1
                     tok2ents[lang][tok] = tuple(sorted(new))
     diag['override_tokens_added'] = n_over
+    if token_blocks:
+        # fix pass 4b: tokens the corrected lemma table links to an entity and the confirmation question did not call
+        # a name of it. {(language, entity id, folded token)}
+        by_id = id_index(entities)
+        n_block = 0
+        for lang, eid, tok in token_blocks:
+            idx = by_id.get(eid)
+            es = tok2ents.get(lang, {}).get(tok)
+            if idx is not None and es and idx in es:
+                rest = tuple(i for i in es if i != idx)
+                if rest:
+                    tok2ents[lang][tok] = rest
+                else:
+                    del tok2ents[lang][tok]
+                n_block += 1
+        diag['token_blocks_applied'] = n_block
     info = {'diag': dict(diag), 'no_lemma': no_lemma, 'tried': tried, 'ent_lemmas': ent_lemmas,
             'candidate_lemmas': candidate, 'proposals': proposals,
             'reasons': reasons, 'type_lemma': type_lemma, 'stats': stats,
@@ -452,10 +468,11 @@ def assemble_matcher(entities, types, prep, threshold=MAJORITY, audit_fixes=True
 
 
 def build_lemma_matcher(entities, types, resolver, log=print, threshold=MAJORITY, audit_fixes=True,
-                        overrides=True, decisions=None, case_forms=False, case_allowed=None):
+                        overrides=True, decisions=None, case_forms=False, case_allowed=None, token_blocks=None):
     prep = prepare_lemmas(entities, types, resolver, log=log)
     return assemble_matcher(entities, types, prep, threshold, audit_fixes, overrides, log=log,
-                            decisions=decisions, case_forms=case_forms, case_allowed=case_allowed)
+                            decisions=decisions, case_forms=case_forms, case_allowed=case_allowed,
+                            token_blocks=token_blocks)
 
 
 def window_triggers(text, t2e):

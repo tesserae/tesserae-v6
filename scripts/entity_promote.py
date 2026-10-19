@@ -285,45 +285,56 @@ def collision_snippets(db, tx, eid, forms, n=3, tag='collide'):
 def step_collide(a):
     """The stem test (entity_promote.collision_candidate) over every corpus name of --store, then one question
     per qualifying group of each candidate: the stage 3a question (entity_promote.question and parse_judgment)
-    asked about the group's own spellings and three lines that hold them. A group whose spellings are exactly
-    the main forms of the key's earlier judgment takes that judgment and is not asked again."""
+    asked about the group's own spellings and three lines that hold them. Fix pass 4b: groups are made by stem
+    (ending stripped) and a group whose stem is a stem of the main spellings of the key's earlier judgment is not
+    asked, since it stays with that entity. An answer recorded for the same spellings under --reuse-tag is reused.
+    Files in --work-dir: <tag>_candidates.json (every group of every candidate key) and <tag>_judgments.jsonl."""
     t0 = time.time()
+    tag = a.collide_tag
     db, tx = ro(a.store), ro(os.path.join(a.passage_dir, 'window_texts.db'))
     groups = collision_groups_of_store(db)
     print(f'{len(groups)} corpus-name keys, groups computed {time.time() - t0:.0f}s', flush=True)
-    cand = {k: pr.collision_candidate(g) for k, g in groups.items()}
-    cand = {k: g for k, g in cand.items() if g}
+    cand = {k: g for k, g in groups.items() if pr.collision_candidate(g)}
     old = {}
     for r in read_jsonl(p(a, 'judgments.jsonl')):
         if r.get('answer'):
             old[r['key']] = r['answer']
-    judged = [k for k in cand if k in old]
     eids = dict(db.execute("select name_key, eid from entities where source = 'names'"))
-    json.dump({k: g for k, g in cand.items()}, open(p(a, 'collide_candidates.json'), 'w'), ensure_ascii=False)
-    print(f'{len(cand)} collision candidates ({len(judged)} of them keys the stage 3a pass judged), '
-          f'{sum(len(g) for g in cand.values())} qualifying groups', flush=True)
-    out_path = p(a, 'collide_judgments.jsonl')
+    json.dump(cand, open(p(a, tag + '_candidates.json'), 'w'), ensure_ascii=False)
+    nq = sum(len(pr.qualifying_groups(g)) for g in cand.values())
+    print(f'{len(cand)} collision candidates ({sum(1 for k in cand if k in old)} of them keys the stage 3a pass judged), '
+          f'{nq} qualifying groups', flush=True)
+    prior = {}
+    if a.reuse_tag:
+        for r in read_jsonl(p(a, a.reuse_tag + '_judgments.jsonl')):
+            if r.get('answer') is not None:
+                prior[(r['key'], frozenset(f for f, _n in r['spellings']))] = r['answer']
+    out_path = p(a, tag + '_judgments.jsonl')
     done = {(r['key'], r['group']) for r in read_jsonl(out_path) if r.get('answer') is not None}
     items = []
     reused = []
+    skipped = 0
     for k, g in sorted(cand.items()):
-        for st, grp in sorted(g.items()):
+        o = old.get(k)
+        heir_main = {pr.group_stem(f) for f in o['main_forms']} if o and o['distinct_names'] and pr.collision_identity(o) else set()
+        for st, grp in sorted(pr.qualifying_groups(g).items()):
             if (k, st) in done:
                 continue
-            o = old.get(k)
-            if o and o['distinct_names'] and o['main_forms'] and set(o['main_forms']) == set(grp['forms']):
-                reused.append({'key': k, 'group': st, 'spellings': [[f, n] for f, n in grp['forms'].items()],
-                               'answer': {x: o[x] for x in ('type', 'latin', 'greek', 'description')} | {'distinct_names': False, 'main_forms': []},
-                               'reused_from': 'judgments.jsonl'})
+            if st in heir_main:
+                skipped += 1
                 continue
             top = sorted(grp['forms'].items(), key=lambda fn: (-fn[1], fn[0]))[:pr.MAX_FORMS]
+            hit = prior.get((k, frozenset(f for f, _n in top))) if len(grp['forms']) <= pr.MAX_FORMS else None
+            if hit is not None:
+                reused.append({'key': k, 'group': st, 'spellings': [[f, n] for f, n in top], 'answer': hit, 'reused_from': a.reuse_tag})
+                continue
             items.append({'key': k, 'group': st, 'forms': [[f, n] for f, n in top],
                           'snippets': collision_snippets(db, tx, eids[k], set(grp['forms']))})
     if reused:
         with open(out_path, 'a', encoding='utf-8') as f:
             for r in reused:
                 f.write(json.dumps(r, ensure_ascii=False) + '\n')
-    print(f'{len(items)} group questions to ask, {len(reused)} taken from the earlier judgment', flush=True)
+    print(f'{len(items)} group questions to ask, {len(reused)} reused, {skipped} stay with the earlier name', flush=True)
 
     def ask(client, it):
         spellings = [f for f, _c in it['forms']]
@@ -375,12 +386,12 @@ def load_collisions(a):
     """(candidates, answers) of the stem test from --work-dir, or ({}, {}) when the step was not run. A group
     answer whose label shares no five letters with the group's spellings is not used (the group stays with
     the corpus name)."""
-    path = p(a, 'collide_candidates.json')
+    path = p(a, a.collide_tag + '_candidates.json')
     if not os.path.exists(path):
         return {}, {}
     cand = json.load(open(path, encoding='utf-8'))
     answers = collections.defaultdict(dict)
-    for r in read_jsonl(p(a, 'collide_judgments.jsonl')):
+    for r in read_jsonl(p(a, a.collide_tag + '_judgments.jsonl')):
         ans = r.get('answer')
         if not ans:
             continue
@@ -511,13 +522,25 @@ def step_stats(a):
 
 # ------------------------------------------------------------------ build
 
+def people_pleiades(path):
+    """Pleiades ids whose place types are 'people' (and 'label'), read from places_place_types.csv. Empty when the file is
+    absent. A list place of such an id is typed people for the heading rule, so its own name is not demoted as a demonym."""
+    import csv
+    if not path or not os.path.exists(path):
+        return set()
+    types = collections.defaultdict(set)
+    for r in csv.DictReader(open(path, encoding='utf-8-sig')):
+        types[r['place_id']].add(r['place_type'])
+    return {pid for pid, t in types.items() if 'people' in t and t <= {'people', 'label'}}
+
+
 def step_build(a):
     t0 = time.time()
     if os.path.exists(a.out):
         os.remove(a.out)
     shutil.copyfile(a.store, a.out)
     db = sqlite3.connect(a.out)
-    changed = pr.write_display_labels(db)
+    changed = pr.write_display_labels(db, people_pleiades=people_pleiades(a.pleiades_types))
     judgments = load_judgments(a)
     rep = pr.promote_store(db, judgments, greek_stems=pr.greek_stems_of_store(db))
     full = getattr(a, 'collision_report', {})
@@ -572,6 +595,9 @@ def main():
     ap.add_argument('--threads', type=int, default=48)
     ap.add_argument('--budget', type=int, default=480, help='seconds the ask step may run')
     ap.add_argument('--seed', type=int, default=20261021)
+    ap.add_argument('--pleiades-types', default='/home/ncoffee/licensed_text/analysis/entity_mentions/pleiades/places_place_types.csv')
+    ap.add_argument('--collide-tag', default='collide4b', help='collide, build: the file prefix of the stem test (stage 4 used collide)')
+    ap.add_argument('--reuse-tag', default='collide', help='collide: earlier answers for the same spellings are reused')
     ap.add_argument('--apply-greekfix', action='store_true',
                     help='build: remove the Greek labels the model called a different name (greekfix step). Off by default.')
     a = ap.parse_args()

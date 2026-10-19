@@ -34,10 +34,6 @@ def test_a_demonym_ranks_below_every_place_name_form():
     assert pr.is_demonym('Ῥοδῖται', 'greek') and pr.is_demonym('Σικελιτῶν', 'greek') and not pr.is_demonym('Ῥόδος', 'greek')
 
 
-def test_the_place_types_are_place_people_and_region_and_never_a_person():
-    assert pr.PLACE_TYPES == ('place', 'people', 'region') and 'person' not in pr.PLACE_TYPES
-
-
 def test_a_first_declension_oblique_heading_is_built_from_the_stem():
     forms = {'Massiliam': 55, 'Massiliae': 28, 'Massiliensium': 34, 'Massilienses': 23}
     assert pr.best_form(forms, 'latin', place=True) == 'Massilia'
@@ -89,18 +85,21 @@ MASSI = {
 }
 
 
-def test_the_groups_of_a_key_are_its_spellings_by_first_six_letters():
+def test_the_groups_of_a_key_are_its_spellings_by_stem():
     g = pr.collision_groups(_rows(MASSI))
-    assert set(g) == {'massil', 'massin', 'massik'}
-    assert g['massil']['lines'] == 10 and g['massil']['works'] == 3
-    assert g['massil']['forms'] == {'Massiliam': 6, 'Massiliae': 3, 'Massilienses': 1}
-    assert g['massin']['lines'] == 7 and g['massin']['works'] == 2
-    assert pr.group_stem('Μασσαλία') == 'massal'            # the transliteration of the key, six letters at most
+    assert set(g) == {'massil', 'massiliens', 'massiniss', 'massic'}
+    assert g['massil']['lines'] == 9 and g['massil']['works'] == 2
+    assert g['massil']['forms'] == {'Massiliam': 6, 'Massiliae': 3}
+    assert g['massiniss']['lines'] == 7 and g['massiniss']['works'] == 2
+    # one name in its case forms is one group
+    stems = {pr.group_stem(f) for f in ('Fabius', 'Fabium', 'Fabio', 'Fabii', 'Fabi')}
+    assert stems == {'fabi'}
+    assert pr.group_stem('Μασσαλία') == 'μασσαλ' and pr.group_stem('Μασσαλίαν') == 'μασσαλ'
 
 
 def test_a_key_is_a_collision_when_two_groups_each_hold_five_lines_in_two_works():
     cand = pr.collision_candidate(pr.collision_groups(_rows(MASSI)))
-    assert set(cand) == {'massil', 'massin'}                  # Massicus has too few lines and one work
+    assert set(cand) == {'massil', 'massiniss'}               # Massicus has too few lines and one work
     one = {k: v for k, v in MASSI.items() if k.startswith('Massil')}
     assert pr.collision_candidate(pr.collision_groups(_rows(one))) == {}
     lines5_work1 = dict(MASSI, Massinissa=[('livy', str(i)) for i in range(1, 6)], Massinissam=[])
@@ -111,46 +110,111 @@ def _answer(typ, latin, greek=''):
     return {'type': typ, 'latin': latin, 'greek': greek, 'description': 'd', 'distinct_names': False, 'main_forms': []}
 
 
-def test_the_model_splits_a_collision_into_one_judgment_per_name():
-    cand = pr.collision_candidate(pr.collision_groups(_rows(MASSI)))
-    answers = {'massi': {'massil': _answer('place', 'Massilia', 'Μασσαλία'), 'massin': _answer('person', 'Masinissa')}}
-    old = {'massi': {'type': 'other', 'latin': '', 'greek': '', 'description': '', 'distinct_names': True,
-                     'main_forms': ['Massiliam']}, 'other': _answer('person', 'Other')}
-    out, rep = pr.collision_judgments(old, {'massi': cand}, answers, log=lambda *_: None)
-    assert 'massi' not in out and out['other'] == old['other']
-    assert out['massil']['latin'] == 'Massilia' and out['massil']['base'] == 'massi' and out['massil']['distinct_names'] is True
-    assert out['massil']['main_forms'] == ['Massiliae', 'Massiliam', 'Massilienses']
-    assert out['massin']['latin'] == 'Masinissa' and out['massin']['main_forms'] == ['Massinissa', 'Massinissam']
-    assert (rep['candidates'], rep['split'], rep['not_split'], rep['names']) == (1, 1, 0, 2)
-    # the earlier judgment named Massilia: that name keeps its id pn:massi and the listed spellings that no group names
-    old2 = {'massi': {'type': 'place', 'latin': 'Massilia', 'greek': '', 'description': '', 'distinct_names': True,
-                      'main_forms': ['Massiliam', 'Massicus']}}
-    out2, _r = pr.collision_judgments(old2, {'massi': cand}, answers, log=lambda *_: None)
-    assert out2['massil']['entity_key'] == 'massi' and 'entity_key' not in out2['massin']
-    # a name found in a Latin group and a Greek-script group takes the Greek label the Greek group gave
-    two = {'massi': {'massil': _answer('place', 'Massilia'), 'massin': _answer('person', 'Masinissa', 'Μασινίσσα')}}
-    cand3 = dict(cand, massil3=dict(cand['massil'], lines=3, works=3))
-    two['massi']['massil3'] = _answer('place', 'Massilia', 'Μασσαλία')
-    out3, _r = pr.collision_judgments(old, {'massi': cand3}, two, log=lambda *_: None)
-    assert out3['massil']['greek'] == 'Μασσαλία'
-    # both groups name the same entity: no split and the old judgment stands
-    same = {'massi': {'massil': _answer('person', 'Masinissa'), 'massin': _answer('person', 'Masinissa')}}
-    out, rep = pr.collision_judgments(old, {'massi': cand}, same, log=lambda *_: None)
-    assert out['massi'] == old['massi'] and rep['not_split'] == 1 and rep['split'] == 0
-    # both groups are common words: no split either
-    none = {'massi': {'massil': _answer('other', ''), 'massin': _answer('other', '')}}
-    assert pr.collision_judgments(old, {'massi': cand}, none, log=lambda *_: None)[1]['split'] == 0
-    # one name and one common word is no split: the name's earlier judgment stands
-    one = {'massi': {'massil': _answer('place', 'Massilia'), 'massin': _answer('other', '')}}
-    out, rep = pr.collision_judgments(old, {'massi': cand}, one, log=lambda *_: None)
-    assert rep['split'] == 0 and out['massi'] == old['massi']
-    # two names of one type that differ by a letter or two, or by a word, are one name
-    near = {'massi': {'massil': _answer('people', 'Romani'), 'massin': _answer('people', 'Romans')}}
-    assert pr.collision_judgments(old, {'massi': cand}, near, log=lambda *_: None)[1]['split'] == 0
-    assert pr.same_collision_name(_answer('place', 'Mount Olympus'), _answer('place', 'Olympus'))
-    # a place and its people are two entities, and two different people are two entities
-    assert not pr.same_collision_name(_answer('place', 'Italy'), _answer('people', 'Italians'))
-    assert not pr.same_collision_name(_answer('person', 'Aristotle'), _answer('person', 'Aristides'))
+def _carve(old, cand_spec, answers, **kw):
+    groups = pr.collision_groups(_rows(cand_spec))
+    return pr.collision_judgments(old, {'k': groups}, {'k': answers}, log=lambda *_: None, min_lines=5, min_works=2, **kw)
+
+
+NO_HEIR = {'k': {'type': 'other', 'latin': '', 'greek': '', 'description': '', 'distinct_names': False, 'main_forms': []}}
+
+
+def test_the_model_carves_the_names_it_finds_in_a_key_with_no_heir():
+    out, rep = _carve(NO_HEIR, MASSI, {'massil': _answer('place', 'Massilia', 'Μασσαλία'),
+                                       'massiniss': _answer('person', 'Massinissa')})
+    assert (rep['candidates'], rep['split'], rep['names']) == (1, 1, 2)
+    carved = {v['latin']: v for k, v in out.items() if k != 'k'}
+    assert carved['Massilia']['main_forms'] == ['Massiliae', 'Massiliam'] and carved['Massilia']['base'] == 'k'
+    assert carved['Massinissa']['main_forms'] == ['Massinissa', 'Massinissam']
+    assert out['k'] == NO_HEIR['k']                                    # the corpus name's judgment is untouched
+
+
+def test_a_group_the_model_calls_other_or_the_same_name_stays_with_the_heir():
+    heir = {'k': {'type': 'person', 'latin': 'Massilius', 'greek': 'Μασσίλιος', 'description': 'A man.',
+                  'distinct_names': False, 'main_forms': []}}
+    # the second group is called a common word: nothing is carved and the heir is untouched
+    out, rep = _carve(heir, MASSI, {'massil': _answer('person', 'Massilius'), 'massiniss': _answer('other', '')})
+    assert rep['split'] == 0 and out == heir
+    # both groups name the heir (or a name inside it): nothing is carved
+    out, rep = _carve(heir, MASSI, {'massil': _answer('person', 'Massilius'), 'massiniss': _answer('person', 'Massilius')})
+    assert rep['split'] == 0 and out == heir
+    # a different name that is too small on its own stays too (10 lines in 3 works are asked in the real run)
+    groups = pr.collision_groups(_rows(MASSI))
+    out, rep = pr.collision_judgments(heir, {'k': groups}, {'k': {'massil': _answer('person', 'Massilius'),
+                                      'massiniss': _answer('person', 'Massinissa')}}, log=lambda *_: None)
+    assert rep['split'] == 0 and out == heir
+
+
+def test_the_heir_keeps_its_id_labels_and_description_when_a_name_is_carved():
+    heir = {'k': {'type': 'person', 'latin': 'Massilius', 'greek': 'Μασσίλιος', 'description': 'A man.',
+                  'distinct_names': False, 'main_forms': []}}
+    out, rep = _carve(heir, MASSI, {'massil': _answer('person', 'Massilius'), 'massiniss': _answer('person', 'Massinissa')})
+    assert rep['split'] == 1 and rep['names'] == 1
+    h = out['k']
+    assert (h['latin'], h['greek'], h['description'], h['type']) == ('Massilius', 'Μασσίλιος', 'A man.', 'person')
+    assert h['distinct_names'] is True and 'Massinissa' not in h['main_forms'] and 'Massiliam' in h['main_forms']
+    assert 'Massicus' in h['main_forms']                              # every spelling that was not carved stays
+    # the heir loses its Greek label only when the carved group took that very spelling
+    out, _r = _carve(dict(heir, k=dict(heir['k'], greek='Μασσινίσσα')), dict(MASSI, **{'Μασσινίσσα': [('x', str(i)) for i in range(5)] + [('y', '1')]}),
+                     {'massil': _answer('person', 'Massilius'), 'massiniss': _answer('person', 'Massinissa'),
+                      pr.group_stem('Μασσινίσσα'): _answer('person', 'Massinissa')})
+    assert out['k']['greek'] == ''
+
+
+def test_a_greek_spelling_with_the_stem_of_the_heirs_label_stays_with_the_heir():
+    assert pr.stays_with_heir('Καρνούτων', 'Carnutes') and pr.stays_with_heir('Καρνούτῳ', 'Carnutes')
+    assert not pr.stays_with_heir('Κάρνοι', 'Carnutes') and not pr.stays_with_heir('Carnutum', 'Carnutes')
+    assert not pr.stays_with_heir('Ἀβισάρου', 'Abisai')          # starts like the label but is not its stem plus an ending
+    spec = {'Carnotensis': [('a', str(i)) for i in range(1, 7)], 'Carnotensium': [('b', '1')],
+            'Κάρνοις': [('c', str(i)) for i in range(1, 4)], 'Κάρνοι': [('d', '1'), ('d', '2')],
+            'Καρνούτων': [('e', '1'), ('e', '2'), ('e', '3')], 'Καρνούτῳ': [('f', '1')]}
+    heir = {'k': {'type': 'people', 'latin': 'Carnutes', 'greek': 'Κάρνοι', 'description': 'A tribe.', 'distinct_names': True,
+                  'main_forms': ['Carnotensis', 'Carnotensium']}}
+    groups = pr.collision_groups(_rows(spec))
+    ans = {pr.group_stem('Κάρνοι'): _answer('people', 'Carni', 'Κάρνοι'), pr.group_stem('Καρνούτων'): _answer('place', 'Carnuntum'),
+           pr.group_stem('Carnotensis'): _answer('people', 'Carnutes')}
+    out, rep = pr.collision_judgments(heir, {'k': groups}, {'k': ans}, log=lambda *_: None, min_lines=3, min_works=2)
+    names = {v['latin']: v for kk, v in out.items() if kk != 'k'}
+    assert 'Carni' in names and names['Carni']['main_forms'] == ['Κάρνοι', 'Κάρνοις']
+    assert 'Carnuntum' not in names or 'Καρνούτων' not in names['Carnuntum']['main_forms']
+    assert out['k']['greek'] == ''                                    # Carni took the spelling Κάρνοι
+    assert 'Καρνούτων' in out['k']['main_forms'] or out['k']['main_forms'] == ['Carnotensis', 'Carnotensium']
+
+
+def test_a_place_group_with_the_stem_of_a_peoples_name_stays_with_the_people():
+    assert pr._prefix_of_label('μακεδον', 'Macedonians') and pr._prefix_of_label('macedon', 'Macedonians')
+    assert not pr._prefix_of_label('apollu', 'Apollo')
+    spec = {'Macedonum': [('a', str(i)) for i in range(12)] + [('b', '1'), ('c', '1')],
+            'Macedonia': [('d', str(i)) for i in range(12)], 'Macedonicus': [('e', str(i)) for i in range(6)] + [('f', '1')]}
+    heir = {'k': {'type': 'people', 'latin': 'Macedonians', 'greek': 'Μακεδόνες', 'description': 'A people.',
+                  'distinct_names': False, 'main_forms': []}}
+    groups = pr.collision_groups(_rows(spec))
+    out, rep = pr.collision_judgments(heir, {'k': groups}, {'k': {pr.group_stem('Macedonia'): _answer('place', 'Macedonia'),
+                                      pr.group_stem('Macedonicus'): _answer('person', 'Macedonicus')}}, log=lambda *_: None,
+                                      min_lines=5, min_works=2)
+    names = {v['latin'] for kk, v in out.items() if kk != 'k'}
+    assert 'Macedonia' not in names and out['k']['greek'] == 'Μακεδόνες'
+
+
+def test_the_heirs_greek_label_is_tested_against_the_spellings_it_had_before_the_carve(tmp_path):
+    db = _store(str(tmp_path / 'h.sqlite'))
+    pr.write_display_labels(db, log=lambda *_: None)
+    j = {'massi': {'type': 'person', 'latin': 'Massilius', 'greek': 'Μασσαλία', 'description': 'd', 'distinct_names': True,
+                   'main_forms': ['Massiliam', 'Massiliae', 'Massilienses'], 'label_forms': ['massiliam', 'μασσαλια']}}
+    pr.promote_store(db, j, log=lambda *_: None, greek_stems=set())
+    eid = db.execute("select eid from entities where entity_id = 'pn:massi'").fetchone()[0]
+    assert db.execute('select display_label_grc from entity_labels where eid = ?', (eid,)).fetchone() == ('Μασσαλία',)
+    j['massi']['label_forms'] = ['massiliam', 'ψευδο']                       # a Greek spelling that does not agree with the label
+    db2 = _store(str(tmp_path / 'i.sqlite'))
+    pr.write_display_labels(db2, log=lambda *_: None)
+    pr.promote_store(db2, j, log=lambda *_: None, greek_stems=set())
+    eid = db2.execute("select eid from entities where entity_id = 'pn:massi'").fetchone()[0]
+    assert db2.execute('select display_label_grc from entity_labels where eid = ?', (eid,)).fetchone() == (None,)
+
+
+def test_an_installed_id_never_disappears_in_a_carve():
+    heir = {'k': {'type': 'person', 'latin': 'Massilius', 'greek': '', 'description': '', 'distinct_names': False, 'main_forms': []}}
+    out, _r = _carve(heir, MASSI, {'massil': _answer('person', 'Massilius'), 'massiniss': _answer('person', 'Massinissa')})
+    assert 'k' in out and out['k']['latin'] == 'Massilius'            # the heir is still judged under its own key
 
 
 # ---------------------------------------------------------------- A and E on a fixture store
@@ -164,17 +228,14 @@ def _store(path):
     db.executemany('insert into entities values (?,?,?,?,?,?,?,?,?,?,?,?)', [
         (10, 'nm:massi', 'name', 'Massiliensium', 'names', None, None, None, None, 'massi', 0, 0),
         (11, 'pn:masin', 'person', 'Masinissa', 'promoted', None, None, None, None, 'masin', 0, 0),
-        (12, 'nm:karno', 'name', 'Carnotensis', 'names', None, None, None, None, 'karno', 0, 0),
         (13, 'nm:masal', 'name', 'Μασσαλία', 'names', None, None, None, None, 'masal', 0, 0)])
     var = [(10, f, '', 'form', 'names') for f in ('massiliam', 'massiliae', 'massiliensium', 'massilienses', 'massinissa', 'massinissam')]
     var += [(11, f, '', 'form', 'names') for f in ('masinissa', 'masinissae')]
-    var += [(12, f, '', 'form', 'names') for f in ('carnotensis', 'carnotensium', 'καρνοι', 'καρνοισ', 'καρνοσ')]
     var += [(13, 'μασσαλια', '', 'form', 'names')]
     db.executemany('insert into variants values (?,?,?,?,?)', var)
     rows, wins, wid = [], [], 0
     for eid, form, n in ((10, 'Massiliam', 6), (10, 'Massiliae', 4), (10, 'Massiliensium', 3), (10, 'Massilienses', 2),
                          (10, 'Massinissa', 4), (10, 'Massinissam', 3), (11, 'Masinissa', 5), (11, 'Masinissae', 2),
-                         (12, 'Carnotensis', 3), (12, 'Carnotensium', 2), (12, 'Κάρνοις', 2), (12, 'Κάρνοι', 2), (12, 'Κάρνος', 1),
                          (13, 'Μασσαλία', 3)):
         for i in range(n):
             wid += 1
@@ -188,15 +249,13 @@ def _store(path):
 
 
 def _judgments(db):
-    cand = pr.collision_candidate(pr.collision_groups(
+    groups = pr.collision_groups(
         [(f, w, ln) for f, w, ln in db.execute(
-            "select m.form, w.work, m.line_ref from mention_rows m join windows w on w.wid = m.wid where m.eid = 10")]))
-    # every spelling of both groups, the way the script stores them
-    answers = {'massi': {'massil': _answer('place', 'Massilia', 'Μασσαλία'), 'massin': _answer('person', 'Massinissa', 'Μασινίσσα')}}
-    old = {'massi': {'type': 'other', 'latin': '', 'greek': '', 'description': '', 'distinct_names': True, 'main_forms': ['Massiliam']},
-           'karno': {'type': 'people', 'latin': 'Carnutes', 'greek': 'Κάρνοι', 'description': 'A tribe.', 'distinct_names': True,
-                     'main_forms': ['Carnotensis', 'Carnotensium']}}
-    return pr.collision_judgments(old, {'massi': cand}, answers, log=lambda *_: None)[0]
+            "select m.form, w.work, m.line_ref from mention_rows m join windows w on w.wid = m.wid where m.eid = 10")])
+    answers = {'massi': {'massil': _answer('place', 'Massilia', 'Μασσαλία'), 'massiniss': _answer('person', 'Massinissa', 'Μασινίσσα'),
+                         'massiliens': _answer('people', 'Massilians')}}
+    old = {'massi': {'type': 'other', 'latin': '', 'greek': '', 'description': '', 'distinct_names': True, 'main_forms': ['Massiliam']}}
+    return pr.collision_judgments(old, {'massi': groups}, answers, log=lambda *_: None, min_lines=5, min_works=2)[0]
 
 
 def test_massilia_is_promoted_and_masinissa_joins_its_entity(tmp_path):
@@ -204,99 +263,20 @@ def test_massilia_is_promoted_and_masinissa_joins_its_entity(tmp_path):
     db = _store(path)
     pr.write_display_labels(db, log=lambda *_: None)
     j = _judgments(db)
-    rep = pr.promote_store(db, j, log=lambda *_: None, greek_stems=pr.greek_stems_of_store(db))
+    pr.promote_store(db, j, log=lambda *_: None, greek_stems=pr.greek_stems_of_store(db))
     dd = pr.dedupe_promoted(db, log=lambda *_: None)
     assert dd['groups'] == 1                                                  # the Massinissa group joins pn:masin (single s)
     ent_ids = dict(db.execute("select entity_id, type from entities where source = 'promoted'"))
-    assert ent_ids == {'pn:masin': 'person', 'pn:massil': 'place', 'pn:karno': 'people'}
+    assert ent_ids['pn:masin'] == 'person' and ent_ids['pn:massil'] == 'place'
     eid = db.execute("select eid from entities where entity_id = 'pn:massil'").fetchone()[0]
     assert db.execute('select display_label, display_label_grc from entity_labels where eid = ?', (eid,)).fetchone() == ('Massilia', 'Μασσαλία')
     assert db.execute("select label from entities where entity_id = 'pn:masin'").fetchone() == ('Masinissa',)    # the label with more lines
-    assert db.execute('select count(*) from mention_rows where eid = ?', (eid,)).fetchone()[0] == 15
     masin = db.execute("select eid from entities where entity_id = 'pn:masin'").fetchone()[0]
     assert db.execute('select count(*) from mention_rows where eid = ?', (masin,)).fetchone()[0] == 7 + 7      # the Massinissa spellings moved
-    assert {r[0] for r in db.execute('select alias_id from entity_aliases where eid = ?', (masin,))} >= {'pn:massin'}
-    assert db.execute("select count(*) from mention_rows where eid = 10").fetchone()[0] == 0                    # nothing is left under the demonym
-    assert rep['promoted'] == 3
+    assert {r[0] for r in db.execute('select alias_id from entity_aliases where eid = ?', (masin,))} >= {'pn:massiniss'}
 
 
-def test_the_heir_does_not_keep_a_greek_label_that_is_a_spelling_of_another_name():
-    cand = {'karno': {'karnot': {'forms': {'Carnotensis': 12, 'Carnotensium': 9}, 'lines': 21, 'works': 14},
-                      'karnoi': {'forms': {'Κάρνοις': 5, 'Κάρνοι': 3}, 'lines': 7, 'works': 5}}}
-    old = {'karno': {'type': 'people', 'latin': 'Carnutes', 'greek': 'Κάρνοι', 'description': '', 'distinct_names': True,
-                     'main_forms': ['Carnotensis', 'Carnotensium']}}
-    answers = {'karno': {'karnot': _answer('people', 'Carnutes'), 'karnoi': _answer('people', 'Carni', 'Κάρνοι')}}
-    out, rep = pr.collision_judgments(old, cand, answers, log=lambda *_: None)
-    assert rep['split'] == 1
-    assert out['karnot']['latin'] == 'Carnutes' and out['karnot']['greek'] == '' and out['karnot']['entity_key'] == 'karno'
-    assert out['karnoi']['latin'] == 'Carni' and out['karnoi']['greek'] == 'Κάρνοι'
-    # the model gives Κάρνοι to the Carnutes group as well: still left out, a spelling of the Carni group
-    again = {'karno': {'karnot': _answer('people', 'Carnutes', 'Κάρνοι'), 'karnoi': _answer('people', 'Carni', 'Κάρνοι')}}
-    out, _r = pr.collision_judgments(old, cand, again, log=lambda *_: None)
-    assert out['karnot']['greek'] == '' and out['karnoi']['greek'] == 'Κάρνοι'
-    # no group gives Κάρνοι to the Carni group: the earlier label is still left out, because the Carni group spells it
-    out, _r = pr.collision_judgments(old, cand, {'karno': {'karnot': _answer('people', 'Carnutes'), 'karnoi': _answer('people', 'Carni')}},
-                                     log=lambda *_: None)
-    assert out['karnot']['greek'] == '' and out['karnoi']['greek'] == ''
-
-
-def test_a_cluster_tries_the_earlier_label_first_and_falls_back_to_the_groups_labels(tmp_path):
-    cand = {'fabio': {'fabio': {'forms': {'Fabio': 5, 'Φαβίῳ': 4}, 'lines': 9, 'works': 5},
-                      'fabiol': {'forms': {'Fabiola': 6}, 'lines': 6, 'works': 3}}}
-    old = {'fabio': {'type': 'person', 'latin': 'Fabius', 'greek': 'Φάβιος', 'description': '', 'distinct_names': False,
-                     'main_forms': []}}
-    answers = {'fabio': {'fabio': _answer('person', 'Fabius', 'Φαβίῳ'), 'fabiol': _answer('person', 'Fabiola')}}
-    out, _r = pr.collision_judgments(old, cand, answers, log=lambda *_: None)
-    assert out['fabio2']['greek'] == 'Φάβιος' and out['fabio2']['greek_alternatives'] == ['Φαβίῳ']
-    assert out['fabio2']['entity_key'] == 'fabio'
-    # the first label that passes the Greek-form test at promotion is the one stored
-    db = _store(str(tmp_path / 'a.sqlite'))
-    pr.write_display_labels(db, log=lambda *_: None)
-    db.execute("insert into variants values (10, 'φαβιω', '', 'form', 'names')")
-    j = {'massil': {'type': 'place', 'latin': 'Massilia', 'greek': 'Μασσιλία', 'greek_alternatives': ['Μασσαλία'],
-                    'description': '', 'distinct_names': True, 'main_forms': ['Massiliam', 'Massiliae'], 'base': 'massi'}}
-    pr.promote_store(db, j, log=lambda *_: None, greek_stems=pr.greek_stems_of_store(db))
-    eid = db.execute("select eid from entities where entity_id = 'pn:massil'").fetchone()[0]
-    assert db.execute('select display_label_grc from entity_labels where eid = ?', (eid,)).fetchone() == ('Μασσαλία',)
-
-
-def test_a_greek_label_check_by_the_model_is_asked_for_the_carnutes_pattern_only():
-    j = {'karno': {'type': 'people', 'latin': 'Carnutes', 'greek': 'Κάρνοι', 'description': '', 'distinct_names': True,
-                   'main_forms': ['Carnotensis']},
-         'fabio': {'type': 'person', 'latin': 'Fabius', 'greek': 'Φάβιος', 'description': '', 'distinct_names': True,
-                   'main_forms': ['Φάβιος', 'Fabius']},                                  # a Greek main spelling: the ordinary rule
-         'plain': {'type': 'person', 'latin': 'Plato', 'greek': 'Πλάτων', 'description': '', 'distinct_names': False, 'main_forms': []}}
-    spellings = {'karno': ['Carnotensis', 'Κάρνοις', 'Κάρνος', 'Καρνούτων'], 'fabio': ['Φάβιος', 'Φαβίου'], 'plain': ['Πλάτων']}
-    got = pr.greek_candidates(j, lambda k: spellings[k])
-    assert got == {'karno': ['Κάρνοις', 'Κάρνος']}
-    assert pr.parse_greek_fix('{"answer": "Different"}') == 'different' and pr.parse_greek_fix('maybe') is None
-    assert pr.apply_greek_fix(j, {'karno': 'different', 'plain': 'same'}) == 1 and j['karno']['greek'] == '' and j['plain']['greek'] == 'Πλάτων'
-
-
-def test_a_collision_group_keeps_a_greek_label_the_corpus_spells(tmp_path):
-    # a group's Greek label is not checked against the spellings of the other names found under its key
-    # (Fabius and Fabii share the Greek stem Φαβι), only against the corpus
-    db = _store(str(tmp_path / 's.sqlite'))
-    pr.write_display_labels(db, log=lambda *_: None)
-    j = _judgments(db)
-    assert 'other_forms' not in j['massil']
-    pr.promote_store(db, j, log=lambda *_: None, greek_stems=pr.greek_stems_of_store(db))
-    eid = db.execute("select eid from entities where entity_id = 'pn:massil'").fetchone()[0]
-    assert db.execute('select display_label_grc from entity_labels where eid = ?', (eid,)).fetchone() == ('Μασσαλία',)
-
-
-def test_the_group_that_keeps_the_old_id_keeps_the_old_greek_rules(tmp_path):
-    db = _store(str(tmp_path / 's.sqlite'))
-    pr.write_display_labels(db, log=lambda *_: None)
-    j = _judgments(db)
-    j['massil']['greek'] = 'Μασσιλία'                                        # no such spelling in the store
-    j['massil']['entity_key'] = 'massi'
-    pr.promote_store(db, j, log=lambda *_: None, greek_stems=pr.greek_stems_of_store(db))
-    eid = db.execute("select eid from entities where entity_id = 'pn:massi'").fetchone()[0]
-    assert db.execute('select display_label_grc from entity_labels where eid = ?', (eid,)).fetchone() == ('Μασσιλία',)
-
-
-def test_a_greek_label_the_corpus_never_spells_is_dropped_for_a_group(tmp_path):
+def test_a_greek_label_the_corpus_never_spells_is_dropped_for_a_new_name(tmp_path):
     db = _store(str(tmp_path / 's.sqlite'))
     pr.write_display_labels(db, log=lambda *_: None)
     j = _judgments(db)
@@ -304,6 +284,40 @@ def test_a_greek_label_the_corpus_never_spells_is_dropped_for_a_group(tmp_path):
     pr.promote_store(db, j, log=lambda *_: None, greek_stems=pr.greek_stems_of_store(db))
     eid = db.execute("select eid from entities where entity_id = 'pn:massil'").fetchone()[0]
     assert db.execute('select display_label_grc from entity_labels where eid = ?', (eid,)).fetchone() == (None,)
+
+
+def test_a_cluster_tries_its_labels_in_order_and_falls_back(tmp_path):
+    db = _store(str(tmp_path / 'a.sqlite'))
+    pr.write_display_labels(db, log=lambda *_: None)
+    j = {'massil': {'type': 'place', 'latin': 'Massilia', 'greek': 'Μασσιλία', 'greek_alternatives': ['Μασσαλία'],
+                    'description': '', 'distinct_names': True, 'main_forms': ['Massiliam', 'Massiliae'], 'base': 'massi'}}
+    pr.promote_store(db, j, log=lambda *_: None, greek_stems=pr.greek_stems_of_store(db))
+    eid = db.execute("select eid from entities where entity_id = 'pn:massil'").fetchone()[0]
+    assert db.execute('select display_label_grc from entity_labels where eid = ?', (eid,)).fetchone() == ('Μασσαλία',)
+
+
+def test_the_people_rule_leaves_a_peoples_own_name_alone():
+    forms = {'Σαυνῖται': 15, 'Σαυνιτῶν': 58, 'Σαυνίτης': 1}
+    assert pr.best_form(forms, 'greek', place='people' in pr.PLACE_TYPES) == pr.best_form(forms, 'greek')
+    assert 'people' not in pr.PLACE_TYPES and 'person' not in pr.PLACE_TYPES
+    assert pr.best_form({'Γετέων': 3, 'Γέται': 9}, 'greek', place=True) == 'Γέται'
+
+
+def test_a_list_entity_with_a_people_pleiades_type_is_typed_people(tmp_path):
+    db = sqlite3.connect(str(tmp_path / 'l.sqlite'))
+    db.executescript(ei.SCHEMA)
+    db.executemany('insert into entities values (?,?,?,?,?,?,?,?,?,?,?,?)', [
+        (1, 'pl:442765', 'place', 'Samnites', 'list', '442765', None, None, None, None, 1, 0),
+        (2, 'pl:1', 'place', 'Athens', 'list', '1', None, None, None, None, 1, 0)])
+    db.executemany('insert into windows values (?,?,?,?,?,?)', [(i, f'w:{i}', 'w.text', f'{i}.1', f'{i}.1', 'grc') for i in range(1, 40)])
+    rows = [(1, i, 'Σαυνιτῶν', 1, 0, 0, 'lemma', 'lemma', 0) for i in range(1, 6)]
+    rows += [(1, i, 'Σαυνίτης', 1, 0, 0, 'lemma', 'lemma', 0) for i in range(6, 8)]
+    rows += [(2, i, 'Ἀθηνῶν', 1, 0, 0, 'lemma', 'lemma', 0) for i in range(8, 13)]
+    rows += [(2, i, 'Ἀθήνας', 1, 0, 0, 'lemma', 'lemma', 0) for i in range(13, 16)]
+    db.executemany('insert into mention_rows(eid, wid, form, cap, nb, ds, confidence, matcher, homonym) values (?,?,?,?,?,?,?,?,?)', rows)
+    pr.write_display_labels(db, log=lambda *_: None, people_pleiades={'442765'})
+    got = dict(db.execute('select eid, display_label_grc from entity_labels'))
+    assert got == {1: 'Σαυνιτῶν', 2: 'Ἀθήνας'}
 
 
 # ---------------------------------------------------------------- D. search names made from the spellings
@@ -338,7 +352,7 @@ def stems_store(tmp_path, monkeypatch):
 def test_the_stems_are_stored_as_search_names_of_source_form(stems_store):
     db = sqlite3.connect(stems_store)
     rows = {(eid, name) for eid, name, src in db.execute("select eid, name, source from search_names where source = 'form'")}
-    assert (10, 'massil') in rows and (10, 'massiliens') in rows and (12, 'carnotens') in rows
+    assert (10, 'massil') in rows and (10, 'massiliens') in rows and (13, 'μασσαλ') in rows
     assert not any(eid == 10 and name == 'massiliam' for eid, name in rows)       # stems, not the spellings
     cat = ent._catalog(stems_store)
     assert 'massil' in cat['names'][10]['form_stems']
