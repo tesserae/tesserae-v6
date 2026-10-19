@@ -1,0 +1,27 @@
+{
+ "note": "Endings of demonym and adjective forms made from a place name, for the heading rule of place entities (backend/entity_promote.best_form, stage 4). A form that ends in one of these ranks below every place-name form. Latin endings are written plain. Greek endings are written without accents or breathing marks and compared with the form after the same stripping. Applies to entities of the types place, people and region and never to persons.",
+ "la": [
+  "enses",
+  "ensium",
+  "ensibus",
+  "ensis",
+  "ensem",
+  "ani",
+  "anorum",
+  "anis",
+  "ini",
+  "inorum",
+  "itae",
+  "itarum",
+  "ates",
+  "atum"
+ ],
+ "grc": [
+  "ῖται",
+  "ιτῶν",
+  "εῖς",
+  "έων",
+  "ηνοί",
+  "ηνῶν"
+ ]
+}

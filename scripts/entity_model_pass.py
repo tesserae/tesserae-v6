@@ -282,8 +282,8 @@ def step_prepare(a):
         fs = [w for w, _ in forms[(lang, lem)].most_common(3)]
         user = mp.pass1_prompt(e, lem, lang, fs, res[(lang, lem)])
         jobs.append({'entity_id': e['entity_id'], 'lang': lang, 'lemma': lem, 'prompt': user,
-                     'audit_action': info['proposals'][(lang, idx, lem)][0],
-                     'audit_reason': info['proposals'][(lang, idx, lem)][1]})
+                     'audit_action': info['proposals'].get((lang, idx, lem), ('audit_file', ''))[0],
+                     'audit_reason': info['proposals'].get((lang, idx, lem), ('audit_file', ''))[1]})
     write_jsonl(p(a, 'pass1_jobs.jsonl'), jobs)
     print(f'{len(jobs)} pass-one questions written, {time.time() - t0:.0f}s', flush=True)
 

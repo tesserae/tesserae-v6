@@ -19,6 +19,7 @@ The stored result lives in the table entity_labels (eid, display_label, display_
 display_label_grc, description), so the entities table keeps the layout older code and tests expect.
 """
 import json
+import os
 import re
 import unicodedata
 
@@ -98,8 +99,52 @@ def _acute(form):
 TIER_WEIGHT = (1.0, 0.25, 0.1)
 
 
-def best_form(forms, script):
-    """The best display form of the given script from {form: count}, or None."""
+# Stage 4. Types whose heading must be a place name and not a demonym or adjective made from it. A person is
+# left out (Latin -anus and -inus are ordinary endings of personal names) and so are people (fix pass 4b), whose
+# own name is a demonym.
+PLACE_TYPES = ('place', 'region')
+DEMONYM_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'entity_demonym_suffixes.json')
+_demonyms = {}
+
+
+def demonym_suffixes():
+    """{'latin': (endings), 'greek': (accent-stripped endings)} from entity_demonym_suffixes.json."""
+    if not _demonyms:
+        d = json.load(open(DEMONYM_PATH, encoding='utf-8'))
+        _demonyms['latin'] = tuple(x.lower() for x in d['la'])
+        _demonyms['greek'] = tuple(_plain(x) for x in d['grc'])
+    return _demonyms
+
+
+def is_demonym(form, script):
+    """True when the form ends in a demonym or adjective ending of the suffix file."""
+    ends = demonym_suffixes().get(script)
+    return bool(ends) and _plain(form).endswith(ends)
+
+
+def first_declension_heading(pool):
+    """Stage 4. The nominative in -a built from the stem when every Latin place-name form is an oblique
+    first-declension form (-am or -ae), with the nominative in -a of the same stem allowed among them:
+    massiliam and massiliae give Massilia, and so do massiliam and Massilia. At least one form in -am is
+    required, because -ae alone can be a plural nominative (Athenae, Baiae) and then the attested form is the
+    heading. A form of another shape (Massilias, Massinissa) means the rule does not apply and the weighted
+    count decides. Returns the heading in lower case or None."""
+    plain = {f: _plain(f) for f in pool}
+    oblique = [f for f in pool if plain[f].endswith(('am', 'ae'))]
+    if not any(plain[f].endswith('am') for f in oblique):
+        return None
+    stems = {plain[f][:-2] for f in oblique}
+    if any(plain[f] not in {st + 'a' for st in stems} for f in pool if f not in oblique):
+        return None
+    top = max(oblique, key=lambda f: (pool[f], f))
+    return plain[top][:-2] + 'a'
+
+
+def best_form(forms, script, place=False):
+    """The best display form of the given script from {form: count}, or None. With place=True (an entity
+    of a place type, stage 4) a demonym or adjective form ranks below every place-name form, and when every
+    Latin place-name form is an oblique first-declension form the heading is the nominative built from the
+    stem (first_declension_heading)."""
     cand = {}
     for f, n in forms.items():
         if f and script_of(f) == script:
@@ -109,15 +154,22 @@ def best_form(forms, script):
         return None
     mixed = any(not (len(f) > 1 and f.isupper()) for f in cand)
     pool = {f: n for f, n in cand.items() if not (mixed and len(f) > 1 and f.isupper())}
+    if place:
+        names = {f: n for f, n in pool.items() if not is_demonym(f, script)}
+        pool = names or pool
+        if script == 'latin' and names:
+            built = first_declension_heading(names)
+            if built:
+                return _capitalized(built, mixed)
     top = min(pool, key=lambda f: (-pool[f] * TIER_WEIGHT[nominative_tier(f, script)], nominative_tier(f, script), f))
     return _capitalized(top, mixed)
 
 
-def display_labels(forms):
+def display_labels(forms, place=False):
     """(display_label, display_label_la, display_label_grc) from {raw form: count}. A Latin-script
     form is the heading when one exists, else the best Greek form, else the most frequent form."""
-    la = best_form(forms, 'latin')
-    grc = best_form(forms, 'greek')
+    la = best_form(forms, 'latin', place)
+    grc = best_form(forms, 'greek', place)
     if la or grc:
         return la or grc, la, grc
     other = max(forms, key=lambda f: (forms[f], f)) if forms else None
@@ -207,7 +259,7 @@ def store_forms(db):
     return out
 
 
-def write_display_labels(db, log=print):
+def write_display_labels(db, log=print, people_pleiades=None):
     """Step 1. A display label for every corpus name, and the Greek form beside the label of every
     list entity that has one among its mentions. entities.label of a corpus name becomes its
     display label. Returns the (eid, old label, new label) of the names that changed."""
@@ -215,7 +267,17 @@ def write_display_labels(db, log=print):
     forms = store_forms(db)
     changed = []
     rows = []
-    for eid, typ, label, source in db.execute('select eid, type, label, source from entities').fetchall():
+    people_pleiades = people_pleiades or set()
+    for eid, typ, label, source, pid, cands in db.execute(
+            'select eid, type, label, source, pleiades_id, pleiades_candidates from entities').fetchall():
+        if people_pleiades and source == 'list' and typ in PLACE_TYPES:
+            ids = {str(pid)} if pid else set()
+            try:
+                ids |= {str(x) for x in json.loads(cands)} if cands else set()
+            except ValueError:
+                pass
+            if ids & people_pleiades:
+                typ = 'people'          # Pleiades lists the place as a people: its own name is a demonym
         f = forms.get(eid, {})
         if source == 'names':
             disp, la, grc = display_labels(f)
@@ -224,7 +286,7 @@ def write_display_labels(db, log=print):
                 changed.append((eid, label, disp))
             rows.append((eid, disp, la, grc, None))
         elif source == 'list':
-            rows.append((eid, label, label, best_form(f, 'greek'), None))
+            rows.append((eid, label, label, best_form(f, 'greek', typ in PLACE_TYPES), None))
     db.executemany('insert or replace into entity_labels(eid, display_label, display_label_la, display_label_grc, '
                    'description) values (?,?,?,?,?)', rows)
     db.executemany('update entities set label = ? where eid = ?', [(new, eid) for eid, _o, new in changed])
@@ -338,11 +400,27 @@ def _refresh_windows(db, eids):
         db.execute('update entities set n_windows = ? where eid = ?', (n, eid))
 
 
-def promote_store(db, judgments, log=print):
+def greek_stems_of_store(db):
+    """The stems of every Greek-script spelling the store holds (variants and mention forms), for the check
+    that a Greek label the model gave a collision group is a name the corpus spells."""
+    out = set()
+    for (f,) in db.execute('select distinct form from variants union select distinct form from mention_rows'):
+        if f and script_of(f) == 'greek':
+            out.add(_greek_stem(f))
+    return out
+
+
+def promote_store(db, judgments, log=print, greek_stems=None):
     """Step 3. `judgments`: {name key: judgment dict from parse_judgment}. Every key judged person,
     place, deity or people becomes an entity of source 'promoted' (id pn:<key>) or merges into a
     list entity. A key whose spellings hold more than one name promotes only the main name's
-    spellings, the rest stays a plain corpus name. Returns a report dict with the examples."""
+    spellings, the rest stays a plain corpus name. Returns a report dict with the examples.
+
+    Stage 4. A judgment of a collision group (collision_judgments) has the field 'base', the five-letter
+    key it was carved from, and a key of its own (the first six letters of its spellings). Its entity id is
+    pn:<its key>, the rows of its spellings leave the corpus name of the base key, and its Greek label is kept
+    only when the corpus spells a Greek name with that stem (greek_stems). The group that keeps the id of the
+    key's earlier judgment (field entity_key) is the same entity as before and keeps the earlier label rules."""
     db.executescript(LABEL_SCHEMA)
     ents, look = list_lookup(db)
     by_key = {k: eid for eid, k in db.execute("select eid, name_key from entities where source = 'names'")}
@@ -355,10 +433,11 @@ def promote_store(db, judgments, log=print):
         j = judgments[key]
         if j['type'] not in PROMOTED_TYPES:
             continue
-        eid = by_key.get(key)
+        eid = by_key.get(j.get('base', key))
         if eid is None:
             rep['missing_key'] += 1
             continue
+        ekey = j.get('entity_key', key)        # the id the entity takes is pn:<ekey> (a collision heir keeps the old key)
         old_label = db.execute('select label from entities where eid = ?', (eid,)).fetchone()[0]
         main = {ei.fold(f) for f in j['main_forms']} if j['distinct_names'] else None
         target = merge_target(j['latin'], j['type'], ents, look)
@@ -384,7 +463,7 @@ def promote_store(db, judgments, log=print):
                     db.execute('update variants set eid = ? where eid = ? and form = ?', (src, eid, f))
                 touched.update((src, eid))
             db.execute('insert or replace into entity_merges values (?, ?)', (src, target))
-            db.execute('insert into entity_aliases values (?,?,?,?,?)', (target, f'pn:{key}', j['latin'], j['type'], 'promoted_merge'))
+            db.execute('insert into entity_aliases values (?,?,?,?,?)', (target, f'pn:{ekey}', j['latin'], j['type'], 'promoted_merge'))
             touched.add(src)
             rep['merged'] += 1
             if len(rep['merged_examples']) < 20:
@@ -399,18 +478,27 @@ def promote_store(db, judgments, log=print):
         else:
             new = next_eid
             next_eid += 1
-            db.execute('insert into entities(eid, entity_id, type, label, source, name_key, distinctive, n_windows) '
-                       "values (?, ?, ?, ?, 'names', ?, 0, 0)", (new, f'pn:{key}', j['type'], j['latin'], key))
+            db.execute('insert into entities(eid, entity_id, type, label, source, name_key, distinctive, n_windows, homonym_group) '
+                       "values (?, ?, ?, ?, 'names', ?, 0, 0, ?)",
+                       (new, f'pn:{ekey}', j['type'], j['latin'], key, COLLISION_MARK if 'base' in j else None))
             _move_rows(db, eid, new, main)
             for f, lang, role, src in main_variants:
                 db.execute('update variants set eid = ? where eid = ? and form = ?', (new, eid, f))
             touched.update((new, eid))
         db.execute("update entities set entity_id = ?, type = ?, label = ?, source = 'promoted' where eid = ?",
-                   (f'pn:{key}', j['type'], j['latin'], new))
+                   (f'pn:{ekey}', j['type'], j['latin'], new))
         if label_fold and not db.execute('select 1 from variants where eid = ? and form = ?', (new, label_fold)).fetchone():
             db.execute('insert into variants values (?,?,?,?,?)', (new, label_fold, '', 'form', 'promoted'))
         grc = j['greek'] or None
-        if grc and not greek_label_ok(grc, [v[0] for v in main_variants]):
+        ok = False
+        label_forms = j['label_forms'] if 'label_forms' in j else [v[0] for v in main_variants]
+        for cand in ([grc] if grc else []) + list(j.get('greek_alternatives', ())):
+            if 'base' in j and 'entity_key' not in j and greek_stems is not None and _greek_stem(cand) not in greek_stems:
+                continue          # a new name carved from a collision: its Greek label must be a spelling the corpus has
+            if greek_label_ok(cand, label_forms):
+                grc, ok = cand, True
+                break
+        if grc and not ok:
             rep['greek_label_dropped'] = rep.get('greek_label_dropped', 0) + 1
             if len(rep.setdefault('greek_label_dropped_examples', [])) < 40:
                 rep['greek_label_dropped_examples'].append({'key': key, 'latin': j['latin'], 'greek': grc})
@@ -617,6 +705,304 @@ def still_contradicts(judgments):
     return sorted(k for k, j in judgments.items() if contradicts_label(j))
 
 
+# ---------------------------------------------------------------- the Greek label of a split (stage 4)
+
+# The key karno was judged Carnutes, with Latin main spellings (Carnotensis) and the Greek label Κάρνοι. Κάρνοι is
+# a spelling of the same key that the model gave to another name (Κάρνοις, Κάρνος). No rule over the forms can tell
+# that label from Ἀπουλία for Apulia, because the entity has no Greek-script spelling of its own and the label
+# agrees with the key. A rule that drops every label whose stem is the stem of a spelling left out of the main forms
+# drops 35 labels, about half of them right (Junius, Zenobius, Dardanians), because the model leaves the Greek
+# spellings of a name out of main_forms as often as it assigns them to another name. So the model is asked,
+# for those cases only, whether the Greek word is the Greek form of the Latin name.
+
+GREEK_FIX_SYSTEM = (
+    'You help catalog the proper names found in a corpus of ancient Latin, Greek and English texts. You are given a '
+    'Latin name with its type and a description, a Greek word proposed as the Greek form of that name, and lines from '
+    'different works that contain Greek spellings of the proposed word. Say whether the Greek word, as these lines '
+    'use it, is the Greek name of that Latin name or names something else. Answer with one JSON object and nothing '
+    'else, {"answer": "same" or "different"}.')
+
+
+def greek_candidates(judgments, spellings_of):
+    """Keys of old-flow splits whose Greek label should be put to the model: a promotable answer with distinct_names,
+    a Greek label, no Greek-script main spelling, and a spelling of the same key outside the main forms whose stem is
+    the stem of the label. spellings_of(key) gives every spelling of the key. Returns {key: [those spellings]}."""
+    out = {}
+    for key, j in judgments.items():
+        if 'base' in j or not j.get('greek') or not j.get('distinct_names') or j['type'] not in PROMOTED_TYPES:
+            continue
+        if any(script_of(f) == 'greek' for f in j['main_forms']):
+            continue
+        main = {ei.fold(f) for f in j['main_forms']}
+        ls = _greek_stem(j['greek'])
+        same = [f for f in spellings_of(key) if script_of(f) == 'greek' and ei.fold(f) not in main and _greek_stem(f) == ls]
+        if same:
+            out[key] = same
+    return out
+
+
+def greek_fix_question(latin, typ, description, greek, snippets):
+    lines = [f'Latin name: {latin} ({typ})' + (f', {description}' if description else ''), f'Proposed Greek form: {greek}', 'Lines:']
+    for i, (author, lang, text) in enumerate(snippets, 1):
+        lines.append(f'{i}. [{author}, {lang}] {text}')
+    return '\n'.join(lines)
+
+
+def parse_greek_fix(text):
+    """'same' or 'different' from the reply, or None for an unusable reply."""
+    obj = _json_object(text)
+    if obj is None:
+        return None
+    a = str(obj.get('answer') or '').strip().lower()
+    return a if a in ('same', 'different') else None
+
+
+def apply_greek_fix(judgments, fixes):
+    """fixes: {key: 'same' | 'different'}. A label the model calls different is removed from the judgment.
+    Returns the number of labels removed."""
+    n = 0
+    for key, v in fixes.items():
+        j = judgments.get(key)
+        if j and v == 'different' and j.get('greek'):
+            j['greek'] = ''
+            n += 1
+    return n
+
+
+# ---------------------------------------------------------------- key collisions split by stem (stage 4, fix pass 4b)
+
+# A corpus name is keyed by the first five transliterated letters of a spelling, so two names can share a key
+# (massi holds Massilia, Masinissa written Massinissa, and Mount Massicus). The stem test groups the spellings of a
+# key by their stem, the folded spelling minus a case ending of the matcher's tables with four letters left at least
+# (Fabius, Fabium, Fabio and Fabii are one group). When two or more groups each hold at least COLLISION_MIN_LINES
+# lines in at least COLLISION_MIN_WORKS works, the key is a collision candidate and each qualifying group is put to
+# the model as a name of its own.
+#
+# Fix pass 4b. A group becomes a new entity only when the model names it with a promotable type, the name is a
+# different entity from the key's earlier name (the heir), the group has MIN_LINES lines in MIN_WORKS works on its
+# own, and its stem is not a stem of the heir's main spellings. Everything else stays with the heir, which keeps its
+# id, its labels and its description. A key with no heir (its earlier answer was other) promotes the groups that
+# pass the same tests.
+
+COLLISION_MIN_LINES = 5
+COLLISION_MARK = 'collision'      # entities.homonym_group of a name carved from a key collision
+COLLISION_MIN_WORKS = 2
+
+
+GROUP_STEM_MIN = 4
+
+
+def group_stem(form):
+    """The stem of a spelling: folded, minus a case ending of the matcher's tables (Latin or Greek by script),
+    four letters left at least, so that Fabius, Fabium, Fabio and Fabii are one group (five letters would leave
+    each of them whole)."""
+    f = ei.fold(form)
+    ends = ei.GR_END if any('α' <= c <= 'ω' for c in f) else ei.LA_END
+    return ei.strip_end(f, ends, GROUP_STEM_MIN)
+
+
+def collision_groups(rows):
+    """rows: (spelling, work, line key) of one corpus name's mentions. Returns {stem: {'forms': {spelling:
+    lines}, 'lines': distinct lines of the group, 'works': distinct works, 'work_ids': the works}} for every group."""
+    acc = {}
+    for form, work, line in rows:
+        st = group_stem(form)
+        if not st:
+            continue
+        g = acc.setdefault(st, {'lines': set(), 'works': set(), 'forms': {}})
+        g['lines'].add((work, line))
+        g['works'].add(work)
+        g['forms'].setdefault(form, set()).add((work, line))
+    return {st: {'forms': {f: len(v) for f, v in g['forms'].items()}, 'lines': len(g['lines']), 'works': len(g['works']),
+                 'work_ids': sorted(g['works'])} for st, g in acc.items()}
+
+
+def qualifying_groups(groups, min_lines=COLLISION_MIN_LINES, min_works=COLLISION_MIN_WORKS):
+    """{stem: group} of the groups with min_lines lines in min_works works."""
+    return {st: g for st, g in groups.items() if g['lines'] >= min_lines and g['works'] >= min_works}
+
+
+def collision_candidate(groups, min_lines=COLLISION_MIN_LINES, min_works=COLLISION_MIN_WORKS):
+    """The qualifying groups {stem: group} of a key when at least two qualify, else {}."""
+    q = qualifying_groups(groups, min_lines, min_works)
+    return q if len(q) >= 2 else {}
+
+
+def collision_identity(answer):
+    """The name a group answer stands for: its folded Latin name when the type is promotable, else None."""
+    if not answer or answer['type'] not in PROMOTED_TYPES or not answer.get('latin'):
+        return None
+    return ei.fold(answer['latin'])
+
+
+def _distance_within(a, b, limit=2):
+    """True when the Levenshtein distance of a and b is at most limit."""
+    if abs(len(a) - len(b)) > limit:
+        return False
+    prev = list(range(len(b) + 1))
+    for i, ca in enumerate(a, 1):
+        cur = [i]
+        for j, cb in enumerate(b, 1):
+            cur.append(min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (ca != cb)))
+        if min(cur) > limit:
+            return False
+        prev = cur
+    return prev[-1] <= limit
+
+
+def same_collision_name(x, y):
+    """Two group answers (both promotable) name the same entity when their folded Latin names are equal, or
+    when their types are equal and one folded name contains the other or they differ by two letters at most
+    (Romani and Romans, Mount Olympus and Olympus). A place and its people are two entities."""
+    fx, fy = collision_identity(x), collision_identity(y)
+    if fx == fy:
+        return True
+    if x['type'] != y['type']:
+        return False
+    return fx in fy or fy in fx or _distance_within(fx, fy, 2)
+
+
+def _norm_translit(s):
+    """Transliteration with the Greek ou written u, so that Καρνούτων and Carnutes can be compared."""
+    return ei.translit(s).replace('ou', 'u')
+
+
+def label_stem_of(label):
+    """The transliterated stem of a Latin label: minus a case ending of the Latin table, four letters left at least."""
+    t = _norm_translit(label)
+    return ei.strip_end(t, ['us', 'um', 'es', 'is', 'os', 'a', 'o', 'e', 'i'], 4)
+
+
+_HEIR_ENDINGS = ('', 'a', 'an', 'as', 'e', 'en', 'es', 'i', 'in', 'is', 'o', 'oi', 'ois', 'on', 'os', 'ous', 'u', 'um', 'us', 'y', 'ys')
+
+
+def stays_with_heir(form, heir_label):
+    """True for a Greek-script spelling that is the stem of the heir's Latin label plus a case ending (Καρνούτων and
+    Καρνούτῳ for Carnutes): it is a Greek form of the heir whatever group the model put it in. A spelling that only
+    starts like the label does not count (Ἀβισάρου is not a form of Abisai)."""
+    if script_of(form) != 'greek' or not heir_label:
+        return False
+    stem = label_stem_of(heir_label)
+    t = _norm_translit(form)
+    return len(stem) >= 5 and t.startswith(stem) and t[len(stem):] in _HEIR_ENDINGS
+
+
+def _prefix_of_label(stem, label):
+    """True when the transliterated group stem (five letters at least) is the start of the transliterated Latin label
+    of the heir. Macedonia and Μακεδονία share the stem of Macedonians, so a group of them is not a different name
+    from the people of the same name."""
+    g = _norm_translit(stem)
+    return len(g) >= 5 and _norm_translit(label).startswith(g)
+
+
+def collision_judgments(judgments, candidates, answers, log=print, min_lines=10, min_works=3):
+    """Carve the names the model finds in the groups of a collision key out of the key, and leave the rest.
+    candidates: {key: {stem: group}} for every group of the key (collision_groups, with the spellings in 'forms').
+    answers: {key: {stem: answer dict or None}}. A group is carved when the model names it with a promotable
+    type (collision_identity), the name is a different entity from the earlier name of the key
+    (same_collision_name is false), the groups that name one entity together hold min_lines lines in min_works
+    works, and no stem of the heir's main spellings is the group's stem. The earlier judgment of the key, the heir,
+    stays: it keeps its id, labels and description, loses the carved spellings from its main forms, and loses its
+    Greek label only when that label is a carved spelling. A Greek spelling with the stem of the heir's Latin label
+    stays with the heir. A key with no promotable earlier answer carves the groups that pass the same tests.
+    Returns (judgments, report)."""
+    out = dict(judgments)
+    rep = {'candidates': 0, 'asked_groups': 0, 'split': 0, 'not_split': 0, 'names': 0, 'keys': {}}
+    used = set(out)
+    for key, groups in sorted(candidates.items()):
+        qual = qualifying_groups(groups)
+        if len(qual) < 2:
+            continue
+        rep['candidates'] += 1
+        ans = answers.get(key, {})
+        rep['asked_groups'] += sum(1 for st in qual if st in ans)
+        old = out.get(key)
+        heir = old if old and collision_identity(old) else None
+        heir_main = {group_stem(f) for f in old['main_forms']} if heir and old.get('distinct_names') else set()
+        named = []
+        for st in sorted(qual, key=lambda st: (-qual[st]['lines'], st)):
+            a = ans.get(st)
+            if not collision_identity(a):
+                continue
+            if heir and (same_collision_name(heir, a) or st in heir_main or _prefix_of_label(st, heir['latin'])):
+                continue
+            named.append(st)
+        clusters = []
+        for st in named:
+            for cl in clusters:
+                if same_collision_name(ans[cl[0]], ans[st]):
+                    cl.append(st)
+                    break
+            else:
+                clusters.append([st])
+        carve = []
+        for cl in clusters:
+            lines = sum(groups[st]['lines'] for st in cl)
+            works = len({w for st in cl for w in groups[st].get('work_ids', [])}) or sum(groups[st]['works'] for st in cl)
+            if lines >= min_lines and works >= min_works:
+                carve.append(cl)
+        if not carve:
+            rep['not_split'] += 1
+            continue
+        rep['split'] += 1
+        taken_all = {}
+        for cl in carve:
+            for st in cl:
+                for f in groups[st]['forms']:
+                    taken_all[f] = id(cl)
+        heir_label = heir['latin'] if heir else None
+        made = []
+        carved_forms = set()
+        for cl in carve:
+            a = ans[cl[0]]
+            forms = {f for st in cl for f in groups[st]['forms']}
+            keep = {f for f in forms if stays_with_heir(f, heir_label)}
+            forms -= keep
+            if not forms:
+                continue
+            carved_forms |= forms
+            others = {ei.fold(f) for c2 in carve if c2 is not cl for st in c2 for f in groups[st]['forms']}
+            labels = [ans[st]['greek'] for st in cl if ans[st].get('greek')]
+            labels = list(dict.fromkeys(g for g in labels if ei.fold(g) not in others))
+            top = cl[0]
+            vkey = top if len(top) >= 6 else f'{top}2'
+            while vkey in used:
+                vkey += '2'
+            used.add(vkey)
+            out[vkey] = {'type': a['type'], 'latin': a['latin'], 'greek': labels[0] if labels else '',
+                         'description': a.get('description') or '', 'distinct_names': True, 'main_forms': sorted(forms),
+                         'base': key, 'greek_alternatives': labels[1:]}
+            made.append({'key': vkey, 'latin': a['latin'], 'type': a['type'], 'groups': sorted(cl),
+                         'lines': sum(groups[st]['lines'] for st in cl), 'kept_with_heir': sorted(keep)})
+            rep['names'] += 1
+        if not made:
+            rep['split'] -= 1
+            rep['not_split'] += 1
+            continue
+        if heir:
+            j = dict(heir)
+            all_forms = {f for g in groups.values() for f in g['forms']}
+            # the heir's Greek label is tested against the spellings it had before the carve, as the installed store did
+            j['label_forms'] = sorted(all_forms) if not heir.get('distinct_names') else list(heir['main_forms'])
+            if j.get('distinct_names'):
+                j['main_forms'] = [f for f in j['main_forms'] if f not in carved_forms]
+            else:
+                j['distinct_names'] = True
+                j['main_forms'] = sorted(all_forms - carved_forms)
+            if j.get('greek') and ei.fold(j['greek']) in {ei.fold(f) for f in carved_forms}:
+                j['greek'] = ''
+            out[key] = j
+        heir_lines = sum(g['lines'] for st, g in groups.items() if not any(f in carved_forms for f in g['forms'])) if heir else None
+        rep['keys'][key] = {'heir': heir['latin'] if heir else None,
+                            'groups': {st: {'lines': g['lines'], 'works': g['works'],
+                                            'forms': sorted(g['forms'], key=lambda f: -g['forms'][f])[:6],
+                                            'identity': collision_identity(ans.get(st))} for st, g in groups.items()},
+                            'heir_lines_kept': heir_lines, 'names': made}
+    log(f"collisions: {rep['candidates']} candidates, {rep['split']} split into {rep['names']} names, "
+        f"{rep['not_split']} not split")
+    return out, rep
+
+
 # ---------------------------------------------------------------- the label of a merged group
 
 # A group of promoted entities merged by dedupe_promoted takes its label by the heading rule of the
@@ -626,8 +1012,10 @@ def still_contradicts(judgments):
 GROUP_LA_STRONG = LA_STRONG + ('ae',)
 
 
-def group_rank(label, script):
+def group_rank(label, script, place=False):
     f = _plain(label)
+    if place and is_demonym(label, script):
+        return 3
     if script == 'latin':
         strong, weak = GROUP_LA_STRONG, LA_WEAK
     else:
@@ -637,15 +1025,21 @@ def group_rank(label, script):
     return 1 if f.endswith(weak) else 2
 
 
-def pick_group_label(cands, script):
-    """cands: [(label, lines)]. The nominative-looking label with the most lines."""
+def pick_group_label(cands, script, place=False):
+    """cands: [(label, lines)]. The nominative-looking label with the most lines. For a place type
+    (stage 4) a demonym label ranks below every place-name label."""
     cands = [(lab, n) for lab, n in cands if lab]
     if not cands:
         return None
-    return min(cands, key=lambda c: (group_rank(c[0], script), -c[1], c[0]))[0]
+    return min(cands, key=lambda c: (group_rank(c[0], script, place), -c[1], c[0]))[0]
 
 
 # ---------------------------------------------------------------- duplicates among promoted entities
+
+def single_letters(label):
+    """The transliterated label with each run of one doubled letter written once (massinisa for Massinissa)."""
+    return re.sub(r'(.)\1+', r'\1', ei.translit(label))
+
 
 def dedupe_promoted(db, log=print):
     """Merge promoted entities that share a type and a folded Latin label, or whose Latin label
@@ -655,8 +1049,9 @@ def dedupe_promoted(db, log=print):
     for (eid, _lang), n in extras.line_counts(db).items():
         lines[eid] = lines.get(eid, 0) + n
     ents = {}
-    for eid, entity_id, typ, label in db.execute("select eid, entity_id, type, label from entities where source = 'promoted'"):
-        ents[eid] = {'id': entity_id, 'type': typ, 'label': label, 'greek': None}
+    for eid, entity_id, typ, label, mark in db.execute(
+            "select eid, entity_id, type, label, homonym_group from entities where source = 'promoted'"):
+        ents[eid] = {'id': entity_id, 'type': typ, 'label': label, 'greek': None, 'carved': mark == COLLISION_MARK}
     for eid, grc in db.execute('select eid, display_label_grc from entity_labels'):
         if eid in ents:
             ents[eid]['greek'] = grc
@@ -671,13 +1066,20 @@ def dedupe_promoted(db, log=print):
     def union(a, b):
         parent[find(a)] = find(b)
 
-    first, by_trans = {}, {}
+    first, by_trans, by_single = {}, {}, {}
     for eid, e in ents.items():
         first.setdefault((e['type'], ei.fold(e['label'])), []).append(eid)
         by_trans.setdefault((e['type'], ei.translit(e['label'])), []).append(eid)
+        by_single.setdefault((e['type'], single_letters(e['label'])), []).append(eid)
     for grp in first.values():
         for x in grp[1:]:
             union(grp[0], x)
+    # stage 4: a name carved from a key collision joins the promoted entity of the same type whose label is the
+    # same name with doubled letters written single (Massinissa and Masinissa)
+    for grp in by_single.values():
+        if len(grp) > 1 and any(ents[x]['carved'] for x in grp):
+            for x in grp[1:]:
+                union(grp[0], x)
     for eid, e in ents.items():
         if e['greek']:
             for other in by_trans.get((e['type'], ei.translit(e['greek'])), ()):
@@ -690,12 +1092,15 @@ def dedupe_promoted(db, log=print):
     for members in groups.values():
         if len(members) < 2:
             continue
-        surv = max(members, key=lambda e: (lines.get(e, 0), -e))
+        # fix pass 4b: a name carved from a collision never changes the survivor or the labels of an entity that was
+        # promoted before (the installed store), it only adds its mentions and spellings
+        older = [m for m in members if not ents[m]['carved']]
+        surv = max(older or members, key=lambda e: (lines.get(e, 0), -e))
         rep['groups'] += 1
         # stage 3b: the group's labels come from the heading rule, not from the surviving key
-        lat_cands = [(ents[m]['label'], lines.get(m, 0)) for m in members]
+        lat_cands = [(ents[m]['label'], lines.get(m, 0)) for m in (older or members)]
         orig_grc = ents[surv]['greek']
-        grc_cands = [(ents[m]['greek'], lines.get(m, 0)) for m in members if ents[m]['greek']]
+        grc_cands = [(ents[m]['greek'], lines.get(m, 0)) for m in (older or members) if ents[m]['greek']]
         for other in members:
             if other == surv:
                 continue
@@ -713,8 +1118,10 @@ def dedupe_promoted(db, log=print):
             db.execute('delete from entities where eid = ?', (other,))
             rep['merged_away'] += 1
         forms_now = [f for (f,) in db.execute('select form from variants where eid = ?', (surv,))]
-        best_la = pick_group_label(lat_cands, 'latin') or ents[surv]['label']
-        best_grc = pick_group_label([(g, n) for g, n in grc_cands if greek_label_ok(g, forms_now)], 'greek')
+        is_place = ents[surv]['type'] in PLACE_TYPES
+        best_la = pick_group_label(lat_cands, 'latin', is_place) or ents[surv]['label']
+        has_carved = len(older) < len(members)
+        best_grc = pick_group_label([(g, n) for g, n in grc_cands if has_carved or greek_label_ok(g, forms_now)], 'greek', is_place)
         if best_la != ents[surv]['label']:
             rep['labels_changed'] = rep.get('labels_changed', 0) + 1
             rep.setdefault('label_change_examples', []).append({'was': ents[surv]['label'], 'now': best_la,

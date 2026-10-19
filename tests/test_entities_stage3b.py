@@ -90,6 +90,34 @@ def test_the_stem_needs_four_letters():
     assert el.case_stems('ροδοσ', 'grc') == 'ροδοσ'
 
 
+def _two_entity_fixture():
+    """Two entities that both list Rhodus, so the token rhodus links to both. The first has the id pl:2 at index 0 and
+    the second pl:1 at index 1, so an id and an index never agree."""
+    entities, types, prep = _lemma_fixture()
+    e0 = dict(entities[0], entity_id='pl:2')
+    e1 = dict(entities[0], entity_id='pl:1')
+    prep = dict(prep, form_lemma=[('la', 0, 'rhodus', 'rhodus'), ('la', 1, 'rhodus', 'rhodus')])
+    return [e0, e1], types, prep
+
+
+def test_token_blocks_narrow_or_delete_an_entry_and_key_on_the_entity_id():
+    entities, types, prep = _two_entity_fixture()
+    base, _ = el.assemble_matcher(entities, types, prep, audit_fixes=False, overrides=False, log=lambda *_: None)
+    assert base['la']['rhodus'] == (0, 1)
+    # one block with another entity left: the entry is narrowed to the other entity
+    narrowed, info = el.assemble_matcher(entities, types, prep, audit_fixes=False, overrides=False, log=lambda *_: None,
+                                         token_blocks={('la', 'pl:1', 'rhodus')})
+    assert narrowed['la']['rhodus'] == (0,) and info['diag']['token_blocks_applied'] == 1
+    # both blocked: no entity remains, the entry is deleted
+    gone, info = el.assemble_matcher(entities, types, prep, audit_fixes=False, overrides=False, log=lambda *_: None,
+                                     token_blocks={('la', 'pl:1', 'rhodus'), ('la', 'pl:2', 'rhodus')})
+    assert 'rhodus' not in gone['la'] and info['diag']['token_blocks_applied'] == 2
+    # the tuple holds the entity id. The internal index (0 or 1) blocks nothing, and neither does a wrong language
+    same, info = el.assemble_matcher(entities, types, prep, audit_fixes=False, overrides=False, log=lambda *_: None,
+                                     token_blocks={('la', 0, 'rhodus'), ('la', 1, 'rhodus'), ('grc', 'pl:1', 'rhodus')})
+    assert same['la']['rhodus'] == (0, 1) and info['diag']['token_blocks_applied'] == 0
+
+
 # ---------------------------------------------------------------- search names and near spellings
 
 TEXTS = {}

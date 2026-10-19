@@ -389,10 +389,133 @@ def step_build(a):
     """The stage 2 store with the case-form lemma sets: every judgment of stages 1d, 2 and 3b applied."""
     keys = json.load(open(a.entities_json, encoding='utf-8'))
     decisions = load_decisions(a)
+    blocks = load_token_blocks(a)
     counts, _rows, _ents = ei.build_store(keys, a.passage_dir, a.out, matcher='lemma', lemma_decisions=decisions,
                                           answers_loader=lambda ents: answers_index(a, ents)[0], case_forms=a.case_forms,
-                                          case_allowed=load_allowed(a) if a.case_forms else None)
+                                          case_allowed=load_allowed(a) if a.case_forms else None, token_blocks=blocks)
+    print('token links blocked by the confirmation of the new lemma pairs:', len(blocks))
     print('mentions by language', counts['list_mentions_by_language'], 'windows', counts['windows_with_mentions'])
+
+
+def load_token_blocks(a):
+    """{(language, entity id, folded token)}: the links the corrected lemma table adds and the confirmation question
+    of fix pass 4b did not call a name (token_blocks.json in --work-dir, written by the newpairs step)."""
+    path = p(a, 'token_blocks.json')
+    if not os.path.exists(path):
+        return set()
+    return {tuple(x) for x in json.load(open(path, encoding='utf-8'))}
+
+
+def step_newpairs(a):
+    """Fix pass 4b. Every (list entity, Latin lemma) pair that the corrected lemma table links to new tokens goes
+    through the confirmation question of the stage 3b fix pass (CONFIRM_SYSTEM). The tokens of a pair the model does
+    not call a name are written to token_blocks.json and left out of the matcher at the build. --state is the new
+    state, --old-state the one the installed store was built from. Resumable."""
+    t0 = time.time()
+    keys, entities = load_world(a)
+    new_types, new_prep = load_state(a)
+    old = pickle.load(open(a.old_state, 'rb'))
+    dec = load_decisions(a)
+    quiet = lambda *_: None  # noqa: E731
+    t2e_n, info_n = el.assemble_matcher(entities, new_types, new_prep, decisions=dec, log=quiet)
+    t2e_o, _info_o = el.assemble_matcher(entities, old['types'], old['prep'], decisions=dec, log=quiet)
+    pairs = collections.defaultdict(list)       # (lang, idx, lemma) -> tokens it adds
+    for lang in ('la',):
+        for tok, es in t2e_n[lang].items():
+            for i in set(es) - set(t2e_o[lang].get(tok, ())):
+                pairs[(lang, i, new_prep['type_lemma'][lang].get(tok, tok))].append(tok)
+    print(f'{len(pairs)} new (entity, lemma) pairs for {sum(len(v) for v in pairs.values())} token links, {time.time() - t0:.0f}s', flush=True)
+    wanted = {(lang, tok) for (lang, _i, _l), toks in pairs.items() for tok in toks}
+    texts = emp.open_texts(a)
+    wl = work_languages(texts)
+    rnd = random.Random(SEED_SNIPPETS)
+    seen = collections.Counter()
+    forms = collections.defaultdict(collections.Counter)
+    snip = collections.defaultdict(list)
+    snip_first = collections.defaultdict(list)
+    by_tok = collections.defaultdict(list)
+    for k in pairs:
+        for tok in pairs[k]:
+            by_tok[(k[0], tok)].append(k)
+    for work, ref, text in texts.execute('select work, ref, text from lines'):
+        lang = wl.get(work)
+        if lang != 'la':
+            continue
+        for raw, f, initial in el.tokens_of(text):
+            if (lang, f) not in wanted or not el.is_cap(raw):
+                continue
+            for k in by_tok[(lang, f)]:
+                forms[k][raw] += 1
+                seen[k] += 1
+                if initial:
+                    # a token that opens its line (Ambrosiasque rapit ...) is the only kind some pairs have
+                    if len(snip_first[k]) < SNIPPETS:
+                        snip_first[k].append(mp.line_snippet(text, raw))
+                    continue
+                if len(snip[k]) < SNIPPETS:
+                    snip[k].append(mp.line_snippet(text, raw))
+                else:
+                    j = rnd.randrange(seen[k])
+                    if j < SNIPPETS:
+                        snip[k][j] = mp.line_snippet(text, raw)
+    jobs = []
+    for k in sorted(pairs, key=lambda k: (entities[k[1]]['entity_id'], k[2])):
+        lang, idx, lem = k
+        e = entities[idx]
+        fs = [w for w, _ in forms[k].most_common(3)] or pairs[k][:3]
+        user = mp.pass1_prompt(e, lem, lang, fs, snip[k] or snip_first[k])
+        jobs.append({'entity_id': e['entity_id'], 'lang': lang, 'lemma': lem, 'tokens': sorted(pairs[k]),
+                     'prompt': confirm_prompt(e, lem, lang, user)})
+    emp.write_jsonl(p(a, 'newpairs_jobs.jsonl'), jobs)
+    cl = emp.make_client()
+    emp.client_stats = cl.stats
+
+    def ask(job):
+        txt = cl.ask(CONFIRM_SYSTEM, job['prompt'], max_tokens=40)
+        return {'entity_id': job['entity_id'], 'lang': job['lang'], 'lemma': job['lemma'], 'tokens': job['tokens'],
+                'answer': parse_confirm(txt), 'reply': txt if parse_confirm(txt) is None else None}
+
+    emp.run_stage(a, jobs, ask, None, p(a, 'newpairs_confirm.jsonl'), lambda r: (r['lang'], r['entity_id'], r['lemma']),
+                  [(20, 16), (20, 16)])
+    answers = {(r['lang'], r['entity_id'], r['lemma']): r for r in read_jsonl(p(a, 'newpairs_confirm.jsonl')) if r.get('answer')}
+    # fix pass 4c. A pair the first question calls a name gets a second question, name itself or derived adjective
+    # or ethnic, and the lemma shapes of derived adjectives are blocked by rule (entity_lemma.derived_adjective_shape).
+    by_id = {e['entity_id']: e for e in entities}
+    second = []
+    ruled = {}
+    for j in jobs:
+        r = answers.get((j['lang'], j['entity_id'], j['lemma']))
+        if r is None or r['answer'] != 'name':
+            continue
+        e = by_id[j['entity_id']]
+        listed = sorted({x for k in e['keys'] for x in k['latin']} | {k['greek'] for k in e['keys'] if k['greek']})
+        if el.derived_adjective_shape(j['lemma'], j['lang'], listed):
+            ruled[(j['lang'], j['entity_id'], j['lemma'])] = True
+            continue
+        second.append(dict(j, prompt=j['prompt'] + '\nQuestion: is the candidate lemma the name itself, or an adjective or ethnic formed from it?'))
+
+    def ask2(job):
+        txt = cl.ask(DERIVED_SYSTEM, job['prompt'], max_tokens=40)
+        v = parse_derived(txt)
+        return {'entity_id': job['entity_id'], 'lang': job['lang'], 'lemma': job['lemma'], 'tokens': job['tokens'],
+                'answer': v, 'reply': txt if v is None else None}
+
+    emp.run_stage(a, second, ask2, None, p(a, 'newpairs_derived.jsonl'), lambda r: (r['lang'], r['entity_id'], r['lemma']),
+                  [(20, 16), (20, 16)])
+    json.dump(cl.stats, open(p(a, 'newpairs_gateway_%d.json' % int(time.time())), 'w'))
+    derived = {(r['lang'], r['entity_id'], r['lemma']): r for r in read_jsonl(p(a, 'newpairs_derived.jsonl')) if r.get('answer')}
+    blocks = []
+    for j in jobs:
+        k = (j['lang'], j['entity_id'], j['lemma'])
+        r = answers.get(k)
+        if r is None or r['answer'] != 'name' or k in ruled or (derived.get(k) or {}).get('answer') != 'NAME':
+            blocks.extend([j['lang'], j['entity_id'], t] for t in j['tokens'])
+    json.dump(blocks, open(p(a, 'token_blocks.json'), 'w'), ensure_ascii=False)
+    kept = sum(1 for j in jobs if answers.get((j['lang'], j['entity_id'], j['lemma']), {}).get('answer') == 'name')
+    final = sum(1 for j in jobs if (derived.get((j['lang'], j['entity_id'], j['lemma'])) or {}).get('answer') == 'NAME'
+                and (j['lang'], j['entity_id'], j['lemma']) not in ruled)
+    print(f'{len(jobs)} pairs asked, {kept} called a name, {len(ruled)} blocked by the adjective shape, {final} kept after the '
+          f'second question, {len(blocks)} token links blocked', flush=True)
 
 
 def step_docs(a):
@@ -451,7 +574,9 @@ def step_searchnames(a):
             n += 1
     db.execute('CREATE INDEX ix_sn_eid ON search_names(eid)')
     db.execute("delete from meta where key = 'search_names'")
-    db.execute("insert into meta values ('search_names', ?)", (json.dumps({'entities': len(rows), 'names': n, 'missing': len(missing)}),))
+    n_form = ex.add_form_search_names(db)
+    db.execute("insert into meta values ('search_names', ?)",
+               (json.dumps({'entities': len(rows), 'names': n, 'missing': len(missing), 'form_stems': n_form}),))
     db.commit()
     db.close()
     ex.write_catalog(a.out)
@@ -508,6 +633,29 @@ def parse_confirm(text):
     except (ValueError, AttributeError):
         return None
     return v if v in ('name', 'demonym', 'other_name', 'common') else None
+
+
+DERIVED_SYSTEM = (
+    'A catalog of ancient names is being checked. You see one entity (its label, type and listed forms) and one '
+    'candidate lemma (a dictionary form written without accents), the capitalized forms in which it occurs and example '
+    'lines from the corpus. Is the candidate the name itself, or an adjective or an ethnic formed from the name '
+    '(Palatinus from Palatium, Romanus from Roma)? Answer with one JSON object and nothing else, '
+    '{"answer": "NAME" or "DERIVED"}.')
+
+
+def parse_derived(text):
+    import re
+    if not text:
+        return None
+    t = re.sub(r'^```(?:json)?|```$', '', text.strip(), flags=re.M).strip()
+    a, b = t.find('{'), t.rfind('}')
+    if a < 0 or b <= a:
+        return None
+    try:
+        v = str(json.loads(t[a:b + 1]).get('answer') or '').strip().upper()
+    except (ValueError, AttributeError):
+        return None
+    return v if v in ('NAME', 'DERIVED') else None
 
 
 def load_allowed(a):
@@ -608,6 +756,7 @@ def main():
     ap.add_argument('--entities-json', default='/home/ncoffee/licensed_text/analysis/entity_mentions/entities.json')
     ap.add_argument('--passage-dir', default=os.path.join(ROOT, 'data', 'passage_index'))
     ap.add_argument('--work-dir', required=True)
+    ap.add_argument('--old-state', default=None, help='newpairs: the state.pkl the installed store was built from')
     ap.add_argument('--state', default=None, help='stage 2 state.pkl (type counts and lemmas)')
     ap.add_argument('--reuse-dir', action='append', help='earlier work folders, read only (repeat)')
     ap.add_argument('--store')
