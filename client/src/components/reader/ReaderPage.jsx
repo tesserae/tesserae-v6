@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { useState, useEffect, useLayoutEffect, useCallback, useMemo, useRef } from 'react';
 import useDocumentsTrial from '../../hooks/useDocumentsTrial';
 import useCollections from '../../hooks/useCollections';
 import { cssRef, windowLocus, fullRef } from './refId';
@@ -64,7 +64,43 @@ const PREFERRED_WORK = {
  * who is reading and wants to know what a passage touches. Results open in the
  * Reader in turn, so the corpus can be followed by association.
  */
-function popupTop(selection) {
+const TOOLBAR_GAP = 8;
+const TOOLBAR_GUESS = 64;
+
+/** Where the selection toolbar goes, so that it covers none of the selected
+ *  lines and as little of the text as it can. Above the first selected line
+ *  when the pane and the screen have room for the toolbar's whole height,
+ *  otherwise below the last selected line. The toolbar used to hang from the
+ *  last line's bottom edge by a fixed 8 pixels whatever its height, and when
+ *  its two rows wrapped it covered the two lines after the selection
+ *  (2026-10-19). All arguments are in the pane's coordinates except
+ *  `viewportRoom`, the space between the first line and the sticky strip on
+ *  the screen. */
+export function toolbarTopFor({ firstTop, lastBottom, height, viewportRoom = Infinity, gap = TOOLBAR_GAP }) {
+  const above = firstTop - height - gap;
+  if (above >= 0 && viewportRoom >= height + gap) return above;
+  return lastBottom + gap;
+}
+
+function lineElement(ref) {
+  return ref ? document.getElementById(`line-${cssRef(ref)}`) : null;
+}
+
+function popupTop(selection, height = TOOLBAR_GUESS) {
+  const first = lineElement(selection?.refStart);
+  const bottom = popupBottom(selection);
+  if (!first) return bottom + TOOLBAR_GAP;
+  const nav = document.querySelector('[data-reader-nav-strip]');
+  const floor = nav ? nav.getBoundingClientRect().bottom : 0;
+  return toolbarTopFor({
+    firstTop: first.offsetTop,
+    lastBottom: bottom,
+    height,
+    viewportRoom: first.getBoundingClientRect().top - floor,
+  });
+}
+
+function popupBottom(selection) {
   // Under the last selected line. A drag in the text measures the line
   // itself and passes anchorTop; a click on a quotation mark or an arrival
   // by URL used to pass nothing, so the popup sat at the top of the pane
@@ -190,6 +226,14 @@ export default function ReaderPage() {
   // comment on SLOW_AFTER_MS in ConnectionGutter.
   const [gutterSlow, setGutterSlow] = useState(false);
   const [selection, setSelection] = useState(null);
+  // The selection toolbar's measured height: its controls wrap to two rows
+  // in a narrow pane, so the position cannot assume one.
+  const toolbarBoxRef = useRef(null);
+  const [toolbarHeight, setToolbarHeight] = useState(TOOLBAR_GUESS);
+  useLayoutEffect(() => {
+    const h = toolbarBoxRef.current?.offsetHeight;
+    if (h && h !== toolbarHeight) setToolbarHeight(h);
+  }, [popupOpen, selection, scope, toolbarHeight]);
   // "Quoted in N works": per-line reuse counts for the currently open work,
   // from the corpus-wide reuse table (Latin only as of 2026-09-19; a 404
   // for any other language just leaves this empty, no error shown).
@@ -903,8 +947,8 @@ export default function ReaderPage() {
                 // Desktop only. On a phone it piled up with the browser's own
                 // copy toolbar and the results sheet (2026-09-07); the
                 // sheet's tabs already do what the toolbar offers there.
-                <div className="hidden lg:block absolute left-10 z-20"
-                     style={{ top: `${popupTop(selection) + 8}px` }}>
+                <div ref={toolbarBoxRef} className="hidden lg:block absolute left-10 z-20"
+                     style={{ top: `${popupTop(selection, toolbarHeight)}px` }}>
                   <SelectionToolbar
                     selection={selection}
                     scope={scope}
