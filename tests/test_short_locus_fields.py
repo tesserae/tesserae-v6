@@ -60,3 +60,14 @@ def test_density_cache_hit_gains_the_locus(tmp_path, monkeypatch):
     monkeypatch.setattr(passage_index, '_density_cache_path', lambda w, s: str(cache))
     out = passage_index.connection_density('vergil.aeneid')
     assert out['windows'][0]['locus'] == '1.1–1.30'
+
+
+def test_a_roman_numeral_act_is_part_of_the_locus():
+    """Hamlet is tagged act.scene.line with a Roman act: the card read "1.66"
+    for III.1.66 (2026-10-18). A Roman level ahead of numeric ones stays."""
+    from backend.utils import format_short_locus
+    assert format_short_locus('hamlet III.1.66') == 'III.1.66'
+    assert format_short_locus('Spenser F.Q. 3.9.359') == '3.9.359'
+    assert format_short_locus('hebrew_bible.isaiah.34.11') == '34.11'
+    assert format_short_locus('CIL VI 1234') == '1234'
+    assert format_short_locus('thuc. pele. 2.57.1') == '2.57.1'
