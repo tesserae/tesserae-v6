@@ -47,6 +47,26 @@ Hazard. A pull of a commit that deletes tracked files removes those files from t
 5. Touch the WSGI file, `curl .../api/languages`, one Similar Passages request.
 
 Production tail rule added. Every text replacement or repair re-encodes the work's vector file (`scripts/corpus/encode_with_embed_service.py` or the GPU route) and runs the census, alongside the lemma cache, index rows, bigram tables, passage index and reuse tables already listed.
+## 2026-10-19 Greek-Latin set A loaded through the review table (PENDING, to be run by the lead)
+
+Why. Both gateway models accepted 13,831 harvested Greek-Latin pairs (see DECISIONS.md, 2026-10-19). They go in as rows of `dictionary_review` with status `accepted` under one source name, so one command removes them. The CSV already holds the live dictionary's key form (no accents, final sigma as sigma), and the loader applies the app's own normalizer to be safe. Four pairs are already in the curated dictionary and are skipped, leaving 13,827 to insert before the exclusion file.
+
+Commands (production root, production venv; `DATABASE_URL` comes from the environment, read inside the one `bash -c` and never printed):
+
+    JUDGED=DIR_WITH_THE_TWO_CSV_FILES bash -c 'set -a; . /var/www/tesseraev6_flask/.env; set +a; cd /var/www/tesseraev6_flask && venv/bin/python scripts/dictionary/load_review_entries.py --csv "$JUDGED/extra_A.csv" --source harvest_2026-10-19_set_a --exclude EXCLUDE.csv --notes-from "$JUDGED/judged_candidates.csv"'
+    # read the dry-run counts, then repeat the same command with --apply
+    rm -f /var/www/tesseraev6_flask/cache/asyncjob_xlingual_*.json
+    touch /var/www/tesseraev6_flask/tesseraev6_flask.wsgi
+    curl -s https://tesserae.caset.buffalo.edu/api/languages | head -c 200
+
+`DIR_WITH_THE_TWO_CSV_FILES` is the folder holding `extra_A.csv` and `judged_candidates.csv`, which are kept outside this repository. If the dictionary does not appear to change after the wsgi touch, find the worker processes with `pgrep -f` and a bracketed pattern (a plain `pkill -f` pattern matches the calling shell). Then rerun Od. 5.306 (`τρὶς μάκαρες Δαναοὶ καὶ τετράκις`) against Aen. 1.94 (`o terque quaterque beati`) in the cross-language search with skip_cache and record the rank (7 of 445 after #1023).
+
+Reversal (one step, then the same cache deletion and wsgi touch):
+
+    bash -c 'set -a; . /var/www/tesseraev6_flask/.env; set +a; cd /var/www/tesseraev6_flask && venv/bin/python scripts/dictionary/load_review_entries.py --unload harvest_2026-10-19_set_a --apply'
+
+Verification. The loader prints inserted, skipped as duplicates, excluded and the accepted-row count before and after. The accepted count rises by exactly the inserted figure, and the reversal returns it to the earlier figure.
+
 
 ## 2026-10-19 Events store: every Scholarship article judged for its bearing on its event, verdicts installed (RUN 03:30 EDT, by the lead)
 
