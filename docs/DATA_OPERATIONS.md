@@ -35,6 +35,17 @@ Conventions
   hand and are the models the helper matches.
 
 
+## 2026-10-19 Public Coptic index download rebuilt without the Sahidica New Testament (PENDING, to be run by the lead)
+
+Why. The Sahidica New Testament (J. Warren Wells's edition) is held for academic use only, so the public Coptic index download may not carry it. The site search keeps it. The download of 2 September still held it and was left out of the regeneration earlier today for that reason.
+
+What. A copy of the live `cop_index.db` was filtered with `scripts/corpus/filter_index_by_registry.py` (the live file was only read). The registry names 29 works. The live index held 27 of them (the 27 `sahidica.*` books of the New Testament), and the other two ids have no indexed file. Before and after, texts 180 to 153, lines 70,842 to 62,919, postings 1,466,155 to 1,300,852, `lemma_doc_freq` rows 29,323 to 27,981. The checks found no registry work left in `texts`, no orphan rows in `lines` or `postings`, zero occurrences of "sahidica" in a full dump of the copy and a clean integrity check, and lemma lookups through `backend.inverted_index` pointed at the copy answer for three Coptic searches. Peak memory 18 MB. The archive `cop_index.db.tar.gz` is 39,294,127 bytes (SHA-256 `4696f27b8417327148f5c3fab0e84470346ca7dadd9a8a7f0e7c8caabd324a05`), the extracted file 234,057,728 bytes (SHA-256 `9a107e078f1ab487a845505880b90266127db662fc183813035e7c06d50baa55`). The new `index.html` and `SHA256SUMS.txt` are built beside it. The staging folder is `~/tesserae-backups/public_data_2026-10-19_cop/`, with `CHECKS.md`.
+
+Install (by the lead):
+1. `mkdir -p ~/tesserae-backups/public_data_old_2026-10-19/cop_before_filter && cp -p /var/www/tesseraev6_flask/public_data/{cop_index.db.tar.gz,index.html,SHA256SUMS.txt} ~/tesserae-backups/public_data_old_2026-10-19/cop_before_filter/`, which keeps the earlier backups in the folder apart.
+2. `cp ~/tesserae-backups/public_data_2026-10-19_cop/{cop_index.db.tar.gz,index.html,SHA256SUMS.txt} /var/www/tesseraev6_flask/public_data/`
+3. Verify from the public URL. Download `cop_index.db.tar.gz`, compare its SHA-256 with `SHA256SUMS.txt`, and read the Coptic row on the page.
+
 ## 2026-10-19 Per-line vector files untracked from git, production and dev checkouts kept whole (PENDING, by the lead)
 
 Why. The 1,703 files under `backend/embeddings/` (the per-line SPhilBERTa vectors, about 2 GB) were tracked in the public repository since January. Thirty-four of them were replaced in production on 2026-10-18 after the vector census found them out of step with their texts, and twenty show as modified in the dev checkout, so the copies on GitHub were stale and a `git pull` carried a risk of overwriting repaired vectors. The project lead decided on 2026-10-19 to untrack them (#1041). The directory stays in `.gitignore`.

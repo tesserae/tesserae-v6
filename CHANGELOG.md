@@ -8,6 +8,7 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-19
+- The public Coptic index download leaves out the Sahidica New Testament (27 works indexed, academic-use license): `scripts/corpus/filter_index_by_registry.py` removes every registry work from a copy of an index, recomputes `lemma_doc_freq` and vacuums. The downloads page entry points readers to Coptic Scriptorium. The site search keeps the text. Install is PENDING in docs/DATA_OPERATIONS.md.
 - The 1,703 per-line vector files under backend/embeddings/ leave git (untracked, the directory stays ignored); the data files reference and the setup notes say they are built or downloaded. A text replacement re-encodes its vector file as a documented production step (#1041).
 - Dictionary: `scripts/dictionary/load_review_entries.py` loads judged Greek-Latin pairs into the `dictionary_review` table under one source name (dry run by default, exclusion file, per-row notes from the two models' verdicts, `--unload SOURCE` removes the whole set). No pair is loaded by this change. The first set, 13,831 pairs both gateway models accepted, is recorded as PENDING in docs/DATA_OPERATIONS.md.
 - Data downloads: the five index archives and the passage index (now per-language slices with their licences) regenerated from the live stores; DATA_MANIFEST.json and the data files reference updated (docs/DATA_OPERATIONS.md).

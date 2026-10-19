@@ -58,13 +58,13 @@
     {
       "filename": "cop_index.db.tar.gz",
       "extract_to": "data/inverted_index/cop_index.db",
-      "description": "Coptic inverted index (Sahidic and Bohairic, 187 texts)",
+      "description": "Coptic inverted index (Sahidic and Bohairic, 153 texts; the Sahidica New Testament is left out, see Coptic Scriptorium)",
       "required": false,
       "rebuild_instructions": "Run: python scripts/build_inverted_index.py --language cop --force",
-      "size_bytes": 270848000,
-      "size_human": "271 MB",
-      "sha256": "608b5be5e9a929e2b918db5930390a1ddd78c7909171cb81af1de64e1638c04f",
-      "size_compressed": 53075951
+      "size_bytes": 234057728,
+      "size_human": "234 MB",
+      "sha256": "9a107e078f1ab487a845505880b90266127db662fc183813035e7c06d50baa55",
+      "size_compressed": 39294127
     },
     {
       "filename": "he_index.db.tar.gz",

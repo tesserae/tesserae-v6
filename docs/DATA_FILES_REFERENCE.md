@@ -42,6 +42,7 @@ These are SQLite database files (blocked by `*.db` in `.gitignore`). They are ho
 | `data/inverted_index/la_index.db` | 2.0 GB | Yes | Latin search index, rebuilt 18 October 2026 |
 | `data/inverted_index/grc_index.db` | 2.9 GB | Yes | Greek search index, 18 October 2026 |
 | `data/inverted_index/en_index.db` | 227 MB | Yes | English search index, 15 October 2026 |
+| `data/inverted_index/cop_index.db` | 234 MB | No | Coptic search index, 153 texts, 19 October 2026. The public copy leaves out the Sahidica New Testament. The text is at Coptic Scriptorium (copticscriptorium.org) |
 | `data/inverted_index/syntax_latin.db` | 1.6 GB | Yes | Latin syntax parses (LatinPipe UD annotations) |
 | `data/inverted_index/syntax_greek.db` | 967 MB | Yes | Greek syntax parses (650 texts, UD annotations) |
 | `data/lemma_tables/latin_lemmas_extended.db` | 15 MB | No | Extended Latin lemma table |
