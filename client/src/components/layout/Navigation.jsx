@@ -115,7 +115,9 @@ const mainTabs = [
   // render time rather than left out of this list, so its position
   // (beside Theme Search) does not depend on where a conditional push
   // would land it.
-  { code: 'inscriptions-papyri', label: 'Inscriptions & Papyri', beta: true, trial: true, group: 'things' },
+  // No beta mark since 2026-10-19 (the project lead): the condition set that morning, a Latin documents index rebuilt
+  // after the Latin lemma corrections, was met by the rebuild installed at 00:20 the same day.
+  { code: 'inscriptions-papyri', label: 'Inscriptions & Papyri', trial: true, group: 'things' },
   // Events (battles, sieges, treaties).
   { code: 'events', label: 'Events', beta: true, needs: 'events', group: 'things' },
   // Coins (Greek and Roman coin types).
