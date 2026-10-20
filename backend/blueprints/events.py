@@ -349,8 +349,12 @@ def list_events():
         # attached passages and nearby documents first; `sort=date` is the
         # old chronological order. Events with neither a passage nor a
         # document are left out unless `show=all`.
+        # `sort=name` is alphabetical, the Events page's default since 2026-10-20
+        # (the project lead: the list should open alphabetical, like the name box,
+        # and be orderable by date). The route's own default stays `evidence`
+        # for the connector and older links.
         sort = (request.args.get('sort') or 'evidence').strip().lower()
-        if sort not in ('evidence', 'date'):
+        if sort not in ('evidence', 'date', 'name'):
             sort = 'evidence'
         show_all = (request.args.get('show') or '').strip().lower() == 'all'
 
@@ -384,8 +388,9 @@ def list_events():
                    (SELECT COUNT(*) FROM documents d WHERE d.event_id = e.id) AS n_documents,
                    (SELECT COUNT(*) FROM scholarship s WHERE s.event_id = e.id) AS n_scholarship
                 FROM (SELECT * FROM events '''
-        order = ('ORDER BY e.date_start, e.label' if sort == 'date'
-                 else 'ORDER BY (n_passages + n_documents) DESC, n_passages DESC, e.date_start, e.label')
+        order = {'date': 'ORDER BY e.date_start, e.label COLLATE NOCASE',
+                 'name': 'ORDER BY e.label COLLATE NOCASE, e.date_start'}.get(
+            sort, 'ORDER BY (n_passages + n_documents) DESC, n_passages DESC, e.date_start, e.label')
         sql = counts + clause + ') e ' + order + ' LIMIT ? OFFSET ?'  # nosec B608 -- clause and order are fixed fragments with ? placeholders; values are bound
         rows = c.execute(sql, args + [per_page, (page - 1) * per_page]).fetchall()
         events = []

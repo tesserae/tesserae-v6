@@ -86,13 +86,13 @@ describe('collections wiring', () => {
     expect(objectDate({})).toBe('undated');
     expect(accession({ id: 'cma:1966.114' })).toBe('1966.114');
   });
-  it('a direct link lands on Search when Objects is off', async () => {
+  it('opens with Objects switched off too (the menu lists it in every view)', async () => {
     mockApi();
     setProfile('literary');
     const setPageType = vi.fn();
     render(<ObjectsPage setPageType={setPageType} />);
-    await waitFor(() => expect(setPageType).toHaveBeenCalledWith('search'));
-    expect(screen.queryByText('Objects')).toBeNull();
+    await waitFor(() => expect(screen.getAllByText(/Objects/).length).toBeGreaterThan(0));
+    expect(setPageType).not.toHaveBeenCalledWith('search');
   });
 });
 

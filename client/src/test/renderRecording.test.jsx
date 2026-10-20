@@ -67,6 +67,12 @@ const routeFetch = (url, init) => {
   if (u.startsWith('/api/auth/user')) return Promise.resolve(json({ user: null }));
   if (u.startsWith('/api/version')) return Promise.resolve(json({ bundle: null }));
   if (u.startsWith('/api/assistant/status')) return Promise.resolve(json({ available: false }));
+  // The things pages open in every view since 2026-10-20, so they render here:
+  // empty lists, and a record that is not found.
+  if (/^\/api\/(events|coins|objects)\/[^/?]+/.test(u)) return Promise.resolve(json({ error: 'Not found' }, false));
+  if (u.startsWith('/api/events')) return Promise.resolve(json({ events: [], total: 0, total_all: 0, types: [], centuries: [], type_counts: {} }));
+  if (u.startsWith('/api/coins')) return Promise.resolve(json({ coins: [], results: [], total: 0, facets: {} }));
+  if (u.startsWith('/api/objects')) return Promise.resolve(json({ objects: [], results: [], total: 0, facets: {} }));
   void init;
   return Promise.resolve(json({}));
 };

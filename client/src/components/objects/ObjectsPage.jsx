@@ -1,6 +1,4 @@
 import { useCallback, useEffect, useState } from 'react';
-import useCollections from '../../hooks/useCollections';
-import { PAGE_NEEDS } from '../../collections/collectionsConfig';
 import ObjectList from './ObjectList';
 import ObjectView from './ObjectView';
 
@@ -11,17 +9,13 @@ function objectIdFromPath(path) {
 
 /**
  * The Objects page: /objects lists museum objects, /objects/<id> is one object.
- * Shown only when the Collections control has objects on (PAGE_NEEDS.objects);
- * a direct link otherwise lands on Search.
+ * Opens in every view and with any collection switch (the project lead, 2026-10-20: Events
+ * chosen from the menu in the Literature view returned to Intertextual Search). The
+ * collection switches decide what a search covers, not which pages open.
  */
-export default function ObjectsPage({ setPageType }) {
-  const { anyOn } = useCollections();
-  const allowed = anyOn(PAGE_NEEDS.objects);
+export default function ObjectsPage() {
   const [path, setPath] = useState(() => window.location.pathname);
 
-  useEffect(() => {
-    if (!allowed && setPageType) setPageType('search');
-  }, [allowed, setPageType]);
 
   useEffect(() => {
     const onPop = () => setPath(window.location.pathname);
@@ -35,7 +29,6 @@ export default function ObjectsPage({ setPageType }) {
     window.scrollTo?.(0, 0);
   }, []);
 
-  if (!allowed) return null;
   const id = objectIdFromPath(path);
   return id
     ? <ObjectView id={id} goList={() => go('/objects')} />

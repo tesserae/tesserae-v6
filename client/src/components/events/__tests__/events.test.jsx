@@ -103,12 +103,12 @@ describe('formatting', () => {
 });
 
 describe('the list', () => {
-  it('asks for the most-evidence order first, says how many empty events are hidden, and can include them', async () => {
+  it('opens alphabetical, says how many empty events are hidden, and can include them', async () => {
     const calls = mockApi({ ...LIST, total_all: 5, sort: 'evidence', show: 'evidence',
       type_counts: { battle: 1, siege: 1 } });
     render(<EventsPage setPageType={() => {}} />);
     expect(await screen.findByText('Battle of Marathon')).toBeTruthy();
-    expect(calls[0]).toContain('sort=evidence');
+    expect(calls[0]).toContain('sort=name');
     expect(calls[0]).not.toContain('show=all');
     expect(screen.getByTestId('events-total').textContent)
       .toBe('2 events with passages or documents · 3 more have neither');
@@ -544,37 +544,29 @@ describe('the focus view', () => {
     expect(await screen.findByText(/not in the dossiers/)).toBeTruthy();
   });
 
-  it('hides the Scholarship tab when Scholarship is off, and the documents tab when both are', async () => {
+  it('shows every tab whatever the collection switches say (2026-10-20)', async () => {
     setCollection('scholarship', false);
+    setCollection('inscriptions', false);
+    setCollection('papyri', false);
     mockApi();
-    const { unmount } = render(<EventsPage setPageType={() => {}} />);
-    await screen.findByRole('heading', { name: 'Battle of Marathon' });
-    expect(screen.queryByRole('tab', { name: /Scholarship/ })).toBeNull();
-    expect(screen.getByRole('tab', { name: /Inscriptions/ })).toBeTruthy();
-    unmount();
-    setCollection('scholarship', true);
     render(<EventsPage setPageType={() => {}} />);
     await screen.findByRole('heading', { name: 'Battle of Marathon' });
     expect(screen.getByRole('tab', { name: /Scholarship/ })).toBeTruthy();
-    cleanup();
-    // Events need the documents: with inscriptions and papyri off the page
-    // sends the visitor back to Search, scholarship or not (2026-10-10)
-    setCollection('inscriptions', false);
-    setCollection('papyri', false);
-    const back = vi.fn();
-    render(<EventsPage setPageType={back} />);
-    await waitFor(() => expect(back).toHaveBeenCalledWith('search'));
+    expect(screen.getByRole('tab', { name: /Inscriptions/ })).toBeTruthy();
+    setCollection('scholarship', true);
+    setCollection('inscriptions', true);
+    setCollection('papyri', true);
   });
 });
 
 describe('the Collections gate', () => {
-  it('sends a Literary visitor to Search and shows nothing', async () => {
+  it('opens for a Literary visitor too (the menu lists it in every view)', async () => {
     setProfile('literary');
     mockApi();
     const setPageType = vi.fn();
-    const { container } = render(<EventsPage setPageType={setPageType} />);
-    await waitFor(() => expect(setPageType).toHaveBeenCalledWith('search'));
-    expect(container.textContent).toBe('');
+    render(<EventsPage setPageType={setPageType} />);
+    expect(await screen.findByText('Battle of Marathon')).toBeTruthy();
+    expect(setPageType).not.toHaveBeenCalledWith('search');
   });
 
   it('opens for the Historical and Everything profiles', async () => {

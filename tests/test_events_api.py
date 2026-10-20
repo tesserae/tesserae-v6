@@ -352,3 +352,10 @@ def test_document_texts_come_from_the_documents_index(monkeypatch):
     assert out['edr:a1'] == 'Augusto / sacr(um) / Perusia restituta.'
     assert out['edr:a2'].endswith(' …') and len(out['edr:a2']) <= E.DOCUMENT_TEXT_CHARS + 2
     assert 'p:9' not in out
+
+def test_sort_name_is_alphabetical(client):
+    """The Events page opens alphabetical (the project lead, 2026-10-20)."""
+    d = client.get('/api/events?sort=name&show=all').get_json()
+    assert d['sort'] == 'name'
+    labels = [e['label'] for e in d['events']]
+    assert labels == sorted(labels, key=str.lower)
