@@ -13,5 +13,8 @@
     "Apollon. Rhod.", "Ap. Rhodius"
   ],
   "tibullus.elegies": ["Tibull.", "Tibullus"],
+  "cicero.de_natura_deorum": ["Nat. D.", "Nat. Deor.", "Cic. Nat. D.", "Cic. Nat. Deor."],
+  "seneca.de_brevitate_vitae": ["Brev. Vit.", "Brev. vit.", "De Brev. Vit.", "Sen. Brev. Vit."],
+  "ovid.ars_amatoria": ["Ars am.", "Ars amat.", "Ars Amat.", "Ov. Ars am.", "Ov. Ars amat."],
   "epicurus.epistula_ad_herodotum": ["Ep. Hdt.", "Ep. ad Hdt.", "Epicur. Ep. Hdt.", "Epicurus Ep. Hdt.", "Epicur. Ep. ad Hdt."]
 }

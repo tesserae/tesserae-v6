@@ -5,6 +5,7 @@ offsets, and the resolved (work_id, locus_start, locus_end) or a failure
 reason. This is Part 2 of the citation-extractor task; see parser.py for the
 grammar reimplementation and resolver.py for locus resolution.
 """
+import bisect
 import json
 import os
 import re
@@ -164,6 +165,7 @@ def _load_work_book_line_max():
 # stands right in front of it.
 _CONTEXT_RULES = None
 _CONTEXT_BEFORE = 300     # characters of context searched on each side
+_AFTER_BIBLE_WINDOW = 120  # round 8: a biblical neighbor after the form counts too
 _VETO_TAIL = 60           # characters before the citation a veto looks at
 
 
@@ -202,11 +204,16 @@ def _load_context_rules():
                           "author_prefix_works": ap.get("authors") or {},
                           "bible_forms": set(bible.get("forms") or []),
                           "bible_neighbor": re.compile(bible["neighbor"]) if bible.get("neighbor") else None,
-                          "exceeds": raw.get("exceeds") or {}}
+                          "exceeds": raw.get("exceeds") or {},
+                          "scholia": ({"regex": re.compile(raw["scholia"]["regex"]), "forms": raw["scholia"].get("forms") or {}}
+                                      if raw.get("scholia") else None),
+                          "locus_prefix": raw.get("locus_prefix") or {},
+                          "modern": [re.compile(x) for x in raw.get("modern_references") or []],
+                          "bare_number_limit": raw.get("bare_number_limit") or {}}
     return _CONTEXT_RULES
 
 
-def _apply_context_rules(work_id, work_surface, anchor_start, text, context, n_levels=0, seps=None):
+def _apply_context_rules(work_id, work_surface, anchor_start, text, context, n_levels=0, seps=None, after=""):
     """Returns (work_id, reason). work_id is None when the citation must be
     dropped (reason says why); it may be a different work (redirect) or the
     one given, unchanged, with reason None."""
@@ -230,7 +237,8 @@ def _apply_context_rules(work_id, work_surface, anchor_start, text, context, n_l
     # colon, or another biblical book with chapter and verse just before.
     form = normalize_abbr(work_surface)
     if form in cfg["bible_forms"] and (
-            "COLON" in (seps or []) or (cfg["bible_neighbor"] and cfg["bible_neighbor"].search(ahead))):
+            "COLON" in (seps or []) or (cfg["bible_neighbor"] and (
+                cfg["bible_neighbor"].search(ahead) or cfg["bible_neighbor"].search(after)))):
         return None, "requires_author_context:biblical_book"
     for rule in cfg["rules"].get(normalize_abbr(work_surface), []):
         if rule["work"] != work_id:
@@ -266,6 +274,15 @@ def _disambiguate_candidates(candidates, work_surface, anchor_start, text, conte
         return candidates
     cfg = _load_context_rules()
     key = normalize_abbr(work_surface)
+    scholia = cfg["scholia"]
+    if scholia and key in scholia["forms"]:
+        # Round 8: "Schol. on Lys. 643" is a scholion on the Lysistrata (lines are
+        # cited by one number), since no speech of Lysias has so high a number.
+        rule = scholia["forms"][key]
+        near = (context or "")[-_CONTEXT_BEFORE:] + " " + text[max(0, anchor_start - _CONTEXT_BEFORE):anchor_start]
+        if (scholia["regex"].search(near[-_VETO_TAIL:]) and first_level.isdigit()
+                and int(first_level) > rule["first_level_above"] and rule["work"] in works):
+            return [(rule["work"], 0, work_surface)]
     rules = cfg["disambiguate"].get(key)
     if rules:
         ahead = (context or "")[-_CONTEXT_BEFORE:] + " " + text[max(0, anchor_start - _CONTEXT_BEFORE):anchor_start]
@@ -458,9 +475,14 @@ def _impossible_book_locus(work_id, locus_start, works=None):
     # Terence's lines, Horace's satires and others are cited by one running
     # number in the journals; only a work actually cited at two or more
     # levels there (Aeneid: book and line) has a "missing book number".
-    if (_load_work_depth_journal().get(work_id) or 0) < 2:
-        return False
+    # Round 8: a locus that already has two levels ("Cons. 11, 42") names a book
+    # first, whatever the journals do with the bare number, so the journal-depth
+    # guard holds for one level only. (A work whose first level only ever takes the
+    # values 1 and 2 is left out: the Verrines open with the speech, so a 3 or 4
+    # there is a book of the second speech, not a book.)
     max_book = _load_work_max_book().get(work_id)
+    if (_load_work_depth_journal().get(work_id) or 0) < 2 and ("." not in locus_start or (max_book or 0) <= 2):
+        return False
     m = re.match(r"\d+", locus_start)
     return bool(max_book and m and int(m.group()) > max_book)
 
@@ -601,6 +623,14 @@ def _apply_work_depth(out_dict, ref, depth_map=None, inconsistent=None, journal_
         joined = (None if "DOT" in (ref.start_seps or []) and (ref.after_comma or ref.comma_chain)
                   else _join_short_digit_levels(ref.start_levels))
         max_line = max_line_map.get(work_id)
+        levels = ref.start_levels or []
+        if (len(levels) == 2 and (ref.start_seps or []) == ["DOT"] and not out_dict.get("locus_end")
+                and all(t.isdigit() for t in levels) and 0 < int(levels[1]) - int(levels[0]) <= _MAX_DOTTED_RANGE
+                and max_line is not None and int(levels[1]) <= max_line):
+            # Round 8: "Av. 17. 18" is lines 17 to 18 written without the hyphen. The
+            # work has one level, so a dot cannot join a book and a line.
+            ranged = dict(out_dict, locus_start=levels[0], locus_end=levels[1], reason="range_without_hyphen")
+            return [ranged]
         if joined is not None and max_line is not None and 1 <= int(joined) <= max_line:
             rejoined = dict(out_dict)
             rejoined["locus_start"] = joined
@@ -646,6 +676,18 @@ def _apply_work_depth(out_dict, ref, depth_map=None, inconsistent=None, journal_
         return [truncated]
 
     remainder_raw = list(ref.start_levels[depth:])
+    if (_SPLIT_NEXT_LINE and len(remainder_raw) == 1 and depth == 2 and remainder_raw[0].isdigit() and len(remainder_raw[0]) != 4
+            and out_dict["locus_end"] is None
+            and _line_beyond_book(work_id, start_parts[:depth - 1] + remainder_raw) is False):
+        # Round 8: "Ars am. 2.691, 721" is two lines of book 2: one level more than
+        # the work has, after a comma, is the next line of the same book. Only for
+        # the verse works of the book-line table, whose next number fits the book
+        # (a prose work cited by book, chapter and section has no such list).
+        extra = dict(out_dict)
+        extra["locus_start"] = ".".join(start_parts[:depth - 1] + remainder_raw)
+        extra["locus_end"] = None
+        extra["reason"] = "split_from_over_deep_locus"
+        return [truncated, extra]
     if not remainder_raw or len(remainder_raw) % depth != 0:
         return [truncated]
     if not all(_is_clean_split_level(t) for t in remainder_raw):
@@ -768,6 +810,21 @@ def _rep_stephanus_override(res, ref):
     return {"work_id": "plato.respublica", "part_id": None, "locus_start": locus_start}
 
 
+# Round 8. Middle English set in a typeface with the thorn, read by OCR as f
+# ("fe" for the, "fat" for that, "fou" for thou): "I. doo fat. I. haf euerlaatinge
+# lijf" is no citation of De fato. Latin, Greek and the modern languages of the
+# journals have no such run of words.
+_THORN_WORDS = {"fe", "fat", "fis", "fou", "fei", "fai", "fan", "fanne", "fenne", "fer", "fere", "fus", "fam",
+                "fem", "fyng", "fey", "fese"}
+_THORN_MIN_WORDS, _THORN_MIN_FE, _THORN_MIN_FAT = 5, 2, 2    # German Fraktur OCR has "fe" (sie) too, but no "fat"
+
+
+def _is_thorn_ocr(text):
+    words = re.findall(r"[A-Za-z]+", text.lower())
+    hits = [w for w in words if w in _THORN_WORDS]
+    return len(hits) >= _THORN_MIN_WORDS and hits.count("fe") >= _THORN_MIN_FE and hits.count("fat") >= _THORN_MIN_FAT
+
+
 def get_default_index(abbreviations_path="data/abbreviations.json"):
     global _DEFAULT_INDEX
     if _DEFAULT_INDEX is None:
@@ -790,11 +847,15 @@ def extract(text, index=None, context=""):
     """
     if index is None:
         index = get_default_index()
+    if _is_thorn_ocr(text):
+        return []
 
     # `context` is the sentence before `text`, for the author-context rules.
     citations = _find_citations_raw(text, index, context)
     out = []
     chain_author = None
+    chain_token = None       # the author word of the last reference with one (round 8)
+    chain_decision = None    # what that word decided, carried to the items that inherit the work
     prev_cit_end = 0
     for cit in citations:
         inherited_candidates = None
@@ -805,6 +866,7 @@ def extract(text, index=None, context=""):
         # follows within a list ("Sen. Ep. 95, 22; 24,14; de Ira, 2, 33, 4").
         if not _LIST_GAP.fullmatch(text[prev_cit_end:cit.start_offset]):
             chain_author = None
+            chain_token = None
         prev_cit_end = cit.end_offset
         for ref in cit.refs:
             effective_candidates = ref.work_candidates
@@ -828,15 +890,30 @@ def extract(text, index=None, context=""):
                                             ref.start_offset, text, chain_author, index)
                 if near is not ref_for_resolution.work_candidates:
                     ref_for_resolution = replace(ref_for_resolution, work_candidates=near)
+                    chain_decision = None
+                else:
+                    tok = _token_before(text, ref.start_offset)
+                    chain_decision = _author_token_decision(
+                        ref.work_candidates, ref.work_surface, tok or chain_author or chain_token,
+                        not tok, index)
+                    if chain_decision and chain_decision[0] == "use":
+                        ref_for_resolution = replace(ref_for_resolution, work_candidates=chain_decision[1])
+                    if tok and _author_slugs(tok, index):
+                        chain_token = tok
                 first_word = (ref.work_surface or "").split(" ")[0].rstrip(".")
                 if first_word[:1].isupper() and (" " in (ref.work_surface or "").strip()
                                                  or min(c[1] for c in ref.work_candidates) < 2):
                     chain_author = first_word  # an "Author. Work." form names its author
             key_surface = ref.work_surface if not inherited else inherited_surface
-            forced = _disambiguate_candidates(
-                ref_for_resolution.work_candidates, key_surface, anchor_start, text, context, index.works_by_base_id,
-                len(ref_for_resolution.start_levels or []),
-                (ref_for_resolution.start_levels or [""])[0])
+            if inherited and chain_decision and chain_decision[0] == "use":
+                ref_for_resolution = replace(ref_for_resolution, work_candidates=chain_decision[1])
+            if chain_decision and chain_decision[0] == "use":
+                forced = ref_for_resolution.work_candidates    # the name before the form has decided
+            else:
+                forced = _disambiguate_candidates(
+                    ref_for_resolution.work_candidates, key_surface, anchor_start, text, context, index.works_by_base_id,
+                    len(ref_for_resolution.start_levels or []),
+                    (ref_for_resolution.start_levels or [""])[0])
             if forced is not ref_for_resolution.work_candidates:
                 ref_for_resolution = replace(ref_for_resolution, work_candidates=forced)
             if not ref_for_resolution.book_list:
@@ -873,6 +950,7 @@ def extract(text, index=None, context=""):
                     book_out = _beyond_work_rows(_finish_ref(
                         _build_out(base_out, res, book_ref, text, anchor_start, context, index.works_by_base_id), book_ref),
                         book_ref, text, context, anchor_start, index.works_by_base_id)
+                    book_out = _drop_named_foreign(book_out, chain_decision)
                     chain_dropped = chain_dropped or any(_dropped_by_round2(d) for d in book_out)
                     out.extend(book_out)
                 continue
@@ -881,6 +959,9 @@ def extract(text, index=None, context=""):
             ref_out = _beyond_work_rows(_finish_ref(
                 _build_out(base_out, res, ref_for_resolution, text, anchor_start, context, index.works_by_base_id),
                 ref_for_resolution), ref_for_resolution, text, context, anchor_start, index.works_by_base_id)
+            ref_out = _drop_named_foreign(ref_out, chain_decision)
+            if not inherited:
+                ref_out = _drop_footnote_number(ref_out, ref, text, index)
             if inherited and chain_dropped:
                 # The ref that named the work was dropped (no author context,
                 # impossible book number): what it carried along goes too.
@@ -995,12 +1076,53 @@ _AFTER_YEAR = re.compile(r"^[\s.,;:\-‐-―]*(?:[A-Z]{1,4}[\s.,;:]+)?"
 _AFTER_WINDOW = 40
 
 
-def _modern_reference(work_id, locus_start, ref, text):
+# Round 8. "Bull. d. Comm. arch., i, p. 33 f": a single "p." after the locus,
+# with no Stephanus letter after the page, gives the page of a modern book or
+# journal ("Plat. Rep. VIII, p. 549 E" keeps its letter and stays). "Babb. char.,
+# 4to, ff. 20": a format word glued to the last digit. "(Livy, Suet.) [2 verbs]":
+# a number in square brackets followed by a word is a count.
+_AFTER_PAGE = re.compile(r"^\s{0,3},?\s{0,3}p\.\s*\d+\s*([A-Za-z]?)")
+_AFTER_FORMAT = re.compile(r"^(?:to|vo|mo)\b")
+_AFTER_COUNT = re.compile(r"^\s+[a-z]+\]")
+
+
+def _cited_by_one_number(work_id, works):
+    """True for a work whose corpus locus is one running number and that is not
+    cited by Stephanus page. Authors cited by book and chapter with the page of
+    an old edition after them (Strabo X 3, 6, p. 465, Casaubon's page; Athenaeus)
+    have more levels and keep their locus."""
+    depth_map, inconsistent = _load_work_depth()
+    return (depth_map.get(work_id) == 1 and work_id not in inconsistent
+            and not (works and (works.get(work_id) or {}).get("stephanus")))
+
+
+def _modern_reference_round8(work_id, locus_start, ref, text, works):
+    after = text[ref.end_offset:ref.end_offset + _AFTER_WINDOW]
+    m = _AFTER_PAGE.match(after)
+    if m and m.group(1).lower() not in ("a", "b", "c", "d", "e") and _cited_by_one_number(work_id, works):
+        return True
+    if _AFTER_FORMAT.match(after) and text[ref.end_offset - 1:ref.end_offset].isdigit():
+        return True
+    if ref.locus_start_offset and text[ref.locus_start_offset - 1:ref.locus_start_offset] == "[" and _AFTER_COUNT.match(after):
+        return True
+    cfg = _load_context_rules()
+    window = text[max(0, ref.start_offset - 24):ref.end_offset + 14]
+    if any(r.search(window) for r in cfg["modern"]):
+        return True
+    limit = cfg["bare_number_limit"].get(normalize_abbr(ref.work_surface or ""))
+    if (limit and limit["work"] == work_id and locus_start.isdigit() and int(locus_start) > limit["max"]):
+        return True
+    return False
+
+
+def _modern_reference(work_id, locus_start, ref, text, works=None):
     """True when the citation is a modern bibliographic reference: a locus that
     is a publication year no line or book of the work reaches, or a locus
     followed by "pp." or by a year."""
     if not work_id or not locus_start:
         return False
+    if _modern_reference_round8(work_id, locus_start, ref, text, works):
+        return True
     max_line = _load_work_max_line().get(work_id)
     max_book = _load_work_max_book().get(work_id)
     if locus_start.isdigit() and len(locus_start) == 4 and _YEAR_LOCUS_MIN <= int(locus_start) <= _YEAR_LOCUS_MAX:
@@ -1081,6 +1203,136 @@ def _author_named_nearby(candidates, work_surface, start_offset, text, chain_aut
             ids = sorted({h[0] for h in hits if h[1] == best})
             return [(i, 0, work_surface) for i in ids]
     return candidates
+
+
+# ---------------------------------------------------------------------------
+# Round 8, rule 1: the author written just before a shared abbreviation decides.
+#
+# Order of the author rules for one reference, nearest evidence first:
+#   1. _author_named_nearby (round 3): the author word plus the form is itself a
+#      form in the table ("Sen. Ira"), so the table decides.
+#   2. _author_token_decision (round 8): the capitalized word right before the
+#      form (or the author of the item before it in a list) names an author. A
+#      work of that author with the form decides, a work of that author whose
+#      title begins with the form decides, and a name that belongs to no author
+#      of the corpus drops the reference when the form is shared.
+#   3. _disambiguate_candidates (round 3, with the round 8 "scholia" step): the
+#      author named anywhere in the 300 characters before, then the defaults.
+# A step that decides stops the later ones, so a name directly in front of the
+# form beats an author named a sentence earlier.
+
+_AUTHOR_LEX = {}
+_TOKEN_BEFORE = re.compile(r"(?<![A-Za-z])([A-Z][A-Za-z]{1,14})\.?,?\s*\(?\s*(?:[dD]e\s+|[iI]n\s+)?$")
+_SLUG_STOP = {"the", "saint", "bishop", "elder", "younger", "from", "that", "with"}
+_WORD_STOP = {"part", "libri", "liber", "opera", "works", "the", "and"}
+_FOREIGN_NAME = re.compile(r"[A-Z][a-z]{7,}us")     # Aristaenetus, Heraclitus: a Latinized ancient name
+_NAMED_AUTHOR_WINDOW = 40
+
+
+def _author_lexicon(index):
+    """{key: {author slug}} for the author words of the table (author
+    abbreviations, one-word author names, the words of the slug) and, per author,
+    the words of each work's title and short forms."""
+    lex = _AUTHOR_LEX.get(id(index))
+    if lex is not None:
+        return lex
+    exact, works = {}, {}
+    for base_id, w in index.works_by_base_id.items():
+        slug, _, rest = base_id.partition(".")
+        keys = {slug}
+        keys.update(p for p in slug.split("_") if len(p) >= 4 and p not in _SLUG_STOP)
+        for a in w.get("author_abbreviations") or []:
+            k = normalize_abbr(a)
+            if k and " " not in k:
+                keys.add(k)
+        for n in w.get("author_names") or []:
+            k = normalize_abbr(n)
+            if " " not in k and len(k) >= 4:
+                keys.add(k)
+        for k in keys:
+            exact.setdefault(k, set()).add(slug)
+        words = set(re.split(r"[._]", rest))
+        for t in w.get("work_titles") or []:
+            words.update(normalize_abbr(t).split(" "))
+        for a in (w.get("abbreviations") or []) + (w.get("work_abbreviations") or []):
+            words.update(normalize_abbr(a).split(" "))
+        works.setdefault(slug, []).append(
+            (base_id, {x for x in words if len(x) >= 3 and not x.isdigit() and x not in _WORD_STOP}))
+    lex = (exact, works, sorted(exact))
+    _AUTHOR_LEX[id(index)] = lex
+    return lex
+
+
+def _author_slugs(tok, index):
+    exact, _works, keys = _author_lexicon(index)
+    n = normalize_abbr(tok)
+    slugs = set(exact.get(n, ()))
+    if not slugs and len(n) >= 5:
+        i = bisect.bisect_left(keys, n)
+        while i < len(keys) and keys[i].startswith(n):
+            slugs |= exact[keys[i]]
+            i += 1
+    return slugs
+
+
+def _author_token_decision(candidates, work_surface, tok, from_chain, index):
+    """Round 8, rule 1. `tok` is the word right before a form that several works
+    share (or the author word of the item before it in a list). Returns
+    ("use", candidates) when the author it names has a work with the form (or a
+    work whose title begins with the form), ("drop", reason) when the word is the
+    name of an ancient author the corpus does not hold and the form is shared,
+    and None when it decides nothing."""
+    if not tok or not work_surface or not candidates or min(c[1] for c in candidates) < 2:
+        return None
+    slugs = _author_slugs(tok, index)
+    if slugs:
+        mine = [c for c in candidates if c[0].split(".", 1)[0] in slugs]
+        if mine:
+            return "use", [(c[0], 0, work_surface) for c in mine]
+        key = normalize_abbr(work_surface)
+        if " " not in key and len(key) >= 3:
+            _exact, works, _keys = _author_lexicon(index)
+            hit = [wid for s in sorted(slugs) for wid, words in works.get(s, ())
+                   if any(w.startswith(key) for w in words)]
+            if len(hit) == 1:
+                return "use", [(hit[0], 0, work_surface)]
+        return None
+    if (not from_chain and _FOREIGN_NAME.fullmatch(tok)
+            and len({c[0].split(".", 1)[0] for c in candidates}) >= 2):
+        return "drop", "requires_author_context:author_not_in_corpus"
+    return None
+
+
+def _drop_named_foreign(rows, decision):
+    """The rows of a reference whose preceding word names an author the corpus
+    does not hold: unresolved, with the reason."""
+    if not decision or decision[0] != "drop":
+        return rows
+    return [dict(d, resolved=False, work_id=None, part_id=None, locus_start=None, reason=decision[1])
+            for d in rows]
+
+
+_FOOTNOTE_AFTER = re.compile(r"\s+[A-Z]")
+
+
+def _drop_footnote_number(rows, ref, text, index):
+    """Round 8. "...presented by Livy. 21 TLL, vol. 4": a whole name that carries
+    no abbreviation period (Livy, Thucydides) ends its sentence with the period, so
+    the one- to three-digit number after it, followed by a capital word, is a
+    footnote number."""
+    ws = ref.work_surface or ""
+    levels = ref.start_levels or []
+    if (ws.endswith(".") and normalize_abbr(ws) in index.bare_aliases and len(levels) == 1
+            and levels[0].isdigit() and len(levels[0]) <= 3 and not ref.end_levels
+            and _FOOTNOTE_AFTER.match(text[ref.end_offset:ref.end_offset + 3])):
+        return [dict(d, resolved=False, work_id=None, part_id=None, locus_start=None,
+                     reason="dropped_modern_reference") for d in rows]
+    return rows
+
+
+def _token_before(text, start_offset):
+    m = _TOKEN_BEFORE.search(text[max(0, start_offset - _NAMED_AUTHOR_WINDOW):start_offset])
+    return m.group(1) if m else None
 
 
 _LEADING_NUMBER = re.compile(r"\d+")
@@ -1266,6 +1518,8 @@ def _use_parenthesized_numbering(out_dict, ref):
 # act number reaches 146. A level that is not a number ("Aul. 538, I should")
 # is not a line.
 _MAX_ACT = 5
+_SPLIT_NEXT_LINE = True  # round 8 switch (the measurement script turns it off to count the rule)
+_MAX_DOTTED_RANGE = 3    # round 8: "Av. 17. 18" (lines 17 to 18), but not "Ach. 11. 24" (line 1124 split by OCR)
 
 
 def _split_line_list(out_dict, ref):
@@ -1292,6 +1546,30 @@ def _split_line_list(out_dict, ref):
     return outs or [out_dict]
 
 
+def _split_comma_pair(out_dict, ref):
+    """Round 8. "Hdt. IV, 77, 156": three levels, all joined by commas, in a work
+    whose journals cite book and chapter, and the last number is past the highest
+    section the corpus holds for the work. The third number cannot be a section, so
+    the locus is two chapters of one book (4.77 and 4.156)."""
+    work_id = out_dict.get("work_id")
+    if not out_dict.get("resolved") or not work_id or not out_dict.get("locus_start") or out_dict.get("locus_end"):
+        return [out_dict]
+    levels, seps = ref.start_levels or [], ref.start_seps or []
+    parts = out_dict["locus_start"].split(".")
+    if len(levels) != 3 or len(parts) != 3 or any(sep != "COMMA" for sep in seps) or not parts[2].isdigit():
+        return [out_dict]
+    depth_map, inconsistent = _load_work_depth()
+    if depth_map.get(work_id) != 3 or work_id in inconsistent or _load_work_depth_journal().get(work_id) != 2:
+        return [out_dict]
+    if work_id in _load_work_depth_overrides():
+        return [out_dict]
+    last = _load_work_max_line().get(work_id)
+    if not last or not _past(int(parts[2]), last):
+        return [out_dict]
+    return [dict(out_dict, locus_start=".".join(parts[:2]), reason="split_comma_pair"),
+            dict(out_dict, locus_start=parts[0] + "." + parts[2], reason="split_comma_pair")]
+
+
 def _finish_ref(out_dict, ref):
     """Everything that turns one resolved reference into its output rows
     (round 6 order: parenthesized numbering, chapter level, line lists, then the
@@ -1299,6 +1577,10 @@ def _finish_ref(out_dict, ref):
     out = _use_parenthesized_numbering(out_dict, ref)
     out = _drop_chapter_level(out, ref)
     outs = _split_line_list(out, ref)
+    if len(outs) == 1:
+        outs = _split_comma_pair(outs[0], ref)
+        if len(outs) > 1:
+            return _prefix_pindar_book(outs)
     rows = []
     for o in outs:
         rows.extend(_apply_work_depth(o, ref) if len(outs) == 1 else [o])
@@ -1326,7 +1608,8 @@ def _build_out(base_out, res, ref, text, anchor_start=None, context="", works=No
         new_work, why = _apply_context_rules(
             work_id, base_out["work_surface"],
             ref.start_offset if anchor_start is None else anchor_start, text, context,
-            len(ref.start_levels or []), ref.start_seps)
+            len(ref.start_levels or []), ref.start_seps,
+            text[ref.end_offset:ref.end_offset + _AFTER_BIBLE_WINDOW])
         if new_work is None:
             resolved, work_id, part_id, locus_start, reason = False, None, None, None, why
         elif new_work != work_id:
@@ -1343,7 +1626,7 @@ def _build_out(base_out, res, ref, text, anchor_start=None, context="", works=No
             part_id = None
             reason = "redirected_locus_beyond_work"
 
-    if resolved and _modern_reference(work_id, locus_start, ref, text):
+    if resolved and _modern_reference(work_id, locus_start, ref, text, works):
         resolved = False
         work_id = None
         part_id = None
@@ -1364,13 +1647,20 @@ def _build_out(base_out, res, ref, text, anchor_start=None, context="", works=No
         locus_start = None
         reason = "dropped_year_like_locus"
 
+    locus_end = res.locus_end
+    prefix = (_load_context_rules()["locus_prefix"].get(work_id) or {}).get(normalize_abbr(base_out.get("work_surface") or ""))
+    if resolved and prefix and locus_start:
+        # The corpus tags Nepos by life: "Eum. 8. 2" is eum.8.2.
+        locus_start = prefix + "." + locus_start
+        locus_end = prefix + "." + locus_end if locus_end else locus_end
+
     return {
         **base_out,
         "resolved": resolved,
         "work_id": work_id,
         "part_id": part_id,
         "locus_start": locus_start,
-        "locus_end": res.locus_end,
+        "locus_end": locus_end,
         "open_ended": res.open_ended,
         "open_ended_marker": res.open_ended_marker,
         "reason": reason,

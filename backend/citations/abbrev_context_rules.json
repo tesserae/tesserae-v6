@@ -16,7 +16,7 @@
     "geo": [{"work": "vergil.georgics", "context": "Verg|Virg|Georg"}],
     "her": [{"work": "ovid.heroides", "context": "Ovid|\\bOv\\b|Heroid"}],
     "ben": [{"work": "seneca.de_beneficiis", "context": "Sen", "veto_before": "Reg(?:ula)?\\.?\\s*$", "min_levels_alone": 3}],
-    "theog": [{"work": "hesiod.theogony", "veto_before": "Theogn\\w*\\.?,?\\s*$"}],
+    "theog": [{"work": "hesiod.theogony", "veto_before": "Theogn\\w*\\.?,?\\s*$|(?:Anakr|Anacr|Archil|Mimn|Tyrt|Callin|Hippon|Sapph|Alcm|Alc|Sol|Simon|Xenoph)\\w*\\.?\\s+\\d"}],
     "leg": [{"work": "plato.leges", "context": "Plat|\\bPl\\b"}, {"work": "cicero.de_legibus", "context": "\\bCic(?:ero|eronian|eronis|eroni|eronem|\\.)?\\b"}],
     "legg": [{"work": "plato.leges", "context": "Plat|\\bPl\\b"}, {"work": "cicero.de_legibus", "context": "\\bCic(?:ero|eronian|eronis|eroni|eronem|\\.)?\\b"}],
     "ling": [{"work": "varro.de_lingua_latina", "context": "Varr"}],
@@ -33,7 +33,7 @@
     "id": [{"work": "theocritus.idylls", "context": "Theoc"}],
     "b": [{"work": "bacchylides.epinicians", "context": "Bacchyl"}, {"work": "bacchylides.dithyrambs", "context": "Bacchyl"}]
   },
-  "veto_before_all": "\\bOn\\s+Aristotle(?:'s|’s)?\\s*$|(?:Simplicius|Philoponus|Olympiodorus|Damascius|Proclus|Ammonius|Asclepius|Themistius|Alexander of Aphrodisias)[,:]?\\s+(?:in\\s+|In\\s+|on\\s+|On\\s+|Comm\\.\\s*)?(?:Arist(?:otle|\\.)?\\s+)?$",
+  "veto_before_all": "\\bOn\\s+Aristotle(?:'s|’s)?\\s*$|(?:Simplicius|Philoponus|Olympiodorus|Damascius|Proclus|Ammonius|Asclepius|Themistius|Alexander of Aphrodisias)[,:]?\\s+(?:in\\s+|In\\s+|on\\s+|On\\s+|Comm\\.\\s*)?(?:Arist(?:otle|\\.)?\\s+)?$|\\b(?:Chaucer|Shakespeare|Shakesp|Milton|Spenser|Dryden)[,.]?\\s*$",
   "disambiguate": {
     "leg": [{"work": "plato.leges", "context": "Plat|\\bPl\\b"}, {"work": "cicero.de_legibus", "context": "\\bCic(?:ero|eronian|eronis|eroni|eronem|\\.)?\\b"}],
     "legg": [{"work": "plato.leges", "context": "Plat|\\bPl\\b"}, {"work": "cicero.de_legibus", "context": "\\bCic(?:ero|eronian|eronis|eroni|eronem|\\.)?\\b"}],
@@ -74,10 +74,17 @@
     "i": [{"work": "pindar.odes", "context": "Pind"}],
     "is": [{"work": "isaeus.speeches", "context": "Isae"}, {"work": "pindar.odes", "context": "Pind"}],
     "or": [{"work": "libanius.orations", "context": "Liban"}, {"work": "euripides.orestes", "context": "Eur(?:ip|\\b)"}],
-    "bacch": [{"work": "plautus.bacchides", "context": "Plaut|\\bPl\\b"}, {"family": "bacchylides", "context": "Bacchyl"}]
+    "bacch": [{"work": "plautus.bacchides", "context": "Plaut|\\bPl\\b"}, {"family": "bacchylides", "context": "Bacchyl"}],
+    "vit": [{"work": "seneca.de_vita_beata", "context": "\\bSen(?:eca)?\\b"}, {"work": "flavius_josephus.josephi_vita", "context": "Joseph|\\bJos\\b"}],
+    "eum": [{"work": "nepos.vitae", "context": "\\bNep(?:os|\\.)"}, {"work": "aeschylus.eumenides", "context": "Aesch"}]
   },
+  "scholia": {"regex": "\\bSchol(?:ia|ion|iast)?\\.?\\s*(?:on|in|ad|to|zu)?\\s*$",
+              "forms": {"lys": {"work": "aristophanes.lysistrata", "first_level_above": 35}}},
+  "locus_prefix": {"nepos.vitae": {"eum": "eum"}},
+  "modern_references": ["\\bThes\\.\\s*L\\.\\s*L\\b", "\\bT\\.\\s*L\\.\\s*L\\b", "\\bThes\\.\\s*[Ll]ing\\.\\s*[Ll]at", "\\bBull\\.\\s*d\\.\\s*Comm", "\\bBull\\.\\s*Com\\.\\s*arch", "\\bT\\.\\s*and\\s+C\\b"],
+  "bare_number_limit": {"inv": {"work": "cicero.de_inventione", "max": 200}, "cons": {"work": "boethius.consolatio_philosophiae", "max": 100}},
   "author_prefix": {"regex": "\\b(Tert|Lact|Nep|Juvenc)[A-Za-z]*\\.?,?\\s+(?:[dD]e\\s+|[iI]n\\s+|[vV]it(?:a|\\.)?\\s+)?$", "authors": {"tert": "tertullian", "lact": "lactantius", "nep": "nepos", "juvenc": "juvencus"}},
-  "bible": {"forms": ["marc", "luc", "num", "joh", "matth", "matt", "exod", "deut", "gen", "lev", "levit", "rom", "isa", "jer", "ezek"], "neighbor": "\\b(?:Exod|Deut|Levit|Matth?|Joh|Rom|Cor|Isa|Jer|Ezek)\\.\\s*(?:\\d+|[A-Za-z]{1,5})[.,:]?\\s*\\d"},
+  "bible": {"forms": ["marc", "luc", "num", "joh", "matth", "matt", "exod", "deut", "gen", "lev", "levit", "rom", "isa", "jer", "ezek"], "neighbor": "\\b(?:Exod|Deut|Dent|Levit|Matth?|Joh|Rom|Cor|Isa|Jer|Ezek|Gen)\\.\\s*(?:\\d+|[A-Za-z]{1,5})[.,:]?\\s*\\d|\\bLuther\\b"},
   "exceeds": {"phoen": [{"work": "seneca.phoenissae", "instead": "euripides.phoenissae"}], "poen": [{"work": "plautus.poenulus"}], "juv": [{"work": "juvencus.historia_evangelica", "instead": "juvenal.satires"}, {"work": "juvenal.satires", "instead": "juvencus.historia_evangelica"}]},
   "defaults": {
     "laws": {"work": "plato.leges", "min_levels": 1},
