@@ -18,6 +18,7 @@
     "ben": [{"work": "seneca.de_beneficiis", "context": "Sen", "veto_before": "Reg(?:ula)?\\.?\\s*$", "min_levels_alone": 3}],
     "theog": [{"work": "hesiod.theogony", "veto_before": "Theogn\\w*\\.?,?\\s*$"}],
     "leg": [{"work": "plato.leges", "context": "Plat|\\bPl\\b"}, {"work": "cicero.de_legibus", "context": "\\bCic(?:ero|eronian|eronis|eroni|eronem|\\.)?\\b"}],
+    "legg": [{"work": "plato.leges", "context": "Plat|\\bPl\\b"}, {"work": "cicero.de_legibus", "context": "\\bCic(?:ero|eronian|eronis|eroni|eronem|\\.)?\\b"}],
     "ling": [{"work": "varro.de_lingua_latina", "context": "Varr"}],
     "gall": [{"work": "caesar.de_bello_gallico", "context": "Caes|Gallic War"}],
     "hell": [{"work": "xenophon.hellenica", "context": "Xen|\\bX\\b"}],
@@ -35,6 +36,8 @@
   "veto_before_all": "\\bOn\\s+Aristotle(?:'s|’s)?\\s*$|(?:Simplicius|Philoponus|Olympiodorus|Damascius|Proclus|Ammonius|Asclepius|Themistius|Alexander of Aphrodisias)[,:]?\\s+(?:in\\s+|In\\s+|on\\s+|On\\s+|Comm\\.\\s*)?(?:Arist(?:otle|\\.)?\\s+)?$",
   "disambiguate": {
     "leg": [{"work": "plato.leges", "context": "Plat|\\bPl\\b"}, {"work": "cicero.de_legibus", "context": "\\bCic(?:ero|eronian|eronis|eroni|eronem|\\.)?\\b"}],
+    "legg": [{"work": "plato.leges", "context": "Plat|\\bPl\\b"}, {"work": "cicero.de_legibus", "context": "\\bCic(?:ero|eronian|eronis|eroni|eronem|\\.)?\\b"}],
+    "laws": [{"work": "plato.leges", "context": "Plat|\\bPl\\b"}, {"work": "cicero.de_legibus", "context": "\\bCic(?:ero|eronian|eronis|eroni|eronem|\\.)?\\b"}],
     "met": [{"work": "ovid.metamorphoses", "context": "Ovid|\\bOv\\b"}, {"work": "apuleius.metamorphoses", "context": "Apul"}],
     "ep": [{"work": "horace.epistles", "context": "\\bHor(?:ace|atian|atius)\\b|\\bHor\\b"}, {"work": "seneca.ad_lucilium_epistulae_morales", "context": "\\bSen(?:eca)?\\b"}, {"work": "pliny_the_younger.letters", "context": "\\bPlin(?:y)?\\b"}, {"work": "ovid.heroides", "context": "Ovid|\\bOv\\b"}],
     "epist": [{"work": "horace.epistles", "context": "\\bHor(?:ace|atian|atius)\\b|\\bHor\\b"}, {"work": "seneca.ad_lucilium_epistulae_morales", "context": "\\bSen(?:eca)?\\b"}, {"work": "pliny_the_younger.letters", "context": "\\bPlin(?:y)?\\b"}, {"work": "ovid.heroides", "context": "Ovid|\\bOv\\b"}],
@@ -77,6 +80,7 @@
   "bible": {"forms": ["marc", "luc", "num", "joh", "matth", "matt", "exod", "deut", "gen", "lev", "levit", "rom", "isa", "jer", "ezek"], "neighbor": "\\b(?:Exod|Deut|Levit|Matth?|Joh|Rom|Cor|Isa|Jer|Ezek)\\.\\s*(?:\\d+|[A-Za-z]{1,5})[.,:]?\\s*\\d"},
   "exceeds": {"phoen": [{"work": "seneca.phoenissae", "instead": "euripides.phoenissae"}], "poen": [{"work": "plautus.poenulus"}], "juv": [{"work": "juvencus.historia_evangelica", "instead": "juvenal.satires"}, {"work": "juvenal.satires", "instead": "juvencus.historia_evangelica"}]},
   "defaults": {
+    "laws": {"work": "plato.leges", "min_levels": 1},
     "lys": {"work": "lysias.speeches", "min_levels": 2},
     "isoc": {"work": "isocrates.speeches", "min_levels": 2},
     "theoc": {"work": "theocritus.idylls", "min_levels": 1},

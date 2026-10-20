@@ -192,3 +192,34 @@ def test_aeneid_line_beyond_its_book_is_dropped_and_a_real_line_stays():
     assert [h for h in C.extract('Verg. Aen. 1.1000') if h['resolved']] == []
     hits = [(h['work_id'], h['locus_start']) for h in C.extract('Verg. Aen. 1.756') if h['resolved']]
     assert hits == [('vergil.aeneid', '1.756')]
+
+
+# --- 4. De legibus: Legg. needs its author ---------------------------------------
+
+@needs_table
+@pytest.mark.parametrize('text, work, locus', [
+    ('Plato, Legg. 12.942', 'plato.leges', None),
+    ('See Plat. Legg. 914 C', 'plato.leges', None),
+    ('Cic. Legg. 3, 1, 1', 'cicero.de_legibus', '3.1.1'),
+    ('Cicero, de Legg. 2, 23, 59', 'cicero.de_legibus', '2.23.59'),
+])
+def test_legg_follows_the_author_named(text, work, locus):
+    hits = [(h['work_id'], h['locus_start']) for h in C.extract(text) if h['resolved']]
+    assert hits and hits[0][0] == work
+    if locus:
+        assert hits[0][1] == locus
+
+
+@needs_table
+def test_bare_legg_stays_unresolved():
+    assert [h for h in C.extract('and for the periphrastic opt. Legg. 678 E, 753 E') if h['resolved']] == []
+
+
+@needs_table
+@pytest.mark.parametrize('text, work', [
+    ('Plato, Laws 715e', 'plato.leges'),
+    ('Laws 715 e', 'plato.leges'),
+    ('Cicero, Laws 1.20', 'cicero.de_legibus'),
+])
+def test_laws_is_plato_unless_cicero_is_named(text, work):
+    assert [h['work_id'] for h in C.extract(text) if h['resolved']][:1] == [work]
