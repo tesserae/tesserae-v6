@@ -68,7 +68,7 @@ def test_colon_with_space_after_a_range_adds_no_level():
 
 
 def test_tight_colon_is_still_a_level():
-    assert _one('Man 21:1–17')[:3] == ('manilius.astronomica', '21.1', '21.17')
+    assert _one('Man 4:1–17')[:3] == ('manilius.astronomica', '4.1', '4.17')
 
 
 def test_level_with_a_leading_zero_is_not_a_level():
