@@ -211,12 +211,12 @@ describe('one coin type', () => {
 });
 
 describe('the Collections gate', () => {
-  it('sends a visitor with coins off back to Search', async () => {
+  it('opens with coins switched off too (the menu lists it in every view)', async () => {
     mockApi();
     setProfile('literary');
     const setPageType = vi.fn();
     const { container } = render(<CoinsPage setPageType={setPageType} />);
-    await waitFor(() => expect(setPageType).toHaveBeenCalledWith('search'));
-    expect(container.textContent).toBe('');
+    await waitFor(() => expect(container.textContent).not.toBe(''));
+    expect(setPageType).not.toHaveBeenCalledWith('search');
   });
 });
