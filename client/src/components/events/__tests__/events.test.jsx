@@ -46,7 +46,8 @@ const DETAIL = {
   passage_counts: { yes: 2, mention: 1, no: 4 },
   documents: [
     { doc_id: 'edh:HD1', date_start: -500, date_end: -450, place: 'Rhamnous', distance_km: 12.4,
-      text_snippet: 'ΜΑΡΑΘΩΝ', view_url: '/document?doc=edh%3AHD1&lang=la&documents=1' },
+      text_snippet: 'ΜΑΡΑΘΩΝ', text: 'Augusto / sacrum / Perusia restituta.', edition: 'CIL 11, 01923',
+      view_url: '/document?doc=edh%3AHD1&lang=la&documents=1' },
   ],
   scholarship: [
     { kind: 'article', title: 'Marathon Revisited (Doe, 1990)', page_ref: 'Hdt. 6.111', url: 'https://example.org/a',
@@ -440,7 +441,10 @@ describe('the focus view', () => {
     await screen.findByRole('heading', { name: 'Battle of Marathon' });
     await userEvent.click(screen.getByRole('tab', { name: /Inscriptions & Papyri \(1\)/ }));
     // the card leads with the edition or the type, never the internal id
-    expect(screen.getByRole('link', { name: 'Document' })).toHaveAttribute('href', DETAIL.documents[0].view_url);
+    expect(screen.getByRole('link', { name: 'Corpus Inscriptionum Latinarum (CIL) 11, 01923' }))
+      .toHaveAttribute('href', DETAIL.documents[0].view_url);
+    // the text of the inscription itself, above the record line
+    expect(screen.getByText('Augusto / sacrum / Perusia restituta.')).toBeTruthy();
     expect(screen.queryByText('edh:HD1')).toBeNull();
     expect(screen.getByText(/12 km from Marathon/)).toBeTruthy();
     expect(screen.getByText(/Rhamnous · 500 to 450 BCE/)).toBeTruthy();

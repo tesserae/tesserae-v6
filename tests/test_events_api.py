@@ -335,3 +335,20 @@ def test_names_route_lists_every_event_once(client, db):
         E._NAMES_CACHE.clear()
         c.execute("DELETE FROM events WHERE id IN ('Q910', 'Q911')")
         c.commit()
+
+
+def test_document_texts_come_from_the_documents_index(monkeypatch):
+    """Each document card carries its text (the project lead, 2026-10-20)."""
+    import sqlite3 as _sq
+    from backend.blueprints import events as E
+    import backend.documents as D
+    conn = _sq.connect(':memory:')
+    conn.execute('create table lines (text_id integer, ref text, content text)')
+    conn.execute("insert into lines values (1, 'edr:a1', 'Augusto / sacr(um) / Perusia restituta.')")
+    conn.execute("insert into lines values (2, 'edr:a2', ?)", ('x ' * 600,))
+    monkeypatch.setattr(D, 'get_connection', lambda lang: conn if lang == 'la' else None)
+    out = E._document_texts([{'doc_id': 'edr:a1', 'language': 'la'}, {'doc_id': 'edr:a2', 'language': 'la'},
+                             {'doc_id': 'p:9', 'language': 'grc'}])
+    assert out['edr:a1'] == 'Augusto / sacr(um) / Perusia restituta.'
+    assert out['edr:a2'].endswith(' …') and len(out['edr:a2']) <= E.DOCUMENT_TEXT_CHARS + 2
+    assert 'p:9' not in out

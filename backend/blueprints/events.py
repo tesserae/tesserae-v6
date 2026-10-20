@@ -102,6 +102,39 @@ def reader_url(work, lang, ref):
     return f'/read?work={quote(w)}&lang={quote(lang)}&ref={quote(ref or "")}'
 
 
+DOCUMENT_TEXT_CHARS = 800
+
+
+def _document_texts(documents):
+    """{doc_id: text} for the documents the documents index holds, longest cut at
+    DOCUMENT_TEXT_CHARS with an ellipsis (the record page has the whole text)."""
+    by_lang = {}
+    for d in documents:
+        by_lang.setdefault(d.get('language') or 'la', []).append(d['doc_id'])
+    out = {}
+    try:
+        from backend.documents import get_connection
+    except Exception:  # noqa: BLE001
+        return out
+    for lang, ids in by_lang.items():
+        conn = get_connection(lang)
+        if conn is None:
+            continue
+        for i in range(0, len(ids), 500):
+            chunk = ids[i:i + 500]
+            try:
+                rows = conn.execute(
+                    f'SELECT ref, content FROM lines WHERE ref IN ({",".join("?" * len(chunk))})',  # nosec B608 -- placeholders only
+                    chunk).fetchall()
+            except sqlite3.Error:
+                continue
+            for ref, content in rows:
+                t = ' '.join(str(content or '').split())
+                if t:
+                    out[ref] = t if len(t) <= DOCUMENT_TEXT_CHARS else t[:DOCUMENT_TEXT_CHARS].rsplit(' ', 1)[0] + ' …'
+    return out
+
+
 def document_url(doc_id, lang='la'):
     return f'/document?doc={quote(str(doc_id), safe="")}&lang={lang}&documents=1'
 
@@ -471,6 +504,7 @@ def get_event(event_id):
                 'doc_id': d['doc_id'], 'date_start': d['date_start'], 'date_end': d['date_end'],
                 'place': d['place'], 'distance_km': d['distance_km'],
                 'text_snippet': d['text_snippet'],
+                'language': lang,
                 'lat': d['lat'] if 'lat' in dcols else None,
                 'lon': d['lon'] if 'lon' in dcols else None,
                 'view_url': document_url(d['doc_id'], lang),
@@ -498,6 +532,14 @@ def get_event(event_id):
             d['edition'] = credit.get('principal_edition')
             d['sources'] = [x for x in (credit.get('source_name'), credit.get('source_name_secondary')) if x]
             d['text_type'] = m.get('text_type_label')
+
+        # The text of each document, from the documents index (the project lead,
+        # 2026-10-20: "We get all the meta information about the inscription.
+        # Everything but the text itself."). One row per document, keyed by its id.
+        # Best effort: without the index the cards show their record line as before.
+        texts = _document_texts(documents)
+        for d in documents:
+            d['text'] = texts.get(d['doc_id'])
 
         try:
             participants = json.loads(r['participants']) if 'participants' in r.keys() and r['participants'] else []
