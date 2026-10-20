@@ -235,8 +235,10 @@ def _strip_round3(src, dst):
         patch = json.load(f)['works']
     with open(src, encoding='utf-8') as f:
         data = json.load(f)
+    # The round 7 patch (De legibus) gives some of the same forms to another work.
     data['works'] = [w for w in data['works']
-                     if not (w['base_id'] in patch and 'new_work' in patch[w['base_id']])]
+                     if w['base_id'] != 'cicero.de_legibus'
+                     and not (w['base_id'] in patch and 'new_work' in patch[w['base_id']])]
     for w in data['works']:
         spec = patch.get(w['base_id'])
         if spec:

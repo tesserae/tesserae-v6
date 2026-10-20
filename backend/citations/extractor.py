@@ -116,6 +116,46 @@ def _load_work_max_line():
     return _WORK_MAX_LINE
 
 
+# Where a work ends, from scripts/citations/derive_work_line_limits.py, both
+# in data/citations/ beside the abbreviation table: the per-book last line of
+# the verse works cited by book and line ({work_id: {book: last_line}}), and the
+# last number of the works whose every corpus locus has one level.
+_WORK_BOOK_LINE_MAX = None
+# The package sits in backend/citations/ in the repository and in citations/ in
+# the rebuild toolkit, so the data folder is searched for beside either parent.
+_DATA_DIR = next((d for d in (os.path.join(os.path.dirname(os.path.dirname(_CITATIONS_DIR)), "data", "citations"),
+                              os.path.join(os.path.dirname(_CITATIONS_DIR), "data", "citations"))
+                  if os.path.exists(os.path.join(d, "work_book_line_max.json"))),
+                 os.path.join(os.path.dirname(os.path.dirname(_CITATIONS_DIR)), "data", "citations"))
+_BOOK_LINE_MAX_PATH = os.path.join(_DATA_DIR, "work_book_line_max.json")
+
+
+_WORK_SINGLE_LEVEL_MAX = None
+_SINGLE_LEVEL_MAX_PATH = os.path.join(os.path.dirname(_BOOK_LINE_MAX_PATH), "work_single_level_max.json")
+
+
+def _load_work_single_level_max():
+    global _WORK_SINGLE_LEVEL_MAX
+    if _WORK_SINGLE_LEVEL_MAX is None:
+        try:
+            with open(_SINGLE_LEVEL_MAX_PATH, encoding="utf-8") as f:
+                _WORK_SINGLE_LEVEL_MAX = json.load(f)
+        except (OSError, json.JSONDecodeError):
+            _WORK_SINGLE_LEVEL_MAX = {}
+    return _WORK_SINGLE_LEVEL_MAX
+
+
+def _load_work_book_line_max():
+    global _WORK_BOOK_LINE_MAX
+    if _WORK_BOOK_LINE_MAX is None:
+        try:
+            with open(_BOOK_LINE_MAX_PATH, encoding="utf-8") as f:
+                _WORK_BOOK_LINE_MAX = json.load(f)
+        except (OSError, json.JSONDecodeError):
+            _WORK_BOOK_LINE_MAX = {}
+    return _WORK_BOOK_LINE_MAX
+
+
 # Short forms that need the author named nearby (abbrev_context_rules.json):
 # "form." for Eucherius, "Mem." for Aristotle, "Hel.", "Pol.", "Merc."...
 # A hit passes only when the rule's author regex matches the sentence before
@@ -395,6 +435,7 @@ def _dropped_by_round2(out_dict):
     reason = out_dict.get("reason") or ""
     return not out_dict["resolved"] and (
         reason.startswith("requires_author_context:") or reason == "dropped_missing_book_number"
+        or reason.startswith("dropped_locus_beyond_work")
         or reason == "commentary_or_other_author_before")
 
 
@@ -829,16 +870,17 @@ def extract(text, index=None, context=""):
                         book_list=None,
                     )
                     res = resolve_ref(book_ref, index.works_by_base_id)
-                    book_out = _finish_ref(
-                        _build_out(base_out, res, book_ref, text, anchor_start, context, index.works_by_base_id), book_ref)
+                    book_out = _beyond_work_rows(_finish_ref(
+                        _build_out(base_out, res, book_ref, text, anchor_start, context, index.works_by_base_id), book_ref),
+                        book_ref, text, context, anchor_start, index.works_by_base_id)
                     chain_dropped = chain_dropped or any(_dropped_by_round2(d) for d in book_out)
                     out.extend(book_out)
                 continue
 
             res = resolve_ref(ref_for_resolution, index.works_by_base_id)
-            ref_out = _finish_ref(
+            ref_out = _beyond_work_rows(_finish_ref(
                 _build_out(base_out, res, ref_for_resolution, text, anchor_start, context, index.works_by_base_id),
-                ref_for_resolution)
+                ref_for_resolution), ref_for_resolution, text, context, anchor_start, index.works_by_base_id)
             if inherited and chain_dropped:
                 # The ref that named the work was dropped (no author context,
                 # impossible book number): what it carried along goes too.
@@ -990,7 +1032,7 @@ def _apply_exceeds(work_id, work_surface, locus_start, works):
     def beyond(w):
         if len(parts) == 1:
             return bool(max_line.get(w)) and int(parts[0]) > max_line[w]
-        return bool(max_book.get(w)) and int(parts[0]) > max_book[w]
+        return (bool(max_book.get(w)) and int(parts[0]) > max_book[w]) or _line_beyond_book(w, parts) is True
 
     for rule in cfg:
         if rule["work"] != work_id or not beyond(work_id):
@@ -1039,6 +1081,111 @@ def _author_named_nearby(candidates, work_surface, start_offset, text, chain_aut
             ids = sorted({h[0] for h in hits if h[1] == best})
             return [(i, 0, work_surface) for i in ids]
     return candidates
+
+
+_LEADING_NUMBER = re.compile(r"\d+")
+# Editions differ by a section or a line at the end of a work ("Cic. Fat. 50"
+# against a corpus that stops at 48), so a number is beyond the work only when
+# it passes the corpus's last by more than this slack.
+_LINE_SLACK = 2
+_SECTION_SLACK_SHARE = 20      # one twentieth of the work, at least _LINE_SLACK
+
+
+def _past(value, last, share=0):
+    return value > last + max(_LINE_SLACK, last // share if share else 0)
+
+
+def _line_beyond_book(work_id, parts):
+    """Round 7, rule 2. True when the first two levels of a locus ("3.463") are a
+    book and a line of a verse work whose book has fewer lines (Juvenal 3 ends
+    at 322). False when they fit, None when the table says nothing (a work or
+    book it does not hold, a level that is not a number)."""
+    books = _load_work_book_line_max().get(work_id)
+    if not books or len(parts) < 2:
+        return None
+    book, line = _LEADING_NUMBER.match(parts[0]), _LEADING_NUMBER.match(parts[1])
+    if not book or not line:
+        return None
+    last = books.get(str(int(book.group())))
+    if last is None:
+        return None
+    return _past(int(line.group()), last)
+
+
+def _single_level_beyond(work_id, parts):
+    """Round 7, rule 1. True when a locus of one level is a number past the last
+    number of a work whose every corpus locus has one level ("Vit. 466": the Life
+    of Josephus has 430 sections). False when it fits, None when the table does
+    not hold the work (a work cited at several levels, one with mixed depth, or
+    one whose corpus unit is longer than a section)."""
+    if len(parts) != 1:
+        return None
+    last = _load_work_single_level_max().get(work_id)
+    num = _LEADING_NUMBER.match(parts[0])
+    if not last or not num:
+        return None
+    return _past(int(num.group()), last, _SECTION_SLACK_SHARE)
+
+
+def _beyond_work(work_id, locus_start):
+    """"single_level", "book_line" or None: which round 7 rule finds the locus
+    beyond the end of the work (or of its book)."""
+    if not work_id or not locus_start:
+        return None
+    parts = locus_start.split(".")
+    if len(parts) == 1:
+        return "single_level" if _single_level_beyond(work_id, parts) else None
+    return "book_line" if _line_beyond_book(work_id, parts) else None
+
+
+def _fits_work(work_id, locus_start):
+    """True when the round 7 tables positively place the locus inside the work."""
+    parts = locus_start.split(".")
+    if len(parts) == 1:
+        return _single_level_beyond(work_id, parts) is False
+    return _line_beyond_book(work_id, parts) is False
+
+
+def _name_key(word):
+    return word.lower().replace("j", "i").replace("v", "u")
+
+
+_NAMED_WINDOW = 150
+
+
+def _author_named_before(work_id, ahead, works):
+    """True when the text just before a citation names the work's author in full
+    (or by an abbreviation of four or more letters)."""
+    rec = works.get(work_id) or {}
+    names = {_name_key(n.rstrip(".")) for n in (rec.get("author_names") or []) + (rec.get("author_abbreviations") or [])
+             if len(n.rstrip(".")) >= 4}
+    tail = _name_key(ahead[-_NAMED_WINDOW:])
+    return any(re.search(r"(?<![a-z])" + re.escape(n) + r"(?![a-z])", tail) for n in names)
+
+
+def _beyond_work_rows(rows, ref, text, context, anchor_start, works):
+    """Round 7, rules 1 and 2: a locus past the end of its work (or book) cannot
+    be that work. The row goes to another candidate for the same short form whose
+    extent holds the locus and whose author is named in the words just before
+    (the existing nearest-author rule), and is dropped when there is none."""
+    out = []
+    for d in rows:
+        kind = _beyond_work(d.get("work_id"), d.get("locus_start")) if d.get("resolved") else None
+        if not kind:
+            out.append(d)
+            continue
+        start = ref.start_offset if anchor_start is None else anchor_start
+        ahead = (context or "")[-_CONTEXT_BEFORE:] + " " + text[max(0, start - _CONTEXT_BEFORE):start]
+        for cand in (ref.work_candidates or []):
+            wid = cand[0]
+            if wid != d["work_id"] and wid in works and _fits_work(wid, d["locus_start"]) \
+                    and _author_named_before(wid, ahead, works):
+                out.append(dict(d, work_id=wid, part_id=None, reason="redirected_locus_beyond_work"))
+                break
+        else:
+            out.append(dict(d, resolved=False, work_id=None, part_id=None, locus_start=None,
+                            reason="dropped_locus_beyond_work:" + kind))
+    return out
 
 
 # Chapter-and-section numbering. Cicero's prose is cited by book, chapter and

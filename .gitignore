@@ -99,6 +99,8 @@ data/translations/*
 !data/citations/
 data/citations/*
 !data/citations/abbrev_patch_*.json
+!data/citations/work_book_line_max.json
+!data/citations/work_single_level_max.json
 !data/documents/
 data/documents/*
 !data/documents/formula_words_*.txt

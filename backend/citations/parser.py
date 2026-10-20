@@ -264,6 +264,18 @@ def _comma_starts_new_locus(tokens, prev_idx, k2, n_levels=1, in_range_end=False
     return False
 
 
+def _is_glued_alt_number(tokens, k, levels):
+    """tokens[k] follows the first level of a locus. True for "1(4)": a number
+    that opens and closes its own parenthesis right against a book number
+    (round 7). A parenthesis after a space, or after a locus of two or more
+    levels, is the line-number rule of round 6 and is left to it."""
+    if len(levels) != 1 or k >= len(tokens) or levels[0].type != "NUM":
+        return False
+    tok = tokens[k]
+    return (tok.type == "NUM" and tok.open_paren and tok.close_paren
+            and tok.start == tokens[k - 1].end + 1 and not tok.apos_after)
+
+
 def _parse_level_seq(tokens, k, extras=None, in_range_end=False):
     """LEVEL (SEP? LEVEL)* -- SEP (comma/dot) is optional so that adjacent
     numeral-shaped tokens separated only by whitespace ('I 1') are also
@@ -280,16 +292,26 @@ def _parse_level_seq(tokens, k, extras=None, in_range_end=False):
     idx_after = [k + 1]
     seps = []
     k += 1
+    alt_skipped = False
     while True:
         k2 = k
         sep = None
+        # "Cic. Ac. 1(4).15-18": a number in parentheses glued to the book number
+        # is the other numbering of that book, not a level. It is dropped before
+        # the rest of the locus is read.
+        if _is_glued_alt_number(tokens, k, levels):
+            k += 1
+            idx_after[-1] = k
+            alt_skipped = True
+            k2 = k
         if k2 < len(tokens) and tokens[k2].type in ("COMMA", "DOT", "COLON"):
             sep = tokens[k2].type
             k2 += 1
         # A closing parenthesis ends the citation: what follows it ("Aen.
         # 7.803-17).2", "Cic. de Orat. 3.197):16") is a note or a page.
-        if tokens[k - 1].close_paren:
+        if tokens[k - 1].close_paren and not alt_skipped:
             break
+        alt_skipped = False
         # A comma that starts a new locus ends this one; the caller carries the
         # work over to the next (comma_chain).
         if sep == "COMMA" and k2 < len(tokens) and _comma_starts_new_locus(tokens, k - 1, k2, len(levels), in_range_end):
