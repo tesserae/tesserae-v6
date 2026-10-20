@@ -74,7 +74,7 @@ KIND_LABELS = {
 }
 KIND_ORDER = ('inscriptions', 'papyri')
 
-_INSCRIPTION_SOURCES = {'edh', 'edr', 'edh+edr', 'isicily'}
+_INSCRIPTION_SOURCES = {'edh', 'edr', 'edh+edr', 'isicily', 'aio'}
 
 
 def _kind_for_source(source):
