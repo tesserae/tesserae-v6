@@ -1776,8 +1776,8 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 The short description under an event's dates is the opening paragraph of its English
                 Wikipedia article, shared under the license CC BY-SA 4.0, and a link beside it goes to the
                 article. The Scholarship tab lists the articles that cite the event's leading passages and
-                names the passage that brings each one in. The name box on the list suggests events as you
-                type, and Enter opens the one highlighted.
+                names the passage that brings each one in. The name box on the list works as a dropdown. A click opens
+                every event with passages or documents in alphabetical order, typing narrows the list, and Enter opens the one highlighted.
               </p>
               <p className="text-gray-700 mb-4">
                 Each passage carries one of two labels. A Narrative passage recounts the event itself. A
