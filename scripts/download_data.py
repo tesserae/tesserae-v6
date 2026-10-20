@@ -37,10 +37,40 @@ def load_manifest():
         return json.load(f)
 
 
-def file_exists_and_valid(filepath):
+def stamp_path(filepath):
+    """The small file written beside an unpacked data file that records the
+    SHA-256 of the archive it came from, so a later run can tell whether the
+    manifest now offers a different archive."""
+    return filepath + ".source_sha256"
+
+
+def read_stamp(filepath):
+    try:
+        with open(stamp_path(filepath), encoding="utf-8") as f:
+            return f.read().strip().lower()
+    except OSError:
+        return None
+
+
+def write_stamp(filepath, sha256):
+    if not sha256 or sha256.lower() == "pending":
+        return
+    with open(stamp_path(filepath), "w", encoding="utf-8") as f:
+        f.write(sha256.lower() + "\n")
+
+
+def file_status(filepath, expected_sha256=None):
+    """Three answers: 'missing' (nothing to skip), 'stale' (the file is here
+    but it was unpacked from an archive other than the one the manifest now
+    lists, so it is fetched again) and 'ok' (present, and either its stamp
+    matches the manifest or it was unpacked before stamps existed)."""
     if not os.path.exists(filepath):
-        return False, "missing"
-    return True, "ok"
+        return "missing"
+    stamp = read_stamp(filepath)
+    if (stamp and expected_sha256 and expected_sha256.lower() != "pending"
+            and stamp != expected_sha256.lower()):
+        return "stale"
+    return "ok"
 
 
 def verify_checksum(filepath, expected_sha256):
@@ -132,10 +162,13 @@ def check_status(manifest):
     all_ok = True
     for entry in manifest["files"]:
         filepath = os.path.join(PROJECT_ROOT, entry["extract_to"])
-        exists, status = file_exists_and_valid(filepath)
+        status = file_status(filepath, entry.get("sha256"))
 
-        if exists:
-            marker = "OK"
+        if status == "ok":
+            marker = "OK" if read_stamp(filepath) else "OK?"
+        elif status == "stale":
+            marker = "STALE"
+            all_ok = False
         else:
             marker = "MISSING"
             all_ok = False
@@ -149,6 +182,9 @@ def check_status(manifest):
         print(f"           {entry['description']}")
 
     print()
+    print("  OK? marks a file unpacked before stamps existed. Its archive may have been regenerated since.")
+    print("  Run with --force to replace such files.")
+    print()
     also_needed = manifest.get("notes", {}).get("also_needed", [])
     if also_needed:
         print("Also included in Git repository:")
@@ -159,7 +195,8 @@ def check_status(manifest):
     if all_ok:
         print("All data files are present. The application is ready to run.")
     else:
-        print("Some data files are missing. Run this script without --check to download them.")
+        print("Some data files are missing or stale (unpacked from an archive the manifest no longer lists).")
+        print("Run this script without --check to download them.")
         print(f"  python scripts/download_data.py")
 
     return all_ok
@@ -195,13 +232,19 @@ def download_files(manifest, file_filter=None):
 
     for entry in files_to_download:
         filepath = os.path.join(PROJECT_ROOT, entry["extract_to"])
-        exists, status = file_exists_and_valid(filepath)
+        status = file_status(filepath, entry.get("sha256"))
 
-        if exists:
+        if status == "ok":
             size_label = entry.get("size_uncompressed_human", "")
-            print(f"SKIP: {entry['extract_to']} (already present, {size_label})")
+            note = ""
+            if read_stamp(filepath) is None:
+                note = ", unpacked before stamps existed, --force replaces it"
+            print(f"SKIP: {entry['extract_to']} (already present, {size_label}{note})")
             skipped += 1
             continue
+        if status == "stale":
+            print(f"STALE: {entry['extract_to']} was unpacked from an archive the manifest "
+                  "no longer lists, fetching the current one")
 
         url = f"{base_url}/{entry['filename']}"
         archive_path = os.path.join(PROJECT_ROOT, ".tmp_download", entry["filename"])
@@ -232,6 +275,7 @@ def download_files(manifest, file_filter=None):
         print(f"  Extracting to {entry['extract_to']}...")
         try:
             extract_archive(archive_path, entry["extract_to"], entry.get("extract_dir"))
+            write_stamp(filepath, sha256)
             print(f"  Done.")
             downloaded += 1
         except Exception as e:
