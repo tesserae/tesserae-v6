@@ -121,7 +121,15 @@ def find_texts(name, language=None, limit=5):
         elif q and _has_word(title, q):
             score = 70
         elif words[0] in (akey, author):
-            extra = sum(6 for w in words[1:] if _has_word(f'{title} {wkey}', w))
+            # After the author's name, a short title counts as well as a whole
+            # word: "Ovid Met" is the Metamorphoses, "Verg. Aen" the Aeneid
+            # (2026-10-20: "compare Lucretius book 1 with Ovid Met book 1" went to
+            # all of Ovid). Only here, anchored to the author, so a stray word in
+            # a sentence cannot pick up a title by its first letters.
+            twords = f'{title} {wkey}'.split()
+            extra = sum(6 if _has_word(f'{title} {wkey}', w)
+                        else 4 if len(w) >= 3 and any(t.startswith(w) for t in twords) else 0
+                        for w in words[1:])
             score = 50 + extra
             if not extra:
                 how = 'author'
@@ -169,6 +177,21 @@ def shared_book_number(question):
     if not m:
         m = re.search(r'\bbook\s+(\d{1,2})\s+of\b', q)
     return int(m.group(1)) if m else None
+
+
+def _single_work(row, language=None):
+    """The author's one whole work, when the corpus holds exactly one.
+
+    "Lucretius book 1" names an author and a book. For an author with one work
+    the work is not in doubt, so the book can be honored. For an author with
+    many it is a guess, and nothing is chosen.
+    """
+    author = str((row or {}).get('author') or '').lower()
+    if not author:
+        return None
+    works = [r for r in _all_texts(language or row.get('language'))
+             if str(r.get('author') or '').lower() == author and not is_part(str(r.get('id') or ''))]
+    return dict(works[0], matched='work') if len(works) == 1 else None
 
 
 def named_texts(question, language=None, limit=2):
@@ -224,8 +247,11 @@ def named_texts(question, language=None, limit=2):
 
     # Capitalised runs first, each with any book number that follows it:
     # "Silius Italicus", "Statius Thebaid 12".
+    # "Statius Thebaid 12", "Lucretius book 1", "Ovid Met book 1" and "Aeneid, bk. 6"
+    # all carry their book number.
     for cand, num in re.findall(
-            r'\b([A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z]+)?)\s*(\d{1,2})?\b', question or ''):
+            r'\b([A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z]+)?)\s*,?\s*(?:(?:[Bb]ook|[Bb]k\.?)\s*)?(\d{1,2})?\b',
+            question or ''):
         # "Compare Statius Thebaid 1" reads as the run "Compare Statius", so
         # leading words that are never part of a name are dropped first.
         cand_words = cand.split()
@@ -236,6 +262,8 @@ def named_texts(question, language=None, limit=2):
             continue
         hit = resolve_one(cand, language=language)
         if hit and num:
+            if hit.get('matched') == 'author':
+                hit = _single_work(hit, language) or hit
             hit = book_of(hit, num) or hit
         take(hit)
         # No early return here: a later run can narrow an earlier hit to a

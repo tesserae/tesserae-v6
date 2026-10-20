@@ -67,7 +67,7 @@ def _theme_search(query, language=None):
 
 
 def _compare(source, target, language='la', source_author=None,
-             target_author=None, label=None):
+             target_author=None, label=None, source_name=None, target_name=None):
     """The main fusion search over two texts, or over two authors.
 
     AUTHOR-LEVEL IS NOT A FALLBACK, it is the honest answer to a question that
@@ -81,7 +81,9 @@ def _compare(source, target, language='la', source_author=None,
     args = {'lang': language}
     if source and target:
         args.update({'source': source, 'target': target})
-        detail = f'{source} and {target}'
+        # The label already names both texts when the names are known, so the small
+        # print does not repeat them as raw file ids.
+        detail = '' if (label and source_name and target_name) else f'{source} and {target}'
     elif source_author and target_author:
         args.update({'source_author': source_author, 'target_author': target_author})
         detail = f'all of {source_author} against all of {target_author}'
@@ -91,7 +93,7 @@ def _compare(source, target, language='la', source_author=None,
     # the main comparison only fills the form in, and a comparison is expensive
     # enough that pressing Search yourself is reasonable. Labelling it as though
     # it ran would be a small lie told every time.
-    detail += ' · opens the search ready to run'
+    detail = (detail + ' · ' if detail else '') + 'opens the comparison page ready to run'
     return {
         'kind': 'compare',
         'label': label or 'Compare these two texts',
@@ -562,7 +564,8 @@ def suggest(question, lookup=None):
                     str(a.get('id') or '').replace('.tess', ''),
                     str(b.get('id') or '').replace('.tess', ''), lang,
                     label=(f'Compare {a.get("display_name") or a.get("id")} '
-                           f'with {b.get("display_name") or b.get("id")}')))
+                           f'with {b.get("display_name") or b.get("id")}'),
+                    source_name=a.get('display_name'), target_name=b.get('display_name')))
 
     if any(t in q for t in _THEME_INTENT):
         subject = _theme_subject(question)
