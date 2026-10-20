@@ -8,6 +8,7 @@ the list the script obeys is the list the test checks.
 """
 import json
 import os
+import shutil
 import sqlite3
 import sys
 
@@ -374,3 +375,98 @@ def test_recheck_catches_a_production_file_that_changed_during_the_build(tmp_pat
     assert lib.cmd_recheck(args) == 0
     f.write_text('two, longer')
     assert lib.cmd_recheck(args) == 5
+
+
+# ---------------------------------------------------------------- substitutes (2026-10-19)
+
+def _tiny_cop_prod(tmp_path):
+    prod = tmp_path / 'prod'
+    for rel, body in {
+        'texts/cop/sahidic.genesis.tess': 'x',
+        'texts/cop/sahidica.mark.tess': 'x',
+        'cache/bigrams/cop_bigrams.json': '{"original": true}',
+        'cache/frequencies/cop.json': '{"original": true}',
+        'data/translation_pairs.json': json.dumps({'count': 1, 'pairs': [{'work_a': 'sahidica.mark', 'work_b': 'x'}]}),
+    }.items():
+        f = prod / rel
+        f.parent.mkdir(parents=True, exist_ok=True)
+        f.write_text(body, encoding='utf-8')
+    (prod / 'data/inverted_index').mkdir(parents=True)
+    con = sqlite3.connect(prod / 'data/inverted_index/cop_index.db')
+    con.execute('create table texts (text_id integer, filename text)')
+    con.executemany('insert into texts values (?, ?)', [(1, 'sahidic.genesis.tess'), (2, 'sahidica.mark.tess')])
+    con.commit()
+    con.close()
+    return prod
+
+
+def _clean_cop_index(path):
+    con = sqlite3.connect(path)
+    con.execute('create table texts (text_id integer, filename text)')
+    con.execute("insert into texts values (1, 'sahidic.genesis.tess')")
+    con.commit()
+    con.close()
+
+
+def test_substitute_bytes_are_used_under_the_original_path(tmp_path):
+    prod = _tiny_cop_prod(tmp_path)
+    sub = tmp_path / 'cop_bigrams.filtered.json'
+    sub.write_text('{"filtered": true}', encoding='utf-8')
+    excl = dict(EXCL, substitutes={'cache/bigrams/cop_bigrams.json': str(sub)})
+    notes = {}
+    items = {i.rel: i for i in lib.select('core', str(prod), excl, {'sahidica.mark'}, notes)}
+    it = items['cache/bigrams/cop_bigrams.json']
+    assert it.substitute and it.abs == str(sub)
+    assert os.path.getsize(it.abs) == len('{"filtered": true}')
+    assert notes['replaced by a filtered copy without the restricted works'] == 1
+    assert not items['cache/frequencies/cop.json'].substitute
+    assert 'texts/cop/sahidica.mark.tess' not in items
+
+
+def test_a_missing_substitute_stops_the_build_instead_of_shipping_the_original(tmp_path):
+    prod = _tiny_cop_prod(tmp_path)
+    excl = dict(EXCL, substitutes={'cache/bigrams/cop_bigrams.json': str(tmp_path / 'not_there.json')})
+    with pytest.raises(SystemExit) as e:
+        list(lib.select('core', str(prod), excl, {'sahidica.mark'}, {}))
+    assert 'does not exist' in str(e.value) and 'cache/bigrams/cop_bigrams.json' in str(e.value)
+
+
+def test_plan_refuses_whole_language_files_that_are_not_replaced(tmp_path):
+    prod = _tiny_cop_prod(tmp_path)
+    bare = dict(EXCL, substitutes={})
+    items = list(lib.select('core', str(prod), bare, {'sahidica.mark'}, {}))
+    problems = lib.whole_corpus_problems(items, str(prod), {'sahidica.mark'}, bare)
+    text = '\n'.join(problems)
+    for rel in ('cache/bigrams/cop_bigrams.json', 'cache/frequencies/cop.json', 'data/inverted_index/cop_index.db',
+                'data/translation_pairs.json'):
+        assert rel in text, rel
+
+
+def test_plan_accepts_clean_substitutes_and_rejects_a_dirty_one(tmp_path):
+    prod = _tiny_cop_prod(tmp_path)
+    clean = tmp_path / 'clean.db'
+    _clean_cop_index(clean)
+    files = {}
+    for name, body in (('big.json', '{}'), ('freq.json', '{}'),
+                       ('pairs.json', json.dumps({'count': 0, 'pairs': []}))):
+        (tmp_path / name).write_text(body, encoding='utf-8')
+        files[name] = str(tmp_path / name)
+    subs = {'data/inverted_index/cop_index.db': str(clean), 'cache/bigrams/cop_bigrams.json': files['big.json'],
+            'cache/frequencies/cop.json': files['freq.json'], 'data/translation_pairs.json': files['pairs.json']}
+    excl = dict(EXCL, substitutes=subs)
+    items = list(lib.select('core', str(prod), excl, {'sahidica.mark'}, {}))
+    assert lib.whole_corpus_problems(items, str(prod), {'sahidica.mark'}, excl) == []
+    # the same substitution with the unfiltered index copied in is caught by its content
+    dirty = tmp_path / 'dirty.db'
+    shutil.copyfile(prod / 'data/inverted_index/cop_index.db', dirty)
+    excl = dict(EXCL, substitutes=dict(subs, **{'data/inverted_index/cop_index.db': str(dirty)}))
+    items = list(lib.select('core', str(prod), excl, {'sahidica.mark'}, {}))
+    problems = lib.whole_corpus_problems(items, str(prod), {'sahidica.mark'}, excl)
+    assert any('still holds 1 restricted works' in p for p in problems), problems
+
+
+def test_committed_substitutes_map_covers_the_coptic_whole_language_files():
+    subs = EXCL['substitutes']
+    assert set(subs) == {'data/inverted_index/cop_index.db', 'cache/bigrams/cop_bigrams.json',
+                         'cache/frequencies/cop.json', 'data/translation_pairs.json'}
+    assert all(os.path.isabs(v) for v in subs.values())

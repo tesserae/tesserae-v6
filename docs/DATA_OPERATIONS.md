@@ -43,6 +43,33 @@ The reason is the license. The window-text archive held 1,800 windows of 25 Sahi
 
 Gated item D7 still owes a window-text archive filtered through `scripts/corpus/filter_index_by_registry.py`'s registry, and a rebuilt core bundle without the restricted texts. The Downloads page says both are withdrawn and no link to either remains in `client/src/components/pages/DownloadsPage.jsx`.
 
+## 2026-10-19 Core bundle rebuilt without the Sahidica New Testament (PENDING, staged by a delegate, install by the lead)
+
+Staged, not installed. Nothing under `/var/www/tesseraev6_flask` was written. The staging folder is `~/tesserae-backups/core_bundle_2026-10-19/`.
+
+The builder (`scripts/ops/build_public_bundle.sh --core`) now takes a `substitutes` map from `scripts/ops/public_bundle_exclusions.json`. Four bundle members cover a whole language or the whole corpus and held the 29 registry works inside them, so each is replaced under its own bundle path by a filtered copy. A listed copy that does not exist stops the build. The plan step also refuses to run when a whole-language file of a language with restricted works is taken as it is, or when an index in the plan still has a registry text in its `texts` table.
+
+| Bundle member | What it held of the 29 works | What was done |
+|---|---|---|
+| `data/inverted_index/cop_index.db` | 27 texts with their lines and postings (the other two ids, `sahidic.bible` and `sahidica.nt`, have no row) | Replaced by the copy filtered with `scripts/corpus/filter_index_by_registry.py` earlier the same day (153 texts left, 62,919 lines, 1,300,852 postings, integrity ok). Checked again before use, 0 registry texts, 0 orphan rows |
+| `cache/bigrams/cop_bigrams.json` | Bigram counts and document counts from 27 works | Replaced by a copy with their counts subtracted: 190,422 keys to 178,656, 2,030,320 occurrences to 1,805,039, 180 documents to 153, 22.6 MB to 12.1 MB |
+| `cache/frequencies/cop.json` | Lemma counts from 29 texts (including the two whole-Testament files) | Replaced by a copy with their counts subtracted and the text count and checksum set for the 158 remaining files: 29,323 keys to 27,981, 5,302,761 lemmas to 3,991,547, 1.34 MB to 0.73 MB. The key count equals the filtered index's `lemma_doc_freq` |
+| `data/translation_pairs.json` | 108 mentions of Sahidica works in the list of work pairs | Replaced by a copy without the 108 pairs: 730 pairs to 622 |
+| `cache/lemmas/cop.json` | No such combined file exists on the server | Nothing to do. The per-work lemma caches of the 29 works are left out by the existing rule |
+
+How the counts were taken out. `scripts/corpus/filter_language_caches_by_registry.py` lemmatizes each registry work with the deployed text processor (and the lemma cache where it is current, as the bigram builder does), subtracts that from the original, and stops if the original does not contain it. It also adds up the whole language the same way and compares. The bigram table matches exactly (216,624 keys differ before a spelling map, 0 after). The frequency file matches except 4 tokens in 2 lemmas (the original was built slightly earlier), so its subtraction stands on the original file. The script writes only to the folder it is given.
+
+Finding. In the production bigram table of 8 August, seven Coptic letters (shei, fei, khei, hori, gangia, shima, dei) are stored as U+2CB3, 2CB5, 2CB7, 2CB9, 2CBB, 2CBD and 2CBF, while the lemmas of the same texts use U+03E3, 03E5, 03E7, 03E9, 03EB, 03ED and 03EF today. A bigram containing one of those letters is therefore never found by a lookup with current lemmas. The filter applies the old code points to its own counts so it subtracts under the keys the table holds. The live table is unchanged by this work.
+
+Build. `build_public_bundle.sh --core --measure` reported 17.33 GB uncompressed in 8,854 files. The build took 1,184 seconds and the content scan passed. Archive `tesserae-public-core-20261019.tar.zst`, 3,094,071,846 bytes, SHA-256 `1d75b5df8a33746bad8a9dbe77bd1a9df7cd28a5c46f85405155e4f027e4bb88`, built from production code commit `6214c215fc2ff8df1c5d740af2f2c0a810b2b382`.
+
+Checked from the archive itself (`verify_bundle.py` and `verify_report.txt` in the staging folder). 8,855 members, 8,854 manifest rows, none missing. 0 members and 0 manifest rows whose work id is in the registry, 0 hits for any of the 29 ids across the whole decompressed stream, 47 `sahidic.*` Old Testament texts still in. The extracted `cop_index.db` has 153 texts, 0 in the registry, integrity ok. The extracted bigram table, frequency file and pair list have 0 hits for the 29 ids. `LICENSES.md` no longer lists the Sahidica license and still names every other source. No citation index, scholarship cache or model folder is among the members.
+
+Install (by the lead, after the pull request is merged and the page deployed). Replace `S` with `~/tesserae-backups/core_bundle_2026-10-19`.
+1. Copy `S/tesserae-public-core-20261019.tar.zst`, `S/tesserae-public-core-20261019.tar.zst.sha256`, `S/MANIFEST-core-20261019.tsv` and `S/LICENSES-core-20261019.md` into `/var/www/tesseraev6_flask/static/downloads/bundle/`, mode 664.
+2. In that folder run `sha256sum -c tesserae-public-core-20261019.tar.zst.sha256`. It must print OK.
+3. Run one `curl -sI https://tesserae.caset.buffalo.edu/static/downloads/bundle/<file>` for each of the four files. Each must answer 200, and the archive must report a length of 3094071846.
+
 ## 2026-10-19 Cicero, De legibus added (PENDING, staged by a delegate, install by the lead)
 
 Staged, not installed. Every store below was built on a copy in `~/tesserae-backups/de_legibus_2026-10-19/`, with `CHECKS.md` holding the figures. Nothing under `/var/www/tesseraev6_flask` was written.
