@@ -41,6 +41,14 @@ def test_parse_accepts_a_written_backslash_t():
     assert J.parse('NO\\tCites the passage for a Greek word.')[0] == 'NO'
 
 
-def test_default_provider_is_anthropic():
+def test_default_provider_is_free():
     import judge_scholarship_relevance as J
-    assert J.PROVIDER == 'anthropic' and J.ANTHROPIC_MODEL.startswith('claude-')
+    assert J.PROVIDER == 'gateway' and J.ANTHROPIC_MODEL.startswith('claude-')
+
+
+def test_paid_provider_refuses_without_approval(tmp_path):
+    import pytest
+    import judge_scholarship_relevance as J
+    with pytest.raises(SystemExit) as e:
+        J.main([str(tmp_path / 'in.sqlite'), str(tmp_path / 'out.sqlite'), '--provider', 'anthropic'])
+    assert 'REFUSING' in str(e.value)
