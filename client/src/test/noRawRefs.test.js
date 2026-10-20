@@ -24,7 +24,8 @@ const RAW_PRINT = /(?<!\$)\{\s*[\w$.?[\]]*\.(?:ref_start|ref_end|ref)\s*\}/;
 // checked, so a line with `title={...}` and a raw print is still caught.
 // (Helper calls such as bareLocus( or displayRef( never match RAW_PRINT: the
 // ref is inside parentheses there, not directly inside the braces.)
-const NOT_DISPLAY = /\b(?:key|href|title|aria-label)=(?:\{(?:[^{}]|\{[^{}]*\})*\}|"[^"]*")/g;
+// `ref=` is React's element reference (ref={menu.ref}), not a passage reference.
+const NOT_DISPLAY = /\b(?:key|href|title|aria-label|ref)=(?:\{(?:[^{}]|\{[^{}]*\})*\}|"[^"]*")/g;
 
 // Files allowed to print a raw ref, with the reason. Keep this empty if possible.
 const EXCEPTIONS = {

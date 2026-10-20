@@ -7,6 +7,9 @@ so the state of the live site can be reconstructed from this file and
 docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
+## 2026-10-20
+- The whole-app render recordings in `client/src/test` are re-recorded after the day's page changes (the People, Places & Things menu, the Beta marks, the Downloads page, the Search One Text examples), and the raw-reference check no longer counts React's `ref=` attribute as a passage reference (the project lead, 2026-10-20). All 53 tests in that folder pass again.
+
 ## 2026-10-19
 - Search One Text: the twelve example subjects now name themes that recur through a work (a mother mourns her son in the Aeneid, a host welcomes a stranger in the Odyssey, a dream warns a king in Herodotus, an accused senator kills himself in the Annals, wedding songs in Sappho, a besieged city surrenders in Thucydides, prodigies in Livy, the customs of the Gauls and Germans in Caesar, omens of an emperor's death in Suetonius), after the project lead found the earlier ones described single scenes (2026-10-19, "they should describe a theme or a topic"). Every subject was run live and read before it went in.
 - `scripts/download_data.py` writes a stamp beside each unpacked data file with the checksum of the archive it came from, and fetches the file again when the manifest now lists a different archive (the project lead, 2026-10-19). A file unpacked before stamps existed is still skipped, and `--check` marks a stale file STALE. Tests in `tests/test_download_data_stamp.py`.
