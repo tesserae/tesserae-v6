@@ -1,6 +1,4 @@
 import { useCallback, useEffect, useState } from 'react';
-import useCollections from '../../hooks/useCollections';
-import { PAGE_NEEDS } from '../../collections/collectionsConfig';
 import EventList from './EventList';
 import EventView from './EventView';
 
@@ -11,17 +9,13 @@ function eventIdFromPath(path) {
 
 /**
  * The Events page: /events lists events, /events/<id> is one event's focus
- * view. Shown only when the Collections control has inscriptions, papyri or
- * scholarship on (PAGE_NEEDS.events); a direct link otherwise lands on Search.
+ * view. Opens in every view and with any collection switch (the project lead, 2026-10-20: Events
+ * chosen from the menu in the Literature view returned to Intertextual Search). The
+ * collection switches decide what a search covers, not which pages open.
  */
-export default function EventsPage({ setPageType }) {
-  const { anyOn } = useCollections();
-  const allowed = anyOn(PAGE_NEEDS.events);
+export default function EventsPage() {
   const [path, setPath] = useState(() => window.location.pathname);
 
-  useEffect(() => {
-    if (!allowed && setPageType) setPageType('search');
-  }, [allowed, setPageType]);
 
   useEffect(() => {
     const onPop = () => setPath(window.location.pathname);
@@ -46,7 +40,6 @@ export default function EventsPage({ setPageType }) {
     window.scrollTo?.(0, 0);
   }, []);
 
-  if (!allowed) return null;
   const id = eventIdFromPath(path);
   return id
     ? <EventView id={id} goList={() => go('/events')} />

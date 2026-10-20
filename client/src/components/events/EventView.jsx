@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from 'react';
 import { LoadingSpinner, InfoBadge } from '../common';
 import CiteRecordButton from '../common/CiteRecordButton';
 import { recordFrom } from '../../utils/citations';
-import useCollections from '../../hooks/useCollections';
 import { bareLocus } from '../reader/refId';
 import { useCorpusTextMap } from '../../utils/textNames';
 import EventMap from './EventMap';
@@ -268,7 +267,6 @@ function ScholarshipTab({ items, openPassage, ranks }) {
 
 /** One event: header, then Passages, Inscriptions & Papyri, Scholarship and Map tabs. */
 export default function EventView({ id, goList }) {
-  const { anyOn } = useCollections();
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
   const [tab, setTab] = useState('passages');
@@ -291,8 +289,11 @@ export default function EventView({ id, goList }) {
 
   const tabs = [
     ['passages', 'Passages', true],
-    ['documents', 'Inscriptions & Papyri', anyOn(['inscriptions', 'papyri'])],
-    ['scholarship', 'Scholarship', anyOn(['scholarship'])],
+    // Every tab shows in every view (the project lead, 2026-10-20): an event page is
+    // opened on purpose, and with the Literature view's collections off it had kept
+    // only its passages. The collection switches still decide what a search covers.
+    ['documents', 'Inscriptions & Papyri', true],
+    ['scholarship', 'Scholarship', true],
     ['map', 'Map', true],
   ].filter((t) => t[2]);
 
@@ -313,7 +314,12 @@ export default function EventView({ id, goList }) {
   }
 
   const ev = data.event;
-  const counts = { passages: data.passages.length, documents: data.documents.length, scholarship: data.scholarship.length };
+  // A response without one of the lists (an older server, a partial answer) shows
+  // that tab empty rather than breaking the page.
+  const passages = data.passages || [];
+  const documents = data.documents || [];
+  const scholarship = data.scholarship || [];
+  const counts = { passages: passages.length, documents: documents.length, scholarship: scholarship.length };
   return (
     <div className="max-w-4xl mx-auto px-4 py-6">
       {back}
@@ -349,10 +355,10 @@ export default function EventView({ id, goList }) {
         ))}
       </div>
       <div className="mt-4">
-        {tab === 'passages' && <PassagesTab passages={data.passages} counts={data.passage_counts} event={ev} focusRank={focusRank} />}
-        {tab === 'documents' && <DocumentsTab documents={data.documents} event={ev} />}
-        {tab === 'scholarship' && <ScholarshipTab items={data.scholarship} openPassage={openPassage} ranks={new Set(data.passages.map((p) => p.rank))} />}
-        {tab === 'map' && <EventMap points={data.map} />}
+        {tab === 'passages' && <PassagesTab passages={passages} counts={data.passage_counts} event={ev} focusRank={focusRank} />}
+        {tab === 'documents' && <DocumentsTab documents={documents} event={ev} />}
+        {tab === 'scholarship' && <ScholarshipTab items={scholarship} openPassage={openPassage} ranks={new Set(passages.map((p) => p.rank))} />}
+        {tab === 'map' && <EventMap points={data.map || []} />}
       </div>
     </div>
   );
