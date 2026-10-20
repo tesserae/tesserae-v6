@@ -68,7 +68,7 @@ def test_locus_followed_by_a_year_after_a_page_range_is_dropped():
 
 def test_man_with_a_real_locus_stays_manilius():
     assert _loci('Man. 1.1') == [('manilius.astronomica', '1.1')]
-    assert _loci('Man 21:1–17') == [('manilius.astronomica', '21.1', '21.17')]
+    assert _loci('Man 4:1–17') == [('manilius.astronomica', '4.1', '4.17')]
 
 
 def test_year_after_a_line_that_is_a_plausible_line_is_kept():
