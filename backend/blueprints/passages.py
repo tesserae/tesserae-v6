@@ -241,8 +241,8 @@ _SUMMARY_MAX_PASSAGES = 20
 
 def _locus(ref):
     """The numeric tail of a reference: "Tac. Ann. 1.73" gives "1.73",
-    "thuc. pele. 2.47.3" gives "2.47.3"."""
-    m = re.search(r'(\d+(?:\.\d+)*[a-z]?)\s*$', ref or '')
+    "thuc. pele. 2.47.3" gives "2.47.3", "hamlet III.1.66" gives "III.1.66"."""
+    m = re.search(r'((?:[IVXLC]+|\d+)(?:\.\d+)*[a-z]?)\s*$', ref or '')
     return m.group(1) if m else None
 
 
@@ -269,7 +269,10 @@ def _cite_full_refs(text, refs):
             else:
                 out.append(part)
         return '(' + ', '.join(out) + ')'
-    text = re.sub(r'\((\d+(?:\.\d+)*[a-z]?(?:\s*,\s*\d+(?:\.\d+)*[a-z]?)*)\)', expand, text or '')
+    # A locus may open with a Roman number, as plays are cited (III.1.66, the
+    # project lead's Hamlet search of 2026-10-20 showed no links).
+    loc = r'(?:[IVXLC]+|\d+)(?:\.\d+)*[a-z]?'
+    text = re.sub(rf'\(({loc}(?:\s*,\s*{loc})*)\)', expand, text or '')
     for ref in refs:
         if ref in text and ref not in cites:
             cites.append(ref)
