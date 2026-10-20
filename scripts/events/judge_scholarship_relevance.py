@@ -122,9 +122,9 @@ FORMAT_TAIL = '\n\nReply with exactly one line in the form VERDICT<tab>reason, w
 
 
 def parse(text):
-    text = (text or '').replace('\\t', '\t')  # some models write the tab as backslash and t
     """The verdict line. With thinking off the model often talks its way to the answer and ends
     on the line asked for (VERDICT, a tab, the reason), so the last such line is the answer."""
+    text = (text or '').replace('\\t', '\t')  # some models write the tab as backslash and t
     t = (text or '').strip()
     found = re.findall(r'(YES|PARTLY|NO)[ ]*(?:\t|<tab>)[ ]*([^\n]+)', t)
     if not found:
@@ -139,16 +139,17 @@ def parse(text):
 def _anthropic_env():
     key = os.environ.get('ANTHROPIC_API_KEY', '')
     if not key and os.path.exists(ANTHROPIC_ENV_FILE):
-        for line in open(ANTHROPIC_ENV_FILE):
-            if line.startswith('ANTHROPIC_API_KEY='):
-                key = line.split('=', 1)[1].strip().strip('"').strip("'")
+        with open(ANTHROPIC_ENV_FILE) as f:
+            for line in f:
+                if line.startswith('ANTHROPIC_API_KEY='):
+                    key = line.split('=', 1)[1].strip().strip('"').strip("'")
     if not key:
         sys.exit('no ANTHROPIC_API_KEY in the environment or ' + ANTHROPIC_ENV_FILE)
     return ANTHROPIC_URL, key
 
 
 def ask_anthropic(url, key, user, stats, lock, max_tokens=MAX_TOKENS):
-    body = json.dumps({'model': ANTHROPIC_MODEL, 'max_tokens': min(max_tokens, 300), 'system': SYSTEM,
+    body = json.dumps({'model': ANTHROPIC_MODEL, 'max_tokens': 300 if max_tokens <= MAX_TOKENS else 1000, 'system': SYSTEM,
                        'messages': [{'role': 'user', 'content': user}]}).encode()
     req = urllib.request.Request(url + '/v1/messages', data=body, headers={
         'content-type': 'application/json', 'x-api-key': key, 'anthropic-version': '2023-06-01'})
