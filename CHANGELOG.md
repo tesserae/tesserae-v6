@@ -8,6 +8,7 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-20
+- Events page: the list opens in alphabetical order, the same as the name box, and the Order menu offers By date, earliest first, and Most passages and documents (the project lead, 2026-10-20, "Shouldn't they be alphabetical by default then orderable by chronology?"). The route gains `sort=name` and keeps its own default for the connector.
 - Events page: the name box is a dropdown you can type into (the project lead, 2026-10-20, "there still no dropdown to select events from"). A click or the arrow button opens every event with passages or documents in alphabetical order, typing narrows it from the first letter, and the ten-row cap is gone.
 - The Events article ratings script never spends by default (the project lead, 2026-10-20, "you always need to ask me before spending any money"). The free gateway model is the default again, and Claude runs only with `--provider anthropic` plus `--spend-approved` naming the approval, otherwise the script refuses.
 - Events article ratings remade with Claude Sonnet for all 1,113 events with articles (the project lead, 2026-10-20). YES 335 to 132, so fewer articles that cite another passage sit in the main list. `scripts/events/judge_scholarship_relevance.py` rates with Claude by default (`--provider gateway` for the old model) and reads a model reply that writes the tab as backslash and t. Run record in `docs/DATA_OPERATIONS.md`.

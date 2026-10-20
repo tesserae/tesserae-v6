@@ -9,7 +9,8 @@ const PER_PAGE = 20;
 /**
  * The Events page: every event in the dossier database, searchable and
  * filterable. The list opens on the events with the most attached passages
- * and nearby documents (sort=evidence); events with neither are left out
+ * and nearby documents (sort=evidence); the page opens alphabetical (sort=name,
+ * the project lead, 2026-10-20); events with neither are left out
  * until "Include events with no passages or documents" is ticked
  * (owner's review 2026-10-10: a list opening on 801 BCE events with
  * nothing attached was not persuasive).
@@ -19,7 +20,7 @@ export default function EventList({ openEvent }) {
   const [typed, setTyped] = useState('');
   const [type, setType] = useState('');
   const [century, setCentury] = useState('');
-  const [sort, setSort] = useState('evidence');
+  const [sort, setSort] = useState('name');
   const [showAll, setShowAll] = useState(false);
   const [page, setPage] = useState(1);
   const [data, setData] = useState(null);
@@ -82,8 +83,9 @@ export default function EventList({ openEvent }) {
           <select value={sort} onChange={(e) => { setSort(e.target.value); setPage(1); }}
                   aria-label="Order"
                   className="mt-1 block border border-gray-300 rounded px-2 py-1.5 text-sm text-gray-900">
+            <option value="name">Alphabetical</option>
+            <option value="date">By date, earliest first</option>
             <option value="evidence">Most passages and documents</option>
-            <option value="date">By date</option>
           </select>
         </label>
         <button type="submit" className="px-3 py-1.5 text-sm rounded bg-red-700 text-white hover:bg-red-800">
