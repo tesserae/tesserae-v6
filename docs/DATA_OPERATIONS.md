@@ -35,6 +35,14 @@ Conventions
   hand and are the models the helper matches.
 
 
+## 2026-10-20 Citation indexes rebuilt with recognizer round 7 and De legibus (PENDING, built by a delegate, to be installed by the project lead)
+
+A hand check of 200 sampled rows after round 6 left three rules open (a bare number past the end of a one-level work, a line past the end of its book, a parenthesized alternate book number) and the De legibus form list was still waiting for a rebuild.
+
+Built. Both indexes were rebuilt from the same article texts with the round 7 recognizer, into a private folder, never over the live files. The EJC index went from 41,792 to 41,724 rows and the MUSE index from 28,501 to 28,559 (after the same cleaning step as before). The tables the rebuild reads are `data/citations/work_book_line_max.json` and `data/citations/work_single_level_max.json` (both written by `scripts/citations/derive_work_line_limits.py`), and one new row for `cicero.de_legibus` in each of `work_depth.json`, `work_max_line.json`, `work_max_book.json`, `work_depth_journal.json` and `work_section_numbered.json`. The abbreviation table (`data/citations/abbreviations.json`) is unchanged by this pull request. It already carries the De legibus record that `data/citations/abbrev_patch_round7.json` adds.
+
+To do, in this order. (1) Merge the pull request. (2) Mirror `backend/citations/*.py`, `abbrev_context_rules.json` and the five depth tables into the rebuild toolkit, and copy the two new tables to `data/citations/` beside the toolkit's abbreviation table. (3) Rebuild the EJC index with `build_index_v*.py` and the four MUSE journals, then run `clean_muse_index.py` on the MUSE result. (4) Install both with dated backups, touch `tesseraev6_flask.wsgi`, check `/api/languages`, then relink the events Scholarship table with `scripts/events/relink_scholarship.py`. The checks are the row counts above and one Plato Laws and one De legibus lookup in the Scholarship tab.
+
 ## 2026-10-20 Core bundle rebuilt with the corrected Coptic bigram table and installed (RUN 23:24 to 23:44 EDT, 2026-10-19 evening, by the project lead)
 
 Why. The 19 October bundle carried the filtered copy of the 8 August Coptic bigram table, whose seven misplaced letters were found that evening (entry of 2026-10-19 on the Coptic bigram table). The project lead asked for the owed replacement the same night ("Go ahead and do that").

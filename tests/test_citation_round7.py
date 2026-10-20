@@ -212,7 +212,7 @@ def test_legg_follows_the_author_named(text, work, locus):
 
 @needs_table
 def test_bare_legg_stays_unresolved():
-    assert [h for h in C.extract('and for the periphrastic opt. Legg. 678 E, 753 E') if h['resolved']] == []
+    assert [h for h in C.extract('Compare Legg. 678 E and 753 E') if h['resolved']] == []
 
 
 @needs_table
