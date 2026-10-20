@@ -89,9 +89,9 @@
   "substitutes_note": "Files that cover a whole language and hold counts or lines of works in the restricted registry cannot be cleaned by leaving other files out. Each is replaced in the bundle, under its own bundle path, by a filtered copy made with scripts/corpus/filter_index_by_registry.py (indexes) or scripts/corpus/filter_language_caches_by_registry.py (counts and pairs). The value is the absolute path of the filtered copy. A listed copy that does not exist stops the build, the original is never used in its place. The plan step also refuses to build when a whole-language file of a language with restricted works is not listed here.",
   "substitutes": {
     "data/inverted_index/cop_index.db": "/home/ncoffee/tesserae-backups/public_data_2026-10-19_cop/cop_index.db",
-    "cache/bigrams/cop_bigrams.json": "/home/ncoffee/tesserae-backups/core_bundle_2026-10-19/filtered/cop_bigrams.filtered.json",
-    "cache/frequencies/cop.json": "/home/ncoffee/tesserae-backups/core_bundle_2026-10-19/filtered/cop.frequencies.filtered.json",
-    "data/translation_pairs.json": "/home/ncoffee/tesserae-backups/core_bundle_2026-10-19/filtered/translation_pairs.filtered.json"
+    "cache/bigrams/cop_bigrams.json": "/home/ncoffee/tesserae-backups/core_bundle_2026-10-20/filtered/cop_bigrams.filtered.json",
+    "cache/frequencies/cop.json": "/home/ncoffee/tesserae-backups/core_bundle_2026-10-20/filtered/cop.frequencies.filtered.json",
+    "data/translation_pairs.json": "/home/ncoffee/tesserae-backups/core_bundle_2026-10-20/filtered/translation_pairs.filtered.json"
   },
   "commentary_licence": {
     "_comment": "A commentary file travels when every licence it states (license, and license_translation where present) is public domain or Creative Commons (BY, BY-SA, BY-NC, BY-NC-SA, CC0, in any wording that names them). A missing, empty, 'unknown' or 'None' licence, or a notice forbidding republication, keeps the file out.",

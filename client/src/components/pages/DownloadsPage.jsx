@@ -879,29 +879,30 @@ const DownloadsPage = () => {
         <div className="space-y-3 mb-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-gray-50 rounded">
             <div>
-              <span className="font-medium">Core bundle, 19 October 2026</span>
+              <span className="font-medium">Core bundle, 20 October 2026</span>
               <span className="text-sm text-gray-500 ml-2">(3.1 GB compressed, about 17 GB unpacked)</span>
-              <p className="text-xs text-gray-500 mt-1">Built from the production data at code version <span className="font-mono">6214c215</span>. SHA-256 <span className="font-mono break-all">1d75b5df8a33746bad8a9dbe77bd1a9df7cd28a5c46f85405155e4f027e4bb88</span></p>
+              <p className="text-xs text-gray-500 mt-1">Built from the production data at code version <span className="font-mono">9085292f</span>. SHA-256 <span className="font-mono break-all">0c953d8e2be07fd68e39a783e2c0f744990a0f45388da7ff269da396f20ebf2f</span></p>
             </div>
             <a
-              href="/static/downloads/bundle/tesserae-public-core-20261019.tar.zst"
+              href="/static/downloads/bundle/tesserae-public-core-20261020.tar.zst"
               className="px-4 py-2 bg-red-700 text-white rounded hover:bg-red-800 text-sm text-center whitespace-nowrap"
             >
               Download bundle
             </a>
           </div>
           <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm">
-            <a href="/static/downloads/bundle/tesserae-public-core-20261019.tar.zst.sha256" className="text-red-700 hover:underline">Checksum</a>
-            <a href="/static/downloads/bundle/MANIFEST-core-20261019.tsv" className="text-red-700 hover:underline">Manifest (every file, size and checksum)</a>
-            <a href="/static/downloads/bundle/LICENSES-core-20261019.md" className="text-red-700 hover:underline">License file</a>
+            <a href="/static/downloads/bundle/tesserae-public-core-20261020.tar.zst.sha256" className="text-red-700 hover:underline">Checksum</a>
+            <a href="/static/downloads/bundle/MANIFEST-core-20261020.tsv" className="text-red-700 hover:underline">Manifest (every file, size and checksum)</a>
+            <a href="/static/downloads/bundle/LICENSES-core-20261020.md" className="text-red-700 hover:underline">License file</a>
             <a href="https://github.com/tesserae/tesserae-v6/blob/main/docs/RUN_YOUR_OWN.md" className="text-red-700 hover:underline" target="_blank" rel="noopener noreferrer">The recipe, step by step</a>
           </div>
         </div>
         <p className="text-sm text-gray-700 mb-3">
           The 14 October core bundle was withdrawn on 19 October because it contained the Sahidica New
-          Testament, whose license allows academic use only and no redistribution. This bundle, built
-          the same day, leaves those texts out, and so do the Coptic word index, word counts and
-          translation list inside it.
+          Testament, whose license allows academic use only and no redistribution. This bundle, built on the
+          night of 19 to 20 October, leaves those texts out, and so do the Coptic word index, word counts
+          and translation list inside it. Its Coptic bigram table carries the letter spelling corrected
+          on 19 October.
         </p>
         <p className="text-xs text-gray-500">
           A full bundle, which adds the passage windows and their vectors for Similar Passages and Theme
