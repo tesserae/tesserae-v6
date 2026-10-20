@@ -1414,6 +1414,8 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 yellow. The reference above a line opens the Reader at that line. The figures at
                 the head of an entry count lines, works and languages. A line that two
                 overlapping passages both contain is counted once.
+                A place&rsquo;s entry also lists, under Named by its adjective, the lines that name
+                it only by an adjective formed from its name, such as Rusellanum for Rusellae.
               </p>
               <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">What to keep in mind</h4>
               <p className="text-gray-700 mb-4">

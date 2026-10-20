@@ -1,0 +1,287 @@
+{
+ "places": {
+  "pl:383633": {
+   "adjectives": [
+    {
+     "entity_id": "nm:derto",
+     "exclude_lines": [],
+     "label": "Dertonensibus"
+    }
+   ],
+   "label": "Dertona"
+  },
+  "pl:383741": {
+   "adjectives": [
+    {
+     "entity_id": "nm:plake",
+     "exclude_lines": [],
+     "label": "Placentinorum"
+    }
+   ],
+   "label": "Placentia"
+  },
+  "pl:383804": {
+   "adjectives": [
+    {
+     "entity_id": "nm:tride",
+     "exclude_lines": [],
+     "label": "Tridentinus"
+    },
+    {
+     "entity_id": "nm:trede",
+     "exclude_lines": [],
+     "label": "Tredentinam"
+    }
+   ],
+   "label": "Trident(i)um"
+  },
+  "pl:393459": {
+   "adjectives": [
+    {
+     "entity_id": "nm:opite",
+     "exclude_lines": [],
+     "label": "Opitergina"
+    }
+   ],
+   "label": "Opitergium"
+  },
+  "pl:393513": {
+   "adjectives": [
+    {
+     "entity_id": "nm:uiket",
+     "exclude_lines": [],
+     "label": "Vicetinorum"
+    }
+   ],
+   "label": "Vicetia"
+  },
+  "pl:413248": {
+   "adjectives": [
+    {
+     "entity_id": "nm:perus",
+     "exclude_lines": [],
+     "label": "Perusina"
+    }
+   ],
+   "label": "Perusia"
+  },
+  "pl:413288": {
+   "adjectives": [
+    {
+     "entity_id": "nm:rusel",
+     "exclude_lines": [],
+     "label": "Rusellanum"
+    }
+   ],
+   "label": "Rusellae"
+  },
+  "pl:413320": {
+   "adjectives": [
+    {
+     "entity_id": "nm:spoletin:main",
+     "exclude_lines": [],
+     "label": "Spoletinus"
+    }
+   ],
+   "label": "Spoletium"
+  },
+  "pl:422952": {
+   "adjectives": [
+    {
+     "entity_id": "nm:labik",
+     "exclude_lines": [],
+     "label": "Labicanum"
+    }
+   ],
+   "label": "Labicum"
+  },
+  "pl:423013": {
+   "adjectives": [
+    {
+     "entity_id": "nm:prene",
+     "exclude_lines": [],
+     "label": "Prenestinis"
+    }
+   ],
+   "label": "Praeneste"
+  },
+  "pl:423108": {
+   "adjectives": [
+    {
+     "entity_id": "nm:tusku",
+     "exclude_lines": [
+      {
+       "key": "augustine. de_consensu_ev. 1.32|tusculanis",
+       "work": "augustine.de_consensu_evangelistarum"
+      },
+      {
+       "key": "cic. div. 1.8|tusculano",
+       "work": "cicero.de_divinatione"
+      },
+      {
+       "key": "cic. div. 2.2|tusculanarum",
+       "work": "cicero.de_divinatione"
+      },
+      {
+       "key": "cic. fat. 4|tusculanae",
+       "work": "cicero.de_fato"
+      },
+      {
+       "key": "cic. att. 15.4.2|tusculanas",
+       "work": "cicero.letters_to_atticus.part.15"
+      },
+      {
+       "key": "cic. att. 15.4.3|tusculanas",
+       "work": "cicero.letters_to_atticus.part.15"
+      },
+      {
+       "key": "cic. tusc. 3.6|tusculano",
+       "work": "cicero.tusculanae_disputationes.part.3"
+      },
+      {
+       "key": "cic. tusc. 5.1|tusculanarum",
+       "work": "cicero.tusculanae_disputationes.part.5"
+      },
+      {
+       "key": "lactantius. div_inst. 3.13.14|tusculanis",
+       "work": "lactantius.divinarum_institutionum"
+      }
+     ],
+     "label": "Tusculanum"
+    }
+   ],
+   "label": "Tusculum"
+  },
+  "pl:432658": {
+   "adjectives": [
+    {
+     "entity_id": "nm:allif",
+     "exclude_lines": [],
+     "label": "Allifanus"
+    }
+   ],
+   "label": "Al(l)ifae"
+  },
+  "pl:432815": {
+   "adjectives": [
+    {
+     "entity_id": "nm:puteo",
+     "exclude_lines": [],
+     "label": "Puteolanus"
+    }
+   ],
+   "label": "Dikaiarcheia/Puteoli"
+  },
+  "pl:432839": {
+   "adjectives": [
+    {
+     "entity_id": "nm:formian:main",
+     "exclude_lines": [],
+     "label": "Formianum"
+    }
+   ],
+   "label": "Formiae"
+  },
+  "pl:433139": {
+   "adjectives": [
+    {
+     "entity_id": "nm:surre",
+     "exclude_lines": [],
+     "label": "Syrrentum"
+    }
+   ],
+   "label": "Surrentum"
+  },
+  "pl:438707": {
+   "adjectives": [
+    {
+     "entity_id": "nm:karue",
+     "exclude_lines": [],
+     "label": "Caruentanam"
+    }
+   ],
+   "label": "Carventum"
+  },
+  "pl:442733": {
+   "adjectives": [
+    {
+     "entity_id": "nm:paist",
+     "exclude_lines": [],
+     "label": "Paesto"
+    }
+   ],
+   "label": "Poseidonia/Paestum"
+  },
+  "pl:452403": {
+   "adjectives": [
+    {
+     "entity_id": "nm:petel",
+     "exclude_lines": [],
+     "label": "Petelinum"
+    }
+   ],
+   "label": "Petelia"
+  },
+  "pl:452469": {
+   "adjectives": [
+    {
+     "entity_id": "nm:temps",
+     "exclude_lines": [],
+     "label": "Tempsanus"
+    }
+   ],
+   "label": "Temesa/Tempsa"
+  },
+  "pl:462106": {
+   "adjectives": [
+    {
+     "entity_id": "nm:assor",
+     "exclude_lines": [],
+     "label": "Assorinus"
+    }
+   ],
+   "label": "Assorus"
+  },
+  "pl:462225": {
+   "adjectives": [
+    {
+     "entity_id": "nm:halaesin:main",
+     "exclude_lines": [],
+     "label": "Halaesinum"
+    }
+   ],
+   "label": "Halaesa"
+  },
+  "pl:462270": {
+   "adjectives": [
+    {
+     "entity_id": "nm:katin",
+     "exclude_lines": [],
+     "label": "Catinenses"
+    }
+   ],
+   "label": "Katane/Catina"
+  },
+  "pl:462498": {
+   "adjectives": [
+    {
+     "entity_id": "nm:solun",
+     "exclude_lines": [],
+     "label": "Soluntinorum"
+    }
+   ],
+   "label": "Soluntum"
+  },
+  "pl:599616": {
+   "adjectives": [
+    {
+     "entity_id": "nm:eurom",
+     "exclude_lines": [],
+     "label": "Euromensium"
+    }
+   ],
+   "label": "Europos/Euromos/Philippoi"
+  }
+ },
+ "version": 1
+}

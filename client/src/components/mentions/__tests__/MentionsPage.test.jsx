@@ -217,3 +217,47 @@ describe('a link from the Reader', () => {
     expect(global.fetch.mock.calls.some(([u]) => String(u) === '/api/entities/search?q=Troy')).toBe(true);
   });
 });
+
+describe('named by its adjective', () => {
+  const PLACE = {
+    id: 'pl:413288', label: 'Rusellae', type: 'place', identifiers: {}, mention_counts: {}, label_shared: false,
+    works: [], corpus_names: [], document_counts: {},
+    adjective_names: [{ entity_id: 'nm:rusel', label: 'Rusellanum', count: 2,
+                        forms: [{ form: 'Rusellanum', count: 1 }, { form: 'Rusellani', count: 1 }] }],
+  };
+  afterEach(() => { delete global.__entity; });
+
+  it('shows the heading, the sentence and a group whose lines load from the mentions route', async () => {
+    global.__entity = PLACE;
+    window.history.replaceState({}, '', '/mentions?e=pl:413288');
+    const user = userEvent.setup();
+    render(<MentionsPage setPageType={() => {}} />);
+    expect(await screen.findByRole('heading', { name: 'Named by its adjective' })).toBeInTheDocument();
+    expect(screen.getByTestId('adjective-names').textContent).toMatch(
+      /These lines refer to Rusellae only through an adjective formed from its name, such as Rusellanum\./);
+    const group = screen.getByRole('button', { name: /Rusellanum/ });
+    expect(group.textContent).toMatch(/2 lines/);
+    await user.click(group);
+    const row = await screen.findByTestId('mention-row');
+    expect(row.querySelector('a').getAttribute('href')).toMatch(/^\/read\?work=vergil\.aeneid\.tess/);
+    expect(row.textContent).toMatch(/vergil\.aeneid/);        // the work is named on each row, the lines come from many works
+    const urls = global.fetch.mock.calls.map((c) => String(c[0]));
+    expect(urls.some((u) => u.startsWith('/api/entities/nm%3Arusel/mentions?adjective_of=pl%3A413288'))).toBe(true);
+  });
+
+  it('shows nothing for a place with no adjectives or an entity without the field', async () => {
+    window.history.replaceState({}, '', '/mentions?e=pl:413288');
+    global.__entity = { ...PLACE, adjective_names: [] };
+    const { unmount } = render(<MentionsPage setPageType={() => {}} />);
+    await screen.findByRole('heading', { name: 'Rusellae' });
+    expect(screen.queryByTestId('adjective-names')).toBeNull();
+    expect(screen.queryByText('Named by its adjective')).toBeNull();
+    unmount();
+    const bare = { ...PLACE };
+    delete bare.adjective_names;
+    global.__entity = bare;
+    render(<MentionsPage setPageType={() => {}} />);
+    await screen.findByRole('heading', { name: 'Rusellae' });
+    expect(screen.queryByTestId('adjective-names')).toBeNull();
+  });
+});
