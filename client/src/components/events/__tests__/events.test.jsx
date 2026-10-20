@@ -102,12 +102,12 @@ describe('formatting', () => {
 });
 
 describe('the list', () => {
-  it('asks for the most-evidence order first, says how many empty events are hidden, and can include them', async () => {
+  it('opens alphabetical, says how many empty events are hidden, and can include them', async () => {
     const calls = mockApi({ ...LIST, total_all: 5, sort: 'evidence', show: 'evidence',
       type_counts: { battle: 1, siege: 1 } });
     render(<EventsPage setPageType={() => {}} />);
     expect(await screen.findByText('Battle of Marathon')).toBeTruthy();
-    expect(calls[0]).toContain('sort=evidence');
+    expect(calls[0]).toContain('sort=name');
     expect(calls[0]).not.toContain('show=all');
     expect(screen.getByTestId('events-total').textContent)
       .toBe('2 events with passages or documents · 3 more have neither');

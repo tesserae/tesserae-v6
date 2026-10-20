@@ -335,3 +335,12 @@ def test_names_route_lists_every_event_once(client, db):
         E._NAMES_CACHE.clear()
         c.execute("DELETE FROM events WHERE id IN ('Q910', 'Q911')")
         c.commit()
+
+
+
+def test_sort_name_is_alphabetical(client):
+    """The Events page opens alphabetical (the project lead, 2026-10-20)."""
+    d = client.get('/api/events?sort=name&show=all').get_json()
+    assert d['sort'] == 'name'
+    labels = [e['label'] for e in d['events']]
+    assert labels == sorted(labels, key=str.lower)
