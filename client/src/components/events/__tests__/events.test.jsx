@@ -46,7 +46,8 @@ const DETAIL = {
   passage_counts: { yes: 2, mention: 1, no: 4 },
   documents: [
     { doc_id: 'edh:HD1', date_start: -500, date_end: -450, place: 'Rhamnous', distance_km: 12.4,
-      text_snippet: 'ΜΑΡΑΘΩΝ', view_url: '/document?doc=edh%3AHD1&lang=la&documents=1' },
+      text_snippet: 'ΜΑΡΑΘΩΝ', text: 'Augusto / sacrum / Perusia restituta.', edition: 'CIL 11, 01923', matched_forms: ['perusia'],
+      view_url: '/document?doc=edh%3AHD1&lang=la&documents=1' },
   ],
   scholarship: [
     { kind: 'article', title: 'Marathon Revisited (Doe, 1990)', page_ref: 'Hdt. 6.111', url: 'https://example.org/a',
@@ -102,12 +103,12 @@ describe('formatting', () => {
 });
 
 describe('the list', () => {
-  it('asks for the most-evidence order first, says how many empty events are hidden, and can include them', async () => {
+  it('opens alphabetical, says how many empty events are hidden, and can include them', async () => {
     const calls = mockApi({ ...LIST, total_all: 5, sort: 'evidence', show: 'evidence',
       type_counts: { battle: 1, siege: 1 } });
     render(<EventsPage setPageType={() => {}} />);
     expect(await screen.findByText('Battle of Marathon')).toBeTruthy();
-    expect(calls[0]).toContain('sort=evidence');
+    expect(calls[0]).toContain('sort=name');
     expect(calls[0]).not.toContain('show=all');
     expect(screen.getByTestId('events-total').textContent)
       .toBe('2 events with passages or documents · 3 more have neither');
@@ -189,13 +190,31 @@ describe('the name box suggestions', () => {
     expect(calls.filter((u) => u === '/api/events/names')).toHaveLength(1);
   });
 
-  it('matches places, folds accents and waits for two characters', async () => {
+  it('opens the whole list on a click, alphabetical, events with passages or documents only', async () => {
     mockApi();
     render(<EventList openEvent={() => {}} />);
     await screen.findByText('Battle of Marathon');
-    await typeInto('c');
+    await userEvent.click(screen.getByLabelText(/Search by name/));
+    await waitFor(() => expect(suggestions()).toHaveLength(4));
+    expect(suggestions().map((o) => o.querySelector('.font-bold').textContent)).toEqual(
+      ['Battle of Cannae', 'Battle of Marathon', 'Marathon Campaign', 'Siege of Syracuse']);
+  });
+
+  it('the arrow button opens and closes the list', async () => {
+    mockApi();
+    render(<EventList openEvent={() => {}} />);
+    await screen.findByText('Battle of Marathon');
+    await userEvent.click(screen.getByRole('button', { name: 'Show the list of events' }));
+    await waitFor(() => expect(suggestions()).toHaveLength(4));
+    await userEvent.click(screen.getByRole('button', { name: 'Close the list of events' }));
     expect(suggestions()).toHaveLength(0);
-    await userEvent.type(screen.getByLabelText(/Search by name/), 'ánn');
+  });
+
+  it('matches places and folds accents from the first character', async () => {
+    mockApi();
+    render(<EventList openEvent={() => {}} />);
+    await screen.findByText('Battle of Marathon');
+    await typeInto('á');
     expect(await within(screen.getByRole('listbox')).findByRole('option', { name: /Battle of Cannae/ })).toBeTruthy();
     await userEvent.clear(screen.getByLabelText(/Search by name/));
     await userEvent.type(screen.getByLabelText(/Search by name/), 'apul');
@@ -422,7 +441,11 @@ describe('the focus view', () => {
     await screen.findByRole('heading', { name: 'Battle of Marathon' });
     await userEvent.click(screen.getByRole('tab', { name: /Inscriptions & Papyri \(1\)/ }));
     // the card leads with the edition or the type, never the internal id
-    expect(screen.getByRole('link', { name: 'Document' })).toHaveAttribute('href', DETAIL.documents[0].view_url);
+    expect(screen.getByRole('link', { name: 'Corpus Inscriptionum Latinarum (CIL) 11, 01923' }))
+      .toHaveAttribute('href', DETAIL.documents[0].view_url);
+    // the text of the inscription itself, with the word that names the place marked
+    const mark = screen.getByText('Perusia', { selector: 'mark' });
+    expect(mark.parentElement.textContent).toBe('Augusto / sacrum / Perusia restituta.');
     expect(screen.queryByText('edh:HD1')).toBeNull();
     expect(screen.getByText(/12 km from Marathon/)).toBeTruthy();
     expect(screen.getByText(/Rhamnous · 500 to 450 BCE/)).toBeTruthy();
@@ -522,37 +545,29 @@ describe('the focus view', () => {
     expect(await screen.findByText(/not in the dossiers/)).toBeTruthy();
   });
 
-  it('hides the Scholarship tab when Scholarship is off, and the documents tab when both are', async () => {
+  it('shows every tab whatever the collection switches say (2026-10-20)', async () => {
     setCollection('scholarship', false);
+    setCollection('inscriptions', false);
+    setCollection('papyri', false);
     mockApi();
-    const { unmount } = render(<EventsPage setPageType={() => {}} />);
-    await screen.findByRole('heading', { name: 'Battle of Marathon' });
-    expect(screen.queryByRole('tab', { name: /Scholarship/ })).toBeNull();
-    expect(screen.getByRole('tab', { name: /Inscriptions/ })).toBeTruthy();
-    unmount();
-    setCollection('scholarship', true);
     render(<EventsPage setPageType={() => {}} />);
     await screen.findByRole('heading', { name: 'Battle of Marathon' });
     expect(screen.getByRole('tab', { name: /Scholarship/ })).toBeTruthy();
-    cleanup();
-    // Events need the documents: with inscriptions and papyri off the page
-    // sends the visitor back to Search, scholarship or not (2026-10-10)
-    setCollection('inscriptions', false);
-    setCollection('papyri', false);
-    const back = vi.fn();
-    render(<EventsPage setPageType={back} />);
-    await waitFor(() => expect(back).toHaveBeenCalledWith('search'));
+    expect(screen.getByRole('tab', { name: /Inscriptions/ })).toBeTruthy();
+    setCollection('scholarship', true);
+    setCollection('inscriptions', true);
+    setCollection('papyri', true);
   });
 });
 
 describe('the Collections gate', () => {
-  it('sends a Literary visitor to Search and shows nothing', async () => {
+  it('opens for a Literary visitor too (the menu lists it in every view)', async () => {
     setProfile('literary');
     mockApi();
     const setPageType = vi.fn();
-    const { container } = render(<EventsPage setPageType={setPageType} />);
-    await waitFor(() => expect(setPageType).toHaveBeenCalledWith('search'));
-    expect(container.textContent).toBe('');
+    render(<EventsPage setPageType={setPageType} />);
+    expect(await screen.findByText('Battle of Marathon')).toBeTruthy();
+    expect(setPageType).not.toHaveBeenCalledWith('search');
   });
 
   it('opens for the Historical and Everything profiles', async () => {

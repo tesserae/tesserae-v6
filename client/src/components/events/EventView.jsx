@@ -2,12 +2,12 @@ import { useEffect, useMemo, useState } from 'react';
 import { LoadingSpinner, InfoBadge } from '../common';
 import CiteRecordButton from '../common/CiteRecordButton';
 import { recordFrom } from '../../utils/citations';
-import useCollections from '../../hooks/useCollections';
 import { bareLocus } from '../reader/refId';
 import { useCorpusTextMap } from '../../utils/textNames';
 import EventMap from './EventMap';
 import { dateLabel, kmLabel, readerLinkWithBack, shortPassageRef, workHeading } from './eventsFormat';
 import AboutSourcesLink from '../scholarship/AboutSourcesLink';
+import { expandEditions } from '../../utils/editionNames';
 
 const LABEL_TEXT = {
   yes: ['Narrative', 'An offline language model judged that this passage is a narrative of the event itself.'],
@@ -84,12 +84,33 @@ const DOCUMENT_GROUPS = [
   ['dated', "Dated within the event's years, nearest first"],
 ];
 
+/** A word as the Mentions store spells its forms: lower case, accents off, v as u, j as i. */
+function foldForm(w) {
+  return String(w || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
+    .replace(/v/g, 'u').replace(/j/g, 'i').replace(/[^a-zα-ω]/g, '');
+}
+
+/**
+ * The document's text with the words that name a participant or the place marked
+ * (the project lead, 2026-10-20: "matching words should be highlighted"). The forms
+ * come from the Mentions store, which records the word that matched in each document.
+ */
+export function HighlightedText({ text, forms }) {
+  const want = new Set((forms || []).map(foldForm).filter(Boolean));
+  if (!want.size) return text;
+  return String(text).split(/(\s+|[/·,.;:()[\]]+)/).map((part, i) => (
+    want.has(foldForm(part))
+      ? <mark key={i} className="bg-amber-100 text-gray-900 rounded px-0.5">{part}</mark>
+      : part
+  ));
+}
+
 function DocumentCard({ d, event }) {
   return (
     <li className="bg-white border border-gray-200 rounded-lg p-3">
       <div className="flex flex-wrap items-center gap-2 text-sm">
         <a href={d.view_url} className="text-red-700 hover:underline font-medium">
-          {d.edition || d.text_type || 'Document'}
+          {expandEditions(d.edition) || d.text_type || 'Document'}
         </a>
         <span className="text-xs text-gray-500" title="The record number of this document in its database">
           Record {String(d.doc_id).replace(/^[a-z]+:/i, '')}
@@ -106,7 +127,12 @@ function DocumentCard({ d, event }) {
           <span className="ml-auto text-xs text-gray-500">{kmLabel(d.distance_km)} from {event.place || 'the event'}</span>
         )}
       </div>
-      {d.text_snippet && <p className="text-sm text-gray-700 mt-1">{d.text_snippet}</p>}
+      {d.text && (
+        <p className="font-serif text-base text-gray-900 mt-1.5" lang={d.language === 'grc' ? 'grc' : 'la'}>
+          <HighlightedText text={d.text} forms={d.matched_forms} />
+        </p>
+      )}
+      {d.text_snippet && <p className="text-xs text-gray-500 mt-1">{d.text_snippet}</p>}
     </li>
   );
 }
@@ -268,7 +294,6 @@ function ScholarshipTab({ items, openPassage, ranks }) {
 
 /** One event: header, then Passages, Inscriptions & Papyri, Scholarship and Map tabs. */
 export default function EventView({ id, goList }) {
-  const { anyOn } = useCollections();
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
   const [tab, setTab] = useState('passages');
@@ -291,8 +316,11 @@ export default function EventView({ id, goList }) {
 
   const tabs = [
     ['passages', 'Passages', true],
-    ['documents', 'Inscriptions & Papyri', anyOn(['inscriptions', 'papyri'])],
-    ['scholarship', 'Scholarship', anyOn(['scholarship'])],
+    // Every tab shows in every view (the project lead, 2026-10-20): an event page is
+    // opened on purpose, and with the Literature view's collections off it had kept
+    // only its passages. The collection switches still decide what a search covers.
+    ['documents', 'Inscriptions & Papyri', true],
+    ['scholarship', 'Scholarship', true],
     ['map', 'Map', true],
   ].filter((t) => t[2]);
 
@@ -313,7 +341,12 @@ export default function EventView({ id, goList }) {
   }
 
   const ev = data.event;
-  const counts = { passages: data.passages.length, documents: data.documents.length, scholarship: data.scholarship.length };
+  // A response without one of the lists (an older server, a partial answer) shows
+  // that tab empty rather than breaking the page.
+  const passages = data.passages || [];
+  const documents = data.documents || [];
+  const scholarship = data.scholarship || [];
+  const counts = { passages: passages.length, documents: documents.length, scholarship: scholarship.length };
   return (
     <div className="max-w-4xl mx-auto px-4 py-6">
       {back}
@@ -349,10 +382,10 @@ export default function EventView({ id, goList }) {
         ))}
       </div>
       <div className="mt-4">
-        {tab === 'passages' && <PassagesTab passages={data.passages} counts={data.passage_counts} event={ev} focusRank={focusRank} />}
-        {tab === 'documents' && <DocumentsTab documents={data.documents} event={ev} />}
-        {tab === 'scholarship' && <ScholarshipTab items={data.scholarship} openPassage={openPassage} ranks={new Set(data.passages.map((p) => p.rank))} />}
-        {tab === 'map' && <EventMap points={data.map} />}
+        {tab === 'passages' && <PassagesTab passages={passages} counts={data.passage_counts} event={ev} focusRank={focusRank} />}
+        {tab === 'documents' && <DocumentsTab documents={documents} event={ev} />}
+        {tab === 'scholarship' && <ScholarshipTab items={scholarship} openPassage={openPassage} ranks={new Set(passages.map((p) => p.rank))} />}
+        {tab === 'map' && <EventMap points={data.map || []} />}
       </div>
     </div>
   );

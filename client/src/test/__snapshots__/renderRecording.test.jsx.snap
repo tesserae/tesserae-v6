@@ -1977,7 +1977,7 @@ exports[`App render recording > page /browse 1`] = `
 </div>"
 `;
 
-exports[`App render recording > page /coins > address after load 1`] = `"/"`;
+exports[`App render recording > page /coins > address after load 1`] = `"/coins"`;
 
 exports[`App render recording > page /coins 1`] = `
 "<div class="min-h-screen bg-gray-100">
@@ -2029,11 +2029,11 @@ exports[`App render recording > page /coins 1`] = `
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Search One Text<span class="ml-1 relative -top-1 inline-block leading-none text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
 </button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold" aria-current="page">Intertextual Search</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertextual Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
 <div class="relative">
-<button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">People, Places &amp; Things <span aria-hidden="true">▾</span>
+<button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold">People, Places &amp; Things <span aria-hidden="true">▾</span>
 </button>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
@@ -2045,154 +2045,72 @@ exports[`App render recording > page /coins 1`] = `
 </div>
 </div>
 </div>
-<div class="py-2 border-t">
-<div data-more="false" class="scroll-hint flex overflow-x-auto scrollbar-hide -mx-3 px-3 sm:mx-0 sm:px-0">
-<button aria-current="true" class="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-t whitespace-nowrap bg-white text-red-700 border-t border-l border-r border-gray-200">Latin</button>
-<button class="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-t whitespace-nowrap text-gray-600 hover:text-red-600">Greek</button>
-<button class="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-t whitespace-nowrap text-gray-600 hover:text-red-600">English</button>
-<button class="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-t whitespace-nowrap text-gray-600 hover:text-red-600">Coptic</button>
-<button class="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-t whitespace-nowrap text-gray-600 hover:text-red-600">Cross-Language</button>
-<label class="flex items-center gap-1.5 text-xs text-gray-500 whitespace-nowrap ml-auto pl-3 shrink-0 self-center" title="Kept in this browser only. A link that names a language still opens in it.">Open in<select aria-label="Language the site opens in" class="border border-gray-200 rounded px-1.5 py-0.5 text-xs text-gray-700 bg-white">
-<option value="last">the language I used last</option>
-<option value="la">Latin</option>
-<option value="grc">Greek</option>
-<option value="en">English</option>
-<option value="cop">Coptic</option>
-</select>
-</label>
-</div>
-</div>
 </div>
 </nav>
 <main class="max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-6">
-<section aria-labelledby="start-here-heading" class="bg-white border border-gray-200 rounded-lg shadow-sm px-4 py-3 mb-4">
-<div class="flex items-baseline justify-between gap-3 mb-1.5">
-<h2 id="start-here-heading" class="text-sm font-semibold text-gray-700">What are you trying to do?</h2>
-<button type="button" class="text-xs text-gray-500 hover:text-red-700 hover:underline">Skip</button>
-</div>
-<ul class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-0.5">
-<li>
-<a href="/ask-a-work" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Search One Text:</span> <span>what one work says about a subject, in plain words</span>
-</a>
-</li>
-<li>
-<a href="/?tab=parallel" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Phrase Search:</span> <span>the phrases two works share, ranked by how distinctive they are</span>
-</a>
-</li>
-<li>
-<a href="/?tab=line" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Line Search:</span> <span>every line in the corpus where a phrase or a pair of words occurs</span>
-</a>
-</li>
-<li>
-<a href="/?tab=hapax" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Rare Words:</span> <span>the rare words and word pairs two works share</span>
-</a>
-</li>
-<li>
-<a href="/theme-search" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Theme Search:</span> <span>passages on a subject you describe in your own words, in any of the corpus languages</span>
-</a>
-</li>
-<li>
-<a href="/read" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Reader:</span> <span>read a text with its echoes, translations and scholarship beside each passage</span>
-</a>
-</li>
-<li>
-<a href="/mentions" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">People &amp; Places:</span> <span>every line where a person, place or god is named, in Latin, Greek and English</span>
-</a>
-</li>
-<li>
-<a href="/inscriptions-papyri?profile=everything" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Collections:</span> <span>inscriptions, papyri, events, coins and museum objects, switched on from the top row</span>
-</a>
-</li>
-</ul>
-</section>
-<div class="space-y-6">
-<div class="bg-white rounded-lg shadow p-4 sm:p-6">
-<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-<div class="flex items-center gap-4">
-<h2 class="text-xl font-semibold text-gray-900">Search Latin Texts</h2>
-<button class="text-sm text-gray-600 hover:text-red-700 underline">Saved Searches (0)</button>
-<button class="text-sm flex items-center gap-1 text-gray-500 hover:text-red-600" title="Copy a link that reproduces this search">
-<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z">
-</path>
-</svg>Share</button>
-</div>
-</div>
-<div class="mb-6">
-<div class="flex flex-wrap items-center gap-1 bg-gray-100 p-1 rounded-lg">
-<button class="px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm font-medium rounded bg-white shadow text-red-700">Phrases</button>
-<button class="px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm font-medium rounded text-gray-600 hover:text-gray-800">Lines</button>
-<button class="px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm font-medium rounded text-gray-600 hover:text-gray-800">String Search</button>
-<button class="px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm font-medium rounded text-gray-600 hover:text-gray-800">Rare Pairs</button>
-<button class="px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm font-medium rounded text-gray-600 hover:text-gray-800">Rare Words</button>
-</div>
-<div class="rounded border border-gray-200 bg-white text-xs text-gray-600 mt-2" data-testid="scope-box-parallel">
+<div class="max-w-5xl mx-auto px-4 py-6">
+<h2 class="text-2xl font-bold text-gray-900">Coins</h2>
+<p class="text-sm text-gray-600 mt-1 mb-4">Greek and Roman coin types, searchable by inscription and by the catalogue's description of what each side shows. The catalogues are listed under What this search does. In testing.</p>
+<div class="rounded border border-gray-200 bg-white text-xs text-gray-600 mb-4" data-testid="scope-box-coins">
 <div class="flex items-center gap-2 px-3 py-1.5">
-<p class="min-w-0 flex-1 truncate" title="You set only the texts to compare; the search finds the most similar phrases between them, based on a variety of similarity types.">
-<span class="font-semibold text-gray-700">What this search does.</span> You set only the texts to compare; the search finds the most similar phrases between them, based on a variety of similarity types.</p>
-<button type="button" aria-expanded="false" aria-controls="scope-panel-parallel" class="shrink-0 text-red-700 hover:underline">Details</button>
+<p class="min-w-0 flex-1 truncate" title="Searches the legends and catalogue descriptions of Greek and Roman coin types.">
+<span class="font-semibold text-gray-700">What this search does.</span> Searches the legends and catalogue descriptions of Greek and Roman coin types.</p>
+<button type="button" aria-expanded="false" aria-controls="scope-panel-coins" class="shrink-0 text-red-700 hover:underline">Details</button>
 </div>
 </div>
+<form class="bg-white border border-gray-200 rounded-lg p-3 space-y-3">
+<div class="flex flex-wrap gap-2 items-end">
+<label class="flex-1 min-w-[12rem] text-xs text-gray-600">Search legends and descriptions<input placeholder="capricorn" class="mt-1 block w-full border border-gray-300 rounded px-2 py-1.5 text-sm text-gray-900" value="">
+</label>
+<button type="submit" class="px-3 py-1.5 text-sm rounded bg-red-700 text-white hover:bg-red-800">Search</button>
 </div>
-<div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
-<div class="space-y-3">
-<div>
-<label class="block text-sm font-medium text-gray-700 mb-1">Source Author</label>
-<select class="sm:hidden w-full border rounded px-2 py-2 text-sm">
-<option value="">Select author...</option>
+<div class="flex flex-wrap gap-2 items-end">
+<label class="text-xs text-gray-600">Authority<select aria-label="Authority" class="mt-1 block max-w-[14rem] border border-gray-300 rounded px-2 py-1.5 text-sm text-gray-900">
+<option value="">Any</option>
 </select>
-<div class="relative hidden sm:block">
-<input type="text" role="combobox" aria-label="Source author" aria-expanded="false" aria-controls=":rID:-listbox" aria-autocomplete="list" placeholder="Select author..." class="w-full border rounded px-2 py-2 text-sm pr-7 focus:outline-none focus:ring-1 focus:ring-red-600" value="">
-<button type="button" tabindex="-1" class="absolute right-1.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-auto">
-<svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-<path d="M2.5 4.5L6 8l3.5-3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-</path>
-</svg>
-</button>
-</div>
-</div>
-</div>
-<div class="space-y-3">
-<div>
-<label class="block text-sm font-medium text-gray-700 mb-1">Target Author</label>
-<select class="sm:hidden w-full border rounded px-2 py-2 text-sm">
-<option value="">Select author...</option>
+</label>
+<label class="text-xs text-gray-600">Mint<select aria-label="Mint" class="mt-1 block max-w-[14rem] border border-gray-300 rounded px-2 py-1.5 text-sm text-gray-900">
+<option value="">Any</option>
 </select>
-<div class="relative hidden sm:block">
-<input type="text" role="combobox" aria-label="Target author" aria-expanded="false" aria-controls=":rID:-listbox" aria-autocomplete="list" placeholder="Select author..." class="w-full border rounded px-2 py-2 text-sm pr-7 focus:outline-none focus:ring-1 focus:ring-red-600" value="">
-<button type="button" tabindex="-1" class="absolute right-1.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-auto">
-<svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-<path d="M2.5 4.5L6 8l3.5-3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-</path>
-</svg>
-</button>
+</label>
+<label class="text-xs text-gray-600">Denomination<select aria-label="Denomination" class="mt-1 block max-w-[14rem] border border-gray-300 rounded px-2 py-1.5 text-sm text-gray-900">
+<option value="">Any</option>
+</select>
+</label>
+<label class="text-xs text-gray-600">Material<select aria-label="Material" class="mt-1 block max-w-[14rem] border border-gray-300 rounded px-2 py-1.5 text-sm text-gray-900">
+<option value="">Any</option>
+</select>
+</label>
+<label class="text-xs text-gray-600">Source<select aria-label="Source" class="mt-1 block max-w-[14rem] border border-gray-300 rounded px-2 py-1.5 text-sm text-gray-900">
+<option value="">Any</option>
+</select>
+</label>
+<label class="text-xs text-gray-600">From<span class="mt-1 flex gap-1">
+<input inputmode="numeric" placeholder="year" aria-label="From" class="w-20 border border-gray-300 rounded px-2 py-1.5 text-sm text-gray-900" value="">
+<select aria-label="From era" class="border border-gray-300 rounded px-1 py-1.5 text-sm text-gray-900">
+<option value="BCE">BCE</option>
+<option value="CE">CE</option>
+</select>
+</span>
+</label>
+<label class="text-xs text-gray-600">To<span class="mt-1 flex gap-1">
+<input inputmode="numeric" placeholder="year" aria-label="To" class="w-20 border border-gray-300 rounded px-2 py-1.5 text-sm text-gray-900" value="">
+<select aria-label="To era" class="border border-gray-300 rounded px-1 py-1.5 text-sm text-gray-900">
+<option value="BCE">BCE</option>
+<option value="CE">CE</option>
+</select>
+</span>
+</label>
+<label class="text-xs text-gray-600">Order<select aria-label="Order" class="mt-1 block border border-gray-300 rounded px-2 py-1.5 text-sm text-gray-900">
+<option value="">Date</option>
+</select>
+</label>
 </div>
-</div>
-</div>
-</div>
-<div class="bg-gray-50 rounded-lg p-4">
-<div class="flex justify-between items-center mb-3">
-<h4 class="font-medium text-gray-900">Search Settings</h4>
-<button class="text-sm text-red-600 hover:text-red-800">Show Advanced</button>
-</div>
-<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-<div>
-<label class="block text-sm font-medium text-gray-700 mb-1">Search Method</label>
-<p class="w-full border rounded px-2 py-2 text-base sm:text-sm bg-gray-50 text-gray-800">Fusion — all channels</p>
-<p class="text-xs text-gray-500 mt-1">Runs all eleven channels with weighted scoring. Best recall but slower. Large text comparisons (e.g., full Aeneid vs. Metamorphoses) may take up to 15 minutes on first run; subsequent searches are cached.</p>
-</div>
-</div>
-</div>
-<div class="flex flex-col items-center mt-6 gap-1">
-<button class="px-6 py-2 bg-red-700 text-white rounded-lg hover:bg-red-800 disabled:opacity-50 disabled:cursor-not-allowed">Find Parallels</button>
+</form>
+<div class="mt-4">
+<p class="text-xs text-gray-500 mb-2" data-testid="coins-total">0 coin types</p>
+<p class="text-sm text-gray-600 bg-white border border-gray-200 rounded-lg p-4">No coin type matches. Try a shorter word or clear the filters.</p>
+<div class="space-y-3">
 </div>
 </div>
 </div>
@@ -2205,7 +2123,7 @@ exports[`App render recording > page /coins 1`] = `
 </div>"
 `;
 
-exports[`App render recording > page /coins/c1 > address after load 1`] = `"/"`;
+exports[`App render recording > page /coins/c1 > address after load 1`] = `"/coins/c1"`;
 
 exports[`App render recording > page /coins/c1 1`] = `
 "<div class="min-h-screen bg-gray-100">
@@ -2257,11 +2175,11 @@ exports[`App render recording > page /coins/c1 1`] = `
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Search One Text<span class="ml-1 relative -top-1 inline-block leading-none text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
 </button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold" aria-current="page">Intertextual Search</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertextual Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
 <div class="relative">
-<button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">People, Places &amp; Things <span aria-hidden="true">▾</span>
+<button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold">People, Places &amp; Things <span aria-hidden="true">▾</span>
 </button>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
@@ -2273,156 +2191,12 @@ exports[`App render recording > page /coins/c1 1`] = `
 </div>
 </div>
 </div>
-<div class="py-2 border-t">
-<div data-more="false" class="scroll-hint flex overflow-x-auto scrollbar-hide -mx-3 px-3 sm:mx-0 sm:px-0">
-<button aria-current="true" class="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-t whitespace-nowrap bg-white text-red-700 border-t border-l border-r border-gray-200">Latin</button>
-<button class="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-t whitespace-nowrap text-gray-600 hover:text-red-600">Greek</button>
-<button class="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-t whitespace-nowrap text-gray-600 hover:text-red-600">English</button>
-<button class="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-t whitespace-nowrap text-gray-600 hover:text-red-600">Coptic</button>
-<button class="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-t whitespace-nowrap text-gray-600 hover:text-red-600">Cross-Language</button>
-<label class="flex items-center gap-1.5 text-xs text-gray-500 whitespace-nowrap ml-auto pl-3 shrink-0 self-center" title="Kept in this browser only. A link that names a language still opens in it.">Open in<select aria-label="Language the site opens in" class="border border-gray-200 rounded px-1.5 py-0.5 text-xs text-gray-700 bg-white">
-<option value="last">the language I used last</option>
-<option value="la">Latin</option>
-<option value="grc">Greek</option>
-<option value="en">English</option>
-<option value="cop">Coptic</option>
-</select>
-</label>
-</div>
-</div>
 </div>
 </nav>
 <main class="max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-6">
-<section aria-labelledby="start-here-heading" class="bg-white border border-gray-200 rounded-lg shadow-sm px-4 py-3 mb-4">
-<div class="flex items-baseline justify-between gap-3 mb-1.5">
-<h2 id="start-here-heading" class="text-sm font-semibold text-gray-700">What are you trying to do?</h2>
-<button type="button" class="text-xs text-gray-500 hover:text-red-700 hover:underline">Skip</button>
-</div>
-<ul class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-0.5">
-<li>
-<a href="/ask-a-work" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Search One Text:</span> <span>what one work says about a subject, in plain words</span>
-</a>
-</li>
-<li>
-<a href="/?tab=parallel" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Phrase Search:</span> <span>the phrases two works share, ranked by how distinctive they are</span>
-</a>
-</li>
-<li>
-<a href="/?tab=line" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Line Search:</span> <span>every line in the corpus where a phrase or a pair of words occurs</span>
-</a>
-</li>
-<li>
-<a href="/?tab=hapax" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Rare Words:</span> <span>the rare words and word pairs two works share</span>
-</a>
-</li>
-<li>
-<a href="/theme-search" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Theme Search:</span> <span>passages on a subject you describe in your own words, in any of the corpus languages</span>
-</a>
-</li>
-<li>
-<a href="/read" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Reader:</span> <span>read a text with its echoes, translations and scholarship beside each passage</span>
-</a>
-</li>
-<li>
-<a href="/mentions" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">People &amp; Places:</span> <span>every line where a person, place or god is named, in Latin, Greek and English</span>
-</a>
-</li>
-<li>
-<a href="/inscriptions-papyri?profile=everything" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Collections:</span> <span>inscriptions, papyri, events, coins and museum objects, switched on from the top row</span>
-</a>
-</li>
-</ul>
-</section>
-<div class="space-y-6">
-<div class="bg-white rounded-lg shadow p-4 sm:p-6">
-<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-<div class="flex items-center gap-4">
-<h2 class="text-xl font-semibold text-gray-900">Search Latin Texts</h2>
-<button class="text-sm text-gray-600 hover:text-red-700 underline">Saved Searches (0)</button>
-<button class="text-sm flex items-center gap-1 text-gray-500 hover:text-red-600" title="Copy a link that reproduces this search">
-<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z">
-</path>
-</svg>Share</button>
-</div>
-</div>
-<div class="mb-6">
-<div class="flex flex-wrap items-center gap-1 bg-gray-100 p-1 rounded-lg">
-<button class="px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm font-medium rounded bg-white shadow text-red-700">Phrases</button>
-<button class="px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm font-medium rounded text-gray-600 hover:text-gray-800">Lines</button>
-<button class="px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm font-medium rounded text-gray-600 hover:text-gray-800">String Search</button>
-<button class="px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm font-medium rounded text-gray-600 hover:text-gray-800">Rare Pairs</button>
-<button class="px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm font-medium rounded text-gray-600 hover:text-gray-800">Rare Words</button>
-</div>
-<div class="rounded border border-gray-200 bg-white text-xs text-gray-600 mt-2" data-testid="scope-box-parallel">
-<div class="flex items-center gap-2 px-3 py-1.5">
-<p class="min-w-0 flex-1 truncate" title="You set only the texts to compare; the search finds the most similar phrases between them, based on a variety of similarity types.">
-<span class="font-semibold text-gray-700">What this search does.</span> You set only the texts to compare; the search finds the most similar phrases between them, based on a variety of similarity types.</p>
-<button type="button" aria-expanded="false" aria-controls="scope-panel-parallel" class="shrink-0 text-red-700 hover:underline">Details</button>
-</div>
-</div>
-</div>
-<div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
-<div class="space-y-3">
-<div>
-<label class="block text-sm font-medium text-gray-700 mb-1">Source Author</label>
-<select class="sm:hidden w-full border rounded px-2 py-2 text-sm">
-<option value="">Select author...</option>
-</select>
-<div class="relative hidden sm:block">
-<input type="text" role="combobox" aria-label="Source author" aria-expanded="false" aria-controls=":rID:-listbox" aria-autocomplete="list" placeholder="Select author..." class="w-full border rounded px-2 py-2 text-sm pr-7 focus:outline-none focus:ring-1 focus:ring-red-600" value="">
-<button type="button" tabindex="-1" class="absolute right-1.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-auto">
-<svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-<path d="M2.5 4.5L6 8l3.5-3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-</path>
-</svg>
-</button>
-</div>
-</div>
-</div>
-<div class="space-y-3">
-<div>
-<label class="block text-sm font-medium text-gray-700 mb-1">Target Author</label>
-<select class="sm:hidden w-full border rounded px-2 py-2 text-sm">
-<option value="">Select author...</option>
-</select>
-<div class="relative hidden sm:block">
-<input type="text" role="combobox" aria-label="Target author" aria-expanded="false" aria-controls=":rID:-listbox" aria-autocomplete="list" placeholder="Select author..." class="w-full border rounded px-2 py-2 text-sm pr-7 focus:outline-none focus:ring-1 focus:ring-red-600" value="">
-<button type="button" tabindex="-1" class="absolute right-1.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-auto">
-<svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-<path d="M2.5 4.5L6 8l3.5-3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-</path>
-</svg>
-</button>
-</div>
-</div>
-</div>
-</div>
-<div class="bg-gray-50 rounded-lg p-4">
-<div class="flex justify-between items-center mb-3">
-<h4 class="font-medium text-gray-900">Search Settings</h4>
-<button class="text-sm text-red-600 hover:text-red-800">Show Advanced</button>
-</div>
-<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-<div>
-<label class="block text-sm font-medium text-gray-700 mb-1">Search Method</label>
-<p class="w-full border rounded px-2 py-2 text-base sm:text-sm bg-gray-50 text-gray-800">Fusion — all channels</p>
-<p class="text-xs text-gray-500 mt-1">Runs all eleven channels with weighted scoring. Best recall but slower. Large text comparisons (e.g., full Aeneid vs. Metamorphoses) may take up to 15 minutes on first run; subsequent searches are cached.</p>
-</div>
-</div>
-</div>
-<div class="flex flex-col items-center mt-6 gap-1">
-<button class="px-6 py-2 bg-red-700 text-white rounded-lg hover:bg-red-800 disabled:opacity-50 disabled:cursor-not-allowed">Find Parallels</button>
-</div>
-</div>
+<div class="max-w-3xl mx-auto px-4 py-6">
+<button type="button" class="text-sm text-red-700 hover:underline mb-3">All coins</button>
+<p class="text-sm text-red-700">Server answered 401</p>
 </div>
 </main>
 <footer class="bg-gray-100 border-t mt-8 py-4">
@@ -3466,7 +3240,7 @@ exports[`App render recording > page /downloads 1`] = `
 </div>"
 `;
 
-exports[`App render recording > page /events > address after load 1`] = `"/"`;
+exports[`App render recording > page /events > address after load 1`] = `"/events"`;
 
 exports[`App render recording > page /events 1`] = `
 "<div class="min-h-screen bg-gray-100">
@@ -3518,11 +3292,11 @@ exports[`App render recording > page /events 1`] = `
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Search One Text<span class="ml-1 relative -top-1 inline-block leading-none text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
 </button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold" aria-current="page">Intertextual Search</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertextual Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
 <div class="relative">
-<button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">People, Places &amp; Things <span aria-hidden="true">▾</span>
+<button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold">People, Places &amp; Things <span aria-hidden="true">▾</span>
 </button>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
@@ -3534,155 +3308,56 @@ exports[`App render recording > page /events 1`] = `
 </div>
 </div>
 </div>
-<div class="py-2 border-t">
-<div data-more="false" class="scroll-hint flex overflow-x-auto scrollbar-hide -mx-3 px-3 sm:mx-0 sm:px-0">
-<button aria-current="true" class="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-t whitespace-nowrap bg-white text-red-700 border-t border-l border-r border-gray-200">Latin</button>
-<button class="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-t whitespace-nowrap text-gray-600 hover:text-red-600">Greek</button>
-<button class="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-t whitespace-nowrap text-gray-600 hover:text-red-600">English</button>
-<button class="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-t whitespace-nowrap text-gray-600 hover:text-red-600">Coptic</button>
-<button class="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-t whitespace-nowrap text-gray-600 hover:text-red-600">Cross-Language</button>
-<label class="flex items-center gap-1.5 text-xs text-gray-500 whitespace-nowrap ml-auto pl-3 shrink-0 self-center" title="Kept in this browser only. A link that names a language still opens in it.">Open in<select aria-label="Language the site opens in" class="border border-gray-200 rounded px-1.5 py-0.5 text-xs text-gray-700 bg-white">
-<option value="last">the language I used last</option>
-<option value="la">Latin</option>
-<option value="grc">Greek</option>
-<option value="en">English</option>
-<option value="cop">Coptic</option>
-</select>
-</label>
-</div>
-</div>
 </div>
 </nav>
 <main class="max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-6">
-<section aria-labelledby="start-here-heading" class="bg-white border border-gray-200 rounded-lg shadow-sm px-4 py-3 mb-4">
-<div class="flex items-baseline justify-between gap-3 mb-1.5">
-<h2 id="start-here-heading" class="text-sm font-semibold text-gray-700">What are you trying to do?</h2>
-<button type="button" class="text-xs text-gray-500 hover:text-red-700 hover:underline">Skip</button>
-</div>
-<ul class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-0.5">
-<li>
-<a href="/ask-a-work" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Search One Text:</span> <span>what one work says about a subject, in plain words</span>
-</a>
-</li>
-<li>
-<a href="/?tab=parallel" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Phrase Search:</span> <span>the phrases two works share, ranked by how distinctive they are</span>
-</a>
-</li>
-<li>
-<a href="/?tab=line" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Line Search:</span> <span>every line in the corpus where a phrase or a pair of words occurs</span>
-</a>
-</li>
-<li>
-<a href="/?tab=hapax" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Rare Words:</span> <span>the rare words and word pairs two works share</span>
-</a>
-</li>
-<li>
-<a href="/theme-search" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Theme Search:</span> <span>passages on a subject you describe in your own words, in any of the corpus languages</span>
-</a>
-</li>
-<li>
-<a href="/read" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Reader:</span> <span>read a text with its echoes, translations and scholarship beside each passage</span>
-</a>
-</li>
-<li>
-<a href="/mentions" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">People &amp; Places:</span> <span>every line where a person, place or god is named, in Latin, Greek and English</span>
-</a>
-</li>
-<li>
-<a href="/inscriptions-papyri?profile=everything" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Collections:</span> <span>inscriptions, papyri, events, coins and museum objects, switched on from the top row</span>
-</a>
-</li>
-</ul>
-</section>
-<div class="space-y-6">
-<div class="bg-white rounded-lg shadow p-4 sm:p-6">
-<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-<div class="flex items-center gap-4">
-<h2 class="text-xl font-semibold text-gray-900">Search Latin Texts</h2>
-<button class="text-sm text-gray-600 hover:text-red-700 underline">Saved Searches (0)</button>
-<button class="text-sm flex items-center gap-1 text-gray-500 hover:text-red-600" title="Copy a link that reproduces this search">
-<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z">
-</path>
-</svg>Share</button>
-</div>
-</div>
-<div class="mb-6">
-<div class="flex flex-wrap items-center gap-1 bg-gray-100 p-1 rounded-lg">
-<button class="px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm font-medium rounded bg-white shadow text-red-700">Phrases</button>
-<button class="px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm font-medium rounded text-gray-600 hover:text-gray-800">Lines</button>
-<button class="px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm font-medium rounded text-gray-600 hover:text-gray-800">String Search</button>
-<button class="px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm font-medium rounded text-gray-600 hover:text-gray-800">Rare Pairs</button>
-<button class="px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm font-medium rounded text-gray-600 hover:text-gray-800">Rare Words</button>
-</div>
-<div class="rounded border border-gray-200 bg-white text-xs text-gray-600 mt-2" data-testid="scope-box-parallel">
+<div class="max-w-4xl mx-auto px-4 py-6">
+<h2 class="text-2xl font-bold text-gray-900">Events</h2>
+<p class="text-sm text-gray-600 mt-1 mb-4">Battles, sieges and treaties, each with the passages that tell of it, the inscriptions and papyri from nearby and from the same years, and the scholarship on those passages. In testing.</p>
+<div class="rounded border border-gray-200 bg-white text-xs text-gray-600 mb-4" data-testid="scope-box-events">
 <div class="flex items-center gap-2 px-3 py-1.5">
-<p class="min-w-0 flex-1 truncate" title="You set only the texts to compare; the search finds the most similar phrases between them, based on a variety of similarity types.">
-<span class="font-semibold text-gray-700">What this search does.</span> You set only the texts to compare; the search finds the most similar phrases between them, based on a variety of similarity types.</p>
-<button type="button" aria-expanded="false" aria-controls="scope-panel-parallel" class="shrink-0 text-red-700 hover:underline">Details</button>
+<p class="min-w-0 flex-1 truncate" title="Lists historical events with the passages that tell of them, the inscriptions and papyri from nearby and the scholarship.">
+<span class="font-semibold text-gray-700">What this search does.</span> Lists historical events with the passages that tell of them, the inscriptions and papyri from nearby and the scholarship.</p>
+<button type="button" aria-expanded="false" aria-controls="scope-panel-events" class="shrink-0 text-red-700 hover:underline">Details</button>
 </div>
 </div>
-</div>
-<div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
-<div class="space-y-3">
-<div>
-<label class="block text-sm font-medium text-gray-700 mb-1">Source Author</label>
-<select class="sm:hidden w-full border rounded px-2 py-2 text-sm">
-<option value="">Select author...</option>
-</select>
-<div class="relative hidden sm:block">
-<input type="text" role="combobox" aria-label="Source author" aria-expanded="false" aria-controls=":rID:-listbox" aria-autocomplete="list" placeholder="Select author..." class="w-full border rounded px-2 py-2 text-sm pr-7 focus:outline-none focus:ring-1 focus:ring-red-600" value="">
-<button type="button" tabindex="-1" class="absolute right-1.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-auto">
-<svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-<path d="M2.5 4.5L6 8l3.5-3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-</path>
-</svg>
+<form class="bg-white border border-gray-200 rounded-lg p-3 flex flex-wrap gap-2 items-end">
+<div class="flex-1 min-w-[12rem]">
+<div class="relative">
+<label class="block text-xs text-gray-600">Search by name or place<span class="relative mt-1 block">
+<input placeholder="Choose an event or type a name" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls=":rID:" class="block w-full border border-gray-300 rounded pl-2 pr-8 py-1.5 text-sm text-gray-900" value="">
+<button type="button" tabindex="-1" aria-label="Show the list of events" class="absolute inset-y-0 right-0 px-2 text-gray-500 hover:text-gray-800">
+<span aria-hidden="true">▾</span>
 </button>
+</span>
+</label>
+<ul id=":rID:" role="listbox" aria-label="Events" hidden="" class="absolute z-20 left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-96 overflow-auto">
+</ul>
 </div>
 </div>
-</div>
-<div class="space-y-3">
-<div>
-<label class="block text-sm font-medium text-gray-700 mb-1">Target Author</label>
-<select class="sm:hidden w-full border rounded px-2 py-2 text-sm">
-<option value="">Select author...</option>
+<label class="text-xs text-gray-600">Type<select class="mt-1 block border border-gray-300 rounded px-2 py-1.5 text-sm text-gray-900">
+<option value="">All types</option>
 </select>
-<div class="relative hidden sm:block">
-<input type="text" role="combobox" aria-label="Target author" aria-expanded="false" aria-controls=":rID:-listbox" aria-autocomplete="list" placeholder="Select author..." class="w-full border rounded px-2 py-2 text-sm pr-7 focus:outline-none focus:ring-1 focus:ring-red-600" value="">
-<button type="button" tabindex="-1" class="absolute right-1.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-auto">
-<svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-<path d="M2.5 4.5L6 8l3.5-3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-</path>
-</svg>
-</button>
-</div>
-</div>
-</div>
-</div>
-<div class="bg-gray-50 rounded-lg p-4">
-<div class="flex justify-between items-center mb-3">
-<h4 class="font-medium text-gray-900">Search Settings</h4>
-<button class="text-sm text-red-600 hover:text-red-800">Show Advanced</button>
-</div>
-<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-<div>
-<label class="block text-sm font-medium text-gray-700 mb-1">Search Method</label>
-<p class="w-full border rounded px-2 py-2 text-base sm:text-sm bg-gray-50 text-gray-800">Fusion — all channels</p>
-<p class="text-xs text-gray-500 mt-1">Runs all eleven channels with weighted scoring. Best recall but slower. Large text comparisons (e.g., full Aeneid vs. Metamorphoses) may take up to 15 minutes on first run; subsequent searches are cached.</p>
-</div>
-</div>
-</div>
-<div class="flex flex-col items-center mt-6 gap-1">
-<button class="px-6 py-2 bg-red-700 text-white rounded-lg hover:bg-red-800 disabled:opacity-50 disabled:cursor-not-allowed">Find Parallels</button>
-</div>
+</label>
+<label class="text-xs text-gray-600">Century<select class="mt-1 block border border-gray-300 rounded px-2 py-1.5 text-sm text-gray-900">
+<option value="">Any century</option>
+</select>
+</label>
+<label class="text-xs text-gray-600">Order<select aria-label="Order" class="mt-1 block border border-gray-300 rounded px-2 py-1.5 text-sm text-gray-900">
+<option value="name">Alphabetical</option>
+<option value="date">By date, earliest first</option>
+<option value="evidence">Most passages and documents</option>
+</select>
+</label>
+<button type="submit" class="px-3 py-1.5 text-sm rounded bg-red-700 text-white hover:bg-red-800">Search</button>
+<label class="w-full flex items-center gap-2 text-xs text-gray-600 pt-1">
+<input type="checkbox" class="rounded">Include events with no passages or documents</label>
+</form>
+<div class="mt-4">
+<p class="text-xs text-gray-500 mb-2" data-testid="events-total">0 events</p>
+<p class="text-sm text-gray-600 bg-white border border-gray-200 rounded-lg p-4">No event matches. Try a shorter name or clear the filters.</p>
+<ul class="space-y-2">
+</ul>
 </div>
 </div>
 </main>
@@ -3694,7 +3369,7 @@ exports[`App render recording > page /events 1`] = `
 </div>"
 `;
 
-exports[`App render recording > page /events/e1 > address after load 1`] = `"/"`;
+exports[`App render recording > page /events/e1 > address after load 1`] = `"/events/e1"`;
 
 exports[`App render recording > page /events/e1 1`] = `
 "<div class="min-h-screen bg-gray-100">
@@ -3746,11 +3421,11 @@ exports[`App render recording > page /events/e1 1`] = `
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Search One Text<span class="ml-1 relative -top-1 inline-block leading-none text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
 </button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold" aria-current="page">Intertextual Search</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertextual Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
 <div class="relative">
-<button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">People, Places &amp; Things <span aria-hidden="true">▾</span>
+<button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold">People, Places &amp; Things <span aria-hidden="true">▾</span>
 </button>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
@@ -3762,156 +3437,12 @@ exports[`App render recording > page /events/e1 1`] = `
 </div>
 </div>
 </div>
-<div class="py-2 border-t">
-<div data-more="false" class="scroll-hint flex overflow-x-auto scrollbar-hide -mx-3 px-3 sm:mx-0 sm:px-0">
-<button aria-current="true" class="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-t whitespace-nowrap bg-white text-red-700 border-t border-l border-r border-gray-200">Latin</button>
-<button class="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-t whitespace-nowrap text-gray-600 hover:text-red-600">Greek</button>
-<button class="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-t whitespace-nowrap text-gray-600 hover:text-red-600">English</button>
-<button class="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-t whitespace-nowrap text-gray-600 hover:text-red-600">Coptic</button>
-<button class="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-t whitespace-nowrap text-gray-600 hover:text-red-600">Cross-Language</button>
-<label class="flex items-center gap-1.5 text-xs text-gray-500 whitespace-nowrap ml-auto pl-3 shrink-0 self-center" title="Kept in this browser only. A link that names a language still opens in it.">Open in<select aria-label="Language the site opens in" class="border border-gray-200 rounded px-1.5 py-0.5 text-xs text-gray-700 bg-white">
-<option value="last">the language I used last</option>
-<option value="la">Latin</option>
-<option value="grc">Greek</option>
-<option value="en">English</option>
-<option value="cop">Coptic</option>
-</select>
-</label>
-</div>
-</div>
 </div>
 </nav>
 <main class="max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-6">
-<section aria-labelledby="start-here-heading" class="bg-white border border-gray-200 rounded-lg shadow-sm px-4 py-3 mb-4">
-<div class="flex items-baseline justify-between gap-3 mb-1.5">
-<h2 id="start-here-heading" class="text-sm font-semibold text-gray-700">What are you trying to do?</h2>
-<button type="button" class="text-xs text-gray-500 hover:text-red-700 hover:underline">Skip</button>
-</div>
-<ul class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-0.5">
-<li>
-<a href="/ask-a-work" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Search One Text:</span> <span>what one work says about a subject, in plain words</span>
-</a>
-</li>
-<li>
-<a href="/?tab=parallel" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Phrase Search:</span> <span>the phrases two works share, ranked by how distinctive they are</span>
-</a>
-</li>
-<li>
-<a href="/?tab=line" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Line Search:</span> <span>every line in the corpus where a phrase or a pair of words occurs</span>
-</a>
-</li>
-<li>
-<a href="/?tab=hapax" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Rare Words:</span> <span>the rare words and word pairs two works share</span>
-</a>
-</li>
-<li>
-<a href="/theme-search" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Theme Search:</span> <span>passages on a subject you describe in your own words, in any of the corpus languages</span>
-</a>
-</li>
-<li>
-<a href="/read" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Reader:</span> <span>read a text with its echoes, translations and scholarship beside each passage</span>
-</a>
-</li>
-<li>
-<a href="/mentions" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">People &amp; Places:</span> <span>every line where a person, place or god is named, in Latin, Greek and English</span>
-</a>
-</li>
-<li>
-<a href="/inscriptions-papyri?profile=everything" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Collections:</span> <span>inscriptions, papyri, events, coins and museum objects, switched on from the top row</span>
-</a>
-</li>
-</ul>
-</section>
-<div class="space-y-6">
-<div class="bg-white rounded-lg shadow p-4 sm:p-6">
-<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-<div class="flex items-center gap-4">
-<h2 class="text-xl font-semibold text-gray-900">Search Latin Texts</h2>
-<button class="text-sm text-gray-600 hover:text-red-700 underline">Saved Searches (0)</button>
-<button class="text-sm flex items-center gap-1 text-gray-500 hover:text-red-600" title="Copy a link that reproduces this search">
-<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z">
-</path>
-</svg>Share</button>
-</div>
-</div>
-<div class="mb-6">
-<div class="flex flex-wrap items-center gap-1 bg-gray-100 p-1 rounded-lg">
-<button class="px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm font-medium rounded bg-white shadow text-red-700">Phrases</button>
-<button class="px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm font-medium rounded text-gray-600 hover:text-gray-800">Lines</button>
-<button class="px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm font-medium rounded text-gray-600 hover:text-gray-800">String Search</button>
-<button class="px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm font-medium rounded text-gray-600 hover:text-gray-800">Rare Pairs</button>
-<button class="px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm font-medium rounded text-gray-600 hover:text-gray-800">Rare Words</button>
-</div>
-<div class="rounded border border-gray-200 bg-white text-xs text-gray-600 mt-2" data-testid="scope-box-parallel">
-<div class="flex items-center gap-2 px-3 py-1.5">
-<p class="min-w-0 flex-1 truncate" title="You set only the texts to compare; the search finds the most similar phrases between them, based on a variety of similarity types.">
-<span class="font-semibold text-gray-700">What this search does.</span> You set only the texts to compare; the search finds the most similar phrases between them, based on a variety of similarity types.</p>
-<button type="button" aria-expanded="false" aria-controls="scope-panel-parallel" class="shrink-0 text-red-700 hover:underline">Details</button>
-</div>
-</div>
-</div>
-<div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
-<div class="space-y-3">
-<div>
-<label class="block text-sm font-medium text-gray-700 mb-1">Source Author</label>
-<select class="sm:hidden w-full border rounded px-2 py-2 text-sm">
-<option value="">Select author...</option>
-</select>
-<div class="relative hidden sm:block">
-<input type="text" role="combobox" aria-label="Source author" aria-expanded="false" aria-controls=":rID:-listbox" aria-autocomplete="list" placeholder="Select author..." class="w-full border rounded px-2 py-2 text-sm pr-7 focus:outline-none focus:ring-1 focus:ring-red-600" value="">
-<button type="button" tabindex="-1" class="absolute right-1.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-auto">
-<svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-<path d="M2.5 4.5L6 8l3.5-3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-</path>
-</svg>
-</button>
-</div>
-</div>
-</div>
-<div class="space-y-3">
-<div>
-<label class="block text-sm font-medium text-gray-700 mb-1">Target Author</label>
-<select class="sm:hidden w-full border rounded px-2 py-2 text-sm">
-<option value="">Select author...</option>
-</select>
-<div class="relative hidden sm:block">
-<input type="text" role="combobox" aria-label="Target author" aria-expanded="false" aria-controls=":rID:-listbox" aria-autocomplete="list" placeholder="Select author..." class="w-full border rounded px-2 py-2 text-sm pr-7 focus:outline-none focus:ring-1 focus:ring-red-600" value="">
-<button type="button" tabindex="-1" class="absolute right-1.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-auto">
-<svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-<path d="M2.5 4.5L6 8l3.5-3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-</path>
-</svg>
-</button>
-</div>
-</div>
-</div>
-</div>
-<div class="bg-gray-50 rounded-lg p-4">
-<div class="flex justify-between items-center mb-3">
-<h4 class="font-medium text-gray-900">Search Settings</h4>
-<button class="text-sm text-red-600 hover:text-red-800">Show Advanced</button>
-</div>
-<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-<div>
-<label class="block text-sm font-medium text-gray-700 mb-1">Search Method</label>
-<p class="w-full border rounded px-2 py-2 text-base sm:text-sm bg-gray-50 text-gray-800">Fusion — all channels</p>
-<p class="text-xs text-gray-500 mt-1">Runs all eleven channels with weighted scoring. Best recall but slower. Large text comparisons (e.g., full Aeneid vs. Metamorphoses) may take up to 15 minutes on first run; subsequent searches are cached.</p>
-</div>
-</div>
-</div>
-<div class="flex flex-col items-center mt-6 gap-1">
-<button class="px-6 py-2 bg-red-700 text-white rounded-lg hover:bg-red-800 disabled:opacity-50 disabled:cursor-not-allowed">Find Parallels</button>
-</div>
-</div>
+<div class="max-w-4xl mx-auto px-4 py-6">
+<a href="/events" class="text-sm text-red-700 hover:underline">All events</a>
+<p class="mt-3 text-sm text-red-700">Server answered 401</p>
 </div>
 </main>
 <footer class="bg-gray-100 border-t mt-8 py-4">
@@ -4770,7 +4301,7 @@ exports[`App render recording > page /no-such-page 1`] = `
 </div>"
 `;
 
-exports[`App render recording > page /objects > address after load 1`] = `"/"`;
+exports[`App render recording > page /objects > address after load 1`] = `"/objects"`;
 
 exports[`App render recording > page /objects 1`] = `
 "<div class="min-h-screen bg-gray-100">
@@ -4822,11 +4353,11 @@ exports[`App render recording > page /objects 1`] = `
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Search One Text<span class="ml-1 relative -top-1 inline-block leading-none text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
 </button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold" aria-current="page">Intertextual Search</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertextual Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
 <div class="relative">
-<button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">People, Places &amp; Things <span aria-hidden="true">▾</span>
+<button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold">People, Places &amp; Things <span aria-hidden="true">▾</span>
 </button>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
@@ -4838,154 +4369,68 @@ exports[`App render recording > page /objects 1`] = `
 </div>
 </div>
 </div>
-<div class="py-2 border-t">
-<div data-more="false" class="scroll-hint flex overflow-x-auto scrollbar-hide -mx-3 px-3 sm:mx-0 sm:px-0">
-<button aria-current="true" class="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-t whitespace-nowrap bg-white text-red-700 border-t border-l border-r border-gray-200">Latin</button>
-<button class="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-t whitespace-nowrap text-gray-600 hover:text-red-600">Greek</button>
-<button class="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-t whitespace-nowrap text-gray-600 hover:text-red-600">English</button>
-<button class="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-t whitespace-nowrap text-gray-600 hover:text-red-600">Coptic</button>
-<button class="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-t whitespace-nowrap text-gray-600 hover:text-red-600">Cross-Language</button>
-<label class="flex items-center gap-1.5 text-xs text-gray-500 whitespace-nowrap ml-auto pl-3 shrink-0 self-center" title="Kept in this browser only. A link that names a language still opens in it.">Open in<select aria-label="Language the site opens in" class="border border-gray-200 rounded px-1.5 py-0.5 text-xs text-gray-700 bg-white">
-<option value="last">the language I used last</option>
-<option value="la">Latin</option>
-<option value="grc">Greek</option>
-<option value="en">English</option>
-<option value="cop">Coptic</option>
-</select>
-</label>
-</div>
-</div>
 </div>
 </nav>
 <main class="max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-6">
-<section aria-labelledby="start-here-heading" class="bg-white border border-gray-200 rounded-lg shadow-sm px-4 py-3 mb-4">
-<div class="flex items-baseline justify-between gap-3 mb-1.5">
-<h2 id="start-here-heading" class="text-sm font-semibold text-gray-700">What are you trying to do?</h2>
-<button type="button" class="text-xs text-gray-500 hover:text-red-700 hover:underline">Skip</button>
-</div>
-<ul class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-0.5">
-<li>
-<a href="/ask-a-work" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Search One Text:</span> <span>what one work says about a subject, in plain words</span>
-</a>
-</li>
-<li>
-<a href="/?tab=parallel" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Phrase Search:</span> <span>the phrases two works share, ranked by how distinctive they are</span>
-</a>
-</li>
-<li>
-<a href="/?tab=line" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Line Search:</span> <span>every line in the corpus where a phrase or a pair of words occurs</span>
-</a>
-</li>
-<li>
-<a href="/?tab=hapax" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Rare Words:</span> <span>the rare words and word pairs two works share</span>
-</a>
-</li>
-<li>
-<a href="/theme-search" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Theme Search:</span> <span>passages on a subject you describe in your own words, in any of the corpus languages</span>
-</a>
-</li>
-<li>
-<a href="/read" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Reader:</span> <span>read a text with its echoes, translations and scholarship beside each passage</span>
-</a>
-</li>
-<li>
-<a href="/mentions" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">People &amp; Places:</span> <span>every line where a person, place or god is named, in Latin, Greek and English</span>
-</a>
-</li>
-<li>
-<a href="/inscriptions-papyri?profile=everything" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Collections:</span> <span>inscriptions, papyri, events, coins and museum objects, switched on from the top row</span>
-</a>
-</li>
-</ul>
-</section>
-<div class="space-y-6">
-<div class="bg-white rounded-lg shadow p-4 sm:p-6">
-<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-<div class="flex items-center gap-4">
-<h2 class="text-xl font-semibold text-gray-900">Search Latin Texts</h2>
-<button class="text-sm text-gray-600 hover:text-red-700 underline">Saved Searches (0)</button>
-<button class="text-sm flex items-center gap-1 text-gray-500 hover:text-red-600" title="Copy a link that reproduces this search">
-<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z">
-</path>
-</svg>Share</button>
-</div>
-</div>
-<div class="mb-6">
-<div class="flex flex-wrap items-center gap-1 bg-gray-100 p-1 rounded-lg">
-<button class="px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm font-medium rounded bg-white shadow text-red-700">Phrases</button>
-<button class="px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm font-medium rounded text-gray-600 hover:text-gray-800">Lines</button>
-<button class="px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm font-medium rounded text-gray-600 hover:text-gray-800">String Search</button>
-<button class="px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm font-medium rounded text-gray-600 hover:text-gray-800">Rare Pairs</button>
-<button class="px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm font-medium rounded text-gray-600 hover:text-gray-800">Rare Words</button>
-</div>
-<div class="rounded border border-gray-200 bg-white text-xs text-gray-600 mt-2" data-testid="scope-box-parallel">
+<div class="max-w-5xl mx-auto px-4 py-6">
+<h2 class="text-2xl font-bold text-gray-900">Objects</h2>
+<p class="text-sm text-gray-600 mt-1 mb-4">Greek, Roman and Etruscan museum objects, searchable by the museums’ own catalogue descriptions. The museums are listed under What this search does. In testing.</p>
+<div class="rounded border border-gray-200 bg-white text-xs text-gray-600 mb-4" data-testid="scope-box-objects">
 <div class="flex items-center gap-2 px-3 py-1.5">
-<p class="min-w-0 flex-1 truncate" title="You set only the texts to compare; the search finds the most similar phrases between them, based on a variety of similarity types.">
-<span class="font-semibold text-gray-700">What this search does.</span> You set only the texts to compare; the search finds the most similar phrases between them, based on a variety of similarity types.</p>
-<button type="button" aria-expanded="false" aria-controls="scope-panel-parallel" class="shrink-0 text-red-700 hover:underline">Details</button>
+<p class="min-w-0 flex-1 truncate" title="Searches museum catalogue descriptions of Greek, Roman and Etruscan objects.">
+<span class="font-semibold text-gray-700">What this search does.</span> Searches museum catalogue descriptions of Greek, Roman and Etruscan objects.</p>
+<button type="button" aria-expanded="false" aria-controls="scope-panel-objects" class="shrink-0 text-red-700 hover:underline">Details</button>
 </div>
 </div>
+<form class="bg-white border border-gray-200 rounded-lg p-3 space-y-3">
+<div class="flex flex-wrap gap-2 items-end">
+<label class="flex-1 min-w-[12rem] text-xs text-gray-600">Search titles and descriptions<input placeholder="Amazons" class="mt-1 block w-full border border-gray-300 rounded px-2 py-1.5 text-sm text-gray-900" value="">
+</label>
+<button type="submit" class="px-3 py-1.5 text-sm rounded bg-red-700 text-white hover:bg-red-800">Search</button>
 </div>
-<div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
-<div class="space-y-3">
-<div>
-<label class="block text-sm font-medium text-gray-700 mb-1">Source Author</label>
-<select class="sm:hidden w-full border rounded px-2 py-2 text-sm">
-<option value="">Select author...</option>
+<div class="flex flex-wrap gap-2 items-end">
+<label class="text-xs text-gray-600">Museum<select aria-label="Museum" class="mt-1 block max-w-[14rem] border border-gray-300 rounded px-2 py-1.5 text-sm text-gray-900">
+<option value="">Any</option>
 </select>
-<div class="relative hidden sm:block">
-<input type="text" role="combobox" aria-label="Source author" aria-expanded="false" aria-controls=":rID:-listbox" aria-autocomplete="list" placeholder="Select author..." class="w-full border rounded px-2 py-2 text-sm pr-7 focus:outline-none focus:ring-1 focus:ring-red-600" value="">
-<button type="button" tabindex="-1" class="absolute right-1.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-auto">
-<svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-<path d="M2.5 4.5L6 8l3.5-3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-</path>
-</svg>
-</button>
-</div>
-</div>
-</div>
-<div class="space-y-3">
-<div>
-<label class="block text-sm font-medium text-gray-700 mb-1">Target Author</label>
-<select class="sm:hidden w-full border rounded px-2 py-2 text-sm">
-<option value="">Select author...</option>
+</label>
+<label class="text-xs text-gray-600">Object type<select aria-label="Object type" class="mt-1 block max-w-[14rem] border border-gray-300 rounded px-2 py-1.5 text-sm text-gray-900">
+<option value="">Any</option>
 </select>
-<div class="relative hidden sm:block">
-<input type="text" role="combobox" aria-label="Target author" aria-expanded="false" aria-controls=":rID:-listbox" aria-autocomplete="list" placeholder="Select author..." class="w-full border rounded px-2 py-2 text-sm pr-7 focus:outline-none focus:ring-1 focus:ring-red-600" value="">
-<button type="button" tabindex="-1" class="absolute right-1.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-auto">
-<svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-<path d="M2.5 4.5L6 8l3.5-3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-</path>
-</svg>
-</button>
+</label>
+<label class="text-xs text-gray-600">Culture<select aria-label="Culture" class="mt-1 block max-w-[14rem] border border-gray-300 rounded px-2 py-1.5 text-sm text-gray-900">
+<option value="">Any</option>
+</select>
+</label>
+<label class="text-xs text-gray-600">Material<select aria-label="Material" class="mt-1 block max-w-[14rem] border border-gray-300 rounded px-2 py-1.5 text-sm text-gray-900">
+<option value="">Any</option>
+</select>
+</label>
+<label class="text-xs text-gray-600">From<span class="mt-1 flex gap-1">
+<input inputmode="numeric" placeholder="year" aria-label="From" class="w-20 border border-gray-300 rounded px-2 py-1.5 text-sm text-gray-900" value="">
+<select aria-label="From era" class="border border-gray-300 rounded px-1 py-1.5 text-sm text-gray-900">
+<option value="BCE">BCE</option>
+<option value="CE">CE</option>
+</select>
+</span>
+</label>
+<label class="text-xs text-gray-600">To<span class="mt-1 flex gap-1">
+<input inputmode="numeric" placeholder="year" aria-label="To" class="w-20 border border-gray-300 rounded px-2 py-1.5 text-sm text-gray-900" value="">
+<select aria-label="To era" class="border border-gray-300 rounded px-1 py-1.5 text-sm text-gray-900">
+<option value="BCE">BCE</option>
+<option value="CE">CE</option>
+</select>
+</span>
+</label>
+<label class="text-xs text-gray-600">Order<select aria-label="Order" class="mt-1 block border border-gray-300 rounded px-2 py-1.5 text-sm text-gray-900">
+<option value="">Date</option>
+</select>
+</label>
 </div>
-</div>
-</div>
-</div>
-<div class="bg-gray-50 rounded-lg p-4">
-<div class="flex justify-between items-center mb-3">
-<h4 class="font-medium text-gray-900">Search Settings</h4>
-<button class="text-sm text-red-600 hover:text-red-800">Show Advanced</button>
-</div>
-<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-<div>
-<label class="block text-sm font-medium text-gray-700 mb-1">Search Method</label>
-<p class="w-full border rounded px-2 py-2 text-base sm:text-sm bg-gray-50 text-gray-800">Fusion — all channels</p>
-<p class="text-xs text-gray-500 mt-1">Runs all eleven channels with weighted scoring. Best recall but slower. Large text comparisons (e.g., full Aeneid vs. Metamorphoses) may take up to 15 minutes on first run; subsequent searches are cached.</p>
-</div>
-</div>
-</div>
-<div class="flex flex-col items-center mt-6 gap-1">
-<button class="px-6 py-2 bg-red-700 text-white rounded-lg hover:bg-red-800 disabled:opacity-50 disabled:cursor-not-allowed">Find Parallels</button>
+</form>
+<div class="mt-4">
+<p class="text-xs text-gray-500 mb-2" data-testid="objects-total">0 objects</p>
+<p class="text-sm text-gray-600 bg-white border border-gray-200 rounded-lg p-4">No object matches. Try a shorter word or clear the filters.</p>
+<div class="space-y-3">
 </div>
 </div>
 </div>
@@ -4998,7 +4443,7 @@ exports[`App render recording > page /objects 1`] = `
 </div>"
 `;
 
-exports[`App render recording > page /objects/o1 > address after load 1`] = `"/"`;
+exports[`App render recording > page /objects/o1 > address after load 1`] = `"/objects/o1"`;
 
 exports[`App render recording > page /objects/o1 1`] = `
 "<div class="min-h-screen bg-gray-100">
@@ -5050,11 +4495,11 @@ exports[`App render recording > page /objects/o1 1`] = `
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Search One Text<span class="ml-1 relative -top-1 inline-block leading-none text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
 </button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold" aria-current="page">Intertextual Search</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertextual Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
 <div class="relative">
-<button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">People, Places &amp; Things <span aria-hidden="true">▾</span>
+<button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold">People, Places &amp; Things <span aria-hidden="true">▾</span>
 </button>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
@@ -5066,156 +4511,12 @@ exports[`App render recording > page /objects/o1 1`] = `
 </div>
 </div>
 </div>
-<div class="py-2 border-t">
-<div data-more="false" class="scroll-hint flex overflow-x-auto scrollbar-hide -mx-3 px-3 sm:mx-0 sm:px-0">
-<button aria-current="true" class="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-t whitespace-nowrap bg-white text-red-700 border-t border-l border-r border-gray-200">Latin</button>
-<button class="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-t whitespace-nowrap text-gray-600 hover:text-red-600">Greek</button>
-<button class="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-t whitespace-nowrap text-gray-600 hover:text-red-600">English</button>
-<button class="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-t whitespace-nowrap text-gray-600 hover:text-red-600">Coptic</button>
-<button class="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-t whitespace-nowrap text-gray-600 hover:text-red-600">Cross-Language</button>
-<label class="flex items-center gap-1.5 text-xs text-gray-500 whitespace-nowrap ml-auto pl-3 shrink-0 self-center" title="Kept in this browser only. A link that names a language still opens in it.">Open in<select aria-label="Language the site opens in" class="border border-gray-200 rounded px-1.5 py-0.5 text-xs text-gray-700 bg-white">
-<option value="last">the language I used last</option>
-<option value="la">Latin</option>
-<option value="grc">Greek</option>
-<option value="en">English</option>
-<option value="cop">Coptic</option>
-</select>
-</label>
-</div>
-</div>
 </div>
 </nav>
 <main class="max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-6">
-<section aria-labelledby="start-here-heading" class="bg-white border border-gray-200 rounded-lg shadow-sm px-4 py-3 mb-4">
-<div class="flex items-baseline justify-between gap-3 mb-1.5">
-<h2 id="start-here-heading" class="text-sm font-semibold text-gray-700">What are you trying to do?</h2>
-<button type="button" class="text-xs text-gray-500 hover:text-red-700 hover:underline">Skip</button>
-</div>
-<ul class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-0.5">
-<li>
-<a href="/ask-a-work" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Search One Text:</span> <span>what one work says about a subject, in plain words</span>
-</a>
-</li>
-<li>
-<a href="/?tab=parallel" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Phrase Search:</span> <span>the phrases two works share, ranked by how distinctive they are</span>
-</a>
-</li>
-<li>
-<a href="/?tab=line" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Line Search:</span> <span>every line in the corpus where a phrase or a pair of words occurs</span>
-</a>
-</li>
-<li>
-<a href="/?tab=hapax" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Rare Words:</span> <span>the rare words and word pairs two works share</span>
-</a>
-</li>
-<li>
-<a href="/theme-search" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Theme Search:</span> <span>passages on a subject you describe in your own words, in any of the corpus languages</span>
-</a>
-</li>
-<li>
-<a href="/read" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Reader:</span> <span>read a text with its echoes, translations and scholarship beside each passage</span>
-</a>
-</li>
-<li>
-<a href="/mentions" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">People &amp; Places:</span> <span>every line where a person, place or god is named, in Latin, Greek and English</span>
-</a>
-</li>
-<li>
-<a href="/inscriptions-papyri?profile=everything" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Collections:</span> <span>inscriptions, papyri, events, coins and museum objects, switched on from the top row</span>
-</a>
-</li>
-</ul>
-</section>
-<div class="space-y-6">
-<div class="bg-white rounded-lg shadow p-4 sm:p-6">
-<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-<div class="flex items-center gap-4">
-<h2 class="text-xl font-semibold text-gray-900">Search Latin Texts</h2>
-<button class="text-sm text-gray-600 hover:text-red-700 underline">Saved Searches (0)</button>
-<button class="text-sm flex items-center gap-1 text-gray-500 hover:text-red-600" title="Copy a link that reproduces this search">
-<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z">
-</path>
-</svg>Share</button>
-</div>
-</div>
-<div class="mb-6">
-<div class="flex flex-wrap items-center gap-1 bg-gray-100 p-1 rounded-lg">
-<button class="px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm font-medium rounded bg-white shadow text-red-700">Phrases</button>
-<button class="px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm font-medium rounded text-gray-600 hover:text-gray-800">Lines</button>
-<button class="px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm font-medium rounded text-gray-600 hover:text-gray-800">String Search</button>
-<button class="px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm font-medium rounded text-gray-600 hover:text-gray-800">Rare Pairs</button>
-<button class="px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm font-medium rounded text-gray-600 hover:text-gray-800">Rare Words</button>
-</div>
-<div class="rounded border border-gray-200 bg-white text-xs text-gray-600 mt-2" data-testid="scope-box-parallel">
-<div class="flex items-center gap-2 px-3 py-1.5">
-<p class="min-w-0 flex-1 truncate" title="You set only the texts to compare; the search finds the most similar phrases between them, based on a variety of similarity types.">
-<span class="font-semibold text-gray-700">What this search does.</span> You set only the texts to compare; the search finds the most similar phrases between them, based on a variety of similarity types.</p>
-<button type="button" aria-expanded="false" aria-controls="scope-panel-parallel" class="shrink-0 text-red-700 hover:underline">Details</button>
-</div>
-</div>
-</div>
-<div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
-<div class="space-y-3">
-<div>
-<label class="block text-sm font-medium text-gray-700 mb-1">Source Author</label>
-<select class="sm:hidden w-full border rounded px-2 py-2 text-sm">
-<option value="">Select author...</option>
-</select>
-<div class="relative hidden sm:block">
-<input type="text" role="combobox" aria-label="Source author" aria-expanded="false" aria-controls=":rID:-listbox" aria-autocomplete="list" placeholder="Select author..." class="w-full border rounded px-2 py-2 text-sm pr-7 focus:outline-none focus:ring-1 focus:ring-red-600" value="">
-<button type="button" tabindex="-1" class="absolute right-1.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-auto">
-<svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-<path d="M2.5 4.5L6 8l3.5-3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-</path>
-</svg>
-</button>
-</div>
-</div>
-</div>
-<div class="space-y-3">
-<div>
-<label class="block text-sm font-medium text-gray-700 mb-1">Target Author</label>
-<select class="sm:hidden w-full border rounded px-2 py-2 text-sm">
-<option value="">Select author...</option>
-</select>
-<div class="relative hidden sm:block">
-<input type="text" role="combobox" aria-label="Target author" aria-expanded="false" aria-controls=":rID:-listbox" aria-autocomplete="list" placeholder="Select author..." class="w-full border rounded px-2 py-2 text-sm pr-7 focus:outline-none focus:ring-1 focus:ring-red-600" value="">
-<button type="button" tabindex="-1" class="absolute right-1.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-auto">
-<svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-<path d="M2.5 4.5L6 8l3.5-3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-</path>
-</svg>
-</button>
-</div>
-</div>
-</div>
-</div>
-<div class="bg-gray-50 rounded-lg p-4">
-<div class="flex justify-between items-center mb-3">
-<h4 class="font-medium text-gray-900">Search Settings</h4>
-<button class="text-sm text-red-600 hover:text-red-800">Show Advanced</button>
-</div>
-<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-<div>
-<label class="block text-sm font-medium text-gray-700 mb-1">Search Method</label>
-<p class="w-full border rounded px-2 py-2 text-base sm:text-sm bg-gray-50 text-gray-800">Fusion — all channels</p>
-<p class="text-xs text-gray-500 mt-1">Runs all eleven channels with weighted scoring. Best recall but slower. Large text comparisons (e.g., full Aeneid vs. Metamorphoses) may take up to 15 minutes on first run; subsequent searches are cached.</p>
-</div>
-</div>
-</div>
-<div class="flex flex-col items-center mt-6 gap-1">
-<button class="px-6 py-2 bg-red-700 text-white rounded-lg hover:bg-red-800 disabled:opacity-50 disabled:cursor-not-allowed">Find Parallels</button>
-</div>
-</div>
+<div class="max-w-3xl mx-auto px-4 py-6">
+<button type="button" class="text-sm text-red-700 hover:underline mb-3">All objects</button>
+<p class="text-sm text-red-700">Server answered 401</p>
 </div>
 </main>
 <footer class="bg-gray-100 border-t mt-8 py-4">

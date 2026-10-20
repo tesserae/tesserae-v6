@@ -1,7 +1,6 @@
 import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { dateLabel } from './eventsFormat';
 
-const MAX_SUGGESTIONS = 10;
 const BLUR_DELAY_MS = 150;
 
 // The names list is fetched once per page load and shared by every box.
@@ -24,13 +23,21 @@ export function fold(s) {
 }
 
 /**
- * Up to `limit` events whose label or place contains the typed text. Matches
- * at the start of the label come first, then matches at the start of a word
- * of the label, then the rest, each group in the list's own order.
+ * The events the list shows. With nothing typed, every event that has passages or
+ * documents, in alphabetical order, so the list can be browsed like a dropdown.
+ * With text typed, the events whose label or place contains it: matches at the
+ * start of the label first, then at the start of a word of the label, then the
+ * rest, each group in the list's own order.
  */
-export function suggestEvents(names, typed, limit = MAX_SUGGESTIONS) {
+export function suggestEvents(names, typed, limit = Infinity) {
   const t = fold(typed.trim());
-  if (t.length < 2) return [];
+  if (!t) {
+    return names
+      .filter((n) => (n.n_passages || 0) + (n.n_documents || 0) > 0)
+      .slice()
+      .sort((a, b) => String(a.label).localeCompare(String(b.label)))
+      .slice(0, limit);
+  }
   const groups = [[], [], []];
   for (const n of names) {
     const label = fold(n.label);
@@ -44,9 +51,10 @@ export function suggestEvents(names, typed, limit = MAX_SUGGESTIONS) {
 }
 
 /**
- * The "Search by name or place" box of the Events page. It keeps the label and
- * placeholder it always had and, from two typed characters on, opens a list of
- * matching events. Enter with nothing highlighted submits the surrounding form.
+ * The "Search by name or place" box of the Events page, a dropdown you can type
+ * into. A click opens the list of every event with passages or documents, in
+ * alphabetical order, and typing narrows it. The arrow button opens and closes
+ * the list. Enter with nothing highlighted submits the surrounding form.
  */
 export default function EventNameBox({ value, onChange, openEvent }) {
   const [names, setNames] = useState(null);
@@ -57,8 +65,8 @@ export default function EventNameBox({ value, onChange, openEvent }) {
   const listId = useId();
 
   const suggestions = useMemo(() => (names ? suggestEvents(names, value) : []), [names, value]);
-  const typedEnough = value.trim().length >= 2;
-  const noMatch = open && typedEnough && names !== null && suggestions.length === 0;
+  const typed = value.trim().length > 0;
+  const noMatch = open && typed && names !== null && suggestions.length === 0;
   const expanded = open && suggestions.length > 0;
 
   useEffect(() => {
@@ -89,7 +97,8 @@ export default function EventNameBox({ value, onChange, openEvent }) {
     <div ref={boxRef} className="relative">
       <label className="block text-xs text-gray-600">
         Search by name or place
-        <input value={value} placeholder="Cannae" autoComplete="off"
+        <span className="relative mt-1 block">
+        <input value={value} placeholder="Choose an event or type a name" autoComplete="off"
                role="combobox" aria-autocomplete="list" aria-expanded={expanded}
                aria-controls={listId}
                aria-activedescendant={expanded && active >= 0 ? `${listId}-${active}` : undefined}
@@ -97,9 +106,16 @@ export default function EventNameBox({ value, onChange, openEvent }) {
                onChange={(e) => { onChange(e.target.value); setOpen(true); setActive(-1); }}
                onKeyDown={onKeyDown}
                onBlur={() => { blurTimer.current = setTimeout(() => setOpen(false), BLUR_DELAY_MS); }}
-               className="mt-1 block w-full border border-gray-300 rounded px-2 py-1.5 text-sm text-gray-900" />
+               className="block w-full border border-gray-300 rounded pl-2 pr-8 py-1.5 text-sm text-gray-900" />
+        <button type="button" tabIndex={-1} aria-label={expanded ? 'Close the list of events' : 'Show the list of events'}
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => { loadNames().then(setNames); setOpen((o) => !o); setActive(-1); }}
+                className="absolute inset-y-0 right-0 px-2 text-gray-500 hover:text-gray-800">
+          <span aria-hidden="true">▾</span>
+        </button>
+        </span>
       </label>
-      <ul id={listId} role="listbox" aria-label="Matching events" hidden={!expanded}
+      <ul id={listId} role="listbox" aria-label="Events" hidden={!expanded}
           className="absolute z-20 left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-96 overflow-auto">
         {expanded && suggestions.map((n, i) => (
           <li key={n.id} id={`${listId}-${i}`} role="option" aria-selected={i === active}
