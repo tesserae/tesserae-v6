@@ -35,7 +35,10 @@ Conventions
   hand and are the models the helper matches.
 
 
-## 2026-10-20 Citation indexes rebuilt with recognizer round 7 and De legibus (PENDING, built by a delegate, to be installed by the project lead)
+## 2026-10-20 Citation indexes rebuilt with recognizer round 7 and De legibus (RUN 07:04 to 07:06 EDT, built by a delegate, installed by the project lead)
+
+**Run record.** Pull request #1073 merged and deployed at 07:03, after the project lead ran every citation test on the merged branch against the production abbreviation table (576 passed, none skipped) and read twenty De legibus rows with their sentences (eighteen plainly Cicero, two garbled by OCR and plausible). The indexes were installed from the delegate's build, which used the merged code unchanged, as on 2026-10-19. Both live files were kept as `citations.db.bak-round6-20261020` and `citations_muse.db.bak-round6-20261020`, the new files copied in under temporary names at mode 664 and renamed over them at 07:04, the app reloaded, `/api/languages` 200, integrity ok, 41,724 and 28,559 rows, De legibus 145 and 85. The rebuild toolkit at `~/tesserae-backups/ejc_index_2026-09-14/` was mirrored from main at 07:05 (`backend/citations` with `.bak-2026-10-20-recog7` copies, and the two new tables under its `data/citations/`). The events store was relinked to the new indexes on a copy (`~/tesserae-backups/events_relink_2026-10-20/`): article rows 15,265 to 15,241, events with articles 1,113 unchanged, 3 new (event, article) pairs to rate, 1 rated and 2 without a readable answer, integrity ok. It was installed at 07:06 (previous file kept as `event_dossiers.sqlite.bak-20261020-round7links`), and the Sicilian Expedition page answers 133 article rows as before.
+
 
 A hand check of 200 sampled rows after round 6 left three rules open (a bare number past the end of a one-level work, a line past the end of its book, a parenthesized alternate book number) and the De legibus form list was still waiting for a rebuild.
 
