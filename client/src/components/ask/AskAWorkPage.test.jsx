@@ -260,8 +260,8 @@ describe('Search One Text', () => {
 
   it('shows an example only for a work the index holds, and the example runs', async () => {
     render(<AskAWorkPage />);
-    const ex = await screen.findByRole('button', { name: /Dido falls in love with Aeneas/ });
-    expect(screen.queryByRole('button', { name: /the Pannonian legions mutiny/ })).toBeNull();
+    const ex = await screen.findByRole('button', { name: /a mother mourns her son/ });
+    expect(screen.queryByRole('button', { name: /prodigies reported and expiated/ })).toBeNull();
     fireEvent.click(ex);
     await screen.findAllByTestId('ask-card');
     expect(themeCalls()[0]).toContain('works=vergil.aeneid');
@@ -690,7 +690,7 @@ describe('a visit with no work chosen', () => {
     render(<AskAWorkPage />);
     await waitFor(() => expect(screen.getByRole('combobox', { name: 'Author' })).toHaveValue('Vergil'));
     await waitFor(() => expect(screen.getByRole('combobox', { name: 'Work' })).toHaveValue('Aeneid'));
-    expect(await screen.findByRole('button', { name: /Dido falls in love with Aeneas/ })).toBeInTheDocument();
+    expect(await screen.findByRole('button', { name: /a mother mourns her son/ })).toBeInTheDocument();
     // The holdings mock covers the Aeneid and the Georgics only, so the
     // chips for other works are hidden here; one Aeneid chip is the rule.
     expect(screen.getAllByRole('button', { name: /in the Aeneid/ })).toHaveLength(1);
@@ -740,10 +740,10 @@ describe('the History view', () => {
     render(<AskAWorkPage />);
     await waitFor(() => expect(screen.getByRole('combobox', { name: 'Author' })).toHaveValue('Tacitus'));
     await waitFor(() => expect(screen.getByRole('combobox', { name: 'Work' })).toHaveValue('Annals'));
-    expect(await screen.findByRole('button', { name: /Lucretia and Sextus Tarquinius/ })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /the Pannonian legions mutiny/ })).toBeInTheDocument();
+    expect(await screen.findByRole('button', { name: /omens foretell an emperor/ })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /prodigies reported and expiated/ })).toBeInTheDocument();
     // The Literature examples are not shown, even for a work the index holds.
-    expect(screen.queryByRole('button', { name: /Dido falls in love with Aeneas/ })).toBeNull();
+    expect(screen.queryByRole('button', { name: /a mother mourns her son/ })).toBeNull();
   });
 });
 
