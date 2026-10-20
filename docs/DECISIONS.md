@@ -14,7 +14,7 @@ The Latin corpus never names some places by their own name (Livy writes agrum Ru
 
 ## 2026-10-20: the Events article ratings are made with Claude
 
-The Events page rates each linked journal article YES, PARTLY or NO for its event. The project lead decided on 2026-10-20 to make those ratings with Claude Sonnet through the paid Anthropic API, after Claude caught articles rated YES that cite a different passage, which neither two stricter wordings nor the larger free gateway model did. The no-recurring-costs rule holds because the ratings are made offline when the article lists are relinked, never while a visitor waits, and a relink adds only a handful of new links. The full run on 2026-10-20 cost about $36.
+The Events page rates each linked journal article YES, PARTLY or NO for its event. The project lead decided on 2026-10-20 to make those ratings with Claude Sonnet through the paid Anthropic API, after Claude caught articles rated YES that cite a different passage, which neither two stricter wordings nor the larger free gateway model did. The no-recurring-costs rule holds because the ratings are made offline when the article lists are relinked, never while a visitor waits, and a relink adds only a handful of new links. The full run on 2026-10-20 cost about $36. The same day the project lead added that every paid run needs his approval first, so the script's default is the free gateway model and a Claude run must name the approval it rests on.
 
 ## 2026-10-19: the core bundle returns with whole-corpus files rebuilt without the restricted works
 

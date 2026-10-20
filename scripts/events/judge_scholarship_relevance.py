@@ -41,14 +41,13 @@ MAX_IN_FLIGHT = 8
 MAX_TOKENS = 1200
 RETRY_MAX_TOKENS = 3500  # a reply that ran out before its verdict line is asked again with more room
 RETRY_429_SECONDS = 30
-# Since 2026-10-20 the ratings are made with Claude through the Anthropic API (the project lead decided after a
-# measured comparison on 532 articles: Claude caught articles rated YES that cite a different passage). The
-# gateway model stays available with --provider gateway. A paid model is allowed here because the ratings are
-# made offline at a relink, never while a visitor waits.
+# The ratings installed on 2026-10-20 were made with Claude through the Anthropic API (the project lead decided after
+# a measured comparison on 532 articles). Claude is paid, so it is never the default: every paid run needs the project
+# lead's approval first, passed as --spend-approved. The free gateway model is the default.
 ANTHROPIC_MODEL = 'claude-sonnet-5-5'
 ANTHROPIC_URL = 'https://api.anthropic.com'
 ANTHROPIC_ENV_FILE = os.path.expanduser('~/.config/tesserae/anthropic.env')  # kept outside the checkout, mode 600
-PROVIDER = 'anthropic'
+PROVIDER = 'gateway'   # free; the paid provider needs --provider anthropic AND --spend-approved (the project lead, 2026-10-20)
 INDEX_DIR = '/var/www/tesseraev6_flask/data/citation_index'
 MAX_SENTENCES = 4
 SENTENCE_CHARS = 450
@@ -293,8 +292,15 @@ def main(argv=None):
     ap.add_argument('--limit', type=int, default=0)
     ap.add_argument('--events', default='')
     ap.add_argument('--max-seconds', type=int, default=0, help='stop cleanly after this long, run again to resume')
-    ap.add_argument('--provider', choices=['anthropic', 'gateway'], default='anthropic')
+    ap.add_argument('--provider', choices=['anthropic', 'gateway'], default='gateway',
+                    help='gateway (free BullsAI model, the default) or anthropic (Claude, paid)')
+    ap.add_argument('--spend-approved', default='',
+                    help='required with --provider anthropic: when and how the project lead approved the spending')
     a = ap.parse_args(argv)
+    if a.provider == 'anthropic' and not a.spend_approved.strip():
+        sys.exit('REFUSING: --provider anthropic calls a paid API. The project lead approves every paid run '
+                 '(2026-10-20, "you always need to ask me before spending any money"). Ask first, then pass '
+                 '--spend-approved "<date and words of the approval>".')
     global PROVIDER
     PROVIDER = a.provider
     only = {x.strip() for x in a.events.split(',') if x.strip()}
