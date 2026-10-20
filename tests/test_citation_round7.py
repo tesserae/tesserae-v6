@@ -200,8 +200,8 @@ def test_aeneid_line_beyond_its_book_is_dropped_and_a_real_line_stays():
 @pytest.mark.parametrize('text, work, locus', [
     ('Plato, Legg. 12.942', 'plato.leges', None),
     ('See Plat. Legg. 914 C', 'plato.leges', None),
-    ('Cic. Legg. 3, 1, 1', 'cicero.de_legibus', '3.1.1'),
-    ('Cicero, de Legg. 2, 23, 59', 'cicero.de_legibus', '2.23.59'),
+    ('Cic. Legg. 3, 1, 1', 'cicero.de_legibus', '3.1'),
+    ('Cicero, de Legg. 2, 23, 59', 'cicero.de_legibus', '2.59'),
 ])
 def test_legg_follows_the_author_named(text, work, locus):
     hits = [(h['work_id'], h['locus_start']) for h in C.extract(text) if h['resolved']]
@@ -223,3 +223,10 @@ def test_bare_legg_stays_unresolved():
 ])
 def test_laws_is_plato_unless_cicero_is_named(text, work):
     assert [h['work_id'] for h in C.extract(text) if h['resolved']][:1] == [work]
+
+
+@needs_table
+def test_de_legibus_is_in_the_depth_tables():
+    assert [(h['work_id'], h['locus_start']) for h in C.extract('Cicero, de Legg. 2, 23, 59') if h['resolved']] == [
+        ('cicero.de_legibus', '2.59')]
+    assert [h for h in C.extract('Suarez, De legibus. 271') if h['resolved']] == []
