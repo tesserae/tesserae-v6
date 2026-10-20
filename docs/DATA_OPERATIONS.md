@@ -35,6 +35,17 @@ Conventions
   hand and are the models the helper matches.
 
 
+## 2026-10-20 People & Places store with the contents repairs of pass 4e (PENDING, built by a delegate, to be installed by the project lead)
+
+Why. The stage 4 review found five entities that hold names belonging to other entities (the Cypriots hold Aphrodite's epithet Κύπρις, the Carii hold the Caresus river and the English word caresses, Gershom holds Geshur, Tarquinia holds Terracina, and the Nicopolitans are headed Nicaeans). It also found that the merge pass read the Greek plural Κρῆτες as a case form of Κρήτη, so the veto that keeps a place apart from its people failed for Greek.
+
+What. `data/entity_index/entities_stage4e_contents.sqlite` is the installed pass 4e store with the merge step re-run from the pass 4c store under the Greek exclusion (58 merges, 4,121 rows moved, as before, with the Cretans now kept apart by the rule and not by the hand list) and then the repairs of `scripts/entity_pass4e_repairs.py`. It holds 42,356 entities (one more, the Caresus river) and 1,433,633 mention rows (two fewer, the dropped English caresses). Integrity check ok. The search baseline of eight queries gives the same answers as the installed store.
+
+Steps for the install, to be run by the project lead.
+1. `cp -p /var/www/tesseraev6_flask/data/entity_index/entities.sqlite ~/tesserae-backups/entity_store_pre_4e_contents_2026-10-20/entities.sqlite` (make the folder first).
+2. Copy the new store into the entity_index folder under a temporary name, `chmod 664`, rename it over `entities.sqlite`, then `touch tesseraev6_flask.wsgi` and check `curl .../api/languages` returns 200.
+3. Search for Cypris, Caresus, Geshur, Tarracina and Nicopolitans on the People & Places page and check each shows its repaired rows.
+
 ## 2026-10-20 Core bundle rebuilt with the corrected Coptic bigram table and installed (RUN 23:24 to 23:44 EDT, 2026-10-19 evening, by the project lead)
 
 Why. The 19 October bundle carried the filtered copy of the 8 August Coptic bigram table, whose seven misplaced letters were found that evening (entry of 2026-10-19 on the Coptic bigram table). The project lead asked for the owed replacement the same night ("Go ahead and do that").

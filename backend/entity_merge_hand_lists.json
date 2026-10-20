@@ -1,5 +1,5 @@
 {
- "description": "Pass 4e (2026-10-19): merges of pass 4d the lead reverted (the carve stays as in 4c) and merges made by hand whatever the model said.",
+ "description": "Pass 4e (2026-10-19, kreta dropped from the first list 2026-10-20 when the Greek exclusion took over): merges of pass 4d the lead reverted (the carve stays as in 4c) and merges made by hand whatever the model said.",
  "undo_merges": [
   "delia",
   "diokl",
@@ -8,7 +8,6 @@
   "ikaro",
   "iohan",
   "kares",
-  "kreta",
   "nerei",
   "porki",
   "prisk",

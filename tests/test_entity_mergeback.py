@@ -158,8 +158,9 @@ def test_apply_partial_moves_only_the_named_spellings_and_keeps_the_host():
 
 def test_hand_lists_of_pass_4e():
     undo, hand = mb.load_hand_lists()
-    assert len(undo) == 14 and len(hand) == 3 and not undo & hand
+    assert len(undo) == 13 and len(hand) == 3 and "kreta" not in undo and not undo & hand
     assert {'iberi', 'delia', 'tarku', 'prisk'} <= undo
+    # kreta (the Cretans) left the list in pass 4e: the Greek people-form exclusion now keeps them apart
     assert hand == {'kaat', 'sibul', 'aigok'}
 
 
@@ -194,3 +195,43 @@ def test_the_greek_eis_is_not_a_case_form_of_a_first_declension_name():
     assert mb.case_form_of('Φωκαιεῖς', ['Φώκαια']) is None
     assert mb.case_form_of('Φωκαίας', ['Φώκαια']) is not None
     assert mb.case_form_of('Μεγαρεῖς', ['Μέγαρα']) is None
+
+
+# ---------------------------------------------------------------- pass 4e: the Greek plural is a people, not a case form
+
+def test_greek_plural_in_es_is_not_a_case_form_of_the_place():
+    assert mb.case_form_of('Κρῆτες', ['Κρήτη', 'Crete']) is None
+    assert mb.case_form_of('Κρῆτες', ['Κρήτη']) is None
+    assert mb.case_form_of('Ῥόδιοι', ['Ῥόδος']) is None
+    assert mb.case_form_of('Λέσβιοι', ['Λέσβος']) is None
+
+
+def test_greek_plural_in_eis_is_not_a_case_form_of_a_place_in_a_or_os():
+    assert mb.case_form_of('Σάμιοι', ['Σάμος']) is None
+
+
+def test_the_genitive_and_other_case_forms_stay_case_forms():
+    assert mb.case_form_of('Κρήτης', ['Κρήτη']) is not None
+    assert mb.case_form_of('Λέσβου', ['Λέσβος']) is not None
+
+
+def test_the_cretans_are_not_merged_into_crete_by_layer_1():
+    assert not mb.same_stem(['Crete', 'Κρήτη'], {'Κρῆτες': 40, 'Κρητῶν': 1}, 'place', 'people')
+
+
+def test_a_place_beside_its_greek_plural_people_is_vetoed_when_the_model_says_same():
+    a = {'label': 'Crete', 'type': 'place', 'greek': 'Κρήτη', 'headings': ['Crete', 'Κρήτη']}
+    b = {'label': 'Cretans', 'type': 'people', 'forms': [('Κρῆτες', 90), ('Κρήτης', 1)]}
+    assert mb.kind_veto(a, b)
+
+
+def test_the_accusatives_of_the_cretans_are_not_case_forms_of_the_stored_greek_heading_of_crete():
+    # the store heads Crete with the genitive Κρήτης, which the -ης paradigm would give the accusatives Κρῆτα, Κρῆτας
+    for f in ('Κρῆτας', 'Κρῆτα', 'Κρήτας', 'Κρῆται'):
+        assert mb.case_form_of(f, ['Crete', 'Κρήτης']) is None
+    assert mb.case_form_of('Κρήτης', ['Crete', 'Κρήτης']) is not None
+    assert not mb.same_stem(['Crete', 'Κρήτης'], {'Κρῆτας': 65, 'Κρῆτα': 46}, 'place', 'place')
+
+
+def test_a_stem_in_epsilon_iota_or_rho_keeps_its_alpha_forms():
+    assert mb.case_form_of('Σοφοκλέα', ['Σοφοκλέης']) is not None
