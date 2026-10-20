@@ -70,31 +70,35 @@ export function defaultWorkFor(view) {
   return viewById(view).askDefault || DEFAULT_WORK;
 }
 
-// Six example searches, one work each, every one run live on 2026-10-12 and
-// read: the first five answers were about the subject in each case (Sappho
-// and the Annals strong, Thucydides strong, the rest moderate). The owner's
-// rule, 2026-10-12: at most one from the Aeneid, a wide spread of authors,
-// one woman among them, and nothing that is not a solid success.
+// Six example searches, one work each. The owner's rule, 2026-10-12: at most
+// one from the Aeneid, a wide spread of authors, one woman among them, and
+// nothing that is not a solid success. Rewritten 2026-10-19 on the owner's
+// second rule ("they should describe a theme or a topic or something that
+// might appear in more than one place"): each subject recurs through its
+// work, and every one was run live that night and read. Sappho, the Aeneid,
+// the Odyssey, Herodotus and the Annals rated strong with every answer on
+// the subject, Thucydides moderate with every answer on it.
 const EXAMPLES = [
-  { lang: 'grc', work: 'sappho.fragments', q: 'jealousy at the sight of the beloved sitting with a man', label: 'jealousy at the sight of the beloved with a man', on: 'Sappho' },
-  { lang: 'la', work: 'vergil.aeneid', q: 'Dido falls in love with Aeneas', label: 'Dido falls in love with Aeneas', on: 'the Aeneid' },
-  { lang: 'grc', work: 'homer.odyssey', q: 'Odysseus strings the bow and kills the suitors', label: 'Odysseus strings the bow', on: 'the Odyssey' },
-  { lang: 'grc', work: 'thucydides.peloponnesian_war', q: 'the plague at Athens', label: 'the plague at Athens', on: 'Thucydides' },
-  { lang: 'grc', work: 'herodotus.histories', q: 'Solon tells Croesus that no man can be called happy before his death', label: 'Solon tells Croesus no man is happy before death', on: 'Herodotus' },
-  { lang: 'la', work: 'tacitus.annales', q: 'the legions in Pannonia mutiny after the death of Augustus', label: 'the Pannonian legions mutiny', on: 'the Annals' },
+  { lang: 'grc', work: 'sappho.fragments', q: 'a wedding song for the bride and the groom', label: 'wedding songs', on: 'Sappho' },
+  { lang: 'la', work: 'vergil.aeneid', q: 'a mother mourns her dead son', label: 'a mother mourns her son', on: 'the Aeneid' },
+  { lang: 'grc', work: 'homer.odyssey', q: 'a host welcomes a stranger with a meal and a bath', label: 'a host welcomes a stranger', on: 'the Odyssey' },
+  { lang: 'grc', work: 'thucydides.peloponnesian_war', q: 'a besieged city surrenders', label: 'a besieged city surrenders', on: 'Thucydides' },
+  { lang: 'grc', work: 'herodotus.histories', q: 'a dream warns a king', label: 'a dream warns a king', on: 'Herodotus' },
+  { lang: 'la', work: 'tacitus.annales', q: 'an accused senator takes his own life before the verdict', label: 'an accused senator kills himself', on: 'the Annals' },
 ];
 
-// The History view's six, every one run live on 2026-10-13 and read: Livy,
-// Caesar, Suetonius and Thucydides rated strong with the first passage on the
-// subject (Livy 1.58.7, Caesar 4.16.6, Suetonius Jul. 80.3, Thucydides);
-// Herodotus and the Annals are the two history examples of the Literature set.
+// The History view's six, rewritten the same night on the same rule and run
+// live: Livy and Suetonius moderate with every answer on the subject, Caesar
+// in the lowest band (the ethnographic digressions of books 1, 4 and 6 are
+// all six answers, but nothing in a book of campaigns stands far above the
+// rest), and the Annals, Herodotus and Thucydides shared with the Literature set.
 const HISTORY_EXAMPLES = [
-  { lang: 'la', work: 'livy.ab_urbe_condita', q: 'Lucretia is raped by Sextus Tarquinius and kills herself', label: 'Lucretia and Sextus Tarquinius', on: 'Livy' },
-  { lang: 'la', work: 'tacitus.annales', q: 'the legions in Pannonia mutiny after the death of Augustus', label: 'the Pannonian legions mutiny', on: 'the Annals' },
-  { lang: 'grc', work: 'herodotus.histories', q: 'Solon tells Croesus that no man can be called happy before his death', label: 'Solon tells Croesus no man is happy before death', on: 'Herodotus' },
-  { lang: 'la', work: 'caesar.de_bello_gallico', q: 'Caesar builds a bridge across the Rhine', label: 'Caesar bridges the Rhine', on: 'Caesar' },
-  { lang: 'grc', work: 'thucydides.peloponnesian_war', q: 'the plague at Athens', label: 'the plague at Athens', on: 'Thucydides' },
-  { lang: 'la', work: 'suetonius.de_vita_caesarum', q: 'the assassination of Julius Caesar in the senate', label: 'the assassination of Julius Caesar', on: 'Suetonius' },
+  { lang: 'la', work: 'livy.ab_urbe_condita', q: 'prodigies are reported and expiated', label: 'prodigies reported and expiated', on: 'Livy' },
+  { lang: 'la', work: 'tacitus.annales', q: 'an accused senator takes his own life before the verdict', label: 'an accused senator kills himself', on: 'the Annals' },
+  { lang: 'grc', work: 'herodotus.histories', q: 'a dream warns a king', label: 'a dream warns a king', on: 'Herodotus' },
+  { lang: 'la', work: 'caesar.de_bello_gallico', q: 'the customs of the Gauls and the Germans', label: 'the customs of the Gauls and Germans', on: 'Caesar' },
+  { lang: 'grc', work: 'thucydides.peloponnesian_war', q: 'a besieged city surrenders', label: 'a besieged city surrenders', on: 'Thucydides' },
+  { lang: 'la', work: 'suetonius.de_vita_caesarum', q: 'omens foretell the death of the emperor', label: 'omens foretell an emperor\'s death', on: 'Suetonius' },
 ];
 
 /** The example set of the current view. */

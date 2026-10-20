@@ -483,8 +483,8 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
               <p className="text-gray-700 mb-4">
                 The site has two views, Literature and History, switched by the two words at the left of the
                 main menu. Literature opens on Search One Text, on the Aeneid, with the menu led by
-                Search One Text and Intertextual Search. History opens on Search One Text, on Tacitus&rsquo;s Annals, with its own examples (Lucretia, the Pannonian
-                mutiny, Solon and Croesus, the Rhine bridge, the plague at Athens, the murder of Caesar), with
+                Search One Text and Intertextual Search. History opens on Search One Text, on Tacitus&rsquo;s Annals, with its own examples (prodigies in Livy, forced
+                suicides in the Annals, warning dreams in Herodotus, Gallic and German customs in Caesar, besieged cities in Thucydides, omens of an emperor's death in Suetonius), with
                 every collection on, the menu led by Search One Text and Read, and the Reader&rsquo;s side panel opening on
                 Similar, then the coins, the commentaries and articles, Reuse, Verbal and Translation (the inscriptions and papyri appear
                 as a group inside Reuse and Verbal). History also opens the Phrase Search on Livy against Tacitus in Latin and on
