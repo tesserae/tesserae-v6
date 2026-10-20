@@ -8,6 +8,7 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-20
+- People & Places, pass 4e contents repairs. Five entities held names that belong elsewhere and are repaired by `scripts/entity_pass4e_repairs.py` (dry run by default). The Greek epithet Κύπρις and its case forms (705 rows) leave the Cypriots for the entity Cypris, the Caresus river leaves the Carii for a new place entity (the 2 rows of the English word caresses are dropped as not a name), Γεδσούρ joins the place Geshur, Ταρρακίνα joins the place Tarracina, and the people headed Nicaeans is headed Nicopolitans. In `backend/entity_mergeback.py` a Greek form that is the people of a place (Κρῆτες, Κρῆτας beside the heading Κρήτης) is no longer read as a case form of the place name, so the place-against-inhabitants veto holds for Greek and the Cretans no longer need a hand revert (`kreta` leaves `backend/entity_merge_hand_lists.json`). Tests in `tests/test_entity_mergeback.py`. The repaired store is built, not installed.
 - The whole-app render recordings in `client/src/test` are re-recorded after the day's page changes (the People, Places & Things menu, the Beta marks, the Downloads page, the Search One Text examples), and the raw-reference check no longer counts React's `ref=` attribute as a passage reference (the project lead, 2026-10-20). All 53 tests in that folder pass again.
 
 ## 2026-10-19

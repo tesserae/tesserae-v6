@@ -90,7 +90,25 @@ def case_family(heading):
 
 _GREEK_LETTER = re.compile('[\u0370-\u03ff\u1f00-\u1fff]')
 _LATIN_ONLY = _n('am', 'arum', 'orum', 'ibus')
+_GREEK_PLURAL_ENDS = ('εσ', 'εισ')     # folded -ες and -εις (the fold writes a final sigma as σ)
+_SINGULAR_ENDS = ('a', 'e', 'os')    # a heading in -α, -η or -ος (Latin -a and -e, Greek -os after the transliteration)
+_ALPHA_ENDS = ('\u03b1', '\u03b1\u03c3', '\u03b1\u03b9')      # folded -α, -ας, -αι
 _GREEK_ONLY = _n('an', 'ais', 'oi', 'ois', 'oisi', 'oisin', 'ous')
+
+
+def _greek_people_form(form, heading, end):
+    """Pass 4e. True when a Greek spelling of the same stem is the people of a place, not a case form of its name.
+    Two cases. (1) A plural in -ες or -εις beside a heading in -α, -η or -ος (Κρῆτες beside Κρήτη). (2) A form in -α,
+    -ας or -αι beside a Greek heading in -η or -ης (Κρῆτας, Κρῆτα beside Κρήτης, the heading the store holds for
+    Crete) when the stem does not end in ε, ι or ρ, the only stems whose first-declension forms take -α."""
+    ff = ei.fold(form)
+    if ff.endswith(_GREEK_PLURAL_ENDS) and end in _SINGULAR_ENDS:
+        return True
+    hf = ei.fold(heading)
+    if _GREEK_LETTER.search(str(heading)) and hf.endswith(('\u03b7', '\u03b7\u03c3')):
+        stem = hf[:-1] if hf.endswith('\u03b7') else hf[:-2]
+        return any(ff == stem + e for e in _ALPHA_ENDS) and stem[-1:] not in ('\u03b5', '\u03b9', '\u03c1')
+    return False
 
 
 def case_form_of(form, headings):
@@ -99,6 +117,8 @@ def case_form_of(form, headings):
     and a Latin spelling in -oe or -oi is not the Greek plural -oi (Alcathoe is not Alcathous)."""
     t = _norm(form)
     greek = bool(_GREEK_LETTER.search(str(form)))
+    if greek and any(_greek_people_form(form, h, case_family(h)[2]) for h in headings):
+        return None          # pass 4e: Κρῆτες is the people of Κρήτη, not a case form of it, whatever other heading it fits
     for h in headings:
         stem, fam, end = case_family(h)
         rest = t[len(stem):]
