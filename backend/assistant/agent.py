@@ -962,13 +962,16 @@ def _handoff_sentence(facts):
         src, tgt = f.get('source'), f.get('target')
         if not src or not tgt:
             return None
+        # SAY WHAT THE LINK DOES AND WHAT TO DO NEXT (2026-10-20, the project lead on
+        # "compare Lucretius book 1 with Ovid Met book 1": "This is a dumb response").
+        # The old text only said that both texts exist.
         if f.get('compares') == 'whole authors':
-            return (f'The corpus holds work by both {src} and {tgt}. '
-                    f'The full comparison scores every channel between them, '
-                    f'from shared wording to sound and sense.')
-        return (f'The corpus holds both {src} and {tgt}. '
-                f'The full comparison scores every channel between them, from '
-                f'shared wording to sound and sense.')
+            return (f'You named {src} and {tgt} but no particular works, so the link below '
+                    f'compares everything by {src} with everything by {tgt}. To compare '
+                    f'particular works or books, name each work and the book you want.')
+        return (f'The link below sets up {src} against {tgt} on the comparison page. '
+                f'Press Search there to run it. The results rank the parallels by shared '
+                f'words, sound and meaning, strongest first.')
     return None
 
 

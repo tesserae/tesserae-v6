@@ -434,7 +434,7 @@ def test_an_author_level_handoff_says_so():
     text = _handoff_sentence([{
         'kind': 'TWO TEXTS THE READER WANTS COMPARED.',
         'source': 'Vergil', 'target': 'Statius', 'compares': 'whole authors'}])
-    assert 'work by both' in text
+    assert 'no particular works' in text
 
 
 def test_anything_else_still_goes_to_the_model():
@@ -765,3 +765,47 @@ def test_only_question_headings_are_used_this_way():
         head, _, body = chunk.partition(': ')
         if body and '?' not in head:
             assert site_help.direct_answer(head) != body.strip()
+
+
+# 2026-10-20: "compare Lucretius book 1 with Ovid Met book 1" was answered with all of
+# Lucretius against all of Ovid. The book after "book" and a short title after the
+# author's name are now read.
+_BOOK_TEXTS = [
+    {'id': 'lucretius.de_rerum_natura.tess', 'author': 'Lucretius', 'author_key': 'lucretius',
+     'title': 'De Rerum Natura', 'work_key': 'de_rerum_natura', 'language': 'la', 'display_name': 'Lucretius, De Rerum Natura'},
+    {'id': 'lucretius.de_rerum_natura.part.1.tess', 'author': 'Lucretius', 'author_key': 'lucretius', 'is_part': True,
+     'title': 'De Rerum Natura 1', 'work_key': 'de_rerum_natura', 'language': 'la', 'display_name': 'Lucretius, De Rerum Natura, Book 1'},
+    {'id': 'ovid.ibis.tess', 'author': 'Ovid', 'author_key': 'ovid', 'title': 'Ibis', 'work_key': 'ibis',
+     'language': 'la', 'display_name': 'Ovid, Ibis'},
+    {'id': 'ovid.metamorphoses.tess', 'author': 'Ovid', 'author_key': 'ovid', 'title': 'Metamorphoses',
+     'work_key': 'metamorphoses', 'language': 'la', 'display_name': 'Ovid, Metamorphoses'},
+    {'id': 'ovid.metamorphoses.part.1.tess', 'author': 'Ovid', 'author_key': 'ovid', 'is_part': True,
+     'title': 'Metamorphoses 1', 'work_key': 'metamorphoses', 'language': 'la', 'display_name': 'Ovid, Metamorphoses, Book 1'},
+]
+
+
+def _with_book_texts(monkeypatch):
+    from backend.assistant import corpus_lookup as L
+    monkeypatch.setattr(L, '_all_texts', lambda language=None: [dict(r) for r in _BOOK_TEXTS])
+    return L
+
+
+def test_book_after_the_word_book_and_a_short_title(monkeypatch):
+    L = _with_book_texts(monkeypatch)
+    ids = [h['id'] for h in L.named_texts('compare Lucretius book 1 with Ovid Met book 1')]
+    assert ids == ['lucretius.de_rerum_natura.part.1.tess', 'ovid.metamorphoses.part.1.tess']
+
+
+def test_author_with_many_works_and_a_book_is_not_guessed(monkeypatch):
+    L = _with_book_texts(monkeypatch)
+    hits = L.named_texts('compare Lucretius book 1 with Ovid book 1')
+    assert hits[0]['id'] == 'lucretius.de_rerum_natura.part.1.tess'
+    assert hits[1]['matched'] == 'author'
+
+
+def test_compare_link_names_both_books(monkeypatch):
+    _with_book_texts(monkeypatch)
+    from backend.assistant import actions as A, corpus_lookup as L
+    out = A.suggest('compare Lucretius book 1 with Ovid Met book 1', lookup=L)
+    assert out[0]['url'] == '/?lang=la&source=lucretius.de_rerum_natura.part.1&target=ovid.metamorphoses.part.1'
+    assert 'Book 1' in out[0]['label'] and 'lucretius.' not in out[0]['detail']
