@@ -34,7 +34,7 @@ The core bundle holds the texts, the lemma caches, the search indexes, the word-
    ```
    git clone https://github.com/tesserae/tesserae-v6.git
    cd tesserae-v6
-   git checkout 6214c215fc2ff8df1c5d740af2f2c0a810b2b382
+   git checkout 9085292fc3acd7c8d44afbac8b28de8c2cf1d41b
    ```
 
    The data was built for that version of the code, and a newer checkout may hold texts the bundle does not match. The Downloads page names the current bundle and its commit.
@@ -51,20 +51,20 @@ The core bundle holds the texts, the lemma caches, the search indexes, the word-
 5. Download the core bundle and its checksum file.
 
    ```
-   curl -L -O "https://tesserae.caset.buffalo.edu/static/downloads/bundle/tesserae-public-core-20261019.tar.zst"
-   curl -L -O "https://tesserae.caset.buffalo.edu/static/downloads/bundle/tesserae-public-core-20261019.tar.zst.sha256"
+   curl -L -O "https://tesserae.caset.buffalo.edu/static/downloads/bundle/tesserae-public-core-20261020.tar.zst"
+   curl -L -O "https://tesserae.caset.buffalo.edu/static/downloads/bundle/tesserae-public-core-20261020.tar.zst.sha256"
    ```
 
 6. Check that the download is intact. The command must print OK.
 
    ```
-   sha256sum -c tesserae-public-core-20261019.tar.zst.sha256
+   sha256sum -c tesserae-public-core-20261020.tar.zst.sha256
    ```
 
 7. Unpack the bundle into the checkout. The bundle files go into the folders where the application looks for them. Texts that the repository already holds are overwritten with identical or newer copies.
 
    ```
-   tar --zstd -xf tesserae-public-core-20261019.tar.zst -C .
+   tar --zstd -xf tesserae-public-core-20261020.tar.zst -C .
    ```
 
 8. Read LICENSES.md, which the unpacking placed in the checkout. It names the credit lines you must keep if you pass any of the data on.
