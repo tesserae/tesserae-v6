@@ -84,6 +84,27 @@ const DOCUMENT_GROUPS = [
   ['dated', "Dated within the event's years, nearest first"],
 ];
 
+/** A word as the Mentions store spells its forms: lower case, accents off, v as u, j as i. */
+function foldForm(w) {
+  return String(w || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
+    .replace(/v/g, 'u').replace(/j/g, 'i').replace(/[^a-zα-ω]/g, '');
+}
+
+/**
+ * The document's text with the words that name a participant or the place marked
+ * (the project lead, 2026-10-20: "matching words should be highlighted"). The forms
+ * come from the Mentions store, which records the word that matched in each document.
+ */
+export function HighlightedText({ text, forms }) {
+  const want = new Set((forms || []).map(foldForm).filter(Boolean));
+  if (!want.size) return text;
+  return String(text).split(/(\s+|[/·,.;:()[\]]+)/).map((part, i) => (
+    want.has(foldForm(part))
+      ? <mark key={i} className="bg-amber-100 text-gray-900 rounded px-0.5">{part}</mark>
+      : part
+  ));
+}
+
 function DocumentCard({ d, event }) {
   return (
     <li className="bg-white border border-gray-200 rounded-lg p-3">
@@ -107,7 +128,9 @@ function DocumentCard({ d, event }) {
         )}
       </div>
       {d.text && (
-        <p className="font-serif text-base text-gray-900 mt-1.5" lang={d.language === 'grc' ? 'grc' : 'la'}>{d.text}</p>
+        <p className="font-serif text-base text-gray-900 mt-1.5" lang={d.language === 'grc' ? 'grc' : 'la'}>
+          <HighlightedText text={d.text} forms={d.matched_forms} />
+        </p>
       )}
       {d.text_snippet && <p className="text-xs text-gray-500 mt-1">{d.text_snippet}</p>}
     </li>

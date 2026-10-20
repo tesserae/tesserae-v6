@@ -278,31 +278,35 @@ def _rank(i):
 
 def _documents_naming(doc_ids, names):
     """Of `doc_ids`, those that the Mentions store records as naming any of
-    `names` (the event's participants and place), by document_mentions."""
+    `names` (the event's participants and place), by document_mentions, as
+    {doc_id: set of the matched word forms}. The forms are the store's folded
+    spelling (lower case, v written u), and the page uses them to highlight the
+    words in the document's text (the project lead, 2026-10-20)."""
     from backend import entity_extras
     from backend.blueprints.entities import store_path
     path = store_path()
     if not doc_ids or not os.path.exists(path):
-        return set()
+        return {}
     try:
         eids = {x for x in (entity_extras.resolve_name_to_eid(path, n) for n in names) if x is not None}
         if not eids:
-            return set()
+            return {}
         c = sqlite3.connect(f'file:{path}?mode=ro', uri=True)
     except Exception:  # the dossier page must not depend on the Mentions store
         logger.exception('[EVENTS] the Mentions store could not be read')
-        return set()
-    found = set()
+        return {}
+    found = {}
     try:
         wanted = list(doc_ids)
         marks = ','.join('?' * len(eids))
         for i in range(0, len(wanted), 400):
             chunk = wanted[i:i + 400]
-            q = (f'SELECT DISTINCT doc_id FROM document_mentions WHERE eid IN ({marks}) '  # nosec B608
+            q = (f'SELECT DISTINCT doc_id, form FROM document_mentions WHERE eid IN ({marks}) '  # nosec B608
                  f'AND doc_id IN ({",".join("?" * len(chunk))})')  # placeholders only; values are bound
-            found.update(r[0] for r in c.execute(q, list(eids) + chunk))
+            for doc_id, form in c.execute(q, list(eids) + chunk):
+                found.setdefault(doc_id, set()).add(form)
     except sqlite3.Error:
-        return set()
+        return {}
     finally:
         c.close()
     return found
@@ -545,6 +549,8 @@ def get_event(event_id):
         texts = _document_texts(documents)
         for d in documents:
             d['text'] = texts.get(d['doc_id'])
+            forms = naming.get(d['doc_id']) if isinstance(naming, dict) else None
+            d['matched_forms'] = sorted(f for f in (forms or ()) if f)
 
         try:
             participants = json.loads(r['participants']) if 'participants' in r.keys() and r['participants'] else []

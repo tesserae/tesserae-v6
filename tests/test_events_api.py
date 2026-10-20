@@ -359,3 +359,22 @@ def test_sort_name_is_alphabetical(client):
     assert d['sort'] == 'name'
     labels = [e['label'] for e in d['events']]
     assert labels == sorted(labels, key=str.lower)
+
+
+def test_documents_naming_returns_the_matched_forms(monkeypatch, tmp_path):
+    """The naming step reports which word matched, for highlighting (2026-10-20)."""
+    import sqlite3 as _sq
+    from backend.blueprints import events as E
+    from backend import entity_extras
+    import backend.blueprints.entities as ENT
+    store = tmp_path / 'entities.sqlite'
+    c = _sq.connect(store)
+    c.execute('create table document_mentions (eid integer, doc_id text, language text, form text, kind text, adjective integer)')
+    c.execute("insert into document_mentions values (7, 'edr:a1', 'la', 'perusia', 'form', 0)")
+    c.execute("insert into document_mentions values (7, 'edr:a2', 'la', 'perusini', 'form', 1)")
+    c.commit()
+    c.close()
+    monkeypatch.setattr(ENT, 'store_path', lambda: str(store))
+    monkeypatch.setattr(entity_extras, 'resolve_name_to_eid', lambda path, n: 7 if n == 'Perugia' else None)
+    out = E._documents_naming(['edr:a1', 'edr:a2', 'edr:a3'], ['Perugia'])
+    assert out == {'edr:a1': {'perusia'}, 'edr:a2': {'perusini'}}

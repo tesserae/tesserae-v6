@@ -46,7 +46,7 @@ const DETAIL = {
   passage_counts: { yes: 2, mention: 1, no: 4 },
   documents: [
     { doc_id: 'edh:HD1', date_start: -500, date_end: -450, place: 'Rhamnous', distance_km: 12.4,
-      text_snippet: 'ΜΑΡΑΘΩΝ', text: 'Augusto / sacrum / Perusia restituta.', edition: 'CIL 11, 01923',
+      text_snippet: 'ΜΑΡΑΘΩΝ', text: 'Augusto / sacrum / Perusia restituta.', edition: 'CIL 11, 01923', matched_forms: ['perusia'],
       view_url: '/document?doc=edh%3AHD1&lang=la&documents=1' },
   ],
   scholarship: [
@@ -443,8 +443,9 @@ describe('the focus view', () => {
     // the card leads with the edition or the type, never the internal id
     expect(screen.getByRole('link', { name: 'Corpus Inscriptionum Latinarum (CIL) 11, 01923' }))
       .toHaveAttribute('href', DETAIL.documents[0].view_url);
-    // the text of the inscription itself, above the record line
-    expect(screen.getByText('Augusto / sacrum / Perusia restituta.')).toBeTruthy();
+    // the text of the inscription itself, with the word that names the place marked
+    const mark = screen.getByText('Perusia', { selector: 'mark' });
+    expect(mark.parentElement.textContent).toBe('Augusto / sacrum / Perusia restituta.');
     expect(screen.queryByText('edh:HD1')).toBeNull();
     expect(screen.getByText(/12 km from Marathon/)).toBeTruthy();
     expect(screen.getByText(/Rhamnous · 500 to 450 BCE/)).toBeTruthy();
