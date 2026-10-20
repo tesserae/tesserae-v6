@@ -94,6 +94,9 @@ data/translations/*
 !data/translations/links/
 !data/proposals/
 !data/restricted_texts.json
+!data/entity_index/
+data/entity_index/*
+!data/entity_index/place_adjectives.json
 # Citation recognizer table patches (small, applied to the production table by
 # scripts/citations/apply_abbrev_patch.py); the table itself stays out of git.
 !data/citations/

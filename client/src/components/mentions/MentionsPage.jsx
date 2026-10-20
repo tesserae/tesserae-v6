@@ -77,7 +77,7 @@ export function readerHref(r) {
   return `/read?${params.toString()}`;
 }
 
-export function MentionRow({ r }) {
+export function MentionRow({ r, showWork = false }) {
   const shared = sharedLabel(r.shared_with);
   return (
     <li className="py-2 border-t border-gray-100 first:border-t-0" data-testid="mention-row">
@@ -86,6 +86,7 @@ export function MentionRow({ r }) {
            className="text-red-700 hover:underline font-semibold text-sm" title={r.window_locus ? `in the passage ${r.window_locus}` : fullRef(r)}>
           {r.locus || windowLocus(r) || 'passage'}
         </a>
+        {showWork && <span>{r.author ? `${r.author}, ` : ''}{r.title || r.work}</span>}
         {shared && <span className="text-gray-500" data-testid="shared-label">{shared}</span>}
         {r.restricted && r.credit && <span>{r.credit}</span>}
       </div>
@@ -135,6 +136,62 @@ function WorkGroup({ entityId, w }) {
         <div className="px-3 pb-2">
           {error && <p className="text-sm text-red-700">The mentions could not be loaded ({error}).</p>}
           <ul>{rows.map((r) => <MentionRow key={r.window_id} r={r} />)}</ul>
+          {busy && <LoadingSpinner text="Loading..." />}
+          {!busy && rows.length < total && (
+            <button type="button" onClick={() => load(rows.length)}
+                    className="mt-2 text-sm text-red-700 hover:underline">
+              Show more ({total - rows.length} lines left)
+            </button>
+          )}
+        </div>
+      )}
+    </section>
+  );
+}
+
+/** The sentence under "Named by its adjective": what these lines are, with the first adjective form as the example. */
+export function adjectiveNote(place, adjectives) {
+  const form = adjectives?.[0]?.forms?.[0]?.form;
+  return `These lines refer to ${place} only through an adjective formed from its name${form ? `, such as ${form}` : ''}.`;
+}
+
+/** One adjective corpus name of a place: a collapsible group whose lines come from the mentions route. */
+function AdjectiveGroup({ placeId, a }) {
+  const [open, setOpen] = useState(false);
+  const [rows, setRows] = useState([]);
+  const [total, setTotal] = useState(a.count);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState(null);
+
+  const load = useCallback((offset) => {
+    setBusy(true);
+    setError(null);
+    const p = new URLSearchParams({ adjective_of: placeId, offset: String(offset), limit: String(PAGE) });
+    fetch(`/api/entities/${encodeURIComponent(a.entity_id)}/mentions?${p}`)
+      .then((r) => { if (!r.ok) throw new Error(`Server answered ${r.status}`); return r.json(); })
+      .then((d) => { setRows((prev) => (offset === 0 ? d.results : prev.concat(d.results))); setTotal(d.total); })
+      .catch((e) => setError(e.message))
+      .finally(() => setBusy(false));
+  }, [placeId, a.entity_id]);
+
+  const toggle = () => {
+    const next = !open;
+    setOpen(next);
+    if (next && rows.length === 0) load(0);
+  };
+
+  return (
+    <section className="bg-white border border-gray-200 rounded-lg mb-2" data-testid="adjective-group">
+      <button type="button" onClick={toggle} aria-expanded={open}
+              className="w-full text-left px-3 py-2 flex flex-wrap items-baseline gap-x-2">
+        <span className="font-semibold text-gray-900">{a.label}</span>
+        <span className="text-xs text-gray-500">{a.count} {a.count === 1 ? 'line' : 'lines'}</span>
+        <span className="ml-auto text-xs text-gray-500">{open ? 'Hide' : 'Show'}</span>
+      </button>
+      {open && (
+        <div className="px-3 pb-2">
+          {error && <p className="text-sm text-red-700">The lines could not be loaded ({error}).</p>}
+          <ul>{rows.map((r) => <MentionRow key={r.window_id} r={r} showWork />)}</ul>
           {busy && <LoadingSpinner text="Loading..." />}
           {!busy && rows.length < total && (
             <button type="button" onClick={() => load(rows.length)}
@@ -308,6 +365,13 @@ function EntityView({ id, back, open }) {
                 <DocumentGroup key={lg} entityId={data.id} lang={lg} count={n} />
               ))}
             </>
+          )}
+          {data.adjective_names?.length > 0 && (
+            <div data-testid="adjective-names">
+              <h4 className="text-sm font-semibold text-gray-700 mt-4 mb-1">Named by its adjective</h4>
+              <p className="text-xs text-gray-600 mb-2">{adjectiveNote(data.display_label || data.label, data.adjective_names)}</p>
+              {data.adjective_names.map((a) => <AdjectiveGroup key={a.entity_id} placeId={data.id} a={a} />)}
+            </div>
           )}
         </>
       )}

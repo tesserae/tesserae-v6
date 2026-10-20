@@ -8,7 +8,7 @@ with a JSON error, so the page can say so.
     GET /api/entities/search?q=                   up to 50 entities whose label or a name form
                                                   starts with or contains q
     GET /api/entities/<id>                        one entity with its mention counts by work
-    GET /api/entities/<id>/mentions?work=&lang=&offset=&limit=
+    GET /api/entities/<id>/mentions?work=&lang=&offset=&limit=&adjective_of=
                                                   the mentions as rows (one row per matched line),
                                                   with the window text
     GET /api/entities/<id>/documents?lang=&offset=&limit=
@@ -18,6 +18,11 @@ with a JSON error, so the page can say so.
 Stage 2b: the search also lists the corpus's own capitalized names (source 'names'), an entity
 view lists the corpus names that belong to it, a search with no match offers near spellings, and
 counts are counts of lines, not windows (two overlapping windows that hold one line are one).
+
+Place adjectives (2026-10-20): the response for a place also lists `adjective_names`, the corpus names that are
+Latin adjectives of the place (Rusellanum for Rusellae), read from backend/place_adjectives.py. The lines of each
+come from the mentions route with ?adjective_of=<place id>, which leaves out the lines the link table excludes
+(Cicero's Tusculanae disputationes is a book title, not the place).
 
 No route refuses without a flag, and the page behind these routes is live for everyone (2026-10-19).
 The connector tools stay off until TESSERAE_ENTITY_TOOLS=1: the routes
@@ -33,6 +38,7 @@ from backend import entity_extras as extras
 from backend import entity_index as ei
 from backend import entity_promote as extras_promote
 from backend import passage_index
+from backend import place_adjectives
 from backend import window_texts
 from backend.logging_config import get_logger
 
@@ -216,6 +222,37 @@ def _corpus_names_of(cat, e):
     return e.get('corpus_names', []) if e['source'] in ('list', 'promoted') else []
 
 
+def _exclusion_sql(cat, exclusions):
+    """(sql, args) that drops the listed (work, line group key) groups from a where clause."""
+    if not exclusions:
+        return '', []
+    key = _group_key(cat)
+    return (' and not (w.work = ? and ' + key + ' = ?)') * len(exclusions), [v for pair in exclusions for v in pair]
+
+
+def _adjective_names(cat, c, e):
+    """[{entity_id, label, count, forms}] for the corpus names that are adjectives of the place e."""
+    out = []
+    for a in place_adjectives.adjectives_of(e['id']):
+        adj = cat['by_id'].get(a['entity_id'])
+        if adj is None or adj['source'] != 'corpus':
+            continue
+        sql, args = _exclusion_sql(cat, [(x['work'], x['key']) for x in a['exclude_lines']])
+        key = _group_key(cat)
+        rows = c.execute(
+            f'select form, count(*) from (select m.form form, w.work, {key} k from mention_rows m '  # nosec B608
+            f'join windows w on w.wid = m.wid where m.eid = ?{sql} group by m.form, w.work, k) '
+            'group by form order by count(*) desc, form', [adj['eid']] + args).fetchall()
+        count = c.execute(
+            f'select count(*) from (select 1 from mention_rows m join windows w on w.wid = m.wid '  # nosec B608
+            f'where m.eid = ?{sql} group by w.work, {key})', [adj['eid']] + args).fetchone()[0]
+        if count:
+            out.append({'entity_id': adj['id'], 'label': adj.get('display_label') or adj['label'],
+                        'count': count, 'forms': [{'form': f, 'count': n} for f, n in rows]})
+    out.sort(key=lambda x: (-x['count'], x['label']))
+    return out
+
+
 def _document_counts(path, e):
     import backend.documents as docs
     if not docs.enabled():
@@ -245,6 +282,7 @@ def entity(entity_id):
             f'{_group_key(cat)} k from mention_rows m join windows w on w.wid = m.wid where m.eid = ?) '
             'group by work, language order by c desc, work', (e['eid'],)).fetchall()
         corpus_names = _corpus_names_of(cat, e)
+        adjective_names = _adjective_names(cat, _conn(path), e)
         doc_counts = _document_counts(path, e) if cat['has_documents_table'] else {}
     except sqlite3.Error as ex:
         logger.exception('[ENTITIES] store unreadable')
@@ -257,6 +295,7 @@ def entity(entity_id):
     out = _public(e)
     out['works'] = works
     out['corpus_names'] = corpus_names
+    out['adjective_names'] = adjective_names
     out['document_counts'] = doc_counts
     out['available'] = True
     return jsonify(out)
@@ -322,6 +361,11 @@ def mentions(entity_id):
         c = _conn(path)
         key = _group_key(cat)
         where, args = 'm.eid = ?', [e['eid']]
+        adjective_of = (request.args.get('adjective_of') or '').strip()
+        if adjective_of:
+            sql, extra = _exclusion_sql(cat, place_adjectives.exclusions(adjective_of, e['id']))
+            where += sql
+            args += extra
         if work:
             where += ' and w.work = ?'
             args.append(work[:-5] if work.endswith('.tess') else work)
