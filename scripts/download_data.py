@@ -165,7 +165,7 @@ def check_status(manifest):
         status = file_status(filepath, entry.get("sha256"))
 
         if status == "ok":
-            marker = "OK"
+            marker = "OK" if read_stamp(filepath) else "OK?"
         elif status == "stale":
             marker = "STALE"
             all_ok = False
@@ -181,6 +181,9 @@ def check_status(manifest):
         print(f"  [{marker:7s}] {entry['extract_to']} — {size_label}{req_label}")
         print(f"           {entry['description']}")
 
+    print()
+    print("  OK? marks a file unpacked before stamps existed. Its archive may have been regenerated since.")
+    print("  Run with --force to replace such files.")
     print()
     also_needed = manifest.get("notes", {}).get("also_needed", [])
     if also_needed:
@@ -233,7 +236,10 @@ def download_files(manifest, file_filter=None):
 
         if status == "ok":
             size_label = entry.get("size_uncompressed_human", "")
-            print(f"SKIP: {entry['extract_to']} (already present, {size_label})")
+            note = ""
+            if read_stamp(filepath) is None:
+                note = ", unpacked before stamps existed, --force replaces it"
+            print(f"SKIP: {entry['extract_to']} (already present, {size_label}{note})")
             skipped += 1
             continue
         if status == "stale":
