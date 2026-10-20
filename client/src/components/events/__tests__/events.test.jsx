@@ -189,13 +189,31 @@ describe('the name box suggestions', () => {
     expect(calls.filter((u) => u === '/api/events/names')).toHaveLength(1);
   });
 
-  it('matches places, folds accents and waits for two characters', async () => {
+  it('opens the whole list on a click, alphabetical, events with passages or documents only', async () => {
     mockApi();
     render(<EventList openEvent={() => {}} />);
     await screen.findByText('Battle of Marathon');
-    await typeInto('c');
+    await userEvent.click(screen.getByLabelText(/Search by name/));
+    await waitFor(() => expect(suggestions()).toHaveLength(4));
+    expect(suggestions().map((o) => o.querySelector('.font-bold').textContent)).toEqual(
+      ['Battle of Cannae', 'Battle of Marathon', 'Marathon Campaign', 'Siege of Syracuse']);
+  });
+
+  it('the arrow button opens and closes the list', async () => {
+    mockApi();
+    render(<EventList openEvent={() => {}} />);
+    await screen.findByText('Battle of Marathon');
+    await userEvent.click(screen.getByRole('button', { name: 'Show the list of events' }));
+    await waitFor(() => expect(suggestions()).toHaveLength(4));
+    await userEvent.click(screen.getByRole('button', { name: 'Close the list of events' }));
     expect(suggestions()).toHaveLength(0);
-    await userEvent.type(screen.getByLabelText(/Search by name/), 'ánn');
+  });
+
+  it('matches places and folds accents from the first character', async () => {
+    mockApi();
+    render(<EventList openEvent={() => {}} />);
+    await screen.findByText('Battle of Marathon');
+    await typeInto('á');
     expect(await within(screen.getByRole('listbox')).findByRole('option', { name: /Battle of Cannae/ })).toBeTruthy();
     await userEvent.clear(screen.getByLabelText(/Search by name/));
     await userEvent.type(screen.getByLabelText(/Search by name/), 'apul');
