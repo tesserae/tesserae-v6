@@ -3344,8 +3344,9 @@ exports[`App render recording > page /events 1`] = `
 </select>
 </label>
 <label class="text-xs text-gray-600">Order<select aria-label="Order" class="mt-1 block border border-gray-300 rounded px-2 py-1.5 text-sm text-gray-900">
+<option value="name">Alphabetical</option>
+<option value="date">By date, earliest first</option>
 <option value="evidence">Most passages and documents</option>
-<option value="date">By date</option>
 </select>
 </label>
 <button type="submit" class="px-3 py-1.5 text-sm rounded bg-red-700 text-white hover:bg-red-800">Search</button>

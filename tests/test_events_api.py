@@ -337,6 +337,21 @@ def test_names_route_lists_every_event_once(client, db):
         c.commit()
 
 
+def test_document_texts_come_from_the_documents_index(monkeypatch):
+    """Each document card carries its text (the project lead, 2026-10-20)."""
+    import sqlite3 as _sq
+    from backend.blueprints import events as E
+    import backend.documents as D
+    conn = _sq.connect(':memory:')
+    conn.execute('create table lines (text_id integer, ref text, content text)')
+    conn.execute("insert into lines values (1, 'edr:a1', 'Augusto / sacr(um) / Perusia restituta.')")
+    conn.execute("insert into lines values (2, 'edr:a2', ?)", ('x ' * 600,))
+    monkeypatch.setattr(D, 'get_connection', lambda lang: conn if lang == 'la' else None)
+    out = E._document_texts([{'doc_id': 'edr:a1', 'language': 'la'}, {'doc_id': 'edr:a2', 'language': 'la'},
+                             {'doc_id': 'p:9', 'language': 'grc'}])
+    assert out['edr:a1'] == 'Augusto / sacr(um) / Perusia restituta.'
+    assert out['edr:a2'].endswith(' …') and len(out['edr:a2']) <= E.DOCUMENT_TEXT_CHARS + 2
+    assert 'p:9' not in out
 
 def test_sort_name_is_alphabetical(client):
     """The Events page opens alphabetical (the project lead, 2026-10-20)."""
@@ -344,3 +359,22 @@ def test_sort_name_is_alphabetical(client):
     assert d['sort'] == 'name'
     labels = [e['label'] for e in d['events']]
     assert labels == sorted(labels, key=str.lower)
+
+
+def test_documents_naming_returns_the_matched_forms(monkeypatch, tmp_path):
+    """The naming step reports which word matched, for highlighting (2026-10-20)."""
+    import sqlite3 as _sq
+    from backend.blueprints import events as E
+    from backend import entity_extras
+    import backend.blueprints.entities as ENT
+    store = tmp_path / 'entities.sqlite'
+    c = _sq.connect(store)
+    c.execute('create table document_mentions (eid integer, doc_id text, language text, form text, kind text, adjective integer)')
+    c.execute("insert into document_mentions values (7, 'edr:a1', 'la', 'perusia', 'form', 0)")
+    c.execute("insert into document_mentions values (7, 'edr:a2', 'la', 'perusini', 'form', 1)")
+    c.commit()
+    c.close()
+    monkeypatch.setattr(ENT, 'store_path', lambda: str(store))
+    monkeypatch.setattr(entity_extras, 'resolve_name_to_eid', lambda path, n: 7 if n == 'Perugia' else None)
+    out = E._documents_naming(['edr:a1', 'edr:a2', 'edr:a3'], ['Perugia'])
+    assert out == {'edr:a1': {'perusia'}, 'edr:a2': {'perusini'}}

@@ -42,8 +42,10 @@ def test_a_name_resolves_to_the_entity_the_search_lists_first(store):
 
 def test_the_documents_that_name_a_participant_or_the_place_are_found(store):
     found = E._documents_naming(['isicily:ISic1', 'isicily:ISic2', 'isicily:ISic3'], ['Hermocrates', 'Sicilia', 'Gylippus'])
-    assert found == {'isicily:ISic1', 'isicily:ISic2'}
-    assert E._documents_naming(['isicily:ISic3'], ['Hermocrates']) == set()
+    # {doc_id: the word forms that matched}, the forms used to highlight the text (2026-10-20)
+    assert set(found) == {'isicily:ISic1', 'isicily:ISic2'}
+    assert all(found[k] for k in found)
+    assert E._documents_naming(['isicily:ISic3'], ['Hermocrates']) == {}
 
 
 def test_naming_documents_lead_through_the_real_path(store):

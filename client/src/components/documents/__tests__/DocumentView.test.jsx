@@ -65,7 +65,7 @@ describe('DocumentView', () => {
     setUrl('?doc=edh:HD047322&lang=la&q=dis+manibus&type=lemma');
     mockFetchOk(documentPayload);
     render(<DocumentView />);
-    await waitFor(() => expect(screen.getByText('AE 2001, 2169.')).toBeTruthy());
+    await waitFor(() => expect(screen.getByText("L'Année épigraphique (AE) 2001, 2169.")).toBeTruthy());
     expect(document.body.textContent).toMatch(/101 AD.*300 AD/);
     expect(document.body.textContent).toContain('Rome');
     const pleiades = screen.getByRole('link', { name: 'Pleiades' });
@@ -78,7 +78,7 @@ describe('DocumentView', () => {
     setUrl('?doc=edh:HD047322&lang=la&q=dis+manibus&type=lemma');
     mockFetchOk(documentPayload);
     render(<DocumentView />);
-    await waitFor(() => expect(screen.getByText('AE 2001, 2169.')).toBeTruthy());
+    await waitFor(() => expect(screen.getByText("L'Année épigraphique (AE) 2001, 2169.")).toBeTruthy());
     const restored = document.querySelector('.decoration-dotted');
     expect(restored).toBeTruthy();
     expect(restored.textContent).toBe('D');
@@ -88,7 +88,7 @@ describe('DocumentView', () => {
     setUrl('?doc=edh:HD047322&lang=la&q=dis+manibus&type=lemma');
     mockFetchOk(documentPayload);
     render(<DocumentView />);
-    await waitFor(() => expect(screen.getByText('AE 2001, 2169.')).toBeTruthy());
+    await waitFor(() => expect(screen.getByText("L'Année épigraphique (AE) 2001, 2169.")).toBeTruthy());
     expect(document.body.textContent).toContain('Rome, Mus. Capitolino');
     expect(document.body.textContent).toContain('inv. 42');
     expect(document.body.textContent).toContain('30 x 20 cm');
@@ -103,7 +103,7 @@ describe('DocumentView', () => {
     setUrl('?doc=edh:HD047322&lang=la&q=dis+manibus&type=lemma');
     mockFetchOk(documentPayload);
     render(<DocumentView />);
-    await waitFor(() => expect(screen.getByText('AE 2001, 2169.')).toBeTruthy());
+    await waitFor(() => expect(screen.getByText("L'Année épigraphique (AE) 2001, 2169.")).toBeTruthy());
     const apparatusDetails = screen.getByText('Apparatus').closest('details');
     expect(apparatusDetails).toBeTruthy();
     expect(apparatusDetails.open).toBe(false);
@@ -116,7 +116,7 @@ describe('DocumentView', () => {
     setUrl('?doc=edh:HD047322&lang=la&q=dis+manibus&type=lemma');
     mockFetchOk(documentPayload);
     render(<DocumentView />);
-    await waitFor(() => expect(screen.getByText('AE 2001, 2169.')).toBeTruthy());
+    await waitFor(() => expect(screen.getByText("L'Année épigraphique (AE) 2001, 2169.")).toBeTruthy());
     expect(screen.getAllByRole('link', { name: 'Link at example.org' }).length).toBe(2);
     expect(screen.getAllByTitle(/^https:\/\/example\.org\/[ab]\.jpg$/).length).toBe(2);
   });
@@ -137,7 +137,7 @@ describe('DocumentView', () => {
       },
     });
     render(<DocumentView />);
-    await waitFor(() => expect(screen.getByText('AE 2001, 2169.')).toBeTruthy());
+    await waitFor(() => expect(screen.getByText("L'Année épigraphique (AE) 2001, 2169.")).toBeTruthy());
     expect(screen.getByRole('link', { name: 'Photo F034014 at Epigraphic Database Heidelberg' })
       .getAttribute('href')).toBe('https://edh.ub.uni-heidelberg.de/edh/foto/F034014');
     expect(screen.getByRole('link', { name: 'Image at Epigraphic Database Roma' })).toBeTruthy();
@@ -157,7 +157,7 @@ describe('DocumentView', () => {
       },
     });
     render(<DocumentView />);
-    await waitFor(() => expect(screen.getByText('AE 2001, 2169.')).toBeTruthy());
+    await waitFor(() => expect(screen.getByText("L'Année épigraphique (AE) 2001, 2169.")).toBeTruthy());
     expect(screen.getByText(
       'Image at Cologne Papyrus Collection unavailable (the host has not answered since 2026-10-09).'))
       .toBeTruthy();
@@ -169,7 +169,7 @@ describe('DocumentView', () => {
     setUrl('?doc=edh:HD047322&lang=la&q=dis+manibus&type=lemma');
     mockFetchOk(documentPayload);
     render(<DocumentView />);
-    await waitFor(() => expect(screen.getByText('AE 2001, 2169.')).toBeTruthy());
+    await waitFor(() => expect(screen.getByText("L'Année épigraphique (AE) 2001, 2169.")).toBeTruthy());
     const back = screen.getByRole('link', { name: /back to search results/ });
     const params = new URLSearchParams(back.getAttribute('href').split('?')[1]);
     expect(params.get('lang')).toBe('la');
@@ -181,7 +181,7 @@ describe('DocumentView', () => {
     setUrl('?doc=edh:HD047322&lang=la&q=dis+manibus&type=lemma&documents=1');
     mockFetchOk(documentPayload);
     render(<DocumentView />);
-    await waitFor(() => expect(screen.getByText('AE 2001, 2169.')).toBeTruthy());
+    await waitFor(() => expect(screen.getByText("L'Année épigraphique (AE) 2001, 2169.")).toBeTruthy());
     const back = screen.getByRole('link', { name: /back to search results/ });
     const params = new URLSearchParams(back.getAttribute('href').split('?')[1]);
     expect(params.get('documents')).toBe('1');
@@ -197,7 +197,7 @@ describe('DocumentView', () => {
       setUrl('?doc=edh:HD047322&lang=la&q=dis+manibus&type=lemma&from=inscriptions-papyri&documents=1');
       mockFetchOk(documentPayload);
       render(<DocumentView />);
-      await waitFor(() => expect(screen.getByText('AE 2001, 2169.')).toBeTruthy());
+      await waitFor(() => expect(screen.getByText("L'Année épigraphique (AE) 2001, 2169.")).toBeTruthy());
       const back = screen.getByRole('link', { name: /back to search results/ });
       expect(back.getAttribute('href').split('?')[0]).toBe('/inscriptions-papyri');
     });
@@ -207,7 +207,7 @@ describe('DocumentView', () => {
         + '&region=Roma&date_from=100&date_to=300&from=inscriptions-papyri&documents=1');
       mockFetchOk(documentPayload);
       render(<DocumentView />);
-      await waitFor(() => expect(screen.getByText('AE 2001, 2169.')).toBeTruthy());
+      await waitFor(() => expect(screen.getByText("L'Année épigraphique (AE) 2001, 2169.")).toBeTruthy());
       const back = screen.getByRole('link', { name: /back to search results/ });
       const params = new URLSearchParams(back.getAttribute('href').split('?')[1]);
       expect(params.get('q')).toBe('dis manibus');
@@ -225,7 +225,7 @@ describe('DocumentView', () => {
       setUrl('?doc=edh:HD047322&lang=la&q=dis+manibus&type=lemma');
       mockFetchOk(documentPayload);
       render(<DocumentView />);
-      await waitFor(() => expect(screen.getByText('AE 2001, 2169.')).toBeTruthy());
+      await waitFor(() => expect(screen.getByText("L'Année épigraphique (AE) 2001, 2169.")).toBeTruthy());
       const back = screen.getByRole('link', { name: /back to search results/ });
       expect(back.getAttribute('href').split('?')[0]).toBe('/line-search');
     });
@@ -296,12 +296,12 @@ describe('DocumentView', () => {
       setUrl('?doc=edh:HD047322&lang=la');
       mockWithScholarship([]);
       const { unmount } = render(<DocumentView />);
-      await waitFor(() => expect(screen.getByText('AE 2001, 2169.')).toBeTruthy());
+      await waitFor(() => expect(screen.getByText("L'Année épigraphique (AE) 2001, 2169.")).toBeTruthy());
       expect(screen.queryByTestId('document-scholarship')).toBeNull();
       unmount();
       mockWithScholarship([], false);
       render(<DocumentView />);
-      await waitFor(() => expect(screen.getByText('AE 2001, 2169.')).toBeTruthy());
+      await waitFor(() => expect(screen.getByText("L'Année épigraphique (AE) 2001, 2169.")).toBeTruthy());
       expect(screen.queryByTestId('document-scholarship')).toBeNull();
     });
   });

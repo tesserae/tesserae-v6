@@ -4,6 +4,7 @@ import { Bar } from 'react-chartjs-2';
 import Pagination from '../common/Pagination';
 import { dirFor } from '../../utils/rtl';
 import { renderDocumentText, documentDateLabel, documentPlace, documentLabels } from './documentDisplay';
+import { expandEditions } from '../../utils/editionNames';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
@@ -164,7 +165,7 @@ export default function DocumentsResultsPanel({
                 <div className="sm:w-48 flex-shrink-0 min-w-0 break-words">
                   <div className="text-sm font-medium text-gray-900">
                     <a href={documentViewUrl(result.doc_id)} className="hover:underline">
-                      {credit.principal_edition || result.doc_id}
+                      {expandEditions(credit.principal_edition) || result.doc_id}
                     </a>
                   </div>
                   <div className="text-xs text-gray-500">

@@ -7,6 +7,7 @@ import { useCorpusTextMap } from '../../utils/textNames';
 import EventMap from './EventMap';
 import { dateLabel, kmLabel, readerLinkWithBack, shortPassageRef, workHeading } from './eventsFormat';
 import AboutSourcesLink from '../scholarship/AboutSourcesLink';
+import { expandEditions } from '../../utils/editionNames';
 
 const LABEL_TEXT = {
   yes: ['Narrative', 'An offline language model judged that this passage is a narrative of the event itself.'],
@@ -83,12 +84,33 @@ const DOCUMENT_GROUPS = [
   ['dated', "Dated within the event's years, nearest first"],
 ];
 
+/** A word as the Mentions store spells its forms: lower case, accents off, v as u, j as i. */
+function foldForm(w) {
+  return String(w || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
+    .replace(/v/g, 'u').replace(/j/g, 'i').replace(/[^a-zα-ω]/g, '');
+}
+
+/**
+ * The document's text with the words that name a participant or the place marked
+ * (the project lead, 2026-10-20: "matching words should be highlighted"). The forms
+ * come from the Mentions store, which records the word that matched in each document.
+ */
+export function HighlightedText({ text, forms }) {
+  const want = new Set((forms || []).map(foldForm).filter(Boolean));
+  if (!want.size) return text;
+  return String(text).split(/(\s+|[/·,.;:()[\]]+)/).map((part, i) => (
+    want.has(foldForm(part))
+      ? <mark key={i} className="bg-amber-100 text-gray-900 rounded px-0.5">{part}</mark>
+      : part
+  ));
+}
+
 function DocumentCard({ d, event }) {
   return (
     <li className="bg-white border border-gray-200 rounded-lg p-3">
       <div className="flex flex-wrap items-center gap-2 text-sm">
         <a href={d.view_url} className="text-red-700 hover:underline font-medium">
-          {d.edition || d.text_type || 'Document'}
+          {expandEditions(d.edition) || d.text_type || 'Document'}
         </a>
         <span className="text-xs text-gray-500" title="The record number of this document in its database">
           Record {String(d.doc_id).replace(/^[a-z]+:/i, '')}
@@ -105,7 +127,12 @@ function DocumentCard({ d, event }) {
           <span className="ml-auto text-xs text-gray-500">{kmLabel(d.distance_km)} from {event.place || 'the event'}</span>
         )}
       </div>
-      {d.text_snippet && <p className="text-sm text-gray-700 mt-1">{d.text_snippet}</p>}
+      {d.text && (
+        <p className="font-serif text-base text-gray-900 mt-1.5" lang={d.language === 'grc' ? 'grc' : 'la'}>
+          <HighlightedText text={d.text} forms={d.matched_forms} />
+        </p>
+      )}
+      {d.text_snippet && <p className="text-xs text-gray-500 mt-1">{d.text_snippet}</p>}
     </li>
   );
 }

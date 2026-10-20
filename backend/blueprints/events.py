@@ -102,6 +102,39 @@ def reader_url(work, lang, ref):
     return f'/read?work={quote(w)}&lang={quote(lang)}&ref={quote(ref or "")}'
 
 
+DOCUMENT_TEXT_CHARS = 800
+
+
+def _document_texts(documents):
+    """{doc_id: text} for the documents the documents index holds, longest cut at
+    DOCUMENT_TEXT_CHARS with an ellipsis (the record page has the whole text)."""
+    by_lang = {}
+    for d in documents:
+        by_lang.setdefault(d.get('language') or 'la', []).append(d['doc_id'])
+    out = {}
+    try:
+        from backend.documents import get_connection
+    except Exception:  # noqa: BLE001
+        return out
+    for lang, ids in by_lang.items():
+        conn = get_connection(lang)
+        if conn is None:
+            continue
+        for i in range(0, len(ids), 500):
+            chunk = ids[i:i + 500]
+            try:
+                rows = conn.execute(
+                    f'SELECT ref, content FROM lines WHERE ref IN ({",".join("?" * len(chunk))})',  # nosec B608 -- placeholders only
+                    chunk).fetchall()
+            except sqlite3.Error:
+                continue
+            for ref, content in rows:
+                t = ' '.join(str(content or '').split())
+                if t:
+                    out[ref] = t if len(t) <= DOCUMENT_TEXT_CHARS else t[:DOCUMENT_TEXT_CHARS].rsplit(' ', 1)[0] + ' …'
+    return out
+
+
 def document_url(doc_id, lang='la'):
     return f'/document?doc={quote(str(doc_id), safe="")}&lang={lang}&documents=1'
 
@@ -245,31 +278,35 @@ def _rank(i):
 
 def _documents_naming(doc_ids, names):
     """Of `doc_ids`, those that the Mentions store records as naming any of
-    `names` (the event's participants and place), by document_mentions."""
+    `names` (the event's participants and place), by document_mentions, as
+    {doc_id: set of the matched word forms}. The forms are the store's folded
+    spelling (lower case, v written u), and the page uses them to highlight the
+    words in the document's text (the project lead, 2026-10-20)."""
     from backend import entity_extras
     from backend.blueprints.entities import store_path
     path = store_path()
     if not doc_ids or not os.path.exists(path):
-        return set()
+        return {}
     try:
         eids = {x for x in (entity_extras.resolve_name_to_eid(path, n) for n in names) if x is not None}
         if not eids:
-            return set()
+            return {}
         c = sqlite3.connect(f'file:{path}?mode=ro', uri=True)
     except Exception:  # the dossier page must not depend on the Mentions store
         logger.exception('[EVENTS] the Mentions store could not be read')
-        return set()
-    found = set()
+        return {}
+    found = {}
     try:
         wanted = list(doc_ids)
         marks = ','.join('?' * len(eids))
         for i in range(0, len(wanted), 400):
             chunk = wanted[i:i + 400]
-            q = (f'SELECT DISTINCT doc_id FROM document_mentions WHERE eid IN ({marks}) '  # nosec B608
+            q = (f'SELECT DISTINCT doc_id, form FROM document_mentions WHERE eid IN ({marks}) '  # nosec B608
                  f'AND doc_id IN ({",".join("?" * len(chunk))})')  # placeholders only; values are bound
-            found.update(r[0] for r in c.execute(q, list(eids) + chunk))
+            for doc_id, form in c.execute(q, list(eids) + chunk):
+                found.setdefault(doc_id, set()).add(form)
     except sqlite3.Error:
-        return set()
+        return {}
     finally:
         c.close()
     return found
@@ -476,6 +513,7 @@ def get_event(event_id):
                 'doc_id': d['doc_id'], 'date_start': d['date_start'], 'date_end': d['date_end'],
                 'place': d['place'], 'distance_km': d['distance_km'],
                 'text_snippet': d['text_snippet'],
+                'language': lang,
                 'lat': d['lat'] if 'lat' in dcols else None,
                 'lon': d['lon'] if 'lon' in dcols else None,
                 'view_url': document_url(d['doc_id'], lang),
@@ -503,6 +541,16 @@ def get_event(event_id):
             d['edition'] = credit.get('principal_edition')
             d['sources'] = [x for x in (credit.get('source_name'), credit.get('source_name_secondary')) if x]
             d['text_type'] = m.get('text_type_label')
+
+        # The text of each document, from the documents index (the project lead,
+        # 2026-10-20: "We get all the meta information about the inscription.
+        # Everything but the text itself."). One row per document, keyed by its id.
+        # Best effort: without the index the cards show their record line as before.
+        texts = _document_texts(documents)
+        for d in documents:
+            d['text'] = texts.get(d['doc_id'])
+            forms = naming.get(d['doc_id']) if isinstance(naming, dict) else None
+            d['matched_forms'] = sorted(f for f in (forms or ()) if f)
 
         try:
             participants = json.loads(r['participants']) if 'participants' in r.keys() and r['participants'] else []

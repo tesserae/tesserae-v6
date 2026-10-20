@@ -6,6 +6,7 @@ import { LoadingSpinner } from '../common';
 import { dirFor } from '../../utils/rtl';
 import { splitImageLinks } from './imageLinks';
 import AboutSourcesLink from '../scholarship/AboutSourcesLink';
+import { expandEditions } from '../../utils/editionNames';
 
 function paramOr(name, fallback) {
   const v = new URLSearchParams(window.location.search).get(name);
@@ -137,7 +138,7 @@ export default function DocumentView() {
           <div className="bg-white rounded-lg shadow p-4 sm:p-6 space-y-4">
             <div>
               <h1 className="text-lg font-semibold text-gray-900">
-                {credit.principal_edition || data.doc_id}
+                {expandEditions(credit.principal_edition) || data.doc_id}
               </h1>
               <div className="text-sm text-gray-600 mt-1">
                 {[dLabel, place, data.region].filter(Boolean).join(' · ')}
