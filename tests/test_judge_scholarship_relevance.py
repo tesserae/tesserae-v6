@@ -34,3 +34,13 @@ def test_event_and_article_text():
            'snippets': [('Thuc. VI 74', 'a textual emendation')]}
     a = J.article_text(art, {'thuc. pele. 6.74'})
     assert 'no abstract held' in a and 'thuc. pele. 6.74' in a and '(Thuc. VI 74) a textual emendation' in a
+
+
+def test_parse_accepts_a_written_backslash_t():
+    import judge_scholarship_relevance as J
+    assert J.parse('NO\\tCites the passage for a Greek word.')[0] == 'NO'
+
+
+def test_default_provider_is_anthropic():
+    import judge_scholarship_relevance as J
+    assert J.PROVIDER == 'anthropic' and J.ANTHROPIC_MODEL.startswith('claude-')
