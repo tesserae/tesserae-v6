@@ -41,6 +41,14 @@ MAX_IN_FLIGHT = 8
 MAX_TOKENS = 1200
 RETRY_MAX_TOKENS = 3500  # a reply that ran out before its verdict line is asked again with more room
 RETRY_429_SECONDS = 30
+# Since 2026-10-20 the ratings are made with Claude through the Anthropic API (the project lead decided after a
+# measured comparison on 532 articles: Claude caught articles rated YES that cite a different passage). The
+# gateway model stays available with --provider gateway. A paid model is allowed here because the ratings are
+# made offline at a relink, never while a visitor waits.
+ANTHROPIC_MODEL = 'claude-sonnet-5-5'
+ANTHROPIC_URL = 'https://api.anthropic.com'
+ANTHROPIC_ENV_FILE = os.path.expanduser('~/.config/tesserae/anthropic.env')  # kept outside the checkout, mode 600
+PROVIDER = 'anthropic'
 INDEX_DIR = '/var/www/tesseraev6_flask/data/citation_index'
 MAX_SENTENCES = 4
 SENTENCE_CHARS = 450
@@ -114,6 +122,7 @@ FORMAT_TAIL = '\n\nReply with exactly one line in the form VERDICT<tab>reason, w
 
 
 def parse(text):
+    text = (text or '').replace('\\t', '\t')  # some models write the tab as backslash and t
     """The verdict line. With thinking off the model often talks its way to the answer and ends
     on the line asked for (VERDICT, a tab, the reason), so the last such line is the answer."""
     t = (text or '').strip()
@@ -127,7 +136,58 @@ def parse(text):
     return v, re.sub(r'\s+', ' ', reason).strip()[:240]
 
 
+def _anthropic_env():
+    key = os.environ.get('ANTHROPIC_API_KEY', '')
+    if not key and os.path.exists(ANTHROPIC_ENV_FILE):
+        for line in open(ANTHROPIC_ENV_FILE):
+            if line.startswith('ANTHROPIC_API_KEY='):
+                key = line.split('=', 1)[1].strip().strip('"').strip("'")
+    if not key:
+        sys.exit('no ANTHROPIC_API_KEY in the environment or ' + ANTHROPIC_ENV_FILE)
+    return ANTHROPIC_URL, key
+
+
+def ask_anthropic(url, key, user, stats, lock, max_tokens=MAX_TOKENS):
+    body = json.dumps({'model': ANTHROPIC_MODEL, 'max_tokens': min(max_tokens, 300), 'system': SYSTEM,
+                       'messages': [{'role': 'user', 'content': user}]}).encode()
+    req = urllib.request.Request(url + '/v1/messages', data=body, headers={
+        'content-type': 'application/json', 'x-api-key': key, 'anthropic-version': '2023-06-01'})
+    for attempt in range(6):
+        t0 = time.time()
+        try:
+            with urllib.request.urlopen(req, timeout=120) as r:
+                d = json.loads(r.read())
+            u = d.get('usage') or {}
+            with lock:
+                stats['requests'] += 1
+                stats['seconds'] += time.time() - t0
+                stats['prompt_tokens'] += u.get('input_tokens', 0)
+                stats['completion_tokens'] += u.get('output_tokens', 0)
+            return ''.join(b.get('text', '') for b in d.get('content', []) if b.get('type') == 'text')
+        except urllib.error.HTTPError as e:
+            msg = e.read()[:300].decode('utf-8', 'replace')
+            if e.code in (429, 529):
+                with lock:
+                    stats['n429'] += 1
+                time.sleep(RETRY_429_SECONDS)
+                continue
+            if e.code in (400, 401, 402, 403, 404):
+                with lock:
+                    stats['n402'] += 1
+                raise QuotaStop(f'HTTP {e.code}: {msg}')
+            with lock:
+                stats['errors'] += 1
+            time.sleep(5)
+        except (urllib.error.URLError, TimeoutError, ConnectionError, ValueError):
+            with lock:
+                stats['errors'] += 1
+            time.sleep(5)
+    return None
+
+
 def ask(url, key, user, stats, lock, max_tokens=MAX_TOKENS):
+    if PROVIDER == 'anthropic':
+        return ask_anthropic(url, key, user, stats, lock, max_tokens)
     body = json.dumps({'model': MODEL, 'temperature': 0, 'max_tokens': max_tokens,
                        'messages': [{'role': 'system', 'content': SYSTEM}, {'role': 'user', 'content': user}],
                        **EXTRA_FIELDS}).encode()
@@ -232,9 +292,12 @@ def main(argv=None):
     ap.add_argument('--limit', type=int, default=0)
     ap.add_argument('--events', default='')
     ap.add_argument('--max-seconds', type=int, default=0, help='stop cleanly after this long, run again to resume')
+    ap.add_argument('--provider', choices=['anthropic', 'gateway'], default='anthropic')
     a = ap.parse_args(argv)
+    global PROVIDER
+    PROVIDER = a.provider
     only = {x.strip() for x in a.events.split(',') if x.strip()}
-    url, key = _env()
+    url, key = _anthropic_env() if PROVIDER == 'anthropic' else _env()
     if not os.path.exists(a.output):
         shutil.copyfile(a.input, a.output)
     c = sqlite3.connect(a.output)
@@ -292,7 +355,7 @@ def main(argv=None):
                 continue
             (eid, u, title), _ = item
             c.execute('INSERT OR REPLACE INTO scholarship_relevance VALUES (?,?,?,?,?,?,?)',
-                      (eid, u, title, verdict, reason, MODEL, time.strftime('%Y-%m-%d %H:%M:%S')))
+                      (eid, u, title, verdict, reason, ANTHROPIC_MODEL if PROVIDER == 'anthropic' else MODEL, time.strftime('%Y-%m-%d %H:%M:%S')))
             n_ok += 1
             if n_ok % 100 == 0:
                 c.commit()
