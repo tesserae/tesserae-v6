@@ -3080,7 +3080,17 @@ def connection_density(work, scale='fine'):
     # is to build those files their windows, not to borrow another book's.
     exact = [i for i in range(len(_records)) if _records[i].get('work') == work]
     rows = exact if is_part(work) else (exact or (_by_work.get(_norm_work(work)) or []))
+    candidates = rows
     rows = [i for i in rows if not scale or _records[i].get('scale') == scale]
+    if not rows and scale == 'fine':
+        # A work cut into paragraph-sized prose windows (since 2026-10-11)
+        # and imported after that date has no fine windows at all, so the
+        # Reader's request for the fine scale found nothing and the gutter
+        # stayed empty (2026-10-19, Cicero's De legibus and 36 earlier
+        # parts). Its prose windows are the windows it has; answer with
+        # them. A work that has both scales keeps answering with its fine
+        # windows, as before.
+        rows = [i for i in candidates if _records[i].get('scale') == 'prose']
     if not rows:
         return {'work': work, 'windows': []}
     base = _norm_work(work)

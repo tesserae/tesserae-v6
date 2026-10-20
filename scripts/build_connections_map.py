@@ -173,6 +173,28 @@ def build_scripture_exclusions(records, sub_idx):
     return extra_exclude
 
 
+def select_subset(records, languages=None, scale=None):
+    """Row indices of the windows the map is built from.
+
+    Every fine window of the served languages, plus the prose-scale windows
+    of a work that has NO fine windows. Since 2026-10-11 a long prose work
+    is cut into paragraph-sized windows (scale 'prose'); a work imported
+    after that date has no described fine windows at all, so a fine-only
+    subset left it out of the map and gave it an empty Reader gutter
+    (found 2026-10-19 with Cicero's De legibus: 37 such works, among them
+    the parts of Cassius Dio and Diodorus cut that way). A work that has
+    both keeps its fine windows here, as before.
+    """
+    languages = set(languages or LANGUAGES)
+    scale = scale or SCALE
+    works_with_fine = {r.get('work') for r in records
+                       if r.get('scale') == scale and r.get('language') in languages}
+    return [i for i, r in enumerate(records)
+            if r.get('language') in languages
+            and (r.get('scale') == scale
+                 or (r.get('scale') == 'prose' and r.get('work') not in works_with_fine))]
+
+
 def main():
     t_start = time.time()
     os.makedirs(CACHE_DIR, exist_ok=True)
@@ -213,9 +235,11 @@ def main():
         raise SystemExit(f'index mismatch: {emb.shape[0]} embeddings vs {len(records)} ids')
     log(f'embeddings.npy shape {emb.shape} dtype {emb.dtype}')
 
-    sub_idx = [i for i, r in enumerate(records)
-               if r.get('language') in LANGUAGES and r.get('scale') == SCALE]
-    log(f'subset ({",".join(LANGUAGES)}, scale={SCALE}): {len(sub_idx)} windows of {len(records)} total')
+    sub_idx = select_subset(records)
+    n_prose = sum(1 for i in sub_idx if records[i].get('scale') == 'prose')
+    log(f'subset ({",".join(LANGUAGES)}, scale={SCALE} plus the prose windows of works '
+        f'with no fine windows): {len(sub_idx)} windows of {len(records)} total, '
+        f'{n_prose} of them prose-scale')
 
     sub_idx = np.array(sub_idx, dtype=np.int64)
     base_works = np.array([norm_work(records[i].get('work')) for i in sub_idx])
