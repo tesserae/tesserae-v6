@@ -740,7 +740,7 @@ describe('the History view', () => {
     render(<AskAWorkPage />);
     await waitFor(() => expect(screen.getByRole('combobox', { name: 'Author' })).toHaveValue('Tacitus'));
     await waitFor(() => expect(screen.getByRole('combobox', { name: 'Work' })).toHaveValue('Annals'));
-    expect(await screen.findByRole('button', { name: /omens foretell an emperor/ })).toBeInTheDocument();
+    expect(await screen.findByRole('button', { name: /an accused senator kills himself/ })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /prodigies reported and expiated/ })).toBeInTheDocument();
     // The Literature examples are not shown, even for a work the index holds.
     expect(screen.queryByRole('button', { name: /a mother mourns her son/ })).toBeNull();
