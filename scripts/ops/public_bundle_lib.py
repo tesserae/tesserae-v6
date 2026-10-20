@@ -22,6 +22,7 @@ import hashlib
 import json
 import os
 import re
+import shutil
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -165,10 +166,11 @@ def commentary_info(path):
 # --------------------------------------------------------------- selection
 
 class Item:
-    __slots__ = ('rel', 'group', 'licence', 'abs')
+    __slots__ = ('rel', 'group', 'licence', 'abs', 'substitute')
 
-    def __init__(self, rel, group, licence, abs_path):
+    def __init__(self, rel, group, licence, abs_path, substitute=False):
         self.rel, self.group, self.licence, self.abs = rel, group, licence, abs_path
+        self.substitute = substitute
 
 
 TEXT_LICENCE = 'Per work: see data/text_sources.json and LICENSES.md'
@@ -197,11 +199,22 @@ def select(mode, prod, excl, restricted_ids, notes):
     theme = list(excl.get('theme_tier_languages', {}))
     bundled = core + theme
 
+    subs = excl.get('substitutes', {})
+
     def want(rel, group, licence):
         why = excluded_reason(rel, excl, restricted_ids)
         if why:
             notes[why] = notes.get(why, 0) + 1
             return None
+        if rel in subs:
+            if not os.path.isfile(subs[rel]):
+                raise SystemExit(f'STOP: {rel} is to be replaced by the filtered copy {subs[rel]}, which does not exist. '
+                                 'The original is not used in its place. Make the filtered copy '
+                                 '(scripts/corpus/filter_index_by_registry.py or filter_language_caches_by_registry.py) '
+                                 'or take the entry out of "substitutes" in public_bundle_exclusions.json.')
+            why = 'replaced by a filtered copy without the restricted works'
+            notes[why] = notes.get(why, 0) + 1
+            return Item(rel, group, licence, subs[rel], substitute=True)
         return Item(rel, group, licence, os.path.join(prod, rel))
 
     def tree(sub, group, licence, keep=lambda n: True):
@@ -338,6 +351,52 @@ def filtered_text_descriptions(prod, excl, restricted_ids):
         else:
             out[k] = v
     return out
+
+
+def index_holds_restricted(path, ids):
+    """Filenames in the `texts` table of an inverted index whose work is in the registry."""
+    import sqlite3
+    con = sqlite3.connect(f'file:{path}?mode=ro', uri=True)
+    try:
+        if not con.execute("select 1 from sqlite_master where type='table' and name='texts'").fetchone():
+            return []
+        names = [r[0] for r in con.execute('select filename from texts')]
+    finally:
+        con.close()
+    return sorted(n for n in names if n.endswith('.tess') and base_work(n[:-len('.tess')]) in ids)
+
+
+def whole_corpus_problems(items, prod, ids, excl):
+    """Reasons the plan must stop: a file that covers a whole language and is taken as it is although the
+    language has restricted works (they are counted or stored inside it), or any index database in the
+    plan that holds a restricted text."""
+    problems = []
+    if not ids:
+        return problems
+    langs = set()
+    for lang in bundled_languages(excl):
+        d = os.path.join(prod, 'texts', lang)
+        if os.path.isdir(d) and any(fn.endswith('.tess') and base_work(fn[:-len('.tess')]) in ids
+                                    for fn in os.listdir(d)):
+            langs.add(lang)
+    whole = set()
+    for lang in langs:
+        whole |= {f'cache/lemmas/{lang}.json', f'cache/bigrams/{lang}_bigrams.json',
+                  f'cache/frequencies/{lang}.json', f'data/inverted_index/{lang}_index.db'}
+    for it in items:
+        if it.rel in whole and not it.substitute:
+            problems.append(f'{it.rel} covers a language with restricted works and is not replaced by a filtered copy')
+        if it.rel.startswith('data/inverted_index/') and it.rel.endswith('.db'):
+            held = index_holds_restricted(it.abs, ids)
+            if held:
+                problems.append(f'{it.rel} still holds {len(held)} restricted works, first {held[:3]}')
+        if it.rel == 'data/translation_pairs.json':
+            with open(it.abs, encoding='utf-8') as f:
+                pairs = json.load(f).get('pairs', [])
+            bad = [p for p in pairs if p.get('work_a') in ids or p.get('work_b') in ids]
+            if bad:
+                problems.append(f'{it.rel} still lists {len(bad)} pairs with restricted works')
+    return problems
 
 
 def prod_commit(prod):
@@ -484,6 +543,10 @@ def licences_md(items, excl, prod, counts):
         by_why[why] = by_why.get(why, 0) + 1
     for why, n in sorted(by_why.items()):
         L.append(f'- Commentary files left out ({why}): {n}')
+    if counts.get('excluded', {}).get('replaced by a filtered copy without the restricted works'):
+        L.append('- Some works are held for search only under license terms that do not allow passing them on. '
+                 'Their files are not in this bundle, and the files that cover a whole language (the Coptic word index, '
+                 'bigram table, lemma frequencies and the list of translation pairs) are copies rebuilt without them.')
     for p, why in excl['never_paths'].items():
         L.append(f'- `{p}`: {why}')
     for lang, why in excl['withheld_languages'].items():
@@ -563,12 +626,17 @@ def cmd_plan(args):
     notes = {}
     items = list(select(args.mode, prod, excl, restricted, notes))
 
-    # registry guard: the index databases hold the lines of every text, so a
-    # restricted text cannot be removed by leaving files out
-    if restricted:
-        print('REFUSING: the restricted registry is not empty and the index databases hold the lines of '
-              'every text. Remove those texts from a copy of the indexes with '
-              'scripts/corpus/remove_restricted_text.py, then build the bundle from that copy.',
+    # registry guard: the whole-language files and the index databases hold the lines and counts of every
+    # text, so a restricted text is not removed by leaving its own files out. Each such file must be
+    # replaced by a filtered copy (the "substitutes" map in public_bundle_exclusions.json), and the
+    # copies are checked here.
+    problems = whole_corpus_problems(items, prod, restricted, excl)
+    if problems:
+        print('REFUSING: the restricted registry is not empty and', file=sys.stderr)
+        for pr in problems:
+            print('  ' + pr, file=sys.stderr)
+        print('Filter a copy with scripts/corpus/filter_index_by_registry.py or '
+              'scripts/corpus/filter_language_caches_by_registry.py and list it under "substitutes".',
               file=sys.stderr)
         return 4
 
@@ -615,7 +683,15 @@ def cmd_plan(args):
              os.path.join(stage, 'data/text_descriptions.json')),
     ]
     # the stage copy replaces the production copy of the same name
-    prod_items = [it for it in items if it.rel != 'data/text_descriptions.json']
+    prod_items = [it for it in items if it.rel != 'data/text_descriptions.json' and not it.substitute]
+    # a filtered substitute is copied into the stage folder under the bundle path of the file it replaces
+    for it in items:
+        if it.substitute:
+            dest = os.path.join(stage, it.rel)
+            os.makedirs(os.path.dirname(dest), exist_ok=True)
+            shutil.copyfile(it.abs, dest)
+            stage_items.append(Item(it.rel, it.group, it.licence + ' (filtered: restricted works removed)', dest))
+            print(f'substitute used: {it.rel} <- {it.abs}')
 
     # extra staged files (the filtered passage index and map) are added by the
     # shell script after filter_passage_index.py has run; it passes them in

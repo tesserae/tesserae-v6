@@ -8,6 +8,9 @@ history (index builds, cache rebuilds, corpus changes) is in
 `DATA_OPERATIONS.md`; per-release changes are in `../CHANGELOG.md`.
 
 
+## 2026-10-19: the core bundle returns with whole-corpus files rebuilt without the restricted works
+
+The core bundle of 14 October was withdrawn because it held the Sahidica New Testament, and leaving the works' own files out would not have been enough, because the Coptic word index, the bigram table, the lemma frequencies and the list of translation pairs hold their lines and counts inside them. The project lead decided on 2026-10-19 that each such file is replaced in the bundle by a filtered copy, and that the builder refuses to run if a whole-language file of a language with restricted works is taken as it is. The Sahidic Old Testament (`sahidic.*`) is not on the registry and stays in, as do the other 153 Coptic texts. The rebuilt bundle is dated 19 October, and the measurements are in `DATA_OPERATIONS.md`.
 ## 2026-10-19: ten more data sets offered for download, each with its license and its exclusions
 
 The project lead approved offering every data set that the audit of 2026-10-19 recommended (the Urdu index, the People & Places store, the events store, coins, museum objects, dictionaries, the Latin lemma tables, citation indexes without sentences, text descriptions and a filtered window-text archive). The delegate that built the archives set the exclusions below, and the project lead can widen or narrow any of them. Each archive carries a LICENSE.txt naming its license, sources and required credit, and a README.txt. The license position of each, in one line:
