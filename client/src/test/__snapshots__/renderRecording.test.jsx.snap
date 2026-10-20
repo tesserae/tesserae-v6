@@ -43,6 +43,8 @@ exports[`App render recording > page / 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
+</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
@@ -53,6 +55,10 @@ exports[`App render recording > page / 1`] = `
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertextual Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
+<div class="relative">
+<button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">People, Places &amp; Things <span aria-hidden="true">▾</span>
+</button>
+</div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">About</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
@@ -78,7 +84,7 @@ exports[`App render recording > page / 1`] = `
 </li>
 <li>
 <a href="/?tab=parallel" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Phrase Search:</span> <span>the phrases two works share, scored</span>
+<span class="font-semibold text-gray-800">Phrase Search:</span> <span>the phrases two works share, ranked by how distinctive they are</span>
 </a>
 </li>
 <li>
@@ -93,17 +99,22 @@ exports[`App render recording > page / 1`] = `
 </li>
 <li>
 <a href="/theme-search" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Theme Search:</span> <span>passages about a subject, described in your own words, across languages</span>
+<span class="font-semibold text-gray-800">Theme Search:</span> <span>passages on a subject you describe in your own words, in any of the corpus languages</span>
 </a>
 </li>
 <li>
 <a href="/read" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Reader:</span> <span>read a text and see what each passage echoes</span>
+<span class="font-semibold text-gray-800">Reader:</span> <span>read a text with its echoes, translations and scholarship beside each passage</span>
+</a>
+</li>
+<li>
+<a href="/mentions" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
+<span class="font-semibold text-gray-800">People &amp; Places:</span> <span>every line where a person, place or god is named, in Latin, Greek and English</span>
 </a>
 </li>
 <li>
 <a href="/inscriptions-papyri?profile=everything" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Collections:</span> <span>inscriptions, papyri, events, coins and museum objects</span>
+<span class="font-semibold text-gray-800">Collections:</span> <span>inscriptions, papyri, events, coins and museum objects, switched on from the top row</span>
 </a>
 </li>
 </ul>
@@ -215,6 +226,8 @@ exports[`App render recording > page / in History view 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Search One Text<span class="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>
 </span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
+</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
@@ -225,6 +238,10 @@ exports[`App render recording > page / in History view 1`] = `
 <button aria-current="page" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold">Search One Text<span class="ml-1 relative -top-1 inline-block leading-none text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
 </button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
+<div class="relative">
+<button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">People, Places &amp; Things <span aria-hidden="true">▾</span>
+</button>
+</div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertextual Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
@@ -247,17 +264,22 @@ exports[`App render recording > page / in History view 1`] = `
 <ul class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-0.5">
 <li>
 <a href="/inscriptions-papyri?profile=everything" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Inscriptions, papyri, events and coins:</span> <span>inscriptions, papyri, events, coins and museum objects</span>
+<span class="font-semibold text-gray-800">Inscriptions, papyri, events and coins:</span> <span>inscriptions, papyri, events, coins and museum objects, switched on from the top row</span>
+</a>
+</li>
+<li>
+<a href="/mentions" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
+<span class="font-semibold text-gray-800">People &amp; Places:</span> <span>every line where a person, place or god is named, in Latin, Greek and English</span>
 </a>
 </li>
 <li>
 <a href="/read" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Reader:</span> <span>read a text and see what each passage echoes</span>
+<span class="font-semibold text-gray-800">Reader:</span> <span>read a text with its echoes, translations and scholarship beside each passage</span>
 </a>
 </li>
 <li>
 <a href="/theme-search" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Theme Search:</span> <span>passages about a subject, described in your own words, across languages</span>
+<span class="font-semibold text-gray-800">Theme Search:</span> <span>passages on a subject you describe in your own words, in any of the corpus languages</span>
 </a>
 </li>
 <li>
@@ -272,7 +294,7 @@ exports[`App render recording > page / in History view 1`] = `
 </li>
 <li>
 <a href="/?tab=parallel" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Phrase Search:</span> <span>the phrases two works share, scored</span>
+<span class="font-semibold text-gray-800">Phrase Search:</span> <span>the phrases two works share, ranked by how distinctive they are</span>
 </a>
 </li>
 <li>
@@ -391,6 +413,8 @@ exports[`App render recording > page /about 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
+</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
@@ -401,6 +425,10 @@ exports[`App render recording > page /about 1`] = `
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertextual Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
+<div class="relative">
+<button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">People, Places &amp; Things <span aria-hidden="true">▾</span>
+</button>
+</div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button aria-current="page" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold">About</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
@@ -690,6 +718,8 @@ exports[`App render recording > page /admin 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
+</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
@@ -700,6 +730,10 @@ exports[`App render recording > page /admin 1`] = `
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertextual Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
+<div class="relative">
+<button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">People, Places &amp; Things <span aria-hidden="true">▾</span>
+</button>
+</div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">About</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
@@ -783,6 +817,8 @@ exports[`App render recording > page /ask-a-work 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
+</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
@@ -793,6 +829,10 @@ exports[`App render recording > page /ask-a-work 1`] = `
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertextual Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
+<div class="relative">
+<button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">People, Places &amp; Things <span aria-hidden="true">▾</span>
+</button>
+</div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">About</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
@@ -818,7 +858,7 @@ exports[`App render recording > page /ask-a-work 1`] = `
 </li>
 <li>
 <a href="/?tab=parallel" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Phrase Search:</span> <span>the phrases two works share, scored</span>
+<span class="font-semibold text-gray-800">Phrase Search:</span> <span>the phrases two works share, ranked by how distinctive they are</span>
 </a>
 </li>
 <li>
@@ -833,17 +873,22 @@ exports[`App render recording > page /ask-a-work 1`] = `
 </li>
 <li>
 <a href="/theme-search" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Theme Search:</span> <span>passages about a subject, described in your own words, across languages</span>
+<span class="font-semibold text-gray-800">Theme Search:</span> <span>passages on a subject you describe in your own words, in any of the corpus languages</span>
 </a>
 </li>
 <li>
 <a href="/read" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Reader:</span> <span>read a text and see what each passage echoes</span>
+<span class="font-semibold text-gray-800">Reader:</span> <span>read a text with its echoes, translations and scholarship beside each passage</span>
+</a>
+</li>
+<li>
+<a href="/mentions" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
+<span class="font-semibold text-gray-800">People &amp; Places:</span> <span>every line where a person, place or god is named, in Latin, Greek and English</span>
 </a>
 </li>
 <li>
 <a href="/inscriptions-papyri?profile=everything" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Collections:</span> <span>inscriptions, papyri, events, coins and museum objects</span>
+<span class="font-semibold text-gray-800">Collections:</span> <span>inscriptions, papyri, events, coins and museum objects, switched on from the top row</span>
 </a>
 </li>
 </ul>
@@ -957,6 +1002,8 @@ exports[`App render recording > page /blog-archive 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
+</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
@@ -967,6 +1014,10 @@ exports[`App render recording > page /blog-archive 1`] = `
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertextual Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
+<div class="relative">
+<button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">People, Places &amp; Things <span aria-hidden="true">▾</span>
+</button>
+</div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">About</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
@@ -1824,6 +1875,8 @@ exports[`App render recording > page /browse 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
+</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
@@ -1834,6 +1887,10 @@ exports[`App render recording > page /browse 1`] = `
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertextual Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
+<div class="relative">
+<button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">People, Places &amp; Things <span aria-hidden="true">▾</span>
+</button>
+</div>
 <button aria-current="page" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">About</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
@@ -1963,6 +2020,8 @@ exports[`App render recording > page /coins 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
+</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
@@ -1973,6 +2032,10 @@ exports[`App render recording > page /coins 1`] = `
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold" aria-current="page">Intertextual Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
+<div class="relative">
+<button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">People, Places &amp; Things <span aria-hidden="true">▾</span>
+</button>
+</div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">About</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
@@ -2015,7 +2078,7 @@ exports[`App render recording > page /coins 1`] = `
 </li>
 <li>
 <a href="/?tab=parallel" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Phrase Search:</span> <span>the phrases two works share, scored</span>
+<span class="font-semibold text-gray-800">Phrase Search:</span> <span>the phrases two works share, ranked by how distinctive they are</span>
 </a>
 </li>
 <li>
@@ -2030,17 +2093,22 @@ exports[`App render recording > page /coins 1`] = `
 </li>
 <li>
 <a href="/theme-search" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Theme Search:</span> <span>passages about a subject, described in your own words, across languages</span>
+<span class="font-semibold text-gray-800">Theme Search:</span> <span>passages on a subject you describe in your own words, in any of the corpus languages</span>
 </a>
 </li>
 <li>
 <a href="/read" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Reader:</span> <span>read a text and see what each passage echoes</span>
+<span class="font-semibold text-gray-800">Reader:</span> <span>read a text with its echoes, translations and scholarship beside each passage</span>
+</a>
+</li>
+<li>
+<a href="/mentions" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
+<span class="font-semibold text-gray-800">People &amp; Places:</span> <span>every line where a person, place or god is named, in Latin, Greek and English</span>
 </a>
 </li>
 <li>
 <a href="/inscriptions-papyri?profile=everything" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Collections:</span> <span>inscriptions, papyri, events, coins and museum objects</span>
+<span class="font-semibold text-gray-800">Collections:</span> <span>inscriptions, papyri, events, coins and museum objects, switched on from the top row</span>
 </a>
 </li>
 </ul>
@@ -2180,6 +2248,8 @@ exports[`App render recording > page /coins/c1 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
+</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
@@ -2190,6 +2260,10 @@ exports[`App render recording > page /coins/c1 1`] = `
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold" aria-current="page">Intertextual Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
+<div class="relative">
+<button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">People, Places &amp; Things <span aria-hidden="true">▾</span>
+</button>
+</div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">About</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
@@ -2232,7 +2306,7 @@ exports[`App render recording > page /coins/c1 1`] = `
 </li>
 <li>
 <a href="/?tab=parallel" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Phrase Search:</span> <span>the phrases two works share, scored</span>
+<span class="font-semibold text-gray-800">Phrase Search:</span> <span>the phrases two works share, ranked by how distinctive they are</span>
 </a>
 </li>
 <li>
@@ -2247,17 +2321,22 @@ exports[`App render recording > page /coins/c1 1`] = `
 </li>
 <li>
 <a href="/theme-search" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Theme Search:</span> <span>passages about a subject, described in your own words, across languages</span>
+<span class="font-semibold text-gray-800">Theme Search:</span> <span>passages on a subject you describe in your own words, in any of the corpus languages</span>
 </a>
 </li>
 <li>
 <a href="/read" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Reader:</span> <span>read a text and see what each passage echoes</span>
+<span class="font-semibold text-gray-800">Reader:</span> <span>read a text with its echoes, translations and scholarship beside each passage</span>
+</a>
+</li>
+<li>
+<a href="/mentions" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
+<span class="font-semibold text-gray-800">People &amp; Places:</span> <span>every line where a person, place or god is named, in Latin, Greek and English</span>
 </a>
 </li>
 <li>
 <a href="/inscriptions-papyri?profile=everything" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Collections:</span> <span>inscriptions, papyri, events, coins and museum objects</span>
+<span class="font-semibold text-gray-800">Collections:</span> <span>inscriptions, papyri, events, coins and museum objects, switched on from the top row</span>
 </a>
 </li>
 </ul>
@@ -2397,6 +2476,8 @@ exports[`App render recording > page /corpus 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
+</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
@@ -2407,6 +2488,10 @@ exports[`App render recording > page /corpus 1`] = `
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertextual Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
+<div class="relative">
+<button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">People, Places &amp; Things <span aria-hidden="true">▾</span>
+</button>
+</div>
 <button aria-current="page" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">About</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
@@ -2536,6 +2621,8 @@ exports[`App render recording > page /document 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
+</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
@@ -2546,6 +2633,10 @@ exports[`App render recording > page /document 1`] = `
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertextual Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
+<div class="relative">
+<button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">People, Places &amp; Things <span aria-hidden="true">▾</span>
+</button>
+</div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">About</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
@@ -2614,6 +2705,8 @@ exports[`App render recording > page /downloads 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
+</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
@@ -2624,6 +2717,10 @@ exports[`App render recording > page /downloads 1`] = `
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertextual Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
+<div class="relative">
+<button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">People, Places &amp; Things <span aria-hidden="true">▾</span>
+</button>
+</div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">About</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
@@ -2644,61 +2741,40 @@ exports[`App render recording > page /downloads 1`] = `
 <div class="grid gap-6 md:grid-cols-2">
 <div class="bg-white rounded-lg shadow p-6">
 <h3 class="text-lg font-semibold text-gray-900 mb-4">Corpus Texts</h3>
-<p class="text-sm text-gray-600 mb-4">Download all texts in .tess format for a language. Texts are organized by author and work.</p>
+<p class="text-sm text-gray-600 mb-4">Download all texts in .tess format for a language. Texts are organized by author and work. Persian and Urdu texts are searchable on the site but are not offered as ZIP files pending their sources' terms. The Urdu search index, which holds the line text of fourteen Wikisource collections, is offered under the developer data files below.</p>
 <div class="space-y-3">
 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-gray-50 rounded">
 <div>
 <span class="font-medium">Latin</span>
-<span class="text-sm text-gray-500 ml-2">(~1,850 texts)</span>
+<span class="text-sm text-gray-500 ml-2">(about 1,830 texts)</span>
 </div>
 <button class="px-4 py-2 bg-red-700 text-white rounded hover:bg-red-800 disabled:opacity-50 text-sm">Download ZIP</button>
 </div>
 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-gray-50 rounded">
 <div>
 <span class="font-medium">Greek</span>
-<span class="text-sm text-gray-500 ml-2">(~1,290 texts)</span>
+<span class="text-sm text-gray-500 ml-2">(about 1,330 texts)</span>
 </div>
 <button class="px-4 py-2 bg-red-700 text-white rounded hover:bg-red-800 disabled:opacity-50 text-sm">Download ZIP</button>
 </div>
 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-gray-50 rounded">
 <div>
 <span class="font-medium">English</span>
-<span class="text-sm text-gray-500 ml-2">(~160 texts)</span>
+<span class="text-sm text-gray-500 ml-2">(about 160 texts)</span>
 </div>
 <button class="px-4 py-2 bg-red-700 text-white rounded hover:bg-red-800 disabled:opacity-50 text-sm">Download ZIP</button>
 </div>
 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-gray-50 rounded">
 <div>
 <span class="font-medium">Coptic</span>
-<span class="text-sm text-gray-500 ml-2">(~185 texts)</span>
+<span class="text-sm text-gray-500 ml-2">(about 160, without the Sahidica New Testament texts)</span>
 </div>
 <button class="px-4 py-2 bg-red-700 text-white rounded hover:bg-red-800 disabled:opacity-50 text-sm">Download ZIP</button>
 </div>
 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-gray-50 rounded">
 <div>
 <span class="font-medium">Hebrew</span>
-<span class="text-sm text-gray-500 ml-2">(~40 texts)</span>
-</div>
-<button class="px-4 py-2 bg-red-700 text-white rounded hover:bg-red-800 disabled:opacity-50 text-sm">Download ZIP</button>
-</div>
-<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-gray-50 rounded">
-<div>
-<span class="font-medium">Persian</span>
-<span class="text-sm text-gray-500 ml-2">(28 texts)</span>
-</div>
-<button class="px-4 py-2 bg-red-700 text-white rounded hover:bg-red-800 disabled:opacity-50 text-sm">Download ZIP</button>
-</div>
-<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-gray-50 rounded">
-<div>
-<span class="font-medium">Urdu</span>
-<span class="text-sm text-gray-500 ml-2">(18 texts)</span>
-</div>
-<button class="px-4 py-2 bg-red-700 text-white rounded hover:bg-red-800 disabled:opacity-50 text-sm">Download ZIP</button>
-</div>
-<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-gray-50 rounded">
-<div>
-<span class="font-medium">Arabic</span>
-<span class="text-sm text-gray-500 ml-2">(148 texts)</span>
+<span class="text-sm text-gray-500 ml-2">(about 40 texts)</span>
 </div>
 <button class="px-4 py-2 bg-red-700 text-white rounded hover:bg-red-800 disabled:opacity-50 text-sm">Download ZIP</button>
 </div>
@@ -2706,7 +2782,7 @@ exports[`App render recording > page /downloads 1`] = `
 </div>
 <div class="bg-white rounded-lg shadow p-6">
 <h3 class="text-lg font-semibold text-gray-900 mb-4">Semantic Embeddings</h3>
-<p class="text-sm text-gray-600 mb-4">Pre-computed line embeddings for semantic search: SPhilBERTa for Latin and Greek, multilingual-e5-large for Persian, Urdu and Arabic. One .npy array plus a .meta.json of line references per text.</p>
+<p class="text-sm text-gray-600 mb-4">Pre-computed line embeddings for semantic search, made with SPhilBERTa for Latin and Greek. One .npy array plus a .meta.json of line references per text.</p>
 <div class="space-y-3">
 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-gray-50 rounded">
 <div>
@@ -2718,27 +2794,6 @@ exports[`App render recording > page /downloads 1`] = `
 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-gray-50 rounded">
 <div>
 <span class="font-medium">Greek</span>
-<span class="text-sm text-gray-500 ml-2">(embeddings)</span>
-</div>
-<button class="px-4 py-2 bg-amber-600 text-white rounded hover:bg-amber-700 disabled:opacity-50 text-sm">Download ZIP</button>
-</div>
-<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-gray-50 rounded">
-<div>
-<span class="font-medium">Persian</span>
-<span class="text-sm text-gray-500 ml-2">(embeddings)</span>
-</div>
-<button class="px-4 py-2 bg-amber-600 text-white rounded hover:bg-amber-700 disabled:opacity-50 text-sm">Download ZIP</button>
-</div>
-<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-gray-50 rounded">
-<div>
-<span class="font-medium">Urdu</span>
-<span class="text-sm text-gray-500 ml-2">(embeddings)</span>
-</div>
-<button class="px-4 py-2 bg-amber-600 text-white rounded hover:bg-amber-700 disabled:opacity-50 text-sm">Download ZIP</button>
-</div>
-<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-gray-50 rounded">
-<div>
-<span class="font-medium">Arabic</span>
 <span class="text-sm text-gray-500 ml-2">(embeddings)</span>
 </div>
 <button class="px-4 py-2 bg-amber-600 text-white rounded hover:bg-amber-700 disabled:opacity-50 text-sm">Download ZIP</button>
@@ -3031,7 +3086,7 @@ exports[`App render recording > page /downloads 1`] = `
 </div>
 <div class="mt-4 pt-4 border-t border-gray-200">
 <p class="text-xs text-gray-500">
-<strong>Format:</strong> CSV files include a comment header (lines starting with #) with provenance metadata. JSON files are flat arrays of objects. See <a href="https://github.com/tesserae/tesserae-v6/blob/main/evaluation/benchmarks/BENCHMARK_METHODOLOGY.md" target="_blank" rel="noopener noreferrer" class="text-red-600 hover:underline">BENCHMARK_METHODOLOGY.md</a> for full documentation.</p>
+<strong>Format:</strong> CSV files include a comment header (lines starting with #) with provenance metadata. JSON files are flat arrays of objects. The methods are described in the <a href="https://github.com/tesserae/tesserae-v6/blob/main/docs/ARTICLE_METHODS_DRAFT.md" target="_blank" rel="noopener noreferrer" class="text-red-600 hover:underline">methods draft</a> and in the Help page section “How well does it work?”.</p>
 </div>
 </div>
 <div class="bg-white rounded-lg shadow p-6">
@@ -3178,37 +3233,38 @@ exports[`App render recording > page /downloads 1`] = `
 </div>
 <div class="bg-white rounded-lg shadow p-6" id="run-your-own">
 <h3 class="text-lg font-semibold text-gray-900 mb-4">Run your own Tesserae</h3>
-<p class="text-sm text-gray-600 mb-4">One archive holds everything the search engine needs: the texts, the lemma caches, the search indexes, the word-pair tables, the aligned translations that are public domain or openly licensed, and the commentaries whose license allows it. With the code from GitHub and the recipe below, it runs on a machine of your own. The bundle is offered for non-commercial use, because two lemma tables and some commentaries carry non-commercial licenses; every source and its attribution line is listed in the license file inside the archive.</p>
+<p class="text-sm text-gray-600 mb-4">A bundle is one archive that holds everything the search engine needs, namely the texts, the lemma caches, the search indexes, the word-pair tables, the aligned translations that are public domain or openly licensed, and the commentaries whose license allows it. With the code from GitHub and the recipe below, it runs on a machine of your own. A bundle is offered for non-commercial use, because two lemma tables and some commentaries carry non-commercial licenses; every source and its attribution line is listed in the license file inside the archive.</p>
 <div class="space-y-3 mb-4">
 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-gray-50 rounded">
 <div>
-<span class="font-medium">Core bundle, 14 October 2026</span>
-<span class="text-sm text-gray-500 ml-2">(3.3 GB compressed, about 18 GB unpacked)</span>
-<p class="text-xs text-gray-500 mt-1">Built from the production data at code version <span class="font-mono">a508a6db</span>. SHA-256 <span class="font-mono break-all">4ca251d1888efca9d2e85e3a0aaa56b1a1132ae4c93f06980ea63b1e9e34a16d</span>
+<span class="font-medium">Core bundle, 20 October 2026</span>
+<span class="text-sm text-gray-500 ml-2">(3.1 GB compressed, about 17 GB unpacked)</span>
+<p class="text-xs text-gray-500 mt-1">Built from the production data at code version <span class="font-mono">9085292f</span>. SHA-256 <span class="font-mono break-all">0c953d8e2be07fd68e39a783e2c0f744990a0f45388da7ff269da396f20ebf2f</span>
 </p>
 </div>
-<a href="/static/downloads/bundle/tesserae-public-core-20261014.tar.zst" class="px-4 py-2 bg-red-700 text-white rounded hover:bg-red-800 text-sm text-center whitespace-nowrap">Download bundle</a>
+<a href="/static/downloads/bundle/tesserae-public-core-20261020.tar.zst" class="px-4 py-2 bg-red-700 text-white rounded hover:bg-red-800 text-sm text-center whitespace-nowrap">Download bundle</a>
 </div>
 <div class="flex flex-wrap gap-x-4 gap-y-1 text-sm">
-<a href="/static/downloads/bundle/tesserae-public-core-20261014.tar.zst.sha256" class="text-red-700 hover:underline">Checksum</a>
-<a href="/static/downloads/bundle/MANIFEST-core-20261014.tsv" class="text-red-700 hover:underline">Manifest (every file, size and checksum)</a>
-<a href="/static/downloads/bundle/LICENSES-core-20261014.md" class="text-red-700 hover:underline">License file</a>
+<a href="/static/downloads/bundle/tesserae-public-core-20261020.tar.zst.sha256" class="text-red-700 hover:underline">Checksum</a>
+<a href="/static/downloads/bundle/MANIFEST-core-20261020.tsv" class="text-red-700 hover:underline">Manifest (every file, size and checksum)</a>
+<a href="/static/downloads/bundle/LICENSES-core-20261020.md" class="text-red-700 hover:underline">License file</a>
 <a href="https://github.com/tesserae/tesserae-v6/blob/main/docs/RUN_YOUR_OWN.md" class="text-red-700 hover:underline" target="_blank" rel="noopener noreferrer">The recipe, step by step</a>
 </div>
 </div>
-<p class="text-xs text-gray-500">The full bundle, which adds the passage windows and their vectors for Similar Passages and Theme Search, is not published yet. Ask through Suggest a change in the footer if you need it.</p>
+<p class="text-sm text-gray-700 mb-3">The 14 October core bundle was withdrawn on 19 October because it contained the Sahidica New Testament, whose license allows academic use only and no redistribution. This bundle, built on the night of 19 to 20 October, leaves those texts out, and so do the Coptic word index, word counts and translation list inside it. Its Coptic bigram table carries the letter spelling corrected on 19 October.</p>
+<p class="text-xs text-gray-500">A full bundle, which adds the passage windows and their vectors for Similar Passages and Theme Search, is not published yet. Ask through Suggest a change in the footer if you need it.</p>
 </div>
 <div class="bg-white rounded-lg shadow p-6">
 <h3 class="text-lg font-semibold text-gray-900 mb-4">Developer Data Files</h3>
-<p class="text-sm text-gray-600 mb-4">The bundle above is the maintained way to install a working copy. The files below are the older piecemeal downloads and stay for anyone who needs one index alone.</p>
-<p class="text-sm text-gray-600 mb-4">To run Tesserae V6 locally, you need the Git repository plus pre-built search indexes (too large for GitHub). The repository itself is ~4 GB because it includes the corpus texts (~308 MB) and pre-computed semantic embeddings (~3.5 GB). The search indexes add another ~6.3 GB.</p>
+<p class="text-sm text-gray-600 mb-4">These files are the other way to install a working copy, apart from the core bundle above. Each is a .tar.gz archive. Unpack it with <span class="font-mono">tar -xzf</span> into the path given on the folder page, and check it against <a href="https://tesserae.caset.buffalo.edu/tesserae-data/SHA256SUMS.txt" target="_blank" rel="noopener noreferrer" class="text-red-600 hover:underline">SHA256SUMS.txt</a> (the checksums there are those of the archives).</p>
+<p class="text-sm text-gray-600 mb-4">To run Tesserae V6 locally, you need the Git repository plus pre-built search indexes (too large for GitHub). The repository holds the corpus texts, the lemma tables and the code. The pre-computed embeddings left the repository on 19 October 2026 and are offered as ZIP files above and in the passage window archives below. The search indexes add about 8 GB packed.</p>
 <div class="bg-gray-50 rounded p-4 mb-4 overflow-x-auto">
 <p class="text-xs sm:text-sm font-mono text-gray-700 mb-1">
-<span class="text-gray-500"># 1. Clone the repository (~4 GB, includes texts + embeddings):</span>
+<span class="text-gray-500"># 1. Clone the repository:</span>
 </p>
 <p class="text-xs sm:text-sm font-mono text-gray-800 mb-3 whitespace-nowrap">git clone https://github.com/tesserae/tesserae-v6.git</p>
 <p class="text-xs sm:text-sm font-mono text-gray-700 mb-1">
-<span class="text-gray-500"># 2. Download search indexes (~1.3 GB compressed, ~6.3 GB uncompressed):</span>
+<span class="text-gray-500"># 2. Download the search indexes (about 8 GB packed):</span>
 </p>
 <p class="text-xs sm:text-sm font-mono text-gray-800 mb-3">python scripts/download_data.py</p>
 <p class="text-xs sm:text-sm font-mono text-gray-700 mb-1">
@@ -3221,40 +3277,179 @@ exports[`App render recording > page /downloads 1`] = `
 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-gray-50 rounded">
 <div>
 <span class="font-medium">Latin Search Index</span>
-<span class="text-sm text-gray-500 ml-2">(1,429 texts, 2.2 GB)</span>
+<span class="text-sm text-gray-500 ml-2">(about 1,430 texts, 567 MB packed, 2.0 GB unpacked)</span>
 </div>
 <a href="https://tesserae.caset.buffalo.edu/tesserae-data/la_index.db.tar.gz" target="_blank" rel="noopener noreferrer" class="px-4 py-2 bg-red-700 text-white rounded hover:bg-red-800 text-sm">Download</a>
 </div>
 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-gray-50 rounded">
 <div>
 <span class="font-medium">Greek Search Index</span>
-<span class="text-sm text-gray-500 ml-2">(659 texts, 1.4 GB)</span>
+<span class="text-sm text-gray-500 ml-2">(about 650 texts, 564 MB packed, 2.9 GB unpacked)</span>
 </div>
 <a href="https://tesserae.caset.buffalo.edu/tesserae-data/grc_index.db.tar.gz" target="_blank" rel="noopener noreferrer" class="px-4 py-2 bg-red-700 text-white rounded hover:bg-red-800 text-sm">Download</a>
 </div>
 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-gray-50 rounded">
 <div>
 <span class="font-medium">English Search Index</span>
-<span class="text-sm text-gray-500 ml-2">(14 texts, 79 MB)</span>
+<span class="text-sm text-gray-500 ml-2">(72 MB packed, 227 MB unpacked)</span>
 </div>
 <a href="https://tesserae.caset.buffalo.edu/tesserae-data/en_index.db.tar.gz" target="_blank" rel="noopener noreferrer" class="px-4 py-2 bg-red-700 text-white rounded hover:bg-red-800 text-sm">Download</a>
 </div>
 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-gray-50 rounded">
 <div>
+<span class="font-medium">Coptic Search Index</span>
+<span class="text-sm text-gray-500 ml-2">(the Sahidica New Testament is left out, 39 MB packed)</span>
+</div>
+<a href="https://tesserae.caset.buffalo.edu/tesserae-data/cop_index.db.tar.gz" target="_blank" rel="noopener noreferrer" class="px-4 py-2 bg-red-700 text-white rounded hover:bg-red-800 text-sm">Download</a>
+</div>
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-gray-50 rounded">
+<div>
+<span class="font-medium">Hebrew Search Index</span>
+<span class="text-sm text-gray-500 ml-2">(Tanakh, CC BY-NC 4.0, 11 MB packed)</span>
+</div>
+<a href="https://tesserae.caset.buffalo.edu/tesserae-data/he_index.db.tar.gz" target="_blank" rel="noopener noreferrer" class="px-4 py-2 bg-red-700 text-white rounded hover:bg-red-800 text-sm">Download</a>
+</div>
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-gray-50 rounded">
+<div>
 <span class="font-medium">Latin Syntax Parses</span>
-<span class="text-sm text-gray-500 ml-2">(LatinPipe UD annotations, 1.6 GB)</span>
+<span class="text-sm text-gray-500 ml-2">(LatinPipe UD annotations for about 1,430 texts, 243 MB packed, 1.6 GB unpacked)</span>
 </div>
 <a href="https://tesserae.caset.buffalo.edu/tesserae-data/syntax_latin.db.tar.gz" target="_blank" rel="noopener noreferrer" class="px-4 py-2 bg-red-700 text-white rounded hover:bg-red-800 text-sm">Download</a>
 </div>
 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-gray-50 rounded">
 <div>
 <span class="font-medium">Greek Syntax Parses</span>
-<span class="text-sm text-gray-500 ml-2">(650 texts, UD annotations, 967 MB)</span>
+<span class="text-sm text-gray-500 ml-2">(about 650 texts, UD annotations, 139 MB packed, 967 MB unpacked)</span>
 </div>
 <a href="https://tesserae.caset.buffalo.edu/tesserae-data/syntax_greek.db.tar.gz" target="_blank" rel="noopener noreferrer" class="px-4 py-2 bg-red-700 text-white rounded hover:bg-red-800 text-sm">Download</a>
 </div>
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-gray-50 rounded">
+<div>
+<span class="font-medium">Coptic Syntax Parses</span>
+<span class="text-sm text-gray-500 ml-2">(40 MB packed, 351 MB unpacked)</span>
 </div>
-<p class="text-xs text-gray-500 mt-4">Total: ~10 GB (repository + indexes). The download script reads DATA_MANIFEST.json and skips files already present. See the <a href="https://github.com/tesserae/tesserae-v6/blob/main/docs/DATA_FILES_REFERENCE.md" target="_blank" rel="noopener noreferrer" class="text-red-600 hover:underline">Data Files Reference</a> for full documentation.</p>
+<a href="https://tesserae.caset.buffalo.edu/tesserae-data/syntax_coptic.db.tar.gz" target="_blank" rel="noopener noreferrer" class="px-4 py-2 bg-red-700 text-white rounded hover:bg-red-800 text-sm">Download</a>
+</div>
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-gray-50 rounded">
+<div>
+<span class="font-medium">Latin Passage Windows</span>
+<span class="text-sm text-gray-500 ml-2">(descriptions and vectors, 497 MB)</span>
+</div>
+<a href="https://tesserae.caset.buffalo.edu/tesserae-data/passage_index_la.tar.gz" target="_blank" rel="noopener noreferrer" class="px-4 py-2 bg-red-700 text-white rounded hover:bg-red-800 text-sm">Download</a>
+</div>
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-gray-50 rounded">
+<div>
+<span class="font-medium">Greek Passage Windows</span>
+<span class="text-sm text-gray-500 ml-2">(355 MB)</span>
+</div>
+<a href="https://tesserae.caset.buffalo.edu/tesserae-data/passage_index_grc.tar.gz" target="_blank" rel="noopener noreferrer" class="px-4 py-2 bg-red-700 text-white rounded hover:bg-red-800 text-sm">Download</a>
+</div>
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-gray-50 rounded">
+<div>
+<span class="font-medium">English Passage Windows</span>
+<span class="text-sm text-gray-500 ml-2">(62 MB)</span>
+</div>
+<a href="https://tesserae.caset.buffalo.edu/tesserae-data/passage_index_en.tar.gz" target="_blank" rel="noopener noreferrer" class="px-4 py-2 bg-red-700 text-white rounded hover:bg-red-800 text-sm">Download</a>
+</div>
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-gray-50 rounded">
+<div>
+<span class="font-medium">Coptic Passage Windows</span>
+<span class="text-sm text-gray-500 ml-2">(Sahidica left out, 26 MB)</span>
+</div>
+<a href="https://tesserae.caset.buffalo.edu/tesserae-data/passage_index_cop.tar.gz" target="_blank" rel="noopener noreferrer" class="px-4 py-2 bg-red-700 text-white rounded hover:bg-red-800 text-sm">Download</a>
+</div>
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-gray-50 rounded">
+<div>
+<span class="font-medium">Hebrew Passage Windows</span>
+<span class="text-sm text-gray-500 ml-2">(CC BY-NC 4.0, 12 MB)</span>
+</div>
+<a href="https://tesserae.caset.buffalo.edu/tesserae-data/passage_index_he.tar.gz" target="_blank" rel="noopener noreferrer" class="px-4 py-2 bg-red-700 text-white rounded hover:bg-red-800 text-sm">Download</a>
+</div>
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-gray-50 rounded">
+<div>
+<span class="font-medium">Window Texts</span>
+<span class="text-sm text-gray-500 ml-2">(the text of 460,652 passage windows and the lines of each work, 496 MB packed, 2.5 GB unpacked, each work under its own license and non-commercial as a whole, without the Sahidica New Testament, the Arabic and Persian works and eleven Iqbal collections)</span>
+</div>
+<a href="https://tesserae.caset.buffalo.edu/tesserae-data/window_texts.db.tar.gz" target="_blank" rel="noopener noreferrer" class="px-4 py-2 bg-red-700 text-white rounded hover:bg-red-800 text-sm">Download</a>
+</div>
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-gray-50 rounded">
+<div>
+<span class="font-medium">Urdu Search Index</span>
+<span class="text-sm text-gray-500 ml-2">(CC BY-SA 4.0, 14 Urdu Wikisource collections, the four Iqbal collections left out, 12 MB packed, 64 MB unpacked)</span>
+</div>
+<a href="https://tesserae.caset.buffalo.edu/tesserae-data/ur_index.db.tar.gz" target="_blank" rel="noopener noreferrer" class="px-4 py-2 bg-red-700 text-white rounded hover:bg-red-800 text-sm">Download</a>
+</div>
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-gray-50 rounded">
+<div>
+<span class="font-medium">People &amp; Places Store</span>
+<span class="text-sm text-gray-500 ml-2">(CC BY-SA 4.0, 39,369 entities and their mentions in Latin, Greek and English works, descriptions written by models, 68 MB packed, 293 MB unpacked)</span>
+</div>
+<a href="https://tesserae.caset.buffalo.edu/tesserae-data/entities.sqlite.tar.gz" target="_blank" rel="noopener noreferrer" class="px-4 py-2 bg-red-700 text-white rounded hover:bg-red-800 text-sm">Download</a>
+</div>
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-gray-50 rounded">
+<div>
+<span class="font-medium">Events Store</span>
+<span class="text-sm text-gray-500 ml-2">(CC BY-SA 4.0, 1,485 events with passages, documents and scholarship references, the model working logs left out, 19 MB packed, 62 MB unpacked)</span>
+</div>
+<a href="https://tesserae.caset.buffalo.edu/tesserae-data/event_dossiers.sqlite.tar.gz" target="_blank" rel="noopener noreferrer" class="px-4 py-2 bg-red-700 text-white rounded hover:bg-red-800 text-sm">Download</a>
+</div>
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-gray-50 rounded">
+<div>
+<span class="font-medium">Coin Types</span>
+<span class="text-sm text-gray-500 ml-2">(two files: 94,263 types under ODbL 1.0 and 11,913 Corpus Nummorum types under CC BY-NC-SA 3.0, non-commercial, no images, 11 MB packed)</span>
+</div>
+<a href="https://tesserae.caset.buffalo.edu/tesserae-data/coins.tar.gz" target="_blank" rel="noopener noreferrer" class="px-4 py-2 bg-red-700 text-white rounded hover:bg-red-800 text-sm">Download</a>
+</div>
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-gray-50 rounded">
+<div>
+<span class="font-medium">Museum Objects</span>
+<span class="text-sm text-gray-500 ml-2">(CC0, with Chicago descriptions under CC BY 4.0, 1,361 records, image addresses only, 0.7 MB packed)</span>
+</div>
+<a href="https://tesserae.caset.buffalo.edu/tesserae-data/objects.sqlite.tar.gz" target="_blank" rel="noopener noreferrer" class="px-4 py-2 bg-red-700 text-white rounded hover:bg-red-800 text-sm">Download</a>
+</div>
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-gray-50 rounded">
+<div>
+<span class="font-medium">Synonym Dictionaries</span>
+<span class="text-sm text-gray-500 ml-2">(CC BY 4.0 and CC BY-SA file by file, with the 13,943 accepted review pairs, without the Coptic WordNet and Hebrew files, 2 MB packed)</span>
+</div>
+<a href="https://tesserae.caset.buffalo.edu/tesserae-data/dictionaries.tar.gz" target="_blank" rel="noopener noreferrer" class="px-4 py-2 bg-red-700 text-white rounded hover:bg-red-800 text-sm">Download</a>
+</div>
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-gray-50 rounded">
+<div>
+<span class="font-medium">Latin Lemma Tables</span>
+<span class="text-sm text-gray-500 ml-2">(CC BY-NC-SA 4.0, non-commercial, 111,739 forms with 76,391 corrections and their provenance, 1.4 MB packed)</span>
+</div>
+<a href="https://tesserae.caset.buffalo.edu/tesserae-data/latin_lemma_tables.tar.gz" target="_blank" rel="noopener noreferrer" class="px-4 py-2 bg-red-700 text-white rounded hover:bg-red-800 text-sm">Download</a>
+</div>
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-gray-50 rounded">
+<div>
+<span class="font-medium">Text Descriptions</span>
+<span class="text-sm text-gray-500 ml-2">(CC BY 4.0, written by language models, 1,901 works, Arabic and restricted works left out, 0.6 MB packed)</span>
+</div>
+<a href="https://tesserae.caset.buffalo.edu/tesserae-data/text_descriptions.tar.gz" target="_blank" rel="noopener noreferrer" class="px-4 py-2 bg-red-700 text-white rounded hover:bg-red-800 text-sm">Download</a>
+</div>
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-gray-50 rounded">
+<div>
+<span class="font-medium">Citation Indexes</span>
+<span class="text-sm text-gray-500 ml-2">(CC BY 4.0, which article cites which passage (70,293 citations in 32,089 articles), without the article sentences, 4 MB packed)</span>
+</div>
+<a href="https://tesserae.caset.buffalo.edu/tesserae-data/citations_without_sentences.tar.gz" target="_blank" rel="noopener noreferrer" class="px-4 py-2 bg-red-700 text-white rounded hover:bg-red-800 text-sm">Download</a>
+</div>
+</div>
+<p class="text-xs text-gray-500 mt-4">The window-text archive was withdrawn on 19 October 2026 because it held Sahidica New Testament windows, and it is offered again without them. Every archive in this list carries a LICENSE.txt and a README.txt. The Latin lemma tables, the Corpus Nummorum coins and the window texts are for non-commercial use only. The passage window archives are cut by language because the languages differ in license. The download script reads DATA_MANIFEST.json and skips files already present. See the <a href="https://github.com/tesserae/tesserae-v6/blob/main/docs/DATA_FILES_REFERENCE.md" target="_blank" rel="noopener noreferrer" class="text-red-600 hover:underline">Data Files Reference</a> for full documentation, and the <a href="https://tesserae.caset.buffalo.edu/tesserae-data/" target="_blank" rel="noopener noreferrer" class="text-red-600 hover:underline">data folder</a> for the license of each archive.</p>
+</div>
+<div class="bg-white rounded-lg shadow p-6">
+<h3 class="text-lg font-semibold text-gray-900 mb-4">For developers</h3>
+<ul class="text-sm text-gray-600 space-y-1 list-disc pl-5">
+<li>
+<a href="https://tesserae.caset.buffalo.edu/tesserae-data/tesserae-openapi.yaml" target="_blank" rel="noopener noreferrer" class="text-red-600 hover:underline">tesserae-openapi.yaml</a> describes the web API.</li>
+<li>
+<a href="https://tesserae.caset.buffalo.edu/tesserae-data/tesserae_mcp.py" target="_blank" rel="noopener noreferrer" class="text-red-600 hover:underline">tesserae_mcp.py</a> is the local connector for AI assistants.</li>
+<li>
+<a href="https://tesserae.caset.buffalo.edu/tesserae-data/ai-guide.html" target="_blank" rel="noopener noreferrer" class="text-red-600 hover:underline">ai-guide.html</a> is a guide to paste into an AI assistant.</li>
+<li>
+<a href="https://tesserae.caset.buffalo.edu/tesserae-data/tesserae-api-privacy.html" target="_blank" rel="noopener noreferrer" class="text-red-600 hover:underline">tesserae-api-privacy.html</a> is the privacy note for the API.</li>
+</ul>
 </div>
 <div class="bg-amber-50 border border-amber-200 rounded-lg p-4">
 <h4 class="font-medium text-amber-900 mb-2">License Information</h4>
@@ -3314,6 +3509,8 @@ exports[`App render recording > page /events 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
+</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
@@ -3324,6 +3521,10 @@ exports[`App render recording > page /events 1`] = `
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold" aria-current="page">Intertextual Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
+<div class="relative">
+<button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">People, Places &amp; Things <span aria-hidden="true">▾</span>
+</button>
+</div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">About</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
@@ -3366,7 +3567,7 @@ exports[`App render recording > page /events 1`] = `
 </li>
 <li>
 <a href="/?tab=parallel" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Phrase Search:</span> <span>the phrases two works share, scored</span>
+<span class="font-semibold text-gray-800">Phrase Search:</span> <span>the phrases two works share, ranked by how distinctive they are</span>
 </a>
 </li>
 <li>
@@ -3381,17 +3582,22 @@ exports[`App render recording > page /events 1`] = `
 </li>
 <li>
 <a href="/theme-search" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Theme Search:</span> <span>passages about a subject, described in your own words, across languages</span>
+<span class="font-semibold text-gray-800">Theme Search:</span> <span>passages on a subject you describe in your own words, in any of the corpus languages</span>
 </a>
 </li>
 <li>
 <a href="/read" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Reader:</span> <span>read a text and see what each passage echoes</span>
+<span class="font-semibold text-gray-800">Reader:</span> <span>read a text with its echoes, translations and scholarship beside each passage</span>
+</a>
+</li>
+<li>
+<a href="/mentions" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
+<span class="font-semibold text-gray-800">People &amp; Places:</span> <span>every line where a person, place or god is named, in Latin, Greek and English</span>
 </a>
 </li>
 <li>
 <a href="/inscriptions-papyri?profile=everything" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Collections:</span> <span>inscriptions, papyri, events, coins and museum objects</span>
+<span class="font-semibold text-gray-800">Collections:</span> <span>inscriptions, papyri, events, coins and museum objects, switched on from the top row</span>
 </a>
 </li>
 </ul>
@@ -3531,6 +3737,8 @@ exports[`App render recording > page /events/e1 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
+</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
@@ -3541,6 +3749,10 @@ exports[`App render recording > page /events/e1 1`] = `
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold" aria-current="page">Intertextual Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
+<div class="relative">
+<button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">People, Places &amp; Things <span aria-hidden="true">▾</span>
+</button>
+</div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">About</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
@@ -3583,7 +3795,7 @@ exports[`App render recording > page /events/e1 1`] = `
 </li>
 <li>
 <a href="/?tab=parallel" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Phrase Search:</span> <span>the phrases two works share, scored</span>
+<span class="font-semibold text-gray-800">Phrase Search:</span> <span>the phrases two works share, ranked by how distinctive they are</span>
 </a>
 </li>
 <li>
@@ -3598,17 +3810,22 @@ exports[`App render recording > page /events/e1 1`] = `
 </li>
 <li>
 <a href="/theme-search" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Theme Search:</span> <span>passages about a subject, described in your own words, across languages</span>
+<span class="font-semibold text-gray-800">Theme Search:</span> <span>passages on a subject you describe in your own words, in any of the corpus languages</span>
 </a>
 </li>
 <li>
 <a href="/read" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Reader:</span> <span>read a text and see what each passage echoes</span>
+<span class="font-semibold text-gray-800">Reader:</span> <span>read a text with its echoes, translations and scholarship beside each passage</span>
+</a>
+</li>
+<li>
+<a href="/mentions" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
+<span class="font-semibold text-gray-800">People &amp; Places:</span> <span>every line where a person, place or god is named, in Latin, Greek and English</span>
 </a>
 </li>
 <li>
 <a href="/inscriptions-papyri?profile=everything" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Collections:</span> <span>inscriptions, papyri, events, coins and museum objects</span>
+<span class="font-semibold text-gray-800">Collections:</span> <span>inscriptions, papyri, events, coins and museum objects, switched on from the top row</span>
 </a>
 </li>
 </ul>
@@ -3748,6 +3965,8 @@ exports[`App render recording > page /help 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
+</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
@@ -3758,6 +3977,10 @@ exports[`App render recording > page /help 1`] = `
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertextual Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
+<div class="relative">
+<button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">People, Places &amp; Things <span aria-hidden="true">▾</span>
+</button>
+</div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">About</button>
 <button aria-current="page" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold">Help &amp; Support</button>
@@ -3777,23 +4000,20 @@ exports[`App render recording > page /help 1`] = `
 <ul class="space-y-1">
 <li>
 <p class="px-3 pb-1 text-xs font-bold uppercase tracking-wider text-gray-700 pt-1">Start here</p>
-<button class="w-full text-left pl-6 pr-3 py-1.5 rounded text-sm text-gray-700 hover:bg-gray-100">Start here</button>
+<button class="w-full text-left pl-6 pr-3 py-1.5 rounded text-sm bg-red-100 text-red-700 font-semibold">Start here</button>
 </li>
 <li>
 <button class="w-full text-left pl-6 pr-3 py-1.5 rounded text-sm text-gray-700 hover:bg-gray-100">Literature and History views</button>
 </li>
 <li>
-<button class="w-full text-left pl-6 pr-3 py-1.5 rounded text-sm bg-red-100 text-red-700 font-semibold">Getting Started</button>
-</li>
-<li>
-<button class="w-full text-left pl-6 pr-3 py-1.5 rounded text-sm text-gray-700 hover:bg-gray-100">The Types of Search</button>
+<button class="w-full text-left pl-6 pr-3 py-1.5 rounded text-sm text-gray-700 hover:bg-gray-100">Collections, Beta marks and other controls</button>
 </li>
 <li>
 <button class="w-full text-left pl-6 pr-3 py-1.5 rounded text-sm text-gray-700 hover:bg-gray-100">How well does it work?</button>
 </li>
 <li>
-<p class="px-3 pb-1 text-xs font-bold uppercase tracking-wider text-gray-700 mt-3 pt-4 border-t border-gray-200">The Fusion (Phrases) search</p>
-<button class="w-full text-left pl-6 pr-3 py-1.5 rounded text-sm text-gray-700 hover:bg-gray-100">How Fusion Search Works</button>
+<p class="px-3 pb-1 text-xs font-bold uppercase tracking-wider text-gray-700 mt-3 pt-4 border-t border-gray-200">Searching the literature</p>
+<button class="w-full text-left pl-6 pr-3 py-1.5 rounded text-sm text-gray-700 hover:bg-gray-100">Intertextual Search, how it works</button>
 </li>
 <li>
 <button class="w-full text-left pl-6 pr-3 py-1.5 rounded text-sm text-gray-700 hover:bg-gray-100">Match Types</button>
@@ -3805,38 +4025,39 @@ exports[`App render recording > page /help 1`] = `
 <button class="w-full text-left pl-6 pr-3 py-1.5 rounded text-sm text-gray-700 hover:bg-gray-100">Stoplists</button>
 </li>
 <li>
-<button class="w-full text-left pl-6 pr-3 py-1.5 rounded text-sm text-gray-700 hover:bg-gray-100">Understanding Results</button>
-</li>
-<li>
 <button class="w-full text-left pl-6 pr-3 py-1.5 rounded text-sm text-gray-700 hover:bg-gray-100">Reading the results</button>
-</li>
-<li>
-<p class="px-3 pb-1 text-xs font-bold uppercase tracking-wider text-gray-700 mt-3 pt-4 border-t border-gray-200">Reading &amp; content</p>
-<button class="w-full text-left pl-6 pr-3 py-1.5 rounded text-sm text-gray-700 hover:bg-gray-100">Theme Search</button>
-</li>
-<li>
-<button class="w-full text-left pl-6 pr-3 py-1.5 rounded text-sm text-gray-700 hover:bg-gray-100">People &amp; Places</button>
 </li>
 <li>
 <button class="w-full text-left pl-6 pr-3 py-1.5 rounded text-sm text-gray-700 hover:bg-gray-100">Search One Text</button>
 </li>
 <li>
+<button class="w-full text-left pl-6 pr-3 py-1.5 rounded text-sm text-gray-700 hover:bg-gray-100">Theme Search</button>
+</li>
+<li>
+<button class="w-full text-left pl-6 pr-3 py-1.5 rounded text-sm text-gray-700 hover:bg-gray-100">Cross-Language Search</button>
+</li>
+<li>
+<p class="px-3 pb-1 text-xs font-bold uppercase tracking-wider text-gray-700 mt-3 pt-4 border-t border-gray-200">Reading</p>
 <button class="w-full text-left pl-6 pr-3 py-1.5 rounded text-sm text-gray-700 hover:bg-gray-100">The Reader</button>
 </li>
 <li>
 <button class="w-full text-left pl-6 pr-3 py-1.5 rounded text-sm text-gray-700 hover:bg-gray-100">Tessa, the assistant</button>
 </li>
 <li>
+<p class="px-3 pb-1 text-xs font-bold uppercase tracking-wider text-gray-700 mt-3 pt-4 border-t border-gray-200">People, Places &amp; Things</p>
+<button class="w-full text-left pl-6 pr-3 py-1.5 rounded text-sm text-gray-700 hover:bg-gray-100">People &amp; Places</button>
+</li>
+<li>
+<button class="w-full text-left pl-6 pr-3 py-1.5 rounded text-sm text-gray-700 hover:bg-gray-100">Events</button>
+</li>
+<li>
 <button class="w-full text-left pl-6 pr-3 py-1.5 rounded text-sm text-gray-700 hover:bg-gray-100">Inscriptions &amp; Papyri</button>
 </li>
 <li>
-<button class="w-full text-left pl-6 pr-3 py-1.5 rounded text-sm text-gray-700 hover:bg-gray-100">Events (in testing)</button>
+<button class="w-full text-left pl-6 pr-3 py-1.5 rounded text-sm text-gray-700 hover:bg-gray-100">Coins</button>
 </li>
 <li>
-<button class="w-full text-left pl-6 pr-3 py-1.5 rounded text-sm text-gray-700 hover:bg-gray-100">Coins (in testing)</button>
-</li>
-<li>
-<button class="w-full text-left pl-6 pr-3 py-1.5 rounded text-sm text-gray-700 hover:bg-gray-100">Objects (in testing)</button>
+<button class="w-full text-left pl-6 pr-3 py-1.5 rounded text-sm text-gray-700 hover:bg-gray-100">Objects</button>
 </li>
 <li>
 <p class="px-3 pb-1 text-xs font-bold uppercase tracking-wider text-gray-700 mt-3 pt-4 border-t border-gray-200">Languages</p>
@@ -3858,9 +4079,6 @@ exports[`App render recording > page /help 1`] = `
 <button class="w-full text-left pl-6 pr-3 py-1.5 rounded text-sm text-gray-700 hover:bg-gray-100">Poetic form: Persian, Urdu, Arabic</button>
 </li>
 <li>
-<button class="w-full text-left pl-6 pr-3 py-1.5 rounded text-sm text-gray-700 hover:bg-gray-100">Cross-Language Search</button>
-</li>
-<li>
 <p class="px-3 pb-1 text-xs font-bold uppercase tracking-wider text-gray-700 mt-3 pt-4 border-t border-gray-200">Reference &amp; tools</p>
 <button class="w-full text-left pl-6 pr-3 py-1.5 rounded text-sm text-gray-700 hover:bg-gray-100">Use with your AI</button>
 </li>
@@ -3872,9 +4090,6 @@ exports[`App render recording > page /help 1`] = `
 </li>
 <li>
 <button class="w-full text-left pl-6 pr-3 py-1.5 rounded text-sm text-gray-700 hover:bg-gray-100">Repository</button>
-</li>
-<li>
-<button class="w-full text-left pl-6 pr-3 py-1.5 rounded text-sm text-gray-700 hover:bg-gray-100">Upload Your Text</button>
 </li>
 <li>
 <button class="w-full text-left pl-6 pr-3 py-1.5 rounded text-sm text-gray-700 hover:bg-gray-100">FAQ</button>
@@ -3892,21 +4107,47 @@ exports[`App render recording > page /help 1`] = `
 </nav>
 <div class="flex-1 p-6">
 <div class="prose max-w-none">
-<h3 class="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Getting Started</h3>
-<p class="text-gray-700 mb-4">Tesserae offers several kinds of search. Most people start with the default — <strong>Phrases</strong>, which compares two texts and finds the passages most similar to each other. Here is the quick path:</p>
-<ol class="list-decimal list-inside space-y-4 text-gray-700">
-<li>
-<strong>Select a language:</strong> Latin, Greek, English, Coptic, Hebrew, Persian or Urdu, from the tabs, or Cross-Language for a pair. The author, work and book menus accept typing, so you can type a few letters of a name to find it.</li>
-<li>
-<strong>Choose a search type:</strong> the default is <strong>Phrases</strong> (compare two texts). See <button class="text-red-600 hover:underline">The Types of Search</button> for the others (Lines, String Search, Rare Pairs, Rare Words).</li>
-<li>
-<strong>Choose your texts:</strong> a <strong>source</strong> (usually the earlier text) and a <strong>target</strong> that may echo it.</li>
-<li>
-<strong>Run the search:</strong> click "Find Parallels." Results are ranked by confidence, matched words are highlighted, and badges show which methods detected each pair.</li>
-</ol>
-<div class="mt-6 bg-amber-50 p-4 rounded-lg">
-<h4 class="text-sm font-semibold uppercase tracking-wide text-amber-800 mb-2">Tip</h4>
-<p class="text-amber-700 text-sm">Start with a smaller section (e.g., Book 1) rather than complete works for faster results. Large comparisons like the full Aeneid vs. Metamorphoses can take up to 15 minutes on first run; subsequent searches are cached.</p>
+<h3 class="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Start here</h3>
+<p class="text-gray-700 mb-4">Tesserae finds passages that echo one another in Latin, Greek, English, Coptic, Hebrew, Persian and Urdu, whether through shared words, shared sounds, or a shared subject. It offers eight kinds of search, listed below in the order of the "What are you trying to do?" panel. The Search One Text page, where a visit starts, and the Intertextual Search page show that panel the first time you visit. Choosing an answer takes you to the right search, and "Skip" closes the panel for good. The "Start here" link at the top of every page brings it back, and Tessa gives the same list when you ask her where to start.</p>
+<div class="space-y-5">
+<div class="border-l-4 border-gray-300 pl-4">
+<h4 class="text-lg font-semibold text-gray-900">Phrase Search</h4>
+<p class="text-gray-600 text-sm mt-1">Compares a source text with a target text and ranks the passages they share. The default match type is Fusion, which combines eleven detection methods. Use it to discover allusions, quotations and echoes between two works. See <button class="text-red-600 hover:underline">Intertextual Search, how it works</button> and <button class="text-red-600 hover:underline">Match types</button>.</p>
+</div>
+<div class="border-l-4 border-gray-300 pl-4">
+<h4 class="text-lg font-semibold text-gray-900">Line Search</h4>
+<p class="text-gray-600 text-sm mt-1">Finds every line in the corpus that shares vocabulary with one line, chosen from a text or typed in. Match on dictionary forms, on identical forms, or with a regular expression, and Greek may be typed with or without accents. For example, "arma virumque cano" finds every line sharing "arma" and "vir". See <button class="text-red-600 hover:underline">Match types</button>.</p>
+</div>
+<div class="border-l-4 border-gray-300 pl-4">
+<h4 class="text-lg font-semibold text-gray-900">Rare Words, Rare Pairs and String Search</h4>
+<p class="text-gray-600 text-sm mt-1">Rare Words lists words found in fewer than 50 texts that your two texts share, and Rare Pairs lists unusual word pairs that few texts contain together. Both suggest direct borrowing or a stylistic fingerprint. Export CSV saves the list you see, and Download everything (CSV) fetches every place each word occurs in the corpus, which can be a large file. String Search looks for words, patterns and combinations across the whole corpus, with wildcards and the operators AND, OR, NOT and proximity. The patterns are explained under <button class="text-red-600 hover:underline">Match types</button>, and <button class="text-red-600 hover:underline">Search Tips</button> suggests when to try the rare-word modes.</p>
+</div>
+<div class="border-l-4 border-gray-300 pl-4">
+<h4 class="text-lg font-semibold text-gray-900">Theme Search</h4>
+<p class="text-gray-600 text-sm mt-1">Finds passages on a subject you describe in your own words, in every indexed language at once, even when they share no vocabulary with your description. Use it when you do not know what words a scene is phrased in. See <button class="text-red-600 hover:underline">Theme Search</button>.</p>
+</div>
+<div class="border-l-4 border-gray-300 pl-4">
+<h4 class="text-lg font-semibold text-gray-900">Search One Text</h4>
+<p class="text-gray-600 text-sm mt-1">Asks one work what it says about a subject, in plain words. It is Theme Search run inside that one work, and the closest passages come back. See <button class="text-red-600 hover:underline">Search One Text</button>.</p>
+</div>
+<div class="border-l-4 border-gray-300 pl-4">
+<h4 class="text-lg font-semibold text-gray-900">Reader</h4>
+<p class="text-gray-600 text-sm mt-1">Shows a text with a gutter marking where the rest of the corpus connects to each line, and a panel with those connections, the translation and the scholarship on the passage. See <button class="text-red-600 hover:underline">The Reader</button>.</p>
+</div>
+<div class="border-l-4 border-gray-300 pl-4">
+<h4 class="text-lg font-semibold text-gray-900">People &amp; Places</h4>
+<p class="text-gray-600 text-sm mt-1">Lists every line where a person, place or god is named, in Latin, Greek and English. See <button class="text-red-600 hover:underline">People &amp; Places</button>.</p>
+</div>
+<div class="border-l-4 border-gray-300 pl-4">
+<h4 class="text-lg font-semibold text-gray-900">Collections</h4>
+<p class="text-gray-600 text-sm mt-1">Adds inscriptions, papyri, events, coins and museum objects, switched on from the top row. See <button class="text-red-600 hover:underline">Collections, Beta marks and other controls</button>.</p>
+</div>
+</div>
+<h4 class="text-lg font-semibold text-gray-900 mt-8 mb-2">Choosing a language and two texts</h4>
+<p class="text-gray-700 mb-3">The Intertextual Search page has one tab for each language (Latin, Greek, English, Coptic, Hebrew, Persian and Urdu) and a Cross-Language tab for a pair of languages. Seven pairs are open. If a pair is ever held back for rebuilding, the page says so under the pair buttons and the pair returns when the rebuild is done. No pair is held at present. The author, work and book menus accept typing, so a few letters of a name will find it. Choose a <strong>source</strong>, usually the earlier text, and a <strong>target</strong> that may echo it, and click "Find Parallels". Results are ranked by confidence, with the matched words highlighted and badges showing which methods found each pair. See <button class="text-red-600 hover:underline">Cross-Language Search</button> and <button class="text-red-600 hover:underline">Reading the results</button>.</p>
+<div class="mt-4 bg-amber-50 p-4 rounded-lg">
+<p class="text-amber-700 text-sm">
+<strong>Tip.</strong> Start with a smaller section, such as Book 1. Large comparisons, such as the whole Aeneid against the Metamorphoses, take longer on the first run, and later searches of the same pair are cached.</p>
 </div>
 <div class="mt-4 bg-gray-50 p-4 rounded-lg">
 <p class="text-gray-700 text-sm">
@@ -3968,6 +4209,8 @@ exports[`App render recording > page /inscriptions-papyri 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
+</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
@@ -3978,6 +4221,10 @@ exports[`App render recording > page /inscriptions-papyri 1`] = `
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold" aria-current="page">Intertextual Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
+<div class="relative">
+<button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">People, Places &amp; Things <span aria-hidden="true">▾</span>
+</button>
+</div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">About</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
@@ -4020,7 +4267,7 @@ exports[`App render recording > page /inscriptions-papyri 1`] = `
 </li>
 <li>
 <a href="/?tab=parallel" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Phrase Search:</span> <span>the phrases two works share, scored</span>
+<span class="font-semibold text-gray-800">Phrase Search:</span> <span>the phrases two works share, ranked by how distinctive they are</span>
 </a>
 </li>
 <li>
@@ -4035,17 +4282,22 @@ exports[`App render recording > page /inscriptions-papyri 1`] = `
 </li>
 <li>
 <a href="/theme-search" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Theme Search:</span> <span>passages about a subject, described in your own words, across languages</span>
+<span class="font-semibold text-gray-800">Theme Search:</span> <span>passages on a subject you describe in your own words, in any of the corpus languages</span>
 </a>
 </li>
 <li>
 <a href="/read" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Reader:</span> <span>read a text and see what each passage echoes</span>
+<span class="font-semibold text-gray-800">Reader:</span> <span>read a text with its echoes, translations and scholarship beside each passage</span>
+</a>
+</li>
+<li>
+<a href="/mentions" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
+<span class="font-semibold text-gray-800">People &amp; Places:</span> <span>every line where a person, place or god is named, in Latin, Greek and English</span>
 </a>
 </li>
 <li>
 <a href="/inscriptions-papyri?profile=everything" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Collections:</span> <span>inscriptions, papyri, events, coins and museum objects</span>
+<span class="font-semibold text-gray-800">Collections:</span> <span>inscriptions, papyri, events, coins and museum objects, switched on from the top row</span>
 </a>
 </li>
 </ul>
@@ -4185,6 +4437,8 @@ exports[`App render recording > page /line-search 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
+</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
@@ -4195,6 +4449,10 @@ exports[`App render recording > page /line-search 1`] = `
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertextual Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
+<div class="relative">
+<button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">People, Places &amp; Things <span aria-hidden="true">▾</span>
+</button>
+</div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">About</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
@@ -4327,6 +4585,8 @@ exports[`App render recording > page /no-such-page 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
+</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
@@ -4337,6 +4597,10 @@ exports[`App render recording > page /no-such-page 1`] = `
 <button aria-current="page" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold">Intertextual Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
+<div class="relative">
+<button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">People, Places &amp; Things <span aria-hidden="true">▾</span>
+</button>
+</div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">About</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
@@ -4379,7 +4643,7 @@ exports[`App render recording > page /no-such-page 1`] = `
 </li>
 <li>
 <a href="/?tab=parallel" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Phrase Search:</span> <span>the phrases two works share, scored</span>
+<span class="font-semibold text-gray-800">Phrase Search:</span> <span>the phrases two works share, ranked by how distinctive they are</span>
 </a>
 </li>
 <li>
@@ -4394,17 +4658,22 @@ exports[`App render recording > page /no-such-page 1`] = `
 </li>
 <li>
 <a href="/theme-search" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Theme Search:</span> <span>passages about a subject, described in your own words, across languages</span>
+<span class="font-semibold text-gray-800">Theme Search:</span> <span>passages on a subject you describe in your own words, in any of the corpus languages</span>
 </a>
 </li>
 <li>
 <a href="/read" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Reader:</span> <span>read a text and see what each passage echoes</span>
+<span class="font-semibold text-gray-800">Reader:</span> <span>read a text with its echoes, translations and scholarship beside each passage</span>
+</a>
+</li>
+<li>
+<a href="/mentions" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
+<span class="font-semibold text-gray-800">People &amp; Places:</span> <span>every line where a person, place or god is named, in Latin, Greek and English</span>
 </a>
 </li>
 <li>
 <a href="/inscriptions-papyri?profile=everything" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Collections:</span> <span>inscriptions, papyri, events, coins and museum objects</span>
+<span class="font-semibold text-gray-800">Collections:</span> <span>inscriptions, papyri, events, coins and museum objects, switched on from the top row</span>
 </a>
 </li>
 </ul>
@@ -4544,6 +4813,8 @@ exports[`App render recording > page /objects 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
+</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
@@ -4554,6 +4825,10 @@ exports[`App render recording > page /objects 1`] = `
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold" aria-current="page">Intertextual Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
+<div class="relative">
+<button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">People, Places &amp; Things <span aria-hidden="true">▾</span>
+</button>
+</div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">About</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
@@ -4596,7 +4871,7 @@ exports[`App render recording > page /objects 1`] = `
 </li>
 <li>
 <a href="/?tab=parallel" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Phrase Search:</span> <span>the phrases two works share, scored</span>
+<span class="font-semibold text-gray-800">Phrase Search:</span> <span>the phrases two works share, ranked by how distinctive they are</span>
 </a>
 </li>
 <li>
@@ -4611,17 +4886,22 @@ exports[`App render recording > page /objects 1`] = `
 </li>
 <li>
 <a href="/theme-search" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Theme Search:</span> <span>passages about a subject, described in your own words, across languages</span>
+<span class="font-semibold text-gray-800">Theme Search:</span> <span>passages on a subject you describe in your own words, in any of the corpus languages</span>
 </a>
 </li>
 <li>
 <a href="/read" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Reader:</span> <span>read a text and see what each passage echoes</span>
+<span class="font-semibold text-gray-800">Reader:</span> <span>read a text with its echoes, translations and scholarship beside each passage</span>
+</a>
+</li>
+<li>
+<a href="/mentions" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
+<span class="font-semibold text-gray-800">People &amp; Places:</span> <span>every line where a person, place or god is named, in Latin, Greek and English</span>
 </a>
 </li>
 <li>
 <a href="/inscriptions-papyri?profile=everything" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Collections:</span> <span>inscriptions, papyri, events, coins and museum objects</span>
+<span class="font-semibold text-gray-800">Collections:</span> <span>inscriptions, papyri, events, coins and museum objects, switched on from the top row</span>
 </a>
 </li>
 </ul>
@@ -4761,6 +5041,8 @@ exports[`App render recording > page /objects/o1 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
+</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
@@ -4771,6 +5053,10 @@ exports[`App render recording > page /objects/o1 1`] = `
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold" aria-current="page">Intertextual Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
+<div class="relative">
+<button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">People, Places &amp; Things <span aria-hidden="true">▾</span>
+</button>
+</div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">About</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
@@ -4813,7 +5099,7 @@ exports[`App render recording > page /objects/o1 1`] = `
 </li>
 <li>
 <a href="/?tab=parallel" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Phrase Search:</span> <span>the phrases two works share, scored</span>
+<span class="font-semibold text-gray-800">Phrase Search:</span> <span>the phrases two works share, ranked by how distinctive they are</span>
 </a>
 </li>
 <li>
@@ -4828,17 +5114,22 @@ exports[`App render recording > page /objects/o1 1`] = `
 </li>
 <li>
 <a href="/theme-search" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Theme Search:</span> <span>passages about a subject, described in your own words, across languages</span>
+<span class="font-semibold text-gray-800">Theme Search:</span> <span>passages on a subject you describe in your own words, in any of the corpus languages</span>
 </a>
 </li>
 <li>
 <a href="/read" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Reader:</span> <span>read a text and see what each passage echoes</span>
+<span class="font-semibold text-gray-800">Reader:</span> <span>read a text with its echoes, translations and scholarship beside each passage</span>
+</a>
+</li>
+<li>
+<a href="/mentions" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
+<span class="font-semibold text-gray-800">People &amp; Places:</span> <span>every line where a person, place or god is named, in Latin, Greek and English</span>
 </a>
 </li>
 <li>
 <a href="/inscriptions-papyri?profile=everything" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Collections:</span> <span>inscriptions, papyri, events, coins and museum objects</span>
+<span class="font-semibold text-gray-800">Collections:</span> <span>inscriptions, papyri, events, coins and museum objects, switched on from the top row</span>
 </a>
 </li>
 </ul>
@@ -4978,6 +5269,8 @@ exports[`App render recording > page /privacy 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
+</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
@@ -4988,6 +5281,10 @@ exports[`App render recording > page /privacy 1`] = `
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertextual Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
+<div class="relative">
+<button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">People, Places &amp; Things <span aria-hidden="true">▾</span>
+</button>
+</div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">About</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
@@ -5107,6 +5404,8 @@ exports[`App render recording > page /read 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
+</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
@@ -5117,6 +5416,10 @@ exports[`App render recording > page /read 1`] = `
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertextual Search</button>
 <button aria-current="page" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold">Read</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
+<div class="relative">
+<button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">People, Places &amp; Things <span aria-hidden="true">▾</span>
+</button>
+</div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">About</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
@@ -5241,6 +5544,8 @@ exports[`App render recording > page /repository 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
+</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
@@ -5251,6 +5556,10 @@ exports[`App render recording > page /repository 1`] = `
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertextual Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
+<div class="relative">
+<button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">People, Places &amp; Things <span aria-hidden="true">▾</span>
+</button>
+</div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">About</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
@@ -5363,6 +5672,8 @@ exports[`App render recording > page /requests 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
+</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
@@ -5373,6 +5684,10 @@ exports[`App render recording > page /requests 1`] = `
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertextual Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
+<div class="relative">
+<button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">People, Places &amp; Things <span aria-hidden="true">▾</span>
+</button>
+</div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">About</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
@@ -5461,6 +5776,8 @@ exports[`App render recording > page /research 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
+</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
@@ -5471,6 +5788,10 @@ exports[`App render recording > page /research 1`] = `
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertextual Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
+<div class="relative">
+<button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">People, Places &amp; Things <span aria-hidden="true">▾</span>
+</button>
+</div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">About</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
@@ -5653,6 +5974,8 @@ exports[`App render recording > page /string-search 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
+</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
@@ -5663,6 +5986,10 @@ exports[`App render recording > page /string-search 1`] = `
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertextual Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
+<div class="relative">
+<button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">People, Places &amp; Things <span aria-hidden="true">▾</span>
+</button>
+</div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">About</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
@@ -5777,6 +6104,8 @@ exports[`App render recording > page /text-credits 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
+</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
@@ -5787,6 +6116,10 @@ exports[`App render recording > page /text-credits 1`] = `
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertextual Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
+<div class="relative">
+<button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">People, Places &amp; Things <span aria-hidden="true">▾</span>
+</button>
+</div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">About</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
@@ -5897,6 +6230,8 @@ exports[`App render recording > page /theme-search 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
+</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
@@ -5907,6 +6242,10 @@ exports[`App render recording > page /theme-search 1`] = `
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertextual Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button aria-current="page" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold">Theme Search</button>
+<div class="relative">
+<button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">People, Places &amp; Things <span aria-hidden="true">▾</span>
+</button>
+</div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">About</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
@@ -6024,6 +6363,8 @@ exports[`App render recording > page /visualize 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
+</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
@@ -6034,6 +6375,10 @@ exports[`App render recording > page /visualize 1`] = `
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertextual Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
+<div class="relative">
+<button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">People, Places &amp; Things <span aria-hidden="true">▾</span>
+</button>
+</div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">About</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
