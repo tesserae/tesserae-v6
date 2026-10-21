@@ -86,6 +86,8 @@ def _people_places(a):
     name = str(a['name']).strip()
     search = _get('/entities/search', {'q': name})
     entries, _exact = three_searches.match_entities(name, search)
+    if entries and a.get('pick_index') is not None:
+        entries = [entries[min(int(a['pick_index']), len(entries) - 1)]]
     details = {}
     for e in entries[:3]:
         try:

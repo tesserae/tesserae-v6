@@ -414,6 +414,9 @@ def summarise_people_places(bundle, args, scope_row=None):
     search = (bundle or {}).get('search') or {}
     details = (bundle or {}).get('details') or {}
     entries, exact = match_entities(name, search)
+    if entries and args.get('pick_index') is not None:
+        # The reader chose one of the entries Tessa listed (entry_choice): same search, same order.
+        entries = [entries[min(int(args['pick_index']), len(entries) - 1)]]
     if not entries:
         return {'kind': KIND_NONE, 'search': PEOPLE_PLACES, 'args': {'name': name},
                 'what_was_searched': f"People & Places, name '{name}'",
@@ -712,3 +715,35 @@ def event_choice(question, history):
         return None
     return {'name': pick['label'], 'label': pick['label'], 'year': min(pick['years']), 'year_to': max(pick['years']),
             'explicit': True}
+
+
+# The same for People & Places: "People & Places has 2 entries for Mars: Mars (deity, 412 lines
+# in 60 works); Mars (person, ...). Which one do you mean?" answered "the god" or "the second".
+_ENTRY_LISTING = re.compile(r'People & Places has \d+ entries for (?P<name>[^:]+): (?P<items>.*?)\. Which one do you mean\?', re.S)
+_ENTRY_ITEM = re.compile(r'(?P<heading>[^;(]+?) \((?P<type>[a-z]+)')
+_TYPE_WORDS = {
+    'deity': ('god', 'goddess', 'deity', 'divinity'),
+    'person': ('person', 'man', 'woman', 'hero', 'king', 'queen', 'human', 'mortal', 'family', 'general', 'emperor'),
+    'place': ('place', 'city', 'town', 'river', 'mountain', 'island', 'region', 'country'),
+    'people': ('people', 'tribe', 'nation'),
+}
+
+
+def entry_choice(question, history):
+    """{'name', 'pick_index'} when the question picks one of the entries Tessa just listed."""
+    last = next((t.get('text') for t in reversed(history or []) if isinstance(t, dict) and t.get('role') == 'assistant'), '')
+    m = _ENTRY_LISTING.search(str(last or ''))
+    if not m:
+        return None
+    items = [mi.groupdict() for mi in (_ENTRY_ITEM.match(it.strip()) for it in m.group('items').split('; ')) if mi]
+    if len(items) < 2:
+        return None
+    q = str(question or '').lower()
+    for idx, it in enumerate(items):
+        if any(re.search(r'\b' + w + r's?\b', q) for w in _TYPE_WORDS.get(it['type'], (it['type'],))):
+            if sum(1 for o in items if o['type'] == it['type']) == 1:
+                return {'name': m.group('name').strip(), 'pick_index': idx}
+    for word, idx in _ORDINALS.items():
+        if isinstance(idx, int) and re.search(r'\b' + word + r'\b', q) and -len(items) <= idx < len(items):
+            return {'name': m.group('name').strip(), 'pick_index': idx % len(items)}
+    return None

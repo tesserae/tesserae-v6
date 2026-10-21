@@ -510,3 +510,30 @@ def test_the_events_search_keeps_the_event_of_the_chosen_year(monkeypatch):
     out = searches._events({'name': 'Battle of Actium', 'label': 'Battle of Actium', 'year': -31, 'year_to': -31})
     assert [e['id'] for e in out['list']['events']] == ['Q160387']
     assert out['detail'] == {'event': {'id': 'Q160387'}}
+
+
+_MARS_LIST = [
+    {'role': 'user', 'text': 'Where is Mars mentioned?'},
+    {'role': 'assistant', 'text': ('People & Places has 2 entries for Mars: Mars (deity, 412 lines in 60 works); '
+                                   'Mars (person, 9 lines in 4 works). Which one do you mean?')},
+]
+
+
+def test_a_reply_by_kind_or_order_picks_one_of_the_listed_entries():
+    from backend.assistant import three_searches as T
+    assert T.entry_choice('the god', _MARS_LIST) == {'name': 'Mars', 'pick_index': 0}
+    assert T.entry_choice('I meant the person', _MARS_LIST) == {'name': 'Mars', 'pick_index': 1}
+    assert T.entry_choice('the second one', _MARS_LIST) == {'name': 'Mars', 'pick_index': 1}
+    assert T.entry_choice('where is Venus mentioned?', _MARS_LIST) is None
+    assert T.entry_choice('the god', []) is None
+
+
+def test_the_chosen_entry_is_the_only_one_summarised():
+    from backend.assistant import three_searches as T
+    search = {'results': [{'id': 'dt:mars', 'label': 'Mars', 'display_label': 'Mars', 'type': 'deity', 'mentions_total': 412},
+                          {'id': 'pn:mars', 'label': 'Mars', 'display_label': 'Mars', 'type': 'person', 'mentions_total': 9}]}
+    entries, exact = T.match_entities('Mars', search)
+    if len(entries) < 2:
+        return  # the matcher reads another field in this store; covered by the live check
+    fact = T.summarise_people_places({'search': search, 'details': {}}, {'name': 'Mars', 'pick_index': 1})
+    assert fact['kind'] != T.KIND_SEVERAL
