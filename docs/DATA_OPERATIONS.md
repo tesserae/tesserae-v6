@@ -6013,7 +6013,10 @@ production.
   an earlier, smaller corpus throughout) but was not carried out until after
   this window closed.
 
-## 2026-10-20 PENDING Attic inscriptions: People & Places links, event documents, text repairs, corrected event coordinates (built by a delegate, to be installed by the project lead)
+## 2026-10-20 RUN 22:57 EDT Attic inscriptions: People & Places links, event documents, text repairs, corrected event coordinates (built by a delegate, installed by the project lead)
+
+**Run record.** Pull request #1089 merged and deployed at 22:56 after one lint stop (four findings, fixed). Before installing, the project lead checked that the copies were built from the current live files: the People & Places copy has the same 42,356 entities, 1,433,633 mention rows and the identical 600,977 document-mention rows as the live store, plus 2,674 AIO rows; the events copy has the same events, passages, scholarship rows and the identical 14,435 Claude ratings, with document rows 12,513 to 14,372. Twenty rows of the delegate's 100-row sample were read again with another seed and agreed with its grading (95 right of 100). Installed at 22:57 with backups `.bak-aiolinks-20261020` of `grc_documents_index.db`, `entities.sqlite` and `event_dossiers.sqlite`, the restored-words file replaced, `metadata.db` left as it was (the copy is identical). Checks: `/api/languages` 200; the three Sieges of Athens list 115, 114 and 75 documents; the Battle of Actium sits at 38.925, 20.725 and now lists no documents, because no document dated within fifty years of 31 BCE lies within 100 km of Actium (the stones listed before were in southern Italy, near the old point in the Ionian Sea); the Sicilian Expedition sits at Syracuse with 44 documents; aio:IGII34_165 reads Ἀπόλλωνι; Rhamnus answers in People & Places.
+
 
 **Status.** Built on copies, not installed. Copies and checksums are in `~/tesserae-backups/aio_links_2026-10-20/install/` (`SHA256SUMS.txt`). Nothing under `/var/www` was written.
 
