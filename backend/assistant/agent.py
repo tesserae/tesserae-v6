@@ -29,7 +29,7 @@ import re
 from collections import Counter
 from dataclasses import dataclass, field
 
-from backend.assistant import actions, model, searches
+from backend.assistant import actions, model, searches, three_searches
 from backend import work_names
 from backend.logging_config import get_logger
 
@@ -264,14 +264,14 @@ def _resolve_text_args(name, args):
     the way the corpus stores them ("statius.thebaid"). Resolving is cheap and
     the alternative is a 400 that reads as an empty result.
     """
-    if name != 'rare_words' or not isinstance(args, dict):
+    if name not in ('rare_words', 'one_text_search') or not isinstance(args, dict):
         return args
     try:
         from backend.assistant import corpus_lookup
     except Exception:                                    # noqa: BLE001
         return args
     out = dict(args)
-    for key in ('source', 'target'):
+    for key in (('work',) if name == 'one_text_search' else ('source', 'target')):
         raw = str(out.get(key) or '')
         if not raw or corpus_lookup.is_text_id(raw):
             continue
@@ -884,6 +884,30 @@ way to know the inflected ones exist, so the count and the question are the
 difference between a true answer and a useful one."""
 
 
+# What Tessa is told when the facts come from Search One Text, People & Places or
+# Events. Those facts are the page's own answer, so the passages and counts in
+# them ARE the answer, unlike a phrase search where the page holds the list.
+THREE_SEARCHES_SYSTEM = """You are answering a scholar's question from the result of one of this site's own searches: Search One Text, People & Places or Events. The result is given below. It is your only source of fact.
+
+Absolute rules:
+- Name only works, authors, entries, events and passages that appear in the results.
+- Cite a passage only by a reference given in the results, written as given.
+- Never state a number that is not in the results. Do NOT do arithmetic: use the figures as given.
+- The description beside a passage is the site's description of it, not a quotation. Never quote a work's text beyond what the results show.
+- If the results are thin, say so plainly. Do not describe what other searches or the page would show.
+- A corpus census is given first. It is TRUE.
+
+Lead with what was searched and what came back. Plain sentences, a list only for the passages. Do not end by telling them to click anything: the control is there."""
+
+
+def _answer_system(facts):
+    return THREE_SEARCHES_SYSTEM if three_searches.model_writes(facts) else ANSWER_SYSTEM
+
+
+def _answer_rule(facts, asked):
+    return three_searches.RULE if three_searches.model_writes(facts) else _listing_rule(asked)
+
+
 # An explicit request for the passages themselves, decided in CODE.
 #
 # The prompt alone did not hold. Asked "where does the exact phrase arma virumque
@@ -981,6 +1005,8 @@ def _handoff_sentence(facts):
     there is nothing to write, there is nothing for it to do.
     """
     for f in facts or []:
+        if three_searches.code_answers([f]):
+            return three_searches.code_sentence(f)
         if str(f.get('kind') or '').startswith('CROSS-LANGUAGE PAIR'):
             pair = f.get('pair')
             if not f.get('supported_by_the_search'):
@@ -1081,13 +1107,19 @@ def _extract_json(text):
         return None
 
 
-def _summarise(name, raw):
+def _summarise(name, raw, args=None):
     """Reduce a raw search response to the facts a narration may use.
 
     Computed here rather than handed to the model whole: a full result payload
     is thousands of lines, and a model given the raw thing will quote the parts
     that look quotable rather than the parts that matter.
     """
+    if name == 'one_text_search':
+        return three_searches.summarise_one_text(raw, args or {})
+    if name == 'people_places':
+        return three_searches.summarise_people_places(raw, args or {})
+    if name == 'events':
+        return three_searches.summarise_events(raw, args or {})
     if name == 'list_texts':
         rows = raw if isinstance(raw, list) else []
         authors = sorted({r.get('author') for r in rows if r.get('author')})
@@ -1561,9 +1593,9 @@ def answer_stream(question, on_step=None, history=None, offered_phrase=None):
     # here is the control". Generation is nearly all of the wall clock, so at the
     # full budget the reader waited nineteen seconds to be handed a link, and the
     # model filled the space with 'structural echoes and semantic resonance'.
-    handing_over = bool(all_facts) and not any(
+    handing_over = bool(all_facts) and not (any(
         f.get('search') in ('line_search', 'theme_search', 'rare_words')
-        for f in all_facts)
+        for f in all_facts) or three_searches.model_writes(all_facts))
     # 90 tokens was the budget for a one-line hand-off written by the model, set when it ran
     # on this CPU at ten tokens a second. Where code has no hand-off sentence the model writes the
     # whole answer, and at 90 tokens "what kinds of resources do you have?" (answered from a
@@ -1597,8 +1629,8 @@ def answer_stream(question, on_step=None, history=None, offered_phrase=None):
     # the numbers guardrail then flagged, one run in several. Greedy decoding
     # makes the answer to a given fact block reproducible, so a clean answer
     # stays clean and a bad one fails every time, where it can be fixed.
-    for piece in model.stream(ANSWER_SYSTEM,
-                              f'{block}\n\n{_listing_rule(asked)}{brief}'
+    for piece in model.stream(_answer_system(all_facts),
+                              f'{block}\n\n{_answer_rule(all_facts, asked)}{brief}'
                               f'\n\nQuestion: {asked}\n\nAnswer:',
                               max_tokens=budget, temperature=0.0):
         collected.append(piece)
@@ -1703,6 +1735,7 @@ class PrepState:
     compare_done: bool = False
     read_done: bool = False
     theme_done: bool = False
+    three_done: bool = False
     phrase: object = None
 
 
@@ -2151,6 +2184,104 @@ def _open_text_in_reader(st):
     return None
 
 
+# SEARCH ONE TEXT, PEOPLE & PLACES AND EVENTS, run by Tessa herself (2026-10-21).
+#
+# A question that names one work and asks what it says about a subject goes to
+# the Theme Search restricted to that work. A question about where a person,
+# place or god is named goes to the People & Places lookup. A question about a
+# battle, siege, treaty or campaign goes to the Events lookup. Each is decided
+# from the reader's own words (see three_searches.py, where every pattern is
+# kept narrow so the questions line_search, theme_search and the comparisons
+# already answer well keep going there), and each answers with a control that
+# opens the page.
+def _run_three(name, args, step, ran, all_facts, scope_row=None):
+    """Run one of the three searches and add its facts. A failed search is recorded as failed."""
+    labels = {'one_text_search': 'searching one text for', 'people_places': 'looking up',
+              'events': 'looking up the event'}
+    step(f"{labels[name]} {args.get('query') or args.get('name')}")
+    try:
+        raw = searches.run(name, args)
+    except searches.SearchError as e:
+        logger.info('[ASSISTANT] %s failed: %s', name, e)
+        all_facts.append({'search': name, 'args': args, 'failed': str(e)})
+        return None
+    if name == 'people_places':
+        fact = three_searches.summarise_people_places(raw, args, scope_row)
+    else:
+        fact = _summarise(name, raw, args)
+    all_facts.append(fact)
+    ran.append(name)
+    return fact
+
+
+def _three_searches(st):
+    """Search One Text, People & Places or Events, when the question is one of theirs."""
+    question, step, ran, all_facts = st.question, st.step, st.ran, st.all_facts
+    if st.compare_done or st.read_done or st.translations_done or st.holdings_code:
+        return None
+    from backend.assistant import corpus_lookup
+    ev = three_searches.event_request(question)
+    # A battle, siege, treaty or campaign named outright goes to Events before a work is looked for:
+    # "ancient sources" must not become the Rime of the Ancient Mariner.
+    if ev and ev['explicit']:
+        args = {'name': ev['name'], 'label': ev['label']}
+        _run_three('events', args, step, ran, all_facts)
+        st.three_done = True
+        return None
+    req = three_searches.one_text_request(question)
+    if req:
+        _run_three('one_text_search', three_searches.one_text_args(req), step, ran, all_facts)
+        st.three_done = True
+        return None
+    mention = three_searches.mention_request(question)
+    if mention:
+        scope_row = None
+        if mention['scope']:
+            try:
+                hits = corpus_lookup.named_texts(mention['scope'], limit=1)
+            except Exception:                                   # noqa: BLE001
+                hits = []
+            scope_row = hits[0] if hits else None
+        args = {'name': mention['name']}
+        mark = len(all_facts)
+        fact = _run_three('people_places', args, step, ran, all_facts, scope_row)
+        if fact is None:
+            if mention.get('lowercase'):
+                del all_facts[mark:]
+            else:
+                st.three_done = True               # the failure stays in the facts and is reported
+            return None
+        if mention.get('lowercase') and not (
+                fact.get('kind') == three_searches.KIND_SEVERAL or fact.get('exact_label_match')):
+            # A lower-case name with no entry of that name was not a name.
+            del all_facts[mark:]
+            del ran[-1:]
+            return None
+        if fact.get('kind') == three_searches.KIND_NONE:
+            # A name that is a work's title and has no entry is a question about the work, not a person.
+            try:
+                named = corpus_lookup.named_texts(mention['name'], limit=1)
+            except Exception:                                   # noqa: BLE001
+                named = []
+            if named and named[0].get('matched') != 'author':
+                del all_facts[mark:]
+                del ran[-1:]
+                return None
+        st.three_done = True
+        return None
+    if ev:
+        # A bare place: an event only if the Events page has one of that name.
+        mark = len(all_facts)
+        fact = _run_three('events', {'name': ev['name']}, step, ran, all_facts)
+        if fact is None or fact.get('kind') == three_searches.KIND_NONE:
+            del all_facts[mark:]
+            if fact is not None:
+                del ran[-1:]
+            return None
+        st.three_done = True
+    return None
+
+
 # A THEMATIC question goes to the passage index, not to a word search.
 #
 # This is why "are there any passages about a storm at sea?" answered badly:
@@ -2178,7 +2309,7 @@ def _theme_search(st):
         theme = _theme_question(question) or question
     else:
         theme = ''
-    if theme and not _quoted_phrase(question):
+    if theme and not _quoted_phrase(question) and not st.three_done:
         try:
             step(f'looking for passages about {theme}')
             raw = searches.run('theme_search', {'query': theme, 'limit': 25})
@@ -2198,7 +2329,7 @@ def _phrase_search(st):
     """A quoted or carried phrase: the exact search, the variant pass and the lines for a named author."""
     question, step, ran, all_facts, decision, carried, theme_done, compare_done, read_done = st.question, st.step, st.ran, st.all_facts, st.decision, st.carried, st.theme_done, st.compare_done, st.read_done
     phrase = _quoted_phrase(question) or carried
-    if phrase and not theme_done and not compare_done and not read_done:
+    if phrase and not theme_done and not compare_done and not read_done and not st.three_done:
         lang = next((c for c, w in (('he', 'hebrew'), ('grc', 'greek'),
                                     ('cop', 'coptic'), ('en', 'english'))
                      if w in question.lower()), 'la')
@@ -2341,7 +2472,7 @@ def _choose_and_run_searches(st):
     """Let the model choose further searches, unless a fast path already answered."""
     question, step, ran, all_facts, phrase, theme_done, compare_done, translations_done, read_done = st.question, st.step, st.ran, st.all_facts, st.phrase, st.theme_done, st.compare_done, st.translations_done, st.read_done
     skip_chooser = bool(all_facts) and (phrase or theme_done or compare_done or translations_done
-                                        or read_done or any(
+                                        or read_done or st.three_done or any(
         h in question.lower() for h in _HOLDINGS_QUESTION))
     for _ in range(0 if skip_chooser else MAX_SEARCHES):
         prompt = f'Question: {question}\n'
@@ -2375,8 +2506,8 @@ def _choose_and_run_searches(st):
             logger.info('[ASSISTANT] %s failed: %s', name, e)
             all_facts.append({'search': name, 'args': args, 'failed': str(e)})
             break
-        facts = _summarise(name, result)
-        facts.update({'search': name, 'args': args})
+        facts = _summarise(name, result, args)
+        facts.update({'search': name, 'args': args} if name not in three_searches.NAMES else {})
         all_facts.append(facts)
         ran.append(name)
     return None
@@ -2500,6 +2631,7 @@ def _prepare(question, step, history=None, offered_phrase=None):
             _theme_pair_comparison,
             _offer_comparison,
             _open_text_in_reader,
+            _three_searches,
             _theme_search,
             _phrase_search,
             _choose_and_run_searches,
@@ -2521,7 +2653,7 @@ def answer(question, on_step=None, history=None, offered_phrase=None):
     block, all_facts, ran = prep['block'], prep['facts'], prep['ran']
     step('reading the results')
     # temperature=0 for the same reason as the streaming path above.
-    text = model.complete(ANSWER_SYSTEM,
+    text = model.complete(_answer_system(all_facts),
                           f'{block}\n\nQuestion: '
                           f'{prep.get("question_override") or question}\n\nAnswer:',
                           max_tokens=ANSWER_TOKENS, temperature=0.0)

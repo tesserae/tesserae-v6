@@ -64,6 +64,59 @@ def _get(path, params):
         raise SearchError(str(e)) from e
 
 
+def _base_id(work):
+    """A work id without its .tess suffix and without a book: the Search One Text page passes this."""
+    from backend.work_names import base_work
+    return base_work(str(work or ''))
+
+
+def _one_text(a):
+    """Theme Search restricted to one work: the request the Search One Text page makes."""
+    params = {'q': a['query'], 'works': _base_id(a['work']), 'limit': int(a.get('limit') or 25)}
+    if a.get('languages'):
+        params['languages'] = a['languages']
+    if a.get('books'):
+        params['books'] = a['books']
+    return _get('/passages/theme-search', params)
+
+
+def _people_places(a):
+    """The People & Places search for a name, with the full entry of each entry it means (three at most)."""
+    from backend.assistant import three_searches
+    name = str(a['name']).strip()
+    search = _get('/entities/search', {'q': name})
+    entries, _exact = three_searches.match_entities(name, search)
+    details = {}
+    for e in entries[:3]:
+        try:
+            details[e['id']] = _get('/entities/' + urllib.parse.quote(str(e['id']), safe=':'), {})
+        except SearchError as ex:
+            logger.info('[ASSISTANT] entry %s unreadable: %s', e.get('id'), ex)
+    return {'search': search, 'details': details}
+
+
+def _events(a):
+    """The Events search by name (the full title first, then the name alone), and the dossier of a single match."""
+    import re
+    lst = {}
+    for q in [x for x in (a.get('label'), a['name']) if x]:
+        lst = _get('/events', {'q': q, 'per_page': 8, 'sort': 'evidence'})
+        if q == a['name'] and lst.get('events'):
+            # The route matches letters inside a word (Troy finds Troyes). A name alone must be a whole
+            # word of the event's title or of its place, ancient or modern.
+            word = re.compile(r'\b' + re.escape(q.lower()) + r'\b')
+            keep = [e for e in lst['events']
+                    if any(word.search(str(e.get(k) or '').lower()) for k in ('label', 'place', 'place_ancient'))]
+            if len(keep) != len(lst['events']):
+                lst = dict(lst, events=keep, total=len(keep))
+        if lst.get('events'):
+            break
+    detail = None
+    if len(lst.get('events') or []) == 1:
+        detail = _get('/events/' + urllib.parse.quote(str(lst['events'][0]['id'])), {})
+    return {'list': lst, 'detail': detail}
+
+
 # --------------------------------------------------------------------------
 # The tools, as a schema the model chooses from
 # --------------------------------------------------------------------------
@@ -162,6 +215,29 @@ TOOLS = {
         'run': lambda a: _get('/passages/compare', {
             'work_a': a['work_a'], 'work_b': a['work_b'],
             'limit': int(a.get('limit') or 25)}),
+    },
+    'one_text_search': {
+        'what': 'Search One Text: the passages of ONE work (or one book of it) that match a subject, found '
+                'by content and not by wording. Use when a question names a single work and asks what it '
+                'says about something ("what does the Aeneid say about storms?").',
+        'args': {'work': 'work id of the one text (see list_texts)',
+                 'query': 'the subject, in plain words',
+                 'books': 'optional: a book number or range such as 6 or 1-6'},
+        'run': _one_text,
+    },
+    'people_places': {
+        'what': 'People & Places: look up a person, place or god by name and report its entry, how many '
+                'lines and works name it and which works name it most. Use for "where is X mentioned?" '
+                'and "which works name X?".',
+        'args': {'name': 'the name, as a reader would write it'},
+        'run': _people_places,
+    },
+    'events': {
+        'what': 'Events: look up a battle, siege, treaty or campaign by name and report its date, place and '
+                'how much the corpus says of it. Use for "what do the sources say about the battle of X?".',
+        'args': {'name': 'the place or name of the event, such as Actium',
+                 'label': 'optional: the full title, such as Battle of Actium'},
+        'run': _events,
     },
     'list_texts': {
         'what': 'What the corpus actually holds in a language. Use FIRST when '
@@ -322,7 +398,7 @@ def run(name, args):
     # 'language' and 'languages' are always optional: a search that does not
     # name one has a sensible default, and requiring them made theme_search
     # unusable for the ordinary case of "across everything".
-    optional = {'language', 'languages'}
+    optional = {'language', 'languages', 'books', 'label'}
     missing = [k for k in spec['args'] if k not in args and k not in optional]
     if missing:
         raise SearchError(f'{name} needs {missing}')

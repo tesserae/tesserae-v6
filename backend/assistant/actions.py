@@ -25,7 +25,7 @@ ordinary links, so they can be middle-clicked, bookmarked and shared. Nothing
 navigates on its own.
 """
 import re
-from urllib.parse import urlencode
+from urllib.parse import quote, urlencode
 
 # What the page will accept. A language the site cannot search is not offered.
 LANGUAGES = {'la', 'grc', 'he', 'cop', 'en', 'fa', 'ur', 'ar', 'it', 'fro', 'gmh'}
@@ -346,6 +346,42 @@ def _read(work, ref=None, ref_end=None, language=None, name=None):
     }
 
 
+def _one_text(work, query, language=None, books=None, name=None):
+    """Open Search One Text with the work and the question filled in (the page reads work, lang, q, books)."""
+    if not work or not query:
+        return None
+    args = {'work': str(work).replace('.tess', ''), 'lang': language if language in LANGUAGES else 'la', 'q': query}
+    if books:
+        args['books'] = books
+    return {
+        'kind': 'one_text',
+        'label': f'Search {name or work} for \u201c{query}\u201d',
+        'detail': 'Search One Text, the passages of this work about it',
+        'url': f'/ask-a-work?{urlencode(args)}',
+    }
+
+
+def _people_places(entry_id=None, name=None, label=None):
+    """Open People & Places at an entry, or at a search for the name when there is no entry."""
+    if entry_id:
+        return {'kind': 'people_places', 'label': f'Open {label or name} in People & Places',
+                'detail': 'every line that names it, by work',
+                'url': f'/mentions?{urlencode({"e": entry_id})}'}
+    if name:
+        return {'kind': 'people_places', 'label': f'Search People & Places for {name}',
+                'detail': 'a place, person or god by name',
+                'url': f'/mentions?{urlencode({"q": name})}'}
+    return None
+
+
+def _event_page(event_id, label=None):
+    if not event_id:
+        return None
+    return {'kind': 'event', 'label': f'Open {label or "the event"} on the Events page',
+            'detail': 'its passages, documents, articles and map',
+            'url': f'/events/{quote(str(event_id), safe="")}'}
+
+
 def _dedupe(actions):
     seen, out = set(), []
     for a in actions:
@@ -365,6 +401,42 @@ def _real_text(text_id):
         return corpus_lookup.is_text_id(text_id)
     except Exception:                                    # noqa: BLE001
         return False
+
+
+def _language_of(work):
+    """The language of a work, from the corpus listing (a work the model chose carries none)."""
+    try:
+        from backend.assistant import corpus_lookup
+        from backend.work_names import base_work
+        want = base_work(str(work or ''))
+        for r in corpus_lookup._all_texts(None):                  # noqa: SLF001
+            if base_work(str(r.get('id') or '')) == want:
+                return r.get('language')
+    except Exception:                                            # noqa: BLE001
+        pass
+    return None
+
+
+def _three_controls(f):
+    """The controls under an answer from Search One Text, People & Places or Events."""
+    a = f['args']
+    which = f.get('search')
+    if which == 'one_text_search':
+        return [_one_text(a.get('work'), a.get('query'), a.get('languages') or _language_of(a.get('work')),
+                          a.get('books'),
+                          name=f.get('work_searched'))]
+    if which == 'people_places':
+        if f.get('matches'):
+            return [_people_places(m.get('entry_id'), label=m.get('heading')) for m in f['matches']]
+        if a.get('entry'):
+            return [_people_places(a['entry'], label=a.get('heading'))]
+        return [_people_places(name=a.get('name'))]
+    if f.get('matches'):
+        return [_event_page(m.get('event_id'), m.get('event')) for m in f['matches']]
+    if a.get('id'):
+        return [_event_page(a['id'], f.get('event'))]
+    return [{'kind': 'events', 'label': 'Open the Events page', 'detail': 'battles, sieges and treaties by name',
+             'url': '/events'}]
 
 
 def build(facts, question=''):
@@ -414,6 +486,11 @@ def build(facts, question=''):
         if kind.startswith('CROSS-LANGUAGE PAIR') and isinstance(f.get('args'), dict):
             a = f['args']
             out.append(_cross_language(a.get('a'), a.get('b')))
+
+        # Search One Text, People & Places and Events, run by the assistant: the page
+        # opens on the same work and question, entry or event.
+        if f.get('search') in ('one_text_search', 'people_places', 'events') and isinstance(f.get('args'), dict):
+            out.extend(_three_controls(f))
 
         # A text the reader asked to open.
         if kind.startswith('A TEXT THE READER WANTS TO OPEN') and isinstance(f.get('args'), dict):

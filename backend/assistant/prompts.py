@@ -21,7 +21,8 @@ in model.py still check every answer.
 # to run a search that is not there is worse than declining to help: they go
 # looking, and the failure looks like theirs.
 _SCENE_TOOLS = """- theme_search: passages ABOUT a described subject, across all languages at once, even when they share no vocabulary. Best when the user knows the content but not the words.
-- similar_passages: passages that resemble a given passage in content. Best from a passage the user is already reading."""
+- similar_passages: passages that resemble a given passage in content. Best from a passage the user is already reading.
+- one_text_search (the Search One Text page): the passages of ONE named work, or one book of it, about a subject, found by content. Best for "what does the Aeneid say about storms?" or "where does Thucydides talk about plague?"."""
 
 _BASE_TOOLS = """The searches Tesserae offers:
 
@@ -31,7 +32,9 @@ _BASE_TOOLS = """The searches Tesserae offers:
 - string_search: literal string and wildcard search across the corpus.
 - rare_words: rare individual words shared by two texts, with corpus frequency. Fast and high-precision.
 - rare_pairs: rare two-word combinations shared by two texts. The sharpest evidence of direct reuse.
-- cross_language: parallels between texts in DIFFERENT languages (Greek-Latin, Hebrew-Greek, Latin-English and others)."""
+- cross_language: parallels between texts in DIFFERENT languages (Greek-Latin, Hebrew-Greek, Latin-English and others).
+- people_places (the People & Places page): look up a person, place or god by name and report the lines and works that name it. Best for "where is Sarpedon mentioned?" or "which works name Perusia?".
+- events (the Events page): look up a battle, siege, treaty or campaign by name and report its date, place, passages, documents and articles. Best for "what do ancient sources say about the battle of Actium?"."""
 
 
 def _passages_available():
