@@ -16,6 +16,7 @@ const LABEL_TEXT = {
 
 function WorkGroup({ work, items, event }) {
   const corpusMap = useCorpusTextMap(items[0]?.language);
+  const eventNames = eventNameWords(event);
   return (
     <section className="mb-4">
       <h4 className="text-sm font-semibold text-gray-800 mb-1">{workHeading(work, corpusMap)}</h4>
@@ -37,7 +38,11 @@ function WorkGroup({ work, items, event }) {
                 Open in the Reader
               </a>
             </div>
-            {p.snippet && <p className="text-sm text-gray-700 mt-1">{p.snippet}</p>}
+            {p.snippet && (
+              <p className="text-sm text-gray-700 mt-1">
+                <HighlightedText text={p.snippet} forms={[...matchedForms(p.names_matched), ...(eventNames || [])]} stems />
+              </p>
+            )}
             {p.names_matched?.length > 0 && (
               <p className="text-xs text-gray-500 mt-1">Names found: {p.names_matched.join('; ')}</p>
             )}
@@ -84,6 +89,29 @@ const DOCUMENT_GROUPS = [
   ['dated', "Dated within the event's years, nearest first"],
 ];
 
+/**
+ * The words of the event's place and participants, five letters or more, marked in its
+ * passages and documents with the case-insensitive stem rule of HighlightedText
+ * (Agrippa, Antonius, Perusia where the place is given so).
+ */
+export function eventNameWords(event) {
+  const raw = [event?.place, ...(Array.isArray(event?.participants) ? event.participants : [])];
+  return raw.filter(Boolean).flatMap((n) => String(n).split(/[\s,()]+/)).filter((w) => w.length >= 5);
+}
+
+/**
+ * The word forms a passage was matched on, from its "Names found" entries
+ * ("Perugia [place] = Περυσίας" gives Περυσίας), so the passage text can mark them
+ * the way the document cards do (the project lead, 2026-10-20: "highlight all matching
+ * terms").
+ */
+export function matchedForms(names) {
+  return (names || []).flatMap((n) => {
+    const i = String(n).lastIndexOf(' = ');
+    return i < 0 ? [] : String(n).slice(i + 3).split(/[,;]\s*/).map((f) => f.trim()).filter(Boolean);
+  });
+}
+
 /** A word as the Mentions store spells its forms: lower case, accents off, v as u, j as i. */
 function foldForm(w) {
   return String(w || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
@@ -95,12 +123,21 @@ function foldForm(w) {
  * (the project lead, 2026-10-20: "matching words should be highlighted"). The forms
  * come from the Mentions store, which records the word that matched in each document.
  */
-export function HighlightedText({ text, forms }) {
+export function HighlightedText({ text, forms, stems = false }) {
   const want = new Set((forms || []).map(foldForm).filter(Boolean));
   if (!want.size) return text;
-  return String(text).split(/(\s+|[/·,.;:()[\]]+)/).map((part, i) => (
-    want.has(foldForm(part))
-      ? <mark key={i} className="bg-amber-100 text-gray-900 rounded px-0.5">{part}</mark>
+  // With stems, a word also matches when it begins with a form less its last one or two
+  // letters (at least four left), so another case of the same name is marked too
+  // (Μαραθῶνα recorded, Μαραθῶνι in the passage).
+  const roots = stems ? [...want].map((f) => (f.length >= 6 ? f.slice(0, -2) : f.length >= 5 ? f.slice(0, -1) : f)) : [];
+  const hit = (w) => {
+    const f = foldForm(w);
+    if (!f) return false;
+    return want.has(f) || roots.some((r) => r.length >= 4 && f.startsWith(r));
+  };
+  return String(text).split(/(\s+|[/·,.;:()[\]]+)/).map((part, k) => (
+    hit(part)
+      ? <mark key={k} className="bg-amber-100 text-gray-900 rounded px-0.5">{part}</mark>
       : part
   ));
 }
@@ -129,7 +166,7 @@ function DocumentCard({ d, event }) {
       </div>
       {d.text && (
         <p className="font-serif text-base text-gray-900 mt-1.5" lang={d.language === 'grc' ? 'grc' : 'la'}>
-          <HighlightedText text={d.text} forms={d.matched_forms} />
+          <HighlightedText text={d.text} forms={[...(d.matched_forms || []), ...eventNameWords(event)]} stems />
         </p>
       )}
       {d.text_snippet && <p className="text-xs text-gray-500 mt-1">{d.text_snippet}</p>}
