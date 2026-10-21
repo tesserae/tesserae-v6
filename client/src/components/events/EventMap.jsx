@@ -70,12 +70,17 @@ export default function EventMap({ points }) {
     map.once('click', () => map.scrollWheelZoom.enable());
     const maxDocs = Math.max(0, ...points.filter((p) => p.kind === 'findspot').map((p) => p.n_documents || 0));
     const latlngs = [];
-    points.forEach((p) => {
+    // The event is drawn last (so on top) with a dark outline, so a
+    // findspot at the same place (Perusia beside Perugia, 150 m apart) cannot hide it
+    // (the project lead, 2026-10-20: "I don't see a red dot").
+    const ordered = [...points.filter((p) => p.kind !== 'event'), ...points.filter((p) => p.kind === 'event')];
+    ordered.forEach((p) => {
       const isEvent = p.kind === 'event';
       const m = L.circleMarker([p.lat, p.lon], {
         radius: isEvent ? 9 : findspotRadius(p.n_documents, maxDocs),
-        color: '#ffffff', weight: 2, fillColor: isEvent ? EVENT_COLOUR : FINDSPOT_COLOUR,
-        fillOpacity: 0.9,
+        color: isEvent ? '#7f1d1d' : '#ffffff', weight: isEvent ? 3 : 2,
+        fillColor: isEvent ? EVENT_COLOUR : FINDSPOT_COLOUR,
+        fillOpacity: isEvent ? 1 : 0.9,
       });
       m.bindTooltip(p.label);
       m.bindPopup(popupNode(p));
