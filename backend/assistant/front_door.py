@@ -48,3 +48,35 @@ def answer():
     lines += [f'- [{label}]({path}): {detail}' for label, detail, path in FRONT_DOOR_CHOICES]
     lines.append('Say which one and I will set it up.')
     return '\n'.join(lines)
+
+
+# WHAT THE SITE OFFERS (2026-10-21). Asked "what about search types?", the model described only
+# the comparison searches although its instructions listed every page. A question about the
+# kinds of search or what the site offers is answered in code, from the same two lists the
+# guide reads (the Start here panel's eight and prompts.OTHER_PAGES), with a link to each page.
+OVERVIEW_MARKERS = (
+    'search types', 'types of search', 'types of searches', 'kinds of search', 'kinds of searches',
+    'what searches', 'which searches', 'what search options', 'what features', 'which features',
+    'what does the site offer', 'what does tesserae offer', 'what can the site do', 'what can tesserae do',
+    'what tools', 'what pages',
+)
+OVERVIEW_MAX_WORDS = 10
+
+
+def matches_overview(normalised_question):
+    words = normalised_question.split()
+    if not words or len(words) > OVERVIEW_MAX_WORDS:
+        return False
+    q = ' '.join(words)
+    return matches(q) or any(re.search(r'(?<![a-z0-9])' + re.escape(m) + r'(?![a-z0-9])', q)
+                             for m in OVERVIEW_MARKERS)
+
+
+def overview():
+    from backend.assistant.prompts import OTHER_PAGES
+    lines = ['The site does these things, each on its own page.']
+    lines += [f'- [{label}]({path}): {detail}' for label, detail, path in FRONT_DOOR_CHOICES]
+    shown = {label for label, _, _ in FRONT_DOOR_CHOICES}
+    lines += [f'- [{label}]({path}): {detail}' for label, detail, path in OTHER_PAGES if label not in shown]
+    lines.append('Say which one you want and I will set it up, or ask how any of them works.')
+    return '\n'.join(lines)

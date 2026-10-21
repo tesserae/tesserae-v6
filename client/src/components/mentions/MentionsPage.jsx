@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import ScopeBox from '../common/ScopeBox';
 import { LoadingSpinner } from '../common';
 import { languageName } from '../../utils/languageNames';
 import { windowLocus, fullRef } from '../reader/refId';
@@ -457,7 +458,8 @@ export default function MentionsPage() {
   return (
     <div className="max-w-4xl mx-auto px-4 py-6">
       <h2 className="text-2xl font-bold text-gray-900">People &amp; Places</h2>
-      <p className="text-xs text-gray-500 mt-1 mb-4" data-testid="mentions-note">{MENTIONS_NOTE}</p>
+      <p className="text-xs text-gray-500 mt-1 mb-3" data-testid="mentions-note">{MENTIONS_NOTE}</p>
+      <ScopeBox id="mentions" className="mb-4" />
       {entityId ? <EntityView id={entityId} back={back} open={open} /> : (
         <>
           <form onSubmit={submit} className="bg-white border border-gray-200 rounded-lg p-3 flex gap-2 items-end">

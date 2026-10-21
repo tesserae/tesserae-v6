@@ -806,9 +806,10 @@ export default function ThemeSearchPage() {
           search covers (owner, 2026-10-12: "a lot of the info on the screen
           can go into 'What this search does'"). */}
       <ScopeBox
-        id="theme"
+        key={tab}
+        id={tab === 'map' ? 'theme_map' : tab === 'compare' ? 'theme_compare' : 'theme'}
         className="mt-3"
-        extra={(
+        extra={tab !== 'search' ? null : (
           <p data-testid="theme-coverage">
             {allCoverage
               ? <>Theme Search covers {allCoverage.total} works in {allCoverage.languageCount} languages.{' '}</>
