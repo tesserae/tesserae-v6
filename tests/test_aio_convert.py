@@ -312,3 +312,64 @@ def test_berlin_en_dash_after_a_letter_at_a_line_end_marks_a_broken_word():
     text, _, _, _ = wdt.build_short_doc_unit(rec)
     toks = text.split(" ")
     assert "πρυτανείας," in toks and "Ἀνθεστηριῶνος" in toks
+
+
+# ---- 2026-10-20: words broken or spaced out that stayed split --------------
+
+def _bbaw(ab: str) -> list:
+    xml = ('<TEI xmlns="http://www.tei-c.org/ns/1.0"><text><body><div type="edition"><ab>'
+           + ab + '</ab></div></body></text></TEI>').encode("utf-8")
+    return ac.bbaw_lines(xml)
+
+
+def test_berlin_dash_followed_by_the_continuation_sign_marks_a_broken_word():
+    # IG II3 4, 165: "Ἀπό]λλω‒ >" then "νι": the sign after the dash did hide the mark
+    lines = _bbaw('<lb n="1"/>[‒ ‒ Ἀπό]λλω‒ &gt;<lb n="2"/>[νι ὑπ᾿ Ἄκραις].')
+    assert lines[1]["joins_previous"] is True
+    assert ac.join_lines(lines).startswith("Ἀπόλλωνι ὑπ᾿ Ἄκραις")
+
+
+def test_berlin_dash_after_a_letter_with_a_dot_under_it_marks_a_broken_word():
+    lines = _bbaw('<lb n="1"/>τῆς πρυτ̣–<lb n="2"/>ανείας ἔδοξεν')
+    assert lines[1]["joins_previous"] is True
+    assert "πρυτανείας" in ac.join_lines(lines).replace("̣", "")
+
+
+def test_berlin_plain_hyphen_marks_a_broken_word_only_before_a_letter():
+    lines = _bbaw('<lb n="1"/>Καλλιμάχο θυγ-<lb n="2"/>ατρὸς τηλαυγὲ-<lb n="3"/>ς μνῆμα<lb n="4"/>Ἐπικλῆς Φρουρ-<lb n="5"/>– – –')
+    assert lines[1]["joins_previous"] is True and lines[2]["joins_previous"] is True
+    assert lines[4]["joins_previous"] is False and lines[4]["text"] == ac.GAP
+    assert lines[3]["text"].endswith("Φρουρ-")           # a hyphen before a gap stays: the word is cut off
+
+
+def test_berlin_double_dash_after_a_letter_is_a_gap_not_a_break():
+    lines = _bbaw('<lb n="1"/>Θεόδοτος Λ––<lb n="2"/>Εὐφρόνιος')
+    assert lines[1]["joins_previous"] is False
+
+
+def test_letters_set_apart_are_joined_and_wide_gaps_are_word_spaces():
+    # IG I3 1147 line 4: letters three spaces apart, words ten (the private-use sign is a vacant space)
+    spaced = "τ          α   ὐ   τ          ἐ   ν   ι   α   υ   τ   "
+    lines = _bbaw(f'<lb n="1"/><hi rend="letterspacing">{spaced}</hi>')
+    assert lines[0]["text"].split() == ["τ", "αὐτ", "ἐνιαυτ"]
+    lines = _bbaw('<lb n="1"/><hi rend="letterspacing">Ἐ     ρ     ε     χ     θ     ε     ί     δ     ο     ς</hi>')
+    assert lines[0]["text"] == "Ἐρεχθείδος"
+    # a letter with its accent and a bracket is still one letter, and word spaces of two em spaces count
+    lines = _bbaw('<lb n="1"/><hi rend="letterspacing">[ἀ ν έ θ η κ]|α̣ ν̣  \xa0\xa0\xa0ἀ γ ο [ ρ α ν ό μ ο ι]</hi>')
+    assert lines[0]["text"].split()[-1].replace("[", "").replace("]", "") == "ἀγορανόμοι"
+
+
+def test_words_set_in_wide_type_are_left_alone():
+    lines = _bbaw('<lb n="1"/><hi rend="letterspacing">ἐπὶ τῆς Κε[κ]ροπίδος δεκάτης πρυτα</hi>–<lb n="2"/>νείας ἔδοξεν')
+    assert lines[0]["text"].startswith("ἐπὶ τῆς Κεκροπίδος")
+    assert lines[1]["joins_previous"] is True
+
+
+def test_aios_own_greek_joins_a_line_end_hyphen_before_a_letter_and_not_before_a_gap():
+    g = b64('<body xmlns:xml="http://www.w3.org/XML/1998/namespace"><div xml:lang="grc" type="edition" xml:space="preserve">'
+            '<ab><lb/>τοὺς προθυσαμε-\n<lb/><supplied reason="lost">νους</supplied> τοὺς<lb/>Ἀπολλωνι-<gap reason="lost" '
+            'extent="unknown" unit="character"/><lb/>Ἰσίδοτος</ab></div></body>')
+    lines, _langs, _counts = ac.greek_lines(g)
+    assert lines[1]["joins_previous"] is True and lines[0]["text"].endswith("προθυσαμε")
+    assert lines[2]["joins_previous"] is False and lines[1]["text"].endswith("τοὺς")
+    assert lines[2]["text"].startswith("Ἀπολλωνι-")
