@@ -157,3 +157,24 @@ def test_the_text_sources_question_reaches_the_new_help_answer():
 
 def test_an_unrelated_question_gets_no_sections():
     assert site_help.sections_for('qwertyuiop zxcvbnm') == []
+
+
+def test_link_text_stays_in_its_sentence():
+    """The About page's founders sentence lost the linked name of one founder,
+    and Tessa named the other as the maker of the site (2026-10-21)."""
+    assert any('Founded in 2008 by Neil Coffee' in c for c in site_help._load())
+
+
+def test_word_endings_do_not_hide_the_answering_section():
+    assert site_help._stem('editions') == site_help._stem('edition')
+    assert site_help._stem('rated') == site_help._stem('rating')
+    assert site_help._stem('class') == 'class'
+    secs = ' '.join(site_help.sections_for('Which edition of the Aeneid does Tesserae use?'))
+    assert 'Text Credits' in secs
+
+
+def test_the_new_help_answers_are_found():
+    assert 'Upload Your Text' in ' '.join(site_help.sections_for('Can I add my own text to Tesserae?'))
+    assert 'National Endowment' in ' '.join(site_help.sections_for('How is Tesserae funded?'))
+    assert 'Romans' in ' '.join(site_help.sections_for('Why are Rome and the Romans listed separately?'))
+    assert 'modern Perugia' in ' '.join(site_help.sections_for('Why does an event heading give two names?'))

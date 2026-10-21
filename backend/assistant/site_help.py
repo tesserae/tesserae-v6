@@ -53,7 +53,7 @@ OTHER_SOURCES = [
 CACHE_PATH = os.path.join(_ROOT, 'cache', 'site_help_chunks.json')
 # Raise this when _extract changes, so a cache written by the old code is not
 # trusted just because the Help page itself has not changed.
-EXTRACTOR_VERSION = 4   # 4: About, Downloads, Scholarship sources and Privacy pages read too (2026-10-21)
+EXTRACTOR_VERSION = 5   # 5: link text kept in its sentence (2026-10-21)
 
 # Long enough to carry an idea, short enough that four of them fit in a prompt
 # without adding seconds of prompt processing.
@@ -109,6 +109,12 @@ def _extract(source=None, page=''):
     # fragment length -- so the heading became "(its own tab)" and the word Read
     # was lost. Both are the same mistake: inferring structure from the text
     # instead of reading it.
+    # A link's text belongs to its sentence. Read as a separate fragment, a short
+    # link (a person's name) fell below the fragment length and vanished, so the
+    # About page's "Founded in 2008 by Neil Coffee and J. P. Koenig" reached Tessa
+    # as "J. P. Koenig", and she named him the maker of the site (2026-10-21).
+    src = re.sub(r"\{'\s*'\}", ' ', src)
+    src = re.sub(r'<a\b[^>]*>', '', src, flags=re.S).replace('</a>', '')
     heading_re = re.compile(r'<(h[1-6])\b[^>]*>(.*?)</\1>', re.S)
     headings = []          # (start, end, text)
     for m in heading_re.finditer(src):
@@ -240,8 +246,18 @@ def _load():
         return _chunks
 
 
+def _stem(w):
+    """A word without a common English ending, so "edition" meets "editions" and
+    "rated" meets "rating" (2026-10-21: both questions missed the section that
+    answered them)."""
+    for suffix in ('ings', 'ing', 'ed', 'es', 's'):
+        if w.endswith(suffix) and len(w) - len(suffix) >= 3 and not w.endswith('ss'):
+            return w[:-len(suffix)]
+    return w
+
+
 def _words(text):
-    return {w for w in re.findall(r'[a-z]{3,}', str(text or '').lower())
+    return {_stem(w) for w in re.findall(r'[a-z]{3,}', str(text or '').lower())
             if w not in _STOP}
 
 
