@@ -1824,7 +1824,11 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 the event well enough, and the Theme Search score alone ranks them. Each passage carries one
                 of two labels. A Narrative passage recounts the event itself. A Mention passage names it in
                 passing. An offline language model makes both judgments from the passage text and the
-                event&rsquo;s description, and no person has checked them.
+                event&rsquo;s description, and no person has checked them. The Battle of Actium also has
+                passages found by Theme Search, from its description, from its name, place and participants,
+                and from a one-sentence account of the scene without names, judged by the same instructions,
+                because its first list missed Plutarch&rsquo;s and Cassius Dio&rsquo;s accounts of the battle.
+                Its labels were then read by hand, and six were corrected.
                 In each passage the names found and the words of the event&rsquo;s place and participants are
                 highlighted, in any case form (Περυσίας and Περυσίαν, Marathon in &ldquo;apud Marathona&rdquo;).
                 Each passage shows a short excerpt of every line that holds one of the names found, with that
