@@ -11,6 +11,7 @@ const h = vi.hoisted(() => {
       map: vi.fn(() => map),
       tileLayer: vi.fn(() => tiles),
       circleMarker: vi.fn(() => marker()),
+      control: { layers: vi.fn(() => ({ addTo: vi.fn() })) },
     },
   };
 });
@@ -41,6 +42,12 @@ describe('EventMap', () => {
     expect(h.map.fitBounds).toHaveBeenCalledTimes(1);
     expect(h.map.fitBounds.mock.calls[0][1]).toMatchObject({ maxZoom: 10 });
     expect(h.L.tileLayer.mock.calls[0][0]).toBe('https://tile.openstreetmap.org/{z}/{x}/{y}.png');
+    expect(h.L.tileLayer.mock.calls[1][0]).toBe('https://dh.gu.se/tiles/imperium/{z}/{x}/{y}.png');
+    // Corfinium lies in the Roman world, so the ancient-names map is the one shown
+    expect(h.tiles.addTo).toHaveBeenCalledTimes(1);
+    expect(h.L.control.layers).toHaveBeenCalledTimes(1);
+    expect(Object.keys(h.L.control.layers.mock.calls[0][0])).toEqual([
+      'Ancient names (Digital Atlas of the Roman Empire)', 'Modern map (OpenStreetMap)']);
     expect(h.L.map.mock.calls[0][1]).toMatchObject({ scrollWheelZoom: false });
   });
 
@@ -72,5 +79,14 @@ describe('EventMap', () => {
     expect(findspotRadius(0, 10)).toBe(5);
     expect(findspotRadius(10, 10)).toBe(12);
     expect(findspotRadius(1, 100)).toBeGreaterThan(5);
+  });
+});
+
+
+describe('which base map opens', () => {
+  it('opens on the ancient-names map in the Roman world and on the modern map outside it', async () => {
+    const { inAncientArea } = await import('../EventMap');
+    expect(inAncientArea(38.93, 20.73)).toBe(true);   // Actium
+    expect(inAncientArea(30.03, 112.41)).toBe(false); // Jiangling, China
   });
 });
