@@ -11,9 +11,9 @@ transcribed accurately, and attested in at least one named Pleiades period whose
 the years of the event. The year ranges come from the Pleiades time-periods vocabulary
 (https://pleiades.stoa.org/vocabularies/time-periods, for example hellenistic-republican -330 to -30 and
 roman -30 to 300). A name with no attested period does not qualify, because nothing dates it.
-Only names whose language is Latin, Ancient Greek (romanized) or English qualify, and only if the
-romanized form is in Latin letters. Among the qualifying names Latin comes first, then English, then
-Greek, and within one language the one attested in the narrowest overlapping period wins, then one that
+Only names whose language is Latin, English, Ancient Greek (romanized) or not given qualify, and only
+if the romanized form is in Latin letters. Among the qualifying names Latin comes first, then English,
+then a name with no language given, then Greek, and within one language the one attested in the narrowest overlapping period wins, then one that
 matches the place's Pleiades title, then the first listed. A Pleiades name is a list of romanized variants, and the first variant is used with its
 diacritics removed. Where English has a standard form of the same ancient name (Syracusae, Syracuse),
 ENGLISH_FORMS gives it. The Latin or Greek form stays when English uses it as it stands (Actium,
@@ -54,7 +54,7 @@ ENGLISH_FORMS = {
 }
 # Only these languages qualify, in the order of preference (English scholarship uses the Latin form of
 # most ancient places: Tarentum, Pherae, Caesarea, Syrian Gates).
-LANG_RANK = {'la': 0, 'en': 1, 'grc': 2}
+LANG_RANK = {'la': 0, 'en': 1, '': 2, 'grc': 3}
 
 
 def ascii_fold(s):
@@ -100,7 +100,7 @@ def candidates(place, periods, y0, y1):
         if not hit:
             continue
         span = min(h[0] for h in hit)
-        lang_rank = LANG_RANK.get(n.get('language'))
+        lang_rank = LANG_RANK.get(n.get('language') or '')
         if lang_rank is None or not latin_letters(form):
             continue
         variants = {ascii_fold(v).lower() for v in (n.get('romanized') or '').split(',')}

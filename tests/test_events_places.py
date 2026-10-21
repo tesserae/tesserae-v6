@@ -111,7 +111,7 @@ def test_the_narrowest_period_then_the_pleiades_title_decide():
     assert A.choose(place, PERIODS, -400, -400)[0] == 'Urbs'
 
 
-def test_latin_beats_english_beats_greek_whatever_the_period_and_other_languages_never_qualify():
+def test_latin_then_english_then_untagged_then_greek_whatever_the_period_and_other_languages_never_qualify():
     greek_narrow = name('Taras', ['hellenistic-republican'], 'grc')
     latin_wide = name('Tarentum', ['archaic', 'classical', 'hellenistic-republican', 'roman'], 'la')
     english = name('Tarantum', ['hellenistic-republican'], 'en')
@@ -124,11 +124,16 @@ def test_latin_beats_english_beats_greek_whatever_the_period_and_other_languages
     # Latin out of period falls back to the Greek name attested in it
     place = {'title': 'T', 'names': [name('Tarentum', ['roman']), greek_narrow]}
     assert A.choose(place, PERIODS, -212, -212)[0] == 'Taras'
-    # other languages and scripts, and names with no language, are never used
+    # other languages and scripts are never used
     place = {'title': 'H', 'names': [name('hmt', ['classical'], 'egy'), name('Arahtu', ['classical'], 'akk'),
-                                     name('Nameless', ['classical'], ''), name('Ἀραδος', ['classical'], 'grc'),
-                                     name('Hama', ['classical'], 'arb')]}
+                                     name('Ἀραδος', ['classical'], 'grc'), name('Hama', ['classical'], 'arb')]}
     assert A.choose(place, PERIODS, -500, -500) is None
+    # a name with no language given ranks after Latin and English and before Greek
+    place = {'title': 'D', 'names': [name('Putho', ['classical'], 'grc'), name('Delphi', ['classical'], ''),
+                                     name('Pytho', ['classical'], None)]}
+    assert A.choose(place, PERIODS, -500, -500)[0] == 'Delphi'
+    place['names'].append(name('Delphoe', ['classical'], 'la'))
+    assert A.choose(place, PERIODS, -500, -500)[0] == 'Delphoe'
     # within one language the narrowest period decides
     place = {'title': 'X', 'names': [name('Wide', ['long']), name('Narrow', ['classical'])]}
     assert A.choose(place, PERIODS, -500, -500)[0] == 'Narrow'
