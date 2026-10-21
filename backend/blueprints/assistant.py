@@ -282,6 +282,19 @@ def ask_stream():
         if not question:
             yield _sse('error', {'error': 'question is required'})
             return
+        # "Where do I start?" and "what kinds of search are there?" get the whole site, written
+        # in code with a link to each page (front_door.overview), not the model's account of it.
+        try:
+            from backend.assistant import front_door
+            overview_q = front_door.matches_overview(' '.join(re.findall(r"[a-z0-9&']+", question.lower())))
+        except Exception:                                # noqa: BLE001
+            overview_q = False
+        if overview_q:
+            text = front_door.overview()
+            yield _sse('chunk', {'text': text})
+            record.record('ask', question, text, model_used=False)
+            yield _sse('done', {'searches_run': [], 'answered_from_help': True, 'actions': []})
+            return
         streamed = []
         try:
             for kind, payload in agent.answer_stream(question, history=history,

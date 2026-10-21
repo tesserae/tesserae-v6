@@ -27,6 +27,9 @@ const ASK_A_WORK_ROW = { search: 'Search One Text', language: 'Latin and Greek',
 const DOCUMENTS_ROW = { search: 'Inscriptions & Papyri', language: 'Latin and Greek', against: 'No test list yet', result: NOT_YET, date: '' };
 const EVENTS_ROW = { search: 'Events', language: 'Latin and Greek', against: '43 passages historians cite for twelve events', result: 'About a third of the first twenty passages listed for an event were among them (precision at 20 of 0.32 to 0.40 by method)', date: 'October 2026' };
 const COINS_ROW = { search: 'Coins', language: 'Latin', against: "Ten passages with known coin parallels, the Reader's related imagery", result: '17 of the 50 coin types offered were real parallels (about one in three). The Greek catalogues, included for a test, took 27 of the 50 places with about three real ones, so a Latin passage now uses the Roman catalogues only', date: 'October 2026' };
+const MENTIONS_ROW = { search: 'People & Places', language: 'Latin, Greek and English', against: 'Lines drawn at random and read by eye: a fresh sample of 40 literary lines (17 October, before the repair of 19 October), and 100 links from the Attic inscriptions (20 October)', result: '38 of 40 literary lines name the person, place or god they are listed under (33 if a god standing for a thing, Mars for war, is counted wrong); 95 of the 100 Attic links are right', date: 'October 2026' };
+const MAP_ROW = { search: 'Similarity Map', language: 'All', against: 'No test list yet', result: NOT_YET, date: '' };
+const COMPARE_WORKS_ROW = { search: 'Compare two works (Theme Search)', language: 'All', against: 'No test list yet', result: NOT_YET, date: '' };
 const OBJECTS_ROW = { search: 'Objects', language: 'English descriptions', against: 'No test list yet', result: NOT_YET, date: '' };
 
 const SCHOLARSHIP_THEME_ROW = { search: 'Scholarship (Theme Search)', language: 'English and Latin and Greek notes', against: 'Fifteen scholar questions, one judge, the first 230 characters of each note', result: 'A strongly relevant note in the first ten for 13 of 15 questions (nDCG at 10 of 0.64). Meaning alone 11 of 15, keyword alone 12 of 15', date: 'October 2026' };
@@ -127,10 +130,10 @@ export const SEARCH_SCOPE = {
   documents: {
     id: 'documents',
     name: 'Inscriptions & Papyri',
-    does: 'Finds the words of a phrase in 257,000 inscriptions and papyri, with the literature or on their own.',
-    scope: 'A phrase is looked up in the inscriptions and papyri, alone or together with the literature. A result is a line of a document.',
-    covers: 'About 257,000 inscriptions and papyri in Latin and Greek.',
-    limits: 'Restored text is marked and can be excluded. Formulas (phrases common on stone) can be hidden. Coverage follows the four source corpora named in Help.',
+    does: 'Finds the words of a phrase in about 255,000 inscriptions and papyri, with the literature or on their own.',
+    scope: 'A phrase is looked up in the inscriptions and papyri, alone or together with the literature, and the list can be narrowed by date, region, place, kind and material. A result is a line of a document, with its edition, date, findspot and source.',
+    covers: 'About 255,000 inscriptions and papyri in Latin and Greek, from the Epigraphic Database Heidelberg, the Epigraphic Database Roma, papyri.info, I.Sicily, and Attic Inscriptions Online with the Greek of the Berlin Inscriptiones Graecae.',
+    limits: 'Restored text is marked and can be excluded. Formulas (phrases common on stone) can be hidden. Coverage follows the source corpora named in Help, and editions are shown as each source records them.',
     measured: [DOCUMENTS_ROW],
     helpSection: 'documents',
   },
@@ -138,7 +141,7 @@ export const SEARCH_SCOPE = {
     id: 'events',
     name: 'Events',
     does: 'Lists historical events with the passages that tell of them, the inscriptions and papyri from nearby and the scholarship.',
-    scope: 'The events are the battles, sieges, campaigns and treaties of 800 BCE to 600 CE recorded in Wikidata, with their dates, places and participants. For each event, passages are gathered in two ways, by the names of the people and places involved and by Theme Search on a description of the event, and the two rankings are merged. Inscriptions and papyri come from within the event\'s years and near its place. Scholarship is the articles citing the leading passages. A result is an event with that dossier.',
+    scope: 'The events are the battles, sieges, campaigns and treaties of 800 BCE to 600 CE recorded in Wikidata, with their dates, places and participants. For each event, passages are gathered in two ways, by the names of the people and places involved and by Theme Search on a description of the event, and the two rankings are merged. Inscriptions and papyri come from within the event\'s years and near its place. A name found in a passage is checked by a language model and set aside, with the reason shown, when it means a different person (Agrippa Postumus is not the admiral at Actium). For some events, passages found by Theme Search and checked by a model that must quote the words naming the event are added. Scholarship is the articles citing the leading passages, rated by a language model for whether each is about the event. A result is an event with that dossier.',
     covers: 'Events from Wikidata (CC0), with the literature, the inscriptions and papyri and the citation index behind each dossier.',
     limits: 'A famous name pulls in unrelated lines, and the theme route alone cannot tell one battle from another, so an event told without its own names ranks its passages poorly. Each event\'s description comes from Wikipedia where an article exists, otherwise from Wikidata\'s one line.',
     measured: [EVENTS_ROW],
@@ -163,6 +166,36 @@ export const SEARCH_SCOPE = {
     limits: 'Three museums are held so far. The descriptions are the museums\' own and vary from a paragraph to a catalogue-card line.',
     measured: [OBJECTS_ROW],
     helpSection: 'objects',
+  },
+  mentions: {
+    id: 'mentions',
+    name: 'People & Places',
+    does: 'Every line where a named person, place or god is mentioned, grouped by work under one heading for each.',
+    scope: 'A name is looked up by its English, Latin or Greek form, and close spellings are offered. An entry lists its lines work by work, each opening in the Reader, then the inscriptions and papyri that carry the name, and for a place the lines that name it only by its adjective (Rusellanum for Rusellae). A result is an entry for one person, place or god.',
+    covers: 'The Latin, Greek and English literary works: about 42,000 names, among them 3,682 persons, 2,207 places and 165 gods, with their lines in the literature and some 600,000 mentions in inscriptions and papyri.',
+    limits: 'The entries are built from a list of names by rules and a language model, so a line can be filed under the wrong person who shares a name. Inscriptions and papyri are matched by the forms of the name alone, without the model\'s check, and in the Attic inscriptions persons are not linked at all. A people and its city are separate entries (the Romans and Rome).',
+    measured: [MENTIONS_ROW],
+    helpSection: 'mentions',
+  },
+  theme_map: {
+    id: 'theme_map',
+    name: 'Similarity Map',
+    does: 'A grid of how alike authors, works, centuries or genres are in content, opening onto the most similar passages.',
+    scope: 'Every pair of passage windows whose model-written descriptions came out close is counted for the two authors, works, centuries or genres they belong to. A cell can show the raw count or the count relative to what the two sizes alone would predict. A cell opens work by work, then book by book, then passage by passage, and a passage pair opens in the Reader.',
+    covers: 'The passage index, computed in advance; the line under the grid gives the date it was built.',
+    limits: 'It shows resemblance of content, not borrowing: two works on the same subject come out close whether or not one knew the other. Translation pairs (the Vulgate and the Septuagint) are hidden by default because their signal swamps the rest.',
+    measured: [MAP_ROW],
+    helpSection: 'theme-search',
+  },
+  theme_compare: {
+    id: 'theme_compare',
+    name: 'Compare two works (Theme Search)',
+    does: 'Two whole works, or two books, read against each other for the passages most alike in content, across languages as well.',
+    scope: 'Each passage window of one work is compared with each of the other by their model-written descriptions. A pair marked strong stands well above the two works\' general resemblance, and a confidence line says whether the works echo one another or only resemble each other as most texts do. Where a word-level search of the same works has been run, each pair also lists the wording they share.',
+    covers: 'Any two works the passage index holds.',
+    limits: 'It matches content, so a shared scene type (a storm, an invocation) can look like an echo. It reads windows of about twenty lines, so a brief echo inside a long passage can be missed.',
+    measured: [COMPARE_WORKS_ROW],
+    helpSection: 'theme-search',
   },
   reader_similar: {
     id: 'reader_similar',
@@ -199,9 +232,9 @@ export const SEARCH_SCOPE = {
     id: 'reader_scholarship',
     name: 'Scholarship (Reader)',
     does: 'Commentaries, articles and books on the selected passage.',
-    scope: 'The passage\'s reference is looked up in the public-domain commentaries held here, in the citation index of early journal articles, and live in Google Books and CORE. Every note and article can be cited as a reference line, RIS or BibTeX, and the whole tab exported in one file.',
-    covers: '393 commentary files and a citation index of 29,055 articles from 24 journals, 1827 to 1922, plus two live lookups.',
-    limits: 'The citation index stops at 1922, so later articles come only from the two live lookups, which depend on those services. A reference the index could not read is missed.',
+    scope: 'The passage\'s reference is looked up in the public-domain commentaries held here, in the citation index of journals from 1827 to 1922, in the index of Project MUSE journals from 1996 on where the library\'s license allows, and live in OpenAlex, Crossref, Semantic Scholar, CORE and Google Books. Every note and article can be cited as a reference line, RIS or BibTeX, and the whole tab exported in one file.',
+    covers: '393 commentary files, a citation index of 29,055 articles from 24 journals (1827 to 1922), the Project MUSE index from 1996 where licensed, and five live lookups.',
+    limits: 'The two indexes stop at 1922 and resume in 1996, and the later one covers four American journals, so most twentieth-century work comes only from the live lookups, which depend on those services and know a recent article only from its abstract or a short excerpt. A reference the indexes could not read is missed.',
     measured: [SCHOLARSHIP_ROW],
     helpSection: 'reader',
   },
@@ -238,7 +271,7 @@ export const SEARCH_SCOPE = {
 };
 
 // The Help table lists each distinct row once, entries in this order.
-const HELP_ORDER = ['parallel', 'cross', 'theme', 'ask_a_work', 'line', 'string', 'bigram', 'hapax', 'documents', 'events', 'coins', 'objects', 'reader_reuse', 'reader_scholarship', 'scholarship_theme'];
+const HELP_ORDER = ['parallel', 'cross', 'theme', 'ask_a_work', 'theme_map', 'theme_compare', 'mentions', 'line', 'string', 'bigram', 'hapax', 'documents', 'events', 'coins', 'objects', 'reader_reuse', 'reader_scholarship', 'scholarship_theme'];
 
 export function allMeasuredRows() {
   const seen = new Set();
@@ -271,6 +304,8 @@ export function liveCovers(id, counts, names = {}) {
     case 'theme':
     case 'ask_a_work':
     case 'reader_similar':
+    case 'theme_map':
+    case 'theme_compare':
       return counts.passage_windows ? `The passage index, ${n(counts.passage_windows)} windows now.` : null;
     case 'documents': {
       const d = counts.documents || {};
@@ -283,6 +318,7 @@ export function liveCovers(id, counts, names = {}) {
       return counts.events ? `${n(counts.events)} events held now.` : null;
     case 'reader_scholarship':
     case 'reader_translation':
+    case 'mentions':
       return null;
     case 'reader_reuse': {
       const lit = worksHeld(counts, names);

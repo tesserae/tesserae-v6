@@ -93,4 +93,23 @@ describe('SEARCH_SCOPE', () => {
     expect(liveCovers('scholarship_theme', { scholarship_windows: 82814 })).toBe('82,814 windows now.');
     expect(liveCovers('scholarship_theme', { scholarship_windows: null })).toBeNull();
   });
+
+  it('has entries for People & Places, the Similarity Map and Compare two works (2026-10-21)', () => {
+    for (const id of ['mentions', 'theme_map', 'theme_compare']) {
+      const e = SEARCH_SCOPE[id];
+      for (const f of FIELDS) expect(e[f], `${id}.${f}`).toBeTruthy();
+      expect(e.measured.length).toBeGreaterThan(0);
+    }
+    expect(SEARCH_SCOPE.mentions.helpSection).toBe('mentions');
+    expect(SEARCH_SCOPE.mentions.measured[0].result).toMatch(/95 of the 100/);
+    const searches = allMeasuredRows().map((m) => m.search);
+    expect(searches).toContain('People & Places');
+    expect(searches).toContain('Similarity Map');
+  });
+
+  it('gives the current documents count and sources', () => {
+    expect(SEARCH_SCOPE.documents.covers).toMatch(/255,000/);
+    expect(SEARCH_SCOPE.documents.covers).toMatch(/Attic Inscriptions Online/);
+    expect(SEARCH_SCOPE.reader_scholarship.covers).toMatch(/Project MUSE/);
+  });
 });
