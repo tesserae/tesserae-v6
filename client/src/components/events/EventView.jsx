@@ -95,8 +95,9 @@ const DOCUMENT_GROUPS = [
  * (Agrippa, Antonius, Perusia where the place is given so).
  */
 export function eventNameWords(event) {
-  const raw = [event?.place, ...(Array.isArray(event?.participants) ? event.participants : [])];
-  return raw.filter(Boolean).flatMap((n) => String(n).split(/[\s,()]+/)).filter((w) => w.length >= 5);
+  const raw = [event?.place, event?.place_ancient, ...(Array.isArray(event?.participants) ? event.participants : [])];
+  const words = raw.filter(Boolean).flatMap((n) => String(n).split(/[\s,()]+/)).filter((w) => w.length >= 5);
+  return [...new Set(words)];
 }
 
 /**

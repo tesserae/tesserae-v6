@@ -67,6 +67,16 @@ OVERRIDES = [
 ]
 
 
+# Events whose stored Pleiades place is wrong (the project lead, 2026-10-21). Each is
+# (event id, Pleiades id, ancient name, modern name, reason). The Pleiades id, name and modern place are set
+# whatever the model said, so a rerun keeps them.
+EVENT_PLACES = [
+    ('Q160387', '530771', 'Actium', 'Aktio', 'Wikidata gives the Ionian Sea (Pleiades Ionium Mare) for the battle of 31 BCE, fought off the promontory of Actium.'),
+    ('Q1892581', '432808', 'Cumae', 'Cuma', 'Wikidata gives the Bay of Naples (Pleiades Puteolanus Sinus) for the sea battle of 474 BCE off Cumae.'),
+    ('Q960915', '413248', 'Perusia', 'Perugia', 'Wikidata gives no Pleiades place for the siege of Perusia of 41 to 40 BCE.'),
+]
+
+
 def event_year_text(y):
     return '%d %s' % (abs(y), 'BCE' if y < 0 else 'CE')
 
@@ -217,6 +227,15 @@ def override_for(pid, year_lo, year_hi):
     return None
 
 
+def apply_event_places(con):
+    """Write EVENT_PLACES into an events table. Returns the number of events changed."""
+    n = 0
+    for eid, pid, name, modern, _reason in EVENT_PLACES:
+        n += con.execute('UPDATE events SET pleiades_id = ?, place_ancient = ?, place = ? WHERE id = ?',
+                         (pid, name, modern, eid)).rowcount
+    return n
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument('input')
@@ -354,6 +373,7 @@ def main(argv=None):
     dst.execute('UPDATE events SET place_ancient = NULL')
     for eid, nm in chosen.items():
         dst.execute('UPDATE events SET place_ancient = ? WHERE id = ?', (nm, eid))
+    apply_event_places(dst)
     dst.commit()
     dst.close()
     print('written', a.output, len(chosen))
