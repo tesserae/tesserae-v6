@@ -6012,3 +6012,11 @@ production.
   overdue at several points in this window (both caches remained snapshots of
   an earlier, smaller corpus throughout) but was not carried out until after
   this window closed.
+
+## 2026-10-20 PENDING Attic inscriptions: People & Places links, event documents, text repairs, corrected event coordinates (built by a delegate, to be installed by the project lead)
+
+**Status.** Built on copies, not installed. Copies and checksums are in `~/tesserae-backups/aio_links_2026-10-20/install/` (`SHA256SUMS.txt`). Nothing under `/var/www` was written.
+
+What. (1) Text repairs in the Berlin and AIO Greek (`scripts/documents/aio_convert.py`): a dash followed by the continuation sign (Apollo / ni of IG II3 4, 165), a dash after a letter with a dot under it, a plain hyphen before a letter at a line end, and letters set apart (IG I3 1147 gives "τ αὐτ ἐνιαυτ") are joined. 148 of the 2,641 documents change, ids and row count are the same (714,442 lines, 75,916 doc_meta rows), the other 711,801 lines are identical, the metadata copy is identical to the live one. No word was joined by vocabulary: the strict rule found none. (2) 2,674 added `document_mentions` rows for 1,221 AIO documents and 230 entities, from 10,958 candidate rows by twelve rules (counts in the pull request); the 600,977 existing rows are unchanged byte for byte, the fingerprint is that of the new documents index. (3) Events: 45 events get the corrected point and their dated rows recomputed from all sources (525 rows replaced by 125), 2,054 AIO dated rows are added in 83 events, 205 more naming rows in 53 events (events documents rows 12,513 to 14,372). Actium has no document within 100 km of its true point dated within 50 years, so it has none now.
+
+Install order, by the project lead, with dated backups of each file first: (a) the documents index `grc_documents_index.db`, `metadata.db` (identical, optional) and `aio__attica.restored_words.jsonl` into `documents/restored/grc/`; (b) `entities.sqlite` into `entity_index/`; (c) `event_dossiers.sqlite` into `events/`. Copy under a temporary name at mode 664, rename, touch `tesseraev6_flask.wsgi`, check `/api/languages` (200), `/api/documents/aio:IGII34_165?language=grc` (Apollonι joined), one People & Places search for Peiraieus and one event page (Battle of Piraeus).

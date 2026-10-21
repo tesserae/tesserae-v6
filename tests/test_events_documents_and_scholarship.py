@@ -120,6 +120,13 @@ def test_undated_last_orders_dated_first(stores):
     assert 'd_undated' not in [r[1] for r in p['E1']]
 
 
+def test_only_prefix_keeps_one_collection(stores):
+    p = A.add_naming_documents(stores['ev'], str(stores['tmp'] / 'o4.sqlite'), stores['ent'], stores['meta'], stores['pts'],
+                               100, False, resolve=resolver, log=lambda *a: None, only_prefix='d_bulk')
+    assert p['E1'] and all(r[1].startswith('d_bulk') for r in p['E1'])
+    assert all(r[1].startswith('d_bulk') for r in p['E2'])      # d_in is named too and is left out
+
+
 def test_dry_run_writes_nothing(stores):
     plan(stores)
     assert not (stores['tmp'] / 'out.sqlite').exists()

@@ -2,7 +2,8 @@
 """Add to each event the inscriptions and papyri that name its participants or its place.
 
   add_naming_documents.py INPUT.sqlite OUTPUT.sqlite [--entities PATH] [--documents-metadata PATH]
-                          [--pleiades-points PATH] [--max-per-event N] [--undated {keep,last,drop}] [--apply]
+                          [--pleiades-points PATH] [--max-per-event N] [--undated {keep,last,drop}]
+                          [--only-prefix PREFIX] [--apply]
 
 The events store keeps for each event the fifty documents nearest its place among those
 dated within its years. For a region such as Sicily none of the fifty names a participant
@@ -15,6 +16,10 @@ have no dating at all), and inserts at most N per event, nearest first.
 --undated keep (the default, as specified) treats a document with no dating like any other and
 orders by distance. last puts the undated ones after the dated ones before the cap is applied.
 drop leaves them out. On the 2026-10-18 copy 79 percent of the added rows are undated.
+
+--only-prefix keeps only the documents whose id starts with it (for example 'aio:'), so a collection
+added to the Mentions store later can be given to the events without the rest of the store's
+documents.
 
 Dry run by default: prints a plan and writes nothing. --apply copies INPUT to OUTPUT and
 inserts the rows there. INPUT is never modified.
@@ -129,7 +134,8 @@ def event_names(ev):
     return names
 
 
-def plan_rows(events_conn, entities_conn, meta_conn, resolve, points, max_per_event=50, undated='keep'):
+def plan_rows(events_conn, entities_conn, meta_conn, resolve, points, max_per_event=50, undated='keep',
+              only_prefix=None):
     """{event_id: [row tuples in documents-table order]} for every event gaining rows."""
     out = {}
     events_conn.row_factory = sqlite3.Row
@@ -150,7 +156,7 @@ def plan_rows(events_conn, entities_conn, meta_conn, resolve, points, max_per_ev
             for doc_id, lang in mention_cache[eid]:
                 docs.setdefault(doc_id, lang)
         skip = have.get(ev['id'], set())
-        cand = [d for d in docs if d not in skip]
+        cand = [d for d in docs if d not in skip and (not only_prefix or d.startswith(only_prefix))]
         if not cand:
             continue
         ds, de = ev['date_start'], ev['date_end']
@@ -194,12 +200,12 @@ def plan_rows(events_conn, entities_conn, meta_conn, resolve, points, max_per_ev
 
 
 def add_naming_documents(input_path, output_path, entities_path, metadata_path, points_path,
-                         max_per_event=50, apply=False, resolve=None, log=print, undated='keep'):
+                         max_per_event=50, apply=False, resolve=None, log=print, undated='keep', only_prefix=None):
     ec = sqlite3.connect(f'file:{input_path}?mode=ro', uri=True)
     ent = sqlite3.connect(f'file:{entities_path}?mode=ro', uri=True)
     meta = sqlite3.connect(f'file:{metadata_path}?mode=ro', uri=True)
     resolve = resolve or make_resolver(entities_path)
-    plan = plan_rows(ec, ent, meta, resolve, load_points(points_path), max_per_event, undated)
+    plan = plan_rows(ec, ent, meta, resolve, load_points(points_path), max_per_event, undated, only_prefix)
     total = sum(len(v) for v in plan.values())
     before = ec.execute('SELECT COUNT(*) FROM documents').fetchone()[0]
     log(f'events touched {len(plan)}, rows to add {total}, documents rows {before} -> {before + total}')
@@ -230,6 +236,7 @@ def main(argv=None):
     ap.add_argument('--pleiades-points', default=DEFAULT_POINTS)
     ap.add_argument('--max-per-event', type=int, default=50)
     ap.add_argument('--undated', choices=('keep', 'last', 'drop'), default='keep')
+    ap.add_argument('--only-prefix', default=None)
     ap.add_argument('--apply', action='store_true')
     a = ap.parse_args(argv)
     if os.path.abspath(a.input) == os.path.abspath(a.output):
@@ -240,7 +247,7 @@ def main(argv=None):
     if not os.path.exists(a.pleiades_points):
         print(f'warning: no Pleiades points at {a.pleiades_points}, new rows get no coordinates', file=sys.stderr)
     add_naming_documents(a.input, a.output, a.entities, a.documents_metadata, a.pleiades_points,
-                         a.max_per_event, a.apply, undated=a.undated)
+                         a.max_per_event, a.apply, undated=a.undated, only_prefix=a.only_prefix)
 
 
 if __name__ == '__main__':

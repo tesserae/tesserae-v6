@@ -8,6 +8,10 @@ history (index builds, cache rebuilds, corpus changes) is in
 `DATA_OPERATIONS.md`; per-release changes are in `../CHANGELOG.md`.
 
 
+## 2026-10-20: Attic inscriptions are linked to places, peoples and gods by Attic rules, and not to persons
+
+Decided by the project lead, 2026-10-20. The generic document matcher read about half of its rows for the Attic Inscriptions wrongly (Apollonios as the place Apollonia, demotics as persons, the archon as Diotima). The Attic matcher reads a demotic as its deme, a god's name only from a table of dedication forms, an archon date as the year's archon, a month as a month, and a father's name as unlinked, and it links no person, because nearly every name is a private citizen and no rule can tell which individual of the store it is. On 100 rows drawn at random (seed 20) 95 were right, 3 wrong and 2 unclear when graded by the delegate, against the bar of 90.
+
 ## 2026-10-20: Attic Inscriptions Online added to the inscriptions collection, shown by edition number
 
 Attic Inscriptions Online (AIO) was added with the permission of its chief editor and its technical consultant, who confirmed that its Greek texts are its own editions and not taken from PHI, so the PHI terms do not apply to them. Each inscription is shown under the edition number AIO's own page gives (IG II2 18), never the AIO number, as the editor asked, and where AIO's heading is its own number or its UK-collections series the first Inscriptiones Graecae or SEG reference on the page is used. For the translations that have no Greek of AIO's, the Greek text of the Berlin Inscriptiones Graecae digital edition (Creative Commons Attribution 4.0, checked in each file) is paired with AIO's translation, and the credit line names both.

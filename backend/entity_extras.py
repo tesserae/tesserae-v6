@@ -448,9 +448,14 @@ def _load_entities(db):
     return ents
 
 
+# Entities whose label and forms are plain names: the corpus names, and the entities that stage 4
+# promoted out of them (a promoted entity has no list forms, so without these it had no name strings).
+NAME_SOURCES = ('names', 'promoted')
+
+
 def _name_index_and_excluded(ents):
     names = [(e['eid'], {ei.fold(e['label'])} | {ei.fold(f) for f in e['forms']['']}) for e in ents.values()
-             if e['source'] == 'names']
+             if e['source'] in NAME_SOURCES]
     index = NameIndex(names)
     own = set()
     for e in ents.values():
@@ -505,7 +510,7 @@ def build_maps(ents, log=print):
                 for st in place_stems(ei.label_key(e['label']), allf):
                     stems[token_language(st)].setdefault(st[:STEM_MIN], []).append((st, e['eid']))
         elif e['eid'] not in duplicate_names:
-            for s in name_strings[e['eid']]:
+            for s in name_strings.get(e['eid'], ()):
                 if len(s) >= 3:
                     add(token_language(s), s, e['eid'], 'form', False)
     log(f'maps: la {len(exact["la"])} forms, grc {len(exact["grc"])} forms, {n_attached} attached corpus names')
@@ -540,7 +545,23 @@ def extras_problems(store_path, documents_dir=None):
     return problems
 
 
-def build_document_mentions(store_path, documents_dir, log=print, max_form_documents=0, excluded_forms=None):
+def match_folded(f, exact, stems, lang):
+    """The entities a folded token names: [(eid, kind, adjective)] from the exact-form map, then
+    (places only) the entities whose stem starts the token when it reads as an adjective. The
+    build_document_mentions rule, kept in one place so a caller that needs the token's position
+    (the Attic rules) gets the same matches as the build."""
+    res = list(exact.get(f, ()))
+    if f[:STEM_MIN] in stems and adjective_form(f, lang):
+        have = {x[0] for x in res}
+        for stem, eid in stems[f[:STEM_MIN]]:
+            if f.startswith(stem) and eid not in have:
+                res.append((eid, 'adjective_stem', True))
+                have.add(eid)
+    return res
+
+
+def build_document_mentions(store_path, documents_dir, log=print, max_form_documents=0, excluded_forms=None,
+                            doc_prefix=None, rows_out=None):
     """Fill document_mentions in the store: for every list entity and every corpus name, the
     documents whose text holds one of its forms as a whole token, case and accent folded.
     Forms are the entity's name forms with the case endings, the forms of the corpus names
@@ -553,13 +574,22 @@ def build_document_mentions(store_path, documents_dir, log=print, max_form_docum
     have matched go in the returned counts. max_form_documents, when above zero, drops every row of a form that appears in more
     documents of a language than that number (stock words such as dis and manibus); the default
     keeps them all. The documents index has no token table (its postings hold lemmas), so the build reads
-    every line's token list once per language. Returns the counts."""
+    every line's token list once per language. Returns the counts.
+
+    doc_prefix (for example 'aio:'), when given, reads only the documents whose id starts with it and
+    leaves the store's table, its index and its meta rows alone: the candidate rows
+    (eid, doc_id, language, form, kind, adjective) are appended to the list rows_out and the counts
+    are returned. That is how rows for one collection are produced without a rebuild of the table."""
     import os
     t0 = time.time()
+    candidates_only = doc_prefix is not None
+    if candidates_only and rows_out is None:
+        raise ValueError('doc_prefix needs rows_out, the list the candidate rows are appended to')
     db = sqlite3.connect(store_path)
     ents = _load_entities(db)
     exact, stems, n_attached = build_maps(ents, log)
-    db.executescript(DOC_SCHEMA)
+    if not candidates_only:
+        db.executescript(DOC_SCHEMA)
     counts = {}
     for lang in ('la', 'grc'):
         path = os.path.join(documents_dir, f'{lang}_documents_index.db')
@@ -583,14 +613,7 @@ def build_document_mentions(store_path, documents_dir, log=print, max_form_docum
                 if ex.get(f) or (f[:STEM_MIN] in st and adjective_form(f, lang)):
                     skipped_docs.setdefault(f, 0)
                 return res
-            res = list(ex.get(f, ()))
-            if f[:STEM_MIN] in st and adjective_form(f, lang):
-                have = {x[0] for x in res}
-                for stem, eid in st[f[:STEM_MIN]]:
-                    if f.startswith(stem) and eid not in have:
-                        res.append((eid, 'adjective_stem', True))
-                        have.add(eid)
-            cache[tok] = res
+            cache[tok] = res = match_folded(f, ex, st, lang)
             return res
 
         rows, cur_doc, cur = [], None, {}
@@ -600,12 +623,17 @@ def build_document_mentions(store_path, documents_dir, log=print, max_form_docum
             for eid, (pr, form, kind, adj) in cur.items():
                 rows.append((eid, cur_doc, lang, form, kind, 1 if adj else 0))
 
-        for ref, tokens in src.execute('select ref, tokens from lines order by text_id, rowid'):
+        if candidates_only:
+            lines = src.execute("select ref, tokens from lines where ref like ? escape '\\' order by text_id, rowid",
+                                (doc_prefix.replace('\\', '\\\\').replace('%', '\\%').replace('_', '\\_') + '%',))
+        else:
+            lines = src.execute('select ref, tokens from lines order by text_id, rowid')
+        for ref, tokens in lines:
             doc = ref.split(' ', 1)[0]
             if doc != cur_doc:
                 if cur_doc is not None:
                     flush(cur_doc, cur, rows)
-                    if len(rows) >= 50000:
+                    if len(rows) >= 50000 and not candidates_only:
                         db.executemany('insert into document_mentions values (?,?,?,?,?,?)', rows)
                         rows = []
                 cur_doc, cur = doc, {}
@@ -629,12 +657,21 @@ def build_document_mentions(store_path, documents_dir, log=print, max_form_docum
                         cur[eid] = (pr, ei.fold(tok), kind, adj)
         if cur_doc is not None:
             flush(cur_doc, cur, rows)
-        db.executemany('insert into document_mentions values (?,?,?,?,?,?)', rows)
+        if candidates_only:
+            rows_out.extend(rows)
+        else:
+            db.executemany('insert into document_mentions values (?,?,?,?,?,?)', rows)
         db.commit()
         src.close()
         counts[f'excluded_forms_{lang}'] = dict(sorted(skipped_docs.items(), key=lambda kv: -kv[1]))
         log(f'  {lang}: {n_docs} documents scanned')
         counts[f'documents_scanned_{lang}'] = n_docs
+    if candidates_only:
+        db.close()
+        counts['candidate_rows'] = len(rows_out)
+        counts['entities_with_candidates'] = len({r[0] for r in rows_out})
+        counts['attached_corpus_names'] = n_attached
+        return counts
     dropped = 0
     if max_form_documents:
         cur = db.execute(

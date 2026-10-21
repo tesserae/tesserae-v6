@@ -36,6 +36,7 @@ import json
 import os
 import re
 import sys
+import unicodedata
 from urllib.parse import unquote
 
 from lxml import etree
@@ -101,6 +102,26 @@ def _wrap_supplied_text(root) -> None:
             sup.insert(0, hi)
 
 
+def join_hyphenated_lines(lines: list) -> list:
+    """A line of AIO's own Greek that ends in a plain hyphen written straight after a letter, with the next
+    line starting with a letter, is a word broken at the line end where the EpiDoc has no
+    <lb break="no"/> (AIO 2734 "προθυσαμε-" then "νους"). The hyphen is taken off and the next line is
+    marked as continuing the word. A hyphen before a gap (the line text ends in the gap sign), after a
+    space or before a line that starts with a gap stays as it is: there the word is cut off on the stone."""
+    kept = [ln for ln in lines if ln.get("text")]
+    for cur, nxt in zip(kept, kept[1:]):
+        t = cur["text"]
+        if (t.endswith("-") and len(t) > 1 and not t[-2].isspace() and _ends_in_greek_letter(t[:-1])
+                and _GREEK.match(nxt["text"].lstrip("([")[:1] or " ")):
+            cur["text"] = t[:-1]
+            cur["restored_flags"] = list(cur.get("restored_flags") or [])[:len(t) - 1]
+            for k in ("diplomatic", "expanded"):
+                if cur.get(k, "").endswith("-"):
+                    cur[k] = cur[k][:-1]
+            nxt["joins_previous"] = True
+    return lines
+
+
 def greek_lines(greek_b64: str, notes: list | None = None):
     """(lines, languages, counters) from the Greek EpiDoc, using the shared
     converter."""
@@ -117,6 +138,7 @@ def greek_lines(greek_b64: str, notes: list | None = None):
         gaps += conv.gap_count
         supplied += conv.supplied_chars
         total += conv.total_chars
+    lines = join_hyphenated_lines(lines)
     return lines, langs, {"gap_count": gaps, "supplied_chars": supplied, "total_chars": total}
 
 
@@ -392,6 +414,36 @@ def bbaw_page_url(root) -> str | None:
     return None
 
 
+def _letters(token: str) -> int:
+    """How many letters (base characters, not accents or breathings) a token holds."""
+    return sum(1 for c in unicodedata.normalize("NFD", token) if c.isalpha())
+
+
+def join_letterspaced(txt: str) -> str | None:
+    """The word or words of a stone whose letters were set apart (the Berlin edition's letterspacing
+    element, one letter per gap: "τ   α   ὐ   τ" for "ταὐτ"). A run of white space wider than the usual
+    gap between letters is the space between words. Returns None when the text is not spaced out letter
+    by letter (a line set in wide type but written in ordinary words), so the caller keeps it as it is.
+    A letter with its accents is one letter, and a private-use mark between letters (the editors' sign
+    for a vacant space) is not a letter and adds its gap to the neighbours' gap."""
+    t = re.sub("[\ue000-\uf8ff]", "", txt)
+    parts = re.split(r"(\s+)", t.strip())
+    toks = [p for p in parts[0::2] if p]
+    if len(toks) < 3 or not _GREEK.search(t):
+        return None
+    letters = [_letters(tk) for tk in toks if _GREEK.search(tk)]
+    if not letters or sum(1 for n in letters if n <= 1) < 0.6 * len(letters):
+        return None
+    gaps = [len(g) for g in parts[1::2]]
+    base = min(gaps)
+    out = [parts[0]]
+    for g, tok in zip(parts[1::2], parts[2::2]):
+        if len(g) > 1.6 * base and len(g) - base >= 2:
+            out.append(" ")
+        out.append(tok)
+    return "".join(out)
+
+
 def _bbaw_items(div):
     """Text pieces and line marks of an edition div, leaving out the editors'
     notes in small italics ("vacat", "lacuna"), the superscript gap sizes and
@@ -410,9 +462,11 @@ def _bbaw_items(div):
             txt = "".join(el.itertext())
             if "sup" in rend or "smallit" in rend or ("italic" in rend and not _GREEK.search(txt)):
                 return
-            if "letterspacing" in rend and re.fullmatch(r"(?:\S\s+)+\S", txt.strip()):
-                items.append(re.sub(r"\s+", "", txt))
-                return
+            if "letterspacing" in rend:
+                joined = join_letterspaced(txt)
+                if joined is not None:
+                    items.append(joined)
+                    return
         if el.text:
             items.append(el.text)
         for ch in el:
@@ -481,6 +535,16 @@ def _clean_line(chars):
     return "".join(fin), ff
 
 
+def _ends_in_greek_letter(text: str) -> bool:
+    """True when the last letter of the text, passing over combining marks (the dot under an uncertain
+    letter, U+0323, stands after it), is Greek."""
+    for ch in reversed(text):
+        if unicodedata.combining(ch):
+            continue
+        return bool(_GREEK.match(ch))
+    return False
+
+
 def bbaw_lines(xml_bytes: bytes, notes: list | None = None):
     """Lines of the Berlin edition in the shape EpidocConverter writes. Square
     brackets mark restored letters, round brackets resolved abbreviations
@@ -498,8 +562,11 @@ def bbaw_lines(xml_bytes: bytes, notes: list | None = None):
     lines = []
     in_br = in_par = False
     join_next = False
-    for parts in raw_lines:
+    for k, parts in enumerate(raw_lines):
         s = "".join(parts)
+        # A sign after the dash ("λλω‒ >", the Berlin mark that the text goes on in the next line) does not
+        # change what the dash is. Taken off before the dash is read (2026-10-20: Ἀπόλλω / νι).
+        s = re.sub(r"[\s>]+$", "", s) if re.search(r"[\u2012\u2013-]\s*>\s*$", s) else s
         ends_hyphen = s.rstrip().endswith("\u2012")
         # The Berlin edition marks a word broken at the line end with an en dash
         # set right after the last letter (or after the bracket closing it),
@@ -507,7 +574,15 @@ def bbaw_lines(xml_bytes: bytes, notes: list | None = None):
         body = s.rstrip()
         if body.endswith("\u2013"):
             before = body[:-1].rstrip("])")
-            if before and _GREEK.match(before[-1]) and body[-2:-1] != " ":
+            if before and _ends_in_greek_letter(before) and body[-2:-1] != " ":
+                ends_hyphen = True
+                s = body[:-1]
+        elif body.endswith("-") and not body.endswith(("--", "\u2013-")):
+            # A plain hyphen at the line end after a letter, when the next line starts with a letter
+            # (verse inscriptions: "θυγ-" then "ατρὸς"). Before a gap or a dash it is a gap sign.
+            before = body[:-1].rstrip("])")
+            nxt = "".join(raw_lines[k + 1]).lstrip(" \u00a0[(") if k + 1 < len(raw_lines) else ""
+            if before and _ends_in_greek_letter(before) and body[-2:-1] != " " and nxt and _GREEK.match(nxt[0]):
                 ends_hyphen = True
                 s = body[:-1]
         chars = []
