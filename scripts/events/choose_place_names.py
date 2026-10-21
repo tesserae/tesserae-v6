@@ -10,7 +10,8 @@ letters) with the periods in which each is attested, with no requirement that a 
 The free BullsAI gateway model (the access rules and key file of judge_scholarship_relevance.py) is asked one question
 per event and answers with one candidate exactly as written or NONE. Answers are kept in the table `answers` of the
 cache file, keyed by event and a hash of the question, so a rerun costs nothing. A hand override table (OVERRIDES,
-each with its reason) is applied after the model. A chosen name takes its standard English form from ENGLISH_FORMS.
+each with its reason) is applied after the model. A chosen name takes its standard English form from ENGLISH_FORMS, and the event title's spelling when the two
+differ only by transliteration (title_spelling).
 An answer that is not a candidate is asked once more and then counted as invalid and left empty. INPUT is never
 modified. Dry run (cache filled, report written, no store) unless --apply. OUTPUT may not be under /var/www.
 At most 8 requests are in flight. A 429 is retried after 30 seconds, a 402 or quota message stops the run with the
@@ -22,6 +23,7 @@ import hashlib
 import json
 import os
 import random
+import re
 import sqlite3
 import sys
 import threading
@@ -169,6 +171,45 @@ def expand(name):
     return name
 
 
+def spelling_key(word):
+    """A key under which the Greek and Latinized spellings of one name agree (Themiskyra, Themiscyra)."""
+    w = A.ascii_fold(word).lower()
+    w = w.replace('k', 'c').replace('oe', 'e').replace('ae', 'e').replace('ai', 'e').replace('oi', 'e')
+    w = re.sub(r'(.)\1', r'\1', w)
+    for a, b in (('os', 'us'), ('on', 'um')):
+        if w.endswith(a):
+            w = w[:-len(a)] + b
+    return w
+
+
+def latin_score(word):
+    """Higher for the Latinized spelling English scholars write (c for k, ae for ai, -us and -um for -os and -on)."""
+    w = A.ascii_fold(word).lower()
+    score = w.count('ae') + w.count('oe') - w.count('k') - w.count('ai') - w.count('oi')
+    if w.endswith(('us', 'um', 'ae')):
+        score += 1
+    if w.endswith(('os', 'on', 'ai', 'oi')):
+        score -= 1
+    return score
+
+
+def title_spelling(label, name):
+    """The event title's own spelling of a one-word chosen name when the two differ only by transliteration.
+
+    English Wikipedia titles mostly use the Latinized form scholars write (Siege of Themiscyra, Battle of Sphacteria),
+    where the model often answered with the Greek transliteration in Pleiades (Themiskyra, Sphakteria). The title wins
+    in that case only, and only toward the Latinized form (latin_score), so a title naming a modern place (Battle of the
+    Ebro) or a Greek spelling (Battle of Korkyra, Battle of Uskana) never replaces the chosen name."""
+    core = name[5:] if name.startswith('Mons ') else name
+    if ' ' in core:
+        return name
+    key = spelling_key(core)
+    for w in re.findall(r"[^\W\d_]+", label or ''):
+        if w[:1].isupper() and w != core and spelling_key(w) == key and latin_score(w) > latin_score(core):
+            return name.replace(core, w)
+    return name
+
+
 def override_for(pid, year_lo, year_hi):
     for opid, lo, hi, name, reason in OVERRIDES:
         if opid == pid and lo <= year_lo and year_hi <= hi:
@@ -247,7 +288,7 @@ def main(argv=None):
     answers = {(r[0], r[1]): r[2] for r in cache.execute('SELECT event_id, question_sha, answer FROM answers')}
     chosen, detail = {}, []
     rep = {'events_with_pleiades': len(jobs), 'no_candidates': 0, 'asked_total': 0, 'model_none': 0, 'invalid': 0,
-           'overridden': 0, 'named': 0, 'empty': 0}
+           'overridden': 0, 'named': 0, 'empty': 0, 'title_spelling': 0}
     for j in jobs:
         if not j['cands']:
             rep['no_candidates'] += 1
@@ -265,6 +306,10 @@ def main(argv=None):
             how = 'none'
         else:
             name = expand(A.english(ans))
+            spelled = title_spelling(j['label'], name)
+            if spelled != name:
+                rep['title_spelling'] += 1
+                name = spelled
         ov = override_for(j['pid'], j['ds'], j['de'])
         if ov:
             name, reason, how = ov[0], ov[1], 'override'

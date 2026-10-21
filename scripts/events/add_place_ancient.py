@@ -33,7 +33,7 @@ import unicodedata
 
 # Same ancient name, standard English form (key: lower-case ASCII romanization).
 ENGLISH_FORMS = {
-    'roma': 'Rome', 'athenai': 'Athens', 'athenae': 'Athens', 'syracusae': 'Syracuse', 'surakousai': 'Syracuse',
+    'sychem': 'Shechem', 'maliacus sinus': 'Malian Gulf', 'delus': 'Delos', 'delos': 'Delos', 'roma': 'Rome', 'athenai': 'Athens', 'athenae': 'Athens', 'syracusae': 'Syracuse', 'surakousai': 'Syracuse',
     'syrakousai': 'Syracuse', 'karthago': 'Carthage', 'carthago': 'Carthage', 'thebai': 'Thebes',
     'thebae': 'Thebes', 'korinthos': 'Corinth', 'corinthus': 'Corinth', 'ephesos': 'Ephesus',
     'alexandreia': 'Alexandria', 'alexandria': 'Alexandria', 'antiocheia': 'Antioch', 'antiochia': 'Antioch',

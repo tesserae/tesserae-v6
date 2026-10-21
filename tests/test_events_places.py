@@ -316,3 +316,25 @@ def test_the_run_asks_once_keeps_answers_in_the_cache_and_applies_overrides(tmp_
     assert G.main(args) == 0 and len(calls) == 3                             # a rerun asks nothing
     rows = open(tmp_path / 's' / 's.csv', encoding='utf-8').read().splitlines()
     assert len(rows) == 2 and rows[0].endswith('lead grade (right / wrong / better name)')   # only Tarentum changes a heading
+
+
+def test_the_event_titles_latinized_spelling_replaces_a_greek_transliteration():
+    assert G.title_spelling('Siege of Themiscyra', 'Themiskyra') == 'Themiscyra'
+    assert G.title_spelling('Battle of Caphyae', 'Kaphyai') == 'Caphyae'
+    assert G.title_spelling('Battle of Mount Haemus', 'Haimos') == 'Haemus'
+    assert G.title_spelling('Battle of Phoenice', 'Phenice') == 'Phoenice'
+    assert G.title_spelling('Battle of Mount Gaurus', 'Mons Gaurus') == 'Mons Gaurus'
+
+
+def test_the_title_never_replaces_a_latin_name_with_a_greek_or_modern_spelling():
+    assert G.title_spelling('Battle of Korkyra', 'Corcyra') == 'Corcyra'
+    assert G.title_spelling('Battle of Uskana', 'Uscana') == 'Uscana'
+    assert G.title_spelling('Siege of Centuripe and Galaria', 'Centuripae') == 'Centuripae'
+    assert G.title_spelling('Battle of the Ebro', 'Iberus') == 'Iberus'
+    assert G.title_spelling('Battle of the Strait of Messina', 'Siculum Fretum') == 'Siculum Fretum'
+
+
+def test_delos_shechem_and_the_malian_gulf_take_their_english_forms():
+    assert A.english('Delus') == 'Delos'
+    assert A.english('Sychem') == 'Shechem'
+    assert A.english('Maliacus Sinus') == 'Malian Gulf'
