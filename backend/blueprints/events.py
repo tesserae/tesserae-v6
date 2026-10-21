@@ -21,6 +21,7 @@ import json
 import os
 import re
 import sqlite3
+import unicodedata
 from urllib.parse import quote
 
 from flask import Blueprint, current_app, jsonify, request
@@ -369,6 +370,141 @@ def rank_documents(documents, naming):
     return kept
 
 
+# A SHORT EXCERPT AROUND EVERY NAME FOUND (the project lead, 2026-10-21, on the Battle
+# of Actium: "why does it say agrippa was found in the first passage but his name
+# doesn't appear?"). The stored snippet is the first 150 characters of the window and
+# can start inside a word ("en hosti iudicato" for "remisit tamen hosti iudicato"), and
+# a name found further on never shows. Each name now gets an excerpt from the line that
+# holds it, cut at word boundaries, with that line's reference.
+EXCERPT_CHARS = 90
+EXCERPT_LINES_CAP = 200
+
+
+def _fold(s):
+    s = unicodedata.normalize('NFKD', str(s or '').lower())
+    return ''.join(ch for ch in s if not unicodedata.combining(ch)).replace('ς', 'σ').replace('v', 'u').replace('j', 'i')
+
+
+def _excerpt(text, start, end, width=EXCERPT_CHARS):
+    a = max(0, start - width)
+    b = min(len(text), end + width)
+    if a > 0:
+        sp = text.find(' ', a)
+        a = sp + 1 if 0 <= sp < start else a
+    if b < len(text):
+        sp = text.rfind(' ', end, b)
+        b = sp if sp > end else b
+    return ('… ' if a > 0 else '') + text[a:b].strip() + (' …' if b < len(text) else '')
+
+
+TEXTS_ROOT = os.environ.get('TESSERAE_TEXTS_DIR') or os.path.join(
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), 'texts')
+_TESS_LINE = re.compile(r'^<([^>]+)>\s*(.*)$')
+
+
+def _ref_key(ref):
+    return ' '.join(str(ref or '').lower().replace('.', '. ').split()).replace('. ', '.')
+
+
+def _tess_lines(work, language, ref_start, ref_end):
+    """The lines from ref_start to ref_end read from the corpus files, for a work the
+    window text store does not hold (Velleius Paterculus, 2026-10-21)."""
+    import glob
+    root = TEXTS_ROOT
+    paths = []
+    for lang in ([language] if language else []) + ['la', 'grc', 'en', 'he', 'cop', 'fa', 'ur']:
+        whole = os.path.join(root, lang, work + '.tess')
+        parts = sorted(glob.glob(os.path.join(root, lang, work + '.part.*.tess')),
+                       key=lambda p: [int(x) if x.isdigit() else x for x in re.split(r'(\d+)', p)])
+        paths = [whole] if os.path.exists(whole) else parts
+        if paths:
+            break
+    start, end = _ref_key(ref_start), _ref_key(ref_end or ref_start)
+    out, on = [], False
+    for path in paths:
+        try:
+            with open(path, encoding='utf-8') as fh:
+                for raw in fh:
+                    m = _TESS_LINE.match(raw.strip())
+                    if not m:
+                        continue
+                    key = _ref_key(m.group(1))
+                    if key == start:
+                        on = True
+                    if on:
+                        out.append({'ref': m.group(1), 'text': m.group(2)})
+                        if key == end or len(out) >= EXCERPT_LINES_CAP:
+                            return out
+        except OSError:
+            continue
+    return out
+
+
+def _passage_lines(work, language, ref_start, ref_end):
+    try:
+        from backend import window_texts
+        lines = window_texts.passage_lines(work, ref_start, ref_end, cap=EXCERPT_LINES_CAP).get('lines') or []
+    except Exception as e:                           # noqa: BLE001
+        logger.info('[EVENTS] window text unavailable for %s: %s', work, e)
+        lines = []
+    return lines or _tess_lines(work, language, ref_start, ref_end)
+
+
+def _names_split(work, ref_start, ref_end, names, language):
+    """excerpts, and the names found split by whether their form is in the passage's words.
+
+    A name can be listed because the model-written description of the window names it
+    (Ilipa for Polybius 11.19 to 11.20, where the word never occurs), so the card says
+    which names are in the text and which come from the description (2026-10-21).
+    """
+    if not any(' = ' in str(n) for n in names or []):
+        return {'excerpts': [], 'names_in_text': None, 'names_from_description': []}
+    lines = _passage_lines(work, language, ref_start, ref_end)
+    if not lines:      # the text is not to hand, so nothing can be said about where a name is
+        return {'excerpts': [], 'names_in_text': None, 'names_from_description': []}
+    excerpts = name_excerpts(work, ref_start, ref_end, names, lines=lines, language=language)
+    in_text = {n for e in excerpts for n in e['names']}
+    names_in_text, names_from_description = [], []
+    for n in names or []:
+        label = str(n).rsplit(' = ', 1)[0].split(' [')[0].strip()
+        (names_in_text if label in in_text else names_from_description).append(n)
+    return {'excerpts': excerpts, 'names_in_text': names_in_text,
+            'names_from_description': names_from_description}
+
+
+def name_excerpts(work, ref_start, ref_end, names_matched, lines=None, language=None):
+    """[{'ref', 'text', 'names'}] in text order: the first line holding each name found."""
+    wanted = []
+    for n in names_matched or []:
+        n = str(n)
+        if ' = ' not in n:
+            continue
+        label = n.rsplit(' = ', 1)[0].split(' [')[0].strip()
+        forms = {_fold(f.strip()) for f in n.rsplit(' = ', 1)[1].split(',') if f.strip()}
+        if forms:
+            wanted.append((label, forms))
+    if not wanted:
+        return []
+    if lines is None:
+        lines = _passage_lines(work, language, ref_start, ref_end)
+    found = {}
+    for label, forms in wanted:
+        for i, line in enumerate(lines):
+            # Composed first: some corpus files keep Greek accents as separate combining
+            # marks, which split every accented word in two (Γύλιππος read as "λιππος").
+            text = unicodedata.normalize('NFC', str(line.get('text') or ''))
+            hit = next((m for m in re.finditer(r'(?:[^\W\d_]|[\u0300-\u036f])+', text)
+                        if _fold(m.group(0)) in forms), None)
+            if hit:
+                if i in found:
+                    found[i]['names'].append(label)
+                else:
+                    found[i] = {'ref': line.get('ref'), 'text': _excerpt(text, hit.start(), hit.end()),
+                                'names': [label]}
+                break
+    return [found[i] for i in sorted(found)]
+
+
 @events_bp.route('/events')
 def list_events():
     c = _conn()
@@ -534,6 +670,9 @@ def get_event(event_id):
                 'llm_label': label or None,
                 'names_matched': _json(p['names_matched'], []),
                 'snippet': p['snippet'],
+                **_names_split(p['work'], p['ref_start'], p['ref_end'],
+                               _json(p['names_matched'], []), lang),
+                'names_set_aside': _json(p['names_set_aside'], []) if 'names_set_aside' in pcols else [],
                 'reader_url': reader_url(p['work'], lang, p['ref_start']),
             })
         passages.sort(key=lambda p: (LABEL_ORDER.get(p['llm_label'], 2), p['rank'] if p['rank'] is not None else 1e9))

@@ -646,3 +646,46 @@ describe('highlighting the event names in passages', () => {
     expect(exact.container.querySelectorAll('mark').length).toBe(0);
   });
 });
+
+describe('an excerpt for every name found, and the names set aside (2026-10-21)', () => {
+  beforeEach(() => window.history.replaceState({}, '', '/events/Q1'));
+
+  const passage = {
+    rank: 1, work: 'suetonius.de_vita_caesarum', language: 'la', ref_start: 'suet. vit. aug. 16.4',
+    ref_end: 'suet. vit. aug. 21.1', llm_label: 'yes', score: 0.1,
+    names_matched: ['Gaius Sosius [participant] = Sosium'],
+    names_in_text: ['Gaius Sosius [participant] = Sosium'],
+    names_from_description: [],
+    names_set_aside: [{ name: 'Marcus Vipsanius Agrippa [participant] = Agrippam', ref: 'suet. vit. aug. 19.2',
+      reason: 'nepotem marks the grandson.' }],
+    excerpts: [{ ref: 'suet. vit. aug. 17.2', text: 'inter alios C. Sosium et T. Domitium', names: ['Gaius Sosius'] }],
+    snippet: 'en hosti iudicato', reader_url: '/read?work=suetonius.de_vita_caesarum.tess&lang=la',
+  };
+
+  it('shows each excerpt with its reference instead of the cut snippet', async () => {
+    mockApi(undefined, { ...DETAIL, passages: [passage] });
+    render(<EventsPage setPageType={() => {}} />);
+    await screen.findByRole('heading', { name: 'Battle of Marathon' });
+    const box = screen.getByTestId('passage-excerpts');
+    expect(box.textContent).toContain('17.2');
+    expect(box.textContent).toContain('inter alios C. Sosium');
+    expect(screen.queryByText(/en hosti iudicato/)).toBeNull();
+    expect(screen.getByText(/Names in the text: Gaius Sosius/)).toBeTruthy();
+  });
+
+  it('says which names were not counted and why', async () => {
+    mockApi(undefined, { ...DETAIL, passages: [passage] });
+    render(<EventsPage setPageType={() => {}} />);
+    await screen.findByRole('heading', { name: 'Battle of Marathon' });
+    expect(screen.getByTestId('names-set-aside').textContent)
+      .toBe('Not counted, a different person of the same name: Marcus Vipsanius Agrippa at 19.2 (nepotem marks the grandson)');
+  });
+
+  it('keeps the snippet for a passage the server gave no excerpts for', async () => {
+    mockApi();
+    render(<EventsPage setPageType={() => {}} />);
+    await screen.findByRole('heading', { name: 'Battle of Marathon' });
+    expect(screen.queryByTestId('passage-excerpts')).toBeNull();
+    expect(screen.queryByTestId('names-set-aside')).toBeNull();
+  });
+});
