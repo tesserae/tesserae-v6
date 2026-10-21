@@ -338,3 +338,12 @@ def test_delos_shechem_and_the_malian_gulf_take_their_english_forms():
     assert A.english('Delus') == 'Delos'
     assert A.english('Sychem') == 'Shechem'
     assert A.english('Maliacus Sinus') == 'Malian Gulf'
+
+
+def test_the_event_place_corrections_set_the_pleiades_place_and_both_names():
+    con = sqlite3.connect(':memory:')
+    con.execute('CREATE TABLE events (id TEXT, pleiades_id TEXT, place_ancient TEXT, place TEXT)')
+    con.execute("INSERT INTO events VALUES ('Q160387', '1046', 'Ionian Sea', 'Ionian Sea'), ('Q1', '5', 'Tarentum', 'Taranto')")
+    assert G.apply_event_places(con) == 1
+    assert con.execute("SELECT pleiades_id, place_ancient, place FROM events WHERE id = 'Q160387'").fetchone() == ('530771', 'Actium', 'Aktio')
+    assert con.execute("SELECT pleiades_id, place_ancient, place FROM events WHERE id = 'Q1'").fetchone() == ('5', 'Tarentum', 'Taranto')

@@ -635,6 +635,9 @@ describe('highlighting the event names in passages', () => {
     expect(matchedForms(['Perugia [place] = Περυσίας'])).toEqual(['Περυσίας']);
     expect(eventNameWords({ place: 'Perugia', participants: ['Lucius Antonius', 'Octavian'] }))
       .toEqual(['Perugia', 'Lucius', 'Antonius', 'Octavian']);
+    expect(eventNameWords({ place: 'Perugia', place_ancient: 'Perusia', participants: ['Octavian'] }))
+      .toEqual(['Perugia', 'Perusia', 'Octavian']);
+    expect(eventNameWords({ place: 'Marathon', place_ancient: 'Marathon' })).toEqual(['Marathon']);
     const { container } = render(<p><HighlightedText text="ἐν τῷ Μαραθῶνι" forms={['Μαραθῶνα']} stems /></p>);
     expect([...container.querySelectorAll('mark')].map((m) => m.textContent)).toEqual(['Μαραθῶνι']);
     const latin = render(<p><HighlightedText text="apud Marathona pugnatum" forms={['Marathon']} stems /></p>);
