@@ -249,3 +249,66 @@ def test_record_with_berlin_greek_credits_both_sources():
     assert (row["licence_name_secondary"], row["licence_url_secondary"]) == (
         "CC BY-SA 3.0", "https://creativecommons.org/licenses/by-sa/3.0/")
     assert row["principal_edition"] == "IG II2 18"
+
+
+# ---- one row per document, broken words rejoined, region -------------------
+
+import write_document_tess as wdt  # noqa: E402
+
+
+def test_aio_document_is_one_row_with_ref_equal_to_its_id_even_when_long(tmp_path):
+    raw = dict(RAW)
+    rec = ac.build_record(raw, "IGII2", "18", ac.parse_page(PAGE_HTML), [])
+    rec["lines"] = rec["lines"] * 8   # more lines than the short-document threshold
+    jl = tmp_path / "aio.jsonl"
+    jl.write_text(json.dumps(rec, ensure_ascii=False) + "\n", encoding="utf-8")
+    out = tmp_path / "texts"
+    wdt.process_corpus(str(jl), str(out), all_short=True)
+    files = list((out / "grc").glob("*.tess"))
+    assert len(files) == 1 and files[0].name == "aio__attica.tess"
+    rows = files[0].read_text(encoding="utf-8").splitlines()
+    assert len(rows) == 1
+    ref, text = rows[0].split("\t", 1)
+    assert ref == "<aio:IGII2_18>" and " / " in text
+
+
+def test_word_broken_across_a_line_end_is_rejoined_without_separator(tmp_path):
+    lines, _, _ = ac.greek_lines(GREEK)
+    assert lines[1]["joins_previous"] is True       # <lb break="no"/> inside the supplied word
+    rec = {"id": "aio:T_1", "source": "aio", "languages": ["grc"], "lines": lines,
+           "findspot": {"region": "Attica"}, "date_not_before": None}
+    text, restored, _, _ = wdt.build_short_doc_unit(rec)
+    assert "βουλῆι" in text.split(" ")                # whole word, not 'βου' / 'λῆι'
+    assert "βου /" not in text
+    # the rejoined word's supplied letters are still flagged restored
+    toks = text.split(" ")
+    assert toks.index("βουλῆι") in restored
+
+
+def test_berlin_hyphenated_word_is_rejoined_too():
+    lines = ac.bbaw_lines(BBAW_XML)
+    rec = {"id": "aio:T_2", "source": "aio", "languages": ["grc"], "lines": lines,
+           "findspot": {"region": "Attica"}, "date_not_before": None}
+    text, _, _, _ = wdt.build_short_doc_unit(rec)
+    assert "χρεμάτων" in text.split(" ")
+
+
+def test_every_aio_document_has_region_attica():
+    rec = ac.build_record(RAW, "IGII2", "18", ac.parse_page(PAGE_HTML), [])
+    assert rec["findspot"]["region"] == "Attica"
+    assert am.document_row(rec)["region"] == "Attica"
+
+
+def test_berlin_en_dash_after_a_letter_at_a_line_end_marks_a_broken_word():
+    xml = BBAW_XML.replace("χρεμάτων".encode(), b"x") if False else (
+        '<TEI xmlns="http://www.tei-c.org/ns/1.0"><text><body><div type="edition"><ab>'
+        '<lb n="1"/>ἐπὶ τῆς δος ὀγδόης πρυτανεί]–<lb n="2"/>ας, ἧι Διόδοτος [Ἀνθεστηρι]–'
+        '<lb n="3"/>ῶνος<lb n="4"/>Προξε[ν– – – –<lb n="5"/>– – – –</ab></div></body></text></TEI>').encode("utf-8")
+    lines = ac.bbaw_lines(xml)
+    assert lines[1]["joins_previous"] is True and lines[2]["joins_previous"] is True
+    assert lines[3]["joins_previous"] is False
+    rec = {"id": "aio:T_3", "source": "aio", "languages": ["grc"], "lines": lines,
+           "findspot": {"region": "Attica"}, "date_not_before": None}
+    text, _, _, _ = wdt.build_short_doc_unit(rec)
+    toks = text.split(" ")
+    assert "πρυτανείας," in toks and "Ἀνθεστηριῶνος" in toks

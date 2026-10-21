@@ -137,6 +137,23 @@ def _line_tokens(text: str, flags: list):
     return texts, restored, fragment, gap_chars_dropped
 
 
+def merge_joined_lines(lines: list) -> list:
+    """Lines as (text, restored_flags) pairs, with a line that continues the
+    previous line's last word (`joins_previous`, set from <lb break="no"/> by
+    epidoc_convert.py) appended to it with no separator, so the word is whole."""
+    out: list = []
+    for ln in lines or []:
+        text = ln.get("text") or ""
+        if not text:
+            continue
+        flags = ln.get("restored_flags") or [False] * len(text)
+        if out and ln.get("joins_previous"):
+            out[-1] = (out[-1][0] + text, list(out[-1][1]) + list(flags))
+        else:
+            out.append((text, list(flags)))
+    return out
+
+
 def build_short_doc_unit(rec: dict):
     """Return (text, restored_idx, fragment_idx, gap_chars_dropped) for a
     short document's single packed .tess line, or (None, [], [], N) if
@@ -146,11 +163,7 @@ def build_short_doc_unit(rec: dict):
     fragment_idx: list[int] = []
     gap_chars_dropped = 0
     wrote_any_line = False
-    for ln in rec.get("lines") or []:
-        text = ln.get("text") or ""
-        if not text:
-            continue
-        flags = ln.get("restored_flags") or [False] * len(text)
+    for text, flags in merge_joined_lines(rec.get("lines")):
         texts, restored, fragment, gaps = _line_tokens(text, flags)
         gap_chars_dropped += gaps
         if not texts:
@@ -248,7 +261,8 @@ class BucketWriter:
             f.close()
 
 
-def process_corpus(input_path: str, output_root: str, limit: int | None = None):
+def process_corpus(input_path: str, output_root: str, limit: int | None = None,
+                   all_short: bool = False):
     """One streaming pass (two sub-passes: bucket-sizing, then writing).
     Returns a summary dict. Overwrites any existing output under
     output_root for the buckets it touches (callers wanting a clean
@@ -285,7 +299,7 @@ def process_corpus(input_path: str, output_root: str, limit: int | None = None):
             bucket_filename = short_bucket_filename(bucket)
             tess_f, sidecar_f = writer.handles_for(lang, source, bucket_filename)
 
-            if classify(rec) == "short":
+            if all_short or classify(rec) == "short":
                 text, restored_idx, fragment_idx, gaps = build_short_doc_unit(rec)
                 stats["gap_chars_dropped"][lang] += gaps
                 if text is None:
@@ -351,6 +365,10 @@ def main(argv=None) -> int:
     ap.add_argument("--limit", type=int, default=None,
                      help="process only the first N input records (pilot runs)")
     ap.add_argument("--summary-out", default=None, help="summary JSON path")
+    ap.add_argument("--all-short", action="store_true",
+                     help="write every document as ONE row (ref = the document id), however many "
+                          "lines it has: used for Attic Inscriptions Online, as for the other "
+                          "inscription sources")
     ap.add_argument("--only-bucket", action="append", default=None,
                      help="restrict output to lang/source/bucket_filename "
                           "(repeatable); for a small, realistic pilot slice")
@@ -361,7 +379,8 @@ def main(argv=None) -> int:
         only = {tuple(b.split("/", 2)) for b in args.only_bucket}
 
     if only is None:
-        result = process_corpus(args.input, args.output_root, limit=args.limit)
+        result = process_corpus(args.input, args.output_root, limit=args.limit,
+                                 all_short=args.all_short)
     else:
         # Filtered variant: same logic, but skip any document whose
         # (lang, source, bucket_filename) is not in `only`. Implemented by

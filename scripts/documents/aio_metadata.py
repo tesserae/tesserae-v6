@@ -49,6 +49,7 @@ def document_row(rec: dict) -> dict:
         "date_not_before": rec.get("date_not_before"),
         "date_not_after": rec.get("date_not_after"),
         "ancient_place": fs.get("ancient_place"),
+        "region": fs.get("region"),
         "pleiades_id": fs.get("pleiades_id"),
         "languages": ",".join(rec.get("languages") or ["grc"]),
         "bilingual": 1 if rec.get("bilingual") else 0,

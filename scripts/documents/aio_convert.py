@@ -502,6 +502,16 @@ def bbaw_lines(xml_bytes: bytes, notes: list | None = None):
     join_next = False
     for parts in raw_lines:
         s = "".join(parts)
+        ends_hyphen = s.rstrip().endswith("\u2012")
+        # The Berlin edition marks a word broken at the line end with an en dash
+        # set right after the last letter (or after the bracket closing it),
+        # "πρυτανεί]–" then "ας". A dash that follows a space or another dash is a gap.
+        body = s.rstrip()
+        if body.endswith("\u2013"):
+            before = body[:-1].rstrip("])")
+            if before and _GREEK.match(before[-1]) and body[-2:-1] != " ":
+                ends_hyphen = True
+                s = body[:-1]
         chars = []
         for ch in s:
             if ch == "[":
@@ -514,7 +524,6 @@ def bbaw_lines(xml_bytes: bytes, notes: list | None = None):
                 in_par = False
             else:
                 chars.append((ch, in_br or in_par))
-        ends_hyphen = s.rstrip().endswith("\u2012")
         text, flags = _clean_line(chars)
         if not text:
             continue
@@ -609,7 +618,7 @@ def build_record(raw: dict, vol: str, ident: str, page: dict | None, notes: list
         "material": None,
         "date_not_before": nb,
         "date_not_after": na,
-        "findspot": {"ancient_place": place, "modern_place": None, "region": None,
+        "findspot": {"ancient_place": place, "modern_place": None, "region": "Attica",
                      "pleiades_id": page.get("pleiades_id")},
         "lines": lines,
         "text": join_lines(lines),
