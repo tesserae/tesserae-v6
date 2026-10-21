@@ -125,6 +125,100 @@ def _events(a):
     return {'list': lst, 'detail': detail}
 
 
+_FINDSPOT_ALIASES = {'rome': 'Roma'}
+_mint_cache = {}
+
+
+def _findspot(name, language):
+    """The Place control's value for a findspot a reader named, or None. The list is the page's own (/documents/places).
+
+    The list spells places the way the editions do (Oxyrhynchos, Roma), so the name is looked up by its stem too
+    (Oxyrhynch) and the commonest place that begins with it is taken. A place spelled exactly as typed is taken
+    when it holds a fifth or more of the documents the commonest does: the list holds a few stray spellings
+    (one "Oxyrhynchus" among 4,400 documents from Oxyrhynchos) that hold nothing worth searching.
+    """
+    from backend.assistant.three_searches import fold
+    name = _FINDSPOT_ALIASES.get(fold(name), name)
+    want = fold(name)
+    stem = fold(name[:-2] if len(name) >= 7 else name)
+    found = {}
+    for q in dict.fromkeys((name, stem)):
+        listing = _get('/documents/places', {'q': q, 'language': language or '', 'limit': 12})
+        for p in listing.get('places') or []:
+            if isinstance(p, dict) and p.get('value') and (fold(p['value']).startswith(stem)
+                                                           or want in (fold(p['value']), fold(p.get('modern')))):
+                found[p['value']] = int(p.get('count') or 0)
+    if not found:
+        return None
+    best = max(found, key=lambda v: found[v])
+    exact = [v for v in found if want in (fold(v),)]
+    if exact and found[exact[0]] * 5 >= found[best]:
+        return exact[0]
+    return best
+
+
+def _mint_value(name):
+    """The Coins page's mint value for a mint a reader named, or None. The list is the page's own (/coins/facets)."""
+    from backend.assistant.three_searches import fold
+    if not _mint_cache:
+        for m in (_get('/coins/facets', {}).get('facets') or {}).get('mint') or []:
+            _mint_cache[m['value']] = int(m.get('count') or 0)
+    want = fold(name)
+    exact = [v for v in _mint_cache if fold(v) == want]
+    if exact:
+        return exact[0]
+    near = sorted((v for v in _mint_cache if fold(v).startswith(want)), key=lambda v: -_mint_cache[v])
+    return near[0] if near else None
+
+
+def _documents(a):
+    """The Inscriptions & Papyri search: the request the page makes (documents only, dictionary forms), with the
+    page's own retry on the letters for one word that is no dictionary form."""
+    place = None
+    if a.get('place'):
+        place = _findspot(str(a['place']), a.get('language'))
+        if not place:
+            return {'search': None, 'place': None}
+    params = {'collection': 'documents', 'query': a['query'], 'language': a.get('language') or 'la',
+              'search_type': 'lemma', 'limit': int(a.get('limit') or 8)}
+    if a.get('kind'):
+        params['kind'] = a['kind']
+    if place:
+        params['doc_place'] = place
+    for k in ('date_from', 'date_to'):
+        if a.get(k) is not None:
+            params[k] = int(a[k])
+    resp = _get('/line-search', params)
+    used = 'lemma'
+    if not resp.get('total') and ' ' not in str(a['query']).strip():
+        retry = _get('/line-search', dict(params, search_type='exact'))
+        if retry.get('total'):
+            resp, used = retry, 'exact'
+    return {'search': resp, 'place': place, 'type': used}
+
+
+def _coins(a):
+    """The Coins search: the page's own request. A mint the reader named is the Mint filter when the page lists it,
+    and a word of the search when it does not; a denomination is the Denomination filter."""
+    params = _collection_params(a)
+    mint = _mint_value(a['mint']) if a.get('mint') else None
+    if a.get('mint') and not mint:
+        params['q'] = (params['q'] + ' ' + str(a['mint'])).strip()
+    if mint:
+        params['mint'] = mint
+    if a.get('denomination'):
+        params['denomination'] = a['denomination']
+    return {'search': _get('/coins', params), 'mint': mint, 'query': params['q']}
+
+
+def _collection_params(a):
+    params = {'q': a['query'], 'per_page': int(a.get('limit') or 8)}
+    for k in ('date_from', 'date_to'):
+        if a.get(k) is not None:
+            params[k] = int(a[k])
+    return params
+
+
 # --------------------------------------------------------------------------
 # The tools, as a schema the model chooses from
 # --------------------------------------------------------------------------
@@ -246,6 +340,37 @@ TOOLS = {
         'args': {'name': 'the place or name of the event, such as Actium',
                  'label': 'optional: the full title, such as Battle of Actium'},
         'run': _events,
+    },
+    'documents_search': {
+        'what': 'Inscriptions & Papyri: the documents (Latin and Greek inscriptions and papyri) whose own words '
+                'match, with their edition, date, findspot and matching line. Use for "find inscriptions that '
+                'mention Augustus" or "papyri about grain from Oxyrhynchus". The words are searched as they stand '
+                'on the stone or papyrus, so give them in Latin or Greek.',
+        'args': {'query': 'the words to find, in Latin or Greek',
+                 'language': 'la or grc',
+                 'kind': 'optional: inscriptions or papyri',
+                 'place': 'optional: the findspot, such as Pompeii',
+                 'date_from': 'optional: first year, negative for BC',
+                 'date_to': 'optional: last year'},
+        'run': _documents,
+    },
+    'coins_search': {
+        'what': 'Coins: Greek and Roman coin types whose legends and descriptions match the words, with legend, '
+                'mint and date. Use for "coins of Hadrian with Felicitas" or "coin types showing an elephant".',
+        'args': {'query': 'the words, in English as the catalogues describe them, or a legend',
+                 'mint': 'optional: the mint, such as Rome',
+                 'denomination': 'optional: Denarius, Sestertius, Aureus, Tetradrachm, Stater',
+                 'date_from': 'optional: first year, negative for BC',
+                 'date_to': 'optional: last year'},
+        'run': lambda a: _coins(a),
+    },
+    'objects_search': {
+        'what': 'Objects: Greek, Roman and Etruscan museum objects whose museum descriptions match the words, with '
+                'museum, date and title. Use for "museum objects showing Medusa" or "Etruscan mirrors".',
+        'args': {'query': 'the words, in English as the museums describe them',
+                 'date_from': 'optional: first year, negative for BC',
+                 'date_to': 'optional: last year'},
+        'run': lambda a: _get('/objects', _collection_params(a)),
     },
     'list_texts': {
         'what': 'What the corpus actually holds in a language. Use FIRST when '
@@ -406,7 +531,7 @@ def run(name, args):
     # 'language' and 'languages' are always optional: a search that does not
     # name one has a sensible default, and requiring them made theme_search
     # unusable for the ordinary case of "across everything".
-    optional = {'language', 'languages', 'books', 'label'}
+    optional = {'language', 'languages', 'books', 'label', 'kind', 'place', 'date_from', 'date_to', 'mint', 'denomination'}
     missing = [k for k in spec['args'] if k not in args and k not in optional]
     if missing:
         raise SearchError(f'{name} needs {missing}')

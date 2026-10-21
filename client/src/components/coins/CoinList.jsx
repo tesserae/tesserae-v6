@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { LoadingSpinner } from '../common';
 import CoinCard from './CoinCard';
-import { signedYear } from './coinsFormat';
+import { signedYear, searchFromUrl } from './coinsFormat';
 import ScopeBox from '../common/ScopeBox';
 
 const PER_PAGE = 24;
@@ -43,18 +43,17 @@ export function YearBox({ label, text, era, setText, setEra }) {
 
 /** The Coins page: every coin type, searched over legends and descriptions and filtered. */
 export default function CoinList({ openCoin }) {
-  const [typed, setTyped] = useState('');
-  const [q, setQ] = useState('');
-  // A name link in the Reader arrives as /coins?person=<name>.
-  const [sel, setSel] = useState(() => {
-    const person = new URLSearchParams(window.location.search).get('person');
-    return person ? { person } : {};
-  });
-  const [fromText, setFromText] = useState('');
-  const [fromEra, setFromEra] = useState('BCE');
-  const [toText, setToText] = useState('');
-  const [toEra, setToEra] = useState('CE');
-  const [dates, setDates] = useState({});
+  // A link from Tessa carries the search (?q=, ?date_from=, ?date_to=).
+  const [fromUrl] = useState(() => searchFromUrl());
+  const [typed, setTyped] = useState(fromUrl.q);
+  const [q, setQ] = useState(fromUrl.q);
+  // A name link in the Reader arrives as /coins?person=<name>, and a link from Tessa carries the filters too.
+  const [sel, setSel] = useState(() => ({ ...fromUrl.filters }));
+  const [fromText, setFromText] = useState(fromUrl.from != null ? String(Math.abs(fromUrl.from)) : '');
+  const [fromEra, setFromEra] = useState(fromUrl.from != null && fromUrl.from > 0 ? 'CE' : 'BCE');
+  const [toText, setToText] = useState(fromUrl.to != null ? String(Math.abs(fromUrl.to)) : '');
+  const [toEra, setToEra] = useState(fromUrl.to != null && fromUrl.to < 0 ? 'BCE' : 'CE');
+  const [dates, setDates] = useState({ from: fromUrl.from, to: fromUrl.to });
   const [sort, setSort] = useState('');
   const [page, setPage] = useState(1);
   const [data, setData] = useState(null);

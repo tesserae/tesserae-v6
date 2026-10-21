@@ -29,7 +29,7 @@ import re
 from collections import Counter
 from dataclasses import dataclass, field
 
-from backend.assistant import actions, model, searches, three_searches
+from backend.assistant import actions, collections_searches, model, searches, three_searches
 from backend import work_names
 from backend.logging_config import get_logger
 
@@ -887,7 +887,7 @@ difference between a true answer and a useful one."""
 # What Tessa is told when the facts come from Search One Text, People & Places or
 # Events. Those facts are the page's own answer, so the passages and counts in
 # them ARE the answer, unlike a phrase search where the page holds the list.
-THREE_SEARCHES_SYSTEM = """You are answering a scholar's question from the result of one of this site's own searches: Search One Text, People & Places or Events. The result is given below. It is your only source of fact.
+THREE_SEARCHES_SYSTEM = """You are answering a scholar's question from the result of one of this site's own searches: Search One Text, People & Places, Events, Inscriptions & Papyri, Coins or Objects. The result is given below. It is your only source of fact.
 
 Absolute rules:
 - Name only works, authors, entries, events and passages that appear in the results.
@@ -1120,6 +1120,12 @@ def _summarise(name, raw, args=None):
         return three_searches.summarise_people_places(raw, args or {})
     if name == 'events':
         return three_searches.summarise_events(raw, args or {})
+    if name == 'documents_search':
+        return collections_searches.summarise_documents(raw, args or {})
+    if name == 'coins_search':
+        return collections_searches.summarise_coins(raw, args or {})
+    if name == 'objects_search':
+        return collections_searches.summarise_objects(raw, args or {})
     if name == 'list_texts':
         rows = raw if isinstance(raw, list) else []
         authors = sorted({r.get('author') for r in rows if r.get('author')})
@@ -2199,7 +2205,8 @@ def _open_text_in_reader(st):
 def _run_three(name, args, step, ran, all_facts, scope_row=None):
     """Run one of the three searches and add its facts. A failed search is recorded as failed."""
     labels = {'one_text_search': 'searching one text for', 'people_places': 'looking up',
-              'events': 'looking up the event'}
+              'events': 'looking up the event', 'documents_search': 'searching inscriptions and papyri for',
+              'coins_search': 'searching coins for', 'objects_search': 'searching museum objects for'}
     step(f"{labels[name]} {args.get('query') or args.get('name')}")
     try:
         raw = searches.run(name, args)
@@ -2234,6 +2241,13 @@ def _three_searches(st):
     if st.compare_done or st.read_done or st.translations_done or st.holdings_code:
         return None
     from backend.assistant import corpus_lookup
+    # Inscriptions & Papyri, Coins and Objects: a collection word and something to look for, and no single
+    # work named for Search One Text to take ("what does Pliny's Natural History say about coins?").
+    coll = collections_searches.collection_request(question)
+    if coll and three_searches.one_text_request(question) is None:
+        _run_three(coll['search'], collections_searches.search_args(coll), step, ran, all_facts)
+        st.three_done = True
+        return None
     ev = three_searches.event_request(question)
     # A battle, siege, treaty or campaign named outright goes to Events before a work is looked for:
     # "ancient sources" must not become the Rime of the Ancient Mariner.

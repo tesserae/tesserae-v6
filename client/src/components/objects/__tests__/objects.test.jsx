@@ -96,6 +96,18 @@ describe('collections wiring', () => {
   });
 });
 
+describe('a link from Tessa', () => {
+  it('opens the list with the search filled in and sent', async () => {
+    window.history.replaceState({}, '', '/objects?q=Etruscan+mirror&date_from=-400&date_to=-200');
+    const calls = mockApi();
+    render(<ObjectList openObject={() => {}} />);
+    await waitFor(() => expect(calls.some((c) => c.includes('q=Etruscan+mirror') && c.includes('date_from=-400') && c.includes('date_to=-200'))).toBe(true));
+    expect(screen.getByLabelText(/Search titles/).value).toBe('Etruscan mirror');
+    expect(screen.getByLabelText('From era').value).toBe('BCE');
+    expect(screen.getByLabelText('To era').value).toBe('BCE');
+  });
+});
+
 describe('the list', () => {
   it('shows each object with museum, accession, date, description, credit, object page link and image', async () => {
     mockApi();

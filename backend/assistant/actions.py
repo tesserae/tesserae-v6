@@ -417,10 +417,44 @@ def _language_of(work):
     return None
 
 
+def _three_names():
+    from backend.assistant import three_searches
+    return three_searches.NAMES
+
+
+def _collection_control(which, a):
+    """Open Inscriptions & Papyri, Coins or Objects on the search the answer reports (each page reads these from its URL)."""
+    q = a.get('query')
+    if which == 'documents_search':
+        if not q:
+            return None
+        args = {'q': q, 'lang': a.get('language') or 'la', 'type': a.get('search_type') or 'lemma',
+                'collection': 'documents', 'documents': '1'}
+        for k_from, k_to in (('kind', 'kind'), ('place', 'doc_place'), ('date_from', 'date_from'), ('date_to', 'date_to')):
+            if a.get(k_from) not in (None, ''):
+                args[k_to] = a[k_from]
+        return {'kind': 'documents', 'label': f'Open the Inscriptions & Papyri search for \u201c{q}\u201d',
+                'detail': 'every matching document, with filters', 'url': f'/inscriptions-papyri?{urlencode(args)}'}
+    args = {'q': q} if q else {}
+    for k in ('mint', 'denomination', 'date_from', 'date_to'):
+        if a.get(k) not in (None, ''):
+            args[k] = a[k]
+    if not args:
+        return None
+    named = f'\u201c{q}\u201d' if q else (a.get('mint') or a.get('denomination'))
+    if which == 'coins_search':
+        return {'kind': 'coins', 'label': f'Open the Coins search for {named}',
+                'detail': 'every matching coin type, with filters', 'url': f'/coins?{urlencode(args)}'}
+    return {'kind': 'objects', 'label': f'Open the Objects search for {named}',
+            'detail': 'every matching museum object, with filters', 'url': f'/objects?{urlencode(args)}'}
+
+
 def _three_controls(f):
-    """The controls under an answer from Search One Text, People & Places or Events."""
+    """The controls under an answer from Search One Text, People & Places, Events or a collection."""
     a = f['args']
     which = f.get('search')
+    if which in ('documents_search', 'coins_search', 'objects_search'):
+        return [_collection_control(which, a)]
     if which == 'one_text_search':
         return [_one_text(a.get('work'), a.get('query'), a.get('languages') or _language_of(a.get('work')),
                           a.get('books'),
@@ -489,7 +523,7 @@ def build(facts, question=''):
 
         # Search One Text, People & Places and Events, run by the assistant: the page
         # opens on the same work and question, entry or event.
-        if f.get('search') in ('one_text_search', 'people_places', 'events') and isinstance(f.get('args'), dict):
+        if f.get('search') in _three_names() and isinstance(f.get('args'), dict):
             out.extend(_three_controls(f))
 
         # A text the reader asked to open.
