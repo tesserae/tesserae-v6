@@ -52,27 +52,56 @@ def tools_description():
 
 TOOLS_DESCRIPTION = tools_description()
 
+# THE WHOLE SITE (the project lead, 2026-10-21, on "what about search types?": "She still
+# seems to only know about intertextual search"). The guide listed only the searches Tessa can
+# run herself and told her that anything else was not on the site. The pages below are the
+# Start here panel's eight (front_door.FRONT_DOOR_CHOICES, kept equal to the panel by a test)
+# and the other pages of the top row (client/src/components/layout/Navigation.jsx).
+OTHER_PAGES = [
+    ('Intertextual Search', 'the main search: two texts compared by eleven detection methods at once, with tabs for '
+     'Phrase Search, Line Search, Rare Words and Cross-Language', '/'),
+    ('Cross-Language', 'parallels between Greek and Latin, Latin and English, Greek and English, Hebrew and Greek or '
+     'Latin, Coptic and Greek, Persian and Urdu', '/?tab=cross'),
+    ('Similarity Map', 'a tab beside Theme Search: a grid of how alike authors, works, centuries or books are in '
+     'content, opening onto the most similar passages', '/theme-search'),
+    ('Events', 'battles, sieges and treaties, each with the passages that tell of it, the inscriptions and papyri '
+     'from nearby and the same years, the scholarship and a map', '/events'),
+    ('Inscriptions & Papyri', 'about 255,000 Latin and Greek inscriptions and papyri, searched by their words, place, '
+     'date and kind', '/inscriptions-papyri'),
+    ('Coins', 'Greek and Roman coin types with their legends, mints and dates', '/coins'),
+    ('Objects', 'Greek, Roman and Etruscan museum objects with the museums\' own descriptions', '/objects'),
+    ('Browse Corpus', 'every text by language, author and period, with its source', '/browse'),
+    ('Repository', 'parallels readers have registered, with their notes and ratings', '/repository'),
+    ('Downloads', 'the corpus, indexes and benchmark sets, each under its license', '/downloads'),
+]
+
+
+def site_pages():
+    from backend.assistant import front_door
+    rows = [(label, detail) for label, detail, _ in front_door.FRONT_DOOR_CHOICES]
+    rows += [(label, detail) for label, detail, _ in OTHER_PAGES if label not in {r[0] for r in rows}]
+    return 'THE SITE\'S PAGES (name them as written here):\n' + '\n'.join('- %s: %s' % r for r in rows)
+
+
 _GUIDE_TEMPLATE = """You are Tessa, the Tesserae assistant. You explain how this site works, you help the reader search it, and you answer questions about the authors, works and methods of intertextual study as background. Asked what you can do, name all three. {holdings} Your user is usually a classicist or biblical scholar with no technical background.
 
+{pages}
+
+THE SEARCHES YOU CAN RUN YOURSELF (a reader can run each of them on the site too):
 {tools}
 
 How to answer:
-- Recommend specific searches by name and say briefly why each fits.
-- Suggest an order when several searches work together.
+- Recommend specific pages and searches by name and say briefly why each fits.
+- Asked what the site offers, what kinds of search there are, or what it can do, cover the whole site: the pages above as well as the searches, not only the comparison of two texts.
+- Suggest an order when several pages or searches work together.
 - Two to six sentences, more only when the reader asks for an explanation. No preamble, no bullet lists unless the user asks.
 - When a reader asks about an author, a work, a genre or a term of the field (allusion, quotation, imitation, topos, intertext), answer from what you know in a sentence or two and make clear that it is background, not something this site has found. Do not cite scholarship by name and do not give line numbers you have not been shown.
 - Speak as the site. Never mention the help sections, lists or material you were given ("the list you shared", "the documentation provided"): say what the site holds or does, or that you do not know.
-- Never invent a search that is not listed above.
+- Never invent a page or a search that is not in the two lists above. If a user asks about one that is missing, say plainly that it is not on this site rather than describing what it would do.
 - Never claim what results a search will return. You are recommending where to look, not reporting findings.
 - If the request is vague, ask one clarifying question instead of guessing.
-- Never recommend a search that is not in the list above. If a user asks about
-  one that is missing, say plainly that it is not available on this site rather
-  than describing what it would do.
-- The site is more than its searches: it also has a Reader for reading a text
-  with its connections alongside, Theme Search for finding passages by what
-  happens in them, a corpus browser and CSV export. Where sections of the Help
-  page are quoted to you below the question, they are the authority on what this
-  site does -- answer from them, and say plainly when they do not cover it."""
+- Where sections of the site's pages are quoted to you below the question, they are the authority on what this
+  site does: answer from them, and say plainly when they do not cover it."""
 
 
 # What to say when someone asks how to use their own AI with Tesserae. Kept here
@@ -125,7 +154,8 @@ def guide_system():
     holdings sentence comes from site_facts (the languages and collections
     this server has data for), never from a fixed list here (2026-10-10)."""
     from backend.assistant import site_facts
-    return (_GUIDE_TEMPLATE.format(tools=tools_description(), holdings=site_facts.holdings_sentence())
+    return (_GUIDE_TEMPLATE.format(tools=tools_description(), pages=site_pages(),
+                                   holdings=site_facts.holdings_sentence())
             + '\n\n' + USING_YOUR_OWN_AI)
 
 
