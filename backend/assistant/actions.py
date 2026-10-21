@@ -131,9 +131,13 @@ CROSS_PAIRS = {
 }
 
 # What the Cross-Language tab actually offers a control for.
+# Kept equal to LANG_PAIRS in client/src/components/search/CrossLingualSearch.jsx,
+# less the Arabic pairs while the Arabic texts are held back, by
+# tests/test_assistant_cross_pairs_match_tab.py (Coptic to Greek reached the tab on
+# 2026-10-19, #1032, and Tessa went on saying it could not be run).
 TAB_PAIRS = {
     frozenset(('grc', 'la')), frozenset(('la', 'en')), frozenset(('grc', 'en')),
-    frozenset(('he', 'grc')), frozenset(('he', 'la')),
+    frozenset(('he', 'grc')), frozenset(('he', 'la')), frozenset(('cop', 'grc')),
     frozenset(('fa', 'ur')),
 }
 

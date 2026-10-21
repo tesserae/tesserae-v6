@@ -53,7 +53,7 @@ OTHER_SOURCES = [
 CACHE_PATH = os.path.join(_ROOT, 'cache', 'site_help_chunks.json')
 # Raise this when _extract changes, so a cache written by the old code is not
 # trusted just because the Help page itself has not changed.
-EXTRACTOR_VERSION = 5   # 5: link text kept in its sentence (2026-10-21)
+EXTRACTOR_VERSION = 6   # 6: inline code, em, i, b and span text kept in its sentence (2026-10-21)
 
 # Long enough to carry an idea, short enough that four of them fit in a prompt
 # without adding seconds of prompt processing.
@@ -115,6 +115,10 @@ def _extract(source=None, page=''):
     # as "J. P. Koenig", and she named him the maker of the site (2026-10-21).
     src = re.sub(r"\{'\s*'\}", ' ', src)
     src = re.sub(r'<a\b[^>]*>', '', src, flags=re.S).replace('</a>', '')
+    # The same for inline formatting: the Coptic keyboard table writes each letter
+    # as <code>j</code> = djandja, and every short <code> fragment was dropped, so
+    # Tessa told a reader that "=" stands for three different letters (2026-10-21).
+    src = re.sub(r'</?(?:code|em|i|b|span)\b[^>]*>', '', src, flags=re.S)
     heading_re = re.compile(r'<(h[1-6])\b[^>]*>(.*?)</\1>', re.S)
     headings = []          # (start, end, text)
     for m in heading_re.finditer(src):

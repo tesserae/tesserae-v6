@@ -3229,6 +3229,40 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   </p>
                 </div>
                 <div>
+                  <h4 className="text-lg font-semibold text-gray-900">How do I type Greek without a Greek keyboard?</h4>
+                  <p className="text-gray-600 text-sm mt-1">
+                    Searches ignore accents and breathings, so Greek can be typed plain, without them. The
+                    simplest way is to add the Greek keyboard your computer already has (on a Mac under
+                    Keyboard in System Settings, on Windows under Language in Settings) and switch to it for
+                    the search box. Pasting Greek from another page works too. Unlike Coptic, the boxes do not
+                    turn Latin letters into Greek as you type.
+                  </p>
+                </div>
+                <div>
+                  <h4 className="text-lg font-semibold text-gray-900">Does Tesserae take meter into account?</h4>
+                  <p className="text-gray-600 text-sm mt-1">
+                    In Latin, yes, in two ways. When both texts are verse, the Metrical patterns option in Search
+                    Settings turns on by itself and adds weight to a pair of lines whose scansion is alike, using
+                    the scansions of Pede Certo (Musisque Deoque) where they exist and an automatic scansion
+                    otherwise. The Same meter frequency baseline, under Advanced Settings, measures how rare a word
+                    is only among texts in the same meter, so a word that is ordinary in hexameter counts for
+                    less when two hexameter poems share it. For Persian and Urdu poetry a shared named meter counts
+                    together with a shared refrain or rhyme.
+                  </p>
+                </div>
+                <div>
+                  <h4 className="text-lg font-semibold text-gray-900">Is my search history private?</h4>
+                  <p className="text-gray-600 text-sm mt-1">
+                    Your search terms are not logged. The server records each request&rsquo;s time, kind and how
+                    long it took, with a code that changes every day and cannot be traced back to you, and not
+                    your address. Settings and the page you were last on are kept in your own browser. Questions
+                    put to Tessa and her answers are kept on the server without any identifier, so that a sample
+                    can be read for accuracy, and her model runs on the university&rsquo;s own AI platform. An
+                    account, if you make one, keeps your name, email address and a scrambled password. The
+                    Privacy page has the full account.
+                  </p>
+                </div>
+                <div>
                   <h4 className="text-lg font-semibold text-gray-900">How do I save my results?</h4>
                   <p className="text-gray-600 text-sm mt-1">
                     Use "Export CSV" to download results as a spreadsheet, or "Register" to save individual parallels to the Intertext Repository.

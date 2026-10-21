@@ -129,9 +129,27 @@ _PROVENANCE = re.compile(
     r"|\b(?:which|what) editions?\b")
 
 
+# HOW A FEATURE WORKS. "how does the theme search work?" named a feature and asked
+# how it works, matched nothing above, and was taken for a follow-up of the day
+# before's comparison (2026-10-21). A question that names one of the site's
+# features and asks how it works, or what it is, is about the site.
+_FEATURES = (r"(?:theme search|search one text|line search|phrase search|intertextual search|"
+             r"rare words?|rare pairs?|cross[- ]language|reader|similar passages|people (?:&|and) places|"
+             r"events? page|events|collections|scholarship tab|connection gutter|gutter|fusion|channels?|"
+             r"score|confidence|tessa|history view|documents|inscriptions? (?:search|page)|coins? page|objects? page)")
+_HOW_FEATURE = re.compile(
+    r"\b(?:how (?:does|do|is|are)|what (?:is|are|does)|explain)\b[^?]{0,20}\b" + _FEATURES + r"\b"
+    r"(?![^?]{0,40}\b(?:in|of|for|between|with|against)\s+[A-Z])")
+
+
 def _is_about_the_tool(question):
     q = (question or '').lower()
-    return any(t in q for t in _ABOUT_THE_TOOL) or bool(_PROVENANCE.search(q))
+    if any(t in q for t in _ABOUT_THE_TOOL) or _PROVENANCE.search(q):
+        return True
+    # The lookahead runs on the original casing, so "what does the theme search find
+    # in Ovid" (a named author after the feature) stays a corpus question.
+    m = _HOW_FEATURE.search(question or '') or _HOW_FEATURE.search(q)
+    return bool(m) and not re.search(r'\b(?:in|of|for|between|with|against)\s+[A-Z]', (question or '')[m.end():m.end() + 60])
 
 
 # MODEL ROUTING. Off by default: this replaces the branch every question takes,
@@ -927,6 +945,22 @@ def _wants_listing(question):
             and any(n in q for n in _LISTING_NOUNS))
 
 
+# HOW A PAIR IS MATCHED, so the hand-off answers the question behind "can I search
+# Hebrew against Greek, for Old Testament quotations in the New Testament?" as well
+# as where to click (2026-10-21: the reply was one line naming the tab). Facts from
+# the Help page and docs/DECISIONS.md (2026-10-16, the Septuagint route).
+_PAIR_HOW = {
+    'Greek and Latin': ('The search weighs a Greek-Latin dictionary, a meaning model trained on both '
+                        'languages, grammatical structure and sound, and a pair found by more than one '
+                        'of these ranks higher.'),
+    'Hebrew and Greek': ('Against a Greek text such as the New Testament it goes by way of the Septuagint '
+                         'by default: the Greek is compared with the Greek Bible and each Septuagint verse '
+                         'is traced back to its Hebrew verse, so an Old Testament quotation is found '
+                         'through its Greek wording, with the Septuagint verse shown beside it. A direct '
+                         'comparison through a Hebrew-Greek dictionary is the other route.'),
+}
+
+
 def _handoff_sentence(facts):
     """The whole answer, written in code, when nothing needed a model.
 
@@ -957,7 +991,7 @@ def _handoff_sentence(facts):
                         f'Cross-Language tab has no control for choosing that '
                         f'pair, so it cannot be run from the interface today.')
             return (f'The Cross-Language tab compares {pair}. Open it and choose '
-                    f'the two texts there.')
+                    f'the two texts there.' + (' ' + _PAIR_HOW[pair] if pair in _PAIR_HOW else ''))
         if str(f.get('kind') or '').startswith('A TEXT THE READER WANTS TO OPEN'):
             name = f.get('text_name')
             if name:
