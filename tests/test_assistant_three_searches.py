@@ -470,3 +470,43 @@ def test_a_failed_search_is_reported_not_dropped(site, monkeypatch):
     monkeypatch.setattr(searches, '_get', broken)
     out, facts = _prep('What does the Aeneid say about storms?')
     assert any(f.get('search') == 'one_text_search' and f.get('failed') for f in facts)
+
+
+# A reply to "which one do you mean?" after a list of same-named events (2026-10-21).
+_ACTIUM_LIST = [
+    {'role': 'user', 'text': 'What do ancient sources say about the battle of Actium?'},
+    {'role': 'assistant', 'text': ('The Events page has 2 events called Battle of Actium: Battle of Actium (31 BCE, '
+                                   'Actium (modern Aktio), 30 passages); Battle of Actium (435 BCE, Actium (modern '
+                                   'Akri), 0 passages, 2 documents). Which one do you mean?')},
+]
+
+
+def test_a_reply_by_year_or_order_picks_one_of_the_listed_events():
+    from backend.assistant import three_searches as T
+    for q, year in (('the one in 31 BCE', -31), ('31', -31), ('435 BC please', -435),
+                    ('the earlier one', -435), ('the second', -435), ('the first', -31)):
+        got = T.event_choice(q, _ACTIUM_LIST)
+        assert got and got['label'] == 'Battle of Actium' and got['year'] == year, q
+
+
+def test_a_new_question_after_the_list_is_not_a_choice():
+    from backend.assistant import three_searches as T
+    assert T.event_choice('what about Cannae?', _ACTIUM_LIST) is None
+    assert T.event_choice('the one in 31 BCE', []) is None
+
+
+def test_the_events_search_keeps_the_event_of_the_chosen_year(monkeypatch):
+    from backend.assistant import searches
+    calls = []
+
+    def fake_get(path, params):
+        calls.append(path)
+        if path == '/events':
+            return {'events': [{'id': 'Q160387', 'label': 'Battle of Actium', 'date_start': -31, 'date_end': -31},
+                               {'id': 'Q9173813', 'label': 'Battle of Actium', 'date_start': -435, 'date_end': -435}],
+                    'total': 2}
+        return {'event': {'id': path.rsplit('/', 1)[-1]}}
+    monkeypatch.setattr(searches, '_get', fake_get)
+    out = searches._events({'name': 'Battle of Actium', 'label': 'Battle of Actium', 'year': -31, 'year_to': -31})
+    assert [e['id'] for e in out['list']['events']] == ['Q160387']
+    assert out['detail'] == {'event': {'id': 'Q160387'}}
