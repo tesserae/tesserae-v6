@@ -1815,6 +1815,8 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 of two labels. A Narrative passage recounts the event itself. A Mention passage names it in
                 passing. An offline language model makes both judgments from the passage text and the
                 event&rsquo;s description, and no person has checked them.
+                In each passage the names found and the words of the event&rsquo;s place and participants are
+                highlighted, in any case form (Περυσίας and Περυσίαν, Marathon in &ldquo;apud Marathona&rdquo;).
               </p>
               <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">Inscriptions &amp; Papyri</h4>
               <p className="text-gray-700 mb-4">
