@@ -515,7 +515,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
               <p className="text-gray-700 mb-4">
                 A Beta mark beside a page name in the top row means the page is new and still changing. Its results
                 are worth using, and worth citing with care, because the wording, grouping or ranking on the page
-                may still change. At present Search One Text, Inscriptions &amp; Papyri and Events carry the mark.
+                may still change. At present Search One Text and Events carry the mark.
               </p>
               <p className="text-gray-700 mb-4">
                 The Suggest a change button in the header, on every page, opens a short form. Use it to report a
@@ -1431,7 +1431,15 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
               </p>
               <p className="text-gray-700 mb-4">
                 Inscriptions and papyri are matched by the forms of the name alone, without the
-                language model&rsquo;s check.
+                language model&rsquo;s check. The Attic inscriptions from Attic Inscriptions Online are
+                matched by stricter rules, because Athenian decrees and lists are full of private
+                names that would otherwise be read as famous people or places. A demotic, the name of
+                a citizen&rsquo;s deme (Rhamnousios, Phalereus), links to the deme. A god&rsquo;s name in a
+                dedication links to the god. A man&rsquo;s name never links to a place that shares its
+                stem (Apollonios is not Apollonia), and the name of the archon who dates a decree is
+                left unlinked. Persons are not linked from these inscriptions at all, since an Athenian
+                Alexander or Lykourgos in a list is almost never the famous one. A check of 100 links
+                drawn at random found 95 right.
               </p>
               <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">How the entries were built</h4>
               <p className="text-gray-700 mb-4">
@@ -1727,6 +1735,14 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 <li>Find where a word or phrase occurs, and list the actual lines.</li>
                 <li>Say what the corpus holds in a language, or by an author.</li>
                 <li>
+                  Set up a comparison of two texts. Name the works and, if you want, the books
+                  (&ldquo;compare Lucretius book 1 with Ovid Met book 1&rdquo;), and she opens the
+                  comparison page with those two books filled in, ready for you to press Search.
+                  A short title after the author&rsquo;s name is understood (&ldquo;Met&rdquo; for the
+                  Metamorphoses, &ldquo;Aen&rdquo; for the Aeneid). Name only the authors and she offers
+                  everything by one against everything by the other, and says how to narrow it.
+                </li>
+                <li>
                   Report <strong>inflected variants</strong> you did not ask for. An exact search
                   for <em>arma virumque</em> misses Eobanus entirely, who has the phrase
                   twenty-one times in other cases. She will tell you they exist and offer to list
@@ -1763,34 +1779,79 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
             <div className="prose max-w-none">
               <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Events</h3>
               <p className="text-gray-700 mb-4">
-                The Events page gathers what the site holds about one battle, siege or treaty: the
-                passages in Latin and Greek historians and poets that tell of it or mention it (each
-                opens in the Reader, and the Reader links back), the inscriptions and papyri dated to
-                the same years and found near the place, the articles and commentary on those passages,
-                and a map of the place and the findspots. The page is always in the People, Places &amp; Things menu, and the
-                Collections switches decide which documents and scholarship it draws on. The Events entry is marked Beta in the top row while its
-                documents and scholarship lists are checked. Events come from Wikidata (CC0, and each event links to
-                its Wikipedia article), passages are found by
-                the names in them and sorted by an offline language model that no person has checked, and
-                the list covers only the events whose dossiers have been built so far.
-                The short description under an event's dates is the opening paragraph of its English
-                Wikipedia article, shared under the license CC BY-SA 4.0, and a link beside it goes to the
-                article. The Scholarship tab lists the articles that cite the event's leading passages and
-                names the passage that brings each one in. The name box on the list works as a dropdown. A click opens
-                every event with passages or documents in alphabetical order, typing narrows the list, and Enter opens the one highlighted.
+                The Events page gathers what the site holds about one battle, siege, treaty or campaign:
+                the passages in Latin and Greek historians and poets that tell of it or mention it (each
+                opens in the Reader, and the Reader links back), the inscriptions and papyri dated to the
+                same years and found near the place, the articles and commentary on those passages, and a
+                map of the place and the findspots. The page is in the People, Places &amp; Things menu in
+                both views, and an event page shows all four of its tabs whatever the Collections switches
+                say. The Events entry is marked Beta in the top row while its lists are checked.
               </p>
+              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">Where the events come from</h4>
               <p className="text-gray-700 mb-4">
-                Each passage carries one of two labels. A Narrative passage recounts the event itself. A
-                Mention passage names the event in passing without recounting it. An offline language
-                model makes both judgments from the passage text and the event&rsquo;s description, and the
-                event page shows how many passages received each label.
+                The events are every item in Wikidata (CC0) that is a battle, siege, treaty or military
+                campaign dated between 800 BCE and 600 CE, and the page holds 1,485 of them. Wikidata names and places them,
+                so two events can share a name (the Battle of Actium of 31 BCE and the sea battle off
+                Actium of 435 BCE), and the list and the name box show the date and place beside each.
+                The short description under an event&rsquo;s dates is the opening paragraph of its English
+                Wikipedia article, shared under CC BY-SA 4.0, with a link to the article. Where Wikidata
+                placed an event at the center of a whole region, sea or river (the Battle of Actium in the
+                middle of the Ionian Sea), it has been moved to the battle&rsquo;s own site.
               </p>
+              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">The list</h4>
               <p className="text-gray-700 mb-4">
-                The Inscriptions &amp; Papyri tab leaves out any document whose dating span is wider than
-                fifty years. It lists first the documents that name one of the event&rsquo;s participants or
-                its place, then the others dated within the event&rsquo;s years, the most tightly dated first.
-                Each card shows the record number of the document beside its edition, because a database can
-                publish two documents under one edition number.
+                The list opens in alphabetical order. The Order menu also sorts it by date, earliest first,
+                or by the number of passages and documents. Type, century and a box for including events
+                with no passages or documents narrow it. The name box works as a dropdown. A click opens
+                every event with passages or documents in alphabetical order, typing narrows the list from
+                the first letter, and Enter opens the one highlighted.
+              </p>
+              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">Passages</h4>
+              <p className="text-gray-700 mb-4">
+                An event&rsquo;s passages are found in two ways. For most events, the passages that name the
+                event, its place or its participants are ranked by combining those names with the Theme
+                Search score of the passage against the event&rsquo;s description. For some, no passage names
+                the event well enough, and the Theme Search score alone ranks them. Each passage carries one
+                of two labels. A Narrative passage recounts the event itself. A Mention passage names it in
+                passing. An offline language model makes both judgments from the passage text and the
+                event&rsquo;s description, and no person has checked them.
+              </p>
+              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">Inscriptions &amp; Papyri</h4>
+              <p className="text-gray-700 mb-4">
+                The tab lists documents dated to within ten years of the event and found within 100 km of
+                its place, and leaves out any whose dating span is wider than fifty years. It lists first the
+                documents that name one of the event&rsquo;s participants or its place, then the others.
+                Within each group the most tightly dated document comes first (a stone dated to eight years
+                before one dated to a century), and the nearer findspot breaks a tie. Each card shows the
+                edition, written out in full, the record number, the place and date, the source, and the
+                text of the inscription or papyrus, with the words that name a participant or the place
+                highlighted. Findspots are given in English (&ldquo;near Cannae&rdquo;). The Attic
+                inscriptions of Attic Inscriptions Online appear on the Athenian events.
+              </p>
+              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">Scholarship</h4>
+              <p className="text-gray-700 mb-4">
+                The tab lists the journal articles that cite the event&rsquo;s leading passages, each with the
+                passage that brings it in, then the articles that cite another place in the same works
+                between the first and the last of those passages. Each article carries a rating for this
+                event, made by a language model (Claude Sonnet) from the article&rsquo;s title, its journal and
+                the sentences in which it cites the passage, with a one-line reason shown under the row.
+                YES means the event, its course, its participants&rsquo; part in it or the ancient account of
+                it is a subject of the article. PARTLY means the article is about something else and touches
+                the event in passing, and a small tag marks it. NO means it cites the passage for something
+                else, such as grammar or a different subject, and those articles are kept under one line at
+                the foot of the list. Within each group the articles are ordered by their rating (YES, then
+                PARTLY and unrated, then NO), then by whether the title names the event, then by how many of
+                the event&rsquo;s passages the article cites, then by the order of those passages. Articles come
+                before commentaries.
+              </p>
+              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">Map</h4>
+              <p className="text-gray-700 mb-4">
+                The red dot is the event and the gray dots are the findspots of its documents, sized by the
+                number of documents found at each. Where the event lies in the Roman world, the map opens on
+                the Digital Atlas of the Roman Empire (Johan Åhlfeldt, CC BY), which labels places with
+                their ancient names (Actium, Brundisium, Perusia). A switch at the corner shows the modern
+                OpenStreetMap map instead, which is also the map for events outside the Roman world. Below
+                the map a table gives each place with its coordinates and number of documents.
               </p>
             </div>
           )}
@@ -1929,6 +1990,14 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 matching places as you type, with the number of documents found at each, so
                 &ldquo;Rusellae&rdquo; finds what was found at Rusellae and not only the
                 inscriptions that name the town.
+              </p>
+              <p className="text-gray-700 mb-3">
+                The edition a document is published in is written out in full, with the usual
+                abbreviation after it, so &ldquo;CIL&rdquo; reads Corpus Inscriptionum Latinarum (CIL)
+                and &ldquo;Not. Sc.&rdquo; reads Notizie degli Scavi di Antichità (Not. Sc.). An
+                abbreviation the site does not know is left as written. An Attic inscription is listed
+                under its edition number (IG II&sup2; 18, not its AIO number), and its page shows the Greek
+                text and AIO&rsquo;s English translation with the translator&rsquo;s name.
               </p>
 
               <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">Browsing without a search term</h4>
