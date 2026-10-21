@@ -6,6 +6,20 @@ const EVENT_COLOUR = '#b91c1c';
 const FINDSPOT_COLOUR = '#6b7280';
 const TILE_URL = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
 const ATTRIBUTION = '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors';
+// The Digital Atlas of the Roman Empire labels places with their ancient names in
+// their usual English forms (Actium, Brundisium, Perusia), where OpenStreetMap labels
+// each country in its own language (the project lead, 2026-10-20: place names
+// "should all be in English", "ideally the names at the time of the event"). Its
+// tiles cover the Roman world only, so an event outside it opens on the modern map.
+export const ANCIENT_TILE_URL = 'https://dh.gu.se/tiles/imperium/{z}/{x}/{y}.png';
+const ANCIENT_ATTRIBUTION = 'Map: <a href="https://imperium.ahlfeldt.se/" target="_blank" rel="noopener noreferrer">Digital Atlas of the Roman Empire</a>, Johan Åhlfeldt, <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY</a>';
+export const ANCIENT_LABEL = 'Ancient names (Digital Atlas of the Roman Empire)';
+export const MODERN_LABEL = 'Modern map (OpenStreetMap)';
+
+/** Whether a point lies in the area the Roman Empire atlas covers. */
+export function inAncientArea(lat, lon) {
+  return lat >= 20 && lat <= 60 && lon >= -15 && lon <= 65;
+}
 
 /** Radius 5 to 12 pixels, growing with the number of documents found at the place. */
 export function findspotRadius(n, max) {
@@ -29,7 +43,8 @@ function popupNode(p) {
 }
 
 /**
- * The event and its documents' findspots on a Leaflet map (OpenStreetMap tiles,
+ * The event and its documents' findspots on a Leaflet map (the Roman Empire atlas
+ * with ancient names where it covers the event, OpenStreetMap otherwise,
  * Leaflet bundled from npm), above a table of the same coordinates, each with a
  * link to OpenStreetMap.
  */
@@ -41,12 +56,17 @@ export default function EventMap({ points }) {
   useEffect(() => {
     if (!has || !holder.current) return undefined;
     const map = L.map(holder.current, { scrollWheelZoom: false });
-    const tiles = L.tileLayer(TILE_URL, { attribution: ATTRIBUTION, maxZoom: 18 });
+    const modern = L.tileLayer(TILE_URL, { attribution: ATTRIBUTION, maxZoom: 18 });
+    const ancient = L.tileLayer(ANCIENT_TILE_URL, { attribution: ANCIENT_ATTRIBUTION, maxZoom: 18, maxNativeZoom: 11 });
     let failed = false;
-    tiles.on('tileerror', () => {
+    [modern, ancient].forEach((t) => t.on('tileerror', () => {
       if (!failed) { failed = true; setTilesFailed(true); }
-    });
-    tiles.addTo(map);
+    }));
+    const centre = points.find((p) => p.kind === 'event') || points[0];
+    (inAncientArea(centre.lat, centre.lon) ? ancient : modern).addTo(map);
+    if (L.control && L.control.layers) {
+      L.control.layers({ [ANCIENT_LABEL]: ancient, [MODERN_LABEL]: modern }, null, { collapsed: false }).addTo(map);
+    }
     map.once('click', () => map.scrollWheelZoom.enable());
     const maxDocs = Math.max(0, ...points.filter((p) => p.kind === 'findspot').map((p) => p.n_documents || 0));
     const latlngs = [];
