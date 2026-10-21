@@ -378,3 +378,15 @@ def test_documents_naming_returns_the_matched_forms(monkeypatch, tmp_path):
     monkeypatch.setattr(entity_extras, 'resolve_name_to_eid', lambda path, n: 7 if n == 'Perugia' else None)
     out = E._documents_naming(['edr:a1', 'edr:a2', 'edr:a3'], ['Perugia'])
     assert out == {'edr:a1': {'perusia'}, 'edr:a2': {'perusini'}}
+
+
+def test_findspot_qualifiers_are_written_in_english():
+    """EDH's German qualifiers in findspot names (2026-10-20)."""
+    from backend.blueprints.events import english_place
+    assert english_place('Cannae, bei') == 'near Cannae'
+    assert english_place('Brundisium, aus') == 'from Brundisium'
+    assert english_place('Mevania, aus?') == 'probably from Mevania'
+    assert english_place('Aquileia, östlich von') == 'east of Aquileia'
+    assert english_place('Roma, haud recte') == 'Roma (attribution doubtful)'
+    assert english_place('Perusia') == 'Perusia'
+    assert english_place(None) is None

@@ -135,6 +135,34 @@ def _document_texts(documents):
     return out
 
 
+# The findspot names come from the Epigraphic Database Heidelberg with its German
+# qualifiers ("Cannae, bei" for near Cannae). The page writes them in English
+# (the project lead, 2026-10-20: "the names of places are in different languages,
+# when they should all be in English").
+_PLACE_QUALIFIERS = (
+    (re.compile(r'^(.*?),\s*bei$'), 'near {}'),
+    (re.compile(r'^(.*?),\s*aus\?$'), 'probably from {}'),
+    (re.compile(r'^(.*?),\s*aus$'), 'from {}'),
+    (re.compile(r'^(.*?),\s*östlich von$'), 'east of {}'),
+    (re.compile(r'^(.*?),\s*westlich von$'), 'west of {}'),
+    (re.compile(r'^(.*?),\s*nördlich von$'), 'north of {}'),
+    (re.compile(r'^(.*?),\s*südlich von$'), 'south of {}'),
+    (re.compile(r'^(.*?),\s*haud recte$'), '{} (attribution doubtful)'),
+)
+
+
+def english_place(place):
+    """A findspot name with EDH's German qualifier written in English."""
+    if not place:
+        return place
+    p = str(place).strip()
+    for rx, fmt in _PLACE_QUALIFIERS:
+        m = rx.match(p)
+        if m and m.group(1).strip():
+            return fmt.format(m.group(1).strip())
+    return p
+
+
 def document_url(doc_id, lang='la'):
     return f'/document?doc={quote(str(doc_id), safe="")}&lang={lang}&documents=1'
 
@@ -511,7 +539,7 @@ def get_event(event_id):
             lang = d['language'] if 'language' in dcols and d['language'] else 'la'
             documents.append({
                 'doc_id': d['doc_id'], 'date_start': d['date_start'], 'date_end': d['date_end'],
-                'place': d['place'], 'distance_km': d['distance_km'],
+                'place': english_place(d['place']), 'distance_km': d['distance_km'],
                 'text_snippet': d['text_snippet'],
                 'language': lang,
                 'lat': d['lat'] if 'lat' in dcols else None,

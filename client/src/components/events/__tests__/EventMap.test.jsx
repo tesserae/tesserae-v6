@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 
 const h = vi.hoisted(() => {
-  const marker = () => { const m = { bindTooltip: vi.fn(() => m), bindPopup: vi.fn(() => m), addTo: vi.fn(() => m) }; return m; };
+  const marker = () => { const m = { bindTooltip: vi.fn(() => m), bindPopup: vi.fn(() => m), addTo: vi.fn(() => m), bringToFront: vi.fn(() => m) }; return m; };
   const tiles = { on: vi.fn(), addTo: vi.fn() };
   const map = { fitBounds: vi.fn(), remove: vi.fn(), once: vi.fn(), scrollWheelZoom: { enable: vi.fn() } };
   return {
@@ -11,6 +11,7 @@ const h = vi.hoisted(() => {
       map: vi.fn(() => map),
       tileLayer: vi.fn(() => tiles),
       circleMarker: vi.fn(() => marker()),
+      control: { layers: vi.fn(() => ({ addTo: vi.fn() })) },
     },
   };
 });
@@ -33,13 +34,20 @@ describe('EventMap', () => {
     expect(h.L.map).toHaveBeenCalledTimes(1);
     expect(h.L.circleMarker).toHaveBeenCalledTimes(3);
     const opts = h.L.circleMarker.mock.calls.map((c) => c[1]);
-    expect(opts[0]).toMatchObject({ radius: 9, fillColor: '#b91c1c', color: '#ffffff' });
-    expect(opts[1]).toMatchObject({ radius: 12, fillColor: '#6b7280' });
-    expect(opts[2].radius).toBeGreaterThanOrEqual(5);
-    expect(opts[2].radius).toBeLessThan(12);
+    // findspots first, the event last so it is drawn on top (2026-10-20)
+    expect(opts[0]).toMatchObject({ radius: 12, fillColor: '#6b7280' });
+    expect(opts[1].radius).toBeGreaterThanOrEqual(5);
+    expect(opts[1].radius).toBeLessThan(12);
+    expect(opts[2]).toMatchObject({ radius: 9, fillColor: '#b91c1c', color: '#7f1d1d', weight: 3 });
     expect(h.map.fitBounds).toHaveBeenCalledTimes(1);
     expect(h.map.fitBounds.mock.calls[0][1]).toMatchObject({ maxZoom: 10 });
     expect(h.L.tileLayer.mock.calls[0][0]).toBe('https://tile.openstreetmap.org/{z}/{x}/{y}.png');
+    expect(h.L.tileLayer.mock.calls[1][0]).toBe('https://dh.gu.se/tiles/imperium/{z}/{x}/{y}.png');
+    // Corfinium lies in the Roman world, so the ancient-names map is the one shown
+    expect(h.tiles.addTo).toHaveBeenCalledTimes(1);
+    expect(h.L.control.layers).toHaveBeenCalledTimes(1);
+    expect(Object.keys(h.L.control.layers.mock.calls[0][0])).toEqual([
+      'Ancient names (Digital Atlas of the Roman Empire)', 'Modern map (OpenStreetMap)']);
     expect(h.L.map.mock.calls[0][1]).toMatchObject({ scrollWheelZoom: false });
   });
 
@@ -71,5 +79,14 @@ describe('EventMap', () => {
     expect(findspotRadius(0, 10)).toBe(5);
     expect(findspotRadius(10, 10)).toBe(12);
     expect(findspotRadius(1, 100)).toBeGreaterThan(5);
+  });
+});
+
+
+describe('which base map opens', () => {
+  it('opens on the ancient-names map in the Roman world and on the modern map outside it', async () => {
+    const { inAncientArea } = await import('../EventMap');
+    expect(inAncientArea(38.93, 20.73)).toBe(true);   // Actium
+    expect(inAncientArea(30.03, 112.41)).toBe(false); // Jiangling, China
   });
 });
