@@ -19,7 +19,7 @@ const DEVELOPER_FILES = [
   { file: 'entities.sqlite.tar.gz', name: 'People & Places Store', note: 'CC BY-SA 4.0, 39,369 entities and their mentions in Latin, Greek and English works, descriptions written by models, 68 MB packed, 293 MB unpacked' },
   { file: 'event_dossiers.sqlite.tar.gz', name: 'Events Store', note: 'CC BY-SA 4.0, 1,485 events with passages, documents and scholarship references, the model working logs left out, 19 MB packed, 62 MB unpacked' },
   { file: 'coins.tar.gz', name: 'Coin Types', note: 'two files: 94,263 types under ODbL 1.0 and 11,913 Corpus Nummorum types under CC BY-NC-SA 3.0, non-commercial, no images, 11 MB packed' },
-  { file: 'objects.sqlite.tar.gz', name: 'Museum Objects', note: 'CC0, with Chicago descriptions under CC BY 4.0, 1,361 records, image addresses only, 0.7 MB packed' },
+  { file: 'objects.sqlite.tar.gz', name: 'Museum Objects', note: 'CC0, with Chicago descriptions under CC BY 4.0, 1,353 records, image addresses only, 0.7 MB packed' },
   { file: 'dictionaries.tar.gz', name: 'Synonym Dictionaries', note: 'CC BY 4.0 and CC BY-SA file by file, with the 13,943 accepted review pairs, without the Coptic WordNet and Hebrew files, 2 MB packed' },
   { file: 'latin_lemma_tables.tar.gz', name: 'Latin Lemma Tables', note: 'CC BY-NC-SA 4.0, non-commercial, 111,739 forms with 76,391 corrections and their provenance, 1.4 MB packed' },
   { file: 'text_descriptions.tar.gz', name: 'Text Descriptions', note: 'CC BY 4.0, written by language models, 1,901 works, Arabic and restricted works left out, 0.6 MB packed' },

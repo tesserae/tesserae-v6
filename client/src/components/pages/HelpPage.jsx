@@ -1955,12 +1955,15 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
               <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Objects</h3>
               <p className="text-gray-700 mb-4">
                 The Objects page lists Greek, Roman and Etruscan objects from three museums, each with the
-                museum&rsquo;s own catalog description. It holds 1,361 objects. 305 come from the
+                museum&rsquo;s own catalog description. It holds 1,353 objects. 302 come from the
                 Cleveland Museum of Art, whose catalog records are released under CC0. 395 come from
                 the Art Institute of Chicago, whose records are CC0 and whose descriptions are CC BY 4.0,
-                so every card names the museum as the source of the text. 661 come from the Smithsonian
+                so every card names the museum as the source of the text. 656 come from the Smithsonian
                 Institution, mostly Greek vases and Roman lamps in the National Museum of Natural
-                History&rsquo;s anthropology collection, also CC0. An object is listed only when its record
+                History&rsquo;s anthropology collection, also CC0. The museums&rsquo; Greek and Roman departments
+                also hold earlier pieces. The early Aegean ones (Cycladic, Minoan, Mycenaean) are kept, while two
+                Neolithic idols from Vin&#269;a in Serbia, a Hungarian Bronze Age armlet and five metal fittings
+                from the support of the New York obelisk were taken out. An object is listed only when its record
                 has a description or note of at least 40 characters. Coins are left out, because they have
                 their own collection, and so are Byzantine and later objects.
               </p>
