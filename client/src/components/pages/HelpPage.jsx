@@ -1758,6 +1758,25 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   twenty-one times in other cases. She will tell you they exist and offer to list
                   them.
                 </li>
+                <li>
+                  Run <strong>Search One Text</strong> from a sentence that names one work and a subject
+                  (&ldquo;what does the Aeneid say about storms?&rdquo;, &ldquo;in Hamlet, where does a ghost
+                  appear?&rdquo;). She reports the best passages with their references and the match band
+                  the page gives them, and a link opens the page with the work and the question filled in.
+                </li>
+                <li>
+                  Look up a name in <strong>People &amp; Places</strong> (&ldquo;where is Sarpedon
+                  mentioned?&rdquo;, &ldquo;how often does Tibullus mention Delia?&rdquo;). She gives the
+                  entry, how many lines and works name it and the works with the most lines, and a link opens
+                  the entry. Where two entries share the name she lists both and asks which you mean.
+                </li>
+                <li>
+                  Look up an event on the <strong>Events</strong> page (&ldquo;what do ancient sources say
+                  about the battle of Actium?&rdquo;). She gives its date and place, how many narrative and
+                  mention passages, documents and articles it has, and the first narrative passages, and a
+                  link opens the event. Where several events share a name, such as the two Battles of
+                  Actium, she lists them with their dates and asks which you mean.
+                </li>
                 <li>Follow up. Ask &ldquo;what about Eobanus?&rdquo; and she keeps the thread.</li>
               </ul>
 

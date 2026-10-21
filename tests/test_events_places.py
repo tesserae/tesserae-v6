@@ -75,6 +75,19 @@ def test_an_empty_ancient_name_is_returned_as_none(db, client_for):
     assert client_for(db).get('/api/events/' + eid).get_json()['event']['place_ancient'] is None
 
 
+def test_the_name_search_finds_an_event_by_the_ancient_name_of_its_place(db, client_for):
+    """Tessa's lookup: "Perusia" finds the Battle of Perugia (2026-10-21). A store with no such column still searches."""
+    eid = first_event(db)
+    assert client_for(db).get('/api/events?show=all&q=Perusia').get_json()['events'] == []
+    c = sqlite3.connect(db)
+    c.execute('ALTER TABLE events ADD COLUMN place_ancient TEXT')
+    c.execute("UPDATE events SET place_ancient = 'Perusia' WHERE id = ?", (eid,))
+    c.commit()
+    c.close()
+    rows = client_for(db).get('/api/events?show=all&q=Perusia').get_json()['events']
+    assert [r['id'] for r in rows] == [eid]
+
+
 # ---- choosing the name -----------------------------------------------------
 
 PERIODS = {'classical': [-550, -330], 'hellenistic-republican': [-330, -30], 'roman': [-30, 300],

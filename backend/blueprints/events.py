@@ -538,8 +538,16 @@ def list_events():
         where, args = ["NOT (label GLOB 'Q[0-9]*')"], []
         if q:
             esc = q.replace('\\', '\\\\').replace('%', '\\%').replace('_', '\\_')
-            where.append("(label LIKE ? ESCAPE '\\' OR place LIKE ? ESCAPE '\\')")
-            args += [f'%{esc}%', f'%{esc}%']
+            # The name of the place in the time of the event counts too, so
+            # "Perusia" finds the Battle of Perugia (Tessa's lookup, 2026-10-21).
+            # A store from before the Pleiades names has no such column.
+            if 'place_ancient' in _columns(c, 'events'):
+                where.append("(label LIKE ? ESCAPE '\\' OR place LIKE ? ESCAPE '\\' "
+                             "OR place_ancient LIKE ? ESCAPE '\\')")
+                args += [f'%{esc}%', f'%{esc}%', f'%{esc}%']
+            else:
+                where.append("(label LIKE ? ESCAPE '\\' OR place LIKE ? ESCAPE '\\')")
+                args += [f'%{esc}%', f'%{esc}%']
         if typ:
             where.append('type = ?')
             args.append(typ)
