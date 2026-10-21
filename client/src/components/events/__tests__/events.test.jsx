@@ -628,3 +628,18 @@ describe('the place of an event in the time of the event (2026-10-20)', () => {
     expect(screen.queryByTestId('event-map-approximate')).toBeNull();
   });
 });
+
+describe('highlighting the event names in passages', () => {
+  it('marks a matched name in another case and the event place in a passage with no recorded form', async () => {
+    const { HighlightedText, matchedForms, eventNameWords } = await import('../EventView');
+    expect(matchedForms(['Perugia [place] = Περυσίας'])).toEqual(['Περυσίας']);
+    expect(eventNameWords({ place: 'Perugia', participants: ['Lucius Antonius', 'Octavian'] }))
+      .toEqual(['Perugia', 'Lucius', 'Antonius', 'Octavian']);
+    const { container } = render(<p><HighlightedText text="ἐν τῷ Μαραθῶνι" forms={['Μαραθῶνα']} stems /></p>);
+    expect([...container.querySelectorAll('mark')].map((m) => m.textContent)).toEqual(['Μαραθῶνι']);
+    const latin = render(<p><HighlightedText text="apud Marathona pugnatum" forms={['Marathon']} stems /></p>);
+    expect([...latin.container.querySelectorAll('mark')].map((m) => m.textContent)).toEqual(['Marathona']);
+    const exact = render(<p><HighlightedText text="ἐν τῷ Μαραθῶνι" forms={['Μαραθῶνα']} /></p>);
+    expect(exact.container.querySelectorAll('mark').length).toBe(0);
+  });
+});

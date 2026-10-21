@@ -42,7 +42,7 @@ HELP_SOURCE = os.path.join(_ROOT, 'client', 'src', 'components', 'pages', 'HelpP
 CACHE_PATH = os.path.join(_ROOT, 'cache', 'site_help_chunks.json')
 # Raise this when _extract changes, so a cache written by the old code is not
 # trusted just because the Help page itself has not changed.
-EXTRACTOR_VERSION = 2
+EXTRACTOR_VERSION = 3   # 3: long paragraphs split at sentence ends, not cut (2026-10-20)
 
 # Long enough to carry an idea, short enough that four of them fit in a prompt
 # without adding seconds of prompt processing.
@@ -122,11 +122,29 @@ def _extract(source=None):
     chunks, buf, heading = [], '', ''
 
     def flush():
+        # A paragraph longer than a chunk is split at sentence ends into several
+        # chunks, each under its heading. It used to be cut at CHUNK_MAX, which lost
+        # the end of twelve paragraphs (about 3,750 characters), among them the rules
+        # that order an event's articles, so Tessa answered that her text "cuts off"
+        # (2026-10-20).
         nonlocal buf
-        text = f'{heading}: {buf}'.strip() if heading else buf.strip()
-        if len(text.strip(': ')) >= 60:
-            chunks.append(text[:CHUNK_MAX])
+        body = buf.strip()
         buf = ''
+        prefix = f'{heading}: ' if heading else ''
+        if len((prefix + body).strip(': ')) < 60:
+            return
+        room = max(CHUNK_MAX - len(prefix), 200)
+        pieces, cur = [], ''
+        for sent in re.split(r'(?<=[.!?])\s+', body):
+            if cur and len(cur) + 1 + len(sent) > room:
+                pieces.append(cur)
+                cur = sent
+            else:
+                cur = f'{cur} {sent}'.strip()
+        if cur:
+            pieces.append(cur)
+        for piece in pieces:
+            chunks.append((prefix + piece)[:CHUNK_MAX])
 
     # Text between tags, and also a short bold label such as <strong>Scholarship</strong>:
     # it names the feature the paragraph describes, and at under twelve
