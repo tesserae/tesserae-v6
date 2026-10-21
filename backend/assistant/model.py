@@ -19,6 +19,7 @@ the product, and the assistant is help on top of them.
 import json
 import os
 import re
+import threading
 import time
 import urllib.error
 import urllib.request
@@ -48,6 +49,88 @@ _AVAILABILITY_TTL = 20
 _AVAILABILITY_GRACE = 180  # a failed health check within this many seconds of a good one does not mark the model unavailable
 _availability = {'at': 0.0, 'ok': False, 'last_ok': 0.0}
 
+# BACKUP MODELS (the project lead, 2026-10-21: "switch to another Bulls AI model if one dies,
+# then keep checking to revert back when it's working"). On that day GLM-5.3-Flash and
+# GLM-5.2 returned HTTP 500 for every request and a Tessa answer broke off mid-sentence. A
+# model that fails is marked down and the next one in this list answers; a marked model is
+# tried again in the background once a minute and used again as soon as it answers. Only
+# against the gateway (an API key is set): a local llama-server serves one model whatever
+# the name. Order: the same family as the main model first, so answers change least.
+FALLBACK_MODELS = [m.strip() for m in os.environ.get(
+    'TESSERAE_LLM_FALLBACK_MODELS', 'Qwen/Qwen3.6-27B,google/gemma-4-31B-it,openai/gpt-oss-120b').split(',')
+    if m.strip()]
+# Request fields per backup model. The main model takes TESSERAE_LLM_EXTRA_JSON.
+_MODEL_FIELDS = {
+    'openai/gpt-oss-120b': {'reasoning_effort': 'low'},
+    'openai/gpt-oss-20b': {'reasoning_effort': 'low'},
+}
+_DEFAULT_BACKUP_FIELDS = {'chat_template_kwargs': {'enable_thinking': False}}
+MODEL_RECHECK_SECONDS = 60
+_model_down = {}          # model -> time it was marked down
+_model_probe = {}         # model -> time of the last background check
+_model_lock = threading.Lock()
+
+
+def _fields_for(model):
+    if model == MODEL_NAME:
+        return EXTRA_FIELDS
+    return _MODEL_FIELDS.get(model, _DEFAULT_BACKUP_FIELDS)
+
+
+def models_in_order():
+    """The main model and the backups, those not marked down first."""
+    models = [MODEL_NAME] + ([m for m in FALLBACK_MODELS if m != MODEL_NAME] if API_KEY else [])
+    with _model_lock:
+        down = set(_model_down)
+    return [m for m in models if m not in down] + [m for m in models if m in down]
+
+
+def current_model():
+    return models_in_order()[0]
+
+
+def _mark_up(model):
+    with _model_lock:
+        was = _model_down.pop(model, None)
+    if was is not None:
+        logger.warning('[ASSISTANT] model %s answers again, back in use', model)
+
+
+def _probe(model):
+    body = {'model': model, 'messages': [{'role': 'user', 'content': 'Say OK.'}],
+            'max_tokens': 5, 'temperature': 0}
+    body.update(_fields_for(model))
+    req = urllib.request.Request(f'{ENDPOINT}/v1/chat/completions', data=json.dumps(body).encode(),
+                                 headers=_headers())
+    try:
+        with urllib.request.urlopen(req, timeout=20) as r:  # nosec B310 - fixed endpoint from configuration
+            json.loads(r.read())['choices'][0]
+        _mark_up(model)
+    except Exception as e:                                   # noqa: BLE001
+        logger.info('[ASSISTANT] model %s still down: %s', model, e)
+
+
+def _mark_down(model, why):
+    now = time.time()
+    with _model_lock:
+        first = model not in _model_down
+        _model_down.setdefault(model, now)
+    if first:
+        logger.warning('[ASSISTANT] model %s marked down (%s); next: %s', model, why, current_model())
+
+
+def _recheck_down_models():
+    """Once a minute per marked model, check it in the background."""
+    now = time.time()
+    due = []
+    with _model_lock:
+        for m in list(_model_down):
+            if now - _model_probe.get(m, 0.0) >= MODEL_RECHECK_SECONDS:
+                _model_probe[m] = now
+                due.append(m)
+    for m in due:
+        threading.Thread(target=_probe, args=(m,), daemon=True).start()
+
 
 def _headers():
     h = {'Content-Type': 'application/json'}
@@ -56,9 +139,10 @@ def _headers():
     return h
 
 
-def _body(system, user, max_tokens, temperature, stream=False):
+def _body(system, user, max_tokens, temperature, stream=False, model=None):
+    model = model or MODEL_NAME
     body = {
-        'model': MODEL_NAME,
+        'model': model,
         'messages': [{'role': 'system', 'content': system},
                      {'role': 'user', 'content': user}],
         'temperature': temperature,
@@ -66,7 +150,7 @@ def _body(system, user, max_tokens, temperature, stream=False):
     }
     if stream:
         body['stream'] = True
-    body.update(EXTRA_FIELDS)
+    body.update(_fields_for(model))
     return json.dumps(body).encode()
 
 # Generation stays short on purpose. A small model asked for a paragraph writes a
@@ -136,17 +220,55 @@ def _open(req, timeout):
 
 
 def complete(system, user, max_tokens=MAX_TOKENS_GUIDE, temperature=0.2):
-    """One turn against the model. Returns text, or None when unavailable."""
-    body = _body(system, user, max_tokens, temperature)
-    req = urllib.request.Request(f'{ENDPOINT}/v1/chat/completions', data=body, headers=_headers())
-    try:
-        # A fixed http(s) endpoint from configuration, never user input.
-        with _open(req, _GEN_TIMEOUT) as r:
-            payload = json.loads(r.read())
-        return (payload['choices'][0]['message'].get('content') or '').strip() or None
-    except (urllib.error.URLError, OSError, KeyError, ValueError) as e:
-        logger.warning('[ASSISTANT] generation failed: %s', e)
-        return None
+    """One turn against the model. Returns text, or None when unavailable.
+
+    A model that fails is marked down and the next one answers (models_in_order)."""
+    _recheck_down_models()
+    for model in models_in_order():
+        body = _body(system, user, max_tokens, temperature, model=model)
+        req = urllib.request.Request(f'{ENDPOINT}/v1/chat/completions', data=body, headers=_headers())
+        try:
+            # A fixed http(s) endpoint from configuration, never user input.
+            with _open(req, _GEN_TIMEOUT) as r:
+                payload = json.loads(r.read())
+            text = (payload['choices'][0]['message'].get('content') or '').strip() or None
+            _mark_up(model)
+            return text
+        except (urllib.error.URLError, OSError, KeyError, ValueError) as e:
+            logger.warning('[ASSISTANT] generation failed on %s: %s', model, e)
+            if not API_KEY:
+                return None
+            _mark_down(model, str(e)[:80])
+    return None
+
+
+def _continue_body(system, user, partial, max_tokens, temperature, model=None):
+    """A request that continues an answer from the text already sent (vLLM's
+    continue_final_message, which the campus gateway serves)."""
+    model = model or MODEL_NAME
+    body = {
+        'model': model,
+        'messages': [{'role': 'system', 'content': system},
+                     {'role': 'user', 'content': user},
+                     {'role': 'assistant', 'content': partial}],
+        'temperature': temperature,
+        'max_tokens': max_tokens,
+        'stream': True,
+        'continue_final_message': True,
+        'add_generation_prompt': False,
+    }
+    body.update(_fields_for(model))
+    return json.dumps(body).encode()
+
+
+# A STREAM THAT STOPS PART WAY IS CONTINUED (2026-10-21). "what kinds of resources do you
+# have?" ended mid-sentence ("including poetry, prose, and epistolary") while the gateway was
+# failing for another model, and the broken stream was taken for a finished answer: the loop
+# ended without the [DONE] line or a finish_reason, and nothing noticed. Now an answer counts
+# as finished only on finish_reason 'stop' or 'length' (or [DONE] after it). Otherwise the
+# model is asked to continue from the text already sent, at most twice, or, when nothing was
+# sent, the request is made again.
+_STREAM_RESUMES = 2
 
 
 def stream(system, user, max_tokens=MAX_TOKENS_GUIDE, temperature=0.2):
@@ -158,28 +280,55 @@ def stream(system, user, max_tokens=MAX_TOKENS_GUIDE, temperature=0.2):
     instead of watching a spinner, and generation at 16 tokens per second
     outpaces reading speed. Yields plain text chunks; the caller frames them.
     """
-    body = _body(system, user, max_tokens, temperature, stream=True)
-    req = urllib.request.Request(f'{ENDPOINT}/v1/chat/completions', data=body, headers=_headers())
-    try:
-        # A fixed http(s) endpoint from configuration, never user input.
-        with _open(req, _GEN_TIMEOUT) as resp:
-            for raw in resp:
-                line = raw.decode('utf-8', 'replace').strip()
-                if not line.startswith('data:'):
-                    continue
-                payload = line[5:].strip()
-                if payload == '[DONE]':
-                    return
-                try:
-                    delta = json.loads(payload)['choices'][0].get('delta', {})
-                except (ValueError, KeyError, IndexError):
-                    continue
-                piece = delta.get('content')
-                if piece:
-                    yield piece
-    except (urllib.error.URLError, OSError) as e:
-        logger.warning('[ASSISTANT] streaming failed: %s', e)
-        return
+    _recheck_down_models()
+    sent = []
+    tried = 0
+    for attempt in range(_STREAM_RESUMES + 1 + len(FALLBACK_MODELS)):
+        model = current_model()
+        partial = ''.join(sent)
+        if partial:
+            body = _continue_body(system, user, partial, max(64, max_tokens - len(partial) // 3), temperature,
+                                  model=model)
+        else:
+            body = _body(system, user, max_tokens, temperature, stream=True, model=model)
+        req = urllib.request.Request(f'{ENDPOINT}/v1/chat/completions', data=body, headers=_headers())
+        finish, failed = None, None
+        try:
+            # A fixed http(s) endpoint from configuration, never user input.
+            with _open(req, _GEN_TIMEOUT) as resp:
+                for raw in resp:
+                    line = raw.decode('utf-8', 'replace').strip()
+                    if not line.startswith('data:'):
+                        continue
+                    payload = line[5:].strip()
+                    if payload == '[DONE]':
+                        break
+                    try:
+                        choice = json.loads(payload)['choices'][0]
+                    except (ValueError, KeyError, IndexError):
+                        continue
+                    finish = choice.get('finish_reason') or finish
+                    piece = (choice.get('delta') or {}).get('content')
+                    if piece:
+                        sent.append(piece)
+                        yield piece
+        except (urllib.error.URLError, OSError) as e:
+            failed = str(e)[:80]
+            logger.warning('[ASSISTANT] streaming failed on %s after %d characters: %s', model, len(''.join(sent)), e)
+        if finish in ('stop', 'length'):
+            _mark_up(model)
+            return
+        logger.warning('[ASSISTANT] stream on %s ended without finishing (finish_reason %r) after %d characters, '
+                       'attempt %d', model, finish, len(''.join(sent)), attempt + 1)
+        if not API_KEY:
+            if tried >= _STREAM_RESUMES:
+                return
+            tried += 1
+            continue
+        _mark_down(model, failed or 'stream ended without finishing')
+        tried += 1
+        if tried > _STREAM_RESUMES + len(FALLBACK_MODELS):
+            return
 
 
 # --------------------------------------------------------------------------

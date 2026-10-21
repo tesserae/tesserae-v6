@@ -1766,7 +1766,10 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 Every answer is checked before you see it. Citations come from a search that
                 ran, numbers appear in the results, and any line of text she quotes matches the
                 passage word for word. She runs on an open model hosted on the university's own
-                AI platform, so your questions stay on campus.
+                AI platform, so your questions stay on campus. If that model stops answering, she
+                switches to another open model on the same platform and goes back to her own as soon as
+                it answers again, and an answer the platform breaks off part way is picked up where it
+                stopped.
               </p>
 
               <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">For advanced analysis</h4>
