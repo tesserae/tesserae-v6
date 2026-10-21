@@ -59,9 +59,9 @@ def numbers_by_inscription(aio_dir):
             continue
         nums = []
         for r in d.get("references", []):
-            for l in r.get("external_links", []):
-                if "bbaw.de" in l:
-                    n = ig_number(l)
+            for link in r.get("external_links", []):
+                if "bbaw.de" in link:
+                    n = ig_number(link)
                     if n and n not in nums:
                         nums.append(n)
         if nums:

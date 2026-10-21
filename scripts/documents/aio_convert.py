@@ -42,7 +42,7 @@ from lxml import etree
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from epidoc_convert import (  # noqa: E402
-    TEI_NS, EpidocConverter, join_lines, qn,
+    EpidocConverter, join_lines, qn,
 )
 
 SOURCE = "aio"
@@ -203,7 +203,6 @@ def _html_text(fragment: str) -> str:
 
 def parse_page(html_text: str) -> dict:
     """Edition number as displayed, date text, types and findspot."""
-    import html as _html
     out = {"edition": None, "references": [], "date_text": None, "monument_type": None,
            "inscription_types": [], "findspot": None, "pleiades_id": None,
            "original_location": None}
@@ -456,7 +455,6 @@ def _clean_line(chars):
     flags = [f for _, f in out]
     # drop whitespace-separated tokens with no Greek letter and no gap (stray Latin)
     res, rflags = [], []
-    k = 0
     for m in re.finditer(r"\S+|\s+", text):
         piece = m.group(0)
         seg_flags = flags[m.start():m.end()]
