@@ -38,11 +38,22 @@ from backend.logging_config import get_logger
 logger = get_logger('assistant.site_help')
 
 _ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-HELP_SOURCE = os.path.join(_ROOT, 'client', 'src', 'components', 'pages', 'HelpPage.jsx')
+_PAGES = os.path.join(_ROOT, 'client', 'src', 'components', 'pages')
+HELP_SOURCE = os.path.join(_PAGES, 'HelpPage.jsx')
+# The other pages a reader asks about (2026-10-21: asked where the texts come from,
+# whether a text can be downloaded and under what license, Tessa answered that the
+# site does not say, because only the Help page was read). Each page's chunks carry
+# the page's name before the heading, so the model can say where a fact is found.
+OTHER_SOURCES = [
+    (os.path.join(_PAGES, 'AboutPage.jsx'), 'About page'),
+    (os.path.join(_PAGES, 'DownloadsPage.jsx'), 'Downloads page'),
+    (os.path.join(_PAGES, 'ScholarshipSourcesPage.jsx'), 'Scholarship sources page'),
+    (os.path.join(_PAGES, 'PrivacyPage.jsx'), 'Privacy page'),
+]
 CACHE_PATH = os.path.join(_ROOT, 'cache', 'site_help_chunks.json')
 # Raise this when _extract changes, so a cache written by the old code is not
 # trusted just because the Help page itself has not changed.
-EXTRACTOR_VERSION = 3   # 3: long paragraphs split at sentence ends, not cut (2026-10-20)
+EXTRACTOR_VERSION = 4   # 4: About, Downloads, Scholarship sources and Privacy pages read too (2026-10-21)
 
 # Long enough to carry an idea, short enough that four of them fit in a prompt
 # without adding seconds of prompt processing.
@@ -64,7 +75,7 @@ _STOP = {
 }
 
 
-def _extract(source=None):
+def _extract(source=None, page=''):
     """Visible prose from the Help page, merged back into paragraphs.
 
     JSX splits a sentence across elements -- "Most people start with the default"
@@ -130,7 +141,8 @@ def _extract(source=None):
         nonlocal buf
         body = buf.strip()
         buf = ''
-        prefix = f'{heading}: ' if heading else ''
+        title = ', '.join(x for x in (page, heading) if x)
+        prefix = f'{title}: ' if title else ''
         if len((prefix + body).strip(': ')) < 60:
             return
         room = max(CHUNK_MAX - len(prefix), 200)
@@ -151,8 +163,23 @@ def _extract(source=None):
     # characters it was being dropped (so the Scholarship tab's paragraph never
     # said "Scholarship" and no question about it could find it).
     fragment_re = re.compile(r'(?:(?<=<strong>)([^<>{}]{3,})|>([^<>{}]{12,}))(?=<)')
+    if page:
+        # A data list entry { file: ..., name: 'Window Texts', note: '...' } reads as
+        # "Window Texts: ..." so a note is never separated from what it describes.
+        src = re.sub(r"name:\s*'([^'\n]+)',\s*note:\s*'([^'\n]+)'",
+                     lambda m: '>Data file ' + m.group(1) + ': ' + m.group(2) + '.<', src)
+        # The other pages keep much of their prose in JavaScript strings (the
+        # Downloads page lists every release, its size and license that way), so
+        # a quoted string of a sentence's length counts as a fragment too. CSS
+        # class lists and paths are left out.
+        fragment_re = re.compile(r"(?:(?<=<strong>)([^<>{}]{3,})|>([^<>{}]{12,}))(?=<)"
+                                 r"|'([^'\n]{40,})'|\"([^\"\n]{40,})\"")
     for m in fragment_re.finditer(src):
-        t = ' '.join(html.unescape(m.group(1) or m.group(2) or '').split())
+        raw = next((g for g in m.groups() if g), '')
+        if m.lastindex and m.lastindex >= 3 and (re.search(r'\b(px|py|bg|flex|text|rounded|hover|border)-', raw)
+                                                  or raw.startswith(('/', 'http')) or ' ' not in raw):
+            continue
+        t = ' '.join(html.unescape(raw).split())
         if not t or t.startswith('//') or re.fullmatch(r'[\s{}();,.\-–—|]+', t):
             continue
         own, inside = heading_at(m.start())
@@ -185,7 +212,8 @@ def _load():
             return _chunks
         stamp = None
         try:
-            stamp = os.path.getmtime(HELP_SOURCE)
+            stamp = '|'.join(str(os.path.getmtime(p)) for p in [HELP_SOURCE] + [p for p, _ in OTHER_SOURCES]
+                             if os.path.exists(p))
         except OSError:
             pass
         try:
@@ -199,6 +227,9 @@ def _load():
             pass
 
         _chunks = _extract()
+        for path, label in OTHER_SOURCES:
+            if os.path.exists(path):
+                _chunks += _extract(path, page=label)
         try:
             os.makedirs(os.path.dirname(CACHE_PATH), exist_ok=True)
             with open(CACHE_PATH, 'w', encoding='utf-8') as fh:
@@ -214,7 +245,7 @@ def _words(text):
             if w not in _STOP}
 
 
-def relevant(question, k=4):
+def _scored(question):
     """The Help sections most likely to answer this question.
 
     Scored on shared vocabulary, which works better here than it would in
@@ -237,7 +268,7 @@ def relevant(question, k=4):
         for w in have:
             doc_freq[w] = doc_freq.get(w, 0) + 1
     scored = []
-    for c, have in zip(chunks, have_by_chunk):
+    for i, (c, have) in enumerate(zip(chunks, have_by_chunk)):
         overlap = want & have
         if not overlap:
             continue
@@ -252,9 +283,75 @@ def relevant(question, k=4):
         title = c.split(':', 1)[0] if ':' in c else ''
         title_overlap = want & _words(title)
         score += 2 * sum(math.log(1 + len(chunks) / doc_freq[w]) ** 2 for w in title_overlap)
-        scored.append((score, c))
-    scored.sort(key=lambda kv: -kv[0])
-    return [c for _, c in scored[:k]]
+        scored.append((score, i))
+    return scored
+
+
+def relevant(question, k=4):
+    """The k Help chunks most likely to answer this question, best first."""
+    chunks = _load()
+    scored = sorted(_scored(question), key=lambda kv: -kv[0])
+    return [chunks[i] for _, i in scored[:k]]
+
+
+def _title(chunk):
+    return chunk.split(': ', 1)[0] if ': ' in chunk else ''
+
+
+SECTION_BUDGET = 9000     # characters of site text per question, in all
+SECTION_MAX = 2600        # characters from any one section
+SECTIONS_MAX = 7
+
+
+def sections_for(question):
+    """Whole sections around the best-scoring chunks, best section first.
+
+    Four chunks of at most 900 characters each left Tessa without the
+    sentence she needed for a third of twelve ordinary questions (2026-10-21):
+    the chunk that matched the question's words was often the one beside the
+    answer. A section is the run of consecutive chunks under one heading. Each
+    chosen section is given whole when short, and otherwise as its best chunks
+    with their neighbours, in page order. The answering model is hosted, so the
+    few thousand extra characters cost a second at most.
+    """
+    chunks = _load()
+    scored = _scored(question)
+    if not scored:
+        return []
+    best = {}
+    for score, i in scored:
+        best[i] = score
+    # Contiguous runs of one title.
+    runs, start = [], 0
+    for i in range(1, len(chunks) + 1):
+        if i == len(chunks) or _title(chunks[i]) != _title(chunks[start]):
+            runs.append((start, i))
+            start = i
+    ranked = []
+    for a, b in runs:
+        scores = sorted((best[i] for i in range(a, b) if i in best), reverse=True)
+        if scores:
+            ranked.append((scores[0] + 0.3 * (scores[1] if len(scores) > 1 else 0), a, b))
+    ranked.sort(key=lambda r: -r[0])
+    out, used = [], 0
+    for _, a, b in ranked[:SECTIONS_MAX]:
+        if used >= SECTION_BUDGET:
+            break
+        room = min(SECTION_MAX, SECTION_BUDGET - used)
+        idx = list(range(a, b))
+        if sum(len(chunks[i]) for i in idx) > room:
+            keep = set()
+            for i in sorted((i for i in idx if i in best), key=lambda i: -best[i]):
+                for j in (i, i - 1, i + 1):
+                    if a <= j < b and j not in keep and sum(len(chunks[k]) for k in keep) + len(chunks[j]) <= room:
+                        keep.add(j)
+            idx = sorted(keep) or [max((i for i in idx if i in best), key=lambda i: best[i])]
+        title = _title(chunks[idx[0]])
+        body = ' '.join(chunks[i][len(title) + 2:] if title else chunks[i] for i in idx)
+        text = f'{title}: {body}' if title else body
+        out.append(text)
+        used += len(text)
+    return out
 
 
 def direct_answer(question, threshold=0.75):
@@ -297,13 +394,16 @@ def direct_answer(question, threshold=0.75):
 
 
 def context_for(question, k=4):
-    """The Help sections as a prompt block, or '' when nothing matches."""
-    hits = relevant(question, k=k)
+    """The site's own pages as a prompt block, or '' when nothing matches."""
+    hits = sections_for(question)
     if not hits:
         return ''
     body = '\n\n'.join(f'- {h}' for h in hits)
-    return ('FROM THE TESSERAE HELP PAGE (these are the facts about this site; '
-            'answer from them and do not invent features):\n' + body)
+    return ('FROM THE TESSERAE SITE PAGES (Help unless another page is named; these are the facts '
+            'about this site. Answer from them and do not invent features. Where they describe a '
+            'feature, label or page, it exists: never say it does not. Where they answer only part '
+            'of the question, give that part and name the page that holds the rest when they name '
+            'one):\n' + body)
 
 
 def status():

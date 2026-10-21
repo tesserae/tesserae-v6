@@ -8,6 +8,7 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-21
+- Tessa reads the About, Downloads, Scholarship sources and Privacy pages as well as Help, and is given whole sections, up to seven and about 9,000 characters per question, in place of four fragments (the project lead, 2026-10-21: "for your average scholarly user who wants to drill down and know where do these texts come from, how does this search work ... can she give good answers on that?"). Twelve test questions that morning gave 4 good answers, 5 partial and 3 wrong, among them "the site does not say" for where the Latin texts come from and a denial that the "Closest passages" label exists. Her instructions now say that a feature the pages describe exists. Help gains "Where do the texts come from, and which editions are they?", naming the main electronic sources and pointing to the Text Credits page.
 - Events: the battle of Actium of 31 BCE, the Battle of Perugia and the Battle of Cumae under their right Pleiades places, so their headings read "Actium (modern Aktio)", "Perusia (modern Perugia)" and "Cumae (modern Cuma)". The list `EVENT_PLACES` in `scripts/events/choose_place_names.py` holds the three with their reasons, the Cumae point moved from the center of the Bay of Naples to Cumae, and the passages highlight the ancient place name as well as the modern one. Data operation in docs/DATA_OPERATIONS.md.
 
 ## 2026-10-20
