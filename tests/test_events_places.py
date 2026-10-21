@@ -229,3 +229,90 @@ def test_the_wikipedia_coordinates_follow_redirects_and_normalization(tmp_path):
     got = C.wikipedia_coordinates([str(p)])
     assert got['battle of x'] == (1.5, 2.5) and got['Siege of Y'] == (3.0, 4.0) and got['Battle of X'] == (1.5, 2.5)
     assert 'Moon' not in got and 'No coordinates' not in got
+
+
+# ---- the gateway choice (choose_place_names.py) -------------------------------
+
+import choose_place_names as G  # noqa: E402
+
+
+def test_the_answer_is_the_candidate_on_the_last_answer_line_or_none():
+    forms = {'Tarentum', 'Taras', 'Brigantinus L.'}
+    assert G.clean_answer('Latin is usual.\nANSWER: Tarentum', forms) == 'Tarentum'
+    assert G.clean_answer('x ANSWER: **Taras**.', forms) == 'Taras'
+    assert G.clean_answer('ANSWER: Brigantinus L.', forms) == 'Brigantinus L.'
+    assert G.clean_answer('ANSWER: Brigantinus L', forms) == 'Brigantinus L.'
+    assert G.clean_answer('ANSWER: none', forms) == 'NONE'
+    assert G.clean_answer('ANSWER: Taranto', forms) is None
+    assert G.clean_answer('no answer line', forms) is None
+    assert G.clean_answer('', forms) is None
+    assert G.clean_answer(None, forms) is None
+
+
+def test_candidates_are_filtered_by_language_and_script_but_not_by_period():
+    place = {'names': [name('Tarentum', ['roman'], ''), name('Taras', ['archaic'], 'grc'), name('Taranto', ['modern'], 'it'),
+                       name('Ḥmt', ['classical'], 'egy'), name('Ἀραδος', ['classical'], 'grc'), name('Undated', [], 'la'),
+                       name('Tarentum', ['archaic'], 'la'), name('Tribe', ['roman'], 'la', typ='ethnic')]}
+    got = G.qualifying_names(place, PERIODS)
+    assert [c['form'] for c in got] == ['Tarentum', 'Taras', 'Undated']
+    assert [k for k, _ in got[0]['periods']] == ['roman', 'archaic']        # the two entries for one form are merged
+    assert got[2]['periods'] == []
+
+
+def test_the_question_lists_each_candidate_with_its_periods():
+    cands = [{'form': 'Taras', 'language': 'grc', 'periods': [('archaic', [-750, -550])]},
+             {'form': 'Tarentum', 'language': '', 'periods': []}]
+    q = G.question('First Battle of Tarentum', -212, -212, 'Taranto', cands)
+    assert 'Year: 212 BCE' in q and 'Modern place name: Taranto' in q
+    assert '- Taras [attested: archaic (750 BCE to 550 BCE)]' in q and '- Tarentum [attested: no period given]' in q
+
+
+def test_abbreviated_kinds_of_place_are_written_out_and_colonial_titles_dropped():
+    assert G.expand('Brigantinus L.') == 'Lacus Brigantinus' and G.expand('Vesuvius M.') == 'Mons Vesuvius'
+    assert G.expand('Col. Arelate') == 'Arelate' and G.expand('Tarentum') == 'Tarentum'
+
+
+def test_overrides_apply_to_their_place_and_years_only():
+    assert G.override_for('541044', -191, -191)[0] == 'Pherae'
+    assert G.override_for('541044', 2000, 2000) is None
+    assert G.override_for('999', -191, -191) is None
+    assert all(len(o) == 5 and o[4] for o in G.OVERRIDES)                    # each has a reason
+
+
+def test_the_run_asks_once_keeps_answers_in_the_cache_and_applies_overrides(tmp_path, monkeypatch):
+    src = str(tmp_path / 'in.sqlite')
+    c = sqlite3.connect(src)
+    c.execute('CREATE TABLE events (id TEXT, label TEXT, date_start INTEGER, date_end INTEGER, place TEXT, pleiades_id TEXT)')
+    c.executemany('INSERT INTO events VALUES (?,?,?,?,?,?)', [
+        ('E1', 'Battle of Tarentum', -212, -212, 'Taranto', '11'), ('E2', 'Capture of Pherae', -191, -191, 'Pherae', '541044'),
+        ('E3', 'Nowhere', 0, 0, 'X', '13'), ('E4', 'Same', -300, -300, 'Pisa', '14'), ('E5', 'No place', -300, -300, 'Y', None)])
+    c.commit()
+    c.close()
+    raw = tmp_path / 'raw'
+    (raw / 'places').mkdir(parents=True)
+    (raw / 'periods.json').write_text(json.dumps(PERIODS))
+    (raw / 'places' / '11.json').write_text(json.dumps({'names': [name('Taras', ['hellenistic-republican'], 'grc'), name('Tarentum', ['roman'], '')]}))
+    (raw / 'places' / '541044.json').write_text(json.dumps({'names': [name('Pherai', ['classical'], 'grc'), name('Pherae', ['roman'], 'la')]}))
+    (raw / 'places' / '13.json').write_text(json.dumps({'names': [name('Hmt', ['classical'], 'egy')]}))
+    (raw / 'places' / '14.json').write_text(json.dumps({'names': [name('Pisa', ['classical'], 'la')]}))
+    calls = []
+
+    def fake_ask(url, key, user, stats, lock, max_tokens=0):
+        calls.append(user)
+        stats['requests'] += 1
+        return 'ANSWER: Pherai' if 'Pherai' in user else ('ANSWER: Tarentum' if 'Tarentum' in user else 'ANSWER: NONE')
+
+    monkeypatch.setattr(G, 'ask', fake_ask)
+    monkeypatch.setattr(G.J, '_env', lambda: ('http://x', 'k'))
+    out, cache = str(tmp_path / 'out.sqlite'), str(tmp_path / 'cache.sqlite')
+    args = [src, out, str(raw), '--cache', cache, '--report', str(tmp_path / 'r.json'), '--sample-out', str(tmp_path / 's' / 's.csv'), '--apply']
+    assert G.main(args) == 0
+    assert len(calls) == 3                                                   # E3 has no candidate, E5 no Pleiades place
+    got = dict(sqlite3.connect(out).execute('SELECT id, place_ancient FROM events'))
+    assert got == {'E1': 'Tarentum', 'E2': 'Pherae', 'E3': None, 'E4': None, 'E5': None}   # override beats the model, NONE is empty
+    rep = json.load(open(tmp_path / 'r.json'))['summary']
+    assert rep['overridden'] == 1 and rep['model_none'] == 1 and rep['answer_rate'] == 1.0
+    assert sqlite3.connect(cache).execute('SELECT count(*) FROM answers').fetchone()[0] == 3
+    assert G.main(args) == 0 and len(calls) == 3                             # a rerun asks nothing
+    rows = open(tmp_path / 's' / 's.csv', encoding='utf-8').read().splitlines()
+    assert len(rows) == 2 and rows[0].endswith('lead grade (right / wrong / better name)')   # only Tarentum changes a heading

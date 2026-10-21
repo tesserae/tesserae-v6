@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
-"""Add events.place_ancient, the name of the event's place in the time of the event.
+"""The period-overlap rule for the name of an event's place, kept as a deterministic comparison. The store column is
+now written by choose_place_names.py, which asks the gateway model to choose among the qualifying names.
+
+Add events.place_ancient, the name of the event's place in the time of the event.
 
   add_place_ancient.py INPUT.sqlite OUTPUT.sqlite RAW_DIR [--report PATH] [--apply]
 
