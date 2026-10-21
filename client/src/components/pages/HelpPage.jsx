@@ -3161,6 +3161,20 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   </p>
                 </div>
                 <div>
+                  <h4 className="text-lg font-semibold text-gray-900">Where do the texts come from, and which editions are they?</h4>
+                  <p className="text-gray-600 text-sm mt-1">
+                    Every work is credited on the Text Credits and Provenance page under About, which names
+                    the electronic source of the text and the printed edition it reproduces. The largest
+                    electronic sources are the Perseus Digital Library and Open Greek and Latin (with its
+                    Scaife and CSEL texts) for Greek and Latin, The Latin Library and Musisque Deoque for
+                    Latin, Coptic Scriptorium for Coptic, Sefaria for Hebrew, the SBL Greek New Testament, Project Gutenberg
+                    for English, and open datasets and Wikisource for Persian and Urdu. The edition is the one
+                    the electronic source reproduces, often an older edition now in the public domain, and the
+                    print source on the Text Credits page says which. A few works come under a license for
+                    searching only, and their terms are listed there too.
+                  </p>
+                </div>
+                <div>
                   <h4 className="text-lg font-semibold text-gray-900">Are all the texts in the corpus downloadable?</h4>
                   <p className="text-gray-600 text-sm mt-1">
                     Most are, under the licenses listed on the Sources page under About. A text that comes to

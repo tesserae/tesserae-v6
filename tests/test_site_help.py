@@ -39,7 +39,8 @@ def test_an_unrelated_question_matches_nothing_rather_than_anything():
 
 def test_the_prompt_block_names_its_source():
     block = site_help.context_for('what is theme search?')
-    assert 'HELP PAGE' in block
+    assert 'SITE PAGES' in block
+    assert 'never say it does not' in block
     assert 'do not invent' in block
 
 
@@ -121,3 +122,38 @@ def test_a_holdings_question_still_goes_to_the_corpus():
     from backend.assistant.agent import _is_about_the_site
     assert not _is_about_the_site('what do you have by Ovid?')
     assert not _is_about_the_site('how many Latin works are there?')
+
+
+def test_the_about_downloads_and_scholarship_sources_pages_are_read_too():
+    """2026-10-21: asked whether a text can be downloaded and under what license,
+    Tessa said the site does not say, because only the Help page was read."""
+    titles = {c.split(': ', 1)[0].split(', ')[0] for c in site_help._load()}
+    for page in ('About page', 'Downloads page', 'Scholarship sources page'):
+        assert page in titles
+
+
+def test_a_downloads_data_entry_keeps_its_name_beside_its_note():
+    chunks = [c for c in site_help._load() if c.startswith('Downloads page')]
+    assert any('Data file Window Texts:' in c and 'non-commercial' in c for c in chunks)
+    assert not any('bg-red-700' in c or 'rounded hover' in c for c in chunks)
+
+
+def test_sections_are_given_whole_within_the_budget():
+    secs = site_help.sections_for('Why does Theme Search sometimes say Closest passages?')
+    assert secs and len(secs) <= site_help.SECTIONS_MAX
+    assert sum(len(s) for s in secs) <= site_help.SECTION_BUDGET + site_help.SECTION_MAX
+    assert 'closest passages' in ' '.join(secs).lower()
+
+
+def test_the_licensing_question_reaches_the_downloads_page():
+    secs = ' '.join(site_help.sections_for('Can I download a text, and what are the licensing terms?'))
+    assert 'Downloads page' in secs
+
+
+def test_the_text_sources_question_reaches_the_new_help_answer():
+    secs = ' '.join(site_help.sections_for('Where do the Latin texts come from, and which editions?'))
+    assert 'Text Credits' in secs and 'Perseus' in secs
+
+
+def test_an_unrelated_question_gets_no_sections():
+    assert site_help.sections_for('qwertyuiop zxcvbnm') == []
