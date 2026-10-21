@@ -559,14 +559,19 @@ def test_a_supported_and_reachable_pair_offers_the_tab():
     assert 'Hebrew and Greek' in built[0]['detail']
 
 
-def test_coptic_greek_is_supported_but_not_offered():
-    """The search does this pair, with dedicated Coptic-Greek phonetic matching.
-    The Cross-Language tab has no control for it. Linking to the tab would send
-    the reader somewhere that cannot answer them."""
+def test_coptic_greek_is_offered_since_it_reached_the_tab():
+    """Coptic to Greek has been on the Cross-Language tab since #1032 (2026-10-19)."""
     label, reachable = actions.cross_pair('cop', 'grc')
     assert label == 'Coptic and Greek'
+    assert reachable is True
+
+
+def test_a_pair_the_search_supports_but_the_tab_does_not_offer_is_not_linked():
+    """The Arabic pairs are in the search while the Arabic texts are held back."""
+    label, reachable = actions.cross_pair('ar', 'fa')
+    assert label == 'Arabic and Persian'
     assert reachable is False
-    assert actions.suggest('how do I compare Coptic with Greek?') == []
+    assert actions.suggest('how do I compare Arabic with Persian?') == []
 
 
 def test_an_unsupported_pair_offers_nothing():
@@ -575,8 +580,10 @@ def test_an_unsupported_pair_offers_nothing():
 
 
 def test_the_note_tells_the_truth_for_each_case():
+    ar = actions.cross_language_note('how do I compare Arabic with Persian?')
+    assert 'no control' in ar and 'Do not tell them to open the tab' in ar
     cop = actions.cross_language_note('how do I compare Coptic with Greek?')
-    assert 'no control' in cop and 'Do not tell them to open the tab' in cop
+    assert 'does this pair' in cop
     he = actions.cross_language_note('how do I compare Hebrew with Greek?')
     assert 'does this pair' in he
     fa = actions.cross_language_note('how do I compare Latin with Persian?')
