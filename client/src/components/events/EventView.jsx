@@ -5,7 +5,7 @@ import { recordFrom } from '../../utils/citations';
 import { bareLocus } from '../reader/refId';
 import { useCorpusTextMap } from '../../utils/textNames';
 import EventMap from './EventMap';
-import { dateLabel, kmLabel, readerLinkWithBack, shortPassageRef, workHeading } from './eventsFormat';
+import { dateLabel, kmLabel, placeLabel, readerLinkWithBack, shortPassageRef, workHeading } from './eventsFormat';
 import AboutSourcesLink from '../scholarship/AboutSourcesLink';
 import { expandEditions } from '../../utils/editionNames';
 
@@ -390,7 +390,7 @@ export default function EventView({ id, goList }) {
       <header className="mt-2 bg-white border border-gray-200 rounded-lg p-4">
         <h2 className="text-2xl font-bold text-gray-900">{ev.label}</h2>
         <p className="text-sm text-gray-600 mt-1">
-          {[dateLabel(ev.date_start, ev.date_end), ev.place, ev.type].filter(Boolean).join(' · ')}
+          {[dateLabel(ev.date_start, ev.date_end), placeLabel(ev.place, ev.place_ancient), ev.type].filter(Boolean).join(' · ')}
         </p>
         {ev.participants?.length > 0 && (
           <p className="text-sm text-gray-700 mt-2"><span className="text-gray-500">Participants:</span> {ev.participants.join(', ')}</p>
@@ -422,7 +422,7 @@ export default function EventView({ id, goList }) {
         {tab === 'passages' && <PassagesTab passages={passages} counts={data.passage_counts} event={ev} focusRank={focusRank} />}
         {tab === 'documents' && <DocumentsTab documents={documents} event={ev} />}
         {tab === 'scholarship' && <ScholarshipTab items={scholarship} openPassage={openPassage} ranks={new Set(passages.map((p) => p.rank))} />}
-        {tab === 'map' && <EventMap points={data.map || []} />}
+        {tab === 'map' && <EventMap points={data.map || []} approximatePlace={ev.location_approximate ? (ev.place || 'the region') : null} />}
       </div>
     </div>
   );

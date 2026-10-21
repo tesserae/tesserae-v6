@@ -9,7 +9,7 @@ import userEvent from '@testing-library/user-event';
 import EventsPage from '../EventsPage';
 import EventList from '../EventList';
 import { __resetEventNamesForTests } from '../EventNameBox';
-import { dateLabel, centuryLabel, yearLabel, shortPassageRef } from '../eventsFormat';
+import { dateLabel, centuryLabel, yearLabel, shortPassageRef, placeLabel } from '../eventsFormat';
 import { __resetCorpusTextMapCacheForTests } from '../../../utils/textNames';
 import { setProfile, setCollection } from '../../../collections/collectionsStore';
 
@@ -580,6 +580,52 @@ describe('the Collections gate', () => {
       expect(setPageType).not.toHaveBeenCalled();
       unmount();
     }
+  });
+});
+
+describe('the place of an event in the time of the event (2026-10-20)', () => {
+  beforeEach(() => window.history.replaceState({}, '', '/events/Q1'));
+
+  it('writes the ancient name with the modern one only where they differ', () => {
+    expect(placeLabel('Perugia', 'Perusia')).toBe('Perusia (modern Perugia)');
+    expect(placeLabel('Marathon', 'Marathon')).toBe('Marathon');
+    expect(placeLabel('Rome', 'Roma')).toBe('Roma (modern Rome)');
+    expect(placeLabel('Réims', 'reims')).toBe('reims');
+    expect(placeLabel('Marathon', null)).toBe('Marathon');
+    expect(placeLabel('Marathon', '')).toBe('Marathon');
+    expect(placeLabel(null, null)).toBe('');
+  });
+
+  it('shows "Perusia (modern Perugia)" in the heading when the route returns place_ancient', async () => {
+    mockApi(undefined, { ...DETAIL, event: { ...DETAIL.event, place: 'Perugia', place_ancient: 'Perusia' } });
+    render(<EventsPage setPageType={() => {}} />);
+    await screen.findByRole('heading', { name: 'Battle of Marathon' });
+    expect(screen.getByText(/490 BCE · Perusia \(modern Perugia\) · battle/)).toBeTruthy();
+  });
+
+  it('shows the place alone when the ancient name is the same or absent', async () => {
+    mockApi(undefined, { ...DETAIL, event: { ...DETAIL.event, place_ancient: 'Marathon' } });
+    render(<EventsPage setPageType={() => {}} />);
+    await screen.findByRole('heading', { name: 'Battle of Marathon' });
+    expect(screen.getByText(/490 BCE · Marathon · battle/)).toBeTruthy();
+    expect(screen.queryByText(/modern/)).toBeNull();
+  });
+
+  it('says under the map that the distances are approximate when the point is a region center', async () => {
+    mockApi(undefined, { ...DETAIL, event: { ...DETAIL.event, place: 'Mesopotamia', location_approximate: true } });
+    render(<EventsPage setPageType={() => {}} />);
+    await screen.findByRole('heading', { name: 'Battle of Marathon' });
+    await userEvent.click(screen.getByRole('tab', { name: /Map/ }));
+    expect(screen.getByTestId('event-map-approximate').textContent)
+      .toBe('The event is placed at the center of Mesopotamia, so the distances are approximate.');
+  });
+
+  it('says nothing about approximation for an event placed at a site', async () => {
+    mockApi();
+    render(<EventsPage setPageType={() => {}} />);
+    await screen.findByRole('heading', { name: 'Battle of Marathon' });
+    await userEvent.click(screen.getByRole('tab', { name: /Map/ }));
+    expect(screen.queryByTestId('event-map-approximate')).toBeNull();
   });
 });
 

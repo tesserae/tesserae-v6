@@ -168,10 +168,16 @@ def document_url(doc_id, lang='la'):
 
 
 def _event_row(r):
+    keys = r.keys()
     return {
         'id': r['id'], 'label': r['label'], 'type': r['type'],
         'date_start': r['date_start'], 'date_end': r['date_end'],
         'place': r['place'],
+        # The place's name in the time of the event (Pleiades names, 2026-10-20),
+        # empty where none is attested; absent from stores before that install.
+        'place_ancient': (r['place_ancient'] or None) if 'place_ancient' in keys else None,
+        # 1 where the stored point is the center of the named region, sea or river.
+        'location_approximate': bool(r['location_approximate']) if 'location_approximate' in keys else False,
     }
 
 
@@ -589,7 +595,8 @@ def get_event(event_id):
         points = []
         if ev['lat'] is not None and ev['lon'] is not None:
             points.append({'kind': 'event', 'label': ev['place'] or ev['label'],
-                           'lat': ev['lat'], 'lon': ev['lon'], 'n_documents': 0})
+                           'lat': ev['lat'], 'lon': ev['lon'], 'n_documents': 0,
+                           'approximate': ev['location_approximate']})
         spots = {}
         for d in documents:
             if d['lat'] is None or d['lon'] is None:

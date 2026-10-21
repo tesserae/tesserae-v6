@@ -86,7 +86,8 @@ def main(argv=None):
     a = ap.parse_args(argv)
     if os.path.abspath(a.input) == os.path.abspath(a.output) or os.path.realpath(a.output).startswith('/var/www'):
         sys.exit('OUTPUT must differ from INPUT and may not be under /var/www')
-    fixes = json.load(open(a.corrections))['use_wikidata']
+    spec = json.load(open(a.corrections))
+    fixes = {**spec.get('use_wikidata', {}), **spec.get('use_wikipedia', {})}
     points = {k: (v[0], v[1]) for k, v in load_points(a.pleiades_points).items()}
     cw = load_crosswalk(a.crosswalk)
     meta = sqlite3.connect(f'file:{a.documents_metadata}?mode=ro', uri=True)
