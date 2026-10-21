@@ -3282,6 +3282,25 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   </p>
                 </div>
                 <div>
+                  <h4 className="text-lg font-semibold text-gray-900">Why does Theme Search sometimes say &ldquo;Closest passages&rdquo;?</h4>
+                  <p className="text-gray-600 text-sm mt-1">
+                    &ldquo;Closest passages&rdquo; is the lowest of Theme Search&rsquo;s confidence levels. It appears
+                    when the best results do not stand far above the rest of the corpus, so their order is less
+                    settled, which is usual when the corpus holds little on the subject or the description is very
+                    general. The list is still shown in full. Read the passages themselves, and try a more concrete
+                    description of what happens in the scene. Search One Text uses the same label inside one work.
+                  </p>
+                </div>
+                <div>
+                  <h4 className="text-lg font-semibold text-gray-900">Do I need an account?</h4>
+                  <p className="text-gray-600 text-sm mt-1">
+                    No. Every search, the Reader, the collections and Tessa work without one. An account, made with
+                    Sign In, lets you register parallels in the Repository with your notes and rating, keep a
+                    personal collection of them, choose whether each is public, and link an ORCID identifier so your
+                    contributions are credited. It keeps your name, email address and a scrambled password.
+                  </p>
+                </div>
+                <div>
                   <h4 className="text-lg font-semibold text-gray-900">How do I save my results?</h4>
                   <p className="text-gray-600 text-sm mt-1">
                     Use "Export CSV" to download results as a spreadsheet, or "Register" to save individual parallels to the Intertext Repository.
