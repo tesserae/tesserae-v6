@@ -117,9 +117,21 @@ def _is_about_the_site(question):
         return False
 
 
+# WHERE THE SITE'S MATERIAL COMES FROM. "Where do the Greek texts come from?" and
+# "Where do the inscriptions and papyri come from?" were read as corpus questions
+# and answered with a census of the Latin works (2026-10-21). A provenance
+# question names a kind of material, never a phrase, so a question about where a
+# quoted phrase comes from still goes to the corpus.
+_PROVENANCE = re.compile(
+    r"\bwhere (?:do|does|did) (?:the |your |these |its )?(?:\w+ ){0,3}"
+    r"(?:texts?|works?|editions?|inscriptions?|papyri|translations?|scholarship|articles?|coins?|"
+    r"objects?|data|events?|descriptions?|coordinates|dates|corpus|commentar(?:y|ies))\b[^?\"']*\bcome from"
+    r"|\b(?:which|what) editions?\b")
+
+
 def _is_about_the_tool(question):
     q = (question or '').lower()
-    return any(t in q for t in _ABOUT_THE_TOOL)
+    return any(t in q for t in _ABOUT_THE_TOOL) or bool(_PROVENANCE.search(q))
 
 
 # MODEL ROUTING. Off by default: this replaces the branch every question takes,

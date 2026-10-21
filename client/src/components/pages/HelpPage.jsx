@@ -1400,6 +1400,16 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 so a small slip in spelling still reaches the right entry. When nothing matches,
                 the page suggests the closest names.
               </p>
+              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">How a name is recognized</h4>
+              <p className="text-gray-700 mb-4">
+                The entries start from a list of proper names with their Greek, Latin and English forms,
+                joined to the Pleiades gazetteer of ancient places, which also supplies each place&rsquo;s
+                coordinates. A line names an entry when it holds one of the name&rsquo;s forms with an ending
+                that name can take. Words that are ordinary words far more often than names are left out,
+                and a language model checks the literary lines where a name could belong to more than one
+                entry. A people and its city are two entries. Rome is the place and the Romans the people,
+                and a search for Rome returns both.
+              </p>
               <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">How a heading is chosen</h4>
               <p className="text-gray-700 mb-4">
                 The heading is the most frequent nominative form of the name in the corpus, with
@@ -1854,6 +1864,17 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 their ancient names (Actium, Brundisium, Perusia). A switch at the corner shows the modern
                 OpenStreetMap map instead, which is also the map for events outside the Roman world. Below
                 the map a table gives each place with its coordinates and number of documents.
+              </p>
+              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">Place names in the heading</h4>
+              <p className="text-gray-700 mb-4">
+                The heading of an event gives its place under the name used at the time of the event, where
+                the Pleiades gazetteer of ancient places records one, with the modern name in brackets:
+                Perusia (modern Perugia), Actium (modern Aktio). The name is the one an English-language
+                classical scholar would write, chosen by a language model from the names Pleiades lists
+                with their dates, so the Latin form (Caphyae, Sphacteria) is preferred to a Greek
+                transliteration. Where Pleiades has no name for the place, the heading gives the modern name
+                alone. Where Wikidata places an event only at the center of a region, sea or river, a note
+                under the map says so, and the distances to the findspots are then approximate.
               </p>
             </div>
           )}
@@ -3172,6 +3193,31 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                     the electronic source reproduces, often an older edition now in the public domain, and the
                     print source on the Text Credits page says which. A few works come under a license for
                     searching only, and their terms are listed there too.
+                  </p>
+                </div>
+                <div>
+                  <h4 className="text-lg font-semibold text-gray-900">Can I add my own text to Tesserae?</h4>
+                  <p className="text-gray-600 text-sm mt-1">
+                    Yes. The Upload Your Text page, listed in this Help, gives the format a text needs (one line
+                    per row, each with its reference, such as vergil.aeneid 1.1) and a form to send it. An
+                    uploaded text is reviewed and then added to the corpus for everyone. To ask for a text you do
+                    not have yourself, use Suggest a change in the header.
+                  </p>
+                </div>
+                <div>
+                  <h4 className="text-lg font-semibold text-gray-900">Who made Tesserae, and how is it funded?</h4>
+                  <p className="text-gray-600 text-sm mt-1">
+                    Tesserae was founded in 2008 by Neil Coffee (Department of Classics) and J. P. Koenig
+                    (Department of Linguistics) at the University at Buffalo, SUNY. Neil Coffee created the sixth
+                    version in 2026 and directs the project, in collaboration with Walter Scheirer (University of
+                    Notre Dame). Chris Forstall (Mount Allison University) was the lead developer of Tesserae V3,
+                    whose scoring and corpus V6 builds on, and graduate Tesserae Fellows at Buffalo and Notre Dame
+                    have worked on it throughout. Support has come from the National Endowment for the Humanities
+                    (Office of Digital Humanities Start-Up Phase II grant 2012 to 2013 and Digital Humanities
+                    Advancement Grant 2018 to 2020), the Swiss National Science Foundation, the Fondation Maison
+                    des Sciences de l&rsquo;Homme, an Amazon Web Services in-kind grant, the UB Humanities
+                    Institute, and the University at Buffalo, its institutional home. The About page has the full
+                    list and the citation to use.
                   </p>
                 </div>
                 <div>
