@@ -1050,3 +1050,34 @@ def test_book_phrase_names_each_kind_of_book():
     assert connections_map._book_phrase('ngenesis', 'Genesis') == 'Genesis'
     assert connections_map._book_phrase('b7', '7') == 'Book 7'
     assert connections_map._book_phrase('block101', '101') == 'Lines 101 to 200'
+
+
+def test_a_map_answer_is_kept_until_the_stored_map_changes(monkeypatch, tmp_path):
+    from backend import connections_map as cm
+    db = tmp_path / 'map.db'
+    db.write_text('x')
+    monkeypatch.setattr(cm, '_resolve_path', lambda: (str(db), False))
+    calls = []
+    monkeypatch.setattr(cm, '_get_map_uncached', lambda view, **kw: calls.append(view) or {'view': view, 'n': len(calls)})
+    cm.reset_process_caches()
+    assert cm.get_map('author', languages=['grc']) == {'view': 'author', 'n': 1}
+    assert cm.get_map('author', languages=['grc']) == {'view': 'author', 'n': 1}
+    assert len(calls) == 1
+    import os
+    os.utime(db, (1, 1))
+    assert cm.get_map('author', languages=['grc'])['n'] == 2
+    cm.reset_process_caches()
+    assert cm.get_map('author', languages=['grc'])['n'] == 3
+
+
+def test_an_error_answer_is_not_kept(monkeypatch, tmp_path):
+    from backend import connections_map as cm
+    db = tmp_path / 'map.db'
+    db.write_text('x')
+    monkeypatch.setattr(cm, '_resolve_path', lambda: (str(db), False))
+    calls = []
+    monkeypatch.setattr(cm, '_get_map_uncached', lambda view, **kw: calls.append(1) or {'error': 'no'})
+    cm.reset_process_caches()
+    cm.get_map('nonsense')
+    cm.get_map('nonsense')
+    assert len(calls) == 2
