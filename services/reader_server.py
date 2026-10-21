@@ -24,6 +24,7 @@ import json
 import logging
 import os
 import sys
+import threading
 import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
@@ -75,6 +76,30 @@ def load_model():
     _model.eval()
     _loaded_at = time.time()
     log.info('reader model ready')
+
+
+# ONE SCORING AT A TIME (2026-10-21 load test: 20 simulated visitors for three minutes).
+# ThreadingHTTPServer ran every request's model pass at once, each thread with its own
+# activations and all of them on the same cores, and resident memory rose from 2.6 GB to
+# 6.4 GB in two and a half minutes until the 6 GB cap killed the service. Requests now wait
+# for one lock. One that cannot start within READER_WAIT seconds is answered 503 at once,
+# so the site falls back to description order (as it does on any reader failure) instead
+# of the queue growing behind requests whose page has already given up.
+_score_lock = threading.Lock()
+READER_WAIT = float(os.environ.get('READER_WAIT', '10'))
+
+
+class Busy(Exception):
+    pass
+
+
+def score_passages_one_at_a_time(query, passages, wait=None):
+    if not _score_lock.acquire(timeout=READER_WAIT if wait is None else wait):
+        raise Busy()
+    try:
+        return score_passages(query, passages)
+    finally:
+        _score_lock.release()
 
 
 def score_passages(query, passages):
@@ -146,7 +171,11 @@ class Handler(BaseHTTPRequestHandler):
 
         t0 = time.time()
         try:
-            scores = score_passages(query, passages)
+            scores = score_passages_one_at_a_time(query, passages)
+        except Busy:
+            log.info('reader busy: waited %.0f s, answering 503', time.time() - t0)
+            self._send(503, {'error': 'busy'})
+            return
         except Exception as e:                      # never take the service down
             log.exception('scoring failed')
             self._send(500, {'error': f'{type(e).__name__}: {e}'})

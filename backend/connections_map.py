@@ -261,6 +261,8 @@ def reset_process_caches():
     restart. Called by the map routes when a request carries ?refresh=1
     (2026-09-20 -- see the "Refresh map" button)."""
     global _current_ids_cache, _curated_pairs_cache
+    with _answers_lock:
+        _answers.clear()
     _current_ids_cache = None
     _curated_pairs_cache = None
 
@@ -503,7 +505,7 @@ def _rows(conn, languages=None):
         yield row
 
 
-def get_map(view, languages=None, top=DEFAULT_TOP, translations=False):
+def _get_map_uncached(view, languages=None, top=DEFAULT_TOP, translations=False):
     if view not in VIEWS:
         return {'error': f'unknown view {view!r}; choose one of {", ".join(VIEWS)}'}
     conn, stale, meta = _connect_for_request()
@@ -618,7 +620,7 @@ def get_map(view, languages=None, top=DEFAULT_TOP, translations=False):
         conn.close()
 
 
-def get_cell(view, a, b, languages=None, translations=False):
+def _get_cell_uncached(view, a, b, languages=None, translations=False):
     """The work pairs behind one matrix cell, plus (2026-09-19) a
     works x works matrix over the same rows for the UI's "second heatmap":
     clicking an author-by-author cell drills into a grid of that author's
@@ -979,3 +981,51 @@ def meta():
         return _with_stale(out, stale)
     finally:
         conn.close()
+
+
+# ANSWERS KEPT IN MEMORY (2026-10-21 load test: with 20 simulated visitors the map took 11 s
+# at the median and 39 s for one request in ten, against 1 s alone, because each request adds
+# up the stored table again and requests queue in the same web process). An answer depends
+# only on the stored map file and the arguments, so it is kept until that file changes (its
+# path and modification time are part of the key) or ?refresh=1 clears it.
+import threading as _threading  # noqa: E402
+
+_answers = {}
+_answers_lock = _threading.Lock()
+_ANSWERS_MAX = 256
+
+
+def _answer_key(kind, *args):
+    path, _stale = _resolve_path()
+    if path is None:
+        return None
+    try:
+        mtime = os.path.getmtime(path)
+    except OSError:
+        return None
+    return (kind, path, mtime) + tuple(tuple(a) if isinstance(a, list) else a for a in args)
+
+
+def _remembered(key, compute):
+    if key is None:
+        return compute()
+    with _answers_lock:
+        if key in _answers:
+            return _answers[key]
+    out = compute()
+    if isinstance(out, dict) and 'error' not in out:
+        with _answers_lock:
+            if len(_answers) >= _ANSWERS_MAX:
+                _answers.pop(next(iter(_answers)))
+            _answers[key] = out
+    return out
+
+
+def get_map(view, languages=None, top=DEFAULT_TOP, translations=False):
+    key = _answer_key('map', view, sorted(languages or []), top, bool(translations))
+    return _remembered(key, lambda: _get_map_uncached(view, languages=languages, top=top, translations=translations))
+
+
+def get_cell(view, a, b, languages=None, translations=False):
+    key = _answer_key('cell', view, a, b, sorted(languages or []), bool(translations))
+    return _remembered(key, lambda: _get_cell_uncached(view, a, b, languages=languages, translations=translations))
