@@ -648,3 +648,67 @@ RULE = ('THE FACTS ABOVE ARE THE ANSWER FROM ONE OF THE SITE\'S OWN PAGES. Repor
         'narrative and mention passages, documents and articles, and the first narrative passages with '
         'their references. Never mention an entry or event identifier. Use only references and figures that are in the facts, and do not add what the '
         'page would show beyond them. The control beneath your answer opens the page.')
+
+
+# A REPLY TO "WHICH ONE DO YOU MEAN?" (2026-10-21). Asked about the battle of Actium, Tessa
+# lists the two events of that name; the reader's "the one in 31 BCE" was then taken for a
+# phrase and searched in the corpus. A reply naming a year or an order ("31 BCE", "the
+# second", "the earlier one") after that list now opens the event chosen.
+_LISTING = re.compile(r'The Events page has \d+ events called (?P<label>[^:]+): (?P<items>.*?)(?: The first \d+ are listed\.)? Which one do you mean\?', re.S)
+_ITEM = re.compile(r'(?P<label>[^;(]+?) \((?P<date>\d+(?: (?:BCE|CE))?(?: to \d+ (?:BCE|CE))?)')
+_ORDINALS = {'first': 0, 'second': 1, 'third': 2, 'fourth': 3, 'fifth': 4, 'last': -1,
+             'earlier': 'min', 'earliest': 'min', 'later': 'max', 'latest': 'max'}
+
+
+def _signed(n, era):
+    return -n if era in ('BCE', 'BC') else n
+
+
+def _years_of(date_text):
+    out = []
+    for m in re.finditer(r'(\d+) (BCE|CE)', date_text):
+        out.append(_signed(int(m.group(1)), m.group(2)))
+    return out
+
+
+def event_choice(question, history):
+    """{'name', 'label', 'year', 'explicit'} when the question picks one of the events Tessa just listed."""
+    last = next((t.get('text') for t in reversed(history or []) if isinstance(t, dict) and t.get('role') == 'assistant'), '')
+    m = _LISTING.search(str(last or ''))
+    if not m:
+        return None
+    items = []
+    for it in m.group('items').split('; '):
+        mi = _ITEM.match(it.strip())
+        if mi:
+            years = _years_of(mi.group('date'))
+            if years:
+                items.append({'label': mi.group('label').strip(), 'years': years})
+    if not items:
+        return None
+    q = str(question or '').lower()
+    pick = None
+    my = re.search(r'\b(\d{1,4})\s*(bce|bc|b\.c\.|ce|ad|a\.d\.)?(?![\d])', q)
+    if my:
+        n = int(my.group(1))
+        era = (my.group(2) or '').replace('.', '').upper()
+        wanted = _signed(n, 'BCE' if era in ('BCE', 'BC') else 'CE') if era else None
+        for it in items:
+            lo, hi = min(it['years']), max(it['years'])
+            if (wanted is not None and lo <= wanted <= hi) or (wanted is None and n in [abs(y) for y in it['years']]):
+                pick = it
+                break
+    if pick is None:
+        for word, idx in _ORDINALS.items():
+            if re.search(r'\b' + word + r'\b', q):
+                if idx == 'min':
+                    pick = min(items, key=lambda it: min(it['years']))
+                elif idx == 'max':
+                    pick = max(items, key=lambda it: max(it['years']))
+                elif -len(items) <= idx < len(items):
+                    pick = items[idx]
+                break
+    if pick is None:
+        return None
+    return {'name': pick['label'], 'label': pick['label'], 'year': min(pick['years']), 'year_to': max(pick['years']),
+            'explicit': True}

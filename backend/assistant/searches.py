@@ -111,6 +111,14 @@ def _events(a):
                 lst = dict(lst, events=keep, total=len(keep))
         if lst.get('events'):
             break
+    if a.get('year') is not None and len(lst.get('events') or []) > 1:
+        # The reader chose one of several events of this name by its year (three_searches.event_choice).
+        lo, hi = int(a['year']), int(a.get('year_to', a['year']))
+        keep = [e for e in lst['events'] if e.get('date_start') is not None
+                and min(e['date_start'], e.get('date_end') or e['date_start']) <= hi
+                and max(e['date_start'], e.get('date_end') or e['date_start']) >= lo]
+        if keep:
+            lst = dict(lst, events=keep, total=len(keep))
     detail = None
     if len(lst.get('events') or []) == 1:
         detail = _get('/events/' + urllib.parse.quote(str(lst['events'][0]['id'])), {})

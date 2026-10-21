@@ -2151,6 +2151,8 @@ def _offer_comparison(st):
 # verb, so the read intent below never fires for it.
 def _open_text_in_reader(st):
     """A text the reader wants to open goes to the Reader."""
+    if st.three_done:
+        return None
     question, history, ran, all_facts, compare_done, read_done = st.question, st.history, st.ran, st.all_facts, st.compare_done, st.read_done
     followup = None if compare_done else _followup_text(question, history)
 
@@ -2212,6 +2214,18 @@ def _run_three(name, args, step, ran, all_facts, scope_row=None):
     all_facts.append(fact)
     ran.append(name)
     return fact
+
+
+def _answer_a_choice(st):
+    """A reply to Tessa's own "which one do you mean?" after a list of same-named events."""
+    choice = three_searches.event_choice(st.question, st.history)
+    if not choice:
+        return None
+    args = {'name': choice['name'], 'label': choice['label'], 'year': choice['year'], 'year_to': choice['year_to']}
+    _run_three('events', args, st.step, st.ran, st.all_facts)
+    st.three_done = True
+    st.carried = None
+    return None
 
 
 def _three_searches(st):
@@ -2622,6 +2636,7 @@ def _prepare(question, step, history=None, offered_phrase=None):
             _route,
             _guide_shortcut,
             _accept_pending_offer,
+            _answer_a_choice,
             _resolve_subject,
             _seed_holdings,
             _translations_of_one_work,
