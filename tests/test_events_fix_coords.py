@@ -20,14 +20,16 @@ def test_corrected_event_gets_new_point_and_rows_from_every_source(tmp_path):
     c.execute("INSERT INTO events VALUES ('E2','Untouched',-31,-31,38.0,19.0)")
     c.execute("INSERT INTO documents VALUES ('E1','old',-40,-20,'sea',1.0,'x','la',38.0,19.0)")
     c.execute("INSERT INTO documents VALUES ('E2','keep',-40,-20,'sea',1.0,'x','la',38.0,19.0)")
-    c.commit(); c.close()
+    c.commit()
+    c.close()
     m = sqlite3.connect(tmp_path / 'm.db')
     m.execute('CREATE TABLE documents (id TEXT, date_not_before INTEGER, date_not_after INTEGER, ancient_place TEXT, pleiades_id TEXT, '
               'place_tm_id TEXT, text_type_label TEXT, object_type_label TEXT, principal_edition TEXT, languages TEXT)')
     m.executemany("INSERT INTO documents VALUES (?,?,?,?,?,?,'t','o','ed',?)", [
         ('edh:near', -35, -30, 'Actium', '1', None, 'la'), ('aio:tm', -35, -30, 'Nicopolis', None, '7', 'grc'),
         ('edh:wide', -100, 50, 'Actium', '1', None, 'la'), ('edh:far', -35, -30, 'Rome', '2', None, 'la')])
-    m.commit(); m.close()
+    m.commit()
+    m.close()
     (tmp_path / 'p.tsv').write_text('pleiades_id\tlat\tlon\ttitle\n1\t38.95\t20.76\tA\n2\t41.9\t12.5\tR\n3\t39.0\t20.7\tN\n')
     (tmp_path / 'cw.tsv').write_text('tm_place_id\tpleiades_id\tsource\tlabel\n7\t3\tx\tN\n')
     (tmp_path / 'c.json').write_text(json.dumps({'use_wikidata': {'E1': {'from': [38.0, 19.0], 'to': [38.95, 20.76]}}}))

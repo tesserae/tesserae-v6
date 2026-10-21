@@ -68,8 +68,8 @@ def main(argv=None):
     common = ex.common_forms(None, cache_path=a.common_forms_json)
     excluded = {lg: formulas[lg] | common[lg] for lg in ('la', 'grc')}
     candidates = []
-    counts = ex.build_document_mentions(a.out, a.documents_dir, log=print, excluded_forms=excluded,
-                                        doc_prefix=a.prefix, rows_out=candidates)
+    ex.build_document_mentions(a.out, a.documents_dir, log=print, excluded_forms=excluded,
+                               doc_prefix=a.prefix, rows_out=candidates)
     cand_pairs = {(r[1], r[0]) for r in candidates}
 
     ents = ex._load_entities(db)

@@ -236,7 +236,7 @@ class AtticMatcher:
     # ---- one occurrence against the rules
     def _rule_for(self, e, kind, adj, ws, i, ctx):
         surface, f, _line = ws[i]
-        typ, src = e['type'], e['source']
+        typ = e['type']
         if typ == 'name':
             return 'name_entity'
         if is_month(f):
