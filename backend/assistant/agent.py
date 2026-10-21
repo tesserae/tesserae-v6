@@ -2217,9 +2217,16 @@ def _run_three(name, args, step, ran, all_facts, scope_row=None):
 
 
 def _answer_a_choice(st):
-    """A reply to Tessa's own "which one do you mean?" after a list of same-named events."""
+    """A reply to Tessa's own "which one do you mean?" after a list of same-named events or entries."""
     choice = three_searches.event_choice(st.question, st.history)
     if not choice:
+        entry = three_searches.entry_choice(st.question, st.history)
+        if not entry:
+            return None
+        _run_three('people_places', {'name': entry['name'], 'pick_index': entry['pick_index']},
+                   st.step, st.ran, st.all_facts)
+        st.three_done = True
+        st.carried = None
         return None
     args = {'name': choice['name'], 'label': choice['label'], 'year': choice['year'], 'year_to': choice['year_to']}
     _run_three('events', args, st.step, st.ran, st.all_facts)
