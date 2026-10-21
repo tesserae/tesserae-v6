@@ -261,6 +261,34 @@ def _continue_body(system, user, partial, max_tokens, temperature, model=None):
     return json.dumps(body).encode()
 
 
+_SENTENCE_END = re.compile(r'[.!?…)"”»*]\s*$')
+
+
+def _finish_sentence(system, user, partial, temperature, model):
+    """Up to 80 more tokens, yielded only up to the first sentence end."""
+    body = _continue_body(system, user, partial, 80, temperature, model=model)
+    req = urllib.request.Request(f'{ENDPOINT}/v1/chat/completions', data=body, headers=_headers())
+    try:
+        with _open(req, _GEN_TIMEOUT) as resp:
+            for raw in resp:
+                line = raw.decode('utf-8', 'replace').strip()
+                if not line.startswith('data:') or line[5:].strip() == '[DONE]':
+                    continue
+                try:
+                    piece = (json.loads(line[5:].strip())['choices'][0].get('delta') or {}).get('content')
+                except (ValueError, KeyError, IndexError):
+                    continue
+                if not piece:
+                    continue
+                m = re.search(r'[.!?…](?=\s|$)', piece)
+                if m:
+                    yield piece[:m.end()]
+                    return
+                yield piece
+    except (urllib.error.URLError, OSError) as e:
+        logger.warning('[ASSISTANT] finishing a capped sentence failed: %s', e)
+
+
 # A STREAM THAT STOPS PART WAY IS CONTINUED (2026-10-21). "what kinds of resources do you
 # have?" ended mid-sentence ("including poetry, prose, and epistolary") while the gateway was
 # failing for another model, and the broken stream was taken for a finished answer: the loop
@@ -315,8 +343,15 @@ def stream(system, user, max_tokens=MAX_TOKENS_GUIDE, temperature=0.2):
         except (urllib.error.URLError, OSError) as e:
             failed = str(e)[:80]
             logger.warning('[ASSISTANT] streaming failed on %s after %d characters: %s', model, len(''.join(sent)), e)
-        if finish in ('stop', 'length'):
+        if finish == 'stop':
             _mark_up(model)
+            return
+        if finish == 'length':
+            _mark_up(model)
+            # CUT BY ITS CAP MID-SENTENCE: finish the sentence and stop there (2026-10-21).
+            partial = ''.join(sent)
+            if partial and not _SENTENCE_END.search(partial):
+                yield from _finish_sentence(system, user, partial, temperature, model)
             return
         logger.warning('[ASSISTANT] stream on %s ended without finishing (finish_reason %r) after %d characters, '
                        'attempt %d', model, finish, len(''.join(sent)), attempt + 1)
