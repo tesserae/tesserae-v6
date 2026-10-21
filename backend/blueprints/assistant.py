@@ -247,7 +247,12 @@ def ask_stream():
         remembered = [q for q in (session.get('tessa_qs') or []) if isinstance(q, str)]
     except Exception:
         remembered = []
-    if not history and remembered:
+    # Only for a page that sends no conversation at all (an old cached bundle). A
+    # page that sends an empty one has none, after Clear or in a fresh panel, and
+    # filling it from the cookie answered "how does the theme search work?" the
+    # next morning with a theme comparison of Lucretius and Ovid, the subject of
+    # the day before (2026-10-21).
+    if 'history' not in data and remembered:
         history = [{'role': 'user', 'text': q} for q in remembered]
     if question:
         try:

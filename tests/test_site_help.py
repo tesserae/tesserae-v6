@@ -178,3 +178,7 @@ def test_the_new_help_answers_are_found():
     assert 'National Endowment' in ' '.join(site_help.sections_for('How is Tesserae funded?'))
     assert 'Romans' in ' '.join(site_help.sections_for('Why are Rome and the Romans listed separately?'))
     assert 'modern Perugia' in ' '.join(site_help.sections_for('Why does an event heading give two names?'))
+
+
+def test_inline_code_letters_stay_in_the_coptic_keyboard_table():
+    assert any('j = djandja' in c for c in site_help._load())
