@@ -11,9 +11,10 @@ transcribed accurately, and attested in at least one named Pleiades period whose
 the years of the event. The year ranges come from the Pleiades time-periods vocabulary
 (https://pleiades.stoa.org/vocabularies/time-periods, for example hellenistic-republican -330 to -30 and
 roman -30 to 300). A name with no attested period does not qualify, because nothing dates it.
-Among the qualifying names the one attested in the narrowest overlapping period wins, then one that
-matches the place's Pleiades title, then one whose language is Latin, Greek or English, then the first
-listed. A Pleiades name is a list of romanized variants, and the first variant is used with its
+Only names whose language is Latin, Ancient Greek (romanized) or English qualify, and only if the
+romanized form is in Latin letters. Among the qualifying names Latin comes first, then English, then
+Greek, and within one language the one attested in the narrowest overlapping period wins, then one that
+matches the place's Pleiades title, then the first listed. A Pleiades name is a list of romanized variants, and the first variant is used with its
 diacritics removed. Where English has a standard form of the same ancient name (Syracusae, Syracuse),
 ENGLISH_FORMS gives it. The Latin or Greek form stays when English uses it as it stands (Actium,
 Brundisium). The column stays empty when no name qualifies.
@@ -51,7 +52,9 @@ ENGLISH_FORMS = {
     'hellas': 'Greece', 'italia': 'Italy', 'sikelia': 'Sicily', 'sicilia': 'Sicily', 'gallia': 'Gaul',
     'hispania': 'Hispania', 'britannia': 'Britain', 'germania': 'Germany',
 }
-GOOD_LANGS = {'la', 'grc', 'en'}
+# Only these languages qualify, in the order of preference (English scholarship uses the Latin form of
+# most ancient places: Tarentum, Pherae, Caesarea, Syrian Gates).
+LANG_RANK = {'la': 0, 'en': 1, 'grc': 2}
 
 
 def ascii_fold(s):
@@ -62,6 +65,10 @@ def ascii_fold(s):
 def first_variant(romanized):
     first = (romanized or '').split(',')[0].strip()
     return ascii_fold(first)
+
+
+def latin_letters(form):
+    return bool(form) and all(c.isascii() for c in form) and any(c.isalpha() for c in form)
 
 
 def overlaps(a0, a1, b0, b1):
@@ -93,10 +100,12 @@ def candidates(place, periods, y0, y1):
         if not hit:
             continue
         span = min(h[0] for h in hit)
-        lang_rank = 0 if n.get('language') in GOOD_LANGS else 1
+        lang_rank = LANG_RANK.get(n.get('language'))
+        if lang_rank is None or not latin_letters(form):
+            continue
         variants = {ascii_fold(v).lower() for v in (n.get('romanized') or '').split(',')}
         title_rank = 0 if variants & tforms else 1
-        out.append(((span, title_rank, lang_rank, order), form, sorted(h[1] for h in hit), n.get('language') or ''))
+        out.append(((lang_rank, span, title_rank, order), form, sorted(h[1] for h in hit), n.get('language') or ''))
     out.sort(key=lambda c: c[0])
     return out
 

@@ -78,7 +78,7 @@ def test_an_empty_ancient_name_is_returned_as_none(db, client_for):
 # ---- choosing the name -----------------------------------------------------
 
 PERIODS = {'classical': [-550, -330], 'hellenistic-republican': [-330, -30], 'roman': [-30, 300],
-           'late-antique': [300, 640], 'modern': [1700, 2100], 'archaic': [-750, -550]}
+           'late-antique': [300, 640], 'modern': [1700, 2100], 'archaic': [-750, -550], 'long': [-1000, 1000]}
 
 
 def name(romanized, periods, lang='la', typ='geographic', acc='accurate'):
@@ -105,10 +105,33 @@ def test_no_name_qualifies_when_nothing_is_attested_in_the_period_or_names_are_u
 
 def test_the_narrowest_period_then_the_pleiades_title_decide():
     place = {'title': 'Roma/Rome', 'names': [name('Urbs', ['archaic', 'classical', 'hellenistic-republican', 'roman']),
-                                             name('Valentia', ['roman'], 'xx'), name('Roma', ['roman'])]}
+                                             name('Valentia', ['roman']), name('Roma', ['roman'])]}
     # Valentia and Roma tie on period, and Roma matches the title
     assert A.choose(place, PERIODS, 50, 50)[0] == 'Rome'
     assert A.choose(place, PERIODS, -400, -400)[0] == 'Urbs'
+
+
+def test_latin_beats_english_beats_greek_whatever_the_period_and_other_languages_never_qualify():
+    greek_narrow = name('Taras', ['hellenistic-republican'], 'grc')
+    latin_wide = name('Tarentum', ['archaic', 'classical', 'hellenistic-republican', 'roman'], 'la')
+    english = name('Tarantum', ['hellenistic-republican'], 'en')
+    place = {'title': 'Tarentum/Taras', 'names': [greek_narrow, latin_wide]}
+    assert A.choose(place, PERIODS, -212, -212)[0] == 'Tarentum'
+    place = {'title': 'T', 'names': [greek_narrow, english]}
+    assert A.choose(place, PERIODS, -212, -212)[0] == 'Tarantum'
+    place = {'title': 'T', 'names': [greek_narrow]}
+    assert A.choose(place, PERIODS, -212, -212)[0] == 'Taras'
+    # Latin out of period falls back to the Greek name attested in it
+    place = {'title': 'T', 'names': [name('Tarentum', ['roman']), greek_narrow]}
+    assert A.choose(place, PERIODS, -212, -212)[0] == 'Taras'
+    # other languages and scripts, and names with no language, are never used
+    place = {'title': 'H', 'names': [name('hmt', ['classical'], 'egy'), name('Arahtu', ['classical'], 'akk'),
+                                     name('Nameless', ['classical'], ''), name('Ἀραδος', ['classical'], 'grc'),
+                                     name('Hama', ['classical'], 'arb')]}
+    assert A.choose(place, PERIODS, -500, -500) is None
+    # within one language the narrowest period decides
+    place = {'title': 'X', 'names': [name('Wide', ['long']), name('Narrow', ['classical'])]}
+    assert A.choose(place, PERIODS, -500, -500)[0] == 'Narrow'
 
 
 def test_standard_english_forms_replace_latin_and_greek_ones_only_where_listed():
