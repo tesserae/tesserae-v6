@@ -3,6 +3,7 @@ import { LoadingSpinner } from '../common';
 import { YearBox } from '../coins/CoinList';
 import ObjectCard from './ObjectCard';
 import { signedYear, MUSEUM_NAMES } from './objectsFormat';
+import { searchFromUrl } from '../coins/coinsFormat';
 import ScopeBox from '../common/ScopeBox';
 
 const PER_PAGE = 24;
@@ -15,14 +16,16 @@ const FILTERS = [
 
 /** The Objects page: every object, searched over title, description, label and inscription, and filtered. */
 export default function ObjectList({ openObject }) {
-  const [typed, setTyped] = useState('');
-  const [q, setQ] = useState('');
+  // A link from Tessa carries the search (?q=, ?date_from=, ?date_to=).
+  const [fromUrl] = useState(() => searchFromUrl());
+  const [typed, setTyped] = useState(fromUrl.q);
+  const [q, setQ] = useState(fromUrl.q);
   const [sel, setSel] = useState({});
-  const [fromText, setFromText] = useState('');
-  const [fromEra, setFromEra] = useState('BCE');
-  const [toText, setToText] = useState('');
-  const [toEra, setToEra] = useState('CE');
-  const [dates, setDates] = useState({});
+  const [fromText, setFromText] = useState(fromUrl.from != null ? String(Math.abs(fromUrl.from)) : '');
+  const [fromEra, setFromEra] = useState(fromUrl.from != null && fromUrl.from > 0 ? 'CE' : 'BCE');
+  const [toText, setToText] = useState(fromUrl.to != null ? String(Math.abs(fromUrl.to)) : '');
+  const [toEra, setToEra] = useState(fromUrl.to != null && fromUrl.to < 0 ? 'BCE' : 'CE');
+  const [dates, setDates] = useState({ from: fromUrl.from, to: fromUrl.to });
   const [sort, setSort] = useState('');
   const [page, setPage] = useState(1);
   const [data, setData] = useState(null);

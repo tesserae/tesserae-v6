@@ -34,7 +34,10 @@ _BASE_TOOLS = """The searches Tesserae offers:
 - rare_pairs: rare two-word combinations shared by two texts. The sharpest evidence of direct reuse.
 - cross_language: parallels between texts in DIFFERENT languages (Greek-Latin, Hebrew-Greek, Latin-English and others).
 - people_places (the People & Places page): look up a person, place or god by name and report the lines and works that name it. Best for "where is Sarpedon mentioned?" or "which works name Perusia?".
-- events (the Events page): look up a battle, siege, treaty or campaign by name and report its date, place, passages, documents and articles. Best for "what do ancient sources say about the battle of Actium?"."""
+- events (the Events page): look up a battle, siege, treaty or campaign by name and report its date, place, passages, documents and articles. Best for "what do ancient sources say about the battle of Actium?".
+- documents_search (the Inscriptions & Papyri page): find inscriptions and papyri by their own Latin or Greek words, with their edition, date, findspot and matching line. Best for "find inscriptions that mention Augustus" or "papyri about grain from Oxyrhynchus".
+- coins_search (the Coins page): find Greek and Roman coin types by legend or by what the catalogue says each side shows, with legend, mint and date. Best for "coins of Hadrian with Felicitas".
+- objects_search (the Objects page): find Greek, Roman and Etruscan museum objects by the museums' own descriptions, with museum, date and title. Best for "museum objects showing Medusa"."""
 
 
 def _passages_available():

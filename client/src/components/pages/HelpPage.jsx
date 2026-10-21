@@ -1777,6 +1777,21 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   link opens the event. Where several events share a name, such as the two Battles of
                   Actium, she lists them with their dates and asks which you mean.
                 </li>
+                <li>
+                  Search the <strong>Inscriptions &amp; Papyri</strong> (&ldquo;find inscriptions that mention
+                  Augustus&rdquo;, &ldquo;are there papyri about grain from Oxyrhynchus?&rdquo;). She gives how
+                  many documents match and a few with their edition written out, date, findspot and the
+                  matching line. The documents are searched by their own Latin or Greek words, so she says which
+                  words she searched when she has put your English into them. A link opens the page with the
+                  search filled in.
+                </li>
+                <li>
+                  Search the <strong>Coins</strong> (&ldquo;coins of Hadrian with Felicitas&rdquo;, &ldquo;coin
+                  types showing an elephant&rdquo;) and the <strong>Objects</strong> (&ldquo;museum objects
+                  showing Medusa&rdquo;, &ldquo;Etruscan mirrors&rdquo;). She gives the count and a few coin types
+                  with legend, mint and date, or objects with museum, date and title, and a link opens the page
+                  with the search filled in.
+                </li>
                 <li>Follow up. Ask &ldquo;what about Eobanus?&rdquo; and she keeps the thread.</li>
               </ul>
 

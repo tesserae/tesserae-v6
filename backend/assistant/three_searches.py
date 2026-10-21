@@ -29,7 +29,9 @@ logger = get_logger('assistant.three_searches')
 ONE_TEXT = 'one_text_search'
 PEOPLE_PLACES = 'people_places'
 EVENTS = 'events'
-NAMES = (ONE_TEXT, PEOPLE_PLACES, EVENTS)
+# The three collection searches (collections_searches.py): Inscriptions & Papyri, Coins, Objects.
+COLLECTION_NAMES = ('documents_search', 'coins_search', 'objects_search')
+NAMES = (ONE_TEXT, PEOPLE_PLACES, EVENTS) + COLLECTION_NAMES
 
 # Kinds of fact that carry something for the model to write from. The others
 # (nothing found, several matches, an author with several works) are answered
@@ -38,6 +40,7 @@ NAMES = (ONE_TEXT, PEOPLE_PLACES, EVENTS)
 KIND_ONE_TEXT = 'ONE TEXT SEARCH, run on the Search One Text request.'
 KIND_PLACES = 'PEOPLE & PLACES ENTRY, read from the People & Places page.'
 KIND_EVENT = 'AN EVENT, read from the Events page.'
+KIND_COLLECTION = 'RESULTS OF A COLLECTION SEARCH, read from the site\'s own page.'
 KIND_NONE = 'NOTHING FOUND by a search of the site.'
 KIND_SEVERAL = 'SEVERAL MATCHES for the name asked about.'
 
@@ -65,7 +68,7 @@ def is_new_fact(fact):
 
 def model_writes(facts):
     """True when one of these facts is for the model to write from."""
-    return any(f.get('search') in NAMES and f.get('kind') in (KIND_ONE_TEXT, KIND_PLACES, KIND_EVENT)
+    return any(f.get('search') in NAMES and f.get('kind') in (KIND_ONE_TEXT, KIND_PLACES, KIND_EVENT, KIND_COLLECTION)
                for f in facts or [])
 
 
@@ -598,6 +601,9 @@ def _join(items):
 def code_sentence(fact):
     """The whole answer for a fact of kind NOTHING FOUND or SEVERAL MATCHES."""
     which = fact.get('search')
+    if which in COLLECTION_NAMES:
+        from backend.assistant import collections_searches
+        return collections_searches.code_sentence(fact)
     if fact.get('kind') == KIND_NONE:
         if which == ONE_TEXT:
             return (f"Search One Text found no passages in this work about \u201c{fact['args'].get('query')}\u201d. "
@@ -649,7 +655,12 @@ RULE = ('THE FACTS ABOVE ARE THE ANSWER FROM ONE OF THE SITE\'S OWN PAGES. Repor
         'came back. People & Places: give the entry\'s heading, how many lines and works name it, and the works '
         'with the most lines, each written as "work: N lines". Events: give the date and place, how many '
         'narrative and mention passages, documents and articles, and the first narrative passages with '
-        'their references. Never mention an entry or event identifier. Use only references and figures that are in the facts, and do not add what the '
+        'their references. Inscriptions & Papyri, Coins and Objects: say how many were found (documents_found, '
+        'coin_types_found or objects_found) and the words searched. Only when the facts hold asked_as, say that '
+        'the documents are searched by their own Latin or Greek words and give both asked_as and the words '
+        'searched. Then every example listed, '
+        'one per line, reference first and then the date, place or mint and what the line, legend or description '
+        'says, and say that only these are listed. Never mention an entry or event identifier. Use only references and figures that are in the facts, and do not add what the '
         'page would show beyond them. The control beneath your answer opens the page.')
 
 

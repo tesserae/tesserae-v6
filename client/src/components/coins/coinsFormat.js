@@ -14,6 +14,24 @@ export function signedYear(text, era) {
   return era === 'BCE' ? -n : n;
 }
 
+/**
+ * The search a link carries: ?q=words, ?date_from= and ?date_to= as signed years (negative for BCE), and the
+ * Coins page's own filters (?mint=, ?denomination=, ?authority=, ?material=, ?person=).
+ * Tessa's answers about coins and objects open the page this way, with the search already filled in.
+ */
+const URL_FILTERS = ['authority', 'mint', 'denomination', 'material', 'person'];
+
+export function searchFromUrl(search = window.location.search) {
+  const p = new URLSearchParams(search);
+  const year = (k) => {
+    const n = parseInt(p.get(k), 10);
+    return Number.isNaN(n) || n === 0 ? null : n;
+  };
+  const filters = {};
+  URL_FILTERS.forEach((k) => { if (p.get(k)) filters[k] = p.get(k); });
+  return { q: (p.get('q') || '').trim(), from: year('date_from'), to: year('date_to'), filters };
+}
+
 /** The title shown on a card: the catalogue reference, else the identifier. */
 export function coinTitle(c) {
   return c.title || c.id;

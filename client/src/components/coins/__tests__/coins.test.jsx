@@ -8,7 +8,7 @@ import userEvent from '@testing-library/user-event';
 
 import CoinsPage from '../CoinsPage';
 import CoinList from '../CoinList';
-import { coinDate, signedYear, coinHeading, catalogueLine, creditLine } from '../coinsFormat';
+import { coinDate, signedYear, coinHeading, catalogueLine, creditLine, searchFromUrl } from '../coinsFormat';
 import { PROFILES, PAGE_NEEDS, profileSwitches } from '../../../collections/collectionsConfig';
 import { setProfile } from '../../../collections/collectionsStore';
 
@@ -75,6 +75,26 @@ describe('collections wiring', () => {
     expect(signedYear('44', 'BCE')).toBe(-44);
     expect(signedYear('14', 'CE')).toBe(14);
     expect(signedYear('', 'CE')).toBeNull();
+  });
+});
+
+describe('a link from Tessa', () => {
+  it('reads the search and the years from the address', () => {
+    expect(searchFromUrl('?q=elephant&date_from=-200&date_to=14')).toEqual({ q: 'elephant', from: -200, to: 14, filters: {} });
+    expect(searchFromUrl('')).toEqual({ q: '', from: null, to: null, filters: {} });
+    expect(searchFromUrl('?q=%20Hadrian%20Felicitas%20&date_from=0')).toEqual({ q: 'Hadrian Felicitas', from: null, to: null, filters: {} });
+    expect(searchFromUrl('?mint=Rome&denomination=Denarius&person=Hadrian&bogus=1').filters)
+      .toEqual({ mint: 'Rome', denomination: 'Denarius', person: 'Hadrian' });
+  });
+  it('opens the list with the search filled in and sent', async () => {
+    window.history.replaceState({}, '', '/coins?q=Hadrian+Felicitas&date_from=117&date_to=138&mint=Rome&denomination=Denarius');
+    const calls = mockApi();
+    render(<CoinList openCoin={() => {}} />);
+    await screen.findByText('RRC 1/1');
+    expect(screen.getByLabelText(/Search legends/).value).toBe('Hadrian Felicitas');
+    expect(screen.getByLabelText('From').value).toBe('117');
+    expect(screen.getByLabelText('From era').value).toBe('CE');
+    expect(calls.some((c) => c.includes('q=Hadrian+Felicitas') && c.includes('date_from=117') && c.includes('date_to=138') && c.includes('mint=Rome') && c.includes('denomination=Denarius'))).toBe(true);
   });
 });
 
