@@ -7,6 +7,19 @@ export function yearLabel(y) {
   return y < 0 ? `${-y} BCE` : `${y} CE`;
 }
 
+const fold = (t) => String(t || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().toLowerCase();
+
+/**
+ * The place as the page names it. Where the place had another name in the time of
+ * the event, "Perusia (modern Perugia)"; the place alone when the two are the same
+ * or no ancient name is recorded.
+ */
+export function placeLabel(place, ancient) {
+  if (!ancient) return place || '';
+  if (!place || fold(place) === fold(ancient)) return ancient || place;
+  return `${ancient} (modern ${place})`;
+}
+
 export function dateLabel(start, end) {
   if (start === null || start === undefined) return '';
   if (end === null || end === undefined || end === start) return yearLabel(start);

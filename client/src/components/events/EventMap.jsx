@@ -48,7 +48,7 @@ function popupNode(p) {
  * Leaflet bundled from npm), above a table of the same coordinates, each with a
  * link to OpenStreetMap.
  */
-export default function EventMap({ points }) {
+export default function EventMap({ points, approximatePlace = null }) {
   const holder = useRef(null);
   const [tilesFailed, setTilesFailed] = useState(false);
   const has = !!points && points.length > 0;
@@ -110,6 +110,11 @@ export default function EventMap({ points }) {
         </span>
         <span>Click the map to zoom with the scroll wheel.</span>
       </p>
+      {approximatePlace && (
+        <p className="text-xs text-gray-600 mt-1" data-testid="event-map-approximate">
+          The event is placed at the center of {approximatePlace}, so the distances are approximate.
+        </p>
+      )}
       {!hasFindspots && (
         <p className="text-xs text-gray-500 mt-1">No document findspots to show for this event.</p>
       )}

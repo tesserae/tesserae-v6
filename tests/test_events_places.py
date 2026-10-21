@@ -1,0 +1,203 @@
+"""The ancient name of an event's place and the approximate-location flag: the route (backend/blueprints/events.py)
+and the scripts that make them (scripts/events/add_place_ancient.py, classify_event_points.py). Fixtures only."""
+import json
+import os
+import sqlite3
+import subprocess
+import sys
+
+import pytest
+
+
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+FIX = os.path.join(ROOT, 'tests', 'fixtures', 'events')
+sys.path.insert(0, os.path.join(ROOT, 'scripts', 'events'))
+
+import add_place_ancient as A  # noqa: E402
+import classify_event_points as C  # noqa: E402
+import fetch_pleiades_names as FP  # noqa: E402
+
+
+@pytest.fixture
+def db(tmp_path):
+    out = str(tmp_path / 'dossiers.sqlite')
+    subprocess.run([sys.executable, os.path.join(ROOT, 'scripts', 'events', 'load_dossiers_sqlite.py'),
+                    '--dossiers', FIX, '--out', out], check=True)
+    return out
+
+
+@pytest.fixture
+def client_for(monkeypatch):
+    def make(path):
+        monkeypatch.setenv('TESSERAE_EVENTS_DB', path)
+        from backend.app import app
+        app.config['TESTING'] = True
+        return app.test_client()
+    return make
+
+
+def first_event(path):
+    return sqlite3.connect(path).execute('SELECT id FROM events ORDER BY id LIMIT 1').fetchone()[0]
+
+
+# ---- the route -------------------------------------------------------------
+
+def test_a_store_before_the_columns_answers_with_no_ancient_name_and_an_exact_point(db, client_for):
+    cl = client_for(db)
+    ev = cl.get('/api/events/' + first_event(db)).get_json()['event']
+    assert ev['place_ancient'] is None and ev['location_approximate'] is False
+    row = cl.get('/api/events?sort=date&show=all').get_json()['events'][0]
+    assert row['place_ancient'] is None
+
+
+def test_the_ancient_name_and_the_approximate_flag_are_returned(db, client_for):
+    c = sqlite3.connect(db)
+    c.execute('ALTER TABLE events ADD COLUMN place_ancient TEXT')
+    c.execute('ALTER TABLE events ADD COLUMN location_approximate INTEGER')
+    eid = first_event(db)
+    c.execute("UPDATE events SET place_ancient = 'Perusia', place = 'Perugia', lat = 43.1, lon = 12.4, "
+              "location_approximate = 1 WHERE id = ?", (eid,))
+    c.commit()
+    c.close()
+    body = client_for(db).get('/api/events/' + eid).get_json()
+    assert body['event']['place_ancient'] == 'Perusia' and body['event']['place'] == 'Perugia'
+    assert body['event']['location_approximate'] is True
+    assert [p for p in body['map'] if p['kind'] == 'event'][0]['approximate'] is True
+
+
+def test_an_empty_ancient_name_is_returned_as_none(db, client_for):
+    c = sqlite3.connect(db)
+    c.execute('ALTER TABLE events ADD COLUMN place_ancient TEXT')
+    eid = first_event(db)
+    c.execute("UPDATE events SET place_ancient = '' WHERE id = ?", (eid,))
+    c.commit()
+    c.close()
+    assert client_for(db).get('/api/events/' + eid).get_json()['event']['place_ancient'] is None
+
+
+# ---- choosing the name -----------------------------------------------------
+
+PERIODS = {'classical': [-550, -330], 'hellenistic-republican': [-330, -30], 'roman': [-30, 300],
+           'late-antique': [300, 640], 'modern': [1700, 2100], 'archaic': [-750, -550]}
+
+
+def name(romanized, periods, lang='la', typ='geographic', acc='accurate'):
+    return {'romanized': romanized, 'language': lang, 'nameType': typ, 'transcriptionAccuracy': acc,
+            'attestations': [{'timePeriod': p} for p in periods]}
+
+
+def test_the_name_attested_in_the_events_period_is_chosen_and_diacritics_dropped():
+    place = {'title': 'Perusia', 'names': [name('Perugia', ['modern'], 'it'),
+                                           name('Perusia, Perusium', ['hellenistic-republican', 'roman']),
+                                           name('Peroúsia', ['classical'], 'grc')]}
+    assert A.choose(place, PERIODS, -41, -40)[0] == 'Perusia'
+    assert A.choose(place, PERIODS, -500, -500)[0] == 'Perousia'
+    place['names'][1]['romanized'] = 'Perūsia'
+    assert A.choose(place, PERIODS, -41, -41)[0] == 'Perusia'
+
+
+def test_no_name_qualifies_when_nothing_is_attested_in_the_period_or_names_are_undated():
+    place = {'title': 'X', 'names': [name('Ixion', []), name('Modernia', ['modern'], 'en'),
+                                     name('Wrong', ['roman'], acc='inaccurate'), name('Tribe', ['roman'], typ='ethnic')]}
+    assert A.choose(place, PERIODS, -41, -41) is None
+    assert A.choose(place, PERIODS, 100, 100) is None
+
+
+def test_the_narrowest_period_then_the_pleiades_title_decide():
+    place = {'title': 'Roma/Rome', 'names': [name('Urbs', ['archaic', 'classical', 'hellenistic-republican', 'roman']),
+                                             name('Valentia', ['roman'], 'xx'), name('Roma', ['roman'])]}
+    # Valentia and Roma tie on period, and Roma matches the title
+    assert A.choose(place, PERIODS, 50, 50)[0] == 'Rome'
+    assert A.choose(place, PERIODS, -400, -400)[0] == 'Urbs'
+
+
+def test_standard_english_forms_replace_latin_and_greek_ones_only_where_listed():
+    place = {'title': 'Syracusae', 'names': [name('Syracusae', ['hellenistic-republican'])]}
+    assert A.choose(place, PERIODS, -212, -212)[0] == 'Syracuse'
+    place = {'title': 'Actium', 'names': [name('Actium', ['hellenistic-republican'])]}
+    assert A.choose(place, PERIODS, -31, -31)[0] == 'Actium'
+    place = {'title': 'Brundisium', 'names': [name('Brundisium', ['roman'])]}
+    assert A.choose(place, PERIODS, 100, 100)[0] == 'Brundisium'
+
+
+def test_the_period_vocabulary_is_read_from_the_page():
+    html = ('<a href="time-periods/roman">Roman (30 BC-AD 300)\n (30 BC - AD 300)</a><br/>'
+            '<span>The Roman period. [[-30, 300]]</span></p>'
+            '<a href="time-periods/archaic">Archaic</a><br/><span>x [[-750,-550]]</span></p>')
+    assert FP.parse_periods(html) == {'roman': [-30, 300], 'archaic': [-750, -550]}
+
+
+def test_the_script_writes_a_copy_with_the_column_and_leaves_the_input_alone(tmp_path):
+    src = str(tmp_path / 'in.sqlite')
+    c = sqlite3.connect(src)
+    c.execute('CREATE TABLE events (id TEXT, label TEXT, date_start INTEGER, date_end INTEGER, place TEXT, pleiades_id TEXT)')
+    c.execute("INSERT INTO events VALUES ('E1', 'Siege of Perusia', -41, -40, 'Perugia', '11')")
+    c.execute("INSERT INTO events VALUES ('E2', 'Nowhere', 1000, 1000, 'Somewhere', '12')")
+    c.execute("INSERT INTO events VALUES ('E3', 'No id', -41, -40, 'Elsewhere', NULL)")
+    c.commit()
+    c.close()
+    raw = tmp_path / 'raw'
+    (raw / 'places').mkdir(parents=True)
+    (raw / 'periods.json').write_text(json.dumps(PERIODS))
+    (raw / 'places' / '11.json').write_text(json.dumps({'title': 'Perusia', 'names': [name('Perusia', ['hellenistic-republican'])]}))
+    (raw / 'places' / '12.json').write_text(json.dumps({'title': 'Z', 'names': [name('Zed', ['classical'])]}))
+    out = str(tmp_path / 'out.sqlite')
+    assert A.main([src, out, str(raw), '--apply']) == 0
+    got = dict(sqlite3.connect(out).execute('SELECT id, place_ancient FROM events'))
+    assert got == {'E1': 'Perusia', 'E2': None, 'E3': None}
+    assert 'place_ancient' not in [r[1] for r in sqlite3.connect(src).execute('PRAGMA table_info(events)')]
+
+
+# ---- classifying the stored point --------------------------------------------
+
+def test_class_labels_read_as_site_or_region():
+    assert C.kind_of_classes(['city', 'port']) == 'site'
+    assert C.kind_of_classes(['Roman province']) == 'region'
+    assert C.kind_of_classes(['river']) == 'region'
+    assert C.kind_of_classes(['mountain']) == 'site'
+    assert C.kind_of_classes(['ancient city', 'historical region']) == 'site'
+    assert C.kind_of_classes(['mountain range']) == 'region'
+    assert C.kind_of_classes(['thing']) is None
+
+
+def test_pleiades_titles_mark_regions_by_the_type_in_parentheses():
+    assert C.title_is_region('Lydia/Maionia (region)') and C.title_is_region('Euphrates (river)')
+    assert not C.title_is_region('Perusia') and not C.title_is_region('Roman amphitheater at Cumae')
+
+
+def test_a_point_at_a_region_center_is_class_b_at_a_site_class_a_and_alone_class_c():
+    here = (36.0, 40.0)
+    region = [('Q1', 'Mesopotamia', (36.0, 40.0), 'region')]
+    site = [('Q2', 'Edessa', (36.001, 40.0), 'site')]
+    assert C.classify(here, region, None, None, [])[0] == 'b'
+    assert C.classify(here, site, None, None, [])[0] == 'a'
+    assert C.classify(here, [('Q3', 'Far', (37.0, 41.0), 'region')], None, None, [])[0] == 'c'
+    assert C.classify(here, [], ((36.0, 40.0), ['river'], None), None, [])[0] == 'b'
+    assert C.classify(here, [], ((36.0, 40.0), ['settlement'], None), None, [])[0] == 'a'
+    assert C.classify(here, [], None, None, [((36.0, 40.0), True, 'X (region)')])[0] == 'b'
+    # region and site both within a kilometer: the region wins, the point is a center
+    assert C.classify(here, region + site, None, None, [])[0] == 'b'
+
+
+def test_a_wikipedia_point_must_lie_in_or_beside_the_region():
+    stored = (36.0, 40.0)
+    box = [38.0, 35.0, 42.0, 37.0]  # west, south, east, north
+    assert C.in_or_beside((36.5, 41.0), stored, box)
+    assert C.in_or_beside((37.9, 42.9), stored, box)          # one degree beside the box
+    assert not C.in_or_beside((50.0, 10.0), stored, box)
+    assert C.in_or_beside((37.0, 41.0), stored, None)
+    assert not C.in_or_beside((50.0, 10.0), stored, None)
+
+
+def test_the_wikipedia_coordinates_follow_redirects_and_normalization(tmp_path):
+    p = tmp_path / 'wikipedia_1.json'
+    p.write_text(json.dumps({'query': {
+        'normalized': [{'from': 'battle of x', 'to': 'Battle of X'}],
+        'redirects': [{'from': 'Siege of Y', 'to': 'Y campaign'}],
+        'pages': [{'title': 'Battle of X', 'coordinates': [{'lat': 1.5, 'lon': 2.5, 'primary': True, 'globe': 'earth'}]},
+                  {'title': 'Y campaign', 'coordinates': [{'lat': 3.0, 'lon': 4.0, 'primary': True, 'globe': 'earth'}]},
+                  {'title': 'Moon', 'coordinates': [{'lat': 1.0, 'lon': 1.0, 'primary': True, 'globe': 'moon'}]},
+                  {'title': 'No coordinates'}]}}))
+    got = C.wikipedia_coordinates([str(p)])
+    assert got['battle of x'] == (1.5, 2.5) and got['Siege of Y'] == (3.0, 4.0) and got['Battle of X'] == (1.5, 2.5)
+    assert 'Moon' not in got and 'No coordinates' not in got

@@ -8,6 +8,10 @@ history (index builds, cache rebuilds, corpus changes) is in
 `DATA_OPERATIONS.md`; per-release changes are in `../CHANGELOG.md`.
 
 
+## 2026-10-20: an event's place is shown under the name Pleiades attests in the event's period
+
+Decided by the project lead, 2026-10-20. A place name qualifies for an event when Pleiades attests it, as a geographic name transcribed accurately, in a named period whose years (from the Pleiades time-periods vocabulary, for example hellenistic-republican -330 to -30 and roman -30 to 300) overlap the event's years, and a name with no attested period does not qualify because nothing dates it. Among the qualifying names the one attested in the narrowest overlapping period wins, then the one that matches the place's Pleiades title, then one in Latin, Greek or English, and its first romanized variant is written without diacritics, in the standard English form where the list in `scripts/events/add_place_ancient.py` gives one (Syracuse, Rome, Corinth) and in the Latin or Greek form otherwise (Actium, Brundisium). The heading reads "Perusia (modern Perugia)" where the two names differ, and an event whose point is the center of a region, sea or river says so under its map, because no coordinate could be found for it in Wikidata or on its Wikipedia page.
+
 ## 2026-10-20: Attic inscriptions are linked to places, peoples and gods by Attic rules, and not to persons
 
 Decided by the project lead, 2026-10-20. The generic document matcher read about half of its rows for the Attic Inscriptions wrongly (Apollonios as the place Apollonia, demotics as persons, the archon as Diotima). The Attic matcher reads a demotic as its deme, a god's name only from a table of dedication forms, an archon date as the year's archon, a month as a month, and a father's name as unlinked, and it links no person, because nearly every name is a private citizen and no rule can tell which individual of the store it is. On 100 rows drawn at random (seed 20) 95 were right, 3 wrong and 2 unclear when graded by the delegate, against the bar of 90.

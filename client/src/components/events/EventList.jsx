@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { LoadingSpinner } from '../common';
-import { dateLabel, centuryLabel } from './eventsFormat';
+import { dateLabel, centuryLabel, placeLabel } from './eventsFormat';
 import EventNameBox from './EventNameBox';
 import ScopeBox from '../common/ScopeBox';
 
@@ -129,7 +129,7 @@ export default function EventList({ openEvent }) {
                     {e.label}
                   </a>
                   <p className="text-xs text-gray-600 mt-0.5">
-                    {[dateLabel(e.date_start, e.date_end), e.place, e.type].filter(Boolean).join(' · ')}
+                    {[dateLabel(e.date_start, e.date_end), placeLabel(e.place, e.place_ancient), e.type].filter(Boolean).join(' · ')}
                   </p>
                   <p className="text-xs text-gray-500 mt-1">
                     {e.n_passages} {e.n_passages === 1 ? 'passage' : 'passages'}
