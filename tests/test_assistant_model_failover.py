@@ -95,3 +95,20 @@ def test_without_a_gateway_key_there_is_no_backup(gateway, monkeypatch):
     gateway(_http500)
     assert M.models_in_order() == ['main']
     assert M.complete('s', 'u') is None
+
+
+def test_an_answer_cut_by_its_cap_finishes_its_sentence_and_stops(gateway):
+    def handler(body):
+        if body.get('continue_final_message'):
+            assert body['max_tokens'] == 80
+            return _sse(['lum Civile. And then', ' more text.'])
+        return _sse(['such as *Lucan, Bel'], finish='length')
+    calls = gateway(handler)
+    assert ''.join(M.stream('s', 'u')) == 'such as *Lucan, Bellum Civile.'
+    assert len(calls) == 2
+
+
+def test_an_answer_cut_by_its_cap_at_a_sentence_end_is_left_alone(gateway):
+    calls = gateway(lambda body: _sse(['A whole sentence.'], finish='length'))
+    assert ''.join(M.stream('s', 'u')) == 'A whole sentence.'
+    assert len(calls) == 1

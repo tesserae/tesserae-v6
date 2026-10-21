@@ -810,6 +810,7 @@ No prose outside the JSON."""
 # A listing answer is long: thirteen citations with their lines ran past 900 and
 # stopped mid-word, losing the count and the offer that should close it.
 ANSWER_TOKENS = 1500
+HANDOFF_TOKENS = 400
 
 # Large enough to hold a listing answer's worth of lines. The old 3,000 silently
 # dropped the very facts the question was about.
@@ -1563,7 +1564,12 @@ def answer_stream(question, on_step=None, history=None, offered_phrase=None):
     handing_over = bool(all_facts) and not any(
         f.get('search') in ('line_search', 'theme_search', 'rare_words')
         for f in all_facts)
-    budget = 90 if handing_over else ANSWER_TOKENS
+    # 90 tokens was the budget for a one-line hand-off written by the model, set when it ran
+    # on this CPU at ten tokens a second. Where code has no hand-off sentence the model writes the
+    # whole answer, and at 90 tokens "what kinds of resources do you have?" (answered from a
+    # corpus listing) stopped at "such as *Lucan, Bell" (the project lead, 2026-10-21). The
+    # gateway writes a few hundred tokens in a second or two, so the cap is 400.
+    budget = HANDOFF_TOKENS if handing_over else ANSWER_TOKENS
     # NOTHING TO WRITE MEANS NOTHING TO GENERATE.
     #
     # Capping the model did not help: at 220 tokens it wrote 110 and finished
