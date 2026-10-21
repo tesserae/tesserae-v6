@@ -1827,6 +1827,15 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 event&rsquo;s description, and no person has checked them.
                 In each passage the names found and the words of the event&rsquo;s place and participants are
                 highlighted, in any case form (Περυσίας and Περυσίαν, Marathon in &ldquo;apud Marathona&rdquo;).
+                Each passage shows a short excerpt of every line that holds one of the names found, with that
+                line&rsquo;s reference, so a name found anywhere in a long passage can be seen in its sentence.
+              </p>
+              <p className="text-gray-700 mb-4">
+                Names are found by their forms, so a name can belong to a different person: Agrippa in
+                &ldquo;Agrippam nepotem&rdquo; is Augustus&rsquo;s grandson, not the admiral at Actium. A
+                language model reads each line where a participant&rsquo;s name occurs and says whether it
+                means that participant. A name it judges to be someone else at every place it occurs is not
+                counted, and the card says so beneath the passage, with the reason.
               </p>
               <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">Inscriptions &amp; Papyri</h4>
               <p className="text-gray-700 mb-4">

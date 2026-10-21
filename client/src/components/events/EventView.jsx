@@ -38,13 +38,36 @@ function WorkGroup({ work, items, event }) {
                 Open in the Reader
               </a>
             </div>
-            {p.snippet && (
+            {p.excerpts?.length > 0 ? (
+              <ul className="mt-1 space-y-1" data-testid="passage-excerpts">
+                {p.excerpts.map((e) => (
+                  <li key={e.ref} className="text-sm text-gray-700">
+                    <span className="text-xs text-gray-500 mr-2">{bareLocus(e.ref)}</span>
+                    <HighlightedText text={e.text} forms={[...matchedForms(p.names_matched), ...(eventNames || [])]} stems />
+                  </li>
+                ))}
+              </ul>
+            ) : p.snippet && (
               <p className="text-sm text-gray-700 mt-1">
                 <HighlightedText text={p.snippet} forms={[...matchedForms(p.names_matched), ...(eventNames || [])]} stems />
               </p>
             )}
-            {p.names_matched?.length > 0 && (
-              <p className="text-xs text-gray-500 mt-1">Names found: {p.names_matched.join('; ')}</p>
+            {(p.names_in_text || p.names_matched)?.length > 0 && (
+              <p className="text-xs text-gray-500 mt-1">
+                {p.names_in_text ? 'Names in the text' : 'Names found'}: {(p.names_in_text || p.names_matched).join('; ')}
+              </p>
+            )}
+            {p.names_set_aside?.length > 0 && (
+              <p className="text-xs text-gray-400 mt-1" data-testid="names-set-aside">
+                Not counted, a different person of the same name: {p.names_set_aside.map((n) => (
+                  `${String(n.name).split(' [')[0]} at ${bareLocus(n.ref)}${n.reason ? ` (${n.reason.replace(/[.\s]+$/, '')})` : ''}`
+                )).join('; ')}
+              </p>
+            )}
+            {p.names_from_description?.length > 0 && (
+              <p className="text-xs text-gray-500 mt-1" data-testid="names-from-description">
+                Named in the passage&rsquo;s description, not in its words: {p.names_from_description.map((n) => String(n).split(' = ')[0]).join('; ')}
+              </p>
             )}
           </li>
         ))}
