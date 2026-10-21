@@ -11,6 +11,7 @@ export const SOURCE_OPTIONS = [
   { value: 'edh', label: 'Epigraphic Database Heidelberg' },
   { value: 'papyri', label: 'Papyri (papyri.info)' },
   { value: 'isicily', label: 'I.Sicily' },
+  { value: 'aio', label: 'Attic Inscriptions Online' },
   { value: 'edh+edr', label: 'EDH and EDR (both databases)' },
 ];
 

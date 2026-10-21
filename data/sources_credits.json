@@ -56,6 +56,28 @@
   },
   {
     "collection": "Inscriptions and papyri",
+    "name": "Attic Inscriptions Online (AIO)",
+    "url": "https://www.atticinscriptions.com/",
+    "licence_name": "Creative Commons Attribution-ShareAlike 3.0 (CC BY-SA 3.0)",
+    "licence_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+    "version": "AIO REST API (https://www.atticinscriptions.com/api/), 3,466 inscriptions",
+    "retrieved": "2026-10-20",
+    "what_we_use": "The Greek texts that AIO publishes (547 inscriptions, edited by the AIO translators) and the English translations of 2,641 inscriptions that have a Greek text here, with the translators' names, dates, monument and inscription types and findspots. For 2,095 of them the Greek text comes from the Berlin edition listed next. The translations of the 825 inscriptions with no Greek text here are not shown, because a document is found through its Greek text.",
+    "notes": "The project lead asked and AIO's chief editor, Chris de Lisle (Durham), replied on 2026-10-20 that inclusion is consistent with AIO's Creative Commons license, including the inclusion of its Greek texts. AIO's technical consultant, Irene Vagionakis, confirmed that the Greek texts were edited by the AIO translators and are not taken from PHI. Each inscription is shown under its edition number, as AIO's page gives it, and links to its AIO page."
+  },
+  {
+    "collection": "Inscriptions and papyri",
+    "name": "Inscriptiones Graecae digital edition (Berlin-Brandenburg Academy of Sciences and Humanities)",
+    "url": "https://telota.bbaw.de/ig/",
+    "licence_name": "Creative Commons Attribution 4.0 International (CC BY 4.0)",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "version": "EpiDoc files from https://telota.bbaw.de/ig/api/xml/, 2,111 files",
+    "retrieved": "2026-10-20",
+    "what_we_use": "The Greek text of 2,095 Attic inscriptions (IG I3 and IG II/III3), paired with the English translations of Attic Inscriptions Online, which links each of them to the Berlin edition.",
+    "notes": "Each EpiDoc file carries the licence element with the target https://creativecommons.org/licenses/by/4.0/legalcode and the sentence \"All reuse or distribution of this work must contain somewhere a link back to this page.\" Every document built from these files links to its Berlin page. The German translations in the files are not used."
+  },
+  {
+    "collection": "Inscriptions and papyri",
     "name": "Epigraphic Database Roma (EDR)",
     "url": "https://doi.org/10.5281/zenodo.18468635",
     "licence_name": "Creative Commons Attribution 4.0 (CC BY 4.0), the licence of the Zenodo deposit",

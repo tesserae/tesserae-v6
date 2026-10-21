@@ -8,6 +8,10 @@ history (index builds, cache rebuilds, corpus changes) is in
 `DATA_OPERATIONS.md`; per-release changes are in `../CHANGELOG.md`.
 
 
+## 2026-10-20: Attic Inscriptions Online added to the inscriptions collection, shown by edition number
+
+Attic Inscriptions Online (AIO) was added with the permission of its chief editor and its technical consultant, who confirmed that its Greek texts are its own editions and not taken from PHI, so the PHI terms do not apply to them. Each inscription is shown under the edition number AIO's own page gives (IG II2 18), never the AIO number, as the editor asked, and where AIO's heading is its own number or its UK-collections series the first Inscriptiones Graecae or SEG reference on the page is used. For the translations that have no Greek of AIO's, the Greek text of the Berlin Inscriptiones Graecae digital edition (Creative Commons Attribution 4.0, checked in each file) is paired with AIO's translation, and the credit line names both.
+
 ## 2026-10-20: a place's page lists the lines that name it only by an adjective
 
 The Latin corpus never names some places by their own name (Livy writes agrum Rusellanum and Rusellani, never Rusellae), and the store keeps such adjectives as separate corpus-name entities apart from the Pleiades place, as the decision of 2026-10-19 on Rome and the Romans requires. The project lead decided that the adjectives stay their own corpus names and that the place's page lists them and their lines under the heading "Named by its adjective", with nothing merged in the store. The link table leaves out Gordianus (the emperor, not Gordion) and Phradates (a Persian name, not Phra), and for Tusculanum it leaves out the 10 rows (9 lines) where the form stands within two words before disputatio, because Cicero's Tusculanae disputationes is a book title and not the place.
