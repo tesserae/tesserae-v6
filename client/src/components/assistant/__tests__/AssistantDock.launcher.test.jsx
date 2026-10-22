@@ -96,6 +96,9 @@ describe('Experimental Tessa switch', () => {
     fireEvent.click(box);
     expect(window.localStorage.getItem('tessa_mode')).toBe('classic');
     window.history.pushState({}, '', '/');
+  });
+});
+
 describe('Tessa panel size', () => {
   it('enlarges for long answers and remembers the choice', async () => {
     const { unmount } = render(<AssistantDock />);
