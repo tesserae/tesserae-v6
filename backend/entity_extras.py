@@ -840,6 +840,53 @@ def _rank_entities(cat, q):
     return hits, name_hits
 
 
+def write_form_index(store_path, log=print):
+    """Store the table form_entities: for each folded token the scan linked (mention_rows.form_key),
+    the entity whose page lists most of its lines, taken to the list entity a corpus name belongs
+    to. The search falls back to it when the typed text matches no heading or spelling, so a name
+    copied from a line in any case form (Rhodum, Thyesten, Νέστορ) opens the entry whose page shows
+    that line."""
+    t0 = time.time()
+    cat = load_catalog(store_path)
+    owner = {}
+    for e in cat['by_eid'].values():
+        for cn in e.get('corpus_names') or ():
+            n = cat['by_id'].get(cn['id'])
+            if n is not None and n['source'] == 'corpus':
+                owner.setdefault(n['eid'], e['eid'])
+    db = sqlite3.connect(store_path)
+    merged = dict(db.execute('select eid, list_eid from entity_merges')) if db.execute(
+        "select 1 from sqlite_master where name = 'entity_merges'").fetchone() else {}
+    best = {}
+    for fk, eid, n in db.execute('select form_key, eid, count(*) from mention_rows '
+                                 'where form_key is not null group by form_key, eid'):
+        if fk not in best or n > best[fk][1]:
+            best[fk] = (eid, n)
+    rows = []
+    for fk, (eid, n) in best.items():
+        eid = merged.get(eid, owner.get(eid, eid))
+        if eid in cat['by_eid'] or eid in cat['names']:
+            rows.append((fk, eid, n))
+    db.executescript('DROP TABLE IF EXISTS form_entities; '
+                     'CREATE TABLE form_entities (form_key TEXT PRIMARY KEY, eid INTEGER, n INTEGER);')
+    db.executemany('insert into form_entities values (?, ?, ?)', rows)
+    db.commit()
+    db.close()
+    log(f'form index: {len(rows)} forms, {time.time() - t0:.0f}s')
+    return len(rows)
+
+
+def entity_for_form(cat, conn, q):
+    """The catalog entity form_entities gives for the folded `q`, or None (no table, no row)."""
+    try:
+        row = conn.execute('select eid from form_entities where form_key = ?', (ei.fold(q),)).fetchone()
+    except sqlite3.Error:
+        return None
+    if row is None:
+        return None
+    return cat['by_eid'].get(row[0]) or cat['names'].get(row[0])
+
+
 def resolve_name_to_eid(store_path, name):
     """The entity id the Mentions search lists first for `name` (the first entity of a matching
     heading or search name, else the first corpus name), or None when nothing matches, the text
@@ -847,6 +894,14 @@ def resolve_name_to_eid(store_path, name):
     name = (name or '').strip()
     if len(name) < 2 or not os.path.exists(store_path):
         return None
-    hits, name_hits = rank_entities(load_catalog(store_path), name)
+    cat = load_catalog(store_path)
+    hits, name_hits = rank_entities(cat, name)
     first = (hits or name_hits or [None])[0]
-    return first[3]['eid'] if first else None
+    if first:
+        return first[3]['eid']
+    c = sqlite3.connect(f'file:{store_path}?mode=ro', uri=True)
+    try:
+        e = entity_for_form(cat, c, name)
+    finally:
+        c.close()
+    return e['eid'] if e else None
