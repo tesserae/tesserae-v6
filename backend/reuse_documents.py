@@ -34,13 +34,14 @@ from functools import lru_cache
 from backend.logging_config import get_logger
 from backend.passage_index import _norm_work
 from backend.reuse_table import _shared_word_mask, _bold_spans, POSSIBLE_MIN_JACCARD
+from backend.thread_connections import PerThreadConnections
 
 logger = get_logger('reuse_documents')
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DB_DIR = os.path.join(BASE_DIR, 'cache', 'reuse_pairs')
 
-_connections = {}
+_connections = PerThreadConnections()  # one sqlite3 connection per thread (backend/thread_connections.py)
 
 
 def _db_path(language):

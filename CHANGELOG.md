@@ -8,6 +8,7 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-22
+- Line Search, the inscriptions search and the reuse tables open one database connection per thread (`backend/thread_connections.py`). With one connection per process shared by Apache's threads, 1 of 12 Line Searches run at once failed with HTTP 500 ("bad parameter or other API misuse"), and the change to eight threads a process would have made it more frequent.
 - Tessa: "How do I type Greek if I don't have a Greek keyboard?" gets the Help answer (add the computer's Greek keyboard, accents optional). The model had told a reader to type Greek in Latin letters, which the boxes do not convert. The Help-answer match treats "if I don't have" like "without". Found in a comparison of three gateway models on 100 site questions (Qwen3.8 27B, the current model, stays).
 
 ## 2026-10-21
