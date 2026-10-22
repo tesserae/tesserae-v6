@@ -280,7 +280,7 @@ def judge_spellings(db, items, cache_path, lines, label='', deadline=None):
     version p3v1. Returns {(entity_id, 'F:' + spelling): answer}."""
     cache = rg.open_cache2(cache_path)
     have = {(a, b): c for a, b, c in cache.execute('select entity_id, stem, answer from answers2 where version = ?',
-                                                   (rg.PROMPT_VERSION3,))}
+                                                   (rg.PROMPT_VERSION4,))}
     todo = [g for g in items if (g[1], g[2]) not in have]
     if not todo:
         return have
@@ -290,11 +290,12 @@ def judge_spellings(db, items, cache_path, lines, label='', deadline=None):
     done = [0]
 
     def one(item):
-        g, prompt = item
+        g, prompt, heads = item
         if deadline and time.time() > deadline:
             return g, None, ''
-        reply = rg.ask(url, key, prompt, stats, system=rg.SYSTEM3, think=False, max_tokens=rg.MAX_TOKENS2)
-        ans, _ = rg.parse_answer(reply)
+        reply = rg.ask(url, key, prompt, stats, system=rg.SYSTEM4, think=False, max_tokens=rg.MAX_TOKENS2)
+        (form, _n), = g[3].items()
+        ans = rg.final_answer4(reply, form, heads)
         return g, ans or 'NONE', reply
 
     with ThreadPoolExecutor(WORKERS2) as pool:
@@ -305,13 +306,14 @@ def judge_spellings(db, items, cache_path, lines, label='', deadline=None):
                 (form, n), = forms.items()
                 heading, labels, top = rg.entity_card2(db, eid)
                 _h, desc = rg.entity_card(db, eid)
-                batch.append((g, rg.question3(heading, labels, top, desc, form, n,
-                                              rg.example_lines(db, lines, eid, [form]))))
+                heads = rg.headings(db, eid)
+                batch.append((g, rg.question4(heading, labels, top, desc, form, n,
+                                              rg.example_lines(db, lines, eid, [form]), heads), heads))
             for g, ans, reply in pool.map(one, batch):
                 if ans is None:
                     continue
                 cache.execute('insert or replace into answers2 values (?,?,?,?,?,?)',
-                              (g[1], g[2], rg.PROMPT_VERSION3, ans, reply, json.dumps(g[3], ensure_ascii=False)))
+                              (g[1], g[2], rg.PROMPT_VERSION4, ans, reply, json.dumps(g[3], ensure_ascii=False)))
                 have[(g[1], g[2])] = ans
                 done[0] += 1
             cache.commit()

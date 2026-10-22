@@ -216,7 +216,7 @@ SYSTEM = (
 # entry's labels and its most frequent spellings, and is told what counts as the same name.
 PROMPT_VERSION2 = 'p2v7'
 THINK2 = False
-MAX_TOKENS2 = 400
+MAX_TOKENS2 = 600
 SYSTEM2 = (
     'You check the work of a program that sorts the spellings of ancient proper names into entries of a '
     'reference index (People & Places). An entry has a heading, display labels, a short description and its most '
@@ -287,6 +287,119 @@ def question3(heading, labels, top, description, form, n, lines):
     for i, ln in enumerate(lines, 1):
         out.append(f'Line {i}: {ln[:400]}')
     return '\n'.join(out)
+
+
+# Fourth version (p4v1): the third question plus a letter comparison computed in code (the model misread
+# Ἑρμίππου as Herippus and wrote "identical stems"; the project lead, 2026-10-22).
+PROMPT_VERSION4 = 'p4v7'
+_VARIANTS = (('ae', 'e'), ('ph', 'f'), ('th', 't'), ('kh', 'k'), ('ch', 'k'), ('c', 'k'), ('y', 'i'), ('ii', 'i'),
+             ('ei', 'i'), ('h', ''))
+
+
+def _vkey(t):
+    for a, b in _VARIANTS:
+        t = t.replace(a, b)
+    return t
+
+
+def _skeleton(stem):
+    """The consonants of a stem, v and w written b, a doubled consonant once."""
+    import re as _re
+    t = _re.sub('[aeiouy]', '', stem.replace('v', 'b').replace('w', 'b'))
+    return _re.sub(r'(.)\1+', r'\1', t)
+
+
+def _sk_same(a, b, head=''):
+    """Two consonant skeletons agree when equal or when one is the other plus a final s (the nominative
+    ending the stem rule did not take off: Caipha and Caiaphas) or, for a heading in -on, a final n (Gideon and
+    Gedeona)."""
+    if a == b:
+        return True
+    a, b = sorted((a, b), key=len)
+    if not (len(b) == len(a) + 1 and b.startswith(a)):
+        return False
+    return b[-1] == 's' or (b[-1] == 'n' and ei.translit(ei.fold(head)).endswith('on'))
+
+
+def letter_compare(form, heads, limit=3):
+    """Lines that compare the spelling with each of the entry's headings, computed, not judged: both written in
+    Latin letters by the fold and transliteration the index uses, the case ending taken off, the ordinary
+    variants (ae/e, y/i, c/k, ph/f, th/t, h) merged, then the letters only one side has and a similarity ratio.
+    The `limit` closest headings are shown."""
+    import difflib
+    reading = ei.translit(ei.fold(prep(form)))
+    sstem = _vkey(mb.case_family(prep(form))[0])
+    rows = []
+    seen = set()
+    for h in sorted(heads):
+        hr = ei.translit(ei.fold(h))
+        if not hr or hr in seen:
+            continue
+        seen.add(hr)
+        hstem = _vkey(mb.case_family(h)[0])
+        sm = difflib.SequenceMatcher(None, sstem, hstem)
+        only_s, only_h = [], []
+        for tag, i1, i2, j1, j2 in sm.get_opcodes():
+            if tag != 'equal':
+                if sstem[i1:i2]:
+                    only_s.append(f'-{sstem[i1:i2]}- (after {sstem[:i1][-2:] or "the start"})')
+                if hstem[j1:j2]:
+                    only_h.append(f'-{hstem[j1:j2]}- (after {hstem[:j1][-2:] or "the start"})')
+        rows.append((sm.ratio(), h, hr, hstem, only_s, only_h, _skeleton(hstem)))
+    rows.sort(key=lambda r: -r[0])
+    out = [f'Letter check (computed by program, breathings and accents left out): the spelling {form} reads {reading}, '
+           f'its stem is {sstem}.']
+    sk = _skeleton(sstem)
+    for ratio, h, hr, hstem, only_s, only_h, hsk in rows[:limit]:
+        diff = ('the stems are IDENTICAL after the ordinary variants' if not only_s and not only_h else
+                'the stems DIFFER, only in the spelling: ' + (', '.join(only_s) or 'nothing') + '; only in the heading: ' + (', '.join(only_h) or 'nothing'))
+        out.append(f'Against {h}: it reads {hr}, stem {hstem}, similarity {ratio:.2f}, {diff}. '
+                   f'Consonants of the stems: {sk or "none"} against {hsk or "none"}, '
+                   f'{"IDENTICAL, only vowels or h differ" if _sk_same(sk, hsk, h) else "they DIFFER"}.')
+    return '\n'.join(out)
+
+
+SYSTEM4 = SYSTEM3.split(' Decide by the spelling')[0] + (
+    ' Decide by the spelling\'s own name. A program has compared its letters with the headings of the entry '
+    'and printed the result under "Letter check". Trust the letter check for what the letters are, and do not '
+    'replace the spelling by a heading. When the check says the consonants of the stems DIFFER from those of every '
+    'heading, the answer is DIFFERENT (a consonant or syllable that one side lacks: Hermippus and Herippus). One '
+    'exception: when a heading is the Latin or English name of the same people, place or god that the spelling '
+    'writes in Greek (Phoenicians for \u03a6\u03bf\u03af\u03bd\u03b9\u03c3\u03c3\u03b1\u03b9, Venus for \u1f08\u03c6\u03c1\u03bf\u03b4\u03af\u03c4\u03b7), the answer is SAME. '
+    'When the consonants are IDENTICAL, only vowels or h differ, which is ordinary variation (Caipha and '
+    'Caiaphas, Gedeona and Gideon), and the answer is SAME unless the spelling is another name of the same '
+    'family (Maximin and Maximianus, Fulvia and Fulvius, Demetrius and Demeter), a person, school, family, '
+    'people or place only connected with the entry (the Epicureans and Epicurus), or the lines show another '
+    'person, people, place or god. Answer UNCLEAR only when the lines do not allow a decision. Reply in three '
+    'lines. Line one: SPELLING: the nominative of the spelling\'s name in Latin letters, from the letter check. '
+    'Line two: CONSONANTS: identical or differ, and the letters that differ. Line three: EXCEPTION: yes only when '
+    'a heading is the Latin or English name of the same people, place or god written in Greek, else no. Line '
+    'four: exactly ANSWER: SAME or ANSWER: DIFFERENT or ANSWER: UNCLEAR.')
+
+
+def consonants_differ(form, heads):
+    """True when the consonant skeleton of the spelling's stem differs from that of every heading's stem (the
+    same test the letter check prints), so that no heading is the spelling with only vowels or h changed."""
+    sk = _skeleton(_vkey(mb.case_family(prep(form))[0]))
+    hs = [h for h in heads if ei.fold(h)]
+    return bool(hs) and not any(_sk_same(_skeleton(_vkey(mb.case_family(h)[0])), sk, h) for h in hs)
+
+
+def final_answer4(reply, form, heads):
+    """The answer stored for the p4 question. The model's own answer, except that when the computed consonants
+    differ from every heading and the model does not claim the exception (a name in another language), the answer
+    is DIFFERENT. The model contradicted its own consonant line (Hibernia, 'extra n', SAME) without this rule."""
+    ans, _ = parse_answer(reply)
+    if ans is None:
+        return None
+    exc = re.findall(r'EXCEPTION:\s*\**\s*(yes|no)', reply or '', re.I)
+    if ans == 'SAME' and consonants_differ(form, heads) and not (exc and exc[-1].lower() == 'yes'):
+        return 'DIFFERENT'
+    return ans
+
+
+def question4(heading, labels, top, description, form, n, lines, heads):
+    return question3(heading, labels, top, description, form, n, lines) + '\n' + letter_compare(form, heads)
 
 
 def open_cache2(path):
