@@ -1400,7 +1400,9 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 Type a name and press Search. An English name such as Rhodes or Lyon finds the
                 ancient entity, Rhodos or Lugdunum. Latin and Greek spellings work too. For a
                 longer name, spellings close to the one you typed are offered under Near spellings,
-                so a small slip in spelling still reaches the right entry. A Latin name copied
+                so a small slip in spelling still reaches the right entry. Each entry in the list gives its
+                lines by language, and for a place also the lines that name it only by its adjective
+                (Rusellanum for Rusellae) and the inscriptions and papyri that name it. A Latin name copied
                 from a line with -que attached (Laviniaque, Albanique) is searched without it, and
                 -ve or -ne is dropped when the word as typed finds nothing. A word in any case
                 form that appears in the texts (Rhodum, Thyesten, Νέστορα) opens the entry whose
@@ -1800,11 +1802,27 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   with the search filled in.
                 </li>
                 <li>
-                  Follow up. Ask &ldquo;what about Eobanus?&rdquo; and she keeps the thread. When she lists several
+                  Read long answers in a larger panel. On a computer, Enlarge at the top of the panel makes
+                  Tessa tall and wide, and Smaller puts her back in the corner. The choice is remembered.
+                </li>
+                <li>
+                  Follow up. Ask &ldquo;what about Eobanus?&rdquo; and she keeps the thread. After a comparison,
+                  ask &ldquo;what do you make of those results?&rdquo; or &ldquo;which are the strongest?&rdquo; and she
+                  reads the first page of that comparison. When she lists several
                   events or People &amp; Places entries of the same name, answer with the one you mean (&ldquo;the
                   one in 31 BCE&rdquo;, &ldquo;the second&rdquo;, &ldquo;the god&rdquo;) and she opens it.
                 </li>
               </ul>
+
+              <p className="text-gray-700 mb-3">
+                An experimental Tessa, who reads the whole conversation and chooses her own searches, can be
+                switched on in your browser with a link ending <code>?tessa=new</code> (and off with{' '}
+                <code>?tessa=classic</code>). A switch in her panel then turns it on and off. She is slower,
+                ten to thirty seconds an answer, because she may run several searches, and she follows a
+                conversation more closely: told &ldquo;there should be instances in the Aeneid (Pallas)&rdquo;,
+                she searches the Aeneid for them. A sentence that cites a passage no search returned is removed
+                before you see it.
+              </p>
 
               <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">How to trust her</h4>
               <p className="text-gray-700 mb-3">
@@ -2064,6 +2082,21 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 literature and documents together so a borrowing between the two shows up in one
                 pass (an epitaph&rsquo;s &ldquo;sit tibi terra levis&rdquo; and its own literary
                 echoes, for example).
+              </p>
+
+              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">The editor&rsquo;s signs</h4>
+              <p className="text-gray-700 mb-4">
+                A document&rsquo;s page, and its card on an event page, show the text as its edition prints it,
+                with the usual signs: [abc] for letters lost and restored by the editor, [---] for text lost
+                and not restored, a(bc) for an abbreviation and the editor&rsquo;s expansion of it, (abc) for an
+                expansion the editor adds alone, a dot below an uncertain letter, &lt;abc&gt; for letters the
+                editor adds, {'{abc}'} for letters the editor deletes, [[abc]] for letters erased in antiquity,
+                and / for a new line. So a fragment of the consular list from Cupra Maritima reads
+                &ldquo;[---]uf [--- IIvir(i)] (duoviri)&rdquo;: a word broken off before &ldquo;uf&rdquo;, a
+                restored title, and the editor&rsquo;s gloss of it. The search reads the same text with the signs
+                removed and the restorations and expansions included, shown on the page under &ldquo;Reading as
+                searched&rdquo;. About 208,000 of the documents have the edition text. For the others (some papyri,
+                and texts whose edition differs from the searched reading) the page shows the searched reading only.
               </p>
 
               <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">Filters and results</h4>

@@ -35,6 +35,9 @@ Conventions
   hand and are the models the helper matches.
 
 
+## 2026-10-22 Edition texts with the Leiden signs for the documents (RUN 11:40 EDT, by the project lead)
+
+The documents' cards showed the searched reading, with every editorial sign removed, so EDR107014 (the Perusine war in the consular fasti of Cupra Maritima) read "... bello Perusino / uf IIviri duoviri", a broken-off word and an editor's gloss shown as words of the stone. `scripts/documents/build_leiden_display.py` rendered the EpiDoc edition of every EDH, EDR, I.Sicily and papyri.info document in `~/tesserae-docs/raw/` with the Leiden signs, and kept a rendering only where its letters, signs and spaces removed, match the indexed reading by at least 75 percent (difflib ratio). Of 257,428 documents (AIO left out, its Greek has its own converter), 207,697 were written, 797 disagree with the indexed reading, 6,207 have an empty edition, and 42,727 have no raw file under the expected name or no indexed line (mostly papyri). Eight workers, about two minutes. The new file `data/documents/leiden.sqlite` (table `leiden`, id and text, 207,697 rows, integrity ok, sha256 `ea80cb3e2fae723372e5dbea0763a7c296a0ad37349f1fdafdcdcf8333d19af6`) was copied in at mode 664 at 11:40, before the code that reads it was deployed. Display only: the documents index and the search are unchanged.
 ## 2026-10-22 Greek of 809 more Attic inscriptions, from PHI Greek Inscriptions, added to the Greek documents index (RUN time EDT to be filled in by the project lead, built by a delegate)
 
 **Status.** Built on copies and checked, not installed. The install is the project lead's, after the pull request that carries `--phi-dir` is merged and deployed.

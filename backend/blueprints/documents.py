@@ -1072,7 +1072,9 @@ def get_document(doc_id):
 
     m = docs.meta(doc_id) or {}
     display = docs.display_fields(doc_id)
+    edition_text = docs.leiden_texts([doc_id]).get(doc_id)
     payload = {
+        'edition_text': edition_text,
         'doc_id': doc_id,
         'language': found_language,
         'text_id': doc_data['filename'],

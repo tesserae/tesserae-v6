@@ -390,3 +390,18 @@ def test_findspot_qualifiers_are_written_in_english():
     assert english_place('Roma, haud recte') == 'Roma (attribution doubtful)'
     assert english_place('Perusia') == 'Perusia'
     assert english_place(None) is None
+
+
+def test_leiden_texts_reads_the_display_store(tmp_path, monkeypatch):
+    import sqlite3
+    from backend import documents
+    p = tmp_path / 'leiden.sqlite'
+    c = sqlite3.connect(p)
+    c.execute('CREATE TABLE leiden (id TEXT PRIMARY KEY, text TEXT)')
+    c.execute("INSERT INTO leiden VALUES ('edr:aEDR107014', '[---]uf [--- IIvir(i)] (duoviri)')")
+    c.commit()
+    c.close()
+    monkeypatch.setenv('TESSERAE_DOCUMENTS_LEIDEN', str(p))
+    assert documents.leiden_texts(['edr:aEDR107014', 'edh:none']) == {'edr:aEDR107014': '[---]uf [--- IIvir(i)] (duoviri)'}
+    monkeypatch.setenv('TESSERAE_DOCUMENTS_LEIDEN', str(tmp_path / 'missing.sqlite'))
+    assert documents.leiden_texts(['edr:aEDR107014']) == {}

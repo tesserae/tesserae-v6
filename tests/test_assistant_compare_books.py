@@ -87,3 +87,12 @@ def test_earlier_pair_comes_from_the_readers_last_two_text_turn(monkeypatch):
     # Two texts named for another reason are not a comparison to check on.
     assert agent._earlier_pair([{'role': 'user', 'text': 'tell me about the Aeneid and the Punica'}]) is None
     assert not agent._status_question('what happened at Cannae?')
+
+
+def test_a_request_to_analyze_the_results_counts_as_a_follow_up():
+    for q in ('Can you give me some analysis of those results?', 'what do you make of these parallels?',
+              'Which of them are the strongest?', 'summarize the results', 'explain that comparison'):
+        assert agent._status_question(q), q
+    for q in ('What does the score on a result mean?', 'compare the Aeneid and the Punica',
+              'analyze Aeneid 1 against Lucan 1', 'what is Theme Search?'):
+        assert not agent._status_question(q), q

@@ -6,6 +6,18 @@ import { getSessionValue, setSessionValue } from '../../utils/storage';
 import { useIsPhone } from '../../hooks/useIsPhone';
 
 const TUCK_KEY = 'tesserae_tessa_tucked';
+// The experimental Tessa, who chooses her own searches (backend/assistant/agent_tools.py). Opt-in: a link
+// with ?tessa=new turns it on in this browser and shows the switch, ?tessa=classic turns it off.
+const MODE_KEY = 'tessa_mode';
+function readMode() {
+  try {
+    const want = new URLSearchParams(window.location.search).get('tessa');
+    if (want === 'new') window.localStorage.setItem(MODE_KEY, 'tools');
+    if (want === 'classic') window.localStorage.setItem(MODE_KEY, 'classic');
+    return window.localStorage.getItem(MODE_KEY) || '';
+  } catch { return ''; }
+}
+const ENLARGE_KEY = 'tessa_enlarged';
 function readTucked() {
   try { return window.localStorage.getItem(TUCK_KEY) === '1'; } catch { return false; }
 }
@@ -168,6 +180,20 @@ export default function AssistantDock() {
   // reloads the page and would otherwise shut her and wipe the conversation.
   const [open, setOpen] = useState(() => getSessionValue('tessa_open', '0') === '1');
   const [tucked, setTucked] = useState(readTucked);
+  const [mode, setModeState] = useState(readMode);
+  const setMode = (m) => {
+    try { window.localStorage.setItem(MODE_KEY, m); } catch { /* storage blocked */ }
+    setModeState(m);
+  };
+  // Enlarged: a tall, wide panel for reading long answers on a big screen (2026-10-22: the
+  // 24rem card in the corner made a long analysis hard to read). Remembered between visits.
+  const [enlarged, setEnlarged] = useState(() => {
+    try { return window.localStorage.getItem(ENLARGE_KEY) === '1'; } catch { return false; }
+  });
+  const toggleEnlarged = () => setEnlarged((v) => {
+    try { window.localStorage.setItem(ENLARGE_KEY, v ? '0' : '1'); } catch { /* storage blocked */ }
+    return !v;
+  });
   const setTuckedSaved = (v) => {
     setTucked(v);
     try { window.localStorage.setItem(TUCK_KEY, v ? '1' : '0'); } catch { /* storage blocked */ }
@@ -230,7 +256,8 @@ export default function AssistantDock() {
     // Hand back the offer this answer made, so "yes" is an acceptance rather
     // than a question with no content of its own.
     run('/api/assistant/ask-stream',
-        { question, history, offered_phrase: pendingOffer.current || undefined });
+        { question, history, offered_phrase: pendingOffer.current || undefined,
+          ...(mode === 'tools' ? { mode: 'tools' } : {}) });
   };
 
   // The launcher is deliberately two different things.
@@ -315,7 +342,11 @@ export default function AssistantDock() {
     // Opened, the panel is a floating card on a desktop and a bottom sheet on a
     // phone, where a 24rem card with margins on all four sides wastes the little
     // width there is.
-    <div className="fixed z-40 inset-x-0 bottom-0 sm:inset-x-auto sm:bottom-5 sm:right-5 w-full sm:w-[24rem] sm:max-w-[calc(100vw-2.5rem)] rounded-t-xl sm:rounded-lg border-t sm:border border-gray-300 bg-white shadow-xl flex flex-col max-h-[85vh] supports-[height:1dvh]:max-h-[85dvh] pb-[env(safe-area-inset-bottom)] sm:pb-0 sm:max-h-[min(32rem,calc(100vh-3rem))]">
+    <div data-testid="tessa-panel"
+      data-enlarged={enlarged ? 'true' : 'false'}
+      className={`fixed z-40 inset-x-0 bottom-0 sm:inset-x-auto sm:bottom-5 sm:right-5 w-full sm:max-w-[calc(100vw-2.5rem)] rounded-t-xl sm:rounded-lg border-t sm:border border-gray-300 bg-white shadow-xl flex flex-col max-h-[85vh] supports-[height:1dvh]:max-h-[85dvh] pb-[env(safe-area-inset-bottom)] sm:pb-0 ${enlarged
+        ? 'sm:w-[min(52rem,calc(100vw-2.5rem))] sm:h-[calc(100vh-2.5rem)] sm:max-h-[calc(100vh-2.5rem)]'
+        : 'sm:w-[24rem] lg:w-[28rem] 2xl:w-[32rem] sm:max-h-[min(32rem,calc(100vh-3rem))] lg:max-h-[min(42rem,calc(100vh-3rem))]'}`}>
       <header className="flex items-center justify-between px-3 py-2 border-b border-gray-200">
         <h2 className="flex items-center gap-2 text-sm font-semibold text-gray-800">
           <span className="flex items-center justify-center w-6 h-6 rounded-md bg-red-700 text-white text-xs font-semibold leading-none">
@@ -340,6 +371,16 @@ export default function AssistantDock() {
               Clear
             </button>
           )}
+          {!phone && (
+            <button
+              onClick={toggleEnlarged}
+              className="text-[11px] text-gray-500 hover:text-gray-800 px-1"
+              aria-label={enlarged ? 'Make Tessa smaller' : 'Make Tessa larger'}
+              title={enlarged ? 'Back to the small panel' : 'A tall, wide panel for long answers'}
+            >
+              {enlarged ? 'Smaller' : 'Enlarge'}
+            </button>
+          )}
           <button
             onClick={() => setOpen(false)}
             className="text-gray-500 hover:text-gray-700 text-lg leading-none px-1"
@@ -349,6 +390,18 @@ export default function AssistantDock() {
           </button>
         </div>
       </header>
+
+      {mode && (
+        <label className="flex items-center gap-2 px-3 py-1.5 text-[11px] text-gray-600 border-b border-gray-100 bg-gray-50">
+          <input
+            type="checkbox"
+            checked={mode === 'tools'}
+            onChange={(e) => setMode(e.target.checked ? 'tools' : 'classic')}
+            data-testid="tessa-mode-switch"
+          />
+          Experimental: Tessa chooses her own searches (slower, follows the conversation more closely)
+        </label>
+      )}
 
       {phone && form}
 

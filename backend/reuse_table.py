@@ -35,6 +35,7 @@ from backend.lemma_cache import get_cache_path
 from backend.ngram_utils import gen_ngram_indices, gen_ngrams
 from backend.passage_index import _norm_work
 from backend.utils import normalize_author_date_key
+from backend.thread_connections import PerThreadConnections
 
 logger = get_logger('reuse_table')
 
@@ -54,7 +55,7 @@ AUTHOR_DATES_PATH = os.path.join(BASE_DIR, 'backend', 'author_dates.json')
 # are short; strict pairs are untouched. docs/DECISIONS.md, 2026-10-07.
 POSSIBLE_MIN_JACCARD = 0.002   # the queries' `(shared > 1 OR jaccard >= ?)`
 
-_connections = {}
+_connections = PerThreadConnections()  # one sqlite3 connection per thread (backend/thread_connections.py)
 _author_dates = None
 
 

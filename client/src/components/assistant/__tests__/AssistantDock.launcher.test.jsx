@@ -78,3 +78,40 @@ describe('Tessa open sheet', () => {
     } finally { env.restore(); }
   });
 });
+
+describe('Experimental Tessa switch', () => {
+  it('is hidden until a ?tessa=new link turns it on, then sends mode tools', async () => {
+    const { unmount } = render(<AssistantDock />);
+    fireEvent.click(await screen.findByRole('button', { name: 'Open Tessa, the AI assistant' }));
+    expect(screen.queryByTestId('tessa-mode-switch')).toBeNull();
+    unmount();
+    window.history.pushState({}, '', '/?tessa=new');
+    render(<AssistantDock />);
+    const box = await screen.findByTestId('tessa-mode-switch');
+    expect(box.checked).toBe(true);
+    fireEvent.change(screen.getByPlaceholderText(/Ask about a text/), { target: { value: 'compare Aeneid 1 to Lucan 1' } });
+    fireEvent.submit(screen.getByPlaceholderText(/Ask about a text/).closest('form'));
+    const call = global.fetch.mock.calls.find((c) => String(c[0]).includes('ask-stream'));
+    expect(JSON.parse(call[1].body).mode).toBe('tools');
+    fireEvent.click(box);
+    expect(window.localStorage.getItem('tessa_mode')).toBe('classic');
+    window.history.pushState({}, '', '/');
+  });
+});
+
+describe('Tessa panel size', () => {
+  it('enlarges for long answers and remembers the choice', async () => {
+    const { unmount } = render(<AssistantDock />);
+    fireEvent.click(await screen.findByRole('button', { name: 'Open Tessa, the AI assistant' }));
+    const panel = await screen.findByTestId('tessa-panel');
+    expect(panel.getAttribute('data-enlarged')).toBe('false');
+    fireEvent.click(screen.getByRole('button', { name: 'Make Tessa larger' }));
+    expect(screen.getByTestId('tessa-panel').getAttribute('data-enlarged')).toBe('true');
+    expect(screen.getByTestId('tessa-panel').className).toContain('52rem');
+    unmount();
+    render(<AssistantDock />);
+    expect((await screen.findByTestId('tessa-panel')).getAttribute('data-enlarged')).toBe('true');
+    fireEvent.click(screen.getByRole('button', { name: 'Make Tessa smaller' }));
+    expect(screen.getByTestId('tessa-panel').getAttribute('data-enlarged')).toBe('false');
+  });
+});

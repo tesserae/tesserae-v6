@@ -295,6 +295,25 @@ def ask_stream():
             record.record('ask', question, text, model_used=False)
             yield _sse('done', {'searches_run': [], 'answered_from_help': True, 'actions': []})
             return
+        # THE EXPERIMENTAL TESSA (opt-in, mode "tools"): the model chooses the searches itself
+        # (backend/assistant/agent_tools.py). A gateway failure before any answer text falls through
+        # to the ordinary Tessa below.
+        if data.get('mode') == 'tools':
+            from backend.assistant import agent_tools
+            try:
+                text_parts = []
+                for kind, payload in agent_tools.answer_stream(question, history=history):
+                    if kind == 'chunk':
+                        text_parts.append(payload)
+                        yield _sse('chunk', {'text': payload})
+                    elif kind == 'step':
+                        yield _sse('step', {'text': payload})
+                    else:
+                        record.record('ask', question, ''.join(text_parts), model_used=True)
+                        yield _sse('done', {**payload, 'actions': []})
+                return
+            except Exception as e:                       # noqa: BLE001
+                logger.warning('[ASSISTANT] tools mode failed, ordinary Tessa answers: %s', e)
         streamed = []
         try:
             for kind, payload in agent.answer_stream(question, history=history,
