@@ -79,24 +79,17 @@ describe('Tessa open sheet', () => {
   });
 });
 
-describe('Tessa mode switch', () => {
-  it('chooses her own searches by default, and the switch or ?tessa=classic returns to classic', async () => {
-    const { unmount } = render(<AssistantDock />);
+describe('Tessa mode', () => {
+  it('always asks the Tessa who runs her own searches, with no switch in the panel', async () => {
+    window.localStorage.setItem('tessa_mode', 'classic');
+    render(<AssistantDock />);
     fireEvent.click(await screen.findByRole('button', { name: 'Open Tessa, the AI assistant' }));
-    const box = await screen.findByTestId('tessa-mode-switch');
-    expect(box.checked).toBe(true);
+    expect(screen.queryByTestId('tessa-mode-switch')).toBeNull();
     fireEvent.change(screen.getByPlaceholderText(/Ask about a text/), { target: { value: 'compare Aeneid 1 to Lucan 1' } });
     fireEvent.submit(screen.getByPlaceholderText(/Ask about a text/).closest('form'));
     const call = global.fetch.mock.calls.find((c) => String(c[0]).includes('ask-stream'));
     expect(JSON.parse(call[1].body).mode).toBe('tools');
-    fireEvent.click(box);
-    expect(window.localStorage.getItem('tessa_mode')).toBe('classic');
-    unmount();
     window.localStorage.clear();
-    window.history.pushState({}, '', '/?tessa=classic');
-    render(<AssistantDock />);
-    expect((await screen.findByTestId('tessa-mode-switch')).checked).toBe(false);
-    window.history.pushState({}, '', '/');
   });
 });
 

@@ -35,7 +35,7 @@ describe('RequestsTab — completed status', () => {
     expect(works()).toEqual(['Aeneid', 'Eclogues']);
   });
 
-  it('shows them once "Hide completed" is unticked', async () => {
+  it('shows them once "Hide completed" is unchecked', async () => {
     await renderTab();
     await userEvent.click(screen.getByLabelText('Hide completed'));
     expect(lastListCall().hide_completed).toBe('0');

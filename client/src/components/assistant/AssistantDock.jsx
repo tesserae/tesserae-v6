@@ -6,17 +6,6 @@ import { getSessionValue, setSessionValue } from '../../utils/storage';
 import { useIsPhone } from '../../hooks/useIsPhone';
 
 const TUCK_KEY = 'tesserae_tessa_tucked';
-// Tessa who chooses her own searches (backend/assistant/agent_tools.py) is the default since 2026-10-22; the
-// switch in the panel, or a link with ?tessa=classic, returns this browser to the classic Tessa.
-const MODE_KEY = 'tessa_mode';
-function readMode() {
-  try {
-    const want = new URLSearchParams(window.location.search).get('tessa');
-    if (want === 'new') window.localStorage.setItem(MODE_KEY, 'tools');
-    if (want === 'classic') window.localStorage.setItem(MODE_KEY, 'classic');
-    return window.localStorage.getItem(MODE_KEY) || 'tools';
-  } catch { return 'tools'; }
-}
 const ENLARGE_KEY = 'tessa_enlarged';
 function readTucked() {
   try { return window.localStorage.getItem(TUCK_KEY) === '1'; } catch { return false; }
@@ -180,11 +169,6 @@ export default function AssistantDock() {
   // reloads the page and would otherwise shut her and wipe the conversation.
   const [open, setOpen] = useState(() => getSessionValue('tessa_open', '0') === '1');
   const [tucked, setTucked] = useState(readTucked);
-  const [mode, setModeState] = useState(readMode);
-  const setMode = (m) => {
-    try { window.localStorage.setItem(MODE_KEY, m); } catch { /* storage blocked */ }
-    setModeState(m);
-  };
   // Enlarged: a tall, wide panel for reading long answers on a big screen (2026-10-22: the
   // 24rem card in the corner made a long analysis hard to read). Remembered between visits.
   const [enlarged, setEnlarged] = useState(() => {
@@ -256,8 +240,9 @@ export default function AssistantDock() {
     // Hand back the offer this answer made, so "yes" is an acceptance rather
     // than a question with no content of its own.
     run('/api/assistant/ask-stream',
-        { question, history, offered_phrase: pendingOffer.current || undefined,
-          ...(mode === 'tools' ? { mode: 'tools' } : {}) });
+        // mode 'tools': the model reads the conversation and runs the searches itself
+        // (backend/assistant/agent_tools.py); the server falls back to the classic Tessa when it fails.
+        { question, history, offered_phrase: pendingOffer.current || undefined, mode: 'tools' });
   };
 
   // The launcher is deliberately two different things.
@@ -390,18 +375,6 @@ export default function AssistantDock() {
           </button>
         </div>
       </header>
-
-      {(
-        <label className="flex items-center gap-2 px-3 py-1.5 text-[11px] text-gray-600 border-b border-gray-100 bg-gray-50">
-          <input
-            type="checkbox"
-            checked={mode === 'tools'}
-            onChange={(e) => setMode(e.target.checked ? 'tools' : 'classic')}
-            data-testid="tessa-mode-switch"
-          />
-          Tessa chooses her own searches (untick for the faster classic Tessa)
-        </label>
-      )}
 
       {phone && form}
 

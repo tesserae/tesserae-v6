@@ -1815,14 +1815,15 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
               </ul>
 
               <p className="text-gray-700 mb-3">
-                Tessa reads the whole conversation and chooses her own searches, so she follows a conversation
-                closely: told &ldquo;there should be instances in the Aeneid (Pallas)&rdquo;, she searches the Aeneid
-                for them, and asked &ldquo;which of them are the strongest?&rdquo; after a comparison, she reads that
-                comparison again. An answer takes five to thirty seconds, because she may run several searches. A
-                sentence that cites a passage no search returned is removed before you see it. Asked who speaks a line or what it
-                says, she reads the passage first, and she does not add facts from memory. The box at the top of
-                her panel, or a link ending <code>?tessa=classic</code>, switches this browser to the classic Tessa, who
-                answers in a few seconds and runs one search chosen by the site for each kind of question.
+                For each question, Tessa decides which of the site&rsquo;s searches it needs (a comparison of two
+                texts, a Theme Search, a word search, People &amp; Places, the inscriptions, the events), runs them,
+                reads what they return and answers from that. She reads the whole conversation, so a follow-up such
+                as &ldquo;which of them are the strongest?&rdquo; or &ldquo;and in Greek?&rdquo; picks up where the last
+                answer left off. Asked who speaks a line or what it says, she reads the passage first. A sentence that
+                cites or quotes a passage, or names a person, that none of her searches returned is sent back to her
+                or removed before you see it. An answer takes five to thirty seconds, because she may run several
+                searches. She does not start a full comparison of two whole long works, such as the whole
+                Thebaid with the whole Aeneid: she compares them by content instead and asks which books you want.
               </p>
 
               <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">How to trust her</h4>
