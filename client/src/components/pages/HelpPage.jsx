@@ -1400,7 +1400,9 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 Type a name and press Search. An English name such as Rhodes or Lyon finds the
                 ancient entity, Rhodos or Lugdunum. Latin and Greek spellings work too. For a
                 longer name, spellings close to the one you typed are offered under Near spellings,
-                so a small slip in spelling still reaches the right entry. A Latin name copied
+                so a small slip in spelling still reaches the right entry. Each entry in the list gives its
+                lines by language, and for a place also the lines that name it only by its adjective
+                (Rusellanum for Rusellae) and the inscriptions and papyri that name it. A Latin name copied
                 from a line with -que attached (Laviniaque, Albanique) is searched without it, and
                 -ve or -ne is dropped when the word as typed finds nothing. A word in any case
                 form that appears in the texts (Rhodum, Thyesten, Νέστορα) opens the entry whose
