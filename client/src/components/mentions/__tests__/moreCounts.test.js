@@ -9,3 +9,12 @@ describe('moreCounts', () => {
     expect(moreCounts({})).toBe('');
   });
 });
+
+describe('editorNoteParts', () => {
+  it('splits the editor’s notes from the text of the stone', async () => {
+    const { editorNoteParts } = await import('../../documents/documentDisplay');
+    expect(editorNoteParts('〈:da un lato〉 / Pub(licum) Col(oniae)')).toEqual([
+      { note: true, text: 'da un lato' }, { note: false, text: ' / Pub(licum) Col(oniae)' }]);
+    expect(editorNoteParts('Felix Rusellis')).toEqual([{ note: false, text: 'Felix Rusellis' }]);
+  });
+});
