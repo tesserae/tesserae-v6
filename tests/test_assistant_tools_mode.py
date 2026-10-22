@@ -107,7 +107,7 @@ def test_an_answer_citing_what_no_search_returned_is_sent_back_once(monkeypatch)
                         (lambda a: '{"lines": ["luc. 1.237: signa fore"]}',) + agent_tools.TOOLS['read_passage'][1:])
     events = list(agent_tools.answer_stream('who is speaking there?', history=[
         {'role': 'user', 'text': 'compare Lucan 1 and Aeneid 2'}, {'role': 'assistant', 'text': 'Top: Aen. 2.313.'}]))
-    assert 'No search in this conversation returned' in seen[1][-1]
+    assert 'Note from the site' in seen[1][-1] and 'Cato' not in seen[1][-1]
     assert events[-2] == ('chunk', 'The narrator speaks at 1.237.')
 
 
@@ -138,3 +138,9 @@ def test_one_work_prefers_a_title_match_with_its_book(monkeypatch):
                         lambda hit, num: {'id': f"claudian.de_raptu_proserpinae.part.{num}.tess"})
     assert agent_tools._one('Claudian De raptu Proserpinae 2')['id'] == 'claudian.de_raptu_proserpinae.part.2.tess'
     assert agent_tools._one('Claudian De raptu Proserpinae')['id'] == 'claudian.de_raptu_proserpinae.tess'
+
+
+def test_tidy_removes_talk_about_the_check_and_renumbers():
+    text = "You're right to check, and the re-run confirms it. Top:\n\n3. **a**\n4. **b**\n6. **c**"
+    assert agent_tools._tidy(text) == 'Top:\n\n1. **a**\n2. **b**\n3. **c**'
+    assert agent_tools._tidy('Cato is not the speaker.') == 'Cato is not the speaker.'

@@ -454,9 +454,34 @@ def _drop_where(text, bad):
     return re.sub(r'\n{3,}', '\n\n', '\n'.join(kept)).strip(), dropped
 
 
-RETRY = ('Your answer {what}. No search in this conversation returned {them}. Call the tools that do '
-         '(read_passage for the text of a line, compare_texts, search_one_text, events, people_places), then '
-         'answer from their results. If no tool gives it, leave it out.')
+RETRY = ('[Note from the site, not from the reader. The reader has not seen your draft.] Your draft {what}, '
+         'which no search in this conversation returned. Call the tools that do (read_passage for the text of a '
+         'line, compare_texts, search_one_text, events, people_places), then write your answer to the reader\'s '
+         'question as if for the first time. Leave out whatever no tool gives. Do not mention this note, a draft, '
+         'checking, confirming or re-running anything.')
+
+# Openings that answer the note instead of the reader, removed if the model writes one anyway.
+_CHECK_TALK = re.compile(r"^\s*(?:you'?re right[^.!?\n]*[.!?]|confirmed[^.!?\n]*[.!?:]|now (?:everything|i can)[^.!?\n]*[.!?]|"
+                         r"(?:i'?ve|i have) (?:now )?(?:re-?run|re-?read|checked|verified)[^.!?\n]*[.!?])\s*", re.I)
+_NUMBERED = re.compile(r'^(\s*)\d+([.)]\s)')
+
+
+def _tidy(text):
+    """Removes an opening that talks about the check, and renumbers a numbered list from which items
+    were removed (2026-10-22: lists read 3, 4, 6)."""
+    for _ in range(2):
+        text = _CHECK_TALK.sub('', text, count=1)
+    out, n, prev_numbered = [], 0, False
+    for line in text.split('\n'):
+        m = _NUMBERED.match(line)
+        if m:
+            n = n + 1 if prev_numbered else 1
+            line = f'{m.group(1)}{n}{m.group(2)}' + line[m.end():]
+            prev_numbered = True
+        elif line.strip():
+            prev_numbered, n = False, 0
+        out.append(line)
+    return '\n'.join(out).strip()
 
 
 def _problems(text, outputs, earlier):
@@ -518,8 +543,7 @@ def answer_stream(question, history=None):
                 retried = True
                 logger.info('[ASSISTANT] tools mode sent the answer back: %s', problem[:200])
                 yield ('step', 'checking the passages against the searches')
-                messages.append({'role': 'assistant', 'content': text})
-                messages.append({'role': 'user', 'content': RETRY.format(what=problem, them='them')})
+                messages.append({'role': 'user', 'content': RETRY.format(what=problem)})
                 text = None
                 continue
             break
@@ -554,6 +578,7 @@ def answer_stream(question, history=None):
         dropped += more
     if dropped:
         logger.info('[ASSISTANT] tools mode dropped %d sentence(s) with unsupported references or quotes', len(dropped))
+    text = _tidy(text)
     if not text.strip():
         raise GaveUp('every sentence of the answer cited something no search returned')
     yield ('chunk', text)
