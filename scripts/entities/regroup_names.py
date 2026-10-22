@@ -23,6 +23,7 @@ sys.path.insert(0, ROOT)
 from backend import entity_regroup as rg  # noqa: E402
 
 WORK = os.path.expanduser('~/tesserae-backups/regroup_2026-10-21')
+WORK2 = os.path.expanduser('~/tesserae-backups/regroup_2026-10-22')
 WINDOWS = '/var/www/tesseraev6_flask/data/passage_index/window_texts.db'
 PROGRESS = os.path.join(WORK, 'PROGRESS.txt')
 
@@ -409,11 +410,24 @@ def run_judge2(db, a):
 
 
 def both_different(cache_path):
-    """First-pass DIFFERENT groups whose second answer is also DIFFERENT (the groups to split)."""
+    """[(entity_id, stem, {spelling: rows})] to split: the spellings both passes call DIFFERENT. The first pass
+    judged the group, the second (PROMPT_VERSION4) the top three spellings of each group one by one. A
+    judged spelling moves when its second answer is DIFFERENT. A spelling the second pass did not judge
+    follows its group only when every judged spelling of the group is DIFFERENT; otherwise it stays."""
     cache = rg.open_cache2(cache_path)
     second = {(a, b): c for a, b, c in cache.execute('select entity_id, stem, answer from answers2 where version = ?',
-                                                     (rg.PROMPT_VERSION2,))}
-    return [(e, st, f) for e, st, f in differences(cache_path) if second.get((e, st)) == 'DIFFERENT']
+                                                     (rg.PROMPT_VERSION4,))}
+    out = []
+    for e, st, forms in differences(cache_path):
+        ans = {f: second.get((e, 'F:' + f)) for f in forms}
+        judged = {f: a for f, a in ans.items() if a is not None}
+        if not judged:
+            continue
+        all_diff = all(a == 'DIFFERENT' for a in judged.values())
+        move = {f: n for f, n in forms.items() if ans[f] == 'DIFFERENT' or (ans[f] is None and all_diff)}
+        if move:
+            out.append((e, st, move))
+    return out
 
 
 def recheck(db, diffs):
@@ -457,7 +471,8 @@ def run_apply(db, a):
     ex.write_form_index(a.store, log=log)
     db = sqlite3.connect(a.store)
     rep['integrity'] = db.execute('pragma integrity_check').fetchone()[0]
-    json.dump(rep, open(os.path.join(WORK, 'apply_report.json'), 'w'), ensure_ascii=False, indent=1)
+    os.makedirs(WORK2, exist_ok=True)
+    json.dump(rep, open(os.path.join(WORK2, 'apply_report.json'), 'w'), ensure_ascii=False, indent=1)
     log('APPLY ' + json.dumps({k: v for k, v in rep.items() if k not in ('moves', 'carves')}))
 
 
@@ -496,6 +511,37 @@ def run_sheet(db, a):
     log('sheet written')
 
 
+def run_sample40(db, a):
+    """sample_40.md: 40 random splits (moved or carved spellings) with old heading, new place and one line. The
+    report is written by --apply (apply_report.json); the store is the copy that was changed."""
+    out_dir = WORK2
+    os.makedirs(out_dir, exist_ok=True)
+    lines = rg.Lines(WINDOWS)
+    rep = json.load(open(os.path.join(WORK2, 'apply_report.json')))
+    rnd = random.Random(20261022)
+    picks = rnd.sample([('moved',) + tuple(m) for m in rep['moves']] + [('carved',) + tuple(c) for c in rep['carves']], 40)
+    out = ['# 40 spellings the second regroup split, for grading', '']
+    for i, (kind, old_id, new_id, fs, n) in enumerate(picks, 1):
+        o = sqlite3.connect(os.path.join(WORK, 'entities_orig.sqlite'))
+        r_old = db.execute('select eid, label from entities where entity_id = ?', (old_id,)).fetchone()
+        r_new = db.execute('select eid, label from entities where entity_id = ?', (new_id,)).fetchone()
+        o.close()
+        if not r_new:
+            continue
+        form = fs[0]
+        ex = rg.example_lines(db, lines, r_new[0], [form], n=1)
+        line = ex[0] if ex else '(no line found)'
+        j = line.find('\u27e6')
+        if len(line) > 420 and j >= 0:
+            line = '...' + line[max(0, j - 200):j + 220] + '...'
+        out.append(f'{i}. {form}. Old heading: {r_old[1] if r_old else old_id} ({old_id}). '
+                   f'Now: {kind} to {r_new[1]} ({new_id}).')
+        out.append(f'   Line: {line}')
+        out.append('')
+    open(os.path.join(out_dir, 'sample_40.md'), 'w').write('\n'.join(out))
+    log('sample_40 written')
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('store')
@@ -508,6 +554,7 @@ def main():
     ap.add_argument('--sheet', action='store_true')
     ap.add_argument('--calibrate2', action='store_true')
     ap.add_argument('--judge2', action='store_true')
+    ap.add_argument('--sample40', action='store_true')
     ap.add_argument('--calibrate3', action='store_true')
     ap.add_argument('--judge3', action='store_true')
     ap.add_argument('--max-seconds', type=int, default=0)
@@ -518,6 +565,8 @@ def main():
         sys.exit(1 if calibrate(db, os.path.join(WORK, 'answers.sqlite')) else 0)
     if a.calibrate2:
         return calibrate2(db, os.path.join(WORK, 'answers.sqlite'))
+    if a.sample40:
+        return run_sample40(db, a)
     if a.calibrate3:
         return calibrate3(db, os.path.join(WORK, 'answers.sqlite'))
     if a.judge3:

@@ -291,7 +291,7 @@ def question3(heading, labels, top, description, form, n, lines):
 
 # Fourth version (p4v1): the third question plus a letter comparison computed in code (the model misread
 # Ἑρμίππου as Herippus and wrote "identical stems"; the project lead, 2026-10-22).
-PROMPT_VERSION4 = 'p4v7'
+PROMPT_VERSION4 = 'p4v8'
 _VARIANTS = (('ae', 'e'), ('ph', 'f'), ('th', 't'), ('kh', 'k'), ('ch', 'k'), ('c', 'k'), ('y', 'i'), ('ii', 'i'),
              ('ei', 'i'), ('h', ''))
 
@@ -302,6 +302,22 @@ def _vkey(t):
     return t
 
 
+def _prep_pair(form, heads):
+    """The spelling without a Latin enclitic (Romanoque is Romano), and the headings without a parenthesis
+    (Mycale (mountain)) and split at a slash (Ares/Mars), the way the letter check reads them."""
+    base, _enc = ex.without_enclitic(form)
+    f = prep(form)
+    if base:
+        f = base
+    hs = set()
+    for h in heads:
+        h = re.sub(r'\s*\([^)]*\)', '', h).strip()
+        for part in h.split('/'):
+            if ei.fold(part):
+                hs.add(part.strip())
+    return f, hs
+
+
 def _skeleton(stem):
     """The consonants of a stem, v and w written b, a doubled consonant once."""
     import re as _re
@@ -309,7 +325,7 @@ def _skeleton(stem):
     return _re.sub(r'(.)\1+', r'\1', t)
 
 
-def _sk_same(a, b, head=''):
+def _sk_same(a, b, head='', form=''):
     """Two consonant skeletons agree when equal or when one is the other plus a final s (the nominative
     ending the stem rule did not take off: Caipha and Caiaphas) or, for a heading in -on, a final n (Gideon and
     Gedeona)."""
@@ -318,7 +334,8 @@ def _sk_same(a, b, head=''):
     a, b = sorted((a, b), key=len)
     if not (len(b) == len(a) + 1 and b.startswith(a)):
         return False
-    return b[-1] == 's' or (b[-1] == 'n' and ei.translit(ei.fold(head)).endswith('on'))
+    greek_acc = _is_greek(form) and ei.translit(ei.fold(form))[-2:-1] in tuple('aeiou') and b[-1] == 'n'
+    return b[-1] == 's' or greek_acc or (b[-1] == 'n' and ei.translit(ei.fold(head)).endswith('on'))
 
 
 def letter_compare(form, heads, limit=3):
@@ -327,8 +344,10 @@ def letter_compare(form, heads, limit=3):
     variants (ae/e, y/i, c/k, ph/f, th/t, h) merged, then the letters only one side has and a similarity ratio.
     The `limit` closest headings are shown."""
     import difflib
-    reading = ei.translit(ei.fold(prep(form)))
-    sstem = _vkey(mb.case_family(prep(form))[0])
+    form0 = form
+    form, heads = _prep_pair(form, heads)
+    reading = ei.translit(ei.fold(form))
+    sstem = _vkey(mb.case_family(form)[0])
     rows = []
     seen = set()
     for h in sorted(heads):
@@ -347,7 +366,7 @@ def letter_compare(form, heads, limit=3):
                     only_h.append(f'-{hstem[j1:j2]}- (after {hstem[:j1][-2:] or "the start"})')
         rows.append((sm.ratio(), h, hr, hstem, only_s, only_h, _skeleton(hstem)))
     rows.sort(key=lambda r: -r[0])
-    out = [f'Letter check (computed by program, breathings and accents left out): the spelling {form} reads {reading}, '
+    out = [f'Letter check (computed by program, breathings and accents left out): the spelling {form0} reads {reading}, '
            f'its stem is {sstem}.']
     sk = _skeleton(sstem)
     for ratio, h, hr, hstem, only_s, only_h, hsk in rows[:limit]:
@@ -355,7 +374,7 @@ def letter_compare(form, heads, limit=3):
                 'the stems DIFFER, only in the spelling: ' + (', '.join(only_s) or 'nothing') + '; only in the heading: ' + (', '.join(only_h) or 'nothing'))
         out.append(f'Against {h}: it reads {hr}, stem {hstem}, similarity {ratio:.2f}, {diff}. '
                    f'Consonants of the stems: {sk or "none"} against {hsk or "none"}, '
-                   f'{"IDENTICAL, only vowels or h differ" if _sk_same(sk, hsk, h) else "they DIFFER"}.')
+                   f'{"IDENTICAL, only vowels or h differ" if _sk_same(sk, hsk, h, form) else "they DIFFER"}.')
     return '\n'.join(out)
 
 
@@ -380,9 +399,10 @@ SYSTEM4 = SYSTEM3.split(' Decide by the spelling')[0] + (
 def consonants_differ(form, heads):
     """True when the consonant skeleton of the spelling's stem differs from that of every heading's stem (the
     same test the letter check prints), so that no heading is the spelling with only vowels or h changed."""
-    sk = _skeleton(_vkey(mb.case_family(prep(form))[0]))
+    form, heads = _prep_pair(form, heads)
+    sk = _skeleton(_vkey(mb.case_family(form)[0]))
     hs = [h for h in heads if ei.fold(h)]
-    return bool(hs) and not any(_sk_same(_skeleton(_vkey(mb.case_family(h)[0])), sk, h) for h in hs)
+    return bool(hs) and not any(_sk_same(_skeleton(_vkey(mb.case_family(h)[0])), sk, h, form) for h in hs)
 
 
 def final_answer4(reply, form, heads):
