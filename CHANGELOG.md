@@ -8,6 +8,7 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-22
+- Greek documents: the 6,179 papyri whose only text is papyri.info's placeholder "This text has not been added to papyri.info yet." are removed from the Greek documents index and from Browse (`scripts/documents/remove_placeholder_documents.py`). Browse of papyri lists 61,801 instead of 67,980 and the document count falls from 260,878 to 254,699. Searches are unchanged. Help's count in Where each search looks updated.
 - Tessa chooses her own searches by default (the mode of #1125, #1129, #1138). The box at the top of her panel, or ?tessa=classic, returns a browser to the classic Tessa. Help updated.
 - Events: Theme Search passages for about 280 more events (635 such passages in 297 events), kept where the passage names the event's place or a participant, a strict second reading confirms the event with a quoted line, and a third places it in the event's year (`scripts/events/strict_theme_filter.py`, `scripts/events/occasion_check.py`). A sample read about two in three right, one in ten wrong. Help says so.
 - Tessa: a comparison still running on the server is waited for (up to four minutes, with its running time shown in her panel), so she answers from the finished results instead of asking the reader to come back.
