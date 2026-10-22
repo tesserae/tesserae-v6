@@ -104,9 +104,11 @@ def _one(name):
 
 
 def _pair(a, b):
-    pair = _named(f'compare {a} with {b}', 2)
+    """Each work looked up on its own first, so a title the sentence parser misreads (Claudian De raptu
+    Proserpinae, 2026-10-22) is found; the sentence parser when that fails."""
+    pair = [p for p in (_one(a), _one(b)) if p]
     if len(pair) < 2:
-        pair = [p for p in (_one(a), _one(b)) if p]
+        pair = _named(f'compare {a} with {b}', 2)
     return pair if len(pair) == 2 else None
 
 
@@ -189,22 +191,26 @@ COMPARE_WAIT = 240
 COMPARE_POLL = 10
 
 
-def _waiting(fetch, clock=None, sleep=None):
-    """Generator: calls fetch() until it no longer says RUNNING or COMPARE_WAIT seconds pass, yielding
-    a ('step', ...) line on each wait so the page shows progress and the connection stays open. Its
-    return value (StopIteration.value) is the last output."""
+def _waiting(fetch, clock=None, sleep=None, budget=None):
+    """Generator: calls fetch() until it no longer says RUNNING or the wait runs out, yielding a
+    ('step', ...) line on each wait so the page shows progress and the connection stays open. Its return
+    value (StopIteration.value) is the last output. `budget` ({'left': seconds}) is shared by every
+    comparison of one answer, so several comparisons wait COMPARE_WAIT in all, not each (2026-10-22: a
+    turn with two new comparisons took 515 seconds)."""
     import time
     clock, sleep = clock or time.monotonic, sleep or time.sleep
+    budget = budget if budget is not None else {'left': COMPARE_WAIT}
     start = clock()
     out = fetch()
-    while isinstance(out, str) and out.startswith(RUNNING) and clock() - start < COMPARE_WAIT:
+    while isinstance(out, str) and out.startswith(RUNNING) and clock() - start < budget['left']:
         yield ('step', f'the comparison is still running on the server ({int(clock() - start)} s so far)')
         sleep(COMPARE_POLL)
         out = fetch()
+    budget['left'] = max(0, budget['left'] - (clock() - start))
     if isinstance(out, str) and out.startswith(RUNNING):
-        out += (f' It was still running after {COMPARE_WAIT // 60} minutes. Give the reader what the faster '
-                'searches (rare_words, theme_compare) show now, and say that asking again in a minute or two '
-                'brings the full comparison, which is then ready at once.')
+        out += (' It is still running. Tell the reader plainly that the full comparison is not finished, give '
+                'what the shared rare words (rare_words) and the passages telling similar scenes (theme_compare) '
+                'show now, and say that the full comparison will be ready if they ask again in a few minutes.')
     return out
 
 
@@ -290,7 +296,19 @@ def t_list_texts(a):
     from backend.assistant import agent as ordinary
     code = (a.get('language') or '').strip().lower()
     if code in LANGUAGES:
-        return _clip(ordinary._language_holdings_fact(code), 6000)
+        fact = ordinary._language_holdings_fact(code)
+        if 'authors_with_work_counts' in fact:
+            # The ordinary Tessa's fact stops at 150 authors (alphabetical), which left out Statius and
+            # Vergil. Every author, with the number of works, fits.
+            from backend.work_names import base_work
+            by_author = {}
+            for r in searches.run('list_texts', {'language': code}) or []:
+                if isinstance(r, dict):
+                    by_author.setdefault(str(r.get('author') or 'Unknown'), set()).add(
+                        base_work(str(r.get('id') or '')) or str(r.get('display_name') or ''))
+            fact['authors_with_work_counts'] = {a: len(w) for a, w in sorted(by_author.items())}
+            fact['note'] = 'Too many works to list titles. Ask list_texts again for one author, or search the work.'
+        return _clip(fact, 9000)
     counts = {}
     for c in LANGUAGES:
         f = ordinary._language_holdings_fact(c)
@@ -378,6 +396,7 @@ How you work:
 - For a follow-up about the results of a comparison or search asked for earlier, run that search again (it answers at once) and cite from it.
 - When the reader asks for passages about a named person, keep a passage only if its names_in_the_passage_text or passage_text_start names that person, or its summary plainly tells that person's story; leave out the others rather than attaching them to the person.
 - Name a person in a passage only when the search result names them. The passage summaries often leave names out on purpose ("a young warrior"); keep their wording rather than guessing who it is.
+- Speak of searches in plain words. Never name a tool, and never describe how the site looked a name up.
 - Answer in plain prose, at most about 200 words, no headings. Write for a scholar of literature."""
 
 _REF = re.compile(r'\b\d{1,3}\.\d{1,4}\b')
@@ -476,6 +495,39 @@ def _drop_where(text, bad):
     return re.sub(r'\n{3,}', '\n\n', '\n'.join(kept)).strip(), dropped
 
 
+_CAP = re.compile(r"\b[A-Z][a-z]{3,}\b")
+# Capitalized words that are not names of persons or places in the texts.
+_NOT_NAMES = {'latin', 'greek', 'english', 'coptic', 'hebrew', 'persian', 'urdu', 'arabic', 'roman', 'romans',
+              'greeks', 'help', 'tesserae', 'tessa', 'search', 'searches', 'theme', 'reader', 'passages', 'similar',
+              'intertextual', 'inscriptions', 'papyri', 'coins', 'objects', 'events', 'people', 'places', 'browse',
+              'corpus', 'line', 'lines', 'phrase', 'rare', 'words', 'cross', 'language', 'book', 'books', 'both',
+              'christian', 'christians', 'god', 'gods', 'bible', 'gospel', 'church', 'empire', 'republic', 'epic',
+              'tragedy', 'comedy', 'senate', 'hellenistic', 'imperial', 'late', 'antiquity', 'classical',
+              'collections', 'documents', 'downloads', 'about', 'connector', 'claude', 'compare', 'texts'}
+
+
+def unsupported_names(text, context):
+    """Names of persons or places in the middle of a sentence that appear nowhere in the search results,
+    the question or the conversation (2026-10-22: she named Euryalus' mother "Caillina" and the mother of
+    Aeneid 3.337 "Cassandra"). A name matches by its first five letters, so a case form counts."""
+    known = {w[:5] for w in _fold(' '.join(context)).split()}
+    try:
+        _corrected('')                                    # loads the listing's author and title words
+        known |= {w[:5] for w in _VOCAB.get('words', ())}
+    except Exception:                                     # noqa: BLE001 -- the listing may be unavailable
+        pass
+    out = []
+    for m in _CAP.finditer(text):
+        word = m.group(0)
+        before = text[:m.start()].rstrip(' *_"\'\u201c\u2018([')
+        initial = not before or before[-1] in '.!?:\n-\u2022\u2014' or before.endswith('**')
+        if (initial and not text[m.end():].startswith("'s")) or word.lower() in _NOT_NAMES:
+            continue
+        if _fold(word)[:5] not in known and word not in out:
+            out.append(word)
+    return out
+
+
 RETRY = ('[Note from the site, not from the reader. The reader has not seen your draft.] Your draft {what}, '
          'which no search in this conversation returned. Call the tools that do (read_passage for the text of a '
          'line, compare_texts, search_one_text, events, people_places), then write your answer to the reader\'s '
@@ -510,10 +562,13 @@ def _tidy(text):
     return '\n'.join(out).strip()
 
 
-def _problems(text, outputs, earlier):
+def _problems(text, outputs, earlier, said=()):
     refs = unsupported_refs(text, outputs + earlier)
     quotes = unverified_quotes(text, outputs)
+    names = unsupported_names(text, list(outputs) + list(earlier) + list(said))
     parts = []
+    if names:
+        parts.append('names ' + ', '.join(names[:8]))
     if refs:
         parts.append('cites ' + ', '.join(refs[:8]))
     if quotes:
@@ -536,6 +591,7 @@ def answer_stream(question, history=None):
         messages.append({'role': 'user' if t.get('role') == 'user' else 'assistant', 'content': t.get('text') or ''})
     messages.append({'role': 'user', 'content': question})
     calls, outputs, specs = [], [], tool_specs()
+    wait = {'left': COMPARE_WAIT}
     # A follow-up about the results of a comparison asked for earlier ("which of them are the
     # strongest?"): the comparison is fetched again (from the cache) and given to the model first, so
     # every line it cites is in front of it. The model did not always run it again itself.
@@ -545,7 +601,7 @@ def answer_stream(question, history=None):
             pair = ordinary._earlier_pair(history)
             if pair and len(pair) == 2:
                 yield ('step', 'fetching the comparison again')
-                out = yield from _waiting(lambda: _compare_rows(pair))
+                out = yield from _waiting(lambda: _compare_rows(pair), budget=wait)
                 outputs.append(out)
                 calls.append({'name': 'compare_texts', 'args': {'from_conversation': True}})
                 # Appended to the opening instructions: the gateway's chat template takes a system message
@@ -555,6 +611,7 @@ def answer_stream(question, history=None):
     except Exception as e:                                # noqa: BLE001 -- the model can still run it itself
         logger.info('[ASSISTANT] tools mode could not refetch the comparison: %s', e)
     earlier = [t.get('text') or '' for t in history or [] if t.get('role') != 'user']
+    said = [question] + [t.get('text') or '' for t in history or [] if t.get('role') == 'user']
     text, retried = None, False
     for rnd in range(MAX_ROUNDS):
         m = _chat(messages, specs)
@@ -564,7 +621,7 @@ def answer_stream(question, history=None):
             # Cited or quoted from memory: sent back once to run the search, rather than shown with those
             # sentences cut (2026-10-22: a Latin storms list was cut to "Virgil, *A" after 25 citations
             # were dropped; follow-ups answered with no search invented speakers and lines).
-            problem = _problems(text, outputs, earlier) if text and not _TOOL_TEXT.search(text) else ''
+            problem = _problems(text, outputs, earlier, said) if text and not _TOOL_TEXT.search(text) else ''
             if problem and not retried and rnd < MAX_ROUNDS - 1:
                 retried = True
                 logger.info('[ASSISTANT] tools mode sent the answer back: %s', problem[:200])
@@ -583,7 +640,7 @@ def answer_stream(question, history=None):
             yield ('step', STEP.get(name, 'searching'))
             try:
                 if name in TOOLS:
-                    out = yield from _waiting(lambda f=TOOLS[name][0], a=args: f(a))
+                    out = yield from _waiting(lambda f=TOOLS[name][0], a=args: f(a), budget=wait)
                 else:
                     out = f'No such search: {name}'
             except (searches.SearchError, urllib.error.URLError, OSError, ValueError, KeyError) as e:

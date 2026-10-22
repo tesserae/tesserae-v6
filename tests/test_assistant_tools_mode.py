@@ -80,7 +80,7 @@ def test_a_comparison_running_past_the_wait_tells_the_model_what_to_do():
             steps.append(next(gen))
     except StopIteration as stop:
         out = stop.value
-    assert steps and out.startswith(agent_tools.RUNNING) and 'asking again' in out
+    assert steps and out.startswith(agent_tools.RUNNING) and 'ask again' in out
 
 
 def test_a_quotation_no_search_returned_is_caught_and_a_real_one_passes():
@@ -159,3 +159,25 @@ def test_after_a_send_back_a_correction_of_the_unseen_draft_is_removed(monkeypat
     monkeypatch.setattr(agent_tools, '_chat', lambda messages, tools=None: next(replies))
     events = list(agent_tools.answer_stream('Who wrote the Thebaid?', history=[]))
     assert events[-2] == ('chunk', 'Statius wrote the Thebaid.')
+
+
+def test_names_no_result_gives_are_caught():
+    ctx = ['{"summary": "A mother laments her dead son Euryalus"}', 'Narrow it to Vergil']
+    text = "In 9.481 the mother, Caillina, laments over Euryalus. Latin poets differ. Camilla's spear flies."
+    assert agent_tools.unsupported_names(text, ctx) == ['Caillina', 'Camilla'] or \
+        agent_tools.unsupported_names(text, ctx) == ['Caillina']
+
+
+def test_several_comparisons_share_one_wait():
+    ticks = iter(range(0, 10000, 100))
+    clock = lambda: next(ticks)  # noqa: E731
+    budget = {'left': 250}
+    first = agent_tools._waiting(lambda: agent_tools.RUNNING + 'A with B.', clock=clock, sleep=lambda s: None, budget=budget)
+    try:
+        while True:
+            next(first)
+    except StopIteration:
+        pass
+    assert budget['left'] == 0
+    second = agent_tools._waiting(lambda: agent_tools.RUNNING + 'C with D.', clock=clock, sleep=lambda s: None, budget=budget)
+    assert list(second) == []
