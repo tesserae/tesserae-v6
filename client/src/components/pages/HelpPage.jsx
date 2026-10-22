@@ -2084,6 +2084,21 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 echoes, for example).
               </p>
 
+              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">The editor&rsquo;s signs</h4>
+              <p className="text-gray-700 mb-4">
+                A document&rsquo;s page, and its card on an event page, show the text as its edition prints it,
+                with the usual signs: [abc] for letters lost and restored by the editor, [---] for text lost
+                and not restored, a(bc) for an abbreviation and the editor&rsquo;s expansion of it, (abc) for an
+                expansion the editor adds alone, a dot below an uncertain letter, &lt;abc&gt; for letters the
+                editor adds, {'{abc}'} for letters the editor deletes, [[abc]] for letters erased in antiquity,
+                and / for a new line. So a fragment of the consular list from Cupra Maritima reads
+                &ldquo;[---]uf [--- IIvir(i)] (duoviri)&rdquo;: a word broken off before &ldquo;uf&rdquo;, a
+                restored title, and the editor&rsquo;s gloss of it. The search reads the same text with the signs
+                removed and the restorations and expansions included, shown on the page under &ldquo;Reading as
+                searched&rdquo;. About 208,000 of the documents have the edition text. For the others (some papyri,
+                and texts whose edition differs from the searched reading) the page shows the searched reading only.
+              </p>
+
               <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">Filters and results</h4>
               <p className="text-gray-700 mb-3">
                 A date range, region, place, text type, material and source narrow a search, and two

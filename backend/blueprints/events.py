@@ -728,8 +728,17 @@ def get_event(event_id):
         # Everything but the text itself."). One row per document, keyed by its id.
         # Best effort: without the index the cards show their record line as before.
         texts = _document_texts(documents)
+        try:
+            from backend.documents import leiden_texts
+            leiden = leiden_texts([d['doc_id'] for d in documents])
+        except Exception:                                # noqa: BLE001 -- display only
+            leiden = {}
         for d in documents:
             d['text'] = texts.get(d['doc_id'])
+            # The edition with its signs ([---] lost, [abc] restored, (abc) the editor's expansion),
+            # shown on the card where there is one (2026-10-22, "uf IIviri duoviri" on EDR107014).
+            if leiden.get(d['doc_id']):
+                d['edition_text'] = leiden[d['doc_id']]
             forms = naming.get(d['doc_id']) if isinstance(naming, dict) else None
             d['matched_forms'] = sorted(f for f in (forms or ()) if f)
 
