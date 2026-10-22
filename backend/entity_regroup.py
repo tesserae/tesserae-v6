@@ -245,6 +245,50 @@ SYSTEM2 = (
     'ANSWER: SAME or ANSWER: DIFFERENT or ANSWER: UNCLEAR.')
 
 
+# Third version (p3v1): the second question for ONE spelling (the project lead's option B, 2026-10-22), because
+# a group mixes names (Φουλβία with Φούλβιος) and a verdict on the group follows its commonest spelling.
+PROMPT_VERSION3 = 'p3v1'
+SYSTEM3 = (
+    'You check the work of a program that sorts the spellings of ancient proper names into entries of a '
+    'reference index (People & Places). An entry has a heading, display labels, a short description and its most '
+    'frequent spellings. An earlier check judged that one spelling under the entry belongs to another '
+    'name. Check it again. You see the entry, the spelling with the number of lines it occurs in, and two '
+    'lines of text where it occurs, the spelling marked between the signs \u27e6 \u27e7.\n'
+    'Answer SAME when the spelling is a different spelling, case form, abbreviation, Latin or Greek '
+    'transliteration, or scribal or OCR slip of the SAME person, people, place or god that the entry names. '
+    'Examples of SAME: Caipha for Caiaphas, Samuhel for Samuel, Gedeona for Gideon, \u039a\u03c5\u03b8\u03b7\u03c1\u03af\u03b1 for Cythera, '
+    '\u03a6\u03bf\u03af\u03bd\u03b9\u03c3\u03c3\u03b1\u03b9 for Phoenicians. Answer DIFFERENT when the spelling is another '
+    'person, people, place or god, or a different word whose letters merely resemble the heading, even when '
+    'the two are related. Examples of DIFFERENT: Maximin for Maximianus, \u1f18\u03c0\u03b9\u03ba\u03bf\u03cd\u03c1\u03bf\u03c5 '
+    'for Epicureans, \u03a6\u03bf\u03c5\u03bb\u03b2\u03af\u03b1 for Fulvius. Decide by the spelling\'s own name, the nominative it '
+    'shows. Compare it letter by letter with the heading and the entry\'s frequent spellings. The spelling is SAME '
+    'only when it differs from them by ordinary variation of spelling and ending: ae and e, y and i, c and k, '
+    'ph and f, th and t, a dropped or added h, ii and i, Greek letters for Latin letters, a Latin or Greek '
+    'case ending, an English form. It is DIFFERENT when a consonant or a syllable of the stem differs (Maximin '
+    'and Maximianus, Hermippus and Herippus, Pherecrates and Pherecydes, Hibernia and Hiberum), when it is a '
+    'different word of the same family (Fulvia and Fulvius, a woman and a man), or when it is a person, school, '
+    'family, people or place only connected with the entry (the Epicureans and Epicurus). Do not accept the '
+    'spelling because the lines concern the person the heading names. Answer UNCLEAR only when the lines do not '
+    'allow a decision. Reply in three lines. Line one: SPELLING: the nominative of the spelling\'s name, '
+    'written in Latin letters. Line two: HEADING: the entry\'s name in Latin letters, then the '
+    'stem letters of each side and whether they differ by more than the ordinary variation listed, with the '
+    'differing letters named (for example: Maximin / Maximianus, differ: -in against -ian). Line three: exactly '
+    'ANSWER: SAME or ANSWER: DIFFERENT or ANSWER: UNCLEAR.')
+
+
+def question3(heading, labels, top, description, form, n, lines):
+    out = [f'Heading: {heading}']
+    if labels:
+        out.append('Display labels: ' + ', '.join(labels))
+    if description:
+        out.append(f'Description: {description}')
+    out.append('Most frequent spellings of the entry: ' + ', '.join(top))
+    out.append(f'Spelling: {form} ({n} lines)')
+    for i, ln in enumerate(lines, 1):
+        out.append(f'Line {i}: {ln[:400]}')
+    return '\n'.join(out)
+
+
 def open_cache2(path):
     c = sqlite3.connect(path)
     c.execute('create table if not exists answers2 (entity_id text, stem text, version text, answer text, '

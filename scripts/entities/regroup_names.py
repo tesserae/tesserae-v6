@@ -263,6 +263,96 @@ def judge_groups2(db, groups, cache_path, lines, label='', deadline=None):
     return have
 
 
+def spelling_items(db, groups, per_group=3):
+    """One item per spelling for the top `per_group` spellings (by rows) of each first-pass DIFFERENT group:
+    (eid, entity_id, 'F:' + spelling, {spelling: rows}). The best-ranked spellings of all groups come first, so
+    that a run stopped early has judged the commonest spelling of every group before any second one."""
+    items = []
+    for eid, entity_id, stem, forms in groups:
+        for rank, (f, n) in enumerate(sorted(forms.items(), key=lambda x: (-x[1], x[0]))[:per_group]):
+            items.append((rank, -n, (eid, entity_id, 'F:' + f, {f: n})))
+    items.sort(key=lambda x: x[:2])
+    return [x[2] for x in items]
+
+
+def judge_spellings(db, items, cache_path, lines, label='', deadline=None):
+    """The one-spelling question (p3v1) for items from spelling_items. Answers go to table answers2 under
+    version p3v1. Returns {(entity_id, 'F:' + spelling): answer}."""
+    cache = rg.open_cache2(cache_path)
+    have = {(a, b): c for a, b, c in cache.execute('select entity_id, stem, answer from answers2 where version = ?',
+                                                   (rg.PROMPT_VERSION3,))}
+    todo = [g for g in items if (g[1], g[2]) not in have]
+    if not todo:
+        return have
+    url, key = gateway()
+    stats = {}
+    t0 = time.time()
+    done = [0]
+
+    def one(item):
+        g, prompt = item
+        if deadline and time.time() > deadline:
+            return g, None, ''
+        reply = rg.ask(url, key, prompt, stats, system=rg.SYSTEM3, think=False, max_tokens=rg.MAX_TOKENS2)
+        ans, _ = rg.parse_answer(reply)
+        return g, ans or 'NONE', reply
+
+    with ThreadPoolExecutor(WORKERS2) as pool:
+        for i in range(0, len(todo), 200):
+            batch = []
+            for g in todo[i:i + 200]:
+                eid, entity_id, stem, forms = g
+                (form, n), = forms.items()
+                heading, labels, top = rg.entity_card2(db, eid)
+                _h, desc = rg.entity_card(db, eid)
+                batch.append((g, rg.question3(heading, labels, top, desc, form, n,
+                                              rg.example_lines(db, lines, eid, [form]))))
+            for g, ans, reply in pool.map(one, batch):
+                if ans is None:
+                    continue
+                cache.execute('insert or replace into answers2 values (?,?,?,?,?,?)',
+                              (g[1], g[2], rg.PROMPT_VERSION3, ans, reply, json.dumps(g[3], ensure_ascii=False)))
+                have[(g[1], g[2])] = ans
+                done[0] += 1
+            cache.commit()
+            if done[0] and done[0] % 1000 < 200:
+                log(f'{label} p3 judged {done[0]}/{len(todo)} new, {done[0] / (time.time() - t0):.2f}/s, '
+                    f'workers {WORKERS2}, errors {stats.get("errors", 0)}')
+            if deadline and time.time() > deadline:
+                log(f'{label} p3 stopped at the deadline, {done[0]} of {len(todo)} judged')
+                break
+    return have
+
+
+def calibrate3(db, cache_path):
+    lines = rg.Lines(WINDOWS)
+    items = []
+    for e, f, _w in CALIBRATION2:
+        eid, entity_id, stem, forms = first_pass_group(db, cache_path, e, f)
+        items.append((eid, entity_id, 'F:' + f, {f: forms[f]}))
+    got = judge_spellings(db, items, cache_path, lines, label='calibration3')
+    ok = {'SAME': 0, 'DIFFERENT': 0}
+    for (e, f, want), g in zip(CALIBRATION2, items):
+        ans = got[(g[1], g[2])]
+        ok[want] += ans == want
+        log(f'calibration3 {e} {f}: want {want}, got {ans}')
+    log(f'calibration3: SAME {ok["SAME"]}/8, DIFFERENT {ok["DIFFERENT"]}/10')
+
+
+def run_judge3(db, a):
+    cache_path = os.path.join(WORK, 'answers.sqlite')
+    ids = dict(db.execute('select entity_id, eid from entities'))
+    groups = [(ids[e], e, st, f) for e, st, f in differences(cache_path) if e in ids]
+    items = spelling_items(db, groups)
+    log(f'judge3: {len(groups)} groups, {len(items)} spellings, deadline {time.strftime("%a %H:%M", time.localtime(DEADLINE2))}')
+    got = judge_spellings(db, items, cache_path, rg.Lines(WINDOWS), label='judge3', deadline=DEADLINE2)
+    c = {}
+    for g in items:
+        k = got.get((g[1], g[2]), 'UNJUDGED')
+        c[k] = c.get(k, 0) + 1
+    log(f'judge3 DONE: {c}')
+
+
 CALIBRATION2 = [        # the 18 labelled cases of 2026-10-22: (entity id, spelling, want)
     ('pn:kaifa', 'Caipha', 'SAME'), ('pn:samue', 'Samuhel', 'SAME'), ('pn:ezekh', 'Hiezechiel', 'SAME'),
     ('pn:gedeo', 'Gedeona', 'SAME'), ('nm:danik', 'Danica', 'SAME'), ('ln:E0300', '\u0313\u0301\u0391\u03c1\u03b7\u03bf\u03c2', 'SAME'),
@@ -416,6 +506,8 @@ def main():
     ap.add_argument('--sheet', action='store_true')
     ap.add_argument('--calibrate2', action='store_true')
     ap.add_argument('--judge2', action='store_true')
+    ap.add_argument('--calibrate3', action='store_true')
+    ap.add_argument('--judge3', action='store_true')
     ap.add_argument('--max-seconds', type=int, default=0)
     ap.add_argument('--workers', type=int, default=0)
     a = ap.parse_args()
@@ -424,6 +516,10 @@ def main():
         sys.exit(1 if calibrate(db, os.path.join(WORK, 'answers.sqlite')) else 0)
     if a.calibrate2:
         return calibrate2(db, os.path.join(WORK, 'answers.sqlite'))
+    if a.calibrate3:
+        return calibrate3(db, os.path.join(WORK, 'answers.sqlite'))
+    if a.judge3:
+        return run_judge3(db, a)
     if a.judge2:
         return run_judge2(db, a)
     if a.judge:
