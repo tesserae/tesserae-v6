@@ -8,6 +8,7 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-22
+- Theme Search: an empty answer with no rating says the search did not finish and to search again, instead of "Nothing in the corpus resembles that description" (seen once while the site restarted).
 - People & Places: Pliny's Natural History, printed in lower case in our edition, is scanned by its spellings (33,640 mentions added, `scripts/entities/scan_lowercase_work.py`), and 1,365 inscription matches that came only from editors' notes are removed. Rusellae now has Pliny 3.26 beside Livy, and four inscriptions where two of its six were notes.
 - Experimental Tessa: names a person in a passage only when the search result does. She had called Aeneid 10.817 (the death of Lausus) the death of Nisus, guessing a name the passage summary leaves out.
 - Reader: the column of numbered boxes beside each line is wide enough for two boxes (quoted and possible echo, since #1025) and, with documents on, a third. The second box had been squeezed under the text.
