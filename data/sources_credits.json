@@ -62,7 +62,7 @@
     "licence_url": "https://creativecommons.org/licenses/by-sa/3.0/",
     "version": "AIO REST API (https://www.atticinscriptions.com/api/), 3,466 inscriptions",
     "retrieved": "2026-10-20",
-    "what_we_use": "The Greek texts that AIO publishes (547 inscriptions, edited by the AIO translators) and the English translations of 2,641 inscriptions that have a Greek text here, with the translators' names, dates, monument and inscription types and findspots. For 2,095 of them the Greek text comes from the Berlin edition listed next. The translations of the 825 inscriptions with no Greek text here are not shown, because a document is found through its Greek text.",
+    "what_we_use": "The Greek texts that AIO publishes (546 inscriptions, edited by the AIO translators) and the English translations of 3,450 inscriptions that have a Greek text here, with the translators' names, dates, monument and inscription types and findspots. For 2,095 of them the Greek text comes from the Berlin edition and for 809 from the Packard Humanities Institute, both listed next. The translations of the 16 inscriptions with no Greek text here are not shown, because a document is found through its Greek text.",
     "notes": "The project lead asked and AIO's chief editor, Chris de Lisle (Durham), replied on 2026-10-20 that inclusion is consistent with AIO's Creative Commons license, including the inclusion of its Greek texts. AIO's technical consultant, Irene Vagionakis, confirmed that the Greek texts were edited by the AIO translators and are not taken from PHI. Each inscription is shown under its edition number, as AIO's page gives it, and links to its AIO page."
   },
   {
@@ -75,6 +75,16 @@
     "retrieved": "2026-10-20",
     "what_we_use": "The Greek text of 2,095 Attic inscriptions (IG I3 and IG II/III3), paired with the English translations of Attic Inscriptions Online, which links each of them to the Berlin edition.",
     "notes": "Each EpiDoc file carries the licence element with the target https://creativecommons.org/licenses/by/4.0/legalcode and the sentence \"All reuse or distribution of this work must contain somewhere a link back to this page.\" Every document built from these files links to its Berlin page. The German translations in the files are not used."
+  },
+  {
+    "collection": "Inscriptions and papyri",
+    "name": "PHI Greek Inscriptions (The Packard Humanities Institute)",
+    "url": "https://epigraphy.packhum.org/",
+    "licence_name": "Used with the permission of the Packard Humanities Institute, for indexing and search on Tesserae only",
+    "version": "PHI Greek Inscriptions, 812 records fetched from the PHI inscriptions service",
+    "retrieved": "2026-10-22",
+    "what_we_use": "The Greek text of 809 Attic inscriptions, paired with the English translations of Attic Inscriptions Online, which has no Greek text of its own for them. Each is credited with its PHI number and links to its PHI page.",
+    "notes": "The Institute allowed (permission of 2026-10-22) the use of these Greek texts on the same terms as its Latin texts. They are searched and shown on the inscription's own page and are never offered as a download or passed on."
   },
   {
     "collection": "Inscriptions and papyri",

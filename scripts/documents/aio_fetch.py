@@ -54,6 +54,9 @@ def main():
     ap.add_argument("--html-for-bbaw", action="store_true",
                     help="also the HTML pages of the inscriptions paired with Berlin IG Greek "
                          "(list in OUT_DIR/bbaw_index.json from aio_fetch_bbaw.py)")
+    ap.add_argument("--html-for-phi", metavar="PHI_NEEDED_JSON", default=None,
+                    help="also the HTML pages of the inscriptions paired with PHI Greek (the list "
+                         "of {aio: 'VOL/ID', ...} entries)")
     a = ap.parse_args()
     t0 = time.time()
     os.makedirs(os.path.join(a.out, "list"), exist_ok=True)
@@ -102,6 +105,11 @@ def main():
     bbaw_stems = set()
     if a.html_for_bbaw:
         bbaw_stems = set(json.load(open(os.path.join(a.out, "bbaw_index.json")))["per_inscription"])
+    if a.html_for_phi:
+        for e in json.load(open(a.html_for_phi)):
+            vol, ident = e["aio"].split("/", 1)
+            bbaw_stems.add(f"{vol}__{ident.replace('/', '_')}")
+        a.html_for_bbaw = True
     if a.html_for_greek or a.html_for_bbaw:
         os.makedirs(os.path.join(a.out, "html"), exist_ok=True)
         got = 0

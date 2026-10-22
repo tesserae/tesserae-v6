@@ -1094,7 +1094,14 @@ def get_document(doc_id):
         'display': display or {},
         'image_hosts_down': docs.image_hosts_down_for((display or {}).get('image_url')),
     }
-    return jsonify(payload)
+    indexing_only = docs.is_indexing_only(doc_id)
+    if indexing_only:
+        payload['indexing_only'] = True
+    resp = jsonify(payload)
+    if indexing_only:
+        # Held for indexing and search only: the page may show the text, nothing may keep or pass it on.
+        resp.headers['X-Robots-Tag'] = 'noindex, noarchive'
+    return resp
 
 
 @api_route('/documents/<doc_id>/scholarship', methods=['GET'])
