@@ -39,6 +39,7 @@ import sqlite3
 from functools import lru_cache
 
 from backend.logging_config import get_logger
+from backend.thread_connections import PerThreadConnections
 
 logger = get_logger('documents')
 
@@ -84,7 +85,7 @@ def enabled():
 # Index connections (texts / postings / lines / doc_meta)
 # --------------------------------------------------------------------------
 
-_connections = {}
+_connections = PerThreadConnections()  # one sqlite3 connection per thread (backend/thread_connections.py)
 
 
 def _index_db_path(language):

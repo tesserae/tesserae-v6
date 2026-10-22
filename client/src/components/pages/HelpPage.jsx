@@ -1804,7 +1804,9 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   Tessa tall and wide, and Smaller puts her back in the corner. The choice is remembered.
                 </li>
                 <li>
-                  Follow up. Ask &ldquo;what about Eobanus?&rdquo; and she keeps the thread. When she lists several
+                  Follow up. Ask &ldquo;what about Eobanus?&rdquo; and she keeps the thread. After a comparison,
+                  ask &ldquo;what do you make of those results?&rdquo; or &ldquo;which are the strongest?&rdquo; and she
+                  reads the first page of that comparison. When she lists several
                   events or People &amp; Places entries of the same name, answer with the one you mean (&ldquo;the
                   one in 31 BCE&rdquo;, &ldquo;the second&rdquo;, &ldquo;the god&rdquo;) and she opens it.
                 </li>
