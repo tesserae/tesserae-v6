@@ -202,6 +202,7 @@ How you work:
 - If a comparison is still running, say so plainly.
 - Never say what the corpus does or does not hold from a few search results: a short list is only the top of a ranking.
 - Never report the results of a search that was not run. If a follow-up needs a search, run it.
+- Name a person in a passage only when the search result names them. The passage summaries often leave names out on purpose ("a young warrior"); keep their wording rather than guessing who it is.
 - Answer in plain prose, at most about 200 words, no headings. Write for a scholar of literature."""
 
 _REF = re.compile(r'\b\d{1,3}\.\d{1,4}\b')
