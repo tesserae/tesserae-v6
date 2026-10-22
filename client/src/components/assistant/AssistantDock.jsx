@@ -6,6 +6,17 @@ import { getSessionValue, setSessionValue } from '../../utils/storage';
 import { useIsPhone } from '../../hooks/useIsPhone';
 
 const TUCK_KEY = 'tesserae_tessa_tucked';
+// The experimental Tessa, who chooses her own searches (backend/assistant/agent_tools.py). Opt-in: a link
+// with ?tessa=new turns it on in this browser and shows the switch, ?tessa=classic turns it off.
+const MODE_KEY = 'tessa_mode';
+function readMode() {
+  try {
+    const want = new URLSearchParams(window.location.search).get('tessa');
+    if (want === 'new') window.localStorage.setItem(MODE_KEY, 'tools');
+    if (want === 'classic') window.localStorage.setItem(MODE_KEY, 'classic');
+    return window.localStorage.getItem(MODE_KEY) || '';
+  } catch { return ''; }
+}
 function readTucked() {
   try { return window.localStorage.getItem(TUCK_KEY) === '1'; } catch { return false; }
 }
@@ -168,6 +179,11 @@ export default function AssistantDock() {
   // reloads the page and would otherwise shut her and wipe the conversation.
   const [open, setOpen] = useState(() => getSessionValue('tessa_open', '0') === '1');
   const [tucked, setTucked] = useState(readTucked);
+  const [mode, setModeState] = useState(readMode);
+  const setMode = (m) => {
+    try { window.localStorage.setItem(MODE_KEY, m); } catch { /* storage blocked */ }
+    setModeState(m);
+  };
   const setTuckedSaved = (v) => {
     setTucked(v);
     try { window.localStorage.setItem(TUCK_KEY, v ? '1' : '0'); } catch { /* storage blocked */ }
@@ -230,7 +246,8 @@ export default function AssistantDock() {
     // Hand back the offer this answer made, so "yes" is an acceptance rather
     // than a question with no content of its own.
     run('/api/assistant/ask-stream',
-        { question, history, offered_phrase: pendingOffer.current || undefined });
+        { question, history, offered_phrase: pendingOffer.current || undefined,
+          ...(mode === 'tools' ? { mode: 'tools' } : {}) });
   };
 
   // The launcher is deliberately two different things.
@@ -349,6 +366,18 @@ export default function AssistantDock() {
           </button>
         </div>
       </header>
+
+      {mode && (
+        <label className="flex items-center gap-2 px-3 py-1.5 text-[11px] text-gray-600 border-b border-gray-100 bg-gray-50">
+          <input
+            type="checkbox"
+            checked={mode === 'tools'}
+            onChange={(e) => setMode(e.target.checked ? 'tools' : 'classic')}
+            data-testid="tessa-mode-switch"
+          />
+          Experimental: Tessa chooses her own searches (slower, follows the conversation more closely)
+        </label>
+      )}
 
       {phone && form}
 
