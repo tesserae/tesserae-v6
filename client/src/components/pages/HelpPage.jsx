@@ -2139,8 +2139,9 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
               <p className="text-gray-700 mb-3">
                 Inscriptions come from the Epigraphic Database Heidelberg (EDH), the Epigraphic
                 Database Roma (EDR), I.Sicily, and Attic Inscriptions Online (AIO, Greek texts with
-                English translations, and the Berlin edition of the Inscriptiones Graecae for the Greek of
-                2,095 more of AIO's inscriptions). The papyri and ostraca texts come from the Duke
+                English translations, the Berlin edition of the Inscriptiones Graecae for the Greek of
+                2,095 more of AIO's inscriptions, and PHI Greek Inscriptions, from the Packard Humanities
+                Institute, for the Greek of 809 more). The papyri and ostraca texts come from the Duke
                 Databank of Documentary Papyri (DDbDP), and their records come from the Heidelberg
                 Gesamtverzeichnis der griechischen Papyrusurkunden Ägyptens (HGV), both via
                 papyri.info. Each result credits its own source and license. Where EDH and EDR
@@ -2149,7 +2150,9 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 each named on the link). No image is copied here.
               </p>
               <p className="text-gray-700 mb-3">
-                EDH is used under CC BY-SA 4.0, AIO under CC BY-SA 3.0, the Berlin Inscriptiones Graecae under CC BY 4.0, I.Sicily and the EDR deposit under CC BY 4.0, and
+                EDH is used under CC BY-SA 4.0, AIO under CC BY-SA 3.0, the Berlin Inscriptiones Graecae under CC BY 4.0, the PHI texts with the Institute&rsquo;s permission
+                for searching on this site (each page names its PHI number and links to the PHI page, and the texts are not offered
+                for download), I.Sicily and the EDR deposit under CC BY 4.0, and
                 the papyri.info texts and HGV records under CC BY 3.0, with copyright and attribution
                 to the respective projects. Findspots link to Pleiades (CC BY 3.0). The full list,
                 with the version and retrieval date of each, is under{' '}
