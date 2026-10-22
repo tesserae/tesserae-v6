@@ -214,3 +214,19 @@ def test_people_places_brings_lines_naming_a_place_by_its_adjective(monkeypatch)
     out = json.loads(agent_tools.t_people_places({'name': 'Rusellae'}))
     assert out['lines_naming_it_by_its_adjective'][0]['author'] == 'Livy'
     assert 'Rusellanum' in out['lines_naming_it_by_its_adjective'][0]['text']
+
+
+def test_a_comparison_answer_carries_a_button_to_the_comparison_page(monkeypatch):
+    pair = [{'id': 'statius.thebaid.tess', 'display_name': 'Statius, Thebaid', 'language': 'la'},
+            {'id': 'vergil.aeneid.tess', 'display_name': 'Vergil, Aeneid', 'language': 'la'}]
+    monkeypatch.setattr(agent_tools, '_pair', lambda a, b: pair)
+    monkeypatch.setattr(agent_tools, '_lines_in', lambda row: 9800)
+    replies = iter([
+        {'content': '', 'tool_calls': [{'id': 'c1', 'function': {'name': 'compare_texts', 'arguments': json.dumps(
+            {'text_a': 'Thebaid', 'text_b': 'Aeneid'})}}]},
+        {'content': 'The whole poems are long; the button below opens the comparison.'},
+    ])
+    monkeypatch.setattr(agent_tools, '_chat', lambda messages, tools=None: next(replies))
+    done = list(agent_tools.answer_stream('compare the Thebaid and the Aeneid', history=[]))[-1][1]
+    assert done['actions'][0]['kind'] == 'compare'
+    assert 'source=statius.thebaid' in done['actions'][0]['url']
