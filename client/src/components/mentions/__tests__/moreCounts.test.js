@@ -18,3 +18,11 @@ describe('editorNoteParts', () => {
     expect(editorNoteParts('Felix Rusellis')).toEqual([{ note: false, text: 'Felix Rusellis' }]);
   });
 });
+
+describe('entryExtra', () => {
+  it('sums the adjective names and passes the documents of an entry page', async () => {
+    const { entryExtra, moreCounts } = await import('../MentionsPage');
+    const d = { adjective_names: [{ count: 4 }], document_counts: { la: 4 } };
+    expect(moreCounts(entryExtra(d))).toBe('named by its adjective in 4 lines · 4 inscriptions and papyri');
+  });
+});
