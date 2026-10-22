@@ -8,6 +8,7 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-22
+- Tessa: an answer that compares two texts, or declines to compare two long whole works, ends with a button that opens the comparison page with both texts filled in.
 - Tessa: the switch to the classic Tessa is gone from her panel. Every visitor gets the Tessa who runs the searches a question needs, and the classic Tessa answers only when she cannot. Help says plainly what she does.
 - Tessa: before saying who speaks, what happens or what a line says, she reads the passage; an answer that cites or quotes something no search returned is sent back to her once to run the search; she adds no facts from memory; misspelled work names (Aenied, Virgil) are corrected.
 - Tessa chooses her own searches by default (the mode of #1125, #1129, #1138). The box at the top of her panel, or ?tessa=classic, returns a browser to the classic Tessa. Help updated.

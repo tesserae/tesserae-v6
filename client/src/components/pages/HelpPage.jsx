@@ -1823,7 +1823,9 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 cites or quotes a passage, or names a person, that none of her searches returned is sent back to her
                 or removed before you see it. An answer takes five to thirty seconds, because she may run several
                 searches. She does not start a full comparison of two whole long works, such as the whole
-                Thebaid with the whole Aeneid: she compares them by content instead and asks which books you want.
+                Thebaid with the whole Aeneid. She compares them by content instead, asks which books you want, and gives a button that opens the
+                comparison page with both works filled in, so you can run the full comparison there. Any answer that
+                compares two texts ends with that button.
               </p>
 
               <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">How to trust her</h4>

@@ -202,7 +202,8 @@ def _compare_rows(pair):
     big = [n for n, p in zip(names, pair) if _lines_in(p) > WHOLE_WORK_LINES]
     if big:
         return (f'Not run: {" and ".join(big)} {"is a long whole work" if len(big) == 1 else "are long whole works"}, '
-                'and the full comparison is run book against book. Use theme_compare for the whole works '
+                'and the full comparison is run book against book. A button under your answer opens the comparison '
+                'page with both works filled in, where the reader can run it (it takes several minutes). Use theme_compare for the whole works '
                 '(passages telling similar scenes), and offer to compare named books (for example book 12 with '
                 'book 11). Ask the reader which books they want, in plain words.')
     if la == lb:
@@ -341,6 +342,20 @@ def t_people_places(a):
     if docs:
         head['inscriptions_and_papyri_naming_it'] = docs
     return _clip({**head, 'people_and_places': out}, 8000)
+
+
+def compare_link(pair):
+    """The button that opens the comparison page with both texts filled in (the Cross-Language tab for two
+    languages), offered whenever she compares or declines to compare two texts. 2026-10-22: asked about two
+    whole epics she declined the full comparison, and the reader had no way on to run it on the site."""
+    from backend.assistant import actions
+    a, b = pair
+    la, lb = a.get('language') or 'la', b.get('language') or 'la'
+    names = [p.get('display_name') or _id(p) for p in pair]
+    if la != lb:
+        return actions._cross_texts(_id(a), _id(b), la, lb)
+    return actions._compare(_id(a), _id(b), la, label=f'Compare {names[0]} with {names[1]}',
+                            source_name=names[0], target_name=names[1])
 
 
 def t_rare_words(a):
@@ -690,6 +705,7 @@ def answer_stream(question, history=None):
     messages.append({'role': 'user', 'content': question})
     calls, outputs, specs = [], [], tool_specs()
     wait = {'left': COMPARE_WAIT}
+    links = []
     # A follow-up about the results of a comparison asked for earlier ("which of them are the
     # strongest?"): the comparison is fetched again (from the cache) and given to the model first, so
     # every line it cites is in front of it. The model did not always run it again itself.
@@ -745,6 +761,14 @@ def answer_stream(question, history=None):
                 out = f'The search failed: {e}'
             calls.append({'name': name, 'args': args})
             outputs.append(out)
+            if name == 'compare_texts':
+                try:
+                    pair = _pair(args.get('text_a', ''), args.get('text_b', ''))
+                    link = compare_link(pair) if pair else None
+                    if link and link not in links:
+                        links.append(link)
+                except Exception as e:                    # noqa: BLE001 -- a missing button must not lose the answer
+                    logger.info('[ASSISTANT] no comparison button: %s', e)
             messages.append({'role': 'tool', 'tool_call_id': tc.get('id'), 'content': out})
     if text is None:
         messages.append({'role': 'user', 'content': 'Answer the question now from the search results above. '
@@ -767,4 +791,5 @@ def answer_stream(question, history=None):
         raise GaveUp('every sentence of the answer cited something no search returned')
     yield ('chunk', text)
     yield ('done', {'searches_run': [c['name'] for c in calls], 'tool_calls': calls, 'mode': 'tools',
+                    'actions': links[:3],
                     'citations_dropped': len(dropped)})
