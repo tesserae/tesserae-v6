@@ -1895,12 +1895,13 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 and from a one-sentence account of the scene without names, judged by the same instructions,
                 because its first list missed Plutarch&rsquo;s and Cassius Dio&rsquo;s accounts of the battle.
                 Its labels were then read by hand, and six were corrected. The siege of Perusia and nineteen
-                well-known battles (Marathon, Thermopylae, Salamis, Plataea, Cannae, Lake Trasimene, Zama,
-                Pharsalus, Philippi, Alesia, Gaugamela, Issus, the Granicus, the Teutoburg Forest, Carrhae,
-                Aegospotami, Leuctra, the Allia, and the Sicilian Expedition) have such passages too, each
-                read by hand and the wrong ones removed. The same search was run for every event, but for
-                less documented events about a third of what it found was wrong, so those results are not
-                shown.
+                well-known battles (Marathon, Thermopylae, Salamis, Plataea, Cannae and others) have such passages
+                too, each read by hand and the wrong ones removed. For about 280 more events the same search was
+                kept only where the passage names the event&rsquo;s place or one of its people, a second reading
+                by the model confirmed that it tells this event and quoted the line that shows it, and a third
+                placed it in the event&rsquo;s own year rather than on another occasion of the same people. Read
+                in a sample, about two in three of these are right and one in ten is wrong, usually the same people
+                on another occasion, so read the passage before relying on it.
                 In each passage the names found and the words of the event&rsquo;s place and participants are
                 highlighted, in any case form (Περυσίας and Περυσίαν, Marathon in &ldquo;apud Marathona&rdquo;).
                 Each passage shows a short excerpt of every line that holds one of the names found, with that
