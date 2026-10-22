@@ -1815,13 +1815,13 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
               </ul>
 
               <p className="text-gray-700 mb-3">
-                An experimental Tessa, who reads the whole conversation and chooses her own searches, can be
-                switched on in your browser with a link ending <code>?tessa=new</code> (and off with{' '}
-                <code>?tessa=classic</code>). A switch in her panel then turns it on and off. She is slower,
-                ten to thirty seconds an answer, because she may run several searches, and she follows a
-                conversation more closely: told &ldquo;there should be instances in the Aeneid (Pallas)&rdquo;,
-                she searches the Aeneid for them. A sentence that cites a passage no search returned is removed
-                before you see it.
+                Tessa reads the whole conversation and chooses her own searches, so she follows a conversation
+                closely: told &ldquo;there should be instances in the Aeneid (Pallas)&rdquo;, she searches the Aeneid
+                for them, and asked &ldquo;which of them are the strongest?&rdquo; after a comparison, she reads that
+                comparison again. An answer takes five to thirty seconds, because she may run several searches. A
+                sentence that cites a passage no search returned is removed before you see it. The box at the top of
+                her panel, or a link ending <code>?tessa=classic</code>, switches this browser to the classic Tessa, who
+                answers in a few seconds and runs one search chosen by the site for each kind of question.
               </p>
 
               <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">How to trust her</h4>
