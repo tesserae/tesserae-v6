@@ -270,7 +270,9 @@ export function DocumentRow({ r }) {
         </p>
       ) : r.text && (
         <p className="text-sm text-gray-900 mt-1" lang={r.language}>
-          <MarkedText text={r.text} token={r.matched_form} ignoreCase />
+          {editorNoteParts(r.text).map((part, i) => (part.note
+            ? <span key={i} className="italic text-gray-500 text-xs">[editor&rsquo;s note: {part.text}] </span>
+            : <MarkedText key={i} text={part.text} token={r.matched_form} ignoreCase />))}
         </p>
       )}
       <p className="text-xs text-gray-500 mt-1"><CreditLine credit={r.credit} /></p>

@@ -201,7 +201,9 @@ function DocumentCard({ d, event }) {
             ? editorNoteParts(d.edition_text).map((part, i) => (part.note
               ? <span key={i} className="italic text-gray-500 font-sans text-xs">[editor&rsquo;s note: {part.text}] </span>
               : <HighlightedText key={i} text={part.text} forms={[...(d.matched_forms || []), ...eventNameWords(event)]} stems />))
-            : <HighlightedText text={d.text} forms={[...(d.matched_forms || []), ...eventNameWords(event)]} stems />}
+            : editorNoteParts(d.text).map((part, i) => (part.note
+              ? <span key={i} className="italic text-gray-500 font-sans text-xs">[editor&rsquo;s note: {part.text}] </span>
+              : <HighlightedText key={i} text={part.text} forms={[...(d.matched_forms || []), ...eventNameWords(event)]} stems />))}
         </p>
       )}
       {d.text_snippet && <p className="text-xs text-gray-500 mt-1">{d.text_snippet}</p>}
