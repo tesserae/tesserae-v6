@@ -77,8 +77,23 @@ def _theme_compact(d, k=12):
     conf = d.get('confidence')
     return {'confidence': conf.get('label') if isinstance(conf, dict) else conf, 'total': d.get('total'),
             'results': [{'work': r.get('display_name') or r.get('work'), 'ref': r.get('ref_start') or r.get('ref'),
+                         'ref_end': r.get('ref_end'), 'year': r.get('year'),
                          'language': r.get('language'), 'summary': r.get('gist') or r.get('summary'),
+                         'names_in_the_passage_text': r.get('names_in_text') if isinstance(r.get('names_in_text'), list) else None,
+                         'passage_text_start': _window_text(r.get('id')),
                          'tags': r.get('themes') or r.get('tags')} for r in rows[:k]]}
+
+
+def _window_text(window_id, n=360):
+    """The first words of a passage window's own text, so the model can see who is named in it."""
+    if not window_id:
+        return None
+    try:
+        from backend import window_texts
+        t = window_texts.texts_for([window_id]).get(window_id)
+    except Exception:                                     # noqa: BLE001 -- an excerpt is a help, not a need
+        t = None
+    return (t or '')[:n] or None
 
 
 # ---------------------------------------------------------------- the tools
@@ -91,6 +106,10 @@ def t_compare_texts(a):
     pair = _pair(a.get('text_a', ''), a.get('text_b', ''))
     if not pair:
         return f"Could not find both texts in the corpus: {a.get('text_a')!r}, {a.get('text_b')!r}."
+    return _compare_rows(pair)
+
+
+def _compare_rows(pair):
     la, lb = pair[0].get('language') or 'la', pair[1].get('language') or 'la'
     names = [p.get('display_name') or _id(p) for p in pair]
     if la == lb:
@@ -108,7 +127,15 @@ def t_rare_words(a):
     pair = _pair(a.get('text_a', ''), a.get('text_b', ''))
     if not pair:
         return 'Could not find both texts.'
-    return _clip(searches.run('rare_words', {'source': _id(pair[0]), 'target': _id(pair[1])}), 5000)
+    d = searches.run('rare_words', {'source': _id(pair[0]), 'target': _id(pair[1])})
+    words = [{'word': r.get('display_form') or r.get('lemma'), 'texts_in_the_corpus_with_it': r.get('corpus_count'),
+              'in_text_a': [x.get('citation') + ': ' + (x.get('text') or '') for x in r.get('source_locations') or []][:3],
+              'in_text_b': [x.get('citation') + ': ' + (x.get('text') or '') for x in r.get('target_locations') or []][:3]}
+             for r in d.get('results') or []]
+    return _clip({'text_a': pair[0].get('display_name'), 'text_b': pair[1].get('display_name'),
+                  'lemmas_shared': d.get('shared_lemmas'),
+                  'rare_means': f"found in at most {d.get('max_occurrences')} texts of the corpus",
+                  'rare_words_shared': words}, 5000)
 
 
 def t_theme_search(a):
@@ -202,6 +229,8 @@ How you work:
 - If a comparison is still running, say so plainly.
 - Never say what the corpus does or does not hold from a few search results: a short list is only the top of a ranking.
 - Never report the results of a search that was not run. If a follow-up needs a search, run it.
+- For a follow-up about the results of a comparison or search asked for earlier, run that search again (it answers at once) and cite from it.
+- When the reader asks for passages about a named person, keep a passage only if its names_in_the_passage_text or passage_text_start names that person, or its summary plainly tells that person's story; leave out the others rather than attaching them to the person.
 - Name a person in a passage only when the search result names them. The passage summaries often leave names out on purpose ("a young warrior"); keep their wording rather than guessing who it is.
 - Answer in plain prose, at most about 200 words, no headings. Write for a scholar of literature."""
 
@@ -265,6 +294,24 @@ def answer_stream(question, history=None):
         messages.append({'role': 'user' if t.get('role') == 'user' else 'assistant', 'content': t.get('text') or ''})
     messages.append({'role': 'user', 'content': question})
     calls, outputs, specs = [], [], tool_specs()
+    # A follow-up about the results of a comparison asked for earlier ("which of them are the
+    # strongest?"): the comparison is fetched again (from the cache) and given to the model first, so
+    # every line it cites is in front of it. The model did not always run it again itself.
+    try:
+        from backend.assistant import agent as ordinary
+        if history and ordinary._results_followup(question):
+            pair = ordinary._earlier_pair(history)
+            if pair and len(pair) == 2:
+                yield ('step', 'fetching the comparison again')
+                out = _compare_rows(pair)
+                outputs.append(out)
+                calls.append({'name': 'compare_texts', 'args': {'from_conversation': True}})
+                # Appended to the opening instructions: the gateway's chat template takes a system message
+                # only at the start of the conversation (HTTP 400 otherwise).
+                messages[0]['content'] += ('\n\nThe comparison asked for earlier in this conversation, '
+                                           'fetched again for this question:\n' + out)
+    except Exception as e:                                # noqa: BLE001 -- the model can still run it itself
+        logger.info('[ASSISTANT] tools mode could not refetch the comparison: %s', e)
     text = None
     for _ in range(MAX_ROUNDS):
         m = _chat(messages, specs)
