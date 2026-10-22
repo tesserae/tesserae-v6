@@ -9,6 +9,7 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-22
 - Line Search, the inscriptions search and the reuse tables open one database connection per thread (`backend/thread_connections.py`). With one connection per process shared by Apache's threads, 1 of 12 Line Searches run at once failed with HTTP 500 ("bad parameter or other API misuse"), and the change to eight threads a process would have made it more frequent.
+- A pull request check, Help coverage (`.github/workflows/help-coverage.yml`, `.github/scripts/help_coverage.py`): a pull request that changes visitor-facing code (client/src, backend, services, tests aside) must also change the Help page or the "What this search does" boxes, or say in its description "Help: not needed, <reason>". Over the last 30 merged pull requests it would have stopped 11. Help now also says how to pick one of several same-named events or entries Tessa lists.
 - Tessa: "How do I type Greek if I don't have a Greek keyboard?" gets the Help answer (add the computer's Greek keyboard, accents optional). The model had told a reader to type Greek in Latin letters, which the boxes do not convert. The Help-answer match treats "if I don't have" like "without". Found in a comparison of three gateway models on 100 site questions (Qwen3.8 27B, the current model, stays).
 
 ## 2026-10-21
