@@ -1,0 +1,21 @@
+name: Help coverage
+
+# Every pull request that changes what a visitor sees updates Help, or says in its description why not
+# ("Help: not needed, <reason>"). See .github/scripts/help_coverage.py.
+
+on:
+  pull_request:
+    branches: [ "main" ]
+    types: [opened, synchronize, reopened, edited]
+
+jobs:
+  help:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Help updated or waived
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: python3 .github/scripts/help_coverage.py "${{ github.event.pull_request.base.sha }}" "${{ github.event.pull_request.head.sha }}"

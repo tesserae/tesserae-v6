@@ -1799,7 +1799,11 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   with legend, mint and date, or objects with museum, date and title, and a link opens the page
                   with the search filled in.
                 </li>
-                <li>Follow up. Ask &ldquo;what about Eobanus?&rdquo; and she keeps the thread.</li>
+                <li>
+                  Follow up. Ask &ldquo;what about Eobanus?&rdquo; and she keeps the thread. When she lists several
+                  events or People &amp; Places entries of the same name, answer with the one you mean (&ldquo;the
+                  one in 31 BCE&rdquo;, &ldquo;the second&rdquo;, &ldquo;the god&rdquo;) and she opens it.
+                </li>
               </ul>
 
               <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">How to trust her</h4>
