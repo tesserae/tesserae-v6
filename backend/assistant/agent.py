@@ -1328,7 +1328,24 @@ _STATUS_WORDS = ('still working', 'still running', 'still going', 'are you done'
 
 def _status_question(question):
     q = ' '.join((question or '').lower().split())
-    return len(q) <= 80 and any(w in q for w in _STATUS_WORDS)
+    return len(q) <= 80 and any(w in q for w in _STATUS_WORDS) or _results_followup(q)
+
+
+# A REQUEST TO READ THE COMPARISON JUST ASKED FOR. "Can you give me some analysis of those results?"
+# after "compare Aeneid 1 to Lucan BC 1" was taken for a new question with nothing before it, and she
+# answered that she could not see any results (2026-10-22, the project lead). It names no text, so it
+# goes the way of a status question: the pair comes from the reader's earlier turn and the first page
+# of that comparison is fetched (from the cache when it has run) and read.
+_RESULTS_REF = re.compile(r'\b(th(?:ose|ese|e) (?:results|parallels|matches|comparison|hits)|them|that comparison|'
+                          r'this comparison|what (?:it|the search) found)\b')
+_RESULTS_ASK = re.compile(r'\b(analy[sz]|interpret|explain|make of|discuss|comment|summari[sz]|go through|'
+                          r'which (?:ones?|of them|are)|strongest|best|most (?:important|interesting|significant)|'
+                          r'significan|tell me about|walk me through|read)')
+
+
+def _results_followup(question):
+    q = ' '.join((question or '').lower().split())
+    return len(q) <= 120 and bool(_RESULTS_REF.search(q)) and bool(_RESULTS_ASK.search(q))
 
 
 def _earlier_pair(history):
