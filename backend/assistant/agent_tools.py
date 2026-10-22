@@ -13,6 +13,7 @@ search result is dropped, so the reader never sees a locus the searches did not 
 import json
 import re
 import urllib.error
+import urllib.parse
 import urllib.request
 
 from backend.assistant import corpus_lookup, model, prompts, searches, site_help
@@ -247,6 +248,31 @@ def t_read_passage(a):
     return _clip({'work': w.get('display_name') or base, 'lines': lines}, 6000) if lines else 'No lines found.'
 
 
+def t_people_places(a):
+    """The People & Places entry, with the inscriptions and papyri its page lists. 2026-10-22: asked
+    "inscriptions too?" about Rusellae, she searched the documents for the word Rusellae, found none, and
+    said none name it; the entry lists four (Rusellis, Rusellanus) that its page shows."""
+    out = searches.run('people_places', a)
+    docs = []
+    rows = ((out or {}).get('search') or {}).get('results') or []
+    for r in rows[:2]:
+        if not (r.get('document_counts') or {}) or not r.get('id'):
+            continue
+        try:
+            d = searches._get('/entities/' + urllib.parse.quote(str(r['id']), safe=':') + '/documents', {'limit': 10})
+        except (searches.SearchError, OSError, ValueError) as e:
+            logger.info('[ASSISTANT] documents of %s unreadable: %s', r.get('id'), e)
+            continue
+        for x in d.get('results') or []:
+            docs.append({'entry': r.get('display_label') or r.get('label'), 'document': x.get('doc_id'),
+                         'edition': (x.get('credit') or {}).get('principal_edition'),
+                         'found_at': x.get('ancient_place') or x.get('modern_place'),
+                         'date': [x.get('date_not_before'), x.get('date_not_after')],
+                         'form_in_the_text': x.get('matched_form'), 'text': str(x.get('text') or '')[:200]})
+    head = {'inscriptions_and_papyri_naming_it': docs} if docs else {}
+    return _clip({**head, 'people_and_places': out}, 7000)
+
+
 def t_rare_words(a):
     pair = _pair(a.get('text_a', ''), a.get('text_b', ''))
     if not pair:
@@ -350,7 +376,9 @@ TOOLS = {
                         {'work': 'the work in plain words', 'subject': 'the scene or subject', 'books': 'optional book or range'}),
     'theme_compare': (t_theme_compare, 'Passages of two works that tell similar scenes (content, not wording).',
                       {'text_a': 'first work', 'text_b': 'second work'}),
-    'people_places': (_direct('people_places'), 'Where a person, place or god is named in the corpus.', {'name': 'the name'}),
+    'people_places': (t_people_places, 'Where a person, place or god is named in the corpus, with the inscriptions '
+                      'and papyri that name it in any case form. Use it, not documents_search, for "which '
+                      'inscriptions name X".', {'name': 'the name'}),
     'events': (_direct('events'), 'An ancient battle, siege, treaty or campaign: date, place, passages, documents.',
                {'name': 'the event or its place', 'label': 'optional full title'}),
     'documents_search': (_direct('documents_search'), 'Inscriptions and papyri, by words in Latin or Greek.',

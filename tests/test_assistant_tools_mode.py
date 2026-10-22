@@ -181,3 +181,13 @@ def test_several_comparisons_share_one_wait():
     assert budget['left'] == 0
     second = agent_tools._waiting(lambda: agent_tools.RUNNING + 'C with D.', clock=clock, sleep=lambda s: None, budget=budget)
     assert list(second) == []
+
+
+def test_people_places_brings_the_documents_its_page_lists(monkeypatch):
+    monkeypatch.setattr(agent_tools.searches, 'run', lambda name, a: {'search': {'results': [
+        {'id': 'pl:413288', 'display_label': 'Rusellae', 'document_counts': {'la': 4}}]}, 'details': {}})
+    monkeypatch.setattr(agent_tools.searches, '_get', lambda path, params: {'results': [
+        {'doc_id': 'edr:aEDR020542', 'matched_form': 'rusellanorum', 'text': 'Publicum Coloniae Rusellanorum',
+         'credit': {'principal_edition': 'CIL 11, 02618'}, 'ancient_place': 'Rusellae'}]})
+    out = json.loads(agent_tools.t_people_places({'name': 'Rusellae'}))
+    assert out['inscriptions_and_papyri_naming_it'][0]['edition'] == 'CIL 11, 02618'
