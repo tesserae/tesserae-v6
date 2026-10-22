@@ -1,0 +1,49 @@
+# Events whose Theme Search additions are installed (hand-read 2026-10-21 23:00-23:20). Lines "DROP <event> <ref>" remove one addition read as wrong.
+KEEP Q31900 Q131969 Q178850 Q204636 Q179591 Q207250 Q200056 Q203681 Q335330 Q131386 Q179670 Q201526 Q192938 Q87779 Q205887 Q866862 Q461599 Q655777 Q844289
+DROP Q179670 arr. an. 3.22.2
+DROP Q179670 iust. epit. 11.9
+DROP Q179670 curt. hist. 3.3.18
+DROP Q179670 walter. alex. 2.419
+DROP Q179670 walter. alex. 5.419
+DROP Q179670 polyaenus.strategemata 4.3.16
+DROP Q179670 plut.alex. 16.5
+DROP Q179670 swift. gull. 3.7.34
+DROP Q201526 iust. epit. 11.13
+DROP Q201526 iust. epit. 11.14
+DROP Q201526 arr. an. 3.14.1
+DROP Q201526 paulus_orosius. hist.adv.pag. 3.16.13
+DROP Q201526 nizami.diwan.34933
+DROP Q201526 v. max. 3.8(ext).6
+DROP Q201526 walter. alex. 5.269
+DROP Q201526 mela. chor. 1.61
+DROP Q192938 curt. hist. 4.9.17
+DROP Q179591 livy. urbe. 27.48.17
+DROP Q179591 zos. 1.1.1
+DROP Q179591 petr. afr. 4.171
+DROP Q203681 eutropius.breviarium_historiae_romanae 6.20
+DROP Q203681 eutrop. brev. 6.20
+DROP Q203681 suet. vit. jul. 34.2
+DROP Q203681 v. max. 4.5.4
+DROP Q203681 gel. attic. 15.16.4
+DROP Q203681 vell. hist. 2.68.1
+DROP Q205887 eutrop. brev. 7.3
+DROP Q204636 strabo. 9.2.5
+DROP Q204636 diod. sic. 11.22.5
+DROP Q204636 paus. 10.1.11
+DROP Q207250 livy. urbe. 22.28.6
+DROP Q207250 luc. 4.733
+DROP Q31900 zos. 1.1.2
+DROP Q31900 isoc. speeches 12.194
+DROP Q335330 ps-vict. vir. ill. 81.4
+DROP Q335330 suet. vit. aug. 9.1
+DROP Q461599 diod. sic. 15.33.2
+DROP Q655777 flor. epit. 1.6.12.10
+DROP Q655777 rutil. de red. 1.121
+DROP Q655777 paulus_orosius. hist.adv.pag. 3.22.10
+DROP Q655777 dante.commedia.3.6.44
+DROP Q866862 plut. art. 20.4
+DROP Q178850 paulus_orosius. hist.adv.pag. 2.9.6
+DROP Q178850 frontin. strat. 2.2.13
+DROP Q131386 cass. dio 39.45.3
+DROP Q131969 v. max. 3.2(ext).2
+DROP Q844289 paus. 10.15.5
