@@ -151,3 +151,11 @@ def test_list_texts_with_no_language_gives_counts_for_every_language(monkeypatch
     out = json.loads(agent_tools.t_list_texts({}))
     assert out['total_works'] == 10 * len(agent_tools.LANGUAGES)
     assert out['literary_works_by_language']['LA'] == {'works': 10, 'authors': 2}
+
+
+def test_after_a_send_back_a_correction_of_the_unseen_draft_is_removed(monkeypatch):
+    replies = iter([{'content': 'Lucan wrote it, at 1.1.'},
+                    {'content': 'I need to correct my earlier answer: it was not Lucan. Statius wrote the Thebaid.'}])
+    monkeypatch.setattr(agent_tools, '_chat', lambda messages, tools=None: next(replies))
+    events = list(agent_tools.answer_stream('Who wrote the Thebaid?', history=[]))
+    assert events[-2] == ('chunk', 'Statius wrote the Thebaid.')

@@ -486,6 +486,10 @@ RETRY = ('[Note from the site, not from the reader. The reader has not seen your
 _CHECK_TALK = re.compile(r"^\s*(?:you'?re right[^.!?\n]*[.!?]|confirmed[^.!?\n]*[.!?:]|now (?:everything|i can)[^.!?\n]*[.!?]|"
                          r"(?:i'?ve|i have) (?:now )?(?:re-?run|re-?read|checked|verified)[^.!?\n]*[.!?])\s*", re.I)
 _NUMBERED = re.compile(r'^(\s*)\d+([.)]\s)')
+# After a send-back, a sentence that corrects a draft the reader never saw (2026-10-22: "I need to correct my
+# earlier answer: the Thebaid was not written by Lucan").
+_SELF_FIX = re.compile(r"\b(?:correct(?:ing)? my (?:earlier|previous)|my (?:earlier|previous) (?:answer|reply|draft)|"
+                       r"i should not have|i was wrong|my mistake|i misspoke)\b", re.I)
 
 
 def _tidy(text):
@@ -601,6 +605,9 @@ def answer_stream(question, history=None):
     if dropped:
         logger.info('[ASSISTANT] tools mode dropped %d sentence(s) with unsupported references or quotes', len(dropped))
     text = _tidy(text)
+    if retried:
+        text, more = _drop_where(text, lambda seg: bool(_SELF_FIX.search(seg)))
+        dropped += more
     if not text.strip():
         raise GaveUp('every sentence of the answer cited something no search returned')
     yield ('chunk', text)
