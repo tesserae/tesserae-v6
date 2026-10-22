@@ -9,6 +9,7 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-22
 - Tessa, experimental mode (opt-in with ?tessa=new, switch in the panel): the model reads the conversation and chooses the searches itself through the gateway's tool calling (`backend/assistant/agent_tools.py`), with a citation check that drops any sentence citing a reference no search returned. The ordinary Tessa is unchanged and answers if the experimental one fails. Help updated.
+- People & Places: the search list gives, beside the lines naming an entry, the lines that name a place only by its adjective and the inscriptions and papyri that name it. Rusellae had read "no mentions" with three lines of Livy (Rusellanum) and six Latin inscriptions on its page.
 - Tessa: a wider panel on large screens, and an Enlarge button that makes her tall and wide for long answers (remembered in the browser). Help updated.
 - Tessa: after a comparison, "can you give me some analysis of those results?" or "which of them are the strongest?" reads the first page of that comparison. She had answered that she could not see any results.
 - Line Search, the inscriptions search and the reuse tables open one database connection per thread (`backend/thread_connections.py`). With one connection per process shared by Apache's threads, 1 of 12 Line Searches run at once failed with HTTP 500 ("bad parameter or other API misuse"), and the change to eight threads a process would have made it more frequent.

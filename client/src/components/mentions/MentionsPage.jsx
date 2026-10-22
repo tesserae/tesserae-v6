@@ -26,9 +26,20 @@ export function sortedCounts(counts) {
   return keys.sort((a, b) => rank(a) - rank(b) || a.localeCompare(b)).map((k) => [k, counts[k]]);
 }
 
-function CountsLine({ counts }) {
+/** "named by its adjective in 3 lines · 6 inscriptions and papyri": what a place's entry holds beyond
+ *  the lines naming it, so a place known only by its adjective or from documents does not read as empty. */
+export function moreCounts(e) {
+  const parts = [];
+  const adj = e.adjective_lines || 0;
+  if (adj) parts.push(`named by its adjective in ${adj} ${adj === 1 ? 'line' : 'lines'}`);
+  const docs = Object.values(e.document_counts || {}).reduce((a, b) => a + b, 0);
+  if (docs) parts.push(`${docs} ${docs === 1 ? 'inscription or papyrus' : 'inscriptions and papyri'}`);
+  return parts.join(' · ');
+}
+
+function CountsLine({ counts, extra }) {
   const parts = sortedCounts(counts);
-  if (parts.length === 0) return <span>no mentions</span>;
+  if (parts.length === 0) return <span>{extra || 'no mentions'}</span>;
   return (
     <span>
       {parts.map(([lang, n], i) => (
@@ -37,6 +48,7 @@ function CountsLine({ counts }) {
           <span className={lang === 'la' ? 'text-red-700' : 'text-gray-700'}>{languageName(lang)}</span> {n} {n === 1 ? 'line' : 'lines'}
         </span>
       ))}
+      {extra && <span>{' · '}{extra}</span>}
     </span>
   );
 }
@@ -389,7 +401,7 @@ function EntityResult({ e, open }) {
         {headingOf(e)}
       </a>
       <p className="text-xs text-gray-600 mt-0.5">
-        {TYPE_LABEL[e.type] || 'Other'} · <CountsLine counts={e.mention_counts} />
+        {TYPE_LABEL[e.type] || 'Other'} · <CountsLine counts={e.mention_counts} extra={moreCounts(e)} />
       </p>
       {e.description && <p className="text-xs text-gray-700 mt-0.5" data-testid="result-description">{e.description}</p>}
       {e.provenance && <p className="text-xs text-gray-500 mt-0.5" data-testid="result-provenance">{e.provenance}</p>}
