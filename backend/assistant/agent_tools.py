@@ -117,10 +117,36 @@ def _compare_rows(pair):
     else:
         page = searches.crosslingual_page(_id(pair[0]), _id(pair[1]), la, lb, 25)
     if page is None:
-        return (f'The comparison of {names[0]} with {names[1]} has started and is still running on the server. '
-                'Tell the reader so, and that the Intertextual Search page shows it when it finishes.')
+        return RUNNING + f'{names[0]} with {names[1]}.'
     rows = page if isinstance(page, list) else (page.get('parallels') or page.get('results') or [])
     return _clip({'compared': names, 'top_parallels': _fusion_compact(rows)}, 7000)
+
+
+# A comparison not yet in the cache starts on the server and takes a minute or two. The answer loop waits
+# for it, telling the reader it is still running, rather than leaving the reader to come back later
+# (2026-10-22: "will you let me know when it's done?" got "I can't watch it in the background").
+RUNNING = 'STILL RUNNING: the comparison of '
+COMPARE_WAIT = 240
+COMPARE_POLL = 10
+
+
+def _waiting(fetch, clock=None, sleep=None):
+    """Generator: calls fetch() until it no longer says RUNNING or COMPARE_WAIT seconds pass, yielding
+    a ('step', ...) line on each wait so the page shows progress and the connection stays open. Its
+    return value (StopIteration.value) is the last output."""
+    import time
+    clock, sleep = clock or time.monotonic, sleep or time.sleep
+    start = clock()
+    out = fetch()
+    while isinstance(out, str) and out.startswith(RUNNING) and clock() - start < COMPARE_WAIT:
+        yield ('step', f'the comparison is still running on the server ({int(clock() - start)} s so far)')
+        sleep(COMPARE_POLL)
+        out = fetch()
+    if isinstance(out, str) and out.startswith(RUNNING):
+        out += (f' It was still running after {COMPARE_WAIT // 60} minutes. Give the reader what the faster '
+                'searches (rare_words, theme_compare) show now, and say that asking again in a minute or two '
+                'brings the full comparison, which is then ready at once.')
+    return out
 
 
 def t_rare_words(a):
@@ -226,7 +252,7 @@ How you work:
 - For anything about the corpus, a text, a search or its results, call the tools. Do not answer from memory when a tool can answer. If the reader names passages or works to look in, search those works.
 - For a question about Tesserae itself (pages, features, settings, sources, accounts, the project), call site_help and answer from what it returns. If Help does not say, say so.
 - Cite only passages, references and numbers that appear in tool results. Anything you add from general knowledge, mark as background.
-- If a comparison is still running, say so plainly.
+- A comparison still running is waited for (up to four minutes). If a tool result still says STILL RUNNING, say so plainly and give what the faster searches show.
 - Never say what the corpus does or does not hold from a few search results: a short list is only the top of a ranking.
 - Never report the results of a search that was not run. If a follow-up needs a search, run it.
 - For a follow-up about the results of a comparison or search asked for earlier, run that search again (it answers at once) and cite from it.
@@ -303,7 +329,7 @@ def answer_stream(question, history=None):
             pair = ordinary._earlier_pair(history)
             if pair and len(pair) == 2:
                 yield ('step', 'fetching the comparison again')
-                out = _compare_rows(pair)
+                out = yield from _waiting(lambda: _compare_rows(pair))
                 outputs.append(out)
                 calls.append({'name': 'compare_texts', 'args': {'from_conversation': True}})
                 # Appended to the opening instructions: the gateway's chat template takes a system message
@@ -328,7 +354,10 @@ def answer_stream(question, history=None):
                 args = {}
             yield ('step', STEP.get(name, 'searching'))
             try:
-                out = TOOLS[name][0](args) if name in TOOLS else f'No such search: {name}'
+                if name in TOOLS:
+                    out = yield from _waiting(lambda f=TOOLS[name][0], a=args: f(a))
+                else:
+                    out = f'No such search: {name}'
             except (searches.SearchError, urllib.error.URLError, OSError, ValueError, KeyError) as e:
                 out = f'The search failed: {e}'
             calls.append({'name': name, 'args': args})
