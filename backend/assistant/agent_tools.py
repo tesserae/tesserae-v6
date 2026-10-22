@@ -39,13 +39,72 @@ def _chat(messages, tools=None):
 
 # ---------------------------------------------------------------- names and compact results
 
+_VOCAB = {}
+# English spellings the listing does not use; the closest listed word would be wrong (Virgil to Virgilii).
+_ALIASES = {'virgil': 'vergil', 'virgils': 'vergil', 'vergils': 'vergil', 'aeneis': 'aeneid', 'homers': 'homer'}
+
+
+def _corrected(name):
+    """The name with each word the corpus listing does not know replaced by the closest word it does
+    ("Vergils Aenied" to "Vergil Aeneid", "Virgil" to "Vergil"). 2026-10-22: asked for "Vergils Aenied" book
+    6, she spent 82 seconds and said the corpus had no Aeneid."""
+    import difflib
+    if 'words' not in _VOCAB:
+        words = set()
+        for r in corpus_lookup._all_texts():
+            for f in ('author', 'author_key', 'work', 'title', 'display_name'):
+                words |= set(corpus_lookup._norm(r.get(f)).split())
+        _VOCAB['words'] = sorted(w for w in words if len(w) >= 4 and not w.isdigit())
+        _VOCAB['set'] = set(_VOCAB['words'])
+    out = []
+    for tok in str(name or '').split():
+        w = corpus_lookup._norm(tok)
+        if w in _ALIASES:
+            tok = _ALIASES[w].title() if tok[:1].isupper() else _ALIASES[w]
+        elif w.endswith('s') and w[:-1] in _VOCAB['set']:
+            tok = tok.rstrip("'s").rstrip("’") if tok.lower().endswith("'s") else tok[:-1]
+        elif len(w) >= 4 and w.isalpha() and w not in _VOCAB['set'] and w not in corpus_lookup._NOISE:
+            near = difflib.get_close_matches(w, _VOCAB['words'], 1, 0.8)
+            if near:
+                tok = near[0].title() if tok[:1].isupper() else near[0]
+        out.append(tok)
+    return ' '.join(out)
+
+
+def _named(question, limit):
+    hits = corpus_lookup.named_texts(question, limit=limit)
+    try:
+        fixed = _corrected(question)
+    except Exception as e:                                # noqa: BLE001 -- the listing may be unavailable
+        logger.info('[ASSISTANT] name correction failed: %s', e)
+        fixed = question
+    if fixed != question:
+        better = corpus_lookup.named_texts(fixed, limit=limit)
+        if len(better) >= len(hits):
+            return better
+    return hits
+
+
 def _one(name):
-    hits = corpus_lookup.named_texts(name, limit=1) or corpus_lookup.named_texts(str(name).title(), limit=1)
+    """One work named in plain words. A title match from the listing comes first, with its book number
+    ("Claudian De raptu Proserpinae" went to the Gothic War through the sentence parser, which reads at
+    most two capitalized words); otherwise the sentence parser, which knows authors' single works."""
+    try:
+        fixed = _corrected(name)
+    except Exception:                                     # noqa: BLE001 -- the listing may be unavailable
+        fixed = str(name or '')
+    m = re.match(r'^(.*?)[\s,]*(?:(?:book|bk\.?)\s*)?(\d{1,3})?\s*$', fixed, re.I)
+    title, num = (m.group(1), m.group(2)) if m else (fixed, None)
+    best = corpus_lookup.find_texts(title, limit=1)
+    if best and best[0].get('matched') != 'author':
+        hit = best[0]
+        return (corpus_lookup.book_of(hit, num) or hit) if num else hit
+    hits = _named(name, 1) or _named(str(name).title(), 1)
     return hits[0] if hits else None
 
 
 def _pair(a, b):
-    pair = corpus_lookup.named_texts(f'compare {a} with {b}', limit=2)
+    pair = _named(f'compare {a} with {b}', 2)
     if len(pair) < 2:
         pair = [p for p in (_one(a), _one(b)) if p]
     return pair if len(pair) == 2 else None
@@ -149,6 +208,39 @@ def _waiting(fetch, clock=None, sleep=None):
     return out
 
 
+def t_read_passage(a):
+    """The lines of one passage with a few lines around it, so a follow-up ("who is speaking there?", "the
+    second one in full") is answered from the text and not from memory (2026-10-22: asked who speaks Lucan
+    1.237, she named Cato "in the Senate in Carthage")."""
+    from backend import window_texts
+    w = _one(a.get('work') or '')
+    if not w:
+        return f"No work found for {a.get('work')!r}."
+    base = window_texts._base_work(_id(w))
+    c = window_texts._conn()
+    if c is None or not base:
+        return 'No passage text is available.'
+
+    def tag(ref):
+        ref = str(ref or '').strip()
+        if not ref:
+            return None
+        row = c.execute('SELECT ref FROM lines WHERE work = ? AND (ref = ? OR ref LIKE ?) ORDER BY ord LIMIT 1',
+                        (base, ref, '% ' + ref)).fetchone()
+        return row[0] if row else None
+    start = tag(a.get('ref'))
+    if not start:
+        return f"No line {a.get('ref')!r} in {w.get('display_name') or base}."
+    end = tag(a.get('ref_end')) or start
+    try:
+        context = max(0, min(12, int(a.get('context') or 6)))
+    except (TypeError, ValueError):
+        context = 6
+    out = window_texts.passage_lines(base, start, end, context=context)
+    lines = [f"{x.get('ref')}: {x.get('text')}" for x in out.get('lines') or []]
+    return _clip({'work': w.get('display_name') or base, 'lines': lines}, 6000) if lines else 'No lines found.'
+
+
 def t_rare_words(a):
     pair = _pair(a.get('text_a', ''), a.get('text_b', ''))
     if not pair:
@@ -201,6 +293,11 @@ TOOLS = {
                       'given, e.g. "Aeneid 1", "Lucan Bellum Civile 1". Two languages run the cross-language search. '
                       'Use it again to analyze the results of a comparison asked for earlier.',
                       {'text_a': 'first text', 'text_b': 'second text'}),
+    'read_passage': (t_read_passage, 'The text of one passage with the lines around it. Use it before saying who '
+                     'speaks, what happens or what a line says, and before quoting a line from an earlier answer.',
+                     {'work': 'the work in plain words, with the book if given ("Lucan 1", "Aeneid 4")',
+                      'ref': 'the line reference, e.g. 1.237', 'ref_end': 'optional last line',
+                      'context': 'optional lines on each side (default 6)'}),
     'rare_words': (t_rare_words, 'Rare words two texts share (words found in few texts of the corpus).',
                    {'text_a': 'first text', 'text_b': 'second text'}),
     'line_search': (_direct('line_search'), 'Every line in the corpus where a word or phrase occurs.',
@@ -225,8 +322,8 @@ TOOLS = {
     'objects_search': (_direct('objects_search'), 'Museum objects.', {'query': 'English words'}),
     'list_texts': (_direct('list_texts'), 'The texts the corpus holds in one language.', {'language': 'la, grc, he, cop or en'}),
 }
-OPTIONAL = {'languages', 'books', 'label', 'kind', 'place', 'mint', 'search_type', 'language'}
-STEP = {'site_help': 'reading the Help pages', 'compare_texts': 'running the comparison',
+OPTIONAL = {'languages', 'books', 'label', 'kind', 'place', 'mint', 'search_type', 'language', 'ref_end', 'context'}
+STEP = {'site_help': 'reading the Help pages', 'read_passage': 'reading the passage', 'compare_texts': 'running the comparison',
         'rare_words': 'finding the rare words', 'line_search': 'searching the lines',
         'theme_search': 'running a Theme Search', 'search_one_text': 'searching inside the work',
         'theme_compare': 'comparing the two works by content', 'people_places': 'looking up the name',
@@ -251,7 +348,8 @@ How you work:
 - Read the whole conversation. A follow-up ("those results", "the second one", "what about book 4", "in Greek?") refers to what came before: resolve it from the conversation and act on it.
 - For anything about the corpus, a text, a search or its results, call the tools. Do not answer from memory when a tool can answer. If the reader names passages or works to look in, search those works.
 - For a question about Tesserae itself (pages, features, settings, sources, accounts, the project), call site_help and answer from what it returns. If Help does not say, say so.
-- Cite only passages, references and numbers that appear in tool results. Anything you add from general knowledge, mark as background.
+- Cite only passages, references and numbers that appear in tool results of THIS turn or your earlier answers. Quote a line only from a tool result of this turn: to quote, explain or name the speaker of a line from an earlier answer, call read_passage first.
+- Do not add facts from memory: who speaks, where a place is, who a person was, what happens in a passage, which book tells an event. Take them from the tool results; if they do not say, say that briefly. Your memory of these texts is unreliable and the readers are specialists.
 - A comparison still running is waited for (up to four minutes). If a tool result still says STILL RUNNING, say so plainly and give what the faster searches show.
 - Never say what the corpus does or does not hold from a few search results: a short list is only the top of a ranking.
 - Never report the results of a search that was not run. If a follow-up needs a search, run it.
@@ -305,6 +403,73 @@ def check_citations(text, outputs):
     return re.sub(r'\n{3,}', '\n\n', '\n'.join(kept)).strip(), dropped
 
 
+# A quotation of the text, as opposed to a title or an English rendering: three or more words in quotation
+# marks, or four or more in italics, with none of the common English words.
+_QUOTE = re.compile(r'["\u201c\u00ab]([^"\u201d\u00bb\n]{8,300})["\u201d\u00bb]|(?<![*\w])\*([^*\n]{12,300})\*(?![*\w])')
+_ENGLISH = {'the', 'and', 'of', 'to', 'that', 'with', 'from', 'was', 'are', 'they', 'their', 'she', 'it', 'on',
+            'by', 'for', 'is', 'his', 'her', 'he', 'who', 'this', 'an', 'be', 'not', 'my', 'your', 'we', 'you', 'in', 'at',
+            'as', 'or', 'its', 'one', 'all', 'when', 'how', 'what', 'has', 'have', 'can', 'will', 'into'}
+
+
+def _fold(text):
+    import unicodedata
+    t = unicodedata.normalize('NFD', str(text)).lower().replace('v', 'u').replace('j', 'i')
+    return ' '.join(re.sub(r'[^\w\s]|\d|_', ' ', ''.join(ch for ch in t if not unicodedata.combining(ch))).split())
+
+
+def _quotes(text):
+    out = []
+    for m in _QUOTE.finditer(text):
+        q = m.group(1) or m.group(2)
+        words = _fold(q).split()
+        if len(words) >= (3 if m.group(1) else 4) and not (set(words) & _ENGLISH):
+            out.append(q)
+    return out
+
+
+def unverified_quotes(text, outputs):
+    """Quotations of the text that no tool output of this turn holds (2026-10-22: asked about the second
+    parallel, she quoted Aeneid 1.154 as a line it is not). A quotation passes when most of its runs of three
+    words occur in the outputs, so a line quoted across a line break still passes."""
+    blob = ' ' + _fold(' '.join(outputs)) + ' '
+    bad = []
+    for q in _quotes(text):
+        w = _fold(q).split()
+        grams = [' '.join(w[i:i + 3]) for i in range(len(w) - 2)]
+        if sum(f' {g} ' in blob for g in grams) < 0.7 * len(grams):
+            bad.append(q)
+    return bad
+
+
+def _drop_where(text, bad):
+    """Remove each list item, or sentence of prose, for which bad(segment) is true."""
+    kept, dropped = [], []
+    for line in text.split('\n'):
+        if _ITEM.match(line):
+            (dropped if bad(line) else kept).append(line)
+            continue
+        sents = _sentences(line)
+        kept.append(' '.join(x for x in sents if not bad(x)))
+        dropped += [x for x in sents if bad(x)]
+    return re.sub(r'\n{3,}', '\n\n', '\n'.join(kept)).strip(), dropped
+
+
+RETRY = ('Your answer {what}. No search in this conversation returned {them}. Call the tools that do '
+         '(read_passage for the text of a line, compare_texts, search_one_text, events, people_places), then '
+         'answer from their results. If no tool gives it, leave it out.')
+
+
+def _problems(text, outputs, earlier):
+    refs = unsupported_refs(text, outputs + earlier)
+    quotes = unverified_quotes(text, outputs)
+    parts = []
+    if refs:
+        parts.append('cites ' + ', '.join(refs[:8]))
+    if quotes:
+        parts.append('quotes ' + '; '.join(f'"{q[:60]}"' for q in quotes[:4]))
+    return ' and '.join(parts)
+
+
 class GaveUp(Exception):
     """No clean answer: the caller lets the ordinary Tessa answer instead."""
 
@@ -338,12 +503,25 @@ def answer_stream(question, history=None):
                                            'fetched again for this question:\n' + out)
     except Exception as e:                                # noqa: BLE001 -- the model can still run it itself
         logger.info('[ASSISTANT] tools mode could not refetch the comparison: %s', e)
-    text = None
-    for _ in range(MAX_ROUNDS):
+    earlier = [t.get('text') or '' for t in history or [] if t.get('role') != 'user']
+    text, retried = None, False
+    for rnd in range(MAX_ROUNDS):
         m = _chat(messages, specs)
         tcs = m.get('tool_calls') or []
         if not tcs:
             text = (m.get('content') or '').strip()
+            # Cited or quoted from memory: sent back once to run the search, rather than shown with those
+            # sentences cut (2026-10-22: a Latin storms list was cut to "Virgil, *A" after 25 citations
+            # were dropped; follow-ups answered with no search invented speakers and lines).
+            problem = _problems(text, outputs, earlier) if text and not _TOOL_TEXT.search(text) else ''
+            if problem and not retried and rnd < MAX_ROUNDS - 1:
+                retried = True
+                logger.info('[ASSISTANT] tools mode sent the answer back: %s', problem[:200])
+                yield ('step', 'checking the passages against the searches')
+                messages.append({'role': 'assistant', 'content': text})
+                messages.append({'role': 'user', 'content': RETRY.format(what=problem, them='them')})
+                text = None
+                continue
             break
         messages.append({'role': 'assistant', 'content': m.get('content') or '', 'tool_calls': tcs})
         for tc in tcs:
@@ -369,10 +547,15 @@ def answer_stream(question, history=None):
         text = (_chat(messages, None).get('content') or '').strip()
     if not text or _TOOL_TEXT.search(text):
         raise GaveUp(f'no clean answer after {len(calls)} searches')
-    earlier = [t.get('text') or '' for t in history or [] if t.get('role') != 'user']
     text, dropped = check_citations(text, outputs + earlier)
+    bad_quotes = set(unverified_quotes(text, outputs))
+    if bad_quotes:
+        text, more = _drop_where(text, lambda seg: any(q in seg for q in bad_quotes))
+        dropped += more
     if dropped:
-        logger.info('[ASSISTANT] tools mode dropped %d sentence(s) with unsupported references', len(dropped))
+        logger.info('[ASSISTANT] tools mode dropped %d sentence(s) with unsupported references or quotes', len(dropped))
+    if not text.strip():
+        raise GaveUp('every sentence of the answer cited something no search returned')
     yield ('chunk', text)
     yield ('done', {'searches_run': [c['name'] for c in calls], 'tool_calls': calls, 'mode': 'tools',
                     'citations_dropped': len(dropped)})

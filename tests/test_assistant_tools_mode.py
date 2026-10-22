@@ -81,3 +81,60 @@ def test_a_comparison_running_past_the_wait_tells_the_model_what_to_do():
     except StopIteration as stop:
         out = stop.value
     assert steps and out.startswith(agent_tools.RUNNING) and 'asking again' in out
+
+
+def test_a_quotation_no_search_returned_is_caught_and_a_real_one_passes():
+    out = ['{"lines": ["verg. aen. 1.154: sic cunctus pelagi cecidit fragor, aequora postquam"]}']
+    text = ('It reads "Aeneas, cum iam fluctus et caelum aequora laesae". The line "sic cunctus pelagi cecidit '
+            'fragor" ends the storm, as in *De rerum natura* and "the sea and the sky".')
+    assert agent_tools.unverified_quotes(text, out) == ['Aeneas, cum iam fluctus et caelum aequora laesae']
+
+
+def test_an_answer_citing_what_no_search_returned_is_sent_back_once(monkeypatch):
+    replies = iter([
+        {'content': 'Cato speaks at 1.237, in the Senate.'},
+        {'content': '', 'tool_calls': [{'id': 'c1', 'function': {'name': 'read_passage', 'arguments': json.dumps(
+            {'work': 'Lucan 1', 'ref': '1.237'})}}]},
+        {'content': 'The narrator speaks at 1.237.'},
+    ])
+    seen = []
+
+    def chat(messages, tools=None):
+        seen.append([m['content'] for m in messages])
+        return next(replies)
+    monkeypatch.setattr(agent_tools, '_chat', chat)
+    monkeypatch.setitem(agent_tools.TOOLS, 'read_passage',
+                        (lambda a: '{"lines": ["luc. 1.237: signa fore"]}',) + agent_tools.TOOLS['read_passage'][1:])
+    events = list(agent_tools.answer_stream('who is speaking there?', history=[
+        {'role': 'user', 'text': 'compare Lucan 1 and Aeneid 2'}, {'role': 'assistant', 'text': 'Top: Aen. 2.313.'}]))
+    assert 'No search in this conversation returned' in seen[1][-1]
+    assert events[-2] == ('chunk', 'The narrator speaks at 1.237.')
+
+
+def test_an_answer_left_empty_by_the_checks_falls_back(monkeypatch):
+    monkeypatch.setattr(agent_tools, '_chat', lambda messages, tools=None: {'content': 'It is at 9.999.'})
+    try:
+        list(agent_tools.answer_stream('where?', history=[]))
+    except agent_tools.GaveUp:
+        return
+    raise AssertionError('expected GaveUp')
+
+
+def test_misspelled_names_are_corrected_from_the_listing(monkeypatch):
+    monkeypatch.setattr(agent_tools, '_VOCAB', {})
+    monkeypatch.setattr(agent_tools.corpus_lookup, '_all_texts', lambda language=None: [
+        {'author': 'Vergil', 'work': 'Aeneid', 'title': 'Aeneid', 'display_name': 'Vergil, Aeneid'},
+        {'author': 'Servius', 'title': 'In Virgilii Georgicon libros commentarius'}])
+    assert agent_tools._corrected('Vergils Aenied book 6') == 'Vergil Aeneid book 6'
+    assert agent_tools._corrected('Virgil Aeneid 6') == 'Vergil Aeneid 6'
+
+
+def test_one_work_prefers_a_title_match_with_its_book(monkeypatch):
+    rows = {'claudian.de_raptu_proserpinae': {'id': 'claudian.de_raptu_proserpinae.tess', 'matched': 'work'}}
+    monkeypatch.setattr(agent_tools, '_corrected', lambda name: name)
+    monkeypatch.setattr(agent_tools.corpus_lookup, 'find_texts',
+                        lambda name, limit=1: [rows['claudian.de_raptu_proserpinae']] if 'raptu' in name else [])
+    monkeypatch.setattr(agent_tools.corpus_lookup, 'book_of',
+                        lambda hit, num: {'id': f"claudian.de_raptu_proserpinae.part.{num}.tess"})
+    assert agent_tools._one('Claudian De raptu Proserpinae 2')['id'] == 'claudian.de_raptu_proserpinae.part.2.tess'
+    assert agent_tools._one('Claudian De raptu Proserpinae')['id'] == 'claudian.de_raptu_proserpinae.tess'
