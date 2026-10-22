@@ -265,7 +265,22 @@ def t_read_passage(a):
             return None
         row = c.execute('SELECT ref FROM lines WHERE work = ? AND (ref = ? OR ref LIKE ?) ORDER BY ord LIMIT 1',
                         (base, ref, '% ' + ref)).fetchone()
-        return row[0] if row else None
+        if row:
+            return row[0]
+        # Some texts are tagged in blocks ("sen. tro. 440-4" holds lines 440 to 444, 2026-10-22).
+        m = re.match(r'^(?:(.*)\.)?(\d+)$', ref)
+        if not m:
+            return None
+        want_prefix, n = m.group(1), int(m.group(2))
+        for (tagged,) in c.execute('SELECT DISTINCT ref FROM lines WHERE work = ? AND ref LIKE ?', (base, '%-%')):
+            b = re.search(r'(?:^|[ .])(?:(\S*)\.)?(\d+)-(\d+)$', tagged)
+            if not b or (want_prefix and (b.group(1) or '').split()[-1:] != [want_prefix.split('.')[-1]]):
+                continue
+            lo, tail = int(b.group(2)), b.group(3)
+            hi = int(tail) if int(tail) >= lo else lo - lo % (10 ** len(tail)) + int(tail)
+            if lo <= n <= hi:
+                return tagged
+        return None
     start = tag(a.get('ref'))
     if not start:
         return f"No line {a.get('ref')!r} in {w.get('display_name') or base}."
@@ -300,8 +315,32 @@ def t_people_places(a):
                          'found_at': x.get('ancient_place') or x.get('modern_place'),
                          'date': [x.get('date_not_before'), x.get('date_not_after')],
                          'form_in_the_text': x.get('matched_form'), 'text': str(x.get('text') or '')[:200]})
-    head = {'inscriptions_and_papyri_naming_it': docs} if docs else {}
-    return _clip({**head, 'people_and_places': out}, 7000)
+    # Lines that name a place only by its adjective (Livy's "agrum Rusellanum"): the entry's own count of
+    # lines naming the place can be 0 while these exist, and she said Rusellae is in no literary text.
+    adj = []
+    for eid, det in ((out or {}).get('details') or {}).items():
+        for a_ in (det or {}).get('adjective_names') or []:
+            try:
+                d = searches._get('/entities/' + urllib.parse.quote(str(a_.get('entity_id')), safe=':') + '/mentions',
+                                  {'adjective_of': eid, 'limit': 10})
+            except (searches.SearchError, OSError, ValueError) as e:
+                logger.info('[ASSISTANT] adjective lines of %s unreadable: %s', eid, e)
+                continue
+            forms = [f.get('form') for f in a_.get('forms') or [] if f.get('form')]
+            for x in d.get('results') or []:
+                text = str(x.get('text') or '')
+                at = min([i for i in (text.lower().find(f.lower()) for f in forms) if i >= 0] or [0])
+                adj.append({'place': (det or {}).get('display_label') or eid, 'author': x.get('author'),
+                            'line': x.get('line_ref') or x.get('locus'),
+                            'text': text[max(0, at - 120):at + 120].strip()})
+    head = {}
+    if adj:
+        head['lines_naming_it_by_its_adjective'] = adj
+        head['note'] = ('A place can be named in the literary texts only by its adjective (as Rusellanum for '
+                        'Rusellae); these lines count as the place being named in literature.')
+    if docs:
+        head['inscriptions_and_papyri_naming_it'] = docs
+    return _clip({**head, 'people_and_places': out}, 8000)
 
 
 def t_rare_words(a):

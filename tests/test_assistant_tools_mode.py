@@ -203,3 +203,14 @@ def test_a_comparison_of_long_whole_works_is_not_started(monkeypatch):
     agent_tools._compare_rows([{'id': 'statius.thebaid.part.12.tess', 'language': 'la'},
                                {'id': 'vergil.aeneid.part.11.tess', 'language': 'la'}])
     assert started
+
+
+def test_people_places_brings_lines_naming_a_place_by_its_adjective(monkeypatch):
+    monkeypatch.setattr(agent_tools.searches, 'run', lambda name, a: {'search': {'results': [
+        {'id': 'pl:413288', 'display_label': 'Rusellae'}]}, 'details': {'pl:413288': {
+            'display_label': 'Rusellae', 'adjective_names': [{'entity_id': 'nm:rusel', 'forms': [{'form': 'Rusellanum'}]}]}}})
+    monkeypatch.setattr(agent_tools.searches, '_get', lambda path, params: {'results': [
+        {'author': 'Livy', 'line_ref': 'livy. urbe. 10.4.5', 'text': 'castra inde in agrum Rusellanum promovit.'}]})
+    out = json.loads(agent_tools.t_people_places({'name': 'Rusellae'}))
+    assert out['lines_naming_it_by_its_adjective'][0]['author'] == 'Livy'
+    assert 'Rusellanum' in out['lines_naming_it_by_its_adjective'][0]['text']
