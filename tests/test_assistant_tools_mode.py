@@ -35,3 +35,12 @@ def test_history_reaches_the_model(monkeypatch):
         {'role': 'user', 'text': 'compare Aeneid 1 to Lucan 1'}, {'role': 'assistant', 'text': 'Here is the link.'}]))
     roles = [m['role'] for m in seen['messages']]
     assert roles == ['system', 'user', 'assistant', 'user']
+
+
+def test_a_list_item_with_an_unsupported_reference_is_removed_whole():
+    text = ('The strongest are:\n\n1. **Aen. 1.146 / BC 1.499** - the Syrtis pair.\n'
+            '2. **Aen. 1.999 / BC 1.888** - invented.\n\nAen. 1.103 echoes the storm. It is rare.')
+    out, dropped = agent_tools.check_citations(text, ['1.146 1.499 1.103'])
+    assert '1.999' not in out and '1.146' in out and 'It is rare.' in out
+    assert dropped == ['2. **Aen. 1.999 / BC 1.888** - invented.']
+    assert '**Aen.\n' not in out

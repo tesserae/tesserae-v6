@@ -20,7 +20,7 @@ from backend.logging_config import get_logger
 
 logger = get_logger('assistant.tools')
 
-MAX_ROUNDS = 4
+MAX_ROUNDS = 5
 ANSWER_TOKENS = 900
 
 
@@ -64,9 +64,10 @@ def _fusion_compact(rows, k=15):
     out = []
     for r in (rows or [])[:k]:
         s, t = r.get('source') or {}, r.get('target') or {}
-        out.append({'source': s.get('citation'), 'source_text': s.get('text'), 'target': t.get('citation'),
-                    'target_text': t.get('text'), 'shared_words': r.get('matched_lemmas'),
-                    'channels': r.get('channels'), 'score': r.get('fused_score') or r.get('score'),
+        shared = r.get('matched_lemmas') or [w.get('display') or w.get('source_word') for w in r.get('matched_words') or []]
+        out.append({'source': s.get('citation') or s.get('ref'), 'source_text': s.get('text'),
+                    'target': t.get('citation') or t.get('ref'), 'target_text': t.get('text'), 'shared_words': shared,
+                    'channels': r.get('channels'), 'score': r.get('fused_score') or r.get('score') or r.get('overall_score'),
                     'pair_in_how_many_works': r.get('formula_count')})
     return out
 
@@ -199,6 +200,8 @@ How you work:
 - For a question about Tesserae itself (pages, features, settings, sources, accounts, the project), call site_help and answer from what it returns. If Help does not say, say so.
 - Cite only passages, references and numbers that appear in tool results. Anything you add from general knowledge, mark as background.
 - If a comparison is still running, say so plainly.
+- Never say what the corpus does or does not hold from a few search results: a short list is only the top of a ranking.
+- Never report the results of a search that was not run. If a follow-up needs a search, run it.
 - Answer in plain prose, at most about 200 words, no headings. Write for a scholar of literature."""
 
 _REF = re.compile(r'\b\d{1,3}\.\d{1,4}\b')
@@ -209,18 +212,48 @@ def unsupported_refs(text, outputs):
     return sorted({r for r in _REF.findall(text) if r not in blob})
 
 
+_ITEM = re.compile(r'^\s*(?:[-*\u2022]|\d+[.)])\s')
+# A sentence ends at . ! or ? followed by a capital letter, but not after a short abbreviation such as
+# "Aen." or "BC." (2026-10-22: splitting at "Aen." cut list items into fragments).
+_SENT_END = re.compile(r'(?<=[.!?])\s+(?=[A-Z"\u201c(])')
+_ABBREV = re.compile(r'\b[A-Z][a-z]{0,3}\.$')
+
+
+def _sentences(para):
+    parts, cur = [], ''
+    for piece in _SENT_END.split(para):
+        cur = f'{cur} {piece}' if cur else piece
+        if not _ABBREV.search(cur):
+            parts.append(cur)
+            cur = ''
+    if cur:
+        parts.append(cur)
+    return parts
+
+
 def check_citations(text, outputs):
-    """(text, dropped): sentences giving a reference that no search returned are removed."""
+    """(text, dropped): a list item, or a sentence of prose, that gives a reference no search returned is
+    removed whole."""
     bad = set(unsupported_refs(text, outputs))
     if not bad:
         return text, []
     kept, dropped = [], []
-    for para in text.split('\n'):
-        sents = re.split(r'(?<=[.!?])\s+', para)
-        keep = [s for s in sents if not (set(_REF.findall(s)) & bad)]
-        dropped += [s for s in sents if set(_REF.findall(s)) & bad]
+    for line in text.split('\n'):
+        if _ITEM.match(line):
+            (dropped if set(_REF.findall(line)) & bad else kept).append(line)
+            continue
+        sents = _sentences(line)
+        keep = [x for x in sents if not (set(_REF.findall(x)) & bad)]
+        dropped += [x for x in sents if set(_REF.findall(x)) & bad]
         kept.append(' '.join(keep))
-    return '\n'.join(kept).strip(), dropped
+    return re.sub(r'\n{3,}', '\n\n', '\n'.join(kept)).strip(), dropped
+
+
+class GaveUp(Exception):
+    """No clean answer: the caller lets the ordinary Tessa answer instead."""
+
+
+_TOOL_TEXT = re.compile(r'<tool_call>|<function=|</function>')
 
 
 def answer_stream(question, history=None):
@@ -254,8 +287,13 @@ def answer_stream(question, history=None):
             outputs.append(out)
             messages.append({'role': 'tool', 'tool_call_id': tc.get('id'), 'content': out})
     if text is None:
+        messages.append({'role': 'user', 'content': 'Answer the question now from the search results above. '
+                                                   'Do not call any more searches.'})
         text = (_chat(messages, None).get('content') or '').strip()
-    text, dropped = check_citations(text, outputs)
+    if not text or _TOOL_TEXT.search(text):
+        raise GaveUp(f'no clean answer after {len(calls)} searches')
+    earlier = [t.get('text') or '' for t in history or [] if t.get('role') != 'user']
+    text, dropped = check_citations(text, outputs + earlier)
     if dropped:
         logger.info('[ASSISTANT] tools mode dropped %d sentence(s) with unsupported references', len(dropped))
     yield ('chunk', text)
