@@ -1834,6 +1834,13 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 it answers again, and an answer the platform breaks off part way is picked up where it
                 stopped.
               </p>
+              <p className="text-gray-700 mb-3">
+                A full comparison of two texts that nobody has run before takes a minute or two on the server.
+                Tessa waits for it, up to four minutes, and her panel shows how long it has been running, so the
+                answer she gives is about the finished results. A comparison that runs longer still is left
+                running: she tells you what the faster searches (shared rare words, shared themes) show, and
+                asking again a little later brings the full results at once.
+              </p>
 
               <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">For advanced analysis</h4>
               <p className="text-gray-700 mb-3">

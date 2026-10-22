@@ -8,6 +8,7 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-22
+- Tessa: a comparison still running on the server is waited for (up to four minutes, with its running time shown in her panel), so she answers from the finished results instead of asking the reader to come back.
 - Experimental Tessa: a follow-up about an earlier comparison fetches it again before she answers; Theme Search results give her the names in each passage and the start of its text, so she keeps only passages that name the person asked about (she had attached Aeneas killing Tarquitus to the death of Pallas); rare words come with the number of texts holding each word, apart from the rarity limit.
 - Inscriptions: an editor's note is marked as a note in the plain text too, for a document that has no edition text (AE 1964, 254 under Rusellae).
 - People & Places: an entry's heading gives its adjective lines and documents too, and an entry named only by its adjective says so instead of "No mentions found" (Rusellae).

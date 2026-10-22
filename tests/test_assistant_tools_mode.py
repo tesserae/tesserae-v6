@@ -44,3 +44,40 @@ def test_a_list_item_with_an_unsupported_reference_is_removed_whole():
     assert '1.999' not in out and '1.146' in out and 'It is rare.' in out
     assert dropped == ['2. **Aen. 1.999 / BC 1.888** - invented.']
     assert '**Aen.\n' not in out
+
+
+def test_a_running_comparison_is_waited_for_with_progress(monkeypatch):
+    pages = iter([None, None, [{'source_ref': 'od. 1.1', 'target_ref': 'aen. 1.1'}]])
+    monkeypatch.setattr(agent_tools.searches, 'crosslingual_page', lambda *a, **k: next(pages))
+    monkeypatch.setattr(agent_tools, '_pair', lambda a, b: [{'id': 'homer.odyssey.part.1', 'language': 'grc'},
+                                                            {'id': 'vergil.aeneid.part.1', 'language': 'la'}])
+    monkeypatch.setattr(agent_tools, '_fusion_compact', lambda rows: rows)
+    monkeypatch.setattr(agent_tools, 'COMPARE_POLL', 0)
+    replies = iter([
+        {'content': '', 'tool_calls': [{'id': 'c1', 'function': {'name': 'compare_texts', 'arguments': json.dumps(
+            {'text_a': 'Odyssey 1', 'text_b': 'Aeneid 1'})}}]},
+        {'content': 'The comparison found od. 1.1 against aen. 1.1.'},
+    ])
+    seen = {}
+
+    def chat(messages, tools=None):
+        seen['messages'] = messages
+        return next(replies)
+    monkeypatch.setattr(agent_tools, '_chat', chat)
+    events = list(agent_tools.answer_stream('compare Homer Odyssey 1 and Aeneid 1', history=[]))
+    steps = [p for k, p in events if k == 'step']
+    assert len(steps) == 3 and 'still running' in steps[1]
+    tool_out = [m for m in seen['messages'] if m['role'] == 'tool'][0]['content']
+    assert 'STILL RUNNING' not in tool_out and 'aen. 1.1' in tool_out
+
+
+def test_a_comparison_running_past_the_wait_tells_the_model_what_to_do():
+    ticks = iter(range(0, 1000, 100))
+    gen = agent_tools._waiting(lambda: agent_tools.RUNNING + 'A with B.', clock=lambda: next(ticks), sleep=lambda s: None)
+    steps = []
+    try:
+        while True:
+            steps.append(next(gen))
+    except StopIteration as stop:
+        out = stop.value
+    assert steps and out.startswith(agent_tools.RUNNING) and 'asking again' in out
