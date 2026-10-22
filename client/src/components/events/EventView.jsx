@@ -7,7 +7,12 @@ import { useCorpusTextMap } from '../../utils/textNames';
 import EventMap from './EventMap';
 import { dateLabel, kmLabel, placeLabel, readerLinkWithBack, shortPassageRef, workHeading } from './eventsFormat';
 import AboutSourcesLink from '../scholarship/AboutSourcesLink';
+import { editorNoteParts } from '../documents/documentDisplay';
 import { expandEditions } from '../../utils/editionNames';
+
+// The editor's signs in an inscription's text (scripts/documents/build_leiden_display.py), as a tooltip.
+export const EDITION_SIGNS = '[abc] lost and restored by the editor · [---] lost · a(bc) abbreviation and its expansion · '
+  + '(abc) the editor\'s expansion · a dot below: uncertain letter · / new line';
 
 const LABEL_TEXT = {
   yes: ['Narrative', 'An offline language model judged that this passage is a narrative of the event itself.'],
@@ -188,9 +193,17 @@ function DocumentCard({ d, event }) {
           <span className="ml-auto text-xs text-gray-500">{kmLabel(d.distance_km)} from {event.place || 'the event'}</span>
         )}
       </div>
-      {d.text && (
-        <p className="font-serif text-base text-gray-900 mt-1.5" lang={d.language === 'grc' ? 'grc' : 'la'}>
-          <HighlightedText text={d.text} forms={[...(d.matched_forms || []), ...eventNameWords(event)]} stems />
+      {(d.edition_text || d.text) && (
+        <p className="font-serif text-base text-gray-900 mt-1.5" lang={d.language === 'grc' ? 'grc' : 'la'}
+           data-testid="document-text"
+           title={d.edition_text ? EDITION_SIGNS : undefined}>
+          {d.edition_text
+            ? editorNoteParts(d.edition_text).map((part, i) => (part.note
+              ? <span key={i} className="italic text-gray-500 font-sans text-xs">[editor&rsquo;s note: {part.text}] </span>
+              : <HighlightedText key={i} text={part.text} forms={[...(d.matched_forms || []), ...eventNameWords(event)]} stems />))
+            : editorNoteParts(d.text).map((part, i) => (part.note
+              ? <span key={i} className="italic text-gray-500 font-sans text-xs">[editor&rsquo;s note: {part.text}] </span>
+              : <HighlightedText key={i} text={part.text} forms={[...(d.matched_forms || []), ...eventNameWords(event)]} stems />))}
         </p>
       )}
       {d.text_snippet && <p className="text-xs text-gray-500 mt-1">{d.text_snippet}</p>}

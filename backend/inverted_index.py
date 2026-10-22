@@ -26,12 +26,13 @@ import json
 from functools import lru_cache
 
 from backend.logging_config import get_logger
+from backend.thread_connections import PerThreadConnections
 
 logger = get_logger('inverted_index')
 
 INDEX_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data', 'inverted_index')
 
-_connections = {}
+_connections = PerThreadConnections()  # one sqlite3 connection per thread (backend/thread_connections.py)
 
 # json.loads wraps the C scanner in several Python calls, which costs more than
 # the scan itself for the short lists the index stores (a few hundred thousand

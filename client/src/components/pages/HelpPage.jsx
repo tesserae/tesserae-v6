@@ -1400,7 +1400,9 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 Type a name and press Search. An English name such as Rhodes or Lyon finds the
                 ancient entity, Rhodos or Lugdunum. Latin and Greek spellings work too. For a
                 longer name, spellings close to the one you typed are offered under Near spellings,
-                so a small slip in spelling still reaches the right entry. A Latin name copied
+                so a small slip in spelling still reaches the right entry. Each entry in the list gives its
+                lines by language, and for a place also the lines that name it only by its adjective
+                (Rusellanum for Rusellae) and the inscriptions and papyri that name it. A Latin name copied
                 from a line with -que attached (Laviniaque, Albanique) is searched without it, and
                 -ve or -ne is dropped when the word as typed finds nothing. A word in any case
                 form that appears in the texts (Rhodum, Thyesten, Νέστορα) opens the entry whose
@@ -1799,8 +1801,28 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   with legend, mint and date, or objects with museum, date and title, and a link opens the page
                   with the search filled in.
                 </li>
-                <li>Follow up. Ask &ldquo;what about Eobanus?&rdquo; and she keeps the thread.</li>
+                <li>
+                  Read long answers in a larger panel. On a computer, Enlarge at the top of the panel makes
+                  Tessa tall and wide, and Smaller puts her back in the corner. The choice is remembered.
+                </li>
+                <li>
+                  Follow up. Ask &ldquo;what about Eobanus?&rdquo; and she keeps the thread. After a comparison,
+                  ask &ldquo;what do you make of those results?&rdquo; or &ldquo;which are the strongest?&rdquo; and she
+                  reads the first page of that comparison. When she lists several
+                  events or People &amp; Places entries of the same name, answer with the one you mean (&ldquo;the
+                  one in 31 BCE&rdquo;, &ldquo;the second&rdquo;, &ldquo;the god&rdquo;) and she opens it.
+                </li>
               </ul>
+
+              <p className="text-gray-700 mb-3">
+                An experimental Tessa, who reads the whole conversation and chooses her own searches, can be
+                switched on in your browser with a link ending <code>?tessa=new</code> (and off with{' '}
+                <code>?tessa=classic</code>). A switch in her panel then turns it on and off. She is slower,
+                ten to thirty seconds an answer, because she may run several searches, and she follows a
+                conversation more closely: told &ldquo;there should be instances in the Aeneid (Pallas)&rdquo;,
+                she searches the Aeneid for them. A sentence that cites a passage no search returned is removed
+                before you see it.
+              </p>
 
               <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">How to trust her</h4>
               <p className="text-gray-700 mb-3">
@@ -1872,7 +1894,13 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 passages found by Theme Search, from its description, from its name, place and participants,
                 and from a one-sentence account of the scene without names, judged by the same instructions,
                 because its first list missed Plutarch&rsquo;s and Cassius Dio&rsquo;s accounts of the battle.
-                Its labels were then read by hand, and six were corrected.
+                Its labels were then read by hand, and six were corrected. The siege of Perusia and nineteen
+                well-known battles (Marathon, Thermopylae, Salamis, Plataea, Cannae, Lake Trasimene, Zama,
+                Pharsalus, Philippi, Alesia, Gaugamela, Issus, the Granicus, the Teutoburg Forest, Carrhae,
+                Aegospotami, Leuctra, the Allia, and the Sicilian Expedition) have such passages too, each
+                read by hand and the wrong ones removed. The same search was run for every event, but for
+                less documented events about a third of what it found was wrong, so those results are not
+                shown.
                 In each passage the names found and the words of the event&rsquo;s place and participants are
                 highlighted, in any case form (Περυσίας and Περυσίαν, Marathon in &ldquo;apud Marathona&rdquo;).
                 Each passage shows a short excerpt of every line that holds one of the names found, with that
@@ -2056,6 +2084,21 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 echoes, for example).
               </p>
 
+              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">The editor&rsquo;s signs</h4>
+              <p className="text-gray-700 mb-4">
+                A document&rsquo;s page, and its card on an event page, show the text as its edition prints it,
+                with the usual signs: [abc] for letters lost and restored by the editor, [---] for text lost
+                and not restored, a(bc) for an abbreviation and the editor&rsquo;s expansion of it, (abc) for an
+                expansion the editor adds alone, a dot below an uncertain letter, &lt;abc&gt; for letters the
+                editor adds, {'{abc}'} for letters the editor deletes, [[abc]] for letters erased in antiquity,
+                and / for a new line. A note the editor wrote into the text (the Epigraphic Database Roma marks them 〈: 〉) is shown as [editor&rsquo;s note: &hellip;]. So a fragment of the consular list from Cupra Maritima reads
+                &ldquo;[---]uf [--- IIvir(i)] (duoviri)&rdquo;: a word broken off before &ldquo;uf&rdquo;, a
+                restored title, and the editor&rsquo;s gloss of it. The search reads the same text with the signs
+                removed and the restorations and expansions included, shown on the page under &ldquo;Reading as
+                searched&rdquo;. People &amp; Places shows the same edition text in its list of inscriptions and papyri. About 208,000 of the documents have the edition text. For the others (some papyri,
+                and texts whose edition differs from the searched reading) the page shows the searched reading only.
+              </p>
+
               <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">Filters and results</h4>
               <p className="text-gray-700 mb-3">
                 A date range, region, place, text type, material and source narrow a search, and two
@@ -2096,8 +2139,9 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
               <p className="text-gray-700 mb-3">
                 Inscriptions come from the Epigraphic Database Heidelberg (EDH), the Epigraphic
                 Database Roma (EDR), I.Sicily, and Attic Inscriptions Online (AIO, Greek texts with
-                English translations, and the Berlin edition of the Inscriptiones Graecae for the Greek of
-                2,095 more of AIO's inscriptions). The papyri and ostraca texts come from the Duke
+                English translations, the Berlin edition of the Inscriptiones Graecae for the Greek of
+                2,095 more of AIO's inscriptions, and PHI Greek Inscriptions, from the Packard Humanities
+                Institute, for the Greek of 809 more). The papyri and ostraca texts come from the Duke
                 Databank of Documentary Papyri (DDbDP), and their records come from the Heidelberg
                 Gesamtverzeichnis der griechischen Papyrusurkunden Ägyptens (HGV), both via
                 papyri.info. Each result credits its own source and license. Where EDH and EDR
@@ -2106,7 +2150,9 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 each named on the link). No image is copied here.
               </p>
               <p className="text-gray-700 mb-3">
-                EDH is used under CC BY-SA 4.0, AIO under CC BY-SA 3.0, the Berlin Inscriptiones Graecae under CC BY 4.0, I.Sicily and the EDR deposit under CC BY 4.0, and
+                EDH is used under CC BY-SA 4.0, AIO under CC BY-SA 3.0, the Berlin Inscriptiones Graecae under CC BY 4.0, the PHI texts with the Institute&rsquo;s permission
+                for searching on this site (each page names its PHI number and links to the PHI page, and the texts are not offered
+                for download), I.Sicily and the EDR deposit under CC BY 4.0, and
                 the papyri.info texts and HGV records under CC BY 3.0, with copyright and attribution
                 to the respective projects. Findspots link to Pleiades (CC BY 3.0). The full list,
                 with the version and retrieval date of each, is under{' '}

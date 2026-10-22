@@ -112,6 +112,21 @@ def _public(e):
     return out
 
 
+def _with_more_counts(path, cat, e):
+    """A search row with the lines that name a place only by its adjective and the documents that name
+    it. Rusellae read "no mentions" in the list although its page holds three lines of Livy that name it
+    as Rusellanum and six Latin inscriptions (2026-10-22)."""
+    row = _public(e)
+    adj = sum(int(c.get('mentions_total') or 0) for c in (e.get('corpus_names') or []) if c.get('adjective'))
+    if adj:
+        row['adjective_lines'] = adj
+    if cat.get('has_documents_table') and e.get('source') in ('list', 'promoted'):
+        docs = _document_counts(path, e)
+        if docs:
+            row['document_counts'] = docs
+    return row
+
+
 _rank = extras.rank_match
 
 
@@ -193,8 +208,8 @@ def search():
         logger.exception('[ENTITIES] store unreadable')
         return jsonify({'error': f'The mentions store could not be read: {e}', 'available': False}), 503
     hits, name_hits = extras.rank_entities(cat, q)
-    results = [_public(h[3]) for h in hits[:SEARCH_LIMIT]]
-    results += [_public(h[3]) for h in name_hits[:max(0, SEARCH_LIMIT - len(results))]]
+    results = [_with_more_counts(path, cat, h[3]) for h in hits[:SEARCH_LIMIT]]
+    results += [_with_more_counts(path, cat, h[3]) for h in name_hits[:max(0, SEARCH_LIMIT - len(results))]]
     out = {'q': q, 'available': True, 'total': len(hits) + len(name_hits), 'results': results,
            'list_total': len(hits), 'corpus_total': len(name_hits)}
     best = min([h[0] for h in hits[:1] + name_hits[:1]], default=None)
@@ -506,6 +521,10 @@ def documents_of(entity_id):
         return None if docs.is_unknown_place(v) else docs.translate_label(v)
 
     out_rows = []
+    try:
+        edition = docs.leiden_texts([r[0] for r in rows])
+    except Exception:                                    # noqa: BLE001 -- display only
+        edition = {}
     for doc_id, language, form, kind, adj in rows:
         m = metas.get(doc_id) or {}
         ref, text = _doc_text_and_line(language, doc_id, form)
@@ -517,6 +536,6 @@ def documents_of(entity_id):
             'ancient_place': place(m.get('ancient_place')), 'modern_place': place(m.get('modern_place')),
             'region': docs.translate_label(m.get('region')),
             'text_type_label': labels[0], 'object_type_label': labels[1], 'material_label': labels[2],
-            'source': m.get('source')})
+            'source': m.get('source'), 'edition_text': edition.get(doc_id)})
     return jsonify({'entity': _public(e), 'available': True, 'total': total, 'offset': offset, 'limit': limit,
                     'lang': lang or None, 'results': out_rows})

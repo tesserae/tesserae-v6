@@ -39,6 +39,7 @@ import sqlite3
 from functools import lru_cache
 
 from backend.logging_config import get_logger
+from backend.thread_connections import PerThreadConnections
 
 logger = get_logger('documents')
 
@@ -55,6 +56,39 @@ def _index_dir():
 def _metadata_db_path():
     return os.environ.get('TESSERAE_DOCUMENTS_META') or os.path.join(
         _repo_root(), 'data', 'documents', 'metadata.db')
+
+
+def _leiden_path():
+    return os.environ.get('TESSERAE_DOCUMENTS_LEIDEN') or os.path.join(
+        _repo_root(), 'data', 'documents', 'leiden.sqlite')
+
+
+_leiden_local = __import__('threading').local()
+
+
+def leiden_texts(doc_ids):
+    """{doc_id: the edition text with the Leiden signs} for the documents that have one
+    (scripts/documents/build_leiden_display.py). Display only: {} when the file is absent."""
+    ids = [d for d in dict.fromkeys(doc_ids or []) if d]
+    path = _leiden_path()
+    if not ids or not os.path.exists(path):
+        return {}
+    st = os.stat(path)
+    key = (path, st.st_ino, st.st_mtime_ns)
+    conn = getattr(_leiden_local, 'conn', None)
+    if conn is None or getattr(_leiden_local, 'key', None) != key:
+        conn = sqlite3.connect(f'file:{path}?mode=ro', uri=True)
+        _leiden_local.conn, _leiden_local.key = conn, key
+    out = {}
+    try:
+        for i in range(0, len(ids), 500):
+            chunk = ids[i:i + 500]
+            marks = ','.join('?' * len(chunk))
+            out.update(dict(conn.execute(f'select id, text from leiden where id in ({marks})', chunk)))  # nosec B608 -- marks is a run of '?'
+    except sqlite3.Error as e:
+        logger.warning(f'leiden_texts: {e}')
+        return {}
+    return out
 
 
 def _sidecar_root():
@@ -84,7 +118,7 @@ def enabled():
 # Index connections (texts / postings / lines / doc_meta)
 # --------------------------------------------------------------------------
 
-_connections = {}
+_connections = PerThreadConnections()  # one sqlite3 connection per thread (backend/thread_connections.py)
 
 
 def _index_db_path(language):
@@ -457,6 +491,18 @@ def reset_caches():
     display_fields.cache_clear()
     place_ids.cache_clear()
     _places_cache.clear()
+
+
+# The licence name stored with the documents whose Greek is held for indexing and search only (the
+# Packard Humanities Institute texts of Attic Inscriptions Online, permission of 2026-10-22). Their text
+# is shown on the document's own page and as the matching line of a search, never offered as a download.
+INDEXING_ONLY_LICENCE = 'used with permission, for search only'
+
+
+def is_indexing_only(doc_id):
+    """Whether this document's text is held for indexing and search only."""
+    m = meta(doc_id) or {}
+    return (m.get('credit') or {}).get('licence_name') == INDEXING_ONLY_LICENCE
 
 
 _META_FIELDS = (

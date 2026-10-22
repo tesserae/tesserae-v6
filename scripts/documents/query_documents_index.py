@@ -40,6 +40,7 @@ REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__fi
 sys.path.insert(0, REPO_ROOT)
 
 import backend.inverted_index as inv_index  # noqa: E402
+from backend.thread_connections import PerThreadConnections  # noqa: E402
 from backend.text_processor import TextProcessor  # noqa: E402
 
 
@@ -58,9 +59,9 @@ def query_lemmas(lemmas: list[str], language: str, index_dir: str, min_matches: 
     """Returns find_co_occurring_lemmas' own result list, against
     "<language>_documents_index.db" under index_dir."""
     orig_index_dir = inv_index.INDEX_DIR
-    orig_connections = dict(inv_index._connections)  # noqa: SLF001
+    orig_connections = inv_index._connections  # noqa: SLF001
     inv_index.INDEX_DIR = index_dir
-    inv_index._connections = {}  # noqa: SLF001  (force a fresh connection to the new INDEX_DIR)
+    inv_index._connections = PerThreadConnections()  # noqa: SLF001  (force a fresh connection to the new INDEX_DIR)
     try:
         pseudo_lang = f"{language}_documents"
         return inv_index.find_co_occurring_lemmas(lemmas, pseudo_lang, min_matches=min_matches)
