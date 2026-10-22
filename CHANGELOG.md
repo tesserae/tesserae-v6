@@ -8,6 +8,7 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-22
+- Inscriptions: an editor's note is marked as a note in the plain text too, for a document that has no edition text (AE 1964, 254 under Rusellae).
 - People & Places: an entry's heading gives its adjective lines and documents too, and an entry named only by its adjective says so instead of "No mentions found" (Rusellae).
 - People & Places: Pliny's Natural History, printed in lower case in our edition, is scanned by its spellings (33,640 mentions added, `scripts/entities/scan_lowercase_work.py`), and 1,365 inscription matches that came only from editors' notes are removed. Rusellae now has Pliny 3.26 beside Livy, and four inscriptions where two of its six were notes.
 - Experimental Tessa: names a person in a passage only when the search result does. She had called Aeneid 10.817 (the death of Lausus) the death of Nisus, guessing a name the passage summary leaves out.
