@@ -198,6 +198,12 @@ def search():
     out = {'q': q, 'available': True, 'total': len(hits) + len(name_hits), 'results': results,
            'list_total': len(hits), 'corpus_total': len(name_hits)}
     if not results:
+        # A case form copied from a line (Rhodum, Thyesten): the entry the scan filed that word under.
+        e = extras.entity_for_form(cat, _conn(path), q)
+        if e is not None:
+            out.update(results=[_public(e)], total=1, matched_form=True)
+            return jsonify(out)
+    if not results:
         out['suggestions'] = _suggestions(cat, f)
     else:
         near = _near_spellings(cat, f, hits, name_hits)
