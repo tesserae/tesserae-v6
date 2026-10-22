@@ -8,6 +8,7 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-22
+- Tessa: a wider panel on large screens, and an Enlarge button that makes her tall and wide for long answers (remembered in the browser). Help updated.
 - Tessa: after a comparison, "can you give me some analysis of those results?" or "which of them are the strongest?" reads the first page of that comparison. She had answered that she could not see any results.
 - Line Search, the inscriptions search and the reuse tables open one database connection per thread (`backend/thread_connections.py`). With one connection per process shared by Apache's threads, 1 of 12 Line Searches run at once failed with HTTP 500 ("bad parameter or other API misuse"), and the change to eight threads a process would have made it more frequent.
 - A pull request check, Help coverage (`.github/workflows/help-coverage.yml`, `.github/scripts/help_coverage.py`): a pull request that changes visitor-facing code (client/src, backend, services, tests aside) must also change the Help page or the "What this search does" boxes, or say in its description "Help: not needed, <reason>". Over the last 30 merged pull requests it would have stopped 11. Help now also says how to pick one of several same-named events or entries Tessa lists.
