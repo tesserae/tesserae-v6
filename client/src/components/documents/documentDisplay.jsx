@@ -72,3 +72,23 @@ export function documentLabels(r) {
   return [r.text_type_label, r.object_type_label, r.material_label]
     .filter((x) => x && !UNKNOWN_LABELS.has(String(x).trim().toLowerCase()));
 }
+
+
+/**
+ * An edition text split into the stone's text and the editor's notes. The Epigraphic Database Roma writes
+ * a note into the text between 〈: and 〉 ("〈:Rusellis adtributa, sed est Cosana〉"); shown plain, a note
+ * reads as words of the stone (2026-10-22).
+ */
+export function editorNoteParts(text) {
+  const parts = [];
+  const re = /\u3008:([^\u3009]*)\u3009/g;
+  let last = 0;
+  let m;
+  while ((m = re.exec(text || '')) !== null) {
+    if (m.index > last) parts.push({ note: false, text: text.slice(last, m.index) });
+    parts.push({ note: true, text: m[1].trim() });
+    last = m.index + m[0].length;
+  }
+  if (last < (text || '').length) parts.push({ note: false, text: text.slice(last) });
+  return parts;
+}

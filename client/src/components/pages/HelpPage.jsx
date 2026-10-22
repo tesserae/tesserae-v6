@@ -2091,11 +2091,11 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 and not restored, a(bc) for an abbreviation and the editor&rsquo;s expansion of it, (abc) for an
                 expansion the editor adds alone, a dot below an uncertain letter, &lt;abc&gt; for letters the
                 editor adds, {'{abc}'} for letters the editor deletes, [[abc]] for letters erased in antiquity,
-                and / for a new line. So a fragment of the consular list from Cupra Maritima reads
+                and / for a new line. A note the editor wrote into the text (the Epigraphic Database Roma marks them 〈: 〉) is shown as [editor&rsquo;s note: &hellip;]. So a fragment of the consular list from Cupra Maritima reads
                 &ldquo;[---]uf [--- IIvir(i)] (duoviri)&rdquo;: a word broken off before &ldquo;uf&rdquo;, a
                 restored title, and the editor&rsquo;s gloss of it. The search reads the same text with the signs
                 removed and the restorations and expansions included, shown on the page under &ldquo;Reading as
-                searched&rdquo;. About 208,000 of the documents have the edition text. For the others (some papyri,
+                searched&rdquo;. People &amp; Places shows the same edition text in its list of inscriptions and papyri. About 208,000 of the documents have the edition text. For the others (some papyri,
                 and texts whose edition differs from the searched reading) the page shows the searched reading only.
               </p>
 

@@ -7,6 +7,7 @@ import { useCorpusTextMap } from '../../utils/textNames';
 import EventMap from './EventMap';
 import { dateLabel, kmLabel, placeLabel, readerLinkWithBack, shortPassageRef, workHeading } from './eventsFormat';
 import AboutSourcesLink from '../scholarship/AboutSourcesLink';
+import { editorNoteParts } from '../documents/documentDisplay';
 import { expandEditions } from '../../utils/editionNames';
 
 // The editor's signs in an inscription's text (scripts/documents/build_leiden_display.py), as a tooltip.
@@ -196,7 +197,11 @@ function DocumentCard({ d, event }) {
         <p className="font-serif text-base text-gray-900 mt-1.5" lang={d.language === 'grc' ? 'grc' : 'la'}
            data-testid="document-text"
            title={d.edition_text ? EDITION_SIGNS : undefined}>
-          <HighlightedText text={d.edition_text || d.text} forms={[...(d.matched_forms || []), ...eventNameWords(event)]} stems />
+          {d.edition_text
+            ? editorNoteParts(d.edition_text).map((part, i) => (part.note
+              ? <span key={i} className="italic text-gray-500 font-sans text-xs">[editor&rsquo;s note: {part.text}] </span>
+              : <HighlightedText key={i} text={part.text} forms={[...(d.matched_forms || []), ...eventNameWords(event)]} stems />))
+            : <HighlightedText text={d.text} forms={[...(d.matched_forms || []), ...eventNameWords(event)]} stems />}
         </p>
       )}
       {d.text_snippet && <p className="text-xs text-gray-500 mt-1">{d.text_snippet}</p>}

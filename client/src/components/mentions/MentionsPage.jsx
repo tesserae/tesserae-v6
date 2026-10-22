@@ -3,7 +3,7 @@ import ScopeBox from '../common/ScopeBox';
 import { LoadingSpinner } from '../common';
 import { languageName } from '../../utils/languageNames';
 import { windowLocus, fullRef } from '../reader/refId';
-import { documentDateLabel, documentPlace, documentLabels } from '../documents/documentDisplay';
+import { documentDateLabel, documentPlace, documentLabels, editorNoteParts } from '../documents/documentDisplay';
 
 /** Latin, Greek, English, as everywhere on the site; any other language after them. */
 export const LANG_ORDER = ['la', 'grc', 'en'];
@@ -254,7 +254,13 @@ export function DocumentRow({ r }) {
         {labels.map((lab) => <span key={lab} className="px-1.5 bg-gray-100 text-gray-600 rounded">{lab}</span>)}
         {r.adjective && <span>(adjective form)</span>}
       </div>
-      {r.text && (
+      {r.edition_text ? (
+        <p className="text-sm text-gray-900 mt-1 font-serif" lang={r.language} data-testid="document-edition-text">
+          {editorNoteParts(r.edition_text).map((part, i) => (part.note
+            ? <span key={i} className="italic text-gray-500 font-sans text-xs">[editor&rsquo;s note: {part.text}] </span>
+            : <MarkedText key={i} text={part.text} token={r.matched_form} ignoreCase />))}
+        </p>
+      ) : r.text && (
         <p className="text-sm text-gray-900 mt-1" lang={r.language}>
           <MarkedText text={r.text} token={r.matched_form} ignoreCase />
         </p>

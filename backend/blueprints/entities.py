@@ -511,6 +511,10 @@ def documents_of(entity_id):
         return None if docs.is_unknown_place(v) else docs.translate_label(v)
 
     out_rows = []
+    try:
+        edition = docs.leiden_texts([r[0] for r in rows])
+    except Exception:                                    # noqa: BLE001 -- display only
+        edition = {}
     for doc_id, language, form, kind, adj in rows:
         m = metas.get(doc_id) or {}
         ref, text = _doc_text_and_line(language, doc_id, form)
@@ -522,6 +526,6 @@ def documents_of(entity_id):
             'ancient_place': place(m.get('ancient_place')), 'modern_place': place(m.get('modern_place')),
             'region': docs.translate_label(m.get('region')),
             'text_type_label': labels[0], 'object_type_label': labels[1], 'material_label': labels[2],
-            'source': m.get('source')})
+            'source': m.get('source'), 'edition_text': edition.get(doc_id)})
     return jsonify({'entity': _public(e), 'available': True, 'total': total, 'offset': offset, 'limit': limit,
                     'lang': lang or None, 'results': out_rows})
