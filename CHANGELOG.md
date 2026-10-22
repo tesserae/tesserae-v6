@@ -7,6 +7,9 @@ so the state of the live site can be reconstructed from this file and
 docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
+## 2026-10-22
+- Tessa: "How do I type Greek if I don't have a Greek keyboard?" gets the Help answer (add the computer's Greek keyboard, accents optional). The model had told a reader to type Greek in Latin letters, which the boxes do not convert. The Help-answer match treats "if I don't have" like "without". Found in a comparison of three gateway models on 100 site questions (Qwen3.8 27B, the current model, stays).
+
 ## 2026-10-21
 - Events: Theme Search passages for the siege of Perusia and nineteen well-known battles (Marathon now has Herodotus 6.108 to 6.116), 144 new passages, each read by hand. `add_theme_passages.py` gains a scene query, notes for events without a summary, a second strict reading with a quoted line, parallel judging and a lines cache. It was run over all 1,485 events, but a sample of 40 additions read 17 right, 7 partly right and 11 wrong, so `keep_theme_additions.py` keeps only the hand-read events (`scripts/events/theme_additions_keep_2026-10-21.txt`). Help updated.
 - People & Places: Lavinia, daughter of Latinus, has her own entry (80 passages), apart from the town Lavinium and the adjective Lavinian (105). Each line was read by the free gateway model with the lead correcting 13 answers, decisions in `scripts/entities/lavinia_rows.csv`, applied by `scripts/entities/split_lavinia.py` (see docs/DATA_OPERATIONS.md). Links to the old town id keep working.

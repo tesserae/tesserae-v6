@@ -182,3 +182,9 @@ def test_the_new_help_answers_are_found():
 
 def test_inline_code_letters_stay_in_the_coptic_keyboard_table():
     assert any('j = djandja' in c for c in site_help._load())
+
+
+def test_greek_keyboard_question_gets_the_help_answer():
+    from backend.assistant import site_help
+    a = site_help.direct_answer("How do I type Greek if I don't have a Greek keyboard?")
+    assert a and 'do not turn Latin letters into Greek' in a
