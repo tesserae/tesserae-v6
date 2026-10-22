@@ -209,6 +209,121 @@ def differences(cache_path):
     return out
 
 
+# ---------------------------------------------------------------- second pass (2026-10-22)
+
+DEADLINE2 = time.mktime((2026, 10, 23, 11, 30, 0, 0, 0, -1))      # stop sending requests (the demo is at 13:30)
+WORKERS2 = 4                                                      # the live site's Tessa shares the gateway
+
+
+def judge_groups2(db, groups, cache_path, lines, label='', deadline=None):
+    """The second question for groups [(eid, entity_id, stem, forms)]. Stores the answers in table answers2,
+    returns {(entity_id, stem): answer} for every group answered so far. Stops sending after `deadline`."""
+    cache = rg.open_cache2(cache_path)
+    have = {(a, b): c for a, b, c in cache.execute('select entity_id, stem, answer from answers2 where version = ?',
+                                                   (rg.PROMPT_VERSION2,))}
+    todo = [g for g in groups if (g[1], g[2]) not in have]
+    if not todo:
+        return have
+    url, key = gateway()
+    stats = {}
+    t0 = time.time()
+    done = [0]
+
+    def one(item):
+        g, prompt = item
+        if deadline and time.time() > deadline:
+            return g, None, ''
+        reply = rg.ask(url, key, prompt, stats, system=rg.SYSTEM2, think=rg.THINK2, max_tokens=rg.MAX_TOKENS2)
+        ans, _ = rg.parse_answer(reply)
+        return g, ans or 'NONE', reply
+
+    with ThreadPoolExecutor(WORKERS2) as pool:
+        for i in range(0, len(todo), 200):
+            batch = []
+            for g in todo[i:i + 200]:
+                eid, entity_id, stem, forms = g
+                heading, labels, top = rg.entity_card2(db, eid)
+                _h, desc = rg.entity_card(db, eid)
+                batch.append((g, rg.question2(heading, labels, top, desc, forms,
+                                              rg.example_lines(db, lines, eid, list(forms)))))
+            for g, ans, reply in pool.map(one, batch):
+                if ans is None:
+                    continue
+                cache.execute('insert or replace into answers2 values (?,?,?,?,?,?)',
+                              (g[1], g[2], rg.PROMPT_VERSION2, ans, reply, json.dumps(g[3], ensure_ascii=False)))
+                have[(g[1], g[2])] = ans
+                done[0] += 1
+            cache.commit()
+            if done[0] and (done[0] % 1000 < 200 or done[0] == len(todo)):
+                log(f'{label} pass 2 judged {done[0]}/{len(todo)} new, {done[0] / (time.time() - t0):.2f}/s, '
+                    f'workers {WORKERS2}, errors {stats.get("errors", 0)}')
+            if deadline and time.time() > deadline:
+                log(f'{label} pass 2 stopped at the deadline, {done[0]} of {len(todo)} judged')
+                break
+    return have
+
+
+CALIBRATION2 = [        # the 18 labelled cases of 2026-10-22: (entity id, spelling, want)
+    ('pn:kaifa', 'Caipha', 'SAME'), ('pn:samue', 'Samuhel', 'SAME'), ('pn:ezekh', 'Hiezechiel', 'SAME'),
+    ('pn:gedeo', 'Gedeona', 'SAME'), ('nm:danik', 'Danica', 'SAME'), ('ln:E0300', '\u0313\u0301\u0391\u03c1\u03b7\u03bf\u03c2', 'SAME'),
+    ('pn:kuter', '\u039a\u03c5\u03b8\u03b7\u03c1\u03af\u03b1', 'SAME'), ('pn:\u03c6\u03bf\u03b9\u03bd\u03b9\u03c3\u03c3', '\u03a6\u03bf\u03af\u03bd\u03b9\u03c3\u03c3\u03b1\u03b9', 'SAME'),
+    ('pn:maximian', 'Maximin', 'DIFFERENT'), ('pn:epiko', '\u1f18\u03c0\u03b9\u03ba\u03bf\u03cd\u03c1\u03bf\u03c5', 'DIFFERENT'),
+    ('pn:fului', '\u03a6\u03bf\u03c5\u03bb\u03b2\u03af\u03b1', 'DIFFERENT'), ('pn:ermip', '\u1f19\u03c1\u03bc\u03af\u03c0\u03c0\u03bf\u03c5', 'DIFFERENT'),
+    ('nm:hiber', 'HIBERNIA', 'DIFFERENT'), ('nm:satur', '\u03a3\u03ac\u03c4\u03c5\u03c1\u03b5', 'DIFFERENT'),
+    ('pn:leont', '\u039b\u03b5\u03bf\u03bd\u03c4\u03af\u03bf\u03c5', 'DIFFERENT'), ('pn:ferek', '\u03a6\u03b5\u03c1\u03b5\u03ba\u03c1\u03ac\u03c4\u03b5\u03b9', 'DIFFERENT'),
+    ('pn:lugke', '\u039b\u03c5\u03b3\u03ba\u03b5\u1fd6', 'DIFFERENT'), ('pn:demet', '\u0394\u03ae\u03bc\u03b7\u03c4\u03c1', 'DIFFERENT'),
+]
+
+
+def first_pass_group(db, cache_path, entity_id, form):
+    """(eid, entity_id, stem, forms) of the first-pass DIFFERENT group that holds `form` under the entity."""
+    cache = rg.open_cache(cache_path)
+    for stem, forms in cache.execute("select stem, forms from answers where entity_id = ? and version = ? "
+                                     "and answer = 'DIFFERENT' and stem not like 'S:%'", (entity_id, rg.PROMPT_VERSION)):
+        f = json.loads(forms)
+        if form in f:
+            eid = db.execute('select eid from entities where entity_id = ?', (entity_id,)).fetchone()[0]
+            return eid, entity_id, stem, f
+    raise KeyError((entity_id, form))
+
+
+def calibrate2(db, cache_path):
+    lines = rg.Lines(WINDOWS)
+    groups = [first_pass_group(db, cache_path, e, f) for e, f, _w in CALIBRATION2]
+    got = judge_groups2(db, groups, cache_path, lines, label='calibration2')
+    ok = {'SAME': 0, 'DIFFERENT': 0}
+    for (e, f, want), g in zip(CALIBRATION2, groups):
+        ans = got[(g[1], g[2])]
+        ok[want] += ans == want
+        log(f'calibration2 {e} {f}: want {want}, got {ans}')
+    log(f'calibration2: SAME {ok["SAME"]}/8, DIFFERENT {ok["DIFFERENT"]}/10')
+
+
+def run_judge2(db, a):
+    """The second question over every group the first pass judged DIFFERENT, the largest first."""
+    cache_path = os.path.join(WORK, 'answers.sqlite')
+    ids = dict(db.execute('select entity_id, eid from entities'))
+    diffs = differences(cache_path)
+    groups = sorted(((ids[e], e, st, f) for e, st, f in diffs if e in ids), key=lambda g: -sum(g[3].values()))
+    log(f'judge2: {len(groups)} first-pass DIFFERENT groups, deadline {time.strftime("%a %H:%M", time.localtime(DEADLINE2))}')
+    lines = rg.Lines(WINDOWS)
+    got = judge_groups2(db, groups, cache_path, lines, label='judge2', deadline=DEADLINE2)
+    c = {}
+    for g in groups:
+        k = got.get((g[1], g[2]), 'UNJUDGED')
+        c[k] = c.get(k, 0) + 1
+    rows = sum(sum(g[3].values()) for g in groups if (g[1], g[2]) in got)
+    log(f'judge2 DONE: {c}, judged groups hold {rows} of {sum(sum(g[3].values()) for g in groups)} rows')
+
+
+def both_different(cache_path):
+    """First-pass DIFFERENT groups whose second answer is also DIFFERENT (the groups to split)."""
+    cache = rg.open_cache2(cache_path)
+    second = {(a, b): c for a, b, c in cache.execute('select entity_id, stem, answer from answers2 where version = ?',
+                                                     (rg.PROMPT_VERSION2,))}
+    return [(e, st, f) for e, st, f in differences(cache_path) if second.get((e, st)) == 'DIFFERENT']
+
+
 def recheck(db, diffs):
     """The groups the model called DIFFERENT, minus the spellings the layer 1 of today accepts (the rule for
     headings in -as was added after the judging: Aenean, \u1f08\u03ba\u03c1\u03ac\u03b3\u03b1\u03bd\u03c4\u03b1). A group left with
@@ -234,7 +349,7 @@ def recheck(db, diffs):
 
 def run_apply(db, a):
     from backend import entity_extras as ex
-    diffs = recheck(db, differences(os.path.join(WORK, 'answers.sqlite')))
+    diffs = recheck(db, both_different(os.path.join(WORK, 'answers.sqlite')))
     before = db.execute('select count(*) from mention_rows').fetchone()[0]
     ents_before = db.execute('select count(*) from entities').fetchone()[0]
     rep = rg.apply_differences(db, diffs, log=log)
@@ -299,12 +414,18 @@ def main():
     ap.add_argument('--sample', choices=('before', 'after'))
     ap.add_argument('--apply', action='store_true')
     ap.add_argument('--sheet', action='store_true')
+    ap.add_argument('--calibrate2', action='store_true')
+    ap.add_argument('--judge2', action='store_true')
     ap.add_argument('--max-seconds', type=int, default=0)
     ap.add_argument('--workers', type=int, default=0)
     a = ap.parse_args()
     db = sqlite3.connect(a.store)
     if a.calibrate:
         sys.exit(1 if calibrate(db, os.path.join(WORK, 'answers.sqlite')) else 0)
+    if a.calibrate2:
+        return calibrate2(db, os.path.join(WORK, 'answers.sqlite'))
+    if a.judge2:
+        return run_judge2(db, a)
     if a.judge:
         return run_judge(db, a)
     if a.sample:
