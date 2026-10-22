@@ -1819,7 +1819,8 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 closely: told &ldquo;there should be instances in the Aeneid (Pallas)&rdquo;, she searches the Aeneid
                 for them, and asked &ldquo;which of them are the strongest?&rdquo; after a comparison, she reads that
                 comparison again. An answer takes five to thirty seconds, because she may run several searches. A
-                sentence that cites a passage no search returned is removed before you see it. The box at the top of
+                sentence that cites a passage no search returned is removed before you see it. Asked who speaks a line or what it
+                says, she reads the passage first, and she does not add facts from memory. The box at the top of
                 her panel, or a link ending <code>?tessa=classic</code>, switches this browser to the classic Tessa, who
                 answers in a few seconds and runs one search chosen by the site for each kind of question.
               </p>
