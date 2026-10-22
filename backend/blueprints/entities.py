@@ -112,6 +112,21 @@ def _public(e):
     return out
 
 
+def _with_more_counts(path, cat, e):
+    """A search row with the lines that name a place only by its adjective and the documents that name
+    it. Rusellae read "no mentions" in the list although its page holds three lines of Livy that name it
+    as Rusellanum and six Latin inscriptions (2026-10-22)."""
+    row = _public(e)
+    adj = sum(int(c.get('mentions_total') or 0) for c in (e.get('corpus_names') or []) if c.get('adjective'))
+    if adj:
+        row['adjective_lines'] = adj
+    if cat.get('has_documents_table') and e.get('source') in ('list', 'promoted'):
+        docs = _document_counts(path, e)
+        if docs:
+            row['document_counts'] = docs
+    return row
+
+
 _rank = extras.rank_match
 
 
@@ -193,8 +208,8 @@ def search():
         logger.exception('[ENTITIES] store unreadable')
         return jsonify({'error': f'The mentions store could not be read: {e}', 'available': False}), 503
     hits, name_hits = extras.rank_entities(cat, q)
-    results = [_public(h[3]) for h in hits[:SEARCH_LIMIT]]
-    results += [_public(h[3]) for h in name_hits[:max(0, SEARCH_LIMIT - len(results))]]
+    results = [_with_more_counts(path, cat, h[3]) for h in hits[:SEARCH_LIMIT]]
+    results += [_with_more_counts(path, cat, h[3]) for h in name_hits[:max(0, SEARCH_LIMIT - len(results))]]
     out = {'q': q, 'available': True, 'total': len(hits) + len(name_hits), 'results': results,
            'list_total': len(hits), 'corpus_total': len(name_hits)}
     if not results:

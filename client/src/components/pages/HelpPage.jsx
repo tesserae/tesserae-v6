@@ -1400,7 +1400,9 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 Type a name and press Search. An English name such as Rhodes or Lyon finds the
                 ancient entity, Rhodos or Lugdunum. Latin and Greek spellings work too. For a
                 longer name, spellings close to the one you typed are offered under Near spellings,
-                so a small slip in spelling still reaches the right entry. A Latin name copied
+                so a small slip in spelling still reaches the right entry. Each entry in the list gives its
+                lines by language, and for a place also the lines that name it only by its adjective
+                (Rusellanum for Rusellae) and the inscriptions and papyri that name it. A Latin name copied
                 from a line with -que attached (Laviniaque, Albanique) is searched without it, and
                 -ve or -ne is dropped when the word as typed finds nothing. A word in any case
                 form that appears in the texts (Rhodum, Thyesten, Νέστορα) opens the entry whose
@@ -1811,6 +1813,16 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   one in 31 BCE&rdquo;, &ldquo;the second&rdquo;, &ldquo;the god&rdquo;) and she opens it.
                 </li>
               </ul>
+
+              <p className="text-gray-700 mb-3">
+                An experimental Tessa, who reads the whole conversation and chooses her own searches, can be
+                switched on in your browser with a link ending <code>?tessa=new</code> (and off with{' '}
+                <code>?tessa=classic</code>). A switch in her panel then turns it on and off. She is slower,
+                ten to thirty seconds an answer, because she may run several searches, and she follows a
+                conversation more closely: told &ldquo;there should be instances in the Aeneid (Pallas)&rdquo;,
+                she searches the Aeneid for them. A sentence that cites a passage no search returned is removed
+                before you see it.
+              </p>
 
               <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">How to trust her</h4>
               <p className="text-gray-700 mb-3">
