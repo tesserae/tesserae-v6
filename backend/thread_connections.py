@@ -6,7 +6,10 @@ twelve Line Searches at once gave one HTTP 500 on 2026-10-22. Each thread now op
 which costs a file open the first time a thread reads a language.
 
 PerThreadConnections behaves like the dict it replaces. clear() empties the cache of every thread (a
-swapped index is reopened everywhere), pop() and del drop the calling thread's connection.
+swapped index is reopened everywhere; a thread's old connections are released when that thread next reads,
+and closed by sqlite3 when they are garbage collected), pop() and del drop the calling thread's connection.
+There is no iteration or len(): no caller needs them, so a copy with dict() fails loudly instead of
+silently copying one thread's view.
 """
 import threading
 

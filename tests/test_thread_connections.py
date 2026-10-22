@@ -45,28 +45,17 @@ def test_clear_reaches_every_thread_and_pop_only_this_one():
     assert 'la' not in cache and out['after_clear'] is False
 
 
-def test_concurrent_line_search_index_reads_do_not_fail(tmp_path):
+def test_line_search_index_gives_each_thread_its_own_connection(tmp_path, monkeypatch):
+    """Fails with the old shared dict, where every thread got the same connection object."""
     from backend import inverted_index
-    db = tmp_path / 'xx_index.db'
-    c = sqlite3.connect(db)
-    c.execute('CREATE TABLE t (k INTEGER, v TEXT)')
-    c.executemany('INSERT INTO t VALUES (?, ?)', [(i, 'x' * 50) for i in range(20000)])
-    c.commit()
-    c.close()
-    errors = []
-
-    def read():
-        try:
-            for _ in range(5):
-                conn = inverted_index._connections.get('xx')
-                if conn is None:
-                    conn = sqlite3.connect(db, check_same_thread=False)
-                    inverted_index._connections['xx'] = conn
-                assert len(conn.execute('SELECT k, v FROM t').fetchall()) == 20000
-        except Exception as e:  # noqa: BLE001
-            errors.append(e)
-
-    ts = [threading.Thread(target=read) for _ in range(8)]
-    [t.start() for t in ts]
-    [t.join() for t in ts]
-    assert errors == []
+    sqlite3.connect(tmp_path / 'xx_index.db').close()
+    monkeypatch.setattr(inverted_index, 'INDEX_DIR', str(tmp_path))
+    monkeypatch.setattr(inverted_index, '_connections', PerThreadConnections())
+    here = inverted_index.get_connection('xx')
+    seen = {}
+    t = threading.Thread(target=lambda: seen.setdefault('other', inverted_index.get_connection('xx')))
+    t.start()
+    t.join()
+    assert here is not None and seen['other'] is not None
+    assert here is not seen['other']
+    assert inverted_index.get_connection('xx') is here
