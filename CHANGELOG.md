@@ -8,6 +8,7 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-22
+- Tessa: after a comparison, "can you give me some analysis of those results?" or "which of them are the strongest?" reads the first page of that comparison. She had answered that she could not see any results.
 - A pull request check, Help coverage (`.github/workflows/help-coverage.yml`, `.github/scripts/help_coverage.py`): a pull request that changes visitor-facing code (client/src, backend, services, tests aside) must also change the Help page or the "What this search does" boxes, or say in its description "Help: not needed, <reason>". Over the last 30 merged pull requests it would have stopped 11. Help now also says how to pick one of several same-named events or entries Tessa lists.
 - Tessa: "How do I type Greek if I don't have a Greek keyboard?" gets the Help answer (add the computer's Greek keyboard, accents optional). The model had told a reader to type Greek in Latin letters, which the boxes do not convert. The Help-answer match treats "if I don't have" like "without". Found in a comparison of three gateway models on 100 site questions (Qwen3.8 27B, the current model, stays).
 
