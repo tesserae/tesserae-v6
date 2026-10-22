@@ -1800,6 +1800,10 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   with the search filled in.
                 </li>
                 <li>
+                  Read long answers in a larger panel. On a computer, Enlarge at the top of the panel makes
+                  Tessa tall and wide, and Smaller puts her back in the corner. The choice is remembered.
+                </li>
+                <li>
                   Follow up. Ask &ldquo;what about Eobanus?&rdquo; and she keeps the thread. After a comparison,
                   ask &ldquo;what do you make of those results?&rdquo; or &ldquo;which are the strongest?&rdquo; and she
                   reads the first page of that comparison. When she lists several

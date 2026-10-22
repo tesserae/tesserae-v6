@@ -96,5 +96,19 @@ describe('Experimental Tessa switch', () => {
     fireEvent.click(box);
     expect(window.localStorage.getItem('tessa_mode')).toBe('classic');
     window.history.pushState({}, '', '/');
+describe('Tessa panel size', () => {
+  it('enlarges for long answers and remembers the choice', async () => {
+    const { unmount } = render(<AssistantDock />);
+    fireEvent.click(await screen.findByRole('button', { name: 'Open Tessa, the AI assistant' }));
+    const panel = await screen.findByTestId('tessa-panel');
+    expect(panel.getAttribute('data-enlarged')).toBe('false');
+    fireEvent.click(screen.getByRole('button', { name: 'Make Tessa larger' }));
+    expect(screen.getByTestId('tessa-panel').getAttribute('data-enlarged')).toBe('true');
+    expect(screen.getByTestId('tessa-panel').className).toContain('52rem');
+    unmount();
+    render(<AssistantDock />);
+    expect((await screen.findByTestId('tessa-panel')).getAttribute('data-enlarged')).toBe('true');
+    fireEvent.click(screen.getByRole('button', { name: 'Make Tessa smaller' }));
+    expect(screen.getByTestId('tessa-panel').getAttribute('data-enlarged')).toBe('false');
   });
 });
