@@ -1261,8 +1261,12 @@ export default function ThemeSearchPage() {
           )}
 
           {!data.results?.length && !data.restricted && !noKnownWords && (
-            <p className="mt-4 text-sm text-gray-600">
-              Nothing in the corpus resembles that description.
+            <p className="mt-4 text-sm text-gray-600" data-testid="theme-empty">
+              {data.confidence
+                ? 'Nothing in the corpus resembles that description.'
+                // No rating came back with the empty list: the search did not finish (2026-10-22, a search
+                // sent while the site restarted read "nothing resembles" for a subject the corpus holds).
+                : 'The search came back empty without a result, which happens when the site is restarting. Please search again in a moment.'}
             </p>
           )}
 
