@@ -38,6 +38,24 @@ Conventions
 ## 2026-10-22 Edition texts with the Leiden signs for the documents (RUN 11:40 EDT, by the project lead)
 
 The documents' cards showed the searched reading, with every editorial sign removed, so EDR107014 (the Perusine war in the consular fasti of Cupra Maritima) read "... bello Perusino / uf IIviri duoviri", a broken-off word and an editor's gloss shown as words of the stone. `scripts/documents/build_leiden_display.py` rendered the EpiDoc edition of every EDH, EDR, I.Sicily and papyri.info document in `~/tesserae-docs/raw/` with the Leiden signs, and kept a rendering only where its letters, signs and spaces removed, match the indexed reading by at least 75 percent (difflib ratio). Of 257,428 documents (AIO left out, its Greek has its own converter), 207,697 were written, 797 disagree with the indexed reading, 6,207 have an empty edition, and 42,727 have no raw file under the expected name or no indexed line (mostly papyri). Eight workers, about two minutes. The new file `data/documents/leiden.sqlite` (table `leiden`, id and text, 207,697 rows, integrity ok, sha256 `ea80cb3e2fae723372e5dbea0763a7c296a0ad37349f1fdafdcdcf8333d19af6`) was copied in at mode 664 at 11:40, before the code that reads it was deployed. Display only: the documents index and the search are unchanged.
+## 2026-10-22 Every PHI record of an inscription joined in the Greek documents index (RUN time EDT to be filled in by the project lead, built by a delegate)
+
+**Status.** Built on copies and checked, not installed. It follows the entry of the same date that added the Greek of 809 inscriptions from PHI Greek Inscriptions, which used only the first PHI number of each inscription. The install is the project lead's, after this pull request is merged and deployed.
+
+Why. 251 of the 815 inscriptions list more than one PHI number, 337 further numbers in all. A stone that PHI records in several parts showed only the first.
+
+What. `aio_convert.py --phi-dir` now reads every number in `all_phi`, in the order AIO lists them, and joins the parts. A gap line stands between parts, because a heading line such as "PHI 8272" would be indexed as text. A part whose text equals an earlier part's (the same stone in two PHI records) is left out. The credit names every number, "Greek text: PHI Greek Inscriptions, The Packard Humanities Institute (PHI 5619, 5652)", the first number is the link of the credit and each further number is a link beside it, from `source_link` rows in the `display` table that the document page shows. `scripts/documents/build_phi_aio_install.sh` runs the whole build on copies and writes the install folder with its checksums, and can be run again when more records are in the PHI folder.
+
+Counts (copy against the live files, after the earlier entry). Documents with several PHI parts 155, repeated parts left out 10, stone lines added 4,663. Index lines 715,251 (unchanged, because a document is one row), AIO characters 1,539,796 to 1,648,797, postings 4,293,812 to 4,295,231, distinct ids equal rows, the 711,801 non-AIO rows unchanged, integrity ok. `metadata.db` documents 260,878 unchanged, display rows 992,955 to 993,135 (180 `source_link` rows), integrity ok. A lemma search of the documents for "ἔδοξεν τῆι βουλῆι καὶ τῶι δήμωι" went from 802 to 806 passages and the exact search stayed at 50.
+
+Known limits. 148 of the further PHI records could not be fetched before the service's daily allowance ran out. Inscriptions that list one of them show the parts that were fetched. Rerun the build script after the records arrive and compare the checksums.
+
+Install (by the lead, after this pull request is merged and deployed). `S` is `~/tesserae-backups/phi_aio_2026-10-22/install2` and `D` is `/var/www/tesseraev6_flask/data`.
+1. `df -h /` and `cd $S && sha256sum -c SHA256SUMS.txt`.
+2. Dated backups of `$D/inverted_index/grc_documents_index.db` and `$D/documents/metadata.db` with the suffix `.bak-phiaio2-20261022`.
+3. Copy under temporary names at mode 664 and rename, the same for `metadata.db` into `$D/documents/`, and `aio__attica.restored_words.jsonl` into `$D/documents/restored/grc/` at mode 664.
+4. `touch /var/www/tesseraev6_flask/tesseraev6_flask.wsgi`, then `curl .../api/languages` (200), the formula search (806 passages) and `/api/documents/aio:IGII2_3346?language=grc` (credit "PHI 5619, 5652" with a link for each).
+
 ## 2026-10-22 Greek of 809 more Attic inscriptions, from PHI Greek Inscriptions, added to the Greek documents index (RUN time EDT to be filled in by the project lead, built by a delegate)
 
 **Status.** Built on copies and checked, not installed. The install is the project lead's, after the pull request that carries `--phi-dir` is merged and deployed.

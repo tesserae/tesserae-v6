@@ -291,6 +291,18 @@ export default function DocumentView() {
                     ) : credit.licence_name}
                   </span>
                 )}
+                {(Array.isArray(display.source_link) ? display.source_link : []).map((entry) => {
+                  const [label, url] = String(entry).split('|');
+                  return (
+                    <span key={entry}>
+                      {', '}
+                      <a href={url} target="_blank" rel="noopener noreferrer"
+                         className="text-amber-700 hover:text-amber-900 underline">
+                        {label}
+                      </a>
+                    </span>
+                  );
+                })}
                 {(credit.source_name_secondary || credit.source_url_secondary) && (
                   <span>
                     {'; '}

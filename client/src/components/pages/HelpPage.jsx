@@ -2151,7 +2151,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
               </p>
               <p className="text-gray-700 mb-3">
                 EDH is used under CC BY-SA 4.0, AIO under CC BY-SA 3.0, the Berlin Inscriptiones Graecae under CC BY 4.0, the PHI texts with the Institute&rsquo;s permission
-                for searching on this site (each page names its PHI number and links to the PHI page, and the texts are not offered
+                for searching on this site (each page names its PHI numbers and links to the PHI pages, one link for every part of an inscription that PHI records separately, and the texts are not offered
                 for download), I.Sicily and the EDR deposit under CC BY 4.0, and
                 the papyri.info texts and HGV records under CC BY 3.0, with copyright and attribution
                 to the respective projects. Findspots link to Pleiades (CC BY 3.0). The full list,

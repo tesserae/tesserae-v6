@@ -20,7 +20,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from aio_convert import (  # noqa: E402
-    BBAW_LICENCE_NAME, BBAW_LICENCE_URL, BBAW_NAME, LICENCE_NAME, LICENCE_URL, PHI_LICENCE_NAME,
+    BBAW_LICENCE_NAME, BBAW_LICENCE_URL, BBAW_NAME, LICENCE_NAME, LICENCE_URL, PHI_LICENCE_NAME, PHI_PAGE,
     SOURCE, SOURCE_NAME, phi_credit_name,
 )
 from extract_metadata import DOCUMENTS_COLUMNS  # noqa: E402
@@ -70,7 +70,7 @@ def document_row(rec: dict) -> dict:
         # the translation AIO's (secondary). The licence name has no link: there is no public licence.
         row.update({
             "licence_name": PHI_LICENCE_NAME, "licence_url": None,
-            "source_name": phi_credit_name(a["phi_number"]),
+            "source_name": phi_credit_name(a.get("phi_numbers") or a["phi_number"]),
             "source_url": a.get("phi_url"),
             "licence_name_secondary": LICENCE_NAME, "licence_url_secondary": LICENCE_URL,
             "source_name_secondary": f"Translation: {SOURCE_NAME} ({a['translators']})" if a.get("translators") else f"Translation: {SOURCE_NAME}",
@@ -82,6 +82,9 @@ def document_row(rec: dict) -> dict:
 def display_rows(rec: dict) -> list:
     a = rec["aio"]
     rows = []
+    # Every PHI part after the first is linked beside the credit ("label|link", one row each).
+    for n in (a.get("phi_numbers") or [])[1:]:
+        rows.append((rec["id"], "source_link", f"PHI {n}|{PHI_PAGE.format(n=n)}"))
     if a.get("translation"):
         text = a["translation"]
         if a.get("translators"):
