@@ -14,7 +14,7 @@
  */
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import ConnectionsMap, { booksGridHeading, columnLabelsNeedRotation, isDiagonalCell } from './ConnectionsMap';
+import ConnectionsMap, { booksAxisTitle, booksGridHeading, columnLabelsNeedRotation, isDiagonalCell } from './ConnectionsMap';
 import { mockResponse } from '../../test/mockResponse';
 
 const MAP_PAYLOAD = {
@@ -532,7 +532,7 @@ describe('starting from one work', () => {
     await waitFor(() => expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('/api/passages/map/work?work=homer.iliad')));
     // The row is named with the same author display name the API returned
     // (Browse Corpus's own display names), not the raw "homer.iliad" slug.
-    expect(await screen.findByText(/Homer, iliad \(grc\)/)).toBeTruthy();
+    expect((await screen.findAllByText(/Homer, iliad \(grc\)/)).length).toBeGreaterThan(0);
     expect(screen.getByLabelText(/Connections for Homer, iliad/)).toBeTruthy();
     expect(screen.queryByLabelText(/Connections map, author view/)).toBeNull();
   });
@@ -682,5 +682,71 @@ describe('the third-level grid header', () => {
     fireEvent.click(canvas, cellCenter(28, 0, 1));
     expect(await screen.findByText(/Blocks of 100 lines/)).toBeTruthy();
     expect(screen.queryByText(/^Book by book/)).toBeNull();
+  });
+});
+
+describe('axis titles on the grids', () => {
+  async function openBooks(booksPayload) {
+    const base = mockFetch();
+    global.fetch = vi.fn((url, ...rest) => {
+      if (String(url).startsWith('/api/passages/map/books')) {
+        return Promise.resolve(mockResponse({ json: () => Promise.resolve(booksPayload) }));
+      }
+      return base(url, ...rest);
+    });
+    render(<ConnectionsMap />);
+    await waitFor(() => expect(screen.getByLabelText(/Connections map/)).toBeTruthy());
+    fireEvent.click(screen.getByRole('button', { name: 'Works' }));
+    const canvas = await screen.findByLabelText(/Connections map, work view/);
+    fireEvent.click(canvas, cellCenter(28, 0, 1));
+    await screen.findByLabelText(/(Books|Blocks) of /);
+    return screen.getAllByTestId('axis-key');
+  }
+
+  it('the top grid says what its rows and columns hold and which way they read', async () => {
+    render(<ConnectionsMap />);
+    const [key] = await screen.findAllByTestId('axis-key');
+    expect(key.textContent).toMatch(/Rows: authors, oldest at top/);
+    expect(key.textContent).toMatch(/Columns: authors, oldest at left/);
+  });
+
+  it('a books grid names the row work and the column work, with books', async () => {
+    const keys = await openBooks({ ...BOOKS_PAYLOAD, names_a: ['Book 1'], names_b: ['Book 1'] });
+    const key = keys[keys.length - 1];
+    expect(key.textContent).toMatch(/Rows: .*\u00b7 books/);
+    expect(key.textContent).toMatch(/Columns: .*\u00b7 books/);
+    expect(booksAxisTitle('Homer, Iliad', ['b1', 'b2'])).toBe('Homer, Iliad \u00b7 books');
+  });
+
+  it('says lines for a work with no books, and books for the other', async () => {
+    expect(booksAxisTitle('Homer, Iliad', ['block1', 'block101'])).toBe('Homer, Iliad \u00b7 lines');
+    const keys = await openBooks({
+      ...BOOKS_PAYLOAD, ids_a: ['block1'], labels_a: ['1'], ids_b: ['b1'], labels_b: ['1'],
+      names_a: ['Lines 1 to 100'], names_b: ['Book 1'] });
+    const key = keys[keys.length - 1];
+    expect(key.textContent).toMatch(/Rows: .*\u00b7 lines/);
+    expect(key.textContent).toMatch(/Columns: .*\u00b7 books/);
+  });
+
+  it('the books tooltip names both works and both books', async () => {
+    const keys = await openBooks({ ...BOOKS_PAYLOAD, names_a: ['Book 1'], names_b: ['Book 1'] });
+    expect(keys.length).toBeGreaterThan(0);
+    const canvas = await screen.findByLabelText(/Books of /);
+    fireEvent.mouseMove(canvas, cellCenter(28, 0, 0));
+    const tips = await screen.findAllByText(/^.+ \u00b7 Book 1$/, { selector: '.font-medium' });
+    expect(tips).toHaveLength(2);
+    expect(tips[0].textContent).toMatch(/^Homer/);
+    expect(tips[1].textContent).toMatch(/^Vergil/);
+  });
+
+  it('the one-work row names its work as the rows', async () => {
+    render(<ConnectionsMap />);
+    await waitFor(() => expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('/api/passages/works')));
+    fireEvent.change(screen.getByPlaceholderText(/Start from one work/), { target: { value: 'homer' } });
+    fireEvent.click(await screen.findByText('homer.iliad'));
+    await screen.findByLabelText(/Connections for Homer, iliad/);
+    const [key] = await screen.findAllByTestId('axis-key');
+    expect(key.textContent).toMatch(/Rows: Homer, iliad/);
+    expect(key.textContent).toMatch(/Columns: the works linked to it/);
   });
 });
