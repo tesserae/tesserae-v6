@@ -171,9 +171,40 @@ def t_compare_texts(a):
     return _compare_rows(pair)
 
 
+WHOLE_WORK_LINES = 4000
+
+
+def _lines_in(row):
+    """How many lines a text has (a book file counts its own lines), from the passage text store; 0 when
+    unknown."""
+    from backend import window_texts
+    from backend.work_names import base_work, is_part
+    rid = _id(row)
+    c = window_texts._conn()
+    if c is None:
+        return 0
+    base = base_work(rid + '.tess') or rid
+    n = c.execute('SELECT count(*) FROM lines WHERE work = ?', (window_texts._base_work(base),)).fetchone()[0]
+    if is_part(rid + '.tess') and n:
+        # A book: its share of the whole, by the listing's count of books.
+        books = sum(1 for r in corpus_lookup._all_texts(row.get('language')) if is_part(str(r.get('id') or ''))
+                    and base_work(str(r.get('id') or '')) == base)
+        return n // max(books, 1)
+    return n
+
+
 def _compare_rows(pair):
     la, lb = pair[0].get('language') or 'la', pair[1].get('language') or 'la'
     names = [p.get('display_name') or _id(p) for p in pair]
+    # A full comparison of a whole epic runs for many minutes and takes a web worker past 15 GB (2026-10-22,
+    # the Thebaid against the Aeneid in testing), so Tessa does not start one on a text of more than
+    # WHOLE_WORK_LINES lines: she compares by content or asks which books.
+    big = [n for n, p in zip(names, pair) if _lines_in(p) > WHOLE_WORK_LINES]
+    if big:
+        return (f'Not run: {" and ".join(big)} {"is a long whole work" if len(big) == 1 else "are long whole works"}, '
+                'and the full comparison is run book against book. Use theme_compare for the whole works '
+                '(passages telling similar scenes), and offer to compare named books (for example book 12 with '
+                'book 11). Ask the reader which books they want, in plain words.')
     if la == lb:
         page = searches.fusion_page(_id(pair[0]), _id(pair[1]), la, 25)
     else:

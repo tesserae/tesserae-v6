@@ -191,3 +191,15 @@ def test_people_places_brings_the_documents_its_page_lists(monkeypatch):
          'credit': {'principal_edition': 'CIL 11, 02618'}, 'ancient_place': 'Rusellae'}]})
     out = json.loads(agent_tools.t_people_places({'name': 'Rusellae'}))
     assert out['inscriptions_and_papyri_naming_it'][0]['edition'] == 'CIL 11, 02618'
+
+
+def test_a_comparison_of_long_whole_works_is_not_started(monkeypatch):
+    started = []
+    monkeypatch.setattr(agent_tools, '_lines_in', lambda row: 9800 if 'part' not in row['id'] else 800)
+    monkeypatch.setattr(agent_tools.searches, 'fusion_page', lambda *a, **k: started.append(a) or [])
+    out = agent_tools._compare_rows([{'id': 'statius.thebaid.tess', 'display_name': 'Statius, Thebaid', 'language': 'la'},
+                                     {'id': 'vergil.aeneid.tess', 'display_name': 'Vergil, Aeneid', 'language': 'la'}])
+    assert out.startswith('Not run') and not started
+    agent_tools._compare_rows([{'id': 'statius.thebaid.part.12.tess', 'language': 'la'},
+                               {'id': 'vergil.aeneid.part.11.tess', 'language': 'la'}])
+    assert started
