@@ -1397,7 +1397,9 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 Type a name and press Search. An English name such as Rhodes or Lyon finds the
                 ancient entity, Rhodos or Lugdunum. Latin and Greek spellings work too. For a
                 longer name, spellings close to the one you typed are offered under Near spellings,
-                so a small slip in spelling still reaches the right entry. When nothing matches,
+                so a small slip in spelling still reaches the right entry. A Latin name copied
+                from a line with -que attached (Laviniaque, Albanique) is searched without it, and
+                -ve or -ne is dropped when the word as typed finds nothing. When nothing matches,
                 the page suggests the closest names.
               </p>
               <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">How a name is recognized</h4>

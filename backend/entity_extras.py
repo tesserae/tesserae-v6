@@ -788,11 +788,39 @@ def rank_match(e, f, raw, fs=None):
 SEARCH_ENTITY_LIMIT = 50
 
 
+_ENCLITIC = re.compile(r'^([a-z]{3,})(ue|ne)$')
+
+
+def without_enclitic(q):
+    """`q` without a Latin enclitic (-que, -ve, -ne) and the enclitic, or (None, None). Laviniaque,
+    Albanique: a shared name copied from a line keeps the enclitic, and no heading has it."""
+    f = ei.fold(q)
+    if f.endswith('que'):
+        return (f[:-3], 'que') if len(f) >= 6 and f[:-3].isalpha() else (None, None)
+    m = _ENCLITIC.match(f)
+    return (m.group(1), m.group(2)) if m else (None, None)
+
+
 def rank_entities(cat, q):
     """The entities and the corpus names that match the typed text `q`, best first: the two
     sorted lists (entity hits, name hits) of (rank, -mentions, label, entity) the search route
     shows, entity hits before name hits. One implementation for the Mentions search and for
-    anything that must resolve a name the way it does."""
+    anything that must resolve a name the way it does. A Latin word ending in -que is searched
+    without it as well, and those matches come first; -ve and -ne are dropped only when the word
+    as typed matches nothing (Daphne and Mycene end in -ne)."""
+    hits, name_hits = _rank_entities(cat, q)
+    bare, enclitic = without_enclitic(q)
+    if bare is None or (enclitic != 'que' and (hits or name_hits)):
+        return hits, name_hits
+    bare_hits, bare_names = _rank_entities(cat, bare)
+    if not (bare_hits or bare_names):
+        return hits, name_hits
+    seen = {h[3]['eid'] for h in bare_hits + bare_names}
+    return (bare_hits + [h for h in hits if h[3]['eid'] not in seen],
+            bare_names + [h for h in name_hits if h[3]['eid'] not in seen])
+
+
+def _rank_entities(cat, q):
     f = ei.fold(q)
     fs = form_stem(f)
     hits = []
