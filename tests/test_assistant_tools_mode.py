@@ -144,3 +144,10 @@ def test_tidy_removes_talk_about_the_check_and_renumbers():
     text = "You're right to check, and the re-run confirms it. Top:\n\n3. **a**\n4. **b**\n6. **c**"
     assert agent_tools._tidy(text) == 'Top:\n\n1. **a**\n2. **b**\n3. **c**'
     assert agent_tools._tidy('Cato is not the speaker.') == 'Cato is not the speaker.'
+def test_list_texts_with_no_language_gives_counts_for_every_language(monkeypatch):
+    from backend.assistant import agent as ordinary
+    monkeypatch.setattr(ordinary, '_language_holdings_fact',
+                        lambda code: {'language': code.upper(), 'works': 10, 'authors': 2})
+    out = json.loads(agent_tools.t_list_texts({}))
+    assert out['total_works'] == 10 * len(agent_tools.LANGUAGES)
+    assert out['literary_works_by_language']['LA'] == {'works': 10, 'authors': 2}

@@ -280,6 +280,26 @@ def t_theme_compare(a):
     return _clip(searches.run('theme_compare', {'work_a': _id(pair[0]), 'work_b': _id(pair[1]), 'limit': 15}))
 
 
+LANGUAGES = ('la', 'grc', 'en', 'cop', 'he', 'fa', 'ur')
+
+
+def t_list_texts(a):
+    """Counts of works and authors with the titles, from the ordinary Tessa's holdings fact. With no
+    language, the counts for every language (2026-10-22: asked "How big is the corpus?", the model listed
+    the texts five times, got a list cut short each time, and said it could not give a total)."""
+    from backend.assistant import agent as ordinary
+    code = (a.get('language') or '').strip().lower()
+    if code in LANGUAGES:
+        return _clip(ordinary._language_holdings_fact(code), 6000)
+    counts = {}
+    for c in LANGUAGES:
+        f = ordinary._language_holdings_fact(c)
+        counts[f.get('language') or c] = {'works': f.get('works'), 'authors': f.get('authors')}
+    return _clip({'literary_works_by_language': counts,
+                  'total_works': sum(v['works'] or 0 for v in counts.values()),
+                  'note': 'A work divided into books counts once.'}, 3000)
+
+
 def _direct(name):
     return lambda a: _clip(searches.run(name, a))
 
@@ -320,7 +340,9 @@ TOOLS = {
                           'kind': 'optional: inscriptions or papyri', 'place': 'optional findspot'}),
     'coins_search': (_direct('coins_search'), 'Greek and Roman coin types.', {'query': 'English words or legend', 'mint': 'optional'}),
     'objects_search': (_direct('objects_search'), 'Museum objects.', {'query': 'English words'}),
-    'list_texts': (_direct('list_texts'), 'The texts the corpus holds in one language.', {'language': 'la, grc, he, cop or en'}),
+    'list_texts': (t_list_texts, 'How many works and authors the corpus holds, with the titles, in one language; '
+                   'with no language, the counts for every language (use it for "how big is the corpus").',
+                   {'language': 'optional: la, grc, en, cop, he, fa or ur'}),
 }
 OPTIONAL = {'languages', 'books', 'label', 'kind', 'place', 'mint', 'search_type', 'language', 'ref_end', 'context'}
 STEP = {'site_help': 'reading the Help pages', 'read_passage': 'reading the passage', 'compare_texts': 'running the comparison',
