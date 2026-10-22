@@ -138,7 +138,7 @@ describe('the inscriptions mark beside the quotation mark (documents trial)', ()
     expect(screen.getByTitle('Quoted in 5 inscriptions or papyri')).toBeTruthy();
     const rows = container.querySelectorAll('div[id^="line-"]');
     expect(rows.length).toBe(2);
-    rows.forEach((row) => expect(row.style.gridTemplateColumns).toBe('2.6rem 2.5rem 1fr'));
+    rows.forEach((row) => expect(row.style.gridTemplateColumns).toBe('2.6rem 3.9rem 1fr'));
   });
 
   it('keeps the narrow column when the trial is off', () => {
@@ -147,6 +147,6 @@ describe('the inscriptions mark beside the quotation mark (documents trial)', ()
                 reuseMarks={{ 'verg. aen. 1.1': { n_works: 2, n_possible_works: 0 } }} onReuseClick={() => {}} />
     );
     const row = container.querySelector('div[id^="line-"]');
-    expect(row.style.gridTemplateColumns).toBe('2.6rem 1.15rem 1fr');
+    expect(row.style.gridTemplateColumns).toBe('2.6rem 2.7rem 1fr');
   });
 });
