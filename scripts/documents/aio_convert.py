@@ -481,18 +481,20 @@ def _bbaw_items(div):
     return items
 
 
-def _clean_line(chars):
-    """chars: list of (character, restored). Returns (text, flags)."""
+def _clean_line(chars, gap_chars=".\u2024\u2013\u2014"):
+    """chars: list of (character, restored). Returns (text, flags). `gap_chars`
+    are the signs that stand for lost letters (the Berlin edition writes them
+    with full stops, PHI keeps the full stop as punctuation)."""
     out = []   # (ch, restored)
     i = 0
     n = len(chars)
     while i < n:
         ch, fl = chars[i]
         o = ord(ch)
-        if ch in ".\u2024\u2013\u2014":
+        if ch in gap_chars:
             # a run of dots, dashes and the spaces between them is one gap
             j = i
-            while j < n and (chars[j][0] in ".\u2024\u2013\u2014 \u00a0"):
+            while j < n and (chars[j][0] in gap_chars + " \u00a0"):
                 j += 1
             while chars[j - 1][0] in " \u00a0":
                 j -= 1
@@ -629,6 +631,131 @@ def build_record_bbaw(raw: dict, vol: str, ident: str, page: dict | None, files:
     return rec
 
 
+# ---------------------------------------------------------------------------
+# Greek from the Packard Humanities Institute (PHI) Greek Inscriptions, for AIO
+# inscriptions that have a translation but no Greek of their own. PHI gave
+# permission (2026-10-22) for indexing and search only: the texts and anything
+# built from them stay out of the public repository and are never offered as a
+# download. The text is read from PHI's API record (`text.lines[].content`, in
+# Leiden brackets).
+# ---------------------------------------------------------------------------
+
+PHI_NAME = "PHI Greek Inscriptions, The Packard Humanities Institute"
+PHI_LICENCE_NAME = "used with permission, for search only"
+PHI_PAGE = "https://epigraphy.packhum.org/text/{n}"
+_PHI_SUPERS = "⁰¹²³⁴⁵⁶⁷⁸⁹"
+
+
+def phi_credit_name(number) -> str:
+    return f"Greek text: {PHI_NAME} (PHI {number})"
+
+
+def _phi_prepare(s: str) -> str:
+    """One PHI line with its non-text notation taken out: the length of a
+    lost stretch (`— c.10-11 —`, `․․6․․`), surplus letters in braces, the
+    superscript numbers and marks that tie a correction to its note, the
+    stop signs between numerals and the editors' query marks."""
+    s = re.sub(r"—\s*c\.\s*\d+(?:\s*[-–]\s*\d+)?\s*—", "—", s)
+    s = re.sub(r"\bc\.\s*(?=\d)", "", s)
+    s = re.sub(r"\{[^{}]*\}", "", s)
+    s = re.sub(r"[․]*\d+[․]*", lambda m: "․" if "․" in m.group(0) else m.group(0), s)
+    s = s.replace("(?)", "")
+    # Latin letters are the editors' remarks (vacat, number, ca., Demotic) or Latin words of a
+    # bilingual stone, never Greek text.
+    s = re.sub(r"\bca\.", "", s)
+    s = re.sub("[A-Za-z/|?\u2766\u23d1]", "", s)
+    s = re.sub("[#%" + _PHI_SUPERS + "]", "", s)
+    return s.replace("∶", " ").replace("∙", " ")
+
+
+def phi_lines(content_lines: list) -> list:
+    """Lines in the shape EpidocConverter writes, from PHI's `text.lines`
+    (each with `number` and `content`). Square brackets and round brackets
+    (resolved abbreviations) and angle brackets (letters the editor supplies)
+    mark restored letters, lost stretches become gaps, words broken at a line
+    end with a hyphen are rejoined, and Latin words and editors' remarks
+    (vacat, lacuna) are left out."""
+    raw = []
+    for ln in content_lines:
+        raw.append((ln.get("number"), _phi_prepare(ln.get("content") or "")))
+    lines = []
+    in_br = in_par = in_ang = False
+    join_next = False
+    for k, (num, s) in enumerate(raw):
+        body = s.rstrip()
+        ends_hyphen = False
+        if body.endswith("-") and not body.endswith("--"):
+            before = body[:-1].rstrip("])〛>")
+            nxt = raw[k + 1][1].lstrip("   [(〚<") if k + 1 < len(raw) else ""
+            if before and _ends_in_greek_letter(before) and body[-2:-1] != " " and nxt and _GREEK.match(nxt[0]):
+                ends_hyphen = True
+                s = body[:-1]
+        chars = []
+        for ch in s:
+            if ch == "[":
+                in_br = True
+            elif ch == "]":
+                in_br = False
+            elif ch == "(":
+                in_par = True
+            elif ch == ")":
+                in_par = False
+            elif ch == "<":
+                in_ang = True
+            elif ch == ">":
+                in_ang = False
+            elif ch in "〚〛":
+                continue
+            else:
+                chars.append((ch, in_br or in_par or in_ang))
+        text, flags = _clean_line(chars, gap_chars="․–—")
+        if not text:
+            continue
+        lines.append({"n": str(num) if num is not None else None, "diplomatic": text, "expanded": text,
+                      "text": text, "restored_flags": flags, "joins_previous": join_next})
+        join_next = ends_hyphen
+    return lines
+
+
+def _phi_year(v):
+    try:
+        return int(v)
+    except (TypeError, ValueError):
+        return None
+
+
+def build_record_phi(raw: dict, vol: str, ident: str, page: dict | None, phi: dict, number, notes: list):
+    """A document whose Greek is PHI's and whose translation is AIO's. The
+    date, findspot and region come from AIO's page where it gives them, else
+    from PHI's record (`date_text` kept as the date text, `not_before` and
+    `not_after`, `site`)."""
+    page = dict(page or {})
+    phi_site = (phi.get("site") or "").strip() or None
+    if not page.get("findspot") and phi_site:
+        page["findspot"] = phi_site
+    lines = phi_lines(((phi.get("text") or {}).get("lines")) or [])
+    rec = build_record(dict(raw, greek_epidoc=None), vol, ident, page, notes, _allow_no_greek=True)
+    if rec["date_not_before"] is None and rec["date_not_after"] is None:
+        nb, na = _phi_year(phi.get("not_before")), _phi_year(phi.get("not_after"))
+        if nb is not None or na is not None:
+            rec["date_not_before"], rec["date_not_after"] = nb, na
+            rec["aio"]["date_from_phi"] = True
+    if not rec["aio"].get("date_text") and phi.get("date_text"):
+        rec["aio"]["date_text"] = phi["date_text"]
+    rec["lines"] = lines
+    rec["text"] = join_lines(lines)
+    sup = sum(sum(1 for f in ln["restored_flags"] if f) for ln in lines)
+    tot = sum(len(ln["text"]) for ln in lines)
+    rec["supplied_chars"], rec["total_chars"] = sup, tot
+    rec["gap_count"] = sum(ln["text"].count(GAP) for ln in lines)
+    rec["supplied_share"] = sup / tot if tot else 0.0
+    rec["languages"] = ["grc"]
+    rec["aio"]["greek_source"] = "phi"
+    rec["aio"]["phi_number"] = str(number)
+    rec["aio"]["phi_url"] = PHI_PAGE.format(n=number)
+    return rec
+
+
 def choose_edition(page: dict, tr_ref: dict | None):
     """The edition number to show, and how it was derived.
 
@@ -729,7 +856,21 @@ def main(argv=None) -> int:
     ap.add_argument("--bbaw-dir", default=None,
                     help="folder with bbaw_index.json and bbaw_raw/ (aio_fetch_bbaw.py): "
                          "pair translations that lack Greek with the Berlin IG edition")
+    ap.add_argument("--phi-dir", default=None,
+                    help="folder with PHI's <number>.json records (licensed text, kept outside the "
+                         "repository): pair translations that lack Greek with PHI's Greek; needs --phi-list")
+    ap.add_argument("--phi-list", default=None,
+                    help="phi_needed.json: [{aio: 'VOL/ID', phi: '5290', ...}, ...]")
     a = ap.parse_args(argv)
+    phi_by_stem = {}
+    if a.phi_dir:
+        if not a.phi_list:
+            ap.error("--phi-dir needs --phi-list")
+        for e in json.load(open(a.phi_list, encoding="utf-8")):
+            v, i = e["aio"].split("/", 1)
+            phi_by_stem[f"{v}__{i.replace('/', '_')}"] = str(e["phi"])
+    phi_stats = {"inscriptions_listed": 0, "converted": 0, "missing_files": [], "no_text": [],
+                 "date_from_phi": 0, "findspot_from_phi": 0, "page_missing": []}
     bbaw = None
     if a.bbaw_dir:
         bbaw = json.load(open(os.path.join(a.bbaw_dir, "bbaw_index.json"), encoding="utf-8"))
@@ -786,6 +927,33 @@ def main(argv=None) -> int:
                     if rec["aio"]["date_text"] and rec["date_not_before"] is None and rec["date_not_after"] is None:
                         unparsed_dates.append(rec["aio"]["date_text"])
                     out.write(json.dumps(rec, ensure_ascii=False) + "\n")
+                    continue
+                if stem in phi_by_stem:
+                    phi_stats["inscriptions_listed"] += 1
+                    num = phi_by_stem[stem]
+                    fp = os.path.join(a.phi_dir, num + ".json")
+                    if not os.path.exists(fp):
+                        phi_stats["missing_files"].append(num)
+                        continue
+                    phi = json.load(open(fp, encoding="utf-8"))
+                    hp = os.path.join(a.html_dir, stem + ".html")
+                    page = parse_page(open(hp, encoding="utf-8").read()) if os.path.exists(hp) else None
+                    if page is None:
+                        phi_stats["page_missing"].append(doc_id(vol, ident))
+                    notes = []
+                    rec = build_record_phi(raw, vol, ident, page, phi, num, notes)
+                    if not rec["lines"]:
+                        phi_stats["no_text"].append(rec["id"])
+                        continue
+                    phi_stats["date_from_phi"] += bool(rec["aio"].get("date_from_phi"))
+                    phi_stats["findspot_from_phi"] += bool(not (page or {}).get("findspot")
+                                                           and rec["findspot"]["ancient_place"])
+                    phi_stats["converted"] += 1
+                    how = rec["aio"]["edition_how"]
+                    edition_how_counts[how] = edition_how_counts.get(how, 0) + 1
+                    if how in ("heading-own-number", "api-fallback", "none"):
+                        fallback_edition.append(f"{rec['id']} ({rec['aio']['edition']})")
+                    out.write(json.dumps(rec, ensure_ascii=False) + "\n")
                 continue
             n_greek += 1
             hp = os.path.join(a.html_dir, stem + ".html")
@@ -807,7 +975,7 @@ def main(argv=None) -> int:
             n_written += 1
     report = {"inscriptions": n_all, "with_greek": n_greek, "with_translation": n_tr,
               "records_written": n_written, "languages": langs_seen,
-              "edition_how": edition_how_counts, "bbaw": bbaw_stats, "problems": problems, "unparsed_dates": unparsed_dates,
+              "edition_how": edition_how_counts, "bbaw": bbaw_stats, "phi": phi_stats, "problems": problems, "unparsed_dates": unparsed_dates,
               "edition_not_from_page": fallback_edition}
     if a.report:
         json.dump(report, open(a.report, "w", encoding="utf-8"), indent=1, ensure_ascii=False)

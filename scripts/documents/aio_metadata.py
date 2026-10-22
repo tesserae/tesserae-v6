@@ -20,7 +20,8 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from aio_convert import (  # noqa: E402
-    BBAW_LICENCE_NAME, BBAW_LICENCE_URL, BBAW_NAME, LICENCE_NAME, LICENCE_URL, SOURCE, SOURCE_NAME,
+    BBAW_LICENCE_NAME, BBAW_LICENCE_URL, BBAW_NAME, LICENCE_NAME, LICENCE_URL, PHI_LICENCE_NAME,
+    SOURCE, SOURCE_NAME, phi_credit_name,
 )
 from extract_metadata import DOCUMENTS_COLUMNS  # noqa: E402
 
@@ -60,6 +61,17 @@ def document_row(rec: dict) -> dict:
             "licence_name": BBAW_LICENCE_NAME, "licence_url": BBAW_LICENCE_URL,
             "source_name": f"Greek text: {BBAW_NAME}",
             "source_url": a.get("bbaw_url"),
+            "licence_name_secondary": LICENCE_NAME, "licence_url_secondary": LICENCE_URL,
+            "source_name_secondary": f"Translation: {SOURCE_NAME} ({a['translators']})" if a.get("translators") else f"Translation: {SOURCE_NAME}",
+            "source_url_secondary": a["url"],
+        })
+    if a.get("greek_source") == "phi":
+        # The Greek is PHI's, used with permission for indexing and search only (primary credit),
+        # the translation AIO's (secondary). The licence name has no link: there is no public licence.
+        row.update({
+            "licence_name": PHI_LICENCE_NAME, "licence_url": None,
+            "source_name": phi_credit_name(a["phi_number"]),
+            "source_url": a.get("phi_url"),
             "licence_name_secondary": LICENCE_NAME, "licence_url_secondary": LICENCE_URL,
             "source_name_secondary": f"Translation: {SOURCE_NAME} ({a['translators']})" if a.get("translators") else f"Translation: {SOURCE_NAME}",
             "source_url_secondary": a["url"],
