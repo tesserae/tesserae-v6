@@ -44,3 +44,12 @@ def test_a_list_item_with_an_unsupported_reference_is_removed_whole():
     assert '1.999' not in out and '1.146' in out and 'It is rare.' in out
     assert dropped == ['2. **Aen. 1.999 / BC 1.888** - invented.']
     assert '**Aen.\n' not in out
+
+
+def test_list_texts_with_no_language_gives_counts_for_every_language(monkeypatch):
+    from backend.assistant import agent as ordinary
+    monkeypatch.setattr(ordinary, '_language_holdings_fact',
+                        lambda code: {'language': code.upper(), 'works': 10, 'authors': 2})
+    out = json.loads(agent_tools.t_list_texts({}))
+    assert out['total_works'] == 10 * len(agent_tools.LANGUAGES)
+    assert out['literary_works_by_language']['LA'] == {'works': 10, 'authors': 2}
