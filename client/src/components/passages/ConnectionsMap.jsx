@@ -66,6 +66,16 @@ const ORDER_NOTE = {
   genre: 'Shown alphabetically.',
 };
 
+// The key in the corner of the top grid: what the rows and the columns hold
+// and which way each reads (the grid is square, so both axes list the same
+// things in the same order).
+const TOP_AXIS_TITLES = {
+  author: { row: 'authors, oldest at top', col: 'authors, oldest at left' },
+  work: { row: 'works, oldest at top', col: 'works, oldest at left' },
+  century: { row: 'centuries, oldest at top', col: 'centuries, oldest at left' },
+  genre: { row: 'genres, A to Z down', col: 'genres, A to Z across' },
+};
+
 // A single red ramp over a grey ground. index.js light-mode background is
 // white, so 0 renders as a pale grey and the strongest cell as the site's
 // own red-700, matching every other emphasis color on the page.
@@ -351,6 +361,29 @@ export function booksGridHeading(data) {
   return 'Book by book';
 }
 
+// What one axis of a grid holds, in words, for the key in the corner above
+// the row names: "Homer, Iliad · books", or "lines" when that work has no
+// book divisions and the axis is blocks of 100 lines.
+export function booksAxisTitle(workLabel, ids) {
+  return `${workLabel} \u00b7 ${isLineBlocks(ids) ? 'lines' : 'books'}`;
+}
+
+// The two-line key in the empty corner of a grid: which work (or kind of
+// thing) runs down the side and which across the top.
+export function AxisKey({ rowTitle, colTitle }) {
+  if (!rowTitle && !colTitle) return null;
+  const clamp = { display: '-webkit-box', WebkitBoxOrient: 'vertical', WebkitLineClamp: 3, overflow: 'hidden' };
+  return (
+    <div data-testid="axis-key"
+         className="text-[10px] uppercase tracking-wide text-gray-500 font-semibold leading-tight"
+         style={{ padding: '6px 8px', height: '100%', overflow: 'hidden' }}
+         title={`Rows: ${rowTitle}. Columns: ${colTitle}.`}>
+      <div style={clamp}><span aria-hidden="true">{'\u2193'} </span>Rows: {rowTitle}</div>
+      <div style={{ ...clamp, marginTop: 6 }}><span aria-hidden="true">{'\u2192'} </span>Columns: {colTitle}</div>
+    </div>
+  );
+}
+
 export function isDiagonalCell(rowIds, colIds, i, j, diagonal = true) {
   if (!diagonal) return false;
   return !!(rowIds && colIds && rowIds[i] !== undefined && rowIds[i] === colIds[j]);
@@ -413,7 +446,7 @@ function liftScale(counts) {
 
 function LabeledHeatmap({
   rowLabels, colLabels, rowIds, colIds, normalised, cellSize, onHover, onCellClick, ariaLabel,
-  outlineCell, diagonal = true,
+  outlineCell, diagonal = true, rowTitle, colTitle,
 }) {
   const rowCanvasRef = useRef(null);
   const gridCanvasRef = useRef(null);
@@ -703,7 +736,9 @@ function LabeledHeatmap({
                   style={{ display: 'block', transform: `translateX(${-scrollLeft}px)` }} />
         </div>
         <div style={{ position: 'absolute', left: 0, top: 0, width: rowMargin, height: colMargin,
-                      background: '#ffffff', borderRight: '1px solid #e5e7eb' }} />
+                      background: '#ffffff', borderRight: '1px solid #e5e7eb' }}>
+          <AxisKey rowTitle={rowTitle} colTitle={colTitle} />
+        </div>
       </div>
       {/* The ONLY element that scrolls horizontally; the row-label canvas
           inside stays fixed on its left. Vertical padding only: horizontal
@@ -983,8 +1018,10 @@ export default function ConnectionsMap() {
     setHoverInfo({
       // The server names each row and column ("Genesis", "Book 7", "Lines
       // 101 to 200"); the old "book <label>" prefix read "book Genesis".
-      labelA: booksData.names_a?.[cell.i] ?? `Book ${booksData.labels_a[cell.i]}`,
-      labelB: booksData.names_b?.[cell.j] ?? `Book ${booksData.labels_b[cell.j]}`,
+      // Each line names the work too, so the tooltip reads "Homer, Iliad
+      // \u00b7 Book 2" over "Apollonius Rhodius, Argonautica \u00b7 Book 1".
+      labelA: `${selectedWorkCell?.labelA ?? ''} \u00b7 ${booksData.names_a?.[cell.i] ?? `Book ${booksData.labels_a[cell.i]}`}`,
+      labelB: `${selectedWorkCell?.labelB ?? ''} \u00b7 ${booksData.names_b?.[cell.j] ?? `Book ${booksData.labels_b[cell.j]}`}`,
       count: booksData.counts[cell.i][cell.j], normalised: booksData.normalised[cell.i][cell.j],
       lift: booksShown.lift ? booksShown.lift[cell.i][cell.j] : null,
       diagonalText: null,
@@ -1345,6 +1382,8 @@ export default function ConnectionsMap() {
               onHover={onHoverMatrix}
               onCellClick={onClickMatrixCell}
               outlineCell={topOutline}
+              rowTitle={TOP_AXIS_TITLES[view]?.row}
+              colTitle={TOP_AXIS_TITLES[view]?.col}
               ariaLabel={`Connections map, ${view} view`}
             />
           </div>
@@ -1434,6 +1473,8 @@ export default function ConnectionsMap() {
                     onHover={onHoverWorksMatrix}
                     onCellClick={onClickWorksMatrixCell}
                     outlineCell={worksOutline}
+                    rowTitle={`Works of ${selectedCell.labelA}`}
+                    colTitle={`Works of ${selectedCell.labelB}`}
                     ariaLabel={`Works of ${selectedCell.labelA} by works of ${selectedCell.labelB}`}
                   />
                 </div>
@@ -1463,6 +1504,8 @@ export default function ConnectionsMap() {
                       onHover={onHoverBooks}
                       onCellClick={onClickBooksCell}
                       outlineCell={booksOutline}
+                      rowTitle={booksAxisTitle(selectedWorkCell.labelA, booksData.ids_a)}
+                      colTitle={booksAxisTitle(selectedWorkCell.labelB, booksData.ids_b)}
                       diagonal={selectedWorkCell.workA === selectedWorkCell.workB}
                       ariaLabel={`${booksGridNoun(booksData)} of ${selectedWorkCell.labelA} by ${booksGridNoun(booksData).toLowerCase()} of ${selectedWorkCell.labelB}`}
                     />
@@ -1523,6 +1566,8 @@ export default function ConnectionsMap() {
                     normalised={[workCols.map((c) => c.count / workRowMax)]}
                     cellSize={workRowCellSize}
                     onHover={onHoverWorkRow}
+                    rowTitle={rowLabel}
+                    colTitle="the works linked to it"
                     onCellClick={onClickWorkRowCell}
                     ariaLabel={`Connections for ${rowLabel}`}
                   />
