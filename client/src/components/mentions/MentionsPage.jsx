@@ -37,6 +37,14 @@ export function moreCounts(e) {
   return parts.join(' · ');
 }
 
+/** The adjective lines and documents of an entry page, in the shape moreCounts reads from a search row. */
+export function entryExtra(d) {
+  return {
+    adjective_lines: (d.adjective_names || []).reduce((a, x) => a + (x.count || 0), 0),
+    document_counts: d.document_counts || {},
+  };
+}
+
 function CountsLine({ counts, extra }) {
   const parts = sortedCounts(counts);
   if (parts.length === 0) return <span>{extra || 'no mentions'}</span>;
@@ -351,7 +359,7 @@ function EntityView({ id, back, open }) {
           <p className="text-xs text-gray-600 mt-0.5">
             {TYPE_LABEL[data.type] || 'Other'}
             {data.identifiers?.pleiades?.length > 0 && ` · Pleiades ${data.identifiers.pleiades.slice(0, 3).join(', ')}`}
-            {' · '}<CountsLine counts={data.mention_counts} />
+            {' · '}<CountsLine counts={data.mention_counts} extra={moreCounts(entryExtra(data))} />
           </p>
           {data.label_shared && (
             <p className="text-xs text-gray-500 mt-1">
@@ -375,7 +383,13 @@ function EntityView({ id, back, open }) {
             </p>
           )}
           <h4 className="text-sm font-semibold text-gray-700 mt-4 mb-2">Mentions by work</h4>
-          {data.works.length === 0 && <p className="text-sm text-gray-600">No mentions found.</p>}
+          {data.works.length === 0 && (
+            <p className="text-sm text-gray-600">
+              {entryExtra(data).adjective_lines
+                ? `No line names ${data.display_label || data.label} itself. The lines that name it by its adjective are below.`
+                : 'No mentions found.'}
+            </p>
+          )}
           {data.works.map((w) => <WorkGroup key={`${w.work}|${w.language}`} entityId={data.id} w={w} />)}
           {Object.keys(data.document_counts || {}).length > 0 && (
             <>
