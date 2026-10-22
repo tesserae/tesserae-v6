@@ -1814,6 +1814,16 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 </li>
               </ul>
 
+              <p className="text-gray-700 mb-3">
+                An experimental Tessa, who reads the whole conversation and chooses her own searches, can be
+                switched on in your browser with a link ending <code>?tessa=new</code> (and off with{' '}
+                <code>?tessa=classic</code>). A switch in her panel then turns it on and off. She is slower,
+                ten to thirty seconds an answer, because she may run several searches, and she follows a
+                conversation more closely: told &ldquo;there should be instances in the Aeneid (Pallas)&rdquo;,
+                she searches the Aeneid for them. A sentence that cites a passage no search returned is removed
+                before you see it.
+              </p>
+
               <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">How to trust her</h4>
               <p className="text-gray-700 mb-3">
                 Every answer is checked before you see it. Citations come from a search that
