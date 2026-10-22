@@ -158,7 +158,7 @@ def apply_fixes(dry_run: bool = True) -> int:
             total_skipped += len(file_rows)
             continue
 
-        with open(fpath, encoding='utf-8') as fh:
+        with open(fpath, encoding='utf-8', newline='') as fh:
             lines = fh.readlines()
 
         # Build index: reference tag → list of line indices (some files have duplicate tags)
@@ -211,7 +211,7 @@ def apply_fixes(dry_run: bool = True) -> int:
             total_changes += 1
 
         if file_changed and not dry_run:
-            with open(fpath, 'w', encoding='utf-8') as fh:
+            with open(fpath, 'w', encoding='utf-8', newline='') as fh:
                 fh.writelines(new_lines)
             total_files += 1
 
