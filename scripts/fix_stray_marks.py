@@ -46,11 +46,16 @@ MACRON_BR  = {'̄', '̆', '͞'}  # macron, breve, double-inverted
 
 
 def _mark_category(ch):
-    if ch in BREATHING:   return 'breathing'
-    if ch in ACCENT:      return 'accent'
-    if ch in DIAERESIS:   return 'diaeresis'
-    if ch in IOTA_SUB:    return 'iota_sub'
-    if ch in MACRON_BR:   return 'macron_br'
+    if ch in BREATHING:
+        return 'breathing'
+    if ch in ACCENT:
+        return 'accent'
+    if ch in DIAERESIS:
+        return 'diaeresis'
+    if ch in IOTA_SUB:
+        return 'iota_sub'
+    if ch in MACRON_BR:
+        return 'macron_br'
     return 'other'
 
 
