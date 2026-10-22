@@ -1815,13 +1815,14 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
               </ul>
 
               <p className="text-gray-700 mb-3">
-                An experimental Tessa, who reads the whole conversation and chooses her own searches, can be
-                switched on in your browser with a link ending <code>?tessa=new</code> (and off with{' '}
-                <code>?tessa=classic</code>). A switch in her panel then turns it on and off. She is slower,
-                ten to thirty seconds an answer, because she may run several searches, and she follows a
-                conversation more closely: told &ldquo;there should be instances in the Aeneid (Pallas)&rdquo;,
-                she searches the Aeneid for them. A sentence that cites a passage no search returned is removed
-                before you see it.
+                Tessa reads the whole conversation and chooses her own searches, so she follows a conversation
+                closely: told &ldquo;there should be instances in the Aeneid (Pallas)&rdquo;, she searches the Aeneid
+                for them, and asked &ldquo;which of them are the strongest?&rdquo; after a comparison, she reads that
+                comparison again. An answer takes five to thirty seconds, because she may run several searches. A
+                sentence that cites a passage no search returned is removed before you see it. Asked who speaks a line or what it
+                says, she reads the passage first, and she does not add facts from memory. The box at the top of
+                her panel, or a link ending <code>?tessa=classic</code>, switches this browser to the classic Tessa, who
+                answers in a few seconds and runs one search chosen by the site for each kind of question.
               </p>
 
               <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">How to trust her</h4>
@@ -1902,12 +1903,13 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 and from a one-sentence account of the scene without names, judged by the same instructions,
                 because its first list missed Plutarch&rsquo;s and Cassius Dio&rsquo;s accounts of the battle.
                 Its labels were then read by hand, and six were corrected. The siege of Perusia and nineteen
-                well-known battles (Marathon, Thermopylae, Salamis, Plataea, Cannae, Lake Trasimene, Zama,
-                Pharsalus, Philippi, Alesia, Gaugamela, Issus, the Granicus, the Teutoburg Forest, Carrhae,
-                Aegospotami, Leuctra, the Allia, and the Sicilian Expedition) have such passages too, each
-                read by hand and the wrong ones removed. The same search was run for every event, but for
-                less documented events about a third of what it found was wrong, so those results are not
-                shown.
+                well-known battles (Marathon, Thermopylae, Salamis, Plataea, Cannae and others) have such passages
+                too, each read by hand and the wrong ones removed. For about 280 more events the same search was
+                kept only where the passage names the event&rsquo;s place or one of its people, a second reading
+                by the model confirmed that it tells this event and quoted the line that shows it, and a third
+                placed it in the event&rsquo;s own year rather than on another occasion of the same people. Read
+                in a sample, about two in three of these are right and one in ten is wrong, usually the same people
+                on another occasion, so read the passage before relying on it.
                 In each passage the names found and the words of the event&rsquo;s place and participants are
                 highlighted, in any case form (Περυσίας and Περυσίαν, Marathon in &ldquo;apud Marathona&rdquo;).
                 Each passage shows a short excerpt of every line that holds one of the names found, with that

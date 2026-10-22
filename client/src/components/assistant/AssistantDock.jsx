@@ -6,16 +6,16 @@ import { getSessionValue, setSessionValue } from '../../utils/storage';
 import { useIsPhone } from '../../hooks/useIsPhone';
 
 const TUCK_KEY = 'tesserae_tessa_tucked';
-// The experimental Tessa, who chooses her own searches (backend/assistant/agent_tools.py). Opt-in: a link
-// with ?tessa=new turns it on in this browser and shows the switch, ?tessa=classic turns it off.
+// Tessa who chooses her own searches (backend/assistant/agent_tools.py) is the default since 2026-10-22; the
+// switch in the panel, or a link with ?tessa=classic, returns this browser to the classic Tessa.
 const MODE_KEY = 'tessa_mode';
 function readMode() {
   try {
     const want = new URLSearchParams(window.location.search).get('tessa');
     if (want === 'new') window.localStorage.setItem(MODE_KEY, 'tools');
     if (want === 'classic') window.localStorage.setItem(MODE_KEY, 'classic');
-    return window.localStorage.getItem(MODE_KEY) || '';
-  } catch { return ''; }
+    return window.localStorage.getItem(MODE_KEY) || 'tools';
+  } catch { return 'tools'; }
 }
 const ENLARGE_KEY = 'tessa_enlarged';
 function readTucked() {
@@ -391,7 +391,7 @@ export default function AssistantDock() {
         </div>
       </header>
 
-      {mode && (
+      {(
         <label className="flex items-center gap-2 px-3 py-1.5 text-[11px] text-gray-600 border-b border-gray-100 bg-gray-50">
           <input
             type="checkbox"
@@ -399,7 +399,7 @@ export default function AssistantDock() {
             onChange={(e) => setMode(e.target.checked ? 'tools' : 'classic')}
             data-testid="tessa-mode-switch"
           />
-          Experimental: Tessa chooses her own searches (slower, follows the conversation more closely)
+          Tessa chooses her own searches (untick for the faster classic Tessa)
         </label>
       )}
 
