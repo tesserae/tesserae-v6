@@ -132,7 +132,7 @@ export const SEARCH_SCOPE = {
     name: 'Inscriptions & Papyri',
     does: 'Finds the words of a phrase in about 255,000 inscriptions and papyri, with the literature or on their own.',
     scope: 'A phrase is looked up in the inscriptions and papyri, alone or together with the literature, and the list can be narrowed by date, region, place, kind and material. A result is a line of a document, with its edition, date, findspot and source.',
-    covers: 'About 255,000 inscriptions and papyri in Latin and Greek, from the Epigraphic Database Heidelberg, the Epigraphic Database Roma, papyri.info, I.Sicily, and Attic Inscriptions Online with the Greek of the Berlin Inscriptiones Graecae.',
+    covers: 'About 255,000 inscriptions and papyri in Latin and Greek, from the Epigraphic Database Heidelberg, the Epigraphic Database Roma, papyri.info, I.Sicily, and Attic Inscriptions Online with the Greek of the Berlin Inscriptiones Graecae and of PHI Greek Inscriptions.',
     limits: 'Restored text is marked and can be excluded. Formulas (phrases common on stone) can be hidden. Coverage follows the source corpora named in Help, and editions are shown as each source records them.',
     measured: [DOCUMENTS_ROW],
     helpSection: 'documents',

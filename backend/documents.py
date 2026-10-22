@@ -493,6 +493,18 @@ def reset_caches():
     _places_cache.clear()
 
 
+# The licence name stored with the documents whose Greek is held for indexing and search only (the
+# Packard Humanities Institute texts of Attic Inscriptions Online, permission of 2026-10-22). Their text
+# is shown on the document's own page and as the matching line of a search, never offered as a download.
+INDEXING_ONLY_LICENCE = 'used with permission, for search only'
+
+
+def is_indexing_only(doc_id):
+    """Whether this document's text is held for indexing and search only."""
+    m = meta(doc_id) or {}
+    return (m.get('credit') or {}).get('licence_name') == INDEXING_ONLY_LICENCE
+
+
 _META_FIELDS = (
     "id, collection, source, licence_name, licence_url, source_name, source_url, "
     "licence_name_secondary, licence_url_secondary, source_name_secondary, source_url_secondary, "
