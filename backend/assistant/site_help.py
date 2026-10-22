@@ -72,6 +72,9 @@ _STOP = {
     'at', 'by', 'as', 'if', 'so', 'not', 'no', 'yes', 'but', 'about', 'there',
     'here', 'when', 'then', 'than', 'into', 'out', 'up', 'down', 'more', 'most',
     'some', 'any', 'all', 'want', 'like', 'get', 'use', 'using', 'used', 'one',
+    # "if I don't have a Greek keyboard" and "without a Greek keyboard" ask the same thing
+    # (2026-10-22: the Help answer was missed and the model told a reader to type Greek in Latin letters).
+    'don', 'dont', 'have', 'has', 'without',
 }
 
 
