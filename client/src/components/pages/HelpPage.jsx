@@ -1872,7 +1872,13 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 passages found by Theme Search, from its description, from its name, place and participants,
                 and from a one-sentence account of the scene without names, judged by the same instructions,
                 because its first list missed Plutarch&rsquo;s and Cassius Dio&rsquo;s accounts of the battle.
-                Its labels were then read by hand, and six were corrected.
+                Its labels were then read by hand, and six were corrected. The siege of Perusia and nineteen
+                well-known battles (Marathon, Thermopylae, Salamis, Plataea, Cannae, Lake Trasimene, Zama,
+                Pharsalus, Philippi, Alesia, Gaugamela, Issus, the Granicus, the Teutoburg Forest, Carrhae,
+                Aegospotami, Leuctra, the Allia, and the Sicilian Expedition) have such passages too, each
+                read by hand and the wrong ones removed. The same search was run for every event, but for
+                less documented events about a third of what it found was wrong, so those results are not
+                shown.
                 In each passage the names found and the words of the event&rsquo;s place and participants are
                 highlighted, in any case form (Περυσίας and Περυσίαν, Marathon in &ldquo;apud Marathona&rdquo;).
                 Each passage shows a short excerpt of every line that holds one of the names found, with that
