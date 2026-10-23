@@ -1586,7 +1586,9 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 For works that have one, an <strong>About</strong> button in the header opens a
                 short orientation note saying what the text is, who wrote it and when, and why a
                 reader might care. The same notes appear behind the small ⓘ buttons in Browse
-                Corpus. On a phone, the choice of text and book, Go to line and About this text are behind
+                Corpus. <strong>Go to line</strong> takes a reference as the margin shows it: a line
+                number, book and line such as 6.851, or, in a work divided into stories, the story,
+                couplet and hemistich such as 151.1.1. On a phone, the choice of text and book, Go to line and About this text are behind
                 the title line at the top of the Reader, and the key to the margin marks is behind
                 the Key button, so that the text has the width of the screen.
               </p>

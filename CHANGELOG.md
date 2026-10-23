@@ -8,6 +8,7 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-23
+- Reader: Go to line takes a dotted reference ("1.18" in the Masnavi, "151.1.1" in a work divided into stories), not only a bare line number or a space-separated book and line; an entry that names several places asks for the part before it. Help says so.
 - Shahnameh (built, not yet installed). The text is divided into Ganjoor's 857 stories with references `ferdowsi.shahnameh.S.C.H` (story, couplet, hemistich), a map takes every old number to its new reference, and A. G. and E. Warner's public-domain English (1905 to 1925) is aligned to 98.6% of the stories and 99.3% of the lines by order, length, proper names and an induced word list. The scripts and the story list are committed. The text and the translation file stay out of git, which ignores `texts/fa` and `data/translations`. See docs/DATA_OPERATIONS.md.
 - Greek corpus: stray accents and breathings removed from 133 texts (#1133) and a Scylax numeral read as koppa (#1128); the 134 files reindexed on 2026-10-23 (docs/DATA_OPERATIONS.md).
 - Tessa: asked about an event, she also gives the first coins of its Coins tab with their short accounts. If the meaning search is not answering, she answers about the event without them. Help says so.
