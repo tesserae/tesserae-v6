@@ -121,10 +121,16 @@ def _events(a):
                 and max(e['date_start'], e.get('date_end') or e['date_start']) >= lo]
         if keep:
             lst = dict(lst, events=keep, total=len(keep))
-    detail = None
+    detail = coins = None
     if len(lst.get('events') or []) == 1:
-        detail = _get('/events/' + urllib.parse.quote(str(lst['events'][0]['id'])), {})
-    return {'list': lst, 'detail': detail}
+        eid = urllib.parse.quote(str(lst['events'][0]['id']))
+        detail = _get('/events/' + eid, {})
+        try:
+            # The event page's Coins tab. It needs the encoder, so a failure leaves the coins out, never the event.
+            coins = _get('/events/' + eid + '/coins', {})
+        except SearchError:
+            coins = None
+    return {'list': lst, 'detail': detail, 'coins': coins}
 
 
 _FINDSPOT_ALIASES = {'rome': 'Roma'}

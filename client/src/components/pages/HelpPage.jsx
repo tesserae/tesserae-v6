@@ -1782,8 +1782,8 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 <li>
                   Look up an event on the <strong>Events</strong> page (&ldquo;what do ancient sources say
                   about the battle of Actium?&rdquo;). She gives its date and place, how many narrative and
-                  mention passages, documents and articles it has, and the first narrative passages, and a
-                  link opens the event. Where several events share a name, such as the two Battles of
+                  mention passages, documents and articles it has, the first narrative passages, and the
+                  first coins of its Coins tab with their short accounts, and a link opens the event. Where several events share a name, such as the two Battles of
                   Actium, she lists them with their dates and asks which you mean.
                 </li>
                 <li>
