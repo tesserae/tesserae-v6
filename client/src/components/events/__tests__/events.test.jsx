@@ -645,6 +645,12 @@ describe('highlighting the event names in passages', () => {
     const exact = render(<p><HighlightedText text="ἐν τῷ Μαραθῶνι" forms={['Μαραθῶνα']} /></p>);
     expect(exact.container.querySelectorAll('mark').length).toBe(0);
   });
+
+  it('reads a name the editor partly restored or expanded as one word (2026-10-22)', async () => {
+    const { HighlightedText } = await import('../EventView');
+    const { container } = render(<p><HighlightedText text="[Imp(eratori) Caes]ari / divi [f(ilio)] / [Augus]to" forms={['Augustus']} stems /></p>);
+    expect([...container.querySelectorAll('mark')].map((m) => m.textContent)).toEqual(['[Augus]to']);
+  });
 });
 
 describe('an excerpt for every name found, and the names set aside (2026-10-21)', () => {

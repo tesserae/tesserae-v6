@@ -164,7 +164,9 @@ export function HighlightedText({ text, forms, stems = false }) {
     if (!f) return false;
     return want.has(f) || roots.some((r) => r.length >= 4 && f.startsWith(r));
   };
-  return String(text).split(/(\s+|[/·,.;:()[\]]+)/).map((part, k) => (
+  // Brackets and parentheses stay inside a word, so a name the editor partly
+  // restored ("[Augus]to") or expanded ("Caesa]r") is read whole (2026-10-22).
+  return String(text).split(/(\s+|[/·,.;:]+)/).map((part, k) => (
     hit(part)
       ? <mark key={k} className="bg-amber-100 text-gray-900 rounded px-0.5">{part}</mark>
       : part

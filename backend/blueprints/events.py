@@ -347,6 +347,58 @@ def _documents_naming(doc_ids, names):
     return found
 
 
+# Roman first names and other words that name no one by themselves: a document
+# with "Marcus" in it does not name Marcus Vipsanius Agrippa.
+_NOT_NAMING_WORDS = {
+    'marcus', 'lucius', 'gaius', 'caius', 'publius', 'quintus', 'titus', 'gnaeus', 'sextus',
+    'aulus', 'tiberius', 'manius', 'seruius', 'decimus', 'spurius', 'appius', 'numerius',
+    'great', 'elder', 'younger', 'first', 'second', 'third', 'saint', 'battle', 'siege', 'modern',
+}
+# Augustus before 27 BCE is "Imp(erator) Caesar Divi Iuli f(ilius)": the phrase names him.
+_NAME_PHRASES = {'augustus': ('diui iuli',), 'octauian': ('diui iuli',)}
+
+
+def _fold_word(w):
+    """A word as the Mentions store spells it: lower case, accents off, v as u,
+    j as i, the editor's signs dropped, so "[Augus]to" reads augusto."""
+    import unicodedata
+    w = unicodedata.normalize('NFD', str(w or ''))
+    w = ''.join(ch for ch in w if not unicodedata.combining(ch)).lower().replace('v', 'u').replace('j', 'i')
+    return re.sub(r'[^a-zα-ω]', '', w)
+
+
+def _documents_naming_by_text(texts, names):
+    """Of the documents in `texts` ({doc_id: text}), those whose text holds a word
+    of a participant's name or the place, by the stem rule the cards highlight
+    with (a word of five letters or more, less its last two letters when it has
+    six or more, at least four left), as {doc_id: set of the words found}. The
+    Mentions store misses a name the editor partly restored ("[Augus]to") or did
+    not ascribe to the person, so three Augustan stones at Nicopolis stood under
+    "none naming a participant" on the Battle of Actium (the lead, 2026-10-22)."""
+    roots = {}
+    for n in names or ():
+        for w in re.split(r'[\s,()]+', str(n or '')):
+            f = _fold_word(w)
+            if len(f) < 5 or f in _NOT_NAMING_WORDS:
+                continue
+            roots[f] = f[:-2] if len(f) >= 6 else f[:-1]
+    found = {}
+    for doc_id, text in (texts or {}).items():
+        if not text:
+            continue
+        words = [_fold_word(w) for w in re.split(r'[\s/·,.;:]+', str(text))]
+        words = [w for w in words if w]
+        joined = ' '.join(words)
+        for full, root in roots.items():
+            hits = {w for w in words if len(root) >= 4 and w.startswith(root) and w not in _NOT_NAMING_WORDS}
+            for p in _NAME_PHRASES.get(full, ()):
+                if p in joined:
+                    hits.update(p.split())   # the card marks each word of the phrase
+            if hits:
+                found.setdefault(doc_id, set()).update(hits)
+    return found
+
+
 def rank_documents(documents, naming):
     """Apply the Inscriptions & Papyri rule to the documents of one event:
     leave out any whose dating span is wider than MAX_DOCUMENT_SPAN years;
@@ -701,8 +753,12 @@ def get_event(event_id):
             })
 
         n_stored = len(documents)
-        naming = _documents_naming([d['doc_id'] for d in documents],
-                                   list(ev['participants']) + ([ev['place']] if ev['place'] else []))
+        event_names = list(ev['participants']) + ([ev['place']] if ev['place'] else [])
+        naming = _documents_naming([d['doc_id'] for d in documents], event_names)
+        texts = _document_texts(documents)
+        if isinstance(naming, dict):
+            for doc_id, words in _documents_naming_by_text(texts, event_names).items():
+                naming.setdefault(doc_id, set()).update(words)
         documents = rank_documents(documents, naming)
         document_counts = {'names': sum(1 for d in documents if d['group'] == 'names'),
                            'dated': sum(1 for d in documents if d['group'] == 'dated'),
@@ -727,7 +783,6 @@ def get_event(event_id):
         # 2026-10-20: "We get all the meta information about the inscription.
         # Everything but the text itself."). One row per document, keyed by its id.
         # Best effort: without the index the cards show their record line as before.
-        texts = _document_texts(documents)
         try:
             from backend.documents import leiden_texts
             leiden = leiden_texts([d['doc_id'] for d in documents])
