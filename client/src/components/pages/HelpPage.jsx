@@ -1869,10 +1869,21 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 The Events page gathers what the site holds about one battle, siege, treaty or campaign:
                 the passages in Latin and Greek historians and poets that tell of it or mention it (each
                 opens in the Reader, and the Reader links back), the inscriptions and papyri dated to the
-                same years and found near the place, the articles and commentary on those passages, and a
-                map of the place and the findspots. The page is in the People, Places &amp; Things menu in
-                both views, and an event page shows all four of its tabs whatever the Collections switches
-                say. The Events entry is marked Beta in the top row while its lists are checked.
+                same years and found near the place, the articles and commentary on those passages, the
+                coins struck around the time, and a map of the place and the findspots. The page is in the
+                People, Places &amp; Things menu in both views, and an event page shows all five of its tabs
+                whatever the Collections switches say. The Events entry is marked Beta in the top row while
+                its lists are checked.
+              </p>
+              <p className="text-gray-700 mb-4" id="event-coins">
+                The Coins tab lists up to twelve coin types struck from three years before the event to five
+                years after it, ranked by how close each coin is in meaning to the event&rsquo;s name and
+                summary, read from the catalog description and the coin&rsquo;s short account written by a
+                language model (see Coins). A coin whose account names the place (Actium, or Perusia for the
+                Battle of Perugia) comes first and is marked &ldquo;Names the place&rdquo;. Types the
+                catalogs date only within a span of more than 25 years are left out, since such a date says
+                nothing about one year. A coin struck in these years need not refer to the event, so read
+                its account and its catalog entry.
               </p>
               <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">Where the events come from</h4>
               <p className="text-gray-700 mb-4">
@@ -2021,10 +2032,27 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 right, and the matches the tab calls &ldquo;closer&rdquo; were right about 7 times in 10 while
                 the rest were right about 1 time in 4. The matches are descriptions of coin imagery, not coins
                 known to refer to the passage, so read the coin before you rely on one. Theme Search gets a
-                Coins choice too. It searches the coin descriptions and shows its own list, never mixed
-                into the passage results. A query worded the way a catalog words an image
-                (&ldquo;ship under full sail&rdquo;, &ldquo;infant on a goat&rdquo;) found about one right coin
-                in two in the same test, and a vague or abstract query finds fewer.
+                Coins choice too. It shows its own list, never mixed into the passage results.
+              </p>
+              <p className="text-gray-700 mb-4" id="coin-in-brief">
+                Every coin card also carries a line headed &ldquo;In brief (written by a language
+                model)&rdquo;: one or two sentences on what the coin shows and what it commemorates or
+                proclaims, as a museum label would put it. The model read the catalog description, the
+                inscriptions, the issuer and the dates, and was told to name an event, a victory or a person
+                only when the coin or its catalog entry names it or the type is well known for it (the
+                crocodile of AEGVPTO CAPTA for the conquest of Egypt, the daggers and cap of EID MAR for the
+                killing of Caesar), and otherwise to say only what the coin shows. In our checks of random
+                samples about 9 in 10 were right, and the rest were vague more often than wrong. The
+                accounts for the coins of the war between Octavian and Antony, from Perusia to Actium, were
+                checked and rewritten by hand. Read the catalog entry before you rely on one. The meaning
+                search on the Coins page and the Coins choice in Theme Search read each coin&rsquo;s
+                description together with this account, so a search worded as a meaning finds the coin that
+                carries it: in a test of 24 such searches (&ldquo;the conquest of Egypt&rdquo;, &ldquo;Brutus
+                and the Ides of March&rdquo;, &ldquo;a naval victory&rdquo;), a right coin was among the first
+                ten for 17, against 9 when the descriptions alone were read. The Reader&rsquo;s Related imagery
+                still reads the descriptions alone, because on the ten test passages above it did better that
+                way. The word search on the Coins page searches the catalog text and the inscriptions, not
+                these accounts.
               </p>
               <p className="text-gray-700 mb-4">
                 The Coins page is always in the People, Places &amp; Things menu, in both views. The Coins switch in
@@ -3543,14 +3571,17 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 Inscriptions and papyri are searched under the same rules.
               </p>
               <p className="text-gray-700 text-sm mb-3">
-                In Scholarship, four open services supply the online results. OpenAlex and Crossref are searched by title and
-                abstract. Semantic Scholar and CORE are searched in the full text of open-access papers. The site&rsquo;s own
+                In Scholarship, five open services supply the online results for a passage. OpenAlex and Crossref are searched
+                by title and abstract. Semantic Scholar and CORE are searched in the full text of open-access papers. Google
+                Books finds a citation on a book page and shows the snippet Google shows. When the search starts from a
+                question instead of a passage (the Books and articles found online list in Search One Text and Theme
+                Search), the same five services are asked the question, and an item is kept only when its title or abstract
+                shares the question&rsquo;s words. Answers are kept for thirty days. The site&rsquo;s own
                 index of citations in journals from before 1923 reads JSTOR&rsquo;s Early Journal Content and covers 24
                 philology, archaeology and biblical journals from 1827 to 1922. The same journals supply the Scholarship
                 section on an inscription or papyrus page (956 citing sentences from 288 articles). Where the site has the
                 library&rsquo;s agreement, a second index reads the journals on Project MUSE from 1996 on under that license
-                and lists each article that cites the passage with one sentence and a DOI link. Google Books finds a citation
-                on a book page. The RIS export goes to the clipboard, read by Zotero&rsquo;s File menu, Import from Clipboard,
+                and lists each article that cites the passage with one sentence and a DOI link. The RIS export goes to the clipboard, read by Zotero&rsquo;s File menu, Import from Clipboard,
                 or as a file. A commentary note cites the edition the text comes from, with the passage it comments on. The
                 HathiTrust link runs the same search in that library&rsquo;s book scans and tells you which books and page
                 numbers mention the citation, without showing you the text itself.

@@ -45,9 +45,9 @@ CACHE_SIZE = 256
 HIT_RATE_LABEL = ('About one match in three is right. These are coin types whose catalogue '
                   'description of the imagery is close in meaning to the passage, not coins '
                   'known to refer to it.')
-THEME_LABEL = ('Ranked by how close each coin description is in meaning to your words. '
-               'Described the way a coin catalogue would, a query found about one right coin '
-               'in two in our test; a vague or abstract query finds fewer.')
+THEME_LABEL = ('Ranked by how close each coin is in meaning to your words, read from the catalog '
+               'description and a short account of what the coin commemorates. In a test of 24 '
+               'searches, a right coin was among the first ten for 17.')
 
 # Per-card confidence from the cosine. On the 50 judged hits of the ten test
 # passages the cosine separated right from wrong only at the top: 7 of the 10
@@ -61,7 +61,7 @@ DESC_KEYS = ('mode', 'setting', 'participants', 'action_steps', 'props',
              'themes', 'imagery_tone', 'gist')
 
 _lock = threading.Lock()
-_vec = {'key': None, 'matrix': None, 'rows': None, 'sources': None, 'masks': {}}
+_vec = {'key': None, 'matrix': None, 'rows': None, 'sources': None, 'masks': {}, 'gists': None}
 
 # The catalogues a LATIN passage's related imagery is drawn from. Measured on
 # 2026-10-10 after the seven Greek catalogues were installed: over all nine
@@ -191,9 +191,65 @@ def load_vectors(db_path):
                 return None, None
             sources = [frozenset(str(t).split(':', 1)[0] for t in (r.get('types') or []))
                        for r in rows]
-            _vec.update(key=key, matrix=matrix, rows=rows, sources=sources, masks={})
+            _vec.update(key=key, matrix=matrix, rows=rows, sources=sources, masks={}, gists=None)
             _cache.clear()
         return _vec['matrix'], _vec['rows']
+
+
+MEANING_VECTORS = 'descriptions_meaning.npy'
+_meaning = {'key': None, 'matrix': None}
+_spans = {'key': None, 'start': None, 'end': None}
+
+
+def load_meaning_vectors(db_path):
+    """(float16 matrix, rows) for the coin search: each row encodes the catalog
+    description followed by its model-written account ("<description> Meaning:
+    <gist>"), in the same row order as descriptions.npy. Falls back to the
+    description vectors when the file is absent or out of step.
+
+    Two sets, because each wins where the other loses (measured 2026-10-23).
+    On 24 searches typed the way a visitor words a meaning ("the conquest of
+    Egypt"), a right coin reached the first ten for 17 with these vectors
+    against 9 with the description vectors. On the ten Reader test passages,
+    whose query is the passage window's one-sentence summary, the description
+    vectors kept about 17 right of 50 and these found about 9, so the Reader's
+    Coins tab stays on descriptions.npy."""
+    matrix, rows = load_vectors(db_path)
+    if matrix is None:
+        return None, None
+    npy = os.path.join(_data_dir(db_path), MEANING_VECTORS)
+    if not os.path.exists(npy):
+        return matrix, rows
+    key = (npy, os.path.getmtime(npy), _vec['key'])
+    with _lock:
+        if _meaning['key'] != key:
+            import numpy as np
+            m = np.load(npy, mmap_mode='r')
+            if m.shape != matrix.shape:
+                logger.error('coins meaning vectors out of step: %s against %s', m.shape, matrix.shape)
+                m = None
+            _meaning.update(key=key, matrix=m)
+        return (_meaning['matrix'] if _meaning['matrix'] is not None else matrix), rows
+
+
+def gist_for_type(db_path, coin_id):
+    """The model-written account of what a coin type shows and commemorates,
+    from the description row that carries the type, or None. The account is
+    written once per description, so every type sharing a description shares
+    its account. Built once per vector file."""
+    _, rows = load_vectors(db_path)
+    if rows is None:
+        return None
+    with _lock:
+        if _vec['gists'] is None:
+            by_type = {}
+            for r in rows:
+                g = r.get('gist')
+                if g:
+                    for t in r.get('types') or []:
+                        by_type.setdefault(t, g)
+            _vec['gists'] = by_type
+        return _vec['gists'].get(coin_id)
 
 
 def source_mask(allowed):
@@ -263,6 +319,7 @@ def description_card(conn, row, score):
             if r['date_start'] is not None]
     return {
         'description': row['text'],
+        'gist': row.get('gist'),
         'obverse_description': _obverse_of(row['text']),
         'reverse_description': _reverse_of(row['text']),
         'score': round(score, 4),
@@ -444,8 +501,9 @@ def for_passage(conn, db_path, work, lang, ref, ref_end=None):
 
 
 def theme(conn, db_path, q, k=10):
-    """The /api/coins/theme payload: the descriptions nearest the query."""
-    matrix, rows = load_vectors(db_path)
+    """The /api/coins/theme payload: the descriptions nearest the query, read
+    with their model-written accounts (see load_meaning_vectors)."""
+    matrix, rows = load_meaning_vectors(db_path)
     out = {'available': matrix is not None, 'query': q, 'results': [], 'label': THEME_LABEL}
     if matrix is None:
         out['reason'] = 'The coin description vectors are not installed.'
@@ -455,4 +513,114 @@ def theme(conn, db_path, q, k=10):
     except Exception as e:
         raise EncoderUnavailable(str(e)) from e
     out['results'] = [description_card(conn, rows[i], s) for i, s in rank(matrix, qvec, k)]
+    return out
+
+
+# -- an event's coins ----------------------------------------------------------
+
+# Coins struck from a few years before an event to some years after it: a
+# victory was celebrated on coins for years (the Actium trophies of 29 to 27
+# BCE, the Actian Apollo of 16 to 13 BCE fall outside a short window, the
+# first inside this one).
+EVENT_YEARS_BEFORE = 3
+EVENT_YEARS_AFTER = 5
+EVENT_K = 12
+# A type dated only within a broad span ("200 to 30 BCE", common in the Greek
+# catalogs) says nothing about an event of one year, so it is left out.
+EVENT_MAX_SPAN = 25
+EVENT_LABEL = ('Coin types struck from {before} years before the event to {after} after it, ranked by how '
+               'close each coin is in meaning to the event, read from the catalog description and the '
+               'short account of what the coin commemorates. Coins whose account names the place come '
+               'first. A coin struck in these years need not refer to the event: read the account and '
+               'the catalog entry.')
+_EVENT_STOP = {'battle', 'siege', 'war', 'of', 'the', 'at', 'in', 'and', 'first', 'second', 'third',
+               'sack', 'fall', 'revolt', 'campaign', 'treaty', 'peace', 'death', 'assassination'}
+
+
+def _row_spans(conn, db_path):
+    """(starts, ends) arrays per description row: the earliest start and the
+    latest end of the coin types the row carries (NaN when undated)."""
+    import numpy as np
+    _, rows = load_vectors(db_path)
+    key = (_vec['key'], os.path.getmtime(db_path))
+    with _lock:
+        if _spans['key'] == key:
+            return _spans['start'], _spans['end']
+    dates = {r[0]: (r[1], r[2]) for r in conn.execute('SELECT id, date_start, date_end FROM coins')}
+    st = np.full(len(rows), np.nan, dtype=np.float32)
+    en = np.full(len(rows), np.nan, dtype=np.float32)
+    for i, r in enumerate(rows):
+        for t in r.get('types') or []:
+            a, b = dates.get(t, (None, None))
+            if a is None:
+                continue
+            b = a if b is None else b
+            st[i] = a if np.isnan(st[i]) else min(st[i], a)
+            en[i] = b if np.isnan(en[i]) else max(en[i], b)
+    with _lock:
+        _spans.update(key=key, start=st, end=en)
+    return st, en
+
+
+def event_place_words(label, place=None, place_ancient=None):
+    """The distinctive words of an event's name and places, cut to their
+    first five letters so that endings vary ("actiu" from "Battle of Actium",
+    "perus" from Perusia, which also finds "the Perusine War")."""
+    words = []
+    for w in re.findall(r"[^\W\d_]+", f"{label or ''} {place or ''} {place_ancient or ''}"):
+        lw = w.lower()
+        if len(lw) >= 4 and lw not in _EVENT_STOP and lw[:5] not in words:
+            words.append(lw[:5])
+    return words
+
+
+def for_event(conn, db_path, label, summary, date_start, date_end, place=None, place_ancient=None, k=EVENT_K):
+    """The coins of an event: types dated from EVENT_YEARS_BEFORE years before
+    its start to EVENT_YEARS_AFTER after its end, nearest in meaning to the
+    event's name and summary, those whose account names the place first.
+    Raises EncoderUnavailable when the encoder cannot be reached."""
+    import numpy as np
+    out = {'available': False, 'results': [],
+           'label': EVENT_LABEL.format(before=EVENT_YEARS_BEFORE, after=EVENT_YEARS_AFTER)}
+    matrix, rows = load_meaning_vectors(db_path)
+    if matrix is None or date_start is None:
+        out['reason'] = ('The coin vectors are not installed.' if matrix is None
+                         else 'This event has no date, so no coins can be placed beside it.')
+        return out
+    out['available'] = True
+    lo = int(date_start) - EVENT_YEARS_BEFORE
+    hi = int(date_end if date_end is not None else date_start) + EVENT_YEARS_AFTER
+    out['years'] = [lo, hi]
+    key = ('event', str(label), lo, hi, _vec['key'], _meaning['key'])
+    hit = _cache_get(key)
+    if hit is not None:
+        return hit
+    st, en = _row_spans(conn, db_path)
+    mask = ~np.isnan(st) & (st <= hi) & (en >= lo) & ((en - st) <= EVENT_MAX_SPAN)
+    if not mask.any():
+        _cache_put(key, out)
+        return out
+    text = ' '.join(x for x in (label, (summary or '')[:400]) if x)
+    try:
+        qvec = embed(text)
+    except Exception as e:
+        raise EncoderUnavailable(str(e)) from e
+    ranked = rank(matrix, qvec, k=int(mask.sum()), mask=mask)
+    ranked = [(i, sc) for i, sc in ranked if sc > -2.0]
+    words = event_place_words(label, place, place_ancient)
+
+    def names(i):
+        g = re.findall(r"[^\W\d_]+", (rows[i].get('gist') or '').lower())
+        return any(t.startswith(w) for t in g for w in words)
+    first = [x for x in ranked if names(x[0])]
+    rest = [x for x in ranked if not names(x[0])]
+    picked = (first + rest)[:k]
+    cards = []
+    for i, sc in picked:
+        card = description_card(conn, rows[i], sc)
+        card['names_event_place'] = names(i)
+        cards.append(card)
+    out['results'] = cards
+    out['n_in_years'] = int(mask.sum())
+    _cache_put(key, out)
     return out

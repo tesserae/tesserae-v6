@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { LoadingSpinner, InfoBadge } from '../common';
+import EventCoins from './EventCoins';
 import CiteRecordButton from '../common/CiteRecordButton';
 import { recordFrom } from '../../utils/citations';
 import { bareLocus } from '../reader/refId';
@@ -368,7 +369,7 @@ function ScholarshipTab({ items, openPassage, ranks }) {
   );
 }
 
-/** One event: header, then Passages, Inscriptions & Papyri, Scholarship and Map tabs. */
+/** One event: header, then Passages, Inscriptions & Papyri, Scholarship, Coins and Map tabs. */
 export default function EventView({ id, goList }) {
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
@@ -397,6 +398,7 @@ export default function EventView({ id, goList }) {
     // only its passages. The collection switches still decide what a search covers.
     ['documents', 'Inscriptions & Papyri', true],
     ['scholarship', 'Scholarship', true],
+    ['coins', 'Coins', true],
     ['map', 'Map', true],
   ].filter((t) => t[2]);
 
@@ -461,6 +463,7 @@ export default function EventView({ id, goList }) {
         {tab === 'passages' && <PassagesTab passages={passages} counts={data.passage_counts} event={ev} focusRank={focusRank} />}
         {tab === 'documents' && <DocumentsTab documents={documents} event={ev} />}
         {tab === 'scholarship' && <ScholarshipTab items={scholarship} openPassage={openPassage} ranks={new Set(passages.map((p) => p.rank))} />}
+        {tab === 'coins' && <EventCoins eventId={ev.id || id} />}
         {tab === 'map' && <EventMap points={data.map || []} approximatePlace={ev.location_approximate ? (ev.place || 'the region') : null} />}
       </div>
     </div>

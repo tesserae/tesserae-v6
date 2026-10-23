@@ -240,3 +240,16 @@ describe('the Collections gate', () => {
     expect(setPageType).not.toHaveBeenCalledWith('search');
   });
 });
+
+describe('the model-written account', () => {
+  it('shows under the sides, labeled as written by a language model, and not at all when absent', async () => {
+    const { CoinGist } = await import('../CoinCard');
+    render(<CoinGist gist="It celebrates the naval victory at Actium in 31 BCE." />);
+    const g = screen.getByTestId('coin-gist');
+    expect(g.textContent).toMatch(/In brief \(written by a language model\): It celebrates the naval victory at Actium/);
+    expect(g.querySelector('[title]').getAttribute('title')).toMatch(/9 in 10/);
+    cleanup();
+    render(<CoinGist gist={null} />);
+    expect(screen.queryByTestId('coin-gist')).toBeNull();
+  });
+});
