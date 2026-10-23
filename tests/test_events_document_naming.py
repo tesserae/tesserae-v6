@@ -74,3 +74,9 @@ def test_naming_by_text_reads_restored_names_and_the_divi_iuli_phrase():
     assert found['edh:HD052963'] == {'augusto'}
     assert found['edh:HD023503'] == {'diui', 'iuli'}
     assert 'edh:other' not in found   # a first name alone names no one
+
+
+def test_naming_by_text_leaves_out_peoples_and_victory_titles():
+    texts = {'a': 'Cai Caesaris Augusti Germanici', 'b': 'pro salute populi Romanorum', 'c': 'Germanico Caesari'}
+    assert E._documents_naming_by_text(texts, ['Germanic people', 'Ancient Rome', 'Germania']) == {}
+    assert set(E._documents_naming_by_text(texts, ['Germanicus'])) == {'a', 'c'}
