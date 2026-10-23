@@ -13,7 +13,7 @@
 export const COLLECTIONS = [
   // Literature is the base of the site and cannot be switched off: the
   // Search, Read, Theme Search and Browse pages never depended on this switch,
-  // so an unticked box did nothing (owner 2026-10-10). It is shown as fixed.
+  // so an unchecked box did nothing (owner 2026-10-10). It is shown as fixed.
   { id: 'literature', label: 'Literature', blurb: 'The literary texts and translations', available: true, fixed: true },
   { id: 'inscriptions', label: 'Inscriptions', blurb: 'Latin and Greek inscriptions', available: true },
   { id: 'papyri', label: 'Papyri', blurb: 'Documentary and literary papyri', available: true },

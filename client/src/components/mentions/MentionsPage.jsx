@@ -3,7 +3,7 @@ import ScopeBox from '../common/ScopeBox';
 import { LoadingSpinner } from '../common';
 import { languageName } from '../../utils/languageNames';
 import { windowLocus, fullRef } from '../reader/refId';
-import { documentDateLabel, documentPlace, documentLabels } from '../documents/documentDisplay';
+import { documentDateLabel, documentPlace, documentLabels, editorNoteParts } from '../documents/documentDisplay';
 
 /** Latin, Greek, English, as everywhere on the site; any other language after them. */
 export const LANG_ORDER = ['la', 'grc', 'en'];
@@ -35,6 +35,14 @@ export function moreCounts(e) {
   const docs = Object.values(e.document_counts || {}).reduce((a, b) => a + b, 0);
   if (docs) parts.push(`${docs} ${docs === 1 ? 'inscription or papyrus' : 'inscriptions and papyri'}`);
   return parts.join(' · ');
+}
+
+/** The adjective lines and documents of an entry page, in the shape moreCounts reads from a search row. */
+export function entryExtra(d) {
+  return {
+    adjective_lines: (d.adjective_names || []).reduce((a, x) => a + (x.count || 0), 0),
+    document_counts: d.document_counts || {},
+  };
 }
 
 function CountsLine({ counts, extra }) {
@@ -254,9 +262,17 @@ export function DocumentRow({ r }) {
         {labels.map((lab) => <span key={lab} className="px-1.5 bg-gray-100 text-gray-600 rounded">{lab}</span>)}
         {r.adjective && <span>(adjective form)</span>}
       </div>
-      {r.text && (
+      {r.edition_text ? (
+        <p className="text-sm text-gray-900 mt-1 font-serif" lang={r.language} data-testid="document-edition-text">
+          {editorNoteParts(r.edition_text).map((part, i) => (part.note
+            ? <span key={i} className="italic text-gray-500 font-sans text-xs">[editor&rsquo;s note: {part.text}] </span>
+            : <MarkedText key={i} text={part.text} token={r.matched_form} ignoreCase />))}
+        </p>
+      ) : r.text && (
         <p className="text-sm text-gray-900 mt-1" lang={r.language}>
-          <MarkedText text={r.text} token={r.matched_form} ignoreCase />
+          {editorNoteParts(r.text).map((part, i) => (part.note
+            ? <span key={i} className="italic text-gray-500 text-xs">[editor&rsquo;s note: {part.text}] </span>
+            : <MarkedText key={i} text={part.text} token={r.matched_form} ignoreCase />))}
         </p>
       )}
       <p className="text-xs text-gray-500 mt-1"><CreditLine credit={r.credit} /></p>
@@ -345,7 +361,7 @@ function EntityView({ id, back, open }) {
           <p className="text-xs text-gray-600 mt-0.5">
             {TYPE_LABEL[data.type] || 'Other'}
             {data.identifiers?.pleiades?.length > 0 && ` · Pleiades ${data.identifiers.pleiades.slice(0, 3).join(', ')}`}
-            {' · '}<CountsLine counts={data.mention_counts} />
+            {' · '}<CountsLine counts={data.mention_counts} extra={moreCounts(entryExtra(data))} />
           </p>
           {data.label_shared && (
             <p className="text-xs text-gray-500 mt-1">
@@ -369,7 +385,13 @@ function EntityView({ id, back, open }) {
             </p>
           )}
           <h4 className="text-sm font-semibold text-gray-700 mt-4 mb-2">Mentions by work</h4>
-          {data.works.length === 0 && <p className="text-sm text-gray-600">No mentions found.</p>}
+          {data.works.length === 0 && (
+            <p className="text-sm text-gray-600">
+              {entryExtra(data).adjective_lines
+                ? `No line names ${data.display_label || data.label} itself. The lines that name it by its adjective are below.`
+                : 'No mentions found.'}
+            </p>
+          )}
           {data.works.map((w) => <WorkGroup key={`${w.work}|${w.language}`} entityId={data.id} w={w} />)}
           {Object.keys(data.document_counts || {}).length > 0 && (
             <>

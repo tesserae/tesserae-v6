@@ -1815,13 +1815,17 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
               </ul>
 
               <p className="text-gray-700 mb-3">
-                An experimental Tessa, who reads the whole conversation and chooses her own searches, can be
-                switched on in your browser with a link ending <code>?tessa=new</code> (and off with{' '}
-                <code>?tessa=classic</code>). A switch in her panel then turns it on and off. She is slower,
-                ten to thirty seconds an answer, because she may run several searches, and she follows a
-                conversation more closely: told &ldquo;there should be instances in the Aeneid (Pallas)&rdquo;,
-                she searches the Aeneid for them. A sentence that cites a passage no search returned is removed
-                before you see it.
+                For each question, Tessa decides which of the site&rsquo;s searches it needs (a comparison of two
+                texts, a Theme Search, a word search, People &amp; Places, the inscriptions, the events), runs them,
+                reads what they return and answers from that. She reads the whole conversation, so a follow-up such
+                as &ldquo;which of them are the strongest?&rdquo; or &ldquo;and in Greek?&rdquo; picks up where the last
+                answer left off. Asked who speaks a line or what it says, she reads the passage first. A sentence that
+                cites or quotes a passage, or names a person, that none of her searches returned is sent back to her
+                or removed before you see it. An answer takes five to thirty seconds, because she may run several
+                searches. She does not start a full comparison of two whole long works, such as the whole
+                Thebaid with the whole Aeneid. She compares them by content instead, asks which books you want, and gives a button that opens the
+                comparison page with both works filled in, so you can run the full comparison there. Any answer that
+                compares two texts ends with that button.
               </p>
 
               <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">How to trust her</h4>
@@ -1833,6 +1837,13 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 switches to another open model on the same platform and goes back to her own as soon as
                 it answers again, and an answer the platform breaks off part way is picked up where it
                 stopped.
+              </p>
+              <p className="text-gray-700 mb-3">
+                A full comparison of two texts that nobody has run before takes a minute or two on the server.
+                Tessa waits for it, up to four minutes, and her panel shows how long it has been running, so the
+                answer she gives is about the finished results. A comparison that runs longer still is left
+                running: she tells you what the faster searches (shared rare words, shared themes) show, and
+                asking again a little later brings the full results at once.
               </p>
 
               <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">For advanced analysis</h4>
@@ -1895,12 +1906,13 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 and from a one-sentence account of the scene without names, judged by the same instructions,
                 because its first list missed Plutarch&rsquo;s and Cassius Dio&rsquo;s accounts of the battle.
                 Its labels were then read by hand, and six were corrected. The siege of Perusia and nineteen
-                well-known battles (Marathon, Thermopylae, Salamis, Plataea, Cannae, Lake Trasimene, Zama,
-                Pharsalus, Philippi, Alesia, Gaugamela, Issus, the Granicus, the Teutoburg Forest, Carrhae,
-                Aegospotami, Leuctra, the Allia, and the Sicilian Expedition) have such passages too, each
-                read by hand and the wrong ones removed. The same search was run for every event, but for
-                less documented events about a third of what it found was wrong, so those results are not
-                shown.
+                well-known battles (Marathon, Thermopylae, Salamis, Plataea, Cannae and others) have such passages
+                too, each read by hand and the wrong ones removed. For about 280 more events the same search was
+                kept only where the passage names the event&rsquo;s place or one of its people, a second reading
+                by the model confirmed that it tells this event and quoted the line that shows it, and a third
+                placed it in the event&rsquo;s own year rather than on another occasion of the same people. Read
+                in a sample, about two in three of these are right and one in ten is wrong, usually the same people
+                on another occasion, so read the passage before relying on it.
                 In each passage the names found and the words of the event&rsquo;s place and participants are
                 highlighted, in any case form (Περυσίας and Περυσίαν, Marathon in &ldquo;apud Marathona&rdquo;).
                 Each passage shows a short excerpt of every line that holds one of the names found, with that
@@ -2091,11 +2103,11 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 and not restored, a(bc) for an abbreviation and the editor&rsquo;s expansion of it, (abc) for an
                 expansion the editor adds alone, a dot below an uncertain letter, &lt;abc&gt; for letters the
                 editor adds, {'{abc}'} for letters the editor deletes, [[abc]] for letters erased in antiquity,
-                and / for a new line. So a fragment of the consular list from Cupra Maritima reads
+                and / for a new line. A note the editor wrote into the text (the Epigraphic Database Roma marks them 〈: 〉) is shown as [editor&rsquo;s note: &hellip;]. So a fragment of the consular list from Cupra Maritima reads
                 &ldquo;[---]uf [--- IIvir(i)] (duoviri)&rdquo;: a word broken off before &ldquo;uf&rdquo;, a
                 restored title, and the editor&rsquo;s gloss of it. The search reads the same text with the signs
                 removed and the restorations and expansions included, shown on the page under &ldquo;Reading as
-                searched&rdquo;. About 208,000 of the documents have the edition text. For the others (some papyri,
+                searched&rdquo;. People &amp; Places shows the same edition text in its list of inscriptions and papyri. About 208,000 of the documents have the edition text. For the others (some papyri,
                 and texts whose edition differs from the searched reading) the page shows the searched reading only.
               </p>
 

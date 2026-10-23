@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import CiteRecordButton from '../common/CiteRecordButton';
 import { recordFrom } from '../../utils/citations';
-import { documentPlace, documentLabels } from './documentDisplay';
+import { documentPlace, documentLabels, editorNoteParts } from './documentDisplay';
 import { LoadingSpinner } from '../common';
 import { dirFor } from '../../utils/rtl';
 import { splitImageLinks } from './imageLinks';
@@ -167,7 +167,11 @@ export default function DocumentView() {
               <div className="border-t pt-4" dir={dirFor(language)} data-testid="edition-text">
                 <h3 className="text-xs uppercase tracking-wide text-gray-500 mb-1">Edition</h3>
                 <div className="font-serif text-gray-900 leading-relaxed">
-                  {data.edition_text.split(' / ').map((ln, i) => <p key={i}>{ln}</p>)}
+                  {data.edition_text.split(' / ').map((ln, i) => (
+                    <p key={i}>{editorNoteParts(ln).map((part, j) => (part.note
+                      ? <span key={j} className="italic text-gray-500 font-sans text-sm">[editor&rsquo;s note: {part.text}]</span>
+                      : <span key={j}>{part.text}</span>))}</p>
+                  ))}
                 </div>
                 <p className="text-xs text-gray-500 mt-2">
                   [abc] lost and restored by the editor · [---] lost · a(bc) an abbreviation and its expansion ·

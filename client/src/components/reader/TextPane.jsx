@@ -223,7 +223,7 @@ export default function TextPane({ units, language, selection, onSelect, total, 
               // the second overlapped the line's text (seen on Aeneid 1.1,
               // 2026-10-09). Reserve room for two whenever the trial is on, so
               // every line's text stays on the same left edge.
-              style={{ gridTemplateColumns: `${phone ? '1.6rem' : '2.6rem'} ${documentsTrial ? '2.5rem' : '1.15rem'} 1fr`, minHeight: '1.75rem' }}
+              style={{ gridTemplateColumns: `${phone ? '1.6rem' : '2.6rem'} ${documentsTrial ? '3.9rem' : '2.7rem'} 1fr`, minHeight: '1.75rem' }}
               // A tap on a phone makes no text selection, so nothing used to
               // happen. A click or tap that leaves no selection selects the
               // line itself; a drag still selects the swept span.
