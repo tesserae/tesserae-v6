@@ -6,7 +6,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, cleanup } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import MentionsPage, { MentionRow, headingOf, sharedLabel, sortedCounts, MENTIONS_NOTE } from '../MentionsPage';
+import MentionsPage, { MentionRow, MarkedText, headingOf, sharedLabel, sortedCounts, MENTIONS_NOTE } from '../MentionsPage';
 
 const SEARCH = {
   available: true, total: 1,
@@ -259,5 +259,20 @@ describe('named by its adjective', () => {
     render(<MentionsPage setPageType={() => {}} />);
     await screen.findByRole('heading', { name: 'Rusellae' });
     expect(screen.queryByTestId('adjective-names')).toBeNull();
+  });
+});
+
+describe('marking a name in an inscription', () => {
+  it('marks a form the editor wrote with an expansion or restoration inside it', () => {
+    const { container } = render(
+      <MarkedText ignoreCase token="rusellanorum"
+                  text="Pub(licum) Col(oniae) Rus(ellanorum) / E S(ecundus) p(ublicus) R(usellanorum) fud(it). Secundus pu[blicus Rusellanoru(m) fec(it)]." />);
+    const marks = [...container.querySelectorAll('mark')].map((m) => m.textContent);
+    expect(marks).toEqual(['Rus(ellanorum)', 'R(usellanorum)', 'Rusellanoru(m)']);
+  });
+
+  it('still marks a plain form and leaves other words alone', () => {
+    const { container } = render(<MarkedText ignoreCase token="rusellis" text="Felix Rusellis russus" />);
+    expect([...container.querySelectorAll('mark')].map((m) => m.textContent)).toEqual(['Rusellis']);
   });
 });

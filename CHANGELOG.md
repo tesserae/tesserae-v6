@@ -8,6 +8,8 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-22
+- Events: the Battle of Actium lists Octavian's dedication of his camp to Neptune and Mars and two Augustan dedications from Nicopolis under Inscriptions & Papyri.
+- People & Places: in an inscription's edition, a name written with the editor's signs inside it ("Rus(ellanorum)", "R(usellanorum)") is highlighted like the plain form.
 - Similarity Map: each grid's column heading sits over the column names and its row heading runs beside the row names, instead of both standing in a key in the corner; the name column and the strip above the grid are no wider or taller than their labels need.
 - Reader: the reference above the text keeps the act of a play cited by act, scene and line ("Hamlet I.2.201", not "Hamlet 2.201").
 - Tessa: an answer that compares two texts, or declines to compare two long whole works, ends with a button that opens the comparison page with both texts filled in.
