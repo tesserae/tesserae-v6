@@ -1930,6 +1930,10 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 The tab lists documents dated to within ten years of the event and found within 100 km of
                 its place, and leaves out any whose dating span is wider than fifty years. It lists first the
                 documents that name one of the event&rsquo;s participants or its place, then the others.
+                A document names a participant when its text holds a word of the name in any case, also where
+                the editor restored part of it (&ldquo;[Augus]to&rdquo;). A first name alone (Marcus, Lucius)
+                does not count, and Augustus before 27 BCE is also named by his title &ldquo;Divi Iuli
+                f(ilius)&rdquo;, son of the deified Julius.
                 Within each group the most tightly dated document comes first (a stone dated to eight years
                 before one dated to a century), and the nearer findspot breaks a tie. Each card shows the
                 edition, written out in full, the record number, the place and date, the source, and the
