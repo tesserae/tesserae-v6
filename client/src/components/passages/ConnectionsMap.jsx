@@ -368,21 +368,10 @@ export function booksAxisTitle(workLabel, ids) {
   return `${workLabel} \u00b7 ${isLineBlocks(ids) ? 'lines' : 'books'}`;
 }
 
-// The two-line key in the empty corner of a grid: which work (or kind of
-// thing) runs down the side and which across the top.
-export function AxisKey({ rowTitle, colTitle }) {
-  if (!rowTitle && !colTitle) return null;
-  const clamp = { display: '-webkit-box', WebkitBoxOrient: 'vertical', WebkitLineClamp: 3, overflow: 'hidden' };
-  return (
-    <div data-testid="axis-key"
-         className="text-[10px] uppercase tracking-wide text-gray-500 font-semibold leading-tight"
-         style={{ padding: '6px 8px', height: '100%', overflow: 'hidden' }}
-         title={`Rows: ${rowTitle}. Columns: ${colTitle}.`}>
-      <div style={clamp}><span aria-hidden="true">{'\u2193'} </span>Rows: {rowTitle}</div>
-      <div style={{ ...clamp, marginTop: 6 }}><span aria-hidden="true">{'\u2192'} </span>Columns: {colTitle}</div>
-    </div>
-  );
-}
+// The headings of a grid's two axes: the columns' over the column names, the
+// rows' turned on its side beside the row names. They used to sit together in
+// a key in the empty corner, apart from both (the lead, 2026-10-22).
+const AXIS_TITLE_CLASS = 'text-[10px] uppercase tracking-wide text-gray-500 font-semibold leading-tight';
 
 export function isDiagonalCell(rowIds, colIds, i, j, diagonal = true) {
   if (!diagonal) return false;
@@ -452,7 +441,7 @@ function LabeledHeatmap({
   const gridCanvasRef = useRef(null);
   const headerCanvasRef = useRef(null);
   const [hover, setHover] = useState(null);   // {i, j} in grid coordinates
-  const { rowMargin, labelCap } = useLabelGeometry();
+  const { rowMargin: maxRowMargin, labelCap } = useLabelGeometry();
   // Frozen column labels (2026-09-19): the column-label row needs to stay
   // visible while the grid below it scrolls. The labels live on their own
   // strip above the scroll box,
@@ -484,6 +473,22 @@ function LabeledHeatmap({
     }
     return count;
   }, [rowLabels, colLabels]);
+
+  // The name column as wide as its longest name, up to the screen's cap. It was
+  // always the cap (190 pixels), so a books grid's "1", "2" stood far to the
+  // right of the work's name and of the empty corner (the lead, 2026-10-22:
+  // "the headings OVER the columns and BESIDE the rows").
+  const rowMargin = useMemo(() => {
+    const mctx = measureCtx();
+    if (!mctx || !rowLabels.length) return maxRowMargin;
+    mctx.font = LABEL_FONT_ACTIVE;
+    let w = 0;
+    for (const label of rowLabels) {
+      const { base, lang } = splitLabel(label);
+      w = Math.max(w, mctx.measureText(base).width + (lang && ambiguousBases[base] > 1 ? 40 : 14));
+    }
+    return Math.min(maxRowMargin, Math.max(32, Math.ceil(w) + 4));
+  }, [rowLabels, ambiguousBases, maxRowMargin]);
 
   // In a nested works grid every column reads "Plutarch, <title>": the author
   // is already in the heading, and the repeated prefix made the slanted
@@ -518,13 +523,32 @@ function LabeledHeatmap({
     }
     maxW = Math.min(maxW, labelCap);
     const rad = Math.PI / 4;   // the labels are rotated 45 degrees
+    // Upright labels (a books grid's "1", "2") need one line, not the 90
+    // pixels kept for slanted names, which left the numbers standing apart
+    // from the grid's heading.
+    if (!columnLabelsNeedRotation(colLabels, cellSize, colText, mctx)) {
+      return { colMargin: 24, rightPad: 40 };
+    }
     return {
       colMargin: Math.max(COL_MARGIN_MIN, Math.ceil(maxW * Math.sin(rad) + 26)),
       rightPad: Math.max(40, Math.ceil(maxW * Math.cos(rad) + 16)),
     };
-  }, [colLabels, colText, labelCap]);
+  }, [colLabels, colText, labelCap, cellSize]);
 
   const gridWidth = nCols * cellSize + rightPad;
+  // The strip beside the row names that carries the rows' heading, turned on
+  // its side so it runs along the rows it names.
+  const rowStrip = rowTitle ? 20 : 0;
+  // A grid of a few rows is shorter than its heading, which was cut off
+  // ("WORKS OF HOM"), so the strip, and the box with it, grows to fit.
+  const rowTitleLength = useMemo(() => {
+    if (!rowTitle) return 0;
+    const mctx = measureCtx();
+    if (!mctx) return 0;
+    mctx.font = '600 10px sans-serif';
+    // uppercase and the 0.025em letter-spacing of `tracking-wide`
+    return Math.ceil(mctx.measureText(String(rowTitle).toUpperCase()).width + rowTitle.length * 0.25 + 12);
+  }, [rowTitle]);
   const rowsHeight = nRows * cellSize;           // the row canvas and the cells canvas
   const totalHeight = rowsHeight;                // (labels are on the header strip now)
 
@@ -731,13 +755,15 @@ function LabeledHeatmap({
           translated by the scroll box's own horizontal offset. */}
       <div className="sticky z-30 bg-white border border-b-0 border-gray-200 rounded-t"
            style={{ top: navHeight }}>
-        <div className="overflow-hidden" style={{ marginLeft: rowMargin, height: colMargin }}>
+        {colTitle && (
+          <div data-testid="axis-col-title" className={`${AXIS_TITLE_CLASS} whitespace-nowrap pt-2 pb-1`}
+               style={{ marginLeft: rowStrip + rowMargin }} title={`Columns: ${colTitle}`}>
+            {colTitle}
+          </div>
+        )}
+        <div className="overflow-hidden" style={{ marginLeft: rowStrip + rowMargin, height: colMargin }}>
           <canvas ref={headerCanvasRef}
                   style={{ display: 'block', transform: `translateX(${-scrollLeft}px)` }} />
-        </div>
-        <div style={{ position: 'absolute', left: 0, top: 0, width: rowMargin, height: colMargin,
-                      background: '#ffffff', borderRight: '1px solid #e5e7eb' }}>
-          <AxisKey rowTitle={rowTitle} colTitle={colTitle} />
         </div>
       </div>
       {/* The ONLY element that scrolls horizontally; the row-label canvas
@@ -746,6 +772,16 @@ function LabeledHeatmap({
       <div className="overflow-auto border border-t-0 border-gray-200 rounded-b pb-2 bg-white w-full"
            onScroll={(e) => setScrollLeft(e.currentTarget.scrollLeft)}>
       <div className="flex" style={{ width: 'max-content' }}>
+      {rowTitle && (
+        <div data-testid="axis-row-title" className={`${AXIS_TITLE_CLASS} whitespace-nowrap overflow-hidden`}
+             title={`Rows: ${rowTitle}`}
+             style={{ position: 'sticky', left: 0, zIndex: 11, width: rowStrip,
+                      height: Math.max(totalHeight, rowTitleLength),
+                      flexShrink: 0, background: '#ffffff', writingMode: 'vertical-rl',
+                      transform: 'rotate(180deg)', textAlign: 'right', padding: '4px 0' }}>
+          {rowTitle}
+        </div>
+      )}
       <canvas
         ref={rowCanvasRef}
         // Opaque background + a z-index clearly above the scrolling grid
@@ -756,7 +792,7 @@ function LabeledHeatmap({
         // before the draw effect has run and reads crisply regardless of
         // device pixel ratio.
         style={{
-          display: 'block', position: 'sticky', left: 0, zIndex: 10, flexShrink: 0,
+          display: 'block', position: 'sticky', left: rowStrip, zIndex: 10, flexShrink: 0,
           backgroundColor: '#ffffff', borderRight: '1px solid #e5e7eb',
         }}
       />
