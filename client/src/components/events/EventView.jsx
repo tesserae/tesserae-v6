@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { LoadingSpinner, InfoBadge } from '../common';
-import EventCoins from './EventCoins';
+import EventCoins, { useEventCoins, eventCoinsCount } from './EventCoins';
 import CiteRecordButton from '../common/CiteRecordButton';
 import { recordFrom } from '../../utils/citations';
 import { bareLocus } from '../reader/refId';
@@ -375,6 +375,8 @@ export default function EventView({ id, goList }) {
   const [error, setError] = useState(null);
   const [tab, setTab] = useState('passages');
   const [focusRank, setFocusRank] = useState(null);
+  // Fetched with the page, not when the tab opens, so the tab shows its count.
+  const coins = useEventCoins(id);
 
   useEffect(() => {
     let dead = false;
@@ -424,7 +426,7 @@ export default function EventView({ id, goList }) {
   const passages = data.passages || [];
   const documents = data.documents || [];
   const scholarship = data.scholarship || [];
-  const counts = { passages: passages.length, documents: documents.length, scholarship: scholarship.length };
+  const counts = { passages: passages.length, documents: documents.length, scholarship: scholarship.length, coins: eventCoinsCount(coins) };
   return (
     <div className="max-w-4xl mx-auto px-4 py-6">
       {back}
@@ -463,7 +465,7 @@ export default function EventView({ id, goList }) {
         {tab === 'passages' && <PassagesTab passages={passages} counts={data.passage_counts} event={ev} focusRank={focusRank} />}
         {tab === 'documents' && <DocumentsTab documents={documents} event={ev} />}
         {tab === 'scholarship' && <ScholarshipTab items={scholarship} openPassage={openPassage} ranks={new Set(passages.map((p) => p.rank))} />}
-        {tab === 'coins' && <EventCoins eventId={ev.id || id} />}
+        {tab === 'coins' && <EventCoins eventId={ev.id || id} coins={coins} />}
         {tab === 'map' && <EventMap points={data.map || []} approximatePlace={ev.location_approximate ? (ev.place || 'the region') : null} />}
       </div>
     </div>

@@ -1883,7 +1883,8 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 Battle of Perugia) comes first and is marked &ldquo;Names the place&rdquo;. Types the
                 catalogs date only within a span of more than 25 years are left out, since such a date says
                 nothing about one year. A coin struck in these years need not refer to the event, so read
-                its account and its catalog entry.
+                its account and its catalog entry. The number beside the tab is the number of coins it
+                shows, at most twelve, not every coin of those years.
               </p>
               <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">Where the events come from</h4>
               <p className="text-gray-700 mb-4">

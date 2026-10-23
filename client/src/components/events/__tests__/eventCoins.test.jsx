@@ -32,3 +32,12 @@ describe('an event\'s Coins tab', () => {
     expect(await screen.findByText(/no date/)).toBeTruthy();
   });
 });
+
+describe('the Coins tab count', () => {
+  it('counts the coins shown, and gives none while loading or when none can be shown', async () => {
+    const { eventCoinsCount } = await import('../EventCoins');
+    expect(eventCoinsCount({ data: { available: true, results: [{}, {}, {}] } })).toBe(3);
+    expect(eventCoinsCount({ data: null })).toBeUndefined();
+    expect(eventCoinsCount({ data: { available: false, results: [] } })).toBeUndefined();
+  });
+});
