@@ -99,3 +99,8 @@ export function coinHeading(c) {
 export function creditLine(c) {
   return [c.credit, c.id ? `id ${c.id}` : null].filter(Boolean).join(' · ');
 }
+
+/** The Internet Archive's copy of a catalog page, for when the catalog's site is down. */
+export function archivedCopy(url) {
+  return url ? `https://web.archive.org/web/2026/${url}` : null;
+}

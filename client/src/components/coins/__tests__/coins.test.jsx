@@ -253,3 +253,11 @@ describe('the model-written account', () => {
     expect(screen.queryByTestId('coin-gist')).toBeNull();
   });
 });
+
+describe('the archived copy of a catalog page', () => {
+  it('points at the Internet Archive and is empty without a catalog link', async () => {
+    const { archivedCopy } = await import('../coinsFormat');
+    expect(archivedCopy('http://numismatics.org/ocre/id/ric.1(2).aug.265A')).toBe('https://web.archive.org/web/2026/http://numismatics.org/ocre/id/ric.1(2).aug.265A');
+    expect(archivedCopy(null)).toBeNull();
+  });
+});

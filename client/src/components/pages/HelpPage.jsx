@@ -2012,8 +2012,9 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 &ldquo;harbor&rdquo; or a Greek legend typed without accents), narrow by authority, mint, denomination, material, source and date, and
                 order the results by best match or by date. A mint that nomisma.org has matched to Pleiades
                 links to its place page. Each card links to &ldquo;See images&rdquo; on the
-                catalog&rsquo;s site, which lists the museum coins of that type with their photographs. This
-                site stores no coin images. Catalogs call the front and back of a coin the obverse and
+                catalog&rsquo;s site, which lists the museum coins of that type with their photographs, and
+                to an &ldquo;Archived copy&rdquo; of that page at the Internet Archive for when the
+                catalog&rsquo;s site does not answer. This site stores no coin images. Catalogs call the front and back of a coin the obverse and
                 the reverse, and the inscription on a side is its legend. The pages here say front, back
                 and inscription.
               </p>

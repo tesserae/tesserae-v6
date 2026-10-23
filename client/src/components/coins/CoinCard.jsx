@@ -1,4 +1,4 @@
-import { coinDate, coinTitle, coinPath, catalogueName } from './coinsFormat';
+import { coinDate, coinTitle, coinPath, catalogueName, archivedCopy } from './coinsFormat';
 
 const OBVERSE_TIP = 'Catalogues call the front of a coin the obverse and the back the reverse.';
 
@@ -97,6 +97,11 @@ export default function CoinCard({ coin, open }) {
            title={`Photographs are on ${catalogueName(coin)}'s page for this type`}
            className="text-red-700 hover:underline ml-auto">
           See images &#8599;
+        </a>
+        <a href={archivedCopy(coin.type_url)} target="_blank" rel="noopener noreferrer"
+           title="The Internet Archive's copy of the catalog page, for when the catalog's site does not answer"
+           className="text-gray-500 hover:underline">
+          Archived copy
         </a>
       </footer>
     </article>
