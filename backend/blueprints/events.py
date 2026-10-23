@@ -353,7 +353,16 @@ _NOT_NAMING_WORDS = {
     'marcus', 'lucius', 'gaius', 'caius', 'publius', 'quintus', 'titus', 'gnaeus', 'sextus',
     'aulus', 'tiberius', 'manius', 'seruius', 'decimus', 'spurius', 'appius', 'numerius',
     'great', 'elder', 'younger', 'first', 'second', 'third', 'saint', 'battle', 'siege', 'modern',
+    # peoples and states, not persons: "Germanic peoples" made every Germanici a match,
+    # "Ancient Rome" every Romanorum (measured over all events, 2026-10-23)
+    'roman', 'romans', 'ancient', 'empire', 'republic', 'kingdom', 'dynasty', 'germanic',
+    'peoples', 'tribes', 'tribe', 'army', 'armies', 'legion', 'forces', 'allies', 'league',
 }
+# Emperors' victory titles (Germanicus, Parthicus, Dacicus): a word that begins with one
+# names a participant only when the participant's own name does ("Germanicus" the
+# man), never through a place ("Germania") or a people.
+_TITLE_STEMS = ('germanic', 'parthic', 'dacic', 'britannic', 'sarmatic', 'gothic', 'armeniac',
+                'adiabenic', 'arabic', 'medic')
 # Augustus before 27 BCE is "Imp(erator) Caesar Divi Iuli f(ilius)": the phrase names him.
 _NAME_PHRASES = {'augustus': ('diui iuli',), 'octauian': ('diui iuli',)}
 
@@ -377,6 +386,8 @@ def _documents_naming_by_text(texts, names):
     "none naming a participant" on the Battle of Actium (the lead, 2026-10-22)."""
     roots = {}
     for n in names or ():
+        if 'limes' in str(n or '').lower():   # a frontier zone ("Limes Germanicus"), not a named place
+            continue
         for w in re.split(r'[\s,()]+', str(n or '')):
             f = _fold_word(w)
             if len(f) < 5 or f in _NOT_NAMING_WORDS:
@@ -390,7 +401,9 @@ def _documents_naming_by_text(texts, names):
         words = [w for w in words if w]
         joined = ' '.join(words)
         for full, root in roots.items():
-            hits = {w for w in words if len(root) >= 4 and w.startswith(root) and w not in _NOT_NAMING_WORDS}
+            hits = {w for w in words if len(root) >= 4 and w.startswith(root) and w not in _NOT_NAMING_WORDS
+                    and not w.startswith('roman')
+                    and not any(w.startswith(t) and not full.startswith(t) for t in _TITLE_STEMS)}
             for p in _NAME_PHRASES.get(full, ()):
                 if p in joined:
                     hits.update(p.split())   # the card marks each word of the phrase

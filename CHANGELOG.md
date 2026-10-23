@@ -8,6 +8,7 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-22
+- Events: the rule that counts a document as naming a participant leaves out peoples and states ("Germanic people", "Ancient Rome"), frontier zones, and emperors' victory titles (Germanici, Parthici) unless the participant carries that name.
 - Events: an inscription that names a participant in its text, also where the editor restored part of the name ("[Augus]to") or by Augustus's title "Divi Iuli f(ilius)", goes in the group that names a participant, and the name is highlighted on its card.
 - Events: the Battle of Actium lists Octavian's dedication of his camp to Neptune and Mars and two Augustan dedications from Nicopolis under Inscriptions & Papyri.
 - People & Places: in an inscription's edition, a name written with the editor's signs inside it ("Rus(ellanorum)", "R(usellanorum)") is highlighted like the plain form.
