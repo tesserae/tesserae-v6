@@ -35,6 +35,14 @@ Conventions
   hand and are the models the helper matches.
 
 
+## 2026-10-22 Battle of Actium: three inscriptions from Nicopolis added to its Inscriptions & Papyri (RUN 23:10 EDT, by hand)
+
+Why. The Actium event page showed no inscription or papyrus. Until 2026-10-20 the event's place was in the Ionian Sea off Calabria (38.85 N, 17.11 E), so its 53 documents were southern Italian. The place correction of that night moved it to Actium (38.925 N, 20.725 E) and they dropped out rightly. Nothing came in their place because the inscriptions of Nicopolis, the city Octavian founded beside Actium, carry no Pleiades id in EDH, so the matching step could not place them. One of them is Octavian's own dedication of the camp he set out from to Neptune and Mars after the naval victory "in hac regione" (EDH HD023503, AE 1928).
+
+What. Three rows in `data/events/event_dossiers.sqlite` table `documents` for event Q160387, place Nicopolis (39.0063 N, 20.7316 E), 9.1 km: `edh:HD023503` (dated -29 to -29: EDH gives only the start, the text names Octavian consul for the fifth time, 29 BCE), `edh:HD052963` and `edh:HD064517` (Augustan dedications, -27 to 14). Backup `event_dossiers.sqlite.bak-20261022-actium-nicopolis`. Integrity ok, the event page lists the three with the dedication first, golden check 69 of 69 the same.
+
+Open. Ten more events lost every document in the same place correction (Battle of the Willows 25, Nedao 18, Mons Graupius 5 and others), and documents with no Pleiades id are never matched by place. Both are on the list for the next events pass.
+
 ## 2026-10-22 Events store: eleven wrongly placed Theme Search passages removed by hand (RUN 14:43 EDT, by the project lead)
 
 A reading of the passages kept by the entry below found eleven that tell the same people on another occasion or share only a name with the event. They were deleted by rowid from a copy of the live store: Q2666515 Ammianus 20.5.10, Q386578 Hegesippus 4.30.1, Q17622596 Livy 24.19.2, Q21152928 Livy 34.9.9, Q192473 Salvian 7.44, Q55630237 Cicero Fam. 15.4.2, Q16701442 Cassiodorus Var. 8.10.3, Q20009902 Silius 14.121, Q2542852 Sulpicius Severus 2.23.6, Q3625517 Vegetius 4.20, Q3636377 Tacitus Hist. 4.78 (a twelfth, Curtius 4.4.1, had already gone in the occasion check). Result: 624 rows with found_by 'theme search 2026-10-21' in 291 events, 114,269 passages, integrity ok. Starting store sha256 `f739bee113da35dad5947689a6f63315a726cea99d37d5e63c4f10c71b9d8144`, result `3a52c04a27149a8ed161b4ec4aed2e268743d951dcc207f167f00fe4ee69fd1a`. The live file was kept as `event_dossiers.sqlite.bak-20261022-minus12` and the copy moved into place at mode 664.

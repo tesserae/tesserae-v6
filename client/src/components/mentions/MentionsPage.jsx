@@ -69,13 +69,36 @@ export function sharedLabel(names) {
   return `name shared with ${list}`;
 }
 
-/** The window text with every occurrence of the matched token marked. */
+// The editor's signs an inscription's edition can put inside a word:
+// expansions "Rus(ellanorum)", restorations "Col[oniae]", additions
+// "〈e〉", and the dot below an uncertain letter.
+const EDITION_SIGNS = '(?:[()\\[\\]\\u27e8\\u27e9\\u2329\\u232a\\u3008\\u3009<>]|\\u0323)*';
+
+/** The window text with every occurrence of the matched token marked. In an
+ *  inscription's edition the matched form ("rusellanorum") is often written
+ *  with the editor's signs inside it ("Rus(ellanorum)", "R(usellanorum)"),
+ *  and those words went unmarked (the lead, 2026-10-22, on Rusellae), so a
+ *  sign may stand between any two letters of the token. */
 export function MarkedText({ text, token, ignoreCase = false }) {
   if (!text) return <span className="text-gray-400">[source text unavailable]</span>;
   if (!token) return <>{text}</>;
-  const esc = token.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const pieces = text.split(new RegExp(`(${esc})`, ignoreCase ? 'i' : ''));
-  const same = (p) => (ignoreCase ? p.toLowerCase() === token.toLowerCase() : p === token);
+  const pattern = [...token].map((ch) => ch.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join(EDITION_SIGNS);
+  const pieces = text.split(new RegExp(`(${pattern})`, ignoreCase ? 'iu' : 'u'));
+  const bare = (p) => p.replace(new RegExp(EDITION_SIGNS, 'gu'), '');
+  const same = (p) => (ignoreCase ? bare(p).toLowerCase() === token.toLowerCase() : bare(p) === token);
+  // A mark that opened a sign ("Rus(ellanorum") takes the closing sign that
+  // follows it, so the highlight covers the whole written word.
+  const CLOSE = { '(': ')', '[': ']', '⟨': '⟩', '〈': '〉', '〈': '〉', '<': '>' };
+  for (let i = 1; i < pieces.length - 1; i += 2) {
+    if (!same(pieces[i])) continue;
+    const opened = [...pieces[i]].filter((ch) => CLOSE[ch]).length;
+    const closed = [...pieces[i]].filter((ch) => Object.values(CLOSE).includes(ch)).length;
+    const next = pieces[i + 1];
+    if (opened > closed && next && Object.values(CLOSE).includes(next[0])) {
+      pieces[i] += next[0];
+      pieces[i + 1] = next.slice(1);
+    }
+  }
   return (
     <>
       {pieces.map((p, i) => (same(p)
