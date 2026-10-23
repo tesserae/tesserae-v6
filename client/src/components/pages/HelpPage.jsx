@@ -1719,7 +1719,8 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 <AboutSourcesLink anchor="beyond" />
               </p>
               <p className="text-gray-700 mb-3">
-                Arriving from Theme Search, the Reader opens on the translation, selects the whole
+                Arriving from Theme Search, the Reader opens on the translation (on Similar passages
+                for an English work, which has no translation), selects the whole
                 passage that matched, and shows the search that brought you there, with a link
                 back to the results. Opening a result from Similar passages, Verbal parallels or Reuse takes you to that
                 passage in the other work, selected. A banner names the passage you came from with a
