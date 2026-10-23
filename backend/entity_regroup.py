@@ -331,11 +331,14 @@ def _sk_same(a, b, head='', form=''):
     Gedeona)."""
     if a == b:
         return True
+    if a and b and a[-1] in 'sm' and b[-1] in 'sm' and a[:-1] == b[:-1]:
+        return True          # nominative -s against accusative -m (Caiaphas, Caipham)
     a, b = sorted((a, b), key=len)
     if not (len(b) == len(a) + 1 and b.startswith(a)):
         return False
     greek_acc = _is_greek(form) and ei.translit(ei.fold(form))[-2:-1] in tuple('aeiou') and b[-1] == 'n'
-    return b[-1] == 's' or greek_acc or (b[-1] == 'n' and ei.translit(ei.fold(head)).endswith('on'))
+    latin_acc = b[-1] == 'm' and not _is_greek(form) and ei.translit(ei.fold(form)).endswith('m')
+    return b[-1] == 's' or greek_acc or latin_acc or (b[-1] == 'n' and ei.translit(ei.fold(head)).endswith('on'))
 
 
 def letter_compare(form, heads, limit=3):

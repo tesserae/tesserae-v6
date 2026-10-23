@@ -542,6 +542,29 @@ def run_sample40(db, a):
     log('sample_40 written')
 
 
+def run_rescore(db, a):
+    """Recompute the stored p4 answers from the stored replies with the current final_answer4 rule (no gateway
+    calls). Used after the consonant rule changed (a Latin accusative -m)."""
+    cache_path = os.path.join(WORK, 'answers.sqlite')
+    cache = rg.open_cache2(cache_path)
+    ids = dict(db.execute('select entity_id, eid from entities'))
+    changed = 0
+    heads_of = {}
+    for e, st, ans, reply in cache.execute('select entity_id, stem, answer, reply from answers2 where version = ?',
+                                           (rg.PROMPT_VERSION4,)).fetchall():
+        if e not in ids:
+            continue
+        if e not in heads_of:
+            heads_of[e] = rg.headings(db, ids[e])
+        new = rg.final_answer4(reply, st[2:], heads_of[e]) or 'NONE'
+        if new != ans:
+            cache.execute('update answers2 set answer = ? where entity_id = ? and stem = ? and version = ?',
+                          (new, e, st, rg.PROMPT_VERSION4))
+            changed += 1
+    cache.commit()
+    log(f'rescore: {changed} answers changed')
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('store')
@@ -555,6 +578,7 @@ def main():
     ap.add_argument('--calibrate2', action='store_true')
     ap.add_argument('--judge2', action='store_true')
     ap.add_argument('--sample40', action='store_true')
+    ap.add_argument('--rescore', action='store_true')
     ap.add_argument('--calibrate3', action='store_true')
     ap.add_argument('--judge3', action='store_true')
     ap.add_argument('--max-seconds', type=int, default=0)
@@ -565,6 +589,8 @@ def main():
         sys.exit(1 if calibrate(db, os.path.join(WORK, 'answers.sqlite')) else 0)
     if a.calibrate2:
         return calibrate2(db, os.path.join(WORK, 'answers.sqlite'))
+    if a.rescore:
+        return run_rescore(db, a)
     if a.sample40:
         return run_sample40(db, a)
     if a.calibrate3:

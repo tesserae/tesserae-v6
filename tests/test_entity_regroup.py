@@ -92,3 +92,19 @@ def test_protected_group_is_skipped():
     db.execute("update entities set entity_id = 'nm:lauin:main' where eid = 1")
     rep = rg.apply_differences(db, [('nm:lauin:main', 'sila', {'Silanion': 2})])
     assert rep['groups'] == 0 and rep['skipped_protected'] == 1
+
+
+def test_letter_check_and_forced_answer():
+    """The computed consonant rule (second pass, 2026-10-22): a missing consonant makes DIFFERENT whatever the
+    model said, ordinary variants and case endings do not, and the -que enclitic is taken off."""
+    from backend import entity_regroup as rg
+    assert rg.consonants_differ('Ἑρμίππου', {'Herippus'})
+    assert not rg.consonants_differ('Caipha', {'Caiaphas'})
+    assert not rg.consonants_differ('Caipham', {'Caiaphas', 'Καϊάφας'})
+    assert not rg.consonants_differ('Romanoque', {'Romano'})
+    assert not rg.consonants_differ('Μυκάλην', {'Mycale (mountain)'})
+    same = 'SPELLING: x\nCONSONANTS: differ\nEXCEPTION: no\nANSWER: SAME'
+    assert rg.final_answer4(same, 'Ἑρμίππου', {'Herippus'}) == 'DIFFERENT'
+    yes = same.replace('EXCEPTION: no', 'EXCEPTION: yes')
+    assert rg.final_answer4(yes, 'Φοίνισσαι', {'Phoenicians'}) == 'SAME'
+    assert rg.final_answer4('no answer here', 'x', {'y'}) is None
