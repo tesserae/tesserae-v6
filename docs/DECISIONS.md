@@ -14,7 +14,7 @@ A visitor asked at the talk of 2026-10-23 why the site does not supply machine t
 
 ## 2026-10-23: the Shahnameh gets its stories and Warner's public-domain translation
 
-A visitor at the talk said a free English Shahnameh exists online. The complete public-domain translation is A. G. and E. Warner (nine volumes, 1905 to 1925, prose); Zimmern (1883) and Atkinson (1832) are abridged retellings that cannot be aligned, and Davis (2006) is in copyright wherever it appears. Decision: re-import the Shahnameh with its story divisions (the current file is one run of 99,218 hemistichs), then align Warner story by story with the proportional prose aligner, credited on every passage, public domain first as the standing translation policy says.
+A visitor at the talk said a free English Shahnameh exists online. The complete public-domain translation is A. G. and E. Warner (nine volumes, 1905 to 1925, in verse: rhymed in the Prelude, blank verse after it); Zimmern (1883) and Atkinson (1832) are abridged retellings that cannot be aligned, and Davis (2006) is in copyright wherever it appears. Decision: re-import the Shahnameh with its story divisions (the current file is one run of 99,218 hemistichs), then align Warner story by story with the proportional aligner used for the prose translations (Warner carries no couplet numbers), credited on every passage, public domain first as the standing translation policy says.
 
 ## 2026-10-21: an event passage's participant name is set aside when a model reads it as a different person at every place it occurs
 
