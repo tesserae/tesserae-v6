@@ -35,6 +35,13 @@ Conventions
   hand and are the models the helper matches.
 
 
+## 2026-10-23 Greek corpus: stray marks removed from 133 files and a Scylax numeral (RUN 16:36 to 16:38 EDT, by hand)
+- What: #1133 (1,347 combining accents and breathings removed from consonants, spaces and non-Greek characters in 133 Greek texts, issue #580 part B) and #1128 (Scylax 1.57, an unidentified placeholder read as the koppa numeral) merged and pulled to production at 16:33 and 16:34. The lemma caches of the 134 changed files were rebuilt and the files reindexed.
+- Scripts: `scripts/batch_lemma_cache.py grc` (134 built, 1,198 already cached, 0 errors, 29 s, cap 8G); `scripts/corpus/add_texts_to_index.py --db data/inverted_index/grc_index.db.new --language grc --cache-dir cache/lemmas --replace <134 files>` on a copy (1,332 texts, 522,731 lines, lemma_doc_freq rebuilt), then the copy-and-rename swap.
+- Backup: `data/inverted_index/grc_index.db.bak-straymarks-20261023-1638`.
+- Checked: the golden check (69 recorded requests, all the same) and three Greek line searches (Iliad 1.1 found for the first words of the Iliad). Passage index windows untouched: the window texts of these files still carry the stray marks until the next windows rebuild.
+- Held from 2026-10-22 to after the talk of 2026-10-23 13:30 on purpose: a Greek index change hours before a live demonstration.
+
 ## 2026-10-23 Coins: a model-written account of each coin type, and vectors that read it (RUN 08:05 EDT, by hand)
 
 Why. The coin search compared a query with vectors of the catalog descriptions only ("Obverse: Head of L. Junius Brutus ... Reverse: Pileus between two daggers"), so a search worded as a meaning missed the coin that carries it: Brutus's EID MAR denarius ranked 11,245th of 46,244 for "the overthrow of tyrants" and 281st for "Brutus and the Ides of March".
