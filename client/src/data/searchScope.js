@@ -212,7 +212,7 @@ export const SEARCH_SCOPE = {
     name: 'Reuse (Reader)',
     does: 'Other works that repeat the selected line closely, and the inscriptions and papyri that quote it.',
     scope: 'A line is compared with every line in the corpus and with the documents for shared rare phrases. A solid count on a line means that many other works quote it, a dashed count a possible echo through one rare shared phrase, and an amber count that many inscriptions or papyri carry it.',
-    covers: 'The literary corpus and about 257,000 inscriptions and papyri in Latin and Greek.',
+    covers: 'The literary corpus and about 255,000 inscriptions and papyri in Latin and Greek.',
     limits: 'Stock phrases that many works share are not quotations, so very common lines show nothing. A quotation that changes every word is missed.',
     measured: [REUSE_ROW],
     helpSection: 'reader',
