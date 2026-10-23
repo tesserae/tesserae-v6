@@ -700,37 +700,36 @@ describe('axis titles on the grids', () => {
     const canvas = await screen.findByLabelText(/Connections map, work view/);
     fireEvent.click(canvas, cellCenter(28, 0, 1));
     await screen.findByLabelText(/(Books|Blocks) of /);
-    return screen.getAllByTestId('axis-key');
+    return { rows: screen.getAllByTestId('axis-row-title'), cols: screen.getAllByTestId('axis-col-title') };
   }
 
   it('the top grid says what its rows and columns hold and which way they read', async () => {
     render(<ConnectionsMap />);
-    const [key] = await screen.findAllByTestId('axis-key');
-    expect(key.textContent).toMatch(/Rows: authors, oldest at top/);
-    expect(key.textContent).toMatch(/Columns: authors, oldest at left/);
+    const [row] = await screen.findAllByTestId('axis-row-title');
+    const [col] = screen.getAllByTestId('axis-col-title');
+    expect(row.textContent).toBe('authors, oldest at top');
+    expect(col.textContent).toBe('authors, oldest at left');
   });
 
   it('a books grid names the row work and the column work, with books', async () => {
-    const keys = await openBooks({ ...BOOKS_PAYLOAD, names_a: ['Book 1'], names_b: ['Book 1'] });
-    const key = keys[keys.length - 1];
-    expect(key.textContent).toMatch(/Rows: .*\u00b7 books/);
-    expect(key.textContent).toMatch(/Columns: .*\u00b7 books/);
+    const { rows, cols } = await openBooks({ ...BOOKS_PAYLOAD, names_a: ['Book 1'], names_b: ['Book 1'] });
+    expect(rows[rows.length - 1].textContent).toMatch(/\u00b7 books$/);
+    expect(cols[cols.length - 1].textContent).toMatch(/\u00b7 books$/);
     expect(booksAxisTitle('Homer, Iliad', ['b1', 'b2'])).toBe('Homer, Iliad \u00b7 books');
   });
 
   it('says lines for a work with no books, and books for the other', async () => {
     expect(booksAxisTitle('Homer, Iliad', ['block1', 'block101'])).toBe('Homer, Iliad \u00b7 lines');
-    const keys = await openBooks({
+    const { rows, cols } = await openBooks({
       ...BOOKS_PAYLOAD, ids_a: ['block1'], labels_a: ['1'], ids_b: ['b1'], labels_b: ['1'],
       names_a: ['Lines 1 to 100'], names_b: ['Book 1'] });
-    const key = keys[keys.length - 1];
-    expect(key.textContent).toMatch(/Rows: .*\u00b7 lines/);
-    expect(key.textContent).toMatch(/Columns: .*\u00b7 books/);
+    expect(rows[rows.length - 1].textContent).toMatch(/\u00b7 lines$/);
+    expect(cols[cols.length - 1].textContent).toMatch(/\u00b7 books$/);
   });
 
   it('the books tooltip names both works and both books', async () => {
-    const keys = await openBooks({ ...BOOKS_PAYLOAD, names_a: ['Book 1'], names_b: ['Book 1'] });
-    expect(keys.length).toBeGreaterThan(0);
+    const { rows } = await openBooks({ ...BOOKS_PAYLOAD, names_a: ['Book 1'], names_b: ['Book 1'] });
+    expect(rows.length).toBeGreaterThan(0);
     const canvas = await screen.findByLabelText(/Books of /);
     fireEvent.mouseMove(canvas, cellCenter(28, 0, 0));
     const tips = await screen.findAllByText(/^.+ \u00b7 Book 1$/, { selector: '.font-medium' });
@@ -745,8 +744,9 @@ describe('axis titles on the grids', () => {
     fireEvent.change(screen.getByPlaceholderText(/Start from one work/), { target: { value: 'homer' } });
     fireEvent.click(await screen.findByText('homer.iliad'));
     await screen.findByLabelText(/Connections for Homer, iliad/);
-    const [key] = await screen.findAllByTestId('axis-key');
-    expect(key.textContent).toMatch(/Rows: Homer, iliad/);
-    expect(key.textContent).toMatch(/Columns: the works linked to it/);
+    const rows = await screen.findAllByTestId('axis-row-title');
+    const cols = screen.getAllByTestId('axis-col-title');
+    expect(rows.some((r) => /Homer, iliad/.test(r.textContent))).toBe(true);
+    expect(cols.some((c) => c.textContent === 'the works linked to it')).toBe(true);
   });
 });

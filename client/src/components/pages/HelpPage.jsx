@@ -1270,9 +1270,9 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 many passages of the two authors came out close in their descriptions. Authors
                 run in chronological order along both edges, so the diagonal shows authors talking to their
                 contemporaries and the far corners show links across the centuries.
-                In every grid the small key in the top-left corner says what the rows (down the
-                side) and the columns (across the top) are, and in a book-by-book grid it names the
-                work on each axis, so you can tell which work runs down the side and which across the top.
+                In every grid a heading over the column names says what the columns are, and a heading
+                turned on its side beside the row names says what the rows are. In a book-by-book grid
+                these name the work on each edge, so you can tell which work runs down the side and which across the top.
               </p>
               <p className="text-gray-700 mb-3">
                 &ldquo;Links&rdquo; colors a cell by the raw number of close passage pairs.

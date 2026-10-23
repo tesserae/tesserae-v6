@@ -8,6 +8,7 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-22
+- Similarity Map: each grid's column heading sits over the column names and its row heading runs beside the row names, instead of both standing in a key in the corner; the name column and the strip above the grid are no wider or taller than their labels need.
 - Reader: the reference above the text keeps the act of a play cited by act, scene and line ("Hamlet I.2.201", not "Hamlet 2.201").
 - Tessa: an answer that compares two texts, or declines to compare two long whole works, ends with a button that opens the comparison page with both texts filled in.
 - Tessa: the switch to the classic Tessa is gone from her panel. Every visitor gets the Tessa who runs the searches a question needs, and the classic Tessa answers only when she cannot. Help says plainly what she does.
