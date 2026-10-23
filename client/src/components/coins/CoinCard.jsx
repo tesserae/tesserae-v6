@@ -26,6 +26,23 @@ function Side({ name, term, description, inscription }) {
   );
 }
 
+const GIST_TIP = 'Written by a language model from the catalog description, the inscriptions, the issuer '
+  + 'and the date. In our checks about 9 in 10 were right. Read the catalog entry before relying on it.';
+
+/**
+ * The short account of what a coin type shows and commemorates, written by a
+ * language model and labeled as such. It is also what the meaning searches read.
+ */
+export function CoinGist({ gist, className = 'mt-2' }) {
+  if (!gist) return null;
+  return (
+    <p className={`text-sm text-gray-800 ${className}`} data-testid="coin-gist">
+      <span className="text-gray-500 cursor-help" title={GIST_TIP}>In brief (written by a language model):</span>{' '}
+      {gist}
+    </p>
+  );
+}
+
 /** Front and back, side by side. */
 export function CoinSides({ coin }) {
   return (
@@ -73,6 +90,7 @@ export default function CoinCard({ coin, open }) {
         )}
       </p>
       <div className="mt-3"><CoinSides coin={coin} /></div>
+      <CoinGist gist={coin.gist} className="mt-3" />
       <footer className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-3 text-xs text-gray-500">
         <span>{coin.credit}</span>
         <a href={coin.type_url} target="_blank" rel="noopener noreferrer"

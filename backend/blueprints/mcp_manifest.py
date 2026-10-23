@@ -89,6 +89,11 @@ MANIFEST = {
         'reason': ('Event focus view in testing: one dossier from the offline '
                     'dossier database; not yet exposed to the connector.'),
     },
+    '/api/events/<event_id>/coins': {
+        'site_only': True,
+        'reason': ('Coins tab of an event page: coin types struck around the event, nearest '
+                    'in meaning to it; not yet exposed to the connector.'),
+    },
     '/api/coins': {
         'site_only': True,
         'reason': ('Coins page (OCRE and CRRO type records) in testing: reads an '

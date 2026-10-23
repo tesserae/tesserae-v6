@@ -7,6 +7,11 @@ so the state of the live site can be reconstructed from this file and
 docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
+## 2026-10-23
+- Coins: every coin card, coin page and Reader match carries a line "In brief (written by a language model)" saying what the type shows and what it commemorates or proclaims. The meaning search on the Coins page and the Coins choice in Theme Search read the catalog description together with this account (new vectors `data/coins/descriptions_meaning.npy`): on 24 test searches worded as meanings a right coin reached the first ten for 17, against 9 before. The Reader's Related imagery keeps the description vectors, which did better on its ten test passages. Tessa sees the account in coin results. Help explains the line and its checks.
+- Events: an event page has a Coins tab, the coin types struck from three years before the event to five after it, nearest in meaning to the event, those whose account names the place first (`/api/events/<id>/coins`). Help describes it.
+- Help: the Scholarship services paragraph names all five online services and says that a search starting from a question keeps only items whose title or abstract shares its words.
+
 ## 2026-10-22
 - Events: the rule that counts a document as naming a participant leaves out peoples and states ("Germanic people", "Ancient Rome"), frontier zones, and emperors' victory titles (Germanici, Parthici) unless the participant carries that name.
 - Events: an inscription that names a participant in its text, also where the editor restored part of the name ("[Augus]to") or by Augustus's title "Divi Iuli f(ilius)", goes in the group that names a participant, and the name is highlighted on its card.

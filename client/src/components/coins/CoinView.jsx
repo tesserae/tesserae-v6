@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { LoadingSpinner } from '../common';
-import { CoinSides } from './CoinCard';
+import { CoinSides, CoinGist } from './CoinCard';
 import { catalogueLine, catalogueName, coinHeading, creditLine } from './coinsFormat';
 
 /** One coin type on a page of its own (/coins/<id>). */
@@ -38,6 +38,7 @@ export default function CoinView({ id, goList }) {
           <p className="text-sm text-gray-500 mt-0.5">{catalogueLine(coin)}</p>
 
           <div className="mt-4"><CoinSides coin={coin} /></div>
+          <CoinGist gist={coin.gist} className="mt-4" />
 
           <div className="mt-4 text-sm space-y-1">
             <p>

@@ -702,6 +702,37 @@ def event_names():
     return resp
 
 
+@events_bp.route('/events/<event_id>/coins')
+def event_coins(event_id):
+    """The coin types struck around an event, nearest in meaning to it
+    (backend/coins_passage.py for_event)."""
+    from backend import coins_passage
+    from backend.blueprints import coins as coins_bp_module
+    c = _conn()
+    if c is None:
+        return jsonify({'error': 'The event dossiers are not installed.'}), 404
+    try:
+        r = c.execute('SELECT * FROM events WHERE id = ?', (event_id,)).fetchone()
+        if r is None:
+            return jsonify({'error': 'No such event.'}), 404
+        keys = r.keys()
+        summary = (r['summary'] if 'summary' in keys and r['summary'] else None) or r['description']
+        label, place, ds, de = r['label'], r['place'], r['date_start'], r['date_end']
+        ancient = r['place_ancient'] if 'place_ancient' in keys else None
+    finally:
+        c.close()
+    cc = coins_bp_module._conn()
+    if cc is None:
+        return jsonify({'available': False, 'results': [], 'reason': 'The coins collection is not installed.'})
+    try:
+        return jsonify(coins_passage.for_event(cc, coins_bp_module.db_path(), label, summary, ds, de, place, ancient))
+    except coins_passage.EncoderUnavailable:
+        return jsonify({'available': False, 'results': [],
+                        'reason': 'The meaning search is not answering just now. Try again in a minute.'}), 503
+    finally:
+        cc.close()
+
+
 @events_bp.route('/events/<event_id>')
 def get_event(event_id):
     c = _conn()
