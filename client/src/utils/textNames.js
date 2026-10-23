@@ -606,7 +606,12 @@ function _numericLocus(ref, corpusMap) {
   const labelled = _labelledReference(tail);
   if (labelled !== tail) return labelled;
   const parts = clean.split(/[\s.]+/).filter(Boolean);
-  const numAt = parts.findIndex((p) => /^\d/.test(p));
+  let numAt = parts.findIndex((p) => /^\d/.test(p));
+  // A Roman numeral just before the first number is the top level of the
+  // locus, the act in "hamlet I.2.201" (act, scene, line). Starting at the
+  // first digit dropped it, so the header read "Hamlet 2.201" (the lead,
+  // 2026-10-22).
+  if (numAt > 0 && /^[IVXLCDM]{1,5}$/.test(parts[numAt - 1])) numAt -= 1;
   return numAt === -1 ? clean : parts.slice(numAt).join('.');
 }
 
