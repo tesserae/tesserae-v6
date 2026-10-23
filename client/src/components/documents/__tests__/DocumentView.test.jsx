@@ -305,4 +305,22 @@ describe('DocumentView', () => {
       expect(screen.queryByTestId('document-scholarship')).toBeNull();
     });
   });
+
+  it('links every further PHI part of an inscription beside the credit', async () => {
+    setUrl('?doc=aio:IGII2_3346&lang=grc');
+    mockFetchOk({
+      ...documentPayload,
+      doc_id: 'aio:IGII2_3346',
+      language: 'grc',
+      credit: {
+        ...documentPayload.credit,
+        source_name: 'Greek text: PHI Greek Inscriptions, The Packard Humanities Institute (PHI 111, 222)',
+        source_url: 'https://epigraphy.packhum.org/text/111',
+      },
+      display: { source_link: ['PHI 222|https://epigraphy.packhum.org/text/222'] },
+    });
+    render(<DocumentView />);
+    const link = await screen.findByRole('link', { name: 'PHI 222' });
+    expect(link).toHaveAttribute('href', 'https://epigraphy.packhum.org/text/222');
+  });
 });

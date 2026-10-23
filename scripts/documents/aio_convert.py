@@ -647,7 +647,9 @@ _PHI_SUPERS = "⁰¹²³⁴⁵⁶⁷⁸⁹"
 
 
 def phi_credit_name(number) -> str:
-    return f"Greek text: {PHI_NAME} (PHI {number})"
+    """`number` is one PHI number or a list of them, in the order shown."""
+    nums = [str(n) for n in number] if isinstance(number, (list, tuple)) else [str(number)]
+    return f"Greek text: {PHI_NAME} (PHI {', '.join(nums)})"
 
 
 def _phi_prepare(s: str) -> str:
@@ -725,23 +727,48 @@ def _phi_year(v):
 
 
 def build_record_phi(raw: dict, vol: str, ident: str, page: dict | None, phi: dict, number, notes: list):
-    """A document whose Greek is PHI's and whose translation is AIO's. The
-    date, findspot and region come from AIO's page where it gives them, else
-    from PHI's record (`date_text` kept as the date text, `not_before` and
+    """One PHI record (see `build_record_phi_parts`)."""
+    return build_record_phi_parts(raw, vol, ident, page, [(number, phi)], notes)
+
+
+def build_record_phi_parts(raw: dict, vol: str, ident: str, page: dict | None, parts: list, notes: list):
+    """A document whose Greek is PHI's and whose translation is AIO's. `parts` is
+    [(PHI number, PHI record), ...] in the order AIO lists the numbers. Their lines
+    follow one another with a gap line between parts (the part headings are not
+    written, because a heading would be indexed as text), and a part whose text is
+    the same as an earlier part's (the same stone in two PHI records) is left out
+    and noted. The date, findspot and region come from AIO's page where it gives
+    them, else from the first PHI record that has them (`date_text`, `not_before`,
     `not_after`, `site`)."""
     page = dict(page or {})
-    phi_site = (phi.get("site") or "").strip() or None
+    recs = [p for _, p in parts]
+    phi_site = next(((r.get("site") or "").strip() for r in recs if (r.get("site") or "").strip()), None)
     if not page.get("findspot") and phi_site:
         page["findspot"] = phi_site
-    lines = phi_lines(((phi.get("text") or {}).get("lines")) or [])
+    lines, used, seen = [], [], set()
+    for number, phi in parts:
+        part = phi_lines(((phi.get("text") or {}).get("lines")) or [])
+        key = join_lines(part)
+        if not part or key in seen:
+            if part:
+                notes.append(f"PHI {number} repeats an earlier part")
+            continue
+        seen.add(key)
+        if lines:
+            lines.append({"n": None, "diplomatic": GAP, "expanded": GAP, "text": GAP,
+                          "restored_flags": [True], "joins_previous": False})
+        lines.extend(part)
+        used.append(str(number))
     rec = build_record(dict(raw, greek_epidoc=None), vol, ident, page, notes, _allow_no_greek=True)
     if rec["date_not_before"] is None and rec["date_not_after"] is None:
-        nb, na = _phi_year(phi.get("not_before")), _phi_year(phi.get("not_after"))
-        if nb is not None or na is not None:
-            rec["date_not_before"], rec["date_not_after"] = nb, na
-            rec["aio"]["date_from_phi"] = True
-    if not rec["aio"].get("date_text") and phi.get("date_text"):
-        rec["aio"]["date_text"] = phi["date_text"]
+        for phi in recs:
+            nb, na = _phi_year(phi.get("not_before")), _phi_year(phi.get("not_after"))
+            if nb is not None or na is not None:
+                rec["date_not_before"], rec["date_not_after"] = nb, na
+                rec["aio"]["date_from_phi"] = True
+                break
+    if not rec["aio"].get("date_text"):
+        rec["aio"]["date_text"] = next((r["date_text"] for r in recs if r.get("date_text")), None)
     rec["lines"] = lines
     rec["text"] = join_lines(lines)
     sup = sum(sum(1 for f in ln["restored_flags"] if f) for ln in lines)
@@ -751,8 +778,9 @@ def build_record_phi(raw: dict, vol: str, ident: str, page: dict | None, phi: di
     rec["supplied_share"] = sup / tot if tot else 0.0
     rec["languages"] = ["grc"]
     rec["aio"]["greek_source"] = "phi"
-    rec["aio"]["phi_number"] = str(number)
-    rec["aio"]["phi_url"] = PHI_PAGE.format(n=number)
+    rec["aio"]["phi_numbers"] = used
+    rec["aio"]["phi_number"] = used[0] if used else str(parts[0][0])
+    rec["aio"]["phi_url"] = PHI_PAGE.format(n=rec["aio"]["phi_number"])
     return rec
 
 
@@ -868,9 +896,12 @@ def main(argv=None) -> int:
             ap.error("--phi-dir needs --phi-list")
         for e in json.load(open(a.phi_list, encoding="utf-8")):
             v, i = e["aio"].split("/", 1)
-            phi_by_stem[f"{v}__{i.replace('/', '_')}"] = str(e["phi"])
+            nums = [str(n) for n in (e.get("all_phi") or [])] or [str(e["phi"])]
+            if str(e["phi"]) not in nums:
+                nums.insert(0, str(e["phi"]))
+            phi_by_stem[f"{v}__{i.replace('/', '_')}"] = list(dict.fromkeys(nums))
     phi_stats = {"inscriptions_listed": 0, "converted": 0, "missing_files": [], "no_text": [],
-                 "date_from_phi": 0, "findspot_from_phi": 0, "page_missing": []}
+                 "date_from_phi": 0, "findspot_from_phi": 0, "several_parts": 0, "repeated_parts": 0, "page_missing": []}
     bbaw = None
     if a.bbaw_dir:
         bbaw = json.load(open(os.path.join(a.bbaw_dir, "bbaw_index.json"), encoding="utf-8"))
@@ -930,18 +961,24 @@ def main(argv=None) -> int:
                     continue
                 if stem in phi_by_stem:
                     phi_stats["inscriptions_listed"] += 1
-                    num = phi_by_stem[stem]
-                    fp = os.path.join(a.phi_dir, num + ".json")
-                    if not os.path.exists(fp):
-                        phi_stats["missing_files"].append(num)
+                    parts = []
+                    for num in phi_by_stem[stem]:
+                        fp = os.path.join(a.phi_dir, num + ".json")
+                        if not os.path.exists(fp):
+                            phi_stats["missing_files"].append(num)
+                            continue
+                        parts.append((num, json.load(open(fp, encoding="utf-8"))))
+                    if not parts:
                         continue
-                    phi = json.load(open(fp, encoding="utf-8"))
                     hp = os.path.join(a.html_dir, stem + ".html")
                     page = parse_page(open(hp, encoding="utf-8").read()) if os.path.exists(hp) else None
                     if page is None:
                         phi_stats["page_missing"].append(doc_id(vol, ident))
                     notes = []
-                    rec = build_record_phi(raw, vol, ident, page, phi, num, notes)
+                    rec = build_record_phi_parts(raw, vol, ident, page, parts, notes)
+                    if len(rec["aio"]["phi_numbers"]) > 1:
+                        phi_stats["several_parts"] += 1
+                    phi_stats["repeated_parts"] += sum(1 for n in notes if n.endswith("repeats an earlier part"))
                     if not rec["lines"]:
                         phi_stats["no_text"].append(rec["id"])
                         continue
