@@ -87,3 +87,18 @@ export function findRefIndex(refs, query) {
   if (index < 0) return { index: -1, problem: `no line ${query} here` };
   return { index, problem: '' };
 }
+
+/** The number the Reader prints in the margin beside a line (every fifth one).
+ *
+ * Ordinarily the ref's last number, the line. In a Persian or Urdu work whose
+ * references run story.couplet.hemistich (the Shahnameh since 2026-10-23), the
+ * last number is the hemistich, 1 or 2, so the margin would never reach a
+ * fifth: there the couplet number is returned on the first hemistich and null
+ * on the second. */
+export function marginNumber(ref, language) {
+  const nums = (String(ref || '').match(/\d+/g) || []).map((x) => parseInt(x, 10));
+  if (!nums.length) return null;
+  const hemistichs = (language === 'fa' || language === 'ur') && nums.length >= 3;
+  if (!hemistichs) return nums[nums.length - 1];
+  return nums[nums.length - 1] === 1 ? nums[nums.length - 2] : null;
+}

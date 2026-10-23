@@ -8,6 +8,7 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-23
+- Reader: in a Persian or Urdu work whose references run story.couplet.hemistich, the margin numbers every fifth couplet (on its first hemistich) instead of going blank, since the last number of such a reference is only ever 1 or 2. Help says so.
 - Reader: Go to line takes a dotted reference ("1.18" in the Masnavi, "151.1.1" in a work divided into stories), not only a bare line number or a space-separated book and line; an entry that names several places asks for the part before it. Help says so.
 - Shahnameh (built, not yet installed). The text is divided into Ganjoor's 857 stories with references `ferdowsi.shahnameh.S.C.H` (story, couplet, hemistich), a map takes every old number to its new reference, and A. G. and E. Warner's public-domain English (1905 to 1925) is aligned to 98.6% of the stories and 99.3% of the lines by order, length, proper names and an induced word list. The scripts and the story list are committed. The text and the translation file stay out of git, which ignores `texts/fa` and `data/translations`. See docs/DATA_OPERATIONS.md.
 - Greek corpus: stray accents and breathings removed from 133 texts (#1133) and a Scylax numeral read as koppa (#1128); the 134 files reindexed on 2026-10-23 (docs/DATA_OPERATIONS.md).

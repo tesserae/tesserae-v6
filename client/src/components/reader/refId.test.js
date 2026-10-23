@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { displayRef, readableLocus, findRefIndex } from './refId';
+import { displayRef, readableLocus, findRefIndex, marginNumber } from './refId';
 import { shortRef } from './ResultsPanel';
 
 describe('Ennius loci of uncertain book or work', () => {
@@ -42,5 +42,21 @@ describe('Go to line finds a unit by what the margin shows', () => {
   it('reports a miss plainly', () => {
     expect(findRefIndex(shahnameh, '999.1.1')).toEqual({ index: -1, problem: 'no line 999.1.1 here' });
     expect(findRefIndex([], '1.1').index).toBe(-1);
+  });
+});
+
+describe('the margin number', () => {
+  it('is the last number of an ordinary reference', () => {
+    expect(marginNumber('verg. aen. 6.855', 'la')).toBe(855);
+    expect(marginNumber('amm. 14.1.5', 'la')).toBe(5);
+    expect(marginNumber('iqbal.asrar_e_khudi.1.10', 'fa')).toBe(10);
+  });
+  it('is the couplet on the first hemistich of a story.couplet.hemistich reference, and nothing on the second', () => {
+    expect(marginNumber('ferdowsi.shahnameh.151.5.1', 'fa')).toBe(5);
+    expect(marginNumber('ferdowsi.shahnameh.151.5.2', 'fa')).toBeNull();
+    expect(marginNumber('ferdowsi.shahnameh.151.10.1', 'fa')).toBe(10);
+  });
+  it('is null without a number', () => {
+    expect(marginNumber('', 'la')).toBeNull();
   });
 });
