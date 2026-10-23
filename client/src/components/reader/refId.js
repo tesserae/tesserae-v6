@@ -57,3 +57,33 @@ export function fullRef(w) {
   const b = w.ref_end ? displayRef(w.ref_end) : '';
   return b && b !== a ? `${a} – ${b}` : a;
 }
+
+/** The unit a "Go to line" entry names, among `refs` (the units' refs in order).
+ *
+ * A reader types what the margin shows: a line number ("851"), book and line
+ * ("6.851"), or for a work divided into stories the story, couplet and
+ * hemistich ("151.1.1"). Refs come in two shapes: "verg. aen. 6.851", where the
+ * locus follows a space, and "rumi.masnavi.1.18" or "ferdowsi.shahnameh.151.1.1",
+ * where it follows a dot (2026-10-23: the dotted shape only ever matched a
+ * single number, so "1.18" found nothing in the Masnavi).
+ *
+ * Returns { index, problem }: index -1 with a plain reason when nothing matches
+ * or the entry names several places. */
+export function findRefIndex(refs, query) {
+  const q = String(query || '').trim().toLowerCase();
+  const list = (refs || []).map((r) => String(r || '').toLowerCase());
+  if (!q || !list.length) return { index: -1, problem: `no line ${query} here` };
+  let index = list.findIndex((r) => r === q || r.endsWith(' ' + q));
+  if (index < 0 && /^\d+(\.\d+)*[a-z]?$/.test(q)) {
+    const hits = [];
+    list.forEach((r, k) => { if (r.endsWith('.' + q)) hits.push(k); });
+    if (hits.length > 1) {
+      const m = /(\d+(?:\.\d+)*[a-z]?)$/.exec(list[hits[0]]);
+      const example = m ? m[1] : `6.${q}`;
+      return { index: -1, problem: `line ${query} is in ${hits.length} places here; add what comes before it, e.g. ${example}` };
+    }
+    if (hits.length === 1) index = hits[0];
+  }
+  if (index < 0) return { index: -1, problem: `no line ${query} here` };
+  return { index, problem: '' };
+}

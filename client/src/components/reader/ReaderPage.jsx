@@ -1,7 +1,7 @@
 import { useState, useEffect, useLayoutEffect, useCallback, useMemo, useRef } from 'react';
 import useDocumentsTrial from '../../hooks/useDocumentsTrial';
 import useCollections from '../../hooks/useCollections';
-import { cssRef, windowLocus, fullRef } from './refId';
+import { cssRef, windowLocus, fullRef, findRefIndex } from './refId';
 import ReaderHeader from './ReaderHeader';
 import ReaderNav, { ReaderEndNav, ReaderFloatNav, ReaderPhoneTopButton, sectionsFor, bookFileFor } from './ReaderNav';
 import { useIsPhone } from '../../hooks/useIsPhone';
@@ -461,18 +461,9 @@ export default function ReaderPage() {
   // that holds several books (or poems) the same line number recurs, and
   // guessing the first would send the reader to the wrong book.
   const jumpTo = useCallback((query) => {
-    const q = String(query || '').trim().toLowerCase();
-    if (!q || !units.length) return `no line ${query} here`;
-    const refs = units.map((u) => String(u.ref || '').toLowerCase());
-    let i = refs.findIndex((r) => r === q || r.endsWith(' ' + q));
-    if (i < 0 && /^\d+[a-z]?$/.test(q)) {
-      const hits = [];
-      refs.forEach((r, k) => { if (r.endsWith('.' + q)) hits.push(k); });
-      if (hits.length > 1) return `line ${query} is in ${hits.length} places here; add the book, e.g. 6.${query}`;
-      if (hits.length === 1) i = hits[0];
-    }
-    if (i < 0) return `no line ${query} here`;
-    setJumpRef(units[i].ref);
+    const { index, problem } = findRefIndex(units.map((u) => u.ref), query);
+    if (index < 0) return problem;
+    setJumpRef(units[index].ref);
     return '';
   }, [units]);
   useEffect(() => {
