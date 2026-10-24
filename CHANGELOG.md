@@ -8,6 +8,8 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-24
+- Records: the coin accounts install (pass 5, the 4,943 checked rows) run record.
+
 - Continuous integration: the frontend workflow runs the vitest suite, so a stale snapshot fails the build.
 
 - Tests: four tests that hung or failed only on the development machine now run everywhere (`tests/test_endpoints.py`, the documents place filter and stage 3b-3 tests, the exclude-author test, the Downloads snapshot and the documents collection tests). Test files and recorded output only, no application code.
