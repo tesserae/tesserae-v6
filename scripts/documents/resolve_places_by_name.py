@@ -58,6 +58,10 @@ DEFAULT_DUMP = os.path.join(HOME, 'tesserae-docs', 'raw', 'pleiades', 'pleiades-
 DOMINANCE = 0.8
 ENVELOPE_FLOOR_KM = 300.0
 ROMAN_START, ROMAN_END = -300, 500
+# Names left unresolved on purpose (checked by hand): the sibling id is a crosswalk error (EDH files Baden-Baden under
+# Aachen), or the name is two places apart a model should not choose between without a region (Apollonopolis).
+HAND_UNRESOLVED = {'aquae civitas aurelia aquensis', 'aquae civitas aquensis', 'apollonopolis'}
+AMBIGUOUS_SPREAD_KM = 150.0
 NO_PLACE = {'unbekannt', 'unknown', 'unknown location', 'unbestimmt', 'ignotus', 'incertus'}
 
 
@@ -208,16 +212,31 @@ def build_place_index(dump_path, points, cache_path):
 
 
 def sibling_votes(rows, points, cw):
-    """{folded name variant: Counter(pleiades_id)} from documents that already have a point."""
-    sib = collections.defaultdict(collections.Counter)
+    """{folded name variant: {region: Counter(pleiades_id)}} from documents that already have a point."""
+    sib = collections.defaultdict(lambda: collections.defaultdict(collections.Counter))
     for src, ancient, modern, region, pid, tm, n in rows:
         eff = pid or cw.get(str(tm))
         if not ancient or not eff or eff not in points:
             continue
         vs = strip_chain(ancient)
         for v in {vs[0], vs[-1]} if vs else ():
-            sib[fold(v)][eff] += n
+            sib[fold(v)][(region or '').rstrip('?').strip()][eff] += n
     return sib
+
+
+def regions_compatible(a, b):
+    """A sibling's id is copied only across the same region field. EDR labels Italy by Regio (I to XI) where EDH uses
+    provinces, so a Regio label on either side, or no region on either side, leaves the check to the region's spread."""
+    a, b = (a or '').rstrip('?').strip(), (b or '').rstrip('?').strip()
+    return a == b or not a or not b or '(Regio' in a or '(Regio' in b
+
+
+def sibling_counter(sib, key, region):
+    out = collections.Counter()
+    for reg, c in (sib.get(key) or {}).items():
+        if regions_compatible(region, reg):
+            out.update(c)
+    return out
 
 
 def region_envelopes(rows, points, cw, min_docs=20):
@@ -317,7 +336,7 @@ def resolve_names(unresolved, sib, places, title_ix, name_ix, points, env, gw=No
     for nk, info in sorted(unresolved.items(), key=lambda kv: -kv[1]['n']):
         name = nk[0]
         vs = variants(name)
-        if not vs or fold(name) in NO_PLACE or '/' in name or re.search(r',\s*inter\b', name):
+        if not vs or fold(name) in NO_PLACE or '/' in name or re.search(r',\s*inter\b', name) or any(fold(x) in HAND_UNRESOLVED for x in strip_chain(name)):
             left.append((name, info['n'], 'no usable name', info['region']))
             continue
         region, modern = info['region'], info['modern']
@@ -326,7 +345,7 @@ def resolve_names(unresolved, sib, places, title_ix, name_ix, points, env, gw=No
         pending = None  # candidates to settle at the end
         for v in vs:
             key = fold(v)
-            votes = sib.get(key)
+            votes = sibling_counter(sib, key, region)
             if votes:
                 # an id from another province's namesake is dropped when the region of these documents excludes it
                 votes = collections.Counter({p: n for p, n in votes.items() if in_envelope(env, region, points[p])})
@@ -387,6 +406,9 @@ def resolve_names(unresolved, sib, places, title_ix, name_ix, points, env, gw=No
             continue
         if not kept:
             left.append((name, info['n'], 'candidates all outside region', info['region']))
+            continue
+        if not region and max(haversine_km(*points[p][:2], *points[q][:2]) for p in kept for q in kept) > AMBIGUOUS_SPREAD_KM:
+            left.append((name, info['n'], 'no region and %d candidates more than %d km apart' % (len(kept), AMBIGUOUS_SPREAD_KM), info['region']))
             continue
         if gw and len(kept) <= 8 and info['n'] >= min_gateway_docs:
             pick = gateway_choice(gw, name, region, modern, kept, places, points, log)
