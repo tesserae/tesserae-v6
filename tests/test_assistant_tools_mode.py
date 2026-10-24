@@ -230,3 +230,78 @@ def test_a_comparison_answer_carries_a_button_to_the_comparison_page(monkeypatch
     done = list(agent_tools.answer_stream('compare the Thebaid and the Aeneid', history=[]))[-1][1]
     assert done['actions'][0]['kind'] == 'compare'
     assert 'source=statius.thebaid' in done['actions'][0]['url']
+
+
+_OVID_ROWS = [{'author': 'Ovid', 'author_key': 'ovid', 'display_name': 'Ovid, ' + t, 'id': f'ovid.{k}.tess', 'language': 'la',
+               'title': t, 'work': t, 'work_key': k, 'is_part': False}
+              for t, k in (('Heroides', 'heroides'), ('Fasti', 'fasti'), ('Amores', 'amores'),
+                           ('Remedia Amoris', 'remedia_amoris'), ('Metamorphoses', 'metamorphoses'))]
+
+
+def _dido_world(monkeypatch):
+    agent_tools._VOCAB.clear()
+    monkeypatch.setattr(agent_tools.corpus_lookup, '_all_texts', lambda language=None: _OVID_ROWS)
+    dido = {'id': 'ln:E0469', 'display_label': 'Dido', 'mentions_total': 114}
+    works = [{'work': 'ovid.heroides.part.1.1-15', 'display_name': 'Ovid, Heroides, 1-15', 'count': 6},
+             {'work': 'ovid.fasti.part.3', 'display_name': 'Ovid, Fasti, Book 3', 'count': 4},
+             {'work': 'ovid.amores.part.2', 'display_name': 'Ovid, Amores, Book 2', 'count': 1},
+             {'work': 'ovid.remedia_amoris', 'display_name': 'Ovid, Remedia Amoris', 'count': 1},
+             {'work': 'vergil.aeneid.part.4', 'display_name': 'Vergil, Aeneid, Book 4', 'count': 16}]
+    monkeypatch.setattr(agent_tools.searches, 'run', lambda name, a: {
+        'search': {'results': [dido]}, 'details': {'ln:E0469': {'display_label': 'Dido', 'works': works}}})
+    asked = []
+
+    def get(path, params):
+        asked.append((path, params))
+        return {'total': 1, 'results': [{'locus': 'x 1', 'token': 'Dido', 'text': 'a line naming Dido here'}]}
+    monkeypatch.setattr(agent_tools.searches, '_get', get)
+    return asked
+
+
+def test_people_places_with_an_author_lists_every_work_of_the_author(monkeypatch):
+    asked = _dido_world(monkeypatch)
+    for spelling in ('Ovid', 'ovid'):
+        asked.clear()
+        out = json.loads(agent_tools.t_people_places({'name': 'Dido', 'author': spelling}))
+        assert sorted(x['work'] for x in out['lines_per_work']) == [
+            'Ovid, Amores, Book 2', 'Ovid, Fasti, Book 3', 'Ovid, Heroides, 1-15', 'Ovid, Remedia Amoris']
+        assert {x['work'] for x in out['lines_in_the_named_works']} == {x['work'] for x in out['lines_per_work']}
+        assert out['works_of_this_author_with_no_mention'] == ['Ovid, Metamorphoses']
+        assert sorted(p['work'] for _, p in asked) == ['ovid.amores.part.2', 'ovid.fasti.part.3',
+                                                       'ovid.heroides.part.1.1-15', 'ovid.remedia_amoris']
+
+
+def test_people_places_with_an_author_caps_the_lines(monkeypatch):
+    _dido_world(monkeypatch)
+    monkeypatch.setattr(agent_tools, 'MAX_NAMED_LINES', 2)
+    out = json.loads(agent_tools.t_people_places({'name': 'Dido', 'author': 'Ovid'}))
+    assert len(out['lines_in_the_named_works']) == 2 and 'Capped' in out['note']
+    assert len(out['lines_per_work']) == 4
+
+
+def test_people_places_with_an_unknown_author_says_so(monkeypatch):
+    _dido_world(monkeypatch)
+    out = json.loads(agent_tools.t_people_places({'name': 'Dido', 'author': 'Zzyzx'}))
+    assert 'No author called' in out['note'] and 'lines_in_the_named_works' not in out
+
+
+def test_people_places_with_a_work_names_where_else_the_entry_is_named(monkeypatch):
+    _dido_world(monkeypatch)
+    out = json.loads(agent_tools.t_people_places({'name': 'Dido', 'work': 'Ovid Metamorphoses'}))
+    assert out['lines_in_the_named_works'] == []
+    assert out['works_of_this_author_with_no_mention'] == ['Ovid, Metamorphoses']
+    assert {x['work'] for x in out['works_where_it_is_named_instead']} >= {'Ovid, Fasti, Book 3', 'Vergil, Aeneid, Book 4'}
+
+
+def test_people_places_without_author_or_work_is_unchanged(monkeypatch):
+    asked = _dido_world(monkeypatch)
+    out = json.loads(agent_tools.t_people_places({'name': 'Dido'}))
+    assert set(out) == {'people_and_places'} and not asked
+    assert out['people_and_places']['details']['ln:E0469']['works'][0]['count'] == 6
+
+
+def test_people_places_spec_offers_author_and_work_but_read_passage_still_needs_its_work():
+    specs = {s['function']['name']: s['function']['parameters'] for s in agent_tools.tool_specs()}
+    pp = specs['people_places']
+    assert {'author', 'work'} <= set(pp['properties']) and pp['required'] == ['name']
+    assert 'work' in specs['read_passage']['required']

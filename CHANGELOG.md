@@ -8,6 +8,7 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-24
+- Tessa: a question naming a person and an author now lists the name's lines in every work of that author.
 - Records: the document places install run record (116,688 documents given a Pleiades place from their name, 334 events gain inscriptions and papyri).
 - Data scripts, not run on production: `scripts/documents/resolve_places_by_name.py` gives the 142,000 documents with no usable Pleiades place one from the place name they carry (siblings with the same name, then an exact title or name in the Pleiades dump, then the region and the free gateway model), 116,688 documents in a test on a copy, and `scripts/events/rerun_event_documents.py` redoes each event's nearby dated documents after that fill without touching the rows other steps added (334 events gain documents in a test on a copy, among them the Battle of Perugia's lead glandes and the Dura-Europos papyri). Planned install order in docs/DATA_OPERATIONS.md.
 - Records: the Shahnameh install run record (references rewritten in every store, Warner's translation installed, word index and density cache rebuilt); `scripts/precompute_passage_density.py` knows every indexed language and takes `--work`.
