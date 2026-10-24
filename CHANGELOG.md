@@ -8,6 +8,17 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-24
+- Continuous integration: the frontend workflow runs the vitest suite, so a stale snapshot fails the build.
+
+- Tests: four tests that hung or failed only on the development machine now run everywhere (`tests/test_endpoints.py`, the documents place filter and stage 3b-3 tests, the exclude-author test, the Downloads snapshot and the documents collection tests). Test files and recorded output only, no application code.
+- Line Search: exact phrases and common-word lemma searches return the same results several times faster. An exact phrase is first tested against each file's kept, case-folded text and only the files that can hold it are read (a Latin exact search drops from about 3.5 seconds to 0.4 on a test server, Greek from 9 to 0.3, at a cost of about 290 MB for Latin and 250 MB for Greek in each web worker once a search has run). A lemma search that holds a very common word (sum, et) finds its lines from the other words and looks the common word up on those lines only, and a listing of one common word no longer reads every position list. `scripts/review/line_search_equivalence.py` checks sixty queries old against new (all identical), and `scripts/review/line_search_postings_vs_lines_check.py` checks the two index tables the lemma change relies on.
+- Records: the refreshed events store install run record (distances refreshed, 296 stale rule rows removed).
+
+- Events: `scripts/events/drop_stale_rule_rows.py` removes the document rows that the distance refresh moved from inside the rule's radius to outside it and that do not name the event (naming rows are kept, a distance alone never removes a row).
+
+- Documents: a checker compares the Trismegistos-to-Pleiades crosswalk with the center of EDH's own findspots (`scripts/documents/check_crosswalk_against_edh.py`), `repair_crosswalk.py` writes a repaired crosswalk (Ostia no longer under Roma, the Italian Aquileia no longer the German one, Turris Libisonis no longer under Virunum), `apply_crosswalk_repair.py` writes the repaired ids into a copy of `metadata.db`, and `rerun_event_documents.py` can take an old crosswalk. `scripts/events/refresh_document_distances.py` recomputes the lat, lon and distance of the events' document rows from the documents' current places (the rows an earlier rerun kept carried the old crosswalk's values).
+- Events page: the documents that name an event's place are found through the event's own Pleiades id first, the label only as a fallback (the 435 BCE Actium no longer highlights Akriai's stones).
+
 - Records: the Latin documents rebuild install run record (glosses in parentheses, gap and gloss positions, line joins).
 
 - Records: the events place-by-id install run record (15 misplaced document rows removed from four events).

@@ -311,9 +311,51 @@ def _rank(i):
     return i['passage_rank'] if i.get('passage_rank') is not None else 1e9
 
 
-def _documents_naming(doc_ids, names):
+def _place_eid(path, place, pleiades_id):
+    """The Mentions entity of an event's place: the entity carrying the event's own
+    Pleiades id (a place before another type, then the most lines) when the store
+    has one, else the label's first search hit, which is refused when it carries
+    another Pleiades id than the event's. The 435 BCE "Battle of Actium", label
+    "Akri", Pleiades 530771, resolved by label to Akriai in Laconia and highlighted
+    Agrigentum stones (2026-10-24); scripts/events/add_naming_documents.py follows
+    the same rule."""
+    from backend import entity_extras
+    pid = str(pleiades_id or '').strip()
+    if pid:
+        try:
+            c = sqlite3.connect(f'file:{path}?mode=ro', uri=True)
+            try:
+                row = c.execute("SELECT eid FROM entities WHERE pleiades_id = ? "
+                                "ORDER BY (type != 'place'), -n_windows, eid LIMIT 1", (pid,)).fetchone()
+            finally:
+                c.close()
+        except sqlite3.Error:
+            row = None
+        if row:
+            return row[0]
+    if not place:
+        return None
+    eid = entity_extras.resolve_name_to_eid(path, place)
+    if eid is None or not pid:
+        return eid
+    try:
+        c = sqlite3.connect(f'file:{path}?mode=ro', uri=True)
+        try:
+            own = c.execute('SELECT pleiades_id FROM entities WHERE eid = ?', (eid,)).fetchone()
+        finally:
+            c.close()
+    except sqlite3.Error:
+        own = None
+    if own and own[0] and str(own[0]).strip() != pid:
+        logger.info('[EVENTS] place label %r resolves to another Pleiades place (eid %s), not used', place, eid)
+        return None
+    return eid
+
+
+def _documents_naming(doc_ids, names, place=None, pleiades_id=None):
     """Of `doc_ids`, those that the Mentions store records as naming any of
-    `names` (the event's participants and place), by document_mentions, as
+    `names` (the event's participants) or its `place` (resolved by `pleiades_id`
+    first, see _place_eid), by document_mentions, as
     {doc_id: set of the matched word forms}. The forms are the store's folded
     spelling (lower case, v written u), and the page uses them to highlight the
     words in the document's text (the project lead, 2026-10-20)."""
@@ -324,6 +366,10 @@ def _documents_naming(doc_ids, names):
         return {}
     try:
         eids = {x for x in (entity_extras.resolve_name_to_eid(path, n) for n in names) if x is not None}
+        if place or pleiades_id:
+            p = _place_eid(path, place, pleiades_id)
+            if p is not None:
+                eids.add(p)
         if not eids:
             return {}
         c = sqlite3.connect(f'file:{path}?mode=ro', uri=True)
@@ -798,7 +844,8 @@ def get_event(event_id):
 
         n_stored = len(documents)
         event_names = list(ev['participants']) + ([ev['place']] if ev['place'] else [])
-        naming = _documents_naming([d['doc_id'] for d in documents], event_names)
+        naming = _documents_naming([d['doc_id'] for d in documents], list(ev['participants']),
+                                   place=ev['place'], pleiades_id=ev.get('pleiades_id'))
         texts = _document_texts(documents)
         if isinstance(naming, dict):
             for doc_id, words in _documents_naming_by_text(texts, event_names).items():

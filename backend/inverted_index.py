@@ -23,6 +23,7 @@ import os
 from backend import fspaths
 import sqlite3
 import json
+from collections.abc import Mapping
 from functools import lru_cache
 
 from backend.logging_config import get_logger
@@ -49,6 +50,32 @@ def _scan_json(text):
     except (StopIteration, ValueError, IndexError):
         pass
     return json.loads(text)
+
+class _LazyPositions(Mapping):
+    """The position lists of one location, read from their JSON text when first asked for.
+
+    A listing of every line holding one very common lemma (the lemma "sum" has
+    some 290,000) builds a location for each line, and the page counts them
+    and shows five hundred; the positions of the rest are never looked at.
+    This behaves as the dict of lemma to position list it stands in for."""
+    __slots__ = ('_raw', '_parsed')
+
+    def __init__(self, raw):
+        self._raw = raw
+        self._parsed = {}
+
+    def __getitem__(self, key):
+        got = self._parsed.get(key)
+        if got is None:
+            got = self._parsed[key] = _scan_json(self._raw[key])
+        return got
+
+    def __iter__(self):
+        return iter(self._raw)
+
+    def __len__(self):
+        return len(self._raw)
+
 
 def get_connection(language):
     """Get SQLite connection for a language index (lazy loading)"""
@@ -130,7 +157,199 @@ def set_corpus_version(conn, version):
                  "ON CONFLICT(key) DO UPDATE SET value=excluded.value", (version,))
     conn.commit()
 
-def lookup_lemmas(lemmas, language, fallback_forms=None, conn=None, min_matches=1):
+# A lemma with at least this many postings is "common" for the rarest-first
+# lookup below (in Latin: sum, et, qui, in, non, ut, ad, cum...). Below it the
+# plain fetch is cheap and nothing changes.
+COMMON_LEMMA_POSTINGS = 20000
+# The common lemma is probed on the candidate lines only when its posting list
+# is at least this many times longer than the candidates' own lists together.
+COMMON_LEMMA_RATIO = 6
+_PROBE_CHUNK = 400
+_POSTINGS_PER_LINE = 20   # rough, to cost a probe of a text's own postings
+# A text's own postings are read in C by SQLite, a common lemma's posting list is
+# read into Python objects, so the first may hold several times more rows.
+_DUP_TEXT_SCAN_FACTOR = 4
+
+
+_DUP_REF_CACHE = {}
+
+
+def _index_stamp(language):
+    """(language, size, modification time) of a language's index file: what a kept answer about the index is valid for."""
+    try:
+        st = os.stat(os.path.join(INDEX_DIR, f'{language}_index.db'))
+        return (language, st.st_size, st.st_mtime_ns)
+    except OSError:
+        return None
+
+
+def _duplicate_refs(conn, text_id, stamp=None):
+    """Refs of a text whose postings are not exactly those of its row in `lines` (a ref held by several lines, or drift).
+
+    A line gives one posting row for each distinct lemma it holds, so a ref
+    whose postings number other than the distinct lemmas of its row of `lines`
+    is held by more than one line (the later lines add rows) or has drifted.
+    Read once for each text and kept for the life of the process, under `stamp`
+    (the index file's name, size and date, so a swapped index is read afresh and
+    every thread's connection shares the answer); without one, under the connection."""
+    key = (id(conn) if stamp is None else stamp, text_id)
+    got = _DUP_REF_CACHE.get(key)
+    if got is None:
+        expected = {ref: len(set(_scan_json(lemmas_json)))
+                    for ref, lemmas_json in conn.execute('SELECT ref, lemmas FROM lines WHERE text_id = ?', (text_id,))}
+        got = frozenset(
+            ref for ref, rows in conn.execute(
+                'SELECT ref, COUNT(*) FROM postings INDEXED BY idx_text WHERE text_id = ? GROUP BY ref', (text_id,))
+            if rows != expected.get(ref, -1))
+        _DUP_REF_CACHE[key] = got
+    return got
+
+
+def _lookup_rarest_first(conn, canonicals, lemma_mapping, min_matches, stamp=None):
+    """lookup_lemmas for a query holding a very common lemma, without fetching that lemma's postings.
+
+    Returns what lookup_lemmas returns for this query (the same locations in the
+    same order, with the same lemmas and positions), or None when the plain
+    fetch should be used (nothing is common enough, the common lemma's variants
+    sort among the others, or anything about the index is not as expected).
+
+    A location holding at least `min_matches` of the n query lemmas holds one of
+    any n - min_matches + 1 of them, so the postings of the rarest
+    n - min_matches + 1 lemmas (F) find every candidate location. The commonest
+    min_matches - 1 lemmas (P), when they are common enough to matter, are looked
+    up in each candidate line's own row of the `lines` table (one primary-key
+    probe per candidate) instead of through their posting lists.
+
+    The plain fetch sees rows in the order of the index on the lemma column, that
+    is by lemma spelling and then by row. The first row of a location decides
+    where it falls in the result, so this is used only when every spelling of P
+    sorts after every spelling of F: then the first row of each location is an F
+    row, and F alone gives the order. When a location holds several spellings of
+    one lemma the plain fetch keeps the last row seen, which is the largest
+    spelling; that is reproduced here.
+    """
+    m = min_matches
+    n = len(canonicals)
+    if m < 2 or n < m:
+        return None
+    owners_of = {v: list(o) for v, o in lemma_mapping.items()}
+    variants_of = {c: sorted(v for v, o in owners_of.items() if c in o) for c in canonicals}
+    all_variants = sorted({v for vs in variants_of.values() for v in vs})
+    marks = ','.join('?' for _ in all_variants)
+    counts = dict(conn.execute(
+        f'SELECT lemma, COUNT(*) FROM postings WHERE lemma IN ({marks}) GROUP BY lemma',  # nosec B608
+        all_variants).fetchall())
+    size = {c: sum(counts.get(v, 0) for v in variants_of[c]) for c in canonicals}
+    by_size = sorted(canonicals, key=lambda c: (-size[c], c))
+    common = [c for c in by_size[:m - 1] if size[c] >= COMMON_LEMMA_POSTINGS]
+    if not common:
+        return None
+    rest = [c for c in canonicals if c not in common]
+    rest_total = sum(size[c] for c in rest)
+    if min(size[c] for c in common) < COMMON_LEMMA_RATIO * rest_total:
+        return None
+    f_variants = sorted({v for c in rest for v in variants_of[c]})
+    p_variants = sorted({v for c in common for v in variants_of[c]})
+    if set(f_variants) & set(p_variants):
+        return None
+    if not f_variants or f_variants[-1] >= p_variants[0]:
+        return None
+
+    marks = ','.join('?' for _ in f_variants)
+    pending = {}
+    for lemma, filename, ref, positions_json, text_id in conn.execute(
+            f'''
+            SELECT p.lemma, t.filename, p.ref, p.positions, p.text_id
+            FROM postings p JOIN texts t ON p.text_id = t.text_id
+            WHERE p.lemma IN ({marks})
+            ''',  # nosec B608
+            f_variants):
+        entry = pending.get((filename, ref))
+        if entry is None:
+            entry = pending[(filename, ref)] = ({}, set(), text_id)
+        for canonical in owners_of.get(lemma, [lemma]):
+            entry[0][canonical] = positions_json
+            entry[1].add(canonical)
+
+    # Look the common lemmas up on the candidate lines, one text at a time.
+    wanted_variants = set(p_variants)
+    by_text = {}
+    for key, entry in pending.items():
+        by_text.setdefault(entry[2], []).append(key)
+    # A ref held by several lines has a single row in `lines` (the first line)
+    # but postings for every line, and the plain fetch keeps the last row seen,
+    # so the row of `lines` would be the wrong line. Such refs (found by
+    # _duplicate_refs, only in texts whose line_count exceeds their rows of
+    # `lines`) are looked up in the text's own postings instead.
+    text_ids = list(by_text)
+    suspect = {}
+    for i in range(0, len(text_ids), _PROBE_CHUNK):
+        chunk = text_ids[i:i + _PROBE_CHUNK]
+        marks = ','.join('?' for _ in chunk)
+        for text_id, line_count, line_rows in conn.execute(
+                'SELECT t.text_id, t.line_count, (SELECT COUNT(*) FROM lines l WHERE l.text_id = t.text_id) '
+                f'FROM texts t WHERE t.text_id IN ({marks})', chunk):  # nosec B608
+            if line_count != line_rows:
+                suspect[text_id] = line_count or 0
+    slow_refs = {}
+    for text_id in suspect:
+        dup = _duplicate_refs(conn, text_id, stamp)
+        hit = {ref for _, ref in by_text[text_id] if ref in dup}
+        if hit:
+            slow_refs[text_id] = hit
+    if sum(suspect[t] for t in slow_refs) * _POSTINGS_PER_LINE > _DUP_TEXT_SCAN_FACTOR * min(size[c] for c in common):
+        return None
+    extra = {}
+    p_marks = ','.join('?' for _ in p_variants)
+    for text_id, hit in slow_refs.items():
+        rows = [(lemma, rowid, ref, positions_json) for lemma, rowid, ref, positions_json in conn.execute(
+            'SELECT lemma, rowid, ref, positions FROM postings INDEXED BY idx_text '
+            f'WHERE text_id = ? AND lemma IN ({p_marks})', [text_id] + p_variants)  # nosec B608
+            if ref in hit]
+        rows.sort(key=lambda r: (r[0], r[1]))        # the order the plain fetch sees them
+        for lemma, _rowid, ref, positions_json in rows:
+            found = extra.setdefault((text_id, ref), {})
+            positions = _scan_json(positions_json)
+            for canonical in owners_of[lemma]:
+                found[canonical] = positions
+    for text_id, keys in by_text.items():
+        refs = sorted({ref for _, ref in keys} - slow_refs.get(text_id, set()))
+        for i in range(0, len(refs), _PROBE_CHUNK):
+            chunk = refs[i:i + _PROBE_CHUNK]
+            marks = ','.join('?' for _ in chunk)
+            seen = 0
+            for ref, lemmas_json in conn.execute(
+                    f'SELECT ref, lemmas FROM lines WHERE text_id = ? AND ref IN ({marks})',  # nosec B608
+                    [text_id] + chunk):
+                seen += 1
+                if lemmas_json is None:
+                    raise ValueError('line without lemmas')
+                line_lemmas = _scan_json(lemmas_json)
+                present = wanted_variants.intersection(line_lemmas)
+                if present:
+                    found = {}
+                    for variant in sorted(present):
+                        positions = [k for k, lem in enumerate(line_lemmas) if lem == variant]
+                        for canonical in owners_of[variant]:
+                            found[canonical] = positions
+                    extra[(text_id, ref)] = found
+            if seen != len(chunk):
+                raise ValueError('a candidate line has no row in lines')
+    results = {}
+    for key, (raw_positions, canonicals_found, text_id) in pending.items():
+        found = extra.get((text_id, key[1]))
+        positions = {c: _scan_json(raw) for c, raw in raw_positions.items()}
+        if found:
+            for canonical, plist in found.items():
+                canonicals_found.add(canonical)
+                positions[canonical] = plist
+        if len(canonicals_found) < m:
+            continue
+        results[key] = {'lemmas': canonicals_found, 'positions': positions}
+    return results
+
+
+def lookup_lemmas(lemmas, language, fallback_forms=None, conn=None, min_matches=1, rarest_first=False):
     """
     Look up multiple lemmas and return matching text locations.
 
@@ -155,10 +374,17 @@ def lookup_lemmas(lemmas, language, fallback_forms=None, conn=None, min_matches=
                        of the lemmas (find_co_occurring_lemmas) passes it, and
                        the positions of the locations that would be dropped are
                        not read.
+        rarest_first: Opt-in (Line Search passes True). On the index's own
+                       connection, a very common lemma is looked up on the
+                       candidate lines only and a plain listing keeps its
+                       position lists as text until asked for (see
+                       _lookup_rarest_first). Every other caller gets the
+                       plain fetch.
 
     Returns:
         Dict mapping (text_id, ref) to list of matching lemmas and positions
     """
+    own_connection = conn is None and rarest_first
     if conn is None:
         conn = get_connection(language)
     if not conn:
@@ -201,6 +427,20 @@ def lookup_lemmas(lemmas, language, fallback_forms=None, conn=None, min_matches=
                         expanded_lemmas.add(variant)
                         _map(variant, orig)
     
+    # A query holding a very common lemma, on the index's own connection: find
+    # the locations from the other lemmas and look the common one up only on
+    # those lines (documents-collection callers pass their own `conn` and keep
+    # the plain fetch below). Falls back to the plain fetch when it does not apply.
+    if own_connection and min_matches > 1 and language in ('la', 'grc'):
+        try:
+            fast = _lookup_rarest_first(conn, list(dict.fromkeys(lemmas)), lemma_mapping, min_matches,
+                                        stamp=_index_stamp(language))
+        except Exception as e:
+            logger.warning(f"Rarest-first lookup skipped: {e}")
+            fast = None
+        if fast is not None:
+            return fast
+
     expanded_list = list(expanded_lemmas)
     placeholders = ','.join(['?' for _ in expanded_list])
     query = f'''
@@ -230,6 +470,20 @@ def lookup_lemmas(lemmas, language, fallback_forms=None, conn=None, min_matches=
                     continue
                 results[key] = {'lemmas': canonicals,
                                 'positions': {c: _scan_json(raw) for c, raw in raw_positions.items()}}
+        elif own_connection:
+            # A plain listing on the index's own connection: positions are kept
+            # as their JSON text and read when something asks for them.
+            cursor.row_factory = None
+            for lemma, filename, ref, positions_json in cursor.fetchall():
+                key = (filename, ref)
+                entry = results.get(key)
+                if entry is None:
+                    entry = results[key] = {'lemmas': set(), 'raw': {}}
+                for canonical in lemma_mapping.get(lemma, [lemma]):
+                    entry['lemmas'].add(canonical)
+                    entry['raw'][canonical] = positions_json
+            for entry in results.values():
+                entry['positions'] = _LazyPositions(entry.pop('raw'))
         else:
             for row in cursor.fetchall():
                 lemma, filename, ref, positions_json = row
@@ -245,7 +499,7 @@ def lookup_lemmas(lemmas, language, fallback_forms=None, conn=None, min_matches=
     
     return results
 
-def find_co_occurring_lemmas(lemmas, language, min_matches=2, max_distance=None, fallback_forms=None, conn=None):
+def find_co_occurring_lemmas(lemmas, language, min_matches=2, max_distance=None, fallback_forms=None, conn=None, rarest_first=False):
     """
     Find all text locations where at least min_matches of the given lemmas co-occur.
 
@@ -263,7 +517,8 @@ def find_co_occurring_lemmas(lemmas, language, min_matches=2, max_distance=None,
     Returns:
         List of (filename, ref, matching_lemmas, positions_dict) tuples
     """
-    all_matches = lookup_lemmas(lemmas, language, fallback_forms=fallback_forms, conn=conn, min_matches=min_matches)
+    all_matches = lookup_lemmas(lemmas, language, fallback_forms=fallback_forms, conn=conn, min_matches=min_matches,
+                                rarest_first=rarest_first)
     
     results = []
     for (filename, ref), data in all_matches.items():

@@ -30,3 +30,8 @@ jobs:
       # warning count in package.json. Blocking.
       - name: Lint (ESLint)
         run: npm run lint
+
+      # Vitest never ran here, so a stale snapshot or expectation passed the
+      # build for weeks (found 2026-10-24, #1180). Blocking.
+      - name: Unit tests (Vitest)
+        run: npx vitest run

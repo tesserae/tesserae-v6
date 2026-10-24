@@ -2,7 +2,7 @@
 """Redo the dated, nearby documents of every event after documents gained a Pleiades place, keeping every other row.
 
   rerun_event_documents.py INPUT.sqlite OUTPUT.sqlite --old-metadata OLD.db --new-metadata NEW.db
-                           [--pleiades-points PATH] [--crosswalk PATH] [--margin 10] [--radius-km 100]
+                           [--pleiades-points PATH] [--crosswalk PATH] [--old-crosswalk PATH] [--old-pleiades-points PATH] [--margin 10] [--radius-km 100]
                            [--max-per-event 50] [--max-span 50] [--report PATH] [--apply]
 
 The installed rule (build_event_dossier.documents(), the same as `fix_event_coords.py`): documents dated within
@@ -51,6 +51,8 @@ def main(argv=None):
     ap.add_argument('--new-metadata', required=True)
     ap.add_argument('--pleiades-points', default=os.path.join(HOME, 'tesserae-backups', 'events_proto', 'pleiades_points.tsv'))
     ap.add_argument('--crosswalk', default=os.path.join(HOME, 'tesserae-docs', 'stage2', 'crosswalk', 'trismegistos_to_pleiades.tsv'))
+    ap.add_argument('--old-pleiades-points', default=None, help='points for the OLD rule list (default: --pleiades-points)')
+    ap.add_argument('--old-crosswalk', default=None, help='crosswalk for the OLD rule list (default: --crosswalk)')
     ap.add_argument('--margin', type=int, default=10)
     ap.add_argument('--radius-km', type=float, default=100)
     ap.add_argument('--max-per-event', type=int, default=50)
@@ -62,6 +64,9 @@ def main(argv=None):
         sys.exit('OUTPUT must differ from INPUT and may not be under /var/www')
     points = {k: (v[0], v[1]) for k, v in load_points(a.pleiades_points).items()}
     cw = load_crosswalk(a.crosswalk)
+    old_points = ({k: (v[0], v[1]) for k, v in load_points(a.old_pleiades_points).items()}
+                  if a.old_pleiades_points else points)
+    old_cw = load_crosswalk(a.old_crosswalk) if a.old_crosswalk else cw
     old = sqlite3.connect('file:%s?mode=ro' % a.old_metadata, uri=True)
     new = sqlite3.connect('file:%s?mode=ro' % a.new_metadata, uri=True)
     ec = sqlite3.connect('file:%s?mode=ro' % a.input, uri=True)
@@ -75,7 +80,7 @@ def main(argv=None):
     same_as_installed = 0  # events whose old rule list is wholly present in the installed rows
     checked = 0
     for ev in events:
-        o = rule_list(old, points, cw, ev, a.margin, a.radius_km, a.max_span, a.max_per_event)
+        o = rule_list(old, old_points, old_cw, ev, a.margin, a.radius_km, a.max_span, a.max_per_event)
         n = rule_list(new, points, cw, ev, a.margin, a.radius_km, a.max_span, a.max_per_event)
         have = existing.get(ev['id'], set())
         if o:

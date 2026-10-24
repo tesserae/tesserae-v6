@@ -16,14 +16,20 @@ def store(tmp_path, monkeypatch):
     db.executescript(ei.SCHEMA)
     db.executemany('insert into entities values (?,?,?,?,?,?,?,?,?,?,?,?)', [
         (10, 'pl:1', 'place', 'Sicilia', 'list', None, None, None, None, None, 1, 0),
-        (11, 'ln:H', 'person', 'Hermocrates', 'list', None, None, None, None, None, 1, 0)])
+        (11, 'ln:H', 'person', 'Hermocrates', 'list', None, None, None, None, None, 1, 0),
+        # the event's place by Pleiades id (2026-10-24): Actium carries 530771, Akriai does not
+        (12, 'pl:530771', 'place', 'Actium', 'list', '530771', None, None, None, None, 1, 99),
+        (13, 'pl:570058', 'place', 'Akriai', 'list', '570058', None, None, None, None, 1, 5)])
     db.executemany('insert into variants values (?,?,?,?,?)', [
-        (10, 'sicilia', 'la', 'form', 'list'), (11, 'hermocrates', 'grc', 'form', 'list')])
+        (10, 'sicilia', 'la', 'form', 'list'), (11, 'hermocrates', 'grc', 'form', 'list'),
+        (12, 'actium', 'la', 'form', 'list'), (13, 'akri', 'la', 'form', 'list')])
     db.executescript(extras.DOC_SCHEMA)
     db.executemany('insert into document_mentions values (?,?,?,?,?,?)', [
         (11, 'isicily:ISic1', 'grc', 'hermocrates', 'form', 0),
         (10, 'isicily:ISic2', 'la', 'sicilia', 'form', 0),
-        (11, 'isicily:ISicElsewhere', 'grc', 'hermocrates', 'form', 0)])
+        (11, 'isicily:ISicElsewhere', 'grc', 'hermocrates', 'form', 0),
+        (12, 'edh:HD_actium', 'la', 'actium', 'form', 0),
+        (13, 'isicily:ISic004485', 'grc', 'ακραγαντινοσ', 'corpus_name', 1)])
     db.commit()
     db.close()
     monkeypatch.setenv('TESSERAE_ENTITY_STORE', path)
@@ -80,3 +86,18 @@ def test_naming_by_text_leaves_out_peoples_and_victory_titles():
     texts = {'a': 'Cai Caesaris Augusti Germanici', 'b': 'pro salute populi Romanorum', 'c': 'Germanico Caesari'}
     assert E._documents_naming_by_text(texts, ['Germanic people', 'Ancient Rome', 'Germania']) == {}
     assert set(E._documents_naming_by_text(texts, ['Germanicus'])) == {'a', 'c'}
+
+
+def test_the_place_resolves_by_the_events_pleiades_id_first(store):
+    # the label "Akri" alone finds Akriai (eid 13) and its Agrigentum stone
+    assert extras.resolve_name_to_eid(store, 'Akri') == 13
+    assert E._place_eid(store, 'Akri', None) == 13
+    # with the event's Pleiades id the place is Actium (eid 12), whatever the label says
+    assert E._place_eid(store, 'Akri', '530771') == 12
+    found = E._documents_naming(['edh:HD_actium', 'isicily:ISic004485'], [], place='Akri', pleiades_id='530771')
+    assert set(found) == {'edh:HD_actium'}
+    # an id the store lacks falls back to the label, unless the label's own id differs
+    assert E._place_eid(store, 'Akri', '999999') is None
+    assert E._place_eid(store, 'Sicilia', '999999') == 10
+    # without a place nothing is added
+    assert E._documents_naming(['edh:HD_actium'], ['Hermocrates'], place=None, pleiades_id=None) == {}
