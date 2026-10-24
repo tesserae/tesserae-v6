@@ -8,6 +8,8 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-24
+- Events page: the documents that name an event's place are found through the event's own Pleiades id first, the label only as a fallback (the 435 BCE Actium no longer highlights Akriai's stones).
+
 - Records: the Latin documents rebuild install run record (glosses in parentheses, gap and gloss positions, line joins).
 
 - Records: the events place-by-id install run record (15 misplaced document rows removed from four events).
