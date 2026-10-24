@@ -73,7 +73,10 @@ logger = logging.getLogger('precompute_passage_density')
 # Persian/Urdu/Hebrew's other scripture forms are not wired to the gutter yet,
 # so they are left out here rather than guessed at; add them to this tuple
 # when they are.
-ALL_LANGUAGES = ('la', 'grc', 'en', 'cop', 'he')
+# Every language the passage index holds (2026-10-24: the fixed five-language
+# tuple left Persian, Urdu and Arabic works out, so the Shahnameh's cache could
+# not be rebuilt with this script after its references changed).
+ALL_LANGUAGES = ('la', 'grc', 'en', 'cop', 'he', 'fa', 'ur', 'ar', 'it', 'fro', 'gmh')
 
 DENSITY_SCALE = 'fine'  # matches the endpoint's default when no ?scale= is given
 
@@ -187,6 +190,9 @@ def build_parser():
                              '(default behavior; pass --force to override).')
     parser.add_argument('--force', action='store_true', default=False,
                         help='Recompute and overwrite even if already cached.')
+    parser.add_argument('--work', default=None,
+                        help='Only this work id (for example ferdowsi.shahnameh); '
+                             'used with --language.')
     parser.add_argument('--limit', type=int, default=None,
                         help='Process at most N works, for testing.')
     parser.add_argument('--dry-run', action='store_true', default=False,
@@ -206,6 +212,11 @@ def main(argv=None):
     t0 = time.time()
     by_lang = discover_works(languages)
     targets = [(lang, work) for lang in languages for work in by_lang.get(lang, [])]
+    if args.work:
+        targets = [(lang, work) for lang, work in targets if work == args.work]
+        if not targets:
+            logger.error('work %s is not in the passage index for %s', args.work, ', '.join(languages))
+            return 1
     if args.limit is not None:
         targets = targets[:args.limit]
     logger.info('Discovered %d work(s) to consider in %.1fs (peak RSS %.1f MB)',
