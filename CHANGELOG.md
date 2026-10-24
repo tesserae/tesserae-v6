@@ -8,6 +8,7 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-24
+- Records: seventeen translation files from unrenewed Loeb volumes installed (Part F), run record.
 - Translations: scripts and records for 18 aligned English files from Loeb volumes of 1931 to 1963 with no renewal found (Nonnus, Pliny the Elder, Josephus, Dionysius of Halicarnassus, Sextus Empiricus, Grattius, Calpurnius Siculus, Silius Italicus 9 to 17, Prudentius, Ptolemy, Pausanias, Plato's Republic 6 to 10). Built on staging copies, nothing installed.
 - Records: thirty-four translation files installed (Parts A, B and D of the 2026-10-24 alignment batch), run records.
 - Translations: scripts for six re-alignments where the installed English covered far less than its complete public-domain source. Greek Anthology books 7, 8, 14, 15, 16 (58 to 63 percent, now 91 to 99 in staging) and 10 to 13, Martial (67 to 99), Pliny the Younger's letters (47 to 86), Petronius (28 to 77), the Apocolocyntosis (42 to 100) and Josephus's Life (18 to 100). The data files are staged with checksums and not installed.
