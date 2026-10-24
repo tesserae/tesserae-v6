@@ -8,6 +8,9 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-24
+- Records: the coin accounts install (pass 5, the 4,943 checked rows) run record.
+- Records: the People & Places regroup install run record (19,321 spelling groups separated, 60,254 entries).
+
 - People & Places: `scripts/entities/capitalize_carved_labels.py` capitalizes the first letter of the label of the 221 carved entries (ids ending :r<number>) whose label began with a lower-case Latin letter (hecataeus, sextius, aegae), in the entry label, the display labels, the matching search names and the catalog's label fields. A dry run is the default, it refuses a store under /var/www, and Greek and Hebrew labels are left alone. Store repair on a copy, nothing else changes.
 - Continuous integration: the frontend workflow runs the vitest suite, so a stale snapshot fails the build.
 
