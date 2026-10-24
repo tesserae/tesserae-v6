@@ -235,7 +235,7 @@ def run_short(key, source, lic):
             if ref and ref not in mapping:
                 mapping[ref] = text
     return C.finish(cfg['work'], 'grc', tl, mapping, source, lic,
-                    'Internet Archive')
+                    'Internet Archive', clean_notes=True)
 
 
 def main():
@@ -264,7 +264,7 @@ def main():
                 ref = lines.get((book, ln))
                 if ref and ref not in mapping:
                     mapping[ref] = text
-        rows.append(C.finish(work, 'grc', tl, mapping, source, lic, 'Internet Archive'))
+        rows.append(C.finish(work, 'grc', tl, mapping, source, lic, 'Internet Archive', clean_notes=True))
     for key in POEMS:
         rows.append(run_short(key, source, lic))
     C.save_report('oppian', rows)

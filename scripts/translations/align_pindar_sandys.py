@@ -198,7 +198,7 @@ def main():
               'source_url': 'https://archive.org/details/bwb_P7-ACW-840'}
     row = C.finish('pindar.odes', 'grc', tl, mapping, source,
                    'Public domain in the United States: published 1915 (John Sandys, Loeb Classical Library).',
-                   'Internet Archive')
+                   'Internet Archive', clean_notes=True)
     row['skipped_odes'] = sorted('%s.%d' % k for k in skip)
     C.save_report('pindar', [row])
 

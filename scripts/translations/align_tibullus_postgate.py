@@ -145,7 +145,7 @@ def main():
               'source_url': 'https://archive.org/details/catullustibullus0000catu'}
     row = C.finish('tibullus.elegies', 'la', tl, mapping, source,
                    'Public domain in the United States: published 1912 (J. P. Postgate, Loeb Classical Library).',
-                   'Internet Archive')
+                   'Internet Archive', clean_notes=True)
     C.save_report('tibullus', [row])
 
 

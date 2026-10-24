@@ -321,9 +321,14 @@ Manasseh would end up answering for Manasseh in Chronicles.
 ## Pipelines 9 to 16: the exact-numbering batch of 2026-10-24
 
 Fourteen works with no aligned English, from public-domain translations that share
-our numbering. One shared helper, `loeb_common.py`, ends every script the same way.
+our numbering, built by seven alignment scripts and one shared helper, `loeb_common.py`, ends every script the same way.
 It runs the two checks of this document and writes the served file only if one of
-them vouches. It also holds the cleaning every scanned Loeb page needs (footnote
+them vouches. For works whose unit is one scanned page (Oppian, Colluthus,
+Tryphiodorus, Pindar, Tibullus) it first strips footnote text that survived the page
+cleaning (`strip_unit_notes`: a note number after a sentence end, a word fused to the
+next, citations and edition sigla, words in no English vocabulary). Units that join
+several pages or come from clean HTML or TEI are left alone, because a cut there takes
+body text with it. It also holds the cleaning every scanned Loeb page needs (footnote
 blocks cut off the page, folios and running heads, words the scan broke across
 lines). Sources stay in a staging folder (`TESSERAE_BATCH_STAGE`), never in the
 repository, and the files ship by copy (see "Installing a build").

@@ -92,7 +92,7 @@ def number_headings(tokens, nmax):
     return out[::-1]
 
 
-def clean_block(lines, first=False):
+def clean_block(lines):
     keep = []
     for ln in lines:
         t = re.sub(r'[ \t]+', ' ', ln).strip()

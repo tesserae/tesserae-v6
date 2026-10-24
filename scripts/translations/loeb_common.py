@@ -162,15 +162,144 @@ def corr(xs, ys):
     dy = sum((b - my) ** 2 for b in ys) ** 0.5
     return num / (dx * dy) if dx and dy else None
 
+# ---------------------------------------------------------------------------
+# Footnote text left inside a finished unit
+#
+# strip_footnotes works on a page of lines. Some notes survive it because the scan
+# ran them on from the body with no blank line, or glued them to the last word
+# ("wrestlingThessaly"). strip_unit_notes works on the finished unit and removes
+# what is left, by four patterns seen in these scans:
+#   1. a note number or stray mark after a sentence end, then a capital: "... of
+#      Argos. 2 Proetus and his twin-brother ..." or "precinct 1 Poseidon, of ..."
+#   2. a lowercase word fused to a capitalised one, where the page foot was
+#      joined to the body, in the lower half of the unit
+#   3. trailing sentences that cite an edition, a scholar or an ancient work by
+#      its siglum (Apost. p. 11, A. 567a10, Cf., [=Coris iulis]) or that are
+#      scan-mangled Greek
+#   4. stray note marks inside the text (a symbol standing alone, ",?")
+# Everything is cut from the first match, never from the middle of a sentence
+# of the body, and never from the first half of a unit.
+# ---------------------------------------------------------------------------
+SCHOLARS = re.compile(
+    r'\b(Schneider|Kaibel|Koechly|Hermann|Brunck|Bekker|Hauvette|Dissen|Bergk|Boeckh|Donaldson|'
+    r'Mommsen|Freeman|Lobeck|Pfeiffer|Wilamowitz|Welcker|Apost|Ridg|Gildersleeve|Farnell|Mezger|'
+    r'Christ|Bury|Mair|Schol|schol|Hiller|Hecker|Ahrens|Meineke|Hephaest|Callim|Plin|Arist|Ael)\b|'
+    r'\bMSS?\b|\bcodd?\b|\[=|\b[A-Z]\.\s?\d{3}[a-z]?\s?\d*|\b[ivxl]+\.\s\d+|\bpp?\.\s?[ivxl\d]+|'
+    r'\bM\.G\.|\bc?[ec]p\.\s|\bff\.|\b[ec]f\b\.?|\bn\.\s|\bibid|\bl\.\s?c\.')
+_NOTE_ANCHOR = re.compile(r'(?<=[.;:!?\u201d\u2019)"a-z,])\s(?:[1-9]\d?|[?!\u00a2\u00ae\u00b0\u00a9\u2020])\s+(?=[A-Z\u201c\u2018])')
+_GLUED = re.compile(r'(?<=[a-z])(?=[A-Z][a-z]{3,}[ ,.;])')
+_SYMBOLS = re.compile(r'\s?[\u00a2\u00ae\u00b0\u00a9\u2020\u2021\u00a7\u00b6#>]+(?=\s|$|[.,;:])|(?<=[,;:.])\?(?=\s)')
+_SENT = re.compile(r'(?<=[.!?\u201d\u2019])\s+(?=[A-Z\u201c\u2018])')
+
+
+def _note_sentence(sent):
+    if CITE.search(sent) or SCHOLARS.search(sent):
+        return True
+    w = re.findall(r"[A-Za-z']+", sent)
+    if len(w) >= 4 and english_score(sent) < 0.12:
+        return True
+    letters = [c for c in sent if c.isalpha()]
+    return len(letters) > 12 and sum(c.isupper() for c in letters) / len(letters) > 0.5
+
+
+_VOCAB = None
+
+
+def vocabulary():
+    """Words that appear at least twice in the 25 largest installed translation files.
+    Scan-mangled Greek in a footnote is made of words that are in no such list."""
+    global _VOCAB
+    if _VOCAB is None:
+        import collections
+        import glob
+        d = os.environ.get('TESSERAE_TRANS_VOCAB', '/var/www/tesseraev6_flask/data/translations')
+        files = sorted(glob.glob(d + '/*.json'), key=os.path.getsize, reverse=True)[:25]
+        cnt = collections.Counter()
+        for f in files:
+            try:
+                for u in json.load(open(f)).get('units', []):
+                    cnt.update(w.lower() for w in re.findall(r"[A-Za-z]+", u))
+            except (OSError, ValueError):
+                pass
+        _VOCAB = {w for w, c in cnt.items() if c >= 2}
+    return _VOCAB
+
+
+_WORD = re.compile(r"[A-Za-z\u00c0-\u024f\u2019']+")
+_MARK = re.compile(r'(?:^|\s)[\u00bb>]\s|\s\d{1,2}\.\s[a-z]|[a-z]\d+[a-z]*\s|\s[A-Z]\.\s[a-z]{3,}\saea')
+
+
+def _first_cue(text, start):
+    """Position of the first sign of a note at or after `start`, and whether it is a
+    citation (which may sit inside a quotation, so the cut backs up to a sentence end)."""
+    best = None
+    for rx, cite in ((SCHOLARS, True), (_MARK, False)):
+        m = rx.search(text, start)
+        if m and (best is None or m.start() < best[0]):
+            best = (m.start(), cite)
+    vocab = vocabulary()
+    words = [(m.start(), m.group(0)) for m in _WORD.finditer(text, start)]
+    flags = []
+    for pos, w in words:
+        lw = w.lower().strip("'\u2019")
+        flags.append(len(lw) >= 4 and w[0].islower() and (lw not in vocab or re.search(r'[\u00c0-\u024f]', w) is not None))
+    for i in range(len(words) - 5):
+        if sum(flags[i:i + 6]) >= 3 and flags[i]:
+            if best is None or words[i][0] < best[0]:
+                best = (words[i][0], False)
+            break
+    if best and best[1]:
+        # a scan-mangled word just before a citation belongs to the note that began there
+        lo = max(start, best[0] - 140)
+        for m in _WORD.finditer(text, lo, best[0]):
+            w = m.group(0)
+            if len(w) >= 5 and w[0].islower() and w.lower().strip("'\u2019") not in vocab:
+                best = (m.start(), False)
+                break
+    return best
+
+
+def strip_unit_notes(text):
+    """Remove footnote residue from one finished unit (see the comment above)."""
+    n = len(text)
+    half = n // 2
+    cut = n
+    cue = _first_cue(text, half)
+    if cue:
+        pos, is_cite = cue
+        if is_cite:
+            b = max((m.end() for m in re.finditer(r'[.!?\u201d\u2019]\s', text[:pos])), default=0)
+            pos = b if b >= 0.4 * n else pos
+        cut = min(cut, pos)
+    m = _NOTE_ANCHOR.search(text, half)
+    if m:
+        cut = min(cut, m.start())
+    for g in _GLUED.finditer(text, half):
+        # fused words in the body are rare, a name after a foot-of-page join is the case seen
+        cut = min(cut, g.start())
+        break
+    text = text[:cut].rstrip()
+    sents = _SENT.split(text)
+    while len(sents) > 1 and _note_sentence(sents[-1]):
+        sents.pop()
+    text = ' '.join(sents)
+    # a sentence the page broke off in the middle can end in a lone note-ish run
+    text = _SYMBOLS.sub('', text)
+    return re.sub(r'\s{2,}', ' ', text).strip()
+
 
 def finish(work, lang, tess_lines, mapping, source, license_text, attribution,
            confidence='medium', name_floor=NAME_FLOOR, corr_floor=CORR_FLOOR,
-           unit_sources=None, out_dir=None):
+           unit_sources=None, out_dir=None, clean_notes=False):
     """Run both checks and write the served file if one of them vouches.
 
     work         our work id, e.g. 'tibullus.elegies'
     tess_lines   [(ref, source text)] from load_tess
     mapping      {ref: english}; refs absent from it are simply unpaired
+    clean_notes  True for works whose unit is one scanned page (the notes sit at the end
+                 of the unit): strip_unit_notes cuts from the first note anchor to the end.
+                 Left False for units that join several pages or come from clean HTML or TEI,
+                 where a cut would take body text with it.
     Returns a report dict. Nothing is written for a refused work.
     """
     refs = []
@@ -182,7 +311,19 @@ def finish(work, lang, tess_lines, mapping, source, license_text, attribution,
             refs.append(ref)
         src_of.setdefault(ref, txt)
     n_refs = len(refs)
-    paired = {r: mapping[r] for r in refs if r in mapping and mapping[r]}
+    cache = {}
+    paired = {}
+    for r in refs:
+        t = mapping.get(r)
+        if not t:
+            continue
+        if t not in cache:
+            cache[t] = strip_unit_notes(t) if clean_notes else t
+        if cache[t]:
+            paired[r] = cache[t]
+    changed = sum(1 for a, b in cache.items() if a != b)
+    if changed:
+        print(f'    note residue stripped from {changed} of {len(cache)} units')
     cov = len(paired) / n_refs if n_refs else 0.0
 
     name_pairs = [(src_of[r], t) for r, t in paired.items()]
