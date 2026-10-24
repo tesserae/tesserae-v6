@@ -230,7 +230,7 @@ def test_thumbnail_field_and_route(client, tmp_path, monkeypatch):
     assert one['thumb_url'] == with_pic['thumb_url']
     r = client.get(with_pic['thumb_url'])
     assert r.status_code == 200 and r.mimetype == 'image/jpeg'
-    assert 'max-age=' in r.headers['Cache-Control']
+    assert 'max-age=2592000' in r.headers['Cache-Control'] and 'no-store' not in r.headers['Cache-Control']
     assert client.get('/api/coins/thumb/nothing.jpg').status_code == 404
     assert client.get('/api/coins/thumb/..%2Fcoins.sqlite').status_code == 404
 
