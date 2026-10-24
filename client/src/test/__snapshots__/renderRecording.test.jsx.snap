@@ -3177,7 +3177,7 @@ exports[`App render recording > page /downloads 1`] = `
 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-gray-50 rounded">
 <div>
 <span class="font-medium">Museum Objects</span>
-<span class="text-sm text-gray-500 ml-2">(CC0, with Chicago descriptions under CC BY 4.0, 1,361 records, image addresses only, 0.7 MB packed)</span>
+<span class="text-sm text-gray-500 ml-2">(CC0, with Chicago descriptions under CC BY 4.0, 1,353 records, image addresses only, 0.7 MB packed)</span>
 </div>
 <a href="https://tesserae.caset.buffalo.edu/tesserae-data/objects.sqlite.tar.gz" target="_blank" rel="noopener noreferrer" class="px-4 py-2 bg-red-700 text-white rounded hover:bg-red-800 text-sm">Download</a>
 </div>
