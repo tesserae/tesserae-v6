@@ -103,7 +103,7 @@ class Family:
         self.folded = set()
         self.raw = set()          # headings in a script the transliteration does not read (Hebrew): compared by the fold
         self.stems_as = set()
-        for h in heads:
+        for h in sorted(heads):
             self.add(h)
 
     def add(self, h):
@@ -330,7 +330,7 @@ def audit(db, lines=None):
         s['candidate_spellings'] += len(rest)
         s['candidate_rows'] += sum(pairs[f] for f in rest)
         by = {}
-        for f in rest:
+        for f in sorted(rest):
             by.setdefault(stem_of(f), []).append(f)
         s['groups'] += len(by)
         for st, fs in by.items():
@@ -779,7 +779,7 @@ class Targets:
             hs = _own_headings(db, eid)
             hs = {h for h in hs if ei.fold(h)}
             self.heads[eid] = hs
-            for h in hs:
+            for h in sorted(hs):
                 self.by_stem.setdefault(mb.case_family(h)[0], set()).add(eid)
 
     def of(self, form, exclude):

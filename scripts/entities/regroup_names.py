@@ -575,6 +575,7 @@ def run_pass3(db, a):
     from backend import entity_extras as ex
     global PROGRESS
     t0 = time.time()
+    stamp = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(os.path.getmtime(a.store)))
     PROGRESS = os.path.join(WORK3, 'PROGRESS.txt')
     cache_path = os.path.join(WORK3, 'answers.sqlite')
     lines = rg.Lines(WINDOWS)
@@ -620,6 +621,9 @@ def run_pass3(db, a):
     ex.write_catalog(a.store, log=log)
     ex.write_form_index(a.store, log=log)
     db = sqlite3.connect(a.store)
+    # the catalog time stamp is the only byte that differed between two applies: stamp the time of the input store
+    db.execute("update meta set value = ? where key = 'catalog_built'", (stamp,))
+    db.commit()
     rep['integrity'] = db.execute('pragma integrity_check').fetchone()[0]
     json.dump(rep, open(os.path.join(WORK3, 'apply_report.json'), 'w'), ensure_ascii=False, indent=1)
     log('PASS3 ' + json.dumps({k: v for k, v in rep.items() if k not in ('moves', 'carves')}) + f' {time.time() - t0:.0f}s')
