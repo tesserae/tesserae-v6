@@ -207,21 +207,18 @@ def mock_search_env(tmp_path_factory):
     # corpus inside the request and the file did not finish in ten minutes.
     # The searches here do not depend on the frequencies.
     import backend.frequency_cache as frequency_cache
-    old_freq_dir = frequency_cache.CACHE_DIR
-    old_freq_calc = frequency_cache.calculate_corpus_frequencies
-    old_freq_memo = dict(frequency_cache._frequency_cache)
-    frequency_cache.CACHE_DIR = str(tmp_dir / "cache" / "frequencies")
-    os.makedirs(frequency_cache.CACHE_DIR, exist_ok=True)
-    frequency_cache._frequency_cache.clear()
-    frequency_cache.calculate_corpus_frequencies = (
-        lambda language, text_processor: {'frequencies': {}, 'total_lemmas': 0})
+    freq_dir = tmp_dir / "cache" / "frequencies"
+    os.makedirs(freq_dir, exist_ok=True)
+    freq_patch = pytest.MonkeyPatch()
+    freq_patch.setattr(frequency_cache, 'CACHE_DIR', str(freq_dir))
+    freq_patch.setattr(frequency_cache, '_frequency_cache', {})
+    freq_patch.setattr(frequency_cache, 'calculate_corpus_frequencies',
+                       lambda language, text_processor: {'frequencies': {}, 'total_lemmas': 0})
 
-    yield
-
-    frequency_cache.CACHE_DIR = old_freq_dir
-    frequency_cache.calculate_corpus_frequencies = old_freq_calc
-    frequency_cache._frequency_cache.clear()
-    frequency_cache._frequency_cache.update(old_freq_memo)
+    try:
+        yield
+    finally:
+        freq_patch.undo()
     
     # Restore original paths
     backend.inverted_index.INDEX_DIR = old_index_dir
