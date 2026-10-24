@@ -316,6 +316,76 @@ Psalter and the Epistle to the Laodiceans. They are reported as having no Englis
 rather than forced onto the nearest-looking book, which is how the Prayer of
 Manasseh would end up answering for Manasseh in Chronicles.
 
+## Pipeline 9: the Coptic Septuagint books, Budge, and the Persian and Urdu attempts (2026-10-24)
+
+    align_coptic_brenton.py     coptic_align_common.py
+    align_budge_sections.py
+    align_khayyam_whinfield.py  persian_poems.py  persian_semantic_common.py
+
+Built on copies in `~/tesserae-backups/tr-d-staging/`, **not installed** (see
+docs/DATA_OPERATIONS.md, entry PLANNED). Coptic has no capital letters and no printed
+numbers beyond the verse, so the two checks of "Why this is delicate" are done differently here,
+each against a displaced control (the same Coptic lines paired with English from seven places along).
+
+*Names.* The capitalized names of the English unit are folded to a consonant skeleton and looked
+for inside the consonant skeleton of the Coptic verse (Coptic writes Greek names in Greek spelling,
+so Nabuchodonosor appears as ⲛⲁⲃⲟⲩⲭⲟⲇⲟⲛⲟⲥⲟⲣ). *Length.* The same correlation as pipeline 2.
+
+**Coptic Old Testament against Brenton 1851** (`align_coptic_brenton.py`). The installed Bohairic
+Daniel paired chapter n with the World English Bible's chapter n, which translates the Hebrew; the
+Bohairic text divides Daniel 3 over three chapters and carries Susanna and Bel, so chapters 3 to 12
+were paired with the wrong English (Coptic chapter 4 verse 1, the prayer of Azariah, sat beside
+"Nebuchadnezzar the king, to all the peoples"; chapter 8 verse 1, Darius and the satraps, beside Belshazzar's
+vision), and the file recorded its own checks as names 0.307 and length 0.266. Brenton translates the Septuagint, so it is the
+right English. Verse numbers are not trusted: each chapter is paired by length with dynamic
+programming (Gale and Church 1993; one-to-one, one-to-two, two-to-one and unmatched verses), and
+the verse number is used as a prior only where both traditions number alike (Proverbs). Verses
+that Brenton prints in parts (Proverbs 4:27a, 4:27b) are kept apart for the aligner; the shared loader
+`align_greek_bible.load_usfm` keeps only the last part of such a verse and leaves the letter in the text.
+
+Written: Bohairic Psalter (2,305 of 2,314 lines, names 0.315 against 0.095, length 0.609 against
+0.016, two psalms left out whose own alignment costs too much), Sahidic Proverbs (794 of 890, length
+0.562 against 0.056, chapters 24, 30 and 31 left out because the Septuagint prints them in a different
+order), Epistle of Jeremiah (72 of 72), Bohairic Daniel (533 of 623, names 0.837 against 0.330, length
+0.833 against 0.063: Daniel 1 to 12 as Theodotion, Susanna, Bel; chapters 15 and 19 hold the Old Greek
+wording, which Brenton does not print), and the parts of two fragmentary books that can be tested: Sahidic
+Habakkuk chapter 1 (13 of 30 lines) and Sahidic Daniel chapters 1, 6 and 9 (57 of 183). The rest of
+those two, and the five-line Bel and two-line 1 Chronicles fragments, are too short or too
+broken to pass either check and are not written. Where the Coptic fragment numbers its verses afresh
+(Bel, 1 Chronicles 17) the number says nothing about the place, and length alone placed the fragment
+wrongly when tested by eye.
+
+**Budge, section level** (`align_budge_sections.py`, Mercurius, Theodosius on Michael, Bartholomew,
+Repose of John). Our Coptic files number sentences or manuscript lines, with no folio marks, so the
+English is cut into two-or-three-sentence segments and paired with runs of Coptic lines by dynamic
+programming over length and over rare names. Half the rare names are withheld from the aligner and
+used as the check. **No file is written**: the withheld names do no better than the control
+(0.20 against 0.27 Mercurius, 0.29 against 0.33 Theodosius, 0.15 against 0.19 Bartholomew, 0.39 against
+0.41 Repose of John), and a read of the pairs shows the English sitting one segment off in places. The
+Coptic file called `mercurius` also holds two Budge texts in an order that is not his (XI then X), which
+the script finds by trying the orders. The six texts the sweep left unsettled are not in Budge's
+Coptic Martyrdoms (1914, ten texts) or Biblical Texts (1912, four books).
+
+**Persian by meaning** (`align_khayyam_whinfield.py`, `persian_semantic_common.py`,
+`persian_poems.py`). The Internet Archive scans of Whinfield's Khayyam and Clarke's Hafiz carry the
+English only (the Persian is printed as images), so there is no first line to match. The quatrains
+and the English are paired by meaning with the multilingual encoder that serves Theme Search, kept
+only where each is the other's mutual best match, and judged on evidence the matcher never saw.
+**Not written**: all 100 mutual best pairs are scattered (our file is not in Whinfield's order, rank
+correlation 0.17) and every quatrain is the same length, so neither the order nor the length can
+vouch for a pair, and the few names are too few. Several matches are visibly right ("From doubt to clear
+assurance is a breath" against its Persian quatrain), which shows the method works and that without a
+check that can speak the file would be right only for those the reader can already verify.
+Clarke's Hafiz (Volume I only on the Archive) interleaves the translation with commentary and
+"signifies" glosses couplet by couplet, so the translation cannot be separated by rule; Nizami and
+Hafez are not attempted for that reason and the numbering of Wilson's Haft Paikar (every few lines
+of prose) does not follow our couplets.
+
+**Urdu: Hindustani Lyrics (1919)** is not attempted. It holds about 107 English poems in free
+rhymed verse, each tied to a poet by name and none to a line of Urdu, and our Urdu files for the
+eleven poets it draws on hold about 38,000 lines. Matching would need an encoder run over all of
+them and has nothing to check against (no names, no numbers, no length that survives paraphrase).
+
 ---
 
 ## Pipelines 9 to 16: the exact-numbering batch of 2026-10-24
