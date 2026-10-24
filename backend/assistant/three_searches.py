@@ -46,6 +46,7 @@ KIND_SEVERAL = 'SEVERAL MATCHES for the name asked about.'
 
 SHOWN_PASSAGES = 5
 SHOWN_EVENT_PASSAGES = 5
+SHOWN_EVENT_COINS = 5
 SHOWN_WORKS = 5
 SHOWN_MATCHES = 6
 
@@ -585,6 +586,22 @@ def summarise_events(bundle, args):
     }
     if ev.get('description'):
         fact['description'] = ev['description']
+    coins = (bundle or {}).get('coins') or {}
+    cards = [c for c in (coins.get('results') or []) if isinstance(c, dict)]
+    if coins.get('available') and cards:
+        years = coins.get('years') or []
+        fact['coins_note'] = (f"coin types struck {date_label(years[0], years[1]) if len(years) == 2 else 'around the event'}, "
+                              f"nearest in meaning to the event, from the event page's Coins tab; those marked "
+                              f"names_place have a model-written account that names the place; a coin struck in "
+                              f"these years need not refer to the event")
+        fact['coins'] = [{k: v for k, v in {
+            'coin': c.get('coin_title') or c.get('coin_id'),
+            'date': date_label(c.get('date_start'), c.get('date_end')),
+            'issuers': ', '.join(c.get('authorities') or []),
+            'shows': str(c.get('reverse_description') or c.get('description') or '')[:140],
+            'model_summary': str(c.get('gist') or '')[:260],
+            'names_place': bool(c.get('names_event_place')),
+        }.items() if v not in ('', None)} for c in cards[:SHOWN_EVENT_COINS]]
     return fact
 
 

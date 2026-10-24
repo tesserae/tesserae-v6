@@ -240,3 +240,24 @@ describe('the Collections gate', () => {
     expect(setPageType).not.toHaveBeenCalledWith('search');
   });
 });
+
+describe('the model-written account', () => {
+  it('shows under the sides, labeled as written by a language model, and not at all when absent', async () => {
+    const { CoinGist } = await import('../CoinCard');
+    render(<CoinGist gist="It celebrates the naval victory at Actium in 31 BCE." />);
+    const g = screen.getByTestId('coin-gist');
+    expect(g.textContent).toMatch(/In brief \(written by a language model\): It celebrates the naval victory at Actium/);
+    expect(g.querySelector('[title]').getAttribute('title')).toMatch(/9 in 10/);
+    cleanup();
+    render(<CoinGist gist={null} />);
+    expect(screen.queryByTestId('coin-gist')).toBeNull();
+  });
+});
+
+describe('the archived copy of a catalog page', () => {
+  it('points at the Internet Archive and is empty without a catalog link', async () => {
+    const { archivedCopy } = await import('../coinsFormat');
+    expect(archivedCopy('http://numismatics.org/ocre/id/ric.1(2).aug.265A')).toBe('https://web.archive.org/web/2026/http://numismatics.org/ocre/id/ric.1(2).aug.265A');
+    expect(archivedCopy(null)).toBeNull();
+  });
+});

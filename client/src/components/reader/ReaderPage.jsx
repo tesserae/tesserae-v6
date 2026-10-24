@@ -1,9 +1,10 @@
 import { useState, useEffect, useLayoutEffect, useCallback, useMemo, useRef } from 'react';
 import useDocumentsTrial from '../../hooks/useDocumentsTrial';
 import useCollections from '../../hooks/useCollections';
-import { cssRef, windowLocus, fullRef } from './refId';
+import { cssRef, windowLocus, fullRef, findRefIndex } from './refId';
 import ReaderHeader from './ReaderHeader';
-import ReaderNav, { ReaderEndNav, ReaderFloatNav, ReaderPhoneTopButton, sectionsFor, bookFileFor } from './ReaderNav';
+import ReaderNav, { ReaderEndNav, ReaderFloatNav, ReaderPhoneTopButton, sectionsFor, bookFileFor, bookSections, storyNumberOfRef, storyShortRef } from './ReaderNav';
+import useTextStructure from '../../hooks/useTextStructure';
 import { useIsPhone } from '../../hooks/useIsPhone';
 import SelectionToolbar, { scopeFor } from './SelectionToolbar';
 import { rescope } from '../../utils/sentences';
@@ -456,23 +457,19 @@ export default function ReaderPage() {
   // number, the last segment (".851"), which is unambiguous inside a single
   // book file. Returns false when nothing matches so the strip can say so.
   const [jumpRef, setJumpRef] = useState('');
+  // Where the reader is, for stepping through stories: the line last jumped to
+  // or selected. The page does not track the scroll position, so scrolling by
+  // hand does not move it (previous and next step from the last story chosen).
+  const [storyAt, setStoryAt] = useState('');
   // Returns '' on success, otherwise the message the strip should show. A
   // bare number is only followed when it names exactly one line: in a file
   // that holds several books (or poems) the same line number recurs, and
   // guessing the first would send the reader to the wrong book.
   const jumpTo = useCallback((query) => {
-    const q = String(query || '').trim().toLowerCase();
-    if (!q || !units.length) return `no line ${query} here`;
-    const refs = units.map((u) => String(u.ref || '').toLowerCase());
-    let i = refs.findIndex((r) => r === q || r.endsWith(' ' + q));
-    if (i < 0 && /^\d+[a-z]?$/.test(q)) {
-      const hits = [];
-      refs.forEach((r, k) => { if (r.endsWith('.' + q)) hits.push(k); });
-      if (hits.length > 1) return `line ${query} is in ${hits.length} places here; add the book, e.g. 6.${query}`;
-      if (hits.length === 1) i = hits[0];
-    }
-    if (i < 0) return `no line ${query} here`;
-    setJumpRef(units[i].ref);
+    const { index, problem } = findRefIndex(units.map((u) => u.ref), query);
+    if (index < 0) return problem;
+    setJumpRef(units[index].ref);
+    setStoryAt(units[index].ref);
     return '';
   }, [units]);
   useEffect(() => {
@@ -489,6 +486,14 @@ export default function ReaderPage() {
     return () => window.clearTimeout(id);
   }, [jumpRef, units, visibleCount]);
   const sections = useMemo(() => sectionsFor(hierarchy, work), [hierarchy, work]);
+  // A work divided into stories rather than book files (the Shahnameh) gets a
+  // Stories list; a work with book files is never asked.
+  const structure = useTextStructure(work, sections.length > 0 && bookSections(sections).length < 2);
+  const stories = structure?.sections || null;
+  const storyNumber = stories ? storyNumberOfRef(storyAt) : null;
+  const jumpStory = useCallback((story) => { jumpTo(storyShortRef(story.first_ref)); }, [jumpTo]);
+  useEffect(() => { setStoryAt(''); }, [work]);
+  useEffect(() => { if (selection?.refStart) setStoryAt(selection.refStart); }, [selection?.refStart]);
   // Books one at a time (2026-09-20): the whole-file Punica ran seventeen
   // books together, 7.745 followed by 8.1 with no heading). A work that also
   // exists as book files opens on the book that holds the requested line, or
@@ -638,6 +643,9 @@ export default function ReaderPage() {
         units={units}
         selection={selection}
         onJump={jumpTo}
+        stories={stories}
+        storyNumber={storyNumber}
+        onStory={jumpStory}
       />
 
       {loading && <div className="p-10"><LoadingSpinner /></div>}
@@ -648,7 +656,8 @@ export default function ReaderPage() {
           <div className="flex flex-col flex-1 min-w-0">
             {/* Previous/next book, go to line, back to top: sticky, so the way
                 out of a long text is always on screen (2026-09-19). */}
-            <ReaderNav sections={sections} work={work} onWork={changeBook} onJump={jumpTo} />
+            <ReaderNav sections={sections} work={work} onWork={changeBook} onJump={jumpTo}
+                       stories={stories} storyNumber={storyNumber} onStory={jumpStory} />
             {/* The key for the gutter marks. The gutter itself is nine pixels
                 wide per column and can only carry a letter, and its tooltip does
                 not exist on a phone, so the words go here where there is room.
@@ -971,10 +980,12 @@ export default function ReaderPage() {
             </div>
           )}
           {units.length > 0 && shownUnits.length >= units.length && (
-            <ReaderEndNav sections={sections} work={work} onWork={changeBook} />
+            <ReaderEndNav sections={sections} work={work} onWork={changeBook}
+                          stories={stories} storyNumber={storyNumber} onStory={jumpStory} />
           )}
           {!loading && !error && units.length > 0 && (
-            <ReaderFloatNav sections={sections} work={work} onWork={changeBook} />
+            <ReaderFloatNav sections={sections} work={work} onWork={changeBook}
+                            stories={stories} storyNumber={storyNumber} onStory={jumpStory} />
           )}
           {!loading && !error && units.length > 0 && (
             <ReaderPhoneTopButton hidden={!!selection} />

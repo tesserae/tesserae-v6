@@ -191,3 +191,64 @@ def test_the_public_bundle_leaves_out_the_documents_index():
     root = os.path.join(os.path.dirname(__file__), "..")
     text = open(os.path.join(root, "scripts", "ops", "public_bundle_exclusions.json"), encoding="utf-8").read()
     assert "data/inverted_index/{lang}_documents_index.db" in text
+
+
+# ---- inscriptions whose Greek is in several PHI records ---------------------
+
+PART_TWO = {"phi": "999998", "site": "Athens", "text": {"lines": _lines("Σωκράτης ἔγραψεν", "τὸ ψήφισμα")}}
+
+
+def _raw_without_greek():
+    return {k: v for k, v in RAW.items() if k != "greek_epidoc"}
+
+
+def test_several_phi_parts_follow_one_another_with_a_gap_between_and_every_number_in_the_credit():
+    rec = ac.build_record_phi_parts(
+        _raw_without_greek(), "IGII2", "18", ac.parse_page(PAGE_HTML),
+        [("999999", PHI_RECORD), ("999998", PART_TWO)], [])
+    texts = [ln["text"] for ln in rec["lines"]]
+    assert texts[-3] == ac.GAP and texts[-2:] == ["Σωκράτης ἔγραψεν", "τὸ ψήφισμα"]
+    assert rec["aio"]["phi_numbers"] == ["999999", "999998"]
+    row = am.document_row(rec)
+    assert row["source_name"].endswith("(PHI 999999, 999998)")
+    assert row["source_url"] == "https://epigraphy.packhum.org/text/999999"
+    assert am.display_rows(rec)[0] == ("aio:IGII2_18", "source_link", "PHI 999998|https://epigraphy.packhum.org/text/999998")
+
+
+def test_a_part_that_repeats_an_earlier_part_is_left_out():
+    notes = []
+    rec = ac.build_record_phi_parts(
+        _raw_without_greek(), "IGII2", "18", None,
+        [("999998", PART_TWO), ("999997", dict(PART_TWO, phi="999997"))], notes)
+    assert rec["aio"]["phi_numbers"] == ["999998"] and len(rec["lines"]) == 2
+    assert any("repeats" in n for n in notes)
+
+
+def test_converter_main_reads_every_listed_number_and_reports_missing_files(tmp_path):
+    raw_dir, html_dir, phi_dir = tmp_path / "raw", tmp_path / "html", tmp_path / "phi"
+    for d in (raw_dir, html_dir, phi_dir):
+        d.mkdir()
+    (raw_dir / "IGII2__18.json").write_text(json.dumps(_raw_without_greek()), encoding="utf-8")
+    (html_dir / "IGII2__18.html").write_text(PAGE_HTML, encoding="utf-8")
+    (phi_dir / "999999.json").write_text(json.dumps(PHI_RECORD), encoding="utf-8")
+    (phi_dir / "999998.json").write_text(json.dumps(PART_TWO), encoding="utf-8")
+    listing = [{"aio": "IGII2/18", "phi": "999999", "all_phi": ["999999", "999998", "999990"]}]
+    (tmp_path / "list.json").write_text(json.dumps(listing), encoding="utf-8")
+    out, report = tmp_path / "out.jsonl", tmp_path / "report.json"
+    ac.main([str(raw_dir), str(html_dir), str(out), "--phi-dir", str(phi_dir),
+             "--phi-list", str(tmp_path / "list.json"), "--report", str(report)])
+    rec = json.loads(out.read_text(encoding="utf-8"))
+    assert rec["aio"]["phi_numbers"] == ["999999", "999998"]
+    stats = json.loads(report.read_text(encoding="utf-8"))["phi"]
+    assert stats["missing_files"] == ["999990"] and stats["several_parts"] == 1
+
+
+def test_display_fields_return_source_links_as_a_list(phi_documents_env):
+    import sqlite3
+    conn = sqlite3.connect(os.environ["TESSERAE_DOCUMENTS_META"])
+    conn.execute("INSERT INTO display (id, field, value) VALUES (?, ?, ?)", ("aio:IGII2_18", "source_link", "PHI 7|https://x"))
+    conn.commit()
+    conn.close()
+    docs.reset_caches()
+    data = app.test_client().get("/api/documents/aio:IGII2_18?language=grc").get_json()
+    assert data["display"]["source_link"] == ["PHI 7|https://x"]

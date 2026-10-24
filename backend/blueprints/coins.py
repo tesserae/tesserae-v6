@@ -123,6 +123,7 @@ def _present(r):
                          if r['mint_pleiades_id'] else None)
     d['credit'] = CREDITS.get(r['source'], 'Type record: American Numismatic Society, ODbL')
     d['coin_url'] = f'/coins/{quote(str(r["id"]), safe="")}'
+    d['gist'] = coins_passage.gist_for_type(db_path(), r['id'])
     return d
 
 

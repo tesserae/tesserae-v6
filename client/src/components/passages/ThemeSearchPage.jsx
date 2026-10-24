@@ -154,7 +154,9 @@ export function readerLink(r, query) {
     // index knows the span, so the Reader should select the span.
     ref: r.ref_start || '',
     refEnd: r.ref_end || r.ref_start || '',
-    tab: 'translation',
+    // An English work has no translation to show: its Translation tab only says
+    // so. Open Similar Passages there instead (the project lead, 2026-10-22).
+    tab: r.language === 'en' ? 'similar' : 'translation',
     // Carried through so the Reader can say what was searched for. Landing deep
     // in a text with no memory of the question is disorienting.
     q: query || '',

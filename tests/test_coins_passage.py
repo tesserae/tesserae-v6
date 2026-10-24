@@ -217,7 +217,7 @@ def test_theme_ranks_descriptions(client, stubs):
     d = client.get('/api/coins/theme?q=goat-fish+and+globe&limit=3').get_json()
     assert d['available'] and len(d['results']) == 3
     assert 'Capricorn' in d['results'][0]['description'] and d['results'][0]['coin_id']
-    assert 'about one right coin in two' in d['label']
+    assert 'a right coin was among the first ten for 17' in d['label']
     assert stubs['texts'] == ['goat-fish and globe']
 
 
@@ -254,3 +254,45 @@ def test_latin_passage_imagery_stays_with_the_roman_catalogues():
     assert [i for i, _ in CP.rank(matrix, q, k=2)] == [1, 3]
     assert [i for i, _ in CP.rank(matrix, q, k=2, mask=m)] == [2, 0]
     CP._vec.update(key=None, matrix=None, rows=None, sources=None, masks={})
+
+
+def test_gist_and_meaning_vectors(tmp_path):
+    """A description row's model-written account reaches every type it
+    carries, and the coin search reads the meaning vectors when they are
+    installed and in step, falling back to the description vectors otherwise."""
+    import json
+    import numpy as np
+    from backend import coins_passage as cp
+    db = tmp_path / 'coins.sqlite'
+    db.write_bytes(b'')
+    desc = np.eye(3, 4, dtype=np.float16)
+    np.save(tmp_path / 'descriptions.npy', desc)
+    rows = [{'text': 'Obverse: A. Reverse: B.', 'types': ['ocre:a', 'ocre:b'], 'gist': 'Celebrates a victory.'},
+            {'text': 'Obverse: C.', 'types': ['crro:c']},
+            {'text': 'Obverse: D.', 'types': ['iris:d'], 'gist': 'Shows a bull.'}]
+    (tmp_path / 'descriptions_ids.json').write_text(json.dumps(rows))
+    assert cp.gist_for_type(str(db), 'ocre:b') == 'Celebrates a victory.'
+    assert cp.gist_for_type(str(db), 'crro:c') is None
+    m, _ = cp.load_meaning_vectors(str(db))
+    assert np.array_equal(np.asarray(m), desc)                 # no meaning file: the descriptions
+    meaning = np.flipud(desc).copy()
+    np.save(tmp_path / 'descriptions_meaning.npy', meaning)
+    m, _ = cp.load_meaning_vectors(str(db))
+    assert np.array_equal(np.asarray(m), meaning)
+    np.save(tmp_path / 'descriptions_meaning.npy', np.eye(2, 4, dtype=np.float16))
+    import os
+    st = os.stat(tmp_path / 'descriptions_meaning.npy')
+    os.utime(tmp_path / 'descriptions_meaning.npy', (st.st_atime, st.st_mtime + 5))  # a new file, as an install makes
+    m, _ = cp.load_meaning_vectors(str(db))
+    assert np.array_equal(np.asarray(m), desc)                 # out of step: the descriptions
+
+
+def test_event_place_words_finds_ancient_and_modern_forms():
+    from backend import coins_passage as cp
+    assert cp.event_place_words('Battle of Actium', 'Aktio') == ['actiu', 'aktio']
+    w = cp.event_place_words('Battle of Perugia', 'Perugia', 'Perusia')
+    assert w == ['perug', 'perus']
+    # "the Perusine War" in an account names the place
+    import re
+    toks = re.findall(r"[^\W\d_]+", "in the year their alliance broke down in the perusine war")
+    assert any(t.startswith(x) for t in toks for x in w)

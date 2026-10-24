@@ -62,3 +62,21 @@ def test_an_undated_document_is_kept_and_follows_every_dated_one():
     out = E.rank_documents(docs, set())
     assert [d['doc_id'] for d in out] == ['dated', 'undated']
     assert out[1]['date_span'] is None
+
+
+def test_naming_by_text_reads_restored_names_and_the_divi_iuli_phrase():
+    texts = {
+        'edh:HD052963': '[Imp(eratori) Caes]ari / divi [f(ilio)] / [Augus]to',
+        'edh:HD023503': '[Nep]tuno [et Ma]rt[i Imp(erator) Caesa]r Div[i Iuli] f(ilius) vict[oriam',
+        'edh:other': 'Marcus Tullius Lucius f(ilius)',
+    }
+    found = E._documents_naming_by_text(texts, ['Cleopatra', 'Augustus', 'Marcus Vipsanius Agrippa', 'Aktio'])
+    assert found['edh:HD052963'] == {'augusto'}
+    assert found['edh:HD023503'] == {'diui', 'iuli'}
+    assert 'edh:other' not in found   # a first name alone names no one
+
+
+def test_naming_by_text_leaves_out_peoples_and_victory_titles():
+    texts = {'a': 'Cai Caesaris Augusti Germanici', 'b': 'pro salute populi Romanorum', 'c': 'Germanico Caesari'}
+    assert E._documents_naming_by_text(texts, ['Germanic people', 'Ancient Rome', 'Germania']) == {}
+    assert set(E._documents_naming_by_text(texts, ['Germanicus'])) == {'a', 'c'}

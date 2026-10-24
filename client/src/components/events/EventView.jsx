@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { LoadingSpinner, InfoBadge } from '../common';
+import EventCoins, { useEventCoins, eventCoinsCount } from './EventCoins';
 import CiteRecordButton from '../common/CiteRecordButton';
 import { recordFrom } from '../../utils/citations';
 import { bareLocus } from '../reader/refId';
@@ -164,7 +165,9 @@ export function HighlightedText({ text, forms, stems = false }) {
     if (!f) return false;
     return want.has(f) || roots.some((r) => r.length >= 4 && f.startsWith(r));
   };
-  return String(text).split(/(\s+|[/·,.;:()[\]]+)/).map((part, k) => (
+  // Brackets and parentheses stay inside a word, so a name the editor partly
+  // restored ("[Augus]to") or expanded ("Caesa]r") is read whole (2026-10-22).
+  return String(text).split(/(\s+|[/·,.;:]+)/).map((part, k) => (
     hit(part)
       ? <mark key={k} className="bg-amber-100 text-gray-900 rounded px-0.5">{part}</mark>
       : part
@@ -366,12 +369,14 @@ function ScholarshipTab({ items, openPassage, ranks }) {
   );
 }
 
-/** One event: header, then Passages, Inscriptions & Papyri, Scholarship and Map tabs. */
+/** One event: header, then Passages, Inscriptions & Papyri, Scholarship, Coins and Map tabs. */
 export default function EventView({ id, goList }) {
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
   const [tab, setTab] = useState('passages');
   const [focusRank, setFocusRank] = useState(null);
+  // Fetched with the page, not when the tab opens, so the tab shows its count.
+  const coins = useEventCoins(id);
 
   useEffect(() => {
     let dead = false;
@@ -395,6 +400,7 @@ export default function EventView({ id, goList }) {
     // only its passages. The collection switches still decide what a search covers.
     ['documents', 'Inscriptions & Papyri', true],
     ['scholarship', 'Scholarship', true],
+    ['coins', 'Coins', true],
     ['map', 'Map', true],
   ].filter((t) => t[2]);
 
@@ -420,7 +426,7 @@ export default function EventView({ id, goList }) {
   const passages = data.passages || [];
   const documents = data.documents || [];
   const scholarship = data.scholarship || [];
-  const counts = { passages: passages.length, documents: documents.length, scholarship: scholarship.length };
+  const counts = { passages: passages.length, documents: documents.length, scholarship: scholarship.length, coins: eventCoinsCount(coins) };
   return (
     <div className="max-w-4xl mx-auto px-4 py-6">
       {back}
@@ -459,6 +465,7 @@ export default function EventView({ id, goList }) {
         {tab === 'passages' && <PassagesTab passages={passages} counts={data.passage_counts} event={ev} focusRank={focusRank} />}
         {tab === 'documents' && <DocumentsTab documents={documents} event={ev} />}
         {tab === 'scholarship' && <ScholarshipTab items={scholarship} openPassage={openPassage} ranks={new Set(passages.map((p) => p.rank))} />}
+        {tab === 'coins' && <EventCoins eventId={ev.id || id} coins={coins} />}
         {tab === 'map' && <EventMap points={data.map || []} approximatePlace={ev.location_approximate ? (ev.place || 'the region') : null} />}
       </div>
     </div>

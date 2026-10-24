@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { cssRef } from './refId';
+import { cssRef, marginNumber } from './refId';
 import { RTL_LANGS as RTL } from '../../utils/rtl';
 import { useIsPhone } from '../../hooks/useIsPhone';
 import { sentencesOf, sentenceFields, sentenceRangeOf } from '../../utils/sentences';
@@ -198,7 +198,7 @@ export default function TextPane({ units, language, selection, onSelect, total, 
         dir={rtl ? 'rtl' : 'ltr'}
       >
         {units.map((u, i) => {
-          const n = lineNumber(u.ref);
+          const n = marginNumber(u.ref, language);
           const showNumber = n != null && n % 5 === 0;
           const selected = isSelected(i);
           // A long prose unit is drawn as its sentences, and the selected ones
@@ -450,7 +450,3 @@ export default function TextPane({ units, language, selection, onSelect, total, 
   );
 }
 
-function lineNumber(ref) {
-  const nums = String(ref || '').match(/\d+/g);
-  return nums ? parseInt(nums[nums.length - 1], 10) : null;
-}

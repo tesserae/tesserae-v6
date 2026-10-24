@@ -119,6 +119,14 @@ describe('formatSelectionRange', () => {
       .toBe('Hafez, Diwan 5097');
   });
 
+  it('keeps the act of a play cited by act, scene and line', () => {
+    const enTexts = new Map([['shakespeare.hamlet', { author: 'Shakespeare', title: 'Hamlet' }]]);
+    expect(formatSelectionRange('hamlet I.2.201', 'hamlet I.2.212', enTexts, 'shakespeare.hamlet'))
+      .toBe('Shakespeare, Hamlet I.2.201–212');
+    expect(formatSelectionRange('hamlet III.4.119', 'hamlet IV.1.2', enTexts, 'shakespeare.hamlet'))
+      .toBe('Shakespeare, Hamlet III.4.119–IV.1.2');
+  });
+
   it('defaults refEnd to refStart when omitted', () => {
     expect(formatSelectionRange('hafez.diwan.5097', undefined, faTexts)).toBe('Hafez, Diwan 5097');
   });

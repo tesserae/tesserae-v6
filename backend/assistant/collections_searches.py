@@ -467,7 +467,8 @@ def summarise_coins(bundle, args):
         ex = {'ref': c.get('title') or c.get('id'), 'authority': c.get('authority') or '',
               'denomination': ' '.join(x for x in (c.get('material'), c.get('denomination')) if x),
               'mint': c.get('mint') or '', 'date': _coin_date(c), 'legend': _clip(legend, 120),
-              'obverse': _clip(c.get('obverse_description'), 110), 'reverse': _clip(c.get('reverse_description'), 110)}
+              'obverse': _clip(c.get('obverse_description'), 110), 'reverse': _clip(c.get('reverse_description'), 110),
+              'model_summary': _clip(c.get('gist'), 240)}
         examples.append({k: v for k, v in ex.items() if v})
     fact = {
         'kind': KIND_COLLECTION, 'search': COINS, 'args': args, 'collection': 'Coins',

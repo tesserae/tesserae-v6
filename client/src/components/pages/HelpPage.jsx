@@ -1270,9 +1270,9 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 many passages of the two authors came out close in their descriptions. Authors
                 run in chronological order along both edges, so the diagonal shows authors talking to their
                 contemporaries and the far corners show links across the centuries.
-                In every grid the small key in the top-left corner says what the rows (down the
-                side) and the columns (across the top) are, and in a book-by-book grid it names the
-                work on each axis, so you can tell which work runs down the side and which across the top.
+                In every grid a heading over the column names says what the columns are, and a heading
+                turned on its side beside the row names says what the rows are. In a book-by-book grid
+                these name the work on each edge, so you can tell which work runs down the side and which across the top.
               </p>
               <p className="text-gray-700 mb-3">
                 &ldquo;Links&rdquo; colors a cell by the raw number of close passage pairs.
@@ -1586,7 +1586,14 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 For works that have one, an <strong>About</strong> button in the header opens a
                 short orientation note saying what the text is, who wrote it and when, and why a
                 reader might care. The same notes appear behind the small ⓘ buttons in Browse
-                Corpus. On a phone, the choice of text and book, Go to line and About this text are behind
+                Corpus. <strong>Go to line</strong> takes a reference as the margin shows it: a line
+                number, book and line such as 6.851, or, in a work divided into stories, the story,
+                couplet and hemistich such as 151.1.1. The margin numbers every fifth line, or in such a
+                work every fifth couplet. A work divided into stories rather than books, such as the
+                Shahnameh, has a <strong>Stories</strong> list in the header (each story by number and
+                title, with the Persian title after it, grouped by reign), and the header counts its
+                stories instead of its lines. Choosing a story opens the Reader at its first line, and
+                the previous and next links step from one story to the next. On a phone, the choice of text, book and story, Go to line and About this text are behind
                 the title line at the top of the Reader, and the key to the margin marks is behind
                 the Key button, so that the text has the width of the screen.
               </p>
@@ -1719,7 +1726,8 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 <AboutSourcesLink anchor="beyond" />
               </p>
               <p className="text-gray-700 mb-3">
-                Arriving from Theme Search, the Reader opens on the translation, selects the whole
+                Arriving from Theme Search, the Reader opens on the translation (on Similar passages
+                for an English work, which has no translation), selects the whole
                 passage that matched, and shows the search that brought you there, with a link
                 back to the results. Opening a result from Similar passages, Verbal parallels or Reuse takes you to that
                 passage in the other work, selected. A banner names the passage you came from with a
@@ -1782,8 +1790,8 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 <li>
                   Look up an event on the <strong>Events</strong> page (&ldquo;what do ancient sources say
                   about the battle of Actium?&rdquo;). She gives its date and place, how many narrative and
-                  mention passages, documents and articles it has, and the first narrative passages, and a
-                  link opens the event. Where several events share a name, such as the two Battles of
+                  mention passages, documents and articles it has, the first narrative passages, and the
+                  first coins of its Coins tab with their short accounts, and a link opens the event. Where several events share a name, such as the two Battles of
                   Actium, she lists them with their dates and asks which you mean.
                 </li>
                 <li>
@@ -1815,13 +1823,17 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
               </ul>
 
               <p className="text-gray-700 mb-3">
-                An experimental Tessa, who reads the whole conversation and chooses her own searches, can be
-                switched on in your browser with a link ending <code>?tessa=new</code> (and off with{' '}
-                <code>?tessa=classic</code>). A switch in her panel then turns it on and off. She is slower,
-                ten to thirty seconds an answer, because she may run several searches, and she follows a
-                conversation more closely: told &ldquo;there should be instances in the Aeneid (Pallas)&rdquo;,
-                she searches the Aeneid for them. A sentence that cites a passage no search returned is removed
-                before you see it.
+                For each question, Tessa decides which of the site&rsquo;s searches it needs (a comparison of two
+                texts, a Theme Search, a word search, People &amp; Places, the inscriptions, the events), runs them,
+                reads what they return and answers from that. She reads the whole conversation, so a follow-up such
+                as &ldquo;which of them are the strongest?&rdquo; or &ldquo;and in Greek?&rdquo; picks up where the last
+                answer left off. Asked who speaks a line or what it says, she reads the passage first. A sentence that
+                cites or quotes a passage, or names a person, that none of her searches returned is sent back to her
+                or removed before you see it. An answer takes five to thirty seconds, because she may run several
+                searches. She does not start a full comparison of two whole long works, such as the whole
+                Thebaid with the whole Aeneid. She compares them by content instead, asks which books you want, and gives a button that opens the
+                comparison page with both works filled in, so you can run the full comparison there. Any answer that
+                compares two texts ends with that button.
               </p>
 
               <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">How to trust her</h4>
@@ -1833,6 +1845,13 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 switches to another open model on the same platform and goes back to her own as soon as
                 it answers again, and an answer the platform breaks off part way is picked up where it
                 stopped.
+              </p>
+              <p className="text-gray-700 mb-3">
+                A full comparison of two texts that nobody has run before takes a minute or two on the server.
+                Tessa waits for it, up to four minutes, and her panel shows how long it has been running, so the
+                answer she gives is about the finished results. A comparison that runs longer still is left
+                running: she tells you what the faster searches (shared rare words, shared themes) show, and
+                asking again a little later brings the full results at once.
               </p>
 
               <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">For advanced analysis</h4>
@@ -1858,10 +1877,22 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 The Events page gathers what the site holds about one battle, siege, treaty or campaign:
                 the passages in Latin and Greek historians and poets that tell of it or mention it (each
                 opens in the Reader, and the Reader links back), the inscriptions and papyri dated to the
-                same years and found near the place, the articles and commentary on those passages, and a
-                map of the place and the findspots. The page is in the People, Places &amp; Things menu in
-                both views, and an event page shows all four of its tabs whatever the Collections switches
-                say. The Events entry is marked Beta in the top row while its lists are checked.
+                same years and found near the place, the articles and commentary on those passages, the
+                coins struck around the time, and a map of the place and the findspots. The page is in the
+                People, Places &amp; Things menu in both views, and an event page shows all five of its tabs
+                whatever the Collections switches say. The Events entry is marked Beta in the top row while
+                its lists are checked.
+              </p>
+              <p className="text-gray-700 mb-4" id="event-coins">
+                The Coins tab lists up to twelve coin types struck from three years before the event to five
+                years after it, ranked by how close each coin is in meaning to the event&rsquo;s name and
+                summary, read from the catalog description and the coin&rsquo;s short account written by a
+                language model (see Coins). A coin whose account names the place (Actium, or Perusia for the
+                Battle of Perugia) comes first and is marked &ldquo;Names the place&rdquo;. Types the
+                catalogs date only within a span of more than 25 years are left out, since such a date says
+                nothing about one year. A coin struck in these years need not refer to the event, so read
+                its account and its catalog entry. The number beside the tab is the number of coins it
+                shows, at most twelve, not every coin of those years.
               </p>
               <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">Where the events come from</h4>
               <p className="text-gray-700 mb-4">
@@ -1895,12 +1926,13 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 and from a one-sentence account of the scene without names, judged by the same instructions,
                 because its first list missed Plutarch&rsquo;s and Cassius Dio&rsquo;s accounts of the battle.
                 Its labels were then read by hand, and six were corrected. The siege of Perusia and nineteen
-                well-known battles (Marathon, Thermopylae, Salamis, Plataea, Cannae, Lake Trasimene, Zama,
-                Pharsalus, Philippi, Alesia, Gaugamela, Issus, the Granicus, the Teutoburg Forest, Carrhae,
-                Aegospotami, Leuctra, the Allia, and the Sicilian Expedition) have such passages too, each
-                read by hand and the wrong ones removed. The same search was run for every event, but for
-                less documented events about a third of what it found was wrong, so those results are not
-                shown.
+                well-known battles (Marathon, Thermopylae, Salamis, Plataea, Cannae and others) have such passages
+                too, each read by hand and the wrong ones removed. For about 280 more events the same search was
+                kept only where the passage names the event&rsquo;s place or one of its people, a second reading
+                by the model confirmed that it tells this event and quoted the line that shows it, and a third
+                placed it in the event&rsquo;s own year rather than on another occasion of the same people. Read
+                in a sample, about two in three of these are right and one in ten is wrong, usually the same people
+                on another occasion, so read the passage before relying on it.
                 In each passage the names found and the words of the event&rsquo;s place and participants are
                 highlighted, in any case form (Περυσίας and Περυσίαν, Marathon in &ldquo;apud Marathona&rdquo;).
                 Each passage shows a short excerpt of every line that holds one of the names found, with that
@@ -1918,6 +1950,10 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 The tab lists documents dated to within ten years of the event and found within 100 km of
                 its place, and leaves out any whose dating span is wider than fifty years. It lists first the
                 documents that name one of the event&rsquo;s participants or its place, then the others.
+                A document names a participant when its text holds a word of the name in any case, also where
+                the editor restored part of it (&ldquo;[Augus]to&rdquo;). A first name alone (Marcus, Lucius)
+                does not count, and Augustus before 27 BCE is also named by his title &ldquo;Divi Iuli
+                f(ilius)&rdquo;, son of the deified Julius.
                 Within each group the most tightly dated document comes first (a stone dated to eight years
                 before one dated to a century), and the nearer findspot breaks a tie. Each card shows the
                 edition, written out in full, the record number, the place and date, the source, and the
@@ -1984,8 +2020,9 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 &ldquo;harbor&rdquo; or a Greek legend typed without accents), narrow by authority, mint, denomination, material, source and date, and
                 order the results by best match or by date. A mint that nomisma.org has matched to Pleiades
                 links to its place page. Each card links to &ldquo;See images&rdquo; on the
-                catalog&rsquo;s site, which lists the museum coins of that type with their photographs. This
-                site stores no coin images. Catalogs call the front and back of a coin the obverse and
+                catalog&rsquo;s site, which lists the museum coins of that type with their photographs, and
+                to an &ldquo;Archived copy&rdquo; of that page at the Internet Archive for when the
+                catalog&rsquo;s site does not answer. This site stores no coin images. Catalogs call the front and back of a coin the obverse and
                 the reverse, and the inscription on a side is its legend. The pages here say front, back
                 and inscription.
               </p>
@@ -2005,10 +2042,27 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 right, and the matches the tab calls &ldquo;closer&rdquo; were right about 7 times in 10 while
                 the rest were right about 1 time in 4. The matches are descriptions of coin imagery, not coins
                 known to refer to the passage, so read the coin before you rely on one. Theme Search gets a
-                Coins choice too. It searches the coin descriptions and shows its own list, never mixed
-                into the passage results. A query worded the way a catalog words an image
-                (&ldquo;ship under full sail&rdquo;, &ldquo;infant on a goat&rdquo;) found about one right coin
-                in two in the same test, and a vague or abstract query finds fewer.
+                Coins choice too. It shows its own list, never mixed into the passage results.
+              </p>
+              <p className="text-gray-700 mb-4" id="coin-in-brief">
+                Every coin card also carries a line headed &ldquo;In brief (written by a language
+                model)&rdquo;: one or two sentences on what the coin shows and what it commemorates or
+                proclaims, as a museum label would put it. The model read the catalog description, the
+                inscriptions, the issuer and the dates, and was told to name an event, a victory or a person
+                only when the coin or its catalog entry names it or the type is well known for it (the
+                crocodile of AEGVPTO CAPTA for the conquest of Egypt, the daggers and cap of EID MAR for the
+                killing of Caesar), and otherwise to say only what the coin shows. In our checks of random
+                samples about 9 in 10 were right, and the rest were vague more often than wrong. The
+                accounts for the coins of the war between Octavian and Antony, from Perusia to Actium, were
+                checked and rewritten by hand. Read the catalog entry before you rely on one. The meaning
+                search on the Coins page and the Coins choice in Theme Search read each coin&rsquo;s
+                description together with this account, so a search worded as a meaning finds the coin that
+                carries it: in a test of 24 such searches (&ldquo;the conquest of Egypt&rdquo;, &ldquo;Brutus
+                and the Ides of March&rdquo;, &ldquo;a naval victory&rdquo;), a right coin was among the first
+                ten for 17, against 9 when the descriptions alone were read. The Reader&rsquo;s Related imagery
+                still reads the descriptions alone, because on the ten test passages above it did better that
+                way. The word search on the Coins page searches the catalog text and the inscriptions, not
+                these accounts.
               </p>
               <p className="text-gray-700 mb-4">
                 The Coins page is always in the People, Places &amp; Things menu, in both views. The Coins switch in
@@ -2151,7 +2205,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
               </p>
               <p className="text-gray-700 mb-3">
                 EDH is used under CC BY-SA 4.0, AIO under CC BY-SA 3.0, the Berlin Inscriptiones Graecae under CC BY 4.0, the PHI texts with the Institute&rsquo;s permission
-                for searching on this site (each page names its PHI number and links to the PHI page, and the texts are not offered
+                for searching on this site (each page names its PHI numbers and links to the PHI pages, one link for every part of an inscription that PHI records separately, and the texts are not offered
                 for download), I.Sicily and the EDR deposit under CC BY 4.0, and
                 the papyri.info texts and HGV records under CC BY 3.0, with copyright and attribution
                 to the respective projects. Findspots link to Pleiades (CC BY 3.0). The full list,
@@ -3527,14 +3581,17 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 Inscriptions and papyri are searched under the same rules.
               </p>
               <p className="text-gray-700 text-sm mb-3">
-                In Scholarship, four open services supply the online results. OpenAlex and Crossref are searched by title and
-                abstract. Semantic Scholar and CORE are searched in the full text of open-access papers. The site&rsquo;s own
+                In Scholarship, five open services supply the online results for a passage. OpenAlex and Crossref are searched
+                by title and abstract. Semantic Scholar and CORE are searched in the full text of open-access papers. Google
+                Books finds a citation on a book page and shows the snippet Google shows. When the search starts from a
+                question instead of a passage (the Books and articles found online list in Search One Text and Theme
+                Search), the same five services are asked the question, and an item is kept only when its title or abstract
+                shares the question&rsquo;s words. Answers are kept for thirty days. The site&rsquo;s own
                 index of citations in journals from before 1923 reads JSTOR&rsquo;s Early Journal Content and covers 24
                 philology, archaeology and biblical journals from 1827 to 1922. The same journals supply the Scholarship
                 section on an inscription or papyrus page (956 citing sentences from 288 articles). Where the site has the
                 library&rsquo;s agreement, a second index reads the journals on Project MUSE from 1996 on under that license
-                and lists each article that cites the passage with one sentence and a DOI link. Google Books finds a citation
-                on a book page. The RIS export goes to the clipboard, read by Zotero&rsquo;s File menu, Import from Clipboard,
+                and lists each article that cites the passage with one sentence and a DOI link. The RIS export goes to the clipboard, read by Zotero&rsquo;s File menu, Import from Clipboard,
                 or as a file. A commentary note cites the edition the text comes from, with the passage it comments on. The
                 HathiTrust link runs the same search in that library&rsquo;s book scans and tells you which books and page
                 numbers mention the citation, without showing you the text itself.

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { LoadingSpinner } from '../common';
-import { CoinSides } from './CoinCard';
-import { catalogueLine, catalogueName, coinHeading, creditLine } from './coinsFormat';
+import { CoinSides, CoinGist } from './CoinCard';
+import { catalogueLine, catalogueName, coinHeading, creditLine, archivedCopy } from './coinsFormat';
 
 /** One coin type on a page of its own (/coins/<id>). */
 export default function CoinView({ id, goList }) {
@@ -38,6 +38,7 @@ export default function CoinView({ id, goList }) {
           <p className="text-sm text-gray-500 mt-0.5">{catalogueLine(coin)}</p>
 
           <div className="mt-4"><CoinSides coin={coin} /></div>
+          <CoinGist gist={coin.gist} className="mt-4" />
 
           <div className="mt-4 text-sm space-y-1">
             <p>
@@ -72,6 +73,10 @@ export default function CoinView({ id, goList }) {
           </div>
           <p className="text-xs text-gray-500 mt-3">
             Photographs are on the catalogue&rsquo;s page for this type, with the museum specimens.
+            If that site does not answer, the{' '}
+            <a href={archivedCopy(coin.uri || coin.type_url)} target="_blank" rel="noopener noreferrer"
+               className="text-red-700 hover:underline">Internet Archive&rsquo;s copy</a> of the page
+            has the same photographs as of its last visit.
           </p>
           <p className="text-xs text-gray-400 mt-2">{creditLine(coin)}</p>
         </article>

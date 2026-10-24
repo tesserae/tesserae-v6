@@ -464,6 +464,30 @@ def get_texts_hierarchy():
     return jsonify({'authors': result})
 
 
+TEXT_STRUCTURE_DIR = Path(__file__).parent.parent.parent / "data" / "text_structure"
+_STRUCTURE_ID_RE = re.compile(r'^[a-z0-9_.-]+$')
+_STRUCTURE_FIELDS = ('number', 'title_en', 'title_fa', 'reign_fa', 'first_ref',
+                     'last_ref', 'n_couplets')
+
+
+@corpus_bp.route('/texts/structure/<work>')
+def get_text_structure(work):
+    """A work's own division into stories (the Shahnameh's 857), read from
+    data/text_structure/<work>/stories.json. `work` is the id without .tess."""
+    if not _STRUCTURE_ID_RE.match(work) or '..' in work:
+        return jsonify({'error': 'no structure'}), 404
+    path = TEXT_STRUCTURE_DIR / work / 'stories.json'
+    if not path.is_file():
+        return jsonify({'error': 'no structure'}), 404
+    try:
+        with open(path, encoding='utf-8') as fh:
+            entries = json.load(fh)
+    except (OSError, ValueError):
+        return jsonify({'error': 'no structure'}), 404
+    sections = [{k: e[k] for k in _STRUCTURE_FIELDS if k in e} for e in entries]
+    return jsonify({'work': work, 'unit': 'story', 'sections': sections})
+
+
 @corpus_bp.route('/text/<path:text_id>')
 def get_text_content(text_id):
     """Get content of a specific text"""

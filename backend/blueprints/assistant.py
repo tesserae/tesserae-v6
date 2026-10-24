@@ -310,7 +310,7 @@ def ask_stream():
                         yield _sse('step', {'text': payload})
                     else:
                         record.record('ask', question, ''.join(text_parts), model_used=True)
-                        yield _sse('done', {**payload, 'actions': []})
+                        yield _sse('done', {**payload, 'actions': payload.get('actions') or []})
                 return
             except Exception as e:                       # noqa: BLE001
                 logger.warning('[ASSISTANT] tools mode failed, ordinary Tessa answers: %s', e)

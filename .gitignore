@@ -92,6 +92,10 @@ data/la_mqdq_temp/
 !data/translations/
 data/translations/*
 !data/translations/links/
+# Per-work structure files (a story list, an old-to-new reference map): small, curated, in git.
+!data/text_structure/
+data/text_structure/*
+!data/text_structure/ferdowsi.shahnameh/
 !data/proposals/
 !data/restricted_texts.json
 !data/entity_index/

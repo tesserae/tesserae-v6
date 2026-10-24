@@ -736,7 +736,7 @@ def place_list(language=None):
 # Every field name extract_metadata.py (stage 3a) writes to the `display`
 # EAV table's `field` column; see that script's own module docstring.
 # `image_url` is the one field a document can carry more than once.
-_DISPLAY_MULTI_FIELDS = ('image_url',)
+_DISPLAY_MULTI_FIELDS = ('image_url', 'source_link')
 
 
 @lru_cache(maxsize=4096)

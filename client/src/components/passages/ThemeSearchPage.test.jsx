@@ -530,3 +530,11 @@ describe('Compare two works', () => {
       '/api/passages/compare?work_a=vergil.aeneid.tess&work_b=lucan.bellum_civile.tess'));
   });
 });
+
+describe('the Reader link of a result', () => {
+  it('opens the Translation tab for a Latin work and Similar passages for an English one', async () => {
+    const { readerLink } = await import('./ThemeSearchPage');
+    expect(readerLink({ work: 'vergil.aeneid.tess', language: 'la', ref_start: '1.1', ref_end: '1.7' }, 'storm')).toContain('tab=translation');
+    expect(readerLink({ work: 'milton.paradise_lost.tess', language: 'en', ref_start: '1.1', ref_end: '1.7' }, 'storm')).toContain('tab=similar');
+  });
+});

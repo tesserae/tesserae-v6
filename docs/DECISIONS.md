@@ -8,6 +8,14 @@ history (index builds, cache rebuilds, corpus changes) is in
 `DATA_OPERATIONS.md`; per-release changes are in `../CHANGELOG.md`.
 
 
+## 2026-10-23: machine translation only on request, one passage at a time, labeled, and measured first
+
+A visitor asked at the talk of 2026-10-23 why the site does not supply machine translations for every work without a public-domain or openly licensed human translation (Latin 444 of 1,837 works have one, Greek 457 of 1,335, Persian 3 of 28, Urdu 0 of 18). Decision: no whole-work machine translations in the Translation tab. Pre-modern poetry and elliptical prose are where the free model fails, and a wrong rendering shown like a human translation discredits the human ones. Instead, a Reader button that translates one passage on request with the free campus model, shown in a distinct style with the label "machine translation, unreviewed", cached, never offered where a human translation exists, and excluded from data releases, following the 2026-10-07 rule for commentary notes. Before it is built, the model is measured against held human translations by language and by poetry or prose, and Help states the measured result. If it is bad for a language, Help says so rather than the button hiding it.
+
+## 2026-10-23: the Shahnameh gets its stories and Warner's public-domain translation
+
+A visitor at the talk said a free English Shahnameh exists online. The complete public-domain translation is A. G. and E. Warner (nine volumes, 1905 to 1925, in verse: rhymed in the Prelude, blank verse after it); Zimmern (1883) and Atkinson (1832) are abridged retellings that cannot be aligned, and Davis (2006) is in copyright wherever it appears. Decision: re-import the Shahnameh with its story divisions (the current file is one run of 99,218 hemistichs), then align Warner story by story with the proportional aligner used for the prose translations (Warner carries no couplet numbers), credited on every passage, public domain first as the standing translation policy says.
+
 ## 2026-10-21: an event passage's participant name is set aside when a model reads it as a different person at every place it occurs
 
 Decided by the project lead, 2026-10-21, after the Battle of Actium listed Marcus Agrippa for Suetonius's "Agrippam nepotem" (Agrippa Postumus) and Tacitus's "Haterium Agrippam". A rule on neighboring words (nepos, rex, filius and the like) was measured first and rejected: of 75 participant names beside such a word across all events, nearly all were right ("Sennacherib rex Assyriorum"). The free gateway model reads up to three lines holding each participant's name in a passage and answers YES, NO or UNSURE, and a name is set aside only when every line is NO, so a passage that names both Agrippas keeps the admiral. The card shows what was set aside and the model's reason.

@@ -102,6 +102,10 @@ class Loopback:
         if path == '/events':
             rows = self.events.get(params['q'].lower(), [])
             return {'events': rows, 'total': len(rows)}
+        if path.startswith('/events/') and path.endswith('/coins'):
+            if getattr(self, 'event_coins', None) is None:
+                raise searches.SearchError('encoder down')
+            return self.event_coins
         if path.startswith('/events/'):
             return ACTIUM_FULL if path.endswith('Q160387') else {'event': self.events['battle of cannae'][0],
                                                                  'passage_counts': {}, 'passages': [],
@@ -537,3 +541,21 @@ def test_the_chosen_entry_is_the_only_one_summarised():
         return  # the matcher reads another field in this store; covered by the live check
     fact = T.summarise_people_places({'search': search, 'details': {}}, {'name': 'Mars', 'pick_index': 1})
     assert fact['kind'] != T.KIND_SEVERAL
+
+
+def test_event_facts_carry_the_coins_tab_and_survive_without_it(site):
+    site.events['actium'] = [ACTIUM]
+    site.event_coins = {'available': True, 'years': [-34, -26], 'results': [
+        {'coin_id': 'ocre:ric.1(2).aug.265A', 'coin_title': 'RIC I (second edition) Augustus 265A',
+         'date_start': -29, 'date_end': -27, 'authorities': ['Augustus'],
+         'reverse_description': 'Trophy, rudder and anchor on base, all on prow.',
+         'gist': 'It celebrates his naval victory over Antony and Cleopatra at Actium in 31 BCE.',
+         'names_event_place': True}]}
+    out, facts = _prep('What do ancient sources say about the battle of Actium?')
+    f = [x for x in facts if x.get('search') == 'events'][0]
+    assert f['coins'][0]['coin'] == 'RIC I (second edition) Augustus 265A' and f['coins'][0]['names_place']
+    assert 'Actium in 31 BCE' in f['coins'][0]['model_summary'] and '34 to 26 BCE' in f['coins_note']
+    site.event_coins = None                      # the encoder is down: the event still answers, without coins
+    out, facts = _prep('What do ancient sources say about the battle of Actium?')
+    f = [x for x in facts if x.get('search') == 'events'][0]
+    assert f['kind'] == t3.KIND_EVENT and 'coins' not in f
