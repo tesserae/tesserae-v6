@@ -18,6 +18,18 @@ import backend.documents_browse as browse_mod
 from backend.app import app
 
 
+@pytest.fixture(autouse=True)
+def _no_corpus_frequency_rebuild(monkeypatch):
+    """Line Search asks for the corpus word frequencies of the language. Where the
+    saved frequency file is out of date with texts/ (any machine whose texts
+    changed after the file was written), it lemmatizes the whole Latin corpus
+    in the request, which takes hours. These tests do not use the frequencies,
+    so give them an empty table and never read the machine's saved file."""
+    import backend.blueprints.line_search as line_search_mod
+    monkeypatch.setattr(line_search_mod, 'get_corpus_frequencies',
+                        lambda *a, **k: {'frequencies': {}})
+
+
 def _write_fixture_corpus(path, records):
     with open(path, "w", encoding="utf-8") as f:
         for rec in records:

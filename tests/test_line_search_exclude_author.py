@@ -46,7 +46,11 @@ def test_off_by_default_and_empty_value_change_nothing():
     same = _post(exclude_author='')
     same.pop('search_time', None)
     assert base == same
-    assert any(r['text_id'].startswith('vergil.') for r in base['results'])
+    # The line list stops at max_results in index order, so on a corpus that
+    # holds more works than the one CI builds, Vergil's lines can lie past the
+    # cut. by_work_all counts every work before the cut, so it is the check
+    # that Vergil matched at all.
+    assert any(w['work_id'].split('.')[0] == 'vergil' for w in base['by_work_all'])
 
 
 def test_vergil_excluded_and_page_stays_full():
