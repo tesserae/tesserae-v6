@@ -35,6 +35,20 @@ Conventions
   hand and are the models the helper matches.
 
 
+## 2026-10-24 Translations: six re-alignments where the installed English covers far less than its source (PLANNED, staged, not installed)
+Why. The sweep of 2026-10-24 found six works whose installed translation covers far less than a complete public-domain source. Four of the six shortfalls had a cause other than a poor scan (the corpus text for Martial and Petronius grew after their translations were built, and Book 8 and Book 14 of the Anthology print their epigram numbers in a layout the script did not read).
+
+What. Scripts under `scripts/translations/` (README, "Pipeline 9") built these files in `~/tesserae-backups/tr_realign_2026-10-24/final/` with `SHA256SUMS.txt`, all in the served shape (`units`, `ref_to_unit`), `compact_for_serving.py` run, none installed. Coverage is the share of the work's references that have an English unit, installed file against staged file.
+- `grc__anthologia_graeca.part.{7,8,14,15,16}.json`: 61.8, 57.7, 58.7, 63.3, 58.7 percent to 97.1, 99.2, 95.2, 90.6, 99.1. Names 0.85, 0.91, 0.78, 0.86, 0.83, length correlation 0.68, 0.84, 0.70, 0.66, 0.76. Paton's Loeb from five archive.org scans merged with an agreement check.
+- `extra_books_10_13/grc__anthologia_graeca.part.{10,11,12,13}.json` (the same method, not asked for): 85.1, 71.8, 67.2, 88.5 percent to 99.8, 98.4, 96.2, 100.
+- `la__martial.epigrams.json`: 67.4 to 99.2 percent (9,304 of 9,375 lines), Bohn with Ker for five epigrams (`unit_sources`), names 0.83, ten epigrams have English in neither book.
+- `la__pliny_the_younger.letters.json`: 47.2 to 86.1 percent, Firth (books 1 to 5) and Melmoth revised by Bosanquet (books 6 to 9 and 14 letters of Book 10), names 0.63, length correlation 0.98. Book 10 stays mostly without English (see the README).
+- `la__petronius.satyricon.json`: 27.6 to 76.8 percent, 21 of 29 verse passages, Heseltine, one page per passage.
+- `la__seneca.apocolocyntosis.json`: 42.4 to 100 percent, Rouse, one page per passage.
+- `grc__flavius_josephus.josephi_vita.json`: 17.7 to 100 percent, Thackeray, 79 units, names 1.0 on 79 pages.
+
+Install order (PLANNED). (1) Check `df -h /` and `sha256sum -c SHA256SUMS.txt` in the staging folder. (2) Back up the ten target files (and the four extras if installed) in `data/translations/` to `data/translations/backup-20261024-realign/`, stamped to the second. (3) Copy each staged file beside its target and rename over it at mode 664 (the translations loader reads a file once per worker, so `touch tesseraev6_flask.wsgi` after the last one). (4) For each work request `/api/translation?work=<work>&refs=<ref>` for two references and read the English beside the source (the preview check in the run record shows which). (5) Open the Sources page and confirm Ker, Thackeray, Heseltine, Rouse, Melmoth and Bosanquet are listed with their own years, and that the Martial credit line names two translators. (6) The golden check. Rollback: the backups renamed back.
+Run record. Preview on a copy of the production translations folder plus the staged files, port 8099, 22 translation requests (two per work) all returned the new English with the right translator, and the Reader's English view of Martial Book 11 showed the Bohn and Ker credit line. Not yet installed.
 ## 2026-10-24 Coins: stored thumbnails of the American Numismatic Society's own photographs (RUN 16:35 EDT install, 16:56 deploy, by hand)
 
 Why. The coin cards link out to numismatics.org for pictures, and on 2026-10-23 that site was down and the cards were blank.

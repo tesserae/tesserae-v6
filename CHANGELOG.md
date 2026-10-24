@@ -8,6 +8,7 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-24
+- Translations: scripts for six re-alignments where the installed English covered far less than its complete public-domain source. Greek Anthology books 7, 8, 14, 15, 16 (58 to 63 percent, now 91 to 99 in staging) and 10 to 13, Martial (67 to 99), Pliny the Younger's letters (47 to 86), Petronius (28 to 77), the Apocolocyntosis (42 to 100) and Josephus's Life (18 to 100). The data files are staged with checksums and not installed.
 - Coins: the stored thumbnails keep their 30-day cache header (the site-wide no-store rule exempted them), and the install run record.
 - Coins: the 12,156 Roman coin types that the American Numismatic Society holds show a small stored picture of front and back, the Society's own public-domain photograph, with a credit line on the card and the coin page. Other coins keep the link out.
 - Reader: a machine translation on request, from the free campus model, with its test reliability stated.

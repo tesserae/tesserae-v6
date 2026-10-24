@@ -316,6 +316,71 @@ Psalter and the Epistle to the Laodiceans. They are reported as having no Englis
 rather than forced onto the nearest-looking book, which is how the Prayer of
 Manasseh would end up answering for Manasseh in Chronicles.
 
+## Pipeline 9: re-alignments of 2026-10-24
+
+    align_anthologia_graeca.py + merge_anthologia_scans.py
+    align_martial_ker.py
+    align_pliny_bosanquet.py
+    align_loeb_pages.py      (Petronius, Apocolocyntosis)
+    align_josephus_vita.py
+
+Six works whose installed English covered a fraction of a complete public-domain source.
+Nothing here is a new translation. Each was re-aligned and measured against the same two
+checks as the rest. The data files are built in a staging folder and installed by hand
+(docs/DATA_OPERATIONS.md has the order).
+
+**Greek Anthology, Paton's Loeb (books 7, 8, 14, 15, 16, and 10 to 13 with the same method).**
+The earlier diagnosis (poor scans of volumes 4 and 5) was right but incomplete. Better
+archive.org scans exist for every volume. `greekanthology02unse` and `greekanthology05unse`
+cover 85 and 88 percent where the scans in use covered 51 and 61. Two layouts the script did not
+read cost the rest. Book 8's epigrams 177 to 254 and Book 14's Metrodorus run (116 to 146) print
+each epigram's number alone on a line under a range heading ("BOOK VIII. EPIGRAMS 177-181"), so the
+aligner now accepts a bare number inside a declared range, and only for the next epigram or the one
+after it, because a page number looks the same. The aligner runs once per scan, and
+`merge_anthologia_scans.py` then takes each epigram from the highest-coverage scan that has it. A
+filler from a lower scan is used only where it agrees with the best scan on the epigrams on both
+sides of it (same opening text), because one scan numbered Book 14's riddles two off for a whole
+stretch. The units are also cut where the next epigram's heading or the volume's index begins.
+Coverage 62, 58, 59, 63, 59 percent before and 97, 99, 95, 91, 99 after for books 7, 8, 14, 15 and 16,
+names 0.78 to 0.91, length correlation 0.66 to 0.84, and the share of epigrams on which two scans
+agree 90 to 95 percent.
+
+**Martial (Bohn 1860, Ker's Loeb 1919 and 1920).** The installed file was built against a
+6,399-line selection. The corpus text was replaced on 2026-09-18 by the complete 9,375 lines, so the file
+covered 67 percent for a reason that had nothing to do with the translation. Bohn's epigram
+anchors match the new numbers book by book, and aligned against the new text Bohn covers all but fifteen
+epigrams (Bohn prints Graglia's Italian for them or nothing). Ker's Loeb is not complete either: it prints the Latin of
+those epigrams and no English (4.48 is a plain case). Ker supplies 1.0, 1.58, 9.0, 11.45 and 11.58 (the two
+prefatory poems are read out of the epistles), and ten epigrams (2.84, 4.48, 9.41, 10.55, 10.81, 10.90, 11.95, 12.95,
+12.96, 12.97) have English in neither book and stay blank. `unit_sources` tells the Reader which translator wrote each unit.
+Coverage 67 to 99 percent, names 0.83 on 800 pairs, length correlation 0.92 per epigram.
+
+**Pliny the Younger, Letters (Melmoth revised by Bosanquet, the Bohn text, books 6 to 10).** Firth stays for
+books 1 to 5. Books 6 to 9 are paired by the printed letter number (the OCR'd numerals read as a Latin
+letter's number, in increasing order, with a length fit), plus pairs the order search adds between two numbered
+neighbors. 125 of 130 letters pair. Where the Gutenberg selection (PG 2811, the same translation, typed) holds the
+same letter, its clean text replaces the OCR. **Book 10 stays mostly without English.** Bosanquet reordered the Trajan letters against the numbering our
+text uses (his "LETTER IV. [xx.]" is a different letter from our 10.4), so the printed number cannot vouch. Only 14 of 124 letters
+carry a pairing that their own proper names support, and pairing the rest would put wrong English beside right Latin. A Melmoth-to-Mynors
+concordance for Book 10 is the missing piece. Coverage 47 to 86 percent, length correlation 0.98.
+
+**Petronius (Heseltine's Loeb, 1913) and the Apocolocyntosis (Rouse, same volume).** Our text holds only the verse
+passages of each (29 in Petronius, chapters 2, 4, 7, 12 and 15 of the Apocolocyntosis). Heseltine prints Petronius's verse as running prose and neither
+English page carries chapter numbers, so `align_loeb_pages.py` uses the layout of a Loeb. The Latin page and its English translation
+face each other and the running heads differ (TITUS PETRONIUS ARBITER over the Latin, SATYRICON over the English). A passage is found on
+its Latin page by its own words and takes the English page that follows. The unit is a whole page, about 15 source lines per
+unit, and always holds the passage's translation. Eight Petronius passages are skipped because Heseltine leaves them in Latin
+(23,3 and 132,8 are examples) or the page could not be read. Coverage Petronius 28 to 77 percent,
+Apocolocyntosis 42 to 100 percent.
+
+**Josephus, Life (Thackeray's Loeb, 1926).** Every English page of the Loeb carries a running head naming the small sections
+that begin on it ("THE LIFE, 4-11"), the same 430 sections our references use. Each reference takes the page that begins its
+section. Three scans are read because the OCR damages some heads, and a head is accepted only if it continues the chain of the heads
+before it. Coverage 18 to 100 percent in 79 units of about 5 sections.
+
+Environment variables this pipeline reads: `TESSERAE_TEXTS`, `TESSERAE_TRANS_OUT`, and for the Anthology
+`PATON_VOL_FILES` (JSON, volume to scan file), `PATON_ONLY_VOLS` and `PATON_LOG_DIR`.
+
 ---
 
 ## Paths
