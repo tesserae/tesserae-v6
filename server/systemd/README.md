@@ -53,11 +53,15 @@ starts first.
 
 ## Mail
 
-The visitor's email box on the page appears only when `SMTP_HOST` is set in the
-`.env` (the site's own administrator notices fall back to a local relay, which
-cannot be assumed to deliver to outside addresses). Set `SMTP_HOST`, and if
-needed `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_USE_TLS`, `SMTP_FROM`,
-then reload. Without it the status page, `/comparisons/<id>`, is the notice.
+The visitor's email box on the page, and the runner's mail step, depend on one
+setting, `VISITOR_MAIL_ENABLED`, read from the environment and true only for the
+value `1` (default off). `SMTP_HOST` is not the test: production sets it to
+`localhost` for the administrators' notices, and a test message sent through
+that relay to an outside Gmail address never arrived. Turn the setting on only
+after a relay that reaches outside addresses is configured (`SMTP_HOST`, and if
+needed `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_USE_TLS`, `SMTP_FROM`),
+then reload. With it off the status page, `/comparisons/<id>`, and the "Your
+prepared comparisons" list on the Compare page are the notice.
 
 ## Limit
 

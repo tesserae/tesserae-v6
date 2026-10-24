@@ -110,13 +110,15 @@ def send_visitor_email(to_address, subject, body):
     """Mail one visitor (a finished comparison download). False when it cannot be sent.
 
     Unlike send_notification, which goes to the administrators and falls back to
-    a local relay, this sends only when SMTP_HOST is set in the environment: the
-    site's other settings name no relay for outside addresses, and a message
-    that quietly goes nowhere is worse than none. The comparison page shows its
-    email box only when SMTP_HOST is set (backend/compare_limit.py).
+    a local relay, this sends only when VISITOR_MAIL_ENABLED is "1" and SMTP_HOST
+    is set: production's SMTP_HOST is localhost for the administrators' notices,
+    and that relay does not reach outside addresses, so a message to a visitor
+    would quietly go nowhere. The comparison page shows its email box only under
+    the same setting (backend/compare_limit.py).
     """
+    from backend.compare_limit import email_notice_available
     smtp_host = (os.environ.get('SMTP_HOST') or '').strip()
-    if not smtp_host or not to_address:
+    if not email_notice_available() or not smtp_host or not to_address:
         return False
     smtp_port = int(os.environ.get('SMTP_PORT', '25'))
     smtp_user = os.environ.get('SMTP_USER', '')

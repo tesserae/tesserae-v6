@@ -7,7 +7,7 @@ Description=Run the oldest queued comparison download (scripts/comparison_queue_
 Type=oneshot
 WorkingDirectory=/var/www/tesseraev6_flask
 # Runs from the production checkout (interpreter and script), so a deploy updates it.
-# DATABASE_URL (and SMTP_HOST, if the site can mail visitors) come from the
+# DATABASE_URL (and VISITOR_MAIL_ENABLED=1 with a working relay, if visitors are to be mailed) come from the
 # production .env, read here without being copied anywhere.
 EnvironmentFile=/var/www/tesseraev6_flask/.env
 # One job at a time, in its own scope in the job slice with a memory ceiling and

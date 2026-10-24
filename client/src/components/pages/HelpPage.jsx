@@ -477,13 +477,12 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 panel with two choices. Choose a book on one side and the page compares it now, with every chart. Or click
                 "Prepare the whole comparison as a download" and the server prepares the pair in a queue, one comparison at a
                 time. The panel gives a link to a status page that shows your place in line and, when the file is ready, the
-                download. If the site can send mail, the panel also asks for an optional email address and writes to it when
-                the file is ready. Keep the link either way, since a file is kept for 14 days.
+                download. Keep the link, since a file is kept for 14 days.
               </p>
               <p className="text-gray-700 mb-3">
                 The file is a CSV with the same columns as Export CSV (rank, the two loci, the two lines, the score, the matched
                 words and the channels), and it holds every parallel the search scored, not only the top rows the page shows.
-                With no email, the Compare page lists "Your prepared comparisons" for this browser, with the status and the
+                The Compare page lists "Your prepared comparisons" for this browser, with the status and the
                 link of each from the last 14 days. The charts need a comparison shown on the page, so they come from a book-by-book run
                 or from opening the pair after its file is ready. You can have two comparisons waiting at once. A pair already
                 run is answered from its saved result at any size.
