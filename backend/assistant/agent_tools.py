@@ -16,6 +16,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 
+from backend.work_names import base_work
 from backend.assistant import corpus_lookup, model, prompts, searches, site_help
 from backend.logging_config import get_logger
 
@@ -294,6 +295,87 @@ def t_read_passage(a):
     lines = [f"{x.get('ref')}: {x.get('text')}" for x in out.get('lines') or []]
     return _clip({'work': w.get('display_name') or base, 'lines': lines}, 6000) if lines else 'No lines found.'
 
+MAX_NAMED_LINES = 60
+
+
+def _author_works(author):
+    """{base work id: display name} for every work of the author the question names, or {} when the name is
+    no author. "Ovid", "Vergil" and "Virgil" all resolve; a name that is a title word only is not an author."""
+    try:
+        fixed = _corrected(author)
+    except Exception:                                     # noqa: BLE001 -- the listing may be unavailable
+        fixed = str(author or '')
+    hits = corpus_lookup.find_texts(fixed, limit=2000)
+    keys = {h.get('author_key') for h in hits if h.get('matched') == 'author' and h.get('author_key')}
+    out = {}
+    for r in corpus_lookup._all_texts():
+        if r.get('author_key') not in keys:
+            continue
+        base = base_work(_id(r))
+        if base not in out or (out[base][1] and not r.get('is_part')):
+            out[base] = (r.get('display_name') or base, bool(r.get('is_part')))
+    return {k: v[0] for k, v in out.items()}
+
+
+def _named_lines(entry_ids, labels, details, author, work):
+    """The entries' mentions in every work of the named author (or in the one named work), read through
+    the mentions route one work at a time. 2026-10-24: asked whether Dido appears in Ovid, she named two
+    works because the search result lists the entry's works only by count; the store holds four."""
+    wanted = {}
+    if author:
+        wanted = _author_works(author)
+        if not wanted:
+            return {'note': f'No author called {author!r} was found in the corpus listing.'}
+    elsewhere = []
+    if work and not author:
+        row = _one(work)
+        if not row:
+            return {'note': f'No work called {work!r} was found in the corpus listing.'}
+        base = base_work(_id(row))
+        wanted = {base: row.get('display_name') or base}
+    lines, counts, seen, capped = [], [], set(), False
+    for eid in entry_ids:
+        det = details.get(eid)
+        if det is None:
+            try:
+                det = searches._get('/entities/' + urllib.parse.quote(str(eid), safe=':'), {})
+            except (searches.SearchError, OSError, ValueError) as e:
+                logger.info('[ASSISTANT] entry %s unreadable: %s', eid, e)
+                continue
+        for w in (det or {}).get('works') or []:
+            stored = str(w.get('work') or '')
+            if base_work(stored) not in wanted:
+                if work and not author and len(elsewhere) < 8:
+                    elsewhere.append({'entry': labels.get(eid), 'work': w.get('display_name') or stored, 'lines': w.get('count')})
+                continue
+            seen.add(base_work(stored))
+            counts.append({'entry': labels.get(eid), 'work': w.get('display_name') or stored, 'lines': w.get('count')})
+            room = MAX_NAMED_LINES - len(lines)
+            if room <= 0:
+                capped = True
+                continue
+            try:
+                d = searches._get('/entities/' + urllib.parse.quote(str(eid), safe=':') + '/mentions',
+                                  {'work': stored, 'limit': room})
+            except (searches.SearchError, OSError, ValueError) as e:
+                logger.info('[ASSISTANT] lines of %s in %s unreadable: %s', eid, stored, e)
+                continue
+            for x in d.get('results') or []:
+                text = str(x.get('text') or '')
+                at = max(0, text.lower().find(str(x.get('token') or '').lower())) if x.get('token') else 0
+                lines.append({'entry': labels.get(eid), 'work': w.get('display_name') or stored,
+                              'line': x.get('locus') or x.get('line_ref'),
+                              'text': text[max(0, at - 100):at + 100].strip()})
+            if (d.get('total') or 0) > len(d.get('results') or []):
+                capped = True
+    out = {'lines_in_the_named_works': lines, 'lines_per_work': counts,
+           'works_of_this_author_with_no_mention': sorted(n for b, n in wanted.items() if b not in seen)}
+    if elsewhere:
+        out['works_where_it_is_named_instead'] = elsewhere
+    if capped:
+        out['note'] = f'Capped at {MAX_NAMED_LINES} lines across works; the counts per work are complete.'
+    return out
+
 
 def t_people_places(a):
     """The People & Places entry, with the inscriptions and papyri its page lists. 2026-10-22: asked
@@ -341,6 +423,14 @@ def t_people_places(a):
                         'Rusellae); these lines count as the place being named in literature.')
     if docs:
         head['inscriptions_and_papyri_naming_it'] = docs
+    author, work = str(a.get('author') or '').strip(), str(a.get('work') or '').strip()
+    if author or work:
+        top = [r for r in rows[:2] if r.get('id')]
+        head.update(_named_lines([r['id'] for r in top], {r['id']: r.get('display_label') or r.get('label') for r in top},
+                                 (out or {}).get('details') or {}, author, work))
+        # The summary is shortened here so the clip never cuts the lines of the named works.
+        brief = [{k: r.get(k) for k in ('id', 'display_label', 'type', 'mentions_total')} for r in rows[:3]]
+        return _clip({**head, 'people_and_places': {'search': {'results': brief}}}, 12000)
     return _clip({**head, 'people_and_places': out}, 8000)
 
 
@@ -463,7 +553,9 @@ TOOLS = {
                       {'text_a': 'first work', 'text_b': 'second work'}),
     'people_places': (t_people_places, 'Where a person, place or god is named in the corpus, with the inscriptions '
                       'and papyri that name it in any case form. Use it, not documents_search, for "which '
-                      'inscriptions name X".', {'name': 'the name'}),
+                      'inscriptions name X". When the question names an author or a work ("Does Dido appear in Ovid?"), '
+                      'fill author or work: the answer then lists the name\'s lines in every work of that author.',
+                      {'name': 'the name', 'author': 'the author the question names, if any', 'work': 'the work, if any'}),
     'events': (_direct('events'), 'An ancient battle, siege, treaty or campaign: date, place, passages, documents.',
                {'name': 'the event or its place', 'label': 'optional full title'}),
     'documents_search': (_direct('documents_search'), 'Inscriptions and papyri, by words in Latin or Greek.',
@@ -475,7 +567,8 @@ TOOLS = {
                    'with no language, the counts for every language (use it for "how big is the corpus").',
                    {'language': 'optional: la, grc, en, cop, he, fa or ur'}),
 }
-OPTIONAL = {'languages', 'books', 'label', 'kind', 'place', 'mint', 'search_type', 'language', 'ref_end', 'context'}
+OPTIONAL = {'author', 'languages', 'books', 'label', 'kind', 'place', 'mint', 'search_type', 'language', 'ref_end', 'context'}
+OPTIONAL_FOR = {'people_places': {'work'}}   # read_passage needs its work
 STEP = {'site_help': 'reading the Help pages', 'read_passage': 'reading the passage', 'compare_texts': 'running the comparison',
         'rare_words': 'finding the rare words', 'line_search': 'searching the lines',
         'theme_search': 'running a Theme Search', 'search_one_text': 'searching inside the work',
@@ -489,7 +582,7 @@ def tool_specs():
     for name, (_f, desc, args) in TOOLS.items():
         props = {k: {'type': 'string', 'description': v} for k, v in args.items()}
         out.append({'type': 'function', 'function': {'name': name, 'description': desc, 'parameters': {
-            'type': 'object', 'properties': props, 'required': [k for k in args if k not in OPTIONAL]}}})
+            'type': 'object', 'properties': props, 'required': [k for k in args if k not in OPTIONAL and k not in OPTIONAL_FOR.get(name, ())]}}})
     return out
 
 
