@@ -35,6 +35,17 @@ Conventions
   hand and are the models the helper matches.
 
 
+## 2026-10-24 Translations: fourteen new aligned English files, exact numbering, Part A (PLANNED, built and checked, not installed)
+
+Why. The sweep of 2026-10-24 found free English translations that share our numbering for several held works. This is the first of two batches (the second re-aligns six works where an installed translation covers little of a complete source).
+
+What. Fourteen files built by the scripts in `scripts/translations/` (README, "Pipelines 9 to 16"), kept in the staging folder `~/tesserae-backups/translations_exact_2026-10-24/out/` with `SHA256SUMS.txt` beside it. No file replaces an installed one, because none of the fourteen works has a translation file today. Works and coverage of our references: Oppian Halieutica 99.5 percent, Cynegetica 98.4, Colluthus 100, Tryphiodorus 100, Aratus 100, Callimachus Hymns 100, Lycophron 100, Bion Lament for Adonis 100, Theocritus Idylls 92.3 (Idylls 16, 19, 27 skipped, 20 absent), Pindar 89.5 (Pythian 6 skipped), Tibullus 92.4, Lysias 100, Gregory Dialogues 67.2 (Books 1 to 3), Polyaenus 45.1. All fourteen use the served shape (`units`, `ref_to_unit`), so `compact_for_serving.py` was run and changed nothing.
+
+Install order (PLANNED). (1) In the staging folder run `sha256sum -c SHA256SUMS.txt`. (2) Back up the live folder: `tar czf ~/tesserae-backups/translations_dir_before_exact_batch_<stamp>.tgz data/translations` from the production root. (3) Copy the fourteen files into `data/translations/` at mode 664 (copy beside, then rename over, though no name exists yet). (4) `touch tesseraev6_flask.wsgi`, because `backend/translations.py` reads its index of works once per worker. (5) Verify through the endpoint, for example `curl 'https://tesserae.caset.buffalo.edu/api/translation?work=lysias.speeches&refs=lys.%20speeches%201.26'` and one reference of each of the other thirteen works. (6) Check the Sources page lists the new translators (Mair, Mair and Mair, Edmonds, Sandys, Postgate, Lamb, P. W. with Gardner, Shepherd). (7) Run the golden check. (8) Withdraw nothing: no work was rejected, so no installed file needs removing.
+
+Checks. Each file passed proper-name agreement or length correlation (README table) and five passages of each were read against the original on a preview server with the files in place, with the Reader's Translation tab screenshot for Lysias 1.26. Not written: Seneca's tragedies (the installed 1907 files already cover 99.5 percent of the five-line blocks), Callimachus Epigrams and fragments, Gregory Book 4, and the poems whose printed numbering disagrees with ours (README, "Not written").
+
+
 ## 2026-10-24 Coins: stored thumbnails of the American Numismatic Society's own photographs (RUN 16:35 EDT install, 16:56 deploy, by hand)
 
 Why. The coin cards link out to numismatics.org for pictures, and on 2026-10-23 that site was down and the cards were blank.

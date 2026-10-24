@@ -8,6 +8,7 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-24
+- Translations: eight scripts under `scripts/translations/` build aligned public-domain English for fourteen works that had none (Oppian, Colluthus, Tryphiodorus, Aratus, Callimachus Hymns, Lycophron, Bion's Lament for Adonis, Theocritus Idylls, Pindar, Tibullus, Lysias, Gregory's Dialogues Books 1 to 3, Polyaenus), each checked by proper names and by length and read against the original. The built files are installed separately (planned entry in docs/DATA_OPERATIONS.md). Scripts and records only.
 - Coins: the stored thumbnails keep their 30-day cache header (the site-wide no-store rule exempted them), and the install run record.
 - Coins: the 12,156 Roman coin types that the American Numismatic Society holds show a small stored picture of front and back, the Society's own public-domain photograph, with a credit line on the card and the coin page. Other coins keep the link out.
 - Reader: a machine translation on request, from the free campus model, with its test reliability stated.

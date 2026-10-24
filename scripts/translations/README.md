@@ -318,6 +318,60 @@ Manasseh would end up answering for Manasseh in Chronicles.
 
 ---
 
+## Pipelines 9 to 16: the exact-numbering batch of 2026-10-24
+
+Fourteen works with no aligned English, from public-domain translations that share
+our numbering. One shared helper, `loeb_common.py`, ends every script the same way.
+It runs the two checks of this document and writes the served file only if one of
+them vouches. It also holds the cleaning every scanned Loeb page needs (footnote
+blocks cut off the page, folios and running heads, words the scan broke across
+lines). Sources stay in a staging folder (`TESSERAE_BATCH_STAGE`), never in the
+repository, and the files ship by copy (see "Installing a build").
+
+**What the checks cannot catch, found by reading passages.** Both checks passed an
+Epigrams alignment of Callimachus in which epigram 13 held the English of a different
+epigram (names 0.227, length 0.451, floors 0.25 and 0.45, so the length check passed by
+a hair). It was not written. A first Polyaenus version paired "Thibron" with a chapter
+about Mnasippidas at names 0.91 and length 0.94. Reading five passages of every work
+against the original is part of the procedure, and where numbers are read off a scan
+the script now confirms each pairing by an independent signal before writing it.
+
+| Script | Works | Source | Method | Coverage | Names | Length r |
+|---|---|---|---|---|---|---|
+| `align_oppian_mair.py` | Oppian, Halieutica and Cynegetica | Mair, Loeb 1928 | running head with Greek line range, as Statius | 99.5%, 98.4% | 0.54, 0.71 | 0.71, 0.62 |
+| `align_oppian_mair.py` | Colluthus, Tryphiodorus | Mair, Loeb 1928 | no ranges in the heads, so the Greek lines of the facing page are counted and scaled to our line count | 100%, 100% | 0.69, 0.77 | 0.91, 0.67 |
+| `align_theoi_exact.py` | Aratus, Callimachus Hymns, Lycophron, Bion Lament for Adonis, Theocritus Idylls | Mair and Mair, Loeb 1921, and Edmonds, Loeb 1912, as transcribed by Theoi | paragraph markers that are Greek line numbers | 100%, 100%, 100%, 100%, 92.3% | 0.36, 0.77, 0.79, 0.89, 0.75 | 0.99, 0.99, 1.00, -0.17, 0.63 |
+| `align_pindar_sandys.py` | Pindar, Odes | Sandys, Loeb 1915 | running head with ode and line range | 89.5% | 0.65 | -0.05 |
+| `align_tibullus_postgate.py` | Tibullus | Postgate, Loeb 1912 | the facing Latin page is found in our Latin text, the English page takes those lines | 92.4% | 0.64 | 0.36 |
+| `align_lysias_lamb.py` | Lysias, Speeches | Lamb, Loeb 1930, via Perseus TEI (pipeline 1) | speech and section, one to one | 100% | 0.84 | 0.91 |
+| `align_gregory_dialogues.py` | Gregory the Great, Dialogues, Books 1 to 3 | P. W. 1608, edited by Gardner 1911 | chapter heads in a blackletter scan, numbered by a monotone fit | 67.2% (Book 4 not written) | 0.74 | 0.995 |
+| `align_polyaenus_shepherd.py` | Polyaenus, Stratagems | Shepherd 1793 | the order of the generals named in the chapter heads, matched to our chapters by the longest common subsequence | 45.1% | 0.87 | 0.88 |
+
+Where a check is weak, the other speaks. Aratus has few names but a length correlation
+of 0.99. Pindar and Bion have a length correlation near zero or below (Bion's eleven
+units are few and alike in length) and are vouched by names and by reading.
+
+**Not written, and why.**
+- Seneca's tragedies from Miller's Loeb of 1917. The installed files of 1907 already
+  cover 99.5 percent of our references (205 of 206 in Medea, 207 of 208 in Oedipus),
+  one block of English per five-line block, which is the finest grain our
+  references allow. The figure of 19 percent in the sweep came from dividing
+  references by lines, and our references are blocks of five lines. The Loeb
+  transcription on Theoi marks one paragraph per speech, 15 to 60 lines, so it would
+  replace finer English with coarser.
+- Callimachus Epigrams, the Aetia, the Hecale, the Iambi and the other fragments.
+  The Epigrams numerals are read too badly to number them (see above), and the
+  fragment files follow Pfeiffer's numbering, not Mair's.
+- Theocritus Idylls 16, 19, 20 and 27 and Pythian 6 of Pindar. The printed
+  numbering runs past our line count (Idyll 16: 114 against 109, Idyll 19: 33
+  against 8, Idyll 27: 72 against 43, Pythian 6: 54 against 50). Theoi has no
+  Idyll 20.
+- Gregory, Book 4. Our Latin ends at chapter 60 and the English runs to 62
+  chapters, so the two numberings disagree.
+- Theocritus Epigrams, Bion's other poems, Moschus.
+
+---
+
 ## Paths
 
 Defaults are the machine this was run on, kept so the record is honest, and
@@ -328,6 +382,7 @@ overridable so nobody edits a checked-in file to run it elsewhere:
 | `TESSERAE_PERSEUS_WORK` | `~/perseus_trans/work` |
 | `TESSERAE_TEXTS` | `/var/www/tesseraev6_flask/texts` |
 | `TESSERAE_TRANS_OUT` | `~/perseus_trans/translations_v3` |
+| `TESSERAE_BATCH_STAGE` | `~/tesserae-backups/translations_exact_2026-10-24` (sources in `src/`, built files in `out/`) |
 | `TESSERAE_BIBLE_SRC` | `~/perseus_trans/bible_src` |
 | `TESSERAE_BIBLE_OUT` | `~/perseus_trans/translations_bible` |
 | `TESSERAE_SENECA_SRC` | `~/perseus_trans/seneca_src/pg57999.txt` |
