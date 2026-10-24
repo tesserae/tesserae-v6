@@ -94,8 +94,12 @@ SRC_DIR = (sys.argv[1] if len(sys.argv) > 1 else
            os.environ.get('PATON_SRC_DIR',
                           '/home/ncoffee/tesserae-backups/curtius_batch_scratch_2026-09-10/'
                           'scratch_curtius/translations_src'))
-TESS_DIR = os.path.join(ROOT, 'texts', 'grc')
-OUT_DIR = os.path.join(ROOT, 'data', 'translations')
+TESS_DIR = os.path.join(os.environ.get('TESSERAE_TEXTS', os.path.join(ROOT, 'texts')), 'grc')
+OUT_DIR = os.environ.get('TESSERAE_TRANS_OUT', os.path.join(ROOT, 'data', 'translations'))
+# Re-runs on a better scan: PATON_VOL_FILES='{"2": "scan.txt", "5": "scan2.txt"}'
+# swaps the file of a volume, PATON_ONLY_VOLS='2,5' runs only those volumes, and
+# PATON_LOG_DIR keeps the log and report beside the output instead of in scripts/.
+LOG_DIR = os.environ.get('PATON_LOG_DIR', HERE)
 
 VOLUMES = [
     # 'year' is read from each volume's own title/copyright page ("First
@@ -119,6 +123,13 @@ VOLUMES = [
     {'file': 'greekanthology0005wrpa_djvu.txt', 'books': [13, 14, 15, 16],
      'vol': 5, 'first_roman': 'XIII', 'year': 1918},
 ]
+_VOL_FILES = json.loads(os.environ.get('PATON_VOL_FILES', '{}'))
+for _v in VOLUMES:
+    if str(_v['vol']) in _VOL_FILES:
+        _v['file'] = _VOL_FILES[str(_v['vol'])]
+_ONLY = [int(x) for x in os.environ.get('PATON_ONLY_VOLS', '').split(',') if x]
+if _ONLY:
+    VOLUMES = [_v for _v in VOLUMES if _v['vol'] in _ONLY]
 BOOK_YEAR = {b: v['year'] for v in VOLUMES for b in v['books']}
 
 ROMAN = {1: 'I', 2: 'II', 3: 'III', 4: 'IV', 5: 'V', 6: 'VI', 7: 'VII', 8: 'VIII',
@@ -189,6 +200,11 @@ SHORT_NOISE_RE = re.compile(r'^\s*[^A-Za-z0-9]{0,4}\s*$')
 MARKER_RE = re.compile(
     r'^\s*([0-9lIoO]{1,4})\s*([a-zA-Z])?\s*[.,]?\s*[—–-]+\s*([A-Z][^\n]*)$')
 
+BARE_PREFIX = '@@NUM@@ '
+RANGE_PREFIX = '@@RANGE@@ '
+RUNHEAD_RANGE_RE = re.compile(r'EPIGRAMS?\s+([0-9lIoO\u03bf]{1,4})\s*[-\u2013\u2014]+\s*([0-9lIoO\u03bf]{1,4})\b', re.IGNORECASE)
+RANGE_HEAD_RE = re.compile(r'^\s*([0-9]{1,4})\s*[-\u2013\u2014]+\s*([0-9]{1,4})\s*[.,]?\s*[-\u2013\u2014_]+')
+
 NUMERAL_MAP = str.maketrans({'l': '1', 'I': '1', 'o': '0', 'O': '0'})
 
 
@@ -212,8 +228,21 @@ def build_english_lines(raw_lines):
         if not stripped:
             continue
         if HEADER_RE.match(stripped):
+            # A running head like "BOOK VIII. EPIGRAMS 177-181" also tells which
+            # epigrams the page holds; keep that as a sentinel (see BARE_PREFIX).
+            mh = RUNHEAD_RANGE_RE.search(stripped)
+            if mh:
+                lo = normalize_numeral(mh.group(1)).replace('\u03bf', '0')
+                hi = normalize_numeral(mh.group(2)).replace('\u03bf', '0')
+                if lo.isdigit() and hi.isdigit():
+                    kept.append(RANGE_PREFIX + lo + ' ' + hi)
             continue
         if PAGE_NUM_RE.match(stripped):
+            # A bare number is a page number nearly always, but under a range
+            # heading ("116-146.-METRODORUS' ARITHMETICAL EPIGRAMS") Paton prints
+            # each epigram's number alone on its line. Keep the number as a
+            # sentinel; find_markers accepts it only inside such a range.
+            kept.append(BARE_PREFIX + stripped)
             continue
         if SHORT_NOISE_RE.match(stripped):
             continue
@@ -238,7 +267,7 @@ def dehyphenate_join(lines):
         if not line:
             continue
         if (out and out[-1].endswith('-') and not out[-1].endswith('--')
-                and not MARKER_RE.match(line)):
+                and not MARKER_RE.match(line) and not line.startswith((BARE_PREFIX, RANGE_PREFIX))):
             out[-1] = out[-1][:-1] + line
         else:
             out.append(line)
@@ -314,9 +343,23 @@ def find_markers(lines):
     every SHORT standalone line that looks like a genuine English epigram
     heading (Greek-bleed-looking headings are dropped at the source)."""
     out = []
+    rng = None
     for i, line in enumerate(lines):
+        if line.startswith(RANGE_PREFIX):
+            lo, hi = line[len(RANGE_PREFIX):].split()
+            if int(hi) >= int(lo):
+                rng = (int(lo), int(hi))
+            continue
+        if line.startswith(BARE_PREFIX):
+            tok = line[len(BARE_PREFIX):].strip()
+            if rng and tok.isdigit() and rng[0] <= int(tok) <= rng[1]:
+                out.append((i, tok, '', 'BARE'))
+            continue
         if len(line) > 60:
             continue
+        mr = RANGE_HEAD_RE.match(line)
+        if mr and int(mr.group(2)) > int(mr.group(1)):
+            rng = (int(mr.group(1)), int(mr.group(2)))
         m = MARKER_RE.match(line)
         if not m:
             continue
@@ -447,7 +490,10 @@ def align_volume(concat_expected, book_of_index, markers, log, vol_n):
         matched_idx = None
         wide_jump = False
         # 1) exact match at current position (case-insensitive letter)
-        window = concat_expected[ei:ei + WINDOW]
+        bare = (rest == 'BARE')
+        # A bare number is also what a page number looks like, so it may only
+        # confirm the very next epigram or the one after it, never repair or jump.
+        window = concat_expected[ei:ei + (3 if bare else WINDOW)]
         for off, exp in enumerate(window):
             if exp == cand or exp == cand_l or exp.lower() == cand_l.lower():
                 matched_idx = ei + off
@@ -460,7 +506,7 @@ def align_volume(concat_expected, book_of_index, markers, log, vol_n):
         # opening the NEXT book looks like next to an expected id like "31"
         # -- too dangerous to paper over here; left to the wide search below,
         # which requires confirmation from the following marker too.
-        if matched_idx is None and ei < n:
+        if matched_idx is None and ei < n and not bare:
             exp = concat_expected[ei]
             exp_base = base_num(exp)
             if (letter == '' and len(exp_base) == len(raw)
@@ -474,7 +520,7 @@ def align_volume(concat_expected, book_of_index, markers, log, vol_n):
         # then continues in sequence right after it -- a real resync, not a
         # lone coincidental collision with some garbage numeral elsewhere in
         # the same book.
-        if matched_idx is None and ei < n:
+        if matched_idx is None and ei < n and not bare:
             cur_book = book_of_index[ei]
             hi = min(n, ei + WIDE_SEARCH_CAP)
             for p in range(ei + WINDOW, hi):
@@ -595,7 +641,7 @@ def process_volume(vol, log):
     markers_all = []
     for k, (idx, num_tok, letter, rest) in enumerate(markers_dedup):
         end = marker_positions[k + 1] if k + 1 < len(marker_positions) else len(joined)
-        body_lines = joined[idx + 1:end]
+        body_lines = [l for l in joined[idx + 1:end] if not l.startswith((BARE_PREFIX, RANGE_PREFIX))]
         body = ' '.join(body_lines)
         markers_all.append((num_tok, letter, rest, body))
 
@@ -741,12 +787,61 @@ def english_likeness(unit):
     return ok, density, novowel_frac, len(toks3)
 
 
+# The next epigram's heading ("301.-TOY AYTOY", "239.-APOLLONIDES") can ride into the
+# end of an epigram's unit when the marker pass dropped it as Greek-page bleed or as
+# a duplicate. Everything from such a heading on belongs to a later epigram (its Greek
+# heading, its footnotes, sometimes its own body), so the unit is cut there.
+NEXT_HEADING_RE = re.compile(
+    r'\s\d{1,3}\s?[.,]?\s?[\u2014\u2013\-]{1,3}\s?[A-Z\u0391-\u03a9\u0370-\u03ff][^a-z]{2,}'
+    r'|\s\d{1,3}\s?[\u2014\u2013\-]\s?\d{1,3}\s?\.\s?[\u2014\u2013\-]{1,3}')
+
+
+BOOK_END_RE = re.compile(r'\s(?:INDEXES|GENERAL INDEX|INDEX OF|BOOK [IVXL]+\b)')
+JUNK_TAIL_RE = re.compile(r'[^A-Za-z\s.,;:!?\'"\u2018\u2019\u201c\u201d()\-]')
+
+
+def trim_book_end(unit, counts):
+    """The last epigram of a book runs on into the next book's title or the
+    volume's index, and OCR junk sits just before them. Cut at the title or index,
+    then drop a trailing fragment that is mostly symbols and digits."""
+    m = BOOK_END_RE.search(unit)
+    if m and m.start() > 8:
+        unit = unit[:m.start()].rstrip()
+        counts['book_end_trimmed'] += 1
+        end = max(unit.rfind(c) for c in '.!?')
+        tail = unit[end + 1:] if end >= 0 else ''
+        if end >= 0 and len(tail) > 12 and (len(JUNK_TAIL_RE.findall(tail)) / max(1, len(tail)) > 0.08
+                                             or english_likeness(tail)[0] is False):
+            unit = unit[:end + 1]
+        # the junk can itself end in a full stop ("... {OM 5."): drop trailing
+        # sentences that are mostly symbols
+        while True:
+            end = max(unit[:-1].rfind(c) for c in '.!?')
+            tail = unit[end + 1:] if end >= 0 else ''
+            if end >= 0 and len(tail.strip()) > 8 and \
+                    len(JUNK_TAIL_RE.findall(tail)) / max(1, len(tail)) > 0.15:
+                unit = unit[:end + 1]
+            else:
+                break
+    return unit
+
+
+def trim_next_heading(unit, counts):
+    m = NEXT_HEADING_RE.search(unit)
+    if m and m.start() > 8:
+        counts['next_heading_trimmed'] += 1
+        return unit[:m.start()].rstrip()
+    return unit
+
+
 def clean_book_units(book_n, units, eid_to_pos, greek_refs, repair_counts, log):
     """Repair the first-word small-caps OCR, then drop any unit that fails
     the English-likeness test, compacting positions and remapping eid ->
     position (and the refs that pointed at each dropped position, for the
     log) accordingly. Only removes units; never invents or merges text."""
     units = [repair_first_word(u, repair_counts) for u in units]
+    units = [trim_next_heading(u, repair_counts) for u in units]
+    units = [trim_book_end(u, repair_counts) for u in units]
 
     pos_to_refs = {}
     for ref, gtext in greek_refs:
@@ -798,7 +893,7 @@ def main():
 
     grand_expected = 0
     grand_matched = 0
-    for book_n in range(1, 17):
+    for book_n in sorted(all_expected):
         expected = all_expected[book_n]
         greek_refs = load_greek_refs(book_n)
         units = all_per_book_units[book_n]
@@ -927,9 +1022,9 @@ def main():
         print('   (0 occurrences):', ', '.join(zero))
 
     log['first_word_repairs'] = {w: repair_counts.get(w, 0) for w in FIRST_WORD_REPAIRS}
-    json.dump(log, open(os.path.join(HERE, 'align_anthologia_graeca_log.json'), 'w'),
+    json.dump(log, open(os.path.join(LOG_DIR, 'align_anthologia_graeca_log.json'), 'w'),
                ensure_ascii=False, indent=1)
-    json.dump(report_rows, open(os.path.join(HERE, 'align_anthologia_graeca_report.json'), 'w'),
+    json.dump(report_rows, open(os.path.join(LOG_DIR, 'align_anthologia_graeca_report.json'), 'w'),
                ensure_ascii=False, indent=1)
 
 

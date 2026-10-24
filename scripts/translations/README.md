@@ -316,21 +316,89 @@ Psalter and the Epistle to the Laodiceans. They are reported as having no Englis
 rather than forced onto the nearest-looking book, which is how the Prayer of
 Manasseh would end up answering for Manasseh in Chronicles.
 
-## Pipeline 9: the Coptic Septuagint books, Budge, and the Persian and Urdu attempts (2026-10-24)
+## Pipeline 18: re-alignments of 2026-10-24
 
+    align_anthologia_graeca.py + merge_anthologia_scans.py
+    align_martial_ker.py
+    align_pliny_bosanquet.py
+    align_loeb_pages.py      (Petronius, Apocolocyntosis)
+    align_josephus_vita.py
+
+Six works whose installed English covered a fraction of a complete public-domain source.
+Nothing here is a new translation. Each was re-aligned and measured against the same two
+checks as the rest. The data files are built in a staging folder and installed by hand
+(docs/DATA_OPERATIONS.md has the order).
+
+**Greek Anthology, Paton's Loeb (books 7, 8, 14, 15, 16, and 10 to 13 with the same method).**
+The earlier diagnosis (poor scans of volumes 4 and 5) was right but incomplete. Better
+archive.org scans exist for every volume. `greekanthology02unse` and `greekanthology05unse`
+cover 85 and 88 percent where the scans in use covered 51 and 61. Two layouts the script did not
+read cost the rest. Book 8's epigrams 177 to 254 and Book 14's Metrodorus run (116 to 146) print
+each epigram's number alone on a line under a range heading ("BOOK VIII. EPIGRAMS 177-181"), so the
+aligner now accepts a bare number inside a declared range, and only for the next epigram or the one
+after it, because a page number looks the same. The aligner runs once per scan, and
+`merge_anthologia_scans.py` then takes each epigram from the highest-coverage scan that has it. A
+filler from a lower scan is used only where it agrees with the best scan on the epigrams on both
+sides of it (same opening text), because one scan numbered Book 14's riddles two off for a whole
+stretch. The units are also cut where the next epigram's heading or the volume's index begins.
+`repair_anthologia_small_caps.py` then repairs the first words that the Loeb's small capitals left garbled
+("TuereE" for There, "Tue" for The, "ImaGInE"). The table of the 2026-09-10 install only saw the first word of a unit, and
+about one unit in eight opens with a heading ("On the Same Tue ..."), so the table now applies to the first eight words (and the
+words that are not English at all anywhere in a unit). A word with capitals in the middle is put back into ordinary case and its
+OCR confusions (u for h, p for d) are undone where the result is a word the corpus itself uses. 537 words repaired across
+the nine staged files, and the units with an odd-case word among their first twelve fell from 306 of 2,385 to 5. Garbles in
+the letters of a proper name (Ampuilocuus for Amphilochus) keep their letters and only have their case repaired. Every change is in
+the staged `small_caps_repair_log.tsv`.
+Coverage 62, 58, 59, 63, 59 percent before and 97, 99, 95, 91, 99 after for books 7, 8, 14, 15 and 16,
+names 0.78 to 0.91, length correlation 0.66 to 0.84, and the share of epigrams on which two scans
+agree 90 to 95 percent.
+
+**Martial (Bohn 1860, Ker's Loeb 1919 and 1920).** The installed file was built against a
+6,399-line selection. The corpus text was replaced on 2026-09-18 by the complete 9,375 lines, so the file
+covered 67 percent for a reason that had nothing to do with the translation. Bohn's epigram
+anchors match the new numbers book by book, and aligned against the new text Bohn covers all but fifteen
+epigrams (Bohn prints Graglia's Italian for them or nothing). Ker's Loeb is not complete either: it prints the Latin of
+those epigrams and no English (4.48 is a plain case). Ker supplies 1.0, 1.58, 9.0, 11.45 and 11.58 (the two
+prefatory poems are read out of the epistles), and ten epigrams (2.84, 4.48, 9.41, 10.55, 10.81, 10.90, 11.95, 12.95,
+12.96, 12.97) have English in neither book and stay blank. `unit_sources` tells the Reader which translator wrote each unit.
+Coverage 67 to 99 percent, names 0.83 on 800 pairs, length correlation 0.92 per epigram.
+
+**Pliny the Younger, Letters (Melmoth revised by Bosanquet, the Bohn text, books 6 to 10).** Firth stays for
+books 1 to 5. Books 6 to 9 are paired by the printed letter number (the OCR'd numerals read as a Latin
+letter's number, in increasing order, with a length fit), plus pairs the order search adds between two numbered
+neighbors. 125 of 130 letters pair. Where the Gutenberg selection (PG 2811, the same translation, typed) holds the
+same letter, its clean text replaces the OCR. **Book 10 stays mostly without English.** Bosanquet reordered the Trajan letters against the numbering our
+text uses (his "LETTER IV. [xx.]" is a different letter from our 10.4), so the printed number cannot vouch. Only 14 of 124 letters
+carry a pairing that their own proper names support, and pairing the rest would put wrong English beside right Latin. A Melmoth-to-Mynors
+concordance for Book 10 is the missing piece. Coverage 47 to 86 percent, length correlation 0.98.
+
+**Petronius (Heseltine's Loeb, 1913) and the Apocolocyntosis (Rouse, same volume).** Our text holds only the verse
+passages of each (29 in Petronius, chapters 2, 4, 7, 12 and 15 of the Apocolocyntosis). Heseltine prints Petronius's verse as running prose and neither
+English page carries chapter numbers, so `align_loeb_pages.py` uses the layout of a Loeb. The Latin page and its English translation
+face each other and the running heads differ (TITUS PETRONIUS ARBITER over the Latin, SATYRICON over the English). A passage is found on
+its Latin page by its own words and takes the English page that follows. The unit is a whole page, about 15 source lines per
+unit, and always holds the passage's translation. Eight Petronius passages are skipped because Heseltine leaves them in Latin
+(23,3 and 132,8 are examples) or the page could not be read. Coverage Petronius 28 to 77 percent,
+Apocolocyntosis 42 to 100 percent.
+
+**Josephus, Life (Thackeray's Loeb, 1926).** Every English page of the Loeb carries a running head naming the small sections
+that begin on it ("THE LIFE, 4-11"), the same 430 sections our references use. Each reference takes the page that begins its
+section. Three scans are read because the OCR damages some heads, and a head is accepted only if it continues the chain of the heads
+before it. Coverage 18 to 100 percent in 79 units of about 5 sections.
+
+Environment variables this pipeline reads: `TESSERAE_TEXTS`, `TESSERAE_TRANS_OUT`, and for the Anthology
+`PATON_VOL_FILES` (JSON, volume to scan file), `PATON_ONLY_VOLS` and `PATON_LOG_DIR`.
+## Pipeline 17: the Coptic Septuagint books, Budge, and the Persian and Urdu attempts (2026-10-24)
     align_coptic_brenton.py     coptic_align_common.py
     align_budge_sections.py
     align_khayyam_whinfield.py  persian_poems.py  persian_semantic_common.py
-
 Built on copies in `~/tesserae-backups/tr-d-staging/`, **not installed** (see
 docs/DATA_OPERATIONS.md, entry PLANNED). Coptic has no capital letters and no printed
 numbers beyond the verse, so the two checks of "Why this is delicate" are done differently here,
 each against a displaced control (the same Coptic lines paired with English from seven places along).
-
 *Names.* The capitalized names of the English unit are folded to a consonant skeleton and looked
 for inside the consonant skeleton of the Coptic verse (Coptic writes Greek names in Greek spelling,
 so Nabuchodonosor appears as ⲛⲁⲃⲟⲩⲭⲟⲇⲟⲛⲟⲥⲟⲣ). *Length.* The same correlation as pipeline 2.
-
 **Coptic Old Testament against Brenton 1851** (`align_coptic_brenton.py`). The installed Bohairic
 Daniel paired chapter n with the World English Bible's chapter n, which translates the Hebrew; the
 Bohairic text divides Daniel 3 over three chapters and carries Susanna and Bel, so chapters 3 to 12
@@ -342,7 +410,6 @@ programming (Gale and Church 1993; one-to-one, one-to-two, two-to-one and unmatc
 the verse number is used as a prior only where both traditions number alike (Proverbs). Verses
 that Brenton prints in parts (Proverbs 4:27a, 4:27b) are kept apart for the aligner; the shared loader
 `align_greek_bible.load_usfm` keeps only the last part of such a verse and leaves the letter in the text.
-
 Written: Bohairic Psalter (2,305 of 2,314 lines, names 0.315 against 0.095, length 0.609 against
 0.016, two psalms left out whose own alignment costs too much), Sahidic Proverbs (794 of 890, length
 0.562 against 0.056, chapters 24, 30 and 31 left out because the Septuagint prints them in a different
@@ -354,7 +421,6 @@ those two, and the five-line Bel and two-line 1 Chronicles fragments, are too sh
 broken to pass either check and are not written. Where the Coptic fragment numbers its verses afresh
 (Bel, 1 Chronicles 17) the number says nothing about the place, and length alone placed the fragment
 wrongly when tested by eye.
-
 **Budge, section level** (`align_budge_sections.py`, Mercurius, Theodosius on Michael, Bartholomew,
 Repose of John). Our Coptic files number sentences or manuscript lines, with no folio marks, so the
 English is cut into two-or-three-sentence segments and paired with runs of Coptic lines by dynamic
@@ -365,7 +431,6 @@ used as the check. **No file is written**: the withheld names do no better than 
 Coptic file called `mercurius` also holds two Budge texts in an order that is not his (XI then X), which
 the script finds by trying the orders. The six texts the sweep left unsettled are not in Budge's
 Coptic Martyrdoms (1914, ten texts) or Biblical Texts (1912, four books).
-
 **Persian by meaning** (`align_khayyam_whinfield.py`, `persian_semantic_common.py`,
 `persian_poems.py`). The Internet Archive scans of Whinfield's Khayyam and Clarke's Hafiz carry the
 English only (the Persian is printed as images), so there is no first line to match. The quatrains
@@ -380,16 +445,12 @@ Clarke's Hafiz (Volume I only on the Archive) interleaves the translation with c
 "signifies" glosses couplet by couplet, so the translation cannot be separated by rule; Nizami and
 Hafez are not attempted for that reason and the numbering of Wilson's Haft Paikar (every few lines
 of prose) does not follow our couplets.
-
 **Urdu: Hindustani Lyrics (1919)** is not attempted. It holds about 107 English poems in free
 rhymed verse, each tied to a poet by name and none to a line of Urdu, and our Urdu files for the
 eleven poets it draws on hold about 38,000 lines. Matching would need an encoder run over all of
 them and has nothing to check against (no names, no numbers, no length that survives paraphrase).
-
 ---
-
 ## Pipelines 9 to 16: the exact-numbering batch of 2026-10-24
-
 Fourteen works with no aligned English, from public-domain translations that share
 our numbering, built by seven alignment scripts and one shared helper, `loeb_common.py`, ends every script the same way.
 It runs the two checks of this document and writes the served file only if one of
@@ -402,7 +463,6 @@ body text with it. It also holds the cleaning every scanned Loeb page needs (foo
 blocks cut off the page, folios and running heads, words the scan broke across
 lines). Sources stay in a staging folder (`TESSERAE_BATCH_STAGE`), never in the
 repository, and the files ship by copy (see "Installing a build").
-
 **What the checks cannot catch, found by reading passages.** Both checks passed an
 Epigrams alignment of Callimachus in which epigram 13 held the English of a different
 epigram (names 0.227, length 0.451, floors 0.25 and 0.45, so the length check passed by
@@ -410,7 +470,6 @@ a hair). It was not written. A first Polyaenus version paired "Thibron" with a c
 about Mnasippidas at names 0.91 and length 0.94. Reading five passages of every work
 against the original is part of the procedure, and where numbers are read off a scan
 the script now confirms each pairing by an independent signal before writing it.
-
 | Script | Works | Source | Method | Coverage | Names | Length r |
 |---|---|---|---|---|---|---|
 | `align_oppian_mair.py` | Oppian, Halieutica and Cynegetica | Mair, Loeb 1928 | running head with Greek line range, as Statius | 99.5%, 98.4% | 0.54, 0.71 | 0.71, 0.62 |
@@ -421,11 +480,9 @@ the script now confirms each pairing by an independent signal before writing it.
 | `align_lysias_lamb.py` | Lysias, Speeches | Lamb, Loeb 1930, via Perseus TEI (pipeline 1) | speech and section, one to one | 100% | 0.84 | 0.91 |
 | `align_gregory_dialogues.py` | Gregory the Great, Dialogues, Books 1 to 3 | P. W. 1608, edited by Gardner 1911 | chapter heads in a blackletter scan, numbered by a monotone fit | 67.2% (Book 4 not written) | 0.74 | 0.995 |
 | `align_polyaenus_shepherd.py` | Polyaenus, Stratagems | Shepherd 1793 | the order of the generals named in the chapter heads, matched to our chapters by the longest common subsequence | 45.1% | 0.87 | 0.88 |
-
 Where a check is weak, the other speaks. Aratus has few names but a length correlation
 of 0.99. Pindar and Bion have a length correlation near zero or below (Bion's eleven
 units are few and alike in length) and are vouched by names and by reading.
-
 **Not written, and why.**
 - Seneca's tragedies from Miller's Loeb of 1917. The installed files of 1907 already
   cover 99.5 percent of our references (205 of 206 in Medea, 207 of 208 in Oedipus),
