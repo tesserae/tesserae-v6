@@ -99,6 +99,38 @@ def passage_lines(work, ref_start=None, ref_end=None, context=0,
             'capped': capped, 'total': total, 'returned': len(out)}
 
 
+def quick_lines(work, ref_start, ref_end, cap=MAX_LINES):
+    """The lines from one exact reference to another, read with three small queries.
+
+    passage_lines reads the reference of every line of the work to resolve
+    cleaned references, which on a busy server costs seconds for a long work
+    (each fetched row waits for the interpreter lock). The Reader sends the
+    stored references as they are, so an exact match is tried first; when
+    either reference is not found as stored, passage_lines answers instead.
+    Same answer shape as passage_lines."""
+    c = _conn()
+    base = _base_work(work)
+    if c is None or not base:
+        return passage_lines(work, ref_start, ref_end, cap=cap)
+    try:
+        a = c.execute('SELECT ord FROM lines WHERE work = ? AND ref = ? LIMIT 1', (base, ref_start)).fetchone()
+        b = c.execute('SELECT ord FROM lines WHERE work = ? AND ref = ? LIMIT 1', (base, ref_end)).fetchone()
+        if not a or not b:
+            return passage_lines(work, ref_start, ref_end, cap=cap)
+        i, j = sorted((a[0], b[0]))
+        total = j - i + 1
+        capped = total > cap
+        if capped:
+            j = i + cap - 1
+        out = c.execute('SELECT ref, text FROM lines WHERE work = ? AND ord BETWEEN ? AND ? ORDER BY ord',
+                        (base, i, j)).fetchall()
+    except sqlite3.Error as e:
+        logger.error('[WINDOWTEXTS] %s', e)
+        return {'error': str(e), 'lines': []}
+    return {'lines': [{'ref': r, 'text': t} for r, t in out], 'capped': capped, 'total': total,
+            'returned': len(out)}
+
+
 def _base_work(work):
     """Strip .tess. Part files are their OWN works here and are NOT collapsed:
     "vergil.aeneid.part.6" has its own line numbering in the index, so folding
