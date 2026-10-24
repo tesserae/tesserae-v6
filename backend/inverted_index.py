@@ -349,7 +349,7 @@ def _lookup_rarest_first(conn, canonicals, lemma_mapping, min_matches, stamp=Non
     return results
 
 
-def lookup_lemmas(lemmas, language, fallback_forms=None, conn=None, min_matches=1):
+def lookup_lemmas(lemmas, language, fallback_forms=None, conn=None, min_matches=1, rarest_first=False):
     """
     Look up multiple lemmas and return matching text locations.
 
@@ -374,11 +374,17 @@ def lookup_lemmas(lemmas, language, fallback_forms=None, conn=None, min_matches=
                        of the lemmas (find_co_occurring_lemmas) passes it, and
                        the positions of the locations that would be dropped are
                        not read.
+        rarest_first: Opt-in (Line Search passes True). On the index's own
+                       connection, a very common lemma is looked up on the
+                       candidate lines only and a plain listing keeps its
+                       position lists as text until asked for (see
+                       _lookup_rarest_first). Every other caller gets the
+                       plain fetch.
 
     Returns:
         Dict mapping (text_id, ref) to list of matching lemmas and positions
     """
-    own_connection = conn is None
+    own_connection = conn is None and rarest_first
     if conn is None:
         conn = get_connection(language)
     if not conn:
@@ -493,7 +499,7 @@ def lookup_lemmas(lemmas, language, fallback_forms=None, conn=None, min_matches=
     
     return results
 
-def find_co_occurring_lemmas(lemmas, language, min_matches=2, max_distance=None, fallback_forms=None, conn=None):
+def find_co_occurring_lemmas(lemmas, language, min_matches=2, max_distance=None, fallback_forms=None, conn=None, rarest_first=False):
     """
     Find all text locations where at least min_matches of the given lemmas co-occur.
 
@@ -511,7 +517,8 @@ def find_co_occurring_lemmas(lemmas, language, min_matches=2, max_distance=None,
     Returns:
         List of (filename, ref, matching_lemmas, positions_dict) tuples
     """
-    all_matches = lookup_lemmas(lemmas, language, fallback_forms=fallback_forms, conn=conn, min_matches=min_matches)
+    all_matches = lookup_lemmas(lemmas, language, fallback_forms=fallback_forms, conn=conn, min_matches=min_matches,
+                                rarest_first=rarest_first)
     
     results = []
     for (filename, ref), data in all_matches.items():

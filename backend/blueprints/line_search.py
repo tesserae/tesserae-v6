@@ -918,7 +918,8 @@ def _indexed_candidates(params: LineSearchParams, lang_dates: dict, filtered_que
     # lemma set would otherwise admit every line — it also can't reach the
     # fast-path guard below, but max(1,...) makes that safety explicit).
     min_matched = max(1, min(2, len(filtered_query_lemmas)))
-    candidates = find_co_occurring_lemmas(list(filtered_query_lemmas), language, min_matches=min_matched, fallback_forms=query_fallback_forms)
+    candidates = find_co_occurring_lemmas(list(filtered_query_lemmas), language, min_matches=min_matched, fallback_forms=query_fallback_forms,
+                                           rarest_first=True)
     use_indexed_lines = has_lines_data(language)
     
     # Group candidates by text
@@ -1930,7 +1931,7 @@ def line_search_parallel():
         # Try to use inverted index for fast lookup
         if use_index and is_index_available(language):
             # FAST PATH: Use inverted index
-            candidates = find_co_occurring_lemmas(list(filtered_source_lemmas), language, min_matches)
+            candidates = find_co_occurring_lemmas(list(filtered_source_lemmas), language, min_matches, rarest_first=True)
             
             # Group candidates by text for efficient processing
             text_candidates = {}
@@ -2075,7 +2076,7 @@ def corpus_search():
         normalized_lemmas = [l for l in normalized_lemmas if l and l.lower() not in _stop]
         if not normalized_lemmas:
             return jsonify({'results': [], 'total': 0, 'lemmas': lemmas})
-        matches = find_co_occurring_lemmas(normalized_lemmas, language, min_matches=min(2, len(normalized_lemmas)))
+        matches = find_co_occurring_lemmas(normalized_lemmas, language, min_matches=min(2, len(normalized_lemmas)), rarest_first=True)
         
         results = []
         text_matches = {}

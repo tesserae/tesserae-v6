@@ -68,7 +68,7 @@ def plain(conn, lemmas, language, min_matches, fallback_forms=None):
 
 
 def fast(lemmas, language, min_matches, fallback_forms=None):
-    return II.lookup_lemmas(lemmas, language, fallback_forms=fallback_forms, min_matches=min_matches)
+    return II.lookup_lemmas(lemmas, language, fallback_forms=fallback_forms, min_matches=min_matches, rarest_first=True)
 
 
 def same(a, b):
@@ -145,7 +145,7 @@ def test_an_index_without_lines_falls_back_to_the_plain_fetch(index):
 
 
 def test_find_co_occurring_lemmas_agrees(index):
-    a = II.find_co_occurring_lemmas(['amor', 'bellum', 'sum'], 'la', min_matches=2)
+    a = II.find_co_occurring_lemmas(['amor', 'bellum', 'sum'], 'la', min_matches=2, rarest_first=True)
     b = II.find_co_occurring_lemmas(['amor', 'bellum', 'sum'], 'la', min_matches=2, conn=index)
     assert [(f, r) for f, r, _, _ in a] == [(f, r) for f, r, _, _ in b]
 
@@ -197,3 +197,14 @@ def test_a_candidate_line_missing_from_lines_falls_back_to_the_plain_fetch(index
     first = index.execute("SELECT ref FROM postings WHERE lemma = 'amor' AND text_id = 3 LIMIT 1").fetchone()[0]
     index.execute("DELETE FROM lines WHERE text_id = 3 AND ref = ?", (first,))
     same(fast(['amor', 'sum'], 'la', 2), plain(index, ['amor', 'sum'], 'la', 2))
+
+
+def test_the_route_is_opt_in(index, monkeypatch):
+    def refuse(*a, **k):
+        raise AssertionError('a caller that did not opt in must get the plain fetch')
+    monkeypatch.setattr(II, '_lookup_rarest_first', refuse)
+    got = II.lookup_lemmas(['amor', 'sum'], 'la', min_matches=2)
+    same(got, plain(index, ['amor', 'sum'], 'la', 2))
+    single = II.lookup_lemmas(['sum'], 'la', min_matches=1)
+    assert not any(isinstance(v['positions'], II._LazyPositions) for v in single.values())
+    assert II.find_co_occurring_lemmas(['amor', 'sum'], 'la', min_matches=2)
