@@ -8,6 +8,8 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-24
+- Events: `scripts/events/drop_stale_rule_rows.py` removes the document rows that the distance refresh moved from inside the rule's radius to outside it and that do not name the event (naming rows are kept, a distance alone never removes a row).
+
 - Documents: a checker compares the Trismegistos-to-Pleiades crosswalk with the center of EDH's own findspots (`scripts/documents/check_crosswalk_against_edh.py`), `repair_crosswalk.py` writes a repaired crosswalk (Ostia no longer under Roma, the Italian Aquileia no longer the German one, Turris Libisonis no longer under Virunum), `apply_crosswalk_repair.py` writes the repaired ids into a copy of `metadata.db`, and `rerun_event_documents.py` can take an old crosswalk. `scripts/events/refresh_document_distances.py` recomputes the lat, lon and distance of the events' document rows from the documents' current places (the rows an earlier rerun kept carried the old crosswalk's values).
 - Events page: the documents that name an event's place are found through the event's own Pleiades id first, the label only as a fallback (the 435 BCE Actium no longer highlights Akriai's stones).
 
