@@ -17,8 +17,18 @@ Usage:
   fetch_ans_thumbnails.py --out DIR [--max-seconds 470] [--limit N]
 DIR holds ans_specimens.jsonl, thumbs/ and thumbnails.sqlite.
 """
-import argparse, hashlib, io, json, os, re, sqlite3, sys, time
-import urllib.error, urllib.parse, urllib.request
+import argparse
+import hashlib
+import io
+import json
+import os
+import re
+import sqlite3
+import sys
+import time
+import urllib.error
+import urllib.parse
+import urllib.request
 from datetime import datetime, timezone
 
 from PIL import Image
@@ -136,14 +146,15 @@ def main():
         if a.specimens:
             fetch_specimens(a.out)
             return 0
-        specs = [json.loads(l) for l in open(os.path.join(a.out, 'ans_specimens.jsonl'))]
+        specs = [json.loads(line) for line in open(os.path.join(a.out, 'ans_specimens.jsonl'))]
         chosen = choose(specs)
         none_img = sorted({s['type'] for s in specs} - set(chosen))
         db = sqlite3.connect(os.path.join(a.out, 'thumbnails.sqlite'))
         db.execute('CREATE TABLE IF NOT EXISTS thumbnails (type_id TEXT PRIMARY KEY, specimen_uri TEXT, '
                    'collection TEXT, image_url TEXT, fetched_at TEXT, width INT, height INT, bytes INT, sha256 TEXT)')
         db.execute('CREATE TABLE IF NOT EXISTS failures (type_id TEXT PRIMARY KEY, reason TEXT, fetched_at TEXT)')
-        now = lambda: datetime.now(timezone.utc).isoformat(timespec='seconds')
+        def now():
+            return datetime.now(timezone.utc).isoformat(timespec='seconds')
         for t in none_img:
             db.execute('INSERT OR IGNORE INTO failures VALUES (?,?,?)', (t, 'ANS specimen without image', now()))
         db.commit()
@@ -161,7 +172,8 @@ def main():
                 data, w, h = thumb_bytes(imgs)
             except (urllib.error.HTTPError, urllib.error.URLError, OSError) as e:
                 db.execute('INSERT OR REPLACE INTO failures VALUES (?,?,?)', (t, 'fetch error: %s' % e, now()))
-                db.commit(); n += 1
+                db.commit()
+                n += 1
                 continue
             name = safe_name(t) + '.jpg'
             with open(os.path.join(a.out, 'thumbs', name), 'wb') as f:
@@ -169,7 +181,8 @@ def main():
             db.execute('INSERT OR REPLACE INTO thumbnails VALUES (?,?,?,?,?,?,?,?,?)',
                        (t, s['obj'], 'http://nomisma.org/id/ans', ' '.join(urls), now(), w, h, len(data),
                         hashlib.sha256(data).hexdigest()))
-            db.commit(); n += 1
+            db.commit()
+            n += 1
         else:
             print('DONE')
         print('processed %d in %.0f s' % (n, time.time() - start))
