@@ -8,6 +8,7 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-24
+- People & Places: `scripts/entities/capitalize_carved_labels.py` capitalizes the first letter of the label of the 221 carved entries (ids ending :r<number>) whose label began with a lower-case Latin letter (hecataeus, sextius, aegae), in the entry label, the display labels, the matching search names and the catalog's label fields. A dry run is the default, it refuses a store under /var/www, and Greek and Hebrew labels are left alone. Store repair on a copy, nothing else changes.
 - Continuous integration: the frontend workflow runs the vitest suite, so a stale snapshot fails the build.
 
 - Tests: four tests that hung or failed only on the development machine now run everywhere (`tests/test_endpoints.py`, the documents place filter and stage 3b-3 tests, the exclude-author test, the Downloads snapshot and the documents collection tests). Test files and recorded output only, no application code.
