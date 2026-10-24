@@ -3,6 +3,36 @@
 // the Inscriptions & Papyri page renders a document hit identically
 // without re-deriving the token/restoration/fragment logic.
 
+// Does the documents index keep anything of this written word? The same rule
+// as scripts/build_inverted_index.py's tokenize_latin_fast / tokenize_greek_fast:
+// "/", numerals and punctuation leave nothing, so the card's token list is
+// shorter than the written text.
+function makesIndexToken(word, language) {
+  const w = word.toLowerCase();
+  if (language === 'grc') return /[\u0300-\u036f\u0370-\u03ff\u1f00-\u1fff]/.test(w);
+  return /[a-z]/.test(w.replace(/j/g, 'i').replace(/v/g, 'u'));
+}
+
+/**
+ * restored_indices and fragment_indices count the written words of the line
+ * (the "/" between lines included); the card renders the index's tokens, which
+ * leave those out. Turns the written positions into the card's positions.
+ * Returns the positions unchanged when the written text does not line up with
+ * the token list (so a hit never loses its marks to a failed guess).
+ */
+export function toTokenPositions(result, positions) {
+  const written = (result.text || '').split(/\s+/).filter(Boolean);
+  const tokens = result.tokens || [];
+  if (!positions || !positions.length || !written.length) return positions || [];
+  const map = [];
+  let kept = 0;
+  for (const w of written) {
+    map.push(makesIndexToken(w, result.language) ? kept++ : -1);
+  }
+  if (kept !== tokens.length) return positions;
+  return positions.map((p) => map[p]).filter((p) => p !== undefined && p >= 0);
+}
+
 /**
  * Document hit text, rendered by TOKEN POSITION (not a whitespace re-split
  * of `text`) so restored-word marking lines up with restored_indices
@@ -15,8 +45,8 @@ export function renderDocumentText(result, highlightFallback) {
   if (!tokens.length) {
     return highlightFallback ? highlightFallback(result.text, result.matched_words || []) : result.text;
   }
-  const restoredSet = new Set(result.restored_indices || []);
-  const fragmentSet = new Set(result.fragment_indices || []);
+  const restoredSet = new Set(toTokenPositions(result, result.restored_indices));
+  const fragmentSet = new Set(toTokenPositions(result, result.fragment_indices));
   const matchedSet = new Set((result.matched_words || []).map(w => (w || '').toLowerCase()));
   const gapSet = new Set(result.gap_before || []);
   const gapMarker = (i) => (
