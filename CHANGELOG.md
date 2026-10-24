@@ -8,6 +8,7 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-24
+- Records: seventeen translation files from unrenewed Loeb volumes installed (Part F), run record.
 - Translations (built, not yet installed): 85 chapter, section and speech level alignments for Greek and Latin works with public-domain English (Pipeline 9 in `scripts/translations/README.md`), among them Pausanias, Eusebius, Arrian, Isocrates, 41 speeches of Demosthenes, eleven works of Aristotle, Cicero's Verrines, Florus and Clement of Alexandria. Each file records the check that vouched for it, four wait for a reading, and nothing is installed until the files are copied in.
 - Translations: scripts and records for 18 aligned English files from Loeb volumes of 1931 to 1963 with no renewal found (Nonnus, Pliny the Elder, Josephus, Dionysius of Halicarnassus, Sextus Empiricus, Grattius, Calpurnius Siculus, Silius Italicus 9 to 17, Prudentius, Ptolemy, Pausanias, Plato's Republic 6 to 10). Built on staging copies, nothing installed.
 - Records: thirty-four translation files installed (Parts A, B and D of the 2026-10-24 alignment batch), run records.
