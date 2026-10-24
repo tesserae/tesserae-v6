@@ -8,6 +8,7 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-24
+- Reader: a machine translation on request, from the free campus model, with its test reliability stated.
 - Compare: the download queue's email notice depends on a new setting, `VISITOR_MAIL_ENABLED` (true only for `1`, default off), instead of `SMTP_HOST`, because the server's relay does not reach outside addresses. With it off the page shows no email box, the runner sends no mail, and the status page and the "Your prepared comparisons" list are the notice. Help loses its email sentence.
 - Records: 74 coin accounts corrected by hand after the first pass of the step 5 review (install5d).
 - Records: 127 coin accounts corrected by rule (restoration coins, consulship numbers, mint codes), install5e.

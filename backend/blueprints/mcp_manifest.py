@@ -587,6 +587,15 @@ MANIFEST = {
         'site_only': True,
         'reason': 'Passage-index availability/size; an operational status display.',
     },
+    '/api/passages/translation/machine': {
+        'site_only': True,
+        'reason': ("A machine translation on request for the Reader's Translation tab, where no human "
+                  "translation covers the passage; an agent can translate the lines it fetched itself."),
+    },
+    '/api/translation/machine': {
+        'site_only': True,
+        'reason': "Same view function as /api/passages/translation/machine (dual route registration).",
+    },
     '/api/passages/translation-full': {
         'site_only': True,
         'reason': ("Whole-work translation in reading order, for the Reader's translation-focus "

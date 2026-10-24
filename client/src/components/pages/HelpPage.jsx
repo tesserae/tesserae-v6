@@ -1713,6 +1713,12 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   48 percent of the Latin lines), so some passages have none. The translators are listed on the
                   Sources page under About.
               </p>
+              <p className="text-gray-700 mb-3">
+                  When no human translation covers a passage, the Translate by machine button asks the campus
+                  model GLM-5.2 for one. It is unreviewed. The line above it gives how often the model was fully
+                  right on texts of that kind in our test, and What this means explains the figure and a better
+                  alternative. Nothing is paid for.
+              </p>
               <h5 className="text-base font-semibold text-gray-900 mt-4 mb-1">Reuse tab</h5>
               <p className="text-gray-700 mb-3">
                   Reuse lists other works that repeat a line closely enough to
