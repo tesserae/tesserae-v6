@@ -24,6 +24,7 @@ from backend import compare_limit, comparison_csv  # noqa: E402
 def _no_limit_env(monkeypatch):
     monkeypatch.delenv(compare_limit.LIMIT_ENV, raising=False)
     monkeypatch.delenv('SMTP_HOST', raising=False)
+    monkeypatch.delenv('VISITOR_MAIL_ENABLED', raising=False)
 
 
 def _table(counts):
@@ -102,10 +103,27 @@ def test_a_missing_text_is_left_to_the_route(tmp_path):
                                     line_count_fn=_table({'a.tess': 10 ** 9})) is None
 
 
-def test_email_notice_follows_smtp_host(monkeypatch):
+def test_email_notice_depends_on_the_visitor_mail_setting_only(monkeypatch):
     assert compare_limit.email_notice_available() is False
-    monkeypatch.setenv('SMTP_HOST', 'mail.example.edu')
+    monkeypatch.setenv('SMTP_HOST', 'localhost')                 # production's value
+    assert compare_limit.email_notice_available() is False       # SMTP_HOST alone is not enough
+    for value in ('0', 'true', 'yes', ''):
+        monkeypatch.setenv('VISITOR_MAIL_ENABLED', value)
+        assert compare_limit.email_notice_available() is False
+    monkeypatch.setenv('VISITOR_MAIL_ENABLED', '1')
     assert compare_limit.email_notice_available() is True
+    monkeypatch.delenv('SMTP_HOST')
+    assert compare_limit.email_notice_available() is True        # the setting alone decides the notice
+
+
+def test_the_gate_answer_carries_email_notice(tmp_path, monkeypatch):
+    counts = _table({'a.tess': 4000, 'b.tess': 4000})
+    monkeypatch.setenv('SMTP_HOST', 'localhost')
+    off = compare_limit.check_size(str(tmp_path), 'la', 'a.tess', 'b.tess', line_count_fn=counts)
+    assert off['email_notice'] is False
+    monkeypatch.setenv('VISITOR_MAIL_ENABLED', '1')
+    on = compare_limit.check_size(str(tmp_path), 'la', 'a.tess', 'b.tess', line_count_fn=counts)
+    assert on['email_notice'] is True
 
 
 def test_line_count_counts_non_blank_lines_and_follows_the_file(tmp_path):
@@ -398,9 +416,11 @@ def test_runner_writes_gzip_over_twenty_megabytes(monkeypatch, tmp_path):
         assert fh.readline().startswith('"Rank"')
 
 
-def test_visitor_email_is_sent_only_with_a_mail_host(monkeypatch):
+def test_visitor_email_is_sent_only_with_the_setting_and_a_mail_host(monkeypatch):
     from backend import email_notifications as en
-    assert en.send_visitor_email('a@b.edu', 's', 'b') is False        # no SMTP_HOST
+    assert en.send_visitor_email('a@b.edu', 's', 'b') is False        # nothing set
+    monkeypatch.setenv('SMTP_HOST', 'localhost')
+    assert en.send_visitor_email('a@b.edu', 's', 'b') is False        # SMTP_HOST without the setting
     sent = []
 
     class Fake:
@@ -412,6 +432,7 @@ def test_visitor_email_is_sent_only_with_a_mail_host(monkeypatch):
         def sendmail(self, frm, to, msg): sent.append((to, 'Subject' in msg))
 
     monkeypatch.setenv('SMTP_HOST', 'mail.example.edu')
+    monkeypatch.setenv('VISITOR_MAIL_ENABLED', '1')
     monkeypatch.setattr(en.smtplib, 'SMTP', Fake)
     assert en.send_visitor_email('a@b.edu', 'ready', 'body') is True
     assert sent[0] == ('mail.example.edu', 25) and sent[1] == (['a@b.edu'], True)
@@ -492,3 +513,18 @@ def test_a_visitor_sees_only_their_own_recent_jobs(queue):
     assert [j['id'] for j in mine] == [first]                           # not the other's, not the old one
     assert mine[0]['status'] == 'queued' and mine[0]['position'] == 1
     assert [j['id'] for j in b.get('/comparisons/jobs').get_json()['jobs']] == [other]
+
+
+def test_runner_sends_no_mail_with_the_setting_off(monkeypatch):
+    runner = _runner()
+    from backend import email_notifications as en
+    sent = []
+    monkeypatch.setattr(en, 'send_visitor_email', lambda *a: sent.append(a) or True)
+
+    class J:
+        id, source, target, email = 'j1', 'a', 'b', 'reader@example.edu'
+    runner.notify(J())
+    assert sent == []
+    monkeypatch.setenv('VISITOR_MAIL_ENABLED', '1')
+    runner.notify(J())
+    assert len(sent) == 1

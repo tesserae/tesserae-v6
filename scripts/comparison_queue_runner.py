@@ -207,7 +207,8 @@ def write_output(job, results):
 
 def notify(job):
     """Mail the visitor when an address was given and the site can send mail."""
-    if not job.email:
+    from backend.compare_limit import email_notice_available
+    if not job.email or not email_notice_available():
         return
     from backend.email_notifications import send_visitor_email
     site = os.environ.get('SITE_URL', 'https://tesserae.caset.buffalo.edu').rstrip('/')
