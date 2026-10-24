@@ -11,7 +11,7 @@ const millions = (n) => Math.max(1, Math.round((n || 0) / 1e6));
 
 const SIDES = [['source', 'Source'], ['target', 'Target']];
 
-const TooLargePanel = ({ sourceName, targetName, answer, params, onChooseBook }) => {
+const TooLargePanel = ({ sourceName, targetName, answer, params, onChooseBook, onQueued }) => {
   const [email, setEmail] = useState('');
   const [busy, setBusy] = useState(false);
   const [job, setJob] = useState(null);
@@ -32,7 +32,7 @@ const TooLargePanel = ({ sourceName, targetName, answer, params, onChooseBook })
       };
       if (answer.email_notice && email.trim()) body.email = email.trim();
       const res = await postJsonTo(answer.download_job_url || '/api/comparisons/jobs', body);
-      if (res?.id) setJob(res);
+      if (res?.id) { setJob(res); onQueued?.(res); }
       else setProblem(res?.error || 'The request could not be sent. Please try again.');
     } catch (e) {
       setProblem(e.message || 'The request could not be sent. Please try again.');

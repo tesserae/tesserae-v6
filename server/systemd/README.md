@@ -24,10 +24,24 @@ starts first.
 
 - Reads `DATABASE_URL` from `/var/www/tesseraev6_flask/.env` with
   `EnvironmentFile=`; the file keeps its mode 664.
-- Runs the job inside `systemd-run --user --scope -p MemoryMax=14G -p
-  MemorySwapMax=0`, so an overrun kills the job and nothing else. The 14 GB is
-  above the 12 GB cap `tess-job` allows for development jobs; the measured
-  limit for a live comparison is 12 GB at a pair of 118 million lines.
+- Runs the job inside `systemd-run --user --scope --slice tesserae-jobs.slice
+  -p MemoryMax=20G -p MemorySwapMax=0`. Whole-epic pairs measured over 12 GB
+  with the window pass on (the Aeneid against the Metamorphoses was killed at
+  12 GB), so the scope gets 20 GB. The slice (`~/.config/systemd/user/
+  tesserae-jobs.slice`) must allow it: `MemoryMax=24G` today, which holds while
+  no other job overlaps.
+- Before taking a job the runner checks that `MemAvailable` is at least 26 GB and
+  that no `tess-job-*` scope is running
+  (`systemctl --user list-units --type=scope --state=running 'tess-job-*'`).
+  If either fails, or systemctl cannot answer, it logs the reason and exits for
+  the timer's next tick. The job stays queued. `--no-checks` skips this for a
+  manual run.
+- A job killed at the cap cannot record its own end. The next start finds it
+  still `running`, marks it failed with "too large even for the queue, compare
+  book by book", and never retries it.
+- The file is the whole comparison: no row cap (`max_results` 0), every scored
+  pair the pipeline keeps. Gzip applies over 20 MB. The results cache receives
+  only the page's own top rows.
 - One job per start. The timer waits five minutes after the unit finishes
   (`OnUnitInactiveSec`), and the runner holds `data/comparison_jobs/runner.lock`.
 - Removes jobs and files older than 14 days at every start.

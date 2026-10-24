@@ -4,7 +4,7 @@ import { viewById } from './collections/collectionsConfig';
 import useCollections from './hooks/useCollections';
 import { languageName } from './utils/languageNames';
 import { Header, Navigation } from './components/layout';
-import { SearchModeToggle, TextSelector, SearchSettings, SearchResults, LineSearch, CrossLingualSearch, WildcardSearch, SavedSearches, CorpusSearchResults, RarePairsSettings, LargeComparisonPanel, TooLargePanel } from './components/search';
+import { SearchModeToggle, TextSelector, SearchSettings, SearchResults, LineSearch, CrossLingualSearch, WildcardSearch, SavedSearches, CorpusSearchResults, RarePairsSettings, LargeComparisonPanel, TooLargePanel, YourComparisons } from './components/search';
 import RareResultsDisplay from './components/search/RareResultsDisplay';
 import StartHere from './components/search/StartHere';
 import { addressHasQuery, FRONT_DOOR_OPEN_EVENT } from './components/search/frontDoor';
@@ -367,6 +367,8 @@ function App() {
   // The choice shown when the server will not run the pair live (above the size
   // limit): {answer, params} while open.
   const [tooLarge, setTooLarge] = useState(null);
+  // Bumped when a download job is queued, so "Your prepared comparisons" reads again.
+  const [jobsRefresh, setJobsRefresh] = useState(0);
   useEffect(() => {
     setLargeComparison(null);
     setTooLarge(null);
@@ -744,9 +746,15 @@ function App() {
                         answer={tooLarge.answer}
                         params={tooLarge.params}
                         onChooseBook={chooseBookNow}
+                        onQueued={() => setJobsRefresh(n => n + 1)}
                       />
                     </div>
                   )}
+
+                  <YourComparisons
+                    refreshKey={jobsRefresh}
+                    labelFor={(id) => textLabel(corpus.find(t => t.id === id), id)}
+                  />
 
                   {largeComparison && !searchLoading && (
                     <div className="mt-4">

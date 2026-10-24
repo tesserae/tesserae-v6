@@ -482,7 +482,9 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
               </p>
               <p className="text-gray-700 mb-3">
                 The file is a CSV with the same columns as Export CSV (rank, the two loci, the two lines, the score, the matched
-                words and the channels). The charts need a comparison shown on the page, so they come from a book-by-book run
+                words and the channels), and it holds every parallel the search scored, not only the top rows the page shows.
+                With no email, the Compare page lists "Your prepared comparisons" for this browser, with the status and the
+                link of each from the last 14 days. The charts need a comparison shown on the page, so they come from a book-by-book run
                 or from opening the pair after its file is ready. You can have two comparisons waiting at once. A pair already
                 run is answered from its saved result at any size.
               </p>

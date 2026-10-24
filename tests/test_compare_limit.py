@@ -381,7 +381,7 @@ def test_runner_cleans_up_stale_and_old_jobs(monkeypatch, tmp_path):
     left = {j.id: j.status for j in session.query(Job).all()}
     assert left == {'fresh1': 'done', 'stuck1': 'failed', 'wait1': 'queued'}
     assert not old_file.exists()
-    assert 'out of memory' in session.get(Job, 'stuck1').error
+    assert session.get(Job, 'stuck1').error == 'too large even for the queue, compare book by book'
 
 
 def test_runner_writes_gzip_over_twenty_megabytes(monkeypatch, tmp_path):
@@ -415,3 +415,80 @@ def test_visitor_email_is_sent_only_with_a_mail_host(monkeypatch):
     monkeypatch.setattr(en.smtplib, 'SMTP', Fake)
     assert en.send_visitor_email('a@b.edu', 'ready', 'body') is True
     assert sent[0] == ('mail.example.edu', 25) and sent[1] == (['a@b.edu'], True)
+
+
+def test_runner_lifts_the_row_cap_and_caches_only_the_pages_rows(monkeypatch, tmp_path):
+    runner = _runner()
+    from backend import runtime, cache
+    from backend.blueprints import fusion as fb
+    seen = {}
+
+    def fake_events(p, su, tu, cancellation=None):
+        seen['max_results'] = p.max_results
+        rows = [{'fused_score': 9000 - i, 'source': {'ref': f's{i}', 'text': 'a'},
+                 'target': {'ref': f't{i}', 'text': 'b'}} for i in range(6000)]
+        yield ('complete', {'results': rows, 'total_results': 6000})
+
+    saved = {}
+    monkeypatch.setattr(fb, 'iter_pair_events', fake_events)
+    monkeypatch.setattr(fb, '_resolve_pair', lambda p: None)
+    monkeypatch.setattr(fb, '_poll_use_meter', lambda *a: False)
+    monkeypatch.setattr(fb, 'init_fusion_blueprint', lambda *a, **k: None)
+    monkeypatch.setattr(runtime, 'get_processed_units', lambda *a: ['unit'])
+    monkeypatch.setattr(cache, 'save_cached_results',
+                        lambda s, t, lang, settings, results, meta: saved.update(n=len(results), meta=meta, settings=settings))
+
+    class J:
+        source, target, language, settings = 'a.tess', 'b.tess', 'la', '{}'
+    results, meta = runner.run_comparison(J())
+    assert seen['max_results'] == 0               # no cap in the run
+    assert len(results) == 6000                   # the file gets every row
+    assert saved['n'] == 5000 and saved['settings']['max_results'] == 5000   # the page's key and cap
+    assert meta['total_candidates'] == 6000
+
+
+def test_runner_declines_without_memory_or_with_a_job_scope(monkeypatch):
+    runner = _runner()
+    monkeypatch.setattr(runner, 'mem_available_gb', lambda: 40.0)
+    monkeypatch.setattr(runner, 'tess_job_running', lambda: False)
+    assert runner.may_start() == (True, '')
+    monkeypatch.setattr(runner, 'mem_available_gb', lambda: 25.9)
+    ok, why = runner.may_start()
+    assert not ok and '26' in why
+    monkeypatch.setattr(runner, 'mem_available_gb', lambda: 40.0)
+    monkeypatch.setattr(runner, 'tess_job_running', lambda: True)
+    assert runner.may_start() == (False, 'a tess-job scope is running')
+    monkeypatch.setattr(runner, 'tess_job_running', lambda: None)
+    assert runner.may_start()[0] is False
+    monkeypatch.setattr(runner, 'mem_available_gb', lambda: None)
+    assert runner.may_start()[0] is False
+
+
+def test_tess_job_scopes_are_listed_with_the_named_command(monkeypatch):
+    runner = _runner()
+    calls = []
+
+    class Out:
+        returncode, stdout = 0, 'tess-job-x-1.scope loaded active running /bin/x\n'
+    monkeypatch.setattr(runner.subprocess, 'run', lambda cmd, **k: calls.append(cmd) or Out())
+    assert runner.tess_job_running() is True
+    assert calls[0][:6] == ['systemctl', '--user', 'list-units', '--type=scope', '--state=running', 'tess-job-*']
+    Out.stdout = ''
+    assert runner.tess_job_running() is False
+
+
+def test_a_visitor_sees_only_their_own_recent_jobs(queue):
+    app, Job, db, _ = queue
+    a = app.test_client()
+    assert a.get('/comparisons/jobs').get_json() == {'jobs': []}        # no cookie, no list
+    first = a.post('/comparisons/jobs', json=BODY).get_json()['id']
+    b = app.test_client()
+    other = b.post('/comparisons/jobs', json=BODY).get_json()['id']
+    old = Job(id='old0000abc', source='a.tess', target='b.tess', status='done', created=datetime.now() - timedelta(days=20),
+              owner_token=db.session.get(Job, first).owner_token)
+    db.session.add(old)
+    db.session.commit()
+    mine = a.get('/comparisons/jobs').get_json()['jobs']
+    assert [j['id'] for j in mine] == [first]                           # not the other's, not the old one
+    assert mine[0]['status'] == 'queued' and mine[0]['position'] == 1
+    assert [j['id'] for j in b.get('/comparisons/jobs').get_json()['jobs']] == [other]

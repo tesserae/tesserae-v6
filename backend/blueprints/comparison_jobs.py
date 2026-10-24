@@ -10,6 +10,8 @@ by a systemd user timer, takes the oldest queued job, one at a time, and writes
 data/comparison_jobs/<id>.csv with the columns of the page's CSV export. Jobs and
 files are removed after 14 days.
 
+The visitor's own list is GET /api/comparisons/jobs (by the cookie).
+
 Limits: two queued or running jobs per visitor (a cookie holds the token, only a
 hash of it is stored) and twenty queued jobs in all.
 """
@@ -185,6 +187,19 @@ def _get_job(job_id):
     if not re.match(r'^[A-Za-z0-9]{6,40}$', job_id or ''):
         return None
     return db.session.get(ComparisonJob, job_id)
+
+
+@comparison_jobs_bp.route('/comparisons/jobs', methods=['GET'])
+def my_jobs():
+    """The visitor's own jobs of the last 14 days, newest first, found by the cookie token."""
+    token = request.cookies.get(TOKEN_COOKIE) or ''
+    if not re.match(r'^[A-Za-z0-9_-]{20,64}$', token):
+        return jsonify({'jobs': []})
+    since = datetime.now() - timedelta(days=RETENTION_DAYS)
+    rows = (ComparisonJob.query.filter(ComparisonJob.owner_token == _hash(token),
+                                       ComparisonJob.created >= since)
+            .order_by(ComparisonJob.created.desc()).limit(20).all())
+    return jsonify({'jobs': [job_view(j) for j in rows]})
 
 
 @comparison_jobs_bp.route('/comparisons/jobs/<job_id>', methods=['GET'])
