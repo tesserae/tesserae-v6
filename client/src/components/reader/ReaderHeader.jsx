@@ -5,7 +5,7 @@ import { formatSelectionRange, useCorpusTextMap } from '../../utils/textNames';
 import { dateLabel } from '../../utils/chronology';
 import { decodeEntities } from '../../utils/htmlEntities';
 import { useIsPhone } from '../../hooks/useIsPhone';
-import { BookLinks, GoToLineForm, bookSections, sectionsFor } from './ReaderNav';
+import { BookLinks, GoToLineForm, StoryLinks, bookSections, sectionsFor, storyLabel } from './ReaderNav';
 import { fetchLanguages, getJson } from '../../utils/api';
 
 /**
@@ -66,7 +66,7 @@ function Row({ label, wide, children }) {
 }
 
 export default function ReaderHeader({
-  language, onLanguage, hierarchy, work, onWork, units, selection, onJump,
+  language, onLanguage, hierarchy, work, onWork, units, selection, onJump, stories, storyNumber, onStory,
 }) {
   const phone = useIsPhone();
   // Phone only: the sheet that holds the text and book choice, Go to line and
@@ -171,6 +171,12 @@ export default function ReaderHeader({
   const bookOptions = (here.work?.sections || [])
     .map((s) => ({ value: s.file, label: s.label }));
 
+  // A work divided into stories: "151 Rustam and Suhrab · رستم و سهراب",
+  // grouped under its reign where the list names one.
+  const storyOptions = (stories || []).map((s) => ({
+    value: String(s.number), label: storyLabel(s, true), group: s.reign_fa || '',
+  }));
+
   const langOptions = [...new Set([...LANG_ORDER, ...languages])]
     .filter((c) => languages.length === 0 || languages.includes(c))
     .map((c) => ({ value: c, label: LANG_LABEL[c] || c }));
@@ -194,6 +200,7 @@ export default function ReaderHeader({
     if (selection?.refStart) {
       return formatSelectionRange(selection.refStart, selection.refEnd, corpusMap, work);
     }
+    if (stories?.length) return `${stories.length} stories`;
     if (!units?.length) return '';
     return `${units.length} lines`;
   })();
@@ -343,6 +350,25 @@ export default function ReaderHeader({
         </div>
       </Row>
       )}
+      {storyOptions.length > 1 && (
+        <Row label="Stories" wide={wide}>
+          <div className={wide ? 'flex items-center w-full' : 'flex items-center'}>
+            <SearchableSelect
+              ariaLabel="Stories"
+              value={storyNumber ? String(storyNumber) : ''}
+              options={storyOptions}
+              placeholder="Stories"
+              onChange={(v) => {
+                const st = (stories || []).find((x) => String(x.number) === v);
+                if (st) { setPickerOpen(false); onStory(st); }
+              }}
+              listClassName="min-w-[20rem]"
+              className={`${wide ? 'w-full py-2' : 'max-w-[11rem] py-1'} truncate rounded border border-gray-300 bg-white px-2 text-sm
+                     text-gray-800 hover:border-gray-400 disabled:bg-gray-50 disabled:text-gray-500`}
+            />
+          </div>
+        </Row>
+      )}
     </>
   );
 
@@ -397,6 +423,12 @@ export default function ReaderHeader({
               {bookSections(phoneSections).length > 1 && (
                 <div className="mt-4 flex flex-wrap items-center gap-2">
                   <BookLinks sections={phoneSections} work={work} onWork={pickWork} size="text-sm" />
+                </div>
+              )}
+              {storyOptions.length > 1 && (
+                <div className="mt-4 flex flex-wrap items-center gap-2">
+                  <StoryLinks stories={stories} storyNumber={storyNumber}
+                              onStory={(st) => { setPickerOpen(false); onStory(st); }} size="text-sm" />
                 </div>
               )}
               {about && (

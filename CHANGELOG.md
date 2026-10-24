@@ -9,6 +9,7 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-24
 - Records: the Shahnameh install run record (references rewritten in every store, Warner's translation installed, word index and density cache rebuilt); `scripts/precompute_passage_density.py` knows every indexed language and takes `--work`.
+- Reader: a Stories list and story-by-story paging for works divided into stories (the Shahnameh). New route `GET /api/texts/structure/<work>` serves `data/text_structure/<work>/stories.json`; the header lists the 857 stories (grouped by reign, Persian title after the English), says "857 stories" in place of the line count, and previous and next step by story. Help says so.
 
 ## 2026-10-23
 - Data script, not run on production: `scripts/corpus/remap_refs.py` rewrites a work's old running references (`ferdowsi.shahnameh.N`) to the new story.couplet.hemistich shape in every store that holds one (inverted index, passage index, descriptions, entity index, reuse pairs, both connections maps, embeddings meta, lemma cache, text file), refusing before any write if a reference is not in the map. `scripts/corpus/check_remapped_refs.py` checks the result. Tested on copies: 46.6 s, 0.7 GB peak, every check passes. Nothing a visitor sees changes yet.

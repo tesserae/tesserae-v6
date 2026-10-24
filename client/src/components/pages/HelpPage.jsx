@@ -1589,7 +1589,11 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 Corpus. <strong>Go to line</strong> takes a reference as the margin shows it: a line
                 number, book and line such as 6.851, or, in a work divided into stories, the story,
                 couplet and hemistich such as 151.1.1. The margin numbers every fifth line, or in such a
-                work every fifth couplet. On a phone, the choice of text and book, Go to line and About this text are behind
+                work every fifth couplet. A work divided into stories rather than books, such as the
+                Shahnameh, has a <strong>Stories</strong> list in the header (each story by number and
+                title, with the Persian title after it, grouped by reign), and the header counts its
+                stories instead of its lines. Choosing a story opens the Reader at its first line, and
+                the previous and next links step from one story to the next. On a phone, the choice of text, book and story, Go to line and About this text are behind
                 the title line at the top of the Reader, and the key to the margin marks is behind
                 the Key button, so that the text has the width of the screen.
               </p>
