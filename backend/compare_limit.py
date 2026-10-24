@@ -37,9 +37,20 @@ def max_line_pairs():
     return value if value > 0 else DEFAULT_MAX_LINE_PAIRS
 
 
+MAIL_ENV = 'VISITOR_MAIL_ENABLED'
+
+
 def email_notice_available():
-    """True when the site can mail a visitor: an SMTP host is set in the environment."""
-    return bool((os.environ.get('SMTP_HOST') or '').strip())
+    """True only when VISITOR_MAIL_ENABLED is exactly "1" in the environment.
+
+    SMTP_HOST is not the test: production sets it to localhost for the
+    administrators' notices, and that relay does not reach outside addresses
+    (a test message to a Gmail address never arrived). With the setting off the
+    page shows no email box, the runner sends nothing, and the status page and
+    the "Your prepared comparisons" list are the notice.
+    """
+    return (os.environ.get(MAIL_ENV) or '').strip() == '1'
+
 
 
 def text_line_count(texts_dir, language, text_id):
