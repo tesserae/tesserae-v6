@@ -626,10 +626,10 @@ def run_pass3(db, a):
 
 
 def run_sample3(db, a):
-    """sample_40.md: 40 random splits (seed 2026) from the third pass, each as spelling, old heading, new place, one line."""
+    """sample_40.md: 40 random splits (seed 2027) from the third pass, each as spelling, old heading, new place, one line."""
     lines = rg.Lines(WINDOWS)
     rep = json.load(open(os.path.join(WORK3, 'apply_report.json')))
-    rnd = random.Random(2026)
+    rnd = random.Random(2027)
     allsplits = [('moved',) + tuple(m) for m in rep['moves']] + [('carved',) + tuple(c) for c in rep['carves']]
     picks = rnd.sample(allsplits, 40)
     out = ['# 40 spellings the third regroup split, for grading', '']

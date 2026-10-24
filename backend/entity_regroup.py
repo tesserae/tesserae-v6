@@ -235,11 +235,52 @@ def _broken_completion(db, lines, eid, form, fam):
     return done > 0
 
 
+_GREEK_PLURAL_ENDS = ('\u03bf\u03c5\u03c2', '\u03bf\u03b9\u03c2', '\u03b5\u03b9\u03c2', '\u03b1\u03b9\u03c2', '\u03c9\u03bd',
+                      '\u03bf\u03b9', '\u03b1\u03b9', '\u03b1\u03c2', '\u03b5\u03c2')      # ους οις εις αις ων οι αι ας ες
+
+
+def _greek_ethnic_stem(form):
+    """The stem, in Greek letters, of a Greek plural or genitive plural (Ἀγριοφάγοι, Ἀγριοφάγων, Ἀγριοφάγους:
+    αγριοφαγ), else ''. The omega keeps ων apart from the singular -ον."""
+    t = ei.fold(prep(form)).replace('\u03c2', '\u03c3')
+    for end in _GREEK_PLURAL_ENDS:
+        e = end.replace('\u03c2', '\u03c3')
+        if t.endswith(e) and len(t) - len(e) >= 5:
+            return t[:-len(e)]
+    return ''
+
+
+def own_greek_labels(db, eid):
+    """The Greek display labels of the entry (and of what it is merged into) that agree with a Latin heading of the
+    entry in their first five letters once written in Latin letters (Ἀγριοφάγων with Agriofaguitai, Φαρίτιδος with
+    Pharitae). A label that does not (Ἑκαταῖος, the commonest Greek spelling filed under Echecrates) is only the
+    commonest spelling of the wrong group and is not a heading."""
+    out = set()
+    for e in {eid, merged_target(db, eid)}:
+        r = db.execute('select display_label_grc from entity_labels where eid = ?', (e,)).fetchone()
+        if r and r[0] and _is_greek(prep(r[0])):
+            out.add(prep(r[0]))
+    latin = {_vkey(mb._norm(h))[:5] for h in headings(db, eid) if not _is_greek(h) and mb._norm(h)}
+    return {g for g in out if _vkey(mb._norm(g))[:5] in latin}
+
+
+def is_own_greek(form, labels):
+    """True when the spelling is the entry's own Greek label after the fold, or a Greek plural or genitive plural
+    of the same ethnic stem as a plural label (Ἀγριοφάγοι, Ἀγριοφάγους for Ἀγριοφάγων)."""
+    f = prep(form)
+    if not _is_greek(f):
+        return False
+    fold = ei.fold(f)
+    stem = _greek_ethnic_stem(f)
+    return any(fold == ei.fold(g) or (stem and stem == _greek_ethnic_stem(g)) for g in labels)
+
+
 def layer1(db, eid, pairs, lines=None):
     """pairs: {spelling: rows} of one entity. Returns (accepted, candidates) as sets of spellings. `lines` (a Lines)
     lets a spelling that is the front of a word broken across a line stay with its entry."""
     fam0 = Family(headings(db, eid))
     fam = Family(headings(db, eid))
+    grc = own_greek_labels(db, eid)
     accepted = set()
     rest = set(pairs)
     changed = True
@@ -250,6 +291,8 @@ def layer1(db, eid, pairs, lines=None):
             if ok and not belongs(f, fam0) and derivational_of(f, fam0):
                 ok = False          # reached only through a spelling already accepted, and a derived name (Hecataeus)
             if not ok and _broken_completion(db, lines, eid, f, fam):
+                ok = True
+            if not ok and grc and is_own_greek(f, grc):
                 ok = True
             if ok:
                 accepted.add(f)
@@ -810,6 +853,39 @@ def carve(db, host, forms, serial):
     return eid, entity_id, {'moved': moved, 'dropped': dropped}
 
 
+def _followers(db, host, new, label):
+    """After a group was carved from `host` into the entity `new` (heading `label`), the host's other spellings that
+    are case forms of that heading and not of the host's own headings go with it (Maximinum, Maximini, Maximine
+    with Maximinus, split from Maximianus). Returns the number of rows moved."""
+    fam_new = Family({prep(label)})
+    fam_host = Family(headings(db, host))
+    forms = [f for (f,) in db.execute('select distinct form from mention_rows where eid = ?', (host,))]
+    take = {f for f in forms if belongs(f, fam_new) and not belongs(f, fam_host)}
+    if not take:
+        return 0
+    folds = {ei.fold(f) for f in take}
+    moved, _d = _move_all(db, host, new, folds)
+    for rowid, f in db.execute('select rowid, form from variants where eid = ?', (host,)).fetchall():
+        if ei.fold(f) in folds:
+            db.execute('delete from variants where rowid = ?', (rowid,))
+    for ff in sorted(folds):
+        if ff:
+            db.execute('insert into variants values (?,?,?,?,?)', (new, ff, '', 'form', 'names'))
+    pr._refresh_windows(db, [host, new])
+    return moved
+
+
+def _move_exact_names(db, host, new):
+    """The host's model search names that are, once folded, one of the spellings now filed under `new` and no
+    heading of the host go to `new` (Maximinus, listed under Maximianus, goes with the carved Maximinus)."""
+    own = {ei.fold(f) for (f,) in db.execute('select form from variants where eid = ?', (new,))}
+    keep = {ei.fold(h) for h in headings(db, host)}
+    for rowid, name in db.execute("select rowid, name from search_names where eid = ? and source = 'model'", (host,)).fetchall():
+        f = ei.fold(name)
+        if f in own and f not in keep:
+            db.execute('update search_names set eid = ? where rowid = ?', (new, rowid))
+
+
 def _letters(s):
     return mb._norm(s).replace('h', '')
 
@@ -862,6 +938,9 @@ def apply_differences(db, differences, log=print, cap=300):
                 rep['moves'].append([entity_id, tg.ids[dst], fs[:4], r['moved']])
         if rest:
             new, new_id, r = carve(db, host, set(rest), serial)
+            label = db.execute('select label from entities where eid = ?', (new,)).fetchone()[0]
+            r['moved'] += _followers(db, host, new, label)
+            _move_exact_names(db, host, new)
             rep['carved_groups'] += 1
             rep['carved_entities'] += 1
             rep['rows_carved'] += r['moved']

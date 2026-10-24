@@ -193,3 +193,42 @@ def test_a_case_form_of_a_heading_with_its_own_suffix_is_kept():
     pairs = dict(db.execute('select form, count(*) from mention_rows where eid = 14 group by form'))
     acc, rest = rg.layer1(db, 14, pairs)
     assert {'Caecilius', 'Caecilii', 'Caecilio'} <= acc
+
+
+# ---------------------------------------------------------------- third pass, second round
+
+def test_a_spelling_equal_to_the_entrys_own_greek_label_stays():
+    """Samples 28 and 36 of the third pass: the Greek label of the entry is the spelling itself."""
+    db = store()
+    agr = 'Ἀγριοφάγων'
+    _entry(db, 20, 'nm:agrio', 'Agriofaguitai', 'agrio', {'Agriofaguitai': 1, agr: 1})
+    db.execute('update entity_labels set display_label_grc = ? where eid = 20', (agr,))
+    assert rg.layer1(db, 20, {'Agriofaguitai': 1, agr: 1})[1] == set()
+    # a Greek plural or accusative of the same ethnic stem stays with its people
+    pl = 'Ἀγριοφάγοι'
+    acc = 'Ἀγριοφάγους'
+    assert rg.layer1(db, 20, {pl: 1, acc: 1})[1] == set()
+    # another Greek name is still a candidate
+    other = 'Σκύθαι'
+    assert rg.layer1(db, 20, {other: 1})[1] == {other}
+    _entry(db, 21, 'nm:farit', 'Pharitae', 'farit', {'Pharitae': 2})
+    pha = 'Φαρίτιδος'
+    db.execute('update entity_labels set display_label_grc = ? where eid = 21', (pha,))
+    assert rg.layer1(db, 21, {'Pharitae': 2, pha: 1})[1] == set()
+
+
+def test_case_forms_of_a_split_off_heading_go_with_it():
+    """Maximin is carved from Maximianus: Maximinum, Maximini and Maximine, case forms of the new heading
+    Maximinus, move too; Maximiano stays."""
+    db = store()
+    _entry(db, 22, 'pn:maximian', 'Maximianus', 'maksi',
+           {'Maximianus': 6, 'Maximiano': 3, 'Maximinus': 8, 'Maximinum': 3, 'Maximini': 2, 'Maximine': 1})
+    db.execute("insert into search_names values (22, 'Maximinus', 'model')")
+    rep = rg.apply_differences(db, [('pn:maximian', 'maximin', {'Maximinus': 8})])
+    assert rep['carved_groups'] == 1 and rep['rows_carved'] == 14
+    new = db.execute("select eid from entities where entity_id like 'nm:maksi%:r%'").fetchone()[0]
+    got = {f for (f,) in db.execute('select distinct form from mention_rows where eid = ?', (new,))}
+    assert got == {'Maximinus', 'Maximinum', 'Maximini', 'Maximine'}
+    left = {f for (f,) in db.execute('select distinct form from mention_rows where eid = 22')}
+    assert left == {'Maximianus', 'Maximiano'}
+    assert db.execute("select eid from search_names where name = 'Maximinus'").fetchone()[0] == new
