@@ -209,3 +209,33 @@ def test_greek_description_is_found(client_all):
     assert 'sco:sc.1.1' in [c['id'] for c in d['coins']]
     d = client_all.get('/api/coins?q=riding+horse&source=pella').get_json()
     assert d['total'] == 1
+
+
+def test_thumbnail_field_and_route(client, tmp_path, monkeypatch):
+    """A type with a stored file gets thumb_url and the credit and the route serves it
+    with a long cache header. A type without one gets null, and the route answers 404."""
+    thumbs = tmp_path / 'thumbs'
+    thumbs.mkdir()
+    (thumbs / 'ric.1_2_.aug.125.jpg').write_bytes(b'\xff\xd8\xff\xd9')
+    monkeypatch.setenv('TESSERAE_COINS_THUMBS', str(thumbs))
+    from backend.blueprints import coins as C
+    assert C.thumb_name('http://numismatics.org/ocre/id/ric.1(2).aug.125') == 'ric.1_2_.aug.125.jpg'
+    rows = {c['id']: c for c in client.get('/api/coins?per_page=100').get_json()['coins']}
+    with_pic = rows['ocre:ric.1(2).aug.125']
+    assert with_pic['thumb_url'] == '/api/coins/thumb/ric.1_2_.aug.125.jpg'
+    assert with_pic['thumb_credit'] == 'Photograph: American Numismatic Society, public domain'
+    others = [c for i, c in rows.items() if i != 'ocre:ric.1(2).aug.125']
+    assert others and all(c['thumb_url'] is None for c in others)
+    one = client.get('/api/coins/ocre%3Aric.1(2).aug.125').get_json()['coin']
+    assert one['thumb_url'] == with_pic['thumb_url']
+    r = client.get(with_pic['thumb_url'])
+    assert r.status_code == 200 and r.mimetype == 'image/jpeg'
+    assert 'max-age=' in r.headers['Cache-Control']
+    assert client.get('/api/coins/thumb/nothing.jpg').status_code == 404
+    assert client.get('/api/coins/thumb/..%2Fcoins.sqlite').status_code == 404
+
+
+def test_no_thumbs_folder_means_no_pictures(client, tmp_path, monkeypatch):
+    monkeypatch.setenv('TESSERAE_COINS_THUMBS', str(tmp_path / 'absent'))
+    d = client.get('/api/coins').get_json()
+    assert d['coins'] and all(c['thumb_url'] is None for c in d['coins'])

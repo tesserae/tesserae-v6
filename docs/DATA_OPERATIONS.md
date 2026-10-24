@@ -35,6 +35,16 @@ Conventions
   hand and are the models the helper matches.
 
 
+## 2026-10-24 Coins: stored thumbnails of the American Numismatic Society's own photographs (built in a staging folder by a delegate; PLANNED, not yet installed)
+
+Why. The coin cards link out to numismatics.org for pictures, and on 2026-10-23 that site was down and the cards were blank.
+
+What. `scripts/coins/fetch_ans_thumbnails.py --specimens` asked the Nomisma SPARQL endpoint (GET only, one request a second) for every specimen of an OCRE type held by the American Numismatic Society (40,623 specimens, 12,205 types, 21.7 percent of the 56,113 OCRE types). Without `--specimens` it picks one specimen per type (one with both sides first), downloads the obverse and the reverse image from numismatics.org/collectionimages (one request a second, one user agent naming the project), scales each side to 160 px wide, joins them side by side and stores a JPEG under 12 KB. Only the Society's own photographs are taken, never another museum's.
+
+Result. 12,156 types have a thumbnail (one is obverse only), 49 types have an ANS specimen without an image, no fetch errors, no 403 or 429. Mean 11.2 KB, largest 12,288 bytes, 143 MB on disk. The 43,957 OCRE types with no ANS specimen keep the link out, and so do all Greek types.
+
+Install order (PLANNED). (1) Copy the staging folder's `thumbs/` to `data/coins/thumbs/` and `thumbnails.sqlite` to `data/coins/`, files mode 664 and the folder group-writable. (2) Deploy the pull request. (3) `touch tesseraev6_flask.wsgi`. (4) Check one pictured card (an Augustus aureus, `ocre:ric.1(2).aug.10`) shows the picture and the credit on hover, and one unpictured card (a Greek type) still shows the link out. The route is `/api/coins/thumb/<name>` and the field `thumb_url` appears on every coin row.
+
 ## 2026-10-24 Documents: the Trismegistos-to-Pleiades crosswalk repaired against EDH's own findspots (crosswalk, metadata.db and events store RUN 06:35 EDT, the refreshed events store RUN 06:51 EDT, by hand)
 
 Why. Three families of documents sat at the wrong place because rows of `trismegistos_to_pleiades.tsv` were wrong: 576 Ostia stones under Roma, 280 Aquileia stones under the German Aquileia (Aalen), 32 Turris Libisonis stones under Virunum, and a Rome, Saguntum or Aquincum row for a dozen other towns. `places_crosswalk.py` built the EDH rows with one entry per Trismegistos id, the Pleiades uri of the LAST findspot of that id winning, and one Trismegistos id covers many findspots. All 321 suspect rows from the EDH source carry exactly that last findspot's id.

@@ -2022,7 +2022,11 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 links to its place page. Each card links to &ldquo;See images&rdquo; on the
                 catalog&rsquo;s site, which lists the museum coins of that type with their photographs, and
                 to an &ldquo;Archived copy&rdquo; of that page at the Internet Archive for when the
-                catalog&rsquo;s site does not answer. This site stores no coin images. Catalogs call the front and back of a coin the obverse and
+                catalog&rsquo;s site does not answer. Coins the American Numismatic Society holds
+                (about a fifth of the Roman types) show a small stored picture of front and back, the
+                Society&rsquo;s own photograph, which it has placed in the public domain, with the credit
+                line &ldquo;Photograph: American Numismatic Society, public domain&rdquo;. Other coins
+                link out, and this site stores no photographs of other museums&rsquo; coins. Catalogs call the front and back of a coin the obverse and
                 the reverse, and the inscription on a side is its legend. The pages here say front, back
                 and inscription.
               </p>

@@ -114,6 +114,10 @@ MANIFEST = {
         'reason': ('Coins option of Theme Search in testing: coin descriptions nearest a '
                     'free-text query; not yet exposed to the connector.'),
     },
+    '/api/coins/thumb/<name>': {
+        'site_only': True,
+        'reason': 'A stored JPEG thumbnail for the Coins cards, a file and not data.',
+    },
     '/api/coins/<path:coin_id>': {
         'site_only': True,
         'reason': ('One coin type for the Coins page in testing; not yet exposed to '
