@@ -181,6 +181,19 @@ export const searchFusionStream = async (params, onProgress, signal, onIntermedi
     throw await streamError(response, 'Fusion search failed');
   }
 
+  // A pair above the size limit is answered with plain JSON, not a stream:
+  // the error carries the answer for the page's choice panel.
+  const contentType = response.headers?.get?.('content-type') || '';
+  if (contentType.includes('application/json')) {
+    const body = await response.json();
+    if (body?.too_large) {
+      const err = new Error(body.message || 'This comparison is too large to run here.');
+      err.tooLarge = body;
+      throw err;
+    }
+    throw new Error(body?.error || 'Fusion search failed');
+  }
+
   const reader = response.body.getReader();
   const decoder = new TextDecoder();
   let buffer = '';

@@ -8,6 +8,7 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-24
+- Compare: whole-work pairs above twelve million line pairs offer book by book now or a prepared download later. The comparison route (and the connector's `compare_texts` and `fusion_search`) answers a pair above `COMPARE_MAX_LINE_PAIRS` with the per-book files of each side and the address of a download queue instead of running it. A queued job (table `comparison_jobs`, `POST /api/comparisons/jobs`, a status page at `/comparisons/<id>`) is run one at a time by `scripts/comparison_queue_runner.py` under a systemd user timer (`server/systemd/`) and written as a CSV with the page's export columns, kept 14 days. Help describes the new choice.
 - Continuous integration: the frontend workflow runs the vitest suite, so a stale snapshot fails the build.
 
 - Tests: four tests that hung or failed only on the development machine now run everywhere (`tests/test_endpoints.py`, the documents place filter and stage 3b-3 tests, the exclude-author test, the Downloads snapshot and the documents collection tests). Test files and recorded output only, no application code.

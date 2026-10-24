@@ -1,0 +1,17 @@
+[Unit]
+Description=Run the oldest queued comparison download (scripts/comparison_queue_runner.py)
+# A timer does not start a oneshot unit that is still running, so a job that
+# takes an hour is never overlapped; the runner also holds a lock file.
+
+[Service]
+Type=oneshot
+WorkingDirectory=/var/www/tesseraev6_flask
+# DATABASE_URL (and SMTP_HOST, if the site can mail visitors) come from the
+# production .env, read here without being copied anywhere.
+EnvironmentFile=/var/www/tesseraev6_flask/.env
+# One job at a time, in its own scope with a memory ceiling and no swap: if the
+# job overruns, the kernel kills only the job, never the web workers.
+ExecStart=/usr/bin/systemd-run --user --scope --quiet -p MemoryMax=14G -p MemorySwapMax=0 /home/ncoffee/tesserae-v6-dev/venv/bin/python /var/www/tesseraev6_flask/scripts/comparison_queue_runner.py
+TimeoutStartSec=4h
+StandardOutput=append:%h/tesserae-backups/jobs/comparison_queue.log
+StandardError=append:%h/tesserae-backups/jobs/comparison_queue.log

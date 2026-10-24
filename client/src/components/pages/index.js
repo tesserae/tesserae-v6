@@ -7,3 +7,4 @@ export { default as BlogArchivePage } from './BlogArchivePage';
 export { default as UploadTextPage } from './UploadTextPage';
 export { default as RequestsPage } from './RequestsPage';
 export { default as ScholarshipSourcesPage } from './ScholarshipSourcesPage';
+export { default as ComparisonJobPage } from './ComparisonJobPage';
