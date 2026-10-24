@@ -212,6 +212,16 @@ def search():
     results += [_with_more_counts(path, cat, h[3]) for h in name_hits[:max(0, SEARCH_LIMIT - len(results))]]
     out = {'q': q, 'available': True, 'total': len(hits) + len(name_hits), 'results': results,
            'list_total': len(hits), 'corpus_total': len(name_hits)}
+    best = min([h[0] for h in hits[:1] + name_hits[:1]], default=None)
+    if results and best is not None and best not in (0, 0.5, 2, 2.5):
+        # The typed text is not a heading, a search name or a listed spelling, only the beginning of some. When it is a spelling the scan filed under an
+        # entry (Νέστορ), that entry comes first, ahead of a short name that happens to begin with it.
+        e = extras.entity_for_form(cat, _conn(path), q)
+        if e is not None:
+            pub = _public(e)
+            if pub['id'] not in [r['id'] for r in results]:
+                results.insert(0, pub)
+                out['matched_form'] = True
     if not results:
         # A case form copied from a line (Rhodum, Thyesten): the entry the scan filed that word under.
         e = extras.entity_for_form(cat, _conn(path), q)

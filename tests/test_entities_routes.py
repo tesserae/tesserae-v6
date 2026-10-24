@@ -113,3 +113,16 @@ def test_a_missing_store_answers_503_with_a_readable_error(tmp_path, monkeypatch
         r = get(url)
         assert r.status_code == 503
         assert r.get_json()['available'] is False and 'not installed' in r.get_json()['error']
+
+
+def test_a_typed_spelling_the_scan_filed_comes_before_a_name_it_only_begins(store, monkeypatch):
+    """Νέστορ begins the label of a short corpus name, but the scan filed that spelling under Nestor: the filed
+    entry comes first, and a typed text that is a listed spelling (troia) is not touched."""
+    cat = ent._catalog(store)
+    mars = next(e for e in cat['by_eid'].values() if e['id'] == 'ln:E2')
+    monkeypatch.setattr(ent.extras, 'entity_for_form', lambda c, conn, q: mars)
+    r = get(f'{P}/search?q=troi').get_json()
+    assert r['results'][0]['id'] == mars['id'] and r.get('matched_form')
+    assert 'ln:E1' in [x['id'] for x in r['results']]
+    r = get(f'{P}/search?q=troia').get_json()
+    assert r['results'][0]['id'] == 'ln:E1' and not r.get('matched_form')
