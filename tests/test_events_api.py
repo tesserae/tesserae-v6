@@ -221,7 +221,7 @@ def test_detail_documents_carry_group_counts_and_record_ids(client, monkeypatch)
     assert len(stored) == 2 and all(d['group'] == 'dated' for d in stored)   # the 99-year one is left out
     assert first['document_counts'] == {'names': 0, 'dated': 2, 'left_out': 1}
     pick = stored[-1]['doc_id']
-    monkeypatch.setattr(E, '_documents_naming', lambda ids, names: {pick})
+    monkeypatch.setattr(E, '_documents_naming', lambda ids, names, **kw: {pick})
     d = client.get('/api/events/' + _id(client, 'pharsalus')).get_json()
     assert d['documents'][0]['doc_id'] == pick and d['documents'][0]['group'] == 'names'
     assert d['document_counts']['names'] == 1
