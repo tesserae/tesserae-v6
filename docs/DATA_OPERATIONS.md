@@ -35,6 +35,16 @@ Conventions
   hand and are the models the helper matches.
 
 
+## 2026-10-24 Coptic Septuagint books paired with Brenton 1851 (PLANNED, built on copies, not installed)
+
+Why. The Coptic Old Testament follows the Septuagint, and the installed Bohairic Daniel was paired with the World English Bible, which translates the Hebrew. The Bohairic text divides Daniel 3 over three chapters and carries Susanna and Bel, so Coptic chapters 3 to 12 sat beside the English of other chapters (Coptic 4.1, the prayer of Azariah, beside "Nebuchadnezzar the king, to all the peoples"). Five Coptic Septuagint books had no English at all.
+
+What. `scripts/translations/align_coptic_brenton.py` (with `coptic_align_common.py`) writes six files to `~/tesserae-backups/tr-d-staging/brenton/` with `SHA256SUMS.txt`: `cop__bohairic.psalmi.json` (2,305 of 2,314 lines), `cop__bohairic.daniel.json` (533 of 623, replaces the installed file), `cop__sahidic.proverbs.json` (794 of 890), `cop__sahidic.epistle_of_jeremiah.json` (72 of 72), `cop__sahidic.habakkuk.json` (13 of 30) and `cop__sahidic.daniel.json` (57 of 183). Each file records its two checks and the control, and `sources` names Brenton (1851, London, Bagster, public domain). Not written, because both checks fail or cannot be run: Sahidic Bel (5 lines), Sahidic 1 Chronicles (2 lines), the remaining Habakkuk and Daniel chapters, Proverbs 24, 30 and 31 (the Septuagint prints them in another order), two Psalms, and chapters 15 and 19 of Bohairic Daniel (the Old Greek wording, which Brenton does not print).
+
+Install order (PLANNED). (1) Back up `data/translations/cop__bohairic.daniel.json` to `~/tesserae-backups/translations_cop_septuagint_<stamp to the second>/`. (2) Copy the six staged files into `data/translations/`, mode 664, after checking `sha256sum -c SHA256SUMS.txt` in the staging folder. (3) `touch tesseraev6_flask.wsgi`. (4) Check through the endpoint, for example `/api/translation?work=cop/bohairic.daniel&refs=bohairic.daniel.4.1` (should read "Then Azarias stood up, and prayed") and `work=cop/bohairic.psalmi&refs=bohairic.psalmi.22.1`. (5) Open the Sources page and confirm Brenton appears against the five new Coptic works. (6) Run the golden check. Nothing in this entry has been run on production.
+
+Not built, with the reason in `scripts/translations/README.md` (Pipeline 9): Budge's English for Mercurius, Theodosius on Michael, Bartholomew and the Repose of John (the held-out names do no better than the control), Khayyam against Whinfield 1882 (matched by meaning, no check can vouch for the pairs), Hafez, Nizami and the Urdu Hindustani Lyrics.
+
 ## 2026-10-24 Coins: stored thumbnails of the American Numismatic Society's own photographs (RUN 16:35 EDT install, 16:56 deploy, by hand)
 
 Why. The coin cards link out to numismatics.org for pictures, and on 2026-10-23 that site was down and the cards were blank.
