@@ -8,6 +8,7 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-24
+- Line Search: exact phrases and common-word lemma searches return the same results several times faster. An exact phrase is first tested against each file's kept, case-folded text and only the files that can hold it are read (a Latin exact search drops from about 3.5 seconds to 0.4 on a test server, Greek from 9 to 0.3, at a cost of about 290 MB for Latin and 250 MB for Greek in each web worker once a search has run). A lemma search that holds a very common word (sum, et) finds its lines from the other words and looks the common word up on those lines only, and a listing of one common word no longer reads every position list. `scripts/review/line_search_equivalence.py` checks sixty queries old against new (all identical), and `scripts/review/line_search_postings_vs_lines_check.py` checks the two index tables the lemma change relies on.
 - Records: the refreshed events store install run record (distances refreshed, 296 stale rule rows removed).
 
 - Events: `scripts/events/drop_stale_rule_rows.py` removes the document rows that the distance refresh moved from inside the rule's radius to outside it and that do not name the event (naming rows are kept, a distance alone never removes a row).
