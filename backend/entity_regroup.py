@@ -702,7 +702,7 @@ def example_lines(db, lines, eid, forms, n=2, window_fallback=True):
     """Up to n marked example lines, from different works where possible, for mention rows of eid whose
     spelling is in `forms`."""
     ph = ','.join('?' * len(forms))
-    rows = db.execute(f'select m.form, m.line_ref, w.work, w.window_id from mention_rows m join windows w using(wid) '
+    rows = db.execute(f'select m.form, m.line_ref, w.work, w.window_id from mention_rows m join windows w using(wid) '  # nosec B608 - ph is only ? marks, the values are bound
                       f'where m.eid = ? and m.form in ({ph}) limit 60', (eid, *forms)).fetchall()
     seen, out = set(), []
     rows.sort(key=lambda r: (r[2] in seen, r[3]))
@@ -740,11 +740,13 @@ def ask(url, key, user, stats=None, system=SYSTEM, model=MODEL, tries=6, think=F
     body = json.dumps({'model': model, 'temperature': 0, 'max_tokens': max_tokens or MAX_TOKENS,
                        'messages': [{'role': 'system', 'content': system}, {'role': 'user', 'content': user}],
                        'chat_template_kwargs': {'enable_thinking': bool(think)}}).encode()
+    if not str(url).startswith(('https://', 'http://')):
+        raise ValueError('the gateway address must be an http or https URL')
     req = urllib.request.Request(url + '/v1/chat/completions', data=body,
                                  headers={'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key})
     for _ in range(tries):
         try:
-            with urllib.request.urlopen(req, timeout=180) as r:
+            with urllib.request.urlopen(req, timeout=180) as r:  # nosec B310 - gateway address from the configuration, http(s) only
                 d = json.loads(r.read())
             if stats is not None:
                 stats['requests'] = stats.get('requests', 0) + 1
