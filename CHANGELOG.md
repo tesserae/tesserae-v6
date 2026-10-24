@@ -8,6 +8,8 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-24
+- Records: the Latin documents rebuild install run record (glosses in parentheses, gap and gloss positions, line joins).
+
 - Records: the events place-by-id install run record (15 misplaced document rows removed from four events).
 
 - Data scripts, not run on production: the events' naming step (`scripts/events/add_naming_documents.py`) now resolves an event's place by its Pleiades id before its label (the 435 BCE battle labeled "Akri", Pleiades 530771, had resolved to Akriai in Laconia and listed two Agrigentum stones 654 km away), refuses a label hit whose own Pleiades id differs, and gains `--only-events` and `--report-place-resolution`. New `scripts/events/remove_misresolved_place_documents.py` removes the rows a label-resolved place wrongly gave (15 rows in 4 events on the 2026-10-24 store) and can add the right place's documents. Install planned, see docs/DATA_OPERATIONS.md.
