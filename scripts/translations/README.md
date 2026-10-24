@@ -341,6 +341,14 @@ after it, because a page number looks the same. The aligner runs once per scan, 
 filler from a lower scan is used only where it agrees with the best scan on the epigrams on both
 sides of it (same opening text), because one scan numbered Book 14's riddles two off for a whole
 stretch. The units are also cut where the next epigram's heading or the volume's index begins.
+`repair_anthologia_small_caps.py` then repairs the first words that the Loeb's small capitals left garbled
+("TuereE" for There, "Tue" for The, "ImaGInE"). The table of the 2026-09-10 install only saw the first word of a unit, and
+about one unit in eight opens with a heading ("On the Same Tue ..."), so the table now applies to the first eight words (and the
+words that are not English at all anywhere in a unit). A word with capitals in the middle is put back into ordinary case and its
+OCR confusions (u for h, p for d) are undone where the result is a word the corpus itself uses. 537 words repaired across
+the nine staged files, and the units with an odd-case word among their first twelve fell from 306 of 2,385 to 5. Garbles in
+the letters of a proper name (Ampuilocuus for Amphilochus) keep their letters and only have their case repaired. Every change is in
+the staged `small_caps_repair_log.tsv`.
 Coverage 62, 58, 59, 63, 59 percent before and 97, 99, 95, 91, 99 after for books 7, 8, 14, 15 and 16,
 names 0.78 to 0.91, length correlation 0.66 to 0.84, and the share of epigrams on which two scans
 agree 90 to 95 percent.
