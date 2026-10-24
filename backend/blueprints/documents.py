@@ -513,6 +513,7 @@ def _document_hit(language, filename, ref, matched_words, matched_lemmas, tokens
         'restored_indices': restored.get('restored'),
         'fragment_indices': restored.get('fragment'),
         'gap_before': docs.gap_positions(language, filename, ref),
+        'gloss_indices': docs.gloss_positions(language, filename, ref),
         'matched_restored': matched_restored,
         'partly_restored': partly_restored,
         'formula_count': formula_count,

@@ -119,7 +119,7 @@ def documents_app_env(tmp_path, monkeypatch):
     sidecar_path = os.path.join(sidecar_dir, "edh__testregio.restored_words.jsonl")
     with open(sidecar_path, "w", encoding="utf-8") as f:
         f.write(json.dumps({"ref": "edh:F1", "restored": [0, 1], "fragment": []}) + "\n")
-        f.write(json.dumps({"ref": "edh:F2", "restored": [1], "fragment": [], "gap_before": [0, 2]}) + "\n")
+        f.write(json.dumps({"ref": "edh:F2", "restored": [1], "fragment": [], "gap_before": [0, 2], "gloss_indices": [1]}) + "\n")
         f.write(json.dumps({"ref": "edh:F3", "restored": [], "fragment": []}) + "\n")
         f.write(json.dumps({"ref": "edh:RARE1", "restored": [], "fragment": []}) + "\n")
 
@@ -210,6 +210,8 @@ def test_hit_carries_gap_positions_from_the_sidecar(documents_app_env):
     assert by_doc['edh:F2']['gap_before'] == [0, 2]
     # F1's sidecar line has no gap_before (written before the field existed)
     assert by_doc['edh:F1']['gap_before'] == []
+    assert by_doc['edh:F2']['gloss_indices'] == [1]
+    assert by_doc['edh:F1']['gloss_indices'] == []
 
 
 def test_unrestored_hit_is_flagged_neither(documents_app_env):

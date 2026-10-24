@@ -109,7 +109,7 @@ def fixture_env(tmp_path, monkeypatch):
     sidecar_path = os.path.join(sidecar_dir, "edh__testregio.restored_words.jsonl")
     with open(sidecar_path, "w", encoding="utf-8") as f:
         f.write(json.dumps({"ref": "edh:SHORT1", "restored": [0], "fragment": []}) + "\n")
-        f.write(json.dumps({"ref": "edh:LONG1 1", "restored": [], "fragment": [2], "gap_before": [0, 3]}) + "\n")
+        f.write(json.dumps({"ref": "edh:LONG1 1", "restored": [], "fragment": [2], "gap_before": [0, 3], "gloss_indices": [1]}) + "\n")
 
     monkeypatch.setenv("TESSERAE_DOCUMENTS", "1")
     monkeypatch.setenv("TESSERAE_DOCUMENTS_INDEX_DIR", index_dir)
@@ -187,6 +187,14 @@ def test_gap_positions_from_sidecar(fixture_env):
     assert docs.gap_positions("la", bucket, "edh:SHORT1") == []
     assert docs.gap_positions("la", bucket, "edh:LONG1 2") == []
     assert docs.gap_positions("la", "no_such_bucket.tess", "edh:SHORT1") == []
+
+
+def test_gloss_positions_from_sidecar(fixture_env):
+    bucket = "edh__testregio.tess"
+    assert docs.gloss_positions("la", bucket, "edh:LONG1 1") == [1]
+    assert docs.gloss_positions("la", bucket, "edh:SHORT1") == []
+    assert docs.gloss_positions("la", bucket, "edh:LONG1 2") == []
+    assert docs.gloss_positions("la", "no_such_bucket.tess", "edh:SHORT1") == []
 
 
 def test_restored_indices_empty_for_ref_with_no_sidecar_entry(fixture_env):

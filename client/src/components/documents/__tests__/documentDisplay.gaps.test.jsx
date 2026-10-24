@@ -67,3 +67,28 @@ describe('restored words on a multi-line card', () => {
     expect([...d.querySelectorAll('[title="editorially restored"]')].map((e) => e.textContent)).toEqual(['uf']);
   });
 });
+
+describe("an editor's gloss on a written-out word", () => {
+  const hit = {
+    language: 'la',
+    text: 'uf IIviri (duoviri) ob',
+    tokens: ['uf', 'iiuiri', 'duouiri', 'ob'],
+  };
+
+  it('shows the gloss token in parentheses, keeping its restored underline', () => {
+    const c = cardText({ ...hit, gloss_indices: [2], restored_indices: [2] });
+    expect(c.textContent.replace(/\s+/g, ' ').trim()).toBe('uf iiuiri (duouiri) ob');
+    const under = [...c.querySelectorAll('[title="editorially restored"]')].map((e) => e.textContent);
+    expect(under).toEqual(['duouiri']);
+  });
+
+  it('puts one pair of parentheses round a run of gloss tokens', () => {
+    const c = cardText({ ...hit, gloss_indices: [1, 2] });
+    expect(c.textContent.replace(/\s+/g, ' ').trim()).toBe('uf (iiuiri duouiri) ob');
+  });
+
+  it('is unchanged for a hit without gloss_indices', () => {
+    const c = cardText(hit);
+    expect(c.textContent.replace(/\s+/g, ' ').trim()).toBe('uf iiuiri duouiri ob');
+  });
+});

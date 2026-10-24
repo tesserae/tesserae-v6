@@ -53,6 +53,7 @@ class Token:
     fragment: bool
     gap_before: int = 0
     restored_share: float = 0.0
+    gloss: bool = False
 
 
 def _char_spans(text: str):
@@ -101,7 +102,8 @@ def _split_gap_run(run: str, start: int, flags: list[bool]):
     return pieces
 
 
-def tokenize_with_restoration(text: str, restored_flags: list[bool]) -> list[Token]:
+def tokenize_with_restoration(text: str, restored_flags: list[bool],
+                              gloss_flags: list[bool] | None = None) -> list[Token]:
     """Whitespace-tokenize `text`, using `restored_flags` (one bool per
     character of `text`, True = supplied by an editor) to classify each
     surviving token. See module docstring for the gap/fragment rules."""
@@ -111,6 +113,16 @@ def tokenize_with_restoration(text: str, restored_flags: list[bool]) -> list[Tok
             restored_flags = restored_flags + [False] * (len(text) - len(restored_flags))
         else:
             restored_flags = restored_flags[: len(text)]
+
+    if gloss_flags is not None and len(gloss_flags) != len(text):
+        gloss_flags = (list(gloss_flags) + [False] * len(text))[: len(text)]
+
+    def _gloss(a: int, b: int) -> bool:
+        # a token is a gloss when most of its characters are the editor's gloss
+        if not gloss_flags:
+            return False
+        seg = gloss_flags[a:b]
+        return bool(seg) and sum(1 for f in seg if f) * 2 > len(seg)
 
     tokens: list[Token] = []
     pending_gap_before = 0
@@ -126,6 +138,7 @@ def tokenize_with_restoration(text: str, restored_flags: list[bool]) -> list[Tok
             tokens.append(Token(
                 text=run, restored=share > 0.5, fragment=False,
                 gap_before=pending_gap_before, restored_share=share,
+                gloss=_gloss(start, end),
             ))
             pending_gap_before = 0
             continue

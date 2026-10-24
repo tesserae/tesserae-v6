@@ -331,6 +331,7 @@ def get_document_lines(language, doc_id):
             'restored_indices': restored.get('restored'),
             'fragment_indices': restored.get('fragment'),
             'gap_before': gap_positions(language, filename, r['ref']),
+            'gloss_indices': gloss_positions(language, filename, r['ref']),
         })
     return {'filename': filename, 'lines': lines}
 
@@ -872,6 +873,16 @@ def restored_indices(language, filename, ref):
     if not rec:
         return {'restored': [], 'fragment': []}
     return {'restored': list(rec.get('restored') or []), 'fragment': list(rec.get('fragment') or [])}
+
+
+def gloss_positions(language, filename, ref):
+    """Token positions (in the index's token list, as gap_positions) of the
+    tokens that are an editor's gloss on a word already written out, from the
+    same sidecar line. [] for a sidecar written before the field existed."""
+    rec = _load_sidecar(language, filename).get(ref)
+    if not rec:
+        return []
+    return [int(i) for i in (rec.get('gloss_indices') or [])]
 
 
 def gap_positions(language, filename, ref):

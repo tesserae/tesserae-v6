@@ -123,14 +123,18 @@ class LineBuffer:
     diplomatic: list = field(default_factory=list)
     expanded: list = field(default_factory=list)
     restored_flags: list = field(default_factory=list)
+    # one bool per character of `expanded`: True for the characters of an
+    # editor's gloss on a word already written out (<expan><ex> only).
+    gloss_flags: list = field(default_factory=list)
 
     def add_diplomatic(self, s: str) -> None:
         self.diplomatic.append(_normalize_whitespace(s))
 
-    def add_expanded(self, s: str, restored: bool = False) -> None:
+    def add_expanded(self, s: str, restored: bool = False, gloss: bool = False) -> None:
         s = _normalize_whitespace(s)
         self.expanded.append(s)
         self.restored_flags.extend([restored] * len(s))
+        self.gloss_flags.extend([gloss] * len(s))
 
     def diplomatic_text(self) -> str:
         return "".join(self.diplomatic)
@@ -232,7 +236,7 @@ class EpidocConverter:
                                    and (elem.tail or "").startswith(")")))
                     if not already:
                         gloss = f"({gloss})"
-                    current["buf"].add_expanded(gloss, restored=True)
+                    current["buf"].add_expanded(gloss, restored=True, gloss=True)
                     _append_tail(elem, restored)
                     return
                 diplomatic_parts = []
@@ -357,17 +361,28 @@ class EpidocConverter:
             stripped_flags = flags[lead_cut: len(flags) - trail_cut or None]
         else:
             stripped_flags = []
+        gflags = buf.gloss_flags
+        if len(gflags) < len(plain):
+            gflags = gflags + [False] * (len(plain) - len(gflags))
+        if stripped_text:
+            stripped_gloss = gflags[lead_cut: len(gflags) - trail_cut or None][:len(stripped_text)]
+        else:
+            stripped_gloss = []
         supplied = sum(1 for f in stripped_flags if f)
         self.supplied_chars += supplied
         self.total_chars += len(stripped_text)
-        self.lines.append({
+        line = {
             "n": n,
             "diplomatic": buf.diplomatic_text().strip(),
             "expanded": expanded_text.strip(),
             "text": stripped_text,
             "restored_flags": stripped_flags,
             "joins_previous": bool(joins_previous),
-        })
+        }
+        if any(stripped_gloss):
+            # only on a line that has a gloss, so every other record is as before
+            line["gloss_flags"] = stripped_gloss
+        self.lines.append(line)
 
 
 # ---------------------------------------------------------------------------

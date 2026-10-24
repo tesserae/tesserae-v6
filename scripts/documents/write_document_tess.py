@@ -134,6 +134,19 @@ def _makes_index_token(word: str, lang: str) -> bool:
     return bool(_LATIN_NON_LETTERS.sub("", word.lower().replace("j", "i").replace("v", "u")))
 
 
+def to_index_positions_kept(stream: list, positions: list, lang: str) -> list:
+    """Like to_index_positions, for marks that sit ON a token (a gloss): a
+    position whose written token the index does not keep ("(%1000)") has no
+    place on the card and is left out."""
+    kept_at = {}
+    n = 0
+    for i, w in enumerate(stream):
+        if _makes_index_token(w, lang):
+            kept_at[i] = n
+            n += 1
+    return sorted({kept_at[p] for p in positions if p in kept_at})
+
+
 def to_index_positions(stream: list, positions: list, lang: str) -> list:
     """Positions counted in the written token stream (`stream`), turned into
     positions in the index's own token list (what the card renders): the
@@ -155,22 +168,26 @@ def _line_tokens(text: str, flags: list):
     (surviving_token_texts, restored_indices, fragment_indices,
     gap_chars_dropped) where the indices are positions within
     surviving_token_texts."""
-    texts, restored, fragment, gap_chars_dropped, _gaps = _line_tokens_gaps(text, flags)
+    texts, restored, fragment, gap_chars_dropped, _gaps, _gloss = _line_tokens_gaps(text, flags)
     return texts, restored, fragment, gap_chars_dropped
 
 
-def _line_tokens_gaps(text: str, flags: list):
-    """`_line_tokens` plus a fifth value, `gap_before`: the positions in
+def _line_tokens_gaps(text: str, flags: list, gloss_flags=None):
+    """`_line_tokens` plus a fifth value, `gap_before`, and a sixth, `gloss`
+    (positions of the tokens that are an editor's gloss): the positions in
     surviving_token_texts before which one or more whole-gap tokens were
     dropped (a gap at the end of the line is position len(texts); a line that
     is nothing but gap gives [0]). The card shows "[...]" at each of them."""
     gap_chars_dropped = text.count(GAP_PLACEHOLDER)
-    toks = tokenize_with_restoration(text, flags)
+    toks = tokenize_with_restoration(text, flags, gloss_flags)
     texts = []
     restored = []
     fragment = []
     gap_before = []
+    gloss = []
     for tok in toks:
+        if tok.gloss:
+            gloss.append(len(texts))
         if tok.gap_before:
             gap_before.append(len(texts))
         if tok.restored:
@@ -180,23 +197,34 @@ def _line_tokens_gaps(text: str, flags: list):
         texts.append(tok.text)
     if text.rstrip().endswith(GAP_PLACEHOLDER):
         gap_before.append(len(texts))
-    return texts, restored, fragment, gap_chars_dropped, gap_before
+    return texts, restored, fragment, gap_chars_dropped, gap_before, gloss
 
 
 def merge_joined_lines(lines: list) -> list:
     """Lines as (text, restored_flags) pairs, with a line that continues the
     previous line's last word (`joins_previous`, set from <lb break="no"/> by
     epidoc_convert.py) appended to it with no separator, so the word is whole."""
+    return [(t, f) for t, f, _g in merge_joined_lines_gloss(lines)]
+
+
+def merge_joined_lines_gloss(lines: list) -> list:
+    """`merge_joined_lines` as (text, restored_flags, gloss_flags) triples;
+    gloss_flags is None for a line without a gloss."""
     out: list = []
     for ln in lines or []:
         text = ln.get("text") or ""
         if not text:
             continue
-        flags = ln.get("restored_flags") or [False] * len(text)
+        flags = list(ln.get("restored_flags") or [False] * len(text))
+        gl = ln.get("gloss_flags")
+        gl = list(gl) if gl else None
         if out and ln.get("joins_previous"):
-            out[-1] = (out[-1][0] + text, list(out[-1][1]) + list(flags))
+            pt, pf, pg = out[-1]
+            if pg is not None or gl is not None:
+                pg = (pg or [False] * len(pt)) + (gl or [False] * len(text))
+            out[-1] = (pt + text, pf + flags, pg)
         else:
-            out.append((text, list(flags)))
+            out.append((text, flags, gl))
     return out
 
 
@@ -204,25 +232,29 @@ def build_short_doc_unit(rec: dict):
     """Return (text, restored_idx, fragment_idx, gap_chars_dropped) for a
     short document's single packed .tess line, or (None, [], [], N) if
     every line was empty after gap-dropping (caller skips it)."""
-    text, restored_idx, fragment_idx, gaps, _gap_before = build_short_doc_unit_gaps(rec)
+    text, restored_idx, fragment_idx, gaps, _extra = build_short_doc_unit_gaps(rec)
     return text, restored_idx, fragment_idx, gaps
 
 
 def build_short_doc_unit_gaps(rec: dict, lang: str = "la"):
-    """`build_short_doc_unit` plus the sidecar's `gap_before`: the positions
+    """`build_short_doc_unit` plus a dict of the sidecar's extra fields,
+    `gap_before` and `gloss_indices`, both counted in the index's token list
+    (the sidecar's `gap_before`: the positions
     of the dropped gaps in the INDEX's token list (see to_index_positions; the
     restored and fragment positions stay counted in the written stream). A line
     that is only gap puts its marker before the first token of the next line
-    written, or at the end when no line follows."""
+    written, or at the end when no line follows. `gloss_indices` are the tokens
+    that are an editor's gloss on a written-out word (see epidoc_convert.py)."""
     final_tokens: list[str] = []
     restored_idx: list[int] = []
     fragment_idx: list[int] = []
     gap_before: list[int] = []
+    gloss_idx: list[int] = []
     gap_chars_dropped = 0
     wrote_any_line = False
     pending_gap = False
-    for text, flags in merge_joined_lines(rec.get("lines")):
-        texts, restored, fragment, gaps, line_gaps = _line_tokens_gaps(text, flags)
+    for text, flags, gloss_flags in merge_joined_lines_gloss(rec.get("lines")):
+        texts, restored, fragment, gaps, line_gaps, gloss = _line_tokens_gaps(text, flags, gloss_flags)
         gap_chars_dropped += gaps
         if not texts:
             if line_gaps:
@@ -240,17 +272,20 @@ def build_short_doc_unit_gaps(rec: dict, lang: str = "la"):
             fragment_idx.append(offset + i)
         for i in line_gaps:
             gap_before.append(offset + i)
+        for i in gloss:
+            gloss_idx.append(offset + i)
         final_tokens.extend(texts)
         wrote_any_line = True
     if not final_tokens:
-        return None, [], [], gap_chars_dropped, []
+        return None, [], [], gap_chars_dropped, {}
     if pending_gap:
         gap_before.append(len(final_tokens))
     text_out = clean_text(" ".join(final_tokens))
     if not text_out:
-        return None, [], [], gap_chars_dropped, []
+        return None, [], [], gap_chars_dropped, {}
     return (text_out, restored_idx, fragment_idx, gap_chars_dropped,
-            to_index_positions(final_tokens, gap_before, lang))
+            {"gap_before": to_index_positions(final_tokens, gap_before, lang),
+             "gloss_indices": to_index_positions_kept(final_tokens, gloss_idx, lang)})
 
 
 def build_long_doc_lines(rec: dict):
@@ -265,8 +300,8 @@ def build_long_doc_lines(rec: dict):
 
 
 def build_long_doc_lines_gaps(rec: dict, lang: str = "la"):
-    """`build_long_doc_lines` with a fifth item per line, its `gap_before`
-    positions (within that line's tokens)."""
+    """`build_long_doc_lines` with a fifth item per line, a dict of its
+    `gap_before` and `gloss_indices` (within that line's tokens)."""
     out = []
     gap_chars_dropped = 0
     for i, ln in enumerate(rec.get("lines") or [], start=1):
@@ -274,14 +309,17 @@ def build_long_doc_lines_gaps(rec: dict, lang: str = "la"):
         if not text:
             continue
         flags = ln.get("restored_flags") or [False] * len(text)
-        texts, restored, fragment, gaps, line_gaps = _line_tokens_gaps(text, flags)
+        texts, restored, fragment, gaps, line_gaps, gloss = _line_tokens_gaps(
+            text, flags, ln.get("gloss_flags"))
         gap_chars_dropped += gaps
         if not texts:
             continue
         line_text = clean_text(" ".join(texts))
         if not line_text:
             continue
-        out.append((i, line_text, restored, fragment, to_index_positions(texts, line_gaps, lang)))
+        out.append((i, line_text, restored, fragment,
+                    {"gap_before": to_index_positions(texts, line_gaps, lang),
+                     "gloss_indices": to_index_positions_kept(texts, gloss, lang)}))
     return out, gap_chars_dropped
 
 
@@ -388,7 +426,7 @@ def process_corpus(input_path: str, output_root: str, limit: int | None = None,
                 tess_f.write(line + "\n")
                 sidecar_f.write(json.dumps(
                     {"ref": ref, "restored": restored_idx, "fragment": fragment_idx,
-                         "gap_before": gap_idx},
+                         **gap_idx},
                     ensure_ascii=False) + "\n")
                 stats["by_lang"][lang]["documents"] += 1
                 stats["by_lang"][lang]["tess_lines"] += 1
@@ -408,7 +446,7 @@ def process_corpus(input_path: str, output_root: str, limit: int | None = None,
                     tess_f.write(line + "\n")
                     sidecar_f.write(json.dumps(
                         {"ref": ref, "restored": restored_idx, "fragment": fragment_idx,
-                         "gap_before": gap_idx},
+                         **gap_idx},
                         ensure_ascii=False) + "\n")
                     stats["by_lang"][lang]["tess_lines"] += 1
                     wrote_any = True
@@ -501,7 +539,7 @@ def main(argv=None) -> int:
                     tess_f.write(line + "\n")
                     sidecar_f.write(json.dumps(
                         {"ref": ref, "restored": restored_idx, "fragment": fragment_idx,
-                         "gap_before": gap_idx},
+                         **gap_idx},
                         ensure_ascii=False) + "\n")
                     stats["by_lang"][lang]["documents"] += 1
                     stats["by_lang"][lang]["tess_lines"] += 1
@@ -518,7 +556,7 @@ def main(argv=None) -> int:
                         tess_f.write(line + "\n")
                         sidecar_f.write(json.dumps(
                             {"ref": ref, "restored": restored_idx, "fragment": fragment_idx,
-                         "gap_before": gap_idx},
+                         **gap_idx},
                             ensure_ascii=False) + "\n")
                         stats["by_lang"][lang]["tess_lines"] += 1
                         wrote_any = True

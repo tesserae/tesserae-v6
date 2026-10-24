@@ -37,7 +37,8 @@ export function toTokenPositions(result, positions) {
  * Document hit text, rendered by TOKEN POSITION (not a whitespace re-split
  * of `text`) so restored-word marking lines up with restored_indices
  * exactly as the index stored it. `gap_before` lists the positions before which
- * the stone has a gap (text lost); each gets a gray "[...]". Falls back to `highlightFallback` (the
+ * the stone has a gap (text lost); each gets a gray "[...]". `gloss_indices` are the tokens of an editor's gloss,
+ * shown in parentheses. Falls back to `highlightFallback` (the
  * plain literary highlighter) if a hit carries no token list.
  */
 export function renderDocumentText(result, highlightFallback) {
@@ -49,6 +50,10 @@ export function renderDocumentText(result, highlightFallback) {
   const fragmentSet = new Set(toTokenPositions(result, result.fragment_indices));
   const matchedSet = new Set((result.matched_words || []).map(w => (w || '').toLowerCase()));
   const gapSet = new Set(result.gap_before || []);
+  // An editor's gloss on a word already written out ("IIviri (duoviri)"): the
+  // card's tokens carry no punctuation, so each run of gloss tokens gets its
+  // parentheses back.
+  const glossSet = new Set(result.gloss_indices || []);
   const gapMarker = (i) => (
     <span key={`gap-${i}`} className="text-gray-400" title="text lost">[...]{' '}</span>
   );
@@ -68,9 +73,11 @@ export function renderDocumentText(result, highlightFallback) {
     if (matchedSet.has((tok || '').toLowerCase())) {
       el = <mark className="bg-amber-200 px-0.5 rounded">{el}</mark>;
     }
+    const glossOpen = glossSet.has(i) && !glossSet.has(i - 1);
+    const glossClose = glossSet.has(i) && !glossSet.has(i + 1);
     return (
       <span key={i}>
-        {gapSet.has(i) ? gapMarker(i) : null}{el}{' '}
+        {gapSet.has(i) ? gapMarker(i) : null}{glossOpen ? '(' : null}{el}{glossClose ? ')' : null}{' '}
       </span>
     );
   });
