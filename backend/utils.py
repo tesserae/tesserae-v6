@@ -97,6 +97,113 @@ def exact_phrase_pattern(query, language=None):
     return re.compile(r'\s+'.join(r'\b' + w for w in words), re.IGNORECASE)
 
 
+# ---------------------------------------------------------------------------
+# Literal prefilter for exact phrases (Line Search speed job, 2026-10-24).
+#
+# exact_phrase_pattern is case-insensitive, and the regex engine's idea of
+# "the same letter" is: equal after simple lower-casing, or listed in the
+# engine's own table of extra equivalents (long s and s, final sigma and
+# sigma, and so on). exact_prefold puts a text in a form where two characters
+# the engine treats as equal are the same character, so a plain str.find on
+# the folded text can say, before any regex runs, that a file cannot hold a
+# word. The test only ever rejects a file the regex would also reject.
+# ---------------------------------------------------------------------------
+
+# str.lower() gives more than one character for these, which would shift the
+# folded text against the original, so a text holding one skips the prefilter.
+_PREFOLD_UNSAFE = ('İ',)
+
+
+def _build_prefold_table():
+    try:
+        from re import _casefix
+        extra = dict(_casefix._EXTRA_CASES)
+    except Exception:
+        return None
+    parent = {}
+
+    def find(x):
+        while parent.setdefault(x, x) != x:
+            parent[x] = parent[parent[x]]
+            x = parent[x]
+        return x
+
+    for code, others in extra.items():
+        for o in others:
+            parent[find(o)] = find(code)
+    classes = {}
+    for code in list(parent):
+        classes.setdefault(find(code), []).append(code)
+    table = {}
+    for members in classes.values():
+        canon = chr(min(members))
+        for m in members:
+            if chr(m) != canon:
+                table[chr(m)] = canon
+    return table
+
+
+_PREFOLD_TABLE = _build_prefold_table()
+
+
+def exact_prefold(text):
+    """Lower-cased text with the regex engine's case equivalents merged, or None
+    when the text cannot be folded safely (see _PREFOLD_UNSAFE) or the engine's
+    table is unavailable. The result has one character for each character of
+    `text`, in the same order."""
+    if _PREFOLD_TABLE is None:
+        return None
+    for ch in _PREFOLD_UNSAFE:
+        if ch in text:
+            return None
+    key = text.lower()
+    if not key.isascii():
+        for member, canon in _PREFOLD_TABLE.items():
+            if member in key:
+                key = key.replace(member, canon)
+    return key
+
+
+def exact_prefold_latin(text):
+    """exact_prefold with the Latin u/v and i/j fold applied (u becomes v, j becomes i), or None.
+
+    exact_phrase_pattern treats u and v, i and j as one letter for Latin, so a
+    Latin file is kept in this form and a Latin query word is put in it too.
+    One spelling per word then stands for all of its u/v and i/j spellings."""
+    key = exact_prefold(text)
+    if key is None:
+        return None
+    return key.replace('u', 'v').replace('j', 'i')
+
+
+def exact_prefilter_plan(query, language=None):
+    """What a file's folded text must hold for an exact phrase to match in it.
+
+    Returns None when the phrase cannot be tested (empty query, or a query
+    character exact_prefold cannot fold), else a dict:
+      pieces   the regex piece of each query word (exact_query_words)
+      widths   the length of each word in characters; every query character
+               matches exactly one character of the text
+      needles  each word in the folded form of the file keys (Latin: u/v and
+               i/j merged), so `needle in key` is a necessary condition
+      latin    True when the keys are the Latin form
+    A file whose key lacks any needle cannot match the phrase pattern."""
+    query = unicodedata.normalize('NFC', query or '')
+    words = query.split()
+    if not words:
+        return None
+    latin = language == 'la'
+    fold = exact_prefold_latin if latin else exact_prefold
+    needles = []
+    for word in words:
+        needle = fold(word)
+        if needle is None:
+            return None
+        needles.append(needle)
+    return {'pieces': exact_query_words(query, language), 'widths': [len(w) for w in words],
+            'needles': needles, 'latin': latin}
+
+
 def exact_search_text(text):
     """NFC-normalize a text line before matching it against an exact_phrase_pattern.
 

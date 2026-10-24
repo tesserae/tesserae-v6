@@ -4,8 +4,10 @@ Moved out of backend/app.py unchanged (application-factory job, 2026-10-12).
 """
 import os
 import re
+import sys
 import math
 import time as time_module
+import threading
 import unicodedata
 
 from flask import Blueprint, current_app, jsonify, request
@@ -14,7 +16,7 @@ from flask_login import current_user
 from backend.services import get_user_location, log_search
 from backend import fspaths
 from backend.metadata_cache import get_text_metadata_cached as get_text_metadata
-from backend.utils import clean_cts_reference, resolve_text_path, exact_phrase_pattern, exact_query_words, strip_hebrew_pointing, exact_search_text, format_short_locus
+from backend.utils import clean_cts_reference, resolve_text_path, exact_phrase_pattern, exact_query_words, strip_hebrew_pointing, exact_search_text, format_short_locus, exact_prefold, exact_prefold_latin, exact_prefilter_plan
 from backend.frequency_cache import get_corpus_frequencies
 from backend.distance_filter import is_prose_text as is_prose_text_unified
 from backend.distance_filter import get_max_distance as _get_max_distance
@@ -407,7 +409,9 @@ def _candidate_within_distance(filename, positions, language='la', max_distance=
     had counted it first. Counting after the same rule keeps the two in step.
     The filter groups by surface word where this groups by lemma, so two forms
     of one lemma standing together do not count as a close pair here."""
-    lists = [lst for lst in (positions or {}).values() if lst]
+    if not positions or len(positions) < 2:
+        return True     # fewer than two lemmas: the lists need not be read
+    lists = [lst for lst in positions.values() if lst]
     if len(lists) < 2:
         return True
     min_dist = _smallest_gap_between_lists(lists)
@@ -914,7 +918,8 @@ def _indexed_candidates(params: LineSearchParams, lang_dates: dict, filtered_que
     # lemma set would otherwise admit every line — it also can't reach the
     # fast-path guard below, but max(1,...) makes that safety explicit).
     min_matched = max(1, min(2, len(filtered_query_lemmas)))
-    candidates = find_co_occurring_lemmas(list(filtered_query_lemmas), language, min_matches=min_matched, fallback_forms=query_fallback_forms)
+    candidates = find_co_occurring_lemmas(list(filtered_query_lemmas), language, min_matches=min_matched, fallback_forms=query_fallback_forms,
+                                           rarest_first=True)
     use_indexed_lines = has_lines_data(language)
     
     # Group candidates by text
@@ -1172,6 +1177,137 @@ def _exact_candidate_lines(raw: str, exact_pattern):
     return sorted(found)
 
 
+# The folded text of each file, kept for the life of the process so an exact
+# phrase search does not read, normalize and scan the whole corpus every time
+# (Line Search speed job, 2026-10-24). Keyed by path; an entry is used only
+# while the file's size and modification time are unchanged. An entry whose key
+# is None marks a file that must go through the full scan (see _exact_file_key).
+# The budget is counted in bytes of folded text held (Latin: 177 million
+# characters in 292 MB; Greek: 132 million characters in 254 MB, two bytes
+# each), and a file that does not fit the budget is scanned in full each time,
+# exactly as before.
+_EXACT_KEY_CACHE = {}
+_EXACT_KEY_BYTES = [0]
+_EXACT_KEY_LOCK = threading.Lock()
+EXACT_KEY_BUDGET_BYTES = 700 * 1024 * 1024
+
+
+def _exact_key_lookup(filepath: str, latin: bool):
+    """(known, key, signature): the kept folded text of a file, if its size, modification time and form still match."""
+    try:
+        st = fspaths.stat(filepath)
+    except OSError:
+        return False, None, None
+    signature = (st.st_size, st.st_mtime_ns, latin)
+    entry = _EXACT_KEY_CACHE.get(filepath)
+    if entry is not None and entry[0] == signature:
+        return True, entry[1], signature
+    return False, None, signature
+
+
+def _exact_key_store(filepath: str, signature, raw: str):
+    """Fold a file's text for the literal prefilter, keep it, and return it (None: scan the file in full)."""
+    if signature is None:
+        return None
+    key = None
+    # The same conditions under which _exact_candidate_lines gives up on the
+    # whole-file fold, so a file it would scan line by line is never skipped.
+    if '>\u0338' not in raw:
+        folded = unicodedata.normalize('NFC', raw)
+        if folded.count('\n') == raw.count('\n'):
+            key = exact_prefold_latin(folded) if signature[2] else exact_prefold(folded)
+    with _EXACT_KEY_LOCK:
+        old = _EXACT_KEY_CACHE.get(filepath)
+        if old is not None and old[1] is not None:
+            _EXACT_KEY_BYTES[0] -= sys.getsizeof(old[1])
+        if key is not None and _EXACT_KEY_BYTES[0] + sys.getsizeof(key) > EXACT_KEY_BUDGET_BYTES:
+            key = None
+        if key is not None:
+            _EXACT_KEY_BYTES[0] += sys.getsizeof(key)
+        _EXACT_KEY_CACHE[filepath] = (signature, key)
+    return key
+
+
+# A file where the anchor word occurs more often than this has its candidate
+# lines found by one pass of the phrase regex instead of one check per occurrence.
+_ANCHOR_OCCURRENCE_LIMIT = 300
+
+
+def _lines_of_matches(text: str, spans, ordered: bool = False):
+    """Sorted indexes of the lines the (start, end) match spans touch; `ordered` says the spans already come by start."""
+    found = set()
+    line = 0
+    last = 0
+    for start, end in (spans if ordered else sorted(spans)):
+        line += text.count('\n', last, start)
+        last = start
+        found.add(line)
+        if end > start:
+            for k in range(1, text.count('\n', start, end) + 1):
+                found.add(line + k)
+    return sorted(found)
+
+
+def _exact_key_candidate_lines(key: str, plan: dict, rxs: list, prefilter_pattern):
+    """Indexes (ascending) of the lines of a file that can hold the exact phrase, from its kept key; [] when none.
+
+    The key has the length and the line breaks of the NFC form of the file and
+    holds each character in a form the phrase pattern treats as the same
+    letter, so every match of the phrase in the file is a match in the key at
+    the same place. A file whose key lacks a word of the phrase has none. The
+    longest word is the anchor: wherever it occurs, the words before it must
+    end where the whitespace before it begins, and the words after it must
+    start where the whitespace after it ends (a query word holds no whitespace
+    and `\\s+` takes the whole run), so each occurrence is checked in a few
+    steps instead of running the regex over every position. Every match
+    contains an occurrence of the anchor, so the lines found are the lines of
+    all matches, which include the lines of the matches the one-pass scan finds."""
+    needles = plan['needles']
+    order = sorted(range(len(needles)), key=lambda i: -len(needles[i]))
+    for i in order:
+        if needles[i] not in key:
+            return []
+    anchor = order[0]
+    needle = needles[anchor]
+    positions = []
+    at = key.find(needle)
+    while at != -1:
+        positions.append(at)
+        if len(positions) > _ANCHOR_OCCURRENCE_LIMIT:
+            return _lines_of_matches(key, (m.span() for m in prefilter_pattern.finditer(key)), ordered=True)
+        at = key.find(needle, at + 1)
+    widths = plan['widths']
+    last = len(needles) - 1
+    spans = []
+    for at in positions:
+        start = at
+        ok = True
+        for i in range(anchor - 1, -1, -1):
+            end = start
+            while start > 0 and key[start - 1].isspace():
+                start -= 1
+            if start == end or start - widths[i] < 0 or not rxs[i].fullmatch(key, start - widths[i], start):
+                ok = False
+                break
+            start -= widths[i]
+        if not ok:
+            continue
+        end = at + widths[anchor]
+        if not rxs[anchor].fullmatch(key, at, end):
+            continue
+        for i in range(anchor + 1, last + 1):
+            nxt = end
+            while nxt < len(key) and key[nxt].isspace():
+                nxt += 1
+            if nxt == end or nxt + widths[i] > len(key) or not rxs[i].fullmatch(key, nxt, nxt + widths[i]):
+                ok = False
+                break
+            end = nxt + widths[i]
+        if ok:
+            spans.append((start, end))
+    return _lines_of_matches(key, spans)
+
+
 def _scanned_candidates(params: LineSearchParams, lang_dir: str, lang_dates: dict, stopwords: set,
                         filtered_query_lemmas: set, univ_forward: dict, univ_sequences: dict,
                         univ_active: bool):
@@ -1209,6 +1345,10 @@ def _scanned_candidates(params: LineSearchParams, lang_dir: str, lang_dates: dic
         except re.error:
             return results, by_work_all
     prefilter_pattern = _exact_prefilter_pattern(exact_query, language) if (search_type == 'exact' and not he_exact) else None
+    # What every matching file must hold, tested on the kept folded text of the
+    # file before any regex runs (None: scan every file as before).
+    exact_plan = exact_prefilter_plan(exact_query, language) if prefilter_pattern is not None else None
+    exact_rxs = [re.compile(piece, re.IGNORECASE) for piece in exact_plan['pieces']] if exact_plan else None
     
     # The same word is lemmatized once for the whole scan, not once per
     # occurrence: lemmatize_word gives the same answer each time and the scan
@@ -1245,10 +1385,29 @@ def _scanned_candidates(params: LineSearchParams, lang_dir: str, lang_dates: dic
         # not leak into output and plot as year 9999 on a timeline.
         year = author_info.get('year')
 
-        with fspaths.open_text(filepath, 'r', encoding='utf-8') as f:
-            raw = f.read()
+        # A file whose folded text is already kept is never read unless it
+        # holds a candidate line, and then only for those lines. A file seen
+        # for the first time is read as before, and its folded text is kept
+        # for the next search.
+        raw = None
+        wanted = None
+        if exact_plan is not None:
+            known, key, signature = _exact_key_lookup(filepath, exact_plan['latin'])
+            if not known:
+                with fspaths.open_text(filepath, 'r', encoding='utf-8') as f:
+                    raw = f.read()
+                key = _exact_key_store(filepath, signature, raw)
+            if key is not None:
+                wanted = _exact_key_candidate_lines(key, exact_plan, exact_rxs, prefilter_pattern)
+                if not wanted:
+                    continue
+
+        if raw is None:
+            with fspaths.open_text(filepath, 'r', encoding='utf-8') as f:
+                raw = f.read()
         lines = raw.split('\n')
-        wanted = _exact_candidate_lines(raw, prefilter_pattern) if (search_type == 'exact' and not he_exact) else None
+        if wanted is None:
+            wanted = _exact_candidate_lines(raw, prefilter_pattern) if (search_type == 'exact' and not he_exact) else None
         if wanted is not None and not wanted:
             continue
 
@@ -1772,7 +1931,7 @@ def line_search_parallel():
         # Try to use inverted index for fast lookup
         if use_index and is_index_available(language):
             # FAST PATH: Use inverted index
-            candidates = find_co_occurring_lemmas(list(filtered_source_lemmas), language, min_matches)
+            candidates = find_co_occurring_lemmas(list(filtered_source_lemmas), language, min_matches, rarest_first=True)
             
             # Group candidates by text for efficient processing
             text_candidates = {}
@@ -1917,7 +2076,7 @@ def corpus_search():
         normalized_lemmas = [l for l in normalized_lemmas if l and l.lower() not in _stop]
         if not normalized_lemmas:
             return jsonify({'results': [], 'total': 0, 'lemmas': lemmas})
-        matches = find_co_occurring_lemmas(normalized_lemmas, language, min_matches=min(2, len(normalized_lemmas)))
+        matches = find_co_occurring_lemmas(normalized_lemmas, language, min_matches=min(2, len(normalized_lemmas)), rarest_first=True)
         
         results = []
         text_matches = {}
