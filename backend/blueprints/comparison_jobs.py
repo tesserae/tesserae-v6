@@ -163,7 +163,7 @@ def create_job():
     if mine >= MAX_PER_VISITOR:
         return jsonify({'error': f'You already have {MAX_PER_VISITOR} comparisons waiting. '
                                  'Wait for one to finish before asking for another.'}), 429
-    if ComparisonJob.query.filter_by(status='queued').count() > MAX_QUEUED:
+    if ComparisonJob.query.filter_by(status='queued').count() >= MAX_QUEUED:
         return jsonify({'error': 'The download queue is full. Please try again later, '
                                  'or choose books to compare now.'}), 503
 

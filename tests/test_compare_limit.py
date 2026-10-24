@@ -288,7 +288,7 @@ def test_a_visitor_may_have_two_waiting(queue):
 
 def test_the_queue_holds_twenty(queue):
     app, Job, db, _ = queue
-    for i in range(21):
+    for i in range(20):
         db.session.add(Job(id=f'q{i:03d}abc', source='a.tess', target='b.tess', status='queued',
                            owner_token=f'o{i}', created=datetime.now()))
     db.session.commit()
