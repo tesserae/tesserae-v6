@@ -142,19 +142,19 @@ def walk(el, path, rows):
     if not parts and verse:
         # Verse mode only when the leaf is verse. A prose division that quotes
         # an epigram in <l> (Diogenes Laertius) stays one prose line.
-        in_l = sum(len(GREEK.findall(clean(raw_text(l)))) for l in verse)
+        in_l = sum(len(GREEK.findall(clean(raw_text(ln)))) for ln in verse)
         if in_l < 0.8 * len(GREEK.findall(clean(raw_text(el)))):
             verse = []
     if not parts and verse:
         counter = 0
-        for l in verse:
-            n = l.get('n')
+        for ln in verse:
+            n = ln.get('n')
             if n is None or not n.strip():
                 counter += 1
                 n = str(counter)
             else:
                 counter = int(n) if n.isdigit() else counter
-            text = clean(raw_text(l))
+            text = clean(raw_text(ln))
             if text:
                 rows.append((path + [n], text))
         return

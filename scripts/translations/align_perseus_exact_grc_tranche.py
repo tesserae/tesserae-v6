@@ -49,7 +49,7 @@ def main():
     by_ref = {}
     for c in chunks:
         a = c['anchors']
-        key = '.'.join(PREF.get(a.get(l, ''), a.get(l, '')) for l in ('book', 'epistle', 'chapter', 'section') if l in a)
+        key = '.'.join(PREF.get(a.get(k, ''), a.get(k, '')) for k in ('book', 'epistle', 'chapter', 'section') if k in a)
         by_ref[key] = by_ref.get(key, '') + (' ' if key in by_ref else '') + c['text']
     src = {}
     for line in open(tess_path, encoding='utf-8'):
