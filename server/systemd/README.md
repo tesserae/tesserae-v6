@@ -22,6 +22,10 @@ starts first.
 
 ## What the unit does
 
+- Runs from the production checkout: the interpreter
+  `/var/www/tesseraev6_flask/venv/bin/python` and the script
+  `/var/www/tesseraev6_flask/scripts/comparison_queue_runner.py`, with
+  `WorkingDirectory=/var/www/tesseraev6_flask`, so a deploy updates the runner.
 - Reads `DATABASE_URL` from `/var/www/tesseraev6_flask/.env` with
   `EnvironmentFile=`; the file keeps its mode 664.
 - Runs the job inside `systemd-run --user --scope --slice tesserae-jobs.slice

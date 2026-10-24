@@ -6,6 +6,7 @@ Description=Run the oldest queued comparison download (scripts/comparison_queue_
 [Service]
 Type=oneshot
 WorkingDirectory=/var/www/tesseraev6_flask
+# Runs from the production checkout (interpreter and script), so a deploy updates it.
 # DATABASE_URL (and SMTP_HOST, if the site can mail visitors) come from the
 # production .env, read here without being copied anywhere.
 EnvironmentFile=/var/www/tesseraev6_flask/.env
@@ -13,7 +14,7 @@ EnvironmentFile=/var/www/tesseraev6_flask/.env
 # no swap: if the job overruns, the kernel kills only the job, never the web
 # workers. The runner itself declines to start (exits quietly) unless 26 GB are
 # available and no tess-job scope is running.
-ExecStart=/usr/bin/systemd-run --user --scope --quiet --slice tesserae-jobs.slice -p MemoryMax=20G -p MemorySwapMax=0 /home/ncoffee/tesserae-v6-dev/venv/bin/python /var/www/tesseraev6_flask/scripts/comparison_queue_runner.py
+ExecStart=/usr/bin/systemd-run --user --scope --quiet --slice tesserae-jobs.slice -p MemoryMax=20G -p MemorySwapMax=0 /var/www/tesseraev6_flask/venv/bin/python /var/www/tesseraev6_flask/scripts/comparison_queue_runner.py
 TimeoutStartSec=4h
 StandardOutput=append:%h/tesserae-backups/jobs/comparison_queue.log
 StandardError=append:%h/tesserae-backups/jobs/comparison_queue.log
