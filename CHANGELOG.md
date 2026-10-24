@@ -7,6 +7,9 @@ so the state of the live site can be reconstructed from this file and
 docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
+## 2026-10-24
+- Reader: a Stories list and story-by-story paging for works divided into stories (the Shahnameh). New route `GET /api/texts/structure/<work>` serves `data/text_structure/<work>/stories.json`; the header lists the 857 stories (grouped by reign, Persian title after the English), says "857 stories" in place of the line count, and previous and next step by story. Help says so.
+
 ## 2026-10-23
 - Data script, not run on production: `scripts/corpus/remap_refs.py` rewrites a work's old running references (`ferdowsi.shahnameh.N`) to the new story.couplet.hemistich shape in every store that holds one (inverted index, passage index, descriptions, entity index, reuse pairs, both connections maps, embeddings meta, lemma cache, text file), refusing before any write if a reference is not in the map. `scripts/corpus/check_remapped_refs.py` checks the result. Tested on copies: 46.6 s, 0.7 GB peak, every check passes. Nothing a visitor sees changes yet.
 - Reader: in a Persian or Urdu work whose references run story.couplet.hemistich, the margin numbers every fifth couplet (on its first hemistich) instead of going blank, since the last number of such a reference is only ever 1 or 2. Help says so.

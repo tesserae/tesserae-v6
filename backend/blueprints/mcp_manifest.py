@@ -538,6 +538,10 @@ MANIFEST = {
         'reason': ("Author -> work -> part tree for the Browse Corpus page; list_texts already "
                   "exposes the flat listing a tool caller needs."),
     },
+    '/api/texts/structure/<work>': {
+        'site_only': True,
+        'reason': "A work's story list for the Reader's Stories dropdown; read-only navigation data.",
+    },
     '/api/texts/add': {
         'site_only': True,
         'reason': 'Adds a text to the corpus; gated by check_admin_auth internally.',

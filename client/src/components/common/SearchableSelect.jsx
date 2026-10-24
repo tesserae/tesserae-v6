@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef, useId } from 'react';
+import { Fragment, useState, useEffect, useMemo, useRef, useId } from 'react';
 
 /**
  * A type-to-find dropdown: a regular menu you can also filter by typing.
@@ -44,6 +44,18 @@ function filterOptions(options, filter) {
   return [...starts, ...contains];
 }
 
+// Consecutive options that share an optional `group` (a heading such as a
+// reign), for the native select's optgroups. Options without one stay loose.
+function groupRuns(options) {
+  const runs = [];
+  for (const o of options) {
+    const last = runs[runs.length - 1];
+    if (last && last.group === (o.group || '')) last.items.push(o);
+    else runs.push({ group: o.group || '', items: [o] });
+  }
+  return runs;
+}
+
 const SearchableSelect = ({
   value,
   onChange,
@@ -52,6 +64,7 @@ const SearchableSelect = ({
   placeholder,
   disabled,
   className,
+  listClassName,
 }) => {
   const uid = useId();
   const inputRef = useRef(null);
@@ -212,9 +225,13 @@ const SearchableSelect = ({
         className={`sm:hidden ${inputClasses}`}
       >
         {(!value || !selectedOption) && <option value="">{placeholder || ''}</option>}
-        {safeOptions.map((o) => (
-          <option key={o.value} value={o.value}>{o.label}</option>
-        ))}
+        {groupRuns(safeOptions).map((run) => (run.group
+          ? (
+            <optgroup key={`g-${run.group}-${run.items[0].value}`} label={run.group}>
+              {run.items.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+            </optgroup>
+          )
+          : run.items.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)))}
       </select>
 
       {/* Desktop: the type-to-find combobox. */}
@@ -260,11 +277,15 @@ const SearchableSelect = ({
             id={listboxId}
             role="listbox"
             aria-label={ariaLabel}
-            className="absolute z-50 w-full mt-1 bg-white border rounded shadow-lg max-h-56 overflow-y-auto"
+            className={`absolute z-50 w-full mt-1 bg-white border rounded shadow-lg max-h-56 overflow-y-auto ${listClassName || ''}`}
           >
             {filteredOptions.length > 0 ? filteredOptions.map((o, i) => (
+              <Fragment key={o.value}>
+              {o.group && (i === 0 || filteredOptions[i - 1].group !== o.group) && (
+                <div role="presentation" className="px-3 pt-2 pb-1 text-xs font-semibold text-gray-500 bg-gray-50"
+                     dir="auto">{o.group}</div>
+              )}
               <button
-                key={o.value}
                 type="button"
                 id={`${uid}-option-${i}`}
                 data-index={i}
@@ -279,6 +300,7 @@ const SearchableSelect = ({
               >
                 {o.label}
               </button>
+              </Fragment>
             )) : <div className="px-3 py-2 text-sm text-gray-500">No matches</div>}
           </div>
         )}

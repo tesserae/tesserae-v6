@@ -3,7 +3,7 @@
  */
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
-import ReaderNav, { ReaderEndNav, ReaderPhoneTopButton, sectionsFor } from './ReaderNav';
+import ReaderNav, { ReaderEndNav, ReaderPhoneTopButton, sectionsFor, storyNeighbours, storyNumberOfRef, storyShortRef } from './ReaderNav';
 import { installPhone } from '../../test/phone';
 
 afterEach(cleanup);
@@ -160,5 +160,41 @@ describe('not on a phone', () => {
     render(<ReaderPhoneTopButton hidden={false} />);
     expect(screen.queryByLabelText('Back to top')).toBeNull();
     window.scrollY = 0;
+  });
+});
+
+describe('story links', () => {
+  const stories = [
+    { number: 1, title_en: 'Invocation', title_fa: 'آغاز کتاب', first_ref: 'ferdowsi.shahnameh.1.1.1' },
+    { number: 2, title_en: 'Wisdom', title_fa: 'ستایشِ خرد', first_ref: 'ferdowsi.shahnameh.2.1.1' },
+    { number: 3, title_en: 'Creation', title_fa: 'آفرینش', first_ref: 'ferdowsi.shahnameh.3.1.1' },
+  ];
+
+  it('reads the story out of a dotted ref and shortens it for Go to line', () => {
+    expect(storyNumberOfRef('ferdowsi.shahnameh.151.1.1')).toBe(151);
+    expect(storyShortRef('ferdowsi.shahnameh.151.1.1')).toBe('151.1.1');
+    expect(storyNumberOfRef('verg. aen. 6.851')).toBeNull();
+  });
+
+  it('steps to the neighbours of the current story and starts at the first', () => {
+    expect(storyNeighbours(stories, 2)).toEqual({ prev: stories[0], next: stories[2] });
+    expect(storyNeighbours(stories, null)).toEqual({ prev: null, next: stories[1] });
+    expect(storyNeighbours(stories, 3).next).toBeNull();
+  });
+
+  it('calls onStory with the neighbouring story', () => {
+    const onStory = vi.fn();
+    render(<ReaderNav sections={[]} work="ferdowsi.shahnameh.tess" onWork={() => {}}
+                      onJump={() => ''} stories={stories} storyNumber={2} onStory={onStory} />);
+    fireEvent.click(screen.getByLabelText('Previous story: 1 Invocation'));
+    expect(onStory).toHaveBeenLastCalledWith(stories[0]);
+    fireEvent.click(screen.getByLabelText('Next story: 3 Creation'));
+    expect(onStory).toHaveBeenLastCalledWith(stories[2]);
+  });
+
+  it('shows no story links for a work without stories', () => {
+    render(<ReaderNav sections={sections} work="vergil.aeneid.part.2.tess" onWork={() => {}}
+                      onJump={() => ''} />);
+    expect(screen.queryByLabelText(/story/i)).toBeNull();
   });
 });
