@@ -43,6 +43,25 @@ export function CoinGist({ gist, className = 'mt-2' }) {
   );
 }
 
+const THUMB_CREDIT = 'Photograph: American Numismatic Society, public domain';
+
+/**
+ * The stored picture of a coin type the Society holds (its own public-domain
+ * photograph, front and back side by side), or nothing when there is none.
+ * The credit is the hover text, and `showCredit` prints it under the picture.
+ */
+export function CoinThumb({ coin, showCredit = false, className = '' }) {
+  if (!coin.thumb_url) return null;
+  const credit = coin.thumb_credit || THUMB_CREDIT;
+  return (
+    <figure className={className} data-testid="coin-thumb">
+      <img src={coin.thumb_url} alt={`Front and back of ${coinTitle(coin)}`} title={credit}
+           loading="lazy" className="h-auto max-w-full border border-gray-200 rounded" />
+      {showCredit && <figcaption className="text-xs text-gray-500 mt-1">{credit}</figcaption>}
+    </figure>
+  );
+}
+
 /** Front and back, side by side. */
 export function CoinSides({ coin }) {
   return (
@@ -59,8 +78,9 @@ export function CoinSides({ coin }) {
  * One coin type in the list: front and back with what each shows and says,
  * mint (with a Pleiades link when the id exists), date, authority, the credit
  * line, and one link out to the catalogue's page for the type, where the
- * museum specimens and their photographs are. Images are never fetched or
- * stored here.
+ * museum specimens and their photographs are. A type the American Numismatic
+ * Society holds also shows a stored thumbnail of the Society's own photograph.
+ * Other museums' photographs are never fetched or stored here.
  */
 export default function CoinCard({ coin, open }) {
   const issuer = [coin.authority, coin.issuer].filter(Boolean).join(', issued by ');
@@ -89,6 +109,7 @@ export default function CoinCard({ coin, open }) {
           </>
         )}
       </p>
+      <CoinThumb coin={coin} className="mt-3" />
       <div className="mt-3"><CoinSides coin={coin} /></div>
       <CoinGist gist={coin.gist} className="mt-3" />
       <footer className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-3 text-xs text-gray-500">

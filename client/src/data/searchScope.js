@@ -153,7 +153,7 @@ export const SEARCH_SCOPE = {
     does: 'Searches the legends and catalogue descriptions of Greek and Roman coin types.',
     scope: 'Coin legends and the catalogues\' descriptions of what each side shows are searched. A result is a coin type.',
     covers: 'Nine catalogues published through nomisma.org: Online Coins of the Roman Empire and Coinage of the Roman Republic Online (Roman), Corpus Nummorum, Seleucid Coins Online, PELLA, Ptolemaic Coins Online, Bactrian and Indo-Greek Rulers, IRIS and Levantine Coinages Online (Greek). Corpus Nummorum is under a Creative Commons non-commercial licence, the others under the Open Database Licence.',
-    limits: 'A coin type is a catalogue entry and not one coin, and images are on the catalogues\' own pages. The Reader\'s related imagery matches a description to a passage and is not a coin known to refer to it. For a Latin passage it draws on the Roman catalogues only.',
+    limits: 'A coin type is a catalogue entry and not one coin, and pictures are stored only for coins the American Numismatic Society holds (its own public-domain photographs, about a fifth of the Roman types) while the others link to the catalogues\' own pages. The Reader\'s related imagery matches a description to a passage and is not a coin known to refer to it. For a Latin passage it draws on the Roman catalogues only.',
     measured: [COINS_ROW],
     helpSection: 'coins',
   },
