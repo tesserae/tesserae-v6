@@ -24,6 +24,7 @@ from backend import entity_regroup as rg  # noqa: E402
 
 WORK = os.path.expanduser('~/tesserae-backups/regroup_2026-10-21')
 WORK2 = os.path.expanduser('~/tesserae-backups/regroup_2026-10-22')
+WORK3 = os.path.expanduser('~/tesserae-backups/regroup_2026-10-24')
 WINDOWS = '/var/www/tesseraev6_flask/data/passage_index/window_texts.db'
 PROGRESS = os.path.join(WORK, 'PROGRESS.txt')
 
@@ -409,7 +410,7 @@ def run_judge2(db, a):
     log(f'judge2 DONE: {c}, judged groups hold {rows} of {sum(sum(g[3].values()) for g in groups)} rows')
 
 
-def both_different(cache_path):
+def both_different(cache_path, diffs=None):
     """[(entity_id, stem, {spelling: rows})] to split: the spellings both passes call DIFFERENT. The first pass
     judged the group, the second (PROMPT_VERSION4) the top three spellings of each group one by one. A
     judged spelling moves when its second answer is DIFFERENT. A spelling the second pass did not judge
@@ -418,7 +419,7 @@ def both_different(cache_path):
     second = {(a, b): c for a, b, c in cache.execute('select entity_id, stem, answer from answers2 where version = ?',
                                                      (rg.PROMPT_VERSION4,))}
     out = []
-    for e, st, forms in differences(cache_path):
+    for e, st, forms in (differences(cache_path) if diffs is None else diffs):
         ans = {f: second.get((e, 'F:' + f)) for f in forms}
         judged = {f: a for f, a in ans.items() if a is not None}
         if not judged:
@@ -542,10 +543,10 @@ def run_sample40(db, a):
     log('sample_40 written')
 
 
-def run_rescore(db, a):
+def run_rescore(db, a, cache_path=None):
     """Recompute the stored p4 answers from the stored replies with the current final_answer4 rule (no gateway
     calls). Used after the consonant rule changed (a Latin accusative -m)."""
-    cache_path = os.path.join(WORK, 'answers.sqlite')
+    cache_path = cache_path or os.path.join(WORK, 'answers.sqlite')
     cache = rg.open_cache2(cache_path)
     ids = dict(db.execute('select entity_id, eid from entities'))
     changed = 0
@@ -565,6 +566,92 @@ def run_rescore(db, a):
     log(f'rescore: {changed} answers changed')
 
 
+# ---------------------------------------------------------------- third pass (2026-10-24)
+
+def run_pass3(db, a):
+    """Third pass on a fresh copy of the live store: layer 1 with the new rules (and the broken-word check), the
+    model only for groups and spellings the cache of the earlier passes does not hold, the stored replies
+    rescored with the current letter rule, the moves and carves, the catalog and the form index."""
+    from backend import entity_extras as ex
+    global PROGRESS
+    t0 = time.time()
+    PROGRESS = os.path.join(WORK3, 'PROGRESS.txt')
+    cache_path = os.path.join(WORK3, 'answers.sqlite')
+    lines = rg.Lines(WINDOWS)
+    ids = dict(db.execute('select eid, entity_id from entities'))
+    rep0 = rg.audit(db, lines)
+    log(f'pass3 audit: {len(rep0["groups"])} candidate groups, {time.time() - t0:.0f}s')
+    groups = [(g[0], ids[g[0]], g[1], g[2]) for g in rep0['groups']]
+    cache = rg.open_cache(cache_path)
+    first = {(x, y): z for x, y, z in cache.execute('select entity_id, stem, answer from answers where version = ?', (rg.PROMPT_VERSION,))}
+    cache.close()
+    new = [g for g in groups if (g[1], g[2]) not in first]
+    log(f'pass3: {len(groups)} groups, {len(groups) - len(new)} answered in the cache, {len(new)} new for the model')
+    if a.count_only:
+        return
+    if new:
+        first = judge_groups(db, new, cache_path, lines, nworkers=a.workers or 6, label='pass3-first')
+    log(f'pass3: first-pass answers done, {time.time() - t0:.0f}s')
+    diffs = [(g[1], g[2], g[3], g[0]) for g in groups if first.get((g[1], g[2])) == 'DIFFERENT']
+    items = spelling_items(db, [(d[3], d[0], d[1], d[2]) for d in diffs])
+    c2 = rg.open_cache2(cache_path)
+    have2 = {(x, y) for x, y in c2.execute('select entity_id, stem from answers2 where version = ?', (rg.PROMPT_VERSION4,))}
+    c2.close()
+    todo = [i for i in items if (i[1], i[2]) not in have2]
+    log(f'pass3: {len(diffs)} DIFFERENT groups, {len(items)} spellings, {len(todo)} new for the model')
+    if todo:
+        judge_spellings(db, todo, cache_path, lines, label='pass3-second')
+    run_rescore(db, a, cache_path)
+    both = both_different(cache_path, [(d[0], d[1], d[2]) for d in diffs])
+    log(f'pass3: {len(both)} groups to split, {time.time() - t0:.0f}s')
+    before = db.execute('select count(*) from mention_rows').fetchone()[0]
+    ents_before = db.execute('select count(*) from entities').fetchone()[0]
+    rep = rg.apply_differences(db, both, log=log, cap=None)
+    db.commit()
+    rep.update({'differences': len(both), 'mention_rows_before': before,
+                'mention_rows_after': db.execute('select count(*) from mention_rows').fetchone()[0],
+                'entities_before': ents_before,
+                'entities_after': db.execute('select count(*) from entities').fetchone()[0],
+                'new_first_pass_questions': len(new), 'new_second_pass_questions': len(todo)})
+    ex.add_form_search_names(db, log=log)
+    db.commit()
+    db.close()
+    log(f'pass3: applied, writing catalog, {time.time() - t0:.0f}s')
+    ex.write_catalog(a.store, log=log)
+    ex.write_form_index(a.store, log=log)
+    db = sqlite3.connect(a.store)
+    rep['integrity'] = db.execute('pragma integrity_check').fetchone()[0]
+    json.dump(rep, open(os.path.join(WORK3, 'apply_report.json'), 'w'), ensure_ascii=False, indent=1)
+    log('PASS3 ' + json.dumps({k: v for k, v in rep.items() if k not in ('moves', 'carves')}) + f' {time.time() - t0:.0f}s')
+
+
+def run_sample3(db, a):
+    """sample_40.md: 40 random splits (seed 2026) from the third pass, each as spelling, old heading, new place, one line."""
+    lines = rg.Lines(WINDOWS)
+    rep = json.load(open(os.path.join(WORK3, 'apply_report.json')))
+    rnd = random.Random(2026)
+    allsplits = [('moved',) + tuple(m) for m in rep['moves']] + [('carved',) + tuple(c) for c in rep['carves']]
+    picks = rnd.sample(allsplits, 40)
+    out = ['# 40 spellings the third regroup split, for grading', '']
+    for i, (kind, old_id, new_id, fs, n) in enumerate(picks, 1):
+        r_new = db.execute('select eid, label from entities where entity_id = ?', (new_id,)).fetchone()
+        old = sqlite3.connect(os.path.join(WORK3, 'entities_live_before.sqlite'))
+        r_old = old.execute('select label from entities where entity_id = ?', (old_id,)).fetchone()
+        old.close()
+        form = fs[0]
+        ex_lines = rg.example_lines(db, lines, r_new[0], [form], n=1)
+        line = ex_lines[0] if ex_lines else '(no line found)'
+        j = line.find('\u27e6')
+        if len(line) > 420 and j >= 0:
+            line = '...' + line[max(0, j - 200):j + 220] + '...'
+        out.append(f'{i}. {form}. Old heading: {r_old[0] if r_old else old_id} ({old_id}). '
+                   f'Now: {kind} to {r_new[1]} ({new_id}).')
+        out.append(f'   Line: {line}')
+        out.append('')
+    open(os.path.join(WORK3, 'sample_40.md'), 'w').write('\n'.join(out))
+    log('sample_40 written')
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('store')
@@ -581,10 +668,17 @@ def main():
     ap.add_argument('--rescore', action='store_true')
     ap.add_argument('--calibrate3', action='store_true')
     ap.add_argument('--judge3', action='store_true')
+    ap.add_argument('--pass3', action='store_true')
+    ap.add_argument('--sample3', action='store_true')
+    ap.add_argument('--count-only', action='store_true')
     ap.add_argument('--max-seconds', type=int, default=0)
     ap.add_argument('--workers', type=int, default=0)
     a = ap.parse_args()
     db = sqlite3.connect(a.store)
+    if a.pass3:
+        return run_pass3(db, a)
+    if a.sample3:
+        return run_sample3(db, a)
     if a.calibrate:
         sys.exit(1 if calibrate(db, os.path.join(WORK, 'answers.sqlite')) else 0)
     if a.calibrate2:

@@ -53,6 +53,7 @@ def test_lunate_sigma_is_a_sigma():
 
 def test_protected_entities():
     assert rg.protected('nm:lauin:main') and rg.protected('pn:lauinia') and rg.protected('pl:393444')
+    assert rg.protected('pn:lauinium')
     assert not rg.protected('pn:silan')
 
 
@@ -108,3 +109,87 @@ def test_letter_check_and_forced_answer():
     yes = same.replace('EXCEPTION: no', 'EXCEPTION: yes')
     assert rg.final_answer4(yes, 'Φοίνισσαι', {'Phoenicians'}) == 'SAME'
     assert rg.final_answer4('no answer here', 'x', {'y'}) is None
+
+
+# ---------------------------------------------------------------- third pass (2026-10-24)
+
+def _entry(db, eid, entity_id, label, name_key, rows):
+    db.execute("insert into entities values (?, ?, 'person', ?, 'promoted', null, null, null, null, ?, 0, 0)",
+               (eid, entity_id, label, name_key))
+    db.execute('insert into entity_labels values (?, ?, ?, null, null)', (eid, label, label))
+    for form, n in rows.items():
+        for _ in range(n):
+            wid = db.execute('select coalesce(max(wid), 0) + 1 from windows').fetchone()[0]
+            db.execute('insert into windows values (?,?,?,?,?,?)', (wid, f'x{wid}', 'work', 'a', 'b', 'la'))
+            db.execute('insert into mention_rows values (?,?,?,0,0,0,?,?,0,?,?)', (eid, wid, form, 'high', 'stem', 'r', form.lower()))
+
+
+def test_hebrew_accent_marks_are_folded_away():
+    """Adonai written with Hebrew accent marks and vowel points is the same spelling as the unmarked Hebrew name."""
+    plain = 'אדני'
+    marked1 = 'אֲדֹנָ֣י'
+    marked2 = '\u05d0\u05b2\u05d3\u05b9\u05e0\u05b4\u05a3\u05d9'
+    assert rg.prep('אֲֽדֹֿנָ֑י') == plain
+    assert rg.prep('Anton|ino') == 'Antonino' and rg.prep('Anton- ino') == 'Antonino'
+    db = store()
+    _entry(db, 10, 'pn:adonai', 'Adonai', plain, {marked1: 3, marked2: 2})
+    acc, rest = rg.layer1(db, 10, dict(db.execute('select form, count(*) from mention_rows where eid = 10 group by form')))
+    assert not rest and len(acc) == 2
+    shalom = 'שלום'     # another Hebrew word is still a candidate
+    _entry(db, 11, 'pn:adonai2', 'Adonai', plain, {shalom: 2})
+    assert rg.layer1(db, 11, {shalom: 2})[1] == {shalom}
+
+
+class _Lines:
+    def __init__(self, texts):
+        self.db = sqlite3.connect(':memory:')
+        self.db.execute('create table window_texts (id text, language text, work text, ref_start text, ref_end text, text text)')
+        for k, t in texts.items():
+            self.db.execute('insert into window_texts values (?, ?, ?, ?, ?, ?)', (k, 'la', 'w', 'a', 'b', t))
+
+
+def test_a_word_broken_across_a_line_stays_with_its_heading():
+    db = store()
+    _entry(db, 12, 'nm:anton', 'Antoninus', 'anton', {'Antoninus': 3, 'Anton': 2})
+    lines = _Lines({'x4': 'et Hadrianum Anton-   inus reservavit', 'x5': 'ut ille Anton|inus esse'})
+    # the two Anton rows sit in windows x4 and x5
+    db.execute("update windows set window_id = 'x4' where wid = (select min(wid) from mention_rows where eid = 12 and form = 'Anton')")
+    db.execute("update windows set window_id = 'x5' where wid = (select max(wid) from mention_rows where eid = 12 and form = 'Anton')")
+    pairs = {'Antoninus': 3, 'Anton': 2}
+    assert rg.layer1(db, 12, pairs)[1] == {'Anton'}               # without the lines it is a candidate
+    assert rg.layer1(db, 12, pairs, lines)[1] == set()            # with them it is Antoninus broken by the line
+    other = _Lines({'x4': 'urbs Anton ibat', 'x5': 'Anton ibat'})
+    assert rg.layer1(db, 12, pairs, other)[1] == {'Anton'}        # a bare Anton stays a candidate
+
+
+def test_greek_and_latin_spellings_of_one_hebrew_name_are_variants():
+    assert rg.is_variant('Abessalon', {'Absalom'})
+    assert rg.is_variant('Samuhel', {'Samuel'})
+    assert rg.is_variant('Caipha', {'Caiaphas'})
+    assert rg.is_variant('Hiezechiel', {'Ezechiel'})
+    assert rg.is_variant('Gedeona', {'Gideon'})
+
+
+def test_a_derivational_suffix_is_not_a_variant():
+    assert not rg.is_variant('Hecataeus', {'Hecate'})
+    assert not rg.is_variant('Maximin', {'Maximianus'})
+    assert not rg.is_variant('Graeculus', {'Graeci'})
+    assert not rg.is_variant('Hermippus', {'Herippus'})
+
+
+def test_hecataeus_is_not_accepted_through_a_chain_of_case_forms():
+    db = store()
+    _entry(db, 13, 'pn:ekate', 'Hecate', 'ekate', {'Hecate': 5, 'Hecates': 3, 'Hecaten': 2, 'Hecatae': 2, 'Hecataei': 2,
+                                                      'Hecataeus': 4, 'Hecataeo': 3})
+    pairs = dict(db.execute('select form, count(*) from mention_rows where eid = 13 group by form'))
+    acc, rest = rg.layer1(db, 13, pairs)
+    assert {'Hecataeus', 'Hecataeo', 'Hecataei'} <= rest
+    assert {'Hecate', 'Hecates', 'Hecaten', 'Hecatae'} <= acc
+
+
+def test_a_case_form_of_a_heading_with_its_own_suffix_is_kept():
+    db = store()
+    _entry(db, 14, 'pn:caecilius', 'Caecilius', 'kaeci', {'Caecilius': 5, 'Caecilii': 2, 'Caecilio': 2, 'Caecilianus': 1})
+    pairs = dict(db.execute('select form, count(*) from mention_rows where eid = 14 group by form'))
+    acc, rest = rg.layer1(db, 14, pairs)
+    assert {'Caecilius', 'Caecilii', 'Caecilio'} <= acc

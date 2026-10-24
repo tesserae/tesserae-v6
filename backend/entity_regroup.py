@@ -16,6 +16,7 @@ Nothing here reads the gateway address or the key.
 """
 import re
 import sqlite3
+import unicodedata
 
 from backend import entity_extras as ex
 from backend import entity_index as ei
@@ -23,7 +24,8 @@ from backend import entity_mergeback as mb
 from backend import entity_promote as pr
 
 PROTECTED_IDS = ('nm:lauin:main', 'pl:393444')
-PROTECTED_PREFIXES = ('pn:lauinia', 'nm:lauinia')
+PROTECTED_PREFIXES = ('pn:lauinia', 'nm:lauinia', 'pn:lauinium', 'nm:lauinium')
+_HEBREW = re.compile('[\u0590-\u05ff]')
 _GREEK = re.compile('[Ͱ-Ͽἀ-῿]')
 
 
@@ -31,13 +33,26 @@ def protected(entity_id):
     return entity_id in PROTECTED_IDS or str(entity_id).startswith(PROTECTED_PREFIXES)
 
 
+_BREAK_MARKS = re.compile(r'[|¦]|(?<=\w)[-\u2010\u2011]\s+(?=\w)')
+
+
 def prep(s):
-    """A spelling with the lunate sigma written as sigma (the fold keeps it apart)."""
-    return str(s or '').replace('ϲ', 'σ').replace('Ϲ', 'Σ')
+    """A spelling made ready for comparison: the lunate sigma written as sigma (the fold keeps it apart), every
+    combining mark removed (the Hebrew accent marks U+0591 to U+05C7 and the vowel points as well as the Greek
+    breathings and accents, Unicode category Mn, third pass 2026-10-24), and a line-break mark taken out
+    (Anton|ino, Anton- ino)."""
+    s = str(s or '').replace('ϲ', 'σ').replace('Ϲ', 'Σ')
+    s = _BREAK_MARKS.sub('', s)
+    return unicodedata.normalize('NFC', ''.join(c for c in unicodedata.normalize('NFD', s)
+                                                if unicodedata.category(c) != 'Mn'))
 
 
 def _is_greek(s):
     return bool(_GREEK.search(s))
+
+
+def _is_latin_or_greek(s):
+    return bool(re.search('[A-Za-z\u00c0-\u024f]', s)) or _is_greek(s)
 
 
 def headings(db, eid):
@@ -69,6 +84,9 @@ def _own_headings(db, eid):
             heads.add(g)
     for (f,) in db.execute("select form from variants where eid = ? and source in ('list', 'promoted')", (eid,)):
         heads.add(prep(f))
+    key = db.execute('select name_key from entities where eid = ?', (eid,)).fetchone()
+    if key and key[0] and not _is_latin_or_greek(key[0]):
+        heads.add(prep(key[0]))      # a Hebrew or other non-Greek, non-Latin name whose entry was built on that spelling (Adonai)
     return heads
 
 
@@ -83,6 +101,7 @@ class Family:
     def __init__(self, heads=()):
         self.by_stem = {}
         self.folded = set()
+        self.raw = set()          # headings in a script the transliteration does not read (Hebrew): compared by the fold
         self.stems_as = set()
         for h in heads:
             self.add(h)
@@ -94,6 +113,8 @@ class Family:
             lst.append(h)
         self.folded.add(mb._norm(h))
         n = mb._norm(h)
+        if not n:
+            self.raw.add(ei.fold(h))
         if n.endswith('as') and len(n) >= 5:
             self.stems_as.add(n[:-2])
 
@@ -109,6 +130,8 @@ class Family:
 
     def matches(self, form):
         t = mb._norm(form)
+        if not t and _HEBREW.search(form):
+            return ei.fold(form) in self.raw          # Hebrew: the same word once its marks are gone
         if t in self.folded or self.matches_as(t):
             return True
         heads = []
@@ -131,8 +154,91 @@ def belongs(form, fam):
     return False
 
 
-def layer1(db, eid, pairs):
-    """pairs: {spelling: rows} of one entity. Returns (accepted, candidates) as sets of spellings."""
+# Derivational suffixes (third pass 2026-10-24), as the cores of the fold's Latin letters (ae is written ai, c is k,
+# ei is i): -aeus, -eus, -ianus, -inus, -ides, -ensis and -enses, -itis, -icus, -anus, -ates, the diminutives -ulus
+# -olus -ellus, and the Greek shapes -aios, -eios, -ianos, -inos, -ides, -ikos. A name that goes on with one of them
+# is another name (Hecataeus from Hecate, Maximinus from Maximianus, Graeculus from Graeci), not a case form.
+_DERIV_CORES = ('ai', 'ian', 'in', 'id', 'ens', 'it', 'ik', 'an', 'at')
+_DERIV_EXTRA = ('ul', 'ol', 'ell')       # the diminutives -ulus -olus -ellus, used only to tell two whole names apart
+_NOMINAL_ENDS = ('orum', 'arum', 'ibus', 'ois', 'us', 'um', 'os', 'is', 'es', 'em', 'am', 'as', 'ae', 'ai', 'i', 'o', 'e', 'a', 'u')
+_PATRONYMIC_ENDS = ('es', 'ae', 'as')    # -ides, -idae: the third-declension forms of a name in -is (Tiberidi) are not derived
+
+
+def derivational_core(rest, cores=_DERIV_CORES):
+    """The derivational suffix core (see _DERIV_CORES) that the letters `rest` end in once one nominal case ending
+    is taken off (a bare ending, a stem with no ending, or a Greek accusative -an or -en count for none), else ''."""
+    for end in _NOMINAL_ENDS:
+        if not rest.endswith(end) or len(rest) == len(end):
+            continue
+        core = rest[:len(rest) - len(end)]
+        for c in sorted(cores, key=len, reverse=True):
+            if core.endswith(c) and (c != 'id' or end in _PATRONYMIC_ENDS):
+                return c
+    return ''
+
+
+_NOMINATIVE = ('us', 'os', 'is', 'es', 'eus', '')
+
+
+def word_suffix(form):
+    """The derivational suffix core of a spelling taken as a nominative (Hecataeus: ai, Maximinus: in, Maximianus:
+    ian, Graeculus: ul), else ''. A heading that ends as a first declension or a Latin or Greek e/a/i name (Hecate,
+    Graeci) has none."""
+    f = prep(form)
+    base, _enc = ex.without_enclitic(f)
+    stem, _fam, end = mb.case_family(base or f)
+    if end not in _NOMINATIVE:
+        return ''
+    for c in sorted(_DERIV_CORES + _DERIV_EXTRA, key=len, reverse=True):
+        if stem.endswith(c) and len(stem) > len(c):
+            return c
+    return ''
+
+
+def derivational_of(form, fam):
+    """True when the spelling goes on from the stem of a heading of `fam` with a derivational suffix (Hecataeus
+    from Hecate: stem hekat, rest aius), and the rest is not one of the heading's own case endings."""
+    t = mb._norm(prep(form))
+    base, _enc = ex.without_enclitic(prep(form))
+    ts = [t] + ([mb._norm(base)] if base else [])
+    for t in ts:
+        for n in range(3, len(t)):
+            for h in fam.by_stem.get(t[:n], ()):
+                stem, endings, _end = mb.case_family(h)
+                rest = t[len(stem):]
+                if rest and rest not in endings and derivational_core(rest):
+                    return True
+    return False
+
+
+def _broken_completion(db, lines, eid, form, fam):
+    """True when the spelling is the front of a word broken across a line (Anton-  inus in the source, Anton|ino in
+    a reading text) whose whole word belongs to the entry. Checked only for a spelling that begins a longer heading
+    spelling, and on up to six of its mention rows."""
+    if lines is None:
+        return False
+    f = ei.fold(prep(form))
+    if len(f) < 3 or not any(h.startswith(f) and len(h) > len(f) for h in fam.folded):
+        return False
+    rows = db.execute('select w.window_id, m.line_ref, w.work from mention_rows m join windows w using(wid) '
+                      'where m.eid = ? and m.form = ? limit 6', (eid, form)).fetchall()
+    if not rows:
+        return False
+    pat = re.compile(re.escape(form) + r'\s*[-|\u00a6\u2010\u2011]\s*(\w+)')
+    done = 0
+    for wid, ref, work in rows:
+        r = lines.db.execute('select text from window_texts where id = ?', (wid,)).fetchone()
+        m = pat.search(r[0]) if r and r[0] else None
+        if not m or not fam.matches(form + m.group(1)):
+            return False
+        done += 1
+    return done > 0
+
+
+def layer1(db, eid, pairs, lines=None):
+    """pairs: {spelling: rows} of one entity. Returns (accepted, candidates) as sets of spellings. `lines` (a Lines)
+    lets a spelling that is the front of a word broken across a line stay with its entry."""
+    fam0 = Family(headings(db, eid))
     fam = Family(headings(db, eid))
     accepted = set()
     rest = set(pairs)
@@ -140,7 +246,12 @@ def layer1(db, eid, pairs):
     while changed and rest:
         changed = False
         for f in sorted(rest):
-            if belongs(f, fam):
+            ok = belongs(f, fam)
+            if ok and not belongs(f, fam0) and derivational_of(f, fam0):
+                ok = False          # reached only through a spelling already accepted, and a derived name (Hecataeus)
+            if not ok and _broken_completion(db, lines, eid, f, fam):
+                ok = True
+            if ok:
                 accepted.add(f)
                 rest.discard(f)
                 fam.add(prep(f))
@@ -152,7 +263,7 @@ def stem_of(form):
     return pr.group_stem(prep(form))
 
 
-def audit(db):
+def audit(db, lines=None):
     """Layer 1 over every entity. Returns {'summary': counts per source, 'groups': [[eid, stem, {spelling: rows},
     rows]]} for the candidate groups."""
     src = {eid: (eid_s, s, t) for eid, eid_s, s, t in db.execute('select eid, entity_id, source, type from entities')}
@@ -167,7 +278,7 @@ def audit(db):
             continue
         s = summ.setdefault(source, {'entities': 0, 'entities_with_candidates': 0, 'spellings': 0,
                                      'candidate_spellings': 0, 'rows': 0, 'candidate_rows': 0, 'groups': 0})
-        acc, rest = layer1(db, eid, pairs)
+        acc, rest = layer1(db, eid, pairs, lines)
         s['entities'] += 1
         s['spellings'] += len(pairs)
         s['rows'] += sum(pairs.values())
@@ -338,7 +449,8 @@ def _sk_same(a, b, head='', form=''):
         return False
     greek_acc = _is_greek(form) and ei.translit(ei.fold(form))[-2:-1] in tuple('aeiou') and b[-1] == 'n'
     latin_acc = b[-1] == 'm' and not _is_greek(form) and ei.translit(ei.fold(form)).endswith('m')
-    return b[-1] == 's' or greek_acc or latin_acc or (b[-1] == 'n' and ei.translit(ei.fold(head)).endswith('on'))
+    nasal = b[-1] in 'mn' and any(ei.translit(ei.fold(w))[-2:] in ('on', 'om', 'an', 'am', 'en', 'em') for w in (form, head) if w)
+    return b[-1] == 's' or greek_acc or latin_acc or nasal or (b[-1] == 'n' and ei.translit(ei.fold(head)).endswith('on'))
 
 
 def letter_compare(form, heads, limit=3):
@@ -406,6 +518,20 @@ def consonants_differ(form, heads):
     sk = _skeleton(_vkey(mb.case_family(form)[0]))
     hs = [h for h in heads if ei.fold(h)]
     return bool(hs) and not any(_sk_same(_skeleton(_vkey(mb.case_family(h)[0])), sk, h, form) for h in hs)
+
+
+def is_variant(form, heads):
+    """True when the spelling is a spelling variant of a heading (third pass 2026-10-24): the consonant skeletons of
+    their stems agree (doubled consonants, v and b, e and a inserted vowels, a final s, m or n do not count) and
+    neither goes on with a derivational suffix the other lacks (Hecataeus and Hecate, Maximin and Maximianus,
+    Graeculus and Graeci are other names)."""
+    form, hs = _prep_pair(form, heads)
+    for h in hs:
+        if word_suffix(form) != word_suffix(h):
+            continue
+        if not consonants_differ(form, {h}):
+            return True
+    return False
 
 
 def final_answer4(reply, form, heads):
@@ -702,7 +828,7 @@ def _move_search_names(db, host, new, label):
             db.execute('update search_names set eid = ? where rowid = ?', (new, rowid))
 
 
-def apply_differences(db, differences, log=print):
+def apply_differences(db, differences, log=print, cap=300):
     """differences: [(entity_id, stem, {spelling: rows})] the model judged DIFFERENT. Moves a spelling that is a
     case form of the heading of exactly one other entity there (mb.apply_partial), carves the rest of each
     group into a new corpus name. Returns the counts."""
@@ -732,7 +858,7 @@ def apply_differences(db, differences, log=print):
             rep['rows_moved'] += r['moved']
             rep['rows_dropped'] += r['dropped']
             rep['spellings_moved'] += len(fs)
-            if len(rep['moves']) < 300:
+            if cap is None or len(rep['moves']) < cap:
                 rep['moves'].append([entity_id, tg.ids[dst], fs[:4], r['moved']])
         if rest:
             new, new_id, r = carve(db, host, set(rest), serial)
@@ -740,6 +866,6 @@ def apply_differences(db, differences, log=print):
             rep['carved_entities'] += 1
             rep['rows_carved'] += r['moved']
             rep['rows_dropped'] += r['dropped']
-            if len(rep['carves']) < 300:
+            if cap is None or len(rep['carves']) < cap:
                 rep['carves'].append([entity_id, new_id, rest[:4], r['moved']])
     return rep
