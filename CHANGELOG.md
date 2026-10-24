@@ -8,6 +8,7 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-24
+- Coins: the stored thumbnails keep their 30-day cache header (the site-wide no-store rule exempted them), and the install run record.
 - Coins: the 12,156 Roman coin types that the American Numismatic Society holds show a small stored picture of front and back, the Society's own public-domain photograph, with a credit line on the card and the coin page. Other coins keep the link out.
 - Reader: a machine translation on request, from the free campus model, with its test reliability stated.
 - Compare: the download queue's email notice depends on a new setting, `VISITOR_MAIL_ENABLED` (true only for `1`, default off), instead of `SMTP_HOST`, because the server's relay does not reach outside addresses. With it off the page shows no email box, the runner sends no mail, and the status page and the "Your prepared comparisons" list are the notice. Help loses its email sentence.
