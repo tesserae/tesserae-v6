@@ -186,7 +186,7 @@ describe('documents collection control', () => {
     // "exactly one match" rule flaky here).
     const bodyText = document.body.textContent;
     expect(bodyText).toContain('CC BY-SA 4.0');
-    expect(bodyText).toContain('AE 2001, 2169.');  // principal edition as the citation
+    expect(bodyText).toContain("L'Année épigraphique (AE) 2001, 2169.");  // principal edition as the citation, spelled out
     expect(bodyText).toMatch(/101 AD.*300 AD/);    // date range
     expect(bodyText).toContain('Rome');            // place
     // Labels (short, unique leaf spans).
@@ -315,7 +315,7 @@ describe('stage 3b-3: restoration exclusion, formula hiding, and the document vi
     await userEvent.click(screen.getByRole('button', { name: 'Search Lines' }));
 
     await waitFor(() => expect(screen.getByText(/Found 1 documents/)).toBeTruthy());
-    const link = screen.getByRole('link', { name: 'AE 2001, 2169.' });
+    const link = screen.getByRole('link', { name: "L'Année épigraphique (AE) 2001, 2169." });
     const href = link.getAttribute('href');
     expect(href.startsWith('/document?')).toBe(true);
     const params = new URLSearchParams(href.slice('/document?'.length));
@@ -335,7 +335,7 @@ describe('stage 3b-3: restoration exclusion, formula hiding, and the document vi
     await userEvent.click(screen.getByRole('button', { name: 'Search Lines' }));
 
     await waitFor(() => expect(screen.getByText(/Found 1 documents/)).toBeTruthy());
-    const link = screen.getByRole('link', { name: 'AE 2001, 2169.' });
+    const link = screen.getByRole('link', { name: "L'Année épigraphique (AE) 2001, 2169." });
     const params = new URLSearchParams(link.getAttribute('href').split('?')[1]);
     expect(params.get('documents')).toBe('1');
   });
