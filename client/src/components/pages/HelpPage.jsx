@@ -2162,7 +2162,10 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 carry their own date, place and credit line, with charts of how many came back
                 by century and by region. Restored text (filled in by an editor where the stone
                 or papyrus is damaged) is marked with a light dotted underline. A surviving
-                fragment of a damaged word is set in gray italic. When a dictionary-form search
+                fragment of a damaged word is set in gray italic, and a gray [...] marks a place where the stone has lost
+                text that nobody restored, so a fragment no longer reads as a whole inscription. An editor&rsquo;s
+                expansion of a word that is already written out stands in parentheses in the searched reading
+                (&ldquo;IIviri (duoviri)&rdquo;) and is counted once, not as a second word. When a dictionary-form search
                 of one word finds nothing, the page shows the documents whose text contains
                 those letters instead and says so. Exact match finds the letters inside longer
                 words, so a stem such as &ldquo;rusell&rdquo; finds every word that begins with it.
