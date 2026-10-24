@@ -8,6 +8,7 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-24
+- Compare: whole-work pairs above twelve million line pairs offer book by book now or a prepared download later. The comparison route (and the connector's `compare_texts` and `fusion_search`) answers a pair above `COMPARE_MAX_LINE_PAIRS` with the per-book files of each side and the address of a download queue instead of running it. A queued job (table `comparison_jobs`, `POST /api/comparisons/jobs`, a status page at `/comparisons/<id>`) is run one at a time by `scripts/comparison_queue_runner.py` under a systemd user timer (`server/systemd/`) and written as a CSV with the page's export columns and no row cap (every scored pair), kept 14 days, and the Compare page lists the visitor's own prepared comparisons. Help describes the new choice.
 - Records: the coin accounts install (pass 5, the 4,943 checked rows) run record.
 - Records: the People & Places regroup install run record (19,321 spelling groups separated, 60,254 entries).
 

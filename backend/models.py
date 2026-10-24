@@ -249,3 +249,28 @@ class CompositeParallel(db.Model):
     
     # Relationship
     connection = db.relationship('TextConnection', backref='parallels', lazy=True)
+
+
+class ComparisonJob(db.Model):
+    """A queued download of a whole-work comparison (scripts/comparison_queue_runner.py).
+
+    A pair of works above COMPARE_MAX_LINE_PAIRS is not run live. A visitor can
+    ask for it as a file instead: one row per request, picked up oldest first by
+    the runner, one at a time. status is queued, running, done or failed.
+    """
+    __tablename__ = 'comparison_jobs'
+    id = db.Column(db.String(32), primary_key=True)          # unguessable: it is the link to the file
+    created = db.Column(db.DateTime, default=datetime.now, nullable=False, index=True)
+    source = db.Column(db.String(255), nullable=False)
+    target = db.Column(db.String(255), nullable=False)
+    language = db.Column(db.String(10), default='la', nullable=False)
+    settings = db.Column(db.Text)                             # JSON of the settings the page sent
+    status = db.Column(db.String(10), default='queued', nullable=False, index=True)
+    started = db.Column(db.DateTime, nullable=True)
+    finished = db.Column(db.DateTime, nullable=True)
+    rows = db.Column(db.Integer, nullable=True)
+    file_path = db.Column(db.String(500), nullable=True)
+    email = db.Column(db.String(254), nullable=True)
+    error = db.Column(db.Text, nullable=True)
+    owner_token = db.Column(db.String(64), nullable=True, index=True)  # hash of the visitor's cookie token
+    line_pairs = db.Column(db.BigInteger, nullable=True)

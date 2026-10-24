@@ -181,7 +181,10 @@ export const useSearch = () => {
         setFusionProgress(null);
       }
     } catch (err) {
-      if (err.name !== 'AbortError' && activeSearchId.current === searchId) {
+      if (err.tooLarge && activeSearchId.current === searchId) {
+        // Above the size limit: the page shows its choice panel, not an error.
+        options.onTooLarge?.(err.tooLarge);
+      } else if (err.name !== 'AbortError' && activeSearchId.current === searchId) {
         setError(err.message || 'Search failed');
       }
     } finally {

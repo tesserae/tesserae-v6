@@ -4,7 +4,7 @@ import { viewById } from './collections/collectionsConfig';
 import useCollections from './hooks/useCollections';
 import { languageName } from './utils/languageNames';
 import { Header, Navigation } from './components/layout';
-import { SearchModeToggle, TextSelector, SearchSettings, SearchResults, LineSearch, CrossLingualSearch, WildcardSearch, SavedSearches, CorpusSearchResults, RarePairsSettings, LargeComparisonPanel } from './components/search';
+import { SearchModeToggle, TextSelector, SearchSettings, SearchResults, LineSearch, CrossLingualSearch, WildcardSearch, SavedSearches, CorpusSearchResults, RarePairsSettings, LargeComparisonPanel, TooLargePanel, YourComparisons } from './components/search';
 import RareResultsDisplay from './components/search/RareResultsDisplay';
 import StartHere from './components/search/StartHere';
 import { addressHasQuery, FRONT_DOOR_OPEN_EVENT } from './components/search/frontDoor';
@@ -29,7 +29,7 @@ import { parseSearchParams, buildShareableUrl } from './utils/searchUrl';
 import { useCorpusSearchPanel } from './hooks/useCorpusSearchPanel';
 import { useDefaultTexts } from './hooks/useDefaultTexts';
 import { useAdminSession } from './hooks/useAdminSession';
-import { AboutPage, HelpPage, DownloadsPage, PrivacyPage, ResearchPage, BlogArchivePage, RequestsPage, ScholarshipSourcesPage, UploadTextPage } from './components/pages';
+import { AboutPage, HelpPage, DownloadsPage, PrivacyPage, ResearchPage, BlogArchivePage, RequestsPage, ScholarshipSourcesPage, UploadTextPage, ComparisonJobPage } from './components/pages';
 import TextCredits from './components/about/TextCredits';
 import { AssistantDock } from './components/assistant';
 import VisualizationsPage from './components/pages/VisualizationsPage';
@@ -364,9 +364,31 @@ function App() {
 
   // The warning shown before a large comparison: {estimate, params} while open.
   const [largeComparison, setLargeComparison] = useState(null);
+  // The choice shown when the server will not run the pair live (above the size
+  // limit): {answer, params} while open.
+  const [tooLarge, setTooLarge] = useState(null);
+  // Bumped when a download job is queued, so "Your prepared comparisons" reads again.
+  const [jobsRefresh, setJobsRefresh] = useState(0);
   useEffect(() => {
     setLargeComparison(null);
+    setTooLarge(null);
   }, [sourceText, targetText, activeTab, searchMode]);
+
+  // Compare one book of either work now: put the book in the picker and run.
+  const chooseBookNow = useCallback((side, bookId) => {
+    const entry = corpus.find(t => t.id === bookId);
+    if (!entry) return;
+    const author = entry.author_key || entry.author?.toLowerCase().replace(/\s+/g, '_') || '';
+    if (side === 'source') {
+      setSourceAuthor(author);
+      setSourceText(entry.id);
+    } else {
+      setTargetAuthor(author);
+      setTargetText(entry.id);
+    }
+    setSearchMode('parallel');
+    setDeepLinkRun(true);
+  }, [corpus]);
 
   const runLargeComparison = useCallback(async () => {
     if (!largeComparison) return;
@@ -419,6 +441,7 @@ function App() {
     // what it will cost first, and let the reader decide. A failed estimate
     // never blocks the search.
     setLargeComparison(null);
+    setTooLarge(null);
     let estimatedSeconds;
     if (searchMode === 'parallel' && settings.match_type === 'fusion') {
       try {
@@ -434,6 +457,10 @@ function App() {
           use_meter: settings.use_meter ? '1' : '0',
         });
         const estimate = await getJson(`/api/fusion-estimate?${q}`);
+        if (estimate?.too_large) {
+          setTooLarge({ answer: estimate.too_large, params });
+          return;
+        }
         if (estimate?.in_parts) {
           setLargeComparison({ estimate, params });
           return;
@@ -447,7 +474,10 @@ function App() {
     setSearchRunId(n => n + 1);
 
     if (searchMode === 'parallel') {
-      await search({ ...params, page_size: pageSize }, { estimatedSeconds });
+      await search({ ...params, page_size: pageSize }, {
+        estimatedSeconds,
+        onTooLarge: (answer) => setTooLarge({ answer, params }),
+      });
     } else if (searchMode === 'hapax') {
       setRareSearchParams(params);
       await searchRareWords(params);
@@ -708,6 +738,24 @@ function App() {
                     )}
                   </div>
 
+                  {tooLarge && !searchLoading && (
+                    <div className="mt-4">
+                      <TooLargePanel
+                        sourceName={textLabel(corpus.find(t => t.id === sourceText), sourceText)}
+                        targetName={textLabel(corpus.find(t => t.id === targetText), targetText)}
+                        answer={tooLarge.answer}
+                        params={tooLarge.params}
+                        onChooseBook={chooseBookNow}
+                        onQueued={() => setJobsRefresh(n => n + 1)}
+                      />
+                    </div>
+                  )}
+
+                  <YourComparisons
+                    refreshKey={jobsRefresh}
+                    labelFor={(id) => textLabel(corpus.find(t => t.id === id), id)}
+                  />
+
                   {largeComparison && !searchLoading && (
                     <div className="mt-4">
                       <LargeComparisonPanel
@@ -928,6 +976,10 @@ function App() {
 
         {pageType === 'requests' && (
           <RequestsPage />
+        )}
+
+        {pageType === 'comparison-job' && (
+          <ComparisonJobPage />
         )}
 
         {pageType === 'scholarship-sources' && (

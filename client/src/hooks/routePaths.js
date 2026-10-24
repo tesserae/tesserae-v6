@@ -38,15 +38,17 @@ const pathToPageType = {
 // /events/<id> is the focus view of one event: a page of its own whose address
 // carries the event, so it is matched by prefix and its path is not rewritten.
 // /coins/<id> is one coin type, and /objects/<id> one object, handled the same way.
+// /comparisons/<id> is the status page of a queued whole-comparison download.
 export const pageForPath = (path) => {
   if (path === '/events' || path.startsWith('/events/')) return 'events';
   if (path === '/coins' || path.startsWith('/coins/')) return 'coins';
   if (path === '/objects' || path.startsWith('/objects/')) return 'objects';
+  if (path.startsWith('/comparisons/')) return 'comparison-job';
   return pathToPageType[path] || 'search';
 };
 
 /** True when the path is a page of the site (the prefixes included). */
 export const isKnownPath = (path) => (
   Object.prototype.hasOwnProperty.call(pathToPageType, path)
-  || ['/events/', '/coins/', '/objects/'].some((p) => path.startsWith(p))
+  || ['/events/', '/coins/', '/objects/', '/comparisons/'].some((p) => path.startsWith(p))
 );
