@@ -8,6 +8,7 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-24
+- Greek tranche of 2026-10-24 (prepared, not installed): 48 works in 303 files from the Perseus and First1KGreek TEI, among them Diogenes Laertius, Plotinus, Dio Chrysostom (Orations 1 to 13 and 19 to 80), the late antique church historians, Anna Comnena, Origen, the Apostolic Fathers and apologists, Athanasius, Julian, Nicander and the three Greek romances, with 22 aligned public-domain translations, credit rows, About-this-text blurbs and author dates. New converter scripts/corpus/perseus_greek_tei_to_tess.py, driver, lemma-cache stager and translation aligners. Data and the install order are in docs/DATA_OPERATIONS.md.
 - Coins: the stored thumbnails keep their 30-day cache header (the site-wide no-store rule exempted them), and the install run record.
 - Coins: the 12,156 Roman coin types that the American Numismatic Society holds show a small stored picture of front and back, the Society's own public-domain photograph, with a credit line on the card and the coin page. Other coins keep the link out.
 - Reader: a machine translation on request, from the free campus model, with its test reliability stated.
