@@ -104,3 +104,39 @@ Message:
 Please log in to the Admin Panel to review this feedback.
 """
     return send_notification(subject, body, 'feedback')
+
+
+def send_visitor_email(to_address, subject, body):
+    """Mail one visitor (a finished comparison download). False when it cannot be sent.
+
+    Unlike send_notification, which goes to the administrators and falls back to
+    a local relay, this sends only when VISITOR_MAIL_ENABLED is "1" and SMTP_HOST
+    is set: production's SMTP_HOST is localhost for the administrators' notices,
+    and that relay does not reach outside addresses, so a message to a visitor
+    would quietly go nowhere. The comparison page shows its email box only under
+    the same setting (backend/compare_limit.py).
+    """
+    from backend.compare_limit import email_notice_available
+    smtp_host = (os.environ.get('SMTP_HOST') or '').strip()
+    if not email_notice_available() or not smtp_host or not to_address:
+        return False
+    smtp_port = int(os.environ.get('SMTP_PORT', '25'))
+    smtp_user = os.environ.get('SMTP_USER', '')
+    smtp_password = os.environ.get('SMTP_PASSWORD', '')
+    smtp_use_tls = os.environ.get('SMTP_USE_TLS', '').lower() in ('1', 'true', 'yes')
+    from_email = os.environ.get('SMTP_FROM', smtp_user or 'noreply@tesserae.caset.buffalo.edu')
+    try:
+        msg = MIMEText(body, 'plain', 'utf-8')
+        msg['From'] = from_email
+        msg['To'] = to_address
+        msg['Subject'] = f"[Tesserae] {subject}"
+        with smtplib.SMTP(smtp_host, smtp_port, timeout=30) as server:
+            if smtp_use_tls:
+                server.starttls()
+            if smtp_user and smtp_password:
+                server.login(smtp_user, smtp_password)
+            server.sendmail(from_email, [to_address], msg.as_string())
+        return True
+    except Exception as e:
+        logger.error(f"Failed to send visitor email: {e}")
+        return False

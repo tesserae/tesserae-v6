@@ -35,6 +35,7 @@ from backend import passage_index
 from backend import lexical_density
 from backend import reader_rerank
 from backend import translations
+from backend import machine_translation
 from backend import window_texts
 from backend import theme_pdf
 from backend import connections_map
@@ -1322,6 +1323,88 @@ def translation_route():
         raw = request.args.get('refs') or ''
         refs = [r for r in (x.strip() for x in raw.split('|')) if r]
     return jsonify(translations.for_passage(work, refs))
+
+
+_names_cache = {}
+
+
+def _work_names(work, language):
+    """(author, title) for the prompt, from the text index, else from the work id.
+    One row is read, and the answer is kept, so a busy server never walks the whole table."""
+    key = (work, language)
+    if key in _names_cache:
+        return _names_cache[key]
+    names = None
+    try:
+        from backend.inverted_index import get_connection
+        conn = get_connection(language)
+        row = conn.execute('SELECT author, title FROM texts WHERE filename = ?', (work + '.tess',)).fetchone() if conn else None
+        if row and (row[0] or row[1]):
+            names = ((row[0] or '').replace('_', ' ').title(),
+                     (row[1] or '').replace('_', ' ').replace('.', ' ').strip())
+    except Exception:  # noqa: BLE001 - the index is a convenience here
+        names = None
+    if names is None:
+        parts = work.split('.')
+        names = (parts[0].replace('_', ' ').title(), ' '.join(parts[1:]).replace('_', ' '))
+    _names_cache[key] = names
+    return names
+
+
+@passages_bp.route('/passages/translation/machine')
+@passages_bp.route('/translation/machine')
+def machine_translation_route():
+    """A machine translation of the selected lines, for passages with no human one.
+
+    Read-only apart from its own disk cache. Answers {available, model, lines,
+    kind, reliability}; 429 with a plain message when busy."""
+    from backend.utils import detect_text_type
+    import time as _time
+    t_start = _time.time()
+    work = translations.work_id((request.args.get('work') or '').strip())
+    raw = request.args.get('refs') or ''
+    refs = [r for r in (x.strip() for x in raw.split('|')) if r]
+    language = (request.args.get('language') or 'la').strip()
+    if not work or not refs:
+        return jsonify({'available': False, 'reason': 'work and refs are required'}), 400
+    if language not in machine_translation.LANGUAGE_NAMES:
+        return jsonify({'available': False, 'reason': 'Unknown language.'}), 400
+    if machine_translation.MODEL is None:
+        return jsonify({'available': False, 'reason': 'Machine translation is not available.'})
+    too_long = {'available': False,
+                'reason': f'Machine translation is limited to {machine_translation.MAX_LINES} lines. '
+                          'Please select a shorter passage.'}
+    if len(refs) > machine_translation.MAX_LINES:
+        return jsonify(too_long), 400
+    got = window_texts.quick_lines(work, refs[0], refs[-1], cap=machine_translation.MAX_LINES + 1)
+    lines = [ln['text'] for ln in got.get('lines', []) if (ln.get('text') or '').strip()]
+    if got.get('error') or not lines:
+        return jsonify({'available': False, 'reason': 'The source lines could not be read.'})
+    if got.get('capped') or len(lines) > machine_translation.MAX_LINES:
+        return jsonify(too_long), 400
+    t_lines = _time.time()
+    kind = 'prose' if detect_text_type(work + '.tess', language=language) == 'prose' else 'verse'
+    t_kind = _time.time()
+    author, title = _work_names(work, language)
+    t_names = _time.time()
+    visitor = request.headers.get('X-Forwarded-For', request.remote_addr or '').split(',')[0].strip()
+    try:
+        out, cached = machine_translation.translate(work, refs, lines, language, author, title, visitor)
+    except machine_translation.Busy as e:
+        return jsonify({'available': False, 'reason': str(e)}), 429
+    except Exception as e:  # noqa: BLE001 - gateway down, timeout or bad answer
+        logger.warning('[MT] %s failed: %s', work, e)
+        return jsonify({'available': False, 'reason': 'The machine translation could not be made just now.'})
+    logger.info('[MT] %s route %.2fs (lines %.2f, kind %.2f, names %.2f, translate %.2f) cached=%s',
+                work, _time.time() - t_start, t_lines - t_start, t_kind - t_lines, t_names - t_kind,
+                _time.time() - t_names, cached)
+    if not out:
+        return jsonify({'available': False, 'reason': 'The model returned no translation.'})
+    return jsonify({'available': True, 'model': machine_translation.MODEL.split('/')[-1], 'lines': out,
+                    'kind': {'language': language, 'language_name': machine_translation.LANGUAGE_NAMES[language],
+                             'form': kind},
+                    'reliability': machine_translation.reliability(language, kind),
+                    'cached': cached})
 
 
 @passages_bp.route('/passages/density')

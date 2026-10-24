@@ -38,6 +38,7 @@ from backend.concurrency_gate import SearchSlot, get_cancellation_message
 from backend.search_cancellation import SearchCancellation, SearchCancelled
 from backend.formula_filter import annotate_formula_counts, apply_formula_filter
 from backend import result_pages
+from backend import compare_limit
 
 logger = get_logger('fusion')
 
@@ -249,6 +250,21 @@ def _cached_complete(p, cache_settings, send_event, complete_event, start_time,
     return False
 
 
+def _size_gate(source_id, target_id, language, cache_settings, skip_cache=False):
+    """The too_large answer for a pair above the live limit, else None.
+
+    A pair whose result is already in the results cache is answered from it
+    however large it is (a finished download leaves its result there), so the
+    cache is looked at first. Nothing is read or scored: the line counts come
+    from the files (backend/compare_limit.py).
+    """
+    if not skip_cache:
+        path = os.path.join(CACHE_DIR, f"{get_cache_key(source_id, target_id, language, cache_settings)}.json")
+        if os.path.exists(path):
+            return None
+    return compare_limit.check_size(_texts_dir, language, source_id, target_id)
+
+
 def _wait_for_slot(slot, cancellation, send_event):
     """Wait for a concurrency slot, yielding queued events; return False after a timeout error event."""
     try:
@@ -310,9 +326,41 @@ def _load_units(p, send_event, cancellation):
     return source_units, target_units
 
 
-def _relay_events(p, source_units, target_units, slot, cancellation, send_event, start_time):
-    """Run iter_fusion_search and translate its events into SSE events; return (results, total) or None if cancelled."""
+def iter_pair_events(p, source_units, target_units, cancellation=None):
+    """The events of one comparison: iter_fusion_search with the settings in p.
+
+    The live route (_relay_events) and the queued download
+    (scripts/comparison_queue_runner.py) both run a pair through this, so the
+    two cannot drift apart.
+    """
     from backend.fusion import iter_fusion_search
+    return iter_fusion_search(
+        source_units=source_units,
+        target_units=target_units,
+        matcher=_matcher,
+        scorer=_scorer,
+        source_id=p.source_id,
+        target_id=p.target_id,
+        language=p.language,
+        mode=p.mode,
+        max_results=p.max_results,
+        source_path=p.source_path,
+        target_path=p.target_path,
+        # formula_max/formula_only are NOT threaded in here: the cache
+        # key does not vary on them, so the cached list must stay
+        # the one true (unfiltered) ranking for the pair at this
+        # max_results — the filter is applied after caching, below,
+        # same as the GET poll route's ref/score filters.
+        user_settings={'use_meter': p.use_meter},
+        freq_basis=p.freq_basis,
+        cancellation=cancellation,
+        channel_weights=p.channel_weights,
+        enabled_channels=p.enabled_channels,
+    )
+
+
+def _relay_events(p, source_units, target_units, slot, cancellation, send_event, start_time):
+    """Run iter_pair_events and translate its events into SSE events; return (results, total) or None if cancelled."""
     source_id = p.source_id
     target_id = p.target_id
     language = p.language
@@ -330,29 +378,8 @@ def _relay_events(p, source_units, target_units, slot, cancellation, send_event,
     final_total = None
     final_formula_hidden = 0
     parts = None  # {"part", "total_parts"} while a large comparison runs in parts
-    for event_type, evt_data in iter_fusion_search(
-        source_units=source_units,
-        target_units=target_units,
-        matcher=_matcher,
-        scorer=_scorer,
-        source_id=source_id,
-        target_id=target_id,
-        language=language,
-        mode=mode,
-        max_results=max_results,
-        source_path=source_path,
-        target_path=target_path,
-        # formula_max/formula_only are NOT threaded in here: the cache
-        # key below does not vary on them, so the cached list must stay
-        # the one true (unfiltered) ranking for the pair at this
-        # max_results — the filter is applied after caching, below,
-        # same as the GET poll route's ref/score filters.
-        user_settings={'use_meter': use_meter},
-        freq_basis=freq_basis,
-        cancellation=cancellation,
-        channel_weights=channel_weights,
-        enabled_channels=enabled_channels,
-    ):
+    for event_type, evt_data in iter_pair_events(
+            p, source_units, target_units, cancellation):
         if slot.is_cancelled():
             yield f"data: {json.dumps({'type': 'cancelled', 'message': get_cancellation_message(slot)})}\n\n"
             return None
@@ -498,6 +525,22 @@ def search_fusion_stream():
     """
     data = request.get_json()
 
+    # A pair above the live size limit is not run: the answer is JSON (not an
+    # event stream) naming the per-book files and the download queue. Nothing
+    # here may stop the ordinary path, so any failure falls through to it.
+    early_params = None
+    try:
+        early_params = _stream_params(data)
+        gate = _size_gate(early_params.source_id, early_params.target_id,
+                          early_params.language, _cache_key(early_params),
+                          skip_cache=bool(early_params.skip_cache))
+        if gate:
+            logger.info('[FUSION] over the size limit: %s x %s (%s line pairs)',
+                        early_params.source_id, early_params.target_id, gate['line_pairs'])
+            return jsonify(gate)
+    except Exception:
+        logger.warning('[FUSION] size check skipped', exc_info=True)
+
     req_user_id = current_user.id if current_user and current_user.is_authenticated else None
     req_city, req_country, req_ip = get_user_location()
     page_size = result_pages.requested_page_size(data)
@@ -525,7 +568,7 @@ def search_fusion_stream():
                 "step": "Initializing fusion search", "detail": ""
             })
 
-            p = _stream_params(data)
+            p = early_params if early_params is not None else _stream_params(data)
 
             error_event = _resolve_pair(p)
             if error_event:
@@ -1096,6 +1139,13 @@ def fusion_search_get():
             'formula_filter': {'max': formula_max, 'only': formula_only, 'hidden': formula_hidden},
             'parallels': [_slim_fusion_result(r, language) for r in page],
         })
+
+    # Above the live size limit the pair is not run (the cache was checked
+    # above): the answer names the per-book files, so a caller can compare one
+    # book at a time, and says where a whole-pair file can be asked for.
+    gate = compare_limit.check_size(_texts_dir, language, source_id, target_id)
+    if gate:
+        return jsonify({'status': 'too_large', 'source': source_id, 'target': target_id, **gate})
 
     # Admin cancellation: return a terminal cancelled status.
     # Unlike error markers (which are consumed once to allow retry), cancelled
@@ -1757,6 +1807,14 @@ def fusion_estimate():
     if cached_results is not None:
         return jsonify({'pairs': 0, 'in_parts': False, 'parts': 0, 'estimated_seconds': 0,
                         'cached': True, 'source_lines': None, 'target_lines': None})
+    gate = compare_limit.check_size(_texts_dir, language, source_id, target_id)
+    if gate:
+        # Above the live limit: no units are loaded. The page shows the
+        # book-by-book and download choice from this answer.
+        return jsonify({'pairs': gate['line_pairs'], 'in_parts': True, 'parts': 0,
+                        'estimated_seconds': 0, 'cached': False,
+                        'source_lines': gate['source_lines'],
+                        'target_lines': gate['target_lines'], 'too_large': gate})
     source_units = _get_processed_units(source_id, language, source_unit_type, _text_processor)
     target_units = _get_processed_units(target_id, language, target_unit_type, _text_processor)
     out = estimate_fusion(len(source_units or []), len(target_units or []))

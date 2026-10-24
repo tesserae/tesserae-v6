@@ -13,6 +13,7 @@ import { scholarshipLanguages } from '../../utils/scholarshipLanguages';
 import ScholarshipTab from './ScholarshipTab';
 import CoinsTab from './CoinsTab';
 import ScopeBox from '../common/ScopeBox';
+import MachineTranslation from './MachineTranslation';
 import { SEARCH_SCOPE } from '../../data/searchScope';
 
 /** Parse a response as JSON, failing with a message a reader can act on.
@@ -989,6 +990,20 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
                     {link.site_title ? `, in ${link.site_title}` : ''}
                   </p>
                 ))}
+              </div>
+            )}
+            {/* No human translation (or only an approximate one): a machine
+                translation on request, from the free campus model. */}
+            {/* Hidden while the aligned translation reloads, never unmounted: the
+                Reader re-requests it when its units refresh, and unmounting
+                would throw away a machine translation already shown. */}
+            {(translation?.available === false || translation?.approximate === true) && (
+              <div className={loading ? 'hidden' : ''}>
+                <MachineTranslation
+                  key={`${work}|${selection.startIdx}|${selection.endIdx}`}
+                  work={work}
+                  language={language}
+                  refs={(units || []).slice(selection.startIdx, selection.endIdx + 1).map((u) => u.ref)} />
               </div>
             )}
           </>

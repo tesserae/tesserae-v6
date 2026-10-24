@@ -36,6 +36,7 @@ const PAGE_TITLES = {
   research: 'Research',
   'blog-archive': 'Blog Archive',
   requests: 'Requests',
+  'comparison-job': 'Prepared comparison',
   'upload-help': 'Upload Your Text',
   'scholarship-sources': 'Scholarship: sources and methods',
   admin: 'Admin',
@@ -64,6 +65,7 @@ const pageTypeToPath = {
   'research': '/research',
   'text-credits': '/text-credits',
   'requests': '/requests',
+  'comparison-job': '/comparisons',
   'upload-help': '/upload-help',
   'scholarship-sources': '/scholarship-sources',
   'admin': '/admin'
@@ -131,7 +133,8 @@ export const useRoute = ({ adminSessionChecked, adminSessionActive }) => {
     pathSyncedOnce.current = true;
     const onEventPage = (pageType === 'events' && window.location.pathname.startsWith('/events/'))
       || (pageType === 'coins' && window.location.pathname.startsWith('/coins/'))
-      || (pageType === 'objects' && window.location.pathname.startsWith('/objects/'));
+      || (pageType === 'objects' && window.location.pathname.startsWith('/objects/'))
+      || (pageType === 'comparison-job' && window.location.pathname.startsWith('/comparisons/'));
     if (!onEventPage && window.location.pathname !== newPath) {
       window.history.pushState({}, '', firstRun ? newPath + window.location.search : newPath);
     }

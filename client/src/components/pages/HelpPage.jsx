@@ -465,9 +465,28 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
               <div className="mt-4 bg-amber-50 p-4 rounded-lg">
                 <p className="text-amber-700 text-sm">
                   <strong>Tip.</strong> Start with a smaller section, such as Book 1. Large comparisons, such as the whole Aeneid
-                  against the Metamorphoses, take longer on the first run, and later searches of the same pair are cached.
+                  against Book 1 of the Metamorphoses, take longer on the first run, and later searches of the same pair are cached.
+                  The very largest, such as the whole Aeneid against the whole Metamorphoses, are offered book by book or as a
+                  prepared file (below).
                 </p>
               </div>
+              <h4 className="text-lg font-semibold text-gray-900 mt-8 mb-2">Two whole works above the size limit</h4>
+              <p className="text-gray-700 mb-3">
+                A comparison of two whole epics holds the server for about an hour, so the page runs a pair live only up to
+                twelve million line pairs (the source's lines times the target's lines). Above that, "Find Parallels" shows a
+                panel with two choices. Choose a book on one side and the page compares it now, with every chart. Or click
+                "Prepare the whole comparison as a download" and the server prepares the pair in a queue, one comparison at a
+                time. The panel gives a link to a status page that shows your place in line and, when the file is ready, the
+                download. Keep the link, since a file is kept for 14 days.
+              </p>
+              <p className="text-gray-700 mb-3">
+                The file is a CSV with the same columns as Export CSV (rank, the two loci, the two lines, the score, the matched
+                words and the channels), and it holds every parallel the search scored, not only the top rows the page shows.
+                The Compare page lists "Your prepared comparisons" for this browser, with the status and the
+                link of each from the last 14 days. The charts need a comparison shown on the page, so they come from a book-by-book run
+                or from opening the pair after its file is ready. You can have two comparisons waiting at once. A pair already
+                run is answered from its saved result at any size.
+              </p>
               <div className="mt-4 bg-gray-50 p-4 rounded-lg">
                 <p className="text-gray-700 text-sm">
                   <strong>Example:</strong> Compare Vergil's Aeneid Book 1 (source) with Lucan's Civil War Book 1 (target) to find how
@@ -1693,6 +1712,12 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   17, A. S. Kline). Coverage is partial (in August 2026, about 61 percent of the Greek lines and
                   48 percent of the Latin lines), so some passages have none. The translators are listed on the
                   Sources page under About.
+              </p>
+              <p className="text-gray-700 mb-3">
+                  When no human translation covers a passage, the Translate by machine button asks the campus
+                  model GLM-5.2 for one. It is unreviewed. The line above it gives how often the model was fully
+                  right on texts of that kind in our test, and What this means explains the figure and a better
+                  alternative. Nothing is paid for.
               </p>
               <h5 className="text-base font-semibold text-gray-900 mt-4 mb-1">Reuse tab</h5>
               <p className="text-gray-700 mb-3">

@@ -215,6 +215,7 @@ def create_app():
     from backend.blueprints.batch import batch_bp, init_batch_blueprint
     from backend.blueprints.api_docs import api_docs_bp
     from backend.blueprints.fusion import fusion_bp, init_fusion_blueprint
+    from backend.blueprints.comparison_jobs import comparison_jobs_bp, init_comparison_jobs_blueprint
     from backend.blueprints.mcp_http import mcp_http_bp
     from backend.blueprints.mcp_oauth import mcp_oauth_bp
     from backend.blueprints.feature_request import feature_request_bp
@@ -279,6 +280,7 @@ def create_app():
         texts_dir=TEXTS_DIR,
         get_processed_units_fn=get_processed_units,
     )
+    init_comparison_jobs_blueprint(texts_dir=TEXTS_DIR)
 
     # Register blueprints with environment-aware prefix.
     # On Marvin: API_PREFIX="" (Apache strips /api via WSGIScriptAlias)
@@ -300,6 +302,7 @@ def create_app():
     app.register_blueprint(passages_bp, url_prefix=API_PREFIX or None)
     app.register_blueprint(assistant_bp, url_prefix=API_PREFIX or None)
     app.register_blueprint(fusion_bp, url_prefix=API_PREFIX or None)
+    app.register_blueprint(comparison_jobs_bp, url_prefix=API_PREFIX or None)
     app.register_blueprint(mcp_http_bp, url_prefix=API_PREFIX or None)
     app.register_blueprint(mcp_oauth_bp, url_prefix=API_PREFIX or None)
     app.register_blueprint(feature_request_bp, url_prefix=API_PREFIX or None)

@@ -299,6 +299,13 @@ def _fusion_poll(params, budget):
             return out
         if status == 'error':
             return {'status': 'error', 'error': d.get('error')}
+        if status == 'too_large':
+            # Above the live size limit (backend/compare_limit.py): the pair is
+            # not run. The note says how to proceed; `books` lists the per-book
+            # file ids to pass as source or target.
+            return {'status': 'too_large', 'note': d.get('message'),
+                    'line_pairs': d.get('line_pairs'), 'limit': d.get('limit'),
+                    'books': d.get('books')}
         # Return before starting a sleep that would push us past the budget, so
         # the tool call never trips the client's ~60s per-call timeout.
         if time.time() + poll_interval >= deadline:
