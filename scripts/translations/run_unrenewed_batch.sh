@@ -29,6 +29,10 @@ $PY -I $D/repair_book_openings.py --json "$S/final/separate/la__silius_italicus.
   --tess $T/la/silius_italicus.punica.tess --src "$S/sil/s2.txt" --out "$S/rep.json"
 mv "$S/rep.json" "$S/final/separate/la__silius_italicus.punica.json"
 
+# the volumes' own headings (Duff's ARGUMENT of each book, the English title of a poem) are not translation
+$PY -I $D/strip_book_summaries.py silius "$S/final/separate/la__silius_italicus.punica.json"
+$PY -I $D/strip_book_summaries.py prudentius "$S/final/standalone/la__prudentius.peristephanon.json"
+
 # lay the partial and separate alignments over the installed files, keeping both translators
 for f in grc__flavius_josephus.antiquitates_judaicae la__pliny_the_elder.naturalis_historia; do
   $PY -I $D/merge_unit_sources.py "$PROD/$f.json" "$S/final/partial/$f.json" "$S/final/merged/$f.json"

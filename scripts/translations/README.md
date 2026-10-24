@@ -361,6 +361,8 @@ under the next reference's opening. `align_pliny_elder.py`, `align_minor_latin_p
 `align_prudentius_thomson.py`, `align_republic_shorey.py` and
 `align_ennius_warmington.py` (refused, see below) use it.
 
+`strip_book_summaries.py` cuts the volumes' own headings off the first unit of a book (Duff's
+"ARGUMENT" of each book of the Punica, the English title of three Peristephanon poems).
 `repair_book_openings.py` recovers the unheaded first page of each book where it applies
 (Nonnus, Grattius, Calpurnius, Silius). `merge_unit_sources.py` lays a new alignment over
 an installed file and keeps both translators (`unit_sources`). The whole sequence is
