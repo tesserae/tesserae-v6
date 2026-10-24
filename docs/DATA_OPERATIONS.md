@@ -35,6 +35,13 @@ Conventions
   hand and are the models the helper matches.
 
 
+## 2026-10-24 Coins: the checked accounts of pass 5 installed for 4,943 Roman coin types (RUN 09:13 EDT, by hand)
+
+Why. Pass 5 of the coin accounts (the model-written line on what a coin shows and commemorates, entry of 2026-10-23) put event context from the Events store and a legend glossary into the prompt for the 26,461 Roman types, then made a second model call that checked every new name, place, event and number against the inputs. On the hundred-search measure the result was flat (right coin in the first ten 77 live, 78 with every new account, 77 with the checked rows only), but in forty random rows read side by side the checked accounts read the legends better in 24 (consulships, tribunician years, vows and titles taken from the legend, invented occasions dropped), the same in 13 and worse in 2. The project owner chose the checked rows only (2026-10-24, "go with your recommendation").
+
+What. `data/coins/descriptions_ids.json` and `data/coins/descriptions_meaning.npy` replaced by the install5b files: the live rows and vectors of 2026-10-23 with the `gist` text and the vector of each of the 4,943 checked rows substituted row by row (no re-encoding of the rest; built 2026-10-24 00:11 in `~/tesserae-backups/coin_gists_2026-10-23/install5b/`, SHA256SUMS.txt, sha256 882c6d27… and a3273409…). The 18,187 rows that changed in wording only were not checked and are not installed.
+
+Run record. The staged files' checksums verified, the live files kept as `descriptions_ids.json.bak-20261024-install5b` and `descriptions_meaning.npy.bak-20261024-install5b`, each new file copied beside the live one at mode 664 and renamed over (the vectors first, then the ids), 09:13 EDT; the routes re-read the files when they change, so no reload. Checks: the installed files' sha256 equal the staged ones; the coin meaning search gives RIC I² Augustus 546, 275A and 275B for "the conquest of Egypt" and RRC 508/3 (the EID MAR denarius) first for "Brutus and the Ides of March"; the recorded check, all 69 requests the same. Rollback: the two backups renamed back.
 ## 2026-10-24 People & Places: wrongly grouped spellings separated into their own entries (RUN 09:22 EDT, by hand)
 
 Why. The People & Places scan filed spellings under an entry by a stem match, so different names shared one entry: Hecataeus under Hecate, Graeculus under the Greeks, Justina under Justinian, Theodotion under Theodosius, Hipponous under Hipponax. The project owner saw this on 2026-10-22 and asked that the plain errors be fixed before any install, and approved the install on 2026-10-24 ("yes").
