@@ -8,6 +8,7 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-24
+- Translations (built on copies, not installed): six Coptic Septuagint books paired with Brenton's English of 1851 (Bohairic Psalter, Bohairic Daniel with Susanna and Bel, Sahidic Proverbs, the Epistle of Jeremiah, and the testable parts of Sahidic Habakkuk and Daniel), each judged by proper names and length against a displaced control. The installed Bohairic Daniel paired chapters 3 to 12 with the wrong English because the Bohairic text divides Daniel differently from the Hebrew, and the new file replaces it. Budge's section-level English for four Coptic texts and the Persian and Urdu sources failed their checks and are not written, with the reasons in `scripts/translations/README.md` (Pipeline 9).
 - Coins: the stored thumbnails keep their 30-day cache header (the site-wide no-store rule exempted them), and the install run record.
 - Coins: the 12,156 Roman coin types that the American Numismatic Society holds show a small stored picture of front and back, the Society's own public-domain photograph, with a credit line on the card and the coin page. Other coins keep the link out.
 - Reader: a machine translation on request, from the free campus model, with its test reliability stated.
