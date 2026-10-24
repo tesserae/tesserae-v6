@@ -8,6 +8,7 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-24
+- Translations (built, not yet installed): 85 chapter, section and speech level alignments for Greek and Latin works with public-domain English (Pipeline 9 in `scripts/translations/README.md`), among them Pausanias, Eusebius, Arrian, Isocrates, 41 speeches of Demosthenes, eleven works of Aristotle, Cicero's Verrines, Florus and Clement of Alexandria. Each file records the check that vouched for it, four wait for a reading, and nothing is installed until the files are copied in.
 - Coins: the stored thumbnails keep their 30-day cache header (the site-wide no-store rule exempted them), and the install run record.
 - Coins: the 12,156 Roman coin types that the American Numismatic Society holds show a small stored picture of front and back, the Society's own public-domain photograph, with a credit line on the card and the coin page. Other coins keep the link out.
 - Reader: a machine translation on request, from the free campus model, with its test reliability stated.
