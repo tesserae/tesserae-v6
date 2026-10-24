@@ -68,7 +68,7 @@ def fetch_json(pid, cache_dir, delay, state):
         with open(path, 'w', encoding='utf-8') as f:
             json.dump({'error': e.code}, f)
         return {'error': e.code}
-    except Exception as e:  # network trouble: do not cache
+    except Exception:  # network trouble: do not cache
         state['errors'] += 1
         return None
     with open(path, 'w', encoding='utf-8') as f:
