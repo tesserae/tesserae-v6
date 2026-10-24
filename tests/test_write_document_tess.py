@@ -194,3 +194,149 @@ def test_literary_index_and_backend_are_never_imported_or_touched():
         elif isinstance(node, ast.ImportFrom) and node.module:
             imported_names.add(node.module.split(".")[0])
     assert "backend" not in imported_names
+
+
+# ---------------------------------------------------------------------------
+# gap_before in the restored-word sidecar (where the stone has a gap)
+# ---------------------------------------------------------------------------
+
+def test_short_doc_gap_positions_leading_middle_trailing():
+    # "[---]uf [---][IIvir(i)] (duoviri) [---]" in one line, then a gap-only line, then text.
+    rec = _rec("edr:G1", "edr", [
+        _line(1, f"{GAP}uf IIviri {GAP} (duoviri) {GAP}"),
+        _line(2, f"{GAP}"),
+        _line(3, "ob honorem"),
+    ])
+    text, _r, _f, _g = build_short_doc_unit(rec)
+    assert text == "uf IIviri (duoviri) / ob honorem"
+    from scripts.documents.write_document_tess import build_short_doc_unit_gaps
+    gap_before = build_short_doc_unit_gaps(rec)[-1]["gap_before"]
+    # Counted in the index's token list (the "/" is not a token there):
+    # before "uf" (0), before "(duoviri)" (2), and, for the end of line 1 and
+    # for the gap-only line after it, before "ob" (3), once.
+    assert gap_before == [0, 2, 3]
+
+
+def test_gap_inside_a_word_marks_the_position_between_the_fragments():
+    rec = _rec("edr:G2", "edr", [_line(1, f"Ca{GAP}nio Octavio")])
+    from scripts.documents.write_document_tess import build_short_doc_unit_gaps
+    text, _r, fragment, _g, extra = build_short_doc_unit_gaps(rec)
+    gap_before = extra["gap_before"]
+    assert text == "Ca nio Octavio"
+    assert fragment == [0, 1]
+    assert gap_before == [1]
+
+
+def test_gap_only_document_is_still_skipped():
+    rec = _rec("edr:G3", "edr", [_line(1, f"{GAP}{GAP}")])
+    from scripts.documents.write_document_tess import build_short_doc_unit_gaps
+    assert build_short_doc_unit_gaps(rec)[0] is None
+
+
+def test_long_doc_lines_carry_their_own_gap_positions():
+    from scripts.documents.write_document_tess import build_long_doc_lines_gaps
+    rec = _rec("edr:G4", "edr", [_line(1, f"{GAP} aaa bbb"), _line(2, f"ccc {GAP}"), _line(3, "ddd")])
+    lines, _ = build_long_doc_lines_gaps(rec)
+    assert [(n, g["gap_before"]) for n, _t, _r, _f, g in lines] == [(1, [0]), (2, [1]), (3, [])]
+    # the four-item form callers already use is unchanged
+    old, _ = build_long_doc_lines(rec)
+    assert all(len(x) == 4 for x in old)
+
+
+def test_sidecar_file_has_gap_before_for_every_line(tmp_path):
+    src = tmp_path / "merged.jsonl"
+    recs = [_rec("edr:G5", "edr", [_line(1, f"{GAP}uf IIviri")], region="Roma"),
+            _rec("edr:G6", "edr", [_line(1, "plain words here")], region="Roma")]
+    src.write_text("\n".join(json.dumps(r) for r in recs) + "\n", encoding="utf-8")
+    out = tmp_path / "out"
+    process_corpus(str(src), str(out))
+    rows = []
+    for name in os.listdir(out / "la"):
+        if name.endswith(".restored_words.jsonl"):
+            rows += [json.loads(x) for x in (out / "la" / name).read_text(encoding="utf-8").splitlines()]
+    by_ref = {r["ref"]: r for r in rows}
+    assert by_ref["edr:G5"]["gap_before"] == [0]
+    assert by_ref["edr:G6"]["gap_before"] == []
+    assert by_ref["edr:G5"]["restored"] == [] and "fragment" in by_ref["edr:G5"]
+
+
+def test_index_token_rule_matches_the_index_builders_tokenizers():
+    from scripts.build_inverted_index import tokenize_greek_fast, tokenize_latin_fast
+    from scripts.documents.write_document_tess import _makes_index_token
+    for w in ["Lucius", "/", "12", "IIviri", "(duoviri)", "·", "Aug.", "VIvir", "iuvenis", "-", ":(%1000)"]:
+        assert _makes_index_token(w, "la") == bool(tokenize_latin_fast(w)), w
+    for w in ["Ἀθηναῖοι", "/", "12", "·", "καὶ", "(βουλή)", "αβ-γδ"]:
+        assert _makes_index_token(w, "grc") == bool(tokenize_greek_fast(w)), w
+
+
+def test_gap_positions_follow_the_index_token_list_across_slashes():
+    from scripts.documents.write_document_tess import build_short_doc_unit_gaps
+    # "alpha / beta █ gamma": the written stream is alpha / beta gamma (the "/"
+    # is position 1) but the index holds alpha beta gamma, so the gap before
+    # "gamma" is index 2, not stream position 3.
+    rec = _rec("edr:G7", "edr", [_line(1, "alpha"), _line(2, f"beta {GAP} gamma")])
+    text, _r, _f, _g, extra = build_short_doc_unit_gaps(rec)
+    gap_before = extra["gap_before"]
+    assert text == "alpha / beta gamma"
+    assert gap_before == [2]
+
+
+# ---------------------------------------------------------------------------
+# gloss_indices in the sidecar (an editor's gloss on a word already written out)
+# ---------------------------------------------------------------------------
+
+def _gloss_line(n, text, gloss_spans):
+    ln = _line(n, text)
+    flags = [False] * len(text)
+    for a, b in gloss_spans:
+        for i in range(a, b):
+            flags[i] = True
+    ln["gloss_flags"] = flags
+    return ln
+
+
+def test_gloss_tokens_are_flagged_in_the_index_token_space():
+    from scripts.documents.write_document_tess import build_short_doc_unit_gaps
+    # "alpha / IIviri (duoviri) 12 (tria milia)": the "/" and "12" are not index tokens
+    t = "IIviri (duoviri) 12 (tria milia)"
+    a = t.index("(duoviri)")
+    b = t.index("(tria")
+    rec = _rec("edr:L1", "edr", [_line(1, "alpha"),
+                                 _gloss_line(2, t, [(a, a + 9), (b, b + 12)])])
+    text, _r, _f, _g, extra = build_short_doc_unit_gaps(rec)
+    assert text == "alpha / IIviri (duoviri) 12 (tria milia)"
+    # index tokens: alpha iiuiri duouiri tria milia (the "12" and "/" are not tokens)
+    assert extra["gloss_indices"] == [2, 3, 4]
+
+
+def test_gloss_flags_follow_a_joined_line_and_a_line_without_gloss():
+    from scripts.documents.write_document_tess import build_short_doc_unit_gaps
+    first = _line(1, "Aug")
+    second = _gloss_line(2, "(usti)", [(0, 6)])
+    second["joins_previous"] = True
+    rec = _rec("edr:L2", "edr", [first, second])
+    text, _r, _f, _g, extra = build_short_doc_unit_gaps(rec)
+    assert text == "Aug(usti)"
+    # the joined word is six characters of gloss in nine: a majority, so it is a gloss token
+    assert extra["gloss_indices"] == [0]
+    rec2 = _rec("edr:L3", "edr", [_line(1, "plain words")])
+    assert build_short_doc_unit_gaps(rec2)[-1]["gloss_indices"] == []
+
+
+def test_sidecar_file_has_gloss_indices(tmp_path):
+    src = tmp_path / "merged.jsonl"
+    t = "uf IIviri (duoviri)"
+    a = t.index("(")
+    recs = [_rec("edr:L4", "edr", [_gloss_line(1, t, [(a, len(t))])], region="Roma"),
+            _rec("edr:L5", "edr", [_line(1, "plain words here")], region="Roma")]
+    src.write_text("\n".join(json.dumps(r) for r in recs) + "\n", encoding="utf-8")
+    out = tmp_path / "out"
+    process_corpus(str(src), str(out))
+    rows = {}
+    for name in os.listdir(out / "la"):
+        if name.endswith(".restored_words.jsonl"):
+            for x in (out / "la" / name).read_text(encoding="utf-8").splitlines():
+                r = json.loads(x)
+                rows[r["ref"]] = r
+    assert rows["edr:L4"]["gloss_indices"] == [2]
+    assert rows["edr:L5"]["gloss_indices"] == []
