@@ -309,9 +309,8 @@ def gateway_choice(cfg, name, region, modern, cands, places, points, log):
                 d = json.loads(x.read())
             ans = (d['choices'][0]['message']['content'] or '').strip()
             break
-        except Exception as e:  # noqa: BLE001
+        except Exception:  # noqa: BLE001
             ans = None
-            err = type(e).__name__
     log.write(json.dumps({'name': name, 'region': region, 'modern': modern, 'candidates': cands, 'answer': ans},
                          ensure_ascii=False) + '\n')
     log.flush()
