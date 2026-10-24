@@ -8,6 +8,7 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-24
+- Translations: scripts and records for 18 aligned English files from Loeb volumes of 1931 to 1963 with no renewal found (Nonnus, Pliny the Elder, Josephus, Dionysius of Halicarnassus, Sextus Empiricus, Grattius, Calpurnius Siculus, Silius Italicus 9 to 17, Prudentius, Ptolemy, Pausanias, Plato's Republic 6 to 10). Built on staging copies, nothing installed.
 - Coins: the stored thumbnails keep their 30-day cache header (the site-wide no-store rule exempted them), and the install run record.
 - Coins: the 12,156 Roman coin types that the American Numismatic Society holds show a small stored picture of front and back, the Society's own public-domain photograph, with a credit line on the card and the coin page. Other coins keep the link out.
 - Reader: a machine translation on request, from the free campus model, with its test reliability stated.

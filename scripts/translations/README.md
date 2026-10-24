@@ -318,6 +318,101 @@ Manasseh would end up answering for Manasseh in Chronicles.
 
 ---
 
+## Pipelines 9 and 10: Loeb volumes of 1931 to 1963 with no renewal (2026-10-24)
+
+Eighteen files for eleven works (three of them laid over installed files), built from Loeb Classical Library volumes first
+published 1931 to 1963 whose title page shows a United States publisher (Harvard
+University Press, G. P. Putnam's Sons) beside the London one. A search of the NYPL
+cce-renewals data found no renewal of any of them
+(`renewal_search.py`, one search per volume, strings recorded in the pull request).
+Under US law a work published in the United States in those years whose copyright was
+not renewed in its 28th year is in the public domain, and a Loeb volume published at
+once in London and Cambridge, Massachusetts or New York is a US work that the 1996
+restoration did not reach. Every file's `sources` says so with the license
+"public domain, US, copyright not renewed (renewal check 2026-10-24)".
+Most scans are later printings of the first edition (the copyright page says which, and
+the pull request lists the printing of each scan).
+
+Both pipelines use `loeb_pages.py` (reading a page's English out of an OCR column that
+also holds the facing source page, the apparatus and the footnotes, the contiguity
+repair of misread header numbers, the two checks, the units) and refuse to write a file
+whose checks fail. The name check abstains below twenty names and an abstention is
+never counted as a pass.
+
+**Pipeline 9: the running header names the source range** (the Statius method).
+Where the English page's header gives the source range exactly, the range is the
+address. `align_nonnus.py` (header "DIONYSIACA, XVII. 321-350"), `align_silius_duff2.py`
+("PUNICA, IX. 17-44"), `align_josephus_antiquities.py` ("JEWISH ANTIQUITIES, V. 93-97",
+Niese's continuous sections, which are our references), `align_dionysius_cary.py`
+("BOOK V. 4, 2-5, 2", chapter and section), `align_sextus.py` (continuous section
+numbers, with the Loeb's book numbering mapped to ours), `align_ptolemy_tetrabiblos.py`
+(book and chapter, a unit being every page of the chapter) and `align_pausanias.py`
+(region, chapter and section, Roman chapter numerals repaired against the sequence).
+A section shared by two pages goes to the page where it begins.
+
+**Pipeline 10: our own text is the address** (`loeb_locate.py`). Where the header gives no
+range, or its numerals are unreadable, the scan is split into spreads (a source page
+then its English page), each reference of ours is found on a source page by a probe of
+its opening letters (normalized, accents and u/v, i/j folded, or the Greek letters
+alone), the references are walked in order so a probe can only be found after the
+previous one, and the walk begins only where three references in a row are found.
+A reference takes the English page of its spread, or the pages from its own to the one
+under the next reference's opening. `align_pliny_elder.py`, `align_minor_latin_poets.py`,
+`align_prudentius_thomson.py`, `align_republic_shorey.py` and
+`align_ennius_warmington.py` (refused, see below) use it.
+
+`repair_book_openings.py` recovers the unheaded first page of each book where it applies
+(Nonnus, Grattius, Calpurnius, Silius). `merge_unit_sources.py` lays a new alignment over
+an installed file and keeps both translators (`unit_sources`). The whole sequence is
+`run_unrenewed_batch.sh`.
+
+What each file is, with the share of our references it pairs (`coverage`), the name
+check, and what was left out.
+
+- **Nonnus, Dionysiaca** (Rouse, vols 2 and 3, 1940 and 1942): books 16 to 48, 62 percent
+  of the work, names 0.60 and 0.76 for the two volumes (0.53 on the whole file after the
+  openings were recovered). Volume 1 (books 1 to 15) is not written.
+  The only open scan has lost half its pages and many words on the rest (names 0.16),
+  below the bar.
+- **Pliny the Elder, Natural History** (Rackham, Jones, Eichholz, ten volumes, 1938 to
+  1963): 93 percent, names 0.83, unit length correlation 0.68. Merged over Bostock.
+  Each reference is one to a few Loeb pages (about 500 words), neighbouring chapters on
+  a page share one. Book 1 (contents) has no English text to match.
+- **Josephus, Jewish Antiquities books 5 to 17** (Thackeray, Marcus, Wikgren, 1934 to 1963):
+  95 percent of those books, names 0.83. Merged over Whiston. Books 1 to 4 (1930) and 18
+  to 20 (1965) are outside this batch, the Vita and the Jewish War as well.
+- **Dionysius of Halicarnassus, Roman Antiquities** (Cary, 1937 to 1950): books 1 to 11,
+  81 percent of the work, names 0.81. Books 12 to 20 are excerpts without page ranges and
+  are not aligned. A separate file from the Spelman alignment.
+- **Sextus Empiricus** (Bury): Outlines of Pyrrhonism 84 percent (names 0.81), Against the
+  Logicians (adversus mathematicos 7 and 8) and Against the Professors (1 to 6) 45
+  percent of the whole adversus mathematicos (names 0.78). Volume 3 (9 to 11) has no open
+  scan.
+- **Minor Latin Poets, vol. I** (Duff and Duff, 1934): Grattius 98 percent (names 0.75),
+  Calpurnius Siculus 99.6 percent (names 0.62). Volume II (Rutilius, Tiberianus and
+  the Phoenix) has no open scan, Nemesianus is installed already.
+- **Silius Italicus, Punica books 9 to 17** (Duff, 1934): 94 percent, names 0.66. A
+  separate file and a merged one (Duff vol. II over the installed Duff vol. I and
+  Kline), the main session chooses.
+- **Prudentius** (Thomson, 1949 and 1953): Apotheosis, Hamartigenia, Psychomachia, Contra
+  Symmachum, Peristephanon and Dittochaeon, 96 to 100 percent, names 0.56 to 0.82. The
+  Epilogus (34 lines) is refused, too few names to vouch for it.
+- **Ptolemy, Tetrabiblos** (Robbins, 1940): 94 percent by chapter, names 0.51,
+  unit length correlation 0.61.
+- **Pausanias, books 6 to 8.21** (Jones and Ormerod, vol. III, 1933): 76 percent, names
+  0.92. Volumes IV and V have no open scan. A separate file from Shilleto.
+- **Plato, Republic books 6 to 10** (Shorey, vol. II, 1935): 68 percent, names 0.58 on
+  66 names. Books 1 to 5 are volume I (1930), outside this batch.
+- **Refused: Ennius, Annales** (Warmington, 1935). Warmington numbers fragments in his own
+  order and prints his own readings, so only 71 of our 680 lines were found on a page.
+  `align_ennius_warmington.py` writes nothing.
+
+The scans of the Digital Library of India are noisier than the others (visible in the
+English as `1s` for `is`, `maiket` for `market`). The share of running words outside a
+vocabulary taken from installed translations is 7 to 13 percent for Prudentius, 12 to 14
+for Dionysius, Josephus and Silius, 16 to 21 for Sextus, Pliny, Nonnus, Ptolemy and the
+Republic, and 24 for Pausanias, against 13 to 19 for installed Perseus and Bohn files.
+
 ## Paths
 
 Defaults are the machine this was run on, kept so the record is honest, and
