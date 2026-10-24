@@ -35,7 +35,7 @@ function Note({ result }) {
           {`${source} would understand the passage correctly, nearly right meant one wrong word, name, number or relation, and wrong meant the main sense was lost or a clause was invented. `}
           {rel && `Of ${rel.of} ${phrase} passages, ${rel.right} were fully right, ${rel.nearly} nearly right and ${rel.wrong} wrong. `}
           {'The usual faults are a wrong word, a wrong name or number, or a relation turned around, so trust the gist and check any detail that matters. '}
-          {'Pasting the passage into a current commercial model of your own gave a markedly better result in the same test (fully right for 106 and 111 of the same 121 passages), and the source text can be selected and copied.'}
+          {'Pasting the passage into a commercial model gave a markedly better result in the same test (fully right for 106 and 111 of the same 121 passages). You can paste this passage into a commercial model too for a likely better result. The source text can be selected and copied.'}
         </p>
       )}
     </div>
