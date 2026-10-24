@@ -330,6 +330,7 @@ def get_document_lines(language, doc_id):
             'tokens': tokens,
             'restored_indices': restored.get('restored'),
             'fragment_indices': restored.get('fragment'),
+            'gap_before': gap_positions(language, filename, r['ref']),
         })
     return {'filename': filename, 'lines': lines}
 
@@ -871,3 +872,15 @@ def restored_indices(language, filename, ref):
     if not rec:
         return {'restored': [], 'fragment': []}
     return {'restored': list(rec.get('restored') or []), 'fragment': list(rec.get('fragment') or [])}
+
+
+def gap_positions(language, filename, ref):
+    """Token positions before which the stone has a gap (text lost, dropped
+    from the matching text), from the same sidecar line as restored_indices:
+    [0, 3] means a gap before the first and the fourth token; the number of
+    tokens means a gap at the end of the line. [] when the sidecar was written
+    before the field existed or has no entry for this ref."""
+    rec = _load_sidecar(language, filename).get(ref)
+    if not rec:
+        return []
+    return [int(i) for i in (rec.get('gap_before') or [])]

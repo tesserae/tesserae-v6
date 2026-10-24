@@ -6,7 +6,8 @@
 /**
  * Document hit text, rendered by TOKEN POSITION (not a whitespace re-split
  * of `text`) so restored-word marking lines up with restored_indices
- * exactly as the index stored it. Falls back to `highlightFallback` (the
+ * exactly as the index stored it. `gap_before` lists the positions before which
+ * the stone has a gap (text lost); each gets a gray "[...]". Falls back to `highlightFallback` (the
  * plain literary highlighter) if a hit carries no token list.
  */
 export function renderDocumentText(result, highlightFallback) {
@@ -17,7 +18,11 @@ export function renderDocumentText(result, highlightFallback) {
   const restoredSet = new Set(result.restored_indices || []);
   const fragmentSet = new Set(result.fragment_indices || []);
   const matchedSet = new Set((result.matched_words || []).map(w => (w || '').toLowerCase()));
-  return tokens.map((tok, i) => {
+  const gapSet = new Set(result.gap_before || []);
+  const gapMarker = (i) => (
+    <span key={`gap-${i}`} className="text-gray-400" title="text lost">[...]{' '}</span>
+  );
+  const words = tokens.map((tok, i) => {
     let el = <span>{tok}</span>;
     if (restoredSet.has(i)) {
       // Light dotted underline for an editorially restored word -- chosen
@@ -33,8 +38,15 @@ export function renderDocumentText(result, highlightFallback) {
     if (matchedSet.has((tok || '').toLowerCase())) {
       el = <mark className="bg-amber-200 px-0.5 rounded">{el}</mark>;
     }
-    return <span key={i}>{el}{' '}</span>;
+    return (
+      <span key={i}>
+        {gapSet.has(i) ? gapMarker(i) : null}{el}{' '}
+      </span>
+    );
   });
+  // A gap at the end of the line (its position is the number of tokens).
+  if (gapSet.has(tokens.length)) words.push(gapMarker(tokens.length));
+  return words;
 }
 
 /** "101 AD–300 AD", "300 AD", or null when the document carries no date. */

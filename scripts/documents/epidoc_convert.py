@@ -209,6 +209,32 @@ class EpidocConverter:
                 # document order (some sources interleave more than one
                 # <abbr>/<ex> pair, e.g. an <abbr> wrapping a christogram
                 # glyph followed by <ex> then a trailing <abbr> letter).
+                children = list(elem.iterchildren())
+                child_tags = [etree.QName(c).localname for c in children]
+                if ("ex" in child_tags and "abbr" not in child_tags
+                        and not (elem.text or "").strip()
+                        and not any((c.tail or "").strip() for c in children)
+                        and all(t == "ex" for t in child_tags)):
+                    # <expan><ex>duoviri</ex></expan> with no <abbr> and no
+                    # text of its own: the editor's gloss of a word already
+                    # written out in full (EDR: `IIviri <expan><ex>duoviri
+                    # </ex></expan>`). Appended as a second word it made the
+                    # text read "IIviri duoviri". Kept, in parentheses as
+                    # epigraphers print an expansion, restored, and absent
+                    # from the diplomatic text (2026-10-24).
+                    gloss = "".join("".join(c.itertext()) for c in children)
+                    # EDR also writes a description of a symbol this way,
+                    # with the editor's own parentheses around the element
+                    # ("(<expan><ex>protome viri</ex></expan>)") or inside it:
+                    # not wrapped a second time.
+                    already = ((gloss.startswith("(") and gloss.endswith(")"))
+                               or (current["buf"].expanded_text().endswith("(")
+                                   and (elem.tail or "").startswith(")")))
+                    if not already:
+                        gloss = f"({gloss})"
+                    current["buf"].add_expanded(gloss, restored=True)
+                    _append_tail(elem, restored)
+                    return
                 diplomatic_parts = []
                 if elem.text and elem.text.strip():
                     diplomatic_parts.append(elem.text)

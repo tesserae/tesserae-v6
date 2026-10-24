@@ -131,7 +131,6 @@ def tokenize_with_restoration(text: str, restored_flags: list[bool]) -> list[Tok
             continue
         # Mixed run: split at gap boundaries.
         pieces = _split_gap_run(run, start, run_flags)
-        first_piece_emitted = False
         for piece_text, piece_flags, is_all_gap, touched in pieces:
             if is_all_gap:
                 pending_gap_before += len(piece_text)
@@ -142,11 +141,10 @@ def tokenize_with_restoration(text: str, restored_flags: list[bool]) -> list[Tok
             share = supplied / len(piece_text) if piece_text else 0.0
             tokens.append(Token(
                 text=piece_text, restored=share > 0.5, fragment=True,
-                gap_before=pending_gap_before if not first_piece_emitted else 0,
+                gap_before=pending_gap_before,
                 restored_share=share,
             ))
             pending_gap_before = 0
-            first_piece_emitted = True
     return tokens
 
 

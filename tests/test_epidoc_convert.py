@@ -262,3 +262,56 @@ def test_gap_tail_whitespace_never_leaks_into_line_text(tmp_path):
     # The gap-split word still joins cleanly, with exactly one space
     # where the raw newline+tabs used to leak through.
     assert rec["lines"][1]["text"] == "█ Silicius"
+
+
+# ---------------------------------------------------------------------------
+# An editor's gloss on a word already written out (<expan><ex> only)
+# ---------------------------------------------------------------------------
+
+def _convert_edition(tmp_path, edition_xml):
+    """HD000001's file with its edition replaced by `edition_xml`."""
+    src = open(os.path.join(FIXTURES, "edh", "HD000001.xml"), encoding="utf-8").read()
+    start = src.index('<div type="edition"')
+    end = src.index("</div>", start) + len("</div>")
+    path = tmp_path / "HD000001.xml"
+    path.write_text(src[:start] + edition_xml + src[end:], encoding="utf-8")
+    return epidoc_convert.convert_file(str(path), "edh")
+
+
+def _edition(inner):
+    return f'<div type="edition" xml:lang="la"><ab><lb n="1"/>{inner}</ab></div>'
+
+
+def test_expan_with_abbr_is_unchanged(tmp_path):
+    rec = _convert_edition(tmp_path, _edition(
+        "<expan><abbr>D</abbr><ex>is</ex></expan> <expan><abbr>M</abbr><ex>anibus</ex></expan>"))
+    line = rec["lines"][0]
+    assert line["text"] == "Dis Manibus"
+    assert line["diplomatic"] == "D M"
+
+
+def test_ex_only_expan_is_a_parenthesized_gloss(tmp_path):
+    rec = _convert_edition(tmp_path, _edition("IIviri <expan><ex>duoviri</ex></expan> quinquennales"))
+    line = rec["lines"][0]
+    assert line["text"] == "IIviri (duoviri) quinquennales"
+    assert line["diplomatic"].split() == ["IIviri", "quinquennales"]
+    # the gloss is the editor's, so every character of it is flagged restored
+    start = line["text"].index("(")
+    flags = line["restored_flags"][start:start + len("(duoviri)")]
+    assert all(flags)
+    assert not any(line["restored_flags"][:start])
+
+
+def test_expan_with_own_text_keeps_the_old_run_together(tmp_path):
+    rec = _convert_edition(tmp_path, _edition("<expan>IIviri<ex>duoviri</ex></expan>"))
+    assert rec["lines"][0]["text"] == "IIviriduoviri"
+
+
+def test_ex_only_expan_already_in_parentheses_is_not_wrapped_again(tmp_path):
+    rec = _convert_edition(tmp_path, _edition("Vivit <expan><ex>(caput mulieris)</ex></expan> vivus"))
+    assert rec["lines"][0]["text"] == "Vivit (caput mulieris) vivus"
+
+
+def test_ex_only_expan_inside_the_editors_own_parentheses_is_not_wrapped_again(tmp_path):
+    rec = _convert_edition(tmp_path, _edition("Vivit (<expan><ex>protome viri</ex></expan>) vivus"))
+    assert rec["lines"][0]["text"] == "Vivit (protome viri) vivus"
