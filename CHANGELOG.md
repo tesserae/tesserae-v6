@@ -8,6 +8,7 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-24
+- Records: 74 coin accounts corrected by hand after the first pass of the step 5 review (install5d).
 - Records: 127 coin accounts corrected by rule (restoration coins, consulship numbers, mint codes), install5e.
 
 - Records: the Compare download queue install run record (timer enabled, live checks).
