@@ -2,6 +2,7 @@
 import os
 import sqlite3
 import sys
+import unicodedata
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -305,3 +306,88 @@ def test_decisions_only_mode_runs_nothing_else(tmp_path, monkeypatch):
     monkeypatch.setattr('sys.argv', ['regroup_names.py', path, '--decisions-only', '--decisions', 'x.json'])
     rn.main()
     assert called == ['x.json']
+
+
+# ---- fifth rules (2026-10-25): Greek forms of a name the host carries, own forms of the host, the line lookup
+
+def test_greek_form_of_a_latin_heading_stays():
+    assert rg.greek_form_of('Δοροστόλῳ', {'Dorostorus'})            # one inner letter of the stem
+    assert rg.greek_form_of('Melampodem', {'Melampus'})              # third-declension stem melamp + od
+    assert rg.greek_form_of('Brivate', {'Brivas'})                   # locative of a name in -as: briu + at
+    assert rg.greek_form_of('Ζανός', {'Zeus'})                       # the lexical pair table, Doric genitive
+    assert not rg.greek_form_of('Maximinus', {'Maximianus'})          # another name
+    assert not rg.greek_form_of('Fulvia', {'Fulvius'})
+    assert not rg.greek_form_of('Silanion', {'Silanus'})
+    assert not rg.greek_form_of('Hecataeus', {'Hecate'})
+
+
+def test_lexical_pair_table_is_read_from_its_file():
+    assert rg.LEXICAL_PAIRS
+    assert rg.mb._norm(rg.prep('Ζανός')) in rg.LEXICAL_PAIRS
+
+
+def store_with_stray_heading():
+    """A name entry whose heading is a stray form (Cavelle) beside its other spellings (Cavelonensis, Cavellionensim)."""
+    db = sqlite3.connect(':memory:')
+    db.executescript(SCHEMA)
+    db.execute("insert into entities values (1, 'nm:kauel', 'name', 'Cavelle', 'names', null, null, null, null, 'kauel', 0, 0)")
+    db.execute("insert into entity_labels values (1, 'Cavelle', 'Cavelle', null, null)")
+    wid = 0
+    for form, n in (('Cavelle', 2), ('Cavelonensis', 1), ('Cavellionensim', 1), ('Cavellonum', 1)):
+        for _ in range(n):
+            wid += 1
+            db.execute('insert into windows values (?,?,?,?,?,?)', (wid, f'w{wid}', 'work', 'a', 'b', 'la'))
+            db.execute('insert into mention_rows values (?,?,?,0,0,0,?,?,0,?,?)', (1, wid, form, 'high', 'stem', 'r', form.lower()))
+    return db
+
+
+def test_place_adjective_matches_the_hosts_own_forms_not_only_its_heading():
+    db = store_with_stray_heading()
+    own = rg.own_forms(db, 1)
+    assert 'Cavellionensim' in own and 'Cavelonensis' in own
+    assert not rg.place_adjective_of('Cavellonum', {'Cavelle'}, 'name')          # the heading alone does not keep it
+    out = rg.keep_by_rules(db, 'nm:kauel', {'Cavellonum': 1, 'Cavelonensis': 1})
+    assert 'Cavellonum' in out or 'Cavelonensis' in out
+    assert 'place adjective (own form)' in out.values()
+
+
+def test_find_form_matches_decomposed_accents_and_misplaced_marks():
+    # the text writes the accent as a separate combining mark, and a breathing before its letter
+    assert rg.find_form('ἀρχομένου Μαρωνίδος ἔμπλεον', 'Μαρωνίδος') is not None
+    nfd = unicodedata.normalize('NFD', 'ἐπὶ Κυδωνιάτιδος ἤγγειλαν')
+    assert rg.find_form(nfd, 'Κυδωνιάτιδος') is not None
+    t = 'ἐν ̓Ολυμπίοισί́ τε'
+    span = rg.find_form(t, 'Ὀλυμπίοισί')
+    assert span is not None and t[span[0]:span[1]].startswith('Ολυμπ')
+    assert t[span[1]:].startswith(' τε')           # the stray accent after the last letter is inside the span
+    assert '⟦' in rg.mark(t, 'Ὀλυμπίοισί')
+    assert rg.find_form('nothing here', 'Μαρωνίδος') is None
+
+
+def test_the_five_no_line_forms_find_a_line():
+    class FakeLines:
+        def __init__(self, text):
+            self.text = text
+            self.db = sqlite3.connect(':memory:')
+            self.db.execute('create table window_texts (id text, text text)')
+
+        def line(self, work, ref, form):
+            return self.text if rg.find_form(self.text, form) else None
+
+    texts = {
+        'Μαρωνίδος': unicodedata.normalize('NFD', 'τῆς πολιῆς τόδε σῆμα Μαρωνίδος, ἧς ἐπὶ τύμβῳ'),
+        'Ὀλυμπίοισί': 'ἐν ̓Ολυμπίοισί́ τε καὶ βαθυκόλπου',
+        'Κυδωνιάτιδος': unicodedata.normalize('NFD', 'ἐκ τῆς Κυδωνιάτιδος ἤγγειλαν'),
+        'Δίναμις': 'ἡ τοῦ Θεοῦ Δίναμις ὁ Λόγος',
+        'Ἰθακησία': unicodedata.normalize('NFD', 'ἡ Ἰθακησία χώρα'),
+    }
+    for form, text in texts.items():
+        db = sqlite3.connect(':memory:')
+        db.executescript(SCHEMA)
+        db.execute("insert into entities values (1, 'nm:x', 'name', 'Other', 'names', null, null, null, null, 'x', 0, 0)")
+        db.execute("insert into entities values (2, 'nm:y', 'name', 'Held', 'names', null, null, null, null, 'y', 0, 0)")
+        db.execute('insert into windows values (1, ?, ?, ?, ?, ?)', ('w1', 'work', 'a', 'b', 'grc'))
+        # the rows sit under entry 2, the split's destination is entry 1 (a carve with no rows of its own)
+        db.execute('insert into mention_rows values (2, 1, ?, 0, 0, 0, ?, ?, 0, ?, ?)', (form, 'high', 'stem', 'r', form.lower()))
+        got = rg.example_lines(db, FakeLines(text), 1, [form], n=1)
+        assert got and '⟦' in got[0], form
