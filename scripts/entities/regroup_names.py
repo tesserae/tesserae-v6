@@ -673,6 +673,30 @@ def run_pass3(db, a):
     log('PASS3 ' + json.dumps({k: v for k, v in rep.items() if k not in ('moves', 'carves')}) + f' {time.time() - t0:.0f}s')
 
 
+def run_decisions_only(db, a):
+    """Apply the decisions file and nothing else (no audit, no model, no split), then rewrite the search names,
+    the catalog and the form index."""
+    from backend import entity_extras as ex
+    global PROGRESS
+    stamp = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(os.path.getmtime(a.store)))
+    if a.work:
+        PROGRESS = os.path.join(os.path.expanduser(a.work), 'PROGRESS.txt')
+    before = (db.execute('select count(*) from entities').fetchone()[0], db.execute('select count(*) from mention_rows').fetchone()[0])
+    done = rg.apply_decisions(db, json.load(open(os.path.expanduser(a.decisions), encoding='utf-8')), log=log)
+    db.commit()
+    ex.add_form_search_names(db, log=log)
+    db.commit()
+    db.close()
+    ex.write_catalog(a.store, log=log)
+    ex.write_form_index(a.store, log=log)
+    db = sqlite3.connect(a.store)
+    db.execute("update meta set value = ? where key = 'catalog_built'", (stamp,))
+    db.commit()
+    after = (db.execute('select count(*) from entities').fetchone()[0], db.execute('select count(*) from mention_rows').fetchone()[0])
+    log(f'DECISIONS {done} entities {before[0]} to {after[0]}, mention rows {before[1]} to {after[1]}, '
+        f'integrity {db.execute("pragma integrity_check").fetchone()[0]}')
+
+
 def run_sample3(db, a):
     """sample_40.md: 40 random splits (seed 2027) from the third pass, each as spelling, old heading, new place, one line."""
     lines = rg.Lines(WINDOWS)
@@ -747,6 +771,7 @@ def main():
     ap.add_argument('--judge3', action='store_true')
     ap.add_argument('--pass3', action='store_true')
     ap.add_argument('--sample3', action='store_true')
+    ap.add_argument('--decisions-only', action='store_true', help='apply the --decisions file and nothing else')
     ap.add_argument('--sample-entities', action='store_true')
     ap.add_argument('--count-only', action='store_true')
     ap.add_argument('--entities', default=None, help='limit the pass to the entity ids in this file (csv with entity_id, or one per line)')
@@ -757,6 +782,8 @@ def main():
     ap.add_argument('--workers', type=int, default=0)
     a = ap.parse_args()
     db = sqlite3.connect(a.store)
+    if a.decisions_only:
+        return run_decisions_only(db, a)
     if a.pass3:
         return run_pass3(db, a)
     if a.sample3:

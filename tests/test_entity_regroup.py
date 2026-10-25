@@ -278,3 +278,30 @@ def test_adjective_genitive_plural_and_english_adjective():
 
 def test_adjective_in_ae_stays_with_its_place():
     assert rg.place_adjective_of('Samosatenae', {'Samosatum'}, 'name')
+
+
+def test_decision_sets_a_heading_and_moves_rows():
+    db = store()
+    done = rg.apply_decisions(db, [{'id': 'd1', 'entity_id': 'pn:silan', 'heading': 'Silanos', 'move_forms': ['Silanion'],
+                                    'reason': 'test'}], log=lambda *_a: None)
+    assert done == ['d1']
+    assert db.execute("select label from entities where entity_id = 'pn:silan'").fetchone()[0] == 'Silanos'
+    assert db.execute("select display_label from entity_labels where eid = 1").fetchone()[0] == 'Silanos'
+    left = [f for (f,) in db.execute('select distinct form from mention_rows where eid = 1')]
+    assert 'Silanion' not in left
+
+
+def test_decisions_only_mode_runs_nothing_else(tmp_path, monkeypatch):
+    import importlib.util
+    import os
+    spec = importlib.util.spec_from_file_location('regroup_names', os.path.join(os.path.dirname(__file__), '..', 'scripts', 'entities', 'regroup_names.py'))
+    rn = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(rn)
+    path = str(tmp_path / 'e.sqlite')
+    sqlite3.connect(path).close()
+    called = []
+    monkeypatch.setattr(rn, 'run_decisions_only', lambda db, a: called.append(a.decisions))
+    monkeypatch.setattr(rn, 'run_pass3', lambda db, a: called.append('pass3'))
+    monkeypatch.setattr('sys.argv', ['regroup_names.py', path, '--decisions-only', '--decisions', 'x.json'])
+    rn.main()
+    assert called == ['x.json']
