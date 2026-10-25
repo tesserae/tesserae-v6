@@ -7,6 +7,8 @@
     venv/bin/python scripts/build_entity_index.py --documents [--out STORE] [--documents-dir DIR]
     venv/bin/python scripts/build_entity_index.py --catalog [--out STORE]
     venv/bin/python scripts/build_entity_index.py --check [--documents-dir DIR]
+    venv/bin/python scripts/build_entity_index.py --works STEMS.txt --store LIVE_STORE --out NEW_STORE \
+        --entities-json KEYS.json [--decisions FILE]... [--token-blocks FILE] [--report report.json] [--cache FILE]
 
 KEYS.json is the proper-name list as entity rows (id, greek, latin, english, type, pleiades),
 the join of backend/proper_names to the Pleiades gazetteer. Run it after any passage-index
@@ -18,6 +20,10 @@ stage 2b tables are missing. --catalog (the search catalog stored as a table, ru
 hold one line count once) and --documents (the inscriptions and papyri that name each entity)
 add their tables to the store given by --out in place; run them after a build, on a copy, then
 swap in. --documents reads the production documents index read-only. Under 4 GB.
+--works adds the mention rows of works added after the store was built (STEMS.txt: one work stem a line,
+such as plotinus.enneades, which covers its .part.N windows) to a COPY of the store, --store, written to
+--out. Existing rows are never rebuilt, so the hand passes stay (see backend/entity_new_works.py). Under
+6 GB; run it inside `tess-job --fg NAME 6`. Refuses an --out under /var/www.
 """
 import argparse
 import json
@@ -27,6 +33,33 @@ import sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
 from backend import entity_index as ei  # noqa: E402
+
+
+def run_works(a):
+    import pickle
+    from backend import entity_new_works as nw
+    if not (a.store and a.entities_json and a.out):
+        print('--works needs --store, --entities-json and --out', file=sys.stderr)
+        return 2
+    if os.path.realpath(a.out).startswith('/var/www'):
+        print('refusing: --out must be outside /var/www', file=sys.stderr)
+        return 2
+    stems = [s.strip() for s in open(a.works, encoding='utf-8') if s.strip() and not s.startswith('#')]
+    if a.cache and os.path.exists(a.cache):
+        cands = pickle.load(open(a.cache, 'rb'))
+        print('candidates read from', a.cache)
+    else:
+        keys = json.load(open(a.entities_json, encoding='utf-8'))
+        cands = nw.scan_new_works(keys, a.passage_dir, stems, a.decisions, a.token_blocks)
+        if a.cache:
+            pickle.dump(cands, open(a.cache, 'wb'), protocol=4)
+    filed = nw.file_candidates(cands, a.store, a.passage_dir, stems)
+    now = ei.fingerprint(os.path.join(a.passage_dir, 'ids.json'), os.path.join(a.passage_dir, 'window_names.db'))
+    stats = nw.add_works(a.store, a.out, filed, filed['wmeta'], a.passage_dir, now, a.report)
+    print(json.dumps({k: v for k, v in stats.items() if k != 'new_entities'}, indent=1, default=str))
+    print('works skipped because the store already holds them', filed['skipped_built_works'])
+    print('new entities', len(stats['new_entities']), 'list', filed['list_counts'], 'names', filed['name_counts'])
+    return 0
 
 
 def main():
@@ -41,6 +74,13 @@ def main():
     ap.add_argument('--no-audit-fixes', action='store_true',
                     help='lemma matcher only: skip the stage 1c drops and overrides (the stage 1b table).')
     ap.add_argument('--check', action='store_true')
+    ap.add_argument('--works', help='file with one work stem a line: add the mentions of these works to a copy of --store')
+    ap.add_argument('--store', help='--works: the store to copy (read only)')
+    ap.add_argument('--decisions', action='append', default=[],
+                    help='--works: lemma judgment files of the model passes (repeat; the last answer for a pair wins)')
+    ap.add_argument('--token-blocks', default=None, help='--works: token_blocks.json of fix pass 4b')
+    ap.add_argument('--report', default=None, help='--works: write the report here as JSON')
+    ap.add_argument('--cache', default=None, help='--works: pickle of the candidates, reused when it exists')
     ap.add_argument('--lines', action='store_true')
     ap.add_argument('--documents', action='store_true')
     ap.add_argument('--catalog', action='store_true')
@@ -78,6 +118,8 @@ def main():
             print('catalog entities', ex.write_catalog(a.out))
         print(f'seconds {time.time() - t0:.0f}, peak {resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1e6:.2f} GB')
         return 0
+    if a.works:
+        return run_works(a)
     if a.check:
         from backend import entity_extras as ex
         problems = ei.check_lockstep(a.out, a.passage_dir) + (ex.extras_problems(a.out, docs_dir) if os.path.exists(a.out) else [])
