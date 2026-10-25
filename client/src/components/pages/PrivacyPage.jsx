@@ -2,6 +2,7 @@ export default function PrivacyPage() {
   return (
     <div className="bg-white rounded-lg shadow p-6 sm:p-8 max-w-4xl mx-auto">
       <h1 className="text-2xl font-bold text-gray-900 mb-6">Privacy Policy</h1>
+      <p className="text-sm text-gray-500 mb-4">The <a href="/terms" className="text-red-700 hover:underline">Terms of Use</a> state what the service may be used for.</p>
       
       <div className="prose max-w-none text-gray-700 space-y-6">
         <section>

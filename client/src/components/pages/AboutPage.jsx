@@ -133,6 +133,8 @@ export default function AboutPage({ onNavigate, initialAnchor = null, onAnchorCo
                 alignments): CC BY 4.0 &mdash; free to use with attribution.</p>
               <p><strong>Corpus texts:</strong> individual licenses per source; see the Text
                 Credits section for provenance and terms.</p>
+              <p><strong>Using the service:</strong> the <a href="/terms" className="text-red-700 hover:underline">Terms of Use</a> state
+                what the site, the API and the connector may be used for.</p>
             </div>
           </div>
         </section>
