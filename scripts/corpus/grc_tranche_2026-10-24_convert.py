@@ -73,12 +73,33 @@ for n, name, tag in [
 EXTRA = {'hermas.pastor': ['--stop-before', '26.30.3'],
          'dio_chrysostom.orationes': ['--drop-top', 'appendix1', '84', '85', '86', '87', '88']}
 
+# Cleanup rules of perseus_greek_tei_to_tess.RULES applied per work (2026-10-25: apparatus, heading and edition-number
+# residue found by scripts/corpus/grc_residue_scan.py). Works not listed here convert exactly as on 2026-10-24.
+RULES_FOR = {
+    'athanasius.contra_arianos_i': 'edition_numbers,apparatus_runs_rule',
+    'athanasius.contra_arianos_ii': 'edition_numbers,apparatus_runs_rule',
+    'athanasius.contra_arianos_iii': 'edition_numbers',
+    'ignatius.epistulae': 'edition_numbers,ignatius_sections',
+    'enoch.apocalypsis_enochi': 'edition_numbers',
+    'nicander.theriaca': 'edition_numbers', 'nicander.alexipharmaca': 'edition_numbers',
+    'dio_chrysostom.orationes': 'edition_numbers,dio_citation,stray_angle_marks',
+    'diogenes_laertius.vitae_philosophorum': 'edition_numbers,stray_angle_marks',
+    'longus.daphnis_et_chloe': 'edition_numbers',
+    'plotinus.enneades': 'edition_numbers',
+    'clement_of_rome.epistula_ii_ad_corinthios': 'edition_numbers',
+    'origen.commentarii_in_evangelium_joannis': 'edition_numbers,origen_john',
+    'anna_comnena.alexias': 'edition_numbers,anna_comnena,stray_angle_marks',
+    'philostorgius.historia_ecclesiastica': 'edition_numbers,apparatus_runs_rule,stray_angle_marks',
+    'theodoret.historia_ecclesiastica': 'edition_numbers,apparatus_runs_rule,stray_angle_marks',
+}
+
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument('src')
     ap.add_argument('out')
     ap.add_argument('--only', nargs='*')
+    ap.add_argument('--no-rules', action='store_true', help='convert as on 2026-10-24, without the cleanup rules')
     a = ap.parse_args()
     os.makedirs(a.out, exist_ok=True)
     bad = 0
@@ -90,6 +111,8 @@ def main():
         if split:
             cmd += ['--parts-dir', a.out]
         cmd += EXTRA.get(stem, [])
+        if stem in RULES_FOR and not a.no_rules:
+            cmd += ['--rules', RULES_FOR[stem]]
         print('==', stem, flush=True)
         r = subprocess.run(cmd)
         if r.returncode:
