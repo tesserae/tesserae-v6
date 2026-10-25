@@ -83,3 +83,32 @@ def test_write_rows_adds_and_leaves_old_rows():
     assert db.execute('select * from mention_rows where rowid = 1').fetchall() == old_rows
     assert nw.entities_digest(db, max_eid=1) == before
     assert stats['new_entities'][0][1] == 'nm:zz' and db.execute('select max(eid) from entities').fetchone()[0] == 2
+
+
+def test_abbreviation_forms_are_found_by_the_data():
+    texts = {
+        'w1': 'Et Matth. XII dicitur, et iterum Matth. 5 legitur.',
+        'w2': 'ut philosophus dicit in II Polit., quod legislatores bonos faciunt.',
+        'w3': 'Sed Matth. dicit, et Cato venit ad Cato. 7 cum militibus.',   # one of three Matth rows is not a citation
+        'w4': 'Cato venit et Cato abiit.',
+        'w5': 'Tum Cato. Deinde Roma.',
+    }
+    rows = [('w1', 'Matth'), ('w1', 'Matth'), ('w2', 'Polit'), ('w3', 'Matth'), ('w4', 'Cato'), ('w5', 'Cato')]
+    got = nw.abbreviation_forms(rows, texts.get)
+    assert set(got) == {'polit'}                     # Matth: 2 of 3 rows (67 percent), Cato: no citation shape
+    got = nw.abbreviation_forms(rows[:2] + [('w3', 'Matth')], {**texts, 'w3': 'Matth. XIV.'}.get)
+    assert 'matth' in got
+    assert nw.abbreviation_hit('de Offic., iure ea fortitudo', 'Offic')
+    assert not nw.abbreviation_hit('Roma vicit. Itaque', 'Roma')
+
+
+def test_que_rows_are_filed_under_the_base_entity_or_dropped():
+    attested = {'martem': {5: 9}, 'martemque': {7: 1}}
+    rows, counts = nw.attribute_list([(7, 'w1', 'Martemque'), (8, 'w1', 'Troiamque')], attested)
+    assert [(r[0], r[2]) for r in rows] == [(5, 'Martemque')]           # a spelling the store filed wrongly is refiled
+    assert counts['enclitic_dropped_no_base_entity'] == 1                  # no entity for the base: dropped
+    placed, new_rows, new_names, c = nw.attribute_names(
+        [('marte', 'w1', 'Martemque'), ('troia', 'w2', 'Troiamque')], {'martem': 5}, set(), {},
+        lambda e: [], lambda f, h: None, lambda s: s)
+    assert [(p[0], p[2]) for p in placed] == [(5, 'Martemque')] and not new_rows
+    assert c['enclitic_dropped_no_base_entity'] == 1

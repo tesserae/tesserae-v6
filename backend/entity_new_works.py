@@ -62,6 +62,61 @@ def attested_name_forms(db):
     return {fk: v[0] for fk, v in best.items()}
 
 
+
+# ---------------------------------------------------------------- repairs found on review (2026-10-25)
+
+# Spellings the live store files under another entity and that are a different name (the priest Achillas
+# under the hero Achilles). Each becomes a new corpus name of its own for the NEW rows. Forms are folded.
+OWN_ENTITIES = [
+    {'tag': 'akhil:achillas', 'forms': ('achillas', 'achillam', 'achillae', 'αχιλλασ', 'αχιλλαν', 'αχιλλα')},
+]
+
+ROMAN = r'[IVXLCDM]+'
+_AFTER_NUMBER = re.compile(r'\.\s*(?:\d+|' + ROMAN + r')\b')
+_AFTER_PUNCT = re.compile(r'\.[,;:]')
+_BEFORE_NUMBER = re.compile(r'(?:\b' + ROMAN + r'|\d+)\s+(?:(?:de|libro|lib)\s+)?$')
+ABBREVIATION_SHARE = 0.8
+
+
+_PATTERNS = {}
+
+
+def abbreviation_hit(text, raw):
+    """True when, at some occurrence of `raw` in `text`, the word is followed by a period and a number, a chapter
+    number or a Roman numeral (Matth. XII, Exod. 17), or by a period and a comma or semicolon (Offic., Evang.,),
+    or follows a number and a period (in II Polit., in VI Moral.)."""
+    pat = _PATTERNS.get(raw)
+    if pat is None:
+        pat = _PATTERNS[raw] = re.compile(r'(?<!\w)' + re.escape(raw) + r'(?!\w)')
+    for m in pat.finditer(text):
+        after = text[m.end():m.end() + 14]
+        if _AFTER_NUMBER.match(after) or _AFTER_PUNCT.match(after):
+            return True
+        if after.startswith('.') and _BEFORE_NUMBER.search(text[max(0, m.start() - 16):m.start()]):
+            return True
+    return False
+
+
+def abbreviation_forms(rows, text_of, share=ABBREVIATION_SHARE):
+    """rows: [(window id, raw form)]. A folded form is an abbreviation when in at least `share` of its rows the
+    word is followed in the window by a period and a number or numeral (abbreviation_hit). Returns
+    {folded form: (rows, rows that hit)} for those forms."""
+    tally = collections.defaultdict(lambda: [0, 0])
+    for wid, raw in rows:
+        t = tally[ei.fold(raw)]
+        t[0] += 1
+        if abbreviation_hit(text_of(wid), raw):
+            t[1] += 1
+    return {f: tuple(t) for f, t in tally.items() if t[1] >= share * t[0]}
+
+
+def enclitic_base(raw):
+    """(folded base, enclitic) for a Latin spelling with -que, or -ve or -ne, else (None, None): the rule of
+    entity_extras.without_enclitic that the search applies (#1114)."""
+    from backend import entity_extras as ex
+    return ex.without_enclitic(raw)
+
+
 def attribute_list(cands, attested):
     """cands: [(eid, window id, raw form)]. Returns (rows, counts). A candidate stays when the store has
     never seen the spelling in a list row (the matcher's answer stands), or has seen it for that entity.
@@ -75,6 +130,16 @@ def attribute_list(cands, attested):
     counts = collections.Counter()
     for (wid, fk, raw), eids in by_tok.items():
         seen = attested.get(fk)
+        base, enc = enclitic_base(raw)
+        if enc and (enc == 'que' or (not seen and len(base) >= 4 and attested.get(base))):
+            onto = attested.get(base)
+            if onto:
+                keep = [max(onto, key=lambda e: (onto[e], -e))]
+                counts['enclitic_refiled_to_base_entity'] += 1
+                rows.append((keep[0], wid, raw, 0, 'enclitic'))
+            else:
+                counts['enclitic_dropped_no_base_entity'] += 1
+            continue
         if seen:
             keep = [e for e in eids if e in seen]
             counts['dropped_spelling_filed_elsewhere'] += len(eids) - len(keep)
@@ -137,7 +202,14 @@ def attribute_names(name_rows, learned, dropped_forms, by_key, headings_of, case
     for k, wid, raw in name_rows:
         fk = ei.fold(raw)
         eid = learned.get(fk)
-        if eid is not None:
+        base, enc = enclitic_base(raw)
+        if enc and (enc == 'que' or (eid is None and len(base) >= 4 and base in learned)):
+            eid = learned.get(base)
+            if eid is None:
+                counts['enclitic_dropped_no_base_entity'] += 1
+                continue
+            how = 'enclitic_refiled_to_base_entity'
+        elif eid is not None:
             how = 'learned'
         elif fk in dropped_forms:
             counts['left_out_dropped_by_hand_pass'] += 1
@@ -328,6 +400,46 @@ def file_candidates(cands, store_path, passage_dir, stems, log=print):
         cands = dict(cands, list=[c for c in cands['list'] if c[1] not in gone],
                      names=[c for c in cands['names'] if c[1] not in gone],
                      wmeta={w: m for w, m in cands['wmeta'].items() if w not in gone})
+    # repair 2: book and work abbreviations (Matth. XII, in II Polit.) are not names, found by the data
+    tx = sqlite3.connect(f"file:{os.path.join(passage_dir, 'window_texts.db')}?mode=ro", uri=True)
+    texts = {}
+
+    def text_of(wid):
+        t = texts.get(wid)
+        if t is None:
+            r = tx.execute('select text from window_texts where id = ?', (wid,)).fetchone()
+            t = texts[wid] = r[0] if r else ''
+        return t
+
+    allrows = [(c[1], c[2]) for c in cands['list']] + [(c[1], c[2]) for c in cands['names']]
+    abbr = abbreviation_forms(allrows, text_of)
+    tx.close()
+    abbr_dropped = collections.Counter()
+    for kind in ('list', 'names'):
+        keep = []
+        for c in cands[kind]:
+            f = ei.fold(c[2])
+            if f in abbr:
+                abbr_dropped[(kind, f)] += 1
+            else:
+                keep.append(c)
+        cands = dict(cands, **{kind: keep})
+    # repair 3: spellings that are a different name from the entity the store files them under
+    own_forms = {f: o['tag'] for o in OWN_ENTITIES for f in o['forms']}
+    forced, own_names = [], collections.defaultdict(collections.Counter)
+    for kind in ('list', 'names'):
+        keep, seen_own = [], set()
+        for c in cands[kind]:
+            f = ei.fold(c[2])
+            if f in own_forms:
+                tag = own_forms[f]
+                if (tag, c[1], f) not in seen_own and (tag, c[1], f) not in {(x[0], x[1], x[3]) for x in forced if x[1] == c[1]}:
+                    forced.append((tag, c[1], c[2], f, 'own_entity'))
+                    own_names[tag][c[2]] += 1
+                seen_own.add((tag, c[1], f))
+            else:
+                keep.append(c)
+        cands = dict(cands, **{kind: keep})
     eid_by_id = {eid_s: eid for eid, eid_s in db.execute("select eid, entity_id from entities where source = 'list'")}
     unknown = collections.Counter()
     mapped = []
@@ -360,7 +472,13 @@ def file_candidates(cands, store_path, passage_dir, stems, log=print):
     placed, new_rows, new_names, ncounts = attribute_names(cands['names'], learned, dropped, dict(by_key), headings_of,
                                                            mb.case_form_of, rg.prep)
     db.close()
-    return {'list_rows': list_rows, 'placed_names': placed, 'new_rows': new_rows, 'new_names': new_names,
+    new_rows = new_rows + forced
+    for tag, forms in own_names.items():
+        new_names[tag].update(forms)
+    return {'abbreviations': {f: {'rows': n, 'hit': h} for f, (n, h) in abbr.items()},
+            'abbreviation_rows_dropped': {f'{k}:{f}': n for (k, f), n in abbr_dropped.items()},
+            'own_entity_rows': sum(len(v) for v in own_names.values()),
+            'list_rows': list_rows, 'placed_names': placed, 'new_rows': new_rows, 'new_names': new_names,
             'list_counts': dict(lcounts), 'name_counts': dict(ncounts), 'skipped_built_works': sorted(built),
             'wmeta': cands['wmeta']}
 

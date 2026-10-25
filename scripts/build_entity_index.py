@@ -56,7 +56,12 @@ def run_works(a):
     filed = nw.file_candidates(cands, a.store, a.passage_dir, stems)
     now = ei.fingerprint(os.path.join(a.passage_dir, 'ids.json'), os.path.join(a.passage_dir, 'window_names.db'))
     stats = nw.add_works(a.store, a.out, filed, filed['wmeta'], a.passage_dir, now, a.report)
-    print(json.dumps({k: v for k, v in stats.items() if k != 'new_entities'}, indent=1, default=str))
+    stats.update({k: filed[k] for k in ('abbreviations', 'abbreviation_rows_dropped', 'own_entity_rows',
+                                        'list_counts', 'name_counts', 'skipped_built_works')})
+    if a.report:
+        json.dump(stats, open(a.report, 'w'), ensure_ascii=False, indent=1, default=list)
+    print(json.dumps({k: v for k, v in stats.items() if k not in ('new_entities', 'abbreviations',
+                                                                   'abbreviation_rows_dropped')}, indent=1, default=str))
     print('works skipped because the store already holds them', filed['skipped_built_works'])
     print('new entities', len(stats['new_entities']), 'list', filed['list_counts'], 'names', filed['name_counts'])
     return 0
