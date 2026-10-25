@@ -75,15 +75,31 @@ _COMPARE_FUSION_PREVIEW = 25  # fusion parallels shown in the compare_texts firs
 # --------------------------------------------------------------------------
 # API helpers
 # --------------------------------------------------------------------------
+def _fwd_headers():
+    """Headers that tell this server's own routes the call is the connector's.
+
+    The connector calls the API over HTTP, so every call arrives from the
+    server's own address. Without these headers each connector search would be
+    recorded as internal. The caller's address rides along for the log.
+    """
+    h = {'X-Tesserae-Connector': '1'}
+    try:
+        from backend.services import get_client_ip
+        h['X-Tesserae-Connector-IP'] = get_client_ip()
+    except Exception:  # outside a request, or no address: the flag alone still works
+        pass
+    return h
+
+
 def _get(path, params=None):
-    r = requests.get(f"{API_BASE}{path}", params=params, timeout=_TIMEOUT)
+    r = requests.get(f"{API_BASE}{path}", params=params, headers=_fwd_headers(), timeout=_TIMEOUT)
     r.raise_for_status()
     return r.json()
 
 
 def _post(path, body, timeout=None):
     # `timeout or _TIMEOUT` is always a real timeout; bandit B113 can't see the fallback.
-    r = requests.post(f"{API_BASE}{path}", json=body, timeout=timeout or _TIMEOUT)  # nosec B113
+    r = requests.post(f"{API_BASE}{path}", json=body, headers=_fwd_headers(), timeout=timeout or _TIMEOUT)  # nosec B113
     r.raise_for_status()
     return r.json()
 
@@ -981,7 +997,8 @@ def _t_theme_compare(a):
     for k in ('scale', 'limit'):
         if a.get(k):
             params[k] = a[k]
-    r = requests.get(f"{API_BASE}/passages/compare", params=params, timeout=_TIMEOUT)
+    r = requests.get(f"{API_BASE}/passages/compare", params=params,
+                     headers=_fwd_headers(), timeout=_TIMEOUT)
     try:
         d = r.json()
     except ValueError:

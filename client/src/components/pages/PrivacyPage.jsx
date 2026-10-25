@@ -57,6 +57,19 @@ export default function PrivacyPage() {
           </p>
         </section>
         <section>
+          <h2 className="text-lg font-semibold text-gray-900 mb-2">Search Log</h2>
+          <p>
+            Separately from the speed log, the server keeps a record of searches to learn how the
+            site is used. Each entry holds the kind of search (Line Search, Theme Search, Similar
+            Passages, Compare Works and the others), its settings, the texts involved, the words of
+            the query or question, the number of results, the time, your IP address and the
+            approximate city and country derived from it, and your account if you are signed in.
+            Searches made through the Claude connector are recorded the same way, with the address
+            of the person using it. Requests the server makes to itself are marked and left out of
+            the usage counts.
+          </p>
+        </section>
+        <section>
           <h2 className="text-lg font-semibold text-gray-900 mb-2">Third-Party Services</h2>
           <p>
             Tesserae uses the following third-party services:

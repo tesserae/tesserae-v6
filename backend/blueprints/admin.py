@@ -1766,13 +1766,13 @@ def get_analytics():
     
     try:
         with get_db_cursor(commit=False) as cur:
-            cur.execute('SELECT COUNT(*) FROM search_logs')
+            cur.execute('SELECT COUNT(*) FROM search_logs WHERE internal IS NOT TRUE')
             total_row = cur.fetchone()
             total_searches = total_row[0] if total_row else 0
             
             cur.execute('''
                 SELECT COUNT(*) FROM search_logs 
-                WHERE DATE(created_at) = CURRENT_DATE
+                WHERE DATE(created_at) = CURRENT_DATE AND internal IS NOT TRUE
             ''')
             today_row = cur.fetchone()
             searches_today = today_row[0] if today_row else 0
@@ -1791,6 +1791,7 @@ def get_analytics():
             cur.execute('''
                 SELECT search_type, COUNT(*) 
                 FROM search_logs 
+                WHERE internal IS NOT TRUE
                 GROUP BY search_type
                 ORDER BY COUNT(*) DESC
             ''')
@@ -1815,6 +1816,7 @@ def get_analytics():
             cur.execute('''
                 SELECT language, COUNT(*) 
                 FROM search_logs 
+                WHERE internal IS NOT TRUE
                 GROUP BY language
                 ORDER BY COUNT(*) DESC
             ''')
@@ -1829,7 +1831,7 @@ def get_analytics():
                     COUNT(CASE WHEN cached = TRUE THEN 1 END) as cache_hits,
                     COUNT(CASE WHEN cached = FALSE THEN 1 END) as cache_misses
                 FROM search_logs 
-                WHERE created_at > NOW() - INTERVAL '30 days'
+                WHERE created_at > NOW() - INTERVAL '30 days' AND internal IS NOT TRUE
                 GROUP BY DATE(created_at)
                 ORDER BY day DESC
             ''')
@@ -1845,7 +1847,7 @@ def get_analytics():
             cur.execute('''
                 SELECT source_text, COUNT(*) 
                 FROM search_logs 
-                WHERE source_text IS NOT NULL
+                WHERE source_text IS NOT NULL AND internal IS NOT TRUE
                 GROUP BY source_text
                 ORDER BY COUNT(*) DESC
                 LIMIT 10
@@ -1856,7 +1858,7 @@ def get_analytics():
             cur.execute('''
                 SELECT target_text, COUNT(*) 
                 FROM search_logs 
-                WHERE target_text IS NOT NULL
+                WHERE target_text IS NOT NULL AND internal IS NOT TRUE
                 GROUP BY target_text
                 ORDER BY COUNT(*) DESC
                 LIMIT 10
@@ -1867,7 +1869,7 @@ def get_analytics():
             cur.execute('''
                 SELECT country, COUNT(*) 
                 FROM search_logs 
-                WHERE country IS NOT NULL
+                WHERE country IS NOT NULL AND internal IS NOT TRUE
                 GROUP BY country
                 ORDER BY COUNT(*) DESC
                 LIMIT 10
@@ -1878,7 +1880,7 @@ def get_analytics():
             cur.execute('''
                 SELECT city, country, COUNT(*) 
                 FROM search_logs 
-                WHERE city IS NOT NULL
+                WHERE city IS NOT NULL AND internal IS NOT TRUE
                 GROUP BY city, country
                 ORDER BY COUNT(*) DESC
                 LIMIT 10
@@ -1889,9 +1891,9 @@ def get_analytics():
 
 
             # NEW: Cache hits/misses
-            cur.execute('SELECT COUNT(*) FROM search_logs WHERE cached = TRUE')
+            cur.execute('SELECT COUNT(*) FROM search_logs WHERE cached = TRUE AND internal IS NOT TRUE')
             cache_hits = cur.fetchone()[0]
-            cur.execute('SELECT COUNT(*) FROM search_logs WHERE cached = FALSE')
+            cur.execute('SELECT COUNT(*) FROM search_logs WHERE cached = FALSE AND internal IS NOT TRUE')
             cache_misses = cur.fetchone()[0]
 
             # NEW: Distinct Search Queries
@@ -1901,13 +1903,19 @@ def get_analytics():
                     COALESCE(source_text, '') || '|' || 
                     COALESCE(target_text, '') || '|' || 
                     COALESCE(match_type, '')
-                ) FROM search_logs
+                ) FROM search_logs WHERE internal IS NOT TRUE
             ''')
             distinct_searches = cur.fetchone()[0]
+
+            # The server's own requests (checks, batch jobs) are left out of every
+            # count above; this line keeps the total reconcilable with the table.
+            cur.execute('SELECT COUNT(*) FROM search_logs WHERE internal IS TRUE')
+            internal_searches = cur.fetchone()[0]
         
             return jsonify({
                 'total_searches': total_searches,
                 'searches_today': searches_today,
+                'internal_searches': internal_searches,
                 'unique_users': unique_users,
                 'distinct_searches': distinct_searches,
                 'cache_hits': cache_hits,

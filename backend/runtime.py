@@ -223,6 +223,7 @@ def init_db():
             cur.execute('ALTER TABLE search_logs ADD COLUMN IF NOT EXISTS client_ip VARCHAR(50)')
             cur.execute('ALTER TABLE search_logs ADD COLUMN IF NOT EXISTS city VARCHAR(100)')
             cur.execute('ALTER TABLE search_logs ADD COLUMN IF NOT EXISTS country VARCHAR(100)')
+            cur.execute('ALTER TABLE search_logs ADD COLUMN IF NOT EXISTS internal BOOLEAN DEFAULT FALSE')
 
             cur.execute('''
                 CREATE INDEX IF NOT EXISTS idx_search_logs_created_at ON search_logs(created_at)
