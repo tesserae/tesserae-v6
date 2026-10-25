@@ -489,8 +489,11 @@ def entities_digest(db, max_eid=None):
     """sha256 over every column of the entities rows (eid order), up to max_eid when given."""
     import hashlib
     h = hashlib.sha256()
-    q = 'select * from entities' + (' where eid <= ?' if max_eid is not None else '') + ' order by eid'
-    for r in db.execute(q, (max_eid,) if max_eid is not None else ()):
+    if max_eid is not None:
+        rows = db.execute('select * from entities where eid <= ? order by eid', (max_eid,))
+    else:
+        rows = db.execute('select * from entities order by eid')
+    for r in rows:
         h.update(repr(r).encode())
     return h.hexdigest()
 
