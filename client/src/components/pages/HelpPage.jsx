@@ -551,8 +551,12 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 source and its address, print source and license. Each text stays under its own license,
                 and texts licensed for noncommercial use only are marked in the manifest. A text with no
                 credit row yet reads "unknown". Texts held for search only on this site are left out, and
-                so are texts whose source allows no online copy (Musisque Deoque, Corpus Thomisticum,
-                augustinus.it); the README inside each archive counts them.
+                so are texts whose source allows no online copy: Musisque Deoque allows copies on paper
+                or portable offline media only, and Corpus Thomisticum and augustinus.it reserve all
+                rights. The same works are left out of the Latin search index and window-text archives,
+                and the README inside each archive counts them. Augustine's De doctrina christiana
+                (augustinus.it) is held for search and reading on the site only, with its credit line
+                beside every passage.
                 The archives are rebuilt at every import, and the Terms of Use page states the
                 conditions for bulk copies.
               </p>
