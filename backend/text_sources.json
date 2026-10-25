@@ -14170,25 +14170,25 @@
   {
     "author": "Servius Honoratus",
     "work": "Commentary on the Aeneid of Vergil",
-    "e_source": "Perseus Digital Library TEI, adapted by Corpus Corporum (University of Zurich), text number 12710",
-    "e_source_url": "https://mlat.uzh.ch/",
-    "print_source": "Georgius Thilo and Hermannus Hagen, Servii Grammatici qui feruntur in Vergilii carmina commentarii. Leipzig: B. G. Teubner, 1881.",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.02.0053",
+    "print_source": "Georgius Thilo, In Vergilii carmina comentarii. Leipzig: B. G. Teubner, 1881.",
     "added_by": "Elizabeth Hunter"
   },
   {
     "author": "Servius Honoratus",
     "work": "Commentary on the Eclogues of Vergil",
-    "e_source": "Perseus Digital Library TEI, adapted by Corpus Corporum (University of Zurich), text number 12711",
-    "e_source_url": "https://mlat.uzh.ch/",
-    "print_source": "Georgius Thilo and Hermannus Hagen, Servii Grammatici qui feruntur in Vergilii carmina commentarii. Leipzig: B. G. Teubner, 1881.",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a2007.01.0091",
+    "print_source": "Georgius Thilo, In Vergilii carmina comentarii. Leipzig: B. G. Teubner, 1881.",
     "added_by": "Elizabeth Hunter"
   },
   {
     "author": "Servius Honoratus",
     "work": "Commentary on the Georgics of Vergil",
-    "e_source": "Perseus Digital Library TEI, adapted by Corpus Corporum (University of Zurich), text number 12712",
-    "e_source_url": "https://mlat.uzh.ch/",
-    "print_source": "Georgius Thilo and Hermannus Hagen, Servii Grammatici qui feruntur in Vergilii carmina commentarii. Leipzig: B. G. Teubner, 1881.",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a2007.01.0092",
+    "print_source": "Georgius Thilo, In Vergilii carmina comentarii. Leipzig: B. G. Teubner, 1881.",
     "added_by": "Elizabeth Hunter"
   },
   {
@@ -21233,6 +21233,390 @@
     "added_by": "V6 Import",
     "license": "CC-BY 4.0",
     "note": "Coptic SCRIPTORIUM corpus thomas.gospel, 1 document. Document URN: urn:cts:copticLit:nh.thomas.NHAM02:0-114."
+  },
+  {
+    "author": "Diogenes Laertius",
+    "work": "Vitae philosophorum (Lives of Eminent Philosophers)",
+    "e_source": "Perseus Digital Library / Open Greek and Latin (canonical-greekLit, TLG 0004.001)",
+    "e_source_url": "https://github.com/PerseusDL/canonical-greekLit/tree/master/data/tlg0004/tlg001",
+    "print_source": "Diogenes Laertius, Lives of Eminent Philosophers. R. D. Hicks, ed. Cambridge, MA: Harvard University Press, 1925. (Loeb Greek text.)",
+    "added_by": "V6 Import (Greek tranche, 2026-10-24)"
+  },
+  {
+    "author": "Plotinus",
+    "work": "Enneades",
+    "e_source": "Open Greek and Latin (First1KGreek, TLG 2000.001)",
+    "e_source_url": "https://github.com/OpenGreekAndLatin/First1KGreek/tree/master/data/tlg2000/tlg001",
+    "print_source": "Plotini Enneades. Richard Volkmann, ed. Leipzig: Teubner, 1883-1884. (Licence: CC BY-SA 4.0.)",
+    "added_by": "V6 Import (Greek tranche, 2026-10-24)"
+  },
+  {
+    "author": "Dio Chrysostom",
+    "work": "Orationes (Orations 1 to 80, without 14 to 18)",
+    "e_source": "Perseus Digital Library / Open Greek and Latin (canonical-greekLit, TLG 0612.001)",
+    "e_source_url": "https://github.com/PerseusDL/canonical-greekLit/tree/master/data/tlg0612/tlg001",
+    "print_source": "Dionis Prusaensis quem vocant Chrysostomum quae exstant omnia. H. von Arnim, ed. Berlin: Weidmann, 1893-1896. (Licence: CC BY-SA 4.0. Orations 14 to 18 are not in the Perseus file.)",
+    "added_by": "V6 Import (Greek tranche, 2026-10-24)"
+  },
+  {
+    "author": "Heliodorus",
+    "work": "Aethiopica",
+    "e_source": "Open Greek and Latin (First1KGreek, TLG 0658.001)",
+    "e_source_url": "https://github.com/OpenGreekAndLatin/First1KGreek/tree/master/data/tlg0658/tlg001",
+    "print_source": "Heliodori Aethiopicorum libri decem. Immanuel Bekker, ed. Leipzig: Teubner, 1855. (Licence: CC BY-SA 4.0.)",
+    "added_by": "V6 Import (Greek tranche, 2026-10-24)"
+  },
+  {
+    "author": "Longus",
+    "work": "Daphnis et Chloe",
+    "e_source": "Perseus Digital Library / Open Greek and Latin (canonical-greekLit, TLG 0561.001)",
+    "e_source_url": "https://github.com/PerseusDL/canonical-greekLit/tree/master/data/tlg0561/tlg001",
+    "print_source": "Erotici Scriptores Graeci, vol. 1. Rudolf Hercher, ed. Leipzig: Teubner, 1858. (Repository licence: CC BY-SA 4.0.)",
+    "added_by": "V6 Import (Greek tranche, 2026-10-24)"
+  },
+  {
+    "author": "Xenophon of Ephesus",
+    "work": "Ephesiaca (An Ephesian Tale)",
+    "e_source": "Perseus Digital Library / Open Greek and Latin (canonical-greekLit, TLG 0641.001)",
+    "e_source_url": "https://github.com/PerseusDL/canonical-greekLit/tree/master/data/tlg0641/tlg001",
+    "print_source": "Erotici Scriptores Graeci, vol. 1. Rudolf Hercher, ed. Leipzig: Teubner, 1858. (Licence: CC BY-SA 4.0.)",
+    "added_by": "V6 Import (Greek tranche, 2026-10-24)"
+  },
+  {
+    "author": "Socrates Scholasticus",
+    "work": "Historia ecclesiastica",
+    "e_source": "Open Greek and Latin (First1KGreek, TLG 2057.002)",
+    "e_source_url": "https://github.com/OpenGreekAndLatin/First1KGreek/tree/master/data/tlg2057/tlg002",
+    "print_source": "Socrates' Ecclesiastical History. Robert Hussey, ed. Oxford: Clarendon Press, 1893. (Licence: CC BY-SA 4.0.)",
+    "added_by": "V6 Import (Greek tranche, 2026-10-24)"
+  },
+  {
+    "author": "Sozomen",
+    "work": "Historia ecclesiastica",
+    "e_source": "Open Greek and Latin (First1KGreek, TLG 2048.001)",
+    "e_source_url": "https://github.com/OpenGreekAndLatin/First1KGreek/tree/master/data/tlg2048/tlg001",
+    "print_source": "Sozomeni Ecclesiastica Historia. Robert Hussey, ed. Oxford: Oxford University Press, 1860. (Licence: CC BY-SA 4.0.)",
+    "added_by": "V6 Import (Greek tranche, 2026-10-24)"
+  },
+  {
+    "author": "Theodoret",
+    "work": "Historia Ecclesiastica",
+    "e_source": "Open Greek and Latin (First1KGreek, TLG 4089.003, Parmentier text)",
+    "e_source_url": "https://github.com/OpenGreekAndLatin/First1KGreek/tree/master/data/tlg4089/tlg003",
+    "print_source": "Theodoret, Kirchengeschichte. Léon Parmentier, ed. Leipzig: Hinrichs, 1911. (Die griechischen christlichen Schriftsteller 19. Licence: CC BY-SA 4.0. The file comes from an OCR of the print and a few lines of the editor's apparatus have been cleaned away.)",
+    "added_by": "V6 Import (Greek tranche, 2026-10-24)"
+  },
+  {
+    "author": "Philostorgius",
+    "work": "Historia ecclesiastica (epitome and fragments)",
+    "e_source": "Open Greek and Latin (First1KGreek, TLG 2058.001)",
+    "e_source_url": "https://github.com/OpenGreekAndLatin/First1KGreek/tree/master/data/tlg2058/tlg001",
+    "print_source": "Philostorgius, Kirchengeschichte. Joseph Bidez, ed. Leipzig: Hinrichs, 1913. (Die griechischen christlichen Schriftsteller 21. Licence: CC BY-SA 4.0. The file comes from an OCR of the print. The German apparatus has been cleaned away where it stood in the running text.)",
+    "added_by": "V6 Import (Greek tranche, 2026-10-24)"
+  },
+  {
+    "author": "Anna Comnena",
+    "work": "Alexias",
+    "e_source": "Open Greek and Latin (First1KGreek, TLG 2703.001, Schopen text)",
+    "e_source_url": "https://github.com/OpenGreekAndLatin/First1KGreek/tree/master/data/tlg2703/tlg001",
+    "print_source": "Annae Comnenae Alexiadis. Ludwig Schopen, ed. Bonn: Weber, 1839. (Corpus Scriptorum Historiae Byzantinae 38. Licence: CC BY-SA 4.0. The file comes from an OCR of the print.)",
+    "added_by": "V6 Import (Greek tranche, 2026-10-24)"
+  },
+  {
+    "author": "Nicander",
+    "work": "Theriaca",
+    "e_source": "Open Greek and Latin (First1KGreek, TLG 0022.001)",
+    "e_source_url": "https://github.com/OpenGreekAndLatin/First1KGreek/tree/master/data/tlg0022/tlg001",
+    "print_source": "Nicander, Theriaca et Alexipharmaca. Otto Schneider, ed. Leipzig: Teubner, 1856. (Licence: CC BY-SA 4.0.)",
+    "added_by": "V6 Import (Greek tranche, 2026-10-24)"
+  },
+  {
+    "author": "Nicander",
+    "work": "Alexipharmaca",
+    "e_source": "Open Greek and Latin (First1KGreek, TLG 0022.002)",
+    "e_source_url": "https://github.com/OpenGreekAndLatin/First1KGreek/tree/master/data/tlg0022/tlg002",
+    "print_source": "Nicander, Theriaca et Alexipharmaca. Otto Schneider, ed. Leipzig: Teubner, 1856. (Licence: CC BY-SA 4.0.)",
+    "added_by": "V6 Import (Greek tranche, 2026-10-24)"
+  },
+  {
+    "author": "Origen",
+    "work": "Contra Celsum",
+    "e_source": "Open Greek and Latin (First1KGreek, TLG 2042.001)",
+    "e_source_url": "https://github.com/OpenGreekAndLatin/First1KGreek/tree/master/data/tlg2042/tlg001",
+    "print_source": "Origenes Werke, vols. 1 and 2: Contra Celsum. Paul Koetschau, ed. Leipzig: Hinrichs, 1899. (Die griechischen christlichen Schriftsteller 2 and 3. Licence: CC BY-SA 4.0. The file comes from an OCR of the print.)",
+    "added_by": "V6 Import (Greek tranche, 2026-10-24)"
+  },
+  {
+    "author": "Origen",
+    "work": "Commentarii in evangelium Joannis",
+    "e_source": "Open Greek and Latin (First1KGreek, TLG 2042.005)",
+    "e_source_url": "https://github.com/OpenGreekAndLatin/First1KGreek/tree/master/data/tlg2042/tlg005",
+    "print_source": "Origenes Werke, vol. 4: Der Johanneskommentar. Erwin Preuschen, ed. Leipzig: Hinrichs, 1903. (Die griechischen christlichen Schriftsteller 10. Licence: CC BY-SA 4.0. The file comes from an OCR of the print.)",
+    "added_by": "V6 Import (Greek tranche, 2026-10-24)"
+  },
+  {
+    "author": "Ignatius",
+    "work": "Epistulae",
+    "e_source": "Open Greek and Latin (First1KGreek, TLG 1443.001)",
+    "e_source_url": "https://github.com/OpenGreekAndLatin/First1KGreek/tree/master/data/tlg1443/tlg001",
+    "print_source": "The Apostolic Fathers, vol. 1. Kirsopp Lake, ed. and trans. Cambridge, MA: Harvard University Press, 1912. (Loeb Greek text. Licence: CC BY-SA 4.0.)",
+    "added_by": "V6 Import (Greek tranche, 2026-10-24)"
+  },
+  {
+    "author": "Clement of Rome",
+    "work": "Epistula I ad Corinthios",
+    "e_source": "Open Greek and Latin (First1KGreek, TLG 1271.001)",
+    "e_source_url": "https://github.com/OpenGreekAndLatin/First1KGreek/tree/master/data/tlg1271/tlg001",
+    "print_source": "The Apostolic Fathers, vol. 1. Kirsopp Lake, ed. and trans. Cambridge, MA: Harvard University Press, 1912. (Loeb Greek text. Licence: CC BY-SA 4.0.)",
+    "added_by": "V6 Import (Greek tranche, 2026-10-24)"
+  },
+  {
+    "author": "Clement of Rome",
+    "work": "Epistula II ad Corinthios (the so-called Second Clement, not by Clement)",
+    "e_source": "Open Greek and Latin (First1KGreek, TLG 1271.002)",
+    "e_source_url": "https://github.com/OpenGreekAndLatin/First1KGreek/tree/master/data/tlg1271/tlg002",
+    "print_source": "The Apostolic Fathers, vol. 1. Kirsopp Lake, ed. and trans. Cambridge, MA: Harvard University Press, 1912. (Loeb Greek text. Licence: CC BY-SA 4.0.)",
+    "added_by": "V6 Import (Greek tranche, 2026-10-24)"
+  },
+  {
+    "author": "Didache",
+    "work": "Didache (The Teaching of the Twelve Apostles)",
+    "e_source": "Open Greek and Latin (First1KGreek, TLG 1311.001)",
+    "e_source_url": "https://github.com/OpenGreekAndLatin/First1KGreek/tree/master/data/tlg1311/tlg001",
+    "print_source": "The Apostolic Fathers, vol. 1. Kirsopp Lake, ed. and trans. Cambridge, MA: Harvard University Press, 1912. (Loeb Greek text. Licence: CC BY-SA 4.0.)",
+    "added_by": "V6 Import (Greek tranche, 2026-10-24)"
+  },
+  {
+    "author": "Hermas",
+    "work": "Pastor (The Shepherd of Hermas), through Similitude 9.30.2",
+    "e_source": "Open Greek and Latin (First1KGreek, TLG 1419.001)",
+    "e_source_url": "https://github.com/OpenGreekAndLatin/First1KGreek/tree/master/data/tlg1419/tlg001",
+    "print_source": "The Apostolic Fathers, vol. 2. Kirsopp Lake, ed. and trans. Cambridge, MA: Harvard University Press, 1913. (Loeb Greek text. Licence: CC BY-SA 4.0. The file ends at Similitude 9.30.2, where the Greek manuscript ends. The rest of the print is Latin that the OCR read as Greek, and it is left out.)",
+    "added_by": "V6 Import (Greek tranche, 2026-10-24)"
+  },
+  {
+    "author": "Justin Martyr",
+    "work": "Apologia I",
+    "e_source": "Open Greek and Latin (First1KGreek, TLG 0645.001)",
+    "e_source_url": "https://github.com/OpenGreekAndLatin/First1KGreek/tree/master/data/tlg0645/tlg001",
+    "print_source": "S. Iustini Apologiae duae. Gerhard Rauschen, ed. Bonn: Hanstein, 1911. (Florilegium Patristicum 2. Licence: CC BY-SA 4.0.)",
+    "added_by": "V6 Import (Greek tranche, 2026-10-24)"
+  },
+  {
+    "author": "Justin Martyr",
+    "work": "Apologia II",
+    "e_source": "Open Greek and Latin (First1KGreek, TLG 0645.002)",
+    "e_source_url": "https://github.com/OpenGreekAndLatin/First1KGreek/tree/master/data/tlg0645/tlg002",
+    "print_source": "S. Iustini Apologiae duae. Gerhard Rauschen, ed. Bonn: Hanstein, 1911. (Florilegium Patristicum 2. Licence: CC BY-SA 4.0.)",
+    "added_by": "V6 Import (Greek tranche, 2026-10-24)"
+  },
+  {
+    "author": "Justin Martyr",
+    "work": "Dialogus cum Tryphone",
+    "e_source": "Open Greek and Latin (First1KGreek, TLG 0645.003)",
+    "e_source_url": "https://github.com/OpenGreekAndLatin/First1KGreek/tree/master/data/tlg0645/tlg003",
+    "print_source": "Dialogue avec Tryphon. Georges Archambault, ed. Paris: Picard, 1909. (Licence: CC BY-SA 4.0. The French notes of the print are cleaned out of the text.)",
+    "added_by": "V6 Import (Greek tranche, 2026-10-24)"
+  },
+  {
+    "author": "Athenagoras",
+    "work": "Legatio pro Christianis",
+    "e_source": "Open Greek and Latin (First1KGreek, TLG 1205.001)",
+    "e_source_url": "https://github.com/OpenGreekAndLatin/First1KGreek/tree/master/data/tlg1205/tlg001",
+    "print_source": "Athenagoras, Legatio pro Christianis. Edition from the Perseus and First1KGreek files. (Licence: CC BY-SA 4.0.)",
+    "added_by": "V6 Import (Greek tranche, 2026-10-24)"
+  },
+  {
+    "author": "Athenagoras",
+    "work": "De resurrectione mortuorum",
+    "e_source": "Open Greek and Latin (First1KGreek, TLG 1205.002)",
+    "e_source_url": "https://github.com/OpenGreekAndLatin/First1KGreek/tree/master/data/tlg1205/tlg002",
+    "print_source": "Athenagoras, De resurrectione. Edition from the Perseus and First1KGreek files. (Licence: CC BY-SA 4.0.)",
+    "added_by": "V6 Import (Greek tranche, 2026-10-24)"
+  },
+  {
+    "author": "Theophilus of Antioch",
+    "work": "Ad Autolycum",
+    "e_source": "Open Greek and Latin (First1KGreek, TLG 1725.001)",
+    "e_source_url": "https://github.com/OpenGreekAndLatin/First1KGreek/tree/master/data/tlg1725/tlg001",
+    "print_source": "Theophili Antiocheni ad Autolycum libri tres. J. C. T. Otto, ed. Jena: Mauke, 1861. (Corpus apologetarum 8. Licence: CC BY-SA 4.0.)",
+    "added_by": "V6 Import (Greek tranche, 2026-10-24)"
+  },
+  {
+    "author": "Tatian",
+    "work": "Oratio ad Graecos",
+    "e_source": "Open Greek and Latin (First1KGreek, TLG 1766.001)",
+    "e_source_url": "https://github.com/OpenGreekAndLatin/First1KGreek/tree/master/data/tlg1766/tlg001",
+    "print_source": "Tatiani Oratio ad Graecos. J. C. T. Otto, ed. Jena: Mauke, 1851. (Corpus apologetarum 6. Licence: CC BY-SA 4.0.)",
+    "added_by": "V6 Import (Greek tranche, 2026-10-24)"
+  },
+  {
+    "author": "Athanasius",
+    "work": "De incarnatione verbi",
+    "e_source": "Open Greek and Latin (First1KGreek, TLG 2035.002)",
+    "e_source_url": "https://github.com/OpenGreekAndLatin/First1KGreek/tree/master/data/tlg2035/tlg002",
+    "print_source": "St. Athanasius on the Incarnation. Archibald Robertson, ed. 2nd ed. London: David Nutt, 1893. (Licence: CC BY-SA 4.0.)",
+    "added_by": "V6 Import (Greek tranche, 2026-10-24)"
+  },
+  {
+    "author": "Athanasius",
+    "work": "Contra Arianos I",
+    "e_source": "Open Greek and Latin (First1KGreek, TLG 2035.130)",
+    "e_source_url": "https://github.com/OpenGreekAndLatin/First1KGreek/tree/master/data/tlg2035/tlg130",
+    "print_source": "The Orations of St. Athanasius against the Arians. William Bright, ed. Oxford: Clarendon Press, 1884. (Licence: CC BY-SA 4.0.)",
+    "added_by": "V6 Import (Greek tranche, 2026-10-24)"
+  },
+  {
+    "author": "Athanasius",
+    "work": "Contra Arianos II",
+    "e_source": "Open Greek and Latin (First1KGreek, TLG 2035.131)",
+    "e_source_url": "https://github.com/OpenGreekAndLatin/First1KGreek/tree/master/data/tlg2035/tlg131",
+    "print_source": "The Orations of St. Athanasius against the Arians. William Bright, ed. Oxford: Clarendon Press, 1884. (Licence: CC BY-SA 4.0.)",
+    "added_by": "V6 Import (Greek tranche, 2026-10-24)"
+  },
+  {
+    "author": "Athanasius",
+    "work": "Contra Arianos III",
+    "e_source": "Open Greek and Latin (First1KGreek, TLG 2035.132)",
+    "e_source_url": "https://github.com/OpenGreekAndLatin/First1KGreek/tree/master/data/tlg2035/tlg132",
+    "print_source": "The Orations of St. Athanasius against the Arians. William Bright, ed. Oxford: Clarendon Press, 1884. (Licence: CC BY-SA 4.0.)",
+    "added_by": "V6 Import (Greek tranche, 2026-10-24)"
+  },
+  {
+    "author": "Athanasius",
+    "work": "Contra Arianos IV (attributed to Athanasius, probably a later work)",
+    "e_source": "Open Greek and Latin (First1KGreek, TLG 2035.117)",
+    "e_source_url": "https://github.com/OpenGreekAndLatin/First1KGreek/tree/master/data/tlg2035/tlg117",
+    "print_source": "The Orations of St. Athanasius against the Arians. William Bright, ed. Oxford: Clarendon Press, 1884. (Licence: CC BY-SA 4.0.)",
+    "added_by": "V6 Import (Greek tranche, 2026-10-24)"
+  },
+  {
+    "author": "John of Damascus",
+    "work": "Barlaam et Ioasaph (attributed to John of Damascus)",
+    "e_source": "Perseus Digital Library / Open Greek and Latin (canonical-greekLit, TLG 2934.066)",
+    "e_source_url": "https://github.com/PerseusDL/canonical-greekLit/tree/master/data/tlg2934/tlg066",
+    "print_source": "Barlaam and Ioasaph. G. R. Woodward and H. Mattingly, eds. and trans. Cambridge, MA: Harvard University Press, 1914. (Loeb Greek text. Licence: CC BY-SA 4.0.)",
+    "added_by": "V6 Import (Greek tranche, 2026-10-24)"
+  },
+  {
+    "author": "Enoch",
+    "work": "Apocalypsis Enochi (the Book of the Watchers, chapters 1 to 32)",
+    "e_source": "Open Greek and Latin (First1KGreek, TLG 1463.001)",
+    "e_source_url": "https://github.com/OpenGreekAndLatin/First1KGreek/tree/master/data/tlg1463/tlg001",
+    "print_source": "The Old Testament in Greek, vol. 3: Liber Enoch. H. B. Swete, ed. Cambridge: Cambridge University Press, 1905. (Licence: CC BY-SA 4.0.)",
+    "added_by": "V6 Import (Greek tranche, 2026-10-24)"
+  },
+  {
+    "author": "Julian",
+    "work": "Encomium Constantii",
+    "e_source": "Perseus Digital Library / Open Greek and Latin (canonical-greekLit, TLG 2003.001)",
+    "e_source_url": "https://github.com/PerseusDL/canonical-greekLit/tree/master/data/tlg2003/tlg001",
+    "print_source": "The Works of the Emperor Julian. Wilmer Cave Wright, ed. and trans. Cambridge, MA: Harvard University Press, 1913-1923. (Loeb Greek text. Licence: CC BY-SA 4.0.)",
+    "added_by": "V6 Import (Greek tranche, 2026-10-24)"
+  },
+  {
+    "author": "Julian",
+    "work": "Encomium Eusebiae",
+    "e_source": "Perseus Digital Library / Open Greek and Latin (canonical-greekLit, TLG 2003.002)",
+    "e_source_url": "https://github.com/PerseusDL/canonical-greekLit/tree/master/data/tlg2003/tlg002",
+    "print_source": "The Works of the Emperor Julian. Wilmer Cave Wright, ed. and trans. Cambridge, MA: Harvard University Press, 1913-1923. (Loeb Greek text. Licence: CC BY-SA 4.0.)",
+    "added_by": "V6 Import (Greek tranche, 2026-10-24)"
+  },
+  {
+    "author": "Julian",
+    "work": "De Gestis Imperatoris",
+    "e_source": "Perseus Digital Library / Open Greek and Latin (canonical-greekLit, TLG 2003.003)",
+    "e_source_url": "https://github.com/PerseusDL/canonical-greekLit/tree/master/data/tlg2003/tlg003",
+    "print_source": "The Works of the Emperor Julian. Wilmer Cave Wright, ed. and trans. Cambridge, MA: Harvard University Press, 1913-1923. (Loeb Greek text. Licence: CC BY-SA 4.0.)",
+    "added_by": "V6 Import (Greek tranche, 2026-10-24)"
+  },
+  {
+    "author": "Julian",
+    "work": "Consolatio de Discessu Salustii",
+    "e_source": "Perseus Digital Library / Open Greek and Latin (canonical-greekLit, TLG 2003.004)",
+    "e_source_url": "https://github.com/PerseusDL/canonical-greekLit/tree/master/data/tlg2003/tlg004",
+    "print_source": "The Works of the Emperor Julian. Wilmer Cave Wright, ed. and trans. Cambridge, MA: Harvard University Press, 1913-1923. (Loeb Greek text. Licence: CC BY-SA 4.0.)",
+    "added_by": "V6 Import (Greek tranche, 2026-10-24)"
+  },
+  {
+    "author": "Julian",
+    "work": "Ad Atheniensis",
+    "e_source": "Perseus Digital Library / Open Greek and Latin (canonical-greekLit, TLG 2003.005)",
+    "e_source_url": "https://github.com/PerseusDL/canonical-greekLit/tree/master/data/tlg2003/tlg005",
+    "print_source": "The Works of the Emperor Julian. Wilmer Cave Wright, ed. and trans. Cambridge, MA: Harvard University Press, 1913-1923. (Loeb Greek text. Licence: CC BY-SA 4.0.)",
+    "added_by": "V6 Import (Greek tranche, 2026-10-24)"
+  },
+  {
+    "author": "Julian",
+    "work": "Ad Themistium",
+    "e_source": "Perseus Digital Library / Open Greek and Latin (canonical-greekLit, TLG 2003.006)",
+    "e_source_url": "https://github.com/PerseusDL/canonical-greekLit/tree/master/data/tlg2003/tlg006",
+    "print_source": "The Works of the Emperor Julian. Wilmer Cave Wright, ed. and trans. Cambridge, MA: Harvard University Press, 1913-1923. (Loeb Greek text. Licence: CC BY-SA 4.0.)",
+    "added_by": "V6 Import (Greek tranche, 2026-10-24)"
+  },
+  {
+    "author": "Julian",
+    "work": "Ad Heraclium Cynicum",
+    "e_source": "Perseus Digital Library / Open Greek and Latin (canonical-greekLit, TLG 2003.007)",
+    "e_source_url": "https://github.com/PerseusDL/canonical-greekLit/tree/master/data/tlg2003/tlg007",
+    "print_source": "The Works of the Emperor Julian. Wilmer Cave Wright, ed. and trans. Cambridge, MA: Harvard University Press, 1913-1923. (Loeb Greek text. Licence: CC BY-SA 4.0.)",
+    "added_by": "V6 Import (Greek tranche, 2026-10-24)"
+  },
+  {
+    "author": "Julian",
+    "work": "In Matrem Deorum",
+    "e_source": "Perseus Digital Library / Open Greek and Latin (canonical-greekLit, TLG 2003.008)",
+    "e_source_url": "https://github.com/PerseusDL/canonical-greekLit/tree/master/data/tlg2003/tlg008",
+    "print_source": "The Works of the Emperor Julian. Wilmer Cave Wright, ed. and trans. Cambridge, MA: Harvard University Press, 1913-1923. (Loeb Greek text. Licence: CC BY-SA 4.0.)",
+    "added_by": "V6 Import (Greek tranche, 2026-10-24)"
+  },
+  {
+    "author": "Julian",
+    "work": "Contra Cynicos Ineruditos",
+    "e_source": "Perseus Digital Library / Open Greek and Latin (canonical-greekLit, TLG 2003.009)",
+    "e_source_url": "https://github.com/PerseusDL/canonical-greekLit/tree/master/data/tlg2003/tlg009",
+    "print_source": "The Works of the Emperor Julian. Wilmer Cave Wright, ed. and trans. Cambridge, MA: Harvard University Press, 1913-1923. (Loeb Greek text. Licence: CC BY-SA 4.0.)",
+    "added_by": "V6 Import (Greek tranche, 2026-10-24)"
+  },
+  {
+    "author": "Julian",
+    "work": "Caesares",
+    "e_source": "Perseus Digital Library / Open Greek and Latin (canonical-greekLit, TLG 2003.010)",
+    "e_source_url": "https://github.com/PerseusDL/canonical-greekLit/tree/master/data/tlg2003/tlg010",
+    "print_source": "The Works of the Emperor Julian. Wilmer Cave Wright, ed. and trans. Cambridge, MA: Harvard University Press, 1913-1923. (Loeb Greek text. Licence: CC BY-SA 4.0.)",
+    "added_by": "V6 Import (Greek tranche, 2026-10-24)"
+  },
+  {
+    "author": "Julian",
+    "work": "In Regem Solem",
+    "e_source": "Perseus Digital Library / Open Greek and Latin (canonical-greekLit, TLG 2003.011)",
+    "e_source_url": "https://github.com/PerseusDL/canonical-greekLit/tree/master/data/tlg2003/tlg011",
+    "print_source": "The Works of the Emperor Julian. Wilmer Cave Wright, ed. and trans. Cambridge, MA: Harvard University Press, 1913-1923. (Loeb Greek text. Licence: CC BY-SA 4.0.)",
+    "added_by": "V6 Import (Greek tranche, 2026-10-24)"
+  },
+  {
+    "author": "Julian",
+    "work": "Misopogon",
+    "e_source": "Perseus Digital Library / Open Greek and Latin (canonical-greekLit, TLG 2003.012)",
+    "e_source_url": "https://github.com/PerseusDL/canonical-greekLit/tree/master/data/tlg2003/tlg012",
+    "print_source": "The Works of the Emperor Julian. Wilmer Cave Wright, ed. and trans. Cambridge, MA: Harvard University Press, 1913-1923. (Loeb Greek text. Licence: CC BY-SA 4.0.)",
+    "added_by": "V6 Import (Greek tranche, 2026-10-24)"
+  },
+  {
+    "author": "Julian",
+    "work": "Epistulae",
+    "e_source": "Perseus Digital Library / Open Greek and Latin (canonical-greekLit, TLG 2003.013)",
+    "e_source_url": "https://github.com/PerseusDL/canonical-greekLit/tree/master/data/tlg2003/tlg013",
+    "print_source": "The Works of the Emperor Julian. Wilmer Cave Wright, ed. and trans. Cambridge, MA: Harvard University Press, 1913-1923. (Loeb Greek text. Licence: CC BY-SA 4.0.)",
+    "added_by": "V6 Import (Greek tranche, 2026-10-24)"
+  },
+  {
+    "author": "Julian",
+    "work": "Contra Galilaeos",
+    "e_source": "Perseus Digital Library / Open Greek and Latin (canonical-greekLit, TLG 2003.017)",
+    "e_source_url": "https://github.com/PerseusDL/canonical-greekLit/tree/master/data/tlg2003/tlg017",
+    "print_source": "The Works of the Emperor Julian. Wilmer Cave Wright, ed. and trans. Cambridge, MA: Harvard University Press, 1913-1923. (Loeb Greek text. Licence: CC BY-SA 4.0.)",
+    "added_by": "V6 Import (Greek tranche, 2026-10-24)"
   },
   {
     "author": "Thomas Aquinas",

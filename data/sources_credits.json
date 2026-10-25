@@ -22,6 +22,17 @@
     "notes": "The translator of each work is listed on the Text Credits page. Most are public domain. A few are used with attribution under the translator's non-commercial terms (Silius Italicus, Punica 9 to 17, A. S. Kline) and are not in our data releases."
   },
   {
+    "collection": "Literary texts",
+    "name": "Perseus Digital Library and Open Greek and Latin First Thousand Years of Greek: Greek tranche of 2026-10-24",
+    "url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "licence_name": "Creative Commons Attribution-ShareAlike 4.0 (CC BY-SA 4.0) markup over public-domain editions of 1851 to 1925",
+    "licence_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "version": "PerseusDL/canonical-greekLit and OpenGreekAndLatin/First1KGreek, master branch as fetched on 2026-10-24 (48 works, 303 files)",
+    "retrieved": "2026-10-24",
+    "what_we_use": "The Greek text of 48 works: Diogenes Laertius, Plotinus, Dio Chrysostom (Orations 1 to 13 and 19 to 80), Heliodorus, Longus, Xenophon of Ephesus, Socrates, Sozomen, Theodoret, Philostorgius, Anna Comnena, Nicander, Origen, the Apostolic Fathers and apologists, Athanasius, Barlaam and Ioasaph, Enoch 1 to 32 and fourteen works of Julian. Notes, apparatus and headings are left out, and Latin, German or French apparatus that the optical character recognition left in the running text of some files is cleaned away.",
+    "notes": "The licence is read from each file's TEI header (Longus carries none, so the repository's CC BY-SA 4.0 applies), and the markup stays under CC BY-SA 4.0. The editions are public domain by date. Translations aligned to these texts: Hicks (Diogenes Laertius) and Lake (the Apostolic Fathers) from the Perseus TEI, Cohoon and Crosby (Dio Chrysostom, Loeb 1932 to 1951, no copyright renewal found, public domain in the United States) from Bill Thayer's LacusCurtius transcription, and the Ante-Nicene and Nicene and Post-Nicene Fathers translations of 1885 to 1892 from the Christian Classics Ethereal Library."
+  },
+  {
     "collection": "Inscriptions and papyri",
     "name": "Epigraphic Database Heidelberg (EDH)",
     "url": "https://edh.ub.uni-heidelberg.de/",

@@ -1,44 +1,51 @@
 #!/usr/bin/env python3
-"""Build lemma caches for new .tess files into a STAGING cache folder.
+"""Build lemma caches for named new files into a STAGING cache folder.
 
-Same analyser as scripts/batch_lemma_cache.py (lookup table, CLTK fallback, no
-POS), but the files come from a staging texts folder and the caches go to a
-staging cache folder, so nothing under the live cache/ or texts/ changes.
+batch_lemma_cache.py writes to cache/lemmas of the checkout it runs in and
+visits every uncached text. For an import prepared in a worktree this builds
+only the files named, into a folder of your choosing, so nothing under the
+production tree is written and the caches can be copied in at install time.
 
-Usage: stage_lemma_cache.py LANG TEXTS_DIR CACHE_DIR [file.tess ...]
-Without file names every .tess in TEXTS_DIR is built.
-The cache entry records the SHA-256 of the file as get_file_hash computes it,
-so after the files are copied into texts/<lang>/ the entries are valid.
+    stage_lemma_cache.py LANG CACHE_ROOT FILE.tess [FILE.tess ...]
+
+Writes CACHE_ROOT/LANG/<hashed name>.json, the same names and contents
+batch_lemma_cache.py writes (same FastTextProcessor, same save function).
 """
 import os
 import sys
 import time
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, ROOT)
+sys.path.insert(0, os.path.join(ROOT, 'scripts'))
 os.environ['TESSERAE_DIRECT_SERVER'] = '1'
 
 import backend.lemma_cache as LC  # noqa: E402
+import batch_lemma_cache as B     # noqa: E402
 
 
 def main():
-    lang, texts_dir, cache_dir = sys.argv[1:4]
-    names = sys.argv[4:] or sorted(f for f in os.listdir(texts_dir) if f.endswith('.tess'))
-    LC.CACHE_DIR = cache_dir
-    os.makedirs(os.path.join(cache_dir, lang), exist_ok=True)
-    from scripts.batch_lemma_cache import FastTextProcessor, all_units_empty, register_plugin_languages
-    register_plugin_languages()
-    tp = FastTextProcessor()
-    t0 = time.time()
-    for n in names:
-        p = os.path.join(texts_dir, n)
-        h = LC.get_file_hash(p)
-        ul = tp.process_file(p, lang, 'line')
-        if all_units_empty(ul):
-            raise SystemExit(f'{n}: no tokens in any unit')
-        up = tp.process_file(p, lang, 'phrase')
-        if not LC.save_cached_units(n, lang, ul, up, h):
-            raise SystemExit(f'{n}: cache write failed')
-        print(f'{n}: {len(ul)} lines, {len(up)} phrase units, {time.time()-t0:.0f}s', flush=True)
+    lang, cache_root, files = sys.argv[1], sys.argv[2], sys.argv[3:]
+    LC.CACHE_DIR = os.path.abspath(cache_root)
+    os.makedirs(os.path.join(LC.CACHE_DIR, lang), exist_ok=True)
+    tp = B.FastTextProcessor()
+    t0, built, errors = time.time(), 0, []
+    for path in files:
+        name = os.path.basename(path)
+        try:
+            h = LC.get_file_hash(path)
+            line = tp.process_file(path, lang, 'line')
+            if B.all_units_empty(line):
+                raise ValueError('no tokens in any unit')
+            phrase = tp.process_file(path, lang, 'phrase')
+            if not LC.save_cached_units(name, lang, line, phrase, h):
+                raise IOError('cache file not written')
+            built += 1
+        except Exception as e:  # noqa: BLE001
+            errors.append(f'{name}: {e}')
+            print('ERROR', name, e, flush=True)
+    print(f'built {built} of {len(files)} in {time.time() - t0:.0f}s, {len(errors)} errors')
+    sys.exit(1 if errors else 0)
 
 
 if __name__ == '__main__':
