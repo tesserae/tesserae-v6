@@ -21307,8 +21307,8 @@
     "added_by": "V6 Import (Greek tranche, 2026-10-24)"
   },
   {
-    "author": "Theodoret of Cyrrhus",
-    "work": "Historia ecclesiastica",
+    "author": "Theodoret",
+    "work": "Historia Ecclesiastica",
     "e_source": "Open Greek and Latin (First1KGreek, TLG 4089.003, Parmentier text)",
     "e_source_url": "https://github.com/OpenGreekAndLatin/First1KGreek/tree/master/data/tlg4089/tlg003",
     "print_source": "Theodoret, Kirchengeschichte. Léon Parmentier, ed. Leipzig: Hinrichs, 1911. (Die griechischen christlichen Schriftsteller 19. Licence: CC BY-SA 4.0. The file comes from an OCR of the print and a few lines of the editor's apparatus have been cleaned away.)",
@@ -21331,7 +21331,7 @@
     "added_by": "V6 Import (Greek tranche, 2026-10-24)"
   },
   {
-    "author": "Nicander of Colophon",
+    "author": "Nicander",
     "work": "Theriaca",
     "e_source": "Open Greek and Latin (First1KGreek, TLG 0022.001)",
     "e_source_url": "https://github.com/OpenGreekAndLatin/First1KGreek/tree/master/data/tlg0022/tlg001",
@@ -21339,7 +21339,7 @@
     "added_by": "V6 Import (Greek tranche, 2026-10-24)"
   },
   {
-    "author": "Nicander of Colophon",
+    "author": "Nicander",
     "work": "Alexipharmaca",
     "e_source": "Open Greek and Latin (First1KGreek, TLG 0022.002)",
     "e_source_url": "https://github.com/OpenGreekAndLatin/First1KGreek/tree/master/data/tlg0022/tlg002",
@@ -21363,7 +21363,7 @@
     "added_by": "V6 Import (Greek tranche, 2026-10-24)"
   },
   {
-    "author": "Ignatius of Antioch",
+    "author": "Ignatius",
     "work": "Epistulae",
     "e_source": "Open Greek and Latin (First1KGreek, TLG 1443.001)",
     "e_source_url": "https://github.com/OpenGreekAndLatin/First1KGreek/tree/master/data/tlg1443/tlg001",
@@ -21379,8 +21379,8 @@
     "added_by": "V6 Import (Greek tranche, 2026-10-24)"
   },
   {
-    "author": "Pseudo-Clement of Rome",
-    "work": "Epistula II ad Corinthios",
+    "author": "Clement of Rome",
+    "work": "Epistula II ad Corinthios (the so-called Second Clement, not by Clement)",
     "e_source": "Open Greek and Latin (First1KGreek, TLG 1271.002)",
     "e_source_url": "https://github.com/OpenGreekAndLatin/First1KGreek/tree/master/data/tlg1271/tlg002",
     "print_source": "The Apostolic Fathers, vol. 1. Kirsopp Lake, ed. and trans. Cambridge, MA: Harvard University Press, 1912. (Loeb Greek text. Licence: CC BY-SA 4.0.)",
@@ -21468,7 +21468,7 @@
   },
   {
     "author": "Athanasius",
-    "work": "Orationes contra Arianos I",
+    "work": "Contra Arianos I",
     "e_source": "Open Greek and Latin (First1KGreek, TLG 2035.130)",
     "e_source_url": "https://github.com/OpenGreekAndLatin/First1KGreek/tree/master/data/tlg2035/tlg130",
     "print_source": "The Orations of St. Athanasius against the Arians. William Bright, ed. Oxford: Clarendon Press, 1884. (Licence: CC BY-SA 4.0.)",
@@ -21476,7 +21476,7 @@
   },
   {
     "author": "Athanasius",
-    "work": "Orationes contra Arianos II",
+    "work": "Contra Arianos II",
     "e_source": "Open Greek and Latin (First1KGreek, TLG 2035.131)",
     "e_source_url": "https://github.com/OpenGreekAndLatin/First1KGreek/tree/master/data/tlg2035/tlg131",
     "print_source": "The Orations of St. Athanasius against the Arians. William Bright, ed. Oxford: Clarendon Press, 1884. (Licence: CC BY-SA 4.0.)",
@@ -21484,23 +21484,23 @@
   },
   {
     "author": "Athanasius",
-    "work": "Orationes contra Arianos III",
+    "work": "Contra Arianos III",
     "e_source": "Open Greek and Latin (First1KGreek, TLG 2035.132)",
     "e_source_url": "https://github.com/OpenGreekAndLatin/First1KGreek/tree/master/data/tlg2035/tlg132",
     "print_source": "The Orations of St. Athanasius against the Arians. William Bright, ed. Oxford: Clarendon Press, 1884. (Licence: CC BY-SA 4.0.)",
     "added_by": "V6 Import (Greek tranche, 2026-10-24)"
   },
   {
-    "author": "Pseudo-Athanasius",
-    "work": "Oratio IV contra Arianos",
+    "author": "Athanasius",
+    "work": "Contra Arianos IV (attributed to Athanasius, probably a later work)",
     "e_source": "Open Greek and Latin (First1KGreek, TLG 2035.117)",
     "e_source_url": "https://github.com/OpenGreekAndLatin/First1KGreek/tree/master/data/tlg2035/tlg117",
     "print_source": "The Orations of St. Athanasius against the Arians. William Bright, ed. Oxford: Clarendon Press, 1884. (Licence: CC BY-SA 4.0.)",
     "added_by": "V6 Import (Greek tranche, 2026-10-24)"
   },
   {
-    "author": "John of Damascus (attributed)",
-    "work": "Barlaam et Ioasaph",
+    "author": "John of Damascus",
+    "work": "Barlaam et Ioasaph (attributed to John of Damascus)",
     "e_source": "Perseus Digital Library / Open Greek and Latin (canonical-greekLit, TLG 2934.066)",
     "e_source_url": "https://github.com/PerseusDL/canonical-greekLit/tree/master/data/tlg2934/tlg066",
     "print_source": "Barlaam and Ioasaph. G. R. Woodward and H. Mattingly, eds. and trans. Cambridge, MA: Harvard University Press, 1914. (Loeb Greek text. Licence: CC BY-SA 4.0.)",
@@ -21515,7 +21515,7 @@
     "added_by": "V6 Import (Greek tranche, 2026-10-24)"
   },
   {
-    "author": "Julian the Emperor",
+    "author": "Julian",
     "work": "Encomium Constantii",
     "e_source": "Perseus Digital Library / Open Greek and Latin (canonical-greekLit, TLG 2003.001)",
     "e_source_url": "https://github.com/PerseusDL/canonical-greekLit/tree/master/data/tlg2003/tlg001",
@@ -21523,7 +21523,7 @@
     "added_by": "V6 Import (Greek tranche, 2026-10-24)"
   },
   {
-    "author": "Julian the Emperor",
+    "author": "Julian",
     "work": "Encomium Eusebiae",
     "e_source": "Perseus Digital Library / Open Greek and Latin (canonical-greekLit, TLG 2003.002)",
     "e_source_url": "https://github.com/PerseusDL/canonical-greekLit/tree/master/data/tlg2003/tlg002",
@@ -21531,79 +21531,79 @@
     "added_by": "V6 Import (Greek tranche, 2026-10-24)"
   },
   {
-    "author": "Julian the Emperor",
-    "work": "De rebus gestis imperatoris vel de regno",
+    "author": "Julian",
+    "work": "De Gestis Imperatoris",
     "e_source": "Perseus Digital Library / Open Greek and Latin (canonical-greekLit, TLG 2003.003)",
     "e_source_url": "https://github.com/PerseusDL/canonical-greekLit/tree/master/data/tlg2003/tlg003",
     "print_source": "The Works of the Emperor Julian. Wilmer Cave Wright, ed. and trans. Cambridge, MA: Harvard University Press, 1913-1923. (Loeb Greek text. Licence: CC BY-SA 4.0.)",
     "added_by": "V6 Import (Greek tranche, 2026-10-24)"
   },
   {
-    "author": "Julian the Emperor",
-    "work": "Consolatio de discessu Salustii",
+    "author": "Julian",
+    "work": "Consolatio de Discessu Salustii",
     "e_source": "Perseus Digital Library / Open Greek and Latin (canonical-greekLit, TLG 2003.004)",
     "e_source_url": "https://github.com/PerseusDL/canonical-greekLit/tree/master/data/tlg2003/tlg004",
     "print_source": "The Works of the Emperor Julian. Wilmer Cave Wright, ed. and trans. Cambridge, MA: Harvard University Press, 1913-1923. (Loeb Greek text. Licence: CC BY-SA 4.0.)",
     "added_by": "V6 Import (Greek tranche, 2026-10-24)"
   },
   {
-    "author": "Julian the Emperor",
-    "work": "Ad senatum populumque Atheniensium",
+    "author": "Julian",
+    "work": "Ad Atheniensis",
     "e_source": "Perseus Digital Library / Open Greek and Latin (canonical-greekLit, TLG 2003.005)",
     "e_source_url": "https://github.com/PerseusDL/canonical-greekLit/tree/master/data/tlg2003/tlg005",
     "print_source": "The Works of the Emperor Julian. Wilmer Cave Wright, ed. and trans. Cambridge, MA: Harvard University Press, 1913-1923. (Loeb Greek text. Licence: CC BY-SA 4.0.)",
     "added_by": "V6 Import (Greek tranche, 2026-10-24)"
   },
   {
-    "author": "Julian the Emperor",
-    "work": "Ad Themistium philosophum",
+    "author": "Julian",
+    "work": "Ad Themistium",
     "e_source": "Perseus Digital Library / Open Greek and Latin (canonical-greekLit, TLG 2003.006)",
     "e_source_url": "https://github.com/PerseusDL/canonical-greekLit/tree/master/data/tlg2003/tlg006",
     "print_source": "The Works of the Emperor Julian. Wilmer Cave Wright, ed. and trans. Cambridge, MA: Harvard University Press, 1913-1923. (Loeb Greek text. Licence: CC BY-SA 4.0.)",
     "added_by": "V6 Import (Greek tranche, 2026-10-24)"
   },
   {
-    "author": "Julian the Emperor",
-    "work": "Ad Heraclium cynicum",
+    "author": "Julian",
+    "work": "Ad Heraclium Cynicum",
     "e_source": "Perseus Digital Library / Open Greek and Latin (canonical-greekLit, TLG 2003.007)",
     "e_source_url": "https://github.com/PerseusDL/canonical-greekLit/tree/master/data/tlg2003/tlg007",
     "print_source": "The Works of the Emperor Julian. Wilmer Cave Wright, ed. and trans. Cambridge, MA: Harvard University Press, 1913-1923. (Loeb Greek text. Licence: CC BY-SA 4.0.)",
     "added_by": "V6 Import (Greek tranche, 2026-10-24)"
   },
   {
-    "author": "Julian the Emperor",
-    "work": "In matrem deorum",
+    "author": "Julian",
+    "work": "In Matrem Deorum",
     "e_source": "Perseus Digital Library / Open Greek and Latin (canonical-greekLit, TLG 2003.008)",
     "e_source_url": "https://github.com/PerseusDL/canonical-greekLit/tree/master/data/tlg2003/tlg008",
     "print_source": "The Works of the Emperor Julian. Wilmer Cave Wright, ed. and trans. Cambridge, MA: Harvard University Press, 1913-1923. (Loeb Greek text. Licence: CC BY-SA 4.0.)",
     "added_by": "V6 Import (Greek tranche, 2026-10-24)"
   },
   {
-    "author": "Julian the Emperor",
-    "work": "Contra cynicos ineruditos",
+    "author": "Julian",
+    "work": "Contra Cynicos Ineruditos",
     "e_source": "Perseus Digital Library / Open Greek and Latin (canonical-greekLit, TLG 2003.009)",
     "e_source_url": "https://github.com/PerseusDL/canonical-greekLit/tree/master/data/tlg2003/tlg009",
     "print_source": "The Works of the Emperor Julian. Wilmer Cave Wright, ed. and trans. Cambridge, MA: Harvard University Press, 1913-1923. (Loeb Greek text. Licence: CC BY-SA 4.0.)",
     "added_by": "V6 Import (Greek tranche, 2026-10-24)"
   },
   {
-    "author": "Julian the Emperor",
-    "work": "Caesares (Symposium sive Saturnalia)",
+    "author": "Julian",
+    "work": "Caesares",
     "e_source": "Perseus Digital Library / Open Greek and Latin (canonical-greekLit, TLG 2003.010)",
     "e_source_url": "https://github.com/PerseusDL/canonical-greekLit/tree/master/data/tlg2003/tlg010",
     "print_source": "The Works of the Emperor Julian. Wilmer Cave Wright, ed. and trans. Cambridge, MA: Harvard University Press, 1913-1923. (Loeb Greek text. Licence: CC BY-SA 4.0.)",
     "added_by": "V6 Import (Greek tranche, 2026-10-24)"
   },
   {
-    "author": "Julian the Emperor",
-    "work": "In regem Solem ad Salustium",
+    "author": "Julian",
+    "work": "In Regem Solem",
     "e_source": "Perseus Digital Library / Open Greek and Latin (canonical-greekLit, TLG 2003.011)",
     "e_source_url": "https://github.com/PerseusDL/canonical-greekLit/tree/master/data/tlg2003/tlg011",
     "print_source": "The Works of the Emperor Julian. Wilmer Cave Wright, ed. and trans. Cambridge, MA: Harvard University Press, 1913-1923. (Loeb Greek text. Licence: CC BY-SA 4.0.)",
     "added_by": "V6 Import (Greek tranche, 2026-10-24)"
   },
   {
-    "author": "Julian the Emperor",
+    "author": "Julian",
     "work": "Misopogon",
     "e_source": "Perseus Digital Library / Open Greek and Latin (canonical-greekLit, TLG 2003.012)",
     "e_source_url": "https://github.com/PerseusDL/canonical-greekLit/tree/master/data/tlg2003/tlg012",
@@ -21611,7 +21611,7 @@
     "added_by": "V6 Import (Greek tranche, 2026-10-24)"
   },
   {
-    "author": "Julian the Emperor",
+    "author": "Julian",
     "work": "Epistulae",
     "e_source": "Perseus Digital Library / Open Greek and Latin (canonical-greekLit, TLG 2003.013)",
     "e_source_url": "https://github.com/PerseusDL/canonical-greekLit/tree/master/data/tlg2003/tlg013",
@@ -21619,7 +21619,7 @@
     "added_by": "V6 Import (Greek tranche, 2026-10-24)"
   },
   {
-    "author": "Julian the Emperor",
+    "author": "Julian",
     "work": "Contra Galilaeos",
     "e_source": "Perseus Digital Library / Open Greek and Latin (canonical-greekLit, TLG 2003.017)",
     "e_source_url": "https://github.com/PerseusDL/canonical-greekLit/tree/master/data/tlg2003/tlg017",
