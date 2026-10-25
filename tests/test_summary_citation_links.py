@@ -1,4 +1,4 @@
-"""The Search One Text summary links each passage it cites (backend/blueprints/passages.py)."""
+"""The one-text summary links each passage it cites (backend/blueprints/passages.py)."""
 from backend.blueprints.passages import _cite_full_refs, _locus
 
 

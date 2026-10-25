@@ -226,7 +226,7 @@ export default function ReaderHeader({
       [lineCount, 'The number of lines in the text open in the Reader'],
     ].filter(([value]) => value);
   }, [facts, units]);
-  const askHref = `/ask-a-work?work=${encodeURIComponent(String(work || '').replace(/\.tess$/, '').split('.part.')[0])}&lang=${encodeURIComponent(language || 'la')}`;
+  const askHref = `/theme-search?scope=one&work=${encodeURIComponent(String(work || '').replace(/\.tess$/, '').split('.part.')[0])}&lang=${encodeURIComponent(language || 'la')}`;
   const creditsHref = facts?.author
     ? `/text-credits?author=${encodeURIComponent(facts.author)}`
     : '/text-credits';

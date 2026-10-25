@@ -691,7 +691,7 @@ _citing_cache = {}
 @passages_bp.route('/passages/ask-citing', methods=['POST'])
 def ask_citing():
     """Articles in the journal citation indexes (1827 to 1922, and Project MUSE
-    from 1996) that cite one of the passages on the Search One Text page.
+    from 1996) that cite one of the passages on the one-text scope of Theme Search.
     At most 25 ranges; MUSE sentences are never in the answer."""
     import time
     from backend import scholarship

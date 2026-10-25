@@ -42,8 +42,8 @@ export default function AboutPage({ onNavigate, initialAnchor = null, onAnchorCo
             sound, syntax or meaning, in one language or across languages. Around that search it has grown into
             a place to read. The Reader shows a text with its parallels, similar passages, later quotations,
             commentary and translation at the side. Theme Search finds the passages about a scene or an idea
-            you describe in English, in every language of the corpus at once. Search One Text asks a single work
-            what it says about a subject and shows where it says it. Beside the literature stand inscriptions
+            you describe in English, in one text, in two texts compared, or in every language of the corpus at once.
+            Its one-text scope asks a single work what it says about a subject and shows where it says it. Beside the literature stand inscriptions
             and papyri, coins, museum objects and dated events, so a passage can be read next to the documents
             and things of its world.
           </p>
@@ -189,7 +189,7 @@ export default function AboutPage({ onNavigate, initialAnchor = null, onAnchorCo
               </p>
             </div>
             <div className="bg-gray-50 p-4 rounded-lg">
-              <h4 className="font-medium text-red-700 mb-2">Search One Text</h4>
+              <h4 className="font-medium text-red-700 mb-2">Theme Search, one text</h4>
               <p className="text-sm text-gray-600">
                 Ask one work what it says about a subject. The passages come back in order of fit, on a strip that shows where in the work they fall, with a short account of what the work says and what the commentaries say.
               </p>
