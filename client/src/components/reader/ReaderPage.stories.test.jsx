@@ -112,15 +112,16 @@ describe('ReaderPage stories', () => {
       const opt = screen.getAllByRole('option', { name: '3 \u00b7 بخش ۱ - آغاز' }).find((e) => e.tagName === 'BUTTON');
       expect(opt).toBeTruthy();
       fireEvent.pointerDown(opt);
-      await waitFor(() => expect(screen.getAllByLabelText('Previous story: 2').length).toBeGreaterThan(0));
+      await waitFor(() => expect(screen.getAllByLabelText('Previous section: 2').length).toBeGreaterThan(0));
+      expect(screen.queryAllByLabelText(/story/i)).toHaveLength(0);
     });
 
     it('steps through a prose work whose refs have two numbers', async () => {
       await open('ferdowsi.shahnameh.tess', { work: 'ferdowsi.shahnameh', unit: 'section', sections: BAGH });
       await waitFor(() => expect(screen.getByText('2 sections')).toBeTruthy());
-      const next = await screen.findAllByLabelText('Next story: 2');
+      const next = await screen.findAllByLabelText('Next section: 2');
       fireEvent.click(next[0]);
-      await waitFor(() => expect(screen.getAllByLabelText('Previous story: 1').length).toBeGreaterThan(0));
+      await waitFor(() => expect(screen.getAllByLabelText('Previous section: 1').length).toBeGreaterThan(0));
     });
   });
 });

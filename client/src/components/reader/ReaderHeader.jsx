@@ -428,7 +428,7 @@ export default function ReaderHeader({
               )}
               {storyOptions.length > 1 && (
                 <div className="mt-4 flex flex-wrap items-center gap-2">
-                  <StoryLinks stories={stories} storyNumber={storyNumber}
+                  <StoryLinks stories={stories} storyNumber={storyNumber} storyUnit={storyUnit}
                               onStory={(st) => { setPickerOpen(false); onStory(st); }} size="text-sm" />
                 </div>
               )}

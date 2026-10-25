@@ -80,11 +80,12 @@ def test_verse_sections(client, tmp_path, monkeypatch):
 
 
 def test_verse_sections_without_full_title_and_own_majors(client, tmp_path, monkeypatch):
-    gul = [{"major": 1, "story": 1, "title": "حکایت ۱", "first_ref": "a.1.1.1", "last_ref": "a.1.1.9"},
+    gul = [{"major": 0, "story": 1, "title": "دیباچه", "first_ref": "a.0.1.1", "last_ref": "a.0.1.9"},
+           {"major": 1, "story": 1, "title": "حکایت ۱", "first_ref": "a.1.1.1", "last_ref": "a.1.1.9"},
            {"major": 1, "story": 2, "title": "حکایت ۲", "first_ref": "a.1.2.1", "last_ref": "a.1.2.9"}]
     _write(tmp_path, monkeypatch, 'saadi.gulistan', 'sections.json', gul)
     d = client.get('/api/texts/structure/saadi.gulistan').get_json()
-    assert [s['reign_fa'] for s in d['sections']] == ['باب 1', 'باب 1']
+    assert [s['reign_fa'] for s in d['sections']] == ['دیباچه', 'باب 1', 'باب 1']
     own = [{"major": 1, "title": "x", "first_ref": "t.1.1"}, {"major": 2, "title": "y", "first_ref": "t.2.1"}]
     (tmp_path / 'saadi.gulistan' / 'sections.json').unlink()
     (tmp_path / 'saadi.gulistan').rmdir()

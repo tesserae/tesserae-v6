@@ -473,13 +473,16 @@ _STRUCTURE_FIELDS = ('number', 'title_en', 'title_fa', 'reign_fa', 'first_ref',
 def _major_heading(entry):
     """The group heading of a verse section whose work shares majors: the
     major's name from full_title (the segment before the last " » ", for
-    example "دفتر اول"), else "باب N" with N the major (the Gulistan)."""
+    example "دفتر اول"), else "باب N" with N the major (the Gulistan); major 0
+    is the Gulistan's preface, one section, headed by its own title."""
     full = entry.get('full_title')
     if isinstance(full, str) and ' » ' in full:
         parts = full.split(' » ')
         if len(parts) >= 2 and parts[-2].strip():
             return parts[-2].strip()
     if entry.get('major') is not None and not full:
+        if entry['major'] == 0:
+            return entry.get('title') or None
         return f"باب {entry['major']}"
     return None
 

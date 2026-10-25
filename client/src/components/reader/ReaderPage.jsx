@@ -661,7 +661,8 @@ export default function ReaderPage() {
             {/* Previous/next book, go to line, back to top: sticky, so the way
                 out of a long text is always on screen (2026-09-19). */}
             <ReaderNav sections={sections} work={work} onWork={changeBook} onJump={jumpTo}
-                       stories={stories} storyNumber={storyNumber} onStory={jumpStory} />
+                       stories={stories} storyNumber={storyNumber} onStory={jumpStory}
+                       storyUnit={structure?.unit} />
             {/* The key for the gutter marks. The gutter itself is nine pixels
                 wide per column and can only carry a letter, and its tooltip does
                 not exist on a phone, so the words go here where there is room.
@@ -985,11 +986,13 @@ export default function ReaderPage() {
           )}
           {units.length > 0 && shownUnits.length >= units.length && (
             <ReaderEndNav sections={sections} work={work} onWork={changeBook}
-                          stories={stories} storyNumber={storyNumber} onStory={jumpStory} />
+                          stories={stories} storyNumber={storyNumber} onStory={jumpStory}
+                       storyUnit={structure?.unit} />
           )}
           {!loading && !error && units.length > 0 && (
             <ReaderFloatNav sections={sections} work={work} onWork={changeBook}
-                            stories={stories} storyNumber={storyNumber} onStory={jumpStory} />
+                            stories={stories} storyNumber={storyNumber} onStory={jumpStory}
+                       storyUnit={structure?.unit} />
           )}
           {!loading && !error && units.length > 0 && (
             <ReaderPhoneTopButton hidden={!!selection} />
