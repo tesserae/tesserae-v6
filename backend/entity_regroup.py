@@ -14,6 +14,8 @@ build itself listed, because the wrong spellings are written into those (the sea
 Hecataeus). A Greek label counts only when it is a case form of a Latin heading or the entry has no Latin one.
 Nothing here reads the gateway address or the key.
 """
+import json
+import os
 import re
 import sqlite3
 import unicodedata
@@ -423,19 +425,139 @@ def place_adjective_of(form, heads, host_type):
     return False
 
 
+# Fifth rules (2026-10-25, second pass of the day): a Greek-shaped form of a name the host already carries.
+
+_PAIRS_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'entity_form_pairs.json')
+
+
+def _load_pairs():
+    try:
+        with open(_PAIRS_FILE, encoding='utf-8') as f:
+            raw = json.load(f).get('pairs', [])
+    except (OSError, ValueError):
+        return {}
+    out = {}
+    for form, head in raw:
+        out.setdefault(mb._norm(prep(form)), set()).add(mb._norm(prep(head)))
+    return out
+
+
+LEXICAL_PAIRS = _load_pairs()
+# Endings of the Greek third declension and of the Latin borrowings of it, on the normalized spelling (Greek in
+# Latin letters, ou written u, ei written i), longest first. One ending is taken off.
+_STEM_ENDS = ('ibus', 'orum', 'arum', 'osin', 'oisi', 'ois', 'ous', 'os', 'us', 'um', 'em', 'es', 'as', 'is', 'on',
+              'oi', 'ai', 'si', 'ou', 'i', 'a', 'e', 'o', 'u', 'n', 's')
+# What a third-declension stem adds to the nominative stem (Melampus, Melampodis: melamp + od; Brivas, Brivatis:
+# briu + at).
+_STEM_EXTRA = ('od', 'ed', 'ot', 'at', 'ont', 'ant', 'ek', 'ak')
+
+
+def _stem_without_end(n):
+    for e in _STEM_ENDS:
+        if n.endswith(e) and len(n) - len(e) >= 4:
+            return n[:-len(e)]
+    return n
+
+
+def _one_inner_letter(a, b):
+    """True when the two stems have the same length and differ in one letter that is neither the first nor the
+    first two (Dorostol, Dorostor)."""
+    if len(a) != len(b) or len(a) < 5:
+        return False
+    diff = [i for i in range(len(a)) if a[i] != b[i]]
+    return len(diff) == 1 and diff[0] >= 2
+
+
+def greek_form_of(form, heads):
+    """Fifth rule, family 1. True when the spelling is a Greek-script or Greek third-declension form of a name the
+    host carries in another shape: the lexical pair table (Doric Ζανός for Zeus), or, after Greek is written in Latin
+    letters and one case ending is taken off, a stem equal to a heading stem, one inner letter away from it
+    (Δοροστόλῳ, Dorostorus), or a heading stem plus a third-declension extension (Melampodem, Melampus: melamp + od;
+    Brivate, Brivas: briu + at). Applies to a Greek-script spelling, and to a Latin one only through the extension."""
+    f = mb._norm(prep(ex.without_enclitic(form)[0] or form))
+    greek = _is_greek(form)
+    for h in LEXICAL_PAIRS.get(f, ()):
+        if any(h == w for _w, w in _heading_words(heads)):
+            return True
+    sf = _stem_without_end(f)
+    if len(sf) < 4:
+        return False
+    for _w, h in _heading_words(heads):
+        sh = _stem_without_end(h)
+        if len(sh) < 4:
+            continue
+        if sf == sh and f != h and (greek or _is_greek(_w)):
+            return True
+        if greek and _one_inner_letter(sf, sh):
+            return True
+        for a, b in ((sf, sh), (sh, sf)):
+            if a.startswith(b) and a[len(b):] in _STEM_EXTRA and f != h:
+                return True
+    return False
+
+
+def own_forms(db, eid):
+    """Every spelling the entry holds in mention rows, Latin script only, folded for comparison (rule b2). Greek
+    spellings are left out: a Greek name in -ίδης is a person beside the city (Φιλιππίδης, Philippi), not its adjective."""
+    return {prep(f) for (f,) in db.execute('select distinct form from mention_rows where eid = ?', (eid,))
+            if not _is_greek(f)}
+
+
+def _edit1(a, b):
+    """True when the two stems differ by one inserted, dropped or changed letter, not within the first three."""
+    if a == b or abs(len(a) - len(b)) > 1 or min(len(a), len(b)) < 6:
+        return False
+    i = 0
+    while i < min(len(a), len(b)) and a[i] == b[i]:
+        i += 1
+    if i < 3:
+        return False
+    if len(a) == len(b):
+        return a[i + 1:] == b[i + 1:]
+    a, b = (a, b) if len(a) < len(b) else (b, a)
+    return a[i:] == b[i + 1:]
+
+
+def own_form_relation(form, owned):
+    """Rule b2. True when a Latin spelling and one of the entry's other spellings are the same place stem, as an
+    adjective stem or a case-stripped stem, equal or one letter apart (Cavellonum, Cavelonensis: kauellon, kauelon),
+    and one of the two is adjective-shaped."""
+    f = mb._norm(prep(ex.without_enclitic(form)[0] or form))
+    sf = _adj_stem(f)
+    for o in owned:
+        n = mb._norm(prep(o))
+        so = _adj_stem(n)
+        if sf is None and so is None:
+            continue
+        a, b = sf or _stem_without_end(f), so or _stem_without_end(n)
+        if len(a) >= 6 and len(b) >= 6 and (a == b or _edit1(a, b)):
+            return True
+    return False
+
+
 def keep_by_rules(db, entity_id, forms):
-    """Fourth pass. {spelling: rule} for the spellings of a group the model called DIFFERENT that rules (a) and (b)
-    keep with their entry."""
+    """{spelling: rule} for the spellings of a group the model called DIFFERENT that the rules keep with their
+    entry: (a) a near variant, (b) a place adjective of a heading, (b2) a Latin place adjective of any other own form of the
+    entry (a stray case form as heading: Avenniocus, Cavelle), (c) a Greek or third-declension form of a heading,
+    (d) a lexical pair."""
     r = db.execute('select eid, type from entities where entity_id = ?', (entity_id,)).fetchone()
     if not r:
         return {}
     heads = headings(db, r[0])
+    owned = None
     out = {}
     for f in forms:
         if near_variant(f, heads):
             out[f] = 'variant'
         elif place_adjective_of(f, heads, r[1]):
             out[f] = 'place adjective'
+        else:
+            if owned is None:
+                owned = own_forms(db, r[0])
+            if not _is_greek(f) and r[1] not in ('person', 'deity') and own_form_relation(f, owned - {prep(f)}):
+                out[f] = 'place adjective (own form)'
+            elif greek_form_of(f, heads):
+                out[f] = 'Greek form'
     return out
 
 
@@ -733,14 +855,49 @@ def question2(heading, labels, top, description, forms, lines):
     return '\n'.join(out)
 
 
+def _fold_map(text):
+    """The text folded character by character as the index folds names (ei.fold: lower case, combining marks and
+    the lunate or final sigma shape removed, punctuation dropped), with the position in the original text of each
+    folded character. A breathing written before its letter (a stray U+0313 or U+0314 ahead of the vowel) and a
+    precomposed or decomposed accent both fold away."""
+    out, pos = [], []
+    for i, c in enumerate(text):
+        for d in ei.fold(prep(c)) if c.strip() else ' ':
+            out.append(d)
+            pos.append(i)
+    return ''.join(out), pos
+
+
+def find_form(text, form):
+    """(start, end) of the spelling in the text, or None. The exact spelling first, then without regard to case,
+    then on the folded forms (accent, breathing, sigma shape, a combining mark in the wrong place): the span
+    returned is the span of the original text."""
+    i = text.find(form)
+    if i >= 0:
+        return i, i + len(form)
+    i = text.lower().find(form.lower())
+    if i >= 0:
+        return i, i + len(form)
+    key = ei.fold(prep(form))
+    if len(key) < 3:
+        return None
+    folded, pos = _fold_map(text)
+    j = folded.find(key)
+    if j < 0:
+        return None
+    end = pos[j + len(key) - 1] + 1
+    while end < len(text) and unicodedata.category(text[end]) == 'Mn':
+        end += 1          # an accent written after the last letter belongs to the word
+    return pos[j], end
+
+
 def mark(text, form):
     """`text` with the first occurrence of the spelling between the signs, or the text unchanged."""
-    i = text.find(form)
-    if i < 0:
-        i = text.lower().find(form.lower())
-    if i < 0:
+    span = find_form(text, form)
+    if span is None:
         return text
-    return text[:i] + '⟦' + text[i:i + len(form)] + '⟧' + text[i + len(form):]
+    i, j = span
+    return text[:i] + '\u27e6' + text[i:j] + '\u27e7' + text[j:]
 
 
 def question(heading, description, forms, lines):
@@ -793,19 +950,30 @@ class Lines:
     def line(self, work, ref, form):
         if ref:
             r = self.db.execute('select text from lines where work = ? and ref = ? limit 1', (work, ref)).fetchone()
-            if r and r[0] and (form in r[0] or form.lower() in r[0].lower()):
+            if r and r[0] and find_form(r[0], form):
                 return r[0].strip()
         return None
 
 
-def example_lines(db, lines, eid, forms, n=2, window_fallback=True):
+def example_lines(db, lines, eid, forms, n=2, window_fallback=True, anywhere=False):
     """Up to n marked example lines, from different works where possible, for mention rows of eid whose
-    spelling is in `forms`."""
+    spelling is in `forms`. When eid holds no row of the spelling (the carve took the spelling only, and its rows
+    went to another entry through the follow-on step: Δίναμις under Dinami), the rows of the spelling are read
+    wherever the store holds them (or only there with `anywhere`), so a graded split always shows a line."""
     ph = ','.join('?' * len(forms))
+    where = '' if anywhere else 'm.eid = ? and '
+    args = (*forms,) if anywhere else (eid, *forms)
+    out = _lines_for(db, lines, where, ph, args, n, window_fallback)
+    if not out and not anywhere:
+        out = _lines_for(db, lines, '', ph, (*forms,), n, window_fallback)
+    return out
+
+
+def _lines_for(db, lines, where, ph, args, n, window_fallback):
     rows = db.execute(f'select m.form, m.line_ref, w.work, w.window_id from mention_rows m join windows w using(wid) '  # nosec B608 - ph is only ? marks, the values are bound
-                      f'where m.eid = ? and m.form in ({ph}) limit 60', (eid, *forms)).fetchall()
-    seen, out = set(), []
-    rows.sort(key=lambda r: (r[2] in seen, r[3]))
+                      f'where {where}m.form in ({ph}) limit 60', args).fetchall()
+    out = []
+    rows.sort(key=lambda r: r[3])
     used = set()
     for form, ref, work, wid in rows:
         if work in used and len(used) < n:
@@ -815,7 +983,7 @@ def example_lines(db, lines, eid, forms, n=2, window_fallback=True):
             r = lines.db.execute('select text from window_texts where id = ?', (wid,)).fetchone()
             if r and r[0]:
                 for ln in r[0].split('\n'):
-                    if form in ln or form.lower() in ln.lower():
+                    if find_form(ln, form):
                         t = ln.strip()
                         break
         if t:
