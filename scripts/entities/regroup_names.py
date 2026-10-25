@@ -591,12 +591,17 @@ def keep_by_rules(db, groups):
     """The groups to split without the spellings that rules (a) a near variant and (b) a place adjective keep with
     their entry (rg.keep_by_rules). Returns (groups, counts)."""
     out, counts, examples = [], {}, []
+    suspect = {}
+    headings_of = dict(db.execute('select entity_id, label from entities'))
+    for entity_id, _stem, forms in groups:
+        suspect.setdefault(entity_id, set()).update(forms)
     for entity_id, stem, forms in groups:
-        keep = rg.keep_by_rules(db, entity_id, forms)
+        keep = rg.keep_by_rules(db, entity_id, forms, suspect[entity_id])
+        if 'case form of own spelling' in keep.values():
+            counts['groups touched by case form of own spelling'] = counts.get('groups touched by case form of own spelling', 0) + 1
         for f, why in keep.items():
             counts[why] = counts.get(why, 0) + 1
-            if len(examples) < 400:
-                examples.append((entity_id, f, why))
+            examples.append((f, headings_of.get(entity_id, entity_id), why, entity_id))
         rest = {f: n for f, n in forms.items() if f not in keep}
         if rest:
             out.append((entity_id, stem, rest))
@@ -652,7 +657,7 @@ def run_pass3(db, a):
     run_rescore(db, a, cache_path)
     both = both_different(cache_path, [(d[0], d[1], d[2]) for d in diffs])
     both, kept = keep_by_rules(db, both)
-    log(f'pass3: {len(both)} groups to split after the keep rules, {sum(kept.values())} spellings kept by them '
+    log(f'pass3: {len(both)} groups to split after the keep rules, {sum(v for k, v in kept.items() if not k.startswith('groups'))} spellings kept by them '
         f'({", ".join(f"{n} {k}" for k, n in sorted(kept.items()))}), {time.time() - t0:.0f}s')
     before = db.execute('select count(*) from mention_rows').fetchone()[0]
     ents_before = db.execute('select count(*) from entities').fetchone()[0]
