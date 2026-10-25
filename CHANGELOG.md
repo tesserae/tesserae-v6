@@ -7,6 +7,9 @@ so the state of the live site can be reconstructed from this file and
 docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
+## 2026-10-25
+- Theme Search: one tab with three scopes, one text, two texts, whole corpus (the scope is in the address as scope=one, two or corpus, the one-text scope is the home page, and /ask-a-work addresses keep working); Search One Text retired as a name, Help and the start box updated.
+
 ## 2026-10-24
 - License: the code moves from the MIT License to the PolyForm Noncommercial License 1.0.0 (noncommercial use free, commercial use by separate license, copyright Neil Coffee); earlier versions stay MIT; the project's own datasets move from CC BY 4.0 to CC BY-NC 4.0.
 - Sources: the Latin tranche credit rows match the titles the site's text list shows (all 60 files tie to a row), plus its collection record on the Sources page.
