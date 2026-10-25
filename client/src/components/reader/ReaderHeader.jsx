@@ -66,7 +66,7 @@ function Row({ label, wide, children }) {
 }
 
 export default function ReaderHeader({
-  language, onLanguage, hierarchy, work, onWork, units, selection, onJump, stories, storyNumber, onStory,
+  language, onLanguage, hierarchy, work, onWork, units, selection, onJump, stories, storyNumber, onStory, storyUnit = 'story',
 }) {
   const phone = useIsPhone();
   // Phone only: the sheet that holds the text and book choice, Go to line and
@@ -171,7 +171,8 @@ export default function ReaderHeader({
   const bookOptions = (here.work?.sections || [])
     .map((s) => ({ value: s.file, label: s.label }));
 
-  // A work divided into stories: "151 Rustam and Suhrab · رستم و سهراب",
+  // A work divided into stories: "151 Rustam and Suhrab · رستم و سهراب" (a
+  // Persian or Urdu section list has no English title: "151 · رستم و سهراب"),
   // grouped under its reign where the list names one.
   const storyOptions = (stories || []).map((s) => ({
     value: String(s.number), label: storyLabel(s, true), group: s.reign_fa || '',
@@ -200,7 +201,7 @@ export default function ReaderHeader({
     if (selection?.refStart) {
       return formatSelectionRange(selection.refStart, selection.refEnd, corpusMap, work);
     }
-    if (stories?.length) return `${stories.length} stories`;
+    if (stories?.length) return `${stories.length} ${storyUnit === 'section' ? 'sections' : 'stories'}`;
     if (!units?.length) return '';
     return `${units.length} lines`;
   })();
@@ -351,13 +352,13 @@ export default function ReaderHeader({
       </Row>
       )}
       {storyOptions.length > 1 && (
-        <Row label="Stories" wide={wide}>
+        <Row label={storyUnit === 'section' ? 'Sections' : 'Stories'} wide={wide}>
           <div className={wide ? 'flex items-center w-full' : 'flex items-center'}>
             <SearchableSelect
-              ariaLabel="Stories"
+              ariaLabel={storyUnit === 'section' ? 'Sections' : 'Stories'}
               value={storyNumber ? String(storyNumber) : ''}
               options={storyOptions}
-              placeholder="Stories"
+              placeholder={storyUnit === 'section' ? 'Sections' : 'Stories'}
               onChange={(v) => {
                 const st = (stories || []).find((x) => String(x.number) === v);
                 if (st) { setPickerOpen(false); onStory(st); }
@@ -427,7 +428,7 @@ export default function ReaderHeader({
               )}
               {storyOptions.length > 1 && (
                 <div className="mt-4 flex flex-wrap items-center gap-2">
-                  <StoryLinks stories={stories} storyNumber={storyNumber}
+                  <StoryLinks stories={stories} storyNumber={storyNumber} storyUnit={storyUnit}
                               onStory={(st) => { setPickerOpen(false); onStory(st); }} size="text-sm" />
                 </div>
               )}
