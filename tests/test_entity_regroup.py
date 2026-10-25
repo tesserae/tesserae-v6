@@ -465,3 +465,89 @@ def test_other_names_are_still_carved():
     db = _host({'Fulvius': 3, 'Fulvia': 1}, 'Fulvius', 'pn:fulv')
     rep = rg.apply_differences(db, [('pn:fulv', 'a', {'Fulvia': 1})], cap=None)
     assert rep['carved_groups'] == 1 and sum(rep['redirect_rule'].values()) == 0
+
+
+# ---- model gate round (2026-10-25): stubbed asker, no gateway
+
+class _NoLines:
+    def __init__(self):
+        self.db = sqlite3.connect(':memory:')
+        self.db.execute('create table window_texts (id integer, text text)')
+
+    def line(self, work, ref, form):
+        return None
+
+
+def _gate(db, tmp_path, answers, calls=None):
+    """A Gate whose asker returns the scripted replies (keyed by the spelling in the prompt)."""
+    def asker(prompt):
+        form = prompt.split('\n', 1)[0].split(':', 1)[1].split('(')[0].strip()
+        if calls is not None:
+            calls.append(form)
+        name, host, dest = answers[form]
+        return f'Short reason.\nNAME: {name}\nHOST: {host}\nDEST: {dest}'
+    return rg.Gate(db, _NoLines(), str(tmp_path / 'answers_gate.sqlite'), asker)
+
+
+def test_gate_not_a_name_is_left_in_place_and_listed(tmp_path):
+    db = _host({'Dido': 4, 'Didita': 1}, 'Dido', 'pn:dido')
+    g = _gate(db, tmp_path, {'Didita': ('NOT A NAME', 'DIFFERENT', 'NONE')})
+    rep = rg.apply_differences(db, [('pn:dido', 'a', {'Didita': 1})], cap=None, gate=g)
+    assert rep['carved_groups'] == 0 and rep['gate_counts']['not_a_name'] == 1
+    assert db.execute("select count(*) from mention_rows where eid = 1 and form = 'Didita'").fetchone()[0] == 1
+    assert g.non_names[0][0] == 'Didita' and rep['gate'][0][2:4] == ['NOT A NAME', 'DIFFERENT']
+
+
+def test_gate_same_as_host_stays_and_different_is_carved(tmp_path):
+    db = _host({'Iscariot': 4, 'Scarioticas': 1, 'Fulvia': 1}, 'Iscariot', 'pn:isc')
+    g = _gate(db, tmp_path, {'Scarioticas': ('NAME', 'SAME', 'NONE'), 'Fulvia': ('NAME', 'DIFFERENT', 'NONE')})
+    rep = rg.apply_differences(db, [('pn:isc', 'a', {'Scarioticas': 1, 'Fulvia': 1})], cap=None, gate=g)
+    assert rep['gate_counts']['same_host'] == 1 and rep['gate_counts']['passed'] == 1
+    assert rep['carved_groups'] == 1
+    assert db.execute("select count(*) from mention_rows where eid = 1 and form = 'Scarioticas'").fetchone()[0] == 1
+    assert db.execute("select count(*) from mention_rows where eid = 1 and form = 'Fulvia'").fetchone()[0] == 0
+
+
+def test_gate_redirect_needs_different_host_and_same_destination(tmp_path):
+    def build():
+        db = _host({'Ἰερουσαήμ': 1, 'Ἱερουτσαλήμ': 1}, 'Ἰερουσαήμ', 'nm:ierou:r1', 'name')
+        _entry(db, 2, 'pn:hieru', 'Jerusalem', 'hieru', {'Jerusalem': 4})
+        return db
+    db = build()
+    g = _gate(db, tmp_path, {'Ἱερουτσαλήμ': ('NAME', 'DIFFERENT', 'SAME')})
+    rep = rg.apply_differences(db, [('nm:ierou:r1', 'a', {'Ἱερουτσαλήμ': 1})], cap=None, gate=g)
+    assert rep['redirect_rule']['existing'] == 1 and rep['carved_groups'] == 0
+    assert db.execute('select count(*) from mention_rows where eid = 2').fetchone()[0] == 5
+    # destination DIFFERENT: the redirect is refused and the spelling is carved as before
+    sub = tmp_path / 'b'
+    sub.mkdir()
+    db = build()
+    g = _gate(db, sub, {'Ἱερουτσαλήμ': ('NAME', 'DIFFERENT', 'DIFFERENT')})
+    rep = rg.apply_differences(db, [('nm:ierou:r1', 'a', {'Ἱερουτσαλήμ': 1})], cap=None, gate=g)
+    assert rep['gate_counts']['redirect_refused'] == 1 and rep['carved_groups'] == 1
+    assert db.execute('select count(*) from mention_rows where eid = 2').fetchone()[0] == 4
+
+
+def test_gate_consults_its_cache_before_the_gateway(tmp_path):
+    db = _host({'Dido': 4, 'Fulvia': 1}, 'Dido', 'pn:dido')
+    calls = []
+    g = _gate(db, tmp_path, {'Fulvia': ('NAME', 'DIFFERENT', 'NONE')}, calls)
+    assert g(1, 'Fulvia', 1) == {'name': 'NAME', 'host': 'DIFFERENT', 'dest': 'NONE'}
+    assert calls == ['Fulvia']
+    g2 = _gate(db, tmp_path, {}, calls)              # a rerun on the same cache file: the stub would raise on a question
+    assert g2(1, 'Fulvia', 1)['host'] == 'DIFFERENT' and calls == ['Fulvia']
+    assert g2.prefetch([(1, 'Fulvia', 1, None)], log=lambda *_: None) == 0
+
+
+def test_gate_off_format_reply_gives_no_answer(tmp_path):
+    db = _host({'Dido': 4, 'Fulvia': 1}, 'Dido', 'pn:dido')
+    g = rg.Gate(db, _NoLines(), str(tmp_path / 'g.sqlite'), lambda p: 'I think it is a name.')
+    assert g(1, 'Fulvia', 1) is None and g.offformat == 1
+    rep = rg.apply_differences(db, [('pn:dido', 'a', {'Fulvia': 1})], cap=None, gate=g)
+    assert rep['gate_counts']['no_answer'] == 1 and rep['carved_groups'] == 1
+
+
+def test_parse_gate():
+    assert rg.parse_gate('x\nNAME: NOT A NAME\nHOST: DIFFERENT\nDEST: NONE', False) == ('NOT A NAME', 'DIFFERENT', 'NONE')
+    assert rg.parse_gate('NAME: NAME\nHOST: SAME\nDEST: SAME', True) == ('NAME', 'SAME', 'SAME')
+    assert rg.parse_gate('NAME: NAME\nHOST: SAME\nDEST: NONE', True) is None

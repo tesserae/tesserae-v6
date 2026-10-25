@@ -19,6 +19,7 @@ import logging
 import os
 import re
 import sqlite3
+import time
 import unicodedata
 
 from backend import entity_extras as ex
@@ -1125,6 +1126,148 @@ def ask(url, key, user, stats=None, system=SYSTEM, model=MODEL, tries=6, think=F
     return None
 
 
+# ---------------------------------------------------------------- gate (fourth pass, model gate round)
+
+GATE_VERSION = 'g1'
+GATE_SYSTEM = (
+    'You check one step of a cleanup of a reference index of ancient names (People & Places). An entry has a '
+    'heading, display labels and its most frequent spellings. A cleanup step wants to take one spelling out of the '
+    'entry (the HOST), either into a new entry of its own or into another existing entry (the DESTINATION). You see '
+    'the spelling with the number of lines it occurs in, up to two lines of text with the spelling marked between '
+    'the signs ⟦ ⟧, the host, and for a move the destination. Answer three questions about the marked word as it is '
+    'used in the lines.\n'
+    '1. NAME or NOT A NAME. NAME when the marked word is a proper name in this line: a person, a people, a place, a '
+    'deity or a work. NOT A NAME when it is a common word, a verb form, an adjective that is not a name, a title or '
+    'a stray fragment (a verb such as diditur, a Greek verb form, a common noun).\n'
+    '2. SAME or DIFFERENT for the host. SAME when the marked word is the same name as the host heading, allowing for '
+    'case ending, spelling, a Greek or Latin shape, an adjectival form of that very name, and a misprint. '
+    'DIFFERENT when it names another person, people, place, deity or work.\n'
+    '3. SAME or DIFFERENT for the destination, answered the same way against the destination heading and its '
+    'spellings. When there is no destination answer NONE.\n'
+    'Think in at most two short sentences, then end with exactly three lines and nothing after them:\n'
+    'NAME: NAME or NAME: NOT A NAME\nHOST: SAME or HOST: DIFFERENT\nDEST: SAME or DEST: DIFFERENT or DEST: NONE')
+
+
+def gate_question(db, lines, host, form, n, dst=None):
+    """The user message of the gate: the spelling, up to two marked lines, the host card, the destination card."""
+    heading, labels, top = entity_card2(db, host)
+    _h, desc = entity_card(db, host)
+    out = [f'Spelling: {form} ({n} lines)']
+    ex_lines = example_lines(db, lines, host, [form], n=2)
+    for i, ln in enumerate(ex_lines, 1):
+        j = ln.find('\u27e6')
+        if len(ln) > 420 and j >= 0:            # a long line: the words around the marked spelling
+            ln = '...' + ln[max(0, j - 200):j + 220] + '...'
+        out.append(f'Line {i}: {ln[:440]}')
+    if not ex_lines:
+        out.append('Line 1: (no line found)')
+    out.append('HOST')
+    out.append(question3(heading, labels, top, desc, form, n, []).rsplit('\nSpelling:', 1)[0])
+    if dst is not None:
+        dh, dl, dtop = entity_card2(db, dst)
+        out.append('DESTINATION')
+        out.append(f'Heading: {dh}')
+        if dl:
+            out.append('Display labels: ' + ', '.join(dl))
+        out.append('Most frequent spellings of the entry: ' + ', '.join(dtop))
+    else:
+        out.append('DESTINATION: none')
+    return '\n'.join(out), (ex_lines[0] if ex_lines else '')
+
+
+def parse_gate(reply, has_dest):
+    """('NAME'|'NOT A NAME', 'SAME'|'DIFFERENT', 'SAME'|'DIFFERENT'|'NONE') from the reply, or None when a label
+    the question needs is missing."""
+    text = reply or ''
+    nm = re.findall(r'NAME:\s*\**\s*(NOT A NAME|NAME)\b', text, re.I)
+    ho = re.findall(r'HOST:\s*\**\s*(SAME|DIFFERENT)', text, re.I)
+    de = re.findall(r'DEST:\s*\**\s*(SAME|DIFFERENT|NONE)', text, re.I)
+    if not nm or not ho or (has_dest and (not de or de[-1].upper() == 'NONE')):
+        return None
+    return nm[-1].upper(), ho[-1].upper(), (de[-1].upper() if de else 'NONE')
+
+
+class Gate:
+    """The model gate. Called with a (host, spelling, destination) before a carve or a redirect, it returns
+    {'name', 'host', 'dest'} (labels) or None when no usable answer exists. The answer cache is consulted before
+    the gateway; `asker(prompt)` returns the reply text or None (a stub in tests)."""
+
+    def __init__(self, db, lines, cache_path, asker):
+        self.db, self.lines, self.asker = db, lines, asker
+        self.cache_path = cache_path
+        self.cache = open_cache(cache_path)
+        self.have = {(a, b): c for a, b, c in self.cache.execute(
+            'select entity_id, stem, answer from answers where version = ?', (GATE_VERSION,))}
+        self.asked = 0
+        self.offformat = 0
+        self.non_names = []              # (spelling, host heading, line)
+        self.seen_non_names = set()
+        self.stopped = False
+
+    def _id(self, eid):
+        return self.db.execute('select entity_id from entities where eid = ?', (eid,)).fetchone()[0]
+
+    def key(self, host, form, dst):
+        return self._id(host), form + '>' + (self._id(dst) if dst is not None else '')
+
+    def _store(self, key, reply, form, n, has_dest):
+        parsed = parse_gate(reply, has_dest)
+        if parsed is None:
+            self.offformat += 1
+            return None
+        ans = '/'.join(parsed)
+        self.cache.execute('insert or replace into answers values (?,?,?,?,?,?)',
+                           (key[0], key[1], GATE_VERSION, ans, reply, json.dumps({form: n}, ensure_ascii=False)))
+        self.have[key] = ans
+        return ans
+
+    def prefetch(self, items, workers=2, log=print, deadline=None):
+        """items: (host eid, spelling, rows, destination eid or None). Asks, two at a time, what the cache lacks."""
+        from concurrent.futures import ThreadPoolExecutor
+        todo, seen = [], set()
+        for host, form, n, dst in items:
+            key = self.key(host, form, dst)
+            if key in self.have or key in seen:
+                continue
+            seen.add(key)
+            todo.append((key, form, n, dst is not None, gate_question(self.db, self.lines, host, form, n, dst)[0]))
+        done = 0
+        with ThreadPoolExecutor(workers) as pool:
+            for i in range(0, len(todo), 100):
+                chunk = todo[i:i + 100]
+                for (key, form, n, has_dest, _p), reply in zip(chunk, pool.map(lambda t: self.asker(t[4]), chunk)):
+                    self.asked += 1
+                    if reply is not None:
+                        self._store(key, reply, form, n, has_dest)
+                self.cache.commit()
+                done += len(chunk)
+                log(f'gate: {done}/{len(todo)} questions asked, {self.offformat} off format')
+                if deadline and time.time() > deadline:
+                    log(f'gate: stopped at the deadline, {done} of {len(todo)} asked')
+                    self.stopped = True
+                    break
+        return len(todo)
+
+    def __call__(self, host, form, n, dst=None):
+        key = self.key(host, form, dst)
+        ans = self.have.get(key)
+        prompt, line = gate_question(self.db, self.lines, host, form, n, dst)
+        if ans is None:
+            reply = self.asker(prompt)
+            self.asked += 1
+            if reply is None:
+                return None
+            ans = self._store(key, reply, form, n, dst is not None)
+            self.cache.commit()
+            if ans is None:
+                return None
+        name, ho, de = ans.split('/')
+        if name == 'NOT A NAME' and (key not in self.seen_non_names):
+            self.seen_non_names.add(key)
+            self.non_names.append((form, entity_card(self.db, host)[0], line))
+        return {'name': name, 'host': ho, 'dest': de}
+
+
 # ---------------------------------------------------------------- apply
 
 class Targets:
@@ -1365,16 +1508,70 @@ def _relabel(db, eid):
     db.execute('insert or replace into entity_labels values (?,?,?,?,NULL)', (eid, label, la, grc))
 
 
-def apply_differences(db, differences, log=print, cap=300):
+def gate_targets(db, differences):
+    """(host eid, spelling, rows, destination eid or None) for every spelling the apply step would carve or move,
+    with the destination known before the step runs (a case form of one other entity, or a variant of a heading of
+    an existing entity). A destination that is an entry carved in the same pass is not known yet and is asked
+    during the step. Used to prefetch the gate's questions."""
+    tg = Targets(db)
+    eid_of = {v: k for k, v in tg.ids.items()}
+    by_prefix = _prefix_index(tg)
+    out = []
+    for entity_id, _stem, forms in differences:
+        host = eid_of.get(entity_id)
+        if host is None or protected(entity_id):
+            continue
+        exclude = {host, merged_target(db, host)}
+        for f in sorted(forms):
+            dst = tg.of(f, exclude)
+            if dst is None:
+                why, dst = redirect_spelling(db, host, f, {}, tg, by_prefix, exclude)
+                if why == 'stay':
+                    continue
+            out.append((host, f, forms[f], dst))
+    return out
+
+
+def apply_differences(db, differences, log=print, cap=300, gate=None):
     """differences: [(entity_id, stem, {spelling: rows})] the model judged DIFFERENT. Moves a spelling that is a
     case form of the heading of exactly one other entity there (mb.apply_partial), carves the rest of each
-    group into a new corpus name. Returns the counts."""
+    group into a new corpus name. Returns the counts.
+
+    gate (model gate round, 2026-10-25): a Gate, or any callable gate(host eid, spelling, rows, destination eid
+    or None) returning {'name', 'host', 'dest'} labels or None. Before a spelling is carved or moved: NOT A NAME
+    leaves it where it is (listed in rep['gate']), SAME as the host leaves it where it is, and a move goes ahead
+    only on DIFFERENT to the host and SAME to the destination (otherwise the spelling is carved)."""
     tg = Targets(db)
     eid_of = {v: k for k, v in tg.ids.items()}
     serial = {}
     rep = {'groups': 0, 'moved_groups': 0, 'carved_groups': 0, 'rows_moved': 0, 'rows_carved': 0,
            'rows_dropped': 0, 'spellings_moved': 0, 'carved_entities': 0, 'skipped_protected': 0, 'moves': [],
-           'carves': [], 'redirect_rule': {'stay': 0, 'same_pass': 0, 'existing': 0}, 'redirected': [], 'groups_redirected': 0}
+           'carves': [], 'redirect_rule': {'stay': 0, 'same_pass': 0, 'existing': 0}, 'redirected': [], 'groups_redirected': 0,
+           'gate': [], 'gate_counts': {'asked': 0, 'not_a_name': 0, 'same_host': 0, 'redirect_refused': 0, 'no_answer': 0,
+                                       'passed': 0}}
+
+    def gated(entity_id, host, f, n, dst):
+        """'go' (carry on as without a gate), 'skip' (the spelling stays) or 'carve' (a refused move)."""
+        if gate is None:
+            return 'go'
+        gc = rep['gate_counts']
+        ans = gate(host, f, n, dst)
+        dst_id = tg.ids.get(dst) if dst is not None else None
+        if ans is None:
+            gc['no_answer'] += 1
+            rep['gate'].append([entity_id, f, None, None, None, dst_id, 'no answer'])
+            return 'go'
+        gc['asked'] += 1
+        verdict, outcome = 'go', 'passed'
+        if ans['name'] == 'NOT A NAME':
+            verdict, outcome = 'skip', 'not_a_name'
+        elif ans['host'] == 'SAME':
+            verdict, outcome = 'skip', 'same_host'
+        elif dst is not None and ans['dest'] != 'SAME':
+            verdict, outcome = 'carve', 'redirect_refused'
+        gc[outcome] += 1
+        rep['gate'].append([entity_id, f, ans['name'], ans['host'], ans['dest'], dst_id, outcome])
+        return verdict
     carved = {}                 # host eid -> [(eid of an entry carved from it in this pass, its spellings)]
     by_prefix = _prefix_index(tg)
     for entity_id, stem, forms in differences:
@@ -1384,16 +1581,31 @@ def apply_differences(db, differences, log=print, cap=300):
             continue
         rep['groups'] += 1
         exclude = {host, merged_target(db, host)}
-        by_dst, rest = {}, []
+        by_dst, rest, forced = {}, [], []
+        stayed = 0
         for f in sorted(forms):
             dst = tg.of(f, exclude)
             if dst is None:
                 rest.append(f)
+                continue
+            v = gated(entity_id, host, f, forms[f], dst)
+            if v == 'skip':
+                stayed += 1
+            elif v == 'carve':
+                forced.append(f)
             else:
                 by_dst.setdefault(dst, []).append(f)
         kept_rest = []
         for f in rest:
             why, dst = redirect_spelling(db, host, f, carved, tg, by_prefix, exclude)
+            if why != 'stay':
+                v = gated(entity_id, host, f, forms[f], dst)
+                if v == 'skip':
+                    stayed += 1
+                    continue
+                if v == 'carve':
+                    kept_rest.append(f)
+                    continue
             if why == 'stay':
                 rep['redirect_rule']['stay'] += 1
                 rep['redirected'].append([entity_id, f, 'stay', entity_id])
@@ -1405,9 +1617,9 @@ def apply_differences(db, differences, log=print, cap=300):
                 tg.ids.setdefault(dst, dst_id)
             else:
                 kept_rest.append(f)
-        if len(kept_rest) < len(rest):
+        if len(kept_rest) < len(rest) - stayed:
             rep['groups_redirected'] += 1
-        rest = kept_rest
+        rest = kept_rest + forced
         for dst, fs in by_dst.items():
             r = mb.apply_partial(db, host, dst, fs)
             if any(dst == e for e, _fs in carved.get(host, ())):
