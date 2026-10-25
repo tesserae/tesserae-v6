@@ -313,7 +313,9 @@ def test_decisions_only_mode_runs_nothing_else(tmp_path, monkeypatch):
 def test_greek_form_of_a_latin_heading_stays():
     assert rg.greek_form_of('Δοροστόλῳ', {'Dorostorus'})            # one inner letter of the stem
     assert rg.greek_form_of('Melampodem', {'Melampus'})              # third-declension stem melamp + od
-    assert rg.greek_form_of('Brivate', {'Brivas'})                   # locative of a name in -as: briu + at
+    assert rg.greek_form_of('Garamum', {'Garamantes'})               # garam + ant
+    assert not rg.greek_form_of('Σύροι', {'Syros'})                   # four letters do not vouch (Syrians, the island)
+    assert not rg.greek_form_of('Ἰωβιανός', {'Iobiaco'})              # a changed letter needs eight
     assert rg.greek_form_of('Ζανός', {'Zeus'})                       # the lexical pair table, Doric genitive
     assert not rg.greek_form_of('Maximinus', {'Maximianus'})          # another name
     assert not rg.greek_form_of('Fulvia', {'Fulvius'})
@@ -333,7 +335,7 @@ def store_with_stray_heading():
     db.execute("insert into entities values (1, 'nm:kauel', 'name', 'Cavelle', 'names', null, null, null, null, 'kauel', 0, 0)")
     db.execute("insert into entity_labels values (1, 'Cavelle', 'Cavelle', null, null)")
     wid = 0
-    for form, n in (('Cavelle', 2), ('Cavelonensis', 1), ('Cavellionensim', 1), ('Cavellonum', 1)):
+    for form, n in (('Cavelle', 2), ('Cavelonensis', 1), ('Cavellionensim', 2), ('Cavellonum', 1)):
         for _ in range(n):
             wid += 1
             db.execute('insert into windows values (?,?,?,?,?,?)', (wid, f'w{wid}', 'work', 'a', 'b', 'la'))
@@ -391,3 +393,75 @@ def test_the_five_no_line_forms_find_a_line():
         db.execute('insert into mention_rows values (2, 1, ?, 0, 0, 0, ?, ?, 0, ?, ?)', (form, 'high', 'stem', 'r', form.lower()))
         got = rg.example_lines(db, FakeLines(text), 1, [form], n=1)
         assert got and '⟦' in got[0], form
+
+
+def test_malformed_or_missing_pair_file_warns_and_gives_an_empty_table(tmp_path, caplog):
+    bad = tmp_path / 'pairs.json'
+    bad.write_text('{"pairs": [["Ζανός"', encoding='utf-8')
+    with caplog.at_level('WARNING', logger=rg.__name__):
+        assert rg._load_pairs(str(bad)) == {}
+        assert rg._load_pairs(str(tmp_path / 'missing.json')) == {}
+    assert str(bad) in caplog.text and 'missing.json' in caplog.text
+    assert rg._load_pairs()                      # the real file still loads
+
+
+def _host(rows, label, entity_id='pn:test', kind='person'):
+    db = sqlite3.connect(':memory:')
+    db.executescript(SCHEMA)
+    _entry(db, 1, entity_id, label, 'test', rows)
+    db.execute('update entities set type = ? where eid = 1', (kind,))
+    return db
+
+
+def test_a_latin_case_form_of_an_own_spelling_stays():
+    db = _host({'Godigisclus': 1, 'Godigisilus': 2, 'Godigiselus': 1, 'Godigiselo': 1, 'Godigisili': 1, 'Godigisilo': 1},
+               'Godigisclus', 'nm:godig')
+    out = rg.keep_by_rules(db, 'nm:godig', {'Godigisili': 1, 'Godigisilo': 1})
+    assert out == {'Godigisili': 'case form of own spelling', 'Godigisilo': 'case form of own spelling'}
+    db = _host({'Attila': 5, 'Attilae': 1, 'Attilanem': 1}, 'Attila', 'pn:attil')
+    assert rg.keep_by_rules(db, 'pn:attil', {'Attilanem': 1}) == {'Attilanem': 'case form of own spelling'}
+    assert rg.case_form_of_own('Scipionem', {'Scipio'})
+
+
+def test_case_form_rule_does_not_hold_two_names_of_one_stem_family_together():
+    assert not rg.case_form_of_own('Fulvia', {'Fulvius'})
+    assert not rg.case_form_of_own('Maximinus', {'Maximianus', 'Maximiani'})
+    assert not rg.case_form_of_own('Hadrianus', {'Hadria'})            # nominative: no extension
+    assert not rg.case_form_of_own('Marcellus', {'Marcus', 'Marcum'})
+    db = _host({'Attila': 3, 'Attilanem': 1, 'Attilanus': 1}, 'Attila', 'pn:attil')
+    # the other spelling of the same group is not an own spelling
+    assert rg.keep_by_rules(db, 'pn:attil', {'Attilanem': 1, 'Attilanus': 1}, suspect={'Attilanus'}).get('Attilanem')
+
+
+def test_a_misprint_of_a_spelling_carved_in_the_same_pass_joins_that_entry():
+    db = _host({'Κοντοπορίαν': 3, 'Κοντοστέγανον': 1, 'Kontostephanos': 2}, 'Κοντοπορίαν', 'nm:konto', 'name')
+    rep = rg.apply_differences(db, [('nm:konto', 'a', {'Kontostephanos': 2}), ('nm:konto', 'b', {'Κοντοστέγανον': 1})], cap=None)
+    assert rep['carved_groups'] == 1 and rep['redirect_rule']['same_pass'] == 1
+    ids = db.execute("select eid from entities where entity_id like 'nm:konto:r%'").fetchall()
+    assert len(ids) == 1
+    assert {f for (f,) in db.execute('select form from mention_rows where eid = ?', (ids[0][0],))} == {'Kontostephanos', 'Κοντοστέγανον'}
+    assert db.execute('select label from entities where eid = ?', (ids[0][0],)).fetchone()[0] == 'Kontostephanos'
+    # the other way round: the misprint carved first, the right spelling joins it, and the heading becomes the commonest
+    db = _host({'Κοντοπορίαν': 3, 'Κοντοστέγανον': 1, 'Kontostephanos': 2}, 'Κοντοπορίαν', 'nm:konto', 'name')
+    rep = rg.apply_differences(db, [('nm:konto', 'b', {'Κοντοστέγανον': 1}), ('nm:konto', 'a', {'Kontostephanos': 2})], cap=None)
+    assert rep['carved_groups'] == 1
+    assert db.execute("select label from entities where entity_id like 'nm:konto:r%'").fetchone()[0] == 'Kontostephanos'
+
+
+def test_a_variant_of_a_heading_of_its_host_stays_and_one_of_an_existing_entity_moves_there():
+    db = _host({'Ἰερουσαλήμ': 3, 'Ἱερουτσαλήμ': 1}, 'Ἰερουσαλήμ', 'nm:ierou:r1', 'name')
+    rep = rg.apply_differences(db, [('nm:ierou:r1', 'a', {'Ἱερουτσαλήμ': 1})], cap=None)
+    assert rep['carved_groups'] == 0 and rep['redirect_rule']['stay'] == 1
+    assert db.execute("select count(*) from mention_rows where eid = 1").fetchone()[0] == 4
+    # the host's heading is itself a misprint (Ἰερουσαήμ): the spelling goes to the Jerusalem entry
+    db = _host({'Ἰερουσαήμ': 1, 'Ἱερουτσαλήμ': 1}, 'Ἰερουσαήμ', 'nm:ierou:r1', 'name')
+    _entry(db, 2, 'pn:hieru', 'Jerusalem', 'hieru', {'Jerusalem': 4})
+    rep = rg.apply_differences(db, [('nm:ierou:r1', 'a', {'Ἱερουτσαλήμ': 1})], cap=None)
+    assert rep['carved_groups'] == 0 and rep['redirect_rule']['existing'] == 1
+    assert db.execute("select count(*) from mention_rows where eid = 2").fetchone()[0] == 5
+
+
+def test_other_names_are_still_carved():
+    db = _host({'Fulvius': 3, 'Fulvia': 1}, 'Fulvius', 'pn:fulv')
+    rep = rg.apply_differences(db, [('pn:fulv', 'a', {'Fulvia': 1})], cap=None)
+    assert rep['carved_groups'] == 1 and sum(rep['redirect_rule'].values()) == 0

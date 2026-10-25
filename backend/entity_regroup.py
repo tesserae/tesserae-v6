@@ -15,6 +15,7 @@ Hecataeus). A Greek label counts only when it is a case form of a Latin heading 
 Nothing here reads the gateway address or the key.
 """
 import json
+import logging
 import os
 import re
 import sqlite3
@@ -24,6 +25,8 @@ from backend import entity_extras as ex
 from backend import entity_index as ei
 from backend import entity_mergeback as mb
 from backend import entity_promote as pr
+
+_LOG = logging.getLogger(__name__)
 
 PROTECTED_IDS = ('nm:lauin:main', 'pl:393444')
 PROTECTED_PREFIXES = ('pn:lauinia', 'nm:lauinia', 'pn:lauinium', 'nm:lauinium')
@@ -430,15 +433,19 @@ def place_adjective_of(form, heads, host_type):
 _PAIRS_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'entity_form_pairs.json')
 
 
-def _load_pairs():
-    try:
-        with open(_PAIRS_FILE, encoding='utf-8') as f:
-            raw = json.load(f).get('pairs', [])
-    except (OSError, ValueError):
-        return {}
+def _load_pairs(path=None):
+    """The lexical pair table, {normalized form: {normalized heading}}. A missing or malformed file gives an empty
+    table and a warning that names the file."""
+    path = path or _PAIRS_FILE
     out = {}
-    for form, head in raw:
-        out.setdefault(mb._norm(prep(form)), set()).add(mb._norm(prep(head)))
+    try:
+        with open(path, encoding='utf-8') as f:
+            raw = json.load(f).get('pairs', [])
+        for form, head in raw:
+            out.setdefault(mb._norm(prep(form)), set()).add(mb._norm(prep(head)))
+    except (OSError, ValueError, TypeError, AttributeError) as e:
+        _LOG.warning('entity_form_pairs: cannot read %s (%s), the lexical pair table is empty', path, e)
+        return {}
     return out
 
 
@@ -473,7 +480,7 @@ def greek_form_of(form, heads):
     host carries in another shape: the lexical pair table (Doric Ζανός for Zeus), or, after Greek is written in Latin
     letters and one case ending is taken off, a stem equal to a heading stem, one inner letter away from it
     (Δοροστόλῳ, Dorostorus), or a heading stem plus a third-declension extension (Melampodem, Melampus: melamp + od;
-    Brivate, Brivas: briu + at). Applies to a Greek-script spelling, and to a Latin one only through the extension."""
+    Garamum, Garamantes: garam + ant). Applies to a Greek-script spelling, and to a Latin one only through the extension."""
     f = mb._norm(prep(ex.without_enclitic(form)[0] or form))
     greek = _is_greek(form)
     for h in LEXICAL_PAIRS.get(f, ()):
@@ -486,12 +493,18 @@ def greek_form_of(form, heads):
         sh = _stem_without_end(h)
         if len(sh) < 4:
             continue
-        if sf == sh and f != h and (greek or _is_greek(_w)):
+        # read from the kept list of 2026-10-25: a stem of four letters is too short to vouch (Syroi against Syros,
+        # Trimoῦς against Trimodo), a changed letter needs eight letters (Pordalos, Pordaca; Iobianos, Iobiaco)
+        if sf == sh and f != h and (greek or _is_greek(_w)) and len(sf) >= 6:
             return True
-        if greek and _one_inner_letter(sf, sh):
+        if greek and len(sf) >= 8 and _one_inner_letter(sf, sh):
             return True
         for a, b in ((sf, sh), (sh, sf)):
-            if a.startswith(b) and a[len(b):] in _STEM_EXTRA and f != h:
+            if len(b) >= 5 and a.startswith(b) and a[len(b):] in _STEM_EXTRA and f != h:
+                # the shorter spelling cannot be a genitive plural of the first or second declension (Godomarum, a
+                # king, against Godomathes)
+                if a is sh and _ending_of(f) in ('arum', 'orum', 'ibus'):
+                    continue
                 return True
     return False
 
@@ -530,22 +543,95 @@ def own_form_relation(form, owned):
         if sf is None and so is None:
             continue
         a, b = sf or _stem_without_end(f), so or _stem_without_end(n)
-        if len(a) >= 6 and len(b) >= 6 and (a == b or _edit1(a, b)):
+        if len(a) >= 6 and len(b) >= 6 and (a == b or (len(a) != len(b) and _edit1(a, b))):    # a changed letter is another name (Dyonides, Dyonisius)
             return True
     return False
 
 
-def keep_by_rules(db, entity_id, forms):
+# Sixth rules (2026-10-25, second rules round): a Latin case form whose stem is a stem of the host's own spellings.
+# What a third-declension case form adds to the stem of a name in -o or -a (Scipio, Scipionem; Attila, Attilanem;
+# Carthago, Carthaginem).
+_CASE_EXTRA = _STEM_EXTRA + ('on', 'in', 'an')
+# Endings that make a form first-declension feminine (Fulvia) or second-declension masculine (Fulvius): a stem shared
+# across the two is two names, not one.
+_FIRST_ENDS = ('arum', 'ae', 'ai', 'am', 'as', 'a')
+_SECOND_ENDS = ('orum', 'us', 'um', 'os', 'oi', 'i', 'o')
+# The endings that may follow a third-declension extension (Attilanem, Scipionis, Carthaginibus).
+_OBLIQUE_ENDS = ('ibus', 'em', 'es', 'is', 'e')
+
+
+_LATIN_ENDS = ('ibus', 'orum', 'arum', 'ae', 'ai', 'oi', 'am', 'os', 'us', 'um', 'em', 'es', 'as', 'is', 'on', 'i', 'a', 'e', 'o', 'u')
+
+
+def _ending_of(n):
+    """The one Latin case ending taken off the normalized spelling n (stem of four letters or more), '' for none."""
+    for e in _LATIN_ENDS:
+        if n.endswith(e) and len(n) - len(e) >= 4:
+            return e
+    return ''
+
+
+def _latin_stem(n):
+    e = _ending_of(n)
+    return n[:len(n) - len(e)] if e else n
+
+
+def _declension(e):
+    return 1 if e in _FIRST_ENDS else 2 if e in _SECOND_ENDS else 0
+
+
+def case_form_of_own(form, spellings, heads=None):
+    """Sixth rule, family 1. True when a Latin spelling, once one case ending is taken off, has the stem of one of
+    the host's other spellings (Godigisili, Godigisilus: godigisil), or that stem plus a third-declension extension
+    in an oblique case (Attilanem, Attila: attil + an), or, for stems of eight letters or more, a stem one inner letter
+    away (Godigiselo, Godigisilus). A first-declension ending against a second-declension one is another name
+    (Fulvia, Fulvius), and a match is always on the case-stripped stem, never on a shorter core. `heads`, when given,
+    are the headings of the entry: the stem must open like one of them (the first six letters, or all of a shorter
+    heading stem), because an entry whose headings are another name cannot vouch for it (Plautus listed under
+    Plotai through a stray Plautum)."""
+    if _is_greek(form):
+        return False
+    f = mb._norm(prep(ex.without_enclitic(form)[0] or form))
+    sf, ef = _latin_stem(f), _ending_of(f)
+    if len(sf) < 4:
+        return False
+    if heads is not None:
+        hs = [_latin_stem(h) for _w, h in _heading_words(heads)]
+        if not any(sf[:min(6, len(sh))] == sh[:6] for sh in hs if len(sh) >= 3):
+            return False
+    for o in spellings:
+        if _is_greek(o):
+            continue
+        n = mb._norm(prep(o))
+        if n == f:
+            continue
+        so, eo = _latin_stem(n), _ending_of(n)
+        if len(so) < 4:
+            continue
+        if _declension(ef) and _declension(eo) and _declension(ef) != _declension(eo):
+            continue
+        if sf == so:
+            return True
+        if ef in _OBLIQUE_ENDS and sf.startswith(so) and sf[len(so):] in _CASE_EXTRA:
+            return True
+        if len(sf) >= 8 and len(so) >= 8 and _one_inner_letter(sf, so):
+            return True
+    return False
+
+
+def keep_by_rules(db, entity_id, forms, suspect=()):
     """{spelling: rule} for the spellings of a group the model called DIFFERENT that the rules keep with their
     entry: (a) a near variant, (b) a place adjective of a heading, (b2) a Latin place adjective of any other own form of the
     entry (a stray case form as heading: Avenniocus, Cavelle), (c) a Greek or third-declension form of a heading,
-    (d) a lexical pair."""
+    (d) a lexical pair, (e) a Latin case form of another own spelling (case_form_of_own). `suspect`: every spelling the
+    model called DIFFERENT in any group of the entry, which never counts as an own spelling for (e)."""
     r = db.execute('select eid, type from entities where entity_id = ?', (entity_id,)).fetchone()
     if not r:
         return {}
     heads = headings(db, r[0])
     owned = None
     out = {}
+    bad = {prep(x) for x in suspect} | {prep(x) for x in forms}
     for f in forms:
         if near_variant(f, heads):
             out[f] = 'variant'
@@ -554,10 +640,17 @@ def keep_by_rules(db, entity_id, forms):
         else:
             if owned is None:
                 owned = own_forms(db, r[0])
-            if not _is_greek(f) and r[1] not in ('person', 'deity') and own_form_relation(f, owned - {prep(f)}):
+                # an own spelling vouches for another only with two rows (a heading always does), and never when it is
+                # itself a spelling the model called DIFFERENT: a group does not vouch for itself (Audisiodorensis,
+                # Audisiodorensim)
+                vouched = {prep(x) for x, n in db.execute('select form, count(*) from mention_rows where eid = ? group by form',
+                                                          (r[0],)) if n >= 2} & owned
+            if not _is_greek(f) and r[1] not in ('person', 'deity') and own_form_relation(f, (vouched - bad) - {prep(f)}):
                 out[f] = 'place adjective (own form)'
             elif greek_form_of(f, heads):
                 out[f] = 'Greek form'
+            elif case_form_of_own(f, (vouched | {w for w, _n in _heading_words(heads)}) - bad - {prep(f)}, heads):
+                out[f] = 'case form of own spelling'
     return out
 
 
@@ -1174,6 +1267,104 @@ def _move_search_names(db, host, new, label):
             db.execute('update search_names set eid = ? where rowid = ?', (new, rowid))
 
 
+def _close_stems(a, b):
+    """True when two case-stripped stems of seven letters or more are one letter apart, not within the first three
+    letters, and end in the same two letters: one inner letter changed (Kontostegan, Kontostefan) or one consonant
+    inserted (Ierutsal, Ierusal). A vowel inserted is another name (Maximin, Maximian) and so is a changed ending
+    (Constantin, Constanti)."""
+    if min(len(a), len(b)) < 7 or a[-2:] != b[-2:] or not _edit1(a, b):
+        return False
+    if len(a) == len(b):
+        return True
+    lo, hi = (a, b) if len(a) < len(b) else (b, a)
+    i = next((i for i in range(len(lo)) if lo[i] != hi[i]), len(lo))
+    return hi[i] not in 'aeiouy'
+
+
+def name_match_path(form, other):
+    """Sixth rule, family 2. True when the spelling `form` and the spelling or heading `other` read as one name:
+    the same case-stripped stem (not a first-declension against a second-declension ending: Fulvia, Fulvius), a close
+    stem (_close_stems), or, narrowly, is_variant, the comparison of the consonants of the stems. Returns the name of the test
+    that held ('stem', 'close', 'variant') or None."""
+    f = mb._norm(prep(ex.without_enclitic(form)[0] or form))
+    o = mb._norm(prep(ex.without_enclitic(other)[0] or other))
+    sf, so = _latin_stem(f), _latin_stem(o)
+    if len(sf) < 5 or len(so) < 5 or f == o:
+        return None
+    ef, eo = _ending_of(f), _ending_of(o)
+    if _declension(ef) and _declension(eo) and _declension(ef) != _declension(eo):
+        return None
+    if sf == so:
+        return 'stem'
+    same_script = _is_greek(form) == _is_greek(other)
+    if _close_stems(sf, so) and (same_script or len(sf) != len(so) or min(len(sf), len(so)) >= 8):
+        # across scripts a changed letter needs eight letters, an inserted consonant seven (Ierutsal, Ierusal)
+        return 'close'
+    # the consonant comparison is loose (Brontinou and Brontes, Maximina and Maximianenaes): only inside one script,
+    # for stems of eight letters or more, about the same length, that open with the same three and end in the same
+    # two letters
+    if (same_script and min(len(sf), len(so)) >= 8 and abs(len(sf) - len(so)) <= 2 and sf[:3] == so[:3]
+            and sf[-2:] == so[-2:] and is_variant(form, {other})):
+        return 'variant'
+    return None
+
+
+def same_name_as(form, other):
+    return name_match_path(form, other) is not None
+
+
+def _count_rows(db, eid):
+    return db.execute('select count(*) from mention_rows where eid = ?', (eid,)).fetchone()[0]
+
+
+def redirect_spelling(db, host, form, carved, tg, by_prefix, exclude):
+    """Before a spelling that the model called DIFFERENT opens a new entry. Returns ('stay', None) when it is a
+    variant of a heading of its host, ('same_pass', eid) when it is a variant of a spelling carved from the same
+    host earlier in this pass, ('existing', eid) when it is a variant of a heading of an existing entity that
+    shares its first four letters, else (None, None). The largest entry wins."""
+    for _w, h in _heading_words(headings(db, host)):
+        if same_name_as(form, h):
+            return 'stay', None
+    best = None
+    for eid, forms in carved.get(host, ()):
+        if any(same_name_as(form, x) for x in forms):
+            n = _count_rows(db, eid)
+            if best is None or n > best[0]:
+                best = (n, eid)
+    if best:
+        return 'same_pass', best[1]
+    p = mb._norm(prep(ex.without_enclitic(form)[0] or form))[:4]
+    for eid in sorted(set(by_prefix.get(p, set())) - set(exclude)):
+        if any(same_name_as(form, h) for h in tg.heads.get(eid, ())):
+            n = _count_rows(db, eid)
+            if best is None or n > best[0]:
+                best = (n, eid)
+    return ('existing', best[1]) if best else (None, None)
+
+
+def _prefix_index(tg):
+    """{first four normalized letters: {eid}} over the headings of the existing entities."""
+    out = {}
+    for eid, hs in tg.heads.items():
+        for _w, n in _heading_words(hs):
+            out.setdefault(n[:4], set()).add(eid)
+    return out
+
+
+def _relabel(db, eid):
+    """After spellings joined a carved entry: its heading is its commonest spelling."""
+    counts = {f: n for f, n in db.execute('select form, count(*) from mention_rows where eid = ? group by form', (eid,))}
+    if not counts:
+        return
+    label = max(counts, key=lambda f: (counts[f], f))
+    old = db.execute('select label from entities where eid = ?', (eid,)).fetchone()[0]
+    if label == old:
+        return
+    disp, la, grc = pr.display_labels(counts)
+    db.execute('update entities set label = ? where eid = ?', (label, eid))
+    db.execute('insert or replace into entity_labels values (?,?,?,?,NULL)', (eid, label, la, grc))
+
+
 def apply_differences(db, differences, log=print, cap=300):
     """differences: [(entity_id, stem, {spelling: rows})] the model judged DIFFERENT. Moves a spelling that is a
     case form of the heading of exactly one other entity there (mb.apply_partial), carves the rest of each
@@ -1183,7 +1374,9 @@ def apply_differences(db, differences, log=print, cap=300):
     serial = {}
     rep = {'groups': 0, 'moved_groups': 0, 'carved_groups': 0, 'rows_moved': 0, 'rows_carved': 0,
            'rows_dropped': 0, 'spellings_moved': 0, 'carved_entities': 0, 'skipped_protected': 0, 'moves': [],
-           'carves': []}
+           'carves': [], 'redirect_rule': {'stay': 0, 'same_pass': 0, 'existing': 0}, 'redirected': [], 'groups_redirected': 0}
+    carved = {}                 # host eid -> [(eid of an entry carved from it in this pass, its spellings)]
+    by_prefix = _prefix_index(tg)
     for entity_id, stem, forms in differences:
         host = eid_of.get(entity_id)
         if host is None or protected(entity_id):
@@ -1198,8 +1391,27 @@ def apply_differences(db, differences, log=print, cap=300):
                 rest.append(f)
             else:
                 by_dst.setdefault(dst, []).append(f)
+        kept_rest = []
+        for f in rest:
+            why, dst = redirect_spelling(db, host, f, carved, tg, by_prefix, exclude)
+            if why == 'stay':
+                rep['redirect_rule']['stay'] += 1
+                rep['redirected'].append([entity_id, f, 'stay', entity_id])
+            elif why:
+                rep['redirect_rule'][why] += 1
+                dst_id = db.execute('select entity_id from entities where eid = ?', (dst,)).fetchone()[0]
+                rep['redirected'].append([entity_id, f, why, dst_id])
+                by_dst.setdefault(dst, []).append(f)
+                tg.ids.setdefault(dst, dst_id)
+            else:
+                kept_rest.append(f)
+        if len(kept_rest) < len(rest):
+            rep['groups_redirected'] += 1
+        rest = kept_rest
         for dst, fs in by_dst.items():
             r = mb.apply_partial(db, host, dst, fs)
+            if any(dst == e for e, _fs in carved.get(host, ())):
+                _relabel(db, dst)
             rep['moved_groups'] += 1
             rep['rows_moved'] += r['moved']
             rep['rows_dropped'] += r['dropped']
@@ -1208,6 +1420,7 @@ def apply_differences(db, differences, log=print, cap=300):
                 rep['moves'].append([entity_id, tg.ids[dst], fs[:4], r['moved']])
         if rest:
             new, new_id, r = carve(db, host, set(rest), serial)
+            carved.setdefault(host, []).append((new, sorted(rest)))
             label = db.execute('select label from entities where eid = ?', (new,)).fetchone()[0]
             r['moved'] += _followers(db, host, new, label)
             _move_exact_names(db, host, new)
