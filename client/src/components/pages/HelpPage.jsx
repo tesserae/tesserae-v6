@@ -2243,7 +2243,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 to the respective projects. Findspots link to Pleiades (CC BY 3.0). The full list,
                 with the version and retrieval date of each, is under{' '}
                 <a href="/text-credits" className="text-red-700 hover:underline">Sources and credits</a>.
-              </p>
+               The <a href="/terms" className="text-red-700 hover:underline">Terms of Use</a> page states what the site, the API and the connector may be used for: noncommercial use, at a reader's pace, with a request for anything larger.</p>
             </div>
           )}
 

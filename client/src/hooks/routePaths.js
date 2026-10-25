@@ -26,6 +26,7 @@ const pathToPageType = {
   '/about': 'about',
   '/help': 'help',
   '/privacy': 'privacy',
+  '/terms': 'terms',
   '/research': 'research',
   '/blog-archive': 'blog-archive',
   '/text-credits': 'text-credits',

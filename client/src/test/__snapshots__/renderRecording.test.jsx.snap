@@ -475,6 +475,8 @@ exports[`App render recording > page /about 1`] = `
 <strong>Original datasets</strong> (benchmark sets, gold standards, translation alignments, passage descriptions): CC BY-NC 4.0 — free to use with attribution for noncommercial purposes.</p>
 <p>
 <strong>Corpus texts:</strong> individual licenses per source; see the Text Credits section for provenance and terms.</p>
+<p>
+<strong>Using the service:</strong> the <a href="/terms" class="text-red-700 hover:underline">Terms of Use</a> state what the site, the API and the connector may be used for.</p>
 </div>
 </div>
 </section>
@@ -4603,6 +4605,7 @@ exports[`App render recording > page /privacy 1`] = `
 <main class="max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-6">
 <div class="bg-white rounded-lg shadow p-6 sm:p-8 max-w-4xl mx-auto">
 <h1 class="text-2xl font-bold text-gray-900 mb-6">Privacy Policy</h1>
+<p class="text-sm text-gray-500 mb-4">The <a href="/terms" class="text-red-700 hover:underline">Terms of Use</a> state what the service may be used for.</p>
 <div class="prose max-w-none text-gray-700 space-y-6">
 <section>
 <h2 class="text-lg font-semibold text-gray-900 mb-2">Data Collection</h2>
@@ -5354,6 +5357,120 @@ exports[`App render recording > page /string-search 1`] = `
 </div>
 </div>
 </div>
+</div>
+</div>
+</main>
+<footer class="bg-gray-100 border-t mt-8 py-4">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 text-center text-sm text-gray-500">
+<p>Tesserae V6</p>
+</div>
+</footer>
+</div>"
+`;
+
+exports[`App render recording > page /terms > address after load 1`] = `"/terms"`;
+
+exports[`App render recording > page /terms 1`] = `
+"<div class="min-h-screen bg-gray-100">
+<header class="bg-gradient-to-r from-red-800 via-red-700 to-orange-600 shadow-lg">
+<div class="max-w-7xl mx-auto px-3 sm:px-6 py-3 sm:py-5 flex justify-between items-center">
+<button class="flex items-center gap-2 sm:gap-4 cursor-pointer hover:opacity-90 transition-opacity">
+<img src="/tesserae-icon.jpg" alt="Tesserae" class="h-10 w-10 sm:h-14 sm:w-14 rounded-full">
+<div class="text-left">
+<h1 class="tesserae-title text-2xl sm:text-4xl font-semibold text-white tracking-wide">TESSERAE</h1>
+<p class="text-orange-100 text-xs sm:text-sm mt-0.5 hidden sm:block">Literary and Historical Discovery</p>
+</div>
+</button>
+<div class="flex items-center gap-2">
+<button type="button" class="hidden sm:inline-flex items-center px-3 py-1.5 border border-white/70 text-white rounded text-sm hover:bg-white/10">Start here</button>
+<button type="button" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 border border-white/70 text-white rounded text-sm hover:bg-white/10">
+<svg aria-hidden="true" viewBox="0 0 16 16" width="12" height="12" fill="none" class="shrink-0">
+<path d="M11 2.5l2.5 2.5L6 12.5H3.5V10L11 2.5z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round">
+</path>
+</svg>Suggest a change</button>
+<button class="px-4 py-2 bg-white text-red-700 rounded font-medium hover:bg-orange-50 text-sm">Sign In</button>
+</div>
+</div>
+</header>
+<nav class="bg-gray-50 border-b sticky top-0 z-40">
+<div class="max-w-7xl mx-auto px-3 sm:px-6">
+<div class="flex flex-row items-center">
+<div class="flex items-center gap-2 py-1 sm:py-0 sm:mr-3 sm:pr-3 sm:border-r sm:border-gray-200">
+<div role="group" aria-label="View" class="flex">
+<button type="button" aria-pressed="true" class="px-2 sm:px-3 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold">Literature</button>
+<button type="button" aria-pressed="false" class="px-2 sm:px-3 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">History</button>
+</div>
+<div class="relative">
+<button type="button" aria-expanded="false" aria-haspopup="dialog" title="Choose which bodies of material the site shows: literature, inscriptions, papyri, coins, objects, scholarship" class="px-2 py-0.5 text-xs text-gray-500 hover:text-red-700 border border-gray-300 rounded bg-white whitespace-nowrap">Collections</button>
+</div>
+</div>
+<div data-more="false" class="scroll-hint relative flex overflow-x-auto scrollbar-hide flex-1 min-w-0">
+<div aria-hidden="true" class="absolute left-0 top-0 flex invisible pointer-events-none whitespace-nowrap">
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Search One Text<span class="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>
+</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
+</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
+<span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
+</div>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Search One Text<span class="ml-1 relative -top-1 inline-block leading-none text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
+</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertextual Search</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
+<div class="relative">
+<button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">People, Places &amp; Things <span aria-hidden="true">▾</span>
+</button>
+</div>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">About</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
+<div class="relative">
+<button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">More <span aria-hidden="true">▾</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</nav>
+<main class="max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-6">
+<div class="bg-white rounded-lg shadow p-6 sm:p-8 max-w-4xl mx-auto">
+<h1 class="text-2xl font-bold text-gray-900 mb-6">Terms of Use</h1>
+<div class="prose max-w-none text-gray-700 space-y-6">
+<section>
+<h2 class="text-lg font-semibold text-gray-900 mb-2">What this covers</h2>
+<p>These terms apply to the Tesserae website, its public API, its downloads and the Tesserae connector for AI assistants. By using any of them you accept these terms. Tesserae is a free research service for scholars, students and readers. It is operated by Neil Coffee, who holds the copyright in the software and in the project’s own datasets.</p>
+</section>
+<section>
+<h2 class="text-lg font-semibold text-gray-900 mb-2">Noncommercial use</h2>
+<p>The service, its results and its downloads are for noncommercial use, which means personal study, teaching, research, publication in scholarly form, and use by universities, libraries, schools, charities and public bodies. Commercial use of the service, of its results in bulk, or of its datasets needs a separate license from the copyright holder. The software is licensed under the PolyForm Noncommercial License 1.0.0 and the project’s own datasets under CC BY-NC 4.0. The texts and catalogs in the corpus carry their own licenses, which the Sources page lists, and a few are indexed for search only and are never served in full.</p>
+</section>
+<section>
+<h2 class="text-lg font-semibold text-gray-900 mb-2">Fair use of a shared service</h2>
+<p>The service runs on one university server for everyone. Use it as a reader would. Run searches, read passages, export the results you need. Do not copy the corpus, the indexes or the datasets through the API or the connector, do not run automated requests at a rate that crowds out other users, and do not try to reach data the site does not offer. The service may slow down, hold back or refuse requests that exceed what a person at a keyboard would make, and may block an address that keeps doing so. If you need a large extract for research, ask through the request link on the site and we will usually arrange it.</p>
+</section>
+<section>
+<h2 class="text-lg font-semibold text-gray-900 mb-2">Citing what you use</h2>
+<p>Results used in published work should cite Tesserae as the About page describes and name the source and translator of any text quoted, as the Reader shows them. Machine translations are marked as such and are unreviewed. Quote them only with that label.</p>
+</section>
+<section>
+<h2 class="text-lg font-semibold text-gray-900 mb-2">Accounts and contributions</h2>
+<p>An account is optional and is governed by the Privacy Policy. Texts, corrections and requests you submit may be used to improve the corpus and the service, with credit where a source is named. By submitting a text you confirm that you have the right to share it under the license you state.</p>
+</section>
+<section>
+<h2 class="text-lg font-semibold text-gray-900 mb-2">No warranty</h2>
+<p>The service is provided as it is, without warranty of any kind. Parallels, scores, descriptions and machine translations are produced by software and should be checked against the texts before they are relied on. The service may change or pause without notice.</p>
+</section>
+<section>
+<h2 class="text-lg font-semibold text-gray-900 mb-2">Questions</h2>
+<p>For a commercial license, a large extract or any question about these terms, use the request link in the site header or the contact address on the About page.</p>
+<p class="text-sm text-gray-500">In force from DATE.</p>
+</section>
 </div>
 </div>
 </main>

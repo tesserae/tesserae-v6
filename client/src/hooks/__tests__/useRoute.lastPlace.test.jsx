@@ -41,7 +41,7 @@ describe('the return to the last place', () => {
   });
 
   it('never records the admin, downloads, privacy or credits pages', () => {
-    ['/admin', '/downloads', '/privacy', '/text-credits', '/nowhere'].forEach((p) => {
+    ['/admin', '/downloads', '/privacy', '/terms', '/text-credits', '/nowhere'].forEach((p) => {
       expect(isRememberedPath(p)).toBe(false);
     });
     ['/read', '/theme-search', '/events/battle-of-actium', '/coins/abc', '/objects/1', '/mentions'].forEach((p) => {
