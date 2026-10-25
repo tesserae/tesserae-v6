@@ -8,6 +8,7 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-25
+- Translations, Part G (prepared, nothing installed): section-level English from the Perseus TEI of the Loeb translations for 60 Demosthenes speeches (3,636 references, replacing the whole-speech files), the whole Republic (Shorey, two volumes, one unit per Stephanus section, 99.9 percent), Isocrates speeches 9 to 21 and the letters (Van Hook 1945, merged over the installed Norlin file), and Alcibiades I and II and the Epistles of Plato, which had no English. Scripts in `scripts/translations/` (README, Pipeline 19), install order in docs/DATA_OPERATIONS.md.
 - Downloads: texts whose source allows no online copy (Musisque Deoque: paper or offline media only; Corpus Thomisticum and augustinus.it: all rights reserved) are left out of the bulk text archives and counted in each archive's README; they stay searchable on the site.
 - Records: the Greek tranche (48 works), the Latin tranche (12 works) and the Part C translations (45 files) turned from planned entries into run records in docs/DATA_OPERATIONS.md (every step, time, count and backup, the final rebuild of the derived stores, the coverage and golden checks); a stray heading from a merge removed.
 - Translations: every source of a merged translation file carries its own license line (fix_merged_source_licenses.py, run on the Pausanias, Josephus, Pliny the Elder and Silius files), so a Shilleto unit is no longer shown with the Loeb volume's terms.

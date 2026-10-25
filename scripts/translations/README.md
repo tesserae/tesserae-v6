@@ -316,6 +316,60 @@ Psalter and the Epistle to the Laodiceans. They are reported as having no Englis
 rather than forced onto the nearest-looking book, which is how the Prayer of
 Manasseh would end up answering for Manasseh in Chronicles.
 
+## Pipeline 19: Demosthenes, the Republic, Isocrates and Plato by section (2026-10-25, Part G)
+
+    g_common.py                    shared helpers (Perseus lookup, Stephanus page-break rule, license wording)
+    g_renewal_checks.py            renewal searches per Loeb volume
+    align_demosthenes_sections.py
+    align_republic_shorey_stephanus.py
+    align_isocrates_vanhook.py + merge_isocrates_norlin_vanhook.py
+    align_plato_missing_english.py
+    g_readings.py                  five passages per file for reading
+    g_preview_check.py             preview through a Flask copy on port 8104
+
+Built on staging copies in `~/tesserae-backups/tr_g_2026-10-25/` and not installed (docs/DATA_OPERATIONS.md has the
+install order). Every file pairs our references with the Perseus TEI of the Loeb translation by the same
+section numbers, so each reference takes the English of its own section, the finest unit the text has.
+
+**Demosthenes** (`align_demosthenes_sections.py`). 60 files, one unit per section, 3,636 of 3,636 references, from
+Vince (1930, 1935), Murray (1936, 1939) and N. W. and N. J. DeWitt (1949). They replace the 41 whole-speech files of
+Kennedy that Part C held (one unit for a speech of 20 to 227 sections), the 16 whole-speech Vince files of 1930
+now installed, and the Kennedy Exordia and Letters. On the Crown, On the Embassy and Against Leptines stay as
+they are. Proper names 0.40 to 1.00, length correlation 0.845 to 0.959, and the rival-unit test 0.83 to 1.00 where
+it can speak. The English sections follow the translator's own placement of the section numbers, so a clause of one
+Greek section can sit at the head of the next unit.
+
+**The Republic** (`align_republic_shorey_stephanus.py`). One file for the work, 1,354 of 1,355 references, one unit per
+Stephanus section, two sources (Shorey vol. I 1930 for books 1 to 5, vol. II 1935 for books 6 to 10) each with its
+own license and `unit_sources` for every unit. Proper names 0.82 on 342 (0.84 in books 1 to 5, 0.76 in books 6 to 10),
+length correlation 0.70, rival test 0.98. Part F's page-spread method gave 438 of 645 references for books 6 to 10 at length
+correlation 0.11 and is superseded.
+
+**The page-break rule** (`stephanus_text` in `g_common.py`) is the part to understand. Perseus marks the Loeb's page
+breaks in a Plato text with a bare number ('375') before or in place of the lettered sections. Matching only the
+lettered keys exactly left 38 Republic references unpaired and dropped the tail of about one section in six, the
+words that follow a page break inside a section. Read in document order, a bare number is the continuation of the
+chunk before it when a section 'a' of that page exists in the record, and is the section 'a' itself when none does.
+Coverage rose from 97.2 to 99.9 percent and names from 0.78 to 0.82. Plato files installed earlier from Perseus
+may have the same loss.
+
+**Isocrates** (`align_isocrates_vanhook.py`, `merge_isocrates_norlin_vanhook.py`). Speeches 9, 10, 11, 14 and 16 to 21
+from Van Hook's vol. III (1945), 533 sections, names 0.84 on 312, length correlation 0.89, rival test 0.97. The
+installed Norlin file keeps all 1,468 of its units and the merged file adds 533, so coverage goes from 73.4 to 100
+percent. Each source carries its own license (the installed Norlin source had none, so the merge copies the file-level
+license into it). The nine letters (Van Hook) are a separate standalone file, 114 of 114 references.
+
+**Plato without English** (`align_plato_missing_english.py`). Alcibiades I (Lamb 1927, 162 of 162), Alcibiades II (Lamb,
+67 of 67) and the Epistles (Bury 1929, 280 of 280), all published before 1931. The Lovers (Lamb 1927, 35 of 35) is
+written only to `out/plato/review/`: it has 13 names to test (the check needs 20) and a length correlation of 0.52,
+so neither check vouches for it, though the Stephanus numbers are exact and five passages read correctly. Jowett
+was not needed because Perseus has a Loeb text of all four.
+
+**Renewals.** The volumes of 1931 to 1963 (Vince 1935, Murray 1936 and 1939, DeWitt 1949, Van Hook 1945, Shorey 1935)
+were searched in the NYPL cce-renewals data per translator and title (`g_renewal_checks.py`) and the title page of each
+was read on an Internet Archive scan. Nothing was found, and each is treated as United States public domain under the
+rule of 2026-10-24. The searches name Demosthenes, Isocrates and Plato by author, translator and series words.
+
 ## Pipeline 18: re-alignments of 2026-10-24
 
     align_anthologia_graeca.py + merge_anthologia_scans.py
