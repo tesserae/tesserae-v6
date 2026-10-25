@@ -9,7 +9,7 @@
 
 export const ERA_ORDER_BY_LANG = {
   la:  ['Republic', 'Augustan', 'Early Imperial', 'Later Imperial', 'Late Antique', 'Early Medieval', 'Carolingian', 'Medieval', 'Renaissance', 'Modern', 'Unknown'],
-  grc: ['Archaic', 'Classical', 'Hellenistic', 'Early Imperial', 'Later Imperial', 'Late Antique', 'Late Imperial', 'Unknown'],
+  grc: ['Archaic', 'Classical', 'Hellenistic', 'Early Imperial', 'Later Imperial', 'Late Antique', 'Late Imperial', 'Byzantine', 'Unknown'],
   // No 'Nineteenth century' here. One author carried that label, Poe, and a
   // century is not a period in the same series as the rest. He was retagged
   // Romantic in backend/author_dates.json on 2026-09-22, which is where the
@@ -78,6 +78,8 @@ export const ERA_COLORS = {
   'Early Medieval': 'rgba(112, 128, 144, 0.7)',
   // added: Latin/Greek tail
   'Late Imperial': 'rgba(30, 144, 255, 0.7)',
+  // Greek works after 600 CE (Anna Comnena, Barlaam and Ioasaph); added 2026-10-25
+  'Byzantine': 'rgba(165, 55, 160, 0.7)',
   'Carolingian': 'rgba(160, 120, 90, 0.7)',
   // added: shared / English eras
   'Medieval': 'rgba(90, 100, 120, 0.7)',

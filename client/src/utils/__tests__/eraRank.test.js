@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { ERA_ORDER_BY_LANG, eraRank, orderEras } from '../eras';
+import { ERA_ORDER_BY_LANG, ERA_COLORS, eraRank, orderEras } from '../eras';
 
 // The Corpus Browser's "chronological" sort kept its own copy of the era
 // order and wrote it in snake_case ('early_imperial') while the backend sends
@@ -59,6 +59,21 @@ describe('eraRank', () => {
       .toBeLessThan(eraRank('cop', 'Classical Coptic'));
     expect(eraRank('cop', 'Classical Coptic'))
       .toBeLessThan(eraRank('cop', 'Late Antique Coptic'));
+  });
+});
+
+describe('the Greek table has a Byzantine era', () => {
+  it('ranks Byzantine after Late Antique and Late Imperial, before Unknown', () => {
+    expect(ERA_ORDER_BY_LANG.grc).toContain('Byzantine');
+    expect(eraRank('grc', 'Late Antique')).toBeLessThan(eraRank('grc', 'Byzantine'));
+    expect(eraRank('grc', 'Late Imperial')).toBeLessThan(eraRank('grc', 'Byzantine'));
+    expect(eraRank('grc', 'Byzantine')).toBeLessThan(eraRank('grc', 'Unknown'));
+  });
+
+  it('gives Byzantine its own color', () => {
+    const others = Object.entries(ERA_COLORS).filter(([k]) => k !== 'Byzantine').map(([, v]) => v);
+    expect(ERA_COLORS.Byzantine).toBeDefined();
+    expect(others).not.toContain(ERA_COLORS.Byzantine);
   });
 });
 
