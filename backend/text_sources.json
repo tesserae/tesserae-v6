@@ -21565,20 +21565,20 @@
   {
     "author": "Rumi",
     "work": "Masnavi",
-    "e_source": "Chronological Persian Poetry Dataset (built on Ganjoor)",
-    "e_source_url": "https://github.com/aghasemi/ChronologicalPersianPoetryDataset",
-    "print_source": "Opening of the Masnavi-ye Ma'navi; one part filed.",
+    "e_source": "Ganjoor (ganjoor.net), Masnavi-ye Ma'navi, six books, the transcription credited there to Wikidorj",
+    "e_source_url": "https://ganjoor.net/moulavi/masnavi",
+    "print_source": "All six books, 51,274 hemistichs; replaces the 18-line opening fragment filed as Rumi Masnavi part 1.",
     "added_by": "Tesserae Project",
-    "license": "CC BY-SA 4.0, declared on the dataset repository (github.com/aghasemi/ChronologicalPersianPoetryDataset); Ganjoor.net's own upstream terms for the underlying database were not independently verified."
+    "license": "The classical text is public domain. Ganjoor.net's own terms for its transcription were not independently verified (the same upstream as the Chronological Persian Poetry Dataset already served, which declares CC BY-SA 4.0)."
   },
   {
     "author": "Saadi",
     "work": "Bustan",
-    "e_source": "Chronological Persian Poetry Dataset (built on Ganjoor)",
-    "e_source_url": "https://github.com/aghasemi/ChronologicalPersianPoetryDataset",
-    "print_source": "Opening of the Bustan; one part filed.",
+    "e_source": "Ganjoor (ganjoor.net), Bustan, the transcription credited there to Wikidorj",
+    "e_source_url": "https://ganjoor.net/saadi/boostan",
+    "print_source": "The invocation and the ten chapters, 8,128 hemistichs; replaces the 20-line opening fragment filed as Saadi Bustan part 1 and the block inside Saadi Diwan.",
     "added_by": "Tesserae Project",
-    "license": "CC BY-SA 4.0, declared on the dataset repository (github.com/aghasemi/ChronologicalPersianPoetryDataset); Ganjoor.net's own upstream terms for the underlying database were not independently verified."
+    "license": "The classical text is public domain. Ganjoor.net's own terms for its transcription were not independently verified (the same upstream as the Chronological Persian Poetry Dataset already served, which declares CC BY-SA 4.0)."
   },
   {
     "author": "Saadi",
