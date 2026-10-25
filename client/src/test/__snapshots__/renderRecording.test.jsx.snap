@@ -2352,7 +2352,7 @@ exports[`App render recording > page /downloads 1`] = `
 <div class="grid gap-6 md:grid-cols-2">
 <div class="bg-white rounded-lg shadow p-6">
 <h3 class="text-lg font-semibold text-gray-900 mb-4">Corpus Texts</h3>
-<p class="text-sm text-gray-600 mb-4">One archive per language, a .tar.gz of the texts in .tess format with a MANIFEST.tsv and a README.txt inside. The manifest lists every text with its author, work, number of lines, electronic source and print source, and license. Each text is under its own license, listed in the manifest, and bulk copies fall under the <a href="/terms" class="text-red-600 hover:underline">Terms of Use</a>. Persian and Urdu texts are searchable on the site but are not offered as archives pending their sources' terms. The Urdu search index, which holds the line text of fourteen Wikisource collections, is offered under the developer data files below.</p>
+<p class="text-sm text-gray-600 mb-4">One archive per language, a .tar.gz of the texts in .tess format with a MANIFEST.tsv and a README.txt inside. The manifest lists every text with its author, work, number of lines, electronic source and print source, and license. Each text is under its own license, listed in the manifest, and bulk copies fall under the <a href="/terms" class="text-red-600 hover:underline">Terms of Use</a>. Texts whose source allows no online copy (Musisque Deoque, Corpus Thomisticum, augustinus.it) are searchable on the site and left out of the archives, and each archive's README counts them. Persian and Urdu texts are searchable on the site but are not offered as archives pending their sources' terms. The Urdu search index, which holds the line text of fourteen Wikisource collections, is offered under the developer data files below.</p>
 <div class="space-y-3">
 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-gray-50 rounded">
 <div>
@@ -10108,8 +10108,6 @@ exports[`SearchResults render recording > chart open, In this comparison, source
 </div>
 </div>"
 `;
-
-exports[`SearchResults render recording > chart open, server mode with the server aggregates > source view 1`] = `""`;
 
 exports[`SearchResults render recording > chart open, server mode with the server aggregates 1`] = `
 "<div class="space-y-4">
