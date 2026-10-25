@@ -67,6 +67,33 @@ export function storyNumberOfRef(ref) {
   return m ? Number(m[1]) : null;
 }
 
+/** The number of the story or section that holds `ref`: the last entry whose
+ *  first_ref is not after it, comparing the numbers that end each ref
+ *  ("rumi.masnavi.2.1.1" is [2, 1, 1]). Null when nothing is known. Works for
+ *  the Shahnameh's stories and for the sections of the Persian and Urdu works,
+ *  whose refs are not all story.couplet.hemistich. */
+function refNumbers(ref) {
+  const m = /(?:\.\d+)+$/.exec(String(ref || ''));
+  return m ? m[0].slice(1).split('.').map(Number) : [];
+}
+function cmpNumbers(a, b) {
+  for (let i = 0; i < Math.max(a.length, b.length); i += 1) {
+    const d = (a[i] ?? 0) - (b[i] ?? 0);
+    if (d) return d;
+  }
+  return 0;
+}
+export function storyNumberForRef(stories, ref) {
+  const at = refNumbers(ref);
+  if (!at.length || !stories?.length) return null;
+  let found = null;
+  for (const s of stories) {
+    if (cmpNumbers(refNumbers(s.first_ref), at) <= 0) found = s.number;
+    else break;
+  }
+  return found;
+}
+
 /** "151 Rustam and Suhrab" with the Persian title after it when there is one. */
 export function storyLabel(s, withNative = false) {
   const en = s.title_en || '';
@@ -122,22 +149,24 @@ export function BookLinks({ sections, work, onWork, size }) {
 
 /** Previous and next story, for a work divided into stories rather than
  *  book files (the Shahnameh). `onStory(story)` jumps to the story's start. */
-export function StoryLinks({ stories, storyNumber, onStory, size }) {
+export function StoryLinks({ stories, storyNumber, onStory, size, storyUnit = 'story' }) {
+  const unit = storyUnit === 'section' ? 'section' : 'story';
+  const Unit = unit === 'section' ? 'Section' : 'Story';
   if (!stories || stories.length < 2) return null;
   const { prev, next } = storyNeighbours(stories, storyNumber);
   return (
     <>
       <button type="button" className={`${linkCls} ${size}`} disabled={!prev}
               onClick={() => prev && onStory(prev)}
-              aria-label={prev ? `Previous story: ${storyLabel(prev)}` : 'No previous story'}
+              aria-label={prev ? `Previous ${unit}: ${storyLabel(prev)}` : `No previous ${unit}`}
               title={prev ? storyLabel(prev, true) : ''}>
-        &#8249; {prev ? `Story ${prev.number}` : 'Previous'}
+        &#8249; {prev ? `${Unit} ${prev.number}` : 'Previous'}
       </button>
       <button type="button" className={`${linkCls} ${size}`} disabled={!next}
               onClick={() => next && onStory(next)}
-              aria-label={next ? `Next story: ${storyLabel(next)}` : 'No next story'}
+              aria-label={next ? `Next ${unit}: ${storyLabel(next)}` : `No next ${unit}`}
               title={next ? storyLabel(next, true) : ''}>
-        {next ? `Story ${next.number}` : 'Next'} &#8250;
+        {next ? `${Unit} ${next.number}` : 'Next'} &#8250;
       </button>
     </>
   );
@@ -187,7 +216,7 @@ export function GoToLineForm({ onJump, onDone, size = 'text-[11px]', className =
  * ("no line 6.9999 here", or that a bare number is ambiguous in this file).
  * On a phone it renders nothing: its controls live in the header's picker sheet.
  */
-export default function ReaderNav({ sections, work, onWork, onJump, stories, storyNumber, onStory }) {
+export default function ReaderNav({ sections, work, onWork, onJump, stories, storyNumber, onStory, storyUnit = 'story' }) {
   const phone = useIsPhone();
   if (phone) return null;
 
@@ -195,7 +224,7 @@ export default function ReaderNav({ sections, work, onWork, onJump, stories, sto
     <div data-reader-nav-strip className="sticky top-0 z-20 flex flex-wrap items-center gap-1.5 px-3 py-1
                     text-[11px] text-gray-600 border-b border-gray-200 bg-white">
       <BookLinks sections={sections} work={work} onWork={onWork} size="text-[11px]" />
-      <StoryLinks stories={stories} storyNumber={storyNumber} onStory={onStory} size="text-[11px]" />
+      <StoryLinks stories={stories} storyNumber={storyNumber} onStory={onStory} size="text-[11px]" storyUnit={storyUnit} />
       <GoToLineForm onJump={onJump} />
       <button type="button" onClick={scrollToTop}
               className={`${linkCls} text-[11px] ml-auto`} aria-label="Back to top">
@@ -207,12 +236,12 @@ export default function ReaderNav({ sections, work, onWork, onJump, stories, sto
 
 /** The links again at the end of the text, where the reader actually is when
  *  a book runs out. Rendered by ReaderPage only once every line is shown. */
-export function ReaderEndNav({ sections, work, onWork, stories, storyNumber, onStory }) {
+export function ReaderEndNav({ sections, work, onWork, stories, storyNumber, onStory, storyUnit = 'story' }) {
   return (
     <div className="flex flex-wrap items-center justify-center gap-2 px-3 py-4
                     text-sm text-gray-600 border-t border-gray-200 bg-gray-50">
       <BookLinks sections={sections} work={work} onWork={onWork} size="text-sm" />
-      <StoryLinks stories={stories} storyNumber={storyNumber} onStory={onStory} size="text-sm" />
+      <StoryLinks stories={stories} storyNumber={storyNumber} onStory={onStory} size="text-sm" storyUnit={storyUnit} />
       <button type="button" onClick={scrollToTop} className={`${linkCls} text-sm`}
               aria-label="Back to top">
         &#9650; Back to top
@@ -235,9 +264,10 @@ const floatCls = 'w-9 h-9 rounded-full border border-gray-300 bg-white/95 shadow
  *  page easily. Fixed positioning does not depend on the sticky strip,
  *  which did not behave reliably. Hidden on phones, where the bottom
  *  sheet lives. */
-export function ReaderFloatNav({ sections, work, onWork, stories, storyNumber, onStory }) {
+export function ReaderFloatNav({ sections, work, onWork, stories, storyNumber, onStory, storyUnit = 'story' }) {
   const books = bookSections(sections);
   const { prev, next } = neighbours(books, work);
+  const unit = storyUnit === 'section' ? 'section' : 'story';
   const storyNav = stories && stories.length > 1 ? storyNeighbours(stories, storyNumber) : null;
   const go = (s) => { onWork(s.file); scrollToTop(); };
   return (
@@ -251,12 +281,12 @@ export function ReaderFloatNav({ sections, work, onWork, stories, storyNumber, o
         <>
           <button type="button" className={floatCls} disabled={!storyNav.prev}
                   onClick={() => storyNav.prev && onStory(storyNav.prev)}
-                  aria-label={storyNav.prev ? `Previous story: ${storyLabel(storyNav.prev)}` : 'No previous story'}
-                  title={storyNav.prev ? storyLabel(storyNav.prev) : 'No previous story'}>&#8249;</button>
+                  aria-label={storyNav.prev ? `Previous ${unit}: ${storyLabel(storyNav.prev)}` : `No previous ${unit}`}
+                  title={storyNav.prev ? storyLabel(storyNav.prev) : `No previous ${unit}`}>&#8249;</button>
           <button type="button" className={floatCls} disabled={!storyNav.next}
                   onClick={() => storyNav.next && onStory(storyNav.next)}
-                  aria-label={storyNav.next ? `Next story: ${storyLabel(storyNav.next)}` : 'No next story'}
-                  title={storyNav.next ? storyLabel(storyNav.next) : 'No next story'}>&#8250;</button>
+                  aria-label={storyNav.next ? `Next ${unit}: ${storyLabel(storyNav.next)}` : `No next ${unit}`}
+                  title={storyNav.next ? storyLabel(storyNav.next) : `No next ${unit}`}>&#8250;</button>
         </>
       )}
       {books.length > 1 && (

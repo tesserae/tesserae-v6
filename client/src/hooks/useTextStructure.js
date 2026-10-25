@@ -12,10 +12,12 @@ export function structureId(work) {
   return String(work || '').replace(/\.tess$/, '');
 }
 
-/** A work's own division into stories (the Shahnameh's 857), or null while
- *  loading, when `enabled` is false, or when the work has none. Returns
- *  { work, unit, sections: [{ number, title_en, title_fa, reign_fa, first_ref,
- *  last_ref, n_couplets }] }. */
+/** A work's own division into stories (the Shahnameh's 857) or sections (the
+ *  Masnavi's 972, a prose work's chapters), or null while loading, when
+ *  `enabled` is false, or when the work has none. Returns { work, unit
+ *  ('story' or 'section'), sections: [{ number, title_en, title_fa, reign_fa,
+ *  first_ref, last_ref, n_couplets or n_units }] }. A sections list has no
+ *  title_en, and n_couplets and n_units may both be absent. */
 export default function useTextStructure(work, enabled = true) {
   const id = structureId(work);
   const [state, setState] = useState({ id: '', data: null });

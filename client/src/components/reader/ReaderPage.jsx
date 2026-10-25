@@ -3,7 +3,7 @@ import useDocumentsTrial from '../../hooks/useDocumentsTrial';
 import useCollections from '../../hooks/useCollections';
 import { cssRef, windowLocus, fullRef, findRefIndex } from './refId';
 import ReaderHeader from './ReaderHeader';
-import ReaderNav, { ReaderEndNav, ReaderFloatNav, ReaderPhoneTopButton, sectionsFor, bookFileFor, bookSections, storyNumberOfRef, storyShortRef } from './ReaderNav';
+import ReaderNav, { ReaderEndNav, ReaderFloatNav, ReaderPhoneTopButton, sectionsFor, bookFileFor, bookSections, storyNumberForRef } from './ReaderNav';
 import useTextStructure from '../../hooks/useTextStructure';
 import { useIsPhone } from '../../hooks/useIsPhone';
 import SelectionToolbar, { scopeFor } from './SelectionToolbar';
@@ -490,8 +490,11 @@ export default function ReaderPage() {
   // Stories list; a work with book files is never asked.
   const structure = useTextStructure(work, sections.length > 0 && bookSections(sections).length < 2);
   const stories = structure?.sections || null;
-  const storyNumber = stories ? storyNumberOfRef(storyAt) : null;
-  const jumpStory = useCallback((story) => { jumpTo(storyShortRef(story.first_ref)); }, [jumpTo]);
+  const storyNumber = stories ? storyNumberForRef(stories, storyAt) : null;
+  // The whole first ref names one line in any of the lists (stories run
+  // story.couplet.hemistich, Masnavi sections daftar.couplet.hemistich, prose
+  // section.paragraph).
+  const jumpStory = useCallback((story) => { jumpTo(story.first_ref); }, [jumpTo]);
   useEffect(() => { setStoryAt(''); }, [work]);
   useEffect(() => { if (selection?.refStart) setStoryAt(selection.refStart); }, [selection?.refStart]);
   // Books one at a time (2026-09-20): the whole-file Punica ran seventeen
@@ -646,6 +649,7 @@ export default function ReaderPage() {
         stories={stories}
         storyNumber={storyNumber}
         onStory={jumpStory}
+        storyUnit={structure?.unit}
       />
 
       {loading && <div className="p-10"><LoadingSpinner /></div>}
@@ -657,7 +661,8 @@ export default function ReaderPage() {
             {/* Previous/next book, go to line, back to top: sticky, so the way
                 out of a long text is always on screen (2026-09-19). */}
             <ReaderNav sections={sections} work={work} onWork={changeBook} onJump={jumpTo}
-                       stories={stories} storyNumber={storyNumber} onStory={jumpStory} />
+                       stories={stories} storyNumber={storyNumber} onStory={jumpStory}
+                       storyUnit={structure?.unit} />
             {/* The key for the gutter marks. The gutter itself is nine pixels
                 wide per column and can only carry a letter, and its tooltip does
                 not exist on a phone, so the words go here where there is room.
@@ -981,11 +986,13 @@ export default function ReaderPage() {
           )}
           {units.length > 0 && shownUnits.length >= units.length && (
             <ReaderEndNav sections={sections} work={work} onWork={changeBook}
-                          stories={stories} storyNumber={storyNumber} onStory={jumpStory} />
+                          stories={stories} storyNumber={storyNumber} onStory={jumpStory}
+                       storyUnit={structure?.unit} />
           )}
           {!loading && !error && units.length > 0 && (
             <ReaderFloatNav sections={sections} work={work} onWork={changeBook}
-                            stories={stories} storyNumber={storyNumber} onStory={jumpStory} />
+                            stories={stories} storyNumber={storyNumber} onStory={jumpStory}
+                       storyUnit={structure?.unit} />
           )}
           {!loading && !error && units.length > 0 && (
             <ReaderPhoneTopButton hidden={!!selection} />
