@@ -232,3 +232,11 @@ def test_case_forms_of_a_split_off_heading_go_with_it():
     left = {f for (f,) in db.execute('select distinct form from mention_rows where eid = 22')}
     assert left == {'Maximianus', 'Maximiano'}
     assert db.execute("select eid from search_names where name = 'Maximinus'").fetchone()[0] == new
+
+
+def test_audit_limited_to_listed_entities():
+    db = store()
+    everything = rg.audit(db)['groups']
+    assert {g[0] for g in everything} == {1}
+    assert rg.audit(db, only={'pn:silan'})['groups'] == everything
+    assert rg.audit(db, only={'nm:silan2'})['groups'] == []

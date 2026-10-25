@@ -306,8 +306,8 @@ def stem_of(form):
     return pr.group_stem(prep(form))
 
 
-def audit(db, lines=None):
-    """Layer 1 over every entity. Returns {'summary': counts per source, 'groups': [[eid, stem, {spelling: rows},
+def audit(db, lines=None, only=None):
+    """Layer 1 over every entity, or over the entity ids (entity_id strings) in `only` when it is given. Returns {'summary': counts per source, 'groups': [[eid, stem, {spelling: rows},
     rows]]} for the candidate groups."""
     src = {eid: (eid_s, s, t) for eid, eid_s, s, t in db.execute('select eid, entity_id, source, type from entities')}
     forms = {}
@@ -317,7 +317,7 @@ def audit(db, lines=None):
     groups = []
     for eid, pairs in forms.items():
         entity_id, source, _t = src[eid]
-        if protected(entity_id):
+        if protected(entity_id) or (only is not None and entity_id not in only):
             continue
         s = summ.setdefault(source, {'entities': 0, 'entities_with_candidates': 0, 'spellings': 0,
                                      'candidate_spellings': 0, 'rows': 0, 'candidate_rows': 0, 'groups': 0})
