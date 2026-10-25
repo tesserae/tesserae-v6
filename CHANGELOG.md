@@ -8,6 +8,7 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-25
+- Translations, Part H, installed 09:18: 28 of the 30 earlier Plato translation files re-aligned from the Perseus TEI with the page-break rule (775 units regain their lost tails, 122 references gain English, 28,904 words in all, nothing shortened), Cleitophon and Hipparchus on the reading, and the Laws at 327 Stephanus pages from Bury 1926 instead of 12 book units (#1222: scripts, README pipeline 20, a second Perseus habit handled, a bare page number standing for a section Perseus leaves unlabeled).
 - Reader: the ten Persian and Urdu works installed on 2026-10-25 show their own sections in the header list (the Masnavi's 972 sections under the six daftars, the prose works by chapter), with previous and next section links; the structure route reads sections.json beside stories.json (#1221).
 - Records: run record for the People & Places names store install (02:39, 89,422 new mention rows live, the old store kept beside it).
 - People & Places: mentions for the Greek and Latin works added on 2026-10-24 and Cicero's De legibus (89,422 rows, 3,583 new corpus names; Latin -que forms filed under the base name, book abbreviations such as Matth. and Polit. left out) are built on a copy of the live names store by the new `--works` option of `scripts/build_entity_index.py` (`backend/entity_new_works.py`), which files rows the way the live store already files each spelling and rebuilds nothing that exists. Built, not installed.
