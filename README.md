@@ -162,7 +162,7 @@ Tesserae is a collaboration between [Neil Coffee](https://www.buffalo.edu/cas/en
 
 ## License
 
-MIT License - free to use, modify, and redistribute.
+PolyForm Noncommercial License 1.0.0: free for academic, educational, personal and nonprofit use, including modification and redistribution under the same terms. Commercial use requires a separate license from the copyright holder. Versions before 2026-10-25 were released under the MIT License (notice retained in LICENSE).
 
 ## Contributing
 

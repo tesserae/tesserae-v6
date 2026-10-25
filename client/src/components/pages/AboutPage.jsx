@@ -128,7 +128,7 @@ export default function AboutPage({ onNavigate, initialAnchor = null, onAnchorCo
               <li><strong>Tesserae V5</strong>: API design concepts and modern architecture patterns (developed with Walter Scheirer)</li>
             </ul>
             <div className="mt-3 space-y-1">
-              <p><strong>Code:</strong> MIT License &mdash; free to use, modify, and redistribute.</p>
+              <p><strong>Code:</strong> PolyForm Noncommercial License 1.0.0 &mdash; free for academic, educational, personal and nonprofit use, including modification and redistribution under the same terms; commercial use needs a separate license.</p>
               <p><strong>Original datasets</strong> (benchmark sets, gold standards, translation
                 alignments): CC BY 4.0 &mdash; free to use with attribution.</p>
               <p><strong>Corpus texts:</strong> individual licenses per source; see the Text

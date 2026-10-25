@@ -8,6 +8,7 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-24
+- License: the code moves from the MIT License to the PolyForm Noncommercial License 1.0.0 (noncommercial use free, commercial use by separate license); earlier versions stay MIT.
 - Sources: the Latin tranche credit rows match the titles the site's text list shows (all 60 files tie to a row), plus its collection record on the Sources page.
 - Corpus: the Latin import tranche is prepared for install (nothing installed): Servius on the Aeneid, the Eclogues and the Georgics (Thilo 1881, replacing the Latin Library Georgics), Aquinas Summa Theologiae I-II, II-II and III, Gregory of Tours, Geoffrey of Monmouth, the Gesta Romanorum (Oesterley 1872), Valla on the Donation of Constantine and two Latin poems of Milton. This pull request carries the converters, the credits, dates, genres and About blurbs, and the translation scripts. The texts, indexes, windows and descriptions stay in a staging folder until the install, which docs/DATA_OPERATIONS.md lists as PLANNED.
 - Sources: the Greek tranche's credit rows now carry the title the site's text list shows (24 works, 77 files), so every one of the 303 files matches its row, and the Sources page lists the Perseus and First Thousand Years of Greek collection with its translation sources.
