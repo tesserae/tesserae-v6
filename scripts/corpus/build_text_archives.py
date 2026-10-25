@@ -4,7 +4,9 @@
 For each language folder under texts/ this writes, into the output folder:
 
   texts_<lang>.tar.gz            every .tess file except the restricted ones
-                                 (backend/restricted_texts.py decides), plus
+                                 (backend/restricted_texts.py decides) and those
+                                 from sources whose terms allow no online copy
+                                 (WITHHELD_SOURCES below), plus
                                  MANIFEST.tsv and README.txt inside
   texts_<lang>_manifest.tsv      the same manifest, beside the archive
 
@@ -47,6 +49,29 @@ UNKNOWN = 'unknown'
 NOT_STATED = 'not stated in the credit row'
 NONCOMMERCIAL = re.compile(
     r'\bBY-NC|non-?commercial|academic use only|for academic use|research use only', re.I)
+# Sources whose stated terms do not allow an online copy of their texts. The
+# files stay on the site (search, Reader, Similar Passages) and out of the bulk
+# archives. Matched on the credit row's e_source or e_source_url. Read on
+# 2026-10-25: Musisque Deoque allows reproduction on paper or on portable
+# offline media only, for scholarly use; Corpus Thomisticum and augustinus.it
+# reserve all rights.
+WITHHELD_SOURCES = [
+    ('Musisque Deoque', re.compile(r'musisque|mqdq|musa medievalis|musamedievalis', re.I),
+     'copies allowed on paper or portable offline media only'),
+    ('Corpus Thomisticum', re.compile(r'thomisticum', re.I), 'all rights reserved'),
+    ('augustinus.it', re.compile(r'augustinus\.it', re.I), 'all rights reserved'),
+]
+
+
+def withheld_reason(src):
+    """The source name and reason when a credit row's source bars online copies, else None."""
+    if not src:
+        return None
+    text = ' '.join(str(src.get(k) or '') for k in ('e_source', 'e_source_url'))
+    for name, pat, why in WITHHELD_SOURCES:
+        if pat.search(text):
+            return f'{name} ({why})'
+    return None
 LINE = re.compile(r'<[^>]+>')
 
 README = """Tesserae corpus texts: {name} ({lang})
@@ -69,6 +94,7 @@ says "not stated in the credit row", the text comes from the edition named in
 that row, and its terms are those of that source. {nc_line}
 {unknown_line}
 Texts held under an indexing-only license are not in this archive.
+{withheld_line}
 
 Where to read more
 The Sources page of the Tesserae site names every edition and its license, and
@@ -123,6 +149,7 @@ def manifest_row(path, filename, index, date):
     md = utils.get_text_metadata(path)
     author, work = md.get('author', ''), md.get('work', '')
     src = index.find(author, work)
+    withheld = withheld_reason(src)
     if src is None:
         lic, nc = UNKNOWN, ''
         e_src = e_url = printed = UNKNOWN
@@ -137,7 +164,7 @@ def manifest_row(path, filename, index, date):
     row = {'file': filename, 'author': author, 'work': work, 'lines': count_lines(path),
            'electronic_source': e_src, 'electronic_source_url': e_url, 'print_source': printed,
            'license': lic, 'noncommercial_only': nc, 'archive_date': date}
-    return row, matched
+    return row, matched, withheld
 
 
 def _clean(v):
@@ -159,11 +186,14 @@ def build_language(lang, texts_root, out_dir, index, date, names):
     files = sorted(f for f in fspaths.listdir_text(lang_dir) if f.endswith('.tess'))
     restricted = {f for f in files if restricted_texts.is_restricted(f)}
     rows, unknown, noncommercial, not_stated = [], 0, 0, 0
-    kept = []
+    kept, withheld = [], {}
     for f in files:
         if f in restricted:
             continue
-        row, matched = manifest_row(os.path.join(lang_dir, f), f, index, date)
+        row, matched, why = manifest_row(os.path.join(lang_dir, f), f, index, date)
+        if why:
+            withheld[f] = why
+            continue
         rows.append(row)
         kept.append(f)
         unknown += 0 if matched else 1
@@ -177,8 +207,16 @@ def build_language(lang, texts_root, out_dir, index, date, names):
     unknown_line = (f'{unknown} file(s) have no credit row yet and read "unknown" in the manifest; '
                     'ask through Suggest a change on the site before reusing them.'
                     if unknown else '')
+    by_source = {}
+    for why in withheld.values():
+        by_source[why] = by_source.get(why, 0) + 1
+    withheld_line = (f'{len(withheld)} text(s) are not in this archive because their source allows no '
+                     'online copy: ' + '; '.join(f'{n} from {src}' for src, n in sorted(by_source.items()))
+                     + '. They can be read and searched on the site.'
+                     if withheld else '')
     readme = README.format(name=names.get(lang, lang), lang=lang, date=date, n=len(kept),
-                           nc_line=nc_line, unknown_line=unknown_line).encode('utf-8')
+                           nc_line=nc_line, unknown_line=unknown_line,
+                           withheld_line=withheld_line).encode('utf-8')
 
     os.makedirs(out_dir, exist_ok=True)
     arc = os.path.join(out_dir, f'texts_{lang}.tar.gz')
@@ -201,6 +239,7 @@ def build_language(lang, texts_root, out_dir, index, date, names):
     os.replace(arc + '.new', arc)
     os.replace(man + '.new', man)
     return {'language': lang, 'files': len(kept), 'restricted': len(restricted),
+            'withheld_by_terms': len(withheld), 'withheld_sources': by_source,
             'no_credit_row': unknown, 'noncommercial': noncommercial,
             'license_not_stated': not_stated,
             'archive_bytes': os.path.getsize(arc), 'manifest_bytes': os.path.getsize(man)}
@@ -230,6 +269,7 @@ def main(argv=None):
         r['seconds'] = round(time.time() - t1, 1)
         results.append(r)
         print(f"{lang}: {r['files']} files, {r['restricted']} restricted left out, "
+              f"{r['withheld_by_terms']} withheld by their source's terms, "
               f"{r['no_credit_row']} without a credit row, {r['noncommercial']} noncommercial-only, "
               f"{r['archive_bytes'] / 1e6:.1f} MB, {r['seconds']} s", flush=True)
     print(f'total {sum(r["archive_bytes"] for r in results) / 1e6:.1f} MB in {time.time() - t0:.1f} s')

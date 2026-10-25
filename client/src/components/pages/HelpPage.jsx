@@ -550,7 +550,9 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 archive. The manifest has one row per text: author, work, number of lines, electronic
                 source and its address, print source and license. Each text stays under its own license,
                 and texts licensed for noncommercial use only are marked in the manifest. A text with no
-                credit row yet reads "unknown". Texts held for search only on this site are left out.
+                credit row yet reads "unknown". Texts held for search only on this site are left out, and
+                so are texts whose source allows no online copy (Musisque Deoque, Corpus Thomisticum,
+                augustinus.it); the README inside each archive counts them.
                 The archives are rebuilt at every import, and the Terms of Use page states the
                 conditions for bulk copies.
               </p>

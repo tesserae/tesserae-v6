@@ -8,6 +8,7 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-25
+- Downloads: texts whose source allows no online copy (Musisque Deoque: paper or offline media only; Corpus Thomisticum and augustinus.it: all rights reserved) are left out of the bulk text archives and counted in each archive's README; they stay searchable on the site.
 - Records: the Greek tranche (48 works), the Latin tranche (12 works) and the Part C translations (45 files) turned from planned entries into run records in docs/DATA_OPERATIONS.md (every step, time, count and backup, the final rebuild of the derived stores, the coverage and golden checks); a stray heading from a merge removed.
 - Translations: every source of a merged translation file carries its own license line (fix_merged_source_licenses.py, run on the Pausanias, Josephus, Pliny the Elder and Silius files), so a Shilleto unit is no longer shown with the Loeb volume's terms.
 - Downloads: the corpus texts come as one static archive per language (Latin, Greek, English, Coptic, Hebrew) with a MANIFEST.tsv (author, work, lines, electronic and print source, license) and a README.txt inside and the manifest beside it, built by the new `scripts/corpus/build_text_archives.py` at every import. The route `/api/downloads/texts/<language>` serves the archive when it exists and zips on the fly only when it does not, restricted texts left out either way. The Downloads page lists sizes and manifests, and Help describes them.

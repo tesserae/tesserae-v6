@@ -90,7 +90,9 @@ const DownloadsPage = () => {
             electronic source and print source, and license. Each text is under its own license,
             listed in the manifest, and bulk copies fall under the{' '}
             <a href="/terms" className="text-red-600 hover:underline">Terms of Use</a>.
-            Persian and Urdu texts are searchable on the site but are not offered as archives
+            Texts whose source allows no online copy (Musisque Deoque, Corpus Thomisticum,
+            augustinus.it) are searchable on the site and left out of the archives, and each
+            archive's README counts them. Persian and Urdu texts are searchable on the site but are not offered as archives
             pending their sources' terms. The Urdu search index, which holds the line text of
             fourteen Wikisource collections, is offered under the developer data files below.
           </p>

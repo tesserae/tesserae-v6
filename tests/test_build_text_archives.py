@@ -43,6 +43,7 @@ def texts_root(tmp_path):
     (d / 'ordinary.poem.tess').write_text('<o. 1.1>\tone\n<o. 1.2>\ttwo\n')
     (d / 'nocredit.poem.tess').write_text('<n. 1.1>\tonly\n')
     (d / 'nclicensed.poem.tess').write_text('<c. 1.1>\ta\n<c. 1.2>\tb\n<c. 1.3>\tc\n')
+    (d / 'offlineonly.poem.tess').write_text('<f. 1.1>\tpaper\n')
     return tmp_path / 'texts'
 
 
@@ -53,6 +54,9 @@ def index():
          'print_source': 'Oxford 1900', 'license': 'CC BY-SA 4.0'},
         {'author': 'Nclicensed', 'work': 'Poem', 'e_source': 'Site', 'e_source_url': 'http://y.example',
          'print_source': 'Print', 'license': 'CC BY-NC-SA 4.0'},
+        {'author': 'Offlineonly', 'work': 'Poem', 'e_source': 'Musisque Deoque',
+         'e_source_url': 'http://www.mqdq.it/', 'print_source': 'Print',
+         'license': 'Noncommercial use only, copies on paper or offline media'},
     ])
 
 
@@ -64,12 +68,14 @@ def test_archive_leaves_out_restricted_and_writes_manifest(tmp_path, registry, t
         names = tf.getnames()
         assert 'texts_la/ordinary.poem.tess' in names
         assert 'texts_la/heldwork.history.tess' not in names
+        assert 'texts_la/offlineonly.poem.tess' not in names
         assert 'texts_la/MANIFEST.tsv' in names and 'texts_la/README.txt' in names
         inner = tf.extractfile('texts_la/MANIFEST.tsv').read()
         readme = tf.extractfile('texts_la/README.txt').read().decode()
     beside = (out / 'texts_la_manifest.tsv').read_bytes()
     assert inner == beside
     assert 'noncommercial use only' in readme and '1 file(s) have no credit row' in readme
+    assert r['withheld_by_terms'] == 1 and '1 from Musisque Deoque' in readme
     rows = {r['file']: r for r in csv.DictReader(io.StringIO(beside.decode()), delimiter='\t')}
     assert set(rows) == {'ordinary.poem.tess', 'nocredit.poem.tess', 'nclicensed.poem.tess'}
     ok = rows['ordinary.poem.tess']
@@ -83,9 +89,18 @@ def test_archive_leaves_out_restricted_and_writes_manifest(tmp_path, registry, t
 
 def test_row_without_license_field_is_not_stated(tmp_path, registry, texts_root):
     idx = bta.SourceIndex([{'author': 'Ordinary', 'work': 'Poem', 'e_source': 'Perseus'}])
-    row, matched = bta.manifest_row(str(texts_root / 'la' / 'ordinary.poem.tess'),
-                                    'ordinary.poem.tess', idx, '2026-10-25')
-    assert matched and row['license'] == bta.NOT_STATED
+    row, matched, withheld = bta.manifest_row(str(texts_root / 'la' / 'ordinary.poem.tess'),
+                                              'ordinary.poem.tess', idx, '2026-10-25')
+    assert matched and row['license'] == bta.NOT_STATED and withheld is None
+
+
+def test_withheld_sources_match_name_or_address():
+    assert bta.withheld_reason({'e_source': 'MQDQ', 'e_source_url': ''}).startswith('Musisque Deoque')
+    assert bta.withheld_reason({'e_source': 'Corpus Thomisticum'}).startswith('Corpus Thomisticum')
+    assert bta.withheld_reason({'e_source': '', 'e_source_url': 'http://www.augustinus.it/latino/x.htm'}
+                               ).startswith('augustinus.it')
+    assert bta.withheld_reason({'e_source': 'Perseus', 'e_source_url': 'http://x'}) is None
+    assert bta.withheld_reason(None) is None
 
 
 @pytest.fixture
