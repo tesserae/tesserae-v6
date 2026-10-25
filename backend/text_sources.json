@@ -21380,7 +21380,7 @@
   },
   {
     "author": "Clement of Rome",
-    "work": "Epistula II ad Corinthios",
+    "work": "Epistula II ad Corinthios (the so-called Second Clement, not by Clement)",
     "e_source": "Open Greek and Latin (First1KGreek, TLG 1271.002)",
     "e_source_url": "https://github.com/OpenGreekAndLatin/First1KGreek/tree/master/data/tlg1271/tlg002",
     "print_source": "The Apostolic Fathers, vol. 1. Kirsopp Lake, ed. and trans. Cambridge, MA: Harvard University Press, 1912. (Loeb Greek text. Licence: CC BY-SA 4.0.)",
@@ -21492,7 +21492,7 @@
   },
   {
     "author": "Athanasius",
-    "work": "Contra Arianos IV",
+    "work": "Contra Arianos IV (attributed to Athanasius, probably a later work)",
     "e_source": "Open Greek and Latin (First1KGreek, TLG 2035.117)",
     "e_source_url": "https://github.com/OpenGreekAndLatin/First1KGreek/tree/master/data/tlg2035/tlg117",
     "print_source": "The Orations of St. Athanasius against the Arians. William Bright, ed. Oxford: Clarendon Press, 1884. (Licence: CC BY-SA 4.0.)",
@@ -21500,7 +21500,7 @@
   },
   {
     "author": "John of Damascus",
-    "work": "Barlaam et Ioasaph",
+    "work": "Barlaam et Ioasaph (attributed to John of Damascus)",
     "e_source": "Perseus Digital Library / Open Greek and Latin (canonical-greekLit, TLG 2934.066)",
     "e_source_url": "https://github.com/PerseusDL/canonical-greekLit/tree/master/data/tlg2934/tlg066",
     "print_source": "Barlaam and Ioasaph. G. R. Woodward and H. Mattingly, eds. and trans. Cambridge, MA: Harvard University Press, 1914. (Loeb Greek text. Licence: CC BY-SA 4.0.)",
