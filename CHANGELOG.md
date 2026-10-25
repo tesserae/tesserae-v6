@@ -8,6 +8,7 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-25
+- Reader: the ten Persian and Urdu works installed on 2026-10-25 show their own sections in the header list (the Masnavi's 972 sections under the six daftars, the prose works by chapter), with previous and next section links; the structure route reads sections.json beside stories.json (#1221).
 - Records: run record for the People & Places names store install (02:39, 89,422 new mention rows live, the old store kept beside it).
 - People & Places: mentions for the Greek and Latin works added on 2026-10-24 and Cicero's De legibus (89,422 rows, 3,583 new corpus names; Latin -que forms filed under the base name, book abbreviations such as Matth. and Polit. left out) are built on a copy of the live names store by the new `--works` option of `scripts/build_entity_index.py` (`backend/entity_new_works.py`), which files rows the way the live store already files each spelling and rebuilds nothing that exists. Built, not installed.
 - Records: run records for the Part G translation install (67 files, 01:48) and the text archive rebuild (01:51, three sources withheld, a license in every manifest row).
