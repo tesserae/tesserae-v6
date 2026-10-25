@@ -5452,7 +5452,7 @@ exports[`App render recording > page /terms 1`] = `
 </section>
 <section>
 <h2 class="text-lg font-semibold text-gray-900 mb-2">Fair use of a shared service</h2>
-<p>The service runs on one university server for everyone. Use it as a reader would. Run searches, read passages, export the results you need. Do not copy the corpus, the indexes or the datasets through the API or the connector, do not run automated requests at a rate that crowds out other users, and do not try to reach data the site does not offer. The service may slow down, hold back or refuse requests that exceed what a person at a keyboard would make, and may block an address that keeps doing so. If you need a large extract for research, ask through the request link on the site and we will usually arrange it.</p>
+<p>The service runs on one university server for everyone. Use it as a reader would. Run searches, read passages, export the results you need. Whole texts, indexes and datasets are offered as archives on the Downloads page, each under the license named there, and that is the way to take them in bulk. Do not copy them through the API or the connector, do not run automated requests at a rate that crowds out other users, and do not try to reach data the site does not offer. The service may slow down, hold back or refuse requests that exceed what a person at a keyboard would make, and may block an address that keeps doing so. If you need something the Downloads page does not offer, ask through the request link on the site and we will usually arrange it.</p>
 </section>
 <section>
 <h2 class="text-lg font-semibold text-gray-900 mb-2">Citing what you use</h2>
