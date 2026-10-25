@@ -1,4 +1,13 @@
-import tarfile, hashlib, json, os, sys, sqlite3, csv, mmap
+# ruff: noqa: E401, E402, E701, E702, E731, E741, F401
+# One-off script of 2026-10-25, kept as it ran (see README.md beside it).
+import tarfile
+import hashlib
+import json
+import os
+import sys
+import sqlite3
+import csv
+import mmap
 import numpy as np
 sys.path.insert(0, '/home/ncoffee/tesserae-v6-dev')
 from backend.work_names import base_work

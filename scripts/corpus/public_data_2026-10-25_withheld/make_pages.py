@@ -1,4 +1,8 @@
-import json, os, re, hashlib
+# ruff: noqa: E401, E402, E701, E702, E731, E741, F401
+# One-off script of 2026-10-25, kept as it ran (see README.md beside it).
+import json
+import os
+import hashlib
 S = os.path.expanduser('~/tesserae-backups/public_data_2026-10-25_withheld')
 P = '/var/www/tesseraev6_flask/public_data/'
 led = {n: json.load(open(f'{S}/work/pack_{k}.json')) for n, k in (('la_index.db.tar.gz', 'la'), ('window_texts.db.tar.gz', 'wt'), ('passage_index_la.tar.gz', 'pi'))}

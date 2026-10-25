@@ -1,4 +1,11 @@
-import os, sys, json, tarfile, hashlib, time
+# ruff: noqa: E401, E402, E701, E702, E731, E741, F401
+# One-off script of 2026-10-25, kept as it ran (see README.md beside it).
+import os
+import sys
+import json
+import tarfile
+import hashlib
+import time
 S = os.path.expanduser('~/tesserae-backups/public_data_2026-10-25_withheld')
 def sha(p):
     h = hashlib.sha256()

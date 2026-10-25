@@ -1,4 +1,11 @@
-import sqlite3, json, os, sys, mmap, time
+# ruff: noqa: E401, E402, E701, E702, E731, E741, F401
+# One-off script of 2026-10-25, kept as it ran (see README.md beside it).
+import sqlite3
+import json
+import os
+import sys
+import mmap
+import time
 sys.path.insert(0, '/home/ncoffee/tesserae-v6-dev')
 from backend.work_names import base_work
 S = os.path.expanduser('~/tesserae-backups/public_data_2026-10-25_withheld')
