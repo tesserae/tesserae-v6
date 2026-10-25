@@ -316,6 +316,37 @@ Psalter and the Epistle to the Laodiceans. They are reported as having no Englis
 rather than forced onto the nearest-looking book, which is how the Prayer of
 Manasseh would end up answering for Manasseh in Chronicles.
 
+## Pipeline 20: the earlier Plato files re-run with the page-break rule, and the Laws by page (2026-10-25, Part H)
+
+    align_plato_stephanus_rerun.py     the 30 Plato works installed from the Perseus TEI before Part G
+    align_plato_leges_bury_stephanus.py  the Laws, one unit per Stephanus page
+    h_readings.py                      five passages per file plus one recovered tail, for reading
+
+Built on staging copies in `~/tesserae-backups/tr_h_2026-10-25/` (`out/`, `out/review/`, `logs/compare.tsv`) and not installed.
+
+**Earlier files** (`align_plato_stephanus_rerun.py OUT_DIR [--dry] [--only STEM]`). For each installed `grc__plato.*.json`
+that carries a Perseus URN (30 works; the Republic, Alcibiades I and II, Epistles and Lovers of Part G are left alone), the
+script takes the same Perseus record, pairs by Stephanus section with `stephanus_text`, runs the Part G checks and compares
+the result with the installed file reference by reference. Result: 775 units gain their lost tails, 122 references gain
+English (coverage up to 1.0 for 26 works; four stay under, at 0.983 to 0.996), 28,904 words in all, no unit shorter, no
+reference lost. Names rise or hold for every work (the largest: Euthyphro 0.70 to 0.97, Statesman 0.68 to 0.84).
+The install rule is in `decide`: coverage not lower, names not lower by more than 0.02, no unit lost English. 28 files pass.
+Cleitophon and Hipparchus pass the comparison but not the Part G checks (12 and 15 names, length correlation 0.78 and 0.73),
+so they are written to `out/review/` as the Lovers were, with the pairing resting on exact Stephanus numbers and reading.
+
+One addition to the page-break rule, `relabel_bare_chunks`. A bare number is the tail of the chunk before it, except where
+the Loeb's page falls at the start of a Stephanus section Perseus does not label: then the chunk is that section. Our own
+references name the missing section. Menexenus 234c is the case that showed it (the chunk marked 235 is 234c; read as a
+tail it put 92 words of 234c's English into 234b). Eight chunks are relabeled across the 30 works and each was read.
+
+**The Laws** (`align_plato_leges_bury_stephanus.py OUT_DIR`). Our references are `pl. leges B.PPP`, the book and the Stephanus
+page without a section letter, 327 of them. Perseus anchors Bury (1926) by lettered section, so the sections of a page are
+joined. 327 of 327 references paired, one unit per page instead of one per book (12), the same 147,008 English words, names
+0.90 on 188, length correlation 0.93, rival test 0.92.
+
+Both volumes of every file were published in 1930 or earlier; nothing here needs a renewal check, and the script stops on a record
+dated 1931 or later.
+
 ## Pipeline 19: Demosthenes, the Republic, Isocrates and Plato by section (2026-10-25, Part G)
 
     g_common.py                    shared helpers (Perseus lookup, Stephanus page-break rule, license wording)
