@@ -121,10 +121,15 @@ def attached_names(index, label_key, forms, excluded=frozenset(), is_place=False
 _TOKEN = re.compile(r'[^\W\d_]+', re.UNICODE)
 
 
-def add_line_refs(store_path, texts_db, log=print):
+def add_line_refs(store_path, texts_db, log=print, works=None):
     """Add line_ref (the stored ref of the first line of the window that holds the matched token)
     and form_key (the folded token) to mention_rows. A mention whose token is found in no line of
-    its window keeps a NULL line_ref and counts as its own line. Returns counts."""
+    its window keeps a NULL line_ref and counts as its own line. Returns counts.
+
+    With `works` (a set of work ids) only the rows of those works that have no form_key yet are
+    filled, rows that already have one are never rewritten, and the meta rows and the catalog are
+    left alone (the caller rebuilds the catalog). Used when new works are added to a copy of the
+    store (backend/entity_new_works.py)."""
     from backend.utils import normalize_ref
     t0 = time.time()
     db = sqlite3.connect(store_path)
@@ -133,7 +138,11 @@ def add_line_refs(store_path, texts_db, log=print):
         if col not in cols:
             db.execute(f'alter table mention_rows add column {col} TEXT')
     tx = sqlite3.connect(f'file:{texts_db}?mode=ro', uri=True)
+    only = works
     works = [r[0] for r in db.execute('select distinct work from windows')]
+    if only is not None:
+        works = [w for w in works if w in only]
+    extra = ' and m.form_key is null' if only is not None else ''
     found = missing = 0
     for n, work in enumerate(works):
         lines = tx.execute('select ord, ref, text from lines where work = ? order by ord', (work,)).fetchall()
@@ -153,8 +162,8 @@ def add_line_refs(store_path, texts_db, log=print):
 
         updates = []
         for rowid, form, rs, re_ in db.execute(
-                'select m.rowid, m.form, w.ref_start, w.ref_end from mention_rows m '
-                'join windows w on w.wid = m.wid where w.work = ?', (work,)):
+                'select m.rowid, m.form, w.ref_start, w.ref_end from mention_rows m '  # nosec B608
+                f'join windows w on w.wid = m.wid where w.work = ?{extra}', (work,)):
             key = ei.fold(form)
             i = at.get(rs, at.get(normalize_ref(rs)))
             j = at.get(re_, at.get(normalize_ref(re_), i))
@@ -179,6 +188,11 @@ def add_line_refs(store_path, texts_db, log=print):
             log(f'  line refs: {n}/{len(works)} works, {found} mentions placed')
     db.execute('create index if not exists ix_mr_line on mention_rows(eid, line_ref)')
     stats = {'placed': found, 'unplaced': missing}
+    if only is not None:
+        db.commit()
+        db.close()
+        tx.close()
+        return stats
     drop_catalog(db)
     db.execute("delete from meta where key in ('line_refs', 'line_refs_seconds')")
     db.execute("insert into meta values ('line_refs', ?)", (json.dumps(stats),))
