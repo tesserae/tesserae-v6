@@ -26,6 +26,8 @@ const DEVELOPER_FILES = [
   { file: 'citations_without_sentences.tar.gz', name: 'Citation Indexes', note: 'CC BY 4.0, which article cites which passage (70,293 citations in 32,089 articles), without the article sentences, 4 MB packed' },
 ];
 
+const DATA_URL = 'https://tesserae.caset.buffalo.edu/tesserae-data';
+
 const DEVELOPER_TOOLS = [
   { file: 'tesserae-openapi.yaml', note: 'describes the web API.' },
   { file: 'tesserae_mcp.py', note: 'is the local connector for AI assistants.' },
@@ -63,11 +65,11 @@ const DownloadsPage = () => {
   };
 
   const languages = [
-    { code: 'la', name: 'Latin', texts: 'about 1,830', embeddings: true },
-    { code: 'grc', name: 'Greek', texts: 'about 1,330', embeddings: true },
-    { code: 'en', name: 'English', texts: 'about 160', embeddings: false },
-    { code: 'cop', name: 'Coptic', texts: 'about 160, without the Sahidica New Testament', embeddings: false },
-    { code: 'he', name: 'Hebrew', texts: 'about 40', embeddings: false },
+    { code: 'la', name: 'Latin', texts: 'about 1,890', size: 'about 69 MB', embeddings: true },
+    { code: 'grc', name: 'Greek', texts: 'about 1,630', size: 'about 74 MB', embeddings: true },
+    { code: 'en', name: 'English', texts: 'about 160', size: 'about 6 MB', embeddings: false },
+    { code: 'cop', name: 'Coptic', texts: 'about 130, without the Sahidica New Testament', size: 'about 6 MB', embeddings: false },
+    { code: 'he', name: 'Hebrew', texts: 'about 40', size: 'about 1.4 MB', embeddings: false },
   ];
 
   return (
@@ -83,8 +85,14 @@ const DownloadsPage = () => {
         <div className="bg-white rounded-lg shadow p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Corpus Texts</h3>
           <p className="text-sm text-gray-600 mb-4">
-            Download all texts in .tess format for a language. Texts are organized by author and work.
-            Persian and Urdu texts are searchable on the site but are not offered as ZIP files
+            One archive per language, a .tar.gz of the texts in .tess format with a MANIFEST.tsv and a
+            README.txt inside. The manifest lists every text with its author, work, number of lines,
+            electronic source and print source, and license. Each text is under its own license,
+            listed in the manifest, and bulk copies fall under the{' '}
+            <a href="/terms" className="text-red-600 hover:underline">Terms of Use</a>.
+            Texts whose source allows no online copy (Musisque Deoque, Corpus Thomisticum,
+            augustinus.it) are searchable on the site and left out of the archives, and each
+            archive's README counts them. Persian and Urdu texts are searchable on the site but are not offered as archives
             pending their sources' terms. The Urdu search index, which holds the line text of
             fourteen Wikisource collections, is offered under the developer data files below.
           </p>
@@ -93,15 +101,24 @@ const DownloadsPage = () => {
               <div key={lang.code} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-gray-50 rounded">
                 <div>
                   <span className="font-medium">{lang.name}</span>
-                  <span className="text-sm text-gray-500 ml-2">({lang.texts} texts)</span>
+                  <span className="text-sm text-gray-500 ml-2">({lang.texts} texts, {lang.size})</span>
                 </div>
-                <button
-                  onClick={() => handleDownload('texts', lang.code)}
-                  disabled={downloading[`texts-${lang.code}`]}
-                  className="px-4 py-2 bg-red-700 text-white rounded hover:bg-red-800 disabled:opacity-50 text-sm"
-                >
-                  {downloading[`texts-${lang.code}`] ? 'Downloading...' : 'Download ZIP'}
-                </button>
+                <div className="flex items-center gap-3">
+                  <a
+                    href={`${DATA_URL}/texts_${lang.code}_manifest.tsv`}
+                    target="_blank" rel="noopener noreferrer"
+                    className="text-sm text-red-600 hover:underline"
+                  >
+                    List with licenses ({lang.name})
+                  </a>
+                  <a
+                    href={`${DATA_URL}/texts_${lang.code}.tar.gz`}
+                    className="px-4 py-2 bg-red-700 text-white rounded hover:bg-red-800 text-sm"
+                    aria-label={`Download the ${lang.name} text archive`}
+                  >
+                    Download archive
+                  </a>
+                </div>
               </div>
             ))}
           </div>

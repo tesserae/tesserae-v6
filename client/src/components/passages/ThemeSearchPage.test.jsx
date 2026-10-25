@@ -382,8 +382,7 @@ describe('Compare two works', () => {
   }
 
   function openComparePane() {
-    render(<ThemeSearchPage />);
-    fireEvent.click(screen.getByRole('button', { name: 'Compare two works' }));
+    render(<ThemeSearchPage scopeName="two" />);
   }
 
   function pickWork(sideLabel, authorName, workId) {
@@ -452,7 +451,7 @@ describe('Compare two works', () => {
       }
       return null;
     });
-    render(<ThemeSearchPage />);
+    render(<ThemeSearchPage scopeName="two" />);
     await waitFor(() => expect(global.fetch).toHaveBeenCalledWith(
       '/api/passages/compare?work_a=vergil.aeneid&work_b=lucan.bellum_civile&with_phrases=1'));
     expect(await screen.findByText('A storm scatters the fleet.')).toBeTruthy();

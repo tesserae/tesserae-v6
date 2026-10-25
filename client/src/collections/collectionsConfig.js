@@ -132,10 +132,10 @@ export const VIEWS = [
     id: 'literature',
     label: 'Literature',
     profile: 'literary',
-    home: { page: 'ask-a-work' },
+    home: { page: 'theme-search' },
     askDefault: { lang: 'la', work: 'vergil.aeneid' },
     menuOrder: [
-      'ask-a-work', 'search', 'read', 'theme-search', 'mentions', 'inscriptions-papyri', 'events', 'coins', 'objects',
+      'search', 'read', 'theme-search', 'mentions', 'inscriptions-papyri', 'events', 'coins', 'objects',
       'browse', 'about', 'help', 'repository', 'downloads',
     ],
     readerTabs: ['similar', 'reuse', 'verbal', 'scholarship', 'translation', 'coins'],
@@ -143,22 +143,22 @@ export const VIEWS = [
       la: { source: 'vergil.aeneid.part.1.tess', target: 'lucan.bellum_civile.part.1.tess' },
       grc: { source: 'homer.iliad.part.1.tess', target: 'apollonius_rhodius.argonautica.part.1.tess' },
     },
-    startHereOrder: ['ask', 'compare', 'phrase', 'rare', 'subject', 'read', 'mentions', 'documents'],
+    startHereOrder: ['subject', 'compare', 'phrase', 'rare', 'read', 'mentions', 'documents'],
     startHereLabels: {},
-    opensOn: 'Search One Text, on the Aeneid',
+    opensOn: 'Theme Search, one text, on the Aeneid',
   },
   {
     id: 'history',
     label: 'History',
     profile: 'everything',
-    // Search One Text, on the Annals, with its own history examples
+    // Theme Search on one text, on the Annals, with its own history examples
     // (the owner, 2026-10-13); before that the Reader on Tacitus, Annals 1.
-    home: { page: 'ask-a-work' },
+    home: { page: 'theme-search' },
     askDefault: { lang: 'la', work: 'tacitus.annales' },
     // Coins and Objects beside the other collections and ahead of
     // Intertextual Search (the project lead, 2026-10-18).
     menuOrder: [
-      'ask-a-work', 'read', 'events', 'inscriptions-papyri', 'coins', 'objects', 'theme-search', 'mentions', 'search',
+      'read', 'events', 'inscriptions-papyri', 'coins', 'objects', 'theme-search', 'mentions', 'search',
       'browse', 'about', 'help', 'repository', 'downloads',
     ],
     readerTabs: ['similar', 'coins', 'scholarship', 'reuse', 'verbal', 'translation'],
@@ -166,9 +166,9 @@ export const VIEWS = [
       la: { source: 'livy.ab_urbe_condita.part.1.books_1-10.tess', target: 'tacitus.annales.part.1.tess' },
       grc: { source: 'herodotus.histories.part.1.tess', target: 'thucydides.peloponnesian_war.part.1.tess' },
     },
-    startHereOrder: ['documents', 'mentions', 'read', 'subject', 'ask', 'phrase', 'compare', 'rare'],
+    startHereOrder: ['documents', 'mentions', 'read', 'subject', 'phrase', 'compare', 'rare'],
     startHereLabels: { documents: 'Inscriptions, papyri, events and coins' },
-    opensOn: 'Search One Text, on the Annals',
+    opensOn: 'Theme Search, one text, on the Annals',
   },
 ];
 

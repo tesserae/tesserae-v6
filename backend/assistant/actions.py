@@ -347,7 +347,7 @@ def _read(work, ref=None, ref_end=None, language=None, name=None):
 
 
 def _one_text(work, query, language=None, books=None, name=None):
-    """Open Search One Text with the work and the question filled in (the page reads work, lang, q, books)."""
+    """Open Theme Search on one text with the work and the question filled in (the page reads work, lang, q, books)."""
     if not work or not query:
         return None
     args = {'work': str(work).replace('.tess', ''), 'lang': language if language in LANGUAGES else 'la', 'q': query}
@@ -356,8 +356,8 @@ def _one_text(work, query, language=None, books=None, name=None):
     return {
         'kind': 'one_text',
         'label': f'Search {name or work} for \u201c{query}\u201d',
-        'detail': 'Search One Text, the passages of this work about it',
-        'url': f'/ask-a-work?{urlencode(args)}',
+        'detail': 'Theme Search on one text, the passages of this work about it',
+        'url': f'/theme-search?{urlencode({"scope": "one", **args})}',
     }
 
 
@@ -450,7 +450,7 @@ def _collection_control(which, a):
 
 
 def _three_controls(f):
-    """The controls under an answer from Search One Text, People & Places, Events or a collection."""
+    """The controls under an answer from Theme Search on one text, People & Places, Events or a collection."""
     a = f['args']
     which = f.get('search')
     if which in ('documents_search', 'coins_search', 'objects_search'):
@@ -521,7 +521,7 @@ def build(facts, question=''):
             a = f['args']
             out.append(_cross_language(a.get('a'), a.get('b')))
 
-        # Search One Text, People & Places and Events, run by the assistant: the page
+        # Theme Search on one text, People & Places and Events, run by the assistant: the page
         # opens on the same work and question, entry or event.
         if f.get('search') in _three_names() and isinstance(f.get('args'), dict):
             out.extend(_three_controls(f))

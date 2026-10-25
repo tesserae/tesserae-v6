@@ -365,8 +365,13 @@ export function isWeakNeighbor(r, data) {
   return Number(r.score) < Math.max(...scores);
 }
 
-export default function ThemeSearchPage() {
-  const [query, setQuery] = useState('');
+// scopeName: 'corpus' (the whole-corpus search and its Similarity Map) or 'two'
+// (the two-text comparison form). The page that holds the scope control,
+// ThemeSearchScopes, passes it, and prefill is the query carried over from
+// another scope.
+export default function ThemeSearchPage({ scopeName = 'corpus', prefill = '', onQueryChange = null }) {
+  const [query, setQuery] = useState(prefill);
+  useEffect(() => { if (onQueryChange) onQueryChange(query); }, [query, onQueryChange]);
   // Coins: an option of its own, shown only when the Coins collection is on.
   // It searches the coin descriptions and shows them as a separate list; it is
   // never mixed into the passage ranking.
@@ -385,7 +390,7 @@ export default function ThemeSearchPage() {
   // this kind, shown only when the Scholarship collection is on.
   const scholarshipAvailable = anyOn(PAGE_NEEDS['scholarship-theme']);
   // `in=scholarship` in the address opens the page on the scholarship search
-  // (the link under Search One Text's scholarship paragraph, 2026-10-12).
+  // (the link under the one-text scope's scholarship paragraph, 2026-10-12).
   const [scholarshipChosen, setScholarshipChosen] = useState(() => {
     try { return new URLSearchParams(window.location.search).get('in') === 'scholarship'; } catch { return false; }
   });
@@ -631,7 +636,7 @@ export default function ThemeSearchPage() {
         // (2026-09-08). replaceState rather than pushState: the reader gets a
         // reloadable, sendable link without the Back button filling up with
         // every refinement of the same search.
-        const p = new URLSearchParams({ query: text });
+        const p = new URLSearchParams({ scope: 'corpus', query: text });
         if (langParam) p.set('languages', langParam);
         if (scope.work) p.set('works', scope.work);
         else if (scope.author) p.set('author', scope.author);
@@ -724,17 +729,17 @@ export default function ThemeSearchPage() {
   // the URL so a link to /theme-search?tab=map, or one carrying
   // compare=<id>&with=<id>, lands there directly.
   const [tab, setTab] = useState(() => {
+    if (scopeName === 'two') return 'compare';
     const p = new URLSearchParams(window.location.search);
-    if (p.get('tab') === 'map') return 'map';
-    if ((p.get('compare') || '').trim() && (p.get('with') || '').trim()) return 'compare';
-    return p.get('tab') === 'compare' ? 'compare' : 'search';
+    return p.get('tab') === 'map' ? 'map' : 'search';
   });
   const setTabAndUrl = (t) => {
     setTab(t);
     const p = new URLSearchParams(window.location.search);
+    p.set('scope', scopeName);
     if (t === 'map' || t === 'compare') p.set('tab', t); else p.delete('tab');
     if (t !== 'compare') { p.delete('compare'); p.delete('with'); }
-    window.history.replaceState({}, '', `/theme-search${p.toString() ? `?${p}` : ''}`);
+    window.history.replaceState({}, '', `/theme-search?${p}`);
   };
 
   // Compare Two Works: pick a language, author and work on each side (the
@@ -774,7 +779,7 @@ export default function ThemeSearchPage() {
       if (json.error) setCmpError(json.error);
       else {
         setCmpData(json);
-        const p = new URLSearchParams({ compare: a, with: b, tab: 'compare' });
+        const p = new URLSearchParams({ scope: 'two', compare: a, with: b, tab: 'compare' });
         window.history.replaceState({}, '', `/theme-search?${p.toString()}`);
       }
     } catch (e) {
@@ -791,19 +796,16 @@ export default function ThemeSearchPage() {
   useEffect(() => {
     if (ranCompareFromUrl.current) return;
     ranCompareFromUrl.current = true;
+    if (scopeName !== 'two') return;
     const p = new URLSearchParams(window.location.search);
     const a = (p.get('compare') || '').trim();
     const b = (p.get('with') || '').trim();
     if (!a || !b) return;
     runCompare(a, b);
-  }, [runCompare]);
+  }, [runCompare, scopeName]);
 
   return (
     <div className="max-w-4xl mx-auto p-6">
-      <div className="flex items-center gap-2">
-        <h1 className="text-2xl font-semibold text-gray-900">Theme Search</h1>
-      </div>
-
       {/* The coverage sentence lives in the box with the rest of what the
           search covers (owner, 2026-10-12: "a lot of the info on the screen
           can go into 'What this search does'"). */}
@@ -823,8 +825,8 @@ export default function ThemeSearchPage() {
         )}
       />
 
-      <div className="mt-4 inline-flex rounded border border-gray-300 overflow-hidden text-sm">
-        {[['search', 'Theme Search'], ['map', 'Similarity Map'], ['compare', 'Compare two works']].map(([v, label]) => (
+      {scopeName !== 'two' && <div className="mt-4 inline-flex rounded border border-gray-300 overflow-hidden text-sm">
+        {[['search', 'Passages'], ['map', 'Similarity Map']].map(([v, label]) => (
           <button
             key={v}
             onClick={() => setTabAndUrl(v)}
@@ -834,7 +836,7 @@ export default function ThemeSearchPage() {
             {label}
           </button>
         ))}
-      </div>
+      </div>}
 
       {tab === 'map' ? (
         <div className="mt-4">

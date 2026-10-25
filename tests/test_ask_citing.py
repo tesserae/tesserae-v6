@@ -1,5 +1,5 @@
 """POST /passages/ask-citing: articles in the two citation indexes that cite the
-passages on the Search One Text page, merged by article. Project MUSE
+passages on the one-text scope of Theme Search, merged by article. Project MUSE
 sentences are never in the answer. All sentences here are invented."""
 import os
 import sqlite3

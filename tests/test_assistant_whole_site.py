@@ -4,7 +4,7 @@ from backend.assistant import front_door, prompts
 
 def test_the_guide_names_every_page_of_the_site():
     g = prompts.guide_system()
-    for name in ('Search One Text', 'Theme Search', 'Reader', 'People & Places', 'Events', 'Similarity Map',
+    for name in ('Theme Search', 'Reader', 'People & Places', 'Events', 'Similarity Map',
                  'Inscriptions & Papyri', 'Coins', 'Objects', 'Cross-Language', 'Browse Corpus'):
         assert name in g, name
     for label, _, _ in front_door.FRONT_DOOR_CHOICES:
@@ -24,7 +24,7 @@ def test_search_type_questions_get_the_whole_site():
         assert front_door.matches_overview(q), q
     assert not front_door.matches_overview('what does the theme search find in ovid about storms at sea and shipwreck')
     text = front_door.overview()
-    for name in ('Search One Text', 'People & Places', 'Events', 'Similarity Map', 'Coins', 'Objects', 'Collections'):
+    for name in ('Theme Search', 'People & Places', 'Events', 'Similarity Map', 'Coins', 'Objects', 'Collections'):
         assert name in text, name
     assert '](/events)' in text
 

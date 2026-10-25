@@ -243,8 +243,8 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
     { id: 'settings', label: 'Search Settings', group: 'Searching the literature' },
     { id: 'stoplists', label: 'Stoplists', group: 'Searching the literature' },
     { id: 'results', label: 'Reading the results', group: 'Searching the literature' },
-    { id: 'ask-a-work', label: 'Search One Text', group: 'Searching the literature' },
     { id: 'theme-search', label: 'Theme Search', group: 'Searching the literature' },
+    { id: 'ask-a-work', label: 'Theme Search: one text', group: 'Searching the literature' },
     { id: 'cross-lingual', label: 'Cross-Language Search', group: 'Searching the literature' },
 
     { id: 'reader', label: 'The Reader', group: 'Reading' },
@@ -361,8 +361,8 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
               <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Start here</h3>
               <p className="text-gray-700 mb-4">
                 Tesserae finds passages that echo one another in Latin, Greek, English, Coptic, Hebrew, Persian and Urdu,
-                whether through shared words, shared sounds, or a shared subject. It offers eight kinds of search, listed
-                below in the order of the "What are you trying to do?" panel. The Search One Text page, where a visit starts,
+                whether through shared words, shared sounds, or a shared subject. It offers seven kinds of search, listed
+                below in the order of the "What are you trying to do?" panel. The Theme Search page, where a visit starts,
                 and the Intertextual Search page show that panel the first time you visit. Choosing an answer takes you to the
                 right search, and "Skip" closes the panel for good. The "Start here" link at the top of every page brings it
                 back, and Tessa gives the same list when you ask her where to start.
@@ -409,18 +409,11 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 <div className="border-l-4 border-gray-300 pl-4">
                   <h4 className="text-lg font-semibold text-gray-900">Theme Search</h4>
                   <p className="text-gray-600 text-sm mt-1">
-                    Finds passages on a subject you describe in your own words, in every indexed language at once, even when they
-                    share no vocabulary with your description. Use it when you do not know what words a scene is phrased in. See{' '}
+                    Finds passages on a subject you describe in your own words, even when they share no vocabulary with your
+                    description. One tab, three scopes: One text asks what a single work says about the subject, Two texts
+                    reads two works against each other, and Whole corpus searches every indexed language at once. Use it when
+                    you do not know what words a scene is phrased in. See{' '}
                     <button onClick={() => setActiveSection('theme-search')} className="text-red-600 hover:underline">Theme Search</button>.
-                  </p>
-                </div>
-
-                <div className="border-l-4 border-gray-300 pl-4">
-                  <h4 className="text-lg font-semibold text-gray-900">Search One Text</h4>
-                  <p className="text-gray-600 text-sm mt-1">
-                    Asks one work what it says about a subject, in plain words. It is Theme Search run inside that one work, and
-                    the closest passages come back. See{' '}
-                    <button onClick={() => setActiveSection('ask-a-work')} className="text-red-600 hover:underline">Search One Text</button>.
                   </p>
                 </div>
 
@@ -501,10 +494,10 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
               <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Literature and History views</h3>
               <p className="text-gray-700 mb-4">
                 The site has two views, Literature and History, switched by the two words at the left of the
-                main menu. Literature opens on Search One Text, on the Aeneid, with the menu led by
-                Search One Text and Intertextual Search. History opens on Search One Text, on Tacitus&rsquo;s Annals, with its own examples (prodigies in Livy, forced
+                main menu. Literature opens on Theme Search, one text, on the Aeneid, with the menu led by
+                Intertextual Search and Read. History opens on Theme Search, one text, on Tacitus&rsquo;s Annals, with its own examples (prodigies in Livy, forced
                 suicides in the Annals, warning dreams in Herodotus, Gallic and German customs in Caesar, besieged cities in Thucydides, omens of an emperor's death in Suetonius), with
-                every collection on, the menu led by Search One Text and Read, and the Reader&rsquo;s side panel opening on
+                every collection on, the menu led by Read, and the Reader&rsquo;s side panel opening on
                 Similar, then the coins, the commentaries and articles, Reuse, Verbal and Translation (the inscriptions and papyri appear
                 as a group inside Reuse and Verbal). History also opens the Phrase Search on Livy against Tacitus in Latin and on
                 Herodotus against Thucydides in Greek, and puts the inscriptions, papyri and events first in the Start here list.
@@ -534,7 +527,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
               <p className="text-gray-700 mb-4">
                 A Beta mark beside a page name in the top row means the page is new and still changing. Its results
                 are worth using, and worth citing with care, because the wording, grouping or ranking on the page
-                may still change. At present Search One Text and Events carry the mark.
+                may still change. At present Events carries the mark.
               </p>
               <p className="text-gray-700 mb-4">
                 The Suggest a change button in the header, on every page, opens a short form. Use it to report a
@@ -550,6 +543,18 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
               <p className="text-gray-700 mb-4">
                 The Downloads page is under More at the right end of the top row. It offers the corpus texts by
                 language, pre-computed data files for running your own copy, and the benchmark lists.
+              </p>
+              <p className="text-gray-700 mb-4">
+                The corpus texts come as one archive per language, a .tar.gz of the .tess files with a
+                MANIFEST.tsv and a README.txt inside, and the manifest is also offered beside each
+                archive. The manifest has one row per text: author, work, number of lines, electronic
+                source and its address, print source and license. Each text stays under its own license,
+                and texts licensed for noncommercial use only are marked in the manifest. A text with no
+                credit row yet reads "unknown". Texts held for search only on this site are left out, and
+                so are texts whose source allows no online copy (Musisque Deoque, Corpus Thomisticum,
+                augustinus.it); the README inside each archive counts them.
+                The archives are rebuilt at every import, and the Terms of Use page states the
+                conditions for bulk copies.
               </p>
             </div>
           )}
@@ -1229,6 +1234,29 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
             <div className="prose max-w-none">
               <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Theme Search</h3>
               <p className="text-gray-700 mb-4">
+                Theme Search is one tab with three scopes, chosen by the three buttons at the top
+                of the page: <strong>One text</strong>, <strong>Two texts</strong> and{' '}
+                <strong>Whole corpus</strong>. The choice is in the address
+                (<code>?scope=one</code>, <code>two</code> or <code>corpus</code>), so a link
+                reopens the right form, and the words in the search box carry over between One text
+                and Whole corpus. The sections below take the scopes in turn.
+              </p>
+              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2" id="theme-scope-one">One text</h4>
+              <p className="text-gray-700 mb-4">
+                Pick a work and ask what it says about a subject. The closest passages of that one
+                work come back, with a strip showing where in the work they fall, a summary and the
+                scholarship on it. The full description is under{' '}
+                <button onClick={() => setActiveSection('ask-a-work')} className="text-red-600 hover:underline">Theme Search: one text</button>.
+                This is the form a visit to the site opens on.
+              </p>
+              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2" id="theme-scope-two">Two texts</h4>
+              <p className="text-gray-700 mb-4">
+                Pick two works, or two books, and see which of their passages resemble each other
+                in content, across languages as well. The details are under Comparing two works
+                further down this page.
+              </p>
+              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2" id="theme-scope-corpus">Whole corpus</h4>
+              <p className="text-gray-700 mb-4">
                 Describe what happens in a passage, in your own words, and Theme Search finds
                 passages that match the description rather than the wording. Because it works
                 from content, results come back in every indexed language at once and usually
@@ -1305,9 +1333,9 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 and &ldquo;Refresh map&rdquo; reloads it.
               </p>
 
-              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">Comparing two works</h4>
+              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2" id="theme-compare">Comparing two works (the Two texts scope)</h4>
               <p className="text-gray-700 mb-3">
-                The &ldquo;Compare two works&rdquo; tab beside the search box reads two whole
+                The Two texts scope reads two whole
                 works, or two books, against each other rather than against a description you
                 write. Pick a work on each side and the page finds which of their passage
                 windows resemble each other most in content, across languages as well. A
@@ -1497,9 +1525,9 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
 
           {activeSection === 'ask-a-work' && (
             <div className="prose max-w-none">
-              <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Search One Text</h3>
+              <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Theme Search: one text</h3>
               <p className="text-gray-700 mb-4">
-                Search One Text asks what one work says about a subject. Pick a
+                The One text scope of Theme Search asks what one work says about a subject. Pick a
                 language, an author and a work, type the subject in plain words, and press Go.
                 It is Theme Search run inside that one work, so your words are compared with the
                 description written for each passage and the closest passages come back.
@@ -1801,7 +1829,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   them.
                 </li>
                 <li>
-                  Run <strong>Search One Text</strong> from a sentence that names one work and a subject
+                  Run <strong>Theme Search on one text</strong> from a sentence that names one work and a subject
                   (&ldquo;what does the Aeneid say about storms?&rdquo;, &ldquo;in Hamlet, where does a ghost
                   appear?&rdquo;). She reports the best passages with their references and the match band
                   the page gives them, and a link opens the page with the work and the question filled in.
@@ -2243,7 +2271,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 to the respective projects. Findspots link to Pleiades (CC BY 3.0). The full list,
                 with the version and retrieval date of each, is under{' '}
                 <a href="/text-credits" className="text-red-700 hover:underline">Sources and credits</a>.
-              </p>
+               The <a href="/terms" className="text-red-700 hover:underline">Terms of Use</a> page states what the site, the API and the connector may be used for: noncommercial use, at a reader's pace, with a request for anything larger.</p>
             </div>
           )}
 
@@ -3461,7 +3489,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                     when the best results do not stand far above the rest of the corpus, so their order is less
                     settled, which is usual when the corpus holds little on the subject or the description is very
                     general. The list is still shown in full. Read the passages themselves, and try a more concrete
-                    description of what happens in the scene. Search One Text uses the same label inside one work.
+                    description of what happens in the scene. The One text scope uses the same label inside one work.
                   </p>
                 </div>
                 <div>
@@ -3616,8 +3644,8 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 In Scholarship, five open services supply the online results for a passage. OpenAlex and Crossref are searched
                 by title and abstract. Semantic Scholar and CORE are searched in the full text of open-access papers. Google
                 Books finds a citation on a book page and shows the snippet Google shows. When the search starts from a
-                question instead of a passage (the Books and articles found online list in Search One Text and Theme
-                Search), the same five services are asked the question, and an item is kept only when its title or abstract
+                question instead of a passage (the Books and articles found online list in Theme Search, in the One text and
+                Whole corpus scopes), the same five services are asked the question, and an item is kept only when its title or abstract
                 shares the question&rsquo;s words. Answers are kept for thirty days. The site&rsquo;s own
                 index of citations in journals from before 1923 reads JSTOR&rsquo;s Early Journal Content and covers 24
                 philology, archaeology and biblical journals from 1827 to 1922. The same journals supply the Scholarship

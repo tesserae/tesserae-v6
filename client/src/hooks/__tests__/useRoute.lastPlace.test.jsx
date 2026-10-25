@@ -23,9 +23,10 @@ describe('the return to the last place', () => {
     window.localStorage.setItem(KEY, '/theme-search?query=storm');
     window.history.replaceState({}, '', '/?view=history');
     const { result } = renderHook(() => useRoute(props));
-    // The view home, as before: not the stored place.
-    expect(result.current.pageType).not.toBe('theme-search');
-    expect(window.location.search).not.toContain('storm');
+    // The view home, as before: not the stored place (the home is the one-text
+    // scope of Theme Search, so the page type is the same, the address is not).
+    expect(result.current.pageType).toBe('theme-search');
+    expect(window.location.search).toBe('?scope=one');
   });
 
   it('a visit to another path does not restore', () => {
@@ -37,11 +38,11 @@ describe('the return to the last place', () => {
 
   it('with nothing stored a bare visit opens the view home, as before', () => {
     const { result } = renderHook(() => useRoute(props));
-    expect(result.current.pageType).toBe('ask-a-work');
+    expect(result.current.pageType).toBe('theme-search');
   });
 
   it('never records the admin, downloads, privacy or credits pages', () => {
-    ['/admin', '/downloads', '/privacy', '/text-credits', '/nowhere'].forEach((p) => {
+    ['/admin', '/downloads', '/privacy', '/terms', '/text-credits', '/nowhere'].forEach((p) => {
       expect(isRememberedPath(p)).toBe(false);
     });
     ['/read', '/theme-search', '/events/battle-of-actium', '/coins/abc', '/objects/1', '/mentions'].forEach((p) => {

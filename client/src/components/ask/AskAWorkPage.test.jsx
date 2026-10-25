@@ -1,5 +1,5 @@
 /**
- * Search One Text: one work, one question, Theme Search inside the work, and a strip
+ * Theme Search, one-text scope: one work, one question, Theme Search inside the work, and a strip
  * of where the passages fall.
  */
 import { describe, expect, it, vi, beforeEach } from 'vitest';
@@ -41,7 +41,7 @@ function themeCalls() {
 }
 
 beforeEach(() => {
-  window.history.replaceState({}, '', '/ask-a-work');
+  window.history.replaceState({}, '', '/theme-search?scope=one');
   window.localStorage.clear();
   window.HTMLElement.prototype.scrollIntoView = vi.fn();
   reply = { query: 'q', results: RESULTS, restricted: true, confidence: { level: 'restricted' }, note: 'Confidence is not rated.' };
@@ -94,10 +94,10 @@ describe('reading a reference', () => {
   });
 });
 
-describe('Search One Text', () => {
+describe('Theme Search, one text', () => {
   it('renders the controls', async () => {
     render(<AskAWorkPage />);
-    expect(screen.getByRole('heading', { name: 'Search One Text' })).toBeInTheDocument();
+    expect(screen.queryByText(/beta/i)).toBeNull();
     expect(screen.getByText('Pick a work and ask what it says about a subject.')).toBeInTheDocument();
     expect(screen.getByLabelText('Language')).toBeInTheDocument();
     expect(await screen.findByRole('combobox', { name: 'Author' })).toBeInTheDocument();
@@ -249,7 +249,7 @@ describe('Search One Text', () => {
   });
 
   it('fills the controls from the address and runs the search', async () => {
-    window.history.replaceState({}, '', '/ask-a-work?work=vergil.aeneid&lang=la&q=fathers%20and%20sons');
+    window.history.replaceState({}, '', '/theme-search?scope=one&work=vergil.aeneid&lang=la&q=fathers%20and%20sons');
     render(<AskAWorkPage />);
     await screen.findAllByTestId('ask-card');
     expect(themeCalls()[0]).toContain('works=vergil.aeneid');
@@ -360,7 +360,7 @@ describe('books of a work', () => {
 
   it('reads books from the address and draws only the books searched', async () => {
     reply = { ...reply, results: [row(1, 'verg. aen. 2.40'), row(2, 'verg. aen. 3.50')], books_searched: [2, 3] };
-    window.history.replaceState({}, '', '/ask-a-work?work=vergil.aeneid&lang=la&q=fathers%20and%20sons&books=2-3');
+    window.history.replaceState({}, '', '/theme-search?scope=one&work=vergil.aeneid&lang=la&q=fathers%20and%20sons&books=2-3');
     render(<AskAWorkPage />);
     await screen.findAllByTestId('ask-card');
     expect(themeCalls()[0]).toContain('books=2-3');

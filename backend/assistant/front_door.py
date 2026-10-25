@@ -1,6 +1,6 @@
 """Tessa's answer to "where do I start?".
 
-The same eight choices as the "Start here" panel on the Intertextual Search page
+The same seven choices as the "Start here" panel on the Intertextual Search page
 (client/src/components/search/frontDoor.js). The labels and paths here must
 match that file, and tests/test_assistant_front_door.py checks that they do.
 Change both together.
@@ -14,8 +14,7 @@ FRONT_DOOR_CHOICES = [
     ('Phrase Search', 'the phrases two works share, ranked by how distinctive they are', '/?tab=parallel'),
     ('Line Search', 'every line in the corpus where a phrase or a pair of words occurs', '/?tab=line'),
     ('Rare Words', 'the rare words and word pairs two works share', '/?tab=hapax'),
-    ('Theme Search', 'passages on a subject you describe in your own words, in any of the corpus languages', '/theme-search'),
-    ('Search One Text', 'what one work says about a subject, in plain words', '/ask-a-work'),
+    ('Theme Search', 'passages on a subject you describe in your own words: in one text, in two texts compared, or across the whole corpus', '/theme-search?scope=one'),
     ('Reader', 'read a text with its echoes, translations and scholarship beside each passage', '/read'),
     ('People & Places', 'every line where a person, place or god is named, in Latin, Greek and English', '/mentions'),
     ('Collections', 'inscriptions, papyri, events, coins and museum objects, switched on from the top row', '/inscriptions-papyri?profile=everything'),
@@ -44,7 +43,7 @@ def matches(normalised_question):
 
 
 def answer():
-    lines = ['This site does eight kinds of thing.']
+    lines = ['This site does seven kinds of thing.']
     lines += [f'- [{label}]({path}): {detail}' for label, detail, path in FRONT_DOOR_CHOICES]
     lines.append('Say which one and I will set it up.')
     return '\n'.join(lines)
@@ -53,7 +52,7 @@ def answer():
 # WHAT THE SITE OFFERS (2026-10-21). Asked "what about search types?", the model described only
 # the comparison searches although its instructions listed every page. A question about the
 # kinds of search or what the site offers is answered in code, from the same two lists the
-# guide reads (the Start here panel's eight and prompts.OTHER_PAGES), with a link to each page.
+# guide reads (the Start here panel's seven and prompts.OTHER_PAGES), with a link to each page.
 OVERVIEW_MARKERS = (
     'search types', 'types of search', 'types of searches', 'kinds of search', 'kinds of searches',
     'what searches', 'which searches', 'what search options', 'what features', 'which features',
