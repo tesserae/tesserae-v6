@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """The earlier Plato files re-run with the page-break rule (Part H, 2026-10-25).
 
-The 27 Plato translation files installed from the Perseus TEI before Part G were paired by exact Stephanus key,
+The 30 Plato translation files installed from the Perseus TEI before Part G were paired by exact Stephanus key,
 which drops the bare page-number chunks Perseus uses for the Loeb's page breaks (see `stephanus_text` in
 g_common.py). For each file this script reads the installed file's Perseus URN and translator, takes the same
 Perseus record, pairs again with the page-break rule, runs the Part G checks, and compares the result with the
