@@ -8,6 +8,7 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-24
+- Persian and Urdu texts staged, not yet installed: Rumi's Masnavi (six books), Saadi's Bustan and Gulistan, Attar's Mantiq al-Tayr and Tazkirat al-Awliya (each split out of the diwan file that carries it), Nizami Arudi's Chahar Maqala, the Persian Kalila va Demna, Mir Amman's Bagh o Bahar, Suroor's Fasana-e-Ajaib and Azad's Ab-e-Hayat, with converters, metadata, English alignments (Nicholson Books I to IV, Clarke, Eastwick, Browne) and the reference plan for the split diwans. See docs/DATA_OPERATIONS.md.
 - Coins: the stored thumbnails keep their 30-day cache header (the site-wide no-store rule exempted them), and the install run record.
 - Coins: the 12,156 Roman coin types that the American Numismatic Society holds show a small stored picture of front and back, the Society's own public-domain photograph, with a credit line on the card and the coin page. Other coins keep the link out.
 - Reader: a machine translation on request, from the free campus model, with its test reliability stated.
