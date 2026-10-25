@@ -14169,7 +14169,7 @@
   },
   {
     "author": "Servius Honoratus",
-    "work": "Commentary on the Aeneid of Vergil",
+    "work": "In Virgilii Aeneidos Libros Commentarius (Commentary on the Aeneid of Vergil)",
     "e_source": "Perseus",
     "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.02.0053",
     "print_source": "Georgius Thilo, In Vergilii carmina comentarii. Leipzig: B. G. Teubner, 1881.",
@@ -14177,7 +14177,7 @@
   },
   {
     "author": "Servius Honoratus",
-    "work": "Commentary on the Eclogues of Vergil",
+    "work": "In Virgilii Bucolicon Librum Commentarius (Commentary on the Eclogues of Vergil)",
     "e_source": "Perseus",
     "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a2007.01.0091",
     "print_source": "Georgius Thilo, In Vergilii carmina comentarii. Leipzig: B. G. Teubner, 1881.",
@@ -14185,7 +14185,7 @@
   },
   {
     "author": "Servius Honoratus",
-    "work": "Commentary on the Georgics of Vergil",
+    "work": "In Virgilii Georgicon Libros Commentarius (Commentary on the Georgics of Vergil)",
     "e_source": "Perseus",
     "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a2007.01.0092",
     "print_source": "Georgius Thilo, In Vergilii carmina comentarii. Leipzig: B. G. Teubner, 1881.",
@@ -21619,24 +21619,24 @@
     "added_by": "V6 Import (Greek tranche, 2026-10-24)"
   },
   {
-    "author": "Thomas Aquinas",
-    "work": "Summa Theologiae, Prima Secundae",
+    "author": "Aquinas",
+    "work": "Summa Theologiae 2 (Prima Secundae)",
     "e_source": "Corpus Thomisticum",
     "e_source_url": "https://www.corpusthomisticum.org/sth2001.html",
     "print_source": "Textum Leoninum (Rome 1891) as edited by Roberto Busa and Enrique Alarcon, Corpus Thomisticum, Fundacion Tomas de Aquino.",
     "added_by": "V6 Import (Latin tranche 2026-10-24)"
   },
   {
-    "author": "Thomas Aquinas",
-    "work": "Summa Theologiae, Secunda Secundae",
+    "author": "Aquinas",
+    "work": "Summa Theologiae 3 (Secunda Secundae)",
     "e_source": "Corpus Thomisticum",
     "e_source_url": "https://www.corpusthomisticum.org/sth3001.html",
     "print_source": "Textum Leoninum (Rome 1895) as edited by Roberto Busa and Enrique Alarcon, Corpus Thomisticum, Fundacion Tomas de Aquino.",
     "added_by": "V6 Import (Latin tranche 2026-10-24)"
   },
   {
-    "author": "Thomas Aquinas",
-    "work": "Summa Theologiae, Tertia Pars",
+    "author": "Aquinas",
+    "work": "Summa Theologiae 4 (Tertia Pars)",
     "e_source": "Corpus Thomisticum",
     "e_source_url": "https://www.corpusthomisticum.org/sth4001.html",
     "print_source": "Textum Leoninum (Rome 1903) as edited by Roberto Busa and Enrique Alarcon, Corpus Thomisticum, Fundacion Tomas de Aquino.",
@@ -21644,7 +21644,7 @@
   },
   {
     "author": "Gregory of Tours",
-    "work": "Historiarum libri X (History of the Franks)",
+    "work": "Historiarum Libri X (History of the Franks)",
     "e_source": "Latin Wikisource",
     "e_source_url": "https://la.wikisource.org/wiki/Historiarum_Francorum_libri_X",
     "print_source": "Not stated on the Wikisource pages. Retrieved 2026-10-24.",
@@ -21652,30 +21652,30 @@
   },
   {
     "author": "Geoffrey of Monmouth",
-    "work": "Historia regum Britanniae",
+    "work": "Historia Regum Britanniae",
     "e_source": "Latin Wikisource",
     "e_source_url": "https://la.wikisource.org/wiki/Historia_Regum_Britanniae",
     "print_source": "Not stated on the Wikisource pages. Retrieved 2026-10-24.",
     "added_by": "V6 Import (Latin tranche 2026-10-24)"
   },
   {
-    "author": "Anonymous",
-    "work": "Gesta Romanorum (Oesterley)",
+    "author": "Gesta Romanorum",
+    "work": "Gesta Romanorum Oesterley (edition of Hermann Oesterley, 1872)",
     "e_source": "Latin Wikisource",
     "e_source_url": "https://la.wikisource.org/wiki/Gesta_Romanorum_(Oesterley)",
     "print_source": "Hermann Oesterley, Gesta Romanorum. Berlin: Weidmannsche Buchhandlung, 1872.",
     "added_by": "V6 Import (Latin tranche 2026-10-24)"
   },
   {
-    "author": "Lorenzo Valla",
-    "work": "De falso credita et ementita Constantini donatione",
+    "author": "Valla",
+    "work": "De Falso Credita et Ementita Constantini Donatione",
     "e_source": "Latin Wikisource",
     "e_source_url": "https://la.wikisource.org/wiki/De_falso_credita_et_ementita_Constantini_donatione",
     "print_source": "Not stated on the Wikisource pages, which mark the page numbers of a print edition. Retrieved 2026-10-24.",
     "added_by": "V6 Import (Latin tranche 2026-10-24)"
   },
   {
-    "author": "John Milton",
+    "author": "Milton",
     "work": "Epitaphium Damonis",
     "e_source": "Latin Wikisource",
     "e_source_url": "https://la.wikisource.org/wiki/Epitaphium_Damonis",
@@ -21683,8 +21683,8 @@
     "added_by": "V6 Import (Latin tranche 2026-10-24)"
   },
   {
-    "author": "John Milton",
-    "work": "In quintum Novembris",
+    "author": "Milton",
+    "work": "In Quintum Novembris",
     "e_source": "Latin Wikisource",
     "e_source_url": "https://la.wikisource.org/wiki/In_quintus_novembris",
     "print_source": "Not stated on the Wikisource page. Retrieved 2026-10-24.",
