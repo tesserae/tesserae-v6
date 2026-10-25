@@ -470,9 +470,9 @@ exports[`App render recording > page /about 1`] = `
 </ul>
 <div class="mt-3 space-y-1">
 <p>
-<strong>Code:</strong> MIT License — free to use, modify, and redistribute.</p>
+<strong>Code:</strong> PolyForm Noncommercial License 1.0.0 — free for academic, educational, personal and nonprofit use, including modification and redistribution under the same terms; commercial use needs a separate license. Copyright Neil Coffee.</p>
 <p>
-<strong>Original datasets</strong> (benchmark sets, gold standards, translation alignments): CC BY 4.0 — free to use with attribution.</p>
+<strong>Original datasets</strong> (benchmark sets, gold standards, translation alignments, passage descriptions): CC BY-NC 4.0 — free to use with attribution for noncommercial purposes.</p>
 <p>
 <strong>Corpus texts:</strong> individual licenses per source; see the Text Credits section for provenance and terms.</p>
 </div>
