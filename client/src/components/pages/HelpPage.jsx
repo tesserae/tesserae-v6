@@ -1640,7 +1640,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 Shahnameh, has a <strong>Stories</strong> list in the header (each story by number and
                 title, with the Persian title after it, grouped by reign), and the header counts its
                 stories instead of its lines. Choosing a story opens the Reader at its first line, and
-                the previous and next links step from one story to the next. On a phone, the choice of text, book and story, Go to line and About this text are behind
+                the previous and next links step from one story to the next. The ten Persian and Urdu works installed on 2026-10-25 show their sections the same way: the Masnavi, for example, has a list of its 972 sections grouped under the six daftars, with its sections counted in the header. On a phone, the choice of text, book and story, Go to line and About this text are behind
                 the title line at the top of the Reader, and the key to the margin marks is behind
                 the Key button, so that the text has the width of the screen.
               </p>

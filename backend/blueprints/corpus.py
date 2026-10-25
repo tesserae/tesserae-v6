@@ -470,22 +470,84 @@ _STRUCTURE_FIELDS = ('number', 'title_en', 'title_fa', 'reign_fa', 'first_ref',
                      'last_ref', 'n_couplets')
 
 
+def _major_heading(entry):
+    """The group heading of a verse section whose work shares majors: the
+    major's name from full_title (the segment before the last " » ", for
+    example "دفتر اول"), else "باب N" with N the major (the Gulistan); major 0
+    is the Gulistan's preface, one section, headed by its own title."""
+    full = entry.get('full_title')
+    if isinstance(full, str) and ' » ' in full:
+        parts = full.split(' » ')
+        if len(parts) >= 2 and parts[-2].strip():
+            return parts[-2].strip()
+    if entry.get('major') is not None and not full:
+        if entry['major'] == 0:
+            return entry.get('title') or None
+        return f"باب {entry['major']}"
+    return None
+
+
+def _normalize_sections(raw):
+    """Turn a sections.json (Ganjoor verse list, or Wikisource prose object)
+    into the entries the Reader reads: number is the 1-based position."""
+    prose = isinstance(raw, dict)
+    entries = raw.get('sections', []) if prose else raw
+    if not isinstance(entries, list):
+        return []
+    entries = [e for e in entries if isinstance(e, dict)]
+    majors = [e.get('major') for e in entries]
+    shared = not prose and len(set(majors)) < len(majors)
+    out = []
+    for i, e in enumerate(entries, 1):
+        item = {'number': i}
+        if prose:
+            page = e.get('page') or ''
+            item['title_fa'] = page.rsplit('/', 1)[-1]
+            if e.get('section') is not None and e['section'] != i:
+                item['label'] = e['section']
+            if e.get('paragraphs') is not None:
+                item['n_units'] = e['paragraphs']
+        else:
+            item['title_fa'] = e.get('title', '')
+            if e.get('major') is not None and e['major'] != i:
+                item['label'] = e['major']
+            if shared:
+                heading = _major_heading(e)
+                if heading:
+                    item['reign_fa'] = heading
+        for k in ('first_ref', 'last_ref'):
+            if k in e:
+                item[k] = e[k]
+        out.append(item)
+    return out
+
+
 @corpus_bp.route('/texts/structure/<work>')
 def get_text_structure(work):
-    """A work's own division into stories (the Shahnameh's 857), read from
-    data/text_structure/<work>/stories.json. `work` is the id without .tess."""
+    """A work's own division for the Reader: the Shahnameh's 857 stories from
+    data/text_structure/<work>/stories.json, or, when that is absent, the
+    sections of a Persian or Urdu work from sections.json (two shapes,
+    normalized by _normalize_sections). `work` is the id without .tess."""
     if not _STRUCTURE_ID_RE.match(work) or '..' in work:
         return jsonify({'error': 'no structure'}), 404
-    path = TEXT_STRUCTURE_DIR / work / 'stories.json'
+    folder = TEXT_STRUCTURE_DIR / work
+    path = folder / 'stories.json'
+    unit = 'story'
     if not path.is_file():
-        return jsonify({'error': 'no structure'}), 404
+        path = folder / 'sections.json'
+        unit = 'section'
+        if not path.is_file():
+            return jsonify({'error': 'no structure'}), 404
     try:
         with open(path, encoding='utf-8') as fh:
-            entries = json.load(fh)
+            raw = json.load(fh)
     except (OSError, ValueError):
         return jsonify({'error': 'no structure'}), 404
-    sections = [{k: e[k] for k in _STRUCTURE_FIELDS if k in e} for e in entries]
-    return jsonify({'work': work, 'unit': 'story', 'sections': sections})
+    if unit == 'story':
+        sections = [{k: e[k] for k in _STRUCTURE_FIELDS if k in e} for e in raw]
+    else:
+        sections = _normalize_sections(raw)
+    return jsonify({'work': work, 'unit': unit, 'sections': sections})
 
 
 @corpus_bp.route('/text/<path:text_id>')
