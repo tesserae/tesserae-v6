@@ -1985,6 +1985,12 @@
    "note": "fl. c. 180 CE",
    "year": 180
   },
+  "geoffrey_of_monmouth": {
+   "era": "Medieval",
+   "note": "d. c. 1155 CE",
+   "year": 1155,
+   "added": "editorial-2026-10-24-latin-tranche"
+  },
   "geoffrey_of_vinsauf": {
    "era": "Medieval",
    "note": "fl. c. 1200-1216 CE (Poetria Nova, Documentum)",
@@ -1994,6 +2000,12 @@
    "era": "Carolingian",
    "note": "fl. c. 860 CE",
    "year": 860
+  },
+  "gesta_romanorum": {
+   "era": "Medieval",
+   "note": "anonymous collection compiled c. 1300 CE",
+   "year": 1300,
+   "added": "editorial-2026-10-24-latin-tranche"
   },
   "giovanni_aurelio_augurelli": {
    "era": "Renaissance",
@@ -2020,6 +2032,12 @@
    "era": "Early Medieval",
    "note": "d. 604 CE",
    "year": 604
+  },
+  "gregory_of_tours": {
+   "era": "Early Medieval",
+   "note": "d. 594 CE",
+   "year": 594,
+   "added": "editorial-2026-10-24-latin-tranche"
   },
   "gregory_the_great": {
    "era": "Early Medieval",
@@ -2288,6 +2306,12 @@
    "era": "Carolingian",
    "note": "d. 872 CE",
    "year": 872
+  },
+  "milton": {
+   "era": "Modern",
+   "note": "d. 1674 CE",
+   "year": 1674,
+   "added": "editorial-2026-10-24-latin-tranche"
   },
   "minucius_felix": {
    "era": "Late Antique",
@@ -2771,6 +2795,12 @@
    "era": "Early Imperial",
    "note": "fl. c. 31 CE",
    "year": 31
+  },
+  "valla": {
+   "era": "Renaissance",
+   "note": "d. 1457 CE",
+   "year": 1457,
+   "added": "editorial-2026-10-24-latin-tranche"
   },
   "varro": {
    "era": "Republic",

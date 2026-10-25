@@ -14192,14 +14192,6 @@
     "added_by": "Elizabeth Hunter"
   },
   {
-    "author": "Servius Honoratus",
-    "work": "In Virgilii Georgicon Libros Commentarius",
-    "e_source": "The Latin Library",
-    "e_source_url": "https://www.thelatinlibrary.com",
-    "print_source": "",
-    "added_by": "V6 Import"
-  },
-  {
     "author": "Severus Sulpicius",
     "work": "Chronica",
     "e_source": "Open Greek and Latin / CSEL",
@@ -21625,5 +21617,77 @@
     "e_source_url": "https://github.com/PerseusDL/canonical-greekLit/tree/master/data/tlg2003/tlg017",
     "print_source": "The Works of the Emperor Julian. Wilmer Cave Wright, ed. and trans. Cambridge, MA: Harvard University Press, 1913-1923. (Loeb Greek text. Licence: CC BY-SA 4.0.)",
     "added_by": "V6 Import (Greek tranche, 2026-10-24)"
+  },
+  {
+    "author": "Thomas Aquinas",
+    "work": "Summa Theologiae, Prima Secundae",
+    "e_source": "Corpus Thomisticum",
+    "e_source_url": "https://www.corpusthomisticum.org/sth2001.html",
+    "print_source": "Textum Leoninum (Rome 1891) as edited by Roberto Busa and Enrique Alarcon, Corpus Thomisticum, Fundacion Tomas de Aquino.",
+    "added_by": "V6 Import (Latin tranche 2026-10-24)"
+  },
+  {
+    "author": "Thomas Aquinas",
+    "work": "Summa Theologiae, Secunda Secundae",
+    "e_source": "Corpus Thomisticum",
+    "e_source_url": "https://www.corpusthomisticum.org/sth3001.html",
+    "print_source": "Textum Leoninum (Rome 1895) as edited by Roberto Busa and Enrique Alarcon, Corpus Thomisticum, Fundacion Tomas de Aquino.",
+    "added_by": "V6 Import (Latin tranche 2026-10-24)"
+  },
+  {
+    "author": "Thomas Aquinas",
+    "work": "Summa Theologiae, Tertia Pars",
+    "e_source": "Corpus Thomisticum",
+    "e_source_url": "https://www.corpusthomisticum.org/sth4001.html",
+    "print_source": "Textum Leoninum (Rome 1903) as edited by Roberto Busa and Enrique Alarcon, Corpus Thomisticum, Fundacion Tomas de Aquino.",
+    "added_by": "V6 Import (Latin tranche 2026-10-24)"
+  },
+  {
+    "author": "Gregory of Tours",
+    "work": "Historiarum libri X (History of the Franks)",
+    "e_source": "Latin Wikisource",
+    "e_source_url": "https://la.wikisource.org/wiki/Historiarum_Francorum_libri_X",
+    "print_source": "Not stated on the Wikisource pages. Retrieved 2026-10-24.",
+    "added_by": "V6 Import (Latin tranche 2026-10-24)"
+  },
+  {
+    "author": "Geoffrey of Monmouth",
+    "work": "Historia regum Britanniae",
+    "e_source": "Latin Wikisource",
+    "e_source_url": "https://la.wikisource.org/wiki/Historia_Regum_Britanniae",
+    "print_source": "Not stated on the Wikisource pages. Retrieved 2026-10-24.",
+    "added_by": "V6 Import (Latin tranche 2026-10-24)"
+  },
+  {
+    "author": "Anonymous",
+    "work": "Gesta Romanorum (Oesterley)",
+    "e_source": "Latin Wikisource",
+    "e_source_url": "https://la.wikisource.org/wiki/Gesta_Romanorum_(Oesterley)",
+    "print_source": "Hermann Oesterley, Gesta Romanorum. Berlin: Weidmannsche Buchhandlung, 1872.",
+    "added_by": "V6 Import (Latin tranche 2026-10-24)"
+  },
+  {
+    "author": "Lorenzo Valla",
+    "work": "De falso credita et ementita Constantini donatione",
+    "e_source": "Latin Wikisource",
+    "e_source_url": "https://la.wikisource.org/wiki/De_falso_credita_et_ementita_Constantini_donatione",
+    "print_source": "Not stated on the Wikisource pages, which mark the page numbers of a print edition. Retrieved 2026-10-24.",
+    "added_by": "V6 Import (Latin tranche 2026-10-24)"
+  },
+  {
+    "author": "John Milton",
+    "work": "Epitaphium Damonis",
+    "e_source": "Latin Wikisource",
+    "e_source_url": "https://la.wikisource.org/wiki/Epitaphium_Damonis",
+    "print_source": "Poemata, 1645, as transcribed from the Milton Reading Room (Dartmouth College) on Wikisource.",
+    "added_by": "V6 Import (Latin tranche 2026-10-24)"
+  },
+  {
+    "author": "John Milton",
+    "work": "In quintum Novembris",
+    "e_source": "Latin Wikisource",
+    "e_source_url": "https://la.wikisource.org/wiki/In_quintus_novembris",
+    "print_source": "Not stated on the Wikisource page. Retrieved 2026-10-24.",
+    "added_by": "V6 Import (Latin tranche 2026-10-24)"
   }
 ]
