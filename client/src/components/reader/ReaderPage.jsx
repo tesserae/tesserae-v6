@@ -3,7 +3,7 @@ import useDocumentsTrial from '../../hooks/useDocumentsTrial';
 import useCollections from '../../hooks/useCollections';
 import { cssRef, windowLocus, fullRef, findRefIndex } from './refId';
 import ReaderHeader from './ReaderHeader';
-import ReaderNav, { ReaderEndNav, ReaderFloatNav, ReaderPhoneTopButton, sectionsFor, bookFileFor, bookSections, storyNumberOfRef, storyShortRef } from './ReaderNav';
+import ReaderNav, { ReaderEndNav, ReaderFloatNav, ReaderPhoneTopButton, sectionsFor, bookFileFor, bookSections, storyNumberForRef } from './ReaderNav';
 import useTextStructure from '../../hooks/useTextStructure';
 import { useIsPhone } from '../../hooks/useIsPhone';
 import SelectionToolbar, { scopeFor } from './SelectionToolbar';
@@ -490,8 +490,11 @@ export default function ReaderPage() {
   // Stories list; a work with book files is never asked.
   const structure = useTextStructure(work, sections.length > 0 && bookSections(sections).length < 2);
   const stories = structure?.sections || null;
-  const storyNumber = stories ? storyNumberOfRef(storyAt) : null;
-  const jumpStory = useCallback((story) => { jumpTo(storyShortRef(story.first_ref)); }, [jumpTo]);
+  const storyNumber = stories ? storyNumberForRef(stories, storyAt) : null;
+  // The whole first ref names one line in any of the lists (stories run
+  // story.couplet.hemistich, Masnavi sections daftar.couplet.hemistich, prose
+  // section.paragraph).
+  const jumpStory = useCallback((story) => { jumpTo(story.first_ref); }, [jumpTo]);
   useEffect(() => { setStoryAt(''); }, [work]);
   useEffect(() => { if (selection?.refStart) setStoryAt(selection.refStart); }, [selection?.refStart]);
   // Books one at a time (2026-09-20): the whole-file Punica ran seventeen
@@ -646,6 +649,7 @@ export default function ReaderPage() {
         stories={stories}
         storyNumber={storyNumber}
         onStory={jumpStory}
+        storyUnit={structure?.unit}
       />
 
       {loading && <div className="p-10"><LoadingSpinner /></div>}

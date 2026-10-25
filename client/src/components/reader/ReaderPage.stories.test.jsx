@@ -39,7 +39,8 @@ function mockFetch(structure) {
       return structure ? reply(structure) : reply({ error: 'no structure' }, 404);
     }
     if (u.startsWith('/api/text/')) {
-      return reply({ units: STORIES.map((s) => ({ ref: s.first_ref, text: `line ${s.number}` })), metadata: {} });
+      const rows = structure?.sections || STORIES;
+      return reply({ units: rows.map((s) => ({ ref: s.first_ref, text: `line ${s.number}` })), metadata: {} });
     }
     if (u.startsWith('/api/languages')) return reply({ languages: [{ code: 'fa' }] });
     return reply({});
@@ -87,5 +88,39 @@ describe('ReaderPage stories', () => {
     expect(screen.queryAllByLabelText('Stories')).toHaveLength(0);
     expect(screen.queryByLabelText(/story/i)).toBeNull();
     expect(screen.queryByText(/stories/)).toBeNull();
+  });
+
+  describe('sections of a Persian or Urdu work', () => {
+    const MASNAVI = [
+      { number: 1, title_fa: 'بخش ۱ - سرآغاز', reign_fa: 'دفتر اول', first_ref: 'ferdowsi.shahnameh.1.1.1' },
+      { number: 2, title_fa: 'بخش ۲ - عاشق شدن', reign_fa: 'دفتر اول', first_ref: 'ferdowsi.shahnameh.1.35.1' },
+      { number: 3, title_fa: 'بخش ۱ - آغاز', reign_fa: 'دفتر دوم', first_ref: 'ferdowsi.shahnameh.2.1.1' },
+    ];
+    const BAGH = [
+      { number: 1, title_fa: 'آغاز', n_units: 9, first_ref: 'ferdowsi.shahnameh.1.1' },
+      { number: 2, title_fa: 'سبب تالیف کتاب', n_units: 7, first_ref: 'ferdowsi.shahnameh.2.1' },
+    ];
+
+    it('counts sections, lists the Persian title alone under its daftar, and steps by number', async () => {
+      await open('ferdowsi.shahnameh.tess', { work: 'ferdowsi.shahnameh', unit: 'section', sections: MASNAVI });
+      await waitFor(() => expect(screen.getAllByLabelText('Sections').length).toBeGreaterThan(0));
+      expect(screen.getByText('3 sections')).toBeTruthy();
+      const box = (await screen.findAllByRole('combobox', { name: 'Sections' }))[0];
+      fireEvent.focus(box);
+      expect(screen.getAllByText('دفتر دوم').length).toBeGreaterThan(0);
+      // No English title and no stray separator: "3 · title".
+      const opt = screen.getAllByRole('option', { name: '3 \u00b7 بخش ۱ - آغاز' }).find((e) => e.tagName === 'BUTTON');
+      expect(opt).toBeTruthy();
+      fireEvent.pointerDown(opt);
+      await waitFor(() => expect(screen.getAllByLabelText('Previous story: 2').length).toBeGreaterThan(0));
+    });
+
+    it('steps through a prose work whose refs have two numbers', async () => {
+      await open('ferdowsi.shahnameh.tess', { work: 'ferdowsi.shahnameh', unit: 'section', sections: BAGH });
+      await waitFor(() => expect(screen.getByText('2 sections')).toBeTruthy());
+      const next = await screen.findAllByLabelText('Next story: 2');
+      fireEvent.click(next[0]);
+      await waitFor(() => expect(screen.getAllByLabelText('Previous story: 1').length).toBeGreaterThan(0));
+    });
   });
 });

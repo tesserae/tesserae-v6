@@ -67,6 +67,33 @@ export function storyNumberOfRef(ref) {
   return m ? Number(m[1]) : null;
 }
 
+/** The number of the story or section that holds `ref`: the last entry whose
+ *  first_ref is not after it, comparing the numbers that end each ref
+ *  ("rumi.masnavi.2.1.1" is [2, 1, 1]). Null when nothing is known. Works for
+ *  the Shahnameh's stories and for the sections of the Persian and Urdu works,
+ *  whose refs are not all story.couplet.hemistich. */
+function refNumbers(ref) {
+  const m = /(?:\.\d+)+$/.exec(String(ref || ''));
+  return m ? m[0].slice(1).split('.').map(Number) : [];
+}
+function cmpNumbers(a, b) {
+  for (let i = 0; i < Math.max(a.length, b.length); i += 1) {
+    const d = (a[i] ?? 0) - (b[i] ?? 0);
+    if (d) return d;
+  }
+  return 0;
+}
+export function storyNumberForRef(stories, ref) {
+  const at = refNumbers(ref);
+  if (!at.length || !stories?.length) return null;
+  let found = null;
+  for (const s of stories) {
+    if (cmpNumbers(refNumbers(s.first_ref), at) <= 0) found = s.number;
+    else break;
+  }
+  return found;
+}
+
 /** "151 Rustam and Suhrab" with the Persian title after it when there is one. */
 export function storyLabel(s, withNative = false) {
   const en = s.title_en || '';
