@@ -34,6 +34,39 @@ REQUIRED = ['text', 'lemmas', 'index', 'bigrams', 'vectors', 'windows', 'describ
 OPTIONAL = ['freq', 'dates', 'transl']
 
 
+def count_lines(path):
+    pat = re.compile(r'<([^>]+)>')
+    return sum(1 for l in open(path, encoding='utf-8', errors='replace') if l.startswith('<') and pat.match(l))
+
+
+def window_flags(base, whole, is_part, n_lines, part_lines, win_counts, desc_counts, vec_counts):
+    """The windows, described and winvec columns for one file.
+
+    part_lines maps each part's base name to its line count (empty for a part or a work without parts).
+    A file under MIN_WINDOW_LINES makes no window at all and is exempt. A whole work with parts is
+    covered when every part that is long enough has windows; a short part is exempt the same way a
+    short whole file is (hermas.pastor parts 6 and 20 have 2 and 3 lines).
+    """
+    r = {}
+    if n_lines < MIN_WINDOW_LINES:
+        # too short to make a passage window at all (a one-line epigram, a hypothesis)
+        r['windows'] = r['described'] = r['winvec'] = True
+    elif part_lines and win_counts.get(base, 0) > 0:
+        # the whole work carries windows; very short parts cannot have their own
+        r['windows'] = r['described'] = r['winvec'] = True
+    elif part_lines:
+        parts = [p for p, n in part_lines.items() if n >= MIN_WINDOW_LINES]
+        r['windows'] = all(win_counts.get(p, 0) > 0 for p in parts)
+        r['described'] = r['windows'] and all(desc_counts.get(p, 0) >= win_counts.get(p, 0) for p in parts)
+        r['winvec'] = r['windows'] and all(vec_counts.get(p, 0) >= win_counts.get(p, 0) for p in parts)
+    else:
+        nw = win_counts.get(base, 0)
+        r['windows'] = nw > 0 or (is_part and win_counts.get(whole, 0) > 0)
+        r['described'] = (desc_counts.get(base, 0) >= nw) if nw else r['windows']
+        r['winvec'] = (vec_counts.get(base, 0) >= nw) if nw else r['windows']
+    return r
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--root', default=os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
@@ -135,21 +168,8 @@ def main():
         # whole file's own windows were dropped so a passage is not indexed
         # twice); a whole work with parts is covered when every part is.
         parts_of_whole = [f for f in files_all if f.startswith(base + '.part.')] if not is_part else []
-        if n_lines < MIN_WINDOW_LINES:
-            # too short to make a passage window at all (a one-line epigram, a hypothesis)
-            r['windows'] = r['described'] = r['winvec'] = True
-        elif parts_of_whole and win_counts.get(base, 0) > 0:
-            # the whole work carries windows; very short parts cannot have their own
-            r['windows'] = r['described'] = r['winvec'] = True
-        elif parts_of_whole:
-            pw = [win_counts.get(pf[:-5], 0) for pf in parts_of_whole]
-            r['windows'] = all(n > 0 for n in pw)
-            r['described'] = all(desc_counts.get(pf[:-5], 0) >= win_counts.get(pf[:-5], 0) for pf in parts_of_whole) and r['windows']
-            r['winvec'] = all(vec_counts.get(pf[:-5], 0) >= win_counts.get(pf[:-5], 0) for pf in parts_of_whole) and r['windows']
-        elif not (n_lines < MIN_WINDOW_LINES):
-            nw = win_counts.get(base, 0); r['windows'] = nw > 0 or (is_part and win_counts.get(whole, 0) > 0)
-            r['described'] = (desc_counts.get(base, 0) >= nw) if nw else r['windows']
-            r['winvec'] = (vec_counts.get(base, 0) >= nw) if nw else r['windows']
+        part_lines = {pf[:-5]: count_lines(f'texts/{lang}/{pf}') for pf in parts_of_whole}
+        r.update(window_flags(base, whole, is_part, n_lines, part_lines, win_counts, desc_counts, vec_counts))
         # a text too short for passage windows cannot appear in the connection map
         r['connmap'] = True if (is_part or n_lines < MIN_WINDOW_LINES) else (whole in conn_works)
         g = genres.get(fn) or genres.get(whole + '.tess')
@@ -159,6 +179,9 @@ def main():
         r['browser'] = (bool(m) and bool(m.get('era')) and m.get('era') != 'Unknown' and bool(m.get('text_type'))) if api_meta else 'no-api'
         ma, mw = (m.get('author') or '').strip().casefold(), (m.get('work') or m.get('title') or '').strip().casefold()
         r['sources'] = (ma, mw) in src_keys or any(sa == ma and (sw.startswith(mw) or mw.startswith(sw)) for sa, sw in src_keys if ma and mw and sw)
+        # a part file whose name has no work segment gets the work 'Unknown'; the author's one row covers it
+        if not r['sources'] and ma and mw == 'unknown':
+            r['sources'] = sum(1 for sa, _ in src_keys if sa == ma) == 1
         r['blurb'] = (base in blurbs) or (whole in blurbs)
         r['dates'] = whole.split('.')[0] in dates
         r['transl'] = os.path.exists(f'data/translations/{lang}__{base}.json') or os.path.exists(f'data/translations/{lang}__{whole}.json')
