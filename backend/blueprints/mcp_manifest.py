@@ -562,28 +562,28 @@ MANIFEST = {
     },
     '/api/passages/mentions': {
         'site_only': True,
-        'reason': ("Name search inside one work for the Search One Text page; theme_search and "
+        'reason': ("Name search inside one work for the one-text scope of Theme Search; theme_search and "
                   "line_search already cover finding passages by subject or word."),
     },
     '/api/passages/ask-summary': {
         'site_only': True,
-        'reason': ("Short model-written answer for the Search One Text page; a connector caller "
+        'reason': ("Short model-written answer for the one-text scope of Theme Search; a connector caller "
                   "reads the passages itself, and nothing in the request path of the "
                   "connector should call the site's model."),
     },
     '/api/passages/ask-scholarship': {
         'site_only': True,
-        'reason': ("Model-written paragraph on the secondary literature for the Search One Text page; "
+        'reason': ("Model-written paragraph on the secondary literature for the one-text scope of Theme Search; "
                   "a connector caller reads the notes through the scholarship search itself."),
     },
     '/api/passages/ask-citing': {
         'site_only': True,
-        'reason': ("Articles in the journal citation indexes that cite the passages on the Search One Text "
+        'reason': ("Articles in the journal citation indexes that cite the passages on the Theme Search on one text "
                   "page; a connector caller reads the same index through the scholarship search itself."),
     },
     '/api/passages/recent-scholarship': {
         'site_only': True,
-        'reason': ("Articles the live services list for the Search One Text page, one service per "
+        'reason': ("Articles the live services list for the one-text scope of Theme Search, one service per "
                   "request so the page can paint each as it answers; a connector caller asks the services "
                   "through the scholarship search itself."),
     },

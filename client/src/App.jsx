@@ -18,8 +18,7 @@ import EventsPage from './components/events/EventsPage';
 import MentionsPage from './components/mentions/MentionsPage';
 import CoinsPage from './components/coins/CoinsPage';
 import ObjectsPage from './components/objects/ObjectsPage';
-import ThemeSearchPage from './components/passages/ThemeSearchPage';
-import AskAWorkPage from './components/ask/AskAWorkPage';
+import ThemeSearchScopes from './components/passages/ThemeSearchScopes';
 import { Repository } from './components/repository';
 import { AdminPanel } from './components/admin';
 import RegisterParallelModal, { useRegisterParallel } from './components/register/RegisterParallelModal';
@@ -587,8 +586,8 @@ function App() {
         ) : (
           <>
         {/* The Start here panel opens on the Intertextual Search page and on
-            whichever page is the current view's home (Search One Text in
-            Literature since 2026-10-12), so a first visit still sees it. */}
+            whichever page is the current view's home (Theme Search on one
+            text in Literature since 2026-10-12), so a first visit still sees it. */}
         {(pageType === 'search' || pageType === viewById(getView()).home.page) && (
           <StartHere
             onChoose={goFrontDoor}
@@ -859,8 +858,7 @@ function App() {
           )
         )}
 
-        {pageType === 'theme-search' && <ThemeSearchPage />}
-        {pageType === 'ask-a-work' && <AskAWorkPage />}
+        {pageType === 'theme-search' && <ThemeSearchScopes />}
 
         {pageType === 'read' && (
           <ReaderPage />

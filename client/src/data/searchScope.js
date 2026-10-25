@@ -22,7 +22,7 @@ const RARE_ALL = { search: "Rare words, rare pairs, line and string search", lan
 
 const NOT_YET = 'Not measured yet';
 
-const ASK_A_WORK_ROW = { search: 'Search One Text', language: 'Latin and Greek', against: 'Fifteen questions on the Aeneid, Thucydides 1 and 2 and Annals 1 to 6, two judges, a Sonnet model and the gateway\'s Qwen model, reading the first twenty passages of each', result: 'A passage directly about the subject in the first five for 14 of 15 questions. Of the first ten, 0.44 were directly about it and 0.75 at least touched it (nDCG at 10 of 0.75). Weakest when one account fills a few windows (the plague) or the question is a named speaker\'s view. The second judge agreed with the first on 69 percent of grades (kappa 0.71 with quadratic weights) and put the precision of the strong marks at 0.87 for passages at least touching the subject', date: 'October 2026' };
+const ASK_A_WORK_ROW = { search: 'Theme Search, one text', language: 'Latin and Greek', against: 'Fifteen questions on the Aeneid, Thucydides 1 and 2 and Annals 1 to 6, two judges, a Sonnet model and the gateway\'s Qwen model, reading the first twenty passages of each', result: 'A passage directly about the subject in the first five for 14 of 15 questions. Of the first ten, 0.44 were directly about it and 0.75 at least touched it (nDCG at 10 of 0.75). Weakest when one account fills a few windows (the plague) or the question is a named speaker\'s view. The second judge agreed with the first on 69 percent of grades (kappa 0.71 with quadratic weights) and put the precision of the strong marks at 0.87 for passages at least touching the subject', date: 'October 2026' };
 
 const DOCUMENTS_ROW = { search: 'Inscriptions & Papyri', language: 'Latin and Greek', against: 'No test list yet', result: NOT_YET, date: '' };
 const EVENTS_ROW = { search: 'Events', language: 'Latin and Greek', against: '43 passages historians cite for twelve events', result: 'About a third of the first twenty passages listed for an event were among them (precision at 20 of 0.32 to 0.40 by method)', date: 'October 2026' };
@@ -65,7 +65,7 @@ export const SEARCH_SCOPE = {
   },
   theme: {
     id: 'theme',
-    name: 'Theme Search',
+    name: 'Theme Search: whole corpus',
     does: 'Describe a scene or an idea in English and get the passages about it, across languages, ranked by meaning.',
     scope: 'Your description is compared with a short description written for each passage, and the closest passages come back from every indexed language at once. A result is a passage window.',
     covers: 'The passage index: 603,594 windows at the 2026-08-25 release, 684,650 since 2026-10-19 (paragraph-sized prose windows since 2026-10-11, duplicate whole-work windows dropped on 2026-10-13, De legibus of Cicero added on 2026-10-19).',
@@ -75,7 +75,7 @@ export const SEARCH_SCOPE = {
   },
   ask_a_work: {
     id: 'ask_a_work',
-    name: 'Search One Text',
+    name: 'Theme Search: one text',
     does: 'Every passage in one work whose content matches a subject you describe, listed by how well it matches, with a strip showing where in the work they fall.',
     scope: 'The Theme Search index restricted to one work, or to a run of its books. The model-written description of each passage window is matched against the subject. When the question names a person, a second list gives the passages whose description contains that name, the closest to the question first. In Latin and Greek works whose descriptions leave the person unnamed, the text is searched for the name. A short summary of the best passages is written from their descriptions. A second paragraph is written from the commentary notes and articles in the scholarship collection that concern the same work, and a line says what that collection holds for it, or that it holds nothing. Articles that OpenAlex, Crossref, CORE, Google Books and Semantic Scholar list for the question, of any year, are shown beside it as each service answers, and the paragraph may cite up to four of them, known only from an abstract or a short excerpt. Each article has a Cite link, and the cited notes and articles can be exported as RIS or BibTeX. The passages come first and these three boxes stand beside them on a wide screen, under them on a phone.',
     covers: 'Any work the passage index holds.',
@@ -189,7 +189,7 @@ export const SEARCH_SCOPE = {
   },
   theme_compare: {
     id: 'theme_compare',
-    name: 'Compare two works (Theme Search)',
+    name: 'Theme Search: two texts',
     does: 'Two whole works, or two books, read against each other for the passages most alike in content, across languages as well.',
     scope: 'Each passage window of one work is compared with each of the other by their model-written descriptions. A pair marked strong stands well above the two works\' general resemblance, and a confidence line says whether the works echo one another or only resemble each other as most texts do. Where a word-level search of the same works has been run, each pair also lists the wording they share.',
     covers: 'Any two works the passage index holds.',

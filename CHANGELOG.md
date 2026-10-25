@@ -9,6 +9,7 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-25
 - Downloads: the corpus texts come as one static archive per language (Latin, Greek, English, Coptic, Hebrew) with a MANIFEST.tsv (author, work, lines, electronic and print source, license) and a README.txt inside and the manifest beside it, built by the new `scripts/corpus/build_text_archives.py` at every import. The route `/api/downloads/texts/<language>` serves the archive when it exists and zips on the fly only when it does not, restricted texts left out either way. The Downloads page lists sizes and manifests, and Help describes them.
+- Theme Search: one tab with three scopes, one text, two texts, whole corpus (the scope is in the address as scope=one, two or corpus, the one-text scope is the home page, and /ask-a-work addresses keep working); Search One Text retired as a name, Help and the start box updated.
 
 ## 2026-10-24
 - License: the code moves from the MIT License to the PolyForm Noncommercial License 1.0.0 (noncommercial use free, commercial use by separate license, copyright Neil Coffee); earlier versions stay MIT; the project's own datasets move from CC BY 4.0 to CC BY-NC 4.0.

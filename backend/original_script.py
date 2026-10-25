@@ -1,6 +1,6 @@
 """Keep quoted Greek and Hebrew in their own letters.
 
-On Search One Text the Scholarship paragraph once showed "*euzen*" where the
+On Theme Search on one text the Scholarship paragraph once showed "*euzen*" where the
 note has the Greek words for "the good life": the model had transliterated
 the Greek and wrapped it in asterisks. The prompt now forbids that, and
 `problems` checks the answer: it finds asterisk spans and any word of the

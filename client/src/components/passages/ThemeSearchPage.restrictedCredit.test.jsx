@@ -55,8 +55,7 @@ function mockFetchFor(extra) {
 }
 
 function openComparePane() {
-  render(<ThemeSearchPage />);
-  fireEvent.click(screen.getByRole('button', { name: 'Compare two works' }));
+  render(<ThemeSearchPage scopeName="two" />);
 }
 
 function pickWork(sideLabel, authorName, workId) {
