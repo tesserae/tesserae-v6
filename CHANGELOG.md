@@ -8,6 +8,7 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-24
+- Corpus: the Latin import tranche is prepared for install (nothing installed): Servius on the Aeneid, the Eclogues and the Georgics (Thilo 1881, replacing the Latin Library Georgics), Aquinas Summa Theologiae I-II, II-II and III, Gregory of Tours, Geoffrey of Monmouth, the Gesta Romanorum (Oesterley 1872), Valla on the Donation of Constantine and two Latin poems of Milton. This pull request carries the converters, the credits, dates, genres and About blurbs, and the translation scripts. The texts, indexes, windows and descriptions stay in a staging folder until the install, which docs/DATA_OPERATIONS.md lists as PLANNED.
 - Coins: the stored thumbnails keep their 30-day cache header (the site-wide no-store rule exempted them), and the install run record.
 - Coins: the 12,156 Roman coin types that the American Numismatic Society holds show a small stored picture of front and back, the Society's own public-domain photograph, with a credit line on the card and the coin page. Other coins keep the link out.
 - Reader: a machine translation on request, from the free campus model, with its test reliability stated.
