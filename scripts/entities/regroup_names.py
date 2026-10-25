@@ -610,6 +610,47 @@ def keep_by_rules(db, groups):
     return out, counts
 
 
+GATE_TOKENS = 300
+GATE_WORKERS = 2                # the gateway is shared with the live site: two requests at a time
+GATE_MAX_SECONDS = 3 * 3600
+
+
+def make_gate(db, groups, lines, work, t0, max_seconds=0):
+    """The model gate (rg.Gate) with its cache answers_gate.sqlite in the work folder. Prefetches the questions of
+    every spelling whose destination is known before the apply step, two at a time. Stops the run (SystemExit)
+    when more than one answer in twenty is off format or the three-hour limit passes."""
+    url, key = gateway()
+    stats = {}
+
+    def asker(prompt):
+        return rg.ask(url, key, prompt, stats, system=rg.GATE_SYSTEM, think=False, max_tokens=GATE_TOKENS)
+
+    gate = rg.Gate(db, lines, os.path.join(work, 'answers_gate.sqlite'), asker)
+    t1 = time.time()
+    targets = rg.gate_targets(db, groups)
+    n = gate.prefetch(targets, workers=GATE_WORKERS, log=log, deadline=t1 + (max_seconds or GATE_MAX_SECONDS))
+    info = {'spellings_in_scope': len(targets), 'prefetch_questions': n, 'prefetch_seconds': round(time.time() - t1),
+            'requests': stats.get('requests', 0), 'gateway_errors': stats.get('errors', 0)}
+    log(f'gate: prefetch {n} questions in {info["prefetch_seconds"]}s, {gate.offformat} off format, '
+        f'{stats.get("errors", 0)} gateway errors')
+    if gate.stopped:
+        raise SystemExit('gate: paused at the time limit with the answers cached; run the same command again to continue '
+                         '(the store has not been touched)')
+    if n and gate.offformat * 20 > n:
+        raise SystemExit(f'gate: {gate.offformat} of {n} answers were off format (more than one in twenty), stopped')
+    return gate, info
+
+
+def write_non_names(gate, work):
+    """non_names_gate.tsv: spelling, host, line. The rows stay in place; a later round may drop them."""
+    path = os.path.join(work, 'non_names_gate.tsv')
+    with open(path, 'w', encoding='utf-8') as f:
+        f.write('spelling\thost\tline\n')
+        for form, host, line in gate.non_names:
+            f.write('\t'.join(x.replace('\t', ' ').replace('\n', ' ') for x in (form, host, line)) + '\n')
+    log(f'gate: {len(gate.non_names)} non-names written to {path}')
+
+
 def run_pass3(db, a):
     """Third pass on a fresh copy of the live store: layer 1 with the new rules (and the broken-word check), the
     model only for groups and spellings the cache of the earlier passes does not hold, the stored replies
@@ -661,7 +702,15 @@ def run_pass3(db, a):
         f'({", ".join(f"{n} {k}" for k, n in sorted(kept.items()))}), {time.time() - t0:.0f}s')
     before = db.execute('select count(*) from mention_rows').fetchone()[0]
     ents_before = db.execute('select count(*) from entities').fetchone()[0]
-    rep = rg.apply_differences(db, both, log=log, cap=None)
+    gate, gate_info = None, {}
+    if a.gate:
+        gate, gate_info = make_gate(db, both, lines, work, t0, a.max_seconds)
+    rep = rg.apply_differences(db, both, log=log, cap=None, gate=gate)
+    if gate is not None:
+        write_non_names(gate, work)
+        gate_info.update({'questions_asked_total': gate.asked, 'off_format': gate.offformat,
+                          'seconds': round(time.time() - t0)})
+        rep['gate_info'] = gate_info
     if a.decisions:
         rep['decisions'] = rg.apply_decisions(db, json.load(open(os.path.expanduser(a.decisions), encoding='utf-8')), log=log)
     db.commit()
@@ -682,7 +731,7 @@ def run_pass3(db, a):
     db.commit()
     rep['integrity'] = db.execute('pragma integrity_check').fetchone()[0]
     json.dump(rep, open(os.path.join(work, _named('apply_report', 'json')), 'w'), ensure_ascii=False, indent=1)
-    log('PASS3 ' + json.dumps({k: v for k, v in rep.items() if k not in ('moves', 'carves')}) + f' {time.time() - t0:.0f}s')
+    log('PASS3 ' + json.dumps({k: v for k, v in rep.items() if k not in ('moves', 'carves', 'gate', 'redirected')}) + f' {time.time() - t0:.0f}s')
 
 
 def run_decisions_only(db, a):
@@ -793,6 +842,7 @@ def main():
     ap.add_argument('--decisions-only', action='store_true', help='apply the --decisions file and nothing else')
     ap.add_argument('--sample-entities', action='store_true')
     ap.add_argument('--count-only', action='store_true')
+    ap.add_argument('--gate', action='store_true', help='model gate: ask whether each spelling is a name, the same name as its host, and for a move the same as the destination')
     ap.add_argument('--entities', default=None, help='limit the pass to the entity ids in this file (csv with entity_id, or one per line)')
     ap.add_argument('--work', default=None, help='folder for the cache, progress file and reports (default: the third pass folder)')
     ap.add_argument('--seed', type=int, default=0)
