@@ -43,7 +43,7 @@ def main():
     os.makedirs(a.out, exist_ok=True)
     con = sqlite3.connect(f'file:{a.db}?mode=ro', uri=True)
     indexed = set(json.load(open(a.ids)))
-    files = [l.strip() for l in open(a.files) if l.strip()]
+    files = [line.strip() for line in open(a.files) if line.strip()]
     works = [f[:-5] for f in files]
     stored = collections.defaultdict(dict)
     for w in works:

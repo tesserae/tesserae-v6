@@ -55,7 +55,7 @@ def main():
     ap.add_argument('--summary')
     a = ap.parse_args()
     if a.files:
-        names = sorted(os.path.basename(l.strip()) for l in open(a.files) if l.strip())
+        names = sorted(os.path.basename(line.strip()) for line in open(a.files) if line.strip())
     else:
         names = sorted(f for f in os.listdir(a.dir) if f.endswith('.tess'))
     rows, count, lines_in = [], collections.defaultdict(collections.Counter), collections.Counter()

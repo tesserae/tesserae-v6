@@ -31,8 +31,8 @@ def main():
     a = ap.parse_args()
     if '/var/www/' in os.path.abspath(a.db):
         sys.exit('refusing to write under /var/www')
-    files = [l.strip() for l in open(a.files) if l.strip()]
-    wins = [json.loads(l) for l in open(a.windows, encoding='utf-8')]
+    files = [line.strip() for line in open(a.files) if line.strip()]
+    wins = [json.loads(line) for line in open(a.windows, encoding='utf-8')]
     gone = [i for ids in json.load(open(a.gone)).values() for i in ids]
     con = sqlite3.connect(a.db)
     cur = con.cursor()

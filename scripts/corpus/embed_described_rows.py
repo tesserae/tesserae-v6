@@ -30,7 +30,7 @@ def main():
     ap.add_argument('--descriptions', required=True)
     ap.add_argument('--out', required=True)
     a = ap.parse_args()
-    want = [json.loads(l)['id'] for l in open(a.windows, encoding='utf-8')]
+    want = [json.loads(line)['id'] for line in open(a.windows, encoding='utf-8')]
     rows = {}
     for line in open(a.descriptions, encoding='utf-8'):
         r = json.loads(line)
