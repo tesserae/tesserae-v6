@@ -61,4 +61,16 @@ describe('Downloads page, the public bundle', () => {
     expect(screen.getByText(/CC BY-NC-SA 4.0, non-commercial, 111,739 forms/)).toBeTruthy();
     expect(screen.getByText(/The Urdu search index, which holds the line text/)).toBeTruthy();
   });
+
+  it('lists a text archive and a manifest for each of the five languages', () => {
+    vi.stubGlobal('fetch', vi.fn());
+    const { container } = render(<DownloadsPage />);
+    for (const code of ['la', 'grc', 'en', 'cop', 'he']) {
+      expect(container.querySelector(`a[href$="/tesserae-data/texts_${code}.tar.gz"]`)).toBeTruthy();
+      expect(container.querySelector(`a[href$="/tesserae-data/texts_${code}_manifest.tsv"]`)).toBeTruthy();
+    }
+    expect(container.querySelector('a[href*="texts_fa"]')).toBeNull();
+    expect(screen.getByText(/Each text is under its own license,\s+listed in the manifest/)).toBeTruthy();
+    expect(screen.getByText(/about 69 MB/)).toBeTruthy();
+  });
 });

@@ -551,6 +551,16 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 The Downloads page is under More at the right end of the top row. It offers the corpus texts by
                 language, pre-computed data files for running your own copy, and the benchmark lists.
               </p>
+              <p className="text-gray-700 mb-4">
+                The corpus texts come as one archive per language, a .tar.gz of the .tess files with a
+                MANIFEST.tsv and a README.txt inside, and the manifest is also offered beside each
+                archive. The manifest has one row per text: author, work, number of lines, electronic
+                source and its address, print source and license. Each text stays under its own license,
+                and texts licensed for noncommercial use only are marked in the manifest. A text with no
+                credit row yet reads "unknown". Texts held for search only on this site are left out.
+                The archives are rebuilt at every import, and the Terms of Use page states the
+                conditions for bulk copies.
+              </p>
             </div>
           )}
 

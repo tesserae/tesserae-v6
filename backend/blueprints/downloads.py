@@ -15,6 +15,9 @@ from backend import restricted_texts
 downloads_bp = Blueprint('downloads', __name__)
 
 TEXTS_DIR = 'texts'
+# Static archives written by scripts/corpus/build_text_archives.py at every
+# import; Apache also serves this folder at /tesserae-data/.
+PUBLIC_DATA_DIR = 'public_data'
 EMBEDDINGS_DIR = 'backend/embeddings'
 
 RESTRICTED_NOTE = (
@@ -50,9 +53,23 @@ def create_zip_from_directory(directory, prefix='', skip_files=None):
 
 @downloads_bp.route('/downloads/texts/<language>')
 def download_texts(language):
-    """Download all texts for a language as a zip file"""
+    """Download all texts for a language.
+
+    Serves the static archive public_data/texts_<language>.tar.gz (with its
+    MANIFEST.tsv and README.txt) when it exists. Only when it does not, zips
+    the folder on the fly, leaving the restricted texts out.
+    """
     if language not in ['la', 'grc', 'en', 'cop', 'he']:
         return jsonify({'error': 'Invalid language. Use: la, grc, en, cop, he'}), 400
+
+    archive = os.path.join(PUBLIC_DATA_DIR, f'texts_{language}.tar.gz')
+    if os.path.isfile(archive):
+        return send_file(
+            os.path.abspath(archive),
+            mimetype='application/gzip',
+            as_attachment=True,
+            download_name=f'texts_{language}.tar.gz'
+        )
 
     lang_dir = os.path.join(TEXTS_DIR, language)
     if not os.path.exists(lang_dir):
