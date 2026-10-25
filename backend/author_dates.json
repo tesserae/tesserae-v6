@@ -1391,6 +1391,121 @@
    "era": "Later Imperial",
    "note": "c. 164-after 229 CE",
    "year": 229
+  },
+  "plotinus": {
+   "era": "Later Imperial",
+   "note": "c. 204-270 CE",
+   "year": 270
+  },
+  "dio_chrysostom": {
+   "era": "Early Imperial",
+   "note": "c. 40-after 110 CE",
+   "year": 110
+  },
+  "heliodorus": {
+   "era": "Later Imperial",
+   "note": "fl. 3rd to 4th c. CE",
+   "year": 300
+  },
+  "xenophon_of_ephesus": {
+   "era": "Early Imperial",
+   "note": "fl. 2nd c. CE",
+   "year": 150
+  },
+  "socrates_scholasticus": {
+   "era": "Late Antique",
+   "note": "c. 380-after 439 CE",
+   "year": 439
+  },
+  "sozomen": {
+   "era": "Late Antique",
+   "note": "c. 400-c. 450 CE",
+   "year": 450
+  },
+  "theodoret": {
+   "era": "Late Antique",
+   "note": "c. 393-c. 460 CE",
+   "year": 460
+  },
+  "philostorgius": {
+   "era": "Late Antique",
+   "note": "c. 368-after 425 CE",
+   "year": 430
+  },
+  "anna_comnena": {
+   "era": "Late Antique",
+   "note": "c. 1083-1153 CE (Byzantine; the era list has no Byzantine entry)",
+   "year": 1153
+  },
+  "nicander": {
+   "era": "Hellenistic",
+   "note": "fl. 2nd c. BCE",
+   "year": -150
+  },
+  "origen": {
+   "era": "Later Imperial",
+   "note": "c. 185-253 CE",
+   "year": 253
+  },
+  "ignatius": {
+   "era": "Early Imperial",
+   "note": "d. c. 108 CE",
+   "year": 108
+  },
+  "clement_of_rome": {
+   "era": "Early Imperial",
+   "note": "fl. c. 96 CE",
+   "year": 96
+  },
+  "didache": {
+   "era": "Early Imperial",
+   "note": "late 1st or early 2nd c. CE",
+   "year": 100
+  },
+  "hermas": {
+   "era": "Early Imperial",
+   "note": "fl. 2nd c. CE",
+   "year": 140
+  },
+  "justin_martyr": {
+   "era": "Early Imperial",
+   "note": "c. 100-165 CE",
+   "year": 165
+  },
+  "athenagoras": {
+   "era": "Early Imperial",
+   "note": "fl. c. 177 CE",
+   "year": 177
+  },
+  "theophilus_of_antioch": {
+   "era": "Early Imperial",
+   "note": "fl. c. 180 CE",
+   "year": 180
+  },
+  "tatian": {
+   "era": "Early Imperial",
+   "note": "fl. c. 170 CE",
+   "year": 170
+  },
+  "athanasius": {
+   "era": "Late Antique",
+   "note": "c. 296-373 CE",
+   "year": 373
+  },
+  "john_of_damascus": {
+   "era": "Late Antique",
+   "note": "attributed; Barlaam and Ioasaph, 8th to 11th c. CE (Byzantine; the era list has no Byzantine entry)",
+   "year": 750
+  },
+  "enoch": {
+   "era": "Hellenistic",
+   "note": "composite, 3rd c. BCE to 1st c. CE",
+   "year": -100
+  },
+  "julian": {
+   "era": "Late Antique",
+   "note": "c. 331-363 CE",
+   "year": 363
   }
  },
  "he": {
