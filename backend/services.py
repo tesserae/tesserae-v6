@@ -43,9 +43,10 @@ def is_internal_request(client_ip):
 
 
 def _peer_ip():
-    forwarded = request.headers.get('X-Forwarded-For')
-    if forwarded:
-        return forwarded.split(',')[0].strip()
+    """The address of the socket that made this request. The app runs under
+    mod_wsgi with no forwarding proxy (ProxyFix in app.py trusts only the
+    scheme and host headers), so an X-Forwarded-For header is whatever the
+    client wrote and is never used for a trust decision or a log row."""
     return request.remote_addr or '127.0.0.1'
 
 
@@ -62,7 +63,7 @@ def is_connector_request():
 
 
 def get_client_ip():
-    """Get real client IP from X-Forwarded-For header (for proxied requests)
+    """The client address (the socket address: no proxy forwards to this app).
 
     A connector call from the server itself carries the connector caller's
     address in a header, and that address is returned instead.

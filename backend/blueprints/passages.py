@@ -1280,7 +1280,7 @@ def compare_works_route():
                 'tab': 'similar'})
     if with_phrases and not out.get('error') and out.get('pairs'):
         _attach_phrase_parallels(out, work_a, work_b)
-    _log_passage_search('Compare Works', '', work_a, work_b, None, 'works',
+    _log_passage_search('Compare Works', 'all', work_a, work_b, None, 'works',
                         len(out.get('pairs') or []))
     # Like every route in this blueprint: 200 with an `error` field, so a page
     # or a connector reads one shape whatever happened.
