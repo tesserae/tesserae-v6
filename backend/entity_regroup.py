@@ -306,8 +306,8 @@ def stem_of(form):
     return pr.group_stem(prep(form))
 
 
-def audit(db, lines=None):
-    """Layer 1 over every entity. Returns {'summary': counts per source, 'groups': [[eid, stem, {spelling: rows},
+def audit(db, lines=None, only=None):
+    """Layer 1 over every entity, or over the entity ids (entity_id strings) in `only` when it is given. Returns {'summary': counts per source, 'groups': [[eid, stem, {spelling: rows},
     rows]]} for the candidate groups."""
     src = {eid: (eid_s, s, t) for eid, eid_s, s, t in db.execute('select eid, entity_id, source, type from entities')}
     forms = {}
@@ -317,7 +317,7 @@ def audit(db, lines=None):
     groups = []
     for eid, pairs in forms.items():
         entity_id, source, _t = src[eid]
-        if protected(entity_id):
+        if protected(entity_id) or (only is not None and entity_id not in only):
             continue
         s = summ.setdefault(source, {'entities': 0, 'entities_with_candidates': 0, 'spellings': 0,
                                      'candidate_spellings': 0, 'rows': 0, 'candidate_rows': 0, 'groups': 0})
@@ -337,6 +337,106 @@ def audit(db, lines=None):
             groups.append([eid, st, {f: pairs[f] for f in sorted(fs)}, sum(pairs[f] for f in fs)])
     summ['all'] = {k: sum(v[k] for v in summ.values()) for k in next(iter(summ.values()))}
     return {'summary': summ, 'groups': groups}
+
+
+# ---------------------------------------------------------------- fourth pass rules (2026-10-25)
+
+def _heading_words(heads):
+    """The headings split into words and at a slash, parentheses taken out: [(word, normalized word)]."""
+    out = []
+    for h in heads:
+        h = re.sub(r'\s*\([^)]*\)', '', h)
+        for part in h.split('/'):
+            for w in part.split():
+                n = mb._norm(prep(w))
+                if len(n) >= 3:
+                    out.append((w, n))
+    return out
+
+
+def near_variant(form, heads):
+    """Fourth pass, rule (a). True when the spelling differs from a heading only by a final m or n (Sichen,
+    Sichem), or by one letter inside an otherwise identical stem (not the first or last letter, spellings of at
+    least five letters), or by an inserted n, m or h inside the stem. Compared as the index writes names (mb._norm, Greek in Latin letters)."""
+    f = mb._norm(prep(ex.without_enclitic(form)[0] or form))
+    if len(f) < 5:
+        return False
+    for _w, h in _heading_words(heads):
+        if h == f:
+            continue
+        a, b = sorted((f, h), key=len)
+        if len(b) == len(a) + 1 and len(a) >= 5:       # an n, m or h inside the stem (Edobichus, Edobinchus)
+            i = next((i for i in range(len(a)) if a[i] != b[i]), len(a))
+            if 0 < i < len(b) - 1 and b[i] in 'nmh' and a[i:] == b[i + 1:]:
+                return True
+        if len(h) != len(f):
+            continue
+        if f[:-1] == h[:-1] and f[-1] in 'mn' and h[-1] in 'mn':
+            return True
+        diff = [i for i in range(len(f)) if f[i] != h[i]]
+        if len(diff) == 1 and 0 < diff[0] < len(f) - 1:
+            return True
+    return False
+
+
+# Place-name adjectives, on the normalized spelling: Latin -icus, -aeus, -ensis, -inus (a, um), Greek -ikos, -aios,
+# -ios (-ia, -ion), -enos, -ites / -itis, with any case ending.
+_ADJ = re.compile(r'^(.{3,}?)(?:ik|ai|ens|in|en|it|i)(?:os|us|um|on|ou|ois|ais|ous|orum|arum|ium|ia|ai|ibus|ensis|ites|itis|im|is|es|am|em|as|an|en|a|e|i|o)$')
+
+
+_ADJ_BARE = re.compile(r'^(.{3,}?)(?:ik|ens)$')       # Delphic, a bare Latin -ensis written -ens
+
+
+def _adj_stem(n):
+    m = _ADJ.match(n) or _ADJ_BARE.match(n)
+    return m.group(1) if m else None
+
+
+def place_adjective_of(form, heads, host_type):
+    """Fourth pass, rule (b). True when the spelling is a place-name adjective (see _ADJ) whose stem matches a
+    heading of the entry, or the entry's heading is such an adjective and the spelling continues its stem by at
+    most two letters: the adjective stays with its place. A person or deity entry never qualifies (Maximinus
+    against Maximianus). The matching heading may be longer by up to four letters in a place entry (Aegean)."""
+    if host_type in ('person', 'deity'):
+        return False
+    f = mb._norm(prep(ex.without_enclitic(form)[0] or form))
+    sf = _adj_stem(f)
+    limit = 4 if host_type in ('place', 'region') else 2
+    for _w, h in _heading_words(heads):
+        sh = _adj_stem(h)
+        if sf is None and sh is None:
+            continue
+        a = [sf] if sf else [f, f[:-1], f[:-2]]
+        b = [sh] if sh else [h, h[:-1], h[:-2]]
+        for x in a:
+            for y in b:
+                if len(x) < 3 or len(y) < 3:
+                    continue
+                if x == y:
+                    return True
+                if x.startswith(y) and len(x) - len(y) <= 2 and sf is None:
+                    return True
+                if y.startswith(x) and len(y) - len(x) <= (2 if sh else limit) and sf is not None:
+                    return True
+                if sf is not None and sh and x.startswith(y) and len(x) - len(y) <= 2:
+                    return True        # two adjective stems, one with a thematic vowel more (Neustriensibus, Neustria)
+    return False
+
+
+def keep_by_rules(db, entity_id, forms):
+    """Fourth pass. {spelling: rule} for the spellings of a group the model called DIFFERENT that rules (a) and (b)
+    keep with their entry."""
+    r = db.execute('select eid, type from entities where entity_id = ?', (entity_id,)).fetchone()
+    if not r:
+        return {}
+    heads = headings(db, r[0])
+    out = {}
+    for f in forms:
+        if near_variant(f, heads):
+            out[f] = 'variant'
+        elif place_adjective_of(f, heads, r[1]):
+            out[f] = 'place adjective'
+    return out
 
 
 # ---------------------------------------------------------------- layer 2, the model
@@ -950,3 +1050,34 @@ def apply_differences(db, differences, log=print, cap=300):
             if cap is None or len(rep['carves']) < cap:
                 rep['carves'].append([entity_id, new_id, rest[:4], r['moved']])
     return rep
+
+
+def apply_decisions(db, decisions, log=print):
+    """Decisions made by hand and kept in a file so that an install can replay them (fourth pass, 2026-10-25).
+    Each is {"id", "entity_id", "heading" (optional), "move_forms" (optional), "reason"}: the entity gets the heading
+    (entities.label and entity_labels), then the rows of each listed spelling leave it as a regroup split does
+    (to the one other entity they are a case form of, else a new corpus name). Returns the decision ids done."""
+    done = []
+    for d in decisions:
+        r = db.execute('select eid from entities where entity_id = ?', (d['entity_id'],)).fetchone()
+        if not r:
+            log(f'decision {d["id"]}: no entity {d["entity_id"]}, skipped')
+            continue
+        eid = r[0]
+        if d.get('heading'):
+            old = db.execute('select label from entities where eid = ?', (eid,)).fetchone()[0]
+            db.execute('update entities set label = ? where eid = ?', (d['heading'], eid))
+            db.execute('update entity_labels set display_label = ? where eid = ?', (d['heading'], eid))
+            db.execute('update entity_labels set display_label_la = ? where eid = ? and display_label_la = ?',
+                       (d['heading'], eid, old))
+        if d.get('move_forms'):
+            folds = {ei.fold(f) for f in d['move_forms']}
+            have = {f: n for f, n in db.execute('select form, count(*) from mention_rows where eid = ? group by form', (eid,))
+                    if ei.fold(f) in folds}
+            if have:
+                rep = apply_differences(db, [(d['entity_id'], 'decision:' + d['id'], have)], log=log, cap=None)
+                log(f'decision {d["id"]}: {sum(have.values())} rows of {sorted(have)} left {d["entity_id"]}; {rep["moved_groups"]} moved, '
+                    f'{rep["carved_groups"]} carved')
+        done.append(d['id'])
+    return done
+

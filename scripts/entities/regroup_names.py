@@ -48,13 +48,13 @@ def workers():
     return 4 if busy else 8
 
 
-def judge_groups(db, groups, cache_path, lines, nworkers=None, label=''):
+def judge_groups(db, groups, cache_path, lines, nworkers=None, label='', redo=()):
     """groups: [(eid, entity_id, stem, forms {spelling: rows})]. Asks every group not yet in the cache, stores the
     answers, returns {(entity_id, stem): answer}."""
     cache = rg.open_cache(cache_path)
     have = {(a, b): c for a, b, c in cache.execute('select entity_id, stem, answer from answers where version = ?',
                                                    (rg.PROMPT_VERSION,))}
-    todo = [g for g in groups if (g[1], g[2]) not in have]
+    todo = [g for g in groups if (g[1], g[2]) not in have or (g[1], g[2]) in redo]
     url, key = gateway()
     stats = {}
     t0 = time.time()
@@ -568,6 +568,36 @@ def run_rescore(db, a, cache_path=None):
 
 # ---------------------------------------------------------------- third pass (2026-10-24)
 
+def read_entity_ids(path):
+    """The entity ids listed in a file: a csv with an entity_id column (like new_entities.csv) or one id per line."""
+    import csv
+    path = os.path.expanduser(path)
+    with open(path, encoding='utf-8', newline='') as f:
+        head = f.readline()
+        f.seek(0)
+        if 'entity_id' in head.split(','):
+            return {r['entity_id'] for r in csv.DictReader(f)}
+        return {ln.strip() for ln in f if ln.strip()}
+
+
+def keep_by_rules(db, groups):
+    """The groups to split without the spellings that rules (a) a near variant and (b) a place adjective keep with
+    their entry (rg.keep_by_rules). Returns (groups, counts)."""
+    out, counts, examples = [], {'variant': 0, 'place adjective': 0}, []
+    for entity_id, stem, forms in groups:
+        keep = rg.keep_by_rules(db, entity_id, forms)
+        for f, why in keep.items():
+            counts[why] += 1
+            if len(examples) < 400:
+                examples.append((entity_id, f, why))
+        rest = {f: n for f, n in forms.items() if f not in keep}
+        if rest:
+            out.append((entity_id, stem, rest))
+    json.dump(examples, open(os.path.join(PROGRESS and os.path.dirname(PROGRESS) or '.', 'kept_by_rules.json'), 'w'),
+              ensure_ascii=False, indent=0)
+    return out, counts
+
+
 def run_pass3(db, a):
     """Third pass on a fresh copy of the live store: layer 1 with the new rules (and the broken-word check), the
     model only for groups and spellings the cache of the earlier passes does not hold, the stored replies
@@ -576,22 +606,32 @@ def run_pass3(db, a):
     global PROGRESS
     t0 = time.time()
     stamp = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(os.path.getmtime(a.store)))
-    PROGRESS = os.path.join(WORK3, 'PROGRESS.txt')
-    cache_path = os.path.join(WORK3, 'answers.sqlite')
+    work = os.path.expanduser(a.work) if a.work else WORK3
+    only = read_entity_ids(a.entities) if a.entities else None
+    PROGRESS = os.path.join(work, 'PROGRESS.txt')
+    cache_path = os.path.join(work, 'answers.sqlite')
     lines = rg.Lines(WINDOWS)
     ids = dict(db.execute('select eid, entity_id from entities'))
-    rep0 = rg.audit(db, lines)
+    rep0 = rg.audit(db, lines, only=only)
+    if only is not None:
+        log(f'pass3: limited to {len(only)} listed entities')
     log(f'pass3 audit: {len(rep0["groups"])} candidate groups, {time.time() - t0:.0f}s')
     groups = [(g[0], ids[g[0]], g[1], g[2]) for g in rep0['groups']]
     cache = rg.open_cache(cache_path)
     first = {(x, y): z for x, y, z in cache.execute('select entity_id, stem, answer from answers where version = ?', (rg.PROMPT_VERSION,))}
+    cached_forms = {(x, y): set(json.loads(f)) for x, y, f in cache.execute(
+        'select entity_id, stem, forms from answers where version = ?', (rg.PROMPT_VERSION,))}
     cache.close()
-    new = [g for g in groups if (g[1], g[2]) not in first]
-    log(f'pass3: {len(groups)} groups, {len(groups) - len(new)} answered in the cache, {len(new)} new for the model')
+    # a cached answer counts only for the same group: one that has gained a spelling since (new rows of the
+    # works added on 2026-10-24) is asked again
+    grown = {(g[1], g[2]) for g in groups if (g[1], g[2]) in first and not set(g[3]) <= cached_forms[(g[1], g[2])]}
+    new = [g for g in groups if (g[1], g[2]) not in first or (g[1], g[2]) in grown]
+    log(f'pass3: {len(groups)} groups, {len(groups) - len(new)} answered in the cache, {len(new)} new for the model '
+        f'({len(grown)} of them cached groups that gained a spelling)')
     if a.count_only:
         return
     if new:
-        first = judge_groups(db, new, cache_path, lines, nworkers=a.workers or 6, label='pass3-first')
+        first = judge_groups(db, new, cache_path, lines, nworkers=a.workers or 6, label='pass3-first', redo=grown)
     log(f'pass3: first-pass answers done, {time.time() - t0:.0f}s')
     diffs = [(g[1], g[2], g[3], g[0]) for g in groups if first.get((g[1], g[2])) == 'DIFFERENT']
     items = spelling_items(db, [(d[3], d[0], d[1], d[2]) for d in diffs])
@@ -604,12 +644,16 @@ def run_pass3(db, a):
         judge_spellings(db, todo, cache_path, lines, label='pass3-second')
     run_rescore(db, a, cache_path)
     both = both_different(cache_path, [(d[0], d[1], d[2]) for d in diffs])
-    log(f'pass3: {len(both)} groups to split, {time.time() - t0:.0f}s')
+    both, kept = keep_by_rules(db, both)
+    log(f'pass3: {len(both)} groups to split after the keep rules, {sum(kept.values())} spellings kept by them '
+        f'({kept["variant"]} variants, {kept["place adjective"]} place adjectives), {time.time() - t0:.0f}s')
     before = db.execute('select count(*) from mention_rows').fetchone()[0]
     ents_before = db.execute('select count(*) from entities').fetchone()[0]
     rep = rg.apply_differences(db, both, log=log, cap=None)
+    if a.decisions:
+        rep['decisions'] = rg.apply_decisions(db, json.load(open(os.path.expanduser(a.decisions), encoding='utf-8')), log=log)
     db.commit()
-    rep.update({'differences': len(both), 'mention_rows_before': before,
+    rep.update({'keep_rules': kept, 'differences': len(both), 'mention_rows_before': before,
                 'mention_rows_after': db.execute('select count(*) from mention_rows').fetchone()[0],
                 'entities_before': ents_before,
                 'entities_after': db.execute('select count(*) from entities').fetchone()[0],
@@ -625,21 +669,46 @@ def run_pass3(db, a):
     db.execute("update meta set value = ? where key = 'catalog_built'", (stamp,))
     db.commit()
     rep['integrity'] = db.execute('pragma integrity_check').fetchone()[0]
-    json.dump(rep, open(os.path.join(WORK3, 'apply_report.json'), 'w'), ensure_ascii=False, indent=1)
+    json.dump(rep, open(os.path.join(work, 'apply_report.json'), 'w'), ensure_ascii=False, indent=1)
     log('PASS3 ' + json.dumps({k: v for k, v in rep.items() if k not in ('moves', 'carves')}) + f' {time.time() - t0:.0f}s')
+
+
+def run_decisions_only(db, a):
+    """Apply the decisions file and nothing else (no audit, no model, no split), then rewrite the search names,
+    the catalog and the form index."""
+    from backend import entity_extras as ex
+    global PROGRESS
+    stamp = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(os.path.getmtime(a.store)))
+    if a.work:
+        PROGRESS = os.path.join(os.path.expanduser(a.work), 'PROGRESS.txt')
+    before = (db.execute('select count(*) from entities').fetchone()[0], db.execute('select count(*) from mention_rows').fetchone()[0])
+    done = rg.apply_decisions(db, json.load(open(os.path.expanduser(a.decisions), encoding='utf-8')), log=log)
+    db.commit()
+    ex.add_form_search_names(db, log=log)
+    db.commit()
+    db.close()
+    ex.write_catalog(a.store, log=log)
+    ex.write_form_index(a.store, log=log)
+    db = sqlite3.connect(a.store)
+    db.execute("update meta set value = ? where key = 'catalog_built'", (stamp,))
+    db.commit()
+    after = (db.execute('select count(*) from entities').fetchone()[0], db.execute('select count(*) from mention_rows').fetchone()[0])
+    log(f'DECISIONS {done} entities {before[0]} to {after[0]}, mention rows {before[1]} to {after[1]}, '
+        f'integrity {db.execute("pragma integrity_check").fetchone()[0]}')
 
 
 def run_sample3(db, a):
     """sample_40.md: 40 random splits (seed 2027) from the third pass, each as spelling, old heading, new place, one line."""
     lines = rg.Lines(WINDOWS)
-    rep = json.load(open(os.path.join(WORK3, 'apply_report.json')))
-    rnd = random.Random(2027)
+    work = os.path.expanduser(a.work) if a.work else WORK3
+    rep = json.load(open(os.path.join(work, 'apply_report.json')))
+    rnd = random.Random(a.seed or 2027)
     allsplits = [('moved',) + tuple(m) for m in rep['moves']] + [('carved',) + tuple(c) for c in rep['carves']]
     picks = rnd.sample(allsplits, 40)
     out = ['# 40 spellings the third regroup split, for grading', '']
     for i, (kind, old_id, new_id, fs, n) in enumerate(picks, 1):
         r_new = db.execute('select eid, label from entities where entity_id = ?', (new_id,)).fetchone()
-        old = sqlite3.connect(os.path.join(WORK3, 'entities_live_before.sqlite'))
+        old = sqlite3.connect(os.path.join(work, 'entities_live_before.sqlite'))
         r_old = old.execute('select label from entities where entity_id = ?', (old_id,)).fetchone()
         old.close()
         form = fs[0]
@@ -652,8 +721,36 @@ def run_sample3(db, a):
                    f'Now: {kind} to {r_new[1]} ({new_id}).')
         out.append(f'   Line: {line}')
         out.append('')
-    open(os.path.join(WORK3, 'sample_40.md'), 'w').write('\n'.join(out))
+    open(os.path.join(work, 'sample_40.md'), 'w').write('\n'.join(out))
     log('sample_40 written')
+
+
+def run_sample_entities(db, a):
+    """sample_40.md for a build: 40 entities drawn at random (a.seed) from the listed ones that still exist, each
+    as entity, heading, the spellings under it with counts, the works, and one line."""
+    lines = rg.Lines(WINDOWS)
+    work = os.path.expanduser(a.work) if a.work else WORK3
+    only = sorted(read_entity_ids(a.entities))
+    have = [(e, eid, label) for e, eid, label in db.execute('select entity_id, eid, label from entities') if e in set(only)]
+    have.sort()
+    picks = random.Random(a.seed).sample(have, 40)
+    out = ['# 40 new entities after the pass, for grading', '']
+    for i, (entity_id, eid, label) in enumerate(picks, 1):
+        forms = db.execute('select form, count(*) from mention_rows where eid = ? group by form order by 2 desc, 1', (eid,)).fetchall()
+        works = [w for (w,) in db.execute('select distinct w.work from mention_rows m join windows w using(wid) where m.eid = ? '
+                                          'order by 1 limit 5', (eid,))]
+        top = forms[0][0] if forms else ''
+        ex_lines = rg.example_lines(db, lines, eid, [top], n=1) if top else []
+        line = ex_lines[0] if ex_lines else '(no line found)'
+        j = line.find('\u27e6')
+        if len(line) > 420 and j >= 0:
+            line = '...' + line[max(0, j - 200):j + 220] + '...'
+        out.append(f'{i}. {label} ({entity_id}). Spellings: ' + ', '.join(f'{f} {n}' for f, n in forms[:8])
+                   + f'. Rows {sum(n for _f, n in forms)}. Works: ' + ', '.join(works) + '.')
+        out.append(f'   Line: {line}')
+        out.append('')
+    open(os.path.join(work, 'sample_40_entities.md'), 'w').write('\n'.join(out))
+    log('sample_40_entities written')
 
 
 def main():
@@ -674,15 +771,25 @@ def main():
     ap.add_argument('--judge3', action='store_true')
     ap.add_argument('--pass3', action='store_true')
     ap.add_argument('--sample3', action='store_true')
+    ap.add_argument('--decisions-only', action='store_true', help='apply the --decisions file and nothing else')
+    ap.add_argument('--sample-entities', action='store_true')
     ap.add_argument('--count-only', action='store_true')
+    ap.add_argument('--entities', default=None, help='limit the pass to the entity ids in this file (csv with entity_id, or one per line)')
+    ap.add_argument('--work', default=None, help='folder for the cache, progress file and reports (default: the third pass folder)')
+    ap.add_argument('--seed', type=int, default=0)
+    ap.add_argument('--decisions', default=None, help='json file of hand decisions the apply step replays')
     ap.add_argument('--max-seconds', type=int, default=0)
     ap.add_argument('--workers', type=int, default=0)
     a = ap.parse_args()
     db = sqlite3.connect(a.store)
+    if a.decisions_only:
+        return run_decisions_only(db, a)
     if a.pass3:
         return run_pass3(db, a)
     if a.sample3:
         return run_sample3(db, a)
+    if a.sample_entities:
+        return run_sample_entities(db, a)
     if a.calibrate:
         sys.exit(1 if calibrate(db, os.path.join(WORK, 'answers.sqlite')) else 0)
     if a.calibrate2:
@@ -705,7 +812,7 @@ def main():
         return run_apply(db, a)
     if a.sheet:
         return run_sheet(db, a)
-    rep = rg.audit(db)
+    rep = rg.audit(db, only=read_entity_ids(a.entities) if a.entities else None)
     print(json.dumps(rep['summary'], indent=1, ensure_ascii=False))
     if a.out:
         json.dump(rep['groups'], open(a.out, 'w'), ensure_ascii=False)
