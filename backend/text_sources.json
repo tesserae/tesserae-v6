@@ -21565,20 +21565,20 @@
   {
     "author": "Rumi",
     "work": "Masnavi",
-    "e_source": "Chronological Persian Poetry Dataset (built on Ganjoor)",
-    "e_source_url": "https://github.com/aghasemi/ChronologicalPersianPoetryDataset",
-    "print_source": "Opening of the Masnavi-ye Ma'navi; one part filed.",
+    "e_source": "Ganjoor (ganjoor.net), Masnavi-ye Ma'navi, six books, the transcription credited there to Wikidorj",
+    "e_source_url": "https://ganjoor.net/moulavi/masnavi",
+    "print_source": "All six books, 51,274 hemistichs; replaces the 18-line opening fragment filed as Rumi Masnavi part 1.",
     "added_by": "Tesserae Project",
-    "license": "CC BY-SA 4.0, declared on the dataset repository (github.com/aghasemi/ChronologicalPersianPoetryDataset); Ganjoor.net's own upstream terms for the underlying database were not independently verified."
+    "license": "The classical text is public domain. Ganjoor.net's own terms for its transcription were not independently verified (the same upstream as the Chronological Persian Poetry Dataset already served, which declares CC BY-SA 4.0)."
   },
   {
     "author": "Saadi",
     "work": "Bustan",
-    "e_source": "Chronological Persian Poetry Dataset (built on Ganjoor)",
-    "e_source_url": "https://github.com/aghasemi/ChronologicalPersianPoetryDataset",
-    "print_source": "Opening of the Bustan; one part filed.",
+    "e_source": "Ganjoor (ganjoor.net), Bustan, the transcription credited there to Wikidorj",
+    "e_source_url": "https://ganjoor.net/saadi/boostan",
+    "print_source": "The invocation and the ten chapters, 8,128 hemistichs; replaces the 20-line opening fragment filed as Saadi Bustan part 1 and the block inside Saadi Diwan.",
     "added_by": "Tesserae Project",
-    "license": "CC BY-SA 4.0, declared on the dataset repository (github.com/aghasemi/ChronologicalPersianPoetryDataset); Ganjoor.net's own upstream terms for the underlying database were not independently verified."
+    "license": "The classical text is public domain. Ganjoor.net's own terms for its transcription were not independently verified (the same upstream as the Chronological Persian Poetry Dataset already served, which declares CC BY-SA 4.0)."
   },
   {
     "author": "Saadi",
@@ -24121,5 +24121,77 @@
     "print_source": "Not stated on the Wikisource page. Retrieved 2026-10-24.",
     "added_by": "V6 Import (Latin tranche 2026-10-24)",
     "license": "CC BY-SA 4.0 (Latin Wikisource)"
+  },
+  {
+    "author": "Saadi",
+    "work": "Gulistan",
+    "e_source": "Persian Wikisource through Ganjoor (ganjoor.net), Golestan",
+    "e_source_url": "https://ganjoor.net/saadi/golestan",
+    "print_source": "Preface, eight chapters of numbered stories and maxims, 1,992 lines; replaces the block inside Saadi Diwan (lines 29808 to 32003).",
+    "added_by": "Tesserae Project",
+    "license": "CC BY-SA 4.0 (Wikisource transcription, dual-licensed CC BY-SA 4.0 and GFDL under Wikisource's copyright policy); the text is public domain."
+  },
+  {
+    "author": "Attar",
+    "work": "Mantiq Al Tayr",
+    "e_source": "Ganjoor (ganjoor.net), Manteq ot-Teyr, the transcription credited there to Wikidorj",
+    "e_source_url": "https://ganjoor.net/attar/manteghotteyr",
+    "print_source": "9,394 hemistichs in 211 sections; replaces the block inside Attar Diwan.",
+    "added_by": "Tesserae Project",
+    "license": "The classical text is public domain. Ganjoor.net's own terms for its transcription were not independently verified (the same upstream as the Chronological Persian Poetry Dataset already served, which declares CC BY-SA 4.0)."
+  },
+  {
+    "author": "Attar",
+    "work": "Tazkirat Al Awliya",
+    "e_source": "Ganjoor (ganjoor.net), Tazkerat ol-Owliya, the transcription credited there to the Ketabkhaneh-ye Tasavvof (Library of Sufism)",
+    "e_source_url": "https://ganjoor.net/attar/tazkerat-ol-ouliya",
+    "print_source": "96 chapters, 6,457 paragraphs; replaces the block inside Attar Diwan.",
+    "added_by": "Tesserae Project",
+    "license": "The classical text is public domain. Ganjoor.net's own terms for its transcription were not independently verified (the same upstream as the Chronological Persian Poetry Dataset already served, which declares CC BY-SA 4.0)."
+  },
+  {
+    "author": "Nizami Arudi",
+    "work": "Chahar Maqala",
+    "e_source": "Persian Wikisource, Chahar Maqala",
+    "e_source_url": "https://fa.wikisource.org/wiki/چهار_مقاله",
+    "print_source": "Edited by Muhammad Qazvini (Berlin: Iranshahr, 1927). The author's preface and the four discourses; Qazvini's prefaces and notes are not included.",
+    "added_by": "Tesserae Project",
+    "license": "CC BY-SA 4.0 (Wikisource transcription, dual-licensed CC BY-SA 4.0 and GFDL under Wikisource's copyright policy); the text is public domain."
+  },
+  {
+    "author": "Nasrallah Munshi",
+    "work": "Kalila Va Demna",
+    "e_source": "Persian Wikisource, Kalila va Demna",
+    "e_source_url": "https://fa.wikisource.org/wiki/کلیله_و_دمنه",
+    "print_source": "Nasrallah Munshi's Persian version (c. 1144): three prefaces, fifteen chapters and the translator's conclusion.",
+    "added_by": "Tesserae Project",
+    "license": "CC BY-SA 4.0 (Wikisource transcription, dual-licensed CC BY-SA 4.0 and GFDL under Wikisource's copyright policy); the text is public domain."
+  },
+  {
+    "author": "Mir Amman",
+    "work": "Bagh O Bahar",
+    "e_source": "Urdu Wikisource, Bagh o Bahar",
+    "e_source_url": "https://ur.wikisource.org/wiki/باغ_و_بہار",
+    "print_source": "Preface, reason for the work, the frame story and the four darwesh's tales; Gilchrist's preface left out.",
+    "added_by": "Tesserae Project",
+    "license": "CC BY-SA 4.0 (Wikisource transcription, dual-licensed CC BY-SA 4.0 and GFDL under Wikisource's copyright policy); the text is public domain."
+  },
+  {
+    "author": "Suroor",
+    "work": "Fasana E Ajaib",
+    "e_source": "Urdu Wikisource, Fasana-e-Ajaib",
+    "e_source_url": "https://ur.wikisource.org/wiki/فسانۂ_عجائب",
+    "print_source": "The author's text in 27 sections; Makhmoor Akbarabadi's editorial preface (1928) left out.",
+    "added_by": "Tesserae Project",
+    "license": "CC BY-SA 4.0 (Wikisource transcription, dual-licensed CC BY-SA 4.0 and GFDL under Wikisource's copyright policy); the text is public domain."
+  },
+  {
+    "author": "Azad",
+    "work": "Ab E Hayat",
+    "e_source": "Urdu Wikisource, Ab-e-Hayat",
+    "e_source_url": "https://ur.wikisource.org/wiki/آب_حیات",
+    "print_source": "Preface, the two histories (of the language and of Urdu verse), the five periods with the poets' lives (41 sections).",
+    "added_by": "Tesserae Project",
+    "license": "CC BY-SA 4.0 (Wikisource transcription, dual-licensed CC BY-SA 4.0 and GFDL under Wikisource's copyright policy); the text is public domain."
   }
 ]

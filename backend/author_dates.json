@@ -561,11 +561,23 @@
    "note": "d. c. 1088 CE",
    "year": 1088
   },
+  "nasrallah_munshi": {
+   "added": "editorial-2026-10-24",
+   "era": "Ghaznavid",
+   "note": "Abu'l-Ma'ali Nasrallah Munshi, fl. c. 1144 CE; his Persian Kalila va Demna was made for the Ghaznavid ruler Bahram-shah",
+   "year": 1146
+  },
   "nizami": {
    "added": "editorial-2026-08-25",
    "era": "Seljuk",
    "note": "d. c. 1209 CE",
    "year": 1209
+  },
+  "nizami_arudi": {
+   "added": "editorial-2026-10-24",
+   "era": "Seljuk",
+   "note": "Nizami-ye Aruzi of Samarkand, fl. c. 1110 to 1157 CE; the Chahar Maqala was written about 1156 CE",
+   "year": 1157
   },
   "parvin": {
    "added": "editorial-2026-08-25",
@@ -3191,6 +3203,13 @@
    "year": 1847,
    "editorial": "Urdu Wikisource; era rule: died before 1920 -> Mughal / Colonial, later -> Modern"
   },
+  "azad": {
+   "added": "editorial-2026-10-24",
+   "era": "Mughal / Colonial",
+   "note": "Muhammad Husain Azad, d. 1910 CE",
+   "year": 1910,
+   "editorial": "Urdu era rule as for the poets: died before 1920 -> Mughal / Colonial"
+  },
   "dagh": {
    "added": "wikisource-2026-09-06",
    "era": "Mughal / Colonial",
@@ -3237,6 +3256,13 @@
    "note": "Mir Taqi Mir, d. 1810 CE",
    "year": 1810
   },
+  "mir_amman": {
+   "added": "editorial-2026-10-24",
+   "era": "Mughal / Colonial",
+   "note": "Mir Amman Dehlavi, d. 1806 CE",
+   "year": 1806,
+   "editorial": "Urdu era rule as for the poets: died before 1920 -> Mughal / Colonial"
+  },
   "nazeer": {
    "added": "wikisource-2026-09-06",
    "era": "Mughal / Colonial",
@@ -3250,6 +3276,13 @@
    "note": "Mirza Muhammad Rafi Sauda, d. 1781 CE",
    "year": 1781,
    "editorial": "Urdu Wikisource; era rule: died before 1920 -> Mughal / Colonial, later -> Modern"
+  },
+  "suroor": {
+   "added": "editorial-2026-10-24",
+   "era": "Mughal / Colonial",
+   "note": "Rajab Ali Beg Suroor, d. 1867 CE",
+   "year": 1867,
+   "editorial": "Urdu era rule as for the poets: died before 1920 -> Mughal / Colonial"
   },
   "wali": {
    "added": "wikisource-2026-09-06",
