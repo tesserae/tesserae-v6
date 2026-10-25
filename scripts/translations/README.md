@@ -601,6 +601,72 @@ vocabulary taken from installed translations is 7 to 13 percent for Prudentius, 
 for Dionysius, Josephus and Silius, 16 to 21 for Sextus, Pliny, Nonnus, Ptolemy and the
 Republic, and 24 for Pausanias, against 13 to 19 for installed Perseus and Bohn files.
 
+## Pipeline 9: chapter, section and speech level sources (2026-10-24, Part C)
+
+Sixteen scripts and one shared module (`chapter_common.py`) build 85 served files, one per work, plus
+four files held back for a reading. All of them write the served shape directly
+(`units`, `ref_to_unit`, `sources`, `verified_by`), so `compact_for_serving.py` has nothing to do
+for them (it was run over the output and reported 0 files compacted, and it is still needed for
+the Hippocrates files that `align_perseus.py` wrote). Nothing here is installed: the files wait in a
+staging folder with a `SHA256SUMS.txt`, and `measure_staging.py DIR` re-measures every one of them
+against the corpus before an install.
+
+**The checks.** Every file passes `chapter_common.finish()`, which refuses to write unless one of
+two checks vouches for it: the proper-name check (0.30 or better on at least 20 names, 7 for a work
+that is one unit) or the length correlation between the summed length of the source lines a unit
+covers and the length of its English (0.80 or better). Where the pairing was made by cumulative
+length (Cicero) the length correlation is circular and is not counted. A third test, new here, is the
+rival-unit test: every unit's own English must score at least as well, against the proper names of
+its source lines, as the English of any unit more than three places away. It exists because of the
+Maximus of Tyre dissertations, where Taylor and our Greek number the forty-one dissertations in
+different orders. Number to number pairing passed the name check (0.67) and failed the rival test
+completely (0 of 41), and it would have put the wrong English beside every dissertation.
+
+**Where the translators number differently from us.** `group_align` and `end_merge_map` align the
+chapters of the two numberings by length, and a count that differs is repaired only where the
+lengths say two chapters on one side are one on the other (at most three such places in a book).
+Otherwise the book is refused. Differences of one at the end of a book were repaired that way
+for Topics book 5, Sophistical Refutations, On the Heavens book 4, the Instructor book 2 and Gregory's
+first oration. Refused: Parts of Animals book 4, Eutropius books 2 and 9 (the OCR lost the chain of
+numerals), Hippocrates Aphorisms (the numbering drifts and two aphorisms stand in the other order).
+
+| Script | Works | Source | Level | Coverage | Checks |
+|---|---|---|---|---|---|
+| `align_eusebius_mcgiffert.py` | Eusebius, Church History | McGiffert, NPNF 2.1 (1890), New Advent | chapter | 98% | names 0.89, length 0.995 |
+| `align_pausanias_shilleto.py` | Pausanias | Shilleto, Bohn (1886), IA scans | chapter | 99.7% (355 of 357 chapters) | names 0.996, length 0.94 |
+| `align_arrian_chinnock.py` | Arrian, Anabasis | Chinnock (1884), Gutenberg 46976 | chapter | 99.8% | names 0.98, length 0.98 |
+| `align_maximus_taylor.py` | Maximus of Tyre | Taylor (1804), IA scans, through a concordance of the two orderings | dissertation | 100% | names 0.80, length 0.81, rival 0.98 |
+| `align_isocrates_norlin.py` | Isocrates, speeches 1 to 8, 12, 13, 15 | Norlin, Loeb 1928 and 1929, Perseus TEI | section | 73% (the rest is Van Hook, 1945) | names 0.62, length 0.90 |
+| `align_demosthenes_vince.py` | On the Crown, On the Embassy, Against Leptines | Vince, Loeb 1926 and 1930, Perseus TEI | section | 100% | names 0.89 to 0.94, length 0.88 to 0.93 |
+| `align_demosthenes_kennedy.py` | 41 speeches, the Exordia, the Epistles | Kennedy, Bohn (1852 to 1863), IA scans | speech, exordium, letter | 100% for the speeches, 87% Exordia | printed title, length ratio, names |
+| `align_perseus_direct.py` | Apollodorus (Library, Epitome), Epictetus (Discourses, Encheiridion), Hippocrates Ancient Medicine | Frazer 1921, Long 1890, Adams 1886, Perseus TEI | exact numbers | 100% | names 0.9 to 1.0, length 0.91 to 1.0 |
+| `align_cicero_yonge_watson.py` | In Verrem, De Oratore, Brutus, De Fato | Yonge 1851 and 1853, Watson 1860, IA scans | chapter by cumulative length (Brutus exact) | 100% | names 0.74 to 0.99 |
+| `align_florus_forster.py` | Florus | Forster, Loeb 1929, LacusCurtius | chapter | 100% | names 0.95, length 0.996, rival 1.0 |
+| `align_aristotle_ne_rackham.py` | Nicomachean Ethics | Rackham, Loeb 1926, Perseus TEI | Bekker position | 100% | names 0.76, rival 0.88 |
+| `align_aristotle_oxford.py` | Categories, Interpretation, Analytics, Topics, Sophistical Refutations, Physics, Heavens, Meteorology, Sense, Athenian Constitution | Oxford translation 1891 to 1930, Internet Classics Archive | chapter | 98 to 100% | length 0.94 to 0.999 |
+| `align_newadvent_fathers.py` | Clement (Exhortation, Instructor, Rich Man), Basil Letters, Gregory of Nazianzus Orations 27 to 31 | ANF and NPNF, New Advent | chapter, letter, section | 71 to 100% | names 0.68 to 1.0, length 0.89 to 0.999 |
+| `align_apuleius_eutropius.py` | Apuleius Apologia and Florida, Eutropius | Butler 1909 (Gutenberg), Watson 1853 (IA) | chapter | 100%, Eutropius 74% | names 0.94 to 0.99 |
+| `align_celsus_greive.py` | Celsus, De Medicina | Greive 1756, Gutenberg 64207 | chapter | 73% | names 0.82, length 0.93 |
+| `align_cassiodorus_hodgkin.py` (held back) | Cassiodorus, Variae | Hodgkin 1886, a CONDENSED translation | letter | 56% | names 0.80, rival 0.79 |
+
+Held back for a reading in `review/`: Euripides, Rhesus (Murray 1913 through Perseus, exact line
+numbers, five passages read and right, but rhyming verse gives a length correlation of 0.21 and the
+names reach 0.26), two short Plutarch essays (one unit each, too few names to speak), and Cassiodorus,
+whose OCR carries the marginal glosses into the text and whose English is Hodgkin's summary.
+
+Not written, with the reason: Hippocrates Aphorisms (numbering drifts), Aristotle Parts of Animals
+(book 4 differs by more than an end merge), Problemata (the OCR loses most problem numbers), Psalms of Solomon (the Ryle
+and James volume interleaves the English with commentary and the Charles volume numbers verses
+differently), Dionysius of Halicarnassus (Spelman 1758: long s and two-column notes run into the text),
+Bacchylides (Jebb's English is interleaved with Greek and commentary, Poste translates ten odes), Achilles
+Tatius (Smith 1855 has books only), Saxo (Elton cites Holder's pages), Valerius Maximus (Speed 1678 is
+not digitized), Manilius and the Latin Dante by decision (a verse paraphrase, an unproven canto match).
+
+To rebuild the four Hippocrates files and the held-back Perseus files: run `align_perseus.py` once
+(`TESSERAE_TRANS_OUT=<dir>`), run `compact_for_serving.py <dir>`, then
+`finalize_perseus_extras.py <out> <dir>/grc__hippocrates.de_articulis.json ...`, which re-measures each
+file and sorts it into `<out>` or `<out>/review`.
+
 ## Paths
 
 Defaults are the machine this was run on, kept so the record is honest, and
