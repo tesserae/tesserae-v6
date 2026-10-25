@@ -133,6 +133,10 @@ class SourceIndex:
             for sw, r in self.by_author.get(a, []):
                 if sw and (sw.startswith(w) or w.startswith(sw)):
                     return r
+        # A part file whose name has no work segment (anthologia_graeca.part.1) gets the work
+        # "Unknown" from the file name. The author's one row then covers it.
+        if a and w == 'unknown' and len(self.by_author.get(a, [])) == 1:
+            return self.by_author[a][0][1]
         return None
 
 

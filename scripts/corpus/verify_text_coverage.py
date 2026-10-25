@@ -179,6 +179,9 @@ def main():
         r['browser'] = (bool(m) and bool(m.get('era')) and m.get('era') != 'Unknown' and bool(m.get('text_type'))) if api_meta else 'no-api'
         ma, mw = (m.get('author') or '').strip().casefold(), (m.get('work') or m.get('title') or '').strip().casefold()
         r['sources'] = (ma, mw) in src_keys or any(sa == ma and (sw.startswith(mw) or mw.startswith(sw)) for sa, sw in src_keys if ma and mw and sw)
+        # a part file whose name has no work segment gets the work 'Unknown'; the author's one row covers it
+        if not r['sources'] and ma and mw == 'unknown':
+            r['sources'] = sum(1 for sa, _ in src_keys if sa == ma) == 1
         r['blurb'] = (base in blurbs) or (whole in blurbs)
         r['dates'] = whole.split('.')[0] in dates
         r['transl'] = os.path.exists(f'data/translations/{lang}__{base}.json') or os.path.exists(f'data/translations/{lang}__{whole}.json')
