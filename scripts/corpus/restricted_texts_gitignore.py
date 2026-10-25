@@ -4,7 +4,9 @@
 data/restricted_texts.json names texts that must never reach the public
 repository. This script turns that list into ignore rules and writes them
 between the marker comments in .gitignore, replacing whatever was there
-before. Run it after adding, removing, or renaming a registry entry:
+before. Run it after adding, removing, or renaming a registry entry, ON A CHECKOUT
+THAT HOLDS THE RESTRICTED FILES (the production checkout): a checkout without
+them writes comments in place of the rules (2026-10-25).
 
     venv/bin/python scripts/corpus/restricted_texts_gitignore.py [--root PATH]
 
@@ -54,7 +56,7 @@ def build_lines(root):
             if not fn.endswith('.tess'):
                 continue
             tid = base_work(fn[:-len('.tess')])
-            if tid in registry:
+            if tid in registry and tid not in present:   # one pair of lines per id, not per file
                 present.add(tid)
                 lines.append(f'texts/{lang}/{tid}.tess')
                 lines.append(f'texts/{lang}/{tid}.part.*.tess')

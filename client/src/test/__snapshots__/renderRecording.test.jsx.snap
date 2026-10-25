@@ -2352,7 +2352,7 @@ exports[`App render recording > page /downloads 1`] = `
 <div class="grid gap-6 md:grid-cols-2">
 <div class="bg-white rounded-lg shadow p-6">
 <h3 class="text-lg font-semibold text-gray-900 mb-4">Corpus Texts</h3>
-<p class="text-sm text-gray-600 mb-4">One archive per language, a .tar.gz of the texts in .tess format with a MANIFEST.tsv and a README.txt inside. The manifest lists every text with its author, work, number of lines, electronic source and print source, and license. Each text is under its own license, listed in the manifest, and bulk copies fall under the <a href="/terms" class="text-red-600 hover:underline">Terms of Use</a>. Texts whose source allows no online copy (Musisque Deoque, Corpus Thomisticum, augustinus.it) are searchable on the site and left out of the archives, and each archive's README counts them. Persian and Urdu texts are searchable on the site but are not offered as archives pending their sources' terms. The Urdu search index, which holds the line text of fourteen Wikisource collections, is offered under the developer data files below.</p>
+<p class="text-sm text-gray-600 mb-4">One archive per language, a .tar.gz of the texts in .tess format with a MANIFEST.tsv and a README.txt inside. The manifest lists every text with its author, work, number of lines, electronic source and print source, and license. Each text is under its own license, listed in the manifest, and bulk copies fall under the <a href="/terms" class="text-red-600 hover:underline">Terms of Use</a>. Texts whose source allows no online copy are searchable on the site and left out of every archive that carries their lines (the text archives, the Latin search index and the window texts), and each archive's README counts them. Musisque Deoque allows copies on paper or portable offline media only, for scholarly use. Corpus Thomisticum and augustinus.it reserve all rights, and Augustine's De doctrina christiana, the one augustinus.it text, is held for search and reading on the site only. Persian and Urdu texts are searchable on the site but are not offered as archives pending their sources' terms. The Urdu search index, which holds the line text of fourteen Wikisource collections, is offered under the developer data files below.</p>
 <div class="space-y-3">
 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-gray-50 rounded">
 <div>
@@ -2903,7 +2903,7 @@ exports[`App render recording > page /downloads 1`] = `
 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-gray-50 rounded">
 <div>
 <span class="font-medium">Latin Search Index</span>
-<span class="text-sm text-gray-500 ml-2">(about 1,430 texts, 567 MB packed, 2.0 GB unpacked)</span>
+<span class="text-sm text-gray-500 ml-2">(about 1,430 texts, the works from Musisque Deoque, Corpus Thomisticum and augustinus.it left out, 567 MB packed, 2.0 GB unpacked)</span>
 </div>
 <a href="https://tesserae.caset.buffalo.edu/tesserae-data/la_index.db.tar.gz" target="_blank" rel="noopener noreferrer" class="px-4 py-2 bg-red-700 text-white rounded hover:bg-red-800 text-sm">Download</a>
 </div>
@@ -2994,7 +2994,7 @@ exports[`App render recording > page /downloads 1`] = `
 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-gray-50 rounded">
 <div>
 <span class="font-medium">Window Texts</span>
-<span class="text-sm text-gray-500 ml-2">(the text of 460,652 passage windows and the lines of each work, 496 MB packed, 2.5 GB unpacked, each work under its own license and non-commercial as a whole, without the Sahidica New Testament, the Arabic and Persian works and eleven Iqbal collections)</span>
+<span class="text-sm text-gray-500 ml-2">(the text of the passage windows and the lines of each work, the works from Musisque Deoque, Corpus Thomisticum and augustinus.it left out, 496 MB packed, 2.5 GB unpacked, each work under its own license and non-commercial as a whole, without the Sahidica New Testament, the Arabic and Persian works and eleven Iqbal collections)</span>
 </div>
 <a href="https://tesserae.caset.buffalo.edu/tesserae-data/window_texts.db.tar.gz" target="_blank" rel="noopener noreferrer" class="px-4 py-2 bg-red-700 text-white rounded hover:bg-red-800 text-sm">Download</a>
 </div>
