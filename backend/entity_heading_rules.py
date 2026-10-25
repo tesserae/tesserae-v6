@@ -67,6 +67,8 @@ def propose(heading, forms):
         found = {f: n for f, n in pool.items() if any(_plain(f) == stem + nom for nom in noms) and _plain(f) != _plain(heading)}
         if found:
             best = max(found, key=lambda f: (found[f], f))
+            if heading[:1].isupper() and best[:1].islower():
+                best = best[0].upper() + best[1:]        # the heading keeps its capital (euboicus is Euboicus)
             ev = sorted(pool.items(), key=lambda x: (-x[1], x[0]))[:6]
             return ('rule', best, [f'{f} {n}' for f, n in ev])
     stem, noms, end = reads[0]

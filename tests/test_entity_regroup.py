@@ -240,3 +240,41 @@ def test_audit_limited_to_listed_entities():
     assert {g[0] for g in everything} == {1}
     assert rg.audit(db, only={'pn:silan'})['groups'] == everything
     assert rg.audit(db, only={'nm:silan2'})['groups'] == []
+
+
+def test_near_variant_final_m_n_and_one_inner_letter():
+    assert rg.near_variant('Sichen', {'Sichem'})
+    assert rg.near_variant('Sichem', {'Sichen'})
+    assert rg.near_variant('Philinus', {'Philonus'})          # one letter inside an identical stem
+    assert not rg.near_variant('Fulvia', {'Fulvius'})         # the last letter differs: another name
+    assert not rg.near_variant('Marcus', {'Marcius'})         # an inserted vowel is another name
+    assert rg.near_variant('Ἐδόβιχον', {'Ἐδόβινχον'})         # an inserted n inside the stem
+    assert not rg.near_variant('Roma', {'Roma'})
+
+
+def test_place_adjective_stays_with_its_place():
+    assert rg.place_adjective_of('Euboicorum', {'Euboea'}, 'place')
+    assert rg.place_adjective_of('Αἰγαίαις', {'Aegean Sea'}, 'place')
+    assert rg.place_adjective_of('Agennensibus', {'Agenneton'}, 'name')
+    assert rg.place_adjective_of('Ἀλεξανδρέας', {'Alexandrinum'}, 'name')
+    assert rg.place_adjective_of('Δαλμάτιος', {'Dalmatia'}, 'place')
+    assert rg.place_adjective_of('Ἰθακησία', {'Ithaces'}, 'name')
+    assert not rg.place_adjective_of('Maximinus', {'Maximianus'}, 'person')       # a person entry never qualifies
+    assert not rg.place_adjective_of('Maximinus', {'Maximianus'}, 'name')         # and a longer stem is another name
+    assert not rg.place_adjective_of('Hecataeus', {'Hecate'}, 'deity')
+
+
+def test_two_adjective_stems_differing_by_a_vowel_match():
+    assert rg.place_adjective_of('Neustriensibus', {'Neustria'}, 'name')
+    assert rg.place_adjective_of('Namnitico', {'Ναμνιτῶν'}, 'name')
+    assert not rg.place_adjective_of('Maximinus', {'Maximianus'}, 'name')
+
+
+def test_adjective_genitive_plural_and_english_adjective():
+    assert rg.place_adjective_of('Norwegensium', {'Norwegia'}, 'name')
+    assert rg.place_adjective_of('Delphic', {'Delphi'}, 'place')
+    assert not rg.place_adjective_of('Delphic', {'Delphi'}, 'person')
+
+
+def test_adjective_in_ae_stays_with_its_place():
+    assert rg.place_adjective_of('Samosatenae', {'Samosatum'}, 'name')

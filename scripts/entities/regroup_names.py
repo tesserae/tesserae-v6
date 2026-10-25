@@ -580,6 +580,24 @@ def read_entity_ids(path):
         return {ln.strip() for ln in f if ln.strip()}
 
 
+def keep_by_rules(db, groups):
+    """The groups to split without the spellings that rules (a) a near variant and (b) a place adjective keep with
+    their entry (rg.keep_by_rules). Returns (groups, counts)."""
+    out, counts, examples = [], {'variant': 0, 'place adjective': 0}, []
+    for entity_id, stem, forms in groups:
+        keep = rg.keep_by_rules(db, entity_id, forms)
+        for f, why in keep.items():
+            counts[why] += 1
+            if len(examples) < 400:
+                examples.append((entity_id, f, why))
+        rest = {f: n for f, n in forms.items() if f not in keep}
+        if rest:
+            out.append((entity_id, stem, rest))
+    json.dump(examples, open(os.path.join(PROGRESS and os.path.dirname(PROGRESS) or '.', 'kept_by_rules.json'), 'w'),
+              ensure_ascii=False, indent=0)
+    return out, counts
+
+
 def run_pass3(db, a):
     """Third pass on a fresh copy of the live store: layer 1 with the new rules (and the broken-word check), the
     model only for groups and spellings the cache of the earlier passes does not hold, the stored replies
@@ -626,12 +644,16 @@ def run_pass3(db, a):
         judge_spellings(db, todo, cache_path, lines, label='pass3-second')
     run_rescore(db, a, cache_path)
     both = both_different(cache_path, [(d[0], d[1], d[2]) for d in diffs])
-    log(f'pass3: {len(both)} groups to split, {time.time() - t0:.0f}s')
+    both, kept = keep_by_rules(db, both)
+    log(f'pass3: {len(both)} groups to split after the keep rules, {sum(kept.values())} spellings kept by them '
+        f'({kept["variant"]} variants, {kept["place adjective"]} place adjectives), {time.time() - t0:.0f}s')
     before = db.execute('select count(*) from mention_rows').fetchone()[0]
     ents_before = db.execute('select count(*) from entities').fetchone()[0]
     rep = rg.apply_differences(db, both, log=log, cap=None)
+    if a.decisions:
+        rep['decisions'] = rg.apply_decisions(db, json.load(open(os.path.expanduser(a.decisions), encoding='utf-8')), log=log)
     db.commit()
-    rep.update({'differences': len(both), 'mention_rows_before': before,
+    rep.update({'keep_rules': kept, 'differences': len(both), 'mention_rows_before': before,
                 'mention_rows_after': db.execute('select count(*) from mention_rows').fetchone()[0],
                 'entities_before': ents_before,
                 'entities_after': db.execute('select count(*) from entities').fetchone()[0],
@@ -730,6 +752,7 @@ def main():
     ap.add_argument('--entities', default=None, help='limit the pass to the entity ids in this file (csv with entity_id, or one per line)')
     ap.add_argument('--work', default=None, help='folder for the cache, progress file and reports (default: the third pass folder)')
     ap.add_argument('--seed', type=int, default=0)
+    ap.add_argument('--decisions', default=None, help='json file of hand decisions the apply step replays')
     ap.add_argument('--max-seconds', type=int, default=0)
     ap.add_argument('--workers', type=int, default=0)
     a = ap.parse_args()

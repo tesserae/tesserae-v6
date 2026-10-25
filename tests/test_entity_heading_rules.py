@@ -31,3 +31,7 @@ def test_first_declension_accusative_folds_but_plural_ae_stays():
     rule, new, _ = hr.propose('Rusellam', {'Rusellam': 3, 'Rusella': 1})
     assert (rule, new) == ('rule', 'Rusella')
     assert hr.propose('Athenae', {'Athenae': 30, 'Athena': 2})[0] == 'ASK'
+
+
+def test_heading_keeps_its_capital():
+    assert hr.propose('Euboicum', {'Euboicum': 3, 'euboicus': 2})[1] == 'Euboicus'
