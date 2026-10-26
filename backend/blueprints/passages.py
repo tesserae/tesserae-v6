@@ -29,8 +29,10 @@ import os
 from urllib.parse import quote
 
 from flask import Blueprint, Response, jsonify, request
+from flask_login import current_user
 
 from backend.logging_config import get_logger
+from backend.services import get_user_location, is_connector_request, log_search
 from backend import passage_index
 from backend import lexical_density
 from backend import reader_rerank
@@ -79,6 +81,49 @@ def _reader_wanted():
     """False only if the request opts out with ?reader=0 (or false/no/off)."""
     raw = (request.args.get('reader') or '').strip().lower()
     return raw not in ('0', 'false', 'no', 'off')
+
+
+# search_logs column widths: language 10, match_type 50, source and target 255.
+def _log_passage_search(search_type, language, source_text, target_text,
+                        query_text, match_type, results_count):
+    """Write one search_logs row for a passage search. Never raises.
+
+    A connector call (the Claude connector reaching this route over HTTP from
+    the server itself) is recorded with its caller's address, tagged
+    ", connector", and is not internal.
+    """
+    try:
+        if is_connector_request():
+            match_type = f'{match_type}, connector'
+        user_id = current_user.id if current_user and current_user.is_authenticated else None
+        city, country, ip = get_user_location()
+        language = language or 'all'
+        if len(language) > 10:
+            language = 'multi'
+        log_search(search_type, language, (source_text or None) and source_text[:255],
+                   (target_text or None) and target_text[:255], query_text,
+                   match_type[:50], results_count, False, user_id, city, country, ip)
+    except Exception as e:
+        logger.warning('[PASSAGES] could not log %s: %s', search_type, e)
+
+
+def _theme_scope(author_arg, works_arg):
+    """(scope label, source_text, target_text) for the log row of a Theme Search."""
+    bases = []
+    for w in works_arg:
+        try:
+            b = passage_index.base_work(w)
+        except Exception:
+            b = w
+        if b and b not in bases:
+            bases.append(b)
+    if len(bases) == 2:
+        return 'two texts', bases[0], bases[1]
+    if bases:
+        return 'one text', ','.join(bases), None
+    if author_arg:
+        return 'one author', author_arg, None
+    return 'whole corpus', 'corpus', None
 
 
 @passages_bp.route('/passages/status')
@@ -135,6 +180,9 @@ def theme_search():
             logger.exception('[PASSAGES] theme-search restriction failed')
             return jsonify({'error': f'{type(e).__name__}: {e}', 'results': []})
         if not only_works:
+            scope, src, tgt = _theme_scope(author_arg, works_arg)
+            _log_passage_search('Theme Search', ','.join(_languages() or []), src, tgt,
+                                q, f'{scope}, restricted', 0)
             return jsonify({'query': q, 'results': [], 'restricted': True,
                             'strong_matches': 0, 'note': miss_note,
                             'confidence': {'level': 'restricted'},
@@ -184,6 +232,16 @@ def theme_search():
         out['results'], reader_meta = reader_rerank.apply(q, out['results'])
         out['reader'] = reader_meta
         out['results'] = out['results'][offset:offset + limit]
+    scope, src, tgt = _theme_scope(author_arg, works_arg)
+    mt = scope
+    if (out.get('reader') or {}).get('applied'):
+        mt += ', reader'
+    if offset > 0:
+        mt += f', page {offset // limit + 1}'
+    if _scale():
+        mt += f', scale {_scale()}'
+    _log_passage_search('Theme Search', ','.join(_languages() or []), src, tgt,
+                        q, mt, len(out.get('results') or []))
     return jsonify(out)
 
 
@@ -1046,6 +1104,13 @@ def similar_passages():
         'shows, and note that a cross-language match shares no vocabulary. '
         'A result carrying `also_in` is one scriptural passage present in several '
         'of the corpus versions, collapsed into a single entry.')
+    sim_src = window or '{}{}'.format(
+        work, f" {request.args.get('ref_start')}-{request.args.get('ref_end')}"
+        if request.args.get('ref_start') else '')
+    _log_passage_search('Similar Passages', ','.join(langs or []), sim_src, None, None,
+                        ('window' if window else 'selection')
+                        + (', same names' if same_names_requested else ''),
+                        len(out.get('results') or []))
     return jsonify(out)
 
 
@@ -1215,6 +1280,8 @@ def compare_works_route():
                 'tab': 'similar'})
     if with_phrases and not out.get('error') and out.get('pairs'):
         _attach_phrase_parallels(out, work_a, work_b)
+    _log_passage_search('Compare Works', 'all', work_a, work_b, None, 'works',
+                        len(out.get('pairs') or []))
     # Like every route in this blueprint: 200 with an `error` field, so a page
     # or a connector reads one shape whatever happened.
     return jsonify(out)

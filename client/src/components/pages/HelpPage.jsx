@@ -3477,9 +3477,12 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 <div>
                   <h4 className="text-lg font-semibold text-gray-900">Is my search history private?</h4>
                   <p className="text-gray-600 text-sm mt-1">
-                    Your search terms are not logged. The server records each request&rsquo;s time, kind and how
-                    long it took, with a code that changes every day and cannot be traced back to you, and not
-                    your address. Settings and the page you were last on are kept in your own browser. Questions
+                    The speed log records each request&rsquo;s time, kind and how long it took, with a code that
+                    changes every day and cannot be traced back to you, and not your address. A separate search
+                    log records each search (Line Search, Theme Search, Similar Passages, Compare Works and the
+                    others) with its settings, the words of the query or question, the number of results, your
+                    IP address and the approximate city and country it gives, and your account if you are
+                    signed in. Settings and the page you were last on are kept in your own browser. Questions
                     put to Tessa and her answers are kept on the server without any identifier, so that a sample
                     can be read for accuracy, and her model runs on the university&rsquo;s own AI platform. An
                     account, if you make one, keeps your name, email address and a scrambled password. The
