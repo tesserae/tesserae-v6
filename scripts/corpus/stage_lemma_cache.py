@@ -28,6 +28,9 @@ def main():
     lang, cache_root, files = sys.argv[1], sys.argv[2], sys.argv[3:]
     LC.CACHE_DIR = os.path.abspath(cache_root)
     os.makedirs(os.path.join(LC.CACHE_DIR, lang), exist_ok=True)
+    # The web app registers the plugin languages (Coptic, Hebrew, Persian, Urdu, Arabic) when it starts;
+    # a script that imports the processor directly gets an empty handler table (issue #495).
+    B.register_plugin_languages()
     tp = B.FastTextProcessor()
     t0, built, errors = time.time(), 0, []
     for path in files:

@@ -35,6 +35,30 @@ except Exception:  # pragma: no cover
     def normalize_coptic(text):
         return text
 
+from backend.string_fold import RULES_LABEL, fold_arabic_script, fold_hebrew_script  # noqa: E402
+
+# Persian, Urdu, Arabic and Hebrew: String Search compares spelling variants
+# (the default) or the characters as typed (spelling='strict').
+SCRIPT_LANGUAGES = ('fa', 'ur', 'ar', 'he')
+_SEP_CLASS = '[\\s\u200c]*'
+_SEP_RUN = re.compile('[\\s\u200c]+')
+_EDGE_SEPS = re.compile('^[\\s\u200c]+|[\\s\u200c]+$')
+
+
+def spelling_mode(language: str, spelling: Optional[str] = None) -> str:
+    """'variants' or 'strict' for fa, ur, ar and he, 'literal' for every other language."""
+    if language not in SCRIPT_LANGUAGES:
+        return 'literal'
+    return 'strict' if spelling == 'strict' else 'variants'
+
+
+def _trim(text: str, mode: str) -> str:
+    """Edges trimmed: whitespace, and for the four languages also the zero-width non-joiner."""
+    if mode in ('variants', 'strict'):
+        return _EDGE_SEPS.sub('', text)
+    return text.strip()
+
+
 def get_author_dates():
     """Get author dates from app.py"""
     try:
@@ -153,16 +177,16 @@ def _split_on(query: str, operator: str) -> List[str]:
     return re.split(r'\s+' + operator + r'\s+', query, flags=re.IGNORECASE)
 
 
-def _parse_not(query: str) -> Dict:
+def _parse_not(query: str, mode: str = 'literal') -> Dict:
     """NOT binds tightest and reads left to right: a NOT b NOT c is (a NOT b) NOT c."""
     if ' NOT ' not in query.upper():
-        return parse_term(query)
+        return parse_term(query, mode)
     parts = _split_on(query, 'NOT')
     if len(parts) < 2:
-        return parse_term(query)
-    node = parse_term(parts[0].strip())
+        return parse_term(query, mode)
+    node = parse_term(_trim(parts[0], mode), mode)
     for part in parts[1:]:
-        node = {'type': 'not', 'include': node, 'exclude': parse_term(part.strip())}
+        node = {'type': 'not', 'include': node, 'exclude': parse_term(_trim(part, mode), mode)}
     return node
 
 
@@ -175,15 +199,15 @@ def _strip_not(node: Dict) -> Tuple[Dict, List[Dict]]:
     return node, list(reversed(excluded))
 
 
-def _parse_proximity(query: str) -> Dict:
+def _parse_proximity(query: str, mode: str = 'literal') -> Dict:
     """Proximity takes two operands, so a NOT inside an operand is moved out to
     cover the whole pair: a ~ b NOT c is (a ~ b) NOT c, and a NOT b ~ c is
     (a ~ c) NOT b."""
     if ' ~ ' not in query:
-        return _parse_not(query)
+        return _parse_not(query, mode)
     left, right = query.split(' ~ ', 1)
-    term1, excluded1 = _strip_not(_parse_not(left.strip()))
-    term2, excluded2 = _strip_not(_parse_not(right.strip()))
+    term1, excluded1 = _strip_not(_parse_not(_trim(left, mode), mode))
+    term2, excluded2 = _strip_not(_parse_not(_trim(right, mode), mode))
     node = {
         'type': 'proximity',
         'term1': term1,
@@ -195,7 +219,7 @@ def _parse_proximity(query: str) -> Dict:
     return node
 
 
-def parse_query(query: str) -> Dict:
+def parse_query(query: str, mode: str = 'literal') -> Dict:
     """
     Parse a PHI-style query into structured components.
 
@@ -216,39 +240,46 @@ def parse_query(query: str) -> Dict:
     "terms" of an and/or node, the "include" and "exclude" of a not node, hold
     the nested node where a plain term would be. Proximity takes two terms, so
     a NOT written inside a proximity operand covers the whole pair.
+
+    mode is 'literal' (every language but fa, ur, ar and he), 'variants' or
+    'strict' (see spelling_mode). In the two script modes the edges of the
+    query and of each term lose stray spaces and non-joiners, and in
+    'variants' a separator inside a term (spaces, non-joiners, or both)
+    matches any separator in the text or none.
     """
-    query = query.strip()
+    query = _trim(query, mode)
 
     if not query:
         return {'type': 'empty', 'terms': []}
 
-    node = _parse_or(query)
+    node = _parse_or(query, mode)
     if node['type'] not in _QUERY_TYPES:
         return {'type': 'simple', 'terms': [node]}
     return node
 
 
-def _parse_or(query: str) -> Dict:
+def _parse_or(query: str, mode: str = 'literal') -> Dict:
     if ' OR ' in query.upper():
-        parts = _split_on(query, 'OR')
-        return {'type': 'or', 'terms': [_parse_and(p.strip()) for p in parts if p.strip()]}
-    return _parse_and(query)
+        parts = [_trim(p, mode) for p in _split_on(query, 'OR')]
+        return {'type': 'or', 'terms': [_parse_and(p, mode) for p in parts if p]}
+    return _parse_and(query, mode)
 
 
-def _parse_and(query: str) -> Dict:
+def _parse_and(query: str, mode: str = 'literal') -> Dict:
     if ' AND ' in query.upper():
-        parts = _split_on(query, 'AND')
-        return {'type': 'and', 'terms': [_parse_proximity(p.strip()) for p in parts if p.strip()]}
-    return _parse_proximity(query)
+        parts = [_trim(p, mode) for p in _split_on(query, 'AND')]
+        return {'type': 'and', 'terms': [_parse_proximity(p, mode) for p in parts if p]}
+    return _parse_proximity(query, mode)
 
 
-def parse_term(term: str) -> Dict:
+def parse_term(term: str, mode: str = 'literal') -> Dict:
     """Parse a single search term into a pattern."""
-    term = term.strip()
+    term = _trim(term, mode)
+    broad = mode == 'variants'
     
     if term.startswith('"') and term.endswith('"'):
-        phrase = term[1:-1]
-        return {'type': 'phrase', 'value': phrase, 'pattern': phrase_to_regex(phrase)}
+        phrase = _trim(term[1:-1], mode)
+        return {'type': 'phrase', 'value': phrase, 'pattern': phrase_to_regex(phrase, broad)}
     
     # Handle word break character # (explicit word boundary)
     has_word_break = '#' in term
@@ -256,15 +287,28 @@ def parse_term(term: str) -> Dict:
         term = term.replace('#', '')
     
     if '*' in term or '?' in term:
-        return {'type': 'wildcard', 'value': term, 'pattern': wildcard_to_regex(term), 'word_break': has_word_break}
+        return {'type': 'wildcard', 'value': term, 'pattern': wildcard_to_regex(term, broad), 'word_break': has_word_break}
     
-    return {'type': 'exact', 'value': term, 'pattern': re.escape(term), 'word_break': has_word_break}
+    pattern = wildcard_to_regex(term, True) if broad else re.escape(term)
+    return {'type': 'exact', 'value': term, 'pattern': pattern, 'word_break': has_word_break}
 
 
-def wildcard_to_regex(pattern: str) -> str:
-    """Convert PHI-style wildcards to regex."""
+def wildcard_to_regex(pattern: str, broad_separators: bool = False) -> str:
+    """Convert PHI-style wildcards to regex.
+
+    With broad_separators, a run of spaces and non-joiners becomes a pattern
+    that matches any such run in the text or none.
+    """
     regex = ''
+    in_sep = False
     for char in pattern:
+        if broad_separators:
+            if _SEP_RUN.fullmatch(char):
+                if not in_sep:
+                    regex += _SEP_CLASS
+                in_sep = True
+                continue
+            in_sep = False
         if char == '*':
             regex += r'\w*'
         elif char == '?':
@@ -274,8 +318,11 @@ def wildcard_to_regex(pattern: str) -> str:
     return regex
 
 
-def phrase_to_regex(phrase: str) -> str:
+def phrase_to_regex(phrase: str, broad_separators: bool = False) -> str:
     """Convert phrase to regex that matches the words in sequence."""
+    if broad_separators:
+        words = [w for w in _SEP_RUN.split(phrase) if w]
+        return r'\b' + _SEP_CLASS.join(re.escape(w) for w in words) + r'\b'
     words = phrase.split()
     pattern = r'\b' + r'\s+'.join(re.escape(w) for w in words) + r'\b'
     return pattern
@@ -288,34 +335,54 @@ def _is_prose_file(filename: str, language: str) -> bool:
     return detect_text_type(filename, language=language) == 'prose'
 
 
-def _search_text(text: str, language: str) -> str:
+def _folder(language: str, spelling: Optional[str] = None):
+    """The function that puts a line (or a pattern) into the form it is compared in, or None.
+
+    Greek, Latin and Coptic fold as they always have. Persian, Urdu, Arabic
+    and Hebrew fold in the 'variants' spelling mode (the default) and are
+    compared as typed in 'strict'. Every other language is compared as it is.
+    """
+    if language == 'grc':
+        return normalize_greek
+    if language == 'la':
+        return normalize_latin
+    if language == 'cop':
+        return normalize_coptic
+    if spelling_mode(language, spelling) == 'variants':
+        return fold_hebrew_script if language == 'he' else fold_arabic_script
+    return None
+
+
+def _flags_for(case_sensitive: bool, language: str) -> int:
+    """Regex flags: case is ignored unless asked for, and always for fa, ur, ar and he."""
+    if language in SCRIPT_LANGUAGES:
+        return re.IGNORECASE
+    return 0 if case_sensitive else re.IGNORECASE
+
+
+def _search_text(text: str, language: str, spelling: Optional[str] = None) -> str:
     """The text of one line in the form the query is matched against."""
-    if language == 'grc':
-        return normalize_greek(text)
-    if language == 'la':
-        return normalize_latin(text)
-    if language == 'cop':
-        return normalize_coptic(text)
-    return text
+    fold = _folder(language, spelling)
+    return fold(text) if fold else text
 
 
-def _fold_pattern(pattern: str, language: str) -> str:
+def _fold_pattern(pattern: str, language: str, spelling: Optional[str] = None) -> str:
     """A term's pattern folded the way matches_term folds it."""
-    if language == 'grc':
-        return normalize_greek(pattern)
-    if language == 'la':
-        return normalize_latin(pattern)
-    if language == 'cop':
-        return normalize_coptic(pattern)
-    return pattern
+    fold = _folder(language, spelling)
+    return fold(pattern) if fold else pattern
 
 
-def _leaf_regex(term: Dict, flags: int, language: str):
+def _leaf_regex_fold(term: Dict, flags: int, fold):
+    pattern = term['pattern']
+    return re.compile(r'\b' + (fold(pattern) if fold else pattern) + r'\b', flags)
+
+
+def _leaf_regex(term: Dict, flags: int, language: str, spelling: Optional[str] = None):
     """The compiled pattern matches_term and matches_proximity search with."""
-    return re.compile(r'\b' + _fold_pattern(term['pattern'], language) + r'\b', flags)
+    return _leaf_regex_fold(term, flags, _folder(language, spelling))
 
 
-def _build_matcher(node: Dict, flags: int, language: str):
+def _build_matcher(node: Dict, flags: int, language: str, spelling: Optional[str] = None):
     """matches_query with the patterns folded and compiled once.
 
     Returns a function of the (already folded) line text that answers exactly
@@ -323,6 +390,12 @@ def _build_matcher(node: Dict, flags: int, language: str):
     folding of each pattern, which matches_query repeats for every line, is
     done here once.
     """
+    return _build_matcher_fold(node, flags, _folder(language, spelling),
+                               refold=language in ('grc', 'la'))
+
+
+def _build_matcher_fold(node: Dict, flags: int, fold, refold: bool = False):
+    """_build_matcher with the folding function given directly (None folds nothing)."""
     query_type = node.get('type', 'simple')
 
     if query_type == 'empty':
@@ -330,8 +403,8 @@ def _build_matcher(node: Dict, flags: int, language: str):
 
     def child(sub):
         if sub.get('type') in _QUERY_TYPES:
-            return _build_matcher(sub, flags, language)
-        rx = _leaf_regex(sub, flags, language)
+            return _build_matcher_fold(sub, flags, fold, refold)
+        rx = _leaf_regex_fold(sub, flags, fold)
         return lambda text: bool(rx.search(text))
 
     if query_type in ('simple', 'and'):
@@ -348,15 +421,14 @@ def _build_matcher(node: Dict, flags: int, language: str):
         return lambda text: include(text) and not exclude(text)
 
     if query_type == 'proximity':
-        rx1 = _leaf_regex(node['term1'], flags, language)
-        rx2 = _leaf_regex(node['term2'], flags, language)
+        rx1 = _leaf_regex_fold(node['term1'], flags, fold)
+        rx2 = _leaf_regex_fold(node['term2'], flags, fold)
         distance = node.get('distance', 100)
-        refold = language in ('grc', 'la')
 
         def near(text):
             if refold:
                 # matches_proximity folds the text again, as it always has
-                text = _search_text(text, language)
+                text = fold(text)
             matches1 = list(rx1.finditer(text))
             matches2 = list(rx2.finditer(text))
             if not matches1 or not matches2:
@@ -406,18 +478,12 @@ def _required_leaves(node: Dict):
     return None
 
 
-def _fold_whole(raw: str, language: str) -> str:
+def _fold_whole(raw: str, language: str, spelling: Optional[str] = None) -> str:
     """The whole file folded for language; line breaks stay where they were."""
-    if language == 'grc':
-        return normalize_greek(raw)
-    if language == 'la':
-        return normalize_latin(raw)
-    if language == 'cop':
-        return normalize_coptic(raw)
-    return raw
+    return _search_text(raw, language, spelling)
 
 
-def _candidate_lines(raw: str, parsed_query: Dict, flags: int, language: str):
+def _candidate_lines(raw: str, parsed_query: Dict, flags: int, language: str, spelling: Optional[str] = None):
     """Indexes (ascending) of the lines of `raw` that can match the query, or None for all.
 
     Folds the whole file once and runs the required terms over it. A line the
@@ -430,7 +496,7 @@ def _candidate_lines(raw: str, parsed_query: Dict, flags: int, language: str):
     leaves = _required_leaves(parsed_query)
     if not leaves:
         return None
-    folded = _fold_whole(raw, language)
+    folded = _fold_whole(raw, language, spelling)
     if folded.count('\n') != raw.count('\n'):
         return None
     found = set()
@@ -439,7 +505,7 @@ def _candidate_lines(raw: str, parsed_query: Dict, flags: int, language: str):
         # term matches this matches at the same place, and without the leading
         # \b the regex engine can skip ahead to the first letter instead of
         # trying every position (about twice as fast).
-        rx = re.compile(_fold_pattern(term['pattern'], language), flags)
+        rx = re.compile(_fold_pattern(term['pattern'], language, spelling), flags)
         line = 0
         last = 0
         for m in rx.finditer(folded):
@@ -453,7 +519,8 @@ def _candidate_lines(raw: str, parsed_query: Dict, flags: int, language: str):
     return sorted(found)
 
 
-def scan_file(filepath: str, parsed_query: Dict, case_sensitive: bool = False, language: str = 'la') -> List[Tuple[str, str]]:
+def scan_file(filepath: str, parsed_query: Dict, case_sensitive: bool = False, language: str = 'la',
+              spelling: Optional[str] = None) -> List[Tuple[str, str]]:
     """The (reference, text) of every line of one .tess file that matches, in file order.
 
     Nothing is built for a match beyond those two strings; finish_match turns
@@ -467,12 +534,12 @@ def scan_file(filepath: str, parsed_query: Dict, case_sensitive: bool = False, l
         logger.error(f"Error reading {filepath}: {e}")
         return matches
 
-    flags = 0 if case_sensitive else re.IGNORECASE
-    wanted = _candidate_lines(raw, parsed_query, flags, language)
+    flags = _flags_for(case_sensitive, language)
+    wanted = _candidate_lines(raw, parsed_query, flags, language, spelling)
     if wanted is not None and not wanted:
         return matches
     lines = raw.split('\n')
-    matcher = _build_matcher(parsed_query, flags, language)
+    matcher = _build_matcher(parsed_query, flags, language, spelling)
 
     candidates = []
     for i in (range(len(lines)) if wanted is None else wanted):
@@ -490,11 +557,11 @@ def scan_file(filepath: str, parsed_query: Dict, case_sensitive: bool = False, l
     # break is a boundary for every fold, so the folded block cut at its line
     # breaks is each text folded alone.
     if language in ('grc', 'la') and len(candidates) > 1:
-        folded = _fold_whole('\n'.join(text for _ref, text in candidates), language).split('\n')
+        folded = _fold_whole('\n'.join(text for _ref, text in candidates), language, spelling).split('\n')
         if len(folded) != len(candidates):
-            folded = [_search_text(text, language) for _ref, text in candidates]
+            folded = [_search_text(text, language, spelling) for _ref, text in candidates]
     else:
-        folded = [_search_text(text, language) for _ref, text in candidates]
+        folded = [_search_text(text, language, spelling) for _ref, text in candidates]
 
     for (ref, text), search_text in zip(candidates, folded):
         if matcher(search_text):
@@ -503,31 +570,71 @@ def scan_file(filepath: str, parsed_query: Dict, case_sensitive: bool = False, l
     return matches
 
 
-def finish_match(ref: str, text: str, parsed_query: Dict, case_sensitive: bool, language: str, is_prose: bool) -> Dict:
+def get_folded_highlight_indices(text: str, parsed_query: Dict, flags: int, fold) -> List[List[int]]:
+    """Whole-token highlight spans on the raw text for a fold that only removes or swaps single characters.
+
+    The text is folded character by character with a map back to the raw
+    positions, the terms are matched on the folded text (so a phrase of two
+    words can match across the space), and each match is widened to the
+    whitespace-delimited tokens it touches.
+    """
+    terms = _leaf_terms(parsed_query)
+    if not terms:
+        return []
+    chars = []
+    origin = []
+    for i, ch in enumerate(text):
+        folded_ch = fold(ch)
+        for c in folded_ch:
+            chars.append(c)
+            origin.append(i)
+    folded = ''.join(chars)
+    spans = []
+    for term in terms:
+        rx = re.compile(r'\b' + fold(term['pattern']) + r'\b', flags)
+        for m in rx.finditer(folded):
+            if m.end() <= m.start():
+                continue
+            start = origin[m.start()]
+            end = origin[m.end() - 1] + 1
+            while start > 0 and not text[start - 1].isspace():
+                start -= 1
+            while end < len(text) and not text[end].isspace():
+                end += 1
+            spans.append([start, end])
+    spans.sort(key=lambda x: x[0])
+    return spans
+
+
+def finish_match(ref: str, text: str, parsed_query: Dict, case_sensitive: bool, language: str, is_prose: bool,
+                 spelling: Optional[str] = None) -> Dict:
     """The row for one matching line: display text, highlighting and flags."""
     is_greek = language == 'grc'
     is_latin = language == 'la'
     is_coptic = language == 'cop'
-    flags = 0 if case_sensitive else re.IGNORECASE
+    flags = _flags_for(case_sensitive, language)
+    script_fold = _folder(language, spelling) if language in SCRIPT_LANGUAGES else None
 
     # Coptic and Greek normalizers change string length (strokes /
     # combining accents are stripped), so match positions on the
     # normalized text don't map back to the raw display text. Highlight
     # whole tokens for those; Latin/English keep exact-span highlights.
     token_normalizer = normalize_coptic if is_coptic else (normalize_greek if is_greek else None)
-    if token_normalizer:
-        highlight_indices = get_token_highlight_indices(text, parsed_query, flags, token_normalizer)
-    else:
-        highlight_indices = get_highlight_indices(text, parsed_query, flags, is_greek, is_latin)
+
+    def highlights(shown):
+        if script_fold:
+            return get_folded_highlight_indices(shown, parsed_query, flags, script_fold)
+        if token_normalizer:
+            return get_token_highlight_indices(shown, parsed_query, flags, token_normalizer)
+        return get_highlight_indices(shown, parsed_query, flags, is_greek, is_latin)
+
+    highlight_indices = highlights(text)
 
     # For prose, extract only sentences containing matches
     display_text = text
     if is_prose and len(text) > 150:
         display_text = extract_sentences_with_matches(text, highlight_indices)
-        if token_normalizer:
-            highlight_indices = get_token_highlight_indices(display_text, parsed_query, flags, token_normalizer)
-        else:
-            highlight_indices = get_highlight_indices(display_text, parsed_query, flags, is_greek, is_latin)
+        highlight_indices = highlights(display_text)
 
     # Apply HTML highlighting
     highlighted_text = apply_highlighting(display_text, highlight_indices)
@@ -540,12 +647,59 @@ def finish_match(ref: str, text: str, parsed_query: Dict, case_sensitive: bool, 
     }
 
 
-def search_file(filepath: str, parsed_query: Dict, case_sensitive: bool = False, language: str = 'la') -> List[Dict]:
+def search_file(filepath: str, parsed_query: Dict, case_sensitive: bool = False, language: str = 'la',
+                spelling: Optional[str] = None) -> List[Dict]:
     """Search a single .tess file for matches."""
     filename = os.path.basename(filepath)
     is_prose = _is_prose_file(filename, language)
-    return [finish_match(ref, text, parsed_query, case_sensitive, language, is_prose)
-            for ref, text in scan_file(filepath, parsed_query, case_sensitive, language)]
+    return [finish_match(ref, text, parsed_query, case_sensitive, language, is_prose, spelling)
+            for ref, text in scan_file(filepath, parsed_query, case_sensitive, language, spelling)]
+
+
+_NOTE_MARKS = 'vowel marks ignored'
+_NOTE_SEPARATOR = 'separator variant matched'
+_NOTE_LETTERS = 'letter variant matched'
+
+
+def make_match_noter(query: str, language: str, case_sensitive: bool = False):
+    """A function of a raw matching line that says why the line matched, in variants mode.
+
+    It returns [] for a line the query matches exactly as typed. Otherwise it
+    refolds with one family (marks, separators, letters) disabled at a time
+    and lists each family whose absence breaks the match, in the order marks,
+    separators, letters. Three extra regex runs per matched line, none on the
+    candidate scan.
+    """
+    flags = _flags_for(case_sensitive, language)
+    literal = _build_matcher_fold(parse_query(query, 'strict'), flags, None)
+    broad = parse_query(query, 'variants')
+    hebrew = language == 'he'
+
+    def fold_with(marks, letters):
+        if hebrew:
+            return lambda t: fold_hebrew_script(t, marks=marks)
+        return lambda t: fold_arabic_script(t, marks=marks, letters=letters)
+
+    def matcher(marks, separators, letters):
+        node = broad if separators else parse_query(query, 'strict')
+        fold = fold_with(marks, letters)
+        return fold, _build_matcher_fold(node, flags, fold)
+
+    families = [(_NOTE_MARKS, (False, True, True)), (_NOTE_SEPARATOR, (True, False, True))]
+    if not hebrew:
+        families.append((_NOTE_LETTERS, (True, True, False)))
+    without = [(label, matcher(*on)) for label, on in families]
+
+    def note(text: str) -> List[str]:
+        if literal(text):
+            return []
+        notes = []
+        for label, (fold, match) in without:
+            if not match(fold(text)):
+                notes.append(label)
+        return notes
+
+    return note
 
 
 def matches_query(text: str, parsed_query: Dict, flags: int, is_greek: bool = False, is_latin: bool = False, is_coptic: bool = False) -> bool:
@@ -865,7 +1019,8 @@ def wildcard_search(
     target_text: Optional[str] = None,
     case_sensitive: bool = False,
     max_results: int = 500,
-    era_filter: Optional[str] = None
+    era_filter: Optional[str] = None,
+    spelling: Optional[str] = None
 ) -> Dict:
     """
     Perform a wildcard/boolean search across the corpus.
@@ -877,13 +1032,21 @@ def wildcard_search(
         case_sensitive: Whether to match case
         max_results: Maximum results to return
         era_filter: Optional era to filter by
+        spelling: 'variants' (default) or 'strict' for fa, ur, ar and he; ignored otherwise
         
     Returns:
         Dict with results and metadata
     """
     start_time = time.time()
     
-    parsed_query = parse_query(query)
+    mode = spelling_mode(language, spelling)
+    parsed_query = parse_query(query, mode)
+    matching = {
+        'mode': mode,
+        'rules': RULES_LABEL,
+        'query': query,
+        'query_used': _trim(query, mode),
+    }
     
     if parsed_query['type'] == 'empty':
         return {
@@ -891,7 +1054,8 @@ def wildcard_search(
             'total_matches': 0,
             'search_time': 0,
             'query': query,
-            'parsed': parsed_query
+            'parsed': parsed_query,
+            'matching': matching
         }
     
     lang_dir = os.path.join(TEXTS_DIR, language)
@@ -937,7 +1101,7 @@ def wildcard_search(
         texts_searched += 1
 
         try:
-            file_matches = scan_file(filepath, parsed_query, case_sensitive, language)
+            file_matches = scan_file(filepath, parsed_query, case_sensitive, language, spelling)
             total_match_count += len(file_matches)
             if not file_matches:
                 continue
@@ -969,12 +1133,15 @@ def wildcard_search(
     truncated = len(found) > max_results
     found = found[:max_results]
 
+    noter = make_match_noter(query, language, case_sensitive) if mode == 'variants' and found else None
     prose_of = {}
     all_results = []
     for _key, (filename, metadata, title_info, era, year), ref, text in found:
         if filename not in prose_of:
             prose_of[filename] = _is_prose_file(filename, language)
-        result = finish_match(ref, text, parsed_query, case_sensitive, language, prose_of[filename])
+        result = finish_match(ref, text, parsed_query, case_sensitive, language, prose_of[filename], spelling)
+        if noter:
+            result['match_note'] = noter(text)
         result['text_id'] = filename
         result['author'] = title_info['author']
         result['title'] = title_info['title']
@@ -996,5 +1163,6 @@ def wildcard_search(
         'total_texts': len(files_to_search),
         'search_time': round(search_time, 3),
         'query': query,
-        'parsed_type': parsed_query['type']
+        'parsed_type': parsed_query['type'],
+        'matching': matching
     }

@@ -843,6 +843,35 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                       <li><code className="bg-gray-200 px-1 rounded">mort* NOT vita</code> - words starting with "mort" but not in lines with "vita"</li>
                     </ul>
                   </div>
+                  <div className="bg-amber-50 p-3 rounded border border-amber-200 mt-3 text-sm" id="string-search-spelling">
+                    <strong className="text-amber-800">Persian, Urdu, Arabic and Hebrew</strong>
+                    <p className="text-gray-700 mt-1">
+                      For these four languages String Search offers two spelling modes. <em>Match spelling variants</em> is
+                      the default. <em>Exact spelling</em> matches the characters as typed.
+                    </p>
+                    <ul className="text-gray-600 mt-1 space-y-1 list-disc list-inside">
+                      <li>Match spelling variants ignores vowel marks (and, in Hebrew, points and cantillation), tatweel,
+                        the zero-width joiner and direction marks. It treats the Arabic and Persian code points of kaf and
+                        yeh as one letter, treats alef maqsura as yeh, treats heh, heh goal and teh marbuta as one letter,
+                        and treats alef with hamza and alef wasla as plain alef.</li>
+                      <li>It keeps apart letters that are different letters, which are alef with madda (آ),
+                        barree yeh (ے), do-chashmee he (ھ), noon ghunna (ں) and the retroflex letters (ٹ ڈ ڑ).</li>
+                      <li>A space or a zero-width non-joiner between the parts of a compound in your query matches a space,
+                        a non-joiner or nothing in the text. The query <code className="bg-amber-100 px-1 rounded">آتش زده</code> and
+                        the query <code className="bg-amber-100 px-1 rounded">آتش‌زده</code> both find آتش زده, آتش‌زده and
+                        آتشزده. The query <code className="bg-amber-100 px-1 rounded">آتشزده</code> written without any
+                        separator finds only the joined spelling.</li>
+                      <li>A space or non-joiner left at the start or end of the query or of a term, usually by copying
+                        from a compound, is trimmed in both modes.</li>
+                      <li>A query matches a stretch of text that begins and ends at word edges. A phrase in quotation
+                        marks and the same words typed without them both find those words in that order.</li>
+                      <li>Under each result in the default mode, a small gray note says why the line matched, using the
+                        phrases vowel marks ignored, separator variant matched and letter variant matched. A line that
+                        matches exactly as typed has no note. Exported results carry the query as typed, the spelling
+                        mode and the rules label, so a result can be read later.</li>
+                      <li>Case sensitive does not apply to these languages, so the page shows the spelling choice in its place.</li>
+                    </ul>
+                  </div>
               </div>
             </div>
           )}
@@ -2356,7 +2385,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 <div className="border-l-4 border-gray-300 pl-4">
                   <h4 className="text-lg font-semibold text-gray-900">Urdu</h4>
                   <p className="text-gray-600 text-sm mt-1">
-                    Eighteen texts, about 59,000 lines: Wali, Mir, Sauda, Dard, Insha, Nazeer, Atish, Zauq, Zafar, Ghalib,
+                    Twenty-one texts, about 62,000 lines: Wali, Fa'iz, Abru, Hatim, Mir, Sauda, Dard, Insha, Nazeer, Atish, Zauq, Zafar, Ghalib,
                     Anis, Dagh, Hali, Akbar Allahabadi and Iqbal. Nine channels run, refrain and rhyme among them, and the
                     Persian → Urdu cross-language search follows borrowed phrases. See{' '}
                     <button onClick={() => setActiveSection('urdu')} className="text-red-600 hover:underline">the Urdu page</button>.
@@ -2639,8 +2668,9 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
             <div className="prose max-w-none">
               <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Urdu Search</h3>
               <p className="text-gray-700 mb-4">
-                Tesserae searches eighteen Urdu texts, about 59,000 lines, by fifteen poets from Wali Dakhani to
-                Iqbal: Wali, Mir Taqi Mir (the kulliyat, nearly 22,000 lines), Sauda, Dard, Insha, Nazeer Akbarabadi,
+                Tesserae searches twenty-one Urdu texts, about 62,000 lines, by eighteen poets from Wali Dakhani to
+                Iqbal: Wali, three Delhi poets of the 1720s and after who answered him (Fa'iz Dehlavi, Shah Mubarak Abru
+                and Zuhur ud-Din Hatim), Mir Taqi Mir (the kulliyat, nearly 22,000 lines), Sauda, Dard, Insha, Nazeer Akbarabadi,
                 Atish, Zauq, Bahadur Shah Zafar, Mirza Ghalib, Anis (the marsiyas), Dagh, Hali, Akbar Allahabadi and
                 Muhammad Iqbal's Urdu collections (Bang-e Dara, Bal-e Jibril, Zarb-e Kalim, Armaghan-e Hijaz).
               </p>
@@ -2727,8 +2757,9 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   <li>Arabic reads <strong>right-to-left</strong>, and results are shown that way.</li>
                   <li>Each poem line is a full verse (bayt) with its two hemistichs separated by a bar. Each Qur'an line
                     is one aya.</li>
-                  <li>Matching works on normalized forms. Hamza variants are folded to alef, alef maqsura to ya, and
-                    vowel marks are removed.</li>
+                  <li>Search Corpus and the match channels work on normalized forms. Hamza variants are folded to alef,
+                    alef maqsura to ya, and vowel marks are removed. String Search does this by default with its
+                    Match spelling variants choice, and Exact spelling turns it off.</li>
                   <li>Dictionary forms come from the Stanza Arabic model. Attached particles (<em>wa-</em>, <em>fa-</em>,
                     <em>ka-</em>, <em>li-</em>, <em>bi-</em>) and pronoun endings stay on the word, so the function-word
                     list covers those forms too.</li>

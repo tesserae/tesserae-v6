@@ -2785,10 +2785,14 @@ def wildcard_search_endpoint():
         
         # Accept both POST JSON bodies and GET query-string params.
         data = request.get_json(silent=True) or request.args
-        query = data.get('query', '').strip()
+        # The query is passed as received: String Search trims it itself and
+        # reports both forms in the response's "matching" block.
+        query = data.get('query', '')
         language = data.get('language', 'la')
         target_text = data.get('target_text')
         case_sensitive = data.get('case_sensitive', False)
+        # 'variants' (default) or 'strict'; read only for fa, ur, ar and he.
+        spelling = data.get('spelling', 'variants')
         # Coerce to int: GET query-string params arrive as strings.
         try:
             max_results = int(data.get('max_results', 500))
@@ -2798,7 +2802,7 @@ def wildcard_search_endpoint():
             max_results = 500
         era_filter = data.get('era_filter')
         
-        if not query:
+        if not query.strip():
             return jsonify({'error': 'Query is required', 'results': []})
         
         results = wildcard_search(
@@ -2807,12 +2811,13 @@ def wildcard_search_endpoint():
             target_text=target_text,
             case_sensitive=case_sensitive,
             max_results=max_results,
-            era_filter=era_filter
+            era_filter=era_filter,
+            spelling=spelling
         )
         
         user_id = current_user.id if current_user.is_authenticated else None
         city, country, ip = get_user_location()
-        log_search('String Search', language, None, None, query,
+        log_search('String Search', language, None, None, query.strip(),
                    'wildcard', len(results.get('results', [])), False, user_id, city, country, ip)
         
         return jsonify(results)
