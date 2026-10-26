@@ -80,6 +80,12 @@ def get_client_ip():
                 return caller
             except ValueError:
                 pass
+    # The recorded address honors a forwarded-for header as it always has (the
+    # geolocation and the page-view rows rely on it); trust decisions above
+    # and the internal flag in log_search never do.
+    forwarded = request.headers.get('X-Forwarded-For')
+    if forwarded:
+        return forwarded.split(',')[0].strip()
     return peer
 
 
@@ -190,7 +196,16 @@ def log_search(search_type, language='la', source_text=None, target_text=None,
     """
     try:
         if internal is None:
-            internal = is_internal_request(client_ip)
+            # From the socket address when inside a request (a forwarded-for
+            # header is client-written and must not hide or fake a row), else
+            # from the address given.
+            try:
+                if is_connector_request():      # the connector calls from the server on a caller's behalf
+                    internal = False
+                else:
+                    internal = is_internal_request(request.remote_addr)
+            except RuntimeError:   # no request context
+                internal = is_internal_request(client_ip)
         with get_db_cursor() as cur:
             cur.execute('''
                 INSERT INTO search_logs (search_type, language, source_text, target_text, 
