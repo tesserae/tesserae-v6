@@ -7,6 +7,7 @@ import {
   collapseLineRuns,
   formatLineGroup,
   formatRefrainPopover,
+  formatRhymeSummary,
   formatSelectionRange,
 } from '../textNames';
 
@@ -267,5 +268,36 @@ describe('section labels in Persian and Urdu references', () => {
   });
   it('shortens a labelled range after the label', () => {
     expect(formatSelectionRange('ghalib.diwan_wikisource.ghazal.1.1', 'ghalib.diwan_wikisource.ghazal.1.7', map)).toBe('Ghalib, Diwan, ghazal 1.1–7');
+  });
+});
+
+describe('formatRhymeSummary', () => {
+  it('gives the specification worked example for a partial rhyme', () => {
+    const line = formatRhymeSummary({
+      radif: 'میں', qafia: 'لی', target_qafia: 'الی', rhyme_tier: 'partial',
+      shared_rhyme_words: [], shared_rhyme_phrases: [],
+      meter_note: 'meter not available for this language',
+    }, 'Urdu');
+    expect(line).toBe('Refrain میں, rhyme الی (partial: لی), shared rhyme words: none, meter not available for Urdu.');
+  });
+
+  it('lists shared rhyme words and phrases and a full rhyme', () => {
+    const line = formatRhymeSummary({
+      radif: 'کا', qafia: 'ازی', target_qafia: 'ازی', rhyme_tier: 'full',
+      shared_rhyme_words: ['درازی', 'نمازی'], shared_rhyme_phrases: ['ہر نمازی'],
+      meter_note: 'same meter',
+    });
+    expect(line).toBe('Refrain کا, rhyme ازی (full), shared rhyme words: درازی, نمازی, shared rhyme phrases: ہر نمازی, same meter.');
+  });
+
+  it('says nothing about rhyme words when the result does not carry the lists', () => {
+    const line = formatRhymeSummary({ radif: 'ast', qafia: 'ān' });
+    expect(line).toBe('Refrain ast, rhyme ān.');
+    expect(formatRhymeSummary(null)).toBe('');
+  });
+
+  it('names a refrain-only match by its two differing rhymes', () => {
+    const line = formatRhymeSummary({ radif: 'hai', qafia: 'ar', target_qafia: 'am', rhyme_tier: 'radif only', shared_rhyme_words: [] });
+    expect(line).toBe('Refrain hai, rhymes differ (ar and am), shared rhyme words: none.');
   });
 });

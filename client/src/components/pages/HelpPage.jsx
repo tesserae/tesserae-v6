@@ -2911,10 +2911,24 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                     refrain across two different meters keeps a small part of the score, since an answer keeps its
                     model's meter. In Arabic, where a qasida has no refrain, the signature is the rhyme letter and the
                     meter, and both must agree. Refrain-less ghazals are not paired this way, and Urdu has no meter
-                    source yet.
-                    In the result list such a pair carries <em>Refrain</em>, <em>Rhyme</em> and <em>Meter</em> badges.
+                    source yet, so an Urdu result marks the meter as not available. Persian poems report their meter
+                    where Ganjoor gives one.
+                    The rhyme of a ghazal is the longest ending, from two to six letters, that its rhyme words share,
+                    a rhyme word being the word before the refrain on each refrain line. A ghazal rhyming
+                    in <em>galī</em>, <em>kalī</em>, <em>sandalī</em> has the rhyme <em>-lī</em>.
+                    One rhyming in <em>ḥālī</em>, <em>ʿālī</em>, <em>khālī</em>
+                    has the rhyme <em>-ālī</em>, with the long vowel in it. Two poems with the same refrain
+                    are scored in three tiers. When their rhymes are identical the match is a full rhyme. When one
+                    rhyme is the ending of the other (<em>-lī</em> inside <em>-ālī</em>) the match is a
+                    partial rhyme, which counts as much as a shared refrain alone, and the card says so. When neither
+                    is the ending of the other only the refrain is shared. Each rhyme word that both ghazals use, and
+                    each rhyme phrase (the rhyme word with the word before it) that both use, adds a small bonus to the
+                    score, up to a limit, so two ghazals that answer each other with the same closing words rank above
+                    two that share only a sound. In the result list such a pair carries <em>Refrain</em>, <em>Rhyme</em> and <em>Meter</em> badges.
                     The shared refrain is marked in yellow in both lines, the rhyme word before it in rose, and the
-                    meter badge appears only when both poems carry the same label.</li>
+                    meter badge appears only when both poems carry the same label. Opening the Rhyme badge shows one
+                    line with the refrain, the rhyme and its tier, the rhyme words the two poems share, and whether the
+                    meters agree or are not available.</li>
                   <li><strong>Near-quotation in Arabic</strong> (the same root in a different form, <em>yastaghfirūn</em> /
                     <em>al-ghafūr</em>) is matched through roots from a rule-based stemmer, which is coarse. Many
                     documented near-quotations still rank low.</li>

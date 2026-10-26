@@ -44,7 +44,7 @@ _register_urdu()
 
 from backend.persian.processor import tokenize_persian, normalize_persian
 from backend.urdu.processor import tokenize_urdu, normalize_urdu
-from backend.poetics import segment_poems, poem_signature, find_form_matches
+from backend.poetics import segment_poems, poem_signature, poem_signature_ex, find_form_matches
 from backend.fusion import (
     CHANNEL_WEIGHTS, WEIGHT_PROFILES, CHANNEL_ORDER, CHANNEL_LANGUAGE_SUPPORT,
     CHANNEL_CONFIGS, get_channels_for_language, get_weight_profile, fuse_results,
@@ -564,7 +564,10 @@ class TestScoringRefinements:
             ]
         src = [_mk_fa(r, t) for r, t in poem('s', 1) + poem('s', 2)]
         tgt = [_mk_fa(r, t) for r, t in poem('t', 1) + poem('t', 2)]
-        matches, stats = find_form_matches(src, tgt, {'language': 'fa'})
+        # The fixture poems share every rhyme word; the bonus is switched off
+        # here so the test isolates the frequency discount.
+        matches, stats = find_form_matches(src, tgt, {'language': 'fa', 'form_word_bonus': 0,
+                                                      'form_phrase_bonus': 0})
         assert stats['poem_pairs'] == 4
         assert all(m['form_rarity'] == 0.5 for m in matches)
         assert max(m['form_score'] for m in matches) == 0.5
@@ -664,7 +667,8 @@ class TestGanjoorBoundariesAndMeter:
         assert [p.unit_idxs for p in poems] == [list(range(0, 6)), list(range(6, 12))]
         assert [p.meter for p in poems] == ['رمل مثمن محذوف', 'هزج مثمن سالم']
         # Same refrain and rhyme but different meters: discounted to 0.3.
-        matches, stats = find_form_matches(units[:6], units[6:], {'language': 'fa'})
+        matches, stats = find_form_matches(units[:6], units[6:], {'language': 'fa', 'form_word_bonus': 0,
+                                                                  'form_phrase_bonus': 0})
         assert stats['poem_pairs'] == 1 and matches
         assert abs(max(m['form_score'] for m in matches) - 0.3) < 1e-6
         assert all(m['meter'] is None for m in matches)
@@ -784,3 +788,193 @@ class TestOnePerPoemPair:
         monkeypatch.setattr(poetics, '_FORM_SIG_CACHE', {'fa': {'signatures': {'شما|ان': 8}, 'radifs': {}, 'total_poems': 1}})
         matches, _ = self._run({'form_corpus_rarity': False})
         assert matches[0]['form_score'] == 1.0 and matches[0]['form_corpus_poems'] is None
+
+
+# ---------------------------------------------------------------------------
+# 11. Rhyme as the ending shared by the rhyme words (2026-10-26, request
+#     issues 1231, 1233, 1234)
+# ---------------------------------------------------------------------------
+
+# The rhyme words of the two ghazals the Urdu specialist reported.
+WALI_RHYME = ['گلی', 'کلی', 'صندلی', 'بانسلی']
+MIR_RHYME = ['حالی', 'عالی', 'لالی', 'گالی', 'خالی']
+
+
+def _urdu_poem(prefix, words, radif='میں', n=1, fillers=None):
+    """A hemistich-per-line poem whose lines end 'x <word> <radif>'."""
+    lines = []
+    for i, w in enumerate(words, 1):
+        lines.append((f'{prefix}.ghazal.{n}.{i}', f'سخن {w} {radif}'))
+    return [_mk_ur(r, t) for r, t in lines]
+
+
+class TestQafiaFromRhymeWords:
+    def test_reported_poems_get_different_rhymes(self):
+        wali = segment_poems(_urdu_poem('wali', WALI_RHYME), 'ur')[0]
+        mir = segment_poems(_urdu_poem('mir', MIR_RHYME), 'ur')[0]
+        w_radif, w_qafia, _ = poem_signature(wali, 'ur')
+        m_radif, m_qafia, _ = poem_signature(mir, 'ur')
+        assert w_radif == m_radif == (normalize_urdu('میں'),)
+        assert w_qafia == normalize_urdu('لی')
+        assert m_qafia == normalize_urdu('الی')
+
+    def test_rhyme_entries_carry_the_word_and_the_word_before(self):
+        mir = segment_poems(_urdu_poem('mir', MIR_RHYME), 'ur')[0]
+        _, _, _, entries = poem_signature_ex(mir, 'ur')
+        assert [w for w, _ in entries] == [normalize_urdu(w) for w in MIR_RHYME]
+        assert all(b == 'سخن' for _, b in entries)
+
+    def test_qafia_is_capped_at_six_letters(self):
+        words = [p + 'مستقبال' for p in 'ابتج']
+        poem = segment_poems(_urdu_poem('x', words), 'ur')[0]
+        assert poem_signature(poem, 'ur')[1] == 'ستقبال'
+
+    def test_never_shorter_than_two_letters_when_nothing_is_shared_widely(self):
+        # No ending of two letters is shared by 60 percent: the most common
+        # last two letters stand, as under the old rule.
+        words = ['دام', 'نام', 'جان', 'زبان', 'کار']
+        poem = segment_poems(_urdu_poem('x', words), 'ur')[0]
+        qafia = poem_signature(poem, 'ur')[1]
+        assert len(qafia) == 2
+
+    def test_radifless_poem_uses_the_final_tokens(self):
+        lines = [(f'x.ghazal.1.{i}', f'سخن {w}') for i, w in enumerate(MIR_RHYME, 1)]
+        poem = segment_poems([_mk_ur(r, t) for r, t in lines], 'ur')[0]
+        radif, qafia, _ = poem_signature(poem, 'ur')
+        assert radif == ()
+        assert qafia == normalize_urdu('الی')
+
+    def test_new_qafia_is_never_shorter_than_the_old_rule(self):
+        import random
+        rng = random.Random(7)
+        letters = 'ابتجدرسلمنوی'
+        for _ in range(200):
+            words = [''.join(rng.choice(letters) for _ in range(rng.randint(2, 7))) for _ in range(rng.randint(3, 9))]
+            poem = segment_poems(_urdu_poem('x', words), 'ur')
+            if not poem:
+                continue
+            q = poem_signature(poem[0], 'ur')[1]
+            if q:
+                assert len(q) >= 2
+
+    def test_arabic_rawi_unchanged(self):
+        from backend.arabic.processor import tokenize_arabic
+        import backend.arabic
+        backend.arabic.register()
+        lines = []
+        for i, w in enumerate(['قفا نبك من ذكرى حبيب ومنزل', 'بسقط اللوى بين الدخول فحومل', 'فتوضح فالمقراة لم يعف رسمها', 'لما نسجتها من جنوب وشمأل', 'ترى بعر الارآم في عرصاتها وقيعانها كأنه حب فلفل', 'كأني غداة البين يوم تحملوا لدى سمرات الحي ناقف حنظل', 'وقوفا بها صحبي علي مطيهم'], 1):
+            toks = tokenize_arabic(w)
+            toks = toks[1] if isinstance(toks, tuple) else toks
+            lines.append({'ref': f'x.{i}', 'text': w, 'tokens': list(toks), 'lemmas': list(toks)})
+        sig = poem_signature_ex(segment_poems(lines, 'ar')[0], 'ar') if segment_poems(lines, 'ar') else None
+        if sig:
+            assert len(sig[1]) == 1
+            assert sig[3] == []
+
+
+class TestRhymeTiers:
+    def _pair(self, src_words, tgt_words, radif='میں', extra=None):
+        src = _urdu_poem('s', src_words, radif)
+        tgt = _urdu_poem('t', tgt_words, radif)
+        return find_form_matches(src, tgt, {'language': 'ur', 'form_word_bonus': 0, 'form_phrase_bonus': 0}
+                                 if extra is None else {'language': 'ur', **extra})
+
+    def test_full_rhyme(self):
+        matches, _ = self._pair(MIR_RHYME, ['جالی', 'سالی', 'مالی', 'بالی', 'تالی'])
+        assert matches[0]['rhyme_tier'] == 'full'
+        assert matches[0]['form_base'] == 1.0
+
+    def test_partial_rhyme_reported_pair(self):
+        matches, _ = self._pair(WALI_RHYME, MIR_RHYME)
+        assert len(matches) == 1
+        m = matches[0]
+        assert m['rhyme_tier'] == 'partial'
+        assert m['form_base'] == 0.5
+        assert m['qafia'] == normalize_urdu('لی') and m['target_qafia'] == normalize_urdu('الی')
+
+    def test_different_rhyme_with_unlisted_refrain_is_radif_only(self):
+        # A refrain of two tokens is not a single stoplisted word.
+        matches, _ = self._pair(['دار', 'کار', 'یار', 'بار', 'نار'], ['جام', 'نام', 'سام', 'رام', 'کام'],
+                                radif='رکھتے ہیں')
+        assert matches[0]['rhyme_tier'] == 'radif only'
+        assert matches[0]['form_base'] == 0.5
+
+    def test_different_rhyme_with_stoplisted_single_refrain_emits_nothing(self):
+        matches, _ = self._pair(['دار', 'کار', 'یار', 'بار', 'نار'], ['جام', 'نام', 'سام', 'رام', 'کام'])
+        assert matches == []
+
+    def test_partial_beats_nothing_for_stoplisted_refrain_but_scores_like_radif_only(self):
+        partial, _ = self._pair(WALI_RHYME, MIR_RHYME)
+        full, _ = self._pair(MIR_RHYME, ['جالی', 'سالی', 'مالی', 'بالی', 'تالی'])
+        assert partial[0]['form_score'] <= 0.5 * full[0]['form_score'] + 1e-9
+
+
+class TestSharedRhymeWords:
+    def test_shared_words_phrases_and_bonus(self):
+        src = _urdu_poem('s', ['درازی', 'نمازی', 'سرفرازی', 'بازی', 'رازی'], 'کا')
+        # Third couplet 'ہر نمازی' in both.
+        src[1] = _mk_ur('s.ghazal.1.2', 'ہر نمازی کا')
+        tgt = _urdu_poem('t', ['درازی', 'سرفرازی', 'تازی', 'ممتازی', 'ہازی'], 'کا')
+        tgt[1] = _mk_ur('t.ghazal.1.2', 'ہر سرفرازی کا')
+        m_plain, _ = find_form_matches(src, tgt, {'language': 'ur', 'form_word_bonus': 0, 'form_phrase_bonus': 0})
+        m, _ = find_form_matches(src, tgt, {'language': 'ur'})
+        assert m[0]['shared_rhyme_words'] == [normalize_urdu('درازی'), normalize_urdu('سرفرازی')]
+        assert m[0]['source_rhyme_words'][:2] == [normalize_urdu('درازی'), normalize_urdu('نمازی')]
+        assert normalize_urdu('درازی') in m[0]['target_rhyme_words']
+        # two shared words (0.30) and one shared phrase, 'sukhan darazi' (0.15)
+        assert m[0]['form_bonus'] == pytest.approx(0.45)
+        base = m_plain[0]['form_base']
+        assert m[0]['form_score'] == pytest.approx(m_plain[0]['form_score'] * (base + 0.45) / base)
+
+    def test_shared_phrase_counted(self):
+        src = _urdu_poem('s', ['درازی', 'نمازی', 'سرفرازی', 'بازی', 'رازی'], 'کا')
+        tgt = _urdu_poem('t', ['درازی', 'نمازی', 'تازی', 'ممتازی', 'ہازی'], 'کا')
+        m, _ = find_form_matches(src, tgt, {'language': 'ur'})
+        assert m[0]['shared_rhyme_phrases'] == [normalize_urdu('سخن درازی'), normalize_urdu('سخن نمازی')]
+        # two words 0.30 plus two phrases 0.30, capped together at 0.6
+        assert m[0]['form_bonus'] == pytest.approx(0.6)
+
+    def test_bonus_is_bounded(self):
+        from backend.poetics import _shared_bonus
+        assert _shared_bonus(0, 0) == 0
+        assert _shared_bonus(10, 0) == pytest.approx(0.45)
+        assert _shared_bonus(10, 10) == pytest.approx(0.6)
+
+    def test_no_shared_words_gives_empty_lists(self):
+        m, _ = find_form_matches(_urdu_poem('s', WALI_RHYME, 'میں'), _urdu_poem('t', MIR_RHYME, 'میں'),
+                                 {'language': 'ur'})
+        assert m[0]['shared_rhyme_words'] == [] and m[0]['shared_rhyme_phrases'] == []
+        assert m[0]['form_bonus'] == 0
+
+
+class TestResultFields:
+    def test_meter_note_urdu_not_available(self):
+        m, _ = find_form_matches(_urdu_poem('s', WALI_RHYME), _urdu_poem('t', MIR_RHYME), {'language': 'ur'})
+        assert m[0]['meter_note'] == 'meter not available for this language'
+
+    def test_meter_note_same_and_different(self):
+        from backend.poetics import _meter_note, Poem
+        a = Poem('a', [], [], 'hemistich', 'ramal')
+        b = Poem('b', [], [], 'hemistich', 'ramal')
+        c = Poem('c', [], [], 'hemistich', 'hazaj')
+        assert _meter_note(a, b, 'fa') == 'same meter'
+        assert _meter_note(a, c, 'fa') == 'different meter'
+
+    def test_scorer_carries_the_fields_to_the_card(self):
+        from backend.scorer import Scorer
+        src = _urdu_poem('s', WALI_RHYME)
+        tgt = _urdu_poem('t', MIR_RHYME)
+        m, _ = find_form_matches(src, tgt, {'language': 'ur'})
+        r = Scorer()._score_form_match(m[0], src[m[0]['source_idx']], tgt[m[0]['target_idx']], {})
+        p = r['poetics']
+        assert p['rhyme_tier'] == 'partial'
+        assert p['shared_rhyme_words'] == []
+        assert p['source_rhyme_words'] == [normalize_urdu(w) for w in WALI_RHYME]
+        assert p['target_rhyme_words'] == [normalize_urdu(w) for w in MIR_RHYME]
+        assert p['meter_note'] == 'meter not available for this language'
+        assert p['target_qafia'] == normalize_urdu('الی')
+
+    def test_arabic_matches_carry_the_rawi_tier(self):
+        # Covered by the Arabic matching tests: tier label only.
+        from backend import poetics
+        assert poetics._rhyme_tier('ا', 'ا') == 'full'

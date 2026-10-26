@@ -451,7 +451,8 @@ class Scorer:
         """Score a form-channel match (refrain-and-rhyme / radif-qafia agreement).
 
         Score is the raw form_score attached by find_form_matches (1.0 for
-        radif+qafia agreement, 0.5 for radif-only agreement). Deliberately
+        a full rhyme, 0.5 for a partial rhyme or the refrain alone, plus a
+        bounded bonus for shared rhyme words). Deliberately
         does NOT use IDF, distance, or any boost -- a shared radif and qafia
         is whole-poem structural evidence, not a per-word rarity signal, and
         this match has no words behind it for a rarity penalty to apply to.
@@ -521,6 +522,18 @@ class Scorer:
                 'radif_len': radif_len,
                 'qafia': match.get('qafia', ''),
                 'meter': match.get('meter'),
+                # How the rhyme was judged (2026-10-26): "full", "partial",
+                # "radif only" or "rawi"; the rhyme words each poem carries,
+                # the ones both carry, and a note on the meter. The word
+                # lists are absent for a cross-language match, which does not
+                # compare them, so the card says nothing about them there.
+                'rhyme_tier': match.get('rhyme_tier'),
+                'target_qafia': match.get('target_qafia'),
+                'shared_rhyme_words': match.get('shared_rhyme_words'),
+                'shared_rhyme_phrases': match.get('shared_rhyme_phrases'),
+                'source_rhyme_words': match.get('source_rhyme_words'),
+                'target_rhyme_words': match.get('target_rhyme_words'),
+                'meter_note': match.get('meter_note'),
                 'source_radif_start': s_pos,
                 'target_radif_start': t_pos,
                 'rhyme_only': not radif,

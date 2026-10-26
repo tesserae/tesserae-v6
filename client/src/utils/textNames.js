@@ -795,3 +795,45 @@ export function formatRefrainPopover(poetics, corpusMap) {
     .map((g) => `${g.label}: ${g.text}`);
   return { lines };
 }
+
+/**
+ * One line that says how a form-channel result's rhyme was judged
+ * (2026-10-26): "Refrain میں, rhyme الی (partial: لی), shared rhyme words:
+ * none, meter not available for Urdu." The tier, the word lists and the
+ * meter note come from the backend (poetics.rhyme_tier and so on); a result
+ * that carries none of them (an older cached result) gets the refrain and
+ * rhyme alone, and a cross-language result, which does not compare rhyme
+ * words, says nothing about them. `languageLabel` replaces "this language"
+ * in the meter note.
+ */
+export function formatRhymeSummary(poetics, languageLabel) {
+  if (!poetics) return '';
+  const parts = [];
+  if (poetics.radif) parts.push(`Refrain ${poetics.radif}`);
+  const q = poetics.qafia || '';
+  const tq = poetics.target_qafia || '';
+  const tier = poetics.rhyme_tier;
+  if (tier === 'partial' && q && tq) {
+    const [longer, shorter] = q.length >= tq.length ? [q, tq] : [tq, q];
+    parts.push(`rhyme ${longer} (partial: ${shorter})`);
+  } else if (tier === 'radif only' && q && tq) {
+    parts.push(`rhymes differ (${q} and ${tq})`);
+  } else if (tier === 'rawi' && q) {
+    parts.push(`rhyme letter ${q}`);
+  } else if (q) {
+    parts.push(tier === 'full' ? `rhyme ${q} (full)` : `rhyme ${q}`);
+  }
+  if (Array.isArray(poetics.shared_rhyme_words)) {
+    const words = poetics.shared_rhyme_words;
+    parts.push(`shared rhyme words: ${words.length ? words.join(', ') : 'none'}`);
+  }
+  if (Array.isArray(poetics.shared_rhyme_phrases) && poetics.shared_rhyme_phrases.length) {
+    parts.push(`shared rhyme phrases: ${poetics.shared_rhyme_phrases.join(', ')}`);
+  }
+  if (poetics.meter_note) {
+    parts.push(languageLabel
+      ? poetics.meter_note.replace('this language', languageLabel)
+      : poetics.meter_note);
+  }
+  return parts.length ? `${parts.join(', ')}.` : '';
+}
