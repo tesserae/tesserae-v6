@@ -9,6 +9,7 @@ import {
   resolveDisplayCitation,
   siteIdFromRef,
   formatRefrainPopover,
+  formatRhymeSummary,
 } from '../../utils/textNames';
 import { channelBadge } from '../../utils/channels';
 import { displayGreekWithFinalSigma } from '../../utils/greekUtils';
@@ -685,10 +686,14 @@ const SearchResults = ({
                   className="bg-rose-100 text-rose-800"
                   explanation={r.poetics.rhyme_only
                     ? 'The rhyme letter (rawi) both poems share, weaker evidence than the full rhyme.'
-                    : 'The rhyme (qafiya) both poems share, before the refrain.'}
+                    : 'The ending the rhyme words of the two poems share, before the refrain.'}
+                  extra={formatRhymeSummary(r.poetics, languageName(language)) && (
+                    <div dir="auto">{formatRhymeSummary(r.poetics, languageName(language))}</div>
+                  )}
                   more={helpMore(onOpenHelp, 'rhyme')}
                 >
                   Rhyme: <span dir="rtl">{r.poetics.rhyme_only ? r.poetics.qafia : '…' + r.poetics.qafia}</span>
+                  {r.poetics.rhyme_tier === 'partial' && ' (partial)'}
                 </InfoBadge>
               )}
               {r.poetics && r.poetics.meter && (

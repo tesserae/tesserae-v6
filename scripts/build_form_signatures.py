@@ -14,6 +14,9 @@ text processor for an uncached file.
 
 Usage:
     python scripts/build_form_signatures.py ur fa
+
+The rhyme (qafia) in each key is the longest ending shared by the poem's
+rhyme words (2026-10-26), so the tables must be rebuilt with the matcher.
 """
 import datetime
 import json
@@ -24,8 +27,13 @@ from collections import Counter
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
+# A checkout without the texts (a scratch worktree) reads them from another
+# tree: TESSERAE_TEXTS_DIR=/var/www/tesseraev6_flask/texts, read-only.
+TEXTS_DIR = os.environ.get('TESSERAE_TEXTS_DIR') or os.path.join(ROOT, 'texts')
 
+import backend.lemma_cache as _lemma_cache                 # noqa: E402
 from backend.lemma_cache import get_cached_units          # noqa: E402
+_lemma_cache.TEXTS_DIR = TEXTS_DIR
 from backend.poetics import segment_poems, poem_signature, signature_key  # noqa: E402
 
 
@@ -51,7 +59,7 @@ def units_for(filename, lang, lang_dir):
 
 
 def build(lang):
-    lang_dir = os.path.join(ROOT, 'texts', lang)
+    lang_dir = os.path.join(TEXTS_DIR, lang)
     sigs, radifs = Counter(), Counter()
     total = 0
     texts = []

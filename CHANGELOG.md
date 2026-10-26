@@ -8,6 +8,7 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-26
+- Form channel (Persian and Urdu): the rhyme of a ghazal is now the longest ending, two to six letters, that its rhyme words share, where a two-letter ending used to make Wali's -lī and Mir's -ālī the same rhyme (request issues 1231, 1233, 1234). A refrain shared with a rhyme that is the ending of the other's scores as a partial rhyme at the refrain-only base, each rhyme word and rhyme phrase both ghazals use adds a bounded bonus, and the result card's Rhyme badge shows the tier, the shared rhyme words and a meter note (not available for Urdu). The corpus signature tables `form_signatures_fa.json` and `form_signatures_ur.json` are rebuilt for the new rhymes. The Urdu refrain benchmark (23) and the Persian answer-poem benchmark (7) do not regress. Help describes the rule.
 - Security header: the application's Strict-Transport-Security max-age now matches the web server's (63072000), so a response no longer carries two values; browsers read the server's header first, so nothing changes for visitors.
 
 ## 2026-10-25

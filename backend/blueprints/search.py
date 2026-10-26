@@ -2002,6 +2002,8 @@ def _build_row(src_idx, tgt_idx, source_units, target_units, cs, *, score, cosin
             'target_radif': form_match['target_radif'],
             'qafia': form_match['qafia'],
             'meter': form_match['meter'],
+            'rhyme_tier': form_match.get('rhyme_tier'),
+            'meter_note': form_match.get('meter_note'),
             'source_lines': form_match['source_lines'],
             'target_lines': form_match['target_lines'],
             'corpus_poems': form_match['form_corpus_poems'],

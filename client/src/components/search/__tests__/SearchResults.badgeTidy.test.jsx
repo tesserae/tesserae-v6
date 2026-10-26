@@ -169,3 +169,27 @@ describe('SearchResults — refrain-lines popover', () => {
     expect(screen.getByText('Iqbal, Zabur-e Ajam 26: lines 1 to 3')).toBeInTheDocument();
   });
 });
+
+describe('SearchResults — rhyme badge says how the rhyme was judged', () => {
+  it('shows the partial tier and the summary line on tap', async () => {
+    global.fetch = vi.fn(() => Promise.resolve(mockResponse({ ok: true, json: () => Promise.resolve([]) })));
+    const row = {
+      source: { ref: 'wali.diwan_wikisource.ghazal.29.1', text: 'a' },
+      target: { ref: 'mir.kulliyat_wikisource.ghazal.189.1', text: 'b' },
+      fused_score: 20,
+      matched_words: [],
+      features: {},
+      poetics: {
+        radif: 'میں', qafia: 'لی', target_qafia: 'الی', rhyme_tier: 'partial',
+        shared_rhyme_words: [], shared_rhyme_phrases: [],
+        meter_note: 'meter not available for this language',
+      },
+    };
+    render(<SearchResults {...baseProps} language="ur" results={[row]} />);
+    const badge = await screen.findByText('(partial)', { exact: false });
+    fireEvent.click(badge.closest('button'));
+    expect(await screen.findByText(
+      'Refrain میں, rhyme الی (partial: لی), shared rhyme words: none, meter not available for Urdu.'
+    )).toBeInTheDocument();
+  });
+});
