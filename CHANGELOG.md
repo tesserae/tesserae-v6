@@ -8,6 +8,7 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-26
+- Urdu: Fa'iz Dehlavi, Shah Mubarak Abru and Hatim from Urdu Wikisource staged (three works, 2,836 lines, planned and not installed), with their credit rows, descriptions and era entries, and Help's Urdu holdings updated for the day they are installed. The staging scripts fetch a given list of Wikisource pages, convert poems to .tess, and prepare and assemble the GPU encoder's inputs. The staged lemma-cache builder now registers the plugin languages.
 - Security header: the application's Strict-Transport-Security max-age now matches the web server's (63072000), so a response no longer carries two values; browsers read the server's header first, so nothing changes for visitors.
 
 ## 2026-10-25

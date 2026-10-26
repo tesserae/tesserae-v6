@@ -21608,6 +21608,15 @@
     "license": "CC BY-SA 4.0, declared on the dataset repository (github.com/aghasemi/ChronologicalPersianPoetryDataset); Ganjoor.net's own upstream terms for the underlying database were not independently verified."
   },
   {
+    "author": "Abru",
+    "work": "Diwan",
+    "e_source": "Urdu Wikisource",
+    "e_source_url": "https://ur.wikisource.org/wiki/مصنف:شاہ_مبارک_آبرو",
+    "print_source": "",
+    "added_by": "Tesserae Project",
+    "license": "CC BY-SA 4.0 (Wikisource transcription, dual-licensed CC BY-SA 4.0 and GFDL under Wikisource's copyright policy); the author is public domain."
+  },
+  {
     "author": "Akbar",
     "work": "Kulliyat",
     "e_source": "Urdu Wikisource",
@@ -21653,6 +21662,15 @@
     "license": "CC BY-SA 4.0 (Wikisource transcription, dual-licensed CC BY-SA 4.0 and GFDL under Wikisource's copyright policy); the author is public domain."
   },
   {
+    "author": "Faiz",
+    "work": "Diwan",
+    "e_source": "Urdu Wikisource",
+    "e_source_url": "https://ur.wikisource.org/wiki/مصنف:فائز_دہلوی",
+    "print_source": "",
+    "added_by": "Tesserae Project",
+    "license": "CC BY-SA 4.0 (Wikisource transcription, dual-licensed CC BY-SA 4.0 and GFDL under Wikisource's copyright policy); the author is public domain."
+  },
+  {
     "author": "Ghalib",
     "work": "Diwan",
     "e_source": "Urdu Wikisource",
@@ -21666,6 +21684,15 @@
     "work": "Kulliyat",
     "e_source": "Urdu Wikisource",
     "e_source_url": "https://ur.wikisource.org/wiki/مصنف:الطاف_حسین_حالی",
+    "print_source": "",
+    "added_by": "Tesserae Project",
+    "license": "CC BY-SA 4.0 (Wikisource transcription, dual-licensed CC BY-SA 4.0 and GFDL under Wikisource's copyright policy); the author is public domain."
+  },
+  {
+    "author": "Hatim",
+    "work": "Diwan",
+    "e_source": "Urdu Wikisource",
+    "e_source_url": "https://ur.wikisource.org/wiki/مصنف:شیخ_ظہور_الدین_حاتم",
     "print_source": "",
     "added_by": "Tesserae Project",
     "license": "CC BY-SA 4.0 (Wikisource transcription, dual-licensed CC BY-SA 4.0 and GFDL under Wikisource's copyright policy); the author is public domain."

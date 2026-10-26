@@ -2356,7 +2356,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 <div className="border-l-4 border-gray-300 pl-4">
                   <h4 className="text-lg font-semibold text-gray-900">Urdu</h4>
                   <p className="text-gray-600 text-sm mt-1">
-                    Eighteen texts, about 59,000 lines: Wali, Mir, Sauda, Dard, Insha, Nazeer, Atish, Zauq, Zafar, Ghalib,
+                    Twenty-one texts, about 62,000 lines: Wali, Fa'iz, Abru, Hatim, Mir, Sauda, Dard, Insha, Nazeer, Atish, Zauq, Zafar, Ghalib,
                     Anis, Dagh, Hali, Akbar Allahabadi and Iqbal. Nine channels run, refrain and rhyme among them, and the
                     Persian → Urdu cross-language search follows borrowed phrases. See{' '}
                     <button onClick={() => setActiveSection('urdu')} className="text-red-600 hover:underline">the Urdu page</button>.
@@ -2639,8 +2639,9 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
             <div className="prose max-w-none">
               <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Urdu Search</h3>
               <p className="text-gray-700 mb-4">
-                Tesserae searches eighteen Urdu texts, about 59,000 lines, by fifteen poets from Wali Dakhani to
-                Iqbal: Wali, Mir Taqi Mir (the kulliyat, nearly 22,000 lines), Sauda, Dard, Insha, Nazeer Akbarabadi,
+                Tesserae searches twenty-one Urdu texts, about 62,000 lines, by eighteen poets from Wali Dakhani to
+                Iqbal: Wali, three Delhi poets of the 1720s and after who answered him (Fa'iz Dehlavi, Shah Mubarak Abru
+                and Zuhur ud-Din Hatim), Mir Taqi Mir (the kulliyat, nearly 22,000 lines), Sauda, Dard, Insha, Nazeer Akbarabadi,
                 Atish, Zauq, Bahadur Shah Zafar, Mirza Ghalib, Anis (the marsiyas), Dagh, Hali, Akbar Allahabadi and
                 Muhammad Iqbal's Urdu collections (Bang-e Dara, Bal-e Jibril, Zarb-e Kalim, Armaghan-e Hijaz).
               </p>
