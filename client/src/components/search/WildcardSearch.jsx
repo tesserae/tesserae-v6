@@ -38,6 +38,9 @@ const SYNTAX_EXAMPLES_BY_LANGUAGE = {
   fa: FA_SYNTAX_EXAMPLES, ur: UR_SYNTAX_EXAMPLES, ar: AR_SYNTAX_EXAMPLES,
 };
 const ARABIC_SCRIPT = new Set(['fa', 'ur', 'ar']);
+// Languages whose spelling variants are matched by default (vowel marks, letter
+// code points, separators); the page offers Exact spelling instead of Case sensitive.
+const SPELLING_LANGUAGES = new Set(['fa', 'ur', 'ar', 'he']);
 const TEXT_ID_EXAMPLES = {
   fa: 'hafez.diwan', ur: 'ghalib.diwan_wikisource', ar: 'busiri.burda',
   grc: 'homer.iliad', en: 'milton.paradise_lost', cop: 'shenoute.abraham',
@@ -61,6 +64,7 @@ const WildcardSearch = ({ language }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [caseSensitive, setCaseSensitive] = useState(false);
+  const [exactSpelling, setExactSpelling] = useState(false);
   const [maxResults, setMaxResults] = useState(200);
   const [targetText, setTargetText] = useState('');
   const [showPoetry, setShowPoetry] = useState(true);
@@ -94,6 +98,7 @@ const WildcardSearch = ({ language }) => {
         language,
         target_text: targetText || null,
         case_sensitive: caseSensitive,
+        ...(SPELLING_LANGUAGES.has(language) ? { spelling: exactSpelling ? 'strict' : 'variants' } : {}),
         max_results: maxResults
       });
       
@@ -198,14 +203,19 @@ const WildcardSearch = ({ language }) => {
   const exportCSV = useCallback(() => {
     if (!filteredResults || filteredResults.length === 0) return;
     
-    const headers = ['Author', 'Title', 'Era', 'Locus', 'Text', 'Poetry/Prose'];
+    const matching = results?.matching;
+    const headers = ['Author', 'Title', 'Era', 'Locus', 'Text', 'Poetry/Prose',
+      'Query as typed', 'Spelling mode', 'Matching rules'];
     const rows = filteredResults.map(r => [
       r.author || '',
       r.title || '',
       r.era || 'Unknown',
       r.locus || '',
       (r.text || '').replace(/<[^>]*>/g, '').replace(/"/g, '""'),
-      r.is_poetry !== false ? 'Poetry' : 'Prose'
+      r.is_poetry !== false ? 'Poetry' : 'Prose',
+      (matching?.query ?? query).replace(/"/g, '""'),
+      matching?.mode || '',
+      matching?.rules || ''
     ]);
     
     const csv = [headers.join(','), ...rows.map(r => r.map(c => `"${c}"`).join(','))].join('\n');
@@ -216,7 +226,7 @@ const WildcardSearch = ({ language }) => {
     a.download = `tesserae_wildcard_${query.replace(/[^a-zA-Z0-9]/g, '_')}_${new Date().toISOString().slice(0, 10)}.csv`;
     a.click();
     URL.revokeObjectURL(url);
-  }, [filteredResults, query]);
+  }, [filteredResults, query, results]);
 
   const chartOptions = {
     responsive: true,
@@ -257,6 +267,7 @@ const WildcardSearch = ({ language }) => {
   const languageLabel = languageName(language);
   const syntaxEx = language === 'grc' ? GREEK_SYNTAX_EXAMPLES : (SYNTAX_EXAMPLES_BY_LANGUAGE[language] || LA_SYNTAX_EXAMPLES);
   const arabicScript = ARABIC_SCRIPT.has(language);
+  const spellingChoice = SPELLING_LANGUAGES.has(language);
 
   // Result identity changes on completion, even when the same query is run again.
   const paginationResetKey = useMemo(() => ({}), [results, eraFilter, authorFilter, showPoetry, showProse, sortOrder]);
@@ -297,8 +308,14 @@ const WildcardSearch = ({ language }) => {
               <li className="text-gray-500 pt-1">
                 To type {languageLabel}, switch your computer's keyboard to a {languageLabel} layout
                 (on a Mac: System Settings, Keyboard, Input Sources; on Windows: Settings, Time &amp; Language,
-                Language). Or copy a word from any passage on this site and paste it here. Vowel marks are
-                ignored, so a word matches with or without them.
+                Language). Or copy a word from any passage on this site and paste it here.
+              </li>
+            )}
+            {spellingChoice && (
+              <li className="text-gray-500">
+                By default String Search matches spelling variants. A word matches with or without vowel marks,
+                with either code point of kaf, yeh and heh, and with a space, a zero-width non-joiner or nothing
+                between the parts of a compound. Choose Exact spelling to match the characters as typed.
               </li>
             )}
             {language === 'ar' && (
@@ -342,15 +359,38 @@ const WildcardSearch = ({ language }) => {
         </div>
 
         <div className="flex flex-wrap gap-4 text-sm">
-          <label className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              checked={caseSensitive}
-              onChange={(e) => setCaseSensitive(e.target.checked)}
-              className="rounded"
-            />
-            Case sensitive
-          </label>
+          {spellingChoice ? (
+            <div className="flex items-center gap-3" role="radiogroup" aria-label="Spelling">
+              <label className="flex items-center gap-1">
+                <input
+                  type="radio"
+                  name="wildcard-spelling"
+                  checked={!exactSpelling}
+                  onChange={() => setExactSpelling(false)}
+                />
+                Match spelling variants
+              </label>
+              <label className="flex items-center gap-1">
+                <input
+                  type="radio"
+                  name="wildcard-spelling"
+                  checked={exactSpelling}
+                  onChange={() => setExactSpelling(true)}
+                />
+                Exact spelling
+              </label>
+            </div>
+          ) : (
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={caseSensitive}
+                onChange={(e) => setCaseSensitive(e.target.checked)}
+                className="rounded"
+              />
+              Case sensitive
+            </label>
+          )}
           
           <div className="flex items-center gap-2">
             <span className="text-gray-600">Max results:</span>
@@ -514,10 +554,15 @@ const WildcardSearch = ({ language }) => {
                         </span>
                       )}
                     </div>
-                    <div 
-                      className="flex-1 text-gray-700"
-                      dangerouslySetInnerHTML={{ __html: r.highlighted_text || r.text }}
-                    />
+                    <div className="flex-1">
+                      <div
+                        className="text-gray-700"
+                        dangerouslySetInnerHTML={{ __html: r.highlighted_text || r.text }}
+                      />
+                      {r.match_note && r.match_note.length > 0 && (
+                        <div className="text-xs text-gray-500 mt-1">{r.match_note.join(', ')}</div>
+                      )}
+                    </div>
                   </div>
                 </div>
               );
