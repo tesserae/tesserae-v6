@@ -843,6 +843,35 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                       <li><code className="bg-gray-200 px-1 rounded">mort* NOT vita</code> - words starting with "mort" but not in lines with "vita"</li>
                     </ul>
                   </div>
+                  <div className="bg-amber-50 p-3 rounded border border-amber-200 mt-3 text-sm" id="string-search-spelling">
+                    <strong className="text-amber-800">Persian, Urdu, Arabic and Hebrew</strong>
+                    <p className="text-gray-700 mt-1">
+                      For these four languages String Search offers two spelling modes. <em>Match spelling variants</em> is
+                      the default. <em>Exact spelling</em> matches the characters as typed.
+                    </p>
+                    <ul className="text-gray-600 mt-1 space-y-1 list-disc list-inside">
+                      <li>Match spelling variants ignores vowel marks (and, in Hebrew, points and cantillation), tatweel,
+                        the zero-width joiner and direction marks. It treats the Arabic and Persian code points of kaf and
+                        yeh as one letter, treats alef maqsura as yeh, treats heh, heh goal and teh marbuta as one letter,
+                        and treats alef with hamza and alef wasla as plain alef.</li>
+                      <li>It keeps apart letters that are different letters, which are alef with madda (آ),
+                        barree yeh (ے), do-chashmee he (ھ), noon ghunna (ں) and the retroflex letters (ٹ ڈ ڑ).</li>
+                      <li>A space or a zero-width non-joiner between the parts of a compound in your query matches a space,
+                        a non-joiner or nothing in the text. The query <code className="bg-amber-100 px-1 rounded">آتش زده</code> and
+                        the query <code className="bg-amber-100 px-1 rounded">آتش‌زده</code> both find آتش زده, آتش‌زده and
+                        آتشزده. The query <code className="bg-amber-100 px-1 rounded">آتشزده</code> written without any
+                        separator finds only the joined spelling.</li>
+                      <li>A space or non-joiner left at the start or end of the query or of a term, usually by copying
+                        from a compound, is trimmed in both modes.</li>
+                      <li>A query matches a stretch of text that begins and ends at word edges. A phrase in quotation
+                        marks and the same words typed without them both find those words in that order.</li>
+                      <li>Under each result in the default mode, a small gray note says why the line matched, using the
+                        phrases vowel marks ignored, separator variant matched and letter variant matched. A line that
+                        matches exactly as typed has no note. Exported results carry the query as typed, the spelling
+                        mode and the rules label, so a result can be read later.</li>
+                      <li>Case sensitive does not apply to these languages, so the page shows the spelling choice in its place.</li>
+                    </ul>
+                  </div>
               </div>
             </div>
           )}
@@ -2727,8 +2756,9 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   <li>Arabic reads <strong>right-to-left</strong>, and results are shown that way.</li>
                   <li>Each poem line is a full verse (bayt) with its two hemistichs separated by a bar. Each Qur'an line
                     is one aya.</li>
-                  <li>Matching works on normalized forms. Hamza variants are folded to alef, alef maqsura to ya, and
-                    vowel marks are removed.</li>
+                  <li>Search Corpus and the match channels work on normalized forms. Hamza variants are folded to alef,
+                    alef maqsura to ya, and vowel marks are removed. String Search does this by default with its
+                    Match spelling variants choice, and Exact spelling turns it off.</li>
                   <li>Dictionary forms come from the Stanza Arabic model. Attached particles (<em>wa-</em>, <em>fa-</em>,
                     <em>ka-</em>, <em>li-</em>, <em>bi-</em>) and pronoun endings stay on the word, so the function-word
                     list covers those forms too.</li>
