@@ -18,8 +18,8 @@ RULES_LABEL = 'string-fold-1'
 # Vowel marks and other combining marks, tatweel, zero-width joiner and the
 # direction marks. The zero-width non-joiner (U+200C) is not here: it stays.
 _ARABIC_MARKS = (
-    'ً-ٰٟۖ-ۭ࣓-ࣿ'
-    'ـ‍‎‏‪-‮⁦-⁩'
+    '\u064b-\u065f\u0670\u06d6-\u06ed\u08d3-\u08ff'   # combining marks, Quranic annotation marks
+    '\u0640\u200d\u200e\u200f\u202a-\u202e\u2066-\u2069'   # tatweel, zero-width joiner, direction marks
 )
 _ARABIC_MARKS_RE = re.compile('[' + _ARABIC_MARKS + ']')
 
@@ -37,7 +37,7 @@ _ARABIC_LETTERS = {
     0x0671: 'ا',   # alef wasla -> alef
 }
 
-_HEBREW_MARKS_RE = re.compile('[֑-ֽֿ-ׇׂׅׄ]')
+_HEBREW_MARKS_RE = re.compile('[\u0591-\u05bd\u05bf-\u05c2\u05c4\u05c5\u05c7]')
 
 
 def fold_arabic_script(text: str, marks: bool = True, letters: bool = True) -> str:
