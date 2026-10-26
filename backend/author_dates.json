@@ -3182,6 +3182,13 @@
   }
  },
  "ur": {
+  "abru": {
+   "added": "wikisource-2026-10-26",
+   "era": "Mughal / Colonial",
+   "note": "Shah Mubarak Abru, d. 1733 CE",
+   "year": 1733,
+   "editorial": "Urdu Wikisource; era rule: died before 1920 -> Mughal / Colonial, later -> Modern"
+  },
   "akbar": {
    "added": "wikisource-2026-09-06",
    "era": "Modern",
@@ -3224,6 +3231,13 @@
    "year": 1785,
    "editorial": "Urdu Wikisource; era rule: died before 1920 -> Mughal / Colonial, later -> Modern"
   },
+  "faiz": {
+   "added": "wikisource-2026-10-26",
+   "era": "Mughal / Colonial",
+   "note": "Fa'iz Dehlavi, d. 1738 CE",
+   "year": 1738,
+   "editorial": "Urdu Wikisource; era rule: died before 1920 -> Mughal / Colonial, later -> Modern"
+  },
   "ghalib": {
    "added": "editorial-2026-08-25",
    "era": "Mughal / Colonial",
@@ -3235,6 +3249,13 @@
    "era": "Mughal / Colonial",
    "note": "Altaf Husain Hali, d. 1914 CE",
    "year": 1914,
+   "editorial": "Urdu Wikisource; era rule: died before 1920 -> Mughal / Colonial, later -> Modern"
+  },
+  "hatim": {
+   "added": "wikisource-2026-10-26",
+   "era": "Mughal / Colonial",
+   "note": "Zuhur ud-Din Hatim, d. about 1783 CE",
+   "year": 1783,
    "editorial": "Urdu Wikisource; era rule: died before 1920 -> Mughal / Colonial, later -> Modern"
   },
   "insha": {
