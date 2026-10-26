@@ -7,6 +7,9 @@ so the state of the live site can be reconstructed from this file and
 docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
+## 2026-10-26
+- Security header: the application's Strict-Transport-Security max-age now matches the web server's (63072000), so a response no longer carries two values; browsers read the server's header first, so nothing changes for visitors.
+
 ## 2026-10-25
 - Search log: Theme Search, Similar Passages and Compare Works write a row each (scope, works, question, result count, reranker); an `internal` flag marks the server's own requests (backfilled over 1,780 rows), connector calls carry the caller's address and are never internal, the admin usage counts leave internal rows out, and `scripts/review/usage_report.py` prints the outside figures; the Privacy page and Help now state what the search log holds (#1240).
 - Restricted texts: Augustine's De doctrina christiana (augustinus.it, all rights reserved) joins the registry and leaves the repository tree, with its credit line beside every passage; the Downloads page and Help state why the Musisque Deoque, Corpus Thomisticum and augustinus.it texts are searchable but in no public archive; the ignore-block script writes one rule pair per text and says to run it on the checkout that holds the files.
