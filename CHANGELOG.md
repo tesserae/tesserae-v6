@@ -8,10 +8,8 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-26
-## 2026-10-26
 - String Search: Persian, Urdu, Arabic and Hebrew match spelling variants by default (vowel marks, kaf, yeh, heh and hamza-alef code points, tatweel and direction marks; a space, a zero-width non-joiner or nothing between the parts of a compound), with an Exact spelling choice (`spelling=strict`) that matches the characters as typed; a stray space or non-joiner at the edge of a query is trimmed in both modes, results say why they matched (`match_note`), the response and the CSV export carry the query as typed, the mode and the rules label `string-fold-1`, and Help states the rules (`backend/string_fold.py`, `backend/wildcard_search.py`).
 - Security header: the application's Strict-Transport-Security max-age now matches the web server's (63072000), so a response no longer carries two values; browsers read the server's header first, so nothing changes for visitors.
-
 
 ## 2026-10-25
 - Search log: Theme Search, Similar Passages and Compare Works write a row each (scope, works, question, result count, reranker); an `internal` flag marks the server's own requests (backfilled over 1,780 rows), connector calls carry the caller's address and are never internal, the admin usage counts leave internal rows out, and `scripts/review/usage_report.py` prints the outside figures; the Privacy page and Help now state what the search log holds (#1240).
