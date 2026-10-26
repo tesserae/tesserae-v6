@@ -8,6 +8,7 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-26
+- Data operation: the three Urdu works of Fa'iz, Abru and Hatim installed (texts, lemma caches, index, bigrams, frequency cache, 659 described windows with campus GPU vectors, line vectors, description indexes, connection map); run record in docs/DATA_OPERATIONS.md.
 - Urdu: Fa'iz Dehlavi, Shah Mubarak Abru and Hatim from Urdu Wikisource staged (three works, 2,836 lines, planned and not installed), with their credit rows, descriptions and era entries, and Help's Urdu holdings updated for the day they are installed. The staging scripts fetch a given list of Wikisource pages, convert poems to .tess, and prepare and assemble the GPU encoder's inputs. The staged lemma-cache builder now registers the plugin languages.
 - String Search: Persian, Urdu, Arabic and Hebrew match spelling variants by default (vowel marks, kaf, yeh, heh and hamza-alef code points, tatweel and direction marks; a space, a zero-width non-joiner or nothing between the parts of a compound), with an Exact spelling choice (`spelling=strict`) that matches the characters as typed; a stray space or non-joiner at the edge of a query is trimmed in both modes, results say why they matched (`match_note`), the response and the CSV export carry the query as typed, the mode and the rules label `string-fold-1`, and Help states the rules (`backend/string_fold.py`, `backend/wildcard_search.py`).
 
