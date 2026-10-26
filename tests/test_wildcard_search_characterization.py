@@ -387,7 +387,9 @@ def test_wildcard_search_exact_rows(fixture_corpus):
              'reference': 'test. 1.5'},
         ],
         'total_matches': 2, 'truncated': False, 'texts_searched': 1, 'total_texts': 1,
-        'search_time': 0, 'query': 'arma OR multa', 'parsed_type': 'or'}
+        'search_time': 0, 'query': 'arma OR multa', 'parsed_type': 'or',
+        'matching': {'mode': 'literal', 'rules': 'string-fold-1',
+                     'query': 'arma OR multa', 'query_used': 'arma OR multa'}}
 
 
 def test_wildcard_search_target_text_truncation_and_errors(fixture_corpus):
@@ -400,4 +402,25 @@ def test_wildcard_search_target_text_truncation_and_errors(fixture_corpus):
         'results': [], 'total_matches': 0, 'search_time': 0, 'error': 'No texts found for language: xx'}
     assert ws.wildcard_search('la', '') == {
         'results': [], 'total_matches': 0, 'search_time': 0, 'query': '',
-        'parsed': {'type': 'empty', 'terms': []}}
+        'parsed': {'type': 'empty', 'terms': []},
+        'matching': {'mode': 'literal', 'rules': 'string-fold-1', 'query': '', 'query_used': ''}}
+
+
+# ---- spelling modes leave the other languages alone ------------------------------
+
+def test_spelling_parameter_changes_nothing_for_latin(tmp_path):
+    f = tmp_path / 'a.b.tess'
+    f.write_text('<a.b.1>\tarma virumque cano\n<a.b.2>\tAmor vincit omnia\n', encoding='utf-8')
+    node = ws.parse_query('arma OR amor')
+    base = ws.search_file(str(f), node, False, 'la')
+    for spelling in (None, 'variants', 'strict'):
+        assert ws.search_file(str(f), node, False, 'la', spelling) == base
+    assert [r['ref'] for r in base] == ['a.b.1', 'a.b.2']
+
+
+def test_strict_spelling_matches_old_literal_search_for_persian(tmp_path):
+    f = tmp_path / 'a.b.tess'
+    f.write_text('<a.b.1>\tکاغذِ آتش\n<a.b.2>\tکاغذ آتش\n', encoding='utf-8')
+    node = ws.parse_query('کاغذ آتش', 'strict')
+    rows = ws.search_file(str(f), node, False, 'fa', 'strict')
+    assert [r['ref'] for r in rows] == ['a.b.2']

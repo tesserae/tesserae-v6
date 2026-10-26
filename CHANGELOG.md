@@ -7,6 +7,9 @@ so the state of the live site can be reconstructed from this file and
 docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
+## 2026-10-26
+- String Search: Persian, Urdu, Arabic and Hebrew match spelling variants by default (vowel marks, kaf, yeh, heh and hamza-alef code points, tatweel and direction marks; a space, a zero-width non-joiner or nothing between the parts of a compound), with an Exact spelling choice (`spelling=strict`) that matches the characters as typed; a stray space or non-joiner at the edge of a query is trimmed in both modes, results say why they matched (`match_note`), the response and the CSV export carry the query as typed, the mode and the rules label `string-fold-1`, and Help states the rules (`backend/string_fold.py`, `backend/wildcard_search.py`).
+
 ## 2026-10-25
 - Search log: Theme Search, Similar Passages and Compare Works write a row each (scope, works, question, result count, reranker); an `internal` flag marks the server's own requests (backfilled over 1,780 rows), connector calls carry the caller's address and are never internal, the admin usage counts leave internal rows out, and `scripts/review/usage_report.py` prints the outside figures; the Privacy page and Help now state what the search log holds (#1240).
 - Restricted texts: Augustine's De doctrina christiana (augustinus.it, all rights reserved) joins the registry and leaves the repository tree, with its credit line beside every passage; the Downloads page and Help state why the Musisque Deoque, Corpus Thomisticum and augustinus.it texts are searchable but in no public archive; the ignore-block script writes one rule pair per text and says to run it on the checkout that holds the files.
