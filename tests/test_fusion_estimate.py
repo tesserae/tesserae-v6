@@ -111,3 +111,23 @@ def test_estimate_follows_the_part_count_and_matches_the_measured_runs():
     a = fusion.estimate_fusion(5000, 2000)['estimated_seconds']
     b = fusion.estimate_fusion(10000, 1000)['estimated_seconds']
     assert b > a
+
+
+def test_estimate_decides_use_meter_like_the_search(client, monkeypatch):
+    """The page asks the estimate with use_meter on; for a pair that is not
+    Latin poetry the search routes turn it off, and the estimate must read the
+    same cache entry, or it reports "not cached" for a pair the search answers
+    at once (2026-10-27)."""
+    from backend.blueprints import fusion as F
+    seen = {}
+    monkeypatch.setattr(F, '_poll_use_meter', lambda s, t, lang: False)
+
+    def fake_settings(language, max_results, use_meter=False, **kw):
+        seen['use_meter'] = use_meter
+        return {'use_meter': use_meter, 'max_results': max_results}
+    monkeypatch.setattr(F, '_default_fusion_cache_settings', fake_settings)
+    monkeypatch.setattr(F, 'get_cached_results', lambda *a, **k: ([{'x': 1}], {}))
+    r = ask(client, 'small_a.tess', 'small_b.tess', use_meter='1')
+    assert r.status_code == 200
+    assert r.get_json()['cached'] is True
+    assert seen['use_meter'] is False
