@@ -35,7 +35,7 @@ except Exception:  # pragma: no cover
     def normalize_coptic(text):
         return text
 
-from backend.string_fold import RULES_LABEL, fold_arabic_script, fold_hebrew_script  # noqa: E402
+from backend.string_fold import RULES_LABEL, fold_arabic_script, fold_hebrew_accents, fold_hebrew_script  # noqa: E402
 
 # Persian, Urdu, Arabic and Hebrew: String Search compares spelling variants
 # (the default) or the characters as typed (spelling='strict').
@@ -46,15 +46,17 @@ _EDGE_SEPS = re.compile('^[\\s\u200c]+|[\\s\u200c]+$')
 
 
 def spelling_mode(language: str, spelling: Optional[str] = None) -> str:
-    """'variants' or 'strict' for fa, ur, ar and he, 'literal' for every other language."""
+    """'variants', 'strict' or (he only) 'points' for fa, ur, ar and he, 'literal' for every other language."""
     if language not in SCRIPT_LANGUAGES:
         return 'literal'
+    if spelling == 'points' and language == 'he':
+        return 'points'
     return 'strict' if spelling == 'strict' else 'variants'
 
 
 def _trim(text: str, mode: str) -> str:
     """Edges trimmed: whitespace, and for the four languages also the zero-width non-joiner."""
-    if mode in ('variants', 'strict'):
+    if mode in ('variants', 'strict', 'points'):
         return _EDGE_SEPS.sub('', text)
     return text.strip()
 
@@ -275,7 +277,7 @@ def _parse_and(query: str, mode: str = 'literal') -> Dict:
 def parse_term(term: str, mode: str = 'literal') -> Dict:
     """Parse a single search term into a pattern."""
     term = _trim(term, mode)
-    broad = mode == 'variants'
+    broad = mode in ('variants', 'points')
     
     if term.startswith('"') and term.endswith('"'):
         phrase = _trim(term[1:-1], mode)
@@ -348,7 +350,10 @@ def _folder(language: str, spelling: Optional[str] = None):
         return normalize_latin
     if language == 'cop':
         return normalize_coptic
-    if spelling_mode(language, spelling) == 'variants':
+    mode = spelling_mode(language, spelling)
+    if mode == 'points':
+        return fold_hebrew_accents
+    if mode == 'variants':
         return fold_hebrew_script if language == 'he' else fold_arabic_script
     return None
 
@@ -622,6 +627,10 @@ def finish_match(ref: str, text: str, parsed_query: Dict, case_sensitive: bool, 
     token_normalizer = normalize_coptic if is_coptic else (normalize_greek if is_greek else None)
 
     def highlights(shown):
+        # Points mode reorders marks, which breaks the one-to-one character map
+        # of the folded path, so it highlights whole tokens.
+        if script_fold is fold_hebrew_accents:
+            return get_token_highlight_indices(shown, parsed_query, flags, script_fold)
         if script_fold:
             return get_folded_highlight_indices(shown, parsed_query, flags, script_fold)
         if token_normalizer:
@@ -659,9 +668,10 @@ def search_file(filepath: str, parsed_query: Dict, case_sensitive: bool = False,
 _NOTE_MARKS = 'vowel marks ignored'
 _NOTE_SEPARATOR = 'separator variant matched'
 _NOTE_LETTERS = 'letter variant matched'
+_NOTE_ACCENTS = 'accents ignored'
 
 
-def make_match_noter(query: str, language: str, case_sensitive: bool = False):
+def make_match_noter(query: str, language: str, case_sensitive: bool = False, mode: str = 'variants'):
     """A function of a raw matching line that says why the line matched, in variants mode.
 
     It returns [] for a line the query matches exactly as typed. Otherwise it
@@ -672,6 +682,15 @@ def make_match_noter(query: str, language: str, case_sensitive: bool = False):
     """
     flags = _flags_for(case_sensitive, language)
     literal = _build_matcher_fold(parse_query(query, 'strict'), flags, None)
+    if mode == 'points':
+        accent_match = _build_matcher_fold(parse_query(query, 'points'), flags, fold_hebrew_accents)
+
+        def accent_note(text: str) -> List[str]:
+            if literal(text):
+                return []
+            return [_NOTE_ACCENTS] if accent_match(fold_hebrew_accents(text)) else []
+
+        return accent_note
     broad = parse_query(query, 'variants')
     hebrew = language == 'he'
 
@@ -1032,7 +1051,7 @@ def wildcard_search(
         case_sensitive: Whether to match case
         max_results: Maximum results to return
         era_filter: Optional era to filter by
-        spelling: 'variants' (default) or 'strict' for fa, ur, ar and he; ignored otherwise
+        spelling: 'variants' (default) or 'strict' for fa, ur, ar and he, and 'points' for he only (treated as 'variants' elsewhere); ignored otherwise
         
     Returns:
         Dict with results and metadata
@@ -1133,7 +1152,7 @@ def wildcard_search(
     truncated = len(found) > max_results
     found = found[:max_results]
 
-    noter = make_match_noter(query, language, case_sensitive) if mode == 'variants' and found else None
+    noter = make_match_noter(query, language, case_sensitive, mode) if mode in ('variants', 'points') and found else None
     prose_of = {}
     all_results = []
     for _key, (filename, metadata, title_info, era, year), ref, text in found:

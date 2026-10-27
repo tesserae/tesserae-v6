@@ -388,7 +388,7 @@ def test_wildcard_search_exact_rows(fixture_corpus):
         ],
         'total_matches': 2, 'truncated': False, 'texts_searched': 1, 'total_texts': 1,
         'search_time': 0, 'query': 'arma OR multa', 'parsed_type': 'or',
-        'matching': {'mode': 'literal', 'rules': 'string-fold-1',
+        'matching': {'mode': 'literal', 'rules': 'string-fold-2',
                      'query': 'arma OR multa', 'query_used': 'arma OR multa'}}
 
 
@@ -403,7 +403,7 @@ def test_wildcard_search_target_text_truncation_and_errors(fixture_corpus):
     assert ws.wildcard_search('la', '') == {
         'results': [], 'total_matches': 0, 'search_time': 0, 'query': '',
         'parsed': {'type': 'empty', 'terms': []},
-        'matching': {'mode': 'literal', 'rules': 'string-fold-1', 'query': '', 'query_used': ''}}
+        'matching': {'mode': 'literal', 'rules': 'string-fold-2', 'query': '', 'query_used': ''}}
 
 
 # ---- spelling modes leave the other languages alone ------------------------------

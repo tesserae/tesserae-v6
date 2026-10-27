@@ -12,7 +12,7 @@ import re
 import pytest
 
 from backend import wildcard_search as ws
-from backend.string_fold import RULES_LABEL, fold_arabic_script, fold_hebrew_script
+from backend.string_fold import RULES_LABEL, fold_arabic_script, fold_hebrew_accents, fold_hebrew_script
 
 IGN = re.IGNORECASE
 ZW = '‌'
@@ -290,3 +290,63 @@ def test_hebrew_pointed_and_unpointed_agree(corpus):
     plain = refs('he', 'קהלת', 'variants', **kw)
     assert pointed and set(pointed) == set(plain)
     assert not refs('he', 'קהלת', 'strict', **kw)
+
+
+def test_fold_hebrew_accents_keeps_points_and_drops_accents():
+    assert fold_hebrew_accents('דָּבָ֑ר') == 'דָּבָר'                    # etnahta removed, qamats and dagesh kept
+    assert fold_hebrew_accents('שָׁ֣לוֹם') == 'שָׁלוֹם'                  # shin dot kept
+    assert fold_hebrew_accents('שׂ֖ר') == 'שׂר'                        # sin dot kept
+    assert fold_hebrew_accents('אֱלֹהִ֑ים') == 'אֱלֹהִים'
+    assert fold_hebrew_accents('בראשית') == 'בראשית'
+    assert fold_hebrew_accents('abc') == 'abc'
+    assert fold_hebrew_accents('דָּבָר\u05bd') == 'דָּבָר'              # meteg
+
+
+def test_fold_hebrew_accents_gives_one_string_for_both_mark_orders():
+    assert fold_hebrew_accents('ד\u05b8\u05bcבָר') == fold_hebrew_accents('ד\u05bc\u05b8בָר')
+
+
+def test_points_mode_is_for_hebrew_only():
+    assert ws.spelling_mode('he', 'points') == 'points'
+    assert ws.spelling_mode('fa', 'points') == 'variants'
+    assert ws.spelling_mode('ar', 'points') == 'variants'
+    assert ws.spelling_mode('la', 'points') == 'literal'
+
+
+def test_points_mode_synthetic_line_and_note():
+    line = 'וַיְהִי־דָּבָ֑ר'
+    pointed = 'דָּבָר'
+    plain = 'דבר'
+    noter = ws.make_match_noter(pointed, 'he', False, 'points')
+    assert noter(line) == ['accents ignored']
+    assert noter('דָּבָר') == []
+    node = ws.parse_query(pointed, 'points')
+    fold = ws._folder('he', 'points')
+    assert fold is fold_hebrew_accents
+    assert re.search(fold(node['terms'][0]['pattern']), fold(line))
+    assert not re.search(fold(ws.parse_query(plain, 'points')['terms'][0]['pattern']), fold(line))
+
+
+def test_points_mode_on_the_hebrew_bible(corpus):
+    if not os.path.exists(os.path.join(corpus, 'he', 'hebrew_bible.ecclesiastes.tess')):
+        pytest.skip('texts/he is not present')
+    kw = {'target_text': 'hebrew_bible.ecclesiastes'}
+    q = 'קֹהֶלֶת'
+    pts = refs('he', q, 'points', **kw)
+    assert pts
+    assert not refs('he', q, 'strict', **kw)
+    assert not refs('he', 'קהלת', 'points', **kw)
+    assert any(x.get('match_note') == ['accents ignored'] for x in pts.values())
+    r = ws.wildcard_search('he', q, spelling='points', max_results=5, target_text='hebrew_bible.ecclesiastes')
+    assert r['matching']['mode'] == 'points'
+
+
+def test_points_mode_pointed_query_matches_either_mark_order(corpus):
+    if not os.path.exists(os.path.join(corpus, 'he', 'hebrew_bible.isaiah.tess')):
+        pytest.skip('texts/he is not present')
+    kw = {'target_text': 'hebrew_bible.isaiah'}
+    q = 'דָּבָר'   # vowel before the dagesh; the Bible text stores the dagesh first
+    pts = refs('he', q, 'points', **kw)
+    assert pts
+    assert not refs('he', q, 'strict', **kw)
+    assert all('<mark' in x['highlighted_text'] for x in pts.values())
