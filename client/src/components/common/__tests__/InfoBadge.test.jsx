@@ -191,9 +191,10 @@ describe('InfoBadge — the popover stays inside a narrow viewport', () => {
       act(() => { fireEvent.click(screen.getByRole('button')); });
       const box = screen.getByRole('tooltip');
       const left = parseInt(box.style.left, 10);
-      // box width is 90vw = 351px, so its left edge must be at 16px of the
-      // viewport: 16 - 90 = -74px from the badge
-      expect(left).toBe(16 - rect.left);
+      // box width is 90vw = 351px; with 390px of viewport only 39px remain,
+      // so the box sits at 23px to keep the 16px gutter on the right:
+      // 23 - 90 = -67px from the badge, and nothing hangs off the left
+      expect(left).toBe(23 - rect.left);
     } finally {
       spy.mockRestore();
       Object.defineProperty(window, 'innerWidth', { value: innerWidth, configurable: true });
