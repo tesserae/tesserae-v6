@@ -17,7 +17,7 @@ beforeEach(() => {
   wildcardSearch.mockReset();
   wildcardSearch.mockResolvedValue({
     results: [ROW], total_matches: 1, texts_searched: 1, total_texts: 1, search_time: 0.1,
-    matching: { mode: 'variants', rules: 'string-fold-1', query: 'q', query_used: 'q' },
+    matching: { mode: 'variants', rules: 'string-fold-2', query: 'q', query_used: 'q' },
   });
 });
 
@@ -50,5 +50,22 @@ describe('WildcardSearch spelling control', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Search' }));
     await waitFor(() => expect(wildcardSearch).toHaveBeenCalledTimes(2));
     expect(wildcardSearch.mock.calls[1][0].spelling).toBe('strict');
+  });
+
+  it('offers three choices for Hebrew and sends points', async () => {
+    render(<WildcardSearch language="he" />);
+    expect(screen.getByLabelText('Match spelling variants')).toBeChecked();
+    expect(screen.getByLabelText('Vowel points kept')).not.toBeChecked();
+    expect(screen.getByLabelText('Exact spelling')).not.toBeChecked();
+    fireEvent.click(screen.getByLabelText('Vowel points kept'));
+    fireEvent.change(screen.getByPlaceholderText('Enter search query...'), { target: { value: 'דָּבָר' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Search' }));
+    await waitFor(() => expect(wildcardSearch).toHaveBeenCalled());
+    expect(wildcardSearch.mock.calls[0][0].spelling).toBe('points');
+  });
+
+  it('keeps two choices for Persian', () => {
+    render(<WildcardSearch language="fa" />);
+    expect(screen.queryByLabelText('Vowel points kept')).toBeNull();
   });
 });

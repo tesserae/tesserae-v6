@@ -846,7 +846,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   <div className="bg-amber-50 p-3 rounded border border-amber-200 mt-3 text-sm" id="string-search-spelling">
                     <strong className="text-amber-800">Persian, Urdu, Arabic and Hebrew</strong>
                     <p className="text-gray-700 mt-1">
-                      For these four languages String Search offers two spelling modes. <em>Match spelling variants</em> is
+                      For these four languages String Search offers two spelling modes, and Hebrew has a third. <em>Match spelling variants</em> is
                       the default. <em>Exact spelling</em> matches the characters as typed.
                     </p>
                     <ul className="text-gray-600 mt-1 space-y-1 list-disc list-inside">
@@ -869,6 +869,10 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                         phrases vowel marks ignored, separator variant matched and letter variant matched. A line that
                         matches exactly as typed has no note. Exported results carry the query as typed, the spelling
                         mode and the rules label, so a result can be read later.</li>
+                      <li>Hebrew has a third choice, <em>Vowel points kept</em>. It honors the vowel points and the shin and sin dots you type
+                        and ignores only the cantillation accents, so a pointed query finds the same word in the pointed
+                        Bible text and an unpointed query finds only unpointed lines. Exact spelling rarely matches that
+                        text, because the accents sit between the letters. A line found this way carries the note accents ignored.</li>
                       <li>Case sensitive does not apply to these languages, so the page shows the spelling choice in its place.</li>
                     </ul>
                   </div>

@@ -13,7 +13,7 @@ an exported result can be read later.
 """
 import re
 
-RULES_LABEL = 'string-fold-1'
+RULES_LABEL = 'string-fold-2'
 
 # Vowel marks and other combining marks, tatweel, zero-width joiner and the
 # direction marks. The zero-width non-joiner (U+200C) is not here: it stays.
@@ -39,6 +39,10 @@ _ARABIC_LETTERS = {
 
 _HEBREW_MARKS_RE = re.compile('[\u0591-\u05bd\u05bf-\u05c2\u05c4\u05c5\u05c7]')
 
+# Cantillation accents, meteg, rafe and the two puncta. The vowel points
+# (U+05B0 to U+05BC, U+05C7) and the shin and sin dots stay.
+_HEBREW_ACCENTS_RE = re.compile('[\u0591-\u05af\u05bd\u05bf\u05c4\u05c5]')
+
 
 def fold_arabic_script(text: str, marks: bool = True, letters: bool = True) -> str:
     """The comparison form of fa, ur and ar text.
@@ -61,3 +65,10 @@ def fold_hebrew_script(text: str, marks: bool = True) -> str:
     if not marks or text.isascii():
         return text
     return _HEBREW_MARKS_RE.sub('', text)
+
+
+def fold_hebrew_accents(text: str) -> str:
+    """The comparison form of the "vowel points kept" mode: accents removed, points kept."""
+    if text.isascii():
+        return text
+    return _HEBREW_ACCENTS_RE.sub('', text)

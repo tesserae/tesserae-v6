@@ -64,7 +64,7 @@ const WildcardSearch = ({ language }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [caseSensitive, setCaseSensitive] = useState(false);
-  const [exactSpelling, setExactSpelling] = useState(false);
+  const [spellingMode, setSpellingMode] = useState('variants');
   const [maxResults, setMaxResults] = useState(200);
   const [targetText, setTargetText] = useState('');
   const [showPoetry, setShowPoetry] = useState(true);
@@ -98,7 +98,7 @@ const WildcardSearch = ({ language }) => {
         language,
         target_text: targetText || null,
         case_sensitive: caseSensitive,
-        ...(SPELLING_LANGUAGES.has(language) ? { spelling: exactSpelling ? 'strict' : 'variants' } : {}),
+        ...(SPELLING_LANGUAGES.has(language) ? { spelling: spellingMode === 'points' && language !== 'he' ? 'variants' : spellingMode } : {}),
         max_results: maxResults
       });
       
@@ -318,6 +318,13 @@ const WildcardSearch = ({ language }) => {
                 between the parts of a compound. Choose Exact spelling to match the characters as typed.
               </li>
             )}
+            {language === 'he' && (
+              <li className="text-gray-500">
+                For Hebrew the default ignores points and accents. Vowel points kept honors the points you type
+                and ignores the accents. Exact spelling rarely matches the pointed Bible text, because the accents
+                sit between the letters.
+              </li>
+            )}
             {language === 'ar' && (
               <li className="text-gray-500">
                 Arabic writes the article and prepositions attached to the word (القلب, بحب), and a plain
@@ -365,17 +372,28 @@ const WildcardSearch = ({ language }) => {
                 <input
                   type="radio"
                   name="wildcard-spelling"
-                  checked={!exactSpelling}
-                  onChange={() => setExactSpelling(false)}
+                  checked={spellingMode === 'variants' || (spellingMode === 'points' && language !== 'he')}
+                  onChange={() => setSpellingMode('variants')}
                 />
                 Match spelling variants
               </label>
+              {language === 'he' && (
+                <label className="flex items-center gap-1">
+                  <input
+                    type="radio"
+                    name="wildcard-spelling"
+                    checked={spellingMode === 'points'}
+                    onChange={() => setSpellingMode('points')}
+                  />
+                  Vowel points kept
+                </label>
+              )}
               <label className="flex items-center gap-1">
                 <input
                   type="radio"
                   name="wildcard-spelling"
-                  checked={exactSpelling}
-                  onChange={() => setExactSpelling(true)}
+                  checked={spellingMode === 'strict'}
+                  onChange={() => setSpellingMode('strict')}
                 />
                 Exact spelling
               </label>
