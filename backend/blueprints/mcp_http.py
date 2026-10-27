@@ -223,7 +223,10 @@ def _t_line_search(a):
 
 
 def _t_string_search(a):
-    d = _post('/wildcard-search', {'query': a.get('query', ''), 'language': a.get('language', 'la')})
+    body = {'query': a.get('query', ''), 'language': a.get('language', 'la')}
+    if a.get('spelling'):
+        body['spelling'] = a['spelling']
+    d = _post('/wildcard-search', body)
     return {'query': a.get('query'), 'total_matches': d.get('total_matches'),
             'results': [{'ref': normalize_ref(r.get('ref') or r.get('reference')), 'author': r.get('author'),
                          'title': r.get('title'), 'text': r.get('text')}
@@ -1257,7 +1260,8 @@ TOOLS = [
      "fn": _t_line_search},
     {"name": "string_search",
      "description": "Wildcard / boolean / exact text search across the corpus (am*, AND/OR/NOT, \"phrases\").",
-     "inputSchema": {"type": "object", "properties": {"query": _STR, "language": _STR},
+     "inputSchema": {"type": "object", "properties": {"query": _STR, "language": _STR,
+                     "spelling": {"type": "string", "description": "Optional. 'variants' (default) or 'strict' for Persian, Urdu, Arabic and Hebrew, and 'points' for Hebrew only (keeps the vowel points, ignores the cantillation accents); other languages ignore it."}},
                      "required": ["query", "language"]},
      "fn": _t_string_search},
     {"name": "theme_search",

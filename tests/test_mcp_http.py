@@ -126,6 +126,18 @@ def test_string_search_cleans_malformed_refs(monkeypatch):
     assert out['results'][0]['ref'] == 'sal. Cat. 58.15'
 
 
+def test_string_search_passes_spelling_through(monkeypatch):
+    seen = []
+    monkeypatch.setattr(M, '_post', lambda path, body: seen.append(body) or {'total_matches': 0, 'results': []})
+    M._t_string_search({'query': 'x', 'language': 'he', 'spelling': 'points'})
+    M._t_string_search({'query': 'x', 'language': 'la'})
+    assert seen[0]['spelling'] == 'points'
+    assert 'spelling' not in seen[1]
+    tool = next(t for t in M.TOOLS if t['name'] == 'string_search')
+    assert 'spelling' in tool['inputSchema']['properties']
+    assert 'spelling' not in tool['inputSchema']['required']
+
+
 def test_content_tools_clean_malformed_refs(monkeypatch):
     row = {'work': 'sallust.catilina', 'language': 'la', 'author': 'Sallust',
            'title': 'Catilina', 'ref_start': 'sal.  Cat..58.1',
