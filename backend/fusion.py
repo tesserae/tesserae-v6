@@ -74,6 +74,7 @@ from concurrent.futures import ThreadPoolExecutor, wait as futures_wait
 
 import numpy as np
 
+from backend import fork_gate
 from backend.logging_config import get_logger
 from backend.matcher import DEFAULT_LATIN_STOP_WORDS, DEFAULT_GREEK_STOP_WORDS, DEFAULT_ENGLISH_STOP_WORDS
 from backend.search_cancellation import cancellable_pool_map
@@ -3887,7 +3888,8 @@ def _fusion_block(source_units, target_units, plan, matcher, scorer,
 # Splitting leaves every score unchanged: a pair's score depends on the pair,
 # on the two whole texts' token counts (the text-pair document frequencies are
 # keyed on the texts and the lemma, not on the block) and on the channel
-# weights. Three things that look across pairs are done once, over the merged
+# weights. One input is set once from the whole pair before the parts run: the
+# semantic floor of Persian, Urdu and Arabic (_share_semantic_floor). Three things that look across pairs are done once, over the merged
 # rows, never per block: the passage-context confirmation (top 3,000 rows),
 # the removal of overlapping windows, and the merge of the line and window
 # levels.
@@ -3899,7 +3901,11 @@ FUSION_PART_KEEP_MIN = 20000             # rows kept per part and level, at leas
 # earlier part.
 FUSION_PART_OVERLAP_LINES = 1
 
-# One large comparison at a time in each process. A second waits its turn.
+# One large comparison at a time in each web process. A second waits its turn.
+# The comparison itself may run its parts in FUSION_PART_PROCESSES worker
+# processes (see _run_parts_in_processes), so the semaphore still counts
+# comparisons, and each holds at most that many extra processes, with their
+# channel pools, until it ends.
 _LARGE_SEMAPHORE = threading.Semaphore(1)
 _LARGE_GC_THRESHOLD = (200000, 20, 100)   # generation thresholds while a comparison runs in parts
 _large_waiters = []
@@ -3915,17 +3921,21 @@ FUSION_SECONDS_PER_MILLION_PAIRS = 17
 # One run in parts takes FUSION_PART_BASE_SECONDS (the closing merge and the
 # context confirmation) plus FUSION_SECONDS_PER_PART for each part plus
 # FUSION_PART_SECONDS_PER_MILLION_PAIRS for each million pairs. Refitted
-# 2026-10-27 to four offline runs after the changes of that day, within 13
-# percent on each: Hafez against Zabur-e Ajam (11.9 million pairs, 20 parts,
-# 174 s), the Aeneid against Punica part 1 (6.9 million, 20 parts, 205 s),
-# Lucretius against Lucan part 4 (6.1 million, 15 parts, 138 s) and Punica part 1
-# against the Aeneid (6.9 million, 2 parts, 91 s). The Culex against the
-# Metamorphoses (5.0 million, run whole, 97 s offline) is estimated at 84 s by the
-# whole-run constant above. These are offline seconds on an idle machine. A live worker already holds the passage index (about 14 s less) but
-# shares the machine with other requests.
-FUSION_PART_BASE_SECONDS = 70
-FUSION_SECONDS_PER_PART = 4.75
-FUSION_PART_SECONDS_PER_MILLION_PAIRS = 2.25
+# 2026-10-27 to six offline runs with the parts in two worker processes, each
+# within 17 percent: Hafez against Zabur-e Ajam (11.9 million pairs, 20 parts,
+# 94.5 s), the Aeneid against Punica part 1 (6.9 million, 20 parts, 118 s),
+# Lucretius against Lucan part 4 (6.1 million, 15 parts, 81.5 s), Punica part 1
+# against the Aeneid (6.9 million, 2 parts, 92.9 s), Hafez against Iqbal's
+# Diwan (154.6 million, 20 parts, 242 s) and Ghalib against Mir (73.2 million,
+# 7 parts, 198 s). The Culex against the Metamorphoses (5.0 million, run whole,
+# 97 s offline) is estimated at 84 s by the whole-run constant above. These are
+# offline seconds on an idle machine. A live worker already holds the passage
+# index (about 14 s less) but shares the machine with other requests. A
+# comparison that runs its parts in one process (the machine is short of memory,
+# see _part_process_count) takes about 1.8 times as long.
+FUSION_PART_BASE_SECONDS = 72
+FUSION_SECONDS_PER_PART = 1.0
+FUSION_PART_SECONDS_PER_MILLION_PAIRS = 1.2
 FUSION_ESTIMATE_FLOOR_SECONDS = 60
 # The constants above were fitted on offline runs on an otherwise idle machine.
 # On the live site, where the web workers also answer other requests, the same
@@ -4050,6 +4060,296 @@ class _PartPreview:
         return list(self.best), self.total
 
 
+def _trim_part(line_fused, window_fused, source_units, own_stop, stop, keep):
+    """One part's kept rows: (line rows, rows cut, window rows or None, rows cut).
+
+    The overlap line belongs to the next part's line pass, so its rows are
+    dropped here. Both levels are put in score order and cut to `keep` rows.
+    """
+    if stop > own_stop:
+        overlap_refs = {u.get('ref', '') for u in source_units[own_stop:stop]}
+        line_fused = [r for r in line_fused
+                      if (r.get('source') or {}).get('ref', '') not in overlap_refs]
+    line_fused, n_line = _keep_top(_by_score(line_fused), keep)
+    n_window = 0
+    if window_fused is not None:
+        window_fused, n_window = _keep_top(_by_score(window_fused), keep)
+    return line_fused, n_line, window_fused, n_window
+
+
+def _share_semantic_floor(plan, source_units, target_units, source_path, target_path, language):
+    """The plan with the semantic floor of the whole pair in the semantic channel's settings.
+
+    Persian, Urdu and Arabic take the floor from the pair's own similarities. A
+    part must not take it from its own rows, or the same pair would score
+    differently in each part (and differently from a run in one piece), so it is
+    computed once here from the two whole sides. Other languages return the plan
+    unchanged.
+    """
+    effective_weights, configs, available_channels, line_channels = plan
+    cfg = configs.get('semantic')
+    if cfg is None or 'semantic' not in line_channels:
+        return plan
+    from backend.semantic_similarity import E5_LANGUAGES, pair_e5_floor
+    if language not in E5_LANGUAGES:
+        return plan
+    settings = dict(cfg)
+    settings['source_text_path'] = source_path
+    settings['target_text_path'] = target_path
+    floor = pair_e5_floor(source_units, target_units, settings)
+    if floor is None:
+        return plan
+    logger.info(f"[FUSION] semantic floor for the whole pair: {floor:.4f}")
+    configs = dict(configs)
+    configs['semantic'] = {**cfg, 'e5_floor': floor}
+    return effective_weights, configs, available_channels, line_channels
+
+
+# --- parts in worker processes -------------------------------------------
+# The parts of a large comparison are independent until the closing merge, so
+# FUSION_PART_PROCESSES worker processes (forked, so they share the loaded
+# texts and tables copy-on-write) each take parts off a short queue and send
+# back the kept rows. The calling process keeps the events (queued, parts,
+# heartbeats, the preview) and the closing merge, in part order, so the answer
+# is the one the single-process loop gives.
+FUSION_PART_PROCESSES = 2
+# Fewer free gigabytes than this and the parts run in the calling process.
+FUSION_PART_PROCESSES_MIN_FREE_GB = 12
+_PARTS_IN_FLIGHT = 2        # parts queued to each worker at a time (one running, one waiting)
+# A part takes about ten seconds. If no part has come back from any worker for this
+# long, the workers are taken to be stuck (a forked process can inherit a lock held
+# by another thread at the moment of the fork) and the remaining parts run in this
+# process instead, so the visitor still gets the answer (2026-10-27 review).
+_PART_STALL_SECONDS = 180
+
+
+def _part_process_count(total_parts):
+    """How many worker processes a comparison of this many parts uses (1 means none)."""
+    n = FUSION_PART_PROCESSES
+    env = os.environ.get('TESSERAE_FUSION_PART_PROCESSES')
+    if env and env.isdigit():
+        n = int(env)
+    n = max(1, min(n, total_parts))
+    if n > 1:
+        from backend.memory_util import get_available_memory_gb
+        free = get_available_memory_gb()
+        if free != float('inf') and free < FUSION_PART_PROCESSES_MIN_FREE_GB:
+            logger.warning(f"[FUSION] {free:.1f} GB free: running the parts in one process")
+            return 1
+    return n
+
+
+def _drain(gen):
+    """Run a generator to its end and return its value, dropping the events."""
+    try:
+        while True:
+            next(gen)
+    except StopIteration as stop:
+        return stop.value
+
+
+def _part_worker(conn, other_conns, parent_pid, run_part):
+    """Body of a worker process: run the parts named on `conn`, send each one's rows back."""
+    try:
+        os.setpgrp()            # own process group, so the parent can stop this worker and its pools together
+    except OSError:
+        pass
+    for c in other_conns:
+        try:
+            c.close()
+        except OSError:
+            pass
+    idx = None
+    try:
+        while True:
+            idx = conn.recv()
+            if idx is None or os.getppid() != parent_pid:
+                break
+            conn.send(('part', idx, run_part(idx)))
+    except (EOFError, BrokenPipeError):
+        pass
+    except BaseException as exc:    # noqa: BLE001 - reported to the parent, which raises a plain error
+        try:
+            cancelled = type(exc).__name__ == 'SearchCancelled'
+            conn.send(('cancelled' if cancelled else 'error', idx, f"{type(exc).__name__}: {exc}"))
+        except (OSError, ValueError):
+            pass
+    finally:
+        try:
+            conn.close()
+        except OSError:
+            pass
+
+
+def _stop_workers(procs, conns):
+    """Kill every worker (and the pools it started) and wait for them. Safe to call twice."""
+    import signal
+    for p in procs:
+        if p.pid is None or p.exitcode is not None:
+            continue
+        try:
+            os.killpg(p.pid, signal.SIGKILL)
+        except (ProcessLookupError, PermissionError, OSError):
+            try:
+                p.kill()
+            except (OSError, ValueError):
+                pass
+    for p in procs:
+        try:
+            p.join(timeout=10)
+        except (OSError, ValueError, AssertionError):
+            pass
+    for c in conns:
+        try:
+            c.close()
+        except OSError:
+            pass
+
+
+def _run_parts_in_processes(nproc, ranges, run_part, cancellation, preview, line_channels,
+                            mode, max_results):
+    """Generator: the parts across `nproc` worker processes, events in part order.
+
+    Yields the same ("parts", ...) and ("intermediate", ...) events as the
+    single-process loop plus a heartbeat each HEARTBEAT_INTERVAL while it waits.
+    Returns (line_rows, window_rows, windows_ran, cut) with the rows in part order.
+    A cancelled comparison kills its workers on the next beat. A worker that dies
+    or fails ends the comparison with a RuntimeError, never a hang.
+    """
+    import multiprocessing
+    from multiprocessing import connection as mp_connection
+    total_parts = len(ranges)
+    ctx = multiprocessing.get_context('fork')
+    pipes = [ctx.Pipe(duplex=True) for _ in range(nproc)]
+    parent_ends = [p[0] for p in pipes]
+    child_ends = [p[1] for p in pipes]
+    procs = []
+    try:
+        for w in range(nproc):
+            others = parent_ends + [c for i, c in enumerate(child_ends) if i != w]
+            p = ctx.Process(target=_part_worker, name=f"tesserae-part-worker-{w}",
+                            args=(child_ends[w], others, os.getpid(), run_part))
+            with fork_gate.exclusive():     # no thread of this process is inside a matrix product while it forks
+                p.start()
+            procs.append(p)
+            try:
+                os.setpgid(p.pid, p.pid)     # also done by the child; whichever runs first wins
+            except OSError:
+                pass
+        for c in child_ends:
+            c.close()
+
+        queued = [[] for _ in range(nproc)]      # part indices sent to each worker, not yet returned
+        next_part = 0
+
+        def feed(w):
+            nonlocal next_part
+            while len(queued[w]) < _PARTS_IN_FLIGHT and next_part < total_parts:
+                parent_ends[w].send(next_part)
+                queued[w].append(next_part)
+                next_part += 1
+
+        for w in range(nproc):
+            feed(w)
+
+        line_rows, window_rows, windows_ran, cut = [], [], False, 0
+        arrived = {}
+        emitted = 0
+        announced = 0
+        last_event = time.monotonic()
+        last_part_at = time.monotonic()
+        fell_back = False
+        while emitted < total_parts:
+            if cancellation:
+                cancellation.check()
+            while announced < emitted + 1:
+                announced += 1
+                last_event = time.monotonic()
+                yield ("parts", {"part": announced, "total_parts": total_parts})
+            ready = [] if fell_back else mp_connection.wait(parent_ends, timeout=HEARTBEAT_INTERVAL)
+            if fell_back or ready:
+                last_part_at = time.monotonic()
+            elif time.monotonic() - last_part_at > _PART_STALL_SECONDS:
+                logger.warning('[FUSION] part workers silent for %ds; running the remaining parts in process',
+                               _PART_STALL_SECONDS)
+                _stop_workers(procs, parent_ends)
+                for idx in range(total_parts):
+                    if idx < emitted or idx in arrived:
+                        continue
+                    if cancellation:
+                        cancellation.check()
+                    arrived[idx] = run_part(idx)
+                    yield ("heartbeat", {"channel": None})
+                for w in range(nproc):
+                    queued[w] = []
+                next_part = total_parts
+                fell_back = True
+            for conn in ready:
+                w = parent_ends.index(conn)
+                try:
+                    kind, idx, payload = conn.recv()
+                except (EOFError, OSError):
+                    raise RuntimeError(
+                        "A process working on this comparison stopped unexpectedly. "
+                        "The comparison was stopped. Please try again.") from None
+                if kind == 'cancelled':
+                    if cancellation:
+                        cancellation.check()
+                    raise RuntimeError("This comparison was stopped.")
+                if kind == 'error':
+                    raise RuntimeError(f"Part {(idx or 0) + 1} of this comparison failed ({payload}).")
+                queued[w].remove(idx)
+                arrived[idx] = payload
+                feed(w)
+            # A worker that died with parts outstanding is a failure, even if its pipe is still held open.
+            for w, p in enumerate(procs):
+                if not fell_back and queued[w] and p.exitcode is not None and not parent_ends[w].poll():
+                    raise RuntimeError(
+                        "A process working on this comparison stopped unexpectedly "
+                        f"(exit code {p.exitcode}). The comparison was stopped. Please try again.")
+            while emitted in arrived:
+                while announced < emitted + 1:
+                    announced += 1
+                    yield ("parts", {"part": announced, "total_parts": total_parts})
+                line_fused, n1, window_fused, n2 = arrived.pop(emitted)
+                emitted += 1
+                cut += n1 + n2
+                line_rows.extend(line_fused)
+                if window_fused is not None:
+                    windows_ran = True
+                    window_rows.extend(window_fused)
+                top, preview_total = preview.add_part(
+                    line_fused, window_fused if windows_ran else None)
+                last_event = time.monotonic()
+                yield ("intermediate", {
+                    "results": top,
+                    "total_results": preview_total,
+                    "channels_done": list(line_channels),
+                    "channels_total": len(line_channels),
+                    "phase": "line",
+                    "part": emitted,
+                    "total_parts": total_parts,
+                })
+            if emitted < total_parts and time.monotonic() - last_event >= HEARTBEAT_INTERVAL:
+                last_event = time.monotonic()
+                yield ("heartbeat", {"channel": None})
+        for w in range(nproc):
+            try:
+                parent_ends[w].send(None)
+            except (OSError, ValueError):
+                pass
+        for p in procs:
+            p.join(timeout=10)
+        return line_rows, window_rows, windows_ran, cut
+    finally:
+        _stop_workers(procs, parent_ends)
+        for c in child_ends:
+            try:
+                c.close()
+            except OSError:
+                pass
+
+
 def _run_parts(source_units, target_units, matcher, scorer,
                source_id, target_id, language, mode, max_results,
                source_path, target_path, user_settings,
@@ -4057,6 +4357,7 @@ def _run_parts(source_units, target_units, matcher, scorer,
                channel_weights, enabled_channels, cancellation):
     """Generator: the whole pipeline over consecutive source blocks, merged once."""
     plan = _fusion_plan(language, user_settings, channel_weights, enabled_channels)
+    plan = _share_semantic_floor(plan, source_units, target_units, source_path, target_path, language)
     line_channels = plan[3]
     ranges = _part_ranges(len(source_units))
     total_parts = len(ranges)
@@ -4065,51 +4366,59 @@ def _run_parts(source_units, target_units, matcher, scorer,
     # Frequencies come from the two whole texts, never from the part.
     freq_line = (source_units, target_units)
     freq_window = (make_window_units(source_units), make_window_units(target_units))
-    line_rows = []
-    window_rows = []
-    windows_ran = False
-    cut = 0
     preview = _PartPreview(mode, min(max_results, 500) if max_results > 0 else 500,
                            user_settings)
-    for part, (start, stop, own_stop) in enumerate(ranges, 1):
-        if cancellation:
-            cancellation.check()
-        yield ("parts", {"part": part, "total_parts": total_parts})
-        line_fused, window_fused = yield from _fusion_block(
+
+    def block(idx, part_cancellation):
+        start, stop, own_stop = ranges[idx]
+        return _fusion_block(
             source_units[start:stop], target_units, plan, matcher, scorer,
             source_id, target_id, language, mode, max_results,
             source_path, target_path, user_settings,
-            source_language, target_language, freq_basis, cancellation,
+            source_language, target_language, freq_basis, part_cancellation,
             emit_intermediate=False, confirm_context=False,
             freq_line=freq_line, freq_window=freq_window)
 
-        if stop > own_stop:
-            # The overlap line belongs to the next part's line pass.
-            overlap_refs = {u.get('ref', '') for u in source_units[own_stop:stop]}
-            line_fused = [r for r in line_fused
-                          if (r.get('source') or {}).get('ref', '') not in overlap_refs]
-        line_fused, n_cut = _keep_top(_by_score(line_fused), keep)
-        cut += n_cut
-        line_rows.extend(line_fused)
-        if window_fused is not None:
-            windows_ran = True
-            window_fused, n_cut = _keep_top(_by_score(window_fused), keep)
-            cut += n_cut
-            window_rows.extend(window_fused)
+    nproc = _part_process_count(total_parts)
+    if nproc > 1:
+        def run_part(idx):
+            _start, stop, own_stop = ranges[idx]
+            line_fused, window_fused = _drain(block(idx, cancellation))
+            return _trim_part(line_fused, window_fused, source_units, own_stop, stop, keep)
 
-        # Best so far across the parts finished: only this part's rows are
-        # merged, into a short running list (see _PartPreview).
-        top, preview_total = preview.add_part(
-            line_fused, window_fused if windows_ran else None)
-        yield ("intermediate", {
-            "results": top,
-            "total_results": preview_total,
-            "channels_done": list(line_channels),
-            "channels_total": len(line_channels),
-            "phase": "line",
-            "part": part,
-            "total_parts": total_parts,
-        })
+        line_rows, window_rows, windows_ran, cut = yield from _run_parts_in_processes(
+            nproc, ranges, run_part, cancellation, preview, line_channels, mode, max_results)
+    else:
+        line_rows = []
+        window_rows = []
+        windows_ran = False
+        cut = 0
+        for part, (start, stop, own_stop) in enumerate(ranges, 1):
+            if cancellation:
+                cancellation.check()
+            yield ("parts", {"part": part, "total_parts": total_parts})
+            line_fused, window_fused = yield from block(part - 1, cancellation)
+            line_fused, n_line, window_fused, n_window = _trim_part(
+                line_fused, window_fused, source_units, own_stop, stop, keep)
+            cut += n_line + n_window
+            line_rows.extend(line_fused)
+            if window_fused is not None:
+                windows_ran = True
+                window_rows.extend(window_fused)
+
+            # Best so far across the parts finished: only this part's rows are
+            # merged, into a short running list (see _PartPreview).
+            top, preview_total = preview.add_part(
+                line_fused, window_fused if windows_ran else None)
+            yield ("intermediate", {
+                "results": top,
+                "total_results": preview_total,
+                "channels_done": list(line_channels),
+                "channels_total": len(line_channels),
+                "phase": "line",
+                "part": part,
+                "total_parts": total_parts,
+            })
 
     # One confirmation pass over the best rows of the whole comparison.
     line_all = apply_context_confirmation(
@@ -4154,7 +4463,9 @@ def _iter_fusion_in_parts(*args, cancellation=None, **kwargs):
         # dictionaries. Measured 2026-10-27, that was about three seconds of
         # every ten-second part. The rows hold no reference cycles, so the
         # collector is asked to run far less often for the length of this
-        # comparison and set back afterwards.
+        # comparison and set back afterwards. The threshold is set here, before
+        # the worker processes are forked, so the workers inherit it; they hold
+        # the same rows for the length of a part and end with it.
         old_threshold = gc.get_threshold()
         gc.set_threshold(*_LARGE_GC_THRESHOLD)
         try:

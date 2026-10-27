@@ -11,13 +11,29 @@ and closed by sqlite3 when they are garbage collected), pop() and del drop the c
 There is no iteration or len(): no caller needs them, so a copy with dict() fails loudly instead of
 silently copying one thread's view.
 """
+import os
 import threading
+import weakref
+
+_ALL = weakref.WeakSet()
+
+
+def _forget_after_fork():
+    """A forked child must not read through its parent's open connections (a worker process of a
+    large comparison forks from a running server), so every cache starts again in the child."""
+    for cache in list(_ALL):
+        cache.clear()
+
+
+if hasattr(os, 'register_at_fork'):
+    os.register_at_fork(after_in_child=_forget_after_fork)
 
 
 class PerThreadConnections:
     def __init__(self):
         self._local = threading.local()
         self._generation = 0
+        _ALL.add(self)
 
     def _own(self):
         local = self._local
