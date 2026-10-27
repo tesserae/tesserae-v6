@@ -109,8 +109,13 @@ export const useDefaultTexts = ({
         defaultSourceId = 'hafez.diwan.tess';
         defaultTargetId = 'iqbal.payam_e_mashriq.tess';
       } else if (activeTab === 'ur') {
-        defaultSourceId = 'ghalib.diwan_wikisource.tess';
-        defaultTargetId = 'iqbal.bang_e_dra.tess';
+        // Wali against Mir (2026-10-26): one part, and its first result is
+        // a poetic response found by refrain and rhyme, so the Rhyme badge
+        // with its shared rhyme words shows on the default page. Ghalib
+        // against Bang-e Dra (the earlier choice) is 8 million pairs and
+        // runs in parts.
+        defaultSourceId = 'wali.diwan_wikisource.tess';
+        defaultTargetId = 'mir.kulliyat_wikisource.tess';
       } else if (activeTab === 'ar') {
         defaultSourceId = 'quran.al_waqia.tess';
         defaultTargetId = 'busiri.burda.tess';
