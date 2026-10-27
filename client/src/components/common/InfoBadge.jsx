@@ -38,7 +38,9 @@ export default function InfoBadge({ children, explanation, extra, more, footer, 
   const [focused, setFocused] = useState(false);
   const [clicked, setClicked] = useState(false);
   const [position, setPosition] = useState('bottom');
-  const [align, setAlign] = useState('left');
+  // Horizontal shift of the popover from the badge's left edge, in pixels,
+  // chosen so the box stays inside the viewport with a 16px gutter.
+  const [offsetX, setOffsetX] = useState(0);
   const wrapRef = useRef(null);
   const triggerRef = useRef(null);
   const hoverTimerRef = useRef(null);
@@ -70,8 +72,10 @@ export default function InfoBadge({ children, explanation, extra, more, footer, 
   useEffect(() => clearHoverTimer, []);
 
   // Keeps the popover inside the viewport: flips above the badge when there
-  // is not enough room below, and right-aligns when the 22rem box would run
-  // off the right edge (the layout a phone-width card forces).
+  // is not enough room below, and shifts the box sideways so that it never
+  // runs off either edge. Right-aligning alone was not enough: on a phone
+  // the box was wider than the room on either side of a badge near the left
+  // edge, so it ran off the left (2026-10-26, the Persian default pair).
   useEffect(() => {
     if (!open) return undefined;
     const trigger = triggerRef.current;
@@ -82,7 +86,11 @@ export default function InfoBadge({ children, explanation, extra, more, footer, 
       setPosition(
         rect.bottom + POPOVER_H > window.innerHeight && rect.top > POPOVER_H ? 'top' : 'bottom'
       );
-      setAlign(rect.left + POPOVER_W > window.innerWidth ? 'right' : 'left');
+      const GUTTER = 16;
+      const boxW = Math.min(POPOVER_W, window.innerWidth * 0.9);
+      const maxLeft = Math.max(GUTTER, window.innerWidth - GUTTER - boxW);
+      const boxLeft = Math.min(Math.max(rect.left, GUTTER), maxLeft);
+      setOffsetX(Math.round(boxLeft - rect.left));
     }
     const onKey = (e) => {
       if (e.key === 'Escape') {
@@ -139,8 +147,8 @@ export default function InfoBadge({ children, explanation, extra, more, footer, 
           role="tooltip"
           className={`absolute z-50 w-[22rem] max-w-[90vw] rounded border border-gray-300
                      bg-white shadow-lg p-3 text-left text-sm normal-case font-normal
-                     ${position === 'top' ? 'bottom-full mb-1' : 'top-full mt-1'}
-                     ${align === 'right' ? 'right-0' : 'left-0'}`}
+                     ${position === 'top' ? 'bottom-full mb-1' : 'top-full mt-1'}`}
+          style={{ left: offsetX }}
         >
           {paragraphs
             ? paragraphs.map((p, idx) => (
