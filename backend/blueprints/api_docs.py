@@ -61,6 +61,19 @@ API_DOCUMENTATION = {
                 "returns": "Array of matching passages. The response carries a 'matching' block (mode, rules, query, query_used), and a result found through a spelling variant may carry 'match_note' saying why it matched"
             }
         ],
+        "Fusion search (poll)": [
+            {
+                "method": "GET",
+                "path": "/fusion-search",
+                "description": "Start or poll a two-text fusion comparison; call again until status is complete. status is complete (results), running (computing), queued (waiting for a free slot), too_large, cancelled or error",
+                "parameters": {
+                    "source": "string - Source text ID",
+                    "target": "string - Target text ID",
+                    "language": "string - Language code"
+                },
+                "returns": "While status is queued: reason, kind (slots or memory), position (1 is next to start), running, max_searches, queue_timeout (seconds the server holds a request), wait_seconds and a plain message. When the wait limit runs out the call answers status error with code queue_timeout and a plain message"
+            }
+        ],
         "Corpus": [
             {
                 "method": "GET",

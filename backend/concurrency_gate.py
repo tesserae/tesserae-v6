@@ -108,6 +108,45 @@ def _count_active_slots():
     return active
 
 
+def _live_waiter_tickets():
+    """Return the (ticket_ns, name) pairs of requests now waiting for a slot.
+
+    A waiting request holds an flock on a ".wait" file in the lock directory
+    (the same arrangement as a running slot), so every worker process sees the
+    same line. A ticket nobody holds any more belongs to a request that died
+    or gave up, and is removed. Tickets sort by the time they were made.
+    """
+    _ensure_lock_dir()
+    tickets = []
+    for name in os.listdir(LOCK_DIR):
+        if not name.endswith('.wait'):
+            continue
+        path = os.path.join(LOCK_DIR, name)
+        try:
+            fd = os.open(path, os.O_RDWR)
+        except OSError:
+            continue
+        try:
+            try:
+                fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            except BlockingIOError:
+                parts = name[:-5].split('_')
+                try:
+                    tickets.append((int(parts[-1]), name))
+                except ValueError:
+                    pass
+                continue
+            fcntl.flock(fd, fcntl.LOCK_UN)
+            try:
+                os.unlink(path)
+            except OSError:
+                pass
+        finally:
+            os.close(fd)
+    tickets.sort()
+    return tickets
+
+
 def get_process_memory_mb(pid):
     """Get Resident Set Size (RSS) RAM usage in MB for a process ID."""
     if not pid:
@@ -780,6 +819,51 @@ class SearchSlot:
         self._cancellation = cancellation
         self.slot_id = None
         self._start_time = None
+        self._wait_fd = None
+        self._wait_path = None
+        self._wait_ns = None
+        self.block_kind = None
+        self.running = 0
+
+    def _join_line(self):
+        """Take a place in the line of waiting requests (shared by all workers)."""
+        if self._wait_fd is not None:
+            return
+        _ensure_lock_dir()
+        self._wait_ns = time.time_ns()
+        name = f"wait_{os.getpid()}_{id(self)}_{self._wait_ns}.wait"
+        self._wait_path = os.path.join(LOCK_DIR, name)
+        try:
+            self._wait_fd = os.open(self._wait_path, os.O_CREAT | os.O_RDWR, 0o600)
+            fcntl.flock(self._wait_fd, fcntl.LOCK_EX)
+        except OSError as e:
+            logger.warning("Could not join the waiting line: %s", e)
+            self._leave_line()
+
+    def _leave_line(self):
+        if self._wait_fd is not None:
+            try:
+                fcntl.flock(self._wait_fd, fcntl.LOCK_UN)
+            except OSError:
+                pass
+            try:
+                os.close(self._wait_fd)
+            except OSError:
+                pass
+            self._wait_fd = None
+        if self._wait_path is not None:
+            try:
+                os.unlink(self._wait_path)
+            except OSError:
+                pass
+            self._wait_path = None
+
+    def position_in_line(self):
+        """Place among the waiting requests of every worker: 1 is next to start."""
+        mine = os.path.basename(self._wait_path) if self._wait_path else None
+        ahead = sum(1 for ns, name in _live_waiter_tickets()
+                    if name != mine and (self._wait_ns is None or ns < self._wait_ns))
+        return ahead + 1
 
     def _create_slot_file(self):
         """Create a unique slot file and lock it."""
@@ -881,13 +965,17 @@ class SearchSlot:
         """Check whether a slot is available and memory is sufficient.
 
         Returns (ok, reason) where reason explains why we're blocked.
+        The kind of block ("memory", "emergency" or "slots") is left in
+        self.block_kind, and the number of running searches in self.running.
         """
+        self.block_kind = None
         mem_gb = get_available_memory_gb()
 
         # UNCONDITIONAL: Emergency RAM floor cannot be bypassed, even in
         # stress test mode.  This is the last-resort OOM guard.
         emergency_floor = ConcurrencyConfig.get_emergency_ram_floor()
         if mem_gb < emergency_floor:
+            self.block_kind = 'emergency'
             return False, (
                 f"EMERGENCY: RAM critically low ({mem_gb:.1f} GB available, "
                 f"emergency floor is {emergency_floor:.1f} GB)")
@@ -896,13 +984,16 @@ class SearchSlot:
         if not ConcurrencyConfig.is_stress_test_mode():
             threshold = ConcurrencyConfig.get_memory_threshold()
             if mem_gb < threshold:
+                self.block_kind = 'memory'
                 return False, (
                     f"Server memory low ({mem_gb:.0f} GB available, "
                     f"need {threshold:.0f} GB)")
 
         max_searches = ConcurrencyConfig.get_max_searches()
         active = _count_active_slots()
+        self.running = active
         if active >= max_searches:
+            self.block_kind = 'slots'
             return False, (
                 f"Server is running {active} searches "
                 f"(max {max_searches})")
@@ -913,40 +1004,61 @@ class SearchSlot:
         """Generator that yields queued-status dicts until a slot is acquired.
 
         Each yielded dict has the form:
-            {"status": "queued", "reason": "...", "wait_time": seconds_waited}
+            {"status": "queued", "reason": "...", "kind": "slots"|"memory"|"emergency",
+             "wait_time": seconds_waited, "position": 1 for the next to start,
+             "running": searches now running, "max_searches": the limit,
+             "queue_timeout": seconds the request is held before it is stopped}
+        The position counts waiting requests in every worker process, through
+        ticket files the waiters hold locked (see _live_waiter_tickets).
 
         When the generator returns (StopIteration), the slot is held.
         Raises TimeoutError if queue_timeout is exceeded.
         """
         start = time.monotonic()
         MemoryReaper.start()
+        try:
+            while True:
+                if self._cancellation is not None:
+                    self._cancellation.check()
+                ok, reason = self._can_proceed()
+                if ok and self.position_in_line() > 1:
+                    # A free slot goes to the request that has waited longest,
+                    # so a newcomer cannot start ahead of those waiting.
+                    ok = False
+                    reason = "Other comparisons are waiting ahead of this one"
+                    self.block_kind = 'slots'
+                if ok:
+                    self._leave_line()
+                    self._create_slot_file()
+                    self._acquired = True
+                    logger.info(
+                        "Search slot acquired (pid=%d, waited=%.1fs)",
+                        os.getpid(), time.monotonic() - start)
+                    return  # slot acquired, generator ends
 
-        while True:
-            if self._cancellation is not None:
-                self._cancellation.check()
-            ok, reason = self._can_proceed()
-            if ok:
-                self._create_slot_file()
-                self._acquired = True
-                logger.info(
-                    "Search slot acquired (pid=%d, waited=%.1fs)",
-                    os.getpid(), time.monotonic() - start)
-                return  # slot acquired, generator ends
+                waited = time.monotonic() - start
+                queue_timeout = ConcurrencyConfig.get_queue_timeout()
+                if waited >= queue_timeout:
+                    raise TimeoutError(
+                        f"Search queue timeout after {queue_timeout}s: {reason}")
 
-            waited = time.monotonic() - start
-            queue_timeout = ConcurrencyConfig.get_queue_timeout()
-            if waited >= queue_timeout:
-                raise TimeoutError(
-                    f"Search queue timeout after {queue_timeout}s: {reason}")
-
-            yield {
-                "status": "queued",
-                "reason": reason,
-                "wait_time": round(waited, 1),
-            }
-            if self._cancellation is not None:
-                self._cancellation.check()
-            time.sleep(ConcurrencyConfig.get_queue_poll_interval())
+                self._join_line()
+                yield {
+                    "status": "queued",
+                    "reason": reason,
+                    "kind": self.block_kind or 'slots',
+                    "wait_time": round(waited, 1),
+                    "position": self.position_in_line(),
+                    "running": self.running,
+                    "max_searches": ConcurrencyConfig.get_max_searches(),
+                    "queue_timeout": queue_timeout,
+                }
+                if self._cancellation is not None:
+                    self._cancellation.check()
+                time.sleep(ConcurrencyConfig.get_queue_poll_interval())
+        finally:
+            if not self._acquired:
+                self._leave_line()
 
     def release(self):
         """Explicitly release the slot. Safe to call multiple times."""
@@ -967,6 +1079,7 @@ class SearchSlot:
 
     def __del__(self):
         # Safety net: release on garbage collection
+        self._leave_line()
         self._remove_slot_file()
 
 
@@ -977,3 +1090,56 @@ def get_cancellation_message(slot):
         return "Search was stopped because server memory is currently low. Please try again in a moment."
     return "Search terminated by administrator"
 
+
+
+_NUMBER_WORDS = {
+    1: 'one', 2: 'two', 3: 'three', 4: 'four', 5: 'five', 6: 'six',
+    7: 'seven', 8: 'eight', 9: 'nine', 10: 'ten', 15: 'fifteen',
+    20: 'twenty', 30: 'thirty', 45: 'forty-five', 60: 'sixty',
+}
+
+
+def _number_word(n):
+    return _NUMBER_WORDS.get(n, str(n))
+
+
+def _clock(seconds):
+    seconds = max(0, int(seconds or 0))
+    return f"{seconds // 60}:{seconds % 60:02d}"
+
+
+def queued_line(event):
+    """One plain sentence for a visitor whose comparison has to wait.
+
+    `event` is a dict from SearchSlot.acquire() (or the same fields read back
+    from a status file): kind, position, running, max_searches, wait_time.
+    """
+    kind = event.get('kind') or 'slots'
+    if kind in ('memory', 'emergency'):
+        head = "Waiting to start: the server's memory is in use by other searches"
+    else:
+        ahead = max(0, int(event.get('running') or 0)) + max(0, int(event.get('position') or 1) - 1)
+        limit = int(event.get('max_searches') or 0)
+        noun = 'comparison is' if ahead == 1 else 'comparisons are'
+        head = f"Waiting to start: {ahead} {noun} ahead of yours"
+        if limit:
+            head += f" (the server lets {_number_word(limit)} run at once)"
+    line = f"{head}. Waiting for {_clock(event.get('wait_time'))} so far."
+    limit_seconds = event.get('queue_timeout')
+    if limit_seconds:
+        line += (f" The server holds a request for up to {_duration_words(limit_seconds)}, "
+                 "then stops it and offers the comparison as a prepared file.")
+    return line
+
+
+def _duration_words(seconds):
+    minutes = max(1, int(round(seconds / 60.0)))
+    return f"{_number_word(minutes)} {'minute' if minutes == 1 else 'minutes'}"
+
+
+def queue_timeout_message(seconds=None):
+    """What a visitor is told when the wait ran out and the comparison never started."""
+    if seconds is None:
+        seconds = ConcurrencyConfig.get_queue_timeout()
+    return (f"The server stayed busy for {_duration_words(seconds)} and your "
+            "comparison was not started. Try again later, or ask for it as a prepared file.")

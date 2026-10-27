@@ -22,6 +22,7 @@ import { citationFor } from './citationFor';
 import { exportSearchCSV, exportSearchPDF } from './exportHandlers';
 import CorpusDistributionPanel, { useCorpusDistribution } from './CorpusDistributionPanel';
 import FusionProgressBanner from './FusionProgressBanner';
+import QueuedNotice from './QueuedNotice';
 import ScansionLine from './ScansionLine';
 import { buildDistributionData } from './distributionData';
 
@@ -385,13 +386,7 @@ const SearchResults = ({
       const isSlowSearch = matchType === 'sound' || matchType === 'edit_distance' || matchType === 'fusion';
       return (
         <div className="flex flex-col items-center justify-center py-12">
-          {isQueued && (
-            <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4 text-center max-w-md">
-              <div className="text-amber-800 font-medium mb-1">Search queued</div>
-              <div className="text-amber-600 text-sm">{queuedMessage}</div>
-              <div className="text-amber-500 text-xs mt-2">Your search will start automatically when a slot opens.</div>
-            </div>
-          )}
+          {isQueued && <QueuedNotice message={queuedMessage} />}
           {isSlowSearch && !isQueued && (
             <div className="text-sm text-gray-600 mb-4 text-center">
               {matchType === 'fusion'
