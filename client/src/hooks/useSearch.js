@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { searchTexts, searchTextsStream, searchFusionStream, searchHapax, searchBigrams, searchSemanticCross, createSearchId, requestSearchCancellation } from '../utils/api';
-import { LARGE_QUEUE_TEXT, progressWithParts } from '../utils/fusionParts';
+import { LARGE_QUEUE_TEXT, progressWithParts, queuedText } from '../utils/fusionParts';
 
 export const useSearch = () => {
   const [results, setResults] = useState([]);
@@ -102,7 +102,7 @@ export const useSearch = () => {
       setIsQueued(true);
       setQueuedMessage(event?.large_queue
         ? LARGE_QUEUE_TEXT
-        : (reason || 'Server is busy, your search is queued...'));
+        : (event?.message ? queuedText(event) : (reason || 'Waiting to start: the server is busy.')));
     };
 
     try {
