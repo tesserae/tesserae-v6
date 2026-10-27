@@ -7,6 +7,9 @@ so the state of the live site can be reconstructed from this file and
 docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
+## 2026-10-27
+- Large comparisons: a channel that has finished is collected at once, where it waited for a once-a-second timer, and the part-by-part preview merges only the new part's rows into a running list of 500, where it merged every kept row after every part. The Persian pair of Hafez and Iqbal (11.9 million line pairs) went from 982 s to 353 s offline, and the Aeneid against Punica part 1 from 857 s to 343 s, with the same top 5,000 rows. The `/fusion-estimate` seconds now follow the number of parts (16.1 s a part plus 2.4 s per million pairs for a search in parts), so the page's warning gives about the time the search takes.
+
 ## 2026-10-26
 - String Search: the API documentation (`backend/blueprints/api_docs.py`) and the connector tool `string_search` (`backend/blueprints/mcp_http.py`) now carry the `spelling` choice (`variants`, `strict`, and `points` for Hebrew), the `matching` block and `match_note`; the connector passes `spelling` through to the search.
 - Form channel (Persian and Urdu): the rhyme of a ghazal is now the longest ending, two to six letters, that its rhyme words share, where a two-letter ending used to make Wali's -lī and Mir's -ālī the same rhyme (request issues 1231, 1233, 1234). A refrain shared with a rhyme that is the ending of the other's scores as a partial rhyme at the refrain-only base, each rhyme word and rhyme phrase both ghazals use adds a bounded bonus, and the result card's Rhyme badge shows the tier, the shared rhyme words and a meter note (not available for Urdu). The corpus signature tables `form_signatures_fa.json` and `form_signatures_ur.json` are rebuilt for the new rhymes. The Urdu refrain benchmark (23) and the Persian answer-poem benchmark (7) do not regress. Help describes the rule.
