@@ -116,14 +116,20 @@ def find_context_confirmations(pairs, source_id, target_id,
         key = (work, ref)
         if key not in win_cache:
             wid = passage_index.window_for_passage(work, ref, ref, prefer='fine')
-            row = None
-            if wid:
-                try:
-                    row = passage_index._ids.index(wid)
-                except ValueError:
-                    row = None
+            row = passage_index.row_of_first(wid) if wid else None
             win_cache[key] = row
         return win_cache[key]
+
+    # One read and one norm per window row, not per pair: the candidate pairs
+    # of a comparison share a few thousand windows between them.
+    vector_cache = {}
+
+    def vector(row):
+        cached = vector_cache.get(row)
+        if cached is None:
+            v = np.asarray(passage_index._emb[row], dtype=np.float32)
+            cached = vector_cache[row] = (v, float(np.linalg.norm(v)))
+        return cached
 
     # Baseline for THIS comparison: how similar do random passages of these two
     # works look? Everything below is measured against it.
@@ -144,9 +150,8 @@ def find_context_confirmations(pairs, source_id, target_id,
         trow = window_row(tgt_work, tgt_ref)
         if srow is None or trow is None:
             continue
-        a = np.asarray(passage_index._emb[srow], dtype=np.float32)
-        b = np.asarray(passage_index._emb[trow], dtype=np.float32)
-        na, nb = float(np.linalg.norm(a)), float(np.linalg.norm(b))
+        a, na = vector(srow)
+        b, nb = vector(trow)
         if na == 0.0 or nb == 0.0:
             continue
         cos = float(a @ b) / (na * nb)

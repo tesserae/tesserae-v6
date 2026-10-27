@@ -19,6 +19,7 @@ Embeddings are memory-mapped, so the resident cost is the id/description tables
 rather than the matrix. Loading is lazy: nothing touches disk until the first
 query, and a missing index degrades to "unavailable" instead of failing import.
 """
+import collections
 from collections import Counter
 from functools import lru_cache
 import json
@@ -2811,15 +2812,110 @@ def window_for_passage(work, ref_start=None, ref_end=None, prefer='fine',
     _ensure_loaded()
     if not _state['ok']:
         return None
-    wid_work = work_id(work)
-    group = _by_work.get(_norm_work(work)) or []
-    exact = [row for row in group if _records[row].get('work') == wid_work]
-    rows = exact if (is_part(wid_work) and exact) else group
-    if not rows:
+    table = _window_table(work, prefer)
+    if not table.has_rows:
         return None
     want = _ref_coords_in(work, ref_start) or ()
     want_end = _ref_coords_in(work, ref_end) or want
-    best, best_key = None, None
+    best = table.best(want, want_end, char_start)
+    if best is None and prefer:
+        return window_for_passage(work, ref_start, ref_end, prefer=None,
+                                  char_start=char_start, char_end=char_end)
+    return best
+
+
+# The windows window_for_passage looks through for one work, prepared once.
+# A lookup used to read every window of the work and parse its two references
+# with a regular expression, so a comparison that looks up thousands of lines
+# of one work (the passage-context confirmation closing a large comparison)
+# parsed the same references millions of times. The table keeps each
+# window's parsed coordinates and groups the windows by their first
+# coordinate, so a lookup compares only the windows that can cover the
+# selection. It answers exactly as the full scan did.
+_WINDOW_TABLE_LIMIT = 32            # works kept at once, least recently used out
+_WINDOW_BUCKET_SPAN = 256           # a window spanning more first coordinates is always compared
+_window_tables = collections.OrderedDict()   # (work_id, norm_work, prefer) -> _WindowTable
+_window_tables_for = None           # the (_records, _by_work, _prose_works) they were built from
+
+
+class _WindowTable:
+    """The candidate windows of one work at one scale, in row order."""
+
+    def __init__(self, has_rows, entries):
+        self.has_rows = has_rows
+        self.entries = entries              # [(record, lo, hi)] with a scale match and both coordinates
+        self.by_first = {}                  # book -> positions of the windows that cover it
+        self.by_start = {}                  # first coordinate of lo -> positions
+        self.always = []                    # positions compared for every selection
+        for pos, (_r, lo, hi) in enumerate(entries):
+            if hi[0] < lo[0] or hi[0] - lo[0] > _WINDOW_BUCKET_SPAN:
+                self.always.append(pos)
+                continue
+            self.by_start.setdefault(lo[0], []).append(pos)
+            for b in range(lo[0], hi[0] + 1):
+                self.by_first.setdefault(b, []).append(pos)
+
+    def best(self, want, want_end, char_start):
+        """The id of the best window for the selection, or None (see window_for_passage)."""
+        entries = self.entries
+        if not entries:
+            return None
+        if not want:
+            return entries[0][0].get('id')
+        first, last = want[0], want_end[0]
+        if last - first > _WINDOW_BUCKET_SPAN:
+            positions = range(len(entries))
+        else:
+            # A window covers the selection only if its first coordinates
+            # reach the selection's (the comparison below starts there).
+            found = set(self.always)
+            found.update(self.by_first.get(first, ()))
+            for b in range(first, last + 1):
+                found.update(self.by_start.get(b, ()))
+            positions = sorted(found)
+        best, best_key = None, None
+        for pos in positions:
+            r, lo, hi = entries[pos]
+            # Compare on the depth both references share, from the left (book
+            # before chapter before line), so a work whose references vary in depth
+            # (a preface cited 1.pr, a poem 1.1.3) still finds its window.
+            n = min(len(lo), len(hi), len(want), len(want_end))
+            lo, hi, wn, we = lo[:n], hi[:n], want[:n], want_end[:n]
+            covers = lo <= wn <= hi or (wn <= lo <= we)
+            if not covers:
+                continue
+            # prefer the window that starts at or just before the selection start;
+            # a window starting after it (it only overlaps the selection's tail)
+            # ranks below every window that brackets the start
+            key = (0, tuple(-x for x in lo)) if lo <= wn else (1, lo)
+            if char_start is not None:
+                a, b = r.get('char_start'), r.get('char_end')
+                holds = a is not None and b is not None and a <= char_start < b
+                key = (0 if holds else 1,) + key
+            if best_key is None or key < best_key:
+                best, best_key = r.get('id'), key
+        return best
+
+
+def _window_table(work, prefer):
+    """The prepared windows of `work` at scale `prefer`, built on first use."""
+    global _window_tables_for
+    built_from = (_records, _by_work, _prose_works)
+    if (_window_tables_for is None
+            or any(a is not b for a, b in zip(_window_tables_for, built_from))):
+        _window_tables.clear()
+        _window_tables_for = built_from
+    wid_work = work_id(work)
+    norm = _norm_work(work)
+    key = (wid_work, norm, prefer)
+    table = _window_tables.get(key)
+    if table is not None:
+        _window_tables.move_to_end(key)
+        return table
+    group = _by_work.get(norm) or []
+    exact = [row for row in group if _records[row].get('work') == wid_work]
+    rows = exact if (is_part(wid_work) and exact) else group
+    entries = []
     for row in rows:
         r = _records[row]
         # A selection in a work that has prose-scale windows maps to those
@@ -2831,30 +2927,28 @@ def window_for_passage(work, ref_start=None, ref_end=None, prefer='fine',
         hi = _ref_coords_in(r.get('work'), r.get('ref_end'))
         if not (lo and hi):
             continue
-        if not want:
-            return r.get('id')
-        # Compare on the depth both references share, from the left (book
-        # before chapter before line), so a work whose references vary in depth
-        # (a preface cited 1.pr, a poem 1.1.3) still finds its window.
-        n = min(len(lo), len(hi), len(want), len(want_end))
-        lo, hi, wn, we = lo[:n], hi[:n], want[:n], want_end[:n]
-        covers = lo <= wn <= hi or (wn <= lo <= we)
-        if not covers:
-            continue
-        # prefer the window that starts at or just before the selection start;
-        # a window starting after it (it only overlaps the selection's tail)
-        # ranks below every window that brackets the start
-        key = (0, tuple(-x for x in lo)) if lo <= wn else (1, lo)
-        if char_start is not None:
-            a, b = r.get('char_start'), r.get('char_end')
-            holds = a is not None and b is not None and a <= char_start < b
-            key = (0 if holds else 1,) + key
-        if best_key is None or key < best_key:
-            best, best_key = r.get('id'), key
-    if best is None and prefer:
-        return window_for_passage(work, ref_start, ref_end, prefer=None,
-                                  char_start=char_start, char_end=char_end)
-    return best
+        entries.append((r, lo, hi))
+    table = _WindowTable(bool(rows), entries)
+    _window_tables[key] = table
+    while len(_window_tables) > _WINDOW_TABLE_LIMIT:
+        _window_tables.popitem(last=False)
+    return table
+
+
+_first_row = None           # window id -> its first row in _ids
+_first_row_for = None       # the _ids list it was built from
+
+
+def row_of_first(window_id):
+    """The first row of `window_id` in the index, or None. Same answer as
+    _ids.index(window_id) without the scan over every id."""
+    global _first_row, _first_row_for
+    if _first_row is None or _first_row_for is not _ids:
+        table = {}
+        for i, wid in enumerate(_ids or ()):
+            table.setdefault(wid, i)
+        _first_row, _first_row_for = table, _ids
+    return _first_row.get(window_id)
 
 
 # Process-lifetime, not persisted: (norm_work_a, norm_work_b, scale) -> the
