@@ -62,6 +62,15 @@ const TextSelector = ({
     [texts]
   );
 
+  // An author with a single work (one choice in the list) has it chosen at once,
+  // so the search can run without a second click (2026-10-27: Coptic "Acts"
+  // left the button disabled with an empty work box).
+  useEffect(() => {
+    if (!selectedText && workOptions.length === 1) {
+      setSelectedText(workOptions[0].value);
+    }
+  }, [workOptions, selectedText, setSelectedText]);
+
   // When the author changes, clear the selected work so the user must pick one
   const handleAuthorChange = useCallback((newAuthor) => {
     if (newAuthor !== selectedAuthor) {
