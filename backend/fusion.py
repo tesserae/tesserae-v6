@@ -68,7 +68,7 @@ import time
 import unicodedata
 from collections import Counter, defaultdict
 from dataclasses import dataclass
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, wait as futures_wait
 
 import numpy as np
 
@@ -3447,12 +3447,16 @@ def _run_channel_with_heartbeat(ch_name, config, source_units, target_units,
                 source_language=source_language, target_language=target_language,
                 cancellation=cancellation, freq_units=freq_units,
             )
-            while not future.done():
-                time.sleep(HEARTBEAT_INTERVAL)
+            # Wait on the finished work, not on a timer: a channel that ends
+            # in 0.1 s is collected in 0.1 s. The heartbeat and the
+            # cancellation check still come once per HEARTBEAT_INTERVAL.
+            while True:
+                finished, _pending = futures_wait([future], timeout=HEARTBEAT_INTERVAL)
                 if cancellation:
                     cancellation.check()
-                if not future.done():
-                    yield ("heartbeat", {"channel": ch_name})
+                if finished:
+                    break
+                yield ("heartbeat", {"channel": ch_name})
             # Re-raise any exception from the channel
             yield ("result", future.result())
         except GeneratorExit:
@@ -3853,12 +3857,21 @@ _large_waiters = []
 _large_waiters_lock = threading.Lock()
 
 
-# Seconds per million source-by-target line pairs, for the estimate shown
-# before a large comparison. Measured on 2026-10-16 with the semantic channel
-# off: the whole Thebaid against the whole Aeneid (9,731 by 9,896 lines, about
-# 96.3 million pairs) took 26 minutes 42 seconds in 500-line parts. With the
-# semantic channel on, a comparison takes longer than this estimate says.
+# The estimate shown before a large comparison.
+# A comparison that runs whole takes FUSION_SECONDS_PER_MILLION_PAIRS seconds
+# per million source-by-target line pairs (measured 2026-10-16, semantic channel
+# off: the whole Thebaid against the whole Aeneid, 96.3 million pairs, 26 minutes
+# 42 seconds in 500-line parts, before the changes of 2026-10-27).
 FUSION_SECONDS_PER_MILLION_PAIRS = 17
+# One run in parts takes FUSION_SECONDS_PER_PART for each part plus
+# FUSION_PART_SECONDS_PER_MILLION_PAIRS for each million pairs. Fitted on 2026-10-27
+# to three offline runs after the preview and polling changes, 15 to 20 parts:
+# Hafez against Zabur-e Ajam (11.9 million pairs, 352 s), the Aeneid against
+# Punica part 1 (6.9 million, 343 s) and Lucretius against Lucan part 4
+# (6.1 million, 250 s). A part costs about the same whatever the pair count, so the
+# parts dominate. The pairs term is fitted on pairs up to 12 million.
+FUSION_SECONDS_PER_PART = 16.1
+FUSION_PART_SECONDS_PER_MILLION_PAIRS = 2.4
 FUSION_ESTIMATE_FLOOR_SECONDS = 60
 
 
@@ -3887,14 +3900,20 @@ def estimate_fusion(n_source, n_target):
     """What a fusion search of these two texts will cost, from the line counts alone.
 
     Returns {pairs, in_parts, parts, estimated_seconds, source_lines,
-    target_lines}. The seconds follow FUSION_SECONDS_PER_MILLION_PAIRS with a
-    floor of FUSION_ESTIMATE_FLOOR_SECONDS.
+    target_lines}. A search in parts follows FUSION_SECONDS_PER_PART and
+    FUSION_PART_SECONDS_PER_MILLION_PAIRS, a search run whole follows
+    FUSION_SECONDS_PER_MILLION_PAIRS, both with a floor of
+    FUSION_ESTIMATE_FLOOR_SECONDS.
     """
     pairs = n_source * n_target
     in_parts = _use_parts_counts(n_source, n_target)
     parts = len(_part_ranges(n_source)) if in_parts else 1
-    seconds = max(FUSION_ESTIMATE_FLOOR_SECONDS,
-                  int(round(pairs / 1_000_000 * FUSION_SECONDS_PER_MILLION_PAIRS)))
+    if in_parts:
+        raw = (parts * FUSION_SECONDS_PER_PART
+               + pairs / 1_000_000 * FUSION_PART_SECONDS_PER_MILLION_PAIRS)
+    else:
+        raw = pairs / 1_000_000 * FUSION_SECONDS_PER_MILLION_PAIRS
+    seconds = max(FUSION_ESTIMATE_FLOOR_SECONDS, int(round(raw)))
     return {
         'pairs': pairs,
         'in_parts': in_parts,
@@ -3934,6 +3953,41 @@ def _by_score(rows):
                                        (r.get('target') or {}).get('ref', '')))
 
 
+class _PartPreview:
+    """The best-so-far rows shown while the parts of a large comparison run.
+
+    Each part's rows are penalized and merged (_finish_levels) on their own and
+    added to a running list that never holds more than `cap` rows, so a part
+    costs the same as the first. The parts take consecutive source lines, so a
+    line row and the window that replaces it come from the same part. Only a
+    window that straddles two parts is not matched against the rows of the
+    other part, which can leave one extra preview row at such a seam. The
+    final answer does not use this list: it is the one merge over all kept rows.
+    """
+
+    def __init__(self, mode, cap, user_settings):
+        self.mode = mode
+        self.cap = cap
+        self.user_settings = user_settings
+        self.best = []
+        self.total = 0
+
+    def add_part(self, line_rows, window_rows):
+        """Add one part's (sorted) rows; return (top rows, rows seen so far)."""
+        # The window rows are copied because penalizing and merging change them.
+        part = _finish_levels(
+            self.mode, _by_score(line_rows),
+            [dict(r) for r in _by_score(window_rows)] if window_rows is not None else None,
+            ordered=True)
+        # The filter judges each row alone, so it can run on the part.
+        kept, _hidden = apply_formula_filter(
+            part, (self.user_settings or {}).get('formula_max'),
+            bool((self.user_settings or {}).get('formula_only', False)))
+        self.total += len(kept)
+        self.best = _by_score(self.best + _by_score(kept)[:self.cap])[:self.cap]
+        return list(self.best), self.total
+
+
 def _run_parts(source_units, target_units, matcher, scorer,
                source_id, target_id, language, mode, max_results,
                source_path, target_path, user_settings,
@@ -3953,6 +4007,8 @@ def _run_parts(source_units, target_units, matcher, scorer,
     window_rows = []
     windows_ran = False
     cut = 0
+    preview = _PartPreview(mode, min(max_results, 500) if max_results > 0 else 500,
+                           user_settings)
     for part, (start, stop, own_stop) in enumerate(ranges, 1):
         if cancellation:
             cancellation.check()
@@ -3979,15 +4035,10 @@ def _run_parts(source_units, target_units, matcher, scorer,
             cut += n_cut
             window_rows.extend(window_fused)
 
-        # Best so far across the parts finished. The window rows are copied
-        # because penalizing and merging change their rows.
-        preview = _finish_levels(
-            mode, _by_score(line_rows),
-            [dict(r) for r in _by_score(window_rows)] if windows_ran else None,
-            ordered=True)
-        preview_cap = min(max_results, 500) if max_results > 0 else 500
-        top, preview_total, _hidden = _cap_with_formula_filter(
-            preview, preview_cap, user_settings)
+        # Best so far across the parts finished: only this part's rows are
+        # merged, into a short running list (see _PartPreview).
+        top, preview_total = preview.add_part(
+            line_fused, window_fused if windows_ran else None)
         yield ("intermediate", {
             "results": top,
             "total_results": preview_total,
