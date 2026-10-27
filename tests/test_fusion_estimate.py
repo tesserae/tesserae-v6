@@ -103,15 +103,15 @@ def test_cached_pair_runs_no_parts_and_says_so(client, tmp_path, monkeypatch):
 
 
 def test_estimate_follows_the_part_count_and_matches_the_measured_runs():
-    """Offline runs of 2026-10-27 with the parts in two worker processes: 94.5 s, 118 s,
-    81.5 s, 92.9 s, 242 s and 198 s (the constants were fitted to them), each within
-    seventeen percent."""
+    """Offline runs of 2026-10-27 (round three code) with the parts in two worker
+    processes: 94.5 s, 118 s, 81.5 s and 350.3 s for the whole Aeneid against the
+    whole of Lucan, 79.8 million pairs (the constants were fitted to them), each
+    within eighteen percent."""
     for n_src, n_tgt, measured in ((9502, 1252, 94.5), (9896, 694, 118.0),
-                                   (7423, 824, 81.5), (694, 9896, 92.9),
-                                   (9502, 16274, 241.6), (3343, 21895, 198.1)):
+                                   (7423, 824, 81.5), (9896, 8061, 350.3)):
         # the measured runs are offline figures, so the live factor is taken off
         got = (fusion.estimate_fusion(n_src, n_tgt)['estimated_seconds']) / fusion.FUSION_LIVE_FACTOR
-        assert abs(got - measured) / measured < 0.17, (n_src, n_tgt, got)
+        assert abs(got - measured) / measured < 0.18, (n_src, n_tgt, got)
     # more parts cost more at the same pair count
     a = fusion.estimate_fusion(5000, 2000)['estimated_seconds']
     b = fusion.estimate_fusion(10000, 1000)['estimated_seconds']

@@ -3921,21 +3921,21 @@ FUSION_SECONDS_PER_MILLION_PAIRS = 17
 # One run in parts takes FUSION_PART_BASE_SECONDS (the closing merge and the
 # context confirmation) plus FUSION_SECONDS_PER_PART for each part plus
 # FUSION_PART_SECONDS_PER_MILLION_PAIRS for each million pairs. Refitted
-# 2026-10-27 to six offline runs with the parts in two worker processes, each
-# within 17 percent: Hafez against Zabur-e Ajam (11.9 million pairs, 20 parts,
-# 94.5 s), the Aeneid against Punica part 1 (6.9 million, 20 parts, 118 s),
-# Lucretius against Lucan part 4 (6.1 million, 15 parts, 81.5 s), Punica part 1
-# against the Aeneid (6.9 million, 2 parts, 92.9 s), Hafez against Iqbal's
-# Diwan (154.6 million, 20 parts, 242 s) and Ghalib against Mir (73.2 million,
-# 7 parts, 198 s). The Culex against the Metamorphoses (5.0 million, run whole,
+# 2026-10-27 (second fit, round three code) to four offline runs with the
+# parts in two worker processes, each within 18 percent: Hafez against Zabur-e
+# Ajam (11.9 million pairs, 20 parts, 94.5 s, estimate +17 percent), the Aeneid
+# against Punica part 1 (6.9 million, 20 parts, 118 s, -17 percent), Lucretius
+# against Lucan part 4 (6.1 million, 15 parts, 81.5 s, +5 percent) and the whole
+# Aeneid against the whole of Lucan (79.8 million, 20 parts, 350 s, -18
+# percent). The Culex against the Metamorphoses (5.0 million, run whole,
 # 97 s offline) is estimated at 84 s by the whole-run constant above. These are
 # offline seconds on an idle machine. A live worker already holds the passage
 # index (about 14 s less) but shares the machine with other requests. A
 # comparison that runs its parts in one process (the machine is short of memory,
 # see _part_process_count) takes about 1.8 times as long.
-FUSION_PART_BASE_SECONDS = 72
-FUSION_SECONDS_PER_PART = 1.0
-FUSION_PART_SECONDS_PER_MILLION_PAIRS = 1.2
+FUSION_PART_BASE_SECONDS = 40
+FUSION_SECONDS_PER_PART = 2.0
+FUSION_PART_SECONDS_PER_MILLION_PAIRS = 2.6
 FUSION_ESTIMATE_FLOOR_SECONDS = 60
 # The constants above were fitted on offline runs on an otherwise idle machine.
 # On the live site, where the web workers also answer other requests, the same

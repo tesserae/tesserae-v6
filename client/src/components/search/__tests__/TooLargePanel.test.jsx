@@ -9,7 +9,7 @@ afterEach(() => { delete global.fetch; });
 const answer = {
   too_large: true,
   line_pairs: 118712416,
-  limit: 12000000,
+  limit: 100000000,
   email_notice: false,
   download_job_url: '/api/comparisons/jobs',
   books: [
@@ -34,7 +34,7 @@ describe('TooLargePanel', () => {
   it('says the size in plain words and fills the book pickers from the answer', () => {
     show();
     expect(screen.getByText(/119 million line pairs/)).toBeInTheDocument();
-    expect(screen.getByText(/take the server about an hour/)).toBeInTheDocument();
+    expect(screen.getByText(/would hold the server too long to run live/)).toBeInTheDocument();
     const source = screen.getByRole('combobox', { name: 'Source book' });
     expect(Array.from(source.options).map((o) => o.textContent)).toEqual(['Choose a book', 'Book 1', 'Book 2']);
     const target = screen.getByRole('combobox', { name: 'Target book' });
