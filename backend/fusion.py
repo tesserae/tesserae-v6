@@ -58,6 +58,7 @@ target_word) to prevent inflected forms from inflating the mean.
 Channel weights are from Config K (grid-search optimized, Feb 28 2026).
 """
 
+import gc
 import json
 import math
 import os
@@ -67,6 +68,7 @@ import threading
 import time
 import unicodedata
 from collections import Counter, defaultdict
+from functools import lru_cache
 from dataclasses import dataclass
 from concurrent.futures import ThreadPoolExecutor, wait as futures_wait
 
@@ -1036,14 +1038,20 @@ def make_window_units(line_units):
     return windows
 
 
+@lru_cache(maxsize=262144)
 def parse_ref(ref):
-    """Parse a single-line ref like 'luc. 1.5' → (book, line)."""
+    """Parse a single-line ref like 'luc. 1.5' → (book, line).
+
+    Cached: the closing merge of a large comparison parses the same few
+    thousand references over a million times, and the result is a tuple.
+    """
     nums = [int(x) for x in re.findall(r'\d+', ref)]
     if len(nums) >= 2:
         return nums[-2], nums[-1]
     return None, None
 
 
+@lru_cache(maxsize=262144)
 def parse_range_ref(ref):
     """Parse a ref that may be a range like 'luc. 1.1-luc. 1.2'.
     Returns (book, start_line, end_line)."""
@@ -2436,59 +2444,58 @@ def _pair_table(channel_results, consts):
 
     for ch_name, results in channel_results.items():
         weight = _weights.get(ch_name, 1.0)
+        bypass_rarity = ch_name in _RARITY_BYPASS_CHANNELS
         for r in results:
-            rs = r.get("source", {}).get("ref", "")
-            rt = r.get("target", {}).get("ref", "")
-            key = (rs, rt)
+            src = r.get("source", {})
+            tgt = r.get("target", {})
+            key = (src.get("ref", ""), tgt.get("ref", ""))
             raw_score = r.get("overall_score") or r.get("score") or 0
             contribution = raw_score * weight
-            pair_scores[key]["score"] += contribution
+            entry = pair_scores[key]
+            entry["score"] += contribution
             # The quotation channel's contribution is also stashed separately
             # so it can be re-added unscaled by the rarity multiplier at score
             # assembly. A long verbatim run is intrinsically distinctive even
             # when its individual tokens are common; bypassing the rarity
             # penalty for that contribution prevents common-vocabulary verbatim
             # quotations from being suppressed.
-            if ch_name in _RARITY_BYPASS_CHANNELS:
-                pair_scores[key]["quotation_score_contrib"] += contribution
-            pair_scores[key]["channels"].append(ch_name)
+            if bypass_rarity:
+                entry["quotation_score_contrib"] += contribution
+            entry["channels"].append(ch_name)
             if raw_score > 0:
-                pair_scores[key]["n_scoring_channels"] += 1
+                entry["n_scoring_channels"] += 1
 
             # Accumulate highlight indices from all channels
-            src = r.get("source", {})
-            tgt = r.get("target", {})
             src_indices = src.get("highlight_indices", [])
             tgt_indices = tgt.get("highlight_indices", [])
-            for idx in src_indices:
-                pair_scores[key]["all_source_highlights"].add(idx)
-            for idx in tgt_indices:
-                pair_scores[key]["all_target_highlights"].add(idx)
+            entry["all_source_highlights"].update(src_indices)
+            entry["all_target_highlights"].update(tgt_indices)
             # Also track the same indices per channel so the payload carries
             # per-channel token attribution (which words each channel matched).
-            ch_attrs = pair_scores[key]["channel_token_attrs"]
+            ch_attrs = entry["channel_token_attrs"]
             if ch_name not in ch_attrs:
                 ch_attrs[ch_name] = {"source": set(), "target": set()}
             ch_attrs[ch_name]["source"].update(src_indices)
             ch_attrs[ch_name]["target"].update(tgt_indices)
 
             # Accumulate matched words (dedup by lemma, prefer entries with source_word)
+            all_words = entry["all_matched_words"]
             for mw in r.get("matched_words", []):
                 lemma = mw.get("lemma", "")
                 if not lemma:
                     continue
-                existing = pair_scores[key]["all_matched_words"].get(lemma)
+                existing = all_words.get(lemma)
                 if existing is None or (not existing.get("source_word") and mw.get("source_word")):
-                    pair_scores[key]["all_matched_words"][lemma] = mw
+                    all_words[lemma] = mw
 
             # Keep the result with the highest individual score for display
-            if raw_score > pair_scores[key]["best_score"]:
-                pair_scores[key]["best_result"] = r
-                pair_scores[key]["best_score"] = raw_score
+            if raw_score > entry["best_score"]:
+                entry["best_result"] = r
+                entry["best_score"] = raw_score
             # The form channel's refrain/rhyme/meter record survives even when
             # another channel supplies the displayed result.
             if r.get("poetics"):
-                pair_scores[key]["poetics"] = r["poetics"]
+                entry["poetics"] = r["poetics"]
 
     _t1 = _time.time()
     logger.info(f"[FUSION] Accumulated {len(pair_scores):,} unique pairs from "
@@ -3055,6 +3062,14 @@ def _matched_word_indices(tokens, word):
     return [i for i, t in enumerate(tokens) if t.lower() == w]
 
 
+def _lowered_word_indices(lowered_tokens, word):
+    """_matched_word_indices over tokens already lowercased."""
+    if not word or not lowered_tokens:
+        return []
+    w = word.lower()
+    return [i for i, t in enumerate(lowered_tokens) if t == w]
+
+
 def _check_line_span(positions, boundary):
     """Check if any positions fall on both sides of a line boundary."""
     if not positions:
@@ -3174,12 +3189,15 @@ def penalize_single_line_windows(window_results, annotate_for_merge=False):
         src_boundary = src_counts[0]
         tgt_boundary = tgt_counts[0]
 
-        # Find positions of actual matched words
+        # Find positions of actual matched words (each token lowercased once
+        # for the row, not once per matched word).
+        src_lower = [t.lower() for t in src_tokens] if src_tokens else src_tokens
+        tgt_lower = [t.lower() for t in tgt_tokens] if tgt_tokens else tgt_tokens
         src_positions = []
         tgt_positions = []
         for mw in matched_words:
-            src_positions.extend(_matched_word_indices(src_tokens, mw.get('source_word', '')))
-            tgt_positions.extend(_matched_word_indices(tgt_tokens, mw.get('target_word', '')))
+            src_positions.extend(_lowered_word_indices(src_lower, mw.get('source_word', '')))
+            tgt_positions.extend(_lowered_word_indices(tgt_lower, mw.get('target_word', '')))
 
         # Fall back to highlight_indices if matched-word lookup failed
         # (happens when scorer falls back to lemma form for source_word)
@@ -3225,6 +3243,10 @@ def penalize_single_line_windows(window_results, annotate_for_merge=False):
     return out
 
 
+# Most cells a window may cover and still be entered in the dedup's cell table.
+_DEDUP_MAX_CELLS = 16
+
+
 def _dedup_overlapping_windows(window_results):
     """Remove overlapping window results that are duplicates of the same match.
 
@@ -3261,10 +3283,28 @@ def _dedup_overlapping_windows(window_results):
                     reverse=True)
 
     kept = []
-    # Index kept windows by target line numbers for fast overlap lookup.
-    # Each target line maps to the kept windows that cover it, so we only
-    # compare against windows that could actually overlap in the target.
-    kept_by_tgt_line = defaultdict(list)  # tgt_line -> [(sb, ss, se, tb, ts, te, lemmas)]
+    # The lemma sets of the kept windows, by the single (target book, target
+    # line, source book, source line) cell each one covers. A window is a
+    # duplicate when a kept window shares a cell with it and its lemmas are a
+    # subset of that window's, so only the windows on the same cells are
+    # compared. (Comparing against every kept window that covers one of its
+    # target lines took 100 million comparisons on a large pair.)
+    kept_cells = defaultdict(list)
+    # A window with a reversed or very wide range is not entered in the cells.
+    # Such windows (none occur in the corpus) are compared the long way, and
+    # so is any candidate whose own range is irregular.
+    irregular = []      # (sb, ss, se, tb, ts, te, lemmas) of kept irregular windows
+    every_kept = []     # all kept windows in the same form, for an irregular candidate
+
+    def _overlap_match(entry, sb, ss, se, tb, ts, te, cand_lemmas):
+        ksb, kss, kse, ktb, kts, kte, k_lemmas = entry
+        if ktb != tb or ksb != sb:
+            return False
+        if max(ts, kts) > min(te, kte):
+            return False
+        if not (ss <= kse and kss <= se):
+            return False
+        return (not cand_lemmas) or cand_lemmas <= k_lemmas
 
     for i in scored:
         sb, ss, se, tb, ts, te = parsed[i]
@@ -3272,33 +3312,41 @@ def _dedup_overlapping_windows(window_results):
             kept.append(window_results[i])
             continue
 
-        # Check only kept windows that overlap this window's target lines
-        is_dup = False
         cand_lemmas = word_sets[i]
-        # Collect candidate overlapping windows from target line index
-        checked = set()  # avoid checking same kept window twice
-        for tl in range(ts, te + 1):
-            for entry in kept_by_tgt_line.get((tb, tl), []):
-                eid = id(entry)
-                if eid in checked:
-                    continue
-                checked.add(eid)
-                ksb, kss, kse, _, kts, kte, k_lemmas = entry
-                if sb != ksb:
-                    continue
-                src_overlaps = ss <= kse and kss <= se
-                if src_overlaps:
-                    if not cand_lemmas or cand_lemmas <= k_lemmas:
+        regular = ss <= se and ts <= te and (se - ss + 1) * (te - ts + 1) <= _DEDUP_MAX_CELLS
+        is_dup = False
+        if regular:
+            for tl in range(ts, te + 1):
+                for sl in range(ss, se + 1):
+                    for k_lemmas in kept_cells.get((tb, tl, sb, sl), ()):
+                        if not cand_lemmas or cand_lemmas <= k_lemmas:
+                            is_dup = True
+                            break
+                    if is_dup:
+                        break
+                if is_dup:
+                    break
+            if not is_dup:
+                for entry in irregular:
+                    if _overlap_match(entry, sb, ss, se, tb, ts, te, cand_lemmas):
                         is_dup = True
                         break
-            if is_dup:
-                break
+        else:
+            for entry in every_kept:
+                if _overlap_match(entry, sb, ss, se, tb, ts, te, cand_lemmas):
+                    is_dup = True
+                    break
 
         if not is_dup:
             kept.append(window_results[i])
             entry = (sb, ss, se, tb, ts, te, cand_lemmas)
-            for tl in range(ts, te + 1):
-                kept_by_tgt_line[(tb, tl)].append(entry)
+            every_kept.append(entry)
+            if regular:
+                for tl in range(ts, te + 1):
+                    for sl in range(ss, se + 1):
+                        kept_cells[(tb, tl, sb, sl)].append(cand_lemmas)
+            else:
+                irregular.append(entry)
 
     return kept
 
@@ -3853,6 +3901,7 @@ FUSION_PART_OVERLAP_LINES = 1
 
 # One large comparison at a time in each process. A second waits its turn.
 _LARGE_SEMAPHORE = threading.Semaphore(1)
+_LARGE_GC_THRESHOLD = (200000, 20, 100)   # generation thresholds while a comparison runs in parts
 _large_waiters = []
 _large_waiters_lock = threading.Lock()
 
@@ -3863,15 +3912,20 @@ _large_waiters_lock = threading.Lock()
 # off: the whole Thebaid against the whole Aeneid, 96.3 million pairs, 26 minutes
 # 42 seconds in 500-line parts, before the changes of 2026-10-27).
 FUSION_SECONDS_PER_MILLION_PAIRS = 17
-# One run in parts takes FUSION_SECONDS_PER_PART for each part plus
-# FUSION_PART_SECONDS_PER_MILLION_PAIRS for each million pairs. Fitted on 2026-10-27
-# to three offline runs after the preview and polling changes, 15 to 20 parts:
-# Hafez against Zabur-e Ajam (11.9 million pairs, 352 s), the Aeneid against
-# Punica part 1 (6.9 million, 343 s) and Lucretius against Lucan part 4
-# (6.1 million, 250 s). A part costs about the same whatever the pair count, so the
-# parts dominate. The pairs term is fitted on pairs up to 12 million.
-FUSION_SECONDS_PER_PART = 16.1
-FUSION_PART_SECONDS_PER_MILLION_PAIRS = 2.4
+# One run in parts takes FUSION_PART_BASE_SECONDS (the closing merge and the
+# context confirmation) plus FUSION_SECONDS_PER_PART for each part plus
+# FUSION_PART_SECONDS_PER_MILLION_PAIRS for each million pairs. Refitted
+# 2026-10-27 to four offline runs after the changes of that day, within 13
+# percent on each: Hafez against Zabur-e Ajam (11.9 million pairs, 20 parts,
+# 174 s), the Aeneid against Punica part 1 (6.9 million, 20 parts, 205 s),
+# Lucretius against Lucan part 4 (6.1 million, 15 parts, 138 s) and Punica part 1
+# against the Aeneid (6.9 million, 2 parts, 91 s). The Culex against the
+# Metamorphoses (5.0 million, run whole, 97 s offline) is estimated at 84 s by the
+# whole-run constant above. These are offline seconds on an idle machine. A live worker already holds the passage index (about 14 s less) but
+# shares the machine with other requests.
+FUSION_PART_BASE_SECONDS = 70
+FUSION_SECONDS_PER_PART = 4.75
+FUSION_PART_SECONDS_PER_MILLION_PAIRS = 2.25
 FUSION_ESTIMATE_FLOOR_SECONDS = 60
 
 
@@ -3900,7 +3954,7 @@ def estimate_fusion(n_source, n_target):
     """What a fusion search of these two texts will cost, from the line counts alone.
 
     Returns {pairs, in_parts, parts, estimated_seconds, source_lines,
-    target_lines}. A search in parts follows FUSION_SECONDS_PER_PART and
+    target_lines}. A search in parts follows FUSION_PART_BASE_SECONDS, FUSION_SECONDS_PER_PART and
     FUSION_PART_SECONDS_PER_MILLION_PAIRS, a search run whole follows
     FUSION_SECONDS_PER_MILLION_PAIRS, both with a floor of
     FUSION_ESTIMATE_FLOOR_SECONDS.
@@ -3909,7 +3963,7 @@ def estimate_fusion(n_source, n_target):
     in_parts = _use_parts_counts(n_source, n_target)
     parts = len(_part_ranges(n_source)) if in_parts else 1
     if in_parts:
-        raw = (parts * FUSION_SECONDS_PER_PART
+        raw = (FUSION_PART_BASE_SECONDS + parts * FUSION_SECONDS_PER_PART
                + pairs / 1_000_000 * FUSION_PART_SECONDS_PER_MILLION_PAIRS)
     else:
         raw = pairs / 1_000_000 * FUSION_SECONDS_PER_MILLION_PAIRS
@@ -4087,9 +4141,18 @@ def _iter_fusion_in_parts(*args, cancellation=None, **kwargs):
             yield ("heartbeat", {"channel": None})
         with _large_waiters_lock:
             _large_waiters.remove(ticket)
+        # Python's collector walks every object kept so far each time it runs
+        # its oldest generation, and a comparison keeps millions of row
+        # dictionaries. Measured 2026-10-27, that was about three seconds of
+        # every ten-second part. The rows hold no reference cycles, so the
+        # collector is asked to run far less often for the length of this
+        # comparison and set back afterwards.
+        old_threshold = gc.get_threshold()
+        gc.set_threshold(*_LARGE_GC_THRESHOLD)
         try:
             yield from _run_parts(*args, cancellation=cancellation, **kwargs)
         finally:
+            gc.set_threshold(*old_threshold)
             _LARGE_SEMAPHORE.release()
     finally:
         with _large_waiters_lock:

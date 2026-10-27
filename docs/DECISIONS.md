@@ -8,6 +8,26 @@ history (index builds, cache rebuilds, corpus changes) is in
 `DATA_OPERATIONS.md`; per-release changes are in `../CHANGELOG.md`.
 
 
+## 2026-10-27: a large comparison takes about half the time, and its results do not change
+
+After the changes of the morning (a channel is collected when it finishes, the preview merges only the newest part), a second round of profiling on the production data found that the parts themselves, not the comparison channels, held most of the time. A part of the Persian pair cost 12.4 seconds, of which the channels were 6.6 and the rest was fusing the part's rows, the preview and the collector. The closing step, which runs once, took 138 seconds. The structures that depend only on the target text and are the same for every part (trigram sets, trigram index, whole-text lemma counts) cost 8 to 26 milliseconds each, under half a second a part in all, so they are not rebuilt less often.
+
+Five changes were made. Each leaves the results unchanged, which was checked by running the three reference pairs with the same random seed before and after and comparing all 5,000 returned rows field for field.
+
+1. The passage-context confirmation looked up each of about 4,600 distinct lines by reading and parsing every window of the work, then found the window's row with a scan over 727,921 ids. The windows of a work are now prepared once, grouped by their first coordinate, and the row comes from a dictionary. The same window is chosen as before (45,374 lookups on the production index, no difference). This step went from 64 seconds to 0.4.
+2. The reference parsers and the short-locus formatter remember their answers.
+3. The overlap removal now compares a window only with the kept windows on the same line pairs. The single-line penalty lowercases a row's tokens once. The pair table reads each pair's entry once.
+4. Python's garbage collector walks all kept rows each time it runs its oldest generation, about 3 seconds of every 10-second part (17.8 s of 62 s in the first six parts). Its threshold is raised while a comparison runs in parts and set back afterwards.
+5. The estimate is refitted to 70 s plus 4.75 s a part plus 2.25 s per million pairs, within 13 percent on four runs.
+
+| Pair | Before | After | Peak memory before and after |
+|---|---|---|---|
+| Hafez against Zabur-e Ajam (11.9 million pairs, 20 parts) | 372 s | 174 s | 6.05 and 6.07 GB |
+| Aeneid against Punica part 1 (6.9 million, 20 parts) | 341 s | 205 s | 6.58 and 6.63 GB |
+| Lucretius against Lucan part 4 (6.1 million, 15 parts) | 246 s | 138 s | 5.87 and 5.89 GB |
+
+The offline times include loading the passage index (10 to 16 s), which a live worker has already done at start. Two levers were measured and not made. Running the parts in two processes took the Persian pair from 174 s to 94 s and the Latin pair from 205 s to 119 s (99 s with three) with identical results and 6 GB peak, but it changes the process design and the large-comparison gate and is proposed separately. For Persian, Urdu and Arabic the semantic channel sets its floor from the pair's own scores, so splitting a comparison into parts moves the floor. On a pair of 2.7 million line pairs run whole and in parts of 400 lines, the semantic channel alone returned 2,430 and 2,340 rows, 1,098 of the 2,270 shared rows differed in score by up to 0.013, and the top 100 differed. The floor from the whole texts would make a split run equal to a whole run and would change today's results for those three languages, so it waits for a decision.
+
 ## 2026-10-27: the concurrency settings change, and a comparison that must wait says so
 
 The settings in `data/concurrency_config.json` changed on the morning of 2026-10-27 from six heavy searches at once, a memory floor of 25 GB and a wait limit of 300 seconds to three searches at once, a floor of 10 GB and a wait limit of 1,800 seconds. Fewer searches at once keeps three large comparisons from competing for the same memory, a lower floor lets a search start when the machine has room for it, and a longer limit lets a request wait for the others to finish. That morning at 06:55 a check of the poll route showed "running" for four minutes while the request was in fact waiting for memory, and then ended with a server error that quoted "Search queue timeout after 300.0s: Server memory low".
