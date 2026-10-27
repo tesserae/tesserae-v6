@@ -3912,15 +3912,20 @@ _large_waiters_lock = threading.Lock()
 # off: the whole Thebaid against the whole Aeneid, 96.3 million pairs, 26 minutes
 # 42 seconds in 500-line parts, before the changes of 2026-10-27).
 FUSION_SECONDS_PER_MILLION_PAIRS = 17
-# One run in parts takes FUSION_SECONDS_PER_PART for each part plus
-# FUSION_PART_SECONDS_PER_MILLION_PAIRS for each million pairs. Fitted on 2026-10-27
-# to three offline runs after the preview and polling changes, 15 to 20 parts:
-# Hafez against Zabur-e Ajam (11.9 million pairs, 352 s), the Aeneid against
-# Punica part 1 (6.9 million, 343 s) and Lucretius against Lucan part 4
-# (6.1 million, 250 s). A part costs about the same whatever the pair count, so the
-# parts dominate. The pairs term is fitted on pairs up to 12 million.
-FUSION_SECONDS_PER_PART = 16.1
-FUSION_PART_SECONDS_PER_MILLION_PAIRS = 2.4
+# One run in parts takes FUSION_PART_BASE_SECONDS (the closing merge and the
+# context confirmation) plus FUSION_SECONDS_PER_PART for each part plus
+# FUSION_PART_SECONDS_PER_MILLION_PAIRS for each million pairs. Refitted
+# 2026-10-27 to four offline runs after the changes of that day, within 13
+# percent on each: Hafez against Zabur-e Ajam (11.9 million pairs, 20 parts,
+# 174 s), the Aeneid against Punica part 1 (6.9 million, 20 parts, 205 s),
+# Lucretius against Lucan part 4 (6.1 million, 15 parts, 138 s) and Punica part 1
+# against the Aeneid (6.9 million, 2 parts, 91 s). The Culex against the
+# Metamorphoses (5.0 million, run whole, 97 s offline) is estimated at 84 s by the
+# whole-run constant above. These are offline seconds on an idle machine. A live worker already holds the passage index (about 14 s less) but
+# shares the machine with other requests.
+FUSION_PART_BASE_SECONDS = 70
+FUSION_SECONDS_PER_PART = 4.75
+FUSION_PART_SECONDS_PER_MILLION_PAIRS = 2.25
 FUSION_ESTIMATE_FLOOR_SECONDS = 60
 
 
@@ -3949,7 +3954,7 @@ def estimate_fusion(n_source, n_target):
     """What a fusion search of these two texts will cost, from the line counts alone.
 
     Returns {pairs, in_parts, parts, estimated_seconds, source_lines,
-    target_lines}. A search in parts follows FUSION_SECONDS_PER_PART and
+    target_lines}. A search in parts follows FUSION_PART_BASE_SECONDS, FUSION_SECONDS_PER_PART and
     FUSION_PART_SECONDS_PER_MILLION_PAIRS, a search run whole follows
     FUSION_SECONDS_PER_MILLION_PAIRS, both with a floor of
     FUSION_ESTIMATE_FLOOR_SECONDS.
@@ -3958,7 +3963,7 @@ def estimate_fusion(n_source, n_target):
     in_parts = _use_parts_counts(n_source, n_target)
     parts = len(_part_ranges(n_source)) if in_parts else 1
     if in_parts:
-        raw = (parts * FUSION_SECONDS_PER_PART
+        raw = (FUSION_PART_BASE_SECONDS + parts * FUSION_SECONDS_PER_PART
                + pairs / 1_000_000 * FUSION_PART_SECONDS_PER_MILLION_PAIRS)
     else:
         raw = pairs / 1_000_000 * FUSION_SECONDS_PER_MILLION_PAIRS
