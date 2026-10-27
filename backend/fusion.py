@@ -2443,59 +2443,58 @@ def _pair_table(channel_results, consts):
 
     for ch_name, results in channel_results.items():
         weight = _weights.get(ch_name, 1.0)
+        bypass_rarity = ch_name in _RARITY_BYPASS_CHANNELS
         for r in results:
-            rs = r.get("source", {}).get("ref", "")
-            rt = r.get("target", {}).get("ref", "")
-            key = (rs, rt)
+            src = r.get("source", {})
+            tgt = r.get("target", {})
+            key = (src.get("ref", ""), tgt.get("ref", ""))
             raw_score = r.get("overall_score") or r.get("score") or 0
             contribution = raw_score * weight
-            pair_scores[key]["score"] += contribution
+            entry = pair_scores[key]
+            entry["score"] += contribution
             # The quotation channel's contribution is also stashed separately
             # so it can be re-added unscaled by the rarity multiplier at score
             # assembly. A long verbatim run is intrinsically distinctive even
             # when its individual tokens are common; bypassing the rarity
             # penalty for that contribution prevents common-vocabulary verbatim
             # quotations from being suppressed.
-            if ch_name in _RARITY_BYPASS_CHANNELS:
-                pair_scores[key]["quotation_score_contrib"] += contribution
-            pair_scores[key]["channels"].append(ch_name)
+            if bypass_rarity:
+                entry["quotation_score_contrib"] += contribution
+            entry["channels"].append(ch_name)
             if raw_score > 0:
-                pair_scores[key]["n_scoring_channels"] += 1
+                entry["n_scoring_channels"] += 1
 
             # Accumulate highlight indices from all channels
-            src = r.get("source", {})
-            tgt = r.get("target", {})
             src_indices = src.get("highlight_indices", [])
             tgt_indices = tgt.get("highlight_indices", [])
-            for idx in src_indices:
-                pair_scores[key]["all_source_highlights"].add(idx)
-            for idx in tgt_indices:
-                pair_scores[key]["all_target_highlights"].add(idx)
+            entry["all_source_highlights"].update(src_indices)
+            entry["all_target_highlights"].update(tgt_indices)
             # Also track the same indices per channel so the payload carries
             # per-channel token attribution (which words each channel matched).
-            ch_attrs = pair_scores[key]["channel_token_attrs"]
+            ch_attrs = entry["channel_token_attrs"]
             if ch_name not in ch_attrs:
                 ch_attrs[ch_name] = {"source": set(), "target": set()}
             ch_attrs[ch_name]["source"].update(src_indices)
             ch_attrs[ch_name]["target"].update(tgt_indices)
 
             # Accumulate matched words (dedup by lemma, prefer entries with source_word)
+            all_words = entry["all_matched_words"]
             for mw in r.get("matched_words", []):
                 lemma = mw.get("lemma", "")
                 if not lemma:
                     continue
-                existing = pair_scores[key]["all_matched_words"].get(lemma)
+                existing = all_words.get(lemma)
                 if existing is None or (not existing.get("source_word") and mw.get("source_word")):
-                    pair_scores[key]["all_matched_words"][lemma] = mw
+                    all_words[lemma] = mw
 
             # Keep the result with the highest individual score for display
-            if raw_score > pair_scores[key]["best_score"]:
-                pair_scores[key]["best_result"] = r
-                pair_scores[key]["best_score"] = raw_score
+            if raw_score > entry["best_score"]:
+                entry["best_result"] = r
+                entry["best_score"] = raw_score
             # The form channel's refrain/rhyme/meter record survives even when
             # another channel supplies the displayed result.
             if r.get("poetics"):
-                pair_scores[key]["poetics"] = r["poetics"]
+                entry["poetics"] = r["poetics"]
 
     _t1 = _time.time()
     logger.info(f"[FUSION] Accumulated {len(pair_scores):,} unique pairs from "
@@ -3062,6 +3061,14 @@ def _matched_word_indices(tokens, word):
     return [i for i, t in enumerate(tokens) if t.lower() == w]
 
 
+def _lowered_word_indices(lowered_tokens, word):
+    """_matched_word_indices over tokens already lowercased."""
+    if not word or not lowered_tokens:
+        return []
+    w = word.lower()
+    return [i for i, t in enumerate(lowered_tokens) if t == w]
+
+
 def _check_line_span(positions, boundary):
     """Check if any positions fall on both sides of a line boundary."""
     if not positions:
@@ -3181,12 +3188,15 @@ def penalize_single_line_windows(window_results, annotate_for_merge=False):
         src_boundary = src_counts[0]
         tgt_boundary = tgt_counts[0]
 
-        # Find positions of actual matched words
+        # Find positions of actual matched words (each token lowercased once
+        # for the row, not once per matched word).
+        src_lower = [t.lower() for t in src_tokens] if src_tokens else src_tokens
+        tgt_lower = [t.lower() for t in tgt_tokens] if tgt_tokens else tgt_tokens
         src_positions = []
         tgt_positions = []
         for mw in matched_words:
-            src_positions.extend(_matched_word_indices(src_tokens, mw.get('source_word', '')))
-            tgt_positions.extend(_matched_word_indices(tgt_tokens, mw.get('target_word', '')))
+            src_positions.extend(_lowered_word_indices(src_lower, mw.get('source_word', '')))
+            tgt_positions.extend(_lowered_word_indices(tgt_lower, mw.get('target_word', '')))
 
         # Fall back to highlight_indices if matched-word lookup failed
         # (happens when scorer falls back to lemma form for source_word)
@@ -3232,6 +3242,10 @@ def penalize_single_line_windows(window_results, annotate_for_merge=False):
     return out
 
 
+# Most cells a window may cover and still be entered in the dedup's cell table.
+_DEDUP_MAX_CELLS = 16
+
+
 def _dedup_overlapping_windows(window_results):
     """Remove overlapping window results that are duplicates of the same match.
 
@@ -3268,10 +3282,28 @@ def _dedup_overlapping_windows(window_results):
                     reverse=True)
 
     kept = []
-    # Index kept windows by target line numbers for fast overlap lookup.
-    # Each target line maps to the kept windows that cover it, so we only
-    # compare against windows that could actually overlap in the target.
-    kept_by_tgt_line = defaultdict(list)  # tgt_line -> [(sb, ss, se, tb, ts, te, lemmas)]
+    # The lemma sets of the kept windows, by the single (target book, target
+    # line, source book, source line) cell each one covers. A window is a
+    # duplicate when a kept window shares a cell with it and its lemmas are a
+    # subset of that window's, so only the windows on the same cells are
+    # compared. (Comparing against every kept window that covers one of its
+    # target lines took 100 million comparisons on a large pair.)
+    kept_cells = defaultdict(list)
+    # A window with a reversed or very wide range is not entered in the cells.
+    # Such windows (none occur in the corpus) are compared the long way, and
+    # so is any candidate whose own range is irregular.
+    irregular = []      # (sb, ss, se, tb, ts, te, lemmas) of kept irregular windows
+    every_kept = []     # all kept windows in the same form, for an irregular candidate
+
+    def _overlap_match(entry, sb, ss, se, tb, ts, te, cand_lemmas):
+        ksb, kss, kse, ktb, kts, kte, k_lemmas = entry
+        if ktb != tb or ksb != sb:
+            return False
+        if max(ts, kts) > min(te, kte):
+            return False
+        if not (ss <= kse and kss <= se):
+            return False
+        return (not cand_lemmas) or cand_lemmas <= k_lemmas
 
     for i in scored:
         sb, ss, se, tb, ts, te = parsed[i]
@@ -3279,33 +3311,41 @@ def _dedup_overlapping_windows(window_results):
             kept.append(window_results[i])
             continue
 
-        # Check only kept windows that overlap this window's target lines
-        is_dup = False
         cand_lemmas = word_sets[i]
-        # Collect candidate overlapping windows from target line index
-        checked = set()  # avoid checking same kept window twice
-        for tl in range(ts, te + 1):
-            for entry in kept_by_tgt_line.get((tb, tl), []):
-                eid = id(entry)
-                if eid in checked:
-                    continue
-                checked.add(eid)
-                ksb, kss, kse, _, kts, kte, k_lemmas = entry
-                if sb != ksb:
-                    continue
-                src_overlaps = ss <= kse and kss <= se
-                if src_overlaps:
-                    if not cand_lemmas or cand_lemmas <= k_lemmas:
+        regular = ss <= se and ts <= te and (se - ss + 1) * (te - ts + 1) <= _DEDUP_MAX_CELLS
+        is_dup = False
+        if regular:
+            for tl in range(ts, te + 1):
+                for sl in range(ss, se + 1):
+                    for k_lemmas in kept_cells.get((tb, tl, sb, sl), ()):
+                        if not cand_lemmas or cand_lemmas <= k_lemmas:
+                            is_dup = True
+                            break
+                    if is_dup:
+                        break
+                if is_dup:
+                    break
+            if not is_dup:
+                for entry in irregular:
+                    if _overlap_match(entry, sb, ss, se, tb, ts, te, cand_lemmas):
                         is_dup = True
                         break
-            if is_dup:
-                break
+        else:
+            for entry in every_kept:
+                if _overlap_match(entry, sb, ss, se, tb, ts, te, cand_lemmas):
+                    is_dup = True
+                    break
 
         if not is_dup:
             kept.append(window_results[i])
             entry = (sb, ss, se, tb, ts, te, cand_lemmas)
-            for tl in range(ts, te + 1):
-                kept_by_tgt_line[(tb, tl)].append(entry)
+            every_kept.append(entry)
+            if regular:
+                for tl in range(ts, te + 1):
+                    for sl in range(ss, se + 1):
+                        kept_cells[(tb, tl, sb, sl)].append(cand_lemmas)
+            else:
+                irregular.append(entry)
 
     return kept
 
