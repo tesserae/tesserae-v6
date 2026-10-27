@@ -33,7 +33,8 @@ from backend.services import get_user_location, log_search
 import threading
 from backend.cache import (get_cached_results, save_cached_results,
                            get_cache_key, ensure_cache_dir, CACHE_DIR)
-from backend.concurrency_gate import SearchSlot, get_cancellation_message
+from backend.concurrency_gate import (
+    SearchSlot, get_cancellation_message, queued_line, queue_timeout_message)
 
 from backend.search_cancellation import SearchCancellation, SearchCancelled
 from backend.formula_filter import annotate_formula_counts, apply_formula_filter
@@ -274,9 +275,16 @@ def _wait_for_slot(slot, cancellation, send_event):
                 "step": "Search queued — server is busy",
                 "detail": queued_event.get("reason", ""),
                 "wait_time": queued_event.get("wait_time", 0),
+                "kind": queued_event.get("kind", "slots"),
+                "position": queued_event.get("position", 1),
+                "running": queued_event.get("running", 0),
+                "max_searches": queued_event.get("max_searches", 0),
+                "queue_timeout": queued_event.get("queue_timeout", 0),
+                "message": queued_line(queued_event),
             })
     except TimeoutError as e:
-        yield f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n"
+        logger.warning("Comparison never started: %s", e)
+        yield f"data: {json.dumps({'type': 'error', 'code': 'queue_timeout', 'message': queue_timeout_message()})}\n\n"
         return False
     cancellation.check()
     return True
@@ -843,6 +851,32 @@ def _write_fusion_status(job_key, event_type, evt_data):
         pass
 
 
+def _write_queued_status(job_key, queued_event):
+    """Record that the job is waiting for a slot, with the reason, the time
+    waited and the place in line, so the GET poll can say so. Also touches the
+    running marker so a long wait is not mistaken for a stale job."""
+    status = {
+        'phase': 'queued',
+        'reason': queued_event.get('reason', ''),
+        'kind': queued_event.get('kind', 'slots'),
+        'wait_seconds': queued_event.get('wait_time', 0),
+        'position': queued_event.get('position', 1),
+        'running': queued_event.get('running', 0),
+        'max_searches': queued_event.get('max_searches', 0),
+        'queue_timeout': queued_event.get('queue_timeout', 0),
+        'message': queued_line(queued_event),
+    }
+    try:
+        with open(_fusion_status_path(job_key), 'w', encoding='utf-8') as f:
+            json.dump(status, f)
+    except IOError:
+        pass
+    try:
+        os.utime(_fusion_marker(job_key, 'running'), None)
+    except OSError:
+        pass
+
+
 def _read_fusion_status(job_key):
     try:
         with open(_fusion_status_path(job_key), 'r', encoding='utf-8') as f:
@@ -873,7 +907,8 @@ def _run_fusion_job(source_id, target_id, language, max_results, job_key,
         # entire computation, including unit processing which can take seconds.
         slot = SearchSlot()
         for _queued in slot.acquire():
-            pass  # block until a concurrency slot frees up
+            _write_queued_status(job_key, _queued)  # visible to the GET poll
+        _clear_fusion_status(job_key)  # the wait is over: the poll says "running"
         slot.set_metadata({
             'source_id': source_id,
             'target_id': target_id,
@@ -929,6 +964,13 @@ def _run_fusion_job(source_id, target_id, language, max_results, job_key,
             {'source_lines': len(source_units), 'target_lines': len(target_units),
              'mode': 'merged', 'total_candidates': final_total},
         )
+    except TimeoutError as e:
+        logger.warning("GET fusion job never started (%s x %s): %s", source_id, target_id, e)
+        try:
+            with open(_fusion_marker(job_key, 'timeout'), 'w', encoding='utf-8') as f:
+                f.write(queue_timeout_message())
+        except IOError:
+            pass
     except Exception as e:
         logger.error("GET fusion job failed (%s x %s): %s", source_id, target_id, e, exc_info=True)
         try:
@@ -1054,7 +1096,7 @@ def fusion_search_get():
     cached_results, _meta, cached_by_book = _cached_fusion_view(
         source_id, target_id, language, cache_settings)
     if cached_results is not None:
-        for kind in ('running', 'error', 'cancelled'):
+        for kind in ('running', 'error', 'cancelled', 'timeout'):
             try:
                 os.remove(_fusion_marker(job_key, kind))
             except OSError:
@@ -1167,6 +1209,20 @@ def fusion_search_get():
                            'Add &retry=1 to this URL to start a fresh run.',
             })
 
+    # The wait for a slot ran out: say so in plain words, once, then allow a retry.
+    timeout_marker = _fusion_marker(job_key, 'timeout')
+    if os.path.exists(timeout_marker):
+        try:
+            with open(timeout_marker, 'r', encoding='utf-8') as f:
+                text = f.read()
+        except IOError:
+            text = queue_timeout_message()
+        try:
+            os.remove(timeout_marker)
+        except OSError:
+            pass
+        return jsonify({'status': 'error', 'code': 'queue_timeout', 'message': text}), 503
+
     # Surface a prior failure once, then allow a retry on the next call.
     err_marker = _fusion_marker(job_key, 'error')
     if os.path.exists(err_marker):
@@ -1187,6 +1243,20 @@ def fusion_search_get():
     run_marker = _fusion_marker(job_key, 'running')
     if os.path.exists(run_marker) and (time.time() - os.path.getmtime(run_marker)) < _FUSION_MARKER_TTL:
         elapsed = int(time.time() - os.path.getmtime(run_marker))
+        st = _read_fusion_status(job_key)
+        if st and st.get('phase') == 'queued':
+            # Waiting for a concurrency slot, not computing.
+            return jsonify({
+                'status': 'queued', 'source': source_id, 'target': target_id,
+                'reason': st.get('reason', ''), 'kind': st.get('kind', 'slots'),
+                'wait_seconds': st.get('wait_seconds', 0),
+                'position': st.get('position', 1),
+                'running': st.get('running', 0),
+                'max_searches': st.get('max_searches', 0),
+                'queue_timeout': st.get('queue_timeout', 0),
+                'message': st.get('message', 'Waiting to start.') +
+                           ' Your comparison will start by itself. Call this same URL again in a minute.',
+            })
         resp = {
             'status': 'running', 'source': source_id, 'target': target_id,
             'elapsed_seconds': elapsed,
@@ -1194,7 +1264,6 @@ def fusion_search_get():
                        'typically takes ~2-3 minutes). It will finish and cache even if you '
                        'stop checking; call this same URL again in a minute or two.',
         }
-        st = _read_fusion_status(job_key)
         if st:
             # Honest coarse progress. signals_done/signals_total = similarity
             # signals (channels) computed this phase — NOT a time percentage

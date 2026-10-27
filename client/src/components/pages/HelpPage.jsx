@@ -463,6 +463,13 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   prepared file (below).
                 </p>
               </div>
+              <p className="text-gray-700 mt-4 mb-3">
+                The server runs at most three comparisons at once and starts a new one only when it has enough memory
+                free. A comparison that has to wait shows its place in line and the time it has waited, for example
+                "Waiting to start: two comparisons are ahead of yours (the server lets three run at once). Waiting
+                for 1:40 so far. The server holds a request for up to thirty minutes, then stops it and offers the
+                comparison as a prepared file." The cancel button stays available while you wait.
+              </p>
               <h4 className="text-lg font-semibold text-gray-900 mt-8 mb-2">Two whole works above the size limit</h4>
               <p className="text-gray-700 mb-3">
                 A comparison of two whole epics holds the server for about an hour, so the page runs a pair live only up to
@@ -3436,12 +3443,13 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   </p>
                 </div>
                 <div>
-                  <h4 className="text-lg font-semibold text-gray-900">What does "Search queued" mean?</h4>
+                  <h4 className="text-lg font-semibold text-gray-900">What does "Waiting to start" mean?</h4>
                   <p className="text-gray-600 text-sm mt-1">
                     When the server is already running heavy searches for other users, your search is placed in a
-                    queue to prevent the server from running out of memory. You'll see a "Search queued" message
-                    with a spinner. Your search will start automatically when a slot opens, typically within a few
-                    minutes. You can cancel and retry later if you prefer.
+                    queue to prevent the server from running out of memory. You'll see a "Waiting to start" message
+                    that shows your place in line and the time you have waited. Your search starts automatically when
+                    a slot opens. If the wait reaches the limit, the page says that the server stayed busy and
+                    suggests trying later or asking for a prepared file. You can cancel and retry later if you prefer.
                   </p>
                 </div>
                 <div>
