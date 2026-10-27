@@ -426,3 +426,28 @@ def test_fork_gate_is_open_in_a_forked_child():
         p.start()
     assert q.get(timeout=10) == 'ran'
     p.join(10)
+
+
+def test_stuck_workers_fall_back_to_running_the_parts_in_process(monkeypatch):
+    """A worker that never answers (for example one that inherited a held lock at
+    the fork) must not hang the comparison: after the stall limit the remaining
+    parts run in the parent and the answer equals the single-process answer."""
+    src, tgt = make_units('a', 53, 1), make_units('b', 40, 2)
+    monkeypatch.setenv('TESSERAE_FUSION_PART_PROCESSES', '1')
+    single = complete(run(src, tgt))
+    monkeypatch.setenv('TESSERAE_FUSION_PART_PROCESSES', '2')
+    monkeypatch.setattr(fusion, '_PART_STALL_SECONDS', 2)
+    real = fusion._fusion_block
+    parent = os.getpid()
+
+    def stuck_block(*a, **k):
+        if os.getpid() != parent:
+            time.sleep(600)
+        return (yield from real(*a, **k))
+
+    monkeypatch.setattr(fusion, '_fusion_block', stuck_block)
+    t0 = time.monotonic()
+    fallback = complete(run(src, tgt))
+    assert time.monotonic() - t0 < 30
+    key = lambda d: [(r['source']['ref'], r['target']['ref'], round(r.get('fused_score', r.get('score', 0)), 6)) for r in d['results']]  # noqa: E731
+    assert key(fallback) == key(single)

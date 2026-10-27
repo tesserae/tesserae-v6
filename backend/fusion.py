@@ -4116,6 +4116,11 @@ FUSION_PART_PROCESSES = 2
 # Fewer free gigabytes than this and the parts run in the calling process.
 FUSION_PART_PROCESSES_MIN_FREE_GB = 12
 _PARTS_IN_FLIGHT = 2        # parts queued to each worker at a time (one running, one waiting)
+# A part takes about ten seconds. If no part has come back from any worker for this
+# long, the workers are taken to be stuck (a forked process can inherit a lock held
+# by another thread at the moment of the fork) and the remaining parts run in this
+# process instead, so the visitor still gets the answer (2026-10-27 review).
+_PART_STALL_SECONDS = 180
 
 
 def _part_process_count(total_parts):
@@ -4252,6 +4257,8 @@ def _run_parts_in_processes(nproc, ranges, run_part, cancellation, preview, line
         emitted = 0
         announced = 0
         last_event = time.monotonic()
+        last_part_at = time.monotonic()
+        fell_back = False
         while emitted < total_parts:
             if cancellation:
                 cancellation.check()
@@ -4259,7 +4266,24 @@ def _run_parts_in_processes(nproc, ranges, run_part, cancellation, preview, line
                 announced += 1
                 last_event = time.monotonic()
                 yield ("parts", {"part": announced, "total_parts": total_parts})
-            ready = mp_connection.wait(parent_ends, timeout=HEARTBEAT_INTERVAL)
+            ready = [] if fell_back else mp_connection.wait(parent_ends, timeout=HEARTBEAT_INTERVAL)
+            if fell_back or ready:
+                last_part_at = time.monotonic()
+            elif time.monotonic() - last_part_at > _PART_STALL_SECONDS:
+                logger.warning('[FUSION] part workers silent for %ds; running the remaining parts in process',
+                               _PART_STALL_SECONDS)
+                _stop_workers(procs, parent_ends)
+                for idx in range(total_parts):
+                    if idx < emitted or idx in arrived:
+                        continue
+                    if cancellation:
+                        cancellation.check()
+                    arrived[idx] = run_part(idx)
+                    yield ("heartbeat", {"channel": None})
+                for w in range(nproc):
+                    queued[w] = []
+                next_part = total_parts
+                fell_back = True
             for conn in ready:
                 w = parent_ends.index(conn)
                 try:
@@ -4279,7 +4303,7 @@ def _run_parts_in_processes(nproc, ranges, run_part, cancellation, preview, line
                 feed(w)
             # A worker that died with parts outstanding is a failure, even if its pipe is still held open.
             for w, p in enumerate(procs):
-                if queued[w] and p.exitcode is not None and not parent_ends[w].poll():
+                if not fell_back and queued[w] and p.exitcode is not None and not parent_ends[w].poll():
                     raise RuntimeError(
                         "A process working on this comparison stopped unexpectedly "
                         f"(exit code {p.exitcode}). The comparison was stopped. Please try again.")
