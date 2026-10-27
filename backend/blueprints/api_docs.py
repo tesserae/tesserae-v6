@@ -55,9 +55,10 @@ API_DOCUMENTATION = {
                 "description": "Full-text string search across corpus",
                 "parameters": {
                     "query": "string - Search query",
-                    "language": "string - Language code"
+                    "language": "string - Language code",
+                    "spelling": "string - Optional. 'variants' (default) or 'strict' for Persian (fa), Urdu (ur), Arabic (ar) and Hebrew (he); 'points' for Hebrew only (keeps the vowel points, ignores the cantillation accents). Other languages ignore it."
                 },
-                "returns": "Array of matching passages"
+                "returns": "Array of matching passages. The response carries a 'matching' block (mode, rules, query, query_used), and a result found through a spelling variant may carry 'match_note' saying why it matched"
             }
         ],
         "Corpus": [
