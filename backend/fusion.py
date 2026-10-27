@@ -3927,6 +3927,14 @@ FUSION_PART_BASE_SECONDS = 70
 FUSION_SECONDS_PER_PART = 4.75
 FUSION_PART_SECONDS_PER_MILLION_PAIRS = 2.25
 FUSION_ESTIMATE_FLOOR_SECONDS = 60
+# The constants above were fitted on offline runs on an otherwise idle machine.
+# On the live site, where the web workers also answer other requests, the same
+# comparisons run about 1.5 times longer: Punica against the Aeneid 242 s live
+# against 160 s offline and Lucretius against Lucan 4 367 s against 246 s on
+# 2026-10-27 (the hand warm-up), and the Aeneid against Thebaid part 1 274 s live
+# against its 181 s offline estimate the same day. The estimate shown to a
+# visitor carries this factor.
+FUSION_LIVE_FACTOR = 1.5
 
 
 def _use_parts_counts(n_source, n_target, in_parts=None):
@@ -3967,7 +3975,7 @@ def estimate_fusion(n_source, n_target):
                + pairs / 1_000_000 * FUSION_PART_SECONDS_PER_MILLION_PAIRS)
     else:
         raw = pairs / 1_000_000 * FUSION_SECONDS_PER_MILLION_PAIRS
-    seconds = max(FUSION_ESTIMATE_FLOOR_SECONDS, int(round(raw)))
+    seconds = max(FUSION_ESTIMATE_FLOOR_SECONDS, int(round(raw * FUSION_LIVE_FACTOR)))
     return {
         'pairs': pairs,
         'in_parts': in_parts,

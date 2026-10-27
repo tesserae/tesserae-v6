@@ -8,6 +8,7 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-27
+- Comparison estimate: the time shown before a large comparison carries a live factor of 1.5 over the offline fit, measured on three live runs of 2026-10-27.
 - Comparison estimate: decides the meter setting the way the search routes do, so the page no longer shows the large-comparison warning for a cached prose pair it would answer at once.
 - Large comparisons, round two: the passage-context confirmation that closes a comparison looks windows up from a table prepared once per work, finds a window's row in a dictionary, and reads each window's vector once. On the Persian pair it went from 64 s to under half a second, and the same window is chosen for every selection (45,374 lookups on the production index compared with the old scan).
 - Large comparisons: the reference parsers and the short-locus formatter remember their answers, which saves 4 to 8 percent of a run.
