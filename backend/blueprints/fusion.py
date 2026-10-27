@@ -1800,6 +1800,12 @@ def fusion_estimate():
     except (TypeError, ValueError):
         max_results = 5000
     use_meter = (request.args.get('use_meter') or '').strip().lower() in ('1', 'true', 'yes', 'on')
+    # Decide use_meter the way the two search routes do (the page asks with
+    # use_meter on and the search turns it off for a pair that is not Latin
+    # poetry), or the estimate reads a different cache entry and says "not
+    # cached" for a pair the search answers at once (2026-10-27).
+    if use_meter and not _poll_use_meter(source_id, target_id, language):
+        use_meter = False
     cache_settings = _default_fusion_cache_settings(language, max_results, use_meter=use_meter,
                                                     source_unit_type=source_unit_type,
                                                     target_unit_type=target_unit_type)

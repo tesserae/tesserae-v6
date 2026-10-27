@@ -8,6 +8,7 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-27
+- Comparison estimate: decides the meter setting the way the search routes do, so the page no longer shows the large-comparison warning for a cached prose pair it would answer at once.
 - Large comparisons: a channel that has finished is collected at once, where it waited for a once-a-second timer, and the part-by-part preview merges only the new part's rows into a running list of 500, where it merged every kept row after every part. The Persian pair of Hafez and Iqbal (11.9 million line pairs) went from 982 s to 353 s offline, and the Aeneid against Punica part 1 from 857 s to 343 s, with the same top 5,000 rows. The `/fusion-estimate` seconds now follow the number of parts (16.1 s a part plus 2.4 s per million pairs for a search in parts), so the page's warning gives about the time the search takes.
 
 ## 2026-10-26
