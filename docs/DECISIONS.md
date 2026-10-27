@@ -8,6 +8,52 @@ history (index builds, cache rebuilds, corpus changes) is in
 `DATA_OPERATIONS.md`; per-release changes are in `../CHANGELOG.md`.
 
 
+## 2026-10-27: the parts of a large comparison run in two processes, and the semantic floor of Persian, Urdu and Arabic is set once per pair
+
+Two levers that the morning's round measured and did not merge were approved and are made. The first leaves every result unchanged. The second changes results for three languages, by design.
+
+**Two processes.** A large comparison already ran in parts of 500 source lines, one after another in the web worker. The parts are independent until the closing merge, so two worker processes now take parts from a short queue (two parts each, one running and one waiting) and send the kept rows back. The web worker keeps the events, the preview, the heartbeats and the closing merge, and merges the rows in part order, so the answer is the one the single process gives. The workers are forked, so they share the loaded texts and tables with the web worker. The large-comparison gate is unchanged. It allows one comparison per web worker process at a time, and the comparison holds its two extra processes (each with the pools the sound and edit distance channels start) until it ends. The garbage-collector threshold is set in the web worker before the workers are forked, so they inherit it and hold their rows for the length of a part. A comparison runs in one process, as before, when fewer than 12 GB of memory are free.
+
+Cancellation and failure were built and tested. A cancelled comparison kills its workers and the pools they started (each worker is its own process group) on the next one-second beat, and closing the event stream does the same. A worker that raises ends the comparison with a message that names the part, and a worker that exits or is killed ends it with "A process working on this comparison stopped unexpectedly", noticed from the process's exit code even when its pools keep the pipe open. The tests check that no process is left and that none of these hangs the poll.
+
+Forking is safe in the web worker with one exception that was found by test and is now closed. No database connection is held across the fork (every database call opens its own connection), the read-only SQLite handles that a thread keeps are dropped in the child (`backend/thread_connections.py`), and logging reinitializes its locks itself. The exception is the numpy of this environment, whose OpenBLAS keeps a thread pool. A fork that lands while another thread of the process is inside a matrix product hangs for good. A thread multiplying a 1,000 by 1,000 matrix every 50 ms stalled the fork in 3 of 3 runs. The same hazard already applied to the pools the sound and edit distance channels fork for every part, and it applies to any fork made from a web worker. `backend/fork_gate.py` holds back a fork until the matrix products of the semantic channel in other threads have finished and holds new ones back until the fork is done. With the gate the same test completed in 6 of 6 runs and the stress test of a comparison forked from a process with five busy threads passed 4 of 4. Matrix products in other parts of the application (Similar Passages, the Reader) do not take the gate. The measured hazard is therefore closed for the semantic channel of a comparison and for the channel pools, and not for those. Setting the single-thread BLAS (`OPENBLAS_NUM_THREADS=1`) in the web server's environment would close it for all of them at some cost in matrix speed, which was not measured and is left to the owner.
+
+| Pair (offline, 8 GB cap) | One process | Two processes | Three processes | Peak memory (one, two, three) |
+|---|---|---|---|---|
+| Hafez against Zabur-e Ajam (11.9 million pairs, 20 parts) | 184.0 s | 93.8 s | 75.6 s | 6.13, 5.98, 5.98 GB |
+| Aeneid against Punica part 1 (6.9 million, 20 parts) | 203.7 s | 118.1 s | 97.6 s | 6.63, 6.21, 6.22 GB |
+| Lucretius against Lucan part 4 (6.1 million, 15 parts) | 139.0 s | 81.8 s | 69.5 s | 5.90, 5.43, 5.43 GB |
+
+Also measured with two processes: Hafez against Iqbal's Diwan (154.6 million pairs) 464 s to 242 s, Ghalib against Mir (73.2 million) 352 s to 198 s, and Punica part 1 against the Aeneid, which has only two parts and is not faster (90.7 s to 92.9 s).
+
+Results are identical. With the same random seed, the two-process and three-process runs return the same 5,000 rows as the single process field for field (hash of the full rows) on the Latin pairs and on the Persian pair with the floor change set aside. The hashes are c9eaaf029e3b, 472b5dd2ca79 and 11d9fea01ef8 in every run. The hash is compared on the final code. The peak memory is reached in the closing merge in the web worker. While the parts run the job holds 4.0 to 5.0 GB with two processes and 5.9 GB with three on the Latin pair, so a second process does not raise the peak and a third comes within 0.3 GB of it.
+
+Worst-case memory. The peak of one comparison is 6.2 GB over the memory the worker already holds. Four web workers each running a comparison would reach about 25 GB. The concurrency gate allows two heavy searches at a time unless the setting is raised, which makes the working figure about 12.4 GB, and the gate does not start a search when the memory it checks is short. Three processes were measured at the same peak (6.2 GB) and cut a further 15 to 19 percent of the time. Two were chosen because the live site's other requests share the machine and the gate may admit two comparisons at once, and `FUSION_PART_PROCESSES` (or the environment variable `TESSERAE_FUSION_PART_PROCESSES`) sets three without a code change if the owner decides to.
+
+The estimate is refitted to the two-process runs: 72 s plus 1.0 s a part plus 1.2 s per million pairs, within 17 percent on the six runs above (the live factor of 1.5 is unchanged). A comparison forced into one process by low memory takes about 1.8 times the estimate.
+
+**The semantic floor, once per pair.** For Persian, Urdu and Arabic the semantic channel sets its floor at the 99.9th percentile of the pair's similarities, taken from a sample of up to 512 evenly spaced source rows, and never below 0.90. A part holds 501 lines, so its sample was its own lines and each part set its own floor (0.9186 to 0.9219 across the parts of Rudaki against Khayyam, 0.9193 for the whole). The floor is now computed before the parts run, by the rule the whole run uses, and passed to every part (`pair_e5_floor` in `backend/semantic_similarity.py`, set by `_share_semantic_floor` in `backend/fusion.py`). When the stored embeddings are not available the parts fall back to their own floors as before. Latin and Greek have no per-pair floor, and the hash check above shows the Latin pairs unchanged.
+
+| Semantic channel alone, parts of 400 lines against the whole run | Rows whole | Rows in parts, before | Shared rows that differ, before | Rows in parts, after | Shared rows that differ, after |
+|---|---|---|---|---|---|
+| Rudaki against Khayyam (Persian, 2.7 million pairs) | 2,430 | 2,340 | 1,098 of 2,270, up to 0.0131 | 2,430 | 0 of 2,430 |
+| Hatim against Akbar (Urdu, 2.5 million pairs) | 1,915 | 1,976 | 832 of 1,859, up to 0.0130 | 1,915 | 0 of 1,915 |
+
+With every channel on, the same Persian pair still differs between a whole run and a run in parts in 849 of the 4,758 shared rows of the top 5,000 (897 before). The semantic channel contributes none of that now, so what remains comes from the other channels' candidate limits, which this change does not touch.
+
+This changes results for large Persian, Urdu and Arabic comparisons. The two benchmarks were run before (single process, old floor) and after (two processes, shared floor):
+
+| Benchmark | Before | After |
+|---|---|---|
+| Persian answer poems, 7 pairs, Hafez against both Iqbal texts, found in the top 10 pooled | 7 | 7 (ranks 6, 9, 3, 7, 8, 4, 2 both times) |
+| Persian answer poems, in the top 10 within each Iqbal text alone | 7 | 7 |
+| Urdu shared refrains, 23 pairs, Ghalib against Mir, found in the top 1, 10, 50, 100 | 1, 3, 6, 10 | 1, 3, 6, 10 |
+| Urdu shared refrains, in the top 1,000 and 5,000 | 14, 14 | 14, 14 |
+
+No pair is lost. One Urdu refrain moves from rank 18 to 17 and the others keep their ranks. The Persian run of Hafez against Zabur-e Ajam returns 1,547,794 rows in all where it returned 1,546,142, and Hafez against the Diwan 2,979,599 where it returned 2,977,643.
+
+Records: the offline runs, the scripts and the hashes are in research/studies/2026-10-27_large_search_round3/, with an addendum in research/studies/2026-10-26_large_search_profile/REPORT.md.
+
 ## 2026-10-27: a large comparison takes about half the time, and its results do not change
 
 After the changes of the morning (a channel is collected when it finishes, the preview merges only the newest part), a second round of profiling on the production data found that the parts themselves, not the comparison channels, held most of the time. A part of the Persian pair cost 12.4 seconds, of which the channels were 6.6 and the rest was fusing the part's rows, the preview and the collector. The closing step, which runs once, took 138 seconds. The structures that depend only on the target text and are the same for every part (trigram sets, trigram index, whole-text lemma counts) cost 8 to 26 milliseconds each, under half a second a part in all, so they are not rebuilt less often.
