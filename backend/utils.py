@@ -6,6 +6,7 @@ import re
 import json
 import logging
 import unicodedata
+from functools import lru_cache
 
 from backend import fspaths
 
@@ -417,6 +418,25 @@ def clean_cts_reference(ref):
 
 
 def format_short_locus(raw_ref):
+    """The short locus of a raw reference tag (see _format_short_locus).
+
+    Remembered per reference string: a large comparison formats the same few
+    thousand references once for every result row that carries them, and the
+    answer depends on the string alone. An argument that cannot be a cache
+    key is formatted directly.
+    """
+    try:
+        return _format_short_locus_cached(raw_ref)
+    except TypeError:
+        return _format_short_locus(raw_ref)
+
+
+@lru_cache(maxsize=262144, typed=True)
+def _format_short_locus_cached(raw_ref):
+    return _format_short_locus(raw_ref)
+
+
+def _format_short_locus(raw_ref):
     """Canonical short-locus formatter shared across languages.
 
     Turns the raw content of a .tess ``<...>`` reference tag into the bare locus

@@ -67,6 +67,7 @@ import threading
 import time
 import unicodedata
 from collections import Counter, defaultdict
+from functools import lru_cache
 from dataclasses import dataclass
 from concurrent.futures import ThreadPoolExecutor, wait as futures_wait
 
@@ -1036,14 +1037,20 @@ def make_window_units(line_units):
     return windows
 
 
+@lru_cache(maxsize=262144)
 def parse_ref(ref):
-    """Parse a single-line ref like 'luc. 1.5' → (book, line)."""
+    """Parse a single-line ref like 'luc. 1.5' → (book, line).
+
+    Cached: the closing merge of a large comparison parses the same few
+    thousand references over a million times, and the result is a tuple.
+    """
     nums = [int(x) for x in re.findall(r'\d+', ref)]
     if len(nums) >= 2:
         return nums[-2], nums[-1]
     return None, None
 
 
+@lru_cache(maxsize=262144)
 def parse_range_ref(ref):
     """Parse a ref that may be a range like 'luc. 1.1-luc. 1.2'.
     Returns (book, start_line, end_line)."""
