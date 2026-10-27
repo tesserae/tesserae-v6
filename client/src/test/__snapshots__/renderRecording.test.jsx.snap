@@ -3516,6 +3516,7 @@ exports[`App render recording > page /help 1`] = `
 <p class="text-amber-700 text-sm">
 <strong>Tip.</strong> Start with a smaller section, such as Book 1. Large comparisons, such as the whole Aeneid against Book 1 of the Metamorphoses, take longer on the first run, and later searches of the same pair are cached. The very largest, such as the whole Aeneid against the whole Metamorphoses, are offered book by book or as a prepared file (below).</p>
 </div>
+<p class="text-gray-700 mt-4 mb-3">The server runs at most three comparisons at once and starts a new one only when it has enough memory free. A comparison that has to wait shows its place in line and the time it has waited, for example "Waiting to start: two comparisons are ahead of yours (the server lets three run at once). Waiting for 1:40 so far. The server holds a request for up to thirty minutes, then stops it and offers the comparison as a prepared file." The cancel button stays available while you wait.</p>
 <h4 class="text-lg font-semibold text-gray-900 mt-8 mb-2">Two whole works above the size limit</h4>
 <p class="text-gray-700 mb-3">A comparison of two whole epics holds the server for about an hour, so the page runs a pair live only up to twelve million line pairs (the source's lines times the target's lines). Above that, "Find Parallels" shows a panel with two choices. Choose a book on one side and the page compares it now, with every chart. Or click "Prepare the whole comparison as a download" and the server prepares the pair in a queue, one comparison at a time. The panel gives a link to a status page that shows your place in line and, when the file is ready, the download. Keep the link, since a file is kept for 14 days.</p>
 <p class="text-gray-700 mb-3">The file is a CSV with the same columns as Export CSV (rank, the two loci, the two lines, the score, the matched words and the channels), and it holds every parallel the search scored, not only the top rows the page shows. The Compare page lists "Your prepared comparisons" for this browser, with the status and the link of each from the last 14 days. The charts need a comparison shown on the page, so they come from a book-by-book run or from opening the pair after its file is ready. You can have two comparisons waiting at once. A pair already run is answered from its saved result at any size.</p>
@@ -27063,10 +27064,10 @@ exports[`SearchResults render recording > loading, queued, error and empty state
 
 exports[`SearchResults render recording > loading, queued, error and empty states > queued 1`] = `
 "<div class="flex flex-col items-center justify-center py-12">
-<div class="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4 text-center max-w-md">
-<div class="text-amber-800 font-medium mb-1">Search queued</div>
-<div class="text-amber-600 text-sm">Position 2</div>
-<div class="text-amber-500 text-xs mt-2">Your search will start automatically when a slot opens.</div>
+<div role="status" class="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4 text-center max-w-md">
+<div class="text-amber-800 font-medium mb-1">Waiting to start</div>
+<div class="text-amber-700 text-sm">Position 2</div>
+<div class="text-amber-600 text-xs mt-2">Your comparison starts by itself when there is room. You can cancel it below.</div>
 </div>
 <div class="flex flex-col items-center justify-center gap-2">
 <div class="flex items-center gap-2">

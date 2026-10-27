@@ -304,6 +304,7 @@ def _fusion_poll(params, budget):
     while True:
         d = _get('/fusion-search', params)
         status = d.get('status')
+        last_queued = d if status == 'queued' else None
         if status == 'complete':
             out = {'status': 'complete', 'count': d.get('count'),
                    'showing': d.get('showing'), 'offset': d.get('offset', 0),
@@ -317,7 +318,11 @@ def _fusion_poll(params, budget):
                     out[k] = d.get(k)
             return out
         if status == 'error':
-            return {'status': 'error', 'error': d.get('error')}
+            out = {'status': 'error', 'error': d.get('error') or d.get('message')}
+            if d.get('code'):
+                out['code'] = d['code']
+                out['note'] = d.get('message')
+            return out
         if status == 'too_large':
             # Above the live size limit (backend/compare_limit.py): the pair is
             # not run. The note says how to proceed; `books` lists the per-book
@@ -328,6 +333,13 @@ def _fusion_poll(params, budget):
         # Return before starting a sleep that would push us past the budget, so
         # the tool call never trips the client's ~60s per-call timeout.
         if time.time() + poll_interval >= deadline:
+            if last_queued is not None:
+                # Waiting for a free slot on the server, not computing yet.
+                out = {'status': 'queued', 'note': last_queued.get('message') or running_note}
+                for k in ('reason', 'kind', 'wait_seconds', 'position', 'running', 'max_searches', 'queue_timeout'):
+                    if last_queued.get(k) is not None:
+                        out[k] = last_queued[k]
+                return out
             return {'status': 'running', 'note': running_note}
         time.sleep(poll_interval)
 
@@ -605,7 +617,7 @@ def _t_compare_texts(a):
         "total_candidates when given, the cap otherwise), never a bare 'top 5,000'. "
         "Every chart's footer carries the corpus_version stamp and web_url."
     )
-    if fusion.get('status') == 'running':
+    if fusion.get('status') in ('running', 'queued'):
         out['note'] = ('The ranked_parallels (fusion) section is still computing server-side. '
                        'Present the ready sections now, then call fusion_search with the same '
                        'source/target/language in ~30-60s to fill in the ranked_parallels section '
@@ -1412,7 +1424,9 @@ TOOLS = [
                      "just the page) by ref, so nothing is lost to the cap; a trailing dot pins a number "
                      "(e.g. source_ref_prefix=\"ecl. 1.\" matches book/poem 1 but not 10). min_score drops "
                      "weak matches. Response gives count (after filters) and total (before). First run "
-                     "takes a few minutes (cached after); returns status 'running' until ready. Scores are "
+                     "takes a few minutes (cached after); returns status 'running' until ready, or status 'queued' "
+                     "(with reason, kind, position, running, max_searches and wait_seconds) while the server "
+                     "holds the request for a free slot, in which case call again in a minute. Scores are "
                      "relative to the specific pair (frequency baselines are computed per comparison), so "
                      "the same parallel can score differently across pairings — compare ranks within one "
                      "run, not absolute scores across runs. Returns ~25 parallels by default (raise with "
