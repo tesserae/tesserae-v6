@@ -1,9 +1,7 @@
 """A comparison that has to wait says so: place in line (gate), the GET poll
 answering "queued", the plain message when the wait runs out."""
-import json
 import os
 import sys
-import time
 
 import pytest
 from flask import Flask
@@ -95,7 +93,7 @@ def test_timeout_message_is_plain():
 def client(tmp_path, monkeypatch):
     monkeypatch.setattr(F, 'CACHE_DIR', str(tmp_path))
     monkeypatch.setattr(F, 'resolve_text_path', lambda d, lang, tid: f'/x/{tid}.tess')
-    monkeypatch.setattr(F, '_poll_use_meter', lambda s, t, l: False)
+    monkeypatch.setattr(F, '_poll_use_meter', lambda s, t, lang: False)
     monkeypatch.setattr(F, 'ensure_cache_dir', lambda: None)
     monkeypatch.setattr(F, '_cached_fusion_view', lambda *a, **k: (None, None, None))
     monkeypatch.setattr(F.compare_limit, 'check_size', lambda *a, **k: None)
