@@ -302,6 +302,10 @@ def test_fold_hebrew_accents_keeps_points_and_drops_accents():
     assert fold_hebrew_accents('דָּבָר\u05bd') == 'דָּבָר'              # meteg
 
 
+def test_fold_hebrew_accents_gives_one_string_for_both_mark_orders():
+    assert fold_hebrew_accents('ד\u05b8\u05bcבָר') == fold_hebrew_accents('ד\u05bc\u05b8בָר')
+
+
 def test_points_mode_is_for_hebrew_only():
     assert ws.spelling_mode('he', 'points') == 'points'
     assert ws.spelling_mode('fa', 'points') == 'variants'
@@ -335,3 +339,14 @@ def test_points_mode_on_the_hebrew_bible(corpus):
     assert any(x.get('match_note') == ['accents ignored'] for x in pts.values())
     r = ws.wildcard_search('he', q, spelling='points', max_results=5, target_text='hebrew_bible.ecclesiastes')
     assert r['matching']['mode'] == 'points'
+
+
+def test_points_mode_pointed_query_matches_either_mark_order(corpus):
+    if not os.path.exists(os.path.join(corpus, 'he', 'hebrew_bible.isaiah.tess')):
+        pytest.skip('texts/he is not present')
+    kw = {'target_text': 'hebrew_bible.isaiah'}
+    q = 'דָּבָר'   # vowel before the dagesh; the Bible text stores the dagesh first
+    pts = refs('he', q, 'points', **kw)
+    assert pts
+    assert not refs('he', q, 'strict', **kw)
+    assert all('<mark' in x['highlighted_text'] for x in pts.values())

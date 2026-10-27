@@ -12,6 +12,7 @@ RULES_LABEL changes whenever a fold family or the separator rule changes, so
 an exported result can be read later.
 """
 import re
+import unicodedata
 
 RULES_LABEL = 'string-fold-2'
 
@@ -68,7 +69,9 @@ def fold_hebrew_script(text: str, marks: bool = True) -> str:
 
 
 def fold_hebrew_accents(text: str) -> str:
-    """The comparison form of the "vowel points kept" mode: accents removed, points kept."""
+    """The comparison form of the "vowel points kept" mode: marks put in canonical order, accents removed, points kept."""
     if text.isascii():
         return text
-    return _HEBREW_ACCENTS_RE.sub('', text)
+    # NFC puts the dagesh and the vowel in one canonical order (it composes
+    # nothing for Hebrew letters), so a query typed in either order matches.
+    return _HEBREW_ACCENTS_RE.sub('', unicodedata.normalize('NFC', text))

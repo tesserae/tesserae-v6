@@ -627,6 +627,10 @@ def finish_match(ref: str, text: str, parsed_query: Dict, case_sensitive: bool, 
     token_normalizer = normalize_coptic if is_coptic else (normalize_greek if is_greek else None)
 
     def highlights(shown):
+        # Points mode reorders marks, which breaks the one-to-one character map
+        # of the folded path, so it highlights whole tokens.
+        if script_fold is fold_hebrew_accents:
+            return get_token_highlight_indices(shown, parsed_query, flags, script_fold)
         if script_fold:
             return get_folded_highlight_indices(shown, parsed_query, flags, script_fold)
         if token_normalizer:
