@@ -472,9 +472,11 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
               </p>
               <h4 className="text-lg font-semibold text-gray-900 mt-8 mb-2">Two whole works above the size limit</h4>
               <p className="text-gray-700 mb-3">
-                A comparison of two whole epics holds the server for about an hour, so the page runs a pair live only up to
-                twelve million line pairs (the source's lines times the target's lines). Above that, "Find Parallels" shows a
-                panel with two choices. Choose a book on one side and the page compares it now, with every chart. Or click
+                The page runs a pair live up to 100 million line pairs (the source's lines times the target's lines). Two
+                whole epics, such as the Aeneid against Lucan's Civil War (about 80 million pairs), run live in about five to
+                ten minutes. The server works through them in parts and shows its progress. A pair above 100 million, such as
+                the Metamorphoses against the Aeneid (about 119 million), would hold the server too long, so "Find Parallels"
+                shows a panel with two choices. Choose a book on one side and the page compares it now, with every chart. Or click
                 "Prepare the whole comparison as a download" and the server prepares the pair in a queue, one comparison at a
                 time. The panel gives a link to a status page that shows your place in line and, when the file is ready, the
                 download. Keep the link, since a file is kept for 14 days.
