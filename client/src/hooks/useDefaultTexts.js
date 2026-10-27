@@ -99,15 +99,16 @@ export const useDefaultTexts = ({
         defaultSourceId = 'hebrew_bible.ruth.tess';
         defaultTargetId = 'hebrew_bible.1_samuel.tess';
       } else if (activeTab === 'fa') {
-        // A pair that runs in one part (2026-10-26). Without a fixed pair
-        // the fallback below picked the first two Persian texts
-        // alphabetically, Anvari against Attar's 196,000 lines, five billion
-        // line pairs. Hafez against Zabur-e Ajam (the 2026-09-06 choice) is
-        // 12 million pairs and shows the large-comparison warning whenever
-        // its cached answer is gone; Payam-e Mashriq, where Iqbal answers
-        // Hafez, is 3 million pairs and runs in about a minute.
+        // Hafez against Zabur-e Ajam (the owner's choice, 2026-10-26): the
+        // answer-poem pair, where seven known responses by Iqbal to Hafez
+        // sit in the top ten and the Rhyme badge shows on the default page.
+        // It is 12 million line pairs, so it depends on its cached answer:
+        // keep the pair cached, and never clear the whole search cache
+        // (clear one language, or re-run the default pairs after). Without
+        // a fixed pair the fallback below picked the first two Persian
+        // texts alphabetically, Anvari against Attar, five billion pairs.
         defaultSourceId = 'hafez.diwan.tess';
-        defaultTargetId = 'iqbal.payam_e_mashriq.tess';
+        defaultTargetId = 'iqbal.zabur_e_ajam.tess';
       } else if (activeTab === 'ur') {
         // Wali against Mir (2026-10-26): one part, and its first result is
         // a poetic response found by refrain and rhyme, so the Rhyme badge
