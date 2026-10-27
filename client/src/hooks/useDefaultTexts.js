@@ -99,11 +99,15 @@ export const useDefaultTexts = ({
         defaultSourceId = 'hebrew_bible.ruth.tess';
         defaultTargetId = 'hebrew_bible.1_samuel.tess';
       } else if (activeTab === 'fa') {
-        // Cached showcase pairs (2026-09-06). Without these the fallback
-        // below picked the first two Persian texts alphabetically, Anvari
-        // against Attar's 196,000 lines, five billion line pairs.
+        // A pair that runs in one part (2026-10-26). Without a fixed pair
+        // the fallback below picked the first two Persian texts
+        // alphabetically, Anvari against Attar's 196,000 lines, five billion
+        // line pairs. Hafez against Zabur-e Ajam (the 2026-09-06 choice) is
+        // 12 million pairs and shows the large-comparison warning whenever
+        // its cached answer is gone; Payam-e Mashriq, where Iqbal answers
+        // Hafez, is 3 million pairs and runs in about a minute.
         defaultSourceId = 'hafez.diwan.tess';
-        defaultTargetId = 'iqbal.zabur_e_ajam.tess';
+        defaultTargetId = 'iqbal.payam_e_mashriq.tess';
       } else if (activeTab === 'ur') {
         defaultSourceId = 'ghalib.diwan_wikisource.tess';
         defaultTargetId = 'iqbal.bang_e_dra.tess';
