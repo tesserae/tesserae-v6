@@ -58,6 +58,7 @@ target_word) to prevent inflected forms from inflating the mean.
 Channel weights are from Config K (grid-search optimized, Feb 28 2026).
 """
 
+import gc
 import json
 import math
 import os
@@ -3900,6 +3901,7 @@ FUSION_PART_OVERLAP_LINES = 1
 
 # One large comparison at a time in each process. A second waits its turn.
 _LARGE_SEMAPHORE = threading.Semaphore(1)
+_LARGE_GC_THRESHOLD = (200000, 20, 100)   # generation thresholds while a comparison runs in parts
 _large_waiters = []
 _large_waiters_lock = threading.Lock()
 
@@ -4134,9 +4136,18 @@ def _iter_fusion_in_parts(*args, cancellation=None, **kwargs):
             yield ("heartbeat", {"channel": None})
         with _large_waiters_lock:
             _large_waiters.remove(ticket)
+        # Python's collector walks every object kept so far each time it runs
+        # its oldest generation, and a comparison keeps millions of row
+        # dictionaries. Measured 2026-10-27, that was about three seconds of
+        # every ten-second part. The rows hold no reference cycles, so the
+        # collector is asked to run far less often for the length of this
+        # comparison and set back afterwards.
+        old_threshold = gc.get_threshold()
+        gc.set_threshold(*_LARGE_GC_THRESHOLD)
         try:
             yield from _run_parts(*args, cancellation=cancellation, **kwargs)
         finally:
+            gc.set_threshold(*old_threshold)
             _LARGE_SEMAPHORE.release()
     finally:
         with _large_waiters_lock:
