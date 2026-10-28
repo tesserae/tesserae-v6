@@ -211,7 +211,7 @@ describe('tiered results: strict shown directly, possible collapsed', () => {
 
   it('gives passages and works when one work echoes the line more than once', () => {
     const q = (work, ref) => ({ work, ref, tier: 'possible' });
-    expect(passagesInWorks([q('mir.k', 'a'), q('mir.k', 'b'), q('atish.d', 'c')])).toBe('3 passages in 2 works');
+    expect(passagesInWorks([q('mir.k', 'a'), q('mir.k', 'b'), q('atish.d', 'c')])).toBe('2 works with 3 passages');
     expect(passagesInWorks([q('mir.k', 'a')])).toBe('1 work');
     expect(passagesInWorks([q('mir.k', 'a'), q('atish.d', 'c')])).toBe('2 works');
   });

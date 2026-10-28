@@ -7,6 +7,9 @@ so the state of the live site can be reconstructed from this file and
 docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
+## 2026-10-28
+- Reader, Reuse tab: the possible-echoes heading puts works first ("5 works with 9 passages"), starting with the figure the box beside the line shows.
+
 ## 2026-10-27
 - Reader, Reuse tab: the possible-echoes heading gives passages and works ("9 passages in 5 works"), so it matches the dashed box beside the line, which counts other works. Before, the heading gave only the passage count, and a box of 5 beside a heading of 9 looked like an error. Help explains the two counts and lists Persian and Urdu among the languages with boxes.
 - Author labels: Martial's De Spectaculis is listed under Martial with the Epigrams, no longer under a second author "Martialis". Ten Coptic works whose file names had been split into an author and a title get proper labels: seven anonymous works under "Anonymous" (Acts of Pilate, Apophthegmata Patrum, Book of Bartholomew, Dormition of John, Lament of Mary, Martyrdom of Victor, Magical Spell on Papyrus), the encomium on Elijah under Stephen of Hnes, and the homily on repentance under Pseudo-Chrysostom. Each keeps its era and date. The change is in `backend/text_metadata_overrides.json`, with the matching credit rows in `backend/text_sources.json` retitled. Work ids, indexes and caches are unchanged.
