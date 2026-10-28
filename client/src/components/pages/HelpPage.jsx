@@ -1722,7 +1722,10 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 quotation: another work shares two or more distinctive words with this line, or a longer
                 run of its wording. A <strong>dashed box</strong> marks a possible echo, where another work
                 shares one rare phrase with this line, which is weaker evidence and more often a coincidence.
-                Click a box to open the <strong>Reuse</strong> tab. The boxes are built for Latin, Greek and English.
+                Click a box to open the <strong>Reuse</strong> tab, which lists every matching passage. One work can
+                echo a line in several passages, so the tab may list more passages than the box counts works. Its
+                heading gives both numbers, for example "9 passages in 5 works". The boxes are built for Latin,
+                Greek, English, Persian and Urdu.
               </p>
 
               <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">Moving around a long work</h4>

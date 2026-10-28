@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { passagesInWorks } from '../../utils/reuseCounts';
 import { documentPlace, documentLabels } from '../documents/documentDisplay';
 import useCollections from '../../hooks/useCollections';
 import { READER_TABS, viewById, orderBy } from '../../collections/collectionsConfig';
@@ -1063,7 +1064,7 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
                                    hover:bg-gray-100"
                         aria-expanded={possibleOpen}
                       >
-                        <span>Possible echoes (one rare shared phrase) &middot; {possible.length}</span>
+                        <span>Possible echoes (one rare shared phrase) &middot; {passagesInWorks(possible)}</span>
                         <span aria-hidden="true">{possibleOpen ? '−' : '+'}</span>
                       </button>
                       {possibleOpen && (
