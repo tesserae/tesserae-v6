@@ -20978,7 +20978,7 @@
     "license": "Noncommercial use only. All rights reserved by the Musisque Deoque project, the editors and the original authors. The terms bar commercial use without agreement and allow reproduction only on paper or portable offline media, for scholarly, teaching or documentary use, unaltered and with date, author and source cited (terms at mqdq.it, summarized from the Italian)"
   },
   {
-    "author": "Martialis",
+    "author": "Martial",
     "work": "De Spectaculis",
     "e_source": "Perseus",
     "e_source_url": "",
@@ -21905,8 +21905,8 @@
     "license": "Public domain in the USA (Project Gutenberg)"
   },
   {
-    "author": "Acts",
-    "work": "Pilate",
+    "author": "Anonymous",
+    "work": "Acts of Pilate",
     "e_source": "Coptic Scriptorium",
     "e_source_url": "https://data.copticscriptorium.org/urn:cts:copticLit:misc.acts_pilate.lacau_ed",
     "print_source": "Lacau 1904",
@@ -21915,8 +21915,8 @@
     "note": "Coptic SCRIPTORIUM corpus acts.pilate, 2 documents. Text prepared by: Lacau 1904. Document URNs run from urn:cts:copticLit:misc.acts_pilate.lacau_ed:9 to urn:cts:copticLit:misc.acts_pilate.lacau_ed:10-11."
   },
   {
-    "author": "Apophthegmata",
-    "work": "Patrum",
+    "author": "Anonymous",
+    "work": "Apophthegmata Patrum",
     "e_source": "Coptic Scriptorium",
     "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/AP",
     "added_by": "V6 Import",
@@ -22420,8 +22420,8 @@
     "note": "Coptic SCRIPTORIUM corpus bohairic.ot, 3 documents. Text prepared by: Marcion, Hany Takla. Translation: The Septuagint Version of the Old Testament, L.C.L. Brenton, 1851, available at ebible.org. Document URNs run from urn:cts:copticLit:ot.zeph.bohairic_ed:01 to urn:cts:copticLit:ot.zeph.bohairic_ed:03."
   },
   {
-    "author": "Book of Bartholomew",
-    "work": "Apocryphon",
+    "author": "Anonymous",
+    "work": "Book of Bartholomew",
     "e_source": "Coptic Scriptorium",
     "e_source_url": "https://data.copticscriptorium.org/urn:cts:copticLit:misc.blbartholomew",
     "print_source": "Budge Apocrypha 1913",
@@ -22440,8 +22440,8 @@
     "note": "Coptic SCRIPTORIUM corpus doc.papyri, 3 documents. Text prepared by: http://papyri.info/ddbdp/cpr;2;237; http://papyri.info/ddbdp/cpr;31;14; http://papyri.info/ddbdp/cpr;4;16. Document URNs run from urn:cts:copticDoc:papyri_info.tm82127.cpr_2_237 to urn:cts:copticDoc:papyri_info.tm82149.cpr_4_16."
   },
   {
-    "author": "Dormition",
-    "work": "John",
+    "author": "Anonymous",
+    "work": "Dormition of John",
     "e_source": "Coptic Scriptorium",
     "e_source_url": "https://data.copticscriptorium.org/urn:cts:copticLit:misc.dormition_john.budge",
     "print_source": "Budge 1913",
@@ -22450,8 +22450,8 @@
     "note": "Coptic SCRIPTORIUM corpus dormition.john, 1 document. Text prepared by: Marcion project, Archive.org. Translation: E. A. Wallis Budge. Document URN: urn:cts:copticLit:misc.dormition_john.budge."
   },
   {
-    "author": "Helias",
-    "work": "Helias",
+    "author": "Stephen of Hnes",
+    "work": "Encomium on Elijah",
     "e_source": "Coptic Scriptorium",
     "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/helias",
     "print_source": "Sobhy 1919",
@@ -22470,8 +22470,8 @@
     "note": "Coptic SCRIPTORIUM corpus johannes.canons, 14 documents. Text prepared by: Diliana Atanassova, The Canons of Apa John the Archimandrite Project (FWF Project P22641-G19). Document URNs run from urn:cts:copticLit:johannes.canons.monbfa:308-330 to urn:cts:copticLit:johannes.canons.monbfa:97-122."
   },
   {
-    "author": "John",
-    "work": "Constantinople",
+    "author": "Pseudo-Chrysostom",
+    "work": "Homily on Repentance and Continence",
     "e_source": "Coptic Scriptorium",
     "e_source_url": "https://data.copticscriptorium.org/urn:cts:copticLit:johnconst.penitence",
     "print_source": "Budge, 1910",
@@ -22480,8 +22480,8 @@
     "note": "Coptic SCRIPTORIUM corpus john.constantinople, 2 documents. Text prepared by: Marcion project, Archive.org. Translation: E. A. Wallis Budge. Document URNs run from urn:cts:copticLit:johnconst.penitence.budge:1-119 to urn:cts:copticLit:johnconst.penitence.budge:120-241."
   },
   {
-    "author": "Lament",
-    "work": "Mary",
+    "author": "Anonymous",
+    "work": "Lament of Mary",
     "e_source": "Coptic Scriptorium",
     "e_source_url": "https://data.copticscriptorium.org/urn:cts:copticLit:misc.lament_mary",
     "print_source": "Lacau 1904",
@@ -22580,8 +22580,8 @@
     "note": "Coptic SCRIPTORIUM corpus life.pisentius, 3 documents. Text prepared by: Marcion project, Archive.org. Translation: E. A. Wallis Budge. Document URNs run from urn:cts:copticLit:lives.pisentius.budge:1-31 to urn:cts:copticLit:lives.pisentius.budge:58-84."
   },
   {
-    "author": "Magical",
-    "work": "Papyri",
+    "author": "Anonymous",
+    "work": "Magical Spell on Papyrus",
     "e_source": "Coptic Scriptorium",
     "e_source_url": "https://github.com/CopticScriptorium/corpora/tree/master/magical-papyri",
     "added_by": "V6 Import",
@@ -22589,8 +22589,8 @@
     "note": "Coptic SCRIPTORIUM corpus magical.papyri, 8 documents. Editions are named per document (8 different) at the Scriptorium page. Document URNs run from urn:cts:copticMag:kyprianos_papyri.tm100001.bku_1_5 to urn:cts:copticMag:kyprianos.tm99993.kypt483."
   },
   {
-    "author": "Martyrdom",
-    "work": "Victor",
+    "author": "Anonymous",
+    "work": "Martyrdom of Victor",
     "e_source": "Coptic Scriptorium",
     "e_source_url": "https://data.copticscriptorium.org/urn:cts:copticLit:martyrdoms.victor",
     "print_source": "Budge 1914; Budge, 1914",
