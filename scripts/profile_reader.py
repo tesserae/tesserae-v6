@@ -122,7 +122,7 @@ def main():
             ref = allscores
         else:
             maxdiff, o10, o25, same10, same25, same_all = 0.0, [], [], 0, 0, 0
-            k = cfg.get('k')
+            cfg.get('k')
             for r, s in zip(ref, allscores):
                 n = len(s)
                 maxdiff = max(maxdiff, max(abs(a - b) for a, b in zip(r[:n], s)))
