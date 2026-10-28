@@ -1724,7 +1724,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 shares one rare phrase with this line, which is weaker evidence and more often a coincidence.
                 Click a box to open the <strong>Reuse</strong> tab, which lists every matching passage. One work can
                 echo a line in several passages, so the tab may list more passages than the box counts works. Its
-                heading gives both numbers, for example "9 passages in 5 works". The boxes are built for Latin,
+                heading gives both numbers, for example "5 works with 9 passages". The boxes are built for Latin,
                 Greek, English, Persian and Urdu.
               </p>
 
