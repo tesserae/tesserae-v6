@@ -185,6 +185,20 @@ def store_flag(base, whole, is_part, n_lines, part_lines, win_counts, have, full
     return True
 
 
+def work_level_flag(whole, win_counts, have):
+    """For stores that list only windows WITH names (People & Places, window names):
+    a poem or chapter that names nobody is absent and that is not a gap. The build
+    reached the work when any window of the work, whole file or any part, is listed.
+    A work with windows and no listed window at all is reported missing (a real gap,
+    or a rare work that names nobody, which a person confirms)."""
+    prefix = whole + '.part.'
+    def total(counts):
+        return counts.get(whole, 0) + sum(n for w, n in counts.items() if w.startswith(prefix))
+    if total(win_counts) == 0:
+        return True
+    return total(have) > 0
+
+
 def reuse_flag(base, whole, is_part, reuse):
     """The table keys a part on its whole work when a whole file exists (backend/reuse_table.py)."""
     if reuse is None:
@@ -374,8 +388,8 @@ def main():
         r['transl'] = os.path.exists(f'data/translations/{lang}__{base}.json') or os.path.exists(f'data/translations/{lang}__{whole}.json')
         r['syntax'] = '-' if syn_files is None else (fn in syn_files)
         sf = lambda have, full=False: store_flag(base, whole, is_part, n_lines, part_lines, win_counts, have, full)
-        r['names'] = sf(ent_counts)
-        r['wnames'] = sf(wn_counts)
+        r['names'] = work_level_flag(whole, win_counts, ent_counts)
+        r['wnames'] = work_level_flag(whole, win_counts, wn_counts)
         r['descfts'] = sf(fts_counts, True)
         r['reuse'] = reuse_flag(base, whole, is_part, reuse)
         r['meter'] = meter_flag(path, g) if lang == 'la' else '-'
