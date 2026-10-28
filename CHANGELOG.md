@@ -8,6 +8,7 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-28
+- Help covers all seven live languages where it had named only some: People & Places and its overview now say they cover every language (they did already), the Reuse tab names the five languages with reuse tables, the rare-word cutoff is given per language, and the Coptic and Hebrew sections no longer list the others. The syntax question becomes "Which languages does syntax matching work for?" with current figures (Coptic 186 of 187 files, Latin 1,281 of 1,889, Greek 577 of 1,635; English, Hebrew, Persian and Urdu not parsed). The meter answer says which languages do not weigh meter, and two typing questions join the Greek one, for Hebrew and for Persian or Urdu.
 - Help: every page of the site that Help names in its text (Text Credits and Provenance, Sources, About, Downloads, Terms of Use, Privacy, Upload Your Text, Events, Coins, Objects, Inscriptions & Papyri, People & Places, Theme Search, Line Search, String Search, Browse Corpus, Repository) is now a link, as is every other Help section it names (Search Settings, Stoplists, How well does it work?, Coptic Search, Coins, Theme Search, One text), and the repository's changelog and data-operations record on GitHub.
 - Reader, Reuse tab: the possible-echoes heading puts works first ("5 works with 9 passages"), starting with the figure the box beside the line shows.
 

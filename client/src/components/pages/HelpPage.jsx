@@ -429,7 +429,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 <div className="border-l-4 border-gray-300 pl-4">
                   <h4 className="text-lg font-semibold text-gray-900">People &amp; Places</h4>
                   <p className="text-gray-600 text-sm mt-1">
-                    Lists every line where a person, place or god is named, in Latin, Greek and English. See{' '}
+                    Lists every line where a person, place or god is named, in all seven languages of the site. See{' '}
                     <button onClick={() => setActiveSection('mentions')} className="text-red-600 hover:underline">People &amp; Places</button>.
                   </p>
                 </div>
@@ -774,7 +774,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   <p className="text-sm text-gray-700"><strong>Syntax:</strong> Compares grammatical dependency structures (parsed by LatinPipe) to detect parallel sentence construction. Includes a structural fingerprint path that matches lines with identical grammatical patterns even when they share no vocabulary, which catches allusions built on structural imitation with complete lexical substitution. Because many unrelated Latin lines share common syntactic patterns, structural matches are confirmed by a two-tier gate: they must have either a dictionary synonym pair between the two lines or high semantic similarity (cosine ≥ 0.70). In validation testing on Vergil's <em>Georgics</em> 3 vs. Lucretius <em>DRN</em> 6, this gate preserved all meaningful structural parallels while filtering over 90% of coincidental pattern matches.</p>
                 </div>
                 <div className="border-l-4 border-gray-300 pl-3">
-                  <p className="text-sm text-gray-700"><strong>Rare Vocabulary:</strong> Flags shared words that appear in fewer than about one in eight works of the language (roughly 100 for Latin and Greek, 6 for English). A rare shared word is unlikely to be coincidence.</p>
+                  <p className="text-sm text-gray-700"><strong>Rare Vocabulary:</strong> Flags shared words that appear in at most about one in eight works of the language, so the cutoff follows the size of each corpus: about 90 works for Latin, 110 for Greek, 20 for Coptic, and 3 to 5 for English, Hebrew, Persian and Urdu. A rare shared word is unlikely to be coincidence.</p>
                 </div>
                 <div className="border-l-4 border-gray-300 pl-3">
                   <p className="text-sm text-gray-700"><strong>Verbatim Quotation:</strong> Finds runs of three or more identical consecutive words, in every language. It carries the most weight of any channel, because an exact run is the strongest sign of quotation, and it matters most where authors quote their sources directly, as Coptic writers quote scripture without citation. See the <button type="button" onClick={() => setActiveSection('coptic')} className="text-red-600 hover:underline">Coptic Search</button> section for an example.</p>
@@ -1482,7 +1482,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
               <p className="text-gray-700 mb-4">
                 People &amp; Places lists every line in the corpus where a named person, place or god is
                 mentioned. Each person, place or god has one heading, and under it the lines are
-                grouped by work. The page covers the Latin, Greek and English works. Inscriptions
+                grouped by work. The page covers all seven languages of the site. Inscriptions
                 and papyri have their own table at the foot of an entry, listing the documents
                 that carry the name.
               </p>
@@ -1802,8 +1802,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
               <p className="text-gray-700 mb-3">
                   Reuse lists other works that repeat a line closely enough to
                   count as a quotation or near-quotation, with the shared words marked. It comes from a
-                  table built once over the whole corpus, not a live search, so it covers only Latin,
-                  Greek and English.
+                  table built once over the whole corpus, not a live search. Tables exist for Latin, Greek, English, Persian and Urdu. Coptic and Hebrew have none yet, so their Reuse tab says so.
               </p>
               <h5 id="scholarship-sources" className="text-base font-semibold text-gray-900 mt-4 mb-1">Scholarship tab</h5>
               <p className="text-gray-700 mb-3">
@@ -2433,7 +2432,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 )}
               </div>
               <div className="mt-5 bg-gray-50 p-4 rounded-lg text-sm text-gray-700">
-                <strong>Across languages:</strong> when a language lacks data for a channel (for example, syntax for Greek and English),
+                <strong>Across languages:</strong> when a language lacks data for a channel (for example, syntax for English, Hebrew, Persian and Urdu, which are not parsed),
                 that channel simply contributes nothing, and the other channels still run.
               </div>
             </div>
@@ -2443,7 +2442,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
             <div className="prose max-w-none">
               <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Coptic Search</h3>
               <p className="text-gray-700 mb-4">
-                Tesserae searches Sahidic Coptic alongside Latin, Greek, and English. The Coptic corpus combines the
+                Tesserae searches Sahidic Coptic alongside its six other languages. The Coptic corpus combines the
                 Coptic Bible with major works of monastic literature (the sermons and letters of Shenoute of Atripe
                 and his successor Besa), so you can trace how Coptic authors quote scripture and reuse one another.
               </p>
@@ -2523,7 +2522,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
             <div className="prose max-w-none">
               <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Hebrew Search</h3>
               <p className="text-gray-700 mb-4">
-                Tesserae searches the Hebrew Bible alongside Latin, Greek, English, and Coptic. The corpus is the
+                Tesserae searches the Hebrew Bible alongside its six other languages. The corpus is the
                 full Tanakh (all 39 books) in the Miqra according to the Masorah (MAM) edition, based on the
                 Aleppo Codex. You can compare any two books to trace inner-biblical reuse, from a poem preserved in
                 two places (Psalm 18 and 2 Samuel 22) to a phrase quoted in a later prophet.
@@ -3527,6 +3526,23 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   </p>
                 </div>
                 <div>
+                  <h4 className="text-lg font-semibold text-gray-900">How do I type Hebrew without a Hebrew keyboard?</h4>
+                  <p className="text-gray-600 text-sm mt-1">
+                    Add the Hebrew keyboard your computer already has, in the same place as for Greek above, or
+                    paste Hebrew from another page. Hebrew searches ignore vowel points and accents, so the
+                    consonants alone are enough. To match the vowel points too, choose Vowel points kept in String Search.
+                  </p>
+                </div>
+                <div>
+                  <h4 className="text-lg font-semibold text-gray-900">How do I type Persian or Urdu without the keyboard?</h4>
+                  <p className="text-gray-600 text-sm mt-1">
+                    Add the Persian or Urdu keyboard your computer already has, in the same place as for Greek
+                    above, or paste from another page. Persian and Urdu share one script, and an Arabic keyboard
+                    types most of it. String Search treats the Arabic and Persian forms of letters such as kaf
+                    and yeh as the same unless you choose Exact spelling.
+                  </p>
+                </div>
+                <div>
                   <h4 className="text-lg font-semibold text-gray-900">Does Tesserae take meter into account?</h4>
                   <p className="text-gray-600 text-sm mt-1">
                     In Latin, yes, in two ways. When both texts are verse, the Metrical patterns option in{' '}
@@ -3535,7 +3551,8 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                     otherwise. The Same meter frequency baseline, under Advanced Settings, measures how rare a word
                     is only among texts in the same meter, so a word that is ordinary in hexameter counts for
                     less when two hexameter poems share it. For Persian and Urdu poetry a shared named meter counts
-                    together with a shared refrain or rhyme.
+                    together with a shared refrain or rhyme. Greek, English, Coptic and Hebrew searches do not weigh
+                    meter.
                   </p>
                 </div>
                 <div>
@@ -3594,13 +3611,13 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   </p>
                 </div>
                 <div>
-                  <h4 className="text-lg font-semibold text-gray-900">Does syntax matching work for Greek and English?</h4>
+                  <h4 className="text-lg font-semibold text-gray-900">Which languages does syntax matching work for?</h4>
                   <p className="text-gray-600 text-sm mt-1">
-                    For Greek, yes, on about half the corpus: 650 of the about 1,330 Greek files are parsed,
-                    Homer among them, so syntax matching works where both texts are parsed. For English, no, because
-                    English is not parsed at all. Latin (1,433 of about 1,830 files) and Coptic (186 of 187) are parsed too. Where
-                    parsing is unavailable the syntax channel contributes nothing and the other channels run
-                    normally.
+                    Syntax matching needs both texts to have been parsed for grammar. Three languages are parsed.
+                    Coptic almost entirely (186 of 187 files), Latin for about two thirds of its files (1,281 of
+                    1,889), and Greek for about a third (577 of 1,635, Homer among them). Works added since the
+                    parse are not yet covered. English, Hebrew, Persian and Urdu are not parsed. Where a text has
+                    no parse the syntax channel contributes nothing and the other channels run normally.
                   </p>
                 </div>
               </div>
