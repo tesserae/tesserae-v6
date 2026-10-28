@@ -124,6 +124,18 @@ Stage E. Downloads, records and checks
 28. Nothing to do for the nightly warm-up or Tessa's reading of Help, which
     follow on their own.
 
+## 2026-10-28 Line vectors for 31 Latin and Greek files rebuilt (install RUN 14:08 EDT, by hand)
+Why. The coverage check flagged 31 files whose semantic-channel vectors did not match their texts. Two were really out of step after a text edit, `macrobius.saturnalia` (2,073 rows for 2,072 lines) and its part 2 (113 for 112); about ten more had a few lines whose text had changed since the vectors were made (`paschasius_radbertus.epitaphium_arsenii.part.2` all 24 rows, `paulinus_of_nola.carmina` 12, `septuaginta.exodus` 6, `euripides.andromache` 3, and one to three rows in seven others). The rest were flagged because the checker counted heading tags with no text (fixed in #1278).
+What. All 31 files encoded again with `bowphs/SPhilBerta`, raw vectors, tag stripped, on one campus GPU (33,640 lines, 13 s; the job, its public input folder and the upload folder deleted the same turn). New `.meta.json` files carry the full `line_refs` list (most live ones carry only the first ten). Installed by `~/tesserae-backups/vectors_backfill_2026-10-28/INSTALL.sh`, which copied the 64 replaced files to `replaced_20261028/` first; wsgi touched.
+Check. Rows equal the lines with text for every file, `line_refs` equal the tags in order, no NaN; rows with unchanged text give cosine 1.0000 against the old vectors (a few 0.9998, half precision). `verify_text_coverage.py --all` for Latin and Greek: no vector gaps.
+Rollback. Copy the files in `replaced_20261028/<lang>/` back and touch the wsgi.
+
+## 2026-10-28 Coptic lemma caches built for 163 texts (RUN 10:4x to 10:48 EDT, by hand)
+Why. The coverage check reported 163 of the 187 Coptic texts without a lemma cache. The plain-named files in `cache/lemmas/cop/` (for example `sahidic.amos.json`) are line-to-lemma maps of another format and are not read as caches, so searches lemmatized these texts on the fly.
+What. `scripts/batch_lemma_cache.py cop` from the production root under `~/bin/tess-job` (cap 4 GB), log `~/tesserae-backups/jobs/coptic_lemma_cache_2026-10-28.log`. New files only; nothing was replaced.
+Check. `backend.lemma_cache.get_cached_units` returns a valid cache for all 187 Coptic texts (163 did not before).
+Rollback. Not needed (additive); deleting the new hashed-name files restores the earlier behavior.
+
 ## 2026-10-27 Service settings: BLAS threads in the web workers, reader batching (RUN 15:5x and 21:50 EDT, by hand)
 Why. Two settings that are not in git changed on production today, and both affect speed only.
 What. (1) `tesseraev6_flask.wsgi` in the production root, which git does not track, now sets `OPENBLAS_NUM_THREADS` to 8 before the app loads. Without it each web worker started one BLAS thread per core (32), and a two-text comparison that forks part workers could hang on a lock inherited at the fork. A value of 1 was tried first and doubled the time of a Theme Search (15 s against 8), because the scan of the passage vectors is a matrix product. Backup `~/tesserae-backups/tesseraev6_flask.wsgi.bak-20261027-blas`. (2) The reader service's drop-in `~/.config/systemd/user/tesserae-reader.service.d/60-production-code-and-batching.conf` now sets `READER_SORT=tokens` and `READER_BATCH_SIZE=4` (they were `1` and `8`), the setting measured in pull request 1265: the reader call fell from 5.4 s to 3.4 s offline, with the order of results identical on 18 of 18 queries and scores within 4.2e-7.
