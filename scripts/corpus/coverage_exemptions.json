@@ -1,0 +1,189 @@
+{
+ "_about": "Works confirmed to lack a store for a stated reason. verify_text_coverage.py treats the listed columns as not applicable for these works and prints the reason. Add an entry only after checking the work, with the date and the reason.",
+ "works": {
+  "aristotle.de_audibilibus": {
+   "language": "grc",
+   "columns": [
+    "names",
+    "wnames"
+   ],
+   "reason": "checked 2026-10-28: the name detectors find no person, place or god in the work (a short treatise, fragment collection or lyric that names nobody)"
+  },
+  "aristotle.de_coloribus": {
+   "language": "grc",
+   "columns": [
+    "names",
+    "wnames"
+   ],
+   "reason": "checked 2026-10-28: the name detectors find no person, place or god in the work (a short treatise, fragment collection or lyric that names nobody)"
+  },
+  "aristotle.de_iuventute_et_senectute_de_vita_et_morte": {
+   "language": "grc",
+   "columns": [
+    "names",
+    "wnames"
+   ],
+   "reason": "checked 2026-10-28: the name detectors find no person, place or god in the work (a short treatise, fragment collection or lyric that names nobody)"
+  },
+  "aristotle.de_longitudine_et_brevitate_vitae": {
+   "language": "grc",
+   "columns": [
+    "names",
+    "wnames"
+   ],
+   "reason": "checked 2026-10-28: the name detectors find no person, place or god in the work (a short treatise, fragment collection or lyric that names nobody)"
+  },
+  "boethius.quomodo_substantiae_in_eo_quod_sint_bonae_sint_cum_non_sint_substantialia_bona": {
+   "language": "la",
+   "columns": [
+    "names",
+    "wnames"
+   ],
+   "reason": "checked 2026-10-28: the name detectors find no person, place or god in the work (a short treatise, fragment collection or lyric that names nobody)"
+  },
+  "demosthenes.against_onetor_31": {
+   "language": "grc",
+   "columns": [
+    "names",
+    "wnames"
+   ],
+   "reason": "checked 2026-10-28: the name detectors find no person, place or god in the work (a short treatise, fragment collection or lyric that names nobody)"
+  },
+  "galen.de_hirudinibus_revulsione_cucurbitula_incisione_et": {
+   "language": "grc",
+   "columns": [
+    "names",
+    "wnames"
+   ],
+   "reason": "checked 2026-10-28: the name detectors find no person, place or god in the work (a short treatise, fragment collection or lyric that names nobody)"
+  },
+  "hippocrates.aphorismi": {
+   "language": "grc",
+   "columns": [
+    "names",
+    "wnames"
+   ],
+   "reason": "checked 2026-10-28: the name detectors find no person, place or god in the work (a short treatise, fragment collection or lyric that names nobody)"
+  },
+  "hippocrates.de_alimento": {
+   "language": "grc",
+   "columns": [
+    "names",
+    "wnames"
+   ],
+   "reason": "checked 2026-10-28: the name detectors find no person, place or god in the work (a short treatise, fragment collection or lyric that names nobody)"
+  },
+  "hippocrates.de_arte": {
+   "language": "grc",
+   "columns": [
+    "names",
+    "wnames"
+   ],
+   "reason": "checked 2026-10-28: the name detectors find no person, place or god in the work (a short treatise, fragment collection or lyric that names nobody)"
+  },
+  "hippocrates.de_capitis_vulneribus": {
+   "language": "grc",
+   "columns": [
+    "names",
+    "wnames"
+   ],
+   "reason": "checked 2026-10-28: the name detectors find no person, place or god in the work (a short treatise, fragment collection or lyric that names nobody)"
+  },
+  "hippocrates.de_fracturis": {
+   "language": "grc",
+   "columns": [
+    "names",
+    "wnames"
+   ],
+   "reason": "checked 2026-10-28: the name detectors find no person, place or god in the work (a short treatise, fragment collection or lyric that names nobody)"
+  },
+  "hippocrates.de_genitura": {
+   "language": "grc",
+   "columns": [
+    "names",
+    "wnames"
+   ],
+   "reason": "checked 2026-10-28: the name detectors find no person, place or god in the work (a short treatise, fragment collection or lyric that names nobody)"
+  },
+  "hippocrates.de_liquidorum_usu": {
+   "language": "grc",
+   "columns": [
+    "names",
+    "wnames"
+   ],
+   "reason": "checked 2026-10-28: the name detectors find no person, place or god in the work (a short treatise, fragment collection or lyric that names nobody)"
+  },
+  "hippocrates.de_officina_medici": {
+   "language": "grc",
+   "columns": [
+    "names",
+    "wnames"
+   ],
+   "reason": "checked 2026-10-28: the name detectors find no person, place or god in the work (a short treatise, fragment collection or lyric that names nobody)"
+  },
+  "hippocrates.de_salubri_diaeta": {
+   "language": "grc",
+   "columns": [
+    "names",
+    "wnames"
+   ],
+   "reason": "checked 2026-10-28: the name detectors find no person, place or god in the work (a short treatise, fragment collection or lyric that names nobody)"
+  },
+  "keats.to_autumn": {
+   "language": "en",
+   "columns": [
+    "names",
+    "wnames"
+   ],
+   "reason": "checked 2026-10-28: the name detectors find no person, place or god in the work (a short treatise, fragment collection or lyric that names nobody)"
+  },
+  "lucian.patriae_encomium": {
+   "language": "grc",
+   "columns": [
+    "names",
+    "wnames"
+   ],
+   "reason": "checked 2026-10-28: the name detectors find no person, place or god in the work (a short treatise, fragment collection or lyric that names nobody)"
+  },
+  "lucian.tyrannicida": {
+   "language": "grc",
+   "columns": [
+    "names",
+    "wnames"
+   ],
+   "reason": "checked 2026-10-28: the name detectors find no person, place or god in the work (a short treatise, fragment collection or lyric that names nobody)"
+  },
+  "macrobius.fragment": {
+   "language": "la",
+   "columns": [
+    "names",
+    "wnames"
+   ],
+   "reason": "checked 2026-10-28: the name detectors find no person, place or god in the work (a short treatise, fragment collection or lyric that names nobody)"
+  },
+  "micon_of_saint_riquier.opus_prosodiacum": {
+   "language": "la",
+   "columns": [
+    "names",
+    "wnames"
+   ],
+   "reason": "checked 2026-10-28: the name detectors find no person, place or god in the work (a short treatise, fragment collection or lyric that names nobody)"
+  },
+  "seneca.carminum_fragmenta": {
+   "language": "la",
+   "columns": [
+    "names",
+    "wnames"
+   ],
+   "reason": "checked 2026-10-28: the name detectors find no person, place or god in the work (a short treatise, fragment collection or lyric that names nobody)"
+  },
+  "soranus.de_signis_fracturarum": {
+   "language": "grc",
+   "columns": [
+    "names",
+    "wnames"
+   ],
+   "reason": "checked 2026-10-28: the name detectors find no person, place or god in the work (a short treatise, fragment collection or lyric that names nobody)"
+  }
+ }
+}

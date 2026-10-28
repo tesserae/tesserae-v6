@@ -197,6 +197,15 @@ def store_flag(base, whole, is_part, n_lines, part_lines, win_counts, have, full
     return True
 
 
+def load_exemptions(path=None):
+    """Works confirmed to lack a store, with the reason (scripts/corpus/coverage_exemptions.json)."""
+    path = path or os.path.join(os.path.dirname(os.path.abspath(__file__)), 'coverage_exemptions.json')
+    try:
+        return json.load(open(path, encoding='utf-8')).get('works', {})
+    except (OSError, ValueError):
+        return {}
+
+
 def work_level_flag(whole, win_counts, have):
     """For stores that list only windows WITH names (People & Places, window names):
     a poem or chapter that names nobody is absent and that is not a gap. The build
@@ -352,6 +361,7 @@ def main():
     dates = (json.load(open('backend/author_dates.json')).get(lang) or {}) if os.path.exists('backend/author_dates.json') else {}
 
     syn_files = syntax_files(root, lang)
+    exemptions = load_exemptions()
     ent_counts = entity_work_counts(root)
     wn_counts = window_name_works(root)
     fts_counts = desc_fts_counts(root)
@@ -402,6 +412,11 @@ def main():
         r['syntax'] = '-' if syn_files is None else (fn in syn_files)
         r['names'] = work_level_flag(whole, win_counts, ent_counts)
         r['wnames'] = work_level_flag(whole, win_counts, wn_counts)
+        ex = exemptions.get(whole)
+        if ex:
+            for col in ex.get('columns', []):
+                if r.get(col) is not True:
+                    r[col] = '-'
         r['descfts'] = store_flag(base, whole, is_part, n_lines, part_lines, win_counts, fts_counts, True)
         r['reuse'] = reuse_flag(base, whole, is_part, reuse)
         r['meter'] = meter_flag(path, g) if lang == 'la' else '-'
