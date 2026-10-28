@@ -171,9 +171,28 @@ def reuse_works(root, lang):
         return set()
     c = _ro(path)
     try:
-        return {r[0] for r in c.execute('select distinct work from line_counts')}
+        works = {r[0] for r in c.execute('select distinct work from line_counts')}
+        try:
+            built = dict(c.execute("select key, value from meta")).get('built_at')
+        except sqlite3.OperationalError:
+            built = None
     finally:
         c.close()
+    # The table lists only lines that some other work repeats, so a work with no
+    # reused line never appears in it. A text older than the build was read by it.
+    try:
+        from datetime import datetime
+        works_built_at = datetime.fromisoformat(built).timestamp() if built else None
+    except ValueError:
+        works_built_at = None
+    return ReuseTable(works, works_built_at)
+
+
+class ReuseTable(set):
+    """The works in a reuse table, plus the time the table was built."""
+    def __init__(self, works, built_at):
+        super().__init__(works)
+        self.built_at = built_at
 
 
 def store_flag(base, whole, is_part, n_lines, part_lines, win_counts, have, full=False):
@@ -220,11 +239,16 @@ def work_level_flag(whole, win_counts, have):
     return total(have) > 0
 
 
-def reuse_flag(base, whole, is_part, reuse):
-    """The table keys a part on its whole work when a whole file exists (backend/reuse_table.py)."""
+def reuse_flag(base, whole, is_part, reuse, text_mtime=None):
+    """The table keys a part on its whole work when a whole file exists (backend/reuse_table.py).
+    A work absent from the table is covered when the table was built after the text was
+    last changed: the build read it and found no line that another work repeats."""
     if reuse is None:
         return '-'
-    return base in reuse or whole in reuse
+    if base in reuse or whole in reuse:
+        return True
+    built = getattr(reuse, 'built_at', None)
+    return bool(built and text_mtime and text_mtime <= built)
 
 
 def first_lines(path, n=5):
@@ -418,7 +442,7 @@ def main():
                 if r.get(col) is not True:
                     r[col] = '-'
         r['descfts'] = store_flag(base, whole, is_part, n_lines, part_lines, win_counts, fts_counts, True)
-        r['reuse'] = reuse_flag(base, whole, is_part, reuse)
+        r['reuse'] = reuse_flag(base, whole, is_part, reuse, os.path.getmtime(path))
         r['meter'] = meter_flag(path, g) if lang == 'la' else '-'
         r['label'] = label_flag(fn, m, src_rows)
         r['text'] = r.pop('text_ok'); r['file'] = fn
