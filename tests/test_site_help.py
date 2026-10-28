@@ -188,3 +188,15 @@ def test_greek_keyboard_question_gets_the_help_answer():
     from backend.assistant import site_help
     a = site_help.direct_answer("How do I type Greek if I don't have a Greek keyboard?")
     assert a and 'do not turn Latin letters into Greek' in a
+
+
+def test_hebrew_keyboard_question_gets_the_same_answer():
+    from backend.assistant import site_help
+    a = site_help.direct_answer("How do I type Hebrew without a Hebrew keyboard?")
+    assert a and 'Hebrew searches ignore vowel points' in a
+
+
+def test_persian_keyboard_question_gets_its_answer():
+    from backend.assistant import site_help
+    a = site_help.direct_answer("How do I type Persian without a Persian keyboard?")
+    assert a and 'kaf' in a
