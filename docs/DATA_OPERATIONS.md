@@ -35,6 +35,95 @@ Conventions
   hand and are the models the helper matches.
 
 
+## Adding a text: the standard procedure
+
+Every new text goes through all of these steps, in this order. A text is not
+finished until `scripts/corpus/verify_text_coverage.py` reports every required
+store present for it and exits 0. A step that does not apply to the text's
+language is marked "not applicable" in the run record, with the reason. A step
+left for later is entered in the working list with what is missing.
+
+Stage A. Before any file is made
+1. License. Read the source's terms. Public domain or an open license is added
+   as usual. A text licensed for search only goes into
+   `data/restricted_texts.json` first and is never sent to an outside service or
+   a public folder. A license that forbids redistribution is recorded in the
+   credit row and the text is kept out of downloads.
+2. Duplicates. Search the corpus for the same work under another name or
+   edition (`/api/texts`, `scripts/corpus/check_whole_vs_parts.py`). A second
+   edition needs a reason in the run record.
+3. Names. The file is `<author>.<work>.tess`, with `.part.N` files for books.
+   If the file name would split into a wrong author and title in the menus (an
+   anonymous work, a title of several words), add a display override in
+   `backend/text_metadata_overrides.json` with the author, the title, the era
+   and the year, and give the credit row the same author and title.
+
+Stage B. The pull request that adds the text
+4. The `.tess` file, validated with `scripts/corpus/validate_tess.py`.
+5. Credit row in `backend/text_sources.json` (author and work as the menus show
+   them, electronic source and address, print edition, license).
+6. Description for About this text in `data/text_descriptions.json`.
+7. Author date and era in `backend/author_dates.json`, or in the override.
+8. Genre and meter row in `data/text_genres.csv` (Latin), text type checked
+   with `scripts/audit_text_types.py`.
+9. Translation. Look for a public-domain translation first, then an open one
+   with attribution, and align it with a script in `scripts/translations/`.
+   Record the search even when nothing is found.
+10. Help, when the text changes what Help says. Check the Help page and the
+    corpus scope figures for the language. Look for counts of works or files,
+    the languages a feature covers, and anything a new kind of text changes
+    (the first drama, the first inscriptions, a new script). Tessa reads Help, so a stale figure there is
+    also a stale answer from Tessa.
+
+Stage C. Search stores on production, after the pull request merges
+11. Lemma cache: `scripts/batch_lemma_cache.py <lang>`.
+12. Search index: copy `data/inverted_index/<lang>_index.db`, add with
+    `scripts/corpus/add_texts_to_index.py`, swap the copy in, then
+    `scripts/review/line_search_postings_vs_lines_check.py` for Latin and Greek.
+13. Rare-phrase table: `scripts/corpus/rebuild_bigrams.py <lang>`.
+14. Frequency table: retire `cache/frequencies/<lang>.json` so the app
+    recomputes it, or rebuild it with `scripts/corpus/rebuild_frequency_cache.py`.
+15. Line vectors for the semantic channel in `backend/embeddings/<lang>/`, on
+    the campus GPU for anything above a few thousand lines.
+16. Grammar parse, for Latin (LatinPipe, `scripts/marvin_latinpipe/`), Greek
+    (Stanza `grc_proiel`) and Coptic (`scripts/build_coptic_syntax_db.py`):
+    the new file's rows added to `data/inverted_index/syntax_<language>.db` on a
+    copy, swapped in. Part files take their rows from the whole work by line.
+    Not applicable for English, Hebrew, Persian, Urdu and Arabic until a parser
+    is adopted for them.
+17. Scansion, for Latin verse. Check that the meter lookup finds the text's
+    lines in `data/scansion/mqdq_scansions.json` when Musisque Deoque has it,
+    with one test line through `backend/metrical_scanner.lookup_mqdq_scansion`.
+
+Stage D. Content stores on production
+18. Passage windows (`scripts/corpus/build_batch_windows.py`), descriptions on
+    the campus gateway, passage vectors on the GPU, appended in lockstep, then
+    the lockstep check, one Similar Passages request and one Theme Search
+    request.
+19. Description word index and vocabulary: `scripts/build_desc_fts.py`,
+    `scripts/corpus/build_desc_vocab.py`.
+20. Window names: `scripts/corpus/build_window_names.py`.
+21. People & Places mentions: `scripts/build_entity_index.py` for the new
+    works, then `--check`.
+22. Reuse table, for the languages that have one (Latin, Greek, English,
+    Persian, Urdu): `scripts/reuse/build_reuse_table.py`.
+23. Connection map: `scripts/build_connections_map.py`, then the density cache
+    with `scripts/precompute_passage_density.py`.
+
+Stage E. Downloads, records and checks
+24. Text archive for the language: `scripts/corpus/build_text_archives.py`,
+    then `SHA256SUMS.txt` and `index.json`, then the Downloads page.
+25. Reload: touch the wsgi file, restart the reader when the passage index
+    changed, `curl` the languages route.
+26. Checks: `scripts/reference_search_check.py`, the coverage check
+    (`scripts/corpus/verify_text_coverage.py --language <lang> <work>`, exit 0),
+    the golden requests, and one search with the new text from the page a
+    reader uses.
+27. Records: a dated entry in this file with each step's result, a CHANGELOG
+    line, and the working list updated with anything left.
+28. Nothing to do for the nightly warm-up or Tessa's reading of Help, which
+    follow on their own.
+
 ## 2026-10-27 Service settings: BLAS threads in the web workers, reader batching (RUN 15:5x and 21:50 EDT, by hand)
 Why. Two settings that are not in git changed on production today, and both affect speed only.
 What. (1) `tesseraev6_flask.wsgi` in the production root, which git does not track, now sets `OPENBLAS_NUM_THREADS` to 8 before the app loads. Without it each web worker started one BLAS thread per core (32), and a two-text comparison that forks part workers could hang on a lock inherited at the fork. A value of 1 was tried first and doubled the time of a Theme Search (15 s against 8), because the scan of the passage vectors is a matrix product. Backup `~/tesserae-backups/tesseraev6_flask.wsgi.bak-20261027-blas`. (2) The reader service's drop-in `~/.config/systemd/user/tesserae-reader.service.d/60-production-code-and-batching.conf` now sets `READER_SORT=tokens` and `READER_BATCH_SIZE=4` (they were `1` and `8`), the setting measured in pull request 1265: the reader call fell from 5.4 s to 3.4 s offline, with the order of results identical on 18 of 18 queries and scores within 4.2e-7.
