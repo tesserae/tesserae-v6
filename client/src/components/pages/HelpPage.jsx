@@ -3614,10 +3614,12 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   <h4 className="text-lg font-semibold text-gray-900">Which languages does syntax matching work for?</h4>
                   <p className="text-gray-600 text-sm mt-1">
                     Syntax matching needs both texts to have been parsed for grammar. Three languages are parsed.
-                    Coptic almost entirely (186 of 187 files), Latin for about two thirds of its files (1,281 of
-                    1,889), and Greek for about a third (577 of 1,635, Homer among them). Works added since the
-                    parse are not yet covered. English, Hebrew, Persian and Urdu are not parsed. Where a text has
-                    no parse the syntax channel contributes nothing and the other channels run normally.
+                    Coptic almost entirely (186 of 187 files), Latin for nearly every file (1,885 of 1,889), and
+                    Greek for every file (1,635 of 1,635, Homer among them). The latest Latin parse left out 106
+                    texts whose licenses bar copying them to outside tools, so 102 of those are parsed only in
+                    part and 4 not at all. A work added after the latest parse is not covered until the parses are
+                    updated. English, Hebrew, Persian and Urdu are not parsed. Where a text has no parse the syntax
+                    channel contributes nothing and the other channels run normally.
                   </p>
                 </div>
               </div>
