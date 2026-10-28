@@ -33,12 +33,11 @@ export const estimateMinutes = (estimate) =>
 export const estimateMillions = (estimate) =>
   Math.max(1, Math.round((estimate?.pairs || 0) / 1e6));
 
-// The warning shown before a large comparison is sent.
-export const largeComparisonWarning = (sourceName, targetName, estimate) =>
-  `Large comparison. ${sourceName} against ${targetName} is about ` +
-  `${estimateMillions(estimate)} million line pairs and will take about ` +
-  `${minutes(estimateMinutes(estimate))}. The results fill in part by part, ` +
-  'and you can leave the page open. Comparing selected books finishes in a minute or two.';
+// The line shown at the start of a large comparison, while it runs.
+export const largeComparisonLine = (sourceName, targetName, estimate) =>
+  `${sourceName} against ${targetName}: about ` +
+  `${estimateMillions(estimate)} million line pairs, about ` +
+  `${minutes(estimateMinutes(estimate))}. The results fill in part by part.`;
 
 // Minutes left, from the time the finished parts took (partStarts maps a part
 // number to the seconds into the search at which it began); before the first

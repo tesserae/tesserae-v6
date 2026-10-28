@@ -457,10 +457,11 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
               </p>
               <div className="mt-4 bg-amber-50 p-4 rounded-lg">
                 <p className="text-amber-700 text-sm">
-                  <strong>Tip.</strong> Start with a smaller section, such as Book 1. Large comparisons, such as the whole Aeneid
-                  against Book 1 of the Metamorphoses, take longer on the first run, and later searches of the same pair are cached.
-                  The very largest, such as the whole Aeneid against the whole Metamorphoses, are offered book by book or as a
-                  prepared file (below).
+                  <strong>Tip.</strong> Start with a smaller section, such as Book 1. A comparison of two long works, such as the
+                  whole Aeneid against Book 1 of the Metamorphoses, starts at once and takes a few minutes the first time. The
+                  page shows the time it expects and fills in the results part by part, and later searches of the same pair are
+                  instant. The very largest, such as the whole Aeneid against the whole Metamorphoses, are offered book by book or
+                  as a prepared file (below).
                 </p>
               </div>
               <p className="text-gray-700 mt-4 mb-3">
@@ -474,9 +475,11 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
               <p className="text-gray-700 mb-3">
                 The page runs a pair live up to 100 million line pairs (the source's lines times the target's lines). Two
                 whole epics, such as the Aeneid against Lucan's Civil War (about 80 million pairs), run live in about five to
-                ten minutes. The server works through them in parts and shows its progress. A pair above 100 million, such as
+                ten minutes. The server works through them in parts and shows its progress. The comparison starts on the first click. A line
+                above the results gives the number of line pairs and the time expected, and the link "Compare chosen books
+                instead" stops the run and takes you to the book menus. A pair above 100 million, such as
                 the Metamorphoses against the Aeneid (about 119 million), would hold the server too long, so "Find Parallels"
-                shows a panel with two choices. Choose a book on one side and the page compares it now, with every chart. Or click
+                stops with a panel of two choices. Choose a book on one side and the page compares it now, with every chart. Or click
                 "Prepare the whole comparison as a download" and the server prepares the pair in a queue, one comparison at a
                 time. The panel gives a link to a status page that shows your place in line and, when the file is ready, the
                 download. Keep the link, since a file is kept for 14 days.
