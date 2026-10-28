@@ -95,7 +95,8 @@ def test_meter_flag_not_applicable_for_prose_and_uses_scanner_for_verse(tmp_path
     assert mod.first_lines(str(p), 2)[0][0] == 'fix. work. 1.1'
     assert mod.meter_flag(str(p), {'meter': 'prose'}) == '-'
     assert mod.meter_flag(str(p), None) == '-'
-    import sys, types
+    import sys
+    import types
     fake = types.ModuleType('backend.metrical_scanner')
     fake.lookup_mqdq_scansion = lambda tag: None
     fake.detect_meter_type = lambda name: 'hexameter'
