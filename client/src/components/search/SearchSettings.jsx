@@ -165,8 +165,8 @@ const SearchSettings = ({ settings, setSettings, showAdvanced, setShowAdvanced, 
           </p>
           {settings.match_type === 'fusion' && (
             <p className="text-xs text-gray-500 mt-1">
-              Runs all eleven channels with weighted scoring. Best recall but slower.
-              Large text comparisons (e.g., {language === 'grc' ? 'full Odyssey vs. Argonautica' : language === 'en' ? 'full Paradise Lost vs. Faerie Queene' : language === 'cop' ? 'Sahidic Bible vs. Shenoute' : language === 'he' ? 'Genesis vs. Deuteronomy' : 'full Aeneid vs. Metamorphoses'}) may take up to 15 minutes on first run; subsequent searches are cached.
+              Runs all eleven channels with weighted scoring. A comparison of two long works runs in parts
+              and takes a few minutes the first time, with progress shown. Repeat searches are instant.
             </p>
           )}
         </div>
