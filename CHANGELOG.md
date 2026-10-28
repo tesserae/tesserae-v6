@@ -8,6 +8,7 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-28
+- Coverage check: `scripts/corpus/verify_text_coverage.py` now also checks the grammar parse (syntax), People & Places (names), Similar Passages names (wnames), the Theme Search word index (descfts) and the reuse table (reuse) as required columns, and reports Latin verse scansion (meter) and author and title labels (label) as optional columns to read. Read only; the checks follow the standard procedure in docs/DATA_OPERATIONS.md.
 - Records: `docs/DATA_OPERATIONS.md` gains "Adding a text: the standard procedure", the 28 steps every new text goes through, from the license check to the coverage check, including the grammar parse, People & Places, the reuse table, scansion and Help.
 - Help: the Hebrew and Persian or Urdu typing answers name the keyboard settings themselves instead of pointing to the Greek answer above, so each reads whole when the assistant quotes it alone.
 - Meter: Martial's De Spectaculis lines find their Musisque Deoque scansions. Its line tags (`mart. libe. 1.1`) were not parsed by the Martial branch of the scansion lookup, so its 220 scanned lines never counted toward the metrical patterns boost.
