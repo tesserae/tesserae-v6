@@ -59,6 +59,18 @@ def count_lines(path):
     return sum(1 for l in open(path, encoding='utf-8', errors='replace') if l.startswith('<') and pat.match(l))
 
 
+def count_text_lines(path):
+    """Reference lines that carry text. The line vectors hold one row per such
+    line: a heading tag with nothing after it (<sene. frag. 1.>) gets no row."""
+    pat = re.compile(r'^<[^>]+>\s*(.*)$')
+    n = 0
+    for l in open(path, encoding='utf-8', errors='replace'):
+        m = pat.match(l)
+        if m and m.group(1).strip():
+            n += 1
+    return n
+
+
 def window_flags(base, whole, is_part, n_lines, part_lines, win_counts, desc_counts, vec_counts):
     """The windows, described and winvec columns for one file.
 
@@ -362,7 +374,8 @@ def main():
         if os.path.exists(vp):
             try:
                 rows_v = np.load(vp, mmap_mode='r').shape[0]
-                r['vectors'] = rows_v == n_lines or f'rows {rows_v} vs lines {n_lines}'
+                n_text = count_text_lines(path)
+                r['vectors'] = rows_v == n_text or f'rows {rows_v} vs text lines {n_text}'
             except Exception: r['vectors'] = 'unreadable'
         else: r['vectors'] = False
         # Passage windows belong to the part files when a work has parts (the
