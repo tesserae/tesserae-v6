@@ -5,6 +5,7 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import ResultsPanel from './ResultsPanel';
+import { passagesInWorks } from '../../utils/reuseCounts';
 
 const UNITS = [
   { ref: 'verg. aen. 1.1', text: 'Arma virumque cano, Troiae qui primus ab oris' },
@@ -206,6 +207,13 @@ describe('tiered results: strict shown directly, possible collapsed', () => {
     mount();
     await waitFor(() => expect(screen.getByText(/Macrobius/)).toBeTruthy());
     expect(screen.getByText(/Possible echoes.*1/)).toBeTruthy();
+  });
+
+  it('gives passages and works when one work echoes the line more than once', () => {
+    const q = (work, ref) => ({ work, ref, tier: 'possible' });
+    expect(passagesInWorks([q('mir.k', 'a'), q('mir.k', 'b'), q('atish.d', 'c')])).toBe('3 passages in 2 works');
+    expect(passagesInWorks([q('mir.k', 'a')])).toBe('1 work');
+    expect(passagesInWorks([q('mir.k', 'a'), q('atish.d', 'c')])).toBe('2 works');
   });
 
   it('clicking a possible result still opens it in the Reader', async () => {
