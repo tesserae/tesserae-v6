@@ -8,6 +8,7 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-28
+- Syntax parses for every Latin and Greek file: scripts under `scripts/syntax/` plan, parse (local LatinPipe for Latin, Stanza for Greek), build and check two new database files, `syntax_latin.db` (1,889 of 1,889 live files with a parse, from 1,281, the restricted and withheld texts parsed locally) and `syntax_greek.db` (1,635 of 1,635, from 577), and rekey old rows stored under a ref the channel never read. The Greek `syntax_source` row names the package the rows were made with (perseus). The files are prepared, not yet swapped in (docs/DATA_OPERATIONS.md, 2026-10-28). Help gives the new figures. Measured effect on search in docs/DECISIONS.md.
 - Coverage check: `scripts/corpus/coverage_exemptions.json` lists works confirmed to lack a store, with the reason (23 short Latin, Greek and English works that name nobody), and the checker reports those columns as not applicable for them.
 - Data operations: People & Places and Similar Passages names for eleven Persian and Urdu works added since the names were built, among them the Gulistan, Kalila va Demna, Ab-e Hayat and the three new rekhta poets.
 - Data operations: line vectors for 31 Latin and Greek files rebuilt and installed (two were out of step with their texts, about ten had edited lines), and lemma caches built for 163 Coptic texts that had none.

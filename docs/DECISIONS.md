@@ -8,6 +8,20 @@ history (index builds, cache rebuilds, corpus changes) is in
 `DATA_OPERATIONS.md`; per-release changes are in `../CHANGELOG.md`.
 
 
+## 2026-10-28: the syntax databases cover every Latin and Greek file, and the measured effect on search
+
+The two syntax databases were rebuilt as new files (docs/DATA_OPERATIONS.md, same date) so that the syntax channel has a parse for every live Latin file (1,889 of 1,889, from 1,281) and every live Greek file (1,635 of 1,635, from 577), and can read the rows that the early builds stored under a ref other than the line's tag. Lines the channel could read went from 53.4 to 100.0 percent (Latin) and from 29.8 to 100 percent (Greek). The restricted and withheld Latin texts were parsed too, on our own server: their licenses forbid redistribution, not processing, and nothing was sent to an outside service. The Greek `syntax_source` row now names the package the rows were made with (Stanza's default, perseus).
+
+**Measured before any swap** with the fusion module run directly, the two paths patched in the process, default settings (mode merged, no result cap). Figures are in a private study note, `research/studies/2026-10-28_syntax_coverage_effect/REPORT.md`.
+- Latin benchmark, Lucan Bellum Civile 1 against the Aeneid (213 gold pairs): found in the top 10, 50, 100 and 500, 5, 13, 19 and 43 with the live files and the same with the new files. Over all results 176 and 175. The top 100 shares 97 of 100 pairs.
+- Greek benchmark, Argonautica 3 against 40 Homer books (121 gold pairs, type 4 and 5): 57, 71, 87 and 94 at 10, 50, 100 and 200, identical in every book.
+- Speed and memory: ten Lucan books against the whole Aeneid took 886 s live and 910 s new in total, peak 3.10 and 3.11 GB. Lucan whole against Aeneid whole took 349 s and 359 s, peak 3.55 and 3.57 GB. No run came near the 8 GB cap.
+- Top-100 overlap between live and new was 93 to 100 of 100 in every run. Three pairs rose into a top 20 from below rank 20 across all runs, each by one to thirteen places (for example `luc. 7.147` with `verg. aen. 8.695`, rank 25 to 12).
+- A text with no parse live gains results: Anticlaudianus against Aeneid 1 returned 141,515 results live and 185,760 with the new files. Lucan 4 against the Aeneid returned 181,106 and 209,390 (35 of its 824 lines were readable live).
+- The reference search ("arma virum", lemma) still returns Ovid 14, Quintilian 1, Seneca 3, Vergil 24, Livy 42. Line Search does not read the syntax databases.
+
+Decision: the effect on pairs of texts that were already parsed is nil for recall and for time and memory, so the swap carries no risk to the benchmarks. Its effect is that the syntax channel now works for every text that had no usable parse. The swap itself remains the owner's step.
+
 ## 2026-10-27: the parts of a large comparison run in two processes, and the semantic floor of Persian, Urdu and Arabic is set once per pair
 
 Two levers that the morning's round measured and did not merge were approved and are made. The first leaves every result unchanged. The second changes results for three languages, by design.
