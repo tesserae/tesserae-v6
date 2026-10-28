@@ -3528,16 +3528,16 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 <div>
                   <h4 className="text-lg font-semibold text-gray-900">How do I type Hebrew without a Hebrew keyboard?</h4>
                   <p className="text-gray-600 text-sm mt-1">
-                    Add the Hebrew keyboard your computer already has, in the same place as for Greek above, or
-                    paste Hebrew from another page. Hebrew searches ignore vowel points and accents, so the
+                    Add the Hebrew keyboard your computer already has (on a Mac under Keyboard in System
+                    Settings, on Windows under Language in Settings), or paste Hebrew from another page. Hebrew searches ignore vowel points and accents, so the
                     consonants alone are enough. To match the vowel points too, choose Vowel points kept in String Search.
                   </p>
                 </div>
                 <div>
                   <h4 className="text-lg font-semibold text-gray-900">How do I type Persian or Urdu without the keyboard?</h4>
                   <p className="text-gray-600 text-sm mt-1">
-                    Add the Persian or Urdu keyboard your computer already has, in the same place as for Greek
-                    above, or paste from another page. Persian and Urdu share one script, and an Arabic keyboard
+                    Add the Persian or Urdu keyboard your computer already has (on a Mac under Keyboard in
+                    System Settings, on Windows under Language in Settings), or paste from another page. Persian and Urdu share one script, and an Arabic keyboard
                     types most of it. String Search treats the Arabic and Persian forms of letters such as kaf
                     and yeh as the same unless you choose Exact spelling.
                   </p>
