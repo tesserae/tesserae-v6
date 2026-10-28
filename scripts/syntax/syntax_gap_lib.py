@@ -9,32 +9,32 @@ one form to another. Rows keyed any other way (for example the CTS form
 `adamnan.de_locis_santis urn:cts:...1.1`) are never read. Rows are looked up by
 `texts.filename`, the exact file name.
 """
+
 import json
-import os
 import re
 import sqlite3
 import unicodedata
 
-TAG_LINE = re.compile(r'^<([^>]+)>\s*(.+)$')
-PART_RE = re.compile(r'^(?P<base>.+?)\.part\.(?P<rest>.+)\.tess$')
+TAG_LINE = re.compile(r"^<([^>]+)>\s*(.+)$")
+PART_RE = re.compile(r"^(?P<base>.+?)\.part\.(?P<rest>.+)\.tess$")
 
 
 def norm_key(text):
     """Comparable form of a line or of a parse's joined tokens: accents and
     punctuation gone, case folded, final sigma and j/v folded."""
-    s = unicodedata.normalize('NFD', text or '')
-    s = ''.join(c for c in s if unicodedata.category(c) != 'Mn')
-    s = s.casefold().replace('ς', 'σ').replace('j', 'i').replace('v', 'u')
-    return ''.join(c for c in s if c.isalnum())
+    s = unicodedata.normalize("NFD", text or "")
+    s = "".join(c for c in s if unicodedata.category(c) != "Mn")
+    s = s.casefold().replace("ς", "σ").replace("j", "i").replace("v", "u")
+    return "".join(c for c in s if c.isalnum())
 
 
 def read_tess(path):
     """[(tag, text)] exactly as TextProcessor.process_file reads a file."""
     out = []
-    with open(path, encoding='utf-8') as fh:
+    with open(path, encoding="utf-8") as fh:
         for line in fh:
             line = line.strip()
-            if not line or line.startswith('#'):
+            if not line or line.startswith("#"):
                 continue
             m = TAG_LINE.match(line)
             if m:
@@ -44,20 +44,22 @@ def read_tess(path):
 
 def tokens_key(tokens_json):
     try:
-        return norm_key(''.join(json.loads(tokens_json)))
+        return norm_key("".join(json.loads(tokens_json)))
     except (TypeError, ValueError):
-        return ''
+        return ""
 
 
 def open_ro(path):
-    return sqlite3.connect(f'file:{path}?mode=ro&immutable=1', uri=True)
+    return sqlite3.connect(f"file:{path}?mode=ro&immutable=1", uri=True)
 
 
 def load_rows(conn):
     """{filename: [(ref, key)]} in stored order, for the whole database."""
-    names = dict(conn.execute('SELECT text_id, filename FROM texts'))
+    names = dict(conn.execute("SELECT text_id, filename FROM texts"))
     out = {n: [] for n in names.values()}
-    cur = conn.execute('SELECT text_id, ref, tokens FROM syntax ORDER BY text_id, rowid')
+    cur = conn.execute(
+        "SELECT text_id, ref, tokens FROM syntax ORDER BY text_id, rowid"
+    )
     for tid, ref, toks in cur:
         out[names[tid]].append((ref, tokens_key(toks)))
     return out
