@@ -8,6 +8,7 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-28
+- Coverage check: `scripts/corpus/coverage_exemptions.json` lists works confirmed to lack a store, with the reason (23 short Latin, Greek and English works that name nobody), and the checker reports those columns as not applicable for them.
 - Data operations: People & Places and Similar Passages names for eleven Persian and Urdu works added since the names were built, among them the Gulistan, Kalila va Demna, Ab-e Hayat and the three new rekhta poets.
 - Data operations: line vectors for 31 Latin and Greek files rebuilt and installed (two were out of step with their texts, about ten had edited lines), and lemma caches built for 163 Coptic texts that had none.
 - Coverage check: the line-vector column compares the vector rows with the lines that carry text, the rule the vector files follow, so a heading tag with no text no longer reads as a missing vector.
