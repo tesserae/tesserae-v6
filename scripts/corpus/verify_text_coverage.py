@@ -387,10 +387,9 @@ def main():
         r['dates'] = whole.split('.')[0] in dates
         r['transl'] = os.path.exists(f'data/translations/{lang}__{base}.json') or os.path.exists(f'data/translations/{lang}__{whole}.json')
         r['syntax'] = '-' if syn_files is None else (fn in syn_files)
-        sf = lambda have, full=False: store_flag(base, whole, is_part, n_lines, part_lines, win_counts, have, full)
         r['names'] = work_level_flag(whole, win_counts, ent_counts)
         r['wnames'] = work_level_flag(whole, win_counts, wn_counts)
-        r['descfts'] = sf(fts_counts, True)
+        r['descfts'] = store_flag(base, whole, is_part, n_lines, part_lines, win_counts, fts_counts, True)
         r['reuse'] = reuse_flag(base, whole, is_part, reuse)
         r['meter'] = meter_flag(path, g) if lang == 'la' else '-'
         r['label'] = label_flag(fn, m, src_rows)
