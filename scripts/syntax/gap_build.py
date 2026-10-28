@@ -15,7 +15,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from syntax_gap_lib import *  # noqa
 
 COLS = ('tokens', 'lemmas', 'upos', 'heads', 'deprels', 'feats')
-SOURCE = {'la': ('latinpipe', 'latin-evalatin24-240520'), 'grc': ('stanza', 'grc_proiel')}
+SOURCE = {'la': ('latinpipe', 'latin-evalatin24-240520'), 'grc': ('stanza 1.11.0', 'grc default package perseus (tokenize perseus; pos, lemma, depparse perseus_nocharlm)')}
 
 
 def main():

@@ -19,7 +19,7 @@ The file is found by its exact file name in the `texts` table. A row stored unde
 | Script | What it does |
 |---|---|
 | `syntax_gap_lib.py` | The ref rule, `norm_key` (the comparison form of a line), `align` (matches lines to stored rows by text, never by position alone) |
-| `gap_plan.py` | Reads the live database and the texts. Decides per file: rekey (give rows stored under another ref the line's tag), copy (a part file takes the rows of its whole work, a whole work the rows of its parts, a renamed work the rows stored under its old name), parse (lines still without a row), exclude (restricted texts and texts whose source bars online copies are not parsed). Writes `plan_<lang>.json` and `todo_<lang>.jsonl` |
+| `gap_plan.py` | Reads the live database and the texts. Decides per file: rekey (give rows stored under another ref the line's tag), copy (a part file takes the rows of its whole work, a whole work the rows of its parts, a renamed work the rows stored under its old name), parse (lines still without a row), exclude (restricted texts and texts whose source bars online copies, left out unless `--include-excluded` is given. The 2026-10-28 decision is to parse them, because their licenses forbid redistribution and not processing on our own server, so run with `--include-excluded`. Parsing is local and sends nothing out). Writes `plan_<lang>.json` and `todo_<lang>.jsonl` |
 | `parse_latinpipe.py` | Parses the todo lines with a local LatinPipe (`latin-evalatin24-240520`), in resumable chunks |
 | `parse_greek_stanza.py` | Parses the todo lines with Stanza's default Ancient Greek models, in resumable chunks |
 | `gap_build.py` | Copies the live database, applies the plan and the parses, rewrites `syntax_source`, runs `PRAGMA integrity_check` |
@@ -55,6 +55,13 @@ The file is found by its exact file name in the `texts` table. A row stored unde
   stored row in four has more than one root. `--shift-heads` on either parser makes heads line-wide.
   Changing it only for new rows would make old and new rows differ, so it is a decision for all rows.
 - Greek: the March build called `stanza.Pipeline("grc", ...)` with no package, so Stanza used its default,
-  `perseus`, while `syntax_source` says `grc_proiel`. The new parser does the same so that new rows match
-  the old ones (agreement on lemma, part of speech, head and relation is 99.99 percent). The label was not
-  changed.
+  `perseus`, although its `syntax_source` row said `grc_proiel`. The new parser does the same so that new rows
+  match the old ones (agreement on lemma, part of speech, head and relation is 99.99 percent). The new database's
+  `syntax_source` row now reads parser `stanza 1.11.0` and model `grc default package perseus (tokenize perseus;
+  pos, lemma, depparse perseus_nocharlm)`.
+- A Latin sentence the model cannot take (over its 512 subword positions) leaves its line unparsed and is listed in
+  `<out>.failed`. After the 2026-10-28 run that is one line of Pliny, `plin. nat. 32.61` (a sentence of 331 tokens that
+  lists fish names), in two files. The tokenizer had already split the line at every sentence end.
+- `effect_measure.py` runs the default fusion search on a pair with chosen syntax databases (patched in the process,
+  no file replaced) and the Apollonius to Homer benchmark, for the live-against-new comparison of
+  `docs/DECISIONS.md` (2026-10-28).

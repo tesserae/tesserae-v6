@@ -50,6 +50,10 @@ def main():
     ap.add_argument('--texts', required=True)
     ap.add_argument('--out-dir', required=True)
     ap.add_argument('--orphan-min', type=float, default=0.5)
+    ap.add_argument('--include-excluded', action='store_true',
+                    help='parse the restricted and withheld texts too (local parsing sends nothing out; the 2026-10-28 decision)')
+    ap.add_argument('--extend-todo', action='store_true',
+                    help='keep the ids of an existing todo file and give new texts new ids, so earlier parse output stays valid')
     a = ap.parse_args()
     conn = open_ro(a.db)
     rows = load_rows(conn)
@@ -70,6 +74,8 @@ def main():
         parts_of[k].sort(key=natural)
 
     excluded = exclusion_reasons(a.texts, files)
+    if a.include_excluded:
+        excluded = {}
     plan = {'lang': a.lang, 'live': len(files), 'parsed_before': [], 'rekey': {}, 'copy': {}, 'parse': {},
             'excluded': excluded, 'empty': [], 'sources_used': {}, 'orphans': len(orphans), 'dup_tags': {}}
     texts_to_parse = {}
@@ -140,9 +146,20 @@ def main():
                 texts_to_parse.setdefault(x, None)
     # distinct texts, shorter first so a chunk batches similar lengths
     order = sorted(texts_to_parse, key=lambda x: (len(x), x))
-    with open(os.path.join(a.out_dir, f'todo_{a.lang}.jsonl'), 'w', encoding='utf-8') as fh:
-        for i, x in enumerate(order):
-            fh.write(json.dumps({'id': i, 'text': x}, ensure_ascii=False) + '\n')
+    todo_path = os.path.join(a.out_dir, f'todo_{a.lang}.jsonl')
+    old = []
+    if a.extend_todo and os.path.exists(todo_path):
+        old = [json.loads(line) for line in open(todo_path, encoding='utf-8')]
+    known = {o['text'] for o in old}
+    nxt = max((o['id'] for o in old), default=-1) + 1
+    new = [x for x in order if x not in known]
+    with open(todo_path, 'w', encoding='utf-8') as fh:
+        for o in old:
+            fh.write(json.dumps(o, ensure_ascii=False) + '\n')
+        for x in new:
+            fh.write(json.dumps({'id': nxt, 'text': x}, ensure_ascii=False) + '\n')
+            nxt += 1
+    order = [o['text'] for o in old if o['text'] in texts_to_parse] + new
     plan['todo_texts'] = len(order)
     json.dump(plan, open(os.path.join(a.out_dir, f'plan_{a.lang}.json'), 'w'), ensure_ascii=False)
     n_copy = sum(len(v) for v in plan['copy'].values())
