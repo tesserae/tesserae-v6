@@ -1,6 +1,6 @@
 {
   "_description": "Per-text metadata overrides. Keyed by text filename (e.g. 'eobanus.heroidum.tess'). Fields: text_type (poetry/prose), display_author, display_work, year, era, notes. Only include fields you want to override.",
-  "_last_updated": "2026-10-18",
+  "_last_updated": "2026-10-27",
   "bohairic.abdias.tess": {
     "display_author": "Bohairic Coptic",
     "display_work": "Obadiah"
@@ -522,8 +522,10 @@
     "display_work": "Titus"
   },
   "book.bartholomew.tess": {
-    "display_author": "Book of Bartholomew",
-    "display_work": "Apocryphon"
+    "display_author": "Anonymous",
+    "display_work": "Book of Bartholomew",
+    "era": "Early Coptic",
+    "year": 400
   },
   "doc.papyri.tess": {
     "display_author": "Documentary Papyri",
@@ -854,5 +856,56 @@
     "display_author": "Theodosius of Alexandria",
     "display_work": "Encomium on Michael the Archangel",
     "notes": "2026-10-18: Coptic SCRIPTORIUM theodosiusalex.michael (Budge, Miscellaneous Coptic Texts, 1915)."
+  },
+  "martialis.de_spectaculis.tess": {
+    "display_author": "Martial"
+  },
+  "acts.pilate.tess": {
+    "display_author": "Anonymous",
+    "display_work": "Acts of Pilate",
+    "era": "Early Coptic",
+    "year": 400
+  },
+  "apophthegmata.patrum.tess": {
+    "display_author": "Anonymous",
+    "display_work": "Apophthegmata Patrum",
+    "era": "Classical Coptic",
+    "year": 500
+  },
+  "dormition.john.tess": {
+    "display_author": "Anonymous",
+    "display_work": "Dormition of John",
+    "era": "Early Coptic",
+    "year": 400
+  },
+  "lament.mary.tess": {
+    "display_author": "Anonymous",
+    "display_work": "Lament of Mary",
+    "era": "Late Antique Coptic",
+    "year": 600
+  },
+  "martyrdom.victor.tess": {
+    "display_author": "Anonymous",
+    "display_work": "Martyrdom of Victor",
+    "era": "Late Antique Coptic",
+    "year": 600
+  },
+  "magical.papyri.tess": {
+    "display_author": "Anonymous",
+    "display_work": "Magical Spell on Papyrus",
+    "era": "Late Antique Coptic",
+    "year": 600
+  },
+  "helias.tess": {
+    "display_author": "Stephen of Hnes",
+    "display_work": "Encomium on Elijah",
+    "era": "Late Antique Coptic",
+    "year": 600
+  },
+  "john.constantinople.tess": {
+    "display_author": "Pseudo-Chrysostom",
+    "display_work": "Homily on Repentance and Continence",
+    "era": "Late Antique Coptic",
+    "year": 650
   }
 }
