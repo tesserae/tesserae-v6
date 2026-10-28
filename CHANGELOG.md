@@ -8,6 +8,7 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-28
+- Coverage check: the line-vector column compares the vector rows with the lines that carry text, the rule the vector files follow, so a heading tag with no text no longer reads as a missing vector.
 - Coverage check: `scripts/corpus/verify_text_coverage.py` now also checks the grammar parse (syntax), People & Places (names), Similar Passages names (wnames), the Theme Search word index (descfts) and the reuse table (reuse) as required columns, and reports Latin verse scansion (meter) and author and title labels (label) as optional columns to read. Read only; the checks follow the standard procedure in docs/DATA_OPERATIONS.md.
 - Records: `docs/DATA_OPERATIONS.md` gains "Adding a text: the standard procedure", the 28 steps every new text goes through, from the license check to the coverage check, including the grammar parse, People & Places, the reuse table, scansion and Help.
 - Help: the Hebrew and Persian or Urdu typing answers name the keyboard settings themselves instead of pointing to the Greek answer above, so each reads whole when the assistant quotes it alone.
