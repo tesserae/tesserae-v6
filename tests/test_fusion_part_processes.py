@@ -451,3 +451,43 @@ def test_stuck_workers_fall_back_to_running_the_parts_in_process(monkeypatch):
     assert time.monotonic() - t0 < 30
     key = lambda d: [(r['source']['ref'], r['target']['ref'], round(r.get('fused_score', r.get('score', 0)), 6)) for r in d['results']]  # noqa: E731
     assert key(fallback) == key(single)
+
+
+def test_a_worker_dies_when_its_parent_dies():
+    """A part worker must not outlive the process that forked it."""
+    import multiprocessing
+    import signal
+    ctx = multiprocessing.get_context('fork')
+    ready = ctx.Event()
+
+    def middle(q):
+        def child():
+            fusion._die_with_parent(os.getppid())
+            ready.set()
+            time.sleep(600)
+        c = ctx.Process(target=child)
+        c.start()
+        q.put(c.pid)
+        time.sleep(600)
+
+    q = ctx.Queue()
+    m = ctx.Process(target=middle, args=(q,))
+    m.start()
+    child_pid = q.get(timeout=10)
+    assert ready.wait(10)
+    os.kill(m.pid, signal.SIGKILL)
+    m.join(5)
+    deadline = time.monotonic() + 5
+    alive = True
+    while time.monotonic() < deadline:
+        try:
+            os.kill(child_pid, 0)
+            with open(f'/proc/{child_pid}/stat') as f:
+                if f.read().split()[2] == 'Z':
+                    alive = False
+                    break
+        except (ProcessLookupError, FileNotFoundError):
+            alive = False
+            break
+        time.sleep(0.1)
+    assert not alive

@@ -4148,12 +4148,31 @@ def _drain(gen):
         return stop.value
 
 
+def _die_with_parent(parent_pid):
+    """Ask the kernel to kill this worker if the process that forked it dies.
+
+    Without this a worker whose web worker was killed in the middle of a
+    comparison could linger, holding its memory; one test worker did so for
+    six hours on 2026-10-27. Linux only; elsewhere this does nothing."""
+    try:
+        import ctypes
+        import signal
+        libc = ctypes.CDLL('libc.so.6', use_errno=True)
+        PR_SET_PDEATHSIG = 1
+        libc.prctl(PR_SET_PDEATHSIG, signal.SIGKILL)
+        if os.getppid() != parent_pid:      # the parent died before the call took effect
+            os._exit(0)
+    except (OSError, AttributeError):
+        pass
+
+
 def _part_worker(conn, other_conns, parent_pid, run_part):
     """Body of a worker process: run the parts named on `conn`, send each one's rows back."""
     try:
         os.setpgrp()            # own process group, so the parent can stop this worker and its pools together
     except OSError:
         pass
+    _die_with_parent(parent_pid)
     for c in other_conns:
         try:
             c.close()
