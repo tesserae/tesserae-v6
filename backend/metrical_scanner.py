@@ -364,9 +364,17 @@ def lookup_mqdq_scansion(locus):
             # Format: martial.epigrams.9.84.10 -> book=9, line_ref=84.10
             book_num = parts[2]
             line_ref = f"{parts[3]}.{parts[4]}"
-        
+        elif len(parts) >= 4 and parts[1] in ('libe', 'de_spectaculis', 'spect') and parts[2].isdigit():
+            # De Spectaculis (Liber spectaculorum): "mart. libe. 1.1", the tag in
+            # martialis.de_spectaculis.tess, or "martialis.de_spectaculis.1.1".
+            # MQDQ keys it as martialis.de_spectaculis with POEM.LINE refs; before
+            # 2026-10-28 neither form matched, so its scansions were never used.
+            book_num = 'spect'
+            line_ref = f"{parts[2]}.{parts[3]}"
+
         if book_num and line_ref:
-            mqdq_key = f"martialis.epigrammata_{book_num}"
+            mqdq_key = ("martialis.de_spectaculis" if book_num == 'spect'
+                        else f"martialis.epigrammata_{book_num}")
             
             if mqdq_key in scansions:
                 work_data = scansions[mqdq_key]
