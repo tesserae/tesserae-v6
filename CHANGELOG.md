@@ -8,6 +8,7 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-29
+- Coptic works dated by a stated rule: the 21 Coptic works that had no era or year (eleven saints' Lives and other anonymous works, eight pseudonymous homilies, Theodosius of Alexandria and the documentary papyri) now carry both. Each year is the midpoint of the earliest and latest possible dates, and each note gives the basis. A new Coptic era, Medieval Coptic, covers years after 700.
 - Coptic labels: thirteen literary works filed under "Sahidic Coptic" beside the Bible books (the Gospel of Thomas, Pistis Sophia, the Mysteries of John, the Encomium of Mercurius and nine saints' Lives) are listed under "Anonymous", as Coptic Scriptorium gives no author; the Gospel of Thomas and Pistis Sophia are dated Early Coptic (350) by their 4th-century manuscripts, the others carry no date rather than the Bible's.
 - Coptic Bible books carry an era: the Sahidic books Early Coptic (300) and the Bohairic books Early Coptic (350), dated by the translation as the Septuagint and the King James Version are. The 153 books had none, so the era filter could not select them, and the older Bohairic entry (900, the manuscripts' date) disagreed with the Map's 300.
 - Data operations: connection map and Reader margins rebuilt over the 730,392-window passage index, so the 34 Coptic works added on 2026-10-28 appear on the Map and in the Reader margin.
