@@ -56,7 +56,7 @@ from backend.urdu.processor import normalize_urdu, tokenize_urdu       # noqa: E
 
 IDX = os.environ.get('PASSAGE_INDEX_DIR', os.path.join(ROOT, 'data', 'passage_index'))
 LEMMA_TABLES_DIR = os.path.join(ROOT, 'data', 'lemma_tables')
-SYNTAX_COPTIC_DB = os.path.join(ROOT, 'data', 'inverted_index', 'syntax_coptic.db')
+SYNTAX_COPTIC_DB = os.environ.get('SYNTAX_COPTIC_DB', os.path.join(ROOT, 'data', 'inverted_index', 'syntax_coptic.db'))
 CACHE_LEMMAS_DIR = os.path.join(ROOT, 'cache', 'lemmas')
 
 GR = {'α':'a','β':'b','γ':'g','δ':'d','ε':'e','ζ':'z','η':'e','θ':'th','ι':'i','κ':'k','λ':'l','μ':'m','ν':'n','ξ':'ks','ο':'o','π':'p','ρ':'r','σ':'s','ς':'s','τ':'t','υ':'u','φ':'f','χ':'kh','ψ':'ps','ω':'o'}
@@ -230,6 +230,130 @@ def syntax_coptic_pairs(db_path, normalize_fn):
                 yield normalize_fn(t), u
     finally:
         con.close()
+
+
+def syntax_coptic_propn_by_line(db_path, normalize_fn):
+    """{work: {ref: [normalized PROPN token, ...]}} from syntax_coptic.db.
+
+    Coptic Scriptorium's parses split a written word into its bound-group parts
+    (the preposition, the article and the name are separate tokens), so a name inside
+    a bound group (ϩⲓⲉⲣⲟⲩⲥⲁⲗⲏⲙ "to Jerusalem" inside ⲉⲧⲃⲉⲧϩⲓⲉⲣⲟⲩⲥⲁⲗⲏⲙ) is a token of its own
+    here even though no written word equals it. The work is the file name without
+    '.tess'; the ref is the line's tag inside the angle brackets, the same string
+    window_texts.db's `lines` table holds in its ref column."""
+    out = {}
+    con = sqlite3.connect(f'file:{db_path}?mode=ro', uri=True)
+    try:
+        q = ('select t.filename, s.ref, s.tokens, s.upos from syntax s '
+             'join texts t on t.text_id = s.text_id')
+        try:
+            rows = list(con.execute(q))
+        except sqlite3.OperationalError:
+            print('syntax_coptic.db has no texts table: the parse match is skipped', flush=True)
+            return out
+        for fn, ref, toks_json, upos_json in rows:
+            toks = json.loads(toks_json or '[]')
+            ups = json.loads(upos_json or '[]')
+            props = [normalize_fn(t) for t, u in zip(toks, ups) if u == 'PROPN']
+            props = [p for p in props if p]
+            if props:
+                work = fn[:-5] if fn.endswith('.tess') else fn
+                out.setdefault(work, {})[ref] = props
+    finally:
+        con.close()
+    return out
+
+
+def window_line_refs(lines_by_work, work, ref_start, ref_end):
+    """The refs of the lines a window covers (inclusive), from
+    lines_by_work[work] = (ordered refs, {ref: first index}). An unknown
+    ref_start gives an empty list (the surface match still runs)."""
+    refs, pos = lines_by_work.get(work) or ([], {})
+    i = pos.get(ref_start)
+    if i is None:
+        return []
+    j = pos.get(ref_end, i)
+    if j < i:
+        j = i
+    return refs[i:j + 1]
+
+
+def names_from_parse(line_refs, propn_by_ref, names_set):
+    """{normalized name: display form} for every PROPN token of the given lines
+    that is in the purity set. The display form is the token itself, which is
+    the bound-group part of the written word (no editorial marks)."""
+    ks = {}
+    for ref in line_refs:
+        for p in propn_by_ref.get(ref, ()):
+            if p in names_set:
+                ks.setdefault(p, p)
+    return ks
+
+
+def coptic_window_pairs(con, cop_names, propn_by_work):
+    """Yield (window id, key, form) for every Coptic window: the surface match
+    (a written word equal to a name) UNION the parse match (a PROPN token of
+    a covered line)."""
+    seq = collections.defaultdict(list)
+    cop_works = {w for (w,) in con.execute("select distinct work from window_texts where language='cop'")}
+    try:
+        line_rows = list(con.execute('select work, ref from lines order by work, ord'))
+    except sqlite3.OperationalError:
+        line_rows = []        # an index without a lines table: the surface match only
+    for work, ref in line_rows:
+        if work in cop_works:
+            seq[work].append(ref)
+    lines_by_work = {}
+    for work, refs in seq.items():
+        pos = {}
+        for i, r in enumerate(refs):
+            pos.setdefault(r, i)
+        lines_by_work[work] = (refs, pos)
+    for wid, work, rs, re_, text in con.execute(
+            "select id, work, ref_start, ref_end, text from window_texts where language='cop'"):
+        orig, norm = tokenize_coptic(text)
+        ks = names_in_window(orig, norm, cop_names)
+        refs = window_line_refs(lines_by_work, work, rs, re_)
+        for k, form in names_from_parse(refs, propn_by_work.get(work, {}), cop_names).items():
+            ks.setdefault(k, form)
+        for k, form in ks.items():
+            yield wid, k, form
+
+
+def rebuild_coptic_only(live_db, out_db, idx_dir=None, syntax_db=None):
+    """Copy live_db to out_db and replace only the Coptic rows (and the Coptic
+    share of name_df) with the surface-plus-parse pass. Every other language's
+    rows stay byte-identical. Returns (old cop pairs, new cop pairs)."""
+    import shutil
+    idx_dir = idx_dir or IDX
+    syntax_db = syntax_db or SYNTAX_COPTIC_DB
+    shutil.copyfile(live_db, out_db)
+    cop_names = propn_purity_set(syntax_coptic_pairs(syntax_db, normalize_coptic), min_total=2, min_rate=0.85)
+    propn_by_work = syntax_coptic_propn_by_line(syntax_db, normalize_coptic)
+    con = sqlite3.connect(f'file:{idx_dir}/window_texts.db?mode=ro', uri=True)
+    new_rows = list(coptic_window_pairs(con, cop_names, propn_by_work))
+    cop_ids = {i for (i,) in con.execute("select id from window_texts where language='cop'")}
+    con.close()
+    out = sqlite3.connect(out_db)
+    out.execute('create temp table cop_ids (id text primary key)')
+    out.executemany('insert into cop_ids values (?)', [(i,) for i in cop_ids])
+    old_df = collections.Counter(dict(out.execute(
+        'select k, count(*) from window_names where id in (select id from cop_ids) group by k')))
+    old_n = sum(old_df.values())
+    out.execute('delete from window_names where id in (select id from cop_ids)')
+    out.executemany('insert into window_names values (?,?,?)', new_rows)
+    new_df = collections.Counter(k for _, k, _ in new_rows)
+    for k in set(old_df) | set(new_df):
+        row = out.execute('select df from name_df where k=?', (k,)).fetchone()
+        df = (row[0] if row else 0) - old_df[k] + new_df[k]
+        if df > 0:
+            out.execute('insert or replace into name_df values (?,?)', (k, df))
+        else:
+            out.execute('delete from name_df where k=?', (k,))
+    out.execute("update meta set value=? where key='windows_cop'", (str(len(cop_ids)),))
+    out.commit()
+    out.execute('analyze'); out.commit(); out.close()
+    return old_n, len(new_rows)
 
 
 def cache_pos_pairs(cache_dir, normalize_fn):
@@ -412,12 +536,11 @@ def main(out_path):
     if os.path.exists(SYNTAX_COPTIC_DB):
         cop_names = propn_purity_set(
             syntax_coptic_pairs(SYNTAX_COPTIC_DB, normalize_coptic), min_total=2, min_rate=0.85)
-        cop_batch = []; cop_n = 0
-        for wid, text in con.execute("select id, text from window_texts where language='cop'"):
-            orig, norm = tokenize_coptic(text)
-            for k, form in names_in_window(orig, norm, cop_names).items():
-                cop_batch.append((wid, k, form)); df[k] += 1
-            cop_n += 1
+        propn_by_work = syntax_coptic_propn_by_line(SYNTAX_COPTIC_DB, normalize_coptic)
+        cop_batch = []
+        for wid, k, form in coptic_window_pairs(con, cop_names, propn_by_work):
+            cop_batch.append((wid, k, form)); df[k] += 1
+        cop_n = con.execute("select count(*) from window_texts where language='cop'").fetchone()[0]
         out.executemany('insert into window_names values (?,?,?)', cop_batch)
         n += cop_n
         group_n['cop'] = cop_n
@@ -488,4 +611,9 @@ def main(out_path):
 
 
 if __name__ == '__main__':
-    main(sys.argv[1])
+    if sys.argv[1] == '--coptic-only':
+        # --coptic-only LIVE.db OUT.db: copy LIVE.db, replace only the Coptic rows
+        old_n, new_n = rebuild_coptic_only(sys.argv[2], sys.argv[3])
+        print(f'Coptic pairs {old_n} -> {new_n}')
+    else:
+        main(sys.argv[1])
