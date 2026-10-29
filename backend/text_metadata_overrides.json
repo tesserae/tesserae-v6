@@ -788,69 +788,73 @@
     "notes": "A collection of proverbs, one short entry per line; the median line length reads as verse."
   },
   "life.aphou.tess": {
-    "display_author": "Sahidic Coptic",
+    "display_author": "Anonymous",
     "display_work": "Life of Aphou",
-    "notes": "2026-10-18: the file name split into a fragment author and title (the lead saw \"Life, John.kalybites\" on a Theme Search card)."
+    "notes": "2026-10-29: author \"unknown\" in the Coptic Scriptorium TEI header; moved from the Sahidic Bible group so it does not take the Bible translation date."
   },
   "life.cyrus.tess": {
-    "display_author": "Sahidic Coptic",
+    "display_author": "Anonymous",
     "display_work": "Life of Cyrus",
-    "notes": "2026-10-18: the file name split into a fragment author and title (the lead saw \"Life, John.kalybites\" on a Theme Search card)."
+    "notes": "2026-10-29: author \"unknown\" in the Coptic Scriptorium TEI header; moved from the Sahidic Bible group so it does not take the Bible translation date."
   },
   "life.eustathius.theopiste.tess": {
-    "display_author": "Sahidic Coptic",
+    "display_author": "Anonymous",
     "display_work": "Life of Eustathius and Theopiste",
-    "notes": "2026-10-18: the file name split into a fragment author and title (the lead saw \"Life, John.kalybites\" on a Theme Search card)."
+    "notes": "2026-10-29: author \"unknown\" in the Coptic Scriptorium TEI header; moved from the Sahidic Bible group so it does not take the Bible translation date."
   },
   "life.john.kalybites.tess": {
-    "display_author": "Sahidic Coptic",
+    "display_author": "Anonymous",
     "display_work": "Life of John Kalybites",
-    "notes": "2026-10-18: the file name split into a fragment author and title (the lead saw \"Life, John.kalybites\" on a Theme Search card)."
+    "notes": "2026-10-29: author \"unknown\" in the Coptic Scriptorium TEI header; moved from the Sahidic Bible group so it does not take the Bible translation date."
   },
   "life.longinus.lucius.tess": {
-    "display_author": "Sahidic Coptic",
+    "display_author": "Anonymous",
     "display_work": "Life of Longinus and Lucius",
-    "notes": "2026-10-18: the file name split into a fragment author and title (the lead saw \"Life, John.kalybites\" on a Theme Search card)."
+    "notes": "2026-10-29: author \"unknown\" in the Coptic Scriptorium TEI header; moved from the Sahidic Bible group so it does not take the Bible translation date."
   },
   "life.onnophrius.tess": {
-    "display_author": "Sahidic Coptic",
+    "display_author": "Anonymous",
     "display_work": "Life of Onnophrius",
-    "notes": "2026-10-18: the file name split into a fragment author and title (the lead saw \"Life, John.kalybites\" on a Theme Search card)."
+    "notes": "2026-10-29: author \"unknown\" in the Coptic Scriptorium TEI header; moved from the Sahidic Bible group so it does not take the Bible translation date."
   },
   "life.paul.tamma.tess": {
-    "display_author": "Sahidic Coptic",
+    "display_author": "Anonymous",
     "display_work": "Life of Paul of Tamma",
-    "notes": "2026-10-18: the file name split into a fragment author and title (the lead saw \"Life, John.kalybites\" on a Theme Search card)."
+    "notes": "2026-10-29: author \"unknown\" in the Coptic Scriptorium TEI header; moved from the Sahidic Bible group so it does not take the Bible translation date."
   },
   "life.phib.tess": {
-    "display_author": "Sahidic Coptic",
+    "display_author": "Anonymous",
     "display_work": "Life of Phib",
-    "notes": "2026-10-18: the file name split into a fragment author and title (the lead saw \"Life, John.kalybites\" on a Theme Search card)."
+    "notes": "2026-10-29: author \"unknown\" in the Coptic Scriptorium TEI header; moved from the Sahidic Bible group so it does not take the Bible translation date."
   },
   "life.pisentius.tess": {
-    "display_author": "Sahidic Coptic",
+    "display_author": "Anonymous",
     "display_work": "Life of Pisentius",
-    "notes": "2026-10-18: the file name split into a fragment author and title (the lead saw \"Life, John.kalybites\" on a Theme Search card)."
+    "notes": "2026-10-29: author \"unknown\" in the Coptic Scriptorium TEI header; moved from the Sahidic Bible group so it does not take the Bible translation date."
   },
   "mercurius.tess": {
-    "display_author": "Sahidic Coptic",
+    "display_author": "Anonymous",
     "display_work": "Encomium and Martyrdom of Mercurius",
-    "notes": "2026-10-18: the file name split into a fragment author and title (the lead saw \"Life, John.kalybites\" on a Theme Search card)."
+    "notes": "2026-10-29: author \"unknown\" in the Coptic Scriptorium TEI header; moved from the Sahidic Bible group so it does not take the Bible translation date."
   },
   "mysteries.john.tess": {
-    "display_author": "Sahidic Coptic",
+    "display_author": "Anonymous",
     "display_work": "Mysteries of John the Apostle",
-    "notes": "2026-10-18: the file name split into a fragment author and title (the lead saw \"Life, John.kalybites\" on a Theme Search card)."
+    "notes": "2026-10-29: author \"unknown\" in the Coptic Scriptorium TEI header; moved from the Sahidic Bible group so it does not take the Bible translation date."
   },
   "pistis.sophia.tess": {
-    "display_author": "Sahidic Coptic",
+    "display_author": "Anonymous",
     "display_work": "Pistis Sophia",
-    "notes": "2026-10-18: the file name split into a fragment author and title (the lead saw \"Life, John.kalybites\" on a Theme Search card)."
+    "notes": "2026-10-29: author \"unknown\" in the Coptic Scriptorium TEI header; moved from the Sahidic Bible group so it does not take the Bible translation date. Dated by its 4th-century Coptic manuscript (Nag Hammadi Codex II; the Askew Codex), as translations are dated on this site.",
+    "era": "Early Coptic",
+    "year": 350
   },
   "thomas.gospel.tess": {
-    "display_author": "Sahidic Coptic",
+    "display_author": "Anonymous",
     "display_work": "Gospel of Thomas",
-    "notes": "2026-10-18: the file name split into a fragment author and title (the lead saw \"Life, John.kalybites\" on a Theme Search card)."
+    "notes": "2026-10-29: author \"unknown\" in the Coptic Scriptorium TEI header; moved from the Sahidic Bible group so it does not take the Bible translation date. Dated by its 4th-century Coptic manuscript (Nag Hammadi Codex II; the Askew Codex), as translations are dated on this site.",
+    "era": "Early Coptic",
+    "year": 350
   },
   "theodosius.alexandria.tess": {
     "display_author": "Theodosius of Alexandria",
