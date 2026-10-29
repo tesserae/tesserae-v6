@@ -1351,7 +1351,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
               <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">Which works Theme Search covers</h4>
               <p className="text-gray-700 mb-3">
                 Theme Search and Similar Passages cover the works that have passage descriptions, about
-                1,990 works and 685,000 passage windows, not the whole corpus. A work outside that
+                2,100 works and 730,000 passage windows, not the whole corpus. A work outside that
                 index never appears in either feature. The list is in Browse Corpus:{' '}
                 <a href="/corpus?theme=1&language=la" className="text-red-600 hover:underline">
                   See the list of covered works
@@ -3669,7 +3669,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 the theme words as tags. The tags are the model&rsquo;s own words for that window,
                 not a controlled list, so &ldquo;transience&rdquo; on one passage and
                 &ldquo;impermanence&rdquo; on another mean the same thing. There are about
-                685,000 descriptions on the site, covering Latin, Greek, English, Coptic,
+                730,000 descriptions on the site, covering Latin, Greek, English, Coptic,
                 Hebrew, Persian and Urdu, with a few works in Italian, Old French and Middle
                 High German. This is why a Persian passage can answer an English description of a Greek scene.
                 Nothing is being translated and no words are being matched.
