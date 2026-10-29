@@ -7,6 +7,9 @@ so the state of the live site can be reconstructed from this file and
 docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
+## 2026-10-29
+- Data operations: connection map and Reader margins rebuilt over the 730,392-window passage index, so the 34 Coptic works added on 2026-10-28 appear on the Map and in the Reader margin.
+
 ## 2026-10-28
 - Data operations: the new Latin and Greek syntax databases swapped in, and the reuse tables rebuilt for Latin, Greek, Persian and Urdu, so every work added since each table was built has its reuse marks.
 - Coverage check: a work absent from its language's reuse table counts as covered when the table was built after the text last changed, since the table lists only lines that another work repeats.
