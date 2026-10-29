@@ -41,6 +41,39 @@
    ],
    "reason": "checked 2026-10-28: the name detectors find no person, place or god in the work (a short treatise, fragment collection or lyric that names nobody)"
   },
+  "bohairic.bible": {
+   "language": "cop",
+   "columns": [
+    "index",
+    "windows",
+    "described",
+    "winvec",
+    "connmap"
+   ],
+   "reason": "checked 2026-10-28: a collection file that repeats the books of its collection, which carry the data (the Bible books are separate files)"
+  },
+  "bohairic.nt": {
+   "language": "cop",
+   "columns": [
+    "index",
+    "windows",
+    "described",
+    "winvec",
+    "connmap"
+   ],
+   "reason": "checked 2026-10-28: a collection file that repeats the books of its collection, which carry the data (the Bible books are separate files)"
+  },
+  "bohairic.ot": {
+   "language": "cop",
+   "columns": [
+    "index",
+    "windows",
+    "described",
+    "winvec",
+    "connmap"
+   ],
+   "reason": "checked 2026-10-28: a collection file that repeats the books of its collection, which carry the data (the Bible books are separate files)"
+  },
   "demosthenes.against_onetor_31": {
    "language": "grc",
    "columns": [
@@ -169,6 +202,39 @@
    ],
    "reason": "checked 2026-10-28: the name detectors find no person, place or god in the work (a short treatise, fragment collection or lyric that names nobody)"
   },
+  "sahidic.bible": {
+   "language": "cop",
+   "columns": [
+    "index",
+    "windows",
+    "described",
+    "winvec",
+    "connmap"
+   ],
+   "reason": "checked 2026-10-28: a collection file that repeats the books of its collection, which carry the data (the Bible books are separate files)"
+  },
+  "sahidic.ot": {
+   "language": "cop",
+   "columns": [
+    "index",
+    "windows",
+    "described",
+    "winvec",
+    "connmap"
+   ],
+   "reason": "checked 2026-10-28: a collection file that repeats the books of its collection, which carry the data (the Bible books are separate files)"
+  },
+  "sahidica.nt": {
+   "language": "cop",
+   "columns": [
+    "index",
+    "windows",
+    "described",
+    "winvec",
+    "connmap"
+   ],
+   "reason": "checked 2026-10-28: a collection file that repeats the books of its collection, which carry the data (the Bible books are separate files)"
+  },
   "seneca.carminum_fragmenta": {
    "language": "la",
    "columns": [
@@ -176,6 +242,18 @@
     "wnames"
    ],
    "reason": "checked 2026-10-28: the name detectors find no person, place or god in the work (a short treatise, fragment collection or lyric that names nobody)"
+  },
+  "shenoute.all": {
+   "language": "cop",
+   "columns": [
+    "index",
+    "windows",
+    "described",
+    "winvec",
+    "connmap",
+    "syntax"
+   ],
+   "reason": "checked 2026-10-28: a collection file that repeats the books of its collection, which carry the data (the Shenoute works are separate files)"
   },
   "soranus.de_signis_fracturarum": {
    "language": "grc",
