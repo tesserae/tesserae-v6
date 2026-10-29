@@ -238,9 +238,9 @@
    "year": 480
   },
   "bohairic": {
-   "era": "Bohairic Medieval",
-   "note": "Bohairic Bible (standardized dialect), 8th c.+",
-   "year": 900
+   "era": "Early Coptic",
+   "note": "Bohairic Bible, translated by the 4th c. (earliest manuscript P. Bodmer III, 4th c.); most manuscripts 9th c. and later. Dated by the translation, as the Septuagint and the King James Version are",
+   "year": 350
   },
   "book": {
    "era": "Early Coptic",
@@ -345,6 +345,16 @@
   "thomas": {
    "era": "Early Coptic",
    "note": "Gospel of Thomas (Coptic), 4th c.",
+   "year": 350
+  },
+  "sahidic_coptic": {
+   "era": "Early Coptic",
+   "note": "Sahidic Bible, translated 3rd to 4th c. (dated by the translation, as the Septuagint and the King James Version are)",
+   "year": 300
+  },
+  "bohairic_coptic": {
+   "era": "Early Coptic",
+   "note": "Bohairic Bible, translated by the 4th c. (earliest manuscript P. Bodmer III, 4th c.); most manuscripts 9th c. and later. Dated by the translation, as the Septuagint and the King James Version are",
    "year": 350
   }
  },
