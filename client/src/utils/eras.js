@@ -17,7 +17,7 @@ export const ERA_ORDER_BY_LANG = {
   // in particular) and where his neighbours in this corpus already sit:
   // Coleridge 1834 and Wordsworth 1850, both Romantic.
   en:  ['Medieval', 'Renaissance', 'Early Modern', 'Restoration', 'Augustan', 'Neoclassical', 'Romantic', 'Victorian', 'Modern', 'Unknown'],
-  cop: ['Early Coptic', 'Classical Coptic', 'Late Antique Coptic', 'Bohairic Medieval', 'Unknown'],
+  cop: ['Early Coptic', 'Classical Coptic', 'Late Antique Coptic', 'Medieval Coptic', 'Bohairic Medieval', 'Unknown'],
   // Hebrew joined the Corpus Browser on 2026-09-21. Every one of the 39
   // Hebrew Bible books is tagged Biblical, so that plus Unknown is the whole
   // list until something later is added. Without a key here the filter fell
@@ -94,6 +94,7 @@ export const ERA_COLORS = {
   'Early Coptic': 'rgba(120, 80, 60, 0.7)',
   'Classical Coptic': 'rgba(170, 110, 70, 0.7)',
   'Late Antique Coptic': 'rgba(139, 69, 19, 0.7)',
+  'Medieval Coptic': 'rgba(125, 80, 110, 0.7)',
   'Bohairic Medieval': 'rgba(110, 90, 130, 0.7)',
   // added: Persian dynastic eras (see ERA_ORDER_BY_LANG.fa for sourcing)
   'Samanid': 'rgba(180, 140, 60, 0.7)',

@@ -529,7 +529,10 @@
   },
   "doc.papyri.tess": {
     "display_author": "Documentary Papyri",
-    "display_work": "Documents"
+    "display_work": "Documents",
+    "era": "Medieval Coptic",
+    "year": 850,
+    "notes": "2026-10-29: Dated by the Coptic dating rule (step 1): dated documents: the papyri are dated 600 to 699, 700 to 799 and 800 to 1099 (Coptic Scriptorium, from papyri.info); the year is the midpoint of the whole range; year 850."
   },
   "pseudo.athanasius.discourses.tess": {
     "display_author": "Pseudo-Athanasius",
@@ -790,57 +793,79 @@
   "life.aphou.tess": {
     "display_author": "Anonymous",
     "display_work": "Life of Aphou",
-    "notes": "2026-10-29: author \"unknown\" in the Coptic Scriptorium TEI header; moved from the Sahidic Bible group so it does not take the Bible translation date."
+    "notes": "2026-10-29: author \"unknown\" in the Coptic Scriptorium TEI header; moved from the Sahidic Bible group so it does not take the Bible translation date. Dated by the Coptic dating rule (step 3): bracketed: after the patriarchate of Theophilus of Alexandria (385), whom the Life names; before the Turin codex (651 to 750, PAThs date via Coptic Scriptorium); year 575.",
+    "era": "Late Antique Coptic",
+    "year": 575
   },
   "life.cyrus.tess": {
     "display_author": "Anonymous",
     "display_work": "Life of Cyrus",
-    "notes": "2026-10-29: author \"unknown\" in the Coptic Scriptorium TEI header; moved from the Sahidic Bible group so it does not take the Bible translation date."
+    "notes": "2026-10-29: author \"unknown\" in the Coptic Scriptorium TEI header; moved from the Sahidic Bible group so it does not take the Bible translation date. Dated by the Coptic dating rule (step 3): bracketed: after the accession of Emperor Zeno (474), whose daughter the Life names; before British Library Or. 6783 (1003 to 1100, PAThs date via Coptic Scriptorium); year 775.",
+    "era": "Medieval Coptic",
+    "year": 775
   },
   "life.eustathius.theopiste.tess": {
     "display_author": "Anonymous",
     "display_work": "Life of Eustathius and Theopiste",
-    "notes": "2026-10-29: author \"unknown\" in the Coptic Scriptorium TEI header; moved from the Sahidic Bible group so it does not take the Bible translation date."
+    "notes": "2026-10-29: author \"unknown\" in the Coptic Scriptorium TEI header; moved from the Sahidic Bible group so it does not take the Bible translation date. Dated by the Coptic dating rule (step 4): bracketed: no internal evidence after the start of Coptic literature (300; the emperors Trajan and Hadrian are named, which gives 117 and is lower); before British Library Or. 6783 (1003 to 1100); year 700.",
+    "era": "Late Antique Coptic",
+    "year": 700
   },
   "life.john.kalybites.tess": {
     "display_author": "Anonymous",
     "display_work": "Life of John Kalybites",
-    "notes": "2026-10-29: author \"unknown\" in the Coptic Scriptorium TEI header; moved from the Sahidic Bible group so it does not take the Bible translation date."
+    "notes": "2026-10-29: author \"unknown\" in the Coptic Scriptorium TEI header; moved from the Sahidic Bible group so it does not take the Bible translation date. Dated by the Coptic dating rule (step 3): bracketed: after the death of Shenoute (465), whom the Life names; before British Library Or. 6783 (1003 to 1100); year 775.",
+    "era": "Medieval Coptic",
+    "year": 775
   },
   "life.longinus.lucius.tess": {
     "display_author": "Anonymous",
     "display_work": "Life of Longinus and Lucius",
-    "notes": "2026-10-29: author \"unknown\" in the Coptic Scriptorium TEI header; moved from the Sahidic Bible group so it does not take the Bible translation date."
+    "notes": "2026-10-29: author \"unknown\" in the Coptic Scriptorium TEI header; moved from the Sahidic Bible group so it does not take the Bible translation date. Dated by the Coptic dating rule (step 3): bracketed: after the accession of Patriarch Acacius of Constantinople (472), whom the Life names; before Pierpont Morgan M 579 (copied before 30 August 823); year 650.",
+    "era": "Late Antique Coptic",
+    "year": 650
   },
   "life.onnophrius.tess": {
     "display_author": "Anonymous",
     "display_work": "Life of Onnophrius",
-    "notes": "2026-10-29: author \"unknown\" in the Coptic Scriptorium TEI header; moved from the Sahidic Bible group so it does not take the Bible translation date."
+    "notes": "2026-10-29: author \"unknown\" in the Coptic Scriptorium TEI header; moved from the Sahidic Bible group so it does not take the Bible translation date. Dated by the Coptic dating rule (step 3): bracketed: no internal evidence after the start of Coptic literature (300; Onnophrius is a 4th-century saint); before the earliest papyrus leaf (7th c., palaeographic, so 700); year 500.",
+    "era": "Classical Coptic",
+    "year": 500
   },
   "life.paul.tamma.tess": {
     "display_author": "Anonymous",
     "display_work": "Life of Paul of Tamma",
-    "notes": "2026-10-29: author \"unknown\" in the Coptic Scriptorium TEI header; moved from the Sahidic Bible group so it does not take the Bible translation date."
+    "notes": "2026-10-29: author \"unknown\" in the Coptic Scriptorium TEI header; moved from the Sahidic Bible group so it does not take the Bible translation date. Dated by the Coptic dating rule (step 3): bracketed: no internal evidence after the start of Coptic literature (300; Paul lived in the late 4th or early 5th c.); before the Vienna papyrus codex K 4664 (500 to 599); year 450.",
+    "era": "Early Coptic",
+    "year": 450
   },
   "life.phib.tess": {
     "display_author": "Anonymous",
     "display_work": "Life of Phib",
-    "notes": "2026-10-29: author \"unknown\" in the Coptic Scriptorium TEI header; moved from the Sahidic Bible group so it does not take the Bible translation date."
+    "notes": "2026-10-29: author \"unknown\" in the Coptic Scriptorium TEI header; moved from the Sahidic Bible group so it does not take the Bible translation date. Dated by the Coptic dating rule (step 3): bracketed: no internal evidence after the start of Coptic literature (300; Apollo, Phib and Papohe are 4th-century monks); before the papyrus codex of the Life (600 to 799, Trismegistos 108754); year 550.",
+    "era": "Classical Coptic",
+    "year": 550
   },
   "life.pisentius.tess": {
     "display_author": "Anonymous",
     "display_work": "Life of Pisentius",
-    "notes": "2026-10-29: author \"unknown\" in the Coptic Scriptorium TEI header; moved from the Sahidic Bible group so it does not take the Bible translation date."
+    "notes": "2026-10-29: author \"unknown\" in the Coptic Scriptorium TEI header; moved from the Sahidic Bible group so it does not take the Bible translation date. Dated by the Coptic dating rule (step 3): bracketed: after the death of Pisentius (632); before British Library Or. 7026 (1004 to 1006); year 825.",
+    "era": "Medieval Coptic",
+    "year": 825
   },
   "mercurius.tess": {
     "display_author": "Anonymous",
     "display_work": "Encomium and Martyrdom of Mercurius",
-    "notes": "2026-10-29: author \"unknown\" in the Coptic Scriptorium TEI header; moved from the Sahidic Bible group so it does not take the Bible translation date."
+    "notes": "2026-10-29: author \"unknown\" in the Coptic Scriptorium TEI header; moved from the Sahidic Bible group so it does not take the Bible translation date. Dated by the Coptic dating rule (step 3): bracketed: no internal evidence after the start of Coptic literature (300; Mercurius died about 250); before Pierpont Morgan M.589 (822 to 914); year 600.",
+    "era": "Late Antique Coptic",
+    "year": 600
   },
   "mysteries.john.tess": {
     "display_author": "Anonymous",
     "display_work": "Mysteries of John the Apostle",
-    "notes": "2026-10-29: author \"unknown\" in the Coptic Scriptorium TEI header; moved from the Sahidic Bible group so it does not take the Bible translation date."
+    "notes": "2026-10-29: author \"unknown\" in the Coptic Scriptorium TEI header; moved from the Sahidic Bible group so it does not take the Bible translation date. Dated by the Coptic dating rule (step 3): bracketed: no internal evidence after the start of Coptic literature (300); before British Library Or. 7026 (1004 to 1006); year 650.",
+    "era": "Late Antique Coptic",
+    "year": 650
   },
   "pistis.sophia.tess": {
     "display_author": "Anonymous",

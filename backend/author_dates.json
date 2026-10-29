@@ -356,6 +356,51 @@
    "era": "Early Coptic",
    "note": "Bohairic Bible, translated by the 4th c. (earliest manuscript P. Bodmer III, 4th c.); most manuscripts 9th c. and later. Dated by the translation, as the Septuagint and the King James Version are",
    "year": 350
+  },
+  "pseudo_athanasius": {
+   "era": "Classical Coptic",
+   "note": "Dated by the Coptic dating rule (step 3): bracketed: after the death of Athanasius (373), to whom the discourses are attributed; before British Library Or. 5001 (601 to 700); year 525.",
+   "year": 525
+  },
+  "pseudo_basil": {
+   "era": "Classical Coptic",
+   "note": "Dated by the Coptic dating rule (step 3): bracketed: after the death of Basil of Caesarea (379), to whom the homily is attributed; before British Library Or. 5001 (601 to 700); year 550.",
+   "year": 550
+  },
+  "pseudo_celestinus": {
+   "era": "Medieval Coptic",
+   "note": "Dated by the Coptic dating rule (step 3): bracketed: after the death of Pope Celestine I (432), to whom the encomium is attributed; before British Library Or. 7022 (900 to 1000); year 725.",
+   "year": 725
+  },
+  "pseudo_chrysostom": {
+   "era": "Classical Coptic",
+   "note": "Dated by the Coptic dating rule (step 3): bracketed: after the death of John Chrysostom (407), to whom the homilies are attributed; before British Library Or. 5001 (601 to 700); year 550.",
+   "year": 550
+  },
+  "pseudo_ephrem": {
+   "era": "Late Antique Coptic",
+   "note": "Dated by the Coptic dating rule (step 3): bracketed: after the death of Ephrem the Syrian (373), to whom the works are attributed; before British Library Or. 7022 (900 to 1000); year 675.",
+   "year": 675
+  },
+  "pseudo_flavianus": {
+   "era": "Late Antique Coptic",
+   "note": "Dated by the Coptic dating rule (step 3): bracketed: after the martyrdom of Peter I of Alexandria (311), whom the encomium names; before British Library Or. 6783 (1003 to 1100); year 700.",
+   "year": 700
+  },
+  "pseudo_theophilus": {
+   "era": "Classical Coptic",
+   "note": "Dated by the Coptic dating rule (step 3): bracketed: after the death of Theophilus of Alexandria (412), to whom the homilies are attributed; before British Library Or. 5001 (601 to 700); year 550.",
+   "year": 550
+  },
+  "pseudo_timothy": {
+   "era": "Late Antique Coptic",
+   "note": "Dated by the Coptic dating rule (step 3): bracketed: after the death of Timothy I of Alexandria (384), to whom the discourse is attributed; before British Library Or. 7025 (colophon of 9 September 981); year 675.",
+   "year": 675
+  },
+  "theodosius_of_alexandria": {
+   "era": "Classical Coptic",
+   "note": "",
+   "year": 550
   }
  },
  "en": {

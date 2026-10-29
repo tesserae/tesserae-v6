@@ -8,6 +8,20 @@ history (index builds, cache rebuilds, corpus changes) is in
 `DATA_OPERATIONS.md`; per-release changes are in `../CHANGELOG.md`.
 
 
+## 2026-10-29: every text gets a date, by a stated rule
+
+An undated text cannot be placed on a timeline (era filters, genealogies in Theme Search, the Map), and every other language dates every work. The 21 Coptic works without a date were dated by the rule below, which applies to any future undated text.
+
+The rule, applied in this order, with the step named in the note beside the date:
+1. The composition date, or the author's floruit or death, when known. Theodosius I of Alexandria (patriarch 535 to 566) is dated 550 this way.
+2. For a translated work, the date of the translation, when known.
+3. Otherwise a bracketed estimate. The earliest date comes from internal evidence (a saint's death, or a person, event or institution the text names). The date of the figure a pseudonymous homily is attributed to is a lower bound, never a composition date. The latest date is the date of the earliest surviving manuscript. The year is the midpoint, rounded to the nearest 25 (halves round up).
+4. Without internal evidence, the earliest date is the start of Coptic literature (300). The same floor applies when the internal evidence gives an earlier date.
+
+The era follows from the year. Early Coptic runs to 450, Classical Coptic to 550 and Late Antique Coptic to 700. The three existing eras end at 700, so years after 700 take one new era, Medieval Coptic.
+
+All 21 works are dated. One is firm (Theodosius), 13 are bracketed with both bounds taken from sources, and 7 are marked weak in their notes because the earliest date is the floor of 300 or a bound rests on a source that could be read only in summary. The table with the sources for every date is kept outside this repository. A bracketed date puts the text on a timeline. It does not say when the text was composed. Where scholarship gives a composition estimate that differs from the rule's date, the rule's date stands until the estimate is adopted for that work.
+
 ## 2026-10-28: the syntax databases cover every Latin and Greek file, and the measured effect on search
 
 The two syntax databases were rebuilt as new files (docs/DATA_OPERATIONS.md, same date) so that the syntax channel has a parse for every live Latin file (1,889 of 1,889, from 1,281) and every live Greek file (1,635 of 1,635, from 577), and can read the rows that the early builds stored under a ref other than the line's tag. Lines the channel could read went from 53.4 to 100.0 percent (Latin) and from 29.8 to 100 percent (Greek). The restricted and withheld Latin texts were parsed too, on our own server: their licenses forbid redistribution, not processing, and nothing was sent to an outside service. The Greek `syntax_source` row now names the package the rows were made with (Stanza's default, perseus).
