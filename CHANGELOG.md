@@ -8,6 +8,7 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-29
+- Coptic names found inside bound groups: the Coptic pass of `scripts/corpus/build_window_names.py` now also reads the names from the parse (the PROPN part of a bound group such as ϩⲓⲉⲣⲟⲩⲥⲁⲗⲏⲙ inside ⲉⲧⲃⲉⲧϩⲓⲉⲣⲟⲩⲥⲁⲗⲏⲙ), joined to the old whole-word match; `--coptic-only LIVE OUT` replaces only the Coptic rows of a copy. Coptic name pairs 17,094 to 54,154, windows with a name 8,806 to 13,310. New files PREPARED, not yet installed (docs/DATA_OPERATIONS.md).
 - Data operations: connection map and Reader margins rebuilt over the 730,392-window passage index, so the 34 Coptic works added on 2026-10-28 appear on the Map and in the Reader margin.
 
 ## 2026-10-28
