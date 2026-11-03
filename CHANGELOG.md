@@ -7,6 +7,9 @@ so the state of the live site can be reconstructed from this file and
 docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
+## 2026-11-03
+- Hebrew Bible typed prose or poetry by book (#1288, part 1): the 14 books set mostly as verse in the critical editions (BHS), namely Psalms, Proverbs, Job, Song of Songs, Lamentations, Isaiah, Hosea, Joel, Amos, Obadiah, Micah, Nahum, Habakkuk and Zephaniah, are poetry; the other 25 (the Torah, the Former Prophets, the Writings in prose, Ecclesiastes, Jeremiah, Ezekiel, Jonah, Haggai, Zechariah and Malachi, whose verse and prose are mixed or mostly prose) stay prose. Each book has a `text_type` in `backend/text_metadata_overrides.json`; before, the `bible` prose marker typed all 39 as prose. A poetry book takes the poetry word-distance limit in search (10 rather than 4).
+
 ## 2026-10-29
 - Coptic works dated by a stated rule: the 21 Coptic works that had no era or year (eleven saints' Lives and other anonymous works, eight pseudonymous homilies, Theodosius of Alexandria and the documentary papyri) now carry both. Each year is the midpoint of the earliest and latest possible dates, and each note gives the basis. A new Coptic era, Medieval Coptic, covers years after 700.
 - Coptic names found inside bound groups: the Coptic pass of `scripts/corpus/build_window_names.py` now also reads the names from the parse (the PROPN part of a bound group such as ϩⲓⲉⲣⲟⲩⲥⲁⲗⲏⲙ inside ⲉⲧⲃⲉⲧϩⲓⲉⲣⲟⲩⲥⲁⲗⲏⲙ), joined to the old whole-word match; `--coptic-only LIVE OUT` replaces only the Coptic rows of a copy. Coptic name pairs 17,094 to 54,154, windows with a name 8,806 to 13,310. New files PREPARED, not yet installed (docs/DATA_OPERATIONS.md).

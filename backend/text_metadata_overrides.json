@@ -1,6 +1,6 @@
 {
   "_description": "Per-text metadata overrides. Keyed by text filename (e.g. 'eobanus.heroidum.tess'). Fields: text_type (poetry/prose), display_author, display_work, year, era, notes. Only include fields you want to override.",
-  "_last_updated": "2026-10-27",
+  "_last_updated": "2026-11-03",
   "bohairic.abdias.tess": {
     "display_author": "Bohairic Coptic",
     "display_work": "Obadiah"
@@ -936,5 +936,122 @@
     "display_work": "Homily on Repentance and Continence",
     "era": "Late Antique Coptic",
     "year": 650
+  },
+  "hebrew_bible.1_chronicles.tess": {
+    "text_type": "prose"
+  },
+  "hebrew_bible.1_kings.tess": {
+    "text_type": "prose"
+  },
+  "hebrew_bible.1_samuel.tess": {
+    "text_type": "prose"
+  },
+  "hebrew_bible.2_chronicles.tess": {
+    "text_type": "prose"
+  },
+  "hebrew_bible.2_kings.tess": {
+    "text_type": "prose"
+  },
+  "hebrew_bible.2_samuel.tess": {
+    "text_type": "prose"
+  },
+  "hebrew_bible.amos.tess": {
+    "text_type": "poetry"
+  },
+  "hebrew_bible.daniel.tess": {
+    "text_type": "prose"
+  },
+  "hebrew_bible.deuteronomy.tess": {
+    "text_type": "prose"
+  },
+  "hebrew_bible.ecclesiastes.tess": {
+    "text_type": "prose"
+  },
+  "hebrew_bible.esther.tess": {
+    "text_type": "prose"
+  },
+  "hebrew_bible.exodus.tess": {
+    "text_type": "prose"
+  },
+  "hebrew_bible.ezekiel.tess": {
+    "text_type": "prose"
+  },
+  "hebrew_bible.ezra.tess": {
+    "text_type": "prose"
+  },
+  "hebrew_bible.genesis.tess": {
+    "text_type": "prose"
+  },
+  "hebrew_bible.habakkuk.tess": {
+    "text_type": "poetry"
+  },
+  "hebrew_bible.haggai.tess": {
+    "text_type": "prose"
+  },
+  "hebrew_bible.hosea.tess": {
+    "text_type": "poetry"
+  },
+  "hebrew_bible.isaiah.tess": {
+    "text_type": "poetry"
+  },
+  "hebrew_bible.jeremiah.tess": {
+    "text_type": "prose"
+  },
+  "hebrew_bible.job.tess": {
+    "text_type": "poetry"
+  },
+  "hebrew_bible.joel.tess": {
+    "text_type": "poetry"
+  },
+  "hebrew_bible.jonah.tess": {
+    "text_type": "prose"
+  },
+  "hebrew_bible.joshua.tess": {
+    "text_type": "prose"
+  },
+  "hebrew_bible.judges.tess": {
+    "text_type": "prose"
+  },
+  "hebrew_bible.lamentations.tess": {
+    "text_type": "poetry"
+  },
+  "hebrew_bible.leviticus.tess": {
+    "text_type": "prose"
+  },
+  "hebrew_bible.malachi.tess": {
+    "text_type": "prose"
+  },
+  "hebrew_bible.micah.tess": {
+    "text_type": "poetry"
+  },
+  "hebrew_bible.nahum.tess": {
+    "text_type": "poetry"
+  },
+  "hebrew_bible.nehemiah.tess": {
+    "text_type": "prose"
+  },
+  "hebrew_bible.numbers.tess": {
+    "text_type": "prose"
+  },
+  "hebrew_bible.obadiah.tess": {
+    "text_type": "poetry"
+  },
+  "hebrew_bible.proverbs.tess": {
+    "text_type": "poetry"
+  },
+  "hebrew_bible.psalms.tess": {
+    "text_type": "poetry"
+  },
+  "hebrew_bible.ruth.tess": {
+    "text_type": "prose"
+  },
+  "hebrew_bible.song_of_songs.tess": {
+    "text_type": "poetry"
+  },
+  "hebrew_bible.zechariah.tess": {
+    "text_type": "prose"
+  },
+  "hebrew_bible.zephaniah.tess": {
+    "text_type": "poetry"
   }
 }
