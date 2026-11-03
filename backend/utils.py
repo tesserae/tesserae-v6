@@ -675,8 +675,10 @@ PROSE_MARKERS = [
     'lives', 'moralia', 'leucippe', 'varia_historia', 'epitome',
     'against_ctesiphon', 'against_timarchus', 'on_the_embassy',
     'meditations', 'progymnasmata', 'ars_rhetorica',
-    # Bible / religious prose
-    'bible', 'vulgate', 'gospel',
+    # Bible / religious prose. The Septuagint is a prose translation, so every
+    # book is prose, the poetic books included (#1288); the Vulgate likewise
+    # (caught by 'jerome').
+    'bible', 'vulgate', 'gospel', 'septuaginta',
     # Apuleius prose (distinct from Ovid's Metamorphoses via author check)
     'asinus_aureus', 'golden_ass', 'florida', 'apologia',
     # Late antique / medieval prose markers

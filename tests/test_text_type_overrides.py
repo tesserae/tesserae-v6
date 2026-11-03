@@ -86,3 +86,14 @@ def test_hebrew_bible_books_are_typed_prose_or_poetry_by_book():
         book = name[len('hebrew_bible.'):-len('.tess')]
         expected = 'poetry' if book in HEBREW_POETRY_BOOKS else 'prose'
         assert detect_text_type(name, language='he') == expected, name
+
+
+def test_every_septuagint_book_is_prose():
+    # The Septuagint is a prose translation: even Psalms, Job and the verse
+    # prophets are prose in Greek, as the Vulgate is in Latin (#1288).
+    import os
+    grc = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'texts', 'grc')
+    books = [n for n in os.listdir(grc) if n.startswith('septuaginta.') and n.endswith('.tess')]
+    assert len(books) == 55
+    for name in books:
+        assert detect_text_type(name, language='grc') == 'prose', name
