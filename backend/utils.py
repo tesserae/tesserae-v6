@@ -690,7 +690,9 @@ PROSE_MARKERS = [
     'pride', 'prejudice', 'sensibility', 'emma', 'mansfield',
     'oliver', 'twist', 'expectations', 'copperfield', 'tale_two',
     'essays', 'liberty', 'spectator', 'rambler',
-    'decline', 'fall',
+    # 'fall' removed: it matched Quintus Smyrnaeus's Fall of Troy (epic verse).
+    # Gibbon's Decline and Fall is caught by 'gibbon' and 'decline'.
+    'decline',
 ]
 
 # Combined list for backward compatibility

@@ -740,7 +740,8 @@
   },
   "septuaginta.paralipomenon_i_sive_chronicon_i.tess": {
     "display_author": "Septuagint",
-    "display_work": "1 Chronicles"
+    "display_work": "1 Chronicles",
+    "text_type": "prose"
   },
   "septuaginta.proverbia.tess": {
     "display_author": "Septuagint",
@@ -1053,5 +1054,167 @@
   },
   "hebrew_bible.zephaniah.tess": {
     "text_type": "poetry"
+  },
+  "petrarch.africa.tess": {
+    "text_type": "poetry"
+  },
+  "ausonius.commemoratio_professorum_burdigalensium.tess": {
+    "text_type": "poetry"
+  },
+  "orientius_saint.commonitorium.tess": {
+    "text_type": "poetry"
+  },
+  "orientius_saint.carmina.tess": {
+    "text_type": "poetry"
+  },
+  "paulinus_of_pella.eucharisticus.tess": {
+    "text_type": "poetry"
+  },
+  "paulinus_petricordiae.de_vita_sancti_martini.tess": {
+    "text_type": "poetry"
+  },
+  "victor_claudius_marius.alethia.tess": {
+    "text_type": "poetry"
+  },
+  "victor_claudius_marius.commentariorum_in_genesim_libri_tres.tess": {
+    "text_type": "poetry"
+  },
+  "sedulius.hymnus_i.tess": {
+    "text_type": "poetry"
+  },
+  "sedulius.hymnus_ii_a_solis_ortus_cardine.tess": {
+    "text_type": "poetry"
+  },
+  "sedulius.carmina_ad_sedulium_spectantia.tess": {
+    "text_type": "poetry"
+  },
+  "ausonius.de_xii_caesaribus.tess": {
+    "text_type": "poetry"
+  },
+  "ausonius.de_bissula.tess": {
+    "text_type": "poetry"
+  },
+  "gregory_of_nazianzus.christus_patiens.tess": {
+    "text_type": "poetry"
+  },
+  "babrius.fabulae_aesopeae.tess": {
+    "text_type": "poetry"
+  },
+  "pseudoscymnus.scymni_chii_ut_fertur_periegesis.tess": {
+    "text_type": "poetry"
+  },
+  "dionysius_calliphontis.dionysii_calliphontis_filii_descriptio_graeciae.tess": {
+    "text_type": "poetry"
+  },
+  "callimachus.aetia.tess": {
+    "text_type": "poetry"
+  },
+  "epicharmus.fragmenta.tess": {
+    "text_type": "poetry"
+  },
+  "orphica.fragmenta.tess": {
+    "text_type": "poetry"
+  },
+  "obsequens.liber_de_prodigiis.tess": {
+    "text_type": "prose"
+  },
+  "anonymous.itinerarium_hierosolymitanum.tess": {
+    "text_type": "prose"
+  },
+  "eucherius_of_lyon.formulae_spiritalis_intellegentiae.tess": {
+    "text_type": "prose"
+  },
+  "priscillian_bishop_of_avila.canones_in_pauli_apostoli_epistula_canon.tess": {
+    "text_type": "prose"
+  },
+  "anonymous.stadiasmus_magni_maris.tess": {
+    "text_type": "prose"
+  },
+  "heronis_alexandrini.liber_geeponicus_sp.tess": {
+    "text_type": "prose"
+  },
+  "nicomachus_of_gerasa.excerpta.tess": {
+    "text_type": "prose"
+  },
+  "novum_testamentum.actus_apostolorum.tess": {
+    "text_type": "prose"
+  },
+  "novum_testamentum.ad_colossenses.tess": {
+    "text_type": "prose"
+  },
+  "novum_testamentum.ad_corinthios_i.tess": {
+    "text_type": "prose"
+  },
+  "novum_testamentum.ad_corinthios_ii.tess": {
+    "text_type": "prose"
+  },
+  "novum_testamentum.ad_ephesios.tess": {
+    "text_type": "prose"
+  },
+  "novum_testamentum.ad_galatas.tess": {
+    "text_type": "prose"
+  },
+  "novum_testamentum.ad_hebraeos.tess": {
+    "text_type": "prose"
+  },
+  "novum_testamentum.ad_philemonem.tess": {
+    "text_type": "prose"
+  },
+  "novum_testamentum.ad_philippenses.tess": {
+    "text_type": "prose"
+  },
+  "novum_testamentum.ad_romanos.tess": {
+    "text_type": "prose"
+  },
+  "novum_testamentum.ad_thessalonicenses_i.tess": {
+    "text_type": "prose"
+  },
+  "novum_testamentum.ad_thessalonicenses_ii.tess": {
+    "text_type": "prose"
+  },
+  "novum_testamentum.ad_timotheum_i.tess": {
+    "text_type": "prose"
+  },
+  "novum_testamentum.ad_timotheum_ii.tess": {
+    "text_type": "prose"
+  },
+  "novum_testamentum.ad_titum.tess": {
+    "text_type": "prose"
+  },
+  "novum_testamentum.apocalypsis.tess": {
+    "text_type": "prose"
+  },
+  "novum_testamentum.iacobi.tess": {
+    "text_type": "prose"
+  },
+  "novum_testamentum.ioannes.tess": {
+    "text_type": "prose"
+  },
+  "novum_testamentum.ioannis_i.tess": {
+    "text_type": "prose"
+  },
+  "novum_testamentum.ioannis_ii.tess": {
+    "text_type": "prose"
+  },
+  "novum_testamentum.ioannis_iii.tess": {
+    "text_type": "prose"
+  },
+  "novum_testamentum.iudae.tess": {
+    "text_type": "prose"
+  },
+  "novum_testamentum.lucas.tess": {
+    "text_type": "prose"
+  },
+  "novum_testamentum.marcus.tess": {
+    "text_type": "prose"
+  },
+  "novum_testamentum.matthaeus.tess": {
+    "text_type": "prose"
+  },
+  "novum_testamentum.petri_i.tess": {
+    "text_type": "prose"
+  },
+  "novum_testamentum.petri_ii.tess": {
+    "text_type": "prose"
   }
 }
