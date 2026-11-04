@@ -4,8 +4,8 @@ Fix stray Greek breathings and accents across all texts/grc/*.tess files.
 
 This is a broader follow-up to fix_stray_marks.py (issue #580 / PR #1133),
 which fixed 1,347 specific entries from a catalogued CSV.  This script fixes
-the remaining ~12,000 stray Greek breathing and accent marks found across
-446 files that were not in the original catalogue.
+the remaining stray Greek breathing and accent marks found across the corpus
+that were not in the original catalogue.
 
 Targeted mark types (combining diacritics with no valid use on consonants
 or non-Greek characters):
@@ -33,7 +33,12 @@ Two rules:
   Rule B (Move): one or more target marks appear immediately before a Greek
   capital vowel (the marks' base is a non-valid character and the very next
   non-combining character is a capital vowel).  Reorder: capital first, then
-  its marks, applying de-dup as usual.
+  its marks.  The capital is emitted as a single NFC-composed character so
+  it matches the polytonic precomposed forms (U+1F08 etc.).
+
+Each line is edited in-place: only the stray marks and their replacement
+characters change; the rest of the line is returned exactly as it was read,
+preserving the file's existing normalization form.
 
 Run with --dry-run to print diffs without writing.
 Run with --apply to write changes.
@@ -46,20 +51,24 @@ import unicodedata
 
 TEXTS_DIR = os.path.join(os.path.dirname(__file__), '..', 'texts', 'grc')
 
-GREEK_VOWELS     = set('αεηιουωΑΕΗΙΟΥΩ')
-GREEK_RHO        = set('ρΡ')
-VALID_BASES      = GREEK_VOWELS | GREEK_RHO
-GREEK_CAP_VOWELS = set('ΑΕΗΙΟΥΩ')
-SHORT_NO_PERIS   = set('εοΕΟ')
+# Plain base characters (NFC decomposition's first character must be one of these)
+PLAIN_VOWELS_RHO = frozenset('αεηιουωΑΕΗΙΟΥΩρΡ')
+
+# Bare capital vowels (no diacritics).  Rule B fires when the next non-Mn
+# character is one of these.
+GREEK_CAP_VOWELS = frozenset('ΑΕΗΙΟΥΩ')
+
+# Short vowels that cannot take perispomeni
+SHORT_NO_PERIS = frozenset('εοΕΟ')
 
 TARGET_MARKS = frozenset({
-    '̓',  # smooth breathing
-    '̔',  # rough breathing
-    '̀',  # grave accent
-    '́',  # acute accent
-    '͂',  # perispomeni
-    '̈',  # diaeresis
-    'ͅ',  # iota subscript
+    '̓',  # COMBINING COMMA ABOVE       (smooth breathing)
+    '̔',  # COMBINING REVERSED COMMA ABOVE (rough breathing)
+    '̀',  # COMBINING GRAVE ACCENT
+    '́',  # COMBINING ACUTE ACCENT
+    '͂',  # COMBINING GREEK PERISPOMENI
+    '̈',  # COMBINING DIAERESIS
+    'ͅ',  # COMBINING GREEK YPOGEGRAMMENI (iota subscript)
 })
 
 BREATHING_SET = frozenset({'̓', '̔'})
@@ -68,7 +77,18 @@ DIAERESIS_SET = frozenset({'̈'})
 IOTA_SUB_SET  = frozenset({'ͅ'})
 
 
-def _mark_category(ch):
+def _is_valid_base(ch: str) -> bool:
+    """True if ch can bear a Greek diacritic (is a Greek vowel or rho).
+
+    Works for both plain (NFD) and precomposed (NFC) characters: NFD of a
+    precomposed vowel like ἀ (U+1F00) starts with α, which is in the set.
+    """
+    if not ch:
+        return False
+    return unicodedata.normalize('NFD', ch)[0] in PLAIN_VOWELS_RHO
+
+
+def _mark_category(ch: str) -> str:
     if ch in BREATHING_SET:
         return 'breathing'
     if ch in ACCENT_SET:
@@ -81,14 +101,12 @@ def _mark_category(ch):
 
 
 def fix_line(line: str) -> str:
-    """Return the corrected form of a full text line, preserving NFD normalisation.
+    """Return the corrected form of a text line.
 
-    The .tess corpus is stored in NFD (decomposed) form.  This function works
-    in NFD and returns NFD so only the stray marks change — no recomposition
-    side-effects that would otherwise touch every line.
+    Edits only the stray-mark positions; every other character is copied
+    unchanged so the line's existing Unicode normalisation form is preserved.
     """
-    nfd = unicodedata.normalize('NFD', line)
-    chars = list(nfd)
+    chars = list(line)   # work on the ORIGINAL encoding, not NFD
     result: list[str] = []
     cur_base_idx = -1
     cur_base_cats: set[str] = set()
@@ -105,51 +123,41 @@ def fix_line(line: str) -> str:
             i += 1
             continue
 
-        # ch is a target combining mark — find base in result
+        # ch is a target combining mark.
+        # Find the most recent non-combining character in result (the "base").
         j = len(result) - 1
         while j >= 0 and unicodedata.category(result[j]) == 'Mn':
             j -= 1
 
-        # Collect the full run of consecutive target marks starting at i
+        # Collect the full run of consecutive target marks starting at i.
         mark_run_start = i
-        while i < len(chars) and unicodedata.category(chars[i]) == 'Mn' and chars[i] in TARGET_MARKS:
+        while (i < len(chars)
+               and unicodedata.category(chars[i]) == 'Mn'
+               and chars[i] in TARGET_MARKS):
             i += 1
         marks = chars[mark_run_start:i]
 
-        # What is the next non-combining character after the mark run?
+        # Find the next non-combining character after the full mark run
+        # (skipping any non-target Mn chars that may also be present).
         k = i
         while k < len(chars) and unicodedata.category(chars[k]) == 'Mn':
             k += 1
         next_base_char = chars[k] if k < len(chars) else ''
 
-        base_ok = j >= 0 and result[j] in VALID_BASES
+        base_ok = _is_valid_base(result[j]) if j >= 0 else False
 
         if not base_ok and next_base_char in GREEK_CAP_VOWELS:
-            # Rule B: move marks to the following capital vowel.
-            # chars[i:k] are any non-target combining marks between our target run and
-            # the capital — they sit on a non-valid base so they are also dropped.
-            capital = chars[k]
-
-            result.append(capital)
-            new_base_idx = len(result) - 1
-            new_base_cats: set[str] = set()
-
-            for m in marks:
-                if m == '͂' and capital in SHORT_NO_PERIS:
-                    continue
-                cat = _mark_category(m)
-                if cat in new_base_cats:
-                    continue
-                new_base_cats.add(cat)
-                result.append(m)
-
-            cur_base_idx = new_base_idx
-            cur_base_cats = new_base_cats
+            # Rule B: compose marks with the following capital vowel.
+            # Emit a single NFC-composed character (e.g. Α + ̓ → Ἀ U+1F08).
+            # Non-target Mn chars between i and k had no valid base; drop them.
+            composed = unicodedata.normalize('NFC', next_base_char + ''.join(marks))
+            result.append(composed)
+            cur_base_idx = len(result) - 1
+            cur_base_cats = set()
             i = k + 1
-            # (non-target marks between our run and capital are also dropped)
 
         elif base_ok:
-            # Base is a valid vowel or rho — keep marks (applying de-dup + Rule C)
+            # Base is a valid vowel or rho; keep marks (applying de-dup).
             if j != cur_base_idx:
                 cur_base_idx = j
                 cur_base_cats = set()
@@ -163,9 +171,9 @@ def fix_line(line: str) -> str:
                 cur_base_cats.add(cat)
                 result.append(m)
 
-        # else: Rule A — base is invalid and no capital vowel follows; drop the marks
+        # else: Rule A — base is invalid and no capital vowel follows; drop marks.
 
-    return unicodedata.normalize('NFD', ''.join(result))
+    return ''.join(result)
 
 
 def process_files(dry_run: bool) -> tuple[int, int]:
@@ -182,10 +190,9 @@ def process_files(dry_run: bool) -> tuple[int, int]:
         new_lines = []
         file_changed = False
         for line in lines:
-            line_nfd = unicodedata.normalize('NFD', line)
             fixed = fix_line(line)
             new_lines.append(fixed)
-            if fixed != line_nfd:
+            if fixed != line:
                 total_lines += 1
                 file_changed = True
                 if dry_run:
