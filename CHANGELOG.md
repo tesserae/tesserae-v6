@@ -7,6 +7,9 @@ so the state of the live site can be reconstructed from this file and
 docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
+## 2026-11-04
+- Greek corpus: the remaining stray breathing and accent marks on consonants, spaces and non-Greek characters are removed from 394 Greek texts, 6,781 lines, 10,445 marks (#1290, issue #1137, the broader follow-up to #1133). A mark that stood before a capital vowel is moved onto it (Sappho fr. 111 Ὑμήναον). The script `scripts/fix_stray_marks_broad.py` edits only the marked positions and leaves each line's normalization form as it was. Data operation: the lemma caches of the 394 files rebuilt and the files reindexed in the Greek index; run record in docs/DATA_OPERATIONS.md.
+
 ## 2026-10-29
 - Coptic works dated by a stated rule: the 21 Coptic works that had no era or year (eleven saints' Lives and other anonymous works, eight pseudonymous homilies, Theodosius of Alexandria and the documentary papyri) now carry both. Each year is the midpoint of the earliest and latest possible dates, and each note gives the basis. A new Coptic era, Medieval Coptic, covers years after 700.
 - Coptic names found inside bound groups: the Coptic pass of `scripts/corpus/build_window_names.py` now also reads the names from the parse (the PROPN part of a bound group such as ϩⲓⲉⲣⲟⲩⲥⲁⲗⲏⲙ inside ⲉⲧⲃⲉⲧϩⲓⲉⲣⲟⲩⲥⲁⲗⲏⲙ), joined to the old whole-word match; `--coptic-only LIVE OUT` replaces only the Coptic rows of a copy. Coptic name pairs 17,094 to 54,154, windows with a name 8,806 to 13,310. New files PREPARED, not yet installed (docs/DATA_OPERATIONS.md).
