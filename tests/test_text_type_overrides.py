@@ -1,5 +1,7 @@
 """Texts whose type the content rule gets wrong are fixed by an override."""
 
+import pytest
+
 from backend.utils import detect_text_type
 
 DIOGENIANUS = 'diogenianus_of_heraclea.paroemiae.tess'
@@ -25,9 +27,6 @@ HEBREW_POETRY_BOOKS = {
     'isaiah', 'hosea', 'joel', 'amos', 'obadiah', 'micah', 'nahum',
     'habakkuk', 'zephaniah',
 }
-
-
-import pytest
 
 # Works the name rules or the line-length rule typed wrongly (audit 2026-11-03).
 VERSE_WORKS = [
