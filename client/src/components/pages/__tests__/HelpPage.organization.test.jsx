@@ -5,7 +5,7 @@
  * moved to its own page.
  */
 import { describe, it, expect, vi, afterEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import HelpPage, { HELP_SECTION_ALIASES, resolveHelpSection } from '../HelpPage';
 import UploadTextPage from '../UploadTextPage';
 import { pageForPath } from '../../../hooks/routePaths';
@@ -56,6 +56,15 @@ describe('Help organization', () => {
     serve();
     render(<HelpPage initialSection={id} />);
     expect(await screen.findByRole('heading', { name: heading })).toBeTruthy();
+  });
+
+  it('lists Request a Text Addition under Reference & tools, opening the stub', async () => {
+    serve();
+    render(<HelpPage />);
+    await screen.findByRole('heading', { name: 'Start here' });
+    fireEvent.click(screen.getByRole('button', { name: 'Request a Text Addition' }));
+    expect(await screen.findByRole('heading', { name: 'Request a Text Addition' })).toBeTruthy();
+    expect(screen.getAllByRole('link', { name: 'Open Upload Your Text' })).toHaveLength(1);
   });
 
   it('keeps a stub for Upload Your Text that links to the page', async () => {

@@ -217,11 +217,11 @@ describe('Navigation — the People, Places & Things menu', () => {
   });
 });
 
-describe('Navigation — Upload Your Text', () => {
-  it('lists Upload Your Text in the main menu and opens the upload-help page', () => {
+describe('Navigation — Request a Text Addition', () => {
+  it('lists Request a Text Addition in the main menu and opens the upload-help page', () => {
     const setPageType = vi.fn();
     renderNav({ setPageType });
-    fireEvent.click(screen.getByRole('button', { name: 'Upload Your Text' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Request a Text Addition' }));
     expect(setPageType).toHaveBeenCalledWith('upload-help');
   });
 });
