@@ -48,6 +48,7 @@ exports[`App render recording > page / 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Request a Text Addition</span>
 <span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
 </div>
 <button aria-current="page" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold">Search One Text<span class="ml-1 relative -top-1 inline-block leading-none text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
@@ -62,6 +63,7 @@ exports[`App render recording > page / 1`] = `
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">About</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Request a Text Addition</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">More <span aria-hidden="true">▾</span>
 </button>
@@ -233,6 +235,7 @@ exports[`App render recording > page / in History view 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Request a Text Addition</span>
 <span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
 </div>
 <button aria-current="page" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold">Search One Text<span class="ml-1 relative -top-1 inline-block leading-none text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
@@ -247,6 +250,7 @@ exports[`App render recording > page / in History view 1`] = `
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">About</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Request a Text Addition</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">More <span aria-hidden="true">▾</span>
 </button>
@@ -418,6 +422,7 @@ exports[`App render recording > page /about 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Request a Text Addition</span>
 <span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Search One Text<span class="ml-1 relative -top-1 inline-block leading-none text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
@@ -432,6 +437,7 @@ exports[`App render recording > page /about 1`] = `
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button aria-current="page" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold">About</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Request a Text Addition</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">More <span aria-hidden="true">▾</span>
 </button>
@@ -723,6 +729,7 @@ exports[`App render recording > page /admin 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Request a Text Addition</span>
 <span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Search One Text<span class="ml-1 relative -top-1 inline-block leading-none text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
@@ -737,6 +744,7 @@ exports[`App render recording > page /admin 1`] = `
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">About</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Request a Text Addition</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">More <span aria-hidden="true">▾</span>
 </button>
@@ -822,6 +830,7 @@ exports[`App render recording > page /ask-a-work 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Request a Text Addition</span>
 <span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
 </div>
 <button aria-current="page" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold">Search One Text<span class="ml-1 relative -top-1 inline-block leading-none text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
@@ -836,6 +845,7 @@ exports[`App render recording > page /ask-a-work 1`] = `
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">About</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Request a Text Addition</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">More <span aria-hidden="true">▾</span>
 </button>
@@ -1007,6 +1017,7 @@ exports[`App render recording > page /blog-archive 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Request a Text Addition</span>
 <span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Search One Text<span class="ml-1 relative -top-1 inline-block leading-none text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
@@ -1021,6 +1032,7 @@ exports[`App render recording > page /blog-archive 1`] = `
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">About</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Request a Text Addition</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">More <span aria-hidden="true">▾</span>
 </button>
@@ -1880,6 +1892,7 @@ exports[`App render recording > page /browse 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Request a Text Addition</span>
 <span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Search One Text<span class="ml-1 relative -top-1 inline-block leading-none text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
@@ -1894,6 +1907,7 @@ exports[`App render recording > page /browse 1`] = `
 <button aria-current="page" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">About</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Request a Text Addition</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">More <span aria-hidden="true">▾</span>
 </button>
@@ -2025,6 +2039,7 @@ exports[`App render recording > page /coins 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Request a Text Addition</span>
 <span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Search One Text<span class="ml-1 relative -top-1 inline-block leading-none text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
@@ -2039,6 +2054,7 @@ exports[`App render recording > page /coins 1`] = `
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">About</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Request a Text Addition</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">More <span aria-hidden="true">▾</span>
 </button>
@@ -2171,6 +2187,7 @@ exports[`App render recording > page /coins/c1 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Request a Text Addition</span>
 <span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Search One Text<span class="ml-1 relative -top-1 inline-block leading-none text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
@@ -2185,6 +2202,7 @@ exports[`App render recording > page /coins/c1 1`] = `
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">About</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Request a Text Addition</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">More <span aria-hidden="true">▾</span>
 </button>
@@ -2255,6 +2273,7 @@ exports[`App render recording > page /corpus 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Request a Text Addition</span>
 <span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Search One Text<span class="ml-1 relative -top-1 inline-block leading-none text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
@@ -2269,6 +2288,7 @@ exports[`App render recording > page /corpus 1`] = `
 <button aria-current="page" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">About</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Request a Text Addition</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">More <span aria-hidden="true">▾</span>
 </button>
@@ -2400,6 +2420,7 @@ exports[`App render recording > page /document 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Request a Text Addition</span>
 <span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Search One Text<span class="ml-1 relative -top-1 inline-block leading-none text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
@@ -2414,6 +2435,7 @@ exports[`App render recording > page /document 1`] = `
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">About</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Request a Text Addition</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">More <span aria-hidden="true">▾</span>
 </button>
@@ -2484,6 +2506,7 @@ exports[`App render recording > page /downloads 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Request a Text Addition</span>
 <span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Search One Text<span class="ml-1 relative -top-1 inline-block leading-none text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
@@ -2498,6 +2521,7 @@ exports[`App render recording > page /downloads 1`] = `
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">About</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Request a Text Addition</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold">More <span aria-hidden="true">▾</span>
 </button>
@@ -3288,6 +3312,7 @@ exports[`App render recording > page /events 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Request a Text Addition</span>
 <span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Search One Text<span class="ml-1 relative -top-1 inline-block leading-none text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
@@ -3302,6 +3327,7 @@ exports[`App render recording > page /events 1`] = `
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">About</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Request a Text Addition</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">More <span aria-hidden="true">▾</span>
 </button>
@@ -3417,6 +3443,7 @@ exports[`App render recording > page /events/e1 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Request a Text Addition</span>
 <span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Search One Text<span class="ml-1 relative -top-1 inline-block leading-none text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
@@ -3431,6 +3458,7 @@ exports[`App render recording > page /events/e1 1`] = `
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">About</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Request a Text Addition</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">More <span aria-hidden="true">▾</span>
 </button>
@@ -3501,6 +3529,7 @@ exports[`App render recording > page /help 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Request a Text Addition</span>
 <span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Search One Text<span class="ml-1 relative -top-1 inline-block leading-none text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
@@ -3515,6 +3544,7 @@ exports[`App render recording > page /help 1`] = `
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">About</button>
 <button aria-current="page" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold">Help &amp; Support</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Request a Text Addition</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">More <span aria-hidden="true">▾</span>
 </button>
@@ -3627,6 +3657,9 @@ exports[`App render recording > page /help 1`] = `
 </li>
 <li>
 <button class="w-full text-left pl-6 pr-3 py-1.5 rounded text-sm text-gray-700 hover:bg-gray-100">How the system is built</button>
+</li>
+<li>
+<button class="w-full text-left pl-6 pr-3 py-1.5 rounded text-sm text-gray-700 hover:bg-gray-100">Request a Text Addition</button>
 </li>
 <li>
 <button class="w-full text-left pl-6 pr-3 py-1.5 rounded text-sm text-gray-700 hover:bg-gray-100">Send Feedback</button>
@@ -3748,6 +3781,7 @@ exports[`App render recording > page /inscriptions-papyri 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Request a Text Addition</span>
 <span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Search One Text<span class="ml-1 relative -top-1 inline-block leading-none text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
@@ -3762,6 +3796,7 @@ exports[`App render recording > page /inscriptions-papyri 1`] = `
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">About</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Request a Text Addition</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">More <span aria-hidden="true">▾</span>
 </button>
@@ -3976,6 +4011,7 @@ exports[`App render recording > page /line-search 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Request a Text Addition</span>
 <span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Search One Text<span class="ml-1 relative -top-1 inline-block leading-none text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
@@ -3990,6 +4026,7 @@ exports[`App render recording > page /line-search 1`] = `
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">About</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Request a Text Addition</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">More <span aria-hidden="true">▾</span>
 </button>
@@ -4124,6 +4161,7 @@ exports[`App render recording > page /no-such-page 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Request a Text Addition</span>
 <span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Search One Text<span class="ml-1 relative -top-1 inline-block leading-none text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
@@ -4138,6 +4176,7 @@ exports[`App render recording > page /no-such-page 1`] = `
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">About</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Request a Text Addition</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">More <span aria-hidden="true">▾</span>
 </button>
@@ -4352,6 +4391,7 @@ exports[`App render recording > page /objects 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Request a Text Addition</span>
 <span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Search One Text<span class="ml-1 relative -top-1 inline-block leading-none text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
@@ -4366,6 +4406,7 @@ exports[`App render recording > page /objects 1`] = `
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">About</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Request a Text Addition</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">More <span aria-hidden="true">▾</span>
 </button>
@@ -4494,6 +4535,7 @@ exports[`App render recording > page /objects/o1 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Request a Text Addition</span>
 <span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Search One Text<span class="ml-1 relative -top-1 inline-block leading-none text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
@@ -4508,6 +4550,7 @@ exports[`App render recording > page /objects/o1 1`] = `
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">About</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Request a Text Addition</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">More <span aria-hidden="true">▾</span>
 </button>
@@ -4578,6 +4621,7 @@ exports[`App render recording > page /privacy 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Request a Text Addition</span>
 <span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Search One Text<span class="ml-1 relative -top-1 inline-block leading-none text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
@@ -4592,6 +4636,7 @@ exports[`App render recording > page /privacy 1`] = `
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">About</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Request a Text Addition</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">More <span aria-hidden="true">▾</span>
 </button>
@@ -4713,6 +4758,7 @@ exports[`App render recording > page /read 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Request a Text Addition</span>
 <span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Search One Text<span class="ml-1 relative -top-1 inline-block leading-none text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
@@ -4727,6 +4773,7 @@ exports[`App render recording > page /read 1`] = `
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">About</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Request a Text Addition</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">More <span aria-hidden="true">▾</span>
 </button>
@@ -4853,6 +4900,7 @@ exports[`App render recording > page /repository 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Request a Text Addition</span>
 <span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Search One Text<span class="ml-1 relative -top-1 inline-block leading-none text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
@@ -4867,6 +4915,7 @@ exports[`App render recording > page /repository 1`] = `
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">About</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Request a Text Addition</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold">More <span aria-hidden="true">▾</span>
 </button>
@@ -4981,6 +5030,7 @@ exports[`App render recording > page /requests 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Request a Text Addition</span>
 <span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Search One Text<span class="ml-1 relative -top-1 inline-block leading-none text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
@@ -4995,6 +5045,7 @@ exports[`App render recording > page /requests 1`] = `
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">About</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Request a Text Addition</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">More <span aria-hidden="true">▾</span>
 </button>
@@ -5085,6 +5136,7 @@ exports[`App render recording > page /research 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Request a Text Addition</span>
 <span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Search One Text<span class="ml-1 relative -top-1 inline-block leading-none text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
@@ -5099,6 +5151,7 @@ exports[`App render recording > page /research 1`] = `
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">About</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Request a Text Addition</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">More <span aria-hidden="true">▾</span>
 </button>
@@ -5283,6 +5336,7 @@ exports[`App render recording > page /string-search 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Request a Text Addition</span>
 <span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Search One Text<span class="ml-1 relative -top-1 inline-block leading-none text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
@@ -5297,6 +5351,7 @@ exports[`App render recording > page /string-search 1`] = `
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">About</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Request a Text Addition</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">More <span aria-hidden="true">▾</span>
 </button>
@@ -5413,6 +5468,7 @@ exports[`App render recording > page /text-credits 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Request a Text Addition</span>
 <span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Search One Text<span class="ml-1 relative -top-1 inline-block leading-none text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
@@ -5427,6 +5483,7 @@ exports[`App render recording > page /text-credits 1`] = `
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">About</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Request a Text Addition</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">More <span aria-hidden="true">▾</span>
 </button>
@@ -5539,6 +5596,7 @@ exports[`App render recording > page /theme-search 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Request a Text Addition</span>
 <span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Search One Text<span class="ml-1 relative -top-1 inline-block leading-none text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
@@ -5553,6 +5611,7 @@ exports[`App render recording > page /theme-search 1`] = `
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">About</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Request a Text Addition</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">More <span aria-hidden="true">▾</span>
 </button>
@@ -5672,6 +5731,7 @@ exports[`App render recording > page /visualize 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Request a Text Addition</span>
 <span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Search One Text<span class="ml-1 relative -top-1 inline-block leading-none text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
@@ -5686,6 +5746,7 @@ exports[`App render recording > page /visualize 1`] = `
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">About</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Request a Text Addition</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">More <span aria-hidden="true">▾</span>
 </button>

@@ -57,6 +57,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > opens the Save Paral
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Request a Text Addition</span>
 <span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Search One Text<span class="ml-1 relative -top-1 inline-block leading-none text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
@@ -71,6 +72,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > opens the Save Paral
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">About</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Request a Text Addition</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">More <span aria-hidden="true">▾</span>
 </button>
@@ -2208,6 +2210,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > opens the Save Paral
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Request a Text Addition</span>
 <span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Search One Text<span class="ml-1 relative -top-1 inline-block leading-none text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
@@ -2222,6 +2225,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > opens the Save Paral
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">About</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Request a Text Addition</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">More <span aria-hidden="true">▾</span>
 </button>
@@ -4402,6 +4406,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > opens the Search Cor
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Request a Text Addition</span>
 <span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Search One Text<span class="ml-1 relative -top-1 inline-block leading-none text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
@@ -4416,6 +4421,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > opens the Search Cor
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">About</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Request a Text Addition</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">More <span aria-hidden="true">▾</span>
 </button>
@@ -4681,6 +4687,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > runs the deep-linked
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Request a Text Addition</span>
 <span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Search One Text<span class="ml-1 relative -top-1 inline-block leading-none text-[9px] font-semibold uppercase tracking-wide text-amber-700">beta</span>
@@ -4695,6 +4702,7 @@ exports[`App flows: results, Search Corpus, Save Parallel > runs the deep-linked
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">About</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Request a Text Addition</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">More <span aria-hidden="true">▾</span>
 </button>
