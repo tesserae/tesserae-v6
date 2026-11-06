@@ -99,6 +99,27 @@ describe('a pair above the size limit', () => {
   });
 });
 
+describe('a large pair under the size limit', () => {
+  it('starts the search on the first click and shows the estimate line', async () => {
+    const base = routeFetch;
+    global.fetch = vi.fn((url, init) => {
+      if (String(url).startsWith('/api/fusion-estimate')) {
+        return Promise.resolve(json({ pairs: 23000000, in_parts: true, parts: 8, estimated_seconds: 180 }));
+      }
+      if (String(url) === '/api/search-fusion') return new Promise(() => {});   // stays running
+      return base(String(url), init);
+    });
+    window.history.pushState({}, '', '/?source=vergil.aeneid.tess&target=ovid.metamorphoses.tess&lang=la');
+    render(<App />);
+    const region = await screen.findByRole('region', { name: 'Large comparison' });
+    expect(region).toHaveTextContent('about 23 million line pairs, about 3 minutes. The results fill in part by part.');
+    expect(screen.queryByRole('button', { name: 'Run the full comparison' })).toBeNull();
+    expect(global.fetch.mock.calls.some(([u]) => String(u) === '/api/search-fusion')
+      || global.fetch.mock.calls.some(([u]) => String(u).includes('search-fusion'))).toBe(true);
+    expect(screen.getByRole('button', { name: 'Compare chosen books instead' })).toBeInTheDocument();
+  });
+});
+
 describe('the status page address', () => {
   it('opens the status page for /comparisons/<id>', async () => {
     window.history.pushState({}, '', '/comparisons/abc123');

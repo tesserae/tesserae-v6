@@ -29,12 +29,15 @@ is not recognised as itself. Nothing errors: a description, a translation
 or a count simply is not found.
 """
 
+from functools import lru_cache
+
 __all__ = ['work_id', 'base_work', 'is_part', 'sql_base_work']
 
 _PART = '.part.'
 _SUFFIX = '.tess'
 
 
+@lru_cache(maxsize=262144)
 def work_id(name):
     """The file's own identifier: no directory, no .tess, part kept.
 
@@ -50,6 +53,7 @@ def work_id(name):
     return w
 
 
+@lru_cache(maxsize=262144)
 def base_work(name):
     """The work the file belongs to: part collapsed.
 

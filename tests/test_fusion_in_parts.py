@@ -226,3 +226,23 @@ def test_a_waiting_request_that_is_cancelled_leaves_the_line(monkeypatch):
 
 def test_the_semaphore_is_one_per_process():
     assert isinstance(fusion._LARGE_SEMAPHORE, type(threading.Semaphore(1)))
+
+
+def test_collector_threshold_is_set_during_a_comparison_and_restored(monkeypatch):
+    import gc
+    from backend import fusion
+    seen = []
+
+    def fake_run_parts(*a, **k):
+        seen.append(gc.get_threshold())
+        yield ("complete", {})
+
+    monkeypatch.setattr(fusion, "_run_parts", fake_run_parts)
+    before = gc.get_threshold()
+    list(fusion._iter_fusion_in_parts())
+    assert seen == [fusion._LARGE_GC_THRESHOLD]
+    assert gc.get_threshold() == before
+    gen = fusion._iter_fusion_in_parts()
+    next(gen)
+    gen.close()
+    assert gc.get_threshold() == before

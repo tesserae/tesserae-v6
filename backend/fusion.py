@@ -58,6 +58,7 @@ target_word) to prevent inflected forms from inflating the mean.
 Channel weights are from Config K (grid-search optimized, Feb 28 2026).
 """
 
+import gc
 import json
 import math
 import os
@@ -67,11 +68,13 @@ import threading
 import time
 import unicodedata
 from collections import Counter, defaultdict
+from functools import lru_cache
 from dataclasses import dataclass
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, wait as futures_wait
 
 import numpy as np
 
+from backend import fork_gate
 from backend.logging_config import get_logger
 from backend.matcher import DEFAULT_LATIN_STOP_WORDS, DEFAULT_GREEK_STOP_WORDS, DEFAULT_ENGLISH_STOP_WORDS
 from backend.search_cancellation import cancellable_pool_map
@@ -1036,14 +1039,20 @@ def make_window_units(line_units):
     return windows
 
 
+@lru_cache(maxsize=262144)
 def parse_ref(ref):
-    """Parse a single-line ref like 'luc. 1.5' → (book, line)."""
+    """Parse a single-line ref like 'luc. 1.5' → (book, line).
+
+    Cached: the closing merge of a large comparison parses the same few
+    thousand references over a million times, and the result is a tuple.
+    """
     nums = [int(x) for x in re.findall(r'\d+', ref)]
     if len(nums) >= 2:
         return nums[-2], nums[-1]
     return None, None
 
 
+@lru_cache(maxsize=262144)
 def parse_range_ref(ref):
     """Parse a ref that may be a range like 'luc. 1.1-luc. 1.2'.
     Returns (book, start_line, end_line)."""
@@ -2436,59 +2445,58 @@ def _pair_table(channel_results, consts):
 
     for ch_name, results in channel_results.items():
         weight = _weights.get(ch_name, 1.0)
+        bypass_rarity = ch_name in _RARITY_BYPASS_CHANNELS
         for r in results:
-            rs = r.get("source", {}).get("ref", "")
-            rt = r.get("target", {}).get("ref", "")
-            key = (rs, rt)
+            src = r.get("source", {})
+            tgt = r.get("target", {})
+            key = (src.get("ref", ""), tgt.get("ref", ""))
             raw_score = r.get("overall_score") or r.get("score") or 0
             contribution = raw_score * weight
-            pair_scores[key]["score"] += contribution
+            entry = pair_scores[key]
+            entry["score"] += contribution
             # The quotation channel's contribution is also stashed separately
             # so it can be re-added unscaled by the rarity multiplier at score
             # assembly. A long verbatim run is intrinsically distinctive even
             # when its individual tokens are common; bypassing the rarity
             # penalty for that contribution prevents common-vocabulary verbatim
             # quotations from being suppressed.
-            if ch_name in _RARITY_BYPASS_CHANNELS:
-                pair_scores[key]["quotation_score_contrib"] += contribution
-            pair_scores[key]["channels"].append(ch_name)
+            if bypass_rarity:
+                entry["quotation_score_contrib"] += contribution
+            entry["channels"].append(ch_name)
             if raw_score > 0:
-                pair_scores[key]["n_scoring_channels"] += 1
+                entry["n_scoring_channels"] += 1
 
             # Accumulate highlight indices from all channels
-            src = r.get("source", {})
-            tgt = r.get("target", {})
             src_indices = src.get("highlight_indices", [])
             tgt_indices = tgt.get("highlight_indices", [])
-            for idx in src_indices:
-                pair_scores[key]["all_source_highlights"].add(idx)
-            for idx in tgt_indices:
-                pair_scores[key]["all_target_highlights"].add(idx)
+            entry["all_source_highlights"].update(src_indices)
+            entry["all_target_highlights"].update(tgt_indices)
             # Also track the same indices per channel so the payload carries
             # per-channel token attribution (which words each channel matched).
-            ch_attrs = pair_scores[key]["channel_token_attrs"]
+            ch_attrs = entry["channel_token_attrs"]
             if ch_name not in ch_attrs:
                 ch_attrs[ch_name] = {"source": set(), "target": set()}
             ch_attrs[ch_name]["source"].update(src_indices)
             ch_attrs[ch_name]["target"].update(tgt_indices)
 
             # Accumulate matched words (dedup by lemma, prefer entries with source_word)
+            all_words = entry["all_matched_words"]
             for mw in r.get("matched_words", []):
                 lemma = mw.get("lemma", "")
                 if not lemma:
                     continue
-                existing = pair_scores[key]["all_matched_words"].get(lemma)
+                existing = all_words.get(lemma)
                 if existing is None or (not existing.get("source_word") and mw.get("source_word")):
-                    pair_scores[key]["all_matched_words"][lemma] = mw
+                    all_words[lemma] = mw
 
             # Keep the result with the highest individual score for display
-            if raw_score > pair_scores[key]["best_score"]:
-                pair_scores[key]["best_result"] = r
-                pair_scores[key]["best_score"] = raw_score
+            if raw_score > entry["best_score"]:
+                entry["best_result"] = r
+                entry["best_score"] = raw_score
             # The form channel's refrain/rhyme/meter record survives even when
             # another channel supplies the displayed result.
             if r.get("poetics"):
-                pair_scores[key]["poetics"] = r["poetics"]
+                entry["poetics"] = r["poetics"]
 
     _t1 = _time.time()
     logger.info(f"[FUSION] Accumulated {len(pair_scores):,} unique pairs from "
@@ -3055,6 +3063,14 @@ def _matched_word_indices(tokens, word):
     return [i for i, t in enumerate(tokens) if t.lower() == w]
 
 
+def _lowered_word_indices(lowered_tokens, word):
+    """_matched_word_indices over tokens already lowercased."""
+    if not word or not lowered_tokens:
+        return []
+    w = word.lower()
+    return [i for i, t in enumerate(lowered_tokens) if t == w]
+
+
 def _check_line_span(positions, boundary):
     """Check if any positions fall on both sides of a line boundary."""
     if not positions:
@@ -3174,12 +3190,15 @@ def penalize_single_line_windows(window_results, annotate_for_merge=False):
         src_boundary = src_counts[0]
         tgt_boundary = tgt_counts[0]
 
-        # Find positions of actual matched words
+        # Find positions of actual matched words (each token lowercased once
+        # for the row, not once per matched word).
+        src_lower = [t.lower() for t in src_tokens] if src_tokens else src_tokens
+        tgt_lower = [t.lower() for t in tgt_tokens] if tgt_tokens else tgt_tokens
         src_positions = []
         tgt_positions = []
         for mw in matched_words:
-            src_positions.extend(_matched_word_indices(src_tokens, mw.get('source_word', '')))
-            tgt_positions.extend(_matched_word_indices(tgt_tokens, mw.get('target_word', '')))
+            src_positions.extend(_lowered_word_indices(src_lower, mw.get('source_word', '')))
+            tgt_positions.extend(_lowered_word_indices(tgt_lower, mw.get('target_word', '')))
 
         # Fall back to highlight_indices if matched-word lookup failed
         # (happens when scorer falls back to lemma form for source_word)
@@ -3225,6 +3244,10 @@ def penalize_single_line_windows(window_results, annotate_for_merge=False):
     return out
 
 
+# Most cells a window may cover and still be entered in the dedup's cell table.
+_DEDUP_MAX_CELLS = 16
+
+
 def _dedup_overlapping_windows(window_results):
     """Remove overlapping window results that are duplicates of the same match.
 
@@ -3261,10 +3284,28 @@ def _dedup_overlapping_windows(window_results):
                     reverse=True)
 
     kept = []
-    # Index kept windows by target line numbers for fast overlap lookup.
-    # Each target line maps to the kept windows that cover it, so we only
-    # compare against windows that could actually overlap in the target.
-    kept_by_tgt_line = defaultdict(list)  # tgt_line -> [(sb, ss, se, tb, ts, te, lemmas)]
+    # The lemma sets of the kept windows, by the single (target book, target
+    # line, source book, source line) cell each one covers. A window is a
+    # duplicate when a kept window shares a cell with it and its lemmas are a
+    # subset of that window's, so only the windows on the same cells are
+    # compared. (Comparing against every kept window that covers one of its
+    # target lines took 100 million comparisons on a large pair.)
+    kept_cells = defaultdict(list)
+    # A window with a reversed or very wide range is not entered in the cells.
+    # Such windows (none occur in the corpus) are compared the long way, and
+    # so is any candidate whose own range is irregular.
+    irregular = []      # (sb, ss, se, tb, ts, te, lemmas) of kept irregular windows
+    every_kept = []     # all kept windows in the same form, for an irregular candidate
+
+    def _overlap_match(entry, sb, ss, se, tb, ts, te, cand_lemmas):
+        ksb, kss, kse, ktb, kts, kte, k_lemmas = entry
+        if ktb != tb or ksb != sb:
+            return False
+        if max(ts, kts) > min(te, kte):
+            return False
+        if not (ss <= kse and kss <= se):
+            return False
+        return (not cand_lemmas) or cand_lemmas <= k_lemmas
 
     for i in scored:
         sb, ss, se, tb, ts, te = parsed[i]
@@ -3272,33 +3313,41 @@ def _dedup_overlapping_windows(window_results):
             kept.append(window_results[i])
             continue
 
-        # Check only kept windows that overlap this window's target lines
-        is_dup = False
         cand_lemmas = word_sets[i]
-        # Collect candidate overlapping windows from target line index
-        checked = set()  # avoid checking same kept window twice
-        for tl in range(ts, te + 1):
-            for entry in kept_by_tgt_line.get((tb, tl), []):
-                eid = id(entry)
-                if eid in checked:
-                    continue
-                checked.add(eid)
-                ksb, kss, kse, _, kts, kte, k_lemmas = entry
-                if sb != ksb:
-                    continue
-                src_overlaps = ss <= kse and kss <= se
-                if src_overlaps:
-                    if not cand_lemmas or cand_lemmas <= k_lemmas:
+        regular = ss <= se and ts <= te and (se - ss + 1) * (te - ts + 1) <= _DEDUP_MAX_CELLS
+        is_dup = False
+        if regular:
+            for tl in range(ts, te + 1):
+                for sl in range(ss, se + 1):
+                    for k_lemmas in kept_cells.get((tb, tl, sb, sl), ()):
+                        if not cand_lemmas or cand_lemmas <= k_lemmas:
+                            is_dup = True
+                            break
+                    if is_dup:
+                        break
+                if is_dup:
+                    break
+            if not is_dup:
+                for entry in irregular:
+                    if _overlap_match(entry, sb, ss, se, tb, ts, te, cand_lemmas):
                         is_dup = True
                         break
-            if is_dup:
-                break
+        else:
+            for entry in every_kept:
+                if _overlap_match(entry, sb, ss, se, tb, ts, te, cand_lemmas):
+                    is_dup = True
+                    break
 
         if not is_dup:
             kept.append(window_results[i])
             entry = (sb, ss, se, tb, ts, te, cand_lemmas)
-            for tl in range(ts, te + 1):
-                kept_by_tgt_line[(tb, tl)].append(entry)
+            every_kept.append(entry)
+            if regular:
+                for tl in range(ts, te + 1):
+                    for sl in range(ss, se + 1):
+                        kept_cells[(tb, tl, sb, sl)].append(cand_lemmas)
+            else:
+                irregular.append(entry)
 
     return kept
 
@@ -3447,12 +3496,16 @@ def _run_channel_with_heartbeat(ch_name, config, source_units, target_units,
                 source_language=source_language, target_language=target_language,
                 cancellation=cancellation, freq_units=freq_units,
             )
-            while not future.done():
-                time.sleep(HEARTBEAT_INTERVAL)
+            # Wait on the finished work, not on a timer: a channel that ends
+            # in 0.1 s is collected in 0.1 s. The heartbeat and the
+            # cancellation check still come once per HEARTBEAT_INTERVAL.
+            while True:
+                finished, _pending = futures_wait([future], timeout=HEARTBEAT_INTERVAL)
                 if cancellation:
                     cancellation.check()
-                if not future.done():
-                    yield ("heartbeat", {"channel": ch_name})
+                if finished:
+                    break
+                yield ("heartbeat", {"channel": ch_name})
             # Re-raise any exception from the channel
             yield ("result", future.result())
         except GeneratorExit:
@@ -3835,7 +3888,8 @@ def _fusion_block(source_units, target_units, plan, matcher, scorer,
 # Splitting leaves every score unchanged: a pair's score depends on the pair,
 # on the two whole texts' token counts (the text-pair document frequencies are
 # keyed on the texts and the lemma, not on the block) and on the channel
-# weights. Three things that look across pairs are done once, over the merged
+# weights. One input is set once from the whole pair before the parts run: the
+# semantic floor of Persian, Urdu and Arabic (_share_semantic_floor). Three things that look across pairs are done once, over the merged
 # rows, never per block: the passage-context confirmation (top 3,000 rows),
 # the removal of overlapping windows, and the merge of the line and window
 # levels.
@@ -3847,19 +3901,50 @@ FUSION_PART_KEEP_MIN = 20000             # rows kept per part and level, at leas
 # earlier part.
 FUSION_PART_OVERLAP_LINES = 1
 
-# One large comparison at a time in each process. A second waits its turn.
+# One large comparison at a time in each web process. A second waits its turn.
+# The comparison itself may run its parts in FUSION_PART_PROCESSES worker
+# processes (see _run_parts_in_processes), so the semaphore still counts
+# comparisons, and each holds at most that many extra processes, with their
+# channel pools, until it ends.
 _LARGE_SEMAPHORE = threading.Semaphore(1)
+_LARGE_GC_THRESHOLD = (200000, 20, 100)   # generation thresholds while a comparison runs in parts
 _large_waiters = []
 _large_waiters_lock = threading.Lock()
 
 
-# Seconds per million source-by-target line pairs, for the estimate shown
-# before a large comparison. Measured on 2026-10-16 with the semantic channel
-# off: the whole Thebaid against the whole Aeneid (9,731 by 9,896 lines, about
-# 96.3 million pairs) took 26 minutes 42 seconds in 500-line parts. With the
-# semantic channel on, a comparison takes longer than this estimate says.
+# The estimate shown before a large comparison.
+# A comparison that runs whole takes FUSION_SECONDS_PER_MILLION_PAIRS seconds
+# per million source-by-target line pairs (measured 2026-10-16, semantic channel
+# off: the whole Thebaid against the whole Aeneid, 96.3 million pairs, 26 minutes
+# 42 seconds in 500-line parts, before the changes of 2026-10-27).
 FUSION_SECONDS_PER_MILLION_PAIRS = 17
+# One run in parts takes FUSION_PART_BASE_SECONDS (the closing merge and the
+# context confirmation) plus FUSION_SECONDS_PER_PART for each part plus
+# FUSION_PART_SECONDS_PER_MILLION_PAIRS for each million pairs. Refitted
+# 2026-10-27 (second fit, round three code) to four offline runs with the
+# parts in two worker processes, each within 18 percent: Hafez against Zabur-e
+# Ajam (11.9 million pairs, 20 parts, 94.5 s, estimate +17 percent), the Aeneid
+# against Punica part 1 (6.9 million, 20 parts, 118 s, -17 percent), Lucretius
+# against Lucan part 4 (6.1 million, 15 parts, 81.5 s, +5 percent) and the whole
+# Aeneid against the whole of Lucan (79.8 million, 20 parts, 350 s, -18
+# percent). The Culex against the Metamorphoses (5.0 million, run whole,
+# 97 s offline) is estimated at 84 s by the whole-run constant above. These are
+# offline seconds on an idle machine. A live worker already holds the passage
+# index (about 14 s less) but shares the machine with other requests. A
+# comparison that runs its parts in one process (the machine is short of memory,
+# see _part_process_count) takes about 1.8 times as long.
+FUSION_PART_BASE_SECONDS = 40
+FUSION_SECONDS_PER_PART = 2.0
+FUSION_PART_SECONDS_PER_MILLION_PAIRS = 2.6
 FUSION_ESTIMATE_FLOOR_SECONDS = 60
+# The constants above were fitted on offline runs on an otherwise idle machine.
+# On the live site, where the web workers also answer other requests, the same
+# comparisons run about 1.5 times longer: Punica against the Aeneid 242 s live
+# against 160 s offline and Lucretius against Lucan 4 367 s against 246 s on
+# 2026-10-27 (the hand warm-up), and the Aeneid against Thebaid part 1 274 s live
+# against its 181 s offline estimate the same day. The estimate shown to a
+# visitor carries this factor.
+FUSION_LIVE_FACTOR = 1.5
 
 
 def _use_parts_counts(n_source, n_target, in_parts=None):
@@ -3887,14 +3972,20 @@ def estimate_fusion(n_source, n_target):
     """What a fusion search of these two texts will cost, from the line counts alone.
 
     Returns {pairs, in_parts, parts, estimated_seconds, source_lines,
-    target_lines}. The seconds follow FUSION_SECONDS_PER_MILLION_PAIRS with a
-    floor of FUSION_ESTIMATE_FLOOR_SECONDS.
+    target_lines}. A search in parts follows FUSION_PART_BASE_SECONDS, FUSION_SECONDS_PER_PART and
+    FUSION_PART_SECONDS_PER_MILLION_PAIRS, a search run whole follows
+    FUSION_SECONDS_PER_MILLION_PAIRS, both with a floor of
+    FUSION_ESTIMATE_FLOOR_SECONDS.
     """
     pairs = n_source * n_target
     in_parts = _use_parts_counts(n_source, n_target)
     parts = len(_part_ranges(n_source)) if in_parts else 1
-    seconds = max(FUSION_ESTIMATE_FLOOR_SECONDS,
-                  int(round(pairs / 1_000_000 * FUSION_SECONDS_PER_MILLION_PAIRS)))
+    if in_parts:
+        raw = (FUSION_PART_BASE_SECONDS + parts * FUSION_SECONDS_PER_PART
+               + pairs / 1_000_000 * FUSION_PART_SECONDS_PER_MILLION_PAIRS)
+    else:
+        raw = pairs / 1_000_000 * FUSION_SECONDS_PER_MILLION_PAIRS
+    seconds = max(FUSION_ESTIMATE_FLOOR_SECONDS, int(round(raw * FUSION_LIVE_FACTOR)))
     return {
         'pairs': pairs,
         'in_parts': in_parts,
@@ -3934,6 +4025,350 @@ def _by_score(rows):
                                        (r.get('target') or {}).get('ref', '')))
 
 
+class _PartPreview:
+    """The best-so-far rows shown while the parts of a large comparison run.
+
+    Each part's rows are penalized and merged (_finish_levels) on their own and
+    added to a running list that never holds more than `cap` rows, so a part
+    costs the same as the first. The parts take consecutive source lines, so a
+    line row and the window that replaces it come from the same part. Only a
+    window that straddles two parts is not matched against the rows of the
+    other part, which can leave one extra preview row at such a seam. The
+    final answer does not use this list: it is the one merge over all kept rows.
+    """
+
+    def __init__(self, mode, cap, user_settings):
+        self.mode = mode
+        self.cap = cap
+        self.user_settings = user_settings
+        self.best = []
+        self.total = 0
+
+    def add_part(self, line_rows, window_rows):
+        """Add one part's (sorted) rows; return (top rows, rows seen so far)."""
+        # The window rows are copied because penalizing and merging change them.
+        part = _finish_levels(
+            self.mode, _by_score(line_rows),
+            [dict(r) for r in _by_score(window_rows)] if window_rows is not None else None,
+            ordered=True)
+        # The filter judges each row alone, so it can run on the part.
+        kept, _hidden = apply_formula_filter(
+            part, (self.user_settings or {}).get('formula_max'),
+            bool((self.user_settings or {}).get('formula_only', False)))
+        self.total += len(kept)
+        self.best = _by_score(self.best + _by_score(kept)[:self.cap])[:self.cap]
+        return list(self.best), self.total
+
+
+def _trim_part(line_fused, window_fused, source_units, own_stop, stop, keep):
+    """One part's kept rows: (line rows, rows cut, window rows or None, rows cut).
+
+    The overlap line belongs to the next part's line pass, so its rows are
+    dropped here. Both levels are put in score order and cut to `keep` rows.
+    """
+    if stop > own_stop:
+        overlap_refs = {u.get('ref', '') for u in source_units[own_stop:stop]}
+        line_fused = [r for r in line_fused
+                      if (r.get('source') or {}).get('ref', '') not in overlap_refs]
+    line_fused, n_line = _keep_top(_by_score(line_fused), keep)
+    n_window = 0
+    if window_fused is not None:
+        window_fused, n_window = _keep_top(_by_score(window_fused), keep)
+    return line_fused, n_line, window_fused, n_window
+
+
+def _share_semantic_floor(plan, source_units, target_units, source_path, target_path, language):
+    """The plan with the semantic floor of the whole pair in the semantic channel's settings.
+
+    Persian, Urdu and Arabic take the floor from the pair's own similarities. A
+    part must not take it from its own rows, or the same pair would score
+    differently in each part (and differently from a run in one piece), so it is
+    computed once here from the two whole sides. Other languages return the plan
+    unchanged.
+    """
+    effective_weights, configs, available_channels, line_channels = plan
+    cfg = configs.get('semantic')
+    if cfg is None or 'semantic' not in line_channels:
+        return plan
+    from backend.semantic_similarity import E5_LANGUAGES, pair_e5_floor
+    if language not in E5_LANGUAGES:
+        return plan
+    settings = dict(cfg)
+    settings['source_text_path'] = source_path
+    settings['target_text_path'] = target_path
+    floor = pair_e5_floor(source_units, target_units, settings)
+    if floor is None:
+        return plan
+    logger.info(f"[FUSION] semantic floor for the whole pair: {floor:.4f}")
+    configs = dict(configs)
+    configs['semantic'] = {**cfg, 'e5_floor': floor}
+    return effective_weights, configs, available_channels, line_channels
+
+
+# --- parts in worker processes -------------------------------------------
+# The parts of a large comparison are independent until the closing merge, so
+# FUSION_PART_PROCESSES worker processes (forked, so they share the loaded
+# texts and tables copy-on-write) each take parts off a short queue and send
+# back the kept rows. The calling process keeps the events (queued, parts,
+# heartbeats, the preview) and the closing merge, in part order, so the answer
+# is the one the single-process loop gives.
+FUSION_PART_PROCESSES = 2
+# Fewer free gigabytes than this and the parts run in the calling process.
+FUSION_PART_PROCESSES_MIN_FREE_GB = 12
+_PARTS_IN_FLIGHT = 2        # parts queued to each worker at a time (one running, one waiting)
+# A part takes about ten seconds. If no part has come back from any worker for this
+# long, the workers are taken to be stuck (a forked process can inherit a lock held
+# by another thread at the moment of the fork) and the remaining parts run in this
+# process instead, so the visitor still gets the answer (2026-10-27 review).
+_PART_STALL_SECONDS = 180
+
+
+def _part_process_count(total_parts):
+    """How many worker processes a comparison of this many parts uses (1 means none)."""
+    n = FUSION_PART_PROCESSES
+    env = os.environ.get('TESSERAE_FUSION_PART_PROCESSES')
+    if env and env.isdigit():
+        n = int(env)
+    n = max(1, min(n, total_parts))
+    if n > 1:
+        from backend.memory_util import get_available_memory_gb
+        free = get_available_memory_gb()
+        if free != float('inf') and free < FUSION_PART_PROCESSES_MIN_FREE_GB:
+            logger.warning(f"[FUSION] {free:.1f} GB free: running the parts in one process")
+            return 1
+    return n
+
+
+def _drain(gen):
+    """Run a generator to its end and return its value, dropping the events."""
+    try:
+        while True:
+            next(gen)
+    except StopIteration as stop:
+        return stop.value
+
+
+def _die_with_parent(parent_pid):
+    """Ask the kernel to kill this worker if the process that forked it dies.
+
+    Without this a worker whose web worker was killed in the middle of a
+    comparison could linger, holding its memory; one test worker did so for
+    six hours on 2026-10-27. Linux only; elsewhere this does nothing."""
+    try:
+        import ctypes
+        import signal
+        libc = ctypes.CDLL('libc.so.6', use_errno=True)
+        PR_SET_PDEATHSIG = 1
+        libc.prctl(PR_SET_PDEATHSIG, signal.SIGKILL)
+        if os.getppid() != parent_pid:      # the parent died before the call took effect
+            os._exit(0)
+    except (OSError, AttributeError):
+        pass
+
+
+def _part_worker(conn, other_conns, parent_pid, run_part):
+    """Body of a worker process: run the parts named on `conn`, send each one's rows back."""
+    try:
+        os.setpgrp()            # own process group, so the parent can stop this worker and its pools together
+    except OSError:
+        pass
+    _die_with_parent(parent_pid)
+    for c in other_conns:
+        try:
+            c.close()
+        except OSError:
+            pass
+    idx = None
+    try:
+        while True:
+            idx = conn.recv()
+            if idx is None or os.getppid() != parent_pid:
+                break
+            conn.send(('part', idx, run_part(idx)))
+    except (EOFError, BrokenPipeError):
+        pass
+    except BaseException as exc:    # noqa: BLE001 - reported to the parent, which raises a plain error
+        try:
+            cancelled = type(exc).__name__ == 'SearchCancelled'
+            conn.send(('cancelled' if cancelled else 'error', idx, f"{type(exc).__name__}: {exc}"))
+        except (OSError, ValueError):
+            pass
+    finally:
+        try:
+            conn.close()
+        except OSError:
+            pass
+
+
+def _stop_workers(procs, conns):
+    """Kill every worker (and the pools it started) and wait for them. Safe to call twice."""
+    import signal
+    for p in procs:
+        if p.pid is None or p.exitcode is not None:
+            continue
+        try:
+            os.killpg(p.pid, signal.SIGKILL)
+        except (ProcessLookupError, PermissionError, OSError):
+            try:
+                p.kill()
+            except (OSError, ValueError):
+                pass
+    for p in procs:
+        try:
+            p.join(timeout=10)
+        except (OSError, ValueError, AssertionError):
+            pass
+    for c in conns:
+        try:
+            c.close()
+        except OSError:
+            pass
+
+
+def _run_parts_in_processes(nproc, ranges, run_part, cancellation, preview, line_channels,
+                            mode, max_results):
+    """Generator: the parts across `nproc` worker processes, events in part order.
+
+    Yields the same ("parts", ...) and ("intermediate", ...) events as the
+    single-process loop plus a heartbeat each HEARTBEAT_INTERVAL while it waits.
+    Returns (line_rows, window_rows, windows_ran, cut) with the rows in part order.
+    A cancelled comparison kills its workers on the next beat. A worker that dies
+    or fails ends the comparison with a RuntimeError, never a hang.
+    """
+    import multiprocessing
+    from multiprocessing import connection as mp_connection
+    total_parts = len(ranges)
+    ctx = multiprocessing.get_context('fork')
+    pipes = [ctx.Pipe(duplex=True) for _ in range(nproc)]
+    parent_ends = [p[0] for p in pipes]
+    child_ends = [p[1] for p in pipes]
+    procs = []
+    try:
+        for w in range(nproc):
+            others = parent_ends + [c for i, c in enumerate(child_ends) if i != w]
+            p = ctx.Process(target=_part_worker, name=f"tesserae-part-worker-{w}",
+                            args=(child_ends[w], others, os.getpid(), run_part))
+            with fork_gate.exclusive():     # no thread of this process is inside a matrix product while it forks
+                p.start()
+            procs.append(p)
+            try:
+                os.setpgid(p.pid, p.pid)     # also done by the child; whichever runs first wins
+            except OSError:
+                pass
+        for c in child_ends:
+            c.close()
+
+        queued = [[] for _ in range(nproc)]      # part indices sent to each worker, not yet returned
+        next_part = 0
+
+        def feed(w):
+            nonlocal next_part
+            while len(queued[w]) < _PARTS_IN_FLIGHT and next_part < total_parts:
+                parent_ends[w].send(next_part)
+                queued[w].append(next_part)
+                next_part += 1
+
+        for w in range(nproc):
+            feed(w)
+
+        line_rows, window_rows, windows_ran, cut = [], [], False, 0
+        arrived = {}
+        emitted = 0
+        announced = 0
+        last_event = time.monotonic()
+        last_part_at = time.monotonic()
+        fell_back = False
+        while emitted < total_parts:
+            if cancellation:
+                cancellation.check()
+            while announced < emitted + 1:
+                announced += 1
+                last_event = time.monotonic()
+                yield ("parts", {"part": announced, "total_parts": total_parts})
+            ready = [] if fell_back else mp_connection.wait(parent_ends, timeout=HEARTBEAT_INTERVAL)
+            if fell_back or ready:
+                last_part_at = time.monotonic()
+            elif time.monotonic() - last_part_at > _PART_STALL_SECONDS:
+                logger.warning('[FUSION] part workers silent for %ds; running the remaining parts in process',
+                               _PART_STALL_SECONDS)
+                _stop_workers(procs, parent_ends)
+                for idx in range(total_parts):
+                    if idx < emitted or idx in arrived:
+                        continue
+                    if cancellation:
+                        cancellation.check()
+                    arrived[idx] = run_part(idx)
+                    yield ("heartbeat", {"channel": None})
+                for w in range(nproc):
+                    queued[w] = []
+                next_part = total_parts
+                fell_back = True
+            for conn in ready:
+                w = parent_ends.index(conn)
+                try:
+                    kind, idx, payload = conn.recv()
+                except (EOFError, OSError):
+                    raise RuntimeError(
+                        "A process working on this comparison stopped unexpectedly. "
+                        "The comparison was stopped. Please try again.") from None
+                if kind == 'cancelled':
+                    if cancellation:
+                        cancellation.check()
+                    raise RuntimeError("This comparison was stopped.")
+                if kind == 'error':
+                    raise RuntimeError(f"Part {(idx or 0) + 1} of this comparison failed ({payload}).")
+                queued[w].remove(idx)
+                arrived[idx] = payload
+                feed(w)
+            # A worker that died with parts outstanding is a failure, even if its pipe is still held open.
+            for w, p in enumerate(procs):
+                if not fell_back and queued[w] and p.exitcode is not None and not parent_ends[w].poll():
+                    raise RuntimeError(
+                        "A process working on this comparison stopped unexpectedly "
+                        f"(exit code {p.exitcode}). The comparison was stopped. Please try again.")
+            while emitted in arrived:
+                while announced < emitted + 1:
+                    announced += 1
+                    yield ("parts", {"part": announced, "total_parts": total_parts})
+                line_fused, n1, window_fused, n2 = arrived.pop(emitted)
+                emitted += 1
+                cut += n1 + n2
+                line_rows.extend(line_fused)
+                if window_fused is not None:
+                    windows_ran = True
+                    window_rows.extend(window_fused)
+                top, preview_total = preview.add_part(
+                    line_fused, window_fused if windows_ran else None)
+                last_event = time.monotonic()
+                yield ("intermediate", {
+                    "results": top,
+                    "total_results": preview_total,
+                    "channels_done": list(line_channels),
+                    "channels_total": len(line_channels),
+                    "phase": "line",
+                    "part": emitted,
+                    "total_parts": total_parts,
+                })
+            if emitted < total_parts and time.monotonic() - last_event >= HEARTBEAT_INTERVAL:
+                last_event = time.monotonic()
+                yield ("heartbeat", {"channel": None})
+        for w in range(nproc):
+            try:
+                parent_ends[w].send(None)
+            except (OSError, ValueError):
+                pass
+        for p in procs:
+            p.join(timeout=10)
+        return line_rows, window_rows, windows_ran, cut
+    finally:
+        _stop_workers(procs, parent_ends)
+        for c in child_ends:
+            try:
+                c.close()
+            except OSError:
+                pass
+
+
 def _run_parts(source_units, target_units, matcher, scorer,
                source_id, target_id, language, mode, max_results,
                source_path, target_path, user_settings,
@@ -3941,6 +4376,7 @@ def _run_parts(source_units, target_units, matcher, scorer,
                channel_weights, enabled_channels, cancellation):
     """Generator: the whole pipeline over consecutive source blocks, merged once."""
     plan = _fusion_plan(language, user_settings, channel_weights, enabled_channels)
+    plan = _share_semantic_floor(plan, source_units, target_units, source_path, target_path, language)
     line_channels = plan[3]
     ranges = _part_ranges(len(source_units))
     total_parts = len(ranges)
@@ -3949,54 +4385,59 @@ def _run_parts(source_units, target_units, matcher, scorer,
     # Frequencies come from the two whole texts, never from the part.
     freq_line = (source_units, target_units)
     freq_window = (make_window_units(source_units), make_window_units(target_units))
-    line_rows = []
-    window_rows = []
-    windows_ran = False
-    cut = 0
-    for part, (start, stop, own_stop) in enumerate(ranges, 1):
-        if cancellation:
-            cancellation.check()
-        yield ("parts", {"part": part, "total_parts": total_parts})
-        line_fused, window_fused = yield from _fusion_block(
+    preview = _PartPreview(mode, min(max_results, 500) if max_results > 0 else 500,
+                           user_settings)
+
+    def block(idx, part_cancellation):
+        start, stop, own_stop = ranges[idx]
+        return _fusion_block(
             source_units[start:stop], target_units, plan, matcher, scorer,
             source_id, target_id, language, mode, max_results,
             source_path, target_path, user_settings,
-            source_language, target_language, freq_basis, cancellation,
+            source_language, target_language, freq_basis, part_cancellation,
             emit_intermediate=False, confirm_context=False,
             freq_line=freq_line, freq_window=freq_window)
 
-        if stop > own_stop:
-            # The overlap line belongs to the next part's line pass.
-            overlap_refs = {u.get('ref', '') for u in source_units[own_stop:stop]}
-            line_fused = [r for r in line_fused
-                          if (r.get('source') or {}).get('ref', '') not in overlap_refs]
-        line_fused, n_cut = _keep_top(_by_score(line_fused), keep)
-        cut += n_cut
-        line_rows.extend(line_fused)
-        if window_fused is not None:
-            windows_ran = True
-            window_fused, n_cut = _keep_top(_by_score(window_fused), keep)
-            cut += n_cut
-            window_rows.extend(window_fused)
+    nproc = _part_process_count(total_parts)
+    if nproc > 1:
+        def run_part(idx):
+            _start, stop, own_stop = ranges[idx]
+            line_fused, window_fused = _drain(block(idx, cancellation))
+            return _trim_part(line_fused, window_fused, source_units, own_stop, stop, keep)
 
-        # Best so far across the parts finished. The window rows are copied
-        # because penalizing and merging change their rows.
-        preview = _finish_levels(
-            mode, _by_score(line_rows),
-            [dict(r) for r in _by_score(window_rows)] if windows_ran else None,
-            ordered=True)
-        preview_cap = min(max_results, 500) if max_results > 0 else 500
-        top, preview_total, _hidden = _cap_with_formula_filter(
-            preview, preview_cap, user_settings)
-        yield ("intermediate", {
-            "results": top,
-            "total_results": preview_total,
-            "channels_done": list(line_channels),
-            "channels_total": len(line_channels),
-            "phase": "line",
-            "part": part,
-            "total_parts": total_parts,
-        })
+        line_rows, window_rows, windows_ran, cut = yield from _run_parts_in_processes(
+            nproc, ranges, run_part, cancellation, preview, line_channels, mode, max_results)
+    else:
+        line_rows = []
+        window_rows = []
+        windows_ran = False
+        cut = 0
+        for part, (start, stop, own_stop) in enumerate(ranges, 1):
+            if cancellation:
+                cancellation.check()
+            yield ("parts", {"part": part, "total_parts": total_parts})
+            line_fused, window_fused = yield from block(part - 1, cancellation)
+            line_fused, n_line, window_fused, n_window = _trim_part(
+                line_fused, window_fused, source_units, own_stop, stop, keep)
+            cut += n_line + n_window
+            line_rows.extend(line_fused)
+            if window_fused is not None:
+                windows_ran = True
+                window_rows.extend(window_fused)
+
+            # Best so far across the parts finished: only this part's rows are
+            # merged, into a short running list (see _PartPreview).
+            top, preview_total = preview.add_part(
+                line_fused, window_fused if windows_ran else None)
+            yield ("intermediate", {
+                "results": top,
+                "total_results": preview_total,
+                "channels_done": list(line_channels),
+                "channels_total": len(line_channels),
+                "phase": "line",
+                "part": part,
+                "total_parts": total_parts,
+            })
 
     # One confirmation pass over the best rows of the whole comparison.
     line_all = apply_context_confirmation(
@@ -4036,9 +4477,20 @@ def _iter_fusion_in_parts(*args, cancellation=None, **kwargs):
             yield ("heartbeat", {"channel": None})
         with _large_waiters_lock:
             _large_waiters.remove(ticket)
+        # Python's collector walks every object kept so far each time it runs
+        # its oldest generation, and a comparison keeps millions of row
+        # dictionaries. Measured 2026-10-27, that was about three seconds of
+        # every ten-second part. The rows hold no reference cycles, so the
+        # collector is asked to run far less often for the length of this
+        # comparison and set back afterwards. The threshold is set here, before
+        # the worker processes are forked, so the workers inherit it; they hold
+        # the same rows for the length of a part and end with it.
+        old_threshold = gc.get_threshold()
+        gc.set_threshold(*_LARGE_GC_THRESHOLD)
         try:
             yield from _run_parts(*args, cancellation=cancellation, **kwargs)
         finally:
+            gc.set_threshold(*old_threshold)
             _LARGE_SEMAPHORE.release()
     finally:
         with _large_waiters_lock:

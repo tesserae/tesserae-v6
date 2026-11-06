@@ -48,33 +48,33 @@ afterEach(() => {
 });
 
 describe('what a plain visit opens', () => {
-  it('opens Search One Text in Literature view', async () => {
+  it('opens Theme Search, one text, in Literature view', async () => {
     render(<App />);
-    await waitFor(() => expect(window.location.pathname).toBe('/ask-a-work'));
+    await waitFor(() => expect(window.location.pathname).toBe('/theme-search'));
     expect(screen.getByRole('button', { name: 'Literature' })).toHaveAttribute('aria-pressed', 'true');
-    expect(await screen.findByRole('heading', { name: 'Search One Text' })).toBeTruthy();
+    expect(await screen.findByRole('heading', { name: 'Theme Search: one text' })).toBeTruthy();
   });
 
   it('shows the Start here panel on the Literature home', async () => {
     render(<App />);
-    await waitFor(() => expect(window.location.pathname).toBe('/ask-a-work'));
+    await waitFor(() => expect(window.location.pathname).toBe('/theme-search'));
     expect(screen.getByRole('button', { name: 'Literature' })).toHaveAttribute('aria-pressed', 'true');
-    expect(await screen.findByRole('heading', { name: 'Search One Text' })).toBeTruthy();
+    expect(await screen.findByRole('heading', { name: 'Theme Search: one text' })).toBeTruthy();
     expect(screen.queryByText(/Start here/i)).toBeTruthy();
   });
 
-  it('opens Search One Text in History view', async () => {
+  it('opens Theme Search, one text, in History view', async () => {
     window.localStorage.setItem('tesserae_view', 'history');
     render(<App />);
-    await waitFor(() => expect(window.location.pathname).toBe('/ask-a-work'));
+    await waitFor(() => expect(window.location.pathname).toBe('/theme-search'));
     expect(screen.getByRole('button', { name: 'History' })).toHaveAttribute('aria-pressed', 'true');
-    expect(await screen.findByRole('heading', { name: 'Search One Text' })).toBeTruthy();
+    expect(await screen.findByRole('heading', { name: 'Theme Search: one text' })).toBeTruthy();
   });
 
   it('opens History from ?view=history', async () => {
     window.history.replaceState({}, '', '/?view=history');
     render(<App />);
-    await waitFor(() => expect(window.location.pathname).toBe('/ask-a-work'));
+    await waitFor(() => expect(window.location.pathname).toBe('/theme-search'));
   });
 
   it('leaves an address with a search of its own alone, even in History view', async () => {
@@ -89,9 +89,9 @@ describe('what a plain visit opens', () => {
     render(<App />);
     await waitFor(() => expect(global.fetch).toHaveBeenCalled());
     fireEvent.click(screen.getByRole('button', { name: 'History' }));
-    await waitFor(() => expect(window.location.pathname).toBe('/ask-a-work'));
+    await waitFor(() => expect(window.location.pathname).toBe('/theme-search'));
     fireEvent.click(screen.getByRole('button', { name: 'Literature' }));
-    await waitFor(() => expect(window.location.pathname).toBe('/ask-a-work'));
+    await waitFor(() => expect(window.location.pathname).toBe('/theme-search'));
   });
 });
 
@@ -133,7 +133,7 @@ describe('the Phrase Search defaults follow the view', () => {
     render(<App />);
     await sourceAfter('vergil.aeneid.part.1.tess');
     fireEvent.click(screen.getByRole('button', { name: 'History' }));
-    await waitFor(() => expect(window.location.pathname).toBe('/ask-a-work'));
+    await waitFor(() => expect(window.location.pathname).toBe('/theme-search'));
     fireEvent.click(screen.getByRole('button', { name: 'Intertextual Search' }));
     await sourceAfter('livy.ab_urbe_condita.part.1.books_1-10.tess');
   });
@@ -143,14 +143,14 @@ describe('the Start here order follows the view', () => {
   const labels = () => screen.getAllByRole('link').map((a) => a.textContent.split(':')[0])
     .filter((t) => /Search|Reader|Inscriptions|Rare|Collections/.test(t));
 
-  it('Literature: Search One Text first, Collections answer last', async () => {
+  it('Literature: Theme Search first, Collections answer last', async () => {
     window.history.replaceState({}, '', '/?lang=la&view=literature');
     render(<App />);
     // A query in the address suppresses the panel, so open it as the header link does.
     act(() => { window.dispatchEvent(new Event('tesserae:open-start-here')); });
     await waitFor(() => expect(screen.getByText('What are you trying to do?')).toBeTruthy());
     const l = labels();
-    expect(l[0]).toBe('Search One Text');
+    expect(l[0]).toBe('Theme Search');
     expect(l[1]).toBe('Phrase Search');
     expect(l[l.length - 1]).toBe('Collections');
   });

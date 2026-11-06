@@ -45,7 +45,10 @@ PORT = int(os.environ.get('TESSERAE_READER_PORT', '8091'))
 # the order of the 300 passages was identical on all ten. The change is left
 # off until the owner decides, because a score is not bit-for-bit the same.
 BATCH_SIZE = int(os.environ.get('READER_BATCH_SIZE', '32'))
-SORT_BY_LENGTH = os.environ.get('READER_SORT', '0').lower() in ('1', 'true', 'yes')
+# READER_SORT=1 sorts by character length (the live setting since 2026-10-14);
+# READER_SORT=tokens sorts by token length, tokenizing once (see score_passages).
+SORT_MODE = os.environ.get('READER_SORT', '0').lower()
+SORT_BY_LENGTH = SORT_MODE in ('1', 'true', 'yes')
 MAX_LENGTH = 512
 # A malformed or hostile request should not turn into an unbounded scoring
 # job on a shared machine; a hundred is the largest Theme Search actually
@@ -107,6 +110,26 @@ def score_passages(query, passages):
     import torch
 
     scores = {}
+    if SORT_MODE == 'tokens':
+        # Tokenize every pair once, order by TOKEN length, pad each batch only to
+        # its own longest. Character length is a poor guide across scripts (a
+        # Persian or Greek passage has far more characters per token than an
+        # English gist), so character-sorted batches were still padded a long way.
+        # Measured 2026-10-27 on 18 distinct probe searches of 300 passages:
+        # 4.9 s to 3.1 s, scores within 6e-7, order identical on all 18.
+        texts = [p.get('text') or '' for p in passages]
+        full = _tokenizer([query] * len(texts), texts, truncation=True, max_length=MAX_LENGTH)
+        keys = list(full.keys())
+        order = sorted(range(len(texts)), key=lambda i: len(full['input_ids'][i]))
+        with torch.inference_mode():
+            for i in range(0, len(order), BATCH_SIZE):
+                idx = order[i:i + BATCH_SIZE]
+                enc = _tokenizer.pad([{k: full[k][j] for k in keys} for j in idx],
+                                     return_tensors='pt')
+                probs = torch.sigmoid(_model(**enc).logits.view(-1)).tolist()
+                for j, s in zip(idx, probs):
+                    scores[passages[j]['id']] = float(s)
+        return scores
     if SORT_BY_LENGTH:
         passages = sorted(passages, key=lambda p: len(p.get('text') or ''))
     with torch.no_grad():

@@ -238,9 +238,9 @@
    "year": 480
   },
   "bohairic": {
-   "era": "Bohairic Medieval",
-   "note": "Bohairic Bible (standardized dialect), 8th c.+",
-   "year": 900
+   "era": "Early Coptic",
+   "note": "Bohairic Bible, translated by the 4th c. (earliest manuscript P. Bodmer III, 4th c.); most manuscripts 9th c. and later. Dated by the translation, as the Septuagint and the King James Version are",
+   "year": 350
   },
   "book": {
    "era": "Early Coptic",
@@ -346,6 +346,61 @@
    "era": "Early Coptic",
    "note": "Gospel of Thomas (Coptic), 4th c.",
    "year": 350
+  },
+  "sahidic_coptic": {
+   "era": "Early Coptic",
+   "note": "Sahidic Bible, translated 3rd to 4th c. (dated by the translation, as the Septuagint and the King James Version are)",
+   "year": 300
+  },
+  "bohairic_coptic": {
+   "era": "Early Coptic",
+   "note": "Bohairic Bible, translated by the 4th c. (earliest manuscript P. Bodmer III, 4th c.); most manuscripts 9th c. and later. Dated by the translation, as the Septuagint and the King James Version are",
+   "year": 350
+  },
+  "pseudo_athanasius": {
+   "era": "Classical Coptic",
+   "note": "Dated by the Coptic dating rule (step 3): bracketed: after the death of Athanasius (373), to whom the discourses are attributed; before British Library Or. 5001 (601 to 700); year 525.",
+   "year": 525
+  },
+  "pseudo_basil": {
+   "era": "Classical Coptic",
+   "note": "Dated by the Coptic dating rule (step 3): bracketed: after the death of Basil of Caesarea (379), to whom the homily is attributed; before British Library Or. 5001 (601 to 700); year 550.",
+   "year": 550
+  },
+  "pseudo_celestinus": {
+   "era": "Medieval Coptic",
+   "note": "Dated by the Coptic dating rule (step 3): bracketed: after the death of Pope Celestine I (432), to whom the encomium is attributed; before British Library Or. 7022 (900 to 1000); year 725.",
+   "year": 725
+  },
+  "pseudo_chrysostom": {
+   "era": "Classical Coptic",
+   "note": "Dated by the Coptic dating rule (step 3): bracketed: after the death of John Chrysostom (407), to whom the homilies are attributed; before British Library Or. 5001 (601 to 700); year 550.",
+   "year": 550
+  },
+  "pseudo_ephrem": {
+   "era": "Late Antique Coptic",
+   "note": "Dated by the Coptic dating rule (step 3): bracketed: after the death of Ephrem the Syrian (373), to whom the works are attributed; before British Library Or. 7022 (900 to 1000); year 675.",
+   "year": 675
+  },
+  "pseudo_flavianus": {
+   "era": "Late Antique Coptic",
+   "note": "Dated by the Coptic dating rule (step 3): bracketed: after the martyrdom of Peter I of Alexandria (311), whom the encomium names; before British Library Or. 6783 (1003 to 1100); year 700.",
+   "year": 700
+  },
+  "pseudo_theophilus": {
+   "era": "Classical Coptic",
+   "note": "Dated by the Coptic dating rule (step 3): bracketed: after the death of Theophilus of Alexandria (412), to whom the homilies are attributed; before British Library Or. 5001 (601 to 700); year 550.",
+   "year": 550
+  },
+  "pseudo_timothy": {
+   "era": "Late Antique Coptic",
+   "note": "Dated by the Coptic dating rule (step 3): bracketed: after the death of Timothy I of Alexandria (384), to whom the discourse is attributed; before British Library Or. 7025 (colophon of 9 September 981); year 675.",
+   "year": 675
+  },
+  "theodosius_of_alexandria": {
+   "era": "Classical Coptic",
+   "note": "",
+   "year": 550
   }
  },
  "en": {
@@ -561,11 +616,23 @@
    "note": "d. c. 1088 CE",
    "year": 1088
   },
+  "nasrallah_munshi": {
+   "added": "editorial-2026-10-24",
+   "era": "Ghaznavid",
+   "note": "Abu'l-Ma'ali Nasrallah Munshi, fl. c. 1144 CE; his Persian Kalila va Demna was made for the Ghaznavid ruler Bahram-shah",
+   "year": 1146
+  },
   "nizami": {
    "added": "editorial-2026-08-25",
    "era": "Seljuk",
    "note": "d. c. 1209 CE",
    "year": 1209
+  },
+  "nizami_arudi": {
+   "added": "editorial-2026-10-24",
+   "era": "Seljuk",
+   "note": "Nizami-ye Aruzi of Samarkand, fl. c. 1110 to 1157 CE; the Chahar Maqala was written about 1156 CE",
+   "year": 1157
   },
   "parvin": {
    "added": "editorial-2026-08-25",
@@ -1391,6 +1458,121 @@
    "era": "Later Imperial",
    "note": "c. 164-after 229 CE",
    "year": 229
+  },
+  "plotinus": {
+   "era": "Later Imperial",
+   "note": "c. 204-270 CE",
+   "year": 270
+  },
+  "dio_chrysostom": {
+   "era": "Early Imperial",
+   "note": "c. 40-after 110 CE",
+   "year": 110
+  },
+  "heliodorus": {
+   "era": "Later Imperial",
+   "note": "fl. 3rd to 4th c. CE",
+   "year": 300
+  },
+  "xenophon_of_ephesus": {
+   "era": "Early Imperial",
+   "note": "fl. 2nd c. CE",
+   "year": 150
+  },
+  "socrates_scholasticus": {
+   "era": "Late Antique",
+   "note": "c. 380-after 439 CE",
+   "year": 439
+  },
+  "sozomen": {
+   "era": "Late Antique",
+   "note": "c. 400-c. 450 CE",
+   "year": 450
+  },
+  "theodoret": {
+   "era": "Late Antique",
+   "note": "c. 393-c. 460 CE",
+   "year": 460
+  },
+  "philostorgius": {
+   "era": "Late Antique",
+   "note": "c. 368-after 425 CE",
+   "year": 430
+  },
+  "anna_comnena": {
+   "era": "Byzantine",
+   "note": "c. 1083-1153 CE",
+   "year": 1153
+  },
+  "nicander": {
+   "era": "Hellenistic",
+   "note": "fl. 2nd c. BCE",
+   "year": -150
+  },
+  "origen": {
+   "era": "Later Imperial",
+   "note": "c. 185-253 CE",
+   "year": 253
+  },
+  "ignatius": {
+   "era": "Early Imperial",
+   "note": "d. c. 108 CE",
+   "year": 108
+  },
+  "clement_of_rome": {
+   "era": "Early Imperial",
+   "note": "fl. c. 96 CE",
+   "year": 96
+  },
+  "didache": {
+   "era": "Early Imperial",
+   "note": "late 1st or early 2nd c. CE",
+   "year": 100
+  },
+  "hermas": {
+   "era": "Early Imperial",
+   "note": "fl. 2nd c. CE",
+   "year": 140
+  },
+  "justin_martyr": {
+   "era": "Early Imperial",
+   "note": "c. 100-165 CE",
+   "year": 165
+  },
+  "athenagoras": {
+   "era": "Early Imperial",
+   "note": "fl. c. 177 CE",
+   "year": 177
+  },
+  "theophilus_of_antioch": {
+   "era": "Early Imperial",
+   "note": "fl. c. 180 CE",
+   "year": 180
+  },
+  "tatian": {
+   "era": "Early Imperial",
+   "note": "fl. c. 170 CE",
+   "year": 170
+  },
+  "athanasius": {
+   "era": "Late Antique",
+   "note": "c. 296-373 CE",
+   "year": 373
+  },
+  "john_of_damascus": {
+   "era": "Byzantine",
+   "note": "attributed; Barlaam and Ioasaph, 8th to 11th c. CE",
+   "year": 750
+  },
+  "enoch": {
+   "era": "Hellenistic",
+   "note": "composite, 3rd c. BCE to 1st c. CE",
+   "year": -100
+  },
+  "julian": {
+   "era": "Late Antique",
+   "note": "c. 331-363 CE",
+   "year": 363
   }
  },
  "he": {
@@ -1870,6 +2052,12 @@
    "note": "fl. c. 180 CE",
    "year": 180
   },
+  "geoffrey_of_monmouth": {
+   "era": "Medieval",
+   "note": "d. c. 1155 CE",
+   "year": 1155,
+   "added": "editorial-2026-10-24-latin-tranche"
+  },
   "geoffrey_of_vinsauf": {
    "era": "Medieval",
    "note": "fl. c. 1200-1216 CE (Poetria Nova, Documentum)",
@@ -1879,6 +2067,12 @@
    "era": "Carolingian",
    "note": "fl. c. 860 CE",
    "year": 860
+  },
+  "gesta_romanorum": {
+   "era": "Medieval",
+   "note": "anonymous collection compiled c. 1300 CE",
+   "year": 1300,
+   "added": "editorial-2026-10-24-latin-tranche"
   },
   "giovanni_aurelio_augurelli": {
    "era": "Renaissance",
@@ -1905,6 +2099,12 @@
    "era": "Early Medieval",
    "note": "d. 604 CE",
    "year": 604
+  },
+  "gregory_of_tours": {
+   "era": "Early Medieval",
+   "note": "d. 594 CE",
+   "year": 594,
+   "added": "editorial-2026-10-24-latin-tranche"
   },
   "gregory_the_great": {
    "era": "Early Medieval",
@@ -2173,6 +2373,12 @@
    "era": "Carolingian",
    "note": "d. 872 CE",
    "year": 872
+  },
+  "milton": {
+   "era": "Modern",
+   "note": "d. 1674 CE",
+   "year": 1674,
+   "added": "editorial-2026-10-24-latin-tranche"
   },
   "minucius_felix": {
    "era": "Late Antique",
@@ -2657,6 +2863,12 @@
    "note": "fl. c. 31 CE",
    "year": 31
   },
+  "valla": {
+   "era": "Renaissance",
+   "note": "d. 1457 CE",
+   "year": 1457,
+   "added": "editorial-2026-10-24-latin-tranche"
+  },
   "varro": {
    "era": "Republic",
    "note": "d. 27 BCE",
@@ -3025,6 +3237,13 @@
   }
  },
  "ur": {
+  "abru": {
+   "added": "wikisource-2026-10-26",
+   "era": "Mughal / Colonial",
+   "note": "Shah Mubarak Abru, d. 1733 CE",
+   "year": 1733,
+   "editorial": "Urdu Wikisource; era rule: died before 1920 -> Mughal / Colonial, later -> Modern"
+  },
   "akbar": {
    "added": "wikisource-2026-09-06",
    "era": "Modern",
@@ -3046,6 +3265,13 @@
    "year": 1847,
    "editorial": "Urdu Wikisource; era rule: died before 1920 -> Mughal / Colonial, later -> Modern"
   },
+  "azad": {
+   "added": "editorial-2026-10-24",
+   "era": "Mughal / Colonial",
+   "note": "Muhammad Husain Azad, d. 1910 CE",
+   "year": 1910,
+   "editorial": "Urdu era rule as for the poets: died before 1920 -> Mughal / Colonial"
+  },
   "dagh": {
    "added": "wikisource-2026-09-06",
    "era": "Mughal / Colonial",
@@ -3060,6 +3286,13 @@
    "year": 1785,
    "editorial": "Urdu Wikisource; era rule: died before 1920 -> Mughal / Colonial, later -> Modern"
   },
+  "faiz": {
+   "added": "wikisource-2026-10-26",
+   "era": "Mughal / Colonial",
+   "note": "Fa'iz Dehlavi, d. 1738 CE",
+   "year": 1738,
+   "editorial": "Urdu Wikisource; era rule: died before 1920 -> Mughal / Colonial, later -> Modern"
+  },
   "ghalib": {
    "added": "editorial-2026-08-25",
    "era": "Mughal / Colonial",
@@ -3071,6 +3304,13 @@
    "era": "Mughal / Colonial",
    "note": "Altaf Husain Hali, d. 1914 CE",
    "year": 1914,
+   "editorial": "Urdu Wikisource; era rule: died before 1920 -> Mughal / Colonial, later -> Modern"
+  },
+  "hatim": {
+   "added": "wikisource-2026-10-26",
+   "era": "Mughal / Colonial",
+   "note": "Zuhur ud-Din Hatim, d. about 1783 CE",
+   "year": 1783,
    "editorial": "Urdu Wikisource; era rule: died before 1920 -> Mughal / Colonial, later -> Modern"
   },
   "insha": {
@@ -3092,6 +3332,13 @@
    "note": "Mir Taqi Mir, d. 1810 CE",
    "year": 1810
   },
+  "mir_amman": {
+   "added": "editorial-2026-10-24",
+   "era": "Mughal / Colonial",
+   "note": "Mir Amman Dehlavi, d. 1806 CE",
+   "year": 1806,
+   "editorial": "Urdu era rule as for the poets: died before 1920 -> Mughal / Colonial"
+  },
   "nazeer": {
    "added": "wikisource-2026-09-06",
    "era": "Mughal / Colonial",
@@ -3105,6 +3352,13 @@
    "note": "Mirza Muhammad Rafi Sauda, d. 1781 CE",
    "year": 1781,
    "editorial": "Urdu Wikisource; era rule: died before 1920 -> Mughal / Colonial, later -> Modern"
+  },
+  "suroor": {
+   "added": "editorial-2026-10-24",
+   "era": "Mughal / Colonial",
+   "note": "Rajab Ali Beg Suroor, d. 1867 CE",
+   "year": 1867,
+   "editorial": "Urdu era rule as for the poets: died before 1920 -> Mughal / Colonial"
   },
   "wali": {
    "added": "wikisource-2026-09-06",

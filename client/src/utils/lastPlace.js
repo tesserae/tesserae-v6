@@ -7,7 +7,7 @@
 import { isKnownPath } from '../hooks/routePaths';
 
 const KEY = 'tesserae_last_place';
-const NEVER = ['/admin', '/downloads', '/privacy', '/text-credits'];
+const NEVER = ['/admin', '/downloads', '/privacy', '/terms', '/text-credits'];
 
 /** True for an address worth coming back to: a page the site knows, not an admin or legal page. */
 export function isRememberedPath(path) {

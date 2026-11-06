@@ -9,7 +9,7 @@
 
 export const ERA_ORDER_BY_LANG = {
   la:  ['Republic', 'Augustan', 'Early Imperial', 'Later Imperial', 'Late Antique', 'Early Medieval', 'Carolingian', 'Medieval', 'Renaissance', 'Modern', 'Unknown'],
-  grc: ['Archaic', 'Classical', 'Hellenistic', 'Early Imperial', 'Later Imperial', 'Late Antique', 'Late Imperial', 'Unknown'],
+  grc: ['Archaic', 'Classical', 'Hellenistic', 'Early Imperial', 'Later Imperial', 'Late Antique', 'Late Imperial', 'Byzantine', 'Unknown'],
   // No 'Nineteenth century' here. One author carried that label, Poe, and a
   // century is not a period in the same series as the rest. He was retagged
   // Romantic in backend/author_dates.json on 2026-09-22, which is where the
@@ -17,7 +17,7 @@ export const ERA_ORDER_BY_LANG = {
   // in particular) and where his neighbours in this corpus already sit:
   // Coleridge 1834 and Wordsworth 1850, both Romantic.
   en:  ['Medieval', 'Renaissance', 'Early Modern', 'Restoration', 'Augustan', 'Neoclassical', 'Romantic', 'Victorian', 'Modern', 'Unknown'],
-  cop: ['Early Coptic', 'Classical Coptic', 'Late Antique Coptic', 'Bohairic Medieval', 'Unknown'],
+  cop: ['Early Coptic', 'Classical Coptic', 'Late Antique Coptic', 'Medieval Coptic', 'Bohairic Medieval', 'Unknown'],
   // Hebrew joined the Corpus Browser on 2026-09-21. Every one of the 39
   // Hebrew Bible books is tagged Biblical, so that plus Unknown is the whole
   // list until something later is added. Without a key here the filter fell
@@ -78,6 +78,8 @@ export const ERA_COLORS = {
   'Early Medieval': 'rgba(112, 128, 144, 0.7)',
   // added: Latin/Greek tail
   'Late Imperial': 'rgba(30, 144, 255, 0.7)',
+  // Greek works after 600 CE (Anna Comnena, Barlaam and Ioasaph); added 2026-10-25
+  'Byzantine': 'rgba(165, 55, 160, 0.7)',
   'Carolingian': 'rgba(160, 120, 90, 0.7)',
   // added: shared / English eras
   'Medieval': 'rgba(90, 100, 120, 0.7)',
@@ -92,6 +94,7 @@ export const ERA_COLORS = {
   'Early Coptic': 'rgba(120, 80, 60, 0.7)',
   'Classical Coptic': 'rgba(170, 110, 70, 0.7)',
   'Late Antique Coptic': 'rgba(139, 69, 19, 0.7)',
+  'Medieval Coptic': 'rgba(125, 80, 110, 0.7)',
   'Bohairic Medieval': 'rgba(110, 90, 130, 0.7)',
   // added: Persian dynastic eras (see ERA_ORDER_BY_LANG.fa for sourcing)
   'Samanid': 'rgba(180, 140, 60, 0.7)',

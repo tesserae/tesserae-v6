@@ -34,7 +34,7 @@ describe('Help: Collections, Beta marks and other controls', () => {
     await waitFor(() => expect(screen.getByText(/A Beta mark beside a page name/)).toBeTruthy());
     expect(screen.getByText(/The Suggest a change button in the header/)).toBeTruthy();
     expect(screen.getByText(/remembers the last page and address/)).toBeTruthy();
-    expect(screen.getByText(/The Downloads page is under More/)).toBeTruthy();
+    expect(screen.getAllByRole('link', { name: 'Downloads' }).some((a) => /The Downloads page is under More/.test(a.parentElement.textContent))).toBe(true);
     expect(screen.getByText(/The Collections button at the left of the top row/)).toBeTruthy();
   });
 

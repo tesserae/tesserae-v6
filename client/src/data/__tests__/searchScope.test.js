@@ -72,7 +72,7 @@ describe('SEARCH_SCOPE', () => {
     expect(e.measured[0].date).toBe('October 2026');
     const searches = allMeasuredRows().map((m) => m.search);
     const themeRows = searches.filter((s) => s === 'Theme Search').length;
-    expect(searches.indexOf('Search One Text')).toBe(searches.indexOf('Theme Search') + themeRows);
+    expect(searches.indexOf('Theme Search, one text')).toBe(searches.indexOf('Theme Search') + themeRows);
     expect(liveCovers('ask_a_work', { passage_windows: 603594 })).toBe('The passage index, 603,594 windows now.');
   });
 

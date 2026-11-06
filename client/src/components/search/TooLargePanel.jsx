@@ -49,7 +49,7 @@ const TooLargePanel = ({ sourceName, targetName, answer, params, onChooseBook, o
     >
       <p>
         {sourceName} against {targetName} is about {millions(answer.line_pairs)} million line pairs.
-        {' '}Two whole works this size take the server about an hour. Choose a book on one side to
+        {' '}A comparison this size would hold the server too long to run live. Choose a book on one side to
         compare now, with every chart, or ask for the whole comparison as a file.
       </p>
 

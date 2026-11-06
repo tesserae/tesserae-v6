@@ -9,6 +9,7 @@ import {
   resolveDisplayCitation,
   siteIdFromRef,
   formatRefrainPopover,
+  formatRhymeSummary,
 } from '../../utils/textNames';
 import { channelBadge } from '../../utils/channels';
 import { displayGreekWithFinalSigma } from '../../utils/greekUtils';
@@ -21,6 +22,7 @@ import { citationFor } from './citationFor';
 import { exportSearchCSV, exportSearchPDF } from './exportHandlers';
 import CorpusDistributionPanel, { useCorpusDistribution } from './CorpusDistributionPanel';
 import FusionProgressBanner from './FusionProgressBanner';
+import QueuedNotice from './QueuedNotice';
 import ScansionLine from './ScansionLine';
 import { buildDistributionData } from './distributionData';
 
@@ -384,13 +386,7 @@ const SearchResults = ({
       const isSlowSearch = matchType === 'sound' || matchType === 'edit_distance' || matchType === 'fusion';
       return (
         <div className="flex flex-col items-center justify-center py-12">
-          {isQueued && (
-            <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4 text-center max-w-md">
-              <div className="text-amber-800 font-medium mb-1">Search queued</div>
-              <div className="text-amber-600 text-sm">{queuedMessage}</div>
-              <div className="text-amber-500 text-xs mt-2">Your search will start automatically when a slot opens.</div>
-            </div>
-          )}
+          {isQueued && <QueuedNotice message={queuedMessage} />}
           {isSlowSearch && !isQueued && (
             <div className="text-sm text-gray-600 mb-4 text-center">
               {matchType === 'fusion'
@@ -685,10 +681,14 @@ const SearchResults = ({
                   className="bg-rose-100 text-rose-800"
                   explanation={r.poetics.rhyme_only
                     ? 'The rhyme letter (rawi) both poems share, weaker evidence than the full rhyme.'
-                    : 'The rhyme (qafiya) both poems share, before the refrain.'}
+                    : 'The ending the rhyme words of the two poems share, before the refrain.'}
+                  extra={formatRhymeSummary(r.poetics, languageName(language)) && (
+                    <div dir="auto">{formatRhymeSummary(r.poetics, languageName(language))}</div>
+                  )}
                   more={helpMore(onOpenHelp, 'rhyme')}
                 >
                   Rhyme: <span dir="rtl">{r.poetics.rhyme_only ? r.poetics.qafia : '…' + r.poetics.qafia}</span>
+                  {r.poetics.rhyme_tier === 'partial' && ' (partial)'}
                 </InfoBadge>
               )}
               {r.poetics && r.poetics.meter && (

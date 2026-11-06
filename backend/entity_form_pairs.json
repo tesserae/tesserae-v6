@@ -1,0 +1,8 @@
+{
+  "note": "Pairs of spellings that are one name by a lexical rule no ending table finds: [spelling, a heading it belongs to]. Read at startup by backend/entity_regroup.py (rule: lexical pair).",
+  "pairs": [
+    ["Ζανός", "Zeus"],
+    ["Ζανί", "Zeus"],
+    ["Ζᾶνα", "Zeus"]
+  ]
+}

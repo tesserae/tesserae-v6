@@ -4,7 +4,25 @@
 // words them here.
 
 export const LARGE_QUEUE_TEXT =
-  'Waiting for another large comparison to finish. Another large comparison is running first.';
+  'Waiting to start: another large comparison is running first. Yours starts as soon as that one finishes.';
+
+const CLOCK = (seconds) => {
+  const s = Math.max(0, Math.floor(seconds || 0));
+  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+};
+
+// The line shown while a comparison waits to start. The server words it and
+// sends it as `message` (in a streamed "queued" event and in the poll answer
+// with status "queued"); this builds the same line if only the numbers came.
+export const queuedText = (q) => {
+  if (!q) return '';
+  if (q.message) return q.message;
+  const waited = q.wait_seconds ?? q.wait_time ?? 0;
+  const head = q.kind === 'memory' || q.kind === 'emergency'
+    ? "Waiting to start: the server's memory is in use by other searches"
+    : `Waiting to start: ${(q.running || 0) + Math.max(0, (q.position || 1) - 1)} comparisons are ahead of yours`;
+  return `${head}. Waiting for ${CLOCK(waited)} so far.`;
+};
 
 // "about 1 minute" / "about 27 minutes"
 const minutes = (n) => `${n} ${n === 1 ? 'minute' : 'minutes'}`;
@@ -15,12 +33,11 @@ export const estimateMinutes = (estimate) =>
 export const estimateMillions = (estimate) =>
   Math.max(1, Math.round((estimate?.pairs || 0) / 1e6));
 
-// The warning shown before a large comparison is sent.
-export const largeComparisonWarning = (sourceName, targetName, estimate) =>
-  `Large comparison. ${sourceName} against ${targetName} is about ` +
-  `${estimateMillions(estimate)} million line pairs and will take about ` +
-  `${minutes(estimateMinutes(estimate))}. The results fill in part by part, ` +
-  'and you can leave the page open. Comparing selected books finishes in a minute or two.';
+// The line shown at the start of a large comparison, while it runs.
+export const largeComparisonLine = (sourceName, targetName, estimate) =>
+  `${sourceName} against ${targetName}: about ` +
+  `${estimateMillions(estimate)} million line pairs, about ` +
+  `${minutes(estimateMinutes(estimate))}. The results fill in part by part.`;
 
 // Minutes left, from the time the finished parts took (partStarts maps a part
 // number to the seconds into the search at which it began); before the first

@@ -31,7 +31,7 @@ def test_security_headers_are_present(client):
     assert response.headers.get('X-Content-Type-Options') == 'nosniff'
     assert response.headers.get('X-Frame-Options') == 'DENY'
     # Strict-Transport-Security should be present in non-dev DEPLOYMENT_ENV
-    assert response.headers.get('Strict-Transport-Security') == 'max-age=31536000; includeSubDomains'
+    assert response.headers.get('Strict-Transport-Security') == 'max-age=63072000'
 
 def test_cors_headers_restrict_origins(client):
     # Allowed origin: should echo back

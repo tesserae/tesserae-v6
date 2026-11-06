@@ -10,7 +10,7 @@ import { createSearchId, requestSearchCancellation, fetchLanguages, fetchTextHie
 import { dirFor } from '../../utils/rtl';
 import { exportRowsToPDF } from '../../utils/exportResults';
 import { ResultsInsight } from '../assistant';
-import { useCorpusTextMap, resolveDisplayCitation, siteIdFromRef } from '../../utils/textNames';
+import { useCorpusTextMap, resolveDisplayCitation, siteIdFromRef, formatRhymeSummary } from '../../utils/textNames';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
@@ -1056,7 +1056,10 @@ export default function CrossLingualSearch({ onOpenHelp, onRegister, onCorpusSea
                   {result.poetics?.qafia && (
                     <InfoBadge
                       className="bg-rose-100 text-rose-800"
-                      explanation="The rhyme (qafiya) both poems share, before the refrain."
+                      explanation="The ending the rhyme words of the two poems share, before the refrain."
+                      extra={formatRhymeSummary(result.poetics, 'Urdu') && (
+                        <div dir="auto">{formatRhymeSummary(result.poetics, 'Urdu')}</div>
+                      )}
                       more={helpMore('rhyme')}
                     >
                       Rhyme: <span dir="rtl">-{result.poetics.qafia}</span>

@@ -203,6 +203,13 @@
       "license": "(c)2000-2006 by J Warren Wells, for academic use only.",
       "added": "2026-10-16",
       "ends": null
+    },
+    "augustine.de_doctrina_christiana": {
+      "holder": "Nuova Biblioteca Agostiniana and Citta Nuova Editrice, via augustinus.it",
+      "credit": "Augustine, De doctrina christiana: text from augustinus.it (Nuova Biblioteca Agostiniana, Citta Nuova Editrice). Held on this site for search and reading only, not for copying.",
+      "license": "All rights reserved by Citta Nuova Editrice and Nuova Biblioteca Agostiniana (https://www.augustinus.it/copyright.htm): private personal consultation only, no copies, no posting on other sites.",
+      "added": "2026-10-25",
+      "ends": null
     }
   }
 }

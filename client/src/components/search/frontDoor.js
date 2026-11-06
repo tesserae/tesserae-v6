@@ -1,4 +1,4 @@
-// The eight answers to "What are you trying to do?" on the Intertextual Search page's
+// The seven answers to "What are you trying to do?" on the Intertextual Search page's
 // "Start here" panel: the feature's fixed name, then what it does (owner's
 // review 2026-10-10: name the feature, then a brief description, smaller). Tessa answers "where do I start" with the same eight
 // (backend/assistant/front_door.py holds the same labels and paths; a test
@@ -29,14 +29,8 @@ export const FRONT_DOOR_CHOICES = [
   {
     id: 'subject',
     label: 'Theme Search',
-    detail: 'passages on a subject you describe in your own words, in any of the corpus languages',
-    href: '/theme-search',
-  },
-  {
-    id: 'ask',
-    label: 'Search One Text',
-    detail: 'what one work says about a subject, in plain words',
-    href: '/ask-a-work',
+    detail: 'passages on a subject you describe in your own words: in one text, in two texts compared, or across the whole corpus',
+    href: '/theme-search?scope=one',
   },
   {
     id: 'read',

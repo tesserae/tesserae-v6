@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import {
-  LARGE_QUEUE_TEXT, largeComparisonWarning, minutesLeft, partsProgressText, progressWithParts,
+  LARGE_QUEUE_TEXT, queuedText, largeComparisonLine, minutesLeft, partsProgressText, progressWithParts,
 } from '../fusionParts';
 import { searchFusionStream } from '../api';
 
@@ -21,17 +21,16 @@ const streamOf = (events) => {
 
 const THEBAID_AENEID = { pairs: 96298976, in_parts: true, parts: 20, estimated_seconds: 1637 };
 
-describe('the warning before a large comparison', () => {
-  it('words the estimate as the owner asked', () => {
-    expect(largeComparisonWarning('Statius, Thebaid', 'Vergil, Aeneid', THEBAID_AENEID)).toBe(
-      'Large comparison. Statius, Thebaid against Vergil, Aeneid is about 96 million line pairs '
-      + 'and will take about 27 minutes. The results fill in part by part, and you can leave '
-      + 'the page open. Comparing selected books finishes in a minute or two.');
+describe('the line shown at the start of a large comparison', () => {
+  it('words the estimate in one plain line', () => {
+    expect(largeComparisonLine('Statius, Thebaid', 'Vergil, Aeneid', THEBAID_AENEID)).toBe(
+      'Statius, Thebaid against Vergil, Aeneid: about 96 million line pairs, about 27 minutes. '
+      + 'The results fill in part by part.');
   });
 
   it('says one minute in the singular', () => {
-    expect(largeComparisonWarning('A', 'B', { pairs: 4500000, estimated_seconds: 60 }))
-      .toContain('about 5 million line pairs and will take about 1 minute.');
+    expect(largeComparisonLine('A', 'B', { pairs: 4500000, estimated_seconds: 60 }))
+      .toContain('about 5 million line pairs, about 1 minute.');
   });
 });
 
@@ -73,7 +72,7 @@ describe('the progress line while a comparison runs in parts', () => {
 describe('the queued message', () => {
   it('names the other comparison', () => {
     expect(LARGE_QUEUE_TEXT).toBe(
-      'Waiting for another large comparison to finish. Another large comparison is running first.');
+      'Waiting to start: another large comparison is running first. Yours starts as soon as that one finishes.');
   });
 });
 
@@ -90,5 +89,18 @@ describe('the fusion stream carries the new fields', () => {
     await searchFusionStream({}, onProgress, undefined, vi.fn(), onQueued);
     expect(onQueued.mock.calls[0][2].large_queue).toBe(true);
     expect(onProgress.mock.calls[0][3].fusion_parts).toEqual({ part: 1, total_parts: 10 });
+  });
+});
+
+describe('queuedText', () => {
+  it('shows the sentence the server sent', () => {
+    expect(queuedText({ status: 'queued', message: 'Waiting to start: 3 comparisons are ahead of yours.' }))
+      .toBe('Waiting to start: 3 comparisons are ahead of yours.');
+  });
+  it('builds the line from the numbers of a poll answer', () => {
+    expect(queuedText({ status: 'queued', kind: 'slots', running: 2, position: 1, wait_seconds: 100 }))
+      .toBe('Waiting to start: 2 comparisons are ahead of yours. Waiting for 1:40 so far.');
+    expect(queuedText({ kind: 'memory', wait_seconds: 5 }))
+      .toBe("Waiting to start: the server's memory is in use by other searches. Waiting for 0:05 so far.");
   });
 });

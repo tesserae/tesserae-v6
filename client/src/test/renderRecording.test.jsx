@@ -280,9 +280,9 @@ describe('SearchResults render recording', () => {
 });
 
 describe('App render recording', () => {
-  const PATHS = ['/', '/read', '/document', '/theme-search', '/ask-a-work', '/inscriptions-papyri', '/events', '/events/e1', '/coins', '/coins/c1',
+  const PATHS = ['/', '/read', '/document', '/theme-search', '/theme-search?scope=two', '/theme-search?scope=corpus', '/ask-a-work', '/inscriptions-papyri', '/events', '/events/e1', '/coins', '/coins/c1',
     '/objects', '/objects/o1', '/browse', '/corpus', '/repository', '/line-search', '/string-search', '/visualize', '/downloads', '/about', '/help',
-    '/privacy', '/research', '/blog-archive', '/text-credits', '/requests', '/admin', '/no-such-page'];
+    '/privacy', '/terms', '/research', '/blog-archive', '/text-credits', '/requests', '/admin', '/no-such-page'];
 
   it.each(PATHS)('page %s', async (path) => {
     window.history.replaceState({}, '', path);

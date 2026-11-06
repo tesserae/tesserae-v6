@@ -15,6 +15,7 @@ Spec: research/languages/FORM_CHANNEL_SPEC_2026-09-05.md (Tesserae V6 dev repo).
 Public API:
     segment_poems(units, language) -> list[Poem]
     poem_signature(poem, language) -> (radif_tokens, qafia, radif_line_idxs)
+    poem_signature_ex(poem, language) -> the same plus the poem's rhyme words
     find_form_matches(source_units, target_units, settings) -> (matches, stats)
 """
 
@@ -112,6 +113,8 @@ _TRAILING_PUNCT = '،؛؟۔.,!?;:«»"\'()[]'
 _MIN_RADIF_LINES = 3
 _MIN_RADIF_FRACTION = 0.6
 _MAX_RADIF_TOKENS = 4
+# Longest qafia kept: the ending shared by the poem's rhyme words, 2 to 6 letters.
+_MAX_QAFIA_LETTERS = 6
 # Share of the form score given to line pairs other than the two poems'
 # opening lines. Since 2026-10-06 the channel emits ONE match per poem pair
 # (the opening-line pair, with the other refrain lines listed on it), so
@@ -159,6 +162,17 @@ def corpus_form_factor(corpus_poems):
 
 def signature_key(radif, qafia):
     return ' '.join(radif) + '|' + (qafia or '')
+# Rhyme-word bonus (2026-10-26, request issues 1231 to 1234): rhyme words the
+# two ghazals share (the same word closing a line in both) add this much per
+# word to the base before rarity scaling, up to the cap. A shared rhyme phrase
+# (the rhyme word with the word before it) adds the same per phrase, and the
+# two together are capped. The couplet-level channels (exact, lemma) already
+# see a shared phrase, so the total stays modest.
+_SHARED_WORD_BONUS = 0.15
+_SHARED_WORD_BONUS_CAP = 0.45
+_SHARED_PHRASE_BONUS = 0.15
+_SHARED_PHRASE_BONUS_CAP = 0.45
+_SHARED_BONUS_CAP = 0.6
 # Share kept by a refrain-and-rhyme match whose two poems are in different meters.
 _METER_MISMATCH_SHARE = 0.3
 
@@ -468,22 +482,52 @@ def _best_shared_suffix(seqs, min_lines, min_frac, max_len=_MAX_RADIF_TOKENS,
     return ()
 
 
-def _majority_qafia(line_finals, idxs, radif_len):
-    """Most common last-two-letters of the token immediately before the
-    radif (or of the final token itself when radif_len is 0, i.e. a
-    radif-less poem)."""
-    counts = Counter()
+def _rhyme_entries(line_finals, idxs, radif_len):
+    """(rhyme word, word before it) for each radif line in `idxs`: the
+    normalized token immediately before the radif (or the final token when
+    radif_len is 0, a radif-less poem) and the token before that ('' when the
+    line has none). Lines with no token in the rhyme position are skipped."""
+    out = []
     for i in idxs:
         toks = line_finals[i]
         pre_idx = len(toks) - radif_len - 1
-        if 0 <= pre_idx < len(toks) and len(toks[pre_idx]) >= 2:
-            counts[toks[pre_idx][-2:]] += 1
-    return counts.most_common(1)[0][0] if counts else ''
+        if 0 <= pre_idx < len(toks):
+            before = toks[pre_idx - 1] if pre_idx >= 1 else ''
+            out.append((toks[pre_idx], before))
+    return out
+
+
+def _qafia_from_rhyme_words(words, min_frac=_MIN_RADIF_FRACTION):
+    """The poem's qafia: the longest ending (2 to _MAX_QAFIA_LETTERS letters)
+    shared by at least min_frac of the rhyme words. Wali's guli, kali,
+    sandali, bansuli share "li"; Mir's hali, aali, laali, gaali, khaali share
+    "ali" (2026-10-26, request issues 1231 and 1233: a two-letter rule gave
+    both the same rhyme). When no ending of two letters or more reaches
+    min_frac the most common last two letters stand, as before, so the
+    result is never shorter than the old rule's."""
+    usable = [w for w in words if len(w) >= 2]
+    if not usable:
+        return ''
+    n = len(usable)
+    for length in range(_MAX_QAFIA_LETTERS, 1, -1):
+        counts = Counter(w[-length:] for w in usable if len(w) >= length)
+        if not counts:
+            continue
+        ending, cnt = counts.most_common(1)[0]
+        if cnt / n >= min_frac:
+            return ending
+    return Counter(w[-2:] for w in usable).most_common(1)[0][0]
+
+
+def _majority_qafia(line_finals, idxs, radif_len):
+    """The qafia of the lines `idxs` (see _qafia_from_rhyme_words)."""
+    return _qafia_from_rhyme_words([w for w, _ in _rhyme_entries(line_finals, idxs, radif_len)])
 
 
 def poem_signature(poem, language, min_lines=_MIN_RADIF_LINES,
                    min_frac=_MIN_RADIF_FRACTION):
-    """(radif_tokens, qafia, radif_line_idxs) for one poem.
+    """(radif_tokens, qafia, radif_line_idxs) for one poem. See
+    poem_signature_ex for the same plus the poem's rhyme words.
 
     radif_line_idxs are LOCAL indices into poem.units/poem.unit_idxs.
 
@@ -501,13 +545,27 @@ def poem_signature(poem, language, min_lines=_MIN_RADIF_LINES,
     If no token sequence of 1-4 trailing tokens is shared by at least
     min_frac of the candidate lines (needing at least min_lines of them),
     the poem is radif-less: () is returned for radif, and qafia falls back
-    to the most common last-two-letters of the plain final token.
+    to the longest ending shared by the plain final tokens.
+    """
+    return poem_signature_ex(poem, language, min_lines, min_frac)[:3]
+
+
+def poem_signature_ex(poem, language, min_lines=_MIN_RADIF_LINES,
+                      min_frac=_MIN_RADIF_FRACTION):
+    """(radif_tokens, qafia, radif_line_idxs, rhyme_entries) for one poem.
+
+    The qafia is the longest ending (2 to 6 letters) shared by at least
+    min_frac of the rhyme words, the normalized token before the radif on
+    each radif line (the final token in a radif-less poem). rhyme_entries is
+    the list of (rhyme word, word before it) pairs in line order, for the
+    shared-rhyme-word count. Arabic keeps its one-letter rawi and carries no
+    rhyme entries.
     """
     normalize = _normalizer_for(language)
     line_finals = [_final_tokens(u, normalize) for u in poem.units]
     n_lines = len(line_finals)
     if n_lines == 0:
-        return (), '', []
+        return (), '', [], []
 
     if language == 'ar':
         # Rhyme letter (rawi): the last letter of the final token, shared by
@@ -517,12 +575,12 @@ def poem_signature(poem, language, min_lines=_MIN_RADIF_LINES,
         # scored accordingly.
         letters = Counter(toks[-1][-1] for toks in line_finals if toks and toks[-1])
         if not letters:
-            return (), '', []
+            return (), '', [], []
         rawi, cnt = letters.most_common(1)[0]
         if cnt < min_lines or cnt / n_lines < min_frac:
-            return (), '', []
+            return (), '', [], []
         idxs = [i for i, toks in enumerate(line_finals) if toks and toks[-1] and toks[-1][-1] == rawi]
-        return (), rawi, idxs
+        return (), rawi, idxs, []
 
     # Every line is a candidate. What differs by layout is how many lines
     # are EXPECTED to carry the radif: all of them when each line is a
@@ -545,19 +603,72 @@ def poem_signature(poem, language, min_lines=_MIN_RADIF_LINES,
             i for i in candidate_idxs
             if len(line_finals[i]) >= radif_len and tuple(line_finals[i][-radif_len:]) == radif
         ]
-        qafia = _majority_qafia(line_finals, radif_line_idxs, radif_len)
-        return radif, qafia, radif_line_idxs
+        entries = _rhyme_entries(line_finals, radif_line_idxs, radif_len)
+        qafia = _qafia_from_rhyme_words([w for w, _ in entries], min_frac)
+        return radif, qafia, radif_line_idxs, entries
 
     # Radif-less (spec: "qafia alone is too weak" -- no match emitted for
     # these in find_form_matches, but the signature is still meaningful).
     fallback_idxs = candidate_idxs if candidate_idxs else list(range(n_lines))
-    qafia = _majority_qafia(line_finals, fallback_idxs, 0)
-    return (), qafia, candidate_idxs
+    entries = _rhyme_entries(line_finals, fallback_idxs, 0)
+    qafia = _qafia_from_rhyme_words([w for w, _ in entries], min_frac)
+    return (), qafia, candidate_idxs, entries
 
 
 # ---------------------------------------------------------------------------
 # Matching + emission
 # ---------------------------------------------------------------------------
+
+def _rhyme_tier(s_qafia, t_qafia):
+    """'full' when the two qafia strings are equal, 'partial' when one is a
+    proper ending of the other (li inside ali), else 'radif only'."""
+    if s_qafia == t_qafia:
+        return 'full'
+    if s_qafia and t_qafia and (s_qafia.endswith(t_qafia) or t_qafia.endswith(s_qafia)):
+        return 'partial'
+    return 'radif only'
+
+
+def _distinct(seq):
+    seen, out = set(), []
+    for x in seq:
+        if x and x not in seen:
+            seen.add(x)
+            out.append(x)
+    return out
+
+
+def _shared_rhyme(s_entries, t_entries):
+    """(source words, target words, shared words, shared phrases): the
+    distinct rhyme words of each poem in line order, the words both carry,
+    and the rhyme phrases (the word before the rhyme word, then the rhyme
+    word) both carry."""
+    s_words = _distinct(w for w, _ in s_entries)
+    t_words = _distinct(w for w, _ in t_entries)
+    t_set = set(t_words)
+    shared_words = [w for w in s_words if w in t_set]
+    s_phr = _distinct(f'{b} {w}' for w, b in s_entries if b)
+    t_phr = set(f'{b} {w}' for w, b in t_entries if b)
+    shared_phr = [p for p in s_phr if p in t_phr]
+    return s_words, t_words, shared_words, shared_phr
+
+
+def _shared_bonus(n_words, n_phrases, word_bonus=_SHARED_WORD_BONUS,
+                  phrase_bonus=_SHARED_PHRASE_BONUS):
+    """Bonus added to the base score for shared rhyme words and phrases."""
+    b = min(_SHARED_WORD_BONUS_CAP, word_bonus * n_words)
+    b += min(_SHARED_PHRASE_BONUS_CAP, phrase_bonus * n_phrases)
+    return min(_SHARED_BONUS_CAP, b)
+
+
+def _meter_note(s_poem, t_poem, language):
+    """Whether the two poems share a meter, in words for the result card."""
+    if s_poem.meter and t_poem.meter:
+        return 'same meter' if s_poem.meter == t_poem.meter else 'different meter'
+    if language == 'ur':
+        return 'meter not available for this language'
+    return 'meter not recorded for this poem'
+
 
 def find_form_matches(source_units, target_units, settings=None):
     """Find refrain-and-rhyme (radif/qafia) matches between two texts.
@@ -581,12 +692,12 @@ def find_form_matches(source_units, target_units, settings=None):
     source_poems = segment_poems(source_units, language)
     target_poems = segment_poems(target_units, language)
 
-    src_sigs = [(p,) + poem_signature(p, language) for p in source_poems]
-    tgt_sigs = [(p,) + poem_signature(p, language) for p in target_poems]
+    src_sigs = [(p,) + poem_signature_ex(p, language) for p in source_poems]
+    tgt_sigs = [(p,) + poem_signature_ex(p, language) for p in target_poems]
 
     tgt_by_radif = defaultdict(list)
     for entry in tgt_sigs:
-        _, radif, _, _ = entry
+        _, radif, _, _, _ = entry
         if radif:
             tgt_by_radif[radif].append(entry)
 
@@ -596,10 +707,10 @@ def find_form_matches(source_units, target_units, settings=None):
     # each side carries is strong. Scale by the geometric mean of the two
     # counts, so a unique pairing keeps its full score and a ubiquitous one
     # is discounted (5 x 5 poems -> 0.2; 20 x 25 -> 0.045).
-    src_sig_counts = Counter((r, q) for _, r, q, _ in src_sigs if r)
-    tgt_sig_counts = Counter((r, q) for _, r, q, _ in tgt_sigs if r)
-    src_radif_counts = Counter(r for _, r, _, _ in src_sigs if r)
-    tgt_radif_counts = Counter(r for _, r, _, _ in tgt_sigs if r)
+    src_sig_counts = Counter((r, q) for _, r, q, _, _ in src_sigs if r)
+    tgt_sig_counts = Counter((r, q) for _, r, q, _, _ in tgt_sigs if r)
+    src_radif_counts = Counter(r for _, r, _, _, _ in src_sigs if r)
+    tgt_radif_counts = Counter(r for _, r, _, _, _ in tgt_sigs if r)
 
     matches_full = []   # form_score == 1.0
     matches_half = []   # form_score == 0.5
@@ -609,12 +720,12 @@ def find_form_matches(source_units, target_units, settings=None):
         # Rhyme-letter matching for qasidas (mu'arada by rhyme; meter is not
         # yet available). Base 0.5, the same footing as a shared refrain
         # with a different rhyme in Persian and Urdu.
-        src_q_counts = Counter(q for _, r, q, _ in src_sigs if q)
-        tgt_q_counts = Counter(q for _, r, q, _ in tgt_sigs if q)
-        for s_poem, s_radif, s_qafia, s_line_idxs in src_sigs:
+        src_q_counts = Counter(q for _, r, q, _, _ in src_sigs if q)
+        tgt_q_counts = Counter(q for _, r, q, _, _ in tgt_sigs if q)
+        for s_poem, s_radif, s_qafia, s_line_idxs, _ in src_sigs:
             if not s_qafia:
                 continue
-            for t_poem, t_radif, t_qafia, t_line_idxs in tgt_sigs:
+            for t_poem, t_radif, t_qafia, t_line_idxs, _ in tgt_sigs:
                 if t_qafia != s_qafia:
                     continue
                 # A mu'arada keeps the model's meter AND rhyme. Same rhyme
@@ -649,6 +760,12 @@ def find_form_matches(source_units, target_units, settings=None):
                             'source_position': max(0, len(source_units[src_idx].get('tokens', [])) - 1),
                             'target_position': max(0, len(target_units[tgt_idx].get('tokens', [])) - 1),
                             'radif_len': 1,
+                            'rhyme_tier': 'rawi',
+                            'shared_rhyme_words': [],
+                            'shared_rhyme_phrases': [],
+                            'source_rhyme_words': [],
+                            'target_rhyme_words': [],
+                            'meter_note': _meter_note(s_poem, t_poem, language),
                             'matched_lemmas': [],
                         })
         src_sigs = []  # the fa/ur loop below runs on nothing
@@ -657,27 +774,34 @@ def find_form_matches(source_units, target_units, settings=None):
     sig_counts = (sig_table or {}).get('signatures', {})
     radif_counts_corpus = (sig_table or {}).get('radifs', {})
 
-    for s_poem, s_radif, s_qafia, s_line_idxs in src_sigs:
+    for s_poem, s_radif, s_qafia, s_line_idxs, s_entries in src_sigs:
         if not s_radif:
             # Radif-less poems: no match in this version -- qafia alone is
             # too weak a signal to pair on. TODO: revisit with a qafia-only
             # low-confidence channel once there's a benchmark to tune it on.
             continue
-        for t_poem, t_radif, t_qafia, t_line_idxs in tgt_by_radif.get(s_radif, []):
-            if s_qafia == t_qafia:
+        for t_poem, t_radif, t_qafia, t_line_idxs, t_entries in tgt_by_radif.get(s_radif, []):
+            tier = _rhyme_tier(s_qafia, t_qafia)
+            if tier == 'full':
                 base_score = 1.0
                 rarity = 1.0 / math.sqrt(src_sig_counts[(s_radif, s_qafia)]
                                          * tgt_sig_counts[(t_radif, t_qafia)])
                 corpus_poems = sig_counts.get(signature_key(s_radif, s_qafia))
             else:
-                is_single_stoplisted = (
-                    len(s_radif) == 1 and all(tok in stoplist for tok in s_radif)
-                )
-                if is_single_stoplisted:
-                    continue  # shared by chance, not by design
+                # Partial rhyme (one qafia is an ending of the other) keeps
+                # the radif-only footing; a bare shared single function word
+                # with an unrelated rhyme is shared by chance.
+                if tier == 'radif only' and len(s_radif) == 1 and all(tok in stoplist for tok in s_radif):
+                    continue
                 base_score = 0.5
                 rarity = 1.0 / math.sqrt(src_radif_counts[s_radif] * tgt_radif_counts[t_radif])
                 corpus_poems = radif_counts_corpus.get(' '.join(s_radif))
+
+            # Rhyme words and rhyme phrases the two ghazals share.
+            src_words, tgt_words, shared_words, shared_phrases = _shared_rhyme(s_entries, t_entries)
+            bonus = _shared_bonus(len(shared_words), len(shared_phrases),
+                                  settings.get('form_word_bonus', _SHARED_WORD_BONUS),
+                                  settings.get('form_phrase_bonus', _SHARED_PHRASE_BONUS))
 
             # Meter, when both sides carry a label: an answer poem keeps its
             # model's meter, so a different meter is strong evidence against.
@@ -691,7 +815,7 @@ def find_form_matches(source_units, target_units, settings=None):
             poem_pairs += 1
             radif_str = ' '.join(s_radif)
             radif_len = len(s_radif)
-            bucket = matches_full if base_score == 1.0 else matches_half
+            bucket = matches_full if tier == 'full' else matches_half
 
             # ONE match per poem pair (2026-10-06). Before this the channel
             # emitted every (source line, target line) pair of the two poems'
@@ -717,18 +841,26 @@ def find_form_matches(source_units, target_units, settings=None):
             n_s, src_idx, src_pos = src_lines[0]
             n_t, tgt_idx, tgt_pos = tgt_lines[0]
             opening = 1.0 if (n_s == 0 and n_t == 0) else _NON_OPENING_SHARE
-            form_score = round(base_score * rarity * opening, 4)
+            form_score = round((base_score + bonus) * rarity * opening, 4)
             bucket.append({
                 'source_idx': src_idx,
                 'target_idx': tgt_idx,
                 'match_basis': 'form',
                 'form_score': form_score,
                 'form_base': base_score,
+                'form_bonus': round(bonus, 4),
                 'form_rarity': round(rarity, 4),
                 'form_corpus_poems': corpus_poems,
                 'form_corpus_factor': round(corpus_factor, 4),
                 'radif': radif_str,
                 'qafia': s_qafia,
+                'target_qafia': t_qafia,
+                'rhyme_tier': tier,
+                'shared_rhyme_words': shared_words,
+                'shared_rhyme_phrases': shared_phrases,
+                'source_rhyme_words': src_words,
+                'target_rhyme_words': tgt_words,
+                'meter_note': _meter_note(s_poem, t_poem, language),
                 'meter': s_poem.meter if s_poem.meter == t_poem.meter else None,
                 'source_position': src_pos,
                 'target_position': tgt_pos,
@@ -881,6 +1013,9 @@ def find_cross_form_matches(source_units, target_units, source_language, target_
                 'radif': ' '.join(s_radif),
                 'target_radif': ' '.join(t_radif),
                 'qafia': s_qafia,
+                'rhyme_tier': 'full',
+                'meter_note': _meter_note(s_poem, t_poem,
+                                          'ur' if 'ur' in (source_language, target_language) else source_language),
                 'meter': s_poem.meter if s_poem.meter == t_poem.meter else None,
                 'source_position': src_pos,
                 'target_position': tgt_pos,

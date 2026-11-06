@@ -57,7 +57,7 @@ const blank = () => ({
  *  source 'note'     a commentary note: { note, section, work }
  *  source 'card'     Theme Search card (kind article or commentary, link)
  *  source 'recent'   "Articles found online" item (excerpt)
- *  source 'cite'     Search One Text paragraph cite (kind article, recent or commentary)
+ *  source 'cite'     Theme Search (one text) paragraph cite (kind article, recent or commentary)
  *  source 'document' a document page's scholarship row (journal, page, url)
  */
 export function recordFrom(item, source) {

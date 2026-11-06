@@ -5,7 +5,7 @@ visitor can ask in a sentence ("find inscriptions that mention Augustus", "coins
 of Hadrian with Felicitas", "museum objects showing Medusa") and get the page's
 own answer, with a control that opens the page on the same search.
 
-Built the way three_searches.py builds Search One Text, People & Places and
+Built the way three_searches.py builds Theme Search on one text, People & Places and
 Events, and kept beside it so that module stays readable:
 
     detection   which questions reach each search, decided in code from the

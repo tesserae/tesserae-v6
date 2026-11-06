@@ -38,6 +38,10 @@ import unicodedata
 
 END_MARKS = '.;?!;'
 SENT_END = re.compile(r'[' + re.escape(END_MARKS) + r'](?=\s+\S)')
+# Scripts without capital letters (Persian, Urdu, Arabic, Hebrew): a sentence may
+# start with any letter, and the Arabic question mark, semicolon and full stop end it.
+CASELESS = False
+CASELESS_SENT_END = re.compile(r'[.;?!؟؛۔](?=\s+\S)')
 
 
 def tess_units(path):
@@ -60,11 +64,11 @@ def tess_units(path):
 def sentence_spans(text):
     """(start, end) offsets of the sentences of `text`, covering it fully."""
     cuts = [0]
-    for m in SENT_END.finditer(text):
+    for m in (CASELESS_SENT_END if CASELESS else SENT_END).finditer(text):
         j = m.end()
         while j < len(text) and text[j].isspace():
             j += 1
-        if j < len(text) and unicodedata.category(text[j]) == 'Lu':
+        if j < len(text) and unicodedata.category(text[j]) in (('Lu', 'Lo') if CASELESS else ('Lu',)):
             cuts.append(j)
     cuts.append(len(text))
     return [(a, b) for a, b in zip(cuts, cuts[1:]) if b > a]
@@ -222,8 +226,12 @@ def main():
                     'to this window_texts.db (back it up first) and stop')
     ap.add_argument('--upsert-from', help='windows.jsonl for --upsert-db')
     ap.add_argument('--dry-run', action='store_true', help='count only, write nothing')
+    ap.add_argument('--caseless', action='store_true', help='script without capitals (Persian, Urdu): '
+                    'a sentence may start with any letter and the Arabic question mark ends one')
     ap.add_argument('--out', help='output folder (required unless --upsert-db)')
     a = ap.parse_args()
+    global CASELESS
+    CASELESS = a.caseless
     if a.upsert_db:
         if a.dry_run:
             # The first install (2026-10-11) ran this step with --dry-run and

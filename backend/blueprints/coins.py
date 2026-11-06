@@ -9,6 +9,10 @@
         count per source.
     GET /api/coins/<id>
         one coin type.
+    GET /api/coins/thumb/<name>
+        the stored thumbnail of a type the American Numismatic Society holds
+        (its own public-domain photograph), 404 when none. Rows carry
+        `thumb_url` and `thumb_credit` when one exists.
     GET /api/coins/for-passage?work=&lang=&ref=&ref_end=
         the Reader's Coins tab: related imagery (the five coin descriptions
         nearest the gist of the passage window) and name links (a person named
@@ -27,9 +31,10 @@ and the detail route 404, as the Events routes do.
 Dates are signed years (-25 is 25 BCE). The type records come from OCRE and
 CRRO (Roman) and seven Greek catalogues (Corpus Nummorum, Seleucid, PELLA,
 Ptolemaic, BIGR, IRIS, Levantine), published through nomisma.org under
-ODbL or a Creative Commons non-commercial licence (CREDITS below). Images live
-on museum specimen records, so the page links to the type's own page and stores
-none.
+ODbL or a Creative Commons non-commercial licence (CREDITS below). Photographs
+live on museum specimen records. The page links to the type's own page, and
+stores a small copy only of the American Numismatic Society's own public-domain
+photographs (data/coins/thumbs, TESSERAE_COINS_THUMBS), never another museum's.
 """
 import os
 import re
@@ -37,7 +42,7 @@ import sqlite3
 import unicodedata
 from urllib.parse import quote
 
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, send_from_directory
 
 from backend import coins_passage
 from backend.logging_config import get_logger
@@ -47,6 +52,8 @@ coins_bp = Blueprint('coins', __name__)
 
 _ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 DEFAULT_DB = os.path.join(_ROOT, 'data', 'coins', 'coins.sqlite')
+DEFAULT_THUMBS = os.path.join(_ROOT, 'data', 'coins', 'thumbs')
+THUMB_CREDIT = 'Photograph: American Numismatic Society, public domain'
 MAX_PER_PAGE = 100
 FACET_FIELDS = ('authority', 'mint', 'denomination', 'material', 'source')
 FACET_LIMIT = 60
@@ -69,6 +76,33 @@ LIST_COLUMNS = ('id, source, uri, title, authority, issuer, portrait, mint, mint
 
 def db_path():
     return os.environ.get('TESSERAE_COINS_DB') or DEFAULT_DB
+
+
+def thumbs_dir():
+    return os.environ.get('TESSERAE_COINS_THUMBS') or DEFAULT_THUMBS
+
+
+def thumb_name(uri):
+    """File name of a type's stored thumbnail: the tail of its OCRE uri with
+    unsafe characters replaced (the rule scripts/coins/fetch_ans_thumbnails.py
+    stores under)."""
+    tail = str(uri or '').rsplit('/id/', 1)[-1]
+    return re.sub(r'[^A-Za-z0-9._-]', '_', tail) + '.jpg'
+
+
+_thumb_cache = {'dir': None, 'mtime': None, 'names': frozenset()}
+
+
+def _thumb_names():
+    """The stored file names, re-read when the folder changes."""
+    d = thumbs_dir()
+    try:
+        m = os.stat(d).st_mtime
+    except OSError:
+        return frozenset()
+    if _thumb_cache['dir'] != d or _thumb_cache['mtime'] != m:
+        _thumb_cache.update(dir=d, mtime=m, names=frozenset(os.listdir(d)))
+    return _thumb_cache['names']
 
 
 def _conn():
@@ -122,6 +156,9 @@ def _present(r):
     d['pleiades_url'] = (f'https://pleiades.stoa.org/places/{quote(str(r["mint_pleiades_id"]))}'
                          if r['mint_pleiades_id'] else None)
     d['credit'] = CREDITS.get(r['source'], 'Type record: American Numismatic Society, ODbL')
+    name = thumb_name(r['uri']) if r['source'] == 'ocre' else None
+    d['thumb_url'] = f'/api/coins/thumb/{quote(name)}' if name and name in _thumb_names() else None
+    d['thumb_credit'] = THUMB_CREDIT if d['thumb_url'] else None
     d['coin_url'] = f'/coins/{quote(str(r["id"]), safe="")}'
     d['gist'] = coins_passage.gist_for_type(db_path(), r['id'])
     return d
@@ -269,6 +306,16 @@ def coins_theme():
                             'unavailable just now.')
     finally:
         c.close()
+
+
+@coins_bp.route('/coins/thumb/<name>')
+def coin_thumb(name):
+    """The stored thumbnail of one type (ANS photographs only), or 404."""
+    if name not in _thumb_names():
+        return jsonify({'error': 'No stored picture for this coin type.'}), 404
+    resp = send_from_directory(thumbs_dir(), name, mimetype='image/jpeg')
+    resp.headers['Cache-Control'] = 'public, max-age=2592000'
+    return resp
 
 
 @coins_bp.route('/coins/<path:coin_id>')

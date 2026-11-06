@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
 const DEVELOPER_FILES = [
-  { file: 'la_index.db.tar.gz', name: 'Latin Search Index', note: 'about 1,430 texts, 567 MB packed, 2.0 GB unpacked' },
+  { file: 'la_index.db.tar.gz', name: 'Latin Search Index', note: 'about 1,430 texts, the works from Musisque Deoque, Corpus Thomisticum and augustinus.it left out, 567 MB packed, 2.0 GB unpacked' },
   { file: 'grc_index.db.tar.gz', name: 'Greek Search Index', note: 'about 650 texts, 564 MB packed, 2.9 GB unpacked' },
   { file: 'en_index.db.tar.gz', name: 'English Search Index', note: '72 MB packed, 227 MB unpacked' },
   { file: 'cop_index.db.tar.gz', name: 'Coptic Search Index', note: 'the Sahidica New Testament is left out, 39 MB packed' },
@@ -14,7 +14,7 @@ const DEVELOPER_FILES = [
   { file: 'passage_index_en.tar.gz', name: 'English Passage Windows', note: '62 MB' },
   { file: 'passage_index_cop.tar.gz', name: 'Coptic Passage Windows', note: 'Sahidica left out, 26 MB' },
   { file: 'passage_index_he.tar.gz', name: 'Hebrew Passage Windows', note: 'CC BY-NC 4.0, 12 MB' },
-  { file: 'window_texts.db.tar.gz', name: 'Window Texts', note: 'the text of 460,652 passage windows and the lines of each work, 496 MB packed, 2.5 GB unpacked, each work under its own license and non-commercial as a whole, without the Sahidica New Testament, the Arabic and Persian works and eleven Iqbal collections' },
+  { file: 'window_texts.db.tar.gz', name: 'Window Texts', note: 'the text of the passage windows and the lines of each work, the works from Musisque Deoque, Corpus Thomisticum and augustinus.it left out, 496 MB packed, 2.5 GB unpacked, each work under its own license and non-commercial as a whole, without the Sahidica New Testament, the Arabic and Persian works and eleven Iqbal collections' },
   { file: 'ur_index.db.tar.gz', name: 'Urdu Search Index', note: 'CC BY-SA 4.0, 14 Urdu Wikisource collections, the four Iqbal collections left out, 12 MB packed, 64 MB unpacked' },
   { file: 'entities.sqlite.tar.gz', name: 'People & Places Store', note: 'CC BY-SA 4.0, 39,369 entities and their mentions in Latin, Greek and English works, descriptions written by models, 68 MB packed, 293 MB unpacked' },
   { file: 'event_dossiers.sqlite.tar.gz', name: 'Events Store', note: 'CC BY-SA 4.0, 1,485 events with passages, documents and scholarship references, the model working logs left out, 19 MB packed, 62 MB unpacked' },
@@ -25,6 +25,8 @@ const DEVELOPER_FILES = [
   { file: 'text_descriptions.tar.gz', name: 'Text Descriptions', note: 'CC BY 4.0, written by language models, 1,901 works, Arabic and restricted works left out, 0.6 MB packed' },
   { file: 'citations_without_sentences.tar.gz', name: 'Citation Indexes', note: 'CC BY 4.0, which article cites which passage (70,293 citations in 32,089 articles), without the article sentences, 4 MB packed' },
 ];
+
+const DATA_URL = 'https://tesserae.caset.buffalo.edu/tesserae-data';
 
 const DEVELOPER_TOOLS = [
   { file: 'tesserae-openapi.yaml', note: 'describes the web API.' },
@@ -63,11 +65,11 @@ const DownloadsPage = () => {
   };
 
   const languages = [
-    { code: 'la', name: 'Latin', texts: 'about 1,830', embeddings: true },
-    { code: 'grc', name: 'Greek', texts: 'about 1,330', embeddings: true },
-    { code: 'en', name: 'English', texts: 'about 160', embeddings: false },
-    { code: 'cop', name: 'Coptic', texts: 'about 160, without the Sahidica New Testament', embeddings: false },
-    { code: 'he', name: 'Hebrew', texts: 'about 40', embeddings: false },
+    { code: 'la', name: 'Latin', texts: 'about 1,890', size: 'about 69 MB', embeddings: true },
+    { code: 'grc', name: 'Greek', texts: 'about 1,630', size: 'about 74 MB', embeddings: true },
+    { code: 'en', name: 'English', texts: 'about 160', size: 'about 6 MB', embeddings: false },
+    { code: 'cop', name: 'Coptic', texts: 'about 130, without the Sahidica New Testament', size: 'about 6 MB', embeddings: false },
+    { code: 'he', name: 'Hebrew', texts: 'about 40', size: 'about 1.4 MB', embeddings: false },
   ];
 
   return (
@@ -83,8 +85,17 @@ const DownloadsPage = () => {
         <div className="bg-white rounded-lg shadow p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Corpus Texts</h3>
           <p className="text-sm text-gray-600 mb-4">
-            Download all texts in .tess format for a language. Texts are organized by author and work.
-            Persian and Urdu texts are searchable on the site but are not offered as ZIP files
+            One archive per language, a .tar.gz of the texts in .tess format with a MANIFEST.tsv and a
+            README.txt inside. The manifest lists every text with its author, work, number of lines,
+            electronic source and print source, and license. Each text is under its own license,
+            listed in the manifest, and bulk copies fall under the{' '}
+            <a href="/terms" className="text-red-600 hover:underline">Terms of Use</a>.
+            Texts whose source allows no online copy are searchable on the site and left out of
+            every archive that carries their lines (the text archives, the Latin search index and
+            the window texts), and each archive's README counts them. Musisque Deoque allows
+            copies on paper or portable offline media only, for scholarly use. Corpus Thomisticum
+            and augustinus.it reserve all rights, and Augustine's De doctrina christiana, the one
+            augustinus.it text, is held for search and reading on the site only. Persian and Urdu texts are searchable on the site but are not offered as archives
             pending their sources' terms. The Urdu search index, which holds the line text of
             fourteen Wikisource collections, is offered under the developer data files below.
           </p>
@@ -93,15 +104,24 @@ const DownloadsPage = () => {
               <div key={lang.code} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-gray-50 rounded">
                 <div>
                   <span className="font-medium">{lang.name}</span>
-                  <span className="text-sm text-gray-500 ml-2">({lang.texts} texts)</span>
+                  <span className="text-sm text-gray-500 ml-2">({lang.texts} texts, {lang.size})</span>
                 </div>
-                <button
-                  onClick={() => handleDownload('texts', lang.code)}
-                  disabled={downloading[`texts-${lang.code}`]}
-                  className="px-4 py-2 bg-red-700 text-white rounded hover:bg-red-800 disabled:opacity-50 text-sm"
-                >
-                  {downloading[`texts-${lang.code}`] ? 'Downloading...' : 'Download ZIP'}
-                </button>
+                <div className="flex items-center gap-3">
+                  <a
+                    href={`${DATA_URL}/texts_${lang.code}_manifest.tsv`}
+                    target="_blank" rel="noopener noreferrer"
+                    className="text-sm text-red-600 hover:underline"
+                  >
+                    List with licenses ({lang.name})
+                  </a>
+                  <a
+                    href={`${DATA_URL}/texts_${lang.code}.tar.gz`}
+                    className="px-4 py-2 bg-red-700 text-white rounded hover:bg-red-800 text-sm"
+                    aria-label={`Download the ${lang.name} text archive`}
+                  >
+                    Download archive
+                  </a>
+                </div>
               </div>
             ))}
           </div>

@@ -176,3 +176,28 @@ describe('InfoBadge — content', () => {
     expect(screen.getByText('Site ID: hafez.diwan.5097')).toBeInTheDocument();
   });
 });
+
+describe('InfoBadge — the popover stays inside a narrow viewport', () => {
+  // 2026-10-26: on a phone the box ran off the left edge when the badge sat
+  // near the left and right-alignment was the only remedy. The box is now
+  // shifted so that it keeps a 16px gutter on both sides.
+  it('shifts the box right when the badge sits near the left edge of a phone screen', () => {
+    const innerWidth = window.innerWidth;
+    Object.defineProperty(window, 'innerWidth', { value: 390, configurable: true });
+    const rect = { left: 90, right: 200, top: 300, bottom: 320, width: 110, height: 20 };
+    const spy = vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockReturnValue(rect);
+    try {
+      renderBadge();
+      act(() => { fireEvent.click(screen.getByRole('button')); });
+      const box = screen.getByRole('tooltip');
+      const left = parseInt(box.style.left, 10);
+      // box width is 90vw = 351px; with 390px of viewport only 39px remain,
+      // so the box sits at 23px to keep the 16px gutter on the right:
+      // 23 - 90 = -67px from the badge, and nothing hangs off the left
+      expect(left).toBe(23 - rect.left);
+    } finally {
+      spy.mockRestore();
+      Object.defineProperty(window, 'innerWidth', { value: innerWidth, configurable: true });
+    }
+  });
+});

@@ -99,14 +99,24 @@ export const useDefaultTexts = ({
         defaultSourceId = 'hebrew_bible.ruth.tess';
         defaultTargetId = 'hebrew_bible.1_samuel.tess';
       } else if (activeTab === 'fa') {
-        // Cached showcase pairs (2026-09-06). Without these the fallback
-        // below picked the first two Persian texts alphabetically, Anvari
-        // against Attar's 196,000 lines, five billion line pairs.
+        // Hafez against Zabur-e Ajam (the owner's choice, 2026-10-26): the
+        // answer-poem pair, where seven known responses by Iqbal to Hafez
+        // sit in the top ten and the Rhyme badge shows on the default page.
+        // It is 12 million line pairs, so it depends on its cached answer:
+        // keep the pair cached, and never clear the whole search cache
+        // (clear one language, or re-run the default pairs after). Without
+        // a fixed pair the fallback below picked the first two Persian
+        // texts alphabetically, Anvari against Attar, five billion pairs.
         defaultSourceId = 'hafez.diwan.tess';
         defaultTargetId = 'iqbal.zabur_e_ajam.tess';
       } else if (activeTab === 'ur') {
-        defaultSourceId = 'ghalib.diwan_wikisource.tess';
-        defaultTargetId = 'iqbal.bang_e_dra.tess';
+        // Wali against Mir (2026-10-26): one part, and its first result is
+        // a poetic response found by refrain and rhyme, so the Rhyme badge
+        // with its shared rhyme words shows on the default page. Ghalib
+        // against Bang-e Dra (the earlier choice) is 8 million pairs and
+        // runs in parts.
+        defaultSourceId = 'wali.diwan_wikisource.tess';
+        defaultTargetId = 'mir.kulliyat_wikisource.tess';
       } else if (activeTab === 'ar') {
         defaultSourceId = 'quran.al_waqia.tess';
         defaultTargetId = 'busiri.burda.tess';

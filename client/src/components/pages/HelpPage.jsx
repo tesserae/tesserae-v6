@@ -243,8 +243,8 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
     { id: 'settings', label: 'Search Settings', group: 'Searching the literature' },
     { id: 'stoplists', label: 'Stoplists', group: 'Searching the literature' },
     { id: 'results', label: 'Reading the results', group: 'Searching the literature' },
-    { id: 'ask-a-work', label: 'Search One Text', group: 'Searching the literature' },
     { id: 'theme-search', label: 'Theme Search', group: 'Searching the literature' },
+    { id: 'ask-a-work', label: 'Theme Search: one text', group: 'Searching the literature' },
     { id: 'cross-lingual', label: 'Cross-Language Search', group: 'Searching the literature' },
 
     { id: 'reader', label: 'The Reader', group: 'Reading' },
@@ -363,8 +363,8 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
               <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Start here</h3>
               <p className="text-gray-700 mb-4">
                 Tesserae finds passages that echo one another in Latin, Greek, English, Coptic, Hebrew, Persian and Urdu,
-                whether through shared words, shared sounds, or a shared subject. It offers eight kinds of search, listed
-                below in the order of the "What are you trying to do?" panel. The Search One Text page, where a visit starts,
+                whether through shared words, shared sounds, or a shared subject. It offers seven kinds of search, listed
+                below in the order of the "What are you trying to do?" panel. The <a href="/theme-search" className="text-red-600 hover:underline">Theme Search</a> page, where a visit starts,
                 and the Intertextual Search page show that panel the first time you visit. Choosing an answer takes you to the
                 right search, and "Skip" closes the panel for good. The "Start here" link at the top of every page brings it
                 back, and Tessa gives the same list when you ask her where to start.
@@ -411,18 +411,11 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 <div className="border-l-4 border-gray-300 pl-4">
                   <h4 className="text-lg font-semibold text-gray-900">Theme Search</h4>
                   <p className="text-gray-600 text-sm mt-1">
-                    Finds passages on a subject you describe in your own words, in every indexed language at once, even when they
-                    share no vocabulary with your description. Use it when you do not know what words a scene is phrased in. See{' '}
+                    Finds passages on a subject you describe in your own words, even when they share no vocabulary with your
+                    description. One tab, three scopes: One text asks what a single work says about the subject, Two texts
+                    reads two works against each other, and Whole corpus searches every indexed language at once. Use it when
+                    you do not know what words a scene is phrased in. See{' '}
                     <button onClick={() => setActiveSection('theme-search')} className="text-red-600 hover:underline">Theme Search</button>.
-                  </p>
-                </div>
-
-                <div className="border-l-4 border-gray-300 pl-4">
-                  <h4 className="text-lg font-semibold text-gray-900">Search One Text</h4>
-                  <p className="text-gray-600 text-sm mt-1">
-                    Asks one work what it says about a subject, in plain words. It is Theme Search run inside that one work, and
-                    the closest passages come back. See{' '}
-                    <button onClick={() => setActiveSection('ask-a-work')} className="text-red-600 hover:underline">Search One Text</button>.
                   </p>
                 </div>
 
@@ -438,7 +431,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 <div className="border-l-4 border-gray-300 pl-4">
                   <h4 className="text-lg font-semibold text-gray-900">People &amp; Places</h4>
                   <p className="text-gray-600 text-sm mt-1">
-                    Lists every line where a person, place or god is named, in Latin, Greek and English. See{' '}
+                    Lists every line where a person, place or god is named, in all seven languages of the site. See{' '}
                     <button onClick={() => setActiveSection('mentions')} className="text-red-600 hover:underline">People &amp; Places</button>.
                   </p>
                 </div>
@@ -466,17 +459,29 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
               </p>
               <div className="mt-4 bg-amber-50 p-4 rounded-lg">
                 <p className="text-amber-700 text-sm">
-                  <strong>Tip.</strong> Start with a smaller section, such as Book 1. Large comparisons, such as the whole Aeneid
-                  against Book 1 of the Metamorphoses, take longer on the first run, and later searches of the same pair are cached.
-                  The very largest, such as the whole Aeneid against the whole Metamorphoses, are offered book by book or as a
-                  prepared file (below).
+                  <strong>Tip.</strong> Start with a smaller section, such as Book 1. A comparison of two long works, such as the
+                  whole Aeneid against Book 1 of the Metamorphoses, starts at once and takes a few minutes the first time. The
+                  page shows the time it expects and fills in the results part by part, and later searches of the same pair are
+                  instant. The very largest, such as the whole Aeneid against the whole Metamorphoses, are offered book by book or
+                  as a prepared file (below).
                 </p>
               </div>
+              <p className="text-gray-700 mt-4 mb-3">
+                The server runs at most three comparisons at once and starts a new one only when it has enough memory
+                free. A comparison that has to wait shows its place in line and the time it has waited, for example
+                "Waiting to start: two comparisons are ahead of yours (the server lets three run at once). Waiting
+                for 1:40 so far. The server holds a request for up to thirty minutes, then stops it and offers the
+                comparison as a prepared file." The cancel button stays available while you wait.
+              </p>
               <h4 className="text-lg font-semibold text-gray-900 mt-8 mb-2">Two whole works above the size limit</h4>
               <p className="text-gray-700 mb-3">
-                A comparison of two whole epics holds the server for about an hour, so the page runs a pair live only up to
-                twelve million line pairs (the source's lines times the target's lines). Above that, "Find Parallels" shows a
-                panel with two choices. Choose a book on one side and the page compares it now, with every chart. Or click
+                The page runs a pair live up to 100 million line pairs (the source's lines times the target's lines). Two
+                whole epics, such as the Aeneid against Lucan's Civil War (about 80 million pairs), run live in about five to
+                ten minutes. The server works through them in parts and shows its progress. The comparison starts on the first click. A line
+                above the results gives the number of line pairs and the time expected, and the link "Compare chosen books
+                instead" stops the run and takes you to the book menus. A pair above 100 million, such as
+                the Metamorphoses against the Aeneid (about 119 million), would hold the server too long, so "Find Parallels"
+                stops with a panel of two choices. Choose a book on one side and the page compares it now, with every chart. Or click
                 "Prepare the whole comparison as a download" and the server prepares the pair in a queue, one comparison at a
                 time. The panel gives a link to a status page that shows your place in line and, when the file is ready, the
                 download. Keep the link, since a file is kept for 14 days.
@@ -503,10 +508,10 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
               <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Literature and History views</h3>
               <p className="text-gray-700 mb-4">
                 The site has two views, Literature and History, switched by the two words at the left of the
-                main menu. Literature opens on Search One Text, on the Aeneid, with the menu led by
-                Search One Text and Intertextual Search. History opens on Search One Text, on Tacitus&rsquo;s Annals, with its own examples (prodigies in Livy, forced
+                main menu. Literature opens on Theme Search, one text, on the Aeneid, with the menu led by
+                Intertextual Search and Read. History opens on Theme Search, one text, on Tacitus&rsquo;s Annals, with its own examples (prodigies in Livy, forced
                 suicides in the Annals, warning dreams in Herodotus, Gallic and German customs in Caesar, besieged cities in Thucydides, omens of an emperor's death in Suetonius), with
-                every collection on, the menu led by Search One Text and Read, and the Reader&rsquo;s side panel opening on
+                every collection on, the menu led by Read, and the Reader&rsquo;s side panel opening on
                 Similar, then the coins, the commentaries and articles, Reuse, Verbal and Translation (the inscriptions and papyri appear
                 as a group inside Reuse and Verbal). History also opens the Phrase Search on Livy against Tacitus in Latin and on
                 Herodotus against Thucydides in Greek, and puts the inscriptions, papyri and events first in the Start here list.
@@ -536,7 +541,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
               <p className="text-gray-700 mb-4">
                 A Beta mark beside a page name in the top row means the page is new and still changing. Its results
                 are worth using, and worth citing with care, because the wording, grouping or ranking on the page
-                may still change. At present Search One Text and Events carry the mark.
+                may still change. At present Events carries the mark.
               </p>
               <p className="text-gray-700 mb-4">
                 The Suggest a change button in the header, on every page, opens a short form. Use it to report a
@@ -547,11 +552,27 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
               <p className="text-gray-700 mb-4">
                 The site remembers the last page and address you were on, in your browser only and never on the
                 server, and opens there when you visit the plain address of the site. A link to a particular page
-                still opens that page. The administration, Downloads, privacy and credits pages are not remembered.
+                still opens that page. The administration, <a href="/downloads" className="text-red-600 hover:underline">Downloads</a>, <a href="/privacy" className="text-red-600 hover:underline">privacy</a> and <a href="/text-credits" className="text-red-600 hover:underline">credits</a> pages are not remembered.
               </p>
               <p className="text-gray-700 mb-4">
-                The Downloads page is under More at the right end of the top row. It offers the corpus texts by
+                The <a href="/downloads" className="text-red-600 hover:underline">Downloads</a> page is under More at the right end of the top row. It offers the corpus texts by
                 language, pre-computed data files for running your own copy, and the benchmark lists.
+              </p>
+              <p className="text-gray-700 mb-4">
+                The corpus texts come as one archive per language, a .tar.gz of the .tess files with a
+                MANIFEST.tsv and a README.txt inside, and the manifest is also offered beside each
+                archive. The manifest has one row per text: author, work, number of lines, electronic
+                source and its address, print source and license. Each text stays under its own license,
+                and texts licensed for noncommercial use only are marked in the manifest. A text with no
+                credit row yet reads "unknown". Texts held for search only on this site are left out, and
+                so are texts whose source allows no online copy: Musisque Deoque allows copies on paper
+                or portable offline media only, and Corpus Thomisticum and augustinus.it reserve all
+                rights. The same works are left out of the Latin search index and window-text archives,
+                and the README inside each archive counts them. Augustine's De doctrina christiana
+                (augustinus.it) is held for search and reading on the site only, with its credit line
+                beside every passage.
+                The archives are rebuilt at every import, and the <a href="/terms" className="text-red-600 hover:underline">Terms of Use</a> page states the
+                conditions for bulk copies.
               </p>
             </div>
           )}
@@ -566,7 +587,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 search finds, not how good its first page is. Where a search or a language has not
                 been measured yet, the table says so. Articles with full details, methods and data are
                 in preparation. The Coptic data release and the benchmark lists for Latin, Greek and
-                Cross-Language are already on the Downloads page.
+                Cross-Language are already on the <a href="/downloads" className="text-red-600 hover:underline">Downloads</a> page.
               </p>
               <div className="overflow-x-auto">
                 <table className="min-w-full text-sm text-left text-gray-700">
@@ -647,7 +668,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
               <p className="text-gray-700 mb-3">
                 To cleanly separate function words from content words, the scoring uses a <strong>curated stoplist</strong> of
                 function words for each language (91 Latin, 195 Greek, 275 English, with lists for Coptic, Hebrew, Persian and Urdu), such as pronouns,
-                conjunctions, prepositions, and common verbs like <em>sum</em>, all shown on the Stoplists page.
+                conjunctions, prepositions, and common verbs like <em>sum</em>, all shown on the <button type="button" onClick={() => setActiveSection('stoplists')} className="text-red-600 hover:underline">Stoplists</button> page.
                 Matches where all shared words are function words (e.g., sharing only <em>tum</em> + <em>inde</em>) are heavily
                 penalized. Matches where a function word co-occurs with a content word (e.g., <em>nec</em> + <em>priorem</em>)
                 are scored on the content word alone, because the function word adds no allusion signal.
@@ -687,7 +708,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 <h4 className="text-lg font-semibold text-gray-900 mb-2">Performance</h4>
                 <p className="text-gray-700 text-sm">
                   Evaluated against five benchmark datasets (862 parallels from published commentaries), fusion search found <strong>92% of known Latin parallels</strong> in August 2026,
-                  up from ~27% in Tesserae V3. That figure was measured before the Latin lemma table was corrected in October 2026 and has not been re-run since. Other languages are measured separately, on the How well does it work? page. On the Valerius Flaccus benchmark, 9 of the top 10 results are attested in scholarly commentary.
+                  up from ~27% in Tesserae V3. That figure was measured before the Latin lemma table was corrected in October 2026 and has not been re-run since. Other languages are measured separately, on the <button type="button" onClick={() => setActiveSection('how-well')} className="text-red-600 hover:underline">How well does it work?</button> page. On the Valerius Flaccus benchmark, 9 of the top 10 results are attested in scholarly commentary.
                 </p>
               </div>
 
@@ -755,10 +776,10 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   <p className="text-sm text-gray-700"><strong>Syntax:</strong> Compares grammatical dependency structures (parsed by LatinPipe) to detect parallel sentence construction. Includes a structural fingerprint path that matches lines with identical grammatical patterns even when they share no vocabulary, which catches allusions built on structural imitation with complete lexical substitution. Because many unrelated Latin lines share common syntactic patterns, structural matches are confirmed by a two-tier gate: they must have either a dictionary synonym pair between the two lines or high semantic similarity (cosine ≥ 0.70). In validation testing on Vergil's <em>Georgics</em> 3 vs. Lucretius <em>DRN</em> 6, this gate preserved all meaningful structural parallels while filtering over 90% of coincidental pattern matches.</p>
                 </div>
                 <div className="border-l-4 border-gray-300 pl-3">
-                  <p className="text-sm text-gray-700"><strong>Rare Vocabulary:</strong> Flags shared words that appear in fewer than about one in eight works of the language (roughly 100 for Latin and Greek, 6 for English). A rare shared word is unlikely to be coincidence.</p>
+                  <p className="text-sm text-gray-700"><strong>Rare Vocabulary:</strong> Flags shared words that appear in at most about one in eight works of the language, so the cutoff follows the size of each corpus: about 90 works for Latin, 110 for Greek, 20 for Coptic, and 3 to 5 for English, Hebrew, Persian and Urdu. A rare shared word is unlikely to be coincidence.</p>
                 </div>
                 <div className="border-l-4 border-gray-300 pl-3">
-                  <p className="text-sm text-gray-700"><strong>Verbatim Quotation:</strong> Finds runs of three or more identical consecutive words, in every language. It carries the most weight of any channel, because an exact run is the strongest sign of quotation, and it matters most where authors quote their sources directly, as Coptic writers quote scripture without citation. See the <em>Coptic Search</em> section for an example.</p>
+                  <p className="text-sm text-gray-700"><strong>Verbatim Quotation:</strong> Finds runs of three or more identical consecutive words, in every language. It carries the most weight of any channel, because an exact run is the strongest sign of quotation, and it matters most where authors quote their sources directly, as Coptic writers quote scripture without citation. See the <button type="button" onClick={() => setActiveSection('coptic')} className="text-red-600 hover:underline">Coptic Search</button> section for an example.</p>
                 </div>
               </div>
               <p className="text-gray-600 text-sm mt-3">
@@ -834,6 +855,39 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                     <ul className="mt-1 space-y-1 text-gray-600">
                       <li><code className="bg-gray-200 px-1 rounded">arma ~ virum</code> - finds "arma" within ~100 characters of "virum"</li>
                       <li><code className="bg-gray-200 px-1 rounded">mort* NOT vita</code> - words starting with "mort" but not in lines with "vita"</li>
+                    </ul>
+                  </div>
+                  <div className="bg-amber-50 p-3 rounded border border-amber-200 mt-3 text-sm" id="string-search-spelling">
+                    <strong className="text-amber-800">Persian, Urdu, Arabic and Hebrew</strong>
+                    <p className="text-gray-700 mt-1">
+                      For these four languages String Search offers two spelling modes, and Hebrew has a third. <em>Match spelling variants</em> is
+                      the default. <em>Exact spelling</em> matches the characters as typed.
+                    </p>
+                    <ul className="text-gray-600 mt-1 space-y-1 list-disc list-inside">
+                      <li>Match spelling variants ignores vowel marks (and, in Hebrew, points and cantillation), tatweel,
+                        the zero-width joiner and direction marks. It treats the Arabic and Persian code points of kaf and
+                        yeh as one letter, treats alef maqsura as yeh, treats heh, heh goal and teh marbuta as one letter,
+                        and treats alef with hamza and alef wasla as plain alef.</li>
+                      <li>It keeps apart letters that are different letters, which are alef with madda (آ),
+                        barree yeh (ے), do-chashmee he (ھ), noon ghunna (ں) and the retroflex letters (ٹ ڈ ڑ).</li>
+                      <li>A space or a zero-width non-joiner between the parts of a compound in your query matches a space,
+                        a non-joiner or nothing in the text. The query <code className="bg-amber-100 px-1 rounded">آتش زده</code> and
+                        the query <code className="bg-amber-100 px-1 rounded">آتش‌زده</code> both find آتش زده, آتش‌زده and
+                        آتشزده. The query <code className="bg-amber-100 px-1 rounded">آتشزده</code> written without any
+                        separator finds only the joined spelling.</li>
+                      <li>A space or non-joiner left at the start or end of the query or of a term, usually by copying
+                        from a compound, is trimmed in both modes.</li>
+                      <li>A query matches a stretch of text that begins and ends at word edges. A phrase in quotation
+                        marks and the same words typed without them both find those words in that order.</li>
+                      <li>Under each result in the default mode, a small gray note says why the line matched, using the
+                        phrases vowel marks ignored, separator variant matched and letter variant matched. A line that
+                        matches exactly as typed has no note. Exported results carry the query as typed, the spelling
+                        mode and the rules label, so a result can be read later.</li>
+                      <li>Hebrew has a third choice, <em>Vowel points kept</em>. It honors the vowel points and the shin and sin dots you type
+                        and ignores only the cantillation accents, so a pointed query finds the same word in the pointed
+                        Bible text and an unpointed query finds only unpointed lines. Exact spelling rarely matches that
+                        text, because the accents sit between the letters. A line found this way carries the note accents ignored.</li>
+                      <li>Case sensitive does not apply to these languages, so the page shows the spelling choice in its place.</li>
                     </ul>
                   </div>
               </div>
@@ -1148,7 +1202,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   <p className="text-gray-600 text-sm">
                     This gray badge counts how many works in the whole corpus contain the shared wording
                     a result is built on. A high count marks a common expression or formula rather
-                    than a pointed echo. The Formulas setting under Search Settings can hide results
+                    than a pointed echo. The Formulas setting under <button type="button" onClick={() => setActiveSection('settings')} className="text-red-600 hover:underline">Search Settings</button> can hide results
                     built on wording that recurs in more than a chosen number of works, or show only them.
                   </p>
                 </div>
@@ -1231,6 +1285,29 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
             <div className="prose max-w-none">
               <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Theme Search</h3>
               <p className="text-gray-700 mb-4">
+                Theme Search is one tab with three scopes, chosen by the three buttons at the top
+                of the page: <strong>One text</strong>, <strong>Two texts</strong> and{' '}
+                <strong>Whole corpus</strong>. The choice is in the address
+                (<code>?scope=one</code>, <code>two</code> or <code>corpus</code>), so a link
+                reopens the right form, and the words in the search box carry over between One text
+                and Whole corpus. The sections below take the scopes in turn.
+              </p>
+              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2" id="theme-scope-one">One text</h4>
+              <p className="text-gray-700 mb-4">
+                Pick a work and ask what it says about a subject. The closest passages of that one
+                work come back, with a strip showing where in the work they fall, a summary and the
+                scholarship on it. The full description is under{' '}
+                <button onClick={() => setActiveSection('ask-a-work')} className="text-red-600 hover:underline">Theme Search: one text</button>.
+                This is the form a visit to the site opens on.
+              </p>
+              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2" id="theme-scope-two">Two texts</h4>
+              <p className="text-gray-700 mb-4">
+                Pick two works, or two books, and see which of their passages resemble each other
+                in content, across languages as well. The details are under Comparing two works
+                further down this page.
+              </p>
+              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2" id="theme-scope-corpus">Whole corpus</h4>
+              <p className="text-gray-700 mb-4">
                 Describe what happens in a passage, in your own words, and Theme Search finds
                 passages that match the description rather than the wording. Because it works
                 from content, results come back in every indexed language at once and usually
@@ -1276,7 +1353,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
               <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">Which works Theme Search covers</h4>
               <p className="text-gray-700 mb-3">
                 Theme Search and Similar Passages cover the works that have passage descriptions, about
-                1,990 works and 685,000 passage windows, not the whole corpus. A work outside that
+                2,100 works and 730,000 passage windows, not the whole corpus. A work outside that
                 index never appears in either feature. The list is in Browse Corpus:{' '}
                 <a href="/corpus?theme=1&language=la" className="text-red-600 hover:underline">
                   See the list of covered works
@@ -1307,9 +1384,9 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 and &ldquo;Refresh map&rdquo; reloads it.
               </p>
 
-              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">Comparing two works</h4>
+              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2" id="theme-compare">Comparing two works (the Two texts scope)</h4>
               <p className="text-gray-700 mb-3">
-                The &ldquo;Compare two works&rdquo; tab beside the search box reads two whole
+                The Two texts scope reads two whole
                 works, or two books, against each other rather than against a description you
                 write. Pick a work on each side and the page finds which of their passage
                 windows resemble each other most in content, across languages as well. A
@@ -1407,13 +1484,13 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
               <p className="text-gray-700 mb-4">
                 People &amp; Places lists every line in the corpus where a named person, place or god is
                 mentioned. Each person, place or god has one heading, and under it the lines are
-                grouped by work. The page covers the Latin, Greek and English works. Inscriptions
+                grouped by work. The page covers all seven languages of the site. Inscriptions
                 and papyri have their own table at the foot of an entry, listing the documents
                 that carry the name.
               </p>
               <p className="text-gray-700 mb-4">
-                The page sits under the People, Places &amp; Things menu in the top row, together with
-                Events, Inscriptions &amp; Papyri, Coins and Objects, and all five are listed in both the
+                The page sits under the People, Places &amp; Things menu in the top row, together with{' '}
+                <a href="/events" className="text-red-600 hover:underline">Events</a>, <a href="/inscriptions-papyri" className="text-red-600 hover:underline">Inscriptions &amp; Papyri</a>, <a href="/coins" className="text-red-600 hover:underline">Coins</a> and <a href="/objects" className="text-red-600 hover:underline">Objects</a>, and all five are listed in both the
                 Literature and the History view.
               </p>
               <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">How to search</h4>
@@ -1492,16 +1569,16 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
               <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">From the Reader</h4>
               <p className="text-gray-700 mb-4">
                 In the Reader, a result that shares names with another passage lists them as
-                Shared names. Each name is a link that opens People &amp; Places at that name.
+                Shared names. Each name is a link that opens <a href="/mentions" className="text-red-600 hover:underline">People &amp; Places</a> at that name.
               </p>
             </div>
           )}
 
           {activeSection === 'ask-a-work' && (
             <div className="prose max-w-none">
-              <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Search One Text</h3>
+              <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Theme Search: one text</h3>
               <p className="text-gray-700 mb-4">
-                Search One Text asks what one work says about a subject. Pick a
+                The One text scope of Theme Search asks what one work says about a subject. Pick a
                 language, an author and a work, type the subject in plain words, and press Go.
                 It is Theme Search run inside that one work, so your words are compared with the
                 description written for each passage and the closest passages come back.
@@ -1606,15 +1683,15 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
               <p className="text-gray-700 mb-4">
                 For works that have one, an <strong>About</strong> button in the header opens a
                 short orientation note saying what the text is, who wrote it and when, and why a
-                reader might care. The same notes appear behind the small ⓘ buttons in Browse
-                Corpus. <strong>Go to line</strong> takes a reference as the margin shows it: a line
+                reader might care. The same notes appear behind the small ⓘ buttons in{' '}
+                <a href="/corpus" className="text-red-600 hover:underline">Browse Corpus</a>. <strong>Go to line</strong> takes a reference as the margin shows it: a line
                 number, book and line such as 6.851, or, in a work divided into stories, the story,
                 couplet and hemistich such as 151.1.1. The margin numbers every fifth line, or in such a
                 work every fifth couplet. A work divided into stories rather than books, such as the
                 Shahnameh, has a <strong>Stories</strong> list in the header (each story by number and
                 title, with the Persian title after it, grouped by reign), and the header counts its
                 stories instead of its lines. Choosing a story opens the Reader at its first line, and
-                the previous and next links step from one story to the next. On a phone, the choice of text, book and story, Go to line and About this text are behind
+                the previous and next links step from one story to the next. The ten Persian and Urdu works installed on 2026-10-25 show their sections the same way: the Masnavi, for example, has a list of its 972 sections grouped under the six daftars, with its sections counted in the header. On a phone, the choice of text, book and story, Go to line and About this text are behind
                 the title line at the top of the Reader, and the key to the margin marks is behind
                 the Key button, so that the text has the width of the screen.
               </p>
@@ -1647,7 +1724,10 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 quotation: another work shares two or more distinctive words with this line, or a longer
                 run of its wording. A <strong>dashed box</strong> marks a possible echo, where another work
                 shares one rare phrase with this line, which is weaker evidence and more often a coincidence.
-                Click a box to open the <strong>Reuse</strong> tab. The boxes are built for Latin, Greek and English.
+                Click a box to open the <strong>Reuse</strong> tab, which lists every matching passage. One work can
+                echo a line in several passages, so the tab may list more passages than the box counts works. Its
+                heading gives both numbers, for example "5 works with 9 passages". The boxes are built for Latin,
+                Greek, English, Persian and Urdu.
               </p>
 
               <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">Moving around a long work</h4>
@@ -1667,11 +1747,10 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
               </p>
               <ul className="list-disc pl-5 text-gray-700 space-y-2 mb-3">
                 <li>
-                  <strong>Word</strong> looks up one word across the whole corpus (String
-                  Search). It needs a single double-clicked word.
+                  <strong>Word</strong> looks up one word across the whole corpus (<a href="/string-search" className="text-red-600 hover:underline">String Search</a>). It needs a single double-clicked word.
                 </li>
                 <li>
-                  <strong>Line</strong> takes the line to the full Line Search page to find
+                  <strong>Line</strong> takes the line to the full <a href="/line-search" className="text-red-600 hover:underline">Line Search</a> page to find
                   shared wording, with all its filters and charts.
                 </li>
                 <li>
@@ -1702,7 +1781,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   selection&rsquo;s wording. A passage-sized selection is searched on its most distinctive
                   words, and the panel names which words those were. Matches that share nothing but very
                   common words (quid, ipse, varius) are hidden, with a note saying how many. The
-                  full Line Search page applies no such filter. When Inscriptions or Papyri is
+                  full <a href="/line-search" className="text-red-600 hover:underline">Line Search</a> page applies no such filter. When Inscriptions or Papyri is
                   on, the same search also lists the inscriptions and papyri under the literary
                   parallels, each with its date and place and a link to the document&rsquo;s page.
               </p>
@@ -1712,8 +1791,8 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   the translator named under it. Most are public domain. A few are open translations
                   used with attribution under their non-commercial terms (Silius Italicus books 9 to
                   17, A. S. Kline). Coverage is partial (in August 2026, about 61 percent of the Greek lines and
-                  48 percent of the Latin lines), so some passages have none. The translators are listed on the
-                  Sources page under About.
+                  48 percent of the Latin lines), so some passages have none. The translators are listed on the{' '}
+                  <a href="/text-credits" className="text-red-600 hover:underline">Sources</a> page under About.
               </p>
               <p className="text-gray-700 mb-3">
                   When no human translation covers a passage, the Translate by machine button asks the campus
@@ -1725,8 +1804,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
               <p className="text-gray-700 mb-3">
                   Reuse lists other works that repeat a line closely enough to
                   count as a quotation or near-quotation, with the shared words marked. It comes from a
-                  table built once over the whole corpus, not a live search, so it covers only Latin,
-                  Greek and English.
+                  table built once over the whole corpus, not a live search. Tables exist for Latin, Greek, English, Persian and Urdu. Coptic and Hebrew have none yet, so their Reuse tab says so.
               </p>
               <h5 id="scholarship-sources" className="text-base font-semibold text-gray-900 mt-4 mb-1">Scholarship tab</h5>
               <p className="text-gray-700 mb-3">
@@ -1736,8 +1814,8 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   own library, once you set your library&rsquo;s link-resolver address under My library in this tab.
                   Every note and article has a Cite link that gives a plain reference, RIS for Zotero and EndNote,
                   and BibTeX, and each list has an Export citations link. Every source and its license are listed on
-                  the Sources page under About. To search the notes and sentences by theme, use the Scholarship
-                  choice on the Theme Search page.
+                  the <a href="/text-credits" className="text-red-600 hover:underline">Sources</a> page under About. To search the notes and sentences by theme, use the Scholarship
+                  choice on the <a href="/theme-search" className="text-red-600 hover:underline">Theme Search</a> page.
               </p>
               <p className="text-gray-700 mb-3">
                 The journals and years in each index, the terms of each source and the method behind each part of
@@ -1803,26 +1881,26 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   them.
                 </li>
                 <li>
-                  Run <strong>Search One Text</strong> from a sentence that names one work and a subject
+                  Run <strong>Theme Search on one text</strong> from a sentence that names one work and a subject
                   (&ldquo;what does the Aeneid say about storms?&rdquo;, &ldquo;in Hamlet, where does a ghost
                   appear?&rdquo;). She reports the best passages with their references and the match band
                   the page gives them, and a link opens the page with the work and the question filled in.
                 </li>
                 <li>
-                  Look up a name in <strong>People &amp; Places</strong> (&ldquo;where is Sarpedon
+                  Look up a name in <a href="/mentions" className="text-red-600 hover:underline">People &amp; Places</a> (&ldquo;where is Sarpedon
                   mentioned?&rdquo;, &ldquo;how often does Tibullus mention Delia?&rdquo;). She gives the
                   entry, how many lines and works name it and the works with the most lines, and a link opens
                   the entry. Where two entries share the name she lists both and asks which you mean.
                 </li>
                 <li>
-                  Look up an event on the <strong>Events</strong> page (&ldquo;what do ancient sources say
+                  Look up an event on the <a href="/events" className="text-red-600 hover:underline">Events</a> page (&ldquo;what do ancient sources say
                   about the battle of Actium?&rdquo;). She gives its date and place, how many narrative and
                   mention passages, documents and articles it has, the first narrative passages, and the
                   first coins of its Coins tab with their short accounts, and a link opens the event. Where several events share a name, such as the two Battles of
                   Actium, she lists them with their dates and asks which you mean.
                 </li>
                 <li>
-                  Search the <strong>Inscriptions &amp; Papyri</strong> (&ldquo;find inscriptions that mention
+                  Search the <a href="/inscriptions-papyri" className="text-red-600 hover:underline">Inscriptions &amp; Papyri</a> (&ldquo;find inscriptions that mention
                   Augustus&rdquo;, &ldquo;are there papyri about grain from Oxyrhynchus?&rdquo;). She gives how
                   many documents match and a few with their edition written out, date, findspot and the
                   matching line. The documents are searched by their own Latin or Greek words, so she says which
@@ -1830,8 +1908,8 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   search filled in.
                 </li>
                 <li>
-                  Search the <strong>Coins</strong> (&ldquo;coins of Hadrian with Felicitas&rdquo;, &ldquo;coin
-                  types showing an elephant&rdquo;) and the <strong>Objects</strong> (&ldquo;museum objects
+                  Search the <a href="/coins" className="text-red-600 hover:underline">Coins</a> (&ldquo;coins of Hadrian with Felicitas&rdquo;, &ldquo;coin
+                  types showing an elephant&rdquo;) and the <a href="/objects" className="text-red-600 hover:underline">Objects</a> (&ldquo;museum objects
                   showing Medusa&rdquo;, &ldquo;Etruscan mirrors&rdquo;). She gives the count and a few coin types
                   with legend, mint and date, or objects with museum, date and title, and a link opens the page
                   with the search filled in.
@@ -1901,7 +1979,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
             <div className="prose max-w-none">
               <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Events</h3>
               <p className="text-gray-700 mb-4">
-                The Events page gathers what the site holds about one battle, siege, treaty or campaign:
+                The <a href="/events" className="text-red-600 hover:underline">Events</a> page gathers what the site holds about one battle, siege, treaty or campaign:
                 the passages in Latin and Greek historians and poets that tell of it or mention it (each
                 opens in the Reader, and the Reader links back), the inscriptions and papyri dated to the
                 same years and found near the place, the articles and commentary on those passages, the
@@ -1914,7 +1992,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 The Coins tab lists up to twelve coin types struck from three years before the event to five
                 years after it, ranked by how close each coin is in meaning to the event&rsquo;s name and
                 summary, read from the catalog description and the coin&rsquo;s short account written by a
-                language model (see Coins). A coin whose account names the place (Actium, or Perusia for the
+                language model (see <button type="button" onClick={() => setActiveSection('coins')} className="text-red-600 hover:underline">Coins</button>). A coin whose account names the place (Actium, or Perusia for the
                 Battle of Perugia) comes first and is marked &ldquo;Names the place&rdquo;. Types the
                 catalogs date only within a span of more than 25 years are left out, since such a date says
                 nothing about one year. A coin struck in these years need not refer to the event, so read
@@ -2031,7 +2109,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
             <div className="prose max-w-none">
               <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Coins</h3>
               <p className="text-gray-700 mb-4">
-                The Coins page lists 106,176 Greek and Roman coin types. The Roman types are 56,113 from the
+                The <a href="/coins" className="text-red-600 hover:underline">Coins</a> page lists 106,176 Greek and Roman coin types. The Roman types are 56,113 from the
                 Online Coins of the Roman Empire (OCRE, from Augustus to the late fifth century) and 2,602
                 from Coinage of the Roman Republic Online (CRRO). The Greek types are 13,399 from the IRIS
                 skeleton types of Greek coinage, 11,913 from Corpus Nummorum (Thrace, Moesia, Mysia and the
@@ -2049,7 +2127,11 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 links to its place page. Each card links to &ldquo;See images&rdquo; on the
                 catalog&rsquo;s site, which lists the museum coins of that type with their photographs, and
                 to an &ldquo;Archived copy&rdquo; of that page at the Internet Archive for when the
-                catalog&rsquo;s site does not answer. This site stores no coin images. Catalogs call the front and back of a coin the obverse and
+                catalog&rsquo;s site does not answer. Coins the American Numismatic Society holds
+                (about a fifth of the Roman types) show a small stored picture of front and back, the
+                Society&rsquo;s own photograph, which it has placed in the public domain, with the credit
+                line &ldquo;Photograph: American Numismatic Society, public domain&rdquo;. Other coins
+                link out, and this site stores no photographs of other museums&rsquo; coins. Catalogs call the front and back of a coin the obverse and
                 the reverse, and the inscription on a side is its legend. The pages here say front, back
                 and inscription.
               </p>
@@ -2092,7 +2174,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 these accounts.
               </p>
               <p className="text-gray-700 mb-4">
-                The Coins page is always in the People, Places &amp; Things menu, in both views. The Coins switch in
+                The <a href="/coins" className="text-red-600 hover:underline">Coins</a> page is always in the People, Places &amp; Things menu, in both views. The Coins switch in
                 Collections (on in the Archaeological and Everything profiles) decides whether coins
                 appear in the Reader tab and the Theme Search choice. Coin types never enter a
                 phrase search, since they have their own page, the Reader tab and the Theme Search choice.
@@ -2104,7 +2186,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
             <div className="prose max-w-none">
               <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Objects</h3>
               <p className="text-gray-700 mb-4">
-                The Objects page lists Greek, Roman and Etruscan objects from three museums, each with the
+                The <a href="/objects" className="text-red-600 hover:underline">Objects</a> page lists Greek, Roman and Etruscan objects from three museums, each with the
                 museum&rsquo;s own catalog description. It holds 1,353 objects. 302 come from the
                 Cleveland Museum of Art, whose catalog records are released under CC0. 395 come from
                 the Art Institute of Chicago, whose records are CC0 and whose descriptions are CC BY 4.0,
@@ -2137,7 +2219,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 you rely on one.
               </p>
               <p className="text-gray-700 mb-4">
-                The Objects page is always in the People, Places &amp; Things menu, in both views. The Objects switch in
+                The <a href="/objects" className="text-red-600 hover:underline">Objects</a> page is always in the People, Places &amp; Things menu, in both views. The Objects switch in
                 Collections (on in the Archaeological and Everything profiles) decides whether objects
                 appear in the Reader tab and the Theme Search choice. Objects
                 never enter a phrase search.
@@ -2176,7 +2258,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 &ldquo;[---]uf [--- IIvir(i)] (duoviri)&rdquo;: a word broken off before &ldquo;uf&rdquo;, a
                 restored title, and the editor&rsquo;s gloss of it. The search reads the same text with the signs
                 removed and the restorations and expansions included, shown on the page under &ldquo;Reading as
-                searched&rdquo;. People &amp; Places shows the same edition text in its list of inscriptions and papyri. About 208,000 of the documents have the edition text. For the others (some papyri,
+                searched&rdquo;. <a href="/mentions" className="text-red-600 hover:underline">People &amp; Places</a> shows the same edition text in its list of inscriptions and papyri. About 208,000 of the documents have the edition text. For the others (some papyri,
                 and texts whose edition differs from the searched reading) the page shows the searched reading only.
               </p>
 
@@ -2241,7 +2323,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 to the respective projects. Findspots link to Pleiades (CC BY 3.0). The full list,
                 with the version and retrieval date of each, is under{' '}
                 <a href="/text-credits" className="text-red-700 hover:underline">Sources and credits</a>.
-              </p>
+               The <a href="/terms" className="text-red-700 hover:underline">Terms of Use</a> page states what the site, the API and the connector may be used for: noncommercial use, at a reader's pace, with a request for anything larger.</p>
             </div>
           )}
 
@@ -2322,7 +2404,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 <div className="border-l-4 border-gray-300 pl-4">
                   <h4 className="text-lg font-semibold text-gray-900">Urdu</h4>
                   <p className="text-gray-600 text-sm mt-1">
-                    Eighteen texts, about 59,000 lines: Wali, Mir, Sauda, Dard, Insha, Nazeer, Atish, Zauq, Zafar, Ghalib,
+                    Twenty-one texts, about 62,000 lines: Wali, Fa'iz, Abru, Hatim, Mir, Sauda, Dard, Insha, Nazeer, Atish, Zauq, Zafar, Ghalib,
                     Anis, Dagh, Hali, Akbar Allahabadi and Iqbal. Nine channels run, refrain and rhyme among them, and the
                     Persian → Urdu cross-language search follows borrowed phrases. See{' '}
                     <button onClick={() => setActiveSection('urdu')} className="text-red-600 hover:underline">the Urdu page</button>.
@@ -2352,7 +2434,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 )}
               </div>
               <div className="mt-5 bg-gray-50 p-4 rounded-lg text-sm text-gray-700">
-                <strong>Across languages:</strong> when a language lacks data for a channel (for example, syntax for Greek and English),
+                <strong>Across languages:</strong> when a language lacks data for a channel (for example, syntax for English, Hebrew, Persian and Urdu, which are not parsed),
                 that channel simply contributes nothing, and the other channels still run.
               </div>
             </div>
@@ -2362,7 +2444,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
             <div className="prose max-w-none">
               <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Coptic Search</h3>
               <p className="text-gray-700 mb-4">
-                Tesserae searches Sahidic Coptic alongside Latin, Greek, and English. The Coptic corpus combines the
+                Tesserae searches Sahidic Coptic alongside its six other languages. The Coptic corpus combines the
                 Coptic Bible with major works of monastic literature (the sermons and letters of Shenoute of Atripe
                 and his successor Besa), so you can trace how Coptic authors quote scripture and reuse one another.
               </p>
@@ -2376,7 +2458,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 held out from all tuning, 59 percent are found in the first hundred results and eight of the
                 first ten results are genuine citations. On a broad reference list of 124 scriptural parallels of
                 every kind, 14.5 percent are found in the first hundred, the price of tuning for quotation. The
-                data and the ranked runs are on the Downloads page.
+                data and the ranked runs are on the <a href="/downloads" className="text-red-600 hover:underline">Downloads</a> page.
               </p>
               <Invitation language="Coptic" />
 
@@ -2442,7 +2524,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
             <div className="prose max-w-none">
               <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Hebrew Search</h3>
               <p className="text-gray-700 mb-4">
-                Tesserae searches the Hebrew Bible alongside Latin, Greek, English, and Coptic. The corpus is the
+                Tesserae searches the Hebrew Bible alongside its six other languages. The corpus is the
                 full Tanakh (all 39 books) in the Miqra according to the Masorah (MAM) edition, based on the
                 Aleppo Codex. You can compare any two books to trace inner-biblical reuse, from a poem preserved in
                 two places (Psalm 18 and 2 Samuel 22) to a phrase quoted in a later prophet.
@@ -2521,7 +2603,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   The Hebrew text is from Sefaria (Miqra according to the Masorah / Aleppo Codex, CC-BY-SA). The
                   morphology is from ETCBC/BHSA (CC-BY-NC). The meaning model is MiqraBERT (D. M. Smiley), fine-tuned
                   on OpenBible.info cross-references. The Hebrew-Greek dictionary comes from the CATSS alignment
-                  (E. Tov). Full source and license details are on the About page.
+                  (E. Tov). Full source and license details are on the <a href="/about" className="text-red-600 hover:underline">About</a> page.
                 </p>
               </div>
             </div>
@@ -2595,7 +2677,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 <p className="text-gray-700 text-sm">
                   The classical divans come from the Chronological Persian Poetry Dataset, derived from Ganjoor.net
                   (CC-BY-SA 4.0 as declared by that dataset); Iqbal's Persian works from the Iqbal Demystified
-                  dataset. Full source and license details are on the About page.
+                  dataset. Full source and license details are on the <a href="/about" className="text-red-600 hover:underline">About</a> page.
                 </p>
               </div>
             </div>
@@ -2605,8 +2687,9 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
             <div className="prose max-w-none">
               <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Urdu Search</h3>
               <p className="text-gray-700 mb-4">
-                Tesserae searches eighteen Urdu texts, about 59,000 lines, by fifteen poets from Wali Dakhani to
-                Iqbal: Wali, Mir Taqi Mir (the kulliyat, nearly 22,000 lines), Sauda, Dard, Insha, Nazeer Akbarabadi,
+                Tesserae searches twenty-one Urdu texts, about 62,000 lines, by eighteen poets from Wali Dakhani to
+                Iqbal: Wali, three Delhi poets of the 1720s and after who answered him (Fa'iz Dehlavi, Shah Mubarak Abru
+                and Zuhur ud-Din Hatim), Mir Taqi Mir (the kulliyat, nearly 22,000 lines), Sauda, Dard, Insha, Nazeer Akbarabadi,
                 Atish, Zauq, Bahadur Shah Zafar, Mirza Ghalib, Anis (the marsiyas), Dagh, Hali, Akbar Allahabadi and
                 Muhammad Iqbal's Urdu collections (Bang-e Dara, Bal-e Jibril, Zarb-e Kalim, Armaghan-e Hijaz).
               </p>
@@ -2665,7 +2748,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 <p className="text-gray-700 text-sm">
                   Mir's kulliyat, Ghalib's divan and the twelve poets added in September come from Urdu Wikisource
                   (public-domain poetry, transcription CC-BY-SA 4.0); Iqbal's Urdu works from the Iqbal Demystified
-                  dataset. Full details on the About page.
+                  dataset. Full details on the <a href="/about" className="text-red-600 hover:underline">About</a> page.
                 </p>
               </div>
             </div>
@@ -2693,8 +2776,9 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   <li>Arabic reads <strong>right-to-left</strong>, and results are shown that way.</li>
                   <li>Each poem line is a full verse (bayt) with its two hemistichs separated by a bar. Each Qur'an line
                     is one aya.</li>
-                  <li>Matching works on normalized forms. Hamza variants are folded to alef, alef maqsura to ya, and
-                    vowel marks are removed.</li>
+                  <li>Search Corpus and the match channels work on normalized forms. Hamza variants are folded to alef,
+                    alef maqsura to ya, and vowel marks are removed. String Search does this by default with its
+                    Match spelling variants choice, and Exact spelling turns it off.</li>
                   <li>Dictionary forms come from the Stanza Arabic model. Attached particles (<em>wa-</em>, <em>fa-</em>,
                     <em>ka-</em>, <em>li-</em>, <em>bi-</em>) and pronoun endings stay on the word, so the function-word
                     list covers those forms too.</li>
@@ -2748,8 +2832,8 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 <h4 className="text-sm font-semibold uppercase tracking-wide text-gray-700 mb-1">Sources and licenses</h4>
                 <p className="text-gray-700 text-sm">
                   The Qur'an text is the Tanzil Project's (CC-BY 3.0, verbatim). The Burda poems and the Mu'allaqat
-                  come from Arabic Wikisource (public-domain poems, transcription CC-BY-SA 4.0). Full details on the
-                  About page.
+                  come from Arabic Wikisource (public-domain poems, transcription CC-BY-SA 4.0). Full details on the{' '}
+                  <a href="/about" className="text-red-600 hover:underline">About</a> page.
                 </p>
               </div>
             </div>
@@ -2846,10 +2930,24 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                     refrain across two different meters keeps a small part of the score, since an answer keeps its
                     model's meter. In Arabic, where a qasida has no refrain, the signature is the rhyme letter and the
                     meter, and both must agree. Refrain-less ghazals are not paired this way, and Urdu has no meter
-                    source yet.
-                    In the result list such a pair carries <em>Refrain</em>, <em>Rhyme</em> and <em>Meter</em> badges.
+                    source yet, so an Urdu result marks the meter as not available. Persian poems report their meter
+                    where Ganjoor gives one.
+                    The rhyme of a ghazal is the longest ending, from two to six letters, that its rhyme words share,
+                    a rhyme word being the word before the refrain on each refrain line. A ghazal rhyming
+                    in <em>galī</em>, <em>kalī</em>, <em>sandalī</em> has the rhyme <em>-lī</em>.
+                    One rhyming in <em>ḥālī</em>, <em>ʿālī</em>, <em>khālī</em>
+                    has the rhyme <em>-ālī</em>, with the long vowel in it. Two poems with the same refrain
+                    are scored in three tiers. When their rhymes are identical the match is a full rhyme. When one
+                    rhyme is the ending of the other (<em>-lī</em> inside <em>-ālī</em>) the match is a
+                    partial rhyme, which counts as much as a shared refrain alone, and the card says so. When neither
+                    is the ending of the other only the refrain is shared. Each rhyme word that both ghazals use, and
+                    each rhyme phrase (the rhyme word with the word before it) that both use, adds a small bonus to the
+                    score, up to a limit, so two ghazals that answer each other with the same closing words rank above
+                    two that share only a sound. In the result list such a pair carries <em>Refrain</em>, <em>Rhyme</em> and <em>Meter</em> badges.
                     The shared refrain is marked in yellow in both lines, the rhyme word before it in rose, and the
-                    meter badge appears only when both poems carry the same label.</li>
+                    meter badge appears only when both poems carry the same label. Opening the Rhyme badge shows one
+                    line with the refrain, the rhyme and its tier, the rhyme words the two poems share, and whether the
+                    meters agree or are not available.</li>
                   <li><strong>Near-quotation in Arabic</strong> (the same root in a different form, <em>yastaghfirūn</em> /
                     <em>al-ghafūr</em>) is matched through roots from a rule-based stemmer, which is coarse. Many
                     documented near-quotations still rank low.</li>
@@ -3353,12 +3451,13 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   </p>
                 </div>
                 <div>
-                  <h4 className="text-lg font-semibold text-gray-900">What does "Search queued" mean?</h4>
+                  <h4 className="text-lg font-semibold text-gray-900">What does "Waiting to start" mean?</h4>
                   <p className="text-gray-600 text-sm mt-1">
                     When the server is already running heavy searches for other users, your search is placed in a
-                    queue to prevent the server from running out of memory. You'll see a "Search queued" message
-                    with a spinner. Your search will start automatically when a slot opens, typically within a few
-                    minutes. You can cancel and retry later if you prefer.
+                    queue to prevent the server from running out of memory. You'll see a "Waiting to start" message
+                    that shows your place in line and the time you have waited. Your search starts automatically when
+                    a slot opens. If the wait reaches the limit, the page says that the server stayed busy and
+                    suggests trying later or asking for a prepared file. You can cancel and retry later if you prefer.
                   </p>
                 </div>
                 <div>
@@ -3374,7 +3473,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 <div>
                   <h4 className="text-lg font-semibold text-gray-900">Where do the texts come from, and which editions are they?</h4>
                   <p className="text-gray-600 text-sm mt-1">
-                    Every work is credited on the Text Credits and Provenance page under About, which names
+                    Every work is credited on the <a href="/text-credits" className="text-red-600 hover:underline">Text Credits and Provenance</a> page under About, which names
                     the electronic source of the text and the printed edition it reproduces. The largest
                     electronic sources are the Perseus Digital Library and Open Greek and Latin (with its
                     Scaife and CSEL texts) for Greek and Latin, The Latin Library and Musisque Deoque for
@@ -3388,7 +3487,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 <div>
                   <h4 className="text-lg font-semibold text-gray-900">Can I add my own text to Tesserae?</h4>
                   <p className="text-gray-600 text-sm mt-1">
-                    Yes. The Upload Your Text page, listed in this Help, gives the format a text needs (one line
+                    Yes. The <a href="/upload-help" className="text-red-600 hover:underline">Upload Your Text</a> page gives the format a text needs (one line
                     per row, each with its reference, such as vergil.aeneid 1.1) and a form to send it. An
                     uploaded text is reviewed and then added to the corpus for everyone. To ask for a text you do
                     not have yourself, use Suggest a change in the header.
@@ -3406,14 +3505,14 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                     (Office of Digital Humanities Start-Up Phase II grant 2012 to 2013 and Digital Humanities
                     Advancement Grant 2018 to 2020), the Swiss National Science Foundation, the Fondation Maison
                     des Sciences de l&rsquo;Homme, an Amazon Web Services in-kind grant, the UB Humanities
-                    Institute, and the University at Buffalo, its institutional home. The About page has the full
+                    Institute, and the University at Buffalo, its institutional home. The <a href="/about" className="text-red-600 hover:underline">About</a> page has the full
                     list and the citation to use.
                   </p>
                 </div>
                 <div>
                   <h4 className="text-lg font-semibold text-gray-900">Are all the texts in the corpus downloadable?</h4>
                   <p className="text-gray-600 text-sm mt-1">
-                    Most are, under the licenses listed on the Sources page under About. A text that comes to
+                    Most are, under the licenses listed on the <a href="/text-credits" className="text-red-600 hover:underline">Sources</a> page under About. A text that comes to
                     us under a license for searching only is searchable like any other text and left out of
                     the per-language downloads. Its credit and license terms appear on the Sources page.
                   </p>
@@ -3429,44 +3528,65 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   </p>
                 </div>
                 <div>
+                  <h4 className="text-lg font-semibold text-gray-900">How do I type Hebrew without a Hebrew keyboard?</h4>
+                  <p className="text-gray-600 text-sm mt-1">
+                    Add the Hebrew keyboard your computer already has (on a Mac under Keyboard in System
+                    Settings, on Windows under Language in Settings), or paste Hebrew from another page. Hebrew searches ignore vowel points and accents, so the
+                    consonants alone are enough. To match the vowel points too, choose Vowel points kept in String Search.
+                  </p>
+                </div>
+                <div>
+                  <h4 className="text-lg font-semibold text-gray-900">How do I type Persian or Urdu without the keyboard?</h4>
+                  <p className="text-gray-600 text-sm mt-1">
+                    Add the Persian or Urdu keyboard your computer already has (on a Mac under Keyboard in
+                    System Settings, on Windows under Language in Settings), or paste from another page. Persian and Urdu share one script, and an Arabic keyboard
+                    types most of it. String Search treats the Arabic and Persian forms of letters such as kaf
+                    and yeh as the same unless you choose Exact spelling.
+                  </p>
+                </div>
+                <div>
                   <h4 className="text-lg font-semibold text-gray-900">Does Tesserae take meter into account?</h4>
                   <p className="text-gray-600 text-sm mt-1">
-                    In Latin, yes, in two ways. When both texts are verse, the Metrical patterns option in Search
-                    Settings turns on by itself and adds weight to a pair of lines whose scansion is alike, using
+                    In Latin, yes, in two ways. When both texts are verse, the Metrical patterns option in{' '}
+                    <button type="button" onClick={() => setActiveSection('settings')} className="text-red-600 hover:underline">Search Settings</button> turns on by itself and adds weight to a pair of lines whose scansion is alike, using
                     the scansions of Pede Certo (Musisque Deoque) where they exist and an automatic scansion
                     otherwise. The Same meter frequency baseline, under Advanced Settings, measures how rare a word
                     is only among texts in the same meter, so a word that is ordinary in hexameter counts for
                     less when two hexameter poems share it. For Persian and Urdu poetry a shared named meter counts
-                    together with a shared refrain or rhyme.
+                    together with a shared refrain or rhyme. Greek, English, Coptic and Hebrew searches do not weigh
+                    meter.
                   </p>
                 </div>
                 <div>
                   <h4 className="text-lg font-semibold text-gray-900">Is my search history private?</h4>
                   <p className="text-gray-600 text-sm mt-1">
-                    Your search terms are not logged. The server records each request&rsquo;s time, kind and how
-                    long it took, with a code that changes every day and cannot be traced back to you, and not
-                    your address. Settings and the page you were last on are kept in your own browser. Questions
+                    The speed log records each request&rsquo;s time, kind and how long it took, with a code that
+                    changes every day and cannot be traced back to you, and not your address. A separate search
+                    log records each search (Line Search, Theme Search, Similar Passages, Compare Works and the
+                    others) with its settings, the words of the query or question, the number of results, your
+                    IP address and the approximate city and country it gives, and your account if you are
+                    signed in. Settings and the page you were last on are kept in your own browser. Questions
                     put to Tessa and her answers are kept on the server without any identifier, so that a sample
                     can be read for accuracy, and her model runs on the university&rsquo;s own AI platform. An
-                    account, if you make one, keeps your name, email address and a scrambled password. The
-                    Privacy page has the full account.
+                    account, if you make one, keeps your name, email address and a scrambled password. The{' '}
+                    <a href="/privacy" className="text-red-600 hover:underline">Privacy</a> page has the full account.
                   </p>
                 </div>
                 <div>
                   <h4 className="text-lg font-semibold text-gray-900">Why does Theme Search sometimes say &ldquo;Closest passages&rdquo;?</h4>
                   <p className="text-gray-600 text-sm mt-1">
-                    &ldquo;Closest passages&rdquo; is the lowest of Theme Search&rsquo;s confidence levels. It appears
+                    &ldquo;Closest passages&rdquo; is the lowest of <button type="button" onClick={() => setActiveSection('theme-search')} className="text-red-600 hover:underline">Theme Search</button>&rsquo;s confidence levels. It appears
                     when the best results do not stand far above the rest of the corpus, so their order is less
                     settled, which is usual when the corpus holds little on the subject or the description is very
                     general. The list is still shown in full. Read the passages themselves, and try a more concrete
-                    description of what happens in the scene. Search One Text uses the same label inside one work.
+                    description of what happens in the scene. The <button type="button" onClick={() => setActiveSection('ask-a-work')} className="text-red-600 hover:underline">One text</button> scope uses the same label inside one work.
                   </p>
                 </div>
                 <div>
                   <h4 className="text-lg font-semibold text-gray-900">Do I need an account?</h4>
                   <p className="text-gray-600 text-sm mt-1">
                     No. Every search, the Reader, the collections and Tessa work without one. An account, made with
-                    Sign In, lets you register parallels in the Repository with your notes and rating, keep a
+                    Sign In, lets you register parallels in the <a href="/repository" className="text-red-600 hover:underline">Repository</a> with your notes and rating, keep a
                     personal collection of them, choose whether each is public, and link an ORCID identifier so your
                     contributions are credited. It keeps your name, email address and a scrambled password.
                   </p>
@@ -3474,7 +3594,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 <div>
                   <h4 className="text-lg font-semibold text-gray-900">How do I save my results?</h4>
                   <p className="text-gray-600 text-sm mt-1">
-                    Use "Export CSV" to download results as a spreadsheet, or "Register" to save individual parallels to the Intertext Repository.
+                    Use "Export CSV" to download results as a spreadsheet, or "Register" to save individual parallels to the <a href="/repository" className="text-red-600 hover:underline">Intertext Repository</a>.
                   </p>
                 </div>
                 <div>
@@ -3493,13 +3613,14 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   </p>
                 </div>
                 <div>
-                  <h4 className="text-lg font-semibold text-gray-900">Does syntax matching work for Greek and English?</h4>
+                  <h4 className="text-lg font-semibold text-gray-900">Which languages does syntax matching work for?</h4>
                   <p className="text-gray-600 text-sm mt-1">
-                    For Greek, yes, on about half the corpus: 650 of the about 1,330 Greek files are parsed,
-                    Homer among them, so syntax matching works where both texts are parsed. For English, no, because
-                    English is not parsed at all. Latin (1,433 of about 1,830 files) and Coptic (186 of 187) are parsed too. Where
-                    parsing is unavailable the syntax channel contributes nothing and the other channels run
-                    normally.
+                    Syntax matching needs both texts to have been parsed for grammar. Three languages are parsed.
+                    Coptic almost entirely (186 of 187 files), Latin for every file (1,889 of 1,889), and Greek for
+                    every file (1,635 of 1,635, Homer among them). One Latin line in the Natural History of Pliny
+                    (32.61) is too long for the parser and has none. A work added after the latest parse is not
+                    covered until the parses are updated. English, Hebrew, Persian and Urdu are not parsed. Where a
+                    text has no parse the syntax channel contributes nothing and the other channels run normally.
                   </p>
                 </div>
               </div>
@@ -3550,7 +3671,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 the theme words as tags. The tags are the model&rsquo;s own words for that window,
                 not a controlled list, so &ldquo;transience&rdquo; on one passage and
                 &ldquo;impermanence&rdquo; on another mean the same thing. There are about
-                685,000 descriptions on the site, covering Latin, Greek, English, Coptic,
+                730,000 descriptions on the site, covering Latin, Greek, English, Coptic,
                 Hebrew, Persian and Urdu, with a few works in Italian, Old French and Middle
                 High German. This is why a Persian passage can answer an English description of a Greek scene.
                 Nothing is being translated and no words are being matched.
@@ -3588,7 +3709,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 corpus.
               </p>
               <p className="text-gray-700 text-sm mb-3">
-                The Scholarship choice in Theme Search ranks each note twice, once by how close its meaning is to
+                The Scholarship choice in <button type="button" onClick={() => setActiveSection('theme-search')} className="text-red-600 hover:underline">Theme Search</button> ranks each note twice, once by how close its meaning is to
                 your words and once by the words it shares with them, and merges the two rankings. On fifteen test
                 questions, thirteen had a strongly relevant note in the first ten.
               </p>
@@ -3614,8 +3735,8 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 In Scholarship, five open services supply the online results for a passage. OpenAlex and Crossref are searched
                 by title and abstract. Semantic Scholar and CORE are searched in the full text of open-access papers. Google
                 Books finds a citation on a book page and shows the snippet Google shows. When the search starts from a
-                question instead of a passage (the Books and articles found online list in Search One Text and Theme
-                Search), the same five services are asked the question, and an item is kept only when its title or abstract
+                question instead of a passage (the Books and articles found online list in Theme Search, in the One text and
+                Whole corpus scopes), the same five services are asked the question, and an item is kept only when its title or abstract
                 shares the question&rsquo;s words. Answers are kept for thirty days. The site&rsquo;s own
                 index of citations in journals from before 1923 reads JSTOR&rsquo;s Early Journal Content and covers 24
                 philology, archaeology and biblical journals from 1827 to 1922. The same journals supply the Scholarship
@@ -3632,7 +3753,10 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 <a href="https://github.com/tesserae/tesserae-v6" className="text-red-700 hover:underline" target="_blank" rel="noopener noreferrer">
                   github.com/tesserae/tesserae-v6
                 </a>
-                . The changelog there lists every change to the live site, and docs/DATA_OPERATIONS.md
+                . The{' '}
+                <a href="https://github.com/tesserae/tesserae-v6/blob/main/CHANGELOG.md" className="text-red-700 hover:underline" target="_blank" rel="noopener noreferrer">changelog</a>{' '}
+                there lists every change to the live site, and{' '}
+                <a href="https://github.com/tesserae/tesserae-v6/blob/main/docs/DATA_OPERATIONS.md" className="text-red-700 hover:underline" target="_blank" rel="noopener noreferrer">docs/DATA_OPERATIONS.md</a>{' '}
                 records each rebuild of the indexes and caches.
               </p>
             </section>

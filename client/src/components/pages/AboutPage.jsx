@@ -42,8 +42,8 @@ export default function AboutPage({ onNavigate, initialAnchor = null, onAnchorCo
             sound, syntax or meaning, in one language or across languages. Around that search it has grown into
             a place to read. The Reader shows a text with its parallels, similar passages, later quotations,
             commentary and translation at the side. Theme Search finds the passages about a scene or an idea
-            you describe in English, in every language of the corpus at once. Search One Text asks a single work
-            what it says about a subject and shows where it says it. Beside the literature stand inscriptions
+            you describe in English, in one text, in two texts compared, or in every language of the corpus at once.
+            Its one-text scope asks a single work what it says about a subject and shows where it says it. Beside the literature stand inscriptions
             and papyri, coins, museum objects and dated events, so a passage can be read next to the documents
             and things of its world.
           </p>
@@ -128,11 +128,14 @@ export default function AboutPage({ onNavigate, initialAnchor = null, onAnchorCo
               <li><strong>Tesserae V5</strong>: API design concepts and modern architecture patterns (developed with Walter Scheirer)</li>
             </ul>
             <div className="mt-3 space-y-1">
-              <p><strong>Code:</strong> MIT License &mdash; free to use, modify, and redistribute.</p>
+              <p><strong>Code:</strong> PolyForm Noncommercial License 1.0.0 &mdash; free for academic, educational, personal and nonprofit use, including modification and redistribution under the same terms; commercial use needs a separate license. Copyright Neil Coffee.</p>
               <p><strong>Original datasets</strong> (benchmark sets, gold standards, translation
-                alignments): CC BY 4.0 &mdash; free to use with attribution.</p>
+                alignments, passage descriptions): CC BY-NC 4.0 &mdash; free to use with attribution for
+                noncommercial purposes.</p>
               <p><strong>Corpus texts:</strong> individual licenses per source; see the Text
                 Credits section for provenance and terms.</p>
+              <p><strong>Using the service:</strong> the <a href="/terms" className="text-red-700 hover:underline">Terms of Use</a> state
+                what the site, the API and the connector may be used for.</p>
             </div>
           </div>
         </section>
@@ -186,7 +189,7 @@ export default function AboutPage({ onNavigate, initialAnchor = null, onAnchorCo
               </p>
             </div>
             <div className="bg-gray-50 p-4 rounded-lg">
-              <h4 className="font-medium text-red-700 mb-2">Search One Text</h4>
+              <h4 className="font-medium text-red-700 mb-2">Theme Search, one text</h4>
               <p className="text-sm text-gray-600">
                 Ask one work what it says about a subject. The passages come back in order of fit, on a strip that shows where in the work they fall, with a short account of what the work says and what the commentaries say.
               </p>

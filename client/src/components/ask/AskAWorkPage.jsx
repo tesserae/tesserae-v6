@@ -20,7 +20,7 @@ import { windowLocus, fullRef } from '../reader/refId';
 import AboutSourcesLink from '../scholarship/AboutSourcesLink';
 
 /**
- * Search One Text: pick one work, say a subject in plain words, and get the passages
+ * Theme Search, one-text scope: pick one work, say a subject in plain words, and get the passages
  * of that work about it, listed by score, with a strip across the top that shows
  * where in the work they fall.
  *
@@ -299,7 +299,7 @@ function FirstLines({ r }) {
   );
 }
 
-export default function AskAWorkPage() {
+export default function AskAWorkPage({ prefill = '', onQueryChange = null }) {
   const phone = useIsPhone();
   const initial = useMemo(() => {
     const p = new URLSearchParams(window.location.search);
@@ -310,7 +310,8 @@ export default function AskAWorkPage() {
   const [lang, setLang] = useState(initial.work ? (initial.lang || 'la') : viewDefault.lang);
   const [author, setAuthor] = useState(startWork.split('.')[0].toLowerCase());
   const [work, setWork] = useState(startWork);
-  const [q, setQ] = useState(initial.q);
+  const [q, setQ] = useState(initial.q || prefill);
+  useEffect(() => { if (onQueryChange) onQueryChange(q); }, [q, onQueryChange]);
   const initialRange = useMemo(() => parseBooks(initial.books), [initial]);
   const [bookFrom, setBookFrom] = useState(initialRange ? initialRange.from : null);   // null = the first book
   const [bookTo, setBookTo] = useState(initialRange ? initialRange.to : null);         // null = the last book
@@ -460,9 +461,9 @@ export default function AskAWorkPage() {
       setAsked({ q: query, work: workId, lang: code, books });
       setResults((prev) => (more ? [...prev, ...got] : got));
       if (got.length < PAGE) setExhausted(true);
-      const p = new URLSearchParams({ work: workId, lang: code, q: query });
+      const p = new URLSearchParams({ scope: 'one', work: workId, lang: code, q: query });
       if (books) p.set('books', books);
-      window.history.replaceState({}, '', `/ask-a-work?${p.toString()}`);
+      window.history.replaceState({}, '', `/theme-search?${p.toString()}`);
       if (!more && got.length) {
         const w = (catalogueRef.current[code] || []).find((x) => x.id === workId);
         const names = namesIn(query);
@@ -716,12 +717,6 @@ export default function AskAWorkPage() {
   return (
     <div className="max-w-6xl mx-auto p-6">
       <div className="max-w-4xl">
-      <div className="flex items-center gap-2">
-        <h1 className="text-2xl font-semibold text-gray-900">Search One Text</h1>
-        <span className="rounded border border-amber-200 bg-amber-50 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-800">
-          Beta
-        </span>
-      </div>
       <p className="mt-1 text-sm text-gray-600">Pick a work and ask what it says about a subject.</p>
 
       <ScopeBox id="ask_a_work" className="mt-3" />

@@ -22,7 +22,7 @@ describe('Help organization', () => {
     serve();
     render(<HelpPage />);
     expect(await screen.findByRole('heading', { name: 'Start here' })).toBeTruthy();
-    expect(screen.getByText(/eight kinds of search/)).toBeTruthy();
+    expect(screen.getByText(/seven kinds of search/)).toBeTruthy();
   });
 
   it('shows the six groups in order', async () => {

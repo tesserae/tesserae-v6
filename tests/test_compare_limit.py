@@ -42,8 +42,8 @@ def _corpus(tmp_path, files):
 
 # ---- the limit -------------------------------------------------------------
 
-def test_limit_defaults_to_twelve_million():
-    assert compare_limit.max_line_pairs() == 12_000_000
+def test_limit_defaults_to_one_hundred_million():
+    assert compare_limit.max_line_pairs() == 100_000_000
 
 
 def test_limit_reads_the_environment(monkeypatch):
@@ -53,14 +53,14 @@ def test_limit_reads_the_environment(monkeypatch):
     assert compare_limit.max_line_pairs() == 12_000_001
     for bad in ('', 'lots', '0', '-5'):
         monkeypatch.setenv(compare_limit.LIMIT_ENV, bad)
-        assert compare_limit.max_line_pairs() == 12_000_000
+        assert compare_limit.max_line_pairs() == 100_000_000
 
 
 def test_below_and_at_the_limit_run(tmp_path):
-    counts = {'a.tess': 3000, 'b.tess': 4000}          # exactly 12,000,000
+    counts = {'a.tess': 10000, 'b.tess': 10000}          # exactly 100,000,000
     assert compare_limit.check_size(str(tmp_path), 'la', 'a.tess', 'b.tess',
                                     line_count_fn=_table(counts)) is None
-    counts['b.tess'] = 3999
+    counts['b.tess'] = 9999
     assert compare_limit.check_size(str(tmp_path), 'la', 'a.tess', 'b.tess',
                                     line_count_fn=_table(counts)) is None
 
@@ -68,15 +68,17 @@ def test_below_and_at_the_limit_run(tmp_path):
 def test_above_the_limit_returns_the_body(tmp_path):
     texts = _corpus(tmp_path, {'w.tess': 2, 'w.part.1.tess': 1, 'w.part.2.tess': 1,
                                'o.tess': 3, 'o.part.1.tess': 3})
-    counts = {'w.tess': 4000, 'o.tess': 3001}          # 12,004,000
+    counts = {'w.tess': 40000, 'o.tess': 2501}          # 100,040,000
     body = compare_limit.check_size(texts, 'la', 'w.tess', 'o.tess', line_count_fn=_table(
         {**counts, 'w.part.1.tess': 2000, 'w.part.2.tess': 2000, 'o.part.1.tess': 3001}))
     assert body['too_large'] is True
-    assert body['line_pairs'] == 12_004_000
-    assert body['limit'] == 12_000_000
+    assert body['line_pairs'] == 100_040_000
+    assert body['limit'] == 100_000_000
     assert body['download_job_url'] == '/api/comparisons/jobs'
     assert body['email_notice'] is False
     assert 'books' in body['message']
+    assert 'hour' not in body['message']
+    assert '100 million' in body['message'] and 'too long to run live' in body['message']
     listed = [(b['side'], b['id'], b['lines']) for b in body['books']]
     assert listed == [('source', 'w.part.1.tess', 2000), ('source', 'w.part.2.tess', 2000),
                       ('target', 'o.part.1.tess', 3001)]
@@ -86,7 +88,7 @@ def test_above_the_limit_returns_the_body(tmp_path):
 def test_a_book_file_lists_no_books(tmp_path):
     texts = _corpus(tmp_path, {'w.part.1.tess': 1, 'w.part.2.tess': 1, 'o.tess': 1})
     body = compare_limit.check_size(texts, 'la', 'w.part.1.tess', 'o.tess', line_count_fn=_table(
-        {'w.part.1.tess': 5000, 'o.tess': 5000}))
+        {'w.part.1.tess': 11000, 'o.tess': 11000}))
     assert body['too_large'] and body['books'] == []
 
 
@@ -117,7 +119,7 @@ def test_email_notice_depends_on_the_visitor_mail_setting_only(monkeypatch):
 
 
 def test_the_gate_answer_carries_email_notice(tmp_path, monkeypatch):
-    counts = _table({'a.tess': 4000, 'b.tess': 4000})
+    counts = _table({'a.tess': 11000, 'b.tess': 11000})
     monkeypatch.setenv('SMTP_HOST', 'localhost')
     off = compare_limit.check_size(str(tmp_path), 'la', 'a.tess', 'b.tess', line_count_fn=counts)
     assert off['email_notice'] is False

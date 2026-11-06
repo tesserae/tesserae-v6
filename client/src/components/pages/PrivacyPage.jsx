@@ -2,6 +2,7 @@ export default function PrivacyPage() {
   return (
     <div className="bg-white rounded-lg shadow p-6 sm:p-8 max-w-4xl mx-auto">
       <h1 className="text-2xl font-bold text-gray-900 mb-6">Privacy Policy</h1>
+      <p className="text-sm text-gray-500 mb-4">The <a href="/terms" className="text-red-700 hover:underline">Terms of Use</a> state what the service may be used for.</p>
       
       <div className="prose max-w-none text-gray-700 space-y-6">
         <section>
@@ -53,6 +54,19 @@ export default function PrivacyPage() {
             neither is your address. Each line carries a code that changes every day and cannot be
             traced back to you. It only tells one visitor&apos;s requests apart from another&apos;s
             on the same day.
+          </p>
+        </section>
+        <section>
+          <h2 className="text-lg font-semibold text-gray-900 mb-2">Search Log</h2>
+          <p>
+            Separately from the speed log, the server keeps a record of searches to learn how the
+            site is used. Each entry holds the kind of search (Line Search, Theme Search, Similar
+            Passages, Compare Works and the others), its settings, the texts involved, the words of
+            the query or question, the number of results, the time, your IP address and the
+            approximate city and country derived from it, and your account if you are signed in.
+            Searches made through the Claude connector are recorded the same way, with the address
+            of the person using it. Requests the server makes to itself are marked and left out of
+            the usage counts.
           </p>
         </section>
         <section>

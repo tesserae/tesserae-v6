@@ -141,7 +141,7 @@ export const searchTextsStream = async (params, onProgress, signal, onQueued) =>
             }
           } else if (data.type === 'queued') {
             if (onQueued) {
-              onQueued(data.detail, data.wait_time);
+              onQueued(data.detail, data.wait_time, data);
             }
           } else if (data.type === 'complete') {
             finalResult = data;

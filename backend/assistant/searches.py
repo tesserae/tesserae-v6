@@ -65,13 +65,13 @@ def _get(path, params):
 
 
 def _base_id(work):
-    """A work id without its .tess suffix and without a book: the Search One Text page passes this."""
+    """A work id without its .tess suffix and without a book: the one-text scope of Theme Search passes this."""
     from backend.work_names import base_work
     return base_work(str(work or ''))
 
 
 def _one_text(a):
-    """Theme Search restricted to one work: the request the Search One Text page makes."""
+    """Theme Search restricted to one work: the request the one-text scope of Theme Search makes."""
     params = {'q': a['query'], 'works': _base_id(a['work']), 'limit': int(a.get('limit') or 25)}
     if a.get('languages'):
         params['languages'] = a['languages']
@@ -327,7 +327,7 @@ TOOLS = {
             'limit': int(a.get('limit') or 25)}),
     },
     'one_text_search': {
-        'what': 'Search One Text: the passages of ONE work (or one book of it) that match a subject, found '
+        'what': 'Theme Search on one text: the passages of ONE work (or one book of it) that match a subject, found '
                 'by content and not by wording. Use when a question names a single work and asks what it '
                 'says about something ("what does the Aeneid say about storms?").',
         'args': {'work': 'work id of the one text (see list_texts)',

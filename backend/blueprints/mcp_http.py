@@ -75,15 +75,31 @@ _COMPARE_FUSION_PREVIEW = 25  # fusion parallels shown in the compare_texts firs
 # --------------------------------------------------------------------------
 # API helpers
 # --------------------------------------------------------------------------
+def _fwd_headers():
+    """Headers that tell this server's own routes the call is the connector's.
+
+    The connector calls the API over HTTP, so every call arrives from the
+    server's own address. Without these headers each connector search would be
+    recorded as internal. The caller's address rides along for the log.
+    """
+    h = {'X-Tesserae-Connector': '1'}
+    try:
+        from backend.services import get_client_ip
+        h['X-Tesserae-Connector-IP'] = get_client_ip()
+    except Exception:  # outside a request, or no address: the flag alone still works
+        pass
+    return h
+
+
 def _get(path, params=None):
-    r = requests.get(f"{API_BASE}{path}", params=params, timeout=_TIMEOUT)
+    r = requests.get(f"{API_BASE}{path}", params=params, headers=_fwd_headers(), timeout=_TIMEOUT)
     r.raise_for_status()
     return r.json()
 
 
 def _post(path, body, timeout=None):
     # `timeout or _TIMEOUT` is always a real timeout; bandit B113 can't see the fallback.
-    r = requests.post(f"{API_BASE}{path}", json=body, timeout=timeout or _TIMEOUT)  # nosec B113
+    r = requests.post(f"{API_BASE}{path}", json=body, headers=_fwd_headers(), timeout=timeout or _TIMEOUT)  # nosec B113
     r.raise_for_status()
     return r.json()
 
@@ -207,7 +223,10 @@ def _t_line_search(a):
 
 
 def _t_string_search(a):
-    d = _post('/wildcard-search', {'query': a.get('query', ''), 'language': a.get('language', 'la')})
+    body = {'query': a.get('query', ''), 'language': a.get('language', 'la')}
+    if a.get('spelling'):
+        body['spelling'] = a['spelling']
+    d = _post('/wildcard-search', body)
     return {'query': a.get('query'), 'total_matches': d.get('total_matches'),
             'results': [{'ref': normalize_ref(r.get('ref') or r.get('reference')), 'author': r.get('author'),
                          'title': r.get('title'), 'text': r.get('text')}
@@ -285,6 +304,7 @@ def _fusion_poll(params, budget):
     while True:
         d = _get('/fusion-search', params)
         status = d.get('status')
+        last_queued = d if status == 'queued' else None
         if status == 'complete':
             out = {'status': 'complete', 'count': d.get('count'),
                    'showing': d.get('showing'), 'offset': d.get('offset', 0),
@@ -298,7 +318,11 @@ def _fusion_poll(params, budget):
                     out[k] = d.get(k)
             return out
         if status == 'error':
-            return {'status': 'error', 'error': d.get('error')}
+            out = {'status': 'error', 'error': d.get('error') or d.get('message')}
+            if d.get('code'):
+                out['code'] = d['code']
+                out['note'] = d.get('message')
+            return out
         if status == 'too_large':
             # Above the live size limit (backend/compare_limit.py): the pair is
             # not run. The note says how to proceed; `books` lists the per-book
@@ -309,6 +333,13 @@ def _fusion_poll(params, budget):
         # Return before starting a sleep that would push us past the budget, so
         # the tool call never trips the client's ~60s per-call timeout.
         if time.time() + poll_interval >= deadline:
+            if last_queued is not None:
+                # Waiting for a free slot on the server, not computing yet.
+                out = {'status': 'queued', 'note': last_queued.get('message') or running_note}
+                for k in ('reason', 'kind', 'wait_seconds', 'position', 'running', 'max_searches', 'queue_timeout'):
+                    if last_queued.get(k) is not None:
+                        out[k] = last_queued[k]
+                return out
             return {'status': 'running', 'note': running_note}
         time.sleep(poll_interval)
 
@@ -586,7 +617,7 @@ def _t_compare_texts(a):
         "total_candidates when given, the cap otherwise), never a bare 'top 5,000'. "
         "Every chart's footer carries the corpus_version stamp and web_url."
     )
-    if fusion.get('status') == 'running':
+    if fusion.get('status') in ('running', 'queued'):
         out['note'] = ('The ranked_parallels (fusion) section is still computing server-side. '
                        'Present the ready sections now, then call fusion_search with the same '
                        'source/target/language in ~30-60s to fill in the ranked_parallels section '
@@ -981,7 +1012,8 @@ def _t_theme_compare(a):
     for k in ('scale', 'limit'):
         if a.get(k):
             params[k] = a[k]
-    r = requests.get(f"{API_BASE}/passages/compare", params=params, timeout=_TIMEOUT)
+    r = requests.get(f"{API_BASE}/passages/compare", params=params,
+                     headers=_fwd_headers(), timeout=_TIMEOUT)
     try:
         d = r.json()
     except ValueError:
@@ -1240,7 +1272,8 @@ TOOLS = [
      "fn": _t_line_search},
     {"name": "string_search",
      "description": "Wildcard / boolean / exact text search across the corpus (am*, AND/OR/NOT, \"phrases\").",
-     "inputSchema": {"type": "object", "properties": {"query": _STR, "language": _STR},
+     "inputSchema": {"type": "object", "properties": {"query": _STR, "language": _STR,
+                     "spelling": {"type": "string", "description": "Optional. 'variants' (default) or 'strict' for Persian, Urdu, Arabic and Hebrew, and 'points' for Hebrew only (keeps the vowel points, ignores the cantillation accents); other languages ignore it."}},
                      "required": ["query", "language"]},
      "fn": _t_string_search},
     {"name": "theme_search",
@@ -1391,7 +1424,9 @@ TOOLS = [
                      "just the page) by ref, so nothing is lost to the cap; a trailing dot pins a number "
                      "(e.g. source_ref_prefix=\"ecl. 1.\" matches book/poem 1 but not 10). min_score drops "
                      "weak matches. Response gives count (after filters) and total (before). First run "
-                     "takes a few minutes (cached after); returns status 'running' until ready. Scores are "
+                     "takes a few minutes (cached after); returns status 'running' until ready, or status 'queued' "
+                     "(with reason, kind, position, running, max_searches and wait_seconds) while the server "
+                     "holds the request for a free slot, in which case call again in a minute. Scores are "
                      "relative to the specific pair (frequency baselines are computed per comparison), so "
                      "the same parallel can score differently across pairings — compare ranks within one "
                      "run, not absolute scores across runs. Returns ~25 parallels by default (raise with "

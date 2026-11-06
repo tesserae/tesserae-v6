@@ -39,7 +39,7 @@ def add_security_headers(response):
     response.headers['X-Frame-Options'] = 'DENY'
     # Only send HSTS outside of local dev to avoid sticky local browser issues
     if DEPLOYMENT_ENV != 'dev':
-        response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
+        response.headers['Strict-Transport-Security'] = 'max-age=63072000'
     return response
 
 
@@ -64,6 +64,8 @@ def add_header(response):
         return response  # a museum picture from our cache keeps its own 30-day Cache-Control
     if request.endpoint == 'events.event_names' and response.status_code == 200:
         return response  # the Events name list keeps its own one-hour Cache-Control
+    if request.endpoint == 'coins.coin_thumb' and response.status_code == 200:
+        return response  # a stored coin picture keeps its own 30-day Cache-Control
     response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
     response.headers['Pragma'] = 'no-cache'
     response.headers['Expires'] = '0'

@@ -7,7 +7,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { getView } from '../collections/collectionsStore';
 import { viewById } from '../collections/collectionsConfig';
-import { pageForPath } from './routePaths';
+import { pageForPath, legacyRedirect, scopeFromSearch, SCOPE_LABELS } from './routePaths';
 import { rememberLastPlace, readLastPlace } from '../utils/lastPlace';
 
 export { pageForPath };
@@ -19,7 +19,6 @@ const PAGE_TITLES = {
   document: 'Document',
   'theme-search': 'Theme Search',
   mentions: 'Mentions',
-  'ask-a-work': 'Search One Text',
   'inscriptions-papyri': 'Inscriptions & Papyri',
   events: 'Events',
   coins: 'Coins',
@@ -33,6 +32,7 @@ const PAGE_TITLES = {
   about: 'About',
   help: 'Help & Support',
   privacy: 'Privacy',
+  terms: 'Terms of Use',
   research: 'Research',
   'blog-archive': 'Blog Archive',
   requests: 'Requests',
@@ -48,7 +48,6 @@ const pageTypeToPath = {
   'document': '/document',
   'theme-search': '/theme-search',
   'mentions': '/mentions',
-  'ask-a-work': '/ask-a-work',
   'inscriptions-papyri': '/inscriptions-papyri',
   'events': '/events',
   'coins': '/coins',
@@ -62,6 +61,7 @@ const pageTypeToPath = {
   'about': '/about',
   'help': '/help',
   'privacy': '/privacy',
+  'terms': '/terms',
   'research': '/research',
   'text-credits': '/text-credits',
   'requests': '/requests',
@@ -72,10 +72,10 @@ const pageTypeToPath = {
 };
 
 // The address of a view's home page when that page is not the Intertextual
-// Search page at '/': the Reader on a text, or Search One Text.
+// Search page at '/': the Reader on a text, or Theme Search on one text.
 const viewHomeUrl = (view) => {
   const home = viewById(view).home;
-  if (home.page === 'ask-a-work') return '/ask-a-work';
+  if (home.page === 'theme-search') return '/theme-search?scope=one';
   if (home.page !== 'read') return null;
   const p = new URLSearchParams({ work: home.work, lang: home.lang });
   return '/read?' + p.toString();
@@ -92,6 +92,12 @@ const isPlainVisit = () => {
 
 export const useRoute = ({ adminSessionChecked, adminSessionActive }) => {
   const [pageType, setPageType] = useState(() => {
+    // The old address of the one-text search is rewritten first, before anything
+    // reads it (2026-10-25).
+    const moved = legacyRedirect(window.location.pathname + window.location.search + window.location.hash);
+    if (moved !== window.location.pathname + window.location.search + window.location.hash) {
+      window.history.replaceState({}, '', moved);
+    }
     const path = window.location.pathname;
     // A bare visit to the site address, with no query string at all, opens
     // where the visitor left off (2026-10-19). A stored place beats the view
@@ -100,8 +106,9 @@ export const useRoute = ({ adminSessionChecked, adminSessionActive }) => {
     if (path === '/' && window.location.search === '') {
       const last = readLastPlace();
       if (last) {
-        window.history.replaceState({}, '', last);
-        return pageForPath(last.split(/[?#]/)[0]);
+        const lastMoved = legacyRedirect(last);
+        window.history.replaceState({}, '', lastMoved);
+        return pageForPath(lastMoved.split(/[?#]/)[0]);
       }
     }
     // A plain visit in a view whose home is the Reader opens the Reader on
@@ -157,9 +164,9 @@ export const useRoute = ({ adminSessionChecked, adminSessionActive }) => {
   // Reader page gave no clue what was in it (2026-09-08). The Reader sets its
   // own title from the work it is showing; this covers the rest.
   useEffect(() => {
-    document.title = pageType === 'read'
-      ? document.title
-      : `${PAGE_TITLES[pageType] || 'Search'} — Tesserae`;
+    if (pageType === 'read') return;
+    const scope = pageType === 'theme-search' ? `: ${SCOPE_LABELS[scopeFromSearch(window.location.search)].toLowerCase()}` : '';
+    document.title = `${PAGE_TITLES[pageType] || 'Search'}${scope} — Tesserae`;
   }, [pageType]);
 
   useEffect(() => {
@@ -170,6 +177,8 @@ export const useRoute = ({ adminSessionChecked, adminSessionActive }) => {
 
   useEffect(() => {
     const handlePopState = () => {
+      const moved = legacyRedirect(window.location.pathname + window.location.search);
+      if (moved !== window.location.pathname + window.location.search) window.history.replaceState({}, '', moved);
       const path = window.location.pathname;
       if (adminSessionChecked && adminSessionActive) {
         setPageType('admin');

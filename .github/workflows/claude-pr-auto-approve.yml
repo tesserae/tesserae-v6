@@ -49,12 +49,21 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           REPO: ${{ github.repository }}
+          BASE_REF: ${{ github.event.pull_request.base.ref }}
         run: |
           set -euo pipefail
-          gh pr diff "$PR_NUMBER" --repo "$REPO" > /tmp/pr.diff
-          gh pr view "$PR_NUMBER" --repo "$REPO" --json files \
-            --jq '[.files[] | {path: .path, additions: .additions, deletions: .deletions}]' \
-            > /tmp/pr_files.json
+          # GitHub refuses a diff of more than 300 files (HTTP 406), which a
+          # corpus import exceeds, so fall back to a local diff against the
+          # base branch (the checkout has the full history) and page the file
+          # list through the API, which has no such limit.
+          if ! gh pr diff "$PR_NUMBER" --repo "$REPO" > /tmp/pr.diff 2>/tmp/pr_diff.err; then
+            echo "gh pr diff failed ($(head -c 200 /tmp/pr_diff.err)); using git diff against $BASE_REF"
+            git fetch --quiet origin "$BASE_REF"
+            git diff "origin/$BASE_REF...HEAD" > /tmp/pr.diff
+          fi
+          gh api --paginate "repos/$REPO/pulls/$PR_NUMBER/files" \
+            --jq '[.[] | {path: .filename, additions: .additions, deletions: .deletions}]' \
+            | jq -s 'add' > /tmp/pr_files.json
 
       - name: Run safe-pattern classifier
         id: classify

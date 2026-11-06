@@ -4,7 +4,7 @@ import { viewById } from './collections/collectionsConfig';
 import useCollections from './hooks/useCollections';
 import { languageName } from './utils/languageNames';
 import { Header, Navigation } from './components/layout';
-import { SearchModeToggle, TextSelector, SearchSettings, SearchResults, LineSearch, CrossLingualSearch, WildcardSearch, SavedSearches, CorpusSearchResults, RarePairsSettings, LargeComparisonPanel, TooLargePanel, YourComparisons } from './components/search';
+import { SearchModeToggle, TextSelector, SearchSettings, SearchResults, LineSearch, CrossLingualSearch, WildcardSearch, SavedSearches, CorpusSearchResults, RarePairsSettings, LargeComparisonNotice, TooLargePanel, YourComparisons } from './components/search';
 import RareResultsDisplay from './components/search/RareResultsDisplay';
 import StartHere from './components/search/StartHere';
 import { addressHasQuery, FRONT_DOOR_OPEN_EVENT } from './components/search/frontDoor';
@@ -18,8 +18,7 @@ import EventsPage from './components/events/EventsPage';
 import MentionsPage from './components/mentions/MentionsPage';
 import CoinsPage from './components/coins/CoinsPage';
 import ObjectsPage from './components/objects/ObjectsPage';
-import ThemeSearchPage from './components/passages/ThemeSearchPage';
-import AskAWorkPage from './components/ask/AskAWorkPage';
+import ThemeSearchScopes from './components/passages/ThemeSearchScopes';
 import { Repository } from './components/repository';
 import { AdminPanel } from './components/admin';
 import RegisterParallelModal, { useRegisterParallel } from './components/register/RegisterParallelModal';
@@ -29,7 +28,7 @@ import { parseSearchParams, buildShareableUrl } from './utils/searchUrl';
 import { useCorpusSearchPanel } from './hooks/useCorpusSearchPanel';
 import { useDefaultTexts } from './hooks/useDefaultTexts';
 import { useAdminSession } from './hooks/useAdminSession';
-import { AboutPage, HelpPage, DownloadsPage, PrivacyPage, ResearchPage, BlogArchivePage, RequestsPage, ScholarshipSourcesPage, UploadTextPage, ComparisonJobPage } from './components/pages';
+import { AboutPage, HelpPage, DownloadsPage, PrivacyPage, TermsPage, ResearchPage, BlogArchivePage, RequestsPage, ScholarshipSourcesPage, UploadTextPage, ComparisonJobPage } from './components/pages';
 import TextCredits from './components/about/TextCredits';
 import { AssistantDock } from './components/assistant';
 import VisualizationsPage from './components/pages/VisualizationsPage';
@@ -362,7 +361,7 @@ function App() {
       .catch(() => {});
   }, [sourceText, targetText, activeTab]);
 
-  // The warning shown before a large comparison: {estimate, params} while open.
+  // The estimate of a large comparison that is running: {estimate, params}.
   const [largeComparison, setLargeComparison] = useState(null);
   // The choice shown when the server will not run the pair live (above the size
   // limit): {answer, params} while open.
@@ -390,19 +389,14 @@ function App() {
     setDeepLinkRun(true);
   }, [corpus]);
 
-  const runLargeComparison = useCallback(async () => {
-    if (!largeComparison) return;
-    const { estimate, params } = largeComparison;
-    setLargeComparison(null);
-    setSearchRunId(n => n + 1);
-    await search({ ...params, page_size: pageSize }, { estimatedSeconds: estimate.estimated_seconds });
-  }, [largeComparison, search, pageSize]);
-
+  // "Compare chosen books instead": stop the running comparison and send the
+  // reader to the book menus.
   const chooseBooksInstead = useCallback(() => {
+    cancelSearch();
     setLargeComparison(null);
     const first = document.querySelector('[aria-label="Source Work"], [aria-label="Source Text"], [aria-label="Source author"]');
     if (first) first.focus();
-  }, []);
+  }, [cancelSearch]);
 
   const handleSearch = useCallback(async () => {
     if (!sourceText || !targetText) {
@@ -437,9 +431,9 @@ function App() {
       delete params.disabled_channels;
     }
 
-    // A comparison of two long works runs in parts and takes a long time: ask
-    // what it will cost first, and let the reader decide. A failed estimate
-    // never blocks the search.
+    // A comparison of two long works runs in parts: the estimate is shown with
+    // the progress and the search starts at once. A failed estimate never
+    // blocks the search.
     setLargeComparison(null);
     setTooLarge(null);
     let estimatedSeconds;
@@ -463,7 +457,6 @@ function App() {
         }
         if (estimate?.in_parts) {
           setLargeComparison({ estimate, params });
-          return;
         }
         estimatedSeconds = estimate?.estimated_seconds;
       } catch {
@@ -587,8 +580,8 @@ function App() {
         ) : (
           <>
         {/* The Start here panel opens on the Intertextual Search page and on
-            whichever page is the current view's home (Search One Text in
-            Literature since 2026-10-12), so a first visit still sees it. */}
+            whichever page is the current view's home (Theme Search on one
+            text in Literature since 2026-10-12), so a first visit still sees it. */}
         {(pageType === 'search' || pageType === viewById(getView()).home.page) && (
           <StartHere
             onChoose={goFrontDoor}
@@ -756,13 +749,12 @@ function App() {
                     labelFor={(id) => textLabel(corpus.find(t => t.id === id), id)}
                   />
 
-                  {largeComparison && !searchLoading && (
+                  {largeComparison && searchLoading && (
                     <div className="mt-4">
-                      <LargeComparisonPanel
+                      <LargeComparisonNotice
                         sourceName={textLabel(corpus.find(t => t.id === sourceText), sourceText)}
                         targetName={textLabel(corpus.find(t => t.id === targetText), targetText)}
                         estimate={largeComparison.estimate}
-                        onRun={runLargeComparison}
                         onChoose={chooseBooksInstead}
                       />
                     </div>
@@ -859,8 +851,7 @@ function App() {
           )
         )}
 
-        {pageType === 'theme-search' && <ThemeSearchPage />}
-        {pageType === 'ask-a-work' && <AskAWorkPage />}
+        {pageType === 'theme-search' && <ThemeSearchScopes />}
 
         {pageType === 'read' && (
           <ReaderPage />
@@ -960,6 +951,10 @@ function App() {
 
         {pageType === 'privacy' && (
           <PrivacyPage />
+        )}
+
+        {pageType === 'terms' && (
+          <TermsPage />
         )}
 
         {pageType === 'research' && (

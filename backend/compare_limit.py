@@ -1,8 +1,10 @@
 """The size limit on a live comparison of two works (2026-10-24).
 
-A comparison of two whole epics holds one web worker for an hour and up to
-12 GB, so a pair above COMPARE_MAX_LINE_PAIRS (source lines times target lines)
-is not run live. The route answers with the per-book files of each side, so
+A comparison above COMPARE_MAX_LINE_PAIRS (source lines times target lines)
+would hold a web worker too long, so it is not run live. The limit was 12
+million until 2026-10-27, when the parts ran in two processes and the whole
+Aeneid against the whole of Lucan (79.8 million pairs) measured 350 s offline
+at a peak of 7.2 GB, and it became 100 million. The route answers with the per-book files of each side, so
 the page can offer book by book now, and with the address of the download queue
 (backend/blueprints/comparison_jobs.py), so it can offer a prepared file later.
 
@@ -10,8 +12,8 @@ The line counts come from the corpus files themselves: the non-blank lines of
 the .tess file, which is what the search reads. The count is kept per file and
 modification time. Measured pairs: Aeneid 1 against Metamorphoses 1 is 0.59
 million pairs (314 s, 3.0 GB), the Aeneid against the whole Metamorphoses 9.1
-million (1,136 s, 5.8 GB), the Aeneid against the Metamorphoses 118 million
-(killed at 12 GB after an hour).
+million (1,136 s before the speedups of 2026-10-27), the Aeneid against the
+Metamorphoses 118 million (killed at 12 GB after an hour, before them).
 """
 import os
 import re
@@ -19,7 +21,7 @@ import re
 from backend import fspaths
 from backend.utils import resolve_text_path, get_text_metadata
 
-DEFAULT_MAX_LINE_PAIRS = 12_000_000
+DEFAULT_MAX_LINE_PAIRS = 100_000_000
 LIMIT_ENV = 'COMPARE_MAX_LINE_PAIRS'
 JOBS_URL = '/api/comparisons/jobs'
 
@@ -28,7 +30,7 @@ _line_counts = {}
 
 
 def max_line_pairs():
-    """The limit, read from the environment on every call (default 12,000,000)."""
+    """The limit, read from the environment on every call (default 100,000,000)."""
     raw = (os.environ.get(LIMIT_ENV) or '').strip().replace(',', '').replace('_', '')
     try:
         value = int(raw)
@@ -118,7 +120,7 @@ def size_message(source_lines, target_lines, line_pairs, limit):
     return (
         f"These two works are {source_lines:,} by {target_lines:,} lines, "
         f"{line_pairs / 1e6:.0f} million line pairs, above the live limit of {limit / 1e6:.0f} million. "
-        "A comparison this size takes the server about an hour, so it is not run live. "
+        "A comparison this size would hold the server too long to run live. "
         "To proceed, compare one book of either work against the other text "
         "(the per-book file ids are in `books`; pass one as source or target), "
         "or open the pair on the Tesserae page and ask for the whole comparison "

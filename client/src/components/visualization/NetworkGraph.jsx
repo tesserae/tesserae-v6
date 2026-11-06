@@ -12,6 +12,7 @@ const ERA_COLORS = {
   'Later Imperial': '#1e90ff',
   'Late Antique': '#8b4513',
   'Early Medieval': '#708090',
+  'Byzantine': '#a537a0',
   'default': '#4a5568'
 };
 

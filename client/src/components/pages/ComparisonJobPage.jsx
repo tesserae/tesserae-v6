@@ -61,11 +61,11 @@ const ComparisonJobPage = ({ jobId }) => {
           <p><span className="text-gray-500">Target</span> {job.target}</p>
           {job.status === 'queued' && (
             <p role="status">Waiting in the queue. {place(job.position || 1)}
-              {' '}The server prepares one comparison at a time, and each takes about an hour.
+              {' '}The server prepares one comparison at a time, and each can take half an hour or more.
               This page updates by itself.</p>
           )}
           {job.status === 'running' && (
-            <p role="status">The server is preparing it now. This takes about an hour, and this page
+            <p role="status">The server is preparing it now. This can take half an hour or more, and this page
               updates by itself.</p>
           )}
           {job.status === 'done' && (

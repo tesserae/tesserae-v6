@@ -6,6 +6,8 @@ import threading
 import time
 import uuid
 
+from backend import fork_gate
+
 
 _PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CANCELLATION_DIR = os.environ.get(
@@ -106,7 +108,8 @@ def cancellable_pool_map(worker, items, processes, cancellation=None):
     """Map work in child processes and terminate active workers on cancel."""
     if cancellation:
         cancellation.check()
-    pool = multiprocessing.Pool(processes=processes)
+    with fork_gate.exclusive():
+        pool = multiprocessing.Pool(processes=processes)
     try:
         iterator = pool.imap(worker, items)
         results = []

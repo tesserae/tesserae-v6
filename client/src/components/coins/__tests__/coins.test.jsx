@@ -261,3 +261,34 @@ describe('the archived copy of a catalog page', () => {
     expect(archivedCopy(null)).toBeNull();
   });
 });
+
+describe('the stored picture of an American Numismatic Society coin', () => {
+  const PICTURED = { ...COIN, thumb_url: '/api/coins/thumb/ric.1_2_.aug.125.jpg',
+    thumb_credit: 'Photograph: American Numismatic Society, public domain' };
+
+  it('shows on the card with the credit on hover, and the link out stays', async () => {
+    const { default: CoinCard } = await import('../CoinCard');
+    render(<CoinCard coin={PICTURED} />);
+    const img = screen.getByTestId('coin-thumb').querySelector('img');
+    expect(img.getAttribute('src')).toBe(PICTURED.thumb_url);
+    expect(img.getAttribute('title')).toBe(PICTURED.thumb_credit);
+    expect(screen.getByRole('link', { name: /See images/ })).toBeTruthy();
+    cleanup();
+    render(<CoinCard coin={COIN} />);
+    expect(screen.queryByTestId('coin-thumb')).toBeNull();
+    expect(screen.getByRole('link', { name: /See images/ })).toBeTruthy();
+  });
+
+  it('shows on the coin page with the credit printed in full, and not without a picture', async () => {
+    const { default: CoinView } = await import('../CoinView');
+    global.fetch = vi.fn(async () => ({ ok: true, status: 200, json: async () => ({ coin: PICTURED }) }));
+    render(<CoinView id={PICTURED.id} goList={() => {}} />);
+    expect(await screen.findByTestId('coin-thumb')).toBeTruthy();
+    expect(screen.getByText(PICTURED.thumb_credit)).toBeTruthy();
+    cleanup();
+    global.fetch = vi.fn(async () => ({ ok: true, status: 200, json: async () => ({ coin: COIN }) }));
+    render(<CoinView id={COIN.id} goList={() => {}} />);
+    await screen.findByTestId('coin-page');
+    expect(screen.queryByTestId('coin-thumb')).toBeNull();
+  });
+});

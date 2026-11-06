@@ -1,4 +1,4 @@
-"""Three more searches Tessa runs herself: Search One Text, People & Places, Events.
+"""Three more searches Tessa runs herself: Theme Search on one text, People & Places, Events.
 
 Until 2026-10-21 she ran Line Search, Rare Words, Theme Search, the Theme
 Comparison and the corpus listing, and only described the rest. These three are
@@ -37,7 +37,7 @@ NAMES = (ONE_TEXT, PEOPLE_PLACES, EVENTS) + COLLECTION_NAMES
 # (nothing found, several matches, an author with several works) are answered
 # in code, because a sentence that lists matches and asks which is not a place
 # for a model to be creative.
-KIND_ONE_TEXT = 'ONE TEXT SEARCH, run on the Search One Text request.'
+KIND_ONE_TEXT = 'ONE TEXT SEARCH, run on the one-text request.'
 KIND_PLACES = 'PEOPLE & PLACES ENTRY, read from the People & Places page.'
 KIND_EVENT = 'AN EVENT, read from the Events page.'
 KIND_COLLECTION = 'RESULTS OF A COLLECTION SEARCH, read from the site\'s own page.'
@@ -79,7 +79,7 @@ def code_answers(facts):
 
 
 # --------------------------------------------------------------------------
-# Search One Text
+# Theme Search on one text
 # --------------------------------------------------------------------------
 # A question that asks what ONE work says about a subject. "Say about" verbs
 # only: "mention" and "name" belong to People & Places, and a bare "passages
@@ -216,13 +216,13 @@ BANDS = {'low': 'Closest passages', 'moderate': 'Moderate match', 'strong': 'Str
 
 
 def summarise_one_text(raw, args):
-    """Facts for a Search One Text request: the best passages with references, and the band the page shows."""
+    """Facts for a Theme Search on one text request: the best passages with references, and the band the page shows."""
     raw = raw if isinstance(raw, dict) else {}
     rows = raw.get('results') or []
     conf = raw.get('confidence') or {}
     level, fitted = conf.get('level'), bool(conf.get('fitted'))
     note = str(raw.get('note') or '')
-    searched = f"Search One Text, work {args.get('work')}, subject '{args.get('query')}'"
+    searched = f"Theme Search on one text, work {args.get('work')}, subject '{args.get('query')}'"
     # The page offers no list when no word of the subject is known to the index, and says nothing in the
     # work resembles it when the lowest band was not fitted for this work; Tessa says the same.
     if conf.get('no_known_words'):
@@ -623,7 +623,7 @@ def code_sentence(fact):
         return collections_searches.code_sentence(fact)
     if fact.get('kind') == KIND_NONE:
         if which == ONE_TEXT:
-            return (f"Search One Text found no passages in this work about \u201c{fact['args'].get('query')}\u201d. "
+            return (f"Theme Search on one text found no passages in this work about \u201c{fact['args'].get('query')}\u201d. "
                     f"{fact.get('note') or ''}").strip()
         if which == PEOPLE_PLACES:
             name = fact['args'].get('name')
@@ -666,7 +666,7 @@ def code_sentence(fact):
 # The instruction the answering model gets for these facts, in place of the one
 # about listings. The passages are the answer here, so they are named.
 RULE = ('THE FACTS ABOVE ARE THE ANSWER FROM ONE OF THE SITE\'S OWN PAGES. Report what came back and nothing '
-        'else. Search One Text: name the work and the subject searched, give the match band as the page '
+        'else. Theme Search on one text: name the work and the subject searched, give the match band as the page '
         'words it (match_band, with page_note when it says something), then every passage listed in '
         'examples, one per line, reference first and then what the description says, and say how many '
         'came back. People & Places: give the entry\'s heading, how many lines and works name it, and the works '

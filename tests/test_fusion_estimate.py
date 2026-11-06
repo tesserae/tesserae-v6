@@ -42,10 +42,12 @@ def test_whole_thebaid_against_whole_aeneid_is_in_parts(client):
     body = ask(client, 'big_a.tess', 'big_b.tess').get_json()
     assert body == {
         'pairs': 9731 * 9896, 'in_parts': True,
-        'parts': 20, 'estimated_seconds': round(9731 * 9896 / 1e6 * 17),
+        'parts': 20, 'estimated_seconds': round(
+            (fusion.FUSION_PART_BASE_SECONDS + 20 * fusion.FUSION_SECONDS_PER_PART
+             + 9731 * 9896 / 1e6 * fusion.FUSION_PART_SECONDS_PER_MILLION_PAIRS)
+            * fusion.FUSION_LIVE_FACTOR),
         'source_lines': 9731, 'target_lines': 9896, 'cached': False,
     }
-    assert 1600 <= body['estimated_seconds'] <= 1650      # the measured 26 min 42 s
 
 
 def test_one_book_against_one_book_is_not_in_parts_and_takes_the_floor(client):
@@ -59,7 +61,10 @@ def test_threshold_decides_in_parts(client):
     mid = ask(client, 'mid_a.tess', 'mid_b.tess').get_json()      # 4.25 million pairs
     assert mid['pairs'] > fusion.FUSION_PART_THRESHOLD and mid['in_parts'] is True
     assert mid['parts'] == 5
-    assert mid['estimated_seconds'] == round(2500 * 1700 / 1e6 * 17)
+    assert mid['estimated_seconds'] == round(
+        (fusion.FUSION_PART_BASE_SECONDS + 5 * fusion.FUSION_SECONDS_PER_PART
+         + 2500 * 1700 / 1e6 * fusion.FUSION_PART_SECONDS_PER_MILLION_PAIRS)
+        * fusion.FUSION_LIVE_FACTOR)
 
 
 def test_floor_applies_to_a_tiny_pair(client):
@@ -95,3 +100,39 @@ def test_cached_pair_runs_no_parts_and_says_so(client, tmp_path, monkeypatch):
     # another key (meter on) is not cached and is estimated as before
     body = ask(client, 'big_a.tess', 'big_b.tess', max_results='5000', use_meter='1').get_json()
     assert body['cached'] is False and body['in_parts'] is True and body['parts'] == 20
+
+
+def test_estimate_follows_the_part_count_and_matches_the_measured_runs():
+    """Offline runs of 2026-10-27 (round three code) with the parts in two worker
+    processes: 94.5 s, 118 s, 81.5 s and 350.3 s for the whole Aeneid against the
+    whole of Lucan, 79.8 million pairs (the constants were fitted to them), each
+    within eighteen percent."""
+    for n_src, n_tgt, measured in ((9502, 1252, 94.5), (9896, 694, 118.0),
+                                   (7423, 824, 81.5), (9896, 8061, 350.3)):
+        # the measured runs are offline figures, so the live factor is taken off
+        got = (fusion.estimate_fusion(n_src, n_tgt)['estimated_seconds']) / fusion.FUSION_LIVE_FACTOR
+        assert abs(got - measured) / measured < 0.18, (n_src, n_tgt, got)
+    # more parts cost more at the same pair count
+    a = fusion.estimate_fusion(5000, 2000)['estimated_seconds']
+    b = fusion.estimate_fusion(10000, 1000)['estimated_seconds']
+    assert b > a
+
+
+def test_estimate_decides_use_meter_like_the_search(client, monkeypatch):
+    """The page asks the estimate with use_meter on; for a pair that is not
+    Latin poetry the search routes turn it off, and the estimate must read the
+    same cache entry, or it reports "not cached" for a pair the search answers
+    at once (2026-10-27)."""
+    from backend.blueprints import fusion as F
+    seen = {}
+    monkeypatch.setattr(F, '_poll_use_meter', lambda s, t, lang: False)
+
+    def fake_settings(language, max_results, use_meter=False, **kw):
+        seen['use_meter'] = use_meter
+        return {'use_meter': use_meter, 'max_results': max_results}
+    monkeypatch.setattr(F, '_default_fusion_cache_settings', fake_settings)
+    monkeypatch.setattr(F, 'get_cached_results', lambda *a, **k: ([{'x': 1}], {}))
+    r = ask(client, 'small_a.tess', 'small_b.tess', use_meter='1')
+    assert r.status_code == 200
+    assert r.get_json()['cached'] is True
+    assert seen['use_meter'] is False

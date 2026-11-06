@@ -7,7 +7,9 @@ const pathToPageType = {
   '/document': 'document',
   '/theme-search': 'theme-search',
   '/mentions': 'mentions',
-  '/ask-a-work': 'ask-a-work',
+  // Old address of the one-text search: it opens
+  // Theme Search on the one-text scope (see legacyRedirect below).
+  '/ask-a-work': 'theme-search',
   '/inscriptions-papyri': 'inscriptions-papyri',
   '/events': 'events',
   '/coins': 'coins',
@@ -26,6 +28,7 @@ const pathToPageType = {
   '/about': 'about',
   '/help': 'help',
   '/privacy': 'privacy',
+  '/terms': 'terms',
   '/research': 'research',
   '/blog-archive': 'blog-archive',
   '/text-credits': 'text-credits',
@@ -52,3 +55,32 @@ export const isKnownPath = (path) => (
   Object.prototype.hasOwnProperty.call(pathToPageType, path)
   || ['/events/', '/coins/', '/objects/', '/comparisons/'].some((p) => path.startsWith(p))
 );
+
+// Theme Search has three scopes, in the address as ?scope=one|two|corpus.
+export const SCOPES = ['one', 'two', 'corpus'];
+export const SCOPE_LABELS = { one: 'One text', two: 'Two texts', corpus: 'Whole corpus' };
+
+// The scope an address asks for. With no scope= (a link made before the
+// scopes existed) the parameters decide: compare=/with= or tab=compare is
+// the two-text form, query=, tab=map, languages= or in=scholarship the
+// whole-corpus form, and anything else the one-text form.
+export const scopeFromSearch = (search) => {
+  const p = new URLSearchParams(search || '');
+  const s = (p.get('scope') || '').trim().toLowerCase();
+  if (SCOPES.includes(s)) return s;
+  if (p.get('compare') || p.get('with') || p.get('tab') === 'compare') return 'two';
+  if (p.get('query') || p.get('tab') === 'map' || p.get('languages') || p.get('in') || p.get('works') || p.get('author')) return 'corpus';
+  return 'one';
+};
+
+// /ask-a-work (Tessa's links, Help, the blog, bookmarks) opens the one-text
+// scope of Theme Search with the same parameters (work, lang, q, books).
+// Takes an address "path?query" and returns it, rewritten when it is the old one.
+export const legacyRedirect = (url) => {
+  const [pathAndQuery, hash] = String(url).split('#');
+  const [path, query = ''] = pathAndQuery.split('?');
+  if (path !== '/ask-a-work') return url;
+  const p = new URLSearchParams(query);
+  p.set('scope', 'one');
+  return '/theme-search?' + p.toString() + (hash ? '#' + hash : '');
+};

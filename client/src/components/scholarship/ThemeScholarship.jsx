@@ -35,7 +35,7 @@ export function linkText(link) {
 
 /** The articles the live services give for the question (under the held list):
  *  each service's items paint as it answers. With a work (the question came from
- *  Search One Text) the server also requires the work to be named. */
+ *  Theme Search (one text)) the server also requires the work to be named. */
 function RecentArticles({ recent }) {
   if (!recent) return null;
   return (

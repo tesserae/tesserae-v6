@@ -36,6 +36,7 @@ from collections import defaultdict
 from typing import List, Dict, Tuple, Optional
 import json
 
+from backend import fork_gate
 from backend.logging_config import get_logger
 # Arabic root channel: above this many line pairs a match needs two shared roots.
 _ARABIC_SINGLE_ROOT_MAX_PAIRS = 2_000_000
@@ -96,7 +97,9 @@ def iter_similarity_blocks(source_embeddings, target_embeddings, cancellation=No
     for start in range(0, src.shape[0], block_rows):
         if cancellation:
             cancellation.check()
-        yield start, src[start:start + block_rows] @ tgt_t
+        with fork_gate.shared():
+            block = src[start:start + block_rows] @ tgt_t
+        yield start, block
 
 
 def sampled_percentile(source_embeddings, target_embeddings, percentile, rows=SIMILARITY_BLOCK_ROWS):
@@ -104,7 +107,8 @@ def sampled_percentile(source_embeddings, target_embeddings, percentile, rows=SI
     src = np.asarray(source_embeddings, dtype=np.float32)
     if src.shape[0] > rows:
         src = src[np.linspace(0, src.shape[0] - 1, rows).astype(int)]
-    block = _unit_rows(src) @ _unit_rows(target_embeddings).T
+    with fork_gate.shared():
+        block = _unit_rows(src) @ _unit_rows(target_embeddings).T
     return float(np.percentile(block, percentile))
 
 
@@ -317,7 +321,9 @@ def iter_similarity_blocks(source_embeddings, target_embeddings, cancellation=No
     for start in range(0, src.shape[0], block_rows):
         if cancellation:
             cancellation.check()
-        yield start, src[start:start + block_rows] @ tgt_t
+        with fork_gate.shared():
+            block = src[start:start + block_rows] @ tgt_t
+        yield start, block
 
 
 def top_pairs_by_block(source_embeddings, target_embeddings, top_n_per_source, min_score,
@@ -422,41 +428,11 @@ def compute_similarity(embedding1: np.ndarray, embedding2: np.ndarray) -> float:
     similarity = dot_product / (norm1 * norm2)
     return float(max(0, similarity))
 
-def find_semantic_matches(source_units: List[Dict], target_units: List[Dict],
-                          settings: Optional[Dict] = None,
-                          cancellation=None) -> Tuple[List[Dict], int]:
+def _precomputed_pair(source_units, target_units, settings, language):
+    """The stored embeddings of the two sides, or (None, None, False) when they cannot be had.
+
+    Returns (source_embeddings, target_embeddings, used_precomputed).
     """
-    Find semantically similar passages between source and target texts.
-    Uses pre-computed embeddings when available for fast search.
-    Falls back to real-time computation for smaller texts.
-    
-    Args:
-        source_units: List of source text units with 'text' field
-        target_units: List of target text units with 'text' field  
-        settings: Optional settings dict with:
-            - language: Language code ('la', 'grc', 'en')
-            - min_semantic_score: Minimum similarity threshold (default: 0.6)
-            - max_results: Maximum number of results (default: 500)
-            - semantic_top_n: Top N targets per source (default: 10)
-            - source_text_path: Path to source .tess file (for pre-computed embeddings)
-            - target_text_path: Path to target .tess file (for pre-computed embeddings)
-            - source_line_indices: Subset of line indices to use from source
-            - target_line_indices: Subset of line indices to use from target
-            
-    Returns:
-        Tuple of (matches list, stoplist_size=0)
-    """
-    settings = settings or {}
-    if cancellation:
-        cancellation.check()
-    language = settings.get('language', 'la')
-    if language in E5_LANGUAGES:
-        # The shared CHANNEL_CONFIGS floor (0.5) would accept every e5 pair.
-        settings = {**settings, **{k: v for k, v in E5_SEMANTIC_SETTINGS.items()
-                                   if k not in settings.get('_explicit', ())}}
-    min_score = settings.get('min_semantic_score', 0.6)
-    max_results = settings.get('max_results', 500)
-    top_n_per_source = settings.get('semantic_top_n', 10)
     source_path = settings.get('source_text_path')
     target_path = settings.get('target_text_path')
     source_indices = settings.get('source_line_indices')
@@ -510,6 +486,73 @@ def find_semantic_matches(source_units: List[Dict], target_units: List[Dict],
                 logger.info(f"Using pre-computed embeddings: {len(source_embeddings)} source, {len(target_embeddings)} target")
         except Exception as e:
             logger.warning(f"Failed to load pre-computed embeddings: {e}")
+    return source_embeddings, target_embeddings, used_precomputed
+
+
+def pair_e5_floor(source_units, target_units, settings):
+    """The semantic floor find_semantic_matches would set for this whole pair, or None.
+
+    Persian, Urdu and Arabic set the floor per search at the 99.9th percentile of
+    the pair's similarities, from a sample of up to 512 evenly spaced source rows
+    (sampled_percentile). A comparison split into parts would otherwise take it
+    from each part's own rows and score the same pair differently in each part.
+    Run once over the two whole sides, the result is passed to every part as
+    settings['e5_floor']. None for any other language, and when the stored
+    embeddings are not there (each part then falls back to its own rule).
+    """
+    settings = settings or {}
+    language = settings.get('language', 'la')
+    if language not in E5_LANGUAGES:
+        return None
+    settings = {**settings, **{k: v for k, v in E5_SEMANTIC_SETTINGS.items()
+                               if k not in settings.get('_explicit', ())}}
+    source_embeddings, target_embeddings, _used = _precomputed_pair(
+        source_units, target_units, settings, language)
+    if source_embeddings is None or target_embeddings is None:
+        return None
+    if len(source_embeddings) * len(target_embeddings) >= 10000:
+        return float(max(settings.get('min_semantic_score', 0.6),
+                         sampled_percentile(source_embeddings, target_embeddings, E5_FLOOR_PERCENTILE)))
+    return float(E5_RESCALE_FLOOR)
+
+
+def find_semantic_matches(source_units: List[Dict], target_units: List[Dict],
+                          settings: Optional[Dict] = None,
+                          cancellation=None) -> Tuple[List[Dict], int]:
+    """
+    Find semantically similar passages between source and target texts.
+    Uses pre-computed embeddings when available for fast search.
+    Falls back to real-time computation for smaller texts.
+    
+    Args:
+        source_units: List of source text units with 'text' field
+        target_units: List of target text units with 'text' field  
+        settings: Optional settings dict with:
+            - language: Language code ('la', 'grc', 'en')
+            - min_semantic_score: Minimum similarity threshold (default: 0.6)
+            - max_results: Maximum number of results (default: 500)
+            - semantic_top_n: Top N targets per source (default: 10)
+            - source_text_path: Path to source .tess file (for pre-computed embeddings)
+            - target_text_path: Path to target .tess file (for pre-computed embeddings)
+            - source_line_indices: Subset of line indices to use from source
+            - target_line_indices: Subset of line indices to use from target
+            
+    Returns:
+        Tuple of (matches list, stoplist_size=0)
+    """
+    settings = settings or {}
+    if cancellation:
+        cancellation.check()
+    language = settings.get('language', 'la')
+    if language in E5_LANGUAGES:
+        # The shared CHANNEL_CONFIGS floor (0.5) would accept every e5 pair.
+        settings = {**settings, **{k: v for k, v in E5_SEMANTIC_SETTINGS.items()
+                                   if k not in settings.get('_explicit', ())}}
+    min_score = settings.get('min_semantic_score', 0.6)
+    max_results = settings.get('max_results', 500)
+    top_n_per_source = settings.get('semantic_top_n', 10)
+    source_embeddings, target_embeddings, used_precomputed = _precomputed_pair(
+        source_units, target_units, settings, language)
 
     if source_embeddings is None or target_embeddings is None:
         if cancellation:
@@ -547,7 +590,12 @@ def find_semantic_matches(source_units: List[Dict], target_units: List[Dict],
 
     e5_floor = None
     if language in E5_LANGUAGES:
-        if len(source_embeddings) * len(target_embeddings) >= 10000:
+        if settings.get('e5_floor') is not None:
+            # A comparison run in parts fixes the floor once from the whole pair
+            # (pair_e5_floor), so no part sets it from its own rows.
+            e5_floor = float(settings['e5_floor'])
+            min_score = e5_floor
+        elif len(source_embeddings) * len(target_embeddings) >= 10000:
             # Per-search floor at the 99.9th percentile of the pair's own
             # similarities, from a sample of rows, never below the fixed
             # floor. Small matrices keep the fixed band.

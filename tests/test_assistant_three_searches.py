@@ -1,4 +1,4 @@
-"""Tessa runs Search One Text, People & Places and Events herself.
+"""Tessa runs Theme Search on one text, People & Places and Events herself.
 
 Each search is tested for its routing (a question that should reach it does,
 three that should not do not), the facts it gives the model, the control under
@@ -339,7 +339,7 @@ def test_date_and_place_labels_follow_the_page():
 def test_one_text_control_opens_the_page_with_work_and_question(site):
     out, facts = _prep('What does the Aeneid say about storms?')
     ctl = [a for a in actions.build(facts, 'q') if a['kind'] == 'one_text'][0]
-    assert ctl['url'] == '/ask-a-work?work=vergil.aeneid&lang=la&q=storms'
+    assert ctl['url'] == '/theme-search?scope=one&work=vergil.aeneid&lang=la&q=storms'
 
 
 def test_one_text_control_carries_the_book(site):
@@ -351,7 +351,7 @@ def test_one_text_control_carries_the_book(site):
 def test_a_work_the_chooser_picked_gets_its_language_from_the_listing(site):
     fact = {'search': 'one_text_search', 'args': {'work': 'homer.iliad', 'query': 'a funeral'},
             'work_searched': 'Homer, Iliad'}
-    assert actions._three_controls(fact)[0]['url'] == '/ask-a-work?work=homer.iliad&lang=grc&q=a+funeral'
+    assert actions._three_controls(fact)[0]['url'] == '/theme-search?scope=one&work=homer.iliad&lang=grc&q=a+funeral'
 
 
 def test_people_places_control_opens_the_entry(site):

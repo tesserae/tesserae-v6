@@ -1610,7 +1610,7 @@ def _sort(results: list, search_start_time: float, max_results: int):
         'Archaic': 0, 'Early Greek': 1, 'Classical': 2, 'Hellenistic': 3,
         'Republic': 4, 'Late Republican': 5, 'Late Republic': 5,
         'Augustan': 6, 'Early Imperial': 7, 'Imperial': 8, 
-        'Later Imperial': 9, 'Late Antique': 10, 'Patristic': 10,
+        'Later Imperial': 9, 'Late Antique': 10, 'Patristic': 10, 'Byzantine': 10.5,
         'Carolingian': 11, 'Medieval': 12, 'Renaissance': 13, 
         'Early Modern': 14, 'Modern': 15, 'Unknown': 99
     }

@@ -20,9 +20,9 @@ in model.py still check every answer.
 # assistant recommended both to a user who then found nothing. Telling a scholar
 # to run a search that is not there is worse than declining to help: they go
 # looking, and the failure looks like theirs.
-_SCENE_TOOLS = """- theme_search: passages ABOUT a described subject, across all languages at once, even when they share no vocabulary. Best when the user knows the content but not the words.
+_SCENE_TOOLS = """- theme_search (the Whole corpus scope of Theme Search, which is one tab with three scopes: One text, Two texts and Whole corpus): passages ABOUT a described subject, across all languages at once, even when they share no vocabulary. Best when the user knows the content but not the words.
 - similar_passages: passages that resemble a given passage in content. Best from a passage the user is already reading.
-- one_text_search (the Search One Text page): the passages of ONE named work, or one book of it, about a subject, found by content. Best for "what does the Aeneid say about storms?" or "where does Thucydides talk about plague?"."""
+- one_text_search (the one-text scope of Theme Search): the passages of ONE named work, or one book of it, about a subject, found by content. Best for "what does the Aeneid say about storms?" or "where does Thucydides talk about plague?"."""
 
 _BASE_TOOLS = """The searches Tesserae offers:
 
@@ -61,7 +61,7 @@ TOOLS_DESCRIPTION = tools_description()
 # THE WHOLE SITE (the project lead, 2026-10-21, on "what about search types?": "She still
 # seems to only know about intertextual search"). The guide listed only the searches Tessa can
 # run herself and told her that anything else was not on the site. The pages below are the
-# Start here panel's eight (front_door.FRONT_DOOR_CHOICES, kept equal to the panel by a test)
+# Start here panel's seven (front_door.FRONT_DOOR_CHOICES, kept equal to the panel by a test)
 # and the other pages of the top row (client/src/components/layout/Navigation.jsx).
 OTHER_PAGES = [
     ('Intertextual Search', 'the main search: two texts compared by eleven detection methods at once, with tabs for '
@@ -69,7 +69,7 @@ OTHER_PAGES = [
     ('Cross-Language', 'parallels between Greek and Latin, Latin and English, Greek and English, Hebrew and Greek or '
      'Latin, Coptic and Greek, Persian and Urdu', '/?tab=cross'),
     ('Similarity Map', 'a tab beside Theme Search: a grid of how alike authors, works, centuries or books are in '
-     'content, opening onto the most similar passages', '/theme-search'),
+     'content, opening onto the most similar passages', '/theme-search?scope=corpus&tab=map'),
     ('Events', 'battles, sieges and treaties, each with the passages that tell of it, the inscriptions and papyri '
      'from nearby and the same years, the scholarship and a map', '/events'),
     ('Inscriptions & Papyri', 'about 255,000 Latin and Greek inscriptions and papyri, searched by their words, place, '

@@ -18,6 +18,22 @@ Stores checked (the ones the site reads at request time):
   blurb     data/text_descriptions.json[<lang>][<base>] (About this text)
   dates     backend/author_dates.json[<lang>][<author>] (optional, reported as '-')
   transl    data/translations/<lang>__<base>.json (optional; parts use the whole work's)
+  syntax    la, grc, cop: data/inverted_index/syntax_<language>.db table texts has the exact file name
+            (the syntax channel looks it up by that name); '-' for other languages
+  names     data/entity_index/entities.sqlite table windows has the work (People & Places);
+            exempt when the work has no passage windows or is too short for one
+  wnames    data/passage_index/window_names.db window_names has rows for the work's windows
+            (Similar Passages names); same exemption
+  descfts   data/passage_index/desc_fts.sqlite has a row for every window of the work
+            (Theme Search word index); same exemption
+  reuse     la, grc, en, fa, ur: cache/reuse_pairs/<language>.db table line_counts has the work
+            (a part is covered by its whole work, the way backend/reuse_table.py resolves it)
+  meter     OPTIONAL, Latin verse only (text_genres.csv meter not prose/unknown): a line of the
+            file scans, from the MQDQ table or the automatic scanner; reported, never fails the run
+  label     OPTIONAL: the author the site shows is the credit row's author, and the displayed
+            title is not a bare fragment of a longer file name; 'check: ...' says what to read
+
+The procedure these columns serve: docs/DATA_OPERATIONS.md, "Adding a text: the standard procedure".
 
 Usage:
   python scripts/corpus/verify_text_coverage.py --root /var/www/tesseraev6_flask --language la curtius_rufus.historiae_alexandri_magni
@@ -28,10 +44,266 @@ import argparse, csv, glob, json, os, re, sqlite3, sys
 import numpy as np
 
 MIN_WINDOW_LINES = 10
-REQUIRED = ['text', 'lemmas', 'index', 'bigrams', 'vectors', 'windows', 'described', 'winvec', 'connmap', 'sources', 'browser', 'genres', 'blurb']
+SYNTAX_DB = {'la': 'syntax_latin.db', 'grc': 'syntax_greek.db', 'cop': 'syntax_coptic.db'}
+REUSE_LANGS = ('la', 'grc', 'en', 'fa', 'ur')
+VERSE_METERS = ('hexameter', 'elegiac', 'lyric', 'dramatic', 'mixed')
+REQUIRED = ['text', 'lemmas', 'index', 'bigrams', 'vectors', 'windows', 'described', 'winvec', 'connmap', 'sources', 'browser', 'genres', 'blurb',
+            'syntax', 'names', 'wnames', 'descfts', 'reuse']
 # freq: the app recomputes a stale frequency table on the first search that needs it,
 # so a stale table is reported but is not a gap.
-OPTIONAL = ['freq', 'dates', 'transl']
+OPTIONAL = ['freq', 'dates', 'transl', 'meter', 'label']
+
+
+def count_lines(path):
+    pat = re.compile(r'<([^>]+)>')
+    return sum(1 for l in open(path, encoding='utf-8', errors='replace') if l.startswith('<') and pat.match(l))
+
+
+def count_text_lines(path):
+    """Reference lines that carry text. The line vectors hold one row per such
+    line: a heading tag with nothing after it (<sene. frag. 1.>) gets no row."""
+    pat = re.compile(r'^<[^>]+>\s*(.*)$')
+    n = 0
+    for l in open(path, encoding='utf-8', errors='replace'):
+        m = pat.match(l)
+        if m and m.group(1).strip():
+            n += 1
+    return n
+
+
+def window_flags(base, whole, is_part, n_lines, part_lines, win_counts, desc_counts, vec_counts):
+    """The windows, described and winvec columns for one file.
+
+    part_lines maps each part's base name to its line count (empty for a part or a work without parts).
+    A file under MIN_WINDOW_LINES makes no window at all and is exempt. A whole work with parts is
+    covered when every part that is long enough has windows; a short part is exempt the same way a
+    short whole file is (hermas.pastor parts 6 and 20 have 2 and 3 lines).
+    """
+    r = {}
+    if n_lines < MIN_WINDOW_LINES:
+        # too short to make a passage window at all (a one-line epigram, a hypothesis)
+        r['windows'] = r['described'] = r['winvec'] = True
+    elif part_lines and win_counts.get(base, 0) > 0:
+        # the whole work carries windows; very short parts cannot have their own
+        r['windows'] = r['described'] = r['winvec'] = True
+    elif part_lines:
+        parts = [p for p, n in part_lines.items() if n >= MIN_WINDOW_LINES]
+        r['windows'] = all(win_counts.get(p, 0) > 0 for p in parts)
+        r['described'] = r['windows'] and all(desc_counts.get(p, 0) >= win_counts.get(p, 0) for p in parts)
+        r['winvec'] = r['windows'] and all(vec_counts.get(p, 0) >= win_counts.get(p, 0) for p in parts)
+    else:
+        nw = win_counts.get(base, 0)
+        r['windows'] = nw > 0 or (is_part and win_counts.get(whole, 0) > 0)
+        r['described'] = (desc_counts.get(base, 0) >= nw) if nw else r['windows']
+        r['winvec'] = (vec_counts.get(base, 0) >= nw) if nw else r['windows']
+    return r
+
+
+def _ro(path):
+    return sqlite3.connect(f'file:{path}?mode=ro', uri=True)
+
+
+def syntax_files(root, lang):
+    """File names in the grammar-parse database for the language, or None when the language has none."""
+    name = SYNTAX_DB.get(lang)
+    if not name:
+        return None
+    path = os.path.join(root, 'data', 'inverted_index', name)
+    if not os.path.exists(path):
+        return set()
+    c = _ro(path)
+    try:
+        return {r[0] for r in c.execute('select filename from texts')}
+    finally:
+        c.close()
+
+
+def entity_work_counts(root):
+    """work -> number of windows in the People & Places store."""
+    path = os.path.join(root, 'data', 'entity_index', 'entities.sqlite')
+    if not os.path.exists(path):
+        return {}
+    c = _ro(path)
+    try:
+        return dict(c.execute('select work, count(*) from windows group by work'))
+    finally:
+        c.close()
+
+
+def window_name_works(root):
+    """Works with rows in window_names.db (Similar Passages names); ids look like <work>:<kind>:<n>."""
+    path = os.path.join(root, 'data', 'passage_index', 'window_names.db')
+    if not os.path.exists(path):
+        return {}
+    c = _ro(path)
+    try:
+        out = {}
+        for (wid,) in c.execute('select distinct id from window_names'):
+            w = wid.split(':', 1)[0]
+            out[w] = out.get(w, 0) + 1
+        return out
+    finally:
+        c.close()
+
+
+def desc_fts_counts(root):
+    """work -> rows in the Theme Search word index (desc_fts.sqlite); ids look like <work>:<kind>:<n>."""
+    path = os.path.join(root, 'data', 'passage_index', 'desc_fts.sqlite')
+    if not os.path.exists(path):
+        return {}
+    c = _ro(path)
+    try:
+        out = {}
+        for (wid,) in c.execute('select c0 from desc_content'):
+            w = wid.split(':', 1)[0]
+            out[w] = out.get(w, 0) + 1
+        return out
+    finally:
+        c.close()
+
+
+def reuse_works(root, lang):
+    """Works in the reuse table for the language, or None when the language has no table."""
+    if lang not in REUSE_LANGS:
+        return None
+    path = os.path.join(root, 'cache', 'reuse_pairs', f'{lang}.db')
+    if not os.path.exists(path):
+        return set()
+    c = _ro(path)
+    try:
+        works = {r[0] for r in c.execute('select distinct work from line_counts')}
+        try:
+            built = dict(c.execute("select key, value from meta")).get('built_at')
+        except sqlite3.OperationalError:
+            built = None
+    finally:
+        c.close()
+    # The table lists only lines that some other work repeats, so a work with no
+    # reused line never appears in it. A text older than the build was read by it.
+    try:
+        from datetime import datetime
+        works_built_at = datetime.fromisoformat(built).timestamp() if built else None
+    except ValueError:
+        works_built_at = None
+    return ReuseTable(works, works_built_at)
+
+
+class ReuseTable(set):
+    """The works in a reuse table, plus the time the table was built."""
+    def __init__(self, works, built_at):
+        super().__init__(works)
+        self.built_at = built_at
+
+
+def store_flag(base, whole, is_part, n_lines, part_lines, win_counts, have, full=False):
+    """Whether a per-window store covers the work. Not applicable (True) when the work has no
+    passage windows or is too short for one; the windows column reports a missing window set.
+    have maps work -> rows. With full, the rows must reach the window count (descfts)."""
+    def ok(w):
+        n = have.get(w, 0)
+        return n >= win_counts.get(w, 0) if full else n > 0
+    if n_lines < MIN_WINDOW_LINES:
+        return True
+    if part_lines and win_counts.get(base, 0) > 0:
+        return ok(base)
+    if part_lines:
+        parts = [p for p, n in part_lines.items() if n >= MIN_WINDOW_LINES and win_counts.get(p, 0) > 0]
+        return all(ok(p) for p in parts)
+    if win_counts.get(base, 0) > 0:
+        return ok(base)
+    if is_part and win_counts.get(whole, 0) > 0:
+        return ok(whole)
+    return True
+
+
+def load_exemptions(path=None):
+    """Works confirmed to lack a store, with the reason (scripts/corpus/coverage_exemptions.json)."""
+    path = path or os.path.join(os.path.dirname(os.path.abspath(__file__)), 'coverage_exemptions.json')
+    try:
+        return json.load(open(path, encoding='utf-8')).get('works', {})
+    except (OSError, ValueError):
+        return {}
+
+
+def work_level_flag(whole, win_counts, have):
+    """For stores that list only windows WITH names (People & Places, window names):
+    a poem or chapter that names nobody is absent and that is not a gap. The build
+    reached the work when any window of the work, whole file or any part, is listed.
+    A work with windows and no listed window at all is reported missing (a real gap,
+    or a rare work that names nobody, which a person confirms)."""
+    prefix = whole + '.part.'
+    def total(counts):
+        return counts.get(whole, 0) + sum(n for w, n in counts.items() if w.startswith(prefix))
+    if total(win_counts) == 0:
+        return True
+    return total(have) > 0
+
+
+def reuse_flag(base, whole, is_part, reuse, text_mtime=None):
+    """The table keys a part on its whole work when a whole file exists (backend/reuse_table.py).
+    A work absent from the table is covered when the table was built after the text was
+    last changed: the build read it and found no line that another work repeats."""
+    if reuse is None:
+        return '-'
+    if base in reuse or whole in reuse:
+        return True
+    built = getattr(reuse, 'built_at', None)
+    return bool(built and text_mtime and text_mtime <= built)
+
+
+def first_lines(path, n=5):
+    """Up to n (tag, text) pairs from a .tess file."""
+    out = []
+    for l in open(path, encoding='utf-8', errors='replace'):
+        m = re.match(r'<([^>]+)>\s*(.*)', l)
+        if m and m.group(2).strip():
+            out.append((m.group(1).strip(), m.group(2).strip()))
+            if len(out) >= n:
+                break
+    return out
+
+
+def meter_flag(path, genre_row):
+    """Latin verse only: True when a line scans, 'no scansion' when none of the first lines does,
+    '-' for prose or an unknown meter."""
+    meter = (genre_row or {}).get('meter', '')
+    if meter not in VERSE_METERS:
+        return '-'
+    try:
+        from backend.metrical_scanner import lookup_mqdq_scansion, scan_latin_verse, detect_meter_type
+    except Exception as e:
+        return f'scanner unavailable: {e}'[:40]
+    for tag, text in first_lines(path, 8):
+        if lookup_mqdq_scansion(tag):
+            return True
+        res = scan_latin_verse(text, detect_meter_type(os.path.basename(path)))
+        if res and res.get('pattern'):
+            return True
+    return 'no scansion'
+
+
+def label_flag(fn, meta, src_rows):
+    """Compare what the site shows with the credit rows and the file name. True or 'check: ...'.
+    meta is the site's entry for the file (may be empty); src_rows is a list of (author, work)."""
+    if not meta:
+        return 'no-api'
+    ma = (meta.get('author') or '').strip().casefold()
+    mw = (meta.get('work') or meta.get('title') or '').strip()
+    notes = []
+    base = fn[:-5] if fn.endswith('.tess') else fn
+    segs = base.split('.part.')[0].split('.')
+    words = [w for w in re.split(r'[_.]', '.'.join(segs[1:])) if w]
+    shown = mw.split(',')[0].strip().casefold()
+    shown_words = [w for w in re.split(r'[\s_]+', shown) if w]
+    # a credit row for the same work under a different author
+    same_work = [sa for sa, sw in src_rows if shown and (sw == shown or sw.startswith(shown) or shown.startswith(sw)) and sw]
+    if same_work and ma and ma not in same_work and not any(sa == ma for sa, _ in src_rows):
+        notes.append(f'author shown {ma!r}, credit row {same_work[0]!r}')
+    # a bare fragment of the file name
+    if len(words) >= 2 and shown_words and len(shown_words) < len(words) and len(shown_words) == 1 \
+            and shown_words[0] in [w.casefold() for w in words]:
+        notes.append(f'title {mw!r} is one word of {"_".join(words)!r}')
+    return True if not notes else 'check: ' + '; '.join(notes)
 
 
 def main():
@@ -112,6 +384,14 @@ def main():
     blurbs = (json.load(open('data/text_descriptions.json')).get(lang) or {}) if os.path.exists('data/text_descriptions.json') else {}
     dates = (json.load(open('backend/author_dates.json')).get(lang) or {}) if os.path.exists('backend/author_dates.json') else {}
 
+    syn_files = syntax_files(root, lang)
+    exemptions = load_exemptions()
+    ent_counts = entity_work_counts(root)
+    wn_counts = window_name_works(root)
+    fts_counts = desc_fts_counts(root)
+    reuse = reuse_works(root, lang)
+    src_rows = [(sa, sw) for sa, sw in src_keys]
+
     pat = re.compile(r'<([^>]+)>')
     rows = []; any_missing = False
     for fn in files:
@@ -128,28 +408,16 @@ def main():
         if os.path.exists(vp):
             try:
                 rows_v = np.load(vp, mmap_mode='r').shape[0]
-                r['vectors'] = rows_v == n_lines or f'rows {rows_v} vs lines {n_lines}'
+                n_text = count_text_lines(path)
+                r['vectors'] = rows_v == n_text or f'rows {rows_v} vs text lines {n_text}'
             except Exception: r['vectors'] = 'unreadable'
         else: r['vectors'] = False
         # Passage windows belong to the part files when a work has parts (the
         # whole file's own windows were dropped so a passage is not indexed
         # twice); a whole work with parts is covered when every part is.
         parts_of_whole = [f for f in files_all if f.startswith(base + '.part.')] if not is_part else []
-        if n_lines < MIN_WINDOW_LINES:
-            # too short to make a passage window at all (a one-line epigram, a hypothesis)
-            r['windows'] = r['described'] = r['winvec'] = True
-        elif parts_of_whole and win_counts.get(base, 0) > 0:
-            # the whole work carries windows; very short parts cannot have their own
-            r['windows'] = r['described'] = r['winvec'] = True
-        elif parts_of_whole:
-            pw = [win_counts.get(pf[:-5], 0) for pf in parts_of_whole]
-            r['windows'] = all(n > 0 for n in pw)
-            r['described'] = all(desc_counts.get(pf[:-5], 0) >= win_counts.get(pf[:-5], 0) for pf in parts_of_whole) and r['windows']
-            r['winvec'] = all(vec_counts.get(pf[:-5], 0) >= win_counts.get(pf[:-5], 0) for pf in parts_of_whole) and r['windows']
-        elif not (n_lines < MIN_WINDOW_LINES):
-            nw = win_counts.get(base, 0); r['windows'] = nw > 0 or (is_part and win_counts.get(whole, 0) > 0)
-            r['described'] = (desc_counts.get(base, 0) >= nw) if nw else r['windows']
-            r['winvec'] = (vec_counts.get(base, 0) >= nw) if nw else r['windows']
+        part_lines = {pf[:-5]: count_lines(f'texts/{lang}/{pf}') for pf in parts_of_whole}
+        r.update(window_flags(base, whole, is_part, n_lines, part_lines, win_counts, desc_counts, vec_counts))
         # a text too short for passage windows cannot appear in the connection map
         r['connmap'] = True if (is_part or n_lines < MIN_WINDOW_LINES) else (whole in conn_works)
         g = genres.get(fn) or genres.get(whole + '.tess')
@@ -159,11 +427,26 @@ def main():
         r['browser'] = (bool(m) and bool(m.get('era')) and m.get('era') != 'Unknown' and bool(m.get('text_type'))) if api_meta else 'no-api'
         ma, mw = (m.get('author') or '').strip().casefold(), (m.get('work') or m.get('title') or '').strip().casefold()
         r['sources'] = (ma, mw) in src_keys or any(sa == ma and (sw.startswith(mw) or mw.startswith(sw)) for sa, sw in src_keys if ma and mw and sw)
+        # a part file whose name has no work segment gets the work 'Unknown'; the author's one row covers it
+        if not r['sources'] and ma and mw == 'unknown':
+            r['sources'] = sum(1 for sa, _ in src_keys if sa == ma) == 1
         r['blurb'] = (base in blurbs) or (whole in blurbs)
         r['dates'] = whole.split('.')[0] in dates
         r['transl'] = os.path.exists(f'data/translations/{lang}__{base}.json') or os.path.exists(f'data/translations/{lang}__{whole}.json')
+        r['syntax'] = '-' if syn_files is None else (fn in syn_files)
+        r['names'] = work_level_flag(whole, win_counts, ent_counts)
+        r['wnames'] = work_level_flag(whole, win_counts, wn_counts)
+        ex = exemptions.get(whole)
+        if ex:
+            for col in ex.get('columns', []):
+                if r.get(col) is not True:
+                    r[col] = '-'
+        r['descfts'] = store_flag(base, whole, is_part, n_lines, part_lines, win_counts, fts_counts, True)
+        r['reuse'] = reuse_flag(base, whole, is_part, reuse, os.path.getmtime(path))
+        r['meter'] = meter_flag(path, g) if lang == 'la' else '-'
+        r['label'] = label_flag(fn, m, src_rows)
         r['text'] = r.pop('text_ok'); r['file'] = fn
-        missing = [k for k in REQUIRED if r.get(k) is not True]
+        missing = [k for k in REQUIRED if r.get(k) is not True and r.get(k) != '-']
         r['missing'] = missing; any_missing |= bool(missing)
         rows.append(r)
 
@@ -173,12 +456,19 @@ def main():
     for r in rows:
         def mark(k):
             v = r.get(k)
+            if k in ('meter', 'label'):
+                return 'ok' if v is True else ('-' if v == '-' else ('CHECK' if isinstance(v, str) else '-'))
             if k in OPTIONAL: return 'ok' if v is True else '-'
             return 'ok' if v is True else ('MISSING' if v is False else str(v)[:7])
         print(f"{r['file']:<{w}}  {r['lines']:>5}  " + ' '.join(f'{mark(c):<7}' for c in cols))
     tot = len(rows); miss = sum(1 for r in rows if r['missing'])
-    per = {c: sum(1 for r in rows if r.get(c) is not True) for c in REQUIRED}
+    per = {c: sum(1 for r in rows if r.get(c) is not True and r.get(c) != '-') for c in REQUIRED}
+    opt = {c: sum(1 for r in rows if isinstance(r.get(c), str) and r.get(c) not in ('-', 'no-api')) for c in ('meter', 'label')}
     print(f"\n{tot} texts checked; {miss} with something missing; missing per store: " + ', '.join(f'{c} {n}' for c, n in per.items() if n))
+    print('optional columns to read (not failures): ' + ', '.join(f'{c} {n}' for c, n in opt.items() if n))
+    for r in rows:
+        if isinstance(r.get('label'), str) and r['label'].startswith('check'):
+            print(f"  label {r['file']}: {r['label']}")
     if a.json:
         json.dump(rows, open(a.json, 'w'), ensure_ascii=False, indent=1)
     sys.exit(1 if any_missing else 0)

@@ -15,7 +15,7 @@ beforeEach(() => {
 describe('the view data', () => {
   it('has Literature and History, each complete', () => {
     expect(VIEWS.map((v) => v.id)).toEqual(['literature', 'history']);
-    const pages = ['search', 'read', 'theme-search', 'mentions', 'ask-a-work', 'inscriptions-papyri', 'events', 'coins', 'objects',
+    const pages = ['search', 'read', 'theme-search', 'mentions', 'inscriptions-papyri', 'events', 'coins', 'objects',
       'browse', 'about', 'help', 'repository', 'downloads'];
     VIEWS.forEach((v) => {
       expect(v.label).toBeTruthy();
@@ -29,12 +29,12 @@ describe('the view data', () => {
     });
   });
 
-  it('gives History Search One Text on the Annals and the history pairs', () => {
+  it('gives History Theme Search on one text on the Annals and the history pairs', () => {
     const h = viewById('history');
     expect(h.profile).toBe('everything');
-    expect(h.home).toEqual({ page: 'ask-a-work' });
+    expect(h.home).toEqual({ page: 'theme-search' });
     expect(h.askDefault).toEqual({ lang: 'la', work: 'tacitus.annales' });
-    expect(h.menuOrder.slice(0, 3)).toEqual(['ask-a-work', 'read', 'events']);
+    expect(h.menuOrder.slice(0, 3)).toEqual(['read', 'events', 'inscriptions-papyri']);
     expect(h.menuOrder.indexOf('theme-search')).toBeLessThan(h.menuOrder.indexOf('search'));
     // Coins and Objects sit with the collections, ahead of Intertextual Search (2026-10-18).
     expect(h.menuOrder.indexOf('coins')).toBeLessThan(h.menuOrder.indexOf('search'));
@@ -48,13 +48,13 @@ describe('the view data', () => {
     expect(h.startHereLabels.documents).toBe('Inscriptions, papyri, events and coins');
   });
 
-  it('gives Literature Search One Text first, opening on it, and the literary profile', () => {
+  it('gives Literature Theme Search on one text as its opening page, and the literary profile', () => {
     const l = viewById('literature');
     expect(l.profile).toBe('literary');
-    expect(l.menuOrder.slice(0, 4)).toEqual(['ask-a-work', 'search', 'read', 'theme-search']);
-    expect(l.startHereOrder[0]).toBe('ask');
-    expect(l.home).toEqual({ page: 'ask-a-work' });
-    expect(l.opensOn).toBe('Search One Text, on the Aeneid');
+    expect(l.menuOrder.slice(0, 4)).toEqual(['search', 'read', 'theme-search', 'mentions']);
+    expect(l.startHereOrder[0]).toBe('subject');
+    expect(l.home).toEqual({ page: 'theme-search' });
+    expect(l.opensOn).toBe('Theme Search, one text, on the Aeneid');
     expect(l.readerTabs).toEqual(['similar', 'reuse', 'verbal', 'scholarship', 'translation', 'coins']);
   });
 

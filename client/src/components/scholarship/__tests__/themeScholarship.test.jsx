@@ -188,7 +188,7 @@ describe('Articles found online under the list', () => {
     expect(asks.every((c) => !c.includes('work='))).toBe(true);
   });
 
-  it('passes the work when the search came from Search One Text', async () => {
+  it('passes the work when the search came from the one-text scope', async () => {
     const calls = mockRecent({});
     render(<ThemeScholarship search={{ q: 'love', n: 1, work: 'vergil.aeneid' }} />);
     await screen.findByTestId('theme-scholarship');
