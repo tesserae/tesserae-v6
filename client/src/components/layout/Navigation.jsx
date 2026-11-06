@@ -137,6 +137,10 @@ const mainTabs = [
   // look at it regularly); it is reached from the About page and at /research.
   { code: 'about', label: 'About' },
   { code: 'help', label: 'Help & Support' },
+  // Its own page since the Help reorganization (2026-10-19) but it had no menu
+  // entry, so it was reachable only from inside Help. Not in any view's
+  // menuOrder, so it sorts after Help and overflows into More when the row is full.
+  { code: 'upload-help', label: 'Upload Your Text' },
   // Under the More menu, after Help: what the scholarship results are made from.
   { code: 'scholarship-sources', label: 'Scholarship sources', more: true },
   { code: 'admin', label: 'Admin' }
