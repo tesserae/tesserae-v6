@@ -783,33 +783,69 @@ def _estimate_text_type_from_content_uncached(filepath):
     return 'prose' if median > 100 else 'poetry'
 
 
-def detect_text_type(filename, content=None, filepath=None, language=None):
-    """Detect if text is poetry or prose using a 5-tier cascade.
+TEXT_TYPES_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'data', 'text_types.json')
+_text_types_cache = None
+_text_types_mtime = 0
 
-    Tier 1: Manual overrides (text_metadata_overrides.json) — highest priority
-    Tier 2: POETRY_WORKS — explicit known-poetry edge cases
-    Tier 3: PROSE_WORKS — consolidated prose author/marker list
-    Tier 4: Content heuristic — median line length (if filepath available)
-    Tier 5: Language default (Coptic → prose; everything else → poetry).
+
+def load_text_types(force_reload=False):
+    """The reviewed prose/poetry table, {language: {filename: {'text_type': ...}}}.
+
+    Read once per process and re-read only when the file changes, the way the
+    overrides file is cached: detect_text_type runs for every file in a Line Search.
+    """
+    global _text_types_cache, _text_types_mtime
+    try:
+        mtime = os.path.getmtime(TEXT_TYPES_PATH)
+        if not force_reload and _text_types_cache is not None and mtime == _text_types_mtime:
+            return _text_types_cache
+        with open(TEXT_TYPES_PATH, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        _text_types_cache = {k: v for k, v in data.items() if not k.startswith('_') and isinstance(v, dict)}
+        _text_types_mtime = mtime
+        return _text_types_cache
+    except Exception as e:
+        logger.warning(f"Could not load text types table: {e}")
+        return {}
+
+
+def _table_text_type(filename, language):
+    table = load_text_types()
+    if language:
+        entry = table.get(language, {}).get(filename)
+    else:
+        hits = [langs[filename] for langs in table.values() if filename in langs]
+        entry = hits[0] if len(hits) == 1 else None
+    if entry and entry.get('text_type') in ('poetry', 'prose'):
+        return entry['text_type']
+    return None
+
+
+def propose_text_type(filename, filepath=None, language=None):
+    """The 5-tier cascade, ignoring the table: returns (label, source).
+
+    source is 'override', 'marker', 'line_length' or 'default'. Used by
+    detect_text_type for a file with no table entry yet, and by
+    scripts/corpus/text_types.py to propose a value for a new text.
     """
     # Tier 1: Manual overrides
     override = get_override(filename)
     if 'text_type' in override:
-        return override['text_type']
+        return override['text_type'], 'override'
 
     name_lower = filename.lower().replace('.tess', '')
 
-    # Tier 2: POETRY_WORKS — known-poetry edge cases (checked before prose)
+    # Tier 2: POETRY_WORKS: known-poetry edge cases (checked before prose)
     for marker in POETRY_WORKS:
         if marker in name_lower:
-            return 'poetry'
+            return 'poetry', 'marker'
 
-    # Tier 3: PROSE_WORKS — consolidated prose authors + markers
+    # Tier 3: PROSE_WORKS: consolidated prose authors + markers
     for marker in PROSE_AUTHORS + PROSE_MARKERS:
         if marker in name_lower:
-            return 'prose'
+            return 'prose', 'marker'
 
-    # Tier 4: Content heuristic — median line length.
+    # Tier 4: Content heuristic, median line length.
     # For Coptic the content heuristic misfires: Bible verses and
     # Shenoute paragraph divisions are short (<100 chars) even though
     # the underlying texts are unambiguously prose. Coptic has no
@@ -822,14 +858,31 @@ def detect_text_type(filename, content=None, filepath=None, language=None):
         if resolved and fspaths.isfile(resolved):
             result = _estimate_text_type_from_content(resolved)
             if result:
-                return result
+                return result, 'line_length'
 
     # Tier 5: Language default. Coptic literary corpus (NT, OT,
     # Shenoute, hagiographies, Apophthegmata Patrum) is universally
     # prose. Other languages keep the legacy poetry default.
     if language == 'cop':
-        return 'prose'
-    return 'poetry'
+        return 'prose', 'default'
+    return 'poetry', 'default'
+
+
+def detect_text_type(filename, content=None, filepath=None, language=None):
+    """Return 'poetry' or 'prose' for a file.
+
+    1. text_type in text_metadata_overrides.json (the admin panel edits that file)
+    2. the reviewed table, data/text_types.json
+    3. the cascade (markers, median line length, language default), for a new
+       text that has no table entry yet.
+    """
+    override = get_override(filename)
+    if 'text_type' in override:
+        return override['text_type']
+    table_value = _table_text_type(filename, language)
+    if table_value:
+        return table_value
+    return propose_text_type(filename, filepath=filepath, language=language)[0]
 
 DISPLAY_NAMES = {
     # Iqbal's titles: the Persian/Urdu connective -e (izafa) is joined to the

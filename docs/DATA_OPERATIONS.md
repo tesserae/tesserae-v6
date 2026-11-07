@@ -92,6 +92,14 @@ Stage A. Before any file is made
    anonymous work, a title of several words), add a display override in
    `backend/text_metadata_overrides.json` with the author, the title, the era
    and the year, and give the credit row the same author and title.
+3a. Prose or poetry label. Run `scripts/corpus/text_types.py fill`, which adds
+   the new file to `data/text_types.json` with the label the name markers and
+   median line length propose. Read the proposed label against the text. If it
+   is wrong, correct `text_type` in `data/text_types.json` and set `source` to
+   `reviewed`. The label sets the word-distance limit in Line Search and the
+   matcher (poetry 10 words, prose 4). `scripts/corpus/text_types.py check`
+   exits 1 until every file has an entry. (Numbered 3a so the step numbers
+   above and below stay as they are.)
 
 Stage B. The pull request that adds the text
 4. The `.tess` file, validated with `scripts/corpus/validate_tess.py`.
@@ -100,7 +108,7 @@ Stage B. The pull request that adds the text
 6. Description for About this text in `data/text_descriptions.json`.
 7. Author date and era in `backend/author_dates.json`, or in the override.
 8. Genre and meter row in `data/text_genres.csv` (Latin), text type checked
-   with `scripts/audit_text_types.py`.
+   with `scripts/audit_text_types.py` (the label itself is set in step 3a).
 9. Translation. Look for a public-domain translation first, then an open one
    with attribution, and align it with a script in `scripts/translations/`.
    Record the search even when nothing is found.

@@ -8,6 +8,10 @@ history (index builds, cache rebuilds, corpus changes) is in
 `DATA_OPERATIONS.md`; per-release changes are in `../CHANGELOG.md`.
 
 
+## 2026-11-07: a text's prose or poetry label comes from one explicit table, and the guessing rules only propose a value for a new text
+
+The label sets the word-distance limit in Line Search and the matcher (poetry 10 words, prose 4) and is shown in Browse Corpus. It was worked out for every request by a cascade: an override in `text_metadata_overrides.json`, then poetry name markers, prose author and marker lists, the median line length, and a language default. Most of the 82 corrections of 2026-11-07 (#1289, issue #1288) came from the guessing steps: a marker such as `fall` matched Quintus Smyrnaeus, and the line-length rule misread a file that puts a whole poem on one line. From this change every text has an entry in `data/text_types.json` with its label and the `source` of its first value (override, marker, line_length, default, or reviewed when a person set it). `detect_text_type` returns the override if it carries a label (the admin panel still edits that file), then the table's entry, then the cascade for a file that has no entry yet. The first table was filled from the cascade as it stood, so no label on the live site changed. The cascade stays, as the proposal `scripts/corpus/text_types.py fill` makes for a new text, which a person reads and corrects; `check` fails until every file has an entry, and the coverage check has a required `type` column. Decided by the project lead on 2026-11-07.
+
 ## 2026-10-29: every text gets a date, by a stated rule
 
 An undated text cannot be placed on a timeline (era filters, genealogies in Theme Search, the Map), and every other language dates every work. The 21 Coptic works without a date were dated by the rule below, which applies to any future undated text.
