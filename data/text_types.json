@@ -2,11 +2,203 @@
  "_description": "The prose or poetry label of every text, one entry per .tess file. detect_text_type reads this table. \"source\" says where the first value came from: override, marker, line_length, default, or reviewed (a person set it). The name markers and median line length only propose a value for a new text (scripts/corpus/text_types.py fill).",
  "_last_updated": "2026-11-07",
  "ar": {
-  "imruulqais.muallaqah.tess": {
+  "abid_ibn_al_abras.muallaqa.tess": {
    "source": "line_length",
    "text_type": "poetry"
   },
-  "quran.al_baqara.part.1.tess": {
+  "abu_firas.diwan_wikisource.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "abu_nuwas.diwan_wikisource.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "abu_tammam.diwan_wikisource.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "al_asha.muallaqa.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "ali_ibn_abi_talib.diwan_wikisource.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "amr_ibn_kulthum.diwan_wikisource.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "amr_ibn_kulthum.muallaqa.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "antara.muallaqa.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "barudi.diwan_wikisource.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "bashshar.diwan_wikisource.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "busiri.burda.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "harith_ibn_hilliza.muallaqa.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "hassan_ibn_thabit.diwan_wikisource.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "hatim_al_tai.diwan_wikisource.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "ibn_sahl.diwan_wikisource.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "ibn_zaydun.nuniyya.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "imru_al_qais.diwan_wikisource.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "imru_al_qais.muallaqa.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "jamil_buthayna.diwan_wikisource.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "kaab.banat_suad.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "khansa.diwan_wikisource.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "labid.muallaqa.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "maarri.diwan_wikisource.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "mutanabbi.diwan_wikisource.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "nabigha.muallaqa.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "nawawi.arbain.tess": {
+   "source": "line_length",
+   "text_type": "prose"
+  },
+  "nawawi.riyad_al_salihin.tess": {
+   "source": "line_length",
+   "text_type": "prose"
+  },
+  "quran.abasa.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "quran.ad_duha.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "quran.ad_dukhan.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "quran.adh_dhariyat.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "quran.al_adiyat.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "quran.al_ahqaf.tess": {
+   "source": "line_length",
+   "text_type": "prose"
+  },
+  "quran.al_ahzab.tess": {
+   "source": "line_length",
+   "text_type": "prose"
+  },
+  "quran.al_ala.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "quran.al_alaq.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "quran.al_anam.tess": {
+   "source": "line_length",
+   "text_type": "prose"
+  },
+  "quran.al_anbiya.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "quran.al_anfal.tess": {
+   "source": "line_length",
+   "text_type": "prose"
+  },
+  "quran.al_ankabut.tess": {
+   "source": "line_length",
+   "text_type": "prose"
+  },
+  "quran.al_araf.tess": {
+   "source": "line_length",
+   "text_type": "prose"
+  },
+  "quran.al_asr.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "quran.al_balad.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "quran.al_baqara.tess": {
+   "source": "line_length",
+   "text_type": "prose"
+  },
+  "quran.al_bayyina.tess": {
+   "source": "line_length",
+   "text_type": "prose"
+  },
+  "quran.al_buruj.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "quran.al_fajr.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "quran.al_falaq.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "quran.al_fath.tess": {
    "source": "line_length",
    "text_type": "prose"
   },
@@ -14,7 +206,323 @@
    "source": "line_length",
    "text_type": "poetry"
   },
-  "quran.al_imran.part.1.tess": {
+  "quran.al_fil.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "quran.al_furqan.tess": {
+   "source": "line_length",
+   "text_type": "prose"
+  },
+  "quran.al_ghashiya.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "quran.al_hadid.tess": {
+   "source": "line_length",
+   "text_type": "prose"
+  },
+  "quran.al_hajj.tess": {
+   "source": "line_length",
+   "text_type": "prose"
+  },
+  "quran.al_haqqa.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "quran.al_hashr.tess": {
+   "source": "line_length",
+   "text_type": "prose"
+  },
+  "quran.al_hijr.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "quran.al_hujurat.tess": {
+   "source": "line_length",
+   "text_type": "prose"
+  },
+  "quran.al_humaza.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "quran.al_ikhlas.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "quran.al_imran.tess": {
+   "source": "line_length",
+   "text_type": "prose"
+  },
+  "quran.al_infitar.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "quran.al_insan.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "quran.al_inshiqaq.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "quran.al_isra.tess": {
+   "source": "line_length",
+   "text_type": "prose"
+  },
+  "quran.al_jathiya.tess": {
+   "source": "line_length",
+   "text_type": "prose"
+  },
+  "quran.al_jinn.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "quran.al_jumua.tess": {
+   "source": "line_length",
+   "text_type": "prose"
+  },
+  "quran.al_kafirun.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "quran.al_kahf.tess": {
+   "source": "line_length",
+   "text_type": "prose"
+  },
+  "quran.al_kawthar.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "quran.al_layl.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "quran.al_maarij.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "quran.al_maida.tess": {
+   "source": "line_length",
+   "text_type": "prose"
+  },
+  "quran.al_masad.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "quran.al_maun.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "quran.al_muddaththir.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "quran.al_mujadila.tess": {
+   "source": "line_length",
+   "text_type": "prose"
+  },
+  "quran.al_mulk.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "quran.al_muminun.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "quran.al_mumtahina.tess": {
+   "source": "line_length",
+   "text_type": "prose"
+  },
+  "quran.al_munafiqun.tess": {
+   "source": "line_length",
+   "text_type": "prose"
+  },
+  "quran.al_mursalat.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "quran.al_mutaffifin.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "quran.al_muzzammil.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "quran.al_qadr.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "quran.al_qalam.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "quran.al_qamar.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "quran.al_qaria.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "quran.al_qasas.tess": {
+   "source": "line_length",
+   "text_type": "prose"
+  },
+  "quran.al_qiyama.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "quran.al_waqia.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "quran.an_naba.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "quran.an_nahl.tess": {
+   "source": "line_length",
+   "text_type": "prose"
+  },
+  "quran.an_najm.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "quran.an_naml.tess": {
+   "source": "line_length",
+   "text_type": "prose"
+  },
+  "quran.an_nas.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "quran.an_nasr.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "quran.an_naziat.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "quran.an_nisa.tess": {
+   "source": "line_length",
+   "text_type": "prose"
+  },
+  "quran.an_nur.tess": {
+   "source": "line_length",
+   "text_type": "prose"
+  },
+  "quran.ar_rad.tess": {
+   "source": "line_length",
+   "text_type": "prose"
+  },
+  "quran.ar_rahman.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "quran.ar_rum.tess": {
+   "source": "line_length",
+   "text_type": "prose"
+  },
+  "quran.as_saff.tess": {
+   "source": "line_length",
+   "text_type": "prose"
+  },
+  "quran.as_saffat.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "quran.as_sajda.tess": {
+   "source": "line_length",
+   "text_type": "prose"
+  },
+  "quran.ash_shams.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "quran.ash_sharh.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "quran.ash_shuara.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "quran.ash_shura.tess": {
+   "source": "line_length",
+   "text_type": "prose"
+  },
+  "quran.at_taghabun.tess": {
+   "source": "line_length",
+   "text_type": "prose"
+  },
+  "quran.at_tahrim.tess": {
+   "source": "line_length",
+   "text_type": "prose"
+  },
+  "quran.at_takathur.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "quran.at_takwir.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "quran.at_talaq.tess": {
+   "source": "line_length",
+   "text_type": "prose"
+  },
+  "quran.at_tariq.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "quran.at_tawba.tess": {
+   "source": "line_length",
+   "text_type": "prose"
+  },
+  "quran.at_tin.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "quran.at_tur.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "quran.az_zalzala.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "quran.az_zukhruf.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "quran.az_zumar.tess": {
+   "source": "line_length",
+   "text_type": "prose"
+  },
+  "quran.fatir.tess": {
+   "source": "line_length",
+   "text_type": "prose"
+  },
+  "quran.fussilat.tess": {
+   "source": "line_length",
+   "text_type": "prose"
+  },
+  "quran.ghafir.tess": {
+   "source": "line_length",
+   "text_type": "prose"
+  },
+  "quran.hud.tess": {
+   "source": "line_length",
+   "text_type": "prose"
+  },
+  "quran.ibrahim.tess": {
+   "source": "line_length",
+   "text_type": "prose"
+  },
+  "quran.luqman.tess": {
    "source": "line_length",
    "text_type": "prose"
   },
@@ -22,7 +530,71 @@
    "source": "line_length",
    "text_type": "poetry"
   },
-  "tarafa.muallaqah.tess": {
+  "quran.muhammad.tess": {
+   "source": "line_length",
+   "text_type": "prose"
+  },
+  "quran.nuh.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "quran.qaf.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "quran.quran.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "quran.quraysh.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "quran.saba.tess": {
+   "source": "line_length",
+   "text_type": "prose"
+  },
+  "quran.sad.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "quran.ta_ha.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "quran.ya_sin.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "quran.yunus.tess": {
+   "source": "line_length",
+   "text_type": "prose"
+  },
+  "quran.yusuf.tess": {
+   "source": "line_length",
+   "text_type": "prose"
+  },
+  "shabbi.diwan_wikisource.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "shanfara.lamiyyat_al_arab.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "shawqi.diwan_wikisource.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "shawqi.nahj_al_burda.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "tarafa.muallaqa.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "zuhayr.muallaqa.tess": {
    "source": "line_length",
    "text_type": "poetry"
   }
@@ -392,6 +964,10 @@
    "source": "default",
    "text_type": "prose"
   },
+  "sahidic.bible.tess": {
+   "source": "marker",
+   "text_type": "prose"
+  },
   "sahidic.daniel.tess": {
    "source": "default",
    "text_type": "prose"
@@ -565,6 +1141,118 @@
    "text_type": "prose"
   },
   "sahidic.zephaniah.tess": {
+   "source": "default",
+   "text_type": "prose"
+  },
+  "sahidica.1_john.tess": {
+   "source": "default",
+   "text_type": "prose"
+  },
+  "sahidica.1_peter.tess": {
+   "source": "default",
+   "text_type": "prose"
+  },
+  "sahidica.1_thessalonians.tess": {
+   "source": "default",
+   "text_type": "prose"
+  },
+  "sahidica.1_timothy.tess": {
+   "source": "default",
+   "text_type": "prose"
+  },
+  "sahidica.1corinthians.tess": {
+   "source": "default",
+   "text_type": "prose"
+  },
+  "sahidica.2_corinthians.tess": {
+   "source": "default",
+   "text_type": "prose"
+  },
+  "sahidica.2_john.tess": {
+   "source": "default",
+   "text_type": "prose"
+  },
+  "sahidica.2_peter.tess": {
+   "source": "default",
+   "text_type": "prose"
+  },
+  "sahidica.2_thessalonians.tess": {
+   "source": "default",
+   "text_type": "prose"
+  },
+  "sahidica.2_timothy.tess": {
+   "source": "default",
+   "text_type": "prose"
+  },
+  "sahidica.3_john.tess": {
+   "source": "default",
+   "text_type": "prose"
+  },
+  "sahidica.acts_of_the_apostles.tess": {
+   "source": "default",
+   "text_type": "prose"
+  },
+  "sahidica.colossians.tess": {
+   "source": "default",
+   "text_type": "prose"
+  },
+  "sahidica.ephesians.tess": {
+   "source": "default",
+   "text_type": "prose"
+  },
+  "sahidica.galatians.tess": {
+   "source": "default",
+   "text_type": "prose"
+  },
+  "sahidica.hebrews.tess": {
+   "source": "default",
+   "text_type": "prose"
+  },
+  "sahidica.james.tess": {
+   "source": "default",
+   "text_type": "prose"
+  },
+  "sahidica.john.tess": {
+   "source": "default",
+   "text_type": "prose"
+  },
+  "sahidica.jude.tess": {
+   "source": "default",
+   "text_type": "prose"
+  },
+  "sahidica.luke.tess": {
+   "source": "default",
+   "text_type": "prose"
+  },
+  "sahidica.mark.tess": {
+   "source": "default",
+   "text_type": "prose"
+  },
+  "sahidica.matthew.tess": {
+   "source": "default",
+   "text_type": "prose"
+  },
+  "sahidica.nt.tess": {
+   "source": "default",
+   "text_type": "prose"
+  },
+  "sahidica.philemon.tess": {
+   "source": "default",
+   "text_type": "prose"
+  },
+  "sahidica.philippians.tess": {
+   "source": "default",
+   "text_type": "prose"
+  },
+  "sahidica.revelation.tess": {
+   "source": "default",
+   "text_type": "prose"
+  },
+  "sahidica.romans.tess": {
+   "source": "default",
+   "text_type": "prose"
+  },
+  "sahidica.titus.tess": {
    "source": "default",
    "text_type": "prose"
   },
@@ -1328,6 +2016,14 @@
    "source": "line_length",
    "text_type": "poetry"
   },
+  "attar.mantiq_al_tayr.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "attar.tazkirat_al_awliya.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
   "bidel.diwan.tess": {
    "source": "line_length",
    "text_type": "poetry"
@@ -1336,7 +2032,7 @@
    "source": "line_length",
    "text_type": "poetry"
   },
-  "ferdowsi.diwan.tess": {
+  "ferdowsi.shahnameh.tess": {
    "source": "line_length",
    "text_type": "poetry"
   },
@@ -1349,6 +2045,10 @@
    "text_type": "poetry"
   },
   "iqbal.asrar_e_khudi.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "iqbal.diwan.tess": {
    "source": "line_length",
    "text_type": "poetry"
   },
@@ -1372,10 +2072,6 @@
    "source": "line_length",
    "text_type": "poetry"
   },
-  "iqbal_lahori.diwan.tess": {
-   "source": "line_length",
-   "text_type": "poetry"
-  },
   "jami.diwan.tess": {
    "source": "line_length",
    "text_type": "poetry"
@@ -1396,7 +2092,15 @@
    "source": "line_length",
    "text_type": "poetry"
   },
+  "nasrallah_munshi.kalila_va_demna.tess": {
+   "source": "line_length",
+   "text_type": "prose"
+  },
   "nizami.diwan.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "nizami_arudi.chahar_maqala.tess": {
    "source": "line_length",
    "text_type": "poetry"
   },
@@ -1412,15 +2116,19 @@
    "source": "line_length",
    "text_type": "poetry"
   },
-  "rumi.masnavi.part.1.tess": {
+  "rumi.masnavi.tess": {
    "source": "line_length",
    "text_type": "poetry"
   },
-  "saadi.bustan.part.1.tess": {
+  "saadi.bustan.tess": {
    "source": "line_length",
    "text_type": "poetry"
   },
   "saadi.diwan.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "saadi.gulistan.tess": {
    "source": "line_length",
    "text_type": "poetry"
   },
@@ -9104,6 +9812,30 @@
    "source": "marker",
    "text_type": "prose"
   },
+  "augustine.de_doctrina_christiana.part.1.tess": {
+   "source": "marker",
+   "text_type": "prose"
+  },
+  "augustine.de_doctrina_christiana.part.2.tess": {
+   "source": "marker",
+   "text_type": "prose"
+  },
+  "augustine.de_doctrina_christiana.part.3.tess": {
+   "source": "marker",
+   "text_type": "prose"
+  },
+  "augustine.de_doctrina_christiana.part.4.tess": {
+   "source": "marker",
+   "text_type": "prose"
+  },
+  "augustine.de_doctrina_christiana.part.praef.tess": {
+   "source": "marker",
+   "text_type": "prose"
+  },
+  "augustine.de_doctrina_christiana.tess": {
+   "source": "marker",
+   "text_type": "prose"
+  },
   "augustine.de_duabus_animabus.tess": {
    "source": "marker",
    "text_type": "prose"
@@ -15694,6 +16426,10 @@
   }
  },
  "ur": {
+  "abru.diwan_wikisource.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
   "akbar.kulliyat_wikisource.tess": {
    "source": "line_length",
    "text_type": "poetry"
@@ -15706,6 +16442,10 @@
    "source": "line_length",
    "text_type": "poetry"
   },
+  "azad.ab_e_hayat.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
   "dagh.diwan_wikisource.tess": {
    "source": "line_length",
    "text_type": "poetry"
@@ -15714,11 +16454,19 @@
    "source": "line_length",
    "text_type": "poetry"
   },
+  "faiz.diwan_wikisource.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
   "ghalib.diwan_wikisource.tess": {
    "source": "line_length",
    "text_type": "poetry"
   },
   "hali.kulliyat_wikisource.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "hatim.diwan_wikisource.tess": {
    "source": "line_length",
    "text_type": "poetry"
   },
@@ -15746,11 +16494,19 @@
    "source": "line_length",
    "text_type": "poetry"
   },
+  "mir_amman.bagh_o_bahar.tess": {
+   "source": "line_length",
+   "text_type": "prose"
+  },
   "nazeer.kulliyat_wikisource.tess": {
    "source": "line_length",
    "text_type": "poetry"
   },
   "sauda.kulliyat_wikisource.tess": {
+   "source": "line_length",
+   "text_type": "poetry"
+  },
+  "suroor.fasana_e_ajaib.tess": {
    "source": "line_length",
    "text_type": "poetry"
   },
