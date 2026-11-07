@@ -216,3 +216,15 @@ describe('Navigation — the People, Places & Things menu', () => {
     clientSpy.mockRestore();
   });
 });
+
+describe('Navigation — Upload Your Text', () => {
+  it('lists Upload Your Text under More, not in the main row, and opens the upload-help page', () => {
+    const setPageType = vi.fn();
+    renderNav({ setPageType });
+    expect(screen.queryByRole('button', { name: 'Upload Your Text' })).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: /More/ }));
+    const more = screen.getByTestId('more-menu');
+    fireEvent.click(within(more).getByRole('menuitem', { name: 'Upload Your Text' }));
+    expect(setPageType).toHaveBeenCalledWith('upload-help');
+  });
+});

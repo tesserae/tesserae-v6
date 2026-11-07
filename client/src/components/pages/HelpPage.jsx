@@ -270,6 +270,8 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
     { id: 'repository', label: 'Repository', group: 'Reference & tools' },
     { id: 'faq', label: 'FAQ', group: 'Reference & tools' },
     { id: 'how-built', label: 'How the system is built', group: 'Reference & tools' },
+    // The stub that links to the Upload Your Text page (/upload-help).
+    { id: 'upload-text', label: 'Upload Your Text', group: 'Reference & tools' },
     { id: 'feedback', label: 'Send Feedback', group: 'Reference & tools' }
   ];
 

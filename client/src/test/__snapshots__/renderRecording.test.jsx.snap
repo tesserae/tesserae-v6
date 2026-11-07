@@ -3469,6 +3469,9 @@ exports[`App render recording > page /help 1`] = `
 <button class="w-full text-left pl-6 pr-3 py-1.5 rounded text-sm text-gray-700 hover:bg-gray-100">How the system is built</button>
 </li>
 <li>
+<button class="w-full text-left pl-6 pr-3 py-1.5 rounded text-sm text-gray-700 hover:bg-gray-100">Upload Your Text</button>
+</li>
+<li>
 <button class="w-full text-left pl-6 pr-3 py-1.5 rounded text-sm text-gray-700 hover:bg-gray-100">Send Feedback</button>
 </li>
 </ul>
