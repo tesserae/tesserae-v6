@@ -136,6 +136,11 @@ const mainTabs = [
   // look at it regularly); it is reached from the About page and at /research.
   { code: 'about', label: 'About' },
   { code: 'help', label: 'Help & Support' },
+  // Opens the Upload Your Text page (/upload-help), its own page since the
+  // Help reorganization (2026-10-19) but reachable only from inside Help until
+  // #1291. Under More, by the page's own name (the project lead, 2026-11-07:
+  // the main row stays as it was set on 2026-10-10).
+  { code: 'upload-help', label: 'Upload Your Text', more: true },
   // Under the More menu, after Help: what the scholarship results are made from.
   { code: 'scholarship-sources', label: 'Scholarship sources', more: true },
   { code: 'admin', label: 'Admin' }
