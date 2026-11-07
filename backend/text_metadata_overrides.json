@@ -1,6 +1,6 @@
 {
   "_description": "Per-text metadata overrides. Keyed by text filename (e.g. 'eobanus.heroidum.tess'). Fields: text_type (poetry/prose), display_author, display_work, year, era, notes. Only include fields you want to override.",
-  "_last_updated": "2026-10-27",
+  "_last_updated": "2026-11-03",
   "bohairic.abdias.tess": {
     "display_author": "Bohairic Coptic",
     "display_work": "Obadiah"
@@ -936,5 +936,284 @@
     "display_work": "Homily on Repentance and Continence",
     "era": "Late Antique Coptic",
     "year": 650
+  },
+  "hebrew_bible.1_chronicles.tess": {
+    "text_type": "prose"
+  },
+  "hebrew_bible.1_kings.tess": {
+    "text_type": "prose"
+  },
+  "hebrew_bible.1_samuel.tess": {
+    "text_type": "prose"
+  },
+  "hebrew_bible.2_chronicles.tess": {
+    "text_type": "prose"
+  },
+  "hebrew_bible.2_kings.tess": {
+    "text_type": "prose"
+  },
+  "hebrew_bible.2_samuel.tess": {
+    "text_type": "prose"
+  },
+  "hebrew_bible.amos.tess": {
+    "text_type": "poetry"
+  },
+  "hebrew_bible.daniel.tess": {
+    "text_type": "prose"
+  },
+  "hebrew_bible.deuteronomy.tess": {
+    "text_type": "prose"
+  },
+  "hebrew_bible.ecclesiastes.tess": {
+    "text_type": "prose"
+  },
+  "hebrew_bible.esther.tess": {
+    "text_type": "prose"
+  },
+  "hebrew_bible.exodus.tess": {
+    "text_type": "prose"
+  },
+  "hebrew_bible.ezekiel.tess": {
+    "text_type": "prose"
+  },
+  "hebrew_bible.ezra.tess": {
+    "text_type": "prose"
+  },
+  "hebrew_bible.genesis.tess": {
+    "text_type": "prose"
+  },
+  "hebrew_bible.habakkuk.tess": {
+    "text_type": "poetry"
+  },
+  "hebrew_bible.haggai.tess": {
+    "text_type": "prose"
+  },
+  "hebrew_bible.hosea.tess": {
+    "text_type": "poetry"
+  },
+  "hebrew_bible.isaiah.tess": {
+    "text_type": "poetry"
+  },
+  "hebrew_bible.jeremiah.tess": {
+    "text_type": "prose"
+  },
+  "hebrew_bible.job.tess": {
+    "text_type": "poetry"
+  },
+  "hebrew_bible.joel.tess": {
+    "text_type": "poetry"
+  },
+  "hebrew_bible.jonah.tess": {
+    "text_type": "prose"
+  },
+  "hebrew_bible.joshua.tess": {
+    "text_type": "prose"
+  },
+  "hebrew_bible.judges.tess": {
+    "text_type": "prose"
+  },
+  "hebrew_bible.lamentations.tess": {
+    "text_type": "poetry"
+  },
+  "hebrew_bible.leviticus.tess": {
+    "text_type": "prose"
+  },
+  "hebrew_bible.malachi.tess": {
+    "text_type": "prose"
+  },
+  "hebrew_bible.micah.tess": {
+    "text_type": "poetry"
+  },
+  "hebrew_bible.nahum.tess": {
+    "text_type": "poetry"
+  },
+  "hebrew_bible.nehemiah.tess": {
+    "text_type": "prose"
+  },
+  "hebrew_bible.numbers.tess": {
+    "text_type": "prose"
+  },
+  "hebrew_bible.obadiah.tess": {
+    "text_type": "poetry"
+  },
+  "hebrew_bible.proverbs.tess": {
+    "text_type": "poetry"
+  },
+  "hebrew_bible.psalms.tess": {
+    "text_type": "poetry"
+  },
+  "hebrew_bible.ruth.tess": {
+    "text_type": "prose"
+  },
+  "hebrew_bible.song_of_songs.tess": {
+    "text_type": "poetry"
+  },
+  "hebrew_bible.zechariah.tess": {
+    "text_type": "prose"
+  },
+  "hebrew_bible.zephaniah.tess": {
+    "text_type": "poetry"
+  },
+  "petrarch.africa.tess": {
+    "text_type": "poetry"
+  },
+  "ausonius.commemoratio_professorum_burdigalensium.tess": {
+    "text_type": "poetry"
+  },
+  "orientius_saint.commonitorium.tess": {
+    "text_type": "poetry"
+  },
+  "orientius_saint.carmina.tess": {
+    "text_type": "poetry"
+  },
+  "paulinus_of_pella.eucharisticus.tess": {
+    "text_type": "poetry"
+  },
+  "paulinus_petricordiae.de_vita_sancti_martini.tess": {
+    "text_type": "poetry"
+  },
+  "victor_claudius_marius.alethia.tess": {
+    "text_type": "poetry"
+  },
+  "victor_claudius_marius.commentariorum_in_genesim_libri_tres.tess": {
+    "text_type": "poetry"
+  },
+  "sedulius.hymnus_i.tess": {
+    "text_type": "poetry"
+  },
+  "sedulius.hymnus_ii_a_solis_ortus_cardine.tess": {
+    "text_type": "poetry"
+  },
+  "sedulius.carmina_ad_sedulium_spectantia.tess": {
+    "text_type": "poetry"
+  },
+  "ausonius.de_xii_caesaribus.tess": {
+    "text_type": "poetry"
+  },
+  "ausonius.de_bissula.tess": {
+    "text_type": "poetry"
+  },
+  "gregory_of_nazianzus.christus_patiens.tess": {
+    "text_type": "poetry"
+  },
+  "babrius.fabulae_aesopeae.tess": {
+    "text_type": "poetry"
+  },
+  "pseudoscymnus.scymni_chii_ut_fertur_periegesis.tess": {
+    "text_type": "poetry"
+  },
+  "dionysius_calliphontis.dionysii_calliphontis_filii_descriptio_graeciae.tess": {
+    "text_type": "poetry"
+  },
+  "callimachus.aetia.tess": {
+    "text_type": "poetry"
+  },
+  "epicharmus.fragmenta.tess": {
+    "text_type": "poetry"
+  },
+  "orphica.fragmenta.tess": {
+    "text_type": "poetry"
+  },
+  "obsequens.liber_de_prodigiis.tess": {
+    "text_type": "prose"
+  },
+  "anonymous.itinerarium_hierosolymitanum.tess": {
+    "text_type": "prose"
+  },
+  "eucherius_of_lyon.formulae_spiritalis_intellegentiae.tess": {
+    "text_type": "prose"
+  },
+  "priscillian_bishop_of_avila.canones_in_pauli_apostoli_epistula_canon.tess": {
+    "text_type": "prose"
+  },
+  "anonymous.stadiasmus_magni_maris.tess": {
+    "text_type": "prose"
+  },
+  "heronis_alexandrini.liber_geeponicus_sp.tess": {
+    "text_type": "prose"
+  },
+  "nicomachus_of_gerasa.excerpta.tess": {
+    "text_type": "prose"
+  },
+  "novum_testamentum.actus_apostolorum.tess": {
+    "text_type": "prose"
+  },
+  "novum_testamentum.ad_colossenses.tess": {
+    "text_type": "prose"
+  },
+  "novum_testamentum.ad_corinthios_i.tess": {
+    "text_type": "prose"
+  },
+  "novum_testamentum.ad_corinthios_ii.tess": {
+    "text_type": "prose"
+  },
+  "novum_testamentum.ad_ephesios.tess": {
+    "text_type": "prose"
+  },
+  "novum_testamentum.ad_galatas.tess": {
+    "text_type": "prose"
+  },
+  "novum_testamentum.ad_hebraeos.tess": {
+    "text_type": "prose"
+  },
+  "novum_testamentum.ad_philemonem.tess": {
+    "text_type": "prose"
+  },
+  "novum_testamentum.ad_philippenses.tess": {
+    "text_type": "prose"
+  },
+  "novum_testamentum.ad_romanos.tess": {
+    "text_type": "prose"
+  },
+  "novum_testamentum.ad_thessalonicenses_i.tess": {
+    "text_type": "prose"
+  },
+  "novum_testamentum.ad_thessalonicenses_ii.tess": {
+    "text_type": "prose"
+  },
+  "novum_testamentum.ad_timotheum_i.tess": {
+    "text_type": "prose"
+  },
+  "novum_testamentum.ad_timotheum_ii.tess": {
+    "text_type": "prose"
+  },
+  "novum_testamentum.ad_titum.tess": {
+    "text_type": "prose"
+  },
+  "novum_testamentum.apocalypsis.tess": {
+    "text_type": "prose"
+  },
+  "novum_testamentum.iacobi.tess": {
+    "text_type": "prose"
+  },
+  "novum_testamentum.ioannes.tess": {
+    "text_type": "prose"
+  },
+  "novum_testamentum.ioannis_i.tess": {
+    "text_type": "prose"
+  },
+  "novum_testamentum.ioannis_ii.tess": {
+    "text_type": "prose"
+  },
+  "novum_testamentum.ioannis_iii.tess": {
+    "text_type": "prose"
+  },
+  "novum_testamentum.iudae.tess": {
+    "text_type": "prose"
+  },
+  "novum_testamentum.lucas.tess": {
+    "text_type": "prose"
+  },
+  "novum_testamentum.marcus.tess": {
+    "text_type": "prose"
+  },
+  "novum_testamentum.matthaeus.tess": {
+    "text_type": "prose"
+  },
+  "novum_testamentum.petri_i.tess": {
+    "text_type": "prose"
+  },
+  "novum_testamentum.petri_ii.tess": {
+    "text_type": "prose"
   }
 }
