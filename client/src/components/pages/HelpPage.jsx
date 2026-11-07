@@ -271,7 +271,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
     { id: 'faq', label: 'FAQ', group: 'Reference & tools' },
     { id: 'how-built', label: 'How the system is built', group: 'Reference & tools' },
     // The stub that links to the Upload Your Text page (/upload-help).
-    { id: 'upload-text', label: 'Request a Text Addition', group: 'Reference & tools' },
+    { id: 'upload-text', label: 'Upload Your Text', group: 'Reference & tools' },
     { id: 'feedback', label: 'Send Feedback', group: 'Reference & tools' }
   ];
 
@@ -3412,7 +3412,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
 
           {activeSection === 'upload-text' && (
             <div className="prose max-w-none">
-              <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Request a Text Addition</h3>
+              <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Upload Your Text</h3>
               <p className="text-gray-700 mb-4">
                 Uploading a text now has its own page, with the formatting guidelines and the upload form.{' '}
                 <a href="/upload-help" className="text-red-600 hover:underline">Open Upload Your Text</a>.

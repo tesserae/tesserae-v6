@@ -58,12 +58,12 @@ describe('Help organization', () => {
     expect(await screen.findByRole('heading', { name: heading })).toBeTruthy();
   });
 
-  it('lists Request a Text Addition under Reference & tools, opening the stub', async () => {
+  it('lists Upload Your Text under Reference & tools, opening the stub', async () => {
     serve();
     render(<HelpPage />);
     await screen.findByRole('heading', { name: 'Start here' });
-    fireEvent.click(screen.getByRole('button', { name: 'Request a Text Addition' }));
-    expect(await screen.findByRole('heading', { name: 'Request a Text Addition' })).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Upload Your Text' }));
+    expect(await screen.findByRole('heading', { name: 'Upload Your Text' })).toBeTruthy();
     expect(screen.getAllByRole('link', { name: 'Open Upload Your Text' })).toHaveLength(1);
   });
 
