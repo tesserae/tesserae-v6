@@ -8,6 +8,7 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-11-07
+- Upload Your Text reachable from the More menu (#1292, continuing #1291): the page had no menu entry since the Help reorganization of 2026-10-19; it now sits under More by its own name, and Help lists it under Reference & tools.
 - Prose and poetry labels live (#1289, issue #1288): 82 texts change label on the live site (51 Greek, 17 Latin, 14 Hebrew Bible books), which sets their word-distance limit in Line Search and the matcher. No index or cache rebuild; three cached Hebrew searches removed and re-run; eight golden records re-recorded (corpus listings and one Petrarch line). Data operation recorded in docs/DATA_OPERATIONS.md.
 
 ## 2026-11-04
