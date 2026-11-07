@@ -7,6 +7,9 @@ so the state of the live site can be reconstructed from this file and
 docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
+## 2026-11-07
+- Prose and poetry labels live (#1289, issue #1288): 82 texts change label on the live site (51 Greek, 17 Latin, 14 Hebrew Bible books), which sets their word-distance limit in Line Search and the matcher. No index or cache rebuild; three cached Hebrew searches removed and re-run; eight golden records re-recorded (corpus listings and one Petrarch line). Data operation recorded in docs/DATA_OPERATIONS.md.
+
 ## 2026-11-04
 - Greek corpus: the remaining stray breathing and accent marks on consonants, spaces and non-Greek characters are removed from 394 Greek texts, 6,781 lines, 10,445 marks (#1290, issue #1137, the broader follow-up to #1133). A mark that stood before a capital vowel is moved onto it (Sappho fr. 111 Ὑμήναον). The script `scripts/fix_stray_marks_broad.py` edits only the marked positions and leaves each line's normalization form as it was. Data operation: the lemma caches of the 394 files rebuilt and the files reindexed in the Greek index; run record in docs/DATA_OPERATIONS.md.
 
