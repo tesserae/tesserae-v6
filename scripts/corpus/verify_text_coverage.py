@@ -15,6 +15,7 @@ Stores checked (the ones the site reads at request time):
   connmap   whole works only: cache/connections_map/*.db works table has the work
   sources   backend/text_sources.json has an entry (Sources page credits)
   genres    data/text_genres.csv has the file (browser era, meter, genre)
+  type      data/text_types.json has the file (the reviewed prose or poetry label)
   blurb     data/text_descriptions.json[<lang>][<base>] (About this text)
   dates     backend/author_dates.json[<lang>][<author>] (optional, reported as '-')
   transl    data/translations/<lang>__<base>.json (optional; parts use the whole work's)
@@ -47,7 +48,7 @@ MIN_WINDOW_LINES = 10
 SYNTAX_DB = {'la': 'syntax_latin.db', 'grc': 'syntax_greek.db', 'cop': 'syntax_coptic.db'}
 REUSE_LANGS = ('la', 'grc', 'en', 'fa', 'ur')
 VERSE_METERS = ('hexameter', 'elegiac', 'lyric', 'dramatic', 'mixed')
-REQUIRED = ['text', 'lemmas', 'index', 'bigrams', 'vectors', 'windows', 'described', 'winvec', 'connmap', 'sources', 'browser', 'genres', 'blurb',
+REQUIRED = ['text', 'lemmas', 'index', 'bigrams', 'vectors', 'windows', 'described', 'winvec', 'connmap', 'sources', 'browser', 'genres', 'type', 'blurb',
             'syntax', 'names', 'wnames', 'descfts', 'reuse']
 # freq: the app recomputes a stale frequency table on the first search that needs it,
 # so a stale table is reported but is not a gap.
@@ -382,6 +383,7 @@ def main():
     sources = sources if isinstance(sources, list) else sources.get('entries', [])
     src_keys = {(e.get('author', '').strip().casefold(), e.get('work', '').strip().casefold()) for e in sources}
     blurbs = (json.load(open('data/text_descriptions.json')).get(lang) or {}) if os.path.exists('data/text_descriptions.json') else {}
+    text_types = (json.load(open('data/text_types.json', encoding='utf-8')).get(lang) or {}) if os.path.exists('data/text_types.json') else {}
     dates = (json.load(open('backend/author_dates.json')).get(lang) or {}) if os.path.exists('backend/author_dates.json') else {}
 
     syn_files = syntax_files(root, lang)
@@ -422,6 +424,7 @@ def main():
         r['connmap'] = True if (is_part or n_lines < MIN_WINDOW_LINES) else (whole in conn_works)
         g = genres.get(fn) or genres.get(whole + '.tess')
         r['genres'] = (g is not None) if lang == 'la' else True     # genre table is Latin-only
+        r['type'] = fn in text_types
         m = api_meta.get(fn) or api_meta.get(whole + '.tess') or {}
         # no metadata from the site: report the column as unknown, never as ok
         r['browser'] = (bool(m) and bool(m.get('era')) and m.get('era') != 'Unknown' and bool(m.get('text_type'))) if api_meta else 'no-api'
@@ -459,6 +462,7 @@ def main():
             if k in ('meter', 'label'):
                 return 'ok' if v is True else ('-' if v == '-' else ('CHECK' if isinstance(v, str) else '-'))
             if k in OPTIONAL: return 'ok' if v is True else '-'
+            if k == 'type': return 'ok' if v is True else 'FAIL'
             return 'ok' if v is True else ('MISSING' if v is False else str(v)[:7])
         print(f"{r['file']:<{w}}  {r['lines']:>5}  " + ' '.join(f'{mark(c):<7}' for c in cols))
     tot = len(rows); miss = sum(1 for r in rows if r['missing'])
