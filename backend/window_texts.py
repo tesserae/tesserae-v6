@@ -110,12 +110,12 @@ def ref_for_locus(work, locus, last=False):
     base = _base_work(work)
     if c is None or not base or not locus:
         return None
-    order = 'DESC' if last else 'ASC'
+    # Two fixed statements, so no part of the SQL is built from a value.
+    sql = ('SELECT ref FROM lines WHERE work = ? AND ref LIKE ? ORDER BY ord DESC LIMIT 1' if last
+           else 'SELECT ref FROM lines WHERE work = ? AND ref LIKE ? ORDER BY ord ASC LIMIT 1')
     try:
         for pattern in ('% ' + locus, '% ' + locus + '.%'):
-            row = c.execute(
-                'SELECT ref FROM lines WHERE work = ? AND ref LIKE ? '
-                f'ORDER BY ord {order} LIMIT 1', (base, pattern)).fetchone()
+            row = c.execute(sql, (base, pattern)).fetchone()
             if row:
                 return row[0]
     except sqlite3.Error as e:
