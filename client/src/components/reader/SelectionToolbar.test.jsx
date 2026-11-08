@@ -160,3 +160,69 @@ describe('SelectionToolbar - a sentence inside a prose unit', () => {
     }
   });
 });
+
+// Dictionary lookup (2026-11-08): "Look up" beside "Find this word".
+describe('SelectionToolbar - Look up', () => {
+  afterEach(() => { delete global.fetch; });
+
+  const word = { refStart: '1.1', refEnd: '1.1', lineCount: 1, text: 'arma' };
+  const reply = (body, ok = true) => vi.fn(() => Promise.resolve({
+    ok, status: ok ? 200 : 500, text: () => Promise.resolve(JSON.stringify(body)),
+  }));
+  const mount = (selection, scope = 'word') => render(
+    <SelectionToolbar selection={selection} scope={scope} onScope={() => {}}
+                      work="vergil.aeneid.part.1.tess" language="la"
+                      onAct={() => {}} onClose={() => {}} />,
+  );
+
+  it('is offered for a single word and not for a line', () => {
+    const { unmount } = mount(word);
+    expect(screen.getByRole('button', { name: 'Look up' })).toBeTruthy();
+    unmount();
+    mount({ ...word, text: 'arma virumque cano' }, 'line');
+    expect(screen.queryByRole('button', { name: 'Look up' })).toBeNull();
+  });
+
+  it('opens a popover with the lemma, dictionary, definition and full-entry link', async () => {
+    global.fetch = reply({ lemma: 'arma', dictionary: 'Lewis and Short', definition: 'arma, orum, n. arms',
+      url: 'https://logeion.uchicago.edu/arma' });
+    mount(word);
+    await userEvent.setup().click(screen.getByRole('button', { name: 'Look up' }));
+    expect(await screen.findByText('arma, orum, n. arms')).toBeTruthy();
+    expect(screen.getByText('Lewis and Short')).toBeTruthy();
+    expect(screen.getByRole('link', { name: 'Full entry' }).getAttribute('href'))
+      .toBe('https://logeion.uchicago.edu/arma');
+    expect(global.fetch.mock.calls[0][0]).toBe('/api/define?word=arma&language=la');
+  });
+
+  it('says No entry found and keeps the link when there is no definition', async () => {
+    global.fetch = reply({ lemma: 'arma', dictionary: null, definition: null, url: 'https://x.test/arma' });
+    mount(word);
+    await userEvent.setup().click(screen.getByRole('button', { name: 'Look up' }));
+    expect(await screen.findByText('No entry found')).toBeTruthy();
+    expect(screen.getByRole('link', { name: 'Full entry' })).toBeTruthy();
+  });
+
+  it('closes on Escape, on a click outside and on a new selection', async () => {
+    global.fetch = reply({ lemma: 'arma', definition: 'arms', url: 'https://x.test/arma' });
+    const user = userEvent.setup();
+    const { rerender } = mount(word);
+    const open = async () => {
+      await user.click(screen.getByRole('button', { name: 'Look up' }));
+      await screen.findByText('arms');
+    };
+    await open();
+    await user.keyboard('{Escape}');
+    expect(screen.queryByText('arms')).toBeNull();
+    await open();
+    await user.click(document.body);
+    expect(screen.queryByText('arms')).toBeNull();
+    await open();
+    rerender(
+      <SelectionToolbar selection={{ ...word, text: 'virum' }} scope="word" onScope={() => {}}
+                        work="vergil.aeneid.part.1.tess" language="la"
+                        onAct={() => {}} onClose={() => {}} />,
+    );
+    expect(screen.queryByText('arms')).toBeNull();
+  });
+});
