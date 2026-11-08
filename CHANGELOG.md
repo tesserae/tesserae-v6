@@ -7,6 +7,9 @@ so the state of the live site can be reconstructed from this file and
 docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
+## 2026-11-08
+- Every passage, result and text the connector returns now carries its license class (public-domain, cc-by, cc-by-sa, cc-by-nc, cc-by-nc-sa, noncommercial, academic-only, restricted, unknown) and a one-line credit, from one lookup in `backend/text_license.py` over `backend/text_sources.json` and the restricted-texts registry (tools changed: list_texts, line_search, string_search, theme_search, get_passage, describe_text, similar_passages, theme_compare, find_mentions, and source_license/target_license on rare_pairs, rare_words, compare_texts, fusion_search, cross_language). The Reader's About panel shows one License row. The restricted fields are unchanged. No change to any text or label.
+
 ## 2026-11-07
 - Every text's prose or poetry label is now recorded in one table, `data/text_types.json` (#1293; 4,125 entries after the production texts folder was read in, one per `.tess` file), and `detect_text_type` reads it after the overrides file. The name markers and line-length rule remain, but only propose a value for a new text (`scripts/corpus/text_types.py fill`); `verify_text_coverage.py` gains a required `type` column. No label changes on the live site.
 - Upload Your Text reachable from the More menu (#1292, continuing #1291): the page had no menu entry since the Help reorganization of 2026-10-19; it now sits under More by its own name, and Help lists it under Reference & tools.

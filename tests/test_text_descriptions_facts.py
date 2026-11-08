@@ -106,3 +106,9 @@ def test_restricted_work_gets_no_edition_lookup(client, tmp_path, monkeypatch):
 
     restricted_texts._cache['mtime'] = None
     restricted_texts._cache['texts'] = {}
+
+
+def test_facts_carry_the_license_class_in_words(client):
+    d = client.get('/api/text-descriptions?language=la&work=seneca.thyestes.tess').get_json()
+    # The throwaway sources row states no license, so the class is unknown.
+    assert d['facts']['license'] == {'class': 'unknown', 'label': 'Not stated'}

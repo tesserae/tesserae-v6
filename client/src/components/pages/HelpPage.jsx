@@ -1684,7 +1684,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 For works that have one, an <strong>About</strong> button in the header opens a
                 short orientation note saying what the text is, who wrote it and when, and why a
                 reader might care. The same notes appear behind the small ⓘ buttons in{' '}
-                <a href="/corpus" className="text-red-600 hover:underline">Browse Corpus</a>. <strong>Go to line</strong> takes a reference as the margin shows it: a line
+                <a href="/corpus" className="text-red-600 hover:underline">Browse Corpus</a>. The box beside the note names the text&rsquo;s license in words, such as CC BY-SA 4.0 or Public domain, with a link to its full credits. <strong>Go to line</strong> takes a reference as the margin shows it: a line
                 number, book and line such as 6.851, or, in a work divided into stories, the story,
                 couplet and hemistich such as 151.1.1. The margin numbers every fifth line, or in such a
                 work every fifth couplet. A work divided into stories rather than books, such as the
@@ -3154,6 +3154,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 Then just ask, e.g.: “Use Tesserae to compare Aeneid 1 with Lucan's Civil War 1 and show the strongest
                 parallels.” Adding a connector needs a paid plan, and the minimum that includes connectors is
                 <strong> Claude Pro</strong>. Connectors are added on desktop or web, not the mobile app.
+                Every passage the connector returns carries its text&rsquo;s license class and credit line.
               </p>
               <details className="text-sm text-gray-600 mb-6">
                 <summary className="cursor-pointer text-gray-700 font-medium">Advanced: run the connector locally instead (offline, no account or connector needed)</summary>
