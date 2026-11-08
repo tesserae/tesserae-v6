@@ -23,6 +23,7 @@ from urllib.parse import quote
 import requests
 from flask import Blueprint, request, jsonify, Response
 
+from backend import cts_urns
 from backend.utils import normalize_ref
 from backend import text_license
 
@@ -105,6 +106,53 @@ def _post(path, body, timeout=None):
     return r.json()
 
 
+_LOCUS_TAIL = re.compile(r'(?:^|\s)((?:[IVXLC]+|\d+)(?:\.\d+)*[a-z]?)\s*$')
+
+
+def _ref_locus(ref):
+    """The citation tail of a reference: "verg. aen. 1.1" gives "1.1"."""
+    m = _LOCUS_TAIL.search(normalize_ref(ref) or '')
+    return m.group(1) if m else None
+
+
+def _urn(work, language, ref_start=None, ref_end=None):
+    """The CTS URN of a work (a part resolves to its work), with the passage when a
+    locus is given; None when data/cts_urns.json has no entry. Perseus, Scaife and
+    the Open Greek and Latin repositories cite by these."""
+    if language not in cts_urns.LANGUAGES or not work:
+        return None
+    base = cts_urns.urn_for(language, work)
+    if not base:
+        return None
+    first = _ref_locus(ref_start)
+    if not first:
+        return base
+    last = _ref_locus(ref_end)
+    return f'{base}:{first}' if not last or last == first else f'{base}:{first}-{last}'
+
+
+def _urn_field(work, language, ref_start=None, ref_end=None):
+    """{'urn': ...} when the table has one, else {}, so an entry never carries an empty urn."""
+    urn = _urn(work, language, ref_start, ref_end)
+    return {'urn': urn} if urn else {}
+
+
+def _get_by_urn(urn, context=None):
+    """GET /passages/by-urn, keeping the route's own message on a 400 or 404."""
+    params = {'urn': urn}
+    if context not in (None, ''):
+        params['context'] = context
+    r = requests.get(f"{API_BASE}/passages/by-urn", params=params, headers=_fwd_headers(), timeout=_TIMEOUT)
+    if r.status_code in (400, 404):
+        try:
+            body = r.json()
+        except ValueError:
+            body = {}
+        return {'error': body.get('error') or f'HTTP {r.status_code}', 'urn': urn, 'lines': []}
+    r.raise_for_status()
+    return r.json()
+
+
 # --------------------------------------------------------------------------
 # Tool implementations (return plain JSON-able data)
 # --------------------------------------------------------------------------
@@ -172,6 +220,9 @@ def _t_list_texts(a):
         # an empty rare-pairs result.
         if t.get('dialect'):
             entry['dialect'] = t.get('dialect')
+        urn = _urn(t.get('id'), a.get('language', 'la'))
+        if urn:
+            entry['urn'] = urn
         # Licensed for indexing and search only (data/restricted_texts.json):
         # a connector client quotes passages the same way the site does, so it
         # needs the same credit line the site is required to show beside one.
@@ -808,7 +859,9 @@ def _t_theme_search(a):
                         'ref_end': normalize_ref(r.get('ref_end')),
                         'score': r.get('score'), 'strong': r.get('strong'),
                         'gist': r.get('gist'), 'themes': r.get('themes'),
-                        **_lic_file(r.get('work'))}
+                        **_lic_file(r.get('work')),
+                        **_urn_field(r.get('work'), r.get('language'),
+                                     r.get('ref_start'), r.get('ref_end'))}
                        for r in (d.get('results') or [])]}
     if d.get('error'):
         out['error'] = d['error']
@@ -841,13 +894,24 @@ def _t_get_passage(a):
     Takes exactly the fields theme_search and similar_passages emit, so a
     result can be handed back unchanged.
     """
-    params = {'work': a.get('work') or ''}
-    for k in ('ref_start', 'ref_end', 'context'):
-        if a.get(k) not in (None, ''):
-            params[k] = a[k]
-    d = _get('/passages/lines', params)
+    if a.get('urn'):
+        # A CTS URN in place of work and locus: the route resolves it to the same
+        # lines /passages/lines would give for that work and range.
+        d = _get_by_urn(str(a['urn']), a.get('context'))
+    elif not a.get('work'):
+        return {'error': 'give a work (with ref_start) or a CTS urn', 'lines': []}
+    else:
+        params = {'work': a.get('work') or ''}
+        for k in ('ref_start', 'ref_end', 'context'):
+            if a.get(k) not in (None, ''):
+                params[k] = a[k]
+        d = _get('/passages/lines', params)
     if d.get('error'):
         return d
+    got = d.get('lines') or []
+    urn = d.get('urn') or _urn(d.get('work'), d.get('language'),
+                               got[0].get('ref') if got and isinstance(got[0], dict) else None,
+                               got[-1].get('ref') if got and isinstance(got[-1], dict) else None)
     out = {'work': d.get('work'), 'author': d.get('author'),
            'title': d.get('title'), 'display_name': d.get('display_name'),
            'language': d.get('language'),
@@ -864,7 +928,11 @@ def _t_get_passage(a):
                             'implying the passage ends here.')}
     if a.get('translation'):
         # The translation route keys on the stored refs, so pass the raw lines.
-        out['translation'] = _passage_translation(a.get('work') or '', d.get('lines') or [])
+        out['translation'] = _passage_translation(a.get('work') or d.get('work') or '', d.get('lines') or [])
+    if urn:
+        out['urn'] = urn
+    if d.get('resolved'):
+        out['resolved'] = d['resolved']
     return out
 
 
@@ -1048,7 +1116,9 @@ def _t_similar_passages(a):
                         'ref_end': normalize_ref(r.get('ref_end')),
                         'score': r.get('score'), 'strong': r.get('strong'),
                         'gist': r.get('gist'), 'themes': r.get('themes'),
-                        **_lic_file(r.get('work'))}
+                        **_lic_file(r.get('work')),
+                        **_urn_field(r.get('work'), r.get('language'),
+                                     r.get('ref_start'), r.get('ref_end'))}
                        for r in (d.get('results') or [])]}
     if d.get('error'):
         out['error'] = d['error']
@@ -1383,12 +1453,16 @@ TOOLS = [
                      "translation.external_links (a list of {translator, site_title, "
                      "source_url, url}) even when available is false, for a translator whose "
                      "licence does not permit copying the text itself (currently Frances W. "
-                     "Pritchett's Ghalib commentary)."),
+                     "Pritchett's Ghalib commentary). Latin and Greek passages carry `urn`, the CTS URN "
+                     "that Perseus, Scaife and the Open Greek and Latin repositories cite by, when Tesserae "
+                     "has one (list_texts and the search results carry one too). Pass `urn` with a passage "
+                     "in place of work and ref_start to fetch by it."),
      "inputSchema": {"type": "object",
                      "properties": {"work": _STR, "ref_start": _STR, "ref_end": _STR,
+                                    "urn": {"type": "string", "description": "A CTS URN with a passage, in place of work and ref_start/ref_end, for example urn:cts:latinLit:phi0690.phi003:1.1-1.7 (Vergil, Aeneid 1.1 to 1.7) or urn:cts:greekLit:tlg0012.tlg001:1.1-1.7 (Iliad). Latin and Greek works only; a version segment is ignored."},
                                     "context": {"type": "integer"},
                                     "translation": {"type": "boolean"}},
-                     "required": ["work"]},
+                     "required": []},
      "fn": _t_get_passage},
     {"name": "define",
      "description": ("A dictionary entry for ONE word. Use it for a word you do not know in a "

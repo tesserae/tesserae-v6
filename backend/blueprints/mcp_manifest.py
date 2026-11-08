@@ -207,6 +207,9 @@ MANIFEST = {
     '/api/passages/lines': {
         'tools': ['get_passage'],
     },
+    '/api/passages/by-urn': {
+        'tools': ['get_passage'],
+    },
     '/api/passages/similar': {
         'tools': ['similar_passages'],
     },

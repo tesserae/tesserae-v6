@@ -16,6 +16,8 @@ Stores checked (the ones the site reads at request time):
   sources   backend/text_sources.json has an entry (Sources page credits)
   genres    data/text_genres.csv has the file (browser era, meter, genre)
   type      data/text_types.json has the file (the reviewed prose or poetry label)
+  urn       data/cts_urns.json has the file's work (la and grc: the CTS URN, or a reviewed "none");
+            'n/a' for every other language, which has no CTS namespace
   blurb     data/text_descriptions.json[<lang>][<base>] (About this text)
   dates     backend/author_dates.json[<lang>][<author>] (optional, reported as '-')
   transl    data/translations/<lang>__<base>.json (optional; parts use the whole work's)
@@ -48,7 +50,7 @@ MIN_WINDOW_LINES = 10
 SYNTAX_DB = {'la': 'syntax_latin.db', 'grc': 'syntax_greek.db', 'cop': 'syntax_coptic.db'}
 REUSE_LANGS = ('la', 'grc', 'en', 'fa', 'ur')
 VERSE_METERS = ('hexameter', 'elegiac', 'lyric', 'dramatic', 'mixed')
-REQUIRED = ['text', 'lemmas', 'index', 'bigrams', 'vectors', 'windows', 'described', 'winvec', 'connmap', 'sources', 'browser', 'genres', 'type', 'blurb',
+REQUIRED = ['text', 'lemmas', 'index', 'bigrams', 'vectors', 'windows', 'described', 'winvec', 'connmap', 'sources', 'browser', 'genres', 'type', 'urn', 'blurb',
             'syntax', 'names', 'wnames', 'descfts', 'reuse']
 # freq: the app recomputes a stale frequency table on the first search that needs it,
 # so a stale table is reported but is not a gap.
@@ -384,6 +386,7 @@ def main():
     src_keys = {(e.get('author', '').strip().casefold(), e.get('work', '').strip().casefold()) for e in sources}
     blurbs = (json.load(open('data/text_descriptions.json')).get(lang) or {}) if os.path.exists('data/text_descriptions.json') else {}
     text_types = (json.load(open('data/text_types.json', encoding='utf-8')).get(lang) or {}) if os.path.exists('data/text_types.json') else {}
+    cts = json.load(open('data/cts_urns.json', encoding='utf-8')).get(lang) or {} if os.path.exists('data/cts_urns.json') else {}
     dates = (json.load(open('backend/author_dates.json')).get(lang) or {}) if os.path.exists('backend/author_dates.json') else {}
 
     syn_files = syntax_files(root, lang)
@@ -425,6 +428,7 @@ def main():
         g = genres.get(fn) or genres.get(whole + '.tess')
         r['genres'] = (g is not None) if lang == 'la' else True     # genre table is Latin-only
         r['type'] = fn in text_types
+        r['urn'] = (re.sub(r'\.part\.[^.]+(\..*)?\.tess$', '.tess', fn) in cts) if lang in ('la', 'grc') else 'n/a'
         m = api_meta.get(fn) or api_meta.get(whole + '.tess') or {}
         # no metadata from the site: report the column as unknown, never as ok
         r['browser'] = (bool(m) and bool(m.get('era')) and m.get('era') != 'Unknown' and bool(m.get('text_type'))) if api_meta else 'no-api'
@@ -449,7 +453,7 @@ def main():
         r['meter'] = meter_flag(path, g) if lang == 'la' else '-'
         r['label'] = label_flag(fn, m, src_rows)
         r['text'] = r.pop('text_ok'); r['file'] = fn
-        missing = [k for k in REQUIRED if r.get(k) is not True and r.get(k) != '-']
+        missing = [k for k in REQUIRED if r.get(k) is not True and r.get(k) not in ('-', 'n/a')]
         r['missing'] = missing; any_missing |= bool(missing)
         rows.append(r)
 
@@ -463,10 +467,11 @@ def main():
                 return 'ok' if v is True else ('-' if v == '-' else ('CHECK' if isinstance(v, str) else '-'))
             if k in OPTIONAL: return 'ok' if v is True else '-'
             if k == 'type': return 'ok' if v is True else 'FAIL'
+            if k == 'urn' and v == 'n/a': return 'n/a'
             return 'ok' if v is True else ('MISSING' if v is False else str(v)[:7])
         print(f"{r['file']:<{w}}  {r['lines']:>5}  " + ' '.join(f'{mark(c):<7}' for c in cols))
     tot = len(rows); miss = sum(1 for r in rows if r['missing'])
-    per = {c: sum(1 for r in rows if r.get(c) is not True and r.get(c) != '-') for c in REQUIRED}
+    per = {c: sum(1 for r in rows if r.get(c) is not True and r.get(c) not in ('-', 'n/a')) for c in REQUIRED}
     opt = {c: sum(1 for r in rows if isinstance(r.get(c), str) and r.get(c) not in ('-', 'no-api')) for c in ('meter', 'label')}
     print(f"\n{tot} texts checked; {miss} with something missing; missing per store: " + ', '.join(f'{c} {n}' for c, n in per.items() if n))
     print('optional columns to read (not failures): ' + ', '.join(f'{c} {n}' for c, n in opt.items() if n))

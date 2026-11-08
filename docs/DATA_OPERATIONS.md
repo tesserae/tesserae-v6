@@ -111,6 +111,19 @@ Stage A. Before any file is made
    matcher (poetry 10 words, prose 4). `scripts/corpus/text_types.py check`
    exits 1 until every file has an entry. (Numbered 3a so the step numbers
    above and below stay as they are.)
+3b. CTS URN (Latin and Greek only). Run `scripts/corpus/cts_urns.py fill
+   --inventory DIR ...` with clones of the Perseus and Open Greek and Latin
+   inventories (canonical-latinLit, canonical-greekLit, First1KGreek, csel-dev;
+   shallow, `__cts__.xml` files only, treated as data and never run), which adds
+   the work to `data/cts_urns.json` when its author and title match an
+   inventory work. A part file takes its work's entry. Read any unmatched name
+   against the inventory (`--fuzzy-report`); a doubtful match is left out, never
+   guessed. If the work has no CTS URN (medieval and modern Latin usually have
+   none), record that with `cts_urns.py none --language la --note "why" KEY`.
+   `verify_text_coverage.py` shows the `urn` column (`n/a` for languages without
+   a CTS namespace) and `cts_urns.py check` exits 1 for an entry with no text
+   file. The table lets `/api/passages/by-urn` and the connector's `get_passage`
+   resolve the work. (Numbered 3b like 3a.)
 
 Stage B. The pull request that adds the text
 4. The `.tess` file, validated with `scripts/corpus/validate_tess.py`.

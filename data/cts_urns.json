@@ -1,0 +1,5182 @@
+{
+ "_description": "The CTS URN (the citation form of Perseus, Scaife and the Open Greek and Latin repositories) of each Latin and Greek work file, keyed by the whole-work file name; part files resolve to their work. \"source\" says how the entry was found: catalog (author and title matched in the Perseus / Open Greek and Latin inventories), url (the work's Perseus hopper page or credit row names the URN and its title agrees), manual (confirmed by reading the work's page) or none (a person looked and no CTS URN exists, so urn is null). scripts/corpus/cts_urns.py fills and checks it.",
+ "_last_updated": "2026-11-08",
+ "la": {
+  "adamnan.de_locis_santis.tess": {
+   "urn": "urn:cts:latinLit:stoa0007.stoa002",
+   "source": "catalog"
+  },
+  "ambrose.apologia_altera_prophetae_david.tess": {
+   "urn": "urn:cts:latinLit:stoa0022.stoa014",
+   "source": "catalog"
+  },
+  "ambrose.apologia_prophetae_david_ad_theodosium_augustum.tess": {
+   "urn": "urn:cts:latinLit:stoa0022.stoa015",
+   "source": "catalog"
+  },
+  "ambrose.de_benedictionibus_patriarcharum_liber_unus.tess": {
+   "urn": "urn:cts:latinLit:stoa0022.stoa019",
+   "source": "catalog"
+  },
+  "ambrose.de_cain_et_abel.tess": {
+   "urn": "urn:cts:latinLit:stoa0022.stoa021",
+   "source": "catalog"
+  },
+  "ambrose.de_fuga_saeculi.tess": {
+   "urn": "urn:cts:latinLit:stoa0022.stoa029",
+   "source": "catalog"
+  },
+  "ambrose.de_helia_et_ieiunio.tess": {
+   "urn": "urn:cts:latinLit:stoa0022.stoa025",
+   "source": "catalog"
+  },
+  "ambrose.de_iacob.tess": {
+   "urn": "urn:cts:latinLit:stoa0022.stoa034",
+   "source": "catalog"
+  },
+  "ambrose.de_interpellatione_iob_et_david.tess": {
+   "urn": "urn:cts:latinLit:stoa0022.stoa032",
+   "source": "catalog"
+  },
+  "ambrose.de_joseph.tess": {
+   "urn": "urn:cts:latinLit:stoa0022.stoa035",
+   "source": "catalog"
+  },
+  "ambrose.de_nabuthae.tess": {
+   "urn": "urn:cts:latinLit:stoa0022.stoa038",
+   "source": "catalog"
+  },
+  "ambrose.de_noe.tess": {
+   "urn": "urn:cts:latinLit:stoa0022.stoa039",
+   "source": "catalog"
+  },
+  "ambrose.de_paradiso.tess": {
+   "urn": "urn:cts:latinLit:stoa0022.stoa042",
+   "source": "catalog"
+  },
+  "ambrose.de_tobia.tess": {
+   "urn": "urn:cts:latinLit:stoa0022.stoa044",
+   "source": "catalog"
+  },
+  "ambrose.exameron.tess": {
+   "urn": "urn:cts:latinLit:stoa0022.stoa054",
+   "source": "catalog"
+  },
+  "ambrose.explanatio_psalmorum_xii.tess": {
+   "urn": "urn:cts:latinLit:stoa0022.stoa048",
+   "source": "catalog"
+  },
+  "ambrose.expositio_evangelii_secundum_lucan.tess": {
+   "urn": "urn:cts:latinLit:stoa0022.stoa051",
+   "source": "catalog"
+  },
+  "ambrose.expositio_psalmi_cxviii.tess": {
+   "urn": "urn:cts:latinLit:stoa0022.stoa052",
+   "source": "catalog"
+  },
+  "ammianus.rerum_gestarum.tess": {
+   "urn": "urn:cts:latinLit:stoa0023.stoa001",
+   "source": "catalog"
+  },
+  "anonymous.breviarius_de_hierosolyma.tess": {
+   "urn": "urn:cts:latinLit:stoa0329c.stoa001",
+   "source": "catalog"
+  },
+  "anonymous.itinerarium_hierosolymitanum.tess": {
+   "urn": "urn:cts:latinLit:stoa0329.stoa001",
+   "source": "catalog"
+  },
+  "anonymous.s_silviae_peregrinatio.tess": {
+   "urn": "urn:cts:latinLit:stoa0111.stoa001",
+   "source": "url"
+  },
+  "anonymous_pilgrim_of_piacenza.itinerarium.tess": {
+   "urn": "urn:cts:latinLit:stoa0028e.stoa001",
+   "source": "catalog"
+  },
+  "apuleius.apologia.tess": {
+   "urn": "urn:cts:latinLit:phi1212.phi001",
+   "source": "catalog"
+  },
+  "apuleius.florida.tess": {
+   "urn": "urn:cts:latinLit:phi1212.phi003",
+   "source": "catalog"
+  },
+  "apuleius.metamorphoses.tess": {
+   "urn": "urn:cts:latinLit:phi1212.phi002",
+   "source": "catalog"
+  },
+  "arnobius.adversus_nationes.tess": {
+   "urn": "urn:cts:latinLit:stoa0034.stoa001",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "augustine.adnotationes_in_iob.tess": {
+   "urn": "urn:cts:latinLit:stoa0040.stoa001a",
+   "source": "catalog"
+  },
+  "augustine.breviculus_collationis_cum_donatistis.tess": {
+   "urn": "urn:cts:latinLit:stoa0040.stoa014a",
+   "source": "catalog"
+  },
+  "augustine.commonitorium.tess": {
+   "urn": "urn:cts:latinLit:stoa0040.stoa015b",
+   "source": "catalog"
+  },
+  "augustine.confessiones.tess": {
+   "urn": "urn:cts:latinLit:stoa0040.stoa001",
+   "source": "catalog"
+  },
+  "augustine.contra_academicos.tess": {
+   "urn": "urn:cts:latinLit:stoa0040.stoa016",
+   "source": "catalog"
+  },
+  "augustine.contra_adimantum.tess": {
+   "urn": "urn:cts:latinLit:stoa0040.stoa017",
+   "source": "catalog"
+  },
+  "augustine.contra_duas_epistulas_pelagianorum.tess": {
+   "urn": "urn:cts:latinLit:stoa0040.stoa021",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "augustine.contra_duas_epistulas_pelegianorum.tess": {
+   "urn": "urn:cts:latinLit:stoa0040.stoa021",
+   "source": "catalog"
+  },
+  "augustine.contra_epistulam_fundamenti.tess": {
+   "urn": "urn:cts:latinLit:stoa0040.stoa021a",
+   "source": "catalog"
+  },
+  "augustine.contra_epistulam_parmeniani.tess": {
+   "urn": "urn:cts:latinLit:stoa0040.stoa023",
+   "source": "catalog"
+  },
+  "augustine.contra_faustum.tess": {
+   "urn": "urn:cts:latinLit:stoa0040.stoa024",
+   "source": "catalog"
+  },
+  "augustine.contra_felicem.tess": {
+   "urn": "urn:cts:latinLit:stoa0040.stoa031a",
+   "source": "catalog"
+  },
+  "augustine.contra_fortunatum.tess": {
+   "urn": "urn:cts:latinLit:stoa0040.stoa024b",
+   "source": "catalog"
+  },
+  "augustine.contra_gaudentium_donatistarum_episcopum.tess": {
+   "urn": "urn:cts:latinLit:stoa0040.stoa025",
+   "source": "catalog"
+  },
+  "augustine.contra_litteras_petiliani.tess": {
+   "urn": "urn:cts:latinLit:stoa0040.stoa027",
+   "source": "catalog"
+  },
+  "augustine.contra_mendacium.tess": {
+   "urn": "urn:cts:latinLit:stoa0040.stoa029",
+   "source": "catalog"
+  },
+  "augustine.contra_partem_donati_post_gesta.tess": {
+   "urn": "urn:cts:latinLit:stoa0040.stoa029a",
+   "source": "catalog"
+  },
+  "augustine.contra_secundinum.tess": {
+   "urn": "urn:cts:latinLit:stoa0040.stoa031",
+   "source": "catalog"
+  },
+  "augustine.de_agone_christiano.tess": {
+   "urn": "urn:cts:latinLit:stoa0040.stoa032",
+   "source": "catalog"
+  },
+  "augustine.de_baptismo.tess": {
+   "urn": "urn:cts:latinLit:stoa0040.stoa033a",
+   "source": "catalog"
+  },
+  "augustine.de_beata_vita.tess": {
+   "urn": "urn:cts:latinLit:stoa0040.stoa034",
+   "source": "catalog"
+  },
+  "augustine.de_bono_coniugali.tess": {
+   "urn": "urn:cts:latinLit:stoa0040.stoa035",
+   "source": "catalog"
+  },
+  "augustine.de_bono_viduitatis.tess": {
+   "urn": "urn:cts:latinLit:stoa0040.stoa035a",
+   "source": "catalog"
+  },
+  "augustine.de_civitate_dei.tess": {
+   "urn": "urn:cts:latinLit:stoa0040.stoa003",
+   "source": "catalog"
+  },
+  "augustine.de_conjugiis_adulterinis.tess": {
+   "urn": "urn:cts:latinLit:stoa0040.stoa036",
+   "source": "catalog"
+  },
+  "augustine.de_consensu_evangelistarum.tess": {
+   "urn": "urn:cts:latinLit:stoa0040.stoa037",
+   "source": "catalog"
+  },
+  "augustine.de_continentia.tess": {
+   "urn": "urn:cts:latinLit:stoa0040.stoa037a",
+   "source": "catalog"
+  },
+  "augustine.de_cura_pro_mortuis_gerenda.tess": {
+   "urn": "urn:cts:latinLit:stoa0040.stoa037c",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "augustine.de_divinatione_daemonum.tess": {
+   "urn": "urn:cts:latinLit:stoa0040.stoa038a",
+   "source": "catalog"
+  },
+  "augustine.de_duabus_animabus.tess": {
+   "urn": "urn:cts:latinLit:stoa0040.stoa040",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "augustine.de_fide_et_operibus.tess": {
+   "urn": "urn:cts:latinLit:stoa0040.stoa041",
+   "source": "catalog"
+  },
+  "augustine.de_fide_et_symbolo.tess": {
+   "urn": "urn:cts:latinLit:stoa0040.stoa006",
+   "source": "catalog"
+  },
+  "augustine.de_genesi_ad_litteram.tess": {
+   "urn": "urn:cts:latinLit:stoa0040.stoa042a",
+   "source": "catalog"
+  },
+  "augustine.de_genesi_ad_litteram_imperfectus_liber.tess": {
+   "urn": "urn:cts:latinLit:stoa0040.stoa042",
+   "source": "catalog"
+  },
+  "augustine.de_gestis_pelagii.tess": {
+   "urn": "urn:cts:latinLit:stoa0040.stoa044",
+   "source": "catalog"
+  },
+  "augustine.de_gratia_christi.tess": {
+   "urn": "urn:cts:latinLit:stoa0040.stoa046",
+   "source": "catalog"
+  },
+  "augustine.de_mendacio.tess": {
+   "urn": "urn:cts:latinLit:stoa0040.stoa050",
+   "source": "catalog"
+  },
+  "augustine.de_natura_boni.tess": {
+   "urn": "urn:cts:latinLit:stoa0040.stoa053",
+   "source": "catalog"
+  },
+  "augustine.de_natura_et_gratia.tess": {
+   "urn": "urn:cts:latinLit:stoa0040.stoa054",
+   "source": "catalog"
+  },
+  "augustine.de_natura_et_origine_animae.tess": {
+   "urn": "urn:cts:latinLit:stoa0040.stoa033",
+   "source": "catalog"
+  },
+  "augustine.de_nuptiis_et_concupiscentia.tess": {
+   "urn": "urn:cts:latinLit:stoa0040.stoa056a",
+   "source": "catalog"
+  },
+  "augustine.de_opere_monachorum.tess": {
+   "urn": "urn:cts:latinLit:stoa0040.stoa055",
+   "source": "catalog"
+  },
+  "augustine.de_ordine.tess": {
+   "urn": "urn:cts:latinLit:stoa0040.stoa056",
+   "source": "catalog"
+  },
+  "augustine.de_patientia.tess": {
+   "urn": "urn:cts:latinLit:stoa0040.stoa056b",
+   "source": "catalog"
+  },
+  "augustine.de_peccato_originali.tess": {
+   "urn": "urn:cts:latinLit:stoa0040.stoa056c",
+   "source": "catalog"
+  },
+  "augustine.de_peccatorum_meritis_et_remissione_et_de_baptismo_parvulorum.tess": {
+   "urn": "urn:cts:latinLit:stoa0040.stoa057",
+   "source": "catalog"
+  },
+  "augustine.de_perfectione_iustitiae_hominis.tess": {
+   "urn": "urn:cts:latinLit:stoa0040.stoa057a",
+   "source": "catalog"
+  },
+  "augustine.de_sancta_virginitate.tess": {
+   "urn": "urn:cts:latinLit:stoa0040.stoa060",
+   "source": "catalog"
+  },
+  "augustine.de_spiritu_et_littera.tess": {
+   "urn": "urn:cts:latinLit:stoa0040.stoa062",
+   "source": "catalog"
+  },
+  "augustine.de_utilitate_credendi.tess": {
+   "urn": "urn:cts:latinLit:stoa0040.stoa064",
+   "source": "catalog"
+  },
+  "augustine.epistula_ad_catholicos_de_secta_donatistarum.tess": {
+   "urn": "urn:cts:latinLit:stoa0040.stoa020",
+   "source": "catalog"
+  },
+  "augustine.epistulae.tess": {
+   "urn": "urn:cts:latinLit:stoa0040.stoa011",
+   "source": "catalog"
+  },
+  "augustine.gesta_cum_emerito_donatistarum_episcopo.tess": {
+   "urn": "urn:cts:latinLit:stoa0040.stoa066c",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "augustine.libellus_adversus_fulgentium_donatistam.tess": {
+   "urn": "urn:cts:latinLit:stoa0040.stoa070a",
+   "source": "catalog"
+  },
+  "augustine.liber_de_unico_baptismo.tess": {
+   "urn": "urn:cts:latinLit:stoa0040.stoa063",
+   "source": "catalog"
+  },
+  "augustine.liber_qui_appellatur_speculum.tess": {
+   "urn": "urn:cts:latinLit:stoa0040.stoa080",
+   "source": "catalog"
+  },
+  "augustine.locutiones_in_heptateuchum.tess": {
+   "urn": "urn:cts:latinLit:stoa0040.stoa070",
+   "source": "catalog"
+  },
+  "augustine.psalmus_contra_partem_donati.tess": {
+   "urn": "urn:cts:latinLit:stoa0040.stoa072",
+   "source": "catalog"
+  },
+  "augustine.quaestiones_in_heptateuchum.tess": {
+   "urn": "urn:cts:latinLit:stoa0040.stoa074",
+   "source": "catalog"
+  },
+  "augustine.retractationum.tess": {
+   "urn": "urn:cts:latinLit:stoa0040.stoa077",
+   "source": "catalog"
+  },
+  "augustine.sermo_ad_caesariensis_ecclesiae_plebem.tess": {
+   "urn": "urn:cts:latinLit:stoa0040.stoa077c",
+   "source": "catalog"
+  },
+  "augustine.sermo_de_rusticiano_subdiacono.tess": {
+   "urn": "urn:cts:latinLit:stoa0040.stoa077d",
+   "source": "catalog"
+  },
+  "ausonius.cento_nuptialis.tess": {
+   "urn": "urn:cts:latinLit:stoa0045.stoa003",
+   "source": "catalog"
+  },
+  "ausonius.commemoratio_professorum_burdigalensium.tess": {
+   "urn": "urn:cts:latinLit:stoa0045.stoa004",
+   "source": "catalog"
+  },
+  "ausonius.cupido_cruciatus.tess": {
+   "urn": "urn:cts:latinLit:stoa0045.stoa005",
+   "source": "catalog"
+  },
+  "ausonius.de_bissula.tess": {
+   "urn": "urn:cts:latinLit:stoa0045.stoa001",
+   "source": "catalog"
+  },
+  "ausonius.de_herediolo.tess": {
+   "urn": "urn:cts:latinLit:stoa0045.stoa006",
+   "source": "catalog"
+  },
+  "ausonius.de_xii_caesaribus.tess": {
+   "urn": "urn:cts:latinLit:stoa0045.stoa002",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "ausonius.eclogarum_liber.tess": {
+   "urn": "urn:cts:latinLit:stoa0045.stoa007",
+   "source": "catalog"
+  },
+  "ausonius.epicedion_in_patrem.tess": {
+   "urn": "urn:cts:latinLit:stoa0045.stoa009",
+   "source": "catalog"
+  },
+  "ausonius.epigrammata_ausonii_de_diversis_rebus.tess": {
+   "urn": "urn:cts:latinLit:stoa0045.stoa010",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "ausonius.epistularum.tess": {
+   "urn": "urn:cts:latinLit:stoa0045.stoa011",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "ausonius.gratiarum_actio.tess": {
+   "urn": "urn:cts:latinLit:stoa0045.stoa014",
+   "source": "catalog"
+  },
+  "ausonius.griphus_ternarii_numeri.tess": {
+   "urn": "urn:cts:latinLit:stoa0045.stoa015",
+   "source": "catalog"
+  },
+  "ausonius.libri_de_fastis_conclusio.tess": {
+   "urn": "urn:cts:latinLit:stoa0045.stoa017",
+   "source": "catalog"
+  },
+  "ausonius.ludus_septem_sapientum.tess": {
+   "urn": "urn:cts:latinLit:stoa0045.stoa018",
+   "source": "catalog"
+  },
+  "ausonius.mosella.tess": {
+   "urn": "urn:cts:latinLit:stoa0045.stoa019",
+   "source": "catalog"
+  },
+  "ausonius.oratio_consulis_ausonii_versibus_rhopalicis.tess": {
+   "urn": "urn:cts:latinLit:stoa0045.stoa020",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "ausonius.ordo_urbium_nobilium.tess": {
+   "urn": "urn:cts:latinLit:stoa0045.stoa021",
+   "source": "catalog"
+  },
+  "ausonius.parentalia.tess": {
+   "urn": "urn:cts:latinLit:stoa0045.stoa022",
+   "source": "catalog"
+  },
+  "ausonius.praefatiunculae.tess": {
+   "urn": "urn:cts:latinLit:stoa0045.stoa025",
+   "source": "catalog"
+  },
+  "ausonius.precationes.tess": {
+   "urn": "urn:cts:latinLit:stoa0045.stoa026",
+   "source": "catalog"
+  },
+  "ausonius.technopaegnion.tess": {
+   "urn": "urn:cts:latinLit:stoa0045.stoa028",
+   "source": "catalog"
+  },
+  "ausonius.versus_paschales_pro_augusto_dicti.tess": {
+   "urn": "urn:cts:latinLit:stoa0045.stoa027",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "bede_the_venerable.de_locis_santis.tess": {
+   "urn": "urn:cts:latinLit:stoa0054.stoa001a",
+   "source": "catalog"
+  },
+  "boethius.commentaria_in_porphyrium_a_se_translatu.tess": {
+   "urn": "urn:cts:latinLit:stoa0058.stoa007",
+   "source": "url"
+  },
+  "boethius.consolatio_philosophiae.tess": {
+   "urn": "urn:cts:latinLit:stoa0058.stoa001",
+   "source": "url"
+  },
+  "boethius.de_fide_catholica.tess": {
+   "urn": "urn:cts:latinLit:stoa0058.stoa006",
+   "source": "catalog"
+  },
+  "boethius.liber_de_persona_et_duabus_naturis_contra_eutychen_et_nestorium.tess": {
+   "urn": "urn:cts:latinLit:stoa0058.stoa023",
+   "source": "catalog"
+  },
+  "boethius.quomodo_substantiae_in_eo_quod_sint_bonae_sint_cum_non_sint_substantialia_bona.tess": {
+   "urn": "urn:cts:latinLit:stoa0058.stoa003",
+   "source": "catalog"
+  },
+  "caesar.de_bello_civili.tess": {
+   "urn": "urn:cts:latinLit:phi0448.phi002",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "caesar.de_bello_gallico.tess": {
+   "urn": "urn:cts:latinLit:phi0448.phi001",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "caesar_augustus.res_gestae_divi_augusti.tess": {
+   "urn": "urn:cts:latinLit:phi1221.phi007",
+   "source": "url"
+  },
+  "catholic_church_pope.epistulae_imperatorum_pontificum_aliorum.tess": {
+   "urn": "urn:cts:latinLit:stoa0045a.stoa001",
+   "source": "catalog"
+  },
+  "cato_the_elder.de_agricultura.tess": {
+   "urn": "urn:cts:latinLit:stoa0079.stoa001",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "catullus.carmina.tess": {
+   "urn": "urn:cts:latinLit:phi0472.phi001",
+   "source": "catalog"
+  },
+  "celsus.de_medicina.tess": {
+   "urn": "urn:cts:latinLit:phi0836.phi002",
+   "source": "catalog"
+  },
+  "cicero.academica.tess": {
+   "urn": "urn:cts:latinLit:phi0474.phi045",
+   "source": "catalog"
+  },
+  "cicero.brutus.tess": {
+   "urn": "urn:cts:latinLit:phi0474.phi039",
+   "source": "catalog"
+  },
+  "cicero.cum_populo_gratias_egit.tess": {
+   "urn": "urn:cts:latinLit:phi0474.phi018",
+   "source": "catalog"
+  },
+  "cicero.de_amicitia.tess": {
+   "urn": "urn:cts:latinLit:phi0474.phi052",
+   "source": "catalog"
+  },
+  "cicero.de_divinatione.tess": {
+   "urn": "urn:cts:latinLit:phi0474.phi053",
+   "source": "catalog"
+  },
+  "cicero.de_domo_sua.tess": {
+   "urn": "urn:cts:latinLit:phi0474.phi020",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "cicero.de_fato.tess": {
+   "urn": "urn:cts:latinLit:phi0474.phi054",
+   "source": "catalog"
+  },
+  "cicero.de_finibus_bonorum_et_malorum.tess": {
+   "urn": "urn:cts:latinLit:phi0474.phi048",
+   "source": "catalog"
+  },
+  "cicero.de_haruspicum_responso.tess": {
+   "urn": "urn:cts:latinLit:phi0474.phi021",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "cicero.de_imperio_cn_pompei.tess": {
+   "urn": "urn:cts:latinLit:phi0474.phi009",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "cicero.de_inventione.tess": {
+   "urn": "urn:cts:latinLit:phi0474.phi036",
+   "source": "catalog"
+  },
+  "cicero.de_lege_agraria_contra_rullum.tess": {
+   "urn": "urn:cts:latinLit:phi0474.phi011",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "cicero.de_legibus.tess": {
+   "urn": "urn:cts:latinLit:phi0474.phi044",
+   "source": "catalog"
+  },
+  "cicero.de_natura_deorum.tess": {
+   "urn": "urn:cts:latinLit:phi0474.phi050",
+   "source": "catalog"
+  },
+  "cicero.de_officiis.tess": {
+   "urn": "urn:cts:latinLit:phi0474.phi055",
+   "source": "catalog"
+  },
+  "cicero.de_optimo_genere_oratorum.tess": {
+   "urn": "urn:cts:latinLit:phi0474.phi041",
+   "source": "catalog"
+  },
+  "cicero.de_oratore.tess": {
+   "urn": "urn:cts:latinLit:phi0474.phi037",
+   "source": "url"
+  },
+  "cicero.de_partitione_oratoria.tess": {
+   "urn": "urn:cts:latinLit:phi0474.phi038",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "cicero.de_provinciis_consularibus.tess": {
+   "urn": "urn:cts:latinLit:phi0474.phi025",
+   "source": "catalog"
+  },
+  "cicero.de_republica.tess": {
+   "urn": "urn:cts:latinLit:phi0474.phi043",
+   "source": "catalog"
+  },
+  "cicero.de_senectute.tess": {
+   "urn": "urn:cts:latinLit:phi0474.phi051",
+   "source": "catalog"
+  },
+  "cicero.divinatio_in_q_caecilium.tess": {
+   "urn": "urn:cts:latinLit:phi0474.phi004",
+   "source": "catalog"
+  },
+  "cicero.epistulae_ad_familiares.tess": {
+   "urn": "urn:cts:latinLit:phi0474.phi056",
+   "source": "url"
+  },
+  "cicero.in_catilinam.tess": {
+   "urn": "urn:cts:latinLit:phi0474.phi013",
+   "source": "catalog"
+  },
+  "cicero.in_l_pisonem.tess": {
+   "urn": "urn:cts:latinLit:phi0474.phi027",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "cicero.in_vatinium.tess": {
+   "urn": "urn:cts:latinLit:phi0474.phi023",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "cicero.in_verrem.tess": {
+   "urn": "urn:cts:latinLit:phi0474.phi005",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "cicero.letters_to_atticus.tess": {
+   "urn": "urn:cts:latinLit:phi0474.phi057",
+   "source": "catalog"
+  },
+  "cicero.letters_to_brutus.tess": {
+   "urn": "urn:cts:latinLit:phi0474.phi059",
+   "source": "catalog"
+  },
+  "cicero.lucullus.tess": {
+   "urn": "urn:cts:latinLit:phi0474.phi046",
+   "source": "catalog"
+  },
+  "cicero.orator.tess": {
+   "urn": "urn:cts:latinLit:phi0474.phi040",
+   "source": "catalog"
+  },
+  "cicero.paradoxa_stoicorum_ad_m_brutum.tess": {
+   "urn": "urn:cts:latinLit:phi0474.phi047",
+   "source": "url"
+  },
+  "cicero.philippicae.tess": {
+   "urn": "urn:cts:latinLit:phi0474.phi035",
+   "source": "catalog"
+  },
+  "cicero.pro_a_caecina.tess": {
+   "urn": "urn:cts:latinLit:phi0474.phi008",
+   "source": "catalog"
+  },
+  "cicero.pro_a_cluentio.tess": {
+   "urn": "urn:cts:latinLit:phi0474.phi010",
+   "source": "catalog"
+  },
+  "cicero.pro_archia.tess": {
+   "urn": "urn:cts:latinLit:phi0474.phi016",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "cicero.pro_c_rabirio_perduellionis_reo.tess": {
+   "urn": "urn:cts:latinLit:phi0474.phi012",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "cicero.pro_c_rabirio_postumo.tess": {
+   "urn": "urn:cts:latinLit:phi0474.phi030",
+   "source": "catalog"
+  },
+  "cicero.pro_fonteio.tess": {
+   "urn": "urn:cts:latinLit:phi0474.phi007",
+   "source": "catalog"
+  },
+  "cicero.pro_l_flacco.tess": {
+   "urn": "urn:cts:latinLit:phi0474.phi017",
+   "source": "catalog"
+  },
+  "cicero.pro_ligario.tess": {
+   "urn": "urn:cts:latinLit:phi0474.phi033",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "cicero.pro_m_caelio.tess": {
+   "urn": "urn:cts:latinLit:phi0474.phi024",
+   "source": "catalog"
+  },
+  "cicero.pro_marcello.tess": {
+   "urn": "urn:cts:latinLit:phi0474.phi032",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "cicero.pro_milone.tess": {
+   "urn": "urn:cts:latinLit:phi0474.phi031",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "cicero.pro_murena.tess": {
+   "urn": "urn:cts:latinLit:phi0474.phi014",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "cicero.pro_plancio.tess": {
+   "urn": "urn:cts:latinLit:phi0474.phi028",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "cicero.pro_publio_quinctio.tess": {
+   "urn": "urn:cts:latinLit:phi0474.phi001",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "cicero.pro_q_roscio_comoedo.tess": {
+   "urn": "urn:cts:latinLit:phi0474.phi003",
+   "source": "catalog"
+  },
+  "cicero.pro_rege_deiotaro.tess": {
+   "urn": "urn:cts:latinLit:phi0474.phi034",
+   "source": "catalog"
+  },
+  "cicero.pro_s_roscio.tess": {
+   "urn": "urn:cts:latinLit:phi0474.phi002",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "cicero.pro_scauro.tess": {
+   "urn": "urn:cts:latinLit:phi0474.phi029",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "cicero.pro_sestio.tess": {
+   "urn": "urn:cts:latinLit:phi0474.phi022",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "cicero.pro_sulla.tess": {
+   "urn": "urn:cts:latinLit:phi0474.phi015",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "cicero.pro_tullio.tess": {
+   "urn": "urn:cts:latinLit:phi0474.phi006",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "cicero.timaeus.tess": {
+   "urn": "urn:cts:latinLit:phi0474.phi072",
+   "source": "catalog"
+  },
+  "cicero.topica.tess": {
+   "urn": "urn:cts:latinLit:phi0474.phi042",
+   "source": "catalog"
+  },
+  "cicero.tusculanae_disputationes.tess": {
+   "urn": "urn:cts:latinLit:phi0474.phi049",
+   "source": "catalog"
+  },
+  "claudian.de_bello_gildonico.tess": {
+   "urn": "urn:cts:latinLit:stoa0089.stoa002",
+   "source": "catalog"
+  },
+  "claudian.de_bello_gothico.tess": {
+   "urn": "urn:cts:latinLit:stoa0089.stoa003",
+   "source": "catalog"
+  },
+  "claudian.de_consulatu_stilichonis.tess": {
+   "urn": "urn:cts:latinLit:stoa0089.stoa004",
+   "source": "catalog"
+  },
+  "claudian.de_raptu_proserpinae.tess": {
+   "urn": "urn:cts:latinLit:stoa0089.stoa005",
+   "source": "catalog"
+  },
+  "claudian.epithalamium_de_nuptiis_honorii_augusti.tess": {
+   "urn": "urn:cts:latinLit:stoa0089.stoa006",
+   "source": "catalog"
+  },
+  "claudian.in_eutropium.tess": {
+   "urn": "urn:cts:latinLit:stoa0089.stoa008",
+   "source": "catalog"
+  },
+  "claudian.in_rufinum.tess": {
+   "urn": "urn:cts:latinLit:stoa0089.stoa009",
+   "source": "catalog"
+  },
+  "claudian.panegyricus_de_quarto_consulatu_honorii_augusti.tess": {
+   "urn": "urn:cts:latinLit:stoa0089.stoa011",
+   "source": "catalog"
+  },
+  "claudian.panegyricus_de_sexto_consulatu_honorii_augusti.tess": {
+   "urn": "urn:cts:latinLit:stoa0089.stoa012",
+   "source": "catalog"
+  },
+  "claudian.panegyricus_de_tertio_consulatu_honorii_augusti.tess": {
+   "urn": "urn:cts:latinLit:stoa0089.stoa010",
+   "source": "catalog"
+  },
+  "claudian.panegyricus_dictus_manlio_theodoro_consuli.tess": {
+   "urn": "urn:cts:latinLit:stoa0089.stoa013",
+   "source": "catalog"
+  },
+  "claudianus_mamertus.de_statu_animae.tess": {
+   "urn": "urn:cts:latinLit:stoa0089a.stoa001",
+   "source": "catalog"
+  },
+  "claudianus_mamertus.epistolae.tess": {
+   "urn": "urn:cts:latinLit:stoa0089a.stoa002",
+   "source": "catalog"
+  },
+  "columella.de_re_rustica.tess": {
+   "urn": "urn:cts:latinLit:phi0845.phi002",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "commodian.carmen_apologeticum.tess": {
+   "urn": "urn:cts:latinLit:stoa0096.stoa004",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "commodian.instructiones.tess": {
+   "urn": "urn:cts:latinLit:stoa0096.stoa003",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "commodianus.instructiones.tess": {
+   "urn": "urn:cts:latinLit:stoa0096.stoa003",
+   "source": "catalog"
+  },
+  "curtius_rufus.historiae_alexandri_magni.tess": {
+   "urn": "urn:cts:latinLit:phi0860.phi001",
+   "source": "url"
+  },
+  "cyprian.ad_demetrianum.tess": {
+   "urn": "urn:cts:latinLit:stoa0104a.stoa002",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "cyprian.ad_donatum.tess": {
+   "urn": "urn:cts:latinLit:stoa0104a.stoa001",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "cyprian.ad_quirinum_aut_testimoniorum_libri_tres_adversus_judaeos.tess": {
+   "urn": "urn:cts:latinLit:stoa0104a.stoa014",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "cyprian.de_bono_patientiae.tess": {
+   "urn": "urn:cts:latinLit:stoa0104a.stoa003",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "cyprian.de_dominica_oratione.tess": {
+   "urn": "urn:cts:latinLit:stoa0104a.stoa015",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "cyprian.de_habitu_virginum.tess": {
+   "urn": "urn:cts:latinLit:stoa0104a.stoa004",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "cyprian.de_lapsis.tess": {
+   "urn": "urn:cts:latinLit:stoa0104a.stoa007",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "cyprian.de_mortalitate.tess": {
+   "urn": "urn:cts:latinLit:stoa0104a.stoa008",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "cyprian.de_opere_et_eleemosynis.tess": {
+   "urn": "urn:cts:latinLit:stoa0104a.stoa009",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "cyprian.de_unitate_ecclesiae_catholicae.tess": {
+   "urn": "urn:cts:latinLit:stoa0104a.stoa010",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "cyprian.de_zelo_et_livore.tess": {
+   "urn": "urn:cts:latinLit:stoa0104a.stoa011",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "cyprian.epistulae.tess": {
+   "urn": "urn:cts:latinLit:stoa0104a.stoa012",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "cyprian.quod_idola_dii_non_sint.tess": {
+   "urn": "urn:cts:latinLit:stoa0104a.stoa006",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "cyprian.sententiae_episcoporum.tess": {
+   "urn": "urn:cts:latinLit:stoa0104a.stoa013",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "cyprian_saint.de_exhortatione_martyrii.tess": {
+   "urn": "urn:cts:latinLit:stoa0104a.stoa005",
+   "source": "catalog"
+  },
+  "cyprianus_gallus.heptateuchos.tess": {
+   "urn": "urn:cts:latinLit:stoa0104c.stoa001",
+   "source": "catalog"
+  },
+  "ennodius.carmina.tess": {
+   "urn": "urn:cts:latinLit:stoa0114a.stoa003",
+   "source": "catalog"
+  },
+  "ennodius.epistulae.tess": {
+   "urn": "urn:cts:latinLit:stoa0114a.stoa008",
+   "source": "catalog"
+  },
+  "eucherius_of_lyon.de_laude_heremi.tess": {
+   "urn": "urn:cts:latinLit:stoa0117.stoa001",
+   "source": "catalog"
+  },
+  "eucherius_of_lyon.formulae_spiritalis_intellegentiae.tess": {
+   "urn": "urn:cts:latinLit:stoa0117.stoa002",
+   "source": "catalog"
+  },
+  "eucherius_of_lyon.instructiones.tess": {
+   "urn": "urn:cts:latinLit:stoa0117.stoa003",
+   "source": "catalog"
+  },
+  "eugippius.epistula_ad_probam_virginem.tess": {
+   "urn": "urn:cts:latinLit:stoa0119.stoa002",
+   "source": "catalog"
+  },
+  "eugippius.exerpta_ex_operibus_augustini.tess": {
+   "urn": "urn:cts:latinLit:stoa0119.stoa003",
+   "source": "catalog"
+  },
+  "eugippius.vita_sancti_severini.tess": {
+   "urn": "urn:cts:latinLit:stoa0119.stoa001",
+   "source": "catalog"
+  },
+  "evodius.de_fide_contra_manicheos.tess": {
+   "urn": "urn:cts:latinLit:stoa0120d.stoa001",
+   "source": "catalog"
+  },
+  "faustus_of_riez.de_gratia_libri_duo.tess": {
+   "urn": "urn:cts:latinLit:stoa0121g.stoa001",
+   "source": "catalog"
+  },
+  "faustus_of_riez.de_ratione_fidei.tess": {
+   "urn": "urn:cts:latinLit:stoa0121g.stoa005",
+   "source": "catalog"
+  },
+  "faustus_of_riez.de_spiritu_sancto_libri_duo.tess": {
+   "urn": "urn:cts:latinLit:stoa0121g.stoa002",
+   "source": "catalog"
+  },
+  "faustus_of_riez.epistulae.tess": {
+   "urn": "urn:cts:latinLit:stoa0121g.stoa003",
+   "source": "catalog"
+  },
+  "faustus_of_riez.sermones.tess": {
+   "urn": "urn:cts:latinLit:stoa0121g.stoa004",
+   "source": "catalog"
+  },
+  "florus.epitome_bellorum_omnium_annorum.tess": {
+   "urn": "urn:cts:latinLit:phi1242.phi001",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "gellius.attic_nights.tess": {
+   "urn": "urn:cts:latinLit:phi1254.phi001",
+   "source": "url"
+  },
+  "hilary_of_poitiers.fragmenta_minora.tess": {
+   "urn": "urn:cts:latinLit:stoa0149b.stoa003",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "hilary_of_poitiers.hymni.tess": {
+   "urn": "urn:cts:latinLit:stoa0149b.stoa004",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "hilary_of_poitiers.liber_ad_constantium_imperatorem.tess": {
+   "urn": "urn:cts:latinLit:stoa0149b.stoa005",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "hilary_of_poitiers.oratio_synodi_sardicensis_ad_constantium_imperatorem.tess": {
+   "urn": "urn:cts:latinLit:stoa0149b.stoa007",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "hilary_of_poitiers.tractatus_mysteriorum.tess": {
+   "urn": "urn:cts:latinLit:stoa0149b.stoa009",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "hilary_of_poitiers.tractatus_super_psalmos.tess": {
+   "urn": "urn:cts:latinLit:stoa0149b.stoa001",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "hilary_saint_archbishop_of_arles.epistulae_ad_eucherium.tess": {
+   "urn": "urn:cts:latinLit:stoa0149c.stoa001",
+   "source": "catalog"
+  },
+  "hilary_saint_bishop_of_poitiers.collectanea_antiariana_parisina.tess": {
+   "urn": "urn:cts:latinLit:stoa0149b.stoa002",
+   "source": "catalog"
+  },
+  "hilary_saint_bishop_of_poitiers.hymni.tess": {
+   "urn": "urn:cts:latinLit:stoa0149b.stoa004",
+   "source": "catalog"
+  },
+  "hilary_saint_bishop_of_poitiers.libri_tres_adversum_valentem_et_ursacium.tess": {
+   "urn": "urn:cts:latinLit:stoa0149b.stoa006",
+   "source": "catalog"
+  },
+  "hilary_saint_bishop_of_poitiers.spuria.tess": {
+   "urn": "urn:cts:latinLit:stoa0149b.stoa008",
+   "source": "catalog"
+  },
+  "horace.ars_poetica.tess": {
+   "urn": "urn:cts:latinLit:phi0893.phi006",
+   "source": "catalog"
+  },
+  "horace.carmen_saeculare.tess": {
+   "urn": "urn:cts:latinLit:phi0893.phi002",
+   "source": "catalog"
+  },
+  "horace.epistles.tess": {
+   "urn": "urn:cts:latinLit:phi0893.phi005",
+   "source": "url"
+  },
+  "horace.odes.tess": {
+   "urn": "urn:cts:latinLit:phi0893.phi001",
+   "source": "catalog"
+  },
+  "horace.satires.tess": {
+   "urn": "urn:cts:latinLit:phi0893.phi004",
+   "source": "catalog"
+  },
+  "iulius_firmicus_maternus.liber_de_errore_profanorum_religionum.tess": {
+   "urn": "urn:cts:latinLit:stoa0123a.stoa001",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "jerome.epistulae.tess": {
+   "urn": "urn:cts:latinLit:stoa0162.stoa004",
+   "source": "catalog"
+  },
+  "jerome.in_hieremiam_prophetam.tess": {
+   "urn": "urn:cts:latinLit:stoa0162.stoa024",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "john_cassian.de_incarnatione_domini_contra_nestorum.tess": {
+   "urn": "urn:cts:latinLit:stoa0076c.stoa003",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "john_cassian.institutiones.tess": {
+   "urn": "urn:cts:latinLit:stoa0076c.stoa002",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "juvenal.satires.tess": {
+   "urn": "urn:cts:latinLit:phi1276.phi001",
+   "source": "url"
+  },
+  "lactantius.carmen_de_passione_domini.tess": {
+   "urn": "urn:cts:latinLit:stoa0171.stoa004",
+   "source": "catalog"
+  },
+  "lactantius.de_ave_phoenice.tess": {
+   "urn": "urn:cts:latinLit:stoa0171.stoa001",
+   "source": "catalog"
+  },
+  "lactantius.de_ira_dei.tess": {
+   "urn": "urn:cts:latinLit:stoa0171.stoa006",
+   "source": "catalog"
+  },
+  "lactantius.de_mortibus_persecutorum.tess": {
+   "urn": "urn:cts:latinLit:stoa0171.stoa002",
+   "source": "catalog"
+  },
+  "lactantius.de_opificio_dei.tess": {
+   "urn": "urn:cts:latinLit:stoa0171.stoa007",
+   "source": "catalog"
+  },
+  "lactantius.divinarum_institutionum.tess": {
+   "urn": "urn:cts:latinLit:stoa0171.stoa009",
+   "source": "catalog"
+  },
+  "lactantius.epitome_divinarum_institutionum.tess": {
+   "urn": "urn:cts:latinLit:stoa0171.stoa008",
+   "source": "catalog"
+  },
+  "lactantius.fragmenta.tess": {
+   "urn": "urn:cts:latinLit:stoa0171.stoa010",
+   "source": "catalog"
+  },
+  "livy.ab_urbe_condita.tess": {
+   "urn": "urn:cts:latinLit:phi0914.phi001",
+   "source": "catalog"
+  },
+  "lucan.bellum_civile.tess": {
+   "urn": "urn:cts:latinLit:phi0917.phi001",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "lucifer_bishop_of_cagliari.de_non_conveniendo_cum_haereticis.tess": {
+   "urn": "urn:cts:latinLit:stoa0180a.stoa001",
+   "source": "catalog"
+  },
+  "lucifer_bishop_of_cagliari.de_non_parcendo_in_deum_delinquentibus.tess": {
+   "urn": "urn:cts:latinLit:stoa0180a.stoa002",
+   "source": "catalog"
+  },
+  "lucifer_bishop_of_cagliari.de_regibus_apostaticis.tess": {
+   "urn": "urn:cts:latinLit:stoa0180a.stoa003",
+   "source": "catalog"
+  },
+  "lucifer_bishop_of_cagliari.epistulae.tess": {
+   "urn": "urn:cts:latinLit:stoa0180a.stoa005",
+   "source": "catalog"
+  },
+  "lucifer_bishop_of_cagliari.moriendum_esse_pro_dei_filio.tess": {
+   "urn": "urn:cts:latinLit:stoa0180a.stoa006",
+   "source": "catalog"
+  },
+  "lucretius.de_rerum_natura.tess": {
+   "urn": "urn:cts:latinLit:phi0550.phi001",
+   "source": "catalog"
+  },
+  "magnus_felix_ennodius.benedictio_cerei_i.tess": {
+   "urn": "urn:cts:latinLit:stoa0114a.stoa001",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "magnus_felix_ennodius.benedictio_cerei_ii.tess": {
+   "urn": "urn:cts:latinLit:stoa0114a.stoa002",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "magnus_felix_ennodius.de_vita_beati_antoni_monachi.tess": {
+   "urn": "urn:cts:latinLit:stoa0114a.stoa005",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "magnus_felix_ennodius.dictiones.tess": {
+   "urn": "urn:cts:latinLit:stoa0114a.stoa004",
+   "source": "url"
+  },
+  "magnus_felix_ennodius.ennodius_ambrosio_et_beato.tess": {
+   "urn": "urn:cts:latinLit:stoa0114a.stoa007",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "magnus_felix_ennodius.eucharisticum_de_vita_sua.tess": {
+   "urn": "urn:cts:latinLit:stoa0114a.stoa011",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "magnus_felix_ennodius.libellus_adversus_eos_qui_contra_synodum.tess": {
+   "urn": "urn:cts:latinLit:stoa0114a.stoa012",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "magnus_felix_ennodius.panegyricus_theodorico_regi_dictus.tess": {
+   "urn": "urn:cts:latinLit:stoa0114a.stoa006",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "magnus_felix_ennodius.petitorium_quo_absolutus_est_gerontius_p.tess": {
+   "urn": "urn:cts:latinLit:stoa0114a.stoa013",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "magnus_felix_ennodius.praeceptum_quando_iussi_sunt_omnes_episc.tess": {
+   "urn": "urn:cts:latinLit:stoa0114a.stoa014",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "magnus_felix_ennodius.vita_epiphanii.tess": {
+   "urn": "urn:cts:latinLit:stoa0114a.stoa015",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "martial.epigrams.tess": {
+   "urn": "urn:cts:latinLit:phi1294.phi002",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "minucius_felix.octavius.tess": {
+   "urn": "urn:cts:latinLit:stoa0203.stoa001",
+   "source": "catalog"
+  },
+  "optatus_saint_bishop_of_mileve.appendix_decem_monumentorum_veterum.tess": {
+   "urn": "urn:cts:latinLit:stoa0215a.stoa002",
+   "source": "catalog"
+  },
+  "optatus_saint_bishop_of_mileve.s_optati_milevitani_libri_vii.tess": {
+   "urn": "urn:cts:latinLit:stoa0215a.stoa001",
+   "source": "catalog"
+  },
+  "orientius_saint.carmina.tess": {
+   "urn": "urn:cts:latinLit:stoa0215b.stoa002",
+   "source": "catalog"
+  },
+  "orientius_saint.commonitorium.tess": {
+   "urn": "urn:cts:latinLit:stoa0215b.stoa001",
+   "source": "catalog"
+  },
+  "ovid.amores.tess": {
+   "urn": "urn:cts:latinLit:phi0959.phi001",
+   "source": "catalog"
+  },
+  "ovid.ars_amatoria.tess": {
+   "urn": "urn:cts:latinLit:phi0959.phi004",
+   "source": "catalog"
+  },
+  "ovid.ex_ponto.tess": {
+   "urn": "urn:cts:latinLit:phi0959.phi009",
+   "source": "catalog"
+  },
+  "ovid.fasti.tess": {
+   "urn": "urn:cts:latinLit:phi0959.phi007",
+   "source": "catalog"
+  },
+  "ovid.ibis.tess": {
+   "urn": "urn:cts:latinLit:phi0959.phi010",
+   "source": "catalog"
+  },
+  "ovid.medicamina_faciei_femineae.tess": {
+   "urn": "urn:cts:latinLit:phi0959.phi003",
+   "source": "catalog"
+  },
+  "ovid.metamorphoses.tess": {
+   "urn": "urn:cts:latinLit:phi0959.phi006",
+   "source": "catalog"
+  },
+  "ovid.remedia_amoris.tess": {
+   "urn": "urn:cts:latinLit:phi0959.phi005",
+   "source": "catalog"
+  },
+  "ovid.tristia.tess": {
+   "urn": "urn:cts:latinLit:phi0959.phi008",
+   "source": "catalog"
+  },
+  "paul_the_apostle_saint.epigramma.tess": {
+   "urn": "urn:cts:latinLit:stoa0222a.stoa001",
+   "source": "catalog"
+  },
+  "paulinus_of_nola.carmina.tess": {
+   "urn": "urn:cts:latinLit:stoa0223.stoa001",
+   "source": "catalog"
+  },
+  "paulinus_of_nola.epistulae.tess": {
+   "urn": "urn:cts:latinLit:stoa0223.stoa002",
+   "source": "catalog"
+  },
+  "paulinus_of_pella.eucharisticus.tess": {
+   "urn": "urn:cts:latinLit:stoa0223a.stoa001",
+   "source": "catalog"
+  },
+  "paulinus_petricordiae.de_vita_sancti_martini.tess": {
+   "urn": "urn:cts:latinLit:stoa0224b.stoa001",
+   "source": "catalog"
+  },
+  "paulus_orosius.commonitorium_de_errore_priscillianistarum_et_origenistarum.tess": {
+   "urn": "urn:cts:latinLit:stoa0215c.stoa003",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "paulus_orosius.historiae_adversum_paganos.tess": {
+   "urn": "urn:cts:latinLit:stoa0215c.stoa001",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "paulus_orosius.liber_apologeticus.tess": {
+   "urn": "urn:cts:latinLit:stoa0215c.stoa002",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "petrus_diaconus.de_locis_santis.tess": {
+   "urn": "urn:cts:latinLit:stoa0227b.stoa001",
+   "source": "catalog"
+  },
+  "philastrius.diversarum_hereseon_liber.tess": {
+   "urn": "urn:cts:latinLit:stoa0122a.stoa001",
+   "source": "catalog"
+  },
+  "plautus.amphitruo.tess": {
+   "urn": "urn:cts:latinLit:phi0119.phi001",
+   "source": "catalog"
+  },
+  "plautus.asinaria.tess": {
+   "urn": "urn:cts:latinLit:phi0119.phi002",
+   "source": "catalog"
+  },
+  "plautus.aulularia.tess": {
+   "urn": "urn:cts:latinLit:phi0119.phi003",
+   "source": "catalog"
+  },
+  "plautus.bacchides.tess": {
+   "urn": "urn:cts:latinLit:phi0119.phi004",
+   "source": "catalog"
+  },
+  "plautus.captivi.tess": {
+   "urn": "urn:cts:latinLit:phi0119.phi005",
+   "source": "catalog"
+  },
+  "plautus.casina.tess": {
+   "urn": "urn:cts:latinLit:phi0119.phi006",
+   "source": "catalog"
+  },
+  "plautus.cistellaria.tess": {
+   "urn": "urn:cts:latinLit:phi0119.phi007",
+   "source": "catalog"
+  },
+  "plautus.curculio.tess": {
+   "urn": "urn:cts:latinLit:phi0119.phi008",
+   "source": "catalog"
+  },
+  "plautus.epidicus.tess": {
+   "urn": "urn:cts:latinLit:phi0119.phi009",
+   "source": "catalog"
+  },
+  "plautus.menaechmi.tess": {
+   "urn": "urn:cts:latinLit:phi0119.phi010",
+   "source": "catalog"
+  },
+  "plautus.mercator.tess": {
+   "urn": "urn:cts:latinLit:phi0119.phi011",
+   "source": "catalog"
+  },
+  "plautus.miles_gloriosus.tess": {
+   "urn": "urn:cts:latinLit:phi0119.phi012",
+   "source": "catalog"
+  },
+  "plautus.mostellaria.tess": {
+   "urn": "urn:cts:latinLit:phi0119.phi013",
+   "source": "catalog"
+  },
+  "plautus.persa.tess": {
+   "urn": "urn:cts:latinLit:phi0119.phi014",
+   "source": "catalog"
+  },
+  "plautus.poenulus.tess": {
+   "urn": "urn:cts:latinLit:phi0119.phi015",
+   "source": "catalog"
+  },
+  "plautus.pseudolus.tess": {
+   "urn": "urn:cts:latinLit:phi0119.phi016",
+   "source": "catalog"
+  },
+  "plautus.rudens.tess": {
+   "urn": "urn:cts:latinLit:phi0119.phi017",
+   "source": "catalog"
+  },
+  "plautus.stichus.tess": {
+   "urn": "urn:cts:latinLit:phi0119.phi018",
+   "source": "catalog"
+  },
+  "plautus.trinummus.tess": {
+   "urn": "urn:cts:latinLit:phi0119.phi019",
+   "source": "catalog"
+  },
+  "plautus.truculentus.tess": {
+   "urn": "urn:cts:latinLit:phi0119.phi020",
+   "source": "catalog"
+  },
+  "pliny_the_elder.naturalis_historia.tess": {
+   "urn": "urn:cts:latinLit:phi0978.phi001",
+   "source": "catalog"
+  },
+  "pliny_the_younger.letters.tess": {
+   "urn": "urn:cts:latinLit:phi1318.phi001",
+   "source": "url"
+  },
+  "pontius_diaconus.acta_proconsularia.tess": {
+   "urn": "urn:cts:latinLit:stoa0233d.stoa002",
+   "source": "catalog"
+  },
+  "pontius_diaconus.vita_caecilii_cypriani.tess": {
+   "urn": "urn:cts:latinLit:stoa0233d.stoa001",
+   "source": "catalog"
+  },
+  "priscillian.tractatus_undecim.tess": {
+   "urn": "urn:cts:latinLit:stoa0234e.stoa002",
+   "source": "catalog"
+  },
+  "proba_active_4th_century.cento.tess": {
+   "urn": "urn:cts:latinLit:stoa0234f.stoa001",
+   "source": "url"
+  },
+  "propertius.elegies.tess": {
+   "urn": "urn:cts:latinLit:phi0620.phi001",
+   "source": "url"
+  },
+  "prudentius.apotheosis.tess": {
+   "urn": "urn:cts:latinLit:stoa0238.stoa005",
+   "source": "catalog"
+  },
+  "prudentius.cathemerinon.tess": {
+   "urn": "urn:cts:latinLit:stoa0238.stoa004",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "prudentius.contra_symmachum.tess": {
+   "urn": "urn:cts:latinLit:stoa0238.stoa007",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "prudentius.dittochaeon.tess": {
+   "urn": "urn:cts:latinLit:stoa0238.stoa008",
+   "source": "catalog"
+  },
+  "prudentius.epilogus.tess": {
+   "urn": "urn:cts:latinLit:stoa0238.stoa009",
+   "source": "catalog"
+  },
+  "prudentius.hamartigenia.tess": {
+   "urn": "urn:cts:latinLit:stoa0238.stoa006",
+   "source": "catalog"
+  },
+  "prudentius.peristephanon.tess": {
+   "urn": "urn:cts:latinLit:stoa0238.stoa001",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "prudentius.psychomachia.tess": {
+   "urn": "urn:cts:latinLit:stoa0238.stoa002",
+   "source": "catalog"
+  },
+  "pseudo_cyprian.ad_novatianum.tess": {
+   "urn": "urn:cts:latinLit:stoa0104p.stoa001",
+   "source": "catalog"
+  },
+  "pseudo_cyprian.ad_vigilium_de_iudaica_incredulitate.tess": {
+   "urn": "urn:cts:latinLit:stoa0104p.stoa002",
+   "source": "catalog"
+  },
+  "pseudo_cyprian.adversus_judaeos.tess": {
+   "urn": "urn:cts:latinLit:stoa0104p.stoa020",
+   "source": "catalog"
+  },
+  "pseudo_cyprian.de_disciplina_et_bono_pudicitiae.tess": {
+   "urn": "urn:cts:latinLit:stoa0104p.stoa005",
+   "source": "catalog"
+  },
+  "pseudo_cyprian.de_duplici_martyrio.tess": {
+   "urn": "urn:cts:latinLit:stoa0104p.stoa006",
+   "source": "catalog"
+  },
+  "pseudo_cyprian.de_laude_martyrii.tess": {
+   "urn": "urn:cts:latinLit:stoa0104p.stoa007",
+   "source": "catalog"
+  },
+  "pseudo_cyprian.de_montibus_sina_et_sion_adversus_judaeo.tess": {
+   "urn": "urn:cts:latinLit:stoa0104p.stoa008",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "pseudo_cyprian.de_pascha_computus.tess": {
+   "urn": "urn:cts:latinLit:stoa0104p.stoa009",
+   "source": "catalog"
+  },
+  "pseudo_cyprian.de_rebaptismate.tess": {
+   "urn": "urn:cts:latinLit:stoa0104p.stoa010",
+   "source": "catalog"
+  },
+  "pseudo_cyprian.de_singularitate_clericorum.tess": {
+   "urn": "urn:cts:latinLit:stoa0104p.stoa011",
+   "source": "catalog"
+  },
+  "pseudo_cyprian.de_spectaculis_liber.tess": {
+   "urn": "urn:cts:latinLit:stoa0104p.stoa013",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "pseudo_cyprian.de_xii_abusionibus_saeculi.tess": {
+   "urn": "urn:cts:latinLit:stoa0104p.stoa014",
+   "source": "catalog"
+  },
+  "pseudo_cyprian.epistulae.tess": {
+   "urn": "urn:cts:latinLit:stoa0104p.stoa016",
+   "source": "catalog"
+  },
+  "pseudo_cyprian.liber_de_aleatoribus.tess": {
+   "urn": "urn:cts:latinLit:stoa0104p.stoa018",
+   "source": "catalog"
+  },
+  "pseudo_eucherius.de_situ_hierusolimitanae_urbis_atque_ips.tess": {
+   "urn": "urn:cts:latinLit:stoa0117p.stoa001",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "pseudo_severus_sulpicius.epistolae_septem.tess": {
+   "urn": "urn:cts:latinLit:stoa0270p.stoa001",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "pseudo_tertullian.adversus_omnes_haereses.tess": {
+   "urn": "urn:cts:latinLit:stoa0276.stoa003",
+   "source": "catalog"
+  },
+  "pseudo_victor_vitensis.notitia_provinciarum_et_civitatum_africa.tess": {
+   "urn": "urn:cts:latinLit:stoa0292p.stoa002",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "pseudo_victor_vitensis.passio_septem_monachorum.tess": {
+   "urn": "urn:cts:latinLit:stoa0292p.stoa001",
+   "source": "catalog"
+  },
+  "quintilian.institutio_oratoria.tess": {
+   "urn": "urn:cts:latinLit:phi1002.phi001",
+   "source": "catalog"
+  },
+  "remigius_of_auxerre.expositione_in_paschale_carmen.tess": {
+   "urn": "urn:cts:latinLit:stoa0241d.stoa002",
+   "source": "catalog"
+  },
+  "rufinus_of_aquileia.interpretatio_orationum_gregorii_nazianz.tess": {
+   "urn": "urn:cts:latinLit:stoa0244d.stoa005",
+   "source": "url"
+  },
+  "ruricius_i_bishop_of_limoges.epistulae.tess": {
+   "urn": "urn:cts:latinLit:stoa0245a.stoa001",
+   "source": "catalog"
+  },
+  "rusticus_presbyter.epistula_ad_eucherium_lugdunensem.tess": {
+   "urn": "urn:cts:latinLit:stoa0245c.stoa001",
+   "source": "catalog"
+  },
+  "sallust.histories.tess": {
+   "urn": "urn:cts:latinLit:phi0631.phi003",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "sallust.jugurtha.tess": {
+   "urn": "urn:cts:latinLit:phi0631.phi002",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "salvian_of_marseilles.epistulae.tess": {
+   "urn": "urn:cts:latinLit:stoa0249a.stoa003",
+   "source": "catalog"
+  },
+  "salvianus.ad_ecclesiam.tess": {
+   "urn": "urn:cts:latinLit:stoa0249a.stoa004",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "salvianus.de_gubernatione_dei.tess": {
+   "urn": "urn:cts:latinLit:stoa0249a.stoa002",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "secundinus.epistula_secundini_ad_augustinum.tess": {
+   "urn": "urn:cts:latinLit:stoa0251.stoa001",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "sedulius.a_solis_ortus_cardine.tess": {
+   "urn": "urn:cts:latinLit:stoa0252.stoa001",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "sedulius.carmen_paschale.tess": {
+   "urn": "urn:cts:latinLit:stoa0252.stoa002",
+   "source": "catalog"
+  },
+  "sedulius.carmina_ad_sedulium_spectantia.tess": {
+   "urn": "urn:cts:latinLit:stoa0252.stoa003",
+   "source": "url"
+  },
+  "sedulius.epistola_ad_macedonium.tess": {
+   "urn": "urn:cts:latinLit:stoa0252.stoa006",
+   "source": "catalog"
+  },
+  "sedulius.hymnus_i.tess": {
+   "urn": "urn:cts:latinLit:stoa0252.stoa007",
+   "source": "catalog"
+  },
+  "sedulius.hymnus_ii_a_solis_ortus_cardine.tess": {
+   "urn": "urn:cts:latinLit:stoa0252.stoa001",
+   "source": "catalog"
+  },
+  "sedulius.opus_paschale.tess": {
+   "urn": "urn:cts:latinLit:stoa0252.stoa008",
+   "source": "catalog"
+  },
+  "seneca.ad_lucilium_epistulae_morales.tess": {
+   "urn": "urn:cts:latinLit:phi1017.phi015",
+   "source": "url"
+  },
+  "seneca.agamemnon.tess": {
+   "urn": "urn:cts:latinLit:phi1017.phi007",
+   "source": "catalog"
+  },
+  "seneca.apocolocyntosis.tess": {
+   "urn": "urn:cts:latinLit:phi1017.phi011",
+   "source": "catalog"
+  },
+  "seneca.de_beneficiis.tess": {
+   "urn": "urn:cts:latinLit:phi1017.phi013",
+   "source": "catalog"
+  },
+  "seneca.de_brevitate_vitae.tess": {
+   "urn": "urn:cts:latinLit:stoa0255.stoa004",
+   "source": "url"
+  },
+  "seneca.de_clementia.tess": {
+   "urn": "urn:cts:latinLit:phi1017.phi014",
+   "source": "catalog"
+  },
+  "seneca.de_consolatione_ad_marciam.tess": {
+   "urn": "urn:cts:latinLit:stoa0255.stoa007",
+   "source": "url"
+  },
+  "seneca.de_consolatione_ad_polybium.tess": {
+   "urn": "urn:cts:latinLit:stoa0255.stoa008",
+   "source": "url"
+  },
+  "seneca.de_constantia.tess": {
+   "urn": "urn:cts:latinLit:stoa0255.stoa009",
+   "source": "url"
+  },
+  "seneca.de_ira.tess": {
+   "urn": "urn:cts:latinLit:stoa0255.stoa010",
+   "source": "url"
+  },
+  "seneca.de_otio.tess": {
+   "urn": "urn:cts:latinLit:stoa0255.stoa011",
+   "source": "url"
+  },
+  "seneca.de_providentia.tess": {
+   "urn": "urn:cts:latinLit:stoa0255.stoa012",
+   "source": "url"
+  },
+  "seneca.de_tranquillitate_animi.tess": {
+   "urn": "urn:cts:latinLit:stoa0255.stoa013",
+   "source": "url"
+  },
+  "seneca.de_vita_beata.tess": {
+   "urn": "urn:cts:latinLit:stoa0255.stoa014",
+   "source": "url"
+  },
+  "seneca.hercules_furens.tess": {
+   "urn": "urn:cts:latinLit:phi1017.phi001",
+   "source": "catalog"
+  },
+  "seneca.hercules_oetaeus.tess": {
+   "urn": "urn:cts:latinLit:phi1017.phi009",
+   "source": "catalog"
+  },
+  "seneca.medea.tess": {
+   "urn": "urn:cts:latinLit:phi1017.phi004",
+   "source": "catalog"
+  },
+  "seneca.octavia.tess": {
+   "urn": "urn:cts:latinLit:phi1017.phi010",
+   "source": "catalog"
+  },
+  "seneca.oedipus.tess": {
+   "urn": "urn:cts:latinLit:phi1017.phi006",
+   "source": "catalog"
+  },
+  "seneca.phaedra.tess": {
+   "urn": "urn:cts:latinLit:phi1017.phi005",
+   "source": "catalog"
+  },
+  "seneca.phoenissae.tess": {
+   "urn": "urn:cts:latinLit:phi1017.phi003",
+   "source": "catalog"
+  },
+  "seneca.thyestes.tess": {
+   "urn": "urn:cts:latinLit:phi1017.phi008",
+   "source": "catalog"
+  },
+  "seneca.troades.tess": {
+   "urn": "urn:cts:latinLit:phi1017.phi002",
+   "source": "url"
+  },
+  "seneca_the_elder.controversiae.tess": {
+   "urn": "urn:cts:latinLit:phi1014.phi001",
+   "source": "catalog"
+  },
+  "seneca_the_elder.excerpta_controversiae.tess": {
+   "urn": "urn:cts:latinLit:phi1014.phi002",
+   "source": "catalog"
+  },
+  "seneca_the_elder.fragmenta.tess": {
+   "urn": "urn:cts:latinLit:phi1014.phi004",
+   "source": "catalog"
+  },
+  "seneca_the_elder.suasoriae.tess": {
+   "urn": "urn:cts:latinLit:phi1014.phi003",
+   "source": "catalog"
+  },
+  "severus_sulpicius.epistulae_tres.tess": {
+   "urn": "urn:cts:latinLit:stoa0270.stoa005",
+   "source": "url"
+  },
+  "sidonius.carmina.tess": {
+   "urn": "urn:cts:latinLit:stoa0261.stoa001",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "sidonius.epistulae.tess": {
+   "urn": "urn:cts:latinLit:stoa0261.stoa002",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "silius_italicus.punica.tess": {
+   "urn": "urn:cts:latinLit:phi1345.phi001",
+   "source": "catalog"
+  },
+  "statius.achilleid.tess": {
+   "urn": "urn:cts:latinLit:phi1020.phi003",
+   "source": "url"
+  },
+  "statius.silvae.tess": {
+   "urn": "urn:cts:latinLit:phi1020.phi002",
+   "source": "catalog"
+  },
+  "statius.thebaid.tess": {
+   "urn": "urn:cts:latinLit:phi1020.phi001",
+   "source": "url"
+  },
+  "sulpicius_severus.chronica.tess": {
+   "urn": "urn:cts:latinLit:stoa0270.stoa001",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "sulpicius_severus.dialogi.tess": {
+   "urn": "urn:cts:latinLit:stoa0270.stoa003",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "sulpicius_severus.vita_martini.tess": {
+   "urn": "urn:cts:latinLit:stoa0270.stoa002",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "tacitus.agricola.tess": {
+   "urn": "urn:cts:latinLit:phi1351.phi001",
+   "source": "catalog"
+  },
+  "tacitus.annales.tess": {
+   "urn": "urn:cts:latinLit:phi1351.phi005",
+   "source": "catalog"
+  },
+  "tacitus.de_origine_et_situ_germanorum_liber.tess": {
+   "urn": "urn:cts:latinLit:phi1351.phi002",
+   "source": "url"
+  },
+  "tacitus.dialogus_de_oratoribus.tess": {
+   "urn": "urn:cts:latinLit:phi1351.phi003",
+   "source": "url"
+  },
+  "tacitus.historiae.tess": {
+   "urn": "urn:cts:latinLit:phi1351.phi004",
+   "source": "catalog"
+  },
+  "terence.adelphi.tess": {
+   "urn": "urn:cts:latinLit:phi0134.phi006",
+   "source": "catalog"
+  },
+  "terence.andria.tess": {
+   "urn": "urn:cts:latinLit:phi0134.phi001",
+   "source": "catalog"
+  },
+  "terence.eunuchus.tess": {
+   "urn": "urn:cts:latinLit:phi0134.phi003",
+   "source": "catalog"
+  },
+  "terence.heautontimorumenos.tess": {
+   "urn": "urn:cts:latinLit:phi0134.phi002",
+   "source": "catalog"
+  },
+  "terence.hecyra.tess": {
+   "urn": "urn:cts:latinLit:phi0134.phi005",
+   "source": "catalog"
+  },
+  "terence.phormio.tess": {
+   "urn": "urn:cts:latinLit:phi0134.phi004",
+   "source": "catalog"
+  },
+  "tertullian.ad_martyres.tess": {
+   "urn": "urn:cts:latinLit:stoa0275.stoa001",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "tertullian.ad_nationes_libri_duo.tess": {
+   "urn": "urn:cts:latinLit:stoa0275.stoa002",
+   "source": "catalog"
+  },
+  "tertullian.adversus_hermogenem.tess": {
+   "urn": "urn:cts:latinLit:stoa0275.stoa004",
+   "source": "catalog"
+  },
+  "tertullian.adversus_marcionem.tess": {
+   "urn": "urn:cts:latinLit:stoa0275.stoa006",
+   "source": "catalog"
+  },
+  "tertullian.adversus_praxean.tess": {
+   "urn": "urn:cts:latinLit:stoa0275.stoa007",
+   "source": "catalog"
+  },
+  "tertullian.adversus_valentinianos.tess": {
+   "urn": "urn:cts:latinLit:stoa0275.stoa008",
+   "source": "catalog"
+  },
+  "tertullian.apologeticum.tess": {
+   "urn": "urn:cts:latinLit:stoa0275.stoa009",
+   "source": "catalog"
+  },
+  "tertullian.de_anima.tess": {
+   "urn": "urn:cts:latinLit:stoa0275.stoa010",
+   "source": "catalog"
+  },
+  "tertullian.de_baptismo.tess": {
+   "urn": "urn:cts:latinLit:stoa0275.stoa011",
+   "source": "catalog"
+  },
+  "tertullian.de_carnis_resurrectione.tess": {
+   "urn": "urn:cts:latinLit:stoa0275.stoa026",
+   "source": "catalog"
+  },
+  "tertullian.de_idololatria.tess": {
+   "urn": "urn:cts:latinLit:stoa0275.stoa017",
+   "source": "catalog"
+  },
+  "tertullian.de_ieiunio_adversus_psychicos.tess": {
+   "urn": "urn:cts:latinLit:stoa0275.stoa018",
+   "source": "catalog"
+  },
+  "tertullian.de_oratione.tess": {
+   "urn": "urn:cts:latinLit:stoa0275.stoa020",
+   "source": "catalog"
+  },
+  "tertullian.de_patientia.tess": {
+   "urn": "urn:cts:latinLit:stoa0275.stoa023",
+   "source": "catalog"
+  },
+  "tertullian.de_pudicitia.tess": {
+   "urn": "urn:cts:latinLit:stoa0275.stoa025",
+   "source": "catalog"
+  },
+  "tertullian.de_spectaculis.tess": {
+   "urn": "urn:cts:latinLit:stoa0275.stoa027",
+   "source": "catalog"
+  },
+  "tertullian.de_testimonio_animae.tess": {
+   "urn": "urn:cts:latinLit:stoa0275.stoa028",
+   "source": "catalog"
+  },
+  "tertullian.scorpiace.tess": {
+   "urn": "urn:cts:latinLit:stoa0275.stoa030",
+   "source": "catalog"
+  },
+  "theodosius.de_situ_terrae_sanctae.tess": {
+   "urn": "urn:cts:latinLit:stoa0278a.stoa001",
+   "source": "catalog"
+  },
+  "tibullus.elegies.tess": {
+   "urn": "urn:cts:latinLit:phi0660.phi001",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "valerius_flaccus.argonautica.tess": {
+   "urn": "urn:cts:latinLit:phi1035.phi001",
+   "source": "catalog"
+  },
+  "valerius_maximus.facta_et_dicta_memorabilia.tess": {
+   "urn": "urn:cts:latinLit:phi1038.phi001",
+   "source": "catalog"
+  },
+  "vergil.aeneid.tess": {
+   "urn": "urn:cts:latinLit:phi0690.phi003",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "vergil.eclogues.tess": {
+   "urn": "urn:cts:latinLit:phi0690.phi001",
+   "source": "url"
+  },
+  "vergil.georgics.tess": {
+   "urn": "urn:cts:latinLit:phi0690.phi002",
+   "source": "url"
+  },
+  "vergil_pseudo.catalepton.tess": {
+   "urn": "urn:cts:latinLit:phi0692.phi009",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "vergil_pseudo.ciris.tess": {
+   "urn": "urn:cts:latinLit:phi0692.phi007",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "vergil_pseudo.copa.tess": {
+   "urn": "urn:cts:latinLit:phi0692.phi005",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "vergil_pseudo.culex.tess": {
+   "urn": "urn:cts:latinLit:phi0692.phi003",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "vergil_pseudo.dirae.tess": {
+   "urn": "urn:cts:latinLit:phi0692.phi001",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "vergil_pseudo.elegiae_in_maecenatem.tess": {
+   "urn": "urn:cts:latinLit:phi0692.phi006",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "vergil_pseudo.lydia.tess": {
+   "urn": "urn:cts:latinLit:phi0692.phi002",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "vergil_pseudo.moretum.tess": {
+   "urn": "urn:cts:latinLit:phi0692.phi011",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "vergil_pseudo.priapea.tess": {
+   "urn": "urn:cts:latinLit:phi0692.phi008",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "victor_claudius_marius.alethia.tess": {
+   "urn": "urn:cts:latinLit:stoa0292b.stoa001",
+   "source": "catalog"
+  },
+  "victor_claudius_marius.commentariorum_in_genesim_libri_tres.tess": {
+   "urn": "urn:cts:latinLit:stoa0292b.stoa001",
+   "source": "url"
+  },
+  "victor_vitensis.historia_persecutionis_africanae_provinc.tess": {
+   "urn": "urn:cts:latinLit:stoa0292d.stoa001",
+   "source": "url"
+  },
+  "victorinus.de_machabeis.tess": {
+   "urn": "urn:cts:latinLit:stoa0292a.stoa004",
+   "source": "catalog"
+  },
+  "victorinus_saint_bishop_of_poetovio.commentarii_in_apocalypsin.tess": {
+   "urn": "urn:cts:latinLit:stoa0292e.stoa001",
+   "source": "catalog"
+  },
+  "vitruvius.de_architectura.tess": {
+   "urn": "urn:cts:latinLit:phi1056.phi001",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  }
+ },
+ "grc": {
+  "achilles_tatius.leucippe_et_clitophon.tess": {
+   "urn": "urn:cts:greekLit:tlg0532.tlg001",
+   "source": "url"
+  },
+  "acta_joannis.acta_joannis.tess": {
+   "urn": "urn:cts:greekLit:tlg0317.tlg001",
+   "source": "catalog"
+  },
+  "aelian.de_natura_animalium.tess": {
+   "urn": "urn:cts:greekLit:tlg0545.tlg001",
+   "source": "catalog"
+  },
+  "aelian.epistulae_rusticae.tess": {
+   "urn": "urn:cts:greekLit:tlg0545.tlg003",
+   "source": "catalog"
+  },
+  "aelian.fragmenta.tess": {
+   "urn": "urn:cts:greekLit:tlg0545.tlg004",
+   "source": "catalog"
+  },
+  "aelian.varia_historia.tess": {
+   "urn": "urn:cts:greekLit:tlg0545.tlg002",
+   "source": "catalog"
+  },
+  "aelius_aristides.ars_rhetorica.tess": {
+   "urn": "urn:cts:greekLit:tlg0284.tlg056",
+   "source": "url"
+  },
+  "aelius_herodianus.de_prosodia_catholica.tess": {
+   "urn": "urn:cts:greekLit:tlg0087.tlg001",
+   "source": "catalog"
+  },
+  "aelius_herodianus.on_enclitics.tess": {
+   "urn": "urn:cts:greekLit:tlg0087.tlg002",
+   "source": "catalog"
+  },
+  "aelius_theon.progymnasmata.tess": {
+   "urn": "urn:cts:greekLit:tlg0607.tlg001",
+   "source": "url"
+  },
+  "aeschines.against_ctesiphon.tess": {
+   "urn": "urn:cts:greekLit:tlg0026.tlg003",
+   "source": "catalog"
+  },
+  "aeschines.against_timarchus.tess": {
+   "urn": "urn:cts:greekLit:tlg0026.tlg001",
+   "source": "catalog"
+  },
+  "aeschines.on_the_embassy.tess": {
+   "urn": "urn:cts:greekLit:tlg0026.tlg002",
+   "source": "catalog"
+  },
+  "aeschines_sp.epistulae.tess": {
+   "urn": "urn:cts:greekLit:tlg0026.tlg004",
+   "source": "url"
+  },
+  "aeschylus.agamemnon.tess": {
+   "urn": "urn:cts:greekLit:tlg0085.tlg005",
+   "source": "catalog"
+  },
+  "aeschylus.eumenides.tess": {
+   "urn": "urn:cts:greekLit:tlg0085.tlg007",
+   "source": "catalog"
+  },
+  "aeschylus.libation_bearers.tess": {
+   "urn": "urn:cts:greekLit:tlg0085.tlg006",
+   "source": "catalog"
+  },
+  "aeschylus.persians.tess": {
+   "urn": "urn:cts:greekLit:tlg0085.tlg002",
+   "source": "catalog"
+  },
+  "aeschylus.prometheus_bound.tess": {
+   "urn": "urn:cts:greekLit:tlg0085.tlg003",
+   "source": "catalog"
+  },
+  "aeschylus.seven_against_thebes.tess": {
+   "urn": "urn:cts:greekLit:tlg0085.tlg004",
+   "source": "catalog"
+  },
+  "aeschylus.suppliant_women.tess": {
+   "urn": "urn:cts:greekLit:tlg0085.tlg001",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "aesop.fabulae.tess": {
+   "urn": "urn:cts:greekLit:tlg0096.tlg002",
+   "source": "catalog"
+  },
+  "alcidamas.odysseus.tess": {
+   "urn": "urn:cts:greekLit:tlg0610.tlg001",
+   "source": "catalog"
+  },
+  "anacharsis.epistulae.tess": {
+   "urn": "urn:cts:greekLit:tlg0037.tlg001",
+   "source": "catalog"
+  },
+  "andocides.against_alcibiades.tess": {
+   "urn": "urn:cts:greekLit:tlg0027.tlg004",
+   "source": "catalog"
+  },
+  "andocides.on_his_return.tess": {
+   "urn": "urn:cts:greekLit:tlg0027.tlg002",
+   "source": "catalog"
+  },
+  "andocides.on_the_mysteries.tess": {
+   "urn": "urn:cts:greekLit:tlg0027.tlg001",
+   "source": "catalog"
+  },
+  "andocides.on_the_peace.tess": {
+   "urn": "urn:cts:greekLit:tlg0027.tlg003",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "anna_comnena.alexias.tess": {
+   "urn": "urn:cts:greekLit:tlg2703.tlg001",
+   "source": "catalog"
+  },
+  "anonymous.geographiae_expositio_compendiaria.tess": {
+   "urn": "urn:cts:greekLit:tlg0092.tlg001",
+   "source": "url"
+  },
+  "anonymous.stadiasmus_magni_maris.tess": {
+   "urn": "urn:cts:greekLit:tlg0077.tlg001",
+   "source": "url"
+  },
+  "antisthenes.aiax.tess": {
+   "urn": "urn:cts:greekLit:tlg0591.1st1K001",
+   "source": "catalog"
+  },
+  "antisthenes.odysseus.tess": {
+   "urn": "urn:cts:greekLit:tlg0591.1st1K002",
+   "source": "catalog"
+  },
+  "apollodorus.epitome.tess": {
+   "urn": "urn:cts:greekLit:tlg0548.tlg002",
+   "source": "catalog"
+  },
+  "apollodorus.library.tess": {
+   "urn": "urn:cts:greekLit:tlg0548.tlg001",
+   "source": "catalog"
+  },
+  "apollonius_dyscolus.de_pronominibus.tess": {
+   "urn": "urn:cts:greekLit:tlg0082.tlg001",
+   "source": "catalog"
+  },
+  "apollonius_of_perga.conica.tess": {
+   "urn": "urn:cts:greekLit:tlg0550.tlg001",
+   "source": "catalog"
+  },
+  "apollonius_rhodius.argonautica.tess": {
+   "urn": "urn:cts:greekLit:tlg0001.tlg001",
+   "source": "catalog"
+  },
+  "appian.civil_wars.tess": {
+   "urn": "urn:cts:greekLit:tlg0551.tlg017",
+   "source": "url"
+  },
+  "aratus.phaenomena.tess": {
+   "urn": "urn:cts:greekLit:tlg0653.tlg001",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "archimedes.ad_eratosthenem_methodus.tess": {
+   "urn": "urn:cts:greekLit:tlg0552.tlg010",
+   "source": "catalog"
+  },
+  "archimedes.arenarius.tess": {
+   "urn": "urn:cts:greekLit:tlg0552.tlg006",
+   "source": "catalog"
+  },
+  "archimedes.de_conoidibus_et_sphaeroidibus.tess": {
+   "urn": "urn:cts:greekLit:tlg0552.tlg003",
+   "source": "catalog"
+  },
+  "archimedes.de_corporibus_fluitantibus.tess": {
+   "urn": "urn:cts:greekLit:tlg0552.tlg008",
+   "source": "catalog"
+  },
+  "archimedes.de_lineis_spiralibus.tess": {
+   "urn": "urn:cts:greekLit:tlg0552.tlg004",
+   "source": "catalog"
+  },
+  "archimedes.de_planorum_aequilibriis.tess": {
+   "urn": "urn:cts:greekLit:tlg0552.tlg005",
+   "source": "catalog"
+  },
+  "archimedes.de_sphaera_et_cylindro.tess": {
+   "urn": "urn:cts:greekLit:tlg0552.tlg001",
+   "source": "catalog"
+  },
+  "archimedes.dimensio_circuli.tess": {
+   "urn": "urn:cts:greekLit:tlg0552.tlg002",
+   "source": "catalog"
+  },
+  "archimedes.fragmenta.tess": {
+   "urn": "urn:cts:greekLit:tlg0552.tlg013",
+   "source": "catalog"
+  },
+  "archimedes.liber_assumptorum.tess": {
+   "urn": "urn:cts:greekLit:tlg0552.tlg011",
+   "source": "catalog"
+  },
+  "archimedes.problema_bovinum.tess": {
+   "urn": "urn:cts:greekLit:tlg0552.tlg012",
+   "source": "catalog"
+  },
+  "archimedes.quadratura_parabolae.tess": {
+   "urn": "urn:cts:greekLit:tlg0552.tlg007",
+   "source": "catalog"
+  },
+  "archytas_of_tarentum.fragmenta.tess": {
+   "urn": "urn:cts:greekLit:tlg0620.tlg002",
+   "source": "catalog"
+  },
+  "aretaeus.curatione_acutorum_morbum.tess": {
+   "urn": "urn:cts:greekLit:tlg0719.tlg003",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "aristophanes.acharnians.tess": {
+   "urn": "urn:cts:greekLit:tlg0019.tlg001",
+   "source": "catalog"
+  },
+  "aristophanes.birds.tess": {
+   "urn": "urn:cts:greekLit:tlg0019.tlg006",
+   "source": "catalog"
+  },
+  "aristophanes.clouds.tess": {
+   "urn": "urn:cts:greekLit:tlg0019.tlg003",
+   "source": "catalog"
+  },
+  "aristophanes.ecclesiazusae.tess": {
+   "urn": "urn:cts:greekLit:tlg0019.tlg010",
+   "source": "catalog"
+  },
+  "aristophanes.frogs.tess": {
+   "urn": "urn:cts:greekLit:tlg0019.tlg009",
+   "source": "catalog"
+  },
+  "aristophanes.knights.tess": {
+   "urn": "urn:cts:greekLit:tlg0019.tlg002",
+   "source": "catalog"
+  },
+  "aristophanes.lysistrata.tess": {
+   "urn": "urn:cts:greekLit:tlg0019.tlg007",
+   "source": "catalog"
+  },
+  "aristophanes.peace.tess": {
+   "urn": "urn:cts:greekLit:tlg0019.tlg005",
+   "source": "catalog"
+  },
+  "aristophanes.plutus.tess": {
+   "urn": "urn:cts:greekLit:tlg0019.tlg011",
+   "source": "url"
+  },
+  "aristophanes.thesmophoriazusae.tess": {
+   "urn": "urn:cts:greekLit:tlg0019.tlg008",
+   "source": "catalog"
+  },
+  "aristophanes.wasps.tess": {
+   "urn": "urn:cts:greekLit:tlg0019.tlg004",
+   "source": "catalog"
+  },
+  "aristotle.analytica_priora.tess": {
+   "urn": "urn:cts:greekLit:tlg0086.tlg001",
+   "source": "catalog"
+  },
+  "aristotle.categoriae.tess": {
+   "urn": "urn:cts:greekLit:tlg0086.tlg006",
+   "source": "catalog"
+  },
+  "aristotle.constitution.tess": {
+   "urn": "urn:cts:greekLit:tlg0086.tlg003",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "aristotle.de_anima.tess": {
+   "urn": "urn:cts:greekLit:tlg0086.tlg002",
+   "source": "catalog"
+  },
+  "aristotle.de_audibilibus.tess": {
+   "urn": "urn:cts:greekLit:tlg0086.tlg004",
+   "source": "catalog"
+  },
+  "aristotle.de_caelo.tess": {
+   "urn": "urn:cts:greekLit:tlg0086.tlg005",
+   "source": "catalog"
+  },
+  "aristotle.de_coloribus.tess": {
+   "urn": "urn:cts:greekLit:tlg0086.tlg007",
+   "source": "catalog"
+  },
+  "aristotle.de_divinatione_per_somnum.tess": {
+   "urn": "urn:cts:greekLit:tlg0086.tlg008",
+   "source": "catalog"
+  },
+  "aristotle.de_generatione_animalium.tess": {
+   "urn": "urn:cts:greekLit:tlg0086.tlg012",
+   "source": "catalog"
+  },
+  "aristotle.de_insomniis.tess": {
+   "urn": "urn:cts:greekLit:tlg0086.tlg016",
+   "source": "catalog"
+  },
+  "aristotle.de_interpretatione.tess": {
+   "urn": "urn:cts:greekLit:tlg0086.tlg017",
+   "source": "catalog"
+  },
+  "aristotle.de_iuventute_et_senectute_de_vita_et_morte.tess": {
+   "urn": "urn:cts:greekLit:tlg0086.tlg018",
+   "source": "catalog"
+  },
+  "aristotle.de_longitudine_et_brevitate_vitae.tess": {
+   "urn": "urn:cts:greekLit:tlg0086.tlg020",
+   "source": "catalog"
+  },
+  "aristotle.de_memoria_et_reminiscentia.tess": {
+   "urn": "urn:cts:greekLit:tlg0086.tlg024",
+   "source": "catalog"
+  },
+  "aristotle.de_partibus_animalium.tess": {
+   "urn": "urn:cts:greekLit:tlg0086.tlg030",
+   "source": "catalog"
+  },
+  "aristotle.de_respiratione.tess": {
+   "urn": "urn:cts:greekLit:tlg0086.tlg037",
+   "source": "catalog"
+  },
+  "aristotle.de_sensu_et_sensibilibus.tess": {
+   "urn": "urn:cts:greekLit:tlg0086.tlg041",
+   "source": "catalog"
+  },
+  "aristotle.de_somno_et_vigilia.tess": {
+   "urn": "urn:cts:greekLit:tlg0086.tlg042",
+   "source": "catalog"
+  },
+  "aristotle.de_sophisticis_elenchis.tess": {
+   "urn": "urn:cts:greekLit:tlg0086.tlg040",
+   "source": "catalog"
+  },
+  "aristotle.divisiones_aristoteleae.tess": {
+   "urn": "urn:cts:greekLit:tlg0086.tlg048",
+   "source": "catalog"
+  },
+  "aristotle.economics.tess": {
+   "urn": "urn:cts:greekLit:tlg0086.tlg029",
+   "source": "catalog"
+  },
+  "aristotle.epistulae.tess": {
+   "urn": "urn:cts:greekLit:tlg0086.tlg011",
+   "source": "catalog"
+  },
+  "aristotle.eudemian_ethics.tess": {
+   "urn": "urn:cts:greekLit:tlg0086.tlg009",
+   "source": "catalog"
+  },
+  "aristotle.fragmenta_deperditae_partis_primae.tess": {
+   "urn": "urn:cts:greekLit:tlg0086.tlg003",
+   "source": "url"
+  },
+  "aristotle.magna_moralia.tess": {
+   "urn": "urn:cts:greekLit:tlg0086.tlg022",
+   "source": "catalog"
+  },
+  "aristotle.mechanica.tess": {
+   "urn": "urn:cts:greekLit:tlg0086.tlg023",
+   "source": "catalog"
+  },
+  "aristotle.metaphysics.tess": {
+   "urn": "urn:cts:greekLit:tlg0086.tlg025",
+   "source": "catalog"
+  },
+  "aristotle.meteorologica.tess": {
+   "urn": "urn:cts:greekLit:tlg0086.tlg026",
+   "source": "catalog"
+  },
+  "aristotle.nicomachean_ethics.tess": {
+   "urn": "urn:cts:greekLit:tlg0086.tlg010",
+   "source": "catalog"
+  },
+  "aristotle.physica.tess": {
+   "urn": "urn:cts:greekLit:tlg0086.tlg031",
+   "source": "catalog"
+  },
+  "aristotle.physiognomonica.tess": {
+   "urn": "urn:cts:greekLit:tlg0086.tlg032",
+   "source": "catalog"
+  },
+  "aristotle.poetics.tess": {
+   "urn": "urn:cts:greekLit:tlg0086.tlg034",
+   "source": "catalog"
+  },
+  "aristotle.politics.tess": {
+   "urn": "urn:cts:greekLit:tlg0086.tlg035",
+   "source": "catalog"
+  },
+  "aristotle.problemata.tess": {
+   "urn": "urn:cts:greekLit:tlg0086.tlg036",
+   "source": "catalog"
+  },
+  "aristotle.res_publica_atheniensium.tess": {
+   "urn": "urn:cts:greekLit:tlg0086.tlg003",
+   "source": "catalog"
+  },
+  "aristotle.rhetoric.tess": {
+   "urn": "urn:cts:greekLit:tlg0086.tlg038",
+   "source": "catalog"
+  },
+  "aristotle.topica.tess": {
+   "urn": "urn:cts:greekLit:tlg0086.tlg044",
+   "source": "catalog"
+  },
+  "aristotle.virtues_and_vices.tess": {
+   "urn": "urn:cts:greekLit:tlg0086.tlg045",
+   "source": "url"
+  },
+  "arius_didymus.liber_de_philosophorum_sectis_epitome_ap_stobaeum.tess": {
+   "urn": "urn:cts:greekLit:tlg0529.tlg002",
+   "source": "catalog"
+  },
+  "arrian.anabasis.tess": {
+   "urn": "urn:cts:greekLit:tlg0074.tlg001",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "arrian.cynegeticus.tess": {
+   "urn": "urn:cts:greekLit:tlg0074.tlg003",
+   "source": "catalog"
+  },
+  "artaxerxis_epistulae.epistulae.tess": {
+   "urn": "urn:cts:greekLit:tlg0045.tlg001",
+   "source": "catalog"
+  },
+  "artemidorus.onirocriticon.tess": {
+   "urn": "urn:cts:greekLit:tlg0553.tlg001",
+   "source": "url"
+  },
+  "athanasius.contra_arianos_i.tess": {
+   "urn": "urn:cts:greekLit:tlg2035.tlg130",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "athanasius.de_incarnatione.tess": {
+   "urn": "urn:cts:greekLit:tlg2035.tlg002",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "athenaeus.deipnosophists.tess": {
+   "urn": "urn:cts:greekLit:tlg0008.tlg001",
+   "source": "url"
+  },
+  "athenagoras.de_resurrectione.tess": {
+   "urn": "urn:cts:greekLit:tlg1205.tlg002",
+   "source": "catalog"
+  },
+  "babrius.fabulae_aesopeae.tess": {
+   "urn": "urn:cts:greekLit:tlg0614.tlg001",
+   "source": "catalog"
+  },
+  "bacchylides.dithyrambs.tess": {
+   "urn": "urn:cts:greekLit:tlg0199.tlg002",
+   "source": "catalog"
+  },
+  "bacchylides.epinicians.tess": {
+   "urn": "urn:cts:greekLit:tlg0199.tlg001",
+   "source": "catalog"
+  },
+  "barnabas.barnabae_epistulae.tess": {
+   "urn": "urn:cts:greekLit:tlg1216.tlg001",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "basil_of_caesarea.epistulae.tess": {
+   "urn": "urn:cts:greekLit:tlg2040.tlg004",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "bion_of_phlossa.epitaphius.tess": {
+   "urn": "urn:cts:greekLit:tlg0036.tlg001",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "bion_of_phlossa.fragmenta.tess": {
+   "urn": "urn:cts:greekLit:tlg0036.tlg003",
+   "source": "catalog"
+  },
+  "callimachus.aetia.tess": {
+   "urn": "urn:cts:greekLit:tlg0533.tlg006",
+   "source": "catalog"
+  },
+  "callimachus.epigrams.tess": {
+   "urn": "urn:cts:greekLit:tlg0533.tlg003",
+   "source": "catalog"
+  },
+  "callimachus.hecala.tess": {
+   "urn": "urn:cts:greekLit:tlg0533.tlg009",
+   "source": "catalog"
+  },
+  "callimachus.iambi.tess": {
+   "urn": "urn:cts:greekLit:tlg0533.tlg007",
+   "source": "catalog"
+  },
+  "callistratus.statuarum_descriptiones.tess": {
+   "urn": "urn:cts:greekLit:tlg4091.tlg001",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "carmina_delphis_inventa.carmina_delphis_inventa.tess": {
+   "urn": "urn:cts:greekLit:tlg0362.tlg001",
+   "source": "catalog"
+  },
+  "chionis_epistulae.epistulae.tess": {
+   "urn": "urn:cts:greekLit:tlg0041.tlg001",
+   "source": "catalog"
+  },
+  "claudius_ptolemaeus.apotelesmatica_tetrabiblos.tess": {
+   "urn": "urn:cts:greekLit:tlg0363.tlg007",
+   "source": "catalog"
+  },
+  "claudius_ptolemaeus.musica.tess": {
+   "urn": "urn:cts:greekLit:tlg0363.tlg011",
+   "source": "catalog"
+  },
+  "claudius_ptolemaeus.syntaxis_mathematica.tess": {
+   "urn": "urn:cts:greekLit:tlg0363.tlg001",
+   "source": "catalog"
+  },
+  "clement_of_alexandria.eclogae_propheticae.tess": {
+   "urn": "urn:cts:greekLit:tlg0555.tlg005",
+   "source": "catalog"
+  },
+  "clement_of_alexandria.excerpta_ex_theodoto.tess": {
+   "urn": "urn:cts:greekLit:tlg0555.tlg007",
+   "source": "catalog"
+  },
+  "clement_of_alexandria.paedagogus.tess": {
+   "urn": "urn:cts:greekLit:tlg0555.tlg002",
+   "source": "catalog"
+  },
+  "clement_of_alexandria.protrepticus.tess": {
+   "urn": "urn:cts:greekLit:tlg0555.tlg001",
+   "source": "catalog"
+  },
+  "clement_of_alexandria.quis_dives_salvetur.tess": {
+   "urn": "urn:cts:greekLit:tlg0555.tlg006",
+   "source": "catalog"
+  },
+  "clement_of_rome.epistula_i_ad_corinthios.tess": {
+   "urn": "urn:cts:greekLit:tlg1271.tlg001",
+   "source": "catalog"
+  },
+  "clement_of_rome.epistula_ii_ad_corinthios.tess": {
+   "urn": "urn:cts:greekLit:tlg1271.tlg002",
+   "source": "catalog"
+  },
+  "cleonides.introductio_harmonica.tess": {
+   "urn": "urn:cts:greekLit:tlg0361.tlg001",
+   "source": "catalog"
+  },
+  "colluthus.rape_of_helen.tess": {
+   "urn": "urn:cts:greekLit:tlg4081.tlg001",
+   "source": "url"
+  },
+  "cratetis_epistulae.epistulae.tess": {
+   "urn": "urn:cts:greekLit:tlg0623.tlg001",
+   "source": "catalog"
+  },
+  "critias.fragmenta.tess": {
+   "urn": "urn:cts:greekLit:tlg0319.tlg004",
+   "source": "catalog"
+  },
+  "demades.on_the_twelve_years.tess": {
+   "urn": "urn:cts:greekLit:tlg0535.tlg001",
+   "source": "catalog"
+  },
+  "demetrius.elocutione.tess": {
+   "urn": "urn:cts:greekLit:tlg0613.tlg001",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "demosthenes.against_androtion.tess": {
+   "urn": "urn:cts:greekLit:tlg0014.tlg022",
+   "source": "catalog"
+  },
+  "demosthenes.against_apatourius.tess": {
+   "urn": "urn:cts:greekLit:tlg0014.tlg033",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "demosthenes.against_aphobus_1.tess": {
+   "urn": "urn:cts:greekLit:tlg0014.tlg027",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "demosthenes.against_aristocrates.tess": {
+   "urn": "urn:cts:greekLit:tlg0014.tlg023",
+   "source": "catalog"
+  },
+  "demosthenes.against_aristogiton_1.tess": {
+   "urn": "urn:cts:greekLit:tlg0014.tlg025",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "demosthenes.against_boeotus_1.tess": {
+   "urn": "urn:cts:greekLit:tlg0014.tlg039",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "demosthenes.against_callicles.tess": {
+   "urn": "urn:cts:greekLit:tlg0014.tlg055",
+   "source": "catalog"
+  },
+  "demosthenes.against_conon.tess": {
+   "urn": "urn:cts:greekLit:tlg0014.tlg054",
+   "source": "catalog"
+  },
+  "demosthenes.against_dionysodorus.tess": {
+   "urn": "urn:cts:greekLit:tlg0014.tlg056",
+   "source": "catalog"
+  },
+  "demosthenes.against_eubulides.tess": {
+   "urn": "urn:cts:greekLit:tlg0014.tlg057",
+   "source": "catalog"
+  },
+  "demosthenes.against_evergus_and_mnesibulus.tess": {
+   "urn": "urn:cts:greekLit:tlg0014.tlg047",
+   "source": "catalog"
+  },
+  "demosthenes.against_lacritus.tess": {
+   "urn": "urn:cts:greekLit:tlg0014.tlg035",
+   "source": "catalog"
+  },
+  "demosthenes.against_leochares.tess": {
+   "urn": "urn:cts:greekLit:tlg0014.tlg044",
+   "source": "catalog"
+  },
+  "demosthenes.against_leptines.tess": {
+   "urn": "urn:cts:greekLit:tlg0014.tlg020",
+   "source": "catalog"
+  },
+  "demosthenes.against_macartatus.tess": {
+   "urn": "urn:cts:greekLit:tlg0014.tlg043",
+   "source": "catalog"
+  },
+  "demosthenes.against_midias.tess": {
+   "urn": "urn:cts:greekLit:tlg0014.tlg021",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "demosthenes.against_nausimachus_and_xenopeithes.tess": {
+   "urn": "urn:cts:greekLit:tlg0014.tlg038",
+   "source": "catalog"
+  },
+  "demosthenes.against_nicostratus.tess": {
+   "urn": "urn:cts:greekLit:tlg0014.tlg053",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "demosthenes.against_olympiodorus.tess": {
+   "urn": "urn:cts:greekLit:tlg0014.tlg048",
+   "source": "catalog"
+  },
+  "demosthenes.against_onetor_30.tess": {
+   "urn": "urn:cts:greekLit:tlg0014.tlg030",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "demosthenes.against_pantaenetus.tess": {
+   "urn": "urn:cts:greekLit:tlg0014.tlg037",
+   "source": "catalog"
+  },
+  "demosthenes.against_phaenippus.tess": {
+   "urn": "urn:cts:greekLit:tlg0014.tlg042",
+   "source": "catalog"
+  },
+  "demosthenes.against_phormio.tess": {
+   "urn": "urn:cts:greekLit:tlg0014.tlg034",
+   "source": "catalog"
+  },
+  "demosthenes.against_spudias.tess": {
+   "urn": "urn:cts:greekLit:tlg0014.tlg041",
+   "source": "catalog"
+  },
+  "demosthenes.against_stephanus_1.tess": {
+   "urn": "urn:cts:greekLit:tlg0014.tlg045",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "demosthenes.against_theocrines.tess": {
+   "urn": "urn:cts:greekLit:tlg0014.tlg058",
+   "source": "catalog"
+  },
+  "demosthenes.against_timocrates.tess": {
+   "urn": "urn:cts:greekLit:tlg0014.tlg024",
+   "source": "catalog"
+  },
+  "demosthenes.against_zenothemis.tess": {
+   "urn": "urn:cts:greekLit:tlg0014.tlg032",
+   "source": "catalog"
+  },
+  "demosthenes.erotic_essay.tess": {
+   "urn": "urn:cts:greekLit:tlg0014.tlg061",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "demosthenes.exordia.tess": {
+   "urn": "urn:cts:greekLit:tlg0014.tlg062",
+   "source": "catalog"
+  },
+  "demosthenes.for_phormio.tess": {
+   "urn": "urn:cts:greekLit:tlg0014.tlg036",
+   "source": "catalog"
+  },
+  "demosthenes.for_the_megalopitans.tess": {
+   "urn": "urn:cts:greekLit:tlg0014.tlg016",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "demosthenes.funeral_speech.tess": {
+   "urn": "urn:cts:greekLit:tlg0014.tlg060",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "demosthenes.letters.tess": {
+   "urn": "urn:cts:greekLit:tlg0014.tlg063",
+   "source": "catalog"
+  },
+  "demosthenes.olynthiac_1.tess": {
+   "urn": "urn:cts:greekLit:tlg0014.tlg001",
+   "source": "catalog"
+  },
+  "demosthenes.olynthiac_2.tess": {
+   "urn": "urn:cts:greekLit:tlg0014.tlg002",
+   "source": "catalog"
+  },
+  "demosthenes.olynthiac_3.tess": {
+   "urn": "urn:cts:greekLit:tlg0014.tlg003",
+   "source": "catalog"
+  },
+  "demosthenes.on_organization.tess": {
+   "urn": "urn:cts:greekLit:tlg0014.tlg013",
+   "source": "catalog"
+  },
+  "demosthenes.on_the_chersonese.tess": {
+   "urn": "urn:cts:greekLit:tlg0014.tlg008",
+   "source": "catalog"
+  },
+  "demosthenes.on_the_crown.tess": {
+   "urn": "urn:cts:greekLit:tlg0014.tlg018",
+   "source": "catalog"
+  },
+  "demosthenes.on_the_false_embassy.tess": {
+   "urn": "urn:cts:greekLit:tlg0014.tlg019",
+   "source": "catalog"
+  },
+  "demosthenes.on_the_halonnesus.tess": {
+   "urn": "urn:cts:greekLit:tlg0014.tlg007",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "demosthenes.on_the_liberty_of_the_rhodians.tess": {
+   "urn": "urn:cts:greekLit:tlg0014.tlg015",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "demosthenes.on_the_navy.tess": {
+   "urn": "urn:cts:greekLit:tlg0014.tlg014",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "demosthenes.on_the_peace.tess": {
+   "urn": "urn:cts:greekLit:tlg0014.tlg005",
+   "source": "catalog"
+  },
+  "demosthenes.on_the_trierarchic_crown.tess": {
+   "urn": "urn:cts:greekLit:tlg0014.tlg051",
+   "source": "catalog"
+  },
+  "demosthenes.philippic_1.tess": {
+   "urn": "urn:cts:greekLit:tlg0014.tlg004",
+   "source": "catalog"
+  },
+  "demosthenes.philippic_2.tess": {
+   "urn": "urn:cts:greekLit:tlg0014.tlg006",
+   "source": "catalog"
+  },
+  "demosthenes.philippic_3.tess": {
+   "urn": "urn:cts:greekLit:tlg0014.tlg009",
+   "source": "catalog"
+  },
+  "demosthenes.philippic_4.tess": {
+   "urn": "urn:cts:greekLit:tlg0014.tlg010",
+   "source": "catalog"
+  },
+  "didache.didache.tess": {
+   "urn": "urn:cts:greekLit:tlg1311.tlg001",
+   "source": "catalog"
+  },
+  "didymus_alexandrinus.mensurae_marmorum_ac_lignorum.tess": {
+   "urn": "urn:cts:greekLit:tlg0357.tlg001",
+   "source": "catalog"
+  },
+  "dinarchus.against_aristogiton.tess": {
+   "urn": "urn:cts:greekLit:tlg0029.tlg005",
+   "source": "catalog"
+  },
+  "dinarchus.against_demosthenes.tess": {
+   "urn": "urn:cts:greekLit:tlg0029.tlg004",
+   "source": "catalog"
+  },
+  "dinarchus.against_philocles.tess": {
+   "urn": "urn:cts:greekLit:tlg0029.tlg006",
+   "source": "catalog"
+  },
+  "dio_chrysostom.orationes.tess": {
+   "urn": "urn:cts:greekLit:tlg0612.tlg001",
+   "source": "catalog"
+  },
+  "diogenes_laertius.vitae_philosophorum.tess": {
+   "urn": "urn:cts:greekLit:tlg0004.tlg001",
+   "source": "catalog"
+  },
+  "dionysius_halicarnassensis.ad_ammaeum.tess": {
+   "urn": "urn:cts:greekLit:tlg0081.tlg008",
+   "source": "url"
+  },
+  "dionysius_halicarnassensis.antiquitates_romanae.tess": {
+   "urn": "urn:cts:greekLit:tlg0081.tlg001",
+   "source": "url"
+  },
+  "dionysius_halicarnassensis.de_antiquis_oratoribus.tess": {
+   "urn": "urn:cts:greekLit:tlg0081.tlg002",
+   "source": "url"
+  },
+  "dionysius_halicarnassensis.de_compositione_verborum.tess": {
+   "urn": "urn:cts:greekLit:tlg0081.tlg012",
+   "source": "url"
+  },
+  "dionysius_halicarnassensis.de_demosthene.tess": {
+   "urn": "urn:cts:greekLit:tlg0081.tlg006",
+   "source": "url"
+  },
+  "dionysius_halicarnassensis.de_dinarcho.tess": {
+   "urn": "urn:cts:greekLit:tlg0081.tlg009",
+   "source": "url"
+  },
+  "dionysius_halicarnassensis.de_isaeo.tess": {
+   "urn": "urn:cts:greekLit:tlg0081.tlg005",
+   "source": "url"
+  },
+  "dionysius_halicarnassensis.de_isocrate.tess": {
+   "urn": "urn:cts:greekLit:tlg0081.tlg004",
+   "source": "url"
+  },
+  "dionysius_halicarnassensis.de_lysia.tess": {
+   "urn": "urn:cts:greekLit:tlg0081.tlg003",
+   "source": "url"
+  },
+  "dionysius_halicarnassensis.de_thucydide.tess": {
+   "urn": "urn:cts:greekLit:tlg0081.tlg010",
+   "source": "url"
+  },
+  "dionysius_halicarnassensis.de_thucydidis_idiomatibus.tess": {
+   "urn": "urn:cts:greekLit:tlg0081.tlg011",
+   "source": "url"
+  },
+  "dionysius_halicarnassensis.epistula_ad_pompeium.tess": {
+   "urn": "urn:cts:greekLit:tlg0081.tlg015",
+   "source": "url"
+  },
+  "dionysius_halicarnassensis.libri_secundi_de_antiquis_oratoribus_reliquiae.tess": {
+   "urn": "urn:cts:greekLit:tlg0081.tlg007",
+   "source": "url"
+  },
+  "dionysius_of_halicarnassus.de_compositione_verborum_epitome.tess": {
+   "urn": "urn:cts:greekLit:tlg0081.tlg013",
+   "source": "catalog"
+  },
+  "dionysius_of_halicarnasus.ars_rhetorica.tess": {
+   "urn": "urn:cts:greekLit:tlg0081.tlg016",
+   "source": "url"
+  },
+  "dionysius_of_halicarnasus.de_imitatione_fragmenta.tess": {
+   "urn": "urn:cts:greekLit:tlg0081.tlg014",
+   "source": "url"
+  },
+  "enoch.apocalypsis_enochi.tess": {
+   "urn": "urn:cts:greekLit:tlg1463.tlg001",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "epicharmus.fragmenta.tess": {
+   "urn": "urn:cts:greekLit:tlg0521.tlg008",
+   "source": "catalog"
+  },
+  "epictetus.discourses.tess": {
+   "urn": "urn:cts:greekLit:tlg0557.tlg001",
+   "source": "catalog"
+  },
+  "epictetus.enchiridion.tess": {
+   "urn": "urn:cts:greekLit:tlg0557.tlg002",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "epictetus.gnomologium_epicteteum_e_stobaei_libris_34.tess": {
+   "urn": "urn:cts:greekLit:tlg0557.tlg005",
+   "source": "catalog"
+  },
+  "epicurus.epistula_ad_herodotum.tess": {
+   "urn": "urn:cts:greekLit:tlg0537.tlg010",
+   "source": "catalog"
+  },
+  "epicurus.gnomologium_vaticanum_epicureum.tess": {
+   "urn": "urn:cts:greekLit:tlg0537.tlg014",
+   "source": "catalog"
+  },
+  "epicurus.ratae_sententiae.tess": {
+   "urn": "urn:cts:greekLit:tlg0537.tlg013",
+   "source": "catalog"
+  },
+  "euclid.elements.tess": {
+   "urn": "urn:cts:greekLit:tlg1799.tlg001",
+   "source": "url"
+  },
+  "euripides.alcestis.tess": {
+   "urn": "urn:cts:greekLit:tlg0006.tlg002",
+   "source": "catalog"
+  },
+  "euripides.andromache.tess": {
+   "urn": "urn:cts:greekLit:tlg0006.tlg006",
+   "source": "catalog"
+  },
+  "euripides.bacchae.tess": {
+   "urn": "urn:cts:greekLit:tlg0006.tlg017",
+   "source": "catalog"
+  },
+  "euripides.cyclops.tess": {
+   "urn": "urn:cts:greekLit:tlg0006.tlg001",
+   "source": "catalog"
+  },
+  "euripides.electra.tess": {
+   "urn": "urn:cts:greekLit:tlg0006.tlg012",
+   "source": "catalog"
+  },
+  "euripides.fragmenta.tess": {
+   "urn": "urn:cts:greekLit:tlg0006.tlg020",
+   "source": "catalog"
+  },
+  "euripides.hecuba.tess": {
+   "urn": "urn:cts:greekLit:tlg0006.tlg007",
+   "source": "catalog"
+  },
+  "euripides.helen.tess": {
+   "urn": "urn:cts:greekLit:tlg0006.tlg014",
+   "source": "catalog"
+  },
+  "euripides.heracleidae.tess": {
+   "urn": "urn:cts:greekLit:tlg0006.tlg004",
+   "source": "catalog"
+  },
+  "euripides.heracles.tess": {
+   "urn": "urn:cts:greekLit:tlg0006.tlg009",
+   "source": "catalog"
+  },
+  "euripides.hippolytus.tess": {
+   "urn": "urn:cts:greekLit:tlg0006.tlg005",
+   "source": "catalog"
+  },
+  "euripides.ion.tess": {
+   "urn": "urn:cts:greekLit:tlg0006.tlg010",
+   "source": "catalog"
+  },
+  "euripides.iphigenia_aulis.tess": {
+   "urn": "urn:cts:greekLit:tlg0006.tlg018",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "euripides.iphigenia_tauris.tess": {
+   "urn": "urn:cts:greekLit:tlg0006.tlg013",
+   "source": "url"
+  },
+  "euripides.medea.tess": {
+   "urn": "urn:cts:greekLit:tlg0006.tlg003",
+   "source": "catalog"
+  },
+  "euripides.orestes.tess": {
+   "urn": "urn:cts:greekLit:tlg0006.tlg016",
+   "source": "catalog"
+  },
+  "euripides.phoenissae.tess": {
+   "urn": "urn:cts:greekLit:tlg0006.tlg015",
+   "source": "catalog"
+  },
+  "euripides.rhesus.tess": {
+   "urn": "urn:cts:greekLit:tlg0006.tlg019",
+   "source": "catalog"
+  },
+  "euripides.suppliants.tess": {
+   "urn": "urn:cts:greekLit:tlg0006.tlg008",
+   "source": "catalog"
+  },
+  "euripides.trojan_women.tess": {
+   "urn": "urn:cts:greekLit:tlg0006.tlg011",
+   "source": "url"
+  },
+  "eusebius_caesarea.historia_ecclesiastica.tess": {
+   "urn": "urn:cts:greekLit:tlg2018.tlg002",
+   "source": "url"
+  },
+  "eutropius.breviarium_historiae_romanae.tess": {
+   "urn": "urn:cts:greekLit:stoa0121.stoa001",
+   "source": "catalog"
+  },
+  "flavius_josephus.antiquitates_judaicae.tess": {
+   "urn": "urn:cts:greekLit:tlg0526.tlg001",
+   "source": "url"
+  },
+  "flavius_josephus.contra_apionem.tess": {
+   "urn": "urn:cts:greekLit:tlg0526.tlg003",
+   "source": "url"
+  },
+  "flavius_josephus.de_bello_judaico_libri_vii.tess": {
+   "urn": "urn:cts:greekLit:tlg0526.tlg004",
+   "source": "url"
+  },
+  "flavius_josephus.josephi_vita.tess": {
+   "urn": "urn:cts:greekLit:tlg0526.tlg002",
+   "source": "url"
+  },
+  "gaius_romanus.fragmenta.tess": {
+   "urn": "urn:cts:greekLit:tlg0572.tlg001",
+   "source": "catalog"
+  },
+  "galen.ad_glauconem_de_methodo_medendi.tess": {
+   "urn": "urn:cts:greekLit:tlg0057.tlg067",
+   "source": "catalog"
+  },
+  "galen.an_in_arteriis_sanguis_contineatur.tess": {
+   "urn": "urn:cts:greekLit:tlg0057.tlg023",
+   "source": "catalog"
+  },
+  "galen.de_alimentorum_facultatibus.tess": {
+   "urn": "urn:cts:greekLit:tlg0057.tlg037",
+   "source": "catalog"
+  },
+  "galen.de_anatomicis_administrationibus.tess": {
+   "urn": "urn:cts:greekLit:tlg0057.tlg011",
+   "source": "catalog"
+  },
+  "galen.de_antidotis.tess": {
+   "urn": "urn:cts:greekLit:tlg0057.tlg078",
+   "source": "catalog"
+  },
+  "galen.de_atra_bile.tess": {
+   "urn": "urn:cts:greekLit:tlg0057.tlg030",
+   "source": "catalog"
+  },
+  "galen.de_bono_habitu.tess": {
+   "urn": "urn:cts:greekLit:tlg0057.tlg025",
+   "source": "catalog"
+  },
+  "galen.de_causis_morborum.tess": {
+   "urn": "urn:cts:greekLit:tlg0057.tlg042",
+   "source": "catalog"
+  },
+  "galen.de_comate_secundum_hippocratem.tess": {
+   "urn": "urn:cts:greekLit:tlg0057.tlg052",
+   "source": "catalog"
+  },
+  "galen.de_compositione_medicamentorum_secundum_locos_ivi.tess": {
+   "urn": "urn:cts:greekLit:tlg0057.tlg076",
+   "source": "url"
+  },
+  "galen.de_constitutione_artis_medicae_ad_patrophilum.tess": {
+   "urn": "urn:cts:greekLit:tlg0057.tlg006",
+   "source": "catalog"
+  },
+  "galen.de_consuetudinibus.tess": {
+   "urn": "urn:cts:greekLit:tlg0057.tlg103",
+   "source": "catalog"
+  },
+  "galen.de_crisibus.tess": {
+   "urn": "urn:cts:greekLit:tlg0057.tlg064",
+   "source": "catalog"
+  },
+  "galen.de_curandi_ratione_per_venae_sectionem.tess": {
+   "urn": "urn:cts:greekLit:tlg0057.tlg070",
+   "source": "catalog"
+  },
+  "galen.de_diebus_decretoriis.tess": {
+   "urn": "urn:cts:greekLit:tlg0057.tlg065",
+   "source": "catalog"
+  },
+  "galen.de_difficultate_respirationis.tess": {
+   "urn": "urn:cts:greekLit:tlg0057.tlg056",
+   "source": "catalog"
+  },
+  "galen.de_dignoscendis_pulsibus.tess": {
+   "urn": "urn:cts:greekLit:tlg0057.tlg060",
+   "source": "catalog"
+  },
+  "galen.de_dignotione_ex_insomniis.tess": {
+   "urn": "urn:cts:greekLit:tlg0057.tlg040",
+   "source": "catalog"
+  },
+  "galen.de_elementis_ex_hippocrate.tess": {
+   "urn": "urn:cts:greekLit:tlg0057.tlg008",
+   "source": "catalog"
+  },
+  "galen.de_experientia_medica.tess": {
+   "urn": "urn:cts:greekLit:tlg0057.tlg107",
+   "source": "catalog"
+  },
+  "galen.de_foetuum_formatione.tess": {
+   "urn": "urn:cts:greekLit:tlg0057.tlg022",
+   "source": "catalog"
+  },
+  "galen.de_hirudinibus_revulsione_cucurbitula_incisione_et.tess": {
+   "urn": "urn:cts:greekLit:tlg0057.tlg071",
+   "source": "url"
+  },
+  "galen.de_humero_iis_modis_prolapso_quos_hippocrates_non_.tess": {
+   "urn": "urn:cts:greekLit:tlg0057.tlg096",
+   "source": "url"
+  },
+  "galen.de_inaequali_intemperie.tess": {
+   "urn": "urn:cts:greekLit:tlg0057.tlg055",
+   "source": "catalog"
+  },
+  "galen.de_instrumento_odoratus.tess": {
+   "urn": "urn:cts:greekLit:tlg0057.tlg015",
+   "source": "catalog"
+  },
+  "galen.de_locis_affectis.tess": {
+   "urn": "urn:cts:greekLit:tlg0057.tlg057",
+   "source": "catalog"
+  },
+  "galen.de_marcore.tess": {
+   "urn": "urn:cts:greekLit:tlg0057.tlg053",
+   "source": "catalog"
+  },
+  "galen.de_methodo_medendi.tess": {
+   "urn": "urn:cts:greekLit:tlg0057.tlg066",
+   "source": "catalog"
+  },
+  "galen.de_morborum_differentiis.tess": {
+   "urn": "urn:cts:greekLit:tlg0057.tlg041",
+   "source": "catalog"
+  },
+  "galen.de_motu_musculorum.tess": {
+   "urn": "urn:cts:greekLit:tlg0057.tlg018",
+   "source": "catalog"
+  },
+  "galen.de_nervorum_dissectione.tess": {
+   "urn": "urn:cts:greekLit:tlg0057.tlg014",
+   "source": "catalog"
+  },
+  "galen.de_optima_doctrina.tess": {
+   "urn": "urn:cts:greekLit:tlg0057.tlg002",
+   "source": "catalog"
+  },
+  "galen.de_ossibus_ad_tirones.tess": {
+   "urn": "urn:cts:greekLit:tlg0057.tlg012",
+   "source": "catalog"
+  },
+  "galen.de_parvae_pilae_exercitio.tess": {
+   "urn": "urn:cts:greekLit:tlg0057.tlg034",
+   "source": "catalog"
+  },
+  "galen.de_placitis_hippocratis_et_platonis.tess": {
+   "urn": "urn:cts:greekLit:tlg0057.tlg032",
+   "source": "catalog"
+  },
+  "galen.de_plenitudine.tess": {
+   "urn": "urn:cts:greekLit:tlg0057.tlg050",
+   "source": "catalog"
+  },
+  "galen.de_praenotione_ad_epigenem.tess": {
+   "urn": "urn:cts:greekLit:tlg0057.tlg083",
+   "source": "catalog"
+  },
+  "galen.de_praesagitione_ex_pulsibus.tess": {
+   "urn": "urn:cts:greekLit:tlg0057.tlg062",
+   "source": "catalog"
+  },
+  "galen.de_propriorum_animi_cuiuslibet_affectuum_dignotion.tess": {
+   "urn": "urn:cts:greekLit:tlg0057.tlg028",
+   "source": "url"
+  },
+  "galen.de_ptisana.tess": {
+   "urn": "urn:cts:greekLit:tlg0057.tlg039",
+   "source": "catalog"
+  },
+  "galen.de_pulsibus_ad_tirones.tess": {
+   "urn": "urn:cts:greekLit:tlg0057.tlg058",
+   "source": "catalog"
+  },
+  "galen.de_purgantium_medicamentorum_facultate.tess": {
+   "urn": "urn:cts:greekLit:tlg0057.tlg072",
+   "source": "catalog"
+  },
+  "galen.de_rebus_boni_malique_suci.tess": {
+   "urn": "urn:cts:greekLit:tlg0057.tlg038",
+   "source": "catalog"
+  },
+  "galen.de_sanitate_tuenda.tess": {
+   "urn": "urn:cts:greekLit:tlg0057.tlg036",
+   "source": "catalog"
+  },
+  "galen.de_sectis_ad_eos_qui_introducuntur.tess": {
+   "urn": "urn:cts:greekLit:tlg0057.tlg004",
+   "source": "catalog"
+  },
+  "galen.de_semine.tess": {
+   "urn": "urn:cts:greekLit:tlg0057.tlg021",
+   "source": "catalog"
+  },
+  "galen.de_simplicium_medicamentorum_temperamentis_ac_facu.tess": {
+   "urn": "urn:cts:greekLit:tlg0057.tlg075",
+   "source": "url"
+  },
+  "galen.de_sophismatis_seu_captionibus_penes_dictionem.tess": {
+   "urn": "urn:cts:greekLit:tlg0057.tlg082",
+   "source": "catalog"
+  },
+  "galen.de_substantia_facultatum_naturalium_fragmentum.tess": {
+   "urn": "urn:cts:greekLit:tlg0057.tlg084",
+   "source": "catalog"
+  },
+  "galen.de_symptomatum_differentiis.tess": {
+   "urn": "urn:cts:greekLit:tlg0057.tlg043",
+   "source": "catalog"
+  },
+  "galen.de_temperamentis.tess": {
+   "urn": "urn:cts:greekLit:tlg0057.tlg009",
+   "source": "catalog"
+  },
+  "galen.de_theriaca_ad_pisonem.tess": {
+   "urn": "urn:cts:greekLit:tlg0057.tlg079",
+   "source": "catalog"
+  },
+  "galen.de_totius_morbi_temporibus.tess": {
+   "urn": "urn:cts:greekLit:tlg0057.tlg047",
+   "source": "catalog"
+  },
+  "galen.de_tremore_palpitatione_convulsione_et_rigore.tess": {
+   "urn": "urn:cts:greekLit:tlg0057.tlg051",
+   "source": "catalog"
+  },
+  "galen.de_tumoribus_praeter_naturam.tess": {
+   "urn": "urn:cts:greekLit:tlg0057.tlg054",
+   "source": "catalog"
+  },
+  "galen.de_typis.tess": {
+   "urn": "urn:cts:greekLit:tlg0057.tlg048",
+   "source": "catalog"
+  },
+  "galen.de_usu_partium_corporis_humani_ixi.tess": {
+   "urn": "urn:cts:greekLit:tlg0057.tlg017",
+   "source": "catalog"
+  },
+  "galen.de_uteri_dissectione.tess": {
+   "urn": "urn:cts:greekLit:tlg0057.tlg016",
+   "source": "catalog"
+  },
+  "galen.de_utilitate_respirationis.tess": {
+   "urn": "urn:cts:greekLit:tlg0057.tlg020",
+   "source": "catalog"
+  },
+  "galen.de_venae_sectione_adversus_erasistratum.tess": {
+   "urn": "urn:cts:greekLit:tlg0057.tlg068",
+   "source": "catalog"
+  },
+  "galen.de_venarum_arteriarumque_dissectione.tess": {
+   "urn": "urn:cts:greekLit:tlg0057.tlg013",
+   "source": "catalog"
+  },
+  "galen.de_venereis_ap_oribasium.tess": {
+   "urn": "urn:cts:greekLit:tlg0057.tlg035",
+   "source": "url"
+  },
+  "galen.de_victu_attenuante.tess": {
+   "urn": "urn:cts:greekLit:tlg0057.tlg019",
+   "source": "catalog"
+  },
+  "galen.institutio_logica.tess": {
+   "urn": "urn:cts:greekLit:tlg0057.tlg081",
+   "source": "catalog"
+  },
+  "galen.natural_faculties.tess": {
+   "urn": "urn:cts:greekLit:tlg0057.tlg010",
+   "source": "url"
+  },
+  "galen.protrepticus.tess": {
+   "urn": "urn:cts:greekLit:tlg0057.tlg001",
+   "source": "url"
+  },
+  "galen.quod_optimus_medicus_sit_quoque_philosophus.tess": {
+   "urn": "urn:cts:greekLit:tlg0057.tlg003",
+   "source": "catalog"
+  },
+  "galen.quos_quibus_catharticis_medicamentis_et_quando_pur.tess": {
+   "urn": "urn:cts:greekLit:tlg0057.tlg073",
+   "source": "url"
+  },
+  "galen.synopsis_librorum_suorum_de_pulsibus.tess": {
+   "urn": "urn:cts:greekLit:tlg0057.tlg063",
+   "source": "catalog"
+  },
+  "galen.thrasybulus_sive_utrum_medicinae_sit_an_gymnastica.tess": {
+   "urn": "urn:cts:greekLit:tlg0057.tlg033",
+   "source": "url"
+  },
+  "hanno.periplus_hannonis.tess": {
+   "urn": "urn:cts:greekLit:tlg0064.tlg001",
+   "source": "catalog"
+  },
+  "heliodorus.aethiopica.tess": {
+   "urn": "urn:cts:greekLit:tlg0658.tlg001",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "heraclitus_of_ephesus.fragmenta.tess": {
+   "urn": "urn:cts:greekLit:tlg0626.tlg002",
+   "source": "catalog"
+  },
+  "hermogenes.progymnasmata_dub.tess": {
+   "urn": "urn:cts:greekLit:tlg0592.tlg001",
+   "source": "catalog"
+  },
+  "hero_of_alexandria.belopoeica.tess": {
+   "urn": "urn:cts:greekLit:tlg0559.tlg012",
+   "source": "catalog"
+  },
+  "hero_of_alexandria.catoptrica.tess": {
+   "urn": "urn:cts:greekLit:tlg0559.tlg005",
+   "source": "catalog"
+  },
+  "hero_of_alexandria.de_automatis.tess": {
+   "urn": "urn:cts:greekLit:tlg0559.tlg002",
+   "source": "catalog"
+  },
+  "hero_of_alexandria.de_mensuris.tess": {
+   "urn": "urn:cts:greekLit:tlg0559.tlg011",
+   "source": "catalog"
+  },
+  "hero_of_alexandria.dioptra.tess": {
+   "urn": "urn:cts:greekLit:tlg0559.tlg007",
+   "source": "catalog"
+  },
+  "hero_of_alexandria.geodaesia_sp.tess": {
+   "urn": "urn:cts:greekLit:tlg0559.tlg015",
+   "source": "catalog"
+  },
+  "hero_of_alexandria.mechanicorum_fragmenta.tess": {
+   "urn": "urn:cts:greekLit:tlg0559.tlg004",
+   "source": "catalog"
+  },
+  "hero_of_alexandria.metrica.tess": {
+   "urn": "urn:cts:greekLit:tlg0559.tlg006",
+   "source": "catalog"
+  },
+  "hero_of_alexandria.pneumatica.tess": {
+   "urn": "urn:cts:greekLit:tlg0559.tlg001",
+   "source": "catalog"
+  },
+  "hero_of_alexandria.stereometrica.tess": {
+   "urn": "urn:cts:greekLit:tlg0559.tlg010",
+   "source": "catalog"
+  },
+  "herodian.ab_excessu_divi_marci.tess": {
+   "urn": "urn:cts:greekLit:tlg0015.tlg001",
+   "source": "catalog"
+  },
+  "herodotus.histories.tess": {
+   "urn": "urn:cts:greekLit:tlg0016.tlg001",
+   "source": "catalog"
+  },
+  "heronis_alexandrini.liber_geeponicus_sp.tess": {
+   "urn": "urn:cts:greekLit:tlg0559.tlg016",
+   "source": "url"
+  },
+  "hesiod.theogony.tess": {
+   "urn": "urn:cts:greekLit:tlg0020.tlg001",
+   "source": "catalog"
+  },
+  "hesiod.works_and_days.tess": {
+   "urn": "urn:cts:greekLit:tlg0020.tlg002",
+   "source": "catalog"
+  },
+  "hippocrates.aphorismi.tess": {
+   "urn": "urn:cts:greekLit:tlg0627.tlg012",
+   "source": "catalog"
+  },
+  "hippocrates.coa_praesagia.tess": {
+   "urn": "urn:cts:greekLit:tlg0627.tlg017",
+   "source": "catalog"
+  },
+  "hippocrates.de_aere_aquis_et_locis.tess": {
+   "urn": "urn:cts:greekLit:tlg0627.tlg002",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "hippocrates.de_aere_aquis_locis.tess": {
+   "urn": "urn:cts:greekLit:tlg0627.tlg002",
+   "source": "catalog"
+  },
+  "hippocrates.de_alimento.tess": {
+   "urn": "urn:cts:greekLit:tlg0627.tlg046",
+   "source": "catalog"
+  },
+  "hippocrates.de_arte.tess": {
+   "urn": "urn:cts:greekLit:tlg0627.tlg018",
+   "source": "catalog"
+  },
+  "hippocrates.de_articulis.tess": {
+   "urn": "urn:cts:greekLit:tlg0627.tlg010",
+   "source": "catalog"
+  },
+  "hippocrates.de_capitis_vulneribus.tess": {
+   "urn": "urn:cts:greekLit:tlg0627.tlg007",
+   "source": "catalog"
+  },
+  "hippocrates.de_diaeta_in_morbis_acutis.tess": {
+   "urn": "urn:cts:greekLit:tlg0627.tlg004",
+   "source": "catalog"
+  },
+  "hippocrates.de_flatibus.tess": {
+   "urn": "urn:cts:greekLit:tlg0627.tlg021",
+   "source": "catalog"
+  },
+  "hippocrates.de_fracturis.tess": {
+   "urn": "urn:cts:greekLit:tlg0627.tlg009",
+   "source": "catalog"
+  },
+  "hippocrates.de_genitura.tess": {
+   "urn": "urn:cts:greekLit:tlg0627.tlg024a",
+   "source": "catalog"
+  },
+  "hippocrates.de_humoribus.tess": {
+   "urn": "urn:cts:greekLit:tlg0627.tlg015",
+   "source": "catalog"
+  },
+  "hippocrates.de_liquidorum_usu.tess": {
+   "urn": "urn:cts:greekLit:tlg0627.tlg022",
+   "source": "catalog"
+  },
+  "hippocrates.de_morbis_popularibus.tess": {
+   "urn": "urn:cts:greekLit:tlg0627.tlg006",
+   "source": "catalog"
+  },
+  "hippocrates.de_natura_hominis.tess": {
+   "urn": "urn:cts:greekLit:tlg0627.tlg019",
+   "source": "catalog"
+  },
+  "hippocrates.de_officina_medici.tess": {
+   "urn": "urn:cts:greekLit:tlg0627.tlg008",
+   "source": "catalog"
+  },
+  "hippocrates.de_prisca_medicina.tess": {
+   "urn": "urn:cts:greekLit:tlg0627.tlg001",
+   "source": "catalog"
+  },
+  "hippocrates.de_salubri_diaeta.tess": {
+   "urn": "urn:cts:greekLit:tlg0627.tlg020",
+   "source": "catalog"
+  },
+  "hippocrates.epidemiarum.tess": {
+   "urn": "urn:cts:greekLit:tlg0627.tlg006",
+   "source": "catalog"
+  },
+  "hippocrates.jusjurandum.tess": {
+   "urn": "urn:cts:greekLit:tlg0627.tlg013",
+   "source": "catalog"
+  },
+  "hippocrates.praeceptiones.tess": {
+   "urn": "urn:cts:greekLit:tlg0627.tlg051",
+   "source": "catalog"
+  },
+  "hippocrates.prognosticon.tess": {
+   "urn": "urn:cts:greekLit:tlg0627.tlg003",
+   "source": "catalog"
+  },
+  "hippocrates.prorrheticon_i.tess": {
+   "urn": "urn:cts:greekLit:tlg0627.tlg016",
+   "source": "catalog"
+  },
+  "hippocrates.vectiarius.tess": {
+   "urn": "urn:cts:greekLit:tlg0627.tlg011",
+   "source": "catalog"
+  },
+  "homer.iliad.tess": {
+   "urn": "urn:cts:greekLit:tlg0012.tlg001",
+   "source": "catalog"
+  },
+  "homer.odyssey.tess": {
+   "urn": "urn:cts:greekLit:tlg0012.tlg002",
+   "source": "catalog"
+  },
+  "ignatius.epistulae.tess": {
+   "urn": "urn:cts:greekLit:tlg1443.tlg001",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "isidore_of_charax.mansiones_parthicae.tess": {
+   "urn": "urn:cts:greekLit:tlg0070.tlg001",
+   "source": "catalog"
+  },
+  "john_of_damascus.barlaam_et_ioasaph.tess": {
+   "urn": "urn:cts:greekLit:tlg2934.tlg066",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "julian.caesares.tess": {
+   "urn": "urn:cts:greekLit:tlg2003.tlg010",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "julian.contra_galilaeos.tess": {
+   "urn": "urn:cts:greekLit:tlg2003.tlg017",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "julian.epistulae.tess": {
+   "urn": "urn:cts:greekLit:tlg2003.tlg013",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "julian.misopogon.tess": {
+   "urn": "urn:cts:greekLit:tlg2003.tlg012",
+   "source": "catalog"
+  },
+  "justin_martyr.apologia_i.tess": {
+   "urn": "urn:cts:greekLit:tlg0645.tlg001",
+   "source": "catalog"
+  },
+  "justin_martyr.dialogus_cum_tryphone.tess": {
+   "urn": "urn:cts:greekLit:tlg0645.tlg003",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "longus.daphnis_et_chloe.tess": {
+   "urn": "urn:cts:greekLit:tlg0561.tlg001",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "lucian.abdicatus.tess": {
+   "urn": "urn:cts:greekLit:tlg0062.tlg052",
+   "source": "url"
+  },
+  "lucian.adversus_indoctum_et_libros_multos_ementem.tess": {
+   "urn": "urn:cts:greekLit:tlg0062.tlg028",
+   "source": "url"
+  },
+  "lucian.alexander.tess": {
+   "urn": "urn:cts:greekLit:tlg0062.tlg038",
+   "source": "url"
+  },
+  "lucian.anacharsis.tess": {
+   "urn": "urn:cts:greekLit:tlg0062.tlg034",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "lucian.apologia.tess": {
+   "urn": "urn:cts:greekLit:tlg0062.tlg059",
+   "source": "url"
+  },
+  "lucian.bacchus.tess": {
+   "urn": "urn:cts:greekLit:tlg0062.tlg003",
+   "source": "url"
+  },
+  "lucian.bis_accusatus_sive_tribunalia.tess": {
+   "urn": "urn:cts:greekLit:tlg0062.tlg026",
+   "source": "url"
+  },
+  "lucian.calumniae_non_temere_credundum.tess": {
+   "urn": "urn:cts:greekLit:tlg0062.tlg013",
+   "source": "url"
+  },
+  "lucian.cataplus.tess": {
+   "urn": "urn:cts:greekLit:tlg0062.tlg016",
+   "source": "url"
+  },
+  "lucian.contemplantes.tess": {
+   "urn": "urn:cts:greekLit:tlg0062.tlg023",
+   "source": "url"
+  },
+  "lucian.de_astrologia.tess": {
+   "urn": "urn:cts:greekLit:tlg0062.tlg048",
+   "source": "url"
+  },
+  "lucian.de_domo.tess": {
+   "urn": "urn:cts:greekLit:tlg0062.tlg009",
+   "source": "url"
+  },
+  "lucian.de_luctu.tess": {
+   "urn": "urn:cts:greekLit:tlg0062.tlg036",
+   "source": "url"
+  },
+  "lucian.de_mercede.tess": {
+   "urn": "urn:cts:greekLit:tlg0062.tlg033",
+   "source": "url"
+  },
+  "lucian.de_morte_peregrini.tess": {
+   "urn": "urn:cts:greekLit:tlg0062.tlg042",
+   "source": "url"
+  },
+  "lucian.de_parasito_sive_artem_esse_parasiticam.tess": {
+   "urn": "urn:cts:greekLit:tlg0062.tlg030",
+   "source": "url"
+  },
+  "lucian.de_sacrificiis.tess": {
+   "urn": "urn:cts:greekLit:tlg0062.tlg027",
+   "source": "url"
+  },
+  "lucian.de_saltatione.tess": {
+   "urn": "urn:cts:greekLit:tlg0062.tlg045",
+   "source": "url"
+  },
+  "lucian.de_syria_dea.tess": {
+   "urn": "urn:cts:greekLit:tlg0062.tlg041",
+   "source": "url"
+  },
+  "lucian.dearum_iudicium.tess": {
+   "urn": "urn:cts:greekLit:tlg0062.tlg032",
+   "source": "url"
+  },
+  "lucian.demonax.tess": {
+   "urn": "urn:cts:greekLit:tlg0062.tlg008",
+   "source": "url"
+  },
+  "lucian.deorum_consilium.tess": {
+   "urn": "urn:cts:greekLit:tlg0062.tlg050",
+   "source": "url"
+  },
+  "lucian.dialogi_deorum.tess": {
+   "urn": "urn:cts:greekLit:tlg0062.tlg068",
+   "source": "url"
+  },
+  "lucian.dialogi_marini.tess": {
+   "urn": "urn:cts:greekLit:tlg0062.tlg067",
+   "source": "url"
+  },
+  "lucian.dialogi_meretricii.tess": {
+   "urn": "urn:cts:greekLit:tlg0062.tlg069",
+   "source": "url"
+  },
+  "lucian.dialogi_mortuorum.tess": {
+   "urn": "urn:cts:greekLit:tlg0062.tlg066",
+   "source": "url"
+  },
+  "lucian.dipsades.tess": {
+   "urn": "urn:cts:greekLit:tlg0062.tlg054",
+   "source": "url"
+  },
+  "lucian.electrum.tess": {
+   "urn": "urn:cts:greekLit:tlg0062.tlg005",
+   "source": "url"
+  },
+  "lucian.eunuchus.tess": {
+   "urn": "urn:cts:greekLit:tlg0062.tlg047",
+   "source": "url"
+  },
+  "lucian.fugitivi.tess": {
+   "urn": "urn:cts:greekLit:tlg0062.tlg043",
+   "source": "url"
+  },
+  "lucian.gallus.tess": {
+   "urn": "urn:cts:greekLit:tlg0062.tlg019",
+   "source": "url"
+  },
+  "lucian.harmonides.tess": {
+   "urn": "urn:cts:greekLit:tlg0062.tlg060",
+   "source": "url"
+  },
+  "lucian.hercules.tess": {
+   "urn": "urn:cts:greekLit:tlg0062.tlg004",
+   "source": "url"
+  },
+  "lucian.hermotimus.tess": {
+   "urn": "urn:cts:greekLit:tlg0062.tlg063",
+   "source": "url"
+  },
+  "lucian.herodotus.tess": {
+   "urn": "urn:cts:greekLit:tlg0062.tlg056",
+   "source": "url"
+  },
+  "lucian.hesiod.tess": {
+   "urn": "urn:cts:greekLit:tlg0062.tlg061",
+   "source": "url"
+  },
+  "lucian.hippias.tess": {
+   "urn": "urn:cts:greekLit:tlg0062.tlg002",
+   "source": "url"
+  },
+  "lucian.icaromenippus.tess": {
+   "urn": "urn:cts:greekLit:tlg0062.tlg021",
+   "source": "url"
+  },
+  "lucian.imagines.tess": {
+   "urn": "urn:cts:greekLit:tlg0062.tlg039",
+   "source": "url"
+  },
+  "lucian.iudicium_vocalium.tess": {
+   "urn": "urn:cts:greekLit:tlg0062.tlg014",
+   "source": "url"
+  },
+  "lucian.iuppiter_confuatus.tess": {
+   "urn": "urn:cts:greekLit:tlg0062.tlg017",
+   "source": "url"
+  },
+  "lucian.iuppiter_tragoedus.tess": {
+   "urn": "urn:cts:greekLit:tlg0062.tlg018",
+   "source": "url"
+  },
+  "lucian.lexiphanes.tess": {
+   "urn": "urn:cts:greekLit:tlg0062.tlg046",
+   "source": "url"
+  },
+  "lucian.marcrobii.tess": {
+   "urn": "urn:cts:greekLit:tlg0062.tlg011",
+   "source": "url"
+  },
+  "lucian.muscae_encomium.tess": {
+   "urn": "urn:cts:greekLit:tlg0062.tlg006",
+   "source": "url"
+  },
+  "lucian.navigium.tess": {
+   "urn": "urn:cts:greekLit:tlg0062.tlg065",
+   "source": "url"
+  },
+  "lucian.necyomantia.tess": {
+   "urn": "urn:cts:greekLit:tlg0062.tlg035",
+   "source": "url"
+  },
+  "lucian.nigrinus.tess": {
+   "urn": "urn:cts:greekLit:tlg0062.tlg007",
+   "source": "url"
+  },
+  "lucian.patriae_encomium.tess": {
+   "urn": "urn:cts:greekLit:tlg0062.tlg010",
+   "source": "url"
+  },
+  "lucian.phalaris.tess": {
+   "urn": "urn:cts:greekLit:tlg0062.tlg001",
+   "source": "url"
+  },
+  "lucian.philopseudes.tess": {
+   "urn": "urn:cts:greekLit:tlg0062.tlg031",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "lucian.piscator.tess": {
+   "urn": "urn:cts:greekLit:tlg0062.tlg025",
+   "source": "url"
+  },
+  "lucian.podagra.tess": {
+   "urn": "urn:cts:greekLit:tlg0062.tlg071",
+   "source": "url"
+  },
+  "lucian.pro_imaginibus.tess": {
+   "urn": "urn:cts:greekLit:tlg0062.tlg040",
+   "source": "url"
+  },
+  "lucian.pro_lapsu_inter_salutandum.tess": {
+   "urn": "urn:cts:greekLit:tlg0062.tlg058",
+   "source": "url"
+  },
+  "lucian.prometheus.tess": {
+   "urn": "urn:cts:greekLit:tlg0062.tlg020",
+   "source": "url"
+  },
+  "lucian.prometheus_es_in_verbis.tess": {
+   "urn": "urn:cts:greekLit:tlg0062.tlg064",
+   "source": "url"
+  },
+  "lucian.pseudologista.tess": {
+   "urn": "urn:cts:greekLit:tlg0062.tlg049",
+   "source": "url"
+  },
+  "lucian.quomodo_historia_conscribenda_sit.tess": {
+   "urn": "urn:cts:greekLit:tlg0062.tlg053",
+   "source": "url"
+  },
+  "lucian.rhetorum_praeceptor.tess": {
+   "urn": "urn:cts:greekLit:tlg0062.tlg037",
+   "source": "url"
+  },
+  "lucian.saturnalia.tess": {
+   "urn": "urn:cts:greekLit:tlg0062.tlg055",
+   "source": "url"
+  },
+  "lucian.scytha.tess": {
+   "urn": "urn:cts:greekLit:tlg0062.tlg062",
+   "source": "url"
+  },
+  "lucian.soleocista.tess": {
+   "urn": "urn:cts:greekLit:tlg0062.tlg070",
+   "source": "url"
+  },
+  "lucian.symposium.tess": {
+   "urn": "urn:cts:greekLit:tlg0062.tlg015",
+   "source": "url"
+  },
+  "lucian.timon.tess": {
+   "urn": "urn:cts:greekLit:tlg0062.tlg022",
+   "source": "url"
+  },
+  "lucian.toxaris_vel_amicitia.tess": {
+   "urn": "urn:cts:greekLit:tlg0062.tlg044",
+   "source": "url"
+  },
+  "lucian.tyrannicida.tess": {
+   "urn": "urn:cts:greekLit:tlg0062.tlg051",
+   "source": "url"
+  },
+  "lucian.verae_historiae.tess": {
+   "urn": "urn:cts:greekLit:tlg0062.tlg012",
+   "source": "url"
+  },
+  "lucian.vitarum_auctio.tess": {
+   "urn": "urn:cts:greekLit:tlg0062.tlg024",
+   "source": "url"
+  },
+  "lucian.zeuxis.tess": {
+   "urn": "urn:cts:greekLit:tlg0062.tlg057",
+   "source": "url"
+  },
+  "lycophron.alexandra.tess": {
+   "urn": "urn:cts:greekLit:tlg0341.tlg002",
+   "source": "catalog"
+  },
+  "lycurgus.against_leocrates.tess": {
+   "urn": "urn:cts:greekLit:tlg0034.tlg001",
+   "source": "catalog"
+  },
+  "marcus_aurelius.m._antonius_imperator_ad_se_ipsum.tess": {
+   "urn": "urn:cts:greekLit:tlg0562.tlg001",
+   "source": "url"
+  },
+  "maximus_of_tyre.dialexeis.tess": {
+   "urn": "urn:cts:greekLit:tlg0563.tlg001",
+   "source": "catalog"
+  },
+  "nicander.alexipharmaca.tess": {
+   "urn": "urn:cts:greekLit:tlg0022.tlg002",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "nicander.theriaca.tess": {
+   "urn": "urn:cts:greekLit:tlg0022.tlg001",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "niciae_epistula.epistula.tess": {
+   "urn": "urn:cts:greekLit:tlg0046.tlg001",
+   "source": "catalog"
+  },
+  "nicomachus_of_gerasa.excerpta.tess": {
+   "urn": "urn:cts:greekLit:tlg0358.tlg004",
+   "source": "catalog"
+  },
+  "nicomachus_of_gerasa.harmonices_enchiridion.tess": {
+   "urn": "urn:cts:greekLit:tlg0358.tlg002",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "nicomachus_of_gerasa.introductio_arithmetica.tess": {
+   "urn": "urn:cts:greekLit:tlg0358.tlg001",
+   "source": "catalog"
+  },
+  "nicomachus_of_gerasa.problemata_arithmetica.tess": {
+   "urn": "urn:cts:greekLit:tlg0358.tlg005",
+   "source": "catalog"
+  },
+  "nonnus_of_panopolis.dionysiaca.tess": {
+   "urn": "urn:cts:greekLit:tlg2045.tlg001",
+   "source": "catalog"
+  },
+  "novum_testamentum.ad_philemonem.tess": {
+   "urn": "urn:cts:greekLit:tlg0031.tlg018",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "novum_testamentum.ad_romanos.tess": {
+   "urn": "urn:cts:greekLit:tlg0031.tlg006",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "novum_testamentum.apocalypsis.tess": {
+   "urn": "urn:cts:greekLit:tlg0031.tlg027",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "novum_testamentum.iudae.tess": {
+   "urn": "urn:cts:greekLit:tlg0031.tlg026",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "oppian.halieutica.tess": {
+   "urn": "urn:cts:greekLit:tlg0023.tlg001",
+   "source": "catalog"
+  },
+  "oppian_of_apamea.cynegetica.tess": {
+   "urn": "urn:cts:greekLit:tlg0024.tlg001",
+   "source": "catalog"
+  },
+  "origen.commentarii_in_evangelium_joannis.tess": {
+   "urn": "urn:cts:greekLit:tlg2042.tlg005",
+   "source": "catalog"
+  },
+  "origen.contra_celsum.tess": {
+   "urn": "urn:cts:greekLit:tlg2042.tlg001",
+   "source": "catalog"
+  },
+  "orphica.fragmenta.tess": {
+   "urn": "urn:cts:greekLit:tlg0579.tlg010",
+   "source": "catalog"
+  },
+  "paradoxographus_florentinus.mirabilia_de_aquis.tess": {
+   "urn": "urn:cts:greekLit:tlg0580.tlg001",
+   "source": "catalog"
+  },
+  "pausanias.description_of_greece.tess": {
+   "urn": "urn:cts:greekLit:tlg0525.tlg001",
+   "source": "catalog"
+  },
+  "phalaridis_epistulae.epistulae.tess": {
+   "urn": "urn:cts:greekLit:tlg0053.tlg001",
+   "source": "catalog"
+  },
+  "philip_ii_king_of_macedonia.epistulae.tess": {
+   "urn": "urn:cts:greekLit:tlg0048.tlg001",
+   "source": "catalog"
+  },
+  "philo_judaeus.de_abrahamo.tess": {
+   "urn": "urn:cts:greekLit:tlg0018.tlg020",
+   "source": "catalog"
+  },
+  "philo_judaeus.de_aeternitate_mundi.tess": {
+   "urn": "urn:cts:greekLit:tlg0018.tlg029",
+   "source": "catalog"
+  },
+  "philo_judaeus.de_agricultura.tess": {
+   "urn": "urn:cts:greekLit:tlg0018.tlg009",
+   "source": "catalog"
+  },
+  "philo_judaeus.de_cherubim.tess": {
+   "urn": "urn:cts:greekLit:tlg0018.tlg003",
+   "source": "catalog"
+  },
+  "philo_judaeus.de_confusione_linguarum.tess": {
+   "urn": "urn:cts:greekLit:tlg0018.tlg013",
+   "source": "catalog"
+  },
+  "philo_judaeus.de_congressu_eruditionis_gratia.tess": {
+   "urn": "urn:cts:greekLit:tlg0018.tlg016",
+   "source": "catalog"
+  },
+  "philo_judaeus.de_decalogo.tess": {
+   "urn": "urn:cts:greekLit:tlg0018.tlg023",
+   "source": "catalog"
+  },
+  "philo_judaeus.de_ebrietate.tess": {
+   "urn": "urn:cts:greekLit:tlg0018.tlg011",
+   "source": "catalog"
+  },
+  "philo_judaeus.de_fuga_et_inventione.tess": {
+   "urn": "urn:cts:greekLit:tlg0018.tlg017",
+   "source": "catalog"
+  },
+  "philo_judaeus.de_gigantibus.tess": {
+   "urn": "urn:cts:greekLit:tlg0018.tlg007",
+   "source": "catalog"
+  },
+  "philo_judaeus.de_josepho.tess": {
+   "urn": "urn:cts:greekLit:tlg0018.tlg021",
+   "source": "catalog"
+  },
+  "philo_judaeus.de_migratione_abrahami.tess": {
+   "urn": "urn:cts:greekLit:tlg0018.tlg014",
+   "source": "catalog"
+  },
+  "philo_judaeus.de_mutatione_nominum.tess": {
+   "urn": "urn:cts:greekLit:tlg0018.tlg018",
+   "source": "catalog"
+  },
+  "philo_judaeus.de_opificio_mundi.tess": {
+   "urn": "urn:cts:greekLit:tlg0018.tlg001",
+   "source": "catalog"
+  },
+  "philo_judaeus.de_plantatione.tess": {
+   "urn": "urn:cts:greekLit:tlg0018.tlg010",
+   "source": "catalog"
+  },
+  "philo_judaeus.de_posteritate_caini.tess": {
+   "urn": "urn:cts:greekLit:tlg0018.tlg006",
+   "source": "catalog"
+  },
+  "philo_judaeus.de_praemiis_et_poenis_et_de_exsecrationibus.tess": {
+   "urn": "urn:cts:greekLit:tlg0018.tlg026",
+   "source": "catalog"
+  },
+  "philo_judaeus.de_sacrificiis_abelis_et_caini.tess": {
+   "urn": "urn:cts:greekLit:tlg0018.tlg004",
+   "source": "catalog"
+  },
+  "philo_judaeus.de_sobrietate.tess": {
+   "urn": "urn:cts:greekLit:tlg0018.tlg012",
+   "source": "catalog"
+  },
+  "philo_judaeus.de_somniis_lib_iii.tess": {
+   "urn": "urn:cts:greekLit:tlg0018.tlg019",
+   "source": "catalog"
+  },
+  "philo_judaeus.de_specialibus_legibus_lib_iiv.tess": {
+   "urn": "urn:cts:greekLit:tlg0018.tlg024",
+   "source": "catalog"
+  },
+  "philo_judaeus.de_virtutibus.tess": {
+   "urn": "urn:cts:greekLit:tlg0018.tlg025",
+   "source": "catalog"
+  },
+  "philo_judaeus.de_vita_mosis_lib_iii.tess": {
+   "urn": "urn:cts:greekLit:tlg0018.tlg022",
+   "source": "catalog"
+  },
+  "philo_judaeus.in_flaccum.tess": {
+   "urn": "urn:cts:greekLit:tlg0018.tlg030",
+   "source": "catalog"
+  },
+  "philo_judaeus.legatio_ad_gaium.tess": {
+   "urn": "urn:cts:greekLit:tlg0018.tlg031",
+   "source": "catalog"
+  },
+  "philo_judaeus.legum_allegoriarum_libri_iiii.tess": {
+   "urn": "urn:cts:greekLit:tlg0018.tlg002",
+   "source": "catalog"
+  },
+  "philo_judaeus.quis_rerum_divinarum_heres_sit.tess": {
+   "urn": "urn:cts:greekLit:tlg0018.tlg015",
+   "source": "catalog"
+  },
+  "philo_judaeus.quod_deterius_potiori_insidiari_soleat.tess": {
+   "urn": "urn:cts:greekLit:tlg0018.tlg005",
+   "source": "catalog"
+  },
+  "philostorgius.historia_ecclesiastica.tess": {
+   "urn": "urn:cts:greekLit:tlg2058.tlg001",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "philostratus_the_athenian.de_gymnastica.tess": {
+   "urn": "urn:cts:greekLit:tlg0638.tlg007",
+   "source": "catalog"
+  },
+  "philostratus_the_athenian.epistulae_et_dialexeis.tess": {
+   "urn": "urn:cts:greekLit:tlg0638.tlg006",
+   "source": "catalog"
+  },
+  "philostratus_the_athenian.heroicus.tess": {
+   "urn": "urn:cts:greekLit:tlg0638.tlg004",
+   "source": "catalog"
+  },
+  "philostratus_the_athenian.vita_apollonii.tess": {
+   "urn": "urn:cts:greekLit:tlg0638.tlg001",
+   "source": "url"
+  },
+  "philostratus_the_athenian.vitae_sophistarum.tess": {
+   "urn": "urn:cts:greekLit:tlg0638.tlg003",
+   "source": "url"
+  },
+  "philostratus_the_lemnian.imagines.tess": {
+   "urn": "urn:cts:greekLit:tlg1600.tlg001",
+   "source": "url"
+  },
+  "plato.alcibiades_1.tess": {
+   "urn": "urn:cts:greekLit:tlg0059.tlg013",
+   "source": "catalog"
+  },
+  "plato.alcibiades_2.tess": {
+   "urn": "urn:cts:greekLit:tlg0059.tlg014",
+   "source": "catalog"
+  },
+  "plato.apologia.tess": {
+   "urn": "urn:cts:greekLit:tlg0059.tlg002",
+   "source": "url"
+  },
+  "plato.charmides.tess": {
+   "urn": "urn:cts:greekLit:tlg0059.tlg018",
+   "source": "catalog"
+  },
+  "plato.cleitophon.tess": {
+   "urn": "urn:cts:greekLit:tlg0059.tlg029",
+   "source": "catalog"
+  },
+  "plato.cratylus.tess": {
+   "urn": "urn:cts:greekLit:tlg0059.tlg005",
+   "source": "catalog"
+  },
+  "plato.critias.tess": {
+   "urn": "urn:cts:greekLit:tlg0059.tlg032",
+   "source": "catalog"
+  },
+  "plato.crito.tess": {
+   "urn": "urn:cts:greekLit:tlg0059.tlg003",
+   "source": "catalog"
+  },
+  "plato.epinomis.tess": {
+   "urn": "urn:cts:greekLit:tlg0059.tlg035",
+   "source": "catalog"
+  },
+  "plato.epistles.tess": {
+   "urn": "urn:cts:greekLit:tlg0059.tlg036",
+   "source": "catalog"
+  },
+  "plato.euthydemus.tess": {
+   "urn": "urn:cts:greekLit:tlg0059.tlg021",
+   "source": "catalog"
+  },
+  "plato.euthyphro.tess": {
+   "urn": "urn:cts:greekLit:tlg0059.tlg001",
+   "source": "catalog"
+  },
+  "plato.gorgias.tess": {
+   "urn": "urn:cts:greekLit:tlg0059.tlg023",
+   "source": "catalog"
+  },
+  "plato.hipparchus.tess": {
+   "urn": "urn:cts:greekLit:tlg0059.tlg015",
+   "source": "catalog"
+  },
+  "plato.hippias_maior.tess": {
+   "urn": "urn:cts:greekLit:tlg0059.tlg025",
+   "source": "catalog"
+  },
+  "plato.hippias_minor.tess": {
+   "urn": "urn:cts:greekLit:tlg0059.tlg026",
+   "source": "catalog"
+  },
+  "plato.ion.tess": {
+   "urn": "urn:cts:greekLit:tlg0059.tlg027",
+   "source": "catalog"
+  },
+  "plato.laches.tess": {
+   "urn": "urn:cts:greekLit:tlg0059.tlg019",
+   "source": "catalog"
+  },
+  "plato.lovers.tess": {
+   "urn": "urn:cts:greekLit:tlg0059.tlg016",
+   "source": "catalog"
+  },
+  "plato.lysis.tess": {
+   "urn": "urn:cts:greekLit:tlg0059.tlg020",
+   "source": "catalog"
+  },
+  "plato.menexenus.tess": {
+   "urn": "urn:cts:greekLit:tlg0059.tlg028",
+   "source": "catalog"
+  },
+  "plato.meno.tess": {
+   "urn": "urn:cts:greekLit:tlg0059.tlg024",
+   "source": "catalog"
+  },
+  "plato.minos.tess": {
+   "urn": "urn:cts:greekLit:tlg0059.tlg033",
+   "source": "catalog"
+  },
+  "plato.parmenides.tess": {
+   "urn": "urn:cts:greekLit:tlg0059.tlg009",
+   "source": "catalog"
+  },
+  "plato.phaedo.tess": {
+   "urn": "urn:cts:greekLit:tlg0059.tlg004",
+   "source": "catalog"
+  },
+  "plato.phaedrus.tess": {
+   "urn": "urn:cts:greekLit:tlg0059.tlg012",
+   "source": "catalog"
+  },
+  "plato.philebus.tess": {
+   "urn": "urn:cts:greekLit:tlg0059.tlg010",
+   "source": "catalog"
+  },
+  "plato.protagoras.tess": {
+   "urn": "urn:cts:greekLit:tlg0059.tlg022",
+   "source": "catalog"
+  },
+  "plato.respublica.tess": {
+   "urn": "urn:cts:greekLit:tlg0059.tlg030",
+   "source": "url"
+  },
+  "plato.sophista.tess": {
+   "urn": "urn:cts:greekLit:tlg0059.tlg007",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "plato.statesman.tess": {
+   "urn": "urn:cts:greekLit:tlg0059.tlg008",
+   "source": "catalog"
+  },
+  "plato.symposium.tess": {
+   "urn": "urn:cts:greekLit:tlg0059.tlg011",
+   "source": "catalog"
+  },
+  "plato.theaetetus.tess": {
+   "urn": "urn:cts:greekLit:tlg0059.tlg006",
+   "source": "catalog"
+  },
+  "plato.theages.tess": {
+   "urn": "urn:cts:greekLit:tlg0059.tlg017",
+   "source": "catalog"
+  },
+  "plato.timaeus.tess": {
+   "urn": "urn:cts:greekLit:tlg0059.tlg031",
+   "source": "catalog"
+  },
+  "plotinus.enneades.tess": {
+   "urn": "urn:cts:greekLit:tlg2000.tlg001",
+   "source": "catalog"
+  },
+  "plutarch.ad_principem_ineruditum.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg116",
+   "source": "catalog"
+  },
+  "plutarch.adversus_colotem.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg140",
+   "source": "url"
+  },
+  "plutarch.aemilius_paulus.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg019",
+   "source": "catalog"
+  },
+  "plutarch.agesilaus.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg044",
+   "source": "catalog"
+  },
+  "plutarch.agis.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg051a",
+   "source": "url"
+  },
+  "plutarch.alcibiades.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg015",
+   "source": "catalog"
+  },
+  "plutarch.alexander.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg047",
+   "source": "catalog"
+  },
+  "plutarch.amatoriae_narrationes.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg114",
+   "source": "catalog"
+  },
+  "plutarch.amatorius.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg113",
+   "source": "catalog"
+  },
+  "plutarch.an_recte_dictum_sit_latenter_esse_vivendum.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg141",
+   "source": "catalog"
+  },
+  "plutarch.an_seni_respublica_gerenda_sit.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg117",
+   "source": "catalog"
+  },
+  "plutarch.an_virtus_doceri_possit.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg093",
+   "source": "catalog"
+  },
+  "plutarch.an_vitiositas_ad_infelicitatem_sufficia.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg099",
+   "source": "catalog"
+  },
+  "plutarch.animine_an_corporis_affectiones_sint_piores.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg100",
+   "source": "url"
+  },
+  "plutarch.antony.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg058",
+   "source": "catalog"
+  },
+  "plutarch.apophthegmata_laconica.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg082",
+   "source": "catalog"
+  },
+  "plutarch.aquane_an_ignis_sit_utilior.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg128",
+   "source": "catalog"
+  },
+  "plutarch.aratus.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg063",
+   "source": "catalog"
+  },
+  "plutarch.aristides.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg024",
+   "source": "catalog"
+  },
+  "plutarch.artaxerxes.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg064",
+   "source": "catalog"
+  },
+  "plutarch.bruta_animalia_ratione_uti.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg130",
+   "source": "catalog"
+  },
+  "plutarch.brutus.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg061",
+   "source": "catalog"
+  },
+  "plutarch.caesar.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg048",
+   "source": "catalog"
+  },
+  "plutarch.caius_gracchus.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg052b",
+   "source": "url"
+  },
+  "plutarch.caius_marcius_coriolanus.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg016",
+   "source": "catalog"
+  },
+  "plutarch.caius_marius.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg031",
+   "source": "catalog"
+  },
+  "plutarch.camillus.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg011",
+   "source": "catalog"
+  },
+  "plutarch.cicero.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg055",
+   "source": "catalog"
+  },
+  "plutarch.cimon.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg035",
+   "source": "catalog"
+  },
+  "plutarch.cleomenes.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg051b",
+   "source": "url"
+  },
+  "plutarch.comparationis_aristophanes_et_menandri_compendium.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg122",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "plutarch.comparison_aegisalius_pompey.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg046",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "plutarch.comparison_agis_cleomenes_gracchi.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg053",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "plutarch.comparison_alcibiades_coriolanus.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg017",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "plutarch.comparison_aristides_cato.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg026",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "plutarch.comparison_demetrius_antony.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg059",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "plutarch.comparison_of_demosthenes_with_cicero.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg056",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "plutarch.comparison_of_dion_and_brutus.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg062",
+   "source": "catalog"
+  },
+  "plutarch.comparison_of_lucullus_and_cimon.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg037",
+   "source": "catalog"
+  },
+  "plutarch.comparison_of_lycurgus_and_numa.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg006",
+   "source": "catalog"
+  },
+  "plutarch.comparison_of_lysander_sulla.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg034",
+   "source": "url"
+  },
+  "plutarch.comparison_of_nicias_and_crassus.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg040",
+   "source": "catalog"
+  },
+  "plutarch.comparison_of_pelopidas_and_marcellus.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg023",
+   "source": "catalog"
+  },
+  "plutarch.comparison_of_pericles_and_fabius_maximus.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg014",
+   "source": "catalog"
+  },
+  "plutarch.comparison_of_philopoemen_and_titus.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg029",
+   "source": "catalog"
+  },
+  "plutarch.comparison_of_sertorius_and_eumenes.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg043",
+   "source": "catalog"
+  },
+  "plutarch.comparison_of_solon_and_publicola.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg009",
+   "source": "catalog"
+  },
+  "plutarch.comparison_of_theseus_and_romulus.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg003",
+   "source": "catalog"
+  },
+  "plutarch.comparison_of_timoleon_and_aemilius.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg020",
+   "source": "catalog"
+  },
+  "plutarch.conjugalia_praecepta.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg078",
+   "source": "catalog"
+  },
+  "plutarch.consolatio_ad_apollonium.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg076",
+   "source": "catalog"
+  },
+  "plutarch.consolatio_ad_uxorem.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg111",
+   "source": "catalog"
+  },
+  "plutarch.crassus.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg039",
+   "source": "catalog"
+  },
+  "plutarch.de_alexandri_magni_fortuna_aut_virtute.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg087",
+   "source": "catalog"
+  },
+  "plutarch.de_amicorum_multitudine.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg073",
+   "source": "catalog"
+  },
+  "plutarch.de_amore_prolis.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg098",
+   "source": "catalog"
+  },
+  "plutarch.de_animae_procreatione_in_timaeo.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg134",
+   "source": "catalog"
+  },
+  "plutarch.de_capienda_ex_inimicis_utilitate.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg072",
+   "source": "catalog"
+  },
+  "plutarch.de_cohibenda_ira.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg095",
+   "source": "catalog"
+  },
+  "plutarch.de_communibus_notitiis_adversus_stoicos.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg138",
+   "source": "catalog"
+  },
+  "plutarch.de_cupiditate_divitiarum.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg103",
+   "source": "catalog"
+  },
+  "plutarch.de_curiositate.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg102",
+   "source": "catalog"
+  },
+  "plutarch.de_defectu_oraculorum.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg092",
+   "source": "catalog"
+  },
+  "plutarch.de_e_delphos.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg090",
+   "source": "url"
+  },
+  "plutarch.de_esu_carnium.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg131",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "plutarch.de_esu_carnium_2.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg132",
+   "source": "url"
+  },
+  "plutarch.de_exilio.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg110",
+   "source": "catalog"
+  },
+  "plutarch.de_faciae_quae_in_orbe_lunae_apparet.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg126",
+   "source": "url"
+  },
+  "plutarch.de_fato.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg108",
+   "source": "catalog"
+  },
+  "plutarch.de_fortuna.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg074",
+   "source": "catalog"
+  },
+  "plutarch.de_fortuna_romanorum.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg086",
+   "source": "catalog"
+  },
+  "plutarch.de_fraterno_amore.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg097",
+   "source": "catalog"
+  },
+  "plutarch.de_garrulitate.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg101",
+   "source": "catalog"
+  },
+  "plutarch.de_genio_socratis.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg109",
+   "source": "catalog"
+  },
+  "plutarch.de_gloria_atheniensium.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg088",
+   "source": "catalog"
+  },
+  "plutarch.de_herodoti_malignitate.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg123",
+   "source": "url"
+  },
+  "plutarch.de_invidia_et_odio.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg105",
+   "source": "catalog"
+  },
+  "plutarch.de_iside_et_osiride.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg089",
+   "source": "catalog"
+  },
+  "plutarch.de_liberis_educandis.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg067",
+   "source": "catalog"
+  },
+  "plutarch.de_primo_frigido.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg127",
+   "source": "catalog"
+  },
+  "plutarch.de_pythiae_oraculis.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg091",
+   "source": "catalog"
+  },
+  "plutarch.de_recta_ratione_audiendi.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg069",
+   "source": "catalog"
+  },
+  "plutarch.de_se_ipsum_citra_invidiam_laudando.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg106",
+   "source": "catalog"
+  },
+  "plutarch.de_sera_numinis_vindicta.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg107",
+   "source": "catalog"
+  },
+  "plutarch.de_sollertia_animalium.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg129",
+   "source": "catalog"
+  },
+  "plutarch.de_stoicorum_repugnantis.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg136",
+   "source": "url"
+  },
+  "plutarch.de_superstitione.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg080",
+   "source": "catalog"
+  },
+  "plutarch.de_tranquilitate_animi.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg096",
+   "source": "url"
+  },
+  "plutarch.demetrius.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg057",
+   "source": "catalog"
+  },
+  "plutarch.demosthenes.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg054",
+   "source": "catalog"
+  },
+  "plutarch.dion.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg060",
+   "source": "catalog"
+  },
+  "plutarch.epitome_libri_de_animae_procreatione.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg135",
+   "source": "url"
+  },
+  "plutarch.eumenes.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg041",
+   "source": "catalog"
+  },
+  "plutarch.fabius_maximus.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg013",
+   "source": "catalog"
+  },
+  "plutarch.galba.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg065",
+   "source": "catalog"
+  },
+  "plutarch.instituta_laconica.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg082a",
+   "source": "url"
+  },
+  "plutarch.lacaenarum_apophthegmata.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg082b",
+   "source": "catalog"
+  },
+  "plutarch.lucullus.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg036",
+   "source": "catalog"
+  },
+  "plutarch.lycurgus.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg004",
+   "source": "catalog"
+  },
+  "plutarch.lysander.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg032",
+   "source": "catalog"
+  },
+  "plutarch.marcellus.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg022",
+   "source": "catalog"
+  },
+  "plutarch.marcus_cato.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg025",
+   "source": "catalog"
+  },
+  "plutarch.maxime_cum_princibus_philsopho_esse_diserendum.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg115",
+   "source": "url"
+  },
+  "plutarch.mulierum_virtutes.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg083",
+   "source": "catalog"
+  },
+  "plutarch.nicias.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg038",
+   "source": "catalog"
+  },
+  "plutarch.non_posse_suaviter_vivi_secundum_epicurum.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg139",
+   "source": "catalog"
+  },
+  "plutarch.numa.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg005",
+   "source": "catalog"
+  },
+  "plutarch.otho.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg066",
+   "source": "catalog"
+  },
+  "plutarch.parallela_minora.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg085",
+   "source": "catalog"
+  },
+  "plutarch.pelopidas.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg021",
+   "source": "catalog"
+  },
+  "plutarch.pericles.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg012",
+   "source": "catalog"
+  },
+  "plutarch.philopoemen.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg027",
+   "source": "catalog"
+  },
+  "plutarch.phocion.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg049",
+   "source": "catalog"
+  },
+  "plutarch.platonicae_quaestiones.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg133",
+   "source": "catalog"
+  },
+  "plutarch.pompey.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg045",
+   "source": "catalog"
+  },
+  "plutarch.praecepta_gerendae_reipublicae.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg118",
+   "source": "catalog"
+  },
+  "plutarch.publicola.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg008",
+   "source": "catalog"
+  },
+  "plutarch.pyrrhus.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg030",
+   "source": "catalog"
+  },
+  "plutarch.quaestiones_convivales.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg112",
+   "source": "catalog"
+  },
+  "plutarch.quaestiones_graecae.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg084b",
+   "source": "catalog"
+  },
+  "plutarch.quaestiones_naturales.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg125",
+   "source": "catalog"
+  },
+  "plutarch.quaestiones_romanae.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg084a",
+   "source": "catalog"
+  },
+  "plutarch.quomodo_adolescens_poetas_audire_debeat.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg068",
+   "source": "catalog"
+  },
+  "plutarch.quomodo_adulator_ab_amico_internoscatur.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg070",
+   "source": "catalog"
+  },
+  "plutarch.quomodo_quis_suos_in_virtute_sentiat_profectus.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg071",
+   "source": "catalog"
+  },
+  "plutarch.regum_et_imperatorum_apophthegmata.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg081",
+   "source": "catalog"
+  },
+  "plutarch.romulus.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg002",
+   "source": "catalog"
+  },
+  "plutarch.septem_sapientium_convivium.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg079",
+   "source": "catalog"
+  },
+  "plutarch.sertorius.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg042",
+   "source": "catalog"
+  },
+  "plutarch.solon.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg007",
+   "source": "catalog"
+  },
+  "plutarch.sulla.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg033",
+   "source": "catalog"
+  },
+  "plutarch.themistocles.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg010",
+   "source": "catalog"
+  },
+  "plutarch.theseus.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg001",
+   "source": "catalog"
+  },
+  "plutarch.tiberius_gracchus.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg052a",
+   "source": "url"
+  },
+  "plutarch.timoleon.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg018",
+   "source": "catalog"
+  },
+  "plutarch.titus_flamininus.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg028",
+   "source": "catalog"
+  },
+  "plutarch.vitae_decem_oratorum.tess": {
+   "urn": "urn:cts:greekLit:tlg0007.tlg121",
+   "source": "catalog"
+  },
+  "plutarch_pseudo.de_musica.tess": {
+   "urn": "urn:cts:greekLit:tlg0094.tlg002",
+   "source": "url"
+  },
+  "plutarch_pseudo.placita_philosophorum.tess": {
+   "urn": "urn:cts:greekLit:tlg0094.tlg003",
+   "source": "url"
+  },
+  "polyaenus.excerpta_polyaeni.tess": {
+   "urn": "urn:cts:greekLit:tlg0616.tlg002",
+   "source": "url"
+  },
+  "polyaenus.strategemata.tess": {
+   "urn": "urn:cts:greekLit:tlg0616.tlg001",
+   "source": "url"
+  },
+  "polybius.histories.tess": {
+   "urn": "urn:cts:greekLit:tlg0543.tlg001",
+   "source": "catalog"
+  },
+  "pseudoaristotle.de_mundo.tess": {
+   "urn": "urn:cts:greekLit:stoa0033a.tlg028",
+   "source": "catalog"
+  },
+  "pseudoaristotle.de_spiritu.tess": {
+   "urn": "urn:cts:greekLit:stoa0033a.tlg043",
+   "source": "catalog"
+  },
+  "pseudoarrianus.anonymi_arriani_ut_fertur_periplus_maris_erythraei.tess": {
+   "urn": "urn:cts:greekLit:tlg0071.tlg001",
+   "source": "catalog"
+  },
+  "pseudoarrianus.anonymi_arriani_ut_fertur_periplus_ponti_euxini.tess": {
+   "urn": "urn:cts:greekLit:tlg0075.tlg001",
+   "source": "catalog"
+  },
+  "pseudogalen.ad_gaurum_quomodo_animetur_fetus.tess": {
+   "urn": "urn:cts:greekLit:tlg0530.tlg006",
+   "source": "catalog"
+  },
+  "pseudogalen.de_fasciis.tess": {
+   "urn": "urn:cts:greekLit:tlg0530.tlg005",
+   "source": "catalog"
+  },
+  "pseudogalen.de_optima_secta_ad_thrasybulum.tess": {
+   "urn": "urn:cts:greekLit:tlg0530.tlg043",
+   "source": "catalog"
+  },
+  "pseudogalen.de_remediis_parabilibus.tess": {
+   "urn": "urn:cts:greekLit:tlg0530.tlg029",
+   "source": "catalog"
+  },
+  "pseudogalen.de_theriaca_ad_pamphilianum.tess": {
+   "urn": "urn:cts:greekLit:tlg0530.tlg032",
+   "source": "catalog"
+  },
+  "pseudogalen.introductio_seu_medicus.tess": {
+   "urn": "urn:cts:greekLit:tlg0530.tlg012",
+   "source": "catalog"
+  },
+  "pseudolucian.amores.tess": {
+   "urn": "urn:cts:greekLit:tlg0061.tlg002",
+   "source": "catalog"
+  },
+  "pseudolucian.asinus.tess": {
+   "urn": "urn:cts:greekLit:tlg0061.tlg001",
+   "source": "catalog"
+  },
+  "pseudolucian.charidemus.tess": {
+   "urn": "urn:cts:greekLit:tlg0061.tlg008",
+   "source": "catalog"
+  },
+  "pseudolucian.cynicus.tess": {
+   "urn": "urn:cts:greekLit:tlg0061.tlg006",
+   "source": "catalog"
+  },
+  "pseudolucian.demosthenis_encomium.tess": {
+   "urn": "urn:cts:greekLit:tlg0061.tlg003",
+   "source": "catalog"
+  },
+  "pseudolucian.halcyon.tess": {
+   "urn": "urn:cts:greekLit:tlg0061.tlg004",
+   "source": "catalog"
+  },
+  "pseudolucian.philopatris.tess": {
+   "urn": "urn:cts:greekLit:tlg0061.tlg007",
+   "source": "catalog"
+  },
+  "pseudomenander.sententiae_corresponds_to_version_men_ar_i_greek.tess": {
+   "urn": "urn:cts:greekLit:tlg0541.tlg042",
+   "source": "url"
+  },
+  "pseudomenander.sententiae_corresponds_to_version_men_ar_ii_greek.tess": {
+   "urn": "urn:cts:greekLit:tlg0541.tlg042",
+   "source": "url"
+  },
+  "pseudoplutarch.de_fluviis.tess": {
+   "urn": "urn:cts:greekLit:tlg0094.tlg001",
+   "source": "catalog"
+  },
+  "quintus_smyrnaeus.fall_of_troy.tess": {
+   "urn": "urn:cts:greekLit:tlg2046.tlg001",
+   "source": "catalog"
+  },
+  "rufus_of_ephesus.de_renum_et_vesicae_affectionibus.tess": {
+   "urn": "urn:cts:greekLit:tlg0564.tlg001",
+   "source": "catalog"
+  },
+  "rufus_soph.ars_rhetorica.tess": {
+   "urn": "urn:cts:greekLit:tlg0606.tlg001",
+   "source": "catalog"
+  },
+  "scylax_of_caranda.periplus_scylacis.tess": {
+   "urn": "urn:cts:greekLit:tlg0065.tlg001",
+   "source": "url"
+  },
+  "septuaginta.abdias.tess": {
+   "urn": "urn:cts:greekLit:tlg0527.tlg040",
+   "source": "catalog"
+  },
+  "septuaginta.aggaeus.tess": {
+   "urn": "urn:cts:greekLit:tlg0527.tlg045",
+   "source": "catalog"
+  },
+  "septuaginta.amos.tess": {
+   "urn": "urn:cts:greekLit:tlg0527.tlg037",
+   "source": "catalog"
+  },
+  "septuaginta.baruch.tess": {
+   "urn": "urn:cts:greekLit:tlg0527.tlg050",
+   "source": "catalog"
+  },
+  "septuaginta.bel_et_draco_theodotionis.tess": {
+   "urn": "urn:cts:greekLit:tlg0527.tlg059",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "septuaginta.bel_et_draco_translatio_graeca.tess": {
+   "urn": "urn:cts:greekLit:tlg0527.tlg058",
+   "source": "catalog"
+  },
+  "septuaginta.canticum.tess": {
+   "urn": "urn:cts:greekLit:tlg0527.tlg031",
+   "source": "catalog"
+  },
+  "septuaginta.daniel_theodotionis.tess": {
+   "urn": "urn:cts:greekLit:tlg0527.tlg057",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "septuaginta.daniel_translatio_graeca.tess": {
+   "urn": "urn:cts:greekLit:tlg0527.tlg056",
+   "source": "catalog"
+  },
+  "septuaginta.deuteronomion.tess": {
+   "urn": "urn:cts:greekLit:tlg0527.tlg005",
+   "source": "catalog"
+  },
+  "septuaginta.epistula_jeremiae.tess": {
+   "urn": "urn:cts:greekLit:tlg0527.tlg052",
+   "source": "catalog"
+  },
+  "septuaginta.esther.tess": {
+   "urn": "urn:cts:greekLit:tlg0527.tlg019",
+   "source": "catalog"
+  },
+  "septuaginta.exodus.tess": {
+   "urn": "urn:cts:greekLit:tlg0527.tlg002",
+   "source": "catalog"
+  },
+  "septuaginta.ezechiel.tess": {
+   "urn": "urn:cts:greekLit:tlg0527.tlg053",
+   "source": "catalog"
+  },
+  "septuaginta.genesis.tess": {
+   "urn": "urn:cts:greekLit:tlg0527.tlg001",
+   "source": "catalog"
+  },
+  "septuaginta.habacuc.tess": {
+   "urn": "urn:cts:greekLit:tlg0527.tlg043",
+   "source": "catalog"
+  },
+  "septuaginta.isaias.tess": {
+   "urn": "urn:cts:greekLit:tlg0527.tlg048",
+   "source": "catalog"
+  },
+  "septuaginta.jeremias.tess": {
+   "urn": "urn:cts:greekLit:tlg0527.tlg049",
+   "source": "catalog"
+  },
+  "septuaginta.job.tess": {
+   "urn": "urn:cts:greekLit:tlg0527.tlg032",
+   "source": "catalog"
+  },
+  "septuaginta.joel.tess": {
+   "urn": "urn:cts:greekLit:tlg0527.tlg039",
+   "source": "catalog"
+  },
+  "septuaginta.jonas.tess": {
+   "urn": "urn:cts:greekLit:tlg0527.tlg041",
+   "source": "catalog"
+  },
+  "septuaginta.josue.tess": {
+   "urn": "urn:cts:greekLit:tlg0527.tlg006",
+   "source": "catalog"
+  },
+  "septuaginta.judith.tess": {
+   "urn": "urn:cts:greekLit:tlg0527.tlg020",
+   "source": "catalog"
+  },
+  "septuaginta.levitikon.tess": {
+   "urn": "urn:cts:greekLit:tlg0527.tlg003",
+   "source": "catalog"
+  },
+  "septuaginta.machabaeorum_i.tess": {
+   "urn": "urn:cts:greekLit:tlg0527.tlg023",
+   "source": "catalog"
+  },
+  "septuaginta.malachias.tess": {
+   "urn": "urn:cts:greekLit:tlg0527.tlg047",
+   "source": "catalog"
+  },
+  "septuaginta.michaeas.tess": {
+   "urn": "urn:cts:greekLit:tlg0527.tlg038",
+   "source": "catalog"
+  },
+  "septuaginta.nahum.tess": {
+   "urn": "urn:cts:greekLit:tlg0527.tlg042",
+   "source": "catalog"
+  },
+  "septuaginta.odae.tess": {
+   "urn": "urn:cts:greekLit:tlg0527.tlg028",
+   "source": "catalog"
+  },
+  "septuaginta.osee.tess": {
+   "urn": "urn:cts:greekLit:tlg0527.tlg036",
+   "source": "catalog"
+  },
+  "septuaginta.paralipomenon_i_sive_chronicon_i.tess": {
+   "urn": "urn:cts:greekLit:tlg0527.tlg015",
+   "source": "catalog"
+  },
+  "septuaginta.proverbia.tess": {
+   "urn": "urn:cts:greekLit:tlg0527.tlg029",
+   "source": "catalog"
+  },
+  "septuaginta.psalmi.tess": {
+   "urn": "urn:cts:greekLit:tlg0527.tlg027",
+   "source": "catalog"
+  },
+  "septuaginta.psalmi_salomonis.tess": {
+   "urn": "urn:cts:greekLit:tlg0527.tlg035",
+   "source": "catalog"
+  },
+  "septuaginta.ruth.tess": {
+   "urn": "urn:cts:greekLit:tlg0527.tlg010",
+   "source": "catalog"
+  },
+  "septuaginta.sapientia_salomonis.tess": {
+   "urn": "urn:cts:greekLit:tlg0527.tlg033",
+   "source": "catalog"
+  },
+  "septuaginta.sophonias.tess": {
+   "urn": "urn:cts:greekLit:tlg0527.tlg044",
+   "source": "catalog"
+  },
+  "septuaginta.susanna_theodotionis.tess": {
+   "urn": "urn:cts:greekLit:tlg0527.tlg055",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "septuaginta.susanna_translatio_graeca.tess": {
+   "urn": "urn:cts:greekLit:tlg0527.tlg054",
+   "source": "catalog"
+  },
+  "septuaginta.threni_seu_lamentationes.tess": {
+   "urn": "urn:cts:greekLit:tlg0527.tlg051",
+   "source": "catalog"
+  },
+  "septuaginta.zacharias.tess": {
+   "urn": "urn:cts:greekLit:tlg0527.tlg046",
+   "source": "catalog"
+  },
+  "sextus_empiricus.adversus_mathematicos.tess": {
+   "urn": "urn:cts:greekLit:tlg0544.tlg002",
+   "source": "catalog"
+  },
+  "sextus_empiricus.pyrrhoniae_hypotyposes.tess": {
+   "urn": "urn:cts:greekLit:tlg0544.tlg001",
+   "source": "catalog"
+  },
+  "socrates_scholasticus.historia_ecclesiastica.tess": {
+   "urn": "urn:cts:greekLit:tlg2057.tlg002",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "sophocles.ajax.tess": {
+   "urn": "urn:cts:greekLit:tlg0011.tlg003",
+   "source": "catalog"
+  },
+  "sophocles.antigone.tess": {
+   "urn": "urn:cts:greekLit:tlg0011.tlg002",
+   "source": "catalog"
+  },
+  "sophocles.electra.tess": {
+   "urn": "urn:cts:greekLit:tlg0011.tlg005",
+   "source": "catalog"
+  },
+  "sophocles.ichneutae.tess": {
+   "urn": "urn:cts:greekLit:tlg0011.tlg008",
+   "source": "catalog"
+  },
+  "sophocles.oedipus_at_colonus.tess": {
+   "urn": "urn:cts:greekLit:tlg0011.tlg007",
+   "source": "catalog"
+  },
+  "sophocles.oedipus_tyrannus.tess": {
+   "urn": "urn:cts:greekLit:tlg0011.tlg004",
+   "source": "catalog"
+  },
+  "sophocles.philoctetes.tess": {
+   "urn": "urn:cts:greekLit:tlg0011.tlg006",
+   "source": "catalog"
+  },
+  "sophocles.trachiniae.tess": {
+   "urn": "urn:cts:greekLit:tlg0011.tlg001",
+   "source": "catalog"
+  },
+  "soranus.de_fasciis.tess": {
+   "urn": "urn:cts:greekLit:tlg0565.tlg003",
+   "source": "catalog"
+  },
+  "soranus.de_signis_fracturarum.tess": {
+   "urn": "urn:cts:greekLit:tlg0565.tlg002",
+   "source": "catalog"
+  },
+  "soranus.gynaeciorum_libri_iv.tess": {
+   "urn": "urn:cts:greekLit:tlg0565.tlg001",
+   "source": "catalog"
+  },
+  "soranus.vita_hippocratis_secundum_soranum.tess": {
+   "urn": "urn:cts:greekLit:tlg0565.tlg004",
+   "source": "url"
+  },
+  "sozomen.historia_ecclesiastica.tess": {
+   "urn": "urn:cts:greekLit:tlg2048.tlg001",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "strabo.geography.tess": {
+   "urn": "urn:cts:greekLit:tlg0099.tlg001",
+   "source": "catalog"
+  },
+  "tatian.oratio_ad_graecos.tess": {
+   "urn": "urn:cts:greekLit:tlg1766.tlg001",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "themistocles.epistulae.tess": {
+   "urn": "urn:cts:greekLit:tlg0055.tlg001",
+   "source": "catalog"
+  },
+  "theodoret.historia_ecclesiastica.tess": {
+   "urn": "urn:cts:greekLit:tlg4089.tlg003",
+   "source": "catalog"
+  },
+  "theophilus_of_antioch.ad_autolycum.tess": {
+   "urn": "urn:cts:greekLit:tlg1725.tlg001",
+   "source": "catalog",
+   "note": "author and title read against the inventory entry, spelling differs"
+  },
+  "theophrastus.characters.tess": {
+   "urn": "urn:cts:greekLit:tlg0093.tlg009",
+   "source": "catalog"
+  },
+  "theophrastus.concerning_odours.tess": {
+   "urn": "urn:cts:greekLit:tlg0093.ogl001",
+   "source": "url"
+  },
+  "theophrastus.de_causis_plantarum.tess": {
+   "urn": "urn:cts:greekLit:tlg0093.tlg002",
+   "source": "catalog"
+  },
+  "theophrastus.de_lapidibus.tess": {
+   "urn": "urn:cts:greekLit:tlg0093.tlg004",
+   "source": "catalog"
+  },
+  "theophrastus.de_sensu_et_sensibilibus.tess": {
+   "urn": "urn:cts:greekLit:tlg0093.tlg003",
+   "source": "catalog"
+  },
+  "theophrastus.enquiry_into_plants.tess": {
+   "urn": "urn:cts:greekLit:tlg0093.tlg001",
+   "source": "catalog"
+  },
+  "theophrastus.fragmenta_varia_13190.tess": {
+   "urn": "urn:cts:greekLit:tlg0093.tlg010x09",
+   "source": "url"
+  },
+  "thucydides.peloponnesian_war.tess": {
+   "urn": "urn:cts:greekLit:tlg0003.tlg001",
+   "source": "url"
+  },
+  "tryphiodorus.the_taking_of_ilios.tess": {
+   "urn": "urn:cts:greekLit:tlg0647.tlg001",
+   "source": "catalog"
+  },
+  "tryphon_i_grammaticus.de_tropis.tess": {
+   "urn": "urn:cts:greekLit:tlg0609.tlg001",
+   "source": "catalog"
+  },
+  "xenophon.anabasis.tess": {
+   "urn": "urn:cts:greekLit:tlg0032.tlg006",
+   "source": "catalog"
+  },
+  "xenophon.hellenica.tess": {
+   "urn": "urn:cts:greekLit:tlg0032.tlg001",
+   "source": "catalog"
+  },
+  "xenophon_of_ephesus.ephesiaca.tess": {
+   "urn": "urn:cts:greekLit:tlg0641.tlg001",
+   "source": "catalog"
+  },
+  "zosimus.historia_nova.tess": {
+   "urn": "urn:cts:greekLit:tlg4084.tlg001",
+   "source": "catalog"
+  }
+ }
+}

@@ -39,6 +39,7 @@ from backend import reader_rerank
 from backend import translations
 from backend import machine_translation
 from backend import window_texts
+from backend import cts_urns
 from backend import theme_pdf
 from backend import connections_map
 from backend.inverted_index import get_corpus_version
@@ -918,18 +919,27 @@ def passage_lines_route():
         context = max(0, min(20, int(request.args.get('context') or 0)))
     except (TypeError, ValueError):
         context = 0
-    out = window_texts.passage_lines(
+    out = _lines_payload(
         work,
         (request.args.get('ref_start') or '').strip() or None,
         (request.args.get('ref_end') or '').strip() or None,
-        context=context)
+        context)
+    return jsonify(out)
+
+
+def _lines_payload(work, ref_start, ref_end, context=0, language=None):
+    """The lines at a reference with the work's naming, language, corpus version
+    and Reader link. Shared by /passages/lines and /passages/by-urn, so a passage
+    asked for either way comes back in one shape. An 'error' key means no lines. A whole-work
+    file has no window rows to read its language from, so a caller that knows it passes it."""
+    out = window_texts.passage_lines(work, ref_start, ref_end, context=context)
     if out.get('error'):
-        return jsonify(out)
+        return out
 
     # The same naming the theme-search results carry, so a citation built from
     # this matches a citation built from those.
     naming = passage_index._naming(work.replace('.tess', ''))
-    language = window_texts.language_of(work)
+    language = language or window_texts.language_of(work)
     out.update({
         'work': work,
         'author': naming.get('author') or '',
@@ -946,6 +956,43 @@ def passage_lines_route():
     if out.get('capped'):
         out['note'] = (f"Showing {out['returned']} of {out['total']} lines. "
                        f"Narrow ref_start/ref_end for the rest.")
+    return out
+
+
+@passages_bp.route('/passages/by-urn')
+def passage_by_urn():
+    """The lines at a CTS URN, the same answer as /passages/lines for the same
+    locus range, plus the URN asked for and what it resolved to.
+
+    Unlike its neighbours this route answers with a status code: 400 for a
+    string that is not a CTS URN, 404 for a work the table does not hold or a
+    locus the file does not have.
+    """
+    urn = (request.args.get('urn') or '').strip()
+    try:
+        context = max(0, min(20, int(request.args.get('context') or 0)))
+    except (TypeError, ValueError):
+        context = 0
+    try:
+        language, filename, locus_start, locus_end = cts_urns.lookup(urn)
+    except cts_urns.UrnMalformed as e:
+        return jsonify({'error': str(e), 'urn': urn, 'lines': []}), 400
+    except cts_urns.UrnNotFound as e:
+        return jsonify({'error': str(e), 'urn': urn, 'lines': []}), 404
+    work = filename[:-len('.tess')]
+    ref_start = window_texts.ref_for_locus(work, locus_start)
+    ref_end = window_texts.ref_for_locus(work, locus_end, last=True)
+    missing = locus_start if ref_start is None else locus_end if ref_end is None else None
+    if missing:
+        return jsonify({'error': f'locus {missing} is not in {filename}', 'urn': urn,
+                        'lines': []}), 404
+    out = _lines_payload(work, ref_start, ref_end, context, language=language)
+    if out.get('error'):
+        return jsonify(dict(out, urn=urn)), 404
+    out['urn'] = urn
+    out['resolved'] = {'language': language, 'text': filename,
+                       'locus': locus_start if locus_start == locus_end
+                       else f'{locus_start}-{locus_end}'}
     return jsonify(out)
 
 
