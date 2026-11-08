@@ -62,6 +62,13 @@ export function wordOf(selection) {
   return t;
 }
 
+/** The word the Word scope works on: a double-clicked word, or else the word
+ *  under a plain click (TextPane records it as clickedWord), so one click on a
+ *  line and then "Look up a word" is enough. A plain click still seeds Line. */
+export function lookupWordOf(selection) {
+  return wordOf(selection) || selection?.clickedWord || null;
+}
+
 /** A selection of three lines or more reads as a passage, one line as a line,
  *  a double-clicked single word as a word. */
 export function scopeFor(selection) {
@@ -155,7 +162,7 @@ export default function SelectionToolbar({
     shown = `${range}, ${last > first ? `sentences ${first}\u2013${last}` : `sentence ${first}`}`;
   }
   const action = ACTION[scope] || ACTION.line;
-  const word = wordOf(selection);
+  const word = lookupWordOf(selection);
 
   const go = () => {
     if (scope === 'word') {
@@ -215,7 +222,7 @@ export default function SelectionToolbar({
         // Word scope with no single word in hand: say what to do instead of
         // offering a search that has nothing to search for.
         <span className="text-[11px] text-gray-500 whitespace-nowrap px-1">
-          double-click one word to search for it or look it up
+          click one word to search for it or look it up
         </span>
       ) : (
         <button
@@ -244,7 +251,7 @@ export default function SelectionToolbar({
         // (the project lead met the toolbar in Line mode and never saw it).
         <button
           onClick={() => onScope?.('word')}
-          title="Switch to Word, then double-click one word for its dictionary entry"
+          title="Dictionary entry for the word you clicked"
           className="rounded border border-gray-300 bg-white px-3 py-1 text-xs font-medium text-gray-600
                      hover:bg-gray-50 hover:text-gray-800 focus:outline-none focus:ring-2 focus:ring-red-400"
         >

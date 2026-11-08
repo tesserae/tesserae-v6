@@ -1759,10 +1759,10 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 </li>
               </ul>
               <p className="text-gray-700 mb-3">
-                Double-click one word and <strong>Look up</strong> beside the search button opens a small
-                box with the word&rsquo;s dictionary form, its entry (Lewis and Short for Latin, Liddell-Scott-Jones
-                for Greek) and a <strong>Full entry</strong> link. With a line or passage selected the same button
-                reads <strong>Look up a word</strong> and switches the toolbar to Word. A Latin word ending in
+                Click a word and then <strong>Look up a word</strong> in the toolbar, and a small box opens with
+                the word&rsquo;s dictionary form, its entry (Lewis and Short for Latin, Liddell-Scott-Jones
+                for Greek) and a <strong>Full entry</strong> link. The toolbar switches to Word for the word you
+                clicked, so a double-click is not needed, though a double-clicked word works too. A Latin word ending in
                 -que, -ve or -ne is looked up without the ending (<em>inferretque</em> under <em>infero</em>), and
                 the box says so. For Coptic, Hebrew, Persian, Urdu and Arabic it gives the dictionary link alone.
               </p>
