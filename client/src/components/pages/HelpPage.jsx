@@ -1759,6 +1759,12 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 </li>
               </ul>
               <p className="text-gray-700 mb-3">
+                With a single word selected, <strong>Look up</strong> beside the search button opens a small
+                box with the word&rsquo;s dictionary form, its entry (Lewis and Short for Latin, Liddell-Scott-Jones
+                for Greek) and a <strong>Full entry</strong> link; for Coptic, Hebrew, Persian, Urdu and Arabic it
+                gives the dictionary link alone.
+              </p>
+              <p className="text-gray-700 mb-3">
                 To put a selection away, click anywhere outside the text and panel, press
                 Escape, or use the toolbar&rsquo;s ×.
               </p>
@@ -3154,6 +3160,10 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 Then just ask, e.g.: “Use Tesserae to compare Aeneid 1 with Lucan's Civil War 1 and show the strongest
                 parallels.” Adding a connector needs a paid plan, and the minimum that includes connectors is
                 <strong> Claude Pro</strong>. Connectors are added on desktop or web, not the mobile app.
+              </p>
+              <p className="text-gray-700 text-sm mb-2">
+                The <code>define</code> tool gives Claude a dictionary entry (Lewis and Short, LSJ or the language&rsquo;s own
+                dictionary link) for a word it does not know in a passage another tool returned.
               </p>
               <details className="text-sm text-gray-600 mb-6">
                 <summary className="cursor-pointer text-gray-700 font-medium">Advanced: run the connector locally instead (offline, no account or connector needed)</summary>

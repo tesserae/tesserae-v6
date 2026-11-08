@@ -7,6 +7,9 @@ so the state of the live site can be reconstructed from this file and
 docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
+## 2026-11-08
+- Dictionary lookup in the Reader and the connector: a new route `/api/define?word=&language=` lemmatizes the word and returns the lemma, the definition, the dictionary's name and a link to the full entry (Lewis and Short for Latin and LSJ for Greek through Logeion, falling back to the rare-word pages' Wiktionary and Perseus fetchers; the English dictionary API for English; the external dictionary link alone, definition null, for Coptic, Hebrew, Persian, Urdu and Arabic). Results are cached in `cache/definitions/<language>.json`, 50,000 entries at most per language. The Reader's selection toolbar gains "Look up" beside the word search, and the connector gains a `define` tool. Help updated. No change to result cards or Browse pages.
+
 ## 2026-11-07
 - Every text's prose or poetry label is now recorded in one table, `data/text_types.json` (#1293; 4,125 entries after the production texts folder was read in, one per `.tess` file), and `detect_text_type` reads it after the overrides file. The name markers and line-length rule remain, but only propose a value for a new text (`scripts/corpus/text_types.py fill`); `verify_text_coverage.py` gains a required `type` column. No label changes on the live site.
 - Upload Your Text reachable from the More menu (#1292, continuing #1291): the page had no menu entry since the Help reorganization of 2026-10-19; it now sits under More by its own name, and Help lists it under Reference & tools.
