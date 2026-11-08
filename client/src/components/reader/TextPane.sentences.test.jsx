@@ -209,3 +209,33 @@ describe('touch', () => {
     expect(seen[0].text).toBe('Arma virumque cano, Troiae qui primus ab oris');
   });
 });
+
+describe('the word under a plain click', () => {
+  beforeEach(() => pointer(false));
+  const originalCaret = document.caretRangeFromPoint;
+  afterEach(() => { document.caretRangeFromPoint = originalCaret; });
+
+  it('is recorded as clickedWord when no text was swept', () => {
+    const onSelect = vi.fn();
+    render(<TextPane units={UNITS} language="la" selection={null} onSelect={onSelect} />);
+    const p = screen.getByText('Arma virumque cano, Troiae qui primus ab oris');
+    const textNode = p.firstChild;
+    document.caretRangeFromPoint = () => ({ startContainer: textNode, startOffset: 'Arma vir'.length });
+    fireEvent.mouseDown(p, { button: 0 });
+    fireEvent.mouseUp(window, { clientX: 40, clientY: 10 });
+    const sel = onSelect.mock.calls[0][0];
+    expect(sel.startIdx).toBe(2);
+    expect(sel.text).toBe('');
+    expect(sel.clickedWord).toBe('virumque');
+  });
+
+  it('is absent for a click on punctuation or space, and for a swept selection', () => {
+    const onSelect = vi.fn();
+    render(<TextPane units={UNITS} language="la" selection={null} onSelect={onSelect} />);
+    const p = screen.getByText('Arma virumque cano, Troiae qui primus ab oris');
+    document.caretRangeFromPoint = () => ({ startContainer: p.firstChild, startOffset: 'Arma virumque cano,'.length });
+    fireEvent.mouseDown(p, { button: 0 });
+    fireEvent.mouseUp(window, { clientX: 40, clientY: 10 });
+    expect(onSelect.mock.calls[0][0].clickedWord).toBeUndefined();
+  });
+});

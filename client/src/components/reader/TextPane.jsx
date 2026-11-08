@@ -32,6 +32,34 @@ function sentenceIndexOf(node) {
  * matches). Reference numbers appear every fifth line, the convention in printed
  * editions, so the margin stays quiet while remaining navigable.
  */
+const LETTER = /[\p{L}\p{M}]/u;
+
+/** The word under a point on the page, or null. A plain click selects no text,
+ *  so the toolbar could not know which word was clicked and the reader had to
+ *  double-click, with the browser's highlight switched off in the Reader
+ *  (index.css) so nothing showed that it had worked (2026-11-08). The caret
+ *  the browser would place at the point names the text node and offset; the
+ *  word is the run of letters around it. */
+export function wordAtPoint(x, y) {
+  let node = null;
+  let offset = 0;
+  if (typeof document === 'undefined') return null;
+  if (document.caretPositionFromPoint) {
+    const p = document.caretPositionFromPoint(x, y);
+    if (p) { node = p.offsetNode; offset = p.offset; }
+  } else if (document.caretRangeFromPoint) {
+    const r = document.caretRangeFromPoint(x, y);
+    if (r) { node = r.startContainer; offset = r.startOffset; }
+  }
+  if (!node || node.nodeType !== 3) return null;
+  const t = node.textContent || '';
+  let a = offset;
+  let b = offset;
+  while (a > 0 && LETTER.test(t[a - 1])) a -= 1;
+  while (b < t.length && LETTER.test(t[b])) b += 1;
+  return a < b ? t.slice(a, b) : null;   // null for a click on space or punctuation
+}
+
 export default function TextPane({ units, language, selection, onSelect, total, onMore,
                                     reuseMarks, onReuseClick, documentsTrial }) {
   // On a phone: a narrower line-number column, a smaller gap and a hanging
@@ -75,7 +103,7 @@ export default function TextPane({ units, language, selection, onSelect, total, 
   const downRef = useRef(null);
   useEffect(() => {
     // Releasing outside the pane still ends the drag.
-    const up = () => {
+    const up = (e) => {
       const d = dragRef.current;
       if (!d) return;
       setDrag(null);
@@ -85,8 +113,13 @@ export default function TextPane({ units, language, selection, onSelect, total, 
       const sel = window.getSelection();
       const native = sel ? String(sel).trim() : '';
       const top = el ? el.offsetTop + el.offsetHeight : 0;
+      // A plain click (no text swept) still names the word under the
+      // pointer, so the toolbar's Word scope and Look up work from one click.
+      const clickedWord = !native && e && lo === hi && Number.isFinite(e.clientX)
+        ? wordAtPoint(e.clientX, e.clientY) : null;
+      const withWord = (extra) => (clickedWord ? { ...(extra || {}), clickedWord } : extra);
       const parts = lo === hi ? partsOf(units[lo]?.text) : null;
-      if (!parts) { emit(lo, hi, top, native); return; }
+      if (!parts) { emit(lo, hi, top, native, withWord()); return; }
       // Inside one long unit: the sentences the click or the drag touched.
       const down = downRef.current && downRef.current.i === lo ? downRef.current.sent : null;
       const inUnit = (node) => lineIndexOf(node) === lo;
@@ -96,14 +129,14 @@ export default function TextPane({ units, language, selection, onSelect, total, 
       const b = bS ?? a;
       if (a == null) {
         // Not on a sentence (the margin, or space between): the whole unit.
-        emit(lo, hi, top, native, sentenceFields(units[lo].text, parts, 0, parts.length - 1));
+        emit(lo, hi, top, native, withWord(sentenceFields(units[lo].text, parts, 0, parts.length - 1)));
         return;
       }
       const f = sentenceFields(units[lo].text, parts, Math.min(a, b), Math.max(a, b));
       // A double-clicked word stays the word (the toolbar searches for it); the
       // sentence is still recorded for the tabs.
       const word = native && !/\s/.test(native);
-      emit(lo, hi, top, word ? native : (f.charStart == null ? native : f.text), f);
+      emit(lo, hi, top, word ? native : (f.charStart == null ? native : f.text), withWord(f));
     };
     window.addEventListener('mouseup', up);
     return () => window.removeEventListener('mouseup', up);

@@ -190,10 +190,20 @@ describe('SelectionToolbar - Look up', () => {
     expect(onScope).toHaveBeenCalledWith('word');
   });
 
-  it('in Word scope with no word, the hint says the double-click looks a word up too', () => {
+  it('in Word scope with no word, the hint says a click looks a word up too', () => {
     mount({ ...word, text: 'arma virumque cano' }, 'word');
-    expect(screen.getByText('double-click one word to search for it or look it up')).toBeTruthy();
+    expect(screen.getByText('click one word to search for it or look it up')).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Look up a word' })).toBeTruthy();
+  });
+
+  it('uses the word under a plain click when no word was swept', async () => {
+    global.fetch = reply({ lemma: 'cano', dictionary: 'Lewis and Short', definition: 'cano, to sing',
+      url: 'https://logeion.uchicago.edu/cano' });
+    mount({ ...word, text: 'arma virumque cano', clickedWord: 'cano' }, 'word');
+    expect(screen.getByRole('button', { name: 'Find “cano” in the corpus' })).toBeTruthy();
+    await userEvent.setup().click(screen.getByRole('button', { name: 'Look up' }));
+    expect(await screen.findByText('cano, to sing')).toBeTruthy();
+    expect(global.fetch.mock.calls[0][0]).toBe('/api/define?word=cano&language=la');
   });
 
   it('names the enclitic taken off a Latin word', async () => {
