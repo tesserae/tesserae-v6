@@ -175,12 +175,34 @@ describe('SelectionToolbar - Look up', () => {
                       onAct={() => {}} onClose={() => {}} />,
   );
 
-  it('is offered for a single word and not for a line', () => {
+  it('is offered for a single word, and for a line it offers the switch to Word', async () => {
     const { unmount } = mount(word);
     expect(screen.getByRole('button', { name: 'Look up' })).toBeTruthy();
+    expect(screen.queryByRole('button', { name: 'Look up a word' })).toBeNull();
     unmount();
-    mount({ ...word, text: 'arma virumque cano' }, 'line');
+    const onScope = vi.fn();
+    render(
+      <SelectionToolbar selection={{ ...word, text: 'arma virumque cano' }} scope="line" onScope={onScope}
+                        work="vergil.aeneid.part.1.tess" language="la" onAct={() => {}} onClose={() => {}} />,
+    );
     expect(screen.queryByRole('button', { name: 'Look up' })).toBeNull();
+    await userEvent.setup().click(screen.getByRole('button', { name: 'Look up a word' }));
+    expect(onScope).toHaveBeenCalledWith('word');
+  });
+
+  it('in Word scope with no word, the hint says the double-click looks a word up too', () => {
+    mount({ ...word, text: 'arma virumque cano' }, 'word');
+    expect(screen.getByText('double-click one word to search for it or look it up')).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Look up a word' })).toBeTruthy();
+  });
+
+  it('names the enclitic taken off a Latin word', async () => {
+    global.fetch = reply({ lemma: 'infero', enclitic: 'que', dictionary: 'Lewis and Short',
+      definition: 'infero, to bring in', url: 'https://logeion.uchicago.edu/infero' });
+    mount({ ...word, text: 'inferretque' });
+    await userEvent.setup().click(screen.getByRole('button', { name: 'Look up' }));
+    expect(await screen.findByText('infero, to bring in')).toBeTruthy();
+    expect(screen.getByText('inferretque with -que taken off')).toBeTruthy();
   });
 
   it('opens a popover with the lemma, dictionary, definition and full-entry link', async () => {
