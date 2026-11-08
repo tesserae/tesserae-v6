@@ -75,7 +75,8 @@ export default function PrivacyPage() {
             Tesserae uses the following third-party services:
           </p>
           <ul className="list-disc list-inside space-y-1">
-            <li><strong>Wiktionary API:</strong> Dictionary definitions for rare words</li>
+            <li><strong>Logeion (University of Chicago):</strong> Dictionary entries for the Reader's Look up and the connector's define tool. The word you look up is sent to Logeion. Nothing else is sent, and answers are kept on our server so a word is sent once.</li>
+            <li><strong>Wiktionary API:</strong> Dictionary definitions for rare words and for English</li>
             <li><strong>Perseus Digital Library:</strong> Fallback definitions</li>
             <li><strong>OpenStreetMap:</strong> The map on the Events page. Your browser fetches the map tiles from OpenStreetMap's servers, so OpenStreetMap sees your address and the map area requested. Nothing else is sent.</li>
           </ul>

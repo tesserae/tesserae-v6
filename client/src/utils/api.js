@@ -295,6 +295,13 @@ export const fetchWordDefinition = async (lemma, language) => {
   return jsonRequest(`${API_BASE}/rare-lemmata?lemma=${encodeURIComponent(lemma)}&language=${language}`);
 };
 
+// One dictionary entry for a word as it stands in the text (the Reader's
+// "Look up"): lemma, dictionary name, definition or null, and the link to the
+// full entry.
+export const fetchDefinition = async (word, language) => {
+  return jsonRequest(`${API_BASE}/define?word=${encodeURIComponent(word)}&language=${encodeURIComponent(language || 'la')}`);
+};
+
 export const fetchRepoIntertexts = async (params) => {
   const query = new URLSearchParams(params).toString();
   return jsonRequest(`${API_BASE}/intertexts?${query}`);

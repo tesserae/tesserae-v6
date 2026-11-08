@@ -770,6 +770,16 @@ def _t_theme_search(a):
     return out
 
 
+def _t_define(a):
+    """A dictionary entry for one word: the lemma, the dictionary it came from,
+    the definition (null where no dictionary is wired in) and the link to the
+    full entry. A thin wrapper over the site's /define route."""
+    word = (a.get('word') or '').strip()
+    if not word:
+        return {'error': 'word is required'}
+    return _get('/define', {'word': word, 'language': a.get('language') or 'la'})
+
+
 def _t_get_passage(a):
     """The actual lines at a reference, each with its own locus.
 
@@ -1325,6 +1335,19 @@ TOOLS = [
                                     "translation": {"type": "boolean"}},
                      "required": ["work"]},
      "fn": _t_get_passage},
+    {"name": "define",
+     "description": ("A dictionary entry for ONE word. Use it for a word you do not know in a "
+                     "passage another tool returned. Give the word as it stands in the text and "
+                     "its language (la Latin, grc Greek, en English, cop, he, fa, ur, ar; default "
+                     "la). Returns the lemma (dictionary form), the definition, dictionary (the "
+                     "name of the dictionary it came from: Lewis and Short for Latin, LSJ for "
+                     "Greek) and url, the full entry. For Coptic, Hebrew, Persian, Urdu and "
+                     "Arabic definition is null and url is the external dictionary: say so "
+                     "rather than guessing a meaning."),
+     "inputSchema": {"type": "object",
+                     "properties": {"word": _STR, "language": _STR},
+                     "required": ["word"]},
+     "fn": _t_define},
     {"name": "describe_text",
      "description": ("What a text IS and where it came from: the orientation description shown on "
                      "the site, the print/electronic source citation, the author's dates and era, and "

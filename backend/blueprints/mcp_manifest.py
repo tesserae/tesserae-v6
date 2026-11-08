@@ -201,6 +201,9 @@ MANIFEST = {
     '/api/passages/theme-search': {
         'tools': ['theme_search'],
     },
+    '/api/define': {
+        'tools': ['define'],
+    },
     '/api/passages/lines': {
         'tools': ['get_passage'],
     },

@@ -20,9 +20,10 @@
  * making the reader decide every time, and one click corrects it.
  */
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { RequestDialog } from '../common';
 import { formatSelectionRange, useCorpusTextMap } from '../../utils/textNames';
+import { fetchDefinition } from '../../utils/api';
 
 const SCOPES = [
   { key: 'word', label: 'Word' },
@@ -70,11 +71,73 @@ export function scopeFor(selection) {
   return (selection.lineCount || 1) >= 3 ? 'passage' : 'line';
 }
 
+/** The small dictionary popover under the toolbar. It shows the lemma, the
+ *  dictionary's name and the definition (or "No entry found" with the external
+ *  link), and closes on Escape, on a click outside it and when the selection
+ *  changes (the parent unmounts it then). */
+function DefinitionPopover({ word, language, onClose }) {
+  const [state, setState] = useState({ loading: true });
+  const box = useRef(null);
+
+  useEffect(() => {
+    let live = true;
+    fetchDefinition(word, language)
+      .then((d) => { if (live) setState({ data: d }); })
+      .catch(() => { if (live) setState({ failed: true }); });
+    return () => { live = false; };
+  }, [word, language]);
+
+  useEffect(() => {
+    const onKey = (e) => { if (e.key === 'Escape') onClose(); };
+    // A press on the Look up button itself is the toggle's business, not a click outside.
+    const onDown = (e) => {
+      if (e.target.closest && e.target.closest('[data-lookup-toggle]')) return;
+      if (box.current && !box.current.contains(e.target)) onClose();
+    };
+    document.addEventListener('keydown', onKey);
+    document.addEventListener('mousedown', onDown);
+    return () => {
+      document.removeEventListener('keydown', onKey);
+      document.removeEventListener('mousedown', onDown);
+    };
+  }, [onClose]);
+
+  const d = state.data;
+  return (
+    <div ref={box} role="dialog" aria-label={`Dictionary entry for ${word}`}
+         className="absolute left-0 top-full z-50 mt-1 w-80 max-w-[90vw] rounded-lg border border-gray-300
+                    bg-white p-3 text-left shadow-xl">
+      {state.loading && <p className="text-xs text-gray-500">Looking up {word}…</p>}
+      {state.failed && <p className="text-xs text-gray-600">The dictionary could not be reached.</p>}
+      {d && (
+        <>
+          <p className="text-sm font-semibold text-gray-900">{d.lemma || word}</p>
+          {d.dictionary && <p className="text-[11px] text-gray-500 mb-1">{d.dictionary}</p>}
+          <p className="text-xs text-gray-800 whitespace-pre-line">
+            {d.definition || 'No entry found'}
+          </p>
+          {d.url && (
+            <a href={d.url} target="_blank" rel="noopener noreferrer"
+               className="mt-2 inline-block text-xs text-red-700 hover:underline">
+              Full entry
+            </a>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
+
 export default function SelectionToolbar({
   selection, scope, onScope, work, language, onAct, onClose,
 }) {
   const [reportOpen, setReportOpen] = useState(false);
+  const [lookupOpen, setLookupOpen] = useState(false);
   const corpusMap = useCorpusTextMap(language);
+
+  // A new selection puts the popover away.
+  const selectionKey = `${selection?.refStart || ''}|${selection?.charStart ?? ''}|${selection?.text || ''}`;
+  useEffect(() => { setLookupOpen(false); }, [selectionKey]);
 
   if (!selection) return null;
 
@@ -125,7 +188,7 @@ export default function SelectionToolbar({
   };
 
   return (
-    <div className="inline-flex flex-wrap items-center gap-2 max-w-full rounded-lg border border-gray-300 bg-white
+    <div className="relative inline-flex flex-wrap items-center gap-2 max-w-full rounded-lg border border-gray-300 bg-white
                     px-2 py-1.5 shadow-xl"
          role="toolbar"
          aria-label="What to do with the selected passage">
@@ -159,6 +222,22 @@ export default function SelectionToolbar({
         >
           {scope === 'word' ? `Find “${word}” in the corpus` : action.label}
         </button>
+      )}
+
+      {scope === 'word' && word && (
+        <button
+          onClick={() => setLookupOpen((o) => !o)}
+          aria-expanded={lookupOpen}
+          data-lookup-toggle=""
+          className="rounded border border-gray-300 bg-white px-3 py-1 text-xs font-medium text-gray-800
+                     hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-red-400"
+        >
+          Look up
+        </button>
+      )}
+      {lookupOpen && scope === 'word' && word && (
+        <DefinitionPopover word={word} language={language || 'la'}
+                           onClose={() => setLookupOpen(false)} />
       )}
 
       <span className="min-w-0 truncate text-[11px] text-gray-500 tabular-nums whitespace-nowrap"
