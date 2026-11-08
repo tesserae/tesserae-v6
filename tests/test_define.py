@@ -16,6 +16,7 @@ def client(tmp_path, monkeypatch):
     monkeypatch.setattr(D, 'MIN_FETCH_INTERVAL', 0)
     D._memory.clear()
     monkeypatch.setattr(D.hapax, 'get_dictionary_lemma', lambda w, lang: {'arma': 'arma', 'armis': 'arma'}.get(w, w))
+    monkeypatch.setattr(D, '_known_latin_form', lambda f: f in ('arma', 'armis'))
     app = Flask(__name__)
     app.register_blueprint(D.define_bp, url_prefix='/api')
     return app.test_client()
@@ -105,3 +106,48 @@ def test_connector_tool_passes_fields_through(monkeypatch):
     assert out['definition'] == 'arms'
     assert M._t_define({'word': ''}) == {'error': 'word is required'}
     assert any(t['name'] == 'define' for t in M.TOOLS)
+
+
+def test_latin_lemma_folds_spelling_and_takes_off_enclitics(monkeypatch):
+    table = {'uirum': 'uir', 'inferret': 'infero', 'arma': 'arma', 'breue': 'breuis', 'daphne': 'daphne'}
+    monkeypatch.setattr(D.hapax, 'get_dictionary_lemma', lambda w, lang: table.get(w, w))
+    monkeypatch.setattr(D, '_known_latin_form', lambda f: f in table)
+    assert D.latin_lemma('virum') == ('uir', None)
+    assert D.latin_lemma('Virumque') == ('uir', 'que')
+    assert D.latin_lemma('inferretque') == ('infero', 'que')
+    # -que comes off even when the base is unknown; -ve and -ne only when the base is a known form.
+    assert D.latin_lemma('ignotumque') == ('ignotum', 'que')
+    assert D.latin_lemma('armave') == ('arma', 've')
+    assert D.latin_lemma('breve') == ('breuis', None)
+    assert D.latin_lemma('Daphne') == ('daphne', None)
+    assert D.latin_lemma('urbisne') == ('urbisne', None)
+
+
+def test_latin_spellings_write_consonantal_u_as_v():
+    assert D.latin_spellings('uir') == ['uir', 'vir']
+    assert D.latin_spellings('seruus') == ['seruus', 'servus']
+    assert D.latin_spellings('suauis') == ['suauis', 'suavis', 'svavis']
+    assert D.latin_spellings('arma') == ['arma']
+    assert D.latin_spellings('quis') == ['quis']
+
+
+def test_enclitic_word_answers_with_the_base_lemma_in_dictionary_spelling(client, monkeypatch):
+    table = {'uirum': 'uir', 'inferret': 'infero'}
+    monkeypatch.setattr(D.hapax, 'get_dictionary_lemma', lambda w, lang: table.get(w, w))
+    monkeypatch.setattr(D, '_known_latin_form', lambda f: f in table)
+    asked = []
+
+    def fake_logeion(lemma, language):
+        asked.append(lemma)
+        return ('vir, viri, m. a man', 'Lewis and Short') if lemma == 'vir' else None
+
+    monkeypatch.setattr(D, 'fetch_logeion_definition', fake_logeion)
+    r = client.get('/api/define?word=virumque&language=la').get_json()
+    assert r['lemma'] == 'vir' and r['enclitic'] == 'que'
+    assert r['definition'] == 'vir, viri, m. a man'
+    assert r['url'] == 'https://logeion.uchicago.edu/vir'
+    assert asked == ['uir', 'vir']
+    again = client.get('/api/define?word=uirum&language=la').get_json()
+    assert again['cached'] is True and again['lemma'] == 'vir' and again['enclitic'] is None
+    assert again['url'] == 'https://logeion.uchicago.edu/vir'
+    assert asked == ['uir', 'vir']

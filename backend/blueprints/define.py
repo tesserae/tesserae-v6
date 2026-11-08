@@ -170,24 +170,80 @@ def fetch_logeion_definition(lemma, language):
     return None
 
 
+_ENCLITIC = re.compile(r'^([a-z]{3,}?)(que|ue|ne)$')
+
+
+def latin_lemma(word):
+    """(lemma, enclitic) for a Latin word as the text spells it.
+
+    The lemma table keys its forms the treebank way (u for v, i for j), so
+    'virum' is looked up as 'uirum'. A word the table lacks is tried without
+    a final -que, -ve or -ne: 'inferretque' is 'inferret' plus -que, and the
+    table knows 'inferret'. -que is taken off even when the base is unknown
+    (no dictionary lists a -que form); -ve and -ne only when the base is a
+    known form, since 'Daphne' and 'breve' end that way on their own.
+    """
+    folded = word.lower().strip().replace('v', 'u').replace('j', 'i')
+    if _known_latin_form(folded):
+        return hapax.get_dictionary_lemma(folded, 'la'), None
+    m = _ENCLITIC.match(folded)
+    if not m:
+        return folded, None
+    base, enclitic = m.group(1), {'que': 'que', 'ue': 've', 'ne': 'ne'}[m.group(2)]
+    if enclitic == 'que' or _known_latin_form(base):
+        return hapax.get_dictionary_lemma(base, 'la'), enclitic
+    return folded, None
+
+
+def _known_latin_form(form):
+    """True when the Latin lemma table lists the form (as a key)."""
+    if not hapax._latin_lemma_table:
+        hapax.load_dictionary_tables()
+    return form in hapax._latin_lemma_table
+
+
+def latin_spellings(lemma):
+    """The spellings a Latin dictionary may file a table lemma under: as it
+    is, then with a consonantal u written v (uir is vir, seruus is servus)."""
+    out = [lemma]
+    for pattern in (r'(^|[aeiou])u(?=[aeiou])', r'(?<![qg])u(?=[aeiou])'):
+        alt = re.sub(pattern, lambda m: m.group(0)[:-1] + 'v', lemma)
+        if alt not in out:
+            out.append(alt)
+    return out
+
+
+def dictionary_lemma(word, language):
+    """(lemma, enclitic) for the word in its language."""
+    if language == 'la':
+        return latin_lemma(word)
+    if language == 'grc':
+        return hapax.get_dictionary_lemma(word, language), None
+    return word.lower().strip(), None
+
+
 def look_up(lemma, language):
-    """(definition, dictionary) for a lemma, or (None, None). Fetches upstream."""
-    found = fetch_logeion_definition(lemma, language)
-    if found:
-        return found
+    """(definition, dictionary, spelling) for a lemma, or (None, None, lemma).
+    Fetches upstream. For Latin the spellings in latin_spellings are tried in
+    turn, and the one the dictionary answered to is returned."""
+    spellings = latin_spellings(lemma) if language == 'la' else [lemma]
+    for spelling in spellings:
+        found = fetch_logeion_definition(spelling, language)
+        if found:
+            return found[0], found[1], spelling
     _throttle()
-    definition = hapax.get_definition(lemma, language)
-    if not definition:
-        return None, None
-    if language == 'en':
-        return definition, 'Free Dictionary API'
-    return definition, 'Wiktionary or Perseus'
+    for spelling in spellings:
+        definition = hapax.get_definition(spelling, language)
+        if definition:
+            dictionary = 'Free Dictionary API' if language == 'en' else 'Wiktionary or Perseus'
+            return definition, dictionary, spelling
+    return None, None, lemma
 
 
 def define_word(word, language):
     """The route's answer for a word already validated."""
-    lemma = hapax.get_dictionary_lemma(word, language) if language in ('la', 'grc') else word.lower().strip()
-    out = {'word': word, 'lemma': lemma, 'language': language,
+    lemma, enclitic = dictionary_lemma(word, language)
+    out = {'word': word, 'lemma': lemma, 'enclitic': enclitic, 'language': language,
            'definition': None, 'dictionary': None,
            'url': dictionary_url(lemma, language), 'cached': False}
     if language not in FETCHED_LANGUAGES:
@@ -195,12 +251,15 @@ def define_word(word, language):
         return out
     hit = _load(language).get(lemma)
     if hit:
-        out.update(definition=hit.get('definition'), dictionary=hit.get('dictionary'), cached=True)
+        spelling = hit.get('spelling') or lemma
+        out.update(definition=hit.get('definition'), dictionary=hit.get('dictionary'),
+                   lemma=spelling, url=dictionary_url(spelling, language), cached=True)
         return out
-    definition, dictionary = look_up(lemma, language)
+    definition, dictionary, spelling = look_up(lemma, language)
     if definition:
-        out.update(definition=definition, dictionary=dictionary)
-        _store(language, lemma, {'definition': definition, 'dictionary': dictionary})
+        out.update(definition=definition, dictionary=dictionary,
+                   lemma=spelling, url=dictionary_url(spelling, language))
+        _store(language, lemma, {'definition': definition, 'dictionary': dictionary, 'spelling': spelling})
     return out
 
 

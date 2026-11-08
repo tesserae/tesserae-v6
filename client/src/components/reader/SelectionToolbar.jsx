@@ -112,6 +112,9 @@ function DefinitionPopover({ word, language, onClose }) {
       {d && (
         <>
           <p className="text-sm font-semibold text-gray-900">{d.lemma || word}</p>
+          {d.enclitic && (
+            <p className="text-[11px] text-gray-500">{word} with -{d.enclitic} taken off</p>
+          )}
           {d.dictionary && <p className="text-[11px] text-gray-500 mb-1">{d.dictionary}</p>}
           <p className="text-xs text-gray-800 whitespace-pre-line">
             {d.definition || 'No entry found'}
@@ -212,7 +215,7 @@ export default function SelectionToolbar({
         // Word scope with no single word in hand: say what to do instead of
         // offering a search that has nothing to search for.
         <span className="text-[11px] text-gray-500 whitespace-nowrap px-1">
-          double-click one word to search for it
+          double-click one word to search for it or look it up
         </span>
       ) : (
         <button
@@ -224,15 +227,28 @@ export default function SelectionToolbar({
         </button>
       )}
 
-      {scope === 'word' && word && (
+      {scope === 'word' && word ? (
         <button
           onClick={() => setLookupOpen((o) => !o)}
           aria-expanded={lookupOpen}
           data-lookup-toggle=""
+          title="Dictionary entry for this word"
           className="rounded border border-gray-300 bg-white px-3 py-1 text-xs font-medium text-gray-800
                      hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-red-400"
         >
           Look up
+        </button>
+      ) : (
+        // The dictionary is one double-click away from any selection. Saying
+        // so here, in every state of the toolbar, is what makes it findable
+        // (the project lead met the toolbar in Line mode and never saw it).
+        <button
+          onClick={() => onScope?.('word')}
+          title="Switch to Word, then double-click one word for its dictionary entry"
+          className="rounded border border-gray-300 bg-white px-3 py-1 text-xs font-medium text-gray-600
+                     hover:bg-gray-50 hover:text-gray-800 focus:outline-none focus:ring-2 focus:ring-red-400"
+        >
+          Look up a word
         </button>
       )}
       {lookupOpen && scope === 'word' && word && (
