@@ -251,6 +251,11 @@ export default function ReaderHeader({
     if (!print && !digital) return null;
     return <>{'Text from '}{print || digital}{print && digital ? <>{', through '}{digital}</> : null}{'.'}</>;
   })();
+  // One row naming the license class in words ("CC BY-SA 4.0", "Public domain");
+  // a text whose license is not stated shows no row. The credits link below it
+  // opens the full record.
+  const licenseLabel = facts?.license && facts.license.class !== 'unknown'
+    ? facts.license.label : null;
   const translationText = translationAttribution
     ? decodeEntities(translationAttribution).trim().replace(/[.,;\s]+$/, '') : null;
   const showBox = factItems.length > 0 || editionNode || translationText || work || facts;
@@ -280,6 +285,12 @@ export default function ReaderHeader({
             <p className="mt-2 text-xs leading-relaxed text-gray-600">
               {editionNode}{editionNode && translationText ? ' ' : null}
               {translationText && `Translation by ${translationText}.`}
+            </p>
+          )}
+          {licenseLabel && (
+            <p className="mt-2 text-xs leading-relaxed text-gray-600">
+              <span className="font-medium text-gray-700">License</span>
+              {': '}{licenseLabel}{'.'}
             </p>
           )}
           <p className="mt-2 flex flex-wrap gap-x-4 gap-y-1">

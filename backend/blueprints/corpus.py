@@ -26,6 +26,7 @@ from backend.utils import (
 from backend.frequency_cache import get_corpus_frequencies, recalculate_language_frequencies
 from backend.work_names import base_work
 import backend.restricted_texts as restricted_texts
+from backend.text_license import find_source_row, lookup_by_file
 
 logger = get_logger('corpus')
 
@@ -277,18 +278,18 @@ def _work_facts(language, work, restricted):
     # (see _restricted_credit_entries above); its credit line already came
     # back as the top-level `credit` field, so no edition lookup here.
     if not restricted:
-        author = (metadata.get('author') or '').strip().lower()
-        title = (metadata.get('work') or metadata.get('title') or '').strip().lower()
-        if author and title:
-            for entry in get_text_sources():
-                if (entry.get('author') or '').strip().lower() == author \
-                        and (entry.get('work') or '').strip().lower() == title:
-                    facts['edition'] = {
-                        'print_source': entry.get('print_source'),
-                        'e_source': entry.get('e_source'),
-                        'e_source_url': entry.get('e_source_url'),
-                    }
-                    break
+        entry = find_source_row(metadata.get('author'),
+                                metadata.get('work') or metadata.get('title'),
+                                rows=get_text_sources())
+        if entry:
+            facts['edition'] = {
+                'print_source': entry.get('print_source'),
+                'e_source': entry.get('e_source'),
+                'e_source_url': entry.get('e_source_url'),
+            }
+    # The license class in words, for the About panel's one "License" row.
+    lic = lookup_by_file(filename)
+    facts['license'] = {'class': lic['license'], 'label': lic['license_label']}
     return facts
 
 

@@ -324,6 +324,28 @@ describe('the About panel: title, facts line, prose, sources footnote', () => {
     await screen.findByRole('heading', { name: 'Seneca, Thyestes' });
     expect(screen.queryByText(/Translation by/)).not.toBeInTheDocument();
   });
+
+  it('shows one License row naming the class in words, beside the credits link', async () => {
+    mockFetch({ facts: { author: 'Seneca', work: 'Thyestes',
+                         license: { class: 'cc-by-sa', label: 'CC BY-SA 4.0' } } });
+    mount();
+    fireEvent.click(await screen.findByLabelText('About this text'));
+
+    const row = (await screen.findByText('License')).closest('p');
+    expect(row).toHaveTextContent('License: CC BY-SA 4.0.');
+    expect(screen.getAllByText('License')).toHaveLength(1);
+    expect(screen.getByRole('link', { name: 'Full credits' })).toBeInTheDocument();
+  });
+
+  it('shows no License row when the license is not stated', async () => {
+    mockFetch({ facts: { author: 'Seneca', work: 'Thyestes',
+                         license: { class: 'unknown', label: 'Not stated' } } });
+    mount();
+    fireEvent.click(await screen.findByLabelText('About this text'));
+
+    await screen.findByRole('heading', { name: 'Seneca, Thyestes' });
+    expect(screen.queryByText('License')).not.toBeInTheDocument();
+  });
 });
 
 describe('on a phone: one title line and a picker sheet', () => {

@@ -24,6 +24,7 @@ import requests
 from flask import Blueprint, request, jsonify, Response
 
 from backend.utils import normalize_ref
+from backend import text_license
 
 logger = logging.getLogger(__name__)
 mcp_http_bp = Blueprint('mcp_http', __name__)
@@ -107,6 +108,47 @@ def _post(path, body, timeout=None):
 # --------------------------------------------------------------------------
 # Tool implementations (return plain JSON-able data)
 # --------------------------------------------------------------------------
+# License class and credit line on every text or passage the connector returns
+# (backend/text_license.py). A lookup that fails never fails the tool: the item
+# carries license "unknown" and no credit instead.
+_NO_LICENSE = {'license': 'unknown', 'credit': None}
+
+
+def _lic_file(text_id):
+    """{'license', 'credit'} for a text filename or work id."""
+    try:
+        if isinstance(text_id, str) and text_id.strip():
+            return text_license.fields(text_license.lookup_by_file(text_id))
+    except Exception as e:  # pragma: no cover - defensive
+        logger.warning("license lookup failed for %r: %s", text_id, e)
+    return dict(_NO_LICENSE)
+
+
+def _lic_names(author, work):
+    """{'license', 'credit'} for author and work display strings."""
+    try:
+        return text_license.fields(text_license.lookup_by_names(author, work))
+    except Exception as e:  # pragma: no cover - defensive
+        logger.warning("license lookup failed for %r, %r: %s", author, work, e)
+        return dict(_NO_LICENSE)
+
+
+def _lic_row(row, text_id=None, author=None, work=None):
+    """The license fields for one result row: by text id when the row has one,
+    else by the author and work it names."""
+    if text_id:
+        return _lic_file(text_id)
+    return _lic_names(author or row.get('author'), work or row.get('title') or row.get('work'))
+
+
+def _lic_pair(res, source, target):
+    """Add source_license and target_license to a two-text result."""
+    if isinstance(res, dict):
+        res['source_license'] = _lic_file(source)
+        res['target_license'] = _lic_file(target)
+    return res
+
+
 def _t_get_languages(a):
     return _get('/languages')
 
@@ -124,6 +166,7 @@ def _t_list_texts(a):
             continue
         entry = {'id': t.get('id'), 'author': t.get('author'),
                  'work': t.get('work'), 'title': t.get('title') or t.get('display_name')}
+        entry.update(_lic_file(t.get('id')))
         # Coptic dialect (sahidic / bohairic), when the listing carries it: a
         # Sahidic-vs-Bohairic pair shares no vocabulary, so the dialect explains
         # an empty rare-pairs result.
@@ -214,7 +257,8 @@ def _t_line_search(a):
               'matched_words': r.get('matched_words'),
               # era + year let you chart WHERE ACROSS TIME the phrase
               # recurs (a period/author timeline), same as the web app.
-              'era': r.get('era'), 'year': r.get('year')})
+              'era': r.get('era'), 'year': r.get('year'),
+              **_lic_row(r, text_id=r.get('text_id'))})
             for r in (d.get('results') or [])[:40]]
         # A live, interactive version of this search (timeline + filters) in the web app.
         out['web_url'] = _line_search_url(a.get('query'), a.get('language', 'la'),
@@ -229,7 +273,8 @@ def _t_string_search(a):
     d = _post('/wildcard-search', body)
     return {'query': a.get('query'), 'total_matches': d.get('total_matches'),
             'results': [{'ref': normalize_ref(r.get('ref') or r.get('reference')), 'author': r.get('author'),
-                         'title': r.get('title'), 'text': r.get('text')}
+                         'title': r.get('title'), 'text': r.get('text'),
+                         **_lic_row(r, text_id=r.get('text_id'))}
                         for r in (d.get('results') or [])[:40]]}
 
 
@@ -412,7 +457,7 @@ def _t_fusion_search(a):
         # Live, interactive view of this comparison (charts) in the web app.
         res.setdefault('web_url', _compare_url(a.get('source'), a.get('target'),
                                                a.get('language', 'la')))
-    return res
+    return _lic_pair(res, a.get('source'), a.get('target'))
 
 
 def _t_compare_texts(a):
@@ -497,6 +542,8 @@ def _t_compare_texts(a):
         'rare_phrases': rare_phrases,    # distinctive shared two-word collocations
         'rare_words': rare_words,        # distinctive shared individual words
         'evidence': evidence,            # computed verdict/rarity facts, no LLM (see evidence_summary)
+        'source_license': _lic_file(a.get('source')),
+        'target_license': _lic_file(a.get('target')),
         # Live, interactive view of this comparison (the clickable charts) in the
         # web app -- the one visual every user gets, in every medium.
         'web_url': _compare_url(a.get('source'), a.get('target'), a.get('language', 'la')),
@@ -715,7 +762,7 @@ def _t_cross_language(a):
             a.get('source'), a.get('target'),
             a.get('source_language', 'grc'), a.get('target_language', 'la')))
         res.setdefault('note', _XLANG_NOTE)
-    return res
+    return _lic_pair(res, a.get('source'), a.get('target'))
 
 
 _CONTENT_NOTE = (
@@ -760,7 +807,8 @@ def _t_theme_search(a):
                         'ref_start': normalize_ref(r.get('ref_start')),
                         'ref_end': normalize_ref(r.get('ref_end')),
                         'score': r.get('score'), 'strong': r.get('strong'),
-                        'gist': r.get('gist'), 'themes': r.get('themes')}
+                        'gist': r.get('gist'), 'themes': r.get('themes'),
+                        **_lic_file(r.get('work'))}
                        for r in (d.get('results') or [])]}
     if d.get('error'):
         out['error'] = d['error']
@@ -809,6 +857,7 @@ def _t_get_passage(a):
            'capped': d.get('capped'), 'note': d.get('note'),
            'corpus_version': d.get('corpus_version'),
            'web_url': d.get('web_url'),
+           **_lic_file(a.get('work') or d.get('work')),
            'presentation': ('These are the SOURCE lines, not a summary. Quote them with '
                             'the locus shown against each line. If capped is true this is '
                             'a bounded window, not the whole span, so say so rather than '
@@ -921,7 +970,8 @@ def _t_find_mentions(a):
                              'language': r.get('language'), 'reference': r.get('locus') or r.get('ref_start'),
                              'ref_start': r.get('ref_start'), 'ref_end': r.get('ref_end'),
                              'text': r.get('text'), 'matched_form': r.get('token'),
-                             'name_shared_with': r.get('shared_with') or []})
+                             'name_shared_with': r.get('shared_with') or [],
+                             **_lic_file(r.get('work'))})
             total = d.get('total') or 0
             return {'entity': {'id': ent.get('id'), 'heading': _mention_heading(ent), 'type': ent.get('type'),
                                'mention_counts': ent.get('mention_counts')},
@@ -987,7 +1037,8 @@ def _t_similar_passages(a):
     out = {'source': {'work': src.get('work'),
                       'ref_start': normalize_ref(src.get('ref_start')),
                       'ref_end': normalize_ref(src.get('ref_end')),
-                      'gist': src.get('gist')},
+                      'gist': src.get('gist'),
+                      **_lic_file(src.get('work'))},
            'confidence': d.get('confidence'),
            'results': [{'work': r.get('work'), 'language': r.get('language'),
                         'author': r.get('author'), 'title': r.get('title'),
@@ -996,7 +1047,8 @@ def _t_similar_passages(a):
                         'ref_start': normalize_ref(r.get('ref_start')),
                         'ref_end': normalize_ref(r.get('ref_end')),
                         'score': r.get('score'), 'strong': r.get('strong'),
-                        'gist': r.get('gist'), 'themes': r.get('themes')}
+                        'gist': r.get('gist'), 'themes': r.get('themes'),
+                        **_lic_file(r.get('work'))}
                        for r in (d.get('results') or [])]}
     if d.get('error'):
         out['error'] = d['error']
@@ -1038,12 +1090,14 @@ def _t_theme_compare(a):
                 'display_name': w.get('display_name'),
                 'ref_start': normalize_ref(w.get('ref_start')),
                 'ref_end': normalize_ref(w.get('ref_end')),
-                'gist': w.get('gist'), 'themes': w.get('themes')}
+                'gist': w.get('gist'), 'themes': w.get('themes'),
+                **_lic_file(w.get('work'))}
 
     def _work(key):
         w = d.get(key) or {}
         return {'work': w.get('work'), 'author': w.get('author'),
-                'title': w.get('title'), 'display_name': w.get('display_name')}
+                'title': w.get('title'), 'display_name': w.get('display_name'),
+                **_lic_file(w.get('work'))}
 
     out = {'work_a': _work('work_a'), 'work_b': _work('work_b'),
            'scale': d.get('scale'), 'n_a': d.get('n_a'), 'n_b': d.get('n_b'),
@@ -1208,6 +1262,7 @@ def _t_describe_text(a):
         'year': meta.get('year'), 'era': meta.get('era'),
         'description': description,
         'source': source,
+        **_lic_file(filename),
         'author_dates': author_dates,
         'genre': genre,
     }
@@ -1410,12 +1465,12 @@ TOOLS = [
      "description": "Rare two-word combinations shared by two texts (distinctive collocations), ranked by rarity. Fast two-text comparison.",
      "inputSchema": {"type": "object", "properties": {"source": _STR, "target": _STR, "language": _STR},
                      "required": ["source", "target", "language"]},
-     "fn": _t_rare_pairs},
+     "fn": lambda a: _lic_pair(_t_rare_pairs(a), a.get('source'), a.get('target'))},
     {"name": "rare_words",
      "description": "Rare individual words shared by two texts, with corpus frequency (fewer texts = rarer = stronger signal).",
      "inputSchema": {"type": "object", "properties": {"source": _STR, "target": _STR, "language": _STR},
                      "required": ["source", "target", "language"]},
-     "fn": _t_rare_words},
+     "fn": lambda a: _lic_pair(_t_rare_words(a), a.get('source'), a.get('target'))},
     {"name": "compare_texts",
      "description": "Recommended for comparing two texts. Runs all three automated pairwise searches at once — fusion (ranked parallels across ten signals), rare shared phrases, and rare shared words — and returns them as labeled sections, plus an `evidence` block of computed facts (see evidence_summary) when the fusion section is ready. The rare sections return immediately; the fusion section takes a few minutes on a first run, so it may come back status 'running' — call compare_texts again with the same arguments shortly to fill it in (cached afterward). Direction is symmetric (same parallels and scores either way), but for allusion study put the earlier/model text as source and the later/alluding text as target so the labels read correctly. IMPORTANT: read the response 'note' — it specifies how to present the results (one merged, interest-ranked list, not by search type).",
      "inputSchema": {"type": "object", "properties": {"source": _STR, "target": _STR, "language": _STR},
