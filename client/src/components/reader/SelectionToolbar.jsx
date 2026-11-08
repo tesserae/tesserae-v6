@@ -89,7 +89,11 @@ function DefinitionPopover({ word, language, onClose }) {
 
   useEffect(() => {
     const onKey = (e) => { if (e.key === 'Escape') onClose(); };
-    const onDown = (e) => { if (box.current && !box.current.contains(e.target)) onClose(); };
+    // A press on the Look up button itself is the toggle's business, not a click outside.
+    const onDown = (e) => {
+      if (e.target.closest && e.target.closest('[data-lookup-toggle]')) return;
+      if (box.current && !box.current.contains(e.target)) onClose();
+    };
     document.addEventListener('keydown', onKey);
     document.addEventListener('mousedown', onDown);
     return () => {
@@ -224,6 +228,7 @@ export default function SelectionToolbar({
         <button
           onClick={() => setLookupOpen((o) => !o)}
           aria-expanded={lookupOpen}
+          data-lookup-toggle=""
           className="rounded border border-gray-300 bg-white px-3 py-1 text-xs font-medium text-gray-800
                      hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-red-400"
         >

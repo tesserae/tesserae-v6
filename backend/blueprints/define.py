@@ -33,7 +33,10 @@ logger = logging.getLogger(__name__)
 
 define_bp = Blueprint('define', __name__)
 
-CACHE_DIR = os.path.join('cache', 'definitions')
+# Anchored on the project root, as the other caches are: under Apache the
+# working folder is not the checkout.
+_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+CACHE_DIR = os.path.join(_ROOT, 'cache', 'definitions')
 MAX_ENTRIES = 50000
 MIN_FETCH_INTERVAL = 0.25  # seconds between upstream fetches
 MAX_WORD_LENGTH = 60

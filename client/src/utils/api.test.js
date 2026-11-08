@@ -106,6 +106,7 @@ const SHAPES = [
   ['fetchCorpusRareBigrams', () => api.fetchCorpusRareBigrams('la'), '/api/rare-bigrams?language=la&max_occurrences=10', 'GET'],
   ['fetchWordOccurrences', () => api.fetchWordOccurrences('arma virum', 'la'), '/api/rare-word-locations/arma%20virum?language=la', 'GET'],
   ['fetchWordDefinition', () => api.fetchWordDefinition('arma', 'la'), '/api/rare-lemmata?lemma=arma&language=la', 'GET'],
+  ['fetchDefinition', () => api.fetchDefinition('arma', 'la'), '/api/define?word=arma&language=la', 'GET'],
   ['fetchRepoIntertexts', () => api.fetchRepoIntertexts({ page: 2, q: 'x' }), '/api/intertexts?page=2&q=x', 'GET'],
   ['fetchRepoStats', () => api.fetchRepoStats(), '/api/intertexts/stats', 'GET'],
   ['registerIntertext', () => api.registerIntertext({ a: 1 }), '/api/intertexts', 'POST', { a: 1 }],

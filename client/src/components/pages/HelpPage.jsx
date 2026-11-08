@@ -1761,7 +1761,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
               <p className="text-gray-700 mb-3">
                 With a single word selected, <strong>Look up</strong> beside the search button opens a small
                 box with the word&rsquo;s dictionary form, its entry (Lewis and Short for Latin, Liddell-Scott-Jones
-                for Greek) and a <strong>Full entry</strong> link; for Coptic, Hebrew, Persian, Urdu and Arabic it
+                for Greek) and a <strong>Full entry</strong> link. For Coptic, Hebrew, Persian, Urdu and Arabic it
                 gives the dictionary link alone.
               </p>
               <p className="text-gray-700 mb-3">
