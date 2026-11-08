@@ -99,6 +99,30 @@ def passage_lines(work, ref_start=None, ref_end=None, context=0,
             'capped': capped, 'total': total, 'returned': len(out)}
 
 
+def ref_for_locus(work, locus, last=False):
+    """The stored reference of a work whose citation ends in `locus` ("1.1" finds
+    "verg. aen. 1.1"), or None. The locus must start the citation tail, so 1.1
+    never matches 11.1 or 2.1.1. When no line is cited exactly so, the first
+    (or, with last=True, the last) line cited beneath it answers: prose is stored
+    to the sentence ("cic. cat. 1.1.1") where a CTS passage stops at "1.1".
+    """
+    c = _conn()
+    base = _base_work(work)
+    if c is None or not base or not locus:
+        return None
+    # Two fixed statements, so no part of the SQL is built from a value.
+    sql = ('SELECT ref FROM lines WHERE work = ? AND ref LIKE ? ORDER BY ord DESC LIMIT 1' if last
+           else 'SELECT ref FROM lines WHERE work = ? AND ref LIKE ? ORDER BY ord ASC LIMIT 1')
+    try:
+        for pattern in ('% ' + locus, '% ' + locus + '.%'):
+            row = c.execute(sql, (base, pattern)).fetchone()
+            if row:
+                return row[0]
+    except sqlite3.Error as e:
+        logger.error('[WINDOWTEXTS] %s', e)
+    return None
+
+
 def quick_lines(work, ref_start, ref_end, cap=MAX_LINES):
     """The lines from one exact reference to another, read with three small queries.
 

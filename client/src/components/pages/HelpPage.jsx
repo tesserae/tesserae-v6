@@ -3166,6 +3166,11 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 The <code>define</code> tool gives Claude a dictionary entry (Lewis and Short, LSJ or the language&rsquo;s own
                 dictionary link) for a word it does not know in a passage another tool returned.
               </p>
+              <p className="text-gray-700 text-sm mt-2 mb-2">
+                A Latin or Greek passage can also be asked for by its CTS URN, the citation form Perseus, Scaife and
+                the Open Greek and Latin repositories use: “Use Tesserae to show urn:cts:latinLit:phi0690.phi003:1.1-1.7.”
+                Passages and texts the connector lists carry their URN when Tesserae has one.
+              </p>
               <details className="text-sm text-gray-600 mb-6">
                 <summary className="cursor-pointer text-gray-700 font-medium">Advanced: run the connector locally instead (offline, no account or connector needed)</summary>
                 <div className="mt-2 pl-1">
