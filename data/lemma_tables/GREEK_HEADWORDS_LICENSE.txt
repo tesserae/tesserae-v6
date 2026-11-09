@@ -1,0 +1,17 @@
+Greek headword table: source licence and attribution
+=====================================================
+
+data/lemma_tables/greek_headwords.json is built by
+scripts/corpus/build_greek_headwords.py from the headwords (and only the
+headwords) of the Perseus Digital Library's TEI text of
+
+    Henry George Liddell, Robert Scott, Henry Stuart Jones,
+    A Greek-English Lexicon (Oxford, 1940),
+    machine readable text, Perseus Project, Tufts University.
+
+The Perseus text is published under the Creative Commons
+Attribution-ShareAlike 3.0 United States licence
+(https://creativecommons.org/licenses/by-sa/3.0/us/). The table maps each
+accent-stripped spelling to the accented LSJ headwords that reduce to it; it
+contains no entry text. Built 2026-11-08 from 116,497 entries (63,230
+spellings).

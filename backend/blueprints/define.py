@@ -22,6 +22,7 @@ import os
 import re
 import threading
 import time
+import unicodedata
 import urllib.parse
 import urllib.request
 
@@ -234,18 +235,91 @@ def latin_spellings(lemma):
     return out
 
 
+# GREEK. The Greek lemma table is keyed and valued in stripped letters (no
+# accents or breathings, σ for ς), the search index's spelling, while LSJ wants
+# the headword as spelled: Logeion answers "μῆνις" and nothing to "μηνισ", so
+# the first word of the Iliad found no entry (2026-11-08). greek_headwords.json
+# (built from the Perseus text of LSJ by scripts/corpus/build_greek_headwords.py)
+# gives the accented headwords for each stripped spelling.
+HEADWORDS_PATH = os.path.join(_ROOT, 'data', 'lemma_tables', 'greek_headwords.json')
+MAX_GREEK_HEADWORDS = 3
+_headwords = {}
+
+# A grave accent is the acute of the word's last syllable before another word;
+# the dictionary spells the headword with the acute.
+_GRAVE_TO_ACUTE = str.maketrans(
+    'ὰὲὴὶὸὺὼἂἃἒἓἢἣἲἳὂὃὒὓὢὣᾂᾃᾒᾓᾢᾣᾲῂῲᾺῈῊῚῸῪῺἊἋἚἛἪἫἺἻὊὋὛὪὫ',
+    'άέήίόύώἄἅἔἕἤἥἴἵὄὅὔὕὤὥᾄᾅᾔᾕᾤᾥᾴῄῴΆΈΉΊΌΎΏἌἍἜἝἬἭἼἽὌὍὝὬὭ')
+
+
+def greek_headwords():
+    """The stripped-spelling to accented-headwords table, loaded once."""
+    if not _headwords:
+        try:
+            with open(HEADWORDS_PATH, encoding='utf-8') as f:
+                _headwords.update(json.load(f))
+        except Exception as e:
+            logger.warning(f"Greek headword table unreadable: {e}")
+            _headwords['__loaded__'] = []
+    return _headwords
+
+
+def greek_form(word):
+    """The word as the dictionary spells it: composed characters, acute for grave."""
+    return unicodedata.normalize('NFC', word.strip()).translate(_GRAVE_TO_ACUTE)
+
+
+def strip_greek(word):
+    """The lemma table's spelling: no accents or breathings, σ for ς, lower case."""
+    nfkd = unicodedata.normalize('NFKD', word)
+    return ''.join(c for c in nfkd if not unicodedata.combining(c)).replace('ς', 'σ').lower()
+
+
+def greek_lemmas(word):
+    """The accented headwords to ask the dictionary for, best first.
+
+    The word is stripped to the table's letters and taken to its lemma; the
+    lemma's headwords come from the headword table. A word that is itself a
+    headword (θεὰ, read as θεά) leads, so a homograph pair (θεά goddess, θέα
+    sight) answers with the spelling in the text. A word the table does not
+    know is asked for as written."""
+    form = greek_form(word)
+    stripped = strip_greek(form)
+    lemma = hapax.get_dictionary_lemma(stripped, 'grc')
+    table = greek_headwords()
+    out = list(table.get(lemma) or [])
+    if lemma != stripped:
+        for hw in table.get(stripped) or []:
+            if hw not in out:
+                out.append(hw)
+    for own in (form, form[:1].upper() + form[1:], form.lower()):
+        if own in out:
+            out.remove(own)
+            out.insert(0, own)
+            break
+    if not out:
+        out = [form]
+    return out[:MAX_GREEK_HEADWORDS]
+
+
 def dictionary_spellings(lemma, language):
     """The spellings to try at the dictionary, in order: the table's lower-case
-    lemma (for Latin, with consonantal u written v as well), then each with a
-    capital. Lewis and Short and LSJ file names under a capital (Troia, Iuno,
+    lemma (for Latin, with consonantal u written v as well; for Greek, the
+    accented headwords of greek_lemmas), then each with a capital. Lewis and Short and LSJ file names under a capital (Troia, Iuno,
     Ἀχιλλεύς) and answer nothing to the lower case, so 'Troiae' in the first
     line of the Aeneid found no entry (2026-11-08)."""
-    base = latin_spellings(lemma) if language == 'la' else [lemma]
+    if language == 'grc':
+        base = greek_lemmas(lemma)
+    elif language == 'la':
+        base = latin_spellings(lemma)
+    else:
+        base = [lemma]
     out = list(base)
-    for s in base:
-        c = s[:1].upper() + s[1:]
-        if c not in out:
-            out.append(c)
+    if language == 'la':
+        for s in base:
+            c = s[:1].upper() + s[1:]
+            if c not in out:
+                out.append(c)
     return out
 
 
@@ -254,7 +328,7 @@ def dictionary_lemma(word, language):
     if language == 'la':
         return latin_lemma(word)
     if language == 'grc':
-        return hapax.get_dictionary_lemma(word, language), None
+        return greek_lemmas(word)[0], None
     return word.lower().strip(), None
 
 
