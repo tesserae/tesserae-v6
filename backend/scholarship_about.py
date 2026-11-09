@@ -24,6 +24,8 @@ LANGUAGE_NAMES = {'la': 'Latin', 'grc': 'Greek', 'he': 'Hebrew', 'ar': 'Arabic',
 EJC_TERMS = 'Public domain, full text indexed and quoted by the sentence.'
 MUSE_TERMS = ('Licensed text, indexed for citations, never displayed beyond one sentence in the Reader. '
               'Article titles and links are shown.')
+JSTOR_TERMS = ('Licensed text, read for citations only. No sentence of it is ever shown: each citing article '
+               'appears as a citation and a link back to the article on JSTOR, at JSTOR\'s request.')
 
 INDEX_DESCRIPTIONS = {
     'ejc': {
@@ -37,6 +39,13 @@ INDEX_DESCRIPTIONS = {
         'description': 'Journals on Project MUSE, read under the University at Buffalo Libraries\' text and data '
                        'mining permission of 12 October 2026, one article a minute. One sentence is kept for each citation.',
         'terms': MUSE_TERMS,
+    },
+    'jstor': {
+        'name': 'JSTOR journals',
+        'description': 'Classics journals on JSTOR, read under JSTOR\'s text-analysis support terms '
+                       '(request approved 9 November 2026). Every page was read for citations of the works held here; '
+                       'the full text stays on the project\'s server and is deleted when the project ends.',
+        'terms': JSTOR_TERMS,
     },
 }
 
@@ -185,6 +194,9 @@ def build():
     extra = S._extra_index_path()
     if extra:
         indexes.append(_index_block('muse', extra))
+    jstor = S._jstor_index_path()
+    if jstor:
+        indexes.append(_index_block('jstor', jstor))
     return {
         'commentaries': _commentaries(),
         'journals': indexes,

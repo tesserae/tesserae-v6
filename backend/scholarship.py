@@ -1119,30 +1119,43 @@ def _citation_span(work, locus_start, locus_end, deeper_last_level, whole_work):
     return cs, ce, ''
 
 
-# A second index of the same shape, read only when the environment names its
-# file (the Project MUSE journals, 2026-10-16). Absent variable: off, and the
-# answers are exactly the EJC index's. A path that does not exist is logged
-# once per path and ignored.
+# Further indexes of the same shape, read only when the environment names
+# their files: the Project MUSE journals (2026-10-16, source 'muse', one
+# sentence shown per citation under the library's license) and the JSTOR
+# text-analysis delivery (2026-11-09, source 'jstor', citation and link only:
+# JSTOR asked that none of its text be excerpted). Absent variable: off, and
+# the answers are exactly the EJC index's. A path that does not exist is
+# logged once per path and ignored.
 CITATIONS_EXTRA_ENV = 'TESSERAE_CITATIONS_EXTRA'
+CITATIONS_JSTOR_ENV = 'TESSERAE_CITATIONS_JSTOR'
 _extra_missing_logged = set()
 
 
-def _extra_index_path():
-    path = (os.environ.get(CITATIONS_EXTRA_ENV) or '').strip()
+def _env_index_path(env, which):
+    path = (os.environ.get(env) or '').strip()
     if not path:
         return None
     if not os.path.exists(path):
         if path not in _extra_missing_logged:
             _extra_missing_logged.add(path)
-            logger.warning('%s names a file that does not exist: %s (second citation index ignored)', CITATIONS_EXTRA_ENV, path)
+            logger.warning('%s names a file that does not exist: %s (%s citation index ignored)', env, path, which)
         return None
     return path
+
+
+def _extra_index_path():
+    return _env_index_path(CITATIONS_EXTRA_ENV, 'second')
+
+
+def _jstor_index_path():
+    return _env_index_path(CITATIONS_JSTOR_ENV, 'JSTOR')
 
 
 def _index_articles(path, source, a, lo, hi, book, deeper_last_level, whole_work):
     """{article_id: article dict} for one citation database; None if unreadable.
     `source` is the tag the rows carry: 'citation_index' for the EJC index (the
-    value it has always had) and 'muse' for the second index."""
+    value it has always had), 'muse' for the second index and 'jstor' for the
+    JSTOR delivery, whose rows carry no sentence."""
     import sqlite3
     try:
         con = sqlite3.connect(f'file:{path}?mode=ro', uri=True)
@@ -1202,14 +1215,22 @@ def _index_articles(path, source, a, lo, hi, book, deeper_last_level, whole_work
             # citation and a link, nothing more: link by DOI, no scan, no full text.
             doi = r['doi'] or ''
             link = {'url': f'https://doi.org/{doi}' if doi else None, 'url_jstor': None, 'url_ia': None}
+        elif source == 'jstor':
+            # JSTOR's condition (2026-11-09): citation and a link back to the
+            # article on JSTOR, no excerpt of the text at all.
+            doi = r['doi'] or ''
+            url = r['url_jstor'] or (f'https://doi.org/{doi}' if doi else None)
+            link = {'url': url, 'url_jstor': url, 'url_ia': None}
         else:
             link = {'url': r['url_jstor'] or r['url_ia'], 'url_jstor': r['url_jstor'], 'url_ia': r['url_ia']}
+        snippet = None if source == 'jstor' else _cap_words(re.sub(r'\s+', ' ', r['sentence'] or '').strip(),
+                                                              include=clean_surface)
         art = by_article.setdefault(r['article_id'], {
             'title': r['title'], 'authors': [x for x in (r['authors'] or '').split('; ') if x], 'venue': r['journal'],
             'year': r['year'], 'volume': r['volume'], 'issue': r['issue'], 'doi': r['doi'],
             **link, 'pages': [],
             'cites': clean_surface, 'cites_note': note,
-            'snippet': _cap_words(re.sub(r'\s+', ' ', r['sentence'] or '').strip(), include=clean_surface),
+            'snippet': snippet,
             'source': source})
         if r['page'] and r['page'] not in art['pages']:
             art['pages'].append(r['page'])
@@ -1219,11 +1240,13 @@ def _index_articles(path, source, a, lo, hi, book, deeper_last_level, whole_work
 def citation_index(a, limit=40):
     """Articles in the offline index that cite the passage, grouped by
     article with the pages and sentences, newest first. The EJC index and,
-    when TESSERAE_CITATIONS_EXTRA names a file, the Project MUSE index are
-    read separately and listed together."""
+    when TESSERAE_CITATIONS_EXTRA or TESSERAE_CITATIONS_JSTOR names a file,
+    the Project MUSE and JSTOR indexes are read separately and listed
+    together."""
     extra = _extra_index_path()
+    jstor = _jstor_index_path()
     have_ejc = os.path.exists(CITATION_INDEX)
-    if not a or not a.get('work') or not (have_ejc or extra):
+    if not a or not a.get('work') or not (have_ejc or extra or jstor):
         return {'available': False, 'results': [], 'reason': 'No offline citation index on this server yet.'}
     lo, hi = _coords(a['lo']), _coords(a['hi'])
     book = lo[0] if lo else None
@@ -1231,15 +1254,16 @@ def citation_index(a, limit=40):
     args = (a, lo, hi, book, deeper_last_level, whole_work)
     ejc_articles = _index_articles(CITATION_INDEX, 'citation_index', *args) if have_ejc else {}
     muse_articles = _index_articles(extra, 'muse', *args) if extra else {}
-    if ejc_articles is None and not muse_articles:
+    jstor_articles = _index_articles(jstor, 'jstor', *args) if jstor else {}
+    if ejc_articles is None and not muse_articles and not jstor_articles:
         return {'available': False, 'results': [], 'reason': 'The citation index could not be read.'}
-    if muse_articles is None:
-        muse_articles = {}
-    found = list((ejc_articles or {}).values()) + list(muse_articles.values())
+    found = list((ejc_articles or {}).values()) + list((muse_articles or {}).values()) + list((jstor_articles or {}).values())
     out = sorted(found, key=lambda x: (-(x['year'] or 0), x['title'] or ''))
     note = 'From the full text of journals before 1923 (JSTOR Early Journal Content, on the Internet Archive), indexed by passage with the citation extractor.'
     if extra:
         note += ' Project MUSE journals from 1996 on are read under the library\'s license; one sentence is shown per citation.'
+    if jstor:
+        note += ' JSTOR journals are read under JSTOR\'s text-analysis terms; each citing article is listed with a link and no excerpt.'
     return {'available': True, 'results': out[:limit], 'total': len(found), 'note': note}
 
 
@@ -1251,9 +1275,9 @@ def citing_articles(work, ranges, limit=40):
     page, merged by article. `ranges` is a list of (ref_start, ref_end); each
     result lists the ref_start of every range it cites (`cites`), and for an
     EJC article one sentence per cited range (`sentences`: {ref, text}).
-    Project MUSE sentences are licensed text and are never returned: a MUSE
-    article carries its title, journal, year and DOI link only. Newest first,
-    then by the number of passages cited."""
+    Project MUSE and JSTOR sentences are licensed text and are never
+    returned: such an article carries its title, journal, year and link only.
+    Newest first, then by the number of passages cited."""
     ranges = list(ranges or [])[:CITING_MAX_RANGES]
     merged = {}
     available = False
@@ -1265,17 +1289,17 @@ def citing_articles(work, ranges, limit=40):
         available = True
         note = res.get('note') or note
         for art in res.get('results') or []:
-            muse = art.get('source') == 'muse'
-            key = art.get('doi') or ('muse' if muse else 'ejc', art.get('title'))
+            source = art.get('source') if art.get('source') in ('muse', 'jstor') else 'ejc'
+            key = art.get('doi') or (source, art.get('title'))
             item = merged.get(key)
             if item is None:
                 item = merged[key] = {
                     'title': art.get('title'), 'authors': art.get('authors') or [], 'year': art.get('year'),
                     'journal': art.get('venue'), 'url': art.get('url') or art.get('url_jstor') or art.get('url_ia'),
-                    'source': 'muse' if muse else 'ejc', 'cites': [], 'sentences': []}
+                    'source': source, 'cites': [], 'sentences': []}
             if ref_start not in item['cites']:
                 item['cites'].append(ref_start)
-                if not muse and art.get('snippet'):
+                if source == 'ejc' and art.get('snippet'):
                     item['sentences'].append({'ref': ref_start, 'text': art['snippet']})
     if not available:
         return {'available': False, 'results': [], 'total': 0, 'note': ''}

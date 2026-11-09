@@ -144,3 +144,22 @@ describe('ScholarshipTab — Project MUSE rows', () => {
     expect(screen.queryByRole('link', { name: 'on JSTOR' })).toBeNull();
   });
 });
+
+describe('ScholarshipTab — JSTOR rows', () => {
+  it('tags a JSTOR row, links back to JSTOR and shows no sentence', async () => {
+    global.fetch = vi.fn(() => respond({
+      commentary: [], results: [], fulltext: { results: [] }, books: { results: [] },
+      index: { results: [{
+        title: 'The proem again', authors: ['D. Reader'], venue: 'Classical Philology', year: 1988, volume: '83',
+        pages: [3], cites: 'Aen. 1.1', cites_note: '', snippet: null,
+        doi: '10.2307/123456', url: 'https://www.jstor.org/stable/123456', url_jstor: 'https://www.jstor.org/stable/123456', url_ia: null, source: 'jstor',
+      }] },
+    }));
+    render(<ScholarshipTab work="vergil.aeneid" language="la" selection={SELECTION} units={UNITS} />);
+    expect(await screen.findByText('journal article, JSTOR')).toBeTruthy();
+    const link = screen.getByRole('link', { name: 'on JSTOR' });
+    expect(link.getAttribute('href')).toBe('https://www.jstor.org/stable/123456');
+    expect(screen.queryByRole('link', { name: 'DOI' })).toBeNull();
+    expect(screen.queryByText(/licensed sentence/)).toBeNull();
+  });
+});

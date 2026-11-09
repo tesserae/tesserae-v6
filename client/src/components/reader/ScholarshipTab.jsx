@@ -414,13 +414,17 @@ function MainPieceLI({ r, data, library, passage, fallbackWords }) {
   );
 }
 
-// An article from the offline citation index (full text of the pre-1923
-// journals, more as agreements come), with the pages that cite the passage
-// and the citing sentence.
+// An article from the offline citation indexes (the pre-1923 journals with
+// the citing sentence; Project MUSE with one sentence; the JSTOR journals as
+// citation and link only, with no sentence, at JSTOR's request), with the
+// pages that cite the passage.
 function IndexPieceLI({ r, passage, fallbackWords }) {
   const muse = r.source === 'muse';
+  const jstor = r.source === 'jstor';
   const pre1923 = !r.year || r.year < 1923;
-  const kind = muse ? 'journal article, Project MUSE' : (pre1923 ? 'journal article, before 1923, JSTOR' : 'journal article, JSTOR');
+  const kind = muse ? 'journal article, Project MUSE'
+    : jstor ? 'journal article, JSTOR'
+      : (pre1923 ? 'journal article, before 1923, JSTOR' : 'journal article, JSTOR');
   return (
     <li className="text-sm leading-snug">
       <KindTag>{kind}</KindTag>

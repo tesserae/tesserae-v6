@@ -3767,7 +3767,9 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 philology, archaeology and biblical journals from 1827 to 1922. The same journals supply the Scholarship
                 section on an inscription or papyrus page (956 citing sentences from 288 articles). Where the site has the
                 library&rsquo;s agreement, a second index reads the journals on Project MUSE from 1996 on under that license
-                and lists each article that cites the passage with one sentence and a DOI link. The RIS export goes to the clipboard, read by Zotero&rsquo;s File menu, Import from Clipboard,
+                and lists each article that cites the passage with one sentence and a DOI link. A third index reads the classics
+                journals on JSTOR under JSTOR&rsquo;s text-analysis terms and lists each citing article as a citation and a link
+                back to JSTOR, with no sentence shown, at JSTOR&rsquo;s request. The RIS export goes to the clipboard, read by Zotero&rsquo;s File menu, Import from Clipboard,
                 or as a file. A commentary note cites the edition the text comes from, with the passage it comments on. The
                 HathiTrust link runs the same search in that library&rsquo;s book scans and tells you which books and page
                 numbers mention the citation, without showing you the text itself.
