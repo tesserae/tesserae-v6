@@ -49,12 +49,16 @@ LANGUAGES = ('la', 'grc', 'en', 'cop', 'he', 'fa', 'ur', 'ar')
 # Which Logeion dictionary to read, in order of preference.
 LOGEION_DICTIONARIES = {
     'la': ('LewisShort',),
-    'grc': ('LSJ', 'Middle Liddell'),
+    # The two Homeric lexicons last: they hold the patronymics LSJ leaves out
+    # (Πηληϊάδης, Ἀτρεΐδης), both public domain (2026-11-08).
+    'grc': ('LSJ', 'Middle Liddell', 'Autenrieth Homer', 'Cunliffe Homer'),
 }
 LOGEION_DISPLAY = {
     'LewisShort': 'Lewis and Short',
     'LSJ': 'Liddell-Scott-Jones (LSJ)',
     'Middle Liddell': 'Middle Liddell',
+    'Autenrieth Homer': 'Autenrieth, Homeric Dictionary',
+    'Cunliffe Homer': 'Cunliffe, Lexicon of the Homeric Dialect',
 }
 
 # The external entry for a word, by language. Mirrors getDictionaryUrl in
@@ -332,15 +336,89 @@ def dictionary_lemma(word, language):
     return word.lower().strip(), None
 
 
+def logeion_parses(form):
+    """The lemmas Logeion's morphological parse gives for a form, in its order,
+    without the sense digits it appends (litus3), or []. Used when our own
+    tables do not know the form (ψυχὰς, πολύτροπον, Πηληϊάδεω in Homer's
+    first lines, 2026-11-08): the parse names the headword to ask for."""
+    try:
+        q = urllib.parse.urlencode({'w': form})
+        req = urllib.request.Request(
+            f'https://anastrophe.uchicago.edu/logeion-api/find?{q}',
+            headers={'User-Agent': 'Tesserae/6.0'})
+        with urllib.request.urlopen(req, timeout=4) as response:  # nosec B310
+            data = json.loads(response.read().decode('utf-8'))
+        out = []
+        for parse in data.get('parses') or []:
+            lemma = re.sub(r'\d+$', '', str(parse.get('lemma') or '').strip())
+            if lemma and lemma not in out:
+                out.append(lemma)
+        return out[:MAX_GREEK_HEADWORDS]
+    except Exception as e:
+        logger.debug(f"Logeion parse failed for {form}: {e}")
+        return []
+
+
+# A short entry that only points at another ("Trōĭa, ae, v. 1. Tros, A.";
+# "Διός [ῐ], gen. of Ζεύς.") is followed one step and the target's entry
+# shown after it (2026-11-08). Only entries this short are followed, so a full
+# article that mentions another word in passing is left alone.
+CROSS_REFERENCE_MAX = 200
+_CROSS_REFERENCE = (
+    re.compile(r'\bv\.\s+(?:\d\.\s+)?([^\s,;.()\[\]]+)'),
+    re.compile(r'\b(?:of|from|for)\s+([^\s,;.()\[\]]+)\.?\s*$'),
+    re.compile(r'=\s*([^\s,;.()\[\]]+)'),
+)
+
+
+def cross_reference(definition, spelling):
+    """The headword a short entry points at, or None."""
+    text = (definition or '').strip()
+    if not text or len(text) > CROSS_REFERENCE_MAX or '\n' in text:
+        return None
+    for pattern in _CROSS_REFERENCE:
+        m = pattern.search(text)
+        if m:
+            target = m.group(1).strip('.')
+            if target and target.lower() != spelling.lower() and re.search(r'[^\W\d_]', target):
+                return target
+    return None
+
+
 def look_up(lemma, language):
     """(definition, dictionary, spelling) for a lemma, or (None, None, lemma).
     Fetches upstream. The spellings in dictionary_spellings are tried in turn,
-    and the one the dictionary answered to is returned."""
+    then the headwords Logeion's parse gives for them, and the one the
+    dictionary answered to is returned. A short cross-reference entry carries
+    the entry it points at after it."""
     spellings = dictionary_spellings(lemma, language)
+    tried = []
+    found = None
     for spelling in spellings:
-        found = fetch_logeion_definition(spelling, language)
-        if found:
-            return found[0], found[1], spelling
+        tried.append(spelling)
+        hit = fetch_logeion_definition(spelling, language)
+        if hit:
+            found = (hit[0], hit[1], spelling)
+            break
+    if not found and language in LOGEION_DICTIONARIES:
+        for spelling in spellings:
+            parsed = [x for x in logeion_parses(spelling) if x not in tried]
+            for headword in parsed:
+                tried.append(headword)
+                hit = fetch_logeion_definition(headword, language)
+                if hit:
+                    found = (hit[0], hit[1], headword)
+                    break
+            if found or parsed:
+                break
+    if found:
+        definition, dictionary, spelling = found
+        target = cross_reference(definition, spelling)
+        if target and target not in tried:
+            more = fetch_logeion_definition(target, language)
+            if more and more[1] == dictionary:
+                definition = f'{definition}\n\n{more[0]}'
+        return definition, dictionary, spelling
     _throttle()
     for spelling in spellings:
         definition = hapax.get_definition(spelling, language)

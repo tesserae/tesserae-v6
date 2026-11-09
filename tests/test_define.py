@@ -19,6 +19,7 @@ def client(tmp_path, monkeypatch):
     D._memory.clear()
     monkeypatch.setattr(D.hapax, 'get_dictionary_lemma', lambda w, lang: {'arma': 'arma', 'armis': 'arma'}.get(w, w))
     monkeypatch.setattr(D, '_known_latin_form', lambda f: f in ('arma', 'armis'))
+    monkeypatch.setattr(D, 'logeion_parses', lambda form: [])
     app = Flask(__name__)
     app.register_blueprint(D.define_bp, url_prefix='/api')
     return app.test_client()
@@ -200,6 +201,70 @@ def test_greek_word_answers_with_the_headword_entry(client, greek, monkeypatch):
     assert d['lemma'] == 'μῆνις'
     assert d['definition'].startswith('μῆνις')
     assert d['url'] == 'https://logeion.uchicago.edu/' + urllib.parse.quote('μῆνις', safe='')
+
+
+def test_unknown_form_is_parsed_and_its_headword_looked_up(client, greek, monkeypatch):
+    """ψυχὰς is in no table of ours; Logeion's parse names ψυχή."""
+    monkeypatch.setattr(D, 'logeion_parses', lambda form: ['ψυχή'] if form == 'ψυχάς' else [])
+    asked = []
+    def fake(lemma, language):
+        asked.append(lemma)
+        return ('ψυχή, ἡ, life, soul', 'Liddell-Scott-Jones (LSJ)') if lemma == 'ψυχή' else None
+    monkeypatch.setattr(D, 'fetch_logeion_definition', fake)
+    d = client.get('/api/define?word=ψυχὰς&language=grc').get_json()
+    assert asked == ['ψυχάς', 'ψυχή']
+    assert d['lemma'] == 'ψυχή'
+    assert d['definition'].startswith('ψυχή')
+
+
+def test_unknown_latin_form_is_parsed_too(client, monkeypatch):
+    monkeypatch.setattr(D, 'logeion_parses', lambda form: ['amo'] if form == 'amavisset' else [])
+    asked = []
+    def fake(lemma, language):
+        asked.append(lemma)
+        return ('ămo, āvi, ātum, to love', 'Lewis and Short') if lemma == 'amo' else None
+    monkeypatch.setattr(D, 'fetch_logeion_definition', fake)
+    d = client.get('/api/define?word=amavisset&language=la').get_json()
+    assert 'amo' in asked and d['lemma'] == 'amo'
+    assert d['definition'].startswith('ămo')
+
+
+def test_parse_lemmas_drop_sense_digits_and_repeats(monkeypatch):
+    class R:
+        def __init__(self, body): self.body = body
+        def read(self): return self.body
+        def __enter__(self): return self
+        def __exit__(self, *a): return False
+    body = json.dumps({'parses': [{'lemma': 'litus3'}, {'lemma': 'litus3'}, {'lemma': 'lino'}]}).encode()
+    monkeypatch.setattr(D.urllib.request, 'urlopen', lambda req, timeout=0: R(body))
+    assert D.logeion_parses('litora') == ['litus', 'lino']
+
+
+def test_homeric_lexicons_answer_when_lsj_has_nothing():
+    data = {'detail': {'dicos': [{'dname': 'Bailly 2024', 'es': ['<b>x</b>']},
+                                 {'dname': 'Cunliffe Homer', 'es': ['Πηληϊάδης = next. Of Achilles Il. 1.146']}]}}
+    assert D.logeion_entries(data, 'grc') == ('Πηληϊάδης = next. Of Achilles Il. 1.146', 'Cunliffe, Lexicon of the Homeric Dialect')
+
+
+def test_cross_reference_targets():
+    assert D.cross_reference('Trōĭa, ae, v. 1. Tros, A.', 'Troia') == 'Tros'
+    assert D.cross_reference('Διός [ῐ], gen. of Ζεύς.', 'Διός') == 'Ζεύς'
+    assert D.cross_reference('sŭpĕri, ōrum, v. superus.', 'superi') == 'superus'
+    assert D.cross_reference('multum, adv., v. multus fin.', 'multum') == 'multus'
+    assert D.cross_reference('x' * 300 + ' v. alius', 'y') is None          # a full article
+    assert D.cross_reference('ămo, āvi, ātum, to love\n\nămo 2', 'amo') is None  # several entries
+    assert D.cross_reference('Tros, v. Tros', 'Tros') is None               # points at itself
+
+
+def test_short_cross_reference_entry_carries_its_target(client, monkeypatch):
+    entries = {'Troia': 'Trōĭa, ae, v. 1. Tros, A.', 'Tros': 'Trōs, Trōis, m., a king of Phrygia'}
+    monkeypatch.setattr(D, '_known_latin_form', lambda f: f == 'troiae')
+    monkeypatch.setattr(D.hapax, 'get_dictionary_lemma', lambda w, lang: 'troia')
+    monkeypatch.setattr(D, 'fetch_logeion_definition',
+                        lambda lemma, language: (entries[lemma], 'Lewis and Short') if lemma in entries else None)
+    d = client.get('/api/define?word=Troiae&language=la').get_json()
+    assert d['lemma'] == 'Troia'
+    assert d['definition'] == 'Trōĭa, ae, v. 1. Tros, A.\n\nTrōs, Trōis, m., a king of Phrygia'
 
 
 def test_enclitic_word_answers_with_the_base_lemma_in_dictionary_spelling(client, monkeypatch):
